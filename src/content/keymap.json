@@ -1,0 +1,297 @@
+[
+  {
+    "context": "global",
+    "key": "Esc",
+    "action": "cancel tool → close panel → game menu"
+  },
+  {
+    "context": "global",
+    "key": "Space",
+    "action": "pause / resume"
+  },
+  {
+    "context": "global",
+    "key": "+",
+    "action": "speed up (1× → 2× → 4×)"
+  },
+  {
+    "context": "global",
+    "key": "=",
+    "action": "speed up (1× → 2× → 4×)"
+  },
+  {
+    "context": "global",
+    "key": "-",
+    "action": "speed down"
+  },
+  {
+    "context": "global",
+    "key": "F5",
+    "action": "quick save"
+  },
+  {
+    "context": "global",
+    "key": "F9",
+    "action": "quick load (confirm)"
+  },
+  {
+    "context": "global",
+    "key": "Ctrl+S",
+    "action": "save menu"
+  },
+  {
+    "context": "global",
+    "key": "F12",
+    "action": "debug panel"
+  },
+  {
+    "context": "global",
+    "key": "?",
+    "action": "help"
+  },
+  {
+    "context": "global",
+    "key": "Tab",
+    "action": "toggle sidebar"
+  },
+  {
+    "context": "global",
+    "key": "Ctrl+Z",
+    "action": "undo last designation batch"
+  },
+  {
+    "context": "map",
+    "key": "←",
+    "action": "pan by 1 cell (Shift: 10)"
+  },
+  {
+    "context": "map",
+    "key": "→",
+    "action": "pan by 1 cell (Shift: 10)"
+  },
+  {
+    "context": "map",
+    "key": "↑",
+    "action": "pan by 1 cell (Shift: 10)"
+  },
+  {
+    "context": "map",
+    "key": "↓",
+    "action": "pan by 1 cell (Shift: 10)"
+  },
+  {
+    "context": "map",
+    "key": "<",
+    "action": "z-level down"
+  },
+  {
+    "context": "map",
+    "key": ",",
+    "action": "z-level down"
+  },
+  {
+    "context": "map",
+    "key": ">",
+    "action": "z-level up"
+  },
+  {
+    "context": "map",
+    "key": ".",
+    "action": "z-level up"
+  },
+  {
+    "context": "map",
+    "key": "Home",
+    "action": "center on the hearth (or wagon)"
+  },
+  {
+    "context": "map",
+    "key": "Ctrl+↑",
+    "action": "zoom in / out"
+  },
+  {
+    "context": "map",
+    "key": "Ctrl+↓",
+    "action": "zoom in / out"
+  },
+  {
+    "context": "map",
+    "key": "k",
+    "action": "look cursor at the mouse (or map center)"
+  },
+  {
+    "context": "map",
+    "key": "Enter",
+    "action": "with a tool: start/end rectangle at the cursor"
+  },
+  {
+    "context": "map",
+    "key": "1",
+    "action": "with a designation or zone tool: set priority"
+  },
+  {
+    "context": "map",
+    "key": "9",
+    "action": "with a designation or zone tool: set priority"
+  },
+  {
+    "context": "map",
+    "key": "r",
+    "action": "with a building tool: rotate"
+  },
+  {
+    "context": "map",
+    "key": "x",
+    "action": "with a building tool: cycle material"
+  },
+  {
+    "context": "map",
+    "key": "Delete",
+    "action": "with a selection: cancel designations / remove zone / cancel building"
+  },
+  {
+    "context": "panel",
+    "key": "↑",
+    "action": "move selection"
+  },
+  {
+    "context": "panel",
+    "key": "↓",
+    "action": "move selection"
+  },
+  {
+    "context": "panel",
+    "key": "PageUp",
+    "action": "scroll"
+  },
+  {
+    "context": "panel",
+    "key": "PageDown",
+    "action": "scroll"
+  },
+  {
+    "context": "panel",
+    "key": "Enter",
+    "action": "activate"
+  },
+  {
+    "context": "panel",
+    "key": "Tab",
+    "action": "next / previous field"
+  },
+  {
+    "context": "panel",
+    "key": "Shift+Tab",
+    "action": "next / previous field"
+  },
+  {
+    "context": "panel",
+    "key": "[letter]",
+    "action": "accelerator shown in brackets"
+  },
+  {
+    "context": "panel",
+    "key": "/",
+    "action": "focus the filter field"
+  },
+  {
+    "context": "panel",
+    "key": "Backspace",
+    "action": "back within nested menus"
+  },
+  {
+    "context": "world_map",
+    "key": "arrows",
+    "action": "move the cursor (Shift: 8)"
+  },
+  {
+    "context": "world_map",
+    "key": "f",
+    "action": "filter panel"
+  },
+  {
+    "context": "world_map",
+    "key": "Enter",
+    "action": "embark on the region"
+  },
+  {
+    "context": "world_map",
+    "key": "?",
+    "action": "biome legend"
+  },
+  {
+    "context": "embark",
+    "key": "1",
+    "action": "Dwarves / Supplies / Animals tabs"
+  },
+  {
+    "context": "embark",
+    "key": "2",
+    "action": "Dwarves / Supplies / Animals tabs"
+  },
+  {
+    "context": "embark",
+    "key": "3",
+    "action": "Dwarves / Supplies / Animals tabs"
+  },
+  {
+    "context": "embark",
+    "key": "+",
+    "action": "adjust the selected skill or quantity"
+  },
+  {
+    "context": "embark",
+    "key": "-",
+    "action": "adjust the selected skill or quantity"
+  },
+  {
+    "context": "embark",
+    "key": "r",
+    "action": "reroll the selected dwarf"
+  },
+  {
+    "context": "embark",
+    "key": "n",
+    "action": "rename"
+  },
+  {
+    "context": "embark",
+    "key": "p",
+    "action": "presets menu"
+  },
+  {
+    "context": "embark",
+    "key": "Enter",
+    "action": "Embark"
+  },
+  {
+    "context": "trade_session",
+    "key": "Tab",
+    "action": "switch column"
+  },
+  {
+    "context": "trade_session",
+    "key": "+",
+    "action": "quantity"
+  },
+  {
+    "context": "trade_session",
+    "key": "-",
+    "action": "quantity"
+  },
+  {
+    "context": "trade_session",
+    "key": "Enter",
+    "action": "offer"
+  },
+  {
+    "context": "trade_session",
+    "key": "g",
+    "action": "gift (offer with nothing taken)"
+  },
+  {
+    "context": "trade_session",
+    "key": "Esc",
+    "action": "close"
+  }
+]

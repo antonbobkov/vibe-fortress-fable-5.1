@@ -1,0 +1,425 @@
+[
+  {
+    "id": "balanced",
+    "name": "Balanced",
+    "skills": [
+      {
+        "dwarf": 0,
+        "skill": "mining",
+        "level": 5
+      },
+      {
+        "dwarf": 0,
+        "skill": "building",
+        "level": 3
+      },
+      {
+        "dwarf": 0,
+        "skill": "axe",
+        "level": 2
+      },
+      {
+        "dwarf": 1,
+        "skill": "mining",
+        "level": 5
+      },
+      {
+        "dwarf": 1,
+        "skill": "building",
+        "level": 3
+      },
+      {
+        "dwarf": 1,
+        "skill": "axe",
+        "level": 2
+      },
+      {
+        "dwarf": 2,
+        "skill": "woodcutting",
+        "level": 5
+      },
+      {
+        "dwarf": 2,
+        "skill": "carpentry",
+        "level": 5
+      },
+      {
+        "dwarf": 3,
+        "skill": "masonry",
+        "level": 5
+      },
+      {
+        "dwarf": 3,
+        "skill": "mechanics",
+        "level": 3
+      },
+      {
+        "dwarf": 3,
+        "skill": "building",
+        "level": 2
+      },
+      {
+        "dwarf": 4,
+        "skill": "farming",
+        "level": 5
+      },
+      {
+        "dwarf": 4,
+        "skill": "brewing",
+        "level": 5
+      },
+      {
+        "dwarf": 5,
+        "skill": "cooking",
+        "level": 5
+      },
+      {
+        "dwarf": 5,
+        "skill": "herbalism",
+        "level": 3
+      },
+      {
+        "dwarf": 5,
+        "skill": "fishing",
+        "level": 2
+      },
+      {
+        "dwarf": 6,
+        "skill": "medicine",
+        "level": 4
+      },
+      {
+        "dwarf": 6,
+        "skill": "crossbow",
+        "level": 3
+      },
+      {
+        "dwarf": 6,
+        "skill": "hunting",
+        "level": 3
+      }
+    ],
+    "supplies": []
+  },
+  {
+    "id": "farmstead",
+    "name": "Farmstead",
+    "skills": [
+      {
+        "dwarf": 0,
+        "skill": "farming",
+        "level": 5
+      },
+      {
+        "dwarf": 0,
+        "skill": "animal_care",
+        "level": 3
+      },
+      {
+        "dwarf": 0,
+        "skill": "herbalism",
+        "level": 2
+      },
+      {
+        "dwarf": 1,
+        "skill": "farming",
+        "level": 5
+      },
+      {
+        "dwarf": 1,
+        "skill": "animal_care",
+        "level": 3
+      },
+      {
+        "dwarf": 1,
+        "skill": "herbalism",
+        "level": 2
+      },
+      {
+        "dwarf": 2,
+        "skill": "herbalism",
+        "level": 5
+      },
+      {
+        "dwarf": 2,
+        "skill": "fishing",
+        "level": 3
+      },
+      {
+        "dwarf": 2,
+        "skill": "hunting",
+        "level": 2
+      },
+      {
+        "dwarf": 3,
+        "skill": "cooking",
+        "level": 5
+      },
+      {
+        "dwarf": 3,
+        "skill": "brewing",
+        "level": 5
+      },
+      {
+        "dwarf": 4,
+        "skill": "brewing",
+        "level": 5
+      },
+      {
+        "dwarf": 4,
+        "skill": "carpentry",
+        "level": 3
+      },
+      {
+        "dwarf": 4,
+        "skill": "farming",
+        "level": 2
+      },
+      {
+        "dwarf": 5,
+        "skill": "carpentry",
+        "level": 5
+      },
+      {
+        "dwarf": 5,
+        "skill": "woodcutting",
+        "level": 5
+      },
+      {
+        "dwarf": 6,
+        "skill": "mining",
+        "level": 5
+      },
+      {
+        "dwarf": 6,
+        "skill": "building",
+        "level": 3
+      },
+      {
+        "dwarf": 6,
+        "skill": "masonry",
+        "level": 2
+      }
+    ],
+    "supplies": []
+  },
+  {
+    "id": "miner_s_guild",
+    "name": "Miner's Guild",
+    "skills": [
+      {
+        "dwarf": 0,
+        "skill": "mining",
+        "level": 5
+      },
+      {
+        "dwarf": 0,
+        "skill": "pick",
+        "level": 3
+      },
+      {
+        "dwarf": 0,
+        "skill": "building",
+        "level": 2
+      },
+      {
+        "dwarf": 1,
+        "skill": "mining",
+        "level": 5
+      },
+      {
+        "dwarf": 1,
+        "skill": "pick",
+        "level": 3
+      },
+      {
+        "dwarf": 1,
+        "skill": "building",
+        "level": 2
+      },
+      {
+        "dwarf": 2,
+        "skill": "mining",
+        "level": 5
+      },
+      {
+        "dwarf": 2,
+        "skill": "pick",
+        "level": 3
+      },
+      {
+        "dwarf": 2,
+        "skill": "building",
+        "level": 2
+      },
+      {
+        "dwarf": 3,
+        "skill": "smelting",
+        "level": 5
+      },
+      {
+        "dwarf": 3,
+        "skill": "weaponsmithing",
+        "level": 3
+      },
+      {
+        "dwarf": 3,
+        "skill": "armorsmithing",
+        "level": 2
+      },
+      {
+        "dwarf": 4,
+        "skill": "masonry",
+        "level": 5
+      },
+      {
+        "dwarf": 4,
+        "skill": "mechanics",
+        "level": 5
+      },
+      {
+        "dwarf": 5,
+        "skill": "brewing",
+        "level": 5
+      },
+      {
+        "dwarf": 5,
+        "skill": "cooking",
+        "level": 3
+      },
+      {
+        "dwarf": 5,
+        "skill": "farming",
+        "level": 2
+      },
+      {
+        "dwarf": 6,
+        "skill": "farming",
+        "level": 5
+      },
+      {
+        "dwarf": 6,
+        "skill": "herbalism",
+        "level": 3
+      },
+      {
+        "dwarf": 6,
+        "skill": "medicine",
+        "level": 2
+      }
+    ],
+    "supplies": []
+  },
+  {
+    "id": "warband",
+    "name": "Warband",
+    "skills": [
+      {
+        "dwarf": 0,
+        "skill": "axe",
+        "level": 5
+      },
+      {
+        "dwarf": 0,
+        "skill": "shield",
+        "level": 3
+      },
+      {
+        "dwarf": 0,
+        "skill": "dodge",
+        "level": 2
+      },
+      {
+        "dwarf": 1,
+        "skill": "axe",
+        "level": 5
+      },
+      {
+        "dwarf": 1,
+        "skill": "shield",
+        "level": 3
+      },
+      {
+        "dwarf": 1,
+        "skill": "dodge",
+        "level": 2
+      },
+      {
+        "dwarf": 2,
+        "skill": "crossbow",
+        "level": 5
+      },
+      {
+        "dwarf": 2,
+        "skill": "hunting",
+        "level": 3
+      },
+      {
+        "dwarf": 2,
+        "skill": "dodge",
+        "level": 2
+      },
+      {
+        "dwarf": 3,
+        "skill": "armorsmithing",
+        "level": 5
+      },
+      {
+        "dwarf": 3,
+        "skill": "smelting",
+        "level": 3
+      },
+      {
+        "dwarf": 3,
+        "skill": "weaponsmithing",
+        "level": 2
+      },
+      {
+        "dwarf": 4,
+        "skill": "mining",
+        "level": 5
+      },
+      {
+        "dwarf": 4,
+        "skill": "building",
+        "level": 3
+      },
+      {
+        "dwarf": 4,
+        "skill": "mechanics",
+        "level": 2
+      },
+      {
+        "dwarf": 5,
+        "skill": "farming",
+        "level": 5
+      },
+      {
+        "dwarf": 5,
+        "skill": "brewing",
+        "level": 3
+      },
+      {
+        "dwarf": 5,
+        "skill": "cooking",
+        "level": 2
+      },
+      {
+        "dwarf": 6,
+        "skill": "medicine",
+        "level": 5
+      },
+      {
+        "dwarf": 6,
+        "skill": "herbalism",
+        "level": 3
+      },
+      {
+        "dwarf": 6,
+        "skill": "animal_care",
+        "level": 2
+      }
+    ],
+    "supplies": []
+  }
+]

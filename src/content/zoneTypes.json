@@ -1,0 +1,185 @@
+[
+  {
+    "id": "archery_range",
+    "name": "archery range",
+    "room": false,
+    "requirements": [
+      "an archery target inside"
+    ],
+    "settings": [
+      "squad"
+    ],
+    "consumers": [
+      "16"
+    ]
+  },
+  {
+    "id": "barracks",
+    "name": "barracks",
+    "room": true,
+    "requirements": [],
+    "settings": [
+      "squad"
+    ],
+    "consumers": [
+      "16"
+    ]
+  },
+  {
+    "id": "bedroom",
+    "name": "bedroom",
+    "room": true,
+    "requirements": [
+      "a bed"
+    ],
+    "settings": [
+      "owner"
+    ],
+    "consumers": [
+      "14",
+      "10",
+      "15"
+    ]
+  },
+  {
+    "id": "dining_hall",
+    "name": "dining hall",
+    "room": true,
+    "requirements": [
+      "a table with an adjacent chair"
+    ],
+    "settings": [],
+    "consumers": [
+      "10",
+      "15"
+    ]
+  },
+  {
+    "id": "dump",
+    "name": "dump",
+    "room": false,
+    "requirements": [],
+    "settings": [],
+    "consumers": [
+      "13"
+    ]
+  },
+  {
+    "id": "farm_plot",
+    "name": "farm plot",
+    "room": false,
+    "requirements": [
+      "soil",
+      "mud or cave loam tiles"
+    ],
+    "settings": [
+      "crop per season"
+    ],
+    "consumers": [
+      "07"
+    ]
+  },
+  {
+    "id": "fishing",
+    "name": "fishing",
+    "room": false,
+    "requirements": [
+      "tiles adjacent to deep water"
+    ],
+    "settings": [],
+    "consumers": [
+      "09"
+    ]
+  },
+  {
+    "id": "gather",
+    "name": "gather zone",
+    "room": false,
+    "requirements": [],
+    "settings": [
+      "priority"
+    ],
+    "consumers": [
+      "09"
+    ]
+  },
+  {
+    "id": "hearth_hall",
+    "name": "hearth hall",
+    "room": true,
+    "requirements": [
+      "contains the hearth"
+    ],
+    "settings": [],
+    "consumers": [
+      "10",
+      "15",
+      "19"
+    ]
+  },
+  {
+    "id": "hospital",
+    "name": "hospital",
+    "room": true,
+    "requirements": [
+      "a bed and a chest"
+    ],
+    "settings": [
+      "desired supplies"
+    ],
+    "consumers": [
+      "17",
+      "13"
+    ]
+  },
+  {
+    "id": "meeting_area",
+    "name": "meeting area",
+    "room": false,
+    "requirements": [],
+    "settings": [],
+    "consumers": [
+      "10"
+    ]
+  },
+  {
+    "id": "pasture",
+    "name": "pasture",
+    "room": false,
+    "requirements": [
+      "walkable"
+    ],
+    "settings": [],
+    "consumers": [
+      "08"
+    ]
+  },
+  {
+    "id": "stockpile",
+    "name": "stockpile",
+    "room": false,
+    "requirements": [],
+    "settings": [
+      "filter",
+      "containers",
+      "priority",
+      "links"
+    ],
+    "consumers": [
+      "13"
+    ]
+  },
+  {
+    "id": "tomb",
+    "name": "tomb",
+    "room": true,
+    "requirements": [
+      "a coffin"
+    ],
+    "settings": [],
+    "consumers": [
+      "14",
+      "15"
+    ]
+  }
+]

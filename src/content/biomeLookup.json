@@ -1,0 +1,102 @@
+[
+  {
+    "temp": "frozen",
+    "rain": "arid",
+    "biome": "glacier"
+  },
+  {
+    "temp": "frozen",
+    "rain": "dry",
+    "biome": "tundra"
+  },
+  {
+    "temp": "frozen",
+    "rain": "moderate",
+    "biome": "tundra"
+  },
+  {
+    "temp": "frozen",
+    "rain": "wet",
+    "biome": "tundra"
+  },
+  {
+    "temp": "cold",
+    "rain": "arid",
+    "biome": "cold_steppe"
+  },
+  {
+    "temp": "cold",
+    "rain": "dry",
+    "biome": "cold_steppe"
+  },
+  {
+    "temp": "cold",
+    "rain": "moderate",
+    "biome": "taiga"
+  },
+  {
+    "temp": "cold",
+    "rain": "wet",
+    "biome": "taiga"
+  },
+  {
+    "temp": "temperate",
+    "rain": "arid",
+    "biome": "cold_steppe"
+  },
+  {
+    "temp": "temperate",
+    "rain": "dry",
+    "biome": "temperate_grassland"
+  },
+  {
+    "temp": "temperate",
+    "rain": "moderate",
+    "biome": "temperate_forest"
+  },
+  {
+    "temp": "temperate",
+    "rain": "wet",
+    "biome": "wetland"
+  },
+  {
+    "temp": "warm",
+    "rain": "arid",
+    "biome": "desert"
+  },
+  {
+    "temp": "warm",
+    "rain": "dry",
+    "biome": "savanna"
+  },
+  {
+    "temp": "warm",
+    "rain": "moderate",
+    "biome": "temperate_forest"
+  },
+  {
+    "temp": "warm",
+    "rain": "wet",
+    "biome": "wetland"
+  },
+  {
+    "temp": "hot",
+    "rain": "arid",
+    "biome": "desert"
+  },
+  {
+    "temp": "hot",
+    "rain": "dry",
+    "biome": "badlands"
+  },
+  {
+    "temp": "hot",
+    "rain": "moderate",
+    "biome": "savanna"
+  },
+  {
+    "temp": "hot",
+    "rain": "wet",
+    "biome": "tropical_forest"
+  }
+]

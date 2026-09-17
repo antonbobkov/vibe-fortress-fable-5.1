@@ -1,0 +1,1356 @@
+[
+  {
+    "id": "admired_statue",
+    "name": "admired statue",
+    "text": "Admired a fine statue.",
+    "value": 3,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 2,
+    "group": "comfort",
+    "trigger": {
+      "condition": "passing a statue of fine quality or better, once per statue per season"
+    },
+    "announce": false
+  },
+  {
+    "id": "argued",
+    "name": "argued",
+    "text": "Had an argument.",
+    "value": {
+      "formula": "−5"
+    },
+    "hours": 48,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "social",
+    "trigger": {
+      "condition": "sulk argument, both"
+    },
+    "announce": true
+  },
+  {
+    "id": "ate_easy_meal",
+    "name": "ate easy meal",
+    "text": "Had a decent meal.",
+    "value": 2,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "MealEaten",
+      "target": "easy"
+    },
+    "announce": false
+  },
+  {
+    "id": "ate_fine_meal",
+    "name": "ate fine meal",
+    "text": "Had a fine meal.",
+    "value": 5,
+    "hours": 36,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "MealEaten",
+      "target": "fine"
+    },
+    "announce": false
+  },
+  {
+    "id": "ate_in_bare_hall",
+    "name": "ate in bare hall",
+    "text": "Ate in a bare hall.",
+    "value": 0,
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "condition": "(no thought)"
+    },
+    "announce": false
+  },
+  {
+    "id": "ate_in_decent_hall",
+    "name": "ate in decent hall",
+    "text": "Ate in a decent hall.",
+    "value": 2,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "event": "MealEaten",
+      "target": "at table, tier decent"
+    },
+    "announce": false
+  },
+  {
+    "id": "ate_in_fine_hall",
+    "name": "ate in fine hall",
+    "text": "Ate in a fine hall.",
+    "value": 4,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "condition": "tier fine"
+    },
+    "announce": false
+  },
+  {
+    "id": "ate_in_grand_hall",
+    "name": "ate in grand hall",
+    "text": "Ate in a grand hall.",
+    "value": 7,
+    "hours": 36,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "condition": "tier grand"
+    },
+    "announce": false
+  },
+  {
+    "id": "ate_in_royal_hall",
+    "name": "ate in royal hall",
+    "text": "Ate in a royal hall.",
+    "value": 10,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "condition": "tier royal"
+    },
+    "announce": false
+  },
+  {
+    "id": "ate_lavish_meal",
+    "name": "ate lavish meal",
+    "text": "Had a lavish meal.",
+    "value": 10,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "MealEaten",
+      "target": "lavish"
+    },
+    "announce": false
+  },
+  {
+    "id": "ate_raw_food",
+    "name": "ate raw food",
+    "text": "Ate something raw.",
+    "value": {
+      "formula": "−1"
+    },
+    "hours": 12,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "MealEaten",
+      "target": "raw"
+    },
+    "announce": false
+  },
+  {
+    "id": "ate_stale_food",
+    "name": "ate stale food",
+    "text": "The food was stale.",
+    "value": {
+      "formula": "−2"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "MealEaten",
+      "target": "stale stage"
+    },
+    "announce": false
+  },
+  {
+    "id": "bedridden",
+    "name": "bedridden",
+    "text": "I cannot leave my bed.",
+    "value": {
+      "formula": "−6"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "condition": "bedridden"
+    },
+    "announce": false
+  },
+  {
+    "id": "bitter_cold",
+    "name": "bitter cold",
+    "text": "It is bitterly cold.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "weather",
+    "trigger": {
+      "condition": "cold_snap"
+    },
+    "announce": false
+  },
+  {
+    "id": "bored",
+    "name": "bored",
+    "text": "Nothing lifts my spirits.",
+    "value": {
+      "formula": "−(joy − 60) / 10, min −4"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "need",
+    "trigger": {
+      "condition": "joy ≥ 60"
+    },
+    "announce": false
+  },
+  {
+    "id": "buried_friend",
+    "name": "buried friend",
+    "text": "Laid a friend to rest.",
+    "value": 8,
+    "hours": 96,
+    "decay": "linear",
+    "cap": 1,
+    "group": "loss",
+    "trigger": {
+      "event": "Buried",
+      "target": "friend of the dead"
+    },
+    "announce": false
+  },
+  {
+    "id": "came_of_age",
+    "name": "came of age",
+    "text": "The child has grown.",
+    "value": 3,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "social",
+    "trigger": {
+      "event": "DwarfBecameAdult",
+      "target": "family"
+    },
+    "announce": false
+  },
+  {
+    "id": "caravan_arrived",
+    "name": "caravan arrived",
+    "text": "Traders have come.",
+    "value": 2,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "CaravanArrived",
+      "target": "(everyone)"
+    },
+    "announce": false
+  },
+  {
+    "id": "caught_in_rain",
+    "name": "caught in rain",
+    "text": "Got soaked.",
+    "value": {
+      "formula": "−2"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "weather",
+    "trigger": {
+      "event": "DwarfOutdoorsIn",
+      "target": "rain"
+    },
+    "announce": false
+  },
+  {
+    "id": "caught_in_storm",
+    "name": "caught in storm",
+    "text": "Caught in a storm.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "weather",
+    "trigger": {
+      "condition": "storm"
+    },
+    "announce": false
+  },
+  {
+    "id": "child_died",
+    "name": "child died",
+    "text": "A child died.",
+    "value": {
+      "formula": "−10"
+    },
+    "hours": 336,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "loss",
+    "trigger": {
+      "event": "DwarfDied",
+      "target": "child (everyone)"
+    },
+    "announce": false
+  },
+  {
+    "id": "deep_stirred_dread",
+    "name": "deep stirred dread",
+    "text": "Something below has noticed us.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 48,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "fear",
+    "trigger": {
+      "event": "DeepStirred",
+      "target": "(everyone)"
+    },
+    "announce": false
+  },
+  {
+    "id": "drank_ale",
+    "name": "drank ale",
+    "text": "Had a drink.",
+    "value": 3,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "DrankAlcohol",
+      "target": "ale, beer"
+    },
+    "announce": false
+  },
+  {
+    "id": "drank_fine_drink",
+    "name": "drank fine drink",
+    "text": "Had a fine drink.",
+    "value": 5,
+    "hours": 36,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "DrankAlcohol",
+      "target": "wine, bellwine"
+    },
+    "announce": false
+  },
+  {
+    "id": "drank_from_puddle",
+    "name": "drank from puddle",
+    "text": "Drank from a puddle.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "DrankWater",
+      "target": "outdoors"
+    },
+    "announce": false
+  },
+  {
+    "id": "drank_water",
+    "name": "drank water",
+    "text": "Drank water. Water.",
+    "value": {
+      "formula": "−2"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "DrankWater",
+      "target": "from a well or indoor source"
+    },
+    "announce": false
+  },
+  {
+    "id": "dwarf_died",
+    "name": "dwarf died",
+    "text": "One of us died.",
+    "value": {
+      "formula": "−5"
+    },
+    "hours": 168,
+    "decay": "halflife",
+    "cap": 3,
+    "group": "loss",
+    "trigger": {
+      "event": "DwarfDied",
+      "target": "(everyone)"
+    },
+    "announce": false
+  },
+  {
+    "id": "felt_mist",
+    "name": "felt mist",
+    "text": "Felt the mist of a waterfall.",
+    "value": 5,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "DwarfFeltMist",
+      "target": "self"
+    },
+    "announce": false
+  },
+  {
+    "id": "finished_big_job",
+    "name": "finished big job",
+    "text": "We finished a great digging.",
+    "value": 3,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "pride",
+    "trigger": {
+      "condition": "a dig designation batch of 50+ tiles completes (all miners)"
+    },
+    "announce": false
+  },
+  {
+    "id": "first_vein",
+    "name": "first vein",
+    "text": "I struck ore.",
+    "value": 5,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "pride",
+    "trigger": {
+      "event": "VeinFound",
+      "target": "finder"
+    },
+    "announce": false
+  },
+  {
+    "id": "friend_died",
+    "name": "friend died",
+    "text": "My friend is dead.",
+    "value": {
+      "formula": "−15"
+    },
+    "hours": 336,
+    "decay": "halflife",
+    "cap": 2,
+    "group": "loss",
+    "trigger": {
+      "event": "DwarfDied",
+      "target": "friend (10 source)"
+    },
+    "announce": false
+  },
+  {
+    "id": "got_it_out",
+    "name": "got it out",
+    "text": "Feel better after that.",
+    "value": 10,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "SulkHappened",
+      "target": "the dwarf"
+    },
+    "announce": false
+  },
+  {
+    "id": "harvest_in",
+    "name": "harvest in",
+    "text": "The harvest is in.",
+    "value": 3,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "pride",
+    "trigger": {
+      "event": "CropHarvested",
+      "target": "(the farmer, once per day)"
+    },
+    "announce": false
+  },
+  {
+    "id": "healed",
+    "name": "healed",
+    "text": "Back on my feet.",
+    "value": {
+      "formula": "+5 (+2 per hospital tier above bare)"
+    },
+    "hours": 96,
+    "decay": "linear",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "PatientHealed",
+      "target": "self"
+    },
+    "announce": false
+  },
+  {
+    "id": "hearth_lit",
+    "name": "hearth lit",
+    "text": "The hearth is lit. This is home now.",
+    "value": 12,
+    "hours": 168,
+    "decay": "linear",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "HearthLit",
+      "target": "(everyone)"
+    },
+    "announce": true
+  },
+  {
+    "id": "hearth_visit",
+    "name": "hearth visit",
+    "text": "Warmed myself at the hearth.",
+    "value": 3,
+    "hours": 12,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "HearthVisited",
+      "target": "self"
+    },
+    "announce": false
+  },
+  {
+    "id": "hoarded",
+    "name": "hoarded",
+    "text": "Got something nice for my room.",
+    "value": 3,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "condition": "sulk hoard"
+    },
+    "announce": false
+  },
+  {
+    "id": "hungry",
+    "name": "hungry",
+    "text": "I am hungry.",
+    "value": {
+      "formula": "−(hunger − 50) / 5, min −10"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "need",
+    "trigger": {
+      "condition": "hunger ≥ 50"
+    },
+    "announce": false
+  },
+  {
+    "id": "immigrants_arrived",
+    "name": "immigrants arrived",
+    "text": "New faces in the hall.",
+    "value": 3,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "social",
+    "trigger": {
+      "event": "ImmigrantsArrived",
+      "target": "(everyone)"
+    },
+    "announce": false
+  },
+  {
+    "id": "in_miasma",
+    "name": "in miasma",
+    "text": "The stench is unbearable.",
+    "value": {
+      "formula": "−5"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "condition": "standing in miasma"
+    },
+    "announce": false
+  },
+  {
+    "id": "in_pain",
+    "name": "in pain",
+    "text": "It hurts.",
+    "value": {
+      "formula": "−(pain / 10), min −8"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "condition": "pain ≥ 20"
+    },
+    "announce": false
+  },
+  {
+    "id": "killed_hostile",
+    "name": "killed hostile",
+    "text": "I struck down an enemy.",
+    "value": 4,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 3,
+    "group": "pride",
+    "trigger": {
+      "event": "KillRecorded",
+      "target": "killer, hostile victim"
+    },
+    "announce": false
+  },
+  {
+    "id": "legendary",
+    "name": "legendary",
+    "text": "I have mastered my craft.",
+    "value": 12,
+    "hours": 336,
+    "decay": "linear",
+    "cap": 1,
+    "group": "pride",
+    "trigger": {
+      "event": "LegendaryReached",
+      "target": "self"
+    },
+    "announce": true
+  },
+  {
+    "id": "lonely",
+    "name": "lonely",
+    "text": "I have not talked to anyone in a while.",
+    "value": {
+      "formula": "−(social − 50) / 10, min −5"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "need",
+    "trigger": {
+      "condition": "social ≥ 50"
+    },
+    "announce": false
+  },
+  {
+    "id": "lost_limb",
+    "name": "lost limb",
+    "text": "I lost a limb.",
+    "value": {
+      "formula": "−12"
+    },
+    "hours": 336,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "LimbLost",
+      "target": "self"
+    },
+    "announce": false
+  },
+  {
+    "id": "made_fine_item",
+    "name": "made fine item",
+    "text": "Made something fine.",
+    "value": 3,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "craft",
+    "trigger": {
+      "event": "ItemCrafted",
+      "target": "quality ≥ superior"
+    },
+    "announce": false
+  },
+  {
+    "id": "made_masterwork",
+    "name": "made masterwork",
+    "text": "I made a masterwork.",
+    "value": 15,
+    "hours": 168,
+    "decay": "linear",
+    "cap": 1,
+    "group": "craft",
+    "trigger": {
+      "event": "MasterworkCreated",
+      "target": "crafter"
+    },
+    "announce": true
+  },
+  {
+    "id": "masterwork_lost",
+    "name": "masterwork lost",
+    "text": "My masterwork is gone.",
+    "value": {
+      "formula": "−8"
+    },
+    "hours": 168,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "craft",
+    "trigger": {
+      "event": "ItemDestroyed",
+      "target": "masterwork, crafter"
+    },
+    "announce": false
+  },
+  {
+    "id": "memorial_placed",
+    "name": "memorial placed",
+    "text": "A memorial was placed.",
+    "value": 4,
+    "hours": 96,
+    "decay": "linear",
+    "cap": 1,
+    "group": "loss",
+    "trigger": {
+      "event": "Buried",
+      "target": "with tombTier: none, friends"
+    },
+    "announce": false
+  },
+  {
+    "id": "new_hearth_hall_tier",
+    "name": "new hearth hall tier",
+    "text": "The hall has never looked better.",
+    "value": 6,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "event": "RoomQualityChanged",
+      "target": "hearth hall, tier up"
+    },
+    "announce": false
+  },
+  {
+    "id": "no_bedroom",
+    "name": "no bedroom",
+    "text": "I have no room of my own.",
+    "value": {
+      "formula": "−2"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "condition": "no assigned bedroom (checked daily; after the first 14 days)"
+    },
+    "announce": false
+  },
+  {
+    "id": "pet_died",
+    "name": "pet died",
+    "text": "My pet died.",
+    "value": {
+      "formula": "−10"
+    },
+    "hours": 168,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "loss",
+    "trigger": {
+      "event": "CreatureDied",
+      "target": "pet owner"
+    },
+    "announce": false
+  },
+  {
+    "id": "raid_arrived",
+    "name": "raid arrived",
+    "text": "Raiders are at the gate.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 48,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "fear",
+    "trigger": {
+      "event": "RaidArrived",
+      "target": "(everyone)"
+    },
+    "announce": false
+  },
+  {
+    "id": "raid_repelled",
+    "name": "raid repelled",
+    "text": "We drove them off.",
+    "value": 8,
+    "hours": 96,
+    "decay": "linear",
+    "cap": 1,
+    "group": "pride",
+    "trigger": {
+      "event": "RaidEnded",
+      "target": "repelled or wiped (everyone)"
+    },
+    "announce": true
+  },
+  {
+    "id": "restless",
+    "name": "restless",
+    "text": "I have nothing to do.",
+    "value": {
+      "formula": "−(purpose − 60) / 10, min −4"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "need",
+    "trigger": {
+      "condition": "purpose ≥ 60"
+    },
+    "announce": false
+  },
+  {
+    "id": "sat_in_fine_room",
+    "name": "sat in fine room",
+    "text": "Sat in a fine room.",
+    "value": 3,
+    "hours": 12,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "event": "Sat",
+      "target": "tier ≥ fine"
+    },
+    "announce": false
+  },
+  {
+    "id": "saw_death",
+    "name": "saw death",
+    "text": "Watched someone die.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 72,
+    "decay": "halflife",
+    "cap": 2,
+    "group": "fear",
+    "trigger": {
+      "event": "CreatureDied",
+      "target": "within 8 tiles and line of sight, fortress creature"
+    },
+    "announce": false
+  },
+  {
+    "id": "saw_hostile",
+    "name": "saw hostile",
+    "text": "Saw an enemy.",
+    "value": {
+      "formula": "−3"
+    },
+    "hours": 24,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "fear",
+    "trigger": {
+      "event": "ThreatNearby",
+      "target": "self"
+    },
+    "announce": false
+  },
+  {
+    "id": "saw_masterwork",
+    "name": "saw masterwork",
+    "text": "Saw a masterwork.",
+    "value": 4,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 3,
+    "group": "craft",
+    "trigger": {
+      "event": "SawMasterwork",
+      "target": "self"
+    },
+    "announce": false
+  },
+  {
+    "id": "saw_sunlight",
+    "name": "saw sunlight",
+    "text": "Saw the sky again.",
+    "value": 3,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "condition": "first outdoor tile after 7+ days underground"
+    },
+    "announce": false
+  },
+  {
+    "id": "skill_milestone",
+    "name": "skill milestone",
+    "text": "Getting better at my craft.",
+    "value": 4,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "pride",
+    "trigger": {
+      "event": "SkillLevelUp",
+      "target": "levels 5, 10, 15"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_in_bare_room",
+    "name": "slept in bare room",
+    "text": "Slept in a bare room.",
+    "value": 0,
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "condition": "(no thought)"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_in_decent_room",
+    "name": "slept in decent room",
+    "text": "Slept in my decent room.",
+    "value": 3,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "condition": "decent"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_in_fine_room",
+    "name": "slept in fine room",
+    "text": "Slept in my fine room.",
+    "value": 5,
+    "hours": 36,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "condition": "fine"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_in_grand_room",
+    "name": "slept in grand room",
+    "text": "Slept in my grand room.",
+    "value": 8,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "condition": "grand"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_in_modest_room",
+    "name": "slept in modest room",
+    "text": "Slept in my modest room.",
+    "value": 1,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "event": "Slept",
+      "target": "own bedroom, modest"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_in_royal_room",
+    "name": "slept in royal room",
+    "text": "Slept in my royal room.",
+    "value": 10,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "condition": "royal"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_in_shared_bed_room",
+    "name": "slept in shared bed room",
+    "text": "Slept in someone else's bed.",
+    "value": {
+      "formula": "−1"
+    },
+    "hours": 12,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "event": "Slept",
+      "target": "unassigned bed"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_on_floor",
+    "name": "slept on floor",
+    "text": "Slept on the floor.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "event": "Slept",
+      "target": "onFloor"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_on_floor_last_night",
+    "name": "slept on floor last night",
+    "text": "Slept on the floor last night.",
+    "value": {
+      "formula": "−3"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "condition": "last sleep was on the floor; cleared by the next sleep in a bed"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_outdoors",
+    "name": "slept outdoors",
+    "text": "Slept under the sky.",
+    "value": {
+      "formula": "−5"
+    },
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "weather",
+    "trigger": {
+      "event": "Slept",
+      "target": "outdoor tile"
+    },
+    "announce": false
+  },
+  {
+    "id": "snowed_on",
+    "name": "snowed on",
+    "text": "Snow down my collar.",
+    "value": {
+      "formula": "−2"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "weather",
+    "trigger": {
+      "condition": "snow"
+    },
+    "announce": false
+  },
+  {
+    "id": "sweltering",
+    "name": "sweltering",
+    "text": "It is sweltering.",
+    "value": {
+      "formula": "−3"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "weather",
+    "trigger": {
+      "condition": "heatwave"
+    },
+    "announce": false
+  },
+  {
+    "id": "talked_with_friend",
+    "name": "talked with friend",
+    "text": "Talked with a friend.",
+    "value": 5,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 2,
+    "group": "social",
+    "trigger": {
+      "event": "Talked",
+      "target": "with a friend"
+    },
+    "announce": false
+  },
+  {
+    "id": "talked_with_someone",
+    "name": "talked with someone",
+    "text": "Had a chat.",
+    "value": 3,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 2,
+    "group": "social",
+    "trigger": {
+      "event": "Talked",
+      "target": "self"
+    },
+    "announce": false
+  },
+  {
+    "id": "thane_hall_bare",
+    "name": "thane hall bare",
+    "text": "The Thane sleeps in a hovel.",
+    "value": {
+      "formula": "−1"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "event": "Thane",
+      "target": "bedroom tier ≤ modest"
+    },
+    "announce": false
+  },
+  {
+    "id": "thane_hall_grand",
+    "name": "thane hall grand",
+    "text": "The Thane's hall is a credit to us.",
+    "value": 2,
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "event": "Thane",
+      "target": "bedroom tier ≥ grand"
+    },
+    "announce": false
+  },
+  {
+    "id": "thief_escaped_with_my_things",
+    "name": "thief escaped with my things",
+    "text": "A thief took my things.",
+    "value": {
+      "formula": "−5"
+    },
+    "hours": 72,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "ThiefEscaped",
+      "target": "item owner"
+    },
+    "announce": false
+  },
+  {
+    "id": "thirsty",
+    "name": "thirsty",
+    "text": "I am thirsty.",
+    "value": {
+      "formula": "−(thirst − 50) / 5, min −10"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "need",
+    "trigger": {
+      "condition": "thirst ≥ 50"
+    },
+    "announce": false
+  },
+  {
+    "id": "tired",
+    "name": "tired",
+    "text": "I am tired.",
+    "value": {
+      "formula": "−(rest − 60) / 5, min −8"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "need",
+    "trigger": {
+      "condition": "rest ≥ 60"
+    },
+    "announce": false
+  },
+  {
+    "id": "unburied_dead",
+    "name": "unburied dead",
+    "text": "The dead lie unburied.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "loss",
+    "trigger": {
+      "condition": "any dwarf corpse unburied > UNBURIED_DAYS"
+    },
+    "announce": false
+  },
+  {
+    "id": "unclothed",
+    "name": "unclothed",
+    "text": "I have no proper clothes.",
+    "value": {
+      "formula": "−3"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "condition": "missing any clothing slot"
+    },
+    "announce": false
+  },
+  {
+    "id": "uncomfortable",
+    "name": "uncomfortable",
+    "text": "There is nowhere to sit.",
+    "value": {
+      "formula": "−(comfort − 55) / 10, min −4"
+    },
+    "hours": null,
+    "decay": "standing",
+    "cap": 1,
+    "group": "need",
+    "trigger": {
+      "condition": "comfort ≥ 55"
+    },
+    "announce": false
+  },
+  {
+    "id": "warm_spring",
+    "name": "warm spring",
+    "text": "Warmed my feet in a spring.",
+    "value": 3,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "DwarfNearSpring",
+      "target": "self"
+    },
+    "announce": false
+  },
+  {
+    "id": "was_wounded",
+    "name": "was wounded",
+    "text": "I was hurt.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 72,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "fear",
+    "trigger": {
+      "event": "WoundInflicted",
+      "target": "serious or worse"
+    },
+    "announce": false
+  },
+  {
+    "id": "well_rested",
+    "name": "well rested",
+    "text": "Feel well rested.",
+    "value": 2,
+    "hours": 12,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "Slept",
+      "target": "with rest reaching 0"
+    },
+    "announce": false
+  },
+  {
+    "id": "wept",
+    "name": "wept",
+    "text": "Had a good cry.",
+    "value": 5,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "condition": "sulk weep"
+    },
+    "announce": false
+  }
+]

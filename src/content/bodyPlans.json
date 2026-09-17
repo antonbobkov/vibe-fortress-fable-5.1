@@ -1,0 +1,346 @@
+[
+  {
+    "id": "amorphous",
+    "name": "amorphous",
+    "parts": {
+      "head": {
+        "name": "maw",
+        "hit": 30,
+        "hpFactor": 800,
+        "functions": [
+          "see"
+        ]
+      },
+      "torso": {
+        "name": "torso",
+        "hit": 70,
+        "hpFactor": 1000,
+        "functions": []
+      },
+      "left_arm": {
+        "name": "left arm",
+        "hit": 0,
+        "hpFactor": 0,
+        "functions": []
+      },
+      "right_arm": {
+        "name": "right arm",
+        "hit": 0,
+        "hpFactor": 0,
+        "functions": []
+      },
+      "left_leg": {
+        "name": "left leg",
+        "hit": 0,
+        "hpFactor": 0,
+        "functions": []
+      },
+      "right_leg": {
+        "name": "right leg",
+        "hit": 0,
+        "hpFactor": 0,
+        "functions": []
+      }
+    }
+  },
+  {
+    "id": "bird",
+    "name": "bird",
+    "parts": {
+      "head": {
+        "name": "head",
+        "hit": 12,
+        "hpFactor": 400,
+        "functions": [
+          "see"
+        ]
+      },
+      "torso": {
+        "name": "torso",
+        "hit": 40,
+        "hpFactor": 1000,
+        "functions": []
+      },
+      "left_arm": {
+        "name": "left wing",
+        "hit": 12,
+        "hpFactor": 400,
+        "functions": []
+      },
+      "right_arm": {
+        "name": "right wing",
+        "hit": 12,
+        "hpFactor": 400,
+        "functions": []
+      },
+      "left_leg": {
+        "name": "left leg",
+        "hit": 12,
+        "hpFactor": 400,
+        "functions": [
+          "walk"
+        ]
+      },
+      "right_leg": {
+        "name": "right leg",
+        "hit": 12,
+        "hpFactor": 400,
+        "functions": [
+          "walk"
+        ]
+      }
+    }
+  },
+  {
+    "id": "crawler",
+    "name": "crawler",
+    "parts": {
+      "head": {
+        "name": "head",
+        "hit": 15,
+        "hpFactor": 500,
+        "functions": [
+          "see"
+        ]
+      },
+      "torso": {
+        "name": "torso",
+        "hit": 45,
+        "hpFactor": 1000,
+        "functions": []
+      },
+      "left_arm": {
+        "name": "front legs",
+        "hit": 10,
+        "hpFactor": 400,
+        "functions": [
+          "walk"
+        ]
+      },
+      "right_arm": {
+        "name": "front legs",
+        "hit": 10,
+        "hpFactor": 400,
+        "functions": [
+          "walk"
+        ]
+      },
+      "left_leg": {
+        "name": "back legs",
+        "hit": 10,
+        "hpFactor": 400,
+        "functions": [
+          "walk"
+        ]
+      },
+      "right_leg": {
+        "name": "back legs",
+        "hit": 10,
+        "hpFactor": 400,
+        "functions": [
+          "walk"
+        ]
+      }
+    }
+  },
+  {
+    "id": "fish",
+    "name": "fish",
+    "parts": {
+      "head": {
+        "name": "head",
+        "hit": 20,
+        "hpFactor": 500,
+        "functions": [
+          "see"
+        ]
+      },
+      "torso": {
+        "name": "torso",
+        "hit": 70,
+        "hpFactor": 1000,
+        "functions": []
+      },
+      "left_arm": {
+        "name": "left arm",
+        "hit": 0,
+        "hpFactor": 0,
+        "functions": []
+      },
+      "right_arm": {
+        "name": "right arm",
+        "hit": 0,
+        "hpFactor": 0,
+        "functions": []
+      },
+      "left_leg": {
+        "name": "tail",
+        "hit": 5,
+        "hpFactor": 500,
+        "functions": [
+          "walk"
+        ]
+      },
+      "right_leg": {
+        "name": "tail",
+        "hit": 5,
+        "hpFactor": 500,
+        "functions": [
+          "walk"
+        ]
+      }
+    }
+  },
+  {
+    "id": "humanoid",
+    "name": "humanoid",
+    "parts": {
+      "head": {
+        "name": "head",
+        "hit": 10,
+        "hpFactor": 500,
+        "functions": [
+          "see"
+        ]
+      },
+      "torso": {
+        "name": "torso",
+        "hit": 35,
+        "hpFactor": 1000,
+        "functions": []
+      },
+      "left_arm": {
+        "name": "left arm",
+        "hit": 12,
+        "hpFactor": 600,
+        "functions": [
+          "wield"
+        ]
+      },
+      "right_arm": {
+        "name": "right arm",
+        "hit": 12,
+        "hpFactor": 600,
+        "functions": [
+          "wield"
+        ]
+      },
+      "left_leg": {
+        "name": "left leg",
+        "hit": 15,
+        "hpFactor": 600,
+        "functions": [
+          "walk"
+        ]
+      },
+      "right_leg": {
+        "name": "right leg",
+        "hit": 16,
+        "hpFactor": 600,
+        "functions": [
+          "walk"
+        ]
+      }
+    }
+  },
+  {
+    "id": "quadruped",
+    "name": "quadruped",
+    "parts": {
+      "head": {
+        "name": "head",
+        "hit": 12,
+        "hpFactor": 500,
+        "functions": [
+          "see"
+        ]
+      },
+      "torso": {
+        "name": "torso",
+        "hit": 40,
+        "hpFactor": 1000,
+        "functions": []
+      },
+      "left_arm": {
+        "name": "left foreleg",
+        "hit": 12,
+        "hpFactor": 500,
+        "functions": [
+          "walk"
+        ]
+      },
+      "right_arm": {
+        "name": "right foreleg",
+        "hit": 12,
+        "hpFactor": 500,
+        "functions": [
+          "walk"
+        ]
+      },
+      "left_leg": {
+        "name": "left leg",
+        "hit": 12,
+        "hpFactor": 500,
+        "functions": [
+          "walk"
+        ]
+      },
+      "right_leg": {
+        "name": "right leg",
+        "hit": 12,
+        "hpFactor": 500,
+        "functions": [
+          "walk"
+        ]
+      }
+    }
+  },
+  {
+    "id": "serpent",
+    "name": "serpent",
+    "parts": {
+      "head": {
+        "name": "head",
+        "hit": 20,
+        "hpFactor": 600,
+        "functions": [
+          "see"
+        ]
+      },
+      "torso": {
+        "name": "torso",
+        "hit": 50,
+        "hpFactor": 1000,
+        "functions": []
+      },
+      "left_arm": {
+        "name": "left foreclaw",
+        "hit": 10,
+        "hpFactor": 500,
+        "functions": [
+          "walk"
+        ]
+      },
+      "right_arm": {
+        "name": "right foreclaw",
+        "hit": 10,
+        "hpFactor": 500,
+        "functions": [
+          "walk"
+        ]
+      },
+      "left_leg": {
+        "name": "tail",
+        "hit": 5,
+        "hpFactor": 500,
+        "functions": []
+      },
+      "right_leg": {
+        "name": "tail",
+        "hit": 5,
+        "hpFactor": 500,
+        "functions": []
+      }
+    }
+  }
+]

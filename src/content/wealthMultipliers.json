@@ -1,0 +1,32 @@
+[
+  {
+    "wealth": 0,
+    "ore": 400,
+    "gem": 300,
+    "deepsilverVeins": 0
+  },
+  {
+    "wealth": 1,
+    "ore": 700,
+    "gem": 600,
+    "deepsilverVeins": 0
+  },
+  {
+    "wealth": 2,
+    "ore": 1000,
+    "gem": 1000,
+    "deepsilverVeins": 1
+  },
+  {
+    "wealth": 3,
+    "ore": 1500,
+    "gem": 1500,
+    "deepsilverVeins": 2
+  },
+  {
+    "wealth": 4,
+    "ore": 2200,
+    "gem": 2200,
+    "deepsilverVeins": 3
+  }
+]

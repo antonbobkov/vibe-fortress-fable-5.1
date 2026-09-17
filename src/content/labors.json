@@ -1,0 +1,152 @@
+[
+  {
+    "id": "animal_care",
+    "name": "Animal care",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "animal_training",
+    "name": "Animal training",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "brewing",
+    "name": "Brewing",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "butchery",
+    "name": "Butchery",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "carpentry",
+    "name": "Carpentry",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "cleaning",
+    "name": "Cleaning",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "construction",
+    "name": "Construction",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "cooking",
+    "name": "Cooking",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "crafts",
+    "name": "Crafts",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "farming",
+    "name": "Farming",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "fishing",
+    "name": "Fishing",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "gem_cutting",
+    "name": "Gem cutting",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "hauling",
+    "name": "Hauling",
+    "defaultOn": true,
+    "children": true
+  },
+  {
+    "id": "herbalism",
+    "name": "Herbalism",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "hunting",
+    "name": "Hunting",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "leather",
+    "name": "Leather",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "masonry",
+    "name": "Masonry",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "mechanics",
+    "name": "Mechanics",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "medicine",
+    "name": "Medicine",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "mining",
+    "name": "Mining",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "smelting",
+    "name": "Smelting",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "smithing",
+    "name": "Smithing",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "textiles",
+    "name": "Textiles",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "trading",
+    "name": "Trading",
+    "defaultOn": true,
+    "children": false
+  },
+  {
+    "id": "woodcutting",
+    "name": "Woodcutting",
+    "defaultOn": true,
+    "children": false
+  }
+]

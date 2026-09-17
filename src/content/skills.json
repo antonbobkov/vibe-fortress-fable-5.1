@@ -1,0 +1,449 @@
+[
+  {
+    "id": "animal_care",
+    "name": "Animal care",
+    "labor": "animal_care",
+    "profession": "Animal keeper",
+    "military": null,
+    "attributes": [
+      "cha",
+      "end"
+    ]
+  },
+  {
+    "id": "animal_training",
+    "name": "Animal training",
+    "labor": "animal_training",
+    "profession": "Animal trainer",
+    "military": null,
+    "attributes": [
+      "cha",
+      "wil"
+    ]
+  },
+  {
+    "id": "armor_use",
+    "name": "Armor use",
+    "labor": null,
+    "profession": null,
+    "military": null,
+    "attributes": [
+      "end",
+      "str"
+    ]
+  },
+  {
+    "id": "armorsmithing",
+    "name": "Armorsmithing",
+    "labor": "smithing",
+    "profession": "Armorsmith",
+    "military": null,
+    "attributes": [
+      "str",
+      "end"
+    ]
+  },
+  {
+    "id": "axe",
+    "name": "Axe",
+    "labor": null,
+    "profession": "Axedwarf civilian title: Woodcutter is separate",
+    "military": "Axedwarf",
+    "attributes": [
+      "str",
+      "agi"
+    ]
+  },
+  {
+    "id": "bow",
+    "name": "Bow",
+    "labor": null,
+    "profession": "Bowdwarf",
+    "military": "Bowdwarf",
+    "attributes": [
+      "agi"
+    ]
+  },
+  {
+    "id": "brewing",
+    "name": "Brewing",
+    "labor": "brewing",
+    "profession": "Brewer",
+    "military": null,
+    "attributes": [
+      "wit"
+    ]
+  },
+  {
+    "id": "building",
+    "name": "Building",
+    "labor": "construction",
+    "profession": "Builder",
+    "military": null,
+    "attributes": [
+      "str",
+      "end"
+    ]
+  },
+  {
+    "id": "butchery",
+    "name": "Butchery",
+    "labor": "butchery",
+    "profession": "Butcher",
+    "military": null,
+    "attributes": [
+      "str",
+      "agi"
+    ]
+  },
+  {
+    "id": "carpentry",
+    "name": "Carpentry",
+    "labor": "carpentry",
+    "profession": "Carpenter",
+    "military": null,
+    "attributes": [
+      "agi",
+      "wit"
+    ]
+  },
+  {
+    "id": "clothesmaking",
+    "name": "Clothesmaking",
+    "labor": "textiles",
+    "profession": "Clothier",
+    "military": null,
+    "attributes": [
+      "agi"
+    ]
+  },
+  {
+    "id": "cooking",
+    "name": "Cooking",
+    "labor": "cooking",
+    "profession": "Cook",
+    "military": null,
+    "attributes": [
+      "agi",
+      "wit"
+    ]
+  },
+  {
+    "id": "crafting",
+    "name": "Crafting",
+    "labor": "crafts",
+    "profession": "Craftsdwarf",
+    "military": null,
+    "attributes": [
+      "agi",
+      "wit"
+    ]
+  },
+  {
+    "id": "crossbow",
+    "name": "Crossbow",
+    "labor": null,
+    "profession": "Marksdwarf",
+    "military": "Marksdwarf",
+    "attributes": [
+      "agi"
+    ]
+  },
+  {
+    "id": "dagger",
+    "name": "Dagger",
+    "labor": null,
+    "profession": "Knife fighter",
+    "military": "Knife fighter",
+    "attributes": [
+      "agi"
+    ]
+  },
+  {
+    "id": "dodge",
+    "name": "Dodge",
+    "labor": null,
+    "profession": null,
+    "military": null,
+    "attributes": [
+      "agi"
+    ]
+  },
+  {
+    "id": "engraving",
+    "name": "Engraving",
+    "labor": "crafts",
+    "profession": "Engraver",
+    "military": null,
+    "attributes": [
+      "agi",
+      "wit"
+    ]
+  },
+  {
+    "id": "farming",
+    "name": "Farming",
+    "labor": "farming",
+    "profession": "Farmer",
+    "military": null,
+    "attributes": [
+      "end",
+      "wit"
+    ]
+  },
+  {
+    "id": "fishing",
+    "name": "Fishing",
+    "labor": "fishing",
+    "profession": "Fisher",
+    "military": null,
+    "attributes": [
+      "end",
+      "agi"
+    ]
+  },
+  {
+    "id": "gem_cutting",
+    "name": "Gem cutting",
+    "labor": "gem_cutting",
+    "profession": "Gem cutter",
+    "military": null,
+    "attributes": [
+      "agi",
+      "wit"
+    ]
+  },
+  {
+    "id": "hammer",
+    "name": "Hammer",
+    "labor": null,
+    "profession": "Hammerdwarf",
+    "military": "Hammerdwarf",
+    "attributes": [
+      "str"
+    ]
+  },
+  {
+    "id": "herbalism",
+    "name": "Herbalism",
+    "labor": "herbalism",
+    "profession": "Herbalist",
+    "military": null,
+    "attributes": [
+      "wit",
+      "agi"
+    ]
+  },
+  {
+    "id": "hunting",
+    "name": "Hunting",
+    "labor": "hunting",
+    "profession": "Hunter",
+    "military": null,
+    "attributes": [
+      "agi",
+      "end"
+    ]
+  },
+  {
+    "id": "leatherworking",
+    "name": "Leatherworking",
+    "labor": "leather",
+    "profession": "Leatherworker",
+    "military": null,
+    "attributes": [
+      "agi"
+    ]
+  },
+  {
+    "id": "mace",
+    "name": "Mace",
+    "labor": null,
+    "profession": "Macedwarf",
+    "military": "Macedwarf",
+    "attributes": [
+      "str"
+    ]
+  },
+  {
+    "id": "masonry",
+    "name": "Masonry",
+    "labor": "masonry",
+    "profession": "Mason",
+    "military": null,
+    "attributes": [
+      "str",
+      "wit"
+    ]
+  },
+  {
+    "id": "mechanics",
+    "name": "Mechanics",
+    "labor": "mechanics",
+    "profession": "Mechanic",
+    "military": null,
+    "attributes": [
+      "wit",
+      "agi"
+    ]
+  },
+  {
+    "id": "medicine",
+    "name": "Medicine",
+    "labor": "medicine",
+    "profession": "Medic",
+    "military": null,
+    "attributes": [
+      "wit",
+      "cha"
+    ]
+  },
+  {
+    "id": "metalcrafting",
+    "name": "Metalcrafting",
+    "labor": "smithing",
+    "profession": "Metalcrafter",
+    "military": null,
+    "attributes": [
+      "agi",
+      "wit"
+    ]
+  },
+  {
+    "id": "mining",
+    "name": "Mining",
+    "labor": "mining",
+    "profession": "Miner",
+    "military": null,
+    "attributes": [
+      "str",
+      "end"
+    ]
+  },
+  {
+    "id": "pick",
+    "name": "Pick fighting",
+    "labor": null,
+    "profession": "Miner",
+    "military": "Pickdwarf",
+    "attributes": [
+      "str"
+    ]
+  },
+  {
+    "id": "shield",
+    "name": "Shield",
+    "labor": null,
+    "profession": null,
+    "military": null,
+    "attributes": [
+      "agi",
+      "tou"
+    ]
+  },
+  {
+    "id": "sling",
+    "name": "Sling",
+    "labor": null,
+    "profession": "Slinger",
+    "military": "Slinger",
+    "attributes": [
+      "agi"
+    ]
+  },
+  {
+    "id": "smelting",
+    "name": "Smelting",
+    "labor": "smelting",
+    "profession": "Smelter",
+    "military": null,
+    "attributes": [
+      "end",
+      "str"
+    ]
+  },
+  {
+    "id": "spear",
+    "name": "Spear",
+    "labor": null,
+    "profession": "Speardwarf",
+    "military": "Speardwarf",
+    "attributes": [
+      "agi"
+    ]
+  },
+  {
+    "id": "sword",
+    "name": "Sword",
+    "labor": null,
+    "profession": "Swordsdwarf",
+    "military": "Swordsdwarf",
+    "attributes": [
+      "agi"
+    ]
+  },
+  {
+    "id": "tanning",
+    "name": "Tanning",
+    "labor": "leather",
+    "profession": "Tanner",
+    "military": null,
+    "attributes": [
+      "end"
+    ]
+  },
+  {
+    "id": "trading",
+    "name": "Trading",
+    "labor": "trading",
+    "profession": "Trader",
+    "military": null,
+    "attributes": [
+      "cha",
+      "wit"
+    ]
+  },
+  {
+    "id": "unarmed",
+    "name": "Unarmed",
+    "labor": null,
+    "profession": "Brawler",
+    "military": "Brawler",
+    "attributes": [
+      "str",
+      "tou"
+    ]
+  },
+  {
+    "id": "weaponsmithing",
+    "name": "Weaponsmithing",
+    "labor": "smithing",
+    "profession": "Weaponsmith",
+    "military": null,
+    "attributes": [
+      "str",
+      "agi"
+    ]
+  },
+  {
+    "id": "weaving",
+    "name": "Weaving",
+    "labor": "textiles",
+    "profession": "Weaver",
+    "military": null,
+    "attributes": [
+      "agi"
+    ]
+  },
+  {
+    "id": "woodcutting",
+    "name": "Woodcutting",
+    "labor": "woodcutting",
+    "profession": "Woodcutter",
+    "military": null,
+    "attributes": [
+      "str",
+      "agi"
+    ]
+  }
+]

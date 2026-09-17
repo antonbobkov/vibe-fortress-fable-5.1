@@ -1,0 +1,52 @@
+[
+  {
+    "id": "c_deepsilver",
+    "text": "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Mine it?",
+    "default": "no"
+  },
+  {
+    "id": "c_retire",
+    "text": "Retire {fortress}? The hall will be recorded in the Legends and cannot be resumed.",
+    "default": "no"
+  },
+  {
+    "id": "c_quickload",
+    "text": "Load the quick save? Unsaved progress will be lost.",
+    "default": "no"
+  },
+  {
+    "id": "c_remove_zone_crops",
+    "text": "This plot has {n} growing crops. Remove it?",
+    "default": "no"
+  },
+  {
+    "id": "c_remove_stockpile_items",
+    "text": "This stockpile holds {n} items. They will stay where they are. Remove it?",
+    "default": "yes"
+  },
+  {
+    "id": "c_disband_squad",
+    "text": "Disband {squad}? Members keep their gear.",
+    "default": "no"
+  },
+  {
+    "id": "c_deconstruct_workshop",
+    "text": "This workshop has {n} orders. Deconstruct it?",
+    "default": "no"
+  },
+  {
+    "id": "c_load_snapshot",
+    "text": "Load the {season} snapshot? The current game continues to exist as its own saves.",
+    "default": "no"
+  },
+  {
+    "id": "c_delete_save",
+    "text": "Delete {save}? This cannot be undone.",
+    "default": "no"
+  },
+  {
+    "id": "c_main_menu",
+    "text": "Return to the main menu? Unsaved progress since {time} will be lost.",
+    "default": "no"
+  }
+]

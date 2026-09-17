@@ -1,0 +1,50 @@
+[
+  {
+    "id": "clear",
+    "minHours": 8,
+    "maxHours": 36,
+    "tempDelta": 0
+  },
+  {
+    "id": "overcast",
+    "minHours": 6,
+    "maxHours": 24,
+    "tempDelta": 0
+  },
+  {
+    "id": "rain",
+    "minHours": 4,
+    "maxHours": 16,
+    "tempDelta": 0
+  },
+  {
+    "id": "storm",
+    "minHours": 3,
+    "maxHours": 8,
+    "tempDelta": 0
+  },
+  {
+    "id": "snow",
+    "minHours": 4,
+    "maxHours": 18,
+    "tempDelta": 0
+  },
+  {
+    "id": "fog",
+    "minHours": 3,
+    "maxHours": 10,
+    "tempDelta": 0
+  },
+  {
+    "id": "heatwave",
+    "minHours": 24,
+    "maxHours": 72,
+    "tempDelta": 0
+  },
+  {
+    "id": "cold_snap",
+    "minHours": 24,
+    "maxHours": 72,
+    "tempDelta": 0
+  }
+]

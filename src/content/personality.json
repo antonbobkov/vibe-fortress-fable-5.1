@@ -1,0 +1,190 @@
+[
+  {
+    "id": "ascetic",
+    "name": "Ascetic",
+    "pair": "wealth",
+    "freq": 50,
+    "base": 0,
+    "scales": [
+      {
+        "group": "room",
+        "mult": 500
+      }
+    ],
+    "description": "Needs little."
+  },
+  {
+    "id": "brave",
+    "name": "Brave",
+    "pair": "courage",
+    "freq": 50,
+    "base": 3,
+    "scales": [
+      {
+        "group": "fear",
+        "mult": 500
+      }
+    ],
+    "description": "Does not scare easily."
+  },
+  {
+    "id": "greedy",
+    "name": "Greedy",
+    "pair": "wealth",
+    "freq": 50,
+    "base": 0,
+    "scales": [
+      {
+        "group": "thief_escaped_with_my_things",
+        "mult": 2000
+      },
+      {
+        "group": "saw_masterwork",
+        "mult": 2000
+      }
+    ],
+    "description": "Likes owning fine things."
+  },
+  {
+    "id": "gregarious",
+    "name": "Gregarious",
+    "pair": "sociability",
+    "freq": 50,
+    "base": 0,
+    "scales": [
+      {
+        "group": "social",
+        "mult": 2000
+      },
+      {
+        "group": "lonely",
+        "mult": 2000
+      }
+    ],
+    "description": "Loves company."
+  },
+  {
+    "id": "messy",
+    "name": "Messy",
+    "pair": "order",
+    "freq": 50,
+    "base": 0,
+    "scales": [
+      {
+        "group": "in_miasma",
+        "mult": 500
+      }
+    ],
+    "description": "Does not notice a mess."
+  },
+  {
+    "id": "patient",
+    "name": "Patient",
+    "pair": "pace",
+    "freq": 50,
+    "base": 0,
+    "scales": [
+      {
+        "group": "bored",
+        "mult": 500
+      }
+    ],
+    "description": "Content to wait."
+  },
+  {
+    "id": "restless",
+    "name": "Restless",
+    "pair": "pace",
+    "freq": 50,
+    "base": 0,
+    "scales": [
+      {
+        "group": "bored",
+        "mult": 2000
+      }
+    ],
+    "description": "Needs to be doing something."
+  },
+  {
+    "id": "sensitive",
+    "name": "Sensitive",
+    "pair": "temperament",
+    "freq": 50,
+    "base": -3,
+    "scales": [
+      {
+        "group": "positives",
+        "mult": 1300
+      },
+      {
+        "group": "negatives",
+        "mult": 1300
+      }
+    ],
+    "description": "Feels everything keenly."
+  },
+  {
+    "id": "solitary",
+    "name": "Solitary",
+    "pair": "sociability",
+    "freq": 50,
+    "base": 0,
+    "scales": [
+      {
+        "group": "social",
+        "mult": 500
+      },
+      {
+        "group": "lonely",
+        "mult": 500
+      }
+    ],
+    "description": "Prefers their own company."
+  },
+  {
+    "id": "stoic",
+    "name": "Stoic",
+    "pair": "temperament",
+    "freq": 50,
+    "base": 3,
+    "scales": [
+      {
+        "group": "negatives",
+        "mult": 500
+      }
+    ],
+    "description": "Takes hardship in stride."
+  },
+  {
+    "id": "tidy",
+    "name": "Tidy",
+    "pair": "order",
+    "freq": 50,
+    "base": 0,
+    "scales": [
+      {
+        "group": "in_miasma",
+        "mult": 2000
+      },
+      {
+        "group": "admired_statue",
+        "mult": 1500
+      }
+    ],
+    "description": "Cannot stand a mess."
+  },
+  {
+    "id": "timid",
+    "name": "Timid",
+    "pair": "courage",
+    "freq": 50,
+    "base": -3,
+    "scales": [
+      {
+        "group": "fear",
+        "mult": 2000
+      }
+    ],
+    "description": "Startles at shadows."
+  }
+]

@@ -1,0 +1,447 @@
+[
+  {
+    "id": "alpine",
+    "name": "alpine",
+    "referenceTempC": -4,
+    "seasonTemp": [
+      -2,
+      9,
+      -1,
+      -16
+    ],
+    "soilDepth": 0,
+    "soil": [],
+    "treeDensity": 20,
+    "shrubDensity": 20,
+    "wildlifeDensity": 500,
+    "embarkable": true,
+    "color": "alpine_white",
+    "glyph": "▲"
+  },
+  {
+    "id": "badlands",
+    "name": "badlands",
+    "referenceTempC": 20,
+    "seasonTemp": [
+      18,
+      32,
+      20,
+      6
+    ],
+    "soilDepth": 1,
+    "soil": [
+      {
+        "material": "clay",
+        "weight": 60
+      },
+      {
+        "material": "sand",
+        "weight": 40
+      }
+    ],
+    "treeDensity": 10,
+    "shrubDensity": 20,
+    "wildlifeDensity": 500,
+    "embarkable": true,
+    "color": "badlands_red",
+    "glyph": "≡"
+  },
+  {
+    "id": "cold_steppe",
+    "name": "cold steppe",
+    "referenceTempC": 3,
+    "seasonTemp": [
+      6,
+      18,
+      6,
+      -8
+    ],
+    "soilDepth": 2,
+    "soil": [
+      {
+        "material": "loam",
+        "weight": 40
+      },
+      {
+        "material": "silt",
+        "weight": 40
+      },
+      {
+        "material": "sand",
+        "weight": 20
+      }
+    ],
+    "treeDensity": 20,
+    "shrubDensity": 40,
+    "wildlifeDensity": 800,
+    "embarkable": true,
+    "color": "grass_dry",
+    "glyph": "\""
+  },
+  {
+    "id": "dark_forest",
+    "name": "dark forest",
+    "referenceTempC": 8,
+    "seasonTemp": [
+      7,
+      17,
+      8,
+      -3
+    ],
+    "soilDepth": 3,
+    "soil": [
+      {
+        "material": "peat",
+        "weight": 40
+      },
+      {
+        "material": "loam",
+        "weight": 40
+      },
+      {
+        "material": "clay",
+        "weight": 20
+      }
+    ],
+    "treeDensity": 260,
+    "shrubDensity": 60,
+    "wildlifeDensity": 1000,
+    "embarkable": true,
+    "color": "dark_forest_green",
+    "glyph": "♣"
+  },
+  {
+    "id": "desert",
+    "name": "desert",
+    "referenceTempC": 26,
+    "seasonTemp": [
+      24,
+      36,
+      26,
+      12
+    ],
+    "soilDepth": 1,
+    "soil": [
+      {
+        "material": "sand",
+        "weight": 90
+      },
+      {
+        "material": "silt",
+        "weight": 10
+      }
+    ],
+    "treeDensity": 5,
+    "shrubDensity": 10,
+    "wildlifeDensity": 400,
+    "embarkable": true,
+    "color": "sand_yellow",
+    "glyph": "∙"
+  },
+  {
+    "id": "glacier",
+    "name": "glacier",
+    "referenceTempC": -15,
+    "seasonTemp": [
+      -10,
+      -2,
+      -8,
+      -20
+    ],
+    "soilDepth": 0,
+    "soil": [],
+    "treeDensity": 0,
+    "shrubDensity": 0,
+    "wildlifeDensity": 200,
+    "embarkable": false,
+    "color": "ice_blue",
+    "glyph": "▒"
+  },
+  {
+    "id": "mountain",
+    "name": "mountain",
+    "referenceTempC": 4,
+    "seasonTemp": [
+      4,
+      15,
+      5,
+      -8
+    ],
+    "soilDepth": 1,
+    "soil": [
+      {
+        "material": "sand",
+        "weight": 50
+      },
+      {
+        "material": "silt",
+        "weight": 50
+      }
+    ],
+    "treeDensity": 60,
+    "shrubDensity": 30,
+    "wildlifeDensity": 700,
+    "embarkable": true,
+    "color": "granite_gray",
+    "glyph": "▲"
+  },
+  {
+    "id": "ocean",
+    "name": "ocean",
+    "referenceTempC": 10,
+    "seasonTemp": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "soilDepth": 0,
+    "soil": [],
+    "treeDensity": 0,
+    "shrubDensity": 0,
+    "wildlifeDensity": 0,
+    "embarkable": false,
+    "color": "dark_blue",
+    "glyph": "≈"
+  },
+  {
+    "id": "savanna",
+    "name": "savanna",
+    "referenceTempC": 22,
+    "seasonTemp": [
+      22,
+      30,
+      24,
+      14
+    ],
+    "soilDepth": 2,
+    "soil": [
+      {
+        "material": "loam",
+        "weight": 40
+      },
+      {
+        "material": "sand",
+        "weight": 40
+      },
+      {
+        "material": "clay",
+        "weight": 20
+      }
+    ],
+    "treeDensity": 30,
+    "shrubDensity": 50,
+    "wildlifeDensity": 1100,
+    "embarkable": true,
+    "color": "savanna_gold",
+    "glyph": "\""
+  },
+  {
+    "id": "taiga",
+    "name": "taiga",
+    "referenceTempC": 0,
+    "seasonTemp": [
+      4,
+      14,
+      4,
+      -12
+    ],
+    "soilDepth": 2,
+    "soil": [
+      {
+        "material": "loam",
+        "weight": 50
+      },
+      {
+        "material": "peat",
+        "weight": 30
+      },
+      {
+        "material": "silt",
+        "weight": 20
+      }
+    ],
+    "treeDensity": 180,
+    "shrubDensity": 50,
+    "wildlifeDensity": 1000,
+    "embarkable": true,
+    "color": "pine_green",
+    "glyph": "♠"
+  },
+  {
+    "id": "temperate_forest",
+    "name": "forest",
+    "referenceTempC": 10,
+    "seasonTemp": [
+      10,
+      21,
+      11,
+      0
+    ],
+    "soilDepth": 3,
+    "soil": [
+      {
+        "material": "loam",
+        "weight": 60
+      },
+      {
+        "material": "clay",
+        "weight": 40
+      }
+    ],
+    "treeDensity": 220,
+    "shrubDensity": 80,
+    "wildlifeDensity": 1200,
+    "embarkable": true,
+    "color": "forest_green",
+    "glyph": "♣"
+  },
+  {
+    "id": "temperate_grassland",
+    "name": "grassland",
+    "referenceTempC": 10,
+    "seasonTemp": [
+      10,
+      22,
+      12,
+      0
+    ],
+    "soilDepth": 3,
+    "soil": [
+      {
+        "material": "loam",
+        "weight": 70
+      },
+      {
+        "material": "clay",
+        "weight": 30
+      }
+    ],
+    "treeDensity": 40,
+    "shrubDensity": 60,
+    "wildlifeDensity": 1000,
+    "embarkable": true,
+    "color": "grass_green",
+    "glyph": "\""
+  },
+  {
+    "id": "temperate_hills",
+    "name": "hills",
+    "referenceTempC": 8,
+    "seasonTemp": [
+      8,
+      19,
+      9,
+      -2
+    ],
+    "soilDepth": 2,
+    "soil": [
+      {
+        "material": "loam",
+        "weight": 50
+      },
+      {
+        "material": "clay",
+        "weight": 30
+      },
+      {
+        "material": "sand",
+        "weight": 20
+      }
+    ],
+    "treeDensity": 120,
+    "shrubDensity": 60,
+    "wildlifeDensity": 1000,
+    "embarkable": true,
+    "color": "hill_olive",
+    "glyph": "∩"
+  },
+  {
+    "id": "tropical_forest",
+    "name": "tropical forest",
+    "referenceTempC": 26,
+    "seasonTemp": [
+      25,
+      29,
+      26,
+      22
+    ],
+    "soilDepth": 4,
+    "soil": [
+      {
+        "material": "clay",
+        "weight": 50
+      },
+      {
+        "material": "loam",
+        "weight": 50
+      }
+    ],
+    "treeDensity": 280,
+    "shrubDensity": 120,
+    "wildlifeDensity": 1400,
+    "embarkable": true,
+    "color": "jungle_green",
+    "glyph": "♣"
+  },
+  {
+    "id": "tundra",
+    "name": "tundra",
+    "referenceTempC": -6,
+    "seasonTemp": [
+      -2,
+      8,
+      0,
+      -16
+    ],
+    "soilDepth": 1,
+    "soil": [
+      {
+        "material": "silt",
+        "weight": 60
+      },
+      {
+        "material": "peat",
+        "weight": 40
+      }
+    ],
+    "treeDensity": 10,
+    "shrubDensity": 30,
+    "wildlifeDensity": 600,
+    "embarkable": true,
+    "color": "tundra_gray",
+    "glyph": "."
+  },
+  {
+    "id": "wetland",
+    "name": "wetland",
+    "referenceTempC": 12,
+    "seasonTemp": [
+      12,
+      22,
+      13,
+      2
+    ],
+    "soilDepth": 4,
+    "soil": [
+      {
+        "material": "silt",
+        "weight": 50
+      },
+      {
+        "material": "peat",
+        "weight": 30
+      },
+      {
+        "material": "clay",
+        "weight": 20
+      }
+    ],
+    "treeDensity": 100,
+    "shrubDensity": 100,
+    "wildlifeDensity": 1100,
+    "embarkable": true,
+    "color": "wetland_teal",
+    "glyph": "~"
+  }
+]

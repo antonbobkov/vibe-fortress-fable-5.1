@@ -1,0 +1,2382 @@
+[
+  {
+    "id": "badger",
+    "name": "badger",
+    "plan": "quadruped",
+    "size": 15,
+    "speed": 100,
+    "diet": "omnivore",
+    "temper": "territorial",
+    "movementClass": "small",
+    "nocturnal": false,
+    "meatValue": 1,
+    "hideValue": 3,
+    "value": 10,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 6,
+        "size": 2
+      }
+    ],
+    "naturalArmor": 1,
+    "fleeBloodPercent": 40,
+    "group": [
+      1,
+      1
+    ],
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 15
+      },
+      {
+        "biome": "temperate_grassland",
+        "weight": 10
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 15
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "b",
+    "fg": "badger_gray"
+  },
+  {
+    "id": "bear",
+    "name": "bear",
+    "plan": "quadruped",
+    "size": 130,
+    "speed": 110,
+    "diet": "omnivore",
+    "temper": "aggressive",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 6,
+    "hideValue": 12,
+    "value": 80,
+    "attacks": [
+      {
+        "name": "claw",
+        "type": "edge",
+        "damage": 18,
+        "size": 6
+      },
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 16,
+        "size": 5
+      }
+    ],
+    "naturalArmor": 2,
+    "fleeBloodPercent": 35,
+    "group": [
+      1,
+      1
+    ],
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 10
+      },
+      {
+        "biome": "taiga",
+        "weight": 15
+      },
+      {
+        "biome": "mountain",
+        "weight": 10
+      },
+      {
+        "biome": "dark_forest",
+        "weight": 15
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 8
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "war"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "B",
+    "fg": "bear_brown"
+  },
+  {
+    "id": "blind_fish",
+    "name": "blind fish",
+    "plan": "fish",
+    "size": 3,
+    "speed": 100,
+    "diet": "none",
+    "temper": "timid",
+    "movementClass": "aquatic",
+    "nocturnal": false,
+    "meatValue": 3,
+    "hideValue": 0,
+    "value": 5,
+    "attacks": [],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 100,
+    "group": [
+      4,
+      8
+    ],
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "f",
+    "fg": "fish_pale"
+  },
+  {
+    "id": "blind_stalker",
+    "name": "blind stalker",
+    "plan": "humanoid",
+    "size": 65,
+    "speed": 120,
+    "diet": "none",
+    "temper": "aggressive",
+    "movementClass": "walker",
+    "nocturnal": true,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "claw",
+        "type": "edge",
+        "damage": 14,
+        "size": 3
+      },
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 10,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 2,
+    "fleeBloodPercent": 25,
+    "group": [
+      1,
+      2
+    ],
+    "cavern": {
+      "tier": 2,
+      "weight": 0,
+      "cap": 6,
+      "initial": 3,
+      "respawnPermille": 60
+    },
+    "flags": {
+      "stealth": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "S",
+    "fg": "hostile"
+  },
+  {
+    "id": "boar",
+    "name": "boar",
+    "plan": "quadruped",
+    "size": 60,
+    "speed": 120,
+    "diet": "omnivore",
+    "temper": "territorial",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 5,
+    "hideValue": 6,
+    "value": 30,
+    "attacks": [
+      {
+        "name": "gore",
+        "type": "pierce",
+        "damage": 12,
+        "size": 5
+      }
+    ],
+    "naturalArmor": 1,
+    "fleeBloodPercent": 50,
+    "group": [
+      1,
+      3
+    ],
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 25
+      },
+      {
+        "biome": "dark_forest",
+        "weight": 20
+      },
+      {
+        "biome": "wetland",
+        "weight": 15
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 10
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "b",
+    "fg": "boar_brown"
+  },
+  {
+    "id": "cat",
+    "name": "cat",
+    "plan": "quadruped",
+    "size": 6,
+    "speed": 130,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "small",
+    "nocturnal": false,
+    "meatValue": 1,
+    "hideValue": 2,
+    "value": 10,
+    "attacks": [
+      {
+        "name": "scratch",
+        "type": "edge",
+        "damage": 3,
+        "size": 1
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 40,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "breeding": {
+      "gestationDays": 20,
+      "litter": [
+        2,
+        4
+      ],
+      "growDays": 45
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "c",
+    "fg": "cat_gray"
+  },
+  {
+    "id": "cave_crab",
+    "name": "cave crab",
+    "plan": "crawler",
+    "size": 12,
+    "speed": 70,
+    "diet": "none",
+    "temper": "timid",
+    "movementClass": "small",
+    "nocturnal": false,
+    "meatValue": 2,
+    "hideValue": 4,
+    "shell": true,
+    "value": 12,
+    "attacks": [
+      {
+        "name": "pinch",
+        "type": "blunt",
+        "damage": 4,
+        "size": 2
+      }
+    ],
+    "naturalArmor": 3,
+    "fleeBloodPercent": 60,
+    "group": [
+      2,
+      4
+    ],
+    "cavern": {
+      "tier": 1,
+      "weight": 30,
+      "cap": 8,
+      "initial": 0,
+      "respawnPermille": 0
+    },
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "k",
+    "fg": "crab_pale"
+  },
+  {
+    "id": "cave_crawler",
+    "name": "cave crawler",
+    "plan": "crawler",
+    "size": 45,
+    "speed": 140,
+    "diet": "none",
+    "temper": "aggressive",
+    "movementClass": "walker",
+    "nocturnal": true,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 12,
+        "size": 3
+      },
+      {
+        "name": "claw",
+        "type": "edge",
+        "damage": 8,
+        "size": 2
+      }
+    ],
+    "naturalArmor": 2,
+    "fleeBloodPercent": 30,
+    "group": [
+      3,
+      5
+    ],
+    "cavern": {
+      "tier": 1,
+      "weight": 0,
+      "cap": 10,
+      "initial": 2,
+      "respawnPermille": 80
+    },
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "C",
+    "fg": "hostile"
+  },
+  {
+    "id": "cave_ox",
+    "name": "cave ox",
+    "plan": "quadruped",
+    "size": 100,
+    "speed": 80,
+    "diet": "grazer",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 5,
+    "hideValue": 9,
+    "value": 70,
+    "attacks": [
+      {
+        "name": "gore",
+        "type": "pierce",
+        "damage": 14,
+        "size": 7
+      }
+    ],
+    "naturalArmor": 1,
+    "fleeBloodPercent": 55,
+    "group": [
+      2,
+      4
+    ],
+    "cavern": {
+      "tier": 2,
+      "weight": 25,
+      "cap": 6,
+      "initial": 0,
+      "respawnPermille": 0
+    },
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "O",
+    "fg": "ox_gray"
+  },
+  {
+    "id": "chicken",
+    "name": "chicken",
+    "plan": "bird",
+    "size": 4,
+    "speed": 90,
+    "diet": "none",
+    "temper": "timid",
+    "movementClass": "small",
+    "nocturnal": false,
+    "products": [
+      {
+        "kind": "eggs",
+        "intervalDays": 3
+      }
+    ],
+    "meatValue": 1,
+    "hideValue": 0,
+    "value": 6,
+    "attacks": [
+      {
+        "name": "peck",
+        "type": "pierce",
+        "damage": 1,
+        "size": 1
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 40,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "breeding": {
+      "gestationDays": 12,
+      "litter": [
+        1,
+        1
+      ],
+      "growDays": 30,
+      "hatch": true
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "h",
+    "fg": "chicken_white"
+  },
+  {
+    "id": "cow",
+    "name": "cow",
+    "plan": "quadruped",
+    "size": 90,
+    "speed": 80,
+    "diet": "grazer",
+    "temper": "timid",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "products": [
+      {
+        "kind": "milk",
+        "intervalDays": 4
+      }
+    ],
+    "meatValue": 4,
+    "hideValue": 8,
+    "value": 60,
+    "attacks": [
+      {
+        "name": "kick",
+        "type": "blunt",
+        "damage": 12,
+        "size": 6
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 60,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "breeding": {
+      "gestationDays": 60,
+      "litter": [
+        1,
+        1
+      ],
+      "growDays": 120
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "C",
+    "fg": "cow_brown"
+  },
+  {
+    "id": "crocodile",
+    "name": "crocodile",
+    "plan": "serpent",
+    "size": 120,
+    "speed": 90,
+    "diet": "carnivore",
+    "temper": "aggressive",
+    "movementClass": "amphibious",
+    "nocturnal": false,
+    "meatValue": 5,
+    "hideValue": 10,
+    "value": 70,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 22,
+        "size": 7
+      }
+    ],
+    "naturalArmor": 4,
+    "fleeBloodPercent": 30,
+    "group": [
+      1,
+      2
+    ],
+    "biomes": [
+      {
+        "biome": "wetland",
+        "weight": 30
+      },
+      {
+        "biome": "tropical_forest",
+        "weight": 15
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "A",
+    "fg": "croc_green"
+  },
+  {
+    "id": "deer",
+    "name": "deer",
+    "plan": "quadruped",
+    "size": 40,
+    "speed": 160,
+    "diet": "grazer",
+    "temper": "timid",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 4,
+    "hideValue": 6,
+    "value": 25,
+    "attacks": [
+      {
+        "name": "kick",
+        "type": "blunt",
+        "damage": 6,
+        "size": 4
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 70,
+    "group": [
+      2,
+      5
+    ],
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 30
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 25
+      },
+      {
+        "biome": "temperate_grassland",
+        "weight": 20
+      },
+      {
+        "biome": "taiga",
+        "weight": 15
+      },
+      {
+        "biome": "wetland",
+        "weight": 10
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "d",
+    "fg": "deer_tan"
+  },
+  {
+    "id": "dog",
+    "name": "dog",
+    "plan": "quadruped",
+    "size": 20,
+    "speed": 130,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 2,
+    "hideValue": 3,
+    "value": 30,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 8,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 50,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "both"
+    },
+    "breeding": {
+      "gestationDays": 20,
+      "litter": [
+        2,
+        4
+      ],
+      "growDays": 60
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "d",
+    "fg": "dog_tan"
+  },
+  {
+    "id": "dwarf",
+    "name": "dwarf",
+    "plan": "humanoid",
+    "size": 60,
+    "speed": 100,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "punch",
+        "type": "blunt",
+        "damage": 6,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "opensDoors": true,
+      "trainable": "none"
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "☺",
+    "fg": "dwarf_normal"
+  },
+  {
+    "id": "elf",
+    "name": "elf",
+    "plan": "humanoid",
+    "size": 55,
+    "speed": 120,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "punch",
+        "type": "blunt",
+        "damage": 5,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "opensDoors": true,
+      "trainable": "none"
+    },
+    "factionDefault": "trader:wildwood",
+    "perception": 12,
+    "glyph": "☺",
+    "fg": "trader_wildwood"
+  },
+  {
+    "id": "elk",
+    "name": "elk",
+    "plan": "quadruped",
+    "size": 110,
+    "speed": 140,
+    "diet": "grazer",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 5,
+    "hideValue": 9,
+    "value": 50,
+    "attacks": [
+      {
+        "name": "gore",
+        "type": "pierce",
+        "damage": 14,
+        "size": 7
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 60,
+    "group": [
+      2,
+      4
+    ],
+    "biomes": [
+      {
+        "biome": "taiga",
+        "weight": 30
+      },
+      {
+        "biome": "cold_steppe",
+        "weight": 20
+      },
+      {
+        "biome": "tundra",
+        "weight": 15
+      },
+      {
+        "biome": "temperate_forest",
+        "weight": 10
+      }
+    ],
+    "season": [
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "E",
+    "fg": "elk_brown"
+  },
+  {
+    "id": "ember_newt",
+    "name": "ember newt",
+    "plan": "serpent",
+    "size": 8,
+    "speed": 90,
+    "diet": "none",
+    "temper": "timid",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 1,
+    "hideValue": 0,
+    "value": 40,
+    "attacks": [],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 80,
+    "group": [
+      1,
+      3
+    ],
+    "cavern": {
+      "tier": 3,
+      "weight": 30,
+      "cap": 8,
+      "initial": 0,
+      "respawnPermille": 0
+    },
+    "flags": {
+      "magmaSafe": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "n",
+    "fg": "ember_orange"
+  },
+  {
+    "id": "fox",
+    "name": "fox",
+    "plan": "quadruped",
+    "size": 12,
+    "speed": 150,
+    "diet": "carnivore",
+    "temper": "timid",
+    "movementClass": "small",
+    "nocturnal": false,
+    "meatValue": 1,
+    "hideValue": 3,
+    "value": 12,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 4,
+        "size": 2
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 60,
+    "group": [
+      1,
+      2
+    ],
+    "biomes": [
+      {
+        "biome": "temperate_grassland",
+        "weight": 20
+      },
+      {
+        "biome": "temperate_forest",
+        "weight": 15
+      },
+      {
+        "biome": "cold_steppe",
+        "weight": 15
+      },
+      {
+        "biome": "tundra",
+        "weight": 10
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 15
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "f",
+    "fg": "fox_orange"
+  },
+  {
+    "id": "giant_cave_spider",
+    "name": "giant cave spider",
+    "plan": "crawler",
+    "size": 70,
+    "speed": 110,
+    "diet": "none",
+    "temper": "territorial",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "pierce",
+        "damage": 16,
+        "size": 4
+      }
+    ],
+    "naturalArmor": 3,
+    "fleeBloodPercent": 40,
+    "group": [
+      1,
+      1
+    ],
+    "cavern": {
+      "tier": 1,
+      "weight": 0,
+      "cap": 3,
+      "initial": 2,
+      "respawnPermille": 30
+    },
+    "flags": {
+      "stealth": true,
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "S",
+    "fg": "hostile"
+  },
+  {
+    "id": "giant_lizard",
+    "name": "giant lizard",
+    "plan": "serpent",
+    "size": 70,
+    "speed": 100,
+    "diet": "carnivore",
+    "temper": "territorial",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 4,
+    "hideValue": 7,
+    "value": 35,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 12,
+        "size": 5
+      }
+    ],
+    "naturalArmor": 2,
+    "fleeBloodPercent": 45,
+    "group": [
+      1,
+      2
+    ],
+    "biomes": [
+      {
+        "biome": "desert",
+        "weight": 30
+      },
+      {
+        "biome": "badlands",
+        "weight": 30
+      },
+      {
+        "biome": "savanna",
+        "weight": 15
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "l",
+    "fg": "lizard_green"
+  },
+  {
+    "id": "gloam_archer",
+    "name": "gloam archer",
+    "plan": "humanoid",
+    "size": 50,
+    "speed": 120,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "punch",
+        "type": "blunt",
+        "damage": 5,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 50,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "opensDoors": true,
+      "trainable": "none"
+    },
+    "factionDefault": "hostile:gloam",
+    "perception": 12,
+    "gear": "bow, 30 arrows, dagger, cap, jerkin",
+    "glyph": "G",
+    "fg": "hostile"
+  },
+  {
+    "id": "gloam_captain",
+    "name": "gloam captain",
+    "plan": "humanoid",
+    "size": 60,
+    "speed": 110,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "punch",
+        "type": "blunt",
+        "damage": 6,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 30,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "opensDoors": true,
+      "trainable": "none"
+    },
+    "factionDefault": "hostile:gloam",
+    "perception": 12,
+    "gear": "best gear tier + 1, helm, mail, shield",
+    "glyph": "G",
+    "fg": "hostile_bright"
+  },
+  {
+    "id": "gloam_snatcher",
+    "name": "gloam snatcher",
+    "plan": "humanoid",
+    "size": 45,
+    "speed": 150,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 80,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "stealth": true,
+      "opensDoors": true,
+      "trainable": "none"
+    },
+    "factionDefault": "hostile:gloam",
+    "perception": 12,
+    "gear": "dagger, cap, leather jerkin",
+    "glyph": "G",
+    "fg": "hostile"
+  },
+  {
+    "id": "gloam_warrior",
+    "name": "gloam warrior",
+    "plan": "humanoid",
+    "size": 55,
+    "speed": 110,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "punch",
+        "type": "blunt",
+        "damage": 5,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 40,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "opensDoors": true,
+      "trainable": "none"
+    },
+    "factionDefault": "hostile:gloam",
+    "perception": 12,
+    "gear": "weapon by gear tier, cap or helm, jerkin or mail, shield 50%",
+    "glyph": "G",
+    "fg": "hostile"
+  },
+  {
+    "id": "glow_beetle",
+    "name": "glow beetle",
+    "plan": "crawler",
+    "size": 5,
+    "speed": 80,
+    "diet": "none",
+    "temper": "timid",
+    "movementClass": "small",
+    "nocturnal": false,
+    "meatValue": 1,
+    "hideValue": 4,
+    "shell": true,
+    "value": 8,
+    "attacks": [],
+    "naturalArmor": 1,
+    "fleeBloodPercent": 90,
+    "group": [
+      2,
+      6
+    ],
+    "cavern": {
+      "tier": 1,
+      "weight": 40,
+      "cap": 12,
+      "initial": 0,
+      "respawnPermille": 0
+    },
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "i",
+    "fg": "glow_green"
+  },
+  {
+    "id": "goat",
+    "name": "goat",
+    "plan": "quadruped",
+    "size": 35,
+    "speed": 110,
+    "diet": "grazer",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "products": [
+      {
+        "kind": "milk",
+        "intervalDays": 5
+      }
+    ],
+    "meatValue": 3,
+    "hideValue": 5,
+    "value": 25,
+    "attacks": [
+      {
+        "name": "butt",
+        "type": "blunt",
+        "damage": 7,
+        "size": 4
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 55,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "breeding": {
+      "gestationDays": 40,
+      "litter": [
+        1,
+        2
+      ],
+      "growDays": 70
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "g",
+    "fg": "goat_gray"
+  },
+  {
+    "id": "hillfolk_bandit",
+    "name": "hillfolk bandit",
+    "plan": "humanoid",
+    "size": 70,
+    "speed": 110,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "punch",
+        "type": "blunt",
+        "damage": 7,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 60,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "opensDoors": true,
+      "trainable": "none"
+    },
+    "factionDefault": "hostile:hillfolk",
+    "perception": 12,
+    "gear": "club or dagger, cap, jerkin",
+    "glyph": "B",
+    "fg": "hostile"
+  },
+  {
+    "id": "hollow_crawler",
+    "name": "hollow crawler",
+    "plan": "crawler",
+    "size": 55,
+    "speed": 150,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": true,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 16,
+        "size": 3
+      },
+      {
+        "name": "claw",
+        "type": "edge",
+        "damage": 10,
+        "size": 2
+      }
+    ],
+    "naturalArmor": 4,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "magmaSafe": true,
+      "trainable": "none"
+    },
+    "factionDefault": "deep",
+    "perception": 12,
+    "glyph": "H",
+    "fg": "hollow_violet"
+  },
+  {
+    "id": "hollow_maw",
+    "name": "the Hollow Maw",
+    "plan": "amorphous",
+    "size": 250,
+    "speed": 50,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "large",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "engulf",
+        "type": "edge",
+        "damage": 50,
+        "size": 12
+      },
+      {
+        "name": "crush",
+        "type": "blunt",
+        "damage": 40,
+        "size": 10
+      }
+    ],
+    "naturalArmor": 15,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "breaksDoors": true,
+      "magmaSafe": true,
+      "trainable": "none"
+    },
+    "factionDefault": "deep",
+    "perception": 12,
+    "glyph": "H",
+    "fg": "hollow_violet"
+  },
+  {
+    "id": "hollow_stalker",
+    "name": "hollow stalker",
+    "plan": "humanoid",
+    "size": 80,
+    "speed": 130,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": true,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "claw",
+        "type": "edge",
+        "damage": 20,
+        "size": 3
+      },
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 14,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 6,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "stealth": true,
+      "breaksDoors": true,
+      "magmaSafe": true,
+      "trainable": "none"
+    },
+    "factionDefault": "deep",
+    "perception": 12,
+    "glyph": "H",
+    "fg": "hollow_violet"
+  },
+  {
+    "id": "horse",
+    "name": "horse",
+    "plan": "quadruped",
+    "size": 110,
+    "speed": 160,
+    "diet": "grazer",
+    "temper": "timid",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 3,
+    "hideValue": 8,
+    "value": 120,
+    "attacks": [
+      {
+        "name": "kick",
+        "type": "blunt",
+        "damage": 14,
+        "size": 6
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 65,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "breeding": {
+      "gestationDays": 70,
+      "litter": [
+        1,
+        1
+      ],
+      "growDays": 120
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "H",
+    "fg": "horse_brown"
+  },
+  {
+    "id": "human",
+    "name": "human",
+    "plan": "humanoid",
+    "size": 70,
+    "speed": 110,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "punch",
+        "type": "blunt",
+        "damage": 7,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "opensDoors": true,
+      "trainable": "none"
+    },
+    "factionDefault": "trader:hillfolk",
+    "perception": 12,
+    "glyph": "☺",
+    "fg": "trader_hillfolk"
+  },
+  {
+    "id": "lynx",
+    "name": "lynx",
+    "plan": "quadruped",
+    "size": 25,
+    "speed": 150,
+    "diet": "carnivore",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": true,
+    "meatValue": 2,
+    "hideValue": 6,
+    "value": 30,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 8,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 50,
+    "group": [
+      1,
+      1
+    ],
+    "biomes": [
+      {
+        "biome": "taiga",
+        "weight": 20
+      },
+      {
+        "biome": "temperate_forest",
+        "weight": 10
+      },
+      {
+        "biome": "mountain",
+        "weight": 10
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "l",
+    "fg": "lynx_tan"
+  },
+  {
+    "id": "magma_wyrm",
+    "name": "magma wyrm",
+    "plan": "serpent",
+    "size": 220,
+    "speed": 80,
+    "diet": "none",
+    "temper": "aggressive",
+    "movementClass": "large",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 45,
+        "size": 9
+      },
+      {
+        "name": "tail",
+        "type": "blunt",
+        "damage": 30,
+        "size": 8
+      },
+      {
+        "name": "fire breath",
+        "type": "burn",
+        "damage": 40,
+        "size": 10,
+        "range": 6
+      }
+    ],
+    "naturalArmor": 12,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "cavern": {
+      "tier": 3,
+      "weight": 0,
+      "cap": 1,
+      "initial": 1,
+      "respawnPermille": 0
+    },
+    "flags": {
+      "breaksDoors": true,
+      "magmaSafe": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "W",
+    "fg": "wyrm_red"
+  },
+  {
+    "id": "mammoth",
+    "name": "mammoth",
+    "plan": "quadruped",
+    "size": 220,
+    "speed": 80,
+    "diet": "grazer",
+    "temper": "neutral",
+    "movementClass": "large",
+    "nocturnal": false,
+    "meatValue": 8,
+    "hideValue": 20,
+    "value": 300,
+    "attacks": [
+      {
+        "name": "tusk",
+        "type": "pierce",
+        "damage": 30,
+        "size": 10
+      },
+      {
+        "name": "trample",
+        "type": "blunt",
+        "damage": 25,
+        "size": 9
+      }
+    ],
+    "naturalArmor": 4,
+    "fleeBloodPercent": 40,
+    "group": [
+      2,
+      4
+    ],
+    "biomes": [
+      {
+        "biome": "tundra",
+        "weight": 10
+      },
+      {
+        "biome": "tundra",
+        "weight": 15
+      }
+    ],
+    "season": [
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "M",
+    "fg": "mammoth_brown"
+  },
+  {
+    "id": "mole_hound",
+    "name": "mole hound",
+    "plan": "quadruped",
+    "size": 30,
+    "speed": 120,
+    "diet": "omnivore",
+    "temper": "territorial",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 2,
+    "hideValue": 5,
+    "value": 40,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 10,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 1,
+    "fleeBloodPercent": 45,
+    "group": [
+      1,
+      3
+    ],
+    "cavern": {
+      "tier": 2,
+      "weight": 25,
+      "cap": 6,
+      "initial": 0,
+      "respawnPermille": 0
+    },
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "war"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "h",
+    "fg": "hound_umber"
+  },
+  {
+    "id": "mountain_goat",
+    "name": "mountain goat",
+    "plan": "quadruped",
+    "size": 40,
+    "speed": 120,
+    "diet": "grazer",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 3,
+    "hideValue": 5,
+    "value": 25,
+    "attacks": [
+      {
+        "name": "butt",
+        "type": "blunt",
+        "damage": 8,
+        "size": 4
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 60,
+    "group": [
+      2,
+      5
+    ],
+    "biomes": [
+      {
+        "biome": "mountain",
+        "weight": 35
+      },
+      {
+        "biome": "alpine",
+        "weight": 35
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 10
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "g",
+    "fg": "goat_white"
+  },
+  {
+    "id": "mule",
+    "name": "mule",
+    "plan": "quadruped",
+    "size": 90,
+    "speed": 100,
+    "diet": "grazer",
+    "temper": "timid",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 3,
+    "hideValue": 7,
+    "value": 50,
+    "attacks": [
+      {
+        "name": "kick",
+        "type": "blunt",
+        "damage": 12,
+        "size": 6
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 60,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "m",
+    "fg": "mule_brown"
+  },
+  {
+    "id": "pig",
+    "name": "pig",
+    "plan": "quadruped",
+    "size": 55,
+    "speed": 90,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 5,
+    "hideValue": 6,
+    "value": 35,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 7,
+        "size": 4
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 55,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "breeding": {
+      "gestationDays": 35,
+      "litter": [
+        3,
+        6
+      ],
+      "growDays": 70
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "p",
+    "fg": "pig_pink"
+  },
+  {
+    "id": "rabbit",
+    "name": "rabbit",
+    "plan": "quadruped",
+    "size": 8,
+    "speed": 150,
+    "diet": "grazer",
+    "temper": "timid",
+    "movementClass": "small",
+    "nocturnal": false,
+    "meatValue": 1,
+    "hideValue": 2,
+    "value": 6,
+    "attacks": [],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 90,
+    "group": [
+      3,
+      8
+    ],
+    "biomes": [
+      {
+        "biome": "temperate_grassland",
+        "weight": 35
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 20
+      },
+      {
+        "biome": "cold_steppe",
+        "weight": 20
+      },
+      {
+        "biome": "savanna",
+        "weight": 10
+      },
+      {
+        "biome": "temperate_forest",
+        "weight": 10
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "r",
+    "fg": "rabbit_gray"
+  },
+  {
+    "id": "restless_dead",
+    "name": "restless dead",
+    "plan": "humanoid",
+    "size": 60,
+    "speed": 60,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": true,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "claw",
+        "type": "edge",
+        "damage": 8,
+        "size": 4
+      }
+    ],
+    "naturalArmor": 1,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "gear": "rusted weapon 30%",
+    "glyph": "Z",
+    "fg": "undead_gray"
+  },
+  {
+    "id": "sheep",
+    "name": "sheep",
+    "plan": "quadruped",
+    "size": 40,
+    "speed": 90,
+    "diet": "grazer",
+    "temper": "timid",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "products": [
+      {
+        "kind": "wool",
+        "intervalDays": 28
+      }
+    ],
+    "meatValue": 3,
+    "hideValue": 5,
+    "value": 30,
+    "attacks": [
+      {
+        "name": "butt",
+        "type": "blunt",
+        "damage": 6,
+        "size": 4
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 60,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "breeding": {
+      "gestationDays": 45,
+      "litter": [
+        1,
+        2
+      ],
+      "growDays": 80
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "s",
+    "fg": "sheep_cream"
+  },
+  {
+    "id": "snow_leopard",
+    "name": "snow leopard",
+    "plan": "quadruped",
+    "size": 45,
+    "speed": 160,
+    "diet": "carnivore",
+    "temper": "aggressive",
+    "movementClass": "walker",
+    "nocturnal": true,
+    "meatValue": 3,
+    "hideValue": 9,
+    "value": 60,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 12,
+        "size": 3
+      },
+      {
+        "name": "claw",
+        "type": "edge",
+        "damage": 9,
+        "size": 2
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 40,
+    "group": [
+      1,
+      1
+    ],
+    "biomes": [
+      {
+        "biome": "alpine",
+        "weight": 20
+      },
+      {
+        "biome": "tundra",
+        "weight": 10
+      },
+      {
+        "biome": "mountain",
+        "weight": 15
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "L",
+    "fg": "leopard_pale"
+  },
+  {
+    "id": "troll",
+    "name": "troll",
+    "plan": "humanoid",
+    "size": 140,
+    "speed": 90,
+    "diet": "none",
+    "temper": "aggressive",
+    "movementClass": "large",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "slam",
+        "type": "blunt",
+        "damage": 26,
+        "size": 8
+      },
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 14,
+        "size": 5
+      }
+    ],
+    "naturalArmor": 4,
+    "fleeBloodPercent": 30,
+    "group": [
+      1,
+      2
+    ],
+    "cavern": {
+      "tier": 2,
+      "weight": 0,
+      "cap": 4,
+      "initial": 2,
+      "respawnPermille": 40
+    },
+    "flags": {
+      "breaksDoors": true,
+      "butcherable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "T",
+    "fg": "hostile"
+  },
+  {
+    "id": "trollkin",
+    "name": "trollkin",
+    "plan": "humanoid",
+    "size": 150,
+    "speed": 90,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "large",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "slam",
+        "type": "blunt",
+        "damage": 28,
+        "size": 8
+      }
+    ],
+    "naturalArmor": 3,
+    "fleeBloodPercent": 25,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "breaksDoors": true,
+      "trainable": "none"
+    },
+    "factionDefault": "hostile:gloam",
+    "perception": 12,
+    "gear": "club",
+    "glyph": "T",
+    "fg": "hostile"
+  },
+  {
+    "id": "wild_horse",
+    "name": "wild horse",
+    "plan": "quadruped",
+    "size": 110,
+    "speed": 160,
+    "diet": "grazer",
+    "temper": "timid",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 3,
+    "hideValue": 8,
+    "value": 60,
+    "attacks": [
+      {
+        "name": "kick",
+        "type": "blunt",
+        "damage": 14,
+        "size": 6
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 70,
+    "group": [
+      3,
+      6
+    ],
+    "biomes": [
+      {
+        "biome": "temperate_grassland",
+        "weight": 20
+      },
+      {
+        "biome": "cold_steppe",
+        "weight": 25
+      },
+      {
+        "biome": "savanna",
+        "weight": 20
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "H",
+    "fg": "horse_dun"
+  },
+  {
+    "id": "wildwood_bearer",
+    "name": "wildwood bearer",
+    "plan": "humanoid",
+    "size": 55,
+    "speed": 110,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "punch",
+        "type": "blunt",
+        "damage": 5,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "opensDoors": true,
+      "trainable": "none"
+    },
+    "factionDefault": "trader:wildwood",
+    "perception": 12,
+    "glyph": "☺",
+    "fg": "trader_wildwood"
+  },
+  {
+    "id": "wolf",
+    "name": "wolf",
+    "plan": "quadruped",
+    "size": 35,
+    "speed": 150,
+    "diet": "carnivore",
+    "temper": "aggressive",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 2,
+    "hideValue": 5,
+    "value": 20,
+    "attacks": [
+      {
+        "name": "bite",
+        "type": "edge",
+        "damage": 10,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 45,
+    "group": [
+      3,
+      6
+    ],
+    "biomes": [
+      {
+        "biome": "taiga",
+        "weight": 30
+      },
+      {
+        "biome": "temperate_forest",
+        "weight": 15
+      },
+      {
+        "biome": "cold_steppe",
+        "weight": 20
+      },
+      {
+        "biome": "tundra",
+        "weight": 15
+      },
+      {
+        "biome": "dark_forest",
+        "weight": 25
+      },
+      {
+        "biome": "mountain",
+        "weight": 10
+      }
+    ],
+    "season": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "war"
+    },
+    "factionDefault": "wild",
+    "perception": 12,
+    "glyph": "w",
+    "fg": "wolf_gray"
+  },
+  {
+    "id": "yak",
+    "name": "yak",
+    "plan": "quadruped",
+    "size": 120,
+    "speed": 80,
+    "diet": "grazer",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "products": [
+      {
+        "kind": "milk",
+        "intervalDays": 5
+      },
+      {
+        "kind": "wool",
+        "intervalDays": 28
+      }
+    ],
+    "meatValue": 4,
+    "hideValue": 10,
+    "value": 70,
+    "attacks": [
+      {
+        "name": "gore",
+        "type": "pierce",
+        "damage": 14,
+        "size": 7
+      }
+    ],
+    "naturalArmor": 1,
+    "fleeBloodPercent": 55,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "breeding": {
+      "gestationDays": 65,
+      "litter": [
+        1,
+        1
+      ],
+      "growDays": 140
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "Y",
+    "fg": "yak_black"
+  }
+]

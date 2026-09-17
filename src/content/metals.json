@@ -1,0 +1,304 @@
+[
+  {
+    "id": "bismuth",
+    "name": "bismuth",
+    "class": "metal",
+    "tier": 0,
+    "value": 10,
+    "density": 980,
+    "weaponMult": 300,
+    "armorMult": 300,
+    "bluntBonus": 0,
+    "meltsAtC": 271,
+    "color": "bismuth_pink",
+    "tags": [
+      "alloy_input"
+    ]
+  },
+  {
+    "id": "bismuth_bronze",
+    "name": "bismuth bronze",
+    "class": "metal",
+    "tier": 2,
+    "value": 20,
+    "density": 870,
+    "weaponMult": 920,
+    "armorMult": 920,
+    "bluntBonus": 0,
+    "meltsAtC": 900,
+    "color": "bronze_pale",
+    "alloy": {
+      "inputs": [
+        {
+          "material": "copper",
+          "count": 2,
+          "kind": "bar"
+        },
+        {
+          "material": "tin",
+          "count": 1,
+          "kind": "bar"
+        },
+        {
+          "material": "bismuth",
+          "count": 1,
+          "kind": "bar"
+        }
+      ],
+      "output": 4
+    }
+  },
+  {
+    "id": "brass",
+    "name": "brass",
+    "class": "metal",
+    "tier": 1,
+    "value": 16,
+    "density": 850,
+    "weaponMult": 750,
+    "armorMult": 750,
+    "bluntBonus": 0,
+    "meltsAtC": 930,
+    "color": "brass_gold",
+    "alloy": {
+      "inputs": [
+        {
+          "material": "copper",
+          "count": 1,
+          "kind": "bar"
+        },
+        {
+          "material": "zinc",
+          "count": 1,
+          "kind": "bar"
+        }
+      ],
+      "output": 2
+    }
+  },
+  {
+    "id": "bronze",
+    "name": "bronze",
+    "class": "metal",
+    "tier": 2,
+    "value": 18,
+    "density": 880,
+    "weaponMult": 900,
+    "armorMult": 900,
+    "bluntBonus": 0,
+    "meltsAtC": 950,
+    "color": "bronze_gold",
+    "alloy": {
+      "inputs": [
+        {
+          "material": "copper",
+          "count": 1,
+          "kind": "bar"
+        },
+        {
+          "material": "tin",
+          "count": 1,
+          "kind": "bar"
+        }
+      ],
+      "output": 2
+    }
+  },
+  {
+    "id": "copper",
+    "name": "copper",
+    "class": "metal",
+    "tier": 1,
+    "value": 10,
+    "density": 890,
+    "weaponMult": 800,
+    "armorMult": 800,
+    "bluntBonus": 0,
+    "meltsAtC": 1085,
+    "color": "copper_orange"
+  },
+  {
+    "id": "deepsilver",
+    "name": "deepsilver",
+    "class": "metal",
+    "tier": 5,
+    "value": 250,
+    "density": 600,
+    "weaponMult": 1600,
+    "armorMult": 1600,
+    "bluntBonus": 0,
+    "meltsAtC": 2400,
+    "color": "deepsilver_blue",
+    "armorWeightMult": 500,
+    "tags": [
+      "magma_safe"
+    ]
+  },
+  {
+    "id": "electrum",
+    "name": "electrum",
+    "class": "metal",
+    "tier": 0,
+    "value": 45,
+    "density": 1500,
+    "weaponMult": 450,
+    "armorMult": 450,
+    "bluntBonus": 0,
+    "meltsAtC": 1000,
+    "color": "electrum_pale",
+    "alloy": {
+      "inputs": [
+        {
+          "material": "gold",
+          "count": 1,
+          "kind": "bar"
+        },
+        {
+          "material": "silver",
+          "count": 1,
+          "kind": "bar"
+        }
+      ],
+      "output": 2
+    }
+  },
+  {
+    "id": "gold",
+    "name": "gold",
+    "class": "metal",
+    "tier": 0,
+    "value": 60,
+    "density": 1930,
+    "weaponMult": 400,
+    "armorMult": 400,
+    "bluntBonus": 10,
+    "meltsAtC": 1064,
+    "color": "gold_yellow"
+  },
+  {
+    "id": "iron",
+    "name": "iron",
+    "class": "metal",
+    "tier": 3,
+    "value": 15,
+    "density": 790,
+    "weaponMult": 1000,
+    "armorMult": 1000,
+    "bluntBonus": 0,
+    "meltsAtC": 1538,
+    "color": "iron_gray",
+    "tags": [
+      "magma_safe"
+    ]
+  },
+  {
+    "id": "lead",
+    "name": "lead",
+    "class": "metal",
+    "tier": 0,
+    "value": 6,
+    "density": 1130,
+    "weaponMult": 400,
+    "armorMult": 400,
+    "bluntBonus": 0,
+    "meltsAtC": 327,
+    "color": "lead_gray"
+  },
+  {
+    "id": "platinum",
+    "name": "platinum",
+    "class": "metal",
+    "tier": 0,
+    "value": 90,
+    "density": 2140,
+    "weaponMult": 500,
+    "armorMult": 600,
+    "bluntBonus": 10,
+    "meltsAtC": 1768,
+    "color": "platinum_white",
+    "tags": [
+      "magma_safe"
+    ]
+  },
+  {
+    "id": "silver",
+    "name": "silver",
+    "class": "metal",
+    "tier": 1,
+    "value": 25,
+    "density": 1050,
+    "weaponMult": 700,
+    "armorMult": 600,
+    "bluntBonus": 30,
+    "meltsAtC": 962,
+    "color": "silver_white"
+  },
+  {
+    "id": "steel",
+    "name": "steel",
+    "class": "metal",
+    "tier": 4,
+    "value": 40,
+    "density": 790,
+    "weaponMult": 1250,
+    "armorMult": 1250,
+    "bluntBonus": 0,
+    "meltsAtC": 1500,
+    "color": "steel_bright",
+    "alloy": {
+      "inputs": [
+        {
+          "material": "iron",
+          "count": 1,
+          "kind": "bar"
+        },
+        {
+          "material": "flux",
+          "count": 1,
+          "kind": "stone"
+        },
+        {
+          "material": "fuel",
+          "count": 1,
+          "kind": "fuel"
+        }
+      ],
+      "output": 1
+    },
+    "tags": [
+      "magma_safe"
+    ]
+  },
+  {
+    "id": "tin",
+    "name": "tin",
+    "class": "metal",
+    "tier": 0,
+    "value": 12,
+    "density": 730,
+    "weaponMult": 500,
+    "armorMult": 500,
+    "bluntBonus": 0,
+    "meltsAtC": 232,
+    "color": "tin_gray",
+    "tags": [
+      "alloy_input"
+    ]
+  },
+  {
+    "id": "zinc",
+    "name": "zinc",
+    "class": "metal",
+    "tier": 0,
+    "value": 8,
+    "density": 710,
+    "weaponMult": 500,
+    "armorMult": 500,
+    "bluntBonus": 0,
+    "meltsAtC": 420,
+    "color": "zinc_gray",
+    "tags": [
+      "alloy_input"
+    ]
+  }
+]

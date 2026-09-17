@@ -1,0 +1,292 @@
+[
+  {
+    "id": "axe",
+    "name": "battle axe",
+    "weaponClass": "axe",
+    "skill": "axe",
+    "damageType": "edge",
+    "damage": 22,
+    "size": 6,
+    "hands": 1,
+    "bars": 2,
+    "mult": 8000,
+    "materials": [
+      "metal"
+    ],
+    "tags": [
+      "battle_axe"
+    ]
+  },
+  {
+    "id": "bow",
+    "name": "bow",
+    "weaponClass": "bow",
+    "skill": "bow",
+    "damageType": null,
+    "damage": 0,
+    "size": 5,
+    "hands": 2,
+    "bars": 0,
+    "logs": 1,
+    "mult": 8000,
+    "materials": [
+      "wood"
+    ],
+    "launcher": {
+      "range": 14,
+      "power": 1000,
+      "ammo": "arrow",
+      "yewPower": 1100
+    }
+  },
+  {
+    "id": "club",
+    "name": "club",
+    "weaponClass": "mace",
+    "skill": "mace",
+    "damageType": "blunt",
+    "damage": 12,
+    "size": 5,
+    "hands": 1,
+    "bars": 0,
+    "logs": 1,
+    "mult": 2000,
+    "materials": [
+      "wood"
+    ]
+  },
+  {
+    "id": "crossbow",
+    "name": "crossbow",
+    "weaponClass": "crossbow",
+    "skill": "crossbow",
+    "damageType": null,
+    "damage": 0,
+    "size": 6,
+    "hands": 2,
+    "bars": 0,
+    "logs": 1,
+    "mult": 10000,
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "launcher": {
+      "range": 12,
+      "power": 1200,
+      "ammo": "bolt",
+      "metalPower": 1300
+    }
+  },
+  {
+    "id": "dagger",
+    "name": "dagger",
+    "weaponClass": "dagger",
+    "skill": "dagger",
+    "damageType": "edge",
+    "damage": 12,
+    "size": 3,
+    "hands": 1,
+    "bars": 1,
+    "mult": 4000,
+    "materials": [
+      "metal",
+      "obsidian",
+      "bone"
+    ]
+  },
+  {
+    "id": "great_axe",
+    "name": "great axe",
+    "weaponClass": "axe",
+    "skill": "axe",
+    "damageType": "edge",
+    "damage": 30,
+    "size": 9,
+    "hands": 2,
+    "bars": 3,
+    "mult": 12000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "mace",
+    "name": "mace",
+    "weaponClass": "mace",
+    "skill": "mace",
+    "damageType": "blunt",
+    "damage": 20,
+    "size": 6,
+    "hands": 1,
+    "bars": 2,
+    "mult": 7000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "maul",
+    "name": "maul",
+    "weaponClass": "hammer",
+    "skill": "hammer",
+    "damageType": "blunt",
+    "damage": 32,
+    "size": 10,
+    "hands": 2,
+    "bars": 3,
+    "mult": 12000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "pick",
+    "name": "pick",
+    "weaponClass": "pick",
+    "skill": "pick",
+    "damageType": "pierce",
+    "damage": 16,
+    "size": 6,
+    "hands": 1,
+    "bars": 2,
+    "mult": 6000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "pike",
+    "name": "pike",
+    "weaponClass": "spear",
+    "skill": "spear",
+    "damageType": "pierce",
+    "damage": 24,
+    "size": 9,
+    "hands": 2,
+    "bars": 2,
+    "logs": 1,
+    "mult": 9000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "short_sword",
+    "name": "short sword",
+    "weaponClass": "sword",
+    "skill": "sword",
+    "damageType": "edge",
+    "damage": 18,
+    "size": 5,
+    "hands": 1,
+    "bars": 2,
+    "mult": 8000,
+    "materials": [
+      "metal",
+      "obsidian"
+    ]
+  },
+  {
+    "id": "sling",
+    "name": "sling",
+    "weaponClass": "sling",
+    "skill": "sling",
+    "damageType": null,
+    "damage": 0,
+    "size": 2,
+    "hands": 1,
+    "bars": 0,
+    "mult": 2000,
+    "materials": [
+      "leather"
+    ],
+    "launcher": {
+      "range": 8,
+      "power": 800,
+      "ammo": "sling_stone"
+    }
+  },
+  {
+    "id": "spear",
+    "name": "spear",
+    "weaponClass": "spear",
+    "skill": "spear",
+    "damageType": "pierce",
+    "damage": 18,
+    "size": 6,
+    "hands": 1,
+    "bars": 1,
+    "logs": 1,
+    "mult": 6000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "training_axe",
+    "name": "training axe",
+    "weaponClass": "axe",
+    "skill": "axe",
+    "damageType": null,
+    "damage": 0,
+    "size": 6,
+    "hands": 1,
+    "bars": 0,
+    "logs": 1,
+    "mult": 2000,
+    "materials": [
+      "wood"
+    ],
+    "training": true
+  },
+  {
+    "id": "training_spear",
+    "name": "training spear",
+    "weaponClass": "spear",
+    "skill": "spear",
+    "damageType": null,
+    "damage": 0,
+    "size": 6,
+    "hands": 1,
+    "bars": 0,
+    "logs": 1,
+    "mult": 2000,
+    "materials": [
+      "wood"
+    ],
+    "training": true
+  },
+  {
+    "id": "training_sword",
+    "name": "training sword",
+    "weaponClass": "sword",
+    "skill": "sword",
+    "damageType": null,
+    "damage": 0,
+    "size": 5,
+    "hands": 1,
+    "bars": 0,
+    "logs": 1,
+    "mult": 2000,
+    "materials": [
+      "wood"
+    ],
+    "training": true
+  },
+  {
+    "id": "warhammer",
+    "name": "warhammer",
+    "weaponClass": "hammer",
+    "skill": "hammer",
+    "damageType": "blunt",
+    "damage": 24,
+    "size": 7,
+    "hands": 1,
+    "bars": 2,
+    "mult": 8000,
+    "materials": [
+      "metal"
+    ]
+  }
+]

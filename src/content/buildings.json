@@ -1,0 +1,1648 @@
+[
+  {
+    "id": "archery_target",
+    "name": "archery target",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "archery_target",
+        "count": 1
+      }
+    ],
+    "labor": "carpentry",
+    "buildTicks": 30,
+    "tags": [
+      "archery_target"
+    ],
+    "roomValue": 0,
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "◙"
+  },
+  {
+    "id": "armor_stand",
+    "name": "armor stand",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "armor_stand",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 40,
+    "tags": [],
+    "roomValue": "item",
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "╧"
+  },
+  {
+    "id": "bed",
+    "name": "bed",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "bed",
+        "count": 1
+      }
+    ],
+    "labor": "carpentry",
+    "buildTicks": 40,
+    "tags": [
+      "sleep"
+    ],
+    "roomValue": "item",
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "Θ"
+  },
+  {
+    "id": "bowyer",
+    "name": "bowyer's workshop",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 2
+      }
+    ],
+    "labor": "carpentry",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "bowyer",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "butcher",
+    "name": "butcher's shop",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "table",
+        "count": 1
+      },
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 150,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "butcher",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "cabinet",
+    "name": "cabinet",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "cabinet",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 40,
+    "tags": [
+      "store"
+    ],
+    "roomValue": "item",
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "π"
+  },
+  {
+    "id": "cage_building",
+    "name": "cage",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "cage",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 40,
+    "tags": [
+      "cage"
+    ],
+    "roomValue": "item",
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "▒"
+  },
+  {
+    "id": "cage_trap",
+    "name": "cage trap",
+    "category": "trap",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "mechanism",
+        "count": 1
+      },
+      {
+        "match": "cage",
+        "count": 1
+      }
+    ],
+    "labor": "mechanics",
+    "buildTicks": 80,
+    "tags": [
+      "trap:cage"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "^"
+  },
+  {
+    "id": "carpenter",
+    "name": "carpenter's workshop",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 2
+      }
+    ],
+    "labor": "carpentry",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "carpenter",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "chain_post",
+    "name": "chain",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "chain|rope",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 30,
+    "tags": [
+      "chain"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "§"
+  },
+  {
+    "id": "chair",
+    "name": "chair",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "chair",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 30,
+    "tags": [
+      "sit"
+    ],
+    "roomValue": "item",
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "╫"
+  },
+  {
+    "id": "chest",
+    "name": "chest",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "chest",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 40,
+    "tags": [
+      "store",
+      "container"
+    ],
+    "roomValue": "item",
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "▄"
+  },
+  {
+    "id": "clothier",
+    "name": "clothier's shop",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "table",
+        "count": 1
+      },
+      {
+        "match": "chest",
+        "count": 1
+      }
+    ],
+    "labor": "carpentry",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "clothier",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "coffin",
+    "name": "coffin",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "coffin",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 60,
+    "tags": [
+      "coffin"
+    ],
+    "roomValue": "item",
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "▬"
+  },
+  {
+    "id": "craftdwarf",
+    "name": "craftsdwarf's workshop",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      },
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "craftdwarf",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "door",
+    "name": "door",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor between two walls",
+    "inputs": [
+      {
+        "match": "door",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 60,
+    "tags": [
+      "door"
+    ],
+    "roomValue": "item",
+    "passable": "rules",
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "+"
+  },
+  {
+    "id": "drawbridge",
+    "name": "drawbridge",
+    "category": "mechanism",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": true,
+      "variable": {
+        "max": 5
+      }
+    },
+    "on": "at least one end tile on floor; the rest floor or open",
+    "inputs": [
+      {
+        "match": "block",
+        "count": "tiles"
+      },
+      {
+        "match": "mechanism",
+        "count": 1
+      }
+    ],
+    "labor": "mechanics",
+    "buildTicks": 60,
+    "tags": [
+      "bridge",
+      "blocks_fluid"
+    ],
+    "roomValue": 0,
+    "passable": "rules",
+    "blocksFluid": "rules",
+    "value": 8,
+    "glyph": "═"
+  },
+  {
+    "id": "farmers_workshop",
+    "name": "farmer's workshop",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "table",
+        "count": 1
+      },
+      {
+        "match": "bucket",
+        "count": 1
+      }
+    ],
+    "labor": "carpentry",
+    "buildTicks": 150,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "farmers",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "floodgate_building",
+    "name": "floodgate",
+    "category": "mechanism",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "floodgate",
+        "count": 1
+      }
+    ],
+    "labor": "mechanics",
+    "buildTicks": 80,
+    "tags": [
+      "floodgate",
+      "blocks_fluid"
+    ],
+    "roomValue": 0,
+    "passable": "rules",
+    "blocksFluid": "rules",
+    "value": 0,
+    "glyph": "╪"
+  },
+  {
+    "id": "floor",
+    "name": "floor",
+    "category": "construction",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "open (supported) or floor",
+    "inputs": [
+      {
+        "match": "block|log|bar|raw_stone",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 60,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 1,
+    "glyph": "+"
+  },
+  {
+    "id": "forge",
+    "name": "forge",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "anvil",
+        "count": 1
+      },
+      {
+        "match": "stone_block",
+        "count": 3
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 300,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "forge",
+    "impassableTiles": [
+      0,
+      2,
+      6,
+      8
+    ],
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "fortification",
+    "name": "fortification",
+    "category": "construction",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor, or converts a wall",
+    "inputs": [
+      {
+        "match": "block|bar",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 120,
+    "tags": [],
+    "roomValue": 0,
+    "passable": "rules",
+    "blocksFluid": false,
+    "value": 2,
+    "glyph": "╬"
+  },
+  {
+    "id": "hatch",
+    "name": "hatch",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "stairs_down or ramp top",
+    "inputs": [
+      {
+        "match": "hatch",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 60,
+    "tags": [
+      "hatch"
+    ],
+    "roomValue": "item",
+    "passable": "rules",
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "¤"
+  },
+  {
+    "id": "hearth",
+    "name": "hearth",
+    "category": "special",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor, indoors or outdoors",
+    "inputs": [
+      {
+        "match": "stone_block",
+        "count": 3
+      },
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 200,
+    "tags": [
+      "hearth",
+      "light"
+    ],
+    "roomValue": 0,
+    "passable": false,
+    "blocksFluid": false,
+    "value": 50,
+    "glyph": "☼"
+  },
+  {
+    "id": "jeweler",
+    "name": "jeweler's workshop",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "stone_block",
+        "count": 2
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "jeweler",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "kennel",
+    "name": "kennel",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 2
+      },
+      {
+        "match": "chain|rope",
+        "count": 1
+      }
+    ],
+    "labor": "carpentry",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "kennel",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "kitchen",
+    "name": "kitchen",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "table",
+        "count": 1
+      },
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "kitchen",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "leatherworks",
+    "name": "leatherworks",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "table",
+        "count": 1
+      },
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "labor": "carpentry",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "leatherworks",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "lever",
+    "name": "lever",
+    "category": "mechanism",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "mechanism",
+        "count": 1
+      }
+    ],
+    "labor": "mechanics",
+    "buildTicks": 60,
+    "tags": [
+      "lever"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 5,
+    "glyph": "/"
+  },
+  {
+    "id": "loom",
+    "name": "loom",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 2
+      }
+    ],
+    "labor": "carpentry",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "loom",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "magma_forge",
+    "name": "magma forge",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "anvil",
+        "count": 1
+      },
+      {
+        "match": "stone_block",
+        "count": 3,
+        "material": "any"
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 350,
+    "tags": [
+      "magma"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "forge",
+    "impassableTiles": [
+      0,
+      2,
+      6,
+      8
+    ],
+    "workTile": 4,
+    "outputTile": 7,
+    "magmaVariantOf": "forge"
+  },
+  {
+    "id": "magma_kiln",
+    "name": "magma kiln",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "stone_block",
+        "count": 3,
+        "material": "any"
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 300,
+    "tags": [
+      "magma"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "impassableTiles": [
+      0,
+      2,
+      6,
+      8
+    ],
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "magma_smelter",
+    "name": "magma smelter",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "stone_block",
+        "count": 3,
+        "material": "any"
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 350,
+    "tags": [
+      "magma"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "smelter",
+    "impassableTiles": [
+      0,
+      2,
+      6,
+      8
+    ],
+    "workTile": 4,
+    "outputTile": 7,
+    "magmaVariantOf": "smelter"
+  },
+  {
+    "id": "mason",
+    "name": "mason's workshop",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "raw_stone|stone_block",
+        "count": 2
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "mason",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "mechanic",
+    "name": "mechanic's workshop",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 2
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "mechanic",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "memorial_slab",
+    "name": "memorial slab",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "memorial_slab",
+        "count": 1
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 60,
+    "tags": [
+      "memorial"
+    ],
+    "roomValue": "item",
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "╤"
+  },
+  {
+    "id": "nest_box",
+    "name": "nest box",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "nest_box",
+        "count": 1
+      }
+    ],
+    "labor": "carpentry",
+    "buildTicks": 30,
+    "tags": [
+      "nest_box"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "∩"
+  },
+  {
+    "id": "paved_floor",
+    "name": "paved floor",
+    "category": "construction",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "block",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 60,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 1,
+    "glyph": "≡"
+  },
+  {
+    "id": "pressure_plate",
+    "name": "pressure plate",
+    "category": "mechanism",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "mechanism",
+        "count": 1
+      }
+    ],
+    "labor": "mechanics",
+    "buildTicks": 60,
+    "tags": [
+      "plate"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 5,
+    "glyph": "_"
+  },
+  {
+    "id": "ramp",
+    "name": "ramp",
+    "category": "construction",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor with an adjacent wall",
+    "inputs": [
+      {
+        "match": "block|log",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 80,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 1,
+    "glyph": "▲"
+  },
+  {
+    "id": "smelter",
+    "name": "smelter",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "raw_stone|stone_block",
+        "count": 3
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 300,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "smelter",
+    "impassableTiles": [
+      0,
+      2,
+      6,
+      8
+    ],
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "spike_trap",
+    "name": "spike trap",
+    "category": "trap",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "mechanism",
+        "count": 1
+      },
+      {
+        "match": "spike|spear",
+        "count": 1
+      }
+    ],
+    "labor": "mechanics",
+    "buildTicks": 100,
+    "tags": [
+      "trap:spike"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "^"
+  },
+  {
+    "id": "stairs_down",
+    "name": "down stairs",
+    "category": "construction",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor over open",
+    "inputs": [
+      {
+        "match": "block|log",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 80,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 1,
+    "glyph": ">"
+  },
+  {
+    "id": "stairs_up",
+    "name": "up stairs",
+    "category": "construction",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "block|log",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 80,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 1,
+    "glyph": "<"
+  },
+  {
+    "id": "stairs_updown",
+    "name": "up/down stairs",
+    "category": "construction",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor over open",
+    "inputs": [
+      {
+        "match": "block|log",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 100,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 1,
+    "glyph": "X"
+  },
+  {
+    "id": "statue",
+    "name": "statue",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "statue",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 80,
+    "tags": [],
+    "roomValue": "item_x2",
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "Ω"
+  },
+  {
+    "id": "still",
+    "name": "still",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "barrel",
+        "count": 1
+      },
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "still",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "stone_fall_trap",
+    "name": "stone-fall trap",
+    "category": "trap",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "mechanism",
+        "count": 1
+      },
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "labor": "mechanics",
+    "buildTicks": 80,
+    "tags": [
+      "trap:stone_fall"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "^"
+  },
+  {
+    "id": "table",
+    "name": "table",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "table",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 40,
+    "tags": [
+      "eat_at"
+    ],
+    "roomValue": "item",
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "╥"
+  },
+  {
+    "id": "tannery",
+    "name": "tannery",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 2
+      },
+      {
+        "match": "bucket",
+        "count": 1
+      }
+    ],
+    "labor": "carpentry",
+    "buildTicks": 200,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "tannery",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "trade_depot",
+    "name": "trade depot",
+    "category": "special",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "floor; reachable from an edge",
+    "inputs": [
+      {
+        "match": "log|stone_block",
+        "count": 3
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 300,
+    "tags": [
+      "depot",
+      "container"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 20,
+    "pattern": "depot"
+  },
+  {
+    "id": "wagon",
+    "name": "wagon",
+    "category": "special",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "placed at embark only",
+    "inputs": [],
+    "labor": "none",
+    "buildTicks": 0,
+    "tags": [
+      "container"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "wagon"
+  },
+  {
+    "id": "wall",
+    "name": "wall",
+    "category": "construction",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor or open (supported)",
+    "inputs": [
+      {
+        "match": "block|log|bar|raw_stone",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 100,
+    "tags": [],
+    "roomValue": 0,
+    "passable": false,
+    "blocksFluid": true,
+    "value": 2,
+    "glyph": "█"
+  },
+  {
+    "id": "weapon_rack",
+    "name": "weapon rack",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "weapon_rack",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 40,
+    "tags": [],
+    "roomValue": "item",
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "╨"
+  },
+  {
+    "id": "weapon_trap",
+    "name": "weapon trap",
+    "category": "trap",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "mechanism",
+        "count": 1
+      },
+      {
+        "match": "weapon",
+        "count": 1
+      }
+    ],
+    "labor": "mechanics",
+    "buildTicks": 100,
+    "tags": [
+      "trap:weapon"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "^"
+  },
+  {
+    "id": "well",
+    "name": "well",
+    "category": "special",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "open tile with water within WELL_DEPTH below",
+    "inputs": [
+      {
+        "match": "bucket",
+        "count": 1
+      },
+      {
+        "match": "chain|rope",
+        "count": 1
+      },
+      {
+        "match": "mechanism",
+        "count": 1
+      },
+      {
+        "match": "stone_block",
+        "count": 1
+      }
+    ],
+    "labor": "mechanics",
+    "buildTicks": 150,
+    "tags": [
+      "well"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 15,
+    "glyph": "○"
+  },
+  {
+    "id": "wood_furnace",
+    "name": "wood furnace",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "raw_stone|stone_block",
+        "count": 3
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 250,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "furnace",
+    "impassableTiles": [
+      0,
+      2,
+      6,
+      8
+    ],
+    "workTile": 4,
+    "outputTile": 7
+  }
+]

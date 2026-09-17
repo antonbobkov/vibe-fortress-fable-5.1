@@ -1,0 +1,52 @@
+[
+  {
+    "event": "Trade completed",
+    "delta": "+clamp(1, 5, value / 500)",
+    "civ": "trading civ"
+  },
+  {
+    "event": "Gift",
+    "delta": "+value / 100, max +10 per caravan",
+    "civ": "trading civ"
+  },
+  {
+    "event": "Wooden item offered to the Wildwood",
+    "delta": "−2 per item",
+    "civ": "Wildwood"
+  },
+  {
+    "event": "Caravan member killed by a fortress creature",
+    "delta": "−50, ban 2 years",
+    "civ": "that civ"
+  },
+  {
+    "event": "Caravan member killed by hostiles or animals on the map",
+    "delta": "−3",
+    "civ": "that civ"
+  },
+  {
+    "event": "Caravan left without a depot",
+    "delta": "−2",
+    "civ": "that civ"
+  },
+  {
+    "event": "Caravan lost (merchant died)",
+    "delta": "−10",
+    "civ": "that civ"
+  },
+  {
+    "event": "Hillfolk bandit killed",
+    "delta": "−1",
+    "civ": "Hillfolk"
+  },
+  {
+    "event": "Hillfolk bandit caged (alive when the caravan next arrives; the caravan takes them)",
+    "delta": "+3",
+    "civ": "Hillfolk"
+  },
+  {
+    "event": "Yearly drift",
+    "delta": "±5 toward 0",
+    "civ": "all"
+  }
+]

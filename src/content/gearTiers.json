@@ -1,0 +1,308 @@
+[
+  {
+    "tier": 0,
+    "metal": null,
+    "kits": {
+      "warrior": [
+        {
+          "item": "club",
+          "chance": 500
+        },
+        {
+          "item": "short_sword",
+          "chance": 500
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        }
+      ],
+      "archer": [],
+      "captain": []
+    }
+  },
+  {
+    "tier": 1,
+    "metal": "copper",
+    "kits": {
+      "warrior": [
+        {
+          "item": "short_sword",
+          "chance": 500
+        },
+        {
+          "item": "mace",
+          "chance": 500
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        },
+        {
+          "item": "leather_jerkin",
+          "chance": 1000
+        },
+        {
+          "item": "buckler",
+          "chance": 500
+        }
+      ],
+      "archer": [
+        {
+          "item": "bow",
+          "chance": 1000
+        },
+        {
+          "item": "arrow",
+          "chance": 1000,
+          "count": 30
+        },
+        {
+          "item": "dagger",
+          "chance": 1000
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        }
+      ],
+      "captain": [
+        {
+          "item": "helm",
+          "chance": 1000
+        },
+        {
+          "item": "mail_shirt",
+          "chance": 1000
+        }
+      ]
+    }
+  },
+  {
+    "tier": 2,
+    "metal": "bronze",
+    "kits": {
+      "warrior": [
+        {
+          "item": "short_sword",
+          "chance": 1000
+        },
+        {
+          "item": "axe",
+          "chance": 500
+        },
+        {
+          "item": "mace",
+          "chance": 500
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        },
+        {
+          "item": "leather_jerkin",
+          "chance": 1000
+        },
+        {
+          "item": "shield",
+          "chance": 500
+        },
+        {
+          "item": "leggings",
+          "chance": 1000
+        }
+      ],
+      "archer": [
+        {
+          "item": "bow",
+          "chance": 1000
+        },
+        {
+          "item": "arrow",
+          "chance": 1000,
+          "count": 30
+        },
+        {
+          "item": "dagger",
+          "chance": 1000
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        }
+      ],
+      "captain": [
+        {
+          "item": "helm",
+          "chance": 1000
+        },
+        {
+          "item": "mail_shirt",
+          "chance": 1000
+        },
+        {
+          "item": "shield",
+          "chance": 1000
+        }
+      ]
+    }
+  },
+  {
+    "tier": 3,
+    "metal": "iron",
+    "kits": {
+      "warrior": [
+        {
+          "item": "axe",
+          "chance": 1000
+        },
+        {
+          "item": "mace",
+          "chance": 500
+        },
+        {
+          "item": "spear",
+          "chance": 500
+        },
+        {
+          "item": "helm",
+          "chance": 500
+        },
+        {
+          "item": "mail_shirt",
+          "chance": 500
+        },
+        {
+          "item": "shield",
+          "chance": 600
+        },
+        {
+          "item": "leggings",
+          "chance": 1000
+        }
+      ],
+      "archer": [
+        {
+          "item": "bow",
+          "chance": 1000
+        },
+        {
+          "item": "arrow",
+          "chance": 1000,
+          "count": 30
+        },
+        {
+          "item": "short_sword",
+          "chance": 1000
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        }
+      ],
+      "captain": [
+        {
+          "item": "helm",
+          "chance": 1000
+        },
+        {
+          "item": "mail_shirt",
+          "chance": 1000
+        },
+        {
+          "item": "greaves",
+          "chance": 1000
+        },
+        {
+          "item": "shield",
+          "chance": 1000
+        }
+      ]
+    }
+  },
+  {
+    "tier": 4,
+    "metal": "steel",
+    "kits": {
+      "warrior": [
+        {
+          "item": "axe",
+          "chance": 1000
+        },
+        {
+          "item": "warhammer",
+          "chance": 500
+        },
+        {
+          "item": "spear",
+          "chance": 500
+        },
+        {
+          "item": "helm",
+          "chance": 1000
+        },
+        {
+          "item": "mail_shirt",
+          "chance": 1000
+        },
+        {
+          "item": "shield",
+          "chance": 700
+        },
+        {
+          "item": "greaves",
+          "chance": 1000
+        },
+        {
+          "item": "gauntlets",
+          "chance": 500
+        }
+      ],
+      "archer": [
+        {
+          "item": "bow",
+          "chance": 1000
+        },
+        {
+          "item": "arrow",
+          "chance": 1000,
+          "count": 30
+        },
+        {
+          "item": "short_sword",
+          "chance": 1000
+        },
+        {
+          "item": "helm",
+          "chance": 1000
+        },
+        {
+          "item": "mail_shirt",
+          "chance": 1000
+        }
+      ],
+      "captain": [
+        {
+          "item": "helm",
+          "chance": 1000
+        },
+        {
+          "item": "breastplate",
+          "chance": 1000
+        },
+        {
+          "item": "greaves",
+          "chance": 1000
+        },
+        {
+          "item": "gauntlets",
+          "chance": 1000
+        },
+        {
+          "item": "shield",
+          "chance": 1000
+        }
+      ]
+    }
+  }
+]

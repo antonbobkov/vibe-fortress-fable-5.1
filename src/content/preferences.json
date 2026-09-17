@@ -1,0 +1,228 @@
+[
+  {
+    "civ": "mountainhome",
+    "key": "default",
+    "percent": 100
+  },
+  {
+    "civ": "hillfolk",
+    "key": "default",
+    "percent": 100
+  },
+  {
+    "civ": "wildwood",
+    "key": "default",
+    "percent": 100
+  },
+  {
+    "civ": "mountainhome",
+    "key": "bar/*",
+    "percent": 90
+  },
+  {
+    "civ": "hillfolk",
+    "key": "bar/*",
+    "percent": 150
+  },
+  {
+    "civ": "wildwood",
+    "key": "bar/*",
+    "percent": 60
+  },
+  {
+    "civ": "mountainhome",
+    "key": "weapon/*, armor/* (metal)",
+    "percent": 100
+  },
+  {
+    "civ": "hillfolk",
+    "key": "weapon/*, armor/* (metal)",
+    "percent": 150
+  },
+  {
+    "civ": "wildwood",
+    "key": "weapon/*, armor/* (metal)",
+    "percent": 40
+  },
+  {
+    "civ": "mountainhome",
+    "key": "craft/*",
+    "percent": 130
+  },
+  {
+    "civ": "hillfolk",
+    "key": "craft/*",
+    "percent": 100
+  },
+  {
+    "civ": "wildwood",
+    "key": "craft/*",
+    "percent": 90
+  },
+  {
+    "civ": "mountainhome",
+    "key": "stone/gem_cut",
+    "percent": 140
+  },
+  {
+    "civ": "hillfolk",
+    "key": "stone/gem_cut",
+    "percent": 110
+  },
+  {
+    "civ": "wildwood",
+    "key": "stone/gem_cut",
+    "percent": 120
+  },
+  {
+    "civ": "mountainhome",
+    "key": "stone/raw, stone/block",
+    "percent": 60
+  },
+  {
+    "civ": "hillfolk",
+    "key": "stone/raw, stone/block",
+    "percent": 80
+  },
+  {
+    "civ": "wildwood",
+    "key": "stone/raw, stone/block",
+    "percent": 80
+  },
+  {
+    "civ": "mountainhome",
+    "key": "food/*",
+    "percent": 70
+  },
+  {
+    "civ": "hillfolk",
+    "key": "food/*",
+    "percent": 80
+  },
+  {
+    "civ": "wildwood",
+    "key": "food/*",
+    "percent": 110
+  },
+  {
+    "civ": "mountainhome",
+    "key": "drink/*",
+    "percent": 120
+  },
+  {
+    "civ": "hillfolk",
+    "key": "drink/*",
+    "percent": 100
+  },
+  {
+    "civ": "wildwood",
+    "key": "drink/*",
+    "percent": 100
+  },
+  {
+    "civ": "mountainhome",
+    "key": "textile/cloth, clothing/*",
+    "percent": 100
+  },
+  {
+    "civ": "hillfolk",
+    "key": "textile/cloth, clothing/*",
+    "percent": 100
+  },
+  {
+    "civ": "wildwood",
+    "key": "textile/cloth, clothing/*",
+    "percent": 120
+  },
+  {
+    "civ": "mountainhome",
+    "key": "textile/leather, armor/* (leather)",
+    "percent": 100
+  },
+  {
+    "civ": "hillfolk",
+    "key": "textile/leather, armor/* (leather)",
+    "percent": 110
+  },
+  {
+    "civ": "wildwood",
+    "key": "textile/leather, armor/* (leather)",
+    "percent": 60
+  },
+  {
+    "civ": "mountainhome",
+    "key": "medical/brightleaf",
+    "percent": 100
+  },
+  {
+    "civ": "hillfolk",
+    "key": "medical/brightleaf",
+    "percent": 100
+  },
+  {
+    "civ": "wildwood",
+    "key": "medical/brightleaf",
+    "percent": 130
+  },
+  {
+    "civ": "mountainhome",
+    "key": "creatures (caged)",
+    "percent": 120
+  },
+  {
+    "civ": "hillfolk",
+    "key": "creatures (caged)",
+    "percent": 100
+  },
+  {
+    "civ": "wildwood",
+    "key": "creatures (caged)",
+    "percent": 150
+  },
+  {
+    "civ": "mountainhome",
+    "key": "any item with material class wood",
+    "percent": 100
+  },
+  {
+    "civ": "hillfolk",
+    "key": "any item with material class wood",
+    "percent": 100
+  },
+  {
+    "civ": "wildwood",
+    "key": "any item with material class wood",
+    "percent": 20,
+    "reputationPenalty": 2
+  },
+  {
+    "civ": "mountainhome",
+    "key": "bar deepsilver, deepsilver items",
+    "percent": 300
+  },
+  {
+    "civ": "hillfolk",
+    "key": "bar deepsilver, deepsilver items",
+    "percent": 200
+  },
+  {
+    "civ": "wildwood",
+    "key": "bar deepsilver, deepsilver items",
+    "percent": 150
+  },
+  {
+    "civ": "mountainhome",
+    "key": "furniture/*",
+    "percent": 100
+  },
+  {
+    "civ": "hillfolk",
+    "key": "furniture/*",
+    "percent": 110
+  },
+  {
+    "civ": "wildwood",
+    "key": "furniture/*",
+    "percent": 80
+  }
+]

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "amethyst",
+    "name": "amethyst",
+    "class": "gem",
+    "hosts": [
+      "basalt",
+      "rhyolite",
+      "granite"
+    ],
+    "count": 400,
+    "value": 10,
+    "color": "amethyst_violet"
+  },
+  {
+    "id": "diamond",
+    "name": "diamond",
+    "class": "gem",
+    "hosts": [
+      "gabbro",
+      "diorite"
+    ],
+    "count": 50,
+    "value": 90,
+    "color": "diamond_white"
+  },
+  {
+    "id": "emerald",
+    "name": "emerald",
+    "class": "gem",
+    "hosts": [
+      "granite",
+      "marble",
+      "schist"
+    ],
+    "count": 150,
+    "value": 40,
+    "color": "emerald_green"
+  },
+  {
+    "id": "garnet",
+    "name": "garnet",
+    "class": "gem",
+    "hosts": [
+      "schist",
+      "gneiss",
+      "phyllite"
+    ],
+    "count": 400,
+    "value": 12,
+    "color": "garnet_red"
+  },
+  {
+    "id": "glowstone",
+    "name": "glowstone",
+    "class": "gem",
+    "hosts": [],
+    "count": 300,
+    "cavernOnly": true,
+    "value": 25,
+    "color": "glow_green"
+  },
+  {
+    "id": "quartz",
+    "name": "quartz",
+    "class": "gem",
+    "hosts": [
+      "sandstone",
+      "granite",
+      "quartzite",
+      "schist"
+    ],
+    "count": 800,
+    "value": 4,
+    "color": "quartz_white"
+  },
+  {
+    "id": "ruby",
+    "name": "ruby",
+    "class": "gem",
+    "hosts": [
+      "marble",
+      "gneiss"
+    ],
+    "count": 100,
+    "value": 50,
+    "color": "ruby_red"
+  },
+  {
+    "id": "sapphire",
+    "name": "sapphire",
+    "class": "gem",
+    "hosts": [
+      "basalt",
+      "gabbro",
+      "marble"
+    ],
+    "count": 100,
+    "value": 45,
+    "color": "sapphire_blue"
+  }
+]

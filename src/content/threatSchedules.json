@@ -1,0 +1,391 @@
+[
+  {
+    "kind": "thief",
+    "peril": 0,
+    "earliest": {
+      "year": 2,
+      "season": 0
+    },
+    "intervalDays": [
+      60,
+      120
+    ],
+    "base": 1,
+    "perRenown": 0,
+    "max": 1,
+    "warningDays": 0
+  },
+  {
+    "kind": "thief",
+    "peril": 1,
+    "earliest": {
+      "year": 1,
+      "season": 2
+    },
+    "intervalDays": [
+      40,
+      80
+    ],
+    "base": 1,
+    "perRenown": 0,
+    "max": 1,
+    "warningDays": 0
+  },
+  {
+    "kind": "thief",
+    "peril": 2,
+    "earliest": {
+      "year": 1,
+      "season": 1
+    },
+    "intervalDays": [
+      30,
+      60
+    ],
+    "base": 1,
+    "perRenown": 0,
+    "max": 1,
+    "warningDays": 0
+  },
+  {
+    "kind": "thief",
+    "peril": 3,
+    "earliest": {
+      "year": 1,
+      "season": 1
+    },
+    "intervalDays": [
+      20,
+      40
+    ],
+    "base": 1,
+    "perRenown": 0,
+    "max": 1,
+    "warningDays": 0
+  },
+  {
+    "kind": "thief",
+    "peril": 4,
+    "earliest": {
+      "year": 1,
+      "season": 0,
+      "day": 14
+    },
+    "intervalDays": [
+      14,
+      28
+    ],
+    "base": 1,
+    "perRenown": 0,
+    "max": 2,
+    "warningDays": 0
+  },
+  {
+    "kind": "bandits",
+    "peril": 0,
+    "earliest": {
+      "year": 2,
+      "season": 1
+    },
+    "intervalDays": [
+      120,
+      240
+    ],
+    "base": 2,
+    "perRenown": 50,
+    "max": 4,
+    "warningDays": 0
+  },
+  {
+    "kind": "bandits",
+    "peril": 1,
+    "earliest": {
+      "year": 1,
+      "season": 2
+    },
+    "intervalDays": [
+      90,
+      180
+    ],
+    "base": 2,
+    "perRenown": 50,
+    "max": 4,
+    "warningDays": 0
+  },
+  {
+    "kind": "bandits",
+    "peril": 2,
+    "earliest": {
+      "year": 1,
+      "season": 2
+    },
+    "intervalDays": [
+      120,
+      240
+    ],
+    "base": 3,
+    "perRenown": 50,
+    "max": 5,
+    "warningDays": 0
+  },
+  {
+    "kind": "bandits",
+    "peril": 3,
+    "earliest": {
+      "year": 1,
+      "season": 2
+    },
+    "intervalDays": [
+      120,
+      240
+    ],
+    "base": 3,
+    "perRenown": 50,
+    "max": 5,
+    "warningDays": 0
+  },
+  {
+    "kind": "bandits",
+    "peril": 4,
+    "earliest": {
+      "year": 1,
+      "season": 2
+    },
+    "intervalDays": [
+      120,
+      240
+    ],
+    "base": 3,
+    "perRenown": 50,
+    "max": 5,
+    "warningDays": 0
+  },
+  {
+    "kind": "ambush",
+    "peril": 0,
+    "earliest": null,
+    "intervalDays": [
+      0,
+      0
+    ],
+    "base": 0,
+    "perRenown": 0,
+    "max": 0,
+    "warningDays": 0
+  },
+  {
+    "kind": "ambush",
+    "peril": 1,
+    "earliest": null,
+    "intervalDays": [
+      0,
+      0
+    ],
+    "base": 0,
+    "perRenown": 0,
+    "max": 0,
+    "warningDays": 0
+  },
+  {
+    "kind": "ambush",
+    "peril": 2,
+    "earliest": {
+      "year": 1,
+      "season": 2
+    },
+    "intervalDays": [
+      60,
+      120
+    ],
+    "base": 3,
+    "perRenown": 100,
+    "max": 6,
+    "warningDays": 0
+  },
+  {
+    "kind": "ambush",
+    "peril": 3,
+    "earliest": {
+      "year": 1,
+      "season": 1
+    },
+    "intervalDays": [
+      40,
+      80
+    ],
+    "base": 4,
+    "perRenown": 120,
+    "max": 8,
+    "warningDays": 0
+  },
+  {
+    "kind": "ambush",
+    "peril": 4,
+    "earliest": {
+      "year": 1,
+      "season": 1
+    },
+    "intervalDays": [
+      28,
+      56
+    ],
+    "base": 5,
+    "perRenown": 150,
+    "max": 10,
+    "warningDays": 0
+  },
+  {
+    "kind": "raid",
+    "peril": 0,
+    "earliest": null,
+    "intervalDays": [
+      0,
+      0
+    ],
+    "base": 0,
+    "perRenown": 0,
+    "max": 0,
+    "warningDays": 1
+  },
+  {
+    "kind": "raid",
+    "peril": 1,
+    "earliest": {
+      "year": 2,
+      "season": 2
+    },
+    "intervalDays": [
+      112,
+      224
+    ],
+    "base": 5,
+    "perRenown": 200,
+    "max": 12,
+    "warningDays": 1
+  },
+  {
+    "kind": "raid",
+    "peril": 2,
+    "earliest": {
+      "year": 2,
+      "season": 0
+    },
+    "intervalDays": [
+      84,
+      140
+    ],
+    "base": 6,
+    "perRenown": 300,
+    "max": 16,
+    "warningDays": 1
+  },
+  {
+    "kind": "raid",
+    "peril": 3,
+    "earliest": {
+      "year": 1,
+      "season": 2
+    },
+    "intervalDays": [
+      56,
+      112
+    ],
+    "base": 8,
+    "perRenown": 350,
+    "max": 20,
+    "warningDays": 1
+  },
+  {
+    "kind": "raid",
+    "peril": 4,
+    "earliest": {
+      "year": 1,
+      "season": 1
+    },
+    "intervalDays": [
+      42,
+      84
+    ],
+    "base": 10,
+    "perRenown": 400,
+    "max": 24,
+    "warningDays": 1
+  },
+  {
+    "kind": "siege",
+    "peril": 0,
+    "earliest": null,
+    "intervalDays": [
+      0,
+      0
+    ],
+    "base": 0,
+    "perRenown": 0,
+    "max": 0,
+    "warningDays": 1
+  },
+  {
+    "kind": "siege",
+    "peril": 1,
+    "earliest": null,
+    "intervalDays": [
+      0,
+      0
+    ],
+    "base": 0,
+    "perRenown": 0,
+    "max": 0,
+    "warningDays": 1
+  },
+  {
+    "kind": "siege",
+    "peril": 2,
+    "earliest": null,
+    "intervalDays": [
+      0,
+      0
+    ],
+    "base": 0,
+    "perRenown": 0,
+    "max": 0,
+    "warningDays": 1
+  },
+  {
+    "kind": "siege",
+    "peril": 3,
+    "earliest": {
+      "year": 3,
+      "season": 0
+    },
+    "intervalDays": [
+      224,
+      336
+    ],
+    "base": 14,
+    "perRenown": 450,
+    "max": 32,
+    "warningDays": 1,
+    "extra": {
+      "trollkin": "2 + renown / 15, max 6"
+    }
+  },
+  {
+    "kind": "siege",
+    "peril": 4,
+    "earliest": {
+      "year": 2,
+      "season": 2
+    },
+    "intervalDays": [
+      168,
+      224
+    ],
+    "base": 18,
+    "perRenown": 500,
+    "max": 40,
+    "warningDays": 1,
+    "extra": {
+      "trollkin": "3 + renown / 12, max 8"
+    }
+  }
+]

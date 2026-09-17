@@ -1,0 +1,102 @@
+[
+  {
+    "id": "hint_dig",
+    "trigger": "tick 1",
+    "text": "Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  },
+  {
+    "id": "hint_still",
+    "trigger": "no still exists and drink < 40 units",
+    "text": "Dwarves need drink. Build a still [b › Workshops] and brew from plants."
+  },
+  {
+    "id": "hint_stockpile",
+    "trigger": "no stockpile exists and items on the ground > 20",
+    "text": "Set up a stockpile [z] so hauled goods have somewhere to go."
+  },
+  {
+    "id": "hint_winter",
+    "trigger": "day 20 of spring, year 1",
+    "text": "Winter comes in 60 days. Farms need soil or mud; cave crops grow in the dark all year."
+  },
+  {
+    "id": "hint_hearth",
+    "trigger": "no hearth and at least one dining hall or 5 bedrooms",
+    "text": "A hearth makes a hall a home. Build one [b › Special] in your main hall."
+  },
+  {
+    "id": "hint_containers",
+    "trigger": "a drink or seed stockpile exists without barrels or bags",
+    "text": "Stockpiles need barrels for drink and bags for seeds. The carpenter makes barrels; the clothier makes bags."
+  },
+  {
+    "id": "hint_fuel",
+    "trigger": "a smelter or forge is blocked for fuel",
+    "text": "Smelters and forges need fuel. A wood furnace makes charcoal from logs; coal seams burn too."
+  },
+  {
+    "id": "hint_hunter",
+    "trigger": "hunting labor enabled and no crossbow or bow exists",
+    "text": "Hunters need a crossbow and bolts, or a bow and arrows."
+  },
+  {
+    "id": "hint_farm",
+    "trigger": "a farm plot placement is refused",
+    "text": "Farms need soil, mud left by water, or cave loam."
+  },
+  {
+    "id": "hint_seeds",
+    "trigger": "first harvest",
+    "text": "Harvest returns one seed. Brewing and cooking do not."
+  },
+  {
+    "id": "hint_room",
+    "trigger": "a bedroom zone with tier bare exists for 3 days",
+    "text": "A room needs walls or doors around it, a bed, and smooth stone to be worth sleeping in."
+  },
+  {
+    "id": "hint_alert",
+    "trigger": "first ThreatWarning",
+    "text": "Raise the alert [m] to send civilians to the hearth and lock doors set to lock on alert."
+  },
+  {
+    "id": "hint_depot",
+    "trigger": "day 14 of summer, year 1, no depot",
+    "text": "Build a trade depot [b › Special] before the caravan arrives."
+  },
+  {
+    "id": "hint_hospital",
+    "trigger": "first serious wound with no hospital",
+    "text": "A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats infection."
+  },
+  {
+    "id": "hint_immigration",
+    "trigger": "first ImmigrationSkipped",
+    "text": "Immigrants come at the turn of the season when hall spirit is Content. Good rooms, meals and drink raise it."
+  },
+  {
+    "id": "hint_gate",
+    "trigger": "first raid ended",
+    "text": "A drawbridge over a channel, linked to a lever inside, is the surest gate."
+  },
+  {
+    "id": "hint_cage",
+    "trigger": "first cage trap built",
+    "text": "Cage traps catch anything smaller than a wyrm. Caged beasts can be tamed at a kennel or sold."
+  },
+  {
+    "id": "hint_troll",
+    "trigger": "first DoorBroken",
+    "text": "Trollkin break doors. Walls and raised bridges hold."
+  },
+  {
+    "id": "hint_deep",
+    "trigger": "first VeinFound deepsilver",
+    "text": "Deepsilver lies beside the Sea of Fire. Taking it wakes the Hollow. The threats panel shows the Deep gauge."
+  },
+  {
+    "id": "hint_magma",
+    "trigger": "first cavern 2 breach",
+    "text": "A forge over channeled magma needs no fuel. Build it of magma-safe stone."
+  }
+]

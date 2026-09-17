@@ -1,0 +1,61 @@
+[
+  {
+    "kind": "ambush",
+    "roles": [
+      {
+        "role": "warriors",
+        "species": "gloam_warrior",
+        "fraction": 600
+      },
+      {
+        "role": "archers",
+        "species": "gloam_archer",
+        "fraction": 400
+      }
+    ],
+    "captain": false
+  },
+  {
+    "kind": "raid",
+    "roles": [
+      {
+        "role": "warriors",
+        "species": "gloam_warrior",
+        "fraction": 700
+      },
+      {
+        "role": "archers",
+        "species": "gloam_archer",
+        "fraction": 300
+      }
+    ],
+    "captain": true
+  },
+  {
+    "kind": "siege",
+    "roles": [
+      {
+        "role": "warriors",
+        "species": "gloam_warrior",
+        "fraction": 600
+      },
+      {
+        "role": "archers",
+        "species": "gloam_archer",
+        "fraction": 300
+      }
+    ],
+    "captain": true
+  },
+  {
+    "kind": "bandits",
+    "roles": [
+      {
+        "role": "warriors",
+        "species": "hillfolk_bandit",
+        "fraction": 1000
+      }
+    ],
+    "captain": false
+  }
+]

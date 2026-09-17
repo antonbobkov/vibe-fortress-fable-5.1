@@ -1,0 +1,172 @@
+[
+  {
+    "id": "sedimentary",
+    "layers": [
+      {
+        "material": "sandstone",
+        "min": 3,
+        "max": 5
+      },
+      {
+        "material": "shale",
+        "min": 2,
+        "max": 4
+      },
+      {
+        "material": "limestone",
+        "min": 3,
+        "max": 6
+      },
+      {
+        "material": "siltstone",
+        "min": 2,
+        "max": 3
+      },
+      {
+        "material": "conglomerate",
+        "min": 2,
+        "max": 3
+      },
+      {
+        "material": "dolomite",
+        "min": 2,
+        "max": 4
+      },
+      {
+        "material": "chalk",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "material": "granite",
+        "min": 6,
+        "max": 10
+      }
+    ]
+  },
+  {
+    "id": "igneous",
+    "layers": [
+      {
+        "material": "rhyolite",
+        "min": 2,
+        "max": 3
+      },
+      {
+        "material": "andesite",
+        "min": 2,
+        "max": 3
+      },
+      {
+        "material": "basalt",
+        "min": 3,
+        "max": 5
+      },
+      {
+        "material": "granite",
+        "min": 5,
+        "max": 8
+      },
+      {
+        "material": "diorite",
+        "min": 4,
+        "max": 6
+      },
+      {
+        "material": "gabbro",
+        "min": 5,
+        "max": 8
+      },
+      {
+        "material": "granite",
+        "min": 6,
+        "max": 10
+      }
+    ]
+  },
+  {
+    "id": "metamorphic",
+    "layers": [
+      {
+        "material": "slate",
+        "min": 3,
+        "max": 4
+      },
+      {
+        "material": "phyllite",
+        "min": 2,
+        "max": 3
+      },
+      {
+        "material": "schist",
+        "min": 3,
+        "max": 5
+      },
+      {
+        "material": "marble",
+        "min": 3,
+        "max": 5
+      },
+      {
+        "material": "gneiss",
+        "min": 4,
+        "max": 6
+      },
+      {
+        "material": "quartzite",
+        "min": 3,
+        "max": 4
+      },
+      {
+        "material": "granite",
+        "min": 6,
+        "max": 10
+      }
+    ]
+  },
+  {
+    "id": "mixed",
+    "layers": [
+      {
+        "material": "sandstone",
+        "min": 2,
+        "max": 3
+      },
+      {
+        "material": "slate",
+        "min": 2,
+        "max": 3
+      },
+      {
+        "material": "limestone",
+        "min": 3,
+        "max": 4
+      },
+      {
+        "material": "basalt",
+        "min": 2,
+        "max": 3
+      },
+      {
+        "material": "marble",
+        "min": 2,
+        "max": 3
+      },
+      {
+        "material": "granite",
+        "min": 4,
+        "max": 6
+      },
+      {
+        "material": "schist",
+        "min": 3,
+        "max": 4
+      },
+      {
+        "material": "gabbro",
+        "min": 4,
+        "max": 6
+      }
+    ]
+  }
+]

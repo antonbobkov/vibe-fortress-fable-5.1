@@ -1,0 +1,32 @@
+[
+  {
+    "level": 1,
+    "pressure": 50,
+    "emergence": [],
+    "text": "The Deep stirs. Something has noticed the pale metal being taken."
+  },
+  {
+    "level": 2,
+    "pressure": 150,
+    "emergence": [],
+    "text": "The rock cracks below. The Hollow sends its hunters."
+  },
+  {
+    "level": 3,
+    "pressure": 300,
+    "emergence": [],
+    "text": "Fire moves in the deep. A wyrm has come up."
+  },
+  {
+    "level": 4,
+    "pressure": 500,
+    "emergence": [],
+    "text": "The Hollow opens its mouth."
+  },
+  {
+    "level": 5,
+    "pressure": 28,
+    "emergence": [],
+    "text": "The Hollow does not forget."
+  }
+]

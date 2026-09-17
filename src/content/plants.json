@@ -1,0 +1,1075 @@
+[
+  {
+    "id": "ash",
+    "name": "ash",
+    "kind": "tree",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "value": 3,
+    "edible": false,
+    "cookable": false,
+    "logs": [
+      2,
+      3
+    ],
+    "saplingYears": 3,
+    "yieldItem": "log",
+    "yieldMaterial": "ash",
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 20
+      },
+      {
+        "biome": "temperate_grassland",
+        "weight": 10
+      },
+      {
+        "biome": "wetland",
+        "weight": 10
+      }
+    ],
+    "glyph": "↑",
+    "fg": "ash_pale"
+  },
+  {
+    "id": "barley",
+    "name": "barley",
+    "kind": "crop",
+    "stageDays": 7,
+    "seasons": [
+      0,
+      1
+    ],
+    "light": "sun",
+    "minC": 4,
+    "maxC": 30,
+    "yield": [
+      3,
+      5
+    ],
+    "yieldItem": "plant_food",
+    "value": 1,
+    "edible": false,
+    "cookable": true,
+    "brew": "ale",
+    "secondary": {
+      "item": "flour",
+      "count": 1
+    },
+    "glyph": "\"",
+    "fg": "barley_gold"
+  },
+  {
+    "id": "birch",
+    "name": "birch",
+    "kind": "tree",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "value": 2,
+    "edible": false,
+    "cookable": false,
+    "logs": [
+      1,
+      3
+    ],
+    "saplingYears": 2,
+    "yieldItem": "log",
+    "yieldMaterial": "birch",
+    "biomes": [
+      {
+        "biome": "taiga",
+        "weight": 30
+      },
+      {
+        "biome": "temperate_forest",
+        "weight": 20
+      },
+      {
+        "biome": "tundra",
+        "weight": 15
+      },
+      {
+        "biome": "cold_steppe",
+        "weight": 15
+      }
+    ],
+    "glyph": "↑",
+    "fg": "birch_pale"
+  },
+  {
+    "id": "bramble",
+    "name": "bramble",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      2,
+      4
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "bramble_berry",
+    "value": 2,
+    "edible": true,
+    "cookable": true,
+    "regrowDays": 28,
+    "wildSeedPermille": 0,
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 30
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 20
+      },
+      {
+        "biome": "wetland",
+        "weight": 15
+      },
+      {
+        "biome": "taiga",
+        "weight": 10
+      },
+      {
+        "biome": "temperate_grassland",
+        "weight": 10
+      }
+    ],
+    "glyph": "\"",
+    "fg": "berry_red"
+  },
+  {
+    "id": "brightleaf",
+    "name": "brightleaf",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      2
+    ],
+    "yieldItem": "brightleaf",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 42,
+    "wildSeedPermille": 0,
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 15
+      },
+      {
+        "biome": "wetland",
+        "weight": 20
+      },
+      {
+        "biome": "tropical_forest",
+        "weight": 25
+      },
+      {
+        "biome": "dark_forest",
+        "weight": 20
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 8
+      }
+    ],
+    "glyph": "♣",
+    "fg": "bright_green"
+  },
+  {
+    "id": "cabbage",
+    "name": "cabbage",
+    "kind": "crop",
+    "stageDays": 6,
+    "seasons": [
+      0,
+      2
+    ],
+    "light": "sun",
+    "minC": 0,
+    "maxC": 24,
+    "yield": [
+      3,
+      5
+    ],
+    "yieldItem": "plant_food",
+    "value": 1,
+    "edible": true,
+    "cookable": true,
+    "glyph": "\"",
+    "fg": "cabbage_green"
+  },
+  {
+    "id": "cavewheat",
+    "name": "cavewheat",
+    "kind": "cave_crop",
+    "stageDays": 5,
+    "light": "dark",
+    "minC": 2,
+    "maxC": 40,
+    "yield": [
+      3,
+      5
+    ],
+    "yieldItem": "plant_food",
+    "value": 1,
+    "edible": false,
+    "cookable": true,
+    "brew": "cavewheat_beer",
+    "secondary": {
+      "item": "flour",
+      "count": 1
+    },
+    "glyph": "\"",
+    "fg": "cavewheat_pale"
+  },
+  {
+    "id": "cavewheat_patch",
+    "name": "cavewheat patch",
+    "kind": "shrub",
+    "light": "dark",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      2
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "cavewheat",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 24,
+    "wildSeedPermille": 500,
+    "seedOf": "cavewheat",
+    "caverns": [
+      {
+        "tier": 1,
+        "weight": 20
+      },
+      {
+        "tier": 2,
+        "weight": 30
+      }
+    ],
+    "glyph": "\"",
+    "fg": "cavewheat_pale"
+  },
+  {
+    "id": "dimcap",
+    "name": "dimcap",
+    "kind": "cave_crop",
+    "stageDays": 4,
+    "light": "dark",
+    "minC": 2,
+    "maxC": 40,
+    "yield": [
+      3,
+      5
+    ],
+    "yieldItem": "plant_food",
+    "value": 1,
+    "edible": true,
+    "cookable": true,
+    "brew": "dimcap_ale",
+    "glyph": "♠",
+    "fg": "dimcap_violet"
+  },
+  {
+    "id": "dimcap_patch",
+    "name": "dimcap patch",
+    "kind": "shrub",
+    "light": "dark",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      3
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "dimcap",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 20,
+    "wildSeedPermille": 500,
+    "seedOf": "dimcap",
+    "caverns": [
+      {
+        "tier": 1,
+        "weight": 40
+      },
+      {
+        "tier": 2,
+        "weight": 30
+      }
+    ],
+    "glyph": "♠",
+    "fg": "dimcap_violet"
+  },
+  {
+    "id": "flax",
+    "name": "flax",
+    "kind": "crop",
+    "stageDays": 6,
+    "seasons": [
+      0,
+      1
+    ],
+    "light": "sun",
+    "minC": 4,
+    "maxC": 28,
+    "yield": [
+      2,
+      4
+    ],
+    "yieldItem": "fiber",
+    "yieldMaterial": "flax_fiber",
+    "value": 2,
+    "edible": false,
+    "cookable": false,
+    "secondary": {
+      "item": "plant_food",
+      "count": 1
+    },
+    "glyph": "\"",
+    "fg": "flax_straw"
+  },
+  {
+    "id": "frostberry",
+    "name": "frostberry",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      2,
+      3
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "frostberry",
+    "value": 2,
+    "edible": true,
+    "cookable": true,
+    "regrowDays": 42,
+    "wildSeedPermille": 0,
+    "biomes": [
+      {
+        "biome": "tundra",
+        "weight": 20
+      },
+      {
+        "biome": "taiga",
+        "weight": 25
+      },
+      {
+        "biome": "cold_steppe",
+        "weight": 15
+      },
+      {
+        "biome": "alpine",
+        "weight": 10
+      }
+    ],
+    "glyph": "\"",
+    "fg": "frost_blue"
+  },
+  {
+    "id": "hops",
+    "name": "hops",
+    "kind": "crop",
+    "stageDays": 7,
+    "seasons": [
+      1
+    ],
+    "light": "sun",
+    "minC": 6,
+    "maxC": 30,
+    "yield": [
+      3,
+      5
+    ],
+    "yieldItem": "plant_food",
+    "value": 2,
+    "edible": false,
+    "cookable": false,
+    "brew": "hopped_ale",
+    "glyph": "\"",
+    "fg": "hops_green"
+  },
+  {
+    "id": "maple",
+    "name": "maple",
+    "kind": "tree",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "value": 3,
+    "edible": false,
+    "cookable": false,
+    "logs": [
+      2,
+      3
+    ],
+    "saplingYears": 3,
+    "yieldItem": "log",
+    "yieldMaterial": "maple",
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 15
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 15
+      }
+    ],
+    "glyph": "♣",
+    "fg": "maple_amber"
+  },
+  {
+    "id": "nutbush",
+    "name": "nutbush",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      2,
+      4
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "nut",
+    "value": 2,
+    "edible": true,
+    "cookable": true,
+    "regrowDays": 56,
+    "wildSeedPermille": 0,
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 20
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 15
+      },
+      {
+        "biome": "savanna",
+        "weight": 10
+      },
+      {
+        "biome": "tropical_forest",
+        "weight": 15
+      }
+    ],
+    "glyph": "\"",
+    "fg": "nut_brown"
+  },
+  {
+    "id": "oak",
+    "name": "oak",
+    "kind": "tree",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "value": 3,
+    "edible": false,
+    "cookable": false,
+    "logs": [
+      2,
+      4
+    ],
+    "saplingYears": 3,
+    "yieldItem": "log",
+    "yieldMaterial": "oak",
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 35
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 25
+      },
+      {
+        "biome": "temperate_grassland",
+        "weight": 10
+      },
+      {
+        "biome": "wetland",
+        "weight": 10
+      },
+      {
+        "biome": "dark_forest",
+        "weight": 20
+      }
+    ],
+    "glyph": "♣",
+    "fg": "oak_brown"
+  },
+  {
+    "id": "pale_bell",
+    "name": "pale bell",
+    "kind": "cave_crop",
+    "stageDays": 6,
+    "light": "dark",
+    "minC": 2,
+    "maxC": 40,
+    "yield": [
+      2,
+      4
+    ],
+    "yieldItem": "plant_food",
+    "value": 3,
+    "edible": true,
+    "cookable": true,
+    "brew": "bellwine",
+    "glyph": "♣",
+    "fg": "bell_white"
+  },
+  {
+    "id": "pale_bell_patch",
+    "name": "pale bell patch",
+    "kind": "shrub",
+    "light": "dark",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      2
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "pale_bell",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 28,
+    "wildSeedPermille": 400,
+    "seedOf": "pale_bell",
+    "caverns": [
+      {
+        "tier": 2,
+        "weight": 25
+      },
+      {
+        "tier": 3,
+        "weight": 30
+      }
+    ],
+    "glyph": "♣",
+    "fg": "bell_white"
+  },
+  {
+    "id": "pine",
+    "name": "pine",
+    "kind": "tree",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "value": 2,
+    "edible": false,
+    "cookable": false,
+    "logs": [
+      2,
+      3
+    ],
+    "saplingYears": 2,
+    "yieldItem": "log",
+    "yieldMaterial": "pine",
+    "biomes": [
+      {
+        "biome": "taiga",
+        "weight": 45
+      },
+      {
+        "biome": "alpine",
+        "weight": 30
+      },
+      {
+        "biome": "mountain",
+        "weight": 30
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 20
+      },
+      {
+        "biome": "cold_steppe",
+        "weight": 10
+      },
+      {
+        "biome": "dark_forest",
+        "weight": 25
+      }
+    ],
+    "glyph": "♠",
+    "fg": "pine_green"
+  },
+  {
+    "id": "pumpkin",
+    "name": "pumpkin",
+    "kind": "crop",
+    "stageDays": 8,
+    "seasons": [
+      1,
+      2
+    ],
+    "light": "sun",
+    "minC": 8,
+    "maxC": 32,
+    "yield": [
+      2,
+      4
+    ],
+    "yieldItem": "plant_food",
+    "value": 2,
+    "edible": true,
+    "cookable": true,
+    "glyph": "\"",
+    "fg": "pumpkin_orange"
+  },
+  {
+    "id": "sporecloth",
+    "name": "sporecloth",
+    "kind": "cave_crop",
+    "stageDays": 6,
+    "light": "dark",
+    "minC": 2,
+    "maxC": 40,
+    "yield": [
+      2,
+      4
+    ],
+    "yieldItem": "fiber",
+    "yieldMaterial": "sporecloth_fiber",
+    "value": 3,
+    "edible": false,
+    "cookable": false,
+    "glyph": "\"",
+    "fg": "spore_violet"
+  },
+  {
+    "id": "sporecloth_patch",
+    "name": "sporecloth patch",
+    "kind": "shrub",
+    "light": "dark",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      2
+    ],
+    "yieldItem": "fiber",
+    "yieldMaterial": "sporecloth_fiber",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 30,
+    "wildSeedPermille": 400,
+    "seedOf": "sporecloth",
+    "caverns": [
+      {
+        "tier": 2,
+        "weight": 20
+      },
+      {
+        "tier": 3,
+        "weight": 30
+      }
+    ],
+    "glyph": "\"",
+    "fg": "spore_violet"
+  },
+  {
+    "id": "stalk_fern",
+    "name": "stalk fern",
+    "kind": "fungus_tree",
+    "light": "dark",
+    "minC": -100,
+    "maxC": 100,
+    "value": 1,
+    "edible": false,
+    "cookable": false,
+    "logs": [
+      1,
+      2
+    ],
+    "saplingYears": 1,
+    "yieldItem": "log",
+    "yieldMaterial": "stalk_fern",
+    "caverns": [
+      {
+        "tier": 1,
+        "weight": 30
+      },
+      {
+        "tier": 2,
+        "weight": 50
+      },
+      {
+        "tier": 3,
+        "weight": 40
+      }
+    ],
+    "glyph": "↑",
+    "fg": "fern_teal"
+  },
+  {
+    "id": "strawberry",
+    "name": "strawberry",
+    "kind": "crop",
+    "stageDays": 7,
+    "seasons": [
+      0,
+      1
+    ],
+    "light": "sun",
+    "minC": 6,
+    "maxC": 30,
+    "yield": [
+      3,
+      5
+    ],
+    "yieldItem": "plant_food",
+    "value": 2,
+    "edible": true,
+    "cookable": true,
+    "brew": "strawberry_wine",
+    "glyph": "\"",
+    "fg": "berry_red"
+  },
+  {
+    "id": "sunfruit",
+    "name": "sunfruit",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      2,
+      4
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "sunfruit",
+    "value": 3,
+    "edible": true,
+    "cookable": true,
+    "regrowDays": 35,
+    "wildSeedPermille": 0,
+    "biomes": [
+      {
+        "biome": "savanna",
+        "weight": 25
+      },
+      {
+        "biome": "tropical_forest",
+        "weight": 30
+      },
+      {
+        "biome": "desert",
+        "weight": 5
+      }
+    ],
+    "glyph": "\"",
+    "fg": "sun_yellow"
+  },
+  {
+    "id": "sweetroot",
+    "name": "sweetroot",
+    "kind": "cave_crop",
+    "stageDays": 5,
+    "light": "dark",
+    "minC": 2,
+    "maxC": 40,
+    "yield": [
+      3,
+      5
+    ],
+    "yieldItem": "plant_food",
+    "value": 2,
+    "edible": true,
+    "cookable": true,
+    "brew": "rootwine",
+    "glyph": "\"",
+    "fg": "root_amber"
+  },
+  {
+    "id": "sweetroot_patch",
+    "name": "sweetroot patch",
+    "kind": "shrub",
+    "light": "dark",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      3
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "sweetroot",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 24,
+    "wildSeedPermille": 500,
+    "seedOf": "sweetroot",
+    "caverns": [
+      {
+        "tier": 1,
+        "weight": 25
+      },
+      {
+        "tier": 2,
+        "weight": 25
+      },
+      {
+        "tier": 3,
+        "weight": 15
+      }
+    ],
+    "glyph": "\"",
+    "fg": "root_amber"
+  },
+  {
+    "id": "tower_shroom",
+    "name": "tower shroom",
+    "kind": "fungus_tree",
+    "light": "dark",
+    "minC": -100,
+    "maxC": 100,
+    "value": 2,
+    "edible": false,
+    "cookable": false,
+    "logs": [
+      1,
+      3
+    ],
+    "saplingYears": 2,
+    "yieldItem": "log",
+    "yieldMaterial": "tower_shroom",
+    "caverns": [
+      {
+        "tier": 1,
+        "weight": 60
+      },
+      {
+        "tier": 2,
+        "weight": 40
+      },
+      {
+        "tier": 3,
+        "weight": 20
+      }
+    ],
+    "glyph": "♠",
+    "fg": "shroom_gray"
+  },
+  {
+    "id": "turnip",
+    "name": "turnip",
+    "kind": "crop",
+    "stageDays": 5,
+    "seasons": [
+      0,
+      1,
+      2
+    ],
+    "light": "sun",
+    "minC": 2,
+    "maxC": 28,
+    "yield": [
+      3,
+      5
+    ],
+    "yieldItem": "plant_food",
+    "value": 1,
+    "edible": true,
+    "cookable": true,
+    "glyph": "\"",
+    "fg": "turnip_violet"
+  },
+  {
+    "id": "wild_barley",
+    "name": "wild barley",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      2
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "barley",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 28,
+    "wildSeedPermille": 400,
+    "seedOf": "barley",
+    "biomes": [
+      {
+        "biome": "temperate_grassland",
+        "weight": 30
+      },
+      {
+        "biome": "cold_steppe",
+        "weight": 20
+      },
+      {
+        "biome": "savanna",
+        "weight": 15
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 10
+      }
+    ],
+    "glyph": "\"",
+    "fg": "barley_gold"
+  },
+  {
+    "id": "wild_flax",
+    "name": "wild flax",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      2
+    ],
+    "yieldItem": "fiber",
+    "yieldMaterial": "flax_fiber",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 28,
+    "wildSeedPermille": 400,
+    "seedOf": "flax",
+    "biomes": [
+      {
+        "biome": "temperate_grassland",
+        "weight": 15
+      },
+      {
+        "biome": "wetland",
+        "weight": 20
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 10
+      }
+    ],
+    "glyph": "\"",
+    "fg": "flax_straw"
+  },
+  {
+    "id": "wild_strawberry",
+    "name": "wild strawberry",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      3
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "strawberry",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 28,
+    "wildSeedPermille": 400,
+    "seedOf": "strawberry",
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 20
+      },
+      {
+        "biome": "temperate_grassland",
+        "weight": 15
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 15
+      }
+    ],
+    "glyph": "\"",
+    "fg": "berry_red"
+  },
+  {
+    "id": "willow",
+    "name": "willow",
+    "kind": "tree",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "value": 2,
+    "edible": false,
+    "cookable": false,
+    "logs": [
+      2,
+      3
+    ],
+    "saplingYears": 2,
+    "yieldItem": "log",
+    "yieldMaterial": "willow",
+    "biomes": [
+      {
+        "biome": "wetland",
+        "weight": 40
+      },
+      {
+        "biome": "riverbank",
+        "weight": 30
+      }
+    ],
+    "glyph": "♣",
+    "fg": "willow_green"
+  },
+  {
+    "id": "yew",
+    "name": "yew",
+    "kind": "tree",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "value": 5,
+    "edible": false,
+    "cookable": false,
+    "logs": [
+      1,
+      2
+    ],
+    "saplingYears": 4,
+    "yieldItem": "log",
+    "yieldMaterial": "yew",
+    "biomes": [
+      {
+        "biome": "temperate_forest",
+        "weight": 8
+      },
+      {
+        "biome": "temperate_hills",
+        "weight": 8
+      },
+      {
+        "biome": "dark_forest",
+        "weight": 12
+      }
+    ],
+    "glyph": "♠",
+    "fg": "yew_red"
+  }
+]

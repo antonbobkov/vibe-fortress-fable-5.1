@@ -1,0 +1,62 @@
+[
+  {
+    "id": "gloam",
+    "name": "the Gloam",
+    "species": "gloam_warrior",
+    "homePreference": "badlands, taiga; paints dark_forest",
+    "caravanSeason": null,
+    "caravanFromYear": 1,
+    "raids": true,
+    "bandits": false,
+    "color": "hostile",
+    "glyph": "G",
+    "guardGear": "guard_gloam",
+    "merchantSpecies": "gloam_warrior",
+    "packAnimal": "mule"
+  },
+  {
+    "id": "hillfolk",
+    "name": "the Hillfolk",
+    "species": "human",
+    "homePreference": "temperate_grassland, savanna with a river",
+    "caravanSeason": 1,
+    "caravanFromYear": 1,
+    "raids": false,
+    "bandits": true,
+    "color": "trader_hillfolk",
+    "glyph": "☺",
+    "guardGear": "guard_hillfolk",
+    "merchantSpecies": "human",
+    "packAnimal": "mule"
+  },
+  {
+    "id": "mountainhome",
+    "name": "the Mountainhome",
+    "species": "dwarf",
+    "homePreference": "mountain, alpine near the largest mountain cluster",
+    "caravanSeason": 0,
+    "caravanFromYear": 2,
+    "raids": false,
+    "bandits": false,
+    "color": "trader_mountainhome",
+    "glyph": "☺",
+    "guardGear": "guard_mountainhome",
+    "merchantSpecies": "dwarf",
+    "packAnimal": "mule"
+  },
+  {
+    "id": "wildwood",
+    "name": "the Wildwood",
+    "species": "elf",
+    "homePreference": "largest temperate_forest or tropical_forest",
+    "caravanSeason": 2,
+    "caravanFromYear": 1,
+    "raids": false,
+    "bandits": false,
+    "color": "trader_wildwood",
+    "glyph": "☺",
+    "guardGear": "guard_wildwood",
+    "merchantSpecies": "elf",
+    "packAnimal": "wildwood_bearer"
+  }
+]

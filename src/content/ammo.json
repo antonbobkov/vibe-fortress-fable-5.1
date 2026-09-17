@@ -1,0 +1,48 @@
+[
+  {
+    "id": "arrow",
+    "name": "arrow",
+    "damageType": "pierce",
+    "damage": 16,
+    "stack": 50,
+    "perBar": 25,
+    "perLog": 20,
+    "perBone": 15,
+    "mult": 200,
+    "materials": [
+      "metal",
+      "wood",
+      "bone"
+    ]
+  },
+  {
+    "id": "bolt",
+    "name": "bolt",
+    "damageType": "pierce",
+    "damage": 20,
+    "stack": 50,
+    "perBar": 25,
+    "perLog": 20,
+    "perBone": 15,
+    "mult": 200,
+    "materials": [
+      "metal",
+      "wood",
+      "bone"
+    ]
+  },
+  {
+    "id": "sling_stone",
+    "name": "sling stone",
+    "damageType": "blunt",
+    "damage": 10,
+    "stack": 50,
+    "perBar": 0,
+    "perLog": 0,
+    "perBone": 0,
+    "mult": 50,
+    "materials": [
+      "stone"
+    ]
+  }
+]

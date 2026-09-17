@@ -1,0 +1,224 @@
+[
+  {
+    "id": "beastwood",
+    "name": "Beastwood",
+    "requirements": {
+      "biomes": [
+        "temperate_forest",
+        "taiga",
+        "dark_forest",
+        "tropical_forest"
+      ]
+    },
+    "freq": 100,
+    "companion": true,
+    "hooks": {
+      "08": "wolf and bear groups ×2, caps ×2; all wildlife caps ×1.5"
+    }
+  },
+  {
+    "id": "deep_well",
+    "name": "Deep Well",
+    "requirements": {
+      "deepness": [
+        120,
+        999
+      ]
+    },
+    "freq": 80,
+    "companion": true,
+    "hooks": {
+      "03": "cavern 1 open fraction 0.7 with 60% of its floor as lake",
+      "09": "cavern 1 lake fish ×2"
+    }
+  },
+  {
+    "id": "frostmarrow",
+    "name": "Frostmarrow",
+    "requirements": {},
+    "freq": 100,
+    "companion": true,
+    "hooks": {
+      "06": "winter values in autumn and spring, summer growth 80%, snow whenever precipitation",
+      "08": "adds yak (wild, tameable, group 2–4) and snow_leopard cap +2",
+      "07": "surface crops grow only in summer"
+    }
+  },
+  {
+    "id": "fungal_depths",
+    "name": "Fungal Depths",
+    "requirements": {
+      "deepness": [
+        160,
+        999
+      ]
+    },
+    "freq": 120,
+    "companion": true,
+    "hooks": {
+      "03": "cavern open fraction +0.15",
+      "07": "cavern shrub density ×2; 08 and 18: cavern caps ×1.5"
+    }
+  },
+  {
+    "id": "gemsprings",
+    "name": "Gemsprings",
+    "requirements": {
+      "wealth": [
+        2,
+        999
+      ],
+      "river": true
+    },
+    "freq": 70,
+    "companion": true,
+    "hooks": {
+      "minerals": "gem clusters ×2, half within 6 levels of the surface",
+      "03": "three 2×2 warm springs on the surface",
+      "05": "springs never freeze"
+    }
+  },
+  {
+    "id": "glasslands",
+    "name": "Glasslands",
+    "requirements": {
+      "volcano": true
+    },
+    "freq": 1000,
+    "companion": true,
+    "hooks": {
+      "03": "surface soil replaced by obsidian, pipe radius 3, two shallow magma pools",
+      "07": "treeDensity 0.01",
+      "01": "temper +1"
+    }
+  },
+  {
+    "id": "ironheart",
+    "name": "Ironheart",
+    "requirements": {
+      "geology": [
+        "igneous",
+        "metamorphic"
+      ]
+    },
+    "freq": 80,
+    "companion": true,
+    "hooks": {
+      "minerals": "hematite 12, magnetite 6 regardless of wealth",
+      "01": "wealth +1"
+    }
+  },
+  {
+    "id": "old_battlefield",
+    "name": "Old Battlefield",
+    "requirements": {
+      "biomes": [
+        "ocean",
+        "glacier"
+      ],
+      "peril": [
+        2,
+        999
+      ]
+    },
+    "freq": 90,
+    "companion": true,
+    "hooks": {
+      "18": "restless_dead on autumn nights",
+      "03": "BATTLEFIELD_ITEM_COUNT rusted (poor quality) iron weapons and armor plus 40 bone_pile and 6 skull on the surface band"
+    }
+  },
+  {
+    "id": "serene_vale",
+    "name": "Serene Vale",
+    "requirements": {
+      "biomes": [
+        "temperate_grassland",
+        "temperate_forest",
+        "temperate_hills",
+        "wetland"
+      ],
+      "peril": [
+        0,
+        0
+      ],
+      "river": true
+    },
+    "freq": 60,
+    "companion": false,
+    "hooks": {
+      "18": "thieves only",
+      "03": "soil depth +2, loam only",
+      "06": "no storm, heatwave, cold snap",
+      "08": "herbivore caps ×2, no wolves, bears, snow leopards"
+    }
+  },
+  {
+    "id": "sunken_halls",
+    "name": "Sunken Halls",
+    "requirements": {
+      "biomes": [
+        "temperate_hills",
+        "mountain",
+        "alpine",
+        "taiga"
+      ]
+    },
+    "freq": 70,
+    "companion": true,
+    "hooks": {
+      "03": "the hall template (entrance, 6 rooms 3×3, stairwell 2 levels, vault 5×5 sealed by walls) with 12 common furniture items and, in the vault, VAULT_TREASURE deepsilver items (1 axe, 1 helm, 1 breastplate) and one sleeping blind_stalker"
+    }
+  },
+  {
+    "id": "thunderhead",
+    "name": "Thunderhead",
+    "requirements": {
+      "temper": [
+        2,
+        999
+      ]
+    },
+    "freq": 100,
+    "companion": true,
+    "hooks": {
+      "06": "storm weight ×2; LIGHTNING_PER_HOUR_PERMILLE ×1.5"
+    }
+  },
+  {
+    "id": "twilight_pass",
+    "name": "Twilight Pass",
+    "requirements": {
+      "peril": [
+        3,
+        999
+      ]
+    },
+    "freq": 150,
+    "companion": true,
+    "hooks": {
+      "18": "all intervals halved; thief frequency ×2; caravans bring +1 guard"
+    }
+  },
+  {
+    "id": "wyrm_roost",
+    "name": "Wyrm Roost",
+    "requirements": {
+      "biomes": [
+        "mountain",
+        "alpine",
+        "temperate_hills"
+      ],
+      "wealth": [
+        3,
+        999
+      ]
+    },
+    "freq": 80,
+    "companion": true,
+    "hooks": {
+      "18": "one magma_wyrm asleep in the chamber, wakes on cavern 3 breach or when a dwarf enters within 12 tiles",
+      "03": "9×9 chamber in cavern 3 with a deepsilver vein adjacent"
+    }
+  }
+]

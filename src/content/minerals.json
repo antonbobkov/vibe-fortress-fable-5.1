@@ -1,0 +1,358 @@
+[
+  {
+    "id": "bismuthinite",
+    "name": "bismuthinite",
+    "class": "ore",
+    "hosts": [
+      "granite",
+      "quartzite"
+    ],
+    "shape": "cluster",
+    "count": 100,
+    "radius": 2,
+    "yields": [
+      {
+        "metal": "bismuth",
+        "count": 2
+      }
+    ],
+    "value": 10,
+    "color": "bismuth_pink"
+  },
+  {
+    "id": "bituminous_coal",
+    "name": "bituminous coal",
+    "class": "ore",
+    "hosts": [
+      "sandstone",
+      "shale",
+      "siltstone"
+    ],
+    "shape": "vein",
+    "count": 400,
+    "length": 22,
+    "yields": [
+      {
+        "metal": "coal",
+        "count": 2
+      }
+    ],
+    "value": 5,
+    "color": "coal_black",
+    "tags": [
+      "fuel"
+    ]
+  },
+  {
+    "id": "cassiterite",
+    "name": "cassiterite",
+    "class": "ore",
+    "hosts": [
+      "granite",
+      "rhyolite",
+      "quartzite",
+      "schist"
+    ],
+    "shape": "vein",
+    "count": 300,
+    "length": 16,
+    "yields": [
+      {
+        "metal": "tin",
+        "count": 2
+      }
+    ],
+    "value": 8,
+    "color": "tin_gray"
+  },
+  {
+    "id": "deepsilver_ore",
+    "name": "deepsilver",
+    "class": "ore",
+    "hosts": [],
+    "shape": "vein",
+    "count": 0,
+    "length": 6,
+    "yields": [
+      {
+        "metal": "deepsilver",
+        "count": 1
+      }
+    ],
+    "value": 120,
+    "color": "deepsilver_blue",
+    "deepsilver": true
+  },
+  {
+    "id": "galena",
+    "name": "galena",
+    "class": "ore",
+    "hosts": [
+      "limestone",
+      "dolomite",
+      "marble",
+      "slate"
+    ],
+    "shape": "vein",
+    "count": 300,
+    "length": 18,
+    "yields": [
+      {
+        "metal": "lead",
+        "count": 1
+      },
+      {
+        "metal": "silver",
+        "count": 1,
+        "permille": 500
+      }
+    ],
+    "value": 6,
+    "color": "galena_gray"
+  },
+  {
+    "id": "hematite",
+    "name": "hematite",
+    "class": "ore",
+    "hosts": [
+      "sandstone",
+      "limestone",
+      "shale",
+      "siltstone",
+      "dolomite"
+    ],
+    "shape": "vein",
+    "count": 600,
+    "length": 25,
+    "yields": [
+      {
+        "metal": "iron",
+        "count": 2
+      }
+    ],
+    "value": 8,
+    "color": "hematite_red"
+  },
+  {
+    "id": "lignite",
+    "name": "lignite",
+    "class": "ore",
+    "hosts": [
+      "sandstone",
+      "chalk",
+      "conglomerate"
+    ],
+    "shape": "vein",
+    "count": 300,
+    "length": 20,
+    "yields": [
+      {
+        "metal": "coal",
+        "count": 1
+      }
+    ],
+    "value": 3,
+    "color": "lignite_brown",
+    "tags": [
+      "fuel"
+    ]
+  },
+  {
+    "id": "limonite",
+    "name": "limonite",
+    "class": "ore",
+    "hosts": [
+      "sandstone",
+      "shale",
+      "conglomerate",
+      "chalk"
+    ],
+    "shape": "cluster",
+    "count": 300,
+    "radius": 2,
+    "yields": [
+      {
+        "metal": "iron",
+        "count": 2
+      }
+    ],
+    "value": 7,
+    "color": "limonite_yellow"
+  },
+  {
+    "id": "magnetite",
+    "name": "magnetite",
+    "class": "ore",
+    "hosts": [
+      "granite",
+      "diorite",
+      "gabbro",
+      "gneiss"
+    ],
+    "shape": "cluster",
+    "count": 300,
+    "radius": 3,
+    "yields": [
+      {
+        "metal": "iron",
+        "count": 2
+      }
+    ],
+    "value": 9,
+    "color": "magnetite_black"
+  },
+  {
+    "id": "malachite",
+    "name": "malachite",
+    "class": "ore",
+    "hosts": [
+      "limestone",
+      "marble",
+      "dolomite",
+      "schist"
+    ],
+    "shape": "vein",
+    "count": 500,
+    "length": 20,
+    "yields": [
+      {
+        "metal": "copper",
+        "count": 2
+      }
+    ],
+    "value": 6,
+    "color": "malachite_green"
+  },
+  {
+    "id": "native_copper",
+    "name": "native copper",
+    "class": "ore",
+    "hosts": [
+      "basalt",
+      "andesite",
+      "rhyolite",
+      "gabbro"
+    ],
+    "shape": "vein",
+    "count": 300,
+    "length": 18,
+    "yields": [
+      {
+        "metal": "copper",
+        "count": 2
+      }
+    ],
+    "value": 8,
+    "color": "copper_orange"
+  },
+  {
+    "id": "native_gold",
+    "name": "native gold",
+    "class": "ore",
+    "hosts": [
+      "granite",
+      "quartzite",
+      "gneiss"
+    ],
+    "shape": "vein",
+    "count": 100,
+    "length": 8,
+    "yields": [
+      {
+        "metal": "gold",
+        "count": 2
+      }
+    ],
+    "value": 30,
+    "color": "gold_yellow"
+  },
+  {
+    "id": "native_platinum",
+    "name": "native platinum",
+    "class": "ore",
+    "hosts": [
+      "gabbro",
+      "diorite"
+    ],
+    "shape": "cluster",
+    "count": 50,
+    "radius": 1,
+    "yields": [
+      {
+        "metal": "platinum",
+        "count": 2
+      }
+    ],
+    "value": 40,
+    "color": "platinum_white"
+  },
+  {
+    "id": "native_silver",
+    "name": "native silver",
+    "class": "ore",
+    "hosts": [
+      "granite",
+      "gneiss",
+      "andesite"
+    ],
+    "shape": "vein",
+    "count": 100,
+    "length": 8,
+    "yields": [
+      {
+        "metal": "silver",
+        "count": 2
+      }
+    ],
+    "value": 15,
+    "color": "silver_white"
+  },
+  {
+    "id": "sphalerite",
+    "name": "sphalerite",
+    "class": "ore",
+    "hosts": [
+      "limestone",
+      "dolomite",
+      "marble"
+    ],
+    "shape": "cluster",
+    "count": 200,
+    "radius": 2,
+    "yields": [
+      {
+        "metal": "zinc",
+        "count": 2
+      }
+    ],
+    "value": 5,
+    "color": "sphalerite_brown"
+  },
+  {
+    "id": "tetrahedrite",
+    "name": "tetrahedrite",
+    "class": "ore",
+    "hosts": [
+      "granite",
+      "diorite",
+      "phyllite",
+      "schist"
+    ],
+    "shape": "vein",
+    "count": 200,
+    "length": 14,
+    "yields": [
+      {
+        "metal": "copper",
+        "count": 1
+      },
+      {
+        "metal": "silver",
+        "count": 1,
+        "permille": 500
+      }
+    ],
+    "value": 8,
+    "color": "tetra_gray"
+  }
+]

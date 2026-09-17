@@ -1,0 +1,77 @@
+[
+  {
+    "id": "m_hearth",
+    "trigger": "HearthLit",
+    "text": "The hearth was lit."
+  },
+  {
+    "id": "m_metal",
+    "trigger": "first ItemCrafted of a metal bar",
+    "text": "The first bar was smelted."
+  },
+  {
+    "id": "m_cavern1",
+    "trigger": "CavernBreached 1",
+    "text": "The first cavern was breached."
+  },
+  {
+    "id": "m_cavern2",
+    "trigger": "CavernBreached 2",
+    "text": "The second cavern was breached."
+  },
+  {
+    "id": "m_sea",
+    "trigger": "CavernBreached 3 or the Sea of Fire discovered",
+    "text": "The Sea of Fire was seen."
+  },
+  {
+    "id": "m_fifty",
+    "trigger": "population ≥ 50",
+    "text": "Fifty dwarves lived in the hall."
+  },
+  {
+    "id": "m_magma_forge",
+    "trigger": "first magma forge completed",
+    "text": "The forge burned without fuel."
+  },
+  {
+    "id": "m_steel",
+    "trigger": "first steel bar",
+    "text": "Steel was made."
+  },
+  {
+    "id": "m_deepsilver",
+    "trigger": "first DeepsilverMined",
+    "text": "The pale metal was taken."
+  },
+  {
+    "id": "m_hollow",
+    "trigger": "first Hollow-born killed",
+    "text": "A thing of the Hollow was slain."
+  },
+  {
+    "id": "m_wyrm",
+    "trigger": "first magma wyrm killed",
+    "text": "A wyrm was slain."
+  },
+  {
+    "id": "m_raid",
+    "trigger": "first RaidEnded repelled or wiped",
+    "text": "The first raid was driven off."
+  },
+  {
+    "id": "m_royal",
+    "trigger": "first royal room",
+    "text": "A royal hall was made."
+  },
+  {
+    "id": "m_decade",
+    "trigger": "year 11",
+    "text": "Ten years in the deep."
+  },
+  {
+    "id": "m_legend",
+    "trigger": "first LegendaryReached",
+    "text": "A legend walked the halls."
+  }
+]

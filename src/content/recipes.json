@@ -1,0 +1,3388 @@
+[
+  {
+    "id": "brew",
+    "name": "Brew drink",
+    "workshop": "still",
+    "skill": "brewing",
+    "inputs": [
+      {
+        "match": "plant_food",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "item": "drink",
+        "count": 20,
+        "material": {
+          "plantDrink": true
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": false,
+    "container": "barrel",
+    "xp": 8
+  },
+  {
+    "id": "brew_hopped",
+    "name": "Brew hopped ale",
+    "workshop": "still",
+    "skill": "brewing",
+    "inputs": [
+      {
+        "match": "plant_food",
+        "count": 4,
+        "material": "barley"
+      },
+      {
+        "match": "plant_food",
+        "count": 1,
+        "material": "hops"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "drink",
+        "count": 20,
+        "material": {
+          "fixed": "hopped_ale"
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": false,
+    "quality": false,
+    "container": "barrel",
+    "xp": 10
+  },
+  {
+    "id": "cook_easy_meal",
+    "name": "Easy meal",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "ingredient",
+        "count": 2,
+        "distinct": true
+      }
+    ],
+    "outputs": [
+      {
+        "item": "easy_meal",
+        "count": 4,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "cook_fine_meal",
+    "name": "Fine meal",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "ingredient",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "fine_meal",
+        "count": 6,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 180,
+    "fuel": false,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "cook_lavish_meal",
+    "name": "Lavish meal",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "ingredient",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "item": "lavish_meal",
+        "count": 8,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 250,
+    "fuel": false,
+    "quality": true,
+    "xp": 15
+  },
+  {
+    "id": "craft_bone",
+    "name": "Bone crafts",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "bone_pile",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "craft",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "craft_shell",
+    "name": "Shell crafts",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "shell_piece",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "craft",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "craft_stone",
+    "name": "Stone crafts",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "craft",
+        "count": 3,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "craft_wood",
+    "name": "Wood crafts",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "craft",
+        "count": 3,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "cut_gem",
+    "name": "Cut gem",
+    "workshop": "jeweler",
+    "skill": "gem_cutting",
+    "inputs": [
+      {
+        "match": "rough_gem",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cut_gem",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": true,
+    "xp": 12
+  },
+  {
+    "id": "forge_anvil",
+    "name": "Anvil",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 5,
+        "material": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "anvil",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 400,
+    "fuel": true,
+    "quality": true,
+    "xp": 15
+  },
+  {
+    "id": "forge_arrows",
+    "name": "Arrowheads",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "arrow",
+        "count": 25,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": true,
+    "quality": true,
+    "xp": 5
+  },
+  {
+    "id": "forge_barrel",
+    "name": "Metal barrel",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "barrel",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "forge_battle_axe",
+    "name": "Battle axe",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "axe",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": true,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "forge_bin",
+    "name": "Metal bin",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bin",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "forge_bolts",
+    "name": "Bolts",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bolt",
+        "count": 25,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": true,
+    "quality": true,
+    "xp": 5
+  },
+  {
+    "id": "forge_breastplate",
+    "name": "Breastplate",
+    "workshop": "forge",
+    "skill": "armorsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "item": "breastplate",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 400,
+    "fuel": true,
+    "quality": true,
+    "xp": 16
+  },
+  {
+    "id": "forge_bucket",
+    "name": "Metal bucket",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bucket",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": true,
+    "quality": true,
+    "xp": 4
+  },
+  {
+    "id": "forge_buckler",
+    "name": "Buckler",
+    "workshop": "forge",
+    "skill": "armorsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "buckler",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_cabinet",
+    "name": "Metal cabinet",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cabinet",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_cage",
+    "name": "Metal cage",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cage",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_chain",
+    "name": "Chain",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "chain",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "forge_chair",
+    "name": "Metal chair",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "chair",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "forge_chest",
+    "name": "Metal chest",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "chest",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_coffin",
+    "name": "Metal coffin",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "coffin",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 250,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_crafts",
+    "name": "Metal crafts",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "craft",
+        "count": 3,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_crossbow",
+    "name": "Metal crossbow",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      },
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "crossbow",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 250,
+    "fuel": true,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "forge_dagger",
+    "name": "Dagger",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "dagger",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_door",
+    "name": "Metal door",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "door",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_floodgate",
+    "name": "Metal floodgate",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "floodgate",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_gauntlets",
+    "name": "Gauntlets",
+    "workshop": "forge",
+    "skill": "armorsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gauntlets",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 180,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_great_axe",
+    "name": "Great axe",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "great_axe",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 300,
+    "fuel": true,
+    "quality": true,
+    "xp": 12
+  },
+  {
+    "id": "forge_greaves",
+    "name": "Greaves",
+    "workshop": "forge",
+    "skill": "armorsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "greaves",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 250,
+    "fuel": true,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "forge_hatch",
+    "name": "Metal hatch",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "hatch",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "forge_helm",
+    "name": "Helm",
+    "workshop": "forge",
+    "skill": "armorsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "helm",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 180,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_mace",
+    "name": "Mace",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "mace",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": true,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "forge_mail_shirt",
+    "name": "Mail shirt",
+    "workshop": "forge",
+    "skill": "armorsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "mail_shirt",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 350,
+    "fuel": true,
+    "quality": true,
+    "xp": 14
+  },
+  {
+    "id": "forge_maul",
+    "name": "Maul",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "maul",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 300,
+    "fuel": true,
+    "quality": true,
+    "xp": 12
+  },
+  {
+    "id": "forge_metal_block",
+    "name": "Metal blocks",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "stone_block",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": true,
+    "quality": true,
+    "xp": 4
+  },
+  {
+    "id": "forge_metal_boots",
+    "name": "Metal boots",
+    "workshop": "forge",
+    "skill": "armorsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "metal_boots",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 180,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_mug",
+    "name": "Metal mugs",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "mug",
+        "count": 3,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": true,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "forge_pick",
+    "name": "Pick",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "pick",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": true,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "forge_pike",
+    "name": "Pike",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      },
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "pike",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 250,
+    "fuel": true,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "forge_shield",
+    "name": "Shield",
+    "workshop": "forge",
+    "skill": "armorsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "shield",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": true,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "forge_short_sword",
+    "name": "Short sword",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "short_sword",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": true,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "forge_spear",
+    "name": "Spear",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      },
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "spear",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 180,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_spikes",
+    "name": "Spikes",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "spike",
+        "count": 3,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": true,
+    "quality": true,
+    "xp": 5
+  },
+  {
+    "id": "forge_statue",
+    "name": "Metal statue",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "item": "statue",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 400,
+    "fuel": true,
+    "quality": true,
+    "xp": 15
+  },
+  {
+    "id": "forge_table",
+    "name": "Metal table",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "table",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "forge_warhammer",
+    "name": "Warhammer",
+    "workshop": "forge",
+    "skill": "weaponsmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "warhammer",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": true,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "make_archery_target",
+    "name": "Archery target",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "archery_target",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_armor_stand_wood",
+    "name": "Armor stand",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "armor_stand",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": true,
+    "xp": 5
+  },
+  {
+    "id": "make_arrows_bone",
+    "name": "Bone arrows",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "bone_pile",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "arrow",
+        "count": 15,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 5
+  },
+  {
+    "id": "make_arrows_wood",
+    "name": "Wooden arrows",
+    "workshop": "bowyer",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "arrow",
+        "count": 20,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_bag_cloth",
+    "name": "Cloth bag",
+    "workshop": "clothier",
+    "skill": "clothesmaking",
+    "inputs": [
+      {
+        "match": "cloth",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bag",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_bag_leather",
+    "name": "Leather bag",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bag",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 5
+  },
+  {
+    "id": "make_bandages",
+    "name": "Bandages",
+    "workshop": "clothier",
+    "skill": "clothesmaking",
+    "inputs": [
+      {
+        "match": "cloth",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bandage",
+        "count": 4,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 60,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "make_barrel",
+    "name": "Barrel",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "barrel",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 5
+  },
+  {
+    "id": "make_bed",
+    "name": "Bed",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bed",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "make_bin",
+    "name": "Bin",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bin",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 5
+  },
+  {
+    "id": "make_bolts_bone",
+    "name": "Bone bolts",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "bone_pile",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bolt",
+        "count": 15,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 5
+  },
+  {
+    "id": "make_bolts_wood",
+    "name": "Wooden bolts",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bolt",
+        "count": 20,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_boots_cloth",
+    "name": "Cloth boots",
+    "workshop": "clothier",
+    "skill": "clothesmaking",
+    "inputs": [
+      {
+        "match": "cloth",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "boots",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": true,
+    "xp": 5
+  },
+  {
+    "id": "make_boots_leather",
+    "name": "Boots",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "boots",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": true,
+    "xp": 5
+  },
+  {
+    "id": "make_bow",
+    "name": "Bow",
+    "workshop": "bowyer",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bow",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 180,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "make_bracers",
+    "name": "Bracers",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bracers",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_bucket",
+    "name": "Bucket",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bucket",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_buckler_wood",
+    "name": "Buckler",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "buckler",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": true,
+    "xp": 5
+  },
+  {
+    "id": "make_cabinet_stone",
+    "name": "Cabinet",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cabinet",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "make_cabinet_wood",
+    "name": "Cabinet",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cabinet",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 180,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "make_cage_wood",
+    "name": "Cage",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cage",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": false,
+    "xp": 6
+  },
+  {
+    "id": "make_cap",
+    "name": "Cap",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cap",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_chair_stone",
+    "name": "Chair",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "chair",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_chair_wood",
+    "name": "Chair",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "chair",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_charcoal",
+    "name": "Charcoal",
+    "workshop": "wood_furnace",
+    "skill": "smelting",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "charcoal_bar",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "make_cheese",
+    "name": "Make cheese",
+    "workshop": "farmers_workshop",
+    "skill": "animal_care",
+    "inputs": [
+      {
+        "match": "milk",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cheese",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_chest_stone",
+    "name": "Chest",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "chest",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_chest_wood",
+    "name": "Chest",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "chest",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_cloak",
+    "name": "Cloak",
+    "workshop": "clothier",
+    "skill": "clothesmaking",
+    "inputs": [
+      {
+        "match": "cloth",
+        "count": 3,
+        "material": "wool_cloth"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cloak",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 180,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "make_club",
+    "name": "Club",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "club",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 60,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "make_coffin_stone",
+    "name": "Coffin",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "coffin",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_coffin_wood",
+    "name": "Coffin",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "coffin",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_crossbow_wood",
+    "name": "Crossbow",
+    "workshop": "bowyer",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "crossbow",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": false,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "make_crutch",
+    "name": "Crutch",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "crutch",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_door_stone",
+    "name": "Door",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "door",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_door_wood",
+    "name": "Door",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "door",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_floodgate",
+    "name": "Floodgate",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "floodgate",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": false,
+    "xp": 8
+  },
+  {
+    "id": "make_gambeson",
+    "name": "Gambeson",
+    "workshop": "clothier",
+    "skill": "clothesmaking",
+    "inputs": [
+      {
+        "match": "cloth",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gambeson",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": false,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "make_glowstone_lamp",
+    "name": "Glowstone lamp",
+    "workshop": "jeweler",
+    "skill": "gem_cutting",
+    "inputs": [
+      {
+        "match": "rough_gem",
+        "count": 1,
+        "material": "glowstone"
+      },
+      {
+        "match": "stone_block",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "statue",
+        "count": 1,
+        "material": {
+          "fixed": "glowstone"
+        }
+      }
+    ],
+    "baseTicks": 300,
+    "fuel": false,
+    "quality": true,
+    "xp": 15
+  },
+  {
+    "id": "make_hatch_stone",
+    "name": "Hatch",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "hatch",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_hatch_wood",
+    "name": "Hatch",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "hatch",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_leather_boots",
+    "name": "Leather boots",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "leather_boots",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_leather_jerkin",
+    "name": "Leather jerkin",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "leather_jerkin",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": false,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "make_leggings",
+    "name": "Leather leggings",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "leggings",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 180,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "make_mechanism",
+    "name": "Mechanism",
+    "workshop": "mechanic",
+    "skill": "mechanics",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "mechanism",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "make_mechanism_metal",
+    "name": "Metal mechanism",
+    "workshop": "mechanic",
+    "skill": "mechanics",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "mechanism",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 250,
+    "fuel": false,
+    "quality": true,
+    "xp": 12
+  },
+  {
+    "id": "make_memorial_slab",
+    "name": "Memorial slab (for a dead dwarf)",
+    "workshop": "mason",
+    "skill": "engraving",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "memorial_slab",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 300,
+    "fuel": false,
+    "quality": true,
+    "xp": 15
+  },
+  {
+    "id": "make_mug_stone",
+    "name": "Stone mugs",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "mug",
+        "count": 3,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_mug_wood",
+    "name": "Wooden mugs",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "mug",
+        "count": 3,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_nest_box",
+    "name": "Nest box",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "nest_box",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_nest_box_stone",
+    "name": "Nest box",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "nest_box",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_quiver",
+    "name": "Quiver",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "quiver",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 5
+  },
+  {
+    "id": "make_rope",
+    "name": "Rope",
+    "workshop": "clothier",
+    "skill": "clothesmaking",
+    "inputs": [
+      {
+        "match": "thread",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "rope",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_shield_wood",
+    "name": "Shield",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      },
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "shield",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_sling",
+    "name": "Sling",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "sling",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": true,
+    "xp": 5
+  },
+  {
+    "id": "make_sling_stones",
+    "name": "Sling stones",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "sling_stone",
+        "count": 30,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 60,
+    "fuel": false,
+    "quality": false,
+    "xp": 2
+  },
+  {
+    "id": "make_spike_wood",
+    "name": "Wooden spikes",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "spike",
+        "count": 3,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_splint",
+    "name": "Splints",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "splint",
+        "count": 4,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_statue",
+    "name": "Statue",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "statue",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 400,
+    "fuel": false,
+    "quality": true,
+    "xp": 15
+  },
+  {
+    "id": "make_stone_block",
+    "name": "Blocks",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "stone_block",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 60,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "make_table_stone",
+    "name": "Table",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "table",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_table_wood",
+    "name": "Table",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "table",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_totem",
+    "name": "Totem",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "skull",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "totem",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": true,
+    "xp": 10
+  },
+  {
+    "id": "make_training_axe",
+    "name": "Training axe",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "training_axe",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_training_spear",
+    "name": "Training spear",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "training_spear",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_training_sword",
+    "name": "Training sword",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "training_sword",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_trousers",
+    "name": "Trousers",
+    "workshop": "clothier",
+    "skill": "clothesmaking",
+    "inputs": [
+      {
+        "match": "cloth",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "trousers",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_trousers_leather",
+    "name": "Leather trousers",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "trousers",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_tunic",
+    "name": "Tunic",
+    "workshop": "clothier",
+    "skill": "clothesmaking",
+    "inputs": [
+      {
+        "match": "cloth",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "tunic",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_tunic_leather",
+    "name": "Leather tunic",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "tunic",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_weapon_rack_wood",
+    "name": "Weapon rack",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "weapon_rack",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": true,
+    "xp": 5
+  },
+  {
+    "id": "make_wood_block",
+    "name": "Wooden blocks",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "wood_block",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 60,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "mill_flour",
+    "name": "Mill flour",
+    "workshop": "farmers_workshop",
+    "skill": "farming",
+    "inputs": [
+      {
+        "match": "plant_food",
+        "count": 2,
+        "material": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "flour",
+        "count": 3,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": false,
+    "container": "bag",
+    "xp": 5
+  },
+  {
+    "id": "process_flax",
+    "name": "Process flax",
+    "workshop": "farmers_workshop",
+    "skill": "farming",
+    "inputs": [
+      {
+        "match": "plant_food",
+        "count": 1,
+        "material": "flax"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "fiber",
+        "count": 2,
+        "material": {
+          "fixed": "flax_fiber"
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "process_sporecloth",
+    "name": "Process sporecloth",
+    "workshop": "farmers_workshop",
+    "skill": "farming",
+    "inputs": [
+      {
+        "match": "plant_food",
+        "count": 1,
+        "material": "sporecloth"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "fiber",
+        "count": 2,
+        "material": {
+          "fixed": "sporecloth_fiber"
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "render_fat",
+    "name": "Render fat",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "fat",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "tallow",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "spin_thread",
+    "name": "Spin thread",
+    "workshop": "loom",
+    "skill": "weaving",
+    "inputs": [
+      {
+        "match": "fiber",
+        "count": 1,
+        "material": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "thread",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "tan_hide",
+    "name": "Tan hide",
+    "workshop": "tannery",
+    "skill": "tanning",
+    "inputs": [
+      {
+        "match": "raw_hide",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "leather_piece",
+        "count": 1,
+        "material": {
+          "fixed": "leather"
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": false,
+    "xp": 6
+  },
+  {
+    "id": "weave_cloth",
+    "name": "Weave cloth",
+    "workshop": "loom",
+    "skill": "weaving",
+    "inputs": [
+      {
+        "match": "thread",
+        "count": 2,
+        "material": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cloth",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": false,
+    "xp": 6
+  }
+]

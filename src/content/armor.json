@@ -1,0 +1,308 @@
+[
+  {
+    "id": "bracers",
+    "name": "bracers",
+    "armorSlot": "arms",
+    "covers": [
+      {
+        "part": "left_arm",
+        "coverage": 80
+      },
+      {
+        "part": "right_arm",
+        "coverage": 80
+      }
+    ],
+    "layer": "leather",
+    "armor": 3,
+    "weight": 2,
+    "leather": 1,
+    "mult": 3000,
+    "materials": [
+      "leather"
+    ]
+  },
+  {
+    "id": "breastplate",
+    "name": "breastplate",
+    "armorSlot": "body",
+    "covers": [
+      {
+        "part": "torso",
+        "coverage": 100
+      }
+    ],
+    "layer": "plate",
+    "armor": 18,
+    "weight": 16,
+    "bars": 4,
+    "mult": 20000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "buckler",
+    "name": "buckler",
+    "armorSlot": "shield",
+    "covers": [],
+    "layer": "none",
+    "armor": 0,
+    "weight": 3,
+    "bars": 1,
+    "mult": 4000,
+    "materials": [
+      "wood",
+      "metal"
+    ]
+  },
+  {
+    "id": "cap",
+    "name": "cap",
+    "armorSlot": "head",
+    "covers": [
+      {
+        "part": "head",
+        "coverage": 100
+      }
+    ],
+    "layer": "leather",
+    "armor": 4,
+    "weight": 2,
+    "leather": 1,
+    "mult": 3000,
+    "materials": [
+      "leather"
+    ]
+  },
+  {
+    "id": "gambeson",
+    "name": "gambeson",
+    "armorSlot": "body",
+    "covers": [
+      {
+        "part": "torso",
+        "coverage": 100
+      },
+      {
+        "part": "left_arm",
+        "coverage": 40
+      },
+      {
+        "part": "right_arm",
+        "coverage": 40
+      }
+    ],
+    "layer": "padding",
+    "armor": 3,
+    "weight": 3,
+    "cloth": 3,
+    "mult": 4000,
+    "materials": [
+      "cloth"
+    ]
+  },
+  {
+    "id": "gauntlets",
+    "name": "gauntlets",
+    "armorSlot": "arms",
+    "covers": [
+      {
+        "part": "left_arm",
+        "coverage": 60
+      },
+      {
+        "part": "right_arm",
+        "coverage": 60
+      }
+    ],
+    "layer": "plate",
+    "armor": 6,
+    "weight": 4,
+    "bars": 1,
+    "mult": 5000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "greaves",
+    "name": "greaves",
+    "armorSlot": "legs",
+    "covers": [
+      {
+        "part": "left_leg",
+        "coverage": 100
+      },
+      {
+        "part": "right_leg",
+        "coverage": 100
+      }
+    ],
+    "layer": "plate",
+    "armor": 10,
+    "weight": 10,
+    "bars": 2,
+    "mult": 10000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "helm",
+    "name": "helm",
+    "armorSlot": "head",
+    "covers": [
+      {
+        "part": "head",
+        "coverage": 100
+      }
+    ],
+    "layer": "plate",
+    "armor": 8,
+    "weight": 6,
+    "bars": 1,
+    "mult": 6000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "leather_boots",
+    "name": "leather boots",
+    "armorSlot": "feet",
+    "covers": [
+      {
+        "part": "left_leg",
+        "coverage": 20
+      },
+      {
+        "part": "right_leg",
+        "coverage": 20
+      }
+    ],
+    "layer": "leather",
+    "armor": 2,
+    "weight": 1,
+    "leather": 1,
+    "mult": 2000,
+    "materials": [
+      "leather"
+    ]
+  },
+  {
+    "id": "leather_jerkin",
+    "name": "leather jerkin",
+    "armorSlot": "body",
+    "covers": [
+      {
+        "part": "torso",
+        "coverage": 100
+      },
+      {
+        "part": "left_arm",
+        "coverage": 30
+      },
+      {
+        "part": "right_arm",
+        "coverage": 30
+      }
+    ],
+    "layer": "leather",
+    "armor": 5,
+    "weight": 4,
+    "leather": 3,
+    "mult": 6000,
+    "materials": [
+      "leather"
+    ]
+  },
+  {
+    "id": "leggings",
+    "name": "leather leggings",
+    "armorSlot": "legs",
+    "covers": [
+      {
+        "part": "left_leg",
+        "coverage": 100
+      },
+      {
+        "part": "right_leg",
+        "coverage": 100
+      }
+    ],
+    "layer": "leather",
+    "armor": 4,
+    "weight": 3,
+    "leather": 2,
+    "mult": 4000,
+    "materials": [
+      "leather"
+    ]
+  },
+  {
+    "id": "mail_shirt",
+    "name": "mail shirt",
+    "armorSlot": "body",
+    "covers": [
+      {
+        "part": "torso",
+        "coverage": 100
+      },
+      {
+        "part": "left_arm",
+        "coverage": 60
+      },
+      {
+        "part": "right_arm",
+        "coverage": 60
+      }
+    ],
+    "layer": "mail",
+    "armor": 12,
+    "weight": 12,
+    "bars": 3,
+    "mult": 15000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "metal_boots",
+    "name": "metal boots",
+    "armorSlot": "feet",
+    "covers": [
+      {
+        "part": "left_leg",
+        "coverage": 30
+      },
+      {
+        "part": "right_leg",
+        "coverage": 30
+      }
+    ],
+    "layer": "plate",
+    "armor": 4,
+    "weight": 4,
+    "bars": 1,
+    "mult": 5000,
+    "materials": [
+      "metal"
+    ]
+  },
+  {
+    "id": "shield",
+    "name": "shield",
+    "armorSlot": "shield",
+    "covers": [],
+    "layer": "none",
+    "armor": 0,
+    "weight": 6,
+    "bars": 2,
+    "mult": 6000,
+    "materials": [
+      "wood",
+      "metal"
+    ]
+  }
+]

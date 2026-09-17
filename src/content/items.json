@@ -1,0 +1,1834 @@
+[
+  {
+    "id": "amulet",
+    "name": "amulet",
+    "category": "craft/amulet",
+    "mult": 3000,
+    "stack": 5,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "stone",
+      "bone",
+      "wood",
+      "metal",
+      "shell"
+    ],
+    "glyph": "♀",
+    "quality": false,
+    "tags": [
+      "craft"
+    ]
+  },
+  {
+    "id": "anvil",
+    "name": "anvil",
+    "category": "furniture/anvil",
+    "mult": 15000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": "any",
+    "glyph": "Ξ",
+    "quality": true
+  },
+  {
+    "id": "archery_target",
+    "name": "archery target",
+    "category": "furniture/archery_target",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood"
+    ],
+    "glyph": "◙",
+    "quality": false
+  },
+  {
+    "id": "armor_stand",
+    "name": "armor stand",
+    "category": "furniture/armor_stand",
+    "mult": 4000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "glyph": "╧",
+    "quality": true
+  },
+  {
+    "id": "arrow",
+    "name": "arrow",
+    "category": "ammo/arrow",
+    "mult": 200,
+    "stack": 50,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "metal",
+      "wood",
+      "bone"
+    ],
+    "glyph": "↑",
+    "quality": true,
+    "slot": "quiver",
+    "tags": [
+      "ammo"
+    ]
+  },
+  {
+    "id": "axe",
+    "name": "axe",
+    "category": "tool/axe",
+    "mult": 8000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "Ρ",
+    "quality": true
+  },
+  {
+    "id": "bag",
+    "name": "bag",
+    "category": "container/bag",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "cloth",
+      "leather"
+    ],
+    "glyph": "ð",
+    "quality": false,
+    "capacity": 25,
+    "containerClass": "bag"
+  },
+  {
+    "id": "bandage",
+    "name": "bandage",
+    "category": "medical/bandage",
+    "mult": 1000,
+    "stack": 20,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "~",
+    "fg": "linen_cream",
+    "quality": false
+  },
+  {
+    "id": "bar",
+    "name": "bar",
+    "category": "bar/metal",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": "any",
+    "glyph": "▬",
+    "quality": false
+  },
+  {
+    "id": "barrel",
+    "name": "barrel",
+    "category": "container/barrel",
+    "mult": 3000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "glyph": "Ю",
+    "quality": true,
+    "capacity": 20,
+    "containerClass": "barrel"
+  },
+  {
+    "id": "bed",
+    "name": "bed",
+    "category": "furniture/bed",
+    "mult": 5000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "wood"
+    ],
+    "glyph": "Θ",
+    "quality": true
+  },
+  {
+    "id": "bin",
+    "name": "bin",
+    "category": "container/bin",
+    "mult": 3000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "glyph": "▐",
+    "quality": true,
+    "capacity": 30,
+    "containerClass": "bin"
+  },
+  {
+    "id": "bolt",
+    "name": "bolt",
+    "category": "ammo/bolt",
+    "mult": 200,
+    "stack": 50,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "metal",
+      "wood",
+      "bone"
+    ],
+    "glyph": "↑",
+    "quality": true,
+    "slot": "quiver",
+    "tags": [
+      "ammo"
+    ]
+  },
+  {
+    "id": "bone_pile",
+    "name": "bones",
+    "category": "textile/bone",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "bone_white",
+    "quality": false
+  },
+  {
+    "id": "boots",
+    "name": "boots",
+    "category": "clothing/feet",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "leather",
+      "cloth"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "feet"
+  },
+  {
+    "id": "bow",
+    "name": "bow",
+    "category": "weapon/ranged",
+    "mult": 8000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood"
+    ],
+    "glyph": ")",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "bracers",
+    "name": "bracers",
+    "category": "armor/arms",
+    "mult": 3000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "leather"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "arms",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "breastplate",
+    "name": "breastplate",
+    "category": "armor/body",
+    "mult": 20000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "body",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "brightleaf",
+    "name": "brightleaf",
+    "category": "medical/brightleaf",
+    "mult": 4000,
+    "stack": 20,
+    "container": "bag",
+    "rotDays": 60,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "♣",
+    "fg": "bright_green",
+    "quality": false
+  },
+  {
+    "id": "bucket",
+    "name": "bucket",
+    "category": "container/bucket",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "glyph": "u",
+    "quality": true,
+    "capacity": 1,
+    "containerClass": "bucket"
+  },
+  {
+    "id": "buckler",
+    "name": "buckler",
+    "category": "armor/shield",
+    "mult": 4000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "glyph": ")",
+    "quality": true,
+    "slot": "shield",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "cabinet",
+    "name": "cabinet",
+    "category": "furniture/cabinet",
+    "mult": 6000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "wood",
+      "stone",
+      "metal"
+    ],
+    "glyph": "π",
+    "quality": true
+  },
+  {
+    "id": "cage",
+    "name": "cage",
+    "category": "furniture/cage",
+    "mult": 6000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "glyph": "▒",
+    "quality": true
+  },
+  {
+    "id": "cap",
+    "name": "cap",
+    "category": "armor/head",
+    "mult": 3000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "leather"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "head",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "chain",
+    "name": "chain",
+    "category": "furniture/chain",
+    "mult": 4000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "§",
+    "quality": true
+  },
+  {
+    "id": "chair",
+    "name": "chair",
+    "category": "furniture/chair",
+    "mult": 3000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "stone",
+      "metal"
+    ],
+    "glyph": "╫",
+    "quality": true
+  },
+  {
+    "id": "charcoal_bar",
+    "name": "charcoal",
+    "category": "bar/charcoal",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": "any",
+    "glyph": "▬",
+    "fg": "charcoal_gray",
+    "quality": false
+  },
+  {
+    "id": "cheese",
+    "name": "cheese",
+    "category": "food/cheese",
+    "mult": 1000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 40,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "cheese_yellow",
+    "edible": true,
+    "quality": true,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
+    "id": "chest",
+    "name": "chest",
+    "category": "furniture/chest",
+    "mult": 5000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "stone",
+      "metal"
+    ],
+    "glyph": "▄",
+    "quality": true,
+    "containerClass": "chest"
+  },
+  {
+    "id": "cloak",
+    "name": "cloak",
+    "category": "clothing/body",
+    "mult": 4000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "[",
+    "quality": true,
+    "slot": "body"
+  },
+  {
+    "id": "cloth",
+    "name": "cloth",
+    "category": "textile/cloth",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "≈",
+    "quality": false
+  },
+  {
+    "id": "club",
+    "name": "club",
+    "category": "weapon/mace",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood"
+    ],
+    "glyph": "/",
+    "quality": false,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "coal_bar",
+    "name": "coal",
+    "category": "bar/coal",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": "any",
+    "glyph": "▬",
+    "fg": "coal_black",
+    "quality": false
+  },
+  {
+    "id": "coffin",
+    "name": "coffin",
+    "category": "furniture/coffin",
+    "mult": 6000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "wood",
+      "stone",
+      "metal"
+    ],
+    "glyph": "▬",
+    "quality": true
+  },
+  {
+    "id": "corpse",
+    "name": "corpse",
+    "category": "refuse/corpse",
+    "mult": 1000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 14,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "corpse_red",
+    "quality": false
+  },
+  {
+    "id": "crossbow",
+    "name": "crossbow",
+    "category": "weapon/ranged",
+    "mult": 10000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "glyph": ")",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "crutch",
+    "name": "crutch",
+    "category": "tool/crutch",
+    "mult": 3000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "wood"
+    ],
+    "glyph": "⌡",
+    "quality": false
+  },
+  {
+    "id": "cut_gem",
+    "name": "cut gem",
+    "category": "stone/gem_cut",
+    "mult": 3000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "♦",
+    "quality": true
+  },
+  {
+    "id": "dagger",
+    "name": "dagger",
+    "category": "weapon/dagger",
+    "mult": 4000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal",
+      "obsidian",
+      "bone"
+    ],
+    "glyph": "/",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "door",
+    "name": "door",
+    "category": "furniture/door",
+    "mult": 4000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "wood",
+      "stone",
+      "metal"
+    ],
+    "glyph": "+",
+    "quality": true
+  },
+  {
+    "id": "drink",
+    "name": "drink",
+    "category": "drink",
+    "mult": 1000,
+    "stack": 20,
+    "container": "barrel",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "☼",
+    "drinkable": true,
+    "quality": false
+  },
+  {
+    "id": "easy_meal",
+    "name": "easy meal",
+    "category": "food/meal/easy",
+    "mult": 10000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 14,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "meal_brown",
+    "edible": true,
+    "quality": true
+  },
+  {
+    "id": "egg",
+    "name": "egg",
+    "category": "food/egg",
+    "mult": 1000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 12,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "o",
+    "fg": "egg_cream",
+    "edible": true,
+    "quality": false,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
+    "id": "fat",
+    "name": "fat",
+    "category": "food/fat",
+    "mult": 1000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 6,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "tallow_yellow",
+    "edible": true,
+    "quality": false,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
+    "id": "fiber",
+    "name": "fiber",
+    "category": "textile/fiber",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "~",
+    "quality": false
+  },
+  {
+    "id": "figurine",
+    "name": "figurine",
+    "category": "craft/figurine",
+    "mult": 3000,
+    "stack": 5,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "stone",
+      "bone",
+      "wood",
+      "metal",
+      "shell"
+    ],
+    "glyph": "♀",
+    "quality": false,
+    "tags": [
+      "craft"
+    ]
+  },
+  {
+    "id": "fine_meal",
+    "name": "fine meal",
+    "category": "food/meal/fine",
+    "mult": 25000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 14,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "meal_gold",
+    "edible": true,
+    "quality": true
+  },
+  {
+    "id": "fishing_rod",
+    "name": "fishing rod",
+    "category": "tool/fishing_rod",
+    "mult": 3000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "wood"
+    ],
+    "glyph": "⌠",
+    "quality": false
+  },
+  {
+    "id": "floodgate",
+    "name": "floodgate",
+    "category": "furniture/floodgate",
+    "mult": 6000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "stone",
+      "metal"
+    ],
+    "glyph": "╪",
+    "quality": true
+  },
+  {
+    "id": "flour",
+    "name": "flour",
+    "category": "food/plant/processed",
+    "mult": 1000,
+    "stack": 20,
+    "container": "bag",
+    "rotDays": 60,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "flour_white",
+    "quality": false,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
+    "id": "gambeson",
+    "name": "gambeson",
+    "category": "armor/body",
+    "mult": 4000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "cloth"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "body",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "gauntlets",
+    "name": "gauntlets",
+    "category": "armor/arms",
+    "mult": 5000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "arms",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "great_axe",
+    "name": "great axe",
+    "category": "weapon/axe",
+    "mult": 12000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "/",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "greaves",
+    "name": "greaves",
+    "category": "armor/legs",
+    "mult": 10000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "legs",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "hatch",
+    "name": "hatch",
+    "category": "furniture/hatch",
+    "mult": 4000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "stone",
+      "metal"
+    ],
+    "glyph": "¤",
+    "quality": true
+  },
+  {
+    "id": "helm",
+    "name": "helm",
+    "category": "armor/head",
+    "mult": 6000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "head",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "lavish_meal",
+    "name": "lavish meal",
+    "category": "food/meal/lavish",
+    "mult": 60000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 14,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "meal_red",
+    "edible": true,
+    "quality": true
+  },
+  {
+    "id": "leather_boots",
+    "name": "leather boots",
+    "category": "armor/feet",
+    "mult": 2000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "leather"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "feet",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "leather_jerkin",
+    "name": "leather jerkin",
+    "category": "armor/body",
+    "mult": 6000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "leather"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "body",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "leather_piece",
+    "name": "leather",
+    "category": "textile/leather",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "≈",
+    "fg": "leather_brown",
+    "quality": false
+  },
+  {
+    "id": "leggings",
+    "name": "leather leggings",
+    "category": "armor/legs",
+    "mult": 4000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "leather"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "legs",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "log",
+    "name": "log",
+    "category": "wood/log",
+    "mult": 1000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": "any",
+    "glyph": "≡",
+    "quality": false
+  },
+  {
+    "id": "mace",
+    "name": "mace",
+    "category": "weapon/mace",
+    "mult": 7000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "/",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "mail_shirt",
+    "name": "mail shirt",
+    "category": "armor/body",
+    "mult": 15000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "body",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "maul",
+    "name": "maul",
+    "category": "weapon/hammer",
+    "mult": 12000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "/",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "mechanism",
+    "name": "mechanism",
+    "category": "furniture/mechanism",
+    "mult": 5000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "stone",
+      "metal"
+    ],
+    "glyph": "‼",
+    "quality": true
+  },
+  {
+    "id": "memorial_slab",
+    "name": "memorial slab",
+    "category": "furniture/memorial_slab",
+    "mult": 8000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "stone"
+    ],
+    "glyph": "╤",
+    "quality": true
+  },
+  {
+    "id": "metal_boots",
+    "name": "metal boots",
+    "category": "armor/feet",
+    "mult": 5000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "feet",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "milk",
+    "name": "milk",
+    "category": "food/milk",
+    "mult": 1000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 5,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "≈",
+    "fg": "milk_white",
+    "edible": true,
+    "quality": false
+  },
+  {
+    "id": "mug",
+    "name": "mug",
+    "category": "craft/mug",
+    "mult": 2000,
+    "stack": 5,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "stone",
+      "wood",
+      "metal"
+    ],
+    "glyph": "∂",
+    "quality": true
+  },
+  {
+    "id": "nest_box",
+    "name": "nest box",
+    "category": "furniture/nest_box",
+    "mult": 3000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "stone"
+    ],
+    "glyph": "∩",
+    "quality": false
+  },
+  {
+    "id": "ore",
+    "name": "ore",
+    "category": "ore",
+    "mult": 1000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": "any",
+    "glyph": "£",
+    "quality": false
+  },
+  {
+    "id": "pick",
+    "name": "pick",
+    "category": "tool/pick",
+    "mult": 6000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "¶",
+    "quality": true
+  },
+  {
+    "id": "pike",
+    "name": "pike",
+    "category": "weapon/spear",
+    "mult": 9000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "/",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "plant_food",
+    "name": "plant",
+    "category": "food/plant/raw",
+    "mult": 1000,
+    "stack": 20,
+    "container": "barrel",
+    "rotDays": 20,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "edible": true,
+    "quality": false,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
+    "id": "quiver",
+    "name": "quiver",
+    "category": "tool/quiver",
+    "mult": 3000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "leather"
+    ],
+    "glyph": "∫",
+    "quality": false,
+    "capacity": 50
+  },
+  {
+    "id": "raw_fish",
+    "name": "raw fish",
+    "category": "food/fish/raw",
+    "mult": 1000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 4,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "edible": true,
+    "quality": false,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
+    "id": "raw_hide",
+    "name": "raw hide",
+    "category": "textile/hide",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 10,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "≈",
+    "quality": false
+  },
+  {
+    "id": "raw_meat",
+    "name": "raw meat",
+    "category": "food/meat/raw",
+    "mult": 1000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 6,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "edible": true,
+    "quality": false,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
+    "id": "raw_stone",
+    "name": "stone",
+    "category": "stone/raw",
+    "mult": 1000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": "any",
+    "glyph": "•",
+    "quality": false
+  },
+  {
+    "id": "ring",
+    "name": "ring",
+    "category": "craft/ring",
+    "mult": 2000,
+    "stack": 5,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "stone",
+      "bone",
+      "wood",
+      "metal",
+      "shell"
+    ],
+    "glyph": "○",
+    "quality": false,
+    "tags": [
+      "craft"
+    ]
+  },
+  {
+    "id": "rope",
+    "name": "rope",
+    "category": "furniture/chain",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "cloth"
+    ],
+    "glyph": "§",
+    "quality": false
+  },
+  {
+    "id": "rotten",
+    "name": "rotten food",
+    "category": "refuse/rotten",
+    "mult": 1000,
+    "stack": 10,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "rot_green",
+    "quality": false
+  },
+  {
+    "id": "rough_gem",
+    "name": "rough gem",
+    "category": "stone/gem_rough",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "*",
+    "quality": false
+  },
+  {
+    "id": "seed",
+    "name": "seed",
+    "category": "seed",
+    "mult": 1000,
+    "stack": 50,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": ",",
+    "quality": false
+  },
+  {
+    "id": "shell_piece",
+    "name": "shell",
+    "category": "textile/shell",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "shell_pink",
+    "quality": false
+  },
+  {
+    "id": "shield",
+    "name": "shield",
+    "category": "armor/shield",
+    "mult": 6000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "glyph": ")",
+    "quality": true,
+    "slot": "shield",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "short_sword",
+    "name": "short sword",
+    "category": "weapon/sword",
+    "mult": 8000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal",
+      "obsidian"
+    ],
+    "glyph": "/",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "skeleton",
+    "name": "skeleton",
+    "category": "refuse/skeleton",
+    "mult": 1000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "bone_white",
+    "quality": false
+  },
+  {
+    "id": "skull",
+    "name": "skull",
+    "category": "textile/skull",
+    "mult": 1000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "☻",
+    "fg": "bone_white",
+    "quality": false
+  },
+  {
+    "id": "sling",
+    "name": "sling",
+    "category": "weapon/ranged",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "leather"
+    ],
+    "glyph": ")",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "sling_stone",
+    "name": "sling stone",
+    "category": "ammo/sling_stone",
+    "mult": 50,
+    "stack": 50,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "stone"
+    ],
+    "glyph": "↑",
+    "quality": false,
+    "slot": "quiver",
+    "tags": [
+      "ammo"
+    ]
+  },
+  {
+    "id": "spear",
+    "name": "spear",
+    "category": "weapon/spear",
+    "mult": 6000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "/",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "spike",
+    "name": "spike",
+    "category": "furniture/trap_part",
+    "mult": 4000,
+    "stack": 5,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal",
+      "wood"
+    ],
+    "glyph": "↑",
+    "quality": true
+  },
+  {
+    "id": "splint",
+    "name": "splint",
+    "category": "medical/splint",
+    "mult": 2000,
+    "stack": 5,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "wood"
+    ],
+    "glyph": "‖",
+    "quality": false
+  },
+  {
+    "id": "statue",
+    "name": "statue",
+    "category": "furniture/statue",
+    "mult": 12000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "stone",
+      "metal"
+    ],
+    "glyph": "Ω",
+    "quality": true
+  },
+  {
+    "id": "stone_block",
+    "name": "block",
+    "category": "stone/block",
+    "mult": 1500,
+    "stack": 5,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": "any",
+    "glyph": "▪",
+    "quality": true,
+    "tags": [
+      "block"
+    ]
+  },
+  {
+    "id": "table",
+    "name": "table",
+    "category": "furniture/table",
+    "mult": 4000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "wood",
+      "stone",
+      "metal"
+    ],
+    "glyph": "╥",
+    "quality": true
+  },
+  {
+    "id": "tallow",
+    "name": "tallow",
+    "category": "food/tallow",
+    "mult": 1000,
+    "stack": 20,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "tallow_yellow",
+    "edible": true,
+    "quality": false
+  },
+  {
+    "id": "thread",
+    "name": "thread",
+    "category": "textile/thread",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "~",
+    "quality": false
+  },
+  {
+    "id": "totem",
+    "name": "totem",
+    "category": "craft/totem",
+    "mult": 5000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "♀",
+    "quality": true
+  },
+  {
+    "id": "training_axe",
+    "name": "training axe",
+    "category": "weapon/axe",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood"
+    ],
+    "glyph": "/",
+    "quality": false,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "training_spear",
+    "name": "training spear",
+    "category": "weapon/spear",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood"
+    ],
+    "glyph": "/",
+    "quality": false,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "training_sword",
+    "name": "training sword",
+    "category": "weapon/sword",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood"
+    ],
+    "glyph": "/",
+    "quality": false,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "trousers",
+    "name": "trousers",
+    "category": "clothing/legs",
+    "mult": 3000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "cloth",
+      "leather"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "legs"
+  },
+  {
+    "id": "tunic",
+    "name": "tunic",
+    "category": "clothing/body",
+    "mult": 3000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "cloth",
+      "leather"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "body"
+  },
+  {
+    "id": "warhammer",
+    "name": "warhammer",
+    "category": "weapon/hammer",
+    "mult": 8000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "/",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "weapon_rack",
+    "name": "weapon rack",
+    "category": "furniture/weapon_rack",
+    "mult": 4000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "glyph": "╨",
+    "quality": true
+  },
+  {
+    "id": "wood_block",
+    "name": "wooden block",
+    "category": "wood/block",
+    "mult": 1500,
+    "stack": 5,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": "any",
+    "glyph": "▪",
+    "quality": false,
+    "tags": [
+      "block"
+    ]
+  },
+  {
+    "id": "wool_raw",
+    "name": "wool",
+    "category": "textile/wool",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "~",
+    "fg": "wool_cream",
+    "quality": false
+  }
+]

@@ -1,0 +1,877 @@
+[
+  {
+    "civ": "mountainhome",
+    "entries": [
+      {
+        "item": "bar",
+        "materials": [
+          {
+            "material": "copper",
+            "weight": 30
+          },
+          {
+            "material": "bronze",
+            "weight": 20
+          },
+          {
+            "material": "iron",
+            "weight": 35
+          },
+          {
+            "material": "steel",
+            "weight": 10
+          },
+          {
+            "material": "silver",
+            "weight": 5
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 25,
+        "rare": true
+      },
+      {
+        "item": "pick",
+        "materials": [
+          {
+            "material": "iron",
+            "weight": 70
+          },
+          {
+            "material": "steel",
+            "weight": 30
+          }
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 10
+      },
+      {
+        "item": "axe",
+        "materials": [
+          {
+            "material": "iron",
+            "weight": 70
+          },
+          {
+            "material": "steel",
+            "weight": 30
+          }
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 8
+      },
+      {
+        "item": [
+          "short_sword",
+          "mace",
+          "warhammer",
+          "spear"
+        ],
+        "materials": [
+          {
+            "material": "iron",
+            "weight": 70
+          },
+          {
+            "material": "steel",
+            "weight": 30
+          }
+        ],
+        "count": [
+          1,
+          3
+        ],
+        "weight": 8
+      },
+      {
+        "item": [
+          "helm",
+          "mail_shirt",
+          "gauntlets",
+          "greaves",
+          "metal_boots",
+          "shield"
+        ],
+        "materials": [
+          {
+            "material": "iron",
+            "weight": 70
+          },
+          {
+            "material": "steel",
+            "weight": 30
+          }
+        ],
+        "count": [
+          1,
+          3
+        ],
+        "weight": 8,
+        "rare": true,
+        "rareAdds": [
+          "breastplate"
+        ]
+      },
+      {
+        "item": "anvil",
+        "materials": [
+          {
+            "material": "iron",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          1
+        ],
+        "weight": 6
+      },
+      {
+        "item": [
+          "crossbow",
+          "bolt"
+        ],
+        "materials": [
+          {
+            "material": "iron",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          1
+        ],
+        "weight": 6
+      },
+      {
+        "item": [
+          "drink",
+          "barrel"
+        ],
+        "materials": [
+          {
+            "material": "ale",
+            "weight": 50
+          },
+          {
+            "material": "dimcap_ale",
+            "weight": 30
+          },
+          {
+            "material": "hopped_ale",
+            "weight": 20
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 15
+      },
+      {
+        "item": [
+          "seed",
+          "bag"
+        ],
+        "materials": [
+          {
+            "material": "dimcap",
+            "weight": 1
+          },
+          {
+            "material": "cavewheat",
+            "weight": 1
+          },
+          {
+            "material": "sweetroot",
+            "weight": 1
+          },
+          {
+            "material": "pale_bell",
+            "weight": 1
+          },
+          {
+            "material": "sporecloth",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 12
+      },
+      {
+        "item": "plant_food",
+        "materials": [
+          {
+            "material": "dimcap",
+            "weight": 1
+          },
+          {
+            "material": "sweetroot",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 8
+      },
+      {
+        "item": "craft",
+        "materials": [
+          {
+            "material": "stone",
+            "weight": 1
+          },
+          {
+            "material": "bone",
+            "weight": 1
+          },
+          {
+            "material": "metal",
+            "weight": 1
+          }
+        ],
+        "count": [
+          3,
+          6
+        ],
+        "weight": 8
+      },
+      {
+        "item": "cut_gem",
+        "materials": [
+          {
+            "material": "quartz",
+            "weight": 40
+          },
+          {
+            "material": "amethyst",
+            "weight": 30
+          },
+          {
+            "material": "garnet",
+            "weight": 20
+          },
+          {
+            "material": "emerald",
+            "weight": 10
+          }
+        ],
+        "count": [
+          1,
+          3
+        ],
+        "weight": 5,
+        "rare": true
+      },
+      {
+        "item": "mechanism",
+        "materials": [
+          {
+            "material": "granite",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          3
+        ],
+        "weight": 6
+      },
+      {
+        "item": [
+          "dog",
+          "cat",
+          "mule",
+          "yak"
+        ],
+        "materials": [],
+        "count": [
+          1,
+          3
+        ],
+        "weight": 8,
+        "rare": true,
+        "rareAdds": [
+          "cave_ox"
+        ]
+      },
+      {
+        "item": "cloth",
+        "materials": [
+          {
+            "material": "sporecloth_cloth",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 5
+      },
+      {
+        "item": "bar",
+        "materials": [
+          {
+            "material": "deepsilver",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          1
+        ],
+        "weight": 1,
+        "rare": true
+      }
+    ]
+  },
+  {
+    "civ": "hillfolk",
+    "entries": [
+      {
+        "item": "easy_meal",
+        "materials": [
+          {
+            "material": "meal",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 15,
+        "rare": true,
+        "rareAdds": [
+          "fine_meal"
+        ]
+      },
+      {
+        "item": "raw_meat",
+        "materials": [
+          {
+            "material": "cow_meat",
+            "weight": 1
+          },
+          {
+            "material": "pig_meat",
+            "weight": 1
+          },
+          {
+            "material": "sheep_meat",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          3
+        ],
+        "weight": 10
+      },
+      {
+        "item": "cheese",
+        "materials": [
+          {
+            "material": "cheese",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 10
+      },
+      {
+        "item": [
+          "flour",
+          "bag"
+        ],
+        "materials": [
+          {
+            "material": "flour",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          3
+        ],
+        "weight": 8
+      },
+      {
+        "item": [
+          "seed",
+          "bag"
+        ],
+        "materials": [
+          {
+            "material": "barley",
+            "weight": 1
+          },
+          {
+            "material": "turnip",
+            "weight": 1
+          },
+          {
+            "material": "cabbage",
+            "weight": 1
+          },
+          {
+            "material": "strawberry",
+            "weight": 1
+          },
+          {
+            "material": "flax",
+            "weight": 1
+          },
+          {
+            "material": "pumpkin",
+            "weight": 1
+          },
+          {
+            "material": "hops",
+            "weight": 1
+          }
+        ],
+        "count": [
+          3,
+          5
+        ],
+        "weight": 15
+      },
+      {
+        "item": "plant_food",
+        "materials": [
+          {
+            "material": "turnip",
+            "weight": 1
+          },
+          {
+            "material": "cabbage",
+            "weight": 1
+          },
+          {
+            "material": "pumpkin",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 10
+      },
+      {
+        "item": [
+          "drink",
+          "barrel"
+        ],
+        "materials": [
+          {
+            "material": "strawberry_wine",
+            "weight": 40
+          },
+          {
+            "material": "ale",
+            "weight": 60
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 12
+      },
+      {
+        "item": "cloth",
+        "materials": [
+          {
+            "material": "flax_cloth",
+            "weight": 60
+          },
+          {
+            "material": "wool_cloth",
+            "weight": 40
+          }
+        ],
+        "count": [
+          3,
+          6
+        ],
+        "weight": 12
+      },
+      {
+        "item": "thread",
+        "materials": [
+          {
+            "material": "flax_thread",
+            "weight": 1
+          },
+          {
+            "material": "wool_thread",
+            "weight": 1
+          }
+        ],
+        "count": [
+          3,
+          6
+        ],
+        "weight": 8
+      },
+      {
+        "item": "leather_piece",
+        "materials": [
+          {
+            "material": "leather",
+            "weight": 1
+          }
+        ],
+        "count": [
+          4,
+          8
+        ],
+        "weight": 10
+      },
+      {
+        "item": [
+          "tunic",
+          "trousers",
+          "boots",
+          "cloak"
+        ],
+        "materials": [
+          {
+            "material": "flax_cloth",
+            "weight": 1
+          },
+          {
+            "material": "wool_cloth",
+            "weight": 1
+          },
+          {
+            "material": "leather",
+            "weight": 1
+          }
+        ],
+        "count": [
+          3,
+          6
+        ],
+        "weight": 8
+      },
+      {
+        "item": [
+          "bag",
+          "rope"
+        ],
+        "materials": [
+          {
+            "material": "flax_cloth",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 6
+      },
+      {
+        "item": [
+          "cow",
+          "sheep",
+          "goat",
+          "pig",
+          "chicken"
+        ],
+        "materials": [],
+        "count": [
+          1,
+          3
+        ],
+        "weight": 12,
+        "rare": true,
+        "rareAdds": [
+          "horse"
+        ]
+      },
+      {
+        "item": [
+          "barrel",
+          "bin",
+          "bucket",
+          "bed",
+          "chair",
+          "table"
+        ],
+        "materials": [
+          {
+            "material": "pine",
+            "weight": 1
+          },
+          {
+            "material": "oak",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 8
+      },
+      {
+        "item": [
+          "bandage",
+          "splint"
+        ],
+        "materials": [
+          {
+            "material": "flax_cloth",
+            "weight": 1
+          },
+          {
+            "material": "pine",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 5
+      }
+    ]
+  },
+  {
+    "civ": "wildwood",
+    "entries": [
+      {
+        "item": [
+          "seed",
+          "bag"
+        ],
+        "materials": [
+          {
+            "material": "strawberry",
+            "weight": 1
+          },
+          {
+            "material": "flax",
+            "weight": 1
+          },
+          {
+            "material": "hops",
+            "weight": 1
+          },
+          {
+            "material": "barley",
+            "weight": 1
+          },
+          {
+            "material": "pumpkin",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 12
+      },
+      {
+        "item": "log",
+        "materials": [
+          {
+            "material": "yew",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 8
+      },
+      {
+        "item": "brightleaf",
+        "materials": [
+          {
+            "material": "brightleaf",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 15
+      },
+      {
+        "item": "bow",
+        "materials": [
+          {
+            "material": "yew",
+            "weight": 60
+          },
+          {
+            "material": "ash",
+            "weight": 40
+          }
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 10
+      },
+      {
+        "item": "arrow",
+        "materials": [
+          {
+            "material": "wood",
+            "weight": 70
+          },
+          {
+            "material": "bone",
+            "weight": 30
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 10
+      },
+      {
+        "item": "cloth",
+        "materials": [
+          {
+            "material": "flax_cloth",
+            "weight": 1
+          }
+        ],
+        "count": [
+          3,
+          5
+        ],
+        "weight": 10
+      },
+      {
+        "item": "plant_food",
+        "materials": [
+          {
+            "material": "sunfruit",
+            "weight": 1
+          },
+          {
+            "material": "bramble_berry",
+            "weight": 1
+          },
+          {
+            "material": "strawberry",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 10
+      },
+      {
+        "item": [
+          "drink",
+          "barrel"
+        ],
+        "materials": [
+          {
+            "material": "strawberry_wine",
+            "weight": 1
+          },
+          {
+            "material": "bellwine",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          3
+        ],
+        "weight": 10
+      },
+      {
+        "item": [
+          "quiver",
+          "bag"
+        ],
+        "materials": [
+          {
+            "material": "leather",
+            "weight": 1
+          },
+          {
+            "material": "flax_cloth",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          3
+        ],
+        "weight": 6
+      },
+      {
+        "item": [
+          "dog",
+          "cat"
+        ],
+        "materials": [],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 6,
+        "rare": true,
+        "rareAdds": [
+          "bear",
+          "lynx"
+        ]
+      },
+      {
+        "item": "craft",
+        "materials": [
+          {
+            "material": "bone",
+            "weight": 1
+          },
+          {
+            "material": "shell",
+            "weight": 1
+          }
+        ],
+        "count": [
+          3,
+          6
+        ],
+        "weight": 6
+      }
+    ]
+  }
+]

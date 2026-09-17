@@ -1,0 +1,23 @@
+[
+  {
+    "type": "edge",
+    "padding": 600,
+    "leather": 800,
+    "mail": 1200,
+    "plate": 1100
+  },
+  {
+    "type": "pierce",
+    "padding": 400,
+    "leather": 600,
+    "mail": 800,
+    "plate": 1200
+  },
+  {
+    "type": "blunt",
+    "padding": 1200,
+    "leather": 1000,
+    "mail": 500,
+    "plate": 900
+  }
+]
