@@ -222,6 +222,53 @@ export function deserializeJson(text: string): unknown {
   return deserializeValue(JSON.parse(text));
 }
 
+// ---------- state hashing ----------
+
+/**
+ * The mixing function behind the world hash of `simulation-core.md` § Determinism. Two 32-bit
+ * words, fed in a fixed order, printed as 16 hex digits. It is the same function
+ * `scripts/world-hash.mjs` implements, and `test/unit/world-hash-script.test.ts` pins the two
+ * together.
+ */
+export class StateHasher {
+  private h1 = 0x811c9dc5;
+  private h2 = 0x01000193;
+  private counter = 0;
+
+  /** Mix one 32-bit word. */
+  number(value: number): this {
+    const v = value | 0;
+    this.h1 = Math.imul(this.h1 ^ (v & 0xffff), 0x01000193) >>> 0;
+    this.h1 = Math.imul(this.h1 ^ ((v >>> 16) & 0xffff), 0x01000193) >>> 0;
+    this.counter = (this.counter + 1) >>> 0;
+    this.h2 = Math.imul(this.h2 + v + this.counter, 0x85ebca6b) >>> 0;
+    return this;
+  }
+
+  /** Mix a string, code unit by code unit, length first. */
+  string(value: string): this {
+    this.number(value.length);
+    for (let i = 0; i < value.length; i += 1) this.number(value.charCodeAt(i));
+    return this;
+  }
+
+  /** Mix the elements of a typed array, length first. */
+  array(values: ArrayLike<number>): this {
+    this.number(values.length);
+    for (let i = 0; i < values.length; i += 1) this.number(values[i] as number);
+    return this;
+  }
+
+  /** Mix any plain value through its canonical JSON. */
+  value(value: unknown): this {
+    return this.string(serializeJson(value));
+  }
+
+  digest(): string {
+    return `${(this.h1 >>> 0).toString(16).padStart(8, '0')}${(this.h2 >>> 0).toString(16).padStart(8, '0')}`;
+  }
+}
+
 // ---------- core migrations ----------
 
 /** A migration from one core `formatVersion` to the next. */

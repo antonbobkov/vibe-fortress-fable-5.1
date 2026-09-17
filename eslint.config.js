@@ -282,7 +282,14 @@ export default [
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
-      globals: { console: 'readonly', process: 'readonly', URL: 'readonly', globalThis: 'readonly' },
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        URL: 'readonly',
+        globalThis: 'readonly',
+        TextDecoder: 'readonly',
+        TextEncoder: 'readonly',
+      },
     },
     rules: {
       'no-undef': 'error',

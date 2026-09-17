@@ -1,0 +1,15 @@
+{
+  "$note": "01-testing-strategy.md Golden tests. Rewrite only through `npm run golden:update -- world-hashes`; the commit message must start with `golden:` and say why.",
+  "worldMaps": {},
+  "flatTest": {
+    "embark": "none",
+    "ticks": {
+      "deepholm|0": "377905c93e931236",
+      "deepholm|1000": "6806fa416cfdfeae",
+      "deepholm|5000": "9492c8a126a9b08e",
+      "emberhall|0": "377905c93e931236",
+      "emberhall|1000": "6806fa416cfdfeae",
+      "emberhall|5000": "9492c8a126a9b08e"
+    }
+  }
+}
