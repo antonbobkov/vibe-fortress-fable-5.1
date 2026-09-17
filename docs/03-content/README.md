@@ -1,27 +1,29 @@
 # Content Tables
 
-**Detail level:** W1 (index only; tables arrive in Wave 3) · **Owner:** content
+**Detail level:** W3 · **Owner:** content
 
-This folder will hold every table of game content. Systems refer to content only by `snake_case` id and by the properties in these tables. Nothing in a system document may name a specific piece of content that is not a row here.
+This folder holds every table of game content. Systems refer to content only by `snake_case` id and by the properties in these tables. Nothing in a system document may name a specific piece of content that is not a row here. The JSON files in `src/content/` mirror these tables one to one.
 
-## Planned tables
+## Tables
 
 | File | Contents |
 |---|---|
-| `materials.md` | Every material: class, value, density, hardness, color, glyph, burnable, melting point |
-| `minerals-and-metals.md` | Stone layers by geology, ores and what they yield, metals and alloys, gems, fuels, flux |
-| `items.md` | Every item type: category path, value multiplier, stack rules, container rules, rot time, glyph |
-| `weapons-and-armor.md` | Weapons by class with damage type and size; armor by slot with coverage and layer; ammunition |
-| `creatures.md` | Every species: body plan, size, speed, diet, temperament, products, value, glyph, spawn rules, cavern tier |
-| `plants.md` | Trees, shrubs, crops and cave flora: growth stages, seasons, yields, seeds, products |
-| `skills-and-professions.md` | Every skill with its profession title, tier names, experience curve, and the labor it belongs to |
-| `jobs.md` | Every job type: labor, skill, target kind, base duration, producer |
-| `buildings-and-furniture.md` | Every building: footprint, materials, build time, function, room value, glyph |
-| `workshops-and-recipes.md` | Every workshop and every recipe: inputs, outputs, skill, time, fuel |
-| `regions-biomes-and-traits.md` | Biome table, rating derivations, trait table with effects, civilization table |
-| `personality-and-thoughts.md` | Personality traits and their modifiers; every thought with value, duration, decay, cap and text |
-| `names.md` | Syllable tables for dwarf given names and hall-names, fortress names, animal names |
-| `glyphs-and-colors.md` | The palette, the glyph set, and the glyph and color of every drawable thing |
-| `embark-catalog.md` | What can be bought at embark and at what price; presets |
-| `threat-schedules.md` | Per-peril schedules for thieves, ambushes, raids, sieges; cavern spawn tables; Deep thresholds |
-| `caravan-goods.md` | What each civilization brings and what it pays for |
+| [materials.md](materials.md) | Every material: class, value, density, hardness, color, burnable, melting point; generated per-species materials |
+| [minerals-and-metals.md](minerals-and-metals.md) | Geology layer templates, ores with hosts and yields, gems, metals and alloys, fuels, flux, generated smelting recipes |
+| [items.md](items.md) | Every item type: category path, value multiplier, stack, container, rot, glyph |
+| [weapons-and-armor.md](weapons-and-armor.md) | Weapons, launchers, ammunition, armor with coverage and layers, the damage-type table, worked examples |
+| [creatures.md](creatures.md) | Body plans; every species with size, speed, temperament, products, attacks, spawn rules, gear |
+| [plants.md](plants.md) | Crops, cave crops, wild shrubs, trees, brewing, growth arithmetic |
+| [skills-and-professions.md](skills-and-professions.md) | Skill ladder, labors, every skill with its profession and attributes |
+| [jobs.md](jobs.md) | Every job type with labor, skill, target, work tile, time, tool, xp |
+| [buildings-and-furniture.md](buildings-and-furniture.md) | Constructions, furniture, mechanisms, traps, special buildings, zone types, room tier examples |
+| [workshops-and-recipes.md](workshops-and-recipes.md) | Every workshop and every recipe |
+| [regions-biomes-and-traits.md](regions-biomes-and-traits.md) | Biome lookup and rows, rating thresholds, region traits with hooks, civilizations, weather tables |
+| [personality-and-thoughts.md](personality-and-thoughts.md) | Personality traits; every thought with value, duration, decay, cap, trigger |
+| [names.md](names.md) | Name lists for dwarves, fortresses, regions, animals, dishes, squads |
+| [glyphs-and-colors.md](glyphs-and-colors.md) | Glyph set, palette with hex values, glyphs by thing, workshop patterns |
+| [embark-catalog.md](embark-catalog.md) | Everything purchasable at embark with prices; the four presets |
+| [threat-schedules.md](threat-schedules.md) | Renown, per-peril schedules, party compositions, hostile gear, cavern spawns, the Deep |
+| [caravan-goods.md](caravan-goods.md) | What each civilization brings, valuation preferences, reputation events |
+| [balance.md](balance.md) | The cross-system arithmetic: consumption, production, wealth, raids, combat pace, the mood floor |
+| [ui-keymap-and-screens.md](ui-keymap-and-screens.md) | Screens, panels, keymap, mouse model, overlays, hints, milestones, confirmations, settings |

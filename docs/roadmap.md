@@ -26,15 +26,15 @@ Added the rest of `01-architecture/`:
 
 Added one design document per system in `02-systems/` (`01-world-generation.md` through `24-ui-and-input.md`). Each follows the section order in `README.md` and decides every mechanic: all rules, all state, all interfaces, all player-facing behavior, all extension points. Numbers that are tuning rather than structure are named as constants and given values in Wave 3.
 
-## Wave 3 — Content and balance
+## Wave 3 — Content and balance (done)
 
-Adds `03-content/`, every table complete with glyph, color, and every numeric property:
+Added `03-content/`, every table complete with glyph, color, and every numeric property:
 
 - `materials.md`, `minerals-and-metals.md`, `items.md`, `weapons-and-armor.md`, `creatures.md`, `plants.md`, `skills-and-professions.md`, `jobs.md`, `buildings-and-furniture.md`, `workshops-and-recipes.md`, `regions-biomes-and-traits.md`, `personality-and-thoughts.md`, `names.md`, `glyphs-and-colors.md`, `embark-catalog.md`, `threat-schedules.md`, `caravan-goods.md`.
 
-Fills the "Tuning constants" table in every system document with values, and adds the formulas each system uses (growth, decay, value, hit chance, wave size, prices) with worked examples.
+Confirmed the "Tuning constants" tables in the system documents, and added `balance.md` with the formulas each system uses (growth, decay, value, hit chance, wave size, prices) with worked examples.
 
-Adds to `24-ui-and-input.md`: the complete screen list, panel list, keymap and mouse model.
+Added `ui-keymap-and-screens.md` (linked from `24-ui-and-input.md`): the complete screen list, panel list, keymap, mouse model, hints and milestones.
 
 ## Wave 4 — Implementation-grade
 

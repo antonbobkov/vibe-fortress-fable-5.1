@@ -154,6 +154,10 @@ This entire document.
 | `STATUS_HINT_SECONDS` | 2 | Rejection reason display time |
 | `HINT_CHECK_HOURS` | 1 | |
 
+## Keymap, screens, hints and milestones (Wave 3)
+
+The complete default keymap, the screen and panel lists with hotkeys, the mouse model table, the overlay list, the hint table with triggers and texts, the milestone table, the confirmation dialogs and the settings list are in [`../03-content/ui-keymap-and-screens.md`](../03-content/ui-keymap-and-screens.md). That file is the source of `keymap.json`, `hints.json` and `milestones.json`.
+
 ## Extension points
 
 - New panels and inspector sections through registration.

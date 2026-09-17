@@ -38,8 +38,8 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 
 | Need | Rise per hour | Relieved by | Want threshold | Critical threshold |
 |---|---|---|---|---|
-| hunger | 8 | eating: meal −100, raw food −70 | 50 | 85 |
-| thirst | 10 (× `weather.thirstModifier()`) | drink: alcohol −100, water −80 | 50 | 85 |
+| hunger | 3 | eating: meal −100, raw food −70 | 50 | 85 |
+| thirst | 5 (× `weather.thirstModifier()`) | drink: alcohol −100, water −80 | 50 | 85 |
 | rest | 5 awake; −15 per hour asleep | sleeping | 60 | 90 |
 | social | 2 | talking: −40 per conversation | 50 | none |
 | comfort | 3 | sitting in a room of tier ≥ decent −40 per sit; hearth hall −20 | 55 | none |
@@ -179,7 +179,7 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 | `HEAVY_ITEM_DENSITY` | 3 | Items heavier than 3 × the carrier's size units halve speed |
 | `MIST_THOUGHT_COOLDOWN` | 1200 | Ticks |
 
-Need rates and thresholds above are provisional and confirmed in Wave 3.
+Need rates and thresholds above were confirmed by the Wave 3 balance pass; the consumption arithmetic is in [`../03-content/balance.md`](../03-content/balance.md).
 
 ## Extension points
 

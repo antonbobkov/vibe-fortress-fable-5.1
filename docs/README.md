@@ -25,7 +25,7 @@ Start with [`00-vision/vision.md`](00-vision/vision.md), then [`01-architecture/
 |---|---|---|---|
 | 1 | Foundation | done | Vision, pillars, player experience, glossary, scope and traceability, architecture overview, tech stack, global constants, a one-page summary of every system, roadmap |
 | 2 | System designs | done | Full architecture set (simulation core, data model, module interfaces, content pipeline, persistence, performance budget, extension guide); every system at design level with all mechanics decided |
-| 3 | Content and balance | pending | All data tables, formulas and tuning constants; world-generation parameters; embark catalog and prices; threat schedules; UI screen list, layouts, keymap and mouse model |
+| 3 | Content and balance | done | All data tables, formulas and tuning constants; world-generation parameters; embark catalog and prices; threat schedules; UI screen list, layouts, keymap and mouse model |
 | 4 | Implementation-grade | pending | Schemas, algorithms, tick order, event and command catalogs, save format, ASCII wireframes of every screen, acceptance tests per system, build milestones; final consistency pass |
 
 ## Conventions used in every document

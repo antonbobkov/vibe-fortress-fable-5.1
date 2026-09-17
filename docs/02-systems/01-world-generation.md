@@ -161,7 +161,7 @@ None. Generation is invoked by the app: `worldgen.generate(seed, size, onProgres
 
 ## Tuning constants
 
-Values are provisional until the Wave 3 balance pass.
+Values confirmed by the Wave 3 balance pass (see [`../03-content/balance.md`](../03-content/balance.md)).
 
 | Name | Value | Meaning |
 |---|---|---|
