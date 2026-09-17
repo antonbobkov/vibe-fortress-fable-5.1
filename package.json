@@ -1,0 +1,40 @@
+{
+  "name": "deepholm",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deepholm - a fortress simulation",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:perf": "vitest run -c vitest.perf.config.ts",
+    "lint": "eslint src test scripts",
+    "content:check": "node scripts/content-check.mjs",
+    "content:export": "node scripts/export-tables.mjs",
+    "golden:update": "node scripts/golden-update.mjs",
+    "hash": "node scripts/world-hash.mjs",
+    "gate": "node scripts/gate.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.20.3",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "eslint": "^9.17.0",
+    "eslint-plugin-import": "^2.31.0",
+    "fast-check": "^3.23.1",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3",
+    "vitest": "^2.1.8"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "esbuild@0.21.5": true
+  }
+}

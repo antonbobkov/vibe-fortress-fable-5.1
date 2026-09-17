@@ -6,7 +6,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 
 ## M0 — Skeleton ([M0-skeleton.md](M0-skeleton.md))
 
-- [ ] T-M0-01 — Repository bootstrap
+- [x] T-M0-01 — Repository bootstrap (opus-m0, 2026-09-17)
 - [ ] T-M0-02 — Fixed-point math and rng
 - [ ] T-M0-03 — Constants
 - [ ] T-M0-04 — Map3D and chunks

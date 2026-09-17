@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "node"],
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "useUnknownInCatchVariables": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "isolatedModules": true,
+    "verbatimModuleSyntax": false,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowJs": false,
+
+    "baseUrl": ".",
+    "paths": {
+      "@platform/*": ["src/platform/*"],
+      "@core/*": ["src/core/*"],
+      "@content/*": ["src/content/*"],
+      "@systems/*": ["src/systems/*"],
+      "@render/*": ["src/render/*"],
+      "@ui/*": ["src/ui/*"],
+      "@app/*": ["src/app/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "*.config.ts", "playwright.config.ts"],
+  "exclude": ["node_modules", "dist", "**/*.lintfixture.ts"]
+}

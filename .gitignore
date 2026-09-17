@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+reports/coverage/
+reports/screenshots/
+test-results/
+playwright-report/
+.vite/
+*.tsbuildinfo
+*.lintfixture.ts
+.DS_Store
