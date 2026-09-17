@@ -16,7 +16,9 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: 'npx vite --mode test --port 5174 --strictPort',
+    // `--host 127.0.0.1`: Vite's default host is `localhost`, which resolves to ::1 only on some
+    // machines, and `baseURL` below is the IPv4 literal.
+    command: 'npx vite --mode test --host 127.0.0.1 --port 5174 --strictPort',
     url: 'http://127.0.0.1:5174',
     reuseExistingServer: !process.env['CI'],
     timeout: 120_000,

@@ -17,7 +17,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M0-09 — Spatial index, movement helper, pathfinding stubs (opus-m0, 2026-09-17)
 - [x] T-M0-10 — Serialization core (opus-m0, 2026-09-17)
 - [x] T-M0-11 — Headless runner and TestWorld (opus-m0, 2026-09-17)
-- [ ] T-M0-12 — Platform, glyph atlas, palette, renderer
+- [x] T-M0-12 — Platform, glyph atlas, palette, renderer (opus-m0, 2026-09-17)
 - [ ] T-M0-13 — Compositor (terrain only), app boot, e2e hook
 - [ ] T-M0-14 — Gate M0
 
