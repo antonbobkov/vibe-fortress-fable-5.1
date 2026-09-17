@@ -70,7 +70,7 @@ When a designation is applied to a tile that no longer matches its precondition 
 ### Support and collapse
 
 - A `constructed` `wall`, `floor`, `ramp`, `stairs_*` or `fortification` is *supported* if any of its six face-adjacent tiles is `wall`, `floor`, `ramp`, `stairs_*`, `fortification` or `tree` (natural or constructed). The tile below counting as support means a floor built on rock is supported by the rock.
-- When a tile changes, every constructed neighbor is re-checked. An unsupported construction collapses: it becomes `open` (or the natural floor below if it was a floor over rock... no: an unsupported floor has nothing below by definition), its material item is spawned at the first solid tile below, creatures on it fall (22 movement helper) and items on it fall. Collapses cascade in the same tick until stable, in `(z ascending, y, x)` order.
+- When a tile changes, every constructed neighbor is re-checked. An unsupported construction collapses: it becomes `open` (an unsupported construction has no solid tile below by definition), its material item is spawned at the first solid tile below, creatures on it fall (22 movement helper) and items on it fall. Collapses cascade in the same tick until stable, in `(z ascending, y, x)` order.
 - Natural tiles never collapse. Removing all rock around a natural pillar leaves a floating pillar; this is accepted.
 
 ### Discovery

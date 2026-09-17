@@ -108,7 +108,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Sources: river edge tiles and the Sea of Fire refill to full each step.
 - Freezing when the tile's temperature is below zero: level ≥ 4 becomes an ice wall, lower levels an ice floor; thaw restores the level.
 
-**Reads.** 03 tile kinds; 05 temperature. **Emits.** `FluidsChanged`, `ObsidianFormed`, `CreatureSubmerged`, `MistProduced`.
+**Reads.** 03 tile kinds; 05 temperature. **Emits.** `FluidsChanged`, `ObsidianFormed`, `CreatureSubmerged`, `MagmaContact`, `TileFrozen`, `TileThawed`, `MistProduced`.
 
 **Player touchpoints.** Fluid overlay with level digits; channel and floodgate placement; "water source" zone for wells.
 
@@ -123,7 +123,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Fire: a burnable tile (grass, tree, wooden construction, plant item on the floor) ignites when adjacent to magma or struck by lightning, burns for a material-specific duration, spreads to adjacent burnables with a chance each step, and leaves ash. Creatures on burning tiles take burn damage each step.
 - Materials have: class, value, density, hardness, color, glyph, burnable flag, melting point, and yields (what an ore smelts into).
 
-**Reads.** 06 weather; 04 fluid positions; content: materials, minerals-and-metals. **Emits.** `FireStarted`, `FireSpread`, `FireOut`, `TileFrozen`, `TileThawed`.
+**Reads.** 06 weather; 04 fluid positions; content: materials, minerals-and-metals. **Emits.** `TemperatureTick`, `FireStarted`, `FireSpread`, `FireOut`, `BurnDamage`, `ItemMelted` (freezing and thawing are applied by 04 on `TemperatureTick`).
 
 **Player touchpoints.** Temperature shown in the look cursor; fire glyphs; the material name of every tile and item.
 
@@ -173,7 +173,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Products are collected by farmer jobs on a schedule; slaughter sends the animal to the butcher's workshop.
 - Predators attack when hungry or threatened; timid animals flee dwarves.
 
-**Reads.** 03 map; 07 grass and plants; 14 pasture zones; 16 for hostility. **Emits.** `AnimalSpawned`, `AnimalBorn`, `CreatureDied`, `ProductReady`, `AnimalTamed`.
+**Reads.** 03 map; 07 grass and plants; 14 pasture zones; 16 for hostility. **Emits.** `AnimalSpawned`, `AnimalBorn`, `AnimalStarving`, `ProductReady`, `AnimalTamed` (deaths go through 17's `CreatureDied`).
 
 **Player touchpoints.** Pasture zones; the animals panel (assign to pasture, slaughter, train); cages.
 
@@ -189,7 +189,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Fishing needs an adjacent water tile of level ≥ 4; catches come from a per-water-body pool that regenerates seasonally.
 - Butchering yields meat by creature size, plus hide, bones, fat and, for some species, a skull or shell.
 
-**Reads.** 08 animals; 07 shrubs; 04 water; 12 workshops for butchery. **Emits.** `HuntStarted`, `HuntKill`, `FishCaught`, `CropHarvested`.
+**Reads.** 08 animals; 07 shrubs; 04 water; 12 workshops for butchery. **Emits.** `HuntStarted`, `HuntKill`, `FishCaught`, `ButcheryDone`.
 
 **Player touchpoints.** Gather designation; hunt toggles per animal species in the animals panel; fishing zone.
 
@@ -364,7 +364,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 ## 20 Trade & Caravans — [`20-trade-and-caravans.md`](20-trade-and-caravans.md)
 
-**Purpose.** Bring the outside world to the depot four times a year, and give the fortress a use for its wealth.
+**Purpose.** Bring the outside world to the depot three times a year, and give the fortress a use for its wealth.
 
 **Owns.** Caravan schedule per civilization; caravan parties (merchants, guards, pack animals) and their behavior (arrive, unload at depot, wait, leave); the trade session (goods on both sides, values, merchant margin, broker effect); reputation per civilization; requests for the next caravan; export preferences per civilization.
 

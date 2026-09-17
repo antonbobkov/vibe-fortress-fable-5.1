@@ -42,7 +42,7 @@ No caravan in winter. A civilization with reputation ≤ `CARAVAN_BAN_REP` or un
 2. Find a depot reachable by the caravan's movement class (mules are `walker`; the path must not require stairs for `large` pack animals: mules are size 90, so they are walkers). If none: `CaravanWaiting` (alert: "The caravan waits at the edge for a trade depot") and wait `DEPOT_WAIT_DAYS`; if a depot appears, proceed; else `CaravanDeparted { reason: no_depot }` and reputation −2.
 3. Walk to the depot; unload: goods move from pack animals into the depot's container flagged `merchant`; merchants stand inside the depot; guards stand on the tiles around it; animals adjacent. `CaravanAtDepot`.
 4. Stay `CARAVAN_STAY_DAYS`, then pack (goods not sold return to the animals, goods bought go too), walk to the edge, despawn: `CaravanDeparted { civ, boughtValue, soldValue }`.
-5. If attacked: guards fight (16); merchants flee toward the edge; if any merchant dies the caravan leaves at once with whatever it can carry; goods left in the depot become the fortress's (`CaravanLost { civ }`, reputation −10 if the killer was a fortress creature, −3 if hostiles or wild animals: they hold the fortress a little responsible).
+5. If attacked: guards fight (16); merchants flee toward the edge; if any merchant dies the caravan leaves at once with whatever it can carry; goods left in the depot become the fortress's (`CaravanLost { civ }`, reputation −10 whoever killed the merchant). Per member killed, in addition: −50 and a `CARAVAN_BAN_YEARS` ban when the killer was a fortress creature; −3 when hostiles or wild animals did it (they hold the fortress a little responsible). The full list is in `caravan-goods.md` § Reputation events.
 6. Caravan members eat and drink their own supplies (no needs simulated); they never sleep; they are not affected by fortress alerts.
 
 ### Moving goods to the depot
@@ -55,7 +55,7 @@ No caravan in winter. A civilization with reputation ≤ `CARAVAN_BAN_REP` or un
 - The screen: left, merchant goods with *their price* (merchant valuation × `MERCHANT_MARKUP`); right, fortress goods at the depot with *their valuation* of each; the player marks quantities on both sides; totals; the margin line "The merchant wants at least 12% profit"; Offer.
 - `TradeOffer { give, take }` is accepted when `Σ valuation(give) ≥ Σ price(take) × (100 + margin) / 100`; else `TradeRefused { shortfall }` and the merchant's line "Not enough. Add {shortfall} marks of goods." Accepted: items change owner (bought goods lose `merchant`, sold goods gain it), `TradeCompleted`, trading skill xp `TRADE_XP × (1 + value / 1000)`, reputation `+ clamp(1, 5, value / 500)`.
 - An offer with an empty `take` is a gift: reputation `+ value / 100` (max +10 per caravan), `GiftGiven`.
-- Selling items the civ dislikes (Wildwood: any item with material class `wood`, and any `furniture` made of wood): each such item offered gives reputation −2 even if the trade succeeds, and the merchant's line says so once per session. Killing a caravan member gives −50 and a ban.
+- Selling items the civ dislikes (Wildwood: any item with material class `wood`, and any `furniture` made of wood): each such item offered gives reputation −2 even if the trade succeeds, and the merchant's line says so once per session. Killing a caravan member gives −50 and a ban (see § Movement, step 5).
 - The session can be reopened as long as the caravan is at the depot.
 
 ### Valuation

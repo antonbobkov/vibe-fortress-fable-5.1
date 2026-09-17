@@ -18,7 +18,7 @@ Tests: scenario `ws_steel`; unit: bronze 1+1→2, brass, electrum, bismuth bronz
 ## T-M5-03 Forge: weapons, ammunition, armor, tools, metal furniture, crafts (M)
 
 Needs: 01. Produces: every `forge_*` recipe verified; `bars` per item from `weapons-and-armor.md`; `anvil` required to build a forge; material-filtered orders ("steel axes").
-Tests: unit: table-driven execution of all 41 forge recipes; `materialFilter` restricts inputs; quality applies to weapons and armor items.
+Tests: unit: table-driven execution of all 40 forge recipes; `materialFilter` restricts inputs; quality applies to weapons and armor items.
 
 ## T-M5-04 Magma workshops (M)
 

@@ -7,7 +7,7 @@ The order in which to build the game so that something is testable at every step
 ## M0 — Skeleton (1 week)
 
 Build: repo layout, Vite, ESLint boundaries, Vitest; `core/` (`World`, `Map3D`, `EntityStore`, `Scheduler`, `EventQueue`, `CommandQueue`, `Rng`, `Calendar`, `fixed`), `content/loader` with schema validation over the Wave 3 tables converted to JSON, `platform/canvas`, `render/atlas`, a compositor that draws terrain only, `app/headless`.
-Tests: `core_*`, `wg_determinism` (with a stub map).
+Tests: `core_*`, `rd_levels_below` (on a hand-built map).
 Player: sees a hard-coded flat map, pans, changes z-level.
 
 ## M1 — Ground (2 weeks)
@@ -19,7 +19,7 @@ Player: generates a world, embarks with a default party onto a real map, designa
 ## M2 — Things (2 weeks)
 
 Build: 13 items and stockpiles, hauling, 14 constructions and furniture placement (no mechanisms), zones, room detection, the build and zones tools, the stocks panel, save and load.
-Tests: `jb_*`, `it_*` except rot, `bd_room_tiers`, `bd_support`, `core_save_roundtrip`.
+Tests: `jb_*`, `it_*` except rot and miasma, `bd_room_tiers`, `bd_support`, `bd_door_lock`, `core_save_roundtrip`.
 Player: stockpiles, builds walls and floors, places furniture, saves.
 
 ## M3 — Water, fire, sky (2 weeks)
@@ -31,7 +31,7 @@ Player: rivers flow, channels flood, winter freezes the brook, lightning starts 
 ## M4 — Life (3 weeks)
 
 Build: 07 plants and farming, 08 animals and domestication, 09 foraging, 10 needs and activities, 12 workshops (kitchen, still, carpenter, mason, craftsdwarf first), 15 morale, the hearth, embark screen with the catalog and presets, units, mood, animals, orders panels.
-Tests: `pl_*`, `an_*`, `fo_*`, `dw_*`, `ws_bed`, `ws_maintain`, `mo_*`, `bd_hearth`.
+Tests: `pl_*`, `an_*`, `fo_*`, `dw_*` (except the combat-dependent ones, which wait for M6), `ws_bed`, `ws_maintain`, `mo_*`, `bd_hearth`.
 Player: the whole year-one loop: farms, hunting, meals, ale, bedrooms, the hearth, happy dwarves.
 
 ## M5 — Metal (2 weeks)
@@ -43,7 +43,7 @@ Player: the full production tree.
 ## M6 — Steel and blood (3 weeks)
 
 Build: 16 combat, 17 health and hospitals, 18 threats (schedules, parties, AI, cavern monsters, the Deep), 19 defense (traps, plates, levers, bridges, floodgates, hearth alert), military and threats panels, combat log, mechanisms in 14.
-Tests: `cb_*`, `he_*`, `th_*`, `df_*`, `bd_bridge`, `bd_floodgate`, `bd_door_lock`, `bd_burial`.
+Tests: `cb_*`, `he_*`, `th_*`, `df_*`, `bd_bridge`, `bd_floodgate`, `bd_burial`, and the combat-dependent scenarios deferred from M3 and M4 (`fl_drown`, `an_predator`, `an_tame`, `fo_hunt`, `fo_no_ammo`, `dw_starve`).
 Player: squads, raids, traps, the caverns, the Hollow.
 
 ## M7 — The outside world (2 weeks)

@@ -109,22 +109,24 @@ Command ownership by system (the full list is the Wave 4 command catalog):
 
 | System | Commands |
 |---|---|
-| 03 terrain | `Designate`, `UndoDesignation`, `SetDesignationPriority`, `SetTraffic` |
-| 07 plants | `SetPlotCrop`, `SetPlotSeasonal`, `SetPlotFertilize` |
-| 08 animals | `AssignPasture`, `MarkSlaughter`, `TrainAnimal`, `TameCaged`, `SetHuntable` |
-| 09 foraging | `SetHuntSpecies`, `SetFishingZone` (through 14 zones) |
-| 10 dwarves | `SetLabor`, `AssignTitle`, `RenameDwarf`, `SetSchedule` |
-| 11 jobs | `SetLaborPriority`, `CancelJob`, `SetJobPriority` |
-| 12 workshops | `AddWorkOrder`, `EditWorkOrder`, `RemoveWorkOrder`, `SetWorkshopWorker`, `SuspendWorkshop` |
-| 13 items | `ForbidItem`, `ClaimItem`, `DumpItem`, `MeltItem`, `SetStockpileFilter`, `SetStockpileContainers`, `LinkStockpile` |
-| 14 buildings | `PlaceBuilding`, `CancelBuilding`, `DeconstructBuilding`, `CreateZone`, `ResizeZone`, `RemoveZone`, `SetZoneSetting`, `AssignRoom`, `LinkMechanism`, `UnlinkMechanism`, `SetDoorMode` |
+| 03 terrain | `Designate`, `UndoDesignation`, `SetDesignationPriority`, `SetTraffic`, `DesignateStairwell`, `ConfirmDeepsilver` |
+| 07 plants | `SetPlotCrop`, `DesignateHarvest` |
+| 08 animals | `AssignPasture`, `MarkSlaughter`, `UnmarkSlaughter`, `TrainAnimal`, `TameCaged`, `AssignAnimal`, `SetBreedingCap`, `ReleaseCaged`, `NameAnimal` |
+| 09 foraging | `SetHuntable` (gather and fishing zones are 14's `CreateZone`) |
+| 10 dwarves | `AssignTitle`, `RenameDwarf`, `SetSchedule` |
+| 11 jobs | `SetLabor`, `SetLaborPriority`, `CancelJob`, `SetJobPriority`, `SetStandingOrder` |
+| 12 workshops | `AddWorkOrder`, `EditWorkOrder`, `RemoveWorkOrder`, `ReorderWorkOrder`, `SetWorkshopWorker`, `SuspendWorkshop` |
+| 13 items | `ForbidItem`, `ClaimItem`, `DumpItem`, `MeltItem`, `SetStockpileFilter`, `SetStockpileContainers`, `SetStockpilePriority`, `LinkStockpile` |
+| 14 buildings | `PlaceBuilding`, `CancelBuilding`, `DeconstructBuilding`, `SetBuildingPriority`, `CreateZone`, `ResizeZone`, `RemoveZone`, `SetZoneSetting`, `AssignRoom`, `LinkMechanism`, `UnlinkMechanism`, `SetDoorMode`, `SetHatchMode`, `SetPlateTrigger`, `ReleaseCage`, `AssignCoffin` |
 | 15 morale | none |
-| 16 combat | `CreateSquad`, `DisbandSquad`, `SetSquadMembers`, `SetSquadSchedule`, `SetSquadEquipment`, `SquadOrder` (kill, station, follow, cancel), `SetAlert` |
-| 17 health | `SetHospitalSupplies` (through zone settings) |
-| 19 defense | `PullLever`, `SetTrapMode`, `SetLockOnAlert` |
-| 20 trade | `TradeMove`, `TradeOffer`, `TradeAccept`, `TradeCancel`, `SetRequests` |
+| 16 combat | `CreateSquad`, `DisbandSquad`, `RenameSquad`, `SetSquadMembers`, `SetSquadLeader`, `SetSquadMode`, `SetSquadEquipment`, `SetSquadStation`, `SetSquadPatrol`, `SquadOrder` (kill, station, patrol, follow, cancel), `SetAlert` |
+| 17 health | `SetHospitalSupplies` (stored as a zone setting) |
+| 18 threats | none |
+| 19 defense | `PullLever`, `SetTrapMode` |
+| 20 trade | `MoveToDepot`, `RemoveFromDepot`, `TradeOpen`, `TradeOffer`, `TradeCancel`, `SetRequests` |
 | 21 immigration | `SetPopulationCap` |
-| app | `Save`, `Load`, `RetireFortress` (not simulation commands; handled by the app) |
+| core | `RenameFortress` |
+| app | `Save`, `Load`, `RetireFortress`, `SetSpeed`, `SetSetting` and the embark-session commands of 02 (not simulation commands; handled by the app) |
 
 ## Events
 

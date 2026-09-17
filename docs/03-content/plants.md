@@ -23,7 +23,7 @@ Columns: `stageDays` are days per stage at 100% growth (crops have four stages; 
 | `dimcap` | dimcap | 4 (16) | dark | 2 | 40 | 3–5 | `plant_food` | 1 | yes | yes | `dimcap_ale` | — | `♠` | `dimcap_violet` |
 | `cavewheat` | cavewheat | 5 (20) | dark | 2 | 40 | 3–5 | `plant_food` | 1 | no | yes | `cavewheat_beer` | `flour` (1 → 1) | `"` | `cavewheat_pale` |
 | `pale_bell` | pale bell | 6 (24) | dark | 2 | 40 | 2–4 | `plant_food` | 3 | yes | yes | `bellwine` | — | `♣` | `bell_white` |
-| `sweetroot` | sweetroot | 5 (18) | dark | 2 | 40 | 3–5 | `plant_food` | 2 | yes | yes | `rootwine` | — | `"` | `root_amber` |
+| `sweetroot` | sweetroot | 5 (20) | dark | 2 | 40 | 3–5 | `plant_food` | 2 | yes | yes | `rootwine` | — | `"` | `root_amber` |
 | `sporecloth` | sporecloth | 6 (24) | dark | 2 | 40 | 2–4 | `fiber` (`sporecloth_fiber`) | 3 | no | no | — | — | `"` | `spore_violet` |
 
 ## Wild shrubs (gatherable; regrow)

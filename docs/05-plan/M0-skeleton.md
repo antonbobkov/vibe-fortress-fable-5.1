@@ -83,7 +83,7 @@ Tests: unit (jsdom + `canvas` mock): atlas builds `glyphCount` sprites per color
 
 Needs: 11, 12. Produces: `src/render/compositor.ts` (terrain, open-tile look-down, undiscovered; fluid/building/item/creature layers as no-ops until their milestones), `src/app/game.ts` (screen stack with only `fortress` for now, loading the `flat-test` world), `src/app/sim-host.ts` (`InProcessHost`, frame loop with `MAX_TICKS_PER_FRAME` and hidden-tab pause), keyboard pan and z-level, `window.__deepholm` test hook, `test/e2e/boot.spec.ts`.
 Spec: `simulation-core.md` § The frame loop, `23-rendering.md` § Compositor steps 1–2 and 10, `24-ui-and-input.md` § Map keys (pan, z).
-Tests: unit: compositor golden for a hand-built 8×8 map (all kinds, a 3-deep shaft, undiscovered corner) with the cell buffer compared to `test/golden/render/m0-terrain.json`. E2E `boot`: page loads, canvas present, `cells()` non-empty, pressing `>` changes `readers.ui.z`, screenshot saved.
+Tests: unit: compositor golden for a hand-built 8×8 map (all kinds, a 3-deep shaft, undiscovered corner) with the cell buffer compared to `test/golden/render/m0-terrain.json`; scenario `rd_levels_below` (the 3-deep shaft: floor 2 below dimmed twice, 3 below shows abyss). E2E `boot`: page loads, canvas present, `cells()` non-empty, pressing `>` changes `readers.ui.z`, screenshot saved.
 
 ## T-M0-14 Gate M0 (S)
 

@@ -125,7 +125,7 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 
 ### Commands
 
-`AddWorkOrder { workshopId | 0, order }`, `EditWorkOrder { workshopId, index, patch }`, `RemoveWorkOrder`, `ReorderWorkOrder { workshopId, from, to }`, `SetWorkshopWorker { workshopId, dwarfId | 0 }`, `SuspendWorkshop { workshopId, on }`, `MarkMelt { itemId, on }` (delegated to 13's item flags; listed here because the smelter consumes it).
+`AddWorkOrder { workshopId | 0, order }`, `EditWorkOrder { workshopId, index, patch }`, `RemoveWorkOrder`, `ReorderWorkOrder { workshopId, from, to }`, `SetWorkshopWorker { workshopId, dwarfId | 0 }`, `SuspendWorkshop { workshopId, on }`. (`MeltItem` is 13's command; listed here only because the smelter consumes the flag.)
 
 ### Events consumed
 

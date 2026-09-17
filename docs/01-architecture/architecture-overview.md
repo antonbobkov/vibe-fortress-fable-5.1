@@ -134,7 +134,7 @@ The fixed order and each system's cadence are in [`../02-systems/README.md`](../
 
 **Events.** Typed records with a `type` tag. Queued, never delivered synchronously, never return values. The full catalog is in Wave 4; each system document lists what it emits and consumes.
 
-**Commands.** Typed records of player intent (`DesignateDig`, `PlaceBuilding`, `SetLabor`, `SetPriority`, `PullLever`, `TradeAccept`). The only way the UI changes the world. Validated, applied at the start of a tick, and appended to a command log that is part of the save (last season only) for debugging and replay.
+**Commands.** Typed records of player intent (`Designate`, `PlaceBuilding`, `SetLabor`, `SetJobPriority`, `PullLever`, `TradeOffer`). The only way the UI changes the world. Validated, applied at the start of a tick, and appended to a command log that is part of the save (last season only) for debugging and replay.
 
 **Rng.** Every system gets its own stream seeded from the world seed and the system id (`xoshiro128**`). Adding a random call in one system never perturbs another. World generation uses its own streams per stage.
 

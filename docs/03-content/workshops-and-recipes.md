@@ -265,7 +265,7 @@ Ingredients: anything in `food/*` except meals and tallow. Each recipe consumes 
 
 ## Recipe counts
 
-Carpenter 26, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt), forge 41, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3. Total about 150.
+Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3. Total 151.
 
 ## Time arithmetic
 

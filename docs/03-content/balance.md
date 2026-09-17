@@ -92,7 +92,7 @@ Renown follows: 5 → 15 → 30 → 75. Raid size at peril 2: year 2 → 6 + 4 =
 
 ## Immigration
 
-Guaranteed: +2–4 in summer, +3–6 in autumn of year 1: 12–17 dwarves by winter. Then each season with spirit ≥ 65: 70% chance of `2 + wealth/3000 + spirit bonus`. Year 2: three waves of 4–8; year 3: waves of 8–12 until the cap (80). A player who wants a small fortress sets the cap; a player who neglects the hearth stays small without punishment.
+Guaranteed: +2–4 in summer and +2–4 in autumn of year 1: 11–15 dwarves by winter. Then each season with spirit ≥ 65: 70% chance of `2 + wealth/3000 + spirit bonus`. Year 2: three waves of 4–8; year 3: waves of 8–12 until the cap (80). A player who wants a small fortress sets the cap; a player who neglects the hearth stays small without punishment.
 
 ## Trade
 
@@ -113,6 +113,6 @@ A cave plot must be fully dark; a surface plot fully lit. Digging out a farm cha
 | 30–56 | Ore found; smelter and forge; first iron picks and axe; more bedrooms |
 | 56 | Autumn: Wildwood caravan; second guaranteed wave; at peril ≥ 2 the first ambush or raid warning |
 | 84 | Winter: surface farm dormant; cave farm carries; river frozen at temper ≥ 1 |
-| 112 | Year 2: Mountainhome caravan with an anvil if requested; the fortress is 13–17 dwarves with iron tools and a squad |
+| 112 | Year 2: Mountainhome caravan with an anvil if requested; the fortress is 11–15 dwarves with iron tools and a squad |
 
 The pace is deliberate: the first hour of play (day 1 to about day 60) contains every basic system once, and the first raid arrives after the player has had time to build a gate.

@@ -4,9 +4,9 @@
 
 ## package.json (dependencies)
 
-Runtime: none. Dev: `typescript`, `vite`, `vitest`, `eslint`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, `eslint-plugin-import`, `prettier`.
+Runtime: none. Dev: `typescript`, `vite`, `vitest`, `@vitest/coverage-v8`, `jsdom`, `fast-check`, `@playwright/test`, `eslint`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, `eslint-plugin-import`, `prettier`.
 
-Scripts: `dev` (vite), `build` (tsc --noEmit && vite build), `test` (vitest run), `test:acceptance` (vitest run test/acceptance), `test:perf` (vitest run test/perf --reporter verbose), `lint` (eslint src test), `content:check` (node scripts/content-check.mjs: validates JSON tables against the schemas and cross-references ids), `hash` (node scripts/world-hash.mjs <save>).
+Scripts: `dev` (vite), `build` (tsc --noEmit && vite build), `typecheck` (tsc --noEmit), `test` (vitest run: unit, scenarios up to the current milestone, property, golden), `test:e2e` (playwright test), `test:perf` (vitest run -c vitest.perf.config.ts), `lint` (eslint src test scripts), `content:check` (node scripts/content-check.mjs: validates JSON tables against the schemas and cross-references ids), `golden:update` (node scripts/golden-update.mjs <name>), `gate` (runs all of the above and writes `reports/M<n>-gate.md`), `hash` (node scripts/world-hash.mjs <save>). The plan's [`../05-plan/01-testing-strategy.md`](../05-plan/01-testing-strategy.md) is the authority on test tiers and commands.
 
 ## tsconfig
 
@@ -34,26 +34,30 @@ Additional rules: `no-restricted-globals` for `Math.random`, `Date`, `performanc
 ```
 test/
   unit/            per-module rule tests (pure functions in rules/)
-  acceptance/      one file per scenario id from acceptance-tests.md; a shared runner builds the world from the scenario spec
+  scenarios/       one file per scenario id from acceptance-tests.md; a shared runner builds the world from the scenario spec
+  property/        fast-check invariants (fluid conservation, determinism under commands, save round-trip, …)
   golden/          world hashes and render cell buffers for fixed seeds; updated only by an explicit script with a commit message noting the change
+  e2e/             Playwright specs against the real app
   fixtures/saves/  one save per published formatVersion
   perf/            reference fortress builder and the budget assertions
 scripts/
   content-check.mjs   schema + id cross-reference over src/content/*.json
   world-hash.mjs      loads a save and prints the world hash
-  export-tables.mjs   (optional) converts docs/03-content Markdown tables to src/content JSON; the JSON is committed
+  export-tables.mjs   converts docs/03-content Markdown tables to src/content JSON; the JSON is committed
+  golden-update.mjs   rewrites a golden file and prints the diff summary
+  replay.mjs          replays a season's command log from a save
 ```
 
 ## CI
 
-On every push: `lint`, `test`, `content:check`, `build`; nightly: `test:acceptance` and `test:perf`. Golden changes require a reviewer.
+On every push: `lint`, `typecheck`, `test`, `content:check`, `build`; nightly: `test:e2e` and `test:perf`. Golden changes require a reviewer.
 
 ## Content authoring loop
 
 1. Edit the Markdown table in `docs/03-content`.
 2. Run `export-tables.mjs` (or edit the JSON by hand, keeping field names identical).
 3. Run `content:check`; fix any dangling id.
-4. Run the acceptance tests touched by the table (the runner maps table names to test ids).
+4. Run the scenario tests touched by the table (the runner maps table names to scenario ids).
 
 ## Debug and replay
 

@@ -40,7 +40,7 @@ States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 - Threat check every think: a *threat* is any creature of a faction the species fears: for `timid`, dwarves, hostiles and carnivores; for `neutral`, anything that attacked it; for `territorial`, nothing, but any dwarf within `TERRITORY_RADIUS` triggers `attack`; for `aggressive` carnivores, any prey (species with `size < own size × 0.8` and not carnivore) or dwarf within perception triggers `hunt` when hungry, else ignores dwarves unless approached within 3 tiles.
 - `flee`: run to the tile in perception that maximizes distance from all threats, re-evaluated every think for `FLEE_TICKS`; if a map edge is within perception, use `leave` instead.
 - `hunt`: path to the prey; when adjacent, `attack`. Predators are *hungry* every `PREDATOR_HUNGER_DAYS` days and stop hunting after a kill (they eat the corpse over `EAT_CORPSE_TICKS`, which consumes the corpse item).
-- `attack`: set `Soldier`-like targeting through 16 (`combat.setTarget(id, targetId)`); 16 resolves attacks; the animal returns to `idle` when the target dies, flees, or is out of perception for 50 ticks. Wounded animals (blood below `FLEE_BLOOD_PERCENT`) flee unless `aggressive`.
+- `attack`: set `Soldier`-like targeting through 16 (`combat.setTarget(id, targetId)`); 16 resolves attacks; the animal returns to `idle` when the target dies, flees, or is out of perception for 50 ticks. Wounded animals (blood below the species' `flee` percent, defaulting to 16's `FLEE_BLOOD_PERCENT`) flee unless `aggressive`.
 - `leave`: path to the nearest map edge tile and despawn on arrival. Wild animals leave when their species count exceeds the biome cap, when they have been on the map longer than `WILD_LIFETIME_DAYS`, or when fleeing reaches an edge.
 
 ### Wild spawning
@@ -59,7 +59,7 @@ States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 
 - `pasture` zone: tiles must be walkable; the zone has a capacity shown as "grass tiles / grazers" and a warning if grazers exceed `grass tiles / GRASS_PER_GRAZER`.
 - Assignment: `AssignPasture { animalId, zoneId | none }`. Assigned grazers path into the pasture and stay (they do not path out unless fleeing). Unassigned grazers wander near the wagon or hearth and eat any grass they find.
-- Condition rises `CONDITION_PER_HOUR` per hour; eating a grass tile lowers it by `CONDITION_PER_GRASS`. At 100 the animal is `starving` (announcement, once per animal per season); after `STARVE_DAYS` at 100 it dies (`CreatureDied { cause: starvation }`). Snow-covered grass cannot be eaten; cold snaps double the rise.
+- Condition rises `CONDITION_PER_HOUR` per hour; eating a grass tile lowers it by `CONDITION_PER_GRASS`. At 100 the animal is `starving` (announcement, once per animal per season); after `ANIMAL_STARVE_DAYS` at 100 it dies (`CreatureDied { cause: starvation }` through 17). Snow-covered grass cannot be eaten; cold snaps double the rise.
 - `none`-diet species (`dog`, `cat`, `chicken`, `pig`) need no feeding; they forage abstractly.
 
 ### Breeding
@@ -140,7 +140,7 @@ Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_anima
 | `GRAZE_TICKS` | 60 | |
 | `TERRITORY_RADIUS` | 5 | |
 | `FLEE_TICKS` | 200 | |
-| `FLEE_BLOOD_PERCENT` | 60 | |
+| `FLEE_BLOOD_PERCENT` | 50 | Default flee threshold; defined in 16; species override it with their `flee` column |
 | `PREDATOR_HUNGER_DAYS` | 3 | |
 | `EAT_CORPSE_TICKS` | 300 | |
 | `WILD_LIFETIME_DAYS` | 28 | |
@@ -149,7 +149,7 @@ Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_anima
 | `GRASS_PER_GRAZER` | 6 | Pasture capacity rule |
 | `CONDITION_PER_HOUR` | 2 | |
 | `CONDITION_PER_GRASS` | 25 | |
-| `STARVE_DAYS` | 10 | |
+| `ANIMAL_STARVE_DAYS` | 10 | Days at condition 100 before a grazer dies (dwarves use 10's `STARVE_DAYS`) |
 | `BREEDING_CAP_DEFAULT` | 12 | Per species |
 | `BREED_RADIUS` | 10 | |
 | `BREED_PERMILLE` | 60 | Per eligible female per day |

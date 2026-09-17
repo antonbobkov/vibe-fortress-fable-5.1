@@ -19,7 +19,7 @@ Tests: unit: rules engage after 2 s below 80% and relax after 5 s (simulated clo
 
 Needs: M2-11. Produces: rolling `snapshot-<n>` on `SeasonChanged` after the autosave, `c_load_snapshot`, export file naming, import validation messages, quota-exceeded announcement and export offer.
 Spec: `persistence.md` § Autosave and snapshots, § Export and import, § Failure handling.
-Tests: unit: rotation; quota error path (mocked adapter); e2e: export downloads a file and import restores it (Playwright download and file chooser).
+Tests: unit: rotation; quota error path (mocked adapter); e2e `export-import`: export downloads a file and import restores it (Playwright download and file chooser).
 
 ## T-M8-04 Golden renders for every screen and panel (M)
 
@@ -49,7 +49,7 @@ Tests: the script runs green in CI.
 ## T-M8-09 Release build (S)
 
 Needs: 01–08. Produces: `vite build` output verified (single bundle, font, css); a static-server e2e smoke against the built output; `README.md` at the repo root with how to run, test and play (links to `docs/`).
-Tests: e2e `boot` against `dist/`.
+Tests: e2e `boot-dist` (the `boot` spec against `dist/` served statically).
 
 ## T-M8-10 Gate M8 — release (S)
 

@@ -15,11 +15,11 @@ Agents cannot look at the screen. Every behavior must therefore be observable th
 | E2E | Playwright (Chromium headless) | `test/e2e/**` | tasks touching `render/`, `ui/`, `app/`; every gate | The real app in a browser: boot, generate, embark, issue commands through the DOM/keyboard, read the cell buffer through a test hook, take screenshots for the gate report |
 | Performance | Vitest, separate config | `test/perf/**` | gates M3, M6, M8 | Tick budgets on the reference fortress |
 
-Dev dependencies added beyond `tooling.md`: `fast-check`, `@playwright/test`. Runtime dependencies: none.
+Dev dependencies added beyond `tooling.md`: `fast-check`, `@playwright/test`, `jsdom` (unit tests of `render/` and `ui/`), `@vitest/coverage-v8` (coverage gates). Runtime dependencies: none.
 
 ## The scenario runner
 
-`test/scenarios/runner.ts` implements the scenario spec of `simulation-core.md` § Headless mode:
+`test/scenarios/runner.ts` implements the scenario spec of `simulation-core.md` § Headless mode as a superset (`world` generalizes `region`; `setup`, `run` and `expect` generalize `ticks` and `assertions`):
 
 ```ts
 interface Scenario {
@@ -61,11 +61,11 @@ Statistical scenarios (hit rates, quality distributions) run their trials inside
 
 The app exposes `window.__deepholm` in test builds only (`import.meta.env.MODE === 'test'`): `{ host, readers, cells(): CellBuffer, submit(cmd), setSpeed(n), step(n), screenshotName(name) }`. Playwright tests drive the real UI (keys and clicks) and assert through `cells()` and readers; they never call `submit` except to set up state faster. Every e2e test also saves a screenshot to `reports/screenshots/<test>.png` (committed only at gates, 3 per gate maximum, downscaled).
 
-E2E suite (grows per milestone): `boot` (M0), `generate-and-embark` (M1), `designate-by-drag` (M1), `build-and-stockpile` (M2), `panels-open-and-close` (M2), `fluid-overlay` (M3), `farm-plot-and-orders` (M4), `military-and-alert` (M6), `trade-session` (M7), `save-load-settings` (M7), `full-year` (M8: plays a scripted first year at 4× and checks the year-one expectation table of `balance.md`).
+E2E suite (grows per milestone): `boot` (M0), `generate-and-embark` (M1), `designate-by-drag` (M1), `build-and-stockpile` (M2), `panels-open-and-close` (M2), `quick-save-load` (M2), `fluid-overlay` (M3), `farm-plot-and-orders` (M4, extended in M5), `military-and-alert` (M6), `trade-session` (M7), `save-load-settings` (M7), `game-menu` (M7), `export-import` (M8), `full-year` (M8: plays a scripted first year at 4× and checks the year-one expectation table of `balance.md`), `boot-dist` (M8: `boot` against the built output).
 
 ## Coverage gates
 
-Vitest coverage (`c8`) thresholds, enforced at every milestone gate: `src/core` 90% lines, `src/systems/**/rules` 90%, `src/systems/**` 75%, `src/render` 60%, `src/ui` 50%. Thresholds are set in `vitest.config.ts` and raised, never lowered.
+Vitest coverage (`@vitest/coverage-v8`) thresholds, enforced at every milestone gate: `src/core` 90% lines, `src/systems/**/rules` 90%, `src/systems/**` 75%, `src/render` 60%, `src/ui` 50%. Thresholds are set in `vitest.config.ts` and raised, never lowered.
 
 ## Performance smoke
 

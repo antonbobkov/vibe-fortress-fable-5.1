@@ -1,6 +1,6 @@
 # Acceptance Tests
 
-**Detail level:** W4 · **Owner:** implementation (`test/acceptance/*`) · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md) (headless runner), every system document
+**Detail level:** W4 · **Owner:** implementation (`test/scenarios/*`) · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md) (headless runner), every system document
 
 Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'default', commands[], ticks, assertions[] }`. `flat-test` is a generated local map with a flat granite surface at z=32, a 3-level soil layer, no river, no caverns above z=20, a `serene_vale`-like region (peril 0, wealth 2, temper 0) unless the test says otherwise. `default` embark is the Balanced preset. Scenario files live next to the tests; the ids below are the file names.
 
@@ -77,10 +77,10 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 | id | Scenario | Expected |
 |---|---|---|
 | `an_pasture` | 2 cows, pasture of 20 grass tiles | condition stays < 60 over a season; grass regrows |
-| `an_starve` | cow with no grass | `AnimalStarving` by day 3; death at `STARVE_DAYS` |
+| `an_starve` | cow with no grass | `AnimalStarving` by day 3; death `ANIMAL_STARVE_DAYS` later |
 | `an_breed` | cow + bull in a pasture, 2 seasons | ≥ 1 `AnimalBorn` |
 | `an_flee` | deer 8 tiles from a dwarf | deer enters `flee` within 10 ticks; distance increases |
-| `an_predator` | wolf pack near unarmed dwarves, `beastwood` | ≥ 1 attack within a day; wolves flee below `FLEE_BLOOD_PERCENT` |
+| `an_predator` | wolf pack near unarmed dwarves, `beastwood` | ≥ 1 attack within a day; wolves flee below their species `flee` percent (45; `FLEE_BLOOD_PERCENT` is only the default) |
 | `an_tame` | caged boar, kennel, trainer skill 10 | `AnimalTamed` within 5 attempts |
 
 ## 09 Foraging
@@ -212,7 +212,7 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 | `td_no_depot` | no depot | `CaravanWaiting`; leaves after 3 days; reputation −2 |
 | `td_offer` | the worked example in balance.md | accepted; reputation +3; refused when 30 ☼ short with the shortfall reported |
 | `td_wood_penalty` | offer 3 oak chairs to the Wildwood | reputation −6; trade still accepted if value suffices |
-| `td_attack` | kill a merchant | `CaravanLost`; reputation −50; no caravan for 2 years |
+| `td_attack` | kill a merchant | `CaravanLost`; reputation −60 (−50 for the killing, −10 for the lost caravan); no caravan for 2 years |
 | `td_requests` | request iron bars from Hillfolk | next caravan carries ≥ 5 iron bars |
 
 ## 21 Immigration

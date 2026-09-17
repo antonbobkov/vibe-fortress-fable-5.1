@@ -77,7 +77,7 @@ Tests: unit: widget layout in cells for each widget with fixed inputs (golden ce
 
 ## T-M1-13 Embark screen (M)
 
-Needs: 04, 12. Produces: `src/ui/screens/embark.ts` with the Dwarves tab complete, Supplies and Animals tabs listing the catalog with quantities (purchases materialize in M2), presets, budget validation, `Number`/`TextField`/`Dropdown` widgets.
+Needs: 04, 12. Produces: `src/ui/screens/embark.ts` with the Dwarves tab complete, Supplies and Animals tabs listing the catalog with quantities (purchases materialize in M2), presets, budget validation, `Number`/`Dropdown` widgets (the `Text` field widget comes from T-M1-12).
 Spec: `ui-screens/embark.md`, `02-embark-and-loadout.md` § Presets, § Player-facing behavior, `embark-catalog.md`.
 Tests: unit: budget arithmetic for the four presets equals the documented totals; skill point limits enforced; over-budget disables Embark with the reason. E2E `generate-and-embark` (part 2): Embark with the Balanced preset → fortress screen shows seven `☺` cells near the arrival edge.
 
@@ -91,7 +91,7 @@ Tests: unit: drag rectangle → `Designate` command with the right tile set and 
 
 Needs: 11, 14. Produces: compositor steps 6 and 8 (designations, priority digits, zones stub), state colors for dwarves.
 Spec: `23-rendering.md` § Compositor steps 6, 8; `glyphs-and-colors.md` § Designation tints.
-Tests: golden render `m1-designations.json`; unit: creature glyph priority order; overlay never hides a creature glyph.
+Tests: golden render `m1-designations.json`; scenarios `rd_snapshot_surface` (seed `test-1` region 0 at z=32 against a stored golden) and `rd_overlay_priority`; unit: creature glyph priority order; overlay never hides a creature glyph.
 
 ## T-M1-16 Gate M1 (S)
 

@@ -20,11 +20,11 @@ This folder turns the specification into a sequence of tasks that coding agents 
 |---|---|---|---|
 | [M0](M0-skeleton.md) | Skeleton: repo, core, content loader, atlas, headless runner | 14 | `core_*` scenarios, content check, lint, a rendered flat map screenshot in e2e |
 | [M1](M1-ground.md) | Ground: world gen, local map, pathfinding, dwarves that walk, digging | 16 | `wg_*`, `tr_dig_room`, `tr_channel_ramp`, `tr_stairwell`, `tr_discovery`, `pf_*` |
-| [M2](M2-things.md) | Things: items, stockpiles, hauling, constructions, furniture, zones, rooms, save/load | 14 | `jb_*`, `it_*` (except rot), `bd_room_tiers`, `bd_support`, `core_save_roundtrip` |
+| [M2](M2-things.md) | Things: items, stockpiles, hauling, constructions, furniture, zones, rooms, save/load | 14 | `jb_*`, `it_*` (except rot and miasma), `bd_room_tiers`, `bd_support`, `bd_door_lock`, `core_save_roundtrip` |
 | [M3](M3-water-fire-sky.md) | Water, fire, sky: fluids, temperature, weather | 10 | `fl_*`, `ma_*`, `we_*` |
-| [M4](M4-life.md) | Life: plants, animals, foraging, needs, first workshops, morale, hearth, embark screen | 20 | `pl_*`, `an_*`, `fo_*`, `dw_*`, `ws_bed`, `ws_maintain`, `mo_*`, `bd_hearth` |
+| [M4](M4-life.md) | Life: plants, animals, foraging, needs, first workshops, morale, hearth, embark screen | 20 | `pl_*`, `an_*`, `fo_*`, `dw_*` (except the combat-dependent ones listed in the file), `ws_bed`, `ws_maintain`, `mo_*`, `bd_hearth` |
 | [M5](M5-metal.md) | Metal: every workshop and recipe, quality, professions | 9 | `ws_*`, `it_value`, `it_wealth` |
-| [M6](M6-steel-and-blood.md) | Steel and blood: combat, health, threats, defense | 18 | `cb_*`, `he_*`, `th_*`, `df_*`, `bd_bridge`, `bd_floodgate`, `bd_door_lock`, `bd_burial` |
+| [M6](M6-steel-and-blood.md) | Steel and blood: combat, health, threats, defense | 18 | `cb_*`, `he_*`, `th_*`, `df_*`, `bd_bridge`, `bd_floodgate`, `bd_burial`, plus the M4 deferrals (`an_predator`, `an_tame`, `fo_hunt`, `fo_no_ammo`, `fl_drown`, `dw_starve`) |
 | [M7](M7-outside-world.md) | The outside world: trade, immigration, legend, settings, hints | 12 | `td_*`, `im_*`, `ui_*` |
 | [M8](M8-polish.md) | Polish: performance, snapshots, palette, debug, golden renders, balance | 10 | every scenario, `perf_*`, e2e suite |
 

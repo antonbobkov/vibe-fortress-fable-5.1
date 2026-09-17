@@ -67,7 +67,7 @@ Clarification of the surface: for a column, the highest tile whose kind is not `
 | 9 | `remove` | construction | returns material; tile becomes open or floor per rules in 03 |
 | 10 | `chop` | tree | logs; tile becomes floor |
 | 11 | `gather` | shrub | product; shrub regrows |
-| 12 | `dig_ore_only`? | — | not used; reserved |
+| 12 | `harvest` | crop at stage 3 (07) | the crop is harvested; the tile stays a farm plot tile |
 
 ### Flags
 
@@ -153,7 +153,7 @@ The owner is the only system that writes the component. "Core" means the movemen
 | `Personality` | 10 dwarves | `traits: TraitId[]` (three per dwarf) |
 | `Schedule` | 10 dwarves | `sleepStartHour, sleepHours` |
 | `Relationships` | 10 dwarves | `friends: EntityId[], grudges: EntityId[]` |
-| `Position (title)` → `Title` | 10 dwarves | `title: thane | warden | broker | chief_medic | none` |
+| `Title` | 10 dwarves | `title: thane | warden | broker | chief_medic | none` |
 | `Labors` | 11 jobs | `enabled: bitset` |
 | `Worker` | 11 jobs | `jobId, phase, carrying: EntityId | 0` |
 | `Mood` | 15 morale | `value, tier, thoughts: { thoughtId, startTick, value }[], sulkCounterDays` |

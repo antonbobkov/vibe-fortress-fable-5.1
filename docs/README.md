@@ -36,7 +36,7 @@ Start with [`00-vision/vision.md`](00-vision/vision.md), then [`01-architecture/
 - **Identifiers.** Content IDs are `snake_case` strings (`hematite`, `cave_crawler`, `dig_channel`). They are stable forever once published because they appear in save files. Numeric indices are assigned at load time and never stored.
 - **Constants are defined once.** Global scale and time constants live in [`01-architecture/constants.md`](01-architecture/constants.md). A system's tuning constants live in that system's document. Content values live in `03-content/` tables. Every other mention is by name (`FLUID_MAX_LEVEL`), never a repeated literal.
 - **Units.** Time in ticks unless a larger unit is clearer (then it is written as `3 days` and the tick conversion is in `constants.md`). Distance in tiles. Vertical distance in z-levels. Money in marks. Percentages are integers 0–100.
-- **Names.** Systems are referred to by their numbered name (`04 Fluids`). Events are `PascalCase` (`FluidSettled`). Commands are verbs in `PascalCase` (`DesignateDig`). Components are nouns in `PascalCase` (`Needs`).
+- **Names.** Systems are referred to by their numbered name (`04 Fluids`). Events are `PascalCase` (`FluidSettled`). Commands are verbs in `PascalCase` (`PlaceBuilding`). Components are nouns in `PascalCase` (`Needs`).
 - **Cross-links** are relative Markdown links. A link check runs before each wave is committed.
 
 ## Directory map

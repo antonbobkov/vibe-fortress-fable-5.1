@@ -30,11 +30,11 @@ magic "DHLM"  (4 bytes)
 formatVersion (uint32)
 headerLength  (uint32)
 header JSON   (UTF-8)
-sectionCount  (uint32)
-per section:  nameLength, name, kind (0 = JSON, 1 = typed array), byteLength, bytes
+bodyLength    (uint32)
+body:         sectionCount (uint32), then per section: nameLength, name, kind (0 = JSON, 1 = typed array), byteLength, bytes
 ```
 
-Typed arrays are written raw with their element type in the section name (`map.kind:u8`). The whole blob after the header is compressed with `CompressionStream('deflate-raw')` when available. The header stays uncompressed so the load screen can list saves without inflating them.
+Typed arrays are written raw with their element type in the section name (`map.kind:u8`). The body is compressed with `CompressionStream('deflate-raw')` when available. The header stays uncompressed so the load screen can list saves without inflating them. The byte-level layout is in [`../04-implementation/save-format.md`](../04-implementation/save-format.md).
 
 ## Serialization rules
 
@@ -51,7 +51,7 @@ Typed arrays are written raw with their element type in the section name (`map.k
 - `legends` — key: fortress id; value: the legend record (see 24 UI).
 - `settings` — key: `settings`; value: player settings and keymap overrides.
 
-Save ids: `manual-<timestamp>`, `auto-<year>-<season>`, `snapshot-<n>`.
+Save ids: `manual-<unixMs>`, `auto-<year>-<season>`, `snapshot-<n>`, `final-<fortressSlug>`.
 
 ## Autosave and snapshots
 
@@ -62,7 +62,7 @@ Save ids: `manual-<timestamp>`, `auto-<year>-<season>`, `snapshot-<n>`.
 
 ## Export and import
 
-- Export writes the blob as a file `<fortress>-<year>-<season>.deepholm` through a Blob download.
+- Export writes the blob as a file `<fortress-slug>-y<year>-<season>.deepholm` through a Blob download.
 - Import reads a file, validates magic and version, checks the content hash (soft match rules in `content-pipeline.md`), and stores it as a manual save.
 
 ## Legends

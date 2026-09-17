@@ -54,7 +54,7 @@ emit AttackResolved { attacker, defender, part, damageType, amount, outcome: hit
 grant xp: attacker weapon skill; defender dodge (on miss), weapon skill (on parry), shield (on block), armor_use (on hit reduced by armor)
 ```
 
-`damageTypeVsLayer` (content, Wave 3): edge is reduced well by mail and plate, poorly by leather; pierce is reduced moderately by mail, well by plate, poorly by padding; blunt is reduced well by padding and leather, poorly by mail, moderately by plate. `metalTierMultiplier` for weapons and `metalTierArmor` for armor are in the metals table (copper 1, bronze 2, iron 3, steel 4, deepsilver 5 with multipliers roughly 0.8, 0.9, 1.0, 1.2, 1.5; silver is a blunt weapon material with a bonus; wood and bone weapons are tier 0 at 0.5).
+`damageTypeVsLayer` (content, Wave 3): edge is reduced well by mail and plate, poorly by leather; pierce is reduced moderately by mail, well by plate, poorly by padding; blunt is reduced well by padding and leather, poorly by mail, moderately by plate. `metalTierMultiplier` for weapons and `metalTierArmor` for armor are in the metals table (copper 1, bronze 2, iron 3, steel 4, deepsilver 5 with multipliers 0.8, 0.9, 1.0, 1.25, 1.6; silver is a blunt weapon material with a bonus; wood and bone weapons are tier 0 at 0.4 and 0.5).
 
 Wound type from damage type (17): edge → `cut`; pierce → `puncture`; blunt → `bruise`, or `fracture` when `damage ≥ partMaxHp × FRACTURE_PERCENT / 100`.
 

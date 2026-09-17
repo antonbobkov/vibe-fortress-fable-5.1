@@ -55,7 +55,7 @@ Tests: golden render `m3-fluids.json` (a river slice with levels 1–7 and a mag
 ## T-M3-09 Performance smoke: fluids and pathing (S)
 
 Needs: 08. Produces: `test/perf/reference-fortress.ts` (synthetic builder: standard map from `generated` with seed `perf-1`, 40-tile waterfall channel dug through `TestWorld`, 20 dwarves walking random routes), assertions per `01-testing-strategy.md`.
-Tests: `perf_fluids_m3` (fluids average ≤ 3 ms, pathing ≤ 2 ms on the builder); recorded in the gate report.
+Tests: `fl_perf` (fluids average ≤ 3 ms on the builder, per the acceptance table) plus a pathing assertion (≤ 2 ms average) in the same file; recorded in the gate report.
 
 ## T-M3-10 Gate M3 (S)
 

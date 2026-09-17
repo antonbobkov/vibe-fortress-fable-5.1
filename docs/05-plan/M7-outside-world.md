@@ -54,7 +54,7 @@ Tests: unit: help lists every keymap row; debug timings table non-empty after ti
 ## T-M7-09 Game menu, main menu Continue, confirmations complete (S)
 
 Needs: 06, 07. Produces: the Esc chain (tool → panel → menu), every confirmation dialog of `ui-keymap-and-screens.md` § Confirmations wired, `c_main_menu` unsaved check, `Continue` semantics.
-Tests: unit: Esc chain state machine; each confirmation's default; e2e: Esc opens the menu, Resume returns.
+Tests: unit: Esc chain state machine; each confirmation's default; scenario `ui_keymap_parity` (a table-driven check over the keymap and mouse tables of `ui-keymap-and-screens.md`: every UI action has a key and a mouse path); e2e `game-menu`: Esc opens the menu, Resume returns.
 
 ## T-M7-10 Announcement registry complete; strings table audit (S)
 

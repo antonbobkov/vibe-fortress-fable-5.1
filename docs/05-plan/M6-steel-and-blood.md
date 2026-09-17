@@ -80,7 +80,7 @@ Tests: scenarios `df_stone_fall`, `df_cage`, `df_plate_bridge`, `df_dwarf_safe`,
 
 Needs: 12, M3. Produces: `LinkMechanism/UnlinkMechanism` jobs consuming a mechanism, drawbridge raise/lower with crush and displacement, floodgate open/close affecting fluids and pathing, `BuildingStateChanged` consumers in 04 and 22 verified, lever panel.
 Spec: `14` § Mechanisms and links; `19` § Doors, bridges, floodgates as defense (patterns).
-Tests: scenarios `bd_bridge`, `bd_floodgate`; unit: the six defense patterns as headless scenarios `df_pattern_gate`, `df_pattern_airlock`, `df_pattern_corridor`, `df_pattern_drowning`, `df_pattern_magma`, `df_pattern_pit` (each asserts the outcome the spec promises against a scripted raid).
+Tests: scenarios `bd_bridge`, `bd_floodgate`; unit: the six defense patterns as headless scenarios `df_pattern_gate`, `df_pattern_airlock`, `df_pattern_corridor`, `df_pattern_drowning`, `df_pattern_magma`, `df_pattern_pit` (plan-only ids, not in `acceptance-tests.md`; each asserts the outcome promised in `19` § Doors, bridges, floodgates as defense against a scripted raid).
 
 ## T-M6-14 Burial, grief, memorial slabs (S)
 

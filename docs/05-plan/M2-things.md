@@ -1,6 +1,6 @@
 # M2 — Things
 
-**Goal:** items, stockpiles, hauling, constructions, furniture, zones, rooms, embark supplies and the wagon, save and load. **Gate:** `jb_*`, `it_*` except `it_rot`/`it_miasma`, `bd_room_tiers`, `bd_support`, `core_save_roundtrip`, e2e `build-and-stockpile`, `panels-open-and-close`.
+**Goal:** items, stockpiles, hauling, constructions, furniture, zones, rooms, embark supplies and the wagon, save and load. **Gate:** `jb_*`, `it_*` except `it_rot`/`it_miasma`, `bd_room_tiers`, `bd_support`, `bd_door_lock`, `core_save_roundtrip`, e2e `build-and-stockpile`, `panels-open-and-close`, `quick-save-load`.
 
 Spec: [`13-items-and-storage.md`](../02-systems/13-items-and-storage.md), [`14-buildings-and-rooms.md`](../02-systems/14-buildings-and-rooms.md), [`02-embark-and-loadout.md`](../02-systems/02-embark-and-loadout.md) § Arrival, algorithms `jobs-and-hauling.md` (hauling, slots, search, rot queue), `economy.md` § Room quality, `persistence.md`, `save-format.md`.
 
@@ -67,7 +67,7 @@ Tests: golden render `m2-buildings-items.json`; unit: top item selection (corpse
 
 Needs: 01–10, M0-10. Produces: every system's `serialize/deserialize` with `stateVersion`, rebuild-on-load, `SeasonChanged` autosave with the rolling four, `Load` screen, quick save/load keys, export/import through Blob and file input (e2e-testable with Playwright's file chooser), `Continue` in the main menu.
 Spec: `persistence.md`, `save-format.md` § Load procedure, § Snapshots and ids; `ui-screens/menus-and-world.md` § Load; `24` § Confirmations (`c_quickload`, `c_delete_save`).
-Tests: scenario `core_save_roundtrip` (now with dwarves, jobs, items, buildings); property `save round-trip`; unit: autosave rotation keeps four; header list without inflating; import of an exported file equals the original hash. E2E: F5 then F9 restores the hash (through the hook).
+Tests: scenario `core_save_roundtrip` (now with dwarves, jobs, items, buildings); property `save round-trip`; unit: autosave rotation keeps four; header list without inflating; import of an exported file equals the original hash. E2E `quick-save-load`: F5 then F9 restores the hash (through the hook).
 
 ## T-M2-12 Command log and replay script (S)
 

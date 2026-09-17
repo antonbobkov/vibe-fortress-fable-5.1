@@ -6,7 +6,7 @@ This document describes the game as the player lives it, from the main menu to t
 
 ## Screens, in the order the player meets them
 
-1. **Main menu** — New world, Continue, Load, Settings, Legends (past fortresses), Quit.
+1. **Main menu** — New world, Continue, Load, Legends (past fortresses), Settings, About.
 2. **World generation** — seed, world size (small / standard / large), and a live preview that fills in as generation runs. Takes about two seconds.
 3. **World map** — the whole world as a colored ASCII map. The cursor shows each region's biome, elevation, rivers, wealth, peril, temper, special traits, and nearest neighbors (Mountainhome, Hillfolk, Wildwood, Gloam). A filter panel highlights regions matching chosen criteria. This is the difficulty selection.
 4. **Embark** — a budget in marks, seven dwarves with editable names and skill points, a supply list with prices, animals, and presets (Balanced, Miner's Guild, Farmstead, Warband). The fortress is named here.
