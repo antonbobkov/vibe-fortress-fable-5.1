@@ -78,7 +78,7 @@ On `MagmaContact { entities }`, for each item: if `meltsAtOf[material] ≤ MAGMA
 
 ### Warm springs
 
-`gemsprings` places 2×2 water tiles flagged as springs in terrain generation; this system keeps them in `warmSprings: TileIndex[]` and applies `SPRING_OVERRIDE`. They never freeze and give a mild comfort bonus to dwarves standing adjacent (15 thought `bathed_in_warm_spring` on `DwarfFeltMist`-like trigger `DwarfNearSpring` emitted by 10).
+`gemsprings` places 2×2 water tiles flagged as springs in terrain generation; this system keeps them in `warmSprings: TileIndex[]` and applies `SPRING_OVERRIDE`. They never freeze and give a mild comfort bonus to dwarves standing adjacent (15 thought `warm_spring` on the `DwarfNearSpring` event emitted by 10).
 
 ## State
 
@@ -133,6 +133,7 @@ Overlay `temperature` (a color ramp per tile, computed lazily for visible tiles 
 | `FIRE_SPREAD_WET_PERMILLE` | 20 | Under rain |
 | `FIRE_SPREAD_COOLDOWN` | 30 | Ticks between spread attempts |
 | `ITEM_BURN_TICKS` | 100 | |
+| `BURN_TICK_DAMAGE` | 6 | Damage units per materials tick to a creature on a burning tile |
 | `RAIN_EXTINGUISH_PERMILLE` | 30 | Per tick |
 | `ASH_DURATION_DAYS` | 28 | |
 | `FROST_KILL_C` | −2 | Surface crops die below this |

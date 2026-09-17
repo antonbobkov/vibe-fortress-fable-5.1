@@ -1,0 +1,131 @@
+# Wireframe: Fortress Screen
+
+**Detail level:** W4 · **Owner:** `ui/screens/fortress` · **Depends on:** [`../../02-systems/24-ui-and-input.md`](../../02-systems/24-ui-and-input.md), [`../../03-content/ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-screens.md)
+
+Wireframes are at 120×45 cells for illustration; the layout scales with the window. Text in `[brackets]` is an accelerator key. `{braces}` are dynamic values.
+
+## Sidebar closed
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒│
+│▒▒▒▒▒▒▒▒▒......▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒│
+│▒▒▒▒▒▒▒▒▒.☺....+.........▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒│
+│▒▒▒▒▒▒▒▒▒......▒▒▒▒▒▒▒▒▒.▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒│
+│▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒.▒▒▒▒▒▒▒▒▒▒▒▒▒╥╥╥▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒│
+│▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒.....☼....╫☺╫.▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒│
+│                          (map viewport: {mapCols} × {mapRows} cells, current z-level)                                 │
+│                                                                                                                      │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Ketil Ironvein has found hematite.                                                                                   │
+│ The Hillfolk caravan has arrived: 3 merchants, 4 guards, 5 mules.                                                    │
+│ ! Gloam scouts have been seen at the eastern edge. They will come tomorrow.                                          │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Day 12 of Summer, Year 2   ☼ clear 21°C   ☺ 23   ♥ Content   +1   $   z 31   ►► 2×                       [?] help     │
+│ Granite wall, smoothed · 14°C · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks  [m] military│
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+Status row 1 fields left to right: date; weather glyph, word and temperature; `☺` population; `♥` hall spirit tier (colored); `+n` patients (red, hidden when 0); `!n` hostiles on map (red, hidden when 0); `$` caravan present (hidden otherwise); `z` current level; speed glyphs and multiplier (`║` when paused, yellow when the simulation lags); `[?] help` at the right edge.
+
+Status row 2: the tile summary under the mouse (or the cursor), then the hotkey strip for the most used panels; with a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`.
+
+The log strip shows the last three announcements; danger lines are prefixed `!!`, alerts `!`.
+
+## Sidebar open (units panel)
+
+```
+├──────────────────────────────────────────────────────────────────────────────────┬───────────────────────────────────┤
+│ map viewport ({mapCols − SIDEBAR_COLS} wide)                                      │ Units                       [u]  │
+│                                                                                  │ /filter: ____________             │
+│                                                                                  │ Name              Prof.    Act.   │
+│                                                                                  │ ▶Ketil Ironvein   Miner    Digging│
+│                                                                                  │  Brynja Coldhammer Farmer  Eating │
+│                                                                                  │  Orm Ashbrow      Carpenter No job│
+│                                                                                  │  …                                │
+│                                                                                  │ ─────────────────────────────────│
+│                                                                                  │ [Enter] inspect  [l] labors      │
+│                                                                                  │ [t] title  [n] rename  [c] center│
+```
+
+Rows: `▶` marks the selection; mood tier glyph after the name (`☺` white/yellow/red); activity from `dwarves.activityText`.
+
+## Inspection panel (look)
+
+```
+│ Look · (52, 31, z31)                 [k] │
+│ Tabs: [1]Tile [2]Items(3) [3]Creatures(1) │
+│ ── Creature: Ketil Ironvein ────────────  │
+│ Miner · adult · Fine (58)                 │
+│ Activity: Digging (priority 5)            │
+│ Needs   hunger ▓▓▓░░ 42  thirst ▓▓░░░ 30  │
+│         rest   ▓░░░░ 18  social ▓▓▓▓░ 71  │
+│ Skills  Mining 7 (Competent) ▓▓▓░░       │
+│         Masonry 2 (Novice)   ▓░░░░       │
+│ Thoughts  +5 Had a fine meal (1d)         │
+│           +3 Slept in my decent room      │
+│           −4 Saw an enemy (12h)           │
+│ Health   unhurt · blood 100%              │
+│ Equipment iron pick (common)              │
+│ Wearing  linen tunic, trousers, boots     │
+│ Relations friends: Brynja Coldhammer     │
+│ Title    Thane            [t] change     │
+│ Labors   [l] edit                         │
+```
+
+Sections come from the inspector registry in this order: identity, activity, needs, skills, thoughts, health, equipment, relationships, title, labors (dwarf); species, state, owner, pasture, condition, training (animal); party, role, state (hostile); type, material, quality, count, value, rot, flags (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
+
+## Designate tool
+
+```
+│ Designate                          [d]  │
+│ [d] Dig        [c] Channel              │
+│ [u] Up stairs  [j] Down stairs          │
+│ [i] Up/down    [r] Ramp   [w] Stairwell │
+│ [s] Smooth     [e] Engrave              │
+│ [x] Remove construction                 │
+│ [t] Chop trees [g] Gather plants        │
+│ [h] Harvest    [f] Traffic              │
+│ Priority: 5   (1–9 to change)           │
+│ [Ctrl+Z] undo last  [Del] clear rect    │
+│ ─ Drag a rectangle on the map, or      │
+│   click two corners. Enter confirms.    │
+```
+
+While dragging: the rectangle is inverted on the map and the status bar reads `Dig 12×4 (48 tiles), priority 5`.
+
+## Build tool
+
+```
+│ Build                              [b]  │
+│ [c] Constructions  [f] Furniture        │
+│ [w] Workshops      [m] Mechanisms       │
+│ [t] Traps          [s] Special          │
+│ ── Workshops ──────────────────────     │
+│ ▶Carpenter's workshop   2 logs  (14)    │
+│  Mason's workshop      2 stone  (31)    │
+│  Still                 barrel+stone (2) │
+│  Smelter               3 stone  (31)    │
+│ Material: [x] any wood ▸ oak (9)        │
+│ [r] rotate                              │
+│ ── Ghost follows the mouse: green ok,   │
+│    red blocked: "needs a floor"         │
+```
+
+Counts in parentheses are available items. Placing keeps the tool active until `Esc`.
+
+## Game menu (Esc with nothing open)
+
+```
+        ┌──────────────────────┐
+        │  Deepholm · Emberhall│
+        │  [r] Resume          │
+        │  [s] Save            │
+        │  [l] Load            │
+        │  [o] Settings        │
+        │  [x] Retire fortress │
+        │  [m] Main menu       │
+        └──────────────────────┘
+```
+
+Strings: `ui.status.date`, `ui.status.pop`, `ui.panel.units.title`, `ui.tool.designate.*`, `ui.build.category.*`, `ui.menu.*`; every label above is a key.

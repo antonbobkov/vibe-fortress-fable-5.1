@@ -64,7 +64,7 @@ Deconstruct (`DeconstructBuilding` → `remove` designation for constructions, `
 - `trade_depot`: 3×3; inputs 3 logs or 3 blocks; must be reachable from a map edge by a 1-wide walkable path (checked when a caravan arrives, 20). One or more.
 - `well`: 1×1 over an `open` tile with water within `WELL_DEPTH` below (04); provides drinking water and hospital water; `working` when water is present.
 - `nest_box`: 1×1; chickens lay in it (08).
-- `cage`: a cage item placed as a building holds one creature (from a cage trap or by `CageAnimal` job); `release` through a lever link or a command.
+- `cage`: a cage item placed as a building holds one creature (caught by a cage trap); `release` through a lever link or the `ReleaseCage` command.
 - `chain`: a rope or chain item placed; `AssignAnimal` to a chain restrains a tame animal to within 1 tile (war dogs at the gate).
 - `coffin`: a coffin item placed; inside a `tomb` zone it accepts a burial; a coffin outside a tomb also works but gives no tomb thought.
 - `memorial_slab`: an engraved slab item (crafted at the mason with `engraving` skill, naming a dead dwarf without a body) placed anywhere; counts as burial for grief.

@@ -60,7 +60,7 @@ Party state: `approach → engage → loiter → retreat → gone`, evaluated ev
 - **Goal selection** (`approach`): thieves target the most valuable *reachable* item or small tame animal (`size < STEAL_MAX_SIZE`) not inside a locked area, preferring outdoors; bandits target the nearest stockpile; ambushes target the nearest dwarf outdoors; raids and sieges target the hearth (or the wagon, or the nearest fortress building) by path; if no path exists, the target is the reachable tile nearest to the hearth (22 `nearestReachable`).
 - **Approach**: the leader paths to the goal; members follow the leader within `FOLLOW_RADIUS`, using the leader's path (22 shared path) to save pathfinding; when any member sees a fortress creature within perception, the party enters `engage`.
 - **Engage**: each member picks targets through 16 (nearest fortress creature, soldiers preferred by archers); melee members that cannot reach any target and stand adjacent to a locked door with `breaksDoors` start breaking it (`DoorBreakAttempt` each tick; 14 removes it after `DOOR_BREAK_TICKS`); after `ENGAGE_IDLE_TICKS` with no target in perception, back to `approach`.
-- **Loiter**: when the goal is unreachable and no targets are visible: the party stands at the nearest reachable tile, archers shoot at anything visible, members pick up unattended items within `LOOT_RADIUS` (one per member), and after `LOITER_DAYS` (raid 2, siege 5) the party retreats.
+- **Loiter**: when the goal is unreachable and no targets are visible: the party stands at the nearest reachable tile, archers shoot at anything visible, members pick up unattended items within `LOOT_RADIUS` (one per member), and after `LOITER_DAYS_RAID` (2) or `LOITER_DAYS_SIEGE` (5) days the party retreats.
 - **Retreat**: triggered by loiter timeout, by casualties (`RETREAT_LOSS_PERCENT` of members dead or unconscious), or by a thief having stolen (`ThiefEscaped` when it leaves the map with the item; `thief_escaped_with_my_things` for the item's owner); members path to their arrival edge carrying loot and despawn there; `RaidEnded { outcome }` where `outcome` is `repelled` (retreat by casualties without loot), `looted` (retreat with loot), `wiped` (all dead), `withdrew` (loiter timeout without loot). `raid_repelled` thought on `repelled` or `wiped`.
 - Members separated from the party (no path to the leader) act alone with the same rules.
 
@@ -120,7 +120,7 @@ None. (Alerts and squads are 16; the deepsilver confirmation is a UI gate on 03'
 
 ### Events consumed
 
-`DayPassed`, `HourPassed` (restless dead dusk and dawn), `WealthChanged`, `ImmigrantsArrived` and `DwarfDied` (population for renown), `CavernBreached`, `DeepsilverMined`, `CreatureDied`, `CreatureUnconscious`, `TrapTriggered`, `DoorBroken`, `WeatherChanged` (fog), `EntityMoved` (spotting; batched), `TilesChanged` (goal re-evaluation).
+`DayPassed`, `HourPassed` (restless dead dusk and dawn), `WealthChanged`, `ImmigrantsArrived` and `DwarfDied` (population for renown), `CavernBreached`, `DeepsilverMined`, `CreatureDied`, `CreatureUnconscious`, `TrapTriggered`, `DoorBroken`, `WeatherChanged` (fog), `EntitiesMoved` (spotting; batched), `TilesChanged` (goal re-evaluation).
 
 ### Events emitted
 

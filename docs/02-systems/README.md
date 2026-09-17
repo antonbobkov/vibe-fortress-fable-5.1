@@ -90,7 +90,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Discovery: a tile becomes discovered when it is adjacent to a discovered walkable tile, when it is dug, or when it is on the surface.
 - Caverns are generated with noise-carved chambers and passages within the bands in `constants.md`, each with a floor type, lakes, fungal growth and a species list.
 
-**Reads.** 01 region data; content: materials, minerals, plants (for surface vegetation), regions traits. **Emits.** `TileChanged`, `TileDiscovered`, `VeinFound`, `CavernBreached`, `ConstructionCollapsed`, `MineralMined`.
+**Reads.** 01 region data; content: materials, minerals, plants (for surface vegetation), regions traits. **Emits.** `TilesChanged`, `TilesDiscovered`, `VeinFound`, `CavernBreached`, `ConstructionCollapsed`, `MineralMined`.
 
 **Player touchpoints.** Designation menu (dig, channel, stairs, ramp, smooth, engrave, remove, chop, gather), priority setting, undo, the look cursor showing tile material and state.
 
@@ -108,7 +108,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Sources: river edge tiles and the Sea of Fire refill to full each step.
 - Freezing when the tile's temperature is below zero: level ≥ 4 becomes an ice wall, lower levels an ice floor; thaw restores the level.
 
-**Reads.** 03 tile kinds; 05 temperature. **Emits.** `FluidChanged` (batched per chunk), `FluidObsidianFormed`, `TileFlooded` (when a creature's tile crosses `FLUID_DEEP_LEVEL`), `MistProduced`.
+**Reads.** 03 tile kinds; 05 temperature. **Emits.** `FluidsChanged`, `ObsidianFormed`, `CreatureSubmerged`, `MistProduced`.
 
 **Player touchpoints.** Fluid overlay with level digits; channel and floodgate placement; "water source" zone for wells.
 
@@ -139,7 +139,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Daylight varies by season; night reduces outdoor visibility and makes dwarves prefer to sleep.
 - Temper 0 has no storms or heatwaves; temper 4 has long winters and short growing seasons.
 
-**Reads.** Calendar; 01 region (biome, temper). **Emits.** `WeatherChanged`, `SnowfallStarted`, `LightningStrike`.
+**Reads.** Calendar; 01 region (biome, temper). **Emits.** `WeatherChanged`, `SnowCoverChanged`, `LightningStrike`.
 
 **Player touchpoints.** Status bar weather; surface glyph changes (snow, rain); the calendar panel.
 
@@ -155,7 +155,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Farm plots need soil or mud; each plot has a crop per season; planting requires seeds; harvest yields produce plus seeds; growth time is per crop and scaled by season and weather.
 - Grass regrows on soil at a fixed rate and is consumed by grazers.
 
-**Reads.** 03 tile kinds and materials; 05 temperature; 06 weather and daylight; 13 seed items. **Emits.** `PlantGrown`, `TreeFelled`, `CropHarvested`, `PlotNeedsSeeds`.
+**Reads.** 03 tile kinds and materials; 05 temperature; 06 weather and daylight; 13 seed items. **Emits.** `CropPlanted`, `CropHarvested`, `CropDied`, `PlotNeedsSeeds`, `SaplingGrew`.
 
 **Player touchpoints.** Farm plot zone with per-season crop selection; chop and gather designations; the plant name in the look cursor.
 
@@ -173,7 +173,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Products are collected by farmer jobs on a schedule; slaughter sends the animal to the butcher's workshop.
 - Predators attack when hungry or threatened; timid animals flee dwarves.
 
-**Reads.** 03 map; 07 grass and plants; 14 pasture zones; 16 for hostility. **Emits.** `AnimalSpawned`, `AnimalBorn`, `AnimalDied`, `ProductReady`, `AnimalTamed`.
+**Reads.** 03 map; 07 grass and plants; 14 pasture zones; 16 for hostility. **Emits.** `AnimalSpawned`, `AnimalBorn`, `CreatureDied`, `ProductReady`, `AnimalTamed`.
 
 **Player touchpoints.** Pasture zones; the animals panel (assign to pasture, slaughter, train); cages.
 
@@ -189,7 +189,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Fishing needs an adjacent water tile of level ≥ 4; catches come from a per-water-body pool that regenerates seasonally.
 - Butchering yields meat by creature size, plus hide, bones, fat and, for some species, a skull or shell.
 
-**Reads.** 08 animals; 07 shrubs; 04 water; 12 workshops for butchery. **Emits.** `HuntStarted`, `HuntKill`, `FishCaught`, `PlantGathered`.
+**Reads.** 08 animals; 07 shrubs; 04 water; 12 workshops for butchery. **Emits.** `HuntStarted`, `HuntKill`, `FishCaught`, `CropHarvested`.
 
 **Player touchpoints.** Gather designation; hunt toggles per animal species in the animals panel; fishing zone.
 
@@ -206,7 +206,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Children arrive with families, do light hauling, and become adults after a fixed number of years.
 - Positions: Thane (assigned by the player; their bedroom quality gives a small fortress-wide thought), Warden (commands squads), Broker (trades), Chief Medic (diagnoses).
 
-**Reads.** 11 jobs; 14 rooms; 15 mood; 16 orders. **Emits.** `NeedCritical`, `SkillLevelUp`, `DwarfIdle`, `DwarfDied` (via 17), `PositionAssigned`.
+**Reads.** 11 jobs; 14 rooms; 15 mood; 16 orders. **Emits.** `NeedCritical`, `SkillLevelUp`, `DwarfIdle`, `DwarfDied`, `TitleAssigned`.
 
 **Player touchpoints.** Units panel; dwarf inspection (attributes, skills, needs, thoughts, labors, equipment, relationships); position assignment; labor toggles.
 
@@ -257,7 +257,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Item value = material value × type value multiplier × quality multiplier, in marks; fortress wealth is the sum.
 - Forbidden items are ignored by jobs; the player can forbid and claim.
 
-**Reads.** 05 materials; 14 zones. **Emits.** `ItemCreated`, `ItemDestroyed`, `ItemRotted`, `StockChanged` (batched), `MiasmaSpread`.
+**Reads.** 05 materials; 14 zones. **Emits.** `ItemCreated`, `ItemDestroyed`, `ItemRotted`, `StocksChanged`, `MiasmaSpread`.
 
 **Player touchpoints.** Stockpile zone with filter editor; stocks panel with counts and values; forbid and dump commands; item inspection.
 
@@ -358,7 +358,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - A raised bridge is a wall tile; a lowered one a floor; anything on a bridge when it raises is crushed or thrown. A closed floodgate blocks fluid; an open one is a floor.
 - Hearth alert: civilians path to the hearth hall or the nearest indoor tile behind a door; doors set to "lock on alert" lock.
 
-**Reads.** 14 buildings; 16 hostility; 04 fluids; 22 paths. **Emits.** `TrapTriggered`, `TrapNeedsReset`, `BridgeRaised`, `BridgeLowered`, `FloodgateChanged`.
+**Reads.** 14 buildings; 16 hostility; 04 fluids; 22 paths. **Emits.** `TrapTriggered`, `TrapSpent`, `MechanismTriggered`, `CreatureCaged`.
 
 **Player touchpoints.** Trap and mechanism building; link editor; lever pull command; alert selector.
 
@@ -398,7 +398,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Purpose.** Answer "can this creature get there, and how" quickly and deterministically for hundreds of creatures.
 
-**Owns.** Movement rules per tile kind and fluid level; movement classes (walker, small walker that fits through hatches, large creature that cannot use stairs); A* with a per-tick budget and a priority queue keyed by requester urgency; connectivity labels per movement class, recomputed incrementally by chunk on `TileChanged`; path cache for stockpile and workshop routes; spatial index maintenance; line of sight.
+**Owns.** Movement rules per tile kind and fluid level; movement classes (walker, small walker that fits through hatches, large creature that cannot use stairs); A* with a per-tick budget and a priority queue keyed by requester urgency; connectivity labels per movement class, recomputed incrementally by chunk on `TilesChanged`; path cache for stockpile and workshop routes; spatial index maintenance; line of sight.
 
 **Key rules.**
 - Cardinal and diagonal moves on a level; diagonal moves are forbidden when they would cut a wall corner; vertical moves only through stairs and ramps.

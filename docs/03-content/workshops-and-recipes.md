@@ -29,6 +29,12 @@ All are 3×3. `inputs` to build; `fuel` whether its fuel recipes consume a fuel 
 
 Magma variants require `MAGMA_POWER_LEVEL` magma directly below at least one footprint tile at build time and at every job start, and every input must be magma-safe (the anvil is iron or steel; blocks must be magma-safe stone or obsidian).
 
+| id | name | variant of | inputs | labor | ticks |
+|---|---|---|---|---|---|
+| `magma_smelter` | magma smelter | `smelter` | 3 `stone_block` (magma-safe) | masonry | 350 |
+| `magma_forge` | magma forge | `forge` | 1 `anvil` (iron or steel) + 3 `stone_block` (magma-safe) | masonry | 350 |
+| `magma_kiln` | magma kiln | — | 3 `stone_block` (magma-safe) | masonry | 300; reserved for glass in a later version; it has no recipes and is hidden from the build menu until one exists |
+
 ## Recipe columns
 
 `inputs` as `count × (item | tag | class)` with material constraints in parentheses; `outputs` as `count × item (material source)`; `skill`; `ticks` base; `fuel`; `Q` quality-bearing; `xp`. `from_input` means the output takes the material of the first input; `container` means an empty container of that class is an input and holds the output.

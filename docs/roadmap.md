@@ -36,9 +36,9 @@ Confirmed the "Tuning constants" tables in the system documents, and added `bala
 
 Added `ui-keymap-and-screens.md` (linked from `24-ui-and-input.md`): the complete screen list, panel list, keymap, mouse model, hints and milestones.
 
-## Wave 4 — Implementation-grade
+## Wave 4 — Implementation-grade (done)
 
-Adds `04-implementation/`:
+Added `04-implementation/` (plus `tooling.md` for the lint boundaries, test layout and CI):
 
 - `schemas/` — TypeScript-style type definitions for every component, every system's state, every content table row, every event and every command.
 - `algorithms/` — step-by-step pseudocode for world generation, local map generation, fluids, temperature, pathfinding and connectivity, job assignment and hauling, workshop operation, combat resolution, health, weather, plant growth, animal behavior, hostile AI, trade valuation, immigration, room detection, compositor.
@@ -50,7 +50,7 @@ Adds `04-implementation/`:
 - `acceptance-tests.md` — a checklist per system that a build must pass, each written as a scenario with expected outcomes.
 - `build-milestones.md` — the order in which to build the game, from a rendered empty map to the full loop, with what is testable at each milestone.
 
-Ends with a consistency pass: no placeholders remain, every content id referenced anywhere exists in a table, every event has at least one emitter and one consumer, every constant is defined exactly once.
+Ended with a consistency pass: no placeholders remain, every content id referenced anywhere exists in a table, every event has at least one emitter and one consumer, every constant is defined exactly once.
 
 ## Recommended build order (preview of `build-milestones.md`)
 

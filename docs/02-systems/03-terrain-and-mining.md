@@ -124,7 +124,7 @@ When a designation is applied to a tile that no longer matches its precondition 
 
 ### Events consumed
 
-`JobCompleted` (for its own job types), `JobCancelled`, `EntityMoved` (discovery; batched), `BuildingCompleted` (support check).
+`JobCompleted` (for its own job types), `JobCancelled`, `EntitiesMoved` (discovery), `BuildingCompleted` (support check).
 
 ### Events emitted
 

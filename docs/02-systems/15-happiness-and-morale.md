@@ -59,7 +59,7 @@ The thought list fixed by this design (values and durations in Wave 3):
 - **Sleep:** `slept_in_bare_room` … `slept_in_royal_room`, `slept_in_shared_bed_room` (a bedroom not their own), `slept_on_floor`, `slept_outdoors`, `well_rested`.
 - **Social and comfort:** `talked_with_friend`, `talked_with_someone`, `sat_in_fine_room`, `hearth_visit`, `hearth_lit` (one-time, everyone), `thane_hall_grand`, `thane_hall_bare`, `admired_statue`, `saw_masterwork`, `felt_mist`, `warm_spring`.
 - **Work and skill:** `made_masterwork`, `made_fine_item`, `skill_milestone` (levels 5/10/15/20), `legendary`, `finished_big_job` (a dig of 50+ tiles finished by the fortress: everyone with mining), `harvest_in` (farmers on harvest), `first_vein` (the finder).
-- **Weather:** `caught_in_rain`, `caught_in_storm`, `snowed_on`, `bitter_cold`, `sweltering`, `saw_sunlight` (a dwarf who has been underground for 7+ days sees the sky: positive), `cave_adapted_glare` is not in this design.
+- **Weather:** `caught_in_rain`, `caught_in_storm`, `snowed_on`, `bitter_cold`, `sweltering`, `saw_sunlight` (a dwarf who has been underground for 7+ days sees the sky: positive).
 - **Loss and fear:** `dwarf_died`, `friend_died`, `pet_died`, `child_died`, `saw_death`, `masterwork_lost`, `was_wounded`, `saw_hostile`, `raid_arrived`, `thief_escaped_with_my_things` (owner of a stolen item), `lost_limb`.
 - **Pride and relief:** `raid_repelled`, `killed_hostile` (soldiers), `caravan_arrived`, `immigrants_arrived`, `buried_friend`, `memorial_placed`, `got_it_out` (after a sulk), `healed`, `came_of_age` (family), `new_hearth_hall_tier` (everyone, when the hearth hall reaches a new tier), `deep_stirred_dread` (negative, everyone, when the Deep stirs; short).
 

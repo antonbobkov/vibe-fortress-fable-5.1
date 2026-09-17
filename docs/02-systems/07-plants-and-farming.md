@@ -19,7 +19,7 @@ Grow things. Trees for wood, shrubs for gathering, grass for grazing, crops on f
 
 ### Species table (content) and the properties used here
 
-`kind`, `growSeasons` (surface species; cave species grow in all seasons), `stageDays` (days per stage at 100% growth), `minC`, `maxC`, `light: sun | dark | any`, `yieldItem`, `yieldCount: [min, max]`, `seedItem`, `secondaryYield` (for example `flax` → `flax_fiber` and `flax_seed`), `logs` (trees), `regrowDays` (shrubs), `wildSeedPermille` (chance a gathered wild shrub gives a seed), `biomes` with weights, `caverns` with weights, `glyph`, `fg`.
+`kind`, `growSeasons` (surface species; cave species grow in all seasons), `stageDays` (days per stage at 100% growth), `minC`, `maxC`, `light: sun | dark | any`, `yieldItem`, `yieldCount: [min, max]`, `seedItem` (always the `seed` item type with the species as material), `secondaryYield` (for example `flax` → `flax_fiber` plus a seed-cake food unit), `logs` (trees), `regrowDays` (shrubs), `wildSeedPermille` (chance a gathered wild shrub gives a seed), `biomes` with weights, `caverns` with weights, `glyph`, `fg`.
 
 The species fixed by this design (properties in `plants.md`):
 
@@ -70,7 +70,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 
 - Wild shrubs are gatherable when `mature`. `gather` (03) yields `yieldCount` of `yieldItem` and, with `wildSeedPermille`, one seed; the shrub enters `regrowing` for `regrowDays` (tracked in `shrubTimers`), then returns to `mature`. Regrowing shrubs are drawn dimmer.
 - Shrubs on burning tiles are destroyed (05).
-- A `gather_zone` (09) auto-designates mature shrubs inside it.
+- A `gather` zone (09) auto-designates mature shrubs inside it.
 
 ### Grass
 

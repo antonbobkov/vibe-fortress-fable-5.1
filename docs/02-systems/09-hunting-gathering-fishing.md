@@ -29,7 +29,7 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
 
 ### Gathering
 
-- 03 owns the `gather` designation and job. This system adds the `gather_zone`: each `DayPassed`, every mature shrub inside a gather zone without a designation gets a `gather` designation at the zone's priority.
+- 03 owns the `gather` designation and job. This system adds the `gather` zone type: each `DayPassed`, every mature shrub inside a gather zone without a designation gets a `gather` designation at the zone's priority.
 - Gathering wild crop species may yield a seed (07).
 - Brightleaf (the medicine herb) is what hospitals use for infection treatment (17); it is the reason to gather in the woods.
 
