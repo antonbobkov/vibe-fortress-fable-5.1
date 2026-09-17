@@ -16,6 +16,7 @@ This repository holds the **complete specification** of the game and no code. It
 | [`03-content/`](03-content/) | Every material, creature, plant, item, skill, job, building, recipe, region trait and thought, as tables with numbers | Wave 3 |
 | [`04-implementation/`](04-implementation/) | Type schemas, algorithms in pseudocode, exact tick order, event and command catalogs, save format, screen wireframes, keymaps, acceptance tests, build milestones | Wave 4 |
 | [`roadmap.md`](roadmap.md) | What each wave adds and the recommended build order | Wave 1 |
+| [`05-plan/`](05-plan/README.md) | The implementation plan: agent workflow, testing strategy, 123 tasks across milestones M0–M8, progress checklist, decision log | Plan |
 
 Start with [`00-vision/vision.md`](00-vision/vision.md), then [`01-architecture/architecture-overview.md`](01-architecture/architecture-overview.md), then [`02-systems/README.md`](02-systems/README.md).
 
@@ -54,5 +55,7 @@ docs/
                             workshops-and-recipes, regions-biomes-and-traits, personality-and-thoughts,
                             names, glyphs-and-colors
   04-implementation/        (W4) schemas/, algorithms/, tick-order, event-catalog, command-catalog,
-                            save-format, ui-screens/, acceptance-tests, build-milestones
+                            save-format, ui-screens/, acceptance-tests, build-milestones, tooling
+  05-plan/                  README, 00-agent-workflow, 01-testing-strategy, M0-skeleton … M8-polish,
+                            PROGRESS (task checklist), DECISIONS (ambiguity log)
 ```

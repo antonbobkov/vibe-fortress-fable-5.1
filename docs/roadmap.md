@@ -62,3 +62,7 @@ Ended with a consistency pass: no placeholders remain, every content id referenc
 6. Combat, health, medicine, threats, defense, traps.
 7. World generation, world map, embark, trade, immigration, save and load, legend.
 8. Balance pass against the acceptance tests.
+
+## Implementation plan
+
+The task-level plan for building the game with coding agents is in [`05-plan/`](05-plan/README.md): one file per milestone M0–M8, a testing strategy, an agent workflow with an ambiguity protocol, and a progress checklist.
