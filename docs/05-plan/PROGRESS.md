@@ -10,7 +10,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M0-02 — Fixed-point math and rng (opus-m0, 2026-09-17)
 - [x] T-M0-03 — Constants (opus-m0, 2026-09-17)
 - [x] T-M0-04 — Map3D and chunks (opus-m0, 2026-09-17)
-- [ ] T-M0-05 — Entity store and components
+- [x] T-M0-05 — Entity store and components (opus-m0, 2026-09-17)
 - [ ] T-M0-06 — Registry and content loader
 - [ ] T-M0-07 — Calendar, event queue, command queue
 - [ ] T-M0-08 — Scheduler, World, system contract
