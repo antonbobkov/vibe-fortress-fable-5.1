@@ -37,6 +37,17 @@ export function ticked(cell) {
   return Array.from(String(cell ?? '').matchAll(/`([^`]+)`/g)).map((m) => m[1]);
 }
 
+const ESCAPED_PIPE = '\u0001';
+
+/** Split a Markdown table row, honouring the `\|` escapes cells use for a literal pipe. */
+export function splitRow(line) {
+  return line
+    .replace(/\\\|/g, ESCAPED_PIPE)
+    .split('|')
+    .slice(1, -1)
+    .map((c) => c.split(ESCAPED_PIPE).join('|').trim());
+}
+
 /**
  * Every pipe table of a Markdown document.
  * @returns {{ headings: string[], header: string[], rows: string[][] }[]}
@@ -74,7 +85,7 @@ export function readTables(docPath) {
       flush();
       continue;
     }
-    const cells = line.split('|').slice(1, -1).map((c) => c.trim());
+    const cells = splitRow(line);
     if (/^:?-{2,}:?$/.test(cells[0] ?? '') || cells.every((c) => /^:?-+:?$/.test(c))) {
       continue; // separator row
     }

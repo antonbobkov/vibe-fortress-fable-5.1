@@ -12,7 +12,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M0-04 — Map3D and chunks (opus-m0, 2026-09-17)
 - [x] T-M0-05 — Entity store and components (opus-m0, 2026-09-17)
 - [x] T-M0-06 — Registry and content loader (opus-m0, 2026-09-17)
-- [ ] T-M0-07 — Calendar, event queue, command queue
+- [x] T-M0-07 — Calendar, event queue, command queue (opus-m0, 2026-09-17)
 - [ ] T-M0-08 — Scheduler, World, system contract
 - [ ] T-M0-09 — Spatial index, movement helper, pathfinding stubs
 - [ ] T-M0-10 — Serialization core
