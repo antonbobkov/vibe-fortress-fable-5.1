@@ -10,6 +10,8 @@ import { isSolidBottomed, type Designation, type Map3D, type TileKind } from './
 import type { Calendar } from './calendar';
 import type { ComponentType, EntityStore, EntityKind } from './entities';
 import type { FortressState } from './components';
+import type { PathingCoreReader } from './pathfinding';
+import type { SpatialIndexReader } from './spatial';
 import type { ChunkIndex, EntityId, MovementClass, Season, TileIndex } from './types';
 
 /** `readers.map`. */
@@ -66,18 +68,17 @@ export interface FortressReader {
   readonly state: Readonly<FortressState>;
 }
 
-/** `readers.pathing`; the implementation is installed by 22 (T-M0-09). */
-export interface PathingReader {
-  reachable(from: TileIndex, to: TileIndex, movementClass: MovementClass): boolean;
-  labelOf(i: TileIndex, movementClass: MovementClass): number;
-}
+/**
+ * `readers.pathing` of `22-pathfinding-and-spatial.md` § Interfaces; `PathingCore.reader()` is
+ * the implementation, registered under the id `pathing` (T-M0-09).
+ */
+export type PathingReader = PathingCoreReader;
 
-/** `readers.spatial`; the implementation is installed by the spatial index (T-M0-09). */
-export interface SpatialReader {
-  inRadius(i: TileIndex, r: number, kind?: EntityKind): readonly EntityId[];
-  inBox(from: TileIndex, to: TileIndex, kind?: EntityKind): readonly EntityId[];
-  nearest(i: TileIndex, predicate: (id: EntityId) => boolean, maxRadius: number): EntityId;
-}
+/**
+ * `readers.spatial` of the same section; `SpatialIndex.reader()` is the implementation,
+ * registered under the id `spatial` (T-M0-09).
+ */
+export type SpatialReader = SpatialIndexReader;
 
 /**
  * Walkability by tile kind alone. `22-pathfinding-and-spatial.md` adds fluid depth, buildings and
