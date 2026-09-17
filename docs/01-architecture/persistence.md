@@ -1,0 +1,80 @@
+# Persistence
+
+**Detail level:** W2 · **Owner:** architecture (`app/save-manager.ts`, `core/serialize.ts`, `platform/storage.ts`) · **Depends on:** [simulation-core.md](simulation-core.md), [data-model.md](data-model.md), [content-pipeline.md](content-pipeline.md)
+
+## What is saved
+
+A save is the complete state needed to continue the simulation deterministically:
+
+| Section | Contents | Producer |
+|---|---|---|
+| `header` | format version, game version, world seed, fortress name, calendar, content hash, thumbnail (a 48×27 cell ASCII snapshot of the surface), play time | app |
+| `world` | the world map (regions) and the chosen region id | 01 |
+| `map` | every `Map3D` grid, chunk fluid counts | core |
+| `entities` | the entity store: alive slots with generations, every component table | core |
+| `fortress` | fortress-level state | core |
+| `calendar` | tick and derived fields | core |
+| `rng` | every stream's state | core |
+| `systems` | one entry per system: `id`, `stateVersion`, `serialize()` output | each system |
+| `commandLog` | commands of the current season with tick and result | core |
+| `ui` | viewport position, z-level, zoom, open panel, overlay toggles, hints shown | app |
+
+Content is not saved; it is identified by hash.
+
+## Container format
+
+A save is a single binary blob:
+
+```
+magic "DHLM"  (4 bytes)
+formatVersion (uint32)
+headerLength  (uint32)
+header JSON   (UTF-8)
+sectionCount  (uint32)
+per section:  nameLength, name, kind (0 = JSON, 1 = typed array), byteLength, bytes
+```
+
+Typed arrays are written raw with their element type in the section name (`map.kind:u8`). The whole blob after the header is compressed with `CompressionStream('deflate-raw')` when available. The header stays uncompressed so the load screen can list saves without inflating them.
+
+## Serialization rules
+
+- `serialize()` returns plain data: numbers, strings, booleans, arrays, plain objects, and typed arrays. No class instances, no `Map` or `Set` (convert to sorted arrays), no functions.
+- Entity ids are stored as-is (with generation). Content is stored by string id. Tile positions as tile indices.
+- Every system state carries `stateVersion`; the system's `deserialize` migrates older versions forward. Migrations are additive and tested with fixture saves.
+- `deserialize` must not call readers of other systems; cross-system caches are rebuilt on the first `tick` (systems keep a `needsRebuild` flag).
+
+## Storage
+
+`platform/storage.ts` wraps IndexedDB with three object stores:
+
+- `saves` — key: save id; value: the blob plus a header copy for listing.
+- `legends` — key: fortress id; value: the legend record (see 24 UI).
+- `settings` — key: `settings`; value: player settings and keymap overrides.
+
+Save ids: `manual-<timestamp>`, `auto-<year>-<season>`, `snapshot-<n>`.
+
+## Autosave and snapshots
+
+- On every `SeasonChanged`, the app saves `auto-<year>-<season>` and keeps the four most recent autosaves. Older ones are deleted.
+- A manual save is never deleted automatically.
+- The Load screen lists manual saves and autosaves separately, with the header thumbnail, date, population and wealth.
+- Saving runs synchronously on the simulation (the world is paused for the duration of `serialize`, which is under `1 s` by budget) and asynchronously for compression and storage.
+
+## Export and import
+
+- Export writes the blob as a file `<fortress>-<year>-<season>.deepholm` through a Blob download.
+- Import reads a file, validates magic and version, checks the content hash (soft match rules in `content-pipeline.md`), and stores it as a manual save.
+
+## Legends
+
+When a fortress ends (all dwarves dead, or retired), the app writes a legend record: name, seed, region, years, peak population, deepest z, final wealth, milestones with dates, the last 50 announcements of severity alert or danger, and the cause of end. The save is kept as `final-<fortress>` and can be loaded read-only (viewing only; commands are rejected).
+
+## Determinism and saves
+
+The save/load determinism test in `simulation-core.md` is the contract: loading a save and running N ticks produces the same world hash as running N ticks without saving. Anything that breaks this is a bug in `serialize`/`deserialize`, usually an unsaved cache or an iteration-order dependency.
+
+## Failure handling
+
+- Storage quota exceeded: the app keeps the game running, shows a danger-severity announcement, and offers export.
+- Corrupt save: the load screen marks it unreadable with the failing section; other saves are unaffected.
+- Version too new: refused with a message naming the required game version.

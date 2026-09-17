@@ -1,0 +1,194 @@
+# Module Interfaces
+
+**Detail level:** W2 · **Owner:** architecture · **Depends on:** [architecture-overview.md](architecture-overview.md), [simulation-core.md](simulation-core.md), [data-model.md](data-model.md)
+
+## The system contract, in full
+
+```
+interface GameSystem<S = unknown> {
+  readonly id: SystemId
+  readonly order: number
+  readonly cadence: number
+  readonly phase: number
+  readonly subscribes: readonly EventType[]
+  readonly ownsCommands: readonly CommandType[]
+
+  init(ctx: InitContext): void
+  tick(ctx: TickContext): void
+  handle(event: GameEvent, ctx: TickContext): void
+  applyCommand(cmd: Command, ctx: TickContext): CommandResult
+  reader(): unknown            // each system narrows this to its own Reader type
+  serialize(): S
+  deserialize(state: S, ctx: InitContext): void
+}
+
+interface InitContext {
+  world: World                 // map, entities, calendar, fortress state
+  registry: Registry
+  rng: RngStream               // this system's stream
+  readers: ReaderSet           // every system's reader, plus core readers (map, entities, calendar, pathing, spatial)
+  register: RegistrationApi    // see below
+}
+
+interface TickContext extends InitContext {
+  tick: number
+  emit(event: GameEvent): void
+  terrain: TerrainApi          // sanctioned tile mutation (see data-model.md)
+  jobs: JobsApi                // create / cancel jobs (see 11)
+  spawn: SpawnApi              // create creatures and items with all required components
+}
+
+type CommandResult = { ok: true } | { ok: false; reason: RejectReason }
+```
+
+`ReaderSet` is typed: `readers.fluids.levelAt(i)`, `readers.items.countOf(typeId)`. Readers are constructed at `init` and stable for the life of the world.
+
+## Reader conventions
+
+- A reader is an object of pure query functions. It never mutates and never returns mutable internals; arrays returned are either frozen views or fresh copies, as documented per method.
+- Reader methods are cheap by default. A method that does real work (a search, a flood fill) is named `find*` or `compute*` and documents its cost.
+- Readers return ids, not objects, when referring to entities; the caller reads components through `readers.entities`.
+- Readers may be called from `init` to cache references but not to read state; from `tick`, `handle`, `applyCommand`; and from presentation at any time between ticks.
+
+Core readers:
+
+- `readers.map`: `kindAt(i)`, `materialAt(i)`, `flagsAt(i)`, `designationAt(i)`, `fluidAt(i)`, `isWalkable(i, movementClass)`, `isOutdoor(i)`, `neighbors(i)`, `columnSurfaceZ(x, y)`, `chunkOf(i)`.
+- `readers.entities`: `get`, `has`, `alive`, `each`, `with`, `at(i)` (entities with `Position` on tile i, from the spatial index).
+- `readers.calendar`: the `Calendar` fields.
+- `readers.pathing`: `reachable(from, to, movementClass)`, `requestPath(...)` (see 22).
+- `readers.spatial`: `inRadius(i, r, kind?)`, `inBox(...)`, `nearest(i, predicate, maxRadius)`.
+- `readers.fortress`: the fortress-level state.
+
+## Registration APIs
+
+Registration lets a system plug into another system's extensible tables at `init`, so the target system never needs editing when a new system or feature is added.
+
+```
+interface RegistrationApi {
+  jobProducer(producer: JobProducer): void           // 11 pulls jobs from producers each tick
+  recipeSet(set: RecipeSet): void                    // 12 merges recipes (content tables are the default set)
+  thoughtSource(source: ThoughtSource): void         // 15 asks sources for thought triggers on events
+  overlay(overlay: OverlaySpec): void                // 23 renders overlays; 24 lists them in the overlay menu
+  panel(panel: PanelSpec): void                      // 24 adds a panel with a hotkey
+  inspector(kind: EntityKindOrTile, section: InspectorSection): void   // 24 adds a section to inspection
+  milestone(milestone: MilestoneSpec): void          // fortress legend milestones
+  announcement(type: EventType, spec: AnnouncementSpec): void          // 24 maps events to log lines and severities
+}
+```
+
+Registration is a static declaration of intent, so the order in which systems `init` does not matter; the target systems read their registries lazily on first `tick`.
+
+### JobProducer
+
+```
+interface JobProducer {
+  id: string
+  produce(ctx: TickContext, sink: JobSink): void     // called by 11 every tick; produce jobs that do not yet exist
+  onJobEvent?(event: JobEvent): void                 // claimed, completed, cancelled, blocked
+}
+```
+
+Producers are responsible for idempotence: they check with `sink.exists(key)` before creating. Job keys are strings like `dig:${tileIndex}` or `craft:${workshopId}:${orderIndex}`.
+
+### ThoughtSource
+
+```
+interface ThoughtSource {
+  on: EventType[]
+  trigger(event: GameEvent, ctx: TickContext): ThoughtTrigger[]    // [{ dwarfId, thoughtId, magnitude? }]
+}
+```
+
+Most thoughts come from the content table's `trigger` column (an event type plus a field match), so systems rarely need a custom source; the API exists for thoughts that need computation (for example "saw a friend die", which needs relationships).
+
+## Commands
+
+Every command type has one owning system. The core routes by the command table. A system's `applyCommand` returns a rejection with a `RejectReason` from a fixed enumeration (Wave 4 lists them) that the UI maps to a message.
+
+Command ownership by system (the full list is the Wave 4 command catalog):
+
+| System | Commands |
+|---|---|
+| 03 terrain | `Designate`, `UndoDesignation`, `SetDesignationPriority`, `SetTraffic` |
+| 07 plants | `SetPlotCrop`, `SetPlotSeasonal`, `SetPlotFertilize` |
+| 08 animals | `AssignPasture`, `MarkSlaughter`, `TrainAnimal`, `TameCaged`, `SetHuntable` |
+| 09 foraging | `SetHuntSpecies`, `SetFishingZone` (through 14 zones) |
+| 10 dwarves | `SetLabor`, `AssignTitle`, `RenameDwarf`, `SetSchedule` |
+| 11 jobs | `SetLaborPriority`, `CancelJob`, `SetJobPriority` |
+| 12 workshops | `AddWorkOrder`, `EditWorkOrder`, `RemoveWorkOrder`, `SetWorkshopWorker`, `SuspendWorkshop` |
+| 13 items | `ForbidItem`, `ClaimItem`, `DumpItem`, `MeltItem`, `SetStockpileFilter`, `SetStockpileContainers`, `LinkStockpile` |
+| 14 buildings | `PlaceBuilding`, `CancelBuilding`, `DeconstructBuilding`, `CreateZone`, `ResizeZone`, `RemoveZone`, `SetZoneSetting`, `AssignRoom`, `LinkMechanism`, `UnlinkMechanism`, `SetDoorMode` |
+| 15 morale | none |
+| 16 combat | `CreateSquad`, `DisbandSquad`, `SetSquadMembers`, `SetSquadSchedule`, `SetSquadEquipment`, `SquadOrder` (kill, station, follow, cancel), `SetAlert` |
+| 17 health | `SetHospitalSupplies` (through zone settings) |
+| 19 defense | `PullLever`, `SetTrapMode`, `SetLockOnAlert` |
+| 20 trade | `TradeMove`, `TradeOffer`, `TradeAccept`, `TradeCancel`, `SetRequests` |
+| 21 immigration | `SetPopulationCap` |
+| app | `Save`, `Load`, `RetireFortress` (not simulation commands; handled by the app) |
+
+## Events
+
+Every event has one or more emitters and any number of subscribers. The full catalog is in Wave 4. Conventions:
+
+- Past tense: `TileChanged`, `JobCompleted`, `CreatureDied`.
+- Fields are ids and plain values. A consumer verifies `alive(id)` before reading.
+- Batched events end in the plural of the payload: `TilesChanged { indices: TileIndex[] }`, `StocksChanged { types: number[] }`, `FluidsChanged { chunks: number[] }`.
+
+## The movement helper
+
+Movement is not a system; it is a core helper that three brains (10, 08, 18/20) call each tick for each creature they own:
+
+```
+moveAlongPath(id, ctx): MoveResult    // advances Motion.progressFixed by speed; steps Position when a tile is crossed;
+                                      // returns arrived | moving | blocked (tile became impassable) | fell
+```
+
+Speed is `Fixed` tiles per tick from the creature's species speed, attribute and wound modifiers (17), and terrain cost (22). Falling: a creature on an `open` tile falls to the next solid-bottomed tile below and takes fall damage through 17 by z-levels fallen.
+
+## The spawn API
+
+`ctx.spawn.creature(species, at, faction, overrides?)` and `ctx.spawn.item(type, material, at | containerId, count?, quality?)` create entities with every component the data model requires for that kind. This keeps component invariants in one place. Systems that create creatures (10, 08, 18, 20, 21) and items (03, 07, 09, 12, 13, 20, 02) use only these.
+
+## Presentation contracts
+
+### View model
+
+Presentation builds a `ViewModel` per frame from readers:
+
+```
+interface ViewModel {
+  cells: CellBuffer               // cols × rows of { glyph, fg, bg } for the map viewport
+  status: StatusLine              // date, weather, population, hall spirit, food, drink, z, speed, alert
+  sidebar: PanelRender | null
+  log: LogLine[]                  // last N announcements with severity
+  cursor: CursorState | null
+}
+```
+
+The compositor (23) fills `cells` from `readers.map`, `readers.entities`, `readers.spatial`, the active overlays and the current viewport. It knows the render rules, not the simulation rules.
+
+### Panels
+
+```
+interface PanelSpec {
+  id: string; title: string; hotkey: Key
+  render(readers, uiState): Widget          // immediate-mode widget tree
+  onAction?(action: UiAction, submit: (cmd: Command) => void): void
+}
+```
+
+### Announcements
+
+```
+interface AnnouncementSpec {
+  severity: note | alert | danger
+  text(event, readers): string              // uses the strings table
+  focus?(event): TileIndex | EntityId       // where the view centers on click or on danger
+}
+```
+
+## Interface stability
+
+- Readers and registration APIs are the public surface of a system. Changing one is a design change recorded in the system's document.
+- `state.ts` of a system is private. No other module imports it; the ESLint boundary rule enforces this.
+- Events and commands are the public surface of the whole simulation. Adding is free; removing or renaming requires a save migration if the command log format changes.

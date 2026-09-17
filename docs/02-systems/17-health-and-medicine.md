@@ -1,0 +1,169 @@
+# 17 Health & Medicine
+
+**Detail level:** W2 · **Owner:** `systems/health` · **Depends on:** [16-combat.md](16-combat.md), [10-dwarves.md](10-dwarves.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [11-jobs-and-labor.md](11-jobs-and-labor.md)
+
+## Purpose
+
+Turn damage into consequences that unfold over time and can be treated: wounds that bleed, bones that must be set, burns and frost, infection, unconsciousness, permanent injuries and death. Own the hospital and the medic's work.
+
+## Concepts
+
+- **Body**: `parts[6]` from the body plan, each with `hp`, `maxHp` and a wound list; `blood`, `maxBlood`, `pain`, `conscious`, `permanent[]`.
+- **Wound**: `{ type: cut | puncture | bruise | fracture | burn | frost, severity: light | serious | grievous, bleed: Fixed per health tick, pain, healRemaining, treated: { bandaged, sutured, splinted, cleaned, dressed }, infected }`.
+- **Patient**: a creature marked for hospital care.
+- **Hospital**: a zone with beds and a supply chest.
+- **Treatment**: a medic job that changes a wound's `treated` flags.
+
+## Rules
+
+### Body values
+
+- `maxHp(part) = size × partHpFactor(bodyPlan, part)` (torso 1.0, head 0.5, limbs 0.6 for the standard plan; content).
+- `maxBlood = size × BLOOD_PER_SIZE × (50 + Toughness) / 100` for creatures with attributes; `size × BLOOD_PER_SIZE` otherwise.
+
+### Wound creation
+
+On `DamageDealt { defender, part, damageType, amount }`:
+
+1. `ratio = amount / maxHp(part)`. `severity`: `light` if `ratio < LIGHT_MAX`, `serious` if `< SERIOUS_MAX`, else `grievous`.
+2. `part.hp −= amount`. If `part.hp ≤ 0`: the part is **destroyed**: for `head` or `torso` the creature dies (`CreatureDied { cause: killed, killerId }`); for a limb the limb is lost (`permanent: lost_<part>`, `LimbLost` event, the `lost_limb` thought), its wounds are removed, and a grievous `cut` remains at the stump with heavy bleeding.
+3. Otherwise add a wound with type from `damageType` (16's mapping), `bleed` and `pain` from the wound table (type × severity; content), `healRemaining = HEAL_BASE_TICKS × severityMultiplier`.
+4. Toughness reduces `amount` before step 1 by `Toughness / 10` percent (max 10%).
+
+Environmental sources create wounds through the same path with synthetic damage:
+
+| Source | Event | Effect |
+|---|---|---|
+| Burning tile | `BurnDamage { id, amount }` | `burn` wound on a random part each materials tick |
+| Magma | `MagmaContact` | `amount = maxHp(torso) × 2` as `burn` to torso: death for anything not `magmaSafe` in its species row (ember newts, wyrms) |
+| Drowning | `CreatureSubmerged` each health tick while submerged and not aquatic or amphibious | `DROWN_DAMAGE` to torso as `bruise` (no bleeding); at 0 hp the creature dies with `cause: drowned` |
+| Falling | `Fell { id, levels }` | `amount = levels² × FALL_DAMAGE_PER_LEVEL_SQ` to a random leg (60%) or torso (40%) as `blunt` → `bruise` or `fracture` |
+| Lightning | `LightningStrike` on the tile | `burn` grievous to head and torso |
+| Heat and cold | hourly while outdoors above `HEAT_INJURY_C` / below `COLD_INJURY_C` | `burn` (heat stroke) or `frost` light wound on a random limb; clothing (10) halves the chance |
+| Starvation | `Starvation { id }` daily | `amount = maxHp(torso) × STARVE_PERCENT / 100` to torso as `wasting` (a `bruise` that does not heal until fed) |
+| Bridge | `BRIDGE_CRUSH_DAMAGE` | `blunt` to a random part |
+| Sparring | 16 | light `bruise` |
+
+### Bleeding, pain, consciousness
+
+Each health tick (every 5 ticks) for each creature in the `wounded` list:
+
+- `blood −= Σ wound.bleed` for wounds not `bandaged` (bandaging sets `bleed = 0`; suturing keeps it 0 and heals faster). Blood regenerates `BLOOD_REGEN_PER_TICK` per health tick when no wound bleeds.
+- `pain = Σ wound.pain × (100 − Willpower / 2) / 100` (dwarves; other creatures use 100).
+- `conscious = pain < PAIN_UNCONSCIOUS and blood ≥ maxBlood × BLOOD_UNCONSCIOUS_PERCENT / 100`. An unconscious creature does nothing, is hit at +40, and is carried as a patient if a dwarf.
+- Death: `blood < maxBlood × BLOOD_DEATH_PERCENT / 100` → `CreatureDied { cause: bled_out }`.
+- Healing: `healRemaining −= 5` for each wound whose healing is not blocked: fractures heal only at `UNTREATED_FRACTURE_PERCENT` speed unless `splinted`; infected wounds do not heal; `wasting` does not heal while starving. At 0 the wound is removed, `part.hp` regains the wound's damage, and for an unsplinted fracture that healed, a `permanent: badly_healed_<part>` is added.
+
+### Infection
+
+Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned` and not `sutured`, older than one day: `INFECTION_PERMILLE` (doubled in miasma or when the creature slept on the floor) → `infected`. Infected: fever (`Patient` regardless of severity; no work), pain +10, no blood regeneration; each day `INFECTION_DEATH_PERMILLE`. `clean_wound` with brightleaf cures the infection after `INFECTION_CURE_DAYS`; cleaning before infection prevents it.
+
+### Permanent injuries and their effects
+
+| Permanent | Effect |
+|---|---|
+| `lost_left_arm` / `lost_right_arm` | cannot use two-handed weapons or shields; one lost arm: crafting speed −25%; both: no jobs, cannot eat unaided (care jobs) |
+| `lost_left_leg` / `lost_right_leg` | speed 50%; a `crutch` item (carried) restores to 75%; both legs: bedridden (`bedridden` thought, no jobs, care jobs feed them) |
+| `badly_healed_<limb>` | arm: −10% crafting; leg: −15% speed |
+| `badly_healed_torso` | −10% blood max |
+| `scarred_head` (from a serious head wound) | flavor only |
+
+`health.speedModifier(id)` and `health.productivityModifier(id) = 100 − pain / 2 − (100 − bloodPercent) / 2 − permanent penalties`, minimum `PRODUCTIVITY_FLOOR`, are read by 10 and 11. `health.canWield(id, hands)` is read by 16.
+
+### Patients and hospitals
+
+- A dwarf becomes a `Patient` when: any wound bleeds, any fracture is unsplinted, any burn is undressed, any wound is infected, or the dwarf is unconscious from wounds. `PatientAdmitted { id }`.
+- Hospital zone settings: desired supplies `{ cloth, thread, splints, crutches, brightleaf, buckets }` (defaults `HOSPITAL_DEFAULT_SUPPLIES`); 13 treats the hospital's chests as a stockpile that wants those counts. A hospital needs at least one bed and one chest.
+- Behavior (10 `patient`): a conscious patient walks to a free hospital bed (any bed if none); an unconscious one gets a `carry_patient` job (labor `hauling`; the carrier picks them up like an item and puts them in the bed). Patients in bed rest; `Needs` still rise; `feed_patient` and `water_patient` jobs (labor `hauling`, no skill) bring a meal or a drink when hunger or thirst pass 60.
+- Medic jobs (labor `medicine`, skill `medicine`), produced per patient per need, in priority order with the input each consumes:
+  1. `stop_bleeding`: 1 `cloth` → every bleeding wound `bandaged`. Priority 1.
+  2. `set_bone`: 1 `splint` per fracture → `splinted`. Priority 2.
+  3. `suture`: 1 `thread` per `serious` or `grievous` cut or puncture → `sutured` (heals at `SUTURED_HEAL_PERCENT` speed, infection-proof). Priority 3.
+  4. `clean_wound`: 1 `bucket` of water (a bucket item filled at a well or water tile by the medic as part of the job) + 1 `brightleaf` if infected → `cleaned`, and cures infection over `INFECTION_CURE_DAYS`. Priority 3.
+  5. `dress_burn`: 1 `cloth` per burn → `dressed` (halves burn pain, heals normally). Priority 3.
+  6. `diagnose`: no input; the Chief Medic if any, else any medic; sets `diagnosed`, which makes the wound list visible in the inspector in full detail (undiagnosed patients show "wounded, bleeding" only) and gives `DIAGNOSE_XP`. Priority 4; created once per admission.
+  7. `give_crutch`: 1 `crutch` to a dwarf with a lost leg. Priority 5.
+- Job work time `TREAT_TICKS` skill-scaled; a treatment can fail at low skill (`TREAT_FAIL_PERMILLE − skill × 10`, minimum 0) consuming the input without effect; the job is re-created.
+- Discharge: no bleeding, no unsplinted fractures, no undressed burns, no infection, conscious, pain below `PAIN_DISCHARGE`. `PatientDischarged { id }`; `PatientHealed { id, hospitalTier }` when all wounds are light or gone, giving the `healed` thought (scaled by the hospital tier).
+- Without a hospital, medics still treat patients wherever they lie if supplies are in any stockpile; the hospital's value is proximity, beds and the room tier.
+
+### Animals
+
+Tame animals get bandaging only (`stop_bleeding` when `animal_care` labor exists and cloth is available), never surgery. Wild and hostile creatures get nothing.
+
+### Death and corpses
+
+`CreatureDied { id, cause, killerId }` is emitted here for every creature. 13 creates the corpse; 10 handles dwarves; 15 grief; 08 animals; 18 hostiles; 16 kills.
+
+## State
+
+- `Body` components; `Patient` components; `wounded: SortedSet<EntityId>`; `hospitals: zoneId[]`; per-patient job keys.
+- Rng stream.
+
+## Interfaces
+
+### Reader
+
+- `health.isConscious(id)`, `health.bloodPercent(id)`, `health.pain(id)`, `health.isWounded(id)`
+- `health.wounds(id)` (full list; the UI applies the diagnosis rule), `health.permanent(id)`
+- `health.isPatient(id)`, `health.needsTreatment(id)` (list of job kinds)
+- `health.speedModifier(id)`, `health.productivityModifier(id)`, `health.canWield(id, hands)`, `health.canWork(id)`
+- `health.summaryText(id)` ("Bleeding from the left arm; broken right leg (splinted); in pain")
+
+### Commands
+
+`SetHospitalSupplies { zoneId, wants }` (stored as a zone setting; 13 reads it).
+
+### Events consumed
+
+`DamageDealt`, `BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, `Starvation`, `HourPassed` (heat and cold), `DayPassed` (infection), `ZoneChanged` (hospitals), `JobCompleted`, `ItemCreated` (supplies for blocked jobs).
+
+### Events emitted
+
+`WoundInflicted { id, part, type, severity }`, `LimbLost { id, part }`, `CreatureUnconscious { id }`, `CreatureConscious { id }`, `CreatureDied { id, cause, killerId }`, `PatientAdmitted`, `PatientDischarged`, `PatientHealed { id, hospitalTier }`, `InfectionStarted { id }`, `InfectionCured { id }`, `TreatmentDone { patientId, medicId, kind }`.
+
+### Registrations
+
+Job producer `health` (`carry_patient`, `feed_patient`, `water_patient`, `stop_bleeding`, `set_bone`, `suture`, `clean_wound`, `dress_burn`, `diagnose`, `give_crutch`); inspector section `creature › health` (parts with hp bars, wounds with treatment flags, blood, pain, consciousness, permanent injuries); announcements: `PatientAdmitted` (note), `CreatureUnconscious` for dwarves (alert), `CreatureDied` for dwarves (danger, pauses; "Ketil Ironvein has bled to death"), for pets (alert), for others (note), `InfectionStarted` (alert), `LimbLost` (alert).
+
+## Player-facing behavior
+
+- Hospital zone: bed count, chest, supply wants with current counts, patients list with their needs.
+- Creature inspection › Health tab.
+- The status bar shows a red cross with a count when any dwarf is a patient.
+- Hints: "A hospital needs a bed, a chest, cloth and thread", "Brightleaf treats infection; gather it from the woods", "Splints stop fractures healing wrong".
+
+## Tuning constants
+
+| Name | Value | Meaning |
+|---|---|---|
+| `BLOOD_PER_SIZE` | 10 | |
+| `LIGHT_MAX` / `SERIOUS_MAX` | 0.2 / 0.5 | Damage ratio thresholds |
+| `HEAL_BASE_TICKS` | 6000 | 5 days for a light wound; serious ×3, grievous ×6 |
+| `BLOOD_REGEN_PER_TICK` | 1 | Blood units per health tick |
+| `PAIN_UNCONSCIOUS` | 80 | |
+| `BLOOD_UNCONSCIOUS_PERCENT` | 40 | |
+| `BLOOD_DEATH_PERCENT` | 20 | |
+| `UNTREATED_FRACTURE_PERCENT` | 25 | Healing speed |
+| `SUTURED_HEAL_PERCENT` | 150 | |
+| `INFECTION_PERMILLE` | 100 | Per untreated wound per day |
+| `INFECTION_DEATH_PERMILLE` | 50 | Per day infected |
+| `INFECTION_CURE_DAYS` | 3 | |
+| `DROWN_DAMAGE` | 8 | Per health tick |
+| `FALL_DAMAGE_PER_LEVEL_SQ` | 6 | |
+| `STARVE_PERCENT` | 8 | Of torso hp per day |
+| `PRODUCTIVITY_FLOOR` | 30 | Percent |
+| `TREAT_TICKS` | 200 | |
+| `TREAT_FAIL_PERMILLE` | 200 | At skill 0 |
+| `DIAGNOSE_XP` | 20 | |
+| `PAIN_DISCHARGE` | 30 | |
+| `HOSPITAL_DEFAULT_SUPPLIES` | cloth 10, thread 5, splints 4, crutches 2, brightleaf 6, buckets 2 | |
+
+Wound bleed and pain values per type and severity are content.
+
+## Extension points
+
+- Diseases: a `condition` list on `Body` already holds `infected`; a disease table with daily progression fits the same loop.
+- Prosthetics: an item that removes a `lost_leg` penalty.
+- Surgery on internal injuries: a new wound type and treatment kind.
+- Veterinary care beyond bandaging: enable more job kinds for animals.

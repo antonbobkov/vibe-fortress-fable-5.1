@@ -41,7 +41,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 ---
 
-## 01 World Generation — `01-world-generation.md`
+## 01 World Generation — [`01-world-generation.md`](01-world-generation.md)
 
 **Purpose.** Produce a world map of regions with everything the player needs to choose a site and everything the local map generator needs to build it.
 
@@ -60,7 +60,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** World generation screen (seed, size, progress); world map screen (cursor inspection, filters, embark selection).
 
-## 02 Embark & Loadout — `02-embark-and-loadout.md`
+## 02 Embark & Loadout — [`02-embark-and-loadout.md`](02-embark-and-loadout.md)
 
 **Purpose.** Turn a chosen region and a spent budget into a starting fortress.
 
@@ -77,7 +77,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Embark screen with tabs for dwarves, supplies, animals; presets; fortress name.
 
-## 03 Terrain & Mining — `03-terrain-and-mining.md`
+## 03 Terrain & Mining — [`03-terrain-and-mining.md`](03-terrain-and-mining.md)
 
 **Purpose.** Generate the local map from a region and keep the map correct as dwarves dig, build and the world changes.
 
@@ -94,7 +94,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Designation menu (dig, channel, stairs, ramp, smooth, engrave, remove, chop, gather), priority setting, undo, the look cursor showing tile material and state.
 
-## 04 Fluids — `04-fluids.md`
+## 04 Fluids — [`04-fluids.md`](04-fluids.md)
 
 **Purpose.** Move water and magma through the map cheaply and believably: rivers, lakes, waterfalls, channels, floods, drains, obsidian.
 
@@ -112,7 +112,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Fluid overlay with level digits; channel and floodgate placement; "water source" zone for wells.
 
-## 05 Materials & Temperature — `05-materials-and-temperature.md`
+## 05 Materials & Temperature — [`05-materials-and-temperature.md`](05-materials-and-temperature.md)
 
 **Purpose.** Provide the shared vocabulary of matter and heat: what things are made of, what that means, and how hot each tile is.
 
@@ -127,7 +127,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Temperature shown in the look cursor; fire glyphs; the material name of every tile and item.
 
-## 06 Weather & Seasons — `06-weather-and-seasons.md`
+## 06 Weather & Seasons — [`06-weather-and-seasons.md`](06-weather-and-seasons.md)
 
 **Purpose.** Turn the calendar into changing conditions on the surface.
 
@@ -143,7 +143,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Status bar weather; surface glyph changes (snow, rain); the calendar panel.
 
-## 07 Plants & Farming — `07-plants-and-farming.md`
+## 07 Plants & Farming — [`07-plants-and-farming.md`](07-plants-and-farming.md)
 
 **Purpose.** Grow things: trees for wood, shrubs for gathering, crops for food and drink, cave flora in the dark.
 
@@ -159,7 +159,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Farm plot zone with per-season crop selection; chop and gather designations; the plant name in the look cursor.
 
-## 08 Animals & Domestication — `08-animals-and-domestication.md`
+## 08 Animals & Domestication — [`08-animals-and-domestication.md`](08-animals-and-domestication.md)
 
 **Purpose.** Populate the map with creatures that are not dwarves and not hostile, and let the fortress keep some of them.
 
@@ -177,7 +177,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Pasture zones; the animals panel (assign to pasture, slaughter, train); cages.
 
-## 09 Hunting, Gathering & Fishing — `09-hunting-gathering-fishing.md`
+## 09 Hunting, Gathering & Fishing — [`09-hunting-gathering-fishing.md`](09-hunting-gathering-fishing.md)
 
 **Purpose.** Provide food and materials from the wild: hunting animals, gathering plants, fishing rivers and lakes.
 
@@ -193,7 +193,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Gather designation; hunt toggles per animal species in the animals panel; fishing zone.
 
-## 10 Dwarves — `10-dwarves.md`
+## 10 Dwarves — [`10-dwarves.md`](10-dwarves.md)
 
 **Purpose.** Make dwarves people: bodies with attributes, minds with skills and needs and personalities, and a daily rhythm.
 
@@ -210,7 +210,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Units panel; dwarf inspection (attributes, skills, needs, thoughts, labors, equipment, relationships); position assignment; labor toggles.
 
-## 11 Jobs & Labor — `11-jobs-and-labor.md`
+## 11 Jobs & Labor — [`11-jobs-and-labor.md`](11-jobs-and-labor.md)
 
 **Purpose.** Turn designations, buildings, orders and needs into work, and match work to workers.
 
@@ -227,7 +227,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Jobs panel (open jobs with reasons); labor grid (dwarves × labors); priority controls on designations and orders.
 
-## 12 Workshops & Professions — `12-workshops-and-professions.md`
+## 12 Workshops & Professions — [`12-workshops-and-professions.md`](12-workshops-and-professions.md)
 
 **Purpose.** Convert materials into goods at workshops, and give dwarves the titles the player thinks in.
 
@@ -244,7 +244,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Workshop panel (recipes, work orders, assigned worker); the orders panel listing all work orders; profession shown in the units list.
 
-## 13 Items & Storage — `13-items-and-storage.md`
+## 13 Items & Storage — [`13-items-and-storage.md`](13-items-and-storage.md)
 
 **Purpose.** Track every object in the fortress and where it should go.
 
@@ -261,7 +261,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Stockpile zone with filter editor; stocks panel with counts and values; forbid and dump commands; item inspection.
 
-## 14 Buildings & Rooms — `14-buildings-and-rooms.md`
+## 14 Buildings & Rooms — [`14-buildings-and-rooms.md`](14-buildings-and-rooms.md)
 
 **Purpose.** Let the player shape the fortress with constructions, furniture, mechanisms and zones, and reward well-made spaces.
 
@@ -278,7 +278,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Build menu (constructions, furniture, workshops, mechanisms, traps, hearth, depot); zones menu; room inspection with quality breakdown; ownership assignment; lever pulling.
 
-## 15 Happiness & Morale — `15-happiness-and-morale.md`
+## 15 Happiness & Morale — [`15-happiness-and-morale.md`](15-happiness-and-morale.md)
 
 **Purpose.** Make dwarves' lives matter to the fortress without letting misery snowball.
 
@@ -295,7 +295,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Mood panel; dwarf inspection thoughts list with values; status bar hearth glyph colored by hall spirit.
 
-## 16 Combat — `16-combat.md`
+## 16 Combat — [`16-combat.md`](16-combat.md)
 
 **Purpose.** Resolve violence between creatures with legible rules.
 
@@ -312,7 +312,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Military panel (squads, members, equipment sets, schedules); alert selector; kill and station orders; the combat log.
 
-## 17 Health & Medicine — `17-health-and-medicine.md`
+## 17 Health & Medicine — [`17-health-and-medicine.md`](17-health-and-medicine.md)
 
 **Purpose.** Turn wounds into consequences and give the player a way to heal them.
 
@@ -329,7 +329,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Hospital zone; health tab in creature inspection; the medic position; coffins and tombs.
 
-## 18 Threats — `18-threats-monsters-and-raids.md`
+## 18 Threats — [`18-threats-monsters-and-raids.md`](18-threats-monsters-and-raids.md)
 
 **Purpose.** Bring danger on a schedule the player can read, scaled by the region's peril and the fortress's success.
 
@@ -346,7 +346,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Warning announcements; the threats panel (current parties, next expected pressure level); the Deep gauge.
 
-## 19 Defense & Traps — `19-defense-and-traps.md`
+## 19 Defense & Traps — [`19-defense-and-traps.md`](19-defense-and-traps.md)
 
 **Purpose.** Let the map be a weapon.
 
@@ -362,7 +362,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Trap and mechanism building; link editor; lever pull command; alert selector.
 
-## 20 Trade & Caravans — `20-trade-and-caravans.md`
+## 20 Trade & Caravans — [`20-trade-and-caravans.md`](20-trade-and-caravans.md)
 
 **Purpose.** Bring the outside world to the depot four times a year, and give the fortress a use for its wealth.
 
@@ -379,7 +379,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Trade screen at the depot; request list; reputation shown in the civilizations panel.
 
-## 21 Immigration — `21-immigration.md`
+## 21 Immigration — [`21-immigration.md`](21-immigration.md)
 
 **Purpose.** Grow the fortress as a reward for keeping it happy and prosperous.
 
@@ -394,7 +394,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Announcement; population cap setting; the new dwarves in the units panel.
 
-## 22 Pathfinding & Spatial — `22-pathfinding-and-spatial.md`
+## 22 Pathfinding & Spatial — [`22-pathfinding-and-spatial.md`](22-pathfinding-and-spatial.md)
 
 **Purpose.** Answer "can this creature get there, and how" quickly and deterministically for hundreds of creatures.
 
@@ -409,7 +409,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** None directly; unreachable jobs show the reason in the jobs panel.
 
-## 23 Rendering — `23-rendering.md`
+## 23 Rendering — [`23-rendering.md`](23-rendering.md)
 
 **Purpose.** Draw the world and the interface as colored glyphs, fast, on one canvas.
 
@@ -425,7 +425,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Player touchpoints.** Everything visible.
 
-## 24 UI & Input — `24-ui-and-input.md`
+## 24 UI & Input — [`24-ui-and-input.md`](24-ui-and-input.md)
 
 **Purpose.** Give the player every action by keyboard and by mouse, and every fact by inspection.
 

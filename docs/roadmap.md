@@ -4,7 +4,7 @@
 
 The specification is delivered in four waves. Each wave is one commit on `master`. Each later wave adds detail without contradicting an earlier one; where a later wave must change an earlier decision, the change is called out in the commit message and the earlier document is updated in the same commit.
 
-## Wave 1 — Foundation (this commit)
+## Wave 1 — Foundation (done)
 
 - `README.md` — index, conventions, wave status.
 - `00-vision/` — vision, player experience, glossary, scope and traceability.
@@ -12,9 +12,9 @@ The specification is delivered in four waves. Each wave is one commit on `master
 - `02-systems/README.md` — the fixed list of systems with order, cadence, ownership and one-page summaries.
 - `roadmap.md` — this file.
 
-## Wave 2 — System designs
+## Wave 2 — System designs (done)
 
-Adds the rest of `01-architecture/`:
+Added the rest of `01-architecture/`:
 
 - `simulation-core.md` — the tick loop in full, the scheduler, the frame loop and catch-up policy, rng streams, calendar, event and command queues, determinism tests.
 - `data-model.md` — `Map3D` layout bit by bit, the entity store, every component type with its owner, ids, chunks, dirty flags.
@@ -24,7 +24,7 @@ Adds the rest of `01-architecture/`:
 - `performance-budget.md` — per-system tick budget, memory budget, and the mitigation each system uses.
 - `extension-guide.md` — step-by-step recipes for adding a material, a creature, a recipe, a building, a system, a panel.
 
-Adds one design document per system in `02-systems/` (`01-world-generation.md` through `24-ui-and-input.md`). Each follows the section order in `README.md` and decides every mechanic: all rules, all state, all interfaces, all player-facing behavior, all extension points. Numbers that are tuning rather than structure are named as constants and given values in Wave 3.
+Added one design document per system in `02-systems/` (`01-world-generation.md` through `24-ui-and-input.md`). Each follows the section order in `README.md` and decides every mechanic: all rules, all state, all interfaces, all player-facing behavior, all extension points. Numbers that are tuning rather than structure are named as constants and given values in Wave 3.
 
 ## Wave 3 — Content and balance
 
