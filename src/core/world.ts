@@ -1,0 +1,274 @@
+/**
+ * The world and the tick.
+ *
+ * Implements `01-architecture/simulation-core.md` § The tick and `04-implementation/tick-order.md`:
+ * commands, systems in order, the connectivity rebuild, event dispatch, then `calendar.advance()`.
+ */
+
+import { Calendar } from './calendar';
+import { CommandLog, CommandQueue, ownerOf, reject, type Command, type CommandResult } from './commands';
+import { EventListeners, EventQueue, type EventListener, type GameEvent, type Unsubscribe } from './events';
+import { Map3D, type Designation, type TileFlag, type TileKind } from './map3d';
+import { POPULATION_CAP_DEFAULT } from './constants';
+import { ReaderSet } from './readers';
+import { Registrations, NO_JOBS_API, NO_SPAWN_API, type Clock, type GameSystem, type InitContext, type SystemId, type TerrainApi, type TickContext } from './system';
+import { RngStream, seedFor } from './rng';
+import { Scheduler, isDue } from './scheduler';
+import { createEntityStore, type FortressState } from './components';
+import type { EntityStore } from './entities';
+import type { Registry } from './registry';
+import type { Tick, TileIndex } from './types';
+
+export interface WorldOptions {
+  readonly seed: string;
+  readonly registry: Registry;
+  readonly map?: Map3D;
+  readonly startTick?: Tick;
+  readonly fortressName?: string;
+  /** From the platform; `core` never reads a wall clock itself. */
+  readonly now?: Clock;
+}
+
+export interface HostStats {
+  tick: number;
+  lastTickMs: number;
+  systems: readonly { id: SystemId; lastMs: number; totalMs: number; runs: number }[];
+}
+
+export function defaultFortressState(name = 'Deepholm'): FortressState {
+  return {
+    name,
+    embarkTick: 0,
+    regionId: 0,
+    wealthCached: 0,
+    populationCached: 0,
+    hallSpiritCached: 0,
+    alert: 'calm',
+    deepPressure: 0,
+    deepLevel: 0,
+    reputation: { mountainhome: 0, hillfolk: 0, wildwood: 0, gloam: 0 },
+    populationCap: POPULATION_CAP_DEFAULT,
+    milestones: [],
+    hintsShown: [],
+    deepsilverConfirmed: false,
+  };
+}
+
+/**
+ * The sanctioned tile mutation path of `data-model.md` § Terrain API. In M0 the core owns it;
+ * 03 terrain takes it over in M1 and batches the `TilesChanged` events it accumulates here.
+ */
+class CoreTerrainApi implements TerrainApi {
+  private readonly changed: TileIndex[] = [];
+
+  constructor(private readonly map: Map3D) {}
+
+  setKind(i: TileIndex, kind: TileKind, material: number): void {
+    if (!this.map.validIndex(i)) throw new RangeError(`tile index out of range: ${i}`);
+    this.map.setKind(i, kind, material);
+    this.changed.push(i);
+  }
+
+  setFlag(i: TileIndex, flag: TileFlag, value: boolean): void {
+    if (!this.map.validIndex(i)) throw new RangeError(`tile index out of range: ${i}`);
+    this.map.setFlag(i, flag, value);
+    this.changed.push(i);
+  }
+
+  setDesignation(i: TileIndex, kind: Designation, priority: number): void {
+    if (!this.map.validIndex(i)) throw new RangeError(`tile index out of range: ${i}`);
+    this.map.setDesignation(i, kind, priority);
+    this.changed.push(i);
+  }
+
+  /** One batched `TilesChanged` per tick, per `simulation-core.md` § Events. */
+  flush(emit: (event: GameEvent) => void): void {
+    if (this.changed.length === 0) return;
+    const tiles = Array.from(new Set(this.changed)).sort((a, b) => a - b);
+    this.changed.length = 0;
+    emit({ type: 'TilesChanged', tiles });
+  }
+}
+
+export class World {
+  readonly seed: string;
+  readonly registry: Registry;
+  readonly map: Map3D;
+  readonly entities: EntityStore;
+  readonly calendar: Calendar;
+  readonly fortress: FortressState;
+  readonly events = new EventQueue();
+  readonly commands = new CommandQueue();
+  readonly commandLog = new CommandLog();
+  readonly listeners = new EventListeners();
+  readonly readers: ReaderSet;
+  readonly registrations = new Registrations();
+  readonly scheduler: Scheduler;
+
+  private readonly rngStreams = new Map<SystemId, RngStream>();
+  private readonly terrainApi: CoreTerrainApi;
+  private readonly now: Clock;
+  private initialised = false;
+  private lastTickMs = 0;
+
+  /** Called between step 2 and step 3; 22 installs the connectivity rebuild here (T-M0-09). */
+  connectivityPass: (() => void) | null = null;
+
+  constructor(options: WorldOptions) {
+    this.seed = options.seed;
+    this.registry = options.registry;
+    this.map = options.map ?? new Map3D();
+    this.entities = createEntityStore();
+    this.calendar = new Calendar(options.startTick ?? 0);
+    this.fortress = defaultFortressState(options.fortressName);
+    this.now = options.now ?? ((): number => 0);
+    this.scheduler = new Scheduler(this.now);
+    this.readers = new ReaderSet(this.map, this.entities, this.calendar, this.fortress);
+    this.terrainApi = new CoreTerrainApi(this.map);
+    // `data-model.md` § Store API says `destroy` queues a `DestroyedEntity` event, but the Wave 4
+    // event catalog has no such type; the owning systems emit `ItemDestroyed` / `CreatureDied`
+    // instead. See the contradiction C-001 in DECISIONS.md.
+  }
+
+  /** `simulation-core.md` § Random numbers: one persistent stream per system. */
+  rngFor(systemId: SystemId): RngStream {
+    const existing = this.rngStreams.get(systemId);
+    if (existing !== undefined) return existing;
+    const stream = new RngStream(seedFor(this.seed, systemId));
+    this.rngStreams.set(systemId, stream);
+    return stream;
+  }
+
+  /** The saved state of every stream, in id order. */
+  rngState(): { id: SystemId; state: ReturnType<RngStream['state']> }[] {
+    return Array.from(this.rngStreams.keys())
+      .sort()
+      .map((id) => ({ id, state: (this.rngStreams.get(id) as RngStream).state() }));
+  }
+
+  addSystem(system: GameSystem): void {
+    if (this.initialised) throw new Error('systems must be added before init()');
+    this.scheduler.add(system);
+  }
+
+  /** `simulation-core.md` § Startup sequence step 3. */
+  init(): void {
+    if (this.initialised) return;
+    for (const system of this.scheduler.inOrder()) {
+      system.init(this.initContext(system));
+      this.readers.register(system.id, system.reader());
+    }
+    this.initialised = true;
+  }
+
+  private initContext(system: GameSystem): InitContext {
+    return {
+      world: this,
+      registry: this.registry,
+      rng: this.rngFor(system.id),
+      readers: this.readers,
+      register: this.registrations,
+    };
+  }
+
+  private tickContext(system: GameSystem): TickContext {
+    return {
+      ...this.initContext(system),
+      tick: this.calendar.tick,
+      emit: (event: GameEvent) => this.events.emit(event),
+      terrain: this.terrainApi,
+      jobs: NO_JOBS_API,
+      spawn: NO_SPAWN_API,
+    };
+  }
+
+  /** Queue a command; it is applied at the start of the next tick. */
+  submit(command: Command): void {
+    this.commands.submit(command);
+  }
+
+  onEvents(listener: EventListener): Unsubscribe {
+    return this.listeners.add(listener);
+  }
+
+  /** The whole simulation tick, exactly as `tick-order.md` sequences it. */
+  step(): void {
+    const started = this.now();
+    const tick = this.calendar.tick;
+
+    // 1. Commands, FIFO, before any system ticks.
+    for (const command of this.commands.drain()) {
+      const result = this.applyCommand(command);
+      this.commandLog.append(tick, command, result);
+      if (!result.ok) {
+        this.events.emit({ type: 'CommandRejected', command, reason: result.reason });
+      }
+    }
+
+    // 2. Systems, in the fixed order, when their cadence and phase are due.
+    for (const system of this.scheduler.inOrder()) {
+      if (!isDue(tick, system.cadence, system.phase)) continue;
+      const ctx = this.tickContext(system);
+      this.scheduler.runTick(system, () => system.tick(ctx));
+    }
+    this.terrainApi.flush((event) => this.events.emit(event));
+
+    // 3. Connectivity rebuild for dirty chunks (22).
+    this.connectivityPass?.();
+
+    // 4. Events: the batch queued in steps 1-3, delivered to subscribers in system order and then
+    //    to the presentation listeners. Anything emitted now stays for the next tick.
+    const batch = this.events.drain();
+    for (const event of batch) {
+      for (const system of this.scheduler.subscribersTo(event.type)) {
+        system.handle(event, this.tickContext(system));
+      }
+    }
+    this.events.seal();
+    try {
+      this.listeners.deliver(batch);
+    } finally {
+      this.events.unseal();
+    }
+
+    // 5. Calendar: tick++, boundary events queued for the next tick's dispatch.
+    this.calendar.advance((event) => this.events.emit(event));
+
+    this.lastTickMs = this.now() - started;
+  }
+
+  /** Run `n` ticks synchronously. */
+  run(n: number): void {
+    for (let i = 0; i < n; i += 1) this.step();
+  }
+
+  /**
+   * Route a command to its owning system. `core` commands are handled here; a command whose owner
+   * is not registered is rejected with `not_found` rather than silently dropped.
+   */
+  applyCommand(command: Command): CommandResult {
+    const owner = ownerOf(command.type);
+    if (owner === 'core') return this.applyCoreCommand(command);
+    const system = this.scheduler.byId(owner);
+    if (system === undefined) return reject('not_found');
+    if (!system.ownsCommands.includes(command.type)) return reject('not_found');
+    return system.applyCommand(command, this.tickContext(system));
+  }
+
+  /** The core owns exactly one command: `RenameFortress` (command-catalog.md). */
+  private applyCoreCommand(command: Command): CommandResult {
+    if (command.type !== 'RenameFortress') return reject('not_found');
+    const name = command['name'];
+    if (typeof name !== 'string' || name.length < 1 || name.length > 32) return reject('bad_name');
+    this.fortress.name = name;
+    return { ok: true };
+  }
+
+  stats(): HostStats {
+    return {
+      tick: this.calendar.tick,
+      lastTickMs: this.lastTickMs,
+      systems: this.scheduler.stats(),
+    };
+  }
+}
