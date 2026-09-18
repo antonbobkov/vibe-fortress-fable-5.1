@@ -194,6 +194,11 @@ export class JobBoard implements JobsApi, JobSink {
     for (const n of map.neighbors8(target)) {
       if (this.readers.pathing.passable(n, 'walker', FORTRESS_WALKER)) out.push(n);
     }
+    // A producer may add stand tiles its rules allow (03: the stairs above a stairwell tile).
+    const producer = this.producers.find((p) => p.id === job.producer);
+    for (const extra of producer?.extraStandTiles?.(job) ?? []) {
+      if (!out.includes(extra) && this.readers.pathing.passable(extra, 'walker', FORTRESS_WALKER)) out.push(extra);
+    }
     return out.sort((a, b) => a - b);
   }
 

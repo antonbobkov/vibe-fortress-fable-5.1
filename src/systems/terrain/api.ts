@@ -82,6 +82,8 @@ export class TerrainCore implements TerrainApi {
   private readonly litDirty: Uint8Array;
   private readonly supportQueue: number[] = [];
   private settling = false;
+  /** Bumped on every designation change; 03's job producer reconciles when it moves. */
+  designationsVersion = 0;
 
   constructor(host: TerrainHost) {
     this.host = host;
@@ -124,6 +126,7 @@ export class TerrainCore implements TerrainApi {
     this.map.setDesignation(i, kind, priority);
     sortedInsert(this.designated, i);
     this.changed.push(i);
+    this.designationsVersion += 1;
   }
 
   clearDesignation(i: TileIndex): void {
@@ -132,6 +135,7 @@ export class TerrainCore implements TerrainApi {
     this.map.setDesignation(i, Designation.None, 0);
     sortedRemove(this.designated, i);
     this.changed.push(i);
+    this.designationsVersion += 1;
   }
 
   /** Change several tiles as one action (a transition), then settle support once. */

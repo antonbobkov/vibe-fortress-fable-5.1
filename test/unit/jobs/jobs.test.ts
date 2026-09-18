@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { HeadlessGame, FLAT_TEST_LAYERS, FLAT_TEST_SPEC } from '@app/headless';
+import { HeadlessGame } from '@app/headless';
 import { C } from '@core/components';
 import { PRIORITY_DEFAULT, TICKS_PER_YEAR } from '@core/constants';
 import type { GameEvent } from '@core/events';
@@ -24,7 +24,6 @@ import {
 } from '@systems/jobs';
 import * as J from '@systems/jobs/constants';
 import * as D from '@systems/dwarves/constants';
-import { TerrainSystem } from '@systems/terrain';
 import { tuningConstants } from '../system-constants';
 
 describe('T-M1-08 jobs: tuning constants', () => {
@@ -167,7 +166,8 @@ function rig(): Rig {
   const g = new HeadlessGame({
     seed: 'jobs-test',
     world: 'flat-test',
-    systems: [new TerrainSystem({ spec: FLAT_TEST_SPEC, layerStack: FLAT_TEST_LAYERS }), jobs, driver],
+    // No 03: its own `terrain` producer would answer for the test producer's jobs.
+    systems: [jobs, driver],
   });
   const terrain = new TestProducer('terrain');
   const items = new TestProducer('items');

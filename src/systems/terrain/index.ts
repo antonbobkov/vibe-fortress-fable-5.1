@@ -27,12 +27,15 @@ import {
   type CommandHost,
 } from './commands';
 import { TerrainFacts } from './facts';
+import { TerrainProducer } from './producer';
 import { makeReader, type TerrainReader } from './reader';
 import type { Engraving, TerrainStateV1 } from './state';
 import type { StackLayer } from './generate/common';
 
 export { TerrainCore, cavernAt, CAVERN_BANDS, type IntendedDrop } from './api';
 export { TerrainFacts } from './facts';
+export { TerrainProducer, JOB_TYPE_OF, jobKey, workTileOf, workCentiTicksFor } from './producer';
+export { rollQuality } from './rules/engrave';
 export { UNKNOWN_ROCK, type TerrainReader, type TileInspection } from './reader';
 export { designationOf, stairwellTiles, type TrafficMode } from './commands';
 export * from './rules/transitions';
@@ -74,6 +77,8 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
 
   private readonly options: TerrainOptions;
   private coreRef: TerrainCore | null = null;
+  /** 03's job producer (T-M1-10). */
+  producer: TerrainProducer | null = null;
   private readerRef: TerrainReader | null = null;
   private commandHost: CommandHost | null = null;
   private rng: RngStream | null = null;
@@ -121,6 +126,11 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     world.services.terrain = core;
     this.commandHost = { core, fortress: world.fortress, progressOf: (tile) => this.progressOf(tile) };
     this.readerRef = makeReader(core, () => this.specValue, (tile) => this.progressOf(tile));
+    // `03` § Registrations: job producer `terrain` (designation jobs, T-M1-10).
+    const producer = new TerrainProducer(core, ctx.readers, ctx.rng);
+    this.producer = producer;
+    this.progressOf = (tile) => producer.progressOf(tile);
+    ctx.register.jobProducer(producer);
     ctx.register.inspector('tile', { id: 'tile', order: 0 });
     ctx.register.overlay({ id: 'designations', label: 'Designations', defaultOn: true });
   }

@@ -131,6 +131,8 @@ export interface JobProducer {
   onComplete?(job: unknown, ctx: TickContext): void;
   /** The work time of a job in hundredths of a tick, when the producer computes it (`jobs.md`). */
   workCentiTicks?(job: unknown): number;
+  /** Stand tiles a job allows besides the `adjacent` 8-neighbours (D-058). */
+  extraStandTiles?(job: unknown): readonly TileIndex[];
 }
 
 export interface RecipeSet {

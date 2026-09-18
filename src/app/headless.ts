@@ -63,10 +63,11 @@ function materialIndex(registry: Registry, id: string): number {
  * Columns follow `local-map-generation.md` § 3 with `top = FLAT_TEST_SURFACE_Z` everywhere and no
  * undulation: the Sea of Fire fills z ≤ `MAGMA_SEA_TOP_Z` behind a basalt rim and cap, granite
  * fills the rock, the top three solid levels are soil, and the topmost solid tile becomes the
- * walkable `Floor`. There is no river, no lake and no cavern; see DECISIONS.md D-027.
+ * walkable `Floor`. There is no river, no lake and no cavern; see DECISIONS.md D-027. A smaller
+ * `w × h` builds the same columns on a compact map, for statistical scenarios (D-059).
  */
-export function buildFlatTestMap(registry: Registry = contentRegistry()): Map3D {
-  const map = new Map3D(LOCAL_MAP_W, LOCAL_MAP_H, LOCAL_MAP_Z);
+export function buildFlatTestMap(registry: Registry = contentRegistry(), w: number = LOCAL_MAP_W, h: number = LOCAL_MAP_H): Map3D {
+  const map = new Map3D(w, h, LOCAL_MAP_Z);
   const stone = materialIndex(registry, FLAT_TEST_STONE);
   const soil = materialIndex(registry, FLAT_TEST_SOIL);
   const shell = materialIndex(registry, FLAT_TEST_MAGMA_SHELL);
