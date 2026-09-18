@@ -62,6 +62,8 @@ export interface TerrainHost {
   emit(event: GameEvent): void;
   /** Entities standing on a tile (the spatial index). */
   entitiesAt(i: TileIndex): readonly EntityId[];
+  /** `ctx.spawn.item` for a dropped item, by content ids (T-M1-11). */
+  spawnItem?(type: string, material: number | string, count: number, tile: TileIndex): void;
 }
 
 /** The live state of 03: designations, engravings, the forbidden set, breaches and found veins. */
@@ -293,6 +295,7 @@ export class TerrainCore implements TerrainApi {
    */
   drop(type: string, material: number | string, count: number, tile: TileIndex, reason: string): void {
     this.drops.push({ type, material, count, tile, tick: this.host.tick(), reason });
+    this.host.spawnItem?.(type, material, count, tile);
   }
 
   // ---------- discovery ----------

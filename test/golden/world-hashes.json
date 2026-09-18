@@ -6,14 +6,14 @@
     "test-3|64": "01d22ac05b29cd63"
   },
   "flatTest": {
-    "embark": "none",
+    "embark": "default",
     "ticks": {
-      "deepholm|0": "2450ee7753110fc0",
-      "deepholm|1000": "af1e780f470d0f68",
-      "deepholm|5000": "dd10a32f16fd0e08",
-      "emberhall|0": "7aeca475ba92e320",
-      "emberhall|1000": "59c5f46d4f8c9c18",
-      "emberhall|5000": "5e3030cda3737ff8"
+      "deepholm|0": "38083aa6b03088c2",
+      "deepholm|1000": "74f159520aa55214",
+      "deepholm|5000": "c85d5ae957e94275",
+      "emberhall|0": "89a7a7697ced5d46",
+      "emberhall|1000": "19429f6920516415",
+      "emberhall|5000": "ddfff93a459b780c"
     }
   },
   "localMaps": {

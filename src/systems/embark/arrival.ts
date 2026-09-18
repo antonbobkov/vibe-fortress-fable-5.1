@@ -8,7 +8,6 @@
  * {@link ArrivalResult.supplies} and {@link ArrivalResult.logDrops}.
  */
 
-import { C } from '@core/components';
 import { START_HOUR, TICKS_PER_HOUR, TICKS_PER_YEAR } from '@core/constants';
 import { isSolidBottomed, TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { Registry } from '@core/registry';
@@ -16,6 +15,7 @@ import type { World } from '@core/world';
 import type { EntityId, Edge, TileIndex } from '@core/types';
 import type { DwarfRecord } from '@systems/dwarves/rules/make-dwarf';
 import { dwarfComponents } from '@systems/dwarves/rules/components';
+import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import { ARRIVAL_SEARCH_DEPTH } from './constants';
 import type { LocalMapSpec } from './spec';
 import type { SupplyLine } from './party';
@@ -134,64 +134,33 @@ export function tilesAroundWagon(map: Map3D, site: WagonSite, want: number): Til
 }
 
 /**
- * Creates one dwarf entity at a tile. The spawn API (`module-interfaces.md` § The spawn API) is
- * T-M1-11's; until then {@link basicDwarfSpawner} stands in (DECISIONS.md D-044).
+ * Creates one dwarf entity at a tile (`02` § Arrival step 5: "Spawn the dwarves adjacent to the
+ * wagon with all labors enabled").
  */
 export type DwarfSpawner = (dwarf: DwarfRecord, at: TileIndex, title: 'none' | 'thane') => EntityId;
 
 interface SpeciesRow {
   readonly id: string;
-  readonly plan: string;
-  readonly size: number;
 }
 
 /**
- * The stand-in spawner: a `creature` with `Position`, `Creature`, 10's components
- * (`dwarfComponents`), `Motion`, `Worker` and `Labors` (every labor on, step 5), from the record. `onPlaced` lets
- * the host index the new position (the headless game's spatial index).
+ * The dwarf spawner of the arrival: `ctx.spawn.creature` (`module-interfaces.md` § The spawn API,
+ * T-M1-11) with 10's components built from the record by `dwarfComponents`, the sleep hour drawn
+ * from 10's stream (D-057). It replaces the stand-in of D-044.
  */
-export function basicDwarfSpawner(
-  world: World,
-  onPlaced: (id: EntityId, at: TileIndex) => void = () => {},
-): DwarfSpawner {
+export function spawnApiDwarfSpawner(world: World): DwarfSpawner {
   const registry: Registry = world.registry;
   const species = registry.table<SpeciesRow>('creatures');
-  const dwarf = species.byId('dwarf');
-  if (dwarf === undefined) throw new RangeError('content has no dwarf species');
-  const labors = registry.table('labors');
-  return (record, at, title) => {
-    const e = world.entities;
-    const id = e.create('creature');
-    const map = world.map;
-    e.add(id, C.Position, { x: map.xOf(at), y: map.yOf(at), z: map.zOf(at) });
-    e.add(id, C.Creature, {
-      species: species.index('dwarf'),
+  if (species.byId('dwarf') === undefined) throw new RangeError('content has no dwarf species');
+  const dwarf = species.index('dwarf');
+  return (record, at, title) =>
+    world.services.spawn.creature(dwarf, at, 'fortress', {
       name: record.name,
       sex: record.sex,
       ageTicks: record.ageYears * TICKS_PER_YEAR,
-      faction: 'fortress',
-      sizeClass: dwarf.size,
-      bodyPlan: registry.table('bodyPlans').index(dwarf.plan),
+      child: record.ageYears < ADULT_AGE_YEARS,
+      dwarf: dwarfComponents(record, registry, world.rngFor('10'), title),
     });
-    // 10's components (T-M1-09): Attributes, Skills, Needs, Personality, Schedule, Relationships,
-    // Title and Brain, the sleep hour drawn from 10's stream (D-057).
-    const parts = dwarfComponents(record, registry, world.rngFor('10'), title);
-    e.add(id, C.Attributes, parts.attributes);
-    e.add(id, C.Skills, parts.skills);
-    e.add(id, C.Needs, parts.needs);
-    e.add(id, C.Personality, parts.personality);
-    e.add(id, C.Schedule, parts.schedule);
-    e.add(id, C.Relationships, parts.relationships);
-    e.add(id, C.Title, parts.title);
-    e.add(id, C.Brain, parts.brain);
-    e.add(id, C.Motion, { pathId: 0, stepIndex: 0, progress: 0, speed: 0, movementClass: 'walker', repathCount: 0, waitUntil: 0 });
-    e.add(id, C.Worker, { jobId: 0, phase: 0, carrying: 0, toolId: 0 });
-    const enabled = new Uint8Array(((labors.size + 1) >> 3) + 1);
-    for (let k = 1; k <= labors.size; k += 1) enabled[k >> 3] = (enabled[k >> 3] as number) | (1 << (k & 7));
-    e.add(id, C.Labors, { enabled });
-    onPlaced(id, at);
-    return id;
-  };
 }
 
 export interface ArrivalOptions {
@@ -222,7 +191,7 @@ export function arrive(world: World, spec: LocalMapSpec, party: readonly DwarfRe
   const tiles = tilesAroundWagon(map, wagon, party.length);
   if (tiles.length < party.length) throw new Error('arrival: not enough walkable tiles around the wagon');
   const thane = thaneIndex(party.map((d) => d.attributes.cha));
-  const spawn = options.spawnDwarf ?? basicDwarfSpawner(world);
+  const spawn = options.spawnDwarf ?? spawnApiDwarfSpawner(world);
   const dwarves = party.map((d, k) =>
     spawn({ ...d, needs: ARRIVAL_NEEDS }, tiles[k] as TileIndex, k === thane ? 'thane' : 'none'),
   );

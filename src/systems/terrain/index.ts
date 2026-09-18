@@ -110,6 +110,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     const world = ctx.world;
     const facts = new TerrainFacts(ctx.registry);
     const materials = ctx.registry.table('materials');
+    const items = ctx.registry.table('items');
     this.registryMaterials = (id) => materials.index(id);
     this.layerStack = (this.options.layerStack ?? []).map((l) => ({ material: materials.index(l.material), thickness: l.thickness }));
     this.rng = ctx.rng;
@@ -121,6 +122,11 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
       tick: () => world.calendar.tick,
       emit: (event) => world.emit(event),
       entitiesAt: (i) => ctx.readers.entities.at(i),
+      // `03` § Digging as a job: "spawn the item on the tile" through the spawn API (T-M1-11).
+      spawnItem: (type, material, count, tile) => {
+        const m = typeof material === 'number' ? material : materials.has(material) ? materials.index(material) : 0;
+        world.services.spawn.item(items.index(type), m, tile, count);
+      },
     });
     this.coreRef = core;
     world.services.terrain = core;

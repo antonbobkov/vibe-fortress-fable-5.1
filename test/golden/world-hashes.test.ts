@@ -3,8 +3,9 @@
  *
  * `world-hashes.json` holds `{ seed, size } -> hash of WorldMap` (seeds `test-1`, `test-2`,
  * `test-3` at the standard size, T-M1-03) and `{ seed, ticks } -> hash of the world after N ticks of `flat-test` with no commands,
- * for N in {0, 1000, 5000}`. The embark is `none` while T-M1-04 has not built one; the file
- * records which embark its values were taken with.
+ * for N in {0, 1000, 5000}` with the default embark (the Balanced preset). Since T-M1-11 the arrival
+ * spawns through the spawn API, so the runs take the default embark; the file records which embark
+ * its values were taken with.
  *
  * The file is rewritten only by `npm run golden:update -- world-hashes`, which sets
  * DEEPHOLM_GOLDEN_UPDATE and re-runs this test.
@@ -59,6 +60,8 @@ function worldMapHashes(): Record<string, string> {
   return out;
 }
 const TICKS = [0, 1_000, 5_000];
+/** `01-testing-strategy.md` § Golden tests: "with the default embark and no commands" (T-M1-11). */
+const EMBARK = 'default' as const;
 
 const golden = JSON.parse(readFileSync(file, 'utf8')) as GoldenFile;
 const update =
@@ -67,7 +70,7 @@ const update =
 function computed(): Record<string, string> {
   const out: Record<string, string> = {};
   for (const seed of SEEDS) {
-    const hashes = hashesAt({ seed, world: 'flat-test' }, TICKS);
+    const hashes = hashesAt({ seed, world: 'flat-test', embark: EMBARK }, TICKS);
     for (const ticks of TICKS) out[`${seed}|${ticks}`] = hashes.get(ticks) as string;
   }
   return out;
@@ -77,9 +80,10 @@ describe('T-M0-11 golden: world hashes', () => {
   it('the flat-test world hashes match the golden file', () => {
     const now = computed();
     if (update) {
-      const next: GoldenFile = { ...golden, flatTest: { ...golden.flatTest, ticks: now } };
+      const next: GoldenFile = { ...golden, flatTest: { embark: EMBARK, ticks: now } };
       writeFileSync(file, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
       golden.flatTest.ticks = now;
+      golden.flatTest.embark = EMBARK;
     }
     expect(Object.keys(golden.flatTest.ticks).sort()).toEqual(Object.keys(now).sort());
     expect(golden.flatTest.ticks).toEqual(now);
@@ -104,7 +108,7 @@ describe('T-M0-11 golden: world hashes', () => {
     }
     expect(Object.keys(golden.worldMaps).sort()).toEqual(WORLD_SEEDS.map((s) => `${s}|${WORLD_SIZE_STANDARD}`).sort());
     expect(golden.worldMaps).toEqual(now);
-    expect(golden.flatTest.embark).toBe('none');
+    expect(golden.flatTest.embark).toBe(EMBARK);
   });
 
   it('T-M1-06: the generated local map of test-1 region 0 matches the golden file', () => {

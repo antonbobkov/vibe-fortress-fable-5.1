@@ -17,6 +17,7 @@ import { FluidType, Map3D, TileFlag, TileKind } from '@core/map3d';
 import { MovementHelper } from '@core/movement';
 import { PathingCore, type PathfinderOptions, type TerrainHooks } from '@core/pathfinding';
 import { SpatialIndex } from '@core/spatial';
+import { CoreSpawn } from '@core/spawn';
 import { StateHasher } from '@core/serialize';
 import { World, type WorldOptions } from '@core/world';
 import { entityIndex } from '@core/entities';
@@ -26,7 +27,7 @@ import type { Registry } from '@core/registry';
 import {
   EmbarkSession,
   arrive,
-  basicDwarfSpawner,
+  spawnApiDwarfSpawner,
   localMapSpec,
   type ArrivalResult,
   type LocalMapSpec,
@@ -261,6 +262,8 @@ export class HeadlessGame {
   readonly arrival: ArrivalResult | null;
   /** The generation result of a `'local'` world. */
   readonly local: LocalMapResult | null;
+  /** The spawn API of the world (`module-interfaces.md` § The spawn API). */
+  readonly spawn: CoreSpawn;
   /** 03 terrain, when the standard systems are registered. */
   readonly terrain: TerrainSystem | null;
 
@@ -298,6 +301,9 @@ export class HeadlessGame {
     this.world.readers.setTileEntities((i) => this.spatial.at(i));
     // The brains reach the movement helper through the world's services (D-049).
     this.world.services.movement = this.movement;
+    // The spawn API (T-M1-11): creatures through the movement helper; items recorded until M2.
+    this.spawn = new CoreSpawn(map, this.world.entities, this.registry, this.movement, () => this.world.calendar.tick);
+    this.world.services.spawn = this.spawn;
 
     // The core phase between steps 2 and 3 of `tick-order.md`: the brains have run, so the move
     // batch goes out, the path queue is served within its budget, and the dirty chunks are
@@ -338,7 +344,7 @@ export class HeadlessGame {
     return arrive(this.world, spec, session.party, {
       fortressName: fortressName ?? this.world.fortress.name,
       supplies: session.supplies,
-      spawnDwarf: basicDwarfSpawner(this.world, (id, at) => this.spatial.insert(id, at)),
+      spawnDwarf: spawnApiDwarfSpawner(this.world),
     });
   }
 

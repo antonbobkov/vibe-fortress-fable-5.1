@@ -11,6 +11,10 @@ import { HeadlessGame, type HeadlessOptions } from '@app/headless';
 import { NotYetImplementedError } from '@core/system';
 import { C } from '@core/components';
 import { cumulativeXp } from '@systems/dwarves/rules/skills';
+import { dwarfComponents } from '@systems/dwarves/rules/components';
+import { makeDwarf } from '@systems/dwarves/rules/make-dwarf';
+import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
+import { TICKS_PER_YEAR } from '@core/constants';
 import { TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { Command } from '@core/commands';
 import type { GameEvent } from '@core/events';
@@ -168,12 +172,31 @@ export class TestWorld {
 
   // ---------- helpers whose subsystem arrives later ----------
 
-  spawnDwarf(): never {
-    throw new NotYetImplementedError('TestWorld.spawnDwarf', 'T-M1-11');
+  /**
+   * `spawnDwarf(opts)`: a new dwarf from `makeDwarf` (this world's own `testworld` stream), through
+   * the spawn API, on `at` (the first surface floor of column (48, 48) by default). T-M1-11.
+   */
+  spawnDwarf(opts: { at?: TileIndex; skills?: Record<string, number>; name?: string; ageYears?: number } = {}): EntityId {
+    const game = this.game;
+    const registry = game.registry;
+    const taken = new Set<string>();
+    for (const id of game.world.entities.with(C.Brain, C.Creature)) taken.add(game.world.entities.get(id, C.Creature)?.name ?? '');
+    const record = makeDwarf(game.world.rngFor('testworld'), registry, { taken, skills: opts.skills ?? {} });
+    if (opts.name !== undefined) record.name = opts.name;
+    if (opts.ageYears !== undefined) record.ageYears = opts.ageYears;
+    const at = opts.at ?? this.map.index(48, 48, this.map.columnSurfaceZ(48, 48));
+    return game.world.services.spawn.creature(registry.table('creatures').index('dwarf'), at, 'fortress', {
+      name: record.name,
+      sex: record.sex,
+      ageTicks: record.ageYears * TICKS_PER_YEAR,
+      child: record.ageYears < ADULT_AGE_YEARS,
+      dwarf: dwarfComponents(record, registry, game.world.rngFor('10'), 'none'),
+    });
   }
 
-  spawnCreature(): never {
-    throw new NotYetImplementedError('TestWorld.spawnCreature', 'T-M1-11');
+  /** `spawnCreature(species, at, faction)` through the spawn API. T-M1-11. */
+  spawnCreature(species: string, at: TileIndex, faction: string): EntityId {
+    return this.game.world.services.spawn.creature(this.game.registry.table('creatures').index(species), at, faction);
   }
 
   spawnItem(): never {
