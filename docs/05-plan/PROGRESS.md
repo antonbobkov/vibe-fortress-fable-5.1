@@ -1,6 +1,6 @@
 # Progress
 
-current-milestone: 1
+current-milestone: 2
 
 Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agent, date). Agents edit this file in the same commit as the task. Sub-tasks added by splitting go directly under their parent.
 
@@ -38,7 +38,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M1-13 — Embark screen (opus-m1, 2026-09-18)
 - [x] T-M1-14 — Designate tool, look panel, log strip, status bar (opus-m1, 2026-09-18)
 - [x] T-M1-15 — Compositor: creatures and designation/zone overlays (opus-m1, 2026-09-18)
-- [ ] T-M1-16 — Gate M1
+- [x] T-M1-16 — Gate M1 (opus-m1, 2026-09-18)
 
 ## M2 — Things ([M2-things.md](M2-things.md))
 

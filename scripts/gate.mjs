@@ -49,6 +49,11 @@ const COVERAGE_GATES = [
 /** Reported without a threshold, because the strategy documents none for them (D-037). */
 const COVERAGE_REPORTED = ['src/app', 'src/content', 'src/platform'];
 
+/** Remove ANSI escape sequences (colours) from a runner's output. */
+function stripAnsi(text) {
+  return text.replace(new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g'), '');
+}
+
 function run(step) {
   const args = ['run', step.script, ...(step.args ? ['--', ...step.args] : [])];
   const started = Date.now();
@@ -58,8 +63,10 @@ function run(step) {
     shell: process.platform === 'win32',
   });
   const ms = Date.now() - started;
-  const output = `${res.stdout ?? ''}${res.stderr ?? ''}`;
-  process.stdout.write(output);
+  const raw = `${res.stdout ?? ''}${res.stderr ?? ''}`;
+  process.stdout.write(raw);
+  // The runners colour their output when the terminal allows it; the report parses plain text.
+  const output = stripAnsi(raw);
   return { name: step.name, ok: res.status === 0, ms, output };
 }
 
