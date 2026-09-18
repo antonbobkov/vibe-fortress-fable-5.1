@@ -27,7 +27,7 @@ export interface JobsReader {
   laborPriority(labor: string | number): number;
   workersWithLabor(labor: string | number): EntityId[];
   standingOrder(name: string): boolean;
-  /** 13's "wants hauling" set size (M2); 0 until items exist. */
+  /** 13's "wants hauling" set size; 0 without 13. */
   wantsHaulingCount(): number;
   /** The job type id of a job. */
   typeOf(id: number): string | null;
@@ -84,7 +84,7 @@ export function makeReader(board: JobBoard): JobsReader {
     laborPriority: (labor) => board.laborPriorities[laborIdx(labor)] ?? 0,
     workersWithLabor: (labor) => board.workers().filter((w) => board.laborEnabled(w, laborIdx(labor))),
     standingOrder: (name) => board.standingOrders[name] === true,
-    wantsHaulingCount: () => 0,
+    wantsHaulingCount: () => (board.readers.has('13') ? board.readers.of<{ wantsHaulingCount(): number }>('13').wantsHaulingCount() : 0),
     typeOf: (id) => {
       const j = board.jobs.get(id);
       return j === undefined ? null : board.typeId(j);

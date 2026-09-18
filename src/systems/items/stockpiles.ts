@@ -341,7 +341,9 @@ export class StockpileStore {
         }
       }
       const wanted = sp.containersWanted[cls as 'barrel' | 'bag' | 'bin'] ?? 0;
-      if (wanted > this.containersPresent(spId, cls) && (cls === 'barrel' || cls === 'bag' || cls === 'bin')) {
+      const incoming = this.containersPresent(spId, cls) - this.containersIn(spId, cls).length;
+      // A wanted container still to be hauled in, or one on its way: the item waits for it.
+      if ((wanted > this.containersPresent(spId, cls) || incoming > 0) && (cls === 'barrel' || cls === 'bag' || cls === 'bin')) {
         return { needContainer: cls };
       }
       return null;

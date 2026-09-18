@@ -78,9 +78,17 @@ export interface ItemsReader {
   findSlot(stockpileId: EntityId, itemId: EntityId): Slot | ContainerNeeded | null;
   /** The category path an item files under (a drink by its material's group). */
   itemCategory(id: EntityId): string;
+  /** `items.wantsHaulingCount()`: the size of the "wants hauling" set. */
+  wantsHaulingCount(): number;
 }
 
-export function makeReader(core: ItemCore, entities: EntityReader, search: ItemSearch, store: StockpileStore): ItemsReader {
+export function makeReader(
+  core: ItemCore,
+  entities: EntityReader,
+  search: ItemSearch,
+  store: StockpileStore,
+  wantsCount: () => number = () => 0,
+): ItemsReader {
   const facts = core.host.facts;
   const typeOf = (typeId: string | number): number => (typeof typeId === 'number' ? typeId : facts.typeIndex(typeId));
   return {
@@ -130,6 +138,7 @@ export function makeReader(core: ItemCore, entities: EntityReader, search: ItemS
     stockpileAccepts: (sp, id) => store.accepts(sp, id),
     freeSlots: (sp) => store.freeSlots(sp),
     findSlot: (sp, id) => store.findSlot(sp, id),
+    wantsHaulingCount: () => wantsCount(),
     itemCategory: (id) => {
       const it = core.get(id);
       return it === undefined ? '' : store.categoryOf(it);

@@ -36,6 +36,8 @@ export interface ItemFilter {
   type?: number;
   /** Any of these item types (a building input's alternatives, D-012). */
   types?: readonly number[];
+  /** Exactly this item (a haul job's input; D-072). */
+  itemId?: EntityId;
   category?: string;
   tag?: string;
   materialClass?: string;
@@ -68,6 +70,7 @@ export interface SearchHost {
 export function matches(core: ItemCore, id: EntityId, it: Item, filter: ItemFilter): boolean {
   const facts = core.host.facts;
   if (filter.excludeIds !== undefined && filter.excludeIds.includes(id)) return false;
+  if (filter.itemId !== undefined && id !== filter.itemId) return false;
   if (filter.type !== undefined && it.type !== filter.type) return false;
   if (filter.types !== undefined && !filter.types.includes(it.type)) return false;
   const row = facts.types[it.type];
@@ -140,6 +143,7 @@ export class ItemSearch {
     if (!core.host.map.validIndex(from)) return 0;
     const pathing = this.host.pathing();
     const fromLabel = pathing === null ? 1 : pathing.labelOf(from, cls);
+    if (filter.itemId !== undefined) return this.acceptable(filter.itemId, filter, opts, fromLabel, cls) >= 0 ? filter.itemId : 0;
     const spatial = this.host.spatial();
     if (spatial !== null) {
       for (const r of FIND_RADII) {

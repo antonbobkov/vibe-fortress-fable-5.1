@@ -23,6 +23,8 @@ export interface ItemFilter {
   type?: number;
   /** Any of these item types (a superset: building inputs name alternatives; D-070). */
   types?: number[];
+  /** Exactly this item (a superset: a haul job's one input; D-072). */
+  itemId?: EntityId;
   category?: string;
   tag?: string;
   materialClass?: string;

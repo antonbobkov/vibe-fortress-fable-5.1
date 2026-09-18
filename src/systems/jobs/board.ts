@@ -188,7 +188,7 @@ export class JobBoard implements JobsApi, JobSink {
     const map = this.world.map;
     const wt = job.workTile;
     if (typeof wt === 'number') return [wt];
-    const target = job.target.ref;
+    const target = this.anchorTile(job);
     if (!map.validIndex(target)) return [];
     if (wt === 'at') return [target];
     const out: TileIndex[] = [];
@@ -201,6 +201,17 @@ export class JobBoard implements JobsApi, JobSink {
       if (!out.includes(extra) && this.readers.pathing.passable(extra, 'walker', FORTRESS_WALKER)) out.push(extra);
     }
     return out.sort((a, b) => a - b);
+  }
+
+  /**
+   * The tile a job is anchored at, for stand tiles and distances: `data.anchorTile` when a producer
+   * gives one (a building job targets the building's id), a numeric work tile, else the target.
+   */
+  anchorTile(job: Job): TileIndex {
+    const a = job.data['anchorTile'];
+    if (typeof a === 'number') return a;
+    if (typeof job.workTile === 'number') return job.workTile;
+    return job.target.ref;
   }
 
   /** The stand tiles that share the worker's connectivity label. */
@@ -511,7 +522,7 @@ export class JobBoard implements JobsApi, JobSink {
       candidates.push({
         jobId: job.id,
         eff: effectivePriority(job.priority, this.laborPriorities[labor] ?? PRIORITY_DEFAULT),
-        distance: estDistance(at, map.unpack(job.target.ref)),
+        distance: estDistance(at, map.unpack(this.anchorTile(job))),
         skill: this.skillFor(workerId, job),
         workshopWorker: job.data['workshopWorker'] === workerId,
       });

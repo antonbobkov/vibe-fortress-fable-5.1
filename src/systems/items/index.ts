@@ -24,6 +24,7 @@ import {
   type StockpileCommandHost,
 } from './stockpile-commands';
 import { StockpileStore } from './stockpiles';
+import { Hauling, type JobsView } from './hauling';
 import { WEALTH_EVENT_STEP } from './constants';
 import { ItemFacts } from './facts';
 import { makeReader, type ItemsReader } from './reader';
@@ -45,6 +46,8 @@ export {
   type Slot,
   type ContainerNeeded,
 } from './stockpiles';
+
+export { Hauling, haulKey, dumpKey, stripKey } from './hauling';
 
 export const ITEMS_ID = '13';
 
@@ -88,6 +91,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   private search: ItemSearch | null = null;
   private storeRef: StockpileStore | null = null;
   private stockpileHost: StockpileCommandHost | null = null;
+  private haulingRef: Hauling | null = null;
   private readerRef: ItemsReader | null = null;
   private rng: RngStream | null = null;
   private entitiesAt: (i: TileIndex) => readonly number[] = () => [];
@@ -103,8 +107,15 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     return this.storeRef;
   }
 
-  /** A stockpile's filter, containers, priority, links or tiles changed; its items are re-examined (T-M2-04). */
-  protected stockpileChanged(_id: number): void {}
+  get hauling(): Hauling {
+    if (this.haulingRef === null) throw new Error('13 items: used before init');
+    return this.haulingRef;
+  }
+
+  /** A stockpile's filter, containers, priority, links or tiles changed: `noHome` and its items are looked at again. */
+  private stockpileChanged(id: number, tiles?: readonly TileIndex[]): void {
+    this.hauling.stockpileChanged(id, tiles ?? this.stockpiles.tilesOf(id));
+  }
 
   override init(ctx: InitContext): void {
     const world = ctx.world;
@@ -147,12 +158,50 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       pathing: () => (readers.has('pathing') ? readers.pathing : null),
       stockpileAt: (i) => store.stockpileAt(i),
     });
-    this.readerRef = makeReader(core, readers.entities, this.search, store);
+    this.readerRef = makeReader(core, readers.entities, this.search, store, () => this.hauling.wants.length);
+    type BuildingsView = {
+      zoneAt(i: TileIndex): number;
+      zone(id: number): { readonly type: string; readonly tiles: readonly TileIndex[] } | undefined;
+      zonesOfType(type: string): number[];
+    };
+    const b = (): BuildingsView | null => (readers.has('14') ? readers.of<BuildingsView>('14') : null);
+    const hauling = new Hauling({
+      core,
+      store,
+      jobs: () => world.services.jobs,
+      jobsView: () => (readers.has('11') ? readers.of<JobsView>('11') : null),
+      zoneTypeAt: (i) => {
+        const v = b();
+        if (v === null) return '';
+        const z = v.zoneAt(i);
+        return z === 0 ? '' : (v.zone(z)?.type ?? '');
+      },
+      zonesOfType: (type) => {
+        const v = b();
+        if (v === null) return [];
+        return v.zonesOfType(type).map((id) => ({ id, tiles: v.zone(id)?.tiles ?? [] }));
+      },
+      emit: (event) => world.emit(event),
+    });
+    this.haulingRef = hauling;
+    core.listen((id, change) => hauling.onChange(id, change));
+    // `13` § Registrations: job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`).
+    ctx.register.jobProducer({
+      id: 'items',
+      produce: () => {},
+      onComplete: (job) => hauling.complete(job as Parameters<Hauling['complete']>[0]),
+      onJobEvent: (event) => {
+        if (event.type !== 'JobCancelled') return;
+        const jobId = event['jobId'] as number;
+        for (const key of Array.from(store.reservations.keys())) if (store.reservations.get(key) === jobId) store.releaseKey(key);
+      },
+    });
   }
 
   /** The items tick: `StocksChanged` for the types whose counts moved; `WealthChanged` past the step. */
   override tick(ctx: TickContext): void {
     const core = this.core;
+    this.hauling.tick(ctx);
     const types = core.counts.takeDirty();
     if (types.length > 0) ctx.emit({ type: 'StocksChanged', types });
     const wealth = core.wealth + core.buildingWealth;
@@ -176,13 +225,15 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       if (event['zoneType'] !== 'stockpile') return;
       const id = event['zoneId'] as number;
       const change = event['change'];
+      const tiles = (event['tiles'] as readonly TileIndex[] | undefined) ?? [];
       if (change === 'removed') {
         this.stockpiles.removed(id);
+        this.hauling.cancelBoundFor(id);
       } else {
         this.stockpiles.ensure(id);
         if (change === 'resized') this.stockpiles.syncTiles(id);
       }
-      this.stockpileChanged(id);
+      this.stockpileChanged(id, tiles);
     }
   }
 
@@ -203,8 +254,8 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     const core = this.core;
     return {
       stateVersion: 1,
-      wantsHauling: [],
-      noHome: [],
+      wantsHauling: this.hauling.wants.slice(),
+      noHome: this.hauling.noHome.slice(),
       slotReservations: Array.from(this.stockpiles.reservations.keys())
         .sort()
         .map((k): [string, number] => [k, this.stockpiles.reservations.get(k) as number]),
@@ -218,7 +269,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
         .map((t): [TileIndex, number] => [t, this.stockpiles.tiles.get(t) as number]),
       rng: (this.rng as RngStream).state(),
       dirtyTypes: core.counts.dirty.slice(),
-      fullStockpiles: [],
+      fullStockpiles: this.hauling.full.slice(),
       buildingWealth: core.buildingWealth,
       explicitPriority: this.stockpiles.explicitPriority.slice(),
       incomingContainers: Array.from(this.stockpiles.incomingContainers.keys())
@@ -236,6 +287,13 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     core.wealth = state.wealthCached;
     core.buildingWealth = state.buildingWealth;
     this.wealthLastEmitted = state.wealthLastEmitted;
+    const hauling = this.hauling;
+    hauling.wants.length = 0;
+    hauling.wants.push(...state.wantsHauling);
+    hauling.noHome.length = 0;
+    hauling.noHome.push(...state.noHome);
+    hauling.full.length = 0;
+    hauling.full.push(...state.fullStockpiles);
     const store = this.stockpiles;
     store.reservations.clear();
     for (const [k, j] of state.slotReservations) store.reservations.set(k, j);
