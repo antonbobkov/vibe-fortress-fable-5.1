@@ -1,0 +1,153 @@
+/**
+ * 11 Jobs & labor: the system. `02-systems/11-jobs-and-labor.md` (all), `algorithms/jobs-and-
+ * hauling.md` § Jobs tick, § Assignment, § Job steps, `03-content/jobs.md` (job types, loaded as
+ * content) and `skills-and-professions.md` § Labors.
+ *
+ * The board is installed as the world's jobs API (D-049): producers registered through
+ * `register.jobProducer` are polled every tick in registration order; 10 queues and steps workers.
+ */
+
+import { OK, reject, type Command, type CommandResult } from '@core/commands';
+import type { CommandType } from '@core/command-types';
+import type { EventType } from '@core/event-types';
+import type { GameEvent } from '@core/events';
+import { BaseSystem, Registrations, type InitContext, type TickContext } from '@core/system';
+import type { EntityId, TileIndex } from '@core/types';
+import { JobBoard } from './board';
+import {
+  applyCancelJob,
+  applySetJobPriority,
+  applySetLabor,
+  applySetLaborPriority,
+  applySetStandingOrder,
+} from './commands';
+import { makeReader, type JobsReader } from './reader';
+import type { JobsStateV1 } from './state';
+
+export { JobBoard, RETRY_TRIGGERS, type JobTypeRow } from './board';
+export { NO_ITEMS, type ItemSource, type JobSink, type JobSpec } from './producers';
+export type { JobsReader, JobCounts } from './reader';
+export * from './assign';
+export { workCentiTicks, chooseStand } from './steps';
+export type { Job, JobState, ItemFilter, Tool } from './state';
+
+export const JOBS_ID = '11';
+
+const COMMAND_HANDLERS: Partial<Record<CommandType, (board: JobBoard, cmd: Command) => CommandResult>> = {
+  SetLabor: applySetLabor,
+  SetLaborPriority: applySetLaborPriority,
+  CancelJob: applyCancelJob,
+  SetJobPriority: applySetJobPriority,
+  SetStandingOrder: applySetStandingOrder,
+};
+
+export class JobsSystem extends BaseSystem<JobsStateV1> {
+  readonly id = JOBS_ID;
+  readonly order = 11;
+  override readonly subscribes: readonly EventType[] = [
+    'TilesChanged',
+    'BuildingStateChanged',
+    'FluidsChanged',
+    'ItemCreated',
+    'ItemDestroyed',
+    'ItemReleased',
+    'StocksChanged',
+    'CreatureDied',
+    'ImmigrantsArrived',
+    'NeedCritical',
+    'AlertChanged',
+    'ThreatNearby',
+    'ToolDropped',
+  ];
+  override readonly ownsCommands: readonly CommandType[] = ['SetLabor', 'SetLaborPriority', 'CancelJob', 'SetJobPriority', 'SetStandingOrder'];
+
+  private boardRef: JobBoard | null = null;
+  private readerRef: JobsReader | null = null;
+  private registrations: Registrations | null = null;
+  private producersRead = false;
+
+  get board(): JobBoard {
+    if (this.boardRef === null) throw new Error('11 jobs: used before init');
+    return this.boardRef;
+  }
+
+  override init(ctx: InitContext): void {
+    const board = new JobBoard(ctx.world, ctx.registry, ctx.readers);
+    this.boardRef = board;
+    this.readerRef = makeReader(board);
+    this.registrations = ctx.register instanceof Registrations ? ctx.register : null;
+    ctx.world.services.jobs = board;
+    ctx.register.panel({ id: 'jobs', title: 'Jobs', hotkey: 'j' });
+    ctx.register.panel({ id: 'labors', title: 'Labors', hotkey: 'l' });
+    ctx.register.inspector('creature', { id: 'current_job', order: 20 });
+  }
+
+  /** Registration is read lazily on the first tick (`module-interfaces.md` § Registration APIs). */
+  private readProducers(): void {
+    if (this.producersRead) return;
+    this.producersRead = true;
+    const board = this.board;
+    for (const p of this.registrations?.jobProducers ?? []) if (!board.producers.includes(p)) board.producers.push(p);
+  }
+
+  override tick(ctx: TickContext): void {
+    this.readProducers();
+    this.board.tick(ctx);
+  }
+
+  override handle(event: GameEvent, _ctx: TickContext): void {
+    const board = this.board;
+    const type = event.type;
+    if (type === 'TilesChanged') {
+      const map = board.world.map;
+      const chunks = new Set<number>();
+      for (const t of event['tiles'] as readonly TileIndex[]) chunks.add(map.chunkOf(t));
+      board.trigger('unreachable', chunks);
+    } else if (type === 'BuildingStateChanged') {
+      board.trigger('unreachable');
+    } else if (type === 'FluidsChanged') {
+      board.trigger('unreachable');
+      board.trigger('no_magma');
+    } else if (type === 'ItemCreated') {
+      board.trigger('missing_input');
+      board.trigger('no_tool');
+    } else if (type === 'ItemReleased' || type === 'StocksChanged' || type === 'ItemDestroyed') {
+      board.trigger('missing_input');
+    } else if (type === 'ToolDropped') {
+      board.trigger('no_tool');
+    } else if (type === 'ImmigrantsArrived') {
+      board.trigger('no_worker');
+    } else if (type === 'CreatureDied') {
+      board.workerDied(event['id'] as EntityId);
+    } else if (type === 'NeedCritical' || type === 'ThreatNearby') {
+      // "A need at or above its critical threshold interrupts any job"; jobs marked not
+      // interruptible in `jobs.md` are short enough to finish first.
+      const id = event['id'] as EntityId;
+      const jobId = board.workerOf(id).jobId;
+      const job = jobId === 0 ? undefined : board.jobs.get(jobId);
+      if (job !== undefined && (board.typeRow(job).interruptible || type === 'ThreatNearby')) board.interrupt(id, true);
+    }
+    // `AlertChanged` interrupts civilians once 16 raises the hearth alert (M6).
+  }
+
+  override applyCommand(cmd: Command, _ctx: TickContext): CommandResult {
+    const handler = COMMAND_HANDLERS[cmd.type];
+    if (handler === undefined) return reject('not_found');
+    const result = handler(this.board, cmd);
+    return result.ok ? OK : result;
+  }
+
+  override reader(): JobsReader {
+    if (this.readerRef === null) throw new Error('11 jobs: reader before init');
+    return this.readerRef;
+  }
+
+  serialize(): JobsStateV1 {
+    return this.board.serialize();
+  }
+
+  deserialize(state: JobsStateV1, ctx: InitContext): void {
+    if (this.boardRef === null) this.init(ctx);
+    this.board.deserialize(state);
+  }
+}

@@ -33,6 +33,7 @@ import {
 } from '@systems/embark';
 import { generateLocal, type LocalMapResult, type StackLayer } from '@systems/terrain/generate';
 import { TerrainSystem } from '@systems/terrain';
+import { JobsSystem } from '@systems/jobs';
 import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
@@ -293,6 +294,8 @@ export class HeadlessGame {
     this.world.readers.register('spatial', this.spatial.reader());
     this.world.readers.setPassability((i, movementClass) => this.pathing.graph.passable(i, movementClass));
     this.world.readers.setTileEntities((i) => this.spatial.at(i));
+    // The brains reach the movement helper through the world's services (D-049).
+    this.world.services.movement = this.movement;
 
     // The core phase between steps 2 and 3 of `tick-order.md`: the brains have run, so the move
     // batch goes out, the path queue is served within its budget, and the dirty chunks are
@@ -336,7 +339,7 @@ export class HeadlessGame {
    * them): 03 terrain (T-M1-07).
    */
   static standardSystems(spec: LocalMapSpec, layerStack: readonly StackLayer[]): GameSystem[] {
-    return [new TerrainSystem({ spec, layerStack })];
+    return [new TerrainSystem({ spec, layerStack }), new JobsSystem()];
   }
 
   get map(): Map3D {

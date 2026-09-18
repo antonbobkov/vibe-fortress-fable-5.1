@@ -17,7 +17,7 @@ import { FLUID_MAX_LEVEL, REPATH_LIMIT, REPATH_WAIT_TICKS, STEP_COST } from './p
 import type { EntityStore } from './entities';
 import type { MovementApi } from './system';
 import type { GameEvent } from './events';
-import type { MoverOptions, PathingCore } from './pathfinding';
+import type { MoverOptions, PathingCore, PathUrgency } from './pathfinding';
 import type { SpatialIndex } from './spatial';
 import type { EntityId, TileIndex } from './types';
 
@@ -30,6 +30,16 @@ export interface MovementContext {
   emit(event: GameEvent): void;
 }
 
+/** What one call to {@link MovementHelper.walkTo} did. */
+export type WalkOutcome = 'pending' | 'moving' | 'arrived' | 'unreachable';
+
+interface Walk {
+  target: TileIndex;
+  request: number;
+  following: boolean;
+  attempts: number;
+}
+
 /** One entry of the tick's `EntitiesMoved` batch. */
 export type MoveRecord = [EntityId, TileIndex, TileIndex];
 
@@ -39,6 +49,11 @@ export class MovementHelper implements MovementApi {
   private readonly spatial: SpatialIndex;
   private readonly pathing: PathingCore;
   private readonly moves: MoveRecord[] = [];
+  /**
+   * The walks in progress, by mover. Derived state: a loaded game starts with none and the brains
+   * re-request their paths (`schemas/system-state.md` § Rebuild-on-load rules, 22).
+   */
+  private readonly walks = new Map<EntityId, Walk>();
 
   constructor(map: Map3D, entities: EntityStore, spatial: SpatialIndex, pathing: PathingCore) {
     this.map = map;
@@ -109,6 +124,73 @@ export class MovementHelper implements MovementApi {
       waitUntil: 0,
     };
     this.entities.add<Motion>(id, C.Motion, { ...m, pathId, stepIndex: 0, progress: 0 });
+  }
+
+  /**
+   * `walkTo(w, t, urgency)` of `algorithms/jobs-and-hauling.md` § Job steps, shared by every
+   * brain: request a path to `target` (served in the core pathing pass, so it is ready the next
+   * tick), follow it with {@link moveAlongPath}, and re-request when the route is blocked, up to
+   * `REPATH_LIMIT` times (D-022). Returns `arrived` once the mover stands on `target`.
+   */
+  walkTo(id: EntityId, target: TileIndex, urgency: PathUrgency, ctx: MovementContext): WalkOutcome {
+    const at = this.tileOf(id);
+    if (at < 0) return 'unreachable';
+    if (at === target) {
+      this.stopWalking(id);
+      return 'arrived';
+    }
+    let walk = this.walks.get(id);
+    if (walk === undefined || walk.target !== target) {
+      this.stopWalking(id);
+      walk = { target, request: this.request(id, at, target, urgency), following: false, attempts: 0 };
+      this.walks.set(id, walk);
+      return 'pending';
+    }
+    if (!walk.following) {
+      const result = this.pathing.pathfinder.pathResult(walk.request);
+      if (result.state === 'pending') return 'pending';
+      if (result.state === 'failed') {
+        this.stopWalking(id);
+        return 'unreachable';
+      }
+      this.follow(id, walk.request);
+      walk.following = true;
+    }
+    const r = this.moveAlongPath(id, ctx);
+    if (r === 'moving') return 'moving';
+    if (this.tileOf(id) === target) {
+      this.stopWalking(id);
+      return 'arrived';
+    }
+    // Blocked, fell, or the path ran out short of the target: ask again, a bounded number of times.
+    walk.attempts += 1;
+    if (walk.attempts > REPATH_LIMIT) {
+      this.stopWalking(id);
+      return 'unreachable';
+    }
+    this.pathing.pathfinder.release(walk.request);
+    walk.request = this.request(id, this.tileOf(id), target, urgency);
+    walk.following = false;
+    return 'pending';
+  }
+
+  /** Forget a mover's walk and its path request. */
+  stopWalking(id: EntityId): void {
+    const walk = this.walks.get(id);
+    if (walk === undefined) return;
+    this.pathing.pathfinder.release(walk.request);
+    this.walks.delete(id);
+    this.clearPath(id);
+  }
+
+  /** The target of a mover's current walk, or -1. */
+  walkTarget(id: EntityId): TileIndex {
+    return this.walks.get(id)?.target ?? -1;
+  }
+
+  private request(id: EntityId, from: TileIndex, to: TileIndex, urgency: PathUrgency): number {
+    const m = this.entities.get<Motion>(id, C.Motion);
+    return this.pathing.pathfinder.requestPath(id, from, to, m?.movementClass ?? 'walker', urgency, {}, this.moverOf(id));
   }
 
   /** `pathing.setSpeed(id, speed)`: the owning brain writes `Motion.speed` (`components.md`). */

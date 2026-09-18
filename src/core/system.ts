@@ -43,6 +43,17 @@ export interface JobsApi {
   create(key: string, spec: Readonly<Record<string, unknown>>): number;
   cancel(jobId: number, reason: string): void;
   exists(key: string): boolean;
+  /**
+   * The worker side (`11` § Assignment, § Job steps): 10 queues a worker during behavior selection
+   * (`jobs.assign(id)`); 11 answers in its own tick of the same tick, in id order.
+   */
+  assign(workerId: EntityId): void;
+  /** True while a worker waits in the assignment queue. */
+  isQueued(workerId: EntityId): boolean;
+  /** `jobs.stepWorker(id, ctx)`, called by 10 every tick for a dwarf in `work` behavior. */
+  stepWorker(workerId: EntityId, ctx: TickContext): void;
+  /** Interruption: the job returns to `open`, keeping its progress when `keepProgress`. */
+  interrupt(workerId: EntityId, keepProgress: boolean): void;
 }
 
 /**
@@ -61,6 +72,20 @@ export interface MovementApi {
   setSpeed(id: EntityId, speed: number): void;
   /** The tile an entity stands on, or -1. */
   tileOf(id: EntityId): TileIndex;
+  /**
+   * Walk toward a tile: request, follow, re-request (`jobs-and-hauling.md` `walkTo`).
+   * `pending` while the path is being found, `moving`, `arrived`, or `unreachable`.
+   */
+  walkTo(
+    id: EntityId,
+    target: TileIndex,
+    urgency: 'flee' | 'combat' | 'job' | 'need' | 'wander' | 'caravan',
+    ctx: { readonly tick: number; emit(event: GameEvent): void },
+  ): 'pending' | 'moving' | 'arrived' | 'unreachable';
+  /** Forget a mover's walk and drop its path. */
+  stopWalking(id: EntityId): void;
+  /** The target of a mover's current walk, or -1. */
+  walkTarget(id: EntityId): TileIndex;
 }
 
 /**
@@ -333,6 +358,18 @@ export const NO_JOBS_API: JobsApi = Object.freeze({
   },
   exists(): boolean {
     throw new NotYetImplementedError('ctx.jobs.exists', 'T-M1-08');
+  },
+  assign(): void {
+    throw new NotYetImplementedError('ctx.jobs.assign', 'T-M1-08');
+  },
+  isQueued(): boolean {
+    throw new NotYetImplementedError('ctx.jobs.isQueued', 'T-M1-08');
+  },
+  stepWorker(): void {
+    throw new NotYetImplementedError('ctx.jobs.stepWorker', 'T-M1-08');
+  },
+  interrupt(): void {
+    throw new NotYetImplementedError('ctx.jobs.interrupt', 'T-M1-08');
   },
 });
 

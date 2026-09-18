@@ -30,7 +30,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M1-05 — Local map generation: heightmap, rivers, layers, magma sea (opus-m1, 2026-09-17)
 - [x] T-M1-06 — Local map generation: caverns, minerals, volcano, vegetation, traits (opus-m1, 2026-09-18)
 - [x] T-M1-07 — Terrain system: designations, tile API, discovery, support (opus-m1, 2026-09-18)
-- [ ] T-M1-08 — Jobs system: board, labors, assignment, steps
+- [x] T-M1-08 — Jobs system: board, labors, assignment, steps (opus-m1, 2026-09-18)
 - [ ] T-M1-09 — Dwarves system: brain (walk, idle), skills, xp, movement speed
 - [ ] T-M1-10 — Dig, channel, carve, smooth, engrave, chop, gather job execution
 - [ ] T-M1-11 — Spawn API and creature/dwarf spawning
