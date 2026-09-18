@@ -9,7 +9,7 @@
 
 import { HeadlessGame, type HeadlessOptions } from '@app/headless';
 import { NotYetImplementedError } from '@core/system';
-import { TileKind, type Map3D } from '@core/map3d';
+import { TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { Command } from '@core/commands';
 import type { GameEvent } from '@core/events';
 import type { EventType } from '@core/event-types';
@@ -120,6 +120,15 @@ export class TestWorld {
         this.map.setKind(this.map.index(x + dx, y + dy, z), TileKind.Floor, material);
       }
     }
+  }
+
+  /**
+   * Mark a tile discovered, the state 03 terrain gives a tile the dwarves have opened
+   * (`03-terrain-and-mining.md` § Discovery, T-M1-07). Until that system exists the render
+   * scenarios set the flag themselves, through the map's public API.
+   */
+  discover(i: TileIndex, value = true): void {
+    this.map.setFlag(i, TileFlag.Discovered, value);
   }
 
   /** Set one tile's kind, keeping its material unless one is given. */

@@ -1,0 +1,202 @@
+/**
+ * The simulation host and the frame loop.
+ *
+ * Implements `01-architecture/simulation-core.md` § The simulation host (`InProcessHost`) and
+ * § The frame loop, verbatim: the accumulator, the 250 ms cap, `MAX_TICKS_PER_FRAME`, "fell
+ * behind: run slower, never skip", and the hidden-tab pause of `tech-stack.md` § Frame and
+ * simulation loop ("When the tab is hidden, the simulation pauses. On return it does not catch
+ * up.").
+ *
+ * `save` and `load` are the parts of the interface that belong to T-M2-11; they throw
+ * `NotYetImplementedError` naming it, as the M0 stubs of `ctx.jobs` and `ctx.spawn` do
+ * (DECISIONS.md D-017).
+ */
+
+import { HeadlessGame, type HeadlessOptions } from '@app/headless';
+import { MAX_TICKS_PER_FRAME, SIM_TICKS_PER_SECOND } from '@core/constants';
+import { NotYetImplementedError } from '@core/system';
+import type { Command } from '@core/commands';
+import type { GameEvent } from '@core/events';
+import type { ReaderSet } from '@core/readers';
+import type { HostStats, World } from '@core/world';
+
+/** `simulation-core.md` § The simulation host: 0 is paused. */
+export type Speed = 0 | 1 | 2 | 4;
+
+export type Unsubscribe = () => void;
+
+/** `NewGameSpec`: the world seed and what to build. M1 adds the region and the embark result. */
+export interface NewGameSpec {
+  readonly seed: string;
+  readonly world?: 'flat-test';
+  readonly fortressName?: string;
+}
+
+export interface SimulationHost {
+  newGame(spec: NewGameSpec): Promise<void>;
+  setSpeed(speed: Speed): void;
+  speed(): Speed;
+  submit(command: Command): void;
+  step(ticks: number): void;
+  readonly readers: ReaderSet;
+  onEvents(listener: (events: readonly GameEvent[]) => void): Unsubscribe;
+  stats(): HostStats;
+}
+
+/**
+ * The in-process host of version 1: `readers` are the world's own readers and `step` runs the
+ * world synchronously. A `WorkerHost` would implement the same interface behind a snapshot
+ * protocol; nothing in presentation would change.
+ */
+export class InProcessHost implements SimulationHost {
+  private game: HeadlessGame | null = null;
+  private current: Speed = 0;
+
+  /** The world, once `newGame` has built one. */
+  get world(): World {
+    return this.require().world;
+  }
+
+  get headless(): HeadlessGame {
+    return this.require();
+  }
+
+  get started(): boolean {
+    return this.game !== null;
+  }
+
+  /**
+   * `simulation-core.md` § Startup sequence steps 3 and 4. The `flat-test` world is built through
+   * `app/headless.ts`, which already wires the pathing stack, the spatial index and the
+   * connectivity pass; the generated world arrives with T-M1-05.
+   */
+  async newGame(spec: NewGameSpec): Promise<void> {
+    const options: HeadlessOptions = {
+      seed: spec.seed,
+      world: spec.world ?? 'flat-test',
+      ...(spec.fortressName === undefined ? {} : { fortressName: spec.fortressName }),
+    };
+    this.game = new HeadlessGame(options);
+    // Step 5: "begins the frame loop paused".
+    this.current = 0;
+    return Promise.resolve();
+  }
+
+  /** `persistence.md`'s save and load flows belong to T-M2-11. */
+  async load(): Promise<void> {
+    throw new NotYetImplementedError('InProcessHost.load', 'T-M2-11');
+  }
+
+  async save(): Promise<Uint8Array> {
+    throw new NotYetImplementedError('InProcessHost.save', 'T-M2-11');
+  }
+
+  setSpeed(speed: Speed): void {
+    this.current = speed;
+  }
+
+  speed(): Speed {
+    return this.current;
+  }
+
+  submit(command: Command): void {
+    this.require().world.submit(command);
+  }
+
+  step(ticks: number): void {
+    if (ticks <= 0) return;
+    this.require().step(ticks);
+  }
+
+  get readers(): ReaderSet {
+    return this.require().world.readers;
+  }
+
+  onEvents(listener: (events: readonly GameEvent[]) => void): Unsubscribe {
+    return this.require().world.onEvents(listener);
+  }
+
+  stats(): HostStats {
+    return this.require().world.stats();
+  }
+
+  private require(): HeadlessGame {
+    if (this.game === null) throw new Error('host: no game; call newGame() first');
+    return this.game;
+  }
+}
+
+export interface FrameDriverOptions {
+  readonly host: SimulationHost;
+  readonly render: () => void;
+}
+
+/**
+ * `simulation-core.md` § The frame loop, as written:
+ *
+ * ```
+ * onFrame(nowMs):
+ *   if document.hidden: accumulatorMs = 0; render(); return
+ *   if speed == 0: accumulatorMs = 0; render(); return
+ *   tickIntervalMs = 1000 / (SIM_TICKS_PER_SECOND × speed)
+ *   accumulatorMs += min(nowMs − lastFrameMs, 250)
+ *   while accumulatorMs ≥ tickIntervalMs and ticksThisFrame < MAX_TICKS_PER_FRAME: host.step(1) …
+ *   if ticksThisFrame == MAX_TICKS_PER_FRAME: accumulatorMs = 0
+ *   render(); lastFrameMs = nowMs
+ * ```
+ */
+export class FrameDriver {
+  /** The cap on the time a single frame may contribute; a long stall does not burst. */
+  static readonly MAX_FRAME_MS = 250;
+
+  private readonly host: SimulationHost;
+  private readonly render: () => void;
+  private accumulatorMs = 0;
+  private lastFrameMs = 0;
+  private ticks = 0;
+
+  constructor(options: FrameDriverOptions) {
+    this.host = options.host;
+    this.render = options.render;
+  }
+
+  /** Ticks simulated in the last frame; the status bar reads the rate from it. */
+  get lastFrameTicks(): number {
+    return this.ticks;
+  }
+
+  get accumulator(): number {
+    return this.accumulatorMs;
+  }
+
+  onFrame(nowMs: number, hidden: boolean): void {
+    this.ticks = 0;
+    const speed = this.host.speed();
+    if (hidden || speed === 0) {
+      this.accumulatorMs = 0;
+      // The pseudo-code returns without moving `lastFrameMs`, which would let the first frame
+      // after a pause add up to the 250 ms cap; "On return it does not catch up" is the rule.
+      // See DECISIONS.md D-034.
+      this.lastFrameMs = nowMs;
+      this.render();
+      return;
+    }
+    const tickIntervalMs = 1000 / (SIM_TICKS_PER_SECOND * speed);
+    this.accumulatorMs += Math.min(nowMs - this.lastFrameMs, FrameDriver.MAX_FRAME_MS);
+    while (this.accumulatorMs >= tickIntervalMs && this.ticks < MAX_TICKS_PER_FRAME) {
+      this.host.step(1);
+      this.accumulatorMs -= tickIntervalMs;
+      this.ticks += 1;
+    }
+    if (this.ticks === MAX_TICKS_PER_FRAME) this.accumulatorMs = 0;
+    this.render();
+    this.lastFrameMs = nowMs;
+  }
+
+  /** The frame clock starts where the first frame does, so the first frame simulates nothing. */
+  reset(nowMs: number): void {
+    this.accumulatorMs = 0;
+    this.lastFrameMs = nowMs;
+    this.ticks = 0;
+  }
+}

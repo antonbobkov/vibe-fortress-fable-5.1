@@ -18,7 +18,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M0-10 — Serialization core (opus-m0, 2026-09-17)
 - [x] T-M0-11 — Headless runner and TestWorld (opus-m0, 2026-09-17)
 - [x] T-M0-12 — Platform, glyph atlas, palette, renderer (opus-m0, 2026-09-17)
-- [ ] T-M0-13 — Compositor (terrain only), app boot, e2e hook
+- [x] T-M0-13 — Compositor (terrain only), app boot, e2e hook (opus-m0, 2026-09-17)
 - [ ] T-M0-14 — Gate M0
 
 ## M1 — Ground ([M1-ground.md](M1-ground.md))
