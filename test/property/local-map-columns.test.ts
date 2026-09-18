@@ -33,7 +33,7 @@ describe('T-M1-05 property: local map columns', () => {
   it('no Open tile below the surface Floor outside cavern bands, river beds and the Sea of Fire (20 seeds)', () => {
     for (let k = 0; k < 20; k += 1) {
       const spec = generatedSpec(`columns-${k}`, registry);
-      const { map, result } = generateLocalMap(spec, registry);
+      const { map, result } = generateLocalMap(spec, registry, { until: 'sea' });
       for (let y = 0; y < map.h; y += 1) {
         for (let x = 0; x < map.w; x += 1) {
           const c = y * map.w + x;

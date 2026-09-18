@@ -22,6 +22,29 @@ export const COL_LAKE = 2;
 export const COL_SOURCE = 4;
 export const COL_SINK = 8;
 
+/**
+ * Something generation owes the world once entities exist (`algorithms/local-map-generation.md`
+ * step 8: "recorded as a spawn list applied by 02 arrival").
+ */
+export interface SpawnEntry {
+  readonly kind: 'item' | 'creature';
+  /** Item type id or species id. */
+  readonly type: string;
+  readonly material?: string;
+  readonly quality?: number;
+  readonly tile: TileIndex;
+  readonly asleep?: boolean;
+  /** The trait that asked for it. */
+  readonly source: string;
+}
+
+/** Veins and clusters of one mineral: the expected count (`Fixed`) and how many were placed. */
+export interface VeinRecord {
+  readonly mineral: string;
+  readonly expected: number;
+  placed: number;
+}
+
 /** Everything the stages share. The map is written in place; per-column arrays are `y × w + x`. */
 export interface LocalGen {
   readonly spec: LocalMapSpec;
@@ -43,6 +66,17 @@ export interface LocalGen {
   /** Filled by the water pass, ascending. */
   readonly waterSources: TileIndex[];
   readonly sinks: TileIndex[];
+  /** Cavern floor tiles per tier (index 1-3), ascending. */
+  readonly cavernFloors: TileIndex[][];
+  /** Open fraction of each cavern band's interior right after thresholding, `Fixed` (index 1-3). */
+  readonly cavernOpen: number[];
+  /** Columns that grow no vegetation (volcano obsidian). */
+  readonly bare: Uint8Array;
+  readonly veins: VeinRecord[];
+  readonly spawns: SpawnEntry[];
+  readonly warmSprings: TileIndex[];
+  /** Centre column of the volcano pipe, or -1. */
+  volcano: number;
 }
 
 /** `stream(S, 'terrain.<stage>')`: each stage's own stream. */

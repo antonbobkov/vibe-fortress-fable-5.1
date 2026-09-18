@@ -28,7 +28,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M1-03 — World generation stages 6–9 and the reader (opus-m1, 2026-09-17)
 - [x] T-M1-04 — Embark spec and party generation (opus-m1, 2026-09-17)
 - [x] T-M1-05 — Local map generation: heightmap, rivers, layers, magma sea (opus-m1, 2026-09-17)
-- [ ] T-M1-06 — Local map generation: caverns, minerals, volcano, vegetation, traits
+- [x] T-M1-06 — Local map generation: caverns, minerals, volcano, vegetation, traits (opus-m1, 2026-09-18)
 - [ ] T-M1-07 — Terrain system: designations, tile API, discovery, support
 - [ ] T-M1-08 — Jobs system: board, labors, assignment, steps
 - [ ] T-M1-09 — Dwarves system: brain (walk, idle), skills, xp, movement speed

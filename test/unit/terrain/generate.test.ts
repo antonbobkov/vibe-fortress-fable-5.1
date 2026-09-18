@@ -20,7 +20,7 @@ function spec(overrides: Partial<LocalMapSpec>): LocalMapSpec {
 }
 
 function gen(s: LocalMapSpec): { map: Map3D; result: LocalMapResult } {
-  return generateLocalMap(s, registry);
+  return generateLocalMap(s, registry, { until: 'sea' });
 }
 
 /** The Floors of a column above the cavern bands (cavern floors belong to stage 6). */

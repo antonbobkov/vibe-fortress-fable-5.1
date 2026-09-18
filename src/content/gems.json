@@ -21,6 +21,7 @@
       "diorite"
     ],
     "count": 50,
+    "zMax": 10,
     "value": 90,
     "color": "diamond_white"
   },

@@ -272,6 +272,8 @@ export function exportGems() {
       const gid = plain(row.id);
       const b = base.get(gid) ?? {};
       const cavernOnly = /cavern/i.test(plain(row.hosts));
+      // "`gabbro`, `diorite` (z ≤ 10)": a depth limit on the host (DECISIONS.md D-047).
+      const zLimit = /z\s*≤\s*(\d+)/.exec(plain(row.hosts));
       return compact({
         id: gid,
         name: plain(b.name ?? gid),
@@ -279,6 +281,7 @@ export function exportGems() {
         hosts: cavernOnly ? [] : idList(row.hosts),
         count: Math.round(Number(plain(row.count)) * 100),
         cavernOnly: cavernOnly ? true : undefined,
+        zMax: zLimit === null ? undefined : Number(zLimit[1]),
         value: int(b.value),
         color: id(b.color),
       });

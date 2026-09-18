@@ -293,6 +293,8 @@ export const SCHEMAS: Record<string, TableSchema> = {
     hosts: arr(materialRef),
     count: int,
     cavernOnly: opt(bool),
+    // A host depth limit ("diamond: `gabbro`, `diorite` (z ≤ 10)"); DECISIONS.md D-047.
+    zMax: opt(int),
     value: int,
     color: colorRef,
   }),

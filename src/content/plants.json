@@ -28,6 +28,14 @@
       {
         "biome": "wetland",
         "weight": 10
+      },
+      {
+        "biome": "tropical_forest",
+        "weight": 20
+      },
+      {
+        "biome": "savanna",
+        "weight": 20
       }
     ],
     "glyph": "↑",
@@ -511,6 +519,14 @@
       {
         "biome": "dark_forest",
         "weight": 20
+      },
+      {
+        "biome": "tropical_forest",
+        "weight": 40
+      },
+      {
+        "biome": "savanna",
+        "weight": 40
       }
     ],
     "glyph": "♣",
@@ -609,6 +625,14 @@
       {
         "biome": "dark_forest",
         "weight": 25
+      },
+      {
+        "biome": "desert",
+        "weight": 1
+      },
+      {
+        "biome": "badlands",
+        "weight": 1
       }
     ],
     "glyph": "♠",

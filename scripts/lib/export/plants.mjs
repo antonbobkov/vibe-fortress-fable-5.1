@@ -108,17 +108,25 @@ export function exportPlants() {
   }
 
   // Trees: the species value is the value of its wood material (materials.md § Wood).
+  // The prose under the tree table adds biome weights the table does not carry: "Tropical forest
+  // and savanna use `oak` (as "broadleaf") with weight 40 and `ash` 20; desert and badlands have
+  // ... `pine` only" (DECISIONS.md D-047). Pine's weight there is 1: it is the only species.
+  const PROSE_TREE_BIOMES = {
+    oak: [{ biome: 'tropical_forest', weight: 40 }, { biome: 'savanna', weight: 40 }],
+    ash: [{ biome: 'tropical_forest', weight: 20 }, { biome: 'savanna', weight: 20 }],
+    pine: [{ biome: 'desert', weight: 1 }, { biome: 'badlands', weight: 1 }],
+  };
   const woodValues = woodValueById();
   for (const row of asObjects(findTable(tables, 'Trees', 'saplingYears'))) {
     const tid = plain(row.id);
     const caverns = parseCaverns(row['biomes (weight)']);
+    const tableBiomes = parseBiomes(row['biomes (weight)']);
+    const biomes = tableBiomes === undefined ? undefined : [...tableBiomes, ...(PROSE_TREE_BIOMES[tid] ?? [])];
     out.push(
       compact({
         id: tid,
         name: plain(row.name),
-        kind: caverns !== undefined && parseBiomes(row['biomes (weight)']) === undefined
-          ? 'fungus_tree'
-          : 'tree',
+        kind: caverns !== undefined && tableBiomes === undefined ? 'fungus_tree' : 'tree',
         light: caverns !== undefined ? 'dark' : 'sun',
         minC: NO_TEMPERATURE_LIMIT[0],
         maxC: NO_TEMPERATURE_LIMIT[1],
@@ -129,7 +137,7 @@ export function exportPlants() {
         saplingYears: int(row.saplingYears),
         yieldItem: 'log',
         yieldMaterial: tid,
-        biomes: parseBiomes(row['biomes (weight)']),
+        biomes,
         caverns,
         glyph: glyph(row.glyph),
         fg: id(row.fg),
