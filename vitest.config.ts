@@ -20,6 +20,18 @@ export default defineConfig({
       reportsDirectory: 'reports/coverage',
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.d.ts'],
+      // `05-plan/01-testing-strategy.md` § Coverage gates, verbatim: "`src/core` 90% lines,
+      // `src/systems/**/rules` 90%, `src/systems/**` 75%, `src/render` 60%, `src/ui` 50%.
+      // Thresholds are set in `vitest.config.ts` and raised, never lowered." Active from the M0
+      // gate (T-M0-14). `src/app`, `src/content` and `src/platform` carry no documented threshold;
+      // see DECISIONS.md D-037.
+      thresholds: {
+        'src/core/**': { lines: 90 },
+        'src/systems/**/rules/**': { lines: 90 },
+        'src/systems/**': { lines: 75 },
+        'src/render/**': { lines: 60 },
+        'src/ui/**': { lines: 50 },
+      },
     },
   },
 });

@@ -1,6 +1,6 @@
 # Progress
 
-current-milestone: 0
+current-milestone: 1
 
 Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agent, date). Agents edit this file in the same commit as the task. Sub-tasks added by splitting go directly under their parent.
 
@@ -19,7 +19,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M0-11 — Headless runner and TestWorld (opus-m0, 2026-09-17)
 - [x] T-M0-12 — Platform, glyph atlas, palette, renderer (opus-m0, 2026-09-17)
 - [x] T-M0-13 — Compositor (terrain only), app boot, e2e hook (opus-m0, 2026-09-17)
-- [ ] T-M0-14 — Gate M0
+- [x] T-M0-14 — Gate M0 (opus-m0, 2026-09-17)
 
 ## M1 — Ground ([M1-ground.md](M1-ground.md))
 

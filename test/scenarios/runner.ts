@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { NotYetImplementedError } from '@core/system';
 import { TestWorld } from './test-world';
 import type { Command } from '@core/commands';
+import type { GameSystem } from '@core/system';
 
 const progressPath = fileURLToPath(new URL('../../docs/05-plan/PROGRESS.md', import.meta.url));
 
@@ -41,6 +42,13 @@ export interface Scenario {
   readonly seed: string;
   readonly world: ScenarioWorld;
   readonly embark?: ScenarioEmbark;
+  /**
+   * Systems to register before `init`, built fresh for every run. The real systems join the
+   * headless game as their milestones land; the `core_*` scenarios of M0 use this slot for the
+   * stand-in systems that exercise the core machinery "with no real systems" (T-M0-08). See
+   * DECISIONS.md D-036.
+   */
+  readonly systems?: () => readonly GameSystem[];
   /** Direct world edits before tick 0, through `TestWorld` helpers only. */
   readonly setup?: (w: TestWorld) => void;
   readonly commands?: readonly ScheduledCommand[];
@@ -60,7 +68,11 @@ function buildWorld(scenario: Scenario): TestWorld {
   if (embark !== 'none') {
     throw new NotYetImplementedError(`scenario ${scenario.id}: embark '${String(embark)}'`, 'T-M1-04');
   }
-  return new TestWorld({ seed: scenario.seed, world: 'flat-test' });
+  return new TestWorld({
+    seed: scenario.seed,
+    world: 'flat-test',
+    ...(scenario.systems === undefined ? {} : { systems: scenario.systems() }),
+  });
 }
 
 /** Run one scenario to completion and return its world, so a caller may inspect it further. */
