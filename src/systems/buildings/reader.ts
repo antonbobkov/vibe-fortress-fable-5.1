@@ -3,8 +3,16 @@
  * arrays returned are fresh copies; entity references are ids.
  */
 
-import type { EntityId, TileIndex } from '@core/types';
+import type { Building } from '@core/components';
+import type { EntityId, MovementClass, TileIndex } from '@core/types';
+import type { BuildingStore } from './build';
 import type { ZoneStore } from './zones';
+
+export interface BuildingView extends Building {
+  readonly id: EntityId;
+  /** The building type's content id. */
+  readonly typeId: string;
+}
 
 export interface ZoneView {
   readonly id: EntityId;
@@ -26,9 +34,23 @@ export interface BuildingsReader {
   zoneSetting(id: EntityId, key: string): unknown;
   /** Whether a tile qualifies for a zone type (the zone tool's green). */
   zoneTileQualifies(type: string, i: TileIndex): boolean;
+  /** `buildings.at(i)`: the building on a tile, or 0. */
+  at(i: TileIndex): EntityId;
+  /** `buildings.get(id)` (a copy). */
+  get(id: EntityId): BuildingView | undefined;
+  /** The buildings of a type, ascending id. */
+  byType(type: string): EntityId[];
+  /** The buildings carrying a function tag, ascending id. */
+  byTag(tag: string): EntityId[];
+  /** 22's hook: a built building that is not passable blocks movement. */
+  blocksMovementAt(i: TileIndex, cls: MovementClass, faction?: string): boolean;
+  /** The hearth, or 0. */
+  hearth(): EntityId;
+  /** A building's contribution to wealth when built (`materialValue + valueBonus`). */
+  value(id: EntityId): number;
 }
 
-export function makeReader(zones: ZoneStore): BuildingsReader {
+export function makeReader(zones: ZoneStore, buildings: BuildingStore): BuildingsReader {
   const view = (id: EntityId): ZoneView | undefined => {
     const z = zones.zone(id);
     if (z === undefined) return undefined;
@@ -43,6 +65,27 @@ export function makeReader(zones: ZoneStore): BuildingsReader {
     zoneTileQualifies: (type, i) => {
       const t = zones.typeOf(type);
       return t !== 0 && zones.qualifies(t, i);
+    },
+    at: (i) => zones.host.map.buildingAtTile(i),
+    get: (id) => {
+      const b = buildings.get(id);
+      if (b === undefined) return undefined;
+      return {
+        ...b,
+        footprint: b.footprint.slice(),
+        linkedIds: b.linkedIds.slice(),
+        settings: { ...b.settings },
+        id,
+        typeId: buildings.typeIdOf(id),
+      };
+    },
+    byType: (type) => buildings.all().filter((id) => buildings.typeIdOf(id) === type),
+    byTag: (tag) => buildings.all().filter((id) => buildings.row((buildings.get(id) as Building).type).tags.includes(tag)),
+    blocksMovementAt: (i, cls, faction) => buildings.blocksMovementAt(i, cls, faction),
+    hearth: () => buildings.hearthId,
+    value: (id) => {
+      const b = buildings.get(id);
+      return b === undefined || b.state !== 'built' ? 0 : buildings.valueOf(b);
     },
   };
 }

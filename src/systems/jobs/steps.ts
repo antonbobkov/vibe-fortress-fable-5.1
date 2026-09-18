@@ -39,11 +39,16 @@ function pendingWork(job: Job): boolean {
   return (typeof tool === 'number' && tool !== 0) || nextUndelivered(job) !== 0;
 }
 
-/** Where fetched inputs go: the producer's delivery tile, or the work tile. */
-function deliveryTile(job: Job): TileIndex {
+/**
+ * Where fetched inputs go: the producer's delivery tile, the work tile, or, for an `adjacent` job
+ * whose site cannot be stood on (a wall over open space), the worker's stand tile.
+ */
+function deliveryTile(board: JobBoard, job: Job, workerId: EntityId): TileIndex {
   const d = job.data['deliveryTile'];
   if (typeof d === 'number') return d;
-  return typeof job.workTile === 'number' ? job.workTile : job.target.ref;
+  if (typeof job.workTile === 'number') return job.workTile;
+  if (job.workTile === 'adjacent') return chooseStand(board, job, workerId);
+  return board.anchorTile(job);
 }
 
 /**
@@ -112,7 +117,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
           board.unclaim(job, 'unreachable');
         }
       } else {
-        const dest = deliveryTile(job);
+        const dest = deliveryTile(board, job, workerId);
         if (board.workerTile(workerId) === dest) {
           board.items.dropAt(carrying, dest);
           for (const input of job.inputs) if (input.reserved.includes(carrying)) input.delivered.push(carrying);
@@ -145,6 +150,15 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
       const required = effortRequired(workCentiTicks(board, job));
       const done = (typeof job.data['effort'] === 'number' ? (job.data['effort'] as number) : 0) +
         effortPerTick(SKILL_TIME_BONUS_PERCENT, board.skillFor(workerId, job), board.productivity(workerId));
+      if (done >= required) {
+        const producer = board.producers.find((p) => p.id === job.producer);
+        // The work is done but the producer holds completion back (a creature on a wall's tile).
+        if (producer?.canComplete?.(job) === false) {
+          job.data['effort'] = required;
+          job.progress = progressOf(required, required) - 1;
+          return;
+        }
+      }
       job.data['effort'] = done;
       job.progress = progressOf(done, required);
       if (done < required) return;

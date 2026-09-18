@@ -46,7 +46,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M2-02 — Item search (opus-m2, 2026-09-18)
 - [x] T-M2-03 — Zones and stockpiles (opus-m2, 2026-09-18)
 - [x] T-M2-04 — Wants-hauling and haul jobs (opus-m2, 2026-09-18)
-- [ ] T-M2-05 — Buildings: placement, build job, constructions, deconstruction
+- [x] T-M2-05 — Buildings: placement, build job, constructions, deconstruction (opus-m2, 2026-09-18)
 - [ ] T-M2-06 — Furniture, doors, hatches, special buildings
 - [ ] T-M2-07 — Rooms
 - [ ] T-M2-08 — Embark arrival: wagon, supplies, animals, initial stockpile hint

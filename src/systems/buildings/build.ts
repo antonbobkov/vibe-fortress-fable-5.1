@@ -1,0 +1,538 @@
+/**
+ * Buildings: `02-systems/14-buildings-and-rooms.md` § Placement, § Constructions, § Value, and the
+ * command-catalog rows `PlaceBuilding`, `CancelBuilding`, `DeconstructBuilding`,
+ * `SetBuildingPriority`; job types `build` and `deconstruct` of `03-content/jobs.md`.
+ *
+ * ```
+ * PlaceBuilding { type, origin, orientation, materialChoice, priority }:
+ *   1. footprint (w × h, rotated for rotatable types), every tile discovered, the type's `on` rule,
+ *      no other building
+ *   2. materials: the inputs; `materialChoice` narrows the filter
+ *   3. magma safety (hook: true until 05's magma rules; T-M2-05)
+ *   4. entity `planned` + a `build` job (labor by category, skill `building`, inputs,
+ *      `workTile: adjacent`, or `at` for floors and stairs the builder stands on)
+ *   5. BuildingPlaced; a planned building is passable
+ * build completion: consume inputs, state `built`, constructions through the terrain API
+ *   (`setKind`, `constructed`), BuildingCompleted; a wall waits while a creature is on its tile
+ * ```
+ *
+ * Furniture placement (the linked item) is T-M2-06's; until then a furniture type is refused
+ * (D-073).
+ */
+
+import { C, type Building } from '@core/components';
+import { OK, reject, type Command, type CommandResult } from '@core/commands';
+import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
+import { Designation, TileFlag, TileKind, type Map3D } from '@core/map3d';
+import type { EntityStore } from '@core/entities';
+import type { GameEvent } from '@core/events';
+import type { Registry } from '@core/registry';
+import type { CoreServices, JobProducer, TickContext } from '@core/system';
+import type { EntityId, Idx, MovementClass, TileIndex } from '@core/types';
+import { CONSTRUCTION_KIND, constructionFlags, onRuleHolds, onRuleOf, standsAt } from './constructions';
+
+export interface BuildingRow {
+  readonly id: string;
+  readonly name: string;
+  readonly category: 'construction' | 'furniture' | 'workshop' | 'mechanism' | 'trap' | 'special';
+  readonly footprint: { readonly w: number; readonly h: number; readonly rotatable: boolean };
+  readonly on: string;
+  readonly inputs: readonly { readonly match: string; readonly count: number | 'tiles'; readonly material?: unknown }[];
+  readonly labor: string;
+  readonly buildTicks: number;
+  readonly tags: readonly string[];
+  readonly roomValue: number | string;
+  readonly passable: boolean | 'rules';
+  readonly blocksFluid: boolean | 'rules';
+  readonly value: number;
+  readonly impassableTiles?: readonly number[];
+}
+
+interface ItemRow {
+  readonly id: string;
+  readonly tags?: readonly string[];
+}
+
+interface MaterialRow {
+  readonly id: string;
+  readonly class: string;
+  readonly value: number;
+}
+
+/** "By material" labor: wood → carpentry, stone → masonry, metal → smithing (`buildings-and-furniture.md`). */
+const LABOR_BY_CLASS: Readonly<Record<string, string>> = Object.freeze({ wood: 'carpentry', stone: 'masonry', metal: 'smithing' });
+
+export interface BuildHost {
+  readonly map: Map3D;
+  readonly entities: EntityStore;
+  readonly registry: Registry;
+  readonly services: CoreServices;
+  emit(event: GameEvent): void;
+  /** Creatures standing on a tile. */
+  creaturesAt(i: TileIndex): readonly EntityId[];
+  /** Whether a fortress creature is alive (the hearth cannot be deconstructed while dwarves live). */
+  dwarvesAlive(): boolean;
+  /** 11's job id for a key, or 0. */
+  jobIdByKey(key: string): number;
+}
+
+export function buildKey(id: EntityId): string {
+  return `build:${id}`;
+}
+
+export function deconstructKey(id: EntityId): string {
+  return `deconstruct:${id}`;
+}
+
+export class BuildingStore {
+  readonly host: BuildHost;
+  private readonly rows: (BuildingRow | undefined)[] = [];
+  private readonly rowIndex = new Map<string, number>();
+  private readonly materials: (MaterialRow | undefined)[] = [];
+  private readonly itemTypes: (ItemRow | undefined)[] = [];
+  private readonly itemIndex = new Map<string, number>();
+  /** Buildings waiting for a build or deconstruct job, ascending. */
+  readonly pending: EntityId[] = [];
+  hearthId: EntityId = 0;
+
+  constructor(host: BuildHost) {
+    this.host = host;
+    const table = host.registry.table<BuildingRow>('buildings');
+    for (let t = 1; t <= table.size; t += 1) {
+      const row = table.byIndex(t) as BuildingRow;
+      this.rows[t] = row;
+      this.rowIndex.set(row.id, t);
+    }
+    const mats = host.registry.table<MaterialRow>('materials');
+    for (let m = 1; m <= mats.size; m += 1) this.materials[m] = mats.byIndex(m);
+    const items = host.registry.table<ItemRow>('items');
+    for (let t = 1; t <= items.size; t += 1) {
+      const row = items.byIndex(t) as ItemRow;
+      this.itemTypes[t] = row;
+      this.itemIndex.set(row.id, t);
+    }
+  }
+
+  private get map(): Map3D {
+    return this.host.map;
+  }
+
+  row(type: number): BuildingRow {
+    const r = this.rows[type];
+    if (r === undefined) throw new RangeError(`buildings: unknown building type ${type}`);
+    return r;
+  }
+
+  typeOf(id: string | number): number {
+    if (typeof id === 'number') return this.rows[id] === undefined ? 0 : id;
+    return this.rowIndex.get(id) ?? 0;
+  }
+
+  get(id: EntityId): Building | undefined {
+    return this.host.entities.get(id, C.Building);
+  }
+
+  typeIdOf(id: EntityId): string {
+    const b = this.get(id);
+    return b === undefined ? '' : (this.rows[b.type]?.id ?? '');
+  }
+
+  all(): EntityId[] {
+    return this.host.entities.with(C.Building);
+  }
+
+  private write(id: EntityId, patch: Partial<Building>): Building {
+    const b = { ...(this.get(id) as Building), ...patch };
+    this.host.entities.add(id, C.Building, b);
+    return b;
+  }
+
+  // ---------- footprints and inputs ----------
+
+  /** The footprint of a type at an origin (its north-west tile), rotated for rotatable types. */
+  footprint(row: BuildingRow, origin: TileIndex, orientation: number): TileIndex[] | null {
+    const map = this.map;
+    const turned = row.footprint.rotatable && orientation % 2 === 1;
+    const w = turned ? row.footprint.h : row.footprint.w;
+    const h = turned ? row.footprint.w : row.footprint.h;
+    const out: TileIndex[] = [];
+    for (let dy = 0; dy < h; dy += 1) {
+      for (let dx = 0; dx < w; dx += 1) {
+        const t = map.offset(origin, dx, dy, 0);
+        if (t < 0) return null;
+        out.push(t);
+      }
+    }
+    return out.sort((a, b) => a - b);
+  }
+
+  /** The tile a building's jobs anchor to: the centre of its footprint. */
+  anchorOf(b: Building): TileIndex {
+    const map = this.map;
+    const xs = b.footprint.map((t) => map.xOf(t));
+    const ys = b.footprint.map((t) => map.yOf(t));
+    const x = Math.floor((Math.min(...xs) + Math.max(...xs)) / 2);
+    const y = Math.floor((Math.min(...ys) + Math.max(...ys)) / 2);
+    return map.index(x, y, map.zOf(b.origin));
+  }
+
+  /** An input's `match` ("block|log|bar|raw_stone"): every item type an alternative names by id or tag (D-012). */
+  typesOf(match: string): number[] {
+    const out = new Set<number>();
+    for (const alt of match.split('|').map((a) => a.trim())) {
+      const direct = this.itemIndex.get(alt);
+      if (direct !== undefined) {
+        out.add(direct);
+        continue;
+      }
+      for (let t = 1; t < this.itemTypes.length; t += 1) if (this.itemTypes[t]?.tags?.includes(alt) === true) out.add(t);
+    }
+    return Array.from(out).sort((a, b) => a - b);
+  }
+
+  private inputsFor(row: BuildingRow, tiles: number, material: number): { filter: Record<string, unknown>; count: number }[] {
+    return row.inputs.map((input) => ({
+      filter: { types: this.typesOf(input.match), ...(material !== 0 ? { materialId: material } : {}) },
+      count: input.count === 'tiles' ? tiles : input.count,
+    }));
+  }
+
+  /** `labor` for the build job: the row's, "by material" from the chosen material's class, else `construction`. */
+  laborFor(row: BuildingRow, material: number): string {
+    if (row.labor !== 'by_material') return row.labor;
+    return LABOR_BY_CLASS[this.materials[material]?.class ?? ''] ?? 'construction';
+  }
+
+  /** 14 § Value: `materialValue + type.valueBonus`. */
+  valueOf(b: Building): number {
+    return (this.materials[b.material]?.value ?? 0) + this.row(b.type).value;
+  }
+
+  /** 14 § Placement step 3: magma safety. 05's magma rules are not in yet, so every material is safe (T-M2-05). */
+  magmaSafe(_tiles: readonly TileIndex[], _material: number): boolean {
+    return true;
+  }
+
+  // ---------- commands ----------
+
+  /** `PlaceBuilding { buildingType, origin, orientation, materialChoice, priority }`; the new id through `placed`. */
+  place(cmd: Command, placed?: (id: EntityId) => void): CommandResult {
+    const map = this.map;
+    const typeRaw = cmd['buildingType'];
+    const type = this.typeOf(typeof typeRaw === 'string' || typeof typeRaw === 'number' ? typeRaw : '');
+    if (type === 0) return reject('not_found');
+    const row = this.row(type);
+    if (row.category === 'furniture') return reject('not_found');
+    const origin = cmd['origin'];
+    if (typeof origin !== 'number' || !map.validIndex(origin)) return reject('out_of_bounds');
+    const orientation = typeof cmd['orientation'] === 'number' ? cmd['orientation'] : 0;
+    if (!Number.isInteger(orientation) || orientation < 0 || orientation > 3) return reject('out_of_range');
+    const priority = cmd['priority'] === undefined ? PRIORITY_DEFAULT : cmd['priority'];
+    if (typeof priority !== 'number' || !Number.isInteger(priority) || priority < PRIORITY_MIN || priority > PRIORITY_MAX) {
+      return reject('out_of_range');
+    }
+    let material = 0;
+    const choice = cmd['materialChoice'];
+    if (typeof choice === 'string' && choice !== '') {
+      const mats = this.host.registry.table('materials');
+      if (!mats.has(choice)) return reject('not_found');
+      material = mats.index(choice);
+    } else if (typeof choice === 'number' && choice !== 0) {
+      if (this.materials[choice] === undefined) return reject('not_found');
+      material = choice;
+    }
+    const tiles = this.footprint(row, origin, orientation);
+    if (tiles === null) return reject('out_of_bounds');
+    for (const t of tiles) if (!map.hasFlag(t, TileFlag.Discovered)) return reject('not_discovered');
+    for (const t of tiles) if (map.buildingAtTile(t) !== 0) return reject('footprint_blocked');
+    const rule = onRuleOf(row.id);
+    for (const t of tiles) if (!onRuleHolds(map, rule, t)) return reject('bad_placement');
+    if (!this.magmaSafe(tiles, material)) return reject('not_magma_safe');
+    if (row.tags.includes('hearth') && this.hearthId !== 0 && this.host.entities.alive(this.hearthId)) return reject('hearth_exists');
+
+    const id = this.host.entities.create('building');
+    this.host.entities.add(id, C.Building, {
+      type: type as Idx<'BuildingDef'>,
+      material: material as Idx<'MaterialDef'>,
+      state: 'planned',
+      origin,
+      footprint: tiles,
+      orientation: orientation as Building['orientation'],
+      itemId: 0,
+      mode: '',
+      linkedIds: [],
+      ownerId: 0,
+      settings: { priority, materialChoice: material, inputs: [] },
+      toggled: false,
+    });
+    for (const t of tiles) map.setBuildingAt(t, id);
+    if (row.tags.includes('hearth')) this.hearthId = id;
+    this.addPending(id);
+    placed?.(id);
+    this.host.emit({ type: 'BuildingPlaced', id, buildingType: row.id, tiles: tiles.slice() });
+    return OK;
+  }
+
+  /** `CancelBuilding { buildingId }`: "planned or constructing". */
+  cancel(cmd: Command): CommandResult {
+    const id = cmd['buildingId'];
+    const b = typeof id === 'number' ? this.get(id) : undefined;
+    if (b === undefined) return reject('not_found');
+    if (b.state === 'built') return reject('not_cancellable');
+    this.remove(id as EntityId);
+    return OK;
+  }
+
+  /**
+   * `DeconstructBuilding { buildingId }`: "built; not the hearth while dwarves live". A construction
+   * gets 03's `remove` designation; any other building a `deconstruct` job.
+   */
+  deconstruct(cmd: Command): CommandResult {
+    const id = cmd['buildingId'];
+    const b = typeof id === 'number' ? this.get(id) : undefined;
+    if (b === undefined) return reject('not_found');
+    if (b.state !== 'built') return reject('precondition_failed');
+    const row = this.row(b.type);
+    if (row.tags.includes('hearth') && this.host.dwarvesAlive()) return reject('hearth_is_home');
+    const priority = (b.settings['priority'] as number | undefined) ?? PRIORITY_DEFAULT;
+    if (row.category === 'construction') {
+      for (const t of b.footprint) this.host.services.terrain.setDesignation(t, Designation.Remove, priority);
+      return OK;
+    }
+    this.write(id as EntityId, { settings: { ...b.settings, deconstruct: true } });
+    this.addPending(id as EntityId);
+    return OK;
+  }
+
+  /** `SetBuildingPriority { buildingId, priority }`: "planned". */
+  setPriority(cmd: Command): CommandResult {
+    const id = cmd['buildingId'];
+    const b = typeof id === 'number' ? this.get(id) : undefined;
+    if (b === undefined) return reject('not_found');
+    if (b.state !== 'planned') return reject('precondition_failed');
+    const p = cmd['priority'];
+    if (typeof p !== 'number' || !Number.isInteger(p) || p < PRIORITY_MIN || p > PRIORITY_MAX) return reject('out_of_range');
+    this.write(id as EntityId, { settings: { ...b.settings, priority: p } });
+    const jobs = this.host.services.jobs;
+    const job = this.jobIdOf(buildKey(id as EntityId));
+    if (job !== 0) jobs.setPriority?.(job, p);
+    return OK;
+  }
+
+  private jobIdOf(key: string): number {
+    return this.host.jobIdByKey(key);
+  }
+
+  private addPending(id: EntityId): void {
+    if (!this.pending.includes(id)) {
+      this.pending.push(id);
+      this.pending.sort((a, b) => a - b);
+    }
+  }
+
+  /** Take a building away: its tiles, its jobs, `BuildingRemoved { id, buildingType, value }`. */
+  remove(id: EntityId): void {
+    const b = this.get(id);
+    if (b === undefined) return;
+    const row = this.row(b.type);
+    const jobs = this.host.services.jobs;
+    for (const key of [buildKey(id), deconstructKey(id)]) {
+      const job = this.jobIdOf(key);
+      if (job !== 0) jobs.cancel(job, 'target_invalid');
+    }
+    for (const t of b.footprint) if (this.map.buildingAtTile(t) === id) this.map.setBuildingAt(t, 0);
+    const value = b.state === 'built' ? this.valueOf(b) : 0;
+    const at = this.pending.indexOf(id);
+    if (at >= 0) this.pending.splice(at, 1);
+    if (this.hearthId === id) this.hearthId = 0;
+    this.host.entities.destroy(id);
+    this.host.emit({ type: 'BuildingRemoved', id, buildingType: row.id, value });
+  }
+
+  // ---------- the job producer ----------
+
+  /** The `buildings` producer: a job for every planned building and every pending deconstruction. */
+  producer(): JobProducer {
+    return {
+      id: 'buildings',
+      produce: (ctx: TickContext) => this.produce(ctx),
+      onComplete: (job, ctx) => this.onComplete(job as JobLike, ctx),
+      canComplete: (job) => this.canComplete(job as JobLike),
+      workCentiTicks: (job) => {
+        const t = (job as JobLike).data['buildTicks'];
+        return typeof t === 'number' ? t * 100 : undefined;
+      },
+      onJobEvent: (event) => {
+        if (event.type === 'JobClaimed' && event['jobType'] === 'build') {
+          const id = event['target'] as EntityId;
+          const b = this.get(id);
+          if (b !== undefined && b.state === 'planned') this.write(id, { state: 'constructing' });
+        } else if (event.type === 'JobCancelled') {
+          // A cancelled job whose building still stands is made again.
+          for (const id of this.all()) {
+            const b = this.get(id) as Building;
+            if (b.state !== 'built' || b.settings['deconstruct'] === true) this.addPending(id);
+          }
+        }
+      },
+    };
+  }
+
+  private produce(ctx: TickContext): void {
+    if (this.pending.length === 0) return;
+    const jobs = ctx.jobs;
+    for (const id of this.pending.splice(0)) {
+      const b = this.get(id);
+      if (b === undefined) continue;
+      const row = this.row(b.type);
+      const priority = (b.settings['priority'] as number | undefined) ?? PRIORITY_DEFAULT;
+      const anchor = this.anchorOf(b);
+      const material = (b.settings['materialChoice'] as number | undefined) ?? 0;
+      if (b.state !== 'built') {
+        if (jobs.exists(buildKey(id))) continue;
+        jobs.create(buildKey(id), {
+          type: 'build',
+          target: { kind: 'building', ref: id },
+          workTile: standsAt(row.id, this.map, b.origin) ? 'at' : 'adjacent',
+          priority,
+          inputs: this.inputsFor(row, b.footprint.length, material),
+          data: { building: id, anchorTile: anchor, labor: this.laborFor(row, material), buildTicks: row.buildTicks },
+        });
+      } else if (b.settings['deconstruct'] === true) {
+        if (jobs.exists(deconstructKey(id))) continue;
+        jobs.create(deconstructKey(id), {
+          type: 'deconstruct',
+          target: { kind: 'building', ref: id },
+          workTile: 'adjacent',
+          priority,
+          data: { building: id, anchorTile: anchor, labor: this.laborFor(row, b.material), buildTicks: Math.floor(row.buildTicks / 2) },
+        });
+      }
+    }
+  }
+
+  /** "Constructions that become walls check that no creature is on the tile (the job waits otherwise)." */
+  private canComplete(job: JobLike): boolean {
+    const id = job.data['building'];
+    if (typeof id !== 'number' || !job.key.startsWith('build:')) return true;
+    const b = this.get(id);
+    if (b === undefined) return true;
+    if (CONSTRUCTION_KIND[this.row(b.type).id] !== TileKind.Wall) return true;
+    return b.footprint.every((t) => this.host.creaturesAt(t).length === 0);
+  }
+
+  private onComplete(job: JobLike, _ctx: TickContext): void {
+    const id = job.data['building'];
+    if (typeof id !== 'number' || this.get(id) === undefined) return;
+    if (job.key.startsWith('build:')) {
+      const delivered: EntityId[] = [];
+      for (const input of job.inputs) for (const it of input.delivered) delivered.push(it);
+      this.complete(id, delivered, 0);
+    } else if (job.key.startsWith('deconstruct:')) {
+      this.dismantle(id);
+    }
+  }
+
+  /**
+   * Build completion: consume the inputs (one unit of each delivered stack; D-073), `built`, the
+   * tile change of a construction, `BuildingCompleted { id, buildingType, value }`. With no
+   * delivered inputs (`TestWorld.build`), `material` and the first alternative of each input stand
+   * in for them.
+   */
+  complete(id: EntityId, delivered: readonly EntityId[], material: number): void {
+    const b = this.get(id) as Building;
+    const row = this.row(b.type);
+    const items = this.host.services.items;
+    const used: { type: string; material: number }[] = [];
+    for (const it of delivered) {
+      const rec = this.host.entities.get(it, C.Item);
+      if (rec === undefined) continue;
+      used.push({ type: this.itemTypes[rec.type]?.id ?? '', material: rec.material });
+      items?.consume(it, 1);
+    }
+    if (delivered.length === 0) {
+      for (const input of row.inputs) {
+        const t = this.typesOf(input.match)[0];
+        const n = input.count === 'tiles' ? b.footprint.length : input.count;
+        for (let k = 0; k < n && t !== undefined; k += 1) used.push({ type: this.itemTypes[t]?.id ?? '', material });
+      }
+    }
+    const mat = used[0]?.material ?? (material !== 0 ? material : b.material);
+    this.write(id, { state: 'built', material: mat as Idx<'MaterialDef'>, settings: { ...b.settings, inputs: used } });
+    const kind = CONSTRUCTION_KIND[row.id];
+    if (kind !== undefined) {
+      const terrain = this.host.services.terrain;
+      const flags = constructionFlags(row.id);
+      for (const t of b.footprint) {
+        terrain.setKind(t, kind, mat);
+        if ((flags.clear & TileFlag.Grass) !== 0) terrain.setFlag(t, TileFlag.Grass, false);
+        if ((flags.clear & TileFlag.Mud) !== 0) terrain.setFlag(t, TileFlag.Mud, false);
+        // Setting `constructed` runs 03's support check (`03` § Support and collapse).
+        terrain.setFlag(t, TileFlag.Constructed, true);
+      }
+    } else {
+      for (const t of b.footprint) this.map.markChunkDirty(t, true, true);
+    }
+    const built = this.get(id);
+    if (built === undefined) return;
+    this.host.emit({ type: 'BuildingCompleted', id, buildingType: row.id, value: this.valueOf(built) });
+    if (row.tags.includes('hearth')) this.host.emit({ type: 'HearthLit', id });
+  }
+
+  /** `deconstruct` completion: "returns the material item(s)" at the anchor, and the building goes. */
+  private dismantle(id: EntityId): void {
+    const b = this.get(id) as Building;
+    const at = this.anchorOf(b);
+    const inputs = (b.settings['inputs'] as { type: string; material: number }[] | undefined) ?? [];
+    const spawn = this.host.services.spawn;
+    for (const u of inputs) {
+      const t = this.itemIndex.get(u.type);
+      if (t !== undefined) spawn.item(t, u.material, at, 1);
+    }
+    this.remove(id);
+  }
+
+  // ---------- terrain and passability ----------
+
+  /** The item a construction on a tile was built from (03's `remove` and collapse return it; D-050). */
+  constructionItemAt(tile: TileIndex): string | null {
+    const id = this.map.buildingAtTile(tile);
+    const b = id === 0 ? undefined : this.get(id);
+    if (b === undefined || b.state !== 'built' || this.row(b.type).category !== 'construction') return null;
+    const inputs = b.settings['inputs'] as { type: string }[] | undefined;
+    return inputs?.[0]?.type ?? null;
+  }
+
+  /** A construction whose tile was removed or collapsed is gone (`TilesChanged`). */
+  onTilesChanged(tiles: readonly TileIndex[]): void {
+    for (const t of tiles) {
+      const id = this.map.buildingAtTile(t);
+      const b = id === 0 ? undefined : this.get(id);
+      if (b === undefined || b.state !== 'built' || this.row(b.type).category !== 'construction') continue;
+      if (!this.map.hasFlag(t, TileFlag.Constructed) || this.map.kindAt(t) !== CONSTRUCTION_KIND[this.row(b.type).id]) this.remove(id);
+    }
+  }
+
+  /**
+   * 22's `blocksMovementAt(i, cls, faction)`: a built building that is not passable blocks every
+   * class; a planned one is passable; constructions are the terrain's; door rules are T-M2-06's.
+   */
+  blocksMovementAt(i: TileIndex, _cls: MovementClass, _faction: string | undefined): boolean {
+    const id = this.map.buildingAtTile(i);
+    if (id === 0) return false;
+    const b = this.get(id);
+    if (b === undefined || b.state !== 'built') return false;
+    const row = this.row(b.type);
+    if (row.category === 'construction') return false;
+    if (row.passable === false) return true;
+    const k = b.footprint.indexOf(i);
+    return row.impassableTiles !== undefined && row.impassableTiles.includes(k);
+  }
+}
+
+/** The part of 11's job record the producer reads. */
+interface JobLike {
+  readonly key: string;
+  readonly inputs: readonly { readonly delivered: readonly EntityId[] }[];
+  readonly data: Readonly<Record<string, unknown>>;
+}

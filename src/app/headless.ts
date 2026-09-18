@@ -325,6 +325,14 @@ export class HeadlessGame {
     this.world.init();
     const terrain = this.terrain;
     if (terrain !== null) this.pathing.graph.hooks.forbidden = (i) => terrain.core.isForbidden(i);
+    // 14's buildings block movement through 22's hook (T-M2-05), besides any hook the caller gave.
+    const buildings = systems.find((s) => s instanceof BuildingsSystem) as BuildingsSystem | undefined;
+    if (buildings !== undefined) {
+      const hooks = this.pathing.graph.hooks;
+      const given = hooks.blocksMovementAt;
+      const store = buildings.buildings;
+      hooks.blocksMovementAt = (i, cls, faction) => given(i, cls, faction) || store.blocksMovementAt(i, cls, faction);
+    }
     this.arrival = this.embark(options.embark ?? 'none', options.spec ?? FLAT_TEST_SPEC, options.fortressName);
     // The idle anchor until there is a hearth hall: the wagon tile (`creature-brains.md`; D-057).
     const dwarves = systems.find((s) => s instanceof DwarvesSystem) as DwarvesSystem | undefined;

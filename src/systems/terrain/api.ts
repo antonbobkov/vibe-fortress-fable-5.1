@@ -86,6 +86,8 @@ export class TerrainCore implements TerrainApi {
   private settling = false;
   /** Bumped on every designation change; 03's job producer reconciles when it moves. */
   designationsVersion = 0;
+  /** 14's record of the item each construction was built from (D-050, T-M2-05). */
+  private constructionSource: ((tile: TileIndex) => string | null) | null = null;
 
   constructor(host: TerrainHost) {
     this.host = host;
@@ -149,6 +151,18 @@ export class TerrainCore implements TerrainApi {
       this.write(c.tile, kind, material, c.set ?? 0, c.clear ?? 0);
     }
     this.settle();
+  }
+
+  setConstructionItemSource(source: ((tile: TileIndex) => string | null) | null): void {
+    this.constructionSource = source;
+  }
+
+  /**
+   * The item a construction returns: the one 14 recorded it was built from, else by material class
+   * (D-050: "until 14 records what was used").
+   */
+  constructionItemAt(tile: TileIndex, material: number): string {
+    return this.constructionSource?.(tile) ?? constructionItem(material, this.host.facts, (m) => this.host.facts.isMetal(m));
   }
 
   // ---------- the one write path ----------
@@ -271,11 +285,11 @@ export class TerrainCore implements TerrainApi {
   private collapse(i: TileIndex): void {
     const map = this.map;
     const material = map.materialAt(i);
+    const item = this.constructionItemAt(i, material);
     // "it becomes `open` …, its material item is spawned at the first solid tile below, creatures
     // on it fall (22 movement helper) and items on it fall".
     this.write(i, TileKind.Open, 0, 0, TileFlag.Constructed | TileFlag.Smoothed | TileFlag.Engraved);
     this.collapsed.push(i);
-    const item = constructionItem(material, this.host.facts, (m) => this.host.facts.isMetal(m));
     this.drop(item, material, 1, this.landingTile(i), 'collapse');
     const movement = this.host.services.movement;
     if (movement !== null) {

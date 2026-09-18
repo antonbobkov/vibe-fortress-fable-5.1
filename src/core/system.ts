@@ -31,6 +31,12 @@ export interface TerrainApi {
   /** `03` § Interfaces › Terrain API. Optional so the M0 core implementation stays minimal. */
   clearDesignation?(i: TileIndex): void;
   /**
+   * 14 tells 03 which item a construction on a tile was built from, so `remove` and a collapse
+   * return that item (`03` § Tile transitions, § Support and collapse; D-050, T-M2-05). Optional:
+   * without it 03 returns by material class.
+   */
+  setConstructionItemSource?(source: ((tile: TileIndex) => string | null) | null): void;
+  /**
    * Emit the tick's batched events (`TilesChanged`, and 03's `TilesDiscovered`). The world calls
    * this once after step 2 of the tick (`tick-order.md`), so tiles changed by any system through
    * the API land in the same tick's batch.
@@ -54,6 +60,8 @@ export interface JobsApi {
   stepWorker(workerId: EntityId, ctx: TickContext): void;
   /** Interruption: the job returns to `open`, keeping its progress when `keepProgress`. */
   interrupt(workerId: EntityId, keepProgress: boolean): void;
+  /** `SetBuildingPriority` and friends: a job's priority (11's sink). */
+  setPriority?(jobId: number, priority: number): void;
 }
 
 /**
@@ -178,9 +186,14 @@ export interface JobProducer {
    */
   onComplete?(job: unknown, ctx: TickContext): void;
   /** The work time of a job in hundredths of a tick, when the producer computes it (`jobs.md`). */
-  workCentiTicks?(job: unknown): number;
+  workCentiTicks?(job: unknown): number | undefined;
   /** Stand tiles a job allows besides the `adjacent` 8-neighbours (D-058). */
   extraStandTiles?(job: unknown): readonly TileIndex[];
+  /**
+   * False while the finished work may not complete yet (14: "Constructions that become walls check
+   * that no creature is on the tile (the job waits otherwise)"). T-M2-05.
+   */
+  canComplete?(job: unknown): boolean;
 }
 
 export interface RecipeSet {

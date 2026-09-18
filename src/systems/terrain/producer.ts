@@ -216,7 +216,12 @@ export class TerrainProducer implements JobProducer {
     const cls = facts.classOf(material);
     const mines =
       kind === Designation.Dig || kind === Designation.StairsUp || kind === Designation.StairsUpDown || kind === Designation.Ramp;
-    const result = transition(map, tile, kind, facts, this.rolls(), (m) => facts.isMetal(m));
+    const raw = transition(map, tile, kind, facts, this.rolls(), (m) => facts.isMetal(m));
+    // `remove` returns the item 14 recorded the construction was built from (D-050, T-M2-05).
+    const result =
+      kind === Designation.Remove
+        ? { ...raw, drops: raw.drops.map((d) => ({ ...d, type: core.constructionItemAt(tile, material) })) }
+        : raw;
 
     // A channel removes the floor under the worker: it steps off first (`03` § Digging as a job).
     if (kind === Designation.Channel) this.stepOff(worker, tile, ctx);

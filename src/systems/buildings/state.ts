@@ -16,6 +16,8 @@ export interface BuildingsStateV1 {
   dirtyRooms: EntityId[];
   pendingToggles: { id: EntityId; on: boolean; atTick: Tick }[];
   rng: RngState;
+  /** Superset: buildings waiting for their build or deconstruct job (D-073). */
+  pendingJobs: EntityId[];
 }
 
 /** Binary search: the insertion point of `value` in an ascending array. */
