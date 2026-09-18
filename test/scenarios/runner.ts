@@ -8,7 +8,8 @@
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { NotYetImplementedError } from '@core/system';
+import { generatedSpec, regionSpec } from '@app/headless';
+import type { RegionRecord } from '@systems/worldgen';
 import { TestWorld } from './test-world';
 import type { Command } from '@core/commands';
 import type { GameSystem } from '@core/system';
@@ -25,7 +26,7 @@ export function currentMilestone(): number {
 
 export type Milestone = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-/** `'flat-test'` per `acceptance-tests.md`; the other two arrive with 01 and 02 in M1. */
+/** `'flat-test'` per `acceptance-tests.md`; `'generated'` and a region spec since T-M1-05. */
 export type ScenarioWorld = 'flat-test' | 'generated' | { readonly region: Record<string, unknown> };
 
 /**
@@ -61,19 +62,25 @@ export interface Scenario {
 }
 
 function buildWorld(scenario: Scenario): TestWorld {
-  if (scenario.world === 'generated') {
-    throw new NotYetImplementedError(`scenario ${scenario.id}: world 'generated'`, 'T-M1-05');
-  }
-  if (typeof scenario.world === 'object') {
-    throw new NotYetImplementedError(`scenario ${scenario.id}: a region spec`, 'T-M1-05');
-  }
   const embark = scenario.embark ?? 'none';
   if (typeof embark === 'object' && typeof embark['preset'] !== 'string') {
     throw new Error(`scenario ${scenario.id}: an embark spec names a preset ({ preset: id })`);
   }
+  // T-M1-05: 'generated' is the standard world of the seed at its default region; a region spec is
+  // the flat-test region with the given fields (DECISIONS.md D-046).
+  const world =
+    scenario.world === 'flat-test'
+      ? ({ world: 'flat-test' } as const)
+      : ({
+          world: 'local',
+          spec:
+            scenario.world === 'generated'
+              ? generatedSpec(scenario.seed)
+              : regionSpec(scenario.seed, scenario.world.region as Partial<RegionRecord>),
+        } as const);
   return new TestWorld({
     seed: scenario.seed,
-    world: 'flat-test',
+    ...world,
     embark: typeof embark === 'object' ? { preset: embark['preset'] as string } : embark,
     ...(scenario.systems === undefined ? {} : { systems: scenario.systems() }),
   });

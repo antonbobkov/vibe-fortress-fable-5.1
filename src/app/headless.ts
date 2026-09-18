@@ -27,9 +27,13 @@ import {
   EmbarkSession,
   arrive,
   basicDwarfSpawner,
+  localMapSpec,
   type ArrivalResult,
   type LocalMapSpec,
 } from '@systems/embark';
+import { generateLocal, type LocalMapResult } from '@systems/terrain/generate';
+import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
+import { WORLD_SIZE_STANDARD } from '@core/constants';
 
 /** `acceptance-tests.md`: the `flat-test` surface. */
 export const FLAT_TEST_SURFACE_Z = 32;
@@ -126,7 +130,8 @@ export const FLAT_TEST_SPEC: LocalMapSpec = Object.freeze({
   seed: 'flat-test',
   regionId: 0,
   biome: 'temperate_grassland',
-  elevation: 120,
+  // The elevation whose base surface is FLAT_TEST_SURFACE_Z (see REGION_SPEC_ELEVATION).
+  elevation: 158,
   relief: 0,
   soilDepth: FLAT_TEST_SOIL_DEPTH,
   geology: 'igneous',
@@ -143,6 +148,59 @@ export const FLAT_TEST_SPEC: LocalMapSpec = Object.freeze({
 } as const);
 
 /**
+ * The region of a `'generated'` world: the first region in id order that can be embarked on
+ * (DECISIONS.md D-046). Region id 0 is always sea (the continental mask), so "region 0" of a
+ * seed in the plan means index 0 of the embarkable regions.
+ */
+export function defaultRegionId(world: WorldMap, registry: Registry): number {
+  const biomes = registry.table<{ id: string; embarkable: boolean }>('biomes');
+  const r = world.regions.find((reg) => biomes.byId(reg.biome)?.embarkable === true);
+  if (r === undefined) throw new Error(`world ${world.seed} has no region that can be embarked on`);
+  return r.id;
+}
+
+/** `world: 'generated'`: the standard world of the seed and its default region's spec. */
+export function generatedSpec(seed: string, registry: Registry = contentRegistry()): LocalMapSpec {
+  const world = generateWorld(seed, WORLD_SIZE_STANDARD, registry);
+  return localMapSpec(world, defaultRegionId(world, registry), registry);
+}
+
+/** The elevation whose base surface is `FLAT_TEST_SURFACE_Z` (`03` § Local map generation stage 1). */
+export const REGION_SPEC_ELEVATION = 158;
+
+/**
+ * `world: { region }`: a spec for a region record given in part, the rest from the flat-test
+ * region of `acceptance-tests.md` ("a `serene_vale`-like region (peril 0, wealth 2, temper 0)
+ * unless the test says otherwise"), seeded from the scenario seed (D-046).
+ */
+export function regionSpec(seed: string, region: Partial<RegionRecord>, registry: Registry = contentRegistry()): LocalMapSpec {
+  const biome = region.biome ?? FLAT_TEST_SPEC.biome;
+  const biomeRow = registry.table<{ id: string; soilDepth: number }>('biomes').byId(biome);
+  if (biomeRow === undefined) throw new RangeError(`regionSpec: unknown biome ${biome}`);
+  const river = region.river ?? null;
+  const edges = region.nearestEdgeTo ?? FLAT_TEST_SPEC.civEdges;
+  return Object.freeze({
+    seed: `${seed}|region`,
+    regionId: region.id ?? 0,
+    biome,
+    elevation: region.elevation ?? REGION_SPEC_ELEVATION,
+    relief: 0,
+    soilDepth: biomeRow.soilDepth,
+    geology: region.geology ?? FLAT_TEST_SPEC.geology,
+    wealth: region.wealth ?? FLAT_TEST_SPEC.wealth,
+    peril: region.peril ?? FLAT_TEST_SPEC.peril,
+    temper: region.temper ?? FLAT_TEST_SPEC.temper,
+    deepness: region.deepness ?? FLAT_TEST_SPEC.deepness,
+    traits: Object.freeze([...(region.traits ?? FLAT_TEST_SPEC.traits)]),
+    volcano: region.volcano ?? false,
+    river: river === null ? null : { inflowEdges: [...river.inflow], outflowEdge: river.outflow, class: river.class },
+    lake: region.lake ?? false,
+    civEdges: Object.freeze({ ...edges }),
+    arrivalEdge: edges.mountainhome,
+  });
+}
+
+/**
  * The embark of a headless game: `'none'` (no dwarves), `'default'` (the Balanced preset,
  * `acceptance-tests.md`), or a named preset.
  */
@@ -154,8 +212,11 @@ export const DEFAULT_EMBARK_PRESET = 'balanced';
 export interface HeadlessOptions {
   readonly seed: string;
   readonly registry?: Registry;
-  /** `'flat-test'` builds the fixture map; `'empty'` leaves an all-open map for hand-built tests. */
-  readonly world?: 'flat-test' | 'empty';
+  /**
+   * `'flat-test'` builds the fixture map; `'empty'` leaves an all-open map for hand-built tests;
+   * `'local'` generates the local map of `spec` (03).
+   */
+  readonly world?: 'flat-test' | 'empty' | 'local';
   /** A map built by the caller, used by the hand-built scenario fixtures. */
   readonly map?: Map3D;
   readonly fortressName?: string;
@@ -181,14 +242,25 @@ export class HeadlessGame {
   readonly movement: MovementHelper;
   /** What the arrival did, when there was an embark. */
   readonly arrival: ArrivalResult | null;
+  /** The generation result of a `'local'` world. */
+  readonly local: LocalMapResult | null;
 
   constructor(options: HeadlessOptions) {
     this.registry = options.registry ?? contentRegistry();
-    const map =
-      options.map ??
-      (options.world === 'empty'
-        ? new Map3D()
-        : buildFlatTestMap(this.registry));
+    let local: LocalMapResult | null = null;
+    let map: Map3D;
+    if (options.map !== undefined) {
+      map = options.map;
+    } else if (options.world === 'empty') {
+      map = new Map3D();
+    } else if (options.world === 'local') {
+      if (options.spec === undefined) throw new Error("headless: world 'local' needs a spec");
+      map = new Map3D();
+      local = generateLocal(options.spec, map, this.registry);
+    } else {
+      map = buildFlatTestMap(this.registry);
+    }
+    this.local = local;
     const worldOptions: WorldOptions = {
       seed: options.seed,
       registry: this.registry,

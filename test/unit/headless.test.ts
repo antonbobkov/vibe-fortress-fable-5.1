@@ -7,12 +7,12 @@ import {
   FLAT_TEST_MAGMA_SHELL,
   HeadlessGame,
   buildFlatTestMap,
+  generatedSpec,
   hashesAt,
 } from '@app/headless';
 import { contentRegistry } from '@content/loader';
 import { MAGMA_SEA_TOP_Z } from '@core/constants';
 import { FluidType, TileFlag, TileKind } from '@core/map3d';
-import { NotYetImplementedError } from '@core/system';
 import { runScenario, currentMilestone, type Scenario } from '../scenarios/runner';
 import { TestWorld } from '../scenarios/test-world';
 
@@ -143,9 +143,13 @@ describe('T-M0-11 headless: the scenario runner', () => {
     expect(currentMilestone()).toBeGreaterThanOrEqual(0);
   });
 
-  it('refuses what a later milestone owns, naming the task', () => {
-    expect(() => runScenario({ ...base, world: 'generated' })).toThrow(NotYetImplementedError);
-    expect(() => runScenario({ ...base, world: { region: {} } })).toThrow(/T-M1-05/);
+  it('T-M1-05: a generated world and a region spec build a generated local map', () => {
+    const generated = runScenario({ ...base, world: 'generated', run: 0 });
+    expect(generated.game.local).not.toBeNull();
+    expect(generated.game.local?.spec).toEqual(generatedSpec(base.seed));
+    const region = runScenario({ ...base, world: { region: { biome: 'taiga', lake: true } }, run: 0 });
+    expect(region.game.local?.spec.biome).toBe('taiga');
+    expect(region.game.local?.columns.some((f) => f !== 0)).toBe(true);
   });
 
   it('T-M1-04: the default embark is lifted and lands the Balanced party', () => {
