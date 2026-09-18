@@ -6,7 +6,7 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
-import { findEmbarkableRegion, generateWorld, textOf, type Hook } from './helpers';
+import { findEmbarkableRegion, generateWorld, screenOf, textOf, type Hook } from './helpers';
 
 /** The map cell drawn inverted: the world-map cursor (every other map cell has a black bg). */
 async function cursorCell(page: Page): Promise<number> {
@@ -38,6 +38,27 @@ test('generate-and-embark', async ({ page }) => {
   await expect.poll(() => cursorCell(page)).toBe(before);
   await findEmbarkableRegion(page);
   await expect.poll(() => textOf(page)).toContain('Wealth');
+
+  // Part 2 (T-M1-13): Embark with the Balanced preset → the fortress screen with the seven
+  // dwarves near the arrival edge.
+  await page.keyboard.press('Enter');
+  await expect.poll(() => screenOf(page)).toBe('embark');
+  await page.keyboard.press('p');
+  await expect.poll(() => textOf(page)).toContain('Balanced');
+  await page.keyboard.press('Enter');
+  await expect.poll(() => textOf(page)).toContain('Spent 1,480');
+  await page.keyboard.press('Enter');
+  await expect.poll(() => screenOf(page), { timeout: 30_000 }).toBe('fortress');
+  const placed = await page.evaluate(() => {
+    const hook = (window as unknown as { __deepholm: Hook & { dwarves(): { x: number; y: number }[]; readers: { map: { w: number; h: number }; of(id: string): { spec(): { arrivalEdge: string } | null } } } }).__deepholm;
+    const edge = hook.readers.of('03').spec()?.arrivalEdge ?? 'n';
+    const map = hook.readers.map;
+    const depth = hook.dwarves().map((d) => (edge === 'n' ? d.y : edge === 's' ? map.h - 1 - d.y : edge === 'w' ? d.x : map.w - 1 - d.x));
+    return { count: depth.length, deepest: Math.max(...depth) };
+  });
+  expect(placed.count).toBe(7);
+  // `02` § Arrival: the wagon site is searched up to ARRIVAL_SEARCH_DEPTH (20) tiles in from the edge.
+  expect(placed.deepest).toBeLessThanOrEqual(20 + 2);
 
   const path = await page.evaluate(() => (window as unknown as { __deepholm: Hook }).__deepholm.screenshotName('generate-and-embark'));
   await page.screenshot({ path });

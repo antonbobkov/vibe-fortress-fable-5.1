@@ -42,6 +42,8 @@ import type { CellPointer, Screen, ScreenId } from '@ui/screen';
 import { MainMenuScreen } from '@ui/screens/main_menu';
 import { WorldGenScreen } from '@ui/screens/world_gen';
 import { WorldMapScreen } from '@ui/screens/world_map';
+import { EmbarkScreen } from '@ui/screens/embark';
+import type { HeadlessEmbark } from '@app/headless';
 
 export type { ScreenId } from '@ui/screen';
 
@@ -258,7 +260,7 @@ export class Game {
       new WorldMapScreen(
         world,
         {
-          embark: (w, regionId) => void this.embarkRegion(w, regionId),
+          embark: (w, regionId) => this.openEmbark(w, regionId),
           back: () => this.popScreen(),
         },
         this.keymap,
@@ -270,16 +272,36 @@ export class Game {
     this.render();
   }
 
+  /** The embark screen for a region (`ui-screens/embark.md`, T-M1-13). */
+  openEmbark(world: WorldMap, regionId: number): void {
+    const region = world.regions[regionId];
+    if (region === undefined) return;
+    this.pushScreen(
+      new EmbarkScreen(
+        this.registry,
+        world.seed,
+        { name: region.name, peril: region.peril, tempC: region.tempC },
+        {
+          embark: (session) => void this.embarkRegion(world, regionId, { session }),
+          back: () => this.popScreen(),
+        },
+        this.keymap,
+        this.strings,
+      ),
+    );
+    this.render();
+  }
+
   /**
    * `Embark` on a region: the local map from its `LocalMapSpec` (03) and 02's arrival with the
-   * Balanced preset; the embark screen that chooses the party is T-M1-13. Arrival step 8: "The app
-   * switches to the fortress screen, paused, centered on the wagon at the surface z-level".
+   * embark screen's session (or a preset). Arrival step 8: "The app switches to the fortress
+   * screen, paused, centered on the wagon at the surface z-level".
    */
-  async embarkRegion(world: WorldMap, regionId: number): Promise<void> {
+  async embarkRegion(world: WorldMap, regionId: number, embark: HeadlessEmbark = 'default'): Promise<void> {
     await this.working(this.strings.get('ui.busy.site'));
     try {
       const spec = localMapSpec(world, regionId, this.registry);
-      await this.host.newGame({ seed: world.seed, world: 'local', spec, embark: 'default', worldMap: world });
+      await this.host.newGame({ seed: world.seed, world: 'local', spec, embark, worldMap: world });
     } finally {
       this.busy = null;
     }
@@ -543,6 +565,8 @@ export interface TestHook {
   screen(): ScreenId;
   /** Canvas-local CSS pixels of a cell's centre, for driving the real mouse. */
   cellCenter(col: number, row: number): { x: number; y: number };
+  /** Every living dwarf's tile (`readers.of('10').list()` through the movement helper). */
+  dwarves(): { id: number; x: number; y: number; z: number }[];
   submit(command: Command): void;
   setSpeed(speed: Speed): void;
   step(ticks: number): void;
@@ -606,6 +630,19 @@ export function testHook(game: Game): TestHook {
     text: () => game.textRows(),
     screen: () => game.screen,
     cellCenter: (col, row) => game.cellCenter(col, row),
+    dwarves: () => {
+      if (!game.host.started) return [];
+      const headless = game.host.headless;
+      const map = headless.map;
+      const ids = game.host.readers.of<{ list(): number[] }>('10').list();
+      return ids.map((id) => {
+        const i = headless.movement.tileOf(id);
+        const x = i % map.w;
+        const y = Math.floor(i / map.w) % map.h;
+        const z = Math.floor(i / (map.w * map.h));
+        return { id, x, y, z };
+      });
+    },
     submit: (command) => game.host.submit(command),
     setSpeed: (speed) => game.host.setSpeed(speed),
     step: (ticks) => {

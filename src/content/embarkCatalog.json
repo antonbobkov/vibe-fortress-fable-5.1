@@ -7,7 +7,8 @@
     "count": 20,
     "container": "barrel",
     "price": 55,
-    "max": 8
+    "max": 8,
+    "category": "drink"
   },
   {
     "id": "e_anvil",
@@ -15,7 +16,8 @@
     "item": "anvil",
     "material": "iron",
     "price": 270,
-    "max": 1
+    "max": 1,
+    "category": "tools"
   },
   {
     "id": "e_axe_copper",
@@ -23,7 +25,8 @@
     "item": "axe",
     "material": "copper",
     "price": 96,
-    "max": 7
+    "max": 7,
+    "category": "tools"
   },
   {
     "id": "e_axe_iron",
@@ -31,7 +34,8 @@
     "item": "axe",
     "material": "iron",
     "price": 144,
-    "max": 7
+    "max": 7,
+    "category": "tools"
   },
   {
     "id": "e_bag",
@@ -39,7 +43,8 @@
     "item": "bag",
     "material": "flax_cloth",
     "price": 20,
-    "max": 10
+    "max": 10,
+    "category": "furniture"
   },
   {
     "id": "e_bars_copper",
@@ -48,7 +53,8 @@
     "material": "copper",
     "count": 5,
     "price": 60,
-    "max": 4
+    "max": 4,
+    "category": "materials"
   },
   {
     "id": "e_bars_iron",
@@ -57,7 +63,8 @@
     "material": "iron",
     "count": 5,
     "price": 90,
-    "max": 4
+    "max": 4,
+    "category": "materials"
   },
   {
     "id": "e_bed",
@@ -65,7 +72,8 @@
     "item": "bed",
     "material": "pine",
     "price": 12,
-    "max": 7
+    "max": 7,
+    "category": "furniture"
   },
   {
     "id": "e_bellwine",
@@ -75,7 +83,8 @@
     "count": 20,
     "container": "barrel",
     "price": 103,
-    "max": 4
+    "max": 4,
+    "category": "drink"
   },
   {
     "id": "e_bin",
@@ -83,7 +92,8 @@
     "item": "bin",
     "material": "pine",
     "price": 8,
-    "max": 6
+    "max": 6,
+    "category": "furniture"
   },
   {
     "id": "e_blocks",
@@ -92,7 +102,8 @@
     "material": "granite",
     "count": 5,
     "price": 18,
-    "max": 6
+    "max": 6,
+    "category": "materials"
   },
   {
     "id": "e_bolts_copper",
@@ -101,7 +112,8 @@
     "material": "copper",
     "count": 25,
     "price": 60,
-    "max": 8
+    "max": 8,
+    "category": "tools"
   },
   {
     "id": "e_bolts_iron",
@@ -110,7 +122,8 @@
     "material": "iron",
     "count": 25,
     "price": 90,
-    "max": 8
+    "max": 8,
+    "category": "tools"
   },
   {
     "id": "e_brightleaf",
@@ -119,7 +132,8 @@
     "material": "brightleaf",
     "count": 5,
     "price": 24,
-    "max": 4
+    "max": 4,
+    "category": "materials"
   },
   {
     "id": "e_bucket",
@@ -127,7 +141,8 @@
     "item": "bucket",
     "material": "pine",
     "price": 5,
-    "max": 6
+    "max": 6,
+    "category": "tools"
   },
   {
     "id": "e_bull",
@@ -135,7 +150,8 @@
     "species": "cow",
     "sex": 0,
     "price": 72,
-    "max": 1
+    "max": 1,
+    "category": "animals"
   },
   {
     "id": "e_cabbages",
@@ -144,7 +160,8 @@
     "material": "cabbage",
     "count": 20,
     "price": 24,
-    "max": 6
+    "max": 6,
+    "category": "food"
   },
   {
     "id": "e_cap",
@@ -152,14 +169,16 @@
     "item": "cap",
     "material": "leather",
     "price": 22,
-    "max": 7
+    "max": 7,
+    "category": "tools"
   },
   {
     "id": "e_cat",
     "entry": "cat",
     "species": "cat",
     "price": 12,
-    "max": 4
+    "max": 4,
+    "category": "animals"
   },
   {
     "id": "e_chair",
@@ -167,7 +186,8 @@
     "item": "chair",
     "material": "pine",
     "price": 8,
-    "max": 8
+    "max": 8,
+    "category": "furniture"
   },
   {
     "id": "e_charcoal",
@@ -176,7 +196,8 @@
     "material": "charcoal",
     "count": 5,
     "price": 18,
-    "max": 6
+    "max": 6,
+    "category": "materials"
   },
   {
     "id": "e_cheese",
@@ -185,7 +206,8 @@
     "material": "cheese",
     "count": 5,
     "price": 30,
-    "max": 4
+    "max": 4,
+    "category": "food"
   },
   {
     "id": "e_chest",
@@ -193,7 +215,8 @@
     "item": "chest",
     "material": "pine",
     "price": 12,
-    "max": 3
+    "max": 3,
+    "category": "furniture"
   },
   {
     "id": "e_chickens",
@@ -201,7 +224,9 @@
     "count": 4,
     "species": "chicken",
     "price": 29,
-    "max": 2
+    "max": 2,
+    "note": "needs a nest box",
+    "category": "animals"
   },
   {
     "id": "e_cloth",
@@ -210,14 +235,17 @@
     "material": "flax_cloth",
     "count": 5,
     "price": 48,
-    "max": 4
+    "max": 4,
+    "category": "materials"
   },
   {
     "id": "e_cow",
     "entry": "cow",
     "species": "cow",
     "price": 72,
-    "max": 2
+    "max": 2,
+    "note": "needs pasture",
+    "category": "animals"
   },
   {
     "id": "e_crossbow",
@@ -225,7 +253,8 @@
     "item": "crossbow",
     "material": "oak",
     "price": 36,
-    "max": 3
+    "max": 3,
+    "category": "tools"
   },
   {
     "id": "e_crutch",
@@ -233,7 +262,8 @@
     "item": "crutch",
     "material": "pine",
     "price": 8,
-    "max": 2
+    "max": 2,
+    "category": "tools"
   },
   {
     "id": "e_dimcap_ale",
@@ -243,7 +273,8 @@
     "count": 20,
     "container": "barrel",
     "price": 55,
-    "max": 8
+    "max": 8,
+    "category": "drink"
   },
   {
     "id": "e_dimcaps",
@@ -252,14 +283,17 @@
     "material": "dimcap",
     "count": 20,
     "price": 24,
-    "max": 6
+    "max": 6,
+    "category": "food"
   },
   {
     "id": "e_dog",
     "entry": "dog",
     "species": "dog",
     "price": 36,
-    "max": 6
+    "max": 6,
+    "note": "pairs breed",
+    "category": "animals"
   },
   {
     "id": "e_door",
@@ -267,7 +301,8 @@
     "item": "door",
     "material": "pine",
     "price": 10,
-    "max": 6
+    "max": 6,
+    "category": "furniture"
   },
   {
     "id": "e_empty_barrel",
@@ -275,7 +310,8 @@
     "item": "barrel",
     "material": "pine",
     "price": 8,
-    "max": 10
+    "max": 10,
+    "category": "drink"
   },
   {
     "id": "e_fish",
@@ -284,7 +320,8 @@
     "material": "trout_meat",
     "count": 10,
     "price": 24,
-    "max": 6
+    "max": 6,
+    "category": "food"
   },
   {
     "id": "e_flour",
@@ -294,14 +331,16 @@
     "count": 10,
     "container": "bag",
     "price": 43,
-    "max": 4
+    "max": 4,
+    "category": "food"
   },
   {
     "id": "e_goat",
     "entry": "goat",
     "species": "goat",
     "price": 30,
-    "max": 6
+    "max": 6,
+    "category": "animals"
   },
   {
     "id": "e_helm_iron",
@@ -309,7 +348,8 @@
     "item": "helm",
     "material": "iron",
     "price": 108,
-    "max": 4
+    "max": 4,
+    "category": "tools"
   },
   {
     "id": "e_leather",
@@ -318,7 +358,8 @@
     "material": "leather",
     "count": 5,
     "price": 36,
-    "max": 4
+    "max": 4,
+    "category": "materials"
   },
   {
     "id": "e_leather_jerkin",
@@ -326,7 +367,8 @@
     "item": "leather_jerkin",
     "material": "leather",
     "price": 44,
-    "max": 7
+    "max": 7,
+    "category": "tools"
   },
   {
     "id": "e_logs",
@@ -335,7 +377,8 @@
     "material": "pine",
     "count": 5,
     "price": 12,
-    "max": 6
+    "max": 6,
+    "category": "materials"
   },
   {
     "id": "e_mace_iron",
@@ -343,7 +386,8 @@
     "item": "mace",
     "material": "iron",
     "price": 126,
-    "max": 3
+    "max": 3,
+    "category": "tools"
   },
   {
     "id": "e_mail_iron",
@@ -351,7 +395,8 @@
     "item": "mail_shirt",
     "material": "iron",
     "price": 270,
-    "max": 4
+    "max": 4,
+    "category": "tools"
   },
   {
     "id": "e_meals",
@@ -360,7 +405,8 @@
     "material": "meal",
     "count": 10,
     "price": 120,
-    "max": 6
+    "max": 6,
+    "category": "food"
   },
   {
     "id": "e_meat",
@@ -369,7 +415,8 @@
     "material": "boar_meat",
     "count": 10,
     "price": 60,
-    "max": 6
+    "max": 6,
+    "category": "food"
   },
   {
     "id": "e_mechanism",
@@ -377,14 +424,16 @@
     "item": "mechanism",
     "material": "granite",
     "price": 12,
-    "max": 4
+    "max": 4,
+    "category": "materials"
   },
   {
     "id": "e_mule",
     "entry": "mule",
     "species": "mule",
     "price": 60,
-    "max": 3
+    "max": 3,
+    "category": "animals"
   },
   {
     "id": "e_pick_copper",
@@ -392,7 +441,8 @@
     "item": "pick",
     "material": "copper",
     "price": 72,
-    "max": 7
+    "max": 7,
+    "category": "tools"
   },
   {
     "id": "e_pick_iron",
@@ -400,14 +450,16 @@
     "item": "pick",
     "material": "iron",
     "price": 108,
-    "max": 7
+    "max": 7,
+    "category": "tools"
   },
   {
     "id": "e_pig",
     "entry": "pig",
     "species": "pig",
     "price": 42,
-    "max": 4
+    "max": 4,
+    "category": "animals"
   },
   {
     "id": "e_quiver",
@@ -415,7 +467,8 @@
     "item": "quiver",
     "material": "leather",
     "price": 22,
-    "max": 3
+    "max": 3,
+    "category": "tools"
   },
   {
     "id": "e_rope",
@@ -423,7 +476,8 @@
     "item": "rope",
     "material": "flax_cloth",
     "price": 20,
-    "max": 4
+    "max": 4,
+    "category": "materials"
   },
   {
     "id": "e_seed_barley",
@@ -433,7 +487,8 @@
     "count": 10,
     "container": "bag",
     "price": 15,
-    "max": 6
+    "max": 6,
+    "category": "seeds"
   },
   {
     "id": "e_seed_cabbage",
@@ -443,7 +498,8 @@
     "count": 10,
     "container": "bag",
     "price": 15,
-    "max": 6
+    "max": 6,
+    "category": "seeds"
   },
   {
     "id": "e_seed_cavewheat",
@@ -453,7 +509,8 @@
     "count": 10,
     "container": "bag",
     "price": 15,
-    "max": 6
+    "max": 6,
+    "category": "seeds"
   },
   {
     "id": "e_seed_dimcap",
@@ -463,7 +520,8 @@
     "count": 10,
     "container": "bag",
     "price": 15,
-    "max": 6
+    "max": 6,
+    "category": "seeds"
   },
   {
     "id": "e_seed_flax",
@@ -473,7 +531,8 @@
     "count": 10,
     "container": "bag",
     "price": 27,
-    "max": 4
+    "max": 4,
+    "category": "seeds"
   },
   {
     "id": "e_seed_hops",
@@ -483,7 +542,8 @@
     "count": 10,
     "container": "bag",
     "price": 27,
-    "max": 4
+    "max": 4,
+    "category": "seeds"
   },
   {
     "id": "e_seed_pale_bell",
@@ -493,7 +553,8 @@
     "count": 10,
     "container": "bag",
     "price": 39,
-    "max": 4
+    "max": 4,
+    "category": "seeds"
   },
   {
     "id": "e_seed_pumpkin",
@@ -503,7 +564,8 @@
     "count": 10,
     "container": "bag",
     "price": 27,
-    "max": 4
+    "max": 4,
+    "category": "seeds"
   },
   {
     "id": "e_seed_sporecloth",
@@ -513,7 +575,8 @@
     "count": 10,
     "container": "bag",
     "price": 39,
-    "max": 4
+    "max": 4,
+    "category": "seeds"
   },
   {
     "id": "e_seed_strawberry",
@@ -523,7 +586,8 @@
     "count": 10,
     "container": "bag",
     "price": 27,
-    "max": 4
+    "max": 4,
+    "category": "seeds"
   },
   {
     "id": "e_seed_sweetroot",
@@ -533,7 +597,8 @@
     "count": 10,
     "container": "bag",
     "price": 27,
-    "max": 6
+    "max": 6,
+    "category": "seeds"
   },
   {
     "id": "e_seed_turnip",
@@ -543,14 +608,17 @@
     "count": 10,
     "container": "bag",
     "price": 15,
-    "max": 6
+    "max": 6,
+    "category": "seeds"
   },
   {
     "id": "e_sheep",
     "entry": "sheep",
     "species": "sheep",
     "price": 36,
-    "max": 6
+    "max": 6,
+    "note": "pairs breed; wool",
+    "category": "animals"
   },
   {
     "id": "e_shield_wood",
@@ -558,7 +626,8 @@
     "item": "shield",
     "material": "oak",
     "price": 22,
-    "max": 4
+    "max": 4,
+    "category": "tools"
   },
   {
     "id": "e_short_sword_iron",
@@ -566,7 +635,8 @@
     "item": "short_sword",
     "material": "iron",
     "price": 144,
-    "max": 3
+    "max": 3,
+    "category": "tools"
   },
   {
     "id": "e_spear_iron",
@@ -574,7 +644,8 @@
     "item": "spear",
     "material": "iron",
     "price": 108,
-    "max": 3
+    "max": 3,
+    "category": "tools"
   },
   {
     "id": "e_splints",
@@ -583,7 +654,8 @@
     "material": "pine",
     "count": 4,
     "price": 10,
-    "max": 3
+    "max": 3,
+    "category": "tools"
   },
   {
     "id": "e_table",
@@ -591,7 +663,8 @@
     "item": "table",
     "material": "pine",
     "price": 10,
-    "max": 4
+    "max": 4,
+    "category": "furniture"
   },
   {
     "id": "e_thread",
@@ -600,7 +673,8 @@
     "material": "flax_thread",
     "count": 5,
     "price": 18,
-    "max": 4
+    "max": 4,
+    "category": "materials"
   },
   {
     "id": "e_turnips",
@@ -609,7 +683,8 @@
     "material": "turnip",
     "count": 20,
     "price": 24,
-    "max": 6
+    "max": 6,
+    "category": "food"
   },
   {
     "id": "e_war_dog",
@@ -617,7 +692,8 @@
     "species": "dog",
     "trained": "war",
     "price": 72,
-    "max": 3
+    "max": 3,
+    "category": "animals"
   },
   {
     "id": "e_yak",
@@ -625,6 +701,7 @@
     "species": "yak",
     "price": 84,
     "max": 2,
-    "condition": "only when the region is frozen or cold"
+    "condition": "only when the region is frozen or cold",
+    "category": "animals"
   }
 ]

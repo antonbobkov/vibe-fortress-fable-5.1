@@ -28,11 +28,15 @@ const EMBARK_SECTIONS = [
   'Seeds (bags of 10)', 'Materials', 'Furniture', 'Animals',
 ];
 
+/** The category each section's rows carry: the embark screen's groups (DECISIONS.md D-063). */
+const EMBARK_CATEGORIES = ['tools', 'food', 'drink', 'seeds', 'materials', 'furniture', 'animals'];
+
 export function exportEmbarkCatalog() {
   const tables = readTables(join(CONTENT_DIR, 'embark-catalog.md'));
   const out = [];
-  for (const section of EMBARK_SECTIONS) {
+  for (const [sectionIndex, section] of EMBARK_SECTIONS.entries()) {
     const table = findTable(tables, section, 'price');
+    const category = EMBARK_CATEGORIES[sectionIndex];
     const isSeeds = section.startsWith('Seeds');
     for (const row of asObjects(table)) {
       const itemCell = plain(row.item ?? '');
@@ -57,6 +61,8 @@ export function exportEmbarkCatalog() {
           price: int(row.price),
           max: int(row.max, 1),
           condition: /only when/.test(notes) ? notes : undefined,
+          note: notes !== '' && !/only when/.test(notes) ? notes : undefined,
+          category,
         }),
       );
     }

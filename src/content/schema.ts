@@ -708,6 +708,8 @@ export const SCHEMAS: Record<string, TableSchema> = {
     price: int,
     max: int,
     condition: opt(str),
+    note: opt(str),
+    category: opt(enumOf(['tools', 'food', 'drink', 'seeds', 'materials', 'furniture', 'animals'])),
   }),
 
   embarkPresets: rows({

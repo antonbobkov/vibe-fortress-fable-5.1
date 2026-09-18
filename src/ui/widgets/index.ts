@@ -8,3 +8,5 @@ export * from './menu';
 export * from './list';
 export * from './tabs';
 export * from './text';
+export * from './number';
+export * from './dropdown';
