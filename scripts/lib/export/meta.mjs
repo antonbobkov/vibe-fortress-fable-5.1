@@ -66,15 +66,104 @@ export function exportEmbarkCatalog() {
 
 const COUNT_WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7 };
 
+const STOP_WORDS = new Set(['of', 'and', 'a', 'an', 'the', 'in', 'with']);
+
+/** Lowercase words of a label, singular (a trailing "s" dropped), numbers and stop words removed. */
+function labelWords(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length > 0 && !STOP_WORDS.has(w))
+    .map((w) => (w.length > 3 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0, -1) : w));
+}
+
+/** The number a label or entry starts with ("10 easy meals" -> 10), or null. */
+function leadingNumber(text) {
+  const m = /^\s*(\d+)\s/.exec(text);
+  return m === null ? null : Number(m[1]);
+}
+
 /**
- * The preset skill lines ("two dwarves mining 5 + building 3 + axe 2") parse cleanly; the supply
- * lines name catalog entries in display prose rather than by id, so they are left to T-M1-04,
- * which owns the embark screen. See DECISIONS.md D-014.
+ * Match one preset supply phrase ("2 iron picks (216)", "dimcap seeds ×2 (30)") to a catalog entry
+ * and a count. A candidate must price out exactly: `entry.price × count = stated price`, where the
+ * count follows from the phrase's own number over the entry's unit ("50 iron bolts" over "25 iron
+ * bolts" is 2); among those, the entry sharing the most words with the phrase wins, then the one
+ * with the fewest words the phrase lacks. No match or a tie throws. DECISIONS.md D-043.
+ */
+function matchSupply(phrase, price, catalog) {
+  const times = /×\s*(\d+)/.exec(phrase);
+  const n = leadingNumber(phrase);
+  const words = labelWords(phrase);
+  let best = null;
+  let bestScore = -Infinity;
+  let tie = false;
+  for (const entry of catalog) {
+    const unit = leadingNumber(entry.entry) ?? 1;
+    const count = times !== null ? Number(times[1]) : n === null ? 1 : n / unit;
+    if (!Number.isInteger(count) || count < 1 || entry.price * count !== price) continue;
+    const entryWords = labelWords(entry.entry);
+    const shared = words.filter((w) => entryWords.includes(w)).length;
+    if (shared === 0) continue;
+    const extra = entryWords.filter((w) => !words.includes(w)).length;
+    const score = shared * 10 - extra;
+    if (score > bestScore) {
+      best = { entry: entry.id, count };
+      bestScore = score;
+      tie = false;
+    } else if (score === bestScore) {
+      tie = true;
+    }
+  }
+  if (best === null || tie) {
+    const what = best === null ? 'no' : 'more than one';
+    throw new Error(`embark-catalog.md: preset supply "${phrase} (${price})" matches ${what} catalog entry`);
+  }
+  return best;
+}
+
+/**
+ * A preset's "Supplies:" line into `{ entry, count }` rows, checked against the stated total.
+ * "seeds: dimcap (15), cavewheat (15)" carries the word "seeds" to every phrase after it.
+ */
+function parseSupplies(line, catalog, presetName) {
+  const totalMatch = /\*\*total\s+([\d,]+)\*\*/.exec(line);
+  const body = line.replace(/;\s*\*\*total[\s\S]*$/, '');
+  const out = [];
+  let context = '';
+  let sum = 0;
+  for (const m of body.matchAll(/\s*([^,(]+?)\s*\((\d+)\)/g)) {
+    let phrase = m[1].trim();
+    const ctx = /^([a-z]+):\s*(.*)$/.exec(phrase);
+    if (ctx !== null) {
+      context = ctx[1];
+      phrase = ctx[2];
+    }
+    if (context !== '' && !phrase.includes(context)) phrase = `${phrase} ${context}`;
+    const price = Number(m[2]);
+    const hit = matchSupply(phrase, price, catalog);
+    const row = out.find((r) => r.entry === hit.entry);
+    if (row === undefined) out.push(hit);
+    else row.count += hit.count;
+    sum += price;
+  }
+  const total = totalMatch === null ? null : Number(totalMatch[1].replace(/,/g, ''));
+  if (total !== sum) {
+    throw new Error(`embark-catalog.md: preset ${presetName} supplies sum to ${sum}, the document says ${total}`);
+  }
+  return out;
+}
+
+/**
+ * The preset skill lines ("two dwarves mining 5 + building 3 + axe 2") and supply lines ("2 iron
+ * picks (216), …; **total 1,480**"). Supply phrases name catalog entries in display prose; each is
+ * matched to exactly one entry by price and wording (D-014, D-043).
  */
 export function exportEmbarkPresets() {
   const text = readFileSync(join(CONTENT_DIR, 'embark-catalog.md'), 'utf8');
   const out = [];
-  for (const m of text.matchAll(/### ([^(\n]+)\(([\d,]+)\)\s*\n\s*Skills:\s*([^\n]*)/g)) {
+  const catalog = exportEmbarkCatalog();
+  for (const m of text.matchAll(/### ([^(\n]+)\(([\d,]+)\)\s*\n\s*Skills:\s*([^\n]*)\s*\n\s*Supplies:\s*([^\n]*)/g)) {
     const name = m[1].trim();
     const pid = name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
     const skills = [];
@@ -92,7 +181,7 @@ export function exportEmbarkPresets() {
         dwarf += 1;
       }
     }
-    out.push({ id: pid, name, skills, supplies: [] });
+    out.push({ id: pid, name, skills, supplies: parseSupplies(m[4], catalog, name) });
   }
   return byId(out);
 }

@@ -99,7 +99,144 @@
         "level": 3
       }
     ],
-    "supplies": []
+    "supplies": [
+      {
+        "entry": "e_pick_iron",
+        "count": 2
+      },
+      {
+        "entry": "e_axe_iron",
+        "count": 1
+      },
+      {
+        "entry": "e_crossbow",
+        "count": 1
+      },
+      {
+        "entry": "e_bolts_copper",
+        "count": 1
+      },
+      {
+        "entry": "e_quiver",
+        "count": 1
+      },
+      {
+        "entry": "e_meals",
+        "count": 1
+      },
+      {
+        "entry": "e_turnips",
+        "count": 1
+      },
+      {
+        "entry": "e_dimcaps",
+        "count": 1
+      },
+      {
+        "entry": "e_meat",
+        "count": 1
+      },
+      {
+        "entry": "e_dimcap_ale",
+        "count": 2
+      },
+      {
+        "entry": "e_ale",
+        "count": 1
+      },
+      {
+        "entry": "e_empty_barrel",
+        "count": 2
+      },
+      {
+        "entry": "e_seed_dimcap",
+        "count": 2
+      },
+      {
+        "entry": "e_seed_cavewheat",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_barley",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_turnip",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_strawberry",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_flax",
+        "count": 1
+      },
+      {
+        "entry": "e_logs",
+        "count": 1
+      },
+      {
+        "entry": "e_charcoal",
+        "count": 1
+      },
+      {
+        "entry": "e_bars_iron",
+        "count": 1
+      },
+      {
+        "entry": "e_mechanism",
+        "count": 1
+      },
+      {
+        "entry": "e_leather",
+        "count": 1
+      },
+      {
+        "entry": "e_cloth",
+        "count": 1
+      },
+      {
+        "entry": "e_thread",
+        "count": 1
+      },
+      {
+        "entry": "e_brightleaf",
+        "count": 1
+      },
+      {
+        "entry": "e_splints",
+        "count": 1
+      },
+      {
+        "entry": "e_bucket",
+        "count": 2
+      },
+      {
+        "entry": "e_bag",
+        "count": 2
+      },
+      {
+        "entry": "e_bed",
+        "count": 3
+      },
+      {
+        "entry": "e_table",
+        "count": 1
+      },
+      {
+        "entry": "e_chair",
+        "count": 2
+      },
+      {
+        "entry": "e_dog",
+        "count": 2
+      },
+      {
+        "entry": "e_cat",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "farmstead",
@@ -201,7 +338,140 @@
         "level": 2
       }
     ],
-    "supplies": []
+    "supplies": [
+      {
+        "entry": "e_pick_iron",
+        "count": 1
+      },
+      {
+        "entry": "e_axe_iron",
+        "count": 1
+      },
+      {
+        "entry": "e_crossbow",
+        "count": 1
+      },
+      {
+        "entry": "e_bolts_copper",
+        "count": 1
+      },
+      {
+        "entry": "e_meals",
+        "count": 1
+      },
+      {
+        "entry": "e_turnips",
+        "count": 1
+      },
+      {
+        "entry": "e_cabbages",
+        "count": 1
+      },
+      {
+        "entry": "e_dimcaps",
+        "count": 1
+      },
+      {
+        "entry": "e_cheese",
+        "count": 1
+      },
+      {
+        "entry": "e_ale",
+        "count": 2
+      },
+      {
+        "entry": "e_dimcap_ale",
+        "count": 1
+      },
+      {
+        "entry": "e_empty_barrel",
+        "count": 2
+      },
+      {
+        "entry": "e_seed_dimcap",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_cavewheat",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_sweetroot",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_barley",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_turnip",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_cabbage",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_strawberry",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_flax",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_pumpkin",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_hops",
+        "count": 1
+      },
+      {
+        "entry": "e_cow",
+        "count": 2
+      },
+      {
+        "entry": "e_sheep",
+        "count": 2
+      },
+      {
+        "entry": "e_goat",
+        "count": 2
+      },
+      {
+        "entry": "e_chickens",
+        "count": 1
+      },
+      {
+        "entry": "e_dog",
+        "count": 2
+      },
+      {
+        "entry": "e_cat",
+        "count": 1
+      },
+      {
+        "entry": "e_logs",
+        "count": 1
+      },
+      {
+        "entry": "e_bag",
+        "count": 3
+      },
+      {
+        "entry": "e_splints",
+        "count": 1
+      },
+      {
+        "entry": "e_brightleaf",
+        "count": 1
+      },
+      {
+        "entry": "e_bucket",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "miner_s_guild",
@@ -308,7 +578,100 @@
         "level": 2
       }
     ],
-    "supplies": []
+    "supplies": [
+      {
+        "entry": "e_pick_iron",
+        "count": 3
+      },
+      {
+        "entry": "e_axe_copper",
+        "count": 1
+      },
+      {
+        "entry": "e_anvil",
+        "count": 1
+      },
+      {
+        "entry": "e_bars_iron",
+        "count": 1
+      },
+      {
+        "entry": "e_charcoal",
+        "count": 1
+      },
+      {
+        "entry": "e_meals",
+        "count": 1
+      },
+      {
+        "entry": "e_dimcaps",
+        "count": 1
+      },
+      {
+        "entry": "e_turnips",
+        "count": 1
+      },
+      {
+        "entry": "e_dimcap_ale",
+        "count": 3
+      },
+      {
+        "entry": "e_empty_barrel",
+        "count": 2
+      },
+      {
+        "entry": "e_seed_dimcap",
+        "count": 2
+      },
+      {
+        "entry": "e_seed_cavewheat",
+        "count": 1
+      },
+      {
+        "entry": "e_seed_sweetroot",
+        "count": 1
+      },
+      {
+        "entry": "e_logs",
+        "count": 1
+      },
+      {
+        "entry": "e_leather",
+        "count": 1
+      },
+      {
+        "entry": "e_cloth",
+        "count": 1
+      },
+      {
+        "entry": "e_brightleaf",
+        "count": 1
+      },
+      {
+        "entry": "e_splints",
+        "count": 1
+      },
+      {
+        "entry": "e_bucket",
+        "count": 1
+      },
+      {
+        "entry": "e_bag",
+        "count": 2
+      },
+      {
+        "entry": "e_mechanism",
+        "count": 1
+      },
+      {
+        "entry": "e_dog",
+        "count": 2
+      },
+      {
+        "entry": "e_cat",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "warband",
@@ -420,6 +783,79 @@
         "level": 2
       }
     ],
-    "supplies": []
+    "supplies": [
+      {
+        "entry": "e_axe_iron",
+        "count": 2
+      },
+      {
+        "entry": "e_helm_iron",
+        "count": 2
+      },
+      {
+        "entry": "e_leather_jerkin",
+        "count": 2
+      },
+      {
+        "entry": "e_shield_wood",
+        "count": 2
+      },
+      {
+        "entry": "e_crossbow",
+        "count": 1
+      },
+      {
+        "entry": "e_bolts_iron",
+        "count": 2
+      },
+      {
+        "entry": "e_quiver",
+        "count": 1
+      },
+      {
+        "entry": "e_pick_iron",
+        "count": 1
+      },
+      {
+        "entry": "e_meals",
+        "count": 1
+      },
+      {
+        "entry": "e_dimcaps",
+        "count": 1
+      },
+      {
+        "entry": "e_turnips",
+        "count": 1
+      },
+      {
+        "entry": "e_dimcap_ale",
+        "count": 2
+      },
+      {
+        "entry": "e_seed_dimcap",
+        "count": 2
+      },
+      {
+        "entry": "e_seed_turnip",
+        "count": 1
+      },
+      {
+        "entry": "e_war_dog",
+        "count": 2
+      },
+      {
+        "entry": "e_brightleaf",
+        "count": 1
+      },
+      {
+        "entry": "e_splints",
+        "count": 1
+      },
+      {
+        "entry": "e_logs",
+        "count": 1
+      }
+    ]
   }
 ]

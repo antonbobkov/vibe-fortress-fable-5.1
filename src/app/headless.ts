@@ -23,6 +23,13 @@ import { entityIndex } from '@core/entities';
 import type { ComponentType } from '@core/entities';
 import type { GameSystem } from '@core/system';
 import type { Registry } from '@core/registry';
+import {
+  EmbarkSession,
+  arrive,
+  basicDwarfSpawner,
+  type ArrivalResult,
+  type LocalMapSpec,
+} from '@systems/embark';
 
 /** `acceptance-tests.md`: the `flat-test` surface. */
 export const FLAT_TEST_SURFACE_Z = 32;
@@ -110,6 +117,40 @@ export function buildFlatTestMap(registry: Registry = contentRegistry()): Map3D 
   return map;
 }
 
+/**
+ * The `LocalMapSpec` the `flat-test` map stands for: "a `serene_vale`-like region (peril 0,
+ * wealth 2, temper 0)" (`acceptance-tests.md`). The arrival edge is north, the first of the
+ * `n, e, s, w` edges (DECISIONS.md D-044).
+ */
+export const FLAT_TEST_SPEC: LocalMapSpec = Object.freeze({
+  seed: 'flat-test',
+  regionId: 0,
+  biome: 'temperate_grassland',
+  elevation: 120,
+  relief: 0,
+  soilDepth: FLAT_TEST_SOIL_DEPTH,
+  geology: 'igneous',
+  wealth: 2,
+  peril: 0,
+  temper: 0,
+  deepness: 0,
+  traits: Object.freeze(['serene_vale']),
+  volcano: false,
+  river: null,
+  lake: false,
+  civEdges: Object.freeze({ mountainhome: 'n', hillfolk: 'n', wildwood: 'n', gloam: 'n' }),
+  arrivalEdge: 'n',
+} as const);
+
+/**
+ * The embark of a headless game: `'none'` (no dwarves), `'default'` (the Balanced preset,
+ * `acceptance-tests.md`), or a named preset.
+ */
+export type HeadlessEmbark = 'none' | 'default' | { readonly preset: string };
+
+/** The preset `'default'` stands for. */
+export const DEFAULT_EMBARK_PRESET = 'balanced';
+
 export interface HeadlessOptions {
   readonly seed: string;
   readonly registry?: Registry;
@@ -122,6 +163,10 @@ export interface HeadlessOptions {
   readonly hooks?: Partial<TerrainHooks>;
   readonly pathfinder?: PathfinderOptions;
   readonly startTick?: number;
+  /** Omitted means `'none'` (DECISIONS.md D-029). */
+  readonly embark?: HeadlessEmbark;
+  /** The spec of the local map; the flat-test spec when omitted. */
+  readonly spec?: LocalMapSpec;
 }
 
 /**
@@ -134,6 +179,8 @@ export class HeadlessGame {
   readonly pathing: PathingCore;
   readonly spatial: SpatialIndex;
   readonly movement: MovementHelper;
+  /** What the arrival did, when there was an embark. */
+  readonly arrival: ArrivalResult | null;
 
   constructor(options: HeadlessOptions) {
     this.registry = options.registry ?? contentRegistry();
@@ -170,6 +217,25 @@ export class HeadlessGame {
 
     for (const system of options.systems ?? []) this.world.addSystem(system);
     this.world.init();
+    this.arrival = this.embark(options.embark ?? 'none', options.spec ?? FLAT_TEST_SPEC, options.fortressName);
+  }
+
+  /**
+   * `simulation-core.md` § Startup sequence step 4 for a new game: the map exists, so 02's arrival
+   * runs with the party of an embark session (`embark.party` stream of the world seed) and the
+   * preset's skills and supplies.
+   */
+  private embark(embark: HeadlessEmbark, spec: LocalMapSpec, fortressName: string | undefined): ArrivalResult | null {
+    if (embark === 'none') return null;
+    const preset = embark === 'default' ? DEFAULT_EMBARK_PRESET : embark.preset;
+    const session = new EmbarkSession(this.registry, this.world.seed, spec.peril);
+    const applied = session.apply({ type: 'ApplyPreset', preset });
+    if (!applied.ok) throw new Error(`headless embark: preset ${preset}: ${applied.reason ?? 'rejected'}`);
+    return arrive(this.world, spec, session.party, {
+      fortressName: fortressName ?? this.world.fortress.name,
+      supplies: session.supplies,
+      spawnDwarf: basicDwarfSpawner(this.world, (id, at) => this.spatial.insert(id, at)),
+    });
   }
 
   get map(): Map3D {

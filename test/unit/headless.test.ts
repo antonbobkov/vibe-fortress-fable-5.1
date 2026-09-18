@@ -146,7 +146,13 @@ describe('T-M0-11 headless: the scenario runner', () => {
   it('refuses what a later milestone owns, naming the task', () => {
     expect(() => runScenario({ ...base, world: 'generated' })).toThrow(NotYetImplementedError);
     expect(() => runScenario({ ...base, world: { region: {} } })).toThrow(/T-M1-05/);
-    expect(() => runScenario({ ...base, world: 'flat-test', embark: 'default' })).toThrow(/T-M1-04/);
+  });
+
+  it('T-M1-04: the default embark is lifted and lands the Balanced party', () => {
+    const w = runScenario({ ...base, world: 'flat-test', embark: 'default', run: 1 });
+    expect(w.game.world.entities.ofKind('creature')).toHaveLength(7);
+    expect(w.events('Embarked')).toHaveLength(1);
+    expect(() => runScenario({ ...base, world: 'flat-test', embark: { nope: 1 } })).toThrow(/preset/);
   });
 
   it('runs setup, then the ticks, then the assertions', () => {

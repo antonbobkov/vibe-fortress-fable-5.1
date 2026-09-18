@@ -28,7 +28,10 @@ export type Milestone = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 /** `'flat-test'` per `acceptance-tests.md`; the other two arrive with 01 and 02 in M1. */
 export type ScenarioWorld = 'flat-test' | 'generated' | { readonly region: Record<string, unknown> };
 
-/** `'none'` is no dwarves; `'default'` is the Balanced preset of `embark-catalog.md` (T-M1-04). */
+/**
+ * `'none'` is no dwarves; `'default'` is the Balanced preset of `embark-catalog.md`; an object names
+ * another preset (`{ preset: 'warband' }`). T-M1-04.
+ */
 export type ScenarioEmbark = 'default' | 'none' | Record<string, unknown>;
 
 export interface ScheduledCommand {
@@ -65,12 +68,13 @@ function buildWorld(scenario: Scenario): TestWorld {
     throw new NotYetImplementedError(`scenario ${scenario.id}: a region spec`, 'T-M1-05');
   }
   const embark = scenario.embark ?? 'none';
-  if (embark !== 'none') {
-    throw new NotYetImplementedError(`scenario ${scenario.id}: embark '${String(embark)}'`, 'T-M1-04');
+  if (typeof embark === 'object' && typeof embark['preset'] !== 'string') {
+    throw new Error(`scenario ${scenario.id}: an embark spec names a preset ({ preset: id })`);
   }
   return new TestWorld({
     seed: scenario.seed,
     world: 'flat-test',
+    embark: typeof embark === 'object' ? { preset: embark['preset'] as string } : embark,
     ...(scenario.systems === undefined ? {} : { systems: scenario.systems() }),
   });
 }
