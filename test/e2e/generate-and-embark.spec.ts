@@ -3,6 +3,9 @@
  *
  * Part 1 (T-M1-12): "New world → generate with seed `e2e-1` → world map → cursor moves → region
  * panel text contains 'Wealth'".
+ *
+ * Part 2 (T-M1-13, T-M1-15): "Embark with the Balanced preset → fortress screen shows seven `☺`
+ * cells near the arrival edge".
  */
 
 import { test, expect, type Page } from '@playwright/test';
@@ -59,6 +62,17 @@ test('generate-and-embark', async ({ page }) => {
   expect(placed.count).toBe(7);
   // `02` § Arrival: the wagon site is searched up to ARRIVAL_SEARCH_DEPTH (20) tiles in from the edge.
   expect(placed.deepest).toBeLessThanOrEqual(20 + 2);
+  // T-M1-15 (D-064): "fortress screen shows seven ☺ cells near the arrival edge". The screen opens
+  // paused, centred on the wagon, with the party on seven tiles around it.
+  const smileys = await page.evaluate(() => {
+    const hook = (window as unknown as { __deepholm: Hook }).__deepholm;
+    const cells = hook.cells();
+    const mapRows = cells.rows - 5;
+    let n = 0;
+    for (let row = 0; row < mapRows; row += 1) for (let col = 0; col < cells.cols; col += 1) if (cells.glyph[row * cells.cols + col] === 1) n += 1;
+    return n;
+  });
+  expect(smileys).toBe(7);
 
   const path = await page.evaluate(() => (window as unknown as { __deepholm: Hook }).__deepholm.screenshotName('generate-and-embark'));
   await page.screenshot({ path });

@@ -465,6 +465,7 @@ export class Game {
       // "`Tab` toggles it without changing the panel" (24 § Fortress screen layout).
       sidebarOpen: this.ui.panel !== null && this.ui.sidebar,
       cursor: this.ui.cursor,
+      overlays: this.ui.overlays,
     };
     const cells = this.compositor.compose(this.host.readers, view, this.cols, this.rows);
     const surface = new Surface(cells, this.glyphs, this.theme);

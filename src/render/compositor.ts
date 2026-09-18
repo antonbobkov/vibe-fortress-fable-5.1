@@ -7,20 +7,24 @@
  * `03-content/glyphs-and-colors.md` § Glyphs by thing § Terrain.
  *
  * Steps 3 to 9 (fluids, buildings, items, creatures, projectiles, overlays, lighting) are the
- * layers of systems that do not exist yet; each is a named no-op here, called from the documented
- * place in the pipeline, so the milestone that brings the system fills in one function:
- * fluids M3 (T-M3-08), buildings and items M2 (T-M2-10), creatures and the designation and zone
- * overlays M1 and M2 (T-M1-15, T-M2-10), projectiles M6 (T-M6-17), lighting M3 (T-M3-08).
+ * layers of systems that arrive over the milestones; each is a named function called from the
+ * documented place in the pipeline. Step 6 (creatures, with the dwarves' state colors) and the
+ * designation overlay of step 8 are T-M1-15; the zone overlay is a stub until 14's zones (T-M2-10);
+ * fluids and lighting M3 (T-M3-08), buildings and items M2 (T-M2-10), projectiles M6 (T-M6-17).
  */
 
+import { C } from '@core/components';
 import { LEVELS_VISIBLE_BELOW } from '@core/constants';
-import { TileFlag, TileKind } from '@core/map3d';
+import { Designation, TileFlag, TileKind } from '@core/map3d';
 import type { MapReader, ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
-import type { TileIndex } from '@core/types';
+import type { EntityId, TileIndex } from '@core/types';
+import { glyphChars } from './atlas';
 import { CellBuffer, computeLayout, type Cell, type Layout } from './cellbuffer';
 import {
   GLYPH_BOULDER,
+  GLYPH_DESIGNATION_OUTLINE,
+  GLYPH_DIGIT_0,
   GLYPH_ENGRAVED,
   GLYPH_FORTIFICATION,
   GLYPH_GRASS,
@@ -48,6 +52,51 @@ export interface ViewState {
   readonly sidebarOpen: boolean;
   /** The look cursor, drawn inverted (23 § Compositor step 10). */
   readonly cursor?: { readonly x: number; readonly y: number } | null;
+  /**
+   * The overlays switched on (`ui-keymap-and-screens.md` § Overlays: `designations` and `zones`
+   * on by default, `priority digits` off). Omitted means the defaults.
+   */
+  readonly overlays?: readonly string[];
+}
+
+/** `ui-keymap-and-screens.md` § Overlays: the ones on by default. */
+export const DEFAULT_OVERLAYS: readonly string[] = ['designations', 'zones'];
+
+/** The overlay id of the "priority digits" sub-toggle. */
+export const OVERLAY_PRIORITY_DIGITS = 'priority_digits';
+
+/**
+ * 23 § Compositor step 6: "topmost by priority: dwarves > hostiles > tame > wild > vermin".
+ * Lower draws first.
+ */
+export enum CreatureRank {
+  Dwarf = 0,
+  Hostile = 1,
+  Tame = 2,
+  Wild = 3,
+  Vermin = 4,
+}
+
+/** 23 § Compositor step 8: the designation tint of each kind (`glyphs-and-colors.md` § Designation tints). */
+export const DESIGNATION_TINTS: Readonly<Partial<Record<Designation, string>>> = Object.freeze({
+  [Designation.Dig]: 'des_dig',
+  [Designation.Channel]: 'des_channel',
+  [Designation.StairsUp]: 'des_stairs',
+  [Designation.StairsDown]: 'des_stairs',
+  [Designation.StairsUpDown]: 'des_stairs',
+  [Designation.Ramp]: 'des_ramp',
+  [Designation.Smooth]: 'des_smooth',
+  [Designation.Engrave]: 'des_engrave',
+  [Designation.Remove]: 'des_remove',
+  [Designation.Chop]: 'des_chop',
+  [Designation.Gather]: 'des_gather',
+  [Designation.Harvest]: 'des_gather',
+});
+
+interface SpeciesRow {
+  readonly id: string;
+  readonly glyph: string;
+  readonly fg: string;
 }
 
 /** One row of the `materials` table, as the compositor reads it. */
@@ -76,6 +125,14 @@ export class Compositor {
   private readonly snowBg: Rgb;
   private readonly snowFg: Rgb;
   private readonly ash: Rgb;
+  private readonly speciesGlyph: number[] = [];
+  private readonly speciesFg: Rgb[] = [];
+  private readonly dwarfSpecies: number;
+  private readonly stateColors: Readonly<Record<'normal' | 'need' | 'child', Rgb>>;
+  private readonly tints = new Map<Designation, Rgb>();
+  /** The frame's readers and overlays, set by {@link compose} for the layer functions. */
+  private frameReaders: ReaderSet | null = null;
+  private frameOverlays: readonly string[] = DEFAULT_OVERLAYS;
   private buffer: CellBuffer = new CellBuffer(0, 0);
   private lastLayout: Layout = computeLayout(0, 0, false);
 
@@ -104,6 +161,27 @@ export class Compositor {
     this.snowBg = palette.color('snow_white');
     this.snowFg = palette.color('gray');
     this.ash = palette.color('ash_gray');
+
+    // Step 6: each species' glyph and color (`creatures.md`), by registry index.
+    const chars = glyphChars(options.registry);
+    const indexOf = (ch: string): number => {
+      const at = chars.indexOf(ch);
+      return at < 0 ? chars.indexOf('?') : at;
+    };
+    const species = options.registry.table<SpeciesRow>('creatures');
+    for (const id of species.ids()) {
+      const row = species.byId(id) as SpeciesRow;
+      const k = species.index(id);
+      this.speciesGlyph[k] = indexOf(Array.from(row.glyph)[0] ?? '?');
+      this.speciesFg[k] = palette.has(row.fg) ? palette.color(row.fg) : this.noMaterial;
+    }
+    this.dwarfSpecies = species.has('dwarf') ? species.index('dwarf') : -1;
+    this.stateColors = {
+      normal: palette.color('dwarf_normal'),
+      need: palette.color('dwarf_need'),
+      child: palette.color('dwarf_child'),
+    };
+    for (const [kind, id] of Object.entries(DESIGNATION_TINTS)) this.tints.set(Number(kind) as Designation, palette.color(id as string));
   }
 
   /** The layout of the last {@link compose}; the app maps mouse cells through it. */
@@ -120,6 +198,8 @@ export class Compositor {
     }
     const cells = this.buffer;
     cells.fill(GLYPH_NONE, this.black, this.black);
+    this.frameReaders = readers;
+    this.frameOverlays = ui.overlays ?? DEFAULT_OVERLAYS;
 
     const map = readers.map;
     const daylight = readers.calendar.isDaylight;
@@ -152,7 +232,7 @@ export class Compositor {
     const map = readers.map;
     // Step 1: undiscovered tiles show nothing but the overlays the player placed.
     if ((map.flagsAt(i) & TileFlag.Discovered) === 0) {
-      return this.overlays({ glyph: GLYPH_NONE, fg: this.undiscovered, bg: this.undiscovered }, i, true);
+      return this.overlays({ glyph: GLYPH_NONE, fg: this.undiscovered, bg: this.undiscovered }, i, true, false);
     }
 
     // Step 2: the terrain base, and the look-down through open tiles.
@@ -165,11 +245,12 @@ export class Compositor {
     cell = this.fluidOver(cell, i);
     cell = this.buildingOver(cell, i);
     cell = this.itemOver(cell, i);
+    const creature = this.topCreature(i);
     cell = this.creatureOver(cell, i);
     cell = this.projectileOver(cell, i);
 
     // Steps 8 and 9.
-    cell = this.overlays(cell, i, false);
+    cell = this.overlays(cell, i, false, creature !== null);
     cell = this.lighting(cell, i);
     return cell;
   }
@@ -324,9 +405,60 @@ export class Compositor {
     return cell;
   }
 
-  /** Step 6, creatures (10, 08, 18): T-M1-15. */
-  private creatureOver(cell: Cell, _i: TileIndex): Cell {
-    return cell;
+  /** How a creature ranks for step 6: dwarves, hostiles, tame, wild (vermin has no rows yet). */
+  rankOf(readers: ReaderSet, id: EntityId): CreatureRank {
+    const c = readers.entities.get(id, C.Creature);
+    if (c === undefined) return CreatureRank.Vermin;
+    if (c.species === this.dwarfSpecies && c.faction === 'fortress') return CreatureRank.Dwarf;
+    if (c.faction.startsWith('hostile') || c.faction === 'deep') return CreatureRank.Hostile;
+    if (readers.entities.has(id, C.Tame)) return CreatureRank.Tame;
+    if (readers.entities.has(id, C.Wild) || c.faction === 'wild') return CreatureRank.Wild;
+    return c.faction === 'fortress' ? CreatureRank.Tame : CreatureRank.Wild;
+  }
+
+  /**
+   * The creature step 6 draws on a tile: "topmost by priority: dwarves > hostiles > tame > wild >
+   * vermin", ties to the lowest id; "stealthed hostiles are not drawn" (no stealth state exists
+   * before 18, M6).
+   */
+  topCreature(i: TileIndex): EntityId | null {
+    const readers = this.frameReaders;
+    if (readers === null) return null;
+    let best: EntityId | null = null;
+    let bestRank = Infinity;
+    for (const id of readers.entities.at(i)) {
+      if (!readers.entities.has(id, C.Creature)) continue;
+      const rank = this.rankOf(readers, id);
+      if (rank < bestRank || (rank === bestRank && best !== null && id < best)) {
+        best = id;
+        bestRank = rank;
+      }
+    }
+    return best;
+  }
+
+  /**
+   * A dwarf's state color (23 § Palette › State colors): `dwarf_child` for a child, `dwarf_need`
+   * while a need drives it (behavior `need`), else `dwarf_normal`. Wounded, asleep and soldier
+   * colors need 17, 10's sleep and 16 (DECISIONS.md D-067).
+   */
+  stateColor(readers: ReaderSet, id: EntityId): Rgb {
+    if (readers.has('10') && readers.of<{ isChild(id: EntityId): boolean }>('10').isChild(id)) return this.stateColors.child;
+    if (readers.entities.get(id, C.Brain)?.behavior === 'need') return this.stateColors.need;
+    return this.stateColors.normal;
+  }
+
+  /** Step 6, creatures (10, 08, 18): "species glyph, color by state". */
+  private creatureOver(cell: Cell, i: TileIndex): Cell {
+    const readers = this.frameReaders;
+    const id = this.topCreature(i);
+    if (readers === null || id === null) return cell;
+    const c = readers.entities.get(id, C.Creature);
+    if (c === undefined) return cell;
+    const dwarf = this.rankOf(readers, id) === CreatureRank.Dwarf;
+    const glyph = this.speciesGlyph[c.species] ?? GLYPH_NONE;
+    const fg = dwarf ? this.stateColor(readers, id) : (this.speciesFg[c.species] ?? this.noMaterial);
+    return { glyph, fg, bg: cell.bg };
   }
 
   /** Step 7, projectiles (16): T-M6-17. */
@@ -334,8 +466,37 @@ export class Compositor {
     return cell;
   }
 
-  /** Step 8, the overlay stack: designations and zones T-M1-15 and T-M2-10, debug T-M7-08. */
-  private overlays(cell: Cell, _i: TileIndex, _undiscoveredOnly: boolean): Cell {
+  /**
+   * Step 8, the overlay stack in its fixed order: designations (03), zones (14, T-M2-10), the rest
+   * later. "Overlays alter `bg` or replace the glyph but never hide a creature".
+   */
+  private overlays(cell: Cell, i: TileIndex, undiscovered: boolean, creature: boolean): Cell {
+    let c = cell;
+    if (this.frameOverlays.includes('designations')) c = this.designationOver(c, i, undiscovered, creature);
+    if (this.frameOverlays.includes('zones')) c = this.zoneOver(c, i);
+    return c;
+  }
+
+  /**
+   * `designations` (default on): "`bg` tinted by designation kind …, priority digit as glyph when
+   * the `priority digits` sub-toggle is on"; on an undiscovered tile the designation is drawn "as an
+   * outline": `░` in the tint over the undiscovered background (D-067). Digits "replace glyph only
+   * if no creature".
+   */
+  private designationOver(cell: Cell, i: TileIndex, undiscovered: boolean, creature: boolean): Cell {
+    const map = this.frameReaders?.map;
+    if (map === undefined) return cell;
+    const kind = map.designationAt(i);
+    if (kind === Designation.None) return cell;
+    const tint = this.tints.get(kind);
+    if (tint === undefined) return cell;
+    if (undiscovered) return { glyph: GLYPH_DESIGNATION_OUTLINE, fg: tint, bg: cell.bg };
+    const digits = this.frameOverlays.includes(OVERLAY_PRIORITY_DIGITS) && !creature;
+    return { glyph: digits ? GLYPH_DIGIT_0 + map.designationPriorityAt(i) : cell.glyph, fg: cell.fg, bg: tint };
+  }
+
+  /** `zones` (default on): 14's zones arrive in M2 (T-M2-10); nothing is zoned before. */
+  private zoneOver(cell: Cell, _i: TileIndex): Cell {
     return cell;
   }
 

@@ -43,3 +43,9 @@ export const GLYPH_TREE = 5;
 export const GLYPH_SAPLING = 274;
 /** `○` boulder. */
 export const GLYPH_BOULDER = 9;
+
+/** `░`: a designation on an undiscovered tile, drawn as an outline in its tint (DECISIONS.md D-067). */
+export const GLYPH_DESIGNATION_OUTLINE = 176;
+
+/** `0`: the first priority digit; digit `n` is `GLYPH_DIGIT_0 + n`. */
+export const GLYPH_DIGIT_0 = 48;
