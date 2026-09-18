@@ -24,7 +24,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 ## M1 — Ground ([M1-ground.md](M1-ground.md))
 
 - [x] T-M1-01 — Value noise and hashing utilities (opus-m1, 2026-09-17)
-- [ ] T-M1-02 — World generation stages 1–5
+- [x] T-M1-02 — World generation stages 1–5 (opus-m1, 2026-09-17)
 - [ ] T-M1-03 — World generation stages 6–9 and the reader
 - [ ] T-M1-04 — Embark spec and party generation
 - [ ] T-M1-05 — Local map generation: heightmap, rivers, layers, magma sea
