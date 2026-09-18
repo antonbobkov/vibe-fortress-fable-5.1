@@ -319,6 +319,6 @@ describe('T-M1-02 worldgen: stages 1-5 together', () => {
     expect(seen.slice(0, 5)).toEqual(['elevation', 'climate', 'biomes', 'rivers', 'geology']);
     const g = newGenWorld('stages', 32);
     runPhysicalStages(g, registry);
-    expect(g.regions.map((r) => r.biome)).toEqual(a.regions.map((r) => r.biome));
+    expect(g.regions.map((r) => r.rain)).toEqual(a.regions.map((r) => r.rain));
   });
 });

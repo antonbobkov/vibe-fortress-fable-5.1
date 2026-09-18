@@ -2,6 +2,7 @@
   {
     "id": "beastwood",
     "name": "Beastwood",
+    "order": 10,
     "requirements": {
       "biomes": [
         "temperate_forest",
@@ -19,6 +20,7 @@
   {
     "id": "deep_well",
     "name": "Deep Well",
+    "order": 12,
     "requirements": {
       "deepness": [
         120,
@@ -35,7 +37,13 @@
   {
     "id": "frostmarrow",
     "name": "Frostmarrow",
-    "requirements": {},
+    "order": 4,
+    "requirements": {
+      "tempBands": [
+        "frozen",
+        "cold"
+      ]
+    },
     "freq": 100,
     "companion": true,
     "hooks": {
@@ -47,6 +55,7 @@
   {
     "id": "fungal_depths",
     "name": "Fungal Depths",
+    "order": 2,
     "requirements": {
       "deepness": [
         160,
@@ -63,6 +72,7 @@
   {
     "id": "gemsprings",
     "name": "Gemsprings",
+    "order": 8,
     "requirements": {
       "wealth": [
         2,
@@ -81,6 +91,7 @@
   {
     "id": "glasslands",
     "name": "Glasslands",
+    "order": 3,
     "requirements": {
       "volcano": true
     },
@@ -95,6 +106,7 @@
   {
     "id": "ironheart",
     "name": "Ironheart",
+    "order": 7,
     "requirements": {
       "geology": [
         "igneous",
@@ -111,8 +123,9 @@
   {
     "id": "old_battlefield",
     "name": "Old Battlefield",
+    "order": 5,
     "requirements": {
-      "biomes": [
+      "notBiomes": [
         "ocean",
         "glacier"
       ],
@@ -131,6 +144,7 @@
   {
     "id": "serene_vale",
     "name": "Serene Vale",
+    "order": 0,
     "requirements": {
       "biomes": [
         "temperate_grassland",
@@ -156,6 +170,7 @@
   {
     "id": "sunken_halls",
     "name": "Sunken Halls",
+    "order": 6,
     "requirements": {
       "biomes": [
         "temperate_hills",
@@ -173,6 +188,7 @@
   {
     "id": "thunderhead",
     "name": "Thunderhead",
+    "order": 9,
     "requirements": {
       "temper": [
         2,
@@ -188,6 +204,7 @@
   {
     "id": "twilight_pass",
     "name": "Twilight Pass",
+    "order": 11,
     "requirements": {
       "peril": [
         3,
@@ -203,6 +220,7 @@
   {
     "id": "wyrm_roost",
     "name": "Wyrm Roost",
+    "order": 1,
     "requirements": {
       "biomes": [
         "mountain",

@@ -14,6 +14,10 @@ import { stageClimate } from './stages/climate';
 import { stageBiomes } from './stages/biomes';
 import { stageRivers } from './stages/rivers';
 import { stageGeology } from './stages/geology';
+import { stageCivilizations } from './stages/civilizations';
+import { stageRatings } from './stages/ratings';
+import { stageTraits } from './stages/traits';
+import { stageNames } from './stages/names';
 
 export type {
   GenRegion,
@@ -27,7 +31,7 @@ export type {
   WorldgenState,
 } from './state';
 export { CIVS, EDGES } from './state';
-export { worldReader, type WorldgenReader } from './reader';
+export { matchesFilter, worldReader, type RegionFilter, type WorldgenReader } from './reader';
 
 /** The stage names, in order (`01` § Stage order and rng streams). */
 export const WORLDGEN_STAGES = [
@@ -83,9 +87,28 @@ export function runPhysicalStages(g: GenWorld, registry: Registry, options: Gene
   progress('geology', 100, g);
 }
 
-/** `worldgen.generate(seed, size, onProgress): WorldMap`. */
+/** Stages 6-9 on a working set whose physical stages have run. */
+export function runPoliticalStages(g: GenWorld, registry: Registry, options: GenerateOptions = {}): void {
+  const progress = options.onProgress ?? ((): void => {});
+  stageCivilizations(g);
+  progress('civilizations', 100, g);
+  stageRatings(g, registry);
+  progress('ratings', 100, g);
+  stageTraits(g, registry);
+  progress('traits', 100, g);
+  stageNames(g, registry);
+  progress('names', 100, g);
+}
+
+/** `worldgen.generate(seed, size, onProgress): WorldMap`: all nine stages, then frozen. */
 export function generate(seed: string, size: number, registry: Registry, options: GenerateOptions = {}): WorldMap {
   const g = newGenWorld(seed, size);
   runPhysicalStages(g, registry, options);
+  runPoliticalStages(g, registry, options);
   return freezeWorld(g);
+}
+
+/** `WorldGenerated { seed, size }`, dispatched by the app's flow once `generate` returns. */
+export function worldGeneratedEvent(world: WorldMap): { type: 'WorldGenerated'; seed: string; size: number } {
+  return { type: 'WorldGenerated', seed: world.seed, size: world.size };
 }

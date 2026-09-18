@@ -1,8 +1,8 @@
 /**
  * Golden world hashes (`05-plan/01-testing-strategy.md` § Golden tests).
  *
- * `world-hashes.json` holds `{ seed, size } -> hash of WorldMap` (empty until 01 worldgen arrives
- * in M1) and `{ seed, ticks } -> hash of the world after N ticks of `flat-test` with no commands,
+ * `world-hashes.json` holds `{ seed, size } -> hash of WorldMap` (seeds `test-1`, `test-2`,
+ * `test-3` at the standard size, T-M1-03) and `{ seed, ticks } -> hash of the world after N ticks of `flat-test` with no commands,
  * for N in {0, 1000, 5000}`. The embark is `none` while T-M1-04 has not built one; the file
  * records which embark its values were taken with.
  *
@@ -14,6 +14,10 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { hashesAt } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { WORLD_SIZE_STANDARD } from '@core/constants';
+import { StateHasher } from '@core/serialize';
+import { generate } from '@systems/worldgen';
 
 const GOLDEN_NAME = 'world-hashes';
 const file = fileURLToPath(new URL('./world-hashes.json', import.meta.url));
@@ -25,6 +29,17 @@ interface GoldenFile {
 }
 
 const SEEDS = ['deepholm', 'emberhall'];
+/** `M1-ground.md` T-M1-03: "`world-hashes.json` entries for seeds `test-1`, `test-2`, `test-3` at standard size". */
+const WORLD_SEEDS = ['test-1', 'test-2', 'test-3'];
+
+function worldMapHashes(): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const seed of WORLD_SEEDS) {
+    const world = generate(seed, WORLD_SIZE_STANDARD, contentRegistry());
+    out[`${seed}|${WORLD_SIZE_STANDARD}`] = new StateHasher().value(world).digest();
+  }
+  return out;
+}
 const TICKS = [0, 1_000, 5_000];
 
 const golden = JSON.parse(readFileSync(file, 'utf8')) as GoldenFile;
@@ -61,8 +76,16 @@ describe('T-M0-11 golden: world hashes', () => {
     expect(hashesAt({ seed: 'deepholm', world: 'flat-test' }, TICKS)).toEqual(hashes);
   });
 
-  it('the world-map goldens wait for 01 worldgen', () => {
-    expect(golden.worldMaps).toEqual({});
+  it('T-M1-03: the generated world maps match the golden file', () => {
+    const now = worldMapHashes();
+    if (update) {
+      const current = JSON.parse(readFileSync(file, 'utf8')) as GoldenFile;
+      const next: GoldenFile = { ...current, worldMaps: now };
+      writeFileSync(file, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
+      golden.worldMaps = now;
+    }
+    expect(Object.keys(golden.worldMaps).sort()).toEqual(WORLD_SEEDS.map((s) => `${s}|${WORLD_SIZE_STANDARD}`).sort());
+    expect(golden.worldMaps).toEqual(now);
     expect(golden.flatTest.embark).toBe('none');
   });
 });

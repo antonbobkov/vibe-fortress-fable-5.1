@@ -611,8 +611,12 @@ export const SCHEMAS: Record<string, TableSchema> = {
   regionTraits: rows({
     id: nonEmptyStr,
     name: str,
+    // Table order, which the traits stage rolls in (01 § Traits); DECISIONS.md D-040.
+    order: int,
     requirements: obj({
       biomes: opt(arr(biomeRef)),
+      notBiomes: opt(arr(biomeRef)),
+      tempBands: opt(arr(enumOf(['frozen', 'cold', 'temperate', 'warm', 'hot']))),
       peril: opt(tupleOf(2, int)),
       wealth: opt(tupleOf(2, int)),
       temper: opt(tupleOf(2, int)),

@@ -88,7 +88,13 @@ const BIOME_WORDS = new Set([
 
 function parseRequirements(cell) {
   const s = plain(cell);
-  const biomes = ticked(cell).filter((t) => BIOME_WORDS.has(t));
+  // "not `ocean`, `glacier`" is an exclusion list, not a biome list (DECISIONS.md D-040).
+  const notClause = /\bnot\s+([`a-z_,\s]+)$/.exec(s);
+  const excluded = notClause === null ? [] : notClause[1].split(/[,\s`]+/).filter((t) => BIOME_WORDS.has(t));
+  const biomes = ticked(cell).filter((t) => BIOME_WORDS.has(t) && !excluded.includes(t));
+  // "frozen or cold band": temperature bands of 01 § Biomes (DECISIONS.md D-040).
+  const bandMatch = /\b((?:frozen|cold|temperate|warm|hot)(?:\s+or\s+(?:frozen|cold|temperate|warm|hot))*)\s+band\b/.exec(s);
+  const tempBands = bandMatch === null ? undefined : bandMatch[1].split(/\s+or\s+/);
   const bound = (word) => {
     const ge = new RegExp(`${word}\\s*≥\\s*(\\d+)`).exec(s);
     if (ge !== null) return [Number(ge[1]), 999];
@@ -99,6 +105,8 @@ function parseRequirements(cell) {
   const geology = /geology\s+([a-z ]+or[a-z ]+|[a-z]+)/.exec(s);
   return compact({
     biomes: biomes.length > 0 ? biomes : undefined,
+    notBiomes: excluded.length > 0 ? excluded : undefined,
+    tempBands,
     peril: bound('peril'),
     wealth: bound('wealth'),
     temper: bound('temper'),
@@ -128,9 +136,11 @@ function parseHooks(cell) {
 export function exportRegionTraits() {
   const table = findTable(DOC(), 'Region traits', 'companion');
   return byId(
-    asObjects(table).map((row) => ({
+    asObjects(table).map((row, order) => ({
       id: plain(row.id),
       name: plain(row.name),
+      // 01 § Traits rolls "in table order"; the registry sorts rows by id (D-040).
+      order,
       requirements: parseRequirements(row.requirements),
       freq: int(row.freq),
       companion: /yes/i.test(plain(row.companion)),
