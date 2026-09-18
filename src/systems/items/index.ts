@@ -16,6 +16,14 @@ import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { TileIndex } from '@core/types';
 import { ItemCore } from './api';
 import { applyClaimItem, applyDumpItem, applyForbidItem, applyMeltItem, type ItemCommandHost } from './commands';
+import {
+  applyLinkStockpile,
+  applySetStockpileContainers,
+  applySetStockpileFilter,
+  applySetStockpilePriority,
+  type StockpileCommandHost,
+} from './stockpile-commands';
+import { StockpileStore } from './stockpiles';
 import { WEALTH_EVENT_STEP } from './constants';
 import { ItemFacts } from './facts';
 import { makeReader, type ItemsReader } from './reader';
@@ -28,6 +36,15 @@ export { itemValue, qualityPermille } from './value';
 export { isAvailable } from './counts';
 export type { ItemsReader, StockCountView } from './reader';
 export { ItemSearch, matches, type ItemFilter, type SearchOptions } from './search';
+export {
+  StockpileStore,
+  STOCKPILE_PRESETS,
+  CATEGORY_TREE,
+  emptyFilter,
+  presetFilter,
+  type Slot,
+  type ContainerNeeded,
+} from './stockpiles';
 
 export const ITEMS_ID = '13';
 
@@ -38,16 +55,39 @@ const COMMAND_HANDLERS: Partial<Record<CommandType, (host: ItemCommandHost, cmd:
   MeltItem: applyMeltItem,
 };
 
+const STOCKPILE_HANDLERS: Partial<Record<CommandType, (host: StockpileCommandHost, cmd: Command) => CommandResult>> = {
+  SetStockpileFilter: applySetStockpileFilter,
+  SetStockpileContainers: applySetStockpileContainers,
+  SetStockpilePriority: applySetStockpilePriority,
+  LinkStockpile: applyLinkStockpile,
+};
+
+interface ZoneViewLike {
+  readonly type: string;
+  readonly tiles: readonly TileIndex[];
+}
+
 export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   readonly id = ITEMS_ID;
   readonly order = 13;
   override readonly cadence = 10;
   override readonly phase = 1;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved'];
-  override readonly ownsCommands: readonly CommandType[] = ['ForbidItem', 'ClaimItem', 'DumpItem', 'MeltItem'];
+  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged'];
+  override readonly ownsCommands: readonly CommandType[] = [
+    'ForbidItem',
+    'ClaimItem',
+    'DumpItem',
+    'MeltItem',
+    'SetStockpileFilter',
+    'SetStockpileContainers',
+    'SetStockpilePriority',
+    'LinkStockpile',
+  ];
 
   private coreRef: ItemCore | null = null;
   private search: ItemSearch | null = null;
+  private storeRef: StockpileStore | null = null;
+  private stockpileHost: StockpileCommandHost | null = null;
   private readerRef: ItemsReader | null = null;
   private rng: RngStream | null = null;
   private entitiesAt: (i: TileIndex) => readonly number[] = () => [];
@@ -57,6 +97,14 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     if (this.coreRef === null) throw new Error('13 items: used before init');
     return this.coreRef;
   }
+
+  get stockpiles(): StockpileStore {
+    if (this.storeRef === null) throw new Error('13 items: used before init');
+    return this.storeRef;
+  }
+
+  /** A stockpile's filter, containers, priority, links or tiles changed; its items are re-examined (T-M2-04). */
+  protected stockpileChanged(_id: number): void {}
 
   override init(ctx: InitContext): void {
     const world = ctx.world;
@@ -75,14 +123,31 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     world.services.items = core;
     world.services.spawn.setItemCreator?.((type, material, at, count, quality) => core.create(type, material, at, count, quality));
     const readers = ctx.readers;
+    const itemsOn = (i: TileIndex): number[] => readers.entities.at(i).filter((id) => core.isItem(id));
+    const store = new StockpileStore({
+      core,
+      zone: (id) => (readers.has('14') ? readers.of<{ zone(id: number): ZoneViewLike | undefined }>('14').zone(id) : undefined),
+      itemsOn,
+      buildingAt: (i) => world.map.buildingAtTile(i),
+    });
+    this.storeRef = store;
+    const classes = new Set<string>();
+    const materials = ctx.registry.table<{ id: string; class: string }>('materials');
+    for (let m = 1; m <= materials.size; m += 1) classes.add(materials.byIndex(m)?.class ?? '');
+    this.stockpileHost = {
+      store,
+      materialClasses: classes,
+      isBuilding: (id) => world.entities.kind(id) === 'building',
+      changed: (id) => this.stockpileChanged(id),
+    };
     this.search = new ItemSearch({
       core,
       entities: readers.entities,
       spatial: () => (readers.has('spatial') ? readers.spatial : null),
       pathing: () => (readers.has('pathing') ? readers.pathing : null),
-      stockpileAt: () => 0,
+      stockpileAt: (i) => store.stockpileAt(i),
     });
-    this.readerRef = makeReader(core, readers.entities, this.search);
+    this.readerRef = makeReader(core, readers.entities, this.search, store);
   }
 
   /** The items tick: `StocksChanged` for the types whose counts moved; `WealthChanged` past the step. */
@@ -107,10 +172,23 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       core.buildingWealth += typeof event['value'] === 'number' ? (event['value'] as number) : 0;
     } else if (event.type === 'BuildingRemoved') {
       core.buildingWealth -= typeof event['value'] === 'number' ? (event['value'] as number) : 0;
+    } else if (event.type === 'ZoneChanged') {
+      if (event['zoneType'] !== 'stockpile') return;
+      const id = event['zoneId'] as number;
+      const change = event['change'];
+      if (change === 'removed') {
+        this.stockpiles.removed(id);
+      } else {
+        this.stockpiles.ensure(id);
+        if (change === 'resized') this.stockpiles.syncTiles(id);
+      }
+      this.stockpileChanged(id);
     }
   }
 
   override applyCommand(cmd: Command, ctx: TickContext): CommandResult {
+    const spHandler = STOCKPILE_HANDLERS[cmd.type];
+    if (spHandler !== undefined) return spHandler(this.stockpileHost as StockpileCommandHost, cmd);
     const handler = COMMAND_HANDLERS[cmd.type];
     if (handler === undefined) return reject('not_found');
     return handler({ core: this.core, entities: ctx.readers.entities, jobs: ctx.jobs }, cmd);
@@ -127,17 +205,25 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       stateVersion: 1,
       wantsHauling: [],
       noHome: [],
-      slotReservations: [],
+      slotReservations: Array.from(this.stockpiles.reservations.keys())
+        .sort()
+        .map((k): [string, number] => [k, this.stockpiles.reservations.get(k) as number]),
       rotQueue: [],
       miasmaTiles: [],
       counts: core.counts.serialize(),
       wealthCached: core.wealth,
       wealthLastEmitted: this.wealthLastEmitted,
-      stockpileTiles: [],
+      stockpileTiles: Array.from(this.stockpiles.tiles.keys())
+        .sort((a, b) => a - b)
+        .map((t): [TileIndex, number] => [t, this.stockpiles.tiles.get(t) as number]),
       rng: (this.rng as RngStream).state(),
       dirtyTypes: core.counts.dirty.slice(),
       fullStockpiles: [],
       buildingWealth: core.buildingWealth,
+      explicitPriority: this.stockpiles.explicitPriority.slice(),
+      incomingContainers: Array.from(this.stockpiles.incomingContainers.keys())
+        .sort((a, b) => a - b)
+        .map((c): [number, number] => [c, this.stockpiles.incomingContainers.get(c) as number]),
     };
   }
 
@@ -150,6 +236,15 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     core.wealth = state.wealthCached;
     core.buildingWealth = state.buildingWealth;
     this.wealthLastEmitted = state.wealthLastEmitted;
+    const store = this.stockpiles;
+    store.reservations.clear();
+    for (const [k, j] of state.slotReservations) store.reservations.set(k, j);
+    store.tiles.clear();
+    for (const [t, id] of state.stockpileTiles) store.tiles.set(t, id);
+    store.explicitPriority.length = 0;
+    store.explicitPriority.push(...state.explicitPriority);
+    store.incomingContainers.clear();
+    for (const [c, sp] of state.incomingContainers) store.incomingContainers.set(c, sp);
     this.rng?.setState(state.rng);
   }
 }

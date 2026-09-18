@@ -35,6 +35,10 @@ export interface ItemsStateV1 {
   fullStockpiles: EntityId[];
   /** Superset: the building part of the wealth (14 § Value, summed from `BuildingCompleted`/`Removed`). */
   buildingWealth: number;
+  /** Superset: stockpiles whose haul priority the player set (D-071). */
+  explicitPriority: EntityId[];
+  /** Superset: empty containers on their way to a stockpile that wants them, `[containerId, stockpileId]`. */
+  incomingContainers: [EntityId, EntityId][];
 }
 
 /** Binary search: the insertion point of `value` in an ascending array. */

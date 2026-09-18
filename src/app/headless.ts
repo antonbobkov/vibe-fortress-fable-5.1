@@ -37,6 +37,7 @@ import { TerrainSystem } from '@systems/terrain';
 import { JobsSystem } from '@systems/jobs';
 import { DwarvesSystem } from '@systems/dwarves';
 import { ItemsSystem } from '@systems/items';
+import { BuildingsSystem } from '@systems/buildings';
 import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
@@ -363,10 +364,10 @@ export class HeadlessGame {
 
   /**
    * The systems of the milestones built so far, in no particular order (the scheduler orders
-   * them): 03 terrain (T-M1-07), 10 dwarves, 11 jobs, 13 items (T-M2-01).
+   * them): 03 terrain (T-M1-07), 10 dwarves, 11 jobs, 13 items (T-M2-01), 14 buildings (T-M2-03).
    */
   static standardSystems(spec: LocalMapSpec, layerStack: readonly StackLayer[]): GameSystem[] {
-    return [new TerrainSystem({ spec, layerStack }), new DwarvesSystem(), new JobsSystem(), new ItemsSystem()];
+    return [new TerrainSystem({ spec, layerStack }), new DwarvesSystem(), new JobsSystem(), new ItemsSystem(), new BuildingsSystem()];
   }
 
   get map(): Map3D {

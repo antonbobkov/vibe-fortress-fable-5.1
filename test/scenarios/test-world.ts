@@ -8,6 +8,8 @@
  */
 
 import { HeadlessGame, type HeadlessOptions } from '@app/headless';
+import type { BuildingsSystem } from '@systems/buildings';
+import type { ItemsSystem } from '@systems/items';
 import { NotYetImplementedError } from '@core/system';
 import { C } from '@core/components';
 import { cumulativeXp } from '@systems/dwarves/rules/skills';
@@ -227,8 +229,18 @@ export class TestWorld {
     throw new NotYetImplementedError('TestWorld.build', 'T-M2-05');
   }
 
-  zone(): never {
-    throw new NotYetImplementedError('TestWorld.zone', 'T-M2-03');
+  /**
+   * `zone(type, tiles)`: a `CreateZone` applied now (T-M2-03); returns the new zone's id. A stockpile
+   * gets 13's `Stockpile` component at once (it would otherwise arrive with the tick's `ZoneChanged`).
+   */
+  zone(type: string, tiles: readonly TileIndex[]): EntityId {
+    const world = this.game.world;
+    const r = world.applyCommand({ type: 'CreateZone', zoneType: type, tiles: [...tiles] });
+    if (!r.ok) throw new Error(`zone(${type}): ${r.reason}`);
+    const buildings = world.scheduler.byId('14') as BuildingsSystem;
+    const id = buildings.lastCreatedZone;
+    if (type === 'stockpile') (world.scheduler.byId('13') as ItemsSystem).stockpiles.ensure(id);
+    return id;
   }
 
   setNeed(): never {

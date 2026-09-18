@@ -9,6 +9,8 @@ import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import type { ItemCore } from './api';
 import type { ItemTypeRow } from './facts';
 import type { ItemFilter, ItemSearch, SearchOptions } from './search';
+import type { ContainerNeeded, Slot, StockpileStore } from './stockpiles';
+import type { Stockpile } from '@core/components';
 
 export interface StockCountView {
   readonly total: number;
@@ -64,9 +66,21 @@ export interface ItemsReader {
   countAvailable(filter: ItemFilter): number;
   /** Units of matching items whatever their flags. */
   countMatching(filter: ItemFilter): number;
+  /** The stockpile a tile belongs to, or 0. */
+  stockpileAt(i: TileIndex): EntityId;
+  /** The `Stockpile` record of a stockpile zone (a copy). */
+  stockpile(id: EntityId): Stockpile | undefined;
+  /** `accepts(stockpile, item)` of 13 § Stockpiles. */
+  stockpileAccepts(stockpileId: EntityId, itemId: EntityId): boolean;
+  /** Empty tiles no haul job holds. */
+  freeSlots(stockpileId: EntityId): number;
+  /** `findSlot(sp, it)`: a slot, a wanted container to haul in first, or null (refused or full). */
+  findSlot(stockpileId: EntityId, itemId: EntityId): Slot | ContainerNeeded | null;
+  /** The category path an item files under (a drink by its material's group). */
+  itemCategory(id: EntityId): string;
 }
 
-export function makeReader(core: ItemCore, entities: EntityReader, search: ItemSearch): ItemsReader {
+export function makeReader(core: ItemCore, entities: EntityReader, search: ItemSearch, store: StockpileStore): ItemsReader {
   const facts = core.host.facts;
   const typeOf = (typeId: string | number): number => (typeof typeId === 'number' ? typeId : facts.typeIndex(typeId));
   return {
@@ -101,6 +115,25 @@ export function makeReader(core: ItemCore, entities: EntityReader, search: ItemS
     findItems: (filter, count, from, cls, opts) => search.findItems(filter, count, from, cls, opts),
     countAvailable: (filter) => search.countAvailable(filter),
     countMatching: (filter) => search.countAll(filter),
+    stockpileAt: (i) => store.stockpileAt(i),
+    stockpile: (id) => {
+      const sp = store.stockpile(id);
+      if (sp === undefined) return undefined;
+      const f = sp.filter;
+      return {
+        ...sp,
+        filter: { ...f, categories: f.categories.slice(), materialClasses: f.materialClasses === 'any' ? 'any' : f.materialClasses.slice() },
+        containersWanted: { ...sp.containersWanted },
+        linkedSources: sp.linkedSources.slice(),
+      };
+    },
+    stockpileAccepts: (sp, id) => store.accepts(sp, id),
+    freeSlots: (sp) => store.freeSlots(sp),
+    findSlot: (sp, id) => store.findSlot(sp, id),
+    itemCategory: (id) => {
+      const it = core.get(id);
+      return it === undefined ? '' : store.categoryOf(it);
+    },
   };
 }
 

@@ -207,7 +207,6 @@ describe('T-M0-11 headless: TestWorld', () => {
   it('every helper whose subsystem is not built yet names the task that will build it', () => {
     const w = new TestWorld({ seed: 'tw', world: 'flat-test' });
     expect(() => w.build()).toThrow(/T-M2-05/);
-    expect(() => w.zone()).toThrow(/T-M2-03/);
     expect(() => w.setNeed()).toThrow(/T-M4-05/);
     expect(() => w.forceWeather()).toThrow(/T-M3-06/);
     expect(() => w.forceTemperature()).toThrow(/T-M3-03/);
