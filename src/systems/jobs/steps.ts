@@ -100,6 +100,8 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
           if (target === toolId) {
             board.items.equip(workerId, target);
             board.setWorker(workerId, { toolId: target });
+            // Held now: the fetch reservation ends; the worker keeps the tool after the job (11 § Assignment).
+            board.items.release(target);
             delete job.data['toolToFetch'];
             ctx.emit({ type: 'ToolEquipped', dwarfId: workerId, itemId: target });
           } else {

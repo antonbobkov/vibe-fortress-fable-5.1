@@ -5,9 +5,10 @@
 
 import { C, type Container, type Item } from '@core/components';
 import type { EntityReader } from '@core/readers';
-import type { EntityId, TileIndex } from '@core/types';
+import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import type { ItemCore } from './api';
 import type { ItemTypeRow } from './facts';
+import type { ItemFilter, ItemSearch, SearchOptions } from './search';
 
 export interface StockCountView {
   readonly total: number;
@@ -52,9 +53,20 @@ export interface ItemsReader {
   room(containerId: EntityId): number;
   /** The `Container` record (a copy). */
   containerRecord(id: EntityId): Container | undefined;
+  /**
+   * `items.findItem(filter, fromTile, movementClass, { reservable: true })`: the nearest matching
+   * item reachable from `from`, or 0. Cost: an expanding radius search, then the stock index.
+   */
+  findItem(filter: ItemFilter, from: TileIndex, movementClass?: MovementClass, opts?: SearchOptions): EntityId;
+  /** `items.findItems(filter, count, fromTile, movementClass)`: up to `count` items, nearest first. */
+  findItems(filter: ItemFilter, count: number, from: TileIndex, movementClass?: MovementClass, opts?: SearchOptions): EntityId[];
+  /** `items.countAvailable(filter)`: units not forbidden, reserved or owned. */
+  countAvailable(filter: ItemFilter): number;
+  /** Units of matching items whatever their flags. */
+  countMatching(filter: ItemFilter): number;
 }
 
-export function makeBaseReader(core: ItemCore, entities: EntityReader): ItemsReader {
+export function makeReader(core: ItemCore, entities: EntityReader, search: ItemSearch): ItemsReader {
   const facts = core.host.facts;
   const typeOf = (typeId: string | number): number => (typeof typeId === 'number' ? typeId : facts.typeIndex(typeId));
   return {
@@ -85,6 +97,10 @@ export function makeBaseReader(core: ItemCore, entities: EntityReader): ItemsRea
       const c = core.container(id);
       return c === undefined ? undefined : { ...c, contents: c.contents.slice() };
     },
+    findItem: (filter, from, cls, opts) => search.findItem(filter, from, cls, opts),
+    findItems: (filter, count, from, cls, opts) => search.findItems(filter, count, from, cls, opts),
+    countAvailable: (filter) => search.countAvailable(filter),
+    countMatching: (filter) => search.countAll(filter),
   };
 }
 

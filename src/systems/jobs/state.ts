@@ -21,6 +21,8 @@ export type TargetKind = 'tile' | 'entity' | 'building' | 'zone' | 'pair';
 /** `schemas/system-state.md` `ItemFilter`. */
 export interface ItemFilter {
   type?: number;
+  /** Any of these item types (a superset: building inputs name alternatives; D-070). */
+  types?: number[];
   category?: string;
   tag?: string;
   materialClass?: string;

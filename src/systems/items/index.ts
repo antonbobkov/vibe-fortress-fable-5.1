@@ -18,7 +18,8 @@ import { ItemCore } from './api';
 import { applyClaimItem, applyDumpItem, applyForbidItem, applyMeltItem, type ItemCommandHost } from './commands';
 import { WEALTH_EVENT_STEP } from './constants';
 import { ItemFacts } from './facts';
-import { makeBaseReader, type ItemsReader } from './reader';
+import { makeReader, type ItemsReader } from './reader';
+import { ItemSearch } from './search';
 import type { ItemsStateV1 } from './state';
 
 export { ItemCore, type ItemChange, type ItemListener } from './api';
@@ -26,6 +27,7 @@ export { ItemFacts, categoryUnder, type ItemTypeRow } from './facts';
 export { itemValue, qualityPermille } from './value';
 export { isAvailable } from './counts';
 export type { ItemsReader, StockCountView } from './reader';
+export { ItemSearch, matches, type ItemFilter, type SearchOptions } from './search';
 
 export const ITEMS_ID = '13';
 
@@ -45,6 +47,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   override readonly ownsCommands: readonly CommandType[] = ['ForbidItem', 'ClaimItem', 'DumpItem', 'MeltItem'];
 
   private coreRef: ItemCore | null = null;
+  private search: ItemSearch | null = null;
   private readerRef: ItemsReader | null = null;
   private rng: RngStream | null = null;
   private entitiesAt: (i: TileIndex) => readonly number[] = () => [];
@@ -71,7 +74,15 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     this.entitiesAt = (i) => ctx.readers.entities.at(i);
     world.services.items = core;
     world.services.spawn.setItemCreator?.((type, material, at, count, quality) => core.create(type, material, at, count, quality));
-    this.readerRef = makeBaseReader(core, ctx.readers.entities);
+    const readers = ctx.readers;
+    this.search = new ItemSearch({
+      core,
+      entities: readers.entities,
+      spatial: () => (readers.has('spatial') ? readers.spatial : null),
+      pathing: () => (readers.has('pathing') ? readers.pathing : null),
+      stockpileAt: () => 0,
+    });
+    this.readerRef = makeReader(core, readers.entities, this.search);
   }
 
   /** The items tick: `StocksChanged` for the types whose counts moved; `WealthChanged` past the step. */

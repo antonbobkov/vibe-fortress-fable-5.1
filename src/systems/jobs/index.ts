@@ -13,7 +13,10 @@ import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import { BaseSystem, Registrations, type InitContext, type TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
+import type { ItemsReader } from '@systems/items';
 import { JobBoard } from './board';
+import { itemSourceOf } from './items-adapter';
+import { NO_ITEMS } from './producers';
 import {
   applyCancelJob,
   applySetJobPriority,
@@ -29,9 +32,13 @@ export { NO_ITEMS, type ItemSource, type JobSink, type JobSpec } from './produce
 export type { JobsReader, JobCounts } from './reader';
 export * from './assign';
 export { workCentiTicks, chooseStand } from './steps';
+export { itemSourceOf, toolFilter } from './items-adapter';
 export type { Job, JobState, ItemFilter, Tool } from './state';
 
 export const JOBS_ID = '11';
+
+/** 13's reader id. */
+const ITEMS_READER = '13';
 
 const COMMAND_HANDLERS: Partial<Record<CommandType, (board: JobBoard, cmd: Command) => CommandResult>> = {
   SetLabor: applySetLabor,
@@ -90,8 +97,18 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     for (const p of this.registrations?.jobProducers ?? []) if (!board.producers.includes(p)) board.producers.push(p);
   }
 
+  /** 13's items replace the D-054 seam once 13 is present (T-M2-02). */
+  private connectItems(ctx: TickContext): void {
+    const board = this.board;
+    if (board.items !== NO_ITEMS) return;
+    const api = ctx.world.services.items;
+    if (api === null || !ctx.readers.has(ITEMS_READER)) return;
+    board.items = itemSourceOf(api, ctx.readers.of<ItemsReader>(ITEMS_READER), ctx.readers.entities);
+  }
+
   override tick(ctx: TickContext): void {
     this.readProducers();
+    this.connectItems(ctx);
     this.board.tick(ctx);
   }
 

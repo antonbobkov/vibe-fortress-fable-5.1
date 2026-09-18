@@ -64,6 +64,7 @@ export class JobBoard implements JobsApi, JobSink {
   readonly assignQueue: EntityId[] = [];
   blockedRetryCursor = 0;
   readonly producers: JobProducer[] = [];
+  /** 13's item search and handling (the D-054 seam); the jobs system installs the real one. */
   items: ItemSource = NO_ITEMS;
 
   readonly registry: Registry;
@@ -394,13 +395,22 @@ export class JobBoard implements JobsApi, JobSink {
 
   releaseReservations(job: Job): void {
     for (const input of job.inputs) {
-      for (const it of input.reserved) this.items.release(it);
+      for (const it of input.reserved) this.releaseItem(it, job.id);
       input.reserved = [];
     }
     const tool = job.data['toolToFetch'];
-    if (typeof tool === 'number' && tool !== 0) this.items.release(tool);
+    if (typeof tool === 'number' && tool !== 0) this.releaseItem(tool, job.id);
     delete job.data['toolToFetch'];
     delete job.data['reserveUntil'];
+  }
+
+  /**
+   * Release one reservation; `ItemReleased { itemId, jobId }` (11's event, `event-catalog.md`) for
+   * an item that still exists (a consumed input is gone).
+   */
+  releaseItem(itemId: EntityId, jobId: number): void {
+    this.items.release(itemId);
+    if (this.world.entities.alive(itemId)) this.emit({ type: 'ItemReleased', itemId, jobId });
   }
 
   /** Reservations kept for an interrupted job lapse after `RESERVE_KEEP_TICKS`. */
