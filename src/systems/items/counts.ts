@@ -24,9 +24,9 @@ export interface Contribution {
   readonly available: boolean;
 }
 
-const UNAVAILABLE = ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned;
+const UNAVAILABLE = ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Installed;
 
-/** Whether an item's flags leave it available (13: "not forbidden, not reserved, not owned"). */
+/** Whether an item's flags leave it available (13: "not forbidden, not reserved, not owned"; an installed item is in use, D-074). */
 export function isAvailable(flags: number): boolean {
   return (flags & UNAVAILABLE) === 0;
 }

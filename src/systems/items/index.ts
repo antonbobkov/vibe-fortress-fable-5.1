@@ -127,6 +127,8 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       spatial: () => world.services.spatial,
       emit: (event) => world.emit(event),
       tick: () => world.calendar.tick,
+      // The wagon holds the embark supplies in its own container (D-074).
+      holderTile: (id) => (ctx.readers.has('14') ? ctx.readers.of<{ holderTile(id: number): TileIndex }>('14').holderTile(id) : -1),
     });
     this.coreRef = core;
     this.rng = ctx.rng;

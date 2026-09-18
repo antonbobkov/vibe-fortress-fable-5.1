@@ -40,11 +40,14 @@ import type { ChunkIndex, EntityId, MovementClass, TileIndex } from './types';
  * "nothing is there" answer, which is the state M0 actually has.
  */
 export interface TerrainHooks {
-  /** 14 buildings: `blocksMovementAt(i, cls, faction)`. Arrives with T-M2-05. */
-  blocksMovementAt(i: TileIndex, cls: MovementClass, faction: string | undefined): boolean;
+  /**
+   * 14 buildings: `blocksMovementAt(i, cls, faction)` (T-M2-05). The mover's other facts
+   * (`opensDoors`, `tame`) ride along for the door rules of T-M2-06 (D-074).
+   */
+  blocksMovementAt(i: TileIndex, cls: MovementClass, faction: string | undefined, mover?: MoverOptions): boolean;
   /** A door building stands on the tile: +`DOOR_COST_PENALTY`, and creatures block there. T-M2-06. */
   doorAt(i: TileIndex): boolean;
-  /** A locked hatch removes the stairs edge through its tile. T-M2-06. */
+  /** A locked hatch removes the stairs edge through its tile, and the ramp edge through a ramp top (D-074). T-M2-06. */
   lockedHatchAt(i: TileIndex): boolean;
   /** Blocks line of sight: a closed door, a raised drawbridge, a closed floodgate. T-M2-06. */
   blocksSightAt(i: TileIndex): boolean;
@@ -71,6 +74,10 @@ export interface MoverOptions {
   readonly magmaSafe?: boolean | undefined;
   /** `Creature.sizeClass`; `size >= WADE_LARGE_SIZE` wades until level 7. */
   readonly size?: number | undefined;
+  /** The species flag `O` (`creatures.md`): a hostile that opens doors (14 § Doors and hatches). D-074. */
+  readonly opensDoors?: boolean | undefined;
+  /** A tame animal (a `Tame` component): a `no_pets` door stops it. D-074. */
+  readonly tame?: boolean | undefined;
 }
 
 const NO_MOVER: MoverOptions = Object.freeze({});
@@ -135,7 +142,7 @@ export class TileGraph implements ConnectivityGraph {
       return false;
     }
     if (kind === TileKind.Fortification && cls !== 'small') return false;
-    if (this.hooks.blocksMovementAt(i, cls, mover.faction)) return false;
+    if (this.hooks.blocksMovementAt(i, cls, mover.faction, mover)) return false;
     // `22` § Passability lists `burning` and the forbidden set as blocking "all"; they are checked
     // before the class-specific answers so that no class slips past them.
     if (map.hasFlag(i, TileFlag.Burning)) return false;
@@ -239,7 +246,7 @@ export class TileGraph implements ConnectivityGraph {
     // Up: standing on the ramp, leave over the solid tile it leans on.
     if (kind === TileKind.Ramp) {
       const over = map.above(i);
-      if (over >= 0 && map.kindAt(over) === TileKind.Open) {
+      if (over >= 0 && map.kindAt(over) === TileKind.Open && !this.hooks.lockedHatchAt(over)) {
         for (let k = 0; k < CARDINALS.length; k += 1) {
           const d = CARDINALS[k] as readonly [number, number];
           if (!map.inBounds(x + d[0], y + d[1], z)) continue;
@@ -262,7 +269,7 @@ export class TileGraph implements ConnectivityGraph {
         if (map.kindAt(r) !== TileKind.Ramp) continue;
         if (!this.passable(r, cls, mover)) continue;
         const over = map.above(r);
-        if (over < 0 || map.kindAt(over) !== TileKind.Open) continue;
+        if (over < 0 || map.kindAt(over) !== TileKind.Open || this.hooks.lockedHatchAt(over)) continue;
         fn(r, this.cost(r, cls, mover));
       }
     }

@@ -219,6 +219,8 @@ export enum ItemFlag {
   Owned = 16,
   AtDepot = 32,
   Merchant = 64,
+  /** Superset (D-074): linked to a built piece of furniture (`Building.itemId`); out of every search and count of available stock. */
+  Installed = 128,
 }
 
 export interface Item {
@@ -241,7 +243,8 @@ export interface Item {
 export interface Container {
   contents: EntityId[];
   capacity: number;
-  classId: 'barrel' | 'bag' | 'bin' | 'chest' | 'bucket' | 'cage';
+  /** `wagon` is the embark wagon's own container (a building; D-074). */
+  classId: 'barrel' | 'bag' | 'bin' | 'chest' | 'bucket' | 'cage' | 'wagon';
 }
 
 export interface Corpse {

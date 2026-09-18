@@ -16,8 +16,10 @@
  *   (`setKind`, `constructed`), BuildingCompleted; a wall waits while a creature is on its tile
  * ```
  *
- * Furniture placement (the linked item) is T-M2-06's; until then a furniture type is refused
- * (D-073).
+ * T-M2-06: furniture links its item (`Building.itemId`) instead of consuming it and returns it on
+ * deconstruction; doors and hatches (`SetDoorMode`, `SetHatchMode`, passability per faction and
+ * class, `no_pets`, `locked`, `lock_on_alert`); the special buildings' state (well, depot, coffin,
+ * cage occupant, the wagon's container). D-074.
  */
 
 import { C, type Building } from '@core/components';
@@ -27,9 +29,11 @@ import { Designation, TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import type { Registry } from '@core/registry';
+import type { MoverOptions } from '@core/pathfinding';
 import type { CoreServices, JobProducer, TickContext } from '@core/system';
 import type { EntityId, Idx, MovementClass, TileIndex } from '@core/types';
 import { CONSTRUCTION_KIND, constructionFlags, onRuleHolds, onRuleOf, standsAt } from './constructions';
+import { DOOR_MODES, HATCH_MODES, WAGON_CAPACITY } from './constants';
 
 export interface BuildingRow {
   readonly id: string;
@@ -74,6 +78,8 @@ export interface BuildHost {
   dwarvesAlive(): boolean;
   /** 11's job id for a key, or 0. */
   jobIdByKey(key: string): number;
+  /** The fortress alert (`FortressState.alert`); a `lock_on_alert` door locks while it is `hearth`. */
+  alert(): string;
 }
 
 export function buildKey(id: EntityId): string {
@@ -94,6 +100,10 @@ export class BuildingStore {
   /** Buildings waiting for a build or deconstruct job, ascending. */
   readonly pending: EntityId[] = [];
   hearthId: EntityId = 0;
+  /** `BuildingsState.depots`: built trade depots, ascending. */
+  readonly depots: EntityId[] = [];
+  /** `BuildingsState.coffins`: built coffins, ascending. */
+  readonly coffins: EntityId[] = [];
 
   constructor(host: BuildHost) {
     this.host = host;
@@ -199,6 +209,8 @@ export class BuildingStore {
 
   /** `labor` for the build job: the row's, "by material" from the chosen material's class, else `construction`. */
   laborFor(row: BuildingRow, material: number): string {
+    // The wagon has no build labor ("placed at embark only"); taking it apart is "everything else".
+    if (row.labor === 'none') return 'construction';
     if (row.labor !== 'by_material') return row.labor;
     return LABOR_BY_CLASS[this.materials[material]?.class ?? ''] ?? 'construction';
   }
@@ -222,7 +234,6 @@ export class BuildingStore {
     const type = this.typeOf(typeof typeRaw === 'string' || typeof typeRaw === 'number' ? typeRaw : '');
     if (type === 0) return reject('not_found');
     const row = this.row(type);
-    if (row.category === 'furniture') return reject('not_found');
     const origin = cmd['origin'];
     if (typeof origin !== 'number' || !map.validIndex(origin)) return reject('out_of_bounds');
     const orientation = typeof cmd['orientation'] === 'number' ? cmd['orientation'] : 0;
@@ -259,7 +270,7 @@ export class BuildingStore {
       footprint: tiles,
       orientation: orientation as Building['orientation'],
       itemId: 0,
-      mode: '',
+      mode: row.tags.includes('door') || row.tags.includes('hatch') ? 'open' : '',
       linkedIds: [],
       ownerId: 0,
       settings: { priority, materialChoice: material, inputs: [] },
@@ -342,6 +353,13 @@ export class BuildingStore {
     }
     for (const t of b.footprint) if (this.map.buildingAtTile(t) === id) this.map.setBuildingAt(t, 0);
     const value = b.state === 'built' ? this.valueOf(b) : 0;
+    // A linked furniture item returns to the ground (14 § Placement); a building's own container
+    // (the wagon) leaves its contents where it stood.
+    const anchor = this.anchorOf(b);
+    if (b.itemId !== 0) this.host.services.items?.uninstall?.(b.itemId, anchor);
+    const held = this.host.entities.get(id, C.Container);
+    if (held !== undefined) for (const it of held.contents.slice()) this.host.services.items?.dropAt(it, anchor);
+    this.noteSpecial(id, row, false);
     const at = this.pending.indexOf(id);
     if (at >= 0) this.pending.splice(at, 1);
     if (this.hearthId === id) this.hearthId = 0;
@@ -435,30 +453,45 @@ export class BuildingStore {
 
   /**
    * Build completion: consume the inputs (one unit of each delivered stack; D-073), `built`, the
-   * tile change of a construction, `BuildingCompleted { id, buildingType, value }`. With no
-   * delivered inputs (`TestWorld.build`), `material` and the first alternative of each input stand
-   * in for them.
+   * tile change of a construction, `BuildingCompleted { id, buildingType, value }`. A piece of
+   * furniture *links* its item instead (`Building.itemId`, 14 § Placement): the item leaves the map
+   * as `Installed` and gives the building its material (D-074). With no delivered inputs
+   * (`TestWorld.build`), `linked` names the furniture item to link (else one is made), and
+   * `material` and the first alternative of each input stand in for the rest.
    */
-  complete(id: EntityId, delivered: readonly EntityId[], material: number): void {
+  complete(id: EntityId, delivered: readonly EntityId[], material: number, linked: EntityId = 0): void {
     const b = this.get(id) as Building;
     const row = this.row(b.type);
     const items = this.host.services.items;
     const used: { type: string; material: number }[] = [];
+    const furniture = row.category === 'furniture';
+    let itemId: EntityId = 0;
     for (const it of delivered) {
       const rec = this.host.entities.get(it, C.Item);
       if (rec === undefined) continue;
+      if (furniture && itemId === 0) {
+        itemId = it;
+        continue;
+      }
       used.push({ type: this.itemTypes[rec.type]?.id ?? '', material: rec.material });
       items?.consume(it, 1);
     }
     if (delivered.length === 0) {
-      for (const input of row.inputs) {
+      row.inputs.forEach((input, k) => {
         const t = this.typesOf(input.match)[0];
         const n = input.count === 'tiles' ? b.footprint.length : input.count;
-        for (let k = 0; k < n && t !== undefined; k += 1) used.push({ type: this.itemTypes[t]?.id ?? '', material });
-      }
+        if (furniture && k === 0) {
+          itemId = linked !== 0 ? linked : t === undefined ? 0 : this.host.services.spawn.item(t, material, this.anchorOf(b), 1);
+          return;
+        }
+        for (let j = 0; j < n && t !== undefined; j += 1) used.push({ type: this.itemTypes[t]?.id ?? '', material });
+      });
     }
-    const mat = used[0]?.material ?? (material !== 0 ? material : b.material);
-    this.write(id, { state: 'built', material: mat as Idx<'MaterialDef'>, settings: { ...b.settings, inputs: used } });
+    const linkedRec = itemId === 0 ? undefined : this.host.entities.get(itemId, C.Item);
+    if (linkedRec === undefined) itemId = 0;
+    if (itemId !== 0) items?.install?.(itemId);
+    const mat = linkedRec?.material ?? used[0]?.material ?? (material !== 0 ? material : b.material);
+    this.write(id, { state: 'built', itemId, material: mat as Idx<'MaterialDef'>, settings: { ...b.settings, inputs: used } });
     const kind = CONSTRUCTION_KIND[row.id];
     if (kind !== undefined) {
       const terrain = this.host.services.terrain;
@@ -475,11 +508,16 @@ export class BuildingStore {
     }
     const built = this.get(id);
     if (built === undefined) return;
+    this.noteSpecial(id, row, true);
     this.host.emit({ type: 'BuildingCompleted', id, buildingType: row.id, value: this.valueOf(built) });
     if (row.tags.includes('hearth')) this.host.emit({ type: 'HearthLit', id });
   }
 
-  /** `deconstruct` completion: "returns the material item(s)" at the anchor, and the building goes. */
+  /**
+   * `deconstruct` completion: "returns the material item(s)" at the anchor, and the building goes
+   * (a linked furniture item returns through {@link remove}). The wagon yields `WAGON_LOGS` logs
+   * (`02` § Arrival step 3) and leaves its contents on the ground.
+   */
   private dismantle(id: EntityId): void {
     const b = this.get(id) as Building;
     const at = this.anchorOf(b);
@@ -489,7 +527,107 @@ export class BuildingStore {
       const t = this.itemIndex.get(u.type);
       if (t !== undefined) spawn.item(t, u.material, at, 1);
     }
+    const yields = b.settings['yields'] as { type: string; material: number; count: number } | undefined;
+    if (yields !== undefined) {
+      const t = this.itemIndex.get(yields.type);
+      if (t !== undefined) spawn.item(t, yields.material, at, yields.count);
+    }
     this.remove(id);
+  }
+
+  // ---------- special buildings ----------
+
+  /** The depots and coffins lists of `BuildingsState` follow the built buildings. */
+  private noteSpecial(id: EntityId, row: BuildingRow, built: boolean): void {
+    const lists: [string, EntityId[]][] = [
+      ['depot', this.depots],
+      ['coffin', this.coffins],
+    ];
+    for (const [tag, list] of lists) {
+      if (!row.tags.includes(tag)) continue;
+      const at = list.indexOf(id);
+      if (built && at < 0) {
+        list.push(id);
+        list.sort((a, c) => a - c);
+      } else if (!built && at >= 0) {
+        list.splice(at, 1);
+      }
+    }
+  }
+
+  /**
+   * `02` § Arrival step 3: "Place the wagon building (function tag `container`, capacity unlimited,
+   * deconstructable, yields `WAGON_LOGS` logs)". Built at once around its centre, with its own
+   * container (D-074); returns its id.
+   */
+  placeWagon(centre: TileIndex, logs: { type: string; material: number; count: number }): EntityId {
+    const type = this.typeOf('wagon');
+    const row = this.row(type);
+    const map = this.map;
+    const origin = map.offset(centre, -1, -1, 0);
+    const tiles = origin < 0 ? null : this.footprint(row, origin, 0);
+    if (tiles === null) throw new RangeError('buildings: the wagon does not fit around its centre');
+    const id = this.host.entities.create('building');
+    this.host.entities.add(id, C.Building, {
+      type: type as Idx<'BuildingDef'>,
+      material: logs.material as Idx<'MaterialDef'>,
+      state: 'built',
+      origin,
+      footprint: tiles,
+      orientation: 0,
+      itemId: 0,
+      mode: '',
+      linkedIds: [],
+      ownerId: 0,
+      settings: { priority: PRIORITY_DEFAULT, materialChoice: 0, inputs: [], yields: { ...logs } },
+      toggled: false,
+    });
+    this.host.entities.add(id, C.Container, { contents: [], capacity: WAGON_CAPACITY, classId: 'wagon' });
+    for (const t of tiles) map.setBuildingAt(t, id);
+    for (const t of tiles) map.markChunkDirty(t, true, true);
+    this.host.emit({ type: 'BuildingPlaced', id, buildingType: row.id, tiles: tiles.slice() });
+    this.host.emit({ type: 'BuildingCompleted', id, buildingType: row.id, value: this.valueOf(this.get(id) as Building) });
+    return id;
+  }
+
+  /** The tile a building-held container's contents lie on (the wagon's centre), or -1. */
+  holderTile(id: EntityId): TileIndex {
+    const b = this.get(id);
+    return b === undefined ? -1 : this.anchorOf(b);
+  }
+
+  /** `SetDoorMode { buildingId, mode }` / `SetHatchMode { buildingId, mode }`: "building has the tag". */
+  setMode(cmd: Command, tag: 'door' | 'hatch'): CommandResult {
+    const id = cmd['buildingId'];
+    const b = typeof id === 'number' ? this.get(id) : undefined;
+    if (b === undefined) return reject('not_found');
+    if (!this.row(b.type).tags.includes(tag)) return reject('no_tag');
+    const mode = cmd['mode'];
+    const modes: readonly string[] = tag === 'door' ? DOOR_MODES : HATCH_MODES;
+    if (typeof mode !== 'string' || !modes.includes(mode)) return reject('bad_setting');
+    if (mode === b.mode) return OK;
+    this.write(id as EntityId, { mode });
+    // "locking a door dirties its chunk" (22 § Connectivity).
+    for (const t of b.footprint) this.map.markChunkDirty(t, true, true);
+    this.host.emit({ type: 'BuildingStateChanged', id, state: mode });
+    return OK;
+  }
+
+  /** `AlertChanged`: the `lock_on_alert` doors lock or unlock with the alert. */
+  onAlertChanged(): void {
+    for (const id of this.all()) {
+      const b = this.get(id) as Building;
+      if (b.mode !== 'lock_on_alert') continue;
+      for (const t of b.footprint) this.map.markChunkDirty(t, true, true);
+      this.host.emit({ type: 'BuildingStateChanged', id, state: this.doorLocked(b) ? 'locked' : 'open' });
+    }
+  }
+
+  /** Whether a well has water within `WELL_DEPTH` below (14: "`working` when water is present"). */
+  wellWorking(id: EntityId): boolean {
+    const b = this.get(id);
+    if (b === undefined || b.state !== 'built' || !this.row(b.type).tags.includes('well')) return false;
+    return onRuleHolds(this.map, 'open_water_below', b.origin);
   }
 
   // ---------- terrain and passability ----------
@@ -513,20 +651,82 @@ export class BuildingStore {
     }
   }
 
+  /** The built building on a tile, or undefined. */
+  private builtAt(i: TileIndex): { id: EntityId; b: Building; row: BuildingRow } | undefined {
+    const id = this.map.buildingAtTile(i);
+    if (id === 0) return undefined;
+    const b = this.get(id);
+    if (b === undefined || b.state !== 'built') return undefined;
+    return { id, b, row: this.row(b.type) };
+  }
+
+  /** A door's `locked`, or `lock_on_alert` while the alert is `hearth` (14 § Doors and hatches). */
+  doorLocked(b: Building): boolean {
+    return b.mode === 'locked' || (b.mode === 'lock_on_alert' && this.host.alert() === 'hearth');
+  }
+
   /**
    * 22's `blocksMovementAt(i, cls, faction)`: a built building that is not passable blocks every
-   * class; a planned one is passable; constructions are the terrain's; door rules are T-M2-06's.
+   * class; a planned one is passable; constructions are the terrain's. A door (22 § Passability)
+   * blocks everyone when locked; otherwise `large`, `wild` and hostiles without `opensDoors`, and
+   * tame animals at a `no_pets` door. With no faction (the connectivity labels) an unlocked door is
+   * passable to every class that can use doors. A hatch never blocks horizontal movement; a closed
+   * floodgate and a raised bridge block all.
    */
-  blocksMovementAt(i: TileIndex, _cls: MovementClass, _faction: string | undefined): boolean {
-    const id = this.map.buildingAtTile(i);
-    if (id === 0) return false;
-    const b = this.get(id);
-    if (b === undefined || b.state !== 'built') return false;
-    const row = this.row(b.type);
+  blocksMovementAt(i: TileIndex, cls: MovementClass, faction: string | undefined, mover?: MoverOptions): boolean {
+    const at = this.builtAt(i);
+    if (at === undefined) return false;
+    const { b, row } = at;
     if (row.category === 'construction') return false;
+    if (row.tags.includes('door')) {
+      if (this.doorLocked(b)) return true;
+      if (cls === 'large') return true;
+      if (faction === undefined) return false;
+      if (faction === 'wild') return true;
+      if ((faction.startsWith('hostile') || faction === 'deep') && mover?.opensDoors !== true) return true;
+      return b.mode === 'no_pets' && mover?.tame === true;
+    }
+    if (row.tags.includes('hatch')) return false;
+    if (row.tags.includes('floodgate')) return !b.toggled;
+    if (row.tags.includes('bridge')) return b.toggled;
     if (row.passable === false) return true;
     const k = b.footprint.indexOf(i);
     return row.impassableTiles !== undefined && row.impassableTiles.includes(k);
+  }
+
+  /** 22's `doorAt(i)`: a built door stands on the tile (+`DOOR_COST_PENALTY`; creatures block there). */
+  doorAt(i: TileIndex): boolean {
+    return this.builtAt(i)?.row.tags.includes('door') === true;
+  }
+
+  /** 22's `lockedHatchAt(i)` and 14's `blocksFallAt(i)`: a built hatch in `locked` mode. */
+  lockedHatchAt(i: TileIndex): boolean {
+    const at = this.builtAt(i);
+    return at !== undefined && at.row.tags.includes('hatch') && at.b.mode === 'locked';
+  }
+
+  /**
+   * 22's `blocksSightAt(i)`: "closed doors, raised bridges, closed floodgates". A door stands open
+   * while a creature is in its doorway and is closed otherwise (the `/` and `+` of
+   * `glyphs-and-colors.md`; D-074).
+   */
+  blocksSightAt(i: TileIndex): boolean {
+    const at = this.builtAt(i);
+    if (at === undefined) return false;
+    if (at.row.tags.includes('door')) return this.doorLocked(at.b) || this.host.creaturesAt(i).length === 0;
+    if (at.row.tags.includes('floodgate')) return !at.b.toggled;
+    if (at.row.tags.includes('bridge')) return at.b.toggled;
+    return false;
+  }
+
+  /** 14's `blocksFluidAt(i)`: a `blocks_fluid` building that is shut (closed floodgate, raised bridge). */
+  blocksFluidAt(i: TileIndex): boolean {
+    const at = this.builtAt(i);
+    if (at === undefined || at.row.category === 'construction') return false;
+    if (at.row.blocksFluid === true) return true;
+    if (at.row.tags.includes('floodgate')) return !at.b.toggled;
+    if (at.row.tags.includes('bridge')) return at.b.toggled;
+    return false;
   }
 }
 

@@ -144,6 +144,10 @@ export interface ItemsApi {
   setOwner(itemId: EntityId, dwarfId: EntityId): void;
   reserve(itemId: EntityId, jobId: number): void;
   release(itemId: EntityId): void;
+  /** Link an item to a built piece of furniture (14 § Placement: "the furniture item is *linked*"): off the map, `Installed`. D-074. */
+  install?(itemId: EntityId): void;
+  /** The furniture is deconstructed: the linked item returns, on the ground at `tile`. D-074. */
+  uninstall?(itemId: EntityId, tile: TileIndex): void;
 }
 
 /** `module-interfaces.md` § The spawn API. The real implementation arrives with T-M1-11. */

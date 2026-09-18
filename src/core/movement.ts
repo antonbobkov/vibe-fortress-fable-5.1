@@ -80,10 +80,18 @@ export class MovementHelper implements MovementApi {
     return this.spatial.tileOf(id);
   }
 
-  private moverOf(id: EntityId): MoverOptions {
-    const creature = this.entities.get<{ faction: string; sizeClass: number }>(id, C.Creature);
+  /** The species flag `O` ("opens doors") by species index; the host installs it from content (D-074). */
+  speciesOpensDoors: (species: number) => boolean = () => false;
+
+  moverOf(id: EntityId): MoverOptions {
+    const creature = this.entities.get<{ faction: string; sizeClass: number; species: number }>(id, C.Creature);
     if (creature === undefined) return {};
-    return { faction: creature.faction, size: creature.sizeClass };
+    return {
+      faction: creature.faction,
+      size: creature.sizeClass,
+      opensDoors: this.speciesOpensDoors(creature.species),
+      tame: this.entities.has(id, C.Tame),
+    };
   }
 
   /** Write a `Position`, update the spatial bucket and record the move for this tick's batch. */

@@ -55,7 +55,7 @@ export interface SearchOptions {
   readonly reservable?: boolean;
 }
 
-const UNRESERVABLE = ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.AtDepot;
+const UNRESERVABLE = ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.AtDepot | ItemFlag.Installed;
 
 export interface SearchHost {
   readonly core: ItemCore;
@@ -94,7 +94,9 @@ function inReach(core: ItemCore, it: Item): boolean {
   if (it.carriedBy !== 0) return false;
   if (it.containerId !== 0) {
     const c = core.get(it.containerId);
-    if (c === undefined || c.carriedBy !== 0) return false;
+    // A building's own container (the wagon) stands where it is (D-074).
+    if (c === undefined) return core.container(it.containerId) !== undefined;
+    if (c.carriedBy !== 0) return false;
   }
   return true;
 }
@@ -199,7 +201,7 @@ export class ItemSearch {
     let n = 0;
     for (const id of this.host.entities.with(C.Item)) {
       const it = core.item(id);
-      if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant)) !== 0) continue;
+      if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.Installed)) !== 0) continue;
       if (matches(core, id, it, filter)) n += it.count;
     }
     return n;

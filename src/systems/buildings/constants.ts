@@ -19,3 +19,13 @@ export const ROOM_SIZE_CAP = 40;
 export const ENCLOSED_PERCENT = 150;
 /** Default build time; types override. */
 export const BUILD_BASE_TICKS = 100;
+
+/** `door` modes (14 § Doors and hatches); `open` is the default. */
+export const DOOR_MODES: readonly string[] = Object.freeze(['open', 'locked', 'no_pets', 'lock_on_alert']);
+/** `hatch` modes (14 § Doors and hatches); `open` is the default. */
+export const HATCH_MODES: readonly string[] = Object.freeze(['open', 'locked']);
+/**
+ * The wagon's container: "capacity unlimited" (`02` § Arrival step 3), held as the largest safe
+ * integer so the container's room arithmetic stays exact (D-074).
+ */
+export const WAGON_CAPACITY = Number.MAX_SAFE_INTEGER;

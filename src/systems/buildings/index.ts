@@ -33,7 +33,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   readonly order = 14;
   override readonly cadence = 10;
   override readonly phase = 9;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged'];
+  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'AlertChanged'];
   override readonly ownsCommands: readonly CommandType[] = [
     'CreateZone',
     'ResizeZone',
@@ -43,6 +43,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'CancelBuilding',
     'DeconstructBuilding',
     'SetBuildingPriority',
+    'SetDoorMode',
+    'SetHatchMode',
   ];
 
   private zonesRef: ZoneStore | null = null;
@@ -82,6 +84,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       emit: (event) => world.emit(event),
       creaturesAt: (i) => readers.entities.at(i).filter((id) => world.entities.kind(id) === 'creature'),
       dwarvesAlive: () => world.entities.with(C.Labors).some((id) => world.entities.get(id, C.Creature)?.faction === 'fortress'),
+      alert: () => world.fortress.alert,
       jobIdByKey: (key) => (readers.has('11') ? (readers.of<{ byKey(k: string): { id: number } | undefined }>('11').byKey(key)?.id ?? 0) : 0),
     });
     this.buildingsRef = store;
@@ -95,6 +98,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
 
   override handle(event: GameEvent, _ctx: TickContext): void {
     if (event.type === 'TilesChanged') this.buildings.onTilesChanged(event['tiles'] as readonly TileIndex[]);
+    else if (event.type === 'AlertChanged') this.buildings.onAlertChanged();
   }
 
   override applyCommand(cmd: Command, _ctx: TickContext): CommandResult {
@@ -115,19 +119,24 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       CancelBuilding: () => buildings.cancel(cmd),
       DeconstructBuilding: () => buildings.deconstruct(cmd),
       SetBuildingPriority: () => buildings.setPriority(cmd),
+      SetDoorMode: () => buildings.setMode(cmd, 'door'),
+      SetHatchMode: () => buildings.setMode(cmd, 'hatch'),
     };
     const handler = handlers[cmd.type];
     return handler === undefined ? reject('not_found') : handler();
   }
 
-  /** `TestWorld.build`: complete a placed building at once through the job's completion path. */
-  completeNow(id: EntityId, material: number): void {
+  /**
+   * `TestWorld.build`: complete a placed building at once through the job's completion path;
+   * `linked` is the furniture item to link (else one is made).
+   */
+  completeNow(id: EntityId, material: number, linked: EntityId = 0): void {
     const store = this.buildings;
     const b = store.get(id);
     if (b === undefined || b.state === 'built') return;
     const at = store.pending.indexOf(id);
     if (at >= 0) store.pending.splice(at, 1);
-    store.complete(id, [], material);
+    store.complete(id, [], material, linked);
   }
 
   override reader(): BuildingsReader {
@@ -140,8 +149,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       stateVersion: 1,
       zoneAt: this.zones.serialize(),
       hearthId: this.buildings.hearthId,
-      depots: [],
-      coffins: [],
+      depots: this.buildings.depots.slice(),
+      coffins: this.buildings.coffins.slice(),
       dirtyRooms: [],
       pendingToggles: [],
       rng: (this.rng as RngStream).state(),
@@ -153,6 +162,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     if (this.zonesRef === null) this.init(ctx);
     this.zones.deserialize(state.zoneAt);
     this.buildings.hearthId = state.hearthId;
+    this.buildings.depots.splice(0, this.buildings.depots.length, ...state.depots);
+    this.buildings.coffins.splice(0, this.buildings.coffins.length, ...state.coffins);
     this.buildings.pending.length = 0;
     this.buildings.pending.push(...state.pendingJobs);
     this.rng?.setState(state.rng);

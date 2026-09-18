@@ -101,8 +101,10 @@ export class Hauling {
   wantsHauling(id: EntityId): boolean {
     const it = this.core.get(id);
     if (it === undefined) return false;
-    // Picked up, or inside a container (the container is hauled with its contents).
-    if (it.carriedBy !== 0 || it.containerId !== 0) return false;
+    // Picked up, or inside a container (the container is hauled with its contents); what lies in
+    // the wagon (a building's container) is unloaded like anything on the ground (D-074).
+    if (it.carriedBy !== 0 || (it.containerId !== 0 && this.core.isItem(it.containerId))) return false;
+    if ((it.flags & ItemFlag.Installed) !== 0) return false;
     if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant)) !== 0) return false;
     const t = this.core.tileOf(id);
     if (t < 0) return false;

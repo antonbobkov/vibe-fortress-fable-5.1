@@ -26,6 +26,8 @@ export interface ItemHost {
   spatial(): SpatialWriter | null;
   emit(event: GameEvent): void;
   tick(): number;
+  /** The tile of a holder that is not an item (the wagon: a building's container; D-074), or -1. */
+  holderTile?(id: EntityId): TileIndex;
 }
 
 /** What happened to an item, for the listeners that keep derived sets (the wants-hauling set). */
@@ -88,7 +90,7 @@ export class ItemCore implements ItemsApi {
       const p = this.entities.get<Position>(id, C.Position);
       if (p !== undefined) return this.map.inBounds(p.x, p.y, p.z) ? this.map.index(p.x, p.y, p.z) : -1;
       const it = this.entities.get(id, C.Item);
-      if (it === undefined) return -1;
+      if (it === undefined) return depth === 0 ? -1 : (this.host.holderTile?.(id) ?? -1);
       if (it.containerId !== 0) id = it.containerId;
       else if (it.carriedBy !== 0) id = it.carriedBy;
       else return -1;
@@ -463,6 +465,28 @@ export class ItemCore implements ItemsApi {
     if (it === undefined || (it.reservedBy === 0 && (it.flags & ItemFlag.Reserved) === 0)) return;
     this.mutate(itemId, { reservedBy: 0, flags: it.flags & ~ItemFlag.Reserved });
     this.notify(itemId, 'flags');
+  }
+
+  /**
+   * `install(itemId)`: the item is linked to a built piece of furniture (14 § Placement): it leaves
+   * the ground, its container or its carrier, and carries `Installed`, which keeps it out of every
+   * search and of the available stock while it still counts in the totals and the wealth (D-074).
+   */
+  install(itemId: EntityId): void {
+    if (!this.isItem(itemId)) return;
+    this.detach(itemId);
+    const it = this.item(itemId);
+    this.mutate(itemId, { flags: (it.flags | ItemFlag.Installed) & ~ItemFlag.Reserved, reservedBy: 0 });
+    this.notify(itemId, 'flags');
+  }
+
+  /** `uninstall(itemId, tile)`: deconstruction returns the linked item to the ground (14 § Placement). */
+  uninstall(itemId: EntityId, tile: TileIndex): void {
+    const it = this.get(itemId);
+    if (it === undefined || !this.map.validIndex(tile)) return;
+    this.mutate(itemId, { flags: it.flags & ~ItemFlag.Installed });
+    this.place(itemId, tile);
+    this.notify(itemId, 'placed');
   }
 
   /** Set the crafter (12 writes it after `spawn.item`; 13's `ItemDestroyed` carries it). */

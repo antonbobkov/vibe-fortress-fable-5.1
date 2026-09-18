@@ -331,8 +331,18 @@ export class HeadlessGame {
       const hooks = this.pathing.graph.hooks;
       const given = hooks.blocksMovementAt;
       const store = buildings.buildings;
-      hooks.blocksMovementAt = (i, cls, faction) => given(i, cls, faction) || store.blocksMovementAt(i, cls, faction);
+      hooks.blocksMovementAt = (i, cls, faction, mover) => given(i, cls, faction, mover) || store.blocksMovementAt(i, cls, faction, mover);
+      // Doors, hatches and sight (T-M2-06), besides any hook the caller gave.
+      const door = hooks.doorAt;
+      const hatch = hooks.lockedHatchAt;
+      const sight = hooks.blocksSightAt;
+      hooks.doorAt = (i) => door(i) || store.doorAt(i);
+      hooks.lockedHatchAt = (i) => hatch(i) || store.lockedHatchAt(i);
+      hooks.blocksSightAt = (i) => sight(i) || store.blocksSightAt(i);
     }
+    // A hostile that opens doors (the species flag `O`) passes an unlocked door (D-074).
+    const species = this.registry.table<{ id: string; opensDoors?: boolean }>('creatures');
+    this.movement.speciesOpensDoors = (s) => species.byIndex(s)?.opensDoors === true;
     this.arrival = this.embark(options.embark ?? 'none', options.spec ?? FLAT_TEST_SPEC, options.fortressName);
     // The idle anchor until there is a hearth hall: the wagon tile (`creature-brains.md`; D-057).
     const dwarves = systems.find((s) => s instanceof DwarvesSystem) as DwarvesSystem | undefined;

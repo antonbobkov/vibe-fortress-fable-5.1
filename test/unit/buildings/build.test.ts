@@ -61,7 +61,7 @@ describe('T-M2-05 placement', () => {
     expect(place(w, 'ramp', w.index(40, 20, Z)).ok).toBe(true);
   });
 
-  it('rejections: undiscovered, occupied, furniture (T-M2-06), a second hearth, bad fields', () => {
+  it('rejections: undiscovered, occupied, a second hearth, bad fields; furniture is placed since T-M2-06 (D-073, D-074)', () => {
     const w = new TestWorld({ seed: 'rejects', world: 'flat-test' });
     const t = w.index(20, 20, Z);
     w.discover(t, false);
@@ -69,8 +69,8 @@ describe('T-M2-05 placement', () => {
     w.discover(t, true);
     expect(place(w, 'wall', t).ok).toBe(true);
     expect(place(w, 'floor', t)).toEqual({ ok: false, reason: 'footprint_blocked' });
-    expect(place(w, 'bed', w.index(22, 20, Z))).toEqual({ ok: false, reason: 'not_found' });
-    expect(place(w, 'nothing', w.index(22, 20, Z))).toEqual({ ok: false, reason: 'not_found' });
+    expect(place(w, 'bed', w.index(22, 20, Z)).ok).toBe(true);
+    expect(place(w, 'nothing', w.index(23, 20, Z))).toEqual({ ok: false, reason: 'not_found' });
     expect(place(w, 'wall', w.index(22, 20, Z), { priority: 12 })).toEqual({ ok: false, reason: 'out_of_range' });
     expect(place(w, 'wall', w.index(22, 20, Z), { materialChoice: 'unobtainium' })).toEqual({ ok: false, reason: 'not_found' });
     expect(place(w, 'hearth', w.index(24, 20, Z)).ok).toBe(true);
@@ -78,7 +78,7 @@ describe('T-M2-05 placement', () => {
     expect(place(w, 'trade_depot', w.index(94, 20, Z))).toEqual({ ok: false, reason: 'out_of_bounds' });
     expect(place(w, 'wagon', w.index(60, 20, Z))).toEqual({ ok: false, reason: 'bad_placement' });
     w.step(1);
-    expect(w.events('BuildingPlaced').map((e) => e['buildingType'])).toEqual(['wall', 'hearth']);
+    expect(w.events('BuildingPlaced').map((e) => e['buildingType'])).toEqual(['wall', 'bed', 'hearth']);
   });
 
   it('a planned building is passable; a built impassable one blocks every class', () => {
