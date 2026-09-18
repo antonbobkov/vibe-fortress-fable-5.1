@@ -199,8 +199,28 @@ export class TestWorld {
     return this.game.world.services.spawn.creature(this.game.registry.table('creatures').index(species), at, faction);
   }
 
-  spawnItem(): never {
-    throw new NotYetImplementedError('TestWorld.spawnItem', 'T-M2-01');
+  /**
+   * `spawnItem(type, material, at, count)` through the spawn API (T-M2-01): content ids or registry
+   * indices; `at` a tile or `{ containerId }`. Returns the (first) item id.
+   */
+  spawnItem(
+    type: string | number,
+    material: string | number,
+    at: TileIndex | { containerId: EntityId },
+    count = 1,
+    quality = 1,
+  ): EntityId {
+    const registry = this.game.registry;
+    const t = typeof type === 'number' ? type : registry.table('items').index(type);
+    const m = typeof material === 'number' ? material : registry.table('materials').index(material);
+    return this.game.world.services.spawn.item(t, m, at, count, quality);
+  }
+
+  /** The item API of 13 (`world.services.items`). */
+  get items(): NonNullable<HeadlessGame['world']['services']['items']> {
+    const api = this.game.world.services.items;
+    if (api === null) throw new Error('TestWorld.items: no item system in this world');
+    return api;
   }
 
   build(): never {

@@ -81,8 +81,8 @@ describe('T-M1-11 spawn API', () => {
     expect(componentsOf(w, cow)).not.toContain('Wild');
   });
 
-  it('spawn.item is a stub until M2: it records the intended item and makes no entity', () => {
-    const w = new TestWorld({ seed: 'spawn-item', world: 'flat-test' });
+  it('spawn.item without an item system (13) records the intended item and makes no entity', () => {
+    const w = new TestWorld({ seed: 'spawn-item', world: 'flat-test', systems: [] });
     const before = w.game.world.entities.count;
     const log = w.game.registry.table('items').index('log');
     expect(w.game.world.services.spawn.item(log, 3, w.index(1, 1, 32), 2)).toBe(0);

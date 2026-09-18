@@ -129,7 +129,7 @@ export class World {
     this.now = options.now ?? ((): number => 0);
     this.scheduler = new Scheduler(this.now);
     this.readers = new ReaderSet(this.map, this.entities, this.calendar, this.fortress);
-    this.services = { terrain: new CoreTerrainApi(this.map), jobs: NO_JOBS_API, spawn: NO_SPAWN_API, movement: null };
+    this.services = { terrain: new CoreTerrainApi(this.map), jobs: NO_JOBS_API, spawn: NO_SPAWN_API, movement: null, items: null, spatial: null };
     // `data-model.md` § Store API says `destroy` queues a `DestroyedEntity` event, but the Wave 4
     // event catalog has no such type; the owning systems emit `ItemDestroyed` / `CreatureDied`
     // instead. See the contradiction C-001 in DECISIONS.md.

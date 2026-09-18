@@ -6,8 +6,8 @@
  * `creature` builds `Kind`, `Position` (through the movement helper, so the spatial index and the
  * tick's move batch see it), `Creature`, `Motion` and `Body` for every creature; a dwarf also gets
  * the components 10 owns, handed over by its creator (02, 21) as `overrides.dwarf`, and 11's
- * `Labors` and `Worker`; a wild creature gets 08's `Wild`. `item` is a stub until the item system
- * (T-M2-01): it records the intended item and creates no entity (DECISIONS.md D-060).
+ * `Labors` and `Worker`; a wild creature gets 08's `Wild`. `item` records the intended item and
+ * hands it to 13's creator (T-M2-01, D-068); with no item system it creates nothing (D-060).
  */
 
 import {
@@ -26,7 +26,7 @@ import {
 import type { EntityStore } from './entities';
 import type { Map3D } from './map3d';
 import type { Registry } from './registry';
-import type { MovementApi, SpawnApi } from './system';
+import type { ItemCreator, MovementApi, SpawnApi } from './system';
 import type { EntityId, MovementClass, Tick, TileIndex } from './types';
 import { BODY_SLOTS } from './types';
 
@@ -99,6 +99,7 @@ export function bodyFor(plan: PlanRow, size: number): Body {
 export class CoreSpawn implements SpawnApi {
   /** Items asked for before the item system exists, in order (D-060). */
   readonly intendedItems: IntendedItem[] = [];
+  private itemCreator: ItemCreator | null = null;
 
   constructor(
     private readonly map: Map3D,
@@ -175,9 +176,17 @@ export class CoreSpawn implements SpawnApi {
     return enabled;
   }
 
-  /** The stub of T-M2-01: record the item; there is no entity yet (returns 0). */
+  /**
+   * Every item asked for is recorded (the tests read the list); 13 creates the entity once it has
+   * installed its creator (T-M2-01). Without an item system this is the M1 stub: no entity, 0.
+   */
   item(type: number, material: number, at: TileIndex | { containerId: EntityId }, count = 1, quality = 1): EntityId {
     this.intendedItems.push({ type, material, at, count, quality, tick: this.now() });
-    return 0;
+    return this.itemCreator === null ? 0 : this.itemCreator(type, material, at, count, quality);
+  }
+
+  /** 13 installs its creator at `init` (D-068). */
+  setItemCreator(creator: ItemCreator | null): void {
+    this.itemCreator = creator;
   }
 }

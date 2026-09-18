@@ -99,6 +99,43 @@ export interface CoreServices {
   jobs: JobsApi;
   spawn: SpawnApi;
   movement: MovementApi | null;
+  /** 13's item API, installed by 13 at `init` (T-M2-01, D-068); null without an item system. */
+  items: ItemsApi | null;
+  /** The write side of the spatial index, installed by the host (T-M2-01, D-068). */
+  spatial: SpatialWriter | null;
+}
+
+/**
+ * The write side of the spatial index (`22` § Spatial index): 13 places, lifts and moves the items
+ * it owns; creatures move through the movement helper. D-068.
+ */
+export interface SpatialWriter {
+  insert(id: EntityId, tile: TileIndex): void;
+  remove(id: EntityId, tile: TileIndex): void;
+  move(id: EntityId, from: TileIndex, to: TileIndex): void;
+}
+
+/**
+ * `13-items-and-storage.md` § Interfaces › Item API (mutation, called by 11, 12, 10, 14, 16, 20).
+ * `reserve` / `release` are the two halves of "`items.setFlag(it, Reserved, …)`;
+ * `Item[it].reservedBy = job.id`" of `algorithms/jobs-and-hauling.md` § Assignment.
+ */
+export interface ItemsApi {
+  attachToCarrier(itemId: EntityId, carrierId: EntityId): void;
+  dropAt(itemId: EntityId, tile: TileIndex): void;
+  /** False when the container has no room. */
+  putIn(itemId: EntityId, containerId: EntityId): boolean;
+  takeOut(itemId: EntityId): void;
+  /** Split `count` off a stack; the new stack's id. */
+  split(itemId: EntityId, count: number): EntityId;
+  /** Merge stack `b` into `a` when identical and within the stack size; true when merged. */
+  merge(a: EntityId, b: EntityId): boolean;
+  consume(itemId: EntityId, count: number): void;
+  destroy(itemId: EntityId, reason: string): void;
+  setFlag(itemId: EntityId, flag: number, on: boolean): void;
+  setOwner(itemId: EntityId, dwarfId: EntityId): void;
+  reserve(itemId: EntityId, jobId: number): void;
+  release(itemId: EntityId): void;
 }
 
 /** `module-interfaces.md` § The spawn API. The real implementation arrives with T-M1-11. */
@@ -116,7 +153,18 @@ export interface SpawnApi {
     count?: number,
     quality?: number,
   ): EntityId;
+  /** 13 installs the real item creator at `init` (T-M2-01, D-068). */
+  setItemCreator?(creator: ItemCreator | null): void;
 }
+
+/** What `spawn.item` delegates to once 13 exists. */
+export type ItemCreator = (
+  type: number,
+  material: number,
+  at: TileIndex | { containerId: EntityId },
+  count: number,
+  quality: number,
+) => EntityId;
 
 // ---------- registration ----------
 

@@ -36,6 +36,7 @@ import { generateLocal, type LocalMapResult, type StackLayer } from '@systems/te
 import { TerrainSystem } from '@systems/terrain';
 import { JobsSystem } from '@systems/jobs';
 import { DwarvesSystem } from '@systems/dwarves';
+import { ItemsSystem } from '@systems/items';
 import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
@@ -301,6 +302,8 @@ export class HeadlessGame {
     this.world.readers.setTileEntities((i) => this.spatial.at(i));
     // The brains reach the movement helper through the world's services (D-049).
     this.world.services.movement = this.movement;
+    // 13 places and lifts its items in the spatial index directly (D-068).
+    this.world.services.spatial = this.spatial;
     // The spawn API (T-M1-11): creatures through the movement helper; items recorded until M2.
     this.spawn = new CoreSpawn(map, this.world.entities, this.registry, this.movement, () => this.world.calendar.tick);
     this.world.services.spawn = this.spawn;
@@ -360,10 +363,10 @@ export class HeadlessGame {
 
   /**
    * The systems of the milestones built so far, in no particular order (the scheduler orders
-   * them): 03 terrain (T-M1-07).
+   * them): 03 terrain (T-M1-07), 10 dwarves, 11 jobs, 13 items (T-M2-01).
    */
   static standardSystems(spec: LocalMapSpec, layerStack: readonly StackLayer[]): GameSystem[] {
-    return [new TerrainSystem({ spec, layerStack }), new DwarvesSystem(), new JobsSystem()];
+    return [new TerrainSystem({ spec, layerStack }), new DwarvesSystem(), new JobsSystem(), new ItemsSystem()];
   }
 
   get map(): Map3D {

@@ -42,7 +42,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 
 ## M2 — Things ([M2-things.md](M2-things.md))
 
-- [ ] T-M2-01 — Items system: entities, item API, value, counts, wealth
+- [x] T-M2-01 — Items system: entities, item API, value, counts, wealth (opus-m2, 2026-09-18)
 - [ ] T-M2-02 — Item search
 - [ ] T-M2-03 — Zones and stockpiles
 - [ ] T-M2-04 — Wants-hauling and haul jobs
