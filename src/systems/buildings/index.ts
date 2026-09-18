@@ -20,10 +20,13 @@ import { BuildingStore } from './build';
 import { makeReader, type BuildingsReader } from './reader';
 import type { BuildingsStateV1 } from './state';
 import { ZoneStore } from './zones';
+import { RoomStore } from './rooms';
+import { MOOD_BASELINE } from '@core/constants';
 
 export { ZoneStore, settingKey, type ZoneTypeRow } from './zones';
 export { BuildingStore, buildKey, deconstructKey, type BuildingRow } from './build';
 export { CONSTRUCTION_KIND, onRuleOf, onRuleHolds, type OnRule } from './constructions';
+export { RoomStore, ROOM_TYPES, type RoomScore } from './rooms';
 export type { BuildingsReader, ZoneView, BuildingView } from './reader';
 
 export const BUILDINGS_ID = '14';
@@ -33,7 +36,11 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   readonly order = 14;
   override readonly cadence = 10;
   override readonly phase = 9;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'AlertChanged'];
+  override readonly subscribes: readonly EventType[] = [
+    'TilesChanged',
+    'AlertChanged',
+    'DayPassed',
+  ];
   override readonly ownsCommands: readonly CommandType[] = [
     'CreateZone',
     'ResizeZone',
@@ -45,10 +52,12 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'SetBuildingPriority',
     'SetDoorMode',
     'SetHatchMode',
+    'AssignRoom',
   ];
 
   private zonesRef: ZoneStore | null = null;
   private buildingsRef: BuildingStore | null = null;
+  private roomsRef: RoomStore | null = null;
   private readerRef: BuildingsReader | null = null;
   private rng: RngStream | null = null;
   /** The id of the zone the last accepted `CreateZone` made (for setup helpers and the UI). */
@@ -64,6 +73,11 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   get buildings(): BuildingStore {
     if (this.buildingsRef === null) throw new Error('14 buildings: used before init');
     return this.buildingsRef;
+  }
+
+  get rooms(): RoomStore {
+    if (this.roomsRef === null) throw new Error('14 buildings: used before init');
+    return this.roomsRef;
   }
 
   override init(ctx: InitContext): void {
@@ -92,13 +106,51 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     world.services.terrain.setConstructionItemSource?.((tile) => store.constructionItemAt(tile));
     // `14` § Registrations: job producer `buildings` (`build`, `deconstruct`).
     ctx.register.jobProducer(store.producer());
+    const items = (): { value(id: number): number; get(id: number): { quality: number } | undefined } | null =>
+      readers.has('13') ? readers.of('13') : null;
+    const bars = ctx.registry.table<{ id: string; mult: number }>('items');
+    const barMult = bars.has('bar') ? (bars.byId('bar')?.mult ?? 1000) : 1000;
+    this.roomsRef = new RoomStore({
+      map: world.map,
+      entities: world.entities,
+      registry: ctx.registry,
+      zones: this.zones,
+      buildings: store,
+      emit: (event) => world.emit(event),
+      itemValue: (id) => items()?.value(id) ?? 0,
+      itemQuality: (id) => items()?.get(id)?.quality ?? 0,
+      engravingQuality: (i) =>
+        readers.has('03') ? (readers.of<{ engravingAt(i: number): { quality: number } | null }>('03').engravingAt(i)?.quality ?? 0) : 0,
+      // 15's mood arrives in M4; until then every dwarf stands at `MOOD_BASELINE` (T-M2-07).
+      mood: () => MOOD_BASELINE,
+      barMult: () => barMult,
+    });
+    // A building completed or removed inside a room, or on its border, dirties it.
+    const rooms = this.roomsRef;
+    store.onFootprintChanged = (tiles) => rooms.markTiles(tiles);
+    this.zones.onChange = (zoneId, typeId, change) => rooms.onZoneChanged(zoneId, typeId, change);
     this.rng = ctx.rng;
-    this.readerRef = makeReader(this.zones, store);
+    this.readerRef = makeReader(this.zones, store, this.roomsRef);
   }
 
   override handle(event: GameEvent, _ctx: TickContext): void {
-    if (event.type === 'TilesChanged') this.buildings.onTilesChanged(event['tiles'] as readonly TileIndex[]);
-    else if (event.type === 'AlertChanged') this.buildings.onAlertChanged();
+    const rooms = this.rooms;
+    if (event.type === 'TilesChanged') {
+      const tiles = event['tiles'] as readonly TileIndex[];
+      this.buildings.onTilesChanged(tiles);
+      rooms.markTiles(tiles);
+    } else if (event.type === 'AlertChanged') {
+      this.buildings.onAlertChanged();
+    } else if (event.type === 'DayPassed') {
+      rooms.markAll();
+      rooms.recompute();
+      rooms.autoAssign();
+    }
+  }
+
+  /** 14's tick: dirty rooms are scored again (`economy.md` § Room quality, "on dirty rooms and daily"). */
+  override tick(_ctx: TickContext): void {
+    this.rooms.recompute();
   }
 
   override applyCommand(cmd: Command, _ctx: TickContext): CommandResult {
@@ -121,6 +173,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       SetBuildingPriority: () => buildings.setPriority(cmd),
       SetDoorMode: () => buildings.setMode(cmd, 'door'),
       SetHatchMode: () => buildings.setMode(cmd, 'hatch'),
+      AssignRoom: () => this.rooms.assign(cmd),
     };
     const handler = handlers[cmd.type];
     return handler === undefined ? reject('not_found') : handler();
@@ -151,7 +204,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       hearthId: this.buildings.hearthId,
       depots: this.buildings.depots.slice(),
       coffins: this.buildings.coffins.slice(),
-      dirtyRooms: [],
+      dirtyRooms: this.rooms.dirty.slice(),
       pendingToggles: [],
       rng: (this.rng as RngStream).state(),
       pendingJobs: this.buildings.pending.slice(),
@@ -164,6 +217,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     this.buildings.hearthId = state.hearthId;
     this.buildings.depots.splice(0, this.buildings.depots.length, ...state.depots);
     this.buildings.coffins.splice(0, this.buildings.coffins.length, ...state.coffins);
+    this.rooms.dirty.splice(0, this.rooms.dirty.length, ...state.dirtyRooms);
     this.buildings.pending.length = 0;
     this.buildings.pending.push(...state.pendingJobs);
     this.rng?.setState(state.rng);

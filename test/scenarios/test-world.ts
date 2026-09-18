@@ -227,16 +227,17 @@ export class TestWorld {
 
   /**
    * `build(type, at, materialChoice)`: a `PlaceBuilding` applied now and completed at once through
-   * the build job's completion path, for setup only (T-M2-05). Returns the building's id.
+   * the build job's completion path, for setup only (T-M2-05). A piece of furniture links `linked`
+   * when given, else a fresh item of the material (T-M2-06). Returns the building's id.
    */
-  build(type: string, at: TileIndex, materialChoice: string | number = 0, orientation = 0): EntityId {
+  build(type: string, at: TileIndex, materialChoice: string | number = 0, orientation = 0, linked: EntityId = 0): EntityId {
     const world = this.game.world;
     const r = world.applyCommand({ type: 'PlaceBuilding', buildingType: type, origin: at, orientation, materialChoice });
     if (!r.ok) throw new Error(`build(${type}): ${r.reason}`);
     const system = world.scheduler.byId('14') as BuildingsSystem;
     const id = system.lastPlacedBuilding;
     const m = typeof materialChoice === 'number' ? materialChoice : this.game.registry.table('materials').index(materialChoice);
-    system.completeNow(id, m);
+    system.completeNow(id, m, linked);
     return id;
   }
 

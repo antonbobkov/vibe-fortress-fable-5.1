@@ -3,10 +3,11 @@
  * arrays returned are fresh copies; entity references are ids.
  */
 
-import type { Building } from '@core/components';
+import type { Building, Room } from '@core/components';
 import type { MoverOptions } from '@core/pathfinding';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import type { BuildingStore } from './build';
+import type { RoomStore, RoomScore } from './rooms';
 import type { ZoneStore } from './zones';
 
 export interface BuildingView extends Building {
@@ -71,13 +72,28 @@ export interface BuildingsReader {
   holderTile(id: EntityId): TileIndex;
   /** The wagon, or 0. */
   wagon(): EntityId;
+  /** `buildings.room(zoneId)`: score, tier, enclosed, requirementsMet, owner (a copy), or undefined. */
+  room(zoneId: EntityId): Room | undefined;
+  /** The score of a room right now, with its parts (the zone › room inspector). */
+  roomScore(zoneId: EntityId): RoomScore | undefined;
+  /** The bedroom zone a dwarf owns, or 0. */
+  bedroomOf(dwarfId: EntityId): EntityId;
+  /** A room's owner, or 0. */
+  ownerOf(zoneId: EntityId): EntityId;
+  /** The hearth hall's tier (a `hearth_hall` zone with the hearth, else the 5×5 around the hearth). */
+  hearthHallTier(): number;
+  hearthHallTiles(): TileIndex[];
+  /** Built beds no one owns. */
+  freeBeds(): EntityId[];
+  /** Chairs adjacent to a table. */
+  diningSeats(): EntityId[];
   /** The hearth, or 0. */
   hearth(): EntityId;
   /** A building's contribution to wealth when built (`materialValue + valueBonus`). */
   value(id: EntityId): number;
 }
 
-export function makeReader(zones: ZoneStore, buildings: BuildingStore): BuildingsReader {
+export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: RoomStore): BuildingsReader {
   const view = (id: EntityId): ZoneView | undefined => {
     const z = zones.zone(id);
     if (z === undefined) return undefined;
@@ -136,6 +152,21 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore): Building
     cageOccupant: (id) => (buildings.get(id)?.settings['occupantId'] as number | undefined) ?? 0,
     holderTile: (id) => buildings.holderTile(id),
     wagon: () => buildings.all().find((id) => buildings.typeIdOf(id) === 'wagon') ?? 0,
+    room: (zoneId) => {
+      const r = rooms.room(zoneId);
+      return r === undefined ? undefined : { ...r };
+    },
+    roomScore: (zoneId) => {
+      const z = zones.zone(zoneId);
+      if (z === undefined || !rooms.isRoomType(zones.typeIdOf(zoneId))) return undefined;
+      return rooms.score(z.tiles, zones.typeIdOf(zoneId));
+    },
+    bedroomOf: (dwarfId) => rooms.bedroomOf(dwarfId),
+    ownerOf: (zoneId) => rooms.room(zoneId)?.ownerId ?? 0,
+    hearthHallTier: () => rooms.hearthHallTier(),
+    hearthHallTiles: () => rooms.hearthHallTiles(),
+    freeBeds: () => rooms.freeBeds(),
+    diningSeats: () => rooms.seatsAmong(buildings.all().filter((id) => buildings.get(id)?.state === 'built')),
     hearth: () => buildings.hearthId,
     value: (id) => {
       const b = buildings.get(id);

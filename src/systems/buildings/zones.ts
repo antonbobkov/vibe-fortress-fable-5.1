@@ -59,6 +59,8 @@ export class ZoneStore {
   readonly host: ZoneHost;
   /** One zone per tile (the meeting area over a hall stays in its own tile list). */
   readonly zoneAt = new Map<TileIndex, EntityId>();
+  /** Told of every zone created, resized, set or removed, before the `ZoneChanged` goes out (rooms, T-M2-07). */
+  onChange: (zoneId: EntityId, typeId: string, change: string) => void = () => {};
   private readonly types: (ZoneTypeRow | undefined)[] = [];
   private readonly typeIndex = new Map<string, number>();
   private readonly caveLoam: number;
@@ -115,9 +117,13 @@ export class ZoneStore {
   // ---------- tile rules ----------
 
   private walkable(i: TileIndex): boolean {
+    const map = this.host.map;
+    // A building on a floor keeps the tile a floor: furniture, a hearth or a door may lie inside a
+    // zone (14: "furniture may be placed inside a zone"; a hearth hall "contains the hearth"). D-075.
+    if (map.buildingAtTile(i) !== 0 && map.kindAt(i) === TileKind.Floor) return true;
     const pathing = this.host.pathing();
     if (pathing !== null) return pathing.passable(i, 'walker');
-    return isSolidBottomed(this.host.map.kindAt(i));
+    return isSolidBottomed(map.kindAt(i));
   }
 
   /** `07` § Farm plots: floor of class soil, or mud, or cave loam. */
@@ -224,6 +230,7 @@ export class ZoneStore {
     const typeId = this.types[zone.type]?.id ?? '';
     this.release(id as EntityId, zone.tiles);
     this.host.entities.destroy(id as EntityId);
+    this.onChange(id as EntityId, typeId, 'removed');
     this.host.emit({ type: 'ZoneChanged', zoneId: id, zoneType: typeId, change: 'removed', tiles: zone.tiles.slice() });
     return OK;
   }
@@ -268,6 +275,7 @@ export class ZoneStore {
 
   private changed(id: EntityId, change: 'created' | 'resized' | 'settings'): void {
     const zone = this.zone(id) as Zone;
+    this.onChange(id, this.typeIdOf(id), change);
     this.host.emit({ type: 'ZoneChanged', zoneId: id, zoneType: this.typeIdOf(id), change, tiles: zone.tiles.slice() });
   }
 

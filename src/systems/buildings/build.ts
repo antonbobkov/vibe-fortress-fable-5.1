@@ -104,6 +104,8 @@ export class BuildingStore {
   readonly depots: EntityId[] = [];
   /** `BuildingsState.coffins`: built coffins, ascending. */
   readonly coffins: EntityId[] = [];
+  /** Told the footprint of every building that completes or goes (rooms recompute, T-M2-07). */
+  onFootprintChanged: (tiles: readonly TileIndex[]) => void = () => {};
 
   constructor(host: BuildHost) {
     this.host = host;
@@ -360,6 +362,7 @@ export class BuildingStore {
     const held = this.host.entities.get(id, C.Container);
     if (held !== undefined) for (const it of held.contents.slice()) this.host.services.items?.dropAt(it, anchor);
     this.noteSpecial(id, row, false);
+    if (b.state === 'built') this.onFootprintChanged(b.footprint);
     const at = this.pending.indexOf(id);
     if (at >= 0) this.pending.splice(at, 1);
     if (this.hearthId === id) this.hearthId = 0;
@@ -509,6 +512,7 @@ export class BuildingStore {
     const built = this.get(id);
     if (built === undefined) return;
     this.noteSpecial(id, row, true);
+    this.onFootprintChanged(built.footprint);
     this.host.emit({ type: 'BuildingCompleted', id, buildingType: row.id, value: this.valueOf(built) });
     if (row.tags.includes('hearth')) this.host.emit({ type: 'HearthLit', id });
   }
