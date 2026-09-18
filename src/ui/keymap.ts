@@ -190,8 +190,11 @@ export class Keymap {
   resolve(context: KeyContext, press: KeyPress): UiAction | null {
     const candidates = this.of(context).filter((b) => b.spec.ctrl === press.ctrl);
     const key = press.key;
+    // The table writes `Ctrl+S`, `Ctrl+Z`; the browser reports the letter as typed (`z`).
     const match = (b: Binding): boolean =>
-      b.spec.key === key || (b.spec.key === 'any-letter' && /^[a-zA-Z]$/.test(key));
+      b.spec.key === key ||
+      (b.spec.ctrl && b.spec.key.length === 1 && b.spec.key.toLowerCase() === key.toLowerCase()) ||
+      (b.spec.key === 'any-letter' && /^[a-zA-Z]$/.test(key));
     const exact = candidates.find((b) => match(b) && b.spec.shift === press.shift && b.spec.key !== 'any-letter');
     const loose = exact ?? candidates.find((b) => match(b) && !b.spec.shift && b.spec.key !== 'any-letter');
     const found = loose ?? candidates.find((b) => match(b) && b.spec.key === 'any-letter');

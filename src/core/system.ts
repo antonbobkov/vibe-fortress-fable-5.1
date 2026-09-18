@@ -169,9 +169,16 @@ export interface MilestoneSpec {
   readonly trigger: string;
 }
 
+/**
+ * `module-interfaces.md` § Announcements, as data: the severity and the strings-table key whose
+ * `{placeholders}` 24 fills from the event and readers; the focus is the event's `tile` (or its
+ * first `tiles` entry). `once`: only the first occurrence is announced (03's `DeepsilverMined`).
+ * DECISIONS.md D-065.
+ */
 export interface AnnouncementSpec {
   readonly severity: 'note' | 'alert' | 'danger';
   readonly stringKey: string;
+  readonly once?: boolean;
 }
 
 /**

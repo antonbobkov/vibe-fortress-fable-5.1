@@ -21,7 +21,7 @@ import {
   type FrameScheduler,
 } from '@platform/realtime';
 import { contentRegistry } from '@content/loader';
-import { LOCAL_MAP_Z } from '@core/constants';
+import { LOCAL_MAP_Z, ZOOM_LEVELS } from '@core/constants';
 import { Compositor, type ViewState } from '@render/compositor';
 import { GlyphAtlas, glyphChars } from '@render/atlas';
 import { Palette } from '@render/palette';
@@ -44,19 +44,13 @@ import { WorldGenScreen } from '@ui/screens/world_gen';
 import { WorldMapScreen } from '@ui/screens/world_map';
 import { EmbarkScreen } from '@ui/screens/embark';
 import type { HeadlessEmbark } from '@app/headless';
+import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
+import { defaultUiState, toSaved, type UiState } from '@ui/ui-state';
+import { TerrainFacts, precondition } from '@systems/terrain';
+import { jsonSection, type SaveSection } from '@app/save-manager';
 
 export type { ScreenId } from '@ui/screen';
-
-/** `schemas/system-state.md` § UiState, with the M0 fields. */
-export interface UiState {
-  camX: number;
-  camY: number;
-  z: number;
-  zoom: number;
-  panel: string | null;
-  overlays: string[];
-  cursor: { x: number; y: number } | null;
-}
+export type { UiState } from '@ui/ui-state';
 
 export interface GameOptions {
   readonly canvas: CanvasLike;
@@ -96,25 +90,24 @@ export class Game {
   readonly seed: string;
   readonly registry: Registry;
   readonly palette: Palette;
-  readonly atlas: GlyphAtlas;
+  /** Rebuilt when the zoom changes the cell size. */
+  atlas: GlyphAtlas;
   readonly compositor: Compositor;
   readonly worldMapCompositor: WorldMapCompositor;
-  readonly renderer: Renderer;
+  renderer: Renderer;
   readonly surface: CanvasSurface;
   readonly driver: FrameDriver;
   readonly keymap: Keymap;
   readonly strings: Strings;
   readonly glyphs: GlyphMap;
   readonly theme: Theme;
-  readonly ui: UiState = {
-    camX: 0,
-    camY: 0,
-    z: START_Z,
-    zoom: 1,
-    panel: null,
-    overlays: ['designations', 'zones'],
-    cursor: null,
-  };
+  readonly ui: UiState = defaultUiState(START_Z);
+  /** The fortress screen's tools, panels, log and status bar (T-M1-14). */
+  readonly fortress: FortressScreen;
+  private readonly createCanvas: CanvasFactory;
+  private unsubscribe: (() => void) | null = null;
+  /** The world of the embark screen, before the game exists. */
+  private pendingWorld: WorldMap | null = null;
 
   private readonly stack: StackEntry[] = [FORTRESS];
   private cols = 0;
@@ -158,7 +151,66 @@ export class Game {
     this.theme = themeOf(this.palette);
     this.saves = options.saves ?? null;
     this.randomSeed = options.randomSeed ?? defaultRandomSeed;
+    this.createCanvas = options.createCanvas;
+    this.fortress = new FortressScreen(this.fortressHost(), this.keymap, this.strings);
     this.resize(options.width, options.height, options.devicePixelRatio ?? 1);
+  }
+
+  /** What the fortress screen may touch: the host, the camera, 03's precondition. */
+  private fortressHost(): FortressHost {
+    const host = this.host;
+    let facts: TerrainFacts | null = null;
+    return {
+      get readers() {
+        return host.readers;
+      },
+      registry: this.registry,
+      ui: this.ui,
+      submit: (command) => this.host.submit(command),
+      speed: () => this.host.speed(),
+      setSpeed: (speed) => this.host.setSpeed(speed),
+      pan: (dx, dy) => void this.pan(dx, dy),
+      changeZ: (dz) => void this.changeZ(dz),
+      centerOn: (x, y, z) => {
+        this.centerOn(x, y, z);
+        this.render();
+      },
+      home: () => this.home(),
+      zoom: (delta) => this.zoomBy(delta),
+      layout: () => this.compositor.layout,
+      precondition: (i, kind) => {
+        facts ??= new TerrainFacts(this.registry);
+        return precondition(this.host.headless.map, i, kind, facts);
+      },
+      registeredPanels: () => this.host.world.registrations.panels,
+      announcements: () => this.host.world.registrations.announcements,
+      now: () => Date.now(),
+    };
+  }
+
+  /** Subscribe the fortress screen to the running world's events (24 § Events consumed). */
+  private subscribe(): void {
+    this.unsubscribe?.();
+    this.unsubscribe = this.host.onEvents((events) => this.fortress.onEvents(events));
+  }
+
+  /** `Home`: "center on the hearth (or wagon)"; there is no hearth before 14 (M2). */
+  home(): void {
+    if (!this.host.started) return;
+    const arrival = this.host.headless.arrival;
+    if (arrival === null) this.centerOnMap();
+    else this.centerOn(arrival.wagon.x, arrival.wagon.y, arrival.wagon.z);
+    this.render();
+  }
+
+  /** One zoom level in or out (`ZOOM_LEVELS`); the grid refits to the canvas. */
+  zoomBy(delta: number): void {
+    const at = ZOOM_LEVELS.indexOf(this.ui.zoom as (typeof ZOOM_LEVELS)[number]);
+    const next = ZOOM_LEVELS[Math.max(0, Math.min(ZOOM_LEVELS.length - 1, (at < 0 ? 1 : at) + delta))] as number;
+    if (next === this.ui.zoom) return;
+    this.ui.zoom = next;
+    this.resize(this.surface.cssWidth, this.surface.cssHeight);
+    this.render();
   }
 
   /** The screen on top of the stack. */
@@ -194,9 +246,15 @@ export class Game {
   /** `simulation-core.md` § Startup sequence steps 3 to 5 for the `flat-test` world. */
   async start(spec: { seed?: string } = {}): Promise<void> {
     await this.host.newGame({ seed: spec.seed ?? this.seed });
+    this.subscribe();
     this.resetTo(FORTRESS);
     this.centerOnMap();
     this.render();
+  }
+
+  /** The `ui` save section (`save-format.md` § Sections; `system-state.md` § UiState). */
+  uiSection(): SaveSection {
+    return jsonSection('ui', toSaved(this.ui, this.fortress.log.lines));
   }
 
   // ---------- the screens outside the fortress (T-M1-12) ----------
@@ -276,6 +334,7 @@ export class Game {
   openEmbark(world: WorldMap, regionId: number): void {
     const region = world.regions[regionId];
     if (region === undefined) return;
+    this.pendingWorld = world;
     this.pushScreen(
       new EmbarkScreen(
         this.registry,
@@ -302,6 +361,7 @@ export class Game {
     try {
       const spec = localMapSpec(world, regionId, this.registry);
       await this.host.newGame({ seed: world.seed, world: 'local', spec, embark, worldMap: world });
+      this.subscribe();
     } finally {
       this.busy = null;
     }
@@ -328,6 +388,12 @@ export class Game {
 
   /** The world-level reader of the running game's generated world, if any. */
   worldReader(): WorldgenReader | null {
+    const top = this.top();
+    // Before an embark the world is the world map screen's (the hook's readers read it there).
+    if (top instanceof WorldMapScreen || top instanceof EmbarkScreen) {
+      const shown = top instanceof WorldMapScreen ? top.world : this.pendingWorld;
+      if (shown !== null) return worldReader(shown);
+    }
     const map = this.host.started ? this.host.worldMap : null;
     return map === null ? null : worldReader(map);
   }
@@ -342,7 +408,11 @@ export class Game {
     this.rows = fit.rows;
     this.cssScale = fit.cssScale;
     this.ui.zoom = fit.zoom;
-    if (fit.cellPx !== this.atlas.cellPx) this.atlas.clear();
+    if (fit.cellPx !== this.atlas.cellPx) {
+      // A new cell size needs a new atlas (23 § Atlas: "drawn once per zoom").
+      this.atlas = new GlyphAtlas({ cellPx: fit.cellPx, chars: glyphChars(this.registry), createCanvas: this.createCanvas });
+      this.renderer = new Renderer({ surface: this.surface, atlas: this.atlas, palette: this.palette });
+    }
     this.clampCamera();
   }
 
@@ -392,47 +462,35 @@ export class Game {
       camX: this.ui.camX,
       camY: this.ui.camY,
       z: this.ui.z,
-      sidebarOpen: this.ui.panel !== null,
+      // "`Tab` toggles it without changing the panel" (24 § Fortress screen layout).
+      sidebarOpen: this.ui.panel !== null && this.ui.sidebar,
       cursor: this.ui.cursor,
     };
-    this.cells = this.compositor.compose(this.host.readers, view, this.cols, this.rows);
-    this.lastSurface = null;
-    this.renderer.draw(this.cells);
+    const cells = this.compositor.compose(this.host.readers, view, this.cols, this.rows);
+    const surface = new Surface(cells, this.glyphs, this.theme);
+    this.fortress.draw(surface);
+    this.cells = cells;
+    this.lastSurface = surface;
+    this.renderer.draw(cells);
   }
 
   // ---------- input ----------
 
-  /**
-   * A key press, routed to the screen on top. For the fortress: the map keys of 24 § Input model.
-   * Returns whether the key was consumed.
-   */
+  /** The screen object input goes to: the top of the stack, the fortress once a world runs. */
+  private inputScreen(): Screen | null {
+    const top = this.top();
+    if (top !== FORTRESS) return top;
+    return this.host.started ? this.fortress : null;
+  }
+
+  /** A key press, routed to the screen on top. Returns whether the key was consumed. */
   handleKey(key: KeyPress): boolean {
     if (this.busy !== null) return false;
-    const top = this.top();
-    if (top !== FORTRESS) {
-      const used = top.key(key);
-      this.render();
-      return used;
-    }
-    const step = key.shift ? 10 : 1;
-    switch (key.key) {
-      case '←':
-        return this.pan(-step, 0);
-      case '→':
-        return this.pan(step, 0);
-      case '↑':
-        return this.pan(0, -step);
-      case '↓':
-        return this.pan(0, step);
-      case '<':
-      case ',':
-        return this.changeZ(-1);
-      case '>':
-      case '.':
-        return this.changeZ(1);
-      default:
-        return false;
-    }
+    const screen = this.inputScreen();
+    if (screen === null) return false;
+    const used = screen.key(key);
+    this.render();
+    return used;
   }
 
   /**
@@ -463,37 +521,33 @@ export class Game {
 
   pointerDown(action: PointerAction): void {
     if (this.busy !== null) return;
-    const top = this.top();
-    if (top !== FORTRESS) top.pointerDown?.(this.cellPointer(action));
+    this.inputScreen()?.pointerDown?.(this.cellPointer(action));
     this.render();
   }
 
   pointerMove(action: PointerAction): void {
     if (this.busy !== null) return;
-    const top = this.top();
-    if (top !== FORTRESS && top.pointerMove !== undefined) {
-      top.pointerMove(this.cellPointer(action));
-      this.render();
-    }
+    const screen = this.inputScreen();
+    if (screen?.pointerMove === undefined) return;
+    screen.pointerMove(this.cellPointer(action));
+    this.render();
   }
 
   pointerUp(action: PointerAction): void {
     if (this.busy !== null) return;
-    const top = this.top();
-    if (top !== FORTRESS && top.pointerUp !== undefined) {
-      top.pointerUp(this.cellPointer(action));
-      this.render();
-    }
+    const screen = this.inputScreen();
+    if (screen?.pointerUp === undefined) return;
+    screen.pointerUp(this.cellPointer(action));
+    this.render();
   }
 
   wheel(action: WheelAction): void {
     if (this.busy !== null) return;
-    const top = this.top();
-    if (top !== FORTRESS && top.wheel !== undefined) {
-      const at = this.cellAt(action.x, action.y);
-      top.wheel({ ...at, dy: action.dy, shift: action.shift, ctrl: action.ctrl, alt: action.alt, meta: action.meta });
-      this.render();
-    }
+    const screen = this.inputScreen();
+    if (screen?.wheel === undefined) return;
+    const at = this.cellAt(action.x, action.y);
+    screen.wheel({ ...at, dy: action.dy, shift: action.shift, ctrl: action.ctrl, alt: action.alt, meta: action.meta });
+    this.render();
   }
 
   /** The surface of the last UI frame (its widgets' click regions). */

@@ -52,7 +52,7 @@ export function themeOf(palette: Palette): Theme {
 }
 
 /** Characters the documents write that the glyph set carries under a near-identical code point. */
-export const GLYPH_ALIASES: Readonly<Record<string, string>> = Object.freeze({ '▶': '►' });
+export const GLYPH_ALIASES: Readonly<Record<string, string>> = Object.freeze({ '▶': '►', '×': 'x', '–': '-', '—': '-' });
 
 /** Character to glyph index over the whole glyph set; CP437 first, then the content extras. */
 export class GlyphMap {
@@ -68,7 +68,7 @@ export class GlyphMap {
     }
     // CP437 has no glyph for index 0's space and 32 is the ASCII space; both draw nothing.
     this.byChar.set(' ', 32);
-    // The wireframes write the selection mark as U+25B6; CP437's pointer is U+25BA.
+    // The documents write U+25B6, the multiplication sign and dashes that CP437 lacks: their nearest CP437 glyphs.
     for (const [alias, ch] of Object.entries(GLYPH_ALIASES)) {
       const at = this.byChar.get(ch);
       if (at !== undefined && !this.byChar.has(alias)) this.byChar.set(alias, at);

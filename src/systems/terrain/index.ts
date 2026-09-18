@@ -139,6 +139,13 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     ctx.register.jobProducer(producer);
     ctx.register.inspector('tile', { id: 'tile', order: 0 });
     ctx.register.overlay({ id: 'designations', label: 'Designations', defaultOn: true });
+    // `03` § Registrations: "Announcements: `VeinFound` as a note naming the finder and the
+    // material; `CavernBreached` as an alert; `DeepsilverMined` first occurrence as a
+    // danger-severity announcement that pauses; `ConstructionCollapsed` as an alert."
+    ctx.register.announcement('VeinFound', { severity: 'note', stringKey: 'announce.vein_found' });
+    ctx.register.announcement('CavernBreached', { severity: 'alert', stringKey: 'announce.cavern_breached' });
+    ctx.register.announcement('DeepsilverMined', { severity: 'danger', stringKey: 'announce.deepsilver_mined', once: true });
+    ctx.register.announcement('ConstructionCollapsed', { severity: 'alert', stringKey: 'announce.construction_collapsed' });
   }
 
   /**
