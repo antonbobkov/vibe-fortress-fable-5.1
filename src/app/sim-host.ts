@@ -12,24 +12,35 @@
  * (DECISIONS.md D-017).
  */
 
-import { HeadlessGame, type HeadlessOptions } from '@app/headless';
+import { HeadlessGame, type HeadlessEmbark, type HeadlessOptions } from '@app/headless';
 import { MAX_TICKS_PER_FRAME, SIM_TICKS_PER_SECOND } from '@core/constants';
 import { NotYetImplementedError } from '@core/system';
 import type { Command } from '@core/commands';
 import type { GameEvent } from '@core/events';
 import type { ReaderSet } from '@core/readers';
 import type { HostStats, World } from '@core/world';
+import type { LocalMapSpec } from '@systems/embark';
+import type { WorldMap } from '@systems/worldgen';
 
 /** `simulation-core.md` § The simulation host: 0 is paused. */
 export type Speed = 0 | 1 | 2 | 4;
 
 export type Unsubscribe = () => void;
 
-/** `NewGameSpec`: the world seed and what to build. M1 adds the region and the embark result. */
+/**
+ * `NewGameSpec`: the world seed and what to build. `'flat-test'` is the fixture map; `'local'`
+ * generates the local map of `spec` (03) and runs 02's arrival with `embark` (T-M1-12, T-M1-13).
+ */
 export interface NewGameSpec {
   readonly seed: string;
-  readonly world?: 'flat-test';
+  readonly world?: 'flat-test' | 'local';
   readonly fortressName?: string;
+  /** The region's `LocalMapSpec` (`world: 'local'`). */
+  readonly spec?: LocalMapSpec;
+  /** The party: `'none'`, a preset, or the embark screen's session. */
+  readonly embark?: HeadlessEmbark;
+  /** The generated world the region belongs to; kept for the world-level readers. */
+  readonly worldMap?: WorldMap;
 }
 
 export interface SimulationHost {
@@ -51,6 +62,8 @@ export interface SimulationHost {
 export class InProcessHost implements SimulationHost {
   private game: HeadlessGame | null = null;
   private current: Speed = 0;
+  /** The generated world of the running game, or `null` for the fixture map. */
+  worldMap: WorldMap | null = null;
 
   /** The world, once `newGame` has built one. */
   get world(): World {
@@ -75,8 +88,11 @@ export class InProcessHost implements SimulationHost {
       seed: spec.seed,
       world: spec.world ?? 'flat-test',
       ...(spec.fortressName === undefined ? {} : { fortressName: spec.fortressName }),
+      ...(spec.spec === undefined ? {} : { spec: spec.spec }),
+      ...(spec.embark === undefined ? {} : { embark: spec.embark }),
     };
     this.game = new HeadlessGame(options);
+    this.worldMap = spec.worldMap ?? null;
     // Step 5: "begins the frame loop paused".
     this.current = 0;
     return Promise.resolve();

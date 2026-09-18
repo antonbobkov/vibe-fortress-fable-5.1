@@ -43,7 +43,7 @@ test('boot', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
 
-  await page.goto('/');
+  await page.goto('/?start=flat-test');
   const canvas = page.locator('canvas#screen');
   await expect(canvas).toBeVisible();
   await page.waitForFunction(() => window.__deepholm !== undefined);

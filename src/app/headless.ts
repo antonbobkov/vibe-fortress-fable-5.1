@@ -217,7 +217,7 @@ export function regionSpec(seed: string, region: Partial<RegionRecord>, registry
  * The embark of a headless game: `'none'` (no dwarves), `'default'` (the Balanced preset,
  * `acceptance-tests.md`), or a named preset.
  */
-export type HeadlessEmbark = 'none' | 'default' | { readonly preset: string };
+export type HeadlessEmbark = 'none' | 'default' | { readonly preset: string } | { readonly session: EmbarkSession };
 
 /** The preset `'default'` stands for. */
 export const DEFAULT_EMBARK_PRESET = 'balanced';
@@ -337,8 +337,18 @@ export class HeadlessGame {
    */
   private embark(embark: HeadlessEmbark, spec: LocalMapSpec, fortressName: string | undefined): ArrivalResult | null {
     if (embark === 'none') return null;
+    let session: EmbarkSession;
+    if (typeof embark === 'object' && 'session' in embark) {
+      // The embark screen's session (T-M1-13): its party, supplies and fortress name as chosen.
+      session = embark.session;
+      return arrive(this.world, spec, session.party, {
+        fortressName: fortressName ?? session.fortressName,
+        supplies: session.supplies,
+        spawnDwarf: spawnApiDwarfSpawner(this.world),
+      });
+    }
     const preset = embark === 'default' ? DEFAULT_EMBARK_PRESET : embark.preset;
-    const session = new EmbarkSession(this.registry, this.world.seed, spec.peril);
+    session = new EmbarkSession(this.registry, this.world.seed, spec.peril);
     const applied = session.apply({ type: 'ApplyPreset', preset });
     if (!applied.ok) throw new Error(`headless embark: preset ${preset}: ${applied.reason ?? 'rejected'}`);
     return arrive(this.world, spec, session.party, {

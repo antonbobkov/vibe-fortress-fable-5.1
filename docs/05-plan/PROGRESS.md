@@ -34,7 +34,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M1-09 — Dwarves system: brain (walk, idle), skills, xp, movement speed (opus-m1, 2026-09-18)
 - [x] T-M1-10 — Dig, channel, carve, smooth, engrave, chop, gather job execution (opus-m1, 2026-09-18)
 - [x] T-M1-11 — Spawn API and creature/dwarf spawning (opus-m1, 2026-09-18)
-- [ ] T-M1-12 — World gen and world map screens
+- [x] T-M1-12 — World gen and world map screens (opus-m1, 2026-09-18)
 - [ ] T-M1-13 — Embark screen
 - [ ] T-M1-14 — Designate tool, look panel, log strip, status bar
 - [ ] T-M1-15 — Compositor: creatures and designation/zone overlays
