@@ -9,11 +9,13 @@
 
 import { HeadlessGame, type HeadlessOptions } from '@app/headless';
 import { NotYetImplementedError } from '@core/system';
+import { C } from '@core/components';
+import { cumulativeXp } from '@systems/dwarves/rules/skills';
 import { TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { Command } from '@core/commands';
 import type { GameEvent } from '@core/events';
 import type { EventType } from '@core/event-types';
-import type { MovementClass, TileIndex } from '@core/types';
+import type { EntityId, MovementClass, TileIndex } from '@core/types';
 
 export class TestWorld {
   readonly game: HeadlessGame;
@@ -190,8 +192,17 @@ export class TestWorld {
     throw new NotYetImplementedError('TestWorld.setNeed', 'T-M4-05');
   }
 
-  setSkill(): never {
-    throw new NotYetImplementedError('TestWorld.setSkill', 'T-M1-09');
+  /** Set a dwarf's skill level, with the cumulative xp of that level (T-M1-09). */
+  setSkill(id: EntityId, skill: string, level: number): void {
+    const entities = this.game.world.entities;
+    const skills = entities.get(id, C.Skills);
+    if (skills === undefined) throw new Error(`setSkill: ${id} has no Skills`);
+    const s = this.game.registry.table('skills').index(skill);
+    const levels = skills.level.slice();
+    const xp = skills.xp.slice();
+    levels[s] = level;
+    xp[s] = cumulativeXp(level);
+    entities.add(id, C.Skills, { ...skills, level: levels, xp });
   }
 
   forceWeather(): never {

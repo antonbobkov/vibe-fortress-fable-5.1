@@ -9,12 +9,13 @@
  */
 
 import { C } from '@core/components';
-import { NEED_MAX, START_HOUR, TICKS_PER_HOUR, TICKS_PER_YEAR } from '@core/constants';
+import { START_HOUR, TICKS_PER_HOUR, TICKS_PER_YEAR } from '@core/constants';
 import { isSolidBottomed, TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { Registry } from '@core/registry';
 import type { World } from '@core/world';
 import type { EntityId, Edge, TileIndex } from '@core/types';
 import type { DwarfRecord } from '@systems/dwarves/rules/make-dwarf';
+import { dwarfComponents } from '@systems/dwarves/rules/components';
 import { ARRIVAL_SEARCH_DEPTH } from './constants';
 import type { LocalMapSpec } from './spec';
 import type { SupplyLine } from './party';
@@ -145,8 +146,8 @@ interface SpeciesRow {
 }
 
 /**
- * The stand-in spawner: a `creature` with `Position`, `Creature`, `Attributes`, `Skills`, `Needs`,
- * `Personality`, `Title` and `Labors` (every labor on, step 5), from the record. `onPlaced` lets
+ * The stand-in spawner: a `creature` with `Position`, `Creature`, 10's components
+ * (`dwarfComponents`), `Motion`, `Worker` and `Labors` (every labor on, step 5), from the record. `onPlaced` lets
  * the host index the new position (the headless game's spatial index).
  */
 export function basicDwarfSpawner(
@@ -157,9 +158,7 @@ export function basicDwarfSpawner(
   const species = registry.table<SpeciesRow>('creatures');
   const dwarf = species.byId('dwarf');
   if (dwarf === undefined) throw new RangeError('content has no dwarf species');
-  const skills = registry.table('skills');
   const labors = registry.table('labors');
-  const traits = registry.table('personality');
   return (record, at, title) => {
     const e = world.entities;
     const id = e.create('creature');
@@ -174,16 +173,19 @@ export function basicDwarfSpawner(
       sizeClass: dwarf.size,
       bodyPlan: registry.table('bodyPlans').index(dwarf.plan),
     });
-    e.add(id, C.Attributes, { ...record.attributes });
-    const level = new Uint8Array(skills.size + 1);
-    for (const key of Object.keys(record.skills)) level[skills.index(key)] = record.skills[key] ?? 0;
-    e.add(id, C.Skills, { level, xp: new Uint16Array(skills.size + 1), lastRaised: 0 });
-    const n = Math.max(0, Math.min(NEED_MAX, record.needs));
-    e.add(id, C.Needs, { hunger: n, thirst: n, rest: n, social: n, comfort: n, purpose: n, joy: n });
-    e.add(id, C.Personality, {
-      traits: [traits.index(record.personality[0]), traits.index(record.personality[1]), traits.index(record.personality[2])],
-    });
-    e.add(id, C.Title, { title });
+    // 10's components (T-M1-09): Attributes, Skills, Needs, Personality, Schedule, Relationships,
+    // Title and Brain, the sleep hour drawn from 10's stream (D-057).
+    const parts = dwarfComponents(record, registry, world.rngFor('10'), title);
+    e.add(id, C.Attributes, parts.attributes);
+    e.add(id, C.Skills, parts.skills);
+    e.add(id, C.Needs, parts.needs);
+    e.add(id, C.Personality, parts.personality);
+    e.add(id, C.Schedule, parts.schedule);
+    e.add(id, C.Relationships, parts.relationships);
+    e.add(id, C.Title, parts.title);
+    e.add(id, C.Brain, parts.brain);
+    e.add(id, C.Motion, { pathId: 0, stepIndex: 0, progress: 0, speed: 0, movementClass: 'walker', repathCount: 0, waitUntil: 0 });
+    e.add(id, C.Worker, { jobId: 0, phase: 0, carrying: 0, toolId: 0 });
     const enabled = new Uint8Array(((labors.size + 1) >> 3) + 1);
     for (let k = 1; k <= labors.size; k += 1) enabled[k >> 3] = (enabled[k >> 3] as number) | (1 << (k & 7));
     e.add(id, C.Labors, { enabled });

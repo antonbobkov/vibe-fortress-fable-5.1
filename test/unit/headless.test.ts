@@ -212,7 +212,6 @@ describe('T-M0-11 headless: TestWorld', () => {
     expect(() => w.build()).toThrow(/T-M2-05/);
     expect(() => w.zone()).toThrow(/T-M2-03/);
     expect(() => w.setNeed()).toThrow(/T-M4-05/);
-    expect(() => w.setSkill()).toThrow(/T-M1-09/);
     expect(() => w.forceWeather()).toThrow(/T-M3-06/);
     expect(() => w.forceTemperature()).toThrow(/T-M3-03/);
   });

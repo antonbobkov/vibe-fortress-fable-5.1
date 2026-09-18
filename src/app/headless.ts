@@ -34,6 +34,7 @@ import {
 import { generateLocal, type LocalMapResult, type StackLayer } from '@systems/terrain/generate';
 import { TerrainSystem } from '@systems/terrain';
 import { JobsSystem } from '@systems/jobs';
+import { DwarvesSystem } from '@systems/dwarves';
 import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
@@ -314,6 +315,12 @@ export class HeadlessGame {
     const terrain = this.terrain;
     if (terrain !== null) this.pathing.graph.hooks.forbidden = (i) => terrain.core.isForbidden(i);
     this.arrival = this.embark(options.embark ?? 'none', options.spec ?? FLAT_TEST_SPEC, options.fortressName);
+    // The idle anchor until there is a hearth hall: the wagon tile (`creature-brains.md`; D-057).
+    const dwarves = systems.find((s) => s instanceof DwarvesSystem) as DwarvesSystem | undefined;
+    if (dwarves !== undefined && this.arrival !== null) {
+      const w = this.arrival.wagon;
+      dwarves.wagonTile = this.map.index(w.x, w.y, w.z);
+    }
   }
 
   /**
@@ -339,7 +346,7 @@ export class HeadlessGame {
    * them): 03 terrain (T-M1-07).
    */
   static standardSystems(spec: LocalMapSpec, layerStack: readonly StackLayer[]): GameSystem[] {
-    return [new TerrainSystem({ spec, layerStack }), new JobsSystem()];
+    return [new TerrainSystem({ spec, layerStack }), new DwarvesSystem(), new JobsSystem()];
   }
 
   get map(): Map3D {
