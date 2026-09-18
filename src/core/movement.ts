@@ -15,6 +15,7 @@ import { C, type Motion, type Position } from './components';
 import { isSolidBottomed, Map3D, TileKind } from './map3d';
 import { FLUID_MAX_LEVEL, REPATH_LIMIT, REPATH_WAIT_TICKS, STEP_COST } from './path-constants';
 import type { EntityStore } from './entities';
+import type { MovementApi } from './system';
 import type { GameEvent } from './events';
 import type { MoverOptions, PathingCore } from './pathfinding';
 import type { SpatialIndex } from './spatial';
@@ -32,7 +33,7 @@ export interface MovementContext {
 /** One entry of the tick's `EntitiesMoved` batch. */
 export type MoveRecord = [EntityId, TileIndex, TileIndex];
 
-export class MovementHelper {
+export class MovementHelper implements MovementApi {
   private readonly map: Map3D;
   private readonly entities: EntityStore;
   private readonly spatial: SpatialIndex;
@@ -91,6 +92,30 @@ export class MovementHelper {
     }
     this.place(id, from, to);
     return true;
+  }
+
+  /**
+   * Point a mover at a finished path request (`Motion.pathId` is the request id, D-049), from its
+   * first step. A mover without `Motion` gets one with the default walker class.
+   */
+  follow(id: EntityId, pathId: number): void {
+    const m = this.entities.get<Motion>(id, C.Motion) ?? {
+      pathId: 0,
+      stepIndex: 0,
+      progress: 0,
+      speed: 0,
+      movementClass: 'walker' as const,
+      repathCount: 0,
+      waitUntil: 0,
+    };
+    this.entities.add<Motion>(id, C.Motion, { ...m, pathId, stepIndex: 0, progress: 0 });
+  }
+
+  /** `pathing.setSpeed(id, speed)`: the owning brain writes `Motion.speed` (`components.md`). */
+  setSpeed(id: EntityId, speed: number): void {
+    const m = this.entities.get<Motion>(id, C.Motion);
+    if (m === undefined || m.speed === speed) return;
+    this.entities.add<Motion>(id, C.Motion, { ...m, speed });
   }
 
   /** Clear a mover's path without touching its position. */

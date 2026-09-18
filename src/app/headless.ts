@@ -31,7 +31,8 @@ import {
   type ArrivalResult,
   type LocalMapSpec,
 } from '@systems/embark';
-import { generateLocal, type LocalMapResult } from '@systems/terrain/generate';
+import { generateLocal, type LocalMapResult, type StackLayer } from '@systems/terrain/generate';
+import { TerrainSystem } from '@systems/terrain';
 import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
@@ -120,6 +121,14 @@ export function buildFlatTestMap(registry: Registry = contentRegistry()): Map3D 
   }
   return map;
 }
+
+/**
+ * The rock stack of the `flat-test` map, top first: granite from under the soil down to the Sea of
+ * Fire's roof (`FLAT_TEST_SURFACE_Z − FLAT_TEST_SOIL_DEPTH` down to `MAGMA_SEA_TOP_Z + 2`).
+ */
+export const FLAT_TEST_LAYERS: readonly StackLayer[] = Object.freeze([
+  { material: FLAT_TEST_STONE, thickness: FLAT_TEST_SURFACE_Z - FLAT_TEST_SOIL_DEPTH - (MAGMA_SEA_TOP_Z + 1) },
+]);
 
 /**
  * The `LocalMapSpec` the `flat-test` map stands for: "a `serene_vale`-like region (peril 0,
@@ -220,6 +229,11 @@ export interface HeadlessOptions {
   /** A map built by the caller, used by the hand-built scenario fixtures. */
   readonly map?: Map3D;
   readonly fortressName?: string;
+  /**
+   * The systems to register. Omitted means the standard set of the milestones built so far
+   * ({@link HeadlessGame.standardSystems}); given, it replaces that set, which is how the `core_*`
+   * scenarios run with stand-in systems only (D-036).
+   */
   readonly systems?: readonly GameSystem[];
   readonly hooks?: Partial<TerrainHooks>;
   readonly pathfinder?: PathfinderOptions;
@@ -244,6 +258,8 @@ export class HeadlessGame {
   readonly arrival: ArrivalResult | null;
   /** The generation result of a `'local'` world. */
   readonly local: LocalMapResult | null;
+  /** 03 terrain, when the standard systems are registered. */
+  readonly terrain: TerrainSystem | null;
 
   constructor(options: HeadlessOptions) {
     this.registry = options.registry ?? contentRegistry();
@@ -287,8 +303,13 @@ export class HeadlessGame {
       this.pathing.onTickEnd();
     };
 
-    for (const system of options.systems ?? []) this.world.addSystem(system);
+    const spec = options.spec ?? FLAT_TEST_SPEC;
+    const systems = options.systems ?? HeadlessGame.standardSystems(spec, local?.layerStack ?? FLAT_TEST_LAYERS);
+    for (const system of systems) this.world.addSystem(system);
+    this.terrain = (systems.find((s) => s instanceof TerrainSystem) as TerrainSystem | undefined) ?? null;
     this.world.init();
+    const terrain = this.terrain;
+    if (terrain !== null) this.pathing.graph.hooks.forbidden = (i) => terrain.core.isForbidden(i);
     this.arrival = this.embark(options.embark ?? 'none', options.spec ?? FLAT_TEST_SPEC, options.fortressName);
   }
 
@@ -308,6 +329,14 @@ export class HeadlessGame {
       supplies: session.supplies,
       spawnDwarf: basicDwarfSpawner(this.world, (id, at) => this.spatial.insert(id, at)),
     });
+  }
+
+  /**
+   * The systems of the milestones built so far, in no particular order (the scheduler orders
+   * them): 03 terrain (T-M1-07).
+   */
+  static standardSystems(spec: LocalMapSpec, layerStack: readonly StackLayer[]): GameSystem[] {
+    return [new TerrainSystem({ spec, layerStack })];
   }
 
   get map(): Map3D {

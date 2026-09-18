@@ -15,7 +15,10 @@ import type { GameEvent } from './events';
 import type { Registry } from './registry';
 import type { RngStream } from './rng';
 import type { EntityId, MovementClass, TileIndex } from './types';
-import type { Designation, TileFlag, TileKind } from './map3d';
+import type { Designation, Map3D, TileFlag, TileKind } from './map3d';
+import type { EntityStore } from './entities';
+import type { CalendarReader, EntityReader, FortressReader, MapReader, PathingReader, SpatialReader } from './readers';
+import type { FortressState } from './components';
 
 /** A system number from `02-systems/README.md` (`'03'`, `'21'`), or `'core'`. */
 export type SystemId = string;
@@ -25,13 +28,52 @@ export interface TerrainApi {
   setKind(i: TileIndex, kind: TileKind, material: number): void;
   setFlag(i: TileIndex, flag: TileFlag, value: boolean): void;
   setDesignation(i: TileIndex, kind: Designation, priority: number): void;
+  /** `03` § Interfaces › Terrain API. Optional so the M0 core implementation stays minimal. */
+  clearDesignation?(i: TileIndex): void;
+  /**
+   * Emit the tick's batched events (`TilesChanged`, and 03's `TilesDiscovered`). The world calls
+   * this once after step 2 of the tick (`tick-order.md`), so tiles changed by any system through
+   * the API land in the same tick's batch.
+   */
+  flush?(emit: (event: GameEvent) => void): void;
 }
 
-/** `11 jobs`. The real implementation arrives with T-M1-08. */
+/** `11 jobs`. The real implementation arrives with T-M1-08 (`src/systems/jobs`). */
 export interface JobsApi {
   create(key: string, spec: Readonly<Record<string, unknown>>): number;
   cancel(jobId: number, reason: string): void;
   exists(key: string): boolean;
+}
+
+/**
+ * The movement helper as the brains see it (`module-interfaces.md` § The movement helper,
+ * `22` § Core API). The host installs the core helper; DECISIONS.md D-049.
+ */
+export interface MovementApi {
+  moveAlongPath(id: EntityId, ctx: { readonly tick: number; emit(event: GameEvent): void }): string;
+  teleport(id: EntityId, to: TileIndex): boolean;
+  fall(id: EntityId, ctx: { readonly tick: number; emit(event: GameEvent): void }): string;
+  /** Point the mover at a finished path request (`Motion.pathId`), from its first step. */
+  follow(id: EntityId, pathId: number): void;
+  /** Drop the mover's path. */
+  clearPath(id: EntityId): void;
+  /** `pathing.setSpeed`: the owning brain writes `Motion.speed` (`components.md`, ownership table). */
+  setSpeed(id: EntityId, speed: number): void;
+  /** The tile an entity stands on, or -1. */
+  tileOf(id: EntityId): TileIndex;
+}
+
+/**
+ * The mutation services a tick context carries. The world starts with the M0 implementations
+ * (the core terrain API and the stubs of D-017); the systems and the host that own the real ones
+ * install them before the first tick (03 the terrain API, 11 the jobs API, the host the spawn API
+ * and the movement helper). DECISIONS.md D-049.
+ */
+export interface CoreServices {
+  terrain: TerrainApi;
+  jobs: JobsApi;
+  spawn: SpawnApi;
+  movement: MovementApi | null;
 }
 
 /** `module-interfaces.md` § The spawn API. The real implementation arrives with T-M1-11. */
@@ -57,6 +99,13 @@ export interface JobProducer {
   readonly id: string;
   produce(ctx: TickContext, sink: unknown): void;
   onJobEvent?(event: GameEvent): void;
+  /**
+   * `algorithms/jobs-and-hauling.md` § Job steps, `completing`: "producer(job).onComplete(job, ctx)
+   * (spawns outputs, applies tile changes, consumes inputs)". The job record is 11's.
+   */
+  onComplete?(job: unknown, ctx: TickContext): void;
+  /** The work time of a job in hundredths of a tick, when the producer computes it (`jobs.md`). */
+  workCentiTicks?(job: unknown): number;
 }
 
 export interface RecipeSet {
@@ -196,12 +245,35 @@ export interface TickContext extends InitContext {
 export interface WorldLike {
   readonly seed: string;
   rngFor(systemId: SystemId): RngStream;
+  /** The installable mutation services (D-049). */
+  readonly services: CoreServices;
+  /** The grids. Only 03 writes `kind` and `material`; the others go through the terrain API. */
+  readonly map: Map3D;
+  /** The entity store; each system writes only the components it owns (`components.md`). */
+  readonly entities: EntityStore;
+  /** `World.fortress` (`data-model.md` § Fortress-level state). */
+  readonly fortress: FortressState;
+  /** The calendar's current tick. */
+  readonly calendar: { readonly tick: number };
+  /**
+   * Queue an event, exactly as `ctx.emit` does. For services that are called from other systems'
+   * ticks (the terrain API's collapse and breach events).
+   */
+  emit(event: GameEvent): void;
 }
 
 /** Structural view of the reader set. */
 export interface ReaderSetLike {
   of<T>(systemId: SystemId): T;
   has(systemId: SystemId): boolean;
+  /** The core readers of `module-interfaces.md` § Core readers. */
+  readonly map: MapReader;
+  readonly entities: EntityReader;
+  readonly calendar: CalendarReader;
+  readonly fortress: FortressReader;
+  /** `readers.pathing` and `readers.spatial`, once the host has registered them. */
+  readonly pathing: PathingReader;
+  readonly spatial: SpatialReader;
 }
 
 export interface GameSystem<S = unknown> {

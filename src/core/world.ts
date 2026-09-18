@@ -11,7 +11,7 @@ import { EventListeners, EventQueue, type EventListener, type GameEvent, type Un
 import { Map3D, type Designation, type TileFlag, type TileKind } from './map3d';
 import { POPULATION_CAP_DEFAULT } from './constants';
 import { ReaderSet } from './readers';
-import { Registrations, NO_JOBS_API, NO_SPAWN_API, type Clock, type GameSystem, type InitContext, type SystemId, type TerrainApi, type TickContext } from './system';
+import { Registrations, NO_JOBS_API, NO_SPAWN_API, type Clock, type CoreServices, type GameSystem, type InitContext, type SystemId, type TerrainApi, type TickContext } from './system';
 import { RngStream, seedFor } from './rng';
 import { Scheduler, isDue } from './scheduler';
 import { createEntityStore, type FortressState } from './components';
@@ -106,7 +106,12 @@ export class World {
   readonly scheduler: Scheduler;
 
   private readonly rngStreams = new Map<SystemId, RngStream>();
-  private readonly terrainApi: CoreTerrainApi;
+  /**
+   * The mutation services every tick context carries. 03 installs its terrain API, 11 its jobs
+   * API and the host the spawn API and the movement helper; until then the M0 implementations
+   * stand (D-017, D-049).
+   */
+  readonly services: CoreServices;
   private readonly now: Clock;
   private initialised = false;
   private lastTickMs = 0;
@@ -124,7 +129,7 @@ export class World {
     this.now = options.now ?? ((): number => 0);
     this.scheduler = new Scheduler(this.now);
     this.readers = new ReaderSet(this.map, this.entities, this.calendar, this.fortress);
-    this.terrainApi = new CoreTerrainApi(this.map);
+    this.services = { terrain: new CoreTerrainApi(this.map), jobs: NO_JOBS_API, spawn: NO_SPAWN_API, movement: null };
     // `data-model.md` § Store API says `destroy` queues a `DestroyedEntity` event, but the Wave 4
     // event catalog has no such type; the owning systems emit `ItemDestroyed` / `CreatureDied`
     // instead. See the contradiction C-001 in DECISIONS.md.
@@ -176,10 +181,15 @@ export class World {
       ...this.initContext(system),
       tick: this.calendar.tick,
       emit: (event: GameEvent) => this.events.emit(event),
-      terrain: this.terrainApi,
-      jobs: NO_JOBS_API,
-      spawn: NO_SPAWN_API,
+      terrain: this.services.terrain,
+      jobs: this.services.jobs,
+      spawn: this.services.spawn,
     };
+  }
+
+  /** Queue an event for this tick's dispatch (or the next, while a batch is being dispatched). */
+  emit(event: GameEvent): void {
+    this.events.emit(event);
   }
 
   /** Queue a command; it is applied at the start of the next tick. */
@@ -211,7 +221,7 @@ export class World {
       const ctx = this.tickContext(system);
       this.scheduler.runTick(system, () => system.tick(ctx));
     }
-    this.terrainApi.flush((event) => this.events.emit(event));
+    this.services.terrain.flush?.((event) => this.events.emit(event));
 
     // 3. Connectivity rebuild for dirty chunks (22).
     this.connectivityPass?.();
