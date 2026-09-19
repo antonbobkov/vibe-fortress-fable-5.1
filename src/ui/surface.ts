@@ -32,6 +32,9 @@ export interface Theme {
   readonly note: Rgb;
   readonly alert: Rgb;
   readonly danger: Rgb;
+  /** The build ghost's backgrounds (23 § Compositor step 10). */
+  readonly ghostOk: Rgb;
+  readonly ghostBad: Rgb;
 }
 
 export function themeOf(palette: Palette): Theme {
@@ -48,6 +51,8 @@ export function themeOf(palette: Palette): Theme {
     note: palette.color('note'),
     alert: palette.color('alert'),
     danger: palette.color('danger'),
+    ghostOk: palette.color('ghost_ok'),
+    ghostBad: palette.color('ghost_bad'),
   };
 }
 

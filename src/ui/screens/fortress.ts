@@ -253,7 +253,7 @@ export class FortressScreen implements Screen {
     }
   }
 
-  /** The build tool's footprint ghost under the pointer: green where valid, red where not. */
+  /** The build tool's footprint ghost under the pointer: "a building ghost uses green or red `bg` by validity" (23 step 10). */
   private drawGhost(surface: Surface, map: Rect): void {
     if (!this.build.active) return;
     const p = this.hoverPoint();
@@ -269,7 +269,7 @@ export class FortressScreen implements Screen {
       const r = (Math.floor(i / m.w) % m.h) - this.ui.camY;
       if (col < 0 || r < 0 || col >= map.cols || r >= map.rows) continue;
       const bad = ghost.reason !== null && (ghost.bad.includes(i) || ghost.bad.length === 0);
-      surface.put(map.col + col, map.row + r, glyph, bad ? t.bad : t.good, t.black);
+      surface.put(map.col + col, map.row + r, glyph, t.black, bad ? t.ghostBad : t.ghostOk);
     }
   }
 

@@ -9,8 +9,8 @@
  * Steps 3 to 9 (fluids, buildings, items, creatures, projectiles, overlays, lighting) are the
  * layers of systems that arrive over the milestones; each is a named function called from the
  * documented place in the pipeline. Step 6 (creatures, with the dwarves' state colors) and the
- * designation overlay of step 8 are T-M1-15; the zone overlay is a stub until 14's zones (T-M2-10);
- * fluids and lighting M3 (T-M3-08), buildings and items M2 (T-M2-10), projectiles M6 (T-M6-17).
+ * designation overlay of step 8 are T-M1-15; buildings, items and the zone and stockpile-usage
+ * overlays are T-M2-10 (`things.ts`); fluids and lighting M3 (T-M3-08), projectiles M6 (T-M6-17).
  */
 
 import { C } from '@core/components';
@@ -42,6 +42,9 @@ import {
   GLYPH_TREE,
 } from './glyphs';
 import type { Palette, Rgb } from './palette';
+import { ThingLayers } from './things';
+import type { ItemsReader } from '@systems/items';
+import type { BuildingsReader } from '@systems/buildings';
 
 /** The `UiState` fields the compositor reads (`schemas/system-state.md` § UiState). */
 export interface ViewState {
@@ -61,6 +64,9 @@ export interface ViewState {
 
 /** `ui-keymap-and-screens.md` § Overlays: the ones on by default. */
 export const DEFAULT_OVERLAYS: readonly string[] = ['designations', 'zones'];
+
+/** The overlay id of `stockpile usage` (off by default; `ui-keymap-and-screens.md` § Overlays). */
+export const OVERLAY_STOCKPILE_USAGE = 'stockpile_usage';
 
 /** The overlay id of the "priority digits" sub-toggle. */
 export const OVERLAY_PRIORITY_DIGITS = 'priority_digits';
@@ -134,6 +140,10 @@ export class Compositor {
   private frameReaders: ReaderSet | null = null;
   private frameOverlays: readonly string[] = DEFAULT_OVERLAYS;
   private buffer: CellBuffer = new CellBuffer(0, 0);
+  /** Steps 4, 5 and the zone and stockpile-usage overlays (T-M2-10). */
+  private readonly things: ThingLayers;
+  /** Each stockpile's fullness this frame (the `stockpile usage` overlay). */
+  private readonly usage = new Map<EntityId, number>();
   private lastLayout: Layout = computeLayout(0, 0, false);
 
   constructor(options: CompositorOptions) {
@@ -182,6 +192,7 @@ export class Compositor {
       child: palette.color('dwarf_child'),
     };
     for (const [kind, id] of Object.entries(DESIGNATION_TINTS)) this.tints.set(Number(kind) as Designation, palette.color(id as string));
+    this.things = new ThingLayers(options.registry, palette, indexOf);
   }
 
   /** The layout of the last {@link compose}; the app maps mouse cells through it. */
@@ -200,6 +211,7 @@ export class Compositor {
     cells.fill(GLYPH_NONE, this.black, this.black);
     this.frameReaders = readers;
     this.frameOverlays = ui.overlays ?? DEFAULT_OVERLAYS;
+    this.usage.clear();
 
     const map = readers.map;
     const daylight = readers.calendar.isDaylight;
@@ -395,14 +407,16 @@ export class Compositor {
     return cell;
   }
 
-  /** Step 4, buildings (14): T-M2-10. */
-  private buildingOver(cell: Cell, _i: TileIndex): Cell {
-    return cell;
+  /** Step 4, buildings (14; T-M2-10). */
+  private buildingOver(cell: Cell, i: TileIndex): Cell {
+    const readers = this.frameReaders;
+    return readers === null ? cell : this.things.buildingOver(cell, i, readers);
   }
 
-  /** Step 5, items (13): T-M2-10. */
-  private itemOver(cell: Cell, _i: TileIndex): Cell {
-    return cell;
+  /** Step 5, items (13; T-M2-10). */
+  private itemOver(cell: Cell, i: TileIndex): Cell {
+    const readers = this.frameReaders;
+    return readers === null ? cell : this.things.itemOver(cell, i, readers);
   }
 
   /** How a creature ranks for step 6: dwarves, hostiles, tame, wild (vermin has no rows yet). */
@@ -474,6 +488,7 @@ export class Compositor {
     let c = cell;
     if (this.frameOverlays.includes('designations')) c = this.designationOver(c, i, undiscovered, creature);
     if (this.frameOverlays.includes('zones')) c = this.zoneOver(c, i);
+    if (this.frameOverlays.includes(OVERLAY_STOCKPILE_USAGE)) c = this.usageOver(c, i);
     return c;
   }
 
@@ -495,9 +510,25 @@ export class Compositor {
     return { glyph: digits ? GLYPH_DIGIT_0 + map.designationPriorityAt(i) : cell.glyph, fg: cell.fg, bg: tint };
   }
 
-  /** `zones` (default on): 14's zones arrive in M2 (T-M2-10); nothing is zoned before. */
-  private zoneOver(cell: Cell, _i: TileIndex): Cell {
-    return cell;
+  /** `zones` (default on): "`bg` tinted by zone type at low alpha" (T-M2-10). */
+  private zoneOver(cell: Cell, i: TileIndex): Cell {
+    const readers = this.frameReaders;
+    return readers === null ? cell : this.things.zoneOver(cell, i, readers);
+  }
+
+  /** `stockpile usage` (off by default): the fullness ramp (13; T-M2-10). */
+  private usageOver(cell: Cell, i: TileIndex): Cell {
+    const readers = this.frameReaders;
+    if (readers === null || !readers.has('13')) return cell;
+    return this.things.usageOver(cell, i, readers, (zone) => {
+      const known = this.usage.get(zone);
+      if (known !== undefined) return known;
+      const tiles = readers.of<BuildingsReader>('14').zone(zone)?.tiles.length ?? 0;
+      const free = readers.of<ItemsReader>('13').freeSlots(zone);
+      const f = tiles === 0 ? 0 : (tiles - free) / tiles;
+      this.usage.set(zone, f);
+      return f;
+    });
   }
 
   /** Step 9, night, storm and fog dimming (06 weather): T-M3-08. */
