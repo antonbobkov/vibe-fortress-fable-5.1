@@ -18,6 +18,8 @@ export interface BuildingsStateV1 {
   rng: RngState;
   /** Superset: buildings waiting for their build or deconstruct job (D-073). */
   pendingJobs: EntityId[];
+  /** Superset: tiles `MagmaContact` named, for 14's next tick (D-098). */
+  magmaTouched?: TileIndex[];
 }
 
 /** Binary search: the insertion point of `value` in an ascending array. */

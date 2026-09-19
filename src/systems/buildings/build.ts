@@ -25,7 +25,8 @@
 import { C, type Building } from '@core/components';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
-import { Designation, TileFlag, TileKind, type Map3D } from '@core/map3d';
+import { Designation, FluidType, TileFlag, TileKind, type Map3D } from '@core/map3d';
+import { MAGMA_C } from '@systems/fluids/constants';
 import type { EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import type { Registry } from '@core/registry';
@@ -61,6 +62,12 @@ interface MaterialRow {
   readonly id: string;
   readonly class: string;
   readonly value: number;
+  readonly meltsAtC: number;
+}
+
+/** Magma (level ≥ 1) on a tile. */
+function magmaAt(map: Map3D, i: TileIndex): boolean {
+  return map.fluidLevelAt(i) > 0 && map.fluidTypeAt(i) === FluidType.Magma;
 }
 
 /** "By material" labor: wood → carpentry, stone → masonry, metal → smithing (`buildings-and-furniture.md`). */
@@ -227,9 +234,45 @@ export class BuildingStore {
     return (this.materials[b.material]?.value ?? 0) + this.row(b.type).value;
   }
 
-  /** 14 § Placement step 3: magma safety. 05's magma rules are not in yet, so every material is safe (T-M2-05). */
-  magmaSafe(_tiles: readonly TileIndex[], _material: number): boolean {
-    return true;
+  /**
+   * 14 § Placement step 3: "if any footprint tile is within 1 of magma or is over a channel to magma
+   * (a `magma_*` workshop), every material must be magma-safe (05)". Within 1 is the 26 tiles around
+   * a footprint tile and the tile itself; a building placed there with no material chosen is refused,
+   * since its materials cannot be known to be safe (D-098).
+   */
+  magmaSafe(tiles: readonly TileIndex[], material: number): boolean {
+    const map = this.map;
+    const exposed = tiles.some((t) => magmaAt(map, t) || map.neighbors26(t).some((n) => magmaAt(map, n)));
+    if (!exposed) return true;
+    return material !== 0 && (this.materials[material]?.meltsAtC ?? 0) > MAGMA_C;
+  }
+
+  /** Tiles named by `MagmaContact`, waiting for 14's tick (D-098). */
+  readonly magmaPending: TileIndex[] = [];
+
+  magmaTouched(tile: TileIndex): void {
+    if (!this.magmaPending.includes(tile)) this.magmaPending.push(tile);
+  }
+
+  /**
+   * 05 § Melting: "14 … destroys non-magma-safe buildings on contact". A building (not a
+   * construction, which is terrain and burns by 05's fire) on a tile magma touched, whose material
+   * melts at or below `MAGMA_C`, is removed; its linked item melts with it.
+   */
+  destroyMagmaTouched(): void {
+    if (this.magmaPending.length === 0) return;
+    const tiles = this.magmaPending.slice().sort((a, b) => a - b);
+    this.magmaPending.length = 0;
+    for (const t of tiles) {
+      if (!magmaAt(this.map, t)) continue;
+      const id = this.map.buildingAtTile(t);
+      const b = id === 0 ? undefined : this.get(id);
+      if (b === undefined || this.row(b.type).category === 'construction') continue;
+      if ((this.materials[b.material]?.meltsAtC ?? 0) > MAGMA_C) continue;
+      const item = b.itemId;
+      this.remove(id);
+      if (item !== 0 && this.host.entities.alive(item)) this.host.services.items?.destroy(item, 'melted');
+    }
   }
 
   // ---------- commands ----------

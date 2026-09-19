@@ -62,7 +62,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M3-01 — Fluids: state, active set, fall and spread (opus-m3, 2026-09-19)
 - [x] T-M3-02 — Fluids: pressure, evaporation, contact (opus-m3, 2026-09-19)
 - [x] T-M3-03 — Materials: property arrays, temperature function, overrides (opus-m3, 2026-09-19)
-- [ ] T-M3-04 — Materials: fire and melting
+- [x] T-M3-04 — Materials: fire and melting (opus-m3, 2026-09-19)
 - [ ] T-M3-05 — Freezing and thawing
 - [ ] T-M3-06 — Weather system
 - [ ] T-M3-07 — Mist, miasma hooks, and the movement-side effects plumbing

@@ -551,9 +551,11 @@ export class FluidSim {
     const level = this.level(t);
     if (level === 0 || this.isFrozen(t)) return;
     const here = this.host.entitiesAt(t);
-    if (here.length === 0) return;
+    // A building is not in the spatial index, but 14 destroys what magma touches (D-098).
+    const building = only === null && this.isMagma(t) && this.map.buildingAtTile(t) !== 0;
+    if (here.length === 0 && !building) return;
     const ids = only === null ? here.slice() : here.filter((id) => id === only);
-    if (ids.length === 0) return;
+    if (ids.length === 0 && !building) return;
     if (this.isMagma(t)) {
       this.host.emit({ type: 'MagmaContact', tile: t, entities: ids });
       return;

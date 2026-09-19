@@ -39,6 +39,12 @@ export const HEAT_INJURY_C = 55;
 /** Frostbite. */
 export const COLD_INJURY_C = -25;
 
+/**
+ * D-097: the burn duration of a tile that burns for its plants (grass, a shrub) when its material
+ * gives no `burnTicks`: the plant-fibre duration of `materials.md` ("Cloth burns (300 ticks)").
+ */
+export const PLANT_BURN_TICKS = 300;
+
 /** `tempOverride` is "clamped to ±120 °C": ±24 units of 5 °C. */
 export const TEMP_OVERRIDE_LIMIT = 24;
 /** The materials tick (`tick-order.md`: 05 runs at `(tick − 3) % 10`). */

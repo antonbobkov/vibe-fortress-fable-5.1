@@ -75,7 +75,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   readonly order = 13;
   override readonly cadence = 10;
   override readonly phase = 1;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged'];
+  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted'];
   override readonly ownsCommands: readonly CommandType[] = [
     'ForbidItem',
     'ClaimItem',
@@ -221,6 +221,11 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     const core = this.core;
     if (event.type === 'TilesChanged') {
       for (const t of event['tiles'] as readonly TileIndex[]) core.settleTile(t, this.entitiesAt);
+    } else if (event.type === 'ItemMelted') {
+      // 13 § Events consumed: "`MagmaContact` (04): items with `meltsAt ≤ MAGMA_C` are destroyed with
+      // `ItemMelted` (05 decides; this system destroys)".
+      const id = event['id'] as number;
+      if (core.host.entities.alive(id)) core.destroy(id, 'melted');
     } else if (event.type === 'BuildingCompleted') {
       // 14 § Value: "Each built building contributes `materialValue + type.valueBonus`".
       core.buildingWealth += typeof event['value'] === 'number' ? (event['value'] as number) : 0;

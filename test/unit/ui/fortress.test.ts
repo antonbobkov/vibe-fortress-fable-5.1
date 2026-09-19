@@ -252,6 +252,7 @@ describe('T-M1-14 announcements', () => {
     expect(severity).toEqual({
       VeinFound: 'note',
       ObsidianFormed: 'note',
+      FireStarted: 'alert',
       CavernBreached: 'alert',
       DeepsilverMined: 'danger',
       ConstructionCollapsed: 'alert',

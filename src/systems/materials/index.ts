@@ -11,11 +11,13 @@ import type { RngStream } from '@core/rng';
 import type { Map3D } from '@core/map3d';
 import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { ChunkIndex, TileIndex } from '@core/types';
+import { C } from '@core/components';
 import { MAGMA_C } from '@systems/fluids/constants';
+import { Fire } from './fire';
 import { MATERIALS_CADENCE, MATERIALS_PHASE, UNDERGROUND_BASE_C } from './constants';
 import type { AlloyInput, MaterialsReader, OreYield } from './reader';
 import type { BurningState, MaterialsStateV1 } from './state';
-import { magmaSignature, reachOf, recomputeChunk, temperatureOf, type OverrideSources } from './temperature';
+import { chunkTiles, magmaSignature, reachOf, recomputeChunk, temperatureOf, type OverrideSources } from './temperature';
 
 export type { MaterialsReader, MaterialProperty, OreYield, AlloyInput } from './reader';
 
@@ -25,6 +27,7 @@ export const MATERIALS_ID = '05';
 /** 06's reader as far as 05 reads it. */
 interface WeatherLike {
   surfaceTempC(): number;
+  state?(): string;
 }
 
 interface MaterialRow {
@@ -52,7 +55,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   readonly order = 5;
   override readonly cadence = MATERIALS_CADENCE;
   override readonly phase = MATERIALS_PHASE;
-  override readonly subscribes: readonly EventType[] = ['FluidsChanged'];
+  override readonly subscribes: readonly EventType[] = ['FluidsChanged', 'MagmaContact', 'LightningStrike'];
 
   private readonly options: MaterialsOptions;
   private mapRef: Map3D | null = null;
@@ -71,7 +74,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   private alloys = new Map<number, AlloyInput[]>();
 
   // State.
-  readonly burning = new Map<TileIndex, BurningState>();
+  private fireRef: Fire | null = null;
   readonly warmSprings: TileIndex[] = [];
   private springSet = new Set<TileIndex>();
   readonly magmaSourceChunks = new Set<ChunkIndex>();
@@ -86,6 +89,16 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   constructor(options: MaterialsOptions = {}) {
     super();
     this.options = options;
+  }
+
+  /** Fire (T-M3-04); valid after `init`. */
+  get fire(): Fire {
+    if (this.fireRef === null) throw new Error('05 materials: used before init');
+    return this.fireRef;
+  }
+
+  get burning(): Map<TileIndex, BurningState> {
+    return this.fire.burning;
   }
 
   get map(): Map3D {
@@ -141,10 +154,27 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     this.warmSprings.length = 0;
     for (const s of [...(this.options.warmSprings ?? [])].sort((a, b) => a - b)) this.warmSprings.push(s);
     this.springSet = new Set(this.warmSprings);
+    const world = ctx.world;
+    this.fireRef = new Fire({
+      map: world.map,
+      entities: world.entities,
+      rng: ctx.rng,
+      classOf: (m) => this.rows[m]?.class ?? '',
+      burnable: (m) => this.burnableOf[m] === 1,
+      burnTicks: (m) => this.burnTicksOf[m] ?? 0,
+      entitiesAt: (i) => readers.entities.at(i),
+      raining: () => {
+        const state = this.weather()?.state?.();
+        return state === 'rain' || state === 'storm';
+      },
+      sourceChanged: (i) => this.markSourceChanged(i),
+    });
     this.readerRef = this.makeReader();
     // `05` § Registrations: overlay `temperature`, inspector section `tile › temperature`.
     ctx.register.overlay({ id: 'temperature', label: 'Temperature', defaultOn: false });
     ctx.register.inspector('tile', { id: 'temperature', order: 20 });
+    // `05` § Registrations: "announcements for `FireStarted` (alert …)"; one text, as D-065 does.
+    ctx.register.announcement('FireStarted', { severity: 'alert', stringKey: 'announce.fire_started' });
   }
 
   // ---------- temperature ----------
@@ -220,15 +250,46 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     ctx.emit({ type: 'TemperatureTick' });
   }
 
-  /** Fire (T-M3-04). */
-  protected tickFire(_ctx: TickContext): void {}
+  /** `05` § Fire, each materials tick. */
+  private tickFire(ctx: TickContext): void {
+    this.fire.tick({ terrain: ctx.terrain, items: ctx.world.services.items, emit: (e) => ctx.emit(e) });
+  }
+
+  /** Burnable tiles beside a chunk's magma (cardinal, or the tile above it) wait to ignite (`05` § Fire, Ignition). */
+  private magmaIgnition(c: ChunkIndex): void {
+    const map = this.map;
+    const fire = this.fire;
+    for (const i of chunkTiles(map, c)) {
+      const f = map.fluid[i] as number;
+      if ((f & 7) === 0 || (f & 8) === 0) continue;
+      for (const [dx, dy, dz] of [
+        [0, -1, 0],
+        [1, 0, 0],
+        [0, 1, 0],
+        [-1, 0, 0],
+        [0, 0, 1],
+      ] as const) {
+        const j = map.offset(i, dx, dy, dz);
+        if (j >= 0 && !fire.burning.has(j) && fire.burnableTile(j)) fire.pendingIgnite.add(j);
+      }
+    }
+  }
 
   /**
    * `FluidsChanged { chunks }`: a chunk whose magma tiles are not where they were at its last look
    * has its reach queued for the next materials tick (`magmaSourceChunks`, `05` § State); water
    * alone never recomputes. D-095.
    */
-  override handle(event: GameEvent, _ctx: TickContext): void {
+  override handle(event: GameEvent, ctx: TickContext): void {
+    if (event.type === 'LightningStrike') {
+      // `05` § Fire: "a `LightningStrike` names it" (06); ignites at the next materials tick.
+      this.fire.pendingIgnite.add(event['tile'] as TileIndex);
+      return;
+    }
+    if (event.type === 'MagmaContact') {
+      this.melt(event['entities'] as readonly number[], ctx);
+      return;
+    }
     if (event.type !== 'FluidsChanged') return;
     const map = this.map;
     for (const c of event['chunks'] as readonly ChunkIndex[]) {
@@ -243,6 +304,21 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
         this.magmaSourceChunks.add(c);
       }
       reachOf(map, c, this.pendingChunks);
+      if (after !== 0) this.magmaIgnition(c);
+    }
+  }
+
+  /**
+   * `05` § Melting: on `MagmaContact { entities }`, every item whose material melts at or below
+   * `MAGMA_C` is destroyed with `ItemMelted { id }` (13 destroys it); the rest are unharmed.
+   */
+  private melt(entities: readonly number[], ctx: TickContext): void {
+    const store = ctx.world.entities;
+    for (const id of entities) {
+      if (!store.alive(id) || store.kind(id) !== 'item') continue;
+      const item = store.get(id, C.Item);
+      if (item === undefined) continue;
+      if ((this.meltsAtOf[item.material] ?? 0) <= MAGMA_C) ctx.emit({ type: 'ItemMelted', id });
     }
   }
 
@@ -299,12 +375,15 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     };
   }
 
-  protected serializeItemBurn(): MaterialsStateV1['itemBurn'] {
-    return [];
+  private serializeItemBurn(): MaterialsStateV1['itemBurn'] {
+    const burn = this.fire.itemBurn;
+    return Array.from(burn.keys())
+      .sort((a, b) => a - b)
+      .map((id): [number, number] => [id, burn.get(id) as number]);
   }
 
-  protected serializePendingIgnite(): MaterialsStateV1['pendingIgnite'] {
-    return [];
+  private serializePendingIgnite(): MaterialsStateV1['pendingIgnite'] {
+    return Array.from(this.fire.pendingIgnite).sort((a, b) => a - b);
   }
 
   deserialize(state: MaterialsStateV1, ctx: InitContext): void {
@@ -327,7 +406,13 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     this.rng?.setState(state.rng);
   }
 
-  protected deserializeFire(_state: MaterialsStateV1): void {}
+  private deserializeFire(state: MaterialsStateV1): void {
+    const fire = this.fire;
+    fire.itemBurn.clear();
+    for (const [id, t] of state.itemBurn) fire.itemBurn.set(id, t);
+    fire.pendingIgnite.clear();
+    for (const t of state.pendingIgnite) fire.pendingIgnite.add(t);
+  }
 }
 
 /**

@@ -316,6 +316,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.deepsilver_mined': 'Deepsilver has been mined.',
   'announce.construction_collapsed': 'A construction has collapsed.',
   'announce.obsidian_formed': 'Obsidian has formed.',
+  'announce.fire_started': 'A fire has started.',
   // 14 § Registrations ("`HearthLit` (note, with the line …)"); the others' texts are D-077's.
   'announce.hearth_lit': 'The hearth is lit. This is a deepholm now.',
   'announce.door_broken': 'A door has been broken.',

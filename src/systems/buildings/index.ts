@@ -40,6 +40,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'TilesChanged',
     'AlertChanged',
     'DayPassed',
+    'MagmaContact',
   ];
   override readonly ownsCommands: readonly CommandType[] = [
     'CreateZone',
@@ -148,6 +149,9 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       rooms.markTiles(tiles);
     } else if (event.type === 'AlertChanged') {
       this.buildings.onAlertChanged();
+    } else if (event.type === 'MagmaContact') {
+      // 14 § Events consumed: "`MagmaContact` (destroy non-magma-safe buildings)", at 14's next tick.
+      this.buildings.magmaTouched(event['tile'] as TileIndex);
     } else if (event.type === 'DayPassed') {
       rooms.markAll();
       rooms.recompute();
@@ -157,6 +161,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
 
   /** 14's tick: dirty rooms are scored again (`economy.md` § Room quality, "on dirty rooms and daily"). */
   override tick(_ctx: TickContext): void {
+    this.buildings.destroyMagmaTouched();
     this.rooms.recompute();
   }
 
@@ -215,6 +220,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       pendingToggles: [],
       rng: (this.rng as RngStream).state(),
       pendingJobs: this.buildings.pending.slice(),
+      magmaTouched: this.buildings.magmaPending.slice(),
     };
   }
 
@@ -227,6 +233,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     this.rooms.dirty.splice(0, this.rooms.dirty.length, ...state.dirtyRooms);
     this.buildings.pending.length = 0;
     this.buildings.pending.push(...state.pendingJobs);
+    this.buildings.magmaPending.length = 0;
+    this.buildings.magmaPending.push(...(state.magmaTouched ?? []));
     this.rng?.setState(state.rng);
   }
 }
