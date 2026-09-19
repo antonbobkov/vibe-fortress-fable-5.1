@@ -1,6 +1,6 @@
 # Progress
 
-current-milestone: 3
+current-milestone: 4
 
 Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agent, date). Agents edit this file in the same commit as the task. Sub-tasks added by splitting go directly under their parent.
 
@@ -68,7 +68,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M3-07 — Mist, miasma hooks, and the movement-side effects plumbing (opus-m3, 2026-09-19)
 - [x] T-M3-08 — Rendering: fluids, ice, fire, snow, rain, night; overlays fluid levels and temperature (opus-m3, 2026-09-19)
 - [x] T-M3-09 — Performance smoke: fluids and pathing (opus-m3, 2026-09-19)
-- [ ] T-M3-10 — Gate M3
+- [x] T-M3-10 — Gate M3 (opus-m3, 2026-09-19)
 
 ## M4 — Life ([M4-life.md](M4-life.md))
 
