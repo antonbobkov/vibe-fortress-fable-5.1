@@ -78,7 +78,11 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     return this.boardRef;
   }
 
+  /** The init context, for connecting 13 on load (D-082). */
+  private initCtx: InitContext | null = null;
+
   override init(ctx: InitContext): void {
+    this.initCtx = ctx;
     const board = new JobBoard(ctx.world, ctx.registry, ctx.readers);
     this.boardRef = board;
     this.readerRef = makeReader(board);
@@ -98,7 +102,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
   }
 
   /** 13's items replace the D-054 seam once 13 is present (T-M2-02). */
-  private connectItems(ctx: TickContext): void {
+  private connectItems(ctx: Pick<TickContext, 'world' | 'readers'>): void {
     const board = this.board;
     if (board.items !== NO_ITEMS) return;
     const api = ctx.world.services.items;
@@ -160,11 +164,20 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
   }
 
   serialize(): JobsStateV1 {
-    return this.board.serialize();
+    return { ...this.board.serialize(), ticked: this.producersRead };
   }
 
+  /**
+   * The producers and 13's items are connected on the first tick; a game saved after it has them
+   * connected before its first loaded tick, because 10 steps workers before 11 ticks (D-082).
+   */
   deserialize(state: JobsStateV1, ctx: InitContext): void {
     if (this.boardRef === null) this.init(ctx);
     this.board.deserialize(state);
+    if (state.ticked === true) {
+      this.readProducers();
+      const connect = this.initCtx ?? ctx;
+      if (connect !== undefined) this.connectItems(connect);
+    }
   }
 }

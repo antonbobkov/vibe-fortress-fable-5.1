@@ -31,7 +31,25 @@ import { Renderer } from '@render/renderer';
 import { CellBuffer, computeViewport } from '@render/cellbuffer';
 import { WorldMapCompositor } from '@render/world-map';
 import { FrameDriver, InProcessHost, type NewGameSpec, type Speed } from '@app/sim-host';
-import { SaveManager } from '@app/save-manager';
+import {
+  SaveManager,
+  autoSaveId,
+  exportFileName,
+  manualSaveId,
+  newestManualId,
+  readSaveHeader,
+  rollAutosaves,
+  type SaveHeader,
+  type SaveKind,
+  type SaveThumbnail,
+} from '@app/save-manager';
+import { validateImport, type LoadedGame } from '@app/game-save';
+import { browserFiles, type FileBridge } from '@platform/files';
+import { bytesToBase64 } from '@core/serialize';
+import { SIM_TICKS_PER_SECOND, STATUS_ROWS } from '@core/constants';
+import { LOG_ROWS } from '@render/constants';
+import { ConfirmScreen } from '@ui/screens/confirm';
+import { LoadScreen, type SaveListing } from '@ui/screens/load';
 import { createStorage } from '@platform/storage';
 import type { Command } from '@core/commands';
 import type { Registry } from '@core/registry';
@@ -47,7 +65,7 @@ import { WorldMapScreen } from '@ui/screens/world_map';
 import { EmbarkScreen } from '@ui/screens/embark';
 import type { HeadlessEmbark } from '@app/headless';
 import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
-import { defaultUiState, toSaved, type UiState } from '@ui/ui-state';
+import { defaultUiState, fromSaved, toSaved, type SavedUiState, type UiState } from '@ui/ui-state';
 import { TerrainFacts, precondition } from '@systems/terrain';
 import { jsonSection, type SaveSection } from '@app/save-manager';
 
@@ -68,7 +86,13 @@ export interface GameOptions {
   readonly saves?: SaveManager;
   /** A fresh random seed for the world generation screen. */
   readonly randomSeed?: () => string;
+  /** The export download and import picker (`platform/files.ts`); none in the unit tests. */
+  readonly files?: FileBridge;
 }
+
+/** `persistence.md` § What is saved: "thumbnail (a 48×27 cell ASCII snapshot of the surface)". */
+export const THUMBNAIL_COLS = 48;
+export const THUMBNAIL_ROWS = 27;
 
 /** The z-level the fortress screen opens on: the `flat-test` surface. */
 const START_Z = 32;
@@ -119,6 +143,14 @@ export class Game {
   private screenBuffer: CellBuffer | null = null;
   private lastSurface: Surface | null = null;
   private readonly saves: SaveManager | null;
+  private readonly files: FileBridge | null;
+  /** The season an autosave is owed for, taken after the tick that announced it (D-083). */
+  private autosaveDue: { year: number; season: number } | null = null;
+  /** The Load screen's list, refreshed from the headers after every change. */
+  private listing: SaveListing[] = [];
+  /** The last save written or loaded, for the tests and the e2e hook. */
+  lastSaveId: string | null = null;
+  private pending: Promise<void> = Promise.resolve();
   private readonly randomSeed: () => string;
   private newest: string | null = null;
   /** A message drawn over a blank screen while the app works synchronously. */
@@ -152,6 +184,8 @@ export class Game {
     this.glyphs = GlyphMap.of(this.registry);
     this.theme = themeOf(this.palette);
     this.saves = options.saves ?? null;
+    this.files = options.files ?? null;
+    this.host.afterTick = () => this.takeAutosave();
     this.randomSeed = options.randomSeed ?? defaultRandomSeed;
     this.createCanvas = options.createCanvas;
     this.fortress = new FortressScreen(this.fortressHost(), this.keymap, this.strings);
@@ -187,13 +221,238 @@ export class Game {
       registeredPanels: () => this.host.world.registrations.panels,
       announcements: () => this.host.world.registrations.announcements,
       now: () => Date.now(),
+      quickSave: () => void this.quickSave(),
+      quickLoad: () => void this.quickLoad(),
     };
   }
 
   /** Subscribe the fortress screen to the running world's events (24 § Events consumed). */
   private subscribe(): void {
     this.unsubscribe?.();
-    this.unsubscribe = this.host.onEvents((events) => this.fortress.onEvents(events));
+    this.unsubscribe = this.host.onEvents((events) => {
+      this.fortress.onEvents(events);
+      // `persistence.md` § Autosave: "On every `SeasonChanged`, the app saves". The world is in the
+      // middle of its tick here, so the save waits for the tick to end (D-083).
+      for (const e of events) {
+        if (e.type === 'SeasonChanged') this.autosaveDue = { year: e['year'] as number, season: e['season'] as number };
+      }
+    });
+  }
+
+  // ---------- saving and loading (T-M2-11) ----------
+
+  /** Resolves when the saves the app started are compressed and stored. */
+  settled(): Promise<void> {
+    return this.pending;
+  }
+
+  private track(work: Promise<void>): Promise<void> {
+    const next = this.pending
+      .then(() => work)
+      .catch((error: unknown) => {
+        this.note('danger', this.strings.get('ui.save.failed', { reason: error instanceof Error ? error.message : String(error) }));
+      });
+    this.pending = next;
+    return next;
+  }
+
+  private note(severity: 'note' | 'alert' | 'danger', text: string): void {
+    if (!this.host.started) return;
+    this.fortress.log.append(severity, text, this.host.readers.calendar.tick);
+  }
+
+  /** Called after every tick: the autosave a `SeasonChanged` asked for. */
+  private takeAutosave(): void {
+    const due = this.autosaveDue;
+    this.autosaveDue = null;
+    if (due === null || this.saves === null) return;
+    void this.saveAs('auto', autoSaveId(due.year, due.season));
+  }
+
+  /** The header's play time: the simulated time since the embark, at 1× (D-083). */
+  private playTimeSeconds(): number {
+    const world = this.host.world;
+    return Math.max(0, world.calendar.tick - world.fortress.embarkTick) / SIM_TICKS_PER_SECOND;
+  }
+
+  /** The header thumbnail: 48×27 map cells of the surface around the wagon (or the map centre). */
+  thumbnail(): SaveThumbnail {
+    const readers = this.host.readers;
+    const map = readers.map;
+    const arrival = this.host.headless.arrival;
+    const cx = arrival === null ? Math.floor(map.w / 2) : arrival.wagon.x;
+    const cy = arrival === null ? Math.floor(map.h / 2) : arrival.wagon.y;
+    const z = arrival === null ? START_Z : arrival.wagon.z;
+    const view: ViewState = {
+      camX: Math.max(0, Math.min(Math.max(0, map.w - THUMBNAIL_COLS), cx - Math.floor(THUMBNAIL_COLS / 2))),
+      camY: Math.max(0, Math.min(Math.max(0, map.h - THUMBNAIL_ROWS), cy - Math.floor(THUMBNAIL_ROWS / 2))),
+      z,
+      sidebarOpen: false,
+      cursor: null,
+    };
+    const cells = this.compositor.compose(readers, view, THUMBNAIL_COLS, THUMBNAIL_ROWS + LOG_ROWS + STATUS_ROWS);
+    const bytes = new Uint8Array(THUMBNAIL_COLS * THUMBNAIL_ROWS * 10);
+    const out = new DataView(bytes.buffer);
+    let at = 0;
+    for (let r = 0; r < THUMBNAIL_ROWS; r += 1) {
+      for (let c = 0; c < THUMBNAIL_COLS; c += 1) {
+        const i = r * cells.cols + c;
+        out.setUint16(at, cells.glyph[i] as number, true);
+        out.setInt32(at + 2, cells.fg[i] as number, true);
+        out.setInt32(at + 6, cells.bg[i] as number, true);
+        at += 10;
+      }
+    }
+    return { cols: THUMBNAIL_COLS, rows: THUMBNAIL_ROWS, cells: bytesToBase64(bytes) };
+  }
+
+  /**
+   * Save the running game under `id`. The sections are taken now, between ticks; compression and
+   * storage follow. An autosave keeps the four most recent autosaves (`persistence.md`).
+   */
+  saveAs(kind: SaveKind, id: string): Promise<void> {
+    const saves = this.saves;
+    if (saves === null || !this.host.started) return Promise.resolve();
+    const blob = this.host.save({ kind, ui: this.uiSection(), playTimeSeconds: this.playTimeSeconds(), thumbnail: this.thumbnail() });
+    return this.track(
+      (async (): Promise<void> => {
+        await saves.write(id, await blob);
+        if (kind === 'auto') await rollAutosaves(saves);
+        this.lastSaveId = id;
+        this.note('note', this.strings.get('ui.save.saved', { name: id }));
+        await this.refreshListing();
+      })(),
+    );
+  }
+
+  /** `F5` quick save: a manual save (`manual-<unixMs>`). */
+  quickSave(): Promise<void> {
+    return this.saveAs('manual', manualSaveId(Date.now()));
+  }
+
+  /** `F9` quick load, "with confirmation" (`c_quickload`): the newest manual save (D-083). */
+  async quickLoad(): Promise<void> {
+    await this.pending;
+    const id = this.saves === null ? null : await newestManualId(this.saves);
+    if (id === null) {
+      this.note('note', this.strings.get('ui.save.no_quick'));
+      this.render();
+      return;
+    }
+    this.confirm('c_quickload', {}, (yes) => {
+      if (yes) void this.loadSave(id);
+    });
+  }
+
+  /** Push a confirmation dialog; the answer pops it. */
+  confirm(id: string, params: Readonly<Record<string, string | number>>, answer: (yes: boolean) => void): void {
+    const dialog = new ConfirmScreen(this.registry, this.strings, id, params, (yes) => {
+      if (this.top() === dialog) this.popScreen();
+      answer(yes);
+      this.render();
+    });
+    this.pushScreen(dialog);
+    this.render();
+  }
+
+  /** Load a stored save and switch to its fortress, paused (`save-format.md` § Load procedure step 6). */
+  async loadSave(id: string): Promise<void> {
+    const saves = this.saves;
+    if (saves === null) return;
+    const blob = await saves.read(id);
+    if (blob === undefined) return;
+    this.enterLoaded(await this.host.load(blob));
+    this.lastSaveId = id;
+  }
+
+  /** The loaded game on screen: its `ui` section restored, the log tail back, paused. */
+  enterLoaded(loaded: LoadedGame): void {
+    this.subscribe();
+    this.autosaveDue = null;
+    this.fortress.log.lines.length = 0;
+    if (loaded.ui !== null) {
+      const zoom = this.ui.zoom;
+      this.fortress.log.lines.push(...fromSaved(this.ui, loaded.ui as SavedUiState));
+      if (this.ui.zoom !== zoom) this.resize(this.surface.cssWidth, this.surface.cssHeight);
+    }
+    this.resetTo(FORTRESS);
+    this.host.setSpeed(0);
+    this.clampCamera();
+    this.render();
+  }
+
+  /** The Load screen's rows, from the headers only (`persistence.md` § Storage). */
+  private async refreshListing(): Promise<void> {
+    if (this.saves === null) return;
+    const rows = await this.saves.list();
+    this.listing = rows.map((row): SaveListing => listingOf(row.id, row.header));
+    if (this.top() instanceof LoadScreen) this.render();
+  }
+
+  /** `Load` (main menu, 24 § Screens outside the fortress). */
+  async openLoad(): Promise<void> {
+    await this.refreshListing();
+    const screen = new LoadScreen(
+      {
+        saves: () => this.listing,
+        load: (id) => void this.loadSave(id),
+        remove: (id) => {
+          const row = this.listing.find((s) => s.id === id);
+          this.confirm('c_delete_save', { save: row === undefined ? id : `${row.fortress} (${id})` }, (yes) => {
+            const saves = this.saves;
+            if (!yes || saves === null) return;
+            void this.track(saves.delete(id).then(() => this.refreshListing()));
+          });
+        },
+        exportSave: (id) => void this.exportSave(id),
+        importSave: () => void this.importSave(),
+        back: () => {
+          this.popScreen();
+          this.render();
+        },
+      },
+      this.keymap,
+      this.strings,
+    );
+    this.pushScreen(screen);
+    this.render();
+  }
+
+  /** `persistence.md` § Export and import: the container, unchanged, as `<slug>-y<year>-<season>.deepholm`. */
+  async exportSave(id: string): Promise<void> {
+    if (this.saves === null || this.files === null) return;
+    const blob = await this.saves.read(id);
+    if (blob === undefined) return;
+    const header = readSaveHeader(blob);
+    this.files.download(exportFileName(header.fortress, header.calendar.year, header.calendar.season), blob);
+  }
+
+  /** Import: pick a file, then {@link importBlob}. */
+  async importSave(): Promise<void> {
+    if (this.saves === null || this.files === null) return;
+    const blob = await this.files.pick('.deepholm');
+    if (blob === null) return;
+    await this.importBlob(blob);
+  }
+
+  /** "Import reads a file, validates magic and version, checks the content hash … and stores it as a manual save." */
+  async importBlob(blob: Uint8Array): Promise<string> {
+    const saves = this.saves;
+    if (saves === null) throw new Error('no save store');
+    await validateImport(blob, this.registry);
+    const id = manualSaveId(Date.now());
+    await saves.write(id, blob);
+    await this.refreshListing();
+    return id;
+  }
+
+  /** `Continue`: "loads the newest save of any kind". */
+  async continueNewest(): Promise<void> {
+    if (this.saves === null) return;
+    const all = await this.saves.list();
+    if (all.length === 0) return;
+    const newest = all.reduce((a, b) => (b.header.calendar.tick > a.header.calendar.tick ? b : a));
+    await this.loadSave(newest.id);
   }
 
   /** `Home`: "center on the hearth (or wagon)"; there is no hearth before 14 (M2). */
@@ -285,10 +544,11 @@ export class Game {
       {
         newestSave: () => this.newest,
         newWorld: () => this.openWorldGen(),
-        // Loading a save is T-M2-11's; until then Continue is never shown (no save can exist).
-        continueGame: () => {},
-        available: () => false,
-        open: () => {},
+        continueGame: () => void this.continueNewest(),
+        available: (entry) => entry === 'load' && this.saves !== null,
+        open: (entry) => {
+          if (entry === 'load') void this.openLoad();
+        },
       },
       this.keymap,
       this.strings,
@@ -629,6 +889,12 @@ export interface TestHook {
   step(ticks: number): void;
   screenshotName(name: string): string;
   key(key: string, shift?: boolean): void;
+  /** The world hash of the running game (`simulation-core.md` § Determinism), or '' before one. */
+  hash(): string;
+  /** The id of the last save written or loaded (T-M2-11). */
+  lastSaveId(): string | null;
+  /** Resolves when the app's pending saves are stored. */
+  settled(): Promise<void>;
 }
 
 /**
@@ -720,6 +986,9 @@ export function testHook(game: Game): TestHook {
     key: (key, shift = false) => {
       game.handleKey({ key, repeat: false, shift, ctrl: false, alt: false, meta: false });
     },
+    hash: () => (game.host.started ? game.host.headless.hash() : ''),
+    lastSaveId: () => game.lastSaveId,
+    settled: () => game.settled(),
   };
 }
 
@@ -748,6 +1017,7 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
     width: window.innerWidth,
     height: window.innerHeight,
     saves: new SaveManager(createStorage()),
+    files: browserFiles(document),
   });
   const testBuild = import.meta.env.MODE === 'test';
   const start = testBuild ? new URLSearchParams(window.location.search).get('start') : null;
@@ -788,4 +1058,17 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
     (window as unknown as { __deepholm: TestHook }).__deepholm = testHook(game);
   }
   return game;
+}
+
+/** The Load screen row of a stored save's header. */
+export function listingOf(id: string, header: SaveHeader): SaveListing {
+  return {
+    id,
+    kind: header.kind,
+    fortress: header.fortress,
+    tick: header.calendar.tick,
+    population: header.population,
+    wealth: header.wealth,
+    ...(header.thumbnail === undefined ? {} : { thumbnail: header.thumbnail }),
+  };
 }

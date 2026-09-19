@@ -37,6 +37,10 @@ export interface TerrainStateV1 {
   veinsFound: TileIndex[];
   /** The `LocalMapSpec` of the map, for the legend and regeneration in tests (`03` § State). */
   spec: LocalMapSpec | null;
+  /** `EntitiesMoved` batches handled but not yet ticked (discovery runs next tick; D-082). */
+  pendingMoves?: [EntityId, TileIndex, TileIndex][];
+  /** The job producer has scanned the current designations (D-082). */
+  producerCurrent?: boolean;
 }
 
 /** Keeps a sorted array of numbers sorted; the sets of `03` § State are sorted arrays. */

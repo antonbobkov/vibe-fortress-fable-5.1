@@ -30,6 +30,9 @@ async function through(stream: { readable: unknown; writable: unknown }, bytes: 
     await writer.write(bytes);
     await writer.close();
   })();
+  // A corrupt body fails on both sides; the reading side's error is the one reported, and the
+  // writing side's must not surface as an unhandled rejection (`persistence.md` § Failure handling).
+  pump.catch(() => undefined);
   const body = await new Response(stream.readable as BodyInit).arrayBuffer();
   await pump;
   return new Uint8Array(body);

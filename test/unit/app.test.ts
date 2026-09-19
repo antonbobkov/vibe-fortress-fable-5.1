@@ -8,7 +8,6 @@
 import { describe, it, expect } from 'vitest';
 import { loadContent } from '@content/loader';
 import { MAX_TICKS_PER_FRAME, SIM_TICKS_PER_SECOND, STATUS_ROWS } from '@core/constants';
-import { NotYetImplementedError } from '@core/system';
 import { TileKind } from '@core/map3d';
 import { LOG_ROWS } from '@render/constants';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
@@ -77,11 +76,17 @@ describe('T-M0-13 sim host: InProcessHost', () => {
     }
   });
 
-  it('says plainly that save and load belong to T-M2-11', async () => {
+  it('T-M2-11: save and load, the stubs of T-M0-13, round-trip the running game paused', async () => {
     const host = new InProcessHost();
-    await host.newGame({ seed: 'app-test' });
-    await expect(host.save()).rejects.toBeInstanceOf(NotYetImplementedError);
-    await expect(host.load()).rejects.toThrow(/T-M2-11/);
+    await host.newGame({ seed: 'app-test', embark: 'default' });
+    host.step(20);
+    const hash = host.headless.hash();
+    const blob = await host.save({ kind: 'manual' });
+    host.step(5);
+    host.setSpeed(2);
+    await host.load(blob);
+    expect(host.headless.hash()).toBe(hash);
+    expect(host.speed()).toBe(0);
   });
 });
 

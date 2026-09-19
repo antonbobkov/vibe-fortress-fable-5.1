@@ -99,6 +99,16 @@ export class TerrainProducer implements JobProducer {
   readonly id = 'terrain';
   private seenVersion = -1;
 
+  /** True while the designations have not changed since the last scan (saved by 03, D-082). */
+  get current(): boolean {
+    return this.seenVersion === this.core.designationsVersion;
+  }
+
+  /** On load: the scan state as saved, so a loaded game rescans exactly when the saved one would. */
+  set current(value: boolean) {
+    this.seenVersion = value ? this.core.designationsVersion : -1;
+  }
+
   constructor(
     private readonly core: TerrainCore,
     private readonly readers: ReaderSetLike,

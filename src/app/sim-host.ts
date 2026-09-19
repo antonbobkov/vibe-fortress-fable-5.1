@@ -7,14 +7,13 @@
  * simulation loop ("When the tab is hidden, the simulation pauses. On return it does not catch
  * up.").
  *
- * `save` and `load` are the parts of the interface that belong to T-M2-11; they throw
- * `NotYetImplementedError` naming it, as the M0 stubs of `ctx.jobs` and `ctx.spawn` do
- * (DECISIONS.md D-017).
+ * `save` and `load` write and read the container of `save-format.md` through `game-save.ts`
+ * (T-M2-11).
  */
 
 import { HeadlessGame, type HeadlessEmbark, type HeadlessOptions } from '@app/headless';
 import { MAX_TICKS_PER_FRAME, SIM_TICKS_PER_SECOND } from '@core/constants';
-import { NotYetImplementedError } from '@core/system';
+import { loadGame, saveGame, type LoadedGame, type SaveOptions } from '@app/game-save';
 import type { Command } from '@core/commands';
 import type { GameEvent } from '@core/events';
 import type { ReaderSet } from '@core/readers';
@@ -98,14 +97,29 @@ export class InProcessHost implements SimulationHost {
     return Promise.resolve();
   }
 
-  /** `persistence.md`'s save and load flows belong to T-M2-11. */
-  async load(): Promise<void> {
-    throw new NotYetImplementedError('InProcessHost.load', 'T-M2-11');
+  /**
+   * `save-format.md` § Load procedure: the loaded game replaces the running one and starts paused
+   * (step 6). The caller restores the `ui` section it returns.
+   */
+  async load(blob: Uint8Array): Promise<LoadedGame> {
+    const loaded = await loadGame(blob);
+    this.game = loaded.game;
+    this.worldMap = loaded.worldMap;
+    this.current = 0;
+    return loaded;
   }
 
-  async save(): Promise<Uint8Array> {
-    throw new NotYetImplementedError('InProcessHost.save', 'T-M2-11');
+  /**
+   * `persistence.md` § Autosave and snapshots: "Saving runs synchronously on the simulation (the
+   * world is paused for the duration of `serialize`) and asynchronously for compression and
+   * storage". Every section is taken before the first `await`.
+   */
+  save(options: Omit<SaveOptions, 'worldMap'>): Promise<Uint8Array> {
+    return saveGame(this.require(), { ...options, worldMap: this.worldMap });
   }
+
+  /** Called after every tick `step` runs; the app takes its autosave there, between ticks. */
+  afterTick: (() => void) | null = null;
 
   setSpeed(speed: Speed): void {
     this.current = speed;
@@ -121,7 +135,11 @@ export class InProcessHost implements SimulationHost {
 
   step(ticks: number): void {
     if (ticks <= 0) return;
-    this.require().step(ticks);
+    const game = this.require();
+    for (let k = 0; k < ticks; k += 1) {
+      game.step(1);
+      this.afterTick?.();
+    }
   }
 
   get readers(): ReaderSet {

@@ -200,6 +200,8 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
       bigDigCounter: this.bigDigCounter,
       veinsFound: core.veinsFound.slice(),
       spec: this.specValue,
+      pendingMoves: this.pendingMoves.map((m) => [m[0], m[1], m[2]] as [EntityId, TileIndex, TileIndex]),
+      producerCurrent: this.producer?.current ?? false,
     };
   }
 
@@ -221,6 +223,8 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     this.layerStack = state.layerStack.map((l) => ({ ...l }));
     this.bigDigCounter = state.bigDigCounter;
     this.specValue = state.spec;
+    this.pendingMoves = (state.pendingMoves ?? []).map((m) => [m[0], m[1], m[2]] as const);
+    if (this.producer !== null) this.producer.current = state.producerCurrent === true;
     this.rng?.setState(state.rng);
   }
 

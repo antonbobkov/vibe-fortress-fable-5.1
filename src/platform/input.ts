@@ -104,7 +104,8 @@ export interface InputOptions {
   readonly swallow?: (key: KeyPress) => boolean;
 }
 
-const DEFAULT_SWALLOW = new Set(['←', '→', '↑', '↓', ' ', 'Tab']);
+/** Keys the game owns that the browser would act on: scrolling, focus, and `F5` (reload), `F9`, `F12` (24 § Input model). */
+const DEFAULT_SWALLOW = new Set(['←', '→', '↑', '↓', ' ', 'Tab', 'F5', 'F9', 'F12']);
 
 /**
  * Attaches to a keyboard target and a pointer target and forwards normalised events. `dispose()`

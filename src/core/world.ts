@@ -151,6 +151,24 @@ export class World {
       .map((id) => ({ id, state: (this.rngStreams.get(id) as RngStream).state() }));
   }
 
+  /**
+   * `save-format.md` § Load procedure step 4: "for each system in order call `deserialize(state)`".
+   * Every stream is restored first, so a system that reads its stream in `deserialize` sees the
+   * saved state. Systems without a saved entry keep their initial state.
+   */
+  deserializeSystems(states: Readonly<Record<SystemId, { stateVersion: number; state: unknown }>>): void {
+    for (const system of this.scheduler.inOrder()) {
+      const entry = states[system.id];
+      if (entry === undefined) continue;
+      system.deserialize(entry.state, this.initContext(system));
+    }
+  }
+
+  /** Restore a saved stream (`rng` section), creating it when this run has not used it yet. */
+  restoreRng(systemId: SystemId, state: ReturnType<RngStream['state']>): void {
+    this.rngFor(systemId).setState(state);
+  }
+
   addSystem(system: GameSystem): void {
     if (this.initialised) throw new Error('systems must be added before init()');
     this.scheduler.add(system);

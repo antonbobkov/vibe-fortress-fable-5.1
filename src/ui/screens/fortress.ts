@@ -82,6 +82,9 @@ export interface FortressHost {
   announcements(): readonly { type: EventType; spec: AnnouncementSpec }[];
   /** A wall clock in milliseconds, for the status hint and the flash (presentation only). */
   now(): number;
+  /** `F5` quick save and `F9` quick load (24 § Input model), when the app offers saving (T-M2-11). */
+  quickSave?(): void;
+  quickLoad?(): void;
 }
 
 export class FortressScreen implements Screen {
@@ -538,6 +541,12 @@ export class FortressScreen implements Screen {
           return true;
         case 'toggle_sidebar':
           this.ui.sidebar = !this.ui.sidebar;
+          return true;
+        case 'quick_save':
+          this.host.quickSave?.();
+          return true;
+        case 'quick_load':
+          this.host.quickLoad?.();
           return true;
         case 'undo': {
           const cmd = this.tool.undo();

@@ -249,6 +249,8 @@ export interface HeadlessOptions {
   readonly embark?: HeadlessEmbark;
   /** The spec of the local map; the flat-test spec when omitted. */
   readonly spec?: LocalMapSpec;
+  /** A loaded game labels its map once its buildings are restored (T-M2-11). */
+  readonly deferLabels?: boolean;
 }
 
 /**
@@ -262,7 +264,7 @@ export class HeadlessGame {
   readonly spatial: SpatialIndex;
   readonly movement: MovementHelper;
   /** What the arrival did, when there was an embark. */
-  readonly arrival: ArrivalResult | null;
+  arrival: ArrivalResult | null;
   /** The generation result of a `'local'` world. */
   readonly local: LocalMapResult | null;
   /** The spawn API of the world (`module-interfaces.md` § The spawn API). */
@@ -294,7 +296,8 @@ export class HeadlessGame {
       ...(options.startTick === undefined ? {} : { startTick: options.startTick }),
     };
     this.world = new World(worldOptions);
-    this.pathing = new PathingCore(map, options.hooks ?? {}, options.pathfinder ?? {});
+    // The path cache of 22 is saved with 22's state, so the game runs with it (D-021, D-081).
+    this.pathing = new PathingCore(map, options.hooks ?? {}, options.pathfinder ?? { cache: true }, options.deferLabels !== true);
     this.spatial = new SpatialIndex(map, this.world.entities);
     this.movement = new MovementHelper(map, this.world.entities, this.spatial, this.pathing);
 

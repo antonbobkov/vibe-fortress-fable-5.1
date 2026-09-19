@@ -43,6 +43,13 @@ interface Walk {
 /** One entry of the tick's `EntitiesMoved` batch. */
 export type MoveRecord = [EntityId, TileIndex, TileIndex];
 
+/** The movement helper's saved state (D-081). */
+export interface MovementState {
+  /** `[mover, target, request, following, attempts]`, in the order the walks began. */
+  walks: [EntityId, TileIndex, number, boolean, number][];
+  moves: MoveRecord[];
+}
+
 export class MovementHelper implements MovementApi {
   private readonly map: Map3D;
   private readonly entities: EntityStore;
@@ -50,8 +57,7 @@ export class MovementHelper implements MovementApi {
   private readonly pathing: PathingCore;
   private readonly moves: MoveRecord[] = [];
   /**
-   * The walks in progress, by mover. Derived state: a loaded game starts with none and the brains
-   * re-request their paths (`schemas/system-state.md` § Rebuild-on-load rules, 22).
+   * The walks in progress, by mover. Saved with 22's requests (D-081).
    */
   private readonly walks = new Map<EntityId, Walk>();
 
@@ -60,6 +66,27 @@ export class MovementHelper implements MovementApi {
     this.entities = entities;
     this.spatial = spatial;
     this.pathing = pathing;
+  }
+
+  /**
+   * The walks in progress and the unflushed moves, for a save. `schemas/system-state.md` rebuilds
+   * 22's requests on load and lets the brains re-request, but that changes what the next ticks do,
+   * which `simulation-core.md` § Determinism forbids; the walks are saved with the requests they
+   * follow (DECISIONS.md D-081).
+   */
+  saveState(): MovementState {
+    const walks: [EntityId, TileIndex, number, boolean, number][] = [];
+    this.walks.forEach((w, id) => walks.push([id, w.target, w.request, w.following, w.attempts]));
+    return { walks, moves: this.moves.map((m) => [m[0], m[1], m[2]] as MoveRecord) };
+  }
+
+  loadState(state: MovementState): void {
+    this.walks.clear();
+    for (const [id, target, request, following, attempts] of state.walks) {
+      this.walks.set(id, { target, request, following, attempts });
+    }
+    this.moves.length = 0;
+    for (const m of state.moves) this.moves.push([m[0], m[1], m[2]]);
   }
 
   /** The moves recorded since the last {@link flushMoves}. */

@@ -434,6 +434,19 @@ class OpenSet {
     return (this.tiles[a] as number) < (this.tiles[b] as number);
   }
 
+  /** The heap's arrays, in heap order, for a save (D-081). */
+  entries(): { tiles: number[]; keys: number[] } {
+    return { tiles: this.tiles.slice(), keys: this.keys.slice() };
+  }
+
+  /** A heap restored from {@link entries}. */
+  static from(tiles: readonly number[], keys: readonly number[]): OpenSet {
+    const set = new OpenSet();
+    set.tiles.push(...tiles);
+    set.keys.push(...keys);
+    return set;
+  }
+
   private swap(a: number, b: number): void {
     const t = this.tiles[a] as number;
     this.tiles[a] = this.tiles[b] as number;
@@ -509,6 +522,44 @@ interface PathRequest {
   bestH: number;
 }
 
+/** An in-progress A* in a save: the open heap and the touched part of the scratch arrays. */
+export interface PathSearchState {
+  openTiles: number[];
+  openKeys: number[];
+  /** `tile, g, parent` triples of every tile the search has reached. */
+  touched: number[];
+  closed: number[];
+}
+
+export interface PathRequestState {
+  id: number;
+  entity: EntityId;
+  from: TileIndex;
+  to: TileIndex;
+  cls: MovementClass;
+  urgency: PathUrgency;
+  opts: PathOptions;
+  mover: MoverOptions;
+  state: 'pending' | 'running' | 'ready' | 'failed';
+  reason: PathFailure | null;
+  path: TileIndex[] | null;
+  expanded: number;
+  bestNode: TileIndex;
+  bestH: number;
+  search: PathSearchState | null;
+}
+
+/** 22's saved pathfinder (D-081). */
+export interface PathfinderState {
+  nextId: number;
+  /** Every request not yet released, in creation order. */
+  requests: PathRequestState[];
+  /** The ids of the queue, in serving order. */
+  queue: number[];
+  /** The path cache, least recently used first. */
+  cache: { key: string; path: TileIndex[]; chunks: ChunkIndex[] }[];
+}
+
 function isSettled(r: PathRequest): boolean {
   return r.state === 'ready' || r.state === 'failed';
 }
@@ -526,9 +577,9 @@ export interface LabelSource {
 
 export interface PathfinderOptions {
   /**
-   * Turn the route cache of `22` § Path cache on. It is off by default: the cache is not part of
-   * a save, so a spliced cached path would make a loaded game answer differently from an
-   * uninterrupted run, which `simulation-core.md` § Determinism forbids. See DECISIONS.md D-021.
+   * Turn the route cache of `22` § Path cache on. A bare `Pathfinder` has it off (D-021); since
+   * T-M2-11 the cache is part of 22's saved state and the game (`HeadlessGame`) turns it on
+   * (DECISIONS.md D-081).
    */
   readonly cache?: boolean | undefined;
 }
@@ -858,6 +909,97 @@ export class Pathfinder {
   }
 
   /**
+   * The request queue, the in-progress searches, the finished paths movers still follow and the
+   * path cache, for a save. `22` § State lists all of them as 22's state, and
+   * `simulation-core.md` § Determinism makes a loaded game answer exactly as the uninterrupted one
+   * would, so none of them is dropped on load (DECISIONS.md D-081).
+   */
+  saveState(): PathfinderState {
+    const requests: PathRequestState[] = [];
+    this.byId.forEach((r) => {
+      let search: PathSearchState | null = null;
+      if (r.state === 'running' && r.scratch !== null && r.open !== null) {
+        const scratch = r.scratch;
+        const touched: number[] = [];
+        const closed: number[] = [];
+        for (let i = 0; i < scratch.stamp.length; i += 1) {
+          if (scratch.stamp[i] === scratch.gen) touched.push(i, scratch.g[i] as number, scratch.parent[i] as number);
+          if (scratch.closed[i] === scratch.gen) closed.push(i);
+        }
+        const open = r.open.entries();
+        search = { openTiles: open.tiles, openKeys: open.keys, touched, closed };
+      }
+      requests.push({
+        id: r.id,
+        entity: r.entity,
+        from: r.from,
+        to: r.to,
+        cls: r.cls,
+        urgency: r.urgency,
+        opts: { ...r.opts },
+        mover: { ...r.mover },
+        state: r.state,
+        reason: r.reason,
+        path: r.path === null ? null : r.path.slice(),
+        expanded: r.expanded,
+        bestNode: r.bestNode,
+        bestH: r.bestH,
+        search,
+      });
+    });
+    const cache: { key: string; path: TileIndex[]; chunks: ChunkIndex[] }[] = [];
+    this.cache.forEach((entry, key) => cache.push({ key, path: entry.path.slice(), chunks: entry.chunks.slice() }));
+    return { nextId: this.nextId, requests, queue: this.queue.map((r) => r.id), cache };
+  }
+
+  /** The inverse of {@link saveState}: every request, search and cached route as it was. */
+  loadState(state: PathfinderState): void {
+    this.byId.clear();
+    this.queue.length = 0;
+    this.cache.clear();
+    this.nextId = state.nextId;
+    for (let k = 0; k < state.requests.length; k += 1) {
+      const s = state.requests[k] as PathRequestState;
+      const r: PathRequest = {
+        id: s.id,
+        entity: s.entity,
+        from: s.from,
+        to: s.to,
+        cls: s.cls,
+        urgency: s.urgency,
+        opts: { ...s.opts },
+        mover: { ...s.mover },
+        state: s.state,
+        reason: s.reason,
+        path: s.path === null ? null : s.path.slice(),
+        scratch: null,
+        open: null,
+        expanded: s.expanded,
+        bestNode: s.bestNode,
+        bestH: s.bestH,
+      };
+      if (s.search !== null) {
+        const scratch = this.takeScratch();
+        scratch.begin();
+        const t = s.search.touched;
+        for (let j = 0; j + 2 < t.length; j += 3) scratch.relax(t[j] as number, t[j + 1] as number, t[j + 2] as number);
+        for (let j = 0; j < s.search.closed.length; j += 1) scratch.close(s.search.closed[j] as number);
+        r.scratch = scratch;
+        r.open = OpenSet.from(s.search.openTiles, s.search.openKeys);
+      }
+      this.byId.set(r.id, r);
+    }
+    for (let k = 0; k < state.queue.length; k += 1) {
+      const r = this.byId.get(state.queue[k] as number);
+      if (r !== undefined) this.queue.push(r);
+    }
+    for (let k = 0; k < state.cache.length; k += 1) {
+      const e = state.cache[k] as { key: string; path: TileIndex[]; chunks: ChunkIndex[] };
+      this.cache.set(e.key, { path: e.path.slice(), chunks: e.chunks.slice() });
+    }
+  }
+
+  /**
    * A complete A* inside one call, bounded by `nodeLimit`. Used for the cache splice and by tests;
    * the request queue is the path every creature takes.
    */
@@ -921,11 +1063,15 @@ export class PathingCore {
   readonly connectivity: Connectivity;
   readonly pathfinder: Pathfinder;
 
-  constructor(map: Map3D, hooks: Partial<TerrainHooks> = {}, options: PathfinderOptions = {}) {
+  /**
+   * `labels: false` leaves the first full labelling to the caller: a loaded game labels its map
+   * once, after its buildings are restored (`save-format.md` § Load procedure step 5).
+   */
+  constructor(map: Map3D, hooks: Partial<TerrainHooks> = {}, options: PathfinderOptions = {}, labels = true) {
     this.graph = new TileGraph(map, hooks);
     this.connectivity = new Connectivity(map, this.graph);
     this.pathfinder = new Pathfinder(map, this.graph, this.connectivity, options);
-    this.connectivity.rebuildAll();
+    if (labels) this.connectivity.rebuildAll();
   }
 
   /** `22` § Connectivity labels: the core phase between steps 2 and 3 of the tick. */

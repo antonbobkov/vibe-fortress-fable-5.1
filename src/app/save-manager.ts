@@ -406,3 +406,26 @@ export class SaveManager {
     await this.storage.delete('saves', id);
   }
 }
+
+/** `persistence.md` § Autosave and snapshots: "keeps the four most recent autosaves". */
+export const AUTOSAVES_KEPT = 4;
+
+/**
+ * "Older ones are deleted": every autosave beyond the {@link AUTOSAVES_KEPT} newest (by tick).
+ * "A manual save is never deleted automatically." Returns the ids deleted.
+ */
+export async function rollAutosaves(saves: SaveManager, keep: number = AUTOSAVES_KEPT): Promise<string[]> {
+  const autos = (await saves.list()).filter((s) => s.header.kind === 'auto');
+  autos.sort((a, b) => b.header.calendar.tick - a.header.calendar.tick || (a.id < b.id ? 1 : -1));
+  const doomed = autos.slice(keep).map((s) => s.id);
+  for (const id of doomed) await saves.delete(id);
+  return doomed;
+}
+
+/** The quick save `F9` loads: the newest `manual-<unixMs>` save (DECISIONS.md D-083). */
+export async function newestManualId(saves: SaveManager): Promise<string | null> {
+  const manual = (await saves.list()).filter((s) => s.header.kind === 'manual' && /^manual-\d+$/.test(s.id));
+  if (manual.length === 0) return null;
+  manual.sort((a, b) => Number(b.id.slice(7)) - Number(a.id.slice(7)));
+  return (manual[0] as { id: string }).id;
+}

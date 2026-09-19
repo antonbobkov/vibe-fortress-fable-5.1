@@ -462,6 +462,40 @@ export class EntityStore {
     return this.storeOf(type);
   }
 
+  /**
+   * The slot table for a save (`schemas/system-state.md` `EntityStoreState.slots`): one row per
+   * slot ever allocated, living or not, plus the free list in its pop order, because the next
+   * `create` reuses the last freed slot (DECISIONS.md D-079).
+   */
+  exportSlots(): { slots: { generation: number; alive: boolean; kind: EntityKind }[]; free: number[] } {
+    const slots = this.generations.map((generation, index) => ({
+      generation,
+      alive: this.aliveFlags[index] === true,
+      kind: ENTITY_KINDS[this.kindOf[index] as number] as EntityKind,
+    }));
+    return { slots, free: this.free.slice() };
+  }
+
+  /**
+   * Replace every slot (and drop every component) from a saved slot table; the components are
+   * restored afterwards through {@link store}. The inverse of {@link exportSlots}.
+   */
+  importSlots(slots: readonly { generation: number; alive: boolean; kind: EntityKind }[], free: readonly number[]): void {
+    this.clear();
+    for (let index = 0; index < slots.length; index += 1) {
+      const slot = slots[index] as { generation: number; alive: boolean; kind: EntityKind };
+      const k = entityKindIndex(slot.kind);
+      this.generations.push(slot.generation);
+      this.aliveFlags.push(slot.alive);
+      this.kindOf.push(k);
+      if (slot.alive) {
+        (this.byKind[k] as number[]).push(index);
+        this.liveCount += 1;
+      }
+    }
+    this.free.push(...free);
+  }
+
   /** Reset to an empty store. */
   clear(): void {
     for (let c = 0; c < this.stores.length; c += 1) (this.stores[c] as ComponentStore<unknown>).clear();

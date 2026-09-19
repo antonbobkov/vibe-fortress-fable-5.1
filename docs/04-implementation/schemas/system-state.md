@@ -104,3 +104,5 @@ After `deserialize`, before the first tick, each system rebuilds derived structu
 | 14 | `buildingAt` in `Map3D` is saved; room caches from `Room` components |
 | 22 | connectivity labels, path cache (empty), request queue (empty); every `Motion.pathId` is invalidated and brains re-request paths |
 | 23/24 | atlases, cell buffers |
+
+Implementation note: 22's requests, searches, walks and path cache are saved so that a loaded game continues exactly (`22` § State, `simulation-core.md` § Determinism); see DECISIONS.md D-081.

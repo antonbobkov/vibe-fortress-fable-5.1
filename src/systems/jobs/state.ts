@@ -81,4 +81,6 @@ export interface JobsStateV1 {
   standingOrders: Record<string, boolean>;
   assignQueue: EntityId[];
   blockedRetryCursor: number;
+  /** 11 has ticked once: its producers and 13's items are connected (D-082). */
+  ticked?: boolean;
 }
