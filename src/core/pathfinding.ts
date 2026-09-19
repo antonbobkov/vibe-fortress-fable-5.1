@@ -80,6 +80,29 @@ export interface MoverOptions {
   readonly tame?: boolean | undefined;
 }
 
+/*
+ * The kinds, flags and constants the hot paths read, copied once into module constants: a plain
+ * constant is cheaper to read in the inner loops than an imported binding.
+ */
+const K_BOULDER = TileKind.Boulder;
+const K_FORTIFICATION = TileKind.Fortification;
+const K_OPEN = TileKind.Open;
+const K_RAMP = TileKind.Ramp;
+const K_STAIRS_DOWN = TileKind.StairsDown;
+const K_STAIRS_UP = TileKind.StairsUp;
+const K_STAIRS_UPDOWN = TileKind.StairsUpDown;
+const K_TREE = TileKind.Tree;
+const K_WALL = TileKind.Wall;
+const F_BURNING = TileFlag.Burning;
+const F_RESTRICTED = TileFlag.Restricted;
+const F_SNOW = TileFlag.Snow;
+const F_WEB = TileFlag.Web;
+const MAGMA = FluidType.Magma;
+const DEEP_LEVEL = FLUID_DEEP_LEVEL;
+const WADE_LEVEL = FLUID_WADE_LEVEL;
+const MAX_LEVEL = FLUID_MAX_LEVEL;
+const LARGE_SIZE = WADE_LARGE_SIZE;
+
 const NO_MOVER: MoverOptions = Object.freeze({});
 
 const FORTRESS = 'fortress';
@@ -87,10 +110,10 @@ const FORTRESS = 'fortress';
 /** The kinds a diagonal may not cut past and a ramp may lean on. */
 function isSolidObstacle(kind: TileKind): boolean {
   return (
-    kind === TileKind.Wall ||
-    kind === TileKind.Tree ||
-    kind === TileKind.Boulder ||
-    kind === TileKind.Fortification
+    kind === K_WALL ||
+    kind === K_TREE ||
+    kind === K_BOULDER ||
+    kind === K_FORTIFICATION
   );
 }
 
@@ -134,26 +157,26 @@ export class TileGraph implements ConnectivityGraph {
     if (!map.validIndex(i)) return false;
     const kind = map.kindAt(i);
     if (
-      kind === TileKind.Wall ||
-      kind === TileKind.Tree ||
-      kind === TileKind.Boulder ||
-      kind === TileKind.Open
+      kind === K_WALL ||
+      kind === K_TREE ||
+      kind === K_BOULDER ||
+      kind === K_OPEN
     ) {
       return false;
     }
-    if (kind === TileKind.Fortification && cls !== 'small') return false;
+    if (kind === K_FORTIFICATION && cls !== 'small') return false;
     if (this.hooks.blocksMovementAt(i, cls, mover.faction, mover)) return false;
     // `22` § Passability lists `burning` and the forbidden set as blocking "all"; they are checked
     // before the class-specific answers so that no class slips past them.
-    if (map.hasFlag(i, TileFlag.Burning)) return false;
+    if (map.hasFlag(i, F_BURNING)) return false;
     if (mover.faction === FORTRESS && this.hooks.forbidden(i)) return false;
     // Frozen water is ice (04 § Freezing and thawing: "A frozen river is walkable", 06); D-099.
     const level = map.fluidFrozenAt(i) ? 0 : map.fluidLevelAt(i);
-    const magma = map.fluidTypeAt(i) === FluidType.Magma;
+    const magma = map.fluidTypeAt(i) === MAGMA;
     if (magma && level > 0 && mover.magmaSafe !== true) return false;
-    if (cls === 'aquatic') return !magma && level >= FLUID_DEEP_LEVEL;
-    if (level >= FLUID_DEEP_LEVEL && !magma && cls !== 'amphibious') {
-      const wades = cls === 'large' && (mover.size ?? 0) >= WADE_LARGE_SIZE && level < FLUID_MAX_LEVEL;
+    if (cls === 'aquatic') return !magma && level >= DEEP_LEVEL;
+    if (level >= DEEP_LEVEL && !magma && cls !== 'amphibious') {
+      const wades = cls === 'large' && (mover.size ?? 0) >= LARGE_SIZE && level < MAX_LEVEL;
       if (!wades) return false;
     }
     return true;
@@ -164,12 +187,12 @@ export class TileGraph implements ConnectivityGraph {
     const map = this.map;
     let c = STEP_COST;
     const level = map.fluidFrozenAt(i) ? 0 : map.fluidLevelAt(i);
-    if (level >= 1 && level <= FLUID_WADE_LEVEL && cls !== 'aquatic') c *= WADE_COST_MULTIPLIER;
-    if (map.hasFlag(i, TileFlag.Snow)) c = Math.trunc((c * SNOW_MOVE_COST_PERCENT) / 100);
-    if (map.hasFlag(i, TileFlag.Restricted) && mover.faction === FORTRESS) {
+    if (level >= 1 && level <= WADE_LEVEL && cls !== 'aquatic') c *= WADE_COST_MULTIPLIER;
+    if (map.hasFlag(i, F_SNOW)) c = Math.trunc((c * SNOW_MOVE_COST_PERCENT) / 100);
+    if (map.hasFlag(i, F_RESTRICTED) && mover.faction === FORTRESS) {
       c *= RESTRICTED_COST_MULTIPLIER;
     }
-    if (map.hasFlag(i, TileFlag.Web)) c *= WEB_COST_MULTIPLIER;
+    if (map.hasFlag(i, F_WEB)) c *= WEB_COST_MULTIPLIER;
     if (this.hooks.doorAt(i)) c += DOOR_COST_PENALTY;
     return c;
   }
@@ -181,6 +204,33 @@ export class TileGraph implements ConnectivityGraph {
     fn: EdgeSink,
     mover: MoverOptions = NO_MOVER,
   ): void {
+    this.horizontal(i, cls, fn, mover, true);
+  }
+
+  /** The stairs and ramp edges leaving `i`. */
+  forEachVerticalEdge(
+    i: TileIndex,
+    cls: MovementClass,
+    fn: EdgeSink,
+    mover: MoverOptions = NO_MOVER,
+  ): void {
+    this.vertical(i, cls, fn, mover, true);
+  }
+
+  /**
+   * The same edges as {@link forEachVerticalEdge}, without computing their costs (reported as 0):
+   * the connectivity labels need only the edges.
+   */
+  forEachVerticalLink(i: TileIndex, cls: MovementClass, fn: EdgeSink): void {
+    this.vertical(i, cls, fn, NO_MOVER, false);
+  }
+
+  /** `22` § Edges: a tile a diagonal step may not cut past, and a ramp may lean on. */
+  cornerBlocks(i: TileIndex): boolean {
+    return isSolidObstacle(this.map.kindAt(i));
+  }
+
+  private horizontal(i: TileIndex, cls: MovementClass, fn: EdgeSink, mover: MoverOptions, withCost: boolean): void {
     const map = this.map;
     if (!map.validIndex(i)) return;
     const x = map.xOf(i);
@@ -197,47 +247,41 @@ export class TileGraph implements ConnectivityGraph {
         const a = map.index(nx, y, z);
         const b = map.index(x, ny, z);
         if (isSolidObstacle(map.kindAt(a)) || isSolidObstacle(map.kindAt(b))) continue;
-        fn(j, Math.trunc((this.cost(j, cls, mover) * DIAGONAL_COST_NUMERATOR) / STEP_COST));
+        fn(j, withCost ? Math.trunc((this.cost(j, cls, mover) * DIAGONAL_COST_NUMERATOR) / STEP_COST) : 0);
       } else {
-        fn(j, this.cost(j, cls, mover));
+        fn(j, withCost ? this.cost(j, cls, mover) : 0);
       }
     }
   }
 
-  /** The stairs and ramp edges leaving `i`. */
-  forEachVerticalEdge(
-    i: TileIndex,
-    cls: MovementClass,
-    fn: EdgeSink,
-    mover: MoverOptions = NO_MOVER,
-  ): void {
+  private vertical(i: TileIndex, cls: MovementClass, fn: EdgeSink, mover: MoverOptions, withCost: boolean): void {
     const map = this.map;
     if (!map.validIndex(i)) return;
     const kind = map.kindAt(i);
     // Stairs. `large` creatures cannot use them; ramps are their only vertical route.
-    if (cls !== 'large' && (kind === TileKind.StairsUp || kind === TileKind.StairsUpDown)) {
+    if (cls !== 'large' && (kind === K_STAIRS_UP || kind === K_STAIRS_UPDOWN)) {
       const up = map.above(i);
       if (up >= 0) {
         const k = map.kindAt(up);
         if (
-          (k === TileKind.StairsDown || k === TileKind.StairsUpDown) &&
+          (k === K_STAIRS_DOWN || k === K_STAIRS_UPDOWN) &&
           this.passable(up, cls, mover) &&
           !this.hooks.lockedHatchAt(up)
         ) {
-          fn(up, this.cost(up, cls, mover));
+          fn(up, withCost ? this.cost(up, cls, mover) : 0);
         }
       }
     }
-    if (cls !== 'large' && (kind === TileKind.StairsDown || kind === TileKind.StairsUpDown)) {
+    if (cls !== 'large' && (kind === K_STAIRS_DOWN || kind === K_STAIRS_UPDOWN)) {
       const down = map.below(i);
       if (down >= 0) {
         const k = map.kindAt(down);
         if (
-          (k === TileKind.StairsUp || k === TileKind.StairsUpDown) &&
+          (k === K_STAIRS_UP || k === K_STAIRS_UPDOWN) &&
           this.passable(down, cls, mover) &&
           !this.hooks.lockedHatchAt(i)
         ) {
-          fn(down, this.cost(down, cls, mover));
+          fn(down, withCost ? this.cost(down, cls, mover) : 0);
         }
       }
     }
@@ -245,9 +289,9 @@ export class TileGraph implements ConnectivityGraph {
     const y = map.yOf(i);
     const z = map.zOf(i);
     // Up: standing on the ramp, leave over the solid tile it leans on.
-    if (kind === TileKind.Ramp) {
+    if (kind === K_RAMP) {
       const over = map.above(i);
-      if (over >= 0 && map.kindAt(over) === TileKind.Open && !this.hooks.lockedHatchAt(over)) {
+      if (over >= 0 && map.kindAt(over) === K_OPEN && !this.hooks.lockedHatchAt(over)) {
         for (let k = 0; k < CARDINALS.length; k += 1) {
           const d = CARDINALS[k] as readonly [number, number];
           if (!map.inBounds(x + d[0], y + d[1], z)) continue;
@@ -255,7 +299,7 @@ export class TileGraph implements ConnectivityGraph {
           if (!isSolidObstacle(map.kindAt(w))) continue;
           const u = map.above(w);
           if (u < 0 || !this.passable(u, cls, mover)) continue;
-          fn(u, this.cost(u, cls, mover));
+          fn(u, withCost ? this.cost(u, cls, mover) : 0);
         }
       }
     }
@@ -267,11 +311,11 @@ export class TileGraph implements ConnectivityGraph {
         const d = CARDINALS[k] as readonly [number, number];
         if (!map.inBounds(x + d[0], y + d[1], bz)) continue;
         const r = map.index(x + d[0], y + d[1], bz);
-        if (map.kindAt(r) !== TileKind.Ramp) continue;
+        if (map.kindAt(r) !== K_RAMP) continue;
         if (!this.passable(r, cls, mover)) continue;
         const over = map.above(r);
-        if (over < 0 || map.kindAt(over) !== TileKind.Open || this.hooks.lockedHatchAt(over)) continue;
-        fn(r, this.cost(r, cls, mover));
+        if (over < 0 || map.kindAt(over) !== K_OPEN || this.hooks.lockedHatchAt(over)) continue;
+        fn(r, withCost ? this.cost(r, cls, mover) : 0);
       }
     }
   }
@@ -335,9 +379,9 @@ export class TileGraph implements ConnectivityGraph {
       if (x === x1 && y === y1) return true;
       const i = map.index(x, y, z);
       const kind = map.kindAt(i);
-      if (kind === TileKind.Wall || kind === TileKind.Tree || kind === TileKind.Boulder) return false;
+      if (kind === K_WALL || kind === K_TREE || kind === K_BOULDER) return false;
       if (this.hooks.blocksSightAt(i)) return false;
-      if (kind === TileKind.Fortification) {
+      if (kind === K_FORTIFICATION) {
         const nearA = chebyshevBetween(map, i, a) <= 1;
         const nearB = chebyshevBetween(map, i, b) <= 1;
         if (!nearA && !nearB) return false;

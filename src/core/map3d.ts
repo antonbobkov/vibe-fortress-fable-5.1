@@ -11,6 +11,9 @@
 import { CHUNK_SIZE, LOCAL_MAP_H, LOCAL_MAP_W, LOCAL_MAP_Z } from './constants';
 import type { ChunkIndex, EntityId, TileIndex } from './types';
 
+/** The chunk edge, as a module constant for `chunkOf`, which the inner loops call. */
+const SIZE = CHUNK_SIZE;
+
 /** `data-model.md` § Tile kinds. */
 export enum TileKind {
   Open = 0,
@@ -448,8 +451,8 @@ export class Map3D {
 
   /** The chunk a tile belongs to. */
   chunkOf(i: TileIndex): ChunkIndex {
-    const cx = (this.xOf(i) / CHUNK_SIZE) | 0;
-    const cy = (this.yOf(i) / CHUNK_SIZE) | 0;
+    const cx = (this.xOf(i) / SIZE) | 0;
+    const cy = (this.yOf(i) / SIZE) | 0;
     return this.chunkAt(cx, cy, this.zOf(i));
   }
 

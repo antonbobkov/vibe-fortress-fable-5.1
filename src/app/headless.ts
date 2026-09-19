@@ -253,6 +253,11 @@ export interface HeadlessOptions {
   readonly spec?: LocalMapSpec;
   /** A loaded game labels its map once its buildings are restored (T-M2-11). */
   readonly deferLabels?: boolean;
+  /**
+   * The clock the scheduler times each system with (`host.stats()`); the performance smoke passes
+   * `performance.now`. Omitted, every timing reads 0, as `core` may not read a clock itself.
+   */
+  readonly now?: () => number;
 }
 
 /**
@@ -296,6 +301,7 @@ export class HeadlessGame {
       map,
       ...(options.fortressName === undefined ? {} : { fortressName: options.fortressName }),
       ...(options.startTick === undefined ? {} : { startTick: options.startTick }),
+      ...(options.now === undefined ? {} : { now: options.now }),
     };
     this.world = new World(worldOptions);
     // The path cache of 22 is saved with 22's state, so the game runs with it (D-021, D-081).
