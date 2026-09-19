@@ -12,8 +12,10 @@ import { C } from '@core/components';
 import type { Command } from '@core/commands';
 import { PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
 import { TileFlag } from '@core/map3d';
-import type { TileIndex } from '@core/types';
-import { FLAT_TEST_SURFACE_Z } from '@app/headless';
+import type { EntityId, TileIndex } from '@core/types';
+import { FLAT_TEST_SURFACE_Z, type HeadlessGame } from '@app/headless';
+import type { BuildingsReader } from '@systems/buildings';
+import { STOCKPILE_PRESETS } from '@systems/items';
 import { DESIGNATION_NAMES, TerrainFacts, precondition } from '@systems/terrain';
 import type { TestWorld } from '../scenarios/test-world';
 
@@ -57,7 +59,144 @@ function designate(w: TestWorld): fc.Arbitrary<Command> {
   });
 }
 
-/** The generators of the milestones built so far. T-M2-13 adds the items and buildings ones. */
+// ---------- M2: items and buildings (T-M2-13) ----------
+
+/**
+ * A reference to "the k-th living entity of a kind" (ascending id, k modulo the count), resolved
+ * when the command is submitted: zones, stockpiles and buildings made by earlier commands of the
+ * same stream have ids no generator can know in advance. Both runs of a property resolve against
+ * identical worlds, so the resolved stream is the same in both.
+ */
+export interface EntityRef {
+  readonly $nth: number;
+  readonly of: 'zone' | 'stockpile' | 'building' | 'item';
+}
+
+function isRef(value: unknown): value is EntityRef {
+  return typeof value === 'object' && value !== null && typeof (value as { $nth?: unknown }).$nth === 'number';
+}
+
+/** The ids a reference ranges over, ascending. */
+function candidates(game: HeadlessGame, of: EntityRef['of']): EntityId[] {
+  const e = game.world.entities;
+  if (of === 'stockpile') return e.with(C.Stockpile);
+  if (of === 'zone') return e.with(C.Zone);
+  if (of === 'building') return e.with(C.Building);
+  return e.with(C.Item);
+}
+
+/** A command with every {@link EntityRef} field replaced by an id of the world as it is now (0 when none exists). */
+export function resolveCommand(game: HeadlessGame, command: Command): Command {
+  let out: Command | null = null;
+  for (const key of Object.keys(command)) {
+    const value = command[key];
+    if (!isRef(value)) continue;
+    const ids = candidates(game, value.of);
+    out ??= { ...command };
+    (out as Record<string, unknown>)[key] = ids.length === 0 ? 0 : (ids[value.$nth % ids.length] as EntityId);
+  }
+  return out ?? command;
+}
+
+/** Submit a scheduled command, resolving its references first. */
+export function submitScheduled(game: HeadlessGame, command: Command): void {
+  game.world.submit(resolveCommand(game, command));
+}
+
+const ref = (of: EntityRef['of']): fc.Arbitrary<EntityRef> => fc.nat({ max: 1_000 }).map(($nth) => ({ $nth, of }));
+
+/** The M2 generators place things on the surface, inside the rim, away from the map edge. */
+const SURFACE = { x0: 12, y0: 12, x1: 84, y1: 84 } as const;
+
+/**
+ * `PlaceBuilding` with valid footprints only (`14` § Placement): every building type at a grid of
+ * surface origins, in both orientations, kept when 14's ghost gives no reason against the world
+ * the stream starts from (`readers.of('14').ghost`, D-073). A placement that a command earlier in
+ * the stream has since made invalid is refused the same way in both runs.
+ */
+function placeBuilding(w: TestWorld): fc.Arbitrary<Command> {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const types = w.game.registry.table('buildings').ids();
+  const valid: { buildingType: string; origin: TileIndex; orientation: number }[] = [];
+  for (const buildingType of types) {
+    for (let y = SURFACE.y0; y < SURFACE.y1; y += 9) {
+      for (let x = SURFACE.x0 + (y % 5); x < SURFACE.x1; x += 9) {
+        for (const z of [FLAT_TEST_SURFACE_Z, FLAT_TEST_SURFACE_Z + 1]) {
+          for (const orientation of [0, 1]) {
+            const origin = w.map.index(x, y, z);
+            if (buildings.ghost(buildingType, origin, orientation).reason === null) valid.push({ buildingType, origin, orientation });
+          }
+        }
+      }
+    }
+  }
+  if (valid.length === 0) throw new Error('placeBuilding: no valid placement on the flat-test surface');
+  return fc
+    .tuple(fc.constantFrom(...valid), fc.constantFrom(0, 0, 'granite', 'pine'))
+    .map(([p, materialChoice]) => ({ type: 'PlaceBuilding', ...p, materialChoice }) as Command);
+}
+
+/**
+ * `CreateZone`: a zone type and a rectangle of surface tiles, kept to the tiles that qualify for
+ * the type (`readers.of('14').zoneTileQualifies`); zones do not overlap in the world the stream
+ * starts from, and one that overlaps a zone an earlier command made is refused in both runs.
+ */
+function createZone(w: TestWorld): fc.Arbitrary<Command> {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const zoneTypes = w.game.registry.table('zoneTypes').ids();
+  const existing = new Set<TileIndex>();
+  for (const id of w.readers.entities.with(C.Zone)) for (const t of w.game.world.entities.get(id, C.Zone)?.tiles ?? []) existing.add(t);
+  return fc
+    .tuple(
+      fc.constantFrom(...zoneTypes),
+      fc.integer({ min: SURFACE.x0, max: SURFACE.x1 - 6 }),
+      fc.integer({ min: SURFACE.y0, max: SURFACE.y1 - 6 }),
+      fc.integer({ min: 1, max: 5 }),
+      fc.integer({ min: 1, max: 5 }),
+    )
+    .map(([zoneType, x, y, width, height]) => {
+      const list: TileIndex[] = [];
+      for (let dy = 0; dy < height; dy += 1) {
+        for (let dx = 0; dx < width; dx += 1) {
+          const i = w.map.index(x + dx, y + dy, FLAT_TEST_SURFACE_Z);
+          if (!existing.has(i) && buildings.zoneTileQualifies(zoneType, i)) list.push(i);
+        }
+      }
+      if (list.length === 0) list.push(w.map.index(x, y, FLAT_TEST_SURFACE_Z));
+      return { type: 'CreateZone', zoneType, tiles: list } as Command;
+    });
+}
+
+/** The M2 generators (T-M2-13). */
+const M2_GENERATORS: readonly CommandGenerator[] = [
+  { id: 'PlaceBuilding', milestone: 2, arbitrary: placeBuilding },
+  { id: 'CreateZone', milestone: 2, arbitrary: createZone },
+  {
+    id: 'SetStockpileFilter',
+    milestone: 2,
+    arbitrary: () =>
+      fc
+        .tuple(ref('stockpile'), fc.constantFrom(...Object.keys(STOCKPILE_PRESETS)))
+        .map(([zoneId, filter]) => ({ type: 'SetStockpileFilter', zoneId, filter }) as unknown as Command),
+  },
+  {
+    id: 'ForbidItem',
+    milestone: 2,
+    arbitrary: () => fc.tuple(ref('item'), fc.boolean()).map(([itemId, on]) => ({ type: 'ForbidItem', itemId, on }) as unknown as Command),
+  },
+  {
+    id: 'CancelBuilding',
+    milestone: 2,
+    arbitrary: () => ref('building').map((buildingId) => ({ type: 'CancelBuilding', buildingId }) as unknown as Command),
+  },
+  {
+    id: 'RemoveZone',
+    milestone: 2,
+    arbitrary: () => ref('zone').map((zoneId) => ({ type: 'RemoveZone', zoneId }) as unknown as Command),
+  },
+];
+
+/** The generators of the milestones built so far: M1's terrain and labor ones, M2's items and buildings ones. */
 export const COMMAND_GENERATORS: readonly CommandGenerator[] = Object.freeze([
   { id: 'Designate', milestone: 1, arbitrary: designate },
   {
@@ -85,6 +224,7 @@ export const COMMAND_GENERATORS: readonly CommandGenerator[] = Object.freeze([
         .map(([dwarfId, labor, on]) => ({ type: 'SetLabor', dwarfId, labor, on }) as Command);
     },
   },
+  ...M2_GENERATORS,
 ]);
 
 export function generatorsFor(milestone: number): readonly CommandGenerator[] {

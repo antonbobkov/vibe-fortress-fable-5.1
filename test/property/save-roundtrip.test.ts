@@ -14,7 +14,7 @@ import { roundTrip } from '@app/game-save';
 import type { HeadlessGame } from '@app/headless';
 import { TestWorld } from '../scenarios/test-world';
 import { prepareBusyFortress } from '../scenarios/core_save_roundtrip.scenario';
-import { commandStream, type ScheduledCommand } from './command-generators';
+import { commandStream, submitScheduled, type ScheduledCommand } from './command-generators';
 import { currentMilestone } from '../scenarios/runner';
 
 const TICKS = 1_500;
@@ -25,7 +25,7 @@ function feed(game: HeadlessGame, stream: readonly ScheduledCommand[], from: num
   let next = from;
   for (let tick = game.tick - start; tick < until; tick += 1) {
     while (next < stream.length && (stream[next] as ScheduledCommand).tick <= tick) {
-      game.world.submit((stream[next] as ScheduledCommand).command);
+      submitScheduled(game, (stream[next] as ScheduledCommand).command);
       next += 1;
     }
     game.step(1);

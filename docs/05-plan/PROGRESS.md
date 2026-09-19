@@ -54,7 +54,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M2-10 — Compositor: items and buildings; overlays zones and stockpile usage (opus-m2, 2026-09-18)
 - [x] T-M2-11 — Save and load: full round-trip, autosave, Load screen (opus-m2, 2026-09-19)
 - [x] T-M2-12 — Command log and replay script (opus-m2, 2026-09-19)
-- [ ] T-M2-13 — Property command generator: items and buildings
+- [x] T-M2-13 — Property command generator: items and buildings (opus-m2, 2026-09-19)
 - [ ] T-M2-14 — Gate M2
 
 ## M3 — Water, Fire, Sky ([M3-water-fire-sky.md](M3-water-fire-sky.md))
