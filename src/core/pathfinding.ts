@@ -147,7 +147,8 @@ export class TileGraph implements ConnectivityGraph {
     // before the class-specific answers so that no class slips past them.
     if (map.hasFlag(i, TileFlag.Burning)) return false;
     if (mover.faction === FORTRESS && this.hooks.forbidden(i)) return false;
-    const level = map.fluidLevelAt(i);
+    // Frozen water is ice (04 § Freezing and thawing: "A frozen river is walkable", 06); D-099.
+    const level = map.fluidFrozenAt(i) ? 0 : map.fluidLevelAt(i);
     const magma = map.fluidTypeAt(i) === FluidType.Magma;
     if (magma && level > 0 && mover.magmaSafe !== true) return false;
     if (cls === 'aquatic') return !magma && level >= FLUID_DEEP_LEVEL;
@@ -162,7 +163,7 @@ export class TileGraph implements ConnectivityGraph {
   cost(i: TileIndex, cls: MovementClass, mover: MoverOptions = NO_MOVER): number {
     const map = this.map;
     let c = STEP_COST;
-    const level = map.fluidLevelAt(i);
+    const level = map.fluidFrozenAt(i) ? 0 : map.fluidLevelAt(i);
     if (level >= 1 && level <= FLUID_WADE_LEVEL && cls !== 'aquatic') c *= WADE_COST_MULTIPLIER;
     if (map.hasFlag(i, TileFlag.Snow)) c = Math.trunc((c * SNOW_MOVE_COST_PERCENT) / 100);
     if (map.hasFlag(i, TileFlag.Restricted) && mover.faction === FORTRESS) {

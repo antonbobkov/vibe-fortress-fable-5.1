@@ -14,6 +14,9 @@ import { FLUID_TICK_CADENCE_WATER } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import { makeReader, type FluidsReader } from './reader';
 import { FluidSim } from './step';
+import { Freezer } from './freeze';
+import type { MaterialsReader } from '@systems/materials/reader';
+import type { MovementClass } from '@core/types';
 import type { FluidsStateV1 } from './state';
 
 export { FluidSim } from './step';
@@ -34,10 +37,11 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
   readonly order = 4;
   override readonly cadence = FLUID_TICK_CADENCE_WATER;
   override readonly phase = 0;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingStateChanged', 'EntitiesMoved'];
+  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingStateChanged', 'EntitiesMoved', 'TemperatureTick'];
 
   private readonly options: FluidsOptions;
   private simRef: FluidSim | null = null;
+  private freezerRef: Freezer | null = null;
   private readerRef: FluidsReader | null = null;
   private rng: RngStream | null = null;
 
@@ -50,6 +54,12 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
   get sim(): FluidSim {
     if (this.simRef === null) throw new Error('04 fluids: used before init');
     return this.simRef;
+  }
+
+  /** Freezing and thawing (T-M3-05); valid after `init`. */
+  get freezer(): Freezer {
+    if (this.freezerRef === null) throw new Error('04 fluids: used before init');
+    return this.freezerRef;
   }
 
   override init(ctx: InitContext): void {
@@ -84,6 +94,20 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
     sim.rescanDrained();
     for (const s of [...(this.options.sinks ?? [])].sort((a, b) => a - b)) sim.sinks.push(s);
     this.simRef = sim;
+    const materialsReader = (): MaterialsReader | null => (readers.has('05') ? readers.of<MaterialsReader>('05') : null);
+    const freezer = new Freezer(sim, {
+      temperatureAt: (i) => materialsReader()?.temperatureAt(i) ?? null,
+      isWarmSpring: (i) => materialsReader()?.isWarmSpring(i) === true,
+      // `04` § Freezing and thawing names the material.
+      ice: materials.has('ice') ? materials.index('ice') : 0,
+      creaturesAt: (i) => readers.entities.at(i).filter((id) => world.entities.kind(id) === 'creature'),
+      movementClassOf: (id) => (world.entities.get(id, C.Motion)?.movementClass ?? 'walker') as MovementClass,
+      walkable: (i, cls) => readers.map.isWalkable(i, cls),
+      movement: () => world.services.movement,
+    });
+    freezer.scan();
+    sim.onLevel = (i) => freezer.note(i);
+    this.freezerRef = freezer;
     this.readerRef = makeReader(sim, () => false);
     // `04` § Registrations: overlay `fluid levels`, inspector section `tile › fluid`.
     ctx.register.overlay({ id: 'fluid_levels', label: 'Fluid levels', defaultOn: false });
@@ -94,6 +118,7 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
 
   override tick(ctx: TickContext): void {
     const sim = this.sim;
+    this.freezer.run({ terrain: ctx.terrain, emit: (e) => ctx.emit(e) });
     sim.run(ctx.tick);
     const chunks = sim.takeTouchedChunks();
     if (chunks.length > 0) ctx.emit({ type: 'FluidsChanged', chunks });
@@ -106,7 +131,13 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
   override handle(event: GameEvent, ctx: TickContext): void {
     const sim = this.sim;
     if (event.type === 'TilesChanged') {
-      for (const t of event['tiles'] as readonly TileIndex[]) sim.touch(t);
+      const tiles = event['tiles'] as readonly TileIndex[];
+      this.freezer.tilesChanged(tiles);
+      for (const t of tiles) sim.touch(t);
+    } else if (event.type === 'TemperatureTick') {
+      // `04` § Events consumed: "`TemperatureTick` (from 05: freeze and thaw list processing)", run
+      // at 04's next tick (D-099).
+      this.freezer.pending = true;
     } else if (event.type === 'BuildingStateChanged') {
       const b = ctx.readers.entities.get(event['id'] as number, C.Building);
       if (b !== undefined) for (const t of b.footprint) sim.touch(t);
@@ -146,13 +177,21 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
       waterSources: sim.waterSources.slice(),
       magmaSources: sim.magmaSources.slice(),
       sinks: sim.sinks.slice(),
-      outdoorWaterTiles: [],
-      frozenOriginalKind: [],
+      outdoorWaterTiles: this.freezer.outdoor.slice(),
+      frozenOriginalKind: Array.from(this.freezer.original.keys())
+        .sort((a, b) => a - b)
+        .map((t) => [t, (this.freezer.original.get(t) as { kind: number }).kind]),
+      frozenOriginalMaterial: Array.from(this.freezer.original.keys())
+        .sort((a, b) => a - b)
+        .map((t) => [t, (this.freezer.original.get(t) as { material: number }).material]),
+      frozenIceKind: Array.from(this.freezer.original.keys())
+        .sort((a, b) => a - b)
+        .map((t) => [t, (this.freezer.original.get(t) as { ice?: number }).ice ?? 0]),
       mistTiles: [],
       stepParity: sim.parity,
       spreadRotation: sim.rotation,
       rng: (this.rng as RngStream).state(),
-      freezePending: false,
+      freezePending: this.freezer.pending,
     };
   }
 
@@ -191,6 +230,16 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
     sim.parity = state.stepParity;
     sim.rotation = state.spreadRotation;
     sim.rescanDrained();
+    const freezer = this.freezer;
+    copy(freezer.outdoor, state.outdoorWaterTiles);
+    freezer.original.clear();
+    const materialOf = new Map(state.frozenOriginalMaterial ?? []);
+    const iceOf = new Map(state.frozenIceKind ?? []);
+    for (const [t, kind] of state.frozenOriginalKind) {
+      const ice = iceOf.get(t);
+      freezer.original.set(t, { kind, material: materialOf.get(t) ?? 0, ...(ice === undefined ? {} : { ice }) });
+    }
+    freezer.pending = state.freezePending;
     this.rng?.setState(state.rng);
   }
 }

@@ -26,6 +26,10 @@ export interface FluidsStateV1 {
   sinks: TileIndex[];
   outdoorWaterTiles: TileIndex[];
   frozenOriginalKind: [TileIndex, TileKind][];
+  /** Superset: the material each frozen tile had, restored on thaw (D-099). */
+  frozenOriginalMaterial?: [TileIndex, number][];
+  /** Superset: the ice kind each frozen tile became, to tell a dug one (D-099). */
+  frozenIceKind?: [TileIndex, TileKind][];
   mistTiles: [TileIndex, Tick][];
   stepParity: 0 | 1;
   spreadRotation: 0 | 1 | 2 | 3;

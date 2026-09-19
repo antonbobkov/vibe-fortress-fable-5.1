@@ -8,7 +8,7 @@
  *   1. footprint (w × h, rotated for rotatable types), every tile discovered, the type's `on` rule,
  *      no other building
  *   2. materials: the inputs; `materialChoice` narrows the filter
- *   3. magma safety (hook: true until 05's magma rules; T-M2-05)
+ *   3. magma safety: within 1 of magma every material must be magma-safe (05; T-M3-04, D-098)
  *   4. entity `planned` + a `build` job (labor by category, skill `building`, inputs,
  *      `workTile: adjacent`, or `at` for floors and stairs the builder stands on)
  *   5. BuildingPlaced; a planned building is passable
@@ -34,7 +34,7 @@ import type { MoverOptions } from '@core/pathfinding';
 import type { CoreServices, JobProducer, TickContext } from '@core/system';
 import type { EntityId, Idx, MovementClass, TileIndex } from '@core/types';
 import { CONSTRUCTION_KIND, constructionFlags, onRuleHolds, onRuleOf, standsAt, type OnRule } from './constructions';
-import { DOOR_MODES, HATCH_MODES, WAGON_CAPACITY } from './constants';
+import { DOOR_MODES, HATCH_MODES, WAGON_CAPACITY, WELL_DEPTH } from './constants';
 
 export interface BuildingRow {
   readonly id: string;
@@ -87,6 +87,8 @@ export interface BuildHost {
   jobIdByKey(key: string): number;
   /** The fortress alert (`FortressState.alert`); a `lock_on_alert` door locks while it is `hearth`. */
   alert(): string;
+  /** 04's `waterBelow(i, maxDepth)` (-1 for none), or null without a fluid system (T-M3-05, D-094). */
+  waterBelow?(i: TileIndex, maxDepth: number): number | null;
 }
 
 export function buildKey(id: EntityId): string {
@@ -713,6 +715,8 @@ export class BuildingStore {
   wellWorking(id: EntityId): boolean {
     const b = this.get(id);
     if (b === undefined || b.state !== 'built' || !this.row(b.type).tags.includes('well')) return false;
+    const below = this.host.waterBelow?.(b.origin, WELL_DEPTH) ?? null;
+    if (below !== null) return this.map.kindAt(b.origin) === TileKind.Open && below >= 0;
     return onRuleHolds(this.map, 'open_water_below', b.origin);
   }
 

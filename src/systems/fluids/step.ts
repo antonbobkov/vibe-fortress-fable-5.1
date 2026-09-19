@@ -69,7 +69,8 @@ export interface FluidHost {
  */
 function band(f: number): number {
   const l = f & FLUID_LEVEL_MASK;
-  if (l === 0) return 0;
+  // Frozen water is ice, not water, to 22 (D-099).
+  if (l === 0 || (f & FLUID_FROZEN_BIT) !== 0) return 0;
   if ((f & FLUID_TYPE_BIT) !== 0) return 1;
   return l < FLUID_DEEP_LEVEL ? 0 : 2;
 }
@@ -201,8 +202,12 @@ export class FluidSim {
     map.fluid[i] = after;
     if ((after & FLUID_SOURCE_BIT) !== 0 && (after & FLUID_LEVEL_MASK) < FLUID_MAX_LEVEL) this.noteDrained(i);
     this.levelChanged(i, before, after);
+    this.onLevel?.(i);
     this.touch(i);
   }
+
+  /** Told of every level write (04 keeps `outdoorWaterTiles` with it, T-M3-05). */
+  onLevel: ((i: TileIndex) => void) | null = null;
 
   /** A source below full waits for its type's refill. */
   noteDrained(i: TileIndex): void {

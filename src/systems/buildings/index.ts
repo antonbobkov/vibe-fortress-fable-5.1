@@ -100,6 +100,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       creaturesAt: (i) => readers.entities.at(i).filter((id) => world.entities.kind(id) === 'creature'),
       dwarvesAlive: () => world.entities.with(C.Labors).some((id) => world.entities.get(id, C.Creature)?.faction === 'fortress'),
       alert: () => world.fortress.alert,
+      waterBelow: (i, depth) =>
+        readers.has('04') ? readers.of<{ waterBelow(i: number, d: number): number }>('04').waterBelow(i, depth) : null,
       jobIdByKey: (key) => (readers.has('11') ? (readers.of<{ byKey(k: string): { id: number } | undefined }>('11').byKey(key)?.id ?? 0) : 0),
     });
     this.buildingsRef = store;
