@@ -108,7 +108,7 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
     freezer.scan();
     sim.onLevel = (i) => freezer.note(i);
     this.freezerRef = freezer;
-    this.readerRef = makeReader(sim, () => false);
+    this.readerRef = makeReader(sim, (i) => sim.isMisty(i));
     // `04` § Registrations: overlay `fluid levels`, inspector section `tile › fluid`.
     ctx.register.overlay({ id: 'fluid_levels', label: 'Fluid levels', defaultOn: false });
     ctx.register.inspector('tile', { id: 'fluid', order: 10 });
@@ -187,7 +187,10 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
       frozenIceKind: Array.from(this.freezer.original.keys())
         .sort((a, b) => a - b)
         .map((t) => [t, (this.freezer.original.get(t) as { ice?: number }).ice ?? 0]),
-      mistTiles: [],
+      mistTiles: Array.from(sim.mist.keys())
+        .sort((a, b) => a - b)
+        .map((t): [TileIndex, number] => [t, sim.mist.get(t) as number]),
+      mistNow: sim.now,
       stepParity: sim.parity,
       spreadRotation: sim.rotation,
       rng: (this.rng as RngStream).state(),
@@ -240,6 +243,9 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
       freezer.original.set(t, { kind, material: materialOf.get(t) ?? 0, ...(ice === undefined ? {} : { ice }) });
     }
     freezer.pending = state.freezePending;
+    sim.mist.clear();
+    for (const [t, until] of state.mistTiles) sim.mist.set(t, until);
+    sim.now = state.mistNow ?? 0;
     this.rng?.setState(state.rng);
   }
 }

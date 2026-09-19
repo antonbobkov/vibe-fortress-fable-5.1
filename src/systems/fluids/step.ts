@@ -31,6 +31,7 @@ import type { TerrainApi } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import {
   FLUID_SETTLE_STEPS,
+  MIST_DURATION_TICKS,
   OBSIDIAN_WALL_LEVEL,
   PRESSURE_BUDGET_TILES,
   PRESSURE_SEARCH_LIMIT,
@@ -139,6 +140,10 @@ export class FluidSim {
   private searchStamp = 0;
   private readonly queue: number[] = [];
   private readonly scratch: number[] = [];
+  /** `04` § Mist: `mistTiles`, tile → the tick its mist expires. */
+  readonly mist = new Map<TileIndex, number>();
+  /** The tick of the step running (set by {@link run}). */
+  now = 0;
   /** Units destroyed by evaporation and steam since the simulation was built (a debug counter, not state). */
   destroyedUnits = 0;
   /** Units created by sources and destroyed by sinks, likewise. */
@@ -373,8 +378,50 @@ export class FluidSim {
     return true;
   }
 
-  /** The mist check of `04` § Mist (T-M3-07). */
-  protected afterFall(_t: TileIndex, _b: TileIndex, _magma: boolean): void {}
+  /**
+   * `04` § Mist, `algorithms/fluids.md` `mistCheck`: water falling onto a solid bottom (or onto a
+   * tile whose own below cannot take fluid) from a fall at least two levels tall (the tile above
+   * `T` is an open tile holding water) mists the 3 × 3 around `B` on its level and the one above
+   * for `MIST_DURATION_TICKS`. `MistProduced { tiles }` when none of those tiles was misty yet.
+   */
+  protected afterFall(t: TileIndex, b: TileIndex, magma: boolean): void {
+    if (magma) return;
+    const map = this.map;
+    const bb = map.below(b);
+    const landing = isSolidBottomed(map.kindAt(b)) || bb < 0 || !this.passable(bb, false);
+    if (!landing) return;
+    const a = map.above(t);
+    if (a < 0 || map.kindAt(a) !== TileKind.Open || this.level(a) === 0 || this.isMagma(a)) return;
+    const x = map.xOf(b);
+    const y = map.yOf(b);
+    const z = map.zOf(b);
+    const tiles: TileIndex[] = [];
+    let fresh = true;
+    for (let dz = 0; dz <= 1; dz += 1) {
+      for (let dy = -1; dy <= 1; dy += 1) {
+        for (let dx = -1; dx <= 1; dx += 1) {
+          if (!map.inBounds(x + dx, y + dy, z + dz)) continue;
+          const m = map.index(x + dx, y + dy, z + dz);
+          if (this.isMisty(m)) fresh = false;
+          tiles.push(m);
+        }
+      }
+    }
+    const until = this.now + MIST_DURATION_TICKS;
+    for (const m of tiles) this.mist.set(m, until);
+    if (fresh) this.host.emit({ type: 'MistProduced', tiles: tiles.sort((p, q) => p - q) });
+  }
+
+  /** `fluids.isMisty(i)`: mist that has not expired. */
+  isMisty(i: TileIndex): boolean {
+    const until = this.mist.get(i);
+    return until !== undefined && until > this.now;
+  }
+
+  /** `processMistExpiry()`: forget the mist that has expired. */
+  expireMist(): void {
+    for (const [m, until] of this.mist) if (until <= this.now) this.mist.delete(m);
+  }
 
   /**
    * Rule 2, spread: each cardinal neighbour in the rotating order; one unit to a neighbour two or
@@ -648,8 +695,10 @@ export class FluidSim {
 
   /** `04` § Step algorithm cadence: water every `FLUID_TICK_CADENCE_WATER` ticks, magma every `FLUID_TICK_CADENCE_MAGMA`. */
   run(tick: number): void {
+    this.now = tick;
     if (tick % FLUID_TICK_CADENCE_WATER === 0) this.step(false);
     if (tick % FLUID_TICK_CADENCE_MAGMA === 0) this.step(true);
+    this.expireMist();
   }
 
   /** The chunks touched since the last call, ascending, and forget them. */

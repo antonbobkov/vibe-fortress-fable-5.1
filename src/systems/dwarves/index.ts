@@ -16,7 +16,9 @@ import { tickDwarf, type BrainHost } from './brain';
 import { makeReader, type DwarvesReader } from './reader';
 import { dwarfSpeed, jobXp } from './rules/skills';
 import { grantXp } from './skills';
+import { movementEffects, type MoveFacts } from './movement-effects';
 import type { DwarvesStateV1, TitleName } from './state';
+import { TileFlag } from '@core/map3d';
 
 export { makeReader, type DwarvesReader } from './reader';
 export { NO_JOB, select, tickDwarf, type BrainHost } from './brain';
@@ -46,7 +48,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['JobCompleted', 'CreatureDied'];
+  override readonly subscribes: readonly EventType[] = ['JobCompleted', 'CreatureDied', 'EntitiesMoved'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -119,6 +121,10 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
 
   /** `JobCompleted` → experience: `xp = jobDef.xp × (100 + Wits) / 150` to the job's skill. */
   override handle(event: GameEvent, ctx: TickContext): void {
+    if (event.type === 'EntitiesMoved') {
+      this.moved(event['moves'] as readonly (readonly [EntityId, TileIndex, TileIndex])[], ctx);
+      return;
+    }
     if (event.type !== 'JobCompleted') return;
     const workerId = event['workerId'] as EntityId;
     const entities = ctx.world.entities;
@@ -127,6 +133,40 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     if (row === undefined || row.skill === null || row.xp <= 0) return;
     const wits = entities.get(workerId, C.Attributes)?.wit ?? 0;
     grantXp(entities, ctx.registry, workerId, row.skill, jobXp(row.xp, wits), (e) => ctx.emit(e));
+  }
+
+  /** `10` § Movement: the events of dwarves entering tiles this tick (T-M3-07, D-102). */
+  private moved(moves: readonly (readonly [EntityId, TileIndex, TileIndex])[], ctx: TickContext): void {
+    const entities = ctx.world.entities;
+    const readers = ctx.readers;
+    const map = ctx.world.map;
+    const fluids = readers.has('04') ? readers.of<{ isMisty(i: TileIndex): boolean }>('04') : null;
+    const materials = readers.has('05') ? readers.of<{ isWarmSpring(i: TileIndex): boolean }>('05') : null;
+    const weather = readers.has('06') ? readers.of<{ state(): string }>('06') : null;
+    const facts: MoveFacts = {
+      isMisty: (i) => fluids?.isMisty(i) === true,
+      nearSpring: (i) => {
+        if (materials === null || !map.validIndex(i)) return false;
+        const x = map.xOf(i);
+        const y = map.yOf(i);
+        const z = map.zOf(i);
+        for (let dy = -1; dy <= 1; dy += 1) {
+          for (let dx = -1; dx <= 1; dx += 1) {
+            if (map.inBounds(x + dx, y + dy, z) && materials.isWarmSpring(map.index(x + dx, y + dy, z))) return true;
+          }
+        }
+        return false;
+      },
+      isOutdoor: (i) => map.validIndex(i) && map.hasFlag(i, TileFlag.Outdoor),
+      weather: () => weather?.state() ?? null,
+    };
+    for (const [id, from, to] of moves) {
+      if (to < 0 || !entities.alive(id)) continue;
+      const brain = entities.get(id, C.Brain);
+      if (brain === undefined) continue;
+      const next = movementEffects(id, from, to, ctx.tick, brain, facts, (e) => ctx.emit(e));
+      if (next !== brain) entities.add(id, C.Brain, next);
+    }
   }
 
   override applyCommand(cmd: Command, ctx: TickContext): CommandResult {

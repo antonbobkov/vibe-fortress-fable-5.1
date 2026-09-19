@@ -31,6 +31,8 @@ export interface FluidsStateV1 {
   /** Superset: the ice kind each frozen tile became, to tell a dug one (D-099). */
   frozenIceKind?: [TileIndex, TileKind][];
   mistTiles: [TileIndex, Tick][];
+  /** The tick of 04's last step, against which `isMisty` compares expiry (T-M3-07; a superset). */
+  mistNow?: Tick;
   stepParity: 0 | 1;
   spreadRotation: 0 | 1 | 2 | 3;
   rng: RngState;
