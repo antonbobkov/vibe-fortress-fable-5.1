@@ -11,6 +11,7 @@ import { HeadlessGame, type HeadlessOptions } from '@app/headless';
 import type { BuildingsSystem } from '@systems/buildings';
 import type { ItemsSystem } from '@systems/items';
 import type { FluidsSystem } from '@systems/fluids';
+import type { MaterialsSystem } from '@systems/materials';
 import { NotYetImplementedError } from '@core/system';
 import { C } from '@core/components';
 import { cumulativeXp } from '@systems/dwarves/rules/skills';
@@ -300,7 +301,15 @@ export class TestWorld {
     throw new NotYetImplementedError('TestWorld.forceWeather', 'T-M3-06');
   }
 
-  forceTemperature(): never {
-    throw new NotYetImplementedError('TestWorld.forceTemperature', 'T-M3-03');
+  /** 05 materials (T-M3-03). */
+  get materials(): MaterialsSystem {
+    const system = this.game.world.scheduler.byId('05') as MaterialsSystem | undefined;
+    if (system === undefined) throw new Error('TestWorld.materials: no materials system in this world');
+    return system;
+  }
+
+  /** `forceTemperature(tile, c)`: pin a tile's temperature in 05 (null releases it). D-093. */
+  forceTemperature(tile: TileIndex, c: number | null): void {
+    this.materials.forceTemperature(tile, c);
   }
 }

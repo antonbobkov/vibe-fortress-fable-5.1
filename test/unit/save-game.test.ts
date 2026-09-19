@@ -89,7 +89,7 @@ describe('T-M2-11 save: sections and the container', () => {
     expect(typeof item.type).toBe('string');
     expect(entities.slots.length).toBe(game.world.entities.slotCount);
     const systems = readJsonSection(sections.find((s) => s.name === 'systems') as never) as Record<string, unknown>;
-    expect(Object.keys(systems).sort()).toEqual(['03', '04', '10', '11', '13', '14', '22']);
+    expect(Object.keys(systems).sort()).toEqual(['03', '04', '05', '10', '11', '13', '14', '22']);
   });
 
   it('saves through the compressed container and loads to the same hash, paused and continuing identically', async () => {

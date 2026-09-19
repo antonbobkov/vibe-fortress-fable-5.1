@@ -213,6 +213,8 @@ describe('T-M0-11 headless: TestWorld', () => {
     const w = new TestWorld({ seed: 'tw', world: 'flat-test' });
     expect(() => w.setNeed()).toThrow(/T-M4-05/);
     expect(() => w.forceWeather()).toThrow(/T-M3-06/);
-    expect(() => w.forceTemperature()).toThrow(/T-M3-03/);
+    // T-M3-03 built forceTemperature.
+    w.forceTemperature(w.index(1, 1, 32), -7);
+    expect(w.readers.of<{ temperatureAt(i: number): number }>('05').temperatureAt(w.index(1, 1, 32))).toBe(-7);
   });
 });
