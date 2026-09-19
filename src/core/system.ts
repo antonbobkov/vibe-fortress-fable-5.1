@@ -246,6 +246,10 @@ export interface AnnouncementSpec {
   readonly once?: boolean;
   /** Announce only when the event's numeric field reaches a value (`RoomQualityChanged` "to grand or royal"; D-077). */
   readonly atLeast?: { readonly field: string; readonly value: number };
+  /** Announce only when the event's field is one of the values (`WeatherChanged` to `storm`, `snow`, …; D-101). */
+  readonly oneOf?: { readonly field: string; readonly values: readonly (string | number)[] };
+  /** The text's key is `stringKey.<the event's value of this field>` (one line per weather state or season; D-101). */
+  readonly keyField?: string;
 }
 
 /**
@@ -354,8 +358,11 @@ export interface WorldLike {
   readonly entities: EntityStore;
   /** `World.fortress` (`data-model.md` § Fortress-level state). */
   readonly fortress: FortressState;
-  /** The calendar's current tick. */
-  readonly calendar: { readonly tick: number };
+  /**
+   * The calendar's current tick, and `isDaylight`, which 06 weather sets each weather tick
+   * (`06` § Daylight).
+   */
+  readonly calendar: { readonly tick: number; isDaylight: boolean };
   /**
    * Queue an event, exactly as `ctx.emit` does. For services that are called from other systems'
    * ticks (the terrain API's collapse and breach events).

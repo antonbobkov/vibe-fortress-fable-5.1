@@ -103,11 +103,14 @@ export class AnnouncementLog {
       const v = (event as unknown as Record<string, unknown>)[spec.atLeast.field];
       if (typeof v !== 'number' || v < spec.atLeast.value) return null;
     }
+    const fields = event as unknown as Record<string, unknown>;
+    if (spec.oneOf !== undefined && !spec.oneOf.values.includes(fields[spec.oneOf.field] as string | number)) return null;
     if (spec.once === true) {
       if (this.seen.has(event.type)) return null;
       this.seen.add(event.type);
     }
-    const text = this.strings.get(spec.stringKey, this.params(event, readers));
+    const key = spec.keyField === undefined ? spec.stringKey : `${spec.stringKey}.${String(fields[spec.keyField])}`;
+    const text = this.strings.get(key, this.params(event, readers));
     const focus = focusOf(event);
     const line = this.append(spec.severity, text, tick, focus);
     return { line, severity: spec.severity, focus };

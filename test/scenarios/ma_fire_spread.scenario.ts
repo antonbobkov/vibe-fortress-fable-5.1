@@ -1,7 +1,7 @@
 /**
  * `ma_fire_spread` of `04-implementation/acceptance-tests.md` § 05 Materials: "ignite a grass tile
  * in a 10×10 dry grass field, clear weather | ≥ 60 tiles burn within 3,000 ticks; all end `Ash`; no
- * spread onto stone". No weather system is present, so the weather is clear.
+ * spread onto stone". The clear weather is held with `forceWeather` (T-M3-06).
  */
 
 import { expect } from 'vitest';
@@ -15,7 +15,10 @@ const scenario: Scenario = {
   seed: 'ma-fire-spread',
   world: 'flat-test',
   embark: 'none',
-  setup: setupField,
+  setup: (w) => {
+    setupField(w);
+    w.forceWeather('clear');
+  },
   run: 3000,
   expect: (w) => {
     const burned = burnedTiles(w);

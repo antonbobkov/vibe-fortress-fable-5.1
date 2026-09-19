@@ -317,6 +317,15 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.construction_collapsed': 'A construction has collapsed.',
   'announce.obsidian_formed': 'Obsidian has formed.',
   'announce.fire_started': 'A fire has started.',
+  // 06 § Registrations: the storm and spring lines are the document's; the rest follow them (D-101).
+  'announce.weather.storm': 'A storm rolls in from the west.',
+  'announce.weather.snow': 'Snow begins to fall.',
+  'announce.weather.heatwave': 'A heatwave settles in.',
+  'announce.weather.cold_snap': 'A cold snap sets in.',
+  'announce.season.0': 'Spring, Year {year}. The river runs again.',
+  'announce.season.1': 'Summer, Year {year}.',
+  'announce.season.2': 'Autumn, Year {year}.',
+  'announce.season.3': 'Winter, Year {year}.',
   // 14 § Registrations ("`HearthLit` (note, with the line …)"); the others' texts are D-077's.
   'announce.hearth_lit': 'The hearth is lit. This is a deepholm now.',
   'announce.door_broken': 'A door has been broken.',

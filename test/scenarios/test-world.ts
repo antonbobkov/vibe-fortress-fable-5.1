@@ -12,6 +12,7 @@ import type { BuildingsSystem } from '@systems/buildings';
 import type { ItemsSystem } from '@systems/items';
 import type { FluidsSystem } from '@systems/fluids';
 import type { MaterialsSystem } from '@systems/materials';
+import type { WeatherStateId, WeatherSystem } from '@systems/weather';
 import { NotYetImplementedError } from '@core/system';
 import { C } from '@core/components';
 import { cumulativeXp } from '@systems/dwarves/rules/skills';
@@ -297,8 +298,16 @@ export class TestWorld {
     entities.add(id, C.Skills, { ...skills, level: levels, xp });
   }
 
-  forceWeather(): never {
-    throw new NotYetImplementedError('TestWorld.forceWeather', 'T-M3-06');
+  /** 06 weather (T-M3-06). */
+  get weather(): WeatherSystem {
+    const system = this.game.world.scheduler.byId('06');
+    if (system === undefined) throw new NotYetImplementedError('TestWorld.weather', 'T-M3-06');
+    return system as unknown as WeatherSystem;
+  }
+
+  /** `forceWeather(state)`: hold a weather state until released with `null` (D-101). */
+  forceWeather(state: WeatherStateId | null): void {
+    this.weather.force(state, this.tick);
   }
 
   /** 05 materials (T-M3-03). */

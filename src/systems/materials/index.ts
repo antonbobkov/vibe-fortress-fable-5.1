@@ -55,7 +55,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   readonly order = 5;
   override readonly cadence = MATERIALS_CADENCE;
   override readonly phase = MATERIALS_PHASE;
-  override readonly subscribes: readonly EventType[] = ['FluidsChanged', 'MagmaContact', 'LightningStrike'];
+  override readonly subscribes: readonly EventType[] = ['FluidsChanged', 'MagmaContact', 'LightningStrike', 'SnowCoverChanged'];
 
   private readonly options: MaterialsOptions;
   private mapRef: Map3D | null = null;
@@ -284,6 +284,11 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     if (event.type === 'LightningStrike') {
       // `05` § Fire: "a `LightningStrike` names it" (06); ignites at the next materials tick.
       this.fire.pendingIgnite.add(event['tile'] as TileIndex);
+      return;
+    }
+    if (event.type === 'SnowCoverChanged') {
+      // Snow adds `SNOW_OVERRIDE` on its own tile only (D-095): the chunk is recomputed next tick.
+      for (const c of event['chunks'] as readonly ChunkIndex[]) this.pendingChunks.add(c);
       return;
     }
     if (event.type === 'MagmaContact') {

@@ -29,6 +29,12 @@ export interface LocalMapSpec {
   readonly lake: boolean;
   readonly civEdges: Readonly<Record<Civ, Edge>>;
   readonly arrivalEdge: Edge;
+  /**
+   * The region's annual mean surface temperature (`01` § Regions `tempC`), which 06 weather's
+   * `seasonBase` reads. A superset of the schema's `LocalMapSpec` (D-101); absent in older saves,
+   * where 06 uses the biome's `referenceTempC`.
+   */
+  readonly tempC?: number;
 }
 
 export interface EmbarkState {
@@ -89,5 +95,6 @@ export function localMapSpec(world: WorldMap, regionId: number, registry: Regist
     lake: r.lake,
     civEdges: Object.freeze({ ...r.nearestEdgeTo }),
     arrivalEdge: r.nearestEdgeTo.mountainhome,
+    tempC: r.tempC,
   });
 }

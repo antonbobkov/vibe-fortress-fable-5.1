@@ -248,8 +248,11 @@ describe('T-M1-14 announcements', () => {
     const game = await fortressGame();
     const rows = game.host.world.registrations.announcements;
     const severity = Object.fromEntries(rows.map((r) => [r.type, r.spec.severity]));
-    // 03's rows; since T-M2-09 also 13's and 14's (13 and 14 § Registrations); since T-M3-02 04's.
+    // 03's rows; since T-M2-09 also 13's and 14's (13 and 14 § Registrations); since T-M3-02 04's;
+    // since T-M3-06 06's (`WeatherChanged` to storm, snow, heatwave, cold snap; `SeasonChanged`).
     expect(severity).toEqual({
+      WeatherChanged: 'note',
+      SeasonChanged: 'note',
       VeinFound: 'note',
       ObsidianFormed: 'note',
       FireStarted: 'alert',
@@ -296,6 +299,20 @@ describe('T-M1-14 announcements', () => {
     log.append('note', 'a', LOG_DEDUP_TICKS);
     log.append('note', 'a', 2 * LOG_DEDUP_TICKS + 1);
     expect(log.lines.map((l) => l.count)).toEqual([2, 1]);
+  });
+});
+
+describe('T-M3-06 announcements: weather and seasons', () => {
+  it('WeatherChanged announces storm, snow, heatwave and cold snap only, each with its line; SeasonChanged its season line', async () => {
+    const game = await fortressGame();
+    const log = new AnnouncementLog(strings, registry);
+    log.register(game.host.world.registrations.announcements);
+    const readers = game.host.world.readers;
+    expect(log.announce({ type: 'WeatherChanged', from: 'clear', to: 'rain' } as never, readers, 1)).toBeNull();
+    expect(log.announce({ type: 'WeatherChanged', from: 'rain', to: 'storm' } as never, readers, 2)?.line.text).toBe('A storm rolls in from the west.');
+    expect(log.announce({ type: 'WeatherChanged', from: 'clear', to: 'cold_snap' } as never, readers, 3)?.severity).toBe('note');
+    expect(log.announce({ type: 'SeasonChanged', season: 0, year: 2 } as never, readers, 4)?.line.text).toBe('Spring, Year 2. The river runs again.');
+    expect(log.announce({ type: 'SeasonChanged', season: 3, year: 1 } as never, readers, 5)?.line.text).toBe('Winter, Year 1.');
   });
 });
 
