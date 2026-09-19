@@ -259,8 +259,12 @@ export class World {
       this.events.unseal();
     }
 
-    // 5. Calendar: tick++, boundary events queued for the next tick's dispatch.
+    // 5. Calendar: tick++, boundary events queued for the next tick's dispatch. "The command log
+    //    keeps every command of the current season" (`simulation-core.md` § Commands): it starts
+    //    afresh with the first tick of a season (DECISIONS.md D-084).
+    const season = this.calendar.season;
     this.calendar.advance((event) => this.events.emit(event));
+    if (this.calendar.season !== season) this.commandLog.startSeason();
 
     this.lastTickMs = this.now() - started;
   }

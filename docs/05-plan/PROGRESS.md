@@ -53,7 +53,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M2-09 — Build tool, zones tool, stockpile filter editor, stocks panel, units panel (opus-m2, 2026-09-18)
 - [x] T-M2-10 — Compositor: items and buildings; overlays zones and stockpile usage (opus-m2, 2026-09-18)
 - [x] T-M2-11 — Save and load: full round-trip, autosave, Load screen (opus-m2, 2026-09-19)
-- [ ] T-M2-12 — Command log and replay script
+- [x] T-M2-12 — Command log and replay script (opus-m2, 2026-09-19)
 - [ ] T-M2-13 — Property command generator: items and buildings
 - [ ] T-M2-14 — Gate M2
 
