@@ -10,6 +10,7 @@
 import { HeadlessGame, type HeadlessOptions } from '@app/headless';
 import type { BuildingsSystem } from '@systems/buildings';
 import type { ItemsSystem } from '@systems/items';
+import type { FluidsSystem } from '@systems/fluids';
 import { NotYetImplementedError } from '@core/system';
 import { C } from '@core/components';
 import { cumulativeXp } from '@systems/dwarves/rules/skills';
@@ -216,6 +217,29 @@ export class TestWorld {
     const t = typeof type === 'number' ? type : registry.table('items').index(type);
     const m = typeof material === 'number' ? material : registry.table('materials').index(material);
     return this.game.world.services.spawn.item(t, m, at, count, quality);
+  }
+
+  /** 04 fluids (T-M3-01). */
+  get fluids(): FluidsSystem {
+    const system = this.game.world.scheduler.byId('04') as FluidsSystem | undefined;
+    if (system === undefined) throw new Error('TestWorld.fluids: no fluid system in this world');
+    return system;
+  }
+
+  /**
+   * Put fluid on a tile through 04's `pour` (the level, the type, optionally the `source` bit), so the
+   * simulation picks it up at its next step (T-M3-01).
+   */
+  setFluid(i: TileIndex, level: number, type: 'water' | 'magma' = 'water', source = false): void {
+    this.fluids.sim.pour(i, level, type === 'magma', source);
+  }
+
+  /** Σ levels of the fluid of a type over the given tiles. */
+  fluidSum(tiles: readonly TileIndex[], type: 'water' | 'magma' = 'water'): number {
+    const sim = this.fluids.sim;
+    let n = 0;
+    for (const t of tiles) if (sim.level(t) > 0 && sim.isMagma(t) === (type === 'magma')) n += sim.level(t);
+    return n;
   }
 
   /** The item API of 13 (`world.services.items`). */

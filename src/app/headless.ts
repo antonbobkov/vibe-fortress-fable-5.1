@@ -39,6 +39,7 @@ import { JobsSystem } from '@systems/jobs';
 import { DwarvesSystem } from '@systems/dwarves';
 import { ItemsSystem } from '@systems/items';
 import { BuildingsSystem } from '@systems/buildings';
+import { FluidsSystem } from '@systems/fluids';
 import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
@@ -323,7 +324,7 @@ export class HeadlessGame {
     };
 
     const spec = options.spec ?? FLAT_TEST_SPEC;
-    const systems = options.systems ?? HeadlessGame.standardSystems(spec, local?.layerStack ?? FLAT_TEST_LAYERS);
+    const systems = options.systems ?? HeadlessGame.standardSystems(spec, local?.layerStack ?? FLAT_TEST_LAYERS, local);
     for (const system of systems) this.world.addSystem(system);
     this.terrain = (systems.find((s) => s instanceof TerrainSystem) as TerrainSystem | undefined) ?? null;
     this.world.init();
@@ -397,10 +398,22 @@ export class HeadlessGame {
 
   /**
    * The systems of the milestones built so far, in no particular order (the scheduler orders
-   * them): 03 terrain (T-M1-07), 10 dwarves, 11 jobs, 13 items (T-M2-01), 14 buildings (T-M2-03).
+   * them): 03 terrain (T-M1-07), 04 fluids (T-M3-01), 10 dwarves, 11 jobs, 13 items (T-M2-01),
+   * 14 buildings (T-M2-03). A generated map hands its river sinks to 04.
    */
-  static standardSystems(spec: LocalMapSpec, layerStack: readonly StackLayer[]): GameSystem[] {
-    return [new TerrainSystem({ spec, layerStack }), new DwarvesSystem(), new JobsSystem(), new ItemsSystem(), new BuildingsSystem()];
+  static standardSystems(
+    spec: LocalMapSpec,
+    layerStack: readonly StackLayer[],
+    local: Pick<LocalMapResult, 'sinks' | 'warmSprings'> | null = null,
+  ): GameSystem[] {
+    return [
+      new TerrainSystem({ spec, layerStack }),
+      new FluidsSystem({ sinks: local?.sinks ?? [] }),
+      new DwarvesSystem(),
+      new JobsSystem(),
+      new ItemsSystem(),
+      new BuildingsSystem(),
+    ];
   }
 
   get map(): Map3D {

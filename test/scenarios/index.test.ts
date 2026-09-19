@@ -29,6 +29,10 @@ describe('T-M0-11 scenarios', () => {
   });
 
   for (const { scenario } of scenarios) {
+    if (scenario.todo !== undefined && scenario.milestone <= milestone) {
+      it.todo(`${scenario.id} (M${scenario.milestone}) — ${scenario.todo}`);
+      continue;
+    }
     const skip = scenario.milestone > milestone;
     const test = skip ? it.skip : it;
     test(`${scenario.id} (M${scenario.milestone})`, () => {

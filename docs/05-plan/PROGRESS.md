@@ -59,7 +59,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 
 ## M3 — Water, Fire, Sky ([M3-water-fire-sky.md](M3-water-fire-sky.md))
 
-- [ ] T-M3-01 — Fluids: state, active set, fall and spread
+- [x] T-M3-01 — Fluids: state, active set, fall and spread (opus-m3, 2026-09-19)
 - [ ] T-M3-02 — Fluids: pressure, evaporation, contact
 - [ ] T-M3-03 — Materials: property arrays, temperature function, overrides
 - [ ] T-M3-04 — Materials: fire and melting
