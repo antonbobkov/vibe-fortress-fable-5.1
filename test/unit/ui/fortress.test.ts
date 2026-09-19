@@ -248,7 +248,18 @@ describe('T-M1-14 announcements', () => {
     const game = await fortressGame();
     const rows = game.host.world.registrations.announcements;
     const severity = Object.fromEntries(rows.map((r) => [r.type, r.spec.severity]));
-    expect(severity).toEqual({ VeinFound: 'note', CavernBreached: 'alert', DeepsilverMined: 'danger', ConstructionCollapsed: 'alert' });
+    // 03's rows; since T-M2-09 also 13's and 14's (13 and 14 § Registrations).
+    expect(severity).toEqual({
+      VeinFound: 'note',
+      CavernBreached: 'alert',
+      DeepsilverMined: 'danger',
+      ConstructionCollapsed: 'alert',
+      StockpileFull: 'note',
+      HearthLit: 'note',
+      DoorBroken: 'alert',
+      Buried: 'note',
+      RoomQualityChanged: 'note',
+    });
   });
 
   it('maps events to lines: text from the strings table, dedup with a count, danger pauses and pins', async () => {

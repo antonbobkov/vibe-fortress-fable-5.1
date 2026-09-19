@@ -106,6 +106,13 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     world.services.terrain.setConstructionItemSource?.((tile) => store.constructionItemAt(tile));
     // `14` § Registrations: job producer `buildings` (`build`, `deconstruct`).
     ctx.register.jobProducer(store.producer());
+    // `14` § Registrations: panels `build` and `zones`; the announcements.
+    ctx.register.panel({ id: 'build', title: 'Build', hotkey: 'b' });
+    ctx.register.panel({ id: 'zones', title: 'Zones', hotkey: 'z' });
+    ctx.register.announcement('HearthLit', { severity: 'note', stringKey: 'announce.hearth_lit' });
+    ctx.register.announcement('DoorBroken', { severity: 'alert', stringKey: 'announce.door_broken' });
+    ctx.register.announcement('Buried', { severity: 'note', stringKey: 'announce.buried' });
+    ctx.register.announcement('RoomQualityChanged', { severity: 'note', stringKey: 'announce.room_quality', atLeast: { field: 'tier', value: 4 } });
     const items = (): { value(id: number): number; get(id: number): { quality: number } | undefined } | null =>
       readers.has('13') ? readers.of('13') : null;
     const bars = ctx.registry.table<{ id: string; mult: number }>('items');

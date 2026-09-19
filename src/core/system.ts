@@ -244,6 +244,8 @@ export interface AnnouncementSpec {
   readonly severity: 'note' | 'alert' | 'danger';
   readonly stringKey: string;
   readonly once?: boolean;
+  /** Announce only when the event's numeric field reaches a value (`RoomQualityChanged` "to grand or royal"; D-077). */
+  readonly atLeast?: { readonly field: string; readonly value: number };
 }
 
 /**

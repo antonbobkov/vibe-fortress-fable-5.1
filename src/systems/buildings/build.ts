@@ -32,7 +32,7 @@ import type { Registry } from '@core/registry';
 import type { MoverOptions } from '@core/pathfinding';
 import type { CoreServices, JobProducer, TickContext } from '@core/system';
 import type { EntityId, Idx, MovementClass, TileIndex } from '@core/types';
-import { CONSTRUCTION_KIND, constructionFlags, onRuleHolds, onRuleOf, standsAt } from './constructions';
+import { CONSTRUCTION_KIND, constructionFlags, onRuleHolds, onRuleOf, standsAt, type OnRule } from './constructions';
 import { DOOR_MODES, HATCH_MODES, WAGON_CAPACITY } from './constants';
 
 export interface BuildingRow {
@@ -135,6 +135,11 @@ export class BuildingStore {
     return r;
   }
 
+  /** Every row, in registry order. */
+  rowsList(): BuildingRow[] {
+    return this.rows.filter((r): r is BuildingRow => r !== undefined);
+  }
+
   typeOf(id: string | number): number {
     if (typeof id === 'number') return this.rows[id] === undefined ? 0 : id;
     return this.rowIndex.get(id) ?? 0;
@@ -228,6 +233,40 @@ export class BuildingStore {
   }
 
   // ---------- commands ----------
+
+  /**
+   * The build tool's ghost (`fortress-screen.md` § Build tool: "green ok, red blocked" with the
+   * reason): the footprint at an origin, the tiles that fail, and the first reason `PlaceBuilding`
+   * would give, or null when it would be accepted.
+   */
+  ghost(typeId: string, origin: TileIndex, orientation: number): { tiles: TileIndex[]; bad: TileIndex[]; reason: string | null; rule: OnRule } {
+    const map = this.map;
+    const type = this.typeOf(typeId);
+    const rule = onRuleOf(typeId);
+    if (type === 0 || !map.validIndex(origin)) return { tiles: [], bad: [], reason: 'not_found', rule };
+    const row = this.row(type);
+    const tiles = this.footprint(row, origin, orientation);
+    if (tiles === null) return { tiles: [], bad: [], reason: 'out_of_bounds', rule };
+    const bad: TileIndex[] = [];
+    let reason: string | null = null;
+    const note = (r: string): void => {
+      if (reason === null) reason = r;
+    };
+    for (const t of tiles) {
+      if (!map.hasFlag(t, TileFlag.Discovered)) {
+        bad.push(t);
+        note('not_discovered');
+      } else if (map.buildingAtTile(t) !== 0) {
+        bad.push(t);
+        note('footprint_blocked');
+      } else if (!onRuleHolds(map, rule, t)) {
+        bad.push(t);
+        note('bad_placement');
+      }
+    }
+    if (reason === null && row.tags.includes('hearth') && this.hearthId !== 0 && this.host.entities.alive(this.hearthId)) reason = 'hearth_exists';
+    return { tiles, bad, reason, rule };
+  }
 
   /** `PlaceBuilding { buildingType, origin, orientation, materialChoice, priority }`; the new id through `placed`. */
   place(cmd: Command, placed?: (id: EntityId) => void): CommandResult {

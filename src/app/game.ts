@@ -30,7 +30,7 @@ import { Palette } from '@render/palette';
 import { Renderer } from '@render/renderer';
 import { CellBuffer, computeViewport } from '@render/cellbuffer';
 import { WorldMapCompositor } from '@render/world-map';
-import { FrameDriver, InProcessHost, type Speed } from '@app/sim-host';
+import { FrameDriver, InProcessHost, type NewGameSpec, type Speed } from '@app/sim-host';
 import { SaveManager } from '@app/save-manager';
 import { createStorage } from '@platform/storage';
 import type { Command } from '@core/commands';
@@ -246,8 +246,8 @@ export class Game {
   }
 
   /** `simulation-core.md` § Startup sequence steps 3 to 5 for the `flat-test` world. */
-  async start(spec: { seed?: string } = {}): Promise<void> {
-    await this.host.newGame({ seed: spec.seed ?? this.seed });
+  async start(spec: { seed?: string; embark?: NewGameSpec['embark'] } = {}): Promise<void> {
+    await this.host.newGame({ seed: spec.seed ?? this.seed, ...(spec.embark === undefined ? {} : { embark: spec.embark }) });
     this.subscribe();
     this.resetTo(FORTRESS);
     this.centerOnMap();

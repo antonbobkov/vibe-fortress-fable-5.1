@@ -23,6 +23,14 @@ import { AnnouncementLog, type LogLine } from '../announcements';
 import { STATUS_HINT_SECONDS } from '../constants';
 import type { Keymap } from '../keymap';
 import { drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '../panels/designate';
+import { BuildTool, drawBuildPanel } from '../panels/build';
+import type { PanelContext } from '../panels/context';
+import { drawJobsPanel, JobsPanel } from '../panels/jobs';
+import { drawLaborsPanel, LaborsPanel } from '../panels/labors';
+import { drawStocksPanel, StocksPanel } from '../panels/stocks';
+import { drawUnitsPanel, UnitsPanel } from '../panels/units';
+import { drawZonesPanel, ZoneTool } from '../panels/zones';
+import { C } from '@core/components';
 import { creaturesAt, creatureSummary, drawLookPanel, tileSummary, type LookTab } from '../panels/look';
 import { drawLogPanel, drawLogStrip, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
@@ -79,6 +87,14 @@ export interface FortressHost {
 export class FortressScreen implements Screen {
   readonly id = 'fortress' as const;
   readonly tool = new DesignateTool();
+  readonly build = new BuildTool();
+  readonly zones = new ZoneTool();
+  readonly stocks = new StocksPanel();
+  readonly units = new UnitsPanel();
+  readonly jobs = new JobsPanel();
+  readonly labors = new LaborsPanel();
+  /** The shift state of the click being handled (the labor grid's "shift-click: whole column"). */
+  private clickShift = false;
   readonly log: AnnouncementLog;
   readonly settings: FortressSettings = { autoPauseDanger: true };
   lookTab: LookTab = 0;
@@ -105,6 +121,37 @@ export class FortressScreen implements Screen {
 
   get ui(): UiState {
     return this.host.ui;
+  }
+
+  /** What the T-M2-09 panels reach. */
+  get ctx(): PanelContext {
+    const host = this.host;
+    return {
+      readers: host.readers,
+      registry: host.registry,
+      strings: this.strings,
+      submit: (c) => host.submit(c),
+      focusOn: (t) => this.focusOn(t),
+      look: (t) => {
+        const map = host.readers.map;
+        this.focusOn(t);
+        this.look({ x: t % map.w, y: Math.floor(t / map.w) % map.h, z: Math.floor(t / (map.w * map.h)) });
+      },
+      openPanel: (id) => this.openPanel(id),
+      shiftClick: () => this.clickShift,
+    };
+  }
+
+  /** The tool whose rectangle the map shows: the designate or the zone tool. */
+  private rectTool(): { anchor: TilePoint | null; end: TilePoint | null } | null {
+    if (this.tool.active) return this.tool;
+    if (this.zones.active) return this.zones;
+    return null;
+  }
+
+  /** Any map tool is active. */
+  get toolActive(): boolean {
+    return this.tool.active || this.build.active || this.zones.active;
   }
 
   /** Every panel: the UI's own and the registered ones, by hotkey. */
@@ -162,16 +209,23 @@ export class FortressScreen implements Screen {
     this.last = surface;
     const layout = this.host.layout();
     this.drawSelection(surface, layout.map);
+    this.drawGhost(surface, layout.map);
     if (layout.sidebar !== null) this.drawSidebar(surface, layout.sidebar);
     drawLogStrip(surface, layout.log, this.log.lines, this.pinned, this.host.now() < this.flashUntil);
     this.drawStatus(surface, layout.status);
   }
 
-  /** "While dragging: the rectangle is inverted on the map." */
+  /** "While dragging: the rectangle is inverted on the map"; a zone rectangle shows its tiles green or red. */
   private drawSelection(surface: Surface, map: Rect): void {
-    const a = this.tool.anchor;
-    const b = this.tool.end ?? this.hoverPoint();
+    const tool = this.rectTool();
+    if (tool === null) return;
+    const a = tool.anchor;
+    const b = tool.end ?? this.hoverPoint();
     if (a === null || b === null || a.z !== this.ui.z) return;
+    if (tool === this.zones) {
+      this.drawZoneRect(surface, map, a, b);
+      return;
+    }
     const x0 = Math.min(a.x, b.x) - this.ui.camX;
     const y0 = Math.min(a.y, b.y) - this.ui.camY;
     const x1 = Math.max(a.x, b.x) - this.ui.camX;
@@ -182,6 +236,41 @@ export class FortressScreen implements Screen {
     const r1 = Math.min(map.rows - 1, y1);
     if (c1 < c0 || r1 < r0) return;
     surface.invert({ col: map.col + c0, row: map.row + r0, cols: c1 - c0 + 1, rows: r1 - r0 + 1 });
+  }
+
+  /** A zone rectangle: "tiles that qualify show green", the rest red (the cell's background). */
+  private drawZoneRect(surface: Surface, map: Rect, a: TilePoint, b: TilePoint): void {
+    const t = surface.theme;
+    const type = this.zones.resizing ? (this.ctx.readers.has('14') ? (this.ctx.readers.of<{ zone(id: number): { type: string } | undefined }>('14').zone(this.zones.selected)?.type ?? '') : '') : (this.zones.kind ?? '');
+    for (const i of rectTiles(this.host.readers.map, a, b)) {
+      const m = this.host.readers.map;
+      const col = (i % m.w) - this.ui.camX;
+      const row = (Math.floor(i / m.w) % m.h) - this.ui.camY;
+      if (col < 0 || row < 0 || col >= map.cols || row >= map.rows) continue;
+      const cell = surface.cells.get(map.col + col, map.row + row);
+      const ok = this.zones.tileOk(this.ctx, type, i, this.zones.resizing ? this.zones.selected : 0);
+      surface.put(map.col + col, map.row + row, cell.glyph, t.black, ok ? t.good : t.bad);
+    }
+  }
+
+  /** The build tool's footprint ghost under the pointer: green where valid, red where not. */
+  private drawGhost(surface: Surface, map: Rect): void {
+    if (!this.build.active) return;
+    const p = this.hoverPoint();
+    if (p === null) return;
+    const ghost = this.build.ghost(this.ctx, p);
+    const row = this.build.current(this.ctx);
+    if (ghost === null || row === undefined) return;
+    const t = surface.theme;
+    const glyph = surface.glyphs.index((row as { glyph?: string }).glyph ?? '▒');
+    const m = this.host.readers.map;
+    for (const i of ghost.tiles) {
+      const col = (i % m.w) - this.ui.camX;
+      const r = (Math.floor(i / m.w) % m.h) - this.ui.camY;
+      if (col < 0 || r < 0 || col >= map.cols || r >= map.rows) continue;
+      const bad = ghost.reason !== null && (ghost.bad.includes(i) || ghost.bad.length === 0);
+      surface.put(map.col + col, map.row + r, glyph, bad ? t.bad : t.good, t.black);
+    }
   }
 
   private drawSidebar(surface: Surface, rect: Rect): void {
@@ -197,7 +286,14 @@ export class FortressScreen implements Screen {
     label(surface, inner.col + inner.cols - key.length - 1, inner.row, key);
     const body = { col: inner.col, row: inner.row + 1, cols: inner.cols, rows: inner.rows - 1 };
     const readers = this.host.readers;
+    const ctx = this.ctx;
     if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings);
+    else if (panel.id === 'build') drawBuildPanel(surface, body, this.build, ctx);
+    else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx);
+    else if (panel.id === 'stocks') drawStocksPanel(surface, body, this.stocks, ctx);
+    else if (panel.id === 'units') drawUnitsPanel(surface, body, this.units, ctx);
+    else if (panel.id === 'jobs') drawJobsPanel(surface, body, this.jobs, ctx);
+    else if (panel.id === 'labors') drawLaborsPanel(surface, body, this.labors, ctx);
     else if (panel.id === 'look') drawLookPanel(surface, body, readers, this.host.registry, this.strings, this.lookTile(), this.lookTab);
     else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, (line) => {
       if (line.focus !== undefined) this.focusOn(line.focus);
@@ -220,6 +316,27 @@ export class FortressScreen implements Screen {
   statusRow2(): string {
     const s = this.strings;
     if (this.rejection !== null && this.host.now() < this.rejection.until) return this.rejection.text;
+    if (this.build.active) {
+      const row = this.build.current(this.ctx);
+      const name = row === undefined ? '' : row.name.charAt(0).toUpperCase() + row.name.slice(1);
+      const p = this.hoverPoint() ?? this.actionPoint();
+      const ghost = this.build.ghost(this.ctx, p);
+      if (ghost !== null && ghost.reason !== null) return s.get('ui.status.build_blocked', { tool: name, reason: this.build.reasonText(s, ghost.reason, ghost.rule) });
+      return s.get('ui.status.build', { tool: name });
+    }
+    if (this.zones.active) {
+      const name = this.zones.resizing ? s.get('ui.zone.resize') : s.get(`ui.zone.type.${this.zones.kind ?? ''}`);
+      const a = this.zones.anchor;
+      const b = this.zones.end ?? this.hoverPoint();
+      if (a !== null && b !== null) {
+        const w = Math.abs(a.x - b.x) + 1;
+        const h = Math.abs(a.y - b.y) + 1;
+        const type = this.zones.kind ?? '';
+        const ok = rectTiles(this.host.readers.map, a, b).filter((i) => this.zones.tileOk(this.ctx, type, i, this.zones.resizing ? this.zones.selected : 0)).length;
+        return s.get('ui.status.zone_drag', { tool: name, w, h, n: w * h, ok });
+      }
+      return s.get('ui.status.zone', { tool: name });
+    }
     if (this.tool.active) {
       const name = this.tool.name(s);
       const a = this.tool.anchor;
@@ -287,6 +404,8 @@ export class FortressScreen implements Screen {
 
   openPanel(id: string | null): void {
     if (id !== 'designate') this.tool.cancel();
+    if (id !== 'build') this.build.cancel();
+    if (id !== 'zones') this.zones.cancel();
     this.ui.panel = id;
     this.ui.sidebar = true;
   }
@@ -296,6 +415,22 @@ export class FortressScreen implements Screen {
     this.ui.cursor = { x: p.x, y: p.y };
     this.lookTab = 0;
     this.openPanel('look');
+  }
+
+  /** Submit a finished zone rectangle. */
+  commitZone(a: TilePoint, b: TilePoint): Command[] {
+    const commands = this.zones.commands(this.ctx, a, b);
+    for (const c of commands) this.host.submit(c);
+    this.zones.anchor = null;
+    this.zones.end = null;
+    return commands;
+  }
+
+  /** Place the build tool's building at a point ("Placing keeps the tool active until `Esc`"). */
+  place(p: TilePoint): Command | null {
+    const cmd = this.build.command(this.ctx, p);
+    if (cmd !== null) this.host.submit(cmd);
+    return cmd;
   }
 
   /** Submit a finished rectangle. */
@@ -312,6 +447,15 @@ export class FortressScreen implements Screen {
   /** `Enter` with a tool: "start/end rectangle at the cursor". */
   private rectPoint(): void {
     const p = this.actionPoint();
+    if (this.build.active) {
+      this.place(p);
+      return;
+    }
+    if (this.zones.active) {
+      if (this.zones.anchor === null) this.zones.anchor = p;
+      else this.commitZone(this.zones.anchor, { x: p.x, y: p.y, z: this.zones.anchor.z });
+      return;
+    }
     if (this.tool.anchor === null) {
       this.tool.anchor = p;
       return;
@@ -323,6 +467,23 @@ export class FortressScreen implements Screen {
 
   /** "`Esc` cancels the current tool, then closes the panel, then opens the game menu." */
   private cancel(): void {
+    if (this.units.editing) {
+      this.units.editing = false;
+      return;
+    }
+    if (this.zones.anchor !== null) {
+      this.zones.anchor = null;
+      this.zones.end = null;
+      return;
+    }
+    if (this.zones.active) {
+      this.zones.cancel();
+      return;
+    }
+    if (this.build.active) {
+      this.build.cancel();
+      return;
+    }
     if (this.tool.anchor !== null) {
       this.tool.anchor = null;
       this.tool.end = null;
@@ -391,6 +552,7 @@ export class FortressScreen implements Screen {
 
     // The open panel's own keys come before the map's and the panel hotkeys.
     const panel = this.ui.panel;
+    if (this.ui.sidebar && panel !== null && this.panelKey(panel, press)) return true;
     if (panel === 'designate' && this.ui.sidebar) {
       const acc = this.keymap.resolve('panel', press);
       if (acc?.id === 'accelerator' && !press.ctrl && this.tool.choose(String(acc.arg))) return true;
@@ -424,18 +586,34 @@ export class FortressScreen implements Screen {
           this.host.zoom(Number(map.arg));
           return true;
         case 'look':
-          if (!this.tool.active) {
+          if (!this.toolActive) {
             this.look(this.hoverPoint() ?? this.centerPoint());
             return true;
           }
           break;
+        case 'rotate':
+          if (this.build.active) {
+            this.build.rotate(this.ctx);
+            return true;
+          }
+          break;
+        case 'cycle_material':
+          if (this.build.active) {
+            this.build.cycleMaterial(this.ctx);
+            return true;
+          }
+          break;
         case 'rect_point':
-          if (this.tool.active) {
+          if (this.toolActive) {
             this.rectPoint();
             return true;
           }
           break;
         case 'priority':
+          if (this.build.active) {
+            this.build.priority = Math.max(1, Math.min(9, Number(map.arg)));
+            return true;
+          }
           if (this.tool.active) {
             this.tool.setPriority(Number(map.arg));
             return true;
@@ -465,12 +643,129 @@ export class FortressScreen implements Screen {
     return false;
   }
 
+  /**
+   * The keys of the open panel (24 § Panels: "arrows move the selection, `Enter` activates … letters
+   * in `[brackets]` are accelerators"). An open list panel takes `↑`/`↓` (and the labor grid
+   * `←`/`→`) before the map does (D-077).
+   */
+  private panelKey(panel: string, press: KeyPress): boolean {
+    if (press.ctrl || press.alt || press.meta) return false;
+    const ctx = this.ctx;
+    const k = press.key;
+    const up = k === 'ArrowUp' || k === '↑';
+    const down = k === 'ArrowDown' || k === '↓';
+    const left = k === 'ArrowLeft' || k === '←';
+    const right = k === 'ArrowRight' || k === '→';
+    const letter = k.length === 1 ? k.toLowerCase() : '';
+    const submit = (cmds: readonly Command[] | Command | null): boolean => {
+      if (cmds === null) return true;
+      for (const c of Array.isArray(cmds) ? cmds : [cmds]) this.host.submit(c as Command);
+      return true;
+    };
+    switch (panel) {
+      case 'build':
+        if (!press.shift && (up || down) && this.build.active) {
+          this.build.move(up ? -1 : 1, ctx);
+          return true;
+        }
+        return letter !== '' && letter !== 'r' && letter !== 'x' && this.build.choose(letter);
+      case 'zones':
+        if (letter === 'x' && !this.zones.active && this.zones.selected !== 0) {
+          const id = this.zones.selected;
+          this.zones.selected = 0;
+          return submit({ type: 'RemoveZone', zoneId: id });
+        }
+        if (letter === 'e' && !this.zones.active && this.zones.selected !== 0) {
+          this.zones.resizing = true;
+          return true;
+        }
+        return letter !== '' && this.zones.choose(letter);
+      case 'stocks':
+        if (!press.shift && (up || down)) {
+          this.stocks.move(up ? -1 : 1, ctx);
+          return true;
+        }
+        if (k === 'Enter') {
+          this.stocks.expand(ctx);
+          return true;
+        }
+        if (letter === 'f') return submit(this.stocks.flagCommands(ctx, 'ForbidItem'));
+        if (letter === 'd') return submit(this.stocks.flagCommands(ctx, 'DumpItem'));
+        if (letter === 'm') return submit(this.stocks.flagCommands(ctx, 'MeltItem'));
+        return letter === 't';
+      case 'units': {
+        if (this.units.editing) {
+          if (k === 'Enter') this.units.editing = false;
+          else if (k === 'Backspace') this.units.filter = this.units.filter.slice(0, -1);
+          else if (Array.from(k).length === 1) this.units.filter += k;
+          else return false;
+          this.units.list.selected = 0;
+          return true;
+        }
+        if (k === '/') {
+          this.units.editing = true;
+          return true;
+        }
+        if (!press.shift && (up || down)) {
+          this.units.move(up ? -1 : 1, ctx);
+          return true;
+        }
+        const id = this.units.selectedId(ctx);
+        const p = id === 0 ? undefined : this.host.readers.entities.get(id, C.Position);
+        const at = p === undefined ? null : this.host.readers.map.index(p.x, p.y, p.z);
+        if (k === 'Enter' && at !== null) {
+          ctx.look(at);
+          return true;
+        }
+        if (letter === 'c' && at !== null) {
+          this.focusOn(at);
+          return true;
+        }
+        if (letter === 'l') {
+          this.openPanel('labors');
+          return true;
+        }
+        return letter === 't' || letter === 'n';
+      }
+      case 'jobs': {
+        if (!press.shift && (up || down)) {
+          this.jobs.move(up ? -1 : 1, ctx);
+          return true;
+        }
+        if (letter === 'p') return submit(this.jobs.priority(ctx));
+        if (letter === 'x') return submit(this.jobs.cancel(ctx));
+        const j = this.jobs.selected(ctx);
+        if (k === 'Enter' && j !== undefined) {
+          const t = this.jobs.tileOf(ctx, j);
+          if (t !== null) this.focusOn(t);
+          return true;
+        }
+        return letter === 'o';
+      }
+      case 'labors':
+        if (!press.shift && (up || down)) {
+          this.labors.move(up ? -1 : 1, ctx);
+          return true;
+        }
+        if (!press.shift && (left || right)) {
+          this.labors.scroll(left ? -1 : 1);
+          return true;
+        }
+        if (letter === 'a') return submit(this.labors.toggleRow(ctx));
+        return false;
+      default:
+        return false;
+    }
+  }
+
   // ---------- mouse ----------
 
   pointerDown(p: CellPointer): void {
     const at = this.pointOfCell(p.col, p.row);
     if (at === null) {
+      this.clickShift = p.shift;
       clickHit(this.last, p);
+      this.clickShift = false;
       return;
     }
     if (p.button === 1) {
@@ -479,11 +774,27 @@ export class FortressScreen implements Screen {
     }
     if (p.button === 2) {
       // "Right click: cancels the current tool; with no tool, opens the inspection panel".
-      if (this.tool.active) this.tool.cancel();
+      if (this.build.active) this.build.cancel();
+      else if (this.zones.active) this.zones.cancel();
+      else if (this.tool.active) this.tool.cancel();
       else this.look(at);
       return;
     }
     if (p.button !== 0) return;
+    if (this.build.active) {
+      this.place(at);
+      return;
+    }
+    if (this.zones.active) {
+      this.zones.anchor = at;
+      this.zones.end = at;
+      this.dragging = true;
+      return;
+    }
+    if (this.ui.panel === 'zones' && this.ui.sidebar) {
+      const tile = this.tileOf(at);
+      if (tile !== null && this.zones.select(this.ctx, tile)) return;
+    }
     if (this.tool.kind === 'stairwell' && this.tool.anchor !== null && this.tool.anchor.z !== at.z) {
       this.commit(this.tool.anchor, at);
       return;
@@ -506,7 +817,8 @@ export class FortressScreen implements Screen {
       this.middle = { col: p.col, row: p.row };
       return;
     }
-    if (this.dragging && at !== null && this.tool.anchor !== null) this.tool.end = { x: at.x, y: at.y, z: this.tool.anchor.z };
+    if (this.dragging && at !== null && this.zones.anchor !== null) this.zones.end = { x: at.x, y: at.y, z: this.zones.anchor.z };
+    else if (this.dragging && at !== null && this.tool.anchor !== null) this.tool.end = { x: at.x, y: at.y, z: this.tool.anchor.z };
   }
 
   pointerUp(p: CellPointer): void {
@@ -516,6 +828,13 @@ export class FortressScreen implements Screen {
     }
     if (!this.dragging) return;
     this.dragging = false;
+    if (this.zones.anchor !== null) {
+      const za = this.zones.anchor;
+      const zat = this.pointOfCell(p.col, p.row);
+      const zb = zat === null ? this.zones.end : { x: zat.x, y: zat.y, z: za.z };
+      if (zb !== null) this.commitZone(za, zb);
+      return;
+    }
     const a = this.tool.anchor;
     const at = this.pointOfCell(p.col, p.row);
     const b = at === null ? this.tool.end : { x: at.x, y: at.y, z: a?.z ?? this.ui.z };

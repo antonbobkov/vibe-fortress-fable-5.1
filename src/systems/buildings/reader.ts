@@ -6,7 +6,7 @@
 import type { Building, Room } from '@core/components';
 import type { MoverOptions } from '@core/pathfinding';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
-import type { BuildingStore } from './build';
+import type { BuildingRow, BuildingStore } from './build';
 import type { RoomStore, RoomScore } from './rooms';
 import type { ZoneStore } from './zones';
 
@@ -72,6 +72,12 @@ export interface BuildingsReader {
   holderTile(id: EntityId): TileIndex;
   /** The wagon, or 0. */
   wagon(): EntityId;
+  /** The build tool's ghost: footprint, failing tiles, the reason `PlaceBuilding` would give (or null), the `on` rule. */
+  ghost(typeId: string, origin: TileIndex, orientation: number): { tiles: TileIndex[]; bad: TileIndex[]; reason: string | null; rule: string };
+  /** Every building type row (for the build menu). */
+  types(): readonly BuildingRow[];
+  /** The item types an input's `match` names (by id or tag; D-012). */
+  inputTypes(match: string): number[];
   /** `buildings.room(zoneId)`: score, tier, enclosed, requirementsMet, owner (a copy), or undefined. */
   room(zoneId: EntityId): Room | undefined;
   /** The score of a room right now, with its parts (the zone › room inspector). */
@@ -152,6 +158,9 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
     cageOccupant: (id) => (buildings.get(id)?.settings['occupantId'] as number | undefined) ?? 0,
     holderTile: (id) => buildings.holderTile(id),
     wagon: () => buildings.all().find((id) => buildings.typeIdOf(id) === 'wagon') ?? 0,
+    ghost: (typeId, origin, orientation) => buildings.ghost(typeId, origin, orientation),
+    types: () => buildings.rowsList(),
+    inputTypes: (match) => buildings.typesOf(match),
     room: (zoneId) => {
       const r = rooms.room(zoneId);
       return r === undefined ? undefined : { ...r };

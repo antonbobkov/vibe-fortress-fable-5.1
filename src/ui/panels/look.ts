@@ -5,7 +5,9 @@
  * `ui-screens/fortress-screen.md` § Inspection panel.
  *
  * M1's sections are those whose owners exist: 03's `tile` (`readers.of('03').inspect`), and for a
- * creature 10's identity, activity and skills and 11's current job. Items arrive with 13 (M2).
+ * creature 10's identity, activity and skills and 11's current job. M2 adds 13's `item` section
+ * (type, material, quality, count, value, flags, container) and, on the tile tab, 14's building
+ * (type, material, state, mode) and zone (type, tiles, room tier) lines (T-M2-09).
  */
 
 import { C } from '@core/components';
@@ -102,6 +104,7 @@ export function drawLookPanel(
   const y = Math.floor(tile / w) % h;
   const z = Math.floor(tile / (w * h));
   const creatures = creaturesAt(readers, tile);
+  const itemIds = itemsAt(readers, tile);
   let row = rect.row;
   const line = (text: string, fg = t.text): void => {
     if (row >= rect.row + rect.rows) return;
@@ -109,7 +112,7 @@ export function drawLookPanel(
     row += 1;
   };
   line(strings.get('ui.look.header', { x, y, z }), t.value);
-  line(strings.get('ui.look.tabs', { items: 0, creatures: creatures.length }));
+  line(strings.get('ui.look.tabs', { items: itemIds.length, creatures: creatures.length }));
   if (tab === 0) {
     line(tileSummary(readers, strings, tile));
     if (has(readers, '03')) {
@@ -121,10 +124,15 @@ export function drawLookPanel(
       if (info.forbidden) line(strings.get('ui.look.forbidden'));
       else if (info.restricted) line(strings.get('ui.look.restricted'));
     }
+    for (const text of buildingLines(readers, registry, strings, tile)) line(text);
     return;
   }
   if (tab === 1) {
-    line(strings.get('ui.look.no_items'), t.dim);
+    if (itemIds.length === 0) {
+      line(strings.get('ui.look.no_items'), t.dim);
+      return;
+    }
+    for (const id of itemIds) line(itemLine(readers, registry, id));
     return;
   }
   if (creatures.length === 0) {
@@ -157,4 +165,81 @@ export function drawLookPanel(
       }
     }
   }
+}
+
+interface ItemsReaderLike {
+  get(id: EntityId): { type: number; material: number; quality: number; count: number; flags: number; containerId: EntityId } | undefined;
+  value(id: EntityId): number;
+  def(type: number): { name: string; quality: boolean } | undefined;
+  inContainer(id: EntityId): EntityId[];
+}
+
+/** The items on a tile and in the containers there, ascending. */
+export function itemsAt(readers: ReaderSet, i: TileIndex): EntityId[] {
+  if (!has(readers, '13')) return [];
+  const it = readers.of<ItemsReaderLike>('13');
+  const out: EntityId[] = [];
+  for (const id of readers.entities.at(i)) {
+    if (it.get(id) === undefined) continue;
+    out.push(id);
+    out.push(...it.inContainer(id));
+  }
+  return out.sort((a, b) => a - b);
+}
+
+const QUALITY_WORDS = ['poor', 'common', 'fine', 'superior', 'exceptional', 'masterwork'];
+const FLAG_WORDS: [number, string][] = [
+  [1, 'forbidden'],
+  [2, 'dump'],
+  [4, 'melt'],
+  [8, 'reserved'],
+  [16, 'owned'],
+];
+
+/** 13's `item` section on one line: "5 oak log (common) · 15 ☼ · forbidden". */
+function itemLine(readers: ReaderSet, registry: Registry, id: EntityId): string {
+  const it = readers.of<ItemsReaderLike>('13');
+  const rec = it.get(id);
+  if (rec === undefined) return '';
+  const def = it.def(rec.type);
+  const material = registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
+  const parts = [`${rec.count} ${material} ${def?.name ?? ''}`.trim()];
+  if (def?.quality === true) parts[0] += ` (${QUALITY_WORDS[rec.quality] ?? ''})`;
+  parts.push(`${it.value(id)} ☼`);
+  for (const [flag, word] of FLAG_WORDS) if ((rec.flags & flag) !== 0) parts.push(word);
+  if (rec.containerId !== 0) parts.push('in a container');
+  return parts.join(' · ');
+}
+
+interface BuildingsReaderLike {
+  at(i: TileIndex): EntityId;
+  get(id: EntityId): { typeId: string; material: number; state: string; mode: string } | undefined;
+  zoneAt(i: TileIndex): EntityId;
+  zone(id: EntityId): { type: string; tiles: readonly TileIndex[] } | undefined;
+  room(zoneId: EntityId): { tier: number; score: number } | undefined;
+  types(): readonly { id: string; name: string }[];
+}
+
+/** 14's `building` and `zone › room` lines for a tile. */
+function buildingLines(readers: ReaderSet, registry: Registry, strings: Strings, i: TileIndex): string[] {
+  if (!has(readers, '14')) return [];
+  const b = readers.of<BuildingsReaderLike>('14');
+  const out: string[] = [];
+  const id = b.at(i);
+  const bld = id === 0 ? undefined : b.get(id);
+  if (bld !== undefined) {
+    const name = b.types().find((r) => r.id === bld.typeId)?.name ?? bld.typeId;
+    const material = registry.table<{ id: string; name: string }>('materials').byIndex(bld.material)?.name ?? '';
+    const mode = bld.mode === '' ? '' : ` · ${bld.mode.replace(/_/g, ' ')}`;
+    out.push(strings.get('ui.look.building', { name: `${material} ${name}`.trim(), state: bld.state, mode }));
+  }
+  const zoneId = b.zoneAt(i);
+  const zone = zoneId === 0 ? undefined : b.zone(zoneId);
+  if (zone !== undefined) {
+    const room = b.room(zoneId);
+    const tiers = registry.table<{ id: string; tier: number }>('roomTiers');
+    const tier = room === undefined ? '' : ` · ${tiers.ids().find((t) => tiers.byId(t)?.tier === room.tier) ?? ''} (${Math.floor(room.score)})`;
+    out.push(strings.get('ui.look.zone', { name: strings.get(`ui.zone.type.${zone.type}`), id: zoneId, n: zone.tiles.length, room: tier }));
+  }
+  return out;
 }

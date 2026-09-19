@@ -81,6 +81,11 @@ export class AnnouncementLog {
     const e = event as unknown as Record<string, unknown>;
     const who = e['finderId'] ?? e['minerId'];
     if (typeof who === 'number') out['dwarf'] = readers.entities.get(who, C.Creature)?.name ?? '';
+    const tier = e['tier'];
+    if (typeof tier === 'number' && this.registry.hasTable('roomTiers')) {
+      const tiers = this.registry.table<{ id: string; tier: number }>('roomTiers');
+      out['tierName'] = tiers.ids().find((id) => tiers.byId(id)?.tier === tier) ?? String(tier);
+    }
     const material = e['material'];
     if (typeof material === 'number' || typeof material === 'string') {
       const table = this.registry.table<NamedRow>('materials');
@@ -94,6 +99,10 @@ export class AnnouncementLog {
   announce(event: GameEvent, readers: ReaderSet, tick: number): Announced | null {
     const spec = this.specs.get(event.type);
     if (spec === undefined) return null;
+    if (spec.atLeast !== undefined) {
+      const v = (event as unknown as Record<string, unknown>)[spec.atLeast.field];
+      if (typeof v !== 'number' || v < spec.atLeast.value) return null;
+    }
     if (spec.once === true) {
       if (this.seen.has(event.type)) return null;
       this.seen.add(event.type);

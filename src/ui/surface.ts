@@ -52,7 +52,18 @@ export function themeOf(palette: Palette): Theme {
 }
 
 /** Characters the documents write that the glyph set carries under a near-identical code point. */
-export const GLYPH_ALIASES: Readonly<Record<string, string>> = Object.freeze({ '▶': '►', '×': 'x', '–': '-', '—': '-' });
+export const GLYPH_ALIASES: Readonly<Record<string, string>> = Object.freeze({
+  '▶': '►',
+  '×': 'x',
+  '–': '-',
+  '—': '-',
+  // The panel wireframes' tree arrows and check boxes (D-077).
+  '▸': '►',
+  '▾': '▼',
+  '□': ' ',
+  '▪': '∙',
+  '…': '»',
+});
 
 /** Character to glyph index over the whole glyph set; CP437 first, then the content extras. */
 export class GlyphMap {

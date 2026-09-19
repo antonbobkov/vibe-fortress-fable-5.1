@@ -10,7 +10,7 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
-import { generateWorld, screenOf, textOf, type Hook } from './helpers';
+import { generateWorld, hilliestRegion, moveCursorTo, screenOf, textOf, type Hook } from './helpers';
 
 const TILE_FLOOR = 2;
 const TILE_WALL = 1;
@@ -25,54 +25,6 @@ interface FullHook extends Hook {
     map: { w: number; h: number; d: number; kindAt(i: number): number; index(x: number, y: number, z: number): number };
     of(id: 'pathing'): { labelOf(i: number, cls: string): number };
   };
-}
-
-/** The embarkable region with the largest elevation step to a neighbour. */
-async function hilliestRegion(page: Page): Promise<number> {
-  return page.evaluate(() => {
-    const hook = (window as unknown as { __deepholm: FullHook }).__deepholm;
-    const world = hook.readers.world;
-    if (world === null) throw new Error('no world');
-    const size = world.size();
-    const regions = world.regions();
-    let best = -1;
-    let bestDiff = -1;
-    for (const r of regions) {
-      if (r.biome === 'ocean' || r.biome === 'glacier') continue;
-      const x = r.id % size;
-      const y = Math.floor(r.id / size);
-      if (x < 2 || y < 2 || x >= size - 2 || y >= size - 2) continue;
-      let diff = 0;
-      for (let dy = -1; dy <= 1; dy += 1) {
-        for (let dx = -1; dx <= 1; dx += 1) {
-          const n = regions[(y + dy) * size + x + dx];
-          if (n !== undefined && n.biome !== 'ocean') diff = Math.max(diff, Math.abs(n.elevation - r.elevation));
-        }
-      }
-      if (diff > bestDiff) {
-        bestDiff = diff;
-        best = r.id;
-      }
-    }
-    return best;
-  });
-}
-
-/** Move the world-map cursor (which starts at the map centre) onto a region. */
-async function moveCursorTo(page: Page, regionId: number): Promise<void> {
-  const size = await page.evaluate(() => (window as unknown as { __deepholm: FullHook }).__deepholm.readers.world?.size() ?? 0);
-  const start = Math.floor(size / 2);
-  const walk = async (delta: number, plus: string, minus: string): Promise<void> => {
-    const keyName = delta > 0 ? plus : minus;
-    let left = Math.abs(delta);
-    while (left >= 8) {
-      await page.keyboard.press(`Shift+${keyName}`);
-      left -= 8;
-    }
-    for (; left > 0; left -= 1) await page.keyboard.press(keyName);
-  };
-  await walk((regionId % size) - start, 'ArrowRight', 'ArrowLeft');
-  await walk(Math.floor(regionId / size) - start, 'ArrowDown', 'ArrowUp');
 }
 
 /**

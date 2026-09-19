@@ -187,6 +187,9 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     });
     this.haulingRef = hauling;
     core.listen((id, change) => hauling.onChange(id, change));
+    // `13` § Registrations: the stocks panel and the `StockpileFull` note.
+    ctx.register.panel({ id: 'stocks', title: 'Stocks', hotkey: 's' });
+    ctx.register.announcement('StockpileFull', { severity: 'note', stringKey: 'announce.stockpile_full' });
     // `13` § Registrations: job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`).
     ctx.register.jobProducer({
       id: 'items',
