@@ -34,7 +34,7 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
   readonly order = 4;
   override readonly cadence = FLUID_TICK_CADENCE_WATER;
   override readonly phase = 0;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingStateChanged'];
+  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingStateChanged', 'EntitiesMoved'];
 
   private readonly options: FluidsOptions;
   private simRef: FluidSim | null = null;
@@ -74,6 +74,10 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
       blocksFluidAt: (i) => buildingsReader()?.blocksFluidAt(i) === true,
       blocksFallAt: (i) => buildingsReader()?.blocksFallAt(i) === true,
       mudMaterial: (m) => mudClass[m] === true,
+      // `04` § Water and magma contact names the material.
+      obsidian: materials.has('obsidian') ? materials.index('obsidian') : 0,
+      entitiesAt: (i) => readers.entities.at(i),
+      creatureSize: (id) => (world.entities.kind(id) === 'creature' ? (world.entities.get(id, C.Creature)?.sizeClass ?? 0) : -1),
       emit: (event) => world.emit(event),
     });
     sim.scanSources();
@@ -84,6 +88,8 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
     // `04` § Registrations: overlay `fluid levels`, inspector section `tile › fluid`.
     ctx.register.overlay({ id: 'fluid_levels', label: 'Fluid levels', defaultOn: false });
     ctx.register.inspector('tile', { id: 'fluid', order: 10 });
+    // `04` § Player-facing behavior: "`ObsidianFormed` as a note".
+    ctx.register.announcement('ObsidianFormed', { severity: 'note', stringKey: 'announce.obsidian_formed' });
   }
 
   override tick(ctx: TickContext): void {
@@ -104,6 +110,12 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
     } else if (event.type === 'BuildingStateChanged') {
       const b = ctx.readers.entities.get(event['id'] as number, C.Building);
       if (b !== undefined) for (const t of b.footprint) sim.touch(t);
+    } else if (event.type === 'EntitiesMoved') {
+      // `tick-order.md`: 04 consumes `EntitiesMoved`; a creature that fell or was pushed into deep
+      // water or magma is checked where it landed (`04` § Creatures and items in fluid).
+      for (const [id, , to] of event['moves'] as readonly (readonly [number, number, number])[]) {
+        if (to >= 0) sim.checkEntities(to, id);
+      }
     }
   }
 
@@ -140,7 +152,6 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
       stepParity: sim.parity,
       spreadRotation: sim.rotation,
       rng: (this.rng as RngStream).state(),
-      started: sim.started,
       freezePending: false,
     };
   }
@@ -179,7 +190,6 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
     copy(sim.sinks, state.sinks);
     sim.parity = state.stepParity;
     sim.rotation = state.spreadRotation;
-    sim.started = state.started;
     sim.rescanDrained();
     this.rng?.setState(state.rng);
   }

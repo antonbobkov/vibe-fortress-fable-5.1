@@ -4,8 +4,7 @@
  *
  * `idleCounter` is stored parallel to `active` (one counter per active tile), because the counter
  * is "only meaningful for active tiles" (`04` § State) and a freshly activated tile starts from 0.
- * `started` records that the first tick's activation has run (D-086); `freezePending` that a
- * `TemperatureTick` waits for this system's next tick (D-093).
+ * `freezePending` records that a `TemperatureTick` waits for this system's next tick (T-M3-05).
  *
  * Private to the system (`module-interfaces.md` § Interface stability).
  */
@@ -31,7 +30,6 @@ export interface FluidsStateV1 {
   stepParity: 0 | 1;
   spreadRotation: 0 | 1 | 2 | 3;
   rng: RngState;
-  started: boolean;
   freezePending: boolean;
 }
 

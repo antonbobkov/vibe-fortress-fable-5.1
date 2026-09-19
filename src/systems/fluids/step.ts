@@ -6,12 +6,14 @@
  * `source` (5) and `frozen` (6). Every write of a level goes through {@link FluidSim.setLevel},
  * which keeps the other bits, marks the chunk for redraw and touches the tile.
  *
- * Decisions: D-086 (what is active when the game starts; a freshly activated tile starts its idle
+ * Decisions: D-086 (nothing is active when a game starts; a freshly activated tile starts its idle
  * count at 0), D-087 (a step of one type leaves the other type's active tiles alone), D-088 (fluid
- * does not pass through a solid-bottomed tile's bottom).
+ * does not pass through a solid-bottomed tile's bottom), D-089 (which writes dirty 22's labels),
+ * D-090 (an isolated level-1 tile stays active until it evaporates).
  */
 
-import { FLUID_MAX_LEVEL, FLUID_TICK_CADENCE_MAGMA, FLUID_TICK_CADENCE_WATER } from '@core/constants';
+import { FLUID_DEEP_LEVEL, FLUID_MAX_LEVEL, FLUID_TICK_CADENCE_MAGMA, FLUID_TICK_CADENCE_WATER } from '@core/constants';
+import { WADE_LARGE_SIZE } from '@core/path-constants';
 import {
   FLUID_FROZEN_BIT,
   FLUID_LEVEL_MASK,
@@ -26,8 +28,16 @@ import {
 import type { GameEvent } from '@core/events';
 import type { RngStream } from '@core/rng';
 import type { TerrainApi } from '@core/system';
-import type { TileIndex } from '@core/types';
-import { FLUID_SETTLE_STEPS, SPREAD_EQUALIZE_PERMILLE, SPREAD_MAX_PER_STEP } from './constants';
+import type { EntityId, TileIndex } from '@core/types';
+import {
+  FLUID_SETTLE_STEPS,
+  OBSIDIAN_WALL_LEVEL,
+  PRESSURE_BUDGET_TILES,
+  PRESSURE_SEARCH_LIMIT,
+  SPREAD_EQUALIZE_PERMILLE,
+  SPREAD_MAX_PER_STEP,
+  WATER_EVAPORATE_PERMILLE,
+} from './constants';
 import { sortedInsert, sortedRemove } from './state';
 
 /** What the simulation needs from its surroundings. */
@@ -42,7 +52,26 @@ export interface FluidHost {
   blocksFallAt(i: TileIndex): boolean;
   /** Whether a material index is of class soil or stone (mud, `04` § Mud). */
   mudMaterial(material: number): boolean;
+  /** The material index of obsidian (`04` § Water and magma contact). */
+  readonly obsidian: number;
+  /** Entities standing on a tile (the spatial index). */
+  entitiesAt(i: TileIndex): readonly EntityId[];
+  /** `Creature.sizeClass` of a creature, or -1 for an entity that is not one. */
+  creatureSize(id: EntityId): number;
   emit(event: GameEvent): void;
+}
+
+/**
+ * The passability band of a fluid byte for 22's connectivity labels, which are built with no mover
+ * (`22` § Passability, fluid row; `22` § Connectivity): water below `FLUID_DEEP_LEVEL` is passable
+ * to every class exactly as an empty tile is; deep water blocks the walking classes and admits
+ * `aquatic` and `amphibious`; magma blocks every class. D-089.
+ */
+function band(f: number): number {
+  const l = f & FLUID_LEVEL_MASK;
+  if (l === 0) return 0;
+  if ((f & FLUID_TYPE_BIT) !== 0) return 1;
+  return l < FLUID_DEEP_LEVEL ? 0 : 2;
 }
 
 /** The tile kinds fluid may enter (`04` § Concepts, "Passable for fluid"). */
@@ -67,6 +96,9 @@ function fluidKind(kind: TileKind): boolean {
   }
 }
 
+/** {@link FluidSim.bfsHead}'s answer when the step's search budget ran out. */
+export const RETRY = -2;
+
 /** The four cardinal directions, visited in the rotating order of rule 2: north, east, south, west. */
 const CARDINALS: readonly (readonly [number, number])[] = [
   [0, -1],
@@ -88,8 +120,6 @@ export class FluidSim {
   readonly sinks: number[] = [];
   parity: 0 | 1 = 0;
   rotation: 0 | 1 | 2 | 3 = 0;
-  /** The first tick's activation has run (D-086). */
-  started = false;
   /** Chunks touched since the last `FluidsChanged`. */
   private readonly touchedChunks = new Set<number>();
   /**
@@ -99,8 +129,15 @@ export class FluidSim {
    */
   private readonly drainedWater = new Set<number>();
   private readonly drainedMagma = new Set<number>();
-  /** Tiles touched during the current step (the post-step entity checks, T-M3-02). */
+  /** Tiles touched during the current step (the post-step entity checks). */
   protected stepTouched: number[] = [];
+  /** What is left of the step's `PRESSURE_BUDGET_TILES`. */
+  budget = PRESSURE_BUDGET_TILES;
+  /** The body search's visited stamps, queue and neighbour scratch. */
+  private readonly seen: Int32Array;
+  private searchStamp = 0;
+  private readonly queue: number[] = [];
+  private readonly scratch: number[] = [];
   /** Units destroyed by evaporation and steam since the simulation was built (a debug counter, not state). */
   destroyedUnits = 0;
   /** Units created by sources and destroyed by sinks, likewise. */
@@ -114,6 +151,7 @@ export class FluidSim {
     for (let c = 0; c < map.chunkCount; c += 1) this.active.push([]);
     this.isActive = new Uint8Array(map.tileCount);
     this.idle = new Uint8Array(map.tileCount);
+    this.seen = new Int32Array(map.tileCount);
   }
 
   get map(): Map3D {
@@ -191,9 +229,13 @@ export class FluidSim {
     for (const s of this.magmaSources) if (this.level(s) < FLUID_MAX_LEVEL) this.drainedMagma.add(s);
   }
 
-  /** Called on every write of a fluid byte; T-M3-02 adds the passability band check. */
-  protected levelChanged(i: TileIndex, _before: number, _after: number): void {
-    this.map.markChunkDirty(i, true, false);
+  /**
+   * Every write of a fluid byte marks its chunk for redraw; a write that moves the tile into another
+   * passability band also marks it for 22's connectivity relabel (`22` § Connectivity: "Fluids: a
+   * rising river dirties the chunks it touches"; D-089).
+   */
+  protected levelChanged(i: TileIndex, before: number, after: number): void {
+    this.map.markChunkDirty(i, true, band(before) !== band(after));
   }
 
   // ---------- passability ----------
@@ -275,22 +317,6 @@ export class FluidSim {
     let n = 0;
     for (let c = 0; c < this.active.length; c += 1) n += (this.active[c] as number[]).length;
     return n;
-  }
-
-  /**
-   * D-086: the first tick activates every fluid tile that could move and is not a source. Sources
-   * refill themselves and are touched when their neighbours move, so a resting Sea of Fire costs
-   * nothing; everything else a map generator left is simulated until it settles.
-   */
-  start(): void {
-    this.started = true;
-    const map = this.map;
-    const n = map.tileCount;
-    for (let i = 0; i < n; i += 1) {
-      const f = map.fluid[i] as number;
-      if ((f & FLUID_LEVEL_MASK) === 0 || (f & (FLUID_SOURCE_BIT | FLUID_FROZEN_BIT)) !== 0) continue;
-      this.activate(i);
-    }
   }
 
   /** The source lists from the map's `source` bits, ascending. */
@@ -377,19 +403,169 @@ export class FluidSim {
     return given > 0;
   }
 
-  /** Rules 3 and 4 (T-M3-02): `'moved'`, `'idle'`, or `'retry'` when the pressure budget ran out. */
-  protected laterRules(_t: TileIndex, _magma: boolean): 'moved' | 'idle' | 'retry' {
-    return 'idle';
+  /** Rules 3 and 4: `'moved'`, `'idle'`, or `'retry'` when the tile is to be tried again next step. */
+  protected laterRules(t: TileIndex, magma: boolean): 'moved' | 'idle' | 'retry' {
+    if (this.level(t) === FLUID_MAX_LEVEL) {
+      const p = this.pressure(t, magma);
+      if (p !== 'idle') return p;
+    }
+    return magma ? 'idle' : this.evaporate(t);
   }
 
-  /** The water-magma contact check of every processed tile (T-M3-02). */
-  protected contact(_t: TileIndex): void {}
+  /**
+   * Rule 3, pressure: a full tile whose tile above can take fluid (D-088: through its open bottom)
+   * lifts one unit into it from the first full tile of its body that lies higher than it. Found by
+   * {@link bfsHead}; a source head gives the unit without losing it. When the step's search budget
+   * runs out the tile is tried again next step.
+   */
+  protected pressure(t: TileIndex, magma: boolean): 'moved' | 'idle' | 'retry' {
+    const map = this.map;
+    const a = map.above(t);
+    if (a < 0 || isSolidBottomed(map.kindAt(a)) || !this.passable(a, magma) || this.level(a) === FLUID_MAX_LEVEL) return 'idle';
+    if (this.budget <= 0) return 'retry';
+    const h = this.bfsHead(t, map.zOf(a), magma);
+    if (h === RETRY) return 'retry';
+    if (h < 0) return 'idle';
+    if (this.isSource(h)) {
+      this.sourcedUnits += 1;
+      this.setLevel(a, this.level(a) + 1, magma);
+      if (!magma) this.mud(a);
+    } else {
+      this.move(h, a, 1, magma);
+    }
+    return 'moved';
+  }
 
-  /** Called before each step (T-M3-02 resets the pressure budget). */
-  protected beginStep(): void {}
+  /**
+   * `bfsHead(T, targetZ)`: breadth-first over full tiles of the same type (joined vertically only
+   * through an open bottom, D-088), from `T`, to the first with `z > targetZ`. At most
+   * `PRESSURE_SEARCH_LIMIT` tiles, each paid from the step's `PRESSURE_BUDGET_TILES`. Returns the
+   * head, -1 when the body has none within the limit, or {@link RETRY} when the budget ran out.
+   */
+  bfsHead(t: TileIndex, targetZ: number, magma: boolean): number {
+    const map = this.map;
+    this.searchStamp += 1;
+    if (this.searchStamp > 0x7fffffff) {
+      this.seen.fill(0);
+      this.searchStamp = 1;
+    }
+    const stamp = this.searchStamp;
+    const queue = this.queue;
+    queue.length = 0;
+    queue.push(t);
+    this.seen[t] = stamp;
+    let head = 0;
+    let n = 0;
+    while (head < queue.length && n < PRESSURE_SEARCH_LIMIT) {
+      if (this.budget <= 0) return RETRY;
+      const x = queue[head] as number;
+      head += 1;
+      n += 1;
+      this.budget -= 1;
+      if (map.zOf(x) > targetZ && this.level(x) === FLUID_MAX_LEVEL) return x;
+      const up = map.above(x);
+      const down = map.below(x);
+      const ns = map.neighbors6(x, this.scratch);
+      for (let k = 0; k < ns.length; k += 1) {
+        const y = ns[k] as number;
+        if (this.seen[y] === stamp) continue;
+        if (this.level(y) !== FLUID_MAX_LEVEL || this.isMagma(y) !== magma || this.isFrozen(y) || !this.passable(y, magma)) continue;
+        // D-088: vertical neighbours are joined through the upper tile's open bottom.
+        if (y === up && isSolidBottomed(map.kindAt(y))) continue;
+        if (y === down && isSolidBottomed(map.kindAt(x))) continue;
+        this.seen[y] = stamp;
+        queue.push(y);
+      }
+      this.scratch.length = 0;
+    }
+    return -1;
+  }
 
-  /** Called after each step with the tiles touched in it (T-M3-02's entity checks). */
-  protected endStep(_touched: readonly TileIndex[]): void {}
+  /**
+   * Rule 4, evaporate (water only): a level-1 tile that is not a source and has no water among its
+   * six neighbours loses its unit with `WATER_EVAPORATE_PERMILLE`. While it waits for the draw it
+   * stays active (D-090).
+   */
+  protected evaporate(t: TileIndex): 'moved' | 'idle' | 'retry' {
+    if (this.level(t) !== 1 || this.isSource(t)) return 'idle';
+    const ns = this.map.neighbors6(t, this.scratch);
+    let wet = false;
+    for (let k = 0; k < ns.length; k += 1) if (this.hasWater(ns[k] as number)) wet = true;
+    this.scratch.length = 0;
+    if (wet) return 'idle';
+    if (!this.host.rng.chance(WATER_EVAPORATE_PERMILLE)) return 'retry';
+    this.destroyedUnits += 1;
+    this.setLevel(t, 0, false);
+    return 'moved';
+  }
+
+  /**
+   * `04` § Water and magma contact, checked for every processed water tile against its six
+   * neighbours: the magma tile becomes obsidian (`wall` from `OBSIDIAN_WALL_LEVEL`, else `floor`)
+   * through the terrain API, its fluid is cleared, the water tile loses one unit (steam) and
+   * `ObsidianFormed { tile }` is emitted.
+   */
+  protected contact(t: TileIndex): void {
+    const map = this.map;
+    if (this.isMagma(t) || this.level(t) === 0 || this.isFrozen(t)) return;
+    const ns = map.neighbors6(t);
+    for (let k = 0; k < ns.length; k += 1) {
+      const y = ns[k] as number;
+      if (!this.hasMagma(y)) continue;
+      const level = this.level(y);
+      const before = (map.fluid[y] ?? 0) as number;
+      this.deactivate(y);
+      map.fluid[y] = 0;
+      if ((before & FLUID_SOURCE_BIT) !== 0) {
+        sortedRemove(this.magmaSources, y);
+        this.drainedMagma.delete(y);
+      }
+      this.levelChanged(y, before, 0);
+      this.host.terrain().setKind(y, level >= OBSIDIAN_WALL_LEVEL ? TileKind.Wall : TileKind.Floor, this.host.obsidian);
+      this.touch(y);
+      this.destroyedUnits += 1;
+      this.setLevel(t, this.level(t) - 1, false);
+      this.host.emit({ type: 'ObsidianFormed', tile: y });
+      if (this.level(t) === 0) return;
+    }
+  }
+
+  /** Called before each step: the pressure search budget is refilled. */
+  protected beginStep(): void {
+    this.budget = PRESSURE_BUDGET_TILES;
+  }
+
+  /**
+   * `04` § Creatures and items in fluid, after each step, for each touched tile with entities: deep
+   * water submerges every creature on it (`CreatureSubmerged`), except one of `WADE_LARGE_SIZE` or
+   * more below level 7 (`algorithms/fluids.md`); magma touches everything on it (`MagmaContact`).
+   */
+  protected endStep(touched: readonly TileIndex[]): void {
+    if (touched.length === 0) return;
+    const tiles = Array.from(new Set(touched)).sort((a, b) => a - b);
+    for (let k = 0; k < tiles.length; k += 1) this.checkEntities(tiles[k] as TileIndex, null);
+  }
+
+  /** The entity checks of one tile, for every entity on it or only for `only`. */
+  checkEntities(t: TileIndex, only: EntityId | null): void {
+    const level = this.level(t);
+    if (level === 0 || this.isFrozen(t)) return;
+    const here = this.host.entitiesAt(t);
+    if (here.length === 0) return;
+    const ids = only === null ? here.slice() : here.filter((id) => id === only);
+    if (ids.length === 0) return;
+    if (this.isMagma(t)) {
+      this.host.emit({ type: 'MagmaContact', tile: t, entities: ids });
+      return;
+    }
+    if (level < FLUID_DEEP_LEVEL) return;
+    for (const id of ids) {
+      const size = this.host.creatureSize(id);
+      if (size < 0) continue;
+      if (size >= WADE_LARGE_SIZE && level < FLUID_MAX_LEVEL) continue;
+      this.host.emit({ type: 'CreatureSubmerged', id, tile: t });
+    }
+  }
 
   // ---------- the step ----------
 
@@ -465,7 +641,6 @@ export class FluidSim {
 
   /** `04` § Step algorithm cadence: water every `FLUID_TICK_CADENCE_WATER` ticks, magma every `FLUID_TICK_CADENCE_MAGMA`. */
   run(tick: number): void {
-    if (!this.started) this.start();
     if (tick % FLUID_TICK_CADENCE_WATER === 0) this.step(false);
     if (tick % FLUID_TICK_CADENCE_MAGMA === 0) this.step(true);
   }

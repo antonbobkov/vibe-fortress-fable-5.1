@@ -29,7 +29,7 @@ describe('T-M0-11 scenarios', () => {
   });
 
   for (const { scenario } of scenarios) {
-    if (scenario.todo !== undefined && scenario.milestone <= milestone) {
+    if (scenario.todo !== undefined) {
       it.todo(`${scenario.id} (M${scenario.milestone}) — ${scenario.todo}`);
       continue;
     }

@@ -84,7 +84,7 @@ describe('T-M3-01 fluids: rule 2, spread', () => {
       const tiles = carve(h.map, 1, 1, 1, 9, 9);
       h.sim.pour(h.map.index(5, 5, 1), 7);
       h.steps(100);
-      expect(h.sum(tiles)).toBe(7);
+      expect(h.sum(tiles) + h.sim.destroyedUnits).toBe(7);
       for (const t of tiles) {
         const l = h.sim.level(t);
         const x = h.map.xOf(t);

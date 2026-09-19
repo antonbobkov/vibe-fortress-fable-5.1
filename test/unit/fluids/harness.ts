@@ -19,6 +19,9 @@ export interface Harness {
   readonly fluidBlocked: Set<TileIndex>;
   /** Tiles with a locked hatch. */
   readonly fallBlocked: Set<TileIndex>;
+  /** Entities on tiles, and each one's size (-1: not a creature). */
+  readonly entities: Map<TileIndex, number[]>;
+  readonly sizes: Map<number, number>;
   steps(n: number, magma?: boolean): void;
   sum(tiles: readonly TileIndex[], magma?: boolean): number;
 }
@@ -26,6 +29,8 @@ export interface Harness {
 /** Material indices of the harness: 1 stone (mud), 2 an other class (no mud). */
 export const STONE = 1;
 export const METAL = 2;
+/** Obsidian. */
+export const OBSIDIAN = 3;
 
 /** A `w × h × d` map of stone walls. */
 export function harness(seed: string, w = 12, h = 12, d = 6): Harness {
@@ -36,6 +41,8 @@ export function harness(seed: string, w = 12, h = 12, d = 6): Harness {
   const kindWrites: { tile: TileIndex; kind: TileKind; material: number }[] = [];
   const fluidBlocked = new Set<TileIndex>();
   const fallBlocked = new Set<TileIndex>();
+  const entities = new Map<TileIndex, number[]>();
+  const sizes = new Map<number, number>();
   const terrain: TerrainApi = {
     setKind: (i, kind, material) => {
       map.setKind(i, kind, material);
@@ -51,6 +58,9 @@ export function harness(seed: string, w = 12, h = 12, d = 6): Harness {
     blocksFluidAt: (i) => fluidBlocked.has(i),
     blocksFallAt: (i) => fallBlocked.has(i),
     mudMaterial: (m) => m === STONE,
+    obsidian: OBSIDIAN,
+    entitiesAt: (i) => entities.get(i) ?? [],
+    creatureSize: (id) => sizes.get(id) ?? -1,
     emit: (e) => events.push(e),
   });
   return {
@@ -60,6 +70,8 @@ export function harness(seed: string, w = 12, h = 12, d = 6): Harness {
     kindWrites,
     fluidBlocked,
     fallBlocked,
+    entities,
+    sizes,
     steps(n, magma = false) {
       for (let k = 0; k < n; k += 1) sim.step(magma);
     },

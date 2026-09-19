@@ -248,9 +248,10 @@ describe('T-M1-14 announcements', () => {
     const game = await fortressGame();
     const rows = game.host.world.registrations.announcements;
     const severity = Object.fromEntries(rows.map((r) => [r.type, r.spec.severity]));
-    // 03's rows; since T-M2-09 also 13's and 14's (13 and 14 § Registrations).
+    // 03's rows; since T-M2-09 also 13's and 14's (13 and 14 § Registrations); since T-M3-02 04's.
     expect(severity).toEqual({
       VeinFound: 'note',
+      ObsidianFormed: 'note',
       CavernBreached: 'alert',
       DeepsilverMined: 'danger',
       ConstructionCollapsed: 'alert',
