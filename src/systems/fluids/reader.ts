@@ -21,6 +21,11 @@ export interface FluidsReader {
   waterBelow(i: TileIndex, maxDepth: number): TileIndex;
   /** Magma (level ≥ 1) within Chebyshev `radius` of `i`, on its level and the levels around it. */
   isMagmaAdjacent(i: TileIndex, radius: number): boolean;
+  /**
+   * The tile is in the active set (its fluid may still move). 23's animation reads this: "settled
+   * tiles do not animate" (D-103).
+   */
+  isActive(i: TileIndex): boolean;
   /** Debug: tiles in the active set. */
   activeCount(): number;
 }
@@ -55,6 +60,7 @@ export function makeReader(sim: FluidSim, misty: (i: TileIndex) => boolean): Flu
       }
       return false;
     },
+    isActive: (i) => sim.isActive[i] === 1,
     activeCount: () => sim.activeCount(),
   };
 }

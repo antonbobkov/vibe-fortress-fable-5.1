@@ -358,6 +358,8 @@ export class HeadlessGame {
     const species = this.registry.table<{ id: string; opensDoors?: boolean }>('creatures');
     this.movement.speciesOpensDoors = (s) => species.byIndex(s)?.opensDoors === true;
     this.arrival = this.embark(options.embark ?? 'none', options.spec ?? FLAT_TEST_SPEC, options.fortressName);
+    // The arrival set the calendar to its hour after 06's `init`: 06 reads the hour again (D-103).
+    if (this.arrival !== null) (systems.find((s) => s instanceof WeatherSystem) as WeatherSystem | undefined)?.refresh();
     // The idle anchor until there is a hearth hall: the wagon tile (`creature-brains.md`; D-057).
     const dwarves = systems.find((s) => s instanceof DwarvesSystem) as DwarvesSystem | undefined;
     if (dwarves !== undefined && this.arrival !== null) {

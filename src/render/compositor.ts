@@ -10,7 +10,9 @@
  * layers of systems that arrive over the milestones; each is a named function called from the
  * documented place in the pipeline. Step 6 (creatures, with the dwarves' state colors) and the
  * designation overlay of step 8 are T-M1-15; buildings, items and the zone and stockpile-usage
- * overlays are T-M2-10 (`things.ts`); fluids and lighting M3 (T-M3-08), projectiles M6 (T-M6-17).
+ * overlays are T-M2-10 (`things.ts`); fluids, fire, mist, rain and snow, the `fluid levels` and
+ * `temperature` overlays, lighting and the animation phases are T-M3-08 (`environment.ts`, D-103);
+ * projectiles M6 (T-M6-17).
  */
 
 import { C } from '@core/components';
@@ -43,6 +45,7 @@ import {
 } from './glyphs';
 import type { Palette, Rgb } from './palette';
 import { ThingLayers } from './things';
+import { EnvironmentLayers, OVERLAY_FLUID_LEVELS, OVERLAY_TEMPERATURE } from './environment';
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
 
@@ -60,6 +63,11 @@ export interface ViewState {
    * on by default, `priority digits` off). Omitted means the defaults.
    */
   readonly overlays?: readonly string[];
+  /**
+   * The presentation clock in `FLUID_ANIM_MS` periods (23 § Animation): fluids alternate on its
+   * parity, fire, blink and the hearth pulse on the 1000 ms clock (`animFrame >> 1`). Omitted is 0.
+   */
+  readonly animFrame?: number;
 }
 
 /** `ui-keymap-and-screens.md` § Overlays: the ones on by default. */
@@ -142,9 +150,13 @@ export class Compositor {
   private buffer: CellBuffer = new CellBuffer(0, 0);
   /** Steps 4, 5 and the zone and stockpile-usage overlays (T-M2-10). */
   private readonly things: ThingLayers;
+  /** Steps 3 and 9, the M3 overlays and the weather particles (T-M3-08). */
+  private readonly env: EnvironmentLayers;
   /** Each stockpile's fullness this frame (the `stockpile usage` overlay). */
   private readonly usage = new Map<EntityId, number>();
   private lastLayout: Layout = computeLayout(0, 0, false);
+  /** The look-down of the cell being composed found nothing but sky (step 9 leaves it alone). */
+  private skyCell = false;
 
   constructor(options: CompositorOptions) {
     const palette = options.palette;
@@ -193,6 +205,7 @@ export class Compositor {
     };
     for (const [kind, id] of Object.entries(DESIGNATION_TINTS)) this.tints.set(Number(kind) as Designation, palette.color(id as string));
     this.things = new ThingLayers(options.registry, palette, indexOf);
+    this.env = new EnvironmentLayers(palette, indexOf);
   }
 
   /** The layout of the last {@link compose}; the app maps mouse cells through it. */
@@ -212,6 +225,8 @@ export class Compositor {
     this.frameReaders = readers;
     this.frameOverlays = ui.overlays ?? DEFAULT_OVERLAYS;
     this.usage.clear();
+    this.env.beginFrame(readers, ui.animFrame ?? 0);
+    this.things.pulse = this.env.slowPhase;
 
     const map = readers.map;
     const daylight = readers.calendar.isDaylight;
@@ -242,6 +257,12 @@ export class Compositor {
     daylight: boolean,
   ): Cell {
     const map = readers.map;
+    // A caller that composes one cell (the tests and the inspector) gets the frame's readers set
+    // up here; `compose` has done it already for a whole frame.
+    if (this.frameReaders !== readers) {
+      this.frameReaders = readers;
+      this.env.beginFrame(readers, 0);
+    }
     // Step 1: undiscovered tiles show nothing but the overlays the player placed.
     if ((map.flagsAt(i) & TileFlag.Discovered) === 0) {
       return this.overlays({ glyph: GLYPH_NONE, fg: this.undiscovered, bg: this.undiscovered }, i, true, false);
@@ -249,8 +270,13 @@ export class Compositor {
 
     // Step 2: the terrain base, and the look-down through open tiles.
     let cell = this.terrainCell(map, i);
+    let sky = false;
     if (map.kindAt(i) === TileKind.Open) {
+      const before = this.skyCell;
+      this.skyCell = false;
       cell = this.lookDown(map, i, x, y, z, daylight);
+      sky = this.skyCell;
+      this.skyCell = before;
     }
 
     // Steps 3 to 7, each the layer of a system that arrives later.
@@ -260,10 +286,12 @@ export class Compositor {
     const creature = this.topCreature(i);
     cell = this.creatureOver(cell, i);
     cell = this.projectileOver(cell, i);
+    if (creature === null) cell = this.env.particleOver(cell, i, x, y);
 
-    // Steps 8 and 9.
+    // Steps 8 and 9. An empty sky cell already carries the night colour of step 2, so step 9
+    // does not dim it a second time (D-103).
     cell = this.overlays(cell, i, false, creature !== null);
-    cell = this.lighting(cell, i);
+    if (!sky) cell = this.lighting(cell, i);
     return cell;
   }
 
@@ -284,6 +312,7 @@ export class Compositor {
     }
     const outdoor = map.isOutdoor(i);
     const bg = outdoor ? (daylight ? this.skyDay : this.skyNight) : this.abyss;
+    this.skyCell = true;
     return { glyph: GLYPH_NONE, fg: bg, bg };
   }
 
@@ -402,9 +431,9 @@ export class Compositor {
 
   // ---------- the layers of systems that are not built yet ----------
 
-  /** Step 3, fluids (04): T-M3-08. */
-  private fluidOver(cell: Cell, _i: TileIndex): Cell {
-    return cell;
+  /** Step 3, fluids (04), mist and fire (05): T-M3-08. */
+  private fluidOver(cell: Cell, i: TileIndex): Cell {
+    return this.env.fluidOver(cell, i);
   }
 
   /** Step 4, buildings (14; T-M2-10). */
@@ -489,6 +518,8 @@ export class Compositor {
     if (this.frameOverlays.includes('designations')) c = this.designationOver(c, i, undiscovered, creature);
     if (this.frameOverlays.includes('zones')) c = this.zoneOver(c, i);
     if (this.frameOverlays.includes(OVERLAY_STOCKPILE_USAGE)) c = this.usageOver(c, i);
+    if (!undiscovered && this.frameOverlays.includes(OVERLAY_FLUID_LEVELS)) c = this.env.fluidLevelsOver(c, i, creature);
+    if (!undiscovered && this.frameOverlays.includes(OVERLAY_TEMPERATURE)) c = this.env.temperatureOver(c, i);
     return c;
   }
 
@@ -532,7 +563,8 @@ export class Compositor {
   }
 
   /** Step 9, night, storm and fog dimming (06 weather): T-M3-08. */
-  private lighting(cell: Cell, _i: TileIndex): Cell {
-    return cell;
+  private lighting(cell: Cell, i: TileIndex): Cell {
+    const k = this.env.dimSteps(i);
+    return k === 0 ? cell : this.dim(cell, k);
   }
 }

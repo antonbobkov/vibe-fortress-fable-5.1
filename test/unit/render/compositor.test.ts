@@ -4,6 +4,7 @@ import { TileFlag, TileKind } from '@core/map3d';
 import { LOG_ROWS } from '@render/constants';
 import { Compositor } from '@render/compositor';
 import { Palette } from '@render/palette';
+import { GLYPH_WATER_HIGH } from '@render/environment';
 import {
   GLYPH_BOULDER,
   GLYPH_ENGRAVED,
@@ -142,8 +143,10 @@ describe('T-M0-13 compositor: step 2, looking down through open tiles', () => {
     const map = fixture.world.readers.map;
     const i = map.index(3, 3, FIXTURE_Z);
     expect(map.fluidLevelAt(map.index(3, 3, FIXTURE_Z - 1))).toBe(7);
+    // Since T-M3-08 step 3 paints that water: the full cell below is the water, dimmed one step.
     const cell = compositor.composeMapCell(fixture.world.readers, i, 3, 3, FIXTURE_Z, true);
-    expect(cell.glyph).toBe(GLYPH_NONE);
+    expect(cell.glyph).toBe(GLYPH_WATER_HIGH);
+    expect(cell.fg).toBe(palette.dim(palette.color('water_7'), 1));
   });
 
   it('shows the abyss when the column runs out of levels below', () => {

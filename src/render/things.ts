@@ -13,8 +13,11 @@
  * ```
  *
  * A built construction is terrain (step 2 draws it); only a planned one is drawn here. The hearth's
- * pulse needs the animation clock of T-M3-08 and is drawn steady for now (D-078).
+ * `bg` pulses between `black` and `#3A1A00` on the 1000 ms animation clock (T-M3-08, D-078, D-103).
  */
+
+/** `glyphs-and-colors.md` § Buildings: the hearth's pulse colour. */
+export const HEARTH_PULSE_HEX = '#3A1A00';
 
 import { C } from '@core/components';
 import type { ReaderSet } from '@core/readers';
@@ -24,7 +27,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import type { Cell } from './cellbuffer';
 import { ZONE_TINT_ALPHA } from './constants';
-import { blend, type Palette, type Rgb } from './palette';
+import { blend, parseHex, type Palette, type Rgb } from './palette';
 
 interface BuildingRowLike {
   readonly id: string;
@@ -117,6 +120,8 @@ export function topItem(items: readonly ItemCandidate[]): ItemCandidate | null {
 }
 
 export class ThingLayers {
+  /** The 1000 ms animation phase (0 or 1), set by the compositor each frame. */
+  pulse = 0;
   private readonly glyphOf: (ch: string) => number;
   private readonly palette: Palette;
   private readonly buildingRows = new Map<string, BuildingRowLike>();
@@ -147,6 +152,7 @@ export class ThingLayers {
       trap: c('trap_gray'),
       lever: c('lever_gray'),
       hearth: c('hearth_orange'),
+      black: c('black'),
       well: c('well_blue'),
       magma: c('magma_2'),
       corpse: c('corpse_red'),
@@ -202,6 +208,7 @@ export class ThingLayers {
       fg = col['trap'] as Rgb;
     } else if (row.tags.includes('hearth')) {
       fg = col['hearth'] as Rgb;
+      if (!planned) return { glyph: this.glyphOf(glyph), fg, bg: this.pulse === 1 ? parseHex(HEARTH_PULSE_HEX) : (col['black'] as Rgb) };
     } else if (row.tags.includes('well')) {
       fg = col['well'] as Rgb;
     }

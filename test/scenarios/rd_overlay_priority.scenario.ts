@@ -35,6 +35,9 @@ const scenario: Scenario = {
     const i = w.index(X, Y, FLAT_TEST_SURFACE_Z);
     expect(w.readers.map.designationAt(i)).toBe(Designation.Channel);
     expect(w.readers.entities.at(i).length).toBe(1);
+    // The scenario starts at midnight, and step 9 dims outdoor cells at night (T-M3-08); this
+    // test is about the overlay over a creature, so it composes the same scene by day.
+    w.game.world.calendar.isDaylight = true;
     const registry = loadContent();
     const palette = new Palette(registry);
     const compositor = new Compositor({ registry, palette });

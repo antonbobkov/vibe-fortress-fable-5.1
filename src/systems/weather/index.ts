@@ -38,6 +38,7 @@ import type { WeatherReader } from './reader';
 import type { WeatherStateV1 } from './state';
 import {
   constrain,
+  daylightWindow,
   growthModifier,
   isDaylightAt,
   isWeatherState,
@@ -218,8 +219,11 @@ export class WeatherSystem extends BaseSystem<WeatherStateV1> {
     return (this.rng as RngStream).int(row.minHours, row.maxHours);
   }
 
-  /** The cached surface temperature, growth modifier and daylight of the current hour. */
-  private refresh(): void {
+  /**
+   * The cached surface temperature, growth modifier and daylight of the current hour. Public for
+   * the arrival, which sets the calendar to `START_HOUR` after the systems' `init` (D-103).
+   */
+  refresh(): void {
     const season = this.seasonNow();
     const hour = this.hourNow();
     this.surfaceTempCached = surfaceTemp(season, hour, this.state, this.climate);
@@ -412,6 +416,7 @@ export class WeatherSystem extends BaseSystem<WeatherStateV1> {
       isWet: (i) => this.map.hasFlag(i, TileFlag.Wet),
       forecast: () => Math.max(0, Math.ceil((this.stateEndsTick - (this.calendar?.tick ?? 0)) / TICKS_PER_HOUR)),
       snowCoveredChunks: () => Array.from(this.snowCovered).sort((a, b) => a - b),
+      daylightHours: () => daylightWindow(this.seasonNow(), this.climate),
     };
   }
 

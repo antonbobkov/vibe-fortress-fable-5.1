@@ -12,6 +12,7 @@ import { Compositor, CreatureRank, OVERLAY_PRIORITY_DIGITS } from '@render/compo
 import { Palette } from '@render/palette';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { TestWorld } from '../../scenarios/test-world';
+import { DAYLIGHT_TICK } from './terrain-fixture';
 
 const registry = loadContent();
 const palette = new Palette(registry);
@@ -34,7 +35,7 @@ function cellAt(w: TestWorld, overlays?: string[]): { glyph: number; fg: number;
 
 describe('T-M1-15 compositor: creatures', () => {
   it('draws the topmost creature by priority: dwarf > hostile > tame > wild, each by species glyph', () => {
-    const w = new TestWorld({ seed: 'creature-order', world: 'flat-test', embark: 'none' });
+    const w = new TestWorld({ seed: 'creature-order', world: 'flat-test', embark: 'none', startTick: DAYLIGHT_TICK });
     const at = w.index(X, Y, Z);
     const wolf = w.spawnCreature('wolf', at, 'wild');
     w.step(1);
@@ -55,14 +56,14 @@ describe('T-M1-15 compositor: creatures', () => {
   });
 
   it('colors a child dwarf with dwarf_child', () => {
-    const w = new TestWorld({ seed: 'creature-child', world: 'flat-test', embark: 'none' });
+    const w = new TestWorld({ seed: 'creature-child', world: 'flat-test', embark: 'none', startTick: DAYLIGHT_TICK });
     w.spawnDwarf({ at: w.index(X, Y, Z), ageYears: 5 });
     w.step(1);
     expect(cellAt(w).fg).toBe(palette.color('dwarf_child'));
   });
 
   it('an overlay tints the background under a creature but never replaces its glyph', () => {
-    const w = new TestWorld({ seed: 'creature-overlay', world: 'flat-test', embark: 'none' });
+    const w = new TestWorld({ seed: 'creature-overlay', world: 'flat-test', embark: 'none', startTick: DAYLIGHT_TICK });
     const at = w.index(X, Y, Z);
     w.spawnCreature('wolf', at, 'wild');
     w.submit({ type: 'Designate', tiles: [at], kind: 'channel', priority: 6 });

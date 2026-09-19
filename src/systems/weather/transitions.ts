@@ -72,11 +72,16 @@ export function surfaceTemp(season: number, hour: number, state: WeatherStateId,
   return seasonBase(season, climate) + (DAY_CURVE_C[hour] ?? 0) + WEATHER_DELTA_C[state] + temperSpread(season, climate);
 }
 
-/** `06` § Seasons, daylight: `sunrise ≤ hour < sunset` for the season and the temper band. */
-export function isDaylightAt(season: number, hour: number, climate: Climate): boolean {
+/** `06` § Seasons: the daylight window `[sunrise, sunset)` of the season and the temper band. */
+export function daylightWindow(season: number, climate: Climate): readonly [number, number] {
   const s = climateSeason(season, climate);
   const row = DAYLIGHT_HOURS[s] as readonly [readonly [number, number], readonly [number, number]];
-  const [rise, set] = row[climate.temper >= DAYLIGHT_HARSH_TEMPER ? 1 : 0];
+  return row[climate.temper >= DAYLIGHT_HARSH_TEMPER ? 1 : 0];
+}
+
+/** `06` § Seasons, daylight: `sunrise ≤ hour < sunset` for the season and the temper band. */
+export function isDaylightAt(season: number, hour: number, climate: Climate): boolean {
+  const [rise, set] = daylightWindow(season, climate);
   return hour >= rise && hour < set;
 }
 

@@ -22,6 +22,8 @@ export interface WeatherReader {
   isWet(i: TileIndex): boolean;
   /** The current state's remaining hours (no true forecast). */
   forecast(): number;
+  /** Today's daylight window `[sunrise, sunset)` in hours (the calendar panel, `06` § Player-facing behavior). */
+  daylightHours(): readonly [number, number];
   /** The chunks with snow cover, ascending (23 redraws them; debug). */
   snowCoveredChunks(): readonly ChunkIndex[];
 }

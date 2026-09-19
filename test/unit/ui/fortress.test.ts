@@ -224,9 +224,11 @@ describe('T-M1-14 status bar', () => {
   it('row 1 for a fixed state: date, population, z, speed, help at the right edge', async () => {
     const game = await fortressGame();
     const readers = game.host.readers;
-    expect(statusFields(readers, strings, 32, 0)).toEqual(['Day 1 of Spring, Year 1', '☺ 0', 'z 32', '║']);
+    // Since T-M3-08 the weather field (06) follows the date: glyph, word and temperature; this
+    // world starts at midnight, so the clear sky shows the moon `C` (`glyphs-and-colors.md`).
+    expect(statusFields(readers, strings, 32, 0)).toEqual(['Day 1 of Spring, Year 1', 'C clear 8°C', '☺ 0', 'z 32', '║']);
     const row = statusRow1(readers, strings, 32, 2, 80);
-    expect(row.startsWith(' Day 1 of Spring, Year 1   ☺ 0   z 32   ►► 2×')).toBe(true);
+    expect(row.startsWith(' Day 1 of Spring, Year 1   C clear 8°C   ☺ 0   z 32   ►► 2×')).toBe(true);
     expect(row.endsWith('[?] help ')).toBe(true);
     expect(Array.from(row)).toHaveLength(80);
     expect(speedText(1)).toBe('► 1×');

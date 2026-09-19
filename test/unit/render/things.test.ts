@@ -7,6 +7,7 @@ import { patternCell, topItem } from '@render/things';
 import { glyphChars } from '@render/atlas';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { TestWorld } from '../../scenarios/test-world';
+import { DAYLIGHT_TICK } from './terrain-fixture';
 import { rect } from '../../scenarios/m1-helpers';
 
 const registry = loadContent();
@@ -31,7 +32,7 @@ describe('T-M2-10 compositor: items', () => {
   });
 
   it('draws the top item in its glyph and material color; more than one item tints the background', () => {
-    const w = new TestWorld({ seed: 'items-draw', world: 'flat-test' });
+    const w = new TestWorld({ seed: 'items-draw', world: 'flat-test', startTick: DAYLIGHT_TICK });
     const t = w.index(20, 20, Z);
     w.spawnItem('log', 'oak', t);
     const one = glyphAt(w, 20, 20);
@@ -60,7 +61,7 @@ describe('T-M2-10 compositor: buildings', () => {
   });
 
   it('a workshop draws its pattern cell; a planned building is dim; a door is + closed, / open, red locked', () => {
-    const w = new TestWorld({ seed: 'buildings-draw', world: 'flat-test' });
+    const w = new TestWorld({ seed: 'buildings-draw', world: 'flat-test', startTick: DAYLIGHT_TICK });
     w.build('carpenter', w.index(20, 20, Z), 'oak');
     expect([glyphAt(w, 20, 20).ch, glyphAt(w, 21, 20).ch, glyphAt(w, 21, 21).ch]).toEqual(['╥', '≡', '┼']);
     expect(glyphAt(w, 20, 20).fg).toBe(palette.color('oak_brown'));
@@ -83,7 +84,7 @@ describe('T-M2-10 compositor: buildings', () => {
   });
 
   it('the zones overlay tints by zone type; stockpile usage shows the fullness ramp', () => {
-    const w = new TestWorld({ seed: 'zones-draw', world: 'flat-test' });
+    const w = new TestWorld({ seed: 'zones-draw', world: 'flat-test', startTick: DAYLIGHT_TICK });
     const plain = glyphAt(w, 20, 20);
     const pile = w.zone('stockpile', rect(w, 20, 20, Z, 2, 1));
     w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: pile, filter: 'stone' });

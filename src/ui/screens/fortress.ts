@@ -34,7 +34,9 @@ import { C } from '@core/components';
 import { creaturesAt, creatureSummary, drawLookPanel, tileSummary, type LookTab } from '../panels/look';
 import { drawLogPanel, drawLogStrip, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
-import { statusRow1, type Speed } from '../status';
+import { statusFields, statusRow1, type Speed } from '../status';
+import { drawCalendarPanel, weatherColor, weatherGlyph, weatherOf } from '../panels/calendar';
+import { drawOverlaysPanel, OVERLAY_ROWS, OverlayMenu } from '../panels/overlays';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import type { UiState } from '../ui-state';
@@ -45,6 +47,10 @@ export const UI_PANELS: readonly PanelSpec[] = [
   { id: 'designate', title: 'Designate', hotkey: 'd' },
   { id: 'look', title: 'Look', hotkey: 'k' },
   { id: 'log', title: 'Log', hotkey: 'a' },
+  // 23 § Compositor step 8, `ui-screens/panels.md` § Overlays (f) (T-M3-08).
+  { id: 'overlays', title: 'Overlays', hotkey: 'f' },
+  // `06` § Player-facing behavior: opened from the status bar date; no hotkey (D-103).
+  { id: 'calendar', title: 'Calendar', hotkey: '' },
 ];
 
 /** The speeds `+` and `-` step through ("speed up (1× → 2× → 4×)"). */
@@ -102,6 +108,8 @@ export class FortressScreen implements Screen {
   readonly settings: FortressSettings = { autoPauseDanger: true };
   lookTab: LookTab = 0;
   logFilter: LogFilter = 0;
+  /** The overlays panel (T-M3-08). */
+  readonly overlayMenu = new OverlayMenu();
   /** The tile under the mouse, for the status bar's second row. */
   hover: TileIndex | null = null;
   /** A danger line shown until any key dismisses it. */
@@ -284,7 +292,7 @@ export class FortressScreen implements Screen {
     const panel = this.panels().find((p) => p.id === this.ui.panel);
     if (panel === undefined) return;
     const inner = { col: rect.col + 1, row: rect.row, cols: rect.cols - 1, rows: rect.rows };
-    const key = `[${panel.hotkey}]`;
+    const key = panel.hotkey === '' ? '' : `[${panel.hotkey}]`;
     label(surface, inner.col + 1, inner.row, panel.title, { fg: t.key, width: inner.cols - key.length - 2 });
     label(surface, inner.col + inner.cols - key.length - 1, inner.row, key);
     const body = { col: inner.col, row: inner.row + 1, cols: inner.cols, rows: inner.rows - 1 };
@@ -298,6 +306,8 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'jobs') drawJobsPanel(surface, body, this.jobs, ctx);
     else if (panel.id === 'labors') drawLaborsPanel(surface, body, this.labors, ctx);
     else if (panel.id === 'look') drawLookPanel(surface, body, readers, this.host.registry, this.strings, this.lookTile(), this.lookTab);
+    else if (panel.id === 'calendar') drawCalendarPanel(surface, body, readers, this.strings);
+    else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
     else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, (line) => {
       if (line.focus !== undefined) this.focusOn(line.focus);
     });
@@ -306,8 +316,18 @@ export class FortressScreen implements Screen {
   private drawStatus(surface: Surface, rect: Rect): void {
     if (rect.rows <= 0) return;
     const t = surface.theme;
-    const row1 = statusRow1(this.host.readers, this.strings, this.ui.z, this.host.speed(), rect.cols);
+    const readers = this.host.readers;
+    const row1 = statusRow1(readers, this.strings, this.ui.z, this.host.speed(), rect.cols);
     labelRow(surface, rect.col, rect.row, rect.cols, row1);
+    // The date opens the calendar panel; the weather glyph takes its colour (T-M3-08).
+    const fields = statusFields(readers, this.strings, this.ui.z, this.host.speed());
+    const date = Array.from(fields[0] ?? '').length;
+    surface.hit({ col: rect.col + 1, row: rect.row, cols: date, rows: 1 }, () => this.openPanel('calendar'));
+    const weather = weatherOf(readers);
+    if (weather !== null && fields.length > 1) {
+      const at = rect.col + 1 + date + 3;
+      surface.put(at, rect.row, surface.glyphs.index(weatherGlyph(weather)), weatherColor(weather, t), t.black);
+    }
     if (rect.rows > 1) labelRow(surface, rect.col, rect.row + 1, rect.cols, ` ${this.statusRow2()}`, { fg: t.text });
   }
 
@@ -672,6 +692,16 @@ export class FortressScreen implements Screen {
       return true;
     };
     switch (panel) {
+      case 'overlays':
+        if (!press.shift && (up || down)) {
+          this.overlayMenu.move(up ? -1 : 1);
+          return true;
+        }
+        if (k === 'Enter') {
+          OverlayMenu.toggle(this.ui.overlays, (OVERLAY_ROWS[this.overlayMenu.selected] as { id: string }).id);
+          return true;
+        }
+        return false;
       case 'build':
         if (!press.shift && (up || down) && this.build.active) {
           this.build.move(up ? -1 : 1, ctx);

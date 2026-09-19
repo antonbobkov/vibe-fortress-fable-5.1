@@ -35,6 +35,10 @@ export interface Theme {
   /** The build ghost's backgrounds (23 § Compositor step 10). */
   readonly ghostOk: Rgb;
   readonly ghostBad: Rgb;
+  /** § Status bar glyphs: heatwave red, cold snap cyan, the moon dark cyan (T-M3-08). */
+  readonly hot: Rgb;
+  readonly cold: Rgb;
+  readonly moon: Rgb;
 }
 
 export function themeOf(palette: Palette): Theme {
@@ -53,6 +57,9 @@ export function themeOf(palette: Palette): Theme {
     danger: palette.color('danger'),
     ghostOk: palette.color('ghost_ok'),
     ghostBad: palette.color('ghost_bad'),
+    hot: palette.color('red'),
+    cold: palette.color('cyan'),
+    moon: palette.color('dark_cyan'),
   };
 }
 

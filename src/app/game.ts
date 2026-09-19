@@ -47,7 +47,7 @@ import { validateImport, type LoadedGame } from '@app/game-save';
 import { browserFiles, type FileBridge } from '@platform/files';
 import { bytesToBase64 } from '@core/serialize';
 import { SIM_TICKS_PER_SECOND, STATUS_ROWS } from '@core/constants';
-import { LOG_ROWS } from '@render/constants';
+import { FLUID_ANIM_MS, LOG_ROWS } from '@render/constants';
 import { ConfirmScreen } from '@ui/screens/confirm';
 import { LoadScreen, type SaveListing } from '@ui/screens/load';
 import { createStorage } from '@platform/storage';
@@ -728,6 +728,8 @@ export class Game {
       sidebarOpen: this.ui.panel !== null && this.ui.sidebar,
       cursor: this.ui.cursor,
       overlays: this.ui.overlays,
+      // 23 § Animation: the presentation clock (`algorithms/compositor.md` `animPhase`).
+      animFrame: Math.floor(Date.now() / FLUID_ANIM_MS),
     };
     const cells = this.compositor.compose(this.host.readers, view, this.cols, this.rows);
     const surface = new Surface(cells, this.glyphs, this.theme);

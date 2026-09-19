@@ -66,7 +66,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M3-05 — Freezing and thawing (opus-m3, 2026-09-19)
 - [x] T-M3-06 — Weather system (opus-m3, 2026-09-19)
 - [x] T-M3-07 — Mist, miasma hooks, and the movement-side effects plumbing (opus-m3, 2026-09-19)
-- [ ] T-M3-08 — Rendering: fluids, ice, fire, snow, rain, night; overlays fluid levels and temperature
+- [x] T-M3-08 — Rendering: fluids, ice, fire, snow, rain, night; overlays fluid levels and temperature (opus-m3, 2026-09-19)
 - [ ] T-M3-09 — Performance smoke: fluids and pathing
 - [ ] T-M3-10 — Gate M3
 
