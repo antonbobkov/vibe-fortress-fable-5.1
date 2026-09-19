@@ -104,17 +104,21 @@ describe('T-M2-05 the build job', () => {
     const w = new TestWorld({ seed: 'build-wall', world: 'flat-test', embark: 'default' });
     const log = w.spawnItem('log', 'oak', w.index(44, 14, Z));
     const t = w.index(50, 16, Z);
+    // The wagon's value (T-M2-08) reaches the wealth with the first tick's events.
+    w.step(1);
     const wealth0 = items(w).wealth();
-    expect(place(w, 'wall', t).ok).toBe(true);
+    // Oak: the wagon's pine logs (T-M2-08) are not this wall's.
+    expect(place(w, 'wall', t, { materialChoice: 'oak' }).ok).toBe(true);
     const id = bld(w).at(t);
-    w.until((x) => x.events('BuildingCompleted').length > 0, 2000);
+    // (The embark wagon's own BuildingCompleted comes first since T-M2-08.)
+    w.until((x) => x.events('BuildingCompleted').some((e) => e['id'] === id), 2000);
     expect(w.map.kindAt(t)).toBe(TileKind.Wall);
     expect(w.map.hasFlag(t, TileFlag.Constructed)).toBe(true);
     expect(w.map.materialAt(t)).toBe(w.game.registry.table('materials').index('oak'));
     expect(w.game.world.entities.alive(log)).toBe(false);
     expect(bld(w).get(id)).toMatchObject({ state: 'built', typeId: 'wall' });
     const oak = 3;
-    expect(w.events('BuildingCompleted')[0]).toMatchObject({ id, buildingType: 'wall', value: oak + 2 });
+    expect(w.events('BuildingCompleted').find((e) => e['id'] === id)).toMatchObject({ id, buildingType: 'wall', value: oak + 2 });
     w.step(10);
     // The log's 3 marks went with it; the wall adds oak (3) + the wall bonus (2).
     expect(items(w).wealth() - wealth0).toBe(-oak + oak + 2);
@@ -129,7 +133,7 @@ describe('T-M2-05 the build job', () => {
     w.until((x) => x.events('JobStarted').some((e) => e['jobType'] === 'build'), 2000);
     w.step(400);
     expect(w.map.kindAt(t)).toBe(TileKind.Floor);
-    expect(w.events('BuildingCompleted')).toHaveLength(0);
+    expect(w.events('BuildingCompleted').filter((e) => e['buildingType'] === 'wall')).toHaveLength(0);
     w.movement.teleport(cow, w.index(60, 30, Z));
     w.until((x) => x.map.kindAt(t) === TileKind.Wall, 300);
   });
@@ -170,7 +174,8 @@ describe('T-M2-05 the build job', () => {
   it('CancelBuilding removes a planned building and its job; SetBuildingPriority reaches the job', () => {
     const w = new TestWorld({ seed: 'cancel', world: 'flat-test', embark: 'default' });
     const t = w.index(50, 16, Z);
-    expect(place(w, 'wall', t).ok).toBe(true);
+    // Granite: nothing of it is in the wagon (T-M2-08), so the build stays planned.
+    expect(place(w, 'wall', t, { materialChoice: 'granite' }).ok).toBe(true);
     const id = bld(w).at(t);
     w.step(2);
     const job = w.readers.of<{ byKey(k: string): { id: number; priority: number } | undefined }>('11').byKey(`build:${id}`);

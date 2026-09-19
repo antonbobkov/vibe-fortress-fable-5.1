@@ -29,6 +29,7 @@ import {
   arrive,
   spawnApiDwarfSpawner,
   localMapSpec,
+  type ArrivalOptions,
   type ArrivalResult,
   type LocalMapSpec,
 } from '@systems/embark';
@@ -367,6 +368,7 @@ export class HeadlessGame {
         fortressName: fortressName ?? session.fortressName,
         supplies: session.supplies,
         spawnDwarf: spawnApiDwarfSpawner(this.world),
+        ...this.arrivalHooks(),
       });
     }
     const preset = embark === 'default' ? DEFAULT_EMBARK_PRESET : embark.preset;
@@ -377,7 +379,17 @@ export class HeadlessGame {
       fortressName: fortressName ?? this.world.fortress.name,
       supplies: session.supplies,
       spawnDwarf: spawnApiDwarfSpawner(this.world),
+      ...this.arrivalHooks(),
     });
+  }
+
+  /** 14 places the wagon (T-M2-08); the local map's trait spawn list is spawned. */
+  private arrivalHooks(): Pick<ArrivalOptions, 'placeWagon' | 'spawns'> {
+    const buildings = this.world.scheduler.inOrder().find((s) => s instanceof BuildingsSystem) as BuildingsSystem | undefined;
+    return {
+      ...(buildings === undefined ? {} : { placeWagon: (centre: number, logs: { type: string; material: number; count: number }) => buildings.buildings.placeWagon(centre, logs) }),
+      spawns: this.local?.spawns ?? [],
+    };
   }
 
   /**

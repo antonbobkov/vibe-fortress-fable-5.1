@@ -134,10 +134,11 @@ describe('T-M2-04 haul jobs', () => {
 
   it('an interrupted haul drops the item where the worker stands; it wants hauling again', () => {
     const w = new TestWorld({ seed: 'interrupt', world: 'flat-test', embark: 'default' });
-    const sp = w.zone('stockpile', rect(w, 60, 30, Z, 2, 2));
+    // Room for the wagon's five pine logs (T-M2-08) besides this one.
+    const sp = w.zone('stockpile', rect(w, 60, 30, Z, 3, 3));
     apply(w, { type: 'SetStockpileFilter', zoneId: sp, filter: 'wood' });
     const log = w.spawnItem('log', 'oak', w.index(46, 14, Z));
-    w.until(() => (items(w).get(log)?.carriedBy ?? 0) !== 0, 1500);
+    w.until(() => (items(w).get(log)?.carriedBy ?? 0) !== 0, 3000);
     const carrier = items(w).get(log)?.carriedBy as EntityId;
     w.game.world.services.jobs.interrupt(carrier, true);
     const p = w.game.world.entities.get(carrier, C.Position);

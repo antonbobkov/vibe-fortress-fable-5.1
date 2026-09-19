@@ -73,6 +73,20 @@ test('generate-and-embark', async ({ page }) => {
     return n;
   });
   expect(smileys).toBe(7);
+  // T-M2-08: the supplies are in the wagon; the Balanced preset brings two iron picks. (This
+  // region's `old_battlefield` also scatters rusted arms, picks among them, so the count is of
+  // the picks the embark brought: those in the wagon; D-076.)
+  const picks = await page.evaluate(() => {
+    type R = { count(id: string): number; inContainer(id: number): number[]; get(id: number): { type: number; quality: number } | undefined; categoryOf(t: number): string };
+    const hook = (window as unknown as { __deepholm: { readers: { items: R; buildings: { wagon(): number } } } }).__deepholm;
+    const items = hook.readers.items;
+    const wagon = hook.readers.buildings.wagon();
+    const inWagon = items.inContainer(wagon).filter((id) => items.categoryOf(items.get(id)?.type ?? 0) === 'tool/pick').length;
+    return { inWagon, all: items.count('pick'), wagon };
+  });
+  expect(picks.wagon).toBeGreaterThan(0);
+  expect(picks.inWagon).toBe(2);
+  expect(picks.all).toBeGreaterThanOrEqual(2);
 
   const path = await page.evaluate(() => (window as unknown as { __deepholm: Hook }).__deepholm.screenshotName('generate-and-embark'));
   await page.screenshot({ path });

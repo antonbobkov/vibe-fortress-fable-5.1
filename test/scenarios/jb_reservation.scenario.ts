@@ -25,13 +25,15 @@ const scenario: Scenario = {
     jobIds.length = 0;
     log = w.spawnItem('log', 'oak', w.index(45, 14, Z));
     const logType = w.game.registry.table('items').index('log');
+    // The embark wagon holds pine logs (T-M2-08): the jobs ask for oak, of which this is the only one.
+    const oak = w.game.registry.table('materials').index('oak');
     for (const x of [50, 52]) {
       jobIds.push(
         w.game.world.services.jobs.create(`test:craft:${x}`, {
           type: 'build',
           target: { kind: 'tile', ref: w.index(x, 16, Z) },
           workTile: w.index(x, 16, Z),
-          inputs: [{ filter: { type: logType }, count: 1 }],
+          inputs: [{ filter: { type: logType, materialId: oak }, count: 1 }],
           data: { labor: 'construction' },
         }),
       );

@@ -107,27 +107,55 @@ describe('T-M2-02 item search', () => {
 });
 
 describe('T-M2-02 jobs use the real item search', () => {
-  it('D-070: with no pick anywhere the miner digs; with a pick in the fortress the tool is fetched and kept', () => {
+  it('T-M2-08 (the D-070 shim is gone): the miner fetches a pick from the wagon and keeps it; with no pick anywhere the dig blocks `no_tool` until one exists', () => {
     const w = new TestWorld({ seed: 'search-tool', world: 'flat-test', embark: 'default' });
     const granite = w.game.registry.table('materials').index('granite');
     const terrain = w.game.world.services.terrain;
+    const wagon = w.readers.of<{ wagon(): EntityId }>('14').wagon();
+    const picks = items(w).inContainer(wagon).filter((id) => items(w).categoryOf(items(w).get(id)?.type ?? 0) === 'tool/pick');
+    expect(picks).toHaveLength(2);
     const a = w.index(48, 12, Z);
     terrain.setKind(a, TileKind.Wall, granite);
     w.game.world.applyCommand({ type: 'Designate', tiles: [a], kind: 'dig' });
-    w.until((x) => x.map.kindAt(a) === TileKind.Floor, 1500);
-    expect(w.events('ToolEquipped')).toHaveLength(0);
-    // A pick appears; the next dig needs it fetched first.
-    const pick = w.spawnItem('pick', 'iron', w.index(40, 12, Z));
-    const b = w.index(52, 12, Z);
-    terrain.setKind(b, TileKind.Wall, granite);
-    w.game.world.applyCommand({ type: 'Designate', tiles: [b], kind: 'dig' });
-    w.until((x) => x.map.kindAt(b) === TileKind.Floor, 2000);
+    w.until((x) => x.map.kindAt(a) === TileKind.Floor, 2000);
     const equipped = w.events('ToolEquipped');
     expect(equipped).toHaveLength(1);
-    expect(equipped[0]).toMatchObject({ itemId: pick });
+    const pick = equipped[0]?.['itemId'] as EntityId;
+    expect(picks).toContain(pick);
     const holder = equipped[0]?.['dwarfId'] as EntityId;
-    expect(items(w).get(pick)).toMatchObject({ carriedBy: holder, reservedBy: 0 });
+    expect(items(w).get(pick)).toMatchObject({ carriedBy: holder, reservedBy: 0, containerId: 0 });
     expect(toolFilter('pick')).toEqual({ category: 'tool/pick' });
+
+    const bare = new TestWorld({ seed: 'search-no-tool', world: 'flat-test' });
+    bare.spawnDwarf({ at: bare.index(48, 14, Z), skills: { mining: 5 } });
+    const b = bare.index(48, 12, Z);
+    bare.game.world.services.terrain.setKind(b, TileKind.Wall, granite);
+    bare.game.world.applyCommand({ type: 'Designate', tiles: [b], kind: 'dig' });
+    bare.until((x) => x.events('JobBlocked').length > 0, 200);
+    expect(bare.events('JobBlocked')[0]).toMatchObject({ reason: 'no_tool', jobType: 'dig' });
+    bare.spawnItem('pick', 'iron', bare.index(44, 14, Z));
+    bare.until((x) => x.map.kindAt(b) === TileKind.Floor, 2000);
+    expect(bare.events('JobUnblocked')).toHaveLength(1);
+  });
+
+  it('D-076: while every pick is carried, a miner without one leaves dig jobs to those who carry one', () => {
+    const w = new TestWorld({ seed: 'two-picks', world: 'flat-test', embark: 'default' });
+    const granite = w.game.registry.table('materials').index('granite');
+    const tiles: number[] = [];
+    for (let y = 20; y < 23; y += 1) {
+      for (let x = 40; x < 44; x += 1) {
+        const t = w.index(x, y, Z);
+        w.game.world.services.terrain.setKind(t, TileKind.Wall, granite);
+        tiles.push(t);
+      }
+    }
+    w.game.world.applyCommand({ type: 'Designate', tiles, kind: 'dig' });
+    w.until((x) => x.events('ToolEquipped').length === 2, 1000);
+    const blockedAtEquip = w.events('JobBlocked').length;
+    w.until((x) => tiles.every((t) => x.map.kindAt(t) === TileKind.Floor), 1500);
+    // Seven miners, two picks: once both are carried nobody blocks a dig job for want of one.
+    expect(w.events('JobBlocked').filter((e) => e['reason'] === 'no_tool').length).toBeLessThanOrEqual(blockedAtEquip);
+    expect(new Set(w.events('JobCompleted').filter((e) => e['jobType'] === 'dig').map((e) => e['workerId'])).size).toBe(2);
   });
 
   it('a job input is reserved through 13 and released with ItemReleased on cancel', () => {

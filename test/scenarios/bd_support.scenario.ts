@@ -29,7 +29,8 @@ const scenario: Scenario = {
     expect(rejected).toHaveLength(1);
     expect(rejected[0]).toMatchObject({ reason: 'bad_placement' });
     expect((rejected[0]?.['command'] as { origin: number }).origin).toBe(alone);
-    expect(w.events('BuildingPlaced')).toEqual([expect.objectContaining({ buildingType: 'wall' })]);
+    // The embark wagon (T-M2-08) is placed at arrival; the one wall is the only other placement.
+    expect(w.events('BuildingPlaced').filter((e) => e['buildingType'] !== 'wagon')).toEqual([expect.objectContaining({ buildingType: 'wall' })]);
     expect(w.readers.of<{ at(i: number): number }>('14').at(alone)).toBe(0);
     expect(w.readers.of<{ at(i: number): number }>('14').at(held)).not.toBe(0);
   },

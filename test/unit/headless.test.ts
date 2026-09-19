@@ -1,3 +1,4 @@
+import { C } from '@core/components';
 import { describe, it, expect } from 'vitest';
 import {
   FLAT_TEST_SOIL,
@@ -154,7 +155,11 @@ describe('T-M0-11 headless: the scenario runner', () => {
 
   it('T-M1-04: the default embark is lifted and lands the Balanced party', () => {
     const w = runScenario({ ...base, world: 'flat-test', embark: 'default', run: 1 });
-    expect(w.game.world.entities.ofKind('creature')).toHaveLength(7);
+    // Seven dwarves, and since T-M2-08 the Balanced preset's two dogs and a cat, all tame.
+    const creatures = w.game.world.entities.ofKind('creature');
+    expect(creatures.filter((id) => w.game.world.entities.has(id, C.Title))).toHaveLength(7);
+    expect(creatures.filter((id) => w.game.world.entities.has(id, C.Tame))).toHaveLength(3);
+    expect(creatures).toHaveLength(10);
     expect(w.events('Embarked')).toHaveLength(1);
     expect(() => runScenario({ ...base, world: 'flat-test', embark: { nope: 1 } })).toThrow(/preset/);
   });

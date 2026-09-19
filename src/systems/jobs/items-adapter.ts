@@ -5,9 +5,8 @@
  * `items.findItem({tag: job.tool, category: 'tool/*' or weapon for 'ranged'}, …)`) and § Job steps
  * (`items.attachToCarrier`, `items.dropAt`, `equip`).
  *
- * It replaces {@link NO_ITEMS} (D-054) once 13 is present. One part of D-054 stays until the
- * embark supplies exist (T-M2-08): while the fortress holds no item of a tool's kind at all, the
- * tool still counts as in hand (D-070).
+ * It replaces {@link NO_ITEMS} (D-054) once 13 is present. The shim of D-070 (a tool counted as in
+ * hand while none existed) went with T-M2-08, when the embark supplies put the picks in the wagon.
  */
 
 import { C } from '@core/components';
@@ -47,9 +46,7 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
     findTool: (tool, from) => reader.findItem(toolFilter(tool), from, 'walker', { reservable: true }),
     hasTool: (workerId, tool) => {
       const held = entities.get(workerId, C.Worker)?.toolId ?? 0;
-      if (held !== 0 && matchesTool(held, tool) && reader.get(held)?.carriedBy === workerId) return true;
-      // D-070: no item of the kind exists anywhere yet (the embark supplies arrive with T-M2-08).
-      return reader.countMatching(toolFilter(tool)) === 0;
+      return held !== 0 && matchesTool(held, tool) && reader.get(held)?.carriedBy === workerId;
     },
     reserve: (itemId, jobId) => api.reserve(itemId, jobId),
     release: (itemId) => api.release(itemId),

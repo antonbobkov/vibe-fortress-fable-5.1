@@ -48,6 +48,8 @@ const scenario: Scenario = {
     if (!r.ok) throw new Error(`designate: ${r.reason}`);
   },
   run: (w) => {
+    // The miner first fetches a pick from the wagon (T-M2-08), then finds no way in.
+    w.until((x) => x.events('JobBlocked').length > 0, 400);
     w.step(20);
     const blocked = w.events('JobBlocked');
     expect(blocked).toHaveLength(1);

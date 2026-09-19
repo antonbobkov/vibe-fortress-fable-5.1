@@ -162,32 +162,36 @@ describe('T-M2-06 furniture', () => {
     const oak = w.game.registry.table('materials').index('oak');
     const bedType = w.game.registry.table('items').index('bed');
     const item = w.spawnItem('bed', 'oak', w.index(44, 14, Z), 1, 3);
+    // The wagon (T-M2-08) holds three pine beds; its value reaches the wealth with the first tick.
+    w.step(1);
+    const beds0 = items(w).count(bedType);
+    const free0 = items(w).available(bedType);
     const wealth0 = items(w).wealth();
     const t = w.index(50, 16, Z);
     expect(apply(w, { type: 'PlaceBuilding', buildingType: 'bed', origin: t, materialChoice: 'oak' })).toEqual({ ok: true });
     const id = bld(w).at(t);
-    w.until((x) => x.events('BuildingCompleted').length > 0, 3000);
+    w.until((x) => x.events('BuildingCompleted').some((e) => e['id'] === id), 3000);
     const built = bld(w).get(id);
     expect(built).toMatchObject({ state: 'built', itemId: item, material: oak });
     expect(w.game.world.entities.alive(item)).toBe(true);
     const rec = items(w).get(item);
     expect(((rec?.flags ?? 0) & ItemFlag.Installed) !== 0).toBe(true);
     expect(items(w).tileOf(item)).toBe(-1);
-    expect(items(w).count(bedType)).toBe(1);
-    expect(items(w).available(bedType)).toBe(0);
+    expect(items(w).count(bedType)).toBe(beds0);
+    expect(items(w).available(bedType)).toBe(free0 - 1);
     w.step(10);
     // The bed's own value stays in the wealth; the building adds oak's material value (bonus 0).
     expect(items(w).wealth() - wealth0).toBe(3);
     // A second bed build cannot take the linked bed.
-    expect(items(w).findItem({ type: bedType }, w.index(44, 14, Z))).toBe(0);
+    expect(items(w).findItem({ type: bedType, materialId: oak }, w.index(44, 14, Z))).toBe(0);
     expect(apply(w, { type: 'DeconstructBuilding', buildingId: id })).toEqual({ ok: true });
     w.until((x) => !x.game.world.entities.alive(id), 2000);
     expect(w.game.world.entities.alive(item)).toBe(true);
     expect(items(w).tileOf(item)).toBe(t);
     expect(((items(w).get(item)?.flags ?? 0) & ItemFlag.Installed) === 0).toBe(true);
     expect(items(w).get(item)?.quality).toBe(3);
-    expect(items(w).count(bedType)).toBe(1);
-    expect(items(w).available(bedType)).toBe(1);
+    expect(items(w).count(bedType)).toBe(beds0);
+    expect(items(w).available(bedType)).toBe(free0);
   });
 
   it('special buildings: depots and coffins are listed, the store tag is readable, a cage has no occupant, no well works without water', () => {
@@ -221,8 +225,10 @@ describe('T-M2-06 the wagon', () => {
     const system = w.game.world.scheduler.byId('14') as BuildingsSystem;
     const oak = w.game.registry.table('materials').index('oak');
     const centre = w.index(50, 16, Z);
+    const logType = w.game.registry.table('items').index('log');
+    const logs0 = items(w).count(logType);
     const wagon = system.buildings.placeWagon(centre, { type: 'log', material: oak, count: 3 });
-    expect(bld(w).wagon()).toBe(wagon);
+    expect(bld(w).byType('wagon')).toContain(wagon);
     expect(bld(w).at(w.index(49, 15, Z))).toBe(wagon);
     expect(bld(w).get(wagon)?.state).toBe('built');
     const ids: EntityId[] = [];
@@ -231,12 +237,12 @@ describe('T-M2-06 the wagon', () => {
     expect(items(w).containerOf(ids[0] as EntityId)).toBe(wagon);
     expect(items(w).tileOf(ids[0] as EntityId)).toBe(centre);
     expect(items(w).findItem({ type: w.game.registry.table('items').index('raw_stone') }, w.index(55, 16, Z))).toBe(ids[0]);
+    // Nothing takes them out while no stockpile wants them; the second wagon's contents lie at its centre.
     // A wagon is passable.
     expect(w.pathing.graph.passable(centre, 'walker')).toBe(true);
     expect(apply(w, { type: 'DeconstructBuilding', buildingId: wagon })).toEqual({ ok: true });
     w.until((x) => !x.game.world.entities.alive(wagon), 3000);
-    const logType = w.game.registry.table('items').index('log');
-    expect(items(w).count(logType)).toBe(3);
+    expect(items(w).count(logType) - logs0).toBe(3);
     expect(items(w).tileOf(ids[149] as EntityId)).toBe(centre);
     expect(items(w).containerOf(ids[149] as EntityId)).toBe(0);
   });

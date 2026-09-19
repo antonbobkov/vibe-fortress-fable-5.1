@@ -35,6 +35,9 @@ const scenario: Scenario = {
       digs.push(dig);
       hauls.push(w.index(x, wagon.y + 6, wagon.z));
     }
+    // Mining needs a pick (13; the D-070 shim went with T-M2-08) and the Balanced wagon holds two:
+    // five more beside the wagon let every dwarf mine, which is what the scenario compares.
+    for (let k = 0; k < COUNT - 2; k += 1) w.spawnItem('pick', 'iron', w.index(wagon.x - 2 + k, wagon.y + 2, wagon.z));
     let made = false;
     const producer: JobProducer = {
       id: 'items',

@@ -12,6 +12,8 @@
  * ten; `<` and `>` (also `,` and `.`) z-level down and up".
  */
 
+import type { ItemsReader } from '@systems/items';
+import type { BuildingsReader } from '@systems/buildings';
 import { CanvasSurface, domCanvasFactory, type CanvasFactory, type CanvasLike } from '@platform/canvas';
 import { InputSource, type EventTargetLike, type KeyPress, type PointerAction, type WheelAction } from '@platform/input';
 import {
@@ -641,6 +643,10 @@ export interface HookReaders {
   readonly fortress: InProcessHost['readers']['fortress'];
   readonly ui: Readonly<UiState>;
   readonly world: WorldgenReader | null;
+  /** `readers.items` of `module-interfaces.md`: 13's reader (T-M2-08). */
+  readonly items: ItemsReader;
+  /** 14's reader. */
+  readonly buildings: BuildingsReader;
   of<T>(id: string): T;
 }
 
@@ -666,6 +672,12 @@ export function testHook(game: Game): TestHook {
       },
       get world() {
         return game.worldReader();
+      },
+      get items() {
+        return game.host.readers.of<ItemsReader>('13');
+      },
+      get buildings() {
+        return game.host.readers.of<BuildingsReader>('14');
       },
       of<T>(id: string): T {
         return game.host.readers.of<T>(id);

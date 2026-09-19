@@ -90,7 +90,7 @@ export class ItemCore implements ItemsApi {
       const p = this.entities.get<Position>(id, C.Position);
       if (p !== undefined) return this.map.inBounds(p.x, p.y, p.z) ? this.map.index(p.x, p.y, p.z) : -1;
       const it = this.entities.get(id, C.Item);
-      if (it === undefined) return depth === 0 ? -1 : (this.host.holderTile?.(id) ?? -1);
+      if (it === undefined) return this.host.holderTile?.(id) ?? -1;
       if (it.containerId !== 0) id = it.containerId;
       else if (it.carriedBy !== 0) id = it.carriedBy;
       else return -1;
@@ -306,8 +306,10 @@ export class ItemCore implements ItemsApi {
   /** `items.putIn(itemId, containerId)`; false when there is no room or the target is no container. */
   putIn(itemId: EntityId, containerId: EntityId): boolean {
     const c = this.container(containerId);
-    // A container never goes inside another (13: "A container is hauled with its contents").
-    if (c === undefined || itemId === containerId || !this.isItem(itemId) || this.container(itemId) !== undefined) return false;
+    // A container never goes inside another (13: "A container is hauled with its contents"); the
+    // wagon, a building's own container, holds the barrels and bags of the supplies (D-076).
+    if (c === undefined || itemId === containerId || !this.isItem(itemId)) return false;
+    if (this.container(itemId) !== undefined && this.isItem(containerId)) return false;
     if (this.room(containerId) < this.needs(itemId, c.classId)) return false;
     this.detach(itemId);
     const fresh = this.container(containerId) as Container;

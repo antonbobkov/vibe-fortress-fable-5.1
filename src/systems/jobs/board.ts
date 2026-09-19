@@ -502,7 +502,35 @@ export class JobBoard implements JobsApi, JobSink {
     if (!this.laborEnabled(workerId, labor)) return false;
     const minSkill = job.data['minSkill'];
     if (typeof minSkill === 'number' && this.skillFor(workerId, job) < minSkill) return false;
+    if (this.toolHeldElsewhere(job, workerId, labor)) return false;
     return this.reachableStands(job, workerId).length > 0;
+  }
+
+  private freeToolCache = { tick: -1, found: new Map<string, boolean>() };
+
+  /**
+   * `no_tool` is "no free pick, axe or ranged weapon" (11 § Blocking and retry): while no free tool
+   * of the kind is within the worker's reach and some other worker with the labor carries one, a
+   * worker without it leaves the job to them rather than blocking it (D-076).
+   */
+  private toolHeldElsewhere(job: Job, workerId: EntityId, labor: number): boolean {
+    const tool = job.tool;
+    if (tool === null || this.items.hasTool(workerId, tool)) return false;
+    const holders = this.workers().some((o) => o !== workerId && this.laborEnabled(o, labor) && this.items.hasTool(o, tool));
+    if (!holders) return false;
+    const cache = this.freeToolCache;
+    if (cache.tick !== this.now) {
+      cache.tick = this.now;
+      cache.found.clear();
+    }
+    const key = `${workerId}:${String(tool)}`;
+    let free = cache.found.get(key);
+    if (free === undefined) {
+      const from = this.workerTile(workerId);
+      free = from >= 0 && this.items.findTool(tool, from) !== 0;
+      cache.found.set(key, free);
+    }
+    return !free;
   }
 
   /** `assign(w)` of the algorithm: candidates, score, claim. Returns the claimed job id or 0. */
