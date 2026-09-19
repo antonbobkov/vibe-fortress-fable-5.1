@@ -1,6 +1,6 @@
 # Progress
 
-current-milestone: 2
+current-milestone: 3
 
 Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agent, date). Agents edit this file in the same commit as the task. Sub-tasks added by splitting go directly under their parent.
 
@@ -55,7 +55,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M2-11 — Save and load: full round-trip, autosave, Load screen (opus-m2, 2026-09-19)
 - [x] T-M2-12 — Command log and replay script (opus-m2, 2026-09-19)
 - [x] T-M2-13 — Property command generator: items and buildings (opus-m2, 2026-09-19)
-- [ ] T-M2-14 — Gate M2
+- [x] T-M2-14 — Gate M2 (opus-m2, 2026-09-19)
 
 ## M3 — Water, Fire, Sky ([M3-water-fire-sky.md](M3-water-fire-sky.md))
 
