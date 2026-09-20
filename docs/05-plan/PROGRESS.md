@@ -73,7 +73,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 ## M4 — Life ([M4-life.md](M4-life.md))
 
 - [x] T-M4-01 — Plants: species data, growth, crops, plots, plant and harvest jobs (opus-m4, 2026-09-20)
-- [ ] T-M4-02 — Plants: trees, saplings, shrubs, grass, ash
+- [x] T-M4-02 — Plants: trees, saplings, shrubs, grass, ash (opus-m4, 2026-09-20)
 - [ ] T-M4-03 — Animals: species, wild brain, spawning, leaving
 - [ ] T-M4-04 — Animals: tame behavior, pastures, condition, breeding, products, slaughter marking
 - [ ] T-M4-05 — Dwarves: needs, hourly update, thresholds, interrupts

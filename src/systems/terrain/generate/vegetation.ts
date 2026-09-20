@@ -115,6 +115,8 @@ export function stageVegetation(g: LocalGen): void {
         map.kind[i] = TileKind.Shrub;
         map.material[i] = st.weighted(caveShrubs);
       }
+      // `07` § Grass ("cavern `cave_loam` floors start with `grass`") is already done by stage 6:
+      // every cave loam floor is laid with the flag (see `caverns.ts`).
     }
   }
 }

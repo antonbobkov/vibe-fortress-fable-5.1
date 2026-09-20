@@ -188,7 +188,8 @@ export class TerrainProducer implements JobProducer {
     return k === TileKind.StairsDown || k === TileKind.StairsUpDown ? [up] : [];
   }
 
-  private rolls(): TransitionRolls {
+  /** The rolls a transition needs, drawn from 03's stream. Public so the unit tests can sample them. */
+  rolls(): TransitionRolls {
     const facts = this.core.host.facts;
     return {
       stoneDrops: () => this.rng.chance(MINING_STONE_DROP_PERMILLE),
@@ -200,7 +201,12 @@ export class TerrainProducer implements JobProducer {
         const row = facts.plant(species);
         if (row === undefined || row.yieldItem === undefined || row.yieldMaterial === undefined) return null;
         const [lo, hi] = row.yield ?? [1, 1];
-        return { type: row.yieldItem, material: row.yieldMaterial, count: this.rng.int(lo, hi) };
+        const count = this.rng.int(lo, hi);
+        // `07` § Shrubs: "and, with `wildSeedPermille`, one seed" of the crop the shrub sows.
+        const permille = row.wildSeedPermille ?? 0;
+        const sows = row.seedOf;
+        const seed = sows !== undefined && permille > 0 && this.rng.chance(permille) ? sows : undefined;
+        return { type: row.yieldItem, material: row.yieldMaterial, count, ...(seed === undefined ? {} : { seed }) };
       },
       logMaterial: (species) => facts.logMaterial(species),
     };

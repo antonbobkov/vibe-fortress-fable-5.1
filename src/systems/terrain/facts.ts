@@ -30,6 +30,10 @@ interface PlantRow {
   readonly yield?: readonly [number, number];
   readonly yieldItem?: string;
   readonly yieldMaterial?: string;
+  /** `plants.md`: the chance a gathered wild shrub also gives one seed. */
+  readonly wildSeedPermille?: number;
+  /** The crop species a wild shrub's seed sows. */
+  readonly seedOf?: string;
 }
 
 function classOfRow(cls: string): MaterialClass {
@@ -81,8 +85,14 @@ export class TerrainFacts implements MaterialFacts {
       ids[m] = row.id;
     }
     this.materialIds = ids;
+    // A tree, sapling or shrub tile carries the *material* index of its species (`07` § Concepts,
+    // and stage 9 of local map generation writes `materialIndex(species)`), so the plant rows are
+    // indexed by material index here, not by the `plants` table's own index (T-M4-02).
     this.plants = [];
-    for (let p = 1; p <= plants.size; p += 1) this.plants[p] = plants.byIndex(p);
+    for (let p = 1; p <= plants.size; p += 1) {
+      const row = plants.byIndex(p) as PlantRow;
+      if (materials.has(row.id)) this.plants[materials.index(row.id)] = row;
+    }
   }
 
   classOf(material: number): MaterialClass {
@@ -110,6 +120,7 @@ export class TerrainFacts implements MaterialFacts {
     return this.materialIds[material] ?? '';
   }
 
+  /** The `plants` row of a species material index (a tree, sapling or shrub tile's material). */
   plant(species: number): PlantRow | undefined {
     return this.plants[species];
   }

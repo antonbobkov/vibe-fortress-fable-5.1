@@ -166,8 +166,12 @@ export interface TransitionRolls {
   stoneDrops(): boolean;
   /** Logs for a felled tree of the given plant species index. */
   logs(species: number): number;
-  /** The product of a gathered shrub of the given plant species index: item type, material and count. */
-  gather(species: number): { type: string; material: string; count: number } | null;
+  /**
+   * The product of a gathered shrub of the given plant species index: item type, material and
+   * count, and — with the species' `wildSeedPermille` — one seed of the crop it sows
+   * (`07` § Shrubs, § Seeds; T-M4-02).
+   */
+  gather(species: number): { type: string; material: string; count: number; seed?: string } | null;
   /** The log material of a tree species (its wood). */
   logMaterial(species: number): string;
 }
@@ -288,6 +292,7 @@ export function transition(
       if (product !== null && product.count > 0) {
         drops.push({ type: product.type, material: product.material, count: product.count, tile: i });
       }
+      if (product?.seed !== undefined) drops.push({ type: 'seed', material: product.seed, count: 1, tile: i });
       break;
     }
     case Designation.None:

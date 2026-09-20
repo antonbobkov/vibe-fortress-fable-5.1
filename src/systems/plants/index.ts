@@ -17,13 +17,16 @@ import { SEASONS_PER_YEAR } from '@core/constants';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import type { EntityStore } from '@core/entities';
+import { TICKS_PER_DAY } from '@core/constants';
 import { Designation, TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { RngStream } from '@core/rng';
 import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
+import type { LocalMapSpec } from '@systems/embark/spec';
 import type { MaterialsReader } from '@systems/materials';
-import { FROST_KILL_C } from '@systems/materials/constants';
+import { ASH_DURATION_DAYS, FROST_KILL_C } from '@systems/materials/constants';
+import { GLASSLANDS_TREE_DENSITY } from '@systems/terrain/constants';
 import type { WeatherReader } from '@systems/weather';
 import { WILT_PERMILLE } from '@systems/weather/constants';
 import { CROP_DROWN_LEVEL, HARVEST_PRIORITY, PLANTS_CADENCE, PLANTS_PHASE } from './constants';
@@ -33,16 +36,28 @@ import { FARM_PLOT, cropsOf, lightMatches, plotKindOf, withCrop, type PlotKind }
 import { PlantsProducer } from './producer';
 import type { CropInfo, PlantsReader } from './reader';
 import type { PlantsStateV1 } from './state';
+import { growSaplings, regrowGrass, regrowthTries, type WildHost } from './wild';
 
-export { PLANT_TICKS, HARVEST_TICKS, SEEDS_PER_HARVEST, BASE_GROWTH } from './constants';
+export * from './constants';
 export * from './growth';
 export { PlantFacts, type PlantRow } from './facts';
 export { FARM_PLOT, CROP_SETTING, cropsOf, lightMatches, plotKindOf, type PlotKind } from './plots';
 export { AUTO_HARVEST, PlantsProducer, harvestKey, plantKey } from './producer';
+export { CAVERN_BANDS, clearOfTrees, hasGrassNeighbor, plantable, weighted, type WildHost } from './wild';
 export type { CropInfo, PlantsReader } from './reader';
 
 /** The id 07 registers its reader under. */
 export const PLANTS_ID = '07';
+
+export interface PlantsOptions {
+  /** The embark region: its biome and traits decide which trees regrow and how densely. */
+  readonly spec: Pick<LocalMapSpec, 'biome' | 'traits'>;
+}
+
+interface BiomeRow {
+  readonly id: string;
+  readonly treeDensity: number;
+}
 
 /** `CropDied { tile, reason }`: the reasons this system uses. */
 export type CropDeathReason = 'frost' | 'flooded' | 'tile' | 'zone_removed';
@@ -52,9 +67,18 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
   readonly order = 7;
   override readonly cadence = PLANTS_CADENCE;
   override readonly phase = PLANTS_PHASE;
-  override readonly subscribes: readonly EventType[] = ['DayPassed', 'SeasonEffectsChanged', 'ZoneChanged'];
+  override readonly subscribes: readonly EventType[] = [
+    'DayPassed',
+    'SeasonEffectsChanged',
+    'ZoneChanged',
+    'TilesChanged',
+    'GrassGrazed',
+    'FireOut',
+    'JobCompleted',
+  ];
   override readonly ownsCommands: readonly CommandType[] = ['SetPlotCrop', 'DesignateHarvest'];
 
+  private readonly options: PlantsOptions;
   private mapRef: Map3D | null = null;
   private storeRef: EntityStore | null = null;
   private rngRef: RngStream | null = null;
@@ -73,6 +97,20 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
   readonly needsSeedsAnnounced = new Map<EntityId, number>();
   dailyDue = false;
   wired = false;
+  /** Tiles a grazer cleared this tick, and tiles that became bare soil; worked off in 07's tick. */
+  private readonly pendingGrazed: TileIndex[] = [];
+  private readonly pendingBare: TileIndex[] = [];
+  private readonly pendingPlotTiles: TileIndex[] = [];
+  private treeDensity = 0;
+  private treeWeights: (readonly [number, number])[] = [];
+  private fungusByTier: (readonly [number, number])[][] = [];
+  private caveLoam = -1;
+  private soilClasses: string[] = [];
+
+  constructor(options: PlantsOptions = { spec: { biome: '', traits: [] } }) {
+    super();
+    this.options = options;
+  }
 
   get map(): Map3D {
     if (this.mapRef === null) throw new Error('07 plants: used before init');
@@ -110,6 +148,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     this.rngRef = ctx.rng;
     this.readersRef = ctx.readers;
     this.factsRef = new PlantFacts(ctx.registry);
+    this.loadBiome(ctx);
     this.producerRef = new PlantsProducer({
       facts: this.facts,
       map: this.map,
@@ -129,10 +168,59 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     ctx.register.inspector('zone', { id: 'farm_plot', order: 20 });
   }
 
+  /**
+   * The biome's tree density and species weights (`07` § Trees, § Regrowth; the same tables and
+   * the `glasslands` override stage 9 of local map generation uses).
+   */
+  private loadBiome(ctx: InitContext): void {
+    const facts = this.facts;
+    const materials = ctx.registry.table<{ id: string; class: string }>('materials');
+    this.caveLoam = materials.has('cave_loam') ? materials.index('cave_loam') : -1;
+    this.soilClasses = [];
+    for (let m = 1; m <= materials.size; m += 1) this.soilClasses[m] = materials.byIndex(m)?.class ?? '';
+    const spec = this.options.spec;
+    const biome = ctx.registry.table<BiomeRow>('biomes').byId(spec.biome);
+    this.treeDensity = spec.traits.includes('glasslands') ? GLASSLANDS_TREE_DENSITY : (biome?.treeDensity ?? 0);
+    this.treeWeights = [];
+    this.fungusByTier = [[], [], [], []];
+    for (let p = 1; p <= facts.size; p += 1) {
+      const row = facts.row(p) as PlantRow;
+      if (row.kind === 'tree') {
+        const w = row.biomes?.find((b) => b.biome === spec.biome)?.weight ?? 0;
+        if (w > 0) this.treeWeights.push([p, w]);
+      } else if (row.kind === 'fungus_tree') {
+        for (const c of row.caverns ?? []) {
+          if (c.weight > 0 && c.tier >= 1 && c.tier <= 3) (this.fungusByTier[c.tier] as (readonly [number, number])[]).push([p, c.weight]);
+        }
+      }
+    }
+  }
+
+  private wildHost(ctx: TickContext): WildHost {
+    const buildings = this.buildings();
+    return {
+      map: this.map,
+      facts: this.facts,
+      rng: this.rng,
+      terrain: ctx.terrain,
+      tick: ctx.tick,
+      season: ctx.readers.calendar.season,
+      classOf: (m) => this.soilClasses[m] ?? '',
+      caveLoam: this.caveLoam,
+      treeDensity: this.treeDensity,
+      treeWeights: this.treeWeights,
+      fungusWeights: (tier) => this.fungusByTier[tier] ?? [],
+      // "Trees never spread onto farm plots, roads or constructed floors", and nothing grows under
+      // a building.
+      isReserved: (i) => this.map.buildingAtTile(i) !== 0 || (buildings !== null && this.plotIndex.includes(buildings.zoneAt(i))),
+    };
+  }
+
   // ---------- the hourly tick ----------
 
   override tick(ctx: TickContext): void {
     if (!this.wired) this.wire();
+    this.applyPendingTiles(ctx);
     this.grow(ctx);
     this.validate(ctx);
     if (this.dailyDue) {
@@ -140,6 +228,42 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       this.daily(ctx);
     }
     this.producer.due = true;
+  }
+
+  /**
+   * The tile writes the event handlers asked for, made in 07's own tick (D-089): grass cleared by
+   * grazing and by a new farm plot, and the tiles that became bare soil.
+   */
+  private applyPendingTiles(ctx: TickContext): void {
+    const map = this.map;
+    for (const tile of this.pendingGrazed.splice(0)) {
+      if (!map.validIndex(tile)) continue;
+      if (map.hasFlag(tile, TileFlag.Grass)) ctx.terrain.setFlag(tile, TileFlag.Grass, false);
+      this.addBare(tile);
+    }
+    for (const tile of this.pendingPlotTiles.splice(0)) {
+      if (map.validIndex(tile) && map.hasFlag(tile, TileFlag.Grass)) ctx.terrain.setFlag(tile, TileFlag.Grass, false);
+    }
+    for (const tile of this.pendingBare.splice(0)) this.addBare(tile);
+  }
+
+  /** `07` § Grass: `bareSoil`, a sorted set of soil floors waiting for grass. */
+  private addBare(tile: TileIndex): void {
+    const map = this.map;
+    if (!map.validIndex(tile) || map.kindAt(tile) !== TileKind.Floor || map.hasFlag(tile, TileFlag.Grass)) return;
+    if (map.hasFlag(tile, TileFlag.Constructed)) return;
+    const m = map.materialAt(tile);
+    const outdoor = map.hasFlag(tile, TileFlag.Outdoor);
+    if (outdoor ? this.soilClasses[m] !== 'soil' : m !== this.caveLoam) return;
+    let lo = 0;
+    let hi = this.bareSoil.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if ((this.bareSoil[mid] as number) < tile) lo = mid + 1;
+      else hi = mid;
+    }
+    if (this.bareSoil[lo] === tile) return;
+    this.bareSoil.splice(lo, 0, tile);
   }
 
   /** The lazy first-tick indexing of plots (D-082: a load repeats it). */
@@ -219,8 +343,37 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     }
   }
 
-  /** The daily pass (saplings, regrowth, grass, ash) arrives with T-M4-02. */
-  private daily(_ctx: TickContext): void {}
+  /** `environment.md`: "daily: saplings …; regrowth tries; grass regrowth over `bareSoil`; shrub timers; ash expiry". */
+  private daily(ctx: TickContext): void {
+    const host = this.wildHost(ctx);
+    for (const grown of growSaplings(host, this.saplings)) {
+      ctx.emit({ type: 'SaplingGrew', tile: grown.tile, species: grown.species });
+    }
+    regrowthTries(host, this.saplings);
+    const regrown = regrowGrass(host, this.bareSoil);
+    if (regrown.length > 0) ctx.emit({ type: 'GrassRegrown', tiles: regrown.sort((a, b) => a - b) });
+    // `07` § Shrubs: a regrowing shrub is mature again at its timer.
+    for (const tile of Array.from(this.shrubTimers.keys()).sort((a, b) => a - b)) {
+      if (this.map.kindAt(tile) !== TileKind.Shrub) {
+        this.shrubTimers.delete(tile);
+        continue;
+      }
+      if (ctx.tick < (this.shrubTimers.get(tile) as number)) continue;
+      this.shrubTimers.delete(tile);
+      ctx.emit({ type: 'ShrubRegrown', tile });
+    }
+    // `07` § Ash: "this system clears it after `ASH_DURATION_DAYS`".
+    for (const tile of Array.from(this.ashTiles.keys()).sort((a, b) => a - b)) {
+      if (!this.map.hasFlag(tile, TileFlag.Ash)) {
+        this.ashTiles.delete(tile);
+        continue;
+      }
+      if (ctx.tick < (this.ashTiles.get(tile) as number)) continue;
+      this.ashTiles.delete(tile);
+      ctx.terrain.setFlag(tile, TileFlag.Ash, false);
+      this.addBare(tile);
+    }
+  }
 
   // ---------- crops ----------
 
@@ -286,6 +439,34 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       this.dailyDue = true;
       return;
     }
+    if (event.type === 'GrassGrazed') {
+      // 08 clears no tile itself: 07 owns grass and clears the flag in its own tick (D-089).
+      this.pendingGrazed.push(event['tile'] as TileIndex);
+      return;
+    }
+    if (event.type === 'TilesChanged') {
+      // "`bareSoil` … maintained from grazing events and construction removal".
+      for (const tile of (event['tiles'] as readonly TileIndex[]) ?? []) this.pendingBare.push(tile);
+      return;
+    }
+    if (event.type === 'FireOut') {
+      // 05 leaves `ash` on a burnt-out tile; 07 clears it after `ASH_DURATION_DAYS`.
+      const until = ctx.tick + ASH_DURATION_DAYS * TICKS_PER_DAY;
+      for (const tile of (event['tiles'] as readonly TileIndex[]) ?? []) {
+        if (this.map.validIndex(tile) && this.map.hasFlag(tile, TileFlag.Ash)) this.ashTiles.set(tile, until);
+      }
+      return;
+    }
+    if (event.type === 'JobCompleted') {
+      // `07` § Shrubs: a gathered shrub "enters `regrowing` for `regrowDays`".
+      if (event['jobType'] !== 'gather') return;
+      const tile = event['target'] as TileIndex;
+      if (!this.map.validIndex(tile) || this.map.kindAt(tile) !== TileKind.Shrub) return;
+      const row = this.facts.row(this.facts.plantOfMaterial(this.map.materialAt(tile)));
+      if (row?.regrowDays === undefined) return;
+      this.shrubTimers.set(tile, ctx.tick + row.regrowDays * TICKS_PER_DAY);
+      return;
+    }
     if (event.type === 'SeasonEffectsChanged') {
       // A new season means new crop choices and a fresh `needsSeeds` note per plot.
       this.needsSeedsAnnounced.clear();
@@ -295,16 +476,20 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     if (event.type !== 'ZoneChanged' || event['zoneType'] !== FARM_PLOT) return;
     const zoneId = event['zoneId'] as EntityId;
     const change = event['change'] as string;
+    const tiles = (event['tiles'] as readonly TileIndex[]) ?? [];
     if (change === 'removed') {
       // "Removing the zone kills its crops and returns nothing."
       this.removePlot(zoneId);
-      for (const tile of (event['tiles'] as readonly TileIndex[]) ?? []) {
+      for (const tile of tiles) {
         const id = this.cropAtTile.get(tile);
         if (id !== undefined) this.killCrop(ctx, id, 'zone_removed');
+        this.pendingBare.push(tile);
       }
       return;
     }
     this.addPlot(zoneId);
+    // "Constructions, roads and farm plots clear `grass` permanently while they exist."
+    for (const tile of tiles) this.pendingPlotTiles.push(tile);
     this.producer.due = true;
   }
 
@@ -451,6 +636,10 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       rng: this.rng.state(),
       dailyDue: this.dailyDue,
       wired: this.wired,
+      pendingGrazed: this.pendingGrazed.slice(),
+      pendingBare: this.pendingBare.slice(),
+      pendingPlotTiles: this.pendingPlotTiles.slice(),
+      producerDue: this.producer.due,
     };
   }
 
@@ -473,5 +662,12 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     this.rng.setState(state.rng);
     this.dailyDue = state.dailyDue;
     this.wired = state.wired;
+    this.pendingGrazed.length = 0;
+    this.pendingGrazed.push(...(state.pendingGrazed ?? []));
+    this.pendingBare.length = 0;
+    this.pendingBare.push(...(state.pendingBare ?? []));
+    this.pendingPlotTiles.length = 0;
+    this.pendingPlotTiles.push(...(state.pendingPlotTiles ?? []));
+    this.producer.due = state.producerDue !== false;
   }
 }

@@ -22,4 +22,10 @@ export interface PlantsStateV1 {
   rng: RngState;
   dailyDue: boolean;
   wired: boolean;
+  /** Tile writes an event handler asked for and 07's next tick has not made yet (D-089, D-082). */
+  pendingGrazed: TileIndex[];
+  pendingBare: TileIndex[];
+  pendingPlotTiles: TileIndex[];
+  /** The producer's scan flag, so a loaded game scans exactly when the saved one would. */
+  producerDue: boolean;
 }

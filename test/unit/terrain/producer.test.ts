@@ -115,9 +115,11 @@ describe('T-M1-10 terrain jobs: completion', () => {
 
   it('chop fells a tree to floor with logs and TreeFelled; the player cancelling a job clears its designation', () => {
     const { w, reader } = world('chop');
-    const plants = w.game.registry.table('plants');
+    // A tree tile carries its species' *material* index (`07` § Concepts, and stage 9 of local map
+    // generation), which is what 03's plant facts are indexed by since T-M4-02.
+    const materials = w.game.registry.table('materials');
     const tree = w.index(46, 14, 32);
-    w.game.world.services.terrain.setKind(tree, TileKind.Tree, plants.index('oak'));
+    w.game.world.services.terrain.setKind(tree, TileKind.Tree, materials.index('oak'));
     w.game.world.applyCommand({ type: 'Designate', tiles: [tree], kind: 'chop' });
     w.until((x) => x.map.kindAt(tree) === TileKind.Floor, 1000);
     w.step(1);

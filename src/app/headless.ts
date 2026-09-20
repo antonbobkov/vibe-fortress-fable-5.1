@@ -424,7 +424,7 @@ export class HeadlessGame {
       new FluidsSystem({ sinks: local?.sinks ?? [] }),
       new MaterialsSystem({ warmSprings: local?.warmSprings ?? [] }),
       new WeatherSystem({ spec }),
-      new PlantsSystem(),
+      new PlantsSystem({ spec }),
       new DwarvesSystem(),
       new JobsSystem(),
       new ItemsSystem(),
