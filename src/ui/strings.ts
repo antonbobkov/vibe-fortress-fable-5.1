@@ -337,6 +337,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.buried': 'A dwarf has been laid to rest.',
   'announce.room_quality': 'A room has become {tierName}.',
   'announce.stockpile_full': 'A stockpile is full.',
+  // 07 § Registrations ("announcement `PlotNeedsSeeds` as a note"); text D-065.
+  'announce.plot_needs_seeds': 'A farm plot has no {species} seeds.',
 });
 
 /** A `StringKey`'s text with `{placeholders}` filled; the key itself when no row has it. */

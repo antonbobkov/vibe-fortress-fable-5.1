@@ -13,6 +13,7 @@ import type { ItemsSystem } from '@systems/items';
 import type { FluidsSystem } from '@systems/fluids';
 import type { MaterialsSystem } from '@systems/materials';
 import type { WeatherStateId, WeatherSystem } from '@systems/weather';
+import type { PlantsSystem } from '@systems/plants';
 import { NotYetImplementedError } from '@core/system';
 import { C } from '@core/components';
 import { cumulativeXp } from '@systems/dwarves/rules/skills';
@@ -308,6 +309,28 @@ export class TestWorld {
   /** `forceWeather(state)`: hold a weather state until released with `null` (D-101). */
   forceWeather(state: WeatherStateId | null): void {
     this.weather.force(state, this.tick);
+  }
+
+  /** 07 plants (T-M4-01). */
+  get plants(): PlantsSystem {
+    const system = this.game.world.scheduler.byId('07') as PlantsSystem | undefined;
+    if (system === undefined) throw new Error('TestWorld.plants: no plant system in this world');
+    return system;
+  }
+
+  /**
+   * Put a crop on a farm plot tile at once, the state a finished `plant` job leaves behind
+   * (T-M4-01), for scenarios that test growth rather than the farming loop.
+   */
+  plantCrop(tile: TileIndex, species: string, stage = 0): EntityId {
+    const plants = this.plants;
+    const plant = plants.facts.indexOf(species);
+    if (plant === 0) throw new Error(`plantCrop: unknown species ${species}`);
+    const zoneId = this.game.world.readers.of<{ zoneAt(i: TileIndex): EntityId }>('14').zoneAt(tile);
+    const id = this.game.world.entities.create('crop');
+    this.game.world.entities.add(id, C.Crop, { plotZoneId: zoneId, plant, stage: stage as 0 | 1 | 2 | 3, growth: 0, tile });
+    plants.cropAtTile.set(tile, id);
+    return id;
   }
 
   /** 05 materials (T-M3-03). */

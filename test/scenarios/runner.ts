@@ -53,6 +53,11 @@ export interface Scenario {
    * DECISIONS.md D-036.
    */
   readonly systems?: () => readonly GameSystem[];
+  /**
+   * The calendar tick the world starts at, for scenarios whose rule depends on the season or the
+   * hour (`pl_frost` needs winter; a render test needs daylight). T-M4-01.
+   */
+  readonly startTick?: number;
   /** Direct world edits before tick 0, through `TestWorld` helpers only. */
   readonly setup?: (w: TestWorld) => void;
   readonly commands?: readonly ScheduledCommand[];
@@ -88,6 +93,7 @@ function buildWorld(scenario: Scenario): TestWorld {
     seed: scenario.seed,
     ...world,
     embark: typeof embark === 'object' ? { preset: embark['preset'] as string } : embark,
+    ...(scenario.startTick === undefined ? {} : { startTick: scenario.startTick }),
     ...(scenario.systems === undefined ? {} : { systems: scenario.systems() }),
   });
 }

@@ -39,6 +39,9 @@ interface MaterialRow {
 const MEETING_OVERLAPS: readonly string[] = ['hearth_hall', 'dining_hall'];
 const MEETING = 'meeting_area';
 
+/** The farm plot zone type, whose tiles must be all lit or all dark (`07` § Farm plots). */
+const FARM_PLOT_ZONE = 'farm_plot';
+
 /** Stockpile settings live in 13's `Stockpile` component and are set by 13's commands (D-071). */
 const STOCKPILE_OWNED_SETTINGS: readonly string[] = ['filter', 'containers', 'priority', 'links'];
 
@@ -151,7 +154,7 @@ export class ZoneStore {
     if (!map.validIndex(i)) return false;
     if (!this.walkable(i)) return false;
     const id = this.types[type]?.id ?? '';
-    if (id === 'farm_plot') return this.farmable(i);
+    if (id === FARM_PLOT_ZONE) return this.farmable(i);
     if (id === 'fishing') return this.fishable(i);
     return true;
   }
@@ -184,8 +187,18 @@ export class ZoneStore {
 
   private validate(type: number, tiles: readonly TileIndex[], except: EntityId): CommandResult {
     for (const t of tiles) if (!this.qualifies(type, t)) return reject('bad_zone_tiles');
+    // `07` § Farm plots: "a plot with any `lit` tile is a surface plot; a plot with no `lit` tile is
+    // a cave plot; mixed plots are refused" (T-M4-01).
+    if (this.types[type]?.id === FARM_PLOT_ZONE && this.mixedLight(tiles)) return reject('bad_zone_tiles');
     for (const t of tiles) if (this.overlapOn(type, t, except) !== 0) return reject('overlap');
     return OK;
+  }
+
+  /** True when a tile set holds both lit and unlit tiles. */
+  private mixedLight(tiles: readonly TileIndex[]): boolean {
+    let lit = 0;
+    for (const t of tiles) if (this.host.map.hasFlag(t, TileFlag.Lit)) lit += 1;
+    return lit > 0 && lit < tiles.length;
   }
 
   // ---------- commands ----------

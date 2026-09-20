@@ -266,6 +266,8 @@ describe('T-M1-14 announcements', () => {
       DoorBroken: 'alert',
       Buried: 'note',
       RoomQualityChanged: 'note',
+      // T-M4-01: 07 § Registrations ("announcement `PlotNeedsSeeds` as a note").
+      PlotNeedsSeeds: 'note',
     });
   });
 
