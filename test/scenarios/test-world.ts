@@ -14,6 +14,7 @@ import type { FluidsSystem } from '@systems/fluids';
 import type { MaterialsSystem } from '@systems/materials';
 import type { WeatherStateId, WeatherSystem } from '@systems/weather';
 import type { PlantsSystem } from '@systems/plants';
+import type { AnimalsSystem } from '@systems/animals';
 import { NotYetImplementedError } from '@core/system';
 import { C } from '@core/components';
 import { cumulativeXp } from '@systems/dwarves/rules/skills';
@@ -331,6 +332,13 @@ export class TestWorld {
     this.game.world.entities.add(id, C.Crop, { plotZoneId: zoneId, plant, stage: stage as 0 | 1 | 2 | 3, growth: 0, tile });
     plants.cropAtTile.set(tile, id);
     return id;
+  }
+
+  /** 08 animals (T-M4-03). */
+  get animals(): AnimalsSystem {
+    const system = this.game.world.scheduler.byId('08') as AnimalsSystem | undefined;
+    if (system === undefined) throw new Error('TestWorld.animals: no animal system in this world');
+    return system;
   }
 
   /** 05 materials (T-M3-03). */

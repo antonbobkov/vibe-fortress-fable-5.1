@@ -268,6 +268,9 @@ describe('T-M1-14 announcements', () => {
       RoomQualityChanged: 'note',
       // T-M4-01: 07 § Registrations ("announcement `PlotNeedsSeeds` as a note").
       PlotNeedsSeeds: 'note',
+      // T-M4-03: 08 § Registrations ("announcements for starving, pet death, adoption").
+      AnimalStarving: 'alert',
+      PetAdopted: 'note',
     });
   });
 

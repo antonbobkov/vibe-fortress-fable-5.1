@@ -339,6 +339,9 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.stockpile_full': 'A stockpile is full.',
   // 07 § Registrations ("announcement `PlotNeedsSeeds` as a note"); text D-065.
   'announce.plot_needs_seeds': 'A farm plot has no {species} seeds.',
+  // 08 § Player-facing behavior ("The cow is starving", "The cat has adopted Ketil Ironvein").
+  'announce.animal_starving': 'An animal is starving.',
+  'announce.pet_adopted': 'A pet has adopted a dwarf.',
 });
 
 /** A `StringKey`'s text with `{placeholders}` filled; the key itself when no row has it. */

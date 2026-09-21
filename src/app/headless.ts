@@ -43,6 +43,7 @@ import { FluidsSystem } from '@systems/fluids';
 import { MaterialsSystem } from '@systems/materials';
 import { WeatherSystem } from '@systems/weather';
 import { PlantsSystem } from '@systems/plants';
+import { AnimalsSystem } from '@systems/animals';
 import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
@@ -411,7 +412,7 @@ export class HeadlessGame {
   /**
    * The systems of the milestones built so far, in no particular order (the scheduler orders
    * them): 03 terrain (T-M1-07), 04 fluids (T-M3-01), 05 materials (T-M3-03), 06 weather (T-M3-06),
-   * 07 plants (T-M4-01), 10 dwarves, 11 jobs, 13 items (T-M2-01),
+   * 07 plants (T-M4-01), 08 animals (T-M4-03), 10 dwarves, 11 jobs, 13 items (T-M2-01),
    * 14 buildings (T-M2-03). A generated map hands its river sinks to 04 and its warm springs to 05.
    */
   static standardSystems(
@@ -425,6 +426,7 @@ export class HeadlessGame {
       new MaterialsSystem({ warmSprings: local?.warmSprings ?? [] }),
       new WeatherSystem({ spec }),
       new PlantsSystem({ spec }),
+      new AnimalsSystem({ spec }),
       new DwarvesSystem(),
       new JobsSystem(),
       new ItemsSystem(),
