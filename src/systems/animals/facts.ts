@@ -8,7 +8,7 @@
  */
 
 import type { Registry } from '@core/registry';
-import { CAP_MIN, CAP_PER_WEIGHT, DEFAULT_PERCEPTION } from './constants';
+import { ADOPTING_SPECIES, CAP_MIN, CAP_PER_WEIGHT, DEFAULT_PERCEPTION } from './constants';
 
 export type Diet = 'grazer' | 'carnivore' | 'omnivore' | 'none';
 export type Temperament = 'timid' | 'neutral' | 'territorial' | 'aggressive';
@@ -99,6 +99,11 @@ export class AnimalFacts {
 
   sizeOf(species: number): number {
     return this.rows[species]?.size ?? 0;
+  }
+
+  /** `08` § Pets: the species that adopt a dwarf each season. */
+  adopts(species: number): boolean {
+    return ADOPTING_SPECIES.includes(this.idOf(species));
   }
 
   /** `creatures.md`: `cap = weight / 5`, rounded up, minimum 2. */

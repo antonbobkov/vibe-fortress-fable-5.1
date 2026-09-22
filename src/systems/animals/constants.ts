@@ -85,3 +85,26 @@ export const ANIMALS_PHASE = 0;
  * same value keeps a wandering animal from holding a stale path for ever. DECISIONS.md D-112.
  */
 export const WANDER_TIMEOUT_TICKS = 200;
+
+/**
+ * `08` § Pets: "A pet follows its dwarf loosely (within 5 tiles)"; `creature-brains.md` uses the
+ * same 5 for `T.petOf and dist(owner) > 5`.
+ */
+export const PET_FOLLOW_RADIUS = 5;
+
+/** `08` § Products: eggs are laid as this item type into a `nest_box` building. */
+export const EGG_ITEM = 'egg';
+/** The function tag of the nest box building (`buildings-and-furniture.md`). */
+export const NEST_BOX_TAG = 'nest_box';
+/**
+ * A tame animal's think interval. `08` § Perception and brains gives one only for wild animals;
+ * a tame animal is never fleeing a threat it must react to every tick, so it uses the far interval
+ * `WILD_THINK_TICKS`. DECISIONS.md D-114.
+ */
+export const TAME_THINK_TICKS = WILD_THINK_TICKS;
+/** The species that adopt a dwarf each season (`08` § Pets: "each `cat` not already a pet"). */
+export const ADOPTING_SPECIES: readonly string[] = Object.freeze(['cat']);
+/** The zone type a grazer is kept in (`08` § Pastures and feeding). */
+export const PASTURE_ZONE = 'pasture';
+/** `NameAnimal`: the same 1-24 characters `RenameDwarf` allows. */
+export const ANIMAL_NAME_MAX = 24;

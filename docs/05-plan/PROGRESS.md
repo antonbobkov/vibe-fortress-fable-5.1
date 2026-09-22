@@ -75,7 +75,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M4-01 — Plants: species data, growth, crops, plots, plant and harvest jobs (opus-m4, 2026-09-20)
 - [x] T-M4-02 — Plants: trees, saplings, shrubs, grass, ash (opus-m4, 2026-09-20)
 - [x] T-M4-03 — Animals: species, wild brain, spawning, leaving (opus-m4, 2026-09-20)
-- [ ] T-M4-04 — Animals: tame behavior, pastures, condition, breeding, products, slaughter marking
+- [x] T-M4-04 — Animals: tame behavior, pastures, condition, breeding, products, slaughter marking (gpt6-m4, 2026-09-22)
 - [ ] T-M4-05 — Dwarves: needs, hourly update, thresholds, interrupts
 - [ ] T-M4-06 — Dwarves: activities eat, drink, sleep, social, comfort, joy; behavior selection complete for civilians
 - [ ] T-M4-07 — Dwarves: titles, children, aging, clothing slots
@@ -153,4 +153,3 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [ ] T-M8-08 — Documentation sync
 - [ ] T-M8-09 — Release build
 - [ ] T-M8-10 — Gate M8 — release
-

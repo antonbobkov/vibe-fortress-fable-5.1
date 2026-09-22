@@ -15,6 +15,13 @@ export interface SpeciesCount {
   tame: number;
 }
 
+/** An egg waiting in a nest box (`08` § Products). */
+export interface EggRecord {
+  box: EntityId;
+  laidTick: number;
+  species: number;
+}
+
 export interface AnimalsStateV1 {
   stateVersion: 1;
   breedingCaps: [number, number][];
@@ -25,4 +32,13 @@ export interface AnimalsStateV1 {
   dailyDue: boolean;
   provoked: [EntityId, EntityId][];
   grazedPending: number[];
+  hourlyDue: boolean;
+  seasonDue: boolean;
+  eggs: [EntityId, EggRecord][];
+  /** Products whose job has not been made or finished yet. */
+  ready: [string, EntityId][];
+  announcedProducts: string[];
+  starvingSince: [EntityId, number][];
+  starvingAnnounced: [EntityId, number][];
+  lastTameThink: [EntityId, number][];
 }

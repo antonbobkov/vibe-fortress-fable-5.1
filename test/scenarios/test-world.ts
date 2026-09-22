@@ -20,6 +20,7 @@ import { C } from '@core/components';
 import { cumulativeXp } from '@systems/dwarves/rules/skills';
 import { dwarfComponents } from '@systems/dwarves/rules/components';
 import { makeDwarf } from '@systems/dwarves/rules/make-dwarf';
+import { arrivalTame } from '@systems/embark';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import { TICKS_PER_YEAR } from '@core/constants';
 import { TileFlag, TileKind, type Map3D } from '@core/map3d';
@@ -339,6 +340,18 @@ export class TestWorld {
     const system = this.game.world.scheduler.byId('08') as AnimalsSystem | undefined;
     if (system === undefined) throw new Error('TestWorld.animals: no animal system in this world');
     return system;
+  }
+
+  /**
+   * A tame animal of the fortress, the state the embark arrival and T-M4-04's breeding leave
+   * behind (`08` § State): no pasture, fed, untrained.
+   */
+  spawnTame(species: string, at: TileIndex, opts: { sex?: 0 | 1; juvenileUntil?: number } = {}): EntityId {
+    const id = this.game.world.services.spawn.creature(this.game.registry.table('creatures').index(species), at, 'fortress', {
+      ...(opts.sex === undefined ? {} : { sex: opts.sex }),
+    });
+    this.game.world.entities.add(id, C.Tame, { ...arrivalTame('none'), juvenileUntil: opts.juvenileUntil ?? 0 });
+    return id;
   }
 
   /** 05 materials (T-M3-03). */
