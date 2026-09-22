@@ -6,13 +6,39 @@ Reference for running OpenAI's Codex CLI against this repo to delegate a task
 ## Setup
 
 Already authenticated on this machine via ChatGPT (`~/.codex/auth.json`, Plus
-plan). No login needed. If `codex` isn't on PATH, run it through npx:
+plan). No login needed.
 
-```bash
+`codex` is **not on PATH** (neither Git Bash nor PowerShell). Two ways to run
+it:
+
+```powershell
+# 1. the installed binary (fastest, no download)
+$CODEX = 'C:\Users\anton\AppData\Local\OpenAI\Codex\bin\247581e40ee272fb\codex.exe'
+& $CODEX exec ...
+
+# 2. npx (slower, re-resolves the package each run)
 npx --yes @openai/codex exec ...
 ```
 
-Or install it globally: `npm install -g @openai/codex`.
+Verified working: codex-cli **0.156.0**.
+
+### Model
+
+**Always pass the model and reasoning effort explicitly on every run:**
+
+```
+-m gpt-6-sol -c model_reasoning_effort="high"
+```
+
+That pair *is* "GPT-6 Sol High".
+
+`~/.codex/config.toml` currently happens to set the same two values
+globally, but never rely on it — that file is shared with the Codex desktop
+app and the interactive TUI, and any of them can change it at any time. A
+silent switch to a different model or a lower reasoning effort mid-milestone
+is exactly the kind of surprise that is expensive to notice after the fact.
+Passing both flags makes each run self-describing and reproducible from the
+shell history alone.
 
 ## Running a task non-interactively
 
@@ -26,15 +52,26 @@ Key flags:
   shell cwd.
 - `-s, --sandbox <MODE>` — `read-only`, `workspace-write` (needed to let Codex
   edit files), or `danger-full-access`.
-- `-a, --ask-for-approval <on-request|never>` — when Codex must pause for
-  human approval of a command. Default is interactive approval; for a
-  scripted handoff either accept the prompts or use `--approve-for-me` to
-  auto-approve through the workspace-write sandbox.
+
+  **`workspace-write` cannot run this repo's test suite.** Under the Windows
+  sandbox (`[windows] sandbox = "unelevated"`) Node cannot spawn child
+  processes, so Vitest dies at startup with esbuild `spawn EPERM`. Typecheck
+  still works; `npm test`, `lint` and e2e do not. Since every task here is
+  only done once the suite is green, a real handoff needs
+  **`-s danger-full-access`** (verified: Vitest runs normally). There is no
+  middle setting — `windows.sandbox` only accepts `elevated` or
+  `unelevated`, not `none`.
+- `--approve-for-me` — auto-approve command requests through the
+  workspace-write sandbox. **`-a` / `--ask-for-approval` no longer exists in
+  0.156** (`error: unexpected argument '-a' found`); this flag replaced it.
+  In practice `-s workspace-write` alone runs unattended fine.
 - `--json` — stream events as JSONL (`thread.started`, `item.completed`,
   `turn.completed` with token usage, etc.) instead of TUI output.
 - `-o, --output-last-message <FILE>` — write just the agent's final message
   to a file, useful for scripted pickup.
-- `-m, --model <MODEL>` — override the model for this run.
+- `-m, --model <MODEL>` — the model for this run. Always pass it; see
+  [Model](#model) above. Reasoning effort is a separate setting and needs its
+  own `-c model_reasoning_effort="<low|medium|high>"`.
 
 After the run, treat it like any other agent's changes: `git status` /
 `git diff` before committing. `workspace-write` lets Codex edit files
@@ -64,13 +101,16 @@ thread tracked locally.
 
 ## Checking remaining quota (5-hour / weekly)
 
-Interactive: run `codex`, then type `/status`.
+Interactive: run `codex`, then type `/status`. (`codex models` and other TUI
+subcommands fail with "stdin is not a terminal" when run from a tool call.)
 
 Scripted, without opening the TUI — query the same first-party endpoint the
 CLI's own status line uses, with the token already stored locally:
 
+On this machine the interpreter is `python`, not `python3`:
+
 ```bash
-python3 -c "
+python -c "
 import json, os, urllib.request
 auth_path = os.path.join(os.environ.get('CODEX_HOME', os.path.expanduser('~/.codex')), 'auth.json')
 with open(auth_path) as f:
@@ -88,17 +128,25 @@ Response has `rate_limit.primary_window` (rolling 5h, `used_percent` /
 `reset_at`) and `.secondary_window` (weekly). Read-only, doesn't burn any
 model usage — safe to poll before/after a handoff.
 
+Both windows are `used_percent` + `reset_at` (unix seconds):
+`primary_window` = rolling 5 h, `secondary_window` = weekly.
+
 ## Example handoff for this repo
 
-```bash
-codex exec -C "E:\code\vibe-games\vibe-fortress-fable-5.1" \
-  -s workspace-write -c agents.enabled=false --json \
-  -o last_message.txt \
-  "Implement <specific scoped task>, following the existing code style in
-   src/systems/. Only touch files under <specific path> — do not modify
-   unrelated in-progress work. Run npm run typecheck and npm run test
-   before finishing, and report any failures instead of leaving them."
+A long prompt is best kept in a file and piped in as stdin (pass `-` as the
+prompt), which avoids quoting problems in PowerShell:
+
+```powershell
+$CODEX = 'C:\Users\anton\AppData\Local\OpenAI\Codex\bin\247581e40ee272fb\codex.exe'
+Get-Content prompt.txt -Raw |
+  & $CODEX exec -C "E:\code\vibe-games\vibe-fortress-fable-5.1" `
+    -m gpt-6-sol -c model_reasoning_effort="high" `
+    -s danger-full-access -c agents.enabled=false `
+    -o last_message.txt -
 ```
+
+A milestone-sized handoff runs long; allow a generous timeout and stream the
+tail of stdout rather than waiting silently.
 
 Notes for scoping a handoff in this repo:
 
