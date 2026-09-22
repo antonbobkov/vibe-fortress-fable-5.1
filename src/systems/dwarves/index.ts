@@ -4,7 +4,8 @@
  * brains.md` § Dwarf brain. Needs, activities, relationships and the other behaviors join in M4.
  */
 
-import { C } from '@core/components';
+import { C, type Needs } from '@core/components';
+import { NEED_MAX, TICKS_PER_DAY } from '@core/constants';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import type { CommandType } from '@core/command-types';
 import type { EventType } from '@core/event-types';
@@ -19,10 +20,14 @@ import { grantXp } from './skills';
 import { movementEffects, type MoveFacts } from './movement-effects';
 import type { DwarvesStateV1, TitleName } from './state';
 import { TileFlag } from '@core/map3d';
+import type { WeatherReader } from '@systems/weather';
+import { SLEEP_NEED_MIN, advanceNeeds, crossed, type NeedName } from './needs';
+import { DEHYDRATE_DAYS, STARVE_DAYS } from './constants';
 
 export { makeReader, type DwarvesReader } from './reader';
 export { NO_JOB, select, tickDwarf, type BrainHost } from './brain';
 export { grantXp } from './skills';
+export { advanceNeeds, crossed, WANT, CRITICAL, NEED_NAMES, type NeedName } from './needs';
 export * from './rules/skills';
 export { dwarfComponents, freshBrain, SLEEP_START_MAX, SLEEP_START_MIN, type DwarfComponents } from './rules/components';
 export type { TitleName } from './state';
@@ -48,7 +53,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['JobCompleted', 'CreatureDied', 'EntitiesMoved'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -60,6 +65,82 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   private children: EntityId[] = [];
   /** The wagon tile of the arrival, the idle anchor until there is a hearth hall (D-057). */
   wagonTile: TileIndex = -1;
+  readonly interruptFlags = new Set<EntityId>();
+  readonly hungerMaxSince = new Map<EntityId, number>();
+  readonly thirstMaxSince = new Map<EntityId, number>();
+  readonly starvingAnnounced = new Map<EntityId, number>();
+
+  hasInterrupt(id: EntityId): boolean { return this.interruptFlags.has(id); }
+  takeInterrupt(id: EntityId): boolean { return this.interruptFlags.delete(id); }
+
+  /** TestWorld's direct setup helper uses the same crossing rule as an hourly update. */
+  setNeed(id: EntityId, name: NeedName, value: number): void {
+    if (this.world === null) throw new Error('10 dwarves: used before init');
+    const before = this.world.entities.get(id, C.Needs);
+    if (before === undefined || !Number.isFinite(value)) throw new Error(`setNeed: invalid dwarf or value ${id}`);
+    const after: Needs = { ...before, [name]: Math.max(0, Math.min(NEED_MAX, value)) };
+    this.world.entities.add(id, C.Needs, after);
+    this.recordCrossings(id, before, after, (event) => this.world?.emit(event));
+    this.updateMaxSince(id, after, this.world.calendar.tick);
+  }
+
+  private recordCrossings(id: EntityId, before: Needs, after: Needs, emit: (event: GameEvent) => void): void {
+    const change = crossed(before, after);
+    if (change.want.length > 0 || change.critical.length > 0) this.interruptFlags.add(id);
+    for (const need of change.critical) emit({ type: 'NeedCritical', id, need });
+  }
+
+  private updateMaxSince(id: EntityId, n: Needs, tick: number): void {
+    for (const [name, map] of [['hunger', this.hungerMaxSince], ['thirst', this.thirstMaxSince]] as const) {
+      if (n[name] >= NEED_MAX) {
+        if (!map.has(id)) map.set(id, tick);
+      } else map.delete(id);
+    }
+  }
+
+  private hourly(ctx: TickContext, hour: number): void {
+    const entities = ctx.world.entities;
+    const thirstPercent = ctx.readers.has('06') ? ctx.readers.of<WeatherReader>('06').thirstModifier() : 100;
+    const day = Math.floor(ctx.tick / TICKS_PER_DAY);
+    for (const id of this.reader().list()) {
+      const before = entities.get(id, C.Needs);
+      if (before === undefined) continue;
+      const brain = entities.get(id, C.Brain);
+      const schedule = entities.get(id, C.Schedule);
+      const end = entities.get(id, C.Attributes)?.end ?? 50;
+      const asleep = brain?.behavior === 'need' && brain.activity === 'sleep';
+      const working = brain?.behavior === 'work' && (entities.get(id, C.Worker)?.jobId ?? 0) !== 0;
+      const after = advanceNeeds(before, end, thirstPercent, asleep, working);
+      entities.add(id, C.Needs, after);
+      this.recordCrossings(id, before, after, (e) => ctx.emit(e));
+      if (schedule?.sleepStartHour === hour && after.rest > SLEEP_NEED_MIN) this.interruptFlags.add(id);
+      this.updateMaxSince(id, after, ctx.tick);
+      this.announceStarving(id, after, day, (e) => ctx.emit(e));
+    }
+  }
+
+  private announceStarving(id: EntityId, n: Needs, day: number, emit: (e: GameEvent) => void): void {
+    if (this.starvingAnnounced.get(id) === day) return;
+    for (const name of ['hunger', 'thirst'] as const) {
+      if (n[name] >= NEED_MAX) {
+        this.starvingAnnounced.set(id, day);
+        emit({ type: 'Starving', id, need: name });
+        break;
+      }
+    }
+  }
+
+  private daily(ctx: TickContext): void {
+    for (const id of this.reader().list()) {
+      const n = ctx.world.entities.get(id, C.Needs);
+      if (n === undefined) continue;
+      this.announceStarving(id, n, Math.floor(ctx.tick / TICKS_PER_DAY), (e) => ctx.emit(e));
+      const hungry = this.hungerMaxSince.get(id);
+      const thirsty = this.thirstMaxSince.get(id);
+      if ((hungry !== undefined && ctx.tick - hungry >= STARVE_DAYS * TICKS_PER_DAY)
+        || (thirsty !== undefined && ctx.tick - thirsty >= DEHYDRATE_DAYS * TICKS_PER_DAY)) ctx.emit({ type: 'Starvation', id });
+    }
+  }
 
   override init(ctx: InitContext): void {
     this.world = ctx.world;
@@ -121,6 +202,16 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
 
   /** `JobCompleted` → experience: `xp = jobDef.xp × (100 + Wits) / 150` to the job's skill. */
   override handle(event: GameEvent, ctx: TickContext): void {
+    if (event.type === 'HourPassed') { this.hourly(ctx, event['hour'] as number); return; }
+    if (event.type === 'DayPassed') { this.daily(ctx); return; }
+    if (event.type === 'CreatureDied') {
+      const id = event['id'] as EntityId;
+      this.interruptFlags.delete(id);
+      this.hungerMaxSince.delete(id);
+      this.thirstMaxSince.delete(id);
+      this.starvingAnnounced.delete(id);
+      return;
+    }
     if (event.type === 'EntitiesMoved') {
       this.moved(event['moves'] as readonly (readonly [EntityId, TileIndex, TileIndex])[], ctx);
       return;
@@ -228,6 +319,10 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       children: this.children.slice(),
       rng: this.stream.state(),
       wagonTile: this.wagonTile,
+      interruptFlags: Array.from(this.interruptFlags).sort((a, b) => a - b),
+      hungerMaxSince: Array.from(this.hungerMaxSince).sort((a, b) => a[0] - b[0]),
+      thirstMaxSince: Array.from(this.thirstMaxSince).sort((a, b) => a[0] - b[0]),
+      starvingAnnounced: Array.from(this.starvingAnnounced).sort((a, b) => a[0] - b[0]),
     };
   }
 
@@ -238,5 +333,13 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     this.children = state.children.slice();
     this.stream.setState(state.rng);
     this.wagonTile = state.wagonTile;
+    this.interruptFlags.clear();
+    for (const id of state.interruptFlags ?? []) this.interruptFlags.add(id);
+    this.hungerMaxSince.clear();
+    for (const [id, tick] of state.hungerMaxSince ?? []) this.hungerMaxSince.set(id, tick);
+    this.thirstMaxSince.clear();
+    for (const [id, tick] of state.thirstMaxSince ?? []) this.thirstMaxSince.set(id, tick);
+    this.starvingAnnounced.clear();
+    for (const [id, day] of state.starvingAnnounced ?? []) this.starvingAnnounced.set(id, day);
   }
 }

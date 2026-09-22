@@ -15,6 +15,7 @@ import type { MaterialsSystem } from '@systems/materials';
 import type { WeatherStateId, WeatherSystem } from '@systems/weather';
 import type { PlantsSystem } from '@systems/plants';
 import type { AnimalsSystem } from '@systems/animals';
+import type { DwarvesSystem } from '@systems/dwarves';
 import { NotYetImplementedError } from '@core/system';
 import { C } from '@core/components';
 import { cumulativeXp } from '@systems/dwarves/rules/skills';
@@ -284,8 +285,13 @@ export class TestWorld {
     return id;
   }
 
-  setNeed(): never {
-    throw new NotYetImplementedError('TestWorld.setNeed', 'T-M4-05');
+  setNeed(): never;
+  setNeed(id: EntityId, need: keyof import('@core/components').Needs, value: number): void;
+  setNeed(id?: EntityId, need?: keyof import('@core/components').Needs, value?: number): void {
+    if (id === undefined || need === undefined || value === undefined) throw new Error('TestWorld.setNeed (T-M4-05): id, need and value are required');
+    const system = this.game.world.scheduler.byId('10') as DwarvesSystem | undefined;
+    if (system === undefined) throw new Error('TestWorld.setNeed: no dwarves system');
+    system.setNeed(id, need, value);
   }
 
   /** Set a dwarf's skill level, with the cumulative xp of that level (T-M1-09). */
@@ -339,6 +345,13 @@ export class TestWorld {
   get animals(): AnimalsSystem {
     const system = this.game.world.scheduler.byId('08') as AnimalsSystem | undefined;
     if (system === undefined) throw new Error('TestWorld.animals: no animal system in this world');
+    return system;
+  }
+
+  /** 10 dwarves (T-M4-05). */
+  get dwarves(): DwarvesSystem {
+    const system = this.game.world.scheduler.byId('10') as DwarvesSystem | undefined;
+    if (system === undefined) throw new Error('TestWorld.dwarves: no dwarves system in this world');
     return system;
   }
 

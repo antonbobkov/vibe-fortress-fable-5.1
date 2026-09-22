@@ -19,4 +19,9 @@ export interface DwarvesStateV1 {
    * `goal = hearthHallTile(id) or wagonTile`; D-057). -1 when there was no arrival.
    */
   wagonTile: TileIndex;
+  /** Dwarf ids whose next selection must reconsider needs (T-M4-06 consumes the flag). */
+  interruptFlags: EntityId[];
+  hungerMaxSince: [EntityId, number][];
+  thirstMaxSince: [EntityId, number][];
+  starvingAnnounced: [EntityId, number][];
 }
