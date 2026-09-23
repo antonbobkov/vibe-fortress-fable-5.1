@@ -203,7 +203,8 @@ function itemLine(readers: ReaderSet, registry: Registry, id: EntityId): string 
   if (rec === undefined) return '';
   const def = it.def(rec.type);
   const material = registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
-  const parts = [`${rec.count} ${material} ${def?.name ?? ''}`.trim()];
+  const meal = has(readers, '12') ? readers.of<{ mealName(itemId: EntityId): string | null }>('12').mealName(id) : null;
+  const parts = [`${rec.count} ${meal ?? `${material} ${def?.name ?? ''}`}`.trim()];
   if (def?.quality === true) parts[0] += ` (${QUALITY_WORDS[rec.quality] ?? ''})`;
   parts.push(`${it.value(id)} ☼`);
   for (const [flag, word] of FLAG_WORDS) if ((rec.flags & flag) !== 0) parts.push(word);

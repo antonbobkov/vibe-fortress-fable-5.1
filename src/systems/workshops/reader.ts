@@ -2,6 +2,7 @@ import { C, type WorkOrder } from '@core/components';
 import type { EntityId } from '@core/types';
 import type { WorkshopOperator, RecipeRow } from './operate';
 import { civilianProfession, militaryTitle } from './professions';
+import { mealName } from './meals';
 
 export interface WorkshopsReader {
   ordersOf(id: EntityId): readonly WorkOrder[];
@@ -14,6 +15,7 @@ export interface WorkshopsReader {
   militaryTitle(id: EntityId): string;
   stockOf(recipeOutput: string): number;
   isMagmaPowered(id: EntityId): boolean;
+  mealName(itemId: EntityId): string | null;
 }
 
 export function makeReader(op: WorkshopOperator): WorkshopsReader {
@@ -42,6 +44,6 @@ export function makeReader(op: WorkshopOperator): WorkshopsReader {
     militaryTitle: (id) => militaryTitle(entities, registry, id),
     stockOf: (recipeOutput) => op.items.count(recipeOutput),
     isMagmaPowered: (id) => op.isMagmaPowered(id),
+    mealName: (id) => mealName(entities, registry, id),
   };
 }
-
