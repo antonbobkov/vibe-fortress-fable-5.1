@@ -319,8 +319,10 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     for (const id of ctx.world.entities.with(C.Tame)) {
       const t = ctx.world.entities.get(id, C.Tame);
       if (t === undefined) continue;
-      if (t.slaughter && this.readers.has('11')) {
-        const job = this.readers.of<JobsReader>('11').byKey(slaughterKey(id));
+      if (this.readers.has('11')) {
+        const jobs = this.readers.of<JobsReader>('11');
+        const job = (t.slaughter ? jobs.byKey(slaughterKey(id)) : undefined)
+          ?? jobs.byKey(productKey(id, 'milk')) ?? jobs.byKey(productKey(id, 'wool'));
         if (job !== undefined && job.workerId !== 0) {
           const worker = this.tileOf(job.workerId);
           if (worker >= 0 && !this.producerHostAnimalNear(id, worker)) ctx.world.services.movement?.walkTo(id, worker, 'wander', ctx);
@@ -540,6 +542,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     const material = materials.index(EGG_ITEM);
     const egg = ctx.spawn.item(item.index(EGG_ITEM), material, tile, 1, 1);
     if (egg === 0) return false;
+    // An uncollected egg must stay available to hatch, not join generic stockpile hauling.
+    ctx.world.services.items?.reserve(egg, 0);
     this.eggs.set(egg, { box: free, laidTick: ctx.tick, species: creature.species });
     return true;
   }

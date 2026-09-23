@@ -4,7 +4,7 @@
  *
  * A product that is ready makes its job at the farmer's workshop; an egg in a nest box makes a
  * `collect_egg` while the `autoCollectProducts` standing order is on. Leading the animal and
- * delivering products is T-M4-12's. This file owns the readiness keys, slaughter path and
+ * delivering products are worked here. This file owns the readiness keys, slaughter path and
  * completion bookkeeping.
  */
 
@@ -120,8 +120,7 @@ export class AnimalsProducer implements JobProducer {
   }
 
   /**
-   * The bookkeeping half of a completion: the product leaves the ready set, a collected egg leaves
-   * the nest box (so it no longer hatches). The items themselves arrive with T-M4-12.
+   * Complete production at the farmer's workshop and move a collected egg out of its nest box.
    */
   onComplete(jobIn: unknown, ctx: TickContext): void {
     const job = jobIn as Job;
@@ -142,16 +141,34 @@ export class AnimalsProducer implements JobProducer {
       }
       return;
     }
-    if (typeof animal === 'number' && typeof product === 'string') this.host.ready.delete(productKey(animal, product));
+    if (typeof animal === 'number' && typeof product === 'string') {
+      const tile = job.data['anchorTile'];
+      if (typeof tile === 'number' && this.host.animalNear(animal, tile)) {
+        const item = product === 'milk' ? 'milk' : product === 'wool' ? 'wool_raw' : '';
+        const material = product === 'milk' ? 'milk' : product === 'wool' ? 'wool' : '';
+        if (item !== '' && material !== '') ctx.spawn.item(ctx.registry.table('items').index(item),
+          ctx.registry.table('materials').index(material), tile, 1);
+        this.host.ready.delete(productKey(animal, product));
+      }
+    }
     const egg = job.data['egg'];
-    if (typeof egg === 'number') this.host.eggs.delete(egg);
+    if (typeof egg === 'number') {
+      this.host.eggs.delete(egg);
+      const items = ctx.world.services.items;
+      const worker = ctx.world.entities.get(job.workerId, C.Position);
+      if (items !== null && worker !== undefined) {
+        items.attachToCarrier(egg, job.workerId);
+        items.dropAt(egg, ctx.world.map.index(worker.x, worker.y, worker.z));
+        items.release(egg);
+      }
+    }
   }
 
   onJobEvent(_event: GameEvent): void {}
 
   canComplete(jobIn: unknown): boolean {
     const job = jobIn as Job;
-    if (!job.key.startsWith('slaughter:')) return true;
+    if (!job.key.startsWith('slaughter:') && !job.key.startsWith('milk:') && !job.key.startsWith('wool:')) return true;
     const animal = job.data['animal'];
     const tile = job.data['anchorTile'];
     return typeof animal === 'number' && typeof tile === 'number' && this.host.animalNear(animal, tile);
