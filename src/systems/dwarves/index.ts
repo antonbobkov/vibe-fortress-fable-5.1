@@ -23,6 +23,7 @@ import { TileFlag } from '@core/map3d';
 import type { WeatherReader } from '@systems/weather';
 import { SLEEP_NEED_MIN, advanceNeeds, crossed, type NeedName } from './needs';
 import { DEHYDRATE_DAYS, STARVE_DAYS } from './constants';
+import { Activities } from './activities';
 
 export { makeReader, type DwarvesReader } from './reader';
 export { NO_JOB, select, tickDwarf, type BrainHost } from './brain';
@@ -69,6 +70,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly hungerMaxSince = new Map<EntityId, number>();
   readonly thirstMaxSince = new Map<EntityId, number>();
   readonly starvingAnnounced = new Map<EntityId, number>();
+  readonly activities = new Activities();
+  readonly idleAnnounced = new Set<EntityId>();
 
   hasInterrupt(id: EntityId): boolean { return this.interruptFlags.has(id); }
   takeInterrupt(id: EntityId): boolean { return this.interruptFlags.delete(id); }
@@ -157,6 +160,12 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         const t = ctx.readers.of<{ forWorker(id: EntityId): { type: number } | undefined }>('11').forWorker(id);
         return t === undefined ? '' : (jobTypes.byIndex(t.type)?.name ?? '');
       },
+      activities: this.activities,
+      takeInterrupt: (id) => this.takeInterrupt(id),
+      dwarfIds: () => this.reader().list(),
+      idleAnnounced: (id) => this.idleAnnounced.has(id),
+      markIdle: (id) => { this.idleAnnounced.add(id); },
+      clearIdle: (id) => { this.idleAnnounced.delete(id); },
     };
     ctx.register.panel({ id: 'units', title: 'Units', hotkey: 'u' });
     ctx.register.inspector('creature', { id: 'dwarf', order: 10 });
@@ -206,6 +215,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     if (event.type === 'DayPassed') { this.daily(ctx); return; }
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
+      this.activities.plans.delete(id);
+      this.idleAnnounced.delete(id);
       this.interruptFlags.delete(id);
       this.hungerMaxSince.delete(id);
       this.thirstMaxSince.delete(id);
@@ -323,6 +334,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       hungerMaxSince: Array.from(this.hungerMaxSince).sort((a, b) => a[0] - b[0]),
       thirstMaxSince: Array.from(this.thirstMaxSince).sort((a, b) => a[0] - b[0]),
       starvingAnnounced: Array.from(this.starvingAnnounced).sort((a, b) => a[0] - b[0]),
+      activities: Array.from(this.activities.plans).sort((a, b) => a[0] - b[0]),
+      idleAnnounced: Array.from(this.idleAnnounced).sort((a, b) => a - b),
     };
   }
 
@@ -341,5 +354,9 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     for (const [id, tick] of state.thirstMaxSince ?? []) this.thirstMaxSince.set(id, tick);
     this.starvingAnnounced.clear();
     for (const [id, day] of state.starvingAnnounced ?? []) this.starvingAnnounced.set(id, day);
+    this.activities.plans.clear();
+    for (const [id, p] of state.activities ?? []) this.activities.plans.set(id, { ...p });
+    this.idleAnnounced.clear();
+    for (const id of state.idleAnnounced ?? []) this.idleAnnounced.add(id);
   }
 }

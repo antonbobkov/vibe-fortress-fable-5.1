@@ -44,6 +44,7 @@ let room: number[] = [];
 const scenario: Scenario = {
   id: 'tr_dig_room',
   milestone: 1,
+  todo: 'C-004',
   seed: 'tr-dig-room',
   world: 'flat-test',
   embark: 'default',

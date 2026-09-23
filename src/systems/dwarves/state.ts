@@ -8,6 +8,19 @@ import type { EntityId, TileIndex } from '@core/types';
 
 export type TitleName = 'thane' | 'warden' | 'broker' | 'chief_medic';
 
+export interface ActivityPlan {
+  need: string;
+  phase: 'travel' | 'seat' | 'use';
+  itemId: EntityId;
+  partner: EntityId;
+  target: TileIndex;
+  until: number;
+  ownBed: boolean;
+  atTable: boolean;
+  roomTier: number;
+  startedRest: number;
+}
+
 export interface DwarvesStateV1 {
   stateVersion: 1;
   titles: Record<TitleName, EntityId>;
@@ -24,4 +37,6 @@ export interface DwarvesStateV1 {
   hungerMaxSince: [EntityId, number][];
   thirstMaxSince: [EntityId, number][];
   starvingAnnounced: [EntityId, number][];
+  activities?: [EntityId, ActivityPlan][];
+  idleAnnounced?: EntityId[];
 }

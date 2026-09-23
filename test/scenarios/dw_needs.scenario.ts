@@ -3,12 +3,12 @@ import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { TICKS_PER_DAY } from '@core/constants';
 import type { Scenario } from './runner';
 
-/** The stock is ready; T-M4-06 adds the eat and drink activities the acceptance row requires. */
+/** Seven civilians consume the stocked food and drink over three days. */
 const scenario: Scenario = {
   id: 'dw_needs', milestone: 4, seed: 'dw-needs', world: 'flat-test', embark: 'none',
-  todo: 'T-M4-06',
   setup: (w) => {
     const tile = w.index(12, 12, FLAT_TEST_SURFACE_Z);
+    w.zone('stockpile', [tile]);
     for (let i = 0; i < 7; i += 1) w.spawnDwarf({ at: w.index(12 + i, 12, FLAT_TEST_SURFACE_Z) });
     w.spawnItem('plant_food', 'dimcap', tile, 40);
     w.spawnItem('drink', 'ale', tile, 70);

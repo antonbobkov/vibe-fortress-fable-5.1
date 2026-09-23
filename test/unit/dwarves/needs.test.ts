@@ -41,15 +41,14 @@ describe('T-M4-05 needs', () => {
     expect(w.game.world.entities.get(id, C.Needs)?.hunger).toBe(49);
     expect(w.dwarves.hasInterrupt(id)).toBe(false);
     w.step(2 * TICKS_PER_HOUR + 1);
-    expect(w.dwarves.hasInterrupt(id)).toBe(true);
-    expect(w.dwarves.takeInterrupt(id)).toBe(true);
+    expect(w.dwarves.hasInterrupt(id)).toBe(false);
+    expect(w.game.world.entities.get(id, C.Needs)?.hunger).toBeGreaterThanOrEqual(50);
     w.step(TICKS_PER_HOUR);
     expect(w.dwarves.hasInterrupt(id)).toBe(false);
     w.setNeed(id, 'hunger', 84);
     w.step(TICKS_PER_HOUR + 1);
-    expect(w.dwarves.hasInterrupt(id)).toBe(true);
+    expect(w.dwarves.hasInterrupt(id)).toBe(false);
     expect(w.events('NeedCritical').filter((e) => e['id'] === id && e['need'] === 'hunger')).toHaveLength(1);
-    w.dwarves.takeInterrupt(id);
     w.step(TICKS_PER_HOUR);
     expect(w.dwarves.hasInterrupt(id)).toBe(false);
     expect(w.events('NeedCritical').filter((e) => e['id'] === id && e['need'] === 'hunger')).toHaveLength(1);
@@ -64,7 +63,8 @@ describe('T-M4-05 needs', () => {
     w.game.world.entities.add(id, C.Schedule, { ...schedule, sleepStartHour: 1 });
     w.setNeed(id, 'rest', 30);
     w.step(2 * TICKS_PER_HOUR + 1);
-    expect(w.dwarves.hasInterrupt(id)).toBe(true);
+    expect(w.dwarves.hasInterrupt(id)).toBe(false);
+    expect(w.game.world.entities.get(id, C.Brain)?.activity).toBe('sleep');
   });
 
   it('D-119: one Starving announcement per day when both needs are maxed', () => {

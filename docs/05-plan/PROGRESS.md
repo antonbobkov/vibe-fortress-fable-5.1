@@ -77,7 +77,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M4-03 — Animals: species, wild brain, spawning, leaving (opus-m4, 2026-09-20)
 - [x] T-M4-04 — Animals: tame behavior, pastures, condition, breeding, products, slaughter marking (gpt6-m4, 2026-09-22)
 - [x] T-M4-05 — Dwarves: needs, hourly update, thresholds, interrupts (gpt6-m4, 2026-09-22)
-- [ ] T-M4-06 — Dwarves: activities eat, drink, sleep, social, comfort, joy; behavior selection complete for civilians
+- [x] T-M4-06 — Dwarves: activities eat, drink, sleep, social, comfort, joy; behavior selection complete for civilians (gpt6-m4, 2026-09-22)
 - [ ] T-M4-07 — Dwarves: titles, children, aging, clothing slots
 - [ ] T-M4-08 — Workshops: operation, work orders, quality, professions
 - [ ] T-M4-09 — Workshops: carpenter, mason, craftsdwarf, kitchen, still, farmer's workshop recipes
