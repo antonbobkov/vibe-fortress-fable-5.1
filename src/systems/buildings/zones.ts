@@ -152,8 +152,10 @@ export class ZoneStore {
   qualifies(type: number, i: TileIndex): boolean {
     const map = this.host.map;
     if (!map.validIndex(i)) return false;
-    if (!this.walkable(i)) return false;
     const id = this.types[type]?.id ?? '';
+    // 14 § Zones permits gather zones to include the shrub itself, which is not walkable.
+    if (id === 'gather' && map.kindAt(i) === TileKind.Shrub) return true;
+    if (!this.walkable(i)) return false;
     if (id === FARM_PLOT_ZONE) return this.farmable(i);
     if (id === 'fishing') return this.fishable(i);
     return true;

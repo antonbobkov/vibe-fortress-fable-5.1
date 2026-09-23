@@ -4,10 +4,11 @@
  *
  * A product that is ready makes its job at the farmer's workshop; an egg in a nest box makes a
  * `collect_egg` while the `autoCollectProducts` standing order is on. Leading the animal and
- * delivering products is T-M4-12's; slaughter is T-M4-11's. This file owns the readiness keys and
+ * delivering products is T-M4-12's. This file owns the readiness keys, slaughter path and
  * completion bookkeeping.
  */
 
+import { C } from '@core/components';
 import type { GameEvent } from '@core/events';
 import type { JobProducer, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
@@ -43,6 +44,7 @@ export interface AnimalsProducerHost {
   buildings(): BuildingsReader | null;
   jobs(): JobsReader | null;
   alive(id: EntityId): boolean;
+  animalNear(id: EntityId, tile: TileIndex): boolean;
 }
 
 /** The job type a product kind is worked with. */
@@ -92,8 +94,13 @@ export class AnimalsProducer implements JobProducer {
         });
       }
     }
-    // T-M4-11 owns the slaughter job and its butcher/corpse transition. The mark is already
-    // persisted on Tame; creating the job now would let 11 complete it without killing the animal.
+    const butcher = this.workshopTile(BUTCHER_WORKSHOP);
+    if (butcher >= 0) for (const animalId of this.host.marked()) {
+      const key = slaughterKey(animalId);
+      if (sink.exists(key)) continue;
+      sink.create(key, { type: 'slaughter', target: { kind: 'entity', ref: animalId }, workTile: butcher,
+        data: { animal: animalId, anchorTile: butcher } });
+    }
     // Eggs are hauled out of their nest box while the standing order is on.
     const jobs = this.host.jobs();
     if (jobs === null || !jobs.standingOrder(AUTO_COLLECT)) return;
@@ -116,14 +123,37 @@ export class AnimalsProducer implements JobProducer {
    * The bookkeeping half of a completion: the product leaves the ready set, a collected egg leaves
    * the nest box (so it no longer hatches). The items themselves arrive with T-M4-12.
    */
-  onComplete(jobIn: unknown, _ctx: TickContext): void {
+  onComplete(jobIn: unknown, ctx: TickContext): void {
     const job = jobIn as Job;
     const animal = job.data['animal'];
     const product = job.data['product'];
+    if (job.key.startsWith('slaughter:') && typeof animal === 'number') {
+      const creature = ctx.world.entities.get(animal, C.Creature);
+      const tile = job.data['anchorTile'];
+      if (creature !== undefined && typeof tile === 'number') {
+        const corpse = ctx.spawn.item(ctx.registry.table('items').index('corpse'),
+          ctx.registry.table('materials').index(`${ctx.registry.table('creatures').idOf(creature.species)}_meat`), tile, 1);
+        const tame = ctx.world.entities.get(animal, C.Tame);
+        ctx.world.entities.add(corpse, C.Corpse, { species: creature.species, diedTick: ctx.tick, wornItems: [], dwarfName: null,
+          juvenile: tame !== undefined && tame.juvenileUntil > ctx.tick });
+        ctx.emit({ type: 'CreatureDied', id: animal, cause: 'slaughter' });
+        ctx.emit({ type: 'CorpseCreated', id: corpse, creatureId: animal, species: creature.species });
+        ctx.world.entities.destroy(animal);
+      }
+      return;
+    }
     if (typeof animal === 'number' && typeof product === 'string') this.host.ready.delete(productKey(animal, product));
     const egg = job.data['egg'];
     if (typeof egg === 'number') this.host.eggs.delete(egg);
   }
 
   onJobEvent(_event: GameEvent): void {}
+
+  canComplete(jobIn: unknown): boolean {
+    const job = jobIn as Job;
+    if (!job.key.startsWith('slaughter:')) return true;
+    const animal = job.data['animal'];
+    const tile = job.data['anchorTile'];
+    return typeof animal === 'number' && typeof tile === 'number' && this.host.animalNear(animal, tile);
+  }
 }

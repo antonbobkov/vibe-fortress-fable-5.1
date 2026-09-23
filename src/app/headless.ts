@@ -45,6 +45,7 @@ import { MaterialsSystem } from '@systems/materials';
 import { WeatherSystem } from '@systems/weather';
 import { PlantsSystem } from '@systems/plants';
 import { AnimalsSystem } from '@systems/animals';
+import { ForagingSystem } from '@systems/foraging';
 import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
@@ -428,6 +429,7 @@ export class HeadlessGame {
       new WeatherSystem({ spec }),
       new PlantsSystem({ spec }),
       new AnimalsSystem({ spec }),
+      new ForagingSystem(),
       new DwarvesSystem(),
       new JobsSystem(),
       new WorkshopsSystem(),

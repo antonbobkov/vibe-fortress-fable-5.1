@@ -38,6 +38,7 @@ export interface SpeciesRow {
   readonly products?: readonly SpeciesProduct[];
   readonly meatValue: number;
   readonly hideValue: number;
+  readonly shell?: boolean;
   readonly value: number;
   readonly naturalArmor: number;
   readonly fleeBloodPercent: number;

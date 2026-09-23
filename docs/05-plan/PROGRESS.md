@@ -82,7 +82,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M4-08 — Workshops: operation, work orders, quality, professions (gpt6-m4, 2026-09-22)
 - [x] T-M4-09 — Workshops: carpenter, mason, craftsdwarf, kitchen, still, farmer's workshop recipes (gpt6-m4, 2026-09-22)
 - [x] T-M4-10 — Butcher, tannery, loom, clothier, leatherworks, kennel, bowyer: buildings and recipes (gpt6-m4, 2026-09-22)
-- [ ] T-M4-11 — Foraging: gather zones, fishing, butchery, slaughter
+- [x] T-M4-11 — Foraging: gather zones, fishing, butchery, slaughter (gpt6-m4, 2026-09-23)
 - [ ] T-M4-12 — Animal product jobs at the farmer's workshop
 - [ ] T-M4-13 — Morale: thoughts, mood, tiers, hall spirit, sulks
 - [ ] T-M4-14 — The hearth and hearth hall

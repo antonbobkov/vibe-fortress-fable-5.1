@@ -273,6 +273,7 @@ describe('T-M1-14 announcements', () => {
       PetAdopted: 'note',
       MasterworkCreated: 'note',
       WorkshopBlocked: 'alert',
+      FishPoolDepleted: 'note',
     });
   });
 

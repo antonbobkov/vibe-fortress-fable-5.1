@@ -252,6 +252,8 @@ export interface Corpse {
   diedTick: Tick;
   wornItems: EntityId[];
   dwarfName: string | null;
+  /** Whether a slaughtered animal had not reached adulthood (08 § Breeding). */
+  juvenile?: boolean;
 }
 
 export interface Building {

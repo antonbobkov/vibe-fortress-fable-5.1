@@ -1,0 +1,17 @@
+/** 02-systems/09-hunting-gathering-fishing.md § Tuning constants. */
+export const HUNT_MIN_SIZE = 10;
+export const FISH_PER_TILE = 2;
+export const FISH_REGEN_PERCENT = 5;
+export const MIN_FISHING_TILES = 6;
+export const FISH_TICKS = 200;
+export const FISH_BASE_PERMILLE = 350;
+export const FISH_PER_SKILL = 30;
+export const FISH_RETRY_TICKS = 100;
+export const BUTCHER_TICKS = 120;
+export const BUTCHER_ROT_LIMIT = 2;
+export const MEAT_PER_SIZE = 12;
+export const HIDE_MIN_SIZE = 15;
+export const BONE_PER_SIZE = 25;
+export const FAT_PER_SIZE = 30;
+export const SKULL_MIN_SIZE = 30;
+export const LARGE_HIDE_SIZE = 120;

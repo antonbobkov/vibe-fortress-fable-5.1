@@ -40,7 +40,7 @@ import {
 import { AnimalFacts } from './facts';
 import { tickAnimal, type BrainHost } from './brain';
 import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, thinkTame, type TameHost } from './tame';
-import { AnimalsProducer, productKey, type AnimalsProducerHost } from './producer';
+import { AnimalsProducer, productKey, slaughterKey, type AnimalsProducerHost } from './producer';
 import type { AnimalsReader } from './reader';
 import { dailySpawn, leavers, surfaceCap, cavernCap, type SpawnHost } from './spawn';
 import type { AnimalsStateV1, EggRecord, SpeciesCount } from './state';
@@ -246,6 +246,10 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       buildings: () => (this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null),
       jobs: () => (this.readers.has('11') ? this.readers.of<JobsReader>('11') : null),
       alive: (id) => this.entities.alive(id),
+      animalNear: (id, tile) => {
+        const at = this.tileOf(id);
+        return at >= 0 && Math.max(Math.abs(this.map.xOf(at) - this.map.xOf(tile)), Math.abs(this.map.yOf(at) - this.map.yOf(tile))) <= 1 && this.map.zOf(at) === this.map.zOf(tile);
+      },
     };
   }
 
@@ -315,6 +319,15 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     for (const id of ctx.world.entities.with(C.Tame)) {
       const t = ctx.world.entities.get(id, C.Tame);
       if (t === undefined) continue;
+      if (t.slaughter && this.readers.has('11')) {
+        const job = this.readers.of<JobsReader>('11').byKey(slaughterKey(id));
+        if (job !== undefined && job.workerId !== 0) {
+          const worker = this.tileOf(job.workerId);
+          if (worker >= 0 && !this.producerHostAnimalNear(id, worker)) ctx.world.services.movement?.walkTo(id, worker, 'wander', ctx);
+          ctx.world.services.movement?.moveAlongPath(id, ctx);
+          continue;
+        }
+      }
       const last = this.lastTameThink.get(id) ?? -TAME_THINK_TICKS;
       if (ctx.tick - last >= TAME_THINK_TICKS) {
         this.lastTameThink.set(id, ctx.tick);
@@ -322,6 +335,12 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       }
       ctx.world.services.movement?.moveAlongPath(id, ctx);
     }
+  }
+
+  private producerHostAnimalNear(id: EntityId, tile: TileIndex): boolean {
+    const at = this.tileOf(id);
+    return at >= 0 && this.map.zOf(at) === this.map.zOf(tile) &&
+      Math.max(Math.abs(this.map.xOf(at) - this.map.xOf(tile)), Math.abs(this.map.yOf(at) - this.map.yOf(tile))) <= 1;
   }
 
   /** `08` § Pastures and feeding: the hourly condition rise, the starving note and the death. */
