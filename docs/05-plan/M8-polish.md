@@ -34,7 +34,8 @@ Tests: the spec itself; runtime ≤ 10 minutes.
 ## T-M8-06 Balance pass (L)
 
 Needs: 05. Produces: run `year_one` and a `three_years` headless scenario over 20 seeds and three regions (peril 0/2/4); compare against `balance.md` tables (consumption, wealth curve, raid sizes, immigration, mood distribution); where a measured value differs from the model by more than 30%, record it in `DECISIONS.md` as a balance finding with the constant that would fix it and **do not change the constant** (constants are the user's to change); implement only fixes for bugs revealed (a rule not matching the spec).
-Tests: `test/scenarios/three_years.scenario.ts` (milestone 8) reports the table; assertions only on the deterministic guarantees (mood floor, no spiral, caps).
+Also revisit the acceptance-test timing contradictions **C-004** (`tr_dig_room`: one miner, 3×3 granite, spec limit 2,000 ticks, measured 2,274) and **C-005** (`search.test.ts` D-076: twelve tiles, spec limit 1,500 ticks, measured 2,828), both `it.todo` since T-M4-06. Measured at M4: digging itself matches the spec (≈90 ticks per granite tile), and the excess is travel plus want-level need trips — the dig site is three z-levels below the wagon that holds all food, drink and beds, and `NEED_DEFER_PRIORITY` (2) lets a want-level need interrupt a priority-5 dig. The owner accepted both contradictions at M4 and deferred them here. Report the measured figures against the model and name the constant or acceptance figure that would reconcile them; **do not change either** without the owner.
+Tests: `test/scenarios/three_years.scenario.ts` (milestone 8) reports the table; assertions only on the deterministic guarantees (mood floor, no spiral, caps). Re-measure `tr_dig_room` and the D-076 case and report their tick counts; lifting their `it.todo` markers is the owner's call.
 
 ## T-M8-07 Colorblind palette and accessibility checks (S)
 
