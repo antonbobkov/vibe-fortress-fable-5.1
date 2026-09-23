@@ -87,7 +87,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M4-13 — Morale: thoughts, mood, tiers, hall spirit, sulks (gpt6-m4, 2026-09-23)
 - [x] T-M4-14 — The hearth and hearth hall (gpt6-m4, 2026-09-23)
 - [x] T-M4-15 — Items: rot queue, miasma, corpses — gpt6-m4, 2026-09-23
-- [ ] T-M4-16 — Embark supplies and animals in play; hints; the year-one hints
+- [~] T-M4-16 — Embark supplies and animals in play; hints; the year-one hints — gpt6-m4, 2026-09-23
 - [ ] T-M4-17 — Panels: orders, animals, mood, population stub, zones farm settings, hospital placeholder
 - [ ] T-M4-18 — Compositor: crops, saplings, shrubs, grass colors, animals, hearth pulse
 - [ ] T-M4-19 — Property generator: farming, orders, animals, titles
