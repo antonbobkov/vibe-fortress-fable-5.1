@@ -337,6 +337,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.buried': 'A dwarf has been laid to rest.',
   'announce.room_quality': 'A room has become {tierName}.',
   'announce.stockpile_full': 'A stockpile is full.',
+  'announce.miasma': 'Miasma spreads.',
   // 07 § Registrations ("announcement `PlotNeedsSeeds` as a note"); text D-065.
   'announce.plot_needs_seeds': 'A farm plot has no {species} seeds.',
   // 08 § Player-facing behavior ("The cow is starving", "The cat has adopted Ketil Ironvein").

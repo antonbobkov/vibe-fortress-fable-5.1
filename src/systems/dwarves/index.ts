@@ -24,7 +24,7 @@ import type { WeatherReader } from '@systems/weather';
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
 import { SLEEP_NEED_MIN, advanceNeeds, crossed, type NeedName } from './needs';
-import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS } from './constants';
+import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS, HEAVY_ITEM_DENSITY } from './constants';
 import { Activities } from './activities';
 
 export { makeReader, type DwarvesReader } from './reader';
@@ -45,6 +45,7 @@ export const DWARF_NAME_MAX = 24;
 
 interface SpeciesRow {
   readonly speed: number;
+  readonly size: number;
 }
 
 interface JobTypeRow {
@@ -273,7 +274,10 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       const attrs = entities.get(id, C.Attributes);
       if (movement !== null && creature !== undefined && attrs !== undefined) {
         const base = species.byIndex(creature.species)?.speed ?? 0;
-        movement.setSpeed(id, dwarfSpeed(base, attrs.agi));
+        const carried = entities.get(id, C.Worker)?.carrying ?? 0;
+        const corpseWeight = entities.get(carried, C.Corpse)?.weight ?? 0;
+        const carryPercent = corpseWeight > HEAVY_ITEM_DENSITY * (species.byIndex(creature.species)?.size ?? 0) ? 50 : 100;
+        movement.setSpeed(id, dwarfSpeed(base, attrs.agi, 100, carryPercent));
       }
       tickDwarf(this.host as BrainHost, ctx, id);
     }

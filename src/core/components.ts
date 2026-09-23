@@ -252,6 +252,8 @@ export interface Corpse {
   diedTick: Tick;
   wornItems: EntityId[];
   dwarfName: string | null;
+  /** 13 § Corpses: creature size in weight units. */
+  weight?: number;
   /** Whether a slaughtered animal had not reached adulthood (08 § Breeding). */
   juvenile?: boolean;
 }

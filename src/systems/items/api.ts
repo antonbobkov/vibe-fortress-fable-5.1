@@ -496,6 +496,13 @@ export class ItemCore implements ItemsApi {
     if (this.isItem(itemId)) this.mutate(itemId, { crafterId });
   }
 
+  /** 13 § Rot: change stage and, when needed, the stock category through the accounting path. */
+  setRot(itemId: EntityId, stage: 0 | 1 | 2 | 3, type?: number, material?: number): void {
+    if (!this.isItem(itemId)) return;
+    this.mutate(itemId, { rotStage: stage, ...(type === undefined ? {} : { type }), ...(material === undefined ? {} : { material }) });
+    this.notify(itemId, 'flags');
+  }
+
   // ---------- falling ----------
 
   /** Items on a tile that no longer has a bottom fall (13 § Events consumed, `TilesChanged`). */

@@ -26,6 +26,10 @@ import {
 import { StockpileStore } from './stockpiles';
 import { Hauling, type JobsView } from './hauling';
 import { WEALTH_EVENT_STEP } from './constants';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { MaterialsReader } from '@systems/materials/reader';
+import { RotQueue } from './rot';
 import { ItemFacts } from './facts';
 import { makeReader, type ItemsReader } from './reader';
 import { ItemSearch } from './search';
@@ -75,7 +79,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   readonly order = 13;
   override readonly cadence = 10;
   override readonly phase = 1;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted'];
+  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted', 'CreatureDied', 'CorpseCreated', 'SeasonChanged'];
   override readonly ownsCommands: readonly CommandType[] = [
     'ForbidItem',
     'ClaimItem',
@@ -96,6 +100,8 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   private rng: RngStream | null = null;
   private entitiesAt: (i: TileIndex) => readonly number[] = () => [];
   private wealthLastEmitted = 0;
+  private rotRef: RotQueue | null = null;
+  private readonly pendingDeaths = new Map<number, { id: number; species: number; tile: TileIndex; name: string | null; wornItems: number[] }>();
 
   get core(): ItemCore {
     if (this.coreRef === null) throw new Error('13 items: used before init');
@@ -160,7 +166,13 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       pathing: () => (readers.has('pathing') ? readers.pathing : null),
       stockpileAt: (i) => store.stockpileAt(i),
     });
-    this.readerRef = makeReader(core, readers.entities, this.search, store, () => this.hauling.wants.length);
+    this.rotRef = new RotQueue(core, store, (tile) => readers.of<MaterialsReader>('05').temperatureAt(tile));
+    this.readerRef = makeReader(core, readers.entities, this.search, store, () => this.hauling.wants.length,
+      (tile) => this.rotRef?.miasma.has(tile) ?? false,
+      (tick) => world.entities.with(C.Corpse, C.Item).some((id) => {
+        const corpse = world.entities.get(id, C.Corpse);
+        return corpse?.dwarfName !== null && corpse?.dwarfName !== undefined && tick - corpse.diedTick > 3 * TICKS_PER_DAY;
+      }));
     type BuildingsView = {
       zoneAt(i: TileIndex): number;
       zone(id: number): { readonly type: string; readonly tiles: readonly TileIndex[] } | undefined;
@@ -187,9 +199,15 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     });
     this.haulingRef = hauling;
     core.listen((id, change) => hauling.onChange(id, change));
+    core.listen((id, change) => {
+      this.rotRef?.changed(id, change);
+      if (change === 'placed' || change === 'lifted' || change === 'contained')
+        for (const child of core.container(id)?.contents ?? []) this.rotRef?.changed(child, 'placed');
+    });
     // `13` § Registrations: the stocks panel and the `StockpileFull` note.
     ctx.register.panel({ id: 'stocks', title: 'Stocks', hotkey: 's' });
     ctx.register.announcement('StockpileFull', { severity: 'note', stringKey: 'announce.stockpile_full' });
+    ctx.register.announcement('MiasmaSpread', { severity: 'alert', stringKey: 'announce.miasma' });
     // `13` § Registrations: job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`).
     ctx.register.jobProducer({
       id: 'items',
@@ -206,6 +224,11 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   /** The items tick: `StocksChanged` for the types whose counts moved; `WealthChanged` past the step. */
   override tick(ctx: TickContext): void {
     const core = this.core;
+    for (const death of Array.from(this.pendingDeaths.values()).sort((a, b) => a.id - b.id)) {
+      if (ctx.world.map.validIndex(death.tile)) this.rotRef?.createCorpse(ctx, death.id, death.species, death.tile, death.name, death.wornItems);
+    }
+    this.pendingDeaths.clear();
+    this.rotRef?.tick(ctx);
     this.hauling.tick(ctx);
     const types = core.counts.takeDirty();
     if (types.length > 0) ctx.emit({ type: 'StocksChanged', types });
@@ -219,7 +242,23 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
 
   override handle(event: GameEvent, _ctx: TickContext): void {
     const core = this.core;
-    if (event.type === 'TilesChanged') {
+    if (event.type === 'CreatureDied') {
+      const id = event['id']; const tile = event['tile'];
+      const species = event['species'] ?? (typeof id === 'number' ? core.host.entities.get(id, C.Creature)?.species : undefined);
+      if (typeof id === 'number' && typeof tile === 'number' && typeof species === 'number') {
+        const equip = core.host.entities.get(id, C.Equipment);
+        const wornItems = Array.isArray(event['wornItems']) ? (event['wornItems'] as number[]).slice() : equip === undefined ? [] :
+          [equip.weapon, equip.shield, equip.quiver, ...Object.values(equip.armor), ...Object.values(equip.clothing)]
+            .filter((itemId) => itemId !== 0 && core.isItem(itemId));
+        this.pendingDeaths.set(id, { id, tile, species, name: typeof event['name'] === 'string' ? event['name'] : core.host.entities.get(id, C.Creature)?.name ?? null,
+          wornItems: Array.from(new Set(wornItems)).sort((a, b) => a - b) });
+      }
+    } else if (event.type === 'CorpseCreated') {
+      const id = event['creatureId'];
+      if (typeof id === 'number') this.pendingDeaths.delete(id);
+    } else if (event.type === 'SeasonChanged') {
+      this.rotRef?.resample();
+    } else if (event.type === 'TilesChanged') {
       for (const t of event['tiles'] as readonly TileIndex[]) core.settleTile(t, this.entitiesAt);
     } else if (event.type === 'ItemMelted') {
       // 13 § Events consumed: "`MagmaContact` (04): items with `meltsAt ≤ MAGMA_C` are destroyed with
@@ -244,6 +283,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
         if (change === 'resized') this.stockpiles.syncTiles(id);
       }
       this.stockpileChanged(id, tiles);
+      this.rotRef?.resample();
     }
   }
 
@@ -269,8 +309,10 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       slotReservations: Array.from(this.stockpiles.reservations.keys())
         .sort()
         .map((k): [string, number] => [k, this.stockpiles.reservations.get(k) as number]),
-      rotQueue: [],
-      miasmaTiles: [],
+      rotQueue: this.rotRef?.serializeQueue() ?? [],
+      rotRecords: Array.from(this.rotRef?.records.values() ?? []).sort((a, b) => a.id - b.id).map((r) => ({ ...r })),
+      miasmaTiles: Array.from(this.rotRef?.miasma ?? []).sort((a, b) => a[0] - b[0]),
+      pendingDeaths: Array.from(this.pendingDeaths.values()).sort((a, b) => a.id - b.id),
       counts: core.counts.serialize(),
       wealthCached: core.wealth,
       wealthLastEmitted: this.wealthLastEmitted,
@@ -314,5 +356,12 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     store.incomingContainers.clear();
     for (const [c, sp] of state.incomingContainers) store.incomingContainers.set(c, sp);
     this.rng?.setState(state.rng);
+    this.rotRef?.records.clear();
+    for (const rec of state.rotRecords ?? []) this.rotRef?.records.set(rec.id, { ...rec });
+    this.rotRef?.deserializeQueue(state.rotQueue);
+    this.rotRef?.miasma.clear();
+    for (const [tile, expiry] of state.miasmaTiles) this.rotRef?.miasma.set(tile, expiry);
+    this.pendingDeaths.clear();
+    for (const death of state.pendingDeaths ?? []) this.pendingDeaths.set(death.id, death);
   }
 }

@@ -262,6 +262,7 @@ describe('T-M1-14 announcements', () => {
       DeepsilverMined: 'danger',
       ConstructionCollapsed: 'alert',
       StockpileFull: 'note',
+      MiasmaSpread: 'alert',
       HearthLit: 'note',
       DoorBroken: 'alert',
       Buried: 'note',

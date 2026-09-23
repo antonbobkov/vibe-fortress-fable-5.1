@@ -27,6 +27,8 @@ export interface ItemsReader {
   rotStage(id: EntityId): number;
   /** Miasma on a tile (T-M4-15; false until then). */
   isMiasma(i: TileIndex): boolean;
+  /** Any unburied dwarf remains older than 15's UNBURIED_DAYS. */
+  unburiedDead(tick: number): boolean;
   /** The items lying on a tile, ascending. */
   at(i: TileIndex): EntityId[];
   /** A container's contents, ascending. */
@@ -88,6 +90,8 @@ export function makeReader(
   search: ItemSearch,
   store: StockpileStore,
   wantsCount: () => number = () => 0,
+  isMiasma: (i: TileIndex) => boolean = () => false,
+  unburiedDead: (tick: number) => boolean = () => false,
 ): ItemsReader {
   const facts = core.host.facts;
   const typeOf = (typeId: string | number): number => (typeof typeId === 'number' ? typeId : facts.typeIndex(typeId));
@@ -98,7 +102,8 @@ export function makeReader(
     },
     value: (id) => core.value(id),
     rotStage: (id) => core.get(id)?.rotStage ?? 0,
-    isMiasma: () => false,
+    isMiasma,
+    unburiedDead,
     at: (i) => entities.at(i).filter((id) => core.isItem(id)),
     inContainer: (id) => (core.container(id)?.contents ?? []).slice(),
     containerOf: (id) => core.get(id)?.containerId ?? 0,

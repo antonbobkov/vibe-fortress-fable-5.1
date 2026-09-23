@@ -1,6 +1,6 @@
 /**
- * 08's job producer: `03-content/jobs.md` § Animals (`milk_animal`, `shear_animal`,
- * `collect_egg`) and `08` § Products.
+ * 08's job producer: `03-content/jobs.md` Â§ Animals (`milk_animal`, `shear_animal`,
+ * `collect_egg`) and `08` Â§ Products.
  *
  * A product that is ready makes its job at the farmer's workshop; an egg in a nest box makes a
  * `collect_egg` while the `autoCollectProducts` standing order is on. Leading the animal and
@@ -15,10 +15,10 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Job, JobSink, JobsReader } from '@systems/jobs';
 import type { BuildingsReader } from '@systems/buildings';
 
-/** `11` § Standing orders: "`autoCollectProducts` (08)". */
+/** `11` Â§ Standing orders: "`autoCollectProducts` (08)". */
 export const AUTO_COLLECT = 'autoCollectProducts';
 
-/** The workshop each animal job is worked at (`jobs.md` § Animals, the `workTile` column). */
+/** The workshop each animal job is worked at (`jobs.md` Â§ Animals, the `workTile` column). */
 export const FARMERS_WORKSHOP = 'farmers_workshop';
 export const BUTCHER_WORKSHOP = 'butcher';
 
@@ -35,7 +35,7 @@ export function eggKey(itemId: EntityId): string {
 }
 
 export interface AnimalsProducerHost {
-  /** Ready products, `<kind>:<animalId>` → the animal. */
+  /** Ready products, `<kind>:<animalId>` â†’ the animal. */
   readonly ready: Map<string, EntityId>;
   /** Eggs waiting in a nest box. */
   readonly eggs: Map<EntityId, { readonly box: EntityId }>;
@@ -134,8 +134,9 @@ export class AnimalsProducer implements JobProducer {
           ctx.registry.table('materials').index(`${ctx.registry.table('creatures').idOf(creature.species)}_meat`), tile, 1);
         const tame = ctx.world.entities.get(animal, C.Tame);
         ctx.world.entities.add(corpse, C.Corpse, { species: creature.species, diedTick: ctx.tick, wornItems: [], dwarfName: null,
+          weight: (ctx.registry.table<{ id: string; size: number }>('creatures').byIndex(creature.species)?.size ?? 0),
           juvenile: tame !== undefined && tame.juvenileUntil > ctx.tick });
-        ctx.emit({ type: 'CreatureDied', id: animal, cause: 'slaughter', tile, faction: creature.faction });
+        ctx.emit({ type: 'CreatureDied', id: animal, cause: 'slaughter', tile, faction: creature.faction, species: creature.species });
         ctx.emit({ type: 'CorpseCreated', id: corpse, creatureId: animal, species: creature.species });
         ctx.world.entities.destroy(animal);
       }

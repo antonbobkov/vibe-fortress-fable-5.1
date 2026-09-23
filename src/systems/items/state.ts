@@ -22,7 +22,10 @@ export interface ItemsStateV1 {
   /** `[slotKey, jobId]`, sorted by key. */
   slotReservations: [string, number][];
   rotQueue: { bucketTick: Tick; items: EntityId[] }[];
+  /** Decay accumulated under the last sampled location and temperature. */
+  rotRecords: { id: EntityId; type: number; progress: number; sampledTick: Tick; speed: number; due: Tick }[];
   miasmaTiles: [TileIndex, Tick][];
+  pendingDeaths: { id: EntityId; species: number; tile: TileIndex; name: string | null; wornItems: EntityId[] }[];
   /** `[typeIndex, StockCount]`, ascending type. */
   counts: [number, StockCountV1][];
   wealthCached: number;

@@ -38,7 +38,7 @@ export function standingThoughts(id: EntityId, ctx: TickContext, floorSleepers: 
     if (tier >= 4) add('thane_hall_grand', 2);
     else if (tier <= 1) add('thane_hall_bare', -1);
   }
-  // T-M4-15 supplies corpse tracking and miasma. The reader seam is already present in 13.
+  if (items.unburiedDead(ctx.tick)) add('unburied_dead', baseValue(defs.get('unburied_dead') as ThoughtDef));
   const position = entities.get(id, C.Position);
   if (position !== undefined && items.isMiasma(ctx.world.map.index(position.x, position.y, position.z))) add('in_miasma', baseValue(defs.get('in_miasma') as ThoughtDef));
   return result;

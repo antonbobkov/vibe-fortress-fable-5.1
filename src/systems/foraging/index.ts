@@ -185,7 +185,8 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
       const c = ctx.world.entities.get(corpse, C.Corpse);
       const row = c === undefined ? undefined : this.row(c.species);
       if (row?.flags['butcherable'] !== true) continue;
-      if (this.items.rotStage(corpse) > BUTCHER_ROT_LIMIT) continue;
+      // `items.md` § Refuse: an animal skeleton still yields `bone_pile` when butchered.
+      if (this.items.rotStage(corpse) > BUTCHER_ROT_LIMIT && this.items.def(this.items.get(corpse)?.type ?? 0)?.id !== 'skeleton') continue;
       const key = `butcher:${corpse}`;
       if (sink.exists(key)) continue;
       sink.create(key, { type: 'butcher', target: { kind: 'entity', ref: corpse }, workTile,
