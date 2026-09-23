@@ -515,9 +515,11 @@ export class Game {
   /** `simulation-core.md` § Startup sequence steps 3 to 5 for the `flat-test` world. */
   async start(spec: { seed?: string; embark?: NewGameSpec['embark'] } = {}): Promise<void> {
     await this.host.newGame({ seed: spec.seed ?? this.seed, ...(spec.embark === undefined ? {} : { embark: spec.embark }) });
+    this.fortress.resetHints();
     this.subscribe();
     this.resetTo(FORTRESS);
     this.centerOnMap();
+    if (this.host.headless.arrival !== null) this.fortress.showFirstHint();
     this.render();
   }
 
@@ -641,11 +643,13 @@ export class Game {
   /** Switch to the fortress screen, paused, centered on the wagon (arrival step 8). */
   enterFortress(): void {
     this.busy = null;
+    this.fortress.resetHints();
     this.resetTo(FORTRESS);
     this.host.setSpeed(0);
     const arrival = this.host.headless.arrival;
     if (arrival === null) this.centerOnMap();
     else this.centerOn(arrival.wagon.x, arrival.wagon.y, arrival.wagon.z);
+    this.fortress.showFirstHint();
     this.render();
   }
 

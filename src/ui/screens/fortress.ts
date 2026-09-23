@@ -20,6 +20,7 @@ import type { TileIndex } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Layout, Rect } from '@render/cellbuffer';
 import { AnnouncementLog, type LogLine } from '../announcements';
+import { HintEngine, type HintRow } from '../hints';
 import { STATUS_HINT_SECONDS } from '../constants';
 import type { Keymap } from '../keymap';
 import { drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '../panels/designate';
@@ -62,6 +63,7 @@ export const ALERT_FLASH_MS = 1000;
 export interface FortressSettings {
   /** 24: "`auto-pause on danger` setting is on (default on)". */
   autoPauseDanger: boolean;
+  hintsEnabled: boolean;
 }
 
 export interface FortressHost {
@@ -105,7 +107,8 @@ export class FortressScreen implements Screen {
   /** The shift state of the click being handled (the labor grid's "shift-click: whole column"). */
   private clickShift = false;
   readonly log: AnnouncementLog;
-  readonly settings: FortressSettings = { autoPauseDanger: true };
+  readonly hints: HintEngine;
+  readonly settings: FortressSettings = { autoPauseDanger: true, hintsEnabled: true };
   lookTab: LookTab = 0;
   logFilter: LogFilter = 0;
   /** The overlays panel (T-M3-08). */
@@ -128,6 +131,7 @@ export class FortressScreen implements Screen {
     private readonly strings: Strings,
   ) {
     this.log = new AnnouncementLog(strings, host.registry);
+    this.hints = new HintEngine(host.registry, host.ui, this.log);
   }
 
   get ui(): UiState {
@@ -202,6 +206,19 @@ export class FortressScreen implements Screen {
         if (done.focus !== undefined) this.focusOn(done.focus);
       }
     }
+    this.hints.onEvents(events, readers, this.settings.hintsEnabled);
+  }
+
+  /** 02 § Arrival: the first hint appears when the paused fortress screen opens. */
+  showFirstHint(): void { this.hints.show('hint_dig', this.host.readers.calendar.tick, this.settings.hintsEnabled); }
+
+  /** 24 § Interfaces: future systems and content can add a hint through the UI registry. */
+  registerHint(hint: HintRow): void { this.hints.hint(hint); }
+
+  resetHints(): void {
+    this.ui.hintsShown = [];
+    this.ui.hintPending = [];
+    this.ui.hintBareSince = [];
   }
 
   /** Centre the view on a tile (a danger's focus, a log line's). */

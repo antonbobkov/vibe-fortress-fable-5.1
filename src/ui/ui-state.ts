@@ -19,6 +19,10 @@ export interface UiState {
   /** `Tab` hides the sidebar without closing the panel. */
   sidebar: boolean;
   overlays: string[];
+  /** 24 § Hints: once-only presentation state. */
+  hintsShown: string[];
+  hintPending: string[];
+  hintBareSince: [number, number][];
   cursor: { x: number; y: number } | null;
 }
 
@@ -30,11 +34,15 @@ export interface SavedUiState {
   readonly zoom: number;
   readonly panel: string | null;
   readonly overlays: readonly string[];
+  readonly hintsShown: readonly string[];
+  readonly hintPending: readonly string[];
+  readonly hintBareSince: readonly [number, number][];
   readonly logTail: readonly { tick: number; severity: string; text: string; focus?: number }[];
 }
 
 export function defaultUiState(z: number): UiState {
-  return { camX: 0, camY: 0, z, zoom: 1, panel: null, sidebar: true, overlays: ['designations', 'zones'], cursor: null };
+  return { camX: 0, camY: 0, z, zoom: 1, panel: null, sidebar: true, overlays: ['designations', 'zones'],
+    hintsShown: [], hintPending: [], hintBareSince: [], cursor: null };
 }
 
 /** The saved form: the state's persistent fields and the last `LOG_SAVED_LINES` log lines. */
@@ -47,6 +55,9 @@ export function toSaved(ui: UiState, log: readonly LogLine[]): SavedUiState {
     zoom: ui.zoom,
     panel: ui.panel,
     overlays: [...ui.overlays],
+    hintsShown: [...ui.hintsShown],
+    hintPending: [...ui.hintPending],
+    hintBareSince: ui.hintBareSince.map(([id, tick]) => [id, tick]),
     logTail: tail.map((l) => (l.focus === undefined ? { tick: l.tick, severity: l.severity, text: l.text } : { tick: l.tick, severity: l.severity, text: l.text, focus: l.focus })),
   };
 }
@@ -60,6 +71,9 @@ export function fromSaved(ui: UiState, saved: SavedUiState): LogLine[] {
   ui.panel = saved.panel;
   ui.sidebar = true;
   ui.overlays = [...saved.overlays];
+  ui.hintsShown = [...(saved.hintsShown ?? [])];
+  ui.hintPending = [...(saved.hintPending ?? [])];
+  ui.hintBareSince = (saved.hintBareSince ?? []).map(([id, tick]) => [id, tick]);
   ui.cursor = null;
   return saved.logTail.map((l) => ({
     tick: l.tick,
