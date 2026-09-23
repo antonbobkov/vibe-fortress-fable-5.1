@@ -13,7 +13,7 @@ import type { WorkshopsStateV1 } from './state';
 export { qualityForRoll, rollQuality } from './quality';
 export { civilianProfession, militaryTitle } from './professions';
 export { mealName } from './meals';
-export { recipeInputFilter, outputFilter, resolveMaterial, WorkshopOperator, type RecipeRow } from './operate';
+export { recipeInputFilter, outputFilter, resolveMaterial, resolveOutputMaterial, WorkshopOperator, type RecipeRow } from './operate';
 export type { WorkshopsReader } from './reader';
 
 export const WORKSHOPS_ID = '12';

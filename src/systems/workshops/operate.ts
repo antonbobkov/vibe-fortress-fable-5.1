@@ -7,7 +7,7 @@ import type { InitContext, JobProducer, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Job, JobSink, ItemFilter } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
-import { MAGMA_POWER_LEVEL } from './constants';
+import { MAGMA_POWER_LEVEL, M4_RECIPE_WORKSHOPS } from './constants';
 import { rollQuality } from './quality';
 import { grantXp } from '@systems/dwarves/skills';
 import { jobXp } from '@systems/dwarves/rules/skills';
@@ -69,6 +69,17 @@ export function resolveMaterial(registry: Registry, rule: RecipeRow['outputs'][n
     return brew === undefined ? material : mats.index(brew);
   }
   return material;
+}
+
+/** The textile chain names a new material at each stage (`materials.md` § Cloth and fiber). */
+export function resolveOutputMaterial(registry: Registry, output: RecipeRow['outputs'][number], inputMaterials: readonly number[]): number {
+  const source = resolveMaterial(registry, output.material, inputMaterials);
+  if (output.item !== 'thread' && output.item !== 'cloth') return source;
+  const materials = registry.table<MaterialRow>('materials');
+  const sourceId = materials.byIndex(source)?.id ?? '';
+  const stem = sourceId.replace(/_(fiber|thread|cloth)$/, '');
+  const next = `${stem}_${output.item}`;
+  return materials.has(next) ? materials.index(next) : source;
 }
 
 export class WorkshopOperator {
@@ -147,15 +158,15 @@ export class WorkshopOperator {
   problem(order: WorkOrder, id: EntityId): string | null {
     const ws = this.workshop(id);
     const recipe = this.recipe(order.recipe);
-    if (ws === undefined || recipe === undefined || recipe.workshop !== this.typeOf(id)) return 'not_found';
+    if (ws === undefined || recipe === undefined || !M4_RECIPE_WORKSHOPS.has(recipe.workshop) || recipe.workshop !== this.typeOf(id)) return 'not_found';
     if (ws.suspended) return 'workshop_suspended';
     if (order.mode === 'once' && order.remaining <= 0) return 'complete';
     if (order.mode === 'maintain' && this.items.countAvailable(outputFilter(this.ctx.registry, recipe, order)) >= order.threshold) return 'stocked';
     if (ws.assignedWorker !== 0 && !this.ctx.world.entities.alive(ws.assignedWorker)) return 'no_worker';
     if (this.row(this.ctx.world.entities.get(id, C.Building) as Building).magmaVariantOf && !this.isMagmaPowered(id)) return 'no_magma';
     for (const input of recipe.inputs) {
-      const filter = recipeInputFilter(this.ctx.registry, input, order);
-      if (this.items.countAvailable(filter) < input.count) return `waiting for ${input.match}`;
+      const filter = this.inputFilter(recipe, input, order);
+      if (filter === null || this.items.countAvailable(filter) < input.count) return `waiting for ${input.match}`;
       if (input.distinct === true) {
         const b = this.ctx.world.entities.get(id, C.Building) as Building;
         const tile = this.workTile(b);
@@ -175,6 +186,37 @@ export class WorkshopOperator {
       if (!mats.has(material)) continue;
       const filter = { type: items.index('bar'), materialId: mats.index(material) };
       if (this.items.countAvailable(filter) > 0) return filter;
+    }
+    return null;
+  }
+
+  /** Alternatives and same-species inputs specified in the content text beyond RecipeDef. */
+  inputFilter(recipe: RecipeRow, input: RecipeRow['inputs'][number], order: WorkOrder): ItemFilter | null {
+    const registry = this.ctx.registry;
+    const filter = recipeInputFilter(registry, input, order);
+    const output = recipe.outputs[0];
+    const items = registry.table<ItemRow>('items');
+    if (output?.item === 'thread' && input.match === 'fiber' && items.has('wool_raw')) {
+      filter.types = [items.index('fiber'), items.index('wool_raw')];
+      delete filter.type;
+    }
+    const brewable = output !== undefined && 'plantDrink' in output.material && input.match === 'plant_food';
+    const flourCrop = output?.item === 'flour' && input.match === 'plant_food';
+    const sameThread = output?.item === 'cloth' && input.match === 'thread';
+    if (!brewable && !flourCrop && !sameThread) return filter;
+    const materials = registry.table<MaterialRow>('materials');
+    const plants = registry.table<PlantRow & { readonly secondary?: { readonly item: string } }>('plants');
+    const candidates = sameThread ? materials.ids() : plants.ids().filter((id) => {
+      const plant = plants.byId(id);
+      return brewable ? plant?.brew !== undefined : plant?.secondary?.item === 'flour';
+    });
+    for (const candidate of candidates) {
+      if (!materials.has(candidate)) continue;
+      const materialId = materials.index(candidate);
+      if (filter.materialId !== undefined && filter.materialId !== materialId) continue;
+      if (filter.materialClass !== undefined && materials.byIndex(materialId)?.class !== filter.materialClass) continue;
+      const choice = { ...filter, materialId };
+      if (this.items.countAvailable(choice) >= input.count) return choice;
     }
     return null;
   }
@@ -211,7 +253,7 @@ export class WorkshopOperator {
       this.ensure(id);
       const b = entities.get(id, C.Building);
       const ws = this.workshop(id);
-      if (b === undefined || ws === undefined || b.state !== 'built' || ws.suspended || ws.currentJobId !== 0) continue;
+      if (b === undefined || ws === undefined || b.state !== 'built' || ws.suspended || ws.currentJobId !== 0 || !M4_RECIPE_WORKSHOPS.has(this.typeOf(id))) continue;
       const powered = this.isMagmaPowered(id);
       if (powered !== ws.magmaPowered) this.save(id, { ...ws, magmaPowered: powered });
       const choices = [...ws.orders.map((o, index) => ({ order: o, index, global: false })),
@@ -224,7 +266,7 @@ export class WorkshopOperator {
         if (choice.global && sink.exists(`craft:global:${choice.index}`)) continue;
         const problem = this.problem(choice.order, id);
         if (problem !== null) { if (reason === null && problem !== 'stocked' && problem !== 'complete') reason = problem.startsWith('waiting for ') ? 'missing_input' : problem; continue; }
-        const inputs = recipe.inputs.map((input) => ({ filter: recipeInputFilter(ctx.registry, input, choice.order), count: input.count }));
+        const inputs = recipe.inputs.map((input) => ({ filter: this.inputFilter(recipe, input, choice.order) as ItemFilter, count: input.count }));
         if (recipe.fuel && !powered) inputs.push({ filter: this.fuelFilter() as ItemFilter, count: 1 });
         if (recipe.container) inputs.push({ filter: { emptyContainer: recipe.container }, count: 1 });
         const key = choice.global ? `craft:global:${choice.index}` : `craft:${id}:${choice.index}`;
@@ -255,7 +297,7 @@ export class WorkshopOperator {
   private materialOf(out: RecipeRow['outputs'][number], job: Job): number {
     const inputs = job.inputs.slice(0, this.recipe(job.data['recipe'] as string)?.inputs.length ?? 0)
       .map((input) => this.items.get(input.delivered[0] ?? 0)?.material ?? 0);
-    return resolveMaterial(this.ctx.registry, out.material, inputs);
+    return resolveOutputMaterial(this.ctx.registry, out, inputs);
   }
 
   private complete(job: Job, ctx: TickContext): void {

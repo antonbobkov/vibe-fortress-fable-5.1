@@ -3,6 +3,7 @@ import type { EntityId } from '@core/types';
 import type { WorkshopOperator, RecipeRow } from './operate';
 import { civilianProfession, militaryTitle } from './professions';
 import { mealName } from './meals';
+import { M4_RECIPE_WORKSHOPS } from './constants';
 
 export interface WorkshopsReader {
   ordersOf(id: EntityId): readonly WorkOrder[];
@@ -29,7 +30,7 @@ export function makeReader(op: WorkshopOperator): WorkshopsReader {
     ],
     globalOrders: () => op.globalOrders.map((o) => ({ ...o })),
     recipe: (id) => op.recipe(id),
-    recipesFor: (type) => (op.byWorkshop.get(type) ?? []).slice(),
+    recipesFor: (type) => M4_RECIPE_WORKSHOPS.has(type) ? (op.byWorkshop.get(type) ?? []).slice() : [],
     isRunnable: (recipeId, workshopId) => {
       const recipe = op.recipe(recipeId);
       if (recipe === undefined) return { runnable: false, reason: 'not_found' };
