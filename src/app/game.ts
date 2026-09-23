@@ -455,9 +455,17 @@ export class Game {
     await this.loadSave(newest.id);
   }
 
-  /** `Home`: "center on the hearth (or wagon)"; there is no hearth before 14 (M2). */
+  /** `Home`: center on the built hearth, falling back to the arrival wagon. */
   home(): void {
     if (!this.host.started) return;
+    const buildings = this.host.readers.of<BuildingsReader>('14');
+    const hearth = buildings.get(buildings.hearth());
+    if (hearth?.state === 'built') {
+      const map = this.host.headless.map;
+      this.centerOn(map.xOf(hearth.origin), map.yOf(hearth.origin), map.zOf(hearth.origin));
+      this.render();
+      return;
+    }
     const arrival = this.host.headless.arrival;
     if (arrival === null) this.centerOnMap();
     else this.centerOn(arrival.wagon.x, arrival.wagon.y, arrival.wagon.z);

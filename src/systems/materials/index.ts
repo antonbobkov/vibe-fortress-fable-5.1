@@ -13,6 +13,7 @@ import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { ChunkIndex, TileIndex } from '@core/types';
 import { C } from '@core/components';
 import { MAGMA_C } from '@systems/fluids/constants';
+import { HEARTH_WARMTH_C } from '@systems/buildings/constants';
 import { Fire } from './fire';
 import { MATERIALS_CADENCE, MATERIALS_PHASE, UNDERGROUND_BASE_C } from './constants';
 import type { AlloyInput, MaterialsReader, OreYield } from './reader';
@@ -62,6 +63,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   private rng: RngStream | null = null;
   private readerRef: MaterialsReader | null = null;
   private weather: () => WeatherLike | null = () => null;
+  private hearthLightAt: (i: TileIndex) => boolean = () => false;
 
   // Property arrays (`05` § Material properties), rebuilt from the registry; not saved.
   hardnessOf = new Int32Array(0);
@@ -151,6 +153,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     }
     const readers = ctx.readers;
     this.weather = () => (readers.has(WEATHER_ID) ? readers.of<WeatherLike>(WEATHER_ID) : null);
+    this.hearthLightAt = (i) => readers.has('14') && readers.of<{ hearthLightAt(tile: TileIndex): boolean }>('14').hearthLightAt(i);
     this.warmSprings.length = 0;
     for (const s of [...(this.options.warmSprings ?? [])].sort((a, b) => a - b)) this.warmSprings.push(s);
     this.springSet = new Set(this.warmSprings);
@@ -187,7 +190,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   temperatureAt(i: TileIndex): number {
     const forced = this.forced.get(i);
     if (forced !== undefined) return forced;
-    return temperatureOf(this.map, i, this.surfaceTempC());
+    return temperatureOf(this.map, i, this.surfaceTempC()) + (this.hearthLightAt(i) ? HEARTH_WARMTH_C : 0);
   }
 
   /** `TestWorld.forceTemperature(tile, c)`: pin a tile's temperature (null releases it). D-093. */

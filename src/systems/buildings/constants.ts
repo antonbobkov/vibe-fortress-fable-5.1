@@ -19,6 +19,10 @@ export const ROOM_SIZE_CAP = 40;
 export const ENCLOSED_PERCENT = 150;
 /** Default build time; types override. */
 export const BUILD_BASE_TICKS = 100;
+/** The implicit hall and comfort light cover a 5×5 square around the built hearth. */
+export const HEARTH_HALL_SIDE = 5;
+/** Temperature added inside the hearth's 5×5 comfort area. */
+export const HEARTH_WARMTH_C = 2;
 
 /** `door` modes (14 § Doors and hatches); `open` is the default. */
 export const DOOR_MODES: readonly string[] = Object.freeze(['open', 'locked', 'no_pets', 'lock_on_alert']);

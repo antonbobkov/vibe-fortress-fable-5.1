@@ -22,6 +22,7 @@ import type { DwarvesStateV1, TitleName } from './state';
 import { TileFlag } from '@core/map3d';
 import type { WeatherReader } from '@systems/weather';
 import type { ItemsReader } from '@systems/items';
+import type { BuildingsReader } from '@systems/buildings';
 import { SLEEP_NEED_MIN, advanceNeeds, crossed, type NeedName } from './needs';
 import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS } from './constants';
 import { Activities } from './activities';
@@ -208,7 +209,17 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       get hasJobs(): boolean {
         return ctx.readers.has('11');
       },
-      idleGoal: () => this.wagonTile,
+        idleGoal: (id) => {
+          if (!ctx.readers.has('14')) return this.wagonTile;
+          const from = ctx.world.services.movement?.tileOf(id) ?? -1;
+          if (from < 0) return this.wagonTile;
+          const map = ctx.world.map;
+          const hall = ctx.readers.of<BuildingsReader>('14').hearthHallTiles()
+            .filter((tile) => ctx.readers.pathing.passable(tile, 'walker') && ctx.readers.pathing.reachable(from, tile, 'walker'));
+          hall.sort((a, b) => Math.max(Math.abs(map.xOf(from) - map.xOf(a)), Math.abs(map.yOf(from) - map.yOf(a)))
+            - Math.max(Math.abs(map.xOf(from) - map.xOf(b)), Math.abs(map.yOf(from) - map.yOf(b))) || a - b);
+          return hall[0] ?? this.wagonTile;
+        },
       jobName: (id) => {
         if (!ctx.readers.has('11')) return '';
         const t = ctx.readers.of<{ forWorker(id: EntityId): { type: number } | undefined }>('11').forWorker(id);

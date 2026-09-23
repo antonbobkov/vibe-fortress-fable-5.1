@@ -31,7 +31,7 @@ import type { GameEvent } from '@core/events';
 import type { Registry } from '@core/registry';
 import type { EntityId, RoomTier, TileIndex } from '@core/types';
 import type { BuildingStore } from './build';
-import { ENCLOSED_PERCENT, ROOM_SIZE_CAP } from './constants';
+import { ENCLOSED_PERCENT, HEARTH_HALL_SIDE, ROOM_SIZE_CAP } from './constants';
 import { lowerBound, sortedInsert } from './state';
 import type { ZoneStore } from './zones';
 
@@ -40,9 +40,6 @@ export const ROOM_TYPES: readonly string[] = Object.freeze(['bedroom', 'dining_h
 
 /** 14 § Ownership: "titled dwarves first (Thane, then Warden, Broker, Chief Medic)". */
 const TITLE_ORDER: readonly string[] = Object.freeze(['thane', 'warden', 'broker', 'chief_medic']);
-
-/** The side of the stand-in hearth hall: "the 5×5 around the hearth" (14 § Special buildings). */
-const HEARTH_HALL_SIDE = 5;
 
 interface MaterialRow {
   readonly id: string;
@@ -321,6 +318,17 @@ export class RoomStore {
   }
 
   // ---------- the hearth hall ----------
+
+  /** Comfort light belongs to the built hearth, not the map's crop-light flag. */
+  hearthLightAt(tile: TileIndex): boolean {
+    const hearth = this.host.buildings.hearthId;
+    const b = hearth === 0 ? undefined : this.host.buildings.get(hearth);
+    if (b === undefined || b.state !== 'built' || !this.map.validIndex(tile)) return false;
+    const half = Math.floor(HEARTH_HALL_SIDE / 2);
+    return this.map.zOf(tile) === this.map.zOf(b.origin)
+      && Math.abs(this.map.xOf(tile) - this.map.xOf(b.origin)) <= half
+      && Math.abs(this.map.yOf(tile) - this.map.yOf(b.origin)) <= half;
+  }
 
   /** The hearth hall's tiles: the first hearth-hall zone with the hearth inside, else the 5×5 around the hearth. */
   hearthHallTiles(): TileIndex[] {

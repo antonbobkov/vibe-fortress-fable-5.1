@@ -89,6 +89,8 @@ export interface BuildingsReader {
   /** The hearth hall's tier (a `hearth_hall` zone with the hearth, else the 5×5 around the hearth). */
   hearthHallTier(): number;
   hearthHallTiles(): TileIndex[];
+  /** The built hearth's 5×5 comfort light; it does not set crop light. */
+  hearthLightAt(i: TileIndex): boolean;
   /** Built beds no one owns. */
   freeBeds(): EntityId[];
   /** Chairs adjacent to a table. */
@@ -174,6 +176,7 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
     ownerOf: (zoneId) => rooms.room(zoneId)?.ownerId ?? 0,
     hearthHallTier: () => rooms.hearthHallTier(),
     hearthHallTiles: () => rooms.hearthHallTiles(),
+    hearthLightAt: (i) => rooms.hearthLightAt(i),
     freeBeds: () => rooms.freeBeds(),
     diningSeats: () => rooms.seatsAmong(buildings.all().filter((id) => buildings.get(id)?.state === 'built')),
     hearth: () => buildings.hearthId,

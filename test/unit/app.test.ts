@@ -13,6 +13,7 @@ import { LOG_ROWS } from '@render/constants';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { FrameDriver, InProcessHost, type SimulationHost, type Speed } from '@app/sim-host';
 import { Game, testHook } from '@app/game';
+import { BuildingsSystem } from '@systems/buildings';
 import { MockCanvas, mockCanvasFactory } from './render/canvas-mock';
 
 const registry = loadContent();
@@ -28,6 +29,24 @@ function newGame(): Game {
     height: 800,
   });
 }
+
+describe('T-M4-14 Home key', () => {
+  it('centers on the built hearth before the wagon', async () => {
+    const game = newGame();
+    await game.start();
+    const map = game.host.readers.map;
+    const origin = map.index(60, 40, FLAT_TEST_SURFACE_Z);
+    expect(game.host.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'hearth', origin,
+      orientation: 0, materialChoice: 'granite' })).toEqual({ ok: true });
+    const buildings = game.host.world.scheduler.byId('14') as BuildingsSystem;
+    buildings.completeNow(buildings.lastPlacedBuilding, registry.table('materials').index('granite'));
+    game.centerOn(60, 40, FLAT_TEST_SURFACE_Z);
+    const centered = { x: game.ui.camX, y: game.ui.camY, z: game.ui.z };
+    game.pan(10, 10);
+    game.home();
+    expect({ x: game.ui.camX, y: game.ui.camY, z: game.ui.z }).toEqual(centered);
+  });
+});
 
 describe('T-M0-13 sim host: InProcessHost', () => {
   it('refuses every call until newGame has built a world', () => {
