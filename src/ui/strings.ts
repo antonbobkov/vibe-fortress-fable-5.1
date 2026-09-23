@@ -342,6 +342,9 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // 08 § Player-facing behavior ("The cow is starving", "The cat has adopted Ketil Ironvein").
   'announce.animal_starving': 'An animal is starving.',
   'announce.pet_adopted': 'A pet has adopted a dwarf.',
+  // 12 § Registrations: a created masterwork names its maker and item; missing magma is an alert.
+  'announce.masterwork': '{crafter} has created a masterwork {item}.',
+  'announce.workshop_blocked': 'A workshop needs magma power.',
 });
 
 /** A `StringKey`'s text with `{placeholders}` filled; the key itself when no row has it. */

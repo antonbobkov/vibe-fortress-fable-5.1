@@ -40,6 +40,8 @@ export interface JobSink {
 export interface ItemSource {
   /** `findItems(filter, n, from, cls, {reservable: true})`, nearest first. */
   findItems(filter: ItemFilter, n: number, from: TileIndex): EntityId[];
+  /** Craft inputs count units even when several units share a stack. */
+  findUnits?(filter: ItemFilter, n: number, from: TileIndex): EntityId[];
   /** A free tool of the kind (`tag: pick`, `axe`, …) near `from`, or 0. */
   findTool(tool: Tool, from: TileIndex): EntityId;
   /** The worker already carries the tool in the weapon slot. */

@@ -81,6 +81,13 @@ export class AnnouncementLog {
     const e = event as unknown as Record<string, unknown>;
     const who = e['finderId'] ?? e['minerId'];
     if (typeof who === 'number') out['dwarf'] = readers.entities.get(who, C.Creature)?.name ?? '';
+    const crafter = e['crafterId'];
+    if (typeof crafter === 'number') out['crafter'] = readers.entities.get(crafter, C.Creature)?.name ?? '';
+    const itemId = e['itemId'];
+    if (typeof itemId === 'number') {
+      const item = readers.entities.get(itemId, C.Item);
+      if (item !== undefined) out['item'] = this.registry.table<NamedRow>('items').byIndex(item.type)?.name ?? '';
+    }
     const tier = e['tier'];
     if (typeof tier === 'number' && this.registry.hasTable('roomTiers')) {
       const tiers = this.registry.table<{ id: string; tier: number }>('roomTiers');

@@ -133,7 +133,8 @@ export class JobBoard implements JobsApi, JobSink {
 
   /** The worker's level in a job's skill (0 when the job type has none). */
   skillFor(workerId: EntityId, job: Job): number {
-    const s = this.skillIndexOf(this.typeRow(job).skill);
+    const override = job.data['skill'];
+    const s = this.skillIndexOf(typeof override === 'string' ? override : this.typeRow(job).skill);
     if (s === 0) return 0;
     const skills = this.world.entities.get(workerId, C.Skills);
     return skills?.level[s] ?? 0;
@@ -498,6 +499,8 @@ export class JobBoard implements JobsApi, JobSink {
   }
 
   private eligible(job: Job, workerId: EntityId): boolean {
+    const assigned = job.data['assignedWorker'];
+    if (typeof assigned === 'number' && assigned !== 0 && assigned !== workerId) return false;
     const labor = this.jobLabor(job);
     if (!this.laborEnabled(workerId, labor)) return false;
     const minSkill = job.data['minSkill'];
@@ -572,7 +575,10 @@ export class JobBoard implements JobsApi, JobSink {
     for (const input of job.inputs) {
       const needed = input.count - input.delivered.length - input.reserved.length;
       if (needed <= 0) continue;
-      const found = this.items.findItems({ ...input.filter, excludeIds: [...input.reserved, ...input.delivered] }, needed, from);
+      const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
+      const found = job.data['inputUnits'] === true && this.items.findUnits !== undefined
+        ? this.items.findUnits(filter, needed, from)
+        : this.items.findItems(filter, needed, from);
       if (found.length < needed) {
         this.unclaim(job, 'missing_input');
         return false;

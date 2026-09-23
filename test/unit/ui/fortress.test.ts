@@ -271,6 +271,8 @@ describe('T-M1-14 announcements', () => {
       // T-M4-03: 08 § Registrations ("announcements for starving, pet death, adoption").
       AnimalStarving: 'alert',
       PetAdopted: 'note',
+      MasterworkCreated: 'note',
+      WorkshopBlocked: 'alert',
     });
   });
 
@@ -338,4 +340,3 @@ describe('T-M1-14 UiState save section', () => {
     expect(toSaved(ui, lines)).toEqual(saved);
   });
 });
-

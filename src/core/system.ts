@@ -139,6 +139,8 @@ export interface ItemsApi {
   /** Merge stack `b` into `a` when identical and within the stack size; true when merged. */
   merge(a: EntityId, b: EntityId): boolean;
   consume(itemId: EntityId, count: number): void;
+  /** 12 records the maker for masterwork loss and provenance. */
+  setCrafter?(itemId: EntityId, crafterId: EntityId): void;
   destroy(itemId: EntityId, reason: string): void;
   setFlag(itemId: EntityId, flag: number, on: boolean): void;
   setOwner(itemId: EntityId, dwarfId: EntityId): void;
