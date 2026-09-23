@@ -20,6 +20,7 @@ import { NotYetImplementedError } from '@core/system';
 import { C } from '@core/components';
 import { cumulativeXp } from '@systems/dwarves/rules/skills';
 import { dwarfComponents } from '@systems/dwarves/rules/components';
+import { equipStartingClothes } from '@systems/dwarves/clothing';
 import { makeDwarf } from '@systems/dwarves/rules/make-dwarf';
 import { arrivalTame } from '@systems/embark';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
@@ -194,13 +195,15 @@ export class TestWorld {
     if (opts.name !== undefined) record.name = opts.name;
     if (opts.ageYears !== undefined) record.ageYears = opts.ageYears;
     const at = opts.at ?? this.map.index(48, 48, this.map.columnSurfaceZ(48, 48));
-    return game.world.services.spawn.creature(registry.table('creatures').index('dwarf'), at, 'fortress', {
+    const id = game.world.services.spawn.creature(registry.table('creatures').index('dwarf'), at, 'fortress', {
       name: record.name,
       sex: record.sex,
       ageTicks: record.ageYears * TICKS_PER_YEAR,
       child: record.ageYears < ADULT_AGE_YEARS,
       dwarf: dwarfComponents(record, registry, game.world.rngFor('10'), 'none'),
     });
+    equipStartingClothes(game.world, id, at);
+    return id;
   }
 
   /** `spawnCreature(species, at, faction)` through the spawn API. T-M1-11. */

@@ -16,6 +16,7 @@ import type { World } from '@core/world';
 import type { EntityId, Edge, TileIndex } from '@core/types';
 import type { DwarfRecord } from '@systems/dwarves/rules/make-dwarf';
 import { dwarfComponents } from '@systems/dwarves/rules/components';
+import { equipStartingClothes } from '@systems/dwarves/clothing';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import { ARRIVAL_SEARCH_DEPTH, WAGON_LOGS } from './constants';
 import { TREE_LOGS_MAX, TREE_LOGS_MIN } from '@systems/terrain/constants';
@@ -360,6 +361,7 @@ export function arrive(world: World, spec: LocalMapSpec, party: readonly DwarfRe
   const dwarves = party.map((d, k) =>
     spawn({ ...d, needs: ARRIVAL_NEEDS }, tiles[k] as TileIndex, k === thane ? 'thane' : 'none'),
   );
+  dwarves.forEach((id, k) => equipStartingClothes(world, id, tiles[k] as TileIndex));
 
   // The local map's trait features: their items lie where generation put them.
   spawnTraitItems(world, options.spawns ?? []);

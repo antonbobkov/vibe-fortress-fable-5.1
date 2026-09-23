@@ -10,6 +10,7 @@ import type { EntityId } from '@core/types';
 import { ADULT_AGE_YEARS } from './constants';
 import { tierName } from './rules/skills';
 import type { TitleName } from './state';
+import { isUnclothed } from './clothing';
 
 export interface DwarvesReader {
   /** Every living dwarf, ascending. */
@@ -19,7 +20,10 @@ export interface DwarvesReader {
   children(): EntityId[];
   isChild(id: EntityId): boolean;
   title(id: EntityId): string;
+  /** All roles held, in title-table order (D-121). */
+  titles(id: EntityId): TitleName[];
   holder(title: TitleName): EntityId;
+  isUnclothed(id: EntityId): boolean;
   skill(id: EntityId, skillId: string): number;
   skillTier(id: EntityId, skillId: string): string;
   attribute(id: EntityId, attr: keyof Attributes): number;
@@ -50,7 +54,9 @@ export function makeReader(entities: EntityStore, registry: Registry, titles: ()
     children: () => list().filter(isChild),
     isChild,
     title: (id) => entities.get(id, C.Title)?.title ?? 'none',
+    titles: (id) => (['thane', 'warden', 'broker', 'chief_medic'] as const).filter((name) => titles()[name] === id),
     holder: (title) => titles()[title] ?? 0,
+    isUnclothed: (id) => isUnclothed(entities.get(id, C.Equipment), (item) => item !== 0 && entities.has(item, C.Item)),
     skill,
     skillTier: (id, skillId) => tierName(skill(id, skillId)),
     attribute: (id, attr) => entities.get(id, C.Attributes)?.[attr] ?? 0,

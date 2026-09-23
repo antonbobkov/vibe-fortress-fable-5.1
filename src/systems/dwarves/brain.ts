@@ -17,7 +17,7 @@ import { hourOf } from '@core/calendar';
 import { ADULT_AGE_YEARS, IDLE_TICKS, NEED_DEFER_PRIORITY } from './constants';
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
 import { Activities } from './activities';
-import { TICKS_PER_YEAR } from '@core/constants';
+import { PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
 import type { JobsReader } from '@systems/jobs';
 
 /** "Idle dwarves are shown as 'No job' in the units panel." */
@@ -81,7 +81,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     b.activity = host.jobName(id);
     return;
   }
-  if (host.hasJobs && (!child || ctx.readers.of<JobsReader>('11').hasUrgent(id, NEED_DEFER_PRIORITY))) {
+  if (host.hasJobs && (!child || ctx.readers.of<JobsReader>('11').hasUrgent(id, PRIORITY_MAX))) {
     ctx.jobs.assign(id);
     b.behavior = 'work';
     b.behaviorUntil = ctx.tick;

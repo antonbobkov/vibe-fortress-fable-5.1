@@ -5,7 +5,7 @@
  */
 
 import { C, type Needs } from '@core/components';
-import { NEED_MAX, TICKS_PER_DAY } from '@core/constants';
+import { NEED_MAX, TICKS_PER_DAY, TICKS_PER_YEAR } from '@core/constants';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import type { CommandType } from '@core/command-types';
 import type { EventType } from '@core/event-types';
@@ -22,13 +22,14 @@ import type { DwarvesStateV1, TitleName } from './state';
 import { TileFlag } from '@core/map3d';
 import type { WeatherReader } from '@systems/weather';
 import { SLEEP_NEED_MIN, advanceNeeds, crossed, type NeedName } from './needs';
-import { DEHYDRATE_DAYS, STARVE_DAYS } from './constants';
+import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS } from './constants';
 import { Activities } from './activities';
 
 export { makeReader, type DwarvesReader } from './reader';
 export { NO_JOB, select, tickDwarf, type BrainHost } from './brain';
 export { grantXp } from './skills';
 export { advanceNeeds, crossed, WANT, CRITICAL, NEED_NAMES, type NeedName } from './needs';
+export { equipStartingClothes, isUnclothed } from './clothing';
 export * from './rules/skills';
 export { dwarfComponents, freshBrain, SLEEP_START_MAX, SLEEP_START_MIN, type DwarfComponents } from './rules/components';
 export type { TitleName } from './state';
@@ -54,7 +55,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -62,6 +63,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   private readerRef: DwarvesReader | null = null;
   private host: BrainHost | null = null;
   private titles: Record<TitleName, EntityId> = { thane: 0, warden: 0, broker: 0, chief_medic: 0 };
+  private titlesSeeded = false;
   private populationCached = 0;
   private children: EntityId[] = [];
   /** The wagon tile of the arrival, the idle anchor until there is a hearth hall (D-057). */
@@ -75,6 +77,28 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
 
   hasInterrupt(id: EntityId): boolean { return this.interruptFlags.has(id); }
   takeInterrupt(id: EntityId): boolean { return this.interruptFlags.delete(id); }
+
+  /** The embark Thane is written by the spawn API before 10's first tick. */
+  private seedTitles(): void {
+    if (this.titlesSeeded || this.world === null) return;
+    for (const id of this.world.entities.with(C.Title)) {
+      const title = this.world.entities.get(id, C.Title)?.title;
+      if (title !== undefined && title !== 'none') this.titles[title] = id;
+    }
+    this.titlesSeeded = true;
+  }
+
+  private refreshTitleCache(id: EntityId): void {
+    if (this.world === null || !this.world.entities.alive(id)) return;
+    const title = TITLES.find((name) => this.titles[name] === id) ?? 'none';
+    this.world.entities.add(id, C.Title, { title });
+  }
+
+  /** The full title set; the singular `Title` component is a display cache (D-121). */
+  titlesOf(id: EntityId): TitleName[] {
+    this.seedTitles();
+    return TITLES.filter((name) => this.titles[name] === id);
+  }
 
   /** TestWorld's direct setup helper uses the same crossing rule as an hourly update. */
   setNeed(id: EntityId, name: NeedName, value: number): void {
@@ -145,10 +169,31 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     }
   }
 
+  /** A birthday is counted at each year boundary; children gain the adult labor grid at 12. */
+  private yearly(ctx: TickContext): void {
+    const entities = ctx.world.entities;
+    const laborCount = ctx.registry.table('labors').size;
+    for (const id of this.reader().list()) {
+      const creature = entities.get(id, C.Creature);
+      if (creature === undefined) continue;
+      const ageTicks = creature.ageTicks + TICKS_PER_YEAR;
+      entities.add(id, C.Creature, { ...creature, ageTicks });
+      if (creature.ageTicks >= ADULT_AGE_YEARS * TICKS_PER_YEAR || ageTicks < ADULT_AGE_YEARS * TICKS_PER_YEAR) continue;
+      const labors = entities.get(id, C.Labors);
+      if (labors !== undefined) {
+        const enabled = new Uint8Array((laborCount >> 3) + 1);
+        for (let labor = 1; labor <= laborCount; labor += 1) enabled[labor >> 3] = (enabled[labor >> 3] as number) | (1 << (labor & 7));
+        entities.add(id, C.Labors, { enabled });
+      }
+      ctx.emit({ type: 'DwarfBecameAdult', id });
+    }
+    this.children = this.reader().children();
+  }
+
   override init(ctx: InitContext): void {
     this.world = ctx.world;
     this.rng = ctx.rng;
-    this.readerRef = makeReader(ctx.world.entities, ctx.registry, () => this.titles);
+    this.readerRef = makeReader(ctx.world.entities, ctx.registry, () => { this.seedTitles(); return this.titles; });
     const jobTypes = ctx.registry.table<JobTypeRow>('jobTypes');
     this.host = {
       get hasJobs(): boolean {
@@ -178,6 +223,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   }
 
   override tick(ctx: TickContext): void {
+    this.seedTitles();
     const reader = this.reader();
     const entities = ctx.world.entities;
     const species = ctx.registry.table<SpeciesRow & { id: string }>('creatures');
@@ -201,20 +247,18 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     const reader = this.reader();
     this.populationCached = dwarves.length;
     this.children = dwarves.filter((id) => reader.isChild(id));
-    const titles: Record<TitleName, EntityId> = { thane: 0, warden: 0, broker: 0, chief_medic: 0 };
-    for (const id of dwarves) {
-      const t = reader.title(id);
-      if (t !== 'none' && (TITLES as readonly string[]).includes(t)) titles[t as TitleName] = id;
-    }
-    this.titles = titles;
+    for (const title of TITLES) if (this.titles[title] !== 0 && !dwarves.includes(this.titles[title])) this.titles[title] = 0;
   }
 
   /** `JobCompleted` → experience: `xp = jobDef.xp × (100 + Wits) / 150` to the job's skill. */
   override handle(event: GameEvent, ctx: TickContext): void {
     if (event.type === 'HourPassed') { this.hourly(ctx, event['hour'] as number); return; }
     if (event.type === 'DayPassed') { this.daily(ctx); return; }
+    if (event.type === 'YearPassed') { this.yearly(ctx); return; }
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
+      this.seedTitles();
+      for (const title of TITLES) if (this.titles[title] === id) this.titles[title] = 0;
       this.activities.plans.delete(id);
       this.idleAnnounced.delete(id);
       this.interruptFlags.delete(id);
@@ -272,6 +316,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   }
 
   override applyCommand(cmd: Command, ctx: TickContext): CommandResult {
+    this.seedTitles();
     const entities = ctx.world.entities;
     const reader = this.reader();
     const dwarfId = cmd['dwarfId'];
@@ -281,8 +326,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       if (typeof title !== 'string' || !(TITLES as readonly string[]).includes(title)) return reject('not_found');
       if (dwarfId === 0) {
         const holder = this.titles[title as TitleName];
-        if (holder !== 0) entities.add(holder, C.Title, { title: 'none' });
         this.titles[title as TitleName] = 0;
+        if (holder !== 0) this.refreshTitleCache(holder);
         ctx.emit({ type: 'TitleAssigned', dwarfId: 0, title });
         return OK;
       }
@@ -290,9 +335,9 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       if (reader.isChild(dwarfId)) return reject('not_adult');
       // One holder per title: the previous holder is vacated.
       const previous = this.titles[title as TitleName];
-      if (previous !== 0 && previous !== dwarfId) entities.add(previous, C.Title, { title: 'none' });
-      entities.add(dwarfId, C.Title, { title: title as TitleName });
       this.titles[title as TitleName] = dwarfId;
+      if (previous !== 0 && previous !== dwarfId) this.refreshTitleCache(previous);
+      this.refreshTitleCache(dwarfId);
       ctx.emit({ type: 'TitleAssigned', dwarfId, title });
       return OK;
     }
@@ -323,6 +368,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   }
 
   serialize(): DwarvesStateV1 {
+    this.seedTitles();
     return {
       stateVersion: 1,
       titles: { ...this.titles },
@@ -342,6 +388,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   deserialize(state: DwarvesStateV1, ctx: InitContext): void {
     if (this.world === null) this.init(ctx);
     this.titles = { ...state.titles };
+    this.titlesSeeded = true;
     this.populationCached = state.populationCached;
     this.children = state.children.slice();
     this.stream.setState(state.rng);

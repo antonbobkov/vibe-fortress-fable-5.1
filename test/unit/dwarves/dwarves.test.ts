@@ -153,7 +153,8 @@ describe('T-M1-09 dwarves: commands', () => {
     const apply = (cmd: Record<string, unknown>): unknown => w.game.world.applyCommand(cmd as never);
     expect(apply({ type: 'AssignTitle', dwarfId: a, title: 'warden' })).toEqual({ ok: true });
     expect(apply({ type: 'AssignTitle', dwarfId: b, title: 'warden' })).toEqual({ ok: true });
-    expect(reader.title(a as EntityId)).toBe('none');
+    expect(reader.title(a as EntityId)).toBe('thane');
+    expect(reader.titles(a as EntityId)).toEqual(['thane']);
     expect(reader.holder('warden')).toBe(b);
     expect(apply({ type: 'AssignTitle', dwarfId: 0, title: 'warden' })).toEqual({ ok: true });
     expect(reader.holder('warden')).toBe(0);
