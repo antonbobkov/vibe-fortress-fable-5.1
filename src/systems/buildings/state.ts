@@ -20,6 +20,8 @@ export interface BuildingsStateV1 {
   pendingJobs: EntityId[];
   /** Superset: tiles `MagmaContact` named, for 14's next tick (D-098). */
   magmaTouched?: TileIndex[];
+  /** T-M4-13: common furniture targeted by a sulk, removed only during 14's tick. */
+  brokenFurniture?: EntityId[];
 }
 
 /** Binary search: the insertion point of `value` in an ascending array. */

@@ -31,6 +31,7 @@ export interface BrainHost {
   /** The display name of the dwarf's current job, or ''. */
   jobName(id: EntityId): string;
   activities: Activities;
+  dayOff(id: EntityId): boolean;
   takeInterrupt(id: EntityId): boolean;
   dwarfIds(): EntityId[];
   idleAnnounced(id: EntityId): boolean;
@@ -75,6 +76,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   }
   const age = ctx.world.entities.get(id, C.Creature)?.ageTicks ?? ADULT_AGE_YEARS * TICKS_PER_YEAR;
   const child = age < ADULT_AGE_YEARS * TICKS_PER_YEAR;
+  if (host.dayOff(id)) { startIdle(host, ctx, id, b); return; }
   if (jobIdOf(ctx, id) !== 0) {
     host.clearIdle(id);
     b.behavior = 'work';

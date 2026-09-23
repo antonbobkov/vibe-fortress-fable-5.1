@@ -84,7 +84,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M4-10 — Butcher, tannery, loom, clothier, leatherworks, kennel, bowyer: buildings and recipes (gpt6-m4, 2026-09-22)
 - [x] T-M4-11 — Foraging: gather zones, fishing, butchery, slaughter (gpt6-m4, 2026-09-23)
 - [x] T-M4-12 — Animal product jobs at the farmer's workshop (gpt6-m4, 2026-09-23)
-- [ ] T-M4-13 — Morale: thoughts, mood, tiers, hall spirit, sulks
+- [x] T-M4-13 — Morale: thoughts, mood, tiers, hall spirit, sulks (gpt6-m4, 2026-09-23)
 - [ ] T-M4-14 — The hearth and hearth hall
 - [ ] T-M4-15 — Items: rot queue, miasma, corpses
 - [ ] T-M4-16 — Embark supplies and animals in play; hints; the year-one hints

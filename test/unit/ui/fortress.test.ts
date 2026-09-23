@@ -274,6 +274,9 @@ describe('T-M1-14 announcements', () => {
       MasterworkCreated: 'note',
       WorkshopBlocked: 'alert',
       FishPoolDepleted: 'note',
+      MoodTierChanged: 'note',
+      SulkHappened: 'alert',
+      ThoughtGained: 'note',
     });
   });
 

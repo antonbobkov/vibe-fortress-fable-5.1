@@ -135,7 +135,7 @@ export class AnimalsProducer implements JobProducer {
         const tame = ctx.world.entities.get(animal, C.Tame);
         ctx.world.entities.add(corpse, C.Corpse, { species: creature.species, diedTick: ctx.tick, wornItems: [], dwarfName: null,
           juvenile: tame !== undefined && tame.juvenileUntil > ctx.tick });
-        ctx.emit({ type: 'CreatureDied', id: animal, cause: 'slaughter' });
+        ctx.emit({ type: 'CreatureDied', id: animal, cause: 'slaughter', tile, faction: creature.faction });
         ctx.emit({ type: 'CorpseCreated', id: corpse, creatureId: animal, species: creature.species });
         ctx.world.entities.destroy(animal);
       }

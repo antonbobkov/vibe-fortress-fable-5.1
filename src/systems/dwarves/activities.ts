@@ -263,7 +263,7 @@ export class Activities {
         ctx.world.services.items?.consume(p.itemId, 1);
         change('hunger', meal ? 100 : 70);
         ctx.emit({ type: 'MealEaten', id, quality: item.quality, atTable: p.atTable, roomTier: p.roomTier,
-          stage: item.rotStage, kind: meal ? 'meal' : 'raw' });
+          stage: item.rotStage, kind: meal ? 'meal' : 'raw', mealType: def?.id ?? '' });
         if (meal && item.quality >= 4) change('joy', 20);
       }
     } else if (p.need === 'thirst') {

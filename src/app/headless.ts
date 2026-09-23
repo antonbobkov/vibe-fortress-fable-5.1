@@ -39,6 +39,7 @@ import { JobsSystem } from '@systems/jobs';
 import { DwarvesSystem } from '@systems/dwarves';
 import { ItemsSystem } from '@systems/items';
 import { BuildingsSystem } from '@systems/buildings';
+import { MoraleSystem } from '@systems/morale';
 import { WorkshopsSystem } from '@systems/workshops';
 import { FluidsSystem } from '@systems/fluids';
 import { MaterialsSystem } from '@systems/materials';
@@ -435,6 +436,7 @@ export class HeadlessGame {
       new WorkshopsSystem(),
       new ItemsSystem(),
       new BuildingsSystem(),
+      new MoraleSystem(),
     ];
   }
 

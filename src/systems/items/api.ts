@@ -426,7 +426,7 @@ export class ItemCore implements ItemsApi {
     const last = this.item(itemId);
     this.account(last, -1);
     this.entities.destroy(itemId);
-    this.host.emit({ type: 'ItemDestroyed', id: itemId, itemType: this.host.facts.row(last.type).id, reason, crafterId: last.crafterId });
+    this.host.emit({ type: 'ItemDestroyed', id: itemId, itemType: this.host.facts.row(last.type).id, reason, crafterId: last.crafterId, quality: last.quality });
     this.notify(itemId, 'destroyed');
   }
 

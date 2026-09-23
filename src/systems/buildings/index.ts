@@ -41,6 +41,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'AlertChanged',
     'DayPassed',
     'MagmaContact',
+    'SulkHappened',
   ];
   override readonly ownsCommands: readonly CommandType[] = [
     'CreateZone',
@@ -61,6 +62,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   private roomsRef: RoomStore | null = null;
   private readerRef: BuildingsReader | null = null;
   private rng: RngStream | null = null;
+  readonly brokenFurniture: EntityId[] = [];
   /** The id of the zone the last accepted `CreateZone` made (for setup helpers and the UI). */
   lastCreatedZone = 0;
   /** The id of the building the last accepted `PlaceBuilding` made. */
@@ -154,6 +156,9 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     } else if (event.type === 'MagmaContact') {
       // 14 § Events consumed: "`MagmaContact` (destroy non-magma-safe buildings)", at 14's next tick.
       this.buildings.magmaTouched(event['tile'] as TileIndex);
+    } else if (event.type === 'SulkHappened' && event['kind'] === 'break' && typeof event['buildingId'] === 'number') {
+      const id = event['buildingId'] as EntityId;
+      if (!this.brokenFurniture.includes(id)) this.brokenFurniture.push(id);
     } else if (event.type === 'DayPassed') {
       rooms.markAll();
       rooms.recompute();
@@ -163,6 +168,13 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
 
   /** 14's tick: dirty rooms are scored again (`economy.md` § Room quality, "on dirty rooms and daily"). */
   override tick(_ctx: TickContext): void {
+    for (const id of this.brokenFurniture.splice(0).sort((a, b) => a - b)) {
+      const b = this.buildings.get(id);
+      if (b === undefined || b.state !== 'built') continue;
+      const item = b.itemId;
+      this.buildings.remove(id);
+      if (item !== 0) _ctx.world.services.items?.destroy(item, 'sulk');
+    }
     this.buildings.destroyMagmaTouched();
     this.rooms.recompute();
   }
@@ -222,7 +234,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       pendingToggles: [],
       rng: (this.rng as RngStream).state(),
       pendingJobs: this.buildings.pending.slice(),
-      magmaTouched: this.buildings.magmaPending.slice(),
+        magmaTouched: this.buildings.magmaPending.slice(),
+        brokenFurniture: this.brokenFurniture.slice(),
     };
   }
 
@@ -236,7 +249,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     this.buildings.pending.length = 0;
     this.buildings.pending.push(...state.pendingJobs);
     this.buildings.magmaPending.length = 0;
-    this.buildings.magmaPending.push(...(state.magmaTouched ?? []));
+      this.buildings.magmaPending.push(...(state.magmaTouched ?? []));
+      this.brokenFurniture.splice(0, this.brokenFurniture.length, ...(state.brokenFurniture ?? []));
     this.rng?.setState(state.rng);
   }
 }

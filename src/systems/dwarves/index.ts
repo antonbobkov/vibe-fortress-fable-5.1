@@ -11,7 +11,7 @@ import type { CommandType } from '@core/command-types';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import type { RngStream } from '@core/rng';
-import { BaseSystem, type InitContext, type TickContext, type WorldLike } from '@core/system';
+import { BaseSystem, type InitContext, type TickContext, type ThoughtSource, type WorldLike } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import { tickDwarf, type BrainHost } from './brain';
 import { makeReader, type DwarvesReader } from './reader';
@@ -21,6 +21,7 @@ import { movementEffects, type MoveFacts } from './movement-effects';
 import type { DwarvesStateV1, TitleName } from './state';
 import { TileFlag } from '@core/map3d';
 import type { WeatherReader } from '@systems/weather';
+import type { ItemsReader } from '@systems/items';
 import { SLEEP_NEED_MIN, advanceNeeds, crossed, type NeedName } from './needs';
 import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS } from './constants';
 import { Activities } from './activities';
@@ -55,7 +56,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved', 'SulkHappened'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -159,6 +160,13 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
 
   private daily(ctx: TickContext): void {
     for (const id of this.reader().list()) {
+      const brain = ctx.world.entities.get(id, C.Brain);
+      const pos = ctx.world.entities.get(id, C.Position);
+      if (brain !== undefined && pos !== undefined) {
+        const tile = ctx.world.map.index(pos.x, pos.y, pos.z);
+        ctx.world.entities.add(id, C.Brain, { ...brain,
+          daysUnderground: ctx.world.map.hasFlag(tile, TileFlag.Outdoor) ? 0 : brain.daysUnderground + 1 });
+      }
       const n = ctx.world.entities.get(id, C.Needs);
       if (n === undefined) continue;
       this.announceStarving(id, n, Math.floor(ctx.tick / TICKS_PER_DAY), (e) => ctx.emit(e));
@@ -193,7 +201,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   override init(ctx: InitContext): void {
     this.world = ctx.world;
     this.rng = ctx.rng;
-    this.readerRef = makeReader(ctx.world.entities, ctx.registry, () => { this.seedTitles(); return this.titles; });
+    this.readerRef = makeReader(ctx.world.entities, ctx.registry, () => { this.seedTitles(); return this.titles; },
+      (id) => ctx.readers.has('15') ? ctx.readers.of<{ productivity(id: EntityId): number }>('15').productivity(id) : 100);
     const jobTypes = ctx.registry.table<JobTypeRow>('jobTypes');
     this.host = {
       get hasJobs(): boolean {
@@ -206,6 +215,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         return t === undefined ? '' : (jobTypes.byIndex(t.type)?.name ?? '');
       },
       activities: this.activities,
+      dayOff: (id) => ctx.readers.has('15') && ctx.readers.of<{ dayOff(id: EntityId): boolean }>('15').dayOff(id),
       takeInterrupt: (id) => this.takeInterrupt(id),
       dwarfIds: () => this.reader().list(),
       idleAnnounced: (id) => this.idleAnnounced.has(id),
@@ -214,6 +224,23 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     };
     ctx.register.panel({ id: 'units', title: 'Units', hotkey: 'u' });
     ctx.register.inspector('creature', { id: 'dwarf', order: 10 });
+    // `15` § Thoughts: relationship-dependent triggers are facts of 10, not inferred from event ids.
+    const source: ThoughtSource = {
+      on: ['DwarfDied', 'CreatureDied', 'Buried'],
+      trigger: (event, tick) => {
+        const dead = Number(event['dwarfId'] ?? event['id'] ?? 0);
+        const all = this.reader().list().filter((id) => id !== dead);
+        if (event.type === 'DwarfDied') return all.filter((id) => this.reader().isFriend(id, dead))
+          .map((id) => ({ thoughtId: 'friend_died', id }));
+        if (event.type === 'CreatureDied') return all.filter((id) => tick.world.entities.get(id, C.Relationships)?.pets.includes(dead) === true)
+          .map((id) => ({ thoughtId: 'pet_died', id }));
+        const friends = all.filter((id) => this.reader().isFriend(id, dead));
+        return friends.flatMap((id) => event['tombTier'] === 'none' || event['tombTier'] === 0
+          ? [{ thoughtId: 'buried_friend', id }, { thoughtId: 'memorial_placed', id }]
+          : [{ thoughtId: 'buried_friend', id }]);
+      },
+    };
+    ctx.register.thoughtSource(source);
   }
 
   /** The random stream of 10, for the components it writes at spawn (D-057). */
@@ -255,6 +282,23 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     if (event.type === 'HourPassed') { this.hourly(ctx, event['hour'] as number); return; }
     if (event.type === 'DayPassed') { this.daily(ctx); return; }
     if (event.type === 'YearPassed') { this.yearly(ctx); return; }
+    if (event.type === 'SulkHappened') {
+      const id = event['id'];
+      if (typeof id !== 'number') return;
+      if (event['kind'] === 'argue' && typeof event['partnerId'] === 'number') {
+        for (const [a, b] of [[id, event['partnerId']] as [EntityId, EntityId], [event['partnerId'], id] as [EntityId, EntityId]]) {
+          const rel = ctx.world.entities.get(a, C.Relationships);
+          if (rel !== undefined) ctx.world.entities.add(a, C.Relationships, { ...rel,
+            grudges: [...rel.grudges.filter((g) => g.id !== b), { id: b, untilTick: ctx.tick + 2 * TICKS_PER_DAY }] });
+        }
+      }
+      if (event['kind'] === 'weep' && typeof event['targetTile'] === 'number') {
+        const brain = ctx.world.entities.get(id, C.Brain);
+        if (brain !== undefined) ctx.world.entities.add(id, C.Brain, { ...brain, behavior: 'idle',
+          behaviorUntil: ctx.tick + TICKS_PER_DAY, targetTile: event['targetTile'] });
+      }
+      return;
+    }
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
       this.seedTitles();
@@ -289,6 +333,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     const fluids = readers.has('04') ? readers.of<{ isMisty(i: TileIndex): boolean }>('04') : null;
     const materials = readers.has('05') ? readers.of<{ isWarmSpring(i: TileIndex): boolean }>('05') : null;
     const weather = readers.has('06') ? readers.of<{ state(): string }>('06') : null;
+    const items = readers.has('13') ? readers.of<ItemsReader>('13') : null;
     const facts: MoveFacts = {
       isMisty: (i) => fluids?.isMisty(i) === true,
       nearSpring: (i) => {
@@ -312,6 +357,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       if (brain === undefined) continue;
       const next = movementEffects(id, from, to, ctx.tick, brain, facts, (e) => ctx.emit(e));
       if (next !== brain) entities.add(id, C.Brain, next);
+      if (items !== null) for (const itemId of items.at(to)) if (items.get(itemId)?.quality === 5)
+        ctx.emit({ type: 'SawMasterwork', id, itemId });
     }
   }
 

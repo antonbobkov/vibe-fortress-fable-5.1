@@ -36,7 +36,7 @@ export interface DwarvesReader {
   isFriend(a: EntityId, b: EntityId): boolean;
 }
 
-export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>): DwarvesReader {
+export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100): DwarvesReader {
   const skills = registry.table('skills');
   const list = (): EntityId[] => entities.with(C.Brain, C.Creature).filter((id) => entities.alive(id));
   const isChild = (id: EntityId): boolean => {
@@ -63,7 +63,7 @@ export function makeReader(entities: EntityStore, registry: Registry, titles: ()
     need: (id, need) => entities.get(id, C.Needs)?.[need] ?? 0,
     behavior: (id) => entities.get(id, C.Brain)?.behavior ?? '',
     activityText: (id) => entities.get(id, C.Brain)?.activity ?? '',
-    productivity: () => 100,
+    productivity: moodProductivity,
     friends: (id) => (entities.get(id, C.Relationships)?.friends ?? []).slice(),
     isFriend: (a, b) => (entities.get(a, C.Relationships)?.friends ?? []).includes(b),
   };

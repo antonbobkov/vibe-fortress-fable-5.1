@@ -370,7 +370,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       // Until 17 health exists, 08 kills the starving animal itself (T-M4-04).
       if (ctx.tick - (this.starvingSince.get(id) as number) >= STARVE_TICKS) {
         this.starvingSince.delete(id);
-        ctx.emit({ type: 'CreatureDied', id, cause: 'starvation' });
+        ctx.emit({ type: 'CreatureDied', id, cause: 'starvation', tile: this.tileOf(id), faction: entities.get(id, C.Creature)?.faction ?? '' });
         entities.destroy(id);
       }
     }
