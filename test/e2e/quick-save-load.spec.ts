@@ -39,6 +39,7 @@ test('quick-save-load', async ({ page }) => {
 
   // Export from the Load screen, then import the file through the file chooser and load it.
   await page.goto('/');
+  await page.waitForFunction(() => (window as unknown as { __deepholm?: unknown }).__deepholm !== undefined);
   await expect.poll(() => call<string>(page, 'return h.screen();')).toBe('main_menu');
   await page.locator('canvas#screen').click();
   await page.keyboard.press('l');
