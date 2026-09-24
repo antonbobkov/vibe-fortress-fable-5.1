@@ -1,0 +1,72 @@
+import { describe, expect, it } from 'vitest';
+import { C } from '@core/components';
+import { DAYS_PER_SEASON, TICKS_PER_DAY } from '@core/constants';
+import type { MoraleReader } from '@systems/morale';
+import type { DwarvesSystem } from '@systems/dwarves';
+import { TestWorld } from '../../scenarios/test-world';
+
+describe('T-M5-07 masterwork sight and statue admiration', () => {
+  it('gives two per-object room-entry thoughts, never repeats them, and caps active thoughts at three', () => {
+    const w = new TestWorld({ seed: 'm5-masterwork-room', world: 'flat-test', embark: 'none' });
+    const outside = w.index(18, 20, 32);
+    const inside = w.index(20, 20, 32);
+    const dwarf = w.spawnDwarf({ at: outside });
+    const tiles = [inside, w.index(21, 20, 32), w.index(22, 20, 32),
+      w.index(20, 21, 32), w.index(21, 21, 32), w.index(22, 21, 32)];
+    const room = w.zone('dining_hall', tiles);
+    const a = w.spawnItem('bed', 'oak', tiles[1]!, 1, 5);
+    const b = w.spawnItem('bed', 'oak', tiles[2]!, 1, 5);
+    const own = w.spawnItem('bed', 'oak', tiles[5]!, 1, 5);
+    w.game.world.services.items?.setCrafter?.(own, dwarf);
+    w.step(1);
+    expect(w.readers.of<{ room(id: number): unknown }>('14').room(room)).toBeDefined();
+    const beforeJoy = w.game.world.entities.get(dwarf, C.Needs)!.joy;
+    w.movement.teleport(dwarf, inside);
+    w.step(2);
+    expect(w.events('SawMasterwork').filter((e) => e['id'] === dwarf).map((e) => e['itemId'])).toEqual([a, b]);
+    expect((w.game.world.scheduler.byId('10') as DwarvesSystem).serialize().sawMasterworks).toEqual([[dwarf, a], [dwarf, b]]);
+    const morale = w.readers.of<MoraleReader>('15');
+    expect(morale.thoughts(dwarf).filter((t) => t.id === 'saw_masterwork')).toHaveLength(2);
+    expect(w.game.world.entities.get(dwarf, C.Needs)?.joy).toBe(Math.max(0, beforeJoy - 20));
+    w.movement.teleport(dwarf, outside);
+    w.step(2);
+    w.movement.teleport(dwarf, inside);
+    w.step(2);
+    expect(w.events('SawMasterwork').filter((e) => e['id'] === dwarf)).toHaveLength(2);
+    const c = w.spawnItem('bed', 'oak', tiles[3]!, 1, 5);
+    const d = w.spawnItem('bed', 'oak', tiles[4]!, 1, 5);
+    w.movement.teleport(dwarf, outside);
+    w.step(2);
+    w.movement.teleport(dwarf, inside);
+    w.step(2);
+    expect(w.events('SawMasterwork').filter((e) => e['id'] === dwarf).map((e) => e['itemId'])).toEqual([a, b, c, d]);
+    expect(morale.thoughts(dwarf).filter((t) => t.id === 'saw_masterwork')).toHaveLength(3);
+  });
+
+  it('admires a fine statue once per season and again in the next season', () => {
+    const startTick = DAYS_PER_SEASON * TICKS_PER_DAY - 10;
+    const w = new TestWorld({ seed: 'm5-statue-season', world: 'flat-test', embark: 'none', startTick });
+    const dwarf = w.spawnDwarf({ at: w.index(18, 20, 32) });
+    const statueTile = w.index(21, 20, 32);
+    const statue = w.spawnItem('statue', 'granite', statueTile, 1, 2);
+    w.build('statue', statueTile, 'granite', 0, statue);
+    w.step(1);
+    const near = w.index(20, 20, 32);
+    const far = w.index(18, 20, 32);
+    w.movement.teleport(dwarf, near);
+    w.step(2);
+    const morale = w.readers.of<MoraleReader>('15');
+    expect(morale.thoughts(dwarf).filter((t) => t.id === 'admired_statue')).toHaveLength(1);
+    w.movement.teleport(dwarf, far);
+    w.step(2);
+    w.movement.teleport(dwarf, near);
+    w.step(2);
+    expect(morale.thoughts(dwarf).filter((t) => t.id === 'admired_statue')).toHaveLength(1);
+    w.step(10);
+    w.movement.teleport(dwarf, far);
+    w.step(2);
+    w.movement.teleport(dwarf, near);
+    w.step(2);
+    expect(morale.thoughts(dwarf).filter((t) => t.id === 'admired_statue')).toHaveLength(2);
+  });
+});

@@ -77,6 +77,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly starvingAnnounced = new Map<EntityId, number>();
   readonly activities = new Activities();
   readonly idleAnnounced = new Set<EntityId>();
+  readonly sawMasterworks = new Set<string>();
 
   hasInterrupt(id: EntityId): boolean { return this.interruptFlags.has(id); }
   takeInterrupt(id: EntityId): boolean { return this.interruptFlags.delete(id); }
@@ -349,6 +350,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     const materials = readers.has('05') ? readers.of<{ isWarmSpring(i: TileIndex): boolean }>('05') : null;
     const weather = readers.has('06') ? readers.of<{ state(): string }>('06') : null;
     const items = readers.has('13') ? readers.of<ItemsReader>('13') : null;
+    const buildings = readers.has('14') ? readers.of<BuildingsReader>('14') : null;
     const facts: MoveFacts = {
       isMisty: (i) => fluids?.isMisty(i) === true,
       nearSpring: (i) => {
@@ -372,8 +374,28 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       if (brain === undefined) continue;
       const next = movementEffects(id, from, to, ctx.tick, brain, facts, (e) => ctx.emit(e));
       if (next !== brain) entities.add(id, C.Brain, next);
-      if (items !== null) for (const itemId of items.at(to)) if (items.get(itemId)?.quality === 5)
-        ctx.emit({ type: 'SawMasterwork', id, itemId });
+      if (items !== null && buildings !== null) {
+        const oldRooms = new Set(buildings.zonesAt(from).filter((zone) => buildings.room(zone) !== undefined));
+        const entered = buildings.zonesAt(to).filter((zone) => buildings.room(zone) !== undefined && !oldRooms.has(zone));
+        const seen = new Set<EntityId>();
+        for (const zoneId of entered) for (const tile of buildings.zone(zoneId)?.tiles ?? []) {
+          for (const itemId of items.at(tile)) {
+            const item = items.get(itemId);
+            if (item?.quality === 5 && item.crafterId !== id) seen.add(itemId);
+          }
+          const building = buildings.get(buildings.at(tile));
+          const linked = building === undefined ? undefined : items.get(building.itemId);
+          if (building?.state === 'built' && linked?.quality === 5 && linked.crafterId !== id) seen.add(building.itemId);
+        }
+        for (const itemId of Array.from(seen).sort((a, b) => a - b)) {
+          const key = `${id}:${itemId}`;
+          if (this.sawMasterworks.has(key)) continue;
+          this.sawMasterworks.add(key);
+          ctx.emit({ type: 'SawMasterwork', id, itemId });
+          const needs = entities.get(id, C.Needs);
+          if (needs !== undefined) entities.add(id, C.Needs, { ...needs, joy: Math.max(0, needs.joy - 10) });
+        }
+      }
     }
   }
 
@@ -444,6 +466,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       starvingAnnounced: Array.from(this.starvingAnnounced).sort((a, b) => a[0] - b[0]),
       activities: Array.from(this.activities.plans).sort((a, b) => a[0] - b[0]),
       idleAnnounced: Array.from(this.idleAnnounced).sort((a, b) => a - b),
+      ...(this.sawMasterworks.size > 0 ? { sawMasterworks: Array.from(this.sawMasterworks).sort()
+        .map((key) => key.split(':').map(Number) as [EntityId, EntityId]) } : {}),
     };
   }
 
@@ -467,5 +491,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     for (const [id, p] of state.activities ?? []) this.activities.plans.set(id, { ...p });
     this.idleAnnounced.clear();
     for (const id of state.idleAnnounced ?? []) this.idleAnnounced.add(id);
+    this.sawMasterworks.clear();
+    for (const [id, itemId] of state.sawMasterworks ?? []) this.sawMasterworks.add(`${id}:${itemId}`);
   }
 }

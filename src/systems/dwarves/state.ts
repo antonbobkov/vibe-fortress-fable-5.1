@@ -39,4 +39,6 @@ export interface DwarvesStateV1 {
   starvingAnnounced: [EntityId, number][];
   activities?: [EntityId, ActivityPlan][];
   idleAnnounced?: EntityId[];
+  /** T-M5-07: each dwarf remembers individual masterwork items seen on room entry. */
+  sawMasterworks?: [EntityId, EntityId][];
 }
