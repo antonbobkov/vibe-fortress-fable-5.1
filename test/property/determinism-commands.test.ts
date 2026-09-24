@@ -12,7 +12,7 @@ import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { TestWorld } from '../scenarios/test-world';
-import { COMMAND_GENERATORS, commandStream, prepareM4GeneratorWorld, resolveCommand, submitScheduled, type ScheduledCommand } from './command-generators';
+import { COMMAND_GENERATORS, commandStream, prepareM4GeneratorWorld, prepareM5GeneratorWorld, resolveCommand, submitScheduled, type ScheduledCommand } from './command-generators';
 import { currentMilestone } from '../scenarios/runner';
 
 const TICKS = 2_000;
@@ -22,6 +22,7 @@ const SEED = 'determinism-under-commands';
 function runWith(stream: readonly ScheduledCommand[]): string[] {
   const w = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
   prepareM4GeneratorWorld(w);
+  if (currentMilestone() >= 5) prepareM5GeneratorWorld(w);
   const game = w.game;
   let next = 0;
   const hashes: string[] = [];
@@ -40,6 +41,7 @@ describe('T-M0-11 property: determinism under commands', () => {
   it('two runs of the same command stream agree at every 100th tick', () => {
     const probe = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
     prepareM4GeneratorWorld(probe);
+    if (currentMilestone() >= 5) prepareM5GeneratorWorld(probe);
     fc.assert(
       fc.property(commandStream(probe, currentMilestone(), TICKS), (stream) => {
         const first = runWith(stream);
@@ -50,6 +52,21 @@ describe('T-M0-11 property: determinism under commands', () => {
       }),
       { numRuns: COMMAND_GENERATORS.length === 0 ? 2 : 10 },
     );
+  });
+});
+
+describe('T-M5-09 property: M5 workshop and item commands', () => {
+  it('samples accepted MeltItem, EditWorkOrder, SetWorkshopWorker and SuspendWorkshop commands', () => {
+    const w = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
+    prepareM4GeneratorWorld(w);
+    prepareM5GeneratorWorld(w);
+    const generators = COMMAND_GENERATORS.filter((g) => g.milestone === 5);
+    expect(generators.map((g) => g.id)).toEqual(['MeltItem', 'EditWorkOrder', 'SetWorkshopWorker', 'SuspendWorkshop']);
+    for (const generator of generators) for (const command of fc.sample(generator.arbitrary(w), { numRuns: 12, seed: 20260924 })) {
+      const resolved = resolveCommand(w.game, command);
+      const result = w.game.world.applyCommand(resolved);
+      expect(result, `${generator.id}: ${JSON.stringify(resolved)}`).toEqual({ ok: true });
+    }
   });
 });
 

@@ -1,6 +1,6 @@
 # Progress
 
-current-milestone: 5
+current-milestone: 6
 
 Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agent, date). Agents edit this file in the same commit as the task. Sub-tasks added by splitting go directly under their parent.
 
@@ -103,7 +103,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M5-06 — Melting marked items — gpt6-m5, 2026-09-24
 - [x] T-M5-07 — Masterworks and the `saw_masterwork` memory; statues admired — gpt6-m5, 2026-09-24
 - [x] T-M5-08 — Stocks panel complete; orders panel global orders; workshop panel material filter — gpt6-m5, 2026-09-24
-- [~] T-M5-09 — Gate M5 — gpt6-m5, 2026-09-24
+- [x] T-M5-09 — Gate M5 — gpt6-m5, 2026-09-24
 
 ## M6 — Steel and Blood ([M6-steel-and-blood.md](M6-steel-and-blood.md))
 

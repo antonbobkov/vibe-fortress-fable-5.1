@@ -15,6 +15,7 @@ import { TileFlag } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import { FLAT_TEST_SURFACE_Z, type HeadlessGame } from '@app/headless';
 import type { BuildingsReader } from '@systems/buildings';
+import type { JobsReader } from '@systems/jobs';
 import { STOCKPILE_PRESETS } from '@systems/items';
 import { STANDING_ORDERS } from '@systems/jobs/constants';
 import { recipeActive } from '@systems/workshops/constants';
@@ -71,7 +72,7 @@ function designate(w: TestWorld): fc.Arbitrary<Command> {
  */
 export interface EntityRef {
   readonly $nth: number;
-  readonly of: 'zone' | 'stockpile' | 'building' | 'item' | 'farm_plot' | 'pasture' | 'grazer' | 'slaughterable' | 'adult';
+  readonly of: 'zone' | 'stockpile' | 'building' | 'workshop' | 'item' | 'metal_item' | 'farm_plot' | 'pasture' | 'grazer' | 'slaughterable' | 'adult';
 }
 
 function isRef(value: unknown): value is EntityRef {
@@ -97,6 +98,11 @@ function candidates(game: HeadlessGame, of: EntityRef['of']): EntityId[] {
     });
   }
   if (of === 'adult') return game.world.readers.of<{ adults(): EntityId[] }>('10').adults();
+  if (of === 'metal_item') {
+    const materials = game.registry.table<{ id: string; class: string }>('materials');
+    return e.with(C.Item).filter((id) => materials.byIndex(e.get(id, C.Item)?.material ?? -1)?.class === 'metal');
+  }
+  if (of === 'workshop') return e.with(C.Workshop);
   if (of === 'stockpile') return e.with(C.Stockpile);
   if (of === 'zone') return e.with(C.Zone);
   if (of === 'building') return e.with(C.Building);
@@ -225,6 +231,16 @@ export function prepareM4GeneratorWorld(w: TestWorld): void {
   w.spawnTame('cow', w.index(24, 71, z));
 }
 
+/** A persistent global order, workshop and meltable item give M5 commands valid initial targets. */
+export function prepareM5GeneratorWorld(w: TestWorld): void {
+  w.build('carpenter', w.index(15, 15, FLAT_TEST_SURFACE_Z));
+  w.spawnItem('axe', 'iron', w.index(18, 17, FLAT_TEST_SURFACE_Z));
+  w.step(1);
+  const result = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: 0,
+    order: { recipeId: 'forge_battle_axe', mode: 'maintain', remaining: 1, threshold: 99, priority: 5 } });
+  if (!result.ok) throw new Error(`M5 property setup: ${result.reason}`);
+}
+
 /** T-M4-19: each command names a valid M4 target and an authored option. */
 const M4_GENERATORS: readonly CommandGenerator[] = [
   {
@@ -267,6 +283,22 @@ const M4_GENERATORS: readonly CommandGenerator[] = [
   },
 ];
 
+/** T-M5-09: the M5 command families that mutate workshop and item state. */
+const M5_GENERATORS: readonly CommandGenerator[] = [
+  { id: 'MeltItem', milestone: 5, arbitrary: () => fc.tuple(ref('metal_item'), fc.boolean())
+    .map(([itemId, on]) => ({ type: 'MeltItem', itemId, on }) as unknown as Command) },
+  { id: 'EditWorkOrder', milestone: 5, arbitrary: () => fc.integer({ min: 1, max: 9 })
+    .map((priority) => ({ type: 'EditWorkOrder', workshopId: 0, index: 0, patch: { priority } }) as Command) },
+  { id: 'SetWorkshopWorker', milestone: 5, arbitrary: (w) => {
+    const jobs = w.readers.of<JobsReader>('11');
+    const candidates = [0, ...w.readers.entities.with(C.Labors).filter((id) => jobs.laborEnabled(id, 'carpentry'))];
+    return fc.tuple(ref('workshop'), fc.constantFrom(...candidates))
+      .map(([workshopId, dwarfId]) => ({ type: 'SetWorkshopWorker', workshopId, dwarfId }) as unknown as Command);
+  } },
+  { id: 'SuspendWorkshop', milestone: 5, arbitrary: () => fc.tuple(ref('workshop'), fc.boolean())
+    .map(([workshopId, on]) => ({ type: 'SuspendWorkshop', workshopId, on }) as unknown as Command) },
+];
+
 /** The generators of the milestones built so far: M1's terrain and labor ones, M2's items and buildings ones. */
 export const COMMAND_GENERATORS: readonly CommandGenerator[] = Object.freeze([
   { id: 'Designate', milestone: 1, arbitrary: designate },
@@ -297,6 +329,7 @@ export const COMMAND_GENERATORS: readonly CommandGenerator[] = Object.freeze([
   },
   ...M2_GENERATORS,
   ...M4_GENERATORS,
+  ...M5_GENERATORS,
 ]);
 
 export function generatorsFor(milestone: number): readonly CommandGenerator[] {
