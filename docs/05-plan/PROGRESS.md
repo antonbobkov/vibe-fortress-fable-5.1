@@ -99,7 +99,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M5-02 — Alloys and steel — gpt6-m5, 2026-09-23
 - [x] T-M5-03 — Forge: weapons, ammunition, armor, tools, metal furniture, crafts — gpt6-m5, 2026-09-23
 - [x] T-M5-04 — Magma workshops — gpt6-m5, 2026-09-24
-- [ ] T-M5-05 — Mechanic's workshop and mechanisms as items; jeweler
+- [~] T-M5-05 — Mechanic's workshop and mechanisms as items; jeweler — gpt6-m5, 2026-09-24
 - [ ] T-M5-06 — Melting marked items
 - [ ] T-M5-07 — Masterworks and the `saw_masterwork` memory; statues admired
 - [ ] T-M5-08 — Stocks panel complete; orders panel global orders; workshop panel material filter
