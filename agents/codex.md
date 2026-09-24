@@ -97,6 +97,11 @@ Get-Content next-step.txt -Raw |
 
 - `codex exec resume [SESSION_ID] [PROMPT]`, or `--last` for the newest.
   `-` as the PROMPT reads it from stdin, same as a fresh `exec`.
+- **`resume` takes neither `-s/--sandbox` nor `-C/--cd`** — passing `-s` fails
+  with `error: unexpected argument '-s' found`. Set the sandbox through the
+  config override instead, which is verified to work:
+  `-c sandbox_mode="danger-full-access"`. And since there is no `-C`, the
+  shell's own working directory must already be the repo.
 - Sessions are filtered by cwd by default; `--all` disables that filtering.
 - **Finding the id:** sessions are recorded as
   `~/.codex/sessions/<YYYY>/<MM>/<DD>/rollout-<timestamp>-<uuid>.jsonl`, and
