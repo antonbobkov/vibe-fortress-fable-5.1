@@ -15,5 +15,5 @@ export const ACTIVE_RECIPE_WORKSHOPS: ReadonlySet<string> = new Set([
 
 export function recipeActive(recipe: { readonly id: string; readonly workshop: string }): boolean {
   return ACTIVE_RECIPE_WORKSHOPS.has(recipe.workshop) ||
-    (recipe.workshop === 'smelter' && (recipe.id.startsWith('smelt_') || recipe.id.startsWith('alloy_')));
+    (recipe.workshop === 'smelter' && (recipe.id.startsWith('smelt_') || recipe.id.startsWith('alloy_') || recipe.id === 'melt_metal_item'));
 }

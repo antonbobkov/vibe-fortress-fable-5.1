@@ -36,6 +36,8 @@ export interface ItemFilter {
   drinkable?: boolean;
   emptyContainer?: string;
   excludeIds?: EntityId[];
+  /** Marked item flag required by a workshop input (T-M5-06). */
+  requiredFlags?: number;
 }
 
 export interface JobInput {

@@ -50,6 +50,8 @@ export interface ItemFilter {
   /** An empty container of this class. */
   emptyContainer?: string;
   excludeIds?: readonly EntityId[];
+  /** Item flags that must all be present (12's marked-for-melting input). */
+  requiredFlags?: number;
 }
 
 export interface SearchOptions {
@@ -73,6 +75,7 @@ export function matches(core: ItemCore, id: EntityId, it: Item, filter: ItemFilt
   const facts = core.host.facts;
   if (filter.excludeIds !== undefined && filter.excludeIds.includes(id)) return false;
   if (filter.itemId !== undefined && id !== filter.itemId) return false;
+  if (filter.requiredFlags !== undefined && (it.flags & filter.requiredFlags) !== filter.requiredFlags) return false;
   if (filter.type !== undefined && it.type !== filter.type) return false;
   if (filter.types !== undefined && !filter.types.includes(it.type)) return false;
   const row = facts.types[it.type];

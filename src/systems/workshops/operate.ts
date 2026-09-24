@@ -1,13 +1,15 @@
 /** `12` §§ Operation, Work orders; `economy.md` § Workshop operation. */
-import { C, type Building, type WorkOrder, type Workshop } from '@core/components';
+import { C, ItemFlag, type Building, type WorkOrder, type Workshop } from '@core/components';
 import { FluidType } from '@core/map3d';
 import type { Registry } from '@core/registry';
 import type { GameEvent } from '@core/events';
 import type { InitContext, JobProducer, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Job, JobBoard, JobSink, ItemFilter } from '@systems/jobs';
+import type { JobsReader } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
 import { MAGMA_POWER_LEVEL, recipeActive } from './constants';
+import { MELT_RETURN_PERCENT } from './constants';
 import { MAGMA_C } from '@systems/fluids/constants';
 import { rollQuality } from './quality';
 import { grantXp } from '@systems/dwarves/skills';
@@ -218,6 +220,11 @@ export class WorkshopOperator {
       filter.materialIds = materials.where('magma-safe-metal', (row) => row.class === 'metal' && row.meltsAtC > MAGMA_C)
         .map((row) => materials.index(row.id));
     }
+    if (recipe.id === 'melt_metal_item') {
+      delete filter.tag;
+      filter.materialClass = 'metal';
+      filter.requiredFlags = ItemFlag.Melt;
+    }
     const output = recipe.outputs[0];
     const items = registry.table<ItemRow>('items');
     if (output?.item === 'thread' && input.match === 'fiber' && items.has('wool_raw')) {
@@ -311,13 +318,33 @@ export class WorkshopOperator {
         const jobId = sink.create(key, { type: 'craft', target: { kind: 'building', ref: id }, workTile: this.workTile(b),
           priority: choice.order.priority, inputs, data: { recipe: recipe.id, orderIndex: choice.index, globalOrder: choice.global,
             labor: ctx.registry.table<{ id: string; labor: string | null }>('skills').byId(recipe.skill)?.labor ?? 'crafts',
-            skill: recipe.skill, assignedWorker: ws.assignedWorker, workshopWorker: ws.assignedWorker, inputUnits: true,
+            skill: recipe.skill, assignedWorker: ws.assignedWorker, workshopWorker: ws.assignedWorker,
+            inputUnits: recipe.id !== 'melt_metal_item',
             anchorTile: this.workTile(b) } });
         this.save(id, { ...this.workshop(id) as Workshop, currentJobId: jobId, lastBlockedReason: null });
         started = true;
         break;
       }
       if (!started) {
+        if (this.typeOf(id) === 'smelter' && ctx.readers.of<JobsReader>('11').standingOrder('autoMeltMarked')) {
+          const recipe = this.recipe('melt_metal_item');
+          const order: WorkOrder = { recipe: this.recipeIndex('melt_metal_item'), remaining: 1,
+            mode: 'once', threshold: 0, priority: 5, materialFilter: null };
+          const filter = recipe === undefined ? null : this.inputFilter(recipe, recipe.inputs[0] as RecipeRow['inputs'][number], order);
+          const item = filter === null ? 0 : this.items.findItem(filter, this.workTile(b), 'walker', { reservable: true });
+          const fuel = powered ? null : this.fuelFilter();
+          if (item !== 0 && (powered || fuel !== null)) {
+            const inputs: { filter: ItemFilter; count: number }[] = [{ filter: { ...filter, itemId: item }, count: 1 }];
+            if (fuel !== null) inputs.push({ filter: fuel, count: 1 });
+            const jobId = sink.create(`craft:auto-melt:${id}`, { type: 'craft', target: { kind: 'building', ref: id },
+              workTile: this.workTile(b), priority: 5, inputs,
+              data: { recipe: 'melt_metal_item', orderIndex: -1, globalOrder: false, labor: 'smelting',
+                skill: 'smelting', assignedWorker: ws.assignedWorker, workshopWorker: ws.assignedWorker,
+                inputUnits: false, anchorTile: this.workTile(b) } });
+            this.save(id, { ...ws, currentJobId: jobId, lastBlockedReason: null });
+            continue;
+          }
+        }
         if (reason !== null && reason !== ws.lastBlockedReason) ctx.emit({ type: 'WorkshopBlocked', workshopId: id, reason });
         if (reason === null && ws.lastBlockedReason !== null) ctx.emit({ type: 'WorkshopIdle', workshopId: id });
         if (reason !== ws.lastBlockedReason) this.save(id, { ...ws, lastBlockedReason: reason });
@@ -338,12 +365,35 @@ export class WorkshopOperator {
     return resolveOutputMaterial(this.ctx.registry, out, inputs);
   }
 
+  /** The metal bars in an authored item, as a rational number for stackable outputs. */
+  private barCost(type: number): { bars: number; units: number } {
+    const items = this.ctx.registry.table<ItemRow>('items');
+    const row = items.byIndex(type);
+    if (row === undefined) return { bars: 1, units: 1 };
+    const typeId = row.id;
+    for (const tableId of ['weapons', 'armor'] as const) {
+      const entry = this.ctx.registry.table<{ id: string; bars?: number }>(tableId).byId(typeId);
+      if (entry?.bars !== undefined && entry.bars > 0) return { bars: entry.bars, units: 1 };
+    }
+    for (const recipe of Array.from(this.recipes.values()).sort((a, b) => a.id.localeCompare(b.id))) {
+      if (recipe.workshop !== 'forge' && recipe.id !== 'make_mechanism_metal') continue;
+      const output = recipe.outputs.find((out) => out.item === typeId || row.tags?.includes(out.item));
+      const bars = recipe.inputs.find((input) => input.match === 'bar')?.count ?? 0;
+      if (output !== undefined && bars > 0) return { bars, units: output.count };
+    }
+    return { bars: 1, units: 1 };
+  }
+
   private complete(job: Job, ctx: TickContext): void {
     const id = job.target.ref;
     const b = ctx.world.entities.get(id, C.Building);
     const ws = this.workshop(id);
     const recipe = this.recipe(job.data['recipe'] as string);
     if (b === undefined || ws === undefined || recipe === undefined) return;
+    const melted = recipe.id === 'melt_metal_item' ? this.items.get(job.inputs[0]?.delivered[0] ?? 0) : undefined;
+    const meltCost = melted === undefined ? { bars: 0, units: 1 } : this.barCost(melted.type);
+    const meltCount = melted === undefined ? 0 : Math.floor(melted.count * meltCost.bars * MELT_RETURN_PERCENT /
+      (meltCost.units * 100));
     const materials = recipe.outputs.map((out) => this.materialOf(out, job));
     const container = recipe.container ? (job.inputs[job.inputs.length - 1]?.delivered[0] ?? 0) : 0;
     const fuelIndex = recipe.fuel && !this.isMagmaPowered(id) ? recipe.inputs.length : -1;
@@ -355,7 +405,10 @@ export class WorkshopOperator {
         for (const item of job.inputs[k]?.delivered ?? []) {
           if (remaining <= 0) break;
           const take = Math.min(remaining, this.items.get(item)?.count ?? 0);
-          if (take > 0) itemsApi?.consume(item, take);
+          if (take > 0) {
+            if (recipe.id === 'melt_metal_item' && k === 0) itemsApi?.destroy(item, 'melted');
+            else itemsApi?.consume(item, take);
+          }
           remaining -= take;
         }
       }
@@ -371,7 +424,9 @@ export class WorkshopOperator {
       const options = itemTable.where(`tag:${out.item}`, (row) => row.tags?.includes(out.item) === true);
       const type = itemTable.has(out.item) ? out.item : options.length > 0 ? options[this.ctx.rng.int(0, options.length - 1)]?.id : undefined;
       if (type === undefined) continue;
-      const itemId = ctx.spawn.item(itemTable.index(type), materials[k] as number, container === 0 ? outAt : { containerId: container }, out.count, quality);
+      const count = recipe.id === 'melt_metal_item' ? meltCount : out.count;
+      if (count <= 0) continue;
+      const itemId = ctx.spawn.item(itemTable.index(type), materials[k] as number, container === 0 ? outAt : { containerId: container }, count, quality);
       itemsApi?.setCrafter?.(itemId, job.workerId);
       ctx.emit({ type: 'ItemCrafted', itemId, quality, crafterId: job.workerId, workshopId: id, recipeId: recipe.id });
       if (quality === 5) ctx.emit({ type: 'MasterworkCreated', itemId, crafterId: job.workerId });

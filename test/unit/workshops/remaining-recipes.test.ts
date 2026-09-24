@@ -87,13 +87,13 @@ describe('T-M4-10 remaining non-metal workshops', () => {
     expect(reader.recipesFor('kennel')).toHaveLength(0);
   });
 
-  it('D-128: stages M5 recipes as their tasks land, keeping later workshops and melting inactive', () => {
+  it('D-128: stages M5 recipes as their tasks land, keeping the later magma kiln inactive', () => {
     const w = new TestWorld({ seed: 'm4-m5-recipe-seam', world: 'flat-test', embark: 'none' });
     const reader = w.readers.of<WorkshopsReader>('12');
     expect(reader.recipesFor('wood_furnace').map((r) => r.id)).toEqual(['make_charcoal']);
-    expect(reader.recipesFor('smelter')).toHaveLength(21);
+    expect(reader.recipesFor('smelter')).toHaveLength(22);
     expect(reader.recipesFor('forge')).toHaveLength(40);
-    expect(reader.recipesFor('magma_smelter')).toHaveLength(21);
+    expect(reader.recipesFor('magma_smelter')).toHaveLength(22);
     expect(reader.recipesFor('magma_forge')).toHaveLength(40);
     expect(reader.recipesFor('mechanic').map((r) => r.id)).toEqual(['make_mechanism', 'make_mechanism_metal']);
     expect(reader.recipesFor('jeweler').map((r) => r.id)).toEqual(['cut_gem', 'make_glowstone_lamp']);
@@ -104,7 +104,7 @@ describe('T-M4-10 remaining non-metal workshops', () => {
     expect(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: 0,
       order: { recipeId: 'make_charcoal', remaining: 1, mode: 'once' } })).toEqual({ ok: true });
     expect(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: 0,
-      order: { recipeId: 'melt_metal_item', remaining: 1, mode: 'once' } })).toEqual({ ok: false, reason: 'precondition_failed' });
+      order: { recipeId: 'melt_metal_item', remaining: 1, mode: 'once' } })).toEqual({ ok: true });
   });
 
   it('tans a cow hide into leather, makes four bandages, and keeps yew bow power metadata', () => {
