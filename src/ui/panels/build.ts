@@ -16,6 +16,7 @@ import { PRIORITY_DEFAULT } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { BuildingRow } from '@systems/buildings';
+import type { WorkshopsReader } from '@systems/workshops';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, list, separator, type ListState } from '../widgets';
@@ -33,8 +34,9 @@ export const BUILD_CATEGORIES: readonly { readonly key: string; readonly id: Bui
 ];
 
 /** The wagon is "placed at embark only": it is not in the menu. */
-function listed(row: BuildingRow): boolean {
-  return row.id !== 'wagon';
+function listed(row: BuildingRow, ctx: PanelContext): boolean {
+  return row.id !== 'wagon' && (row.id !== 'magma_kiln' ||
+    (ctx.readers.has('12') && ctx.readers.of<WorkshopsReader>('12').recipesFor(row.id).length > 0));
 }
 
 /** One input as the menu shows it: "2 log", "1 block|log". */
@@ -84,7 +86,7 @@ export class BuildTool {
   rows(ctx: PanelContext): BuildingRow[] {
     const b = buildings(ctx);
     if (b === null || this.category === null) return [];
-    return b.types().filter((r) => r.category === this.category && listed(r));
+    return b.types().filter((r) => r.category === this.category && listed(r, ctx));
   }
 
   current(ctx: PanelContext): BuildingRow | undefined {
@@ -114,7 +116,7 @@ export class BuildTool {
   /** The first input's item types. */
   private inputTypes(ctx: PanelContext, row: BuildingRow): number[] {
     const b = buildings(ctx);
-    const first = row.inputs[0];
+    const first = row.id === 'magma_forge' ? row.inputs.find((input) => input.match === 'stone_block') : row.inputs[0];
     return b === null || first === undefined ? [] : b.inputTypes(first.match);
   }
 

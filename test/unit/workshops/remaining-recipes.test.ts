@@ -93,7 +93,9 @@ describe('T-M4-10 remaining non-metal workshops', () => {
     expect(reader.recipesFor('wood_furnace').map((r) => r.id)).toEqual(['make_charcoal']);
     expect(reader.recipesFor('smelter')).toHaveLength(21);
     expect(reader.recipesFor('forge')).toHaveLength(40);
-    for (const type of ['mechanic', 'jeweler', 'magma_smelter', 'magma_forge']) {
+    expect(reader.recipesFor('magma_smelter')).toHaveLength(21);
+    expect(reader.recipesFor('magma_forge')).toHaveLength(40);
+    for (const type of ['mechanic', 'jeweler', 'magma_kiln']) {
       expect(reader.recipesFor(type), type).toHaveLength(0);
     }
     expect(reader.recipe('make_charcoal')).toBeDefined();

@@ -27,6 +27,7 @@ import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
 import { Designation, FluidType, TileFlag, TileKind, type Map3D } from '@core/map3d';
 import { MAGMA_C } from '@systems/fluids/constants';
+import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
 import type { EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import type { Registry } from '@core/registry';
@@ -218,7 +219,10 @@ export class BuildingStore {
 
   private inputsFor(row: BuildingRow, tiles: number, material: number): { filter: Record<string, unknown>; count: number }[] {
     return row.inputs.map((input) => ({
-      filter: { types: this.typesOf(input.match), ...(material !== 0 ? { materialId: material } : {}) },
+      filter: { types: this.typesOf(input.match),
+        ...(material !== 0 && input.match !== 'anvil' ? { materialId: material } : {}),
+        ...(row.id === 'magma_forge' && input.match === 'anvil'
+          ? { materialIds: ['iron', 'steel'].map((id) => this.host.registry.table('materials').index(id)) } : {}) },
       count: input.count === 'tiles' ? tiles : input.count,
     }));
   }
@@ -247,6 +251,15 @@ export class BuildingStore {
     const exposed = tiles.some((t) => magmaAt(map, t) || map.neighbors26(t).some((n) => magmaAt(map, n)));
     if (!exposed) return true;
     return material !== 0 && (this.materials[material]?.meltsAtC ?? 0) > MAGMA_C;
+  }
+
+  /** `12` § Workshops: a magma variant needs level 4 or more directly below one footprint tile. */
+  magmaPoweredAt(tiles: readonly TileIndex[]): boolean {
+    return tiles.some((t) => {
+      const below = this.map.below(t);
+      return below >= 0 && this.map.fluidTypeAt(below) === FluidType.Magma &&
+        this.map.fluidLevelAt(below) >= MAGMA_POWER_LEVEL;
+    });
   }
 
   /** Tiles named by `MagmaContact`, waiting for 14's tick (D-098). */
@@ -310,6 +323,7 @@ export class BuildingStore {
       }
     }
     if (reason === null && row.tags.includes('hearth') && this.hearthId !== 0 && this.host.entities.alive(this.hearthId)) reason = 'hearth_exists';
+    if (reason === null && row.tags.includes('magma') && !this.magmaPoweredAt(tiles)) reason = 'bad_placement';
     return { tiles, bad, reason, rule };
   }
 
@@ -344,6 +358,7 @@ export class BuildingStore {
     for (const t of tiles) if (map.buildingAtTile(t) !== 0) return reject('footprint_blocked');
     const rule = onRuleOf(row.id);
     for (const t of tiles) if (!onRuleHolds(map, rule, t)) return reject('bad_placement');
+    if (row.tags.includes('magma') && !this.magmaPoweredAt(tiles)) return reject('bad_placement');
     if (!this.magmaSafe(tiles, material)) return reject('not_magma_safe');
     if (row.tags.includes('hearth') && this.hearthId !== 0 && this.host.entities.alive(this.hearthId)) return reject('hearth_exists');
 

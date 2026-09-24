@@ -389,6 +389,11 @@ export class JobBoard implements JobsApi, JobSink {
       const job = this.jobs.get(id) as Job;
       this.blockedRetryCursor = id;
       const reason = job.blockedReason;
+      if (reason === 'no_magma' && job.producer === 'workshops' && this.readers.has('12') &&
+        !this.readers.of<{ isMagmaPowered(id: EntityId): boolean }>('12').isMagmaPowered(job.target.ref)) {
+        job.retryTick = this.now + BLOCKED_RETRY_TICKS;
+        continue;
+      }
       if (reason === 'no_worker' || reason === 'unreachable') {
         const still = this.openProblem(job);
         if (still !== null) {

@@ -5,7 +5,7 @@ import type { Registry } from '@core/registry';
 import type { GameEvent } from '@core/events';
 import type { InitContext, JobProducer, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
-import type { Job, JobSink, ItemFilter } from '@systems/jobs';
+import type { Job, JobBoard, JobSink, ItemFilter } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
 import { MAGMA_POWER_LEVEL, recipeActive } from './constants';
 import { rollQuality } from './quality';
@@ -132,6 +132,11 @@ export class WorkshopOperator {
   }
 
   recipeIndex(id: string): number { return this.recipeNumbers.get(id) ?? 0; }
+
+  recipesForType(type: string): RecipeRow[] {
+    const base = this.ctx.registry.table<BuildingRow>('buildings').byId(type)?.magmaVariantOf ?? type;
+    return (this.byWorkshop.get(base) ?? []).filter(recipeActive);
+  }
 
   row(b: Building): BuildingRow { return this.ctx.registry.table<BuildingRow>('buildings').byIndex(b.type) as BuildingRow; }
 
@@ -266,10 +271,23 @@ export class WorkshopOperator {
       this.ensure(id);
       const b = entities.get(id, C.Building);
       const ws = this.workshop(id);
-      if (b === undefined || ws === undefined || b.state !== 'built' || ws.suspended || ws.currentJobId !== 0 ||
+      if (b === undefined || ws === undefined || b.state !== 'built' || ws.suspended ||
         (this.typeOf(id) !== 'smelter' && !this.byWorkshop.get(this.typeOf(id))?.some(recipeActive))) continue;
       const powered = this.isMagmaPowered(id);
+      const magmaVariant = this.row(b).magmaVariantOf !== undefined;
       if (powered !== ws.magmaPowered) this.save(id, { ...ws, magmaPowered: powered });
+      if (magmaVariant && !powered) {
+        const board = ctx.world.services.jobs as JobBoard;
+        const job = board.jobs.get(ws.currentJobId);
+        if (job !== undefined && job.state !== 'blocked') board.unclaim(job, 'no_magma');
+        if (ws.lastBlockedReason !== 'no_magma') {
+          ctx.emit({ type: 'WorkshopBlocked', workshopId: id, reason: 'no_magma' });
+          this.save(id, { ...this.workshop(id) as Workshop, lastBlockedReason: 'no_magma' });
+        }
+        continue;
+      }
+      if (ws.lastBlockedReason === 'no_magma') this.save(id, { ...this.workshop(id) as Workshop, lastBlockedReason: null });
+      if (ws.currentJobId !== 0) continue;
       const choices = [...ws.orders.map((o, index) => ({ order: o, index, global: false })),
         ...this.globalOrders.map((o, index) => ({ order: o, index, global: true }))];
       let started = false;

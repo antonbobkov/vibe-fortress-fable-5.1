@@ -3,7 +3,6 @@ import type { EntityId } from '@core/types';
 import type { WorkshopOperator, RecipeRow } from './operate';
 import { civilianProfession, militaryTitle } from './professions';
 import { mealName } from './meals';
-import { recipeActive } from './constants';
 
 export interface WorkshopsReader {
   ordersOf(id: EntityId): readonly WorkOrder[];
@@ -30,7 +29,7 @@ export function makeReader(op: WorkshopOperator): WorkshopsReader {
     ],
     globalOrders: () => op.globalOrders.map((o) => ({ ...o })),
     recipe: (id) => op.recipe(id),
-    recipesFor: (type) => (op.byWorkshop.get(type) ?? []).filter(recipeActive),
+    recipesFor: (type) => op.recipesForType(type),
     isRunnable: (recipeId, workshopId) => {
       const recipe = op.recipe(recipeId);
       if (recipe === undefined) return { runnable: false, reason: 'not_found' };
