@@ -96,7 +96,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 ## M5 — Metal ([M5-metal.md](M5-metal.md))
 
 - [x] T-M5-01 — Wood furnace and smelter: charcoal, ore smelting, coal — gpt6-m5, 2026-09-23
-- [~] T-M5-02 — Alloys and steel — gpt6-m5, 2026-09-23
+- [x] T-M5-02 — Alloys and steel — gpt6-m5, 2026-09-23
 - [ ] T-M5-03 — Forge: weapons, ammunition, armor, tools, metal furniture, crafts
 - [ ] T-M5-04 — Magma workshops
 - [ ] T-M5-05 — Mechanic's workshop and mechanisms as items; jeweler

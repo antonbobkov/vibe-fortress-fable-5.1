@@ -29,6 +29,8 @@ export interface ItemFilter {
   tag?: string;
   materialClass?: string;
   materialId?: number;
+  /** One of several materials, retained through job reservation and save. */
+  materialIds?: number[];
   minQuality?: number;
   edible?: boolean;
   drinkable?: boolean;

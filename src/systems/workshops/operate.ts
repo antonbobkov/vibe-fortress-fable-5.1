@@ -27,7 +27,7 @@ export interface RecipeRow {
 }
 
 interface BuildingRow { readonly id: string; readonly category: string; readonly magmaVariantOf?: string; readonly workTile?: number; readonly outputTile?: number }
-interface MaterialRow { readonly id: string; readonly class: string }
+interface MaterialRow { readonly id: string; readonly class: string; readonly tags?: readonly string[] }
 interface ItemRow { readonly id: string; readonly tags?: readonly string[] }
 interface PlantRow { readonly id: string; readonly brew?: string }
 
@@ -35,9 +35,15 @@ export function recipeInputFilter(registry: Registry, input: RecipeRow['inputs']
   const items = registry.table<ItemRow>('items');
   const materials = registry.table<MaterialRow>('materials');
   const materialClass = materials.where(`class:${input.match}`, (row) => row.class === input.match).length > 0;
-  const filter: ItemFilter = items.has(input.match) ? { type: items.index(input.match) }
+  const alternatives = input.match.split('|');
+  const filter: ItemFilter = alternatives.length > 1 && alternatives.every((id) => items.has(id))
+    ? { types: alternatives.map((id) => items.index(id)) }
+    : items.has(input.match) ? { type: items.index(input.match) }
     : materialClass ? { materialClass: input.match } : { tag: input.match };
-  const material = input.material !== undefined && input.material !== 'any' ? input.material : order.materialFilter;
+  if (input.material === 'flux') filter.materialIds = materials.where('tag:flux', (row) => row.tags?.includes('flux') === true)
+    .map((row) => materials.index(row.id));
+  const material = input.material !== undefined && input.material !== 'any' && input.material !== 'flux' && input.material !== 'fuel'
+    ? input.material : order.materialFilter;
   if (typeof material === 'number') filter.materialId = material;
   else if (typeof material === 'string' && materials.has(material)) filter.materialId = materials.index(material);
   else if (typeof material === 'string') filter.materialClass = material;
@@ -175,19 +181,19 @@ export class WorkshopOperator {
         if (this.items.findItems(filter, input.count, tile, 'walker', { reservable: true }).length < input.count) return `waiting for ${input.match}`;
       }
     }
-    if (recipe.fuel && !this.isMagmaPowered(id) && this.fuelFilter() === null) return 'missing_input';
+    if (recipe.fuel && !this.isMagmaPowered(id)) {
+      const fuel = this.fuelFilter();
+      const reactionFuel = recipe.inputs.reduce((count, input) => count + (input.material === 'fuel' ? input.count : 0), 0);
+      if (fuel === null || this.items.countAvailable(fuel) < reactionFuel + 1) return 'missing_input';
+    }
     if (recipe.container && this.items.countAvailable({ emptyContainer: recipe.container }) < 1) return `waiting for ${recipe.container}`;
     return null;
   }
 
   fuelFilter(): ItemFilter | null {
     const items = this.ctx.registry.table('items');
-    for (const type of ['coal_bar', 'charcoal_bar']) {
-      if (!items.has(type)) continue;
-      const filter = { type: items.index(type) };
-      if (this.items.countAvailable(filter) > 0) return filter;
-    }
-    return null;
+    const filter = { types: ['coal_bar', 'charcoal_bar'].filter((type) => items.has(type)).map((type) => items.index(type)) };
+    return filter.types.length > 0 && this.items.countAvailable(filter) > 0 ? filter : null;
   }
 
   /** Alternatives and same-species inputs specified in the content text beyond RecipeDef. */

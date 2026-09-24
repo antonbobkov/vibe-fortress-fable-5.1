@@ -249,7 +249,10 @@
     "color": "chalk_white",
     "meltsAtC": 1300,
     "burnable": false,
-    "burnTicks": 0
+    "burnTicks": 0,
+    "tags": [
+      "flux"
+    ]
   },
   {
     "id": "charcoal",
