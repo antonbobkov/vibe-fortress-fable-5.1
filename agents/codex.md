@@ -77,6 +77,49 @@ After the run, treat it like any other agent's changes: `git status` /
 `git diff` before committing. `workspace-write` lets Codex edit files
 directly on disk, it doesn't produce a patch to apply.
 
+## Resuming an interrupted run
+
+Quota aborts are the normal way a long handoff dies here (`ERROR: You've hit
+your usage limit … try again at <time>`, exit code 1). The session is still
+recorded, so you can continue it instead of starting cold:
+
+```powershell
+# continue the most recent session for this cwd, with a follow-up prompt
+Get-Content next-step.txt -Raw |
+  & $CODEX exec resume --last `
+    -m gpt-6-sol -c model_reasoning_effort="high" `
+    -s danger-full-access -c agents.enabled=false `
+    -o last_message.txt -
+
+# or resume a specific session
+& $CODEX exec resume <SESSION_UUID> -m gpt-6-sol ... "<prompt>"
+```
+
+- `codex exec resume [SESSION_ID] [PROMPT]`, or `--last` for the newest.
+  `-` as the PROMPT reads it from stdin, same as a fresh `exec`.
+- Sessions are filtered by cwd by default; `--all` disables that filtering.
+- **Finding the id:** sessions are recorded as
+  `~/.codex/sessions/<YYYY>/<MM>/<DD>/rollout-<timestamp>-<uuid>.jsonl`, and
+  the uuid in the filename is the SESSION_ID. `codex exec --json` also prints
+  a `thread.started` event with the id at the start of a run — capture it if
+  you expect to need a resume later.
+- `codex exec fork <ID>` branches a session instead of continuing it, when you
+  want to retry a step without losing the original.
+
+**When resume is worth it:** the model keeps everything it already read and
+decided, which on a milestone-sized task is a large fraction of the run's
+cost. **When to start fresh instead:** a genuinely new task, or when the old
+session went down a wrong path you don't want it anchored to — a cold run with
+a good prompt beats resuming a confused one.
+
+Caveat seen once: a quota abort also logged
+`ERROR codex_core::session: failed to record rollout items: thread … not
+found`, so a session killed mid-write may not resume cleanly. Check that the
+rollout file for that uuid exists before relying on it, and keep a written
+state summary in the follow-up prompt regardless — this repo's workflow
+(commit per task, `PROGRESS.md`, `DECISIONS.md`) already makes the tree
+self-describing, so a cold restart is never fatal.
+
 ## Subagents
 
 Codex has a native multi-agent tool (`thread_spawn`) — the model decides on
