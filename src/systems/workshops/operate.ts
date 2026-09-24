@@ -8,6 +8,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Job, JobBoard, JobSink, ItemFilter } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
 import { MAGMA_POWER_LEVEL, recipeActive } from './constants';
+import { MAGMA_C } from '@systems/fluids/constants';
 import { rollQuality } from './quality';
 import { grantXp } from '@systems/dwarves/skills';
 import { jobXp } from '@systems/dwarves/rules/skills';
@@ -27,7 +28,7 @@ export interface RecipeRow {
 }
 
 interface BuildingRow { readonly id: string; readonly category: string; readonly magmaVariantOf?: string; readonly workTile?: number; readonly outputTile?: number }
-interface MaterialRow { readonly id: string; readonly class: string; readonly tags?: readonly string[] }
+interface MaterialRow { readonly id: string; readonly class: string; readonly tags?: readonly string[]; readonly meltsAtC: number }
 interface ItemRow { readonly id: string; readonly tags?: readonly string[] }
 interface PlantRow { readonly id: string; readonly brew?: string }
 
@@ -211,6 +212,11 @@ export class WorkshopOperator {
     if (recipe.id === 'forge_anvil' && input.match === 'bar') {
       const materials = registry.table<MaterialRow>('materials');
       filter.materialIds = ['iron', 'steel'].map((id) => materials.index(id));
+    }
+    if (recipe.id === 'make_mechanism_metal') {
+      const materials = registry.table<MaterialRow>('materials');
+      filter.materialIds = materials.where('magma-safe-metal', (row) => row.class === 'metal' && row.meltsAtC > MAGMA_C)
+        .map((row) => materials.index(row.id));
     }
     const output = recipe.outputs[0];
     const items = registry.table<ItemRow>('items');

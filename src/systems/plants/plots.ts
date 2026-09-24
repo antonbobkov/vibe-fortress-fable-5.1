@@ -24,9 +24,10 @@ export const CROP_SETTING = 'crop_per_season';
 export type PlotKind = 'surface' | 'cave' | 'mixed';
 
 /** Surface when every tile is lit, cave when none is, mixed otherwise ("mixed plots are refused"). */
-export function plotKindOf(map: Map3D, tiles: readonly TileIndex[]): PlotKind {
+export function plotKindOf(map: Map3D, tiles: readonly TileIndex[], cropLitAt: (tile: TileIndex) => boolean =
+  (tile) => map.hasFlag(tile, TileFlag.Lit)): PlotKind {
   let lit = 0;
-  for (const t of tiles) if (map.validIndex(t) && map.hasFlag(t, TileFlag.Lit)) lit += 1;
+  for (const t of tiles) if (map.validIndex(t) && cropLitAt(t)) lit += 1;
   if (lit === 0) return 'cave';
   if (lit === tiles.length) return 'surface';
   return 'mixed';

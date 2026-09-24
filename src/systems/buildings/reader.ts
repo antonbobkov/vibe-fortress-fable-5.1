@@ -4,6 +4,7 @@
  */
 
 import type { Building, Room } from '@core/components';
+import { TileFlag } from '@core/map3d';
 import type { MoverOptions } from '@core/pathfinding';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import type { BuildingRow, BuildingStore } from './build';
@@ -90,7 +91,9 @@ export interface BuildingsReader {
   hearthHallTier(): number;
   hearthHallTiles(): TileIndex[];
   /** The built hearth's 5×5 comfort light; it does not set crop light. */
-  hearthLightAt(i: TileIndex): boolean;
+    hearthLightAt(i: TileIndex): boolean;
+    /** Crop light before glowstone lamps add comfort illumination. */
+    cropLitAt(i: TileIndex): boolean;
   /** Built beds no one owns. */
   freeBeds(): EntityId[];
   /** Chairs adjacent to a table. */
@@ -176,7 +179,8 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
     ownerOf: (zoneId) => rooms.room(zoneId)?.ownerId ?? 0,
     hearthHallTier: () => rooms.hearthHallTier(),
     hearthHallTiles: () => rooms.hearthHallTiles(),
-    hearthLightAt: (i) => rooms.hearthLightAt(i),
+      hearthLightAt: (i) => rooms.hearthLightAt(i),
+      cropLitAt: (i) => buildings.lampLight.get(i)?.baseLit ?? buildings.host.map.hasFlag(i, TileFlag.Lit),
     freeBeds: () => rooms.freeBeds(),
     diningSeats: () => rooms.seatsAmong(buildings.all().filter((id) => buildings.get(id)?.state === 'built')),
     hearth: () => buildings.hearthId,

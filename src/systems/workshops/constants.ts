@@ -10,6 +10,7 @@ export const BARS_PER_ORE = 2;
 export const ACTIVE_RECIPE_WORKSHOPS: ReadonlySet<string> = new Set([
   'carpenter', 'mason', 'craftdwarf', 'kitchen', 'still', 'farmers_workshop',
   'tannery', 'leatherworks', 'loom', 'clothier', 'bowyer', 'wood_furnace', 'forge',
+  'mechanic', 'jeweler',
 ]);
 
 export function recipeActive(recipe: { readonly id: string; readonly workshop: string }): boolean {

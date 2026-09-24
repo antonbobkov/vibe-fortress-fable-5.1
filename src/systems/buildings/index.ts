@@ -150,6 +150,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     if (event.type === 'TilesChanged') {
       const tiles = event['tiles'] as readonly TileIndex[];
       this.buildings.onTilesChanged(tiles);
+      this.buildings.refreshLampLight();
       rooms.markTiles(tiles);
     } else if (event.type === 'AlertChanged') {
       this.buildings.onAlertChanged();
@@ -236,6 +237,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       pendingJobs: this.buildings.pending.slice(),
         magmaTouched: this.buildings.magmaPending.slice(),
         brokenFurniture: this.brokenFurniture.slice(),
+        ...(this.buildings.lampLight.size > 0 ? { lampLight: Array.from(this.buildings.lampLight,
+          ([tile, value]) => ({ tile, ...value })).sort((a, b) => a.tile - b.tile) } : {}),
     };
   }
 
@@ -251,6 +254,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     this.buildings.magmaPending.length = 0;
       this.buildings.magmaPending.push(...(state.magmaTouched ?? []));
       this.brokenFurniture.splice(0, this.brokenFurniture.length, ...(state.brokenFurniture ?? []));
+    this.buildings.lampLight.clear();
+    for (const { tile, count, baseLit } of state.lampLight ?? []) this.buildings.lampLight.set(tile, { count, baseLit });
     this.rng?.setState(state.rng);
   }
 }

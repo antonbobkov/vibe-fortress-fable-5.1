@@ -114,6 +114,15 @@ export class BuildingStore {
   readonly depots: EntityId[] = [];
   /** `BuildingsState.coffins`: built coffins, ascending. */
   readonly coffins: EntityId[] = [];
+  /** Lamp coverage and the crop-light bit that was present before the first lamp. */
+  readonly lampLight = new Map<TileIndex, { count: number; baseLit: boolean }>();
+
+  /** 03 can recompute sunlight for a whole level after terrain changes; keep installed lamps lit. */
+  refreshLampLight(): void {
+    for (const tile of Array.from(this.lampLight.keys()).sort((a, b) => a - b)) {
+      if (!this.map.hasFlag(tile, TileFlag.Lit)) this.host.services.terrain.setFlag(tile, TileFlag.Lit, true);
+    }
+  }
   /** Told the footprint of every building that completes or goes (rooms recompute, T-M2-07). */
   onFootprintChanged: (tiles: readonly TileIndex[]) => void = () => {};
 
@@ -642,6 +651,26 @@ export class BuildingStore {
 
   /** The depots and coffins lists of `BuildingsState` follow the built buildings. */
   private noteSpecial(id: EntityId, row: BuildingRow, built: boolean): void {
+    const b = this.get(id);
+    if (row.id === 'statue' && b?.state === 'built' && this.materials[b.material]?.id === 'glowstone') {
+      const centre = this.anchorOf(b);
+      for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+        const tile = this.map.offset(centre, dx, dy, 0);
+        if (tile < 0) continue;
+        const existing = this.lampLight.get(tile);
+        if (built) {
+          this.lampLight.set(tile, { count: (existing?.count ?? 0) + 1,
+            baseLit: existing?.baseLit ?? this.map.hasFlag(tile, TileFlag.Lit) });
+          this.host.services.terrain.setFlag(tile, TileFlag.Lit, true);
+        } else if (existing !== undefined) {
+          if (existing.count > 1) this.lampLight.set(tile, { ...existing, count: existing.count - 1 });
+          else {
+            this.lampLight.delete(tile);
+            this.host.services.terrain.setFlag(tile, TileFlag.Lit, existing.baseLit);
+          }
+        }
+      }
+    }
     const lists: [string, EntityId[]][] = [
       ['depot', this.depots],
       ['coffin', this.coffins],

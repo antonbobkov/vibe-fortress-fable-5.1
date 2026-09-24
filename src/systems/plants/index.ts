@@ -305,7 +305,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       }
       const gained = growthPerHour(row, cave, {
         season,
-        lit: map.hasFlag(tile, TileFlag.Lit),
+        lit: this.buildings()?.cropLitAt(tile) ?? map.hasFlag(tile, TileFlag.Lit),
         tempC,
         growthModifier: modifier,
       });
@@ -429,7 +429,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
   plotKind(zoneId: EntityId): PlotKind | 'none' {
     const zone = this.buildings()?.zone(zoneId);
     if (zone === undefined || zone.type !== FARM_PLOT) return 'none';
-    return plotKindOf(this.map, zone.tiles);
+    return plotKindOf(this.map, zone.tiles, (tile) => this.buildings()?.cropLitAt(tile) ?? this.map.hasFlag(tile, TileFlag.Lit));
   }
 
   // ---------- events ----------
@@ -522,7 +522,8 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     if (plant !== 0) {
       const row = this.facts.row(plant);
       if (row === undefined || !this.facts.isFarmed(plant)) return reject('not_found');
-      if (!lightMatches(row, plotKindOf(this.map, view.tiles))) return reject('light_mismatch');
+      if (!lightMatches(row, plotKindOf(this.map, view.tiles,
+        (tile) => this.buildings()?.cropLitAt(tile) ?? this.map.hasFlag(tile, TileFlag.Lit)))) return reject('light_mismatch');
     }
     entities.add(zoneId, C.Zone, { ...zone, settings: withCrop(zone.settings, season, plant) });
     this.addPlot(zoneId);

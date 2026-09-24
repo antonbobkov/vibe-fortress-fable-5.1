@@ -22,6 +22,8 @@ export interface BuildingsStateV1 {
   magmaTouched?: TileIndex[];
   /** T-M4-13: common furniture targeted by a sulk, removed only during 14's tick. */
   brokenFurniture?: EntityId[];
+  /** T-M5-05: lamp coverage and the original crop light under each covered tile. */
+  lampLight?: { tile: TileIndex; count: number; baseLit: boolean }[];
 }
 
 /** Binary search: the insertion point of `value` in an ascending array. */
