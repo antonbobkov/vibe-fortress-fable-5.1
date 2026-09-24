@@ -39,6 +39,8 @@ export interface PlantsReader {
   /** A mature (not regrowing) shrub tile. */
   shrubReady(i: TileIndex): boolean;
   hasGrass(i: TileIndex): boolean;
+  /** The dry-grass biomes of `03-content/plants.md` § Grass. */
+  grassIsDry(): boolean;
   /** The `plants` row by content id or `plants` index. */
   def(speciesId: string | number): PlantRow | undefined;
   /** Tiles waiting for grass to regrow, ascending (`07` § Grass, `bareSoil`). */

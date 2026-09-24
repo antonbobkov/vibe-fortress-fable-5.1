@@ -589,6 +589,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       },
       shrubReady: (i) => map.validIndex(i) && map.kindAt(i) === TileKind.Shrub && !this.shrubTimers.has(i),
       hasGrass: (i) => map.validIndex(i) && map.hasFlag(i, TileFlag.Grass),
+      grassIsDry: () => this.options.spec.biome === 'cold_steppe' || this.options.spec.biome === 'tundra' || this.options.spec.biome === 'savanna',
       def: (speciesId) => (typeof speciesId === 'number' ? facts.row(speciesId) : facts.row(facts.indexOf(speciesId))),
       bareSoil: () => this.bareSoil.slice(),
       ashTiles: () => Array.from(this.ashTiles.keys()).sort((a, b) => a - b),

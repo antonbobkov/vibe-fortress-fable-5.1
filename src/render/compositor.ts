@@ -48,6 +48,13 @@ import { ThingLayers } from './things';
 import { EnvironmentLayers, OVERLAY_FLUID_LEVELS, OVERLAY_TEMPERATURE } from './environment';
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
+import type { PlantsReader } from '@systems/plants';
+
+interface PlantGlyphRow {
+  readonly id: string;
+  readonly glyph: string;
+  readonly fg: string;
+}
 
 /** The `UiState` fields the compositor reads (`schemas/system-state.md` § UiState). */
 export interface ViewState {
@@ -141,6 +148,11 @@ export class Compositor {
   private readonly ash: Rgb;
   private readonly speciesGlyph: number[] = [];
   private readonly speciesFg: Rgb[] = [];
+  private readonly plantGlyphs = new Map<string, { glyph: number; fg: Rgb }>();
+  private readonly plantByMaterial = new Map<number, string>();
+  private readonly cropGreen: Rgb;
+  private readonly cropFlash: Rgb;
+  private readonly grassDry: Rgb;
   private readonly dwarfSpecies: number;
   private readonly stateColors: Readonly<Record<'normal' | 'need' | 'child', Rgb>>;
   private readonly tints = new Map<Designation, Rgb>();
@@ -154,6 +166,7 @@ export class Compositor {
   private readonly env: EnvironmentLayers;
   /** Each stockpile's fullness this frame (the `stockpile usage` overlay). */
   private readonly usage = new Map<EntityId, number>();
+  private animFrame = 0;
   private lastLayout: Layout = computeLayout(0, 0, false);
   /** The look-down of the cell being composed found nothing but sky (step 9 leaves it alone). */
   private skyCell = false;
@@ -178,6 +191,9 @@ export class Compositor {
     this.skyNight = palette.color('sky_night');
     this.abyss = palette.color('abyss');
     this.grass = palette.color('grass_green');
+    this.grassDry = palette.color('grass_dry');
+    this.cropGreen = palette.color('grass_green');
+    this.cropFlash = palette.color('green');
     this.moss = palette.color('moss_teal');
     this.mud = palette.color('mud_brown');
     this.snowBg = palette.color('snow_white');
@@ -198,6 +214,12 @@ export class Compositor {
       this.speciesFg[k] = palette.has(row.fg) ? palette.color(row.fg) : this.noMaterial;
     }
     this.dwarfSpecies = species.has('dwarf') ? species.index('dwarf') : -1;
+    const plants = options.registry.table<PlantGlyphRow>('plants');
+    for (const id of plants.ids()) {
+      const row = plants.byId(id) as PlantGlyphRow;
+      this.plantGlyphs.set(id, { glyph: indexOf(Array.from(row.glyph)[0] ?? '?'), fg: palette.color(row.fg) });
+      if (materials.has(id)) this.plantByMaterial.set(materials.index(id), id);
+    }
     this.stateColors = {
       normal: palette.color('dwarf_normal'),
       need: palette.color('dwarf_need'),
@@ -226,6 +248,7 @@ export class Compositor {
     this.frameOverlays = ui.overlays ?? DEFAULT_OVERLAYS;
     this.usage.clear();
     this.env.beginFrame(readers, ui.animFrame ?? 0);
+    this.animFrame = ui.animFrame ?? 0;
     this.things.pulse = this.env.slowPhase;
 
     const map = readers.map;
@@ -262,6 +285,7 @@ export class Compositor {
     if (this.frameReaders !== readers) {
       this.frameReaders = readers;
       this.env.beginFrame(readers, 0);
+      this.animFrame = 0;
     }
     // Step 1: undiscovered tiles show nothing but the overlays the player placed.
     if ((map.flagsAt(i) & TileFlag.Discovered) === 0) {
@@ -269,7 +293,7 @@ export class Compositor {
     }
 
     // Step 2: the terrain base, and the look-down through open tiles.
-    let cell = this.terrainCell(map, i);
+    let cell = this.cropOver(this.terrainCell(map, i), i);
     let sky = false;
     if (map.kindAt(i) === TileKind.Open) {
       const before = this.skyCell;
@@ -321,7 +345,7 @@ export class Compositor {
    * levels below show everything, dimmed.
    */
   private fullCell(map: MapReader, j: TileIndex): Cell {
-    let cell = this.terrainCell(map, j);
+    let cell = this.cropOver(this.terrainCell(map, j), j);
     cell = this.fluidOver(cell, j);
     cell = this.buildingOver(cell, j);
     cell = this.itemOver(cell, j);
@@ -360,11 +384,11 @@ export class Compositor {
       case TileKind.Fortification:
         return { glyph: GLYPH_FORTIFICATION, fg: material, bg: this.black };
       case TileKind.Tree:
-        return { glyph: GLYPH_TREE, fg: material, bg: this.black };
+        return this.wildPlantCell(map, i, GLYPH_TREE, material);
       case TileKind.Sapling:
-        return { glyph: GLYPH_SAPLING, fg: material, bg: this.black };
+        return this.wildPlantCell(map, i, GLYPH_SAPLING, material, true);
       case TileKind.Shrub:
-        return { glyph: GLYPH_GRASS, fg: material, bg: this.black };
+        return this.wildPlantCell(map, i, GLYPH_GRASS, material);
       case TileKind.Boulder:
         return { glyph: GLYPH_BOULDER, fg: material, bg: this.black };
       case TileKind.Open:
@@ -374,6 +398,30 @@ export class Compositor {
       default:
         return { glyph: GLYPH_NONE, fg: this.black, bg: this.black };
     }
+  }
+
+  /** 07 § Player-facing behavior: wild plants take their species' authored glyph and color. */
+  private wildPlantCell(map: MapReader, i: TileIndex, fallbackGlyph: number, fallbackFg: Rgb, sapling = false): Cell {
+    const id = this.plantByMaterial.get(map.materialAt(i));
+    const plant = id === undefined ? undefined : this.plantGlyphs.get(id);
+    return { glyph: sapling ? GLYPH_SAPLING : (plant?.glyph ?? fallbackGlyph), fg: plant?.fg ?? fallbackFg, bg: this.black };
+  }
+
+  /** 07 § Player-facing behavior: crops brighten by stage and flash at maturity. */
+  private cropOver(cell: Cell, i: TileIndex): Cell {
+    const readers = this.frameReaders;
+    if (readers === null || !readers.has('07')) return cell;
+    const plants = readers.of<PlantsReader>('07');
+    const id = plants.cropAt(i);
+    if (id === 0) return cell;
+    const crop = plants.cropInfo(id);
+    const glyph = crop === undefined ? undefined : this.plantGlyphs.get(crop.species)?.glyph;
+    if (crop === undefined || glyph === undefined) return cell;
+    const phase = this.animFrame % 4;
+    const fg = plants.cropReady(i) && phase === 0
+      ? this.cropFlash
+      : this.palette.dim(this.cropGreen, 3 - Math.min(3, crop.stage));
+    return { glyph, fg, bg: cell.bg };
   }
 
   /**
@@ -393,7 +441,8 @@ export class Compositor {
 
     if ((flags & TileFlag.Grass) !== 0) {
       glyph = GLYPH_GRASS;
-      fg = map.isOutdoor(i) ? this.grass : this.moss;
+      const plants = this.frameReaders?.has('07') === true ? this.frameReaders.of<PlantsReader>('07') : null;
+      fg = map.isOutdoor(i) ? (plants?.grassIsDry() === true ? this.grassDry : this.grass) : this.moss;
     }
     if ((flags & TileFlag.Mud) !== 0) fg = this.mud;
     if ((flags & TileFlag.Snow) !== 0) {

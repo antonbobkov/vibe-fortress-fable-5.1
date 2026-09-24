@@ -72,7 +72,6 @@ describe('T-M0-13 compositor: step 2, the terrain base', () => {
     const { cellAt, palette } = scene();
     const granite = palette.color('granite_gray');
     const oak = palette.color('oak_brown');
-    const loam = palette.color('loam_brown');
     expect(cellAt(5, 0).glyph).toBe(GLYPH_FORTIFICATION);
     expect(cellAt(5, 0).fg).toBe(granite);
     expect(cellAt(6, 0)).toMatchObject({ glyph: GLYPH_TREE, fg: oak });
@@ -81,7 +80,7 @@ describe('T-M0-13 compositor: step 2, the terrain base', () => {
     expect(cellAt(2, 2).glyph).toBe(GLYPH_STAIRS_UP);
     expect(cellAt(3, 2).glyph).toBe(GLYPH_STAIRS_DOWN);
     expect(cellAt(4, 2).glyph).toBe(GLYPH_STAIRS_UPDOWN);
-    expect(cellAt(5, 2)).toMatchObject({ glyph: GLYPH_GRASS, fg: loam });
+    expect(cellAt(5, 2)).toMatchObject({ glyph: GLYPH_GRASS, fg: palette.color('berry_red') });
     expect(cellAt(6, 2)).toMatchObject({ glyph: GLYPH_BOULDER, fg: granite });
   });
 

@@ -41,6 +41,7 @@ export function buildTerrainFixture(daylight = true): TerrainFixture {
   const loam = mat(registry, 'loam');
   const marble = mat(registry, 'marble');
   const oak = mat(registry, 'oak');
+  const bramble = mat(registry, 'bramble');
 
   const at = (x: number, y: number, z = FIXTURE_Z): number => map.index(x, y, z);
 
@@ -86,7 +87,7 @@ export function buildTerrainFixture(daylight = true): TerrainFixture {
   map.setKind(at(2, 2), TileKind.StairsUp, granite);
   map.setKind(at(3, 2), TileKind.StairsDown, granite);
   map.setKind(at(4, 2), TileKind.StairsUpDown, granite);
-  map.setKind(at(5, 2), TileKind.Shrub, loam);
+  map.setKind(at(5, 2), TileKind.Shrub, bramble);
   map.setKind(at(6, 2), TileKind.Boulder, granite);
   map.setKind(at(7, 2), TileKind.Open, 0);
   map.setKind(at(7, 2, FIXTURE_Z - 1), TileKind.Floor, granite);
