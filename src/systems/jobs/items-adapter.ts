@@ -44,17 +44,37 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
   return {
     findItems: (filter, n, from) => reader.findItems(filter, n, from, 'walker', { reservable: true }),
     findUnits: (filter, n, from) => {
-      const out: EntityId[] = [];
-      for (let k = 0; k < n; k += 1) {
-        const id = reader.findItem({ ...filter, excludeIds: [...(filter.excludeIds ?? []), ...out] }, from, 'walker', { reservable: true });
+      const candidates: { id: EntityId; count: number; order: number }[] = [];
+      const excluded = [...(filter.excludeIds ?? [])];
+      for (;;) {
+        const id = reader.findItem({ ...filter, excludeIds: excluded }, from, 'walker', { reservable: true });
         if (id === 0) break;
+        excluded.push(id);
         const count = reader.get(id)?.count ?? 0;
-        const unit = count > 1 ? api.split(id, 1) : id;
-        if (unit === 0) break;
-        out.push(unit);
+        if (count > 0) candidates.push({ id, count, order: candidates.length });
+      }
+      // Largest stacks minimise trips; the search order breaks ties and orders the fetches.
+      const chosen = candidates.slice().sort((a, b) => b.count - a.count || a.order - b.order);
+      const selected: typeof candidates = [];
+      let remaining = n;
+      for (const candidate of chosen) {
+        if (remaining <= 0) break;
+        selected.push(candidate);
+        remaining -= candidate.count;
+      }
+      if (remaining > 0) return [];
+      const out: EntityId[] = [];
+      remaining = n;
+      for (const candidate of selected.sort((a, b) => a.order - b.order)) {
+        const take = Math.min(candidate.count, remaining);
+        const id = take < candidate.count ? api.split(candidate.id, take) : candidate.id;
+        if (id === 0) return [];
+        out.push(id);
+        remaining -= take;
       }
       return out;
     },
+    countOf: (itemId) => reader.get(itemId)?.count ?? 0,
     findTool: (tool, from) => reader.findItem(toolFilter(tool), from, 'walker', { reservable: true }),
     hasTool: (workerId, tool) => {
       const held = entities.get(workerId, C.Worker)?.toolId ?? 0;

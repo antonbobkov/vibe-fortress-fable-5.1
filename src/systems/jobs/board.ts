@@ -573,13 +573,16 @@ export class JobBoard implements JobsApi, JobSink {
     this.setWorker(workerId, { jobId: job.id, phase: 0 });
     const from = this.workerTile(workerId);
     for (const input of job.inputs) {
-      const needed = input.count - input.delivered.length - input.reserved.length;
+      const units = job.data['inputUnits'] === true;
+      const count = (id: EntityId): number => units ? (this.items.countOf?.(id) ?? 1) : 1;
+      const needed = input.count - input.delivered.reduce((sum, id) => sum + count(id), 0)
+        - input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
       if (needed <= 0) continue;
       const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
       const found = job.data['inputUnits'] === true && this.items.findUnits !== undefined
         ? this.items.findUnits(filter, needed, from)
         : this.items.findItems(filter, needed, from);
-      if (found.length < needed) {
+      if (found.reduce((sum, id) => sum + count(id), 0) < needed) {
         this.unclaim(job, 'missing_input');
         return false;
       }

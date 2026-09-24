@@ -42,6 +42,8 @@ export interface ItemSource {
   findItems(filter: ItemFilter, n: number, from: TileIndex): EntityId[];
   /** Craft inputs count units even when several units share a stack. */
   findUnits?(filter: ItemFilter, n: number, from: TileIndex): EntityId[];
+  /** Current units in an item id; used by jobs whose input count denotes units. */
+  countOf?(itemId: EntityId): number;
   /** A free tool of the kind (`tag: pick`, `axe`, …) near `from`, or 0. */
   findTool(tool: Tool, from: TileIndex): EntityId;
   /** The worker already carries the tool in the weapon slot. */

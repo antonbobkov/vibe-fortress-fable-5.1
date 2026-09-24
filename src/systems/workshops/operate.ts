@@ -312,7 +312,15 @@ export class WorkshopOperator {
     const itemsApi = ctx.world.services.items;
     for (let k = 0; k < job.inputs.length; k += 1) {
       if (recipe.container && k === job.inputs.length - 1) continue;
-      if (k === fuelIndex || k < recipe.inputs.length) for (const item of job.inputs[k]?.delivered ?? []) itemsApi?.consume(item, 1);
+      if (k === fuelIndex || k < recipe.inputs.length) {
+        let remaining = k === fuelIndex ? 1 : (recipe.inputs[k]?.count ?? 0);
+        for (const item of job.inputs[k]?.delivered ?? []) {
+          if (remaining <= 0) break;
+          const take = Math.min(remaining, this.items.get(item)?.count ?? 0);
+          if (take > 0) itemsApi?.consume(item, take);
+          remaining -= take;
+        }
+      }
     }
     const skills = ctx.world.entities.get(job.workerId, C.Skills);
     const skill = skills?.level[ctx.registry.table('skills').index(recipe.skill)] ?? 0;
