@@ -14,7 +14,7 @@ import { roundTrip } from '@app/game-save';
 import type { HeadlessGame } from '@app/headless';
 import { TestWorld } from '../scenarios/test-world';
 import { prepareBusyFortress } from '../scenarios/core_save_roundtrip.scenario';
-import { commandStream, submitScheduled, type ScheduledCommand } from './command-generators';
+import { commandStream, prepareM4GeneratorWorld, submitScheduled, type ScheduledCommand } from './command-generators';
 import { currentMilestone } from '../scenarios/runner';
 
 const TICKS = 1_500;
@@ -36,10 +36,12 @@ function feed(game: HeadlessGame, stream: readonly ScheduledCommand[], from: num
 describe('T-M2-11 property: save round-trip', () => {
   it('a game saved at a random tick and loaded continues exactly as the uninterrupted run', () => {
     const probe = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
+    prepareM4GeneratorWorld(probe);
     fc.assert(
       fc.property(commandStream(probe, currentMilestone(), TICKS), fc.integer({ min: 1, max: TICKS - 1 }), (stream, saveAt) => {
         const w = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
         prepareBusyFortress(w);
+        prepareM4GeneratorWorld(w);
         const a = w.game;
         const start = a.tick;
         let next = feed(a, stream, 0, start, saveAt);

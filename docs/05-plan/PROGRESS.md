@@ -90,7 +90,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M4-16 — Embark supplies and animals in play; hints; the year-one hints — gpt6-m4, 2026-09-23
 - [x] T-M4-17 — Panels: orders, animals, mood, population stub, zones farm settings, hospital placeholder (gpt6-m4, 2026-09-23)
 - [x] T-M4-18 — Compositor: crops, saplings, shrubs, grass colors, animals, hearth pulse — gpt6-m4, 2026-09-23
-- [ ] T-M4-19 — Property generator: farming, orders, animals, titles
+- [x] T-M4-19 — Property generator: farming, orders, animals, titles — gpt6-m4, 2026-09-23
 - [ ] T-M4-20 — Gate M4
 
 ## M5 — Metal ([M5-metal.md](M5-metal.md))

@@ -16,6 +16,8 @@ import type { EntityId, TileIndex } from '@core/types';
 import { FLAT_TEST_SURFACE_Z, type HeadlessGame } from '@app/headless';
 import type { BuildingsReader } from '@systems/buildings';
 import { STOCKPILE_PRESETS } from '@systems/items';
+import { STANDING_ORDERS } from '@systems/jobs/constants';
+import { M4_RECIPE_WORKSHOPS } from '@systems/workshops/constants';
 import { DESIGNATION_NAMES, TerrainFacts, precondition } from '@systems/terrain';
 import type { TestWorld } from '../scenarios/test-world';
 
@@ -69,7 +71,7 @@ function designate(w: TestWorld): fc.Arbitrary<Command> {
  */
 export interface EntityRef {
   readonly $nth: number;
-  readonly of: 'zone' | 'stockpile' | 'building' | 'item';
+  readonly of: 'zone' | 'stockpile' | 'building' | 'item' | 'farm_plot' | 'pasture' | 'grazer' | 'slaughterable' | 'adult';
 }
 
 function isRef(value: unknown): value is EntityRef {
@@ -79,6 +81,22 @@ function isRef(value: unknown): value is EntityRef {
 /** The ids a reference ranges over, ascending. */
 function candidates(game: HeadlessGame, of: EntityRef['of']): EntityId[] {
   const e = game.world.entities;
+  if (of === 'farm_plot' || of === 'pasture') {
+    const type = game.registry.table('zoneTypes').index(of);
+    return e.with(C.Zone).filter((id) => e.get(id, C.Zone)?.type === type);
+  }
+  if (of === 'grazer' || of === 'slaughterable') {
+    const species = game.registry.table<{ id: string; diet?: string }>('creatures');
+    return e.with(C.Tame, C.Creature).filter((id) => {
+      const tame = e.get(id, C.Tame);
+      const creature = e.get(id, C.Creature);
+      if (tame === undefined || creature === undefined) return false;
+      return of === 'grazer'
+        ? species.byIndex(creature.species)?.diet === 'grazer'
+        : tame.assignedTo === 0 && tame.trained === 'none';
+    });
+  }
+  if (of === 'adult') return game.world.readers.of<{ adults(): EntityId[] }>('10').adults();
   if (of === 'stockpile') return e.with(C.Stockpile);
   if (of === 'zone') return e.with(C.Zone);
   if (of === 'building') return e.with(C.Building);
@@ -196,6 +214,59 @@ const M2_GENERATORS: readonly CommandGenerator[] = [
   },
 ];
 
+/** Real targets for M4 generators. These are ordinary flat-test commands and spawns, shared by
+ * the probe, both deterministic runs, and the round-trip world. */
+export function prepareM4GeneratorWorld(w: TestWorld): void {
+  const z = FLAT_TEST_SURFACE_Z;
+  w.zone('farm_plot', [w.index(20, 70, z), w.index(21, 70, z)]);
+  const grass = [w.index(24, 70, z), w.index(25, 70, z)];
+  for (const tile of grass) w.map.setFlag(tile, TileFlag.Grass, true);
+  w.zone('pasture', grass);
+  w.spawnTame('cow', w.index(24, 71, z));
+}
+
+/** T-M4-19: each command names a valid M4 target and an authored option. */
+const M4_GENERATORS: readonly CommandGenerator[] = [
+  {
+    id: 'SetPlotCrop', milestone: 4,
+    arbitrary: (w) => {
+      const plants = w.game.registry.table<{ id: string; kind: string; light: string }>('plants');
+      const crops = plants.ids().filter((id) => plants.byId(id)?.kind === 'crop' && plants.byId(id)?.light === 'sun');
+      return fc.tuple(ref('farm_plot'), fc.integer({ min: 0, max: 3 }), fc.oneof(fc.constant(0), fc.constantFrom(...crops)))
+        .map(([zoneId, season, speciesId]) => ({ type: 'SetPlotCrop', zoneId, season, speciesId }) as unknown as Command);
+    },
+  },
+  {
+    id: 'AddWorkOrder', milestone: 4,
+    arbitrary: (w) => {
+      const recipes = w.game.registry.table<{ id: string; workshop: string }>('recipes');
+      const ids = recipes.ids().filter((id) => M4_RECIPE_WORKSHOPS.has(recipes.byId(id)?.workshop ?? ''));
+      return fc.tuple(fc.constantFrom(...ids), fc.integer({ min: 1, max: 9 }), fc.boolean())
+        .map(([recipeId, count, maintain]) => ({ type: 'AddWorkOrder', workshopId: 0,
+          order: maintain ? { recipeId, mode: 'maintain', remaining: 1, threshold: count } : { recipeId, mode: 'once', count } }) as Command);
+    },
+  },
+  {
+    id: 'AssignPasture', milestone: 4,
+    arbitrary: () => fc.tuple(ref('grazer'), ref('pasture'))
+      .map(([animalId, zoneId]) => ({ type: 'AssignPasture', animalId, zoneId }) as unknown as Command),
+  },
+  {
+    id: 'MarkSlaughter', milestone: 4,
+    arbitrary: () => ref('slaughterable').map((animalId) => ({ type: 'MarkSlaughter', animalId }) as unknown as Command),
+  },
+  {
+    id: 'AssignTitle', milestone: 4,
+    arbitrary: () => fc.tuple(ref('adult'), fc.constantFrom('thane', 'warden', 'broker', 'chief_medic'))
+      .map(([dwarfId, title]) => ({ type: 'AssignTitle', dwarfId, title }) as unknown as Command),
+  },
+  {
+    id: 'SetStandingOrder', milestone: 4,
+    arbitrary: () => fc.tuple(fc.constantFrom(...STANDING_ORDERS), fc.boolean())
+      .map(([name, on]) => ({ type: 'SetStandingOrder', name, on }) as Command),
+  },
+];
+
 /** The generators of the milestones built so far: M1's terrain and labor ones, M2's items and buildings ones. */
 export const COMMAND_GENERATORS: readonly CommandGenerator[] = Object.freeze([
   { id: 'Designate', milestone: 1, arbitrary: designate },
@@ -225,6 +296,7 @@ export const COMMAND_GENERATORS: readonly CommandGenerator[] = Object.freeze([
     },
   },
   ...M2_GENERATORS,
+  ...M4_GENERATORS,
 ]);
 
 export function generatorsFor(milestone: number): readonly CommandGenerator[] {

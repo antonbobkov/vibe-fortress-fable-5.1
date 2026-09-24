@@ -10,9 +10,9 @@
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { FLAT_TEST_SURFACE_Z, HeadlessGame } from '@app/headless';
+import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { TestWorld } from '../scenarios/test-world';
-import { COMMAND_GENERATORS, commandStream, resolveCommand, submitScheduled, type ScheduledCommand } from './command-generators';
+import { COMMAND_GENERATORS, commandStream, prepareM4GeneratorWorld, resolveCommand, submitScheduled, type ScheduledCommand } from './command-generators';
 import { currentMilestone } from '../scenarios/runner';
 
 const TICKS = 2_000;
@@ -20,7 +20,9 @@ const CHECKPOINT = 100;
 const SEED = 'determinism-under-commands';
 
 function runWith(stream: readonly ScheduledCommand[]): string[] {
-  const game = new HeadlessGame({ seed: SEED, world: 'flat-test', embark: 'default' });
+  const w = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
+  prepareM4GeneratorWorld(w);
+  const game = w.game;
   let next = 0;
   const hashes: string[] = [];
   for (let tick = 0; tick < TICKS; tick += 1) {
@@ -37,6 +39,7 @@ function runWith(stream: readonly ScheduledCommand[]): string[] {
 describe('T-M0-11 property: determinism under commands', () => {
   it('two runs of the same command stream agree at every 100th tick', () => {
     const probe = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
+    prepareM4GeneratorWorld(probe);
     fc.assert(
       fc.property(commandStream(probe, currentMilestone(), TICKS), (stream) => {
         const first = runWith(stream);
@@ -47,6 +50,24 @@ describe('T-M0-11 property: determinism under commands', () => {
       }),
       { numRuns: COMMAND_GENERATORS.length === 0 ? 2 : 10 },
     );
+  });
+});
+
+describe('T-M4-19 property: the M4 command generators', () => {
+  it('samples accepted farming, order, animal, title and standing-order commands', () => {
+    const w = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
+    prepareM4GeneratorWorld(w);
+    const generators = COMMAND_GENERATORS.filter((g) => g.milestone === 4);
+    expect(generators.map((g) => g.id)).toEqual([
+      'SetPlotCrop', 'AddWorkOrder', 'AssignPasture', 'MarkSlaughter', 'AssignTitle', 'SetStandingOrder',
+    ]);
+    for (const generator of generators) {
+      for (const command of fc.sample(generator.arbitrary(w), { numRuns: 12, seed: 20260923 })) {
+        const resolved = resolveCommand(w.game, command);
+        const result = w.game.world.applyCommand(resolved);
+        expect(result, `${generator.id}: ${JSON.stringify(resolved)}`).toEqual({ ok: true });
+      }
+    }
   });
 });
 
