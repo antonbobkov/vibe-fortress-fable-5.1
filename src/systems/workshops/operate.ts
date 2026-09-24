@@ -199,7 +199,14 @@ export class WorkshopOperator {
   /** Alternatives and same-species inputs specified in the content text beyond RecipeDef. */
   inputFilter(recipe: RecipeRow, input: RecipeRow['inputs'][number], order: WorkOrder): ItemFilter | null {
     const registry = this.ctx.registry;
-    const filter = recipeInputFilter(registry, input, order);
+    // A forge order's chosen metal applies to its bar, not its wooden handle.
+    const filterOrder = recipe.workshop === 'forge' && input.match !== 'bar'
+      ? { ...order, materialFilter: null } : order;
+    const filter = recipeInputFilter(registry, input, filterOrder);
+    if (recipe.id === 'forge_anvil' && input.match === 'bar') {
+      const materials = registry.table<MaterialRow>('materials');
+      filter.materialIds = ['iron', 'steel'].map((id) => materials.index(id));
+    }
     const output = recipe.outputs[0];
     const items = registry.table<ItemRow>('items');
     if (output?.item === 'thread' && input.match === 'fiber' && items.has('wool_raw')) {
