@@ -24,6 +24,8 @@ export function goldenNames() {
         walk(join(dir, entry.name), `${prefix}${entry.name}/`);
       } else if (entry.name.endsWith('.json')) {
         names.add(`${prefix}${entry.name.replace(/\.json$/, '')}`);
+      } else if (entry.name.endsWith('.test.ts')) {
+        names.add(`${prefix}${entry.name.replace(/\.test\.ts$/, '')}`);
       }
     }
   };

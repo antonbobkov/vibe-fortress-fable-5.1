@@ -249,11 +249,13 @@ test('farm-plot-and-orders', async ({ page }) => {
   await page.keyboard.press('m');
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
   await expect.poll(() => textOf(page)).toContain('keep');
-  for (let i = 0; i < 20 && !(await textOf(page)).includes('Material: dimcap'); i += 1) {
-    await page.keyboard.press('f');
-    await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
-  }
+  await page.keyboard.press('f');
+  await expect.poll(() => textOf(page)).toContain('Material filter');
+  const dimcap = await textCell(page, 'dimcap');
+  await page.mouse.click(dimcap.x, dimcap.y);
+  await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
   await expect.poll(() => textOf(page)).toContain('Material: dimcap');
+
   // The default maintain threshold is 20. Forty days includes at least two dimcap growth cycles.
   const end = await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.readers.calendar.tick + 40 * 1200);
   await page.keyboard.press('Space');
@@ -267,6 +269,53 @@ test('farm-plot-and-orders', async ({ page }) => {
   });
   expect(result.drinks).toBeGreaterThanOrEqual(20);
   expect(result.cropHarvested).toBe(true);
+  // A mason and raw stone are setup; create its block order through the global Orders panel.
+  const mason = await page.evaluate((farm) => {
+    const h = (window as unknown as { __deepholm: FarmHook }).__deepholm;
+    const m = h.readers.map;
+    const b = h.readers.of('14') as { ghost(type: string, origin: number, orientation: number): { reason: string | null } };
+    for (let radius = 2; radius < 24; radius += 1) for (let dy = -radius; dy <= radius; dy += 1) for (let dx = -radius; dx <= radius; dx += 1) {
+      const x = farm.x + dx; const y = farm.y + dy;
+      if (x < 2 || y < 2 || x + 3 >= m.w || y + 3 >= m.h) continue;
+      if (x <= farm.x + 8 && x + 3 >= farm.x && y <= farm.y + 5 && y + 3 >= farm.y) continue;
+      if (b.ghost('mason', m.index(x, y, farm.z), 0).reason !== null) continue;
+      const origin = m.index(x, y, farm.z);
+      const placed = h.host.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'mason', origin, orientation: 0, materialChoice: 0 });
+      if (!placed.ok) continue;
+      const buildings = h.host.world.scheduler.byId('14');
+      buildings.completeNow(buildings.lastPlacedBuilding, h.host.headless.registry.table('materials').index('granite'), 0);
+      const itemSystem = h.host.world.scheduler.byId('13') as unknown as { core: { create(type: number, material: number, at: number, count: number): number } };
+      itemSystem.core.create(h.host.headless.registry.table('items').index('raw_stone'), h.host.headless.registry.table('materials').index('granite'), origin, 4);
+      h.step(1);
+      return buildings.lastPlacedBuilding;
+    }
+    return 0;
+  }, f);
+  expect(mason).toBeGreaterThan(0);
+  await page.evaluate(() => {
+    const h = (window as unknown as { __deepholm: FarmHook }).__deepholm;
+    for (const { id } of h.dwarves().slice(1)) {
+      const result = h.host.world.applyCommand({ type: 'SetLabor', dwarfId: id, labor: 'masonry', on: true });
+      if (!result.ok) throw new Error(`masonry: ${result.reason}`);
+    }
+  });
+  await page.keyboard.press('+');
+  await expect.poll(() => textOf(page)).toContain('New global order');
+  for (let i = 0; i < 200 && !(await textOf(page)).includes('Blocks (mason)'); i += 1) await page.keyboard.press('ArrowDown');
+  const blocks = await textCell(page, 'Blocks (mason)');
+  await page.mouse.click(blocks.x, blocks.y);
+  await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
+  await expect.poll(() => textOf(page)).toContain('Global Blocks');
+  let blockCount = 0;
+  for (let i = 0; i < 60 && blockCount === 0; i += 1) {
+    blockCount = await page.evaluate(() => {
+      const h = (window as unknown as { __deepholm: FarmHook }).__deepholm;
+      h.step(500);
+      return (h.readers.of('13') as { count(type: string): number }).count('stone_block');
+    });
+  }
+  expect(blockCount).toBeGreaterThan(0);
+
   const path = await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.screenshotName('farm-plot-and-orders'));
   await page.screenshot({ path });
   expect(errors).toEqual([]);

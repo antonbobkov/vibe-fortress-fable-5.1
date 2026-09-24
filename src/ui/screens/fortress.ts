@@ -571,6 +571,11 @@ export class FortressScreen implements Screen {
       this.pinned = null;
       return true;
     }
+    if (this.ui.panel === 'orders' && this.orders.materialOpen) {
+      const result = this.orders.materialKey(this.ctx, press);
+      if (result !== null && result !== 'handled') this.host.submit(result);
+      return true;
+    }
     if ((this.ui.panel === 'orders' || this.ui.panel === 'workshop') && (press.key === '+' || (press.key === '-' && this.orders.editing)) && !press.ctrl && !press.alt && !press.meta) return this.panelKey(this.ui.panel, press);
     const global = this.keymap.resolve('global', press);
     if (global !== null) {
@@ -831,7 +836,7 @@ export class FortressScreen implements Screen {
         if (entry !== undefined) {
           if (letter === 'm') return submit(this.orders.patch(ctx, { mode: entry.order.mode === 'once' ? 'maintain' : 'once', threshold: entry.order.mode === 'once' ? Math.max(1, entry.order.threshold || 20) : 0 }));
           if (letter === 'p') return submit(this.orders.patch(ctx, { priority: entry.order.priority >= 9 ? 1 : entry.order.priority + 1 }));
-          if (letter === 'f') return submit(this.orders.nextMaterial(ctx));
+          if (letter === 'f') { this.orders.openMaterials(ctx); return true; }
           if (letter === '+' || letter === '-') return submit(this.orders.patch(ctx, this.orders.editing ? { threshold: Math.max(1, Math.min(999, entry.order.threshold + (letter === '+' ? 1 : -1))) } : { remaining: Math.max(1, Math.min(999, entry.order.remaining + (letter === '+' ? 1 : -1))) }));
         }
         return false;
@@ -840,6 +845,7 @@ export class FortressScreen implements Screen {
         const ws = ctx.readers.entities.get(this.workshopId, C.Workshop);
         if (letter === 's' && ws !== undefined) return submit({ type: 'SuspendWorkshop', workshopId: this.workshopId, on: !ws.suspended });
         if (letter === 'o') { this.orders.workshopId = this.workshopId; this.orders.list.selected = 0; this.openPanel('orders'); return true; }
+        if (letter === 'f' && ws !== undefined && ws.orders.length > 0) { this.orders.workshopId = this.workshopId; this.orders.list.selected = 0; this.orders.openMaterials(ctx); this.openPanel('orders'); return true; }
         if (letter === '+') { this.orders.workshopId = this.workshopId; this.orders.adding = true; this.openPanel('orders'); return true; }
         if (letter === 'w') return submit(this.orders.nextWorker(ctx, this.workshopId));
         return false;

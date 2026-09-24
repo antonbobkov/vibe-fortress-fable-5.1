@@ -25,7 +25,7 @@ interface NodeTotals {
 export class StocksPanel {
   readonly tree: TreeState = { selected: 0, scroll: 0, expanded: new Set<string>() };
   private forest: TreeNode[] | null = null;
-  private cache: { tick: number; totals: Map<string, NodeTotals>; types: Map<string, number[]> } | null = null;
+  private cache: { tick: number; totals: Map<string, NodeTotals>; types: Map<string, number[]>; itemIds: Map<number, EntityId[]> } | null = null;
 
   categories(): TreeNode[] {
     if (this.forest === null) this.forest = buildTree(CATEGORY_TREE);
@@ -33,16 +33,20 @@ export class StocksPanel {
   }
 
   /** Count and value per node, from the items (cached per tick). */
-  totals(ctx: PanelContext): { totals: Map<string, NodeTotals>; types: Map<string, number[]> } {
+  totals(ctx: PanelContext): { totals: Map<string, NodeTotals>; types: Map<string, number[]>; itemIds: Map<number, EntityId[]> } {
     const tick = ctx.readers.calendar.tick;
     if (this.cache?.tick === tick) return this.cache;
     const it = items(ctx);
     const totals = new Map<string, NodeTotals>();
     const types = new Map<string, number[]>();
+    const itemIds = new Map<number, EntityId[]>();
     if (it !== null) {
       for (const id of ctx.readers.entities.with(C.Item)) {
         const rec = it.get(id as EntityId);
         if (rec === undefined || (rec.flags & ItemFlag.Merchant) !== 0) continue;
+        const ids = itemIds.get(rec.type) ?? [];
+        ids.push(id as EntityId);
+        itemIds.set(rec.type, ids);
         const cat = it.categoryOf(rec.type);
         const parts = cat.split('/');
         for (let k = 1; k <= parts.length; k += 1) {
@@ -57,7 +61,7 @@ export class StocksPanel {
         }
       }
     }
-    this.cache = { tick, totals, types };
+    this.cache = { tick, totals, types, itemIds };
     return this.cache;
   }
 
@@ -66,11 +70,23 @@ export class StocksPanel {
     return rows[this.tree.selected] ?? null;
   }
 
-  /** The rows the tree shows: only nodes with stock. */
+  /** The rows the tree shows: stocked categories, then types, then individual stacks. */
   visibleForest(ctx: PanelContext): TreeNode[] {
-    const { totals } = this.totals(ctx);
+    const { totals, types, itemIds } = this.totals(ctx);
+    const it = items(ctx);
     const keep = (nodes: readonly TreeNode[]): TreeNode[] =>
-      nodes.filter((n) => (totals.get(n.id)?.count ?? 0) > 0).map((n) => ({ ...n, children: keep(n.children) }));
+      nodes.filter((n) => (totals.get(n.id)?.count ?? 0) > 0).map((n) => {
+        const children = keep(n.children);
+        if (it !== null) for (const type of types.get(n.id) ?? []) {
+          if (it.categoryOf(type) !== n.id) continue;
+          children.push({ id: `type:${type}`, name: it.def(type)?.name ?? String(type), children: (itemIds.get(type) ?? []).map((id) => {
+            const rec = it.get(id);
+            const material = rec === undefined ? '?' : ctx.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '?';
+            return { id: `item:${id}`, name: `${material} #${id}`, children: [] };
+          }) });
+        }
+        return { ...n, children };
+      });
     return keep(this.categories());
   }
 
@@ -105,29 +121,33 @@ export class StocksPanel {
     const it = items(ctx);
     if (node === null || it === null) return [];
     const flag = kind === 'ForbidItem' ? ItemFlag.Forbidden : kind === 'DumpItem' ? ItemFlag.Dump : ItemFlag.Melt;
-    const types = this.totals(ctx).types.get(node) ?? [];
-    let all = true;
-    for (const id of ctx.readers.entities.with(C.Item)) {
-      const rec = it.get(id as EntityId);
-      if (rec === undefined || !types.includes(rec.type) || !categoryUnder(it.categoryOf(rec.type), node)) continue;
-      if ((rec.flags & flag) === 0) all = false;
+    if (node.startsWith('item:')) {
+      const itemId = Number(node.slice(5));
+      const rec = it.get(itemId);
+      if (rec === undefined || (kind === 'MeltItem' && !this.isMetal(ctx, rec.material))) return [];
+      return [{ type: kind, itemId, on: (rec.flags & flag) === 0 }];
     }
-    let chosen = types;
-    // "melt only metal items": melting is offered for the metal-made types only.
-    if (kind === 'MeltItem') chosen = types.filter((t) => this.metalOnly(ctx, t));
-    return chosen.map((t) => ({ type: kind, typeId: t, on: !all }));
+    if (node.startsWith('type:')) {
+      const type = Number(node.slice(5));
+      return this.typeCommands(ctx, kind, type, flag);
+    }
+    const types = this.totals(ctx).types.get(node) ?? [];
+    return types.filter((type) => categoryUnder(it.categoryOf(type), node)).flatMap((type) => this.typeCommands(ctx, kind, type, flag));
   }
 
-  private metalOnly(ctx: PanelContext, type: number): boolean {
+  private isMetal(ctx: PanelContext, material: number): boolean {
+    return ctx.registry.table<{ id: string; class: string }>('materials').byIndex(material)?.class === 'metal';
+  }
+
+  private typeCommands(ctx: PanelContext, kind: 'ForbidItem' | 'DumpItem' | 'MeltItem', type: number, flag: ItemFlag): Command[] {
     const it = items(ctx);
-    if (it === null) return false;
-    const materials = ctx.registry.table<{ id: string; class: string }>('materials');
-    for (const id of ctx.readers.entities.with(C.Item)) {
-      const rec = it.get(id as EntityId);
-      if (rec === undefined || rec.type !== type) continue;
-      if (materials.byIndex(rec.material)?.class !== 'metal') return false;
-    }
-    return true;
+    if (it === null) return [];
+    const ids = this.totals(ctx).itemIds.get(type) ?? [];
+    const chosen = kind === 'MeltItem' ? ids.filter((id) => this.isMetal(ctx, it.get(id)?.material ?? -1)) : ids;
+    if (chosen.length === 0) return [];
+    const on = chosen.some((id) => ((it.get(id)?.flags ?? 0) & flag) === 0);
+    if (chosen.length === ids.length) return [{ type: kind, typeId: type, on }];
+    return chosen.map((itemId) => ({ type: kind, itemId, on }));
   }
 }
 
@@ -144,7 +164,12 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
     null,
     {},
     (n) => {
-      const v = totals.get(n.id) ?? { count: 0, value: 0 };
+      const it = items(ctx);
+      const v = n.id.startsWith('item:') && it !== null
+        ? { count: it.get(Number(n.id.slice(5)))?.count ?? 0, value: it.value(Number(n.id.slice(5))) }
+        : n.id.startsWith('type:') && it !== null
+          ? (panel.totals(ctx).itemIds.get(Number(n.id.slice(5))) ?? []).reduce((sum, id) => ({ count: sum.count + (it.get(id)?.count ?? 0), value: sum.value + it.value(id) }), { count: 0, value: 0 })
+          : totals.get(n.id) ?? { count: 0, value: 0 };
       return `${String(v.count).padStart(5)} ${marks(v.value).padStart(9)}`;
     },
   );
@@ -156,6 +181,7 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
   label(s, rect.col + 1, row, strings.get('ui.stocks.wealth', { wealth: marks(it?.wealth() ?? 0), buildings: marks(built) }), { fg: t.value, width: rect.cols - 2 });
   row += 1;
   label(s, rect.col + 1, row, strings.get('ui.stocks.actions'), { width: rect.cols - 2 });
+  label(s, rect.col + 24, row, '[t] depot', { fg: t.dim, width: rect.cols - 25 });
   const act = (col: number, width: number, kind: 'ForbidItem' | 'DumpItem' | 'MeltItem'): void =>
     s.hit({ col: rect.col + 1 + col, row, cols: width, rows: 1 }, () => {
       for (const c of panel.flagCommands(ctx, kind)) ctx.submit(c);

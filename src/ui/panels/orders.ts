@@ -3,6 +3,7 @@ import { C, type WorkOrder, type Workshop } from '@core/components';
 import type { Command } from '@core/commands';
 import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
+import type { KeyPress } from '@platform/input';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { JobsReader } from '@systems/jobs';
 import { STANDING_ORDERS } from '@systems/jobs/constants';
@@ -18,6 +19,8 @@ export class OrdersPanel {
   readonly recipes: ListState = { selected: 0, scroll: 0 };
   adding = false;
   editing = false;
+  readonly materials: ListState = { selected: 0, scroll: 0 };
+  materialOpen = false;
   workshopId: EntityId = 0;
 
   reader(ctx: PanelContext): WorkshopsReader | null { return ctx.readers.has('12') ? ctx.readers.of<WorkshopsReader>('12') : null; }
@@ -79,18 +82,45 @@ export class OrdersPanel {
     const at = candidates.indexOf(ws.assignedWorker);
     return { type: 'SetWorkshopWorker', workshopId: id, dwarfId: candidates[(at + 1) % candidates.length] ?? 0 };
   }
-  nextMaterial(ctx: PanelContext): Command | null {
+  materialOptions(ctx: PanelContext): { id: string; name: string }[] {
     const entry = this.selected(ctx);
-    if (entry === undefined) return null;
+    if (entry === undefined) return [];
     const recipe = this.reader(ctx)?.recipe(entry.order.recipe);
-    if (recipe === undefined) return null;
+    if (recipe === undefined) return [];
     const brew = recipe.outputs.some((output) => 'plantDrink' in output.material);
-    const options = brew
-      ? ctx.registry.table<{ id: string; brew?: string }>('plants').rows.filter((plant) => plant.brew !== undefined).map((plant) => plant.id)
-      : ctx.registry.table<{ id: string }>('materials').ids();
-    const values: (string | null)[] = [null, ...options];
-    const at = values.indexOf(typeof entry.order.materialFilter === 'string' ? entry.order.materialFilter : null);
-    return this.patch(ctx, { materialFilter: values[(at + 1) % values.length] ?? null });
+    if (brew) return [{ id: '', name: 'any' }, ...ctx.registry.table<{ id: string; name: string; brew?: string }>('plants').rows.filter((plant) => plant.brew !== undefined).map((plant) => ({ id: plant.id, name: plant.name }))];
+    const itemTypes = ctx.registry.table<{ id: string; materials: string[] | 'any' }>('items');
+    const classes = new Set<string>();
+    for (const input of recipe.inputs) {
+      if (input.material === 'fuel' || input.material === 'flux') continue;
+      const item = itemTypes.byId(input.match);
+      if (item !== undefined && item.materials !== 'any') for (const materialClass of item.materials) classes.add(materialClass);
+      else if (ctx.registry.table<{ id: string; class: string }>('materials').rows.some((m) => m.class === input.match)) classes.add(input.match);
+    }
+    if (classes.size === 0) for (const output of recipe.outputs) {
+      const item = itemTypes.byId(output.item);
+      if (item !== undefined && item.materials !== 'any') for (const materialClass of item.materials) classes.add(materialClass);
+    }
+    const materials = ctx.registry.table<{ id: string; name: string; class: string }>('materials').rows;
+    return [{ id: '', name: 'any' }, ...Array.from(classes).sort().map((id) => ({ id, name: `${id} (class)` })), ...materials.filter((m) => classes.has(m.class)).map((m) => ({ id: m.id, name: m.name }))];
+  }
+  openMaterials(ctx: PanelContext): void {
+    const options = this.materialOptions(ctx);
+    if (options.length === 0) return;
+    const current = this.selected(ctx)?.order.materialFilter;
+    this.materials.selected = Math.max(0, options.findIndex((option) => option.id === (current ?? '')));
+    this.materialOpen = true;
+  }
+  materialKey(ctx: PanelContext, key: KeyPress): Command | 'handled' | null {
+    if (!this.materialOpen) return null;
+    const options = this.materialOptions(ctx);
+    if (key.key === 'Escape' || key.key === 'Esc') { this.materialOpen = false; return 'handled'; }
+    if (key.key === 'ArrowUp' || key.key === '↑') { this.materials.selected = Math.max(0, this.materials.selected - 1); return 'handled'; }
+    if (key.key === 'ArrowDown' || key.key === '↓') { this.materials.selected = Math.min(options.length - 1, this.materials.selected + 1); return 'handled'; }
+    if (key.key !== 'Enter') return 'handled';
+    const option = options[this.materials.selected];
+    this.materialOpen = false;
+    return option === undefined ? 'handled' : this.patch(ctx, { materialFilter: option.id === '' ? null : option.id });
   }
 }
 
@@ -104,6 +134,18 @@ export function drawOrdersPanel(s: Surface, rect: Rect, panel: OrdersPanel, ctx:
     const recipes = panel.recipesFor(ctx);
     list(s, { col, row: rect.row + 1, cols: width, rows: Math.max(1, rect.rows - 3) }, recipes.map((r) => `${r.name} (${r.workshop})`), panel.recipes, (i) => { panel.recipes.selected = i; const cmd = panel.add(ctx); if (cmd !== null) ctx.submit(cmd); });
     label(s, col, rect.row + rect.rows - 1, '[Enter] add  [Esc] back', { width });
+    return;
+  }
+  if (panel.materialOpen) {
+    label(s, col, rect.row, 'Material filter [▼]', { fg: s.theme.key, width });
+    const options = panel.materialOptions(ctx);
+    list(s, { col, row: rect.row + 1, cols: width, rows: Math.max(1, rect.rows - 3) }, options.map((option) => option.name), panel.materials, (i) => {
+      panel.materials.selected = i;
+      const option = options[i];
+      panel.materialOpen = false;
+      if (option !== undefined) { const cmd = panel.patch(ctx, { materialFilter: option.id === '' ? null : option.id }); if (cmd !== null) ctx.submit(cmd); }
+    });
+    label(s, col, rect.row + rect.rows - 1, '[Enter] choose  [Esc] back', { width });
     return;
   }
   label(s, col, rect.row, '[+] new global order', { fg: s.theme.key, width });
@@ -124,7 +166,8 @@ export function drawOrdersPanel(s: Surface, rect: Rect, panel: OrdersPanel, ctx:
   if (entry !== undefined) {
     label(s, col, row, `[m] ${entry.order.mode}  threshold ${entry.order.threshold}`, { fg: panel.editing ? s.theme.value : s.theme.text, width }); row += 1;
     label(s, col, row, `[+/-] ${panel.editing ? 'threshold' : 'count'}  [p] priority`, { width }); row += 1;
-    label(s, col, row, `[f] Material: ${entry.order.materialFilter ?? 'any'}`, { width }); row += 1;
+    label(s, col, row, `[f] Material: ${entry.order.materialFilter ?? 'any'} ▼`, { width });
+    s.hit({ col, row, cols: width, rows: 1 }, () => panel.openMaterials(ctx)); row += 1;
   }
   separator(s, col, row, width, 'Standing orders'); row += 1;
   const standing = ctx.readers.has('11') ? ctx.readers.of<import('@systems/jobs').JobsReader>('11') : null;
@@ -147,12 +190,20 @@ export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: O
   label(s, col, rect.row + 2, `[s] ${workshop.suspended ? 'resume' : 'suspend'}  ${reader.isMagmaPowered(id) ? 'magma powered' : ''}`, { width });
   separator(s, col, rect.row + 3, width, 'Recipes');
   const recipes = reader.recipesFor(building.typeId);
-  for (let k = 0; k < recipes.length && k < rect.rows - 9; k += 1) {
+  for (let k = 0; k < recipes.length && k < rect.rows - 14; k += 1) {
     const recipe = recipes[k] as typeof recipes[number];
     const can = reader.isRunnable(recipe.id, id).runnable;
     label(s, col, rect.row + 4 + k, `${can ? '●' : '○'} ${recipe.name}`, { fg: can ? s.theme.good : s.theme.dim, width });
   }
-  label(s, col, rect.row + rect.rows - 4, `[o] orders (${workshop.orders.length})`, { width });
+  const orderRows = reader.ordersOf(id);
+  separator(s, col, rect.row + rect.rows - 8, width, `Orders (${orderRows.length})`);
+  for (let k = 0; k < Math.min(3, orderRows.length); k += 1) {
+    const order = orderRows[k] as WorkOrder;
+    const recipe = reader.recipe(order.recipe);
+    const amount = order.mode === 'maintain' ? `keep ${order.threshold}` : `×${order.remaining}`;
+    label(s, col, rect.row + rect.rows - 7 + k, `${recipe?.name ?? '?'} ${amount} ${order.materialFilter ?? 'any'} p${order.priority}`, { width });
+  }
+  label(s, col, rect.row + rect.rows - 4, '[o] orders  [f] material filter', { width });
   label(s, col, rect.row + rect.rows - 3, `[+] new order  [w] worker`, { width });
   label(s, col, rect.row + rect.rows - 2, workshop.lastBlockedReason ?? '', { fg: s.theme.dim, width });
 }
