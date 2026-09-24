@@ -14,6 +14,8 @@
 import type { ReaderSet } from '@core/readers';
 import { weatherField } from './panels/calendar';
 import type { Strings } from './strings';
+import type { MoraleReader } from '@systems/morale';
+import { MOOD_TIER_NAMES } from './panels/mood';
 
 export type Speed = 0 | 1 | 2 | 4;
 
@@ -35,6 +37,7 @@ export function statusFields(readers: ReaderSet, strings: Strings, z: number, sp
   if (readers.has('10')) {
     fields.push(strings.get('ui.status.pop', { n: readers.of<{ population(): number }>('10').population() }));
   }
+  if (readers.has('15')) fields.push(`♥ ${MOOD_TIER_NAMES[readers.of<MoraleReader>('15').hallSpiritTier()]}`);
   fields.push(strings.get('ui.status.z', { z }));
   fields.push(speedText(speed));
   return fields;

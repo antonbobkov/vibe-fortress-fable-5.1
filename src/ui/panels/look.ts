@@ -17,6 +17,8 @@ import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { Strings } from '../strings';
+import type { MoraleReader } from '@systems/morale';
+import { MOOD_TIER_NAMES } from './mood';
 import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
 
@@ -162,6 +164,11 @@ export function drawLookPanel(
         for (const k of known) {
           line(`  ${skills.byId(k.sid)?.name ?? k.sid} ${k.level} (${dwarves.skillTier(id, k.sid)})`);
         }
+      }
+      if (has(readers, '15') && readers.entities.get(id, C.Creature)?.faction === 'fortress') {
+        const morale = readers.of<MoraleReader>('15');
+        line(`Mood: ${MOOD_TIER_NAMES[morale.tier(id)]} (${morale.mood(id)})`, t.value);
+        for (const thought of morale.thoughts(id)) line(`  ${thought.value > 0 ? '+' : ''}${Math.round(thought.value)} ${thought.text}`);
       }
     }
   }

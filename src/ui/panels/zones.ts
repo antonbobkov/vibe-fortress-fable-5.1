@@ -17,6 +17,12 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import { CATEGORY_TREE, STOCKPILE_PRESETS } from '@systems/items';
 import type { ZoneView } from '@systems/buildings';
+import type { PlantsReader } from '@systems/plants';
+import type { AnimalsReader } from '@systems/animals';
+import { GRASS_PER_GRAZER } from '@systems/animals/constants';
+import type { PlantRow } from '@systems/plants';
+import { dropdown, dropdownKey, type DropdownOption, type DropdownState } from '../widgets';
+import type { KeyPress } from '@platform/input';
 import { C } from '@core/components';
 import type { Surface } from '../surface';
 import { buildTree, label, nodeState, separator, toggleNode, tree, type TreeNode, type TreeState } from '../widgets';
@@ -57,6 +63,8 @@ export class ZoneTool {
   end: TilePoint | null = null;
   readonly tree: TreeState = { selected: 0, scroll: 0, expanded: new Set<string>() };
   private forest: TreeNode[] | null = null;
+  readonly farmMenus: DropdownState[] = Array.from({ length: 4 }, () => ({ open: false, highlighted: 0 }));
+  farmSeason = 0;
 
   get active(): boolean {
     return this.kind !== null || this.resizing;
@@ -76,6 +84,24 @@ export class ZoneTool {
     this.resizing = false;
     this.anchor = null;
     this.end = null;
+    return true;
+  }
+
+  farmOptions(ctx: PanelContext): DropdownOption[] {
+    const plants = ctx.readers.has('07') ? ctx.readers.of<PlantsReader>('07') : null;
+    const kind = plants?.plotKind(this.selected);
+    if (kind === undefined || kind === 'none' || kind === 'mixed') return [];
+    return [{ id: '0', label: 'none' }, ...ctx.registry.table<PlantRow>('plants').rows
+      .filter((p) => (p.kind === 'crop' || p.kind === 'cave_crop') && (p.light === 'any' || (kind === 'surface' ? p.light === 'sun' : p.light === 'dark')))
+      .map((p) => ({ id: p.id, label: p.name }))];
+  }
+
+  farmKey(ctx: PanelContext, key: KeyPress): boolean {
+    const menu = this.farmMenus[this.farmSeason] as DropdownState;
+    if (!menu.open) return false;
+    const result = dropdownKey(menu, this.farmOptions(ctx), key);
+    if (result === null) return false;
+    if (result !== 'handled') ctx.submit({ type: 'SetPlotCrop', zoneId: this.selected, season: this.farmSeason, speciesId: result === '0' ? 0 : result });
     return true;
   }
 
@@ -189,7 +215,18 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
   row += 1;
   const bottom = rect.row + rect.rows - 1;
   if (zone.type === 'stockpile') row = drawStockpileSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
-  else {
+  else if (zone.type === 'farm_plot') row = drawFarmSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
+  else if (zone.type === 'pasture') {
+    const animals = ctx.readers.has('08') ? ctx.readers.of<AnimalsReader>('08') : null;
+    const plants = ctx.readers.has('07') ? ctx.readers.of<PlantsReader>('07') : null;
+    const grass = zone.tiles.filter((tile) => plants?.hasGrass(tile)).length;
+    const assigned = animals?.tameList().filter((id) => animals.pastureOf(id) === zone.id && animals.def(ctx.readers.entities.get(id, C.Creature)?.species ?? 0)?.diet === 'grazer').length ?? 0;
+    label(s, rect.col + 1, row, `Capacity: ${grass} grass / ${assigned} grazers (${Math.floor(grass / GRASS_PER_GRAZER)} supported)`, { fg: assigned > grass / GRASS_PER_GRAZER ? t.bad : t.value, width: rect.cols - 2 });
+    row += 1;
+  } else if (zone.type === 'hospital') {
+    label(s, rect.col + 1, row, 'Hospital supplies: available in M6', { fg: t.dim, width: rect.cols - 2 });
+    row += 1;
+  } else {
     const room = b.room(zone.id);
     if (room !== undefined) {
       const score = b.roomScore(zone.id);
@@ -213,6 +250,34 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     }
   }
   if (row <= bottom) label(s, rect.col + 1, bottom, strings.get('ui.zone.actions'), { width: rect.cols - 2 });
+}
+
+function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, zone: ZoneView): number {
+  const plants = ctx.readers.has('07') ? ctx.readers.of<PlantsReader>('07') : null;
+  if (plants === null) return rect.row;
+  const seasons = ['Spring', 'Summer', 'Autumn', 'Winter'];
+  const settings = plants.plotSettings(zone.id);
+  const options = tool.farmOptions(ctx);
+  let row = rect.row;
+  for (let season = 0; season < 4; season += 1) {
+    if (row >= rect.row + rect.rows) break;
+    const id = settings[season] ?? 0;
+    const plant = id === 0 ? undefined : ctx.registry.table<PlantRow>('plants').byIndex(id);
+    label(s, rect.col + 1, row, seasons[season] as string, { width: 8 });
+    const menu = tool.farmMenus[season] as DropdownState;
+    const used = dropdown(s, rect.col + 9, row, 18, plant?.name ?? 'none', options, menu,
+      (choice) => { menu.open = false; ctx.submit({ type: 'SetPlotCrop', zoneId: zone.id, season, speciesId: choice === '0' ? 0 : choice }); },
+      () => { for (const m of tool.farmMenus) m.open = false; menu.open = true; menu.highlighted = Math.max(0, options.findIndex((o) => o.id === (plant?.id ?? '0'))); tool.farmSeason = season; });
+    if (plant !== undefined) {
+      const seed = ctx.readers.has('13') ? ctx.readers.of<import('@systems/items').ItemsReader>('13').countMatching({ type: ctx.registry.table<{ id: string }>('items').index('seed'), materialId: ctx.registry.table<{ id: string }>('materials').index(plant.id) }) : 0;
+      label(s, rect.col + 28, row, `${seed}${seed === 0 ? ' !' : ''}`, { fg: seed === 0 ? s.theme.bad : s.theme.value, width: 6 });
+    }
+    row += used;
+  }
+  const cropIds = plants.crops().filter((id) => plants.cropInfo(id)?.plotZoneId === zone.id);
+  const ready = cropIds.filter((id) => (plants.cropInfo(id)?.stage ?? 0) === 3).length;
+  if (row < rect.row + rect.rows) label(s, rect.col + 1, row, `Crops: ${cropIds.length - ready} growing, ${ready} ready, ${Math.max(0, zone.tiles.length - cropIds.length)} empty`, { width: rect.cols - 2 });
+  return row + 1;
 }
 
 function drawStockpileSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, zone: ZoneView): number {

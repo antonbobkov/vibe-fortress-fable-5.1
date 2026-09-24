@@ -31,6 +31,9 @@ import { drawLaborsPanel, LaborsPanel } from '../panels/labors';
 import { drawStocksPanel, StocksPanel } from '../panels/stocks';
 import { drawUnitsPanel, UnitsPanel } from '../panels/units';
 import { drawZonesPanel, ZoneTool } from '../panels/zones';
+import { drawOrdersPanel, drawWorkshopPanel, OrdersPanel } from '../panels/orders';
+import { drawAnimalsPanel, AnimalsPanel } from '../panels/animals';
+import { drawMoodPanel, drawPopulationPanel, MoodPanel } from '../panels/mood';
 import { C } from '@core/components';
 import { creaturesAt, creatureSummary, drawLookPanel, tileSummary, type LookTab } from '../panels/look';
 import { drawLogPanel, drawLogStrip, type LogFilter } from '../panels/log';
@@ -41,7 +44,7 @@ import { drawOverlaysPanel, OVERLAY_ROWS, OverlayMenu } from '../panels/overlays
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import type { UiState } from '../ui-state';
-import { label, labelRow } from '../widgets';
+import { editText, label, labelRow } from '../widgets';
 
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
 export const UI_PANELS: readonly PanelSpec[] = [
@@ -52,6 +55,7 @@ export const UI_PANELS: readonly PanelSpec[] = [
   { id: 'overlays', title: 'Overlays', hotkey: 'f' },
   // `06` § Player-facing behavior: opened from the status bar date; no hotkey (D-103).
   { id: 'calendar', title: 'Calendar', hotkey: '' },
+  { id: 'population', title: 'Population', hotkey: 'p' },
 ];
 
 /** The speeds `+` and `-` step through ("speed up (1× → 2× → 4×)"). */
@@ -104,6 +108,10 @@ export class FortressScreen implements Screen {
   readonly units = new UnitsPanel();
   readonly jobs = new JobsPanel();
   readonly labors = new LaborsPanel();
+  readonly orders = new OrdersPanel();
+  readonly animals = new AnimalsPanel();
+  readonly mood = new MoodPanel();
+  workshopId = 0;
   /** The shift state of the click being handled (the labor grid's "shift-click: whole column"). */
   private clickShift = false;
   readonly log: AnnouncementLog;
@@ -306,7 +314,7 @@ export class FortressScreen implements Screen {
     surface.fill(rect, t.black);
     const rule = surface.glyphs.index('│');
     for (let r = 0; r < rect.rows; r += 1) surface.put(rect.col, rect.row + r, rule, t.border, t.black);
-    const panel = this.panels().find((p) => p.id === this.ui.panel);
+    const panel = this.panels().find((p) => p.id === this.ui.panel) ?? (this.ui.panel === 'workshop' ? { id: 'workshop', title: 'Workshop', hotkey: '' } : undefined);
     if (panel === undefined) return;
     const inner = { col: rect.col + 1, row: rect.row, cols: rect.cols - 1, rows: rect.rows };
     const key = panel.hotkey === '' ? '' : `[${panel.hotkey}]`;
@@ -322,6 +330,11 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'units') drawUnitsPanel(surface, body, this.units, ctx);
     else if (panel.id === 'jobs') drawJobsPanel(surface, body, this.jobs, ctx);
     else if (panel.id === 'labors') drawLaborsPanel(surface, body, this.labors, ctx);
+    else if (panel.id === 'orders') drawOrdersPanel(surface, body, this.orders, ctx);
+    else if (panel.id === 'workshop') drawWorkshopPanel(surface, body, this.workshopId, this.orders, ctx);
+    else if (panel.id === 'animals') drawAnimalsPanel(surface, body, this.animals, ctx);
+    else if (panel.id === 'mood') drawMoodPanel(surface, body, this.mood, ctx);
+    else if (panel.id === 'population') drawPopulationPanel(surface, body, ctx);
     else if (panel.id === 'look') drawLookPanel(surface, body, readers, this.host.registry, this.strings, this.lookTile(), this.lookTab);
     else if (panel.id === 'calendar') drawCalendarPanel(surface, body, readers, this.strings);
     else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
@@ -507,6 +520,9 @@ export class FortressScreen implements Screen {
 
   /** "`Esc` cancels the current tool, then closes the panel, then opens the game menu." */
   private cancel(): void {
+    if (this.orders.adding) { this.orders.adding = false; return; }
+    if (this.animals.name.focused) { this.animals.name.focused = false; return; }
+    if (this.zones.farmMenus.some((m) => m.open)) { for (const m of this.zones.farmMenus) m.open = false; return; }
     if (this.units.editing) {
       this.units.editing = false;
       return;
@@ -555,6 +571,7 @@ export class FortressScreen implements Screen {
       this.pinned = null;
       return true;
     }
+    if ((this.ui.panel === 'orders' || this.ui.panel === 'workshop') && (press.key === '+' || (press.key === '-' && this.orders.editing)) && !press.ctrl && !press.alt && !press.meta) return this.panelKey(this.ui.panel, press);
     const global = this.keymap.resolve('global', press);
     if (global !== null) {
       switch (global.id) {
@@ -726,6 +743,7 @@ export class FortressScreen implements Screen {
         }
         return letter !== '' && letter !== 'r' && letter !== 'x' && this.build.choose(letter);
       case 'zones':
+        if (this.zones.farmKey(ctx, press)) return true;
         if (letter === 'x' && !this.zones.active && this.zones.selected !== 0) {
           const id = this.zones.selected;
           this.zones.selected = 0;
@@ -796,7 +814,64 @@ export class FortressScreen implements Screen {
           if (t !== null) this.focusOn(t);
           return true;
         }
-        return letter === 'o';
+        if (letter === 'o') { this.openPanel('orders'); return true; }
+        return false;
+      }
+      case 'orders': {
+        if (!press.shift && (up || down)) { this.orders.move(up ? -1 : 1, ctx); return true; }
+        if (this.orders.adding) {
+          if (k === 'Enter') return submit(this.orders.add(ctx));
+          return false;
+        }
+        if (letter === '+' && !this.orders.editing) { this.orders.workshopId = 0; this.orders.adding = true; this.orders.recipes.selected = 0; return true; }
+        if (letter === 'x') return submit(this.orders.remove(ctx));
+        if (press.shift && (up || down)) return submit(this.orders.reorder(ctx, up ? -1 : 1));
+        if (k === 'Enter') { this.orders.editing = !this.orders.editing; return true; }
+        const entry = this.orders.selected(ctx);
+        if (entry !== undefined) {
+          if (letter === 'm') return submit(this.orders.patch(ctx, { mode: entry.order.mode === 'once' ? 'maintain' : 'once', threshold: entry.order.mode === 'once' ? Math.max(1, entry.order.threshold || 20) : 0 }));
+          if (letter === 'p') return submit(this.orders.patch(ctx, { priority: entry.order.priority >= 9 ? 1 : entry.order.priority + 1 }));
+          if (letter === 'f') return submit(this.orders.nextMaterial(ctx));
+          if (letter === '+' || letter === '-') return submit(this.orders.patch(ctx, this.orders.editing ? { threshold: Math.max(1, Math.min(999, entry.order.threshold + (letter === '+' ? 1 : -1))) } : { remaining: Math.max(1, Math.min(999, entry.order.remaining + (letter === '+' ? 1 : -1))) }));
+        }
+        return false;
+      }
+      case 'workshop': {
+        const ws = ctx.readers.entities.get(this.workshopId, C.Workshop);
+        if (letter === 's' && ws !== undefined) return submit({ type: 'SuspendWorkshop', workshopId: this.workshopId, on: !ws.suspended });
+        if (letter === 'o') { this.orders.workshopId = this.workshopId; this.orders.list.selected = 0; this.openPanel('orders'); return true; }
+        if (letter === '+') { this.orders.workshopId = this.workshopId; this.orders.adding = true; this.openPanel('orders'); return true; }
+        if (letter === 'w') return submit(this.orders.nextWorker(ctx, this.workshopId));
+        return false;
+      }
+      case 'animals': {
+        if (this.animals.name.focused) {
+          if (k === 'Enter') return submit(this.animals.finishName(ctx));
+          return editText(this.animals.name, press);
+        }
+        if (k === '1' || k === '2') { this.animals.tab = k === '1' ? 0 : 1; this.animals.list.selected = 0; return true; }
+        if (!press.shift && (up || down)) { this.animals.move(up ? -1 : 1, ctx); return true; }
+        if (this.animals.tab === 0) {
+          if (letter === 'p') return submit(this.animals.pasture(ctx));
+          if (letter === 's') return submit(this.animals.slaughter(ctx));
+          if (letter === 'c') return submit(this.animals.cap(ctx));
+          if (letter === 'a') return submit(this.animals.assign(ctx));
+          if (letter === 'n') { this.animals.startName(ctx); return true; }
+        } else {
+          if (letter === 'h') return submit(this.animals.hunt(ctx));
+        }
+        return false;
+      }
+      case 'mood': {
+        if (!press.shift && (up || down)) { this.mood.move(up ? -1 : 1, ctx); return true; }
+        if (letter === 's') { this.mood.sorted = !this.mood.sorted; this.mood.list.selected = 0; return true; }
+        if (k === 'Enter') {
+          const id = this.mood.selected(ctx);
+          const p = ctx.readers.entities.get(id, C.Position);
+          if (p !== undefined) ctx.look(ctx.readers.map.index(p.x, p.y, p.z));
+          return true;
+        }
+        return false;
       }
       case 'labors':
         if (!press.shift && (up || down)) {
@@ -859,6 +934,13 @@ export class FortressScreen implements Screen {
       this.tool.anchor = at;
       this.tool.end = at;
       this.dragging = true;
+      return;
+    }
+    const tile = this.tileOf(at);
+    const buildingId = tile !== null && this.host.readers.has('14') ? this.host.readers.of<import('@systems/buildings').BuildingsReader>('14').at(tile) : 0;
+    if (buildingId !== 0 && this.host.readers.entities.has(buildingId, C.Workshop)) {
+      this.workshopId = buildingId;
+      this.openPanel('workshop');
       return;
     }
     this.look(at);

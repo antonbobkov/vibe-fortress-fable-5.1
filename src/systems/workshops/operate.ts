@@ -49,7 +49,9 @@ export function outputFilter(registry: Registry, recipe: RecipeRow, order: WorkO
   if (first === undefined) return {};
   const items = registry.table<ItemRow>('items');
   const filter: ItemFilter = items.has(first.item) ? { type: items.index(first.item) } : { tag: first.item };
-  const material = order.materialFilter;
+  const material = typeof order.materialFilter === 'string' && 'plantDrink' in first.material
+    ? registry.table<PlantRow>('plants').byId(order.materialFilter)?.brew ?? order.materialFilter
+    : order.materialFilter;
   const materials = registry.table<MaterialRow>('materials');
   if (typeof material === 'number') filter.materialId = material;
   else if (typeof material === 'string' && materials.has(material)) filter.materialId = materials.index(material);
