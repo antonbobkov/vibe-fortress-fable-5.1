@@ -7,7 +7,7 @@ import type { InitContext, JobProducer, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Job, JobSink, ItemFilter } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
-import { MAGMA_POWER_LEVEL, M4_RECIPE_WORKSHOPS } from './constants';
+import { MAGMA_POWER_LEVEL, recipeActive } from './constants';
 import { rollQuality } from './quality';
 import { grantXp } from '@systems/dwarves/skills';
 import { jobXp } from '@systems/dwarves/rules/skills';
@@ -18,7 +18,7 @@ export interface RecipeRow {
   readonly workshop: string;
   readonly skill: string;
   readonly inputs: readonly { readonly match: string; readonly count: number; readonly material?: string; readonly distinct?: boolean }[];
-  readonly outputs: readonly { readonly item: string; readonly count: number; readonly material: { readonly from: 'input'; readonly index: number } | { readonly fixed: string } | { readonly alloy: string } | { readonly plantDrink: true } }[];
+  readonly outputs: readonly { readonly item: string; readonly count: number; readonly permille?: number; readonly material: { readonly from: 'input'; readonly index: number } | { readonly fixed: string } | { readonly alloy: string } | { readonly plantDrink: true } }[];
   readonly baseTicks: number;
   readonly fuel: boolean;
   readonly quality: boolean;
@@ -160,7 +160,7 @@ export class WorkshopOperator {
   problem(order: WorkOrder, id: EntityId): string | null {
     const ws = this.workshop(id);
     const recipe = this.recipe(order.recipe);
-    if (ws === undefined || recipe === undefined || !M4_RECIPE_WORKSHOPS.has(recipe.workshop) || recipe.workshop !== this.typeOf(id)) return 'not_found';
+    if (ws === undefined || recipe === undefined || !recipeActive(recipe) || recipe.workshop !== this.typeOf(id)) return 'not_found';
     if (ws.suspended) return 'workshop_suspended';
     if (order.mode === 'once' && order.remaining <= 0) return 'complete';
     if (order.mode === 'maintain' && this.items.countAvailable(outputFilter(this.ctx.registry, recipe, order)) >= order.threshold) return 'stocked';
@@ -182,11 +182,9 @@ export class WorkshopOperator {
 
   fuelFilter(): ItemFilter | null {
     const items = this.ctx.registry.table('items');
-    const mats = this.ctx.registry.table('materials');
-    if (!items.has('bar')) return null;
-    for (const material of ['coal', 'charcoal']) {
-      if (!mats.has(material)) continue;
-      const filter = { type: items.index('bar'), materialId: mats.index(material) };
+    for (const type of ['coal_bar', 'charcoal_bar']) {
+      if (!items.has(type)) continue;
+      const filter = { type: items.index(type) };
       if (this.items.countAvailable(filter) > 0) return filter;
     }
     return null;
@@ -255,7 +253,8 @@ export class WorkshopOperator {
       this.ensure(id);
       const b = entities.get(id, C.Building);
       const ws = this.workshop(id);
-      if (b === undefined || ws === undefined || b.state !== 'built' || ws.suspended || ws.currentJobId !== 0 || !M4_RECIPE_WORKSHOPS.has(this.typeOf(id))) continue;
+      if (b === undefined || ws === undefined || b.state !== 'built' || ws.suspended || ws.currentJobId !== 0 ||
+        (this.typeOf(id) !== 'smelter' && !this.byWorkshop.get(this.typeOf(id))?.some(recipeActive))) continue;
       const powered = this.isMagmaPowered(id);
       if (powered !== ws.magmaPowered) this.save(id, { ...ws, magmaPowered: powered });
       const choices = [...ws.orders.map((o, index) => ({ order: o, index, global: false })),
@@ -264,7 +263,7 @@ export class WorkshopOperator {
       let reason: string | null = null;
       for (const choice of choices) {
         const recipe = this.recipe(choice.order.recipe);
-        if (recipe === undefined || recipe.workshop !== this.typeOf(id)) continue;
+        if (recipe === undefined || !recipeActive(recipe) || recipe.workshop !== this.typeOf(id)) continue;
         if (choice.global && sink.exists(`craft:global:${choice.index}`)) continue;
         const problem = this.problem(choice.order, id);
         if (problem !== null) { if (reason === null && problem !== 'stocked' && problem !== 'complete') reason = problem.startsWith('waiting for ') ? 'missing_input' : problem; continue; }
@@ -331,6 +330,7 @@ export class WorkshopOperator {
     const itemTable = ctx.registry.table<ItemRow>('items');
     for (let k = 0; k < recipe.outputs.length; k += 1) {
       const out = recipe.outputs[k] as RecipeRow['outputs'][number];
+      if (out.permille !== undefined && !this.ctx.rng.chance(out.permille)) continue;
       const options = itemTable.where(`tag:${out.item}`, (row) => row.tags?.includes(out.item) === true);
       const type = itemTable.has(out.item) ? out.item : options.length > 0 ? options[this.ctx.rng.int(0, options.length - 1)]?.id : undefined;
       if (type === undefined) continue;

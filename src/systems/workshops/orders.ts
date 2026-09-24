@@ -4,7 +4,7 @@ import { PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
 import type { EntityId } from '@core/types';
 import type { JobBoard } from '@systems/jobs';
 import type { WorkshopOperator } from './operate';
-import { M4_RECIPE_WORKSHOPS } from './constants';
+import { recipeActive } from './constants';
 
 /** `12` § Work orders; `command-catalog.md` workshop commands. */
 export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandResult {
@@ -29,7 +29,7 @@ export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandRe
     if (raw === undefined || typeof raw !== 'object') return reject('precondition_failed');
     const recipeId = raw['recipeId'] ?? raw['recipe'];
     const recipe = op.recipe(recipeId as string | number);
-    if (recipe === undefined || !M4_RECIPE_WORKSHOPS.has(recipe.workshop) || (!global && recipe.workshop !== op.typeOf(id))) return reject('precondition_failed');
+    if (recipe === undefined || !recipeActive(recipe) || (!global && recipe.workshop !== op.typeOf(id))) return reject('precondition_failed');
     const order = parseOrder(op, raw, recipe.id);
     if (order === null) return reject('precondition_failed');
     orders.push(order);
@@ -39,7 +39,7 @@ export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandRe
     if (patch === undefined || typeof patch !== 'object') return reject('precondition_failed');
     const before = orders[index] as WorkOrder;
     const recipe = op.recipe((patch['recipeId'] ?? patch['recipe'] ?? before.recipe) as string | number);
-    if (recipe === undefined || !M4_RECIPE_WORKSHOPS.has(recipe.workshop) || (!global && recipe.workshop !== op.typeOf(id))) return reject('precondition_failed');
+    if (recipe === undefined || !recipeActive(recipe) || (!global && recipe.workshop !== op.typeOf(id))) return reject('precondition_failed');
     const order = parseOrder(op, { ...before, ...patch }, recipe.id);
     if (order === null) return reject('precondition_failed');
     cancelCurrent();

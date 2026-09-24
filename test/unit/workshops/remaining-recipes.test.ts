@@ -87,15 +87,19 @@ describe('T-M4-10 remaining non-metal workshops', () => {
     expect(reader.recipesFor('kennel')).toHaveLength(0);
   });
 
-  it('D-128: leaves M5 metal and gem workshop recipes loaded but inactive', () => {
+  it('D-128: exposes smelting only when T-M5-01 lands, keeping later workshops and recipes inactive', () => {
     const w = new TestWorld({ seed: 'm4-m5-recipe-seam', world: 'flat-test', embark: 'none' });
     const reader = w.readers.of<WorkshopsReader>('12');
-    for (const type of ['wood_furnace', 'smelter', 'forge', 'mechanic', 'jeweler', 'magma_smelter', 'magma_forge']) {
+    expect(reader.recipesFor('wood_furnace').map((r) => r.id)).toEqual(['make_charcoal']);
+    expect(reader.recipesFor('smelter')).toHaveLength(16);
+    for (const type of ['forge', 'mechanic', 'jeweler', 'magma_smelter', 'magma_forge']) {
       expect(reader.recipesFor(type), type).toHaveLength(0);
     }
     expect(reader.recipe('make_charcoal')).toBeDefined();
     expect(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: 0,
-      order: { recipeId: 'make_charcoal', remaining: 1, mode: 'once' } })).toEqual({ ok: false, reason: 'precondition_failed' });
+      order: { recipeId: 'make_charcoal', remaining: 1, mode: 'once' } })).toEqual({ ok: true });
+    expect(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: 0,
+      order: { recipeId: 'alloy_steel', remaining: 1, mode: 'once' } })).toEqual({ ok: false, reason: 'precondition_failed' });
   });
 
   it('tans a cow hide into leather, makes four bandages, and keeps yew bow power metadata', () => {

@@ -1959,8 +1959,7 @@
         "item": "charcoal_bar",
         "count": 1,
         "material": {
-          "from": "input",
-          "index": 0
+          "fixed": "charcoal"
         }
       }
     ],

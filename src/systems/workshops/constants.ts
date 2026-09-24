@@ -6,8 +6,13 @@ export const CHARCOAL_PER_LOG = 1;
 export const COAL_PER_ORE = 2;
 export const BARS_PER_ORE = 2;
 
-/** The recipes this M4 block activates. T-M5-01, T-M5-03 and T-M5-05 lift this seam. */
-export const M4_RECIPE_WORKSHOPS: ReadonlySet<string> = new Set([
+/** Recipe availability follows the workshop milestones; content rows are loaded from M0. */
+export const ACTIVE_RECIPE_WORKSHOPS: ReadonlySet<string> = new Set([
   'carpenter', 'mason', 'craftdwarf', 'kitchen', 'still', 'farmers_workshop',
-  'tannery', 'leatherworks', 'loom', 'clothier', 'bowyer',
+  'tannery', 'leatherworks', 'loom', 'clothier', 'bowyer', 'wood_furnace',
 ]);
+
+export function recipeActive(recipe: { readonly id: string; readonly workshop: string }): boolean {
+  return ACTIVE_RECIPE_WORKSHOPS.has(recipe.workshop) ||
+    (recipe.workshop === 'smelter' && recipe.id.startsWith('smelt_'));
+}

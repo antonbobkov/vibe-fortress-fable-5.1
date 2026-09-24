@@ -216,7 +216,7 @@ export function generatedRecipes(
       skill: 'smelting',
       inputs: [{ match: 'ore', count: 1, material: ore.id }],
       outputs: ore.yields.map((y) => {
-        const output: RecipeOutput = { item: 'bar', count: y.count, material: { fixed: y.metal } };
+        const output: RecipeOutput = { item: y.metal === 'coal' ? 'coal_bar' : 'bar', count: y.count, material: { fixed: y.metal } };
         if (y.permille !== undefined) output.permille = y.permille;
         return output;
       }),
