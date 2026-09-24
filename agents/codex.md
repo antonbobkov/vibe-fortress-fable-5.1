@@ -112,13 +112,29 @@ cost. **When to start fresh instead:** a genuinely new task, or when the old
 session went down a wrong path you don't want it anchored to — a cold run with
 a good prompt beats resuming a confused one.
 
-Caveat seen once: a quota abort also logged
-`ERROR codex_core::session: failed to record rollout items: thread … not
-found`, so a session killed mid-write may not resume cleanly. Check that the
-rollout file for that uuid exists before relying on it, and keep a written
-state summary in the follow-up prompt regardless — this repo's workflow
-(commit per task, `PROGRESS.md`, `DECISIONS.md`) already makes the tree
-self-describing, so a cold restart is never fatal.
+A quota abort usually also logs two scary-looking errors:
+
+```
+ERROR codex_core::tools::router: error=write_stdin failed: Unknown process id 5577
+ERROR codex_core::session: failed to record rollout items: thread … not found
+```
+
+**Neither means the session is lost.** Verified on session
+`01a0d1bd-…`, killed by the weekly limit: its rollout file was still written
+in full — 413 entries, 2.2 MB, a valid `session_meta` first line and a normal
+`item_completed` last line. The errors concern an in-memory thread handle and
+a killed child process at shutdown, not the on-disk record. So `resume` works
+after a quota abort; just confirm the rollout file for that uuid exists and is
+non-trivial before relying on it.
+
+Keep a written state summary in the follow-up prompt anyway — this repo's
+workflow (commit per task, `PROGRESS.md`, `DECISIONS.md`) already makes the
+tree self-describing, so a cold restart is never fatal.
+
+Also: the CLI's "try again at &lt;time&gt;" in the error names whichever window is
+binding. When the weekly is the one exhausted it quotes a date days away, not
+the next 5-hour reset — read it as the weekly, and confirm with the usage
+endpoint below rather than assuming a short wait.
 
 ## Subagents
 
