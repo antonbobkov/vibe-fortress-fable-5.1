@@ -96,7 +96,7 @@ Guaranteed: +2–4 in summer and +2–4 in autumn of year 1: 11–15 dwarves by 
 
 ## Trade
 
-A year-2 fortress (renown 15, reputation 10) sees a Hillfolk caravan with `2500 + 2250 + 200 = 4,950` marks of goods. Selling 30 stone crafts (2 × 3 × 1.5 fine = 9 each → 270 at Hillfolk 100%) and 40 lavish meals (60 each → 2,400 at 80% = 1,920) buys 2,000 marks of cloth, leather, seeds and livestock at the 12% margin (trading skill 4, reputation 10): the fortress must give 2,240 in valuation. Cooking pays for the caravan; that is the intended early economy. Metal goods pay later.
+A year-2 fortress (renown 15, reputation 10) sees a Hillfolk caravan with `2500 + 2250 + 200 = 4,950` marks of goods. Selling 30 fine stone crafts (9 each → 270 at Hillfolk 100%) and 42 lavish meals (60 each at 80% = 48 → 2,016) gives 2,286 in valuation for goods priced 2,000 at the 12.5% margin (trading skill 4, reputation 10: 15 − 2 − 0.5), which asks for ceil(2,000 × 1.125) = 2,250; with 41 meals the offer is 12 short. The trade raises reputation by 2,000 / 500 = 4. Cooking pays for the caravan; that is the intended early economy. Metal goods pay later.
 
 ## Farming plots and light
 

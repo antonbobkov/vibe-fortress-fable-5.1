@@ -28,7 +28,7 @@ On `DamageDealt { defender, part, damageType, amount }`:
 1. `ratio = amount / maxHp(part)`. `severity`: `light` if `ratio < LIGHT_MAX`, `serious` if `< SERIOUS_MAX`, else `grievous`.
 2. `part.hp −= amount`. If `part.hp ≤ 0`: the part is **destroyed**: for `head` or `torso` the creature dies (`CreatureDied { cause: killed, killerId }`); for a limb the limb is lost (`permanent: lost_<part>`, `LimbLost` event, the `lost_limb` thought), its wounds are removed, and a grievous `cut` remains at the stump with heavy bleeding.
 3. Otherwise add a wound with type from `damageType` (16's mapping), `bleed` and `pain` from the wound table (type × severity; content), `healRemaining = HEAL_BASE_TICKS × severityMultiplier`.
-4. Toughness reduces `amount` before step 1 by `Toughness / 10` percent (max 10%).
+4. Toughness reduces combat hits in 16's resolution (`min(10, Toughness / 10)` percent). Environmental damage is not reduced.
 
 Environmental sources create wounds through the same path with synthetic damage:
 
@@ -37,7 +37,7 @@ Environmental sources create wounds through the same path with synthetic damage:
 | Burning tile | `BurnDamage { id, amount }` | `burn` wound on a random part each materials tick |
 | Magma | `MagmaContact` | `amount = maxHp(torso) × 2` as `burn` to torso: death for anything not `magmaSafe` in its species row (ember newts, wyrms) |
 | Drowning | `CreatureSubmerged` each health tick while submerged and not aquatic or amphibious | `DROWN_DAMAGE` to torso as `bruise` (no bleeding); at 0 hp the creature dies with `cause: drowned` |
-| Falling | `Fell { id, levels }` | `amount = levels² × FALL_DAMAGE_PER_LEVEL_SQ` to a random leg (60%) or torso (40%) as `blunt` → `bruise` or `fracture` |
+| Falling | `Fell { id, levels }` | `amount = levels² × FALL_DAMAGE_PER_LEVEL_SQ` to a random leg (60%) or torso (40%) as `blunt` → `bruise` or `fracture`; damage to a limb is capped at the limb's hp − 1: a fall breaks bones but never severs a limb |
 | Lightning | `LightningStrike` on the tile | `burn` grievous to head and torso |
 | Heat and cold | hourly while outdoors above `HEAT_INJURY_C` / below `COLD_INJURY_C` | `burn` (heat stroke) or `frost` light wound on a random limb; clothing (10) halves the chance |
 | Starvation | `Starvation { id }` daily | `amount = maxHp(torso) × STARVE_PERCENT / 100` to torso as `wasting` (a `bruise` that does not heal until fed) |

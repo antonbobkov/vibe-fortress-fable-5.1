@@ -2,31 +2,61 @@
   {
     "level": 1,
     "pressure": 50,
-    "emergence": [],
+    "emergence": [
+      {
+        "species": "hollow_crawler",
+        "count": 3
+      }
+    ],
     "text": "The Deep stirs. Something has noticed the pale metal being taken."
   },
   {
     "level": 2,
     "pressure": 150,
-    "emergence": [],
+    "emergence": [
+      {
+        "species": "hollow_stalker",
+        "count": 2
+      },
+      {
+        "species": "hollow_crawler",
+        "count": 3
+      }
+    ],
     "text": "The rock cracks below. The Hollow sends its hunters."
   },
   {
     "level": 3,
     "pressure": 300,
-    "emergence": [],
+    "emergence": [
+      {
+        "species": "magma_wyrm",
+        "count": 1
+      },
+      {
+        "species": "hollow_stalker",
+        "count": 2
+      }
+    ],
     "text": "Fire moves in the deep. A wyrm has come up."
   },
   {
     "level": 4,
     "pressure": 500,
-    "emergence": [],
+    "emergence": [
+      {
+        "species": "hollow_maw",
+        "count": 1
+      },
+      {
+        "species": "hollow_crawler",
+        "count": 4
+      },
+      {
+        "species": "hollow_stalker",
+        "count": 2
+      }
+    ],
     "text": "The Hollow opens its mouth."
-  },
-  {
-    "level": 5,
-    "pressure": 28,
-    "emergence": [],
-    "text": "The Hollow does not forget."
   }
 ]

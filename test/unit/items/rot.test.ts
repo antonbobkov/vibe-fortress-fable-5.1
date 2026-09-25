@@ -71,6 +71,17 @@ describe('T-M4-15 rot queue and corpses', () => {
     expect(w.game.registry.table('materials').idOf(material)).toBe('skull_bone');
   });
 
-  it.todo('C-008: the 20-day corpse row expects a skeleton before the 21-day gone threshold');
+  it('F-08: a corpse left 21 days becomes a skeleton (C-008)', () => {
+    const w = world('rot-skeleton');
+    const tile = w.index(12, 12, 32);
+    w.forceTemperature(tile, 20);
+    const corpse = w.spawnItem('corpse', 'cow_meat', tile);
+    w.game.world.entities.add(corpse, C.Corpse, {
+      species: w.game.registry.table('creatures').index('cow'), diedTick: w.tick, wornItems: [], dwarfName: null,
+    });
+    w.step(21 * TICKS_PER_DAY + 50);
+    const items = w.readers.of<ItemsReader>('13');
+    expect(items.def(items.get(corpse)?.type ?? 0)?.id).toBe('skeleton');
+  });
 });
 

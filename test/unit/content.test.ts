@@ -419,3 +419,89 @@ describe('F-07: recipe constraints are exported', () => {
   });
 });
 
+describe("F-08: the Deep's emergences are exported", () => {
+  it('exports levels 1 to 4 with non-empty emergence lists', () => {
+    const raw = rawTables();
+    const deep = raw['deepThresholds'] as Array<{
+      level: number;
+      pressure: number;
+      emergence: Array<{ species: string; count: number }>;
+      text: string;
+    }>;
+    expect(deep).toHaveLength(4);
+    expect(deep[0]).toEqual({
+      level: 1,
+      pressure: 50,
+      emergence: [{ species: 'hollow_crawler', count: 3 }],
+      text: 'The Deep stirs. Something has noticed the pale metal being taken.',
+    });
+    expect(deep[1]).toEqual({
+      level: 2,
+      pressure: 150,
+      emergence: [
+        { species: 'hollow_stalker', count: 2 },
+        { species: 'hollow_crawler', count: 3 },
+      ],
+      text: 'The rock cracks below. The Hollow sends its hunters.',
+    });
+    expect(deep[2]).toEqual({
+      level: 3,
+      pressure: 300,
+      emergence: [
+        { species: 'magma_wyrm', count: 1 },
+        { species: 'hollow_stalker', count: 2 },
+      ],
+      text: 'Fire moves in the deep. A wyrm has come up.',
+    });
+    expect(deep[3]).toEqual({
+      level: 4,
+      pressure: 500,
+      emergence: [
+        { species: 'hollow_maw', count: 1 },
+        { species: 'hollow_crawler', count: 4 },
+        { species: 'hollow_stalker', count: 2 },
+      ],
+      text: 'The Hollow opens its mouth.',
+    });
+  });
+});
+
+describe('F-08: content never has an all-empty list column', () => {
+  it('no array-valued column is empty in every row across all tables', () => {
+    const raw = rawTables();
+    for (const [tableName, data] of Object.entries(raw)) {
+      const rows = Array.isArray(data)
+        ? data
+        : typeof data === 'object' && data !== null
+          ? Object.values(data)
+          : [];
+      if (!Array.isArray(rows) || rows.length === 0) continue;
+
+      const arrayProps = new Set<string>();
+      for (const row of rows) {
+        if (row && typeof row === 'object') {
+          for (const [k, v] of Object.entries(row)) {
+            if (Array.isArray(v)) arrayProps.add(k);
+          }
+        }
+      }
+
+      for (const prop of arrayProps) {
+        if (tableName === 'embarkCatalog' && prop === 'sex') continue;
+        if (tableName === 'weatherStates' && prop === 'tempDelta') continue;
+
+        const someNonEmpty = rows.some((row) => {
+          if (!row || typeof row !== 'object') return false;
+          const val = (row as Record<string, unknown>)[prop];
+          return Array.isArray(val) && val.length > 0;
+        });
+
+        expect(
+          someNonEmpty,
+          `table ${tableName} column ${prop} has an empty array on every row`,
+        ).toBe(true);
+      }
+    }
+  });
+});
+

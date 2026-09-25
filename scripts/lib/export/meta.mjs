@@ -379,10 +379,12 @@ export function exportDeepThresholds() {
   const table = findTable(tables, 'The Deep', 'Emergence');
   const out = [];
   for (const row of asObjects(table)) {
+    if (!/^\s*\d+\s*$/.test(String(row.Level ?? ''))) continue;
     const level = int(row.Level);
     const pressure = int(row.Pressure);
     const emergence = [];
-    for (const part of plain(row.Emergence).split('+')) {
+    const rawEmergence = String(row.Emergence ?? '');
+    for (const part of rawEmergence.split('+')) {
       const species = ticked(part)[0];
       const count = /(\d+)/.exec(part.replace(/`[^`]*`/g, ' '));
       if (species !== undefined) {

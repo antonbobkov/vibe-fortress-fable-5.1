@@ -45,7 +45,7 @@ Content rows per kind and civ list roles with counts scaled by size. Roles and s
 - Hillfolk bandits: `hillfolk_bandit` (melee, steals; low peril nuisance; killing them lowers Hillfolk reputation slightly, capturing them in cages raises it).
 - Restless dead: `restless_dead` (slow, mindless, no loot, attacks anything, does not flee; rises at dusk in autumn from the battlefield band, `RESTLESS_PER_NIGHT` per night, and collapses to bones at dawn unless already slain).
 
-Hostile equipment is generated from the civ's equipment table with a peril-scaled quality (`hostile gear tier = min(peril, 3)` metal tier; sieges +1).
+Hostile equipment is generated from the civ's equipment table with a peril-scaled quality (`hostile gear tier = min(peril, 3)` metal tier; sieges +1). Members get `Skills` with every combat skill at `2 + HOSTILE_SKILL_PER_TIER × gear tier` (captains + 2) and no `Attributes` (`16`'s defaults apply).
 
 ### Arrival and warning
 

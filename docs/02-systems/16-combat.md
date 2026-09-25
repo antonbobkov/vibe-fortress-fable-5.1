@@ -60,6 +60,8 @@ Wound type from damage type (17): edge → `cut`; pierce → `puncture`; blunt �
 
 Two-handed weapons (`hands: 2`) cannot be used with a shield; the squad equipment logic respects this.
 
+Creatures without `Attributes` use `CREATURE_ATTRIBUTE_DEFAULT` (50) for every attribute, so natural attacks deal their listed damage. Creatures without `Skills` use `CREATURE_BASE_SKILL` (2) for every combat skill (natural attacks, weapon skills, `dodge`, `shield`). Hostile party members spawned by 18 receive `Skills` with every combat skill at `2 + HOSTILE_SKILL_PER_TIER × gearTier` (`HOSTILE_SKILL_PER_TIER` = 2), plus 2 for captains.
+
 ### Ranged resolution
 
 ```
@@ -189,6 +191,9 @@ Panel `military`; inspector section `creature › combat` (weapon, armor per par
 | `REEQUIP_CHECK_DAYS` | 3 | |
 | `SOLDIER_AMMO` | 25 | |
 | `ARMOR_MIN_SPEED_PERCENT` | 60 | |
+| `CREATURE_ATTRIBUTE_DEFAULT` | 50 | Baseline attribute value when Attributes component is absent |
+| `CREATURE_BASE_SKILL` | 2 | Baseline combat skill level when Skills component is absent |
+| `HOSTILE_SKILL_PER_TIER` | 2 | Combat skill per gear tier for spawned hostile party members |
 
 Weapon and armor values, hit weights per body plan, and the damage-type-versus-layer table are content.
 

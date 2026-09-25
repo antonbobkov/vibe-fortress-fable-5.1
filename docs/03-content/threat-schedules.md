@@ -117,7 +117,8 @@ From [creatures.md](creatures.md): initial spawns and caps per cavern; daily res
 | 2 | 150 | 2 `hollow_stalker` + 3 `hollow_crawler` | "The rock cracks below. The Hollow sends its hunters." |
 | 3 | 300 | 1 `magma_wyrm` (if none alive) + 2 `hollow_stalker` | "Fire moves in the deep. A wyrm has come up." |
 | 4 | 500 | 1 `hollow_maw` + 4 `hollow_crawler` + 2 `hollow_stalker` | "The Hollow opens its mouth." |
-| 5+ | every `HOLLOW_WAVE_DAYS` = 28 days after level 4 | wave `n`: `3 + n` crawlers, `1 + n/2` stalkers, a maw every third wave | "The Hollow does not forget." |
+
+After level 4, a wave every `HOLLOW_WAVE_DAYS` (28) days: wave n brings 3 + n crawlers, 1 + n/2 stalkers, and a maw every third wave; 'The Hollow does not forget.'
 
 A vein of deepsilver has 6 tiles on average (5 with one vein at wealth 2; two veins at wealth 3): mining one whole vein reaches level 1; two veins level 2 to 3; every vein on a wealth-4 map (18 tiles → 180) reaches level 2 and stays there unless the player keeps digging for the wyrm chamber's vein. Level 4 needs deliberate mining of deepsilver from the Sea of Fire's rim over years; it is the endgame.
 

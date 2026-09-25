@@ -759,7 +759,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
   deepThresholds: list({
     level: int,
     pressure: int,
-    emergence: arr(obj({ species: speciesRef, count: int })),
+    emergence: arr(obj({ species: speciesRef, count: int }), 1),
     text: str,
   }),
 

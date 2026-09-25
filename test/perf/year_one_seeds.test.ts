@@ -212,7 +212,7 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
   const missingInputEvents = w.events('JobBlocked').filter((e) => e['reason'] === 'missing_input');
   const talkedEvents = w.events('Talked');
 
-  const toDay = (tick: number | null | undefined): number | null => (tick == null ? null : Number((tick / TICKS_PER_DAY).toFixed(2)));
+  const toDay = (tick: number | null | undefined): number | null => (tick === null || tick === undefined ? null : Number((tick / TICKS_PER_DAY).toFixed(2)));
 
   const result: SeedRunResult = {
     seed,

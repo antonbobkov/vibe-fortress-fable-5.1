@@ -78,7 +78,7 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 |---|---|---|
 | `an_pasture` | 2 cows, pasture of 20 grass tiles | condition stays < 60 over a season; grass regrows |
 | `an_starve` | cow with no grass | `AnimalStarving` by day 3; death `ANIMAL_STARVE_DAYS` later |
-| `an_breed` | cow + bull in a pasture, 2 seasons | ≥ 1 `AnimalBorn` |
+| `an_breed` | cow and bull in a pasture, one year (112 days) | ≥ 1 `AnimalBorn` (conception by day 52 is needed: 96% at `BREED_PERMILLE` 60) |
 | `an_flee` | deer 8 tiles from a dwarf | deer enters `flee` within 10 ticks; distance increases |
 | `an_predator` | wolf pack near unarmed dwarves, `beastwood` | ≥ 1 attack within a day; wolves flee below their species `flee` percent (45; `FLEE_BLOOD_PERCENT` is only the default) |
 | `an_tame` | caged boar, kennel, trainer skill 10 | `AnimalTamed` within 5 attempts |
@@ -90,14 +90,14 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 | `fo_hunt` | hunter with crossbow + 20 bolts, one deer | `HuntKill` within a day; corpse hauled to the butcher; meat 3, hide 1, bones 1 |
 | `fo_no_ammo` | hunter with crossbow and no bolts | no `hunt` job; jobs panel reason `no_tool` |
 | `fo_fish` | fishing zone on a river, fisher skill 5, 7 days | ≥ 2 `FishCaught`; pool regenerates |
-| `fo_butcher_rot` | corpse left 20 days | `skeleton`; butchering yields bones only |
+| `fo_butcher_rot` | corpse left 21 days | `skeleton`; butchering yields bones only |
 
 ## 10 Dwarves
 
 | id | Scenario | Expected |
 |---|---|---|
 | `dw_needs` | 7 dwarves, food and drink stocked, 3 days | each eats 3–5 times and drinks 6–8 times; no need reaches 100 |
-| `dw_starve` | no food | `Starving` at hunger 100; `Starvation` damage daily after `STARVE_DAYS`; death after about 12 more days |
+| `dw_starve` | no food | `Starving` at hunger 100; `Starvation` damage daily after `STARVE_DAYS`; death on the 13th day of damage |
 | `dw_sleep` | beds assigned | each dwarf sleeps once per day in their own bed; `Slept { ownBed: true }` |
 | `dw_critical_interrupt` | miner mid-dig with thirst forced to 90 | job returns to open with progress kept; miner drinks; job resumes |
 | `dw_child` | immigrant child | only hauling jobs; adult on the 12th birthday |
@@ -163,10 +163,10 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 
 | id | Scenario | Expected |
 |---|---|---|
-| `cb_hit_table` | 10,000 attacks skill 5 vs dodge 5, equal agility | hit rate 50% ± 2% |
-| `cb_armor` | iron axe vs iron mail torso, 1,000 hits | mean damage 7 ± 1; no wound above light |
+| `cb_hit_table` | 10,000 attacks, skill 5 vs dodge 5, equal agility, defender without weapon or shield | hit rate 50% ± 2% |
+| `cb_armor` | a common iron axe (attacker Strength 50) vs a common iron mail shirt and tunic (defender Toughness 50), 1,000 torso hits | damage 7 on every hit; every wound light |
 | `cb_worked_examples` | the four examples in weapons-and-armor.md | numbers match ±1 |
-| `cb_ranged` | crossbow skill 6 at range 8 vs deer | hit 33% ± 3% over 2,000 shots; bolts drop and 20% break |
+| `cb_ranged` | crossbow, skill 6, range 8, at a deer (a fresh deer replaces a dead one) | hit 33% ± 3% over 2,000 shots; 17–23% of the bolts break, the rest drop |
 | `cb_squad_station` | squad active at a station, raid arrives | members engage within perception; civilians flee |
 | `cb_training` | squad in barracks with training axes, 10 days | weapon skill rises; no wounds |
 | `cb_alert_hearth` | `SetAlert hearth` | civilians reach the hearth hall; `lock_on_alert` doors lock within grace |
@@ -175,18 +175,18 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 
 | id | Scenario | Expected |
 |---|---|---|
-| `he_bleed` | serious cut, no treatment | unconscious after ~600 ticks; dead after ~1,000 |
-| `he_bandage` | same with a hospital, medic, cloth | `stop_bleeding` within 300 ticks of admission; survives; `PatientHealed` in ~15 days |
+| `he_bleed` | a dwarf with Toughness 50 and a serious cut on the torso, no treatment | unconscious at 600 ± 10 ticks; dead at 800 ± 10 ticks |
+| `he_bandage` | same, with a hospital, cloth (no thread) and a medic of medicine skill 20 | `stop_bleeding` within 300 ticks of admission; survives; `PatientHealed` at day 15 ± 1 |
 | `he_fracture` | fracture untreated vs splinted | untreated: `badly_healed_*` permanent; splinted: none |
-| `he_infection` | untreated cut for 10 days | ≥ 60% infected over 100 runs; brightleaf cure in 3 days |
+| `he_infection` | a serious untreated cut, the dwarf sleeping in a bed, no miasma, 10 days | 49–74% infected over 100 runs (model 1 − 0.9⁹ = 61%); brightleaf cures in 3 days |
 | `he_limb` | 60 damage to an arm (maxHp 36) | `LimbLost`; cannot wield two-handed |
-| `he_fall` | dwarf falls 3 levels | 54 damage to a leg or torso; fracture likely |
+| `he_fall` | a dwarf falls 3 levels | 54 damage to the torso, or damage capped at the leg's hp − 1 to a leg; a fracture either way; never `LimbLost` |
 
 ## 18 Threats
 
 | id | Scenario | Expected |
 |---|---|---|
-| `th_schedule` | peril 1 region, 3 years | no raid before autumn year 2; sizes 5–12 |
+| `th_schedule` | peril 1 region, 3 years | no raid before autumn year 2; `size` 5–12 (the captain is added on top) |
 | `th_warning` | peril 2, first raid | `ThreatWarning` exactly `WARNING_DAYS` before `RaidArrived`; half under fog |
 | `th_loiter` | raid with the gate up | party loiters; `RaidEnded { withdrew }` after 2 days |
 | `th_retreat` | raid loses half its members | `RaidEnded { repelled }`; `raid_repelled` thought |
@@ -211,17 +211,17 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 |---|---|---|
 | `td_schedule` | 2 years | Hillfolk day 5–18 of summer year 1; Wildwood autumn year 1; Mountainhome spring year 2 |
 | `td_no_depot` | no depot | `CaravanWaiting`; leaves after 3 days; reputation −2 |
-| `td_offer` | the worked example in balance.md | accepted; reputation +3; refused when 30 ☼ short with the shortfall reported |
+| `td_offer` | the worked example in `balance.md` (30 fine stone crafts and 42 lavish meals for goods priced 2,000) | accepted; reputation +4; with 41 meals refused, shortfall 12 |
 | `td_wood_penalty` | offer 3 oak chairs to the Wildwood | reputation −6; trade still accepted if value suffices |
 | `td_attack` | kill a merchant | `CaravanLost`; reputation −60 (−50 for the killing, −10 for the lost caravan); no caravan for 2 years |
-| `td_requests` | request iron bars from Hillfolk | next caravan carries ≥ 5 iron bars |
+| `td_requests` | request iron bars from the Mountainhome | its next caravan carries ≥ 5 iron bars |
 
 ## 21 Immigration
 
 | id | Scenario | Expected |
 |---|---|---|
 | `im_guaranteed` | year 1, hall spirit 30 | waves at summer and autumn regardless |
-| `im_threshold` | year 2, spirit 60 vs 70 | 60: `ImmigrationSkipped { spirit }`; 70: wave with probability ~70% (over 100 seeds: 60–80) |
+| `im_threshold` | year 2, spirit 60 vs 70 | 60: `ImmigrationSkipped { spirit }`; 70: a wave with probability ~70% (over 100 seeds: 58–82) |
 | `im_cap` | cap 20, population 20 | skipped `cap` |
 | `im_composition` | fortress with no medic | ≥ 1 medic in the next 2 waves (over 20 seeds, ≥ 90%) |
 
