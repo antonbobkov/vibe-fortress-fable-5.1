@@ -23,12 +23,13 @@ Findings F-01 to F-06 were reproduced and their fixes prototyped on a scratch co
 | [F-07](F-07-recipe-constraints-as-content.md) | Recipe constraints as content, not `if (recipe.id === …)` | M | F-06 | Hard-coded content ids in `operate.ts` violate the content-driven rule |
 | [F-08](F-08-m6-m7-spec-arithmetic.md) | M6/M7 spec arithmetic, combat-skill gap, Deep emergence export, embark supply prose | M | — | The acceptance tests M6/M7 inherit contradict their own rules; M6 needs numbers the spec never gives |
 | [F-09](F-09-small-fixes.md) | Small fixes: announcement text, partial todo scenarios, dead seam, test tiers, gate checklist, perf fixture | M | F-01 | Visible bugs and test-hygiene items that are cheap now |
+| [F-10](F-10-need-rates.md) | Need rates: make consumption match the documented season | M | — | Hunger and thirst overshoot the spec's own season figure by ~3×, so a first fortress starves before its first harvest |
 
-Suggested order: F-01 first (it changes the timing of most scenarios and so the golden hashes), then F-02, F-03 and F-05 in any order, then F-04, then F-06 and F-07, with F-08 and F-09 at any point before T-M6-01. **Every task in this folder must be done before T-M6-01 starts.**
+Suggested order: F-01 first (it changes the timing of most scenarios and so the golden hashes), then **F-10** (it changes need timing, so F-02's and F-04's bounds must be measured after it), then F-02, F-03 and F-05 in any order, then F-04, then F-06 and F-07, with F-08 and F-09 at any point before T-M6-01. **Every task in this folder must be done before T-M6-01 starts.**
 
-## The one open owner question
+## The open owner question — answered
 
-Every decision an agent needs is made in these documents, except one balance question that belongs to the owner and does not block any task: whether the embark's food and drink should last longer before M6 makes starvation and dehydration lethal. The Balanced preset feeds seven dwarves for about 6 days and waters them for about 3.5. See [F-08 § Owner question](F-08-m6-m7-spec-arithmetic.md#owner-question-not-for-the-agent). Without an answer, T-M8-06 decides from the recorded balance findings.
+The one question reserved for the owner was whether the embark's food and drink should last longer before M6 makes starvation and dehydration lethal. **Answered 2026-09-25:** change the need rates rather than the presets, anchoring them to the season `embark-catalog.md` already documents (about 100 food and 150 drink for seven dwarves). Hunger becomes 1/h and thirst 1.6/h; the presets and `EMBARK_BUDGET_BASE` are untouched. This is [F-10](F-10-need-rates.md). See [F-08 § Owner question](F-08-m6-m7-spec-arithmetic.md#owner-question-not-for-the-agent) for the reasoning and the rejected alternative.
 
 ## Progress block
 
@@ -46,6 +47,7 @@ This block is already in [`../PROGRESS.md`](../PROGRESS.md), between the M5 and 
 - [ ] F-07 — Recipe constraints as content
 - [ ] F-08 — M6/M7 spec arithmetic and gaps
 - [ ] F-09 — Small fixes
+- [ ] F-10 — Need rates: consumption matches the documented season
 ```
 
 Commit messages follow the plan's convention: `F-01: job assignment livelock`.

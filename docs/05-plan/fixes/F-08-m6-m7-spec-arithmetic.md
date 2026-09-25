@@ -143,7 +143,9 @@ With M6, starvation and dehydration kill (death roughly 12 days after damage sta
 - halve the need rates (hunger 1.5/h, thirst 2.5/h), which halves every farm and still size in `balance.md`;
 - raise the presets' food and drink.
 
-Without a decision, T-M8-06 decides from the balance findings.
+**Answered (2026-09-25).** The owner chose to change the rates, not the presets, and anchored them to a figure the specification already states: `embark-catalog.md` § Rules of thumb says a season for seven dwarves is about 100 food units and 150 drink units, which the old rates overshot by about 3×. Hunger becomes 1/h and thirst 1.6/h, making that sentence true; the presets and `EMBARK_BUDGET_BASE` stay as they are. Raising the presets instead would have needed about +700 embark points against a base of 1500. The owner also wanted the secondary effect of fewer need interruptions during long tasks.
+
+This is now its own task, [F-10](F-10-need-rates.md), because F-08 changes no constant and no content. The balance findings this task records still stand; T-M8-06 re-measures them against the new rates.
 
 ## Done
 
