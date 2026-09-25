@@ -23,7 +23,7 @@ Move water and magma through the map in a way that is cheap at scale and rich en
 For each active tile `T` with level `L > 0`, in the order below, each rule may move fluid at most once per step; a tile that moved by an earlier rule does not try later rules in the same step.
 
 1. **Fall.** Let `B` be the tile below. If `B` is passable for fluid, contains no fluid of the other type, and `B.level < FLUID_MAX_LEVEL`: move `min(L, FLUID_MAX_LEVEL − B.level)` units from `T` to `B`. (A hatch closed over `T` blocks the fall.)
-2. **Spread.** For each of the four cardinal neighbors `N` on the same level, visited in a rotating order that advances by one each step (so no direction is favored over time): if `N` is passable for fluid, contains no fluid of the other type, and `N.level < L − 1`: move one unit from `T` to `N`. If `N.level == L − 1`, move one unit with probability `SPREAD_EQUALIZE_PERMILLE` from the fluids rng stream. Stop after `T` has given away `SPREAD_MAX_PER_STEP` units.
+2. **Spread.** For each of the four cardinal neighbors `N` on the same level, visited in a rotating order that advances by one each step (so no direction is favored over time): if `N` is passable for fluid, contains no fluid of the other type, and `N.level < L − 1`: move one unit from `T` to `N`. If `N.level == L − 1` and `N.level ≥ 1`, and `T` has made fewer than `FLUID_EQUALIZE_BUDGET` such equalizing moves since its level was last written by any other rule (a fall, a spread of two or more, pressure, a refill, a drain, evaporation, steam, freezing, thawing or an outside write), move one unit with probability `SPREAD_EQUALIZE_PERMILLE`. Equalizing never moves water into an empty tile, so a level-1 film is at rest; and because only real flow renews the budget, a closed body with uneven levels stops swapping units within a bounded number of steps and settles (C-002). Stop after `T` has given away `SPREAD_MAX_PER_STEP` units.
 3. **Pressure.** Only if `L == FLUID_MAX_LEVEL` and neither rule above moved anything: let `A` be the tile above `T`. If `A` is passable for fluid, contains no fluid of the other type, `A.level < FLUID_MAX_LEVEL`, and there exists a tile `H` in `T`'s body with `H.z > A.z`, then move one unit from `H` to `A`. `H` is found by a breadth-first search over full same-type tiles starting from `T`, stopping at the first tile with `z > A.z`, bounded by `PRESSURE_SEARCH_LIMIT` tiles and by the per-step `PRESSURE_BUDGET_TILES` budget shared across all tiles; if the budget runs out, the tile is retried next step. Sources count as `H` at their own z and never lose units.
 4. **Evaporate.** Water only. If `L == 1`, `T` is not a source, and no cardinal or vertical neighbor contains water: with probability `WATER_EVAPORATE_PERMILLE` the unit vanishes. Magma at level 1 stays.
 
@@ -104,6 +104,7 @@ When a step ends with water at level ≥ 1 on a tile whose kind is `floor` and w
 - `sources: TileIndex[]` per type; `sinks: TileIndex[]`.
 - `outdoorWaterTiles: SortedSet<TileIndex>`; `frozenOriginalKind: Map<TileIndex, kind>`.
 - `mistTiles: Map<TileIndex, expiresTick>`.
+- `equalizeCounts`: equalizing moves made by each tile since its level was last written by another rule (non-zero entries only).
 - The rng stream state.
 
 ## Interfaces
@@ -145,6 +146,7 @@ Overlay `fluid levels` (digits 1–7 on fluid tiles); inspector section `tile �
 |---|---|---|
 | `FLUID_SETTLE_STEPS` | 8 | Idle steps before a tile sleeps |
 | `SPREAD_EQUALIZE_PERMILLE` | 500 | Chance to move a unit into a neighbor at level − 1 |
+| `FLUID_EQUALIZE_BUDGET` | 16 | Equalizing moves a tile may make between two real flows |
 | `SPREAD_MAX_PER_STEP` | 2 | Units a tile may give away sideways per step |
 | `PRESSURE_SEARCH_LIMIT` | 256 | Tiles per body search |
 | `PRESSURE_BUDGET_TILES` | 4000 | Total search tiles per step |

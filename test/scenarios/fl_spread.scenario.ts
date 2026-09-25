@@ -2,12 +2,8 @@
  * `fl_spread` of `04-implementation/acceptance-tests.md` § 04 Fluids: "7 units in one tile of a
  * 5×5 sealed floor | after 200 steps all 25 tiles at level 0–1 with Σ = 7; every tile settled".
  *
- * C-002: rule 2's equalizing draw moves a level-1 unit into an empty neighbour with
- * `SPREAD_EQUALIZE_PERMILLE` every step, so level-1 water never settles, and rule 4 evaporates the
- * units that wander off on their own, so Σ = 7 cannot hold either. The rules are implemented as
- * written; this scenario is reported as `it.todo('C-002')`, and the part that holds (every tile at
- * 0–1, Σ plus the evaporated units = 7) is the unit test "7 units in one tile of a sealed 5×5
- * floor …" in `test/unit/fluids/fluids.test.ts`.
+ * Resolved by F-03 (C-002): equalizing moves require a non-empty neighbour (level >= 1) and
+ * spend a per-tile budget of FLUID_EQUALIZE_BUDGET (16), so level-1 film settles and does not evaporate.
  */
 
 import { expect } from 'vitest';
@@ -29,7 +25,6 @@ const scenario: Scenario = {
   seed: 'fl-spread',
   world: 'flat-test',
   embark: 'none',
-  todo: 'C-002',
   setup: (w) => {
     for (const t of floor(w)) w.carve(t, TileKind.Floor);
     w.setFluid(w.index(42, 42, Z), 7);

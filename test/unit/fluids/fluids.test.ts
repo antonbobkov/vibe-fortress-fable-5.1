@@ -10,7 +10,7 @@ import { METAL, carve, harness } from './harness';
 describe('T-M3-01 fluids: tuning constants', () => {
   it('every row of 04 § Tuning constants is in src/systems/fluids/constants.ts', () => {
     const rows = tuningConstants('02-systems/04-fluids.md');
-    expect(rows.length).toBe(12);
+    expect(rows.length).toBe(13);
     const values = K as unknown as Record<string, number>;
     for (const row of rows) expect([row.name, values[row.name]]).toEqual([row.name, row.value]);
   });
@@ -99,13 +99,14 @@ describe('T-M3-01 fluids: rule 2, spread', () => {
     expect(Math.abs(eastWest / seeds)).toBeLessThanOrEqual(2);
   });
 
-  it('7 units in one tile of a sealed 5×5 floor end with every tile at 0-1 and Σ 7 after 200 steps (C-002: they keep wandering)', () => {
+  it('7 units in one tile of a sealed 5×5 floor end with every tile at 0-1 and Σ 7 after 200 steps', () => {
     const h = harness('spread-5x5', 7, 7, 3);
     const tiles = carve(h.map, 1, 1, 1, 5, 5);
     h.sim.pour(h.map.index(1, 1, 1), 7);
     h.steps(200);
     for (const t of tiles) expect(h.sim.level(t)).toBeLessThanOrEqual(1);
-    expect(h.sum(tiles) + h.sim.destroyedUnits).toBe(7);
+    expect(h.sum(tiles)).toBe(7);
+    expect(h.sim.destroyedUnits).toBe(0);
   });
 });
 
@@ -206,5 +207,63 @@ describe('T-M3-01 fluids: the system', () => {
     loaded.step(60);
     expect(loaded.hash()).toBe(w.hash());
     expect(w.fluidSum(floor)).toBe(7);
+  });
+});
+
+describe('F-03 equalize budget', () => {
+  it('a closed 1×10 channel with 25 units settles', () => {
+    const h = harness('channel-25', 12, 3, 3);
+    const channel = carve(h.map, 1, 1, 1, 10, 1);
+    const levels = [7, 6, 5, 4, 3, 0, 0, 0, 0, 0];
+    for (let i = 0; i < 10; i += 1) {
+      if (levels[i]! > 0) h.sim.pour(channel[i]!, levels[i]!);
+    }
+    h.steps(500);
+    expect(h.sim.activeCount()).toBe(0);
+    expect(h.sum(channel)).toBe(25);
+  });
+
+  it('equalizing never moves into an empty tile', () => {
+    const h = harness('empty-tile', 7, 7, 3);
+    const floor = carve(h.map, 1, 1, 1, 5, 5);
+    const t1 = h.map.index(3, 3, 1);
+    const t2 = h.map.index(3, 4, 1);
+    h.sim.pour(t1, 1);
+    h.sim.pour(t2, 1);
+    h.steps(200);
+    expect(h.sim.level(t1)).toBe(1);
+    expect(h.sim.level(t2)).toBe(1);
+    for (const t of floor) {
+      if (t !== t1 && t !== t2) expect(h.sim.level(t)).toBe(0);
+    }
+    expect(h.sim.destroyedUnits).toBe(0);
+  });
+
+  it('the budget resets on real flow', () => {
+    const h = harness('reset-flow', 5, 5, 4);
+    const lower = h.map.index(2, 2, 1);
+    const upper = h.map.index(2, 2, 2);
+    h.map.kind[lower] = TileKind.Floor;
+    h.map.kind[upper] = TileKind.Open;
+    h.sim.pour(lower, 3);
+    h.sim.eqCount[lower] = K.FLUID_EQUALIZE_BUDGET;
+    expect(h.sim.eqCount[lower]).toBe(K.FLUID_EQUALIZE_BUDGET);
+    h.sim.pour(upper, 2);
+    h.steps(1);
+    expect(h.sim.level(lower)).toBe(5);
+    expect(h.sim.eqCount[lower]).toBe(0);
+  });
+
+  it('equalize counts survive save and load', () => {
+    const w = new TestWorld({ seed: 'eq-save-load', world: 'flat-test' });
+    const floor: number[] = [];
+    for (let x = 20; x < 30; x += 1) floor.push(w.index(x, 20, 25));
+    for (const t of floor) w.carve(t, TileKind.Floor);
+    w.setFluid(floor[0]!, 7);
+    w.step(15);
+    const loaded = roundTrip(w.game).game;
+    w.step(100);
+    loaded.step(100);
+    expect(w.game.world.map.fluid).toEqual(loaded.world.map.fluid);
   });
 });

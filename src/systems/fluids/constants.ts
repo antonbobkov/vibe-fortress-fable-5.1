@@ -7,6 +7,8 @@
 export const FLUID_SETTLE_STEPS = 8;
 /** Chance to move a unit into a neighbor at level − 1. */
 export const SPREAD_EQUALIZE_PERMILLE = 500;
+/** Equalizing moves a tile may make between two real flows. */
+export const FLUID_EQUALIZE_BUDGET = 16;
 /** Units a tile may give away sideways per step. */
 export const SPREAD_MAX_PER_STEP = 2;
 /** Tiles per body search. */

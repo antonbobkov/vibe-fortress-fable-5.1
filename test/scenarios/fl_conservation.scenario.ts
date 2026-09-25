@@ -56,14 +56,15 @@ const scenario: Scenario = {
     }
   },
   expect: (w) => {
-    // At rest: the floor level full, the open level above empty, nothing left moving.
+    // Decision F-03d: at rest with equalize budget.
+    expect(w.fluids.reader().activeCount()).toBe(0);
     for (let y = Y; y < Y + SIZE; y += 1) {
       for (let x = X; x < X + SIZE; x += 1) {
-        expect(w.fluids.sim.level(w.index(x, y, FLOOR_Z))).toBe(FLUID_MAX_LEVEL);
-        expect(w.fluids.sim.level(w.index(x, y, FLOOR_Z + 1))).toBe(0);
+        expect(w.fluids.sim.level(w.index(x, y, FLOOR_Z))).toBeGreaterThanOrEqual(6);
+        expect(w.fluids.sim.level(w.index(x, y, FLOOR_Z + 1))).toBeLessThanOrEqual(1);
       }
     }
-    expect(w.fluids.reader().activeCount()).toBe(0);
+    expect(w.fluidSum(basin(w))).toBe(700);
   },
 };
 

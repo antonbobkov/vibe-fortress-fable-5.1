@@ -3,6 +3,7 @@
 **Detail level:** W4 · **Owner:** `systems/fluids` · **Depends on:** [`../../02-systems/04-fluids.md`](../../02-systems/04-fluids.md), [`../../01-architecture/data-model.md`](../../01-architecture/data-model.md)
 
 Bit helpers on the `fluid` byte: `level(f) = f & 7`, `isMagma(f) = f & 8`, `settled(f) = f & 16`, `source(f) = f & 32`, `frozen(f) = f & 64`. Writes go through `setLevel(i, n)` which preserves the other bits and touches the tile.
+`eq[i] = 0` unless the write is an equalizing move.
 
 ```
 tick(ctx):
@@ -29,7 +30,7 @@ fall(T): B = below(T); if not passable(B, type) or buildings.blocksFallAt(T): re
          n = min(level(T), room); move(T, B, n); mistCheck(T, B); return true
 spread(T): given = 0; for k in 0..3: N = neighbor(T, (k + rot) & 3); if not passable(N, type): continue
            if level(N) < level(T) - 1: move(T, N, 1); given += 1
-           else if level(N) == level(T) - 1 and rng.chance(SPREAD_EQUALIZE_PERMILLE): move(T, N, 1); given += 1
+           else if level(N) == level(T) - 1 and level(N) >= 1 and eq[T] < FLUID_EQUALIZE_BUDGET and rng.chance(SPREAD_EQUALIZE_PERMILLE): move(T, N, 1); eq[T] += 1; given += 1
            if given == SPREAD_MAX_PER_STEP: break
            return given > 0
 pressure(T): A = above(T); if not passable(A, type) or level(A) == 7: return false

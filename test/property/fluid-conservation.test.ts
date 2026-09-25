@@ -79,5 +79,24 @@ describe('T-M3-01 property: fluid conservation', () => {
     );
   });
 
-  it.todo('C-002: every tile settles (rule 2 equalizes level differences of one for ever)');
+  it('F-03: every tile settles: after 500 steps the only active tiles are isolated level-1 water tiles waiting to evaporate', () => {
+    fc.assert(
+      fc.property(basinArb, (b) => {
+        const { h } = build(b);
+        for (let s = 0; s < 500; s += 1) {
+          h.sim.step(b.magma);
+        }
+        for (let c = 0; c < h.sim.active.length; c += 1) {
+          for (const t of h.sim.active[c] as number[]) {
+            expect(h.sim.isMagma(t)).toBe(false);
+            expect(h.sim.level(t)).toBe(1);
+            for (const n of h.map.neighbors6(t)) {
+              expect(h.sim.level(n)).toBe(0);
+            }
+          }
+        }
+      }),
+      { numRuns: 25, seed: 3301 },
+    );
+  });
 });

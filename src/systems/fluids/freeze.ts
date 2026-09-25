@@ -86,6 +86,7 @@ export class Freezer {
       const was = this.original.get(t);
       if (this.sim.isFrozen(t) && (map.materialAt(t) !== this.host.ice || (was?.ice !== undefined && map.kindAt(t) !== was.ice))) {
         map.fluid[t] = 0;
+        this.sim.eqCount[t] = 0;
         map.markChunkDirty(t, true, false);
         this.original.delete(t);
       }
@@ -122,6 +123,7 @@ export class Freezer {
     this.original.set(t, { kind: map.kindAt(t), material: map.materialAt(t), ice: kind });
     sim.deactivate(t);
     map.fluid[t] = ((map.fluid[t] ?? 0) as number) | FLUID_FROZEN_BIT;
+    sim.eqCount[t] = 0;
     map.markChunkDirty(t, true, true);
     ctx.terrain.setKind(t, kind, this.host.ice);
     this.displace(t, ctx);
@@ -135,6 +137,7 @@ export class Freezer {
     this.original.delete(t);
     ctx.terrain.setKind(t, was.kind, was.material);
     map.fluid[t] = ((map.fluid[t] ?? 0) as number) & ~FLUID_FROZEN_BIT;
+    this.sim.eqCount[t] = 0;
     map.markChunkDirty(t, true, true);
     this.sim.touch(t);
     ctx.emit({ type: 'TileThawed', tile: t });

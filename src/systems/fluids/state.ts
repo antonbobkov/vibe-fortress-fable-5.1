@@ -37,6 +37,8 @@ export interface FluidsStateV1 {
   spreadRotation: 0 | 1 | 2 | 3;
   rng: RngState;
   freezePending: boolean;
+  /** Superset: non-zero equalize counts per tile, ascending (Decision F-03e). */
+  equalizeCounts?: [TileIndex, number][];
 }
 
 /** Keeps a sorted array of numbers sorted; true when the value was added. */

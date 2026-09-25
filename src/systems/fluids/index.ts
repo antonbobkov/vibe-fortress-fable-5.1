@@ -169,6 +169,11 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
       }
       offsets.push(active.length);
     }
+    const equalizeCounts: [TileIndex, number][] = [];
+    for (let i = 0; i < sim.eqCount.length; i += 1) {
+      const count = sim.eqCount[i] as number;
+      if (count > 0) equalizeCounts.push([i, count]);
+    }
     return {
       stateVersion: 1,
       active,
@@ -195,6 +200,7 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
       spreadRotation: sim.rotation,
       rng: (this.rng as RngStream).state(),
       freezePending: this.freezer.pending,
+      ...(equalizeCounts.length > 0 ? { equalizeCounts } : {}),
     };
   }
 
@@ -202,6 +208,10 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
     if (this.simRef === null) this.init(ctx);
     const sim = this.sim;
     const map = sim.map;
+    sim.eqCount.fill(0);
+    for (const [t, count] of state.equalizeCounts ?? []) {
+      sim.eqCount[t] = count;
+    }
     for (let c = 0; c < sim.active.length; c += 1) {
       const list = sim.active[c] as number[];
       for (const t of list) {

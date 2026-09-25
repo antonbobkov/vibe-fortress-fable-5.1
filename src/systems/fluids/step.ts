@@ -30,6 +30,7 @@ import type { RngStream } from '@core/rng';
 import type { TerrainApi } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import {
+  FLUID_EQUALIZE_BUDGET,
   FLUID_SETTLE_STEPS,
   MIST_DURATION_TICKS,
   OBSIDIAN_WALL_LEVEL,
@@ -117,6 +118,9 @@ export class FluidSim {
   readonly isActive: Uint8Array;
   /** Idle steps of an active tile. */
   readonly idle: Uint8Array;
+  /** Equalizing moves since last write by any other rule (F-03). */
+  readonly eqCount: Uint8Array;
+  private equalizing = false;
   readonly waterSources: number[] = [];
   readonly magmaSources: number[] = [];
   readonly sinks: number[] = [];
@@ -157,6 +161,7 @@ export class FluidSim {
     for (let c = 0; c < map.chunkCount; c += 1) this.active.push([]);
     this.isActive = new Uint8Array(map.tileCount);
     this.idle = new Uint8Array(map.tileCount);
+    this.eqCount = new Uint8Array(map.tileCount);
     this.seen = new Int32Array(map.tileCount);
   }
 
@@ -205,6 +210,7 @@ export class FluidSim {
     const keep = before & (FLUID_SOURCE_BIT | FLUID_FROZEN_BIT);
     const after = n <= 0 ? keep : keep | (before & FLUID_SETTLED_BIT) | (n & FLUID_LEVEL_MASK) | (magma ? FLUID_TYPE_BIT : 0);
     map.fluid[i] = after;
+    if (!this.equalizing) this.eqCount[i] = 0;
     if ((after & FLUID_SOURCE_BIT) !== 0 && (after & FLUID_LEVEL_MASK) < FLUID_MAX_LEVEL) this.noteDrained(i);
     this.levelChanged(i, before, after);
     this.onLevel?.(i);
@@ -446,8 +452,11 @@ export class FluidSim {
       if (ln < l - 1) {
         this.move(t, n, 1, magma);
         given += 1;
-      } else if (ln === l - 1 && this.host.rng.chance(SPREAD_EQUALIZE_PERMILLE)) {
+      } else if (ln === l - 1 && ln >= 1 && (this.eqCount[t] as number) < FLUID_EQUALIZE_BUDGET && this.host.rng.chance(SPREAD_EQUALIZE_PERMILLE)) {
+        this.equalizing = true;
         this.move(t, n, 1, magma);
+        this.equalizing = false;
+        this.eqCount[t] = ((this.eqCount[t] as number) + 1) & 0xff;
         given += 1;
       }
       if (given === SPREAD_MAX_PER_STEP) break;
@@ -568,6 +577,7 @@ export class FluidSim {
       const before = (map.fluid[y] ?? 0) as number;
       this.deactivate(y);
       map.fluid[y] = 0;
+      this.eqCount[y] = 0;
       if ((before & FLUID_SOURCE_BIT) !== 0) {
         sortedRemove(this.magmaSources, y);
         this.drainedMagma.delete(y);
