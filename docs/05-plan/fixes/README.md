@@ -24,8 +24,9 @@ Findings F-01 to F-06 were reproduced and their fixes prototyped on a scratch co
 | [F-08](F-08-m6-m7-spec-arithmetic.md) | M6/M7 spec arithmetic, combat-skill gap, Deep emergence export, embark supply prose | M | — | The acceptance tests M6/M7 inherit contradict their own rules; M6 needs numbers the spec never gives |
 | [F-09](F-09-small-fixes.md) | Small fixes: announcement text, partial todo scenarios, dead seam, test tiers, gate checklist, perf fixture | M | F-01 | Visible bugs and test-hygiene items that are cheap now |
 | [F-10](F-10-need-rates.md) | Need rates: make consumption match the documented season | M | — | Hunger and thirst overshoot the spec's own season figure by ~3×, so a first fortress starves before its first harvest |
+| [F-11](F-11-idle-responsiveness.md) | An idle dwarf notices work before `IDLE_TICKS` elapses | S | F-10 | An idle dwarf ignores new work for up to a game hour, wasting fortress time after every designation |
 
-Suggested order: F-01 first (it changes the timing of most scenarios and so the golden hashes), then **F-10** (it changes need timing, so F-02's and F-04's bounds must be measured after it), then F-02, F-03 and F-05 in any order, then F-04, then F-06 and F-07, with F-08 and F-09 at any point before T-M6-01. **Every task in this folder must be done before T-M6-01 starts.**
+Suggested order: F-01 first (it changes the timing of most scenarios and so the golden hashes), then **F-10** (it changes need timing, so F-02's and F-04's bounds must be measured after it), then **F-11**, then F-02, F-03 and F-05 in any order, then F-04, then F-06 and F-07, with F-08 and F-09 at any point before T-M6-01. **Every task in this folder must be done before T-M6-01 starts.**
 
 ## The open owner question — answered
 
@@ -48,6 +49,7 @@ This block is already in [`../PROGRESS.md`](../PROGRESS.md), between the M5 and 
 - [ ] F-08 — M6/M7 spec arithmetic and gaps
 - [ ] F-09 — Small fixes
 - [ ] F-10 — Need rates: consumption matches the documented season
+- [ ] F-11 — Idle dwarves notice work without waiting out IDLE_TICKS
 ```
 
 Commit messages follow the plan's convention: `F-01: job assignment livelock`.
