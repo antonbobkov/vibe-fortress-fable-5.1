@@ -76,8 +76,13 @@ Key flags:
   (`conversation_id`, `status`, `response`, `usage`, and `denied_actions` if
   anything was refused); `stream-json` gives NDJSON `init` / `step_update` /
   `result` events, comparable to codex's `--json`.
-- `--print-timeout <dur>` — default is now unlimited (was 5 min). Set it
-  explicitly on unattended runs.
+- `--print-timeout <dur>` — default is now unlimited (was 5 min). Always set it on
+  unattended runs. **It caps the total run, not silence.** In `-p` mode stdout is
+  buffered until exit (the output file stays 0 bytes for the whole run), so there
+  is no idle timeout to be had: the flag kills the run at N minutes whether it is
+  healthy or wedged. Healthy milestone-sized runs here take 30–90 min and a
+  multi-fix batch can exceed two hours, so keep it generous — **4h** is the value
+  in use. See [Stalls](#stalls-and-the-npx-trap) below.
 - `--conversation <id>` / `-c, --continue` — resume (below).
 - `--mode accept-edits|plan` — session execution mode.
 - `--sandbox` — accepted but, per the docs, terminal sandboxing exists only on
@@ -132,6 +137,65 @@ For many turns in one process there is `--input-format stream-json` (NDJSON
 a real TTY" problem reported online did not reproduce). Diagnostics go to stderr;
 in Windows PowerShell 5.1 don't use `2>&1` on it (it wraps each line in a
 `NativeCommandError`); use `2>$null` or redirect stdout only.
+
+## Stalls and the npx trap
+
+**Observed 2026-09-25:** a four-fix handoff committed its first fix, then hung for
+nearly two hours having produced no output at all. The cause: the agent wrote a
+perf test and ran it with an ad-hoc
+
+```
+npx tsx -e "import { runYearOneScript } from './test/perf/year_one_seeds.test'; ..."
+```
+
+`tsx` is not a dependency of this project, so `npx` had to fetch it, and npx
+cannot prompt in a non-interactive shell — it waited for an answer that never
+came. The process had used **1.1 seconds of CPU in 115 minutes**.
+
+Three layers, in order of value:
+
+1. **Prevent it.** Run agy with `npm_config_yes=1` in the environment, so an npx
+   fetch auto-confirms instead of blocking. This removes the whole failure class.
+   Also tell the agent in its brief: *use only the project's own npm scripts
+   (`lint`, `typecheck`, `content:check`, `test`, `test:e2e`, `test:perf`,
+   `golden:update`, `gate`); `npx vitest` is fine because vitest is a
+   devDependency; never `npx <tool>` for a tool not already in package.json.*
+2. **Tell it not to poll.** Left alone, agy launches long commands in the
+   background and then burns turns saying "Waiting for the background task to
+   complete" — one run did that ~25 times. Instruct it to run checks in the
+   foreground and let them finish (the suite is ~100 s), and to treat a command
+   silent for more than a few minutes as hung.
+3. **Backstop with `--print-timeout 4h`.** Blunt, but it needs no maintenance and
+   works even when everything else is wrong.
+
+### Diagnosing a suspected stall
+
+stdout tells you nothing (buffered until exit), so use progress plus CPU. A long
+healthy command burns CPU; a blocked one does not:
+
+```bash
+git -C <repo> log --oneline -3                      # did it commit anything?
+find src test docs -newermt "-20 minutes" -type f    # is it still writing files?
+```
+
+```powershell
+Get-Process | ? { $_.ProcessName -match 'agy|node' } |
+  Select ProcessName, Id, @{n='CPU_s';e={[math]::Round($_.CPU,1)}},
+         @{n='AgeMin';e={[math]::Round(((Get-Date)-$_.StartTime).TotalMinutes,1)}}
+# then, for a suspect pid, see what it actually is:
+Get-CimInstance Win32_Process -Filter "ProcessId=<pid>" | % { $_.CommandLine }
+```
+
+An old process with near-zero CPU and no recent file writes is stalled. Kill the
+children first, then `agy`, then resume the conversation (below) with a note
+saying what went wrong — the committed work stands and the model keeps its
+context.
+
+A psutil watchdog (no stream-json events **and** no tree CPU for N minutes ⇒ kill
+and print the offending process tree) was prototyped and verified to catch this in
+~1 min without killing a CPU-busy child. The owner deferred it in favour of
+layers 1 and 3, to be reconsidered only if stalls recur — so don't rebuild it
+without asking.
 
 ## Resuming
 
@@ -256,14 +320,36 @@ Resets in ..." message (reported online; exit code `3` per the changelog, both
 ```powershell
 $AGY = "$env:LOCALAPPDATA\agy\bin\agy.exe"
 Set-Location E:\code\vibe-games\vibe-fortress-fable-5.1
+$env:npm_config_yes = "1"      # an npx fetch must never block on a prompt
 # task text lives in a file; the prompt just points at it
 & $AGY -p="Read agents\tasks\next.md and follow it exactly. Run npm run typecheck and npm test before finishing and report any failures." `
-  --model gemini-3.8-flash-high --agent solo `
-  --dangerously-skip-permissions --print-timeout 60m `
+  --model gemini-3.8-flash-high `
+  --dangerously-skip-permissions --print-timeout 4h `
   --output-format json > last_run.json
 $r = Get-Content last_run.json -Raw | ConvertFrom-Json
 $r.status; $r.response; $r.denied_actions     # denied_actions must be empty
 ```
+
+Reading the envelope from Python needs **`encoding='utf-8-sig'`**: agy writes a
+UTF-8 BOM, so a plain `json.load` fails with `Unexpected UTF-8 BOM`.
+PowerShell's `ConvertFrom-Json` tolerates it.
+
+`status` is `SUCCESS` and `num_turns` is `1` even for a run that did hours of
+work across dozens of internal steps, so neither is a progress or health signal.
+`usage` is the useful one; one M-sized task here cost ~1.9M input tokens and
+~35M cache-read tokens.
+
+**Batching works well.** Assigning several fixes to one run avoids re-reading the
+repo context each time. Keep the brief invariant in one file and put the
+per-run list in a small `TASK.txt` beside it, with: do them in this order, **one
+commit per task**, each fully green before the next starts, and if you run out of
+budget the committed ones stand — say where you stopped. Verified on a
+three-fix batch (all three committed cleanly) and a four-fix batch.
+
+**Quota cost, measured:** roughly 4% of the Gemini weekly budget per M-sized
+task, and a batch of three spent about 70% of one 5-hour window. Check with
+[agy_usage.py](agy_usage.py) before dispatching a batch; the 5-hour window is
+usually the binding one.
 
 Drop `--agent solo` if you want agy to be free to parallelise with subagents.
 A milestone-sized run is long; give it a generous `--print-timeout`.
