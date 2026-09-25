@@ -23,12 +23,13 @@ Make dwarves' lives matter without letting misery snowball. A dwarf's mood is on
 ```
 positives    = min(POSITIVE_CAP, Σ value of active thoughts with value > 0)
 negatives    = min(NEGATIVE_CAP, Σ |value| of active thoughts with value < 0)
-needPressure = min(NEED_PRESSURE_CAP, Σ over needs of max(0, need − wantThreshold) × NEED_WEIGHT / 100)
+needPressure = floor(min(NEED_PRESSURE_CAP, Σ |value| of the active standing thoughts hungry, thirsty, tired, lonely))
 hearthBonus  = hearthHallTierIndex × HEARTH_TIER_BONUS          // 0 with no hearth; bare = 0 … royal = 5 × bonus
-mood = clamp(MOOD_MIN, MOOD_MAX, MOOD_BASELINE + positives − negatives − needPressure + hearthBonus + personalityBase)
+raw          = MOOD_BASELINE + positives − negatives − needPressure + hearthBonus + personalityBase
+mood         = clamp(MOOD_MIN, MOOD_MAX, max(raw, MOOD_NEEDS_MET_FLOOR − needPressure))
 ```
 
-With the constants below: baseline 55, positives up to +40, negatives down to −35, need pressure down to −20, hearth up to +10. A dwarf with every need met and no hearth has a floor of 20 (Unhappy, not Miserable). Reaching Miserable requires neglected needs. This is the design's anti-spiral guarantee, and the Wave 4 acceptance tests check it.
+With the constants below: baseline 55, positives up to +40, negatives down to −35, need pressure down to −20, hearth up to +10. The standing thoughts of the four survival and company needs count twice, once as thoughts and once as pressure: that is what makes neglect, and only neglect, able to take a dwarf below 20. With every need met, `needPressure` is 0 and mood is at least `MOOD_NEEDS_MET_FLOOR` (20, Unhappy, not Miserable) whatever the thoughts and the personality. This is the design's anti-spiral guarantee, and the Wave 4 acceptance tests check it.
 
 ### Tiers and effects
 
@@ -91,7 +92,7 @@ Sulks never involve violence, never target other dwarves' bodies, never destroy 
 
 ### Interaction with 10 needs
 
-Need pressure is part of the mood formula, so a hungry fortress is an unhappy fortress before it is a starving one. The standing need thoughts are for legibility: they appear in the dwarf's thought list with a value so the player sees "Hungry (−6)" rather than a silent pressure term. Their values are included in `negatives` and `needPressure` is not double-counted: the standing need thoughts *are* the pressure term (the formula's `needPressure` is computed and the standing thoughts display it; implementation uses one or the other consistently; Wave 4 fixes the representation as standing thoughts).
+Need pressure is part of the mood formula, so a hungry fortress is an unhappy fortress before it is a starving one. The standing need thoughts are both the legible form of the pressure ("Hungry (−6)" in the dwarf's thought list) and its measure: all seven count among `negatives`, and `hungry`, `thirsty`, `tired` and `lonely` also make up `needPressure`. `uncomfortable`, `restless` and `bored` are ordinary standing negatives: a fortress without chairs or a meeting area is gloomier, not miserable.
 
 ## State
 
@@ -137,6 +138,7 @@ Panel `mood`; inspector section `creature › mood` (mood, tier, thoughts sorted
 | `POSITIVE_CAP` | 40 | |
 | `NEGATIVE_CAP` | 35 | |
 | `NEED_PRESSURE_CAP` | 20 | |
+| `MOOD_NEEDS_MET_FLOOR` | 20 | Mood floor while no need is neglected |
 | `NEED_WEIGHT` | 40 | Per point of need over its want threshold, /100 |
 | `HEARTH_TIER_BONUS` | 2 | Per hearth hall tier index (bare 0 … royal 5) |
 | `SULK_DAYS` | 7 | Consecutive days Miserable before a sulk |

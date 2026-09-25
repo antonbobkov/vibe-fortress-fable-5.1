@@ -7,6 +7,7 @@ import type { ThoughtDef } from './thoughts';
 export const POSITIVE_CAP = 40;
 export const NEGATIVE_CAP = 35;
 export const NEED_PRESSURE_CAP = 20;
+export const MOOD_NEEDS_MET_FLOOR = 20;
 export const HEARTH_TIER_BONUS = 2;
 export const SULK_DAYS = 7;
 export const UNBURIED_DAYS = 3;
@@ -29,9 +30,12 @@ export function currentValue(thought: ActiveThought, def: ThoughtDef, tick: numb
   return Math.abs(value) < 1 ? 0 : value;
 }
 
-/** Standing need thoughts already carry need pressure inside the shared negative cap. */
-export function moodValue(values: readonly { value: number }[], hearthTier: number, personalityBase: number): number {
+/** F-02: mood formula with need pressure as its own term and the needs-met floor. */
+export function moodValue(values: readonly { value: number; need?: boolean }[], hearthTier: number, personalityBase: number): number {
   const positives = Math.min(POSITIVE_CAP, values.reduce((n, v) => n + Math.max(0, v.value), 0));
   const negatives = Math.min(NEGATIVE_CAP, values.reduce((n, v) => n + Math.max(0, -v.value), 0));
-  return Math.max(MOOD_MIN, Math.min(MOOD_MAX, MOOD_BASELINE + positives - negatives + hearthTier * HEARTH_TIER_BONUS + personalityBase));
+  const needPressure = Math.floor(Math.min(NEED_PRESSURE_CAP, values.reduce((n, v) => n + (v.need ? Math.max(0, -v.value) : 0), 0)));
+  const hearthBonus = hearthTier * HEARTH_TIER_BONUS;
+  const raw = MOOD_BASELINE + positives - negatives - needPressure + hearthBonus + personalityBase;
+  return Math.max(MOOD_MIN, Math.min(MOOD_MAX, Math.max(raw, MOOD_NEEDS_MET_FLOOR - needPressure)));
 }

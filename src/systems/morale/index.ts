@@ -13,7 +13,7 @@ import type { ItemsReader } from '@systems/items';
 import { TileFlag } from '@core/map3d';
 import { currentValue, moodValue, productivity, tierOf } from './mood';
 import { baseValue, eventPredicate, eventTargets, personalityBase, personalityMultiplier, triggerEvent, worldPredicate, type ThoughtDef } from './thoughts';
-import { standingThoughts } from './standing';
+import { NEED_PRESSURE_THOUGHTS, standingThoughts } from './standing';
 import { advanceSulkCounter, doSulk, sulkKind } from './sulks';
 import type { MoraleReader, ThoughtView } from './reader';
 import type { MoraleStateV1 } from './state';
@@ -21,6 +21,7 @@ import type { MoraleStateV1 } from './state';
 export * from './mood';
 export * from './thoughts';
 export { advanceSulkCounter, sulkKind, doSulk } from './sulks';
+export { NEED_PRESSURE_THOUGHTS } from './standing';
 export type { MoraleReader, ThoughtView } from './reader';
 
 export const MORALE_ID = '15';
@@ -234,7 +235,7 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
       }
       const values = next.map((thought) => {
         const def = thoughts.byIndex(thought.thought) as ThoughtDef;
-        return { value: currentValue(thought, def, ctx.tick) };
+        return { value: currentValue(thought, def, ctx.tick), need: NEED_PRESSURE_THOUGHTS.has(def.id) };
       });
       const value = moodValue(values, hearth, personalityBase(ctx.registry, traits));
       const tier = tierOf(value);

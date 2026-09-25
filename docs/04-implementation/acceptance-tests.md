@@ -152,8 +152,8 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 
 | id | Scenario | Expected |
 |---|---|---|
-| `mo_floor` | every need met, apply every negative thought at once | mood ≥ 20 (never Miserable) |
-| `mo_misery_needs` | no food, no drink, no beds for 7 days | mood < 20 for some dwarves; exactly one sulk per dwarf per 7 days; no dwarf harmed by a sulk |
+| `mo_floor` | every need met; every negative event thought applied at once; three dwarves: sensitive + timid, stoic + brave, neither | mood ≥ 20 for each; exactly 20 for the sensitive + timid dwarf |
+| `mo_misery_needs` | 7 dwarves, no food, loose ale only, no beds or furniture, 14 days | mood < 20 for some dwarf by day 7; each dwarf sulks exactly on the days the sulk rule gives for its daily tiers (never twice within `SULK_DAYS`); ≥ 1 sulk; no dwarf dies |
 | `mo_caps` | 20 positive thoughts | positives contribute ≤ 40 |
 | `mo_hall_spirit` | good fortress (decent rooms, meals, ale, hearth hall decent) | hall spirit ≥ 65 within 7 days |
 | `mo_grief` | a friend dies; buried within a day | `friend_died` −15 halving every ~4.7 days; `buried_friend` +8 |

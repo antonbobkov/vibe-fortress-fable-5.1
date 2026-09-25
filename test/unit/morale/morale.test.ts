@@ -3,7 +3,7 @@ import { contentRegistry } from '@content/loader';
 import { C } from '@core/components';
 import { TICKS_PER_HOUR } from '@core/constants';
 import type { GameEvent } from '@core/events';
-import { advanceSulkCounter, currentValue, eventPredicate, moodValue, personalityMultiplier, productivity, sulkKind, tierOf, triggerEvent, type MoraleReader, type ThoughtDef } from '@systems/morale';
+import { advanceSulkCounter, currentValue, eventPredicate, moodValue, NEED_PRESSURE_THOUGHTS, personalityMultiplier, productivity, sulkKind, tierOf, triggerEvent, type MoraleReader, type ThoughtDef } from '@systems/morale';
 import { TestWorld } from '../../scenarios/test-world';
 import type { BuildingsSystem } from '@systems/buildings';
 
@@ -93,12 +93,24 @@ describe('T-M4-13 morale thoughts and mood', () => {
     expect(reader.productivity(dwarf)).toBe(w.readers.of<MoraleReader>('15').productivity(dwarf));
   });
 
-  it('applies positive and negative caps and pins C-006 personality floor conflict', () => {
+  it('F-02: caps, need pressure and the needs-met floor', () => {
     expect(moodValue([{ value: 100 }], 0, 0)).toBe(95);
     expect(moodValue([{ value: -100 }], 0, 0)).toBe(20);
-    expect(moodValue([{ value: -100 }], 0, -6)).toBe(14);
-    expect(moodValue([{ value: -100 }, { value: -100 }], 0, 0)).toBe(20);
-    expect(moodValue([{ value: -20 }, { value: -15 }], 0, -6)).toBe(14);
+    expect(moodValue([{ value: -100 }], 0, -6)).toBe(20);                                   // the floor (was 14, C-006)
+    expect(moodValue([{ value: -10, need: true }], 0, 0)).toBe(35);                        // counted twice
+    expect(moodValue([{ value: -10, need: true }, { value: -10, need: true }, { value: -100 }], 0, 0)).toBe(0);
+    expect(moodValue([{ value: -3.6, need: true }, { value: -100 }], 0, -6)).toBe(17);     // max(11, 20 − 3)
+    expect(moodValue([{ value: -0.4, need: true }, { value: -100 }], 0, -6)).toBe(20);     // floor(0.4) = 0
+    expect(moodValue([], 2, 0)).toBe(59);
+  });
+
+  it('F-02: only hungry, thirsty, tired and lonely are need pressure', () => {
+    expect(Array.from(NEED_PRESSURE_THOUGHTS).sort()).toEqual(['hungry', 'lonely', 'thirsty', 'tired']);
+    for (const id of NEED_PRESSURE_THOUGHTS) {
+      const def = thoughts.byId(id);
+      expect(def).toBeDefined();
+      expect(def?.decay).toBe('standing');
+    }
   });
 
   it('uses the documented first-match sulk trait order', () => {

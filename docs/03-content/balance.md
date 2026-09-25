@@ -82,10 +82,10 @@ Renown follows: 5 → 15 → 30 → 75. Raid size at peril 2: year 2 → 6 + 4 =
 
 ## Mood floor and the no-spiral guarantee
 
-`mood = 55 + min(40, positives) − min(35, negatives) − min(20, need pressure) + hearth bonus`:
+`mood = max(55 + min(40, positives) − min(35, negatives) − need pressure + hearth bonus + personality, 20 − need pressure)`, need pressure = the four survival and company thoughts (hungry, thirsty, tired, lonely), capped at 20:
 
 - Every need met, no thoughts: 55 (Fine). With a hearth hall (decent, +4): 59.
-- Worst case with needs met: 55 − 35 + 0 = 20 (Unhappy, not Miserable). Misery requires need pressure, which requires the player to have failed to provide food, drink, beds or company.
+- Worst case with needs met: 55 − 35 + 0 = 20, and the floor keeps it at 20 for a sensitive, timid dwarf too (Unhappy, not Miserable). Misery requires need pressure, which requires the player to have failed to provide food, drink, beds or company.
 - A dwarf can be Miserable only while `need pressure > 0`; the moment needs are met the floor returns to 20 and the sulk counter decays. Sulks are capped at one per week per dwarf and cost at most a chair.
 - Positive thoughts cap at +40 so a fortress cannot become immune to bad news; grief always shows.
 - Hall spirit for immigration (65) needs an average of Content: a hearth hall (+4 to +10), decent bedrooms (+3), meals at a table (+2), ale (+3) and a chat (+3) give 55 + 11 + 4 = 70 to a fed and rested dwarf. Immigration is the reward for exactly the things the hints tell the player to build.

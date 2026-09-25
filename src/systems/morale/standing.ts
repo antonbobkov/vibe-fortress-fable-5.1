@@ -8,6 +8,8 @@ import type { DwarvesReader } from '@systems/dwarves';
 import type { ItemsReader } from '@systems/items';
 import { baseValue, type ThoughtDef } from './thoughts';
 
+export const NEED_PRESSURE_THOUGHTS: ReadonlySet<string> = new Set(['hungry', 'thirsty', 'tired', 'lonely']);
+
 const NEEDS = [
   ['hungry', 'hunger', 50, 5, 10], ['thirsty', 'thirst', 50, 5, 10], ['tired', 'rest', 60, 5, 8],
   ['lonely', 'social', 50, 10, 5], ['uncomfortable', 'comfort', 55, 10, 4],
