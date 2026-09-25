@@ -61,6 +61,8 @@ function material(row, extra) {
   const merged = { ...base, ...extra };
   if (SHARPNESS_BY_CLASS[merged.class] !== undefined) merged.sharpness = SHARPNESS_BY_CLASS[merged.class];
   const tags = tagsFromNotes(row.notes);
+  const mid = plain(row.id);
+  if (['limestone', 'dolomite', 'marble', 'chalk'].includes(mid) && !tags.includes('flux')) tags.push('flux');
   if (tags.length > 0) merged.tags = tags;
   return compact(merged);
 }
@@ -209,6 +211,23 @@ export function exportMaterials() {
       }),
     );
   }
+
+  // F-07b: textile stage progression (<stem>_fiber -> <stem>_thread -> <stem>_cloth; wool -> wool_thread).
+  const byMatId = new Map(out.map((m) => [m.id, m]));
+  for (const m of out) {
+    if (m.id.endsWith('_fiber')) {
+      const stem = m.id.slice(0, -'_fiber'.length);
+      const next = `${stem}_thread`;
+      if (byMatId.has(next)) m.nextStage = next;
+    } else if (m.id.endsWith('_thread')) {
+      const stem = m.id.slice(0, -'_thread'.length);
+      const next = `${stem}_cloth`;
+      if (byMatId.has(next)) m.nextStage = next;
+    } else if (m.id === 'wool') {
+      if (byMatId.has('wool_thread')) m.nextStage = 'wool_thread';
+    }
+  }
+
   return byId(out);
 }
 

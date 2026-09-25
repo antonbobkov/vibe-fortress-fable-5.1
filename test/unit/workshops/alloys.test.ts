@@ -19,7 +19,7 @@ describe('T-M5-02 alloys and steel', () => {
     expect(flux.type).toBe(registry.table('items').index('raw_stone'));
     expect(flux.materialIds?.map((id) => registry.table('materials').idOf(id)).sort()).toEqual(['chalk', 'dolomite', 'limestone', 'marble']);
     const carbon = recipeInputFilter(registry, recipe.inputs[2]!, order);
-    expect(carbon.types?.map((id) => registry.table('items').idOf(id)).sort()).toEqual(['charcoal_bar', 'coal_bar']);
+    expect(carbon).toEqual({ tag: 'fuel' });
     const at = w.index(19, 17, 32);
     w.spawnItem('bar', 'iron', at);
     w.spawnItem('raw_stone', 'granite', at);

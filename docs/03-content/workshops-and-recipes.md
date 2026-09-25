@@ -37,7 +37,7 @@ Magma variants require `MAGMA_POWER_LEVEL` magma directly below at least one foo
 
 ## Recipe columns
 
-`inputs` as `count × (item | tag | class)` with material constraints in parentheses; `outputs` as `count × item (material source)`; `skill`; `ticks` base; `fuel`; `Q` quality-bearing; `xp`. `from_input` means the output takes the material of the first input; `container` means an empty container of that class is an input and holds the output.
+`inputs` as `count × (item | tag | class)` with material constraints in parentheses; `outputs` as `count × item (material source)`; `skill`; `ticks` base; `fuel`; `Q` quality-bearing; `xp`. `from_input` means the output takes the material of the first input; `container` means an empty container of that class is an input and holds the output. Parenthesised constraints are data: "(a or b)" and "(a, b)" list the allowed materials; "(brewable species)" and "(magma-safe metal)" name a material property; "(same material)" makes every unit of the input share one material; "(matching thread material)" and "(matching cloth material)" take the next stage of the input's material (`materials.md` § Cloth and fiber); a work order's material filter constrains only the input the first output takes its material from.
 
 ## Carpenter (`carpentry`)
 
@@ -220,7 +220,7 @@ Ingredients: anything in `food/*` except meals and tallow. Each recipe consumes 
 
 | id | name | inputs | outputs | ticks | Q | xp |
 |---|---|---|---|---|---|---|
-| `spin_thread` | Spin thread | 1 fiber (flax_fiber, sporecloth_fiber) or 1 wool_raw | 1 thread (matching thread material) | 80 | no | 4 |
+| `spin_thread` | Spin thread | 1 fiber or 1 wool_raw (flax_fiber, sporecloth_fiber, wool) | 1 thread (matching thread material) | 80 | no | 4 |
 | `weave_cloth` | Weave cloth | 2 thread (same material) | 1 cloth (matching cloth material) | 150 | no | 6 |
 | `collect_web` | not a recipe: `gather` on a web tile yields 1 thread (`silk_web`) | | | | | |
 

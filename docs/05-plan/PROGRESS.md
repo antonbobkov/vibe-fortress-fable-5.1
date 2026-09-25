@@ -113,7 +113,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [ ] F-04 — Year-one bootstrap scenario
 - [x] F-05 — Dwarf need activities (agy-f05, 2026-09-25)
 - [x] F-06 — Recipe smoke through the real loop (agy-f06, 2026-09-25)
-- [ ] F-07 — Recipe constraints as content
+- [x] F-07 — Recipe constraints as content (agy-f07, 2026-09-25)
 - [ ] F-08 — M6/M7 spec arithmetic and gaps
 - [ ] F-09 — Small fixes
 - [x] F-10 — Need rates: consumption matches the documented season (agy-f10, 2026-09-25)

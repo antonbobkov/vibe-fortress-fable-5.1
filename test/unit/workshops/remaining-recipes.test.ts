@@ -37,7 +37,7 @@ function executeShop(workshopType: string): { world: TestWorld; products: Map<st
   for (const recipe of recipes) {
     const inputMaterials: number[] = [];
     const inputs = recipe.inputs.map((input) => {
-      const type = input.match;
+      const type = input.match.includes('|') ? input.match.split('|')[0]! : input.match;
       const material = input.material && input.material !== 'any' ? input.material : sourceMaterial(type, recipe);
       inputMaterials.push(materials.index(material));
       const delivered: number[] = [];

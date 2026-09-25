@@ -102,4 +102,38 @@ describe('T-M4-08 workshops operation and orders', () => {
     w.step(4);
     expect(w.events('WorkshopBlocked').filter((e) => e['workshopId'] === id)).toHaveLength(1);
   });
+
+  it("F-07: an order's material filter constrains only the principal input", () => {
+    const w = new TestWorld({ seed: 'f07-filter-scope', world: 'flat-test', embark: 'none' });
+    w.build('forge', w.index(15, 15, 32));
+    const still = w.build('still', w.index(25, 15, 32));
+    w.step(1);
+    const system = w.game.world.scheduler.byId('12') as WorkshopsSystem;
+    const reader = w.readers.of<WorkshopsReader>('12');
+    const mats = w.game.registry.table('materials');
+
+    // a steel forge_spear order accepts an oak log
+    const spearRecipe = reader.recipe('forge_spear')!;
+    const spearOrder = { recipe: system.operator.recipeIndex('forge_spear'), remaining: 1, mode: 'once' as const,
+      threshold: 0, priority: 5 as const, materialFilter: 'steel' };
+    const barFilter = system.operator.inputFilter(spearRecipe, spearRecipe.inputs[0]!, spearOrder);
+    const logFilter = system.operator.inputFilter(spearRecipe, spearRecipe.inputs[1]!, spearOrder);
+    expect(barFilter?.materialId).toBe(mats.index('steel'));
+    expect(logFilter?.materialId).toBeUndefined();
+
+    // a barley filter on brew_hopped still accepts hops
+    const brewHoppedRecipe = reader.recipe('brew_hopped')!;
+    const brewOrder = { recipe: system.operator.recipeIndex('brew_hopped'), remaining: 1, mode: 'once' as const,
+      threshold: 0, priority: 5 as const, materialFilter: 'barley' };
+    const grainFilter = system.operator.inputFilter(brewHoppedRecipe, brewHoppedRecipe.inputs[0]!, brewOrder);
+    const hopsFilter = system.operator.inputFilter(brewHoppedRecipe, brewHoppedRecipe.inputs[1]!, brewOrder);
+    expect(grainFilter?.materialId).toBe(mats.index('barley'));
+    expect(hopsFilter?.materialId).toBe(mats.index('hops'));
+
+    // verify runnable with hops and barrel
+    w.spawnItem('plant_food', 'barley', w.index(25, 14, 32), 4);
+    w.spawnItem('plant_food', 'hops', w.index(26, 14, 32), 1);
+    w.spawnItem('barrel', 'oak', w.index(27, 14, 32));
+    expect(system.operator.problem(brewOrder, still)).toBeNull();
+  });
 });

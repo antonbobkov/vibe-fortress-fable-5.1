@@ -132,7 +132,7 @@ Metal tier for weapon and armor purposes: `wood` and `bone` items are tier 0 wit
 | `coal` | `bituminous_coal` ore (2 per ore), `lignite` (1 per ore) | smelted without fuel cost (the coal is its own fuel: the `smelt_coal` recipes have `fuel: false`) |
 | `charcoal` | 1 log at the wood furnace | 1 per log |
 
-Every smelter and forge job consumes 1 fuel bar unless magma-powered. Steel additionally consumes 1 fuel as an input (carbon).
+Every smelter and forge job consumes 1 fuel bar unless magma-powered. Steel additionally consumes 1 fuel as an input (carbon). Both fuels carry the item tag `fuel`.
 
 ## Flux
 

@@ -48,6 +48,9 @@ const CRAFT_ITEMS = new Set(['figurine', 'ring', 'amulet']);
 /** buildings-and-furniture.md constructions accept "1 block, log, bar or raw stone". */
 const BLOCK_ITEMS = new Set(['stone_block', 'wood_block']);
 
+/** minerals-and-metals.md § Fuel: the two fuels carry the item tag fuel. */
+const FUEL_ITEMS = new Set(['coal_bar', 'charcoal_bar']);
+
 const ITEM_SECTIONS = [
   'Food', 'Drink', 'Seeds', 'Stone, ore, gems', 'Wood and bars',
   'Furniture (items that become buildings when placed)', 'Containers', 'Tools', 'Crafts and gems',
@@ -61,6 +64,7 @@ function itemRow(row) {
   if (INGREDIENT_CATEGORIES.includes(category)) tags.push('ingredient');
   if (CRAFT_ITEMS.has(iid)) tags.push('craft');
   if (BLOCK_ITEMS.has(iid)) tags.push('block');
+  if (FUEL_ITEMS.has(iid)) tags.push('fuel');
   const notes = plain(row.notes ?? '');
   const capacityCell = row.capacity ?? '';
   let capacity = isBlank(capacityCell) ? undefined : int(capacityCell);

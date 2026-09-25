@@ -472,7 +472,8 @@
     "color": "flax_straw",
     "meltsAtC": 300,
     "burnable": true,
-    "burnTicks": 300
+    "burnTicks": 300,
+    "nextStage": "flax_thread"
   },
   {
     "id": "flax_thread",
@@ -484,7 +485,8 @@
     "color": "flax_straw",
     "meltsAtC": 300,
     "burnable": true,
-    "burnTicks": 300
+    "burnTicks": 300,
+    "nextStage": "flax_cloth"
   },
   {
     "id": "flour",
@@ -1166,7 +1168,8 @@
     "color": "spore_violet",
     "meltsAtC": 300,
     "burnable": true,
-    "burnTicks": 300
+    "burnTicks": 300,
+    "nextStage": "sporecloth_thread"
   },
   {
     "id": "sporecloth_thread",
@@ -1178,7 +1181,8 @@
     "color": "spore_violet",
     "meltsAtC": 300,
     "burnable": true,
-    "burnTicks": 300
+    "burnTicks": 300,
+    "nextStage": "sporecloth_cloth"
   },
   {
     "id": "stalk_fern",
@@ -1299,7 +1303,8 @@
     "color": "wool_cream",
     "meltsAtC": 300,
     "burnable": false,
-    "burnTicks": 0
+    "burnTicks": 0,
+    "nextStage": "wool_thread"
   },
   {
     "id": "wool_cloth",
@@ -1323,7 +1328,8 @@
     "color": "wool_cream",
     "meltsAtC": 300,
     "burnable": true,
-    "burnTicks": 300
+    "burnTicks": 300,
+    "nextStage": "wool_cloth"
   },
   {
     "id": "yew",

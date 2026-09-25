@@ -346,7 +346,11 @@ function parseOutputs(cell) {
     const head = note.split(';')[0].trim();
     const tick = /^`([a-z_]+)`$/.exec(head);
     let material = { from: 'input', index: 0 };
-    if (/drink material/.test(note)) {
+    if (m[2] === 'charcoal_bar') {
+      material = { fixed: 'charcoal' };
+    } else if (/matching\s+.*material/.test(note)) {
+      material = { from: 'input', index: 0, stage: 'next' };
+    } else if (/drink material/.test(note)) {
       material = { plantDrink: true };
     } else if (tick !== null) {
       material = { fixed: tick[1] };
@@ -370,21 +374,51 @@ function recipeInputs(cell) {
       container = cm[1];
       continue;
     }
-    const bare = part.replace(/\([^)]*\)/g, ' ');
-    const m = /(\d+)\s+([a-z_]+)/.exec(bare);
-    if (m === null) continue;
+    const bare = part.replace(/\([^)]*\)/g, ' ').trim();
+    const alt = /(\d+)\s+([a-z_]+)\s+or\s+(?:(\d+)\s+)?([a-z_]+)/.exec(bare);
+    let count = 1;
+    let match = '';
+    if (alt !== null) {
+      count = Number(alt[1]);
+      match = `${alt[2]}|${alt[4]}`;
+    } else {
+      const m = /(\d+)\s+([a-z_]+)/.exec(bare);
+      if (m === null) continue;
+      count = Number(m[1]);
+      match = m[2];
+    }
     const paren = /\(([^)]*)\)/.exec(part);
-    const note = paren === null ? '' : paren[1];
-    const materialIds = Array.from(note.matchAll(/`?\b([a-z][a-z_]{2,})\b`?/g)).map((x) => x[1]);
-    const filtered = materialIds.filter(
-      (x) => !['distinct', 'stacks', 'species', 'brewable', 'metal', 'safe', 'magma', 'or'].includes(x),
-    );
+    const note = paren === null ? '' : paren[1].trim();
+
+    const distinct = /distinct/.test(note) ? true : undefined;
+    const sameMaterial = /same material/.test(note) ? true : undefined;
+    let materialProperty;
+    if (/brewable species/.test(note)) materialProperty = 'brewable';
+    else if (/magma-safe metal/.test(note)) materialProperty = 'magma_safe';
+
+    let material;
+    let materials;
+    if (materialProperty === undefined && !sameMaterial) {
+      const materialIds = Array.from(note.matchAll(/`?\b([a-z][a-z_]{2,})\b`?/g)).map((x) => x[1]);
+      const filtered = materialIds.filter(
+        (x) => !['distinct', 'stacks', 'species', 'brewable', 'metal', 'safe', 'magma', 'or', 'same', 'material'].includes(x),
+      );
+      if (filtered.length === 1) {
+        material = filtered[0];
+      } else if (filtered.length > 1) {
+        materials = filtered;
+      }
+    }
+
     parts.push(
       compact({
-        match: m[2],
-        count: Number(m[1]),
-        material: filtered.length === 1 ? filtered[0] : filtered.length > 1 ? 'any' : undefined,
-        distinct: /distinct/.test(note) ? true : undefined,
+        match,
+        count,
+        material,
+        materials,
+        materialProperty,
+        sameMaterial,
+        distinct,
       }),
     );
   }

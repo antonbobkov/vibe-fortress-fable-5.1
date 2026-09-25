@@ -454,7 +454,10 @@
     "materials": "any",
     "glyph": "▬",
     "fg": "charcoal_gray",
-    "quality": false
+    "quality": false,
+    "tags": [
+      "fuel"
+    ]
   },
   {
     "id": "cheese",
@@ -550,7 +553,10 @@
     "materials": "any",
     "glyph": "▬",
     "fg": "coal_black",
-    "quality": false
+    "quality": false,
+    "tags": [
+      "fuel"
+    ]
   },
   {
     "id": "coffin",

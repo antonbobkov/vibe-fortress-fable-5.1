@@ -76,7 +76,7 @@ WorkOrder { recipeId, remaining, mode: once | maintain, threshold (for maintain:
 - `maintain` orders are runnable when `stock(outputItemType, materialFilter) < threshold`; they never complete.
 - Orders on the workshop are executed in list order (the player reorders). A `WorkOrder` panel lists all orders in the fortress by workshop.
 - Orders can be placed at a workshop or from the global orders panel (which picks any workshop of the type; the job is created at the least busy one).
-- `materialFilter` restricts inputs (make steel axes, oak beds).
+- `materialFilter` restricts inputs (make steel axes, oak beds). A work order's material filter constrains only the input the first output takes its material from (`material.from.index`), or input 0 when that output's material is `fixed`, `alloy` or `plantDrink`.
 
 ### Quality
 

@@ -97,6 +97,8 @@ All wood is burnable and melts (burns) at 300 °C for the melting rule.
 
 Cloth burns (300 ticks) and melts at 300 °C.
 
+Stages: `flax_fiber` → `flax_thread` → `flax_cloth`; `sporecloth_fiber` → `sporecloth_thread` → `sporecloth_cloth`; `wool` → `wool_thread` → `wool_cloth`; `silk_web` has no further stage.
+
 ## Gems (rough and cut share the material; the item type differs)
 
 See [minerals-and-metals.md](minerals-and-metals.md) for placement. Base rows:

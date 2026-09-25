@@ -11,6 +11,7 @@ type MaterialClass = 'stone'|'soil'|'ore'|'gem'|'metal'|'wood'|'plant'|'leather'
 interface MaterialDef extends RowBase {
   class: MaterialClass; value: number; density: number; hardness: number; color: Id<ColorDef>;
   meltsAtC: number; burnable: boolean; burnTicks: number; sharpness?: number;
+  nextStage?: Id<MaterialDef>;
   // derived at load: magmaSafe = meltsAtC > MAGMA_C
 }
 interface MineralDef extends MaterialDef {
@@ -88,10 +89,17 @@ interface BuildingDef extends RowBase {
 interface ZoneTypeDef extends RowBase { room: boolean; requirements: string[]; settings: string[]; consumers: string[] }
 interface RecipeDef extends RowBase {
   workshop: Id<BuildingDef>; skill: Id<SkillDef>;
-  inputs: { match: Id<ItemTypeDef> | string /* tag or class */; material?: MaterialClass | Id<MaterialDef> | 'any'; count: number; distinct?: boolean }[];
-  outputs: { item: Id<ItemTypeDef>; count: number; material: { from: 'input'; index: number } | { fixed: Id<MaterialDef> } | { alloy: Id<MetalDef> } | { plantDrink: true } }[];
+  inputs: { match: Id<ItemTypeDef> | string /* tag, class, 'a|b', or 'any' */; material?: MaterialClass | Id<MaterialDef> | 'any' | 'fuel' | 'flux';
+            materials?: Id<MaterialDef>[]; materialProperty?: 'magma_safe' | 'brewable'; sameMaterial?: true; flagged?: 'melt';
+            count: number; distinct?: boolean }[];
+  outputs: { item: Id<ItemTypeDef>; count: number; material: { from: 'input'; index: number; stage?: 'next' } | { fixed: Id<MaterialDef> } | { alloy: Id<MetalDef> } | { plantDrink: true } }[];
   baseTicks: number; fuel: boolean; quality: boolean; container?: 'barrel'|'bag'; xp: number; generated?: boolean;
 }
+
+// Validation rules:
+// - every materials entry and every nextStage is an existing material;
+// - stage: 'next' only on outputs whose input has materials with nextStage;
+// - at least one item type carries the tag fuel.
 
 interface BiomeDef extends RowBase {
   referenceTempC: number; seasonTemp: [number, number, number, number]; soilDepth: number;

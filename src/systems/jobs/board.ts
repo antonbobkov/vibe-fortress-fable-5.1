@@ -299,7 +299,13 @@ export class JobBoard implements JobsApi, JobSink {
       priority: priority as Priority,
       target: { ...spec.target },
       workTile: spec.workTile,
-      inputs: (spec.inputs ?? []).map((i) => ({ filter: { ...i.filter }, count: i.count, reserved: [], delivered: [] })),
+      inputs: (spec.inputs ?? []).map((i) => ({
+        filter: { ...i.filter },
+        count: i.count,
+        ...(i.wholeItem ? { wholeItem: true as const } : {}),
+        reserved: [],
+        delivered: [],
+      })),
       tool: spec.tool !== undefined ? spec.tool : ((row.tool as Job['tool']) ?? null),
       state: 'open',
       blockedReason: null,
@@ -444,9 +450,9 @@ export class JobBoard implements JobsApi, JobSink {
     if (from < 0 || !this.world.map.validIndex(from)) return false;
 
     if (job.blockedReason === 'missing_input') {
-      const units = job.data['inputUnits'] === true;
-      const count = (id: EntityId): number => (units ? (this.items.countOf?.(id) ?? 1) : 1);
       for (const input of job.inputs) {
+        const units = job.data['inputUnits'] === true && input.wholeItem !== true;
+        const count = (id: EntityId): number => (units ? (this.items.countOf?.(id) ?? 1) : 1);
         const needed =
           input.count -
           input.delivered.reduce((sum, id) => sum + count(id), 0) -
@@ -662,14 +668,14 @@ export class JobBoard implements JobsApi, JobSink {
     this.setWorker(workerId, { jobId: job.id, phase: 0 });
     const from = this.workerTile(workerId);
     for (const input of job.inputs) {
-      const units = job.data['inputUnits'] === true;
+      const units = job.data['inputUnits'] === true && input.wholeItem !== true;
       const count = (id: EntityId): number => units ? (this.items.countOf?.(id) ?? 1) : 1;
       const needed = input.count - input.delivered.reduce((sum, id) => sum + count(id), 0)
         - input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
       if (needed <= 0) continue;
       const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
       const isBuild = this.typeId(job) === 'build';
-      const found = job.data['inputUnits'] === true && this.items.findUnits !== undefined
+      const found = units && this.items.findUnits !== undefined
         ? this.items.findUnits(filter, needed, from, !isBuild)
         : this.items.findItems(filter, needed, from);
       if (found.reduce((sum, id) => sum + count(id), 0) < needed) {

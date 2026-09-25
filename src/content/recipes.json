@@ -7,7 +7,8 @@
     "inputs": [
       {
         "match": "plant_food",
-        "count": 4
+        "count": 4,
+        "materialProperty": "brewable"
       }
     ],
     "outputs": [
@@ -275,7 +276,10 @@
       {
         "match": "bar",
         "count": 5,
-        "material": "any"
+        "materials": [
+          "iron",
+          "steel"
+        ]
       }
     ],
     "outputs": [
@@ -2501,7 +2505,8 @@
     "inputs": [
       {
         "match": "bar",
-        "count": 1
+        "count": 1,
+        "materialProperty": "magma_safe"
       }
     ],
     "outputs": [
@@ -3208,7 +3213,10 @@
       {
         "match": "plant_food",
         "count": 2,
-        "material": "any"
+        "materials": [
+          "barley",
+          "cavewheat"
+        ]
       }
     ],
     "outputs": [
@@ -3312,9 +3320,13 @@
     "skill": "weaving",
     "inputs": [
       {
-        "match": "fiber",
+        "match": "fiber|wool_raw",
         "count": 1,
-        "material": "any"
+        "materials": [
+          "flax_fiber",
+          "sporecloth_fiber",
+          "wool"
+        ]
       }
     ],
     "outputs": [
@@ -3323,7 +3335,8 @@
         "count": 1,
         "material": {
           "from": "input",
-          "index": 0
+          "index": 0,
+          "stage": "next"
         }
       }
     ],
@@ -3366,7 +3379,7 @@
       {
         "match": "thread",
         "count": 2,
-        "material": "any"
+        "sameMaterial": true
       }
     ],
     "outputs": [
@@ -3375,7 +3388,8 @@
         "count": 1,
         "material": {
           "from": "input",
-          "index": 0
+          "index": 0,
+          "stage": "next"
         }
       }
     ],

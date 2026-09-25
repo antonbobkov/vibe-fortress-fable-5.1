@@ -196,7 +196,7 @@ describe('T-M0-06 content: generated recipes', () => {
     expect(recipes.byId('alloy_steel')?.inputs).toEqual([
       { match: 'bar', count: 1, material: 'iron' },
       { match: 'raw_stone', count: 1, material: 'flux' },
-      { match: 'coal_bar|charcoal_bar', count: 1, material: 'fuel' },
+      { match: 'fuel', count: 1, material: 'fuel' },
     ]);
   });
 
@@ -383,3 +383,39 @@ describe('T-M0-06 content: content:check', () => {
     }
   });
 });
+
+describe('F-07: recipe constraints are exported', () => {
+  const reg = contentRegistry();
+  const recipes = reg.table<RecipeDef>('recipes');
+  const items = reg.table<ItemTypeDef>('items');
+  const materials = reg.table<MaterialDef>('materials');
+
+  it('exports recipe input constraints and output stage', () => {
+    const forgeAnvil = recipes.byId('forge_anvil');
+    expect(forgeAnvil?.inputs).toEqual([{ match: 'bar', count: 5, materials: ['iron', 'steel'] }]);
+
+    const makeMechMetal = recipes.byId('make_mechanism_metal');
+    expect(makeMechMetal?.inputs[0]?.materialProperty).toBe('magma_safe');
+
+    const brew = recipes.byId('brew');
+    expect(brew?.inputs[0]?.materialProperty).toBe('brewable');
+
+    const millFlour = recipes.byId('mill_flour');
+    expect(millFlour?.inputs[0]?.materials).toEqual(['barley', 'cavewheat']);
+
+    const weaveCloth = recipes.byId('weave_cloth');
+    expect(weaveCloth?.inputs[0]?.sameMaterial).toBe(true);
+    expect(weaveCloth?.outputs[0]?.material).toEqual({ from: 'input', index: 0, stage: 'next' });
+
+    const spinThread = recipes.byId('spin_thread');
+    expect(spinThread?.inputs[0]?.match).toBe('fiber|wool_raw');
+    expect(spinThread?.inputs[0]?.materials).toEqual(['flax_fiber', 'sporecloth_fiber', 'wool']);
+    expect(spinThread?.outputs[0]?.material).toEqual({ from: 'input', index: 0, stage: 'next' });
+
+    expect(items.byId('coal_bar')?.tags).toContain('fuel');
+    expect(items.byId('charcoal_bar')?.tags).toContain('fuel');
+
+    expect(materials.byId('flax_fiber')?.nextStage).toBe('flax_thread');
+  });
+});
+

@@ -67,6 +67,10 @@ function runRecipe(workshopType: string, recipe: RecipeRow): { ok: boolean; erro
           ingIndex += 1;
           w.spawnItem(ing.item, ing.material, dropTile, 1);
         }
+      } else if (input.match === 'fuel') {
+        for (let c = 0; c < input.count; c += 1) {
+          w.spawnItem('charcoal_bar', 'charcoal', dropTile, 1);
+        }
       } else {
         let item: string;
         if (input.match.includes('|')) {

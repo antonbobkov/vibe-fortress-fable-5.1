@@ -32,6 +32,7 @@ export interface MaterialDef extends RowBase {
   sharpness?: number;
   /** Derived at load: `meltsAtC > MAGMA_C`. */
   magmaSafe?: boolean;
+  nextStage?: string;
 }
 
 export interface MineralDef extends MaterialDef {
@@ -76,6 +77,10 @@ export interface RecipeInput {
   match: string;
   count: number;
   material?: string;
+  materials?: string[];
+  materialProperty?: 'magma_safe' | 'brewable';
+  sameMaterial?: true;
+  flagged?: 'melt';
   distinct?: boolean;
 }
 
@@ -84,7 +89,7 @@ export interface RecipeOutput {
   count: number;
   permille?: number;
   material:
-    | { from: 'input'; index: number }
+    | { from: 'input'; index: number; stage?: 'next' }
     | { fixed: string }
     | { alloy: string }
     | { plantDrink: boolean };
@@ -236,7 +241,7 @@ export function generatedRecipes(
       workshop: 'smelter',
       skill: 'smelting',
       inputs: alloy.inputs.map((i) => ({
-        match: i.kind === 'bar' ? 'bar' : i.kind === 'stone' ? 'raw_stone' : 'coal_bar|charcoal_bar',
+        match: i.kind === 'bar' ? 'bar' : i.kind === 'stone' ? 'raw_stone' : 'fuel',
         count: i.count,
         material: i.material,
       })),
@@ -254,7 +259,7 @@ export function generatedRecipes(
     name: 'Melt metal item',
     workshop: 'smelter',
     skill: 'smelting',
-    inputs: [{ match: 'any', count: 1, material: 'metal' }],
+    inputs: [{ match: 'any', count: 1, material: 'metal', flagged: 'melt' }],
     outputs: [{ item: 'bar', count: 1, material: { from: 'input', index: 0 } }],
     baseTicks: 120,
     fuel: true,

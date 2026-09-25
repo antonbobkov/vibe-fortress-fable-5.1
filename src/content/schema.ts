@@ -271,6 +271,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     burnable: bool,
     burnTicks: int,
     sharpness: opt(int),
+    nextStage: opt(materialRef),
   }),
 
   minerals: rows({
@@ -568,6 +569,10 @@ export const SCHEMAS: Record<string, TableSchema> = {
         match: itemMatch,
         count: int,
         material: opt(materialConstraint),
+        materials: opt(arr(materialRef)),
+        materialProperty: opt(enumOf(['magma_safe', 'brewable'])),
+        sameMaterial: opt(bool),
+        flagged: opt(enumOf(['melt'])),
         distinct: opt(bool),
       }),
     ),
@@ -577,7 +582,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
         count: int,
         permille: opt(int),
         material: oneOf(
-          obj({ from: enumOf(['input']), index: int }),
+          obj({ from: enumOf(['input']), index: int, stage: opt(enumOf(['next'])) }),
           obj({ fixed: materialRef }),
           obj({ alloy: ref('metals') }),
           obj({ plantDrink: bool }),
@@ -892,5 +897,56 @@ export function validateAll(data: Readonly<Record<string, unknown>>): Validation
       }
     }
   }
+
+  // F-07: at least one item type carries the tag fuel.
+  if (!tags.get('items')?.has('fuel')) {
+    issues.push({ table: 'items', row: '-', field: 'tags', message: 'at least one item type must carry tag fuel' });
+  }
+
+  // F-07: stage: 'next' only on outputs whose input has materials with nextStage.
+  const materialsWithNext = new Set<string>();
+  for (const m of (data['materials'] ?? []) as { id?: string; nextStage?: string }[]) {
+    if (typeof m.id === 'string' && typeof m.nextStage === 'string') {
+      materialsWithNext.add(m.id);
+    }
+  }
+
+  for (const r of (data['recipes'] ?? []) as {
+    id: string;
+    inputs?: { match?: string; material?: string; materials?: string[] }[];
+    outputs?: { material?: { from?: string; index?: number; stage?: string } }[];
+  }[]) {
+    for (const out of r.outputs ?? []) {
+      if (out.material?.stage === 'next') {
+        const inputIdx = out.material.index ?? 0;
+        const input = r.inputs?.[inputIdx];
+        let hasNext = false;
+        if (input?.materials && input.materials.length > 0) {
+          hasNext = input.materials.some((m) => materialsWithNext.has(m));
+        } else if (input?.material && input.material !== 'any') {
+          hasNext = materialsWithNext.has(input.material);
+        } else if (input?.match) {
+          const itemRows = (data['items'] ?? []) as { id: string; materials?: string[] | 'any' }[];
+          const item = itemRows.find((it) => it.id === input.match);
+          if (item?.materials === 'any') {
+            hasNext = materialsWithNext.size > 0;
+          } else if (Array.isArray(item?.materials)) {
+            const matClasses = new Set(item.materials);
+            const mats = (data['materials'] ?? []) as { id: string; class: string; nextStage?: string }[];
+            hasNext = mats.some((m) => matClasses.has(m.class) && m.nextStage !== undefined);
+          }
+        }
+        if (!hasNext) {
+          issues.push({
+            table: 'recipes',
+            row: r.id,
+            field: 'outputs',
+            message: "stage: 'next' only on outputs whose input has materials with nextStage",
+          });
+        }
+      }
+    }
+  }
+
   return issues;
 }

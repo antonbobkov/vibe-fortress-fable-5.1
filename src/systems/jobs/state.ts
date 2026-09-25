@@ -43,6 +43,7 @@ export interface ItemFilter {
 export interface JobInput {
   filter: ItemFilter;
   count: number;
+  wholeItem?: true;
   reserved: EntityId[];
   delivered: EntityId[];
 }
