@@ -10,7 +10,13 @@ tick(ctx):
   retryBlocked(min(BLOCKED_RETRIES_PER_TICK, blocked.length))
   served = 0
   while assignQueue non-empty and served < ASSIGN_WORKERS_PER_TICK: w = assignQueue.shift(); assign(w); served++
-retryBlocked(n): for job in blocked (creation order, cursor-resumed): if job.retryTick <= tick or job.retryTrigger fired: job.state = open; job.blockedReason = null; emit JobUnblocked; n--; if n==0: break
+retryBlocked(n): for job in blocked (creation order, cursor-resumed): if job.retryTick <= tick or job.retryTrigger fired:
+                   if reasonGone(job): job.state = open; job.blockedReason = null; emit JobUnblocked
+                   else: job.retryTick = tick + BLOCKED_RETRY_TICKS
+                   n--; if n==0: break
+reasonGone(job): no_worker → a worker has the labor; unreachable → a worker with the labor shares a label with a stand tile;
+                 missing_input → every input's still-needed units are found (same search as claim, from the job's first stand tile);
+                 no_tool → a worker carries the tool or findTool succeeds from that tile; any other reason → true
 ```
 
 ## Assignment
@@ -30,7 +36,10 @@ assign(w):
   score(w, job) = effPriority(job) * 1000 + estDistance(position(w), workTileOf(job)) * 10 - skill(w, job.type.skill) * 15 - (job.workshopWorker == w ? 500 : 0)
   effPriority(job) = job.priority + laborPriority[job.type.labor] - PRIORITY_DEFAULT
   estDistance = max(|dx|,|dy|) + |dz| * Z_DISTANCE_WEIGHT
-  claim(w, best)
+  while cands non-empty: best = argmin over cands of score(w, job) with ties by job.id
+                         if claim(w, best) succeeds: return 'assigned'
+                         cands.remove(best)
+  return 'none'
 claim(w, job):
   job.state = claimed; job.workerId = w; job.claimedTick = tick; Worker[w].jobId = job.id
   for input in job.inputs: found = items.findItems(input.filter, input.count - input.delivered.length, workTileOf(job), 'walker', {reservable: true})

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { HeadlessGame } from '@app/headless';
+import { TestWorld } from '../../scenarios/test-world';
 import { C } from '@core/components';
 import { PRIORITY_DEFAULT, TICKS_PER_YEAR } from '@core/constants';
 import type { GameEvent } from '@core/events';
@@ -513,5 +514,92 @@ describe('T-M1-08 jobs: commands and reader', () => {
     const other = rig();
     other.jobs.deserialize(saved, undefined as never);
     expect(other.jobs.serialize()).toEqual(saved);
+  });
+});
+
+describe('F-01 job loop', () => {
+  it('a job whose inputs cannot be found stays blocked across retries and does not starve lower-ranked jobs', () => {
+    const w = new TestWorld({ seed: 'f01-livelock', world: 'flat-test', embark: 'none' });
+    const z = 32;
+    const dwarf = w.spawnDwarf({ at: w.index(40, 40, z) });
+    const labors = w.game.registry.table('labors');
+    const enabled = new Uint8Array((labors.size >> 3) + 1);
+    for (let k = 1; k <= labors.size; k += 1) enabled[k >> 3] = (enabled[k >> 3] as number) | (1 << (k & 7));
+    w.game.world.entities.add(dwarf, C.Labors, { enabled });
+
+    const placeRes = w.game.world.applyCommand({
+      type: 'PlaceBuilding',
+      buildingType: 'still',
+      origin: w.index(35, 35, z),
+      priority: 4,
+    });
+    expect(placeRes.ok).toBe(true);
+
+    w.spawnItem('barrel', 'oak', w.index(38, 40, z));
+    w.spawnItem('log', 'oak', w.index(42, 40, z));
+    const spTiles = [w.index(45, 40, z), w.index(46, 40, z)];
+    const spId = w.zone('stockpile', spTiles);
+    w.game.world.applyCommand({
+      type: 'SetStockpileFilter',
+      zoneId: spId,
+      filter: { categories: ['wood'] },
+    });
+
+    w.step(600);
+
+    const completedHauls = w.events('JobCompleted').filter((e) => e['jobType'] === 'haul_to_stockpile');
+    expect(completedHauls.length).toBeGreaterThan(0);
+
+    const blockedMissingInput = w.events('JobBlocked').filter(
+      (e) => e['reason'] === 'missing_input' && e['jobType'] === 'build',
+    );
+    expect(blockedMissingInput.length).toBeLessThanOrEqual(2);
+
+    const unblockedBuild = w.events('JobUnblocked').filter(
+      (e) => e['jobType'] === 'build',
+    );
+    expect(unblockedBuild.length).toBe(0);
+
+    w.spawnItem('raw_stone', 'granite', w.index(38, 41, z));
+    w.until((x) => x.events('JobClaimed').some((e) => e['jobType'] === 'build'), 200);
+    expect(w.events('JobUnblocked').some((e) => e['jobType'] === 'build')).toBe(true);
+  });
+
+  it('a failed claim falls through to the next candidate', () => {
+    const w = new TestWorld({ seed: 'f01-fallthrough', world: 'flat-test', embark: 'none' });
+    const z = 32;
+    const dwarf = w.spawnDwarf({ at: w.index(40, 40, z) });
+    const labors = w.game.registry.table('labors');
+    const enabled = new Uint8Array((labors.size >> 3) + 1);
+    for (let k = 1; k <= labors.size; k += 1) enabled[k >> 3] = (enabled[k >> 3] as number) | (1 << (k & 7));
+    w.game.world.entities.add(dwarf, C.Labors, { enabled });
+
+    const board = w.game.world.services.jobs as unknown as {
+      create(key: string, spec: Record<string, unknown>): number;
+    };
+    const logType = w.game.registry.table('items').index('log');
+    const nearerId = board.create('test:nearer', {
+      type: 'haul_to_stockpile',
+      priority: 5,
+      target: { kind: 'tile', ref: w.index(41, 40, z) },
+      workTile: w.index(41, 40, z),
+      inputs: [{ filter: { type: logType }, count: 1 }],
+    });
+    const fartherId = board.create('test:farther', {
+      type: 'haul_to_stockpile',
+      priority: 5,
+      target: { kind: 'tile', ref: w.index(45, 40, z) },
+      workTile: w.index(45, 40, z),
+      inputs: [],
+    });
+
+    w.step(1);
+
+    const worker = w.game.world.entities.get(dwarf, C.Worker);
+    expect(worker?.jobId).toBe(fartherId);
+
+    const nearerJob = (w.readers.of<JobsReader>('11')).get(nearerId);
+    expect(nearerJob?.state).toBe('blocked');
+    expect(nearerJob?.blockedReason).toBe('missing_input');
   });
 });

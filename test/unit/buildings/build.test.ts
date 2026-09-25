@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { C } from '@core/components';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
@@ -185,5 +186,50 @@ describe('T-M2-05 the build job', () => {
     expect(w.game.world.applyCommand({ type: 'CancelBuilding', buildingId: id } as never)).toEqual({ ok: true });
     expect(bld(w).at(t)).toBe(0);
     expect(w.readers.of<{ byKey(k: string): unknown }>('11').byKey(`build:${id}`)).toBeUndefined();
+  });
+});
+
+describe('F-01 unit-counted build inputs', () => {
+  it('a hearth builds from a stack of 2 and a stack of 1 blocks and leaves no remainder', () => {
+    const w = new TestWorld({ seed: 'hearth-stacks-3', world: 'flat-test', embark: 'default' });
+    w.spawnItem('stone_block', 'granite', w.index(44, 14, Z), 2);
+    w.spawnItem('stone_block', 'granite', w.index(45, 14, Z), 1);
+    w.spawnItem('log', 'oak', w.index(46, 14, Z), 1);
+    const origin = w.index(50, 16, Z);
+    expect(place(w, 'hearth', origin).ok).toBe(true);
+    const id = bld(w).at(origin);
+    w.until((x) => x.events('BuildingCompleted').some((e) => e['id'] === id), 2000);
+    expect(items(w).count('stone_block')).toBe(0);
+    const building = bld(w).get(id);
+    const inputs = building?.settings['inputs'] as { type: string; material: number }[];
+    expect(inputs.filter((i) => i.type === 'stone_block')).toHaveLength(3);
+    expect(inputs.filter((i) => i.type === 'log')).toHaveLength(1);
+  });
+
+  it('a hearth builds from two stacks of 2 and leaves one block on the site', () => {
+    const w = new TestWorld({ seed: 'hearth-stacks-4', world: 'flat-test', embark: 'default' });
+    w.spawnItem('stone_block', 'granite', w.index(44, 14, Z), 2);
+    w.spawnItem('stone_block', 'granite', w.index(45, 14, Z), 2);
+    w.spawnItem('log', 'oak', w.index(46, 14, Z), 1);
+    const origin = w.index(50, 16, Z);
+    expect(place(w, 'hearth', origin).ok).toBe(true);
+    const id = bld(w).at(origin);
+    w.until((x) => x.events('BuildingCompleted').some((e) => e['id'] === id), 2000);
+    expect(items(w).count('stone_block')).toBe(1);
+    const building = bld(w).get(id);
+    const inputs = building?.settings['inputs'] as { type: string; material: number }[];
+    expect(inputs.filter((i) => i.type === 'stone_block')).toHaveLength(3);
+    expect(inputs.filter((i) => i.type === 'log')).toHaveLength(1);
+
+    const blocks = w.game.world.entities.with(C.Item).filter((itId) => {
+      const it = items(w).get(itId);
+      return it !== undefined && items(w).def(it.type)?.id === 'stone_block';
+    });
+    expect(blocks).toHaveLength(1);
+    const remItem = items(w).get(blocks[0]!);
+    expect(remItem?.count).toBe(1);
+    const remTile = items(w).tileOf(blocks[0]!);
+    const allowedTiles = [origin, ...w.map.neighbors8(origin)];
+    expect(allowedTiles).toContain(remTile);
   });
 });

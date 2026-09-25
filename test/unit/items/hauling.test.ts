@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { C, ItemFlag } from '@core/components';
+import { TileKind } from '@core/map3d';
 import type { EntityId } from '@core/types';
 import type { ItemsReader, ItemsSystem } from '@systems/items';
 import { HAUL_JOBS_PER_TICK } from '@systems/items/constants';
@@ -159,5 +160,41 @@ describe('T-M2-04 haul jobs', () => {
     expect(w.game.world.entities.get(corpse, C.Corpse)?.wornItems).toEqual([]);
     expect(items(w).get(helm)?.carriedBy).toBe(0);
     expect(items(w).tileOf(helm)).toBe(t);
+  });
+});
+
+describe('F-01 haul job cancellation on pickup', () => {
+  it('a haul job is cancelled when another job picks its item up', () => {
+    const w = new TestWorld({ seed: 'haul-pick-cancel', world: 'flat-test', embark: 'none' });
+    const dwarf = w.spawnDwarf({ at: w.index(40, 40, Z), skills: { mining: 5 } });
+    const labors = w.game.registry.table('labors');
+    const enabled = new Uint8Array((labors.size >> 3) + 1);
+    const miningIdx = labors.index('mining');
+    enabled[miningIdx >> 3] = (enabled[miningIdx >> 3] as number) | (1 << (miningIdx & 7));
+    w.game.world.entities.add(dwarf, C.Labors, { enabled });
+
+    const pick = w.spawnItem('pick', 'iron', w.index(42, 40, Z));
+
+    const stoneSp = w.zone('stockpile', rect(w, 45, 40, Z, 2, 2));
+    apply(w, { type: 'SetStockpileFilter', zoneId: stoneSp, filter: 'stone' });
+
+    const toolsSp = w.zone('stockpile', rect(w, 48, 40, Z, 2, 2));
+    apply(w, { type: 'SetStockpileFilter', zoneId: toolsSp, filter: { categories: ['tool'] } });
+
+    w.step(2);
+    const jobs = w.readers.of<{ byKey(k: string): unknown }>('11');
+    expect(jobs.byKey(`haul:${pick}`)).toBeDefined();
+
+    const wall = w.index(20, 20, Z);
+    w.game.world.services.terrain.setKind(wall, TileKind.Wall, w.game.registry.table('materials').index('granite'));
+    w.game.world.applyCommand({ type: 'Designate', tiles: [wall], kind: 'dig' });
+
+    w.until((x) => x.events('ToolEquipped').some((e) => e['itemId'] === pick), 2000);
+    w.step(10);
+
+    const cancelled = w.events('JobCancelled').filter((e) => e['reason'] === 'target_invalid' && e['target'] === pick);
+    expect(cancelled.length).toBeGreaterThan(0);
+
+    expect(jobs.byKey(`haul:${pick}`)).toBeUndefined();
   });
 });

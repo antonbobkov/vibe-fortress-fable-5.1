@@ -519,13 +519,20 @@ export class BuildingStore {
       const material = (b.settings['materialChoice'] as number | undefined) ?? 0;
       if (b.state !== 'built') {
         if (jobs.exists(buildKey(id))) continue;
+        const inputs = this.inputsFor(row, b.footprint.length, material);
         jobs.create(buildKey(id), {
           type: 'build',
           target: { kind: 'building', ref: id },
           workTile: standsAt(row.id, this.map, b.origin) ? 'at' : 'adjacent',
           priority,
-          inputs: this.inputsFor(row, b.footprint.length, material),
-          data: { building: id, anchorTile: anchor, labor: this.laborFor(row, material), buildTicks: row.buildTicks },
+          inputs,
+          data: {
+            building: id,
+            anchorTile: anchor,
+            labor: this.laborFor(row, material),
+            buildTicks: row.buildTicks,
+            inputUnits: inputs.some((i) => i.count > 1),
+          },
         });
       } else if (b.settings['deconstruct'] === true) {
         if (jobs.exists(deconstructKey(id))) continue;
@@ -555,22 +562,35 @@ export class BuildingStore {
     if (typeof id !== 'number' || this.get(id) === undefined) return;
     if (job.key.startsWith('build:')) {
       const delivered: EntityId[] = [];
-      for (const input of job.inputs) for (const it of input.delivered) delivered.push(it);
-      this.complete(id, delivered, 0);
+      const take = new Map<EntityId, number>();
+      for (const input of job.inputs) {
+        let remaining = input.count;
+        for (const it of input.delivered) {
+          delivered.push(it);
+          if (remaining > 0) {
+            const stackCount = this.host.entities.get(it, C.Item)?.count ?? 1;
+            const units = Math.min(remaining, stackCount);
+            take.set(it, units);
+            remaining -= units;
+          }
+        }
+      }
+      this.complete(id, delivered, 0, 0, take);
     } else if (job.key.startsWith('deconstruct:')) {
       this.dismantle(id);
     }
   }
 
   /**
-   * Build completion: consume the inputs (one unit of each delivered stack; D-073), `built`, the
-   * tile change of a construction, `BuildingCompleted { id, buildingType, value }`. A piece of
-   * furniture *links* its item instead (`Building.itemId`, 14 § Placement): the item leaves the map
-   * as `Installed` and gives the building its material (D-074). With no delivered inputs
-   * (`TestWorld.build`), `linked` names the furniture item to link (else one is made), and
-   * `material` and the first alternative of each input stand in for the rest.
+   * Build completion: consume the inputs (one unit of each delivered stack, or units from `take`;
+   * D-073, Decision F-01c, D-154), `built`, the tile change of a construction,
+   * `BuildingCompleted { id, buildingType, value }`. A piece of furniture *links* its item instead
+   * (`Building.itemId`, 14 § Placement): the item leaves the map as `Installed` and gives the
+   * building its material (D-074). With no delivered inputs (`TestWorld.build`), `linked` names the
+   * furniture item to link (else one is made), and `material` and the first alternative of each
+   * input stand in for the rest.
    */
-  complete(id: EntityId, delivered: readonly EntityId[], material: number, linked: EntityId = 0): void {
+  complete(id: EntityId, delivered: readonly EntityId[], material: number, linked: EntityId = 0, take?: ReadonlyMap<EntityId, number>): void {
     const b = this.get(id) as Building;
     const row = this.row(b.type);
     const items = this.host.services.items;
@@ -584,8 +604,12 @@ export class BuildingStore {
         itemId = it;
         continue;
       }
-      used.push({ type: this.itemTypes[rec.type]?.id ?? '', material: rec.material });
-      items?.consume(it, 1);
+      const units = take?.get(it) ?? 1;
+      if (units <= 0) continue;
+      for (let u = 0; u < units; u += 1) {
+        used.push({ type: this.itemTypes[rec.type]?.id ?? '', material: rec.material });
+      }
+      items?.consume(it, units);
     }
     if (delivered.length === 0) {
       row.inputs.forEach((input, k) => {
@@ -867,6 +891,6 @@ export class BuildingStore {
 /** The part of 11's job record the producer reads. */
 interface JobLike {
   readonly key: string;
-  readonly inputs: readonly { readonly delivered: readonly EntityId[] }[];
+  readonly inputs: readonly { readonly count: number; readonly delivered: readonly EntityId[] }[];
   readonly data: Readonly<Record<string, unknown>>;
 }

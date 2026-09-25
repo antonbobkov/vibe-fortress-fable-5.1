@@ -107,7 +107,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 
 ## M5.5 — Audit fixes ([fixes/README.md](fixes/README.md))
 
-- [ ] F-01 — Job assignment livelock
+- [x] F-01 — Job assignment livelock (agy-f01, 2026-09-25)
 - [ ] F-02 — Mood: need pressure and the needs-met floor
 - [ ] F-03 — Fluids: equalize budget and settling
 - [ ] F-04 — Year-one bootstrap scenario

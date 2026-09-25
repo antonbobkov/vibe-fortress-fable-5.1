@@ -41,7 +41,7 @@ export interface ItemSource {
   /** `findItems(filter, n, from, cls, {reservable: true})`, nearest first. */
   findItems(filter: ItemFilter, n: number, from: TileIndex): EntityId[];
   /** Craft inputs count units even when several units share a stack. */
-  findUnits?(filter: ItemFilter, n: number, from: TileIndex): EntityId[];
+  findUnits?(filter: ItemFilter, n: number, from: TileIndex, split?: boolean): EntityId[];
   /** Current units in an item id; used by jobs whose input count denotes units. */
   countOf?(itemId: EntityId): number;
   /** A free tool of the kind (`tag: pick`, `axe`, …) near `from`, or 0. */

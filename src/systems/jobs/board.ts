@@ -371,9 +371,8 @@ export class JobBoard implements JobsApi, JobSink {
 
   /**
    * `retryBlocked(n)`: blocked jobs whose retry is due, in creation order from the cursor, at most
-   * `BLOCKED_RETRIES_PER_TICK` of them. A job blocked for a reason the board can check (`no_worker`,
-   * `unreachable`) opens only once the reason is gone (D-054); the others open and are re-checked
-   * by assignment.
+   * `BLOCKED_RETRIES_PER_TICK` of them. A blocked job opens only once its reason is gone: `no_worker`
+   * and `unreachable` (D-054), and `missing_input` and `no_tool` (Decision F-01a, D-153).
    */
   retryBlocked(): void {
     const due = this.ids.filter((id) => {
@@ -402,10 +401,56 @@ export class JobBoard implements JobsApi, JobSink {
           continue;
         }
       }
+      if (reason === 'missing_input' || reason === 'no_tool') {
+        if (!this.inputsAvailable(job)) {
+          job.retryTick = this.now + BLOCKED_RETRY_TICKS;
+          continue;
+        }
+      }
       job.state = 'open';
       job.blockedReason = null;
       this.notify(job, { type: 'JobUnblocked', jobId: job.id, jobType: this.typeId(job), target: job.target.ref });
     }
+  }
+
+  private inputsAvailable(job: Job): boolean {
+    const stands = this.standTiles(job);
+    const from = stands.length > 0 ? (stands[0] as TileIndex) : this.anchorTile(job);
+    if (from < 0 || !this.world.map.validIndex(from)) return false;
+
+    if (job.blockedReason === 'missing_input') {
+      const units = job.data['inputUnits'] === true;
+      const count = (id: EntityId): number => (units ? (this.items.countOf?.(id) ?? 1) : 1);
+      for (const input of job.inputs) {
+        const needed =
+          input.count -
+          input.delivered.reduce((sum, id) => sum + count(id), 0) -
+          input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
+        if (needed <= 0) continue;
+        const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
+        const found =
+          units && this.items.findUnits !== undefined
+            ? this.items.findUnits(filter, needed, from, false)
+            : this.items.findItems(filter, needed, from);
+        if (found.reduce((sum, id) => sum + count(id), 0) < needed) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    if (job.blockedReason === 'no_tool') {
+      const tool = job.tool;
+      if (tool !== null && job.data['toolToFetch'] === undefined) {
+        const carried = this.workers().some((w) => this.items.hasTool(w, tool));
+        if (!carried && this.items.findTool(tool, from) === 0) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    return true;
   }
 
   // ---------- reservations ----------
@@ -541,7 +586,10 @@ export class JobBoard implements JobsApi, JobSink {
     return !free;
   }
 
-  /** `assign(w)` of the algorithm: candidates, score, claim. Returns the claimed job id or 0. */
+  /**
+   * `assign(w)` of the algorithm: candidates, score, claim. When a claim fails, falls through to the
+   * next candidate (Decision F-01b, D-153). Returns the claimed job id or 0.
+   */
   assignOne(workerId: EntityId): number {
     if (!this.world.entities.alive(workerId)) return 0;
     if (this.workerOf(workerId).jobId !== 0) return 0;
@@ -563,10 +611,16 @@ export class JobBoard implements JobsApi, JobSink {
         workshopWorker: job.data['workshopWorker'] === workerId,
       });
     }
-    const chosen = choose(candidates);
-    if (chosen === 0) return 0;
-    const job = this.jobs.get(chosen) as Job;
-    return this.claim(workerId, job) ? job.id : 0;
+    const pool = candidates;
+    while (pool.length > 0) {
+      const chosen = choose(pool);
+      if (chosen === 0) return 0;
+      const job = this.jobs.get(chosen) as Job;
+      if (this.claim(workerId, job)) return job.id;
+      const idx = pool.findIndex((c) => c.jobId === chosen);
+      if (idx >= 0) pool.splice(idx, 1);
+    }
+    return 0;
   }
 
   /** `claim(w, job)`: reserve inputs and the tool; `missing_input` / `no_tool` block the job. */
@@ -584,8 +638,9 @@ export class JobBoard implements JobsApi, JobSink {
         - input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
       if (needed <= 0) continue;
       const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
+      const isBuild = this.typeId(job) === 'build';
       const found = job.data['inputUnits'] === true && this.items.findUnits !== undefined
-        ? this.items.findUnits(filter, needed, from)
+        ? this.items.findUnits(filter, needed, from, !isBuild)
         : this.items.findItems(filter, needed, from);
       if (found.reduce((sum, id) => sum + count(id), 0) < needed) {
         this.unclaim(job, 'missing_input');

@@ -43,7 +43,7 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
   };
   return {
     findItems: (filter, n, from) => reader.findItems(filter, n, from, 'walker', { reservable: true }),
-    findUnits: (filter, n, from) => {
+    findUnits: (filter, n, from, split = true) => {
       const candidates: { id: EntityId; count: number; order: number }[] = [];
       const excluded = [...(filter.excludeIds ?? [])];
       for (;;) {
@@ -63,6 +63,9 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
         remaining -= candidate.count;
       }
       if (remaining > 0) return [];
+      if (!split) {
+        return selected.sort((a, b) => a.order - b.order).map((c) => c.id);
+      }
       const out: EntityId[] = [];
       remaining = n;
       for (const candidate of selected.sort((a, b) => a.order - b.order)) {

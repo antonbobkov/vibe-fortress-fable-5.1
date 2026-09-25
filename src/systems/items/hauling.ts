@@ -33,7 +33,7 @@ import { WANTED_CLASSES, type Slot, type StockpileStore } from './stockpiles';
 /** What hauling reads of 11 (`readers.of('11')`). */
 export interface JobsView {
   get(id: number): { readonly id: number; readonly key: string; readonly producer: string; readonly data: Readonly<Record<string, unknown>> } | undefined;
-  byKey(key: string): { readonly id: number } | undefined;
+  byKey(key: string): { readonly id: number; readonly state?: string } | undefined;
   list(): readonly { readonly id: number; readonly producer: string; readonly data: Readonly<Record<string, unknown>> }[];
 }
 
@@ -132,6 +132,7 @@ export class Hauling {
     } else {
       sortedRemove(this.wants, id);
       sortedRemove(this.noHome, id);
+      this.cancelFor(id, true);
     }
   }
 
@@ -145,20 +146,20 @@ export class Hauling {
 
   // ---------- jobs ----------
 
-  private jobIdOf(key: string): number {
-    return this.host.jobsView()?.byKey(key)?.id ?? 0;
-  }
-
   private hasJob(id: EntityId): boolean {
     const jobs = this.host.jobs();
     return jobs.exists(haulKey(id)) || jobs.exists(dumpKey(id));
   }
 
-  /** The item is gone: its haul jobs go too. */
-  private cancelFor(id: EntityId): void {
+  /** The item is gone (or stops wanting hauling): its haul jobs go too (Decision F-01d, D-154). */
+  private cancelFor(id: EntityId, onlyUnclaimed = false): void {
+    const view = this.host.jobsView();
     for (const key of [haulKey(id), dumpKey(id), stripKey(id)]) {
-      const job = this.jobIdOf(key);
-      if (job !== 0) this.host.jobs().cancel(job, 'target_invalid');
+      const job = view?.byKey(key);
+      if (job === undefined || job.id === 0) continue;
+      if (!onlyUnclaimed || job.state === 'open' || job.state === 'blocked') {
+        this.host.jobs().cancel(job.id, 'target_invalid');
+      }
     }
   }
 

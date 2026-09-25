@@ -65,6 +65,8 @@ Each tick, for up to `ASSIGN_WORKERS_PER_TICK` workers that asked for a job (10 
 
 Workers keep the tool in their weapon slot after the job; a dwarf whose `mining` and `woodcutting` labors are both off drops the tool at the next stockpile they pass.
 
+If the claim of the chosen job fails (it blocks `missing_input` or `no_tool`), the worker tries the next candidate in the same order; only when every candidate fails does the worker go idle.
+
 ### Job steps
 
 `jobs.stepWorker(id, ctx)` is called by 10 every tick for a dwarf in `work` behavior:
@@ -104,6 +106,8 @@ Hauling is a family of job types produced by 13 (`haul_to_stockpile`), 12 (`haul
 | `no_magma` | magma workshop lost its magma | `FluidsChanged` |
 
 Blocked jobs are re-evaluated on their trigger or every `BLOCKED_RETRY_TICKS`, whichever comes first, in creation order, at most `BLOCKED_RETRIES_PER_TICK` per tick.
+
+A re-evaluated job opens only when its reason is gone: a worker with the labor exists (`no_worker`), a stand tile shares a connectivity label with such a worker (`unreachable`), every input still needed can be found (`missing_input`), and the tool is carried by a worker or can be found (`no_tool`). Otherwise it stays blocked until its next trigger or `BLOCKED_RETRY_TICKS`. A job whose inputs cannot be found must never be offered to workers, or it starves every job ranked below it.
 
 ### Cancellation
 
