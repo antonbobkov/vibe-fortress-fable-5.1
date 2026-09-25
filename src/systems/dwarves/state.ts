@@ -5,6 +5,7 @@
 
 import type { RngState } from '@core/rng';
 import type { EntityId, TileIndex } from '@core/types';
+import type { NeedName } from './needs';
 
 export type TitleName = 'thane' | 'warden' | 'broker' | 'chief_medic';
 
@@ -41,4 +42,5 @@ export interface DwarvesStateV1 {
   idleAnnounced?: EntityId[];
   /** T-M5-07: each dwarf remembers individual masterwork items seen on room entry. */
   sawMasterworks?: [EntityId, EntityId][];
+  needRetryUntil?: [EntityId, NeedName, number][];
 }

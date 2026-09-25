@@ -23,6 +23,7 @@ export const IDLE_TICKS = 50;
 export const DINING_SEARCH_RADIUS = 40;
 /** A job at priority 1–2 is done before a want-level need. */
 export const NEED_DEFER_PRIORITY = 2;
+export const NEED_RETRY_TICKS = 50;
 export const THREAT_RADIUS = 8;
 export const FRIEND_TALKS = 5;
 export const GRUDGE_DAYS = 28;

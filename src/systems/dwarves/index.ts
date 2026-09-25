@@ -484,6 +484,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       idleAnnounced: Array.from(this.idleAnnounced).sort((a, b) => a - b),
       ...(this.sawMasterworks.size > 0 ? { sawMasterworks: Array.from(this.sawMasterworks).sort()
         .map((key) => key.split(':').map(Number) as [EntityId, EntityId]) } : {}),
+      ...(this.activities.serializeRetryUntil().length > 0 ? { needRetryUntil: this.activities.serializeRetryUntil() } : {}),
     };
   }
 
@@ -509,5 +510,9 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     for (const id of state.idleAnnounced ?? []) this.idleAnnounced.add(id);
     this.sawMasterworks.clear();
     for (const [id, itemId] of state.sawMasterworks ?? []) this.sawMasterworks.add(`${id}:${itemId}`);
+    this.activities.retryUntil.clear();
+    for (const [id, need, until] of state.needRetryUntil ?? []) {
+      this.activities.setRetryUntil(id, need, until);
+    }
   }
 }

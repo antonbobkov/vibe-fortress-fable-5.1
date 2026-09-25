@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { C } from '@core/components';
 import { TileKind, TileFlag } from '@core/map3d';
 import type { DwarvesReader } from '@systems/dwarves';
+import { NEED_RETRY_TICKS } from '@systems/dwarves/constants';
 import { TestWorld } from '../../scenarios/test-world';
+import { stairShaft } from '../../scenarios/m1-helpers';
 import type { JobsReader, JobSink } from '@systems/jobs';
 
 const Z = 32;
@@ -117,3 +119,195 @@ describe('T-M4-06 activities', () => {
     expect(w.dwarves.activities.plans.has(id)).toBe(false);
   });
 });
+
+describe('F-05 need activities', () => {
+  it('any dwarf present in the meeting area is a partner', () => {
+    const w = new TestWorld({ seed: 'f05-partner', world: 'flat-test', embark: 'none' });
+    const meetingTiles: number[] = [];
+    for (let y = 20; y <= 22; y += 1) {
+      for (let x = 20; x <= 22; x += 1) {
+        meetingTiles.push(w.index(x, y, Z));
+      }
+    }
+    w.zone('meeting_area', meetingTiles);
+
+    const b = w.spawnDwarf({ at: w.index(21, 21, Z) });
+    const a = w.spawnDwarf({ at: w.index(30, 21, Z) });
+    const c = w.spawnDwarf({ at: w.index(60, 60, Z) });
+
+    // C is A's friend
+    const relA = w.game.world.entities.get(a, C.Relationships);
+    if (relA) w.game.world.entities.add(a, C.Relationships, { ...relA, friends: [c] });
+
+    w.setNeed(a, 'social', 55);
+
+    for (let t = 0; t < 8; t += 1) {
+      w.step(50);
+      for (const need of ['hunger', 'thirst', 'rest', 'comfort', 'purpose', 'joy'] as const) {
+        w.setNeed(a, need, 0);
+        w.setNeed(b, need, 0);
+        w.setNeed(c, need, 0);
+      }
+      if (w.events('Talked').length > 0) break;
+    }
+
+    const talked = w.events('Talked');
+    expect(talked.some((e) => (e['a'] === a && e['b'] === b) || (e['a'] === b && e['b'] === a))).toBe(true);
+  });
+
+  it('an unreachable bed is not chosen and does not loop', () => {
+    const w = new TestWorld({ seed: 'f05-unreachable-bed', world: 'flat-test', embark: 'none' });
+    const start = w.index(20, 20, Z);
+    const id = w.spawnDwarf({ at: start });
+
+    // Bed 1 at distance 3: (23, 20, Z), walled on every side (no door)
+    const bed1 = w.index(23, 20, Z);
+    const granite = w.game.registry.table('materials').index('granite');
+    for (let y = 19; y <= 21; y += 1) {
+      for (let x = 22; x <= 24; x += 1) {
+        if (x === 23 && y === 20) continue;
+        w.carve(w.index(x, y, Z), TileKind.Wall, granite);
+      }
+    }
+    w.build('bed', bed1, 'oak');
+
+    // Bed 2 reachable at distance 12: (20, 32, Z)
+    const bed2 = w.index(20, 32, Z);
+    w.build('bed', bed2, 'oak');
+
+    // Dwarf rest 95, outside the sleep window
+    w.game.world.applyCommand({ type: 'SetSchedule', dwarfId: id, sleepStartHour: 22 });
+    w.setNeed(id, 'rest', 95);
+
+    let sleptAtBed2 = false;
+    for (let t = 0; t < 600; t += 1) {
+      w.step(1);
+      const slept = w.events('Slept').find((e) => e['id'] === id);
+      if (slept) {
+        expect(slept['onFloor']).toBe(false);
+        const dwarfTile = w.game.world.services.movement?.tileOf(id);
+        expect(dwarfTile).toBe(bed2);
+        sleptAtBed2 = true;
+        break;
+      }
+    }
+    expect(sleptAtBed2).toBe(true);
+  });
+
+  it('a need whose only target is unreachable is retried at most once an hour', () => {
+    const w = new TestWorld({ seed: 'f05-retry-block', world: 'flat-test', embark: 'none' });
+    const start = w.index(20, 20, Z);
+    const id = w.spawnDwarf({ at: start });
+
+    // The only water is a tile inside a sealed room; no drink items.
+    const waterTile = w.index(25, 20, Z);
+    const granite = w.game.registry.table('materials').index('granite');
+    for (let y = 19; y <= 21; y += 1) {
+      for (let x = 24; x <= 26; x += 1) {
+        if (x === 25 && y === 20) continue;
+        w.carve(w.index(x, y, Z), TileKind.Wall, granite);
+      }
+    }
+    w.setFluid(waterTile, 5, 'water', true);
+
+    // Thirst 55, a dig designation reachable, a pick on the ground.
+    w.setNeed(id, 'thirst', 55);
+    const digTarget = w.index(20, 22, Z);
+    w.carve(digTarget, TileKind.Wall, granite);
+    w.spawnItem('pick', 'copper', start);
+    w.game.world.applyCommand({ type: 'SetLabor', dwarfId: id, labor: 'mining', on: true });
+    w.game.world.applyCommand({ type: 'Designate', tiles: [digTarget], kind: 'dig' });
+
+    let thirstStarts = 0;
+    let prevNeed: string | undefined = undefined;
+
+    for (let t = 0; t < 600; t += 1) {
+      w.step(1);
+      const curNeed = w.dwarves.activities.plans.get(id)?.need;
+      if (curNeed === 'thirst' && prevNeed !== 'thirst') {
+        thirstStarts += 1;
+      }
+      prevNeed = curNeed;
+    }
+
+    expect(thirstStarts).toBeLessThanOrEqual(Math.ceil(600 / NEED_RETRY_TICKS) + 1);
+    // The dig job completes (the dwarf still works)
+    expect(w.map.kindAt(digTarget)).toBe(TileKind.Floor);
+  });
+
+  it('a dwarf underground drinks from surface water', () => {
+    const w = new TestWorld({ seed: 'f05-surface-water', world: 'flat-test', embark: 'none' });
+    const granite = w.game.registry.table('materials').index('granite');
+
+    // stairShaft from z 32 to 29
+    stairShaft(w, 20, 20, 32, 29);
+
+    // with the dwarf at z 29 in a dug 3x3 room
+    for (let y = 19; y <= 21; y += 1) {
+      for (let x = 19; x <= 21; x += 1) {
+        if (x === 20 && y === 20) continue;
+        w.carve(w.index(x, y, 29), TileKind.Floor, granite);
+      }
+    }
+    const id = w.spawnDwarf({ at: w.index(19, 19, 29) });
+
+    // A water source at level 7 on a surface floor tile (x, y, 32) whose four cardinal neighbours
+    // are set to Wall granite; its diagonal (x+1, y+1, 32) stays floor.
+    const wx = 25;
+    const wy = 20;
+    const waterTile = w.index(wx, wy, 32);
+    w.carve(waterTile, TileKind.Floor);
+    w.setFluid(waterTile, 7, 'water', true);
+
+    w.carve(w.index(wx + 1, wy, 32), TileKind.Wall, granite);
+    w.carve(w.index(wx - 1, wy, 32), TileKind.Wall, granite);
+    w.carve(w.index(wx, wy + 1, 32), TileKind.Wall, granite);
+    w.carve(w.index(wx, wy - 1, 32), TileKind.Wall, granite);
+    w.carve(w.index(wx + 1, wy + 1, 32), TileKind.Floor);
+
+    // Thirst 55, no drink items
+    w.setNeed(id, 'thirst', 55);
+
+    w.step(800);
+    expect(w.events('DrankWater').some((e) => e['id'] === id)).toBe(true);
+  });
+
+  it('retry block on unreachable walk failure blocks the need for NEED_RETRY_TICKS and serializes', () => {
+    const w = new TestWorld({ seed: 'f05-retry-serialize', world: 'flat-test', embark: 'none' });
+    const id = w.spawnDwarf({ at: w.index(10, 10, Z) });
+    const unreachableTile = w.index(40, 40, Z);
+
+    // Directly set plan to unreachable tile
+    w.dwarves.activities.plans.set(id, {
+      need: 'comfort',
+      phase: 'travel',
+      itemId: 0,
+      partner: 0,
+      target: unreachableTile,
+      until: 0,
+      ownBed: false,
+      roomTier: 0,
+      startedRest: 0,
+      atTable: false,
+    });
+    const brain = w.game.world.entities.get(id, C.Brain)!;
+    w.game.world.entities.add(id, C.Brain, { ...brain, behavior: 'need', activity: 'comfort', targetTile: unreachableTile });
+
+    // Mock movement to return unreachable
+    const origWalkTo = w.game.world.services.movement!.walkTo;
+    w.game.world.services.movement!.walkTo = () => 'unreachable';
+
+    w.step(1);
+    expect(w.dwarves.activities.plans.has(id)).toBe(false);
+    expect(w.dwarves.activities.isBlocked(id, 'comfort', w.game.world.calendar.tick)).toBe(true);
+
+    // Serialize and deserialize
+    const serialized = w.dwarves.serialize();
+    expect(serialized.needRetryUntil).toBeDefined();
+    expect(serialized.needRetryUntil?.some(([d, need]) => d === id && need === 'comfort')).toBe(true);
+
+    // Restore movement
+    w.game.world.services.movement!.walkTo = origWalkTo;
+  });
+});
+

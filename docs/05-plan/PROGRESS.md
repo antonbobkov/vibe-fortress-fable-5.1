@@ -111,7 +111,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] F-02 — Mood: need pressure and the needs-met floor (agy-f02, 2026-09-25)
 - [x] F-03 — Fluids: equalize budget and settling (agy-f03, 2026-09-25)
 - [ ] F-04 — Year-one bootstrap scenario
-- [ ] F-05 — Dwarf need activities
+- [x] F-05 — Dwarf need activities (agy-f05, 2026-09-25)
 - [ ] F-06 — Recipe smoke through the real loop
 - [ ] F-07 — Recipe constraints as content
 - [ ] F-08 — M6/M7 spec arithmetic and gaps

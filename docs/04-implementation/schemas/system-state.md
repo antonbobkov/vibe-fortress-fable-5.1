@@ -41,7 +41,7 @@ interface ForagingState { stateVersion: 1; huntable: Idx<SpeciesDef>[]; hunterAs
   bodiesStale: boolean; rng: RngState }
 
 interface DwarvesState { stateVersion: 1; titles: Record<'thane'|'warden'|'broker'|'chief_medic', EntityId>; populationCached: number; children: EntityId[];
-  rng: RngState }
+  needRetryUntil?: [EntityId, NeedName, Tick][]; rng: RngState }
 
 interface JobsState { stateVersion: 1; jobs: Job[]; nextJobId: number; laborPriorities: Uint8Array; standingOrders: Record<string, boolean>;
   assignQueue: EntityId[]; blockedRetryCursor: number }

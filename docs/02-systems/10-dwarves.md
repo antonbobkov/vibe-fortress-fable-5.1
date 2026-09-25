@@ -53,7 +53,7 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 ### Eating and drinking
 
 - Food search: nearest reachable edible item that is not forbidden or reserved, preferring `meal` items, then raw food, using 13's `findItem`. The dwarf carries it to the nearest dining hall chair with a table if one is within `DINING_SEARCH_RADIUS`, else eats on the spot. Emits `MealEaten { id, quality, atTable, roomTier }`.
-- Drink search: alcohol in a barrel in a stockpile, else a well with water, else an adjacent water tile of level ≥ 1. Emits `DrankAlcohol { id, quality }` or `DrankWater { id }` (dwarves prefer ale; water gives a mild negative thought).
+- Drink search: alcohol in a barrel in a stockpile, else a well with water, else the nearest reachable water tile of level ≥ 1 (not frozen) within 32 tiles horizontally and 8 levels up or down, drunk from any walkable tile 8-adjacent to it on its level. Emits `DrankAlcohol { id, quality }` or `DrankWater { id }` (dwarves prefer ale; water gives a mild negative thought).
 - Eating and drinking take `EAT_TICKS` and `DRINK_TICKS`.
 - Patients are fed by care jobs (17).
 
@@ -65,7 +65,7 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 
 ### Social, comfort, joy
 
-- Social: go to the hearth hall or a meeting area; if another dwarf is there, both `Talked { a, b }` after `TALK_TICKS`; relationships increment; friends after `FRIEND_TALKS` talks. Talking to a friend relieves 60 instead of 40.
+- Social: go to the nearest reachable hearth-hall or meeting-area tile and wait up to `SOCIAL_WAIT_TICKS`; the first dwarf within 2 tiles on the same level who is not asleep (friends first, then by id) is the partner; both get `Talked { a, b }` after `TALK_TICKS`; relationships increment; friends after `FRIEND_TALKS` talks. Talking to a friend relieves 60 instead of 40. The partner is not interrupted.
 - Comfort: sit on a free chair in the best-tier room within reach for `SIT_TICKS`.
 - Joy: a visit to the hearth hall counts (`HearthVisited`); mist (`DwarfFeltMist`), warm springs (`DwarfNearSpring`), fine meals and seeing a masterwork item in a room they enter (`SawMasterwork`, once per item per dwarf) count.
 - Idle dwarves without a want go to the hearth hall and stand or sit there; the hearth hall is the default place.
@@ -85,6 +85,8 @@ Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and
 9. `idle`: go to the hearth hall and wait up to `IDLE_TICKS`, then re-evaluate; re-evaluate at once if a job becomes available for this dwarf before the wait is over, so that new work is never ignored for a whole hour. Idle dwarves are shown as "No job" in the units panel.
 
 Children skip 5 and 7 except for hauling jobs (they have only the `hauling` labor and it cannot be turned off).
+
+Every target a need activity walks to must be reachable (connectivity labels). If the walk still fails, the dwarf does not retry that need for `NEED_RETRY_TICKS`.
 
 ### Movement
 
@@ -171,6 +173,7 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 | `IDLE_TICKS` | 50 | |
 | `DINING_SEARCH_RADIUS` | 40 | Tiles (path distance) |
 | `NEED_DEFER_PRIORITY` | 2 | A job at priority 1–2 is done before a want-level need |
+| `NEED_RETRY_TICKS` | 50 | After an unreachable need target |
 | `THREAT_RADIUS` | 8 | |
 | `FRIEND_TALKS` | 5 | |
 | `GRUDGE_DAYS` | 28 | |
