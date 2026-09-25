@@ -1,9 +1,7 @@
 /** `acceptance-tests.md` ws_masterwork; `12` § Quality and `15` § Thoughts. */
 import { expect } from 'vitest';
-import type { TickContext } from '@core/system';
-import type { Job } from '@systems/jobs';
 import type { MoraleReader } from '@systems/morale';
-import type { WorkshopsSystem } from '@systems/workshops';
+import type { TileIndex } from '@core/types';
 import type { Scenario } from './runner';
 
 const scenario: Scenario = {
@@ -11,18 +9,33 @@ const scenario: Scenario = {
   run: (w) => {
     const at = w.index(15, 15, 32);
     const carpenter = w.build('carpenter', at);
-    const maker = w.spawnDwarf({ at: w.index(19, 17, 32), skills: { carpentry: 20 } });
-    w.step(1);
-    const op = (w.game.world.scheduler.byId('12') as WorkshopsSystem).operator;
-    const ctx = { world: w.game.world, registry: w.game.registry, spawn: w.game.world.services.spawn,
-      emit: (event: Parameters<typeof w.game.world.emit>[0]) => w.game.world.emit(event) } as unknown as TickContext;
-    for (let n = 0; n < 100; n += 1) {
-      const log = w.spawnItem('log', 'oak', w.index(19, 18, 32));
-      op.producer().onComplete?.({ id: n + 1, workerId: maker, target: { kind: 'building', ref: carpenter },
-        inputs: [{ filter: {}, count: 1, reserved: [log], delivered: [log] }],
-        data: { recipe: 'make_bed', orderIndex: -1, globalOrder: false } } as unknown as Job, ctx);
+    const maker = w.spawnDwarf({ at: w.index(18, 16, 32), skills: { carpentry: 20 } });
+    for (const labor of w.game.registry.table<{ id: string }>('labors').ids()) {
+      if (labor !== 'carpentry') {
+        w.game.world.applyCommand({ type: 'SetLabor', dwarfId: maker, labor, on: false });
+      }
     }
-    w.step(2);
+
+    const pileTiles: TileIndex[] = [];
+    for (let dy = 0; dy < 10; dy += 1) {
+      for (let dx = 0; dx < 10; dx += 1) {
+        const tile = w.index(19 + dx, 15 + dy, 32);
+        pileTiles.push(tile);
+        w.spawnItem('log', 'oak', tile, 1);
+      }
+    }
+    const pile = w.zone('stockpile', pileTiles);
+    w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: pile, filter: 'wood' });
+
+    w.step(1);
+    w.game.world.applyCommand({
+      type: 'AddWorkOrder',
+      workshopId: carpenter,
+      order: { recipeId: 'make_bed', mode: 'once', remaining: 100, priority: 5 },
+    });
+
+    w.until(() => w.events('ItemCrafted').filter((e) => e['recipeId'] === 'make_bed').length >= 100, 30000);
+
     const crafted = w.events('ItemCrafted').filter((e) => e['recipeId'] === 'make_bed');
     expect(crafted).toHaveLength(100);
     const masterworks = w.events('MasterworkCreated').filter((e) => e['crafterId'] === maker);

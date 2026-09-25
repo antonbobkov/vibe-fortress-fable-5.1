@@ -5,9 +5,6 @@
 
 import { expect } from 'vitest';
 import type { ItemsReader } from '@systems/items';
-import type { TickContext } from '@core/system';
-import type { Job } from '@systems/jobs';
-import type { WorkshopsSystem } from '@systems/workshops';
 import type { Scenario } from './runner';
 
 let breastplate = 0;
@@ -20,29 +17,47 @@ const scenario: Scenario = {
   setup: (w) => {
     breastplate = w.spawnItem('breastplate', 'steel', w.index(40, 40, 32), 1, 5);
   },
-  run: 1,
-  expect: (w) => {
+  run: (w) => {
     const items = w.readers.of<ItemsReader>('13');
+    // First assertion: directly-constructed masterwork steel breastplate value check
     expect(items.get(breastplate)).toMatchObject({ quality: 5, count: 1 });
     expect(items.value(breastplate)).toBe(4000);
+
+    // Second assertion: through the real workshop loop
     const forge = w.build('forge', w.index(15, 15, 32));
-    const maker = w.spawnDwarf({ at: w.index(19, 17, 32), skills: { armorsmithing: 20 } });
-    w.step(1);
-    const op = (w.game.world.scheduler.byId('12') as WorkshopsSystem).operator;
-    const ctx = { world: w.game.world, registry: w.game.registry, spawn: w.game.world.services.spawn,
-      emit: (event: Parameters<typeof w.game.world.emit>[0]) => w.game.world.emit(event) } as unknown as TickContext;
-    for (let n = 0; n < 20 && w.events('ItemCrafted').filter((e) => e['recipeId'] === 'forge_breastplate' && e['quality'] === 5).length === 0; n += 1) {
-      const bars = w.spawnItem('bar', 'steel', w.index(19, 18, 32), 4);
-      const fuel = w.spawnItem('charcoal_bar', 'charcoal', w.index(19, 18, 32));
-      op.producer().onComplete?.({ id: n + 1, workerId: maker, target: { kind: 'building', ref: forge },
-        inputs: [{ filter: {}, count: 4, reserved: [bars], delivered: [bars] }, { filter: {}, count: 1, reserved: [fuel], delivered: [fuel] }],
-        data: { recipe: 'forge_breastplate', orderIndex: -1, globalOrder: false } } as unknown as Job, ctx);
+    const maker = w.spawnDwarf({ at: w.index(18, 16, 32), skills: { armorsmithing: 20 } });
+    for (const labor of w.game.registry.table<{ id: string }>('labors').ids()) {
+      if (labor !== 'smithing') {
+        w.game.world.applyCommand({ type: 'SetLabor', dwarfId: maker, labor, on: false });
+      }
     }
+
+    for (let i = 0; i < 8; i += 1) {
+      w.spawnItem('bar', 'steel', w.index(19, 18, 32), 5);
+    }
+    for (let i = 0; i < 2; i += 1) {
+      w.spawnItem('charcoal_bar', 'charcoal', w.index(19, 18, 32), 5);
+    }
+
     w.step(1);
+    w.game.world.applyCommand({
+      type: 'AddWorkOrder',
+      workshopId: forge,
+      order: { recipeId: 'forge_breastplate', mode: 'once', remaining: 10, priority: 5 },
+    });
+
+    w.until(() => {
+      return w.events('ItemCrafted').some((e) => e['recipeId'] === 'forge_breastplate' && e['quality'] === 5);
+    }, 20000);
+
     const crafted = w.events('ItemCrafted').find((e) => e['recipeId'] === 'forge_breastplate' && e['quality'] === 5);
     expect(crafted).toBeDefined();
-    expect(items.get(crafted?.['itemId'] as number)).toMatchObject({ quality: 5, material: w.game.registry.table('materials').index('steel') });
-    expect(items.value(crafted?.['itemId'] as number)).toBe(4000);
+    const craftedId = crafted?.['itemId'] as number;
+    expect(items.get(craftedId)).toMatchObject({
+      quality: 5,
+      material: w.game.registry.table('materials').index('steel'),
+    });
+    expect(items.value(craftedId)).toBe(4000);
   },
 };
 

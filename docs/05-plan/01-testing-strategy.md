@@ -17,6 +17,8 @@ Agents cannot look at the screen. Every behavior must therefore be observable th
 
 Dev dependencies added beyond `tooling.md`: `fast-check`, `@playwright/test`, `jsdom` (unit tests of `render/` and `ui/`), `@vitest/coverage-v8` (coverage gates). Runtime dependencies: none.
 
+Recipe behaviour is tested through the real loop: `test/unit/workshops/recipe-smoke.test.ts` runs every recipe once from order to `ItemCrafted`. Tests that call a producer's `onComplete` directly may check output arithmetic, but a scenario named in `acceptance-tests.md` must run the loop (orders, claims, hauling, work), not call internals.
+
 ## The scenario runner
 
 `test/scenarios/runner.ts` implements the scenario spec of `simulation-core.md` § Headless mode as a superset (`world` generalizes `region`; `setup`, `run` and `expect` generalize `ticks` and `assertions`):

@@ -112,7 +112,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] F-03 — Fluids: equalize budget and settling (agy-f03, 2026-09-25)
 - [ ] F-04 — Year-one bootstrap scenario
 - [x] F-05 — Dwarf need activities (agy-f05, 2026-09-25)
-- [ ] F-06 — Recipe smoke through the real loop
+- [x] F-06 — Recipe smoke through the real loop (agy-f06, 2026-09-25)
 - [ ] F-07 — Recipe constraints as content
 - [ ] F-08 — M6/M7 spec arithmetic and gaps
 - [ ] F-09 — Small fixes
