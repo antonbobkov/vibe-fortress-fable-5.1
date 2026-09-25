@@ -229,6 +229,7 @@ export class BuildingStore {
   private inputsFor(row: BuildingRow, tiles: number, material: number): { filter: Record<string, unknown>; count: number }[] {
     return row.inputs.map((input) => ({
       filter: { types: this.typesOf(input.match),
+        ...(input.match === 'barrel' ? { emptyContainer: 'barrel' } : {}),
         ...(material !== 0 && input.match !== 'anvil' ? { materialId: material } : {}),
         ...(row.id === 'magma_forge' && input.match === 'anvil'
           ? { materialIds: ['iron', 'steel'].map((id) => this.host.registry.table('materials').index(id)) } : {}) },

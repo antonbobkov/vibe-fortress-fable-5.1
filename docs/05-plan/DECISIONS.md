@@ -204,3 +204,4 @@ Measured values that differ from `03-content/balance.md` by more than 30%. Const
 | Id | Seeds | Region | Measure | Model | Measured | Constant that would move it |
 |---|---|---|---|---|---|---|
 | B-001 | — | — | Twenty dwarves food consumption discrepancy between lines: totals line says 9.6 food units (previously 28) while food paragraph says 4.8 raw units (previously 14) | 9.6 food units/day | 4.8 raw units/day (implied 2:1 meal-to-raw ratio from easy meal) | For T-M8-06: reconcile food units in `balance.md` § Needs and consumption totals line vs raw units in § Food chain paragraph |
+| B-002 | year-one … year-one-e | flat-test 48×48 + spring | still built | days 1–3 | 1.6–12.6 | hunger and thirst need rates (balance.md § Needs and consumption), embark supplies (embark-catalog.md § Presets) |

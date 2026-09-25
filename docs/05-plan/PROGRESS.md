@@ -110,7 +110,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] F-01 — Job assignment livelock (agy-f01, 2026-09-25)
 - [x] F-02 — Mood: need pressure and the needs-met floor (agy-f02, 2026-09-25)
 - [x] F-03 — Fluids: equalize budget and settling (agy-f03, 2026-09-25)
-- [ ] F-04 — Year-one bootstrap scenario
+- [x] F-04 — Year-one bootstrap scenario (agy-f04, 2026-09-25)
 - [x] F-05 — Dwarf need activities (agy-f05, 2026-09-25)
 - [x] F-06 — Recipe smoke through the real loop (agy-f06, 2026-09-25)
 - [x] F-07 — Recipe constraints as content (agy-f07, 2026-09-25)

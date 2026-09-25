@@ -68,4 +68,4 @@ Tests: the scenario itself; the gate report includes its table.
 
 ## T-M7-12 Gate M7 (S)
 
-Needs: all. `reports/M7-gate.md`; `current-milestone: 8`; property generator extended with trade, requests, population cap and settings-free commands (settings are app-level).
+Needs: all. `reports/M7-gate.md`; `current-milestone: 8`; `year_one` and the perf-tier `year_one_seeds` (no deaths on any seed); property generator extended with trade, requests, population cap and settings-free commands (settings are app-level).

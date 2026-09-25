@@ -106,4 +106,4 @@ Tests: golden render `m6-raid.json`.
 
 ## T-M6-18 Gate M6 (S)
 
-Needs: all. `reports/M6-gate.md`; `current-milestone: 7`; save the reference fortress fixture `test/fixtures/reference-fortress.deepholm` produced by a scripted headless run (year 3, 80 dwarves via `TestWorld` spawns, 25,000 items, breached cavern, waterfall) for `perf_reference`; run `test:perf`; property generator extended with squad, alert, trap, lever and hospital commands.
+Needs: all. `reports/M6-gate.md`; `current-milestone: 7`; save the reference fortress fixture `test/fixtures/reference-fortress.deepholm` produced by a scripted headless run (year 3, 80 dwarves via `TestWorld` spawns, 25,000 items, breached cavern, waterfall) for `perf_reference`; run `test:perf`; `year_one` and the perf-tier `year_one_seeds` (no deaths on any seed); property generator extended with squad, alert, trap, lever and hospital commands.
