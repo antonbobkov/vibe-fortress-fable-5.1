@@ -35,6 +35,8 @@ export interface JobsReader {
   isQueued(dwarfId: EntityId): boolean;
   /** `jobs.hasUrgent(id, priority)` of the dwarf brain. */
   hasUrgent(dwarfId: EntityId, priority: number): boolean;
+  /** True when an open job is available that this worker could take (F-11). */
+  hasWork(dwarfId: EntityId): boolean;
 }
 
 function copy(job: Job | undefined): Job | undefined {
@@ -91,5 +93,6 @@ export function makeReader(board: JobBoard): JobsReader {
     },
     isQueued: (dwarfId) => board.isQueued(dwarfId),
     hasUrgent: (dwarfId, priority) => board.hasUrgent(dwarfId, priority),
+    hasWork: (dwarfId) => board.hasWork(dwarfId),
   };
 }

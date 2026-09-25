@@ -7,7 +7,7 @@
  */
 
 import { C, type Worker } from '@core/components';
-import { PRIORITY_DEFAULT, TICKS_PER_YEAR } from '@core/constants';
+import { PRIORITY_DEFAULT, PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
 import type { GameEvent } from '@core/events';
 import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, WorldLike } from '@core/system';
 import type { Registry } from '@core/registry';
@@ -221,6 +221,31 @@ export class JobBoard implements JobsApi, JobSink {
     if (from < 0) return [];
     const label = this.readers.pathing.labelOf(from, 'walker');
     return this.standTiles(job).filter((t) => this.readers.pathing.labelOf(t, 'walker') === label);
+  }
+
+  /** True when at least one stand tile of the job shares the worker's connectivity label without allocating arrays. */
+  hasReachableStand(job: Job, workerId: EntityId): boolean {
+    const from = this.workerTile(workerId);
+    if (from < 0) return false;
+    const label = this.readers.pathing.labelOf(from, 'walker');
+    const wt = job.workTile;
+    if (typeof wt === 'number') return this.readers.pathing.labelOf(wt, 'walker') === label;
+    const target = this.anchorTile(job);
+    const map = this.world.map;
+    if (!map.validIndex(target)) return false;
+    if (wt === 'at') return this.readers.pathing.labelOf(target, 'walker') === label;
+    for (const n of map.neighbors8(target)) {
+      if (this.readers.pathing.passable(n, 'walker', FORTRESS_WALKER) && this.readers.pathing.labelOf(n, 'walker') === label) {
+        return true;
+      }
+    }
+    const producer = this.producers.find((p) => p.id === job.producer);
+    for (const extra of producer?.extraStandTiles?.(job) ?? []) {
+      if (this.readers.pathing.passable(extra, 'walker', FORTRESS_WALKER) && this.readers.pathing.labelOf(extra, 'walker') === label) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private emit(event: GameEvent): void {
@@ -548,6 +573,11 @@ export class JobBoard implements JobsApi, JobSink {
     return false;
   }
 
+  /** True when an open job is available that this worker could take (F-11). */
+  hasWork(workerId: EntityId): boolean {
+    return this.hasUrgent(workerId, PRIORITY_MAX);
+  }
+
   private eligible(job: Job, workerId: EntityId): boolean {
     const assigned = job.data['assignedWorker'];
     if (typeof assigned === 'number' && assigned !== 0 && assigned !== workerId) return false;
@@ -556,7 +586,7 @@ export class JobBoard implements JobsApi, JobSink {
     const minSkill = job.data['minSkill'];
     if (typeof minSkill === 'number' && this.skillFor(workerId, job) < minSkill) return false;
     if (this.toolHeldElsewhere(job, workerId, labor)) return false;
-    return this.reachableStands(job, workerId).length > 0;
+    return this.hasReachableStand(job, workerId);
   }
 
   private freeToolCache = { tick: -1, found: new Map<string, boolean>() };

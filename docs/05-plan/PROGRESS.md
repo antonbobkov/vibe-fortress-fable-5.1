@@ -117,7 +117,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [ ] F-08 — M6/M7 spec arithmetic and gaps
 - [ ] F-09 — Small fixes
 - [x] F-10 — Need rates: consumption matches the documented season (agy-f10, 2026-09-25)
-- [ ] F-11 — Idle dwarves notice work without waiting out IDLE_TICKS
+- [x] F-11 — Idle dwarves notice work without waiting out IDLE_TICKS (agy-f11, 2026-09-25)
 
 ## M6 — Steel and Blood ([M6-steel-and-blood.md](M6-steel-and-blood.md))
 

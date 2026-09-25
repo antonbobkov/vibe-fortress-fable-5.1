@@ -82,7 +82,7 @@ Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and
 6. `need` (want): satisfy the highest need over its want threshold, unless a job with priority ≤ `NEED_DEFER_PRIORITY` is available and the need is below its critical threshold.
 7. `work`: ask 11 for a job (`jobs.assign(id)`); if given, run the job's steps.
 8. `social`: if social or comfort or joy is over its want threshold, do the corresponding activity.
-9. `idle`: go to the hearth hall and wait `IDLE_TICKS`, then re-evaluate. Idle dwarves are shown as "No job" in the units panel.
+9. `idle`: go to the hearth hall and wait up to `IDLE_TICKS`, then re-evaluate; re-evaluate at once if a job becomes available for this dwarf before the wait is over, so that new work is never ignored for a whole hour. Idle dwarves are shown as "No job" in the units panel.
 
 Children skip 5 and 7 except for hauling jobs (they have only the `hauling` labor and it cannot be turned off).
 

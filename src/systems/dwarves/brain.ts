@@ -131,7 +131,8 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
       startIdle(host, ctx, id, b);
     }
   } else if (b.behavior === 'idle') {
-    if (ctx.tick >= b.behaviorUntil) {
+    const hasWork = host.hasJobs && !host.dayOff(id) && ctx.readers.of<JobsReader>('11').hasWork(id);
+    if (ctx.tick >= b.behaviorUntil || hasWork) {
       reselect = true;
     } else if (movement !== null && b.targetTile >= 0 && movement.tileOf(id) !== b.targetTile) {
       movement.walkTo(id, b.targetTile, 'wander', ctx);

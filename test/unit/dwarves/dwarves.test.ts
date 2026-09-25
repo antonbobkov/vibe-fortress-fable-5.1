@@ -18,6 +18,7 @@ import {
   type DwarvesReader,
 } from '@systems/dwarves';
 import type { JobsReader, JobSink } from '@systems/jobs';
+import { IDLE_TICKS } from '@systems/dwarves/constants';
 import { TestWorld } from '../../scenarios/test-world';
 
 /** `skills-and-professions.md` § Skill levels, read from the document. */
@@ -131,7 +132,7 @@ describe('T-M1-09 dwarves: behavior selection', () => {
     w.game.world.registrations.jobProducer(producer);
     const jobs = (w.game.world.scheduler.byId('11') as unknown as { board: { producers: unknown[] } }).board;
     jobs.producers.push(producer);
-    w.step(120);
+    w.step(10);
     const job = w.readers.of<JobsReader>('11').byKey('dig:x');
     expect(job?.workerId).toBeGreaterThan(0);
     const worker = job?.workerId as EntityId;
@@ -176,5 +177,83 @@ describe('T-M1-09 dwarves: commands', () => {
       expect(w.game.world.entities.has(id, C.Brain)).toBe(true);
       expect(w.game.world.entities.has(id, C.Relationships)).toBe(true);
     }
+  });
+});
+
+describe('F-11 idle responsiveness', () => {
+  it('a dwarf standing idle claims a newly designated job within a handful of ticks rather than after 50', () => {
+    const w = new TestWorld({ seed: 'f11-wake', world: 'flat-test', embark: 'default' });
+    const reader = w.readers.of<DwarvesReader>('10');
+    // Step until the dwarves enter idle with no work.
+    w.step(3);
+    const ids = w.game.arrival?.dwarves ?? [];
+    for (const id of ids) {
+      expect(reader.behavior(id)).toBe('idle');
+      expect(reader.activityText(id)).toBe(NO_JOB);
+    }
+    // Pick an idle miner.
+    const miner = ids[0] as EntityId;
+    const brainBefore = w.game.world.entities.get(miner, C.Brain);
+    expect(brainBefore?.behavior).toBe('idle');
+
+    // Designate a dig adjacent to the wagon.
+    const wagon = w.game.arrival?.wagon;
+    expect(wagon).toBeDefined();
+    const map = w.map;
+    const tile = map.index((wagon?.x ?? 0) + 2, wagon?.y ?? 0, wagon?.z ?? 0);
+    w.game.world.services.terrain.setKind(tile, TileKind.Wall, w.game.registry.table('materials').index('granite'));
+    w.game.world.applyCommand({ type: 'Designate', tiles: [tile], kind: 'dig', priority: 5 });
+
+    // Step until the job is active and worker is digging.
+    let elapsed = 0;
+    while (elapsed < IDLE_TICKS) {
+      w.step(1);
+      elapsed += 1;
+      const jb = w.readers.of<JobsReader>('11').byKey(`dig:${tile}`);
+      if (jb?.workerId === miner && reader.activityText(miner) === 'Dig') break;
+    }
+    // Must be claimed and working within a handful of ticks, well under IDLE_TICKS (50).
+    expect(elapsed).toBeLessThanOrEqual(5);
+    expect(elapsed).toBeLessThan(IDLE_TICKS);
+    expect(reader.behavior(miner)).toBe('work');
+    expect(reader.activityText(miner)).toBe('Dig');
+  });
+
+  it('with no job available, an idle dwarf re-evaluates on the IDLE_TICKS cadence and walks toward the idle goal', () => {
+    const w = new TestWorld({ seed: 'f11-idle-cadence', world: 'flat-test', embark: 'default' });
+    const reader = w.readers.of<DwarvesReader>('10');
+    w.step(2);
+    const miner = (w.game.arrival?.dwarves ?? [])[0] as EntityId;
+    const brainInitial = w.game.world.entities.get(miner, C.Brain);
+    expect(brainInitial?.behavior).toBe('idle');
+    expect(reader.behavior(miner)).toBe('idle');
+    expect(reader.activityText(miner)).toBe(NO_JOB);
+    const initialUntil = brainInitial?.behaviorUntil as number;
+    expect(initialUntil).toBe(w.game.world.calendar.tick - 1 + IDLE_TICKS);
+    const goalTile = brainInitial?.targetTile as number;
+    expect(goalTile).toBeGreaterThanOrEqual(0);
+
+    // Across the 50-tick stretch, the dwarf stays idle with the same behaviorUntil.
+    w.step(25);
+    const brainMid = w.game.world.entities.get(miner, C.Brain);
+    expect(brainMid?.behavior).toBe('idle');
+    expect(brainMid?.behaviorUntil).toBe(initialUntil);
+
+    // Step up to the re-evaluation tick.
+    w.step(24);
+    const brainAtEnd = w.game.world.entities.get(miner, C.Brain);
+    expect(brainAtEnd?.behavior).toBe('idle');
+
+    // On the tick after behaviorUntil, a new 50-tick cadence has started (D-057: 1 tick in work to query 11 + 50 idle).
+    w.step(2);
+    const brainNextCadence = w.game.world.entities.get(miner, C.Brain);
+    expect(brainNextCadence?.behavior).toBe('idle');
+    expect(brainNextCadence?.behaviorUntil).toBe(initialUntil + IDLE_TICKS + 1);
+
+    // And dwarf walks toward or remains at the idle goal (wagon tile).
+    const arrival = w.game.arrival;
+    const wagonTile = w.index(arrival?.wagon.x ?? 0, arrival?.wagon.y ?? 0, arrival?.wagon.z ?? 0);
+    expect(goalTile).toBe(wagonTile);
+    expect(w.movement.tileOf(miner)).toBe(wagonTile);
   });
 });
