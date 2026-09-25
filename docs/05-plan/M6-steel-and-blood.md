@@ -107,3 +107,5 @@ Tests: golden render `m6-raid.json`.
 ## T-M6-18 Gate M6 (S)
 
 Needs: all. `reports/M6-gate.md`; `current-milestone: 7`; save the reference fortress fixture `test/fixtures/reference-fortress.deepholm` produced by a scripted headless run (year 3, 80 dwarves via `TestWorld` spawns, 25,000 items, breached cavern, waterfall) for `perf_reference`; run `test:perf`; `year_one` and the perf-tier `year_one_seeds` (no deaths on any seed); property generator extended with squad, alert, trap, lever and hospital commands.
+
+> The saved reference fortress (`01-testing-strategy.md` § Performance smoke) is a played fortress, not a scripted one: 20 dwarves on their own brains; at least six workshops with `maintain` orders and their inputs stocked; two stockpiles being hauled to; a farm; the disturbed lake of `fixes/F-03` (`fl_settle`); and a squad. The gate reports the per-system average against each system's allocation in `performance-budget.md`. A system over its allocation is a gate failure.

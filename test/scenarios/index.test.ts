@@ -1,11 +1,11 @@
 /**
- * The scenario index of `01-testing-strategy.md` § The scenario runner: every `*.scenario.ts`
- * under this folder is discovered and run when its milestone is at most the `current-milestone`
- * of `docs/05-plan/PROGRESS.md`.
+ * The scenario index of `01-testing-strategy.md` § The scenario runner.
+ * F-09d: Checks that every scenario file exports a scenario whose id matches its file name.
+ * Milestone scenario executions run in parallel from m0.test.ts ... m8.test.ts.
  */
 
 import { describe, it, expect } from 'vitest';
-import { currentMilestone, runScenario, type Scenario } from './runner';
+import type { Scenario } from './runner';
 
 const modules = import.meta.glob('./*.scenario.ts', { eager: true }) as Record<
   string,
@@ -16,8 +16,6 @@ const scenarios = Object.keys(modules)
   .sort()
   .map((path) => ({ path, scenario: (modules[path] as { default: Scenario }).default }));
 
-const milestone = currentMilestone();
-
 describe('T-M0-11 scenarios', () => {
   it('every scenario file exports a scenario whose id matches its file name', () => {
     expect(scenarios.length).toBeGreaterThan(0);
@@ -27,16 +25,4 @@ describe('T-M0-11 scenarios', () => {
       expect(scenario.milestone).toBeGreaterThanOrEqual(0);
     }
   });
-
-  for (const { scenario } of scenarios) {
-    if (scenario.todo !== undefined) {
-      it.todo(`${scenario.id} (M${scenario.milestone}) — ${scenario.todo}`);
-      continue;
-    }
-    const skip = scenario.milestone > milestone;
-    const test = skip ? it.skip : it;
-    test(`${scenario.id} (M${scenario.milestone})`, () => {
-      runScenario(scenario);
-    });
-  }
 });

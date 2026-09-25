@@ -346,6 +346,13 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // 12 § Registrations: a created masterwork names its maker and item; missing magma is an alert.
   'announce.masterwork': '{crafter} has created a masterwork {item}.',
   'announce.workshop_blocked': 'A workshop needs magma power.',
+  'announce.mood_tier': '{dwarf} is miserable.',
+  'announce.sulk.day_off': '{dwarf} is taking the day off.',
+  'announce.sulk.argue': '{dwarf} has picked a quarrel.',
+  'announce.sulk.weep': '{dwarf} is weeping at the hearth.',
+  'announce.sulk_break': '{dwarf} has broken a piece of furniture in a temper.',
+  'announce.thought': '{dwarf}: "{thought}"',
+  'announce.fish_pool_depleted': 'A fishing spot has been fished out.',
 });
 
 /** A `StringKey`'s text with `{placeholders}` filled; the key itself when no row has it. */

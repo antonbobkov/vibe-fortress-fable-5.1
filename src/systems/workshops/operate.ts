@@ -8,7 +8,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Job, JobBoard, JobSink, ItemFilter } from '@systems/jobs';
 import type { JobsReader } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
-import { MAGMA_POWER_LEVEL, recipeActive } from './constants';
+import { MAGMA_POWER_LEVEL } from './constants';
 import { MELT_RETURN_PERCENT } from './constants';
 import { MAGMA_C } from '@systems/fluids/constants';
 import { rollQuality } from './quality';
@@ -195,7 +195,7 @@ export class WorkshopOperator {
 
   recipesForType(type: string): RecipeRow[] {
     const base = this.ctx.registry.table<BuildingRow>('buildings').byId(type)?.magmaVariantOf ?? type;
-    return (this.byWorkshop.get(base) ?? []).filter(recipeActive);
+    return this.byWorkshop.get(base) ?? [];
   }
 
   row(b: Building): BuildingRow { return this.ctx.registry.table<BuildingRow>('buildings').byIndex(b.type) as BuildingRow; }
@@ -231,7 +231,7 @@ export class WorkshopOperator {
   problem(order: WorkOrder, id: EntityId): string | null {
     const ws = this.workshop(id);
     const recipe = this.recipe(order.recipe);
-    if (ws === undefined || recipe === undefined || !recipeActive(recipe) || recipe.workshop !== this.typeOf(id)) return 'not_found';
+    if (ws === undefined || recipe === undefined || recipe.workshop !== this.typeOf(id)) return 'not_found';
     if (ws.suspended) return 'workshop_suspended';
     if (order.mode === 'once' && order.remaining <= 0) return 'complete';
     if (order.mode === 'maintain' && this.items.countAvailable(outputFilter(this.ctx.registry, recipe, order)) >= order.threshold) return 'stocked';
@@ -318,7 +318,7 @@ export class WorkshopOperator {
       const b = entities.get(id, C.Building);
       const ws = this.workshop(id);
       if (b === undefined || ws === undefined || b.state !== 'built' || ws.suspended ||
-        !this.byWorkshop.get(this.typeOf(id))?.some(recipeActive)) continue;
+        this.recipesForType(this.typeOf(id)).length === 0) continue;
       const powered = this.isMagmaPowered(id);
       const magmaVariant = this.row(b).magmaVariantOf !== undefined;
       if (powered !== ws.magmaPowered) this.save(id, { ...ws, magmaPowered: powered });
@@ -340,7 +340,7 @@ export class WorkshopOperator {
       let reason: string | null = null;
       for (const choice of choices) {
         const recipe = this.recipe(choice.order.recipe);
-        if (recipe === undefined || !recipeActive(recipe) || recipe.workshop !== this.typeOf(id)) continue;
+        if (recipe === undefined || recipe.workshop !== this.typeOf(id)) continue;
         if (choice.global && sink.exists(`craft:global:${choice.index}`)) continue;
         const problem = this.problem(choice.order, id);
         if (problem !== null) { if (reason === null && problem !== 'stocked' && problem !== 'complete') reason = problem.startsWith('waiting for ') ? 'missing_input' : problem; continue; }

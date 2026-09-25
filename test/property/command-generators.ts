@@ -18,7 +18,6 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { JobsReader } from '@systems/jobs';
 import { STOCKPILE_PRESETS } from '@systems/items';
 import { STANDING_ORDERS } from '@systems/jobs/constants';
-import { recipeActive } from '@systems/workshops/constants';
 import { DESIGNATION_NAMES, TerrainFacts, precondition } from '@systems/terrain';
 import type { TestWorld } from '../scenarios/test-world';
 
@@ -256,7 +255,7 @@ const M4_GENERATORS: readonly CommandGenerator[] = [
     id: 'AddWorkOrder', milestone: 4,
     arbitrary: (w) => {
       const recipes = w.game.registry.table<{ id: string; workshop: string }>('recipes');
-      const ids = recipes.ids().filter((id) => recipeActive(recipes.byId(id) as { id: string; workshop: string }));
+      const ids = recipes.ids();
       return fc.tuple(fc.constantFrom(...ids), fc.integer({ min: 1, max: 9 }), fc.boolean())
         .map(([recipeId, count, maintain]) => ({ type: 'AddWorkOrder', workshopId: 0,
           order: maintain ? { recipeId, mode: 'maintain', remaining: 1, threshold: count } : { recipeId, mode: 'once', count } }) as Command);

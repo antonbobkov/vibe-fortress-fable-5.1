@@ -25,6 +25,7 @@ function ticks(centi: number, skill: number): number {
 }
 
 describe('T-M1-10 terrain jobs: work time', () => {
+  it.todo('C-004: one miner completes a 3×3 room in granite within 2,000 ticks');
   it('balance.md § Time and pace: a granite tile is 90 ticks for a novice and 50 at Proficient (level 10)', () => {
     expect(ticks(workCentiTicksFor(Designation.Dig, 150), 0)).toBe(90);
     expect(ticks(workCentiTicksFor(Designation.Dig, 150), 10)).toBe(50);

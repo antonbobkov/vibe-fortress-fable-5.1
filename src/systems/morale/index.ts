@@ -74,7 +74,7 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
     };
     ctx.register.panel({ id: 'mood', title: 'Mood', hotkey: 'e' });
     ctx.register.inspector('creature', { id: 'mood', order: 15 });
-    ctx.register.announcement('SulkHappened', { severity: 'note', stringKey: 'announce.sulk', oneOf: { field: 'kind', values: ['day_off', 'argue', 'weep'] } });
+    ctx.register.announcement('SulkHappened', { severity: 'note', stringKey: 'announce.sulk', keyField: 'kind', oneOf: { field: 'kind', values: ['day_off', 'argue', 'weep'] } });
     ctx.register.announcement('SulkHappened', { severity: 'alert', stringKey: 'announce.sulk_break', oneOf: { field: 'kind', values: ['break'] } });
     ctx.register.announcement('MoodTierChanged', { severity: 'note', stringKey: 'announce.mood_tier', oneOf: { field: 'to', values: [0] } });
     ctx.register.announcement('ThoughtGained', { severity: 'note', stringKey: 'announce.thought' });

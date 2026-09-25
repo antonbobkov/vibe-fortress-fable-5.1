@@ -115,7 +115,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] F-06 — Recipe smoke through the real loop (agy-f06, 2026-09-25)
 - [x] F-07 — Recipe constraints as content (agy-f07, 2026-09-25)
 - [x] F-08 — M6/M7 spec arithmetic and gaps (agy-f08, 2026-09-25)
-- [ ] F-09 — Small fixes
+- [x] F-09 — Small fixes (agy-f09, 2026-09-25)
 - [x] F-10 — Need rates: consumption matches the documented season (agy-f10, 2026-09-25)
 - [x] F-11 — Idle dwarves notice work without waiting out IDLE_TICKS (agy-f11, 2026-09-25)
 

@@ -6,6 +6,7 @@ import { NEED_RETRY_TICKS } from '@systems/dwarves/constants';
 import { TestWorld } from '../../scenarios/test-world';
 import { stairShaft } from '../../scenarios/m1-helpers';
 import type { JobsReader, JobSink } from '@systems/jobs';
+import type { ItemsReader } from '@systems/items';
 
 const Z = 32;
 
@@ -77,6 +78,35 @@ describe('T-M4-06 activities', () => {
     expect(bare.dwarves.activities.plans.get(b)?.target).toBe(start);
     bare.step(50);
     expect(bare.events('DrankWater').some((e) => e['id'] === b && e['outdoors'] === true)).toBe(true);
+  });
+
+  it('D-120: loose alcohol is drunk only when no stocked barrel, well or water exists', () => {
+    const w = new TestWorld({ seed: 'd120-loose-alcohol', world: 'flat-test', embark: 'none' });
+    const at = w.index(12, 12, Z);
+    const id = w.spawnDwarf({ at });
+    // One thirsty dwarf and a loose drink stack: it drinks the loose stack.
+    w.spawnItem('drink', 'ale', w.index(13, 12, Z), 5);
+    w.setNeed(id, 'thirst', 55);
+    w.step(1);
+    const planLoose = w.dwarves.activities.plans.get(id);
+    expect(planLoose?.itemId).toBeGreaterThan(0);
+    expect(w.readers.of<ItemsReader>('13').containerOf(planLoose!.itemId!)).toBe(0);
+    w.step(80);
+    expect(w.events('DrankAlcohol').some((e) => e['id'] === id)).toBe(true);
+
+    // Then add a barrel of ale on a drink stockpile and make it thirsty again: it drinks from the barrel.
+    const pileTile = w.index(14, 12, Z);
+    const pile = w.zone('stockpile', [pileTile]);
+    w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: pile, filter: 'drink' });
+    const barrel = w.spawnItem('barrel', 'oak', pileTile);
+    w.spawnItem('drink', 'ale', { containerId: barrel }, 10);
+    w.setNeed(id, 'thirst', 55);
+    w.step(1);
+    const planBarrel = w.dwarves.activities.plans.get(id);
+    expect(planBarrel?.itemId).toBeGreaterThan(0);
+    expect(w.readers.of<ItemsReader>('13').containerOf(planBarrel!.itemId!)).toBe(barrel);
+    w.step(80);
+    expect(w.events('DrankAlcohol').filter((e) => e['id'] === id)).toHaveLength(2);
   });
 
   it('talks five times to make a friend and relieves both dwarves', () => {

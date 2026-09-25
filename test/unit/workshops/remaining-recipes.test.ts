@@ -87,24 +87,16 @@ describe('T-M4-10 remaining non-metal workshops', () => {
     expect(reader.recipesFor('kennel')).toHaveLength(0);
   });
 
-  it('D-128: stages M5 recipes as their tasks land, keeping the later magma kiln inactive', () => {
-    const w = new TestWorld({ seed: 'm4-m5-recipe-seam', world: 'flat-test', embark: 'none' });
+  it('every recipe row is active in its workshop type', () => {
+    const w = new TestWorld({ seed: 'active-recipes', world: 'flat-test', embark: 'none' });
     const reader = w.readers.of<WorkshopsReader>('12');
-    expect(reader.recipesFor('wood_furnace').map((r) => r.id)).toEqual(['make_charcoal']);
-    expect(reader.recipesFor('smelter')).toHaveLength(22);
-    expect(reader.recipesFor('forge')).toHaveLength(40);
-    expect(reader.recipesFor('magma_smelter')).toHaveLength(22);
-    expect(reader.recipesFor('magma_forge')).toHaveLength(40);
-    expect(reader.recipesFor('mechanic').map((r) => r.id)).toEqual(['make_mechanism', 'make_mechanism_metal']);
-    expect(reader.recipesFor('jeweler').map((r) => r.id)).toEqual(['cut_gem', 'make_glowstone_lamp']);
-    for (const type of ['magma_kiln']) {
-      expect(reader.recipesFor(type), type).toHaveLength(0);
+    const recipes = w.game.registry.table<RecipeRow>('recipes');
+    expect(recipes.size).toBeGreaterThan(0);
+    for (const id of recipes.ids()) {
+      const recipe = recipes.byId(id)!;
+      const workshopRecipes = reader.recipesFor(recipe.workshop);
+      expect(workshopRecipes.some((r) => r.id === id), `${id} in ${recipe.workshop}`).toBe(true);
     }
-    expect(reader.recipe('make_charcoal')).toBeDefined();
-    expect(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: 0,
-      order: { recipeId: 'make_charcoal', remaining: 1, mode: 'once' } })).toEqual({ ok: true });
-    expect(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: 0,
-      order: { recipeId: 'melt_metal_item', remaining: 1, mode: 'once' } })).toEqual({ ok: true });
   });
 
   it('tans a cow hide into leather, makes four bandages, and keeps yew bow power metadata', () => {

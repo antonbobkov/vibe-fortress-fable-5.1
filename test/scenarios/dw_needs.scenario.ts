@@ -8,10 +8,18 @@ const scenario: Scenario = {
   id: 'dw_needs', milestone: 4, seed: 'dw-needs', world: 'flat-test', embark: 'none',
   setup: (w) => {
     const tile = w.index(12, 12, FLAT_TEST_SURFACE_Z);
-    w.zone('stockpile', [tile]);
+    const pile = w.zone('stockpile', [tile]);
+    w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: pile, filter: 'drink' });
     for (let i = 0; i < 7; i += 1) w.spawnDwarf({ at: w.index(12 + i, 12, FLAT_TEST_SURFACE_Z) });
     w.spawnItem('plant_food', 'dimcap', tile, 40);
-    w.spawnItem('drink', 'ale', tile, 70);
+    const b1 = w.spawnItem('barrel', 'pine', tile);
+    const b2 = w.spawnItem('barrel', 'pine', tile);
+    const b3 = w.spawnItem('barrel', 'pine', tile);
+    const b4 = w.spawnItem('barrel', 'pine', tile);
+    w.spawnItem('drink', 'ale', { containerId: b1 }, 20);
+    w.spawnItem('drink', 'ale', { containerId: b2 }, 20);
+    w.spawnItem('drink', 'ale', { containerId: b3 }, 20);
+    w.spawnItem('drink', 'ale', { containerId: b4 }, 10);
   },
   run: 3 * TICKS_PER_DAY,
   expect: (w) => {

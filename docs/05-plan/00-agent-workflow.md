@@ -38,6 +38,8 @@ npm run test:e2e        # only for tasks that touch render/, ui/, app/
 
 The last task of every milestone is the gate task. It runs the full milestone test set, the performance smoke for that milestone, the e2e suite, and produces `reports/M<n>-gate.md` (test counts, timings, coverage) committed to the repo. If anything fails, the gate task is not done and the failing task's owner (the same agent or the next) fixes it before proceeding.
 
+> Before committing the gate report, check: (1) every screenshot it commits has been looked at and shows no raw string keys or visual errors; (2) every statement about another milestone's tasks matches `PROGRESS.md`; (3) the year-one section reports the `year_one` scenario's output; (4) every performance number names what its fixture exercises, and a system the fixture does not exercise is reported as "not exercised", not as a timing.
+
 ## Ambiguity protocol
 
 When the spec does not decide something you must decide to proceed:
@@ -46,6 +48,8 @@ When the spec does not decide something you must decide to proceed:
 2. If still undecided: choose the reading that (a) changes the least state, (b) is the simplest to test, (c) matches the nearest worked example in `03-content/balance.md` or the acceptance tests.
 3. Append a row to [`DECISIONS.md`](DECISIONS.md): date, task id, question, choice, spec sections consulted, and the test that pins the choice.
 4. Never change a constant's value or a formula to make a test pass. If a spec test and a spec rule contradict, record it in `DECISIONS.md` as a contradiction, implement the rule, mark the test `it.todo` with the decision id, and continue.
+
+> Mark as `it.todo` only the assertion that the contradiction makes impossible; keep every other assertion of the test running (with a functional bound where the contradicted one was a timing).
 
 ## Things agents must not do
 

@@ -79,8 +79,16 @@ export class AnnouncementLog {
       if (typeof value === 'string' || typeof value === 'number') out[key] = value;
     }
     const e = event as unknown as Record<string, unknown>;
-    const who = e['finderId'] ?? e['minerId'];
-    if (typeof who === 'number') out['dwarf'] = readers.entities.get(who, C.Creature)?.name ?? '';
+    for (const key of ['finderId', 'minerId', 'id'] as const) {
+      const who = e[key];
+      if (typeof who === 'number') {
+        const name = readers.entities.get(who, C.Creature)?.name;
+        if (typeof name === 'string' && name.length > 0) {
+          out['dwarf'] = name;
+          break;
+        }
+      }
+    }
     const crafter = e['crafterId'];
     if (typeof crafter === 'number') out['crafter'] = readers.entities.get(crafter, C.Creature)?.name ?? '';
     const itemId = e['itemId'];
@@ -98,6 +106,11 @@ export class AnnouncementLog {
       const table = this.registry.table<NamedRow>('materials');
       const row = typeof material === 'number' ? materialByIndex(table, material) : table.byId(material);
       out['material'] = row?.name ?? String(material);
+    }
+    const thoughtId = e['thoughtId'];
+    if (typeof thoughtId === 'string' && this.registry.hasTable('thoughts')) {
+      const thoughtRow = this.registry.table<{ id: string; text?: string }>('thoughts').byId(thoughtId);
+      if (thoughtRow?.text !== undefined) out['thought'] = thoughtRow.text;
     }
     return out;
   }
