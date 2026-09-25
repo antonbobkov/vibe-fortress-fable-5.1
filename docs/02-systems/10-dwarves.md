@@ -38,8 +38,8 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 
 | Need | Rise per hour | Relieved by | Want threshold | Critical threshold |
 |---|---|---|---|---|
-| hunger | 3 | eating: meal −100, raw food −70 | 50 | 85 |
-| thirst | 5 (× `weather.thirstModifier()`) | drink: alcohol −100, water −80 | 50 | 85 |
+| hunger | 1 | eating: meal −100, raw food −70 | 50 | 85 |
+| thirst | 1.6 (× `weather.thirstModifier()`) | drink: alcohol −100, water −80 | 50 | 85 |
 | rest | 5 awake; −15 per hour asleep | sleeping | 60 | 90 |
 | social | 2 | talking: −40 per conversation | 50 | none |
 | comfort | 3 | sitting in a room of tier ≥ decent −40 per sit; hearth hall −20 | 55 | none |

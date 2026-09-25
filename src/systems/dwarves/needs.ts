@@ -8,8 +8,8 @@ export const WANT: Readonly<Record<NeedName, number>> = {
   hunger: 50, thirst: 50, rest: 60, social: 50, comfort: 55, purpose: 60, joy: 60,
 };
 export const CRITICAL: Readonly<Partial<Record<NeedName, number>>> = { hunger: 85, thirst: 85, rest: 90 };
-export const HUNGER_PER_HOUR = 3;
-export const THIRST_PER_HOUR = 5;
+export const HUNGER_PER_HOUR = 1;
+export const THIRST_PER_HOUR = 1.6;
 export const REST_AWAKE_PER_HOUR = 5;
 export const REST_ASLEEP_PER_HOUR = -15;
 export const SOCIAL_PER_HOUR = 2;

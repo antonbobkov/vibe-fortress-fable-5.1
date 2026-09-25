@@ -17,32 +17,32 @@ Need rates per hour (10 Dwarves, as revised by this pass):
 
 | Need | Rise per hour | Want at | Result |
 |---|---|---|---|
-| hunger | 3 | 50 | a meal about every 17 hours: 1.4 food units per dwarf per day |
-| thirst | 5 | 50 | a drink about every 10 hours: 2.4 drinks per dwarf per day |
+| hunger | 1 | 50 | a meal about every 50 hours: 0.48 food units per dwarf per day |
+| thirst | 1.6 | 50 | a drink about every 31 hours: 0.77 drinks per dwarf per day |
 | rest | 5 awake, −15 asleep | 60 | 7 hours of sleep per 24 |
 | social | 2 | 50 | a chat a day |
 | comfort | 3 | 55 | a sit every day or two |
 | purpose | +2 idle, −10 working | 60 | dwarves dislike idling for more than a day |
 | joy | 1.5 | 60 | a hearth visit every two days |
 
-Per dwarf per day: 1.4 food units + 2.4 drink units. Twenty dwarves: 28 food, 48 drink.
+Per dwarf per day: 0.48 food units + 0.77 drink units. Twenty dwarves: 9.6 food, 15.4 drink. Seven dwarves over a 28-day season: 94 food, 150 drink, which is the season `embark-catalog.md` § Rules of thumb describes.
 
 ## Food chain
 
 | Source | Output | Notes |
 |---|---|---|
-| 1 raw ingredient at the kitchen | 2 meal units (easy: 2 in → 4 out) | so 28 meals need 14 raw units a day |
+| 1 raw ingredient at the kitchen | 2 meal units (easy: 2 in → 4 out) | so 9.6 meals need 4.8 raw units a day |
 | 1 farm tile (dimcap) | 4 plants per 16 days = 0.25 per day | plus 1 seed per harvest, so seeds are never a bottleneck |
 | 1 deer | 3 meat (size 40 / 12) + hide + bones | a hunter with a crossbow takes one deer per 1–2 days |
 | 1 fishing tile on a river | about 0.4 fish per day at skill 5 (35% + 15% success per 200-tick attempt, regenerating pool) | a fisher feeds 4 dwarves |
 | 1 cow | milk every 4 days → 3 milk → 2 cheese | |
 | 4 chickens with a nest box | an egg every 3 days each: 1.3 per day | |
 
-Twenty dwarves eat 14 raw units a day: a 60-tile cave plot (15 per day) or a 40-tile plot with a hunter and a fisher. Cooking multiplies value: a lavish meal from four cheap ingredients (value 4) is worth 60 marks; a cook is the first wealth engine. Meals rot in 14 days, in a barrel in a food stockpile in 56, so a season's stock is safe.
+Twenty dwarves eat 4.8 raw units a day: a 20-tile cave plot (5 per day) or a 14-tile plot with a hunter and a fisher. Cooking multiplies value: a lavish meal from four cheap ingredients (value 4) is worth 60 marks; a cook is the first wealth engine. Meals rot in 14 days, in a barrel in a food stockpile in 56, so a season's stock is safe.
 
 ## Drink chain
 
-4 plants → 20 drinks. Twenty dwarves need 48 drinks a day = 9.6 plants a day = a 40-tile dimcap plot dedicated to the still, and 2.4 brewing jobs a day (a Skilled brewer does one in 130 ticks: ten minutes of their day). Barrels: a fortress cycles about 3 barrels a day; 20 barrels in circulation is enough; a carpenter makes one in 100 ticks. Water is the fallback and costs −2 mood per drink; a well makes it dependable.
+4 plants → 20 drinks. Twenty dwarves need 15.4 drinks a day = 3.1 plants a day = a 13-tile dimcap plot dedicated to the still, and 0.8 brewing jobs a day (a Skilled brewer does one in 130 ticks: three minutes of their day). Barrels: a fortress cycles about 1 barrel a day; 7 barrels in circulation is enough; a carpenter makes one in 100 ticks. Water is the fallback and costs −2 mood per drink; a well makes it dependable.
 
 ## Wood and fuel
 

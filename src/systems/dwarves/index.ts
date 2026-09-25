@@ -30,7 +30,23 @@ import { Activities } from './activities';
 export { makeReader, type DwarvesReader } from './reader';
 export { NO_JOB, select, tickDwarf, type BrainHost } from './brain';
 export { grantXp } from './skills';
-export { advanceNeeds, crossed, WANT, CRITICAL, NEED_NAMES, type NeedName } from './needs';
+export {
+  advanceNeeds,
+  crossed,
+  WANT,
+  CRITICAL,
+  NEED_NAMES,
+  HUNGER_PER_HOUR,
+  THIRST_PER_HOUR,
+  REST_AWAKE_PER_HOUR,
+  REST_ASLEEP_PER_HOUR,
+  SOCIAL_PER_HOUR,
+  COMFORT_PER_HOUR,
+  PURPOSE_IDLE_PER_HOUR,
+  PURPOSE_WORK_PER_HOUR,
+  JOY_PER_HOUR,
+  type NeedName,
+} from './needs';
 export { equipStartingClothes, isUnclothed } from './clothing';
 export * from './rules/skills';
 export { dwarfComponents, freshBrain, SLEEP_START_MAX, SLEEP_START_MIN, type DwarfComponents } from './rules/components';

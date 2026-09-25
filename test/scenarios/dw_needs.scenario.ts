@@ -18,10 +18,10 @@ const scenario: Scenario = {
     for (const id of w.dwarves.reader().list()) {
       const eaten = w.events('MealEaten').filter((e) => e['id'] === id).length;
       const drank = w.events('DrankAlcohol').filter((e) => e['id'] === id).length;
-      expect(eaten).toBeGreaterThanOrEqual(3);
-      expect(eaten).toBeLessThanOrEqual(5);
-      expect(drank).toBeGreaterThanOrEqual(6);
-      expect(drank).toBeLessThanOrEqual(8);
+      expect(eaten).toBeGreaterThanOrEqual(1);
+      expect(eaten).toBeLessThanOrEqual(2);
+      expect(drank).toBeGreaterThanOrEqual(2);
+      expect(drank).toBeLessThanOrEqual(3);
       for (const need of ['hunger', 'thirst'] as const) expect(w.dwarves.reader().need(id, need)).toBeLessThan(100);
     }
   },
