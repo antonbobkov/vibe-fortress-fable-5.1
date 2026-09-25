@@ -6,7 +6,7 @@ Spec: [`16`](../02-systems/16-combat.md), [`17`](../02-systems/17-health-and-med
 
 ## T-M6-01 Health: body values, wounds, bleeding, consciousness, death (L)
 
-Needs: M5. Produces: `src/systems/health/{index,state,reader,wounds,tick}.ts`: `Body` fill from plans (`maxHp`, `maxBlood`), `onDamageDealt`, wound tables, limb loss and permanents, the health tick, `CreatureDied` as the single death path (re-route the M4 starvation and animal deaths through `Starvation` and health), environmental sources (`BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, heat and cold hourly), speed and productivity modifiers wired into 10 and 11.
+Needs: M5, F-01 … F-09 ([fixes/README.md](fixes/README.md)). Produces: `src/systems/health/{index,state,reader,wounds,tick}.ts`: `Body` fill from plans (`maxHp`, `maxBlood`), `onDamageDealt`, wound tables, limb loss and permanents, the health tick, `CreatureDied` as the single death path (re-route the M4 starvation and animal deaths through `Starvation` and health), environmental sources (`BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, heat and cold hourly), speed and productivity modifiers wired into 10 and 11.
 Spec: `17` § Body values … § Permanent injuries; algorithm § Health tick, § onDamageDealt.
 Tests: scenarios `he_bleed`, `he_limb`, `he_fall`, `fl_drown`, `dw_starve` (death); unit: severity thresholds; wound table values; unconscious/death thresholds with Toughness and Willpower; `badly_healed` on unsplinted fracture; speed modifiers.
 

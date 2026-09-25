@@ -105,6 +105,18 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M5-08 — Stocks panel complete; orders panel global orders; workshop panel material filter — gpt6-m5, 2026-09-24
 - [x] T-M5-09 — Gate M5 — gpt6-m5, 2026-09-24
 
+## M5.5 — Audit fixes ([fixes/README.md](fixes/README.md))
+
+- [ ] F-01 — Job assignment livelock
+- [ ] F-02 — Mood: need pressure and the needs-met floor
+- [ ] F-03 — Fluids: equalize budget and settling
+- [ ] F-04 — Year-one bootstrap scenario
+- [ ] F-05 — Dwarf need activities
+- [ ] F-06 — Recipe smoke through the real loop
+- [ ] F-07 — Recipe constraints as content
+- [ ] F-08 — M6/M7 spec arithmetic and gaps
+- [ ] F-09 — Small fixes
+
 ## M6 — Steel and Blood ([M6-steel-and-blood.md](M6-steel-and-blood.md))
 
 - [ ] T-M6-01 — Health: body values, wounds, bleeding, consciousness, death
