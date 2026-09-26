@@ -12,15 +12,25 @@ plan). No login needed.
 it:
 
 ```powershell
-# 1. the installed binary (fastest, no download)
-$CODEX = 'C:\Users\anton\AppData\Local\OpenAI\Codex\bin\247581e40ee272fb\codex.exe'
+# 1. the installed binary — RESOLVE IT, never hard-code the hashed directory
+$CODEX = (Get-ChildItem "$env:LOCALAPPDATA\OpenAI\Codex\bin" -Recurse -Filter codex.exe |
+          Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
 & $CODEX exec ...
 
 # 2. npx (slower, re-resolves the package each run)
 npx --yes @openai/codex exec ...
 ```
 
-Verified working: codex-cli **0.156.0**.
+**Do not pin the path.** Codex self-updates into a new hashed directory and deletes
+the old one, so a literal path dies without warning:
+`The term '...\bin\247581e40ee272fb\codex.exe' is not recognized`. Seen 2026-09-26,
+when 0.156.0 at `247581e40ee272fb` became 0.158.0-alpha.2 at `d23520d1e41bfb24`.
+The `Get-ChildItem … Sort-Object LastWriteTime` form above survives an update.
+
+Versions seen working: **0.156.0**, **0.158.0-alpha.2**. After an update, re-check
+the flags you rely on — 0.156 had already removed `-a`/`--ask-for-approval`. In
+0.158.0-alpha.2, `exec` still accepts `-C`, `-m`, `-s`, `-c` and `-o`
+(verified).
 
 ### Model
 
