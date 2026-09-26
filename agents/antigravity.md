@@ -160,11 +160,15 @@ Three layers, in order of value:
    (`lint`, `typecheck`, `content:check`, `test`, `test:e2e`, `test:perf`,
    `golden:update`, `gate`); `npx vitest` is fine because vitest is a
    devDependency; never `npx <tool>` for a tool not already in package.json.*
-2. **Tell it not to poll.** Left alone, agy launches long commands in the
-   background and then burns turns saying "Waiting for the background task to
-   complete" — one run did that ~25 times. Instruct it to run checks in the
-   foreground and let them finish (the suite is ~100 s), and to treat a command
-   silent for more than a few minutes as hung.
+2. **Tell it not to poll — but expect the instruction to slip.** Left alone, agy
+   launches long commands in the background and then burns turns saying "Waiting
+   for the background task to complete" — one run did that ~25 times. Instruct it
+   to run checks in the foreground and to treat a command silent for more than a
+   few minutes as hung. **Observed 2026-09-25:** a run given that instruction
+   explicitly in its brief still went back to "I have launched `npm run lint` and
+   am waiting for it to finish" repeatedly. The instruction reduces it but does
+   not eliminate it, so budget for the waste rather than relying on the rule; it
+   is one reason a 5-hour window buys fewer tasks than the token count suggests.
 3. **Backstop with `--print-timeout 4h`.** Blunt, but it needs no maintenance and
    works even when everything else is wrong.
 
