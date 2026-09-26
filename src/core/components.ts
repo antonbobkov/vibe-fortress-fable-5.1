@@ -75,6 +75,7 @@ export interface Wound {
   bleed: Fixed;
   pain: number;
   healRemaining: number;
+  damage: number;
   bandaged: boolean;
   sutured: boolean;
   splinted: boolean;

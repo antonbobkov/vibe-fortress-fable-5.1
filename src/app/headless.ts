@@ -47,6 +47,7 @@ import { WeatherSystem } from '@systems/weather';
 import { PlantsSystem } from '@systems/plants';
 import { AnimalsSystem } from '@systems/animals';
 import { ForagingSystem } from '@systems/foraging';
+import { HealthSystem } from '@systems/health';
 import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
@@ -437,6 +438,7 @@ export class HeadlessGame {
       new ItemsSystem(),
       new BuildingsSystem(),
       new MoraleSystem(),
+      new HealthSystem(),
     ];
   }
 

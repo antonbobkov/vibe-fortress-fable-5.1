@@ -353,6 +353,12 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.sulk_break': '{dwarf} has broken a piece of furniture in a temper.',
   'announce.thought': '{dwarf}: "{thought}"',
   'announce.fish_pool_depleted': 'A fishing spot has been fished out.',
+  // 17 Health announcements
+  'announce.patient_admitted': '{dwarf} has been admitted to the hospital.',
+  'announce.dwarf_unconscious': '{dwarf} has lost consciousness.',
+  'announce.dwarf_died': '{dwarf} has died.',
+  'announce.infection': '{dwarf} has developed an infection.',
+  'announce.limb_lost': '{dwarf} has lost a limb.',
 });
 
 /** A `StringKey`'s text with `{placeholders}` filled; the key itself when no row has it. */

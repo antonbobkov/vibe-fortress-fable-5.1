@@ -221,7 +221,11 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     this.world = ctx.world;
     this.rng = ctx.rng;
     this.readerRef = makeReader(ctx.world.entities, ctx.registry, () => { this.seedTitles(); return this.titles; },
-      (id) => ctx.readers.has('15') ? ctx.readers.of<{ productivity(id: EntityId): number }>('15').productivity(id) : 100);
+      (id) => {
+        const mood = ctx.readers.has('15') ? ctx.readers.of<{ productivity(id: EntityId): number }>('15').productivity(id) : 100;
+        const health = ctx.readers.has('17') ? ctx.readers.of<{ productivityModifier(id: EntityId): number }>('17').productivityModifier(id) : 100;
+        return Math.floor((mood * health) / 100);
+      });
     const jobTypes = ctx.registry.table<JobTypeRow>('jobTypes');
     this.host = {
       get hasJobs(): boolean {
@@ -294,7 +298,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         const carried = entities.get(id, C.Worker)?.carrying ?? 0;
         const corpseWeight = entities.get(carried, C.Corpse)?.weight ?? 0;
         const carryPercent = corpseWeight > HEAVY_ITEM_DENSITY * (species.byIndex(creature.species)?.size ?? 0) ? 50 : 100;
-        movement.setSpeed(id, dwarfSpeed(base, attrs.agi, 100, carryPercent));
+        const healthPercent = ctx.readers.has('17') ? ctx.readers.of<{ speedModifier(id: EntityId): number }>('17').speedModifier(id) : 100;
+        movement.setSpeed(id, dwarfSpeed(base, attrs.agi, healthPercent, carryPercent));
       }
       tickDwarf(this.host as BrainHost, ctx, id);
     }
@@ -341,6 +346,9 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       this.hungerMaxSince.delete(id);
       this.thirstMaxSince.delete(id);
       this.starvingAnnounced.delete(id);
+      if (ctx.world.entities.alive(id) && ctx.world.entities.has(id, C.Attributes)) {
+        ctx.world.entities.destroy(id);
+      }
       return;
     }
     if (event.type === 'EntitiesMoved') {

@@ -368,11 +368,9 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         this.starvingAnnounced.set(id, season);
         ctx.emit({ type: 'AnimalStarving', id });
       }
-      // Until 17 health exists, 08 kills the starving animal itself (T-M4-04).
       if (ctx.tick - (this.starvingSince.get(id) as number) >= STARVE_TICKS) {
         this.starvingSince.delete(id);
-        ctx.emit({ type: 'CreatureDied', id, cause: 'starvation', tile: this.tileOf(id), faction: entities.get(id, C.Creature)?.faction ?? '', species, name: entities.get(id, C.Creature)?.name });
-        entities.destroy(id);
+        ctx.emit({ type: 'Starvation', id });
       }
     }
   }
@@ -735,6 +733,9 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       this.starvingAnnounced.delete(id);
       this.lastTameThink.delete(id);
       for (const key of Array.from(this.ready.keys())) if (this.ready.get(key) === id) this.ready.delete(key);
+      if (ctx.world.entities.alive(id) && (ctx.world.entities.has(id, C.Tame) || ctx.world.entities.has(id, C.Wild))) {
+        ctx.world.entities.destroy(id);
+      }
       return;
     }
     if (event.type === 'AttackResolved') {

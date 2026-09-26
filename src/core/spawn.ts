@@ -87,13 +87,17 @@ export function partMaxHp(size: number, hpFactor: number): number {
 }
 
 /** A `Body` from the plan: every part at full hp, no wounds (T-M1-11: "hp only"). */
-export function bodyFor(plan: PlanRow, size: number): Body {
+export function bodyFor(plan: PlanRow, size: number, tou?: number): Body {
   const parts: BodyPart[] = BODY_SLOTS.map((slot) => {
     const hp = partMaxHp(size, plan.parts[slot]?.hpFactor ?? 0);
     return { hp, maxHp: hp, wounds: [], destroyed: false };
   });
-  // Blood is 17's (`maxBlood` needs its `BLOOD_PER_SIZE`); it is filled when 17 arrives (D-060).
-  return { parts, blood: 0, maxBlood: 0, pain: 0, conscious: true, permanent: [], diagnosed: false };
+  const BLOOD_PER_SIZE = 10;
+  const maxBlood =
+    tou !== undefined
+      ? Math.floor((size * BLOOD_PER_SIZE * (50 + tou)) / 100)
+      : size * BLOOD_PER_SIZE;
+  return { parts, blood: maxBlood, maxBlood, pain: 0, conscious: true, permanent: [], diagnosed: false };
 }
 
 export class CoreSpawn implements SpawnApi {
@@ -138,8 +142,8 @@ export class CoreSpawn implements SpawnApi {
       repathCount: 0,
       waitUntil: 0,
     });
-    e.add(id, C.Body, bodyFor(plan, row.size));
     const dwarf = overrides.dwarf;
+    e.add(id, C.Body, bodyFor(plan, row.size, dwarf?.attributes.tou));
     if (dwarf !== undefined) {
       e.add(id, C.Attributes, { ...dwarf.attributes });
       e.add(id, C.Skills, { level: dwarf.skills.level.slice(), xp: dwarf.skills.xp.slice(), lastRaised: dwarf.skills.lastRaised });

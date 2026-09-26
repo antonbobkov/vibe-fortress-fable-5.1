@@ -8,12 +8,12 @@
   "flatTest": {
     "embark": "default",
     "ticks": {
-      "deepholm|0": "4769585e27c376a4",
-      "deepholm|1000": "64751090d2379769",
-      "deepholm|5000": "78f673ec0478afd6",
-      "emberhall|0": "5ec7b62f525a0ddf",
-      "emberhall|1000": "1b4a148d57741254",
-      "emberhall|5000": "52370dc7bbeef5e4"
+      "deepholm|0": "596e28525536eb27",
+      "deepholm|1000": "048e270219740562",
+      "deepholm|5000": "bbd2d918fea3f8a0",
+      "emberhall|0": "6ce7f80155314c8a",
+      "emberhall|1000": "b8b630db9c280354",
+      "emberhall|5000": "921840e9b8e3e8df"
     }
   },
   "localMaps": {

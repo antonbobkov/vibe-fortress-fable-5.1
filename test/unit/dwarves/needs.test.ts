@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { contentRegistry } from '@content/loader';
 import { FLAT_TEST_SURFACE_Z, buildFlatTestMap } from '@app/headless';
 import { C, type Needs } from '@core/components';
-import { TICKS_PER_HOUR } from '@core/constants';
+import { TICKS_PER_DAY, TICKS_PER_HOUR } from '@core/constants';
 import {
   advanceNeeds,
   crossed,
@@ -92,7 +92,22 @@ describe('T-M4-05 needs', () => {
     expect(announced[0]?.['need']).toBe('hunger');
   });
 
-  it.todo('M6: Starvation damage eventually kills the dwarf through 17 health');
+  it('Starvation damage eventually kills the dwarf through 17 health', () => {
+    const w = world('starvation-kill');
+    const id = w.spawnDwarf({ at: w.index(10, 10, FLAT_TEST_SURFACE_Z) });
+    w.setNeed(id, 'hunger', 100);
+    // STARVE_DAYS (7) + 13 daily damage days = 20 days until death
+    for (let day = 0; day < 20; day += 1) {
+      if (w.game.world.entities.alive(id)) {
+        w.setNeed(id, 'thirst', 0);
+      }
+      w.step(TICKS_PER_DAY);
+    }
+    const starvEvents = w.events('Starvation').filter((e) => e['id'] === id);
+    expect(starvEvents).toHaveLength(13);
+    expect(w.events('CreatureDied').some((e) => e['id'] === id && e['cause'] === 'starvation')).toBe(true);
+    expect(w.game.world.entities.alive(id)).toBe(false);
+  });
 });
 
 describe('F-10 need rates', () => {

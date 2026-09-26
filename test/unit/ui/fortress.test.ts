@@ -278,6 +278,12 @@ describe('T-M1-14 announcements', () => {
       MoodTierChanged: 'note',
       SulkHappened: 'alert',
       ThoughtGained: 'note',
+      // T-M6-01: 17 § Registrations (announcements for health, hospital, wounds)
+      CreatureDied: 'danger',
+      CreatureUnconscious: 'alert',
+      PatientAdmitted: 'note',
+      InfectionStarted: 'alert',
+      LimbLost: 'alert',
     });
   });
 

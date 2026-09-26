@@ -17,7 +17,6 @@ const scenario: Scenario = {
   seed: 'fl-drown',
   world: 'flat-test',
   embark: 'none',
-  todo: 'M6',
   setup: (w) => {
     const pit = w.index(40, 40, 31);
     w.carve(pit, TileKind.Floor);

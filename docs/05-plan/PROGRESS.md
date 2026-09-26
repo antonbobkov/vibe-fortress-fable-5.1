@@ -121,7 +121,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 
 ## M6 — Steel and Blood ([M6-steel-and-blood.md](M6-steel-and-blood.md))
 
-- [ ] T-M6-01 — Health: body values, wounds, bleeding, consciousness, death
+- [x] T-M6-01 — Health: body values, wounds, bleeding, consciousness, death (agy-m601, 2026-09-25)
 - [ ] T-M6-02 — Combat: factions, targeting, melee resolution
 - [ ] T-M6-03 — Combat: projectiles, line of sight through fortifications, hunting
 - [ ] T-M6-04 — Combat: threats to civilians, fleeing, animals attacking
