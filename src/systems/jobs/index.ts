@@ -116,7 +116,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     this.board.tick(ctx);
   }
 
-  override handle(event: GameEvent, _ctx: TickContext): void {
+  override handle(event: GameEvent, ctx: TickContext): void {
     const board = this.board;
     const type = event.type;
     if (type === 'TilesChanged') {
@@ -147,8 +147,22 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
       const jobId = board.workerOf(id).jobId;
       const job = jobId === 0 ? undefined : board.jobs.get(jobId);
       if (job !== undefined && (board.typeRow(job).interruptible || type === 'ThreatNearby')) board.interrupt(id, true);
+    } else if (type === 'AlertChanged') {
+      if (event['to'] === 'hearth') {
+        const onDuty = ctx.readers.has('16')
+          ? (id: EntityId) => ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id)
+          : () => false;
+        for (const id of board.workers()) {
+          const jobId = board.workerOf(id).jobId;
+          if (jobId !== 0 && !onDuty(id)) {
+            const job = board.jobs.get(jobId);
+            if (job !== undefined && board.typeRow(job).interruptible) {
+              board.interrupt(id, true);
+            }
+          }
+        }
+      }
     }
-    // `AlertChanged` interrupts civilians once 16 raises the hearth alert (M6).
   }
 
   override applyCommand(cmd: Command, _ctx: TickContext): CommandResult {

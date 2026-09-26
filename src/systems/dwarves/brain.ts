@@ -135,6 +135,16 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     }
   }
 
+  const alert = ctx.readers.has('16')
+    ? ctx.readers.of<{ alert(): string }>('16').alert()
+    : ctx.world.fortress.alert;
+  if (alert === 'hearth' && civ) {
+    b.behavior = 'retreat';
+    b.targetTile = host.idleGoal(id);
+    b.activity = 'Retreating';
+    return;
+  }
+
   const n = ctx.world.entities.get(id, C.Needs);
   const schedule = ctx.world.entities.get(id, C.Schedule);
   const urgent = host.hasJobs && ctx.readers.of<JobsReader>('11').hasUrgent(id, NEED_DEFER_PRIORITY);
@@ -143,7 +153,17 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
       if (host.activities.start(ctx, id, critical, b, host.idleGoal(id), host.dwarfIds())) return;
     const sleepWindow = schedule !== undefined && hourOf(ctx.tick) === schedule.sleepStartHour && n.rest > 20;
     if (sleepWindow && host.activities.start(ctx, id, 'rest', b, host.idleGoal(id), host.dwarfIds())) return;
-    if (!urgent) for (const want of ranked(n, false))
+  }
+
+  if (!civ) {
+    b.behavior = 'duty';
+    b.activity = 'On duty';
+    b.targetTile = -1;
+    return;
+  }
+
+  if (n !== undefined && !urgent) {
+    for (const want of ranked(n, false))
       if (host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds())) return;
   }
   const age = ctx.world.entities.get(id, C.Creature)?.ageTicks ?? ADULT_AGE_YEARS * TICKS_PER_YEAR;
@@ -197,8 +217,22 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
       host.activities.cancel(ctx, id);
       reselect = true;
     } else reselect = host.activities.step(ctx, id, b);
+  } else if (b.behavior === 'retreat') {
+    const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
+    const alert = ctx.readers.has('16') ? ctx.readers.of<{ alert(): string }>('16').alert() : ctx.world.fortress.alert;
+    if (alert !== 'hearth' || !civ) {
+      reselect = true;
+    } else if (movement !== null && b.targetTile >= 0 && movement.tileOf(id) !== b.targetTile) {
+      movement.walkTo(id, b.targetTile, 'flee', ctx);
+    }
+  } else if (b.behavior === 'duty') {
+    const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
+    if (civ) {
+      reselect = true;
+    }
   } else if (b.behavior === 'work') {
-    if (interrupted && host.threatOf(id) !== 0) {
+    const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
+    if ((interrupted && host.threatOf(id) !== 0) || !civ) {
       reselect = true;
     } else if (jobIdOf(ctx, id) !== 0) {
       host.clearIdle(id);
@@ -268,8 +302,12 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
         }
       }
     } else {
+      const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
+      const alert = ctx.readers.has('16') ? ctx.readers.of<{ alert(): string }>('16').alert() : ctx.world.fortress.alert;
       const hasWork = host.hasJobs && !host.dayOff(id) && ctx.readers.of<JobsReader>('11').hasWork(id);
-      if (ctx.tick >= b.behaviorUntil || hasWork) {
+      const onDuty = !civ;
+      const retreat = alert === 'hearth' && civ;
+      if (ctx.tick >= b.behaviorUntil || hasWork || onDuty || retreat) {
         reselect = true;
       } else if (movement !== null && b.targetTile >= 0 && movement.tileOf(id) !== b.targetTile) {
         movement.walkTo(id, b.targetTile, 'wander', ctx);

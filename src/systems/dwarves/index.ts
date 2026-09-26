@@ -74,7 +74,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AlertChanged'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -347,6 +347,12 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       if (!soldier || !soldier.onDuty) {
         this.threatened.set(id, { hostileId, tick: ctx.tick });
         this.interruptFlags.add(id);
+      }
+      return;
+    }
+    if (event.type === 'AlertChanged') {
+      for (const dwarfId of this.reader().list()) {
+        this.interruptFlags.add(dwarfId);
       }
       return;
     }

@@ -4,6 +4,7 @@
 
 import { C } from '@core/components';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
+import type { CommandType } from '@core/command-types';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import type { RngStream } from '@core/rng';
@@ -23,19 +24,34 @@ import {
   PERCEPTION_RADIUS,
   TARGET_LOSE_TICKS,
 } from './constants';
-import { isCreatureHostile } from './factions';
+import { isCreatureHostile, isFactionHostile } from './factions';
 import { resolveMelee, weaponOf } from './melee';
 import { advanceProjectiles, fireRanged, lineOfSightRanged } from './ranged';
 import { makeCombatReader, type CombatReader } from './reader';
+import {
+  createSquad,
+  disbandSquad,
+  renameSquad,
+  setSquadEquipment,
+  setSquadLeader,
+  setSquadMembers,
+  setSquadMode,
+  setSquadPatrol,
+  setSquadStation,
+  squadOrder,
+  stepSquads,
+  updateSquadDuty,
+} from './squads';
 import type { CombatStateV1 } from './state';
 import { TargetManager } from './targets';
 import { threatScan } from './threats';
 
-export type { CombatReader } from './reader';
+export type { CombatReader, SquadWithId } from './reader';
 export * from './constants';
 export * from './factions';
 export * from './melee';
 export * from './ranged';
+export * from './squads';
 export * from './state';
 export * from './targets';
 export * from './threats';
@@ -45,6 +61,20 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   override readonly order: number = 16;
   override readonly cadence: number = COMBAT_CADENCE;
   override readonly phase: number = COMBAT_PHASE;
+
+  override readonly ownsCommands: readonly CommandType[] = [
+    'CreateSquad',
+    'DisbandSquad',
+    'SetSquadMembers',
+    'SetSquadLeader',
+    'SetSquadMode',
+    'SetSquadEquipment',
+    'SetSquadStation',
+    'SetSquadPatrol',
+    'SquadOrder',
+    'RenameSquad',
+    'SetAlert',
+  ];
 
   override readonly subscribes: readonly EventType[] = [
     'CreatureDied',
@@ -60,6 +90,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   private alertState: Alert = 'calm';
   private targetManager: TargetManager | null = null;
   private readonly threatThrottles = new Map<EntityId, number>();
+  private readonly patrolIndices = new Map<EntityId, number>();
 
   get targets(): TargetManager {
     if (this.targetManager === null) throw new Error('16 combat: targets before init');
@@ -158,6 +189,15 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     // Advance active projectiles
     advanceProjectiles(ctx, this.rng);
 
+    // Step squads: updates duty, order execution, perception scans, and positioning
+    stepSquads(
+      ctx,
+      this.alertState,
+      this.targets,
+      (from, to) => this.lineOfSight(from, to),
+      this.patrolIndices,
+    );
+
     for (const id of this.targets.allWithTarget()) {
       if (!entities.alive(id)) {
         this.targets.clearTarget(id);
@@ -251,15 +291,18 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
         }
 
         // Approach toward target
-        const outcome = ctx.world.services.movement?.walkTo(id, tileT, 'combat', ctx);
-        if (outcome === 'unreachable') {
-          const unreach = (this.targets.unreachableTicks.get(id) ?? 0) + 1;
-          this.targets.unreachableTicks.set(id, unreach);
-          if (unreach >= TARGET_LOSE_TICKS) {
-            this.targets.clearTarget(id);
+        const soldier = entities.get(id, C.Soldier);
+        if (soldier?.stance !== 'hold') {
+          const outcome = ctx.world.services.movement?.walkTo(id, tileT, 'combat', ctx);
+          if (outcome === 'unreachable') {
+            const unreach = (this.targets.unreachableTicks.get(id) ?? 0) + 1;
+            this.targets.unreachableTicks.set(id, unreach);
+            if (unreach >= TARGET_LOSE_TICKS) {
+              this.targets.clearTarget(id);
+            }
+          } else {
+            this.targets.unreachableTicks.set(id, 0);
           }
-        } else {
-          this.targets.unreachableTicks.set(id, 0);
         }
       }
     }
@@ -274,13 +317,26 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       this.threatThrottles.delete(id);
       this.targets.onCreatureDied(id);
       if (killer !== 0 && ctx.world.entities.alive(killer)) {
-        ctx.emit({ type: 'KillRecorded', killerId: killer, victimId: id });
+        const victimCreature = ctx.world.entities.get(id, C.Creature);
+        const killerCreature = ctx.world.entities.get(killer, C.Creature);
+        let hostile = false;
+        if (victimCreature !== undefined && killerCreature !== undefined) {
+          if (isFactionHostile(killerCreature.faction, victimCreature.faction)) {
+            hostile = true;
+          } else if (victimCreature.faction === 'wild') {
+            const wild = ctx.world.entities.get(id, C.Wild);
+            if (wild?.state === 'attack') hostile = true;
+          }
+        }
+        ctx.emit({ type: 'KillRecorded', killerId: killer, victimId: id, hostile });
       }
       return;
     }
 
     if (event.type === 'AlertChanged') {
       this.alertState = (event['to'] as Alert) ?? 'calm';
+      ctx.world.fortress.alert = this.alertState;
+      updateSquadDuty(ctx.world.entities, this.alertState);
       return;
     }
   }
@@ -294,24 +350,48 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       const from = this.alertState;
       const to = rawLevel as Alert;
       this.alertState = to;
+      ctx.world.fortress.alert = to;
+      updateSquadDuty(ctx.world.entities, to);
       ctx.emit({ type: 'AlertChanged', from, to });
       return OK;
     }
 
-    if (
-      cmd.type === 'CreateSquad' ||
-      cmd.type === 'DisbandSquad' ||
-      cmd.type === 'SetSquadMembers' ||
-      cmd.type === 'SetSquadLeader' ||
-      cmd.type === 'SetSquadMode' ||
-      cmd.type === 'SetSquadEquipment' ||
-      cmd.type === 'SetSquadStation' ||
-      cmd.type === 'SetSquadPatrol' ||
-      cmd.type === 'SquadOrder' ||
-      cmd.type === 'RenameSquad'
-    ) {
-      // Squad full implementation is in T-M6-05
-      return OK;
+    if (cmd.type === 'CreateSquad') {
+      return createSquad(ctx.world.entities, cmd);
+    }
+    if (cmd.type === 'DisbandSquad') {
+      return disbandSquad(ctx.world.entities, cmd);
+    }
+    if (cmd.type === 'SetSquadMembers') {
+      return setSquadMembers(ctx.world.entities, cmd, this.alertState, ctx.tick);
+    }
+    if (cmd.type === 'SetSquadLeader') {
+      return setSquadLeader(ctx.world.entities, cmd);
+    }
+    if (cmd.type === 'SetSquadMode') {
+      return setSquadMode(ctx.world.entities, cmd, this.alertState);
+    }
+    if (cmd.type === 'SetSquadEquipment') {
+      return setSquadEquipment(ctx.world.entities, cmd);
+    }
+    if (cmd.type === 'SetSquadStation') {
+      return setSquadStation(ctx.world.map, ctx.readers.pathing, ctx.world.entities, cmd);
+    }
+    if (cmd.type === 'SetSquadPatrol') {
+      return setSquadPatrol(ctx.world.map, ctx.readers.pathing, ctx.world.entities, cmd);
+    }
+    if (cmd.type === 'SquadOrder') {
+      return squadOrder(
+        ctx.world.map,
+        ctx.readers.pathing,
+        ctx.world.entities,
+        this.targets,
+        cmd,
+        (e) => ctx.emit(e),
+      );
+    }
+    if (cmd.type === 'RenameSquad') {
+      return renameSquad(ctx.world.entities, cmd);
     }
 
     return reject('not_found');
@@ -330,6 +410,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   override deserialize(state: CombatStateV1): void {
     if (state.version !== 1) return;
     this.alertState = state.alert ?? 'calm';
+    if (this.world) this.world.fortress.alert = this.alertState;
     if (this.targetManager !== null) {
       this.targetManager.targets.clear();
       for (const [k, v] of state.targets ?? []) this.targetManager.targets.set(k, v);

@@ -3,7 +3,7 @@
  * `02-systems/16-combat.md` § Reader.
  */
 
-import { C } from '@core/components';
+import { C, type Squad } from '@core/components';
 import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
 import type { Alert, BodySlot, DamageType, EntityId, TileIndex } from '@core/types';
@@ -11,13 +11,15 @@ import { isCreatureHostile } from './factions';
 import { armorCovering, getDamageVsLayer } from './melee';
 import type { TargetManager } from './targets';
 
+export type SquadWithId = Squad & { id: EntityId };
+
 export interface CombatReader {
   isHostile(a: EntityId, b: EntityId): boolean;
   factionOf(id: EntityId): string;
   targetOf(id: EntityId): EntityId;
-  squads(): readonly unknown[];
-  squad(id: EntityId): unknown | undefined;
-  squadOf(dwarfId: EntityId): unknown | undefined;
+  squads(): readonly SquadWithId[];
+  squad(id: EntityId): SquadWithId | undefined;
+  squadOf(dwarfId: EntityId): SquadWithId | undefined;
   onDuty(dwarfId: EntityId): boolean;
   alert(): Alert;
   weaponOf(id: EntityId): EntityId;
@@ -46,18 +48,29 @@ export function makeCombatReader(
       return targets.targetOf(id);
     },
 
-    squads: (): readonly unknown[] => {
-      return [];
+    squads: (): readonly SquadWithId[] => {
+      const result: SquadWithId[] = [];
+      for (const squadId of entities.with(C.Squad)) {
+        const sq = entities.get(squadId, C.Squad);
+        if (sq !== undefined) {
+          result.push({ ...sq, id: squadId });
+        }
+      }
+      return result;
     },
 
-    squad: (_id: EntityId): unknown | undefined => {
-      return undefined;
+    squad: (id: EntityId): SquadWithId | undefined => {
+      const sq = entities.get(id, C.Squad);
+      if (sq === undefined) return undefined;
+      return { ...sq, id };
     },
 
-    squadOf: (dwarfId: EntityId): unknown | undefined => {
+    squadOf: (dwarfId: EntityId): SquadWithId | undefined => {
       const soldier = entities.get(dwarfId, C.Soldier);
       if (soldier === undefined || soldier.squadId === 0) return undefined;
-      return undefined;
+      const sq = entities.get(soldier.squadId, C.Squad);
+      if (sq === undefined) return undefined;
+      return { ...sq, id: soldier.squadId };
     },
 
     onDuty: (dwarfId: EntityId): boolean => {
