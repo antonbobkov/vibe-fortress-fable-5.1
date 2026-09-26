@@ -74,7 +74,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved', 'SulkHappened'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -88,6 +88,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   /** The wagon tile of the arrival, the idle anchor until there is a hearth hall (D-057). */
   wagonTile: TileIndex = -1;
   readonly interruptFlags = new Set<EntityId>();
+  readonly threatened = new Map<EntityId, { hostileId: EntityId; tick: number }>();
   readonly hungerMaxSince = new Map<EntityId, number>();
   readonly thirstMaxSince = new Map<EntityId, number>();
   readonly starvingAnnounced = new Map<EntityId, number>();
@@ -254,6 +255,9 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       idleAnnounced: (id) => this.idleAnnounced.has(id),
       markIdle: (id) => { this.idleAnnounced.add(id); },
       clearIdle: (id) => { this.idleAnnounced.delete(id); },
+      threatOf: (id) => this.threatened.get(id)?.hostileId ?? 0,
+      clearThreat: (id) => { this.threatened.delete(id); },
+      setCombatTarget: (id, targetId) => { ctx.world.services.combat?.setTarget(id, targetId); },
     };
     ctx.register.panel({ id: 'units', title: 'Units', hotkey: 'u' });
     ctx.register.inspector('creature', { id: 'dwarf', order: 10 });
@@ -336,8 +340,22 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       }
       return;
     }
+    if (event.type === 'ThreatNearby') {
+      const id = event['id'] as EntityId;
+      const hostileId = event['hostileId'] as EntityId;
+      const soldier = ctx.world.entities.get(id, C.Soldier);
+      if (!soldier || !soldier.onDuty) {
+        this.threatened.set(id, { hostileId, tick: ctx.tick });
+        this.interruptFlags.add(id);
+      }
+      return;
+    }
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
+      this.threatened.delete(id);
+      for (const dwarfId of this.reader().list()) {
+        if (this.threatened.get(dwarfId)?.hostileId === id) this.threatened.delete(dwarfId);
+      }
       this.seedTitles();
       for (const title of TITLES) if (this.titles[title] === id) this.titles[title] = 0;
       this.activities.plans.delete(id);

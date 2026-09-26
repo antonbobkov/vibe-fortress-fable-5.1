@@ -111,6 +111,7 @@ export interface CoreServices {
   items: ItemsApi | null;
   /** The write side of the spatial index, installed by the host (T-M2-01, D-068). */
   spatial: SpatialWriter | null;
+  combat: CombatApi | null;
 }
 
 /**
@@ -121,6 +122,15 @@ export interface SpatialWriter {
   insert(id: EntityId, tile: TileIndex): void;
   remove(id: EntityId, tile: TileIndex): void;
   move(id: EntityId, from: TileIndex, to: TileIndex): void;
+}
+
+/**
+ * `16-combat.md` § Interfaces › Combat API (mutation, called by 08, 10, 18, 09).
+ */
+export interface CombatApi {
+  setTarget(id: EntityId, targetId: EntityId): void;
+  targetOf(id: EntityId): EntityId;
+  clearTarget(id: EntityId): void;
 }
 
 /**

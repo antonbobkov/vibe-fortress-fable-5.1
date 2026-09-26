@@ -77,7 +77,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   readonly order = 8;
   override readonly cadence = ANIMALS_CADENCE;
   override readonly phase = ANIMALS_PHASE;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'SeasonChanged', 'CreatureDied', 'AttackResolved', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'SeasonChanged', 'CreatureDied', 'AttackResolved', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ThreatNearby'];
   override readonly ownsCommands: readonly CommandType[] = [
     'SetBreedingCap',
     'AssignPasture',
@@ -208,8 +208,12 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         return world.services.movement;
       },
       isDaylight: () => this.readers.calendar.isDaylight,
-      // 16 arrives in M6; until then the call is recorded so the wiring is testable.
-      setTarget: (id, targetId) => this.targets.set(id, targetId),
+      // 16 arrives in M6; forward to combat system and record in targets.
+      setTarget: (id, targetId) => {
+        this.targets.set(id, targetId);
+        world.services.combat?.setTarget(id, targetId);
+      },
+      targetOf: (id) => world.services.combat?.targetOf(id) ?? this.targets.get(id) ?? 0,
       provokedBy: (id) => this.provoked.get(id) ?? 0,
       grazed: (tile) => {
         if (!this.grazedPending.includes(tile)) this.grazedPending.push(tile);
@@ -707,6 +711,16 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     }
     if (event.type === 'HourPassed') {
       this.hourlyDue = true;
+      return;
+    }
+    if (event.type === 'ThreatNearby') {
+      const animalId = event['id'] as EntityId;
+      const hostileId = event['hostileId'] as EntityId;
+      const tame = ctx.world.entities.get(animalId, C.Tame);
+      if (tame?.trained === 'war') {
+        this.targets.set(animalId, hostileId);
+        (this.world as WorldLike).services.combat?.setTarget(animalId, hostileId);
+      }
       return;
     }
     if (event.type === 'DayPassed') {

@@ -14,7 +14,7 @@ import { C, type Brain, type Needs } from '@core/components';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import { hourOf } from '@core/calendar';
-import { ADULT_AGE_YEARS, IDLE_TICKS, NEED_DEFER_PRIORITY } from './constants';
+import { ADULT_AGE_YEARS, IDLE_TICKS, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
 import { Activities } from './activities';
 import { PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
@@ -37,6 +37,9 @@ export interface BrainHost {
   idleAnnounced(id: EntityId): boolean;
   markIdle(id: EntityId): void;
   clearIdle(id: EntityId): void;
+  threatOf(id: EntityId): EntityId;
+  clearThreat(id: EntityId): void;
+  setCombatTarget(id: EntityId, targetId: EntityId): void;
 }
 
 function write(ctx: TickContext, id: EntityId, brain: Brain): void {
@@ -58,11 +61,80 @@ function startIdle(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): v
   if (!wasIdle) { ctx.emit({ type: 'DwarfIdle', id }); host.markIdle(id); }
 }
 
+const FLEE_STEPS = 6;
+const DIRECTIONS: readonly (readonly [number, number])[] = [
+  [1, 0],
+  [1, 1],
+  [0, 1],
+  [-1, 1],
+  [-1, 0],
+  [-1, -1],
+  [0, -1],
+  [1, -1],
+];
+
+export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId): TileIndex {
+  const map = ctx.world.map;
+  const posA = ctx.world.entities.get(id, C.Position);
+  const posT = ctx.world.entities.get(threatId, C.Position);
+  if (!posA || !posT) return -1;
+  const currentDist = Math.max(Math.abs(posA.x - posT.x), Math.abs(posA.y - posT.y));
+  let bestDist = currentDist;
+  let bestTile = -1;
+
+  for (const [dx, dy] of DIRECTIONS) {
+    for (let step = 1; step <= FLEE_STEPS; step += 1) {
+      const nx = posA.x + dx * step;
+      const ny = posA.y + dy * step;
+      const z = posA.z;
+      if (!map.inBounds(nx, ny, z)) break;
+      const tile = map.index(nx, ny, z);
+      if (!ctx.readers.pathing.passable(tile, 'walker')) break;
+      const dist = Math.max(Math.abs(posT.x - nx), Math.abs(posT.y - ny));
+      if (dist > bestDist) {
+        bestDist = dist;
+        bestTile = tile;
+      }
+    }
+  }
+  return bestTile;
+}
+
 /**
  * `select(id)`, steps 7 and 9: a dwarf that already holds a job works it; otherwise it asks 11
  * (`jobs.assign(id)`, answered in 11's tick of this same tick) and waits in `work` for the answer.
  */
 export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): void {
+  const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
+  const threatId = host.threatOf(id);
+  if (threatId !== 0 && civ) {
+    const threatPos = ctx.world.entities.get(threatId, C.Position);
+    const myPos = ctx.world.entities.get(id, C.Position);
+    if (
+      !ctx.world.entities.alive(threatId) ||
+      !threatPos ||
+      !myPos ||
+      myPos.z !== threatPos.z ||
+      Math.max(Math.abs(myPos.x - threatPos.x), Math.abs(myPos.y - threatPos.y)) > THREAT_RADIUS
+    ) {
+      host.clearThreat(id);
+    } else {
+      const fleeGoal = findFleeTile(ctx, id, threatId);
+      if (fleeGoal >= 0) {
+        b.behavior = 'flee';
+        b.targetTile = fleeGoal;
+        b.activity = 'Fleeing';
+        return;
+      }
+      // Cornered: fight back with weapon/tool
+      host.setCombatTarget(id, threatId);
+      b.behavior = 'idle';
+      b.targetTile = -1;
+      b.activity = 'Fighting';
+      return;
+    }
+  }
+
   const n = ctx.world.entities.get(id, C.Needs);
   const schedule = ctx.world.entities.get(id, C.Schedule);
   const urgent = host.hasJobs && ctx.readers.of<JobsReader>('11').hasUrgent(id, NEED_DEFER_PRIORITY);
@@ -118,12 +190,17 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
     const currentNeed = host.activities.plans.get(id)?.need;
     const needs = ctx.world.entities.get(id, C.Needs);
     const critical = needs === undefined ? undefined : ranked(needs, true)[0];
-    if (interrupted && critical !== undefined && critical !== currentNeed) {
+    if (interrupted && host.threatOf(id) !== 0) {
+      host.activities.cancel(ctx, id);
+      reselect = true;
+    } else if (interrupted && critical !== undefined && critical !== currentNeed) {
       host.activities.cancel(ctx, id);
       reselect = true;
     } else reselect = host.activities.step(ctx, id, b);
   } else if (b.behavior === 'work') {
-    if (jobIdOf(ctx, id) !== 0) {
+    if (interrupted && host.threatOf(id) !== 0) {
+      reselect = true;
+    } else if (jobIdOf(ctx, id) !== 0) {
       host.clearIdle(id);
       b.activity = host.jobName(id);
       ctx.jobs.stepWorker(id, ctx);
@@ -132,12 +209,71 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
       // 11 answered and had nothing for this dwarf.
       startIdle(host, ctx, id, b);
     }
-  } else if (b.behavior === 'idle') {
-    const hasWork = host.hasJobs && !host.dayOff(id) && ctx.readers.of<JobsReader>('11').hasWork(id);
-    if (ctx.tick >= b.behaviorUntil || hasWork) {
+  } else if (b.behavior === 'flee') {
+    const threatId = host.threatOf(id);
+    const threatPos = threatId !== 0 ? ctx.world.entities.get(threatId, C.Position) : undefined;
+    const myPos = ctx.world.entities.get(id, C.Position);
+    const threatGone = threatId === 0 || !ctx.world.entities.alive(threatId) || !threatPos || !myPos ||
+      myPos.z !== threatPos.z || Math.max(Math.abs(myPos.x - threatPos.x), Math.abs(myPos.y - threatPos.y)) > THREAT_RADIUS;
+    if (threatGone) {
+      host.clearThreat(id);
       reselect = true;
-    } else if (movement !== null && b.targetTile >= 0 && movement.tileOf(id) !== b.targetTile) {
-      movement.walkTo(id, b.targetTile, 'wander', ctx);
+    } else if (movement !== null) {
+      const myTile = movement.tileOf(id);
+      if (myTile === b.targetTile || b.targetTile < 0) {
+        const nextFleeTile = findFleeTile(ctx, id, threatId);
+        if (nextFleeTile >= 0) {
+          b.targetTile = nextFleeTile;
+          movement.walkTo(id, nextFleeTile, 'flee', ctx);
+        } else {
+          host.setCombatTarget(id, threatId);
+          b.behavior = 'idle';
+          b.targetTile = -1;
+          b.activity = 'Fighting';
+        }
+      } else {
+        const outcome = movement.walkTo(id, b.targetTile, 'flee', ctx);
+        if (outcome === 'unreachable') {
+          const nextFleeTile = findFleeTile(ctx, id, threatId);
+          if (nextFleeTile >= 0) {
+            b.targetTile = nextFleeTile;
+            movement.walkTo(id, nextFleeTile, 'flee', ctx);
+          } else {
+            host.setCombatTarget(id, threatId);
+            b.behavior = 'idle';
+            b.targetTile = -1;
+            b.activity = 'Fighting';
+          }
+        }
+      }
+    }
+  } else if (b.behavior === 'idle') {
+    if (b.activity === 'Fighting') {
+      const threatId = host.threatOf(id);
+      const threatPos = threatId !== 0 ? ctx.world.entities.get(threatId, C.Position) : undefined;
+      const myPos = ctx.world.entities.get(id, C.Position);
+      const threatGone = threatId === 0 || !ctx.world.entities.alive(threatId) || !threatPos || !myPos ||
+        myPos.z !== threatPos.z || Math.max(Math.abs(myPos.x - threatPos.x), Math.abs(myPos.y - threatPos.y)) > THREAT_RADIUS;
+      if (threatGone) {
+        host.clearThreat(id);
+        host.setCombatTarget(id, 0);
+        reselect = true;
+      } else {
+        const escapeTile = findFleeTile(ctx, id, threatId);
+        if (escapeTile >= 0) {
+          host.setCombatTarget(id, 0);
+          b.behavior = 'flee';
+          b.targetTile = escapeTile;
+          b.activity = 'Fleeing';
+        }
+      }
+    } else {
+      const hasWork = host.hasJobs && !host.dayOff(id) && ctx.readers.of<JobsReader>('11').hasWork(id);
+      if (ctx.tick >= b.behaviorUntil || hasWork) {
+        reselect = true;
+      } else if (movement !== null && b.targetTile >= 0 && movement.tileOf(id) !== b.targetTile) {
+        movement.walkTo(id, b.targetTile, 'wander', ctx);
+      }
     }
   } else {
     reselect = true;

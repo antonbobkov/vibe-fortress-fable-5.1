@@ -94,6 +94,12 @@ export class AnimalFacts {
     return this.rows[species]?.temper ?? 'timid';
   }
 
+  fleeBloodPercentOf(species: number): number | null {
+    const row = this.rows[species];
+    if (!row) return null;
+    return row.fleeBloodPercent ?? null;
+  }
+
   isNocturnal(species: number): boolean {
     return this.rows[species]?.nocturnal === true;
   }

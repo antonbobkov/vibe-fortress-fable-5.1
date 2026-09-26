@@ -17,6 +17,7 @@ import type { Alert, EntityId } from '@core/types';
 import {
   COMBAT_CADENCE,
   COMBAT_PHASE,
+  FLEE_BLOOD_PERCENT,
   PERCEPTION_RADIUS,
   TARGET_LOSE_TICKS,
 } from './constants';
@@ -25,6 +26,7 @@ import { resolveMelee } from './melee';
 import { makeCombatReader, type CombatReader } from './reader';
 import type { CombatStateV1 } from './state';
 import { TargetManager } from './targets';
+import { threatScan } from './threats';
 
 export type { CombatReader } from './reader';
 export * from './constants';
@@ -32,6 +34,7 @@ export * from './factions';
 export * from './melee';
 export * from './state';
 export * from './targets';
+export * from './threats';
 
 export class CombatSystem extends BaseSystem<CombatStateV1> {
   override readonly id: SystemId = '16';
@@ -49,6 +52,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   private readerRef: CombatReader | null = null;
   private alertState: Alert = 'calm';
   private targetManager: TargetManager | null = null;
+  private readonly threatThrottles = new Map<EntityId, number>();
 
   get targets(): TargetManager {
     if (this.targetManager === null) throw new Error('16 combat: targets before init');
@@ -61,6 +65,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   }
 
   override init(ctx: InitContext): void {
+    ctx.world.services.combat = this;
     this.rngRef = ctx.rng;
     this.targetManager = new TargetManager(ctx.world.entities);
 
@@ -105,6 +110,10 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     return this.targets.targetOf(id);
   }
 
+  clearTarget(id: EntityId): void {
+    this.setTarget(id, 0);
+  }
+
   alert(): Alert {
     return this.alertState;
   }
@@ -128,6 +137,29 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
 
       const bodyA = entities.get(id, C.Body);
       if (bodyA !== undefined && !bodyA.conscious) continue;
+
+      if (bodyA !== undefined && bodyA.maxBlood > 0) {
+        const soldier = entities.get(id, C.Soldier);
+        const creature = entities.get(id, C.Creature);
+        if (creature && (!soldier || !soldier.onDuty) && creature.faction !== 'deep') {
+          const spTable = ctx.registry.table<{ id: string; temper: string; fleeBloodPercent: number | null }>('creatures');
+          const sp = spTable.byIndex(creature.species);
+          const fleeThresh = sp?.fleeBloodPercent ?? (sp?.temper === 'aggressive' ? null : FLEE_BLOOD_PERCENT);
+          if (fleeThresh !== null && (bodyA.blood / bodyA.maxBlood) * 100 < fleeThresh) {
+            this.targets.clearTarget(id);
+            ctx.emit({ type: 'CreatureFled', id, from: target });
+            const wild = entities.get(id, C.Wild);
+            if (wild !== undefined) {
+              entities.add(id, C.Wild, {
+                ...wild,
+                state: 'flee',
+                stateUntil: ctx.tick + 200,
+              });
+            }
+            continue;
+          }
+        }
+      }
 
       const posA = entities.get(id, C.Position);
       const posT = entities.get(target, C.Position);
@@ -172,12 +204,15 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
         }
       }
     }
+
+    threatScan(ctx, this.threatThrottles, (e: EntityId) => this.targets.targetOf(e));
   }
 
   override handle(event: GameEvent, ctx: TickContext): void {
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
       const killer = (event['killer'] ?? event['killerId'] ?? 0) as EntityId;
+      this.threatThrottles.delete(id);
       this.targets.onCreatureDied(id);
       if (killer !== 0 && ctx.world.entities.alive(killer)) {
         ctx.emit({ type: 'KillRecorded', killerId: killer, victimId: id });

@@ -33,6 +33,7 @@ import type { MovementApi, ReaderSetLike, TickContext } from '@core/system';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import {
   APPROACH_RADIUS,
+  FLEE_BLOOD_PERCENT,
   FLEE_SAMPLE_DIRECTIONS,
   FLEE_SAMPLE_STEPS,
   FLEE_TICKS,
@@ -87,6 +88,7 @@ export interface BrainHost {
   isDaylight(): boolean;
   /** 16's targeting. A stub until M6 records the call (`08` § Wild behavior). */
   setTarget(id: EntityId, targetId: EntityId): void;
+  targetOf?(id: EntityId): EntityId;
   /** The creature that attacked this one, or 0 (a `neutral` animal fears only that). */
   provokedBy(id: EntityId): EntityId;
   /** 07 owns grass: the tile a grazer cleared is handed over, not written here. */
@@ -172,6 +174,30 @@ export function findPrey(host: BrainHost, id: EntityId): EntityId {
   const limit = (host.facts.sizeOf(species) * PREY_SIZE_PERMILLE) / 1000;
   const radius = host.facts.perceptionOf(species);
   for (const other of host.readers.spatial.inRadiusWhere(at, radius, (o) => o !== id)) {
+    const s = speciesOf(host, other);
+    if (s === 0 || host.facts.dietOf(s) === 'carnivore') continue;
+    if (host.facts.sizeOf(s) >= limit) continue;
+    if (!visible(host, at, other)) continue;
+    return other;
+  }
+  return 0;
+}
+
+/**
+ * `08` § Wild behavior: "any prey (species with `size < own size × 0.8` and not carnivore)
+ * or dwarf within perception triggers `hunt` when hungry".
+ */
+export function findHuntTarget(host: BrainHost, id: EntityId): EntityId {
+  const at = tileOf(host, id);
+  if (at < 0) return 0;
+  const species = speciesOf(host, id);
+  const limit = (host.facts.sizeOf(species) * PREY_SIZE_PERMILLE) / 1000;
+  const radius = host.facts.perceptionOf(species);
+  for (const other of host.readers.spatial.inRadiusWhere(at, radius, (o) => o !== id)) {
+    if (isDwarf(host, other)) {
+      if (visible(host, at, other)) return other;
+      continue;
+    }
     const s = speciesOf(host, other);
     if (s === 0 || host.facts.dietOf(s) === 'carnivore') continue;
     if (host.facts.sizeOf(s) >= limit) continue;
@@ -334,10 +360,10 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
         break;
       }
       if (temper === 'aggressive' && host.facts.dietOf(species) === 'carnivore' && next.hungry) {
-        const prey = findPrey(host, id);
-        if (prey !== 0) {
+        const huntTarget = findHuntTarget(host, id);
+        if (huntTarget !== 0) {
           next.state = 'hunt';
-          host.setTarget(id, prey);
+          host.setTarget(id, huntTarget);
           break;
         }
       }
@@ -408,15 +434,64 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
       break;
     }
     case 'hunt': {
-      const prey = findPrey(host, id);
-      if (prey === 0) toIdle(host, ctx, id, next);
-      else host.setTarget(id, prey);
+      let target = host.targetOf ? host.targetOf(id) : 0;
+      if (target === 0 || !host.entities.alive(target)) {
+        target = findHuntTarget(host, id);
+      }
+      if (target === 0 || !host.entities.alive(target)) {
+        toIdle(host, ctx, id, next);
+        host.setTarget(id, 0);
+        break;
+      }
+      host.setTarget(id, target);
+      const to = tileOf(host, target);
+      if (to < 0 || host.map.zOf(to) !== host.map.zOf(at)) {
+        toIdle(host, ctx, id, next);
+        host.setTarget(id, 0);
+        break;
+      }
+      const dx = Math.abs(host.map.xOf(to) - host.map.xOf(at));
+      const dy = Math.abs(host.map.yOf(to) - host.map.yOf(at));
+      if (Math.max(dx, dy) <= 1) {
+        next.state = 'attack';
+      } else {
+        walk(host, ctx, id, to);
+      }
       break;
     }
     case 'attack': {
-      const dwarf = nearestDwarf(host, at, host.facts.perceptionOf(species));
-      if (dwarf === 0) toIdle(host, ctx, id, next);
-      else host.setTarget(id, dwarf);
+      const body = host.entities.get(id, C.Body);
+      const fleeThresh = host.facts.fleeBloodPercentOf(species) ?? (temper === 'aggressive' ? null : FLEE_BLOOD_PERCENT);
+      if (body && body.maxBlood > 0 && fleeThresh !== null) {
+        const bloodPct = (body.blood / body.maxBlood) * 100;
+        if (bloodPct < fleeThresh) {
+          const currentTarget = host.targetOf ? host.targetOf(id) : 0;
+          host.setTarget(id, 0);
+          startFlee(host, ctx, id, next, currentTarget !== 0 ? [currentTarget] : threats);
+          break;
+        }
+      }
+      let target = host.targetOf ? host.targetOf(id) : 0;
+      if (target === 0 || !host.entities.alive(target)) {
+        const dwarf = nearestDwarf(host, at, host.facts.perceptionOf(species));
+        if (dwarf !== 0) {
+          target = dwarf;
+          host.setTarget(id, target);
+        } else {
+          if (next.hungry) next.hungry = false;
+          toIdle(host, ctx, id, next);
+          host.setTarget(id, 0);
+          break;
+        }
+      }
+      const to = tileOf(host, target);
+      if (to < 0 || host.map.zOf(to) !== host.map.zOf(at) ||
+          Math.max(Math.abs(host.map.xOf(to) - host.map.xOf(at)), Math.abs(host.map.yOf(to) - host.map.yOf(at))) > host.facts.perceptionOf(species)) {
+        toIdle(host, ctx, id, next);
+        host.setTarget(id, 0);
+        break;
+      }
+      host.setTarget(id, target);
       break;
     }
     case 'sleep': {
@@ -446,6 +521,8 @@ function toIdle(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild): void 
 }
 
 function startFlee(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild, threats: readonly EntityId[]): void {
+  const from = threats.length > 0 ? (threats[0] as EntityId) : 0;
+  ctx.emit({ type: 'CreatureFled', id, from });
   if (edgeWithinPerception(host, id)) {
     w.state = 'leave';
     walk(host, ctx, id, edgeTile(host, id));
