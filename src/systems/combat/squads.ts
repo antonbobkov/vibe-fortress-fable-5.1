@@ -10,12 +10,12 @@ import type { GameEvent } from '@core/events';
 import type { Map3D } from '@core/map3d';
 import type { TickContext } from '@core/system';
 import type { Alert, EntityId, TileIndex } from '@core/types';
-import type { BuildingsReader } from '@systems/buildings';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import type { PathingReader } from '@core/readers';
 import { PERCEPTION_RADIUS } from './constants';
 import { isCreatureHostile } from './factions';
 import type { TargetManager } from './targets';
+import { getBarracksForSquad, isOnStationShift } from './training';
 
 export function isSquadEffectiveActive(squad: Squad, alert: Alert): boolean {
   if (alert === 'watchful' || alert === 'hearth') return true;
@@ -448,14 +448,28 @@ export function stepSquads(
             destTile = map.index(followPos.x, followPos.y, followPos.z);
           }
         }
+      } else if (squad.mode === 'train' && alert === 'calm') {
+        const barracks = getBarracksForSquad(ctx, squadId, squad.barracksZoneId);
+        const onStation = squad.station !== null && isOnStationShift(squad, m, ctx.tick);
+        if (onStation) {
+          destTile = squad.station;
+        } else if (barracks && barracks.tiles.length > 0) {
+          if (barracks.tiles.includes(tileM)) {
+            destTile = tileM;
+          } else {
+            const sorted = squad.members.slice().sort((a, b) => a - b);
+            const mIdx = sorted.indexOf(m);
+            destTile = barracks.tiles[(mIdx >= 0 ? mIdx : 0) % barracks.tiles.length] ?? barracks.tiles[0] ?? null;
+          }
+        }
       } else if (squad.station !== null) {
         destTile = squad.station;
       } else if (squad.patrol !== null && squad.patrol.length > 0) {
         destTile = advancePatrol(m, squad.patrol, tileM, patrolIndices);
-      } else if (squad.barracksZoneId !== 0 && ctx.readers.has('14')) {
-        const zone = ctx.readers.of<BuildingsReader>('14').zone(squad.barracksZoneId);
-        if (zone && zone.tiles.length > 0) {
-          destTile = zone.tiles[0] ?? null;
+      } else if (ctx.readers.has('14')) {
+        const barracks = getBarracksForSquad(ctx, squadId, squad.barracksZoneId);
+        if (barracks && barracks.tiles.length > 0) {
+          destTile = barracks.tiles[0] ?? null;
         }
       }
 

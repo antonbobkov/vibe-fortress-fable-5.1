@@ -10,6 +10,7 @@ import type { Alert, BodySlot, DamageType, EntityId, TileIndex } from '@core/typ
 import { isCreatureHostile } from './factions';
 import { armorCovering, getDamageVsLayer } from './melee';
 import type { TargetManager } from './targets';
+import { armorSpeedModifier } from './equipment';
 
 export type SquadWithId = Squad & { id: EntityId };
 
@@ -25,6 +26,7 @@ export interface CombatReader {
   weaponOf(id: EntityId): EntityId;
   armorOf(id: EntityId): Record<'head' | 'body' | 'arms' | 'legs' | 'feet', EntityId>;
   armorValue(id: EntityId, part: BodySlot, damageType: DamageType): number;
+  armorSpeedModifier(id: EntityId): number;
   lineOfSight(from: TileIndex, to: TileIndex): boolean;
 }
 
@@ -113,6 +115,10 @@ export function makeCombatReader(
         red += naturalArmor * getDamageVsLayer(damageType, 'plate');
       }
       return red;
+    },
+
+    armorSpeedModifier: (id: EntityId): number => {
+      return armorSpeedModifier(entities, registry, id);
     },
 
     lineOfSight: (from: TileIndex, to: TileIndex): boolean => {

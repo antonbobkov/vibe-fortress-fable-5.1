@@ -303,7 +303,10 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         const corpseWeight = entities.get(carried, C.Corpse)?.weight ?? 0;
         const carryPercent = corpseWeight > HEAVY_ITEM_DENSITY * (species.byIndex(creature.species)?.size ?? 0) ? 50 : 100;
         const healthPercent = ctx.readers.has('17') ? ctx.readers.of<{ speedModifier(id: EntityId): number }>('17').speedModifier(id) : 100;
-        movement.setSpeed(id, dwarfSpeed(base, attrs.agi, healthPercent, carryPercent));
+        const armorPercent = ctx.readers.has('16') && typeof ctx.readers.of<{ armorSpeedModifier?(id: EntityId): number }>('16').armorSpeedModifier === 'function'
+          ? (ctx.readers.of<{ armorSpeedModifier(id: EntityId): number }>('16').armorSpeedModifier(id) ?? 100)
+          : 100;
+        movement.setSpeed(id, dwarfSpeed(base, attrs.agi, Math.floor((healthPercent * armorPercent) / 100), carryPercent));
       }
       tickDwarf(this.host as BrainHost, ctx, id);
     }

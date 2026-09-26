@@ -4,8 +4,10 @@
 
 import { describe, expect, it } from 'vitest';
 import { FLAT_TEST_SURFACE_Z, HeadlessGame } from '@app/headless';
-import { C } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import { SQUAD_MAX_COUNT, SQUAD_MAX_SIZE, TICKS_PER_YEAR } from '@core/constants';
+import type { BuildingsReader } from '@systems/buildings/reader';
+import type { BuildingsSystem } from '@systems/buildings';
 import type { CombatReader, SquadWithId } from '@systems/combat/reader';
 import { dwarfComponents } from '@systems/dwarves/rules/components';
 import { makeDwarf } from '@systems/dwarves/rules/make-dwarf';
@@ -284,4 +286,265 @@ describe('T-M6-05: Squads, orders, duty, stations, patrols, alerts', () => {
     expect(cancelRes).toEqual({ ok: true });
     expect(combatReader.squad(squad.id)?.orders.length).toBe(0);
   });
+
+  describe('T-M6-06: Training and equipment', () => {
+    it('best-item selection by metalTier * qualityMult', () => {
+      const game = new HeadlessGame({ seed: 'equip-best', world: 'flat-test', embark: 'none' });
+      const entities = game.world.entities;
+      const registry = game.registry;
+      const at = game.map.index(10, 10, FLAT_TEST_SURFACE_Z);
+
+      const itemsTable = registry.table('items');
+      const materialsTable = registry.table('materials');
+      const axeType = itemsTable.index('axe');
+      const copperMat = materialsTable.index('copper'); // tier 1
+      const ironMat = materialsTable.index('iron');     // tier 2
+      const steelMat = materialsTable.index('steel');   // tier 3
+
+      // Spawn axes of different metal tiers and qualities
+      game.world.services.spawn.item(axeType, copperMat, at, 1, 1); // 1 * 1.0 = 1.0
+      game.world.services.spawn.item(axeType, ironMat, at, 1, 1);     // 2 * 1.0 = 2.0
+      const steelAxe = game.world.services.spawn.item(axeType, steelMat, at, 1, 1);   // 3 * 1.0 = 3.0
+
+      const soldier = spawnAdultDwarf(game, at);
+      game.world.applyCommand({ type: 'CreateSquad', name: 'Elite Guard' });
+      const combatReader = game.world.readers.of<CombatReader>('16');
+      const squad = combatReader.squads()[0] as SquadWithId;
+
+      game.world.applyCommand({
+        type: 'SetSquadEquipment',
+        squadId: squad.id,
+        equipment: { weaponClass: 'axe' },
+      });
+
+      // Adding member triggers reequip
+      game.world.applyCommand({
+        type: 'SetSquadMembers',
+        squadId: squad.id,
+        members: [soldier],
+      });
+
+      const equip = entities.get(soldier, C.Equipment);
+      // Steel axe (highest metalTier * qualityMult) should be claimed
+      expect(equip?.weapon).toBe(steelAxe);
+
+      // Now spawn an exceptional iron axe (tier 2 * 1.35 = 2.7) and masterwork steel axe (tier 3 * 1.5 = 4.5)
+      const mwSteelAxe = game.world.services.spawn.item(axeType, steelMat, at, 1, 5);
+      game.step(1); // Triggers re-equip on ItemCreated
+
+      const equipAfter = entities.get(soldier, C.Equipment);
+      expect(equipAfter?.weapon).toBe(mwSteelAxe);
+    });
+
+    it('two-handed/shield exclusion', () => {
+      const game = new HeadlessGame({ seed: 'two-handed-shield', world: 'flat-test', embark: 'none' });
+      const entities = game.world.entities;
+      const registry = game.registry;
+      const at = game.map.index(10, 10, FLAT_TEST_SURFACE_Z);
+
+      const itemsTable = registry.table('items');
+      const materialsTable = registry.table('materials');
+      const iron = materialsTable.index('iron');
+
+      const bucklerType = itemsTable.index('buckler');
+      const oneHandedAxeType = itemsTable.index('axe');       // hands = 1
+      const twoHandedMaulType = itemsTable.index('maul');     // hands = 2
+
+      const buckler = game.world.services.spawn.item(bucklerType, iron, at, 1, 1);
+      const maul = game.world.services.spawn.item(twoHandedMaulType, iron, at, 1, 1);
+
+      const soldier = spawnAdultDwarf(game, at);
+      game.world.applyCommand({ type: 'CreateSquad', name: 'Hammer Squad' });
+      const combatReader = game.world.readers.of<CombatReader>('16');
+      const squad = combatReader.squads()[0] as SquadWithId;
+
+      // Equip two-handed maul
+      game.world.applyCommand({
+        type: 'SetSquadEquipment',
+        squadId: squad.id,
+        equipment: { weaponClass: 'hammer' },
+      });
+      game.world.applyCommand({
+        type: 'SetSquadMembers',
+        squadId: squad.id,
+        members: [soldier],
+      });
+
+      const equip = entities.get(soldier, C.Equipment);
+      expect(equip?.weapon).toBe(maul);
+      // Two-handed weapon excludes shield
+      expect(equip?.shield).toBe(0);
+
+      // Now switch squad preference to one-handed axe
+      const oneHandedAxe = game.world.services.spawn.item(oneHandedAxeType, iron, at, 1, 5); // masterwork so it replaces maul
+      game.world.applyCommand({
+        type: 'SetSquadEquipment',
+        squadId: squad.id,
+        equipment: { weaponClass: 'axe' },
+      });
+
+      const equipAfter = entities.get(soldier, C.Equipment);
+      expect(equipAfter?.weapon).toBe(oneHandedAxe);
+      // One-handed weapon allows shield claiming!
+      expect(equipAfter?.shield).toBe(buckler);
+    });
+
+    it('speed penalty floor: clamped at ARMOR_MIN_SPEED_PERCENT (60)', () => {
+      const game = new HeadlessGame({ seed: 'armor-speed', world: 'flat-test', embark: 'none' });
+      const entities = game.world.entities;
+      const at = game.map.index(10, 10, FLAT_TEST_SURFACE_Z);
+      const soldier = spawnAdultDwarf(game, at);
+
+      const itemsTable = game.registry.table('items');
+      const materialsTable = game.registry.table('materials');
+      const iron = materialsTable.index('iron');
+
+      // Create heavy armor pieces: breastplate (16), greaves (10), helm (6), boots (4), gauntlets (4)
+      // Total weight: 16 + 10 + 6 + 4 + 4 = 40.
+      // To test the floor of 60%, total weight must exceed 160 (160 / 4 = 40% penalty -> 60% speed).
+      // We can create multiple heavy pieces or high weight pieces
+      const bp = game.world.services.spawn.item(itemsTable.index('breastplate'), iron, at, 1, 1);
+      const greaves = game.world.services.spawn.item(itemsTable.index('greaves'), iron, at, 1, 1);
+      const helm = game.world.services.spawn.item(itemsTable.index('helm'), iron, at, 1, 1);
+      const boots = game.world.services.spawn.item(itemsTable.index('metal_boots'), iron, at, 1, 1);
+      const gauntlets = game.world.services.spawn.item(itemsTable.index('gauntlets'), iron, at, 1, 1);
+
+      entities.add(soldier, C.Equipment, {
+        weapon: 0,
+        shield: 0,
+        armor: { head: helm, body: bp, arms: gauntlets, legs: greaves, feet: boots },
+        clothing: { body: 0, legs: 0, feet: 0, over: 0 },
+        quiver: 0,
+      });
+
+      const skillsTable = game.registry.table('skills');
+      const armorUseIdx = skillsTable.index('armor_use');
+      const skills = entities.get(soldier, C.Skills);
+      if (skills) {
+        skills.level[armorUseIdx] = 0;
+      }
+
+      const combatReader = game.world.readers.of<CombatReader>('16');
+      // Weight 40 -> 40 / 4 = 10% penalty -> 90%
+      expect(combatReader.armorSpeedModifier(soldier)).toBe(90);
+
+      // Now set item weight heavily on breastplate so total weight is 200 (176 + 24 = 200)
+      interface ModifiableArmorTable {
+        byId(id: string): { id: string; weight: number } | undefined;
+        byIdMap: Map<string, { id: string; weight: number }>;
+        indexMap: Map<string, number>;
+        rows: { id: string; weight: number }[];
+      }
+      const armorTable = game.registry.table<{ id: string; weight: number }>('armor') as unknown as ModifiableArmorTable;
+      const bpDef = armorTable.byId('breastplate');
+      if (!bpDef) throw new Error('breastplate not found');
+      const heavyBpDef = { ...bpDef, weight: 176 };
+      armorTable.byIdMap.set('breastplate', heavyBpDef);
+      const bpIdx = armorTable.indexMap.get('breastplate');
+      if (bpIdx !== undefined) armorTable.rows[bpIdx] = heavyBpDef;
+
+      // 200 / 4 = 50% penalty -> 100 - 50 = 50% < 60% floor -> clamped to 60!
+      expect(combatReader.armorSpeedModifier(soldier)).toBe(60);
+
+      // With armor_use skill 20: penalty = 50 - 20 = 30 -> 100 - 30 = 70 > 60
+      if (skills) {
+        skills.level[armorUseIdx] = 20;
+      }
+      expect(combatReader.armorSpeedModifier(soldier)).toBe(70);
+
+      // Restore original
+      armorTable.byIdMap.set('breastplate', bpDef);
+      if (bpIdx !== undefined) armorTable.rows[bpIdx] = bpDef;
+    });
+
+    it('archery bolts recovered by hauling', () => {
+      const game = new HeadlessGame({ seed: 'archery-recover', world: 'flat-test', embark: 'none' });
+      const entities = game.world.entities;
+      const registry = game.registry;
+      const at = game.map.index(10, 10, FLAT_TEST_SURFACE_Z);
+
+      // Setup barracks zone
+      const barracksTiles = [at, at + 1, at + 2];
+      game.world.applyCommand({
+        type: 'CreateZone',
+        zoneType: 'barracks',
+        tiles: barracksTiles,
+      });
+      const buildingsReader = game.world.readers.of<BuildingsReader>('14');
+      const bZones = buildingsReader.zonesOfType('barracks');
+      const barracksZoneId = bZones[0] as number;
+
+      // Build archery target in barracks
+      const oak = registry.table('materials').index('oak');
+      game.world.applyCommand({
+        type: 'PlaceBuilding',
+        buildingType: 'archery_target',
+        origin: at + 2,
+        orientation: 0,
+        materialChoice: 'oak',
+      });
+      const bSystem = game.world.scheduler.byId('14') as BuildingsSystem;
+      bSystem.completeNow(bSystem.lastPlacedBuilding, oak, 0);
+
+      // Spawn ranged soldier with crossbow and bolts
+      const soldier = spawnAdultDwarf(game, at);
+      const itemsTable = registry.table('items');
+      const materialsTable = registry.table('materials');
+      const iron = materialsTable.index('iron');
+
+      const xbowType = itemsTable.index('crossbow');
+      const boltType = itemsTable.index('bolt');
+      const quiverType = itemsTable.index('quiver');
+
+      const xbow = game.world.services.spawn.item(xbowType, oak, at, 1, 1);
+      const quiver = game.world.services.spawn.item(quiverType, materialsTable.index('leather'), at, 1, 1);
+      const bolts = game.world.services.spawn.item(boltType, iron, at, 25, 1);
+
+      entities.add(soldier, C.Equipment, {
+        weapon: xbow,
+        shield: 0,
+        armor: { head: 0, body: 0, arms: 0, legs: 0, feet: 0 },
+        clothing: { body: 0, legs: 0, feet: 0, over: 0 },
+        quiver,
+      });
+
+      const boltItem = entities.get(bolts, C.Item)!;
+      boltItem.carriedBy = soldier;
+      boltItem.containerId = quiver;
+      boltItem.flags |= ItemFlag.Owned;
+      boltItem.ownerId = soldier;
+
+      game.world.applyCommand({ type: 'CreateSquad', name: 'Archers' });
+      const combatReader = game.world.readers.of<CombatReader>('16');
+      const squad = combatReader.squads()[0] as SquadWithId;
+
+      game.world.applyCommand({
+        type: 'SetSquadMembers',
+        squadId: squad.id,
+        members: [soldier],
+      });
+      game.world.applyCommand({
+        type: 'SetSquadMode',
+        squadId: squad.id,
+        mode: 'train',
+      });
+      const squadComp = entities.get(squad.id, C.Squad);
+      if (squadComp) squadComp.barracksZoneId = barracksZoneId;
+
+      // Step simulation for a training session (300 ticks)
+      game.step(305);
+
+      // Verify that bolts were shot at archery target and dropped unowned for hauling
+      let unownedBoltsCount = 0;
+      for (const itId of entities.with(C.Item)) {
+        if (itId === bolts) continue;
+        const it = entities.get(itId, C.Item);
+        if (it && it.type === boltType && (it.flags & ItemFlag.Owned) === 0 && it.ownerId === 0) {
+          unownedBoltsCount += it.count;
+        }
+      }
+      expect(unownedBoltsCount).toBeGreaterThan(0);
+    });
+  });
 });
+

@@ -126,7 +126,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M6-03 — Combat: projectiles, line of sight through fortifications, hunting (agy-m603, 2026-09-25)
 - [x] T-M6-04 — Combat: threats to civilians, fleeing, animals attacking (agy-m604, 2026-09-25)
 - [x] T-M6-05 — Squads, orders, duty, stations, patrols, alerts (agy-m605, 2026-09-25)
-- [ ] T-M6-06 — Training and equipment
+- [x] T-M6-06 — Training and equipment (agy-m606, 2026-09-26)
 - [x] T-M6-07 — Hospitals and medicine (agy-m607, 2026-09-26)
 - [ ] T-M6-08 — Threats: schedule, renown, party generation, arrival, warnings
 - [ ] T-M6-09 — Threats: party and member AI, thieves, stealth, loot, retreat, door breaking

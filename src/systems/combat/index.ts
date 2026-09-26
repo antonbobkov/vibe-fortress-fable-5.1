@@ -22,6 +22,7 @@ import {
   COMBAT_PHASE,
   FLEE_BLOOD_PERCENT,
   PERCEPTION_RADIUS,
+  REEQUIP_CHECK_DAYS,
   TARGET_LOSE_TICKS,
 } from './constants';
 import { isCreatureHostile, isFactionHostile } from './factions';
@@ -45,9 +46,12 @@ import {
 import type { CombatStateV1 } from './state';
 import { TargetManager } from './targets';
 import { threatScan } from './threats';
+import { reequipAllSquads, reequipSquad } from './equipment';
+import { stepTraining } from './training';
 
 export type { CombatReader, SquadWithId } from './reader';
 export * from './constants';
+export * from './equipment';
 export * from './factions';
 export * from './melee';
 export * from './ranged';
@@ -55,6 +59,7 @@ export * from './squads';
 export * from './state';
 export * from './targets';
 export * from './threats';
+export * from './training';
 
 export class CombatSystem extends BaseSystem<CombatStateV1> {
   override readonly id: SystemId = '16';
@@ -80,6 +85,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     'CreatureDied',
     'CreatureUnconscious',
     'AlertChanged',
+    'DayPassed',
+    'ItemCreated',
   ];
 
   private world: WorldLike | null = null;
@@ -91,6 +98,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   private targetManager: TargetManager | null = null;
   private readonly threatThrottles = new Map<EntityId, number>();
   private readonly patrolIndices = new Map<EntityId, number>();
+  private readonly sessionEnds = new Map<EntityId, number>();
+  private daysCount = 0;
 
   get targets(): TargetManager {
     if (this.targetManager === null) throw new Error('16 combat: targets before init');
@@ -197,6 +206,9 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       (from, to) => this.lineOfSight(from, to),
       this.patrolIndices,
     );
+
+    // Step barracks & archery range training
+    stepTraining(ctx, this.rng, this.sessionEnds, this.alertState);
 
     for (const id of this.targets.allWithTarget()) {
       if (!entities.alive(id)) {
@@ -339,6 +351,19 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       updateSquadDuty(ctx.world.entities, this.alertState);
       return;
     }
+
+    if (event.type === 'DayPassed') {
+      this.daysCount += 1;
+      if (this.daysCount % REEQUIP_CHECK_DAYS === 0) {
+        reequipAllSquads(ctx);
+      }
+      return;
+    }
+
+    if (event.type === 'ItemCreated') {
+      reequipAllSquads(ctx);
+      return;
+    }
   }
 
   override applyCommand(cmd: Command, ctx: TickContext): CommandResult {
@@ -363,7 +388,11 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       return disbandSquad(ctx.world.entities, cmd);
     }
     if (cmd.type === 'SetSquadMembers') {
-      return setSquadMembers(ctx.world.entities, cmd, this.alertState, ctx.tick);
+      const res = setSquadMembers(ctx.world.entities, cmd, this.alertState, ctx.tick);
+      if (res.ok) {
+        reequipSquad(ctx, cmd['squadId'] as EntityId);
+      }
+      return res;
     }
     if (cmd.type === 'SetSquadLeader') {
       return setSquadLeader(ctx.world.entities, cmd);
@@ -372,7 +401,11 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       return setSquadMode(ctx.world.entities, cmd, this.alertState);
     }
     if (cmd.type === 'SetSquadEquipment') {
-      return setSquadEquipment(ctx.world.entities, cmd);
+      const res = setSquadEquipment(ctx.world.entities, cmd);
+      if (res.ok) {
+        reequipSquad(ctx, cmd['squadId'] as EntityId);
+      }
+      return res;
     }
     if (cmd.type === 'SetSquadStation') {
       return setSquadStation(ctx.world.map, ctx.readers.pathing, ctx.world.entities, cmd);
