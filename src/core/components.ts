@@ -67,6 +67,8 @@ export interface Creature {
   /** `species.size` */
   sizeClass: number;
   bodyPlan: Idx<'BodyPlanDef'>;
+  /** Installed cage item holding this dormant creature (19). */
+  cagedIn?: EntityId;
 }
 
 export interface Wound {
@@ -240,6 +242,8 @@ export interface Item {
   /** jobId */
   reservedBy: number;
   carriedBy: EntityId;
+  /** Creature held by a cage item (19); 0 or absent for an empty cage. */
+  occupantId?: EntityId;
 }
 
 export interface Container {

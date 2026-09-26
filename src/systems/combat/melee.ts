@@ -359,6 +359,10 @@ export interface MeleeOptions {
   overrideDamage?: number;
   overrideDamageType?: DamageType;
   skipXp?: boolean;
+  /** 19's installed trap weapon, resolved by the same melee rules. */
+  weaponId?: EntityId;
+  overrideSkill?: number;
+  surprised?: boolean;
 }
 
 /**
@@ -376,7 +380,7 @@ export function resolveMelee(
   const rng = ctx.rng;
   const tick = ctx.tick;
 
-  const w = weaponOf(entities, registry, attackerId);
+  const w = options?.weaponId === undefined ? weaponOf(entities, registry, attackerId) : getWeaponDef(entities, registry, options.weaponId);
   const creatureA = entities.get(attackerId, C.Creature);
   const creatureD = entities.get(defenderId, C.Creature);
   const speciesTable = registry.table<SpeciesRow>('creatures');
@@ -424,8 +428,8 @@ export function resolveMelee(
   if (options?.overrideDamage !== undefined) atkDamage = options.overrideDamage;
   if (options?.overrideDamageType !== undefined) atkType = options.overrideDamageType;
 
-  const skillA = getSkill(entities, registry, attackerId, atkSkill);
-  const dodgeSkill = getSkill(entities, registry, defenderId, 'dodge');
+  const skillA = options?.overrideSkill ?? getSkill(entities, registry, attackerId, atkSkill);
+  const dodgeSkill = options?.surprised ? 0 : getSkill(entities, registry, defenderId, 'dodge');
   const agiA = getAttribute(entities, attackerId, 'agi');
   const agiD = getAttribute(entities, defenderId, 'agi');
 

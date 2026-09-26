@@ -211,12 +211,14 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     stepTraining(ctx, this.rng, this.sessionEnds, this.alertState);
 
     for (const id of this.targets.allWithTarget()) {
+      if (entities.get(id, C.Creature)?.cagedIn) { this.targets.clearTarget(id); continue; }
       if (!entities.alive(id)) {
         this.targets.clearTarget(id);
         continue;
       }
 
       const target = this.targets.targetOf(id);
+      if (entities.get(target, C.Creature)?.cagedIn) { this.targets.clearTarget(id); continue; }
       if (
         target === 0 ||
         !entities.alive(target) ||

@@ -142,7 +142,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     : ctx.world.fortress.alert;
   if (alert === 'hearth' && civ) {
     b.behavior = 'retreat';
-    b.targetTile = host.idleGoal(id);
+    b.targetTile = ctx.readers.has('19') ? ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(id) : host.idleGoal(id);
     b.activity = 'Retreating';
     return;
   }
@@ -261,7 +261,11 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
     if (alert !== 'hearth' || !civ) {
       reselect = true;
     } else if (movement !== null && b.targetTile >= 0 && movement.tileOf(id) !== b.targetTile) {
-      movement.walkTo(id, b.targetTile, 'flee', ctx);
+      const result = movement.walkTo(id, b.targetTile, 'flee', ctx);
+      if (result === 'unreachable' && ctx.readers.has('19')) {
+        b.targetTile = ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(id);
+        if (b.targetTile < 0) reselect = true;
+      }
     }
   } else if (b.behavior === 'patient') {
     const isPatient = ctx.readers.has('17') && ctx.readers.of<HealthReader>('17').isPatient(id);
