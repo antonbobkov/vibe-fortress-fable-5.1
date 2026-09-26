@@ -175,26 +175,46 @@ test('farm-plot-and-orders', async ({ page }) => {
   await page.keyboard.press('Escape'); await page.keyboard.press('Escape');
   // The headless hook advances the same simulation ticks as the 4× frame loop while keeping the browser test bounded.
   await page.keyboard.press('Space'); await page.keyboard.press('+'); await page.keyboard.press('+');
-  let floors = 0;
-  for (let i = 0; i < 120 && floors < PLOT_W * PLOT_H; i += 1) {
-    floors = await page.evaluate((r) => {
+  // The first exposed four tiles can be farmed while the remaining rock is dug.
+  // Waiting for the entire 8x5 room first leaves the fortress without a drink supply.
+  let farmStrip = 0;
+  while (farmStrip < 4) {
+    farmStrip = await page.evaluate((r) => {
       const h = (window as unknown as { __deepholm: FarmHook }).__deepholm;
-      h.step(500);
+      h.step(250);
       let n = 0;
-      for (let dy = 0; dy < 5; dy += 1) for (let dx = 0; dx < 8; dx += 1) if (h.readers.map.kindAt(h.readers.map.index(r.x + dx, r.y + dy, r.z)) === 2) n += 1;
+      for (let dx = 5; dx < 8; dx += 1) if (h.readers.map.kindAt(h.readers.map.index(r.x + dx, r.y, r.z)) === 2) n += 1;
+      if (h.readers.map.kindAt(h.readers.map.index(r.x + 7, r.y + 1, r.z)) === 2) n += 1;
       return n;
     }, f);
+    const tick = await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.readers.calendar.tick);
+    expect(tick).toBeLessThan(60_000);
   }
-  expect(floors).toBe(PLOT_W * PLOT_H);
   await page.keyboard.press('Space');
   await page.keyboard.press('z'); await page.keyboard.press('f');
-  const za = await pixel(page, f.x, f.y);
-  const zb = await pixel(page, f.x + PLOT_W - 1, f.y + PLOT_H - 1);
+  const za = await pixel(page, f.x + PLOT_W - 3, f.y);
+  const zb = await pixel(page, f.x + PLOT_W - 1, f.y);
   await page.mouse.move(za.x, za.y); await page.mouse.down(); await page.mouse.move(zb.x, zb.y, { steps: 4 }); await page.mouse.up();
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
   await page.keyboard.press('Escape');
-  const selected = await pixel(page, f.x, f.y);
+  const selected = await pixel(page, f.x + PLOT_W - 3, f.y);
   await page.mouse.click(selected.x, selected.y);
+  await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
+  for (const season of ['Spring', 'Summer', 'Autumn', 'Winter']) {
+    const row = await textCell(page, season, 9);
+    await page.mouse.click(row.x, row.y);
+    const dimcap = await textCell(page, 'dimcap');
+    await page.mouse.click(dimcap.x, dimcap.y);
+  }
+  await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
+  // The fourth early floor is diagonal to the first strip, so it needs its own plot.
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('z'); await page.keyboard.press('f');
+  const fourth = await pixel(page, f.x + PLOT_W - 1, f.y + 1);
+  await page.mouse.move(fourth.x, fourth.y); await page.mouse.down(); await page.mouse.up();
+  await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
+  await page.keyboard.press('Escape');
+  await page.mouse.click(fourth.x, fourth.y);
   await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
   for (const season of ['Spring', 'Summer', 'Autumn', 'Winter']) {
     const row = await textCell(page, season, 9);
@@ -256,19 +276,25 @@ test('farm-plot-and-orders', async ({ page }) => {
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
   await expect.poll(() => textOf(page)).toContain('Material: dimcap');
 
-  // The default maintain threshold is 20. Forty days includes at least two dimcap growth cycles.
-  const end = await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.readers.calendar.tick + 40 * 1200);
+  // The default maintain threshold is 20. Poll the harvest, drink stock and completed excavation.
   await page.keyboard.press('Space');
-  while ((await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.readers.calendar.tick)) < end) {
-    await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1200));
+  let result = { drinks: 0, cropHarvested: false, floors: 0, tick: 0 };
+  while (result.drinks < 20 || !result.cropHarvested || result.floors < PLOT_W * PLOT_H) {
+    result = await page.evaluate((r) => {
+      const h = (window as unknown as { __deepholm: FarmHook & { cropHarvested: boolean } }).__deepholm;
+      h.step(250);
+      const items = h.readers.of('13') as { count(type: string): number };
+      let floors = 0;
+      for (let dy = 0; dy < 5; dy += 1) for (let dx = 0; dx < 8; dx += 1) {
+        if (h.readers.map.kindAt(h.readers.map.index(r.x + dx, r.y + dy, r.z)) === 2) floors += 1;
+      }
+      return { drinks: items.count('drink'), cropHarvested: h.cropHarvested, floors, tick: h.readers.calendar.tick };
+    }, f);
+    expect(result.tick).toBeLessThan(100_000);
   }
-  const result = await page.evaluate(() => {
-    const h = (window as unknown as { __deepholm: FarmHook & { cropHarvested: boolean } }).__deepholm;
-    const items = h.readers.of('13') as { count(type: string): number };
-    return { drinks: items.count('drink'), cropHarvested: h.cropHarvested };
-  });
   expect(result.drinks).toBeGreaterThanOrEqual(20);
   expect(result.cropHarvested).toBe(true);
+  expect(result.floors).toBe(PLOT_W * PLOT_H);
   // A mason and raw stone are setup; create its block order through the global Orders panel.
   const mason = await page.evaluate((farm) => {
     const h = (window as unknown as { __deepholm: FarmHook }).__deepholm;
