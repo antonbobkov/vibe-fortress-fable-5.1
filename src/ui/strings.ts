@@ -359,6 +359,11 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.dwarf_died': '{dwarf} has died.',
   'announce.infection': '{dwarf} has developed an infection.',
   'announce.limb_lost': '{dwarf} has lost a limb.',
+  // 16 Combat announcements
+  'announce.combat_engagement': 'Combat has begun.',
+  'announce.attack_resolved': '{attacker} attacks {defender}.',
+  'announce.alert_changed': 'The fortress alert is now {to}.',
+  'announce.kill_recorded': '{killer} has slain {victim}.',
 });
 
 /** A `StringKey`'s text with `{placeholders}` filled; the key itself when no row has it. */

@@ -284,6 +284,10 @@ describe('T-M1-14 announcements', () => {
       PatientAdmitted: 'note',
       InfectionStarted: 'alert',
       LimbLost: 'alert',
+      // T-M6-02: 16 § Registrations (announcements for combat)
+      AlertChanged: 'note',
+      KillRecorded: 'note',
+      AttackResolved: 'alert',
     });
   });
 
