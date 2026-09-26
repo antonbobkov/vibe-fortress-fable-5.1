@@ -131,6 +131,8 @@ export interface CombatApi {
   setTarget(id: EntityId, targetId: EntityId): void;
   targetOf(id: EntityId): EntityId;
   clearTarget(id: EntityId): void;
+  fireAt(shooterId: EntityId, targetId: EntityId): boolean;
+  lineOfSight(from: TileIndex, to: TileIndex): boolean;
 }
 
 /**

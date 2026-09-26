@@ -212,6 +212,10 @@ export class JobBoard implements JobsApi, JobSink {
     const a = job.data['anchorTile'];
     if (typeof a === 'number') return a;
     if (typeof job.workTile === 'number') return job.workTile;
+    if (job.target.kind === 'entity') {
+      const pos = this.world.entities.get(job.target.ref, C.Position);
+      if (pos) return this.world.map.index(pos.x, pos.y, pos.z);
+    }
     return job.target.ref;
   }
 

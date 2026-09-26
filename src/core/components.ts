@@ -401,6 +401,7 @@ export interface Projectile {
   damage: number;
   damageType: DamageType;
   line: TileIndex[];
+  skipXp?: boolean | undefined;
 }
 
 export interface Crop {

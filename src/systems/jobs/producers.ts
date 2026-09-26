@@ -18,7 +18,7 @@ export interface JobSpec {
   readonly type: string;
   readonly priority?: Priority | number;
   readonly target: { readonly kind: TargetKind; readonly ref: number; readonly ref2?: number };
-  readonly workTile: TileIndex | 'adjacent' | 'at';
+  readonly workTile: TileIndex | 'adjacent' | 'at' | 'ranged';
   readonly inputs?: readonly { readonly filter: ItemFilter; readonly count: number; readonly wholeItem?: true }[];
   readonly tool?: Tool | null;
   readonly data?: Readonly<Record<string, unknown>>;

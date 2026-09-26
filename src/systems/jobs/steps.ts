@@ -10,7 +10,10 @@
  * per tick against `baseTicks × 100 × 100`, so a job takes exactly its documented time.
  */
 
+import { C } from '@core/components';
 import type { TickContext } from '@core/system';
+import type { BuildingsReader } from '@systems/buildings';
+import { grantXp } from '@systems/dwarves';
 import type { EntityId, TileIndex } from '@core/types';
 import { effortPerTick, effortRequired, estDistance, progressOf } from './assign';
 import type { JobBoard } from './board';
@@ -83,6 +86,11 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
   const job = board.jobs.get(worker.jobId);
   if (job === undefined || job.workerId !== workerId) {
     board.setWorker(workerId, { jobId: 0, phase: 0 });
+    return;
+  }
+  const jobType = board.typeId(job);
+  if (jobType === 'hunt' && job.state !== 'claimed' && job.state !== 'fetching') {
+    stepHunt(board, job, workerId, ctx);
     return;
   }
   const movement = board.movement;
@@ -195,4 +203,166 @@ function complete(board: JobBoard, job: Job, workerId: EntityId, ctx: TickContex
   const event = { type: 'JobCompleted' as const, jobId: job.id, jobType: board.typeId(job), workerId, target: job.target.ref };
   ctx.emit(event);
   producer?.onJobEvent?.(event);
+}
+
+function stepHunt(board: JobBoard, job: Job, workerId: EntityId, ctx: TickContext): void {
+  const entities = board.world.entities;
+  const map = board.world.map;
+  const targetId = job.target.ref;
+  const movement = board.movement;
+
+  // Case 1: Target is dead -> haul corpse to butcher's workshop
+  if (!entities.alive(targetId)) {
+    if (!job.data['killEmitted']) {
+      job.data['killEmitted'] = true;
+      ctx.emit({ type: 'HuntKill', hunterId: workerId, targetId });
+      grantXp(entities, ctx.registry, workerId, 'hunting', 15, (e) => ctx.emit(e));
+    }
+
+    let corpseId = typeof job.data['corpseId'] === 'number' ? (job.data['corpseId'] as number) : 0;
+    if (corpseId === 0 || !entities.alive(corpseId)) {
+      const deathTile = typeof job.data['deathTile'] === 'number' ? (job.data['deathTile'] as number) : -1;
+      for (const id of entities.with(C.Corpse, C.Item)) {
+        if (deathTile >= 0 && board.items.tileOf(id) === deathTile) {
+          corpseId = id;
+          break;
+        }
+      }
+      if (corpseId === 0) {
+        for (const id of entities.with(C.Corpse, C.Item)) {
+          corpseId = id;
+          break;
+        }
+      }
+      if (corpseId !== 0) {
+        job.data['corpseId'] = corpseId;
+      }
+    }
+
+    if (corpseId === 0) {
+      complete(board, job, workerId, ctx);
+      return;
+    }
+
+    const buildings = board.readers.has('14') ? board.readers.of<BuildingsReader>('14') : null;
+    const workshops = buildings ? buildings.byType('butcher') : [];
+    const builtWorkshop = workshops.find((id: EntityId) => buildings?.get(id)?.state === 'built');
+    const destTile = builtWorkshop !== undefined ? (buildings?.get(builtWorkshop)?.origin ?? -1) : -1;
+
+    const workerTile = board.workerTile(workerId);
+    const carrying = board.workerOf(workerId).carrying;
+
+    if (carrying === corpseId) {
+      if (destTile >= 0) {
+        if (workerTile === destTile) {
+          board.items.dropAt(corpseId, destTile);
+          board.setWorker(workerId, { carrying: 0 });
+          complete(board, job, workerId, ctx);
+          return;
+        }
+        if (movement === null || movement.walkTo(workerId, destTile, 'job', ctx) === 'unreachable') {
+          board.items.dropAt(corpseId, workerTile);
+          board.setWorker(workerId, { carrying: 0 });
+          complete(board, job, workerId, ctx);
+        }
+      } else {
+        board.items.dropAt(corpseId, workerTile);
+        board.setWorker(workerId, { carrying: 0 });
+        complete(board, job, workerId, ctx);
+      }
+      return;
+    }
+
+    // Not carrying yet
+    const corpseTile = board.items.tileOf(corpseId);
+    if (corpseTile < 0) {
+      complete(board, job, workerId, ctx);
+      return;
+    }
+    if (workerTile === corpseTile) {
+      board.items.pickUp(corpseId, workerId);
+      board.setWorker(workerId, { carrying: corpseId });
+      return;
+    }
+    if (movement === null || movement.walkTo(workerId, corpseTile, 'job', ctx) === 'unreachable') {
+      complete(board, job, workerId, ctx);
+    }
+    return;
+  }
+
+  // Case 2: Target is alive
+  if (!board.items.hasTool(workerId, 'ranged')) {
+    ctx.emit({ type: 'HuntAbandoned', hunterId: workerId, targetId, reason: 'no_ammo' });
+    board.unclaim(job, 'no_tool');
+    return;
+  }
+
+  if (!job.data['huntStarted']) {
+    job.data['huntStarted'] = true;
+    ctx.emit({ type: 'HuntStarted', hunterId: workerId, targetId });
+
+    for (const petId of entities.with(C.Tame)) {
+      const tame = entities.get(petId, C.Tame);
+      if (tame && tame.petOf === workerId && tame.trained === 'hunting') {
+        board.world.services.combat?.setTarget(petId, targetId);
+      }
+    }
+  }
+
+  const posT = entities.get(targetId, C.Position);
+  if (posT === undefined) {
+    const lostTicks = (typeof job.data['lostTicks'] === 'number' ? (job.data['lostTicks'] as number) : 0) + 1;
+    job.data['lostTicks'] = lostTicks;
+    if (lostTicks >= 300) {
+      ctx.emit({ type: 'HuntAbandoned', hunterId: workerId, targetId, reason: 'lost_target' });
+      board.unclaim(job, 'unreachable');
+    }
+    return;
+  }
+
+  job.data['lostTicks'] = 0;
+  const targetTile = map.index(posT.x, posT.y, posT.z);
+  job.data['deathTile'] = targetTile;
+  job.data['anchorTile'] = targetTile;
+
+  const workerTile = board.workerTile(workerId);
+  const equip = entities.get(workerId, C.Equipment);
+  const worker = entities.get(workerId, C.Worker);
+  const weaponId = equip && equip.weapon !== 0 ? equip.weapon : worker && worker.toolId !== 0 ? worker.toolId : 0;
+  let range = 12;
+  if (weaponId !== 0) {
+    const item = entities.get(weaponId, C.Item);
+    if (item) {
+      const itemRow = ctx.registry.table<{ id: string }>('items').byIndex(item.type);
+      if (itemRow) {
+        const weaponRow = ctx.registry.table<{ id: string; launcher?: { range: number } }>('weapons').byId(itemRow.id);
+        if (weaponRow?.launcher?.range) range = weaponRow.launcher.range;
+      }
+    }
+  }
+
+  const dist =
+    Math.max(
+      Math.abs(map.xOf(workerTile) - posT.x),
+      Math.abs(map.yOf(workerTile) - posT.y),
+    ) + Math.abs(map.zOf(workerTile) - posT.z) * 2;
+
+  const hasLos = board.world.services.combat?.lineOfSight(workerTile, targetTile) ?? false;
+
+  if (dist <= range && hasLos) {
+    movement?.stopWalking(workerId);
+    const fired = board.world.services.combat?.fireAt(workerId, targetId);
+    if (fired) {
+      grantXp(entities, ctx.registry, workerId, 'hunting', 5, (e) => ctx.emit(e));
+    }
+  } else {
+    if (movement === null || movement.walkTo(workerId, targetTile, 'job', ctx) === 'unreachable') {
+      const lostTicks = (typeof job.data['lostTicks'] === 'number' ? (job.data['lostTicks'] as number) : 0) + 1;
+      job.data['lostTicks'] = lostTicks;
+      if (lostTicks >= 300) {
+        ctx.emit({ type: 'HuntAbandoned', hunterId: workerId, targetId, reason: 'unreachable' });
+        board.unclaim(job, 'unreachable');
+      }
+    }
+  }
 }

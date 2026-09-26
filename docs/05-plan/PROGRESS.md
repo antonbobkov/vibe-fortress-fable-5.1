@@ -123,7 +123,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 
 - [x] T-M6-01 — Health: body values, wounds, bleeding, consciousness, death (agy-m601, 2026-09-25)
 - [x] T-M6-02 — Combat: factions, targeting, melee resolution (agy-m602, 2026-09-25)
-- [ ] T-M6-03 — Combat: projectiles, line of sight through fortifications, hunting
+- [x] T-M6-03 — Combat: projectiles, line of sight through fortifications, hunting (agy-m603, 2026-09-25)
 - [x] T-M6-04 — Combat: threats to civilians, fleeing, animals attacking (agy-m604, 2026-09-25)
 - [ ] T-M6-05 — Squads, orders, duty, stations, patrols, alerts
 - [ ] T-M6-06 — Training and equipment

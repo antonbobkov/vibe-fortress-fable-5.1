@@ -58,7 +58,7 @@ export interface Job {
   producer: string;
   priority: Priority;
   target: { kind: TargetKind; ref: number; ref2?: number };
-  workTile: TileIndex | 'adjacent' | 'at';
+  workTile: TileIndex | 'adjacent' | 'at' | 'ranged';
   inputs: JobInput[];
   tool: Tool | null;
   state: JobState;

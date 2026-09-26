@@ -32,7 +32,7 @@ const FISH_MATERIAL: Readonly<Record<WaterBody['kind'], string>> = Object.freeze
 export class ForagingSystem extends BaseSystem<ForagingStateV1> {
   readonly id = FORAGING_ID;
   readonly order = 9;
-  override readonly subscribes: readonly EventType[] = ['DayPassed', 'TilesChanged', 'FluidsChanged', 'ZoneChanged', 'CreatureDied', 'JobStarted'];
+  override readonly subscribes: readonly EventType[] = ['DayPassed', 'TilesChanged', 'FluidsChanged', 'ZoneChanged', 'CreatureDied', 'JobStarted', 'JobCompleted', 'JobCancelled', 'HuntKill'];
   override readonly ownsCommands: readonly CommandType[] = ['SetHuntable'];
   private world: WorldLike | null = null;
   private initCtx: InitContext | null = null;
@@ -146,6 +146,9 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
     if (event.type === 'DayPassed') this.dailyDue = true;
     else if (event.type === 'TilesChanged' || event.type === 'FluidsChanged' || event.type === 'ZoneChanged') this.bodiesStale = true;
     else if (event.type === 'JobStarted' && event['jobType'] === 'fish') this.ensureBodies();
+    else if (event.type === 'JobStarted' && event['jobType'] === 'hunt') this.hunterAssignments.set(event['target'] as number, event['workerId'] as number);
+    else if ((event.type === 'JobCompleted' || event.type === 'JobCancelled') && event['jobType'] === 'hunt') this.hunterAssignments.delete(event['target'] as number);
+    else if (event.type === 'HuntKill') this.hunterAssignments.delete(event['targetId'] as number);
     else if (event.type === 'CreatureDied') this.hunterAssignments.delete(event['id'] as number);
   }
 
@@ -163,6 +166,22 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
   /** Job producer: one fishing job per zone; butcher every eligible corpse at a built workshop. */
   produce(ctx: TickContext, sinkIn: unknown): void {
     const sink = sinkIn as JobSink;
+    for (const animalId of this.readerRef?.huntTargets() ?? []) {
+      if (!ctx.world.entities.alive(animalId)) continue;
+      const key = `hunt:${animalId}`;
+      if (sink.exists(key)) continue;
+      const pos = ctx.world.entities.get(animalId, C.Position);
+      if (pos === undefined) continue;
+      const targetTile = this.map.index(pos.x, pos.y, pos.z);
+      sink.create(key, {
+        type: 'hunt',
+        target: { kind: 'entity', ref: animalId },
+        workTile: 'ranged',
+        tool: 'ranged',
+        data: { animal: animalId, anchorTile: targetTile },
+      });
+    }
+
     for (const id of this.buildings.zonesOfType('fishing')) {
       if (ctx.tick < (this.nextFishTick.get(id) ?? 0)) continue;
       const zone = this.buildings.zone(id);

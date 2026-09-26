@@ -12,8 +12,10 @@ import {
   type InitContext,
   type SystemId,
   type TickContext,
+  type WorldLike,
 } from '@core/system';
-import type { Alert, EntityId } from '@core/types';
+import type { Alert, EntityId, TileIndex } from '@core/types';
+import type { BuildingsReader } from '@systems/buildings';
 import {
   COMBAT_CADENCE,
   COMBAT_PHASE,
@@ -22,7 +24,8 @@ import {
   TARGET_LOSE_TICKS,
 } from './constants';
 import { isCreatureHostile } from './factions';
-import { resolveMelee } from './melee';
+import { resolveMelee, weaponOf } from './melee';
+import { advanceProjectiles, fireRanged, lineOfSightRanged } from './ranged';
 import { makeCombatReader, type CombatReader } from './reader';
 import type { CombatStateV1 } from './state';
 import { TargetManager } from './targets';
@@ -32,6 +35,7 @@ export type { CombatReader } from './reader';
 export * from './constants';
 export * from './factions';
 export * from './melee';
+export * from './ranged';
 export * from './state';
 export * from './targets';
 export * from './threats';
@@ -48,6 +52,9 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     'AlertChanged',
   ];
 
+  private world: WorldLike | null = null;
+  private initCtx: InitContext | null = null;
+  private currentCtx: TickContext | null = null;
   private rngRef: RngStream | null = null;
   private readerRef: CombatReader | null = null;
   private alertState: Alert = 'calm';
@@ -65,20 +72,18 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   }
 
   override init(ctx: InitContext): void {
+    this.world = ctx.world;
+    this.initCtx = ctx;
     ctx.world.services.combat = this;
     this.rngRef = ctx.rng;
     this.targetManager = new TargetManager(ctx.world.entities);
-
-    const pathingReader = ctx.readers.has('pathing')
-      ? ctx.readers.pathing
-      : undefined;
 
     this.readerRef = makeCombatReader(
       ctx.world.entities,
       ctx.registry,
       this.targetManager,
       () => this.alertState,
-      pathingReader ? (from, to) => pathingReader.lineOfSight(from, to) : undefined,
+      (from, to) => this.lineOfSight(from, to),
     );
 
     // Registrations
@@ -118,10 +123,40 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     return this.alertState;
   }
 
+  lineOfSight(from: TileIndex, to: TileIndex): boolean {
+    if (this.world === null) return false;
+    const bReader = this.initCtx?.readers.has('14')
+      ? this.initCtx.readers.of<BuildingsReader>('14')
+      : undefined;
+    return lineOfSightRanged(this.world.map, from, to, 14, bReader);
+  }
+
+  fireAt(shooterId: EntityId, targetId: EntityId, options?: { skipXp?: boolean }): boolean {
+    const ctx =
+      this.currentCtx ??
+      (this.initCtx
+        ? ({
+            world: this.world,
+            registry: this.initCtx.registry,
+            rng: this.rng,
+            tick: this.world?.calendar.tick ?? 0,
+            emit: () => {},
+            readers: this.initCtx.readers,
+            register: this.initCtx.register,
+          } as unknown as TickContext)
+        : null);
+    if (ctx === null) return false;
+    return fireRanged(ctx, shooterId, targetId, this.targets.cooldownUntil, options);
+  }
+
   override tick(ctx: TickContext): void {
+    this.currentCtx = ctx;
     const entities = ctx.world.entities;
     const map = ctx.world.map;
     const tick = ctx.tick;
+
+    // Advance active projectiles
+    advanceProjectiles(ctx, this.rng);
 
     for (const id of this.targets.allWithTarget()) {
       if (!entities.alive(id)) {
@@ -130,7 +165,11 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       }
 
       const target = this.targets.targetOf(id);
-      if (target === 0 || !entities.alive(target) || !isCreatureHostile(entities, id, target, (e) => this.targets.targetOf(e))) {
+      if (
+        target === 0 ||
+        !entities.alive(target) ||
+        !isCreatureHostile(entities, id, target, (e) => this.targets.targetOf(e))
+      ) {
         this.targets.clearTarget(id);
         continue;
       }
@@ -142,9 +181,14 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
         const soldier = entities.get(id, C.Soldier);
         const creature = entities.get(id, C.Creature);
         if (creature && (!soldier || !soldier.onDuty) && creature.faction !== 'deep') {
-          const spTable = ctx.registry.table<{ id: string; temper: string; fleeBloodPercent: number | null }>('creatures');
+          const spTable = ctx.registry.table<{
+            id: string;
+            temper: string;
+            fleeBloodPercent: number | null;
+          }>('creatures');
           const sp = spTable.byIndex(creature.species);
-          const fleeThresh = sp?.fleeBloodPercent ?? (sp?.temper === 'aggressive' ? null : FLEE_BLOOD_PERCENT);
+          const fleeThresh =
+            sp?.fleeBloodPercent ?? (sp?.temper === 'aggressive' ? null : FLEE_BLOOD_PERCENT);
           if (fleeThresh !== null && (bodyA.blood / bodyA.maxBlood) * 100 < fleeThresh) {
             this.targets.clearTarget(id);
             ctx.emit({ type: 'CreatureFled', id, from: target });
@@ -177,7 +221,23 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       const dz = Math.abs(zA - zT);
       const isAdjacent = dz === 0 && Math.max(dx, dy) <= 1;
 
-      if (isAdjacent) {
+      const w = weaponOf(entities, ctx.registry, id);
+      const isRanged = w !== null && w.weaponDef.launcher !== undefined;
+      const tileA = map.index(xA, yA, zA);
+      const tileT = map.index(xT, yT, zT);
+      const dist = Math.max(dx, dy) + dz * 2;
+
+      if (
+        isRanged &&
+        dist <= (w.weaponDef.launcher?.range ?? 12) &&
+        this.lineOfSight(tileA, tileT)
+      ) {
+        const cooldown = this.targets.cooldownUntil.get(id) ?? 0;
+        if (cooldown <= tick) {
+          this.targets.engagements.set(id, tick);
+          this.fireAt(id, target);
+        }
+      } else if (isAdjacent) {
         const cooldown = this.targets.cooldownUntil.get(id) ?? 0;
         if (cooldown <= tick) {
           this.targets.engagements.set(id, tick);
@@ -191,7 +251,6 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
         }
 
         // Approach toward target
-        const tileT = map.index(xT, yT, zT);
         const outcome = ctx.world.services.movement?.walkTo(id, tileT, 'combat', ctx);
         if (outcome === 'unreachable') {
           const unreach = (this.targets.unreachableTicks.get(id) ?? 0) + 1;
@@ -239,10 +298,18 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       return OK;
     }
 
-    if (cmd.type === 'CreateSquad' || cmd.type === 'DisbandSquad' || cmd.type === 'SetSquadMembers' ||
-        cmd.type === 'SetSquadLeader' || cmd.type === 'SetSquadMode' || cmd.type === 'SetSquadEquipment' ||
-        cmd.type === 'SetSquadStation' || cmd.type === 'SetSquadPatrol' || cmd.type === 'SquadOrder' ||
-        cmd.type === 'RenameSquad') {
+    if (
+      cmd.type === 'CreateSquad' ||
+      cmd.type === 'DisbandSquad' ||
+      cmd.type === 'SetSquadMembers' ||
+      cmd.type === 'SetSquadLeader' ||
+      cmd.type === 'SetSquadMode' ||
+      cmd.type === 'SetSquadEquipment' ||
+      cmd.type === 'SetSquadStation' ||
+      cmd.type === 'SetSquadPatrol' ||
+      cmd.type === 'SquadOrder' ||
+      cmd.type === 'RenameSquad'
+    ) {
       // Squad full implementation is in T-M6-05
       return OK;
     }

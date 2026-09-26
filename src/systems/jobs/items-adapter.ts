@@ -78,8 +78,39 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
       return out;
     },
     countOf: (itemId) => reader.get(itemId)?.count ?? 0,
-    findTool: (tool, from) => reader.findItem(toolFilter(tool), from, 'walker', { reservable: true }),
+    findTool: (tool, from) => {
+      if (tool === 'ranged') {
+        const weapon = reader.findItem(toolFilter('ranged'), from, 'walker', { reservable: true });
+        const ammo = reader.findItem({ category: 'ammo' }, from, 'walker', { reservable: true });
+        if (ammo === 0) return 0;
+        return weapon !== 0 ? weapon : ammo;
+      }
+      return reader.findItem(toolFilter(tool), from, 'walker', { reservable: true });
+    },
     hasTool: (workerId, tool) => {
+      if (tool === 'ranged') {
+        const equip = entities.get(workerId, C.Equipment);
+        const worker = entities.get(workerId, C.Worker);
+        const weaponId = equip && equip.weapon !== 0 ? equip.weapon : worker && worker.toolId !== 0 ? worker.toolId : 0;
+        if (weaponId === 0 || !matchesTool(weaponId, 'ranged')) return false;
+
+        // Check quiver and carried items for ammo
+        if (equip && equip.quiver !== 0) {
+          const q = reader.get(equip.quiver);
+          if (q !== undefined && q.count > 0 && reader.categoryOf(q.type).startsWith('ammo/')) return true;
+          for (const inner of reader.inContainer(equip.quiver)) {
+            const it = reader.get(inner);
+            if (it !== undefined && it.count > 0 && reader.categoryOf(it.type).startsWith('ammo/')) return true;
+          }
+        }
+        for (const id of entities.with(C.Item)) {
+          const it = reader.get(id);
+          if (it !== undefined && it.carriedBy === workerId && it.count > 0 && reader.categoryOf(it.type).startsWith('ammo/')) {
+            return true;
+          }
+        }
+        return false;
+      }
       const held = entities.get(workerId, C.Worker)?.toolId ?? 0;
       return held !== 0 && matchesTool(held, tool) && reader.get(held)?.carriedBy === workerId;
     },

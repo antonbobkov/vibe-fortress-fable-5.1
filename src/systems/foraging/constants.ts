@@ -15,3 +15,7 @@ export const BONE_PER_SIZE = 25;
 export const FAT_PER_SIZE = 30;
 export const SKULL_MIN_SIZE = 30;
 export const LARGE_HIDE_SIZE = 120;
+export const AMMO_FETCH = 20;
+export const HUNT_GIVE_UP_TICKS = 300;
+export const CARRY_MAX_SIZE = 100;
+export const FIELD_BUTCHER_PERCENT = 60;
