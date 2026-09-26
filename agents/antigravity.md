@@ -310,10 +310,24 @@ Credential Manager** (generic credential `gemini:antigravity`) and refresh it vi
 reading your Google OAuth token is a step to take deliberately, not from an agent by
 default.
 
-When you run out, expect the CLI to stop with an "Individual quota reached ...
-Resets in ..." message (reported online; exit code `3` per the changelog, both
-**unverified**). Because a quota abort can look like an ordinary failure, look at
-`status`, `error` and exit code, not just stdout.
+When you run out, the CLI stops with an "Individual quota reached" message. **Both
+now verified** (2026-09-25): exit code is **3**, and the `json` envelope carries
+
+```json
+{ "status": "ERROR", "response": "",
+  "error": "Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 17m43s.",
+  "duration_seconds": 1056, "usage": { ... } }
+```
+
+The `error` string gives the reset countdown, which is the most useful thing in
+it — that is the **5-hour** window, not the weekly one. `response` is empty and
+`status` is `ERROR`, so a quota abort is distinguishable from a normal finish
+without parsing stdout. Note `usage` is still filled in (that run spent 2.06M
+tokens in 17.6 min before being cut off), so you can see what the attempt cost.
+
+Because a quota abort can look like an ordinary failure, always check `status`,
+`error` and the exit code, not just stdout. Then wait out the countdown and
+`--conversation <id>` to resume: the model keeps everything it had read.
 
 ## Example handoff for this repo
 
