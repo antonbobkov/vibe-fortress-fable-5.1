@@ -82,7 +82,7 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
   const hostiles = host.readers.spatial.inRadiusWhere(at, host.facts.perceptionOf(species), (other) => {
     const creature = host.entities.get(other, C.Creature);
     const to = tileOf(host, other);
-    return creature !== undefined && creature.faction.startsWith('hostile') && to >= 0 && host.map.zOf(to) === host.map.zOf(at) && host.readers.pathing.lineOfSight(at, to);
+    return creature !== undefined && (creature.faction.startsWith('hostile') || creature.faction === 'deep') && to >= 0 && host.map.zOf(to) === host.map.zOf(at) && host.readers.pathing.lineOfSight(at, to);
   });
   if (next.trained === 'war') {
     const station = host.stationTile(id, next.assignedTo);
@@ -92,6 +92,13 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
     });
     if (target !== undefined) {
       host.setTarget(id, target);
+      return next;
+    }
+  }
+  if (next.trained === 'hunting' && next.assignedTo !== 0) {
+    const hunterTarget = host.targetOf ? host.targetOf(next.assignedTo) : 0;
+    if (hunterTarget !== 0 && host.entities.alive(hunterTarget)) {
+      host.setTarget(id, hunterTarget);
       return next;
     }
   }
@@ -117,8 +124,10 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
       const d = Math.max(Math.abs(host.map.xOf(to) - host.map.xOf(at)), Math.abs(host.map.yOf(to) - host.map.yOf(at)));
       if (d > PET_FOLLOW_RADIUS) {
         movement?.walkTo(id, to, 'wander', ctx);
-        return next;
+      } else if (d <= 2) {
+        movement?.stopWalking(id);
       }
+      return next;
     }
   }
 

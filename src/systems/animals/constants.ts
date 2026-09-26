@@ -41,6 +41,17 @@ export const WAR_ANIMAL_RADIUS = 8;
 /** Per cat per season. */
 export const ADOPT_PERMILLE = 250;
 
+/** The workshop tag/type used for training and taming animals (`08` § Taming and training). */
+export const KENNEL_WORKSHOP = 'kennel';
+
+/**
+ * Success probability for training or taming an animal (permille: 0..1000).
+ * `08` § Taming: `TRAIN_BASE_PERMILLE + skill × TRAIN_PER_SKILL`.
+ */
+export function trainingSuccessChance(skill: number): number {
+  return Math.max(0, Math.min(1000, TRAIN_BASE_PERMILLE + skill * TRAIN_PER_SKILL));
+}
+
 // ---------- literals the rules name in prose ----------
 
 /** `08` § Wild behavior: "`idle` → after a random 20–100 ticks". */

@@ -561,7 +561,7 @@ export function resolveMelee(
     red += piece.armor * piece.armorMult * (piece.coverage / 100) * piece.qualityArmorMult * layerMult;
   }
   const spD = creatureD ? speciesTable.byIndex(creatureD.species) : undefined;
-  const naturalArmor = spD?.naturalArmor ?? 0;
+  const naturalArmor = (spD?.naturalArmor ?? 0) + (isWarTrained(entities, defenderId) ? 1 : 0);
   red += naturalArmor * getDamageVsLayer(atkType, 'plate');
 
   let damage = Math.max(0, raw - red);

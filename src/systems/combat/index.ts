@@ -313,6 +313,42 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
         // Approach toward target
         const soldier = entities.get(id, C.Soldier);
         if (soldier?.stance !== 'hold') {
+          const tame = entities.get(id, C.Tame);
+          let isChained = false;
+          let chainTile = -1;
+          if (tame?.assignedTo && ctx.readers.has('14')) {
+            const buildings = ctx.readers.of<BuildingsReader>('14');
+            if (buildings.byTag('chain').includes(tame.assignedTo)) {
+              isChained = true;
+              chainTile = buildings.get(tame.assignedTo)?.origin ?? -1;
+            }
+          }
+
+          if (isChained && chainTile >= 0) {
+            // Drop target if hostile moves beyond 8 tiles (WAR_ANIMAL_RADIUS) or different z
+            if (Math.max(Math.abs(xT - map.xOf(chainTile)), Math.abs(yT - map.yOf(chainTile))) > 8 || zT !== map.zOf(chainTile)) {
+              this.targets.clearTarget(id);
+              continue;
+            }
+
+            let bestTile = chainTile;
+            let bestDist = Math.max(Math.abs(map.xOf(chainTile) - xT), Math.abs(map.yOf(chainTile) - yT));
+            for (const n of map.neighbors8(chainTile)) {
+              if (!ctx.readers.pathing.passable(n, 'walker')) continue;
+              const d = Math.max(Math.abs(map.xOf(n) - xT), Math.abs(map.yOf(n) - yT));
+              if (d < bestDist) {
+                bestDist = d;
+                bestTile = n;
+              }
+            }
+            if (tileA !== bestTile) {
+              ctx.world.services.movement?.walkTo(id, bestTile, 'combat', ctx);
+            } else {
+              ctx.world.services.movement?.stopWalking(id);
+            }
+            continue;
+          }
+
           const outcome = ctx.world.services.movement?.walkTo(id, tileT, 'combat', ctx);
           if (outcome === 'unreachable') {
             const unreach = (this.targets.unreachableTicks.get(id) ?? 0) + 1;

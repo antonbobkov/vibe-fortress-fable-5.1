@@ -41,4 +41,6 @@ export interface AnimalsStateV1 {
   starvingSince: [EntityId, number][];
   starvingAnnounced: [EntityId, number][];
   lastTameThink: [EntityId, number][];
+  pendingTrain?: [EntityId, 'war' | 'hunting'][];
+  pendingTame?: [EntityId, EntityId][];
 }

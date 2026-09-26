@@ -256,6 +256,7 @@
     ],
     "flags": {
       "butcherable": true,
+      "tameable": true,
       "trainable": "none"
     },
     "factionDefault": "wild",

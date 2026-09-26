@@ -8,7 +8,7 @@ import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
 import type { Alert, BodySlot, DamageType, EntityId, TileIndex } from '@core/types';
 import { isCreatureHostile } from './factions';
-import { armorCovering, getDamageVsLayer } from './melee';
+import { armorCovering, getDamageVsLayer, isWarTrained } from './melee';
 import type { TargetManager } from './targets';
 import { armorSpeedModifier } from './equipment';
 
@@ -111,7 +111,7 @@ export function makeCombatReader(
       if (creature) {
         const speciesTable = registry.table<{ id: string; naturalArmor: number }>('creatures');
         const sp = speciesTable.byIndex(creature.species);
-        const naturalArmor = sp?.naturalArmor ?? 0;
+        const naturalArmor = (sp?.naturalArmor ?? 0) + (isWarTrained(entities, id) ? 1 : 0);
         red += naturalArmor * getDamageVsLayer(damageType, 'plate');
       }
       return red;

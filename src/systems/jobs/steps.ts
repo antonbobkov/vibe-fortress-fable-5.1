@@ -303,7 +303,7 @@ function stepHunt(board: JobBoard, job: Job, workerId: EntityId, ctx: TickContex
 
     for (const petId of entities.with(C.Tame)) {
       const tame = entities.get(petId, C.Tame);
-      if (tame && tame.petOf === workerId && tame.trained === 'hunting') {
+      if (tame && (tame.petOf === workerId || tame.assignedTo === workerId) && tame.trained === 'hunting') {
         board.world.services.combat?.setTarget(petId, targetId);
       }
     }
