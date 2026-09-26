@@ -263,16 +263,19 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     ctx.register.inspector('creature', { id: 'dwarf', order: 10 });
     // `15` § Thoughts: relationship-dependent triggers are facts of 10, not inferred from event ids.
     const source: ThoughtSource = {
-      on: ['DwarfDied', 'CreatureDied', 'Buried'],
+      on: ['CreatureDied', 'Buried'],
       trigger: (event, tick) => {
         const dead = Number(event['dwarfId'] ?? event['id'] ?? 0);
         const all = this.reader().list().filter((id) => id !== dead);
-        if (event.type === 'DwarfDied') return all.filter((id) => this.reader().isFriend(id, dead))
-          .map((id) => ({ thoughtId: 'friend_died', id }));
-        if (event.type === 'CreatureDied') return all.filter((id) => tick.world.entities.get(id, C.Relationships)?.pets.includes(dead) === true)
-          .map((id) => ({ thoughtId: 'pet_died', id }));
+        if (event.type === 'CreatureDied') {
+          const dwarf = event['species'] === tick.registry.table('creatures').index('dwarf');
+          return dwarf ? all.filter((id) => this.reader().isFriend(id, dead))
+            .map((id) => ({ thoughtId: 'friend_died', id }))
+            : all.filter((id) => tick.world.entities.get(id, C.Relationships)?.pets.includes(dead) === true)
+              .map((id) => ({ thoughtId: 'pet_died', id }));
+        }
         const friends = all.filter((id) => this.reader().isFriend(id, dead));
-        return friends.flatMap((id) => event['tombTier'] === 'none' || event['tombTier'] === 0
+        return friends.flatMap((id) => event['coffinId'] === 0
           ? [{ thoughtId: 'buried_friend', id }, { thoughtId: 'memorial_placed', id }]
           : [{ thoughtId: 'buried_friend', id }]);
       },

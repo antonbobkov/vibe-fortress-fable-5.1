@@ -67,6 +67,8 @@ export interface BuildingsReader {
   wellWorking(id: EntityId): boolean;
   /** Built coffins without an occupant, ascending. */
   freeCoffins(): EntityId[];
+  /** A dead dwarf with no intact body can be named on a memorial slab. */
+  memorialEligible(id: EntityId): boolean;
   /** The creature held in a cage building, or 0. */
   cageOccupant(id: EntityId): EntityId;
   /** The tile a building's container contents lie on (the wagon), or -1. */
@@ -104,7 +106,8 @@ export interface BuildingsReader {
   value(id: EntityId): number;
 }
 
-export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: RoomStore): BuildingsReader {
+export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: RoomStore,
+  memorialEligible: (id: EntityId) => boolean = () => false): BuildingsReader {
   const view = (id: EntityId): ZoneView | undefined => {
     const z = zones.zone(id);
     if (z === undefined) return undefined;
@@ -160,6 +163,7 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
     wells: () => buildings.all().filter((id) => (buildings.get(id) as Building).state === 'built' && buildings.row((buildings.get(id) as Building).type).tags.includes('well')),
     wellWorking: (id) => buildings.wellWorking(id),
     freeCoffins: () => buildings.coffins.filter((id) => ((buildings.get(id)?.settings['occupantId'] as number | undefined) ?? 0) === 0),
+    memorialEligible,
     cageOccupant: (id) => (buildings.get(id)?.settings['occupantId'] as number | undefined) ?? 0,
     holderTile: (id) => buildings.holderTile(id),
     wagon: () => buildings.all().find((id) => buildings.typeIdOf(id) === 'wagon') ?? 0,

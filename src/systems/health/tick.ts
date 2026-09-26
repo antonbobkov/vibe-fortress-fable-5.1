@@ -61,6 +61,8 @@ export function killCreature(
     tile,
     species: creature?.species,
     name: creature?.name,
+    faction: creature?.faction,
+    ageTicks: creature?.ageTicks,
     wornItems,
   });
 }

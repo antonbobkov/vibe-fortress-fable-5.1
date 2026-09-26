@@ -171,7 +171,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       (tile) => this.rotRef?.miasma.has(tile) ?? false,
       (tick) => world.entities.with(C.Corpse, C.Item).some((id) => {
         const corpse = world.entities.get(id, C.Corpse);
-        return corpse?.dwarfName !== null && corpse?.dwarfName !== undefined && tick - corpse.diedTick > 3 * TICKS_PER_DAY;
+          return corpse?.dwarfName !== null && corpse?.dwarfName !== undefined && corpse.memorialized !== true && tick - corpse.diedTick > 3 * TICKS_PER_DAY;
       }));
     type BuildingsView = {
       zoneAt(i: TileIndex): number;

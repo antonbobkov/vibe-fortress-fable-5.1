@@ -17,6 +17,7 @@ import type { RngStream } from '@core/rng';
 import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import { BuildingStore } from './build';
+import { BurialStore } from './burial';
 import { makeReader, type BuildingsReader } from './reader';
 import type { BuildingsStateV1 } from './state';
 import { ZoneStore } from './zones';
@@ -24,6 +25,7 @@ import { RoomStore } from './rooms';
 import { MOOD_BASELINE } from '@core/constants';
 import { DOOR_BREAK_TICKS } from './constants';
 import { LINK_DELAY_TICKS } from './constants';
+import type { Job } from '@systems/jobs';
 
 export { ZoneStore, settingKey, type ZoneTypeRow } from './zones';
 export { BuildingStore, buildKey, deconstructKey, type BuildingRow } from './build';
@@ -46,6 +48,9 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'SulkHappened',
     'DoorBreakAttempt',
     'MechanismTriggered',
+    'CorpseCreated',
+    'ItemDestroyed',
+    'BuildingCompleted',
   ];
   override readonly ownsCommands: readonly CommandType[] = [
     'CreateZone',
@@ -63,6 +68,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'UnlinkMechanism',
     'SetPlateTrigger',
     'ReleaseCage',
+    'AssignCoffin',
   ];
   readonly pendingToggles: { id: EntityId; on: boolean; atTick: number }[] = [];
 
@@ -71,6 +77,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   private roomsRef: RoomStore | null = null;
   private readerRef: BuildingsReader | null = null;
   private rng: RngStream | null = null;
+  private burialRef: BurialStore | null = null;
   readonly brokenFurniture: EntityId[] = [];
   readonly doorBreakProgress = new Map<EntityId, number>();
   /** The id of the zone the last accepted `CreateZone` made (for setup helpers and the UI). */
@@ -86,6 +93,11 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   get buildings(): BuildingStore {
     if (this.buildingsRef === null) throw new Error('14 buildings: used before init');
     return this.buildingsRef;
+  }
+
+  get burial(): BurialStore {
+    if (this.burialRef === null) throw new Error('14 buildings: burial before init');
+    return this.burialRef;
   }
 
   get rooms(): RoomStore {
@@ -120,8 +132,6 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     this.buildingsRef = store;
     // 03's `remove` and collapses return the item a construction was built from (D-050).
     world.services.terrain.setConstructionItemSource?.((tile) => store.constructionItemAt(tile));
-    // `14` § Registrations: job producer `buildings` (`build`, `deconstruct`).
-    ctx.register.jobProducer(store.producer());
     // `14` § Registrations: panels `build` and `zones`; the announcements.
     ctx.register.panel({ id: 'build', title: 'Build', hotkey: 'b' });
     ctx.register.panel({ id: 'zones', title: 'Zones', hotkey: 'z' });
@@ -148,16 +158,27 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       mood: () => MOOD_BASELINE,
       barMult: () => barMult,
     });
+    this.burialRef = new BurialStore(store, this.roomsRef, this.zones);
+    const buildProducer = store.producer();
+    const burial = this.burialRef;
+    ctx.register.jobProducer({ ...buildProducer,
+      produce: (tick, sink) => { buildProducer.produce(tick, sink); burial.produce(tick); },
+      onComplete: (job, tick) => {
+        if ((job as Job).key.startsWith('bury:')) burial.complete(job as Job, tick);
+        else buildProducer.onComplete?.(job, tick);
+      },
+    });
     // A building completed or removed inside a room, or on its border, dirties it.
     const rooms = this.roomsRef;
     store.onFootprintChanged = (tiles) => rooms.markTiles(tiles);
     this.zones.onChange = (zoneId, typeId, change) => rooms.onZoneChanged(zoneId, typeId, change);
     this.rng = ctx.rng;
-    this.readerRef = makeReader(this.zones, store, this.roomsRef);
+    this.readerRef = makeReader(this.zones, store, this.roomsRef, (id) => burial.eligible(id));
   }
 
   override handle(event: GameEvent, _ctx: TickContext): void {
     const rooms = this.rooms;
+    this.burial.handle(event, _ctx);
     if (event.type === 'TilesChanged') {
       const tiles = event['tiles'] as readonly TileIndex[];
       this.buildings.onTilesChanged(tiles);
@@ -240,6 +261,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       UnlinkMechanism: () => buildings.unlink(cmd, _ctx),
       SetPlateTrigger: () => buildings.setPlateTrigger(cmd),
       ReleaseCage: () => buildings.releaseCage(cmd),
+      AssignCoffin: () => this.burial.assign(cmd, _ctx),
     };
     const handler = handlers[cmd.type];
     return handler === undefined ? reject('not_found') : handler();
@@ -278,7 +300,9 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
         brokenFurniture: this.brokenFurniture.slice(),
         ...(this.buildings.lampLight.size > 0 ? { lampLight: Array.from(this.buildings.lampLight,
           ([tile, value]) => ({ tile, ...value })).sort((a, b) => a.tile - b.tile) } : {}),
-        doorBreakProgress: Array.from(this.doorBreakProgress.entries()),
+      doorBreakProgress: Array.from(this.doorBreakProgress.entries()),
+      ...(this.burial.dead.size > 0 ? { deadDwarves: this.burial.serialize() } : {}),
+      ...(this.burial.assignments.size > 0 ? { burialAssignments: Array.from(this.burial.assignments.entries()).sort((a, b) => a[0] - b[0]) } : {}),
     };
   }
 
@@ -290,6 +314,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     this.buildings.coffins.splice(0, this.buildings.coffins.length, ...state.coffins);
     this.rooms.dirty.splice(0, this.rooms.dirty.length, ...state.dirtyRooms);
     this.pendingToggles.splice(0, this.pendingToggles.length, ...state.pendingToggles);
+    this.burial.restore(state.deadDwarves ?? [], state.burialAssignments ?? []);
     this.buildings.pending.length = 0;
     this.buildings.pending.push(...state.pendingJobs);
     this.buildings.magmaPending.length = 0;

@@ -317,7 +317,7 @@
     "cap": 1,
     "group": "loss",
     "trigger": {
-      "event": "DwarfDied",
+      "event": "CreatureDied",
       "target": "child (everyone)"
     },
     "announce": false
@@ -415,7 +415,7 @@
     "cap": 3,
     "group": "loss",
     "trigger": {
-      "event": "DwarfDied",
+      "event": "CreatureDied",
       "target": "(everyone)"
     },
     "announce": false
@@ -476,7 +476,7 @@
     "cap": 2,
     "group": "loss",
     "trigger": {
-      "event": "DwarfDied",
+      "event": "CreatureDied",
       "target": "friend (10 source)"
     },
     "announce": false

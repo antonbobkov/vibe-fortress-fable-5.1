@@ -5,6 +5,7 @@
 
 import type { RngState } from '@core/rng';
 import type { EntityId, Tick, TileIndex } from '@core/types';
+import type { DeadDwarf } from './burial';
 
 export interface BuildingsStateV1 {
   stateVersion: 1;
@@ -25,6 +26,8 @@ export interface BuildingsStateV1 {
   /** T-M5-05: lamp coverage and the original crop light under each covered tile. */
   lampLight?: { tile: TileIndex; count: number; baseLit: boolean }[];
   doorBreakProgress?: [EntityId, number][];
+  deadDwarves?: DeadDwarf[];
+  burialAssignments?: [EntityId, EntityId][];
 }
 
 /** Binary search: the insertion point of `value` in an ascending array. */

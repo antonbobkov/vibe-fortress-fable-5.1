@@ -114,12 +114,13 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'snowed_on': return s(event, 'weather') === 'snow';
     case 'bitter_cold': return s(event, 'weather') === 'cold_snap';
     case 'sweltering': return s(event, 'weather') === 'heatwave';
-    case 'child_died': return true;
+    case 'child_died': case 'dwarf_died': case 'friend_died':
+      return n(event, 'species') === registry.table('creatures').index('dwarf');
     case 'saw_death': return s(event, 'faction') === 'fortress';
     case 'masterwork_lost': return n(event, 'quality') === 5 && n(event, 'crafterId') !== 0;
     case 'was_wounded': return ['serious', 'severe', 'critical'].includes(s(event, 'severity'));
     case 'raid_repelled': return ['repelled', 'wiped'].includes(s(event, 'outcome'));
-    case 'memorial_placed': return s(event, 'tombTier') === 'none' || event['tombTier'] === 0;
+    case 'memorial_placed': return n(event, 'coffinId') === 0;
     case 'killed_hostile': return event['hostile'] === true;
     case 'argued': return s(event, 'kind') === 'argue' && n(event, 'partnerId') !== 0;
     case 'wept': return s(event, 'kind') === 'weep' && n(event, 'targetTile') > 0;
@@ -171,7 +172,8 @@ export function worldPredicate(def: ThoughtDef, event: GameEvent, ctx: TickConte
   if (def.id === 'thane_hall_grand' || def.id === 'thane_hall_bare') return false;
   if (def.id === 'child_died') {
     const creature = ctx.world.entities.get(n(event, 'id'), C.Creature);
-    return event['child'] === true || (creature !== undefined && creature.ageTicks < ADULT_AGE_YEARS * TICKS_PER_YEAR);
+    return event['child'] === true || (typeof event['ageTicks'] === 'number' && event['ageTicks'] < ADULT_AGE_YEARS * TICKS_PER_YEAR) ||
+      (creature !== undefined && creature.ageTicks < ADULT_AGE_YEARS * TICKS_PER_YEAR);
   }
   return true;
 }

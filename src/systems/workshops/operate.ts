@@ -354,6 +354,7 @@ export class WorkshopOperator {
         const key = choice.global ? `craft:global:${choice.index}` : `craft:${id}:${choice.index}`;
         const jobId = sink.create(key, { type: 'craft', target: { kind: 'building', ref: id }, workTile: this.workTile(b),
           priority: choice.order.priority, inputs, data: { recipe: recipe.id, orderIndex: choice.index, globalOrder: choice.global,
+            ...(choice.order.memorialDwarfId === undefined ? {} : { memorialDwarfId: choice.order.memorialDwarfId }),
             labor: ctx.registry.table<{ id: string; labor: string | null }>('skills').byId(recipe.skill)?.labor ?? 'crafts',
             skill: recipe.skill, assignedWorker: ws.assignedWorker, workshopWorker: ws.assignedWorker,
             inputUnits: true,
@@ -472,6 +473,10 @@ export class WorkshopOperator {
       const count = isMelt ? meltCount : out.count;
       if (count <= 0) continue;
       const itemId = ctx.spawn.item(itemTable.index(type), materials[k] as number, container === 0 ? outAt : { containerId: container }, count, quality);
+      if (typeof job.data['memorialDwarfId'] === 'number') {
+        const item = ctx.world.entities.get(itemId, C.Item);
+        if (item !== undefined) ctx.world.entities.add(itemId, C.Item, { ...item, memorialDwarfId: job.data['memorialDwarfId'] as EntityId });
+      }
       itemsApi?.setCrafter?.(itemId, job.workerId);
       ctx.emit({ type: 'ItemCrafted', itemId, quality, crafterId: job.workerId, workshopId: id, recipeId: recipe.id });
       if (quality === 5) ctx.emit({ type: 'MasterworkCreated', itemId, crafterId: job.workerId });

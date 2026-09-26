@@ -366,6 +366,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       if (event.type === 'CreatureDied') {
         this.monsterInfo.delete(cId);
         this.hollowBorn.delete(cId);
+        if (event['species'] === ctx.registry.table('creatures').index('dwarf')) this.updateRenown(ctx);
       }
       let partyId = 0;
       const H = ctx.world.entities.get(cId, C.Hostile);

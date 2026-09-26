@@ -133,6 +133,7 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
   override handle(event: GameEvent, ctx: TickContext): void {
     if (event.type === 'HourPassed') this.hourDue = true;
     if (event.type === 'DayPassed') this.dayDue = true;
+    if (event.type === 'Buried' && !ctx.readers.of<ItemsReader>('13').unburiedDead(ctx.tick)) this.hourDue = true;
     if (event.type === 'Slept') {
       const id = event['id'];
       if (typeof id === 'number') {

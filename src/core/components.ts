@@ -244,6 +244,8 @@ export interface Item {
   carriedBy: EntityId;
   /** Creature held by a cage item (19); 0 or absent for an empty cage. */
   occupantId?: EntityId;
+  /** The named dead dwarf engraved on a memorial slab. */
+  memorialDwarfId?: EntityId;
 }
 
 export interface Container {
@@ -262,6 +264,8 @@ export interface Corpse {
   weight?: number;
   /** Whether a slaughtered animal had not reached adulthood (08 § Breeding). */
   juvenile?: boolean;
+  /** A slab has resolved grief for these remains. */
+  memorialized?: boolean;
 }
 
 export interface Building {
@@ -288,6 +292,8 @@ export interface WorkOrder {
   threshold: number;
   priority: Priority;
   materialFilter: Idx<'MaterialDef'> | string | null;
+  /** Named dead dwarf for `make_memorial_slab`. */
+  memorialDwarfId?: EntityId;
 }
 
 export interface Workshop {

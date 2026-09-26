@@ -3,6 +3,7 @@ import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import { PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
 import type { EntityId } from '@core/types';
 import type { JobBoard } from '@systems/jobs';
+import type { BuildingsReader } from '@systems/buildings/reader';
 import type { WorkshopOperator } from './operate';
 
 /** `12` § Work orders; `command-catalog.md` workshop commands. */
@@ -71,8 +72,12 @@ function parseOrder(op: WorkshopOperator, raw: Record<string, unknown>, recipeId
   if (!Number.isInteger(priority) || (priority as number) < PRIORITY_MIN || (priority as number) > PRIORITY_MAX) return null;
   const filter = raw['materialFilter'] ?? null;
   if (filter !== null && typeof filter !== 'string' && typeof filter !== 'number') return null;
+  const named = raw['memorialDwarfId'];
+  if (named !== undefined && (recipeId !== 'make_memorial_slab' || typeof named !== 'number' ||
+    !op.ctx.readers.of<BuildingsReader>('14').memorialEligible(named))) return null;
   return { recipe: op.recipeIndex(recipeId), remaining: remaining as number, mode, threshold: threshold as number,
-    priority: priority as WorkOrder['priority'], materialFilter: filter as WorkOrder['materialFilter'] };
+    priority: priority as WorkOrder['priority'], materialFilter: filter as WorkOrder['materialFilter'],
+    ...(named === undefined ? {} : { memorialDwarfId: named as EntityId }) };
 }
 
 export function applyWorkerCommand(op: WorkshopOperator, cmd: Command): CommandResult {

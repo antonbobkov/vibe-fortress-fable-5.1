@@ -19,7 +19,7 @@ function fixture(def: ThoughtDef): GameEvent | null {
     stage: 0, atTable: true, outdoors: false, quality: 3, tier: 3, oldTier: 2, roomType: 'hearth_hall',
     weather: 'rain', level: 5, jobType: 'dig', batchSize: 50, child: true, hospitalTier: 0,
     severity: 'serious', outcome: 'repelled', tombTier: 'none', hostile: true, faction: 'fortress',
-    partnerId: 2, targetTile: 100, itemId: 10 };
+    partnerId: 2, targetTile: 100, itemId: 10, species: registry.table('creatures').index('dwarf') };
   const id = def.id;
   if (id === 'ate_fine_meal') e.mealType = 'fine_meal';
   if (id === 'ate_lavish_meal') e.mealType = 'lavish_meal';
@@ -83,11 +83,13 @@ describe('T-M4-13 morale thoughts and mood', () => {
     expect(productivity(4)).toBe(115);
     const w = new TestWorld({ seed: 'morale-work', world: 'flat-test', embark: 'none' });
     const dwarf = w.spawnDwarf({ at: w.index(10, 10, 32) });
+    const victim = w.spawnDwarf({ at: w.index(11, 10, 32) });
     const traits = w.game.world.entities.get(dwarf, C.Personality)!;
     w.game.world.entities.add(dwarf, C.Personality, { traits: [stoic, traits.traits[1], traits.traits[2]] });
     w.step(1);
-    w.game.world.emit({ type: 'DwarfDied', id: 999, cause: 'scripted' });
-    w.step(1);
+    const hp = w.game.world.entities.get(victim, C.Body)!.parts[1]!.maxHp;
+    w.game.world.emit({ type: 'DamageDealt', defenderId: victim, attackerId: 0, part: 'torso', damageType: 'blunt', amount: hp * 2 });
+    w.until(() => w.events('CreatureDied').some((e) => e['id'] === victim), 5);
     expect(w.readers.of<MoraleReader>('15').thoughts(dwarf).some((t) => t.id === 'dwarf_died' && t.value < 0)).toBe(true);
     const reader = w.readers.of<{ productivity(id: number): number }>('10');
     expect(reader.productivity(dwarf)).toBe(w.readers.of<MoraleReader>('15').productivity(dwarf));
