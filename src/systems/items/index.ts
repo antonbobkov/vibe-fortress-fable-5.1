@@ -79,7 +79,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   readonly order = 13;
   override readonly cadence = 10;
   override readonly phase = 1;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted', 'CreatureDied', 'CorpseCreated', 'SeasonChanged'];
+  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted', 'CreatureDied', 'CorpseCreated', 'SeasonChanged', 'ThiefEscaped'];
   override readonly ownsCommands: readonly CommandType[] = [
     'ForbidItem',
     'ClaimItem',
@@ -256,6 +256,11 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     } else if (event.type === 'CorpseCreated') {
       const id = event['creatureId'];
       if (typeof id === 'number') this.pendingDeaths.delete(id);
+    } else if (event.type === 'ThiefEscaped') {
+      const itemId = event['itemId'] as number | undefined;
+      if (typeof itemId === 'number' && core.host.entities.alive(itemId)) {
+        core.destroy(itemId, 'stolen');
+      }
     } else if (event.type === 'SeasonChanged') {
       this.rotRef?.resample();
     } else if (event.type === 'TilesChanged') {

@@ -33,7 +33,10 @@ export function makeThreatsReader(
     activeParties: () => {
       const parties: EntityId[] = [];
       for (const id of entities.with(C.Party)) {
-        if (entities.alive(id)) parties.push(id);
+        if (entities.alive(id)) {
+          const p = entities.get(id, C.Party);
+          if (p && p.state !== 'gone') parties.push(id);
+        }
       }
       return parties;
     },

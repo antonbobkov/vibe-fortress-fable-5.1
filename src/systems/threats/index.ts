@@ -14,11 +14,12 @@ import {
   type SystemId,
   type TickContext,
 } from '@core/system';
-import type { Edge } from '@core/types';
+import type { Edge, EntityId } from '@core/types';
 import { TICKS_PER_DAY } from '@core/constants';
 import type { ItemsReader } from '@systems/items/reader';
 import type { WeatherReader } from '@systems/weather/reader';
 import type { LocalMapSpec } from '@systems/embark/spec';
+import { isDue } from '@core/scheduler';
 import {
   THREATS_CADENCE,
   THREATS_PHASE,
@@ -32,6 +33,12 @@ import {
   initScheduleAtEmbark,
   type ThreatScheduleEntry,
 } from './schedule';
+import {
+  checkPartyCasualties,
+  chooseGoal,
+  stepThreatMembers,
+  stepThreatParties,
+} from './ai';
 import type {
   PendingArrivalState,
   PendingSpawnState,
@@ -44,12 +51,13 @@ export * from './reader';
 export * from './schedule';
 export * from './parties';
 export * from './gear';
+export * from './ai';
 
 export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
   override readonly id: SystemId = '18';
   override readonly order: number = 18;
-  override readonly cadence: number = THREATS_CADENCE;
-  override readonly phase: number = THREATS_PHASE;
+  override readonly cadence: number = 1;
+  override readonly phase: number = 0;
 
   override readonly ownsCommands: readonly CommandType[] = [];
   override readonly subscribes: readonly EventType[] = [
@@ -59,6 +67,12 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     'ImmigrantsArrived',
     'DwarfDied',
     'WeatherChanged',
+    'CreatureDied',
+    'CreatureUnconscious',
+    'TrapTriggered',
+    'DoorBroken',
+    'EntitiesMoved',
+    'TilesChanged',
   ];
 
   private rng!: RngStream;
@@ -136,7 +150,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     this.pendingArrivals = remainingArrivals;
 
     for (const a of readyArrivals) {
-      const { pendingSpawns } = arriveParty(
+      const { partyId, pendingSpawns } = arriveParty(
         ctx.world,
         ctx.registry,
         this.rng,
@@ -153,6 +167,10 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       const entry = this.schedule.get(a.kind);
       if (entry) {
         entry.pendingSpawnTick = 0;
+      }
+      const pComp = ctx.world.entities.get(partyId, C.Party);
+      if (pComp) {
+        chooseGoal(pComp, ctx);
       }
     }
 
@@ -231,7 +249,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
             edge: edgeDesc,
           });
 
-          entry.pendingSpawnTick = ctx.tick + leadTicks;
+          entry.pendingSpawnTick = ctx.tick + leadTicks + 1;
           this.pendingArrivals.push({
             kind,
             civ,
@@ -264,11 +282,76 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       this.processArrivalsAndSpawns(ctx);
     } else if (event.type === 'HourPassed') {
       this.processArrivalsAndSpawns(ctx);
+    } else if (event.type === 'WealthChanged' || event.type === 'ImmigrantsArrived' || event.type === 'DwarfDied') {
+      this.updateRenown(ctx);
+    } else if (event.type === 'CreatureDied' || event.type === 'CreatureUnconscious') {
+      const cId = event['id'] as EntityId;
+      let partyId = 0;
+      const H = ctx.world.entities.get(cId, C.Hostile);
+      if (H && H.partyId !== 0) {
+        partyId = H.partyId;
+      } else {
+        for (const pId of ctx.world.entities.with(C.Party)) {
+          const P = ctx.world.entities.get(pId, C.Party);
+          if (P && P.members.includes(cId)) {
+            partyId = pId;
+            break;
+          }
+        }
+      }
+      if (partyId !== 0) {
+        const P = ctx.world.entities.get(partyId, C.Party);
+        if (P) {
+          checkPartyCasualties(partyId, P, ctx);
+        }
+      }
+    } else if (event.type === 'TrapTriggered') {
+      const cId = event['creatureId'] as EntityId;
+      if (typeof cId === 'number') {
+        const H = ctx.world.entities.get(cId, C.Hostile);
+        if (H && H.stealthed) {
+          H.stealthed = false;
+          H.spotted = true;
+          const P = H.partyId !== 0 ? ctx.world.entities.get(H.partyId, C.Party) : undefined;
+          if (P?.purpose === 'thief') {
+            ctx.emit({ type: 'ThiefSpotted', id: cId });
+            P.state = 'retreat';
+            P.stateSince = ctx.tick;
+            P.outcome = 'withdrew';
+          } else if (P?.purpose === 'ambush') {
+            ctx.emit({ type: 'AmbushSprung', partyId: H.partyId });
+            if (P) {
+              P.state = 'engage';
+              P.stateSince = ctx.tick;
+            }
+          }
+        }
+      }
+    } else if (event.type === 'DoorBroken') {
+      const doorId = event['id'] as EntityId;
+      for (const m of ctx.world.entities.with(C.Hostile)) {
+        const H = ctx.world.entities.get(m, C.Hostile);
+        if (H && H.breakingDoorId === doorId) {
+          H.breakingDoorId = 0;
+          H.breakingSince = 0;
+        }
+      }
+    } else if (event.type === 'TilesChanged') {
+      for (const pId of ctx.world.entities.with(C.Party)) {
+        const P = ctx.world.entities.get(pId, C.Party);
+        if (P && (P.state === 'approach' || P.state === 'loiter')) {
+          chooseGoal(P, ctx);
+        }
+      }
     }
   }
 
   override tick(ctx: TickContext): void {
     this.processArrivalsAndSpawns(ctx);
+    stepThreatMembers(ctx);
+    if (isDue(ctx.tick, THREATS_CADENCE, THREATS_PHASE)) {
+      stepThreatParties(ctx);
+    }
   }
 
   serialize(): ThreatsStateV1 {

@@ -24,6 +24,7 @@ export interface BuildingsStateV1 {
   brokenFurniture?: EntityId[];
   /** T-M5-05: lamp coverage and the original crop light under each covered tile. */
   lampLight?: { tile: TileIndex; count: number; baseLit: boolean }[];
+  doorBreakProgress?: [EntityId, number][];
 }
 
 /** Binary search: the insertion point of `value` in an ascending array. */

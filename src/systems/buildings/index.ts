@@ -22,6 +22,7 @@ import type { BuildingsStateV1 } from './state';
 import { ZoneStore } from './zones';
 import { RoomStore } from './rooms';
 import { MOOD_BASELINE } from '@core/constants';
+import { DOOR_BREAK_TICKS } from './constants';
 
 export { ZoneStore, settingKey, type ZoneTypeRow } from './zones';
 export { BuildingStore, buildKey, deconstructKey, type BuildingRow } from './build';
@@ -42,6 +43,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'DayPassed',
     'MagmaContact',
     'SulkHappened',
+    'DoorBreakAttempt',
   ];
   override readonly ownsCommands: readonly CommandType[] = [
     'CreateZone',
@@ -63,6 +65,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   private readerRef: BuildingsReader | null = null;
   private rng: RngStream | null = null;
   readonly brokenFurniture: EntityId[] = [];
+  readonly doorBreakProgress = new Map<EntityId, number>();
   /** The id of the zone the last accepted `CreateZone` made (for setup helpers and the UI). */
   lastCreatedZone = 0;
   /** The id of the building the last accepted `PlaceBuilding` made. */
@@ -164,6 +167,19 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       rooms.markAll();
       rooms.recompute();
       rooms.autoAssign();
+    } else if (event.type === 'DoorBreakAttempt') {
+      const doorId = event['doorId'] as EntityId;
+      const b = this.buildings.get(doorId);
+      if (b !== undefined && b.state === 'built') {
+        const progress = (this.doorBreakProgress.get(doorId) ?? 0) + 1;
+        if (progress >= DOOR_BREAK_TICKS) {
+          this.doorBreakProgress.delete(doorId);
+          this.buildings.remove(doorId);
+          _ctx.emit({ type: 'DoorBroken', id: doorId });
+        } else {
+          this.doorBreakProgress.set(doorId, progress);
+        }
+      }
     }
   }
 
@@ -239,6 +255,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
         brokenFurniture: this.brokenFurniture.slice(),
         ...(this.buildings.lampLight.size > 0 ? { lampLight: Array.from(this.buildings.lampLight,
           ([tile, value]) => ({ tile, ...value })).sort((a, b) => a.tile - b.tile) } : {}),
+        doorBreakProgress: Array.from(this.doorBreakProgress.entries()),
     };
   }
 
@@ -256,6 +273,12 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       this.brokenFurniture.splice(0, this.brokenFurniture.length, ...(state.brokenFurniture ?? []));
     this.buildings.lampLight.clear();
     for (const { tile, count, baseLit } of state.lampLight ?? []) this.buildings.lampLight.set(tile, { count, baseLit });
+    this.doorBreakProgress.clear();
+    if (state.doorBreakProgress) {
+      for (const [id, count] of state.doorBreakProgress) {
+        this.doorBreakProgress.set(id, count);
+      }
+    }
     this.rng?.setState(state.rng);
   }
 }

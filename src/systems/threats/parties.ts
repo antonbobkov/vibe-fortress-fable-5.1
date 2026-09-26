@@ -198,7 +198,7 @@ export function spawnHostileMember(
   gearTier: number,
   isCaptain: boolean,
 ): EntityId {
-  const speciesTable = registry.table('creatures');
+  const speciesTable = registry.table<{ id: string; flags?: { stealth?: boolean } }>('creatures');
   const speciesIdx = speciesTable.index(species);
   const faction = species.startsWith('hillfolk') ? 'hostile:hillfolk' : 'hostile:gloam';
 
@@ -206,11 +206,13 @@ export function spawnHostileMember(
   if (creatureId === 0) return 0;
 
   // Add Hostile component
+  const spRow = speciesTable.byIndex(speciesIdx);
+  const hasStealth = spRow?.flags?.stealth === true || role === 'thief';
   world.entities.add(creatureId, C.Hostile, {
     partyId,
     role,
     behaviorState: 'approach',
-    stealthed: role === 'thief',
+    stealthed: hasStealth,
     spotted: false,
     breakingDoorId: 0,
     breakingSince: 0,

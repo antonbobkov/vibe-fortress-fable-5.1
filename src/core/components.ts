@@ -357,6 +357,9 @@ export interface Party {
   loot: EntityId[];
   edge: 'n' | 'e' | 's' | 'w';
   size: number;
+  outcome?: string;
+  despawnedCount?: number;
+  goalUnreachable?: boolean;
 }
 
 export interface Hostile {
