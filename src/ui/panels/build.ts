@@ -55,6 +55,8 @@ export class BuildTool {
   category: BuildingRow['category'] | null = null;
   readonly list: ListState = { selected: 0, scroll: 0 };
   orientation = 0;
+  width = 1;
+  height = 1;
   /** Index into {@link materials}; 0 is "any". */
   materialIndex = 0;
   priority = PRIORITY_DEFAULT;
@@ -68,6 +70,8 @@ export class BuildTool {
   cancel(): void {
     this.category = null;
     this.orientation = 0;
+    this.width = 1;
+    this.height = 1;
     this.materialIndex = 0;
   }
 
@@ -79,6 +83,8 @@ export class BuildTool {
     this.list.selected = 0;
     this.list.scroll = 0;
     this.orientation = 0;
+    this.width = 1;
+    this.height = 1;
     this.materialIndex = 0;
     return true;
   }
@@ -99,12 +105,21 @@ export class BuildTool {
     this.list.selected = Math.max(0, Math.min(n - 1, this.list.selected + delta));
     this.materialIndex = 0;
     this.orientation = 0;
+    this.width = 1;
+    this.height = 1;
   }
 
   /** `r`: rotate a rotatable type. */
   rotate(ctx: PanelContext): void {
     const row = this.current(ctx);
     if (row?.footprint.rotatable === true) this.orientation = (this.orientation + 1) % 4;
+  }
+
+  /** The drawbridge's variable dimensions, each bounded by its content row. */
+  cycleSize(ctx: PanelContext, side: 'width' | 'height'): void {
+    const max = this.current(ctx)?.footprint.variable?.max;
+    if (max === undefined) return;
+    this[side] = this[side] >= max ? 1 : this[side] + 1;
   }
 
   /** `x`: the next material with available items (after "any"). */
@@ -171,8 +186,10 @@ export class BuildTool {
     const map = ctx.readers.map;
     if (row === undefined) return null;
     const turned = row.footprint.rotatable && this.orientation % 2 === 1;
-    const w = turned ? row.footprint.h : row.footprint.w;
-    const h = turned ? row.footprint.w : row.footprint.h;
+    const width = row.footprint.variable === undefined ? row.footprint.w : this.width;
+    const height = row.footprint.variable === undefined ? row.footprint.h : this.height;
+    const w = turned ? height : width;
+    const h = turned ? width : height;
     const x = p.x - Math.floor(w / 2);
     const y = p.y - Math.floor(h / 2);
     return map.inBounds(x, y, p.z) ? map.index(x, y, p.z) : null;
@@ -185,7 +202,8 @@ export class BuildTool {
     const origin = this.origin(ctx, p);
     if (row === undefined || b === null) return null;
     if (origin === null) return { tiles: [], bad: [], reason: 'out_of_bounds', rule: '' };
-    return b.ghost(row.id, origin, this.orientation);
+    return b.ghost(row.id, origin, this.orientation, row.footprint.variable === undefined ? undefined : this.width,
+      row.footprint.variable === undefined ? undefined : this.height);
   }
 
   /** The `PlaceBuilding` for a point, or null with nothing to place. */
@@ -193,7 +211,8 @@ export class BuildTool {
     const row = this.current(ctx);
     const origin = this.origin(ctx, p);
     if (row === undefined || origin === null) return null;
-    return { type: 'PlaceBuilding', buildingType: row.id, origin, orientation: this.orientation, materialChoice: this.material(ctx), priority: this.priority };
+    return { type: 'PlaceBuilding', buildingType: row.id, origin, orientation: this.orientation, materialChoice: this.material(ctx), priority: this.priority,
+      ...(row.footprint.variable === undefined ? {} : { width: this.width, height: this.height }) };
   }
 
   /** The reason as the status bar says it ("needs a floor"). */
@@ -227,7 +246,7 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
   separator(s, rect.col + 1, row, rect.cols - 2, strings.get(`ui.build.category.${tool.category}`));
   row += 1;
   const rows = tool.rows(ctx);
-  const height = Math.max(1, rect.rows - (row - rect.row) - 4);
+  const height = Math.max(1, rect.rows - (row - rect.row) - (tool.current(ctx)?.footprint.variable === undefined ? 4 : 5));
   list(
     s,
     { col: rect.col + 1, row, cols: rect.cols - 2, rows: height },
@@ -247,6 +266,8 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
       tool.list.selected = index;
       tool.materialIndex = 0;
       tool.orientation = 0;
+      tool.width = 1;
+      tool.height = 1;
     },
   );
   row += height;
@@ -257,6 +278,12 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
   s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => tool.cycleMaterial(ctx));
   row += 1;
   const current = tool.current(ctx);
+  if (current?.footprint.variable !== undefined) {
+    label(s, rect.col + 1, row, `Size: ${tool.width} × ${tool.height}  [width] [height]`, { width: rect.cols - 2 });
+    s.hit({ col: rect.col + 1, row, cols: 12, rows: 1 }, () => tool.cycleSize(ctx, 'width'));
+    s.hit({ col: rect.col + 13, row, cols: rect.cols - 14, rows: 1 }, () => tool.cycleSize(ctx, 'height'));
+    row += 1;
+  }
   const rotate = current?.footprint.rotatable === true ? strings.get('ui.build.rotate', { n: tool.orientation }) : strings.get('ui.build.no_rotate');
   label(s, rect.col + 1, row, rotate, { fg: current?.footprint.rotatable === true ? t.text : t.dim, width: rect.cols - 2 });
   row += 1;

@@ -29,6 +29,7 @@ export type OnRule =
   | 'floor_between_walls'
   | 'stairs_down_or_ramp_top'
   | 'open_water_below'
+  | 'bridge'
   | 'never';
 
 const ON_RULES: Readonly<Record<string, OnRule>> = Object.freeze({
@@ -45,8 +46,7 @@ const ON_RULES: Readonly<Record<string, OnRule>> = Object.freeze({
   well: 'open_water_below',
   // "placed at embark only".
   wagon: 'never',
-  // The drawbridge's own footprint rule belongs to its task (M6, `bd_bridge`; D-073).
-  drawbridge: 'never',
+  drawbridge: 'bridge',
 });
 
 export function onRuleOf(id: string): OnRule {
@@ -79,6 +79,8 @@ export function onRuleHolds(map: Map3D, rule: OnRule, i: TileIndex): boolean {
   switch (rule) {
     case 'floor':
       return kind === TileKind.Floor;
+    case 'bridge':
+      return kind === TileKind.Floor || kind === TileKind.Open;
     case 'floor_or_open_supported':
       return kind === TileKind.Floor || (kind === TileKind.Open && supported(map, i));
     case 'floor_adjacent_wall':

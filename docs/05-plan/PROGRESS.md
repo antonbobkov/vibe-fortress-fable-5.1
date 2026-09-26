@@ -133,7 +133,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M6-10 — Cavern monsters, webs, restless dead (agy-m610, 2026-09-26)
 - [x] T-M6-11 — The Deep (agy-m611, 2026-09-26)
 - [x] T-M6-12 — Defense: traps, plates, levers, retreat tile, war animal stations (codex-m612, 2026-09-26)
-- [ ] T-M6-13 — Mechanisms: links, drawbridges, floodgates in play
+- [x] T-M6-13 — Mechanisms: links, drawbridges, floodgates in play (codex-m613, 2026-09-26)
 - [ ] T-M6-14 — Burial, grief, memorial slabs
 - [ ] T-M6-15 — Taming, training, war animals, pets follow
 - [ ] T-M6-16 — Military, threats, health panels; combat log; announcements

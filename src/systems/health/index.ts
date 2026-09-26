@@ -186,13 +186,13 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
 
     if (event.type === 'MagmaContact') {
       const entities = (event['entities'] as readonly EntityId[]) ?? [];
-      const speciesTable = ctx.registry.table<{ id: string; magmaSafe?: boolean }>('creatures');
+      const speciesTable = ctx.registry.table<{ id: string; flags?: { magmaSafe?: boolean } }>('creatures');
       for (const id of entities) {
         if (!ctx.world.entities.alive(id)) continue;
         const creature = ctx.world.entities.get(id, C.Creature);
         if (creature) {
           const sp = speciesTable.byIndex(creature.species);
-          if (sp?.magmaSafe === true) continue;
+          if (sp?.flags?.magmaSafe === true) continue;
         }
         const b = ctx.world.entities.get(id, C.Body);
         const torsoHp = b?.parts[1]?.maxHp ?? 60;

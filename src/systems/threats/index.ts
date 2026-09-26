@@ -380,6 +380,13 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
           }
         }
       }
+      if (event.type === 'CreatureDied' && ctx.world.entities.alive(cId) &&
+          ctx.world.entities.has(cId, C.Creature) &&
+          !ctx.world.entities.has(cId, C.Attributes) &&
+          !ctx.world.entities.has(cId, C.Tame) &&
+          !ctx.world.entities.has(cId, C.Wild)) {
+        ctx.world.entities.destroy(cId);
+      }
       if (partyId !== 0) {
         const P = ctx.world.entities.get(partyId, C.Party);
         if (P) {

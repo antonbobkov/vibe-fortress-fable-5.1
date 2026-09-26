@@ -59,6 +59,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'SetDoorMode',
     'SetHatchMode',
     'AssignRoom',
+    'LinkMechanism',
+    'UnlinkMechanism',
     'SetPlateTrigger',
     'ReleaseCage',
   ];
@@ -199,7 +201,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   override tick(_ctx: TickContext): void {
     for (const pending of this.pendingToggles.splice(0).sort((a, b) => a.atTick - b.atTick || a.id - b.id)) {
       if (pending.atTick > _ctx.tick) { this.pendingToggles.push(pending); continue; }
-      this.buildings.applyMechanism(pending.id, pending.on);
+      this.buildings.applyMechanism(pending.id, pending.on, _ctx, this.rng as RngStream);
     }
     for (const id of this.brokenFurniture.splice(0).sort((a, b) => a - b)) {
       const b = this.buildings.get(id);
@@ -234,6 +236,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       SetDoorMode: () => buildings.setMode(cmd, 'door'),
       SetHatchMode: () => buildings.setMode(cmd, 'hatch'),
       AssignRoom: () => this.rooms.assign(cmd),
+      LinkMechanism: () => buildings.link(cmd, _ctx),
+      UnlinkMechanism: () => buildings.unlink(cmd, _ctx),
       SetPlateTrigger: () => buildings.setPlateTrigger(cmd),
       ReleaseCage: () => buildings.releaseCage(cmd),
     };

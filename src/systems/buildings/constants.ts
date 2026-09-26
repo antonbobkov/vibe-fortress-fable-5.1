@@ -5,6 +5,8 @@
 
 /** Between a trigger and the mechanism acting. */
 export const LINK_DELAY_TICKS = 100;
+/** Work at each end of a mechanism link (`jobs.md`). */
+export const LINK_WORK_TICKS = 150;
 export const PLATE_RESET_TICKS = 100;
 /** Time a door-breaker needs. */
 export const DOOR_BREAK_TICKS = 600;

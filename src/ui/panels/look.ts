@@ -18,6 +18,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { Strings } from '../strings';
 import type { MoraleReader } from '@systems/morale';
+import type { BuildingsReader } from '@systems/buildings';
 import { MOOD_TIER_NAMES } from './mood';
 import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
@@ -96,6 +97,7 @@ export function drawLookPanel(
   strings: Strings,
   tile: TileIndex | null,
   tab: LookTab,
+  pullLever?: (id: EntityId) => void,
 ): void {
   const t = s.theme;
   if (tile === null) return;
@@ -127,6 +129,22 @@ export function drawLookPanel(
       else if (info.restricted) line(strings.get('ui.look.restricted'));
     }
     for (const text of buildingLines(readers, registry, strings, tile)) line(text);
+    if (has(readers, '14')) {
+      const b = readers.of<BuildingsReader>('14');
+      const id = b.at(tile);
+      if (id !== 0 && b.byTag('lever').includes(id) && b.get(id)?.state === 'built') {
+        line('Linked targets:', t.key);
+        for (const target of b.get(id)?.linkedIds ?? []) {
+          const targetView = b.get(target);
+          if (targetView !== undefined) line(`  ${targetView.typeId} #${target}: ${b.mechanismState(target)}`);
+        }
+        if (pullLever !== undefined && row < rect.row + rect.rows) {
+          const buttonRow = row;
+          line('[Pull lever]', t.value);
+          s.hit({ col: rect.col + 1, row: buttonRow, cols: rect.cols - 2, rows: 1 }, () => pullLever(id));
+        }
+      }
+    }
     return;
   }
   if (tab === 1) {

@@ -31,18 +31,20 @@ import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
 import type { EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import type { Registry } from '@core/registry';
+import type { RngStream } from '@core/rng';
 import type { MoverOptions } from '@core/pathfinding';
 import type { CoreServices, JobProducer, TickContext } from '@core/system';
-import type { EntityId, Idx, MovementClass, TileIndex } from '@core/types';
+import { BODY_SLOTS, type EntityId, type Idx, type MovementClass, type TileIndex } from '@core/types';
+import { killCreature } from '@systems/health/tick';
 import { CONSTRUCTION_KIND, constructionFlags, onRuleHolds, onRuleOf, standsAt, type OnRule } from './constructions';
-import { DOOR_MODES, HATCH_MODES, WAGON_CAPACITY, WELL_DEPTH } from './constants';
+import { BRIDGE_MAX, BRIDGE_CRUSH_DAMAGE, DOOR_MODES, HATCH_MODES, LINK_WORK_TICKS, WAGON_CAPACITY, WELL_DEPTH } from './constants';
 import { ALERT_LOCK_GRACE_TICKS, ALERT_OUTSIDE_CLEAR_TICKS } from '@systems/defense/constants';
 
 export interface BuildingRow {
   readonly id: string;
   readonly name: string;
   readonly category: 'construction' | 'furniture' | 'workshop' | 'mechanism' | 'trap' | 'special';
-  readonly footprint: { readonly w: number; readonly h: number; readonly rotatable: boolean };
+  readonly footprint: { readonly w: number; readonly h: number; readonly rotatable: boolean; readonly variable?: { readonly max: number } };
   readonly on: string;
   readonly inputs: readonly { readonly match: string; readonly count: number | 'tiles'; readonly material?: unknown }[];
   readonly labor: string;
@@ -100,6 +102,10 @@ export function buildKey(id: EntityId): string {
 
 export function deconstructKey(id: EntityId): string {
   return `deconstruct:${id}`;
+}
+
+function linkKey(source: EntityId, target: EntityId, stage: 'target' | 'source'): string {
+  return `link_mechanism:${source}:${target}:${stage}`;
 }
 
 export class BuildingStore {
@@ -188,11 +194,11 @@ export class BuildingStore {
   // ---------- footprints and inputs ----------
 
   /** The footprint of a type at an origin (its north-west tile), rotated for rotatable types. */
-  footprint(row: BuildingRow, origin: TileIndex, orientation: number): TileIndex[] | null {
+  footprint(row: BuildingRow, origin: TileIndex, orientation: number, width = row.footprint.w, height = row.footprint.h): TileIndex[] | null {
     const map = this.map;
     const turned = row.footprint.rotatable && orientation % 2 === 1;
-    const w = turned ? row.footprint.h : row.footprint.w;
-    const h = turned ? row.footprint.w : row.footprint.h;
+    const w = turned ? height : width;
+    const h = turned ? width : height;
     const out: TileIndex[] = [];
     for (let dy = 0; dy < h; dy += 1) {
       for (let dx = 0; dx < w; dx += 1) {
@@ -202,6 +208,14 @@ export class BuildingStore {
       }
     }
     return out.sort((a, b) => a - b);
+  }
+
+  /** The chosen hinge edge must rest on floor; the other bridge tiles may span open space. */
+  private bridgeHinge(tiles: readonly TileIndex[], orientation: number): boolean {
+    const map = this.map;
+    const coord = (tile: TileIndex): number => orientation % 2 === 0 ? map.xOf(tile) : map.yOf(tile);
+    const edge = orientation === 0 || orientation === 1 ? Math.min(...tiles.map(coord)) : Math.max(...tiles.map(coord));
+    return tiles.some((tile) => coord(tile) === edge && map.kindAt(tile) === TileKind.Floor);
   }
 
   /** The tile a building's jobs anchor to: the centre of its footprint. */
@@ -249,7 +263,8 @@ export class BuildingStore {
 
   /** 14 § Value: `materialValue + type.valueBonus`. */
   valueOf(b: Building): number {
-    return (this.materials[b.material]?.value ?? 0) + this.row(b.type).value;
+    const row = this.row(b.type);
+    return (this.materials[b.material]?.value ?? 0) + row.value * (row.tags.includes('bridge') ? b.footprint.length : 1);
   }
 
   /**
@@ -309,13 +324,17 @@ export class BuildingStore {
    * reason): the footprint at an origin, the tiles that fail, and the first reason `PlaceBuilding`
    * would give, or null when it would be accepted.
    */
-  ghost(typeId: string, origin: TileIndex, orientation: number): { tiles: TileIndex[]; bad: TileIndex[]; reason: string | null; rule: OnRule } {
+  ghost(typeId: string, origin: TileIndex, orientation: number, width?: number, height?: number): { tiles: TileIndex[]; bad: TileIndex[]; reason: string | null; rule: OnRule } {
     const map = this.map;
     const type = this.typeOf(typeId);
     const rule = onRuleOf(typeId);
     if (type === 0 || !map.validIndex(origin)) return { tiles: [], bad: [], reason: 'not_found', rule };
     const row = this.row(type);
-    const tiles = this.footprint(row, origin, orientation);
+    if (row.tags.includes('bridge') && (width !== undefined || height !== undefined) &&
+      (!Number.isInteger(width) || !Number.isInteger(height) || (width ?? 0) < 1 || (height ?? 0) < 1 || (width ?? 0) > BRIDGE_MAX || (height ?? 0) > BRIDGE_MAX)) {
+      return { tiles: [], bad: [], reason: 'out_of_range', rule };
+    }
+    const tiles = this.footprint(row, origin, orientation, width, height);
     if (tiles === null) return { tiles: [], bad: [], reason: 'out_of_bounds', rule };
     const bad: TileIndex[] = [];
     let reason: string | null = null;
@@ -334,6 +353,7 @@ export class BuildingStore {
         note('bad_placement');
       }
     }
+    if (reason === null && row.tags.includes('bridge') && !this.bridgeHinge(tiles, orientation)) reason = 'bad_placement';
     if (reason === null && row.tags.includes('hearth') && this.hearthId !== 0 && this.host.entities.alive(this.hearthId)) reason = 'hearth_exists';
     if (reason === null && row.tags.includes('magma') && !this.magmaPoweredAt(tiles)) reason = 'bad_placement';
     return { tiles, bad, reason, rule };
@@ -364,12 +384,17 @@ export class BuildingStore {
       if (this.materials[choice] === undefined) return reject('not_found');
       material = choice;
     }
-    const tiles = this.footprint(row, origin, orientation);
+    const width = cmd['width'] ?? row.footprint.w;
+    const height = cmd['height'] ?? row.footprint.h;
+    if (row.tags.includes('bridge') && (!Number.isInteger(width) || !Number.isInteger(height) ||
+      (width as number) < 1 || (height as number) < 1 || (width as number) > BRIDGE_MAX || (height as number) > BRIDGE_MAX)) return reject('out_of_range');
+    const tiles = this.footprint(row, origin, orientation, width as number, height as number);
     if (tiles === null) return reject('out_of_bounds');
     for (const t of tiles) if (!map.hasFlag(t, TileFlag.Discovered)) return reject('not_discovered');
     for (const t of tiles) if (map.buildingAtTile(t) !== 0) return reject('footprint_blocked');
     const rule = onRuleOf(row.id);
     for (const t of tiles) if (!onRuleHolds(map, rule, t)) return reject('bad_placement');
+    if (row.tags.includes('bridge') && !this.bridgeHinge(tiles, orientation)) return reject('bad_placement');
     if (row.tags.includes('magma') && !this.magmaPoweredAt(tiles)) return reject('bad_placement');
     if (!this.magmaSafe(tiles, material)) return reject('not_magma_safe');
     if (row.tags.includes('hearth') && this.hearthId !== 0 && this.host.entities.alive(this.hearthId)) return reject('hearth_exists');
@@ -386,7 +411,7 @@ export class BuildingStore {
       mode: row.tags.includes('door') || row.tags.includes('hatch') ? 'open' : '',
       linkedIds: [],
       ownerId: 0,
-      settings: { priority, materialChoice: material, inputs: [] },
+      settings: { priority, materialChoice: material, inputs: [], ...(row.tags.includes('bridge') ? { openTiles: tiles.filter((t) => map.kindAt(t) === TileKind.Open) } : {}) },
       toggled: false,
     });
     for (const t of tiles) map.setBuildingAt(t, id);
@@ -469,7 +494,24 @@ export class BuildingStore {
     // A linked furniture item returns to the ground (14 § Placement); a building's own container
     // (the wagon) leaves its contents where it stood.
     const anchor = this.anchorOf(b);
+    const mechanism = this.itemIndex.get('mechanism');
+    for (const peerId of b.linkedIds) {
+      const peer = this.get(peerId);
+      if (peer === undefined) continue;
+      const ownMaterials = (b.settings['linkMaterials'] as [EntityId, number][] | undefined) ?? [];
+      const peerMaterials = (peer.settings['linkMaterials'] as [EntityId, number][] | undefined) ?? [];
+      const material = ownMaterials.find(([target]) => target === peerId)?.[1] ??
+        peerMaterials.find(([target]) => target === id)?.[1];
+      if (material !== undefined && mechanism !== undefined) this.host.services.spawn.item(mechanism, material, anchor, 1);
+      this.write(peerId, { linkedIds: peer.linkedIds.filter((linked) => linked !== id),
+        settings: { ...peer.settings, linkMaterials: peerMaterials.filter(([target]) => target !== id) } });
+    }
     if (b.itemId !== 0) this.host.services.items?.uninstall?.(b.itemId, anchor);
+    if (b.state === 'built' && row.tags.includes('bridge')) {
+      for (const tile of (b.settings['openTiles'] as TileIndex[] | undefined) ?? []) {
+        if (this.map.kindAt(tile) === TileKind.Floor) this.host.services.terrain.setKind(tile, TileKind.Open, 0);
+      }
+    }
     const held = this.host.entities.get(id, C.Container);
     if (held !== undefined) for (const it of held.contents.slice()) this.host.services.items?.dropAt(it, anchor);
     this.noteSpecial(id, row, false);
@@ -533,7 +575,7 @@ export class BuildingStore {
             building: id,
             anchorTile: anchor,
             labor: this.laborFor(row, material),
-            buildTicks: row.buildTicks,
+            buildTicks: row.buildTicks * (row.tags.includes('bridge') ? b.footprint.length : 1),
             inputUnits: inputs.some((i) => i.count > 1),
           },
         });
@@ -544,7 +586,7 @@ export class BuildingStore {
           target: { kind: 'building', ref: id },
           workTile: 'adjacent',
           priority,
-          data: { building: id, anchorTile: anchor, labor: this.laborFor(row, b.material), buildTicks: Math.floor(row.buildTicks / 2) },
+          data: { building: id, anchorTile: anchor, labor: this.laborFor(row, b.material), buildTicks: Math.floor(row.buildTicks * (row.tags.includes('bridge') ? b.footprint.length : 1) / 2) },
         });
       }
     }
@@ -561,6 +603,33 @@ export class BuildingStore {
   }
 
   private onComplete(job: JobLike, _ctx: TickContext): void {
+    if (job.key.startsWith('link_mechanism:')) {
+      const sourceId = job.data['sourceId'];
+      const targetId = job.data['targetId'];
+      if (typeof sourceId !== 'number' || typeof targetId !== 'number') return;
+      const source = this.get(sourceId);
+      const target = this.get(targetId);
+      if (source?.state !== 'built' || target?.state !== 'built') return;
+      if (job.data['stage'] === 'target') {
+        const item = job.inputs[0]?.delivered[0];
+        if (item === undefined) return;
+        const material = this.host.entities.get(item, C.Item)?.material;
+        if (material === undefined) return;
+        _ctx.world.services.items?.consume(item, 1);
+        _ctx.jobs.create(linkKey(sourceId, targetId, 'source'), {
+          type: 'link_mechanism', target: { kind: 'building', ref: sourceId }, workTile: 'adjacent',
+          data: { sourceId, targetId, stage: 'source', material, anchorTile: this.anchorOf(source), labor: 'mechanics', buildTicks: LINK_WORK_TICKS },
+        });
+      } else if (job.data['stage'] === 'source') {
+        const material = job.data['material'];
+        const materials = (source.settings['linkMaterials'] as [EntityId, number][] | undefined) ?? [];
+        const nextMaterials: [EntityId, number][] = typeof material === 'number' ? [...materials, [targetId, material]] : materials;
+        this.write(sourceId, { linkedIds: [...source.linkedIds, targetId].sort((a, b) => a - b),
+          settings: { ...source.settings, linkMaterials: nextMaterials.sort((a, b) => a[0] - b[0]) } });
+        this.write(targetId, { linkedIds: [...target.linkedIds, sourceId].sort((a, b) => a - b) });
+      }
+      return;
+    }
     const id = job.data['building'];
     if (typeof id !== 'number' || this.get(id) === undefined) return;
     if (job.key.startsWith('build:')) {
@@ -659,6 +728,11 @@ export class BuildingStore {
         terrain.setFlag(t, TileFlag.Constructed, true);
       }
     } else {
+      if (row.tags.includes('bridge')) {
+        for (const tile of (b.settings['openTiles'] as TileIndex[] | undefined) ?? []) {
+          this.host.services.terrain.setKind(tile, TileKind.Floor, mat);
+        }
+      }
       for (const t of b.footprint) this.map.markChunkDirty(t, true, true);
     }
     const built = this.get(id);
@@ -789,6 +863,46 @@ export class BuildingStore {
     return OK;
   }
 
+  /** A link is worked at the target, then the source, consuming one mechanism. */
+  link(cmd: Command, ctx: TickContext): CommandResult {
+    const sourceId = cmd['sourceId'];
+    const targetId = cmd['targetId'];
+    if (typeof sourceId !== 'number' || typeof targetId !== 'number') return reject('not_found');
+    const source = this.get(sourceId);
+    const target = this.get(targetId);
+    if (source === undefined || target === undefined) return reject('not_found');
+    const sourceTags = this.row(source.type).tags;
+    const targetTags = this.row(target.type).tags;
+    if (sourceId === targetId || source.state !== 'built' || target.state !== 'built' ||
+      !sourceTags.some((tag) => tag === 'lever' || tag === 'plate') ||
+      !targetTags.some((tag) => ['door', 'hatch', 'floodgate', 'bridge', 'trap:spike', 'cage'].includes(tag))) return reject('not_linkable');
+    if (source.linkedIds.includes(targetId) || ctx.jobs.exists(linkKey(sourceId, targetId, 'target')) ||
+      ctx.jobs.exists(linkKey(sourceId, targetId, 'source'))) return reject('assigned');
+    ctx.jobs.create(linkKey(sourceId, targetId, 'target'), {
+      type: 'link_mechanism', target: { kind: 'building', ref: targetId }, workTile: 'adjacent',
+      inputs: [{ filter: { types: this.typesOf('mechanism') }, count: 1 }],
+      data: { sourceId, targetId, stage: 'target', anchorTile: this.anchorOf(target), labor: 'mechanics', buildTicks: LINK_WORK_TICKS },
+    });
+    return OK;
+  }
+
+  unlink(cmd: Command, ctx: TickContext): CommandResult {
+    const sourceId = cmd['sourceId'];
+    const targetId = cmd['targetId'];
+    if (typeof sourceId !== 'number' || typeof targetId !== 'number') return reject('not_found');
+    const source = this.get(sourceId);
+    const target = this.get(targetId);
+    if (source === undefined || target === undefined || !source.linkedIds.includes(targetId)) return reject('not_linkable');
+    const materials = (source.settings['linkMaterials'] as [EntityId, number][] | undefined) ?? [];
+    const material = materials.find(([id]) => id === targetId)?.[1];
+    this.write(sourceId, { linkedIds: source.linkedIds.filter((id) => id !== targetId),
+      settings: { ...source.settings, linkMaterials: materials.filter(([id]) => id !== targetId) } });
+    this.write(targetId, { linkedIds: target.linkedIds.filter((id) => id !== sourceId) });
+    const mechanism = this.itemIndex.get('mechanism');
+    if (material !== undefined && mechanism !== undefined) ctx.world.services.spawn.item(mechanism, material, source.origin, 1);
+    return OK;
+  }
+
   /** 14 § Mechanisms: plate settings are data on the building; 19 evaluates them. */
   setPlateTrigger(cmd: Command): CommandResult {
     const id = cmd['plateId'];
@@ -808,7 +922,7 @@ export class BuildingStore {
   }
 
   /** Apply a pending trigger after 14's LINK_DELAY_TICKS queue matures. */
-  applyMechanism(id: EntityId, on: boolean): void {
+  applyMechanism(id: EntityId, on: boolean, ctx: TickContext, rng: RngStream): void {
     const b = this.get(id);
     if (b === undefined || b.state !== 'built') return;
     const tags = this.row(b.type).tags;
@@ -820,8 +934,36 @@ export class BuildingStore {
       this.write(id, { toggled: on });
       state = on ? 'open' : 'closed';
     } else if (tags.includes('bridge')) {
+      if (b.toggled === on) return;
       this.write(id, { toggled: on });
       state = on ? 'raised' : 'lowered';
+      const openTiles = (b.settings['openTiles'] as TileIndex[] | undefined) ?? [];
+      for (const tile of openTiles) this.host.services.terrain.setKind(tile, on ? TileKind.Open : TileKind.Floor, on ? 0 : b.material);
+      if (on) {
+        const footprint = new Set(b.footprint);
+        for (const tile of b.footprint) {
+          const adjacent = this.map.neighbors8(tile).filter((next) => !footprint.has(next) && ctx.readers.pathing.passable(next, 'walker'));
+          let shaftDepth = 0;
+          let below = this.map.below(tile);
+          while (below >= 0 && this.map.kindAt(below) === TileKind.Open) {
+            shaftDepth += 1;
+            below = this.map.below(below);
+          }
+          for (const creature of this.host.creaturesAt(tile)) {
+            ctx.emit({ type: 'DamageDealt', defenderId: creature, attackerId: 0,
+              part: rng.pick(BODY_SLOTS), damageType: 'blunt', amount: BRIDGE_CRUSH_DAMAGE });
+            if (openTiles.includes(tile) && shaftDepth >= 3) this.host.services.movement?.fall(creature, ctx);
+            else if (adjacent.length > 0) this.host.services.movement?.teleport(creature, rng.pick(adjacent));
+            else if (this.map.kindAt(tile) === TileKind.Open) this.host.services.movement?.fall(creature, ctx);
+            else killCreature(ctx, creature, 'bridge_crush');
+          }
+          for (const item of ctx.readers.entities.at(tile)) {
+            if (this.host.entities.get(item, C.Item) !== undefined && adjacent.length > 0) {
+              this.host.services.items?.dropAt(item, rng.pick(adjacent));
+            }
+          }
+        }
+      }
     } else if (tags.includes('trap:spike')) {
       this.write(id, { toggled: on });
       state = on ? 'extended' : 'retracted';
@@ -871,8 +1013,7 @@ export class BuildingStore {
     for (const id of this.all()) {
       const b = this.get(id) as Building;
       if (b.mode !== 'lock_on_alert' || b.state !== 'built' || this.doorLocked(b)) continue;
-      const outside = b.footprint.some((tile) => this.map.neighbors(tile).some((next) =>
-        this.map.hasFlag(next, TileFlag.Outdoor) && this.host.creaturesAt(next).some((creatureId) => this.host.entities.get(creatureId, C.Creature)?.faction === 'fortress')));
+      const outside = this.civilianOutsideDoor(b);
       const clearSince = outside ? null : (typeof b.settings['outsideClearSince'] === 'number' ? b.settings['outsideClearSince'] : this.host.tick());
       this.write(id, { settings: { ...b.settings, outsideClearSince: clearSince } });
       const updated = this.get(id) as Building;
@@ -881,6 +1022,35 @@ export class BuildingStore {
         this.host.emit({ type: 'BuildingStateChanged', id, state: 'locked' });
       }
     }
+  }
+
+  /** An inner airlock door's outside is the corridor side away from the hearth, even indoors. */
+  private civilianOutsideDoor(door: Building): boolean {
+    const map = this.map;
+    const tile = door.origin;
+    const hearth = this.get(this.hearthId);
+    if (hearth !== undefined) {
+      const wall = (dx: number, dy: number): boolean => {
+        const next = map.offset(tile, dx, dy, 0);
+        return next >= 0 && map.kindAt(next) === TileKind.Wall;
+      };
+      const axis: 'x' | 'y' | null = wall(-1, 0) && wall(1, 0) ? 'y' : wall(0, -1) && wall(0, 1) ? 'x' : null;
+      if (axis !== null) {
+        const at = axis === 'x' ? map.xOf(tile) : map.yOf(tile);
+        const home = axis === 'x' ? map.xOf(hearth.origin) : map.yOf(hearth.origin);
+        if (home !== at) {
+          return this.host.entities.with(C.Creature, C.Position).some((id) => {
+            const creature = this.host.entities.get(id, C.Creature);
+            const pos = this.host.entities.get(id, C.Position);
+            if (creature?.faction !== 'fortress' || pos === undefined || pos.z !== map.zOf(tile)) return false;
+            const coord = axis === 'x' ? pos.x : pos.y;
+            return (coord - at) * (home - at) <= 0;
+          });
+        }
+      }
+    }
+    return map.neighbors(tile).some((next) => map.hasFlag(next, TileFlag.Outdoor) &&
+      this.host.creaturesAt(next).some((id) => this.host.entities.get(id, C.Creature)?.faction === 'fortress'));
   }
 
   /** Whether a well has water within `WELL_DEPTH` below (14: "`working` when water is present"). */
