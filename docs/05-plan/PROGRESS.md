@@ -131,7 +131,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M6-08 — Threats: schedule, renown, party generation, arrival, warnings (agy-m608, 2026-09-26)
 - [x] T-M6-09 — Threats: party and member AI, thieves, stealth, loot, retreat, door breaking (agy-m609, 2026-09-26)
 - [x] T-M6-10 — Cavern monsters, webs, restless dead (agy-m610, 2026-09-26)
-- [ ] T-M6-11 — The Deep
+- [x] T-M6-11 — The Deep (agy-m611, 2026-09-26)
 - [ ] T-M6-12 — Defense: traps, plates, levers, retreat tile, war animal stations
 - [ ] T-M6-13 — Mechanisms: links, drawbridges, floodgates in play
 - [ ] T-M6-14 — Burial, grief, memorial slabs

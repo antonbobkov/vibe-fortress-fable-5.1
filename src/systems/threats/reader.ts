@@ -29,6 +29,7 @@ export function makeThreatsReader(
   getDeepPressure: () => number,
   getDeepLevel: () => number,
   getMonstersInCavern?: (n: number) => number,
+  getDeepNextThreshold?: () => number,
 ): ThreatsReader {
   return {
     activeParties: () => {
@@ -67,7 +68,7 @@ export function makeThreatsReader(
     },
     deepPressure: getDeepPressure,
     deepLevel: getDeepLevel,
-    deepNextThreshold: () => 50,
+    deepNextThreshold: () => getDeepNextThreshold?.() ?? 50,
     monstersInCavern: (n: number) => getMonstersInCavern?.(n) ?? 0,
   };
 }

@@ -53,6 +53,7 @@ export * from './parties';
 export * from './gear';
 export * from './ai';
 export * from './caverns';
+export * from './deep';
 
 import { TileFlag } from '@core/map3d';
 import type { EntityStore } from '@core/entities';
@@ -68,6 +69,13 @@ import {
   stepCavernMonsters,
   wakeCavernMonsters,
 } from './caverns';
+import {
+  type DeepState,
+  checkHollowWave,
+  handleDeepsilverMined,
+  nextDeepThreshold,
+  stepHollowBorn,
+} from './deep';
 
 export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
   override readonly id: SystemId = '18';
@@ -90,6 +98,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     'EntitiesMoved',
     'TilesChanged',
     'CavernBreached',
+    'DeepsilverMined',
   ];
 
   private rng!: RngStream;
@@ -98,8 +107,6 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
   private traits: readonly string[] = [];
   private schedule = new Map<string, ThreatScheduleEntry>();
   private renownVal = 0;
-  private deepPressureVal = 0;
-  private deepLevelVal = 0;
   private deepsilverTiles: number[] = [];
   private pendingArrivals: PendingArrivalState[] = [];
   private pendingSpawns: PendingSpawnState[] = [];
@@ -110,6 +117,13 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
   private monsterInfo = new Map<EntityId, CavernMonsterInfo>();
   private webs = new Map<TileIndex, EntityId>();
   private wasDaylight = true;
+  private hollowBorn = new Set<EntityId>();
+  private deepState: DeepState = {
+    pressure: 0,
+    level: 0,
+    nextHollowWaveTick: 0,
+    hollowWaveIndex: 0,
+  };
 
   constructor(private readonly options: { spec?: LocalMapSpec } = {}) {
     super();
@@ -125,12 +139,15 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
 
     this.schedule = initScheduleAtEmbark(ctx.registry, this.peril, this.traits, this.rng);
 
+    this.deepState.pressure = ctx.world.fortress?.deepPressure ?? 0;
+    this.deepState.level = ctx.world.fortress?.deepLevel ?? 0;
+
     this.readerRef = makeThreatsReader(
       ctx.world.entities,
       () => this.renownVal,
       () => this.schedule,
-      () => this.deepPressureVal,
-      () => this.deepLevelVal,
+      () => this.deepState.pressure,
+      () => this.deepState.level,
       (n: number) => {
         let count = 0;
         for (const [id, info] of this.monsterInfo) {
@@ -140,6 +157,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
         }
         return count;
       },
+      () => nextDeepThreshold(this.deepState.level),
     );
     ctx.register.panel({ id: 'threats', title: 'Threats', hotkey: 'm' });
     const pathing =
@@ -347,6 +365,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       const cId = event['id'] as EntityId;
       if (event.type === 'CreatureDied') {
         this.monsterInfo.delete(cId);
+        this.hollowBorn.delete(cId);
       }
       let partyId = 0;
       const H = ctx.world.entities.get(cId, C.Hostile);
@@ -367,6 +386,9 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
           checkPartyCasualties(partyId, P, ctx);
         }
       }
+    } else if (event.type === 'DeepsilverMined') {
+      const tile = event['tile'] as TileIndex;
+      handleDeepsilverMined(tile, ctx, this.deepsilverTiles, this.deepState, this.hollowBorn);
     } else if (event.type === 'TrapTriggered') {
       const cId = event['creatureId'] as EntityId;
       if (typeof cId === 'number') {
@@ -412,6 +434,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     this.processArrivalsAndSpawns(ctx);
     stepThreatMembers(ctx);
     stepCavernMonsters(ctx, this.rng, this.monsterInfo);
+    stepHollowBorn(ctx, this.hollowBorn);
+    checkHollowWave(ctx, this.deepsilverTiles, this.deepState, this.hollowBorn);
     if (isDue(ctx.tick, THREATS_CADENCE, THREATS_PHASE)) {
       stepThreatParties(ctx);
     }
@@ -450,6 +474,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       namedCaptains: [],
       pendingArrivals: [...this.pendingArrivals],
       pendingSpawns: [...this.pendingSpawns],
+      ...(this.deepState.nextHollowWaveTick > 0 ? { nextHollowWaveTick: this.deepState.nextHollowWaveTick } : {}),
+      ...(this.deepState.hollowWaveIndex > 0 ? { hollowWaveIndex: this.deepState.hollowWaveIndex } : {}),
       rng: this.rng.state(),
     };
   }
@@ -460,6 +486,11 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     this.deepsilverTiles = [...state.deepsilverTiles];
     this.pendingArrivals = state.pendingArrivals ? [...state.pendingArrivals] : [];
     this.pendingSpawns = state.pendingSpawns ? [...state.pendingSpawns] : [];
+
+    this.deepState.nextHollowWaveTick = state.nextHollowWaveTick ?? 0;
+    this.deepState.hollowWaveIndex = state.hollowWaveIndex ?? 0;
+    this.deepState.pressure = ctx.world.fortress?.deepPressure ?? 0;
+    this.deepState.level = ctx.world.fortress?.deepLevel ?? 0;
 
     for (const [k, s] of state.schedule) {
       const entry = this.schedule.get(k);
@@ -475,6 +506,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       ctx.world.map.setFlag(tile, TileFlag.Web, true);
     }
     this.monsterInfo.clear();
+    this.hollowBorn.clear();
     const spTable = ctx.registry.table<{ id: string }>('creatures');
     for (const id of ctx.world.entities.with(C.Hostile)) {
       const H = ctx.world.entities.get(id, C.Hostile);
@@ -491,6 +523,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
             noTargetTicks: 0,
           });
         }
+      } else if (H && H.role === 'hollow' && ctx.world.entities.alive(id)) {
+        this.hollowBorn.add(id);
       }
     }
 

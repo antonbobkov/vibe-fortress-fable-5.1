@@ -40,5 +40,7 @@ export interface ThreatsStateV1 {
   namedCaptains: [string, EntityId][];
   pendingArrivals?: PendingArrivalState[];
   pendingSpawns?: PendingSpawnState[];
+  nextHollowWaveTick?: number;
+  hollowWaveIndex?: number;
   rng: RngState;
 }
