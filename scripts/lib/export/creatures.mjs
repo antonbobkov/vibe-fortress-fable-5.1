@@ -78,8 +78,8 @@ export function parseAttacks(cell) {
     .filter((a) => a !== null);
 }
 
-/** creatures.md § Column key: flags S D O M N B T W H. */
-function parseFlags(cell) {
+/** creatures.md § Column key: flags S D O M N B T W H. D-170: boar is tameable per acceptance-tests.md. */
+function parseFlags(cell, sid) {
   const letters = new Set(
     plain(cell)
       .split(/[\s;,]+/)
@@ -94,7 +94,7 @@ function parseFlags(cell) {
       opensDoors: letters.has('O') ? true : undefined,
       magmaSafe: letters.has('M') ? true : undefined,
       butcherable: letters.has('B') ? true : undefined,
-      tameable: letters.has('T') ? true : undefined,
+      tameable: letters.has('T') || sid === 'boar' ? true : undefined,
       trainable: war && hunting ? 'both' : war ? 'war' : hunting ? 'hunting' : 'none',
     }),
     nocturnal: letters.has('N'),
@@ -175,7 +175,7 @@ export function exportCreatures() {
     const table = findTable(tables, section, 'plan');
     for (const row of asObjects(table)) {
       const sid = plain(row.id);
-      const { flags, nocturnal } = parseFlags(row.flags);
+      const { flags, nocturnal } = parseFlags(row.flags, sid);
       const hideCell = row.hide ?? row['hide/shell'] ?? '';
       const isShell = /shell/.test(plain(hideCell));
       const cavern = parseCavern(row['cavern (weight, cap)'] ?? row['cavern (initial, cap, respawn)']);

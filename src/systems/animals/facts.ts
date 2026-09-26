@@ -53,6 +53,8 @@ export interface SpeciesRow {
   readonly perception?: number;
   readonly glyph: string;
   readonly fg: string;
+  readonly tameable?: boolean;
+  readonly trainable?: 'none' | 'war' | 'hunting' | 'both';
 }
 
 export class AnimalFacts {
@@ -111,6 +113,19 @@ export class AnimalFacts {
   /** `08` § Pets: the species that adopt a dwarf each season. */
   adopts(species: number): boolean {
     return ADOPTING_SPECIES.includes(this.idOf(species));
+  }
+
+  isTameable(species: number): boolean {
+    const row = this.rows[species];
+    return row?.tameable === true || row?.flags?.['tameable'] === true;
+  }
+
+  isTrainable(species: number, kind: 'war' | 'hunting'): boolean {
+    const row = this.rows[species];
+    const t = (row?.trainable ?? row?.flags?.['trainable']) as string | undefined;
+    if (t === 'both') return true;
+    if (t === kind) return true;
+    return false;
   }
 
   /** `creatures.md`: `cap = weight / 5`, rounded up, minimum 2. */

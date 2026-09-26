@@ -32,6 +32,7 @@ import {
   BREED_PERMILLE,
   EGG_ITEM,
   HATCH_DAYS,
+  KENNEL_WORKSHOP,
   NEST_BOX_TAG,
   PREDATOR_HUNGER_DAYS,
   PASTURE_ZONE,
@@ -40,7 +41,7 @@ import {
 import { AnimalFacts } from './facts';
 import { tickAnimal, type BrainHost } from './brain';
 import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, thinkTame, type TameHost } from './tame';
-import { AnimalsProducer, productKey, slaughterKey, type AnimalsProducerHost } from './producer';
+import { AnimalsProducer, productKey, slaughterKey, trainKey, type AnimalsProducerHost } from './producer';
 import type { AnimalsReader } from './reader';
 import { dailySpawn, leavers, surfaceCap, cavernCap, type SpawnHost } from './spawn';
 import type { AnimalsStateV1, EggRecord, SpeciesCount } from './state';
@@ -77,7 +78,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   readonly order = 8;
   override readonly cadence = ANIMALS_CADENCE;
   override readonly phase = ANIMALS_PHASE;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'SeasonChanged', 'CreatureDied', 'AttackResolved', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ThreatNearby'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'SeasonChanged', 'CreatureDied', 'AttackResolved', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ThreatNearby', 'CreatureCaged'];
   override readonly ownsCommands: readonly CommandType[] = [
     'SetBreedingCap',
     'AssignPasture',
@@ -85,6 +86,9 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     'UnmarkSlaughter',
     'AssignAnimal',
     'NameAnimal',
+    'TrainAnimal',
+    'TameCaged',
+    'ReleaseCaged',
   ];
 
   private readonly options: AnimalsOptions;
@@ -103,6 +107,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   readonly speciesCounts = new Map<number, SpeciesCount>();
   readonly nestBoxes: EntityId[] = [];
   readonly caged: [EntityId, EntityId][] = [];
+  readonly pendingTrain = new Map<EntityId, 'war' | 'hunting'>();
+  readonly pendingTame = new Map<EntityId, EntityId>();
   /** Who attacked whom; a `neutral` animal fears only its attacker (16 fills this in M6). */
   readonly provoked = new Map<EntityId, EntityId>();
   /** Tiles a grazer cleared, handed to 07 on the next tick (07 owns grass; D-089). */
@@ -267,6 +273,14 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       ready: this.ready,
       eggs: this.eggs,
       marked: () => this.entities.with(C.Tame).filter((id) => this.entities.get(id, C.Tame)?.slaughter === true),
+      pendingTrain: this.pendingTrain,
+      pendingTame: this.pendingTame,
+      clearPendingTrain: (id) => this.pendingTrain.delete(id),
+      clearPendingTame: (cageId) => this.pendingTame.delete(cageId),
+      releaseCagedRecord: (cageId, creatureId) => {
+        const idx = this.caged.findIndex(([c, cr]) => c === cageId || cr === creatureId);
+        if (idx >= 0) this.caged.splice(idx, 1);
+      },
       buildings: () => (this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null),
       jobs: () => (this.readers.has('11') ? this.readers.of<JobsReader>('11') : null),
       alive: (id) => this.entities.alive(id),
@@ -347,7 +361,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       if (this.readers.has('11')) {
         const jobs = this.readers.of<JobsReader>('11');
         const job = (t.slaughter ? jobs.byKey(slaughterKey(id)) : undefined)
-          ?? jobs.byKey(productKey(id, 'milk')) ?? jobs.byKey(productKey(id, 'wool'));
+          ?? jobs.byKey(productKey(id, 'milk')) ?? jobs.byKey(productKey(id, 'wool'))
+          ?? jobs.byKey(trainKey(id));
         if (job !== undefined && job.workerId !== 0) {
           const worker = this.tileOf(job.workerId);
           if (worker >= 0 && !this.producerHostAnimalNear(id, worker)) ctx.world.services.movement?.walkTo(id, worker, 'wander', ctx);
@@ -710,9 +725,48 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     return world.services.spawn.creature(species, at, 'wild');
   }
 
+  private hasKennel(): boolean {
+    if (!this.readers.has('14')) return false;
+    const buildings = this.readers.of<BuildingsReader>('14');
+    return buildings.byType(KENNEL_WORKSHOP).some((id) => buildings.get(id)?.state === 'built');
+  }
+
+  private findOccupant(cageId: EntityId): EntityId {
+    const item = this.entities.get(cageId, C.Item);
+    if (item?.occupantId) return item.occupantId;
+    const pair = this.caged.find(([c]) => c === cageId);
+    if (pair) return pair[1];
+    if (this.readers.has('14')) {
+      const b = this.readers.of<BuildingsReader>('14').get(cageId);
+      if (b) {
+        if (typeof b.settings['occupantId'] === 'number' && b.settings['occupantId'] > 0) {
+          return b.settings['occupantId'];
+        }
+        if (b.itemId) {
+          const linked = this.entities.get(b.itemId, C.Item);
+          if (linked?.occupantId) return linked.occupantId;
+        }
+      }
+    }
+    for (const crId of this.entities.with(C.Creature)) {
+      if (this.entities.get(crId, C.Creature)?.cagedIn === cageId) return crId;
+    }
+    return 0;
+  }
+
   // ---------- events and commands ----------
 
   override handle(event: GameEvent, ctx: TickContext): void {
+    if (event.type === 'CreatureCaged') {
+      const creatureId = event['creatureId'] as EntityId;
+      const cageId = event['cageItemId'] as EntityId;
+      if (typeof creatureId === 'number' && typeof cageId === 'number') {
+        if (!this.caged.some(([c, cr]) => c === cageId && cr === creatureId)) {
+          this.caged.push([cageId, creatureId]);
+        }
+      }
+      return;
+    }
     if (event.type === 'ZoneChanged' && event['zoneType'] === PASTURE_ZONE && event['change'] === 'removed') {
       const zoneId = event['zoneId'] as EntityId;
       for (const id of ctx.world.entities.with(C.Tame)) {
@@ -767,6 +821,16 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       this.starvingAnnounced.delete(id);
       this.lastTameThink.delete(id);
       for (const key of Array.from(this.ready.keys())) if (this.ready.get(key) === id) this.ready.delete(key);
+      for (let i = this.caged.length - 1; i >= 0; i--) {
+        const entry = this.caged[i];
+        if (entry !== undefined && (entry[0] === id || entry[1] === id)) {
+          this.caged.splice(i, 1);
+        }
+      }
+      this.pendingTrain.delete(id);
+      for (const [cageId, creatureId] of Array.from(this.pendingTame.entries())) {
+        if (cageId === id || creatureId === id) this.pendingTame.delete(cageId);
+      }
       if (ctx.world.entities.alive(id) && (ctx.world.entities.has(id, C.Tame) || ctx.world.entities.has(id, C.Wild))) {
         ctx.world.entities.destroy(id);
       }
@@ -792,6 +856,94 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       this.breedingCaps.set(species, cap);
       return OK;
     }
+    if (cmd.type === 'TrainAnimal') {
+      const animalId = cmd['animalId'];
+      const t = typeof animalId === 'number' ? ctx.world.entities.get(animalId, C.Tame) : undefined;
+      if (t === undefined || typeof animalId !== 'number') return reject('not_tame');
+      const kind = cmd['kind'];
+      if (kind !== 'war' && kind !== 'hunting') return reject('precondition_failed');
+      const species = ctx.world.entities.get(animalId, C.Creature)?.species ?? 0;
+      if (!this.facts.isTrainable(species, kind)) return reject('not_trainable');
+      if (!this.hasKennel()) return reject('no_kennel');
+      this.pendingTrain.set(animalId, kind);
+      return OK;
+    }
+    if (cmd.type === 'TameCaged') {
+      const cageId = cmd['cageId'];
+      if (typeof cageId !== 'number') return reject('not_found');
+      const occupantId = this.findOccupant(cageId);
+      if (occupantId === 0 || !ctx.world.entities.alive(occupantId)) return reject('not_found');
+      const creature = ctx.world.entities.get(occupantId, C.Creature);
+      if (creature === undefined) return reject('not_found');
+      if (!this.facts.isTameable(creature.species)) return reject('precondition_failed');
+      if (!this.hasKennel()) return reject('no_kennel');
+      this.pendingTame.set(cageId, occupantId);
+      return OK;
+    }
+    if (cmd.type === 'ReleaseCaged') {
+      const cageId = cmd['cageId'];
+      if (typeof cageId !== 'number') return reject('not_found');
+      const occupantId = this.findOccupant(cageId);
+      if (occupantId === 0 || !ctx.world.entities.alive(occupantId)) return reject('precondition_failed');
+
+      let originTile = -1;
+      const b = ctx.world.entities.get(cageId, C.Building);
+      if (b !== undefined) {
+        originTile = b.origin;
+      } else {
+        const pos = ctx.world.entities.get(cageId, C.Position);
+        if (pos !== undefined) {
+          originTile = this.map.index(pos.x, pos.y, pos.z);
+        } else {
+          for (const bId of ctx.world.entities.with(C.Building)) {
+            const bld = ctx.world.entities.get(bId, C.Building);
+            if (bld !== undefined && bld.itemId === cageId) {
+              originTile = bld.origin;
+              break;
+            }
+          }
+        }
+      }
+
+      if (originTile < 0) return reject('precondition_failed');
+
+      let releaseTile = -1;
+      for (const n of this.map.neighbors(originTile)) {
+        if (this.readers.pathing.passable(n, 'walker') && this.map.kindAt(n) === TileKind.Floor) {
+          releaseTile = n;
+          break;
+        }
+      }
+      if (releaseTile < 0 && this.readers.pathing.passable(originTile, 'walker') && this.map.kindAt(originTile) === TileKind.Floor) {
+        releaseTile = originTile;
+      }
+      if (releaseTile < 0) return reject('precondition_failed');
+
+      ctx.world.services.movement?.teleport(occupantId, releaseTile);
+
+      const item = ctx.world.entities.get(cageId, C.Item);
+      if (item !== undefined) ctx.world.entities.add(cageId, C.Item, { ...item, occupantId: 0 });
+
+      for (const bId of ctx.world.entities.with(C.Building)) {
+        const bld = ctx.world.entities.get(bId, C.Building);
+        if (bld !== undefined && (bId === cageId || bld.itemId === cageId || bld.settings['occupantId'] === occupantId)) {
+          ctx.world.entities.add(bId, C.Building, { ...bld, settings: { ...bld.settings, occupantId: 0 } });
+          if (bld.itemId && bld.itemId !== cageId) {
+            const it = ctx.world.entities.get(bld.itemId, C.Item);
+            if (it !== undefined) ctx.world.entities.add(bld.itemId, C.Item, { ...it, occupantId: 0 });
+          }
+        }
+      }
+
+      const creature = ctx.world.entities.get(occupantId, C.Creature);
+      if (creature !== undefined) ctx.world.entities.add(occupantId, C.Creature, { ...creature, cagedIn: 0 });
+
+      const idx = this.caged.findIndex(([c, cr]) => c === cageId || cr === occupantId);
+      if (idx >= 0) this.caged.splice(idx, 1);
+      this.pendingTame.delete(cageId);
+      return OK;
+    }
+
     const animalId = cmd['animalId'];
     const t = typeof animalId === 'number' ? ctx.world.entities.get(animalId, C.Tame) : undefined;
     if (t === undefined || typeof animalId !== 'number') return reject('not_tame');
@@ -841,6 +993,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     }
     return reject('not_found');
   }
+
 
   // ---------- the reader ----------
 
@@ -914,6 +1067,12 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       starvingSince: sortedPairs(this.starvingSince),
       starvingAnnounced: sortedPairs(this.starvingAnnounced),
       lastTameThink: sortedPairs(this.lastTameThink),
+      pendingTrain: Array.from(this.pendingTrain.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(([k, v]): [EntityId, 'war' | 'hunting'] => [k, v]),
+      pendingTame: Array.from(this.pendingTame.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(([k, v]): [EntityId, EntityId] => [k, v]),
     };
   }
 
@@ -927,6 +1086,10 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     this.nestBoxes.push(...state.nestBoxes);
     this.caged.length = 0;
     this.caged.push(...state.caged.map((p): [EntityId, EntityId] => [p[0], p[1]]));
+    this.pendingTrain.clear();
+    for (const [id, kind] of state.pendingTrain ?? []) this.pendingTrain.set(id, kind);
+    this.pendingTame.clear();
+    for (const [cageId, crId] of state.pendingTame ?? []) this.pendingTame.set(cageId, crId);
     this.rng.setState(state.rng);
     this.dailyDue = state.dailyDue;
     this.provoked.clear();
@@ -950,3 +1113,4 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     this.cavernTileCache = [null, null, null, null];
   }
 }
+

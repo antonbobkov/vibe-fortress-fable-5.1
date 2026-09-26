@@ -26,6 +26,7 @@ import {
   getSkill,
   isConscious,
   isFleeing,
+  isWarTrained,
   shieldIsBuckler,
   shieldOf,
   weaponOf,
@@ -459,7 +460,7 @@ export function resolveProjectileHit(
   }
   const creature = entities.get(defenderId, C.Creature);
   if (creature) {
-    const naturalArmor = spD?.naturalArmor ?? 0;
+    const naturalArmor = (spD?.naturalArmor ?? 0) + (isWarTrained(entities, defenderId) ? 1 : 0);
     red += naturalArmor * getDamageVsLayer(damageType, 'plate');
   }
 
