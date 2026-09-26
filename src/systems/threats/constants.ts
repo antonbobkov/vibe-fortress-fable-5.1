@@ -28,3 +28,5 @@ export const DEEP_THRESHOLDS = [50, 150, 300, 500] as const;
 export const EMERGENCE_TILES = 4;
 export const HOLLOW_WAVE_DAYS = 28;
 export const HOSTILE_SKILL_PER_TIER = 2;
+export const RESTLESS_PER_NIGHT_MIN = 2;
+export const RESTLESS_PER_NIGHT_MAX = 8;

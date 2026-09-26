@@ -274,14 +274,20 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       const isAdjacent = dz === 0 && Math.max(dx, dy) <= 1;
 
       const w = weaponOf(entities, ctx.registry, id);
-      const isRanged = w !== null && w.weaponDef.launcher !== undefined;
+      const creatureA = entities.get(id, C.Creature);
+      const spTable = ctx.registry.table<{ id: string; attacks?: { name: string; type: string; damage: number; size: number; range?: number }[] }>('creatures');
+      const spRow = creatureA ? spTable.byIndex(creatureA.species) : undefined;
+      const naturalRanged = spRow?.attacks?.find((a) => typeof a.range === 'number' && a.range > 0);
+
+      const isRanged = (w !== null && w.weaponDef.launcher !== undefined) || naturalRanged !== undefined;
+      const maxRangedDist = w?.weaponDef.launcher?.range ?? naturalRanged?.range ?? 12;
       const tileA = map.index(xA, yA, zA);
       const tileT = map.index(xT, yT, zT);
       const dist = Math.max(dx, dy) + dz * 2;
 
       if (
         isRanged &&
-        dist <= (w.weaponDef.launcher?.range ?? 12) &&
+        dist <= maxRangedDist &&
         this.lineOfSight(tileA, tileT)
       ) {
         const cooldown = this.targets.cooldownUntil.get(id) ?? 0;

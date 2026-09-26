@@ -518,8 +518,15 @@ export function fireRanged(
   const rng = ctx.rng;
 
   const w = weaponOf(entities, registry, shooterId);
-  if (w === null || w.weaponDef.launcher === undefined) return false;
-  const launcher = w.weaponDef.launcher;
+  const creatureS = entities.get(shooterId, C.Creature);
+  const spTable = registry.table<{ id: string; attacks?: { name: string; type: string; damage: number; size: number; range?: number }[] }>('creatures');
+  const spRow = creatureS ? spTable.byIndex(creatureS.species) : undefined;
+  const naturalRanged = spRow?.attacks?.find((a) => typeof a.range === 'number' && a.range > 0);
+
+  if (!naturalRanged && (w === null || w.weaponDef.launcher === undefined)) return false;
+
+  const launcher = w?.weaponDef.launcher;
+  const range = launcher?.range ?? naturalRanged?.range ?? 0;
 
   const posS = entities.get(shooterId, C.Position);
   const posT = entities.get(targetId, C.Position);
@@ -533,67 +540,82 @@ export function fireRanged(
   const dz = Math.abs(posT.z - posS.z);
   const distance = Math.max(dx, dy) + dz * 2;
 
-  if (distance > launcher.range) return false;
+  if (distance > range) return false;
 
   const buildingsReader = ctx.readers.has('14')
     ? ctx.readers.of<BuildingsReader>('14')
     : undefined;
 
-  if (!lineOfSightRanged(map, fromTile, toTile, launcher.range, buildingsReader)) {
+  if (!lineOfSightRanged(map, fromTile, toTile, range, buildingsReader)) {
     return false;
   }
 
-  // Find ammo
-  const ammoId = findAmmoForShooter(entities, registry, shooterId, launcher.ammo);
-  if (ammoId === 0) return false;
+  let projectileItemId = 0;
+  let rawDamage = 0;
+  let ammoDamageType: DamageType = 'pierce';
+  let weaponSkill = 'unarmed';
+  let weaponSize = 6;
 
-  // Split or take 1 ammo unit
-  let projectileItemId = ammoId;
-  const ammoItem = entities.get(ammoId, C.Item);
-  if (ammoItem && ammoItem.count > 1) {
-    if (ctx.world.services.items) {
-      projectileItemId = ctx.world.services.items.split(ammoId, 1);
-    } else {
-      ammoItem.count -= 1;
-      projectileItemId = entities.create('item');
-      entities.add(projectileItemId, C.Item, {
-        ...ammoItem,
-        count: 1,
-        carriedBy: 0,
-        containerId: 0,
-      });
+  if (naturalRanged) {
+    projectileItemId = 0;
+    rawDamage = naturalRanged.damage;
+    ammoDamageType = (naturalRanged.type as DamageType) ?? 'burn';
+    weaponSkill = 'unarmed';
+    weaponSize = naturalRanged.size;
+  } else if (launcher && w) {
+    // Find ammo
+    const ammoId = findAmmoForShooter(entities, registry, shooterId, launcher.ammo);
+    if (ammoId === 0) return false;
+
+    // Split or take 1 ammo unit
+    projectileItemId = ammoId;
+    const ammoItem = entities.get(ammoId, C.Item);
+    if (ammoItem && ammoItem.count > 1) {
+      if (ctx.world.services.items) {
+        projectileItemId = ctx.world.services.items.split(ammoId, 1);
+      } else {
+        ammoItem.count -= 1;
+        projectileItemId = entities.create('item');
+        entities.add(projectileItemId, C.Item, {
+          ...ammoItem,
+          count: 1,
+          carriedBy: 0,
+          containerId: 0,
+        });
+      }
+    } else if (ammoItem) {
+      ammoItem.carriedBy = 0;
+      ammoItem.containerId = 0;
+      const equip = entities.get(shooterId, C.Equipment);
+      if (equip && equip.quiver === ammoId) {
+        equip.quiver = 0;
+      }
     }
-  } else if (ammoItem) {
-    ammoItem.carriedBy = 0;
-    ammoItem.containerId = 0;
-    const equip = entities.get(shooterId, C.Equipment);
-    if (equip && equip.quiver === ammoId) {
-      equip.quiver = 0;
-    }
+
+    const ammoTable = registry.table<AmmoRow>('ammo');
+    const ammoRow = ammoTable.byId(launcher.ammo);
+    const ammoBaseDamage = ammoRow?.damage ?? 16;
+    ammoDamageType = ammoRow?.damageType ?? 'pierce';
+    const launcherPower = getLauncherPower(registry, w);
+    const ammoMatMult = ammoItem ? getAmmoMaterialMult(registry, ammoItem.material) : 1.0;
+    rawDamage = Math.round(ammoBaseDamage * launcherPower * ammoMatMult);
+    weaponSkill = w.weaponDef.skill;
+    weaponSize = w.weaponDef.size;
   }
 
   // Compute hit chance and roll
-  const hit = calculateRangedHit(entities, registry, shooterId, targetId, w.weaponDef.skill, distance);
-    const roll = rng.int(0, 99);
+  const hit = calculateRangedHit(entities, registry, shooterId, targetId, weaponSkill, distance);
+  const roll = rng.int(0, 99);
   const hitSucceeded = roll < hit;
 
-  // Compute raw damage: ammo.baseDamage * launcher.power * metalTier(ammo)
-  const ammoTable = registry.table<AmmoRow>('ammo');
-  const ammoRow = ammoTable.byId(launcher.ammo);
-  const ammoBaseDamage = ammoRow?.damage ?? 16;
-  const ammoDamageType: DamageType = ammoRow?.damageType ?? 'pierce';
-  const launcherPower = getLauncherPower(registry, w);
-  const ammoMatMult = ammoItem ? getAmmoMaterialMult(registry, ammoItem.material) : 1.0;
-  const rawDamage = Math.round(ammoBaseDamage * launcherPower * ammoMatMult);
-
   // Trajectory ray
-  const line = bresenhamRay(map, fromTile, toTile, launcher.range);
+  const line = bresenhamRay(map, fromTile, toTile, range);
 
   // Set cooldown
   const agiS = getAttribute(entities, shooterId, 'agi');
   const cooldownTicks = Math.max(
     MIN_ATTACK_COOLDOWN,
-    Math.floor(w.weaponDef.size * 3 + 10 - agiS / 10),
+    Math.floor(weaponSize * 3 + 10 - agiS / 10),
   );
   cooldownUntilMap.set(shooterId, ctx.tick + cooldownTicks);
 
@@ -674,7 +696,7 @@ function advanceSingleProjectile(
   for (let s = 0; s < PROJECTILE_SPEED; s += 1) {
     if (progress >= proj.line.length) {
       // Reached max range: drop or break
-      dropOrBreakAmmo(ctx, rng, proj.itemId, prevTile);
+      if (proj.itemId !== 0) dropOrBreakAmmo(ctx, rng, proj.itemId, prevTile);
       entities.destroy(projId);
       return;
     }
@@ -689,7 +711,7 @@ function advanceSingleProjectile(
 
     // Check if nextTile blocks projectile
     if (blocksProjectile(map, nextTile, proj.from, proj.to, buildingsReader)) {
-      dropOrBreakAmmo(ctx, rng, proj.itemId, prevTile);
+      if (proj.itemId !== 0) dropOrBreakAmmo(ctx, rng, proj.itemId, prevTile);
       entities.destroy(projId);
       return;
     }
@@ -710,7 +732,7 @@ function advanceSingleProjectile(
       if (proj.hitRoll === 1) {
         // Hit target!
         const w = weaponOf(entities, registry, proj.shooterId);
-        const wDef = w?.weaponDef ?? { skill: 'crossbow', size: 6 } as WieldedWeapon['weaponDef'];
+        const wDef = w?.weaponDef ?? ({ skill: 'unarmed', size: 6 } as unknown as WieldedWeapon['weaponDef']);
         resolveProjectileHit(
           ctx,
           entities,
@@ -723,7 +745,7 @@ function advanceSingleProjectile(
           wDef,
           proj.skipXp ? { skipXp: true } : undefined,
         );
-        dropOrBreakAmmo(ctx, rng, proj.itemId, nextTile);
+        if (proj.itemId !== 0) dropOrBreakAmmo(ctx, rng, proj.itemId, nextTile);
         entities.destroy(projId);
         return;
       } else {
@@ -757,7 +779,7 @@ function advanceSingleProjectile(
     if (bystander !== undefined) {
       // Half hit chance against bystander
       const w = weaponOf(entities, registry, proj.shooterId);
-      const wDef = w?.weaponDef ?? { skill: 'crossbow', size: 6 } as WieldedWeapon['weaponDef'];
+      const wDef = w?.weaponDef ?? ({ skill: 'unarmed', size: 6 } as unknown as WieldedWeapon['weaponDef']);
       const hit = calculateRangedHit(
         entities,
         registry,
@@ -781,7 +803,7 @@ function advanceSingleProjectile(
           wDef,
           proj.skipXp ? { skipXp: true } : undefined,
         );
-        dropOrBreakAmmo(ctx, rng, proj.itemId, nextTile);
+        if (proj.itemId !== 0) dropOrBreakAmmo(ctx, rng, proj.itemId, nextTile);
         entities.destroy(projId);
         return;
       }
@@ -793,7 +815,7 @@ function advanceSingleProjectile(
 
   // If steps loop finished and reached end of line
   if (progress >= proj.line.length) {
-    dropOrBreakAmmo(ctx, rng, proj.itemId, prevTile);
+    if (proj.itemId !== 0) dropOrBreakAmmo(ctx, rng, proj.itemId, prevTile);
     entities.destroy(projId);
   }
 }
