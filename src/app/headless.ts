@@ -49,6 +49,7 @@ import { AnimalsSystem } from '@systems/animals';
 import { ForagingSystem } from '@systems/foraging';
 import { CombatSystem } from '@systems/combat';
 import { HealthSystem } from '@systems/health';
+import { ThreatsSystem } from '@systems/threats';
 import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
@@ -217,7 +218,9 @@ export function regionSpec(seed: string, region: Partial<RegionRecord>, registry
     peril: region.peril ?? FLAT_TEST_SPEC.peril,
     temper: region.temper ?? FLAT_TEST_SPEC.temper,
     deepness: region.deepness ?? FLAT_TEST_SPEC.deepness,
-    traits: Object.freeze([...(region.traits ?? FLAT_TEST_SPEC.traits)]),
+    traits: Object.freeze([
+      ...(region.traits ?? (region.peril !== undefined && region.peril > 0 ? [] : FLAT_TEST_SPEC.traits)),
+    ]),
     volcano: region.volcano ?? false,
     river: river === null ? null : { inflowEdges: [...river.inflow], outflowEdge: river.outflow, class: river.class },
     lake: region.lake ?? false,
@@ -441,6 +444,7 @@ export class HeadlessGame {
       new MoraleSystem(),
       new CombatSystem(),
       new HealthSystem(),
+      new ThreatsSystem({ spec }),
     ];
   }
 

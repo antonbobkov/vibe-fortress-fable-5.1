@@ -128,7 +128,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M6-05 — Squads, orders, duty, stations, patrols, alerts (agy-m605, 2026-09-25)
 - [x] T-M6-06 — Training and equipment (agy-m606, 2026-09-26)
 - [x] T-M6-07 — Hospitals and medicine (agy-m607, 2026-09-26)
-- [ ] T-M6-08 — Threats: schedule, renown, party generation, arrival, warnings
+- [x] T-M6-08 — Threats: schedule, renown, party generation, arrival, warnings (agy-m608, 2026-09-26)
 - [ ] T-M6-09 — Threats: party and member AI, thieves, stealth, loot, retreat, door breaking
 - [ ] T-M6-10 — Cavern monsters, webs, restless dead
 - [ ] T-M6-11 — The Deep
