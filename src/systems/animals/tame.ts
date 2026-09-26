@@ -46,6 +46,8 @@ export interface TameHost extends BrainHost {
   homeTile(): TileIndex;
   /** `06` weather: a cold snap doubles the condition rise. */
   isColdSnap(): boolean;
+  /** 19 § War animals: chain, squad or hearth entrance. */
+  stationTile(animalId: EntityId, assignedTo: EntityId): TileIndex;
 }
 
 export function tameOf(host: BrainHost, id: EntityId): Tame | undefined {
@@ -83,7 +85,7 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
     return creature !== undefined && creature.faction.startsWith('hostile') && to >= 0 && host.map.zOf(to) === host.map.zOf(at) && host.readers.pathing.lineOfSight(at, to);
   });
   if (next.trained === 'war') {
-    const station = next.assignedTo === 0 ? at : tileOf(host, next.assignedTo);
+    const station = host.stationTile(id, next.assignedTo);
     const target = hostiles.find((other) => {
       const to = tileOf(host, other);
       return station >= 0 && Math.max(Math.abs(host.map.xOf(to) - host.map.xOf(station)), Math.abs(host.map.yOf(to) - host.map.yOf(station))) <= WAR_ANIMAL_RADIUS;
@@ -92,6 +94,14 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
       host.setTarget(id, target);
       return next;
     }
+  }
+  const station = host.stationTile(id, next.assignedTo);
+  if (next.trained === 'war' && station >= 0) {
+    const distance = Math.max(Math.abs(host.map.xOf(station) - host.map.xOf(at)), Math.abs(host.map.yOf(station) - host.map.yOf(at)));
+    const limit = next.assignedTo !== 0 ? 1 : 0;
+    if (host.map.zOf(station) !== host.map.zOf(at) || distance > limit) movement?.walkTo(id, station, 'wander', ctx);
+    else movement?.stopWalking(id);
+    return next;
   }
   if (host.facts.temperOf(species) === 'timid' && hostiles.length > 0) {
     const away = fleeTile(host, id, hostiles);

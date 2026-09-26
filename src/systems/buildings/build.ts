@@ -36,6 +36,7 @@ import type { CoreServices, JobProducer, TickContext } from '@core/system';
 import type { EntityId, Idx, MovementClass, TileIndex } from '@core/types';
 import { CONSTRUCTION_KIND, constructionFlags, onRuleHolds, onRuleOf, standsAt, type OnRule } from './constructions';
 import { DOOR_MODES, HATCH_MODES, WAGON_CAPACITY, WELL_DEPTH } from './constants';
+import { ALERT_LOCK_GRACE_TICKS, ALERT_OUTSIDE_CLEAR_TICKS } from '@systems/defense/constants';
 
 export interface BuildingRow {
   readonly id: string;
@@ -88,6 +89,7 @@ export interface BuildHost {
   jobIdByKey(key: string): number;
   /** The fortress alert (`FortressState.alert`); a `lock_on_alert` door locks while it is `hearth`. */
   alert(): string;
+  tick(): number;
   /** 04's `waterBelow(i, maxDepth)` (-1 for none), or null without a fluid system (T-M3-05, D-094). */
   waterBelow?(i: TileIndex, maxDepth: number): number | null;
 }
@@ -597,8 +599,11 @@ export class BuildingStore {
     const items = this.host.services.items;
     const used: { type: string; material: number }[] = [];
     const furniture = row.category === 'furniture';
+    const trap = row.tags.some((tag) => tag.startsWith('trap:'));
+    const trapLoaded: EntityId[] = [];
     let itemId: EntityId = 0;
-    for (const it of delivered) {
+    for (let index = 0; index < delivered.length; index += 1) {
+      const it = delivered[index] as EntityId;
       const rec = this.host.entities.get(it, C.Item);
       if (rec === undefined) continue;
       if (furniture && itemId === 0) {
@@ -607,6 +612,13 @@ export class BuildingStore {
       }
       const units = take?.get(it) ?? 1;
       if (units <= 0) continue;
+      if (trap && index > 0) {
+        const payload = rec.count > units ? (items?.split(it, units) ?? it) : it;
+        items?.install?.(payload);
+        trapLoaded.push(payload);
+        used.push({ type: this.itemTypes[rec.type]?.id ?? '', material: rec.material });
+        continue;
+      }
       for (let u = 0; u < units; u += 1) {
         used.push({ type: this.itemTypes[rec.type]?.id ?? '', material: rec.material });
       }
@@ -621,13 +633,20 @@ export class BuildingStore {
           return;
         }
         for (let j = 0; j < n && t !== undefined; j += 1) used.push({ type: this.itemTypes[t]?.id ?? '', material });
+        if (trap && k > 0 && t !== undefined) {
+          for (let j = 0; j < n; j += 1) {
+            const payload = this.host.services.spawn.item(t, material, this.anchorOf(b), 1);
+            items?.install?.(payload);
+            trapLoaded.push(payload);
+          }
+        }
       });
     }
     const linkedRec = itemId === 0 ? undefined : this.host.entities.get(itemId, C.Item);
     if (linkedRec === undefined) itemId = 0;
     if (itemId !== 0) items?.install?.(itemId);
     const mat = linkedRec?.material ?? used[0]?.material ?? (material !== 0 ? material : b.material);
-    this.write(id, { state: 'built', itemId, material: mat as Idx<'MaterialDef'>, settings: { ...b.settings, inputs: used } });
+    this.write(id, { state: 'built', itemId, material: mat as Idx<'MaterialDef'>, settings: { ...b.settings, inputs: used, ...(trap ? { trapLoaded } : {}), ...(row.tags.includes('cage') ? { occupantId: linkedRec?.occupantId ?? 0 } : {}) } });
     const kind = CONSTRUCTION_KIND[row.id];
     if (kind !== undefined) {
       const terrain = this.host.services.terrain;
@@ -770,13 +789,97 @@ export class BuildingStore {
     return OK;
   }
 
+  /** 14 § Mechanisms: plate settings are data on the building; 19 evaluates them. */
+  setPlateTrigger(cmd: Command): CommandResult {
+    const id = cmd['plateId'];
+    const b = typeof id === 'number' ? this.get(id) : undefined;
+    if (b === undefined) return reject('not_found');
+    if (!this.row(b.type).tags.includes('plate')) return reject('no_tag');
+    const trigger = cmd['trigger'];
+    if (typeof trigger !== 'object' || trigger === null) return reject('bad_setting');
+    const value = trigger as Record<string, unknown>;
+    if (value['kind'] === 'creatures') {
+      if (typeof value['minSize'] !== 'number' || value['minSize'] < 0 || typeof value['includeFortress'] !== 'boolean') return reject('bad_setting');
+    } else if ((value['kind'] === 'water' || value['kind'] === 'magma') && typeof value['level'] === 'number' && value['level'] >= 1 && value['level'] <= 7) {
+      // The fluid grid has levels 0..7.
+    } else return reject('bad_setting');
+    this.write(id as EntityId, { settings: { ...b.settings, triggerOn: { ...value } } });
+    return OK;
+  }
+
+  /** Apply a pending trigger after 14's LINK_DELAY_TICKS queue matures. */
+  applyMechanism(id: EntityId, on: boolean): void {
+    const b = this.get(id);
+    if (b === undefined || b.state !== 'built') return;
+    const tags = this.row(b.type).tags;
+    let state = '';
+    if (tags.includes('door') || tags.includes('hatch')) {
+      this.write(id, { mode: on ? 'locked' : 'open' });
+      state = on ? 'locked' : 'open';
+    } else if (tags.includes('floodgate')) {
+      this.write(id, { toggled: on });
+      state = on ? 'open' : 'closed';
+    } else if (tags.includes('bridge')) {
+      this.write(id, { toggled: on });
+      state = on ? 'raised' : 'lowered';
+    } else if (tags.includes('trap:spike')) {
+      this.write(id, { toggled: on });
+      state = on ? 'extended' : 'retracted';
+    } else if (tags.includes('cage') && on) {
+      this.releaseCage({ type: 'ReleaseCage', cageBuildingId: id });
+      return;
+    } else return;
+    for (const tile of b.footprint) this.map.markChunkDirty(tile, true, true);
+    this.host.emit({ type: 'BuildingStateChanged', id, state });
+    this.host.emit({ type: 'MechanismToggled', id, newState: state });
+  }
+
+  releaseCage(cmd: Command): CommandResult {
+    const id = cmd['cageBuildingId'];
+    const b = typeof id === 'number' ? this.get(id) : undefined;
+    if (b === undefined) return reject('not_found');
+    if (!this.row(b.type).tags.includes('cage')) return reject('no_tag');
+    const occupant = b.settings['occupantId'];
+    if (typeof occupant !== 'number' || occupant === 0) return reject('precondition_failed');
+    for (const tile of this.map.neighbors(b.origin)) {
+      if (this.map.kindAt(tile) === TileKind.Floor && this.host.services.movement?.teleport(occupant, tile)) {
+        this.write(id as EntityId, { settings: { ...b.settings, occupantId: 0 } });
+        const item = this.host.entities.get(b.itemId, C.Item);
+        if (item !== undefined) this.host.entities.add(b.itemId, C.Item, { ...item, occupantId: 0 });
+        const creature = this.host.entities.get(occupant, C.Creature);
+        if (creature !== undefined) this.host.entities.add(occupant, C.Creature, { ...creature, cagedIn: 0 });
+        return OK;
+      }
+    }
+    return reject('precondition_failed');
+  }
+
   /** `AlertChanged`: the `lock_on_alert` doors lock or unlock with the alert. */
   onAlertChanged(): void {
     for (const id of this.all()) {
       const b = this.get(id) as Building;
       if (b.mode !== 'lock_on_alert') continue;
+      this.write(id, { settings: { ...b.settings, ...(this.host.alert() === 'hearth' ? { alertAt: this.host.tick(), outsideClearSince: null } : { alertAt: null, outsideClearSince: null }) } });
       for (const t of b.footprint) this.map.markChunkDirty(t, true, true);
-      this.host.emit({ type: 'BuildingStateChanged', id, state: this.doorLocked(b) ? 'locked' : 'open' });
+      this.host.emit({ type: 'BuildingStateChanged', id, state: this.doorLocked(this.get(id) as Building) ? 'locked' : 'open' });
+    }
+  }
+
+  /** A hearth door stays open while civilians pass, up to ALERT_LOCK_GRACE_TICKS. */
+  tickAlertDoors(): void {
+    if (this.host.alert() !== 'hearth') return;
+    for (const id of this.all()) {
+      const b = this.get(id) as Building;
+      if (b.mode !== 'lock_on_alert' || b.state !== 'built' || this.doorLocked(b)) continue;
+      const outside = b.footprint.some((tile) => this.map.neighbors(tile).some((next) =>
+        this.map.hasFlag(next, TileFlag.Outdoor) && this.host.creaturesAt(next).some((creatureId) => this.host.entities.get(creatureId, C.Creature)?.faction === 'fortress')));
+      const clearSince = outside ? null : (typeof b.settings['outsideClearSince'] === 'number' ? b.settings['outsideClearSince'] : this.host.tick());
+      this.write(id, { settings: { ...b.settings, outsideClearSince: clearSince } });
+      const updated = this.get(id) as Building;
+      if (this.doorLocked(updated)) {
+        for (const tile of b.footprint) this.map.markChunkDirty(tile, true, true);
+        this.host.emit({ type: 'BuildingStateChanged', id, state: 'locked' });
+      }
     }
   }
 
@@ -821,7 +924,12 @@ export class BuildingStore {
 
   /** A door's `locked`, or `lock_on_alert` while the alert is `hearth` (14 § Doors and hatches). */
   doorLocked(b: Building): boolean {
-    return b.mode === 'locked' || (b.mode === 'lock_on_alert' && this.host.alert() === 'hearth');
+    if (b.mode === 'locked') return true;
+    if (b.mode !== 'lock_on_alert' || this.host.alert() !== 'hearth') return false;
+    const at = b.settings['alertAt'];
+    if (typeof at !== 'number') return true;
+    const clear = b.settings['outsideClearSince'];
+    return this.host.tick() - at >= ALERT_LOCK_GRACE_TICKS || (typeof clear === 'number' && this.host.tick() - clear >= ALERT_OUTSIDE_CLEAR_TICKS);
   }
 
   /**

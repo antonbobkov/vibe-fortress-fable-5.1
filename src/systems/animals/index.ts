@@ -240,6 +240,25 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       },
       homeTile: () => this.homeTile(),
       isColdSnap: () => this.readers.has('06') && this.readers.of<{ state(): string }>('06').state() === 'cold_snap',
+      stationTile: (animalId, assignedTo) => {
+        if (assignedTo === 0) {
+          if (this.world?.fortress.alert !== 'hearth') return this.tileOf(animalId);
+          const buildings = this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null;
+          const entry = buildings?.hearthHallTiles().find((tile) => this.map.neighbors(tile).some((next) => buildings.doorAt(next)));
+          return entry ?? this.homeTile();
+        }
+        const direct = this.tileOf(assignedTo);
+        if (direct >= 0) return direct;
+        if (this.readers.has('14')) {
+          const building = this.readers.of<BuildingsReader>('14').get(assignedTo);
+          if (building?.state === 'built') return building.origin;
+        }
+        if (this.readers.has('16')) {
+          const squad = this.readers.of<{ squad(id: EntityId): { station: TileIndex | null; leaderId: EntityId } | undefined }>('16').squad(assignedTo);
+          if (squad !== undefined) return this.tileOf(squad.leaderId) >= 0 ? this.tileOf(squad.leaderId) : (squad.station ?? -1);
+        }
+        return -1;
+      },
     };
   }
 
@@ -301,7 +320,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   override tick(ctx: TickContext): void {
     this.flushGrazed(ctx);
     const wild = ctx.world.entities.with(C.Wild);
-    for (const id of wild) tickAnimal(this.brain, ctx, id);
+    for (const id of wild) if (!ctx.world.entities.get(id, C.Creature)?.cagedIn) tickAnimal(this.brain, ctx, id);
     this.tickTame(ctx);
     for (const id of this.despawnQueue.splice(0)) this.despawn(ctx, id);
     if (this.hourlyDue) {
@@ -322,6 +341,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   private tickTame(ctx: TickContext): void {
     const host = this.tameHost;
     for (const id of ctx.world.entities.with(C.Tame)) {
+      if (ctx.world.entities.get(id, C.Creature)?.cagedIn) continue;
       const t = ctx.world.entities.get(id, C.Tame);
       if (t === undefined) continue;
       if (this.readers.has('11')) {
@@ -799,9 +819,17 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     if (cmd.type === 'AssignAnimal') {
       const dwarfId = cmd['dwarfId'];
       if (t.trained === 'none' && this.facts.idOf(ctx.world.entities.get(animalId, C.Creature)?.species ?? 0) !== 'dog') return reject('not_trainable');
-      if (dwarfId === 0) return write({ assignedTo: 0 });
-      if (typeof dwarfId !== 'number' || !ctx.world.entities.has(dwarfId, C.Brain)) return reject('not_found');
-      return write({ assignedTo: dwarfId });
+      const chainId = cmd['chainId'];
+      const squadId = cmd['squadId'];
+      const target = typeof chainId === 'number' ? chainId : typeof squadId === 'number' ? squadId : dwarfId;
+      if (target === 0) return write({ assignedTo: 0 });
+      if (typeof target !== 'number') return reject('not_found');
+      if (typeof chainId === 'number') {
+        if (!this.readers.has('14') || !this.readers.of<BuildingsReader>('14').byTag('chain').includes(chainId)) return reject('not_found');
+      } else if (typeof squadId === 'number') {
+        if (!this.readers.has('16') || this.readers.of<{ squad(id: EntityId): unknown }>('16').squad(squadId) === undefined) return reject('not_found');
+      } else if (!ctx.world.entities.has(target, C.Brain)) return reject('not_found');
+      return write({ assignedTo: target });
     }
     if (cmd.type === 'NameAnimal') {
       const name = cmd['name'];

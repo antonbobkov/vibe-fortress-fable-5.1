@@ -288,6 +288,10 @@ describe('T-M1-14 announcements', () => {
       AlertChanged: 'note',
       KillRecorded: 'note',
       AttackResolved: 'alert',
+      TrapTriggered: 'note',
+      TrapJammed: 'alert',
+      TrapSpent: 'note',
+      CreatureCaged: 'alert',
     });
   });
 

@@ -340,6 +340,7 @@ export function tickHealth(
       lastAttacker.delete(id);
       continue;
     }
+    if (entities.get(id, C.Creature)?.cagedIn) continue;
     const b = entities.get(id, C.Body);
     if (b === undefined) {
       woundedSet.delete(id);
@@ -560,6 +561,7 @@ export function handleDailyInfection(
 
   for (const id of Array.from(woundedSet)) {
     if (!entities.alive(id)) continue;
+    if (entities.get(id, C.Creature)?.cagedIn) continue;
     const b = entities.get(id, C.Body);
     if (b === undefined) continue;
 

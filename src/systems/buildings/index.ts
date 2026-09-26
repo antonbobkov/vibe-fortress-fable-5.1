@@ -23,6 +23,7 @@ import { ZoneStore } from './zones';
 import { RoomStore } from './rooms';
 import { MOOD_BASELINE } from '@core/constants';
 import { DOOR_BREAK_TICKS } from './constants';
+import { LINK_DELAY_TICKS } from './constants';
 
 export { ZoneStore, settingKey, type ZoneTypeRow } from './zones';
 export { BuildingStore, buildKey, deconstructKey, type BuildingRow } from './build';
@@ -44,6 +45,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'MagmaContact',
     'SulkHappened',
     'DoorBreakAttempt',
+    'MechanismTriggered',
   ];
   override readonly ownsCommands: readonly CommandType[] = [
     'CreateZone',
@@ -57,7 +59,10 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'SetDoorMode',
     'SetHatchMode',
     'AssignRoom',
+    'SetPlateTrigger',
+    'ReleaseCage',
   ];
+  readonly pendingToggles: { id: EntityId; on: boolean; atTick: number }[] = [];
 
   private zonesRef: ZoneStore | null = null;
   private buildingsRef: BuildingStore | null = null;
@@ -105,6 +110,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       creaturesAt: (i) => readers.entities.at(i).filter((id) => world.entities.kind(id) === 'creature'),
       dwarvesAlive: () => world.entities.with(C.Labors).some((id) => world.entities.get(id, C.Creature)?.faction === 'fortress'),
       alert: () => world.fortress.alert,
+      tick: () => world.calendar.tick,
       waterBelow: (i, depth) =>
         readers.has('04') ? readers.of<{ waterBelow(i: number, d: number): number }>('04').waterBelow(i, depth) : null,
       jobIdByKey: (key) => (readers.has('11') ? (readers.of<{ byKey(k: string): { id: number } | undefined }>('11').byKey(key)?.id ?? 0) : 0),
@@ -180,11 +186,21 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
           this.doorBreakProgress.set(doorId, progress);
         }
       }
+    } else if (event.type === 'MechanismTriggered') {
+      const source = this.buildings.get(event['sourceId'] as EntityId);
+      if (source?.state !== 'built') return;
+      for (const id of source.linkedIds.slice().sort((a, b) => a - b)) {
+        if (this.buildings.get(id)?.state === 'built') this.pendingToggles.push({ id, on: event['on'] === true, atTick: _ctx.tick + LINK_DELAY_TICKS });
+      }
     }
   }
 
   /** 14's tick: dirty rooms are scored again (`economy.md` § Room quality, "on dirty rooms and daily"). */
   override tick(_ctx: TickContext): void {
+    for (const pending of this.pendingToggles.splice(0).sort((a, b) => a.atTick - b.atTick || a.id - b.id)) {
+      if (pending.atTick > _ctx.tick) { this.pendingToggles.push(pending); continue; }
+      this.buildings.applyMechanism(pending.id, pending.on);
+    }
     for (const id of this.brokenFurniture.splice(0).sort((a, b) => a - b)) {
       const b = this.buildings.get(id);
       if (b === undefined || b.state !== 'built') continue;
@@ -193,6 +209,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       if (item !== 0) _ctx.world.services.items?.destroy(item, 'sulk');
     }
     this.buildings.destroyMagmaTouched();
+    this.buildings.tickAlertDoors();
     this.rooms.recompute();
   }
 
@@ -217,6 +234,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       SetDoorMode: () => buildings.setMode(cmd, 'door'),
       SetHatchMode: () => buildings.setMode(cmd, 'hatch'),
       AssignRoom: () => this.rooms.assign(cmd),
+      SetPlateTrigger: () => buildings.setPlateTrigger(cmd),
+      ReleaseCage: () => buildings.releaseCage(cmd),
     };
     const handler = handlers[cmd.type];
     return handler === undefined ? reject('not_found') : handler();
@@ -248,7 +267,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       depots: this.buildings.depots.slice(),
       coffins: this.buildings.coffins.slice(),
       dirtyRooms: this.rooms.dirty.slice(),
-      pendingToggles: [],
+      pendingToggles: this.pendingToggles.slice(),
       rng: (this.rng as RngStream).state(),
       pendingJobs: this.buildings.pending.slice(),
         magmaTouched: this.buildings.magmaPending.slice(),
@@ -266,6 +285,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     this.buildings.depots.splice(0, this.buildings.depots.length, ...state.depots);
     this.buildings.coffins.splice(0, this.buildings.coffins.length, ...state.coffins);
     this.rooms.dirty.splice(0, this.rooms.dirty.length, ...state.dirtyRooms);
+    this.pendingToggles.splice(0, this.pendingToggles.length, ...state.pendingToggles);
     this.buildings.pending.length = 0;
     this.buildings.pending.push(...state.pendingJobs);
     this.buildings.magmaPending.length = 0;

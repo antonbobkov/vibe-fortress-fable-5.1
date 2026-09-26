@@ -79,6 +79,11 @@ export class AnnouncementLog {
       if (typeof value === 'string' || typeof value === 'number') out[key] = value;
     }
     const e = event as unknown as Record<string, unknown>;
+    const trapped = e['creatureId'];
+    if (typeof trapped === 'number') {
+      const creature = readers.entities.get(trapped, C.Creature);
+      if (creature !== undefined) out['species'] = this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '';
+    }
     for (const key of ['finderId', 'minerId', 'id'] as const) {
       const who = e[key];
       if (typeof who === 'number') {
