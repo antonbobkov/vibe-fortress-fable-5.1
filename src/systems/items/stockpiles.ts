@@ -16,6 +16,7 @@
 import { C, ItemFlag, type Item, type Stockpile, type StockpileFilter } from '@core/components';
 import type { EntityId, Priority, Quality, TileIndex } from '@core/types';
 import { HAUL_PRIORITY, HAUL_PRIORITY_FOOD } from '@systems/jobs/constants';
+import { HOSPITAL_DEFAULT_SUPPLIES } from '@systems/health/constants';
 import type { ItemCore } from './api';
 import { categoryUnder } from './facts';
 
@@ -87,11 +88,39 @@ export const STOCKPILE_PRESETS: Readonly<Record<string, { categories: readonly s
       'clothing', 'tool', 'craft', 'textile', 'medical', 'refuse'],
     allowRot: true,
   },
+  hospital: {
+    categories: [
+      'textile/cloth',
+      'textile/thread',
+      'medical/splint',
+      'tool/crutch',
+      'medical/brightleaf',
+      'container/bucket',
+    ],
+    allowRot: false,
+  },
 });
 
 /** A new stockpile's filter: nothing selected until the player picks (D-071). */
 export function emptyFilter(): StockpileFilter {
   return { categories: [], materialClasses: 'any', minQuality: 0, maxQuality: 5, allowRot: false };
+}
+
+export function hospitalFilter(): StockpileFilter {
+  return {
+    categories: [
+      'textile/cloth',
+      'textile/thread',
+      'medical/splint',
+      'tool/crutch',
+      'medical/brightleaf',
+      'container/bucket',
+    ],
+    materialClasses: 'any',
+    minQuality: 0,
+    maxQuality: 5,
+    allowRot: false,
+  };
 }
 
 export function presetFilter(name: string): StockpileFilter | null {
@@ -119,7 +148,7 @@ export interface ContainerNeeded {
 export interface StockpileHost {
   readonly core: ItemCore;
   /** 14's zone view: the zone's type id and ascending tiles, or undefined. */
-  zone(id: EntityId): { readonly type: string; readonly tiles: readonly TileIndex[] } | undefined;
+  zone(id: EntityId): { readonly type: string; readonly tiles: readonly TileIndex[]; readonly settings?: Readonly<Record<string, unknown>> } | undefined;
   /** The items lying on a tile, ascending. */
   itemsOn(i: TileIndex): EntityId[];
   /** The building on a tile (a workshop is a link source), or 0. */
@@ -160,13 +189,14 @@ export class StockpileStore {
     return this.entities.with(C.Stockpile);
   }
 
-  /** Give a `stockpile` zone its component and tiles if it has none yet; false when it is no stockpile. */
+  /** Give a `stockpile` or `hospital` zone its component and tiles if it has none yet; false when it is neither. */
   ensure(id: EntityId): boolean {
     const zone = this.host.zone(id);
-    if (zone === undefined || zone.type !== 'stockpile') return false;
+    if (zone === undefined || (zone.type !== 'stockpile' && zone.type !== 'hospital')) return false;
     if (this.stockpile(id) === undefined) {
+      const isHospital = zone.type === 'hospital';
       this.entities.add(id, C.Stockpile, {
-        filter: emptyFilter(),
+        filter: isHospital ? hospitalFilter() : emptyFilter(),
         containersWanted: { barrel: 0, bag: 0, bin: 0 },
         priority: HAUL_PRIORITY as Priority,
         linkedSources: [],
@@ -266,7 +296,73 @@ export class StockpileStore {
       const building = this.host.buildingAt(t);
       if (!sp.linkedSources.includes(pile) && !sp.linkedSources.includes(building)) return false;
     }
+    const zone = this.host.zone(spId);
+    if (zone?.type === 'hospital') {
+      const wants = (zone.settings?.['desired supplies'] ?? zone.settings?.['wants'] ?? HOSPITAL_DEFAULT_SUPPLIES) as Record<string, number>;
+      const facts = this.core.host.facts;
+      const typeId = facts.row(it.type).id;
+      const wantKey = typeId === 'splint' ? 'splints' : typeId === 'crutch' ? 'crutches' : typeId === 'bucket' ? 'buckets' : typeId;
+      const maxWanted = wants[wantKey] ?? wants[typeId] ?? 0;
+      if (maxWanted <= 0) return false;
+      const current = this.countInStockpile(spId, it.type);
+      if (current >= maxWanted) return false;
+    }
     return true;
+  }
+
+  containerTile(cId: EntityId): TileIndex {
+    const t = this.core.tileOf(cId);
+    if (t >= 0) return t;
+    for (const bId of this.entities.with(C.Building)) {
+      const b = this.entities.get(bId, C.Building);
+      if (b && b.itemId === cId) return b.origin;
+    }
+    return -1;
+  }
+
+  countInStockpile(spId: EntityId, itemType: number): number {
+    let count = 0;
+    for (const t of this.tilesOf(spId)) {
+      for (const id of this.host.itemsOn(t)) {
+        const item = this.core.get(id);
+        if (item && item.type === itemType) count += item.count;
+        const cont = this.core.container(id);
+        if (cont) {
+          for (const inId of cont.contents) {
+            const inner = this.core.get(inId);
+            if (inner && inner.type === itemType) count += inner.count;
+          }
+        }
+      }
+      const bId = this.host.buildingAt(t);
+      if (bId !== 0) {
+        const building = this.entities.get(bId, C.Building);
+        if (building && building.itemId !== 0) {
+          const cont = this.core.container(building.itemId);
+          if (cont) {
+            for (const inId of cont.contents) {
+              const inner = this.core.get(inId);
+              if (inner && inner.type === itemType) count += inner.count;
+            }
+          }
+        }
+      }
+    }
+    for (const key of Array.from(this.reservations.keys())) {
+      if (key.startsWith('c')) {
+        const colon = key.indexOf(':');
+        if (colon > 0) {
+          const cId = Number(key.slice(1, colon));
+          const itId = Number(key.slice(colon + 1));
+          const cTile = this.containerTile(cId);
+          if (this.tilesOf(spId).includes(cTile)) {
+            const pendingIt = this.core.get(itId);
+            if (pendingIt && pendingIt.type === itemType) count += pendingIt.count;
+          }
+        }
+      }
+    }
+    return count;
   }
 
   // ---------- slots ----------
@@ -296,6 +392,15 @@ export class StockpileStore {
     const out: EntityId[] = [];
     for (const t of this.tilesOf(spId)) {
       for (const id of this.host.itemsOn(t)) if (this.core.container(id)?.classId === cls) out.push(id);
+      const bId = this.host.buildingAt(t);
+      if (bId !== 0) {
+        const building = this.entities.get(bId, C.Building);
+        if (building && building.itemId !== 0) {
+          if (this.core.container(building.itemId)?.classId === cls && !out.includes(building.itemId)) {
+            out.push(building.itemId);
+          }
+        }
+      }
     }
     return out;
   }
@@ -331,6 +436,16 @@ export class StockpileStore {
     const it = this.core.get(itemId);
     if (sp === undefined || it === undefined) return null;
     const facts = this.core.host.facts;
+    const zone = this.host.zone(spId);
+    if (zone?.type === 'hospital') {
+      for (const c of this.containersIn(spId, 'chest')) {
+        const room = this.core.room(c) - this.pendingIn(c, 'chest');
+        if (room >= this.core.needs(itemId, 'chest')) {
+          const t = this.containerTile(c);
+          if (t >= 0) return { tile: t, container: c, merge: 0, key: this.containerKey(c, itemId) };
+        }
+      }
+    }
     const cls = this.core.container(itemId) !== undefined ? 'none' : facts.row(it.type).container;
     if (cls !== 'none') {
       for (const c of this.containersIn(spId, cls)) {

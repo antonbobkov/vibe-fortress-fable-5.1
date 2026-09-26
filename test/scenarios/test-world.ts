@@ -284,7 +284,7 @@ export class TestWorld {
     if (!r.ok) throw new Error(`zone(${type}): ${r.reason}`);
     const buildings = world.scheduler.byId('14') as BuildingsSystem;
     const id = buildings.lastCreatedZone;
-    if (type === 'stockpile') (world.scheduler.byId('13') as ItemsSystem).stockpiles.ensure(id);
+    if (type === 'stockpile' || type === 'hospital') (world.scheduler.byId('13') as ItemsSystem).stockpiles.ensure(id);
     return id;
   }
 
@@ -308,6 +308,11 @@ export class TestWorld {
     levels[s] = level;
     xp[s] = cumulativeXp(level);
     entities.add(id, C.Skills, { ...skills, level: levels, xp });
+  }
+
+  /** Set a dwarf's labor state (T-M1-11). */
+  setLabor(id: EntityId, labor: string, on = true): void {
+    this.game.world.applyCommand({ type: 'SetLabor', dwarfId: id, labor, on });
   }
 
   /** 06 weather (T-M3-06). */

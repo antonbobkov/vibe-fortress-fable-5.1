@@ -34,6 +34,26 @@ const PART_NAMES: readonly string[] = [
   'right leg',
 ];
 
+export function hasCrutchItem(entities: EntityStore, registry: Registry, id: EntityId): boolean {
+  const isCrutch = (itemId: EntityId): boolean => {
+    const item = entities.get(itemId, C.Item);
+    if (item === undefined) return false;
+    const typeDef = registry.table<{ id: string }>('items').byIndex(item.type);
+    return typeDef?.id === 'crutch';
+  };
+  const worker = entities.get(id, C.Worker);
+  if (worker !== undefined) {
+    if (worker.carrying !== 0 && isCrutch(worker.carrying)) return true;
+    if (worker.toolId !== 0 && isCrutch(worker.toolId)) return true;
+  }
+  const equip = entities.get(id, C.Equipment);
+  if (equip !== undefined) {
+    if (equip.weapon !== 0 && isCrutch(equip.weapon)) return true;
+    if (equip.shield !== 0 && isCrutch(equip.shield)) return true;
+  }
+  return false;
+}
+
 export function makeHealthReader(
   entities: EntityStore,
   registry: Registry,
@@ -88,27 +108,6 @@ export function makeHealthReader(
     return entities.get(id, C.Patient)?.needs.slice() ?? [];
   };
 
-  const hasCrutchItem = (id: EntityId): boolean => {
-    const worker = entities.get(id, C.Worker);
-    if (worker !== undefined) {
-      if (worker.carrying !== 0 && isCrutch(worker.carrying)) return true;
-      if (worker.toolId !== 0 && isCrutch(worker.toolId)) return true;
-    }
-    const equip = entities.get(id, C.Equipment);
-    if (equip !== undefined) {
-      if (equip.weapon !== 0 && isCrutch(equip.weapon)) return true;
-      if (equip.shield !== 0 && isCrutch(equip.shield)) return true;
-    }
-    return false;
-  };
-
-  const isCrutch = (itemId: EntityId): boolean => {
-    const item = entities.get(itemId, C.Item);
-    if (item === undefined) return false;
-    const typeDef = registry.table<{ id: string }>('items').byIndex(item.type);
-    return typeDef?.id === 'crutch';
-  };
-
   const speedModifier = (id: EntityId): number => {
     const b = getBody(id);
     if (b === undefined) return 100;
@@ -120,7 +119,7 @@ export function makeHealthReader(
 
     let factor = 1.0;
     if (lostLeft || lostRight) {
-      factor *= hasCrutchItem(id) ? 0.75 : 0.50;
+      factor *= hasCrutchItem(entities, registry, id) ? 0.75 : 0.50;
     }
     if (perm.includes('badly_healed_left_leg')) factor *= 0.85;
     if (perm.includes('badly_healed_right_leg')) factor *= 0.85;
@@ -177,6 +176,10 @@ export function makeHealthReader(
     const b = getBody(id);
     if (b === undefined) return 'Healthy';
     if (!entities.alive(id)) return 'Dead';
+    if (entities.has(id, C.Patient) && !b.diagnosed) {
+      const bleeding = b.parts.some((p) => p.wounds.some((w) => w.bleed > 0 && !w.bandaged));
+      return bleeding ? 'Wounded, bleeding' : 'Wounded';
+    }
     const partsDescs: string[] = [];
 
     if (!b.conscious) partsDescs.push('unconscious');

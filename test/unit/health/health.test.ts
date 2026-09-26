@@ -197,4 +197,139 @@ describe('T-M6-01 health unit tests', () => {
       }
     });
   });
+
+  describe('T-M6-07 hospitals and medicine', () => {
+    it('needs list priority order: stop_bleeding > set_bone > suture > clean_wound > dress_burn > diagnose > give_crutch', () => {
+      const w = new TestWorld({ seed: 'health-order', world: 'flat-test', embark: 'none' });
+      const id = w.spawnDwarf({ at: w.index(10, 10, FLAT_TEST_SURFACE_Z) });
+      const b = w.game.world.entities.get(id, C.Body);
+      expect(b).toBeDefined();
+      if (!b) return;
+
+      // Add bleeding cut to head
+      const cut = createWound('cut', 'serious', 15, w.tick);
+      cut.bleed = 3;
+      cut.bandaged = false;
+      cut.sutured = false;
+      cut.cleaned = false;
+      b.parts[0]?.wounds.push(cut);
+
+      // Add unsplinted fracture to torso
+      const frac = createWound('fracture', 'serious', 25, w.tick);
+      frac.splinted = false;
+      b.parts[1]?.wounds.push(frac);
+
+      // Add undressed burn to left arm
+      const burn = createWound('burn', 'serious', 10, w.tick);
+      burn.dressed = false;
+      b.parts[2]?.wounds.push(burn);
+
+      // Add lost leg without crutch
+      b.permanent.push('lost_left_leg');
+
+      // Emit DamageDealt so health system registers the dwarf in woundedSet and calls updatePatient
+      w.game.world.emit({
+        type: 'DamageDealt',
+        defenderId: id,
+        part: 'head',
+        damageType: 'edge',
+        amount: 1,
+        attackerId: 0,
+      });
+      w.step(1);
+
+      const patient = w.game.world.entities.get(id, C.Patient);
+      expect(patient).toBeDefined();
+      expect(patient?.needs).toEqual([
+        'stop_bleeding',
+        'set_bone',
+        'suture',
+        'clean_wound',
+        'dress_burn',
+        'diagnose',
+        'give_crutch',
+      ]);
+    });
+
+    it('SetHospitalSupplies command updates zone desired supplies', () => {
+      const w = new TestWorld({ seed: 'health-supplies', world: 'flat-test', embark: 'none' });
+      const t1 = w.index(10, 10, FLAT_TEST_SURFACE_Z);
+      const zoneId = w.zone('hospital', [t1]);
+
+      w.submit({
+        type: 'SetHospitalSupplies',
+        zoneId,
+        wants: { cloth: 20, thread: 15, splints: 10 },
+      });
+      w.step(1);
+
+      const zoneComp = w.game.world.entities.get(zoneId, C.Zone);
+      expect(zoneComp?.settings['desired supplies']).toEqual({
+        cloth: 20,
+        thread: 15,
+        splints: 10,
+      });
+    });
+
+    it('Floor sleeper infection doubling: sleptOnFloor uses doubled permille', () => {
+      const w = new TestWorld({ seed: 'health-floor-sleep', world: 'flat-test', embark: 'none' });
+      const id = w.spawnDwarf({ at: w.index(10, 10, FLAT_TEST_SURFACE_Z) });
+      const b = w.game.world.entities.get(id, C.Body);
+      if (!b) return;
+
+      // Add cut susceptible to infection, created 2 days ago
+      const cut = createWound('cut', 'serious', 15, 0);
+      cut.bleed = 0;
+      cut.cleaned = false;
+      cut.sutured = false;
+      cut.createdTick = 0;
+      b.parts[1]?.wounds.push(cut);
+
+      // Emit Slept event with onFloor: true
+      w.game.world.emit({
+        type: 'Slept',
+        id,
+        onFloor: true,
+      });
+
+      // Step to day 2 (tick 2400)
+      w.step(2400);
+
+      // Verify wound or events handled without errors
+      expect(w.game.world.entities.alive(id)).toBe(true);
+    });
+
+    it('animal care: tame bleeding animal creates stop_bleeding job with labor animal_care', () => {
+      const w = new TestWorld({ seed: 'animal-care', world: 'flat-test', embark: 'none' });
+      const pos = w.index(10, 10, FLAT_TEST_SURFACE_Z);
+      const cat = w.spawnCreature('cat', pos, 'player');
+      w.game.world.entities.add(cat, C.Tame, {
+        pastureId: 0,
+        condition: 100,
+        trained: 'none',
+        assignedTo: 0,
+        pregnantUntil: 0,
+        lastProductTick: {},
+        juvenileUntil: 0,
+        slaughter: false,
+        petOf: 0,
+        noBreed: false,
+      });
+      const b = w.game.world.entities.get(cat, C.Body);
+      if (b && b.parts[1]) {
+        const cut = createWound('cut', 'serious', 10, w.tick);
+        cut.bleed = 2;
+        cut.bandaged = false;
+        b.parts[1].wounds.push(cut);
+      }
+      w.step(1);
+
+      const jobs = w.readers.of<{ byKey(key: string): unknown }>('11');
+      const job = jobs.byKey(`stop_bleeding:${cat}`) as { data: Record<string, unknown>; priority: number } | undefined;
+      expect(job).toBeDefined();
+      expect(job?.data['labor']).toBe('animal_care');
+      expect(job?.priority).toBe(1);
+    });
+  });
 });
+

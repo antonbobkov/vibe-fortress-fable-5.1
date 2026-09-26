@@ -84,6 +84,7 @@ export interface Wound {
   infected: boolean;
   infectedSince: Tick;
   createdTick: Tick;
+  curedAt?: Tick;
 }
 
 export interface BodyPart {

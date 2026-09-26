@@ -18,6 +18,8 @@ import { ADULT_AGE_YEARS, IDLE_TICKS, NEED_DEFER_PRIORITY, THREAT_RADIUS } from 
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
 import { Activities } from './activities';
 import { PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
+import type { BuildingsReader } from '@systems/buildings/reader';
+import type { HealthReader } from '@systems/health/reader';
 import type { JobsReader } from '@systems/jobs';
 
 /** "Idle dwarves are shown as 'No job' in the units panel." */
@@ -145,6 +147,42 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     return;
   }
 
+  if (ctx.readers.has('17') && ctx.readers.of<HealthReader>('17').isPatient(id)) {
+    const conscious = ctx.readers.of<HealthReader>('17').isConscious(id);
+    if (conscious) {
+      const patient = ctx.world.entities.get(id, C.Patient);
+      let bedTile = -1;
+      if (patient && patient.bedId !== 0 && ctx.readers.has('14')) {
+        const bView = ctx.readers.of<BuildingsReader>('14').get(patient.bedId);
+        if (bView) bedTile = bView.origin;
+      }
+      if (bedTile < 0 && ctx.readers.has('14')) {
+        const buildings = ctx.readers.of<BuildingsReader>('14');
+        const hospZones = buildings.zonesOfType('hospital');
+        for (const hz of hospZones) {
+          const z = buildings.zone(hz);
+          if (!z) continue;
+          for (const t of z.tiles) {
+            const bId = buildings.at(t);
+            if (bId !== 0 && buildings.get(bId)?.typeId === 'bed') {
+              bedTile = t;
+              break;
+            }
+          }
+          if (bedTile >= 0) break;
+        }
+        if (bedTile < 0) {
+          const bedId = buildings.freeBeds()[0];
+          if (bedId) bedTile = buildings.get(bedId)?.origin ?? -1;
+        }
+      }
+      b.behavior = 'patient';
+      b.targetTile = bedTile;
+      b.activity = 'Resting in hospital';
+      return;
+    }
+  }
+
   const n = ctx.world.entities.get(id, C.Needs);
   const schedule = ctx.world.entities.get(id, C.Schedule);
   const urgent = host.hasJobs && ctx.readers.of<JobsReader>('11').hasUrgent(id, NEED_DEFER_PRIORITY);
@@ -224,6 +262,21 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
       reselect = true;
     } else if (movement !== null && b.targetTile >= 0 && movement.tileOf(id) !== b.targetTile) {
       movement.walkTo(id, b.targetTile, 'flee', ctx);
+    }
+  } else if (b.behavior === 'patient') {
+    const isPatient = ctx.readers.has('17') && ctx.readers.of<HealthReader>('17').isPatient(id);
+    if (!isPatient) {
+      reselect = true;
+    } else if (movement !== null) {
+      const myTile = movement.tileOf(id);
+      if (b.targetTile >= 0 && myTile !== b.targetTile) {
+        movement.walkTo(id, b.targetTile, 'job', ctx);
+      } else {
+        const needs = ctx.world.entities.get(id, C.Needs);
+        if (needs !== undefined && needs.rest > 0) {
+          needs.rest = Math.max(0, needs.rest - 1);
+        }
+      }
     }
   } else if (b.behavior === 'duty') {
     const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);

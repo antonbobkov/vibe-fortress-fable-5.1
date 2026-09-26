@@ -271,7 +271,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     } else if (event.type === 'BuildingRemoved') {
       core.buildingWealth -= typeof event['value'] === 'number' ? (event['value'] as number) : 0;
     } else if (event.type === 'ZoneChanged') {
-      if (event['zoneType'] !== 'stockpile') return;
+      if (event['zoneType'] !== 'stockpile' && event['zoneType'] !== 'hospital') return;
       const id = event['zoneId'] as number;
       const change = event['change'];
       const tiles = (event['tiles'] as readonly TileIndex[] | undefined) ?? [];

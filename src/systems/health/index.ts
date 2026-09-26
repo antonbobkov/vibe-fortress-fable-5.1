@@ -3,6 +3,8 @@
  */
 
 import { C } from '@core/components';
+import type { CommandType } from '@core/command-types';
+import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import type { RngStream } from '@core/rng';
@@ -14,12 +16,14 @@ import {
 } from '@core/system';
 import type { BodySlot, EntityId, TileIndex } from '@core/types';
 import { BODY_SLOTS } from '@core/types';
+import type { BuildingsReader } from '@systems/buildings/reader';
 import {
   DROWN_DAMAGE,
   HEALTH_CADENCE,
   HEALTH_PHASE,
   STARVE_PERCENT,
 } from './constants';
+import { HealthProducer } from './producer';
 import { type HealthReader, makeHealthReader } from './reader';
 import type { HealthStateV1 } from './state';
 import {
@@ -53,7 +57,10 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
     'HourPassed',
     'DayPassed',
     'CreatureDied',
+    'Slept',
   ];
+
+  override readonly ownsCommands: readonly CommandType[] = ['SetHospitalSupplies'];
 
   private rngRef: RngStream | null = null;
   private readerRef: HealthReader | null = null;
@@ -61,6 +68,8 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
   private readonly hospitals: EntityId[] = [];
   private readonly lastAttacker: Map<EntityId, EntityId> = new Map();
   private readonly lastDrownTick: Map<EntityId, number> = new Map();
+  private readonly floorSleepers: Set<EntityId> = new Set();
+  private readonly lastHospitalTier: Map<EntityId, number> = new Map();
 
   get rng(): RngStream {
     if (this.rngRef === null) throw new Error('17 health: used before init');
@@ -93,6 +102,35 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       severity: 'alert',
       stringKey: 'announce.limb_lost',
     });
+
+    ctx.register.jobProducer(
+      new HealthProducer({
+        rng: ctx.rng,
+        entities: ctx.world.entities,
+        map: ctx.world.map,
+        registry: ctx.registry,
+      }),
+    );
+  }
+
+  override applyCommand(cmd: Command, ctx: TickContext): CommandResult {
+    if (cmd.type === 'SetHospitalSupplies') {
+      const zoneId = cmd['zoneId'] as EntityId;
+      const wants = cmd['wants'] as Record<string, number>;
+      if (!ctx.readers.has('14')) return reject('precondition_failed');
+      const buildings = ctx.readers.of<BuildingsReader>('14');
+      const z = buildings.zone(zoneId);
+      if (!z || z.type !== 'hospital') return reject('precondition_failed');
+      const zoneComp = ctx.world.entities.get(zoneId, C.Zone);
+      if (zoneComp) {
+        ctx.world.entities.add(zoneId, C.Zone, {
+          ...zoneComp,
+          settings: { ...zoneComp.settings, 'desired supplies': { ...wants } },
+        });
+      }
+      return OK;
+    }
+    return reject('precondition_failed');
   }
 
   override reader(): HealthReader {
@@ -101,7 +139,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
   }
 
   override tick(ctx: TickContext): void {
-    tickHealth(ctx, this.wounded, this.lastAttacker);
+    tickHealth(ctx, this.wounded, this.lastAttacker, this.lastHospitalTier);
   }
 
   override handle(event: GameEvent, ctx: TickContext): void {
@@ -110,6 +148,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       this.wounded.delete(id);
       this.lastAttacker.delete(id);
       this.lastDrownTick.delete(id);
+      this.lastHospitalTier.delete(id);
       return;
     }
 
@@ -119,7 +158,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       const part = event['part'] as BodySlot;
       const damageType = (event['damageType'] ?? 'blunt') as string;
       const amount = (event['amount'] as number) ?? 0;
-      applyDamage(ctx, defender, part, damageType, amount, attacker, this.wounded, this.lastAttacker);
+      applyDamage(ctx, defender, part, damageType, amount, attacker, this.wounded, this.lastAttacker, 'killed', this.lastHospitalTier);
       return;
     }
 
@@ -214,13 +253,21 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       return;
     }
 
+    if (event.type === 'Slept') {
+      if (event['onFloor'] === true) {
+        this.floorSleepers.add(event['id'] as EntityId);
+      }
+      return;
+    }
+
     if (event.type === 'HourPassed') {
       handleHourlyTemperature(ctx, this.rng, this.wounded, this.lastAttacker);
       return;
     }
 
     if (event.type === 'DayPassed') {
-      handleDailyInfection(ctx, this.rng, this.wounded, this.lastAttacker);
+      handleDailyInfection(ctx, this.rng, this.wounded, this.lastAttacker, this.floorSleepers);
+      this.floorSleepers.clear();
       return;
     }
   }

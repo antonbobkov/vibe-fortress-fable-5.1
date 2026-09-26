@@ -25,7 +25,9 @@ import type { RngStream } from '@core/rng';
 import type { TickContext } from '@core/system';
 import type { BodySlot, EntityId, TileIndex } from '@core/types';
 import { BODY_SLOTS } from '@core/types';
+import type { BuildingsReader } from '@systems/buildings/reader';
 import { createWound, severityFor, woundTypeFor } from './wounds';
+import { hasCrutchItem } from './reader';
 
 const LIMB_SLOTS: readonly BodySlot[] = ['left_arm', 'right_arm', 'left_leg', 'right_leg'];
 
@@ -63,7 +65,65 @@ export function killCreature(
   });
 }
 
-export function updatePatient(ctx: TickContext, id: EntityId): void {
+function findHospitalOrFreeBed(ctx: TickContext): { hospitalZoneId: EntityId; bedId: EntityId; hospitalTier: number } {
+  let hospitalZoneId = 0;
+  let bedId = 0;
+  let hospitalTier = 0;
+  if (!ctx.readers.has('14')) return { hospitalZoneId, bedId, hospitalTier };
+  const buildings = ctx.readers.of<BuildingsReader>('14');
+  const entities = ctx.world.entities;
+  const hospitalZones = buildings.zonesOfType('hospital');
+
+  for (const hz of hospitalZones) {
+    const z = buildings.zone(hz);
+    if (!z) continue;
+    for (const t of z.tiles) {
+      const bId = buildings.at(t);
+      if (bId !== 0) {
+        const b = buildings.get(bId);
+        if (b && b.typeId === 'bed' && b.state === 'built') {
+          let inUse = false;
+          for (const otherId of entities.with(C.Patient)) {
+            if (entities.get(otherId, C.Patient)?.bedId === bId) {
+              inUse = true;
+              break;
+            }
+          }
+          if (!inUse) {
+            hospitalZoneId = hz;
+            bedId = bId;
+            const room = buildings.room(hz);
+            hospitalTier = room?.tier ?? 0;
+            return { hospitalZoneId, bedId, hospitalTier };
+          }
+        }
+      }
+    }
+  }
+
+  // Fallback to free bed
+  const free = buildings.freeBeds();
+  for (const fId of free) {
+    let inUse = false;
+    for (const otherId of entities.with(C.Patient)) {
+      if (entities.get(otherId, C.Patient)?.bedId === fId) {
+        inUse = true;
+        break;
+      }
+    }
+    if (!inUse) {
+      return { hospitalZoneId: 0, bedId: fId, hospitalTier: 0 };
+    }
+  }
+
+  return { hospitalZoneId: 0, bedId: 0, hospitalTier: 0 };
+}
+
+export function updatePatient(
+  ctx: TickContext,
+  id: EntityId,
+  lastHospitalTier?: Map<EntityId, number>,
+): void {
   const entities = ctx.world.entities;
   if (!entities.alive(id)) return;
   // Patient flow is for dwarves (entities with Attributes)
@@ -102,17 +162,26 @@ export function updatePatient(ctx: TickContext, id: EntityId): void {
     if (anyUndressedBurn) needs.push('dress_burn');
     if (!b.diagnosed) needs.push('diagnose');
     const lostLeg = b.permanent.includes('lost_left_leg') || b.permanent.includes('lost_right_leg');
-    if (lostLeg) needs.push('give_crutch');
+    if (lostLeg && !hasCrutchItem(entities, ctx.registry, id)) needs.push('give_crutch');
 
     if (existingPatient === undefined) {
+      const bedInfo = findHospitalOrFreeBed(ctx);
       entities.add(id, C.Patient, {
-        hospitalZoneId: 0,
-        bedId: 0,
+        hospitalZoneId: bedInfo.hospitalZoneId,
+        bedId: bedInfo.bedId,
         needs,
         admittedTick: ctx.tick,
       });
-      ctx.emit({ type: 'PatientAdmitted', id });
+      if (lastHospitalTier) lastHospitalTier.set(id, bedInfo.hospitalTier);
+      ctx.emit({ type: 'PatientAdmitted', id, hospitalTier: bedInfo.hospitalTier });
     } else {
+      if (existingPatient.bedId === 0) {
+        const bedInfo = findHospitalOrFreeBed(ctx);
+        if (bedInfo.bedId !== 0) {
+          existingPatient.bedId = bedInfo.bedId;
+          existingPatient.hospitalZoneId = bedInfo.hospitalZoneId;
+        }
+      }
       entities.add(id, C.Patient, {
         ...existingPatient,
         needs,
@@ -128,11 +197,16 @@ export function updatePatient(ctx: TickContext, id: EntityId): void {
       b.conscious &&
       b.pain < PAIN_DISCHARGE
     ) {
+      let hospitalTier = 0;
+      if (existingPatient.hospitalZoneId !== 0 && ctx.readers.has('14')) {
+        const room = ctx.readers.of<BuildingsReader>('14').room(existingPatient.hospitalZoneId);
+        hospitalTier = room?.tier ?? 0;
+      }
       entities.remove(id, C.Patient);
-      ctx.emit({ type: 'PatientDischarged', id });
+      ctx.emit({ type: 'PatientDischarged', id, hospitalTier });
       const allLightOrGone = allWounds.every((w) => w.severity === 'light');
       if (allLightOrGone) {
-        ctx.emit({ type: 'PatientHealed', id, hospitalTier: 0 });
+        ctx.emit({ type: 'PatientHealed', id, hospitalTier });
       }
     }
   }
@@ -148,6 +222,7 @@ export function applyDamage(
   woundedSet: Set<EntityId>,
   lastAttacker: Map<EntityId, EntityId>,
   lethalCause = 'killed',
+  lastHospitalTier?: Map<EntityId, number>,
 ): void {
   if (amount <= 0) return;
   const entities = ctx.world.entities;
@@ -190,7 +265,7 @@ export function applyDamage(
     woundedSet.add(id);
     ctx.emit({ type: 'LimbLost', id, part: slotName });
     ctx.emit({ type: 'WoundInflicted', id, part: slotName, woundType: 'cut', severity: 'grievous' });
-    updatePatient(ctx, id);
+    updatePatient(ctx, id, lastHospitalTier);
     return;
   }
 
@@ -203,7 +278,7 @@ export function applyDamage(
   const slotName = BODY_SLOTS[partIndex];
   ctx.emit({ type: 'WoundInflicted', id, part: slotName, woundType: wType, severity: sev });
 
-  updatePatient(ctx, id);
+  updatePatient(ctx, id, lastHospitalTier);
 }
 
 /**
@@ -250,6 +325,7 @@ export function tickHealth(
   ctx: TickContext,
   woundedSet: Set<EntityId>,
   lastAttacker: Map<EntityId, EntityId>,
+  lastHospitalTier?: Map<EntityId, number>,
 ): void {
   // 1. Submersion environmental check
   checkSubmersion(ctx, woundedSet, lastAttacker);
@@ -330,6 +406,11 @@ export function tickHealth(
 
       const remainingWounds: Wound[] = [];
       for (const w of part.wounds) {
+        if (w.infected && w.curedAt !== undefined && ctx.tick >= w.curedAt) {
+          w.infected = false;
+          delete w.curedAt;
+          ctx.emit({ type: 'InfectionCured', id });
+        }
         // Healing rate
         let rate = 100;
         if (w.infected) {
@@ -373,7 +454,15 @@ export function tickHealth(
       lastAttacker.delete(id);
     }
 
-    updatePatient(ctx, id);
+    const allWoundsNow = b.parts.flatMap((p) => p.wounds);
+    const allLightOrGoneNow = allWoundsNow.every((w) => w.severity === 'light');
+    if (allLightOrGoneNow && lastHospitalTier && lastHospitalTier.has(id)) {
+      const tier = lastHospitalTier.get(id) ?? 0;
+      lastHospitalTier.delete(id);
+      ctx.emit({ type: 'PatientHealed', id, hospitalTier: tier });
+    }
+
+    updatePatient(ctx, id, lastHospitalTier);
   }
 }
 
@@ -461,6 +550,7 @@ export function handleDailyInfection(
   rng: RngStream,
   woundedSet: Set<EntityId>,
   lastAttacker: Map<EntityId, EntityId>,
+  floorSleepers?: ReadonlySet<EntityId>,
 ): void {
   const entities = ctx.world.entities;
   const map = ctx.world.map;
@@ -476,6 +566,7 @@ export function handleDailyInfection(
     const pos = entities.get(id, C.Position);
     const tile = pos ? map.index(pos.x, pos.y, pos.z) : -1;
     const inMiasma = tile >= 0 && itemsReader?.isMiasma(tile) === true;
+    const sleptOnFloor = floorSleepers?.has(id) === true;
 
     for (const part of b.parts) {
       for (const w of part.wounds) {
@@ -486,7 +577,7 @@ export function handleDailyInfection(
           !w.infected &&
           ctx.tick - w.createdTick >= TICKS_PER_DAY
         ) {
-          const permille = inMiasma ? INFECTION_PERMILLE * 2 : INFECTION_PERMILLE;
+          const permille = (inMiasma || sleptOnFloor) ? INFECTION_PERMILLE * 2 : INFECTION_PERMILLE;
           if (rng.int(0, 999) < permille) {
             w.infected = true;
             w.infectedSince = ctx.tick;

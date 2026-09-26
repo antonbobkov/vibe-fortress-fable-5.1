@@ -127,7 +127,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M6-04 — Combat: threats to civilians, fleeing, animals attacking (agy-m604, 2026-09-25)
 - [x] T-M6-05 — Squads, orders, duty, stations, patrols, alerts (agy-m605, 2026-09-25)
 - [ ] T-M6-06 — Training and equipment
-- [ ] T-M6-07 — Hospitals and medicine
+- [x] T-M6-07 — Hospitals and medicine (agy-m607, 2026-09-26)
 - [ ] T-M6-08 — Threats: schedule, renown, party generation, arrival, warnings
 - [ ] T-M6-09 — Threats: party and member AI, thieves, stealth, loot, retreat, door breaking
 - [ ] T-M6-10 — Cavern monsters, webs, restless dead
