@@ -9,6 +9,20 @@ Spec: [`performance-budget.md`](../01-architecture/performance-budget.md), [`bal
 Needs: M7. Produces: `host.stats()` moving averages and worst cases; `test/perf/per-system.test.ts` asserting each system's average on the reference fortress against `performance-budget.md` × 2; optimizations only where a system exceeds its budget (candidates named in the budget table's Mitigation column). No rule changes.
 Tests: `perf_reference`, `perf_gen`; the gate report lists per-system timings before and after.
 
+**Inherited baseline (owner decision, 2026-09-27).** The M6 gate built and measured the 80-dwarf scripted `test/fixtures/reference-fortress.deepholm` but did not fail on it, because budget compliance is this milestone's goal, not M6's. `reports/M6-gate.md` records the starting figures; on that fixture the tick averaged 41.9 ms against the 6 ms target, with these systems over allocation:
+
+| System | Allocation | M6 baseline | Over |
+|---|---:|---:|---:|
+| 11 jobs | 0.600 | 22.022 | 37× |
+| 08 animals | 0.400 | 8.530 | 21× |
+| 10 dwarves | 0.500 | 6.834 | 14× |
+| 16 combat | 0.200 | 1.194 | 6× |
+| 18 threats | 0.100 | 0.522 | 5× |
+| 13 items | 0.300 | 0.713 | 2.4× |
+| Core | 0.300 | 0.447 | 1.5× |
+
+The costs are super-linear in population: quadrupling dwarves from the 20-dwarf played fixture multiplied jobs by about 600. Two fixes of exactly that shape already landed before the M6 gate — `perf(jobs): answer the idle work-check without walking every job` (system 10, 0.977 → 0.133 on the played fixture) and `perf(threats): share fortress targets across hostile decisions` (system 18, 0.102 → 0.056) — so the first thing to look for is per-entity work that scans a whole collection each tick. T-M8-02's load-shedding rules are not implemented yet and are part of the answer. A system over its allocation is a gate failure at M8.
+
 ## T-M8-02 Load shedding (S)
 
 Needs: 01. Produces: the three shedding rules and recovery; status bar yellow speed indicator.
