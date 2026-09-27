@@ -23,6 +23,18 @@ import {
 import { TestWorld } from '../../scenarios/test-world';
 
 describe('T-M6-01 health unit tests', () => {
+  it('T-M6-18 emits one CreatureDied when two lethal hits arrive before event dispatch', () => {
+    const w = new TestWorld({ seed: 'single-death', world: 'flat-test', embark: 'none' });
+    const troll = w.spawnCreature('troll', w.index(40, 40, FLAT_TEST_SURFACE_Z), 'hostile:cavern');
+    const hp = w.game.world.entities.get(troll, C.Body)?.parts[1]?.maxHp;
+    expect(hp).toBeGreaterThan(0);
+    for (let n = 0; n < 2; n += 1) {
+      w.game.world.events.emit({ type: 'DamageDealt', defenderId: troll, attackerId: 0,
+        part: 'torso', damageType: 'blunt', amount: (hp as number) * 2 });
+    }
+    w.step(2);
+    expect(w.events('CreatureDied').filter((event) => event['id'] === troll)).toHaveLength(1);
+  });
   describe('severity thresholds', () => {
     it('ratio < LIGHT_MAX is light, < SERIOUS_MAX is serious, else grievous', () => {
       const maxHp = 60;
@@ -332,4 +344,3 @@ describe('T-M6-01 health unit tests', () => {
     });
   });
 });
-

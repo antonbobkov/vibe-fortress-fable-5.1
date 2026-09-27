@@ -31,6 +31,11 @@ import { hasCrutchItem } from './reader';
 
 const LIMB_SLOTS: readonly BodySlot[] = ['left_arm', 'right_arm', 'left_leg', 'right_leg'];
 
+// Death is delivered at the end of the tick. Until then the entity remains alive and another
+// lethal event can reach this function. Entity stores differ after save/load, so this guard cannot
+// carry a pending death into a restored world.
+const emittedDeaths = new WeakMap<object, Set<EntityId>>();
+
 export function killCreature(
   ctx: TickContext,
   id: EntityId,
@@ -39,6 +44,13 @@ export function killCreature(
 ): void {
   const entities = ctx.world.entities;
   if (!entities.alive(id)) return;
+  let emitted = emittedDeaths.get(entities);
+  if (emitted?.has(id)) return;
+  if (emitted === undefined) {
+    emitted = new Set<EntityId>();
+    emittedDeaths.set(entities, emitted);
+  }
+  emitted.add(id);
   const pos = entities.get(id, C.Position);
   const tile = pos ? ctx.world.map.index(pos.x, pos.y, pos.z) : -1;
   const creature = entities.get(id, C.Creature);
