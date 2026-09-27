@@ -21,6 +21,7 @@ import type { PlantsReader } from '@systems/plants';
 import type { AnimalsReader } from '@systems/animals';
 import { GRASS_PER_GRAZER } from '@systems/animals/constants';
 import type { PlantRow } from '@systems/plants';
+import { HOSPITAL_DEFAULT_SUPPLIES } from '@systems/health/constants';
 import { dropdown, dropdownKey, type DropdownOption, type DropdownState } from '../widgets';
 import type { KeyPress } from '@platform/input';
 import { C } from '@core/components';
@@ -224,8 +225,7 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     label(s, rect.col + 1, row, `Capacity: ${grass} grass / ${assigned} grazers (${Math.floor(grass / GRASS_PER_GRAZER)} supported)`, { fg: assigned > grass / GRASS_PER_GRAZER ? t.bad : t.value, width: rect.cols - 2 });
     row += 1;
   } else if (zone.type === 'hospital') {
-    label(s, rect.col + 1, row, 'Hospital supplies: available in M6', { fg: t.dim, width: rect.cols - 2 });
-    row += 1;
+    row = drawHospitalSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, ctx, zone);
   } else {
     const room = b.room(zone.id);
     if (room !== undefined) {
@@ -323,4 +323,145 @@ function drawStockpileSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     row += 1;
   }
   return row;
+}
+
+function drawHospitalSettings(s: Surface, rect: Rect, ctx: PanelContext, zone: ZoneView): number {
+  const t = s.theme;
+  const strings = ctx.strings;
+  const b = buildings(ctx);
+  let row = rect.row;
+  const bottom = rect.row + rect.rows;
+
+  if (b !== null) {
+    const room = b.room(zone.id);
+    if (room !== undefined) {
+      const score = b.roomScore(zone.id);
+      const tier = ctx.registry.table<{ id: string; tier: number }>('roomTiers').ids().find((id) => ctx.registry.table<{ id: string; tier: number }>('roomTiers').byId(id)?.tier === room.tier) ?? '';
+      label(s, rect.col + 1, row, strings.get('ui.zone.room', { tier, score: Math.floor(room.score) }), { width: rect.cols - 2 });
+      row += 1;
+      if (score !== undefined) {
+        const p = score.parts;
+        label(s, rect.col + 1, row, strings.get('ui.zone.room_parts', { tiles: Math.floor(p.tiles), walls: Math.floor(p.walls), furniture: Math.floor(p.furniture), size: p.size }), { fg: t.dim, width: rect.cols - 2 });
+        row += 1;
+      }
+      label(s, rect.col + 1, row, strings.get(room.enclosed ? 'ui.zone.enclosed' : 'ui.zone.open'), { fg: room.enclosed ? t.good : t.bad, width: rect.cols - 2 });
+      row += 1;
+      label(s, rect.col + 1, row, strings.get(room.requirementsMet ? 'ui.zone.requirements_met' : 'ui.zone.requirements_unmet'), { fg: room.requirementsMet ? t.good : t.bad, width: rect.cols - 2 });
+      row += 1;
+    }
+
+    // Furniture in zone
+    const uniqueBuildingIds = Array.from(new Set(zone.tiles.map((tile) => b.at(tile)).filter((id) => id !== 0)));
+    let beds = 0;
+    let traction = 0;
+    let chests = 0;
+    for (const bId of uniqueBuildingIds) {
+      const bv = b.get(bId);
+      if (!bv) continue;
+      if (bv.typeId === 'bed') beds += 1;
+      else if (bv.typeId === 'traction_bench') traction += 1;
+      else if (bv.typeId === 'chest') chests += 1;
+    }
+    if (row < bottom) {
+      label(s, rect.col + 1, row, `Beds: ${beds}  Traction: ${traction}  Chests: ${chests}`, { width: rect.cols - 2 });
+      row += 1;
+    }
+  }
+
+  // Wanted supplies
+  const defaultWants = HOSPITAL_DEFAULT_SUPPLIES;
+  const currentWants = ((zone.settings?.['desired supplies'] ?? zone.settings?.['wants'] ?? defaultWants) as Record<string, number>) ?? defaultWants;
+  const suppliesList: readonly { key: string; item: string; label: string }[] = [
+    { key: 'cloth', item: 'cloth', label: 'Cloth' },
+    { key: 'thread', item: 'thread', label: 'Thread' },
+    { key: 'splints', item: 'splint', label: 'Splints' },
+    { key: 'crutches', item: 'crutch', label: 'Crutches' },
+    { key: 'brightleaf', item: 'brightleaf', label: 'Brightleaf' },
+    { key: 'buckets', item: 'bucket', label: 'Buckets' },
+  ];
+
+  if (row < bottom) {
+    label(s, rect.col + 1, row, 'Supplies (current / wanted):', { fg: t.key, width: rect.cols - 2 });
+    row += 1;
+  }
+
+  for (const sup of suppliesList) {
+    if (row >= bottom) break;
+    const currentCount = countHospitalSupplies(ctx, zone, sup.item);
+    const wanted = currentWants[sup.key] ?? currentWants[sup.item] ?? 0;
+    const lineText = `${sup.label}: ${currentCount}/${wanted}`;
+    label(s, rect.col + 1, row, lineText, { width: rect.cols - 8 });
+    // Minus button [-]
+    const minusCol = rect.col + rect.cols - 7;
+    label(s, minusCol, row, '[-]');
+    s.hit({ col: minusCol, row, cols: 3, rows: 1 }, () => {
+      const nextWants = { ...currentWants, [sup.key]: Math.max(0, wanted - 1) };
+      ctx.submit({ type: 'SetHospitalSupplies', zoneId: zone.id, wants: nextWants });
+    });
+    // Plus button [+]
+    const plusCol = rect.col + rect.cols - 4;
+    label(s, plusCol, row, '[+]');
+    s.hit({ col: plusCol, row, cols: 3, rows: 1 }, () => {
+      const nextWants = { ...currentWants, [sup.key]: wanted + 1 };
+      ctx.submit({ type: 'SetHospitalSupplies', zoneId: zone.id, wants: nextWants });
+    });
+    row += 1;
+  }
+
+  // Patients
+  if (row < bottom) {
+    label(s, rect.col + 1, row, 'Patients:', { fg: t.key, width: rect.cols - 2 });
+    row += 1;
+    const patients = ctx.readers.entities.with(C.Patient).filter((id) => {
+      const p = ctx.readers.entities.get(id, C.Patient);
+      return p && p.hospitalZoneId === zone.id;
+    });
+    if (patients.length === 0) {
+      label(s, rect.col + 2, row, 'None', { fg: t.dim, width: rect.cols - 3 });
+      row += 1;
+    } else {
+      for (const pId of patients) {
+        if (row >= bottom) break;
+        const name = ctx.readers.entities.get(pId, C.Creature)?.name ?? `Patient #${pId}`;
+        const p = ctx.readers.entities.get(pId, C.Patient);
+        const needs = p && p.needs.length > 0 ? p.needs.join(', ') : 'resting';
+        label(s, rect.col + 2, row, `${name}: ${needs}`, { width: rect.cols - 3 });
+        row += 1;
+      }
+    }
+  }
+
+  return row;
+}
+
+function countHospitalSupplies(ctx: PanelContext, zone: ZoneView, typeName: string): number {
+  const it = items(ctx);
+  if (!it) return 0;
+  const itemIdx = ctx.registry.table<{ id: string }>('items').index(typeName);
+  if (itemIdx < 0) return 0;
+  const b = buildings(ctx);
+  let total = 0;
+  for (const t of zone.tiles) {
+    for (const itId of it.at(t)) {
+      const item = it.get(itId);
+      if (item && item.type === itemIdx) total += item.count;
+      for (const innerId of it.inContainer(itId)) {
+        const inner = it.get(innerId);
+        if (inner && inner.type === itemIdx) total += inner.count;
+      }
+    }
+    if (b) {
+      const bId = b.at(t);
+      if (bId !== 0) {
+        const building = ctx.readers.entities.get(bId, C.Building);
+        if (building && building.itemId !== 0) {
+          for (const innerId of it.inContainer(building.itemId)) {
+            const inner = it.get(innerId);
+            if (inner && inner.type === itemIdx) total += inner.count;
+          }
+        }
+      }
+    }
+  }
+  return total;
 }

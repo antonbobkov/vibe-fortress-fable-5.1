@@ -159,7 +159,43 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       },
       () => nextDeepThreshold(this.deepState.level),
     );
-    ctx.register.panel({ id: 'threats', title: 'Threats', hotkey: 'm' });
+    ctx.register.panel({ id: 'threats', title: 'Threats', hotkey: 't' });
+    ctx.register.announcement('ThreatWarning', {
+      severity: 'alert',
+      stringKey: 'announce.threat_warning',
+    });
+    ctx.register.announcement('RaidArrived', {
+      severity: 'danger',
+      stringKey: 'announce.raid_arrived',
+    });
+    ctx.register.announcement('RaidEnded', {
+      severity: 'note',
+      stringKey: 'announce.raid_ended',
+    });
+    ctx.register.announcement('ThiefSpotted', {
+      severity: 'alert',
+      stringKey: 'announce.thief_spotted',
+    });
+    ctx.register.announcement('ThiefEscaped', {
+      severity: 'alert',
+      stringKey: 'announce.thief_escaped',
+    });
+    ctx.register.announcement('AmbushSprung', {
+      severity: 'danger',
+      stringKey: 'announce.ambush_sprung',
+    });
+    ctx.register.announcement('MonsterSpawned', {
+      severity: 'note',
+      stringKey: 'announce.monster_spawned',
+    });
+    ctx.register.announcement('DeepStirred', {
+      severity: 'danger',
+      stringKey: 'announce.deep_stirred',
+    });
+    ctx.register.announcement('RestlessRose', {
+      severity: 'alert',
+      stringKey: 'announce.restless_rose',
+    });
     const pathing =
       ctx.readers && typeof ctx.readers.has === 'function' && ctx.readers.has('pathing')
         ? ctx.readers.pathing

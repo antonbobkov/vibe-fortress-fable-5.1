@@ -20,3 +20,6 @@ export const STATUS_HINT_SECONDS = 2;
 
 /** Hints are evaluated once per this many game hours. */
 export const HINT_CHECK_HOURS = 1;
+
+/** Width of a body part's health meter in the creature inspector. */
+export const HEALTH_PART_BAR_CELLS = 5;

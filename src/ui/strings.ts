@@ -301,7 +301,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.building': 'Building: {name} ({state}){mode}',
   'ui.look.zone': 'Zone: {name} #{id} ({n} t){room}',
   'ui.look.no_creatures': 'No one is here.',
-  'ui.log.filter': 'Show: [1] all [2] alerts [3] danger',
+  'ui.log.filter': '[1] All  [2] Alerts  [3] Combat',
   'ui.log.empty': 'Nothing has happened yet.',
   'ui.kind.0': 'open space',
   'ui.kind.1': 'wall',
@@ -357,6 +357,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.patient_admitted': '{dwarf} has been admitted to the hospital.',
   'announce.dwarf_unconscious': '{dwarf} has lost consciousness.',
   'announce.dwarf_died': '{dwarf} has died.',
+  'announce.pet_died': '{name} has died.',
+  'announce.creature_died': '{name} has died.',
   'announce.infection': '{dwarf} has developed an infection.',
   'announce.limb_lost': '{dwarf} has lost a limb.',
   // 19 Defense announcements.
@@ -367,8 +369,22 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // 16 Combat announcements
   'announce.combat_engagement': 'Combat has begun.',
   'announce.attack_resolved': '{attacker} attacks {defender}.',
+  'announce.attack_resolved.hit': '{attacker} hits {defender}: {amount} {damageType}.',
+  'announce.attack_resolved.miss': '{attacker} misses {defender}.',
+  'announce.attack_resolved.parried': '{defender} parries {attacker}.',
+  'announce.attack_resolved.blocked': '{defender} blocks {attacker}.',
   'announce.alert_changed': 'The fortress alert is now {to}.',
   'announce.kill_recorded': '{killer} has slain {victim}.',
+  // 18 Threats announcements
+  'announce.threat_warning': 'Gloam scouts have been seen at the {edge} edge. They will come tomorrow.',
+  'announce.raid_arrived': 'A raid has arrived!',
+  'announce.raid_ended': 'The raid has ended.',
+  'announce.thief_spotted': 'A thief has been spotted!',
+  'announce.thief_escaped': 'A thief has escaped with stolen goods!',
+  'announce.ambush_sprung': 'An ambush has been sprung!',
+  'announce.monster_spawned': 'A cavern monster has appeared.',
+  'announce.deep_stirred': 'The Deep stirs. Something has noticed the pale metal being taken.',
+  'announce.restless_rose': 'The restless dead rise.',
 });
 
 /** A `StringKey`'s text with `{placeholders}` filled; the key itself when no row has it. */

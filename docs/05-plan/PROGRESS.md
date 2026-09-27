@@ -136,7 +136,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M6-13 — Mechanisms: links, drawbridges, floodgates in play (codex-m613, 2026-09-26)
 - [x] T-M6-14 — Burial, grief, memorial slabs (codex-m614, 2026-09-26)
 - [x] T-M6-15 — Taming, training, war animals, pets follow (agy-m615, 2026-09-26)
-- [ ] T-M6-16 — Military, threats, health panels; combat log; announcements
+- [x] T-M6-16 — Military, threats, health panels; combat log; announcements (codex-m616, 2026-09-26)
 - [ ] T-M6-17 — Compositor: hostiles, projectiles, traps, stealth, webs, bridges; squad stations overlay
 - [ ] T-M6-18 — Gate M6
 

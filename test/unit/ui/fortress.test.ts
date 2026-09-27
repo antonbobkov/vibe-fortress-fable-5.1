@@ -292,6 +292,16 @@ describe('T-M1-14 announcements', () => {
       TrapJammed: 'alert',
       TrapSpent: 'note',
       CreatureCaged: 'alert',
+      // T-M6-16: 18 § Registrations and 24 § Announcements.
+      ThreatWarning: 'alert',
+      RaidArrived: 'danger',
+      RaidEnded: 'note',
+      ThiefSpotted: 'alert',
+      ThiefEscaped: 'alert',
+      AmbushSprung: 'danger',
+      MonsterSpawned: 'note',
+      DeepStirred: 'danger',
+      RestlessRose: 'alert',
     });
   });
 

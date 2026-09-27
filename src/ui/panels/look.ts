@@ -22,6 +22,8 @@ import type { BuildingsReader } from '@systems/buildings';
 import { MOOD_TIER_NAMES } from './mood';
 import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
+import { HEALTH_PART_BAR_CELLS } from '../constants';
+import { barCells } from '../widgets/bar';
 
 interface TileInspection {
   readonly discovered: boolean;
@@ -187,6 +189,44 @@ export function drawLookPanel(
         const morale = readers.of<MoraleReader>('15');
         line(`Mood: ${MOOD_TIER_NAMES[morale.tier(id)]} (${morale.mood(id)})`, t.value);
         for (const thought of morale.thoughts(id)) line(`  ${thought.value > 0 ? '+' : ''}${Math.round(thought.value)} ${thought.text}`);
+      }
+    }
+    if (has(readers, '17') && readers.entities.has(id, C.Body)) {
+      const body = readers.entities.get(id, C.Body);
+      if (body !== undefined) {
+        const isPatient = readers.entities.has(id, C.Patient);
+        if (isPatient && !body.diagnosed) {
+          const bleeding = body.parts.some((p) => p.wounds.some((w) => w.bleed > 0 && !w.bandaged));
+          line(`Health: ${bleeding ? 'Wounded, bleeding' : 'Wounded'}`, t.bad);
+        } else {
+          const bloodPct = body.maxBlood > 0 ? Math.floor((body.blood * 100) / body.maxBlood) : 100;
+          line(`Health: Blood ${bloodPct}%, Pain ${body.pain}`);
+          line(`  ${body.conscious ? 'Conscious' : 'Unconscious'}`, body.conscious ? t.text : t.bad);
+          if (body.permanent.length > 0) line(`  Permanent: ${body.permanent.join(', ')}`, t.dim);
+          const partNames = ['head', 'torso', 'left arm', 'right arm', 'left leg', 'right leg'];
+          for (let pIdx = 0; pIdx < body.parts.length; pIdx += 1) {
+            const part = body.parts[pIdx];
+            if (!part) continue;
+            const pName = partNames[pIdx] ?? `part ${pIdx}`;
+            if (part.destroyed) {
+              line(`  ${pName}: destroyed`, t.bad);
+              continue;
+            }
+            const filled = barCells(part.hp, part.maxHp, HEALTH_PART_BAR_CELLS);
+            line(`  ${pName} ${'▓'.repeat(filled)}${'░'.repeat(HEALTH_PART_BAR_CELLS - filled)} ${part.hp}/${part.maxHp} hp`);
+            for (const w of part.wounds) {
+              const flags: string[] = [];
+              if (w.bandaged) flags.push('bandaged');
+              if (w.splinted) flags.push('splinted');
+              if (w.dressed) flags.push('dressed');
+              if (w.sutured) flags.push('sutured');
+              if (w.cleaned) flags.push('cleaned');
+              if (w.infected) flags.push('infected');
+              const flagStr = flags.length > 0 ? ` (${flags.join(', ')})` : '';
+              line(`    ${w.severity} ${w.type}${flagStr}`);
+            }
+          }
+        }
       }
     }
   }
