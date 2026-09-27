@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { HeadlessGame } from '@app/headless';
 import { TestWorld } from '../../scenarios/test-world';
 import { C } from '@core/components';
-import { PRIORITY_DEFAULT, TICKS_PER_YEAR } from '@core/constants';
+import { PRIORITY_DEFAULT, PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
 import type { GameEvent } from '@core/events';
 import { TileKind } from '@core/map3d';
 import { BaseSystem, type JobProducer, type TickContext } from '@core/system';
@@ -221,6 +221,33 @@ function digSpec(tile: TileIndex, priority = 5): Record<string, unknown> {
 function types(r: Rig, t: string): GameEvent[] {
   return r.events.filter((e) => e.type === t);
 }
+
+describe('T-M6-18 F-11 work availability', () => {
+  it('matches full eligibility across workers and refreshes when jobs change within a tick', () => {
+    const r = rig();
+    r.driver.enabled = false;
+    const skilled = r.worker(10, 10, { skill: 10 });
+    const novice = r.worker(11, 10);
+    const target = wallAt(r, 20, 10);
+    const board = r.jobs.board;
+    const sameAsFullCheck = (): void => {
+      for (const id of [skilled, novice]) expect(board.hasWork(id)).toBe(board.hasUrgent(id, PRIORITY_MAX));
+    };
+    sameAsFullCheck();
+    r.terrain.pending.push(['dig:restricted', { ...digSpec(target), tool: null,
+      data: { assignedWorker: skilled, minSkill: 5 } }]);
+    r.g.step(1);
+    sameAsFullCheck();
+    expect(board.hasWork(skilled)).toBe(true);
+    expect(board.hasWork(novice)).toBe(false);
+    const job = r.reader.byKey('dig:restricted') as Job;
+    board.block(board.jobs.get(job.id) as Job, 'test');
+    sameAsFullCheck();
+    expect(board.hasWork(skilled)).toBe(false);
+    r.g.world.applyCommand({ type: 'CancelJob', jobId: job.id });
+    sameAsFullCheck();
+  });
+});
 
 describe('T-M1-08 jobs: the board, assignment and steps', () => {
   it('a job is created once per key, claimed, travelled to, worked for its time and completed', () => {

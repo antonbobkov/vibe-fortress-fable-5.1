@@ -7,7 +7,7 @@
  */
 
 import { C, type Worker } from '@core/components';
-import { PRIORITY_DEFAULT, PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
+import { PRIORITY_DEFAULT, TICKS_PER_YEAR } from '@core/constants';
 import type { GameEvent } from '@core/events';
 import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, WorldLike } from '@core/system';
 import type { Registry } from '@core/registry';
@@ -53,6 +53,13 @@ export const RETRY_TRIGGERS: Readonly<Record<string, readonly string[]>> = Objec
 
 const FORTRESS_WALKER = Object.freeze({ faction: 'fortress' });
 
+/** Jobs sharing a reachable connectivity label and labor. Only unusual worker rules need jobs. */
+interface WorkAvailability {
+  plain: boolean;
+  tools: Job[];
+  restricted: Job[];
+}
+
 export class JobBoard implements JobsApi, JobSink {
   readonly jobs = new Map<number, Job>();
   /** Every job id, ascending (creation order). */
@@ -76,6 +83,12 @@ export class JobBoard implements JobsApi, JobSink {
   private readonly skillIndex = new Map<string, number>();
   /** The context of the call in progress, for the events a sink call emits. */
   private emitter: ((event: GameEvent) => void) | null = null;
+  private workAvailabilityTick = -1;
+  private readonly workAvailability = new Map<number, Map<number, WorkAvailability>>();
+
+  private invalidateWorkAvailability(): void {
+    this.workAvailabilityTick = -1;
+  }
 
   constructor(world: WorldLike, registry: Registry, readers: ReaderSetLike) {
     this.world = world;
@@ -321,6 +334,7 @@ export class JobBoard implements JobsApi, JobSink {
       data: { ...(spec.data ?? {}) },
     };
     this.jobs.set(id, job);
+    this.invalidateWorkAvailability();
     this.ids.push(id);
     this.byKeyMap.set(key, id);
     this.notify(job, { type: 'JobCreated', jobId: id, jobType: row.id, target: job.target.ref });
@@ -356,6 +370,7 @@ export class JobBoard implements JobsApi, JobSink {
   }
 
   private remove(job: Job): void {
+    this.invalidateWorkAvailability();
     this.jobs.delete(job.id);
     this.byKeyMap.delete(job.key);
     const at = this.ids.indexOf(job.id);
@@ -378,6 +393,7 @@ export class JobBoard implements JobsApi, JobSink {
   }
 
   block(job: Job, reason: string): void {
+    this.invalidateWorkAvailability();
     job.state = 'blocked';
     job.blockedReason = reason;
     job.retryTick = this.now + BLOCKED_RETRY_TICKS;
@@ -443,6 +459,7 @@ export class JobBoard implements JobsApi, JobSink {
         }
       }
       job.state = 'open';
+      this.invalidateWorkAvailability();
       job.blockedReason = null;
       this.notify(job, { type: 'JobUnblocked', jobId: job.id, jobType: this.typeId(job), target: job.target.ref });
     }
@@ -567,6 +584,7 @@ export class JobBoard implements JobsApi, JobSink {
     }
     this.freeWorker(job, true);
     job.state = 'open';
+    this.invalidateWorkAvailability();
     job.data['reserveUntil'] = this.now + RESERVE_KEEP_TICKS;
     delete job.data['standTile'];
   }
@@ -585,7 +603,61 @@ export class JobBoard implements JobsApi, JobSink {
 
   /** True when an open job is available that this worker could take (F-11). */
   hasWork(workerId: EntityId): boolean {
-    return this.hasUrgent(workerId, PRIORITY_MAX);
+    if (this.workAvailabilityTick !== this.now) this.rebuildWorkAvailability();
+    const from = this.workerTile(workerId);
+    if (from < 0) return false;
+    const label = this.readers.pathing.labelOf(from, 'walker');
+    const byLabor = this.workAvailability.get(label);
+    if (byLabor === undefined) return false;
+    for (let labor = 1; labor < this.laborChildren.length; labor += 1) {
+      const available = byLabor.get(labor);
+      if (available === undefined) continue;
+      if (!this.laborEnabled(workerId, labor)) continue;
+      if (available.plain) return true;
+      for (const job of available.tools) {
+        if (!this.toolHeldElsewhere(job, workerId, labor)) return true;
+      }
+      for (const job of available.restricted) {
+        if (this.eligible(job, workerId)) return true;
+      }
+    }
+    return false;
+  }
+
+  /** One pass over open jobs per tick, grouping by facts shared by workers in a connected area. */
+  private rebuildWorkAvailability(): void {
+    this.workAvailability.clear();
+    for (const id of this.ids) {
+      const job = this.jobs.get(id) as Job;
+      if (job.state !== 'open') continue;
+      const labor = this.jobLabor(job);
+      if (labor === 0) continue;
+      const labels: number[] = [];
+      for (const tile of this.standTiles(job)) {
+        const label = this.readers.pathing.labelOf(tile, 'walker');
+        if (!labels.includes(label)) labels.push(label);
+      }
+      for (const label of labels) {
+        let byLabor = this.workAvailability.get(label);
+        if (byLabor === undefined) {
+          byLabor = new Map();
+          this.workAvailability.set(label, byLabor);
+        }
+        let availability = byLabor.get(labor);
+        if (availability === undefined) {
+          availability = { plain: false, tools: [], restricted: [] };
+          byLabor.set(labor, availability);
+        }
+        if (job.data['assignedWorker'] !== undefined || job.data['minSkill'] !== undefined) {
+          availability.restricted.push(job);
+        } else if (job.tool === null) {
+          availability.plain = true;
+        } else {
+          if (!availability.tools.some((candidate) => candidate.tool === job.tool)) availability.tools.push(job);
+        }
+      }
+    }
+    this.workAvailabilityTick = this.now;
   }
 
   private eligible(job: Job, workerId: EntityId): boolean {
@@ -665,6 +737,7 @@ export class JobBoard implements JobsApi, JobSink {
 
   /** `claim(w, job)`: reserve inputs and the tool; `missing_input` / `no_tool` block the job. */
   claim(workerId: EntityId, job: Job): boolean {
+    this.invalidateWorkAvailability();
     job.state = 'claimed';
     job.workerId = workerId;
     job.claimedTick = this.now;
@@ -712,6 +785,7 @@ export class JobBoard implements JobsApi, JobSink {
       if (job.workerId !== workerId) continue;
       job.workerId = 0;
       job.state = 'open';
+      this.invalidateWorkAvailability();
       delete job.data['standTile'];
     }
     const at = this.assignQueue.indexOf(workerId);
@@ -757,6 +831,8 @@ export class JobBoard implements JobsApi, JobSink {
   }
 
   deserialize(state: JobsStateV1): void {
+    this.invalidateWorkAvailability();
+    this.workAvailability.clear();
     this.jobs.clear();
     this.byKeyMap.clear();
     this.ids.length = 0;

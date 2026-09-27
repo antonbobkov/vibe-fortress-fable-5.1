@@ -265,12 +265,8 @@ export class Activities {
       }
     } else if (need === 'thirst') {
       if (its !== null && ctx.world.services.items !== null) {
-        const candidates = its.findItems({ drinkable: true }, 128, from, 'walker', { reservable: true });
-        const drink = candidates.find((x) => {
-          const container = its.containerOf(x);
-          return container !== 0 && its.containerRecord(container)?.classId === 'barrel'
-            && its.stockpileAt(its.tileOf(x)) !== 0;
-        }) ?? 0;
+        const drink = its.findItem({ drinkable: true }, from, 'walker',
+          { reservable: true, stockpiledContainerClass: 'barrel' });
         if (drink !== 0) {
           const record = its.get(drink);
           const one = record !== undefined && record.count > 1 ? ctx.world.services.items.split(drink, 1) : drink;
