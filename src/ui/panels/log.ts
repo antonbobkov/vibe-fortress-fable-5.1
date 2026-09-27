@@ -14,7 +14,7 @@ import type { Strings } from '../strings';
 import type { Surface, Theme } from '../surface';
 import { label } from '../widgets';
 
-/** `0` all, `1` alerts and danger, `2` danger only. */
+/** `0` all, `1` alerts and danger, `2` combat. */
 export type LogFilter = 0 | 1 | 2;
 
 export function colorOf(theme: Theme, severity: Severity): Rgb {
@@ -24,7 +24,7 @@ export function colorOf(theme: Theme, severity: Severity): Rgb {
 export function filterLines(lines: readonly LogLine[], filter: LogFilter): LogLine[] {
   if (filter === 0) return lines.slice();
   if (filter === 1) return lines.filter((l) => l.severity !== 'note');
-  return lines.filter((l) => l.severity === 'danger');
+  return lines.filter((l) => l.category === 'combat');
 }
 
 export function drawLogPanel(
@@ -35,7 +35,7 @@ export function drawLogPanel(
   strings: Strings,
   onFocus: (line: LogLine) => void,
 ): void {
-  label(s, rect.col + 1, rect.row, strings.get('ui.log.filter'), { width: rect.cols - 2 });
+  label(s, rect.col + 1, rect.row, '[1] All  [2] Alerts  [3] Combat', { width: rect.cols - 2 });
   const shown = filterLines(lines, filter).reverse();
   if (shown.length === 0) {
     label(s, rect.col + 1, rect.row + 2, strings.get('ui.log.empty'), { fg: s.theme.dim });

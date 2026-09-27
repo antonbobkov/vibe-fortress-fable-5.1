@@ -16,6 +16,9 @@ import { weatherField } from './panels/calendar';
 import type { Strings } from './strings';
 import type { MoraleReader } from '@systems/morale';
 import { MOOD_TIER_NAMES } from './panels/mood';
+import { C } from '@core/components';
+import type { HealthReader } from '@systems/health';
+import type { ThreatsReader } from '@systems/threats';
 
 export type Speed = 0 | 1 | 2 | 4;
 
@@ -38,6 +41,17 @@ export function statusFields(readers: ReaderSet, strings: Strings, z: number, sp
     fields.push(strings.get('ui.status.pop', { n: readers.of<{ population(): number }>('10').population() }));
   }
   if (readers.has('15')) fields.push(`♥ ${MOOD_TIER_NAMES[readers.of<MoraleReader>('15').hallSpiritTier()]}`);
+  if (readers.has('17') && readers.has('10')) {
+    const health = readers.of<HealthReader>('17');
+    const n = readers.of<{ list(): number[] }>('10').list().filter((id) => health.isPatient(id)).length;
+    if (n > 0) fields.push(`+${n}`);
+  }
+  if (readers.has('18')) {
+    const threats = readers.of<ThreatsReader>('18');
+    const n = readers.entities.with(C.Creature, C.Position).filter((id) => readers.entities.alive(id) && threats.isHostile(id) &&
+      (!threats.isStealthed(id) || threats.isSpotted(id))).length;
+    if (n > 0) fields.push(`!${n}`);
+  }
   fields.push(strings.get('ui.status.z', { z }));
   fields.push(speedText(speed));
   return fields;

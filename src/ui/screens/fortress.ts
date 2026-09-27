@@ -11,7 +11,7 @@
 
 import type { Command } from '@core/commands';
 import type { GameEvent } from '@core/events';
-import type { Designation } from '@core/map3d';
+import { TileFlag, type Designation } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EventType } from '@core/event-types';
@@ -34,6 +34,8 @@ import { drawZonesPanel, ZoneTool } from '../panels/zones';
 import { drawOrdersPanel, drawWorkshopPanel, OrdersPanel } from '../panels/orders';
 import { drawAnimalsPanel, AnimalsPanel } from '../panels/animals';
 import { drawMoodPanel, drawPopulationPanel, MoodPanel } from '../panels/mood';
+import { drawMilitaryPanel, MilitaryPanel } from '../panels/military';
+import { drawThreatsPanel, ThreatsPanel } from '../panels/threats';
 import { C } from '@core/components';
 import { creaturesAt, creatureSummary, drawLookPanel, tileSummary, type LookTab } from '../panels/look';
 import { drawLogPanel, drawLogStrip, type LogFilter } from '../panels/log';
@@ -97,6 +99,7 @@ export interface FortressHost {
   /** `F5` quick save and `F9` quick load (24 § Input model), when the app offers saving (T-M2-11). */
   quickSave?(): void;
   quickLoad?(): void;
+  confirm?(id: string, params: Readonly<Record<string, unknown>>, answer: (yes: boolean) => void): void;
 }
 
 export class FortressScreen implements Screen {
@@ -111,6 +114,8 @@ export class FortressScreen implements Screen {
   readonly orders = new OrdersPanel();
   readonly animals = new AnimalsPanel();
   readonly mood = new MoodPanel();
+  readonly military = new MilitaryPanel();
+  readonly threats = new ThreatsPanel();
   workshopId = 0;
   /** The shift state of the click being handled (the labor grid's "shift-click: whole column"). */
   private clickShift = false;
@@ -200,6 +205,10 @@ export class FortressScreen implements Screen {
     this.ensureRegistered();
     const readers = this.host.readers;
     for (const event of events) {
+      if (event.type === 'VeinFound') {
+        const material = (event as unknown as { material?: string }).material;
+        if (material !== undefined && this.host.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(material)?.deepsilver === true) this.ui.deepFound = true;
+      }
       if (event.type === 'CommandRejected') {
         const reason = String((event as unknown as { reason: string }).reason).replace(/_/g, ' ');
         this.rejection = { text: this.strings.get('ui.status.rejected', { reason }), until: this.host.now() + STATUS_HINT_SECONDS * 1000 };
@@ -339,6 +348,8 @@ export class FortressScreen implements Screen {
       (leverId) => ctx.submit({ type: 'PullLever', leverId }));
     else if (panel.id === 'calendar') drawCalendarPanel(surface, body, readers, this.strings);
     else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
+    else if (panel.id === 'military') drawMilitaryPanel(surface, body, this.military, ctx, this.host);
+    else if (panel.id === 'threats') drawThreatsPanel(surface, body, this.threats, ctx, this.ui.deepFound);
     else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, (line) => {
       if (line.focus !== undefined) this.focusOn(line.focus);
     });
@@ -352,6 +363,11 @@ export class FortressScreen implements Screen {
     labelRow(surface, rect.col, rect.row, rect.cols, row1);
     // The date opens the calendar panel; the weather glyph takes its colour (T-M3-08).
     const fields = statusFields(readers, this.strings, this.ui.z, this.host.speed());
+    let fieldCol = rect.col + 1;
+    for (const field of fields) {
+      if (field.startsWith('+') || field.startsWith('!')) surface.text(fieldCol, rect.row, field, t.danger, t.black, rect.cols - (fieldCol - rect.col));
+      fieldCol += Array.from(field).length + 3;
+    }
     const date = Array.from(fields[0] ?? '').length;
     surface.hit({ col: rect.col + 1, row: rect.row, cols: date, rows: 1 }, () => this.openPanel('calendar'));
     const weather = weatherOf(readers);
@@ -491,6 +507,31 @@ export class FortressScreen implements Screen {
   commit(a: TilePoint, b: TilePoint): Command[] {
     const map = this.host.readers.map;
     const commands = this.tool.commands({ map, precondition: (i, k) => this.host.precondition(i, k) }, a, b);
+    const hasUnconfirmedDeepsilver = !this.host.readers.fortress.state.deepsilverConfirmed && commands.some((cmd) => {
+      if (cmd.type !== 'Designate') return false;
+      const tiles = cmd['tiles'] as readonly TileIndex[] | undefined;
+      if (!tiles) return false;
+      return tiles.some((tile) => {
+        if ((map.flagsAt(tile) & TileFlag.Discovered) === 0) return false;
+        const mat = map.materialAt(tile);
+        const matRow = this.host.registry.table<{ id: string }>('materials').byIndex(mat);
+        if (!matRow) return false;
+        const minRow = this.host.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(matRow.id);
+        return minRow?.deepsilver === true;
+      });
+    });
+    if (hasUnconfirmedDeepsilver && this.host.confirm !== undefined) {
+      this.host.confirm('c_deepsilver', {}, (yes) => {
+        if (yes) {
+          this.host.submit({ type: 'ConfirmDeepsilver' });
+          for (const c of commands) this.host.submit(c);
+          this.tool.remember(commands);
+        }
+      });
+      this.tool.anchor = null;
+      this.tool.end = null;
+      return [];
+    }
     for (const c of commands) this.host.submit(c);
     this.tool.remember(commands);
     this.tool.anchor = null;
@@ -523,6 +564,7 @@ export class FortressScreen implements Screen {
   private cancel(): void {
     if (this.orders.adding) { this.orders.adding = false; return; }
     if (this.animals.name.focused) { this.animals.name.focused = false; return; }
+    if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow || this.military.memberChoice) { this.military.cancel(); return; }
     if (this.zones.farmMenus.some((m) => m.open)) { for (const m of this.zones.farmMenus) m.open = false; return; }
     if (this.units.editing) {
       this.units.editing = false;
@@ -577,7 +619,7 @@ export class FortressScreen implements Screen {
       if (result !== null && result !== 'handled') this.host.submit(result);
       return true;
     }
-    if ((this.ui.panel === 'orders' || this.ui.panel === 'workshop') && (press.key === '+' || (press.key === '-' && this.orders.editing)) && !press.ctrl && !press.alt && !press.meta) return this.panelKey(this.ui.panel, press);
+    if ((this.ui.panel === 'orders' || this.ui.panel === 'workshop' || this.ui.panel === 'military') && (press.key === '+' || (press.key === '-' && this.orders.editing)) && !press.ctrl && !press.alt && !press.meta) return this.panelKey(this.ui.panel, press);
     const global = this.keymap.resolve('global', press);
     if (global !== null) {
       switch (global.id) {
@@ -891,6 +933,10 @@ export class FortressScreen implements Screen {
         }
         if (letter === 'a') return submit(this.labors.toggleRow(ctx));
         return false;
+      case 'military':
+        return this.military.key(ctx, press, this.host);
+      case 'threats':
+        return this.threats.key(ctx, press);
       default:
         return false;
     }
@@ -912,13 +958,24 @@ export class FortressScreen implements Screen {
     }
     if (p.button === 2) {
       // "Right click: cancels the current tool; with no tool, opens the inspection panel".
-      if (this.build.active) this.build.cancel();
+      if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) this.military.cancel();
+      else if (this.build.active) this.build.cancel();
       else if (this.zones.active) this.zones.cancel();
       else if (this.tool.active) this.tool.cancel();
       else this.look(at);
       return;
     }
     if (p.button !== 0) return;
+    if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) {
+      const tile = this.tileOf(at);
+      if (tile !== null) {
+        if (this.military.settingStation) this.military.setStation(this.ctx, tile, this.host);
+        else if (this.military.settingPatrol) this.military.setPatrol(this.ctx, tile, this.host);
+        else if (this.military.setOrderTarget(this.ctx, tile, this.host)) this.military.cancel();
+        if (!this.military.settingKill && !this.military.settingFollow) this.military.cancel();
+      }
+      return;
+    }
     if (this.build.active) {
       this.place(at);
       return;

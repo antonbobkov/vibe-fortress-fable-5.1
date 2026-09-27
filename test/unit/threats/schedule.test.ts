@@ -307,7 +307,7 @@ describe('Threats schedule and renown (T-M6-08)', () => {
         rng: new RngStream(42),
         registry,
         world: worldMock,
-        register: { panel: () => {} },
+        register: { panel: () => {}, announcement: () => {} },
       } as unknown as InitContext;
       sys1.init(ctxInit);
 
@@ -371,7 +371,7 @@ describe('Threats schedule and renown (T-M6-08)', () => {
         rng: new RngStream(42),
         registry,
         world: worldMock,
-        register: { panel: () => {} },
+        register: { panel: () => {}, announcement: () => {} },
       } as unknown as InitContext;
       sys3.init(ctxInit);
 
@@ -403,7 +403,7 @@ describe('Threats schedule and renown (T-M6-08)', () => {
         rng: new RngStream(9876),
         registry,
         world: worldMock,
-        register: { panel: () => {} },
+        register: { panel: () => {}, announcement: () => {} },
       } as unknown as InitContext;
       sys.init(ctxInit);
 

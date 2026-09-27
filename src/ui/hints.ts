@@ -92,7 +92,8 @@ export class HintEngine {
     if (event.type === 'RaidEnded') this.markId('hint_gate');
     if (event.type === 'DoorBroken') this.markId('hint_troll');
     if (event.type === 'CavernBreached' && fields['cavern'] === 2) this.markId('hint_magma');
-    if (event.type === 'VeinFound' && fields['material'] === 'deepsilver') this.markId('hint_deep');
+    if (event.type === 'VeinFound' && typeof fields['material'] === 'string' &&
+      this.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(fields['material'])?.deepsilver === true) this.markId('hint_deep');
     if (event.type === 'BuildingCompleted' && fields['buildingType'] === 'cage_trap') this.markId('hint_cage');
     if (event.type === 'WoundInflicted' && (fields['severity'] === 'serious' || fields['severity'] === 'grievous')) this.markId('hint_hospital');
     if (event.type === 'CommandRejected') {

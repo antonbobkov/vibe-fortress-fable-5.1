@@ -23,6 +23,8 @@ export interface UiState {
   hintsShown: string[];
   hintPending: string[];
   hintBareSince: [number, number][];
+  /** First deepsilver vein discovery unlocks the Deep gauge. */
+  deepFound: boolean;
   cursor: { x: number; y: number } | null;
 }
 
@@ -37,12 +39,13 @@ export interface SavedUiState {
   readonly hintsShown: readonly string[];
   readonly hintPending: readonly string[];
   readonly hintBareSince: readonly [number, number][];
-  readonly logTail: readonly { tick: number; severity: string; text: string; focus?: number }[];
+  readonly deepFound?: boolean;
+  readonly logTail: readonly { tick: number; severity: string; text: string; focus?: number; category?: string }[];
 }
 
 export function defaultUiState(z: number): UiState {
   return { camX: 0, camY: 0, z, zoom: 1, panel: null, sidebar: true, overlays: ['designations', 'zones'],
-    hintsShown: [], hintPending: [], hintBareSince: [], cursor: null };
+    hintsShown: [], hintPending: [], hintBareSince: [], deepFound: false, cursor: null };
 }
 
 /** The saved form: the state's persistent fields and the last `LOG_SAVED_LINES` log lines. */
@@ -58,7 +61,10 @@ export function toSaved(ui: UiState, log: readonly LogLine[]): SavedUiState {
     hintsShown: [...ui.hintsShown],
     hintPending: [...ui.hintPending],
     hintBareSince: ui.hintBareSince.map(([id, tick]) => [id, tick]),
-    logTail: tail.map((l) => (l.focus === undefined ? { tick: l.tick, severity: l.severity, text: l.text } : { tick: l.tick, severity: l.severity, text: l.text, focus: l.focus })),
+    deepFound: ui.deepFound,
+    logTail: tail.map((l) => ({ tick: l.tick, severity: l.severity, text: l.text,
+      ...(l.focus === undefined ? {} : { focus: l.focus }),
+      ...(l.category === undefined ? {} : { category: l.category }) })),
   };
 }
 
@@ -74,6 +80,7 @@ export function fromSaved(ui: UiState, saved: SavedUiState): LogLine[] {
   ui.hintsShown = [...(saved.hintsShown ?? [])];
   ui.hintPending = [...(saved.hintPending ?? [])];
   ui.hintBareSince = (saved.hintBareSince ?? []).map(([id, tick]) => [id, tick]);
+  ui.deepFound = saved.deepFound ?? false;
   ui.cursor = null;
   return saved.logTail.map((l) => ({
     tick: l.tick,
@@ -81,5 +88,6 @@ export function fromSaved(ui: UiState, saved: SavedUiState): LogLine[] {
     text: l.text,
     count: 1,
     ...(l.focus === undefined ? {} : { focus: l.focus }),
+    ...(l.category === undefined ? {} : { category: l.category }),
   }));
 }

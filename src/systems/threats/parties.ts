@@ -272,15 +272,18 @@ export function arriveParty(
     size,
   });
 
+  const planned = calculatePartyComposition(kind, size, renown, peril, isTwilightPass);
+  const tiles = findEdgeTiles(world.map, edge, planned.length);
+
   world.emit({
     type: 'RaidArrived',
     partyId,
     kind,
     size,
+    tile: tiles[0],
+    edge,
   });
 
-  const planned = calculatePartyComposition(kind, size, renown, peril, isTwilightPass);
-  const tiles = findEdgeTiles(world.map, edge, planned.length);
   const pendingSpawns: PendingSpawnState[] = [];
 
   for (let i = 0; i < planned.length; i++) {

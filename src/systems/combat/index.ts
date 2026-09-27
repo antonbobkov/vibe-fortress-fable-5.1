@@ -127,6 +127,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     );
 
     // Registrations
+    ctx.register.panel({ id: 'military', title: 'Military', hotkey: 'm' });
     ctx.register.inspector('creature', { id: 'combat', order: 11 });
     ctx.register.announcement('AlertChanged', {
       severity: 'note',
@@ -135,10 +136,13 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     ctx.register.announcement('KillRecorded', {
       severity: 'note',
       stringKey: 'announce.kill_recorded',
+      category: 'combat',
     });
     ctx.register.announcement('AttackResolved', {
       severity: 'alert',
       stringKey: 'announce.attack_resolved',
+      keyField: 'outcome',
+      category: 'combat',
     });
   }
 

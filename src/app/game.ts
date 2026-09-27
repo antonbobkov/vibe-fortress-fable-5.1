@@ -223,6 +223,7 @@ export class Game {
       now: () => Date.now(),
       quickSave: () => void this.quickSave(),
       quickLoad: () => void this.quickLoad(),
+      confirm: (id, params, answer) => this.confirm(id, params as Readonly<Record<string, string | number>>, answer),
     };
   }
 
