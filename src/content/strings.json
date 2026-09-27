@@ -1,4 +1,8 @@
 {
+  "announce.caravan_arrived": "A caravan has arrived from {civ}.",
+  "announce.caravan_departed": "The {civ} caravan has departed.",
+  "announce.caravan_lost": "The {civ} caravan has been lost.",
+  "announce.caravan_waiting": "The {civ} caravan waits at the edge for a trade depot.",
   "confirm.c_deconstruct_workshop": "This workshop has {n} orders. Deconstruct it?",
   "confirm.c_deepsilver": "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Mine it?",
   "confirm.c_delete_save": "Delete {save}? This cannot be undone.",
