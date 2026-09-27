@@ -18,6 +18,7 @@
 import { C } from '@core/components';
 import { LEVELS_VISIBLE_BELOW } from '@core/constants';
 import { Designation, TileFlag, TileKind } from '@core/map3d';
+import type { GameEvent } from '@core/events';
 import type { MapReader, ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
@@ -49,6 +50,9 @@ import { EnvironmentLayers, OVERLAY_FLUID_LEVELS, OVERLAY_TEMPERATURE } from './
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
 import type { PlantsReader } from '@systems/plants';
+import type { CombatReader } from '@systems/combat';
+import { blend } from './palette';
+import { ZONE_TINT_ALPHA } from './constants';
 
 interface PlantGlyphRow {
   readonly id: string;
@@ -85,6 +89,7 @@ export const OVERLAY_STOCKPILE_USAGE = 'stockpile_usage';
 
 /** The overlay id of the "priority digits" sub-toggle. */
 export const OVERLAY_PRIORITY_DIGITS = 'priority_digits';
+export const OVERLAY_SQUAD_STATIONS = 'squad_stations';
 
 /**
  * 23 § Compositor step 6: "topmost by priority: dwarves > hostiles > tame > wild > vermin".
@@ -155,6 +160,13 @@ export class Compositor {
   private readonly grassDry: Rgb;
   private readonly dwarfSpecies: number;
   private readonly stateColors: Readonly<Record<'normal' | 'need' | 'child', Rgb>>;
+  private readonly combatColors: Readonly<Record<'wounded' | 'asleep' | 'soldier' | 'hostile' | 'flash' | 'web' | 'station' | 'patrol' | 'projectile', Rgb>>;
+  private readonly glyphOf: (ch: string) => number;
+  private readonly attackedPairs = new Set<string>();
+  private readonly flashUntil = new Map<EntityId, number>();
+  private readonly stations = new Set<TileIndex>();
+  private readonly patrols = new Set<TileIndex>();
+  private readonly projectiles = new Map<TileIndex, EntityId>();
   private readonly tints = new Map<Designation, Rgb>();
   /** The frame's readers and overlays, set by {@link compose} for the layer functions. */
   private frameReaders: ReaderSet | null = null;
@@ -206,6 +218,7 @@ export class Compositor {
       const at = chars.indexOf(ch);
       return at < 0 ? chars.indexOf('?') : at;
     };
+    this.glyphOf = indexOf;
     const species = options.registry.table<SpeciesRow>('creatures');
     for (const id of species.ids()) {
       const row = species.byId(id) as SpeciesRow;
@@ -224,6 +237,13 @@ export class Compositor {
       normal: palette.color('dwarf_normal'),
       need: palette.color('dwarf_need'),
       child: palette.color('dwarf_child'),
+    };
+    this.combatColors = {
+      wounded: palette.color('dwarf_wounded'), asleep: palette.color('dwarf_asleep'),
+      soldier: palette.color('dwarf_soldier'), hostile: palette.color('hostile'),
+      flash: palette.color('red'), web: palette.color('silk_white'),
+      station: palette.color('zone_barracks'), patrol: palette.color('zone_range'),
+      projectile: palette.color('white'),
     };
     for (const [kind, id] of Object.entries(DESIGNATION_TINTS)) this.tints.set(Number(kind) as Designation, palette.color(id as string));
     this.things = new ThingLayers(options.registry, palette, indexOf);
@@ -249,6 +269,15 @@ export class Compositor {
     this.usage.clear();
     this.env.beginFrame(readers, ui.animFrame ?? 0);
     this.animFrame = ui.animFrame ?? 0;
+    this.stations.clear();
+    this.patrols.clear();
+    this.indexProjectiles(readers);
+    if (this.frameOverlays.includes(OVERLAY_SQUAD_STATIONS) && readers.has('16')) {
+      for (const squad of readers.of<CombatReader>('16').squads()) {
+        if (squad.station !== null) this.stations.add(squad.station);
+        for (const tile of squad.patrol ?? []) this.patrols.add(tile);
+      }
+    }
     this.things.pulse = this.env.slowPhase;
 
     const map = readers.map;
@@ -286,6 +315,7 @@ export class Compositor {
       this.frameReaders = readers;
       this.env.beginFrame(readers, 0);
       this.animFrame = 0;
+      this.indexProjectiles(readers);
     }
     // Step 1: undiscovered tiles show nothing but the overlays the player placed.
     if ((map.flagsAt(i) & TileFlag.Discovered) === 0) {
@@ -358,6 +388,7 @@ export class Compositor {
     const flags = map.flagsAt(i);
     const material = this.materialColor(map.materialAt(i));
     const kind = map.kindAt(i);
+    if ((flags & TileFlag.Web) !== 0) return { glyph: this.glyphOf('*'), fg: this.combatColors.web, bg: this.black };
     switch (kind) {
       case TileKind.Wall:
         // "Constructed walls use the block glyph regardless" (23 § Compositor step 2).
@@ -520,6 +551,8 @@ export class Compositor {
     let bestRank = Infinity;
     for (const id of readers.entities.at(i)) {
       if (!readers.entities.has(id, C.Creature)) continue;
+      const hostile = readers.entities.get(id, C.Hostile);
+      if (hostile?.stealthed === true && hostile.spotted !== true) continue;
       const rank = this.rankOf(readers, id);
       if (rank < bestRank || (rank === bestRank && best !== null && id < best)) {
         best = id;
@@ -535,6 +568,10 @@ export class Compositor {
    * colors need 17, 10's sleep and 16 (DECISIONS.md D-067).
    */
   stateColor(readers: ReaderSet, id: EntityId): Rgb {
+    const body = readers.entities.get(id, C.Body);
+    if (body !== undefined && (!body.conscious || body.parts.some((part) => part.wounds.length > 0))) return this.combatColors.wounded;
+    if (readers.entities.get(id, C.Brain)?.activity === 'sleep') return this.combatColors.asleep;
+    if (readers.has('16') && readers.of<CombatReader>('16').onDuty(id)) return this.combatColors.soldier;
     if (readers.has('10') && readers.of<{ isChild(id: EntityId): boolean }>('10').isChild(id)) return this.stateColors.child;
     if (readers.entities.get(id, C.Brain)?.behavior === 'need') return this.stateColors.need;
     return this.stateColors.normal;
@@ -548,14 +585,53 @@ export class Compositor {
     const c = readers.entities.get(id, C.Creature);
     if (c === undefined) return cell;
     const dwarf = this.rankOf(readers, id) === CreatureRank.Dwarf;
-    const glyph = this.speciesGlyph[c.species] ?? GLYPH_NONE;
-    const fg = dwarf ? this.stateColor(readers, id) : (this.speciesFg[c.species] ?? this.noMaterial);
-    return { glyph, fg, bg: cell.bg };
+    const unconscious = readers.entities.get(id, C.Body)?.conscious === false;
+    const glyph = unconscious && ((this.animFrame >> 1) & 1) === 1 ? this.glyphOf('_') : (this.speciesGlyph[c.species] ?? GLYPH_NONE);
+    const hostile = this.rankOf(readers, id) === CreatureRank.Hostile;
+    const fg = dwarf ? this.stateColor(readers, id) : hostile ? this.combatColors.hostile : (this.speciesFg[c.species] ?? this.noMaterial);
+    return { glyph, fg, bg: (this.flashUntil.get(id) ?? -1) > this.animFrame ? this.combatColors.flash : cell.bg };
   }
 
-  /** Step 7, projectiles (16): T-M6-17. */
-  private projectileOver(cell: Cell, _i: TileIndex): Cell {
+  /** Step 7: a projectile's current tile and direction from the last ray segment. */
+  private projectileOver(cell: Cell, i: TileIndex): Cell {
+    const readers = this.frameReaders;
+    if (readers === null) return cell;
+    const id = this.projectiles.get(i);
+    if (id !== undefined) {
+      const projectile = readers.entities.get(id, C.Projectile);
+      if (projectile === undefined) return cell;
+      const previous = projectile.progress <= 1 ? projectile.from : (projectile.line[Math.floor(projectile.progress) - 2] ?? projectile.from);
+      const a = readers.map.unpack(previous);
+      const b = readers.map.unpack(i);
+      const dx = Math.sign(b.x - a.x);
+      const dy = Math.sign(b.y - a.y);
+      const glyph = dx === 0 ? '|' : dy === 0 ? '-' : dx === dy ? '\\' : '/';
+      return { glyph: this.glyphOf(glyph), fg: this.combatColors.projectile, bg: cell.bg };
+    }
     return cell;
+  }
+
+  private indexProjectiles(readers: ReaderSet): void {
+    this.projectiles.clear();
+    for (const id of readers.entities.with(C.Projectile)) {
+      const pos = readers.entities.get(id, C.Position);
+      if (pos === undefined || !readers.map.inBounds(pos.x, pos.y, pos.z)) continue;
+      const tile = readers.map.index(pos.x, pos.y, pos.z);
+      const previous = this.projectiles.get(tile);
+      if (previous === undefined || id < previous) this.projectiles.set(tile, id);
+    }
+  }
+
+  /** Presentation event subscription: one flash for the first attack of an attacker/defender pair. */
+  onEvents(events: readonly GameEvent[], animFrame: number): void {
+    for (const event of events) {
+      if (event.type !== 'AttackResolved') continue;
+      if (typeof event.attackerId !== 'number' || typeof event.defenderId !== 'number') continue;
+      const pair = `${event.attackerId}:${event.defenderId}`;
+      if (this.attackedPairs.has(pair)) continue;
+      this.attackedPairs.add(pair);
+      this.flashUntil.set(event.defenderId, animFrame + 2);
+    }
   }
 
   /**
@@ -566,10 +642,16 @@ export class Compositor {
     let c = cell;
     if (this.frameOverlays.includes('designations')) c = this.designationOver(c, i, undiscovered, creature);
     if (this.frameOverlays.includes('zones')) c = this.zoneOver(c, i);
+    if (!undiscovered && this.frameOverlays.includes(OVERLAY_SQUAD_STATIONS)) c = this.stationOver(c, i);
     if (this.frameOverlays.includes(OVERLAY_STOCKPILE_USAGE)) c = this.usageOver(c, i);
     if (!undiscovered && this.frameOverlays.includes(OVERLAY_FLUID_LEVELS)) c = this.env.fluidLevelsOver(c, i, creature);
     if (!undiscovered && this.frameOverlays.includes(OVERLAY_TEMPERATURE)) c = this.env.temperatureOver(c, i);
     return c;
+  }
+
+  private stationOver(cell: Cell, i: TileIndex): Cell {
+    const tint = this.stations.has(i) ? this.combatColors.station : this.patrols.has(i) ? this.combatColors.patrol : null;
+    return tint === null ? cell : { ...cell, bg: blend(cell.bg, tint, ZONE_TINT_ALPHA) };
   }
 
   /**

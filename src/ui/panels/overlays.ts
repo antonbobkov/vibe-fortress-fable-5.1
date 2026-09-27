@@ -16,6 +16,7 @@ export const OVERLAY_ROWS: readonly { readonly id: string; readonly label: strin
   { id: 'zones', label: 'zones' },
   { id: 'fluid_levels', label: 'fluid levels' },
   { id: 'temperature', label: 'temperature' },
+  { id: 'squad_stations', label: 'squad stations' },
   { id: 'stockpile_usage', label: 'stockpile usage' },
 ];
 

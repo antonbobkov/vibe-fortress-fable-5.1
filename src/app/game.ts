@@ -232,6 +232,7 @@ export class Game {
     this.unsubscribe?.();
     this.unsubscribe = this.host.onEvents((events) => {
       this.fortress.onEvents(events);
+      this.compositor.onEvents(events, Math.floor(Date.now() / FLUID_ANIM_MS));
       // `persistence.md` § Autosave: "On every `SeasonChanged`, the app saves". The world is in the
       // middle of its tick here, so the save waits for the tick to end (D-083).
       for (const e of events) {

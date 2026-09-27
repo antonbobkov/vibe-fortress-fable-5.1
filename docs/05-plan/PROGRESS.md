@@ -137,7 +137,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M6-14 — Burial, grief, memorial slabs (codex-m614, 2026-09-26)
 - [x] T-M6-15 — Taming, training, war animals, pets follow (agy-m615, 2026-09-26)
 - [x] T-M6-16 — Military, threats, health panels; combat log; announcements (codex-m616, 2026-09-26)
-- [ ] T-M6-17 — Compositor: hostiles, projectiles, traps, stealth, webs, bridges; squad stations overlay
+- [x] T-M6-17 — Compositor: hostiles, projectiles, traps, stealth, webs, bridges; squad stations overlay (codex-m617, 2026-09-26)
 - [ ] T-M6-18 — Gate M6
 
 ## M7 — The Outside World ([M7-outside-world.md](M7-outside-world.md))
