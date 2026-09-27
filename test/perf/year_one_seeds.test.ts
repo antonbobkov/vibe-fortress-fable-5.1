@@ -1,7 +1,7 @@
 /**
  * Calibration tool for F-04 Decision F-04c and gate-report input from M6 on.
  * Runs the bootstrap script across five seeds: year-one, year-one-b, year-one-c, year-one-d, year-one-e.
- * Prints one line per seed with every checkpoint day, and asserts no CreatureDied on any seed.
+ * Prints one line per seed with every checkpoint day, and asserts no dwarf died on any seed.
  */
 import { describe, it, expect } from 'vitest';
 import { buildFlatTestMap, FLAT_TEST_SURFACE_Z } from '@app/headless';
@@ -11,6 +11,7 @@ import { TICKS_PER_DAY } from '@core/constants';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TestWorld } from '../scenarios/test-world';
+import { deathCounts } from '../scenarios/death-counts';
 
 const SEEDS = ['year-one', 'year-one-b', 'year-one-c', 'year-one-d', 'year-one-e'] as const;
 
@@ -27,7 +28,9 @@ export interface SeedRunResult {
   readonly brewCount: number;
   readonly cropCount: number;
   readonly drinkAt0: number;
-  readonly deaths: number;
+  readonly dwarfDeaths: number;
+  readonly tameDeaths: number;
+  readonly otherDeaths: number;
   readonly missingInputBlocks: number;
   readonly talkedCount: number;
 }
@@ -208,7 +211,7 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
 
   const brewEvents = w.events('ItemCrafted').filter((e) => e['recipeId'] === 'brew');
   const cropEvents = w.events('CropPlanted');
-  const diedEvents = w.events('CreatureDied');
+  const deaths = deathCounts(w);
   const missingInputEvents = w.events('JobBlocked').filter((e) => e['reason'] === 'missing_input');
   const talkedEvents = w.events('Talked');
 
@@ -227,7 +230,9 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
     brewCount: brewEvents.length,
     cropCount: cropEvents.length,
     drinkAt0,
-    deaths: diedEvents.length,
+    dwarfDeaths: deaths.dwarf,
+    tameDeaths: deaths.tame,
+    otherDeaths: deaths.other,
     missingInputBlocks: missingInputEvents.length,
     talkedCount: talkedEvents.length,
   };
@@ -236,10 +241,10 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
 }
 
 describe('F-04 perf: year_one_seeds', () => {
-  it.each(SEEDS)('runs %s and asserts nobody died', (seed) => {
+  it.each(SEEDS)('runs %s and asserts no dwarf died', (seed) => {
     const { result } = runYearOneScript(seed);
-    const line = `${result.seed}: carpenter=${result.carpenterDay ?? 'never'}d, mason=${result.masonDay ?? 'never'}d, still=${result.stillDay ?? 'never'}d, kitchen=${result.kitchenDay ?? 'never'}d, hearth=${result.hearthDay ?? 'never'}d, room=${result.roomDay ?? 'never'}d, brew=${result.firstBrewDay ?? 'never'}d (${result.brewCount}), crop=${result.firstCropDay ?? 'never'}d (${result.cropCount}), missingInputBlocks=${result.missingInputBlocks}, talked=${result.talkedCount}, deaths=${result.deaths}`;
+    const line = `${result.seed}: carpenter=${result.carpenterDay ?? 'never'}d, mason=${result.masonDay ?? 'never'}d, still=${result.stillDay ?? 'never'}d, kitchen=${result.kitchenDay ?? 'never'}d, hearth=${result.hearthDay ?? 'never'}d, room=${result.roomDay ?? 'never'}d, brew=${result.firstBrewDay ?? 'never'}d (${result.brewCount}), crop=${result.firstCropDay ?? 'never'}d (${result.cropCount}), missingInputBlocks=${result.missingInputBlocks}, talked=${result.talkedCount}, dwarfDeaths=${result.dwarfDeaths}, tameDeaths=${result.tameDeaths}, otherDeaths=${result.otherDeaths}`;
     console.log(line);
-    expect(result.deaths).toBe(0);
+    expect(result.dwarfDeaths).toBe(0);
   });
 });

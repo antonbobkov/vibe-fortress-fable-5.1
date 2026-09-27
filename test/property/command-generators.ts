@@ -71,7 +71,7 @@ function designate(w: TestWorld): fc.Arbitrary<Command> {
  */
 export interface EntityRef {
   readonly $nth: number;
-  readonly of: 'zone' | 'stockpile' | 'building' | 'workshop' | 'item' | 'metal_item' | 'farm_plot' | 'pasture' | 'grazer' | 'slaughterable' | 'adult';
+  readonly of: 'zone' | 'stockpile' | 'building' | 'workshop' | 'item' | 'metal_item' | 'farm_plot' | 'pasture' | 'grazer' | 'slaughterable' | 'adult' | 'squad' | 'trap' | 'lever' | 'hospital';
 }
 
 function isRef(value: unknown): value is EntityRef {
@@ -81,7 +81,7 @@ function isRef(value: unknown): value is EntityRef {
 /** The ids a reference ranges over, ascending. */
 function candidates(game: HeadlessGame, of: EntityRef['of']): EntityId[] {
   const e = game.world.entities;
-  if (of === 'farm_plot' || of === 'pasture') {
+  if (of === 'farm_plot' || of === 'pasture' || of === 'hospital') {
     const type = game.registry.table('zoneTypes').index(of);
     return e.with(C.Zone).filter((id) => e.get(id, C.Zone)?.type === type);
   }
@@ -97,6 +97,14 @@ function candidates(game: HeadlessGame, of: EntityRef['of']): EntityId[] {
     });
   }
   if (of === 'adult') return game.world.readers.of<{ adults(): EntityId[] }>('10').adults();
+  if (of === 'squad') return e.with(C.Squad);
+  if (of === 'trap' || of === 'lever') {
+    const rows = game.registry.table<{ id: string; tags: readonly string[] }>('buildings');
+    return e.with(C.Building).filter((id) => {
+      const row = rows.byIndex(e.get(id, C.Building)?.type ?? -1);
+      return of === 'trap' ? row?.tags.some((tag) => tag.startsWith('trap:')) : row?.tags.includes('lever');
+    });
+  }
   if (of === 'metal_item') {
     const materials = game.registry.table<{ id: string; class: string }>('materials');
     return e.with(C.Item).filter((id) => materials.byIndex(e.get(id, C.Item)?.material ?? -1)?.class === 'metal');
@@ -240,6 +248,17 @@ export function prepareM5GeneratorWorld(w: TestWorld): void {
   if (!result.ok) throw new Error(`M5 property setup: ${result.reason}`);
 }
 
+/** T-M6-18: stable real targets for squad, trap, lever and hospital command streams. */
+export function prepareM6GeneratorWorld(w: TestWorld): void {
+  const z = FLAT_TEST_SURFACE_Z;
+  w.build('stone_fall_trap', w.index(65, 65, z), 'granite');
+  w.build('lever', w.index(67, 65, z), 'granite');
+  w.zone('hospital', [w.index(70, 70, z)]);
+  const created = w.game.world.applyCommand({ type: 'CreateSquad', name: 'Property Guard' });
+  if (!created.ok) throw new Error(`M6 property setup: ${created.reason}`);
+  w.step(1);
+}
+
 /** T-M4-19: each command names a valid M4 target and an authored option. */
 const M4_GENERATORS: readonly CommandGenerator[] = [
   {
@@ -298,6 +317,22 @@ const M5_GENERATORS: readonly CommandGenerator[] = [
     .map(([workshopId, on]) => ({ type: 'SuspendWorkshop', workshopId, on }) as unknown as Command) },
 ];
 
+/** T-M6-18: commands from all five new M6 families. */
+const M6_GENERATORS: readonly CommandGenerator[] = [
+  { id: 'CreateSquad', milestone: 6, arbitrary: () => fc.nat({ max: 999 })
+    .map((n) => ({ type: 'CreateSquad', name: `Guard ${n}` }) as Command) },
+  { id: 'SetSquadMode', milestone: 6, arbitrary: () => fc.tuple(ref('squad'), fc.constantFrom('off', 'train', 'active'))
+    .map(([squadId, mode]) => ({ type: 'SetSquadMode', squadId, mode }) as unknown as Command) },
+  { id: 'SetAlert', milestone: 6, arbitrary: () => fc.constantFrom('calm', 'watchful', 'hearth')
+    .map((level) => ({ type: 'SetAlert', level }) as Command) },
+  { id: 'SetTrapMode', milestone: 6, arbitrary: () => fc.tuple(ref('trap'), fc.constantFrom('enemies', 'all'))
+    .map(([trapId, mode]) => ({ type: 'SetTrapMode', trapId, mode }) as unknown as Command) },
+  { id: 'PullLever', milestone: 6, arbitrary: () => ref('lever')
+    .map((leverId) => ({ type: 'PullLever', leverId }) as unknown as Command) },
+  { id: 'SetHospitalSupplies', milestone: 6, arbitrary: () => fc.tuple(ref('hospital'), fc.integer({ min: 1, max: 20 }))
+    .map(([zoneId, count]) => ({ type: 'SetHospitalSupplies', zoneId, wants: { cloth: count, thread: count } }) as unknown as Command) },
+];
+
 /** The generators of the milestones built so far: M1's terrain and labor ones, M2's items and buildings ones. */
 export const COMMAND_GENERATORS: readonly CommandGenerator[] = Object.freeze([
   { id: 'Designate', milestone: 1, arbitrary: designate },
@@ -329,6 +364,7 @@ export const COMMAND_GENERATORS: readonly CommandGenerator[] = Object.freeze([
   ...M2_GENERATORS,
   ...M4_GENERATORS,
   ...M5_GENERATORS,
+  ...M6_GENERATORS,
 ]);
 
 export function generatorsFor(milestone: number): readonly CommandGenerator[] {

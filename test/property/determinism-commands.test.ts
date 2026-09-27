@@ -12,7 +12,7 @@ import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { TestWorld } from '../scenarios/test-world';
-import { COMMAND_GENERATORS, commandStream, prepareM4GeneratorWorld, prepareM5GeneratorWorld, resolveCommand, submitScheduled, type ScheduledCommand } from './command-generators';
+import { COMMAND_GENERATORS, commandStream, prepareM4GeneratorWorld, prepareM5GeneratorWorld, prepareM6GeneratorWorld, resolveCommand, submitScheduled, type ScheduledCommand } from './command-generators';
 import { currentMilestone } from '../scenarios/runner';
 
 const TICKS = 2_000;
@@ -23,6 +23,7 @@ function runWith(stream: readonly ScheduledCommand[]): string[] {
   const w = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
   prepareM4GeneratorWorld(w);
   if (currentMilestone() >= 5) prepareM5GeneratorWorld(w);
+  if (currentMilestone() >= 6) prepareM6GeneratorWorld(w);
   const game = w.game;
   let next = 0;
   const hashes: string[] = [];
@@ -42,6 +43,7 @@ describe('T-M0-11 property: determinism under commands', () => {
     const probe = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
     prepareM4GeneratorWorld(probe);
     if (currentMilestone() >= 5) prepareM5GeneratorWorld(probe);
+    if (currentMilestone() >= 6) prepareM6GeneratorWorld(probe);
     fc.assert(
       fc.property(commandStream(probe, currentMilestone(), TICKS), (stream) => {
         const first = runWith(stream);
@@ -52,6 +54,23 @@ describe('T-M0-11 property: determinism under commands', () => {
       }),
       { numRuns: COMMAND_GENERATORS.length === 0 ? 2 : 10 },
     );
+  });
+});
+
+describe('T-M6-18 property: M6 command families', () => {
+  it('samples accepted squad, alert, trap, lever and hospital commands', () => {
+    const generators = COMMAND_GENERATORS.filter((g) => g.milestone === 6);
+    expect(generators.map((g) => g.id)).toEqual([
+      'CreateSquad', 'SetSquadMode', 'SetAlert', 'SetTrapMode', 'PullLever', 'SetHospitalSupplies',
+    ]);
+    for (const generator of generators) {
+      const w = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
+      prepareM6GeneratorWorld(w);
+      for (const command of fc.sample(generator.arbitrary(w), { numRuns: 4, seed: 20260927 })) {
+        const resolved = resolveCommand(w.game, command);
+        expect(w.game.world.applyCommand(resolved), `${generator.id}: ${JSON.stringify(resolved)}`).toEqual({ ok: true });
+      }
+    }
   });
 });
 

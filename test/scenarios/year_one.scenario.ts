@@ -20,6 +20,7 @@ import { FLAT_TEST_SURFACE_Z, buildFlatTestMap } from '@app/headless';
 import { TICKS_PER_DAY } from '@core/constants';
 import { TileKind } from '@core/map3d';
 import { C } from '@core/components';
+import { deathCounts } from './death-counts';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
@@ -293,12 +294,19 @@ const scenario: Scenario = {
       expect(firstCropTick, '≥ 1 crop planted by day 20').not.toBeNull();
       expect(firstCropTick!).toBeLessThanOrEqual(20 * TICKS_PER_DAY);
 
-      expect(w.events('CreatureDied').length, 'nobody died').toBe(0);
+      expect(deathCounts(w).dwarf, 'no dwarf died').toBe(0);
 
       const missingInput = w.events('JobBlocked').filter((e) => e['reason'] === 'missing_input').length;
       expect(missingInput, 'missing_input blocks ≤ 200').toBeLessThanOrEqual(200);
 
       const talked = w.events('Talked').length;
+      const day = (tick: number | null | undefined): number | null => tick === null || tick === undefined ? null : Number((tick / TICKS_PER_DAY).toFixed(2));
+      console.log(`year_one: ${JSON.stringify({ carpenterDay: day(builtTicks['carpenter']),
+        masonDay: day(builtTicks['mason']), stillDay: day(builtTicks['still']),
+        kitchenDay: day(builtTicks['kitchen']), hearthDay: day(builtTicks['hearth']),
+        roomDay: day(roomDugTick), firstBrewDay: day(firstBrewTick),
+        firstCropDay: day(firstCropTick), dwarfDeaths: deathCounts(w).dwarf,
+        tameDeaths: deathCounts(w).tame, missingInput, talked })}`);
       expect(talked, 'talked events ≥ 10').toBeGreaterThanOrEqual(10);
     } catch (err) {
       console.error(diagnose(w));

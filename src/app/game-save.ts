@@ -299,10 +299,10 @@ function restoreEntities(game: HeadlessGame, state: EntityStoreState): void {
  */
 export async function loadGame(
   blob: Uint8Array,
-  options: { registry?: Registry; compress?: Compressor } = {},
+  options: { registry?: Registry; compress?: Compressor; now?: () => number } = {},
 ): Promise<LoadedGame> {
   const save = options.compress === undefined ? await readSave(blob) : await readSave(blob, options.compress);
-  return restoreGame(save, options.registry);
+  return restoreGame(save, options.registry, options.now);
 }
 
 /**
@@ -342,7 +342,7 @@ export function roundTrip(game: HeadlessGame, options: Pick<SaveOptions, 'worldM
 }
 
 /** `save-format.md` § Load procedure steps 2 to 6 over an opened save. */
-export function restoreGame(save: LoadedSave, registryIn?: Registry): LoadedGame {
+export function restoreGame(save: LoadedSave, registryIn?: Registry, now?: () => number): LoadedGame {
   const registry = registryIn ?? contentRegistry();
   const header = save.header;
 
@@ -379,6 +379,7 @@ export function restoreGame(save: LoadedSave, registryIn?: Registry): LoadedGame
     embark: 'none',
     fortressName: fortress.name,
     deferLabels: true,
+    ...(now === undefined ? {} : { now }),
   });
   const world = game.world;
 
