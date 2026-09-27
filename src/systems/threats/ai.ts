@@ -23,6 +23,37 @@ import {
   STEAL_MAX_SIZE,
 } from './constants';
 
+interface FortressTarget {
+  id: EntityId;
+  x: number;
+  y: number;
+  z: number;
+  tile: TileIndex;
+  soldier: boolean;
+  spotRadius: number;
+}
+
+/** One stable, ascending-id view for every hostile thinking on this tick. */
+function fortressTargets(ctx: TickContext): FortressTarget[] {
+  const entities = ctx.world.entities;
+  const map = ctx.world.map;
+  const species = ctx.registry.table<{ id: string }>('creatures');
+  const out: FortressTarget[] = [];
+  for (const id of entities.with(C.Creature)) {
+    if (!entities.alive(id)) continue;
+    const creature = entities.get(id, C.Creature);
+    if (creature?.faction !== 'fortress') continue;
+    const body = entities.get(id, C.Body);
+    if (body !== undefined && !body.conscious) continue;
+    const p = entities.get(id, C.Position);
+    if (p === undefined) continue;
+    out.push({ id, x: p.x, y: p.y, z: p.z, tile: map.index(p.x, p.y, p.z),
+      soldier: entities.has(id, C.Soldier),
+      spotRadius: species.byIndex(creature.species)?.id.includes('dog') ? SPOT_RADIUS_DOG : SPOT_RADIUS });
+  }
+  return out;
+}
+
 export function positionOf(id: EntityId, ctx: TickContext): TileIndex {
   const p = ctx.world.entities.get(id, C.Position);
   if (!p) return -1;
@@ -88,39 +119,22 @@ export function getNearestEdgeTile(pos: TileIndex, edge: Edge, ctx: TickContext)
   return bestTile;
 }
 
-export function checkSpotted(_m: EntityId, pos: TileIndex, ctx: TickContext): boolean {
+export function checkSpotted(_m: EntityId, pos: TileIndex, ctx: TickContext, targets: readonly FortressTarget[] = fortressTargets(ctx)): boolean {
   const map = ctx.world.map;
-  const entities = ctx.world.entities;
   const pathing = ctx.readers.pathing;
   const mz = map.zOf(pos);
   const mx = map.xOf(pos);
   const my = map.yOf(pos);
 
-  const spTable = ctx.registry.table<{ id: string }>('creatures');
+  for (const target of targets) {
+    if (Math.abs(target.z - mz) > 1) continue;
 
-  for (const cId of entities.with(C.Creature)) {
-    if (!entities.alive(cId)) continue;
-    const c = entities.get(cId, C.Creature);
-    if (c?.faction !== 'fortress') continue;
-
-    const body = entities.get(cId, C.Body);
-    if (body !== undefined && !body.conscious) continue;
-
-    const cPos = entities.get(cId, C.Position);
-    if (!cPos) continue;
-    if (Math.abs(cPos.z - mz) > 1) continue;
-
-    const dx = Math.abs(cPos.x - mx);
-    const dy = Math.abs(cPos.y - my);
+    const dx = Math.abs(target.x - mx);
+    const dy = Math.abs(target.y - my);
     const dist = Math.max(dx, dy);
 
-    const spRow = spTable.byIndex(c.species);
-    const isDog = spRow?.id.includes('dog');
-    const spotRadius = isDog ? SPOT_RADIUS_DOG : SPOT_RADIUS;
-
-    if (dist <= spotRadius) {
-      const cTile = map.index(cPos.x, cPos.y, cPos.z);
-      if (pathing.lineOfSight(cTile, pos)) {
+    if (dist <= target.spotRadius) {
+      if (pathing.lineOfSight(target.tile, pos)) {
         return true;
       }
     }
@@ -158,8 +172,7 @@ export function findAdjacentLockedDoor(pos: TileIndex, ctx: TickContext): Entity
   return 0;
 }
 
-export function findCombatTarget(_m: EntityId, pos: TileIndex, role: string, ctx: TickContext): EntityId {
-  const entities = ctx.world.entities;
+export function findCombatTarget(_m: EntityId, pos: TileIndex, role: string, ctx: TickContext, targets: readonly FortressTarget[] = fortressTargets(ctx)): EntityId {
   const map = ctx.world.map;
   const pathing = ctx.readers.pathing;
   const isArcher = role === 'archers';
@@ -172,33 +185,22 @@ export function findCombatTarget(_m: EntityId, pos: TileIndex, role: string, ctx
   let bestCreature: EntityId = 0;
   let bestCreatureDist = Infinity;
 
-  for (const cId of entities.with(C.Creature)) {
-    if (!entities.alive(cId)) continue;
-    const c = entities.get(cId, C.Creature);
-    if (!c || c.faction !== 'fortress') continue;
+  for (const target of targets) {
+    if (Math.abs(target.z - mz) > 2) continue;
 
-    const body = entities.get(cId, C.Body);
-    if (body !== undefined && !body.conscious) continue;
-
-    const p = entities.get(cId, C.Position);
-    if (!p) continue;
-    if (Math.abs(p.z - mz) > 2) continue;
-
-    const dx = Math.abs(p.x - mx);
-    const dy = Math.abs(p.y - my);
+    const dx = Math.abs(target.x - mx);
+    const dy = Math.abs(target.y - my);
     const dist = Math.max(dx, dy);
     if (dist > 14) continue; // perception radius 14
 
-    const cTile = map.index(p.x, p.y, p.z);
-    if (!pathing.lineOfSight(pos, cTile)) continue;
+    if (!pathing.lineOfSight(pos, target.tile)) continue;
 
-    const isSoldier = entities.has(cId, C.Soldier);
-    if (isSoldier && dist < bestSoldierDist) {
-      bestSoldier = cId;
+    if (target.soldier && dist < bestSoldierDist) {
+      bestSoldier = target.id;
       bestSoldierDist = dist;
     }
     if (dist < bestCreatureDist) {
-      bestCreature = cId;
+      bestCreature = target.id;
       bestCreatureDist = dist;
     }
   }
@@ -582,7 +584,7 @@ export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickConte
   }
 }
 
-export function partyThink(partyId: EntityId, P: Party, ctx: TickContext): void {
+export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, targets?: readonly FortressTarget[]): void {
   const entities = ctx.world.entities;
   if (P.state === 'gone') return;
 
@@ -624,7 +626,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext): void 
       let seesFortress = false;
       for (const m of alive) {
         const mPos = positionOf(m, ctx);
-        if (mPos >= 0 && findCombatTarget(m, mPos, 'warriors', ctx) !== 0) {
+        if (mPos >= 0 && findCombatTarget(m, mPos, 'warriors', ctx, targets) !== 0) {
           seesFortress = true;
           break;
         }
@@ -672,7 +674,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext): void 
   }
 }
 
-export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: TickContext): void {
+export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: TickContext, targets?: readonly FortressTarget[]): void {
   const entities = ctx.world.entities;
   if (!entities.alive(m)) return;
 
@@ -683,7 +685,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
   if (pos < 0) return;
 
   // 1. Stealth and spotting
-  if (H.stealthed && checkSpotted(m, pos, ctx)) {
+  if (H.stealthed && checkSpotted(m, pos, ctx, targets)) {
     H.stealthed = false;
     H.spotted = true;
     if (P?.purpose === 'thief') {
@@ -739,7 +741,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
 
   // 4. Combat targeting (except stealthed thieves)
   if (!H.stealthed) {
-    const target = findCombatTarget(m, pos, H.role, ctx);
+    const target = findCombatTarget(m, pos, H.role, ctx, targets);
     if (target !== 0) {
       ctx.world.services.combat?.setTarget(m, target);
       H.behaviorState = 'attack';
@@ -848,21 +850,27 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
 
 export function stepThreatMembers(ctx: TickContext): void {
   const entities = ctx.world.entities;
-  for (const m of entities.with(C.Hostile)) {
+  const hostiles = entities.with(C.Hostile);
+  if (hostiles.length === 0) return;
+  const targets = fortressTargets(ctx);
+  for (const m of hostiles) {
     if (!entities.alive(m)) continue;
     const H = entities.get(m, C.Hostile);
     if (!H) continue;
     const P = H.partyId !== 0 ? entities.get(H.partyId, C.Party) : undefined;
-    memberThink(m, H, P, ctx);
+    memberThink(m, H, P, ctx, targets);
   }
 }
 
 export function stepThreatParties(ctx: TickContext): void {
   const entities = ctx.world.entities;
-  for (const partyId of entities.with(C.Party)) {
+  const parties = entities.with(C.Party);
+  if (parties.length === 0) return;
+  const targets = fortressTargets(ctx);
+  for (const partyId of parties) {
     if (!entities.alive(partyId)) continue;
     const P = entities.get(partyId, C.Party);
     if (!P || P.state === 'gone') continue;
-    partyThink(partyId, P, ctx);
+    partyThink(partyId, P, ctx, targets);
   }
 }

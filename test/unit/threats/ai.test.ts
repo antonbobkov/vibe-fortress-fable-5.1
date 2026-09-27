@@ -11,7 +11,7 @@ import type { GameEvent } from '@core/events';
 import type { TickContext } from '@core/system';
 import type { MoraleReader } from '@systems/morale/reader';
 import { TestWorld } from '../../scenarios/test-world';
-import { chooseGoal, memberThink } from '@systems/threats/ai';
+import { chooseGoal, memberThink, stepThreatMembers } from '@systems/threats/ai';
 import { spawnHostileMember } from '@systems/threats/parties';
 
 type PartyPurpose = 'thief' | 'bandits' | 'ambush' | 'raid' | 'siege' | 'restless' | 'caravan';
@@ -385,5 +385,28 @@ describe('T-M6-09 Hostile AI', () => {
       const corpseData = w.game.world.entities.get(corpseId, C.Corpse)!;
       expect(corpseData.wornItems).toContain(weaponId);
     });
+  });
+});
+
+describe('T-M6-18 shared threat targets', () => {
+  it('selects each hostile\'s nearest dwarf and refreshes positions on the next step', () => {
+    const w = new TestWorld({ world: 'flat-test', seed: 'shared-threat-targets', embark: 'none' });
+    const z = FLAT_TEST_SURFACE_Z;
+    const a = w.spawnDwarf({ at: w.index(10, 10, z) });
+    const b = w.spawnDwarf({ at: w.index(20, 10, z) });
+    const partyId = createTestParty(w);
+    const first = spawnHostileMember(w.game.world, w.game.registry, w.game.world.rngFor('18'),
+      partyId, 'gloam_warrior', 'warriors', w.index(12, 10, z), 1, false);
+    const second = spawnHostileMember(w.game.world, w.game.registry, w.game.world.rngFor('18'),
+      partyId, 'gloam_warrior', 'warriors', w.index(18, 10, z), 1, false);
+    stepThreatMembers(makeCtx(w));
+    expect(w.game.world.services.combat?.targetOf(first)).toBe(a);
+    expect(w.game.world.services.combat?.targetOf(second)).toBe(b);
+
+    w.game.movement.teleport(a, w.index(30, 10, z));
+    w.game.movement.teleport(b, w.index(11, 10, z));
+    stepThreatMembers(makeCtx(w));
+    expect(w.game.world.services.combat?.targetOf(first)).toBe(b);
+    expect(w.game.world.services.combat?.targetOf(second)).toBe(b);
   });
 });
