@@ -103,6 +103,8 @@ export class WeatherSystem extends BaseSystem<WeatherStateV1> {
   private transitions = new Map<string, Readonly<Record<string, number>>>();
   private soilOf: (material: number) => boolean = () => false;
   private tallAt: (i: TileIndex) => boolean = () => false;
+  /** Highest outdoor solid tile per map column; fluid exposure is checked each hour. */
+  private exposedSurface: Int32Array | null = null;
 
   // State (`06` § State).
   state: WeatherStateId = INITIAL_WEATHER;
@@ -128,6 +130,10 @@ export class WeatherSystem extends BaseSystem<WeatherStateV1> {
 
   override init(ctx: InitContext): void {
     this.mapRef = ctx.world.map;
+    this.exposedSurface = new Int32Array(this.map.w * this.map.h);
+    for (let at = 0; at < this.exposedSurface.length; at += 1) {
+      this.exposedSurface[at] = this.findOutdoorSurface(at);
+    }
     this.rng = ctx.rng;
     this.calendar = ctx.world.calendar as CalendarLike;
     this.hourNow = () => ctx.readers.calendar.hour;
@@ -248,23 +254,43 @@ export class WeatherSystem extends BaseSystem<WeatherStateV1> {
    */
   exposedColumns(): ChunkIndex[][] {
     const map = this.map;
-    const out: ChunkIndex[][] = Array.from({ length: map.chunksPerRow * map.chunksPerCol }, () => []);
-    const seen = new Set<ChunkIndex>();
+    const columns = map.chunksPerRow * map.chunksPerCol;
+    const out: ChunkIndex[][] = Array.from({ length: columns }, () => []);
+    const seen = new Uint8Array(map.chunkCount);
+    const surfaces = this.exposedSurface ?? new Int32Array(map.w * map.h).fill(-1);
     for (let y = 0; y < map.h; y += 1) {
       for (let x = 0; x < map.w; x += 1) {
-        for (let z = map.d - 1; z >= 0; z -= 1) {
-          const i = map.index(x, y, z);
-          if (!map.hasFlag(i, TileFlag.Outdoor)) break;
-          if (!this.isExposed(i)) continue;
-          const c = map.chunkOf(i);
-          if (seen.has(c)) continue;
-          seen.add(c);
-          (out[this.columnOf(c)] as ChunkIndex[]).push(c);
+        const at = y * map.w + x;
+        let i = surfaces[at] as number;
+        // Terrain recomputes Outdoor when a roof is placed or removed. A cached surface that
+        // became open or lost its sky flag is the only column that needs a new vertical search.
+        if (i < 0 || map.kind[i] === TileKind.Open || ((map.flags[i] as number) & TileFlag.Outdoor) === 0) {
+          i = this.findOutdoorSurface(at);
+          surfaces[at] = i;
+        }
+        if (i < 0 || !this.isExposed(i)) continue;
+        const col = Math.floor(y / CHUNK_SIZE) * map.chunksPerRow + Math.floor(x / CHUNK_SIZE);
+        const c = Math.floor(i / (map.w * map.h)) * columns + col;
+        if (seen[c] === 0) {
+          seen[c] = 1;
+          (out[col] as ChunkIndex[]).push(c);
         }
       }
     }
+    this.exposedSurface = surfaces;
     for (const list of out) list.sort((a, b) => a - b);
     return out;
+  }
+
+  private findOutdoorSurface(at: number): TileIndex {
+    const map = this.map;
+    const plane = map.w * map.h;
+    let i = (map.d - 1) * plane + at;
+    for (let z = map.d - 1; z >= 0; z -= 1, i -= plane) {
+      if (((map.flags[i] as number) & TileFlag.Outdoor) === 0) break;
+      if (map.kind[i] !== TileKind.Open) return i;
+    }
+    return -1;
   }
 
   private columnOf(c: ChunkIndex): number {
@@ -295,13 +321,25 @@ export class WeatherSystem extends BaseSystem<WeatherStateV1> {
   /** `rain`/`storm`: every outdoor chunk is wet this hour; mud on soil floors after two rain hours. */
   private rain(terrain: TerrainApi, tick: number, columns: readonly ChunkIndex[][]): void {
     const mud = this.rainHours >= MUD_RAIN_HOURS;
+    const map = this.map;
+    const perLevel = map.chunksPerRow * map.chunksPerCol;
     for (const list of columns) {
       for (const c of list) {
         this.wetChunks.set(c, tick);
-        for (const i of this.tilesOf(c)) {
-          if (!this.isExposed(i)) continue;
-          terrain.setFlag(i, TileFlag.Wet, true);
-          if (mud && this.isSoilFloor(i)) terrain.setFlag(i, TileFlag.Mud, true);
+        const z = Math.floor(c / perLevel);
+        const rest = c % perLevel;
+        const x0 = (rest % map.chunksPerRow) * CHUNK_SIZE;
+        const y0 = Math.floor(rest / map.chunksPerRow) * CHUNK_SIZE;
+        for (let y = y0; y < Math.min(map.h, y0 + CHUNK_SIZE); y += 1) {
+          for (let x = x0; x < Math.min(map.w, x0 + CHUNK_SIZE); x += 1) {
+            const i = (z * map.h + y) * map.w + x;
+            const flags = map.flags[i] as number;
+            if ((flags & TileFlag.Outdoor) === 0 || map.kind[i] === TileKind.Open) continue;
+            const fluid = map.fluid[i] as number;
+            if ((fluid & FLUID_LEVEL_MASK) !== 0 && (fluid & FLUID_FROZEN_BIT) === 0) continue;
+            if ((flags & TileFlag.Wet) === 0) terrain.setFlag(i, TileFlag.Wet, true);
+            if (mud && (flags & TileFlag.Mud) === 0 && this.isSoilFloor(i)) terrain.setFlag(i, TileFlag.Mud, true);
+          }
         }
       }
     }

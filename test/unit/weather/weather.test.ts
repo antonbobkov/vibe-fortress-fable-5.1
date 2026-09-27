@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { contentRegistry } from '@content/loader';
-import { regionSpec } from '@app/headless';
+import { FLAT_TEST_SURFACE_Z, regionSpec } from '@app/headless';
 import { TICKS_PER_DAY, TICKS_PER_HOUR, DAYS_PER_SEASON } from '@core/constants';
-import { TileFlag, TileKind } from '@core/map3d';
+import { FLUID_FROZEN_BIT, FLUID_LEVEL_MASK, TileFlag, TileKind } from '@core/map3d';
 import * as K from '@systems/weather/constants';
 import {
   allowed,
@@ -167,6 +167,42 @@ describe('T-M3-06 weather: the system', () => {
     }
     throw new Error('no soil floor');
   }
+
+  it('T-M6-18 refreshes exposed chunk candidates after roofing, digging, and fluid changes', () => {
+    const w = new TestWorld({ seed: 'weather-cache', world: 'flat-test', embark: 'none' });
+    const map = w.map;
+    const scan = (): number[][] => {
+      const out: number[][] = Array.from({ length: map.chunksPerRow * map.chunksPerCol }, () => []);
+      const seen = new Set<number>();
+      for (let y = 0; y < map.h; y += 1) for (let x = 0; x < map.w; x += 1) {
+        for (let z = map.d - 1; z >= 0; z -= 1) {
+          const i = map.index(x, y, z);
+          if (!map.hasFlag(i, TileFlag.Outdoor)) break;
+          const fluid = map.fluid[i] as number;
+          if (map.kindAt(i) === TileKind.Open || ((fluid & FLUID_LEVEL_MASK) !== 0 && (fluid & FLUID_FROZEN_BIT) === 0)) continue;
+          const c = map.chunkOf(i);
+          if (seen.has(c)) continue;
+          seen.add(c);
+          (out[c % out.length] as number[]).push(c);
+        }
+      }
+      for (const list of out) list.sort((a, b) => a - b);
+      return out;
+    };
+    const weather = w.weather;
+    expect(weather.exposedColumns()).toEqual(scan());
+    const surface = w.index(40, 40, FLAT_TEST_SURFACE_Z);
+    const roof = w.index(40, 40, FLAT_TEST_SURFACE_Z + 1);
+    const material = map.materialAt(surface);
+    w.game.world.services.terrain.setKind(roof, TileKind.Floor, material);
+    expect(weather.exposedColumns()).toEqual(scan());
+    w.game.world.services.terrain.setKind(roof, TileKind.Open, material);
+    expect(weather.exposedColumns()).toEqual(scan());
+    w.setFluid(surface, 7, 'water');
+    expect(weather.exposedColumns()).toEqual(scan());
+    w.game.world.services.terrain.setKind(surface, TileKind.Open, material);
+    expect(weather.exposedColumns()).toEqual(scan());
+  });
 
   it('starts clear, sets the calendar daylight, and feeds 05 its surface temperature', () => {
     const w = world(0, 0);
