@@ -100,6 +100,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   private readonly patrolIndices = new Map<EntityId, number>();
   private readonly sessionEnds = new Map<EntityId, number>();
   private daysCount = 0;
+  /** Event dispatch sees all items created by the previous tick before any ItemCreated handler. */
+  private lastItemReequipTick = -1;
 
   get targets(): TargetManager {
     if (this.targetManager === null) throw new Error('16 combat: targets before init');
@@ -409,7 +411,10 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     }
 
     if (event.type === 'ItemCreated') {
-      reequipAllSquads(ctx);
+      if (this.lastItemReequipTick !== ctx.tick) {
+        this.lastItemReequipTick = ctx.tick;
+        reequipAllSquads(ctx);
+      }
       return;
     }
   }
