@@ -1,0 +1,76 @@
+/** The selected trade depot's stock and actions (T-M7-03). */
+import type { EntityId } from '@core/types';
+import type { Rect } from '@render/cellbuffer';
+import type { TradeReader } from '@systems/trade';
+import type { ItemsReader } from '@systems/items';
+import type { Surface } from '../surface';
+import { label, type ListState, clampList } from '../widgets';
+import { buildings, type PanelContext } from './context';
+
+export class DepotPanel {
+  depotId: EntityId = 0;
+  readonly list: ListState = { selected: 0, scroll: 0 };
+
+  select(ctx: PanelContext, id: EntityId): void {
+    if (buildings(ctx)?.depots().includes(id)) this.depotId = id;
+  }
+
+  selectedDepot(ctx: PanelContext): EntityId {
+    const depots = buildings(ctx)?.depots() ?? [];
+    return depots.includes(this.depotId) ? this.depotId : depots[0] ?? 0;
+  }
+
+  items(ctx: PanelContext): EntityId[] {
+    if (!ctx.readers.has('20')) return [];
+    const id = this.selectedDepot(ctx);
+    const trade = ctx.readers.of<TradeReader>('20');
+    const items = ctx.readers.of<ItemsReader>('13');
+    return trade.depotItems().filter((itemId) => items.get(itemId)?.containerId === id);
+  }
+
+  move(delta: number, ctx: PanelContext): void {
+    this.list.selected = Math.max(0, Math.min(this.items(ctx).length - 1, this.list.selected + delta));
+  }
+
+  remove(ctx: PanelContext): void {
+    const itemId = this.items(ctx)[this.list.selected];
+    if (itemId !== undefined) ctx.submit({ type: 'RemoveFromDepot', depotId: this.selectedDepot(ctx), itemIds: [itemId] });
+  }
+
+  trade(ctx: PanelContext): void {
+    const depotId = this.selectedDepot(ctx);
+    const active = ctx.readers.has('20') ? ctx.readers.of<TradeReader>('20').activeCaravan() : null;
+    if (depotId && active?.state === 'atDepot') ctx.submit({ type: 'TradeOpen', depotId });
+  }
+}
+
+export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: PanelContext, moveGoods: () => void): void {
+  const depotId = panel.selectedDepot(ctx);
+  const col = rect.col + 1;
+  const width = rect.cols - 2;
+  if (!depotId) { label(s, col, rect.row, 'No built trade depot.', { fg: s.theme.dim, width }); return; }
+  label(s, col, rect.row, `Depot #${depotId} · goods at depot`, { fg: s.theme.key, width });
+  const ids = panel.items(ctx);
+  const items = ctx.readers.of<ItemsReader>('13');
+  const active = ctx.readers.of<TradeReader>('20').activeCaravan();
+  const civ = active?.civ;
+  const trade = ctx.readers.of<TradeReader>('20');
+  const height = Math.max(1, rect.rows - 4);
+  clampList(panel.list, ids.length, height);
+  for (let index = panel.list.scroll; index < Math.min(ids.length, panel.list.scroll + height); index += 1) {
+    const id = ids[index] as EntityId;
+    const item = items.get(id);
+    if (!item) continue;
+    const name = items.def(item.type)?.name ?? 'goods';
+    const value = civ ? trade.valuation(civ, id) : items.value(id);
+    const row = rect.row + 1 + index - panel.list.scroll;
+    label(s, col, row, `${index === panel.list.selected ? '▶' : ' '} ${item.count} ${name}  ${Math.round(value)} ☼`, { width });
+    s.hit({ col, row, cols: width, rows: 1 }, () => { panel.list.selected = index; });
+  }
+  const footer = rect.row + rect.rows - 2;
+  label(s, col, footer, '[m] move goods… [r] remove', { fg: s.theme.key, width });
+  label(s, col + 28, footer, '[t] Trade', { fg: active?.state === 'atDepot' ? s.theme.key : s.theme.dim, width: Math.max(0, width - 28) });
+  s.hit({ col, row: footer, cols: 16, rows: 1 }, moveGoods);
+  s.hit({ col: col + 17, row: footer, cols: 10, rows: 1 }, () => panel.remove(ctx));
+  if (active?.state === 'atDepot') s.hit({ col: col + 28, row: footer, cols: 9, rows: 1 }, () => panel.trade(ctx));
+}

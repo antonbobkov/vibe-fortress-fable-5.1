@@ -50,6 +50,8 @@ import { SIM_TICKS_PER_SECOND, STATUS_ROWS } from '@core/constants';
 import { FLUID_ANIM_MS, LOG_ROWS } from '@render/constants';
 import { ConfirmScreen } from '@ui/screens/confirm';
 import { LoadScreen, type SaveListing } from '@ui/screens/load';
+import { TradeSessionScreen } from '@ui/screens/trade_session';
+import type { TradeReader } from '@systems/trade';
 import { createStorage } from '@platform/storage';
 import type { Command } from '@core/commands';
 import type { Registry } from '@core/registry';
@@ -714,6 +716,16 @@ export class Game {
 
   /** Compose and draw one frame. */
   render(): void {
+    if (this.busy === null && this.host.started && this.top() === FORTRESS && this.host.readers.has('20') && this.host.readers.of<TradeReader>('20').sessionOpen()) {
+      this.host.setSpeed(0);
+      this.pushScreen(new TradeSessionScreen({
+        readers: this.host.readers,
+        registry: this.registry,
+        submit: (command) => this.host.submit(command),
+        commandTick: () => this.host.step(1),
+        back: () => this.popScreen(),
+      }));
+    }
     const top = this.top();
     if (this.busy !== null || top !== FORTRESS) {
       if (this.screenBuffer === null || this.screenBuffer.cols !== this.cols || this.screenBuffer.rows !== this.rows) {
@@ -1036,8 +1048,9 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
     files: browserFiles(document),
   });
   const testBuild = import.meta.env.MODE === 'test';
-  const start = testBuild ? new URLSearchParams(window.location.search).get('start') : null;
-  if (start === 'flat-test') await game.start({ seed: options.seed ?? 'deepholm' });
+  const query = testBuild ? new URLSearchParams(window.location.search) : null;
+  const start = query?.get('start') ?? null;
+  if (start === 'flat-test') await game.start({ seed: options.seed ?? 'deepholm', ...(query?.get('embark') === 'default' ? { embark: 'default' as const } : {}) });
   else await game.showMainMenu();
 
   const local = (x: number, y: number): { x: number; y: number } => {

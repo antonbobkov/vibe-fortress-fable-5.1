@@ -37,6 +37,9 @@ import { drawMoodPanel, MoodPanel } from '../panels/mood';
 import { changePopulationCap, drawPopulationPanel, POPULATION_CAP_STEP } from '../panels/population';
 import { drawMilitaryPanel, MilitaryPanel } from '../panels/military';
 import { drawThreatsPanel, ThreatsPanel } from '../panels/threats';
+import { CivilizationsPanel, drawCivilizationsPanel } from '../panels/civilizations';
+import { DepotPanel, drawDepotPanel } from '../panels/depot';
+import type { TradeReader } from '@systems/trade';
 import { C } from '@core/components';
 import { creaturesAt, creatureSummary, drawLookPanel, tileSummary, type LookTab } from '../panels/look';
 import { drawLogPanel, drawLogStrip, type LogFilter } from '../panels/log';
@@ -59,6 +62,7 @@ export const UI_PANELS: readonly PanelSpec[] = [
   // `06` § Player-facing behavior: opened from the status bar date; no hotkey (D-103).
   { id: 'calendar', title: 'Calendar', hotkey: '' },
   { id: 'population', title: 'Population', hotkey: 'p' },
+  { id: 'civilizations', title: 'Civilizations', hotkey: 'c' },
 ];
 
 /** The speeds `+` and `-` step through ("speed up (1× → 2× → 4×)"). */
@@ -117,6 +121,8 @@ export class FortressScreen implements Screen {
   readonly mood = new MoodPanel();
   readonly military = new MilitaryPanel();
   readonly threats = new ThreatsPanel();
+  readonly civilizations = new CivilizationsPanel();
+  readonly depot = new DepotPanel();
   workshopId = 0;
   /** The shift state of the click being handled (the labor grid's "shift-click: whole column"). */
   private clickShift = false;
@@ -324,7 +330,7 @@ export class FortressScreen implements Screen {
     surface.fill(rect, t.black);
     const rule = surface.glyphs.index('│');
     for (let r = 0; r < rect.rows; r += 1) surface.put(rect.col, rect.row + r, rule, t.border, t.black);
-    const panel = this.panels().find((p) => p.id === this.ui.panel) ?? (this.ui.panel === 'workshop' ? { id: 'workshop', title: 'Workshop', hotkey: '' } : undefined);
+    const panel = this.panels().find((p) => p.id === this.ui.panel) ?? (this.ui.panel === 'workshop' || this.ui.panel === 'depot' ? { id: this.ui.panel, title: this.ui.panel === 'depot' ? 'Depot' : 'Workshop', hotkey: '' } : undefined);
     if (panel === undefined) return;
     const inner = { col: rect.col + 1, row: rect.row, cols: rect.cols - 1, rows: rect.rows };
     const key = panel.hotkey === '' ? '' : `[${panel.hotkey}]`;
@@ -351,6 +357,8 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
     else if (panel.id === 'military') drawMilitaryPanel(surface, body, this.military, ctx, this.host);
     else if (panel.id === 'threats') drawThreatsPanel(surface, body, this.threats, ctx, this.ui.deepFound);
+    else if (panel.id === 'civilizations') drawCivilizationsPanel(surface, body, this.civilizations, ctx, () => this.openTrade());
+    else if (panel.id === 'depot') drawDepotPanel(surface, body, this.depot, ctx, () => this.moveGoods());
     else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, (line) => {
       if (line.focus !== undefined) this.focusOn(line.focus);
     });
@@ -479,6 +487,19 @@ export class FortressScreen implements Screen {
     if (id !== 'zones') this.zones.cancel();
     this.ui.panel = id;
     this.ui.sidebar = true;
+  }
+
+  private moveGoods(): void {
+    const id = this.depot.selectedDepot(this.ctx);
+    if (!id) return;
+    this.stocks.startDepot(id);
+    this.openPanel('stocks');
+  }
+
+  private openTrade(): void {
+    const id = this.depot.selectedDepot(this.ctx);
+    const active = this.host.readers.has('20') ? this.host.readers.of<TradeReader>('20').activeCaravan() : null;
+    if (id && active?.state === 'atDepot') this.host.submit({ type: 'TradeOpen', depotId: id });
   }
 
   /** Look at a tile: the look panel with the cursor on it. */
@@ -610,6 +631,15 @@ export class FortressScreen implements Screen {
 
   key(press: KeyPress): boolean {
     this.ensureRegistered();
+    if (this.ui.panel === 'stocks' && this.stocks.depotSelection && (press.key === 'Esc' || press.key === 'Escape')) {
+      this.stocks.cancelDepot();
+      this.openPanel('depot');
+      return true;
+    }
+    if (this.ui.panel === 'stocks' && this.stocks.depotSelection && (press.key === 'Space' || press.key === ' ')) {
+      this.stocks.toggleDepot(this.ctx);
+      return true;
+    }
     if (this.pinned !== null) {
       // "the strip shows the line until dismissed by any key".
       this.pinned = null;
@@ -620,7 +650,7 @@ export class FortressScreen implements Screen {
       if (result !== null && result !== 'handled') this.host.submit(result);
       return true;
     }
-    if ((this.ui.panel === 'orders' || this.ui.panel === 'workshop' || this.ui.panel === 'military' || this.ui.panel === 'population') && (press.key === '+' || (press.key === '-' && (this.orders.editing || this.ui.panel === 'population'))) && !press.ctrl && !press.alt && !press.meta) return this.panelKey(this.ui.panel, press);
+    if ((this.ui.panel === 'orders' || this.ui.panel === 'workshop' || this.ui.panel === 'military' || this.ui.panel === 'population' || this.ui.panel === 'civilizations') && (press.key === '+' || (press.key === '-' && (this.orders.editing || this.ui.panel === 'population'))) && !press.ctrl && !press.alt && !press.meta) return this.panelKey(this.ui.panel, press);
     const global = this.keymap.resolve('global', press);
     if (global !== null) {
       switch (global.id) {
@@ -810,6 +840,12 @@ export class FortressScreen implements Screen {
         }
         return letter !== '' && this.zones.choose(letter);
       case 'stocks':
+        if (this.stocks.depotSelection) {
+          if (!press.shift && (up || down)) { this.stocks.move(up ? -1 : 1, ctx); return true; }
+          if (k === 'Enter' || k === 'Space' || k === ' ') { this.stocks.toggleDepot(ctx); return true; }
+          if (letter === 't') { this.stocks.confirmDepot(ctx); return true; }
+          return false;
+        }
         if (!press.shift && (up || down)) {
           this.stocks.move(up ? -1 : 1, ctx);
           return true;
@@ -821,7 +857,16 @@ export class FortressScreen implements Screen {
         if (letter === 'f') return submit(this.stocks.flagCommands(ctx, 'ForbidItem'));
         if (letter === 'd') return submit(this.stocks.flagCommands(ctx, 'DumpItem'));
         if (letter === 'm') return submit(this.stocks.flagCommands(ctx, 'MeltItem'));
-        return letter === 't';
+        if (letter === 't') { this.moveGoods(); return true; }
+        return false;
+      case 'civilizations':
+        return this.civilizations.key(ctx, press, () => this.openTrade());
+      case 'depot':
+        if (!press.shift && (up || down)) { this.depot.move(up ? -1 : 1, ctx); return true; }
+        if (letter === 'm') { this.moveGoods(); return true; }
+        if (letter === 'r') { this.depot.remove(ctx); return true; }
+        if (letter === 't') { this.openTrade(); return true; }
+        return false;
       case 'units': {
         if (this.units.editing) {
           if (k === 'Enter') this.units.editing = false;
@@ -1009,6 +1054,11 @@ export class FortressScreen implements Screen {
     }
     const tile = this.tileOf(at);
     const buildingId = tile !== null && this.host.readers.has('14') ? this.host.readers.of<import('@systems/buildings').BuildingsReader>('14').at(tile) : 0;
+    if (buildingId !== 0 && this.host.readers.has('14') && this.host.readers.of<import('@systems/buildings').BuildingsReader>('14').depots().includes(buildingId)) {
+      this.depot.select(this.ctx, buildingId);
+      this.openPanel('depot');
+      return;
+    }
     if (buildingId !== 0 && this.host.readers.entities.has(buildingId, C.Workshop)) {
       this.workshopId = buildingId;
       this.openPanel('workshop');

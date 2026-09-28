@@ -24,6 +24,8 @@ interface NodeTotals {
 
 export class StocksPanel {
   readonly tree: TreeState = { selected: 0, scroll: 0, expanded: new Set<string>() };
+  depotSelection = 0;
+  readonly depotChosen = new Set<EntityId>();
   private forest: TreeNode[] | null = null;
   private cache: { tick: number; totals: Map<string, NodeTotals>; types: Map<string, number[]>; itemIds: Map<number, EntityId[]> } | null = null;
 
@@ -115,6 +117,46 @@ export class StocksPanel {
     else this.tree.expanded.add(node);
   }
 
+  startDepot(depotId: EntityId): void {
+    this.depotSelection = depotId;
+    this.depotChosen.clear();
+  }
+
+  cancelDepot(): void {
+    this.depotSelection = 0;
+    this.depotChosen.clear();
+  }
+
+  /** Eligible stacks under the current tree row, including a single expanded item row. */
+  depotChoices(ctx: PanelContext): EntityId[] {
+    const node = this.selectedNode(ctx);
+    const reader = items(ctx);
+    if (!node || !reader) return [];
+    const totals = this.totals(ctx);
+    const ids = node.startsWith('item:') ? [Number(node.slice(5))]
+      : node.startsWith('type:') ? totals.itemIds.get(Number(node.slice(5))) ?? []
+        : (totals.types.get(node) ?? []).flatMap((type) => totals.itemIds.get(type) ?? []);
+    return ids.filter((id) => {
+      const item = reader.get(id);
+      return item !== undefined && (item.flags & (ItemFlag.Merchant | ItemFlag.Owned | ItemFlag.Installed | ItemFlag.Forbidden | ItemFlag.AtDepot)) === 0;
+    });
+  }
+
+  toggleDepot(ctx: PanelContext): void {
+    const ids = this.depotChoices(ctx);
+    const add = ids.some((id) => !this.depotChosen.has(id));
+    for (const id of ids) {
+      if (add) this.depotChosen.add(id);
+      else this.depotChosen.delete(id);
+    }
+  }
+
+  confirmDepot(ctx: PanelContext): void {
+    if (this.depotSelection && this.depotChosen.size > 0) ctx.submit({ type: 'MoveToDepot', depotId: this.depotSelection, itemIds: [...this.depotChosen] });
+    this.cancelDepot();
+    ctx.openPanel('depot');
+  }
+
   /** `f` / `d` / `m` on the selected node. */
   flagCommands(ctx: PanelContext, kind: 'ForbidItem' | 'DumpItem' | 'MeltItem'): Command[] {
     const node = this.selectedNode(ctx);
@@ -180,8 +222,17 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
   if (b !== null) for (const id of ctx.readers.entities.with(C.Building)) built += b.value(id as EntityId);
   label(s, rect.col + 1, row, strings.get('ui.stocks.wealth', { wealth: marks(it?.wealth() ?? 0), buildings: marks(built) }), { fg: t.value, width: rect.cols - 2 });
   row += 1;
+  if (panel.depotSelection) {
+    label(s, rect.col + 1, row, `[Space] select [t] move ${panel.depotChosen.size} [Esc] cancel`, { fg: t.key, width: rect.cols - 2 });
+    s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => panel.confirmDepot(ctx));
+    return;
+  }
   label(s, rect.col + 1, row, strings.get('ui.stocks.actions'), { width: rect.cols - 2 });
-  label(s, rect.col + 24, row, '[t] depot', { fg: t.dim, width: rect.cols - 25 });
+  label(s, rect.col + 24, row, '[t] depot', { fg: buildings(ctx)?.depots().length ? t.key : t.dim, width: rect.cols - 25 });
+  s.hit({ col: rect.col + 24, row, cols: 9, rows: 1 }, () => {
+    const depotId = buildings(ctx)?.depots()[0] ?? 0;
+    if (depotId) panel.startDepot(depotId);
+  });
   const act = (col: number, width: number, kind: 'ForbidItem' | 'DumpItem' | 'MeltItem'): void =>
     s.hit({ col: rect.col + 1 + col, row, cols: width, rows: 1 }, () => {
       for (const c of panel.flagCommands(ctx, kind)) ctx.submit(c);
