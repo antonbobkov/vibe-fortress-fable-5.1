@@ -1,10 +1,17 @@
-/** The fortress's Esc menu (24 § Game menu). */
+/**
+ * The fortress's Esc menu: `02-systems/24-ui-and-input.md` § Game menu ("`Resume`, `Save`, `Load`,
+ * `Settings`, `Retire fortress` (confirm), `Main menu` (confirm if unsaved changes since the last
+ * save)") laid out as `ui-screens/fortress-screen.md` § Game menu draws it, with the fortress name
+ * in the title row and `[x]` on Retire (T-M7-09).
+ */
 import type { KeyPress } from '@platform/input';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { Surface } from '../surface';
 import { label, menu, moveSelection, type MenuItem } from '../widgets';
 
 export interface GameMenuHost {
+  /** The title row: `Deepholm · <fortress>`. */
+  fortressName(): string;
   resume(): void;
   save(): void;
   load(): void;
@@ -27,7 +34,7 @@ export class GameMenuScreen implements Screen {
       { id: 'save', key: 's', label: 'Save', enabled },
       { id: 'load', key: 'l', label: 'Load' },
       { id: 'settings', key: 'o', label: 'Settings' },
-      { id: 'retire', key: 't', label: 'Retire fortress', enabled },
+      { id: 'retire', key: 'x', label: 'Retire fortress', enabled },
       { id: 'main_menu', key: 'm', label: 'Main menu' },
     ];
   }
@@ -36,7 +43,7 @@ export class GameMenuScreen implements Screen {
     this.last = surface;
     const col = Math.max(2, Math.floor(surface.cols / 2) - 12);
     const row = Math.max(1, Math.floor(surface.rows / 2) - 5);
-    label(surface, col, row, 'Game menu', { fg: surface.theme.key });
+    label(surface, col, row, `Deepholm · ${this.host.fortressName()}`, { fg: surface.theme.key });
     menu(surface, col, row + 2, this.items(), this.selected, (id) => this.choose(id));
   }
 

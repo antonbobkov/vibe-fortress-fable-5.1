@@ -30,7 +30,7 @@ import { drawJobsPanel, JobsPanel } from '../panels/jobs';
 import { drawLaborsPanel, LaborsPanel } from '../panels/labors';
 import { drawStocksPanel, StocksPanel } from '../panels/stocks';
 import { drawUnitsPanel, UnitsPanel } from '../panels/units';
-import { drawZonesPanel, ZoneTool } from '../panels/zones';
+import { drawZonesPanel, removalConfirm, ZoneTool } from '../panels/zones';
 import { drawOrdersPanel, drawWorkshopPanel, OrdersPanel } from '../panels/orders';
 import { drawAnimalsPanel, AnimalsPanel } from '../panels/animals';
 import { drawMoodPanel, MoodPanel } from '../panels/mood';
@@ -157,6 +157,12 @@ export class FortressScreen implements Screen {
   private flashUntil = 0;
   private rejection: { text: string; until: number } | null = null;
   private dragging = false;
+  /**
+   * `ui-keymap-and-screens.md` § Mouse: "Left drag | with no tool: select a rectangle (then
+   * `Delete`, forbid, dump, move to depot)". Presentation only, never saved (D-200).
+   */
+  selection: { a: TilePoint; b: TilePoint } | null = null;
+  private selecting: TilePoint | null = null;
   private middle: { col: number; row: number } | null = null;
   private lastSpeed: Speed = 1;
   private last: Surface | null = null;
@@ -272,6 +278,66 @@ export class FortressScreen implements Screen {
     this.ui.hintBareSince = [];
   }
 
+  /** The tiles of the current selection, or an empty list. */
+  selectionTiles(): TileIndex[] {
+    const sel = this.selection;
+    return sel === null ? [] : rectTiles(this.host.readers.map, sel.a, sel.b);
+  }
+
+  /**
+   * The keys a selection takes. `Delete` is the § Map row "with a selection: cancel designations /
+   * remove zone / cancel building"; `f`, `d` and `t` are § Stocks' forbid, dump and move to depot.
+   */
+  private selectionKey(press: KeyPress): boolean {
+    const tiles = this.selectionTiles();
+    if (tiles.length === 0) return false;
+    const key = press.key.length === 1 ? press.key.toLowerCase() : press.key;
+    if (key === 'Delete') {
+      this.host.submit({ type: 'UndoDesignation', tiles });
+      const buildings = this.host.readers.has('14') ? this.host.readers.of<import('@systems/buildings').BuildingsReader>('14') : null;
+      if (buildings !== null) {
+        const zones = new Set<number>();
+        for (const tile of tiles) {
+          const id = buildings.at(tile);
+          const state = id === 0 ? undefined : buildings.get(id)?.state;
+          if (state === 'planned' || state === 'constructing') this.host.submit({ type: 'CancelBuilding', buildingId: id });
+          const zone = buildings.zoneAt(tile);
+          if (zone !== 0) zones.add(zone);
+        }
+        for (const zone of Array.from(zones).sort((a, b) => a - b)) {
+          if ((buildings.zone(zone)?.tiles ?? []).every((t) => tiles.includes(t))) this.removeZone(zone);
+        }
+      }
+      this.selection = null;
+      return true;
+    }
+    if (key === 'f') { this.host.submit({ type: 'ForbidItem', tiles, on: true }); return true; }
+    if (key === 'd') { this.host.submit({ type: 'DumpItem', tiles, on: true }); return true; }
+    if (key === 't') {
+      const items = this.host.readers.has('13') ? this.host.readers.of<{ at(i: TileIndex): number[] }>('13') : null;
+      const ids = items === null ? [] : tiles.flatMap((tile) => items.at(tile));
+      if (ids.length > 0) this.host.submit({ type: 'MoveToDepot', itemIds: ids });
+      return true;
+    }
+    return false;
+  }
+
+  /** § Mouse: a double-clicked unit or job row centres the map on it. */
+  private centerOnPanelRow(): void {
+    const ctx = this.ctx;
+    if (this.ui.panel === 'units') {
+      const id = this.units.selectedId(ctx);
+      const p = id === 0 ? undefined : this.host.readers.entities.get(id, C.Position);
+      if (p !== undefined) this.focusOn(this.host.readers.map.index(p.x, p.y, p.z));
+      return;
+    }
+    if (this.ui.panel === 'jobs') {
+      const job = this.jobs.selected(ctx);
+      const tile = job === undefined ? null : this.jobs.tileOf(ctx, job);
+      if (tile !== null) this.focusOn(tile);
+    }
+  }
+
   /** Centre the view on a tile (a danger's focus, a log line's). */
   focusOn(tile: TileIndex): void {
     const map = this.host.readers.map;
@@ -288,6 +354,7 @@ export class FortressScreen implements Screen {
     this.last = surface;
     const layout = this.host.layout();
     this.drawSelection(surface, layout.map);
+    this.drawSelectionBorder(surface, layout.map);
     this.drawGhost(surface, layout.map);
     if (layout.sidebar !== null) this.drawSidebar(surface, layout.sidebar);
     drawLogStrip(surface, layout.log, this.log.lines, this.pinned, this.host.now() < this.flashUntil);
@@ -315,6 +382,23 @@ export class FortressScreen implements Screen {
     const r1 = Math.min(map.rows - 1, y1);
     if (c1 < c0 || r1 < r0) return;
     surface.invert({ col: map.col + c0, row: map.row + r0, cols: c1 - c0 + 1, rows: r1 - r0 + 1 });
+  }
+
+  /** 23 § Compositor step 10: "a selection rectangle inverts its border cells". */
+  private drawSelectionBorder(surface: Surface, map: Rect): void {
+    const sel = this.selection;
+    if (sel === null || sel.a.z !== this.ui.z) return;
+    const x0 = Math.min(sel.a.x, sel.b.x) - this.ui.camX;
+    const y0 = Math.min(sel.a.y, sel.b.y) - this.ui.camY;
+    const x1 = Math.max(sel.a.x, sel.b.x) - this.ui.camX;
+    const y1 = Math.max(sel.a.y, sel.b.y) - this.ui.camY;
+    for (let y = y0; y <= y1; y += 1) {
+      for (let x = x0; x <= x1; x += 1) {
+        if (x !== x0 && x !== x1 && y !== y0 && y !== y1) continue;
+        if (x < 0 || y < 0 || x >= map.cols || y >= map.rows) continue;
+        surface.invert({ col: map.col + x, row: map.row + y, cols: 1, rows: 1 });
+      }
+    }
   }
 
   /** A zone rectangle: "tiles that qualify show green", the rest red (the cell's background). */
@@ -368,18 +452,18 @@ export class FortressScreen implements Screen {
     const ctx = this.ctx;
     if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings);
     else if (panel.id === 'build') drawBuildPanel(surface, body, this.build, ctx);
-    else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx);
+    else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx, () => this.removeZone(this.zones.selected));
     else if (panel.id === 'stocks') drawStocksPanel(surface, body, this.stocks, ctx);
     else if (panel.id === 'units') drawUnitsPanel(surface, body, this.units, ctx);
     else if (panel.id === 'jobs') drawJobsPanel(surface, body, this.jobs, ctx);
     else if (panel.id === 'labors') drawLaborsPanel(surface, body, this.labors, ctx);
     else if (panel.id === 'orders') drawOrdersPanel(surface, body, this.orders, ctx);
-    else if (panel.id === 'workshop') drawWorkshopPanel(surface, body, this.workshopId, this.orders, ctx);
+    else if (panel.id === 'workshop') drawWorkshopPanel(surface, body, this.workshopId, this.orders, ctx, () => this.deconstruct(this.workshopId));
     else if (panel.id === 'animals') drawAnimalsPanel(surface, body, this.animals, ctx);
     else if (panel.id === 'mood') drawMoodPanel(surface, body, this.mood, ctx);
     else if (panel.id === 'population') drawPopulationPanel(surface, body, ctx);
     else if (panel.id === 'look') drawLookPanel(surface, body, readers, this.host.registry, this.strings, this.lookTile(), this.lookTab,
-      (leverId) => ctx.submit({ type: 'PullLever', leverId }));
+      (leverId) => ctx.submit({ type: 'PullLever', leverId }), (buildingId) => this.deconstruct(buildingId));
     else if (panel.id === 'calendar') drawCalendarPanel(surface, body, readers, this.strings);
     else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
     else if (panel.id === 'help') drawHelpPanel(surface, body, this.help);
@@ -458,6 +542,12 @@ export class FortressScreen implements Screen {
       if (this.tool.kind === 'traffic') return s.get('ui.status.tool_mode', { tool: name, mode: s.get(`ui.tool.traffic.${this.tool.traffic}`) });
       return s.get('ui.status.tool', { tool: name, priority: this.tool.priority });
     }
+    if (this.selection !== null) {
+      const sel = this.selection;
+      const w = Math.abs(sel.a.x - sel.b.x) + 1;
+      const h = Math.abs(sel.a.y - sel.b.y) + 1;
+      return s.get('ui.status.selection', { w, h, n: w * h });
+    }
     const tile = this.hover ?? this.cursorTile();
     const strip = s.get('ui.status.strip');
     if (tile === null) return strip;
@@ -522,6 +612,43 @@ export class FortressScreen implements Screen {
     if (id !== 'zones') this.zones.cancel();
     this.ui.panel = id;
     this.ui.sidebar = true;
+  }
+
+  /**
+   * `RemoveZone` with the confirmation 24 § Confirmations asks for: "removing a zone with crops or
+   * a stockpile with items" (`c_remove_zone_crops`, `c_remove_stockpile_items`).
+   */
+  removeZone(zoneId: number): void {
+    if (zoneId === 0) return;
+    const ask = removalConfirm(this.ctx, zoneId);
+    const remove = (): void => {
+      if (this.zones.selected === zoneId) this.zones.selected = 0;
+      this.host.submit({ type: 'RemoveZone', zoneId });
+    };
+    if (ask === null || this.host.confirm === undefined) {
+      remove();
+      return;
+    }
+    this.host.confirm(ask.id, { n: ask.n }, (yes) => {
+      if (yes) remove();
+    });
+  }
+
+  /**
+   * `DeconstructBuilding` (14 § Player-facing behavior: the building panel offers deconstruct) with
+   * 24 § Confirmations' `c_deconstruct_workshop` when the workshop still has orders.
+   */
+  deconstruct(buildingId: number): void {
+    if (buildingId === 0) return;
+    const orders = this.host.readers.entities.get(buildingId, C.Workshop)?.orders.length ?? 0;
+    const send = (): void => this.host.submit({ type: 'DeconstructBuilding', buildingId });
+    if (orders === 0 || this.host.confirm === undefined) {
+      send();
+      return;
+    }
+    this.host.confirm('c_deconstruct_workshop', { n: orders }, (yes) => {
+      if (yes) send();
+    });
   }
 
   private moveGoods(): void {
@@ -619,6 +746,8 @@ export class FortressScreen implements Screen {
 
   /** "`Esc` cancels the current tool, then closes the panel, then opens the game menu." */
   private cancel(): void {
+    // The Esc chain of 24 § Input model, innermost first: a modal editor, then a rectangle in
+    // progress, then the selection, then the tool, then the panel, then the game menu.
     if (this.orders.adding) { this.orders.adding = false; return; }
     if (this.animals.name.focused) { this.animals.name.focused = false; return; }
     if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow || this.military.memberChoice) { this.military.cancel(); return; }
@@ -647,6 +776,10 @@ export class FortressScreen implements Screen {
     }
     if (this.tool.active) {
       this.tool.cancel();
+      return;
+    }
+    if (this.selection !== null) {
+      this.selection = null;
       return;
     }
       if (this.ui.panel !== null) {
@@ -741,6 +874,14 @@ export class FortressScreen implements Screen {
       const acc = this.keymap.resolve('panel', press);
       if (acc?.id === 'accelerator' && !press.ctrl && this.tool.choose(String(acc.arg))) return true;
     }
+    if (panel === 'look' && this.ui.sidebar && press.key.toLowerCase() === 'x' && !this.toolActive) {
+      const tile = this.lookTile();
+      const building = tile === null ? 0 : this.host.readers.map.buildingAt(tile);
+      if (building !== 0) {
+        this.deconstruct(building);
+        return true;
+      }
+    }
     if ((panel === 'look' || panel === 'log') && /^[1-3]$/.test(press.key) && !this.tool.active) {
       const n = Number(press.key) - 1;
       if (panel === 'look') this.lookTab = n as LookTab;
@@ -815,6 +956,10 @@ export class FortressScreen implements Screen {
       }
     }
 
+    // § Mouse: with a selection, `Delete`, forbid, dump and move to depot act on it (D-200); the
+    // keys are the stocks panel's own accelerators and Esc gives the panel hotkeys back.
+    if (this.selection !== null && !press.ctrl && !press.alt && !press.meta && this.selectionKey(press)) return true;
+
     if (!press.alt && !press.meta) {
       const panelAction = this.keymap.resolve('fortress_panel', press);
       const opened = this.panels().find((p) => p.id === panelAction?.id) ?? (!press.ctrl ? this.panels().find((p) => p.hotkey === press.key) : undefined);
@@ -888,9 +1033,8 @@ export class FortressScreen implements Screen {
       case 'zones':
         if (this.zones.farmKey(ctx, press)) return true;
         if (letter === 'x' && !this.zones.active && this.zones.selected !== 0) {
-          const id = this.zones.selected;
-          this.zones.selected = 0;
-          return submit({ type: 'RemoveZone', zoneId: id });
+          this.removeZone(this.zones.selected);
+          return true;
         }
         if (letter === 'e' && !this.zones.active && this.zones.selected !== 0) {
           this.zones.resizing = true;
@@ -1001,6 +1145,7 @@ export class FortressScreen implements Screen {
         if (letter === 'f' && ws !== undefined && ws.orders.length > 0) { this.orders.workshopId = this.workshopId; this.orders.list.selected = 0; this.orders.openMaterials(ctx); this.openPanel('orders'); return true; }
         if (letter === '+') { this.orders.workshopId = this.workshopId; this.orders.adding = true; this.openPanel('orders'); return true; }
         if (letter === 'w') return submit(this.orders.nextWorker(ctx, this.workshopId));
+        if (letter === 'x') { this.deconstruct(this.workshopId); return true; }
         return false;
       }
       case 'animals': {
@@ -1060,6 +1205,8 @@ export class FortressScreen implements Screen {
       this.clickShift = p.shift;
       clickHit(this.last, p);
       this.clickShift = false;
+      // § Mouse: "Double-click a unit or job row: center the map on it".
+      if ((p.clicks ?? 1) >= 2) this.centerOnPanelRow();
       return;
     }
     if (p.button === 1) {
@@ -1122,6 +1269,8 @@ export class FortressScreen implements Screen {
       this.openPanel('workshop');
       return;
     }
+    this.selection = null;
+    this.selecting = at;
     this.look(at);
   }
 
@@ -1142,6 +1291,9 @@ export class FortressScreen implements Screen {
     }
     if (this.dragging && at !== null && this.zones.anchor !== null) this.zones.end = { x: at.x, y: at.y, z: this.zones.anchor.z };
     else if (this.dragging && at !== null && this.tool.anchor !== null) this.tool.end = { x: at.x, y: at.y, z: this.tool.anchor.z };
+    else if (this.selecting !== null && at !== null && (at.x !== this.selecting.x || at.y !== this.selecting.y)) {
+      this.selection = { a: this.selecting, b: { x: at.x, y: at.y, z: this.selecting.z } };
+    }
   }
 
   pointerUp(p: CellPointer): void {
@@ -1149,6 +1301,7 @@ export class FortressScreen implements Screen {
       this.middle = null;
       return;
     }
+    this.selecting = null;
     if (!this.dragging) return;
     this.dragging = false;
     if (this.zones.anchor !== null) {

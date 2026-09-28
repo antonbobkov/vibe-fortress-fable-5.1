@@ -32,6 +32,8 @@ export interface CellPointer extends Modifiers {
   readonly row: number;
   /** 0 left, 1 middle, 2 right. */
   readonly button: number;
+  /** The press's click count; 2 is the § Mouse table's double-click. 1 when omitted. */
+  readonly clicks?: number;
 }
 
 export interface CellWheel extends Modifiers {

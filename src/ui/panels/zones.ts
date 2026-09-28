@@ -53,6 +53,33 @@ export const PRESET_ORDER: readonly string[] = Object.keys(STOCKPILE_PRESETS);
 
 const MEETING_OVERLAPS = ['hearth_hall', 'dining_hall'];
 
+/** A `[k]` accelerator inside a drawn action line, made clickable at its own cells. */
+function accelerator(s: Surface, col: number, row: number, text: string, key: string, run: () => void): void {
+  const at = text.indexOf(`[${key}]`);
+  if (at < 0) return;
+  s.hit({ col: col + at, row, cols: 3, rows: 1 }, run);
+}
+
+/**
+ * 24 § Confirmations: removing "a zone with crops or a stockpile with items" asks first. The
+ * confirmation a `RemoveZone` needs, with the `{n}` its text shows, or `null` when it needs none.
+ */
+export function removalConfirm(ctx: PanelContext, zoneId: EntityId): { id: string; n: number } | null {
+  const zone = buildings(ctx)?.zone(zoneId);
+  if (zone === undefined) return null;
+  if (zone.type === 'farm_plot' && ctx.readers.has('07')) {
+    const plants = ctx.readers.of<PlantsReader>('07');
+    const crops = zone.tiles.filter((tile) => plants.cropAt(tile) !== 0).length;
+    if (crops > 0) return { id: 'c_remove_zone_crops', n: crops };
+  }
+  if (zone.type === 'stockpile' && ctx.readers.has('13')) {
+    const stock = items(ctx);
+    const held = zone.tiles.reduce((n, tile) => n + (stock?.at(tile).length ?? 0), 0);
+    if (held > 0) return { id: 'c_remove_stockpile_items', n: held };
+  }
+  return null;
+}
+
 export class ZoneTool {
   /** The chosen type, or null (then a click selects a zone). */
   kind: string | null = null;
@@ -190,7 +217,7 @@ function zoneName(ctx: PanelContext, zone: ZoneView): string {
 }
 
 /** The panel body (the title row is the sidebar's). */
-export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext): void {
+export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, onRemove?: () => void): void {
   const t = s.theme;
   const strings = ctx.strings;
   let row = rect.row;
@@ -249,7 +276,13 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
       }
     }
   }
-  if (row <= bottom) label(s, rect.col + 1, bottom, strings.get('ui.zone.actions'), { width: rect.cols - 2 });
+  if (row <= bottom) {
+    const text = strings.get('ui.zone.actions');
+    label(s, rect.col + 1, bottom, text, { width: rect.cols - 2 });
+    // Keyboard and mouse reach the same actions (24 § Input model): the accelerators are clickable.
+    accelerator(s, rect.col + 1, bottom, text, 'x', () => onRemove?.());
+    accelerator(s, rect.col + 1, bottom, text, 'e', () => { tool.resizing = true; });
+  }
 }
 
 function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, zone: ZoneView): number {

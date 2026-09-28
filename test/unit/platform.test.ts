@@ -165,9 +165,12 @@ describe('T-M0-12 platform: input normalisation', () => {
     dom.fire('mousemove', { ...base, clientX: 50, clientY: 60 });
     dom.fire('mouseup', { ...base, clientX: 50, clientY: 60, button: 0 });
     dom.fire('wheel', { ...base, ctrlKey: true, clientX: 10, clientY: 20, deltaY: -120 });
-    expect(downs[0]).toEqual({ x: 40, y: 40, button: 2, shift: false, ctrl: false, alt: false, meta: false });
+    expect(downs[0]).toEqual({ x: 40, y: 40, button: 2, clicks: 1, shift: false, ctrl: false, alt: false, meta: false });
     expect(moves[0]?.x).toBe(40);
     expect(ups[0]?.button).toBe(0);
+    // T-M7-09: `MouseEvent.detail` is the click count, which § Mouse's double-click row needs.
+    dom.fire('mousedown', { ...base, clientX: 50, clientY: 60, button: 0, detail: 2 });
+    expect(downs[1]?.clicks).toBe(2);
     expect(wheels[0]).toEqual({ x: 0, y: 0, dx: 0, dy: -120, shift: false, ctrl: true, alt: false, meta: false });
   });
 

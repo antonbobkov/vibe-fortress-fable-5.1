@@ -147,6 +147,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.status.tool': '{tool} · priority {priority} · [Esc] cancel',
   'ui.status.tool_mode': '{tool} ({mode}) · [Esc] cancel',
   'ui.status.stairwell_top': 'Stairwell from z {z}: change level, then pick the bottom · [Esc] cancel',
+  'ui.status.selection': 'Selection {w}×{h} ({n} tiles)  [Del] clear  [f] forbid  [d] dump  [t] to depot  [Esc] cancel',
   'ui.status.strip': '[k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks',
   // Build tool (`fortress-screen.md` § Build tool; T-M2-09).
   'ui.status.build': '{tool} · click to place · [r] rotate  [x] material  [Esc] cancel',
@@ -207,6 +208,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.zone.owner': 'Owner: {name}',
   'ui.zone.nobody': 'nobody',
   'ui.zone.actions': '[x] remove zone  [e] resize',
+  'ui.look.deconstruct': '[x] take apart',
   'ui.stockpile.preset': 'Preset [{preset} ▾]',
   'ui.stockpile.custom': 'Custom',
   'ui.stockpile.preset.food': 'Food',

@@ -23,6 +23,7 @@ import {
   type FrameScheduler,
 } from '@platform/realtime';
 import { contentRegistry } from '@content/loader';
+import { formatDate, SEASON_NAMES, seasonOf } from '@core/calendar';
 import { LOCAL_MAP_Z, ZOOM_LEVELS } from '@core/constants';
 import { Compositor, type ViewState } from '@render/compositor';
 import { GlyphAtlas, glyphChars } from '@render/atlas';
@@ -170,6 +171,8 @@ export class Game {
   private listing: SaveListing[] = [];
   /** The last save written or loaded, for the tests and the e2e hook. */
   lastSaveId: string | null = null;
+  /** The world tick of the last save of the running fortress (24 § Game menu's unsaved check). */
+  lastSaveTick: number | null = null;
   private pending: Promise<void> = Promise.resolve();
   private readonly randomSeed: () => string;
   private newest: string | null = null;
@@ -390,6 +393,7 @@ export class Game {
     this.menuSpeed = this.host.speed();
     this.host.setSpeed(0);
     this.pushScreen(new GameMenuScreen({
+      fortressName: () => (this.host.started ? this.host.world.fortress.name : ''),
       resume: () => {
         this.popScreen();
         this.host.setSpeed(this.menuSpeed);
@@ -399,12 +403,36 @@ export class Game {
       load: () => void this.openLoad(),
       settings: () => this.openSettings(),
       retire: () => this.retireFortress(),
-      mainMenu: () => this.confirm('c_main_menu', { time: 'the last save' }, (yes) => {
-        if (yes) void this.showMainMenu();
-      }),
+      mainMenu: () => this.leaveToMainMenu(),
       viewOnly: () => this.host.viewOnly,
     }));
     this.render();
+  }
+
+  /**
+   * 24 § Game menu: `Main menu` "(confirm if unsaved changes since the last save)". `{time}` is the
+   * date of the last save, or of the embark when the fortress has never been saved (D-200).
+   */
+  private leaveToMainMenu(): void {
+    if (!this.unsavedSince()) {
+      void this.showMainMenu();
+      return;
+    }
+    this.confirm('c_main_menu', { time: formatDate(this.savedAtTick()) }, (yes) => {
+      if (yes) void this.showMainMenu();
+    });
+  }
+
+  /** The tick the running fortress was last saved at, or its embark tick. */
+  private savedAtTick(): number {
+    if (this.lastSaveTick !== null) return this.lastSaveTick;
+    return this.host.started ? this.host.readers.fortress.state.embarkTick : 0;
+  }
+
+  /** Ticks have run since the last save (or since the embark, when there is none). */
+  unsavedSince(): boolean {
+    if (!this.host.started) return false;
+    return this.host.readers.calendar.tick > this.savedAtTick();
   }
 
   private note(severity: 'note' | 'alert' | 'danger', text: string): void {
@@ -502,11 +530,13 @@ export class Game {
     const saves = this.saves;
     if (saves === null || !this.host.started) return Promise.resolve();
     const blob = this.host.save({ kind, ui: this.uiSection(), playTimeSeconds: this.playTimeSeconds(), thumbnail: this.thumbnail() });
+    const savedAt = this.host.readers.calendar.tick;
     return this.track(
       (async (): Promise<void> => {
         await saves.write(id, await blob);
         if (kind === 'auto') await rollAutosaves(saves);
         this.lastSaveId = id;
+        this.lastSaveTick = savedAt;
         this.note('note', this.strings.get('ui.save.saved', { name: id }));
         await this.refreshListing();
       })(),
@@ -551,6 +581,7 @@ export class Game {
     if (blob === undefined) return;
     this.enterLoaded(await this.host.load(blob));
     this.lastSaveId = id;
+    this.lastSaveTick = this.host.readers.calendar.tick;
   }
 
   /** The loaded game on screen: its `ui` section restored, the log tail back, paused. */
@@ -585,7 +616,7 @@ export class Game {
     const screen = new LoadScreen(
       {
         saves: () => this.listing,
-        load: (id) => void this.loadSave(id),
+        load: (id) => this.loadFromList(id),
         remove: (id) => {
           const row = this.listing.find((s) => s.id === id);
           this.confirm('c_delete_save', { save: row === undefined ? id : `${row.fortress} (${id})` }, (yes) => {
@@ -606,6 +637,23 @@ export class Game {
     );
     this.pushScreen(screen);
     this.render();
+  }
+
+  /**
+   * The Load screen's `Load`. 24 § Confirmations asks for a confirmation when the row is a snapshot
+   * (`c_load_snapshot`, "The current game continues to exist as its own saves"); `{season}` is the
+   * season the snapshot was taken in.
+   */
+  private loadFromList(id: string): void {
+    const row = this.listing.find((s) => s.id === id);
+    if (row === undefined || row.kind !== 'snapshot') {
+      void this.loadSave(id);
+      return;
+    }
+    const season = SEASON_NAMES[seasonOf(row.tick)] as string;
+    this.confirm('c_load_snapshot', { season }, (yes) => {
+      if (yes) void this.loadSave(id);
+    });
   }
 
   /** `persistence.md` § Export and import: the container, unchanged, as `<slug>-y<year>-<season>.deepholm`. */
@@ -997,7 +1045,7 @@ export class Game {
 
   private cellPointer(action: PointerAction): CellPointer {
     const at = this.cellAt(action.x, action.y);
-    return { ...at, button: action.button, shift: action.shift, ctrl: action.ctrl, alt: action.alt, meta: action.meta };
+    return { ...at, button: action.button, clicks: action.clicks ?? 1, shift: action.shift, ctrl: action.ctrl, alt: action.alt, meta: action.meta };
   }
 
   pointerDown(action: PointerAction): void {

@@ -35,6 +35,11 @@ export interface PointerAction extends Modifiers {
   readonly y: number;
   /** 0 left, 1 middle, 2 right. */
   readonly button: number;
+  /**
+   * The click count of the press (`MouseEvent.detail`): 2 is a double-click, which
+   * `ui-keymap-and-screens.md` § Mouse gives its own row. Omitted means one click.
+   */
+  readonly clicks?: number;
 }
 
 export interface WheelAction extends Modifiers {
@@ -85,6 +90,7 @@ interface MouseEventLike {
   metaKey: boolean;
   deltaX?: number;
   deltaY?: number;
+  detail?: number;
   preventDefault?(): void;
 }
 
@@ -164,7 +170,7 @@ export class InputSource {
 
   private pointer(event: MouseEventLike): PointerAction {
     const at = this.toLocal(event.clientX, event.clientY);
-    return { x: at.x, y: at.y, button: event.button ?? 0, ...modifiers(event) };
+    return { x: at.x, y: at.y, button: event.button ?? 0, clicks: Math.max(1, event.detail ?? 1), ...modifiers(event) };
   }
 
   private on<T>(target: EventTargetLike, type: string, listener: (event: T) => void): void {

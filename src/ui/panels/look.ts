@@ -100,6 +100,8 @@ export function drawLookPanel(
   tile: TileIndex | null,
   tab: LookTab,
   pullLever?: (id: EntityId) => void,
+  /** 14 § Player-facing behavior: the building panel offers deconstruct (T-M7-09). */
+  deconstruct?: (id: EntityId) => void,
 ): void {
   const t = s.theme;
   if (tile === null) return;
@@ -145,6 +147,11 @@ export function drawLookPanel(
           line('[Pull lever]', t.value);
           s.hit({ col: rect.col + 1, row: buttonRow, cols: rect.cols - 2, rows: 1 }, () => pullLever(id));
         }
+      }
+      if (id !== 0 && deconstruct !== undefined && b.get(id)?.state === 'built' && row < rect.row + rect.rows) {
+        const buttonRow = row;
+        line(strings.get('ui.look.deconstruct'), t.value);
+        s.hit({ col: rect.col + 1, row: buttonRow, cols: rect.cols - 2, rows: 1 }, () => deconstruct(id));
       }
     }
     return;

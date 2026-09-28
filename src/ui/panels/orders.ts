@@ -179,7 +179,7 @@ export function drawOrdersPanel(s: Surface, rect: Rect, panel: OrdersPanel, ctx:
   }
 }
 
-export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: OrdersPanel, ctx: PanelContext): void {
+export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: OrdersPanel, ctx: PanelContext, onDeconstruct?: () => void): void {
   const reader = panel.reader(ctx);
   const building = ctx.readers.of<import('@systems/buildings').BuildingsReader>('14').get(id);
   const workshop = ctx.readers.entities.get(id, C.Workshop) as Workshop | undefined;
@@ -204,6 +204,11 @@ export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: O
     label(s, col, rect.row + rect.rows - 7 + k, `${recipe?.name ?? '?'} ${amount} ${order.materialFilter ?? 'any'} p${order.priority}`, { width });
   }
   label(s, col, rect.row + rect.rows - 4, '[o] orders  [f] material filter', { width });
-  label(s, col, rect.row + rect.rows - 3, `[+] new order  [w] worker`, { width });
+  const actions = '[+] new order  [w] worker  [x] take apart';
+  label(s, col, rect.row + rect.rows - 3, actions, { width });
+  if (onDeconstruct !== undefined) {
+    const at = actions.indexOf('[x]');
+    s.hit({ col: col + at, row: rect.row + rect.rows - 3, cols: 3, rows: 1 }, onDeconstruct);
+  }
   label(s, col, rect.row + rect.rows - 2, workshop.lastBlockedReason ?? '', { fg: s.theme.dim, width });
 }
