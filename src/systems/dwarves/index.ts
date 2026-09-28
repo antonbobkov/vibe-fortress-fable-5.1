@@ -261,6 +261,13 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     };
     ctx.register.panel({ id: 'units', title: 'Units', hotkey: 'u' });
     ctx.register.inspector('creature', { id: 'dwarf', order: 10 });
+    // `10` § Registrations: "announcements: starving (alert), passed out (note), title assigned
+    // (note), came of age (note), legendary (note)"; 17 owns "passed out" (`CreatureUnconscious`),
+    // whose severity its own document gives (D-201).
+    ctx.register.announcement('Starving', { severity: 'alert', stringKey: 'announce.starving' });
+    ctx.register.announcement('TitleAssigned', { severity: 'note', stringKey: 'announce.title_assigned' });
+    ctx.register.announcement('DwarfBecameAdult', { severity: 'note', stringKey: 'announce.came_of_age' });
+    ctx.register.announcement('LegendaryReached', { severity: 'note', stringKey: 'announce.legendary' });
     // `15` § Thoughts: relationship-dependent triggers are facts of 10, not inferred from event ids.
     const source: ThoughtSource = {
       on: ['CreatureDied', 'Buried'],

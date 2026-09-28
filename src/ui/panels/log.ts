@@ -35,7 +35,7 @@ export function drawLogPanel(
   strings: Strings,
   onFocus: (line: LogLine) => void,
 ): void {
-  label(s, rect.col + 1, rect.row, '[1] All  [2] Alerts  [3] Combat', { width: rect.cols - 2 });
+  label(s, rect.col + 1, rect.row, strings.get('ui.log.filter'), { width: rect.cols - 2 });
   const shown = filterLines(lines, filter).reverse();
   if (shown.length === 0) {
     label(s, rect.col + 1, rect.row + 2, strings.get('ui.log.empty'), { fg: s.theme.dim });

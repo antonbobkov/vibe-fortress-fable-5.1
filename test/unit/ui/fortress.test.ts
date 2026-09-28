@@ -310,6 +310,21 @@ describe('T-M1-14 announcements', () => {
       MonsterSpawned: 'note',
       DeepStirred: 'danger',
       RestlessRose: 'alert',
+      // T-M7-10: the rows the system documents name that no earlier task registered.
+      // 04 § Player-facing behavior, 05 § Player-facing behavior.
+      MistProduced: 'note',
+      FireOut: 'note',
+      // 08 § Player-facing behavior ("A pack of wolves has arrived from the north").
+      AnimalSpawned: 'note',
+      // 09 § Registrations ("`HuntKill` note … `HuntAbandoned { no_ammo }` alert").
+      HuntKill: 'note',
+      HuntAbandoned: 'alert',
+      // 10 § Registrations ("starving (alert), … title assigned (note), came of age (note),
+      // legendary (note)").
+      Starving: 'alert',
+      TitleAssigned: 'note',
+      DwarfBecameAdult: 'note',
+      LegendaryReached: 'note',
     });
   });
 

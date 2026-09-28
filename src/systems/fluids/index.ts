@@ -114,6 +114,8 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
     ctx.register.inspector('tile', { id: 'fluid', order: 10 });
     // `04` § Player-facing behavior: "`ObsidianFormed` as a note".
     ctx.register.announcement('ObsidianFormed', { severity: 'note', stringKey: 'announce.obsidian_formed' });
+    // `04` § Player-facing behavior: "`MistProduced` once per mist area as a note" (T-M7-10).
+    ctx.register.announcement('MistProduced', { severity: 'note', stringKey: 'announce.mist_produced' });
   }
 
   override tick(ctx: TickContext): void {

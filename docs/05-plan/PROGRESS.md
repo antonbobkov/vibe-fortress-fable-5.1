@@ -151,7 +151,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M7-07 — Settings screen, keybinding remap, colorblind toggle, auto-pause toggles, autosave toggle (codex-m707, 2026-09-28)
 - [x] T-M7-08 — Help screen, legend of glyphs, overlays panel complete, debug panel (opus-m708, 2026-09-28)
 - [x] T-M7-09 — Game menu, main menu Continue, confirmations complete (opus-m709, 2026-09-28)
-- [ ] T-M7-10 — Announcement registry complete; strings table audit
+- [x] T-M7-10 — Announcement registry complete; strings table audit (opus-m710, 2026-09-28)
 - [ ] T-M7-11 — Full-year headless scenario and the balance table
 - [ ] T-M7-12 — Gate M7
 

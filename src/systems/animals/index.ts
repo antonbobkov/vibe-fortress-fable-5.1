@@ -199,6 +199,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     // `08` § Registrations (the job producer and the panel arrive with T-M4-04 and T-M4-17).
     ctx.register.announcement('AnimalStarving', { severity: 'alert', stringKey: 'announce.animal_starving' });
     ctx.register.announcement('PetAdopted', { severity: 'note', stringKey: 'announce.pet_adopted' });
+    // `08` § Player-facing behavior: "A pack of wolves has arrived from the north" (note) (T-M7-10).
+    ctx.register.announcement('AnimalSpawned', { severity: 'note', stringKey: 'announce.animal_spawned' });
     ctx.register.inspector('creature', { id: 'animal', order: 20 });
   }
 

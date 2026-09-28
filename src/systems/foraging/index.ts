@@ -81,6 +81,10 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
     };
     ctx.register.jobProducer(this.producer);
     ctx.register.announcement('FishPoolDepleted', { severity: 'note', stringKey: 'announce.fish_pool_depleted' });
+    // `09` § Registrations: "`HuntKill` note, … `HuntAbandoned { no_ammo }` alert" (T-M7-10).
+    ctx.register.announcement('HuntKill', { severity: 'note', stringKey: 'announce.hunt_kill' });
+    ctx.register.announcement('HuntAbandoned', { severity: 'alert', stringKey: 'announce.hunt_no_ammo',
+      oneOf: { field: 'reason', values: ['no_ammo'] } });
     ctx.register.inspector('zone', { id: 'fishing', order: 30 });
     ctx.register.inspector('zone', { id: 'gather', order: 31 });
   }

@@ -178,6 +178,8 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     ctx.register.inspector('tile', { id: 'temperature', order: 20 });
     // `05` § Registrations: "announcements for `FireStarted` (alert …)"; one text, as D-065 does.
     ctx.register.announcement('FireStarted', { severity: 'alert', stringKey: 'announce.fire_started' });
+    // `05` § Player-facing behavior: "fire out as a note" (T-M7-10).
+    ctx.register.announcement('FireOut', { severity: 'note', stringKey: 'announce.fire_out' });
   }
 
   // ---------- temperature ----------

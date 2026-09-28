@@ -93,7 +93,7 @@ export class AnnouncementLog {
       const creature = readers.entities.get(trapped, C.Creature);
       if (creature !== undefined) out['species'] = this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '';
     }
-    for (const key of ['finderId', 'minerId', 'id'] as const) {
+    for (const key of ['finderId', 'minerId', 'dwarfId', 'id'] as const) {
       const who = e[key];
       if (typeof who === 'number') {
         const name = readers.entities.get(who, C.Creature)?.name;
@@ -102,6 +102,22 @@ export class AnnouncementLog {
           break;
         }
       }
+    }
+    // A hunt names its hunter and its prey (09 § Registrations, T-M7-10).
+    const hunter = e['hunterId'];
+    if (typeof hunter === 'number' && hunter !== 0) out['hunter'] = readers.entities.get(hunter, C.Creature)?.name ?? '';
+    const prey = e['targetId'];
+    if (typeof prey === 'number' && prey !== 0) out['prey'] = this.speciesName(readers, prey);
+    // A species field, as an index or a content id, reads as the species' name.
+    const speciesOf = e['species'];
+    if (out['species'] === undefined) {
+      const table = this.registry.table<NamedRow>('creatures');
+      if (typeof speciesOf === 'number') out['species'] = table.byIndex(speciesOf)?.name ?? '';
+      else if (typeof speciesOf === 'string') out['species'] = table.byId(speciesOf)?.name ?? speciesOf;
+    }
+    const skill = e['skill'];
+    if (typeof skill === 'string' && this.registry.hasTable('skills')) {
+      out['skill'] = this.registry.table<NamedRow>('skills').byId(skill)?.name ?? skill;
     }
     const crafter = e['crafterId'];
     if (typeof crafter === 'number') out['crafter'] = readers.entities.get(crafter, C.Creature)?.name ?? '';
@@ -151,6 +167,13 @@ export class AnnouncementLog {
       out['victim'] = creature?.name || (creature ? this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '' : '') || 'victim';
     }
     return out;
+  }
+
+  /** A creature's species name, for the announcements that name the beast and not the dwarf. */
+  private speciesName(readers: ReaderSet, id: number): string {
+    const creature = readers.entities.get(id, C.Creature);
+    if (creature === undefined) return '';
+    return this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '';
   }
 
   /** Map an event through the registry and append it; `null` when the event has no row. */

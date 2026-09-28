@@ -218,10 +218,14 @@ export class FortressScreen implements Screen {
     const out = [...UI_PANELS];
     for (const p of this.host.registeredPanels()) if (!out.some((q) => q.id === p.id)) out.push(p);
     return out.map((panel) => {
+      // A panel's title is `ui.panel.<id>.title` when the strings table has it
+      // (`ui-screens/fortress-screen.md` § Strings), otherwise the registered one.
+      const key = `ui.panel.${panel.id}.title`;
+      const titled = this.strings.has(key) ? { ...panel, title: this.strings.get(key) } : panel;
       // Help and Debug are bound in the global context (`?`, `F12`), the rest in `fortress_panel`.
       const binding = this.keymap.bindings.find((entry) => entry.context === 'fortress_panel' && entry.id === panel.id)
         ?? this.keymap.bindings.find((entry) => entry.context === 'global' && entry.id === panel.id);
-      return binding ? { ...panel, hotkey: keyLabel(binding.spec) } : panel;
+      return binding ? { ...titled, hotkey: keyLabel(binding.spec) } : titled;
     });
   }
 

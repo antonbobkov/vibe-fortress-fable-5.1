@@ -326,7 +326,9 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.deepsilver_mined': 'Deepsilver has been mined.',
   'announce.construction_collapsed': 'A construction has collapsed.',
   'announce.obsidian_formed': 'Obsidian has formed.',
+  'announce.mist_produced': "A waterfall's mist fills the hall.",
   'announce.fire_started': 'A fire has started.',
+  'announce.fire_out': 'The fire has burned out.',
   // 06 § Registrations: the storm and spring lines are the document's; the rest follow them (D-101).
   'announce.weather.storm': 'A storm rolls in from the west.',
   'announce.weather.snow': 'Snow begins to fall.',
@@ -347,6 +349,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.plot_needs_seeds': 'A farm plot has no {species} seeds.',
   // 08 § Player-facing behavior ("The cow is starving", "The cat has adopted Ketil Ironvein").
   'announce.animal_starving': 'An animal is starving.',
+  'announce.animal_spawned': 'A {species} has arrived.',
   'announce.pet_adopted': 'A pet has adopted a dwarf.',
   // 12 § Registrations: a created masterwork names its maker and item; missing magma is an alert.
   'announce.masterwork': '{crafter} has created a masterwork {item}.',
@@ -358,6 +361,13 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.sulk_break': '{dwarf} has broken a piece of furniture in a temper.',
   'announce.thought': '{dwarf}: "{thought}"',
   'announce.fish_pool_depleted': 'A fishing spot has been fished out.',
+  'announce.hunt_kill': '{hunter} has brought down a {prey}.',
+  'announce.hunt_no_ammo': '{hunter} has no ammunition for the hunt.',
+  // 10 § Registrations: starving, title assigned, came of age, legendary.
+  'announce.starving': '{dwarf} is starving.',
+  'announce.title_assigned': '{dwarf} is now the {title}.',
+  'announce.came_of_age': '{dwarf} has come of age.',
+  'announce.legendary': '{dwarf} is a legendary {skill}.',
   // 17 Health announcements
   'announce.patient_admitted': '{dwarf} has been admitted to the hospital.',
   'announce.dwarf_unconscious': '{dwarf} has lost consciousness.',
@@ -372,7 +382,6 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.trap_spent': 'A trap needs rearming.',
   'announce.creature_caged': 'The cage trap has caught a {species}.',
   // 16 Combat announcements
-  'announce.combat_engagement': 'Combat has begun.',
   'announce.attack_resolved': '{attacker} attacks {defender}.',
   'announce.attack_resolved.hit': '{attacker} hits {defender}: {amount} {damageType}.',
   'announce.attack_resolved.miss': '{attacker} misses {defender}.',

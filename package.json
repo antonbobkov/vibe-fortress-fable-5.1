@@ -13,6 +13,7 @@
     "test:perf": "vitest run -c vitest.perf.config.ts",
     "lint": "eslint src test scripts",
     "content:check": "node scripts/content-check.mjs",
+    "strings:check": "node scripts/strings-check.mjs",
     "content:export": "node scripts/export-tables.mjs",
     "golden:update": "node scripts/golden-update.mjs",
     "hash": "node scripts/world-hash.mjs",
