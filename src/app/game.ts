@@ -51,6 +51,9 @@ import { FLUID_ANIM_MS, LOG_ROWS } from '@render/constants';
 import { ConfirmScreen } from '@ui/screens/confirm';
 import { LoadScreen, type SaveListing } from '@ui/screens/load';
 import { TradeSessionScreen } from '@ui/screens/trade_session';
+import { SettingsScreen } from '@ui/screens/settings';
+import { SettingsStore } from '@app/settings-store';
+import { DEFAULT_USER_SETTINGS, type UserSettings } from '@ui/settings';
 import type { TradeReader } from '@systems/trade';
 import { createStorage } from '@platform/storage';
 import type { Command } from '@core/commands';
@@ -90,6 +93,7 @@ export interface GameOptions {
   readonly randomSeed?: () => string;
   /** The export download and import picker (`platform/files.ts`); none in the unit tests. */
   readonly files?: FileBridge;
+  readonly settingsStore?: SettingsStore;
 }
 
 /** `persistence.md` § What is saved: "thumbnail (a 48×27 cell ASCII snapshot of the surface)". */
@@ -128,7 +132,9 @@ export class Game {
   readonly keymap: Keymap;
   readonly strings: Strings;
   readonly glyphs: GlyphMap;
-  readonly theme: Theme;
+  theme: Theme;
+  readonly userSettings: UserSettings = { ...DEFAULT_USER_SETTINGS };
+  private readonly settingsStore: SettingsStore | null;
   readonly ui: UiState = defaultUiState(START_Z);
   /** The fortress screen's tools, panels, log and status bar (T-M1-14). */
   readonly fortress: FortressScreen;
@@ -159,6 +165,7 @@ export class Game {
   private busy: string | null = null;
 
   constructor(options: GameOptions) {
+    this.userSettings.colorblind = options.colorblind === true;
     this.seed = options.seed;
     this.registry = options.registry ?? contentRegistry();
     this.palette = new Palette(this.registry, { colorblind: options.colorblind === true });
@@ -186,6 +193,7 @@ export class Game {
     this.glyphs = GlyphMap.of(this.registry);
     this.theme = themeOf(this.palette);
     this.saves = options.saves ?? null;
+    this.settingsStore = options.settingsStore ?? null;
     this.files = options.files ?? null;
     this.host.afterTick = () => this.takeAutosave();
     this.randomSeed = options.randomSeed ?? defaultRandomSeed;
@@ -260,6 +268,64 @@ export class Game {
     return next;
   }
 
+  /** Preferences are separate from saves so a page reload keeps keys and accessibility choices. */
+  async loadSettings(): Promise<void> {
+    const stored = await this.settingsStore?.load();
+    if (!stored) return;
+    this.keymap.loadOverrides(stored.keymapOverrides);
+    this.applySettings(stored.preferences);
+  }
+
+  private persistSettings(): void {
+    const store = this.settingsStore;
+    if (!store) return;
+    const preferences = { ...this.userSettings };
+    const overrides = this.keymap.overrides();
+    this.pending = this.pending.then(() => store.save(preferences, overrides)).catch((error: unknown) => {
+      this.note('danger', this.strings.get('ui.save.failed', { reason: error instanceof Error ? error.message : String(error) }));
+    });
+  }
+
+  private applySettings(settings: UserSettings): void {
+    Object.assign(this.userSettings, settings);
+    this.fortress.settings.autoPauseDanger = settings.autoPauseDanger;
+    this.fortress.settings.autoPauseAlert = settings.autoPauseAlert;
+    this.fortress.settings.hintsEnabled = settings.hints;
+    this.fortress.settings.edgeScrolling = settings.edgeScrolling;
+    this.fortress.settings.combatLog = settings.combatLog;
+    this.palette.setColorblind(settings.colorblind);
+    this.theme = themeOf(this.palette);
+    if (this.ui.zoom !== settings.zoom) {
+      this.ui.zoom = settings.zoom;
+      this.resize(this.surface.cssWidth, this.surface.cssHeight);
+    }
+  }
+
+  changeSettings(patch: Partial<UserSettings>): void {
+    this.applySettings({ ...this.userSettings, ...patch });
+    this.persistSettings();
+    this.render();
+  }
+
+  resetSettings(): void {
+    this.keymap.reset();
+    this.applySettings({ ...DEFAULT_USER_SETTINGS });
+    this.persistSettings();
+    this.render();
+  }
+
+  openSettings(): void {
+    this.pushScreen(new SettingsScreen({
+      keymap: this.keymap,
+      settings: () => this.userSettings,
+      change: (patch) => this.changeSettings(patch),
+      bindingsChanged: () => this.persistSettings(),
+      resetDefaults: () => this.resetSettings(),
+      back: () => { this.popScreen(); this.render(); },
+    }));
+    this.render();
+  }
+
   private note(severity: 'note' | 'alert' | 'danger', text: string): void {
     if (!this.host.started) return;
     this.fortress.log.append(severity, text, this.host.readers.calendar.tick);
@@ -269,7 +335,7 @@ export class Game {
   private takeAutosave(): void {
     const due = this.autosaveDue;
     this.autosaveDue = null;
-    if (due === null || this.saves === null) return;
+    if (due === null || this.saves === null || !this.userSettings.autosave) return;
     void this.saveAs('auto', autoSaveId(due.year, due.season));
   }
 
@@ -377,6 +443,7 @@ export class Game {
     if (loaded.ui !== null) {
       const zoom = this.ui.zoom;
       this.fortress.log.lines.push(...fromSaved(this.ui, loaded.ui as SavedUiState));
+      this.userSettings.zoom = this.ui.zoom;
       if (this.ui.zoom !== zoom) this.resize(this.surface.cssWidth, this.surface.cssHeight);
     }
     this.resetTo(FORTRESS);
@@ -482,6 +549,8 @@ export class Game {
     const next = ZOOM_LEVELS[Math.max(0, Math.min(ZOOM_LEVELS.length - 1, (at < 0 ? 1 : at) + delta))] as number;
     if (next === this.ui.zoom) return;
     this.ui.zoom = next;
+    this.userSettings.zoom = next;
+    this.persistSettings();
     this.resize(this.surface.cssWidth, this.surface.cssHeight);
     this.render();
   }
@@ -559,9 +628,10 @@ export class Game {
         newestSave: () => this.newest,
         newWorld: () => this.openWorldGen(),
         continueGame: () => void this.continueNewest(),
-        available: (entry) => entry === 'load' && this.saves !== null,
-        open: (entry) => {
-          if (entry === 'load') void this.openLoad();
+          available: (entry) => (entry === 'load' && this.saves !== null) || entry === 'settings',
+          open: (entry) => {
+            if (entry === 'load') void this.openLoad();
+            if (entry === 'settings') this.openSettings();
         },
       },
       this.keymap,
@@ -1037,6 +1107,7 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
   if (element === null) throw new Error('boot: no canvas element');
   const canvas = element as unknown as CanvasLike;
   const dpr = window.devicePixelRatio > 0 ? window.devicePixelRatio : 1;
+  const storage = createStorage();
   const game = new Game({
     canvas,
     seed: options.seed ?? 'deepholm',
@@ -1044,9 +1115,11 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
     devicePixelRatio: dpr,
     width: window.innerWidth,
     height: window.innerHeight,
-    saves: new SaveManager(createStorage()),
+    saves: new SaveManager(storage),
+    settingsStore: new SettingsStore(storage),
     files: browserFiles(document),
   });
+  await game.loadSettings();
   const testBuild = import.meta.env.MODE === 'test';
   const query = testBuild ? new URLSearchParams(window.location.search) : null;
   const start = query?.get('start') ?? null;

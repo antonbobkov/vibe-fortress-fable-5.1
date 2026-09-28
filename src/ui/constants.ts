@@ -5,6 +5,7 @@
  * `01-architecture/constants.md`; they live here verbatim, as `src/render/constants.ts` holds 23's
  * rows (DECISIONS.md D-030).
  */
+import type { UserSettings } from './settings';
 
 /** Log lines kept in memory. */
 export const LOG_MAX_LINES = 2000;
@@ -23,3 +24,19 @@ export const HINT_CHECK_HOURS = 1;
 
 /** Width of a body part's health meter in the creature inspector. */
 export const HEALTH_PART_BAR_CELLS = 5;
+
+/** The values and defaults of ui-keymap-and-screens.md § Settings. */
+export const SETTINGS_ZOOM_OPTIONS = [0.75, 1, 1.5] as const;
+export const SETTINGS_SNAPSHOT_OPTIONS = [2, 4, 8] as const;
+export const SETTINGS_COMBAT_LOG_OPTIONS = ['all', 'hits only', 'off'] as const;
+export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
+  autoPauseDanger: true,
+  autoPauseAlert: false,
+  hints: true,
+  colorblind: false,
+  zoom: 1,
+  edgeScrolling: false,
+  autosave: true,
+  snapshotsKept: 4,
+  combatLog: 'hits only',
+});

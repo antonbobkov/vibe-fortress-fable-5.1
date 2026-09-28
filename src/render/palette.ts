@@ -72,11 +72,23 @@ export class Palette {
   private readonly colors = new Map<string, Rgb>();
   private readonly dimCache = new Map<number, Rgb>();
   private readonly hexCache = new Map<Rgb, string>();
-  readonly colorblind: boolean;
+  colorblind: boolean;
 
-  constructor(registry: Registry, options: PaletteOptions = {}) {
+  constructor(private readonly registry: Registry, options: PaletteOptions = {}) {
     this.colorblind = options.colorblind === true;
-    const table = registry.table<PaletteRow>('palette');
+    this.loadColors();
+  }
+
+  setColorblind(on: boolean): void {
+    if (on === this.colorblind) return;
+    this.colorblind = on;
+    this.colors.clear();
+    this.dimCache.clear();
+    this.loadColors();
+  }
+
+  private loadColors(): void {
+    const table = this.registry.table<PaletteRow>('palette');
     for (const id of table.ids()) {
       const row = table.byId(id) as PaletteRow;
       const hex = this.colorblind && row.alt !== undefined ? row.alt : row.hex;

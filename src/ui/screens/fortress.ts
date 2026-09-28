@@ -22,7 +22,7 @@ import type { Layout, Rect } from '@render/cellbuffer';
 import { AnnouncementLog, type LogLine } from '../announcements';
 import { HintEngine, type HintRow } from '../hints';
 import { STATUS_HINT_SECONDS } from '../constants';
-import type { Keymap } from '../keymap';
+import { keyLabel, type Keymap } from '../keymap';
 import { drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
 import type { PanelContext } from '../panels/context';
@@ -74,7 +74,10 @@ export const ALERT_FLASH_MS = 1000;
 export interface FortressSettings {
   /** 24: "`auto-pause on danger` setting is on (default on)". */
   autoPauseDanger: boolean;
+  autoPauseAlert: boolean;
   hintsEnabled: boolean;
+  edgeScrolling: boolean;
+  combatLog: 'all' | 'hits only' | 'off';
 }
 
 export interface FortressHost {
@@ -128,7 +131,7 @@ export class FortressScreen implements Screen {
   private clickShift = false;
   readonly log: AnnouncementLog;
   readonly hints: HintEngine;
-  readonly settings: FortressSettings = { autoPauseDanger: true, hintsEnabled: true };
+  readonly settings: FortressSettings = { autoPauseDanger: true, autoPauseAlert: false, hintsEnabled: true, edgeScrolling: false, combatLog: 'hits only' };
   lookTab: LookTab = 0;
   logFilter: LogFilter = 0;
   /** The overlays panel (T-M3-08). */
@@ -193,7 +196,10 @@ export class FortressScreen implements Screen {
   panels(): PanelSpec[] {
     const out = [...UI_PANELS];
     for (const p of this.host.registeredPanels()) if (!out.some((q) => q.id === p.id)) out.push(p);
-    return out;
+    return out.map((panel) => {
+      const binding = this.keymap.bindings.find((entry) => entry.context === 'fortress_panel' && entry.id === panel.id);
+      return binding ? { ...panel, hotkey: keyLabel(binding.spec) } : panel;
+    });
   }
 
   private ensureRegistered(): void {
@@ -212,6 +218,7 @@ export class FortressScreen implements Screen {
     this.ensureRegistered();
     const readers = this.host.readers;
     for (const event of events) {
+      if (event.type === 'AttackResolved' && (this.settings.combatLog === 'off' || (this.settings.combatLog === 'hits only' && event['outcome'] !== 'hit'))) continue;
       if (event.type === 'VeinFound') {
         const material = (event as unknown as { material?: string }).material;
         if (material !== undefined && this.host.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(material)?.deepsilver === true) this.ui.deepFound = true;
@@ -223,7 +230,10 @@ export class FortressScreen implements Screen {
       }
       const done = this.log.announce(event, readers, readers.calendar.tick);
       if (done === null) continue;
-      if (done.severity === 'alert') this.flashUntil = this.host.now() + ALERT_FLASH_MS;
+      if (done.severity === 'alert') {
+        this.flashUntil = this.host.now() + ALERT_FLASH_MS;
+        if (this.settings.autoPauseAlert) this.host.setSpeed(0);
+      }
       if (done.severity === 'danger') {
         this.pinned = done.line;
         if (this.settings.autoPauseDanger) this.host.setSpeed(0);
@@ -773,8 +783,9 @@ export class FortressScreen implements Screen {
       }
     }
 
-    if (!press.ctrl && !press.alt && !press.meta) {
-      const opened = this.panels().find((p) => p.hotkey === press.key);
+    if (!press.alt && !press.meta) {
+      const panelAction = this.keymap.resolve('fortress_panel', press);
+      const opened = this.panels().find((p) => p.id === panelAction?.id) ?? (!press.ctrl ? this.panels().find((p) => p.hotkey === press.key) : undefined);
       if (opened !== undefined) {
         if (this.ui.panel === opened.id && this.ui.sidebar) this.openPanel(null);
         else if (opened.id === 'look') this.look(this.hoverPoint() ?? this.centerPoint());
@@ -1075,6 +1086,12 @@ export class FortressScreen implements Screen {
       this.host.pan(this.middle.col - p.col, this.middle.row - p.row);
       this.middle = { col: p.col, row: p.row };
       return;
+    }
+    if (this.settings.edgeScrolling && at !== null && !this.dragging) {
+      const map = this.host.layout().map;
+      const dx = p.col === map.col ? -1 : p.col === map.col + map.cols - 1 ? 1 : 0;
+      const dy = p.row === map.row ? -1 : p.row === map.row + map.rows - 1 ? 1 : 0;
+      if (dx || dy) this.host.pan(dx, dy);
     }
     if (this.dragging && at !== null && this.zones.anchor !== null) this.zones.end = { x: at.x, y: at.y, z: this.zones.anchor.z };
     else if (this.dragging && at !== null && this.tool.anchor !== null) this.tool.end = { x: at.x, y: at.y, z: this.tool.anchor.z };

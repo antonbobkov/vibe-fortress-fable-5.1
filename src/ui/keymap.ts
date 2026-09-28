@@ -11,9 +11,19 @@
 
 import type { KeyPress } from '@platform/input';
 
-export type KeyContext = 'global' | 'map' | 'panel' | 'world_map' | 'embark' | 'trade_session';
+export type KeyContext = 'global' | 'map' | 'panel' | 'world_map' | 'embark' | 'trade_session' | 'fortress_panel';
 
-export const KEY_CONTEXTS: readonly KeyContext[] = ['global', 'map', 'panel', 'world_map', 'embark', 'trade_session'];
+export const KEY_CONTEXTS: readonly KeyContext[] = ['global', 'map', 'panel', 'world_map', 'embark', 'trade_session', 'fortress_panel'];
+
+/** The panel hotkeys named by ui-keymap-and-screens.md § Fortress panels. */
+export const FORTRESS_PANEL_KEYS: readonly { id: string; key: string }[] = [
+  { id: 'designate', key: 'd' }, { id: 'build', key: 'b' }, { id: 'zones', key: 'z' },
+  { id: 'units', key: 'u' }, { id: 'labors', key: 'l' }, { id: 'jobs', key: 'j' },
+  { id: 'orders', key: 'o' }, { id: 'stocks', key: 's' }, { id: 'military', key: 'm' },
+  { id: 'animals', key: 'n' }, { id: 'threats', key: 't' }, { id: 'civilizations', key: 'c' },
+  { id: 'population', key: 'p' }, { id: 'mood', key: 'e' }, { id: 'log', key: 'a' },
+  { id: 'look', key: 'k' }, { id: 'overlays', key: 'f' },
+];
 
 /** A resolved action; `arg` carries the direction, digit or tab the key stands for. */
 export interface UiAction {
@@ -95,6 +105,13 @@ export interface Binding {
   readonly arg?: string | number;
 }
 
+/** Persist only changes from content defaults, keyed by the stable expanded row index. */
+export interface KeyOverride { readonly index: number; readonly spec: KeySpec }
+
+export function keyLabel(spec: KeySpec): string {
+  return `${spec.ctrl ? 'Ctrl+' : ''}${spec.shift ? 'Shift+' : ''}${spec.key}`;
+}
+
 const ARROWS = ['←', '→', '↑', '↓'];
 
 /**
@@ -143,10 +160,14 @@ export function argOf(id: string, key: string): string | number | undefined {
 }
 
 export class Keymap {
-  readonly bindings: readonly Binding[];
+  private readonly defaults: readonly Binding[];
+  private current: Binding[];
+
+  get bindings(): readonly Binding[] { return this.current; }
 
   constructor(bindings: readonly Binding[]) {
-    this.bindings = bindings;
+    this.defaults = bindings.map((binding) => ({ ...binding, spec: { ...binding.spec } }));
+    this.current = this.defaults.map((binding) => ({ ...binding, spec: { ...binding.spec } }));
   }
 
   /**
@@ -174,12 +195,47 @@ export class Keymap {
         }
       }
     }
+    for (const panel of FORTRESS_PANEL_KEYS) out.push({ context: 'fortress_panel', spec: { key: panel.key, ctrl: false, shift: false }, id: panel.id });
     return new Keymap(out);
   }
 
   /** Every binding of a context. */
   of(context: KeyContext): Binding[] {
     return this.bindings.filter((b) => b.context === context);
+  }
+
+  overrides(): KeyOverride[] {
+    return this.current.flatMap((binding, index) => sameSpec(binding.spec, (this.defaults[index] as Binding).spec) ? [] : [{ index, spec: { ...binding.spec } }]);
+  }
+
+  reset(): void {
+    this.current = this.defaults.map((binding) => ({ ...binding, spec: { ...binding.spec } }));
+  }
+
+  /** Return the existing conflicting row; preserve both bindings until a free key is chosen. */
+  rebind(index: number, spec: KeySpec): Binding | null {
+    const target = this.current[index];
+    if (!target || !spec.key || spec.key === 'any-letter') return target ?? null;
+    const conflict = this.current.find((binding, other) => other !== index &&
+      (binding.context === target.context || binding.context === 'global' || target.context === 'global' ||
+        (binding.context === 'map' && target.context === 'fortress_panel') || (binding.context === 'fortress_panel' && target.context === 'map')) &&
+      binding.spec.ctrl === spec.ctrl && binding.spec.key === spec.key && binding.spec.shift === spec.shift && binding.spec.key !== 'any-letter');
+    if (conflict) return conflict;
+    this.current[index] = { ...target, spec: { ...spec } };
+    return null;
+  }
+
+  loadOverrides(overrides: readonly KeyOverride[]): void {
+    const proposed = this.defaults.map((binding) => ({ ...binding, spec: { ...binding.spec } }));
+    for (const override of overrides) {
+      if (!Number.isInteger(override.index) || override.index < 0 || override.index >= proposed.length) continue;
+      if (!override.spec || typeof override.spec.key !== 'string' || typeof override.spec.ctrl !== 'boolean' || typeof override.spec.shift !== 'boolean') continue;
+      if (!override.spec.key || override.spec.key === 'any-letter') continue;
+      const binding = proposed[override.index] as Binding;
+      proposed[override.index] = { ...binding, spec: { ...override.spec } };
+    }
+    const conflict = proposed.some((binding, index) => proposed.some((other, otherIndex) => otherIndex !== index && other.context === binding.context && other.spec.ctrl === binding.spec.ctrl && other.spec.key === binding.spec.key && other.spec.key !== 'any-letter' && other.spec.shift === binding.spec.shift));
+    if (!conflict) this.current = proposed;
   }
 
   /**
