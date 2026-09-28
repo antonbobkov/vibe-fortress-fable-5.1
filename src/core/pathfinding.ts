@@ -642,6 +642,8 @@ export class Pathfinder {
   private readonly cache = new Map<string, CacheEntry>();
   /** Nodes expanded during the most recent {@link tick}. */
   lastTickNodes = 0;
+  /** Requests settled so far; presentation only (see {@link servedRequests}). */
+  private served = 0;
 
   constructor(map: Map3D, graph: TileGraph, labels: LabelSource | null = null, options: PathfinderOptions = {}) {
     this.map = map;
@@ -657,6 +659,15 @@ export class Pathfinder {
   /** Requests waiting or in progress. */
   get openRequests(): number {
     return this.queue.length;
+  }
+
+  /**
+   * Requests that have settled (ready or failed) since the pathfinder was built. Presentation only
+   * — the debug panel's "path requests served and pending" (`ui-screens/panels.md` § Debug) — so it
+   * is not part of any saved section and never reaches a world hash (D-199).
+   */
+  get servedRequests(): number {
+    return this.served;
   }
 
   /** `pathing.requestPath`. Returns the request id, which is also the path id. */
@@ -726,6 +737,7 @@ export class Pathfinder {
 
   /** Drop the scratch buffers and take the request out of the queue. */
   private finish(r: PathRequest): void {
+    this.served += 1;
     if (r.scratch !== null) {
       this.pool.push(r.scratch);
       r.scratch = null;
@@ -1138,6 +1150,8 @@ export class PathingCore {
       requestPath: (entity, from, to, cls, urgency, opts, mover) =>
         this.pathfinder.requestPath(entity, from, to, cls, urgency, opts, mover),
       pathResult: (id) => this.pathfinder.pathResult(id),
+      requestsPending: () => this.pathfinder.openRequests,
+      requestsServed: () => this.pathfinder.servedRequests,
     };
   }
 }
@@ -1160,4 +1174,7 @@ export interface PathingCoreReader {
     mover?: MoverOptions,
   ): number;
   pathResult(id: number): PathResult;
+  /** Requests waiting or in progress, and requests settled so far (`panels.md` § Debug, D-199). */
+  requestsPending(): number;
+  requestsServed(): number;
 }

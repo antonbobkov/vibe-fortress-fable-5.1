@@ -149,7 +149,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M7-05 — Population panel; renown and reputation readers in threats (codex-m705, 2026-09-27)
 - [x] T-M7-06 — Legend record and screen; retire; final saves (codex-m706, 2026-09-28)
 - [x] T-M7-07 — Settings screen, keybinding remap, colorblind toggle, auto-pause toggles, autosave toggle (codex-m707, 2026-09-28)
-- [ ] T-M7-08 — Help screen, legend of glyphs, overlays panel complete, debug panel
+- [x] T-M7-08 — Help screen, legend of glyphs, overlays panel complete, debug panel (opus-m708, 2026-09-28)
 - [ ] T-M7-09 — Game menu, main menu Continue, confirmations complete
 - [ ] T-M7-10 — Announcement registry complete; strings table audit
 - [ ] T-M7-11 — Full-year headless scenario and the balance table

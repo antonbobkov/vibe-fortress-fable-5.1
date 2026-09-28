@@ -22,7 +22,7 @@ export const strings = new Strings(registry);
 export function surface(cols: number, rows: number): Surface {
   const cells = new CellBuffer(cols, rows);
   cells.fill(0, theme.black, theme.black);
-  return new Surface(cells, glyphs, theme);
+  return new Surface(cells, glyphs, theme, palette);
 }
 
 export function press(key: string, mods: Partial<Omit<KeyPress, 'key'>> = {}): KeyPress {

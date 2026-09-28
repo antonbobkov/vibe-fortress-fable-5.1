@@ -1,0 +1,205 @@
+/**
+ * The help panel (`?`): `ui-screens/panels.md` § Help — "Two tabs: `Keys` (the keymap table
+ * grouped by context, live from the keymap) and `Legend` (glyphs and colors by category, generated
+ * from content: terrain, fluids, creatures, items, buildings, overlays)". 24 § Panels lists `help`
+ * among the panels and `ui-keymap-and-screens.md` § Fortress panels gives it the hotkey `?`.
+ *
+ * The key rows read {@link Keymap.bindings}, so a rebinding (T-M7-07) shows at once. The legend's
+ * terrain and fluid rows are the § Terrain rows of `glyphs-and-colors.md` that the compositor
+ * draws, named through `render/glyphs.ts` so no glyph index is written twice; the creature, item
+ * and building rows are the content tables' own `glyph` and `fg` columns; the overlay rows are the
+ * overlay menu's (D-199).
+ */
+
+import type { Registry } from '@core/registry';
+import type { Rect } from '@render/cellbuffer';
+import {
+  GLYPH_BOULDER,
+  GLYPH_ENGRAVED,
+  GLYPH_FORTIFICATION,
+  GLYPH_GRASS,
+  GLYPH_PAVED_FLOOR,
+  GLYPH_RAMP,
+  GLYPH_ROUGH_FLOOR,
+  GLYPH_ROUGH_WALL,
+  GLYPH_SAPLING,
+  GLYPH_SMOOTH_FLOOR,
+  GLYPH_SOLID_WALL,
+  GLYPH_STAIRS_DOWN,
+  GLYPH_STAIRS_UP,
+  GLYPH_STAIRS_UPDOWN,
+  GLYPH_TREE,
+} from '@render/glyphs';
+import { ACTION_IDS, KEY_CONTEXTS, keyLabel, type Binding, type Keymap } from '../keymap';
+import type { Surface } from '../surface';
+import { label, tabs } from '../widgets';
+import { OVERLAY_ROWS } from './overlays';
+
+export type HelpTab = 0 | 1;
+
+/** One line of either tab. A heading has no glyph and is drawn in the key colour. */
+export interface HelpRow {
+  readonly category: string;
+  readonly text: string;
+  readonly heading?: true;
+  /** The palette row the line is drawn in (the legend's colours). */
+  readonly fg?: string;
+}
+
+/** The action wording of `ui-keymap-and-screens.md` § Keymap for each action id. */
+const WORDING: Readonly<Record<string, string>> = Object.freeze(
+  Object.entries(ACTION_IDS).reduce<Record<string, string>>((out, [text, id]) => {
+    if (out[id] === undefined) out[id] = text;
+    return out;
+  }, {}),
+);
+
+/** The context headings, as the keymap table names its sections. */
+const CONTEXT_TITLES: Readonly<Record<string, string>> = Object.freeze({
+  global: 'Global',
+  map: 'Map',
+  panel: 'Panels',
+  world_map: 'World map',
+  embark: 'Embark',
+  trade_session: 'Trade session',
+  fortress_panel: 'Fortress panels',
+});
+
+/** § Terrain, the solid rows: the glyph the compositor draws and the thing it draws. */
+const TERRAIN_LEGEND: readonly { readonly glyph: number; readonly name: string }[] = [
+  { glyph: GLYPH_ROUGH_WALL, name: 'rough wall' },
+  { glyph: GLYPH_SOLID_WALL, name: 'smoothed or block wall' },
+  { glyph: GLYPH_ENGRAVED, name: 'engraved wall or floor' },
+  { glyph: GLYPH_ROUGH_FLOOR, name: 'rough floor, mud, ash' },
+  { glyph: GLYPH_SMOOTH_FLOOR, name: 'smoothed floor' },
+  { glyph: GLYPH_PAVED_FLOOR, name: 'paved floor' },
+  { glyph: GLYPH_GRASS, name: 'grass, moss, shrub' },
+  { glyph: GLYPH_RAMP, name: 'ramp' },
+  { glyph: GLYPH_STAIRS_UP, name: 'stairs up' },
+  { glyph: GLYPH_STAIRS_DOWN, name: 'stairs down' },
+  { glyph: GLYPH_STAIRS_UPDOWN, name: 'stairs up and down' },
+  { glyph: GLYPH_FORTIFICATION, name: 'fortification' },
+  { glyph: GLYPH_TREE, name: 'tree' },
+  { glyph: GLYPH_SAPLING, name: 'sapling' },
+  { glyph: GLYPH_BOULDER, name: 'boulder' },
+];
+
+/** § Terrain, the fluid and hazard rows, with their ramp colours. */
+const FLUID_LEGEND: readonly { readonly glyph: string; readonly name: string; readonly fg: string }[] = [
+  { glyph: '~', name: 'water, levels 1-2', fg: 'water_1' },
+  { glyph: '≈', name: 'water, levels 3-7', fg: 'water_7' },
+  { glyph: '~', name: 'magma, levels 1-2', fg: 'magma_1' },
+  { glyph: '≈', name: 'magma, levels 3-7', fg: 'magma_7' },
+  { glyph: '▒', name: 'ice', fg: 'ice_blue' },
+  { glyph: '^', name: 'fire', fg: 'yellow' },
+  { glyph: '*', name: 'web', fg: 'silk_white' },
+];
+
+interface GlyphRow {
+  readonly id: string;
+  readonly name?: string;
+  readonly glyph?: string;
+  readonly fg?: string;
+}
+
+/** Every binding of the live keymap, grouped under its context heading. */
+export function helpKeyRows(keymap: Keymap): HelpRow[] {
+  const out: HelpRow[] = [];
+  for (const context of KEY_CONTEXTS) {
+    const bindings = keymap.of(context);
+    if (bindings.length === 0) continue;
+    out.push({ category: context, text: CONTEXT_TITLES[context] ?? context, heading: true });
+    for (const binding of bindings) {
+      out.push({ category: context, text: `${keyLabel(binding.spec)}  ${actionText(binding)}` });
+    }
+  }
+  return out;
+}
+
+/** The wording the keymap table gives the action, or the action id read as words. */
+export function actionText(binding: Binding): string {
+  return WORDING[binding.id] ?? binding.id.replaceAll('_', ' ');
+}
+
+/** The six legend categories of § Help, generated from the content tables. */
+export function helpGlyphRows(registry: Registry, charOf: (glyph: number) => string): HelpRow[] {
+  const out: HelpRow[] = [];
+  const heading = (text: string): void => { out.push({ category: text, text, heading: true }); };
+  const fromTable = (category: string, table: string): void => {
+    heading(category);
+    const rows = registry.table<GlyphRow>(table);
+    for (const id of rows.ids()) {
+      const row = rows.byId(id) as GlyphRow;
+      if (row.glyph === undefined || row.glyph === '') continue;
+      const entry: HelpRow = {
+        category,
+        text: `${Array.from(row.glyph)[0] ?? '?'}  ${row.name ?? id.replaceAll('_', ' ')}`,
+        ...(row.fg === undefined ? {} : { fg: row.fg }),
+      };
+      out.push(entry);
+    }
+  };
+
+  heading('Terrain');
+  for (const row of TERRAIN_LEGEND) out.push({ category: 'Terrain', text: `${charOf(row.glyph)}  ${row.name}` });
+  heading('Fluids');
+  for (const row of FLUID_LEGEND) out.push({ category: 'Fluids', text: `${row.glyph}  ${row.name}`, fg: row.fg });
+  fromTable('Creatures', 'creatures');
+  fromTable('Items', 'items');
+  fromTable('Buildings', 'buildings');
+  heading('Overlays');
+  for (const row of OVERLAY_ROWS) out.push({ category: 'Overlays', text: `∙  ${row.label}` });
+  return out;
+}
+
+export class HelpPanel {
+  tab: HelpTab = 0;
+  /** The first visible row. Help is a reference list: it scrolls and has no selection. */
+  scroll = 0;
+  private legend: HelpRow[] | null = null;
+
+  constructor(private readonly registry: Registry, private readonly keymap: Keymap) {}
+
+  rows(charOf: (glyph: number) => string): HelpRow[] {
+    if (this.tab === 0) return helpKeyRows(this.keymap);
+    this.legend ??= helpGlyphRows(this.registry, charOf);
+    return this.legend;
+  }
+
+  setTab(tab: HelpTab): void {
+    if (this.tab === tab) return;
+    this.tab = tab;
+    this.scroll = 0;
+  }
+
+  /** Scroll by `delta` rows; the draw clamps it to the rows that exist. */
+  move(delta: number): void {
+    this.scroll = Math.max(0, this.scroll + delta);
+  }
+}
+
+export function drawHelpPanel(surface: Surface, rect: Rect, panel: HelpPanel): void {
+  if (rect.rows <= 0) return;
+  const t = surface.theme;
+  tabs(surface, rect.col + 1, rect.row, [{ key: '1', label: 'Keys' }, { key: '2', label: 'Legend' }], panel.tab,
+    (index) => panel.setTab(index as HelpTab));
+  const rows = panel.rows((glyph) => surface.glyphs.char(glyph));
+  const width = rect.cols - 2;
+  const visible = rect.rows - 1;
+  if (visible <= 0) return;
+  panel.scroll = Math.max(0, Math.min(Math.max(0, rows.length - visible), panel.scroll));
+  for (let k = 0; k < visible; k += 1) {
+    const row = rows[panel.scroll + k];
+    const line = rect.row + 1 + k;
+    surface.fill({ col: rect.col + 1, row: line, cols: width, rows: 1 }, t.black);
+    if (row === undefined) continue;
+    // § Help: "glyphs and colors by category" — a heading in the key colour, a legend row in the
+    // palette row its content table names.
+    const fg = row.heading === true ? t.key : row.fg === undefined ? t.text : surface.color(row.fg);
+    label(surface, rect.col + 1, line, row.text, { fg, width, keys: false });
+  }
+  if (rows.length > visible) {
+    label(surface, rect.col + rect.cols - 8, rect.row + rect.rows - 1,
+      `${panel.scroll + 1}/${rows.length}`, { fg: t.dim, keys: false });
+  }
+}

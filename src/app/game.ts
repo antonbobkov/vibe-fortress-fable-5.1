@@ -36,6 +36,7 @@ import {
   autoSaveId,
   exportFileName,
   manualSaveId,
+  slugify,
   newestManualId,
   readSaveHeader,
   rollAutosaves,
@@ -246,8 +247,47 @@ export class Game {
       quickSave: () => void this.quickSave(),
       quickLoad: () => void this.quickLoad(),
       gameMenu: () => this.openGameMenu(),
+      debug: {
+        stats: () => this.host.stats(),
+        seed: () => (this.host.started ? this.host.world.seed : ''),
+        dumpSave: () => void this.dumpSave(),
+        replaySeasonLog: () => this.exportSeasonLog(),
+        hashWorld: () => this.noteWorldHash(),
+      },
       confirm: (id, params, answer) => this.confirm(id, params as Readonly<Record<string, string | number>>, answer),
     };
+  }
+
+  /**
+   * `ui-screens/panels.md` § Debug `dump save`: the running game's container, offered as a file
+   * without storing it as a save.
+   */
+  private async dumpSave(): Promise<void> {
+    const files = this.files;
+    if (files === null || !this.host.started) return;
+    const blob = await this.host.save({ kind: 'manual', ui: this.uiSection(), playTimeSeconds: this.playTimeSeconds(), thumbnail: this.thumbnail() });
+    const calendar = this.host.readers.calendar;
+    files.download(exportFileName(this.host.world.fortress.name, calendar.year, calendar.season), blob);
+  }
+
+  /**
+   * § Debug `replay season log`; `tooling.md` § Debug and replay: "A season's command log can be
+   * exported from the debug panel and replayed headless".
+   */
+  private exportSeasonLog(): void {
+    const files = this.files;
+    if (files === null || !this.host.started) return;
+    const log = this.host.world.commandLog.serialize();
+    const bytes = new TextEncoder().encode(JSON.stringify(log));
+    files.download(`${slugify(this.host.world.fortress.name)}-season-log.json`, bytes);
+    this.note('note', this.strings.get('ui.debug.log_exported', { n: log.length }));
+  }
+
+  /** § Debug `hash world`: the world hash of `simulation-core.md` § Determinism, in the log. */
+  private noteWorldHash(): void {
+    if (!this.host.started) return;
+    this.note('note', this.strings.get('ui.debug.hash', { hash: this.host.headless.hash() }));
+    this.render();
   }
 
   /** Subscribe the fortress screen to the running world's events (24 § Events consumed). */
@@ -861,7 +901,7 @@ export class Game {
   textRows(): string[] {
     const cells = this.cells;
     if (cells === null) return [];
-    return new Surface(cells, this.glyphs, this.theme).lines();
+    return new Surface(cells, this.glyphs, this.theme, this.palette).lines();
   }
 
   /** Compose and draw one frame. */
@@ -883,7 +923,7 @@ export class Game {
       }
       const buffer = this.screenBuffer;
       buffer.fill(0, this.theme.black, this.theme.black);
-      const surface = new Surface(buffer, this.glyphs, this.theme);
+      const surface = new Surface(buffer, this.glyphs, this.theme, this.palette);
       if (this.busy !== null) {
         const text = this.busy;
         surface.text(Math.max(0, Math.floor((this.cols - text.length) / 2)), Math.floor(this.rows / 2), text, this.theme.text);
@@ -908,7 +948,7 @@ export class Game {
       animFrame: Math.floor(Date.now() / FLUID_ANIM_MS),
     };
     const cells = this.compositor.compose(this.host.readers, view, this.cols, this.rows);
-    const surface = new Surface(cells, this.glyphs, this.theme);
+    const surface = new Surface(cells, this.glyphs, this.theme, this.palette);
     this.fortress.draw(surface);
     this.cells = cells;
     this.lastSurface = surface;

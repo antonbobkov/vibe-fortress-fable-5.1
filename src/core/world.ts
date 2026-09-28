@@ -32,7 +32,7 @@ export interface WorldOptions {
 export interface HostStats {
   tick: number;
   lastTickMs: number;
-  systems: readonly { id: SystemId; lastMs: number; totalMs: number; runs: number }[];
+  systems: readonly { id: SystemId; lastMs: number; worstMs: number; totalMs: number; runs: number }[];
 }
 
 export function defaultFortressState(name = 'Deepholm'): FortressState {

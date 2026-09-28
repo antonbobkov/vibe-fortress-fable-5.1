@@ -404,6 +404,11 @@ export class EntityStore {
     }
   }
 
+  /** How many living entities of a kind there are, without walking them. */
+  countOfKind(kind: EntityKind): number {
+    return (this.byKind[entityKindIndex(kind)] as number[]).length;
+  }
+
   /** The ids of every living entity of a kind, ascending. */
   ofKind(kind: EntityKind): EntityId[] {
     const bucket = this.byKind[entityKindIndex(kind)] as number[];

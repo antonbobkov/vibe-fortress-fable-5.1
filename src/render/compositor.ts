@@ -47,6 +47,13 @@ import {
 import type { Palette, Rgb } from './palette';
 import { ThingLayers } from './things';
 import { EnvironmentLayers, OVERLAY_FLUID_LEVELS, OVERLAY_TEMPERATURE } from './environment';
+import {
+  DebugOverlayLayers,
+  OVERLAY_CHUNKS,
+  OVERLAY_CONNECTIVITY,
+  OVERLAY_JOBS,
+  OVERLAY_PATHS,
+} from './debug-overlays';
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
 import type { PlantsReader } from '@systems/plants';
@@ -90,6 +97,10 @@ export const OVERLAY_STOCKPILE_USAGE = 'stockpile_usage';
 /** The overlay id of the "priority digits" sub-toggle. */
 export const OVERLAY_PRIORITY_DIGITS = 'priority_digits';
 export const OVERLAY_SQUAD_STATIONS = 'squad_stations';
+
+// The overlay ids the other layer modules own, so the overlay menu reads one list (T-M7-08).
+export { OVERLAY_FLUID_LEVELS, OVERLAY_TEMPERATURE } from './environment';
+export { OVERLAY_CHUNKS, OVERLAY_CONNECTIVITY, OVERLAY_JOBS, OVERLAY_PATHS } from './debug-overlays';
 
 /**
  * 23 § Compositor step 6: "topmost by priority: dwarves > hostiles > tame > wild > vermin".
@@ -176,6 +187,8 @@ export class Compositor {
   private readonly things: ThingLayers;
   /** Steps 3 and 9, the M3 overlays and the weather particles (T-M3-08). */
   private readonly env: EnvironmentLayers;
+  /** The `jobs` overlay and the three debug overlays of step 8 (T-M7-08). */
+  private readonly debug: DebugOverlayLayers;
   /** Each stockpile's fullness this frame (the `stockpile usage` overlay). */
   private readonly usage = new Map<EntityId, number>();
   private animFrame = 0;
@@ -248,6 +261,7 @@ export class Compositor {
     for (const [kind, id] of Object.entries(DESIGNATION_TINTS)) this.tints.set(Number(kind) as Designation, palette.color(id as string));
     this.things = new ThingLayers(options.registry, palette, indexOf);
     this.env = new EnvironmentLayers(palette, indexOf);
+    this.debug = new DebugOverlayLayers(palette);
   }
 
   /** The layout of the last {@link compose}; the app maps mouse cells through it. */
@@ -268,6 +282,7 @@ export class Compositor {
     this.frameOverlays = ui.overlays ?? DEFAULT_OVERLAYS;
     this.usage.clear();
     this.env.beginFrame(readers, ui.animFrame ?? 0);
+    this.debug.beginFrame(readers, this.frameOverlays);
     this.animFrame = ui.animFrame ?? 0;
     this.stations.clear();
     this.patrols.clear();
@@ -314,12 +329,13 @@ export class Compositor {
     if (this.frameReaders !== readers) {
       this.frameReaders = readers;
       this.env.beginFrame(readers, 0);
+      this.debug.beginFrame(readers, this.frameOverlays);
       this.animFrame = 0;
       this.indexProjectiles(readers);
     }
     // Step 1: undiscovered tiles show nothing but the overlays the player placed.
     if ((map.flagsAt(i) & TileFlag.Discovered) === 0) {
-      return this.overlays({ glyph: GLYPH_NONE, fg: this.undiscovered, bg: this.undiscovered }, i, true, false);
+      return this.overlays({ glyph: GLYPH_NONE, fg: this.undiscovered, bg: this.undiscovered }, i, x, y, true, false);
     }
 
     // Step 2: the terrain base, and the look-down through open tiles.
@@ -344,7 +360,7 @@ export class Compositor {
 
     // Steps 8 and 9. An empty sky cell already carries the night colour of step 2, so step 9
     // does not dim it a second time (D-103).
-    cell = this.overlays(cell, i, false, creature !== null);
+    cell = this.overlays(cell, i, x, y, false, creature !== null);
     if (!sky) cell = this.lighting(cell, i);
     return cell;
   }
@@ -638,7 +654,7 @@ export class Compositor {
    * Step 8, the overlay stack in its fixed order: designations (03), zones (14, T-M2-10), the rest
    * later. "Overlays alter `bg` or replace the glyph but never hide a creature".
    */
-  private overlays(cell: Cell, i: TileIndex, undiscovered: boolean, creature: boolean): Cell {
+  private overlays(cell: Cell, i: TileIndex, x: number, y: number, undiscovered: boolean, creature: boolean): Cell {
     let c = cell;
     if (this.frameOverlays.includes('designations')) c = this.designationOver(c, i, undiscovered, creature);
     if (this.frameOverlays.includes('zones')) c = this.zoneOver(c, i);
@@ -646,6 +662,10 @@ export class Compositor {
     if (this.frameOverlays.includes(OVERLAY_STOCKPILE_USAGE)) c = this.usageOver(c, i);
     if (!undiscovered && this.frameOverlays.includes(OVERLAY_FLUID_LEVELS)) c = this.env.fluidLevelsOver(c, i, creature);
     if (!undiscovered && this.frameOverlays.includes(OVERLAY_TEMPERATURE)) c = this.env.temperatureOver(c, i);
+    if (!undiscovered && this.frameOverlays.includes(OVERLAY_JOBS)) c = this.debug.jobsOver(c, i);
+    if (this.frameOverlays.includes(OVERLAY_CONNECTIVITY)) c = this.debug.connectivityOver(c, i);
+    if (this.frameOverlays.includes(OVERLAY_PATHS)) c = this.debug.pathsOver(c, i);
+    if (this.frameOverlays.includes(OVERLAY_CHUNKS)) c = this.debug.chunksOver(c, x, y);
     return c;
   }
 

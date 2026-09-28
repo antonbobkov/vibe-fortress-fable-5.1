@@ -20,6 +20,7 @@ export function isDue(tick: number, cadence: number, phase: number): boolean {
 export interface SystemTiming {
   id: SystemId;
   lastMs: number;
+  worstMs: number;
   totalMs: number;
   runs: number;
 }
@@ -47,7 +48,7 @@ export class Scheduler {
     let at = this.systems.length;
     while (at > 0 && (this.systems[at - 1] as GameSystem).order > system.order) at -= 1;
     this.systems.splice(at, 0, system);
-    this.timings.set(system.id, { id: system.id, lastMs: 0, totalMs: 0, runs: 0 });
+    this.timings.set(system.id, { id: system.id, lastMs: 0, worstMs: 0, totalMs: 0, runs: 0 });
     this.dispatch = null;
   }
 
@@ -86,6 +87,7 @@ export class Scheduler {
     const timing = this.timings.get(system.id);
     if (timing !== undefined) {
       timing.lastMs = this.now() - started;
+      timing.worstMs = Math.max(timing.worstMs, timing.lastMs);
       timing.totalMs += timing.lastMs;
       timing.runs += 1;
     }
@@ -97,7 +99,7 @@ export class Scheduler {
 
   resetStats(): void {
     for (const s of this.systems) {
-      this.timings.set(s.id, { id: s.id, lastMs: 0, totalMs: 0, runs: 0 });
+      this.timings.set(s.id, { id: s.id, lastMs: 0, worstMs: 0, totalMs: 0, runs: 0 });
     }
   }
 

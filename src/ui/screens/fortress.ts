@@ -47,6 +47,8 @@ import { clickHit, type CellPointer, type CellWheel, type Screen } from '../scre
 import { statusFields, statusRow1, type Speed } from '../status';
 import { drawCalendarPanel, weatherColor, weatherGlyph, weatherOf } from '../panels/calendar';
 import { drawOverlaysPanel, OVERLAY_ROWS, OverlayMenu } from '../panels/overlays';
+import { drawHelpPanel, HelpPanel, type HelpTab } from '../panels/help';
+import { DebugPanel, drawDebugPanel, type DebugHost } from '../panels/debug';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import type { UiState } from '../ui-state';
@@ -63,6 +65,9 @@ export const UI_PANELS: readonly PanelSpec[] = [
   { id: 'calendar', title: 'Calendar', hotkey: '' },
   { id: 'population', title: 'Population', hotkey: 'p' },
   { id: 'civilizations', title: 'Civilizations', hotkey: 'c' },
+  // `ui-screens/panels.md` §§ Help, Debug; their keys are the global `?` and `F12` rows (T-M7-08).
+  { id: 'help', title: 'Help', hotkey: '?' },
+  { id: 'debug', title: 'Debug', hotkey: 'F12' },
 ];
 
 /** The speeds `+` and `-` step through ("speed up (1× → 2× → 4×)"). */
@@ -70,6 +75,9 @@ const SPEEDS: readonly Speed[] = [1, 2, 4];
 
 /** Milliseconds an alert flashes the strip ("the log strip flashes for one second"). */
 export const ALERT_FLASH_MS = 1000;
+
+/** Rows `PageUp`/`PageDown` scroll the help and debug lists by (`ui-keymap-and-screens.md` § Panels). */
+export const HELP_PAGE_ROWS = 10;
 
 export interface FortressSettings {
   /** 24: "`auto-pause on danger` setting is on (default on)". */
@@ -108,6 +116,8 @@ export interface FortressHost {
   quickSave?(): void;
   quickLoad?(): void;
   gameMenu?(): void;
+  /** The debug panel's timings and its three actions (`ui-screens/panels.md` § Debug). */
+  debug?: DebugHost;
   confirm?(id: string, params: Readonly<Record<string, unknown>>, answer: (yes: boolean) => void): void;
 }
 
@@ -137,6 +147,9 @@ export class FortressScreen implements Screen {
   logFilter: LogFilter = 0;
   /** The overlays panel (T-M3-08). */
   readonly overlayMenu = new OverlayMenu();
+  /** The help and debug panels (T-M7-08). */
+  readonly help: HelpPanel;
+  readonly debugPanel = new DebugPanel();
   /** The tile under the mouse, for the status bar's second row. */
   hover: TileIndex | null = null;
   /** A danger line shown until any key dismisses it. */
@@ -156,6 +169,7 @@ export class FortressScreen implements Screen {
   ) {
     this.log = new AnnouncementLog(strings, host.registry);
     this.hints = new HintEngine(host.registry, host.ui, this.log);
+    this.help = new HelpPanel(host.registry, keymap);
   }
 
   get ui(): UiState {
@@ -198,7 +212,9 @@ export class FortressScreen implements Screen {
     const out = [...UI_PANELS];
     for (const p of this.host.registeredPanels()) if (!out.some((q) => q.id === p.id)) out.push(p);
     return out.map((panel) => {
-      const binding = this.keymap.bindings.find((entry) => entry.context === 'fortress_panel' && entry.id === panel.id);
+      // Help and Debug are bound in the global context (`?`, `F12`), the rest in `fortress_panel`.
+      const binding = this.keymap.bindings.find((entry) => entry.context === 'fortress_panel' && entry.id === panel.id)
+        ?? this.keymap.bindings.find((entry) => entry.context === 'global' && entry.id === panel.id);
       return binding ? { ...panel, hotkey: keyLabel(binding.spec) } : panel;
     });
   }
@@ -366,6 +382,8 @@ export class FortressScreen implements Screen {
       (leverId) => ctx.submit({ type: 'PullLever', leverId }));
     else if (panel.id === 'calendar') drawCalendarPanel(surface, body, readers, this.strings);
     else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
+    else if (panel.id === 'help') drawHelpPanel(surface, body, this.help);
+    else if (panel.id === 'debug' && this.host.debug !== undefined) drawDebugPanel(surface, body, this.debugPanel, ctx, this.host.debug);
     else if (panel.id === 'military') drawMilitaryPanel(surface, body, this.military, ctx, this.host);
     else if (panel.id === 'threats') drawThreatsPanel(surface, body, this.threats, ctx, this.ui.deepFound);
     else if (panel.id === 'civilizations') drawCivilizationsPanel(surface, body, this.civilizations, ctx, () => this.openTrade());
@@ -491,6 +509,12 @@ export class FortressScreen implements Screen {
   }
 
   // ---------- actions ----------
+
+  /** A panel hotkey: open it, or close it when it is the open one ("`?` help", "`F12` debug"). */
+  private togglePanel(id: string): void {
+    if (this.ui.panel === id && this.ui.sidebar) this.openPanel(null);
+    else this.openPanel(id);
+  }
 
   openPanel(id: string | null): void {
     if (id !== 'designate') this.tool.cancel();
@@ -693,6 +717,12 @@ export class FortressScreen implements Screen {
         case 'quick_load':
           this.host.quickLoad?.();
           return true;
+        case 'help':
+          this.togglePanel('help');
+          return true;
+        case 'debug':
+          this.togglePanel('debug');
+          return true;
         case 'undo': {
           const cmd = this.tool.undo();
           if (cmd !== null) this.host.submit(cmd);
@@ -824,6 +854,21 @@ export class FortressScreen implements Screen {
             return true;
           }
           return false;
+      case 'help':
+        if (k === '1' || k === '2') { this.help.setTab((Number(k) - 1) as HelpTab); return true; }
+        if (!press.shift && (up || down)) { this.help.move(up ? -1 : 1); return true; }
+        if (k === 'PageUp' || k === 'PageDown') { this.help.move(k === 'PageUp' ? -HELP_PAGE_ROWS : HELP_PAGE_ROWS); return true; }
+        return false;
+      case 'debug': {
+        const debug = this.host.debug;
+        if (!press.shift && (up || down)) { this.debugPanel.move(up ? -1 : 1); return true; }
+        if (k === 'PageUp' || k === 'PageDown') { this.debugPanel.move(k === 'PageUp' ? -HELP_PAGE_ROWS : HELP_PAGE_ROWS); return true; }
+        if (debug === undefined) return false;
+        if (letter === 'd') { debug.dumpSave(); return true; }
+        if (letter === 'r') { debug.replaySeasonLog(); return true; }
+        if (letter === 'h') { debug.hashWorld(); return true; }
+        return false;
+      }
       case 'overlays':
         if (!press.shift && (up || down)) {
           this.overlayMenu.move(up ? -1 : 1);

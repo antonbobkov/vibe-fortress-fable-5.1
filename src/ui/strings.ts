@@ -256,6 +256,9 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.jobs.type.deconstruct': 'Take apart',
   'ui.jobs.type.haul_to_stockpile': 'Haul',
   'ui.jobs.type.haul_to_dump': 'Dump',
+  // Debug panel (`panels.md` § Debug; `tooling.md` § Debug and replay).
+  'ui.debug.hash': 'World hash {hash}.',
+  'ui.debug.log_exported': 'The season log was written: {n} commands.',
   // Labors panel (`panels.md` § Labors).
   'ui.labors.help1': '─ click to toggle · shift-click:',
   'ui.labors.help2': '  whole column · [a] all on/off',

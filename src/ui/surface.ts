@@ -125,7 +125,20 @@ export class Surface {
     readonly cells: CellBuffer,
     readonly glyphs: GlyphMap,
     readonly theme: Theme,
+    /**
+     * The live palette, when the caller has one. The glyph legend of `ui-screens/panels.md` § Help
+     * draws content colours by their palette row name, including the colorblind alternates, which
+     * the fixed {@link Theme} cannot name (T-M7-08).
+     */
+    readonly palette: Palette | null = null,
   ) {}
+
+  /** A palette row by name, or the theme's text colour when no palette was given. */
+  color(id: string): Rgb {
+    const palette = this.palette;
+    if (palette === null || !palette.has(id)) return this.theme.text;
+    return palette.color(id);
+  }
 
   get cols(): number {
     return this.cells.cols;

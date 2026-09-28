@@ -45,6 +45,8 @@ export interface EntityReader {
   alive(id: EntityId): boolean;
   kind(id: EntityId): EntityKind | undefined;
   each(kind: EntityKind, fn: (id: EntityId) => void): void;
+  /** Living entities of one kind, counted without walking them (the debug panel's counts). */
+  countOfKind(kind: EntityKind): number;
   with(a: ComponentType<unknown>, b?: ComponentType<unknown>, c?: ComponentType<unknown>): EntityId[];
   /** Entities with a `Position` on tile `i`, through the spatial index. */
   at(i: TileIndex): readonly EntityId[];
@@ -148,6 +150,7 @@ export class ReaderSet {
       alive: (id) => entities.alive(id),
       kind: (id) => entities.kind(id),
       each: (kind, fn) => entities.each(kind, fn),
+      countOfKind: (kind) => entities.countOfKind(kind),
       with: (a, b, c) => entities.with(a, b, c),
       at: (i) => entitiesAt(i),
       get count() {
