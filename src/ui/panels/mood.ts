@@ -1,5 +1,4 @@
 /** `ui-screens/panels.md` § Mood; `15` § Player-facing behavior. */
-import { C } from '@core/components';
 import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { MoraleReader } from '@systems/morale';
@@ -32,16 +31,4 @@ export function drawMoodPanel(s: Surface, rect: Rect, panel: MoodPanel, ctx: Pan
     (i) => { panel.list.selected = i; });
   separator(s, col, rect.row + height + 1, width);
   label(s, col, rect.row + height + 2, '[Enter] inspect [s]ort by tier', { width });
-}
-
-export function drawPopulationPanel(s: Surface, rect: Rect, ctx: PanelContext): void {
-  const col = rect.col + 1; const width = rect.cols - 2;
-  const ids = dwarvesOf(ctx); const children = ids.filter((id) => (ctx.readers.entities.get(id, C.Creature)?.ageTicks ?? 0) < 0).length;
-  label(s, col, rect.row, `${ids.length} dwarves (${children} children)`, { width });
-  label(s, col, rect.row + 1, 'Cap [-] 80 [+]', { fg: s.theme.dim, width });
-  if (ctx.readers.has('15')) {
-    const r = ctx.readers.of<MoraleReader>('15');
-    label(s, col, rect.row + 2, `Hall spirit: ${MOOD_TIER_NAMES[r.hallSpiritTier()]} (${r.hallSpirit()})`, { width });
-  }
-  label(s, col, rect.row + 3, 'Immigration arrives in M7', { fg: s.theme.dim, width });
 }

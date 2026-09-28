@@ -66,6 +66,8 @@ export function drawThreatsPanel(
   const renown = threats ? threats.renown() : 0;
   label(s, col, row, `Peril ${peril} · Renown ${renown.toFixed(1)}`, { fg: t.value, width });
   row += 1;
+  label(s, col, row, 'Wealth and population draw attention.', { fg: t.dim, width });
+  row += 1;
 
   // Active threats
   const active = threats ? visibleThreatParties(threats) : [];

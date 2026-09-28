@@ -33,7 +33,8 @@ import { drawUnitsPanel, UnitsPanel } from '../panels/units';
 import { drawZonesPanel, ZoneTool } from '../panels/zones';
 import { drawOrdersPanel, drawWorkshopPanel, OrdersPanel } from '../panels/orders';
 import { drawAnimalsPanel, AnimalsPanel } from '../panels/animals';
-import { drawMoodPanel, drawPopulationPanel, MoodPanel } from '../panels/mood';
+import { drawMoodPanel, MoodPanel } from '../panels/mood';
+import { changePopulationCap, drawPopulationPanel, POPULATION_CAP_STEP } from '../panels/population';
 import { drawMilitaryPanel, MilitaryPanel } from '../panels/military';
 import { drawThreatsPanel, ThreatsPanel } from '../panels/threats';
 import { C } from '@core/components';
@@ -619,7 +620,7 @@ export class FortressScreen implements Screen {
       if (result !== null && result !== 'handled') this.host.submit(result);
       return true;
     }
-    if ((this.ui.panel === 'orders' || this.ui.panel === 'workshop' || this.ui.panel === 'military') && (press.key === '+' || (press.key === '-' && this.orders.editing)) && !press.ctrl && !press.alt && !press.meta) return this.panelKey(this.ui.panel, press);
+    if ((this.ui.panel === 'orders' || this.ui.panel === 'workshop' || this.ui.panel === 'military' || this.ui.panel === 'population') && (press.key === '+' || (press.key === '-' && (this.orders.editing || this.ui.panel === 'population'))) && !press.ctrl && !press.alt && !press.meta) return this.panelKey(this.ui.panel, press);
     const global = this.keymap.resolve('global', press);
     if (global !== null) {
       switch (global.id) {
@@ -773,7 +774,13 @@ export class FortressScreen implements Screen {
       for (const c of Array.isArray(cmds) ? cmds : [cmds]) this.host.submit(c as Command);
       return true;
     };
-    switch (panel) {
+      switch (panel) {
+        case 'population':
+          if (k === '+' || k === '-') {
+            changePopulationCap(ctx, k === '+' ? POPULATION_CAP_STEP : -POPULATION_CAP_STEP);
+            return true;
+          }
+          return false;
       case 'overlays':
         if (!press.shift && (up || down)) {
           this.overlayMenu.move(up ? -1 : 1);

@@ -17,10 +17,12 @@ import {
 import type { Edge, EntityId, TileIndex } from '@core/types';
 import { TICKS_PER_DAY } from '@core/constants';
 import type { ItemsReader } from '@systems/items/reader';
+import type { TradeReader } from '@systems/trade/reader';
 import type { WeatherReader } from '@systems/weather/reader';
 import type { LocalMapSpec } from '@systems/embark/spec';
 import { isDue } from '@core/scheduler';
 import {
+  BANDIT_REPUTATION_LIMIT,
   THREATS_CADENCE,
   THREATS_PHASE,
   WARNING_DAYS,
@@ -310,6 +312,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
         if (entry.earliestTick < 0) continue;
         if (entry.pendingSpawnTick > 0) continue;
         if (ctx.tick < entry.nextTick) continue;
+        if (kind === 'bandits' && ctx.readers.has('20') &&
+          ctx.readers.of<TradeReader>('20').reputation('hillfolk') >= BANDIT_REPUTATION_LIMIT) continue;
 
         // Check lead time with fog
         let visMod = 100;

@@ -8,6 +8,8 @@ export const THREATS_PHASE = 31;
 
 export const RENOWN_WEALTH_DIVISOR = 2000;
 export const RENOWN_POP_WEIGHT = 0.2;
+/** `threat-schedules.md`: Hillfolk bandits appear only below reputation 50. */
+export const BANDIT_REPUTATION_LIMIT = 50;
 export const WARNING_DAYS = 1;
 export const ARRIVAL_SPREAD = 2;
 export const ARRIVAL_TICKS = 100;
