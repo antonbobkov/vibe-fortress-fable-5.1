@@ -145,7 +145,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M7-01 — Trade: schedule, caravan parties, goods generation, arrival, depot, departure (codex-m701, 2026-09-27)
 - [x] T-M7-02 — Trade: moving goods, the session, valuation, offers, gifts, reputation (codex-m702, 2026-09-27)
 - [ ] T-M7-03 — Trade session screen, civilizations panel, depot panel
-- [ ] T-M7-04 — Immigration
+- [x] T-M7-04 — Immigration (codex-m704, 2026-09-27)
 - [ ] T-M7-05 — Population panel; renown and reputation readers in threats
 - [ ] T-M7-06 — Legend record and screen; retire; final saves
 - [ ] T-M7-07 — Settings screen, keybinding remap, colorblind toggle, auto-pause toggles, autosave toggle

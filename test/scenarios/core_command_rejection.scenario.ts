@@ -7,7 +7,7 @@
  * core does with a rejection: the reason reaches the command log and a `CommandRejected` event, and
  * the world is unchanged.
  *
- * It also pins D-018: a command whose owner is not registered is rejected with `not_found`.
+ * It also pins a registered command's invalid input rejection without a state change.
  */
 
 import { expect } from 'vitest';
@@ -27,17 +27,17 @@ const scenario: Scenario = {
   embark: 'none',
   commands: [
     { tick: 0, command: { type: 'Designate', tiles: [-1, LOCAL_MAP_W * LOCAL_MAP_H * LOCAL_MAP_Z], kind: Designation.Dig, priority: 5 } },
-    { tick: 1, command: { type: 'SetPopulationCap', n: 40 } },
+    { tick: 1, command: { type: 'SetPopulationCap', n: Number.NaN } },
   ],
   run: TICKS,
   expect: (w) => {
     const rejected = w.events('CommandRejected');
-    expect(rejected.map((e) => e['reason'])).toEqual(['out_of_bounds', 'not_found']);
+    expect(rejected.map((e) => e['reason'])).toEqual(['out_of_bounds', 'bad_setting']);
     expect((rejected[0]?.['command'] as { type: string }).type).toBe('Designate');
     const log = w.game.world.commandLog.all();
     expect(log.map((entry) => entry.result)).toEqual([
       { ok: false, reason: 'out_of_bounds' },
-      { ok: false, reason: 'not_found' },
+      { ok: false, reason: 'bad_setting' },
     ]);
     // No state change: the same run without the commands hashes the same.
     const untouched = hashesAt({ seed: SEED, world: 'flat-test' }, [TICKS]);

@@ -295,6 +295,8 @@ describe('T-M1-14 announcements', () => {
         CaravanLost: 'alert',
         TradeCompleted: 'note',
         ReputationChanged: 'note',
+        ImmigrantsArrived: 'alert',
+        ImmigrationSkipped: 'note',
       TrapJammed: 'alert',
       TrapSpent: 'note',
       CreatureCaged: 'alert',

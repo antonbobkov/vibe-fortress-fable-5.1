@@ -85,7 +85,7 @@ describe('T-M0-13 sim host: InProcessHost', () => {
     host.submit({ type: 'RenameFortress', name: 'Ironvein' });
     host.step(1);
     expect(host.world.fortress.name).toBe('Ironvein');
-    host.submit({ type: 'SetPopulationCap', n: 5 });
+    host.submit({ type: 'SetPopulationCap', n: Number.NaN });
     host.step(1);
     expect(seen).toContain('CommandRejected');
     off();

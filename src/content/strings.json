@@ -4,6 +4,8 @@
   "announce.caravan_lost": "The {civ} caravan has been lost.",
   "announce.caravan_waiting": "The {civ} caravan waits at the edge for a trade depot.",
   "announce.trade_completed": "A trade with {civ} is complete.",
+  "announce.immigrants_arrived": "{count} dwarves have come to join the hall, {children} of them children.",
+  "announce.immigration_skipped": "No immigrants this season: {reason}.",
   "announce.reputation_changed": "Our standing with {civ} has fallen: {reason}.",
   "confirm.c_deconstruct_workshop": "This workshop has {n} orders. Deconstruct it?",
   "confirm.c_deepsilver": "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Mine it?",
