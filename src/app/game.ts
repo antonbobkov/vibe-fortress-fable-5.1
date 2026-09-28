@@ -39,6 +39,7 @@ import {
   newestManualId,
   readSaveHeader,
   rollAutosaves,
+  finalSaveId,
   type SaveHeader,
   type SaveKind,
   type SaveThumbnail,
@@ -52,6 +53,10 @@ import { ConfirmScreen } from '@ui/screens/confirm';
 import { LoadScreen, type SaveListing } from '@ui/screens/load';
 import { TradeSessionScreen } from '@ui/screens/trade_session';
 import { SettingsScreen } from '@ui/screens/settings';
+import { LegendScreen } from '@ui/screens/legend';
+import { GameMenuScreen } from '@ui/screens/game_menu';
+import { composeLegend, LegendStore, type EndReason } from '@app/legend';
+import type { LegendReader } from '@systems/legend';
 import { SettingsStore } from '@app/settings-store';
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '@ui/settings';
 import type { TradeReader } from '@systems/trade';
@@ -94,6 +99,7 @@ export interface GameOptions {
   /** The export download and import picker (`platform/files.ts`); none in the unit tests. */
   readonly files?: FileBridge;
   readonly settingsStore?: SettingsStore;
+  readonly legends?: LegendStore;
 }
 
 /** `persistence.md` § What is saved: "thumbnail (a 48×27 cell ASCII snapshot of the surface)". */
@@ -135,6 +141,7 @@ export class Game {
   theme: Theme;
   readonly userSettings: UserSettings = { ...DEFAULT_USER_SETTINGS };
   private readonly settingsStore: SettingsStore | null;
+  private readonly legends: LegendStore | null;
   readonly ui: UiState = defaultUiState(START_Z);
   /** The fortress screen's tools, panels, log and status bar (T-M1-14). */
   readonly fortress: FortressScreen;
@@ -154,6 +161,10 @@ export class Game {
   private readonly files: FileBridge | null;
   /** The season an autosave is owed for, taken after the tick that announced it (D-083). */
   private autosaveDue: { year: number; season: number } | null = null;
+  /** A fortress death is checked once after its event tick, when removals are complete. */
+  private lastDwarfDeath: { name: string; cause: string } | null = null;
+  private finished = false;
+  private menuSpeed: Speed = 0;
   /** The Load screen's list, refreshed from the headers after every change. */
   private listing: SaveListing[] = [];
   /** The last save written or loaded, for the tests and the e2e hook. */
@@ -194,8 +205,9 @@ export class Game {
     this.theme = themeOf(this.palette);
     this.saves = options.saves ?? null;
     this.settingsStore = options.settingsStore ?? null;
+    this.legends = options.legends ?? null;
     this.files = options.files ?? null;
-    this.host.afterTick = () => this.takeAutosave();
+    this.host.afterTick = () => { this.takeAutosave(); this.checkHallEnd(); };
     this.randomSeed = options.randomSeed ?? defaultRandomSeed;
     this.createCanvas = options.createCanvas;
     this.fortress = new FortressScreen(this.fortressHost(), this.keymap, this.strings);
@@ -233,6 +245,7 @@ export class Game {
       now: () => Date.now(),
       quickSave: () => void this.quickSave(),
       quickLoad: () => void this.quickLoad(),
+      gameMenu: () => this.openGameMenu(),
       confirm: (id, params, answer) => this.confirm(id, params as Readonly<Record<string, string | number>>, answer),
     };
   }
@@ -240,6 +253,8 @@ export class Game {
   /** Subscribe the fortress screen to the running world's events (24 § Events consumed). */
   private subscribe(): void {
     this.unsubscribe?.();
+    this.lastDwarfDeath = null;
+    this.finished = false;
     this.unsubscribe = this.host.onEvents((events) => {
       this.fortress.onEvents(events);
       this.compositor.onEvents(events, Math.floor(Date.now() / FLUID_ANIM_MS));
@@ -247,6 +262,9 @@ export class Game {
       // middle of its tick here, so the save waits for the tick to end (D-083).
       for (const e of events) {
         if (e.type === 'SeasonChanged') this.autosaveDue = { year: e['year'] as number, season: e['season'] as number };
+        if (e.type === 'CreatureDied' && e['faction'] === 'fortress') {
+          this.lastDwarfDeath = { name: String(e['name'] ?? 'Unknown'), cause: String(e['cause'] ?? 'wounds') };
+        }
       }
     });
   }
@@ -326,6 +344,29 @@ export class Game {
     this.render();
   }
 
+  /** Open the Esc menu after the fortress has dismissed its current tool and panel. */
+  openGameMenu(): void {
+    if (!this.host.started || this.top() !== FORTRESS) return;
+    this.menuSpeed = this.host.speed();
+    this.host.setSpeed(0);
+    this.pushScreen(new GameMenuScreen({
+      resume: () => {
+        this.popScreen();
+        this.host.setSpeed(this.menuSpeed);
+        this.render();
+      },
+      save: () => void this.quickSave(),
+      load: () => void this.openLoad(),
+      settings: () => this.openSettings(),
+      retire: () => this.retireFortress(),
+      mainMenu: () => this.confirm('c_main_menu', { time: 'the last save' }, (yes) => {
+        if (yes) void this.showMainMenu();
+      }),
+      viewOnly: () => this.host.viewOnly,
+    }));
+    this.render();
+  }
+
   private note(severity: 'note' | 'alert' | 'danger', text: string): void {
     if (!this.host.started) return;
     this.fortress.log.append(severity, text, this.host.readers.calendar.tick);
@@ -337,6 +378,43 @@ export class Game {
     this.autosaveDue = null;
     if (due === null || this.saves === null || !this.userSettings.autosave) return;
     void this.saveAs('auto', autoSaveId(due.year, due.season));
+  }
+
+  /** The hall falls silent only after the final death has been applied and removed. */
+  private checkHallEnd(): void {
+    const death = this.lastDwarfDeath;
+    this.lastDwarfDeath = null;
+    if (death === null || this.finished || !this.host.started) return;
+    const population = this.host.readers.of<{ population(): number }>('10').population();
+    if (population === 0) void this.finishFortress({ kind: 'all_dead', lastName: death.name, lastCause: death.cause });
+  }
+
+  /** `RetireFortress`: the c_retire confirmation defaults to No. */
+  retireFortress(): void {
+    if (!this.host.started || this.finished) return;
+    this.confirm('c_retire', { fortress: this.host.world.fortress.name }, (yes) => {
+      if (yes) void this.finishFortress({ kind: 'retired' });
+    });
+  }
+
+  private async finishFortress(reason: EndReason): Promise<void> {
+    if (this.finished || !this.host.started) return;
+    this.finished = true;
+    this.host.setSpeed(0);
+    const journal = this.host.readers.of<LegendReader>('24');
+    const record = composeLegend(this.host.headless, this.host.worldMap, this.registry, journal, this.fortress.log.lines, reason);
+    void this.saveAs('final', finalSaveId(record.name));
+    if (this.legends !== null) void this.track(this.legends.write(record));
+    this.host.setViewOnly(true);
+    this.resetTo(new LegendScreen([record], { back: () => void this.showMainMenu() }, record.id));
+    this.render();
+    await this.settled();
+  }
+
+  async openLegends(): Promise<void> {
+    const records = await this.legends?.list() ?? [];
+    this.pushScreen(new LegendScreen(records, { back: () => { this.popScreen(); this.render(); } }));
+    this.render();
   }
 
   /** The header's play time: the simulated time since the embark, at 1× (D-083). */
@@ -438,6 +516,7 @@ export class Game {
   /** The loaded game on screen: its `ui` section restored, the log tail back, paused. */
   enterLoaded(loaded: LoadedGame): void {
     this.subscribe();
+    this.finished = loaded.header.kind === 'final';
     this.autosaveDue = null;
     this.fortress.log.lines.length = 0;
     if (loaded.ui !== null) {
@@ -628,9 +707,10 @@ export class Game {
         newestSave: () => this.newest,
         newWorld: () => this.openWorldGen(),
         continueGame: () => void this.continueNewest(),
-          available: (entry) => (entry === 'load' && this.saves !== null) || entry === 'settings',
+          available: (entry) => (entry === 'load' && this.saves !== null) || (entry === 'legends' && this.legends !== null) || entry === 'settings',
           open: (entry) => {
             if (entry === 'load') void this.openLoad();
+            if (entry === 'legends') void this.openLegends();
             if (entry === 'settings') this.openSettings();
         },
       },
@@ -1116,6 +1196,7 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
     width: window.innerWidth,
     height: window.innerHeight,
     saves: new SaveManager(storage),
+    legends: new LegendStore(storage),
     settingsStore: new SettingsStore(storage),
     files: browserFiles(document),
   });

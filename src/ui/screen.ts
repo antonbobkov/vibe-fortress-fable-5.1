@@ -19,6 +19,7 @@ export type ScreenId =
   | 'embark'
   | 'fortress'
   | 'legend'
+  | 'game_menu'
   | 'settings'
   | 'load'
   | 'trade_session'

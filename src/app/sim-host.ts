@@ -61,6 +61,8 @@ export interface SimulationHost {
 export class InProcessHost implements SimulationHost {
   private game: HeadlessGame | null = null;
   private current: Speed = 0;
+  /** Final saves are inspectable but cannot accept commands or advance. */
+  private finalView = false;
   /** The generated world of the running game, or `null` for the fixture map. */
   worldMap: WorldMap | null = null;
 
@@ -91,6 +93,7 @@ export class InProcessHost implements SimulationHost {
       ...(spec.embark === undefined ? {} : { embark: spec.embark }),
     };
     this.game = new HeadlessGame(options);
+    this.finalView = false;
     this.worldMap = spec.worldMap ?? null;
     // Step 5: "begins the frame loop paused".
     this.current = 0;
@@ -104,6 +107,7 @@ export class InProcessHost implements SimulationHost {
   async load(blob: Uint8Array): Promise<LoadedGame> {
     const loaded = await loadGame(blob);
     this.game = loaded.game;
+    this.finalView = loaded.header.kind === 'final';
     this.worldMap = loaded.worldMap;
     this.current = 0;
     return loaded;
@@ -121,7 +125,11 @@ export class InProcessHost implements SimulationHost {
   /** Called after every tick `step` runs; the app takes its autosave there, between ticks. */
   afterTick: (() => void) | null = null;
 
+  get viewOnly(): boolean { return this.finalView; }
+  setViewOnly(value: boolean): void { this.finalView = value; if (value) this.current = 0; }
+
   setSpeed(speed: Speed): void {
+    if (this.finalView && speed !== 0) return;
     this.current = speed;
   }
 
@@ -129,12 +137,14 @@ export class InProcessHost implements SimulationHost {
     return this.current;
   }
 
-  submit(command: Command): void {
+  submit(command: Command): boolean {
+    if (this.finalView) return false;
     this.require().world.submit(command);
+    return true;
   }
 
   step(ticks: number): void {
-    if (ticks <= 0) return;
+    if (ticks <= 0 || this.finalView) return;
     const game = this.require();
     for (let k = 0; k < ticks; k += 1) {
       game.step(1);

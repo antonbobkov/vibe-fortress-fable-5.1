@@ -107,6 +107,7 @@ export interface FortressHost {
   /** `F5` quick save and `F9` quick load (24 § Input model), when the app offers saving (T-M2-11). */
   quickSave?(): void;
   quickLoad?(): void;
+  gameMenu?(): void;
   confirm?(id: string, params: Readonly<Record<string, unknown>>, answer: (yes: boolean) => void): void;
 }
 
@@ -624,11 +625,12 @@ export class FortressScreen implements Screen {
       this.tool.cancel();
       return;
     }
-    if (this.ui.panel !== null) {
-      this.ui.panel = null;
-      if (this.ui.cursor !== null) this.ui.cursor = null;
-    }
-    // The game menu is M7's (T-M7).
+      if (this.ui.panel !== null) {
+        this.ui.panel = null;
+        if (this.ui.cursor !== null) this.ui.cursor = null;
+        return;
+      }
+      this.host.gameMenu?.();
   }
 
   private step(delta: number): void {
