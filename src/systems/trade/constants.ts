@@ -24,6 +24,13 @@ export const MARGIN_PER_SKILL = 0.5;
 export const MARGIN_REP_DIVISOR = 20;
 export const TRADE_XP = 15;
 export const REP_DRIFT_PER_YEAR = 5;
+export const GIFT_REPUTATION_CAP = 10;
+export const GIFT_REPUTATION_VALUE = 100;
+export const TRADE_REPUTATION_VALUE = 500;
+export const TRADE_XP_VALUE = 1000;
+export const EXOTIC_CAGED_PREFERENCE = 200;
+export const REPUTATION_MIN = -100;
+export const REPUTATION_MAX = 100;
 
 /** `creature-brains.md` § Caravan AI: party decisions every 50 ticks. */
 export const CARAVAN_THINK_TICKS = 50;
@@ -33,6 +40,8 @@ export const REP_NO_DEPOT = -2;
 export const REP_FORTRESS_KILL = -50;
 export const REP_OTHER_KILL = -3;
 export const REP_CARAVAN_LOST = -10;
+export const REP_BANDIT_KILLED = -1;
+export const REP_BANDIT_CAGED = 3;
 
 /** Unit multipliers in `caravan-goods.md`'s three lists. */
 export const CARAVAN_BUNDLE_UNITS: Readonly<Record<string, number>> = {

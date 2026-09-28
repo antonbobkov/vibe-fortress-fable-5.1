@@ -3,6 +3,17 @@ import type { RngState } from '@core/rng';
 import type { CaravanSchedule } from './schedule';
 
 export interface TradeRequest { itemType: string; material?: string; priority: 1 | 2 | 3 }
+export interface OfferLine { itemId: EntityId; count: number }
+export interface TradeSession {
+  depotId: EntityId;
+  traderId: EntityId;
+  merchantId: EntityId;
+  give: OfferLine[];
+  take: OfferLine[];
+  woodOffered: EntityId[];
+  woodWarning: boolean;
+}
+export interface ReputationEntry { tick: number; civ: Civ; delta: number; reason: string }
 
 export interface ActiveCaravan {
   partyId: EntityId;
@@ -22,6 +33,7 @@ export interface ActiveCaravan {
   soldValue: number;
   attacked: boolean;
   lost: boolean;
+  giftedThisCaravan?: number;
 }
 
 export interface TradeStateV1 {
@@ -30,5 +42,7 @@ export interface TradeStateV1 {
   activeCaravan: ActiveCaravan | null;
   requests: Record<string, TradeRequest[]>;
   lastBrought: Record<string, string[]>;
+  session?: TradeSession | null;
+  reputationLog?: ReputationEntry[];
   rng: RngState;
 }

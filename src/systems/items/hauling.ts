@@ -105,7 +105,7 @@ export class Hauling {
     // the wagon (a building's container) is unloaded like anything on the ground (D-074).
     if (it.carriedBy !== 0 || (it.containerId !== 0 && this.core.isItem(it.containerId))) return false;
     if ((it.flags & ItemFlag.Installed) !== 0) return false;
-    if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant)) !== 0) return false;
+    if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.AtDepot)) !== 0) return false;
     const t = this.core.tileOf(id);
     if (t < 0) return false;
     if ((it.flags & ItemFlag.Dump) !== 0) return this.host.zoneTypeAt(t) !== 'dump';

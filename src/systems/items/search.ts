@@ -61,7 +61,7 @@ export interface SearchOptions {
   readonly stockpiledContainerClass?: string;
 }
 
-const UNRESERVABLE = ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.AtDepot | ItemFlag.Installed;
+const UNRESERVABLE = ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.AtDepot | ItemFlag.Merchant | ItemFlag.Installed;
 
 export interface SearchHost {
   readonly core: ItemCore;

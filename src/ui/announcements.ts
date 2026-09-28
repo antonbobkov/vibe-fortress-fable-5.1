@@ -161,6 +161,10 @@ export class AnnouncementLog {
       const v = (event as unknown as Record<string, unknown>)[spec.atLeast.field];
       if (typeof v !== 'number' || v < spec.atLeast.value) return null;
     }
+    if (spec.atMost !== undefined) {
+      const v = (event as unknown as Record<string, unknown>)[spec.atMost.field];
+      if (typeof v !== 'number' || v > spec.atMost.value) return null;
+    }
     const fields = event as unknown as Record<string, unknown>;
     const creatureId = fields['id'];
     if (event.type === 'CreatureUnconscious' && (typeof creatureId !== 'number' || !readers.entities.has(creatureId, C.Brain))) return null;

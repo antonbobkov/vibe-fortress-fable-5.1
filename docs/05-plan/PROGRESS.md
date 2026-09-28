@@ -143,7 +143,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 ## M7 — The Outside World ([M7-outside-world.md](M7-outside-world.md))
 
 - [x] T-M7-01 — Trade: schedule, caravan parties, goods generation, arrival, depot, departure (codex-m701, 2026-09-27)
-- [ ] T-M7-02 — Trade: moving goods, the session, valuation, offers, gifts, reputation
+- [x] T-M7-02 — Trade: moving goods, the session, valuation, offers, gifts, reputation (codex-m702, 2026-09-27)
 - [ ] T-M7-03 — Trade session screen, civilizations panel, depot panel
 - [ ] T-M7-04 — Immigration
 - [ ] T-M7-05 — Population panel; renown and reputation readers in threats
