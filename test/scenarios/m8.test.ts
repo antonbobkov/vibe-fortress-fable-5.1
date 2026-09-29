@@ -32,6 +32,6 @@ describe('Milestone 8 scenarios', () => {
     const test = skip ? it.skip : it;
     test(`${scenario.id} (M${scenario.milestone})`, () => {
       runScenario(scenario);
-    });
+    }, scenario.timeoutMs);
   }
 });

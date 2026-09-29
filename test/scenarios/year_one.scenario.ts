@@ -1,5 +1,14 @@
 /**
- * T-M4-20 year-one bootstrap scenario (F-04).
+ * The year-one scenario: the F-04 bootstrap script, then the whole first year with caravans and
+ * immigration (T-M7-11).
+ *
+ * The first 20 days keep F-04's checkpoint bounds exactly as they were. The run then continues to
+ * day `DAYS_PER_YEAR` and checks the rows of `03-content/balance.md` § Year-one expectation that
+ * follow from a rule rather than from a measurement — the two caravan windows of
+ * `20-trade-and-caravans.md` § Schedule, the two guaranteed immigration waves of
+ * `21-immigration.md` § Evaluation, no caravan in winter, the surface farm dormant in winter, and
+ * no raid in a peril-0 region — and reports the rest as the balance table the gate report carries
+ * (D-202).
  *
  * Runs a 20-day bootstrap script on a 48×48 flat-test map with one water spring,
  * Balanced embark, issuing player commands for stockpile, stairwell, 5×5 room dig,
@@ -17,7 +26,10 @@
  */
 import { expect } from 'vitest';
 import { FLAT_TEST_SURFACE_Z, buildFlatTestMap } from '@app/headless';
-import { TICKS_PER_DAY } from '@core/constants';
+import { DAYS_PER_SEASON, DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import { CARAVAN_DAY_MAX, CARAVAN_DAY_MIN } from '@systems/trade/constants';
+import { GUARANTEED_SIZE_MAX, GUARANTEED_SIZE_MIN } from '@systems/immigration/constants';
+import { CARAVAN_SEASON } from '@systems/trade/schedule';
 import { TileKind } from '@core/map3d';
 import { C } from '@core/components';
 import { deathCounts } from './death-counts';
@@ -91,9 +103,13 @@ export function diagnose(w: TestWorld): string {
   return lines.join('\n');
 }
 
+/** One row of the measured year-one table the gate report carries. */
+export interface YearOneRow { readonly day: string; readonly measured: string }
+
 const scenario: Scenario = {
   id: 'year_one',
-  milestone: 4,
+  milestone: 7,
+  timeoutMs: 600_000,
   seed: 'year-one',
   world: 'flat-test',
   embark: 'default',
@@ -200,6 +216,7 @@ const scenario: Scenario = {
     const farmId = bSystem.lastCreatedZone;
     expect(w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 0, speciesId: 'barley' }).ok).toBe(true);
     expect(w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 1, speciesId: 'barley' }).ok).toBe(true);
+
 
     // Tracking
     const builtTicks: Record<string, number | null> = {
@@ -312,6 +329,166 @@ const scenario: Scenario = {
       console.error(diagnose(w));
       throw err;
     }
+
+    // ---------- the rest of the year (T-M7-11) ----------
+    // The depot goes up once the bootstrap is done, which is what `hint_depot` tells the player
+    // ("day 14 of summer, year 1, no depot: build a trade depot before the caravan arrives"), and
+    // the anvil the year-one table's Mountainhome row asks for (`20` section Requests).
+    let depotId = 0;
+    for (const at of [w.index(cx - 9, cy + 4, Z), w.index(cx - 9, cy + 8, Z), w.index(cx + 8, cy + 14, Z), w.index(cx - 9, cy + 20, Z)]) {
+      if (buildings.ghost('trade_depot', at, 0).reason !== null) continue;
+      const placed = w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'trade_depot', origin: at, orientation: 0, materialChoice: 0 });
+      if (placed.ok) { depotId = bSystem.lastPlacedBuilding; break; }
+    }
+    expect(depotId, 'a trade depot was placed').toBeGreaterThan(0);
+    expect(w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome',
+      entries: [{ itemType: 'anvil', priority: 1 }] }).ok).toBe(true);
+
+    // The cave farm the year-one table plants on days 10-20 and which "carries" through winter:
+    // a 4x4 plot of dimcap on the soil level below the surface, beside the stairwell.
+    const caveTiles: number[] = [];
+    for (let y = cy + 4; y <= cy + 7; y += 1) for (let x = cx + 7; x <= cx + 10; x += 1) caveTiles.push(w.index(x, y, Z - 1));
+    expect(w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: 4, tiles: caveTiles }).ok).toBe(true);
+    let caveFarmId = 0;
+
+    const dayNow = (): number => Math.floor(w.tick / TICKS_PER_DAY) + 1;
+    const seasonOfDay = (day: number): number => Math.floor(((day - 1) % DAYS_PER_YEAR) / DAYS_PER_SEASON);
+    /** The day each civilisation's caravan first showed on the map, stamped as the event arrives. */
+    const caravanDay: Record<string, number | null> = { hillfolk: null, wildwood: null, mountainhome: null };
+    const waves: { day: number; count: number; guaranteed: boolean }[] = [];
+    const raidDays: number[] = [];
+    const warningDays: number[] = [];
+    const plantedDays: number[] = [];
+    const cavePlantedDays: number[] = [];
+    const frozenDays: number[] = [];
+    let tradesDone = 0;
+    const unsubscribe = w.game.world.onEvents((events) => {
+      const day = dayNow();
+      for (const event of events) {
+        if (event.type === 'CaravanArrived' || event.type === 'CaravanWaiting') {
+          const civ = String(event['civ']);
+          if (caravanDay[civ] === undefined || caravanDay[civ] === null) caravanDay[civ] = day;
+        } else if (event.type === 'ImmigrantsArrived') {
+          waves.push({ day, count: Number(event['count'] ?? 0), guaranteed: event['guaranteed'] === true });
+        } else if (event.type === 'RaidArrived') raidDays.push(day);
+        else if (event.type === 'ThreatWarning') warningDays.push(day);
+        else if (event.type === 'CropPlanted') {
+          const tile = Number(event['tile'] ?? 0);
+          const z = Math.floor(tile / (w.readers.map.w * w.readers.map.h));
+          (z === Z ? plantedDays : cavePlantedDays).push(day);
+        }
+        else if (event.type === 'TileFrozen') frozenDays.push(day);
+        else if (event.type === 'TradeCompleted') tradesDone += 1;
+      }
+    });
+
+    const yearTicks = DAYS_PER_YEAR * TICKS_PER_DAY;
+    while (w.tick < yearTicks) {
+      w.step(Math.min(600, yearTicks - w.tick));
+      // The cave plot opens as soon as its room is dug; dimcap grows in the dark in every season.
+      if (caveFarmId === 0 && caveTiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
+        const plantable = caveTiles.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t));
+        if (plantable.length > 0) {
+          const created = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles: plantable });
+          if (created.ok) {
+            caveFarmId = bSystem.lastCreatedZone;
+            for (const season of [0, 1, 2, 3]) {
+              expect(w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: caveFarmId, season, speciesId: 'dimcap' }).ok).toBe(true);
+            }
+          }
+        } else {
+          caveFarmId = -1;
+        }
+      }
+    }
+    unsubscribe();
+    expect(caveFarmId, 'the cave farm was planted').toBeGreaterThan(0);
+
+    const items = w.readers.of<ItemsReader>('13');
+    const trade = w.game.world.scheduler.byId('20') as unknown as { serialize(): { schedule: Record<string, { nextArrivalTick: number }> } };
+    const mountainhomeNext = trade.serialize().schedule['mountainhome']?.nextArrivalTick ?? 0;
+    const nextDay = Math.floor(mountainhomeNext / TICKS_PER_DAY) + 1;
+    const population = w.game.world.entities.with(C.Labors)
+      .filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
+    const harvests = w.events('CropHarvested').length;
+
+    /** The caravan window of `20` section Schedule: season day CARAVAN_DAY_MIN to CARAVAN_DAY_MAX. */
+    const windowOf = (civ: string, year: number): [number, number] => {
+      const base = (year - 1) * DAYS_PER_YEAR + (CARAVAN_SEASON[civ] ?? 0) * DAYS_PER_SEASON;
+      return [base + CARAVAN_DAY_MIN, base + CARAVAN_DAY_MAX];
+    };
+
+    const table: YearOneRow[] = [
+      { day: '28 Summer: Hillfolk caravan', measured: `day ${caravanDay['hillfolk'] ?? 'never'}` },
+      { day: '28 first immigrants (2-4)', measured: waves[0] === undefined ? 'never' : `day ${waves[0].day}, ${waves[0].count} dwarves` },
+      { day: '56 Autumn: Wildwood caravan', measured: `day ${caravanDay['wildwood'] ?? 'never'}` },
+      { day: '56 second guaranteed wave', measured: waves[1] === undefined ? 'never' : `day ${waves[1].day}, ${waves[1].count} dwarves` },
+      { day: '56 first ambush or raid warning at peril >= 2', measured: `peril 0 region: ${raidDays.length} raids, ${warningDays.length} warnings` },
+      { day: '84 Winter: surface farm dormant', measured: `${plantedDays.filter((d) => seasonOfDay(d) === 3).length} surface crops planted in winter` },
+      { day: '84 cave farm carries', measured: `${cavePlantedDays.filter((d) => seasonOfDay(d) === 3).length} cave crops planted in winter, ${cavePlantedDays.length} all year` },
+      { day: '84 river frozen at temper >= 1', measured: `temper 0 region: ${frozenDays.length} tiles frozen, first on day ${frozenDays[0] ?? 'never'}` },
+      { day: '112 Year 2: Mountainhome caravan', measured: `scheduled day ${nextDay}` },
+      { day: '112 the fortress is 11-15 dwarves', measured: `${population} dwarves` },
+      { day: 'Wealth curve: year 1 is 4,000-8,000 marks', measured: `${items.wealth()} marks` },
+      { day: 'Food chain: 0.25 plants per farm tile per day', measured: `${harvests} harvests from 32 tiles over ${DAYS_PER_YEAR} days` },
+    ];
+    const stocks = {
+      drink: items.count('drink'), meal: items.count('meal'), plantFood: items.count('plant_food'),
+      log: items.count('log'), stoneBlock: items.count('stone_block'), bar: items.count('bar'),
+    };
+    const blocked: Record<string, number> = {};
+    for (const event of w.events('JobBlocked')) {
+      const key = `${String(event['jobType'] ?? '?')}:${String(event['reason'] ?? '?')}`;
+      blocked[key] = (blocked[key] ?? 0) + 1;
+    }
+    const NL = String.fromCharCode(10);
+    console.log(['year_one balance table:', ...table.map((row) => `  ${row.day} -> ${row.measured}`)].join(NL));
+    console.log(`year_one year end: ${JSON.stringify({ population, wealth: items.wealth(),
+      deaths: deathCounts(w), stocks, waves, caravanDay, trades: tradesDone,
+      crafted: w.events('ItemCrafted').length, harvested: harvests, blocked })}`);
+
+    // The rows that follow from a rule.
+    const hillfolk = windowOf('hillfolk', 1);
+    expect(caravanDay['hillfolk'], 'the Hillfolk caravan came in summer of year 1').not.toBeNull();
+    expect(caravanDay['hillfolk'] as number).toBeGreaterThanOrEqual(hillfolk[0]);
+    expect(caravanDay['hillfolk'] as number).toBeLessThanOrEqual(hillfolk[1]);
+    const wildwood = windowOf('wildwood', 1);
+    expect(caravanDay['wildwood'], 'the Wildwood caravan came in autumn of year 1').not.toBeNull();
+    expect(caravanDay['wildwood'] as number).toBeGreaterThanOrEqual(wildwood[0]);
+    expect(caravanDay['wildwood'] as number).toBeLessThanOrEqual(wildwood[1]);
+    // No caravan in winter, and none from the Mountainhome in year 1 (`20` section Schedule).
+    for (const [civ, day] of Object.entries(caravanDay)) {
+      if (day === null) continue;
+      expect(seasonOfDay(day), `${civ} did not come in winter`).not.toBe(3);
+    }
+    expect(caravanDay['mountainhome'], 'the Mountainhome comes in year 2').toBeNull();
+    const spring2 = windowOf('mountainhome', 2);
+    expect(nextDay).toBeGreaterThanOrEqual(spring2[0]);
+    expect(nextDay).toBeLessThanOrEqual(spring2[1]);
+
+    // The two guaranteed waves of `21` section Evaluation, at the change to summer and to autumn.
+    const guaranteed = waves.filter((wave) => wave.guaranteed);
+    expect(guaranteed.length, 'two guaranteed waves in year 1').toBeGreaterThanOrEqual(2);
+    for (const wave of guaranteed.slice(0, 2)) {
+      expect(wave.count).toBeGreaterThanOrEqual(GUARANTEED_SIZE_MIN);
+      expect(wave.count).toBeLessThanOrEqual(GUARANTEED_SIZE_MAX);
+    }
+    expect(seasonOfDay(guaranteed[0]?.day ?? 0), 'the first wave arrives in summer').toBe(1);
+    expect(seasonOfDay(guaranteed[1]?.day ?? 0), 'the second wave arrives in autumn').toBe(2);
+
+    // A peril-0 region: no raid all year.
+    expect(raidDays, 'no raid in a peril 0 region').toEqual([]);
+    // "Winter: surface farm dormant; cave farm carries": the surface plot sows in spring and summer
+    // only, the dimcap plot in every season.
+    expect(plantedDays.filter((day) => seasonOfDay(day) === 3), 'no surface crop planted in winter').toEqual([]);
+    expect(cavePlantedDays.filter((day) => seasonOfDay(day) === 3).length, 'the cave farm sows in winter').toBeGreaterThan(0);
+    // Water freezes only in the cold seasons (`05` freezing; the row's river needs temper >= 1).
+    for (const day of frozenDays) expect([0, 3], `a tile froze on day ${day}`).toContain(seasonOfDay(day));
+    // `balance.md` section Mood floor and the no-spiral guarantee: a year passes without a death, and
+    // the hall is larger than the seven who embarked. The exact size is a measured row, not an
+    // assertion: B-006 records the wealth gap and B-005 the crop yield gap (D-202).
+    expect(deathCounts(w).dwarf, 'no dwarf died in the first year').toBe(0);
+    expect(population, 'the hall grew past the seven who embarked').toBeGreaterThan(7);
   },
 };
 

@@ -65,6 +65,11 @@ export interface Scenario {
   readonly run: number | ((w: TestWorld) => void);
   readonly expect?: (w: TestWorld) => void;
   /**
+   * Vitest's per-test timeout, for a scenario that simulates far more than a few thousand ticks
+   * (`year_one` runs a whole year; T-M7-11). Omitted takes `vitest.config.ts`'s `testTimeout`.
+   */
+  readonly timeoutMs?: number;
+  /**
    * The scenario cannot pass yet: a later milestone's system (`'M6'`) or a recorded spec
    * contradiction (`'C-002'`). The index reports it as `it.todo` with this tag (`00-agent-workflow.md`
    * § Ambiguity protocol; `M3-water-fire-sky.md` T-M3-02 for `fl_drown`).
