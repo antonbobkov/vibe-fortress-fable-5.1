@@ -12,7 +12,9 @@ import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { TestWorld } from '../scenarios/test-world';
-import { COMMAND_GENERATORS, commandStream, prepareM4GeneratorWorld, prepareM5GeneratorWorld, prepareM6GeneratorWorld, resolveCommand, submitScheduled, type ScheduledCommand } from './command-generators';
+import { COMMAND_GENERATORS, commandStream, prepareM4GeneratorWorld, prepareM5GeneratorWorld, prepareM6GeneratorWorld, prepareM7GeneratorWorld, resolveCommand, submitScheduled, type ScheduledCommand } from './command-generators';
+import { POPULATION_CAP_MAX, POPULATION_CAP_MIN } from '@systems/immigration/constants';
+import type { ImmigrationReader } from '@systems/immigration/reader';
 import { currentMilestone } from '../scenarios/runner';
 
 const TICKS = 2_000;
@@ -24,6 +26,7 @@ function runWith(stream: readonly ScheduledCommand[]): string[] {
   prepareM4GeneratorWorld(w);
   if (currentMilestone() >= 5) prepareM5GeneratorWorld(w);
   if (currentMilestone() >= 6) prepareM6GeneratorWorld(w);
+  if (currentMilestone() >= 7) prepareM7GeneratorWorld(w);
   const game = w.game;
   let next = 0;
   const hashes: string[] = [];
@@ -44,6 +47,7 @@ describe('T-M0-11 property: determinism under commands', () => {
     prepareM4GeneratorWorld(probe);
     if (currentMilestone() >= 5) prepareM5GeneratorWorld(probe);
     if (currentMilestone() >= 6) prepareM6GeneratorWorld(probe);
+    if (currentMilestone() >= 7) prepareM7GeneratorWorld(probe);
     fc.assert(
       fc.property(commandStream(probe, currentMilestone(), TICKS), (stream) => {
         const first = runWith(stream);
@@ -54,6 +58,40 @@ describe('T-M0-11 property: determinism under commands', () => {
       }),
       { numRuns: COMMAND_GENERATORS.length === 0 ? 2 : 10 },
     );
+  });
+});
+
+describe('T-M7-12 property: M7 command families', () => {
+  /** The refusals `command-catalog.md` documents for the trade and immigration commands. */
+  const ALLOWED = new Set(['no_depot', 'no_caravan', 'no_session', 'not_at_depot', 'not_found',
+    'precondition_failed', 'out_of_range', 'request_limit', 'caravan_absent']);
+
+  it('samples trade, request and population-cap commands, refusing only for documented reasons', () => {
+    const w = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
+    prepareM7GeneratorWorld(w);
+    const generators = COMMAND_GENERATORS.filter((g) => g.milestone === 7);
+    expect(generators.map((g) => g.id)).toEqual([
+      'MoveToDepot', 'RemoveFromDepot', 'TradeOpen', 'TradeOffer', 'TradeCancel', 'SetRequests', 'SetPopulationCap',
+    ]);
+    const accepted = new Map<string, number>();
+    for (const generator of generators) {
+      for (const command of fc.sample(generator.arbitrary(w), { numRuns: 8, seed: 20260928 })) {
+        const resolved = resolveCommand(w.game, command);
+        const result = w.game.world.applyCommand(resolved);
+        if (result.ok) accepted.set(generator.id, (accepted.get(generator.id) ?? 0) + 1);
+        else expect(ALLOWED.has(result.reason), `${generator.id}: ${result.reason} for ${JSON.stringify(resolved)}`).toBe(true);
+      }
+      w.step(1);
+    }
+    // The two commands with no session or caravan precondition are always accepted.
+    expect(accepted.get('SetRequests') ?? 0).toBeGreaterThan(0);
+    expect(accepted.get('SetPopulationCap') ?? 0).toBeGreaterThan(0);
+    // Whatever the stream asked for, 21 keeps the cap inside its documented range (D-194).
+    const cap = w.readers.of<ImmigrationReader>('21').cap();
+    expect(cap).toBeGreaterThanOrEqual(POPULATION_CAP_MIN);
+    expect(cap).toBeLessThanOrEqual(POPULATION_CAP_MAX);
+    // Settings and keybindings are app-level state, not commands, so they have no generator.
+    expect(COMMAND_GENERATORS.some((g) => g.id.startsWith('Set') && g.id.includes('Setting'))).toBe(false);
   });
 });
 

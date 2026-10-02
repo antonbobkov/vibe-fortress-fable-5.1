@@ -251,7 +251,10 @@ export class FortressScreen implements Screen {
         if (material !== undefined && this.host.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(material)?.deepsilver === true) this.ui.deepFound = true;
       }
       if (event.type === 'CommandRejected') {
-        const reason = String((event as unknown as { reason: string }).reason).replace(/_/g, ' ');
+        // `command-catalog.md` section Rejection reasons: the reason's own `reject.<reason>` line.
+        const raw = String((event as unknown as { reason: string }).reason);
+        const key = `reject.${raw}`;
+        const reason = this.strings.has(key) ? this.strings.get(key) : raw.replace(/_/g, ' ');
         this.rejection = { text: this.strings.get('ui.status.rejected', { reason }), until: this.host.now() + STATUS_HINT_SECONDS * 1000 };
         continue;
       }

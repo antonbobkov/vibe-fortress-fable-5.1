@@ -1,6 +1,6 @@
 # Progress
 
-current-milestone: 7
+current-milestone: 8
 
 Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agent, date). Agents edit this file in the same commit as the task. Sub-tasks added by splitting go directly under their parent.
 
@@ -153,7 +153,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M7-09 — Game menu, main menu Continue, confirmations complete (opus-m709, 2026-09-28)
 - [x] T-M7-10 — Announcement registry complete; strings table audit (opus-m710, 2026-09-28)
 - [x] T-M7-11 — Full-year headless scenario and the balance table (opus-m711, 2026-09-28)
-- [ ] T-M7-12 — Gate M7
+- [x] T-M7-12 — Gate M7 (agy-m712, 2026-10-02)
 
 ## M8 — Polish and Balance ([M8-polish.md](M8-polish.md))
 

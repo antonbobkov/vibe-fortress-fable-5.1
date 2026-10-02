@@ -12,6 +12,8 @@ import { dirname, join } from 'node:path';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 function currentMilestone() {
+  const arg = process.argv.slice(2).find((a) => /^\d+$/.test(a));
+  if (arg) return Number(arg);
   const progress = readFileSync(join(root, 'docs/05-plan/PROGRESS.md'), 'utf8');
   const m = /^current-milestone:\s*(\d+)\s*$/m.exec(progress);
   if (!m) throw new Error('PROGRESS.md has no "current-milestone: n" header line');
@@ -122,14 +124,17 @@ function coverageTable(summary) {
   return rows.join('\n');
 }
 
-/** The scenario lines of the vitest output: `✓ T-M0-11 scenarios > <id> (M<n>)`. */
+/**
+ * The scenario lines of the vitest output. The milestone suites of F-09d name themselves
+ * `Milestone <n> scenarios > <id> (M<n>)`; the M0 index used `T-M0-11 scenarios` (T-M7-12).
+ */
 function scenarioLines(output) {
   const out = [];
-  const pattern = /([✓×↓])\s+T-M\d+-\d+ scenarios > (\w+) \(M(\d)\)/;
+  const pattern = /([✓✔√×✖↓])\s+(?:test\/scenarios\/\S+ > )?(?:Milestone \d|T-M\d+-\d+) scenarios > (\w+) \(M(\d)\)/;
   for (const line of output.split(/\r?\n/)) {
     const m = pattern.exec(line);
     if (!m) continue;
-    const result = m[1] === '✓' ? 'pass' : m[1] === '↓' ? 'skipped' : 'FAIL';
+    const result = (m[1] === '✓' || m[1] === '✔' || m[1] === '√') ? 'pass' : m[1] === '↓' ? 'skipped' : 'FAIL';
     out.push(`| \`${m[2]}\` | M${m[3]} | ${result} |`);
   }
   return out;

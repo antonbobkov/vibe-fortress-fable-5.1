@@ -18,6 +18,8 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { JobsReader } from '@systems/jobs';
 import { STOCKPILE_PRESETS } from '@systems/items';
 import { STANDING_ORDERS } from '@systems/jobs/constants';
+import { REQUEST_MAX } from '@systems/trade/constants';
+import { POPULATION_CAP_MAX, POPULATION_CAP_MIN } from '@systems/immigration/constants';
 import { DESIGNATION_NAMES, TerrainFacts, precondition } from '@systems/terrain';
 import type { TestWorld } from '../scenarios/test-world';
 
@@ -71,7 +73,7 @@ function designate(w: TestWorld): fc.Arbitrary<Command> {
  */
 export interface EntityRef {
   readonly $nth: number;
-  readonly of: 'zone' | 'stockpile' | 'building' | 'workshop' | 'item' | 'metal_item' | 'farm_plot' | 'pasture' | 'grazer' | 'slaughterable' | 'adult' | 'squad' | 'trap' | 'lever' | 'hospital';
+  readonly of: 'zone' | 'stockpile' | 'building' | 'workshop' | 'item' | 'metal_item' | 'farm_plot' | 'pasture' | 'grazer' | 'slaughterable' | 'adult' | 'squad' | 'trap' | 'lever' | 'hospital' | 'depot';
 }
 
 function isRef(value: unknown): value is EntityRef {
@@ -109,6 +111,7 @@ function candidates(game: HeadlessGame, of: EntityRef['of']): EntityId[] {
     const materials = game.registry.table<{ id: string; class: string }>('materials');
     return e.with(C.Item).filter((id) => materials.byIndex(e.get(id, C.Item)?.material ?? -1)?.class === 'metal');
   }
+  if (of === 'depot') return game.world.readers.of<{ depots(): EntityId[] }>('14').depots();
   if (of === 'workshop') return e.with(C.Workshop);
   if (of === 'stockpile') return e.with(C.Stockpile);
   if (of === 'zone') return e.with(C.Zone);
@@ -116,15 +119,32 @@ function candidates(game: HeadlessGame, of: EntityRef['of']): EntityId[] {
   return e.with(C.Item);
 }
 
-/** A command with every {@link EntityRef} field replaced by an id of the world as it is now (0 when none exists). */
+/**
+ * A command with every {@link EntityRef} replaced by an id of the world as it is now (0 when none
+ * exists), including the refs inside arrays and inside the records of an array (`TradeOffer`'s
+ * `give[].itemId`, T-M7-12).
+ */
 export function resolveCommand(game: HeadlessGame, command: Command): Command {
+  const resolveValue = (value: unknown): unknown => {
+    if (isRef(value)) {
+      const ids = candidates(game, value.of);
+      return ids.length === 0 ? 0 : (ids[value.$nth % ids.length] as EntityId);
+    }
+    if (Array.isArray(value)) return value.map(resolveValue);
+    if (typeof value === 'object' && value !== null) {
+      const out: Record<string, unknown> = {};
+      for (const [key, inner] of Object.entries(value as Record<string, unknown>)) out[key] = resolveValue(inner);
+      return out;
+    }
+    return value;
+  };
   let out: Command | null = null;
   for (const key of Object.keys(command)) {
     const value = command[key];
-    if (!isRef(value)) continue;
-    const ids = candidates(game, value.of);
+    const resolved = resolveValue(value);
+    if (resolved === value) continue;
     out ??= { ...command };
-    (out as Record<string, unknown>)[key] = ids.length === 0 ? 0 : (ids[value.$nth % ids.length] as EntityId);
+    (out as Record<string, unknown>)[key] = resolved;
   }
   return out ?? command;
 }
@@ -259,6 +279,12 @@ export function prepareM6GeneratorWorld(w: TestWorld): void {
   w.step(1);
 }
 
+/** T-M7-12: a built trade depot, so the trade generators have a target to name. */
+export function prepareM7GeneratorWorld(w: TestWorld): void {
+  w.build('trade_depot', w.index(60, 60, FLAT_TEST_SURFACE_Z), 'granite');
+  w.step(1);
+}
+
 /** T-M4-19: each command names a valid M4 target and an authored option. */
 const M4_GENERATORS: readonly CommandGenerator[] = [
   {
@@ -333,6 +359,35 @@ const M6_GENERATORS: readonly CommandGenerator[] = [
     .map(([zoneId, count]) => ({ type: 'SetHospitalSupplies', zoneId, wants: { cloth: count, thread: count } }) as unknown as Command) },
 ];
 
+/**
+ * T-M7-12: the M7 command families. 20's five trade commands, 20's `SetRequests` and 21's
+ * `SetPopulationCap`. Settings and keybindings are app-level, not commands, so they have no
+ * generator (`24` § State: "settings and keymap in the settings store").
+ */
+const M7_GENERATORS: readonly CommandGenerator[] = [
+  { id: 'MoveToDepot', milestone: 7, arbitrary: () => fc.uniqueArray(ref('item'), { minLength: 1, maxLength: 3 })
+    .map((itemIds) => ({ type: 'MoveToDepot', itemIds }) as unknown as Command) },
+  { id: 'RemoveFromDepot', milestone: 7, arbitrary: () => fc.uniqueArray(ref('item'), { minLength: 1, maxLength: 3 })
+    .map((itemIds) => ({ type: 'RemoveFromDepot', itemIds }) as unknown as Command) },
+  { id: 'TradeOpen', milestone: 7, arbitrary: () => ref('depot')
+    .map((depotId) => ({ type: 'TradeOpen', depotId }) as unknown as Command) },
+  { id: 'TradeOffer', milestone: 7, arbitrary: () => fc.tuple(
+      fc.array(fc.record({ itemId: ref('item'), count: fc.nat({ max: 3 }) }), { maxLength: 2 }),
+      fc.array(fc.record({ itemId: ref('item'), count: fc.nat({ max: 3 }) }), { maxLength: 2 }),
+    ).map(([give, take]) => ({ type: 'TradeOffer', give, take }) as unknown as Command) },
+  { id: 'TradeCancel', milestone: 7, arbitrary: () => fc.constant({ type: 'TradeCancel' } as Command) },
+  { id: 'SetRequests', milestone: 7, arbitrary: (w) => {
+    const types = w.game.registry.table('items').ids();
+    return fc.tuple(
+      fc.constantFrom('hillfolk', 'wildwood', 'mountainhome'),
+      fc.uniqueArray(fc.tuple(fc.constantFrom(...types), fc.constantFrom(1, 2, 3)), { maxLength: REQUEST_MAX, selector: ([itemType]) => itemType }),
+    ).map(([civ, entries]) => ({ type: 'SetRequests', civ,
+      entries: entries.map(([itemType, priority]) => ({ itemType, priority })) }) as unknown as Command);
+  } },
+  { id: 'SetPopulationCap', milestone: 7, arbitrary: () => fc.integer({ min: POPULATION_CAP_MIN - 5, max: POPULATION_CAP_MAX + 5 })
+    .map((n) => ({ type: 'SetPopulationCap', n }) as Command) },
+];
+
 /** The generators of the milestones built so far: M1's terrain and labor ones, M2's items and buildings ones. */
 export const COMMAND_GENERATORS: readonly CommandGenerator[] = Object.freeze([
   { id: 'Designate', milestone: 1, arbitrary: designate },
@@ -365,6 +420,7 @@ export const COMMAND_GENERATORS: readonly CommandGenerator[] = Object.freeze([
   ...M4_GENERATORS,
   ...M5_GENERATORS,
   ...M6_GENERATORS,
+  ...M7_GENERATORS,
 ]);
 
 export function generatorsFor(milestone: number): readonly CommandGenerator[] {

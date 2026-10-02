@@ -109,6 +109,18 @@ export function check(dir = root) {
     for (const key of refs.prefixes) prefixes.add(key);
   }
 
+  // `command-catalog.md` section Rejection reasons: one `reject.<reason>` key per reason, both ways.
+  const reasonsSource = readFileSync(join(dir, 'src/core/command-types.ts'), 'utf8');
+  const reasonsBody = reasonsSource.slice(reasonsSource.indexOf('REJECT_REASONS = ['));
+  const reasons = Array.from(reasonsBody.slice(0, reasonsBody.indexOf(']')).matchAll(/'([a-z_]+)'/g), (m) => m[1]);
+  const rejectMismatch = [];
+  if (reasons.length === 0) rejectMismatch.push('no REJECT_REASONS parsed from src/core/command-types.ts');
+  for (const reason of reasons) if (!keys.has(`reject.${reason}`)) rejectMismatch.push(`no strings key "reject.${reason}"`);
+  for (const key of keys) {
+    if (!key.startsWith('reject.')) continue;
+    if (!reasons.includes(key.slice('reject.'.length))) rejectMismatch.push(`${key} names no rejection reason`);
+  }
+
   // A mirrored namespace's keys are reached by their content rows, and must match them.
   const mismatched = [];
   const mirrored = new Set();
@@ -138,7 +150,7 @@ export function check(dir = root) {
   const missing = Array.from(exact).filter((key) => !keys.has(key) &&
     !Array.from(keys).some((k) => k.startsWith(`${key}.`))).sort();
   const unused = Array.from(keys).filter((key) => !reaches(key)).sort();
-  return { keys: keys.size, content: Object.keys(content).length, ui: ui.length, missing, unused, mismatched, namespaces };
+  return { keys: keys.size, content: Object.keys(content).length, ui: ui.length, missing, unused, mismatched: [...mismatched, ...rejectMismatch], namespaces };
 }
 
 function main() {
