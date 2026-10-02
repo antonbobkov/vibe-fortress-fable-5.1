@@ -5,7 +5,8 @@
   },
   {
     "id": "alert",
-    "hex": "#FFD34D"
+    "hex": "#FFD34D",
+    "alt": "#FFB000"
   },
   {
     "id": "alpine_white",
@@ -169,7 +170,8 @@
   },
   {
     "id": "danger",
-    "hex": "#FF4040"
+    "hex": "#FF4040",
+    "alt": "#FF7F00"
   },
   {
     "id": "dark_blue",
@@ -352,11 +354,13 @@
   },
   {
     "id": "ghost_bad",
-    "hex": "#502020"
+    "hex": "#502020",
+    "alt": "#5F351E"
   },
   {
     "id": "ghost_ok",
-    "hex": "#205020"
+    "hex": "#205020",
+    "alt": "#1E3A5F"
   },
   {
     "id": "glitter_gray",
@@ -388,7 +392,8 @@
   },
   {
     "id": "grass_green",
-    "hex": "#2E8B2E"
+    "hex": "#2E8B2E",
+    "alt": "#3A7A9C"
   },
   {
     "id": "gray",
@@ -798,7 +803,8 @@
   },
   {
     "id": "text_bad",
-    "hex": "#FF5555"
+    "hex": "#FF5555",
+    "alt": "#FF7F00"
   },
   {
     "id": "text_dim",
@@ -806,11 +812,13 @@
   },
   {
     "id": "text_good",
-    "hex": "#55FF55"
+    "hex": "#55FF55",
+    "alt": "#00A2FF"
   },
   {
     "id": "text_key",
-    "hex": "#FFD34D"
+    "hex": "#FFD34D",
+    "alt": "#FFB000"
   },
   {
     "id": "text_value",
@@ -830,7 +838,8 @@
   },
   {
     "id": "trader_wildwood",
-    "hex": "#7CFC00"
+    "hex": "#7CFC00",
+    "alt": "#00C8FF"
   },
   {
     "id": "trap_gray",
@@ -902,7 +911,8 @@
   },
   {
     "id": "wyrm_red",
-    "hex": "#FF2A00"
+    "hex": "#FF2A00",
+    "alt": "#E64500"
   },
   {
     "id": "yak_black",

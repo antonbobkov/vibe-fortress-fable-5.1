@@ -163,7 +163,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [ ] T-M8-04 — Golden renders for every screen and panel
 - [ ] T-M8-05 — E2E `full-year`
 - [ ] T-M8-06 — Balance pass
-- [ ] T-M8-07 — Colorblind palette and accessibility checks
+- [x] T-M8-07 — Colorblind palette and accessibility checks (agy-m807, 2026-10-02)
 - [ ] T-M8-08 — Documentation sync
 - [ ] T-M8-09 — Release build
 - [ ] T-M8-10 — Gate M8 — release
