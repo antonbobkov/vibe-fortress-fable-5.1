@@ -138,6 +138,59 @@ a real TTY" problem reported online did not reproduce). Diagnostics go to stderr
 in Windows PowerShell 5.1 don't use `2>&1` on it (it wraps each line in a
 `NativeCommandError`); use `2>$null` or redirect stdout only.
 
+## Launching from a Claude Code session: run agy detached
+
+**Observed 2026-10-02:** Claude Code now stops a `run_in_background` shell command
+after about 30 minutes, and stopping the wrapper kills its children — so an `agy`
+launched that way died 30 minutes into a 2½-hour run. (Earlier the same command ran
+for 4+ hours; the limit arrived with a harness update.) Monitors are capped at 30
+minutes too.
+
+So launch `agy` as a **detached process**, whose lifetime does not depend on the tool
+call, and watch it with a monitor you re-arm:
+
+```powershell
+$p = '<scratchpad>'
+$env:npm_config_yes = "1"
+$prompt = "Read $p\brief.md in full and follow it exactly."
+$argv = @("`"-p=$prompt`"", '--model','gemini-3.8-flash-high',
+          '--add-dir',"`"$p`"", '--dangerously-skip-permissions',
+          '--print-timeout','4h', '--output-format','json')
+$proc = Start-Process -FilePath "$env:LOCALAPPDATA\agy\bin\agy.exe" -ArgumentList $argv `
+          -WorkingDirectory 'E:\code\vibe-games\vibe-fortress-fable-5.1' `
+          -RedirectStandardOutput "$p\run.json" -RedirectStandardError "$p\run.err.txt" `
+          -WindowStyle Hidden -PassThru
+$proc.Id      # keep this
+```
+
+Two quoting details matter: each `-ArgumentList` element that contains spaces must
+carry its own literal quotes (`` "`"-p=$prompt`"" ``), because `Start-Process` joins
+the array with spaces; and `--conversation <id>` goes in the same array to resume.
+
+Then a monitor that watches the **process** rather than any output — stdout is
+buffered until exit, so output tells you nothing — and reports commits as progress:
+
+```bash
+pid=<pid>; last=$(git rev-parse HEAD)
+while true; do
+  cur=$(git rev-parse HEAD)
+  [ "$cur" != "$last" ] && git log --oneline "$last..$cur" | sed 's/^/NEW COMMIT: /' && last=$cur
+  tasklist //FI "PID eq $pid" //NH | grep -q "$pid" || { echo "AGY EXITED"; exit 0; }
+  sleep 30
+done
+```
+
+Watching the process covers every ending — success, quota abort (exit 3) and crash —
+which a monitor grepping for a success line would miss. In Git Bash use
+`tasklist //FI` (doubled slash) rather than `kill -0`, which does not see Windows PIDs.
+Verified on a 152-minute run that committed four tasks across five monitor windows.
+
+A monitor window with **no** commit is not proof of a stall: a long e2e (a simulated
+year at 4×) can go 30+ minutes between commits. Check liveness as described under
+[Diagnosing a suspected stall](#diagnosing-a-suspected-stall) before acting — in that
+run a headless browser was burning ~1 CPU-second per second and screenshots were being
+rewritten, so it was working.
+
 ## Stalls and the npx trap
 
 **Observed 2026-09-25:** a four-fix handoff committed its first fix, then hung for
