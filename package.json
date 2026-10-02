@@ -16,6 +16,7 @@
     "strings:check": "node scripts/strings-check.mjs",
     "content:export": "node scripts/export-tables.mjs",
     "golden:update": "node scripts/golden-update.mjs",
+    "golden:png": "node scripts/render-goldens-png.mjs",
     "hash": "node scripts/world-hash.mjs",
     "gate": "node scripts/gate.mjs"
   },
