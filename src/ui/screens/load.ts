@@ -61,6 +61,7 @@ export function decodeThumbnail(cells: string): { glyph: number; fg: number; bg:
 export class LoadScreen implements Screen {
   readonly id = 'load' as const;
   selected: string | null = null;
+  message: string | null = null;
   private last: Surface | null = null;
 
   constructor(
@@ -131,6 +132,9 @@ export class LoadScreen implements Screen {
         }
       }
     }
+    if (this.message !== null) {
+      surface.text(4, surface.rows - 2, this.message, t.alert);
+    }
     const r = surface.rows - 1;
     let c = 2;
     const readable = current !== null && current.unreadable === undefined;
@@ -139,6 +143,10 @@ export class LoadScreen implements Screen {
     c += button(surface, c, r, 'e', this.strings.get('ui.load.export'), () => this.exportSelected(), { enabled: readable }) + 2;
     c += button(surface, c, r, 'i', this.strings.get('ui.load.import'), () => this.host.importSave()) + 2;
     button(surface, c, r, 'Esc', this.strings.get('ui.load.back'), () => this.host.back());
+  }
+
+  setMessage(msg: string | null): void {
+    this.message = msg;
   }
 
   activate(): void {

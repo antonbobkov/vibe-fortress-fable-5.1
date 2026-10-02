@@ -250,7 +250,12 @@ export function readSaveHeader(blob: Uint8Array): SaveHeader {
   if (formatVersion > SAVE_FORMAT_VERSION) throw new SaveVersionError(formatVersion, SAVE_FORMAT_VERSION);
   const headerLength = view.getUint32(8, true);
   if (12 + headerLength + 4 > blob.byteLength) throw new SaveFormatError('the header is truncated');
-  const header = JSON.parse(decoder.decode(blob.subarray(12, 12 + headerLength))) as SaveHeader;
+  let header: SaveHeader;
+  try {
+    header = JSON.parse(decoder.decode(blob.subarray(12, 12 + headerLength))) as SaveHeader;
+  } catch {
+    throw new SaveFormatError('the header JSON is corrupt');
+  }
   if (header.formatVersion !== formatVersion) {
     throw new SaveFormatError(
       `the container says format ${formatVersion} and the header says ${header.formatVersion}`,
@@ -275,7 +280,12 @@ export async function readSave(blob: Uint8Array, compress: Compressor = platform
   const bodyStart = 16 + headerLength;
   if (bodyStart + bodyLength > blob.byteLength) throw new SaveFormatError('the body is truncated');
   const body = blob.slice(bodyStart, bodyStart + bodyLength);
-  const raw = header.compressed ? await compress.inflateRaw(body) : body;
+  let raw: Uint8Array;
+  try {
+    raw = header.compressed ? await compress.inflateRaw(body) : body;
+  } catch (error) {
+    throw new SaveFormatError(`failed to decompress save body: ${error instanceof Error ? error.message : String(error)}`);
+  }
   const sections = decodeSectionStream(raw);
   const byBase = new Map<string, SaveSection>();
   for (let k = 0; k < sections.length; k += 1) {
@@ -409,6 +419,50 @@ export class SaveManager {
 
 /** `persistence.md` § Autosave and snapshots: "keeps the four most recent autosaves". */
 export const AUTOSAVES_KEPT = 4;
+
+/** `persistence.md` § Autosave and snapshots: rolling snapshots count. */
+export const SNAPSHOTS_KEPT = 4;
+
+/**
+ * Returns the next snapshot id to write (`snapshot-<n>`), rolling across slots 0..(keep - 1).
+ * Unused slots < keep are filled first (ascending). Once all slots exist, the slot with
+ * the oldest header tick is chosen. Any snapshot slot >= keep is pruned.
+ */
+export async function rollSnapshots(saves: SaveManager, keep: number = SNAPSHOTS_KEPT): Promise<string> {
+  const all = await saves.list();
+  const snapshots = all.filter((s) => s.header.kind === 'snapshot');
+
+  // Prune any snapshots with slot index >= keep
+  for (const s of snapshots) {
+    const match = /^snapshot-(\d+)$/.exec(s.id);
+    if (match) {
+      const idx = Number(match[1]);
+      if (idx >= keep) {
+        await saves.delete(s.id);
+      }
+    }
+  }
+
+  const valid = snapshots.filter((s) => {
+    const match = /^snapshot-(\d+)$/.exec(s.id);
+    return match !== null && Number(match[1]) < keep;
+  });
+
+  const presentIndices = new Set<number>();
+  for (const s of valid) {
+    const match = /^snapshot-(\d+)$/.exec(s.id);
+    if (match) presentIndices.add(Number(match[1]));
+  }
+  for (let i = 0; i < keep; i += 1) {
+    if (!presentIndices.has(i)) {
+      return snapshotSaveId(i);
+    }
+  }
+
+  // All slots 0..(keep - 1) exist: pick the oldest by calendar tick
+  valid.sort((a, b) => a.header.calendar.tick - b.header.calendar.tick || a.id.localeCompare(b.id));
+  return (valid[0] as { id: string }).id;
+}
 
 /**
  * "Older ones are deleted": every autosave beyond the {@link AUTOSAVES_KEPT} newest (by tick).

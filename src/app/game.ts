@@ -41,12 +41,14 @@ import {
   newestManualId,
   readSaveHeader,
   rollAutosaves,
+  rollSnapshots,
+  SNAPSHOTS_KEPT,
   finalSaveId,
   type SaveHeader,
   type SaveKind,
   type SaveThumbnail,
 } from '@app/save-manager';
-import { validateImport, type LoadedGame } from '@app/game-save';
+import { validateImport, SaveLoadError, type LoadedGame } from '@app/game-save';
 import { browserFiles, type FileBridge } from '@platform/files';
 import { bytesToBase64 } from '@core/serialize';
 import { SIM_TICKS_PER_SECOND, STATUS_ROWS } from '@core/constants';
@@ -62,7 +64,7 @@ import type { LegendReader } from '@systems/legend';
 import { SettingsStore } from '@app/settings-store';
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '@ui/settings';
 import type { TradeReader } from '@systems/trade';
-import { createStorage } from '@platform/storage';
+import { createStorage, StorageQuotaError } from '@platform/storage';
 import type { Command } from '@core/commands';
 import type { Registry } from '@core/registry';
 import { localMapSpec } from '@systems/embark';
@@ -319,11 +321,36 @@ export class Game {
     return this.pending;
   }
 
+  private isQuotaError(error: unknown): boolean {
+    if (error instanceof StorageQuotaError) return true;
+    if (error instanceof Error) {
+      return error.name === 'StorageQuotaError' || error.name === 'QuotaExceededError' || /quota/i.test(error.message);
+    }
+    return false;
+  }
+
+  private handleQuotaError(blob?: Uint8Array | Promise<Uint8Array>): void {
+    this.note('danger', this.strings.get('ui.save.quota'));
+    const files = this.files;
+    if (files === null || !this.host.started) return;
+    const calendar = this.host.readers.calendar;
+    const name = exportFileName(this.host.world.fortress.name, calendar.year, calendar.season);
+    if (blob !== undefined) {
+      void Promise.resolve(blob).then((data) => files.download(name, data));
+    } else {
+      void this.dumpSave();
+    }
+  }
+
   private track(work: Promise<void>): Promise<void> {
     const next = this.pending
       .then(() => work)
       .catch((error: unknown) => {
-        this.note('danger', this.strings.get('ui.save.failed', { reason: error instanceof Error ? error.message : String(error) }));
+        if (this.isQuotaError(error)) {
+          this.handleQuotaError();
+        } else {
+          this.note('danger', this.strings.get('ui.save.failed', { reason: error instanceof Error ? error.message : String(error) }));
+        }
       });
     this.pending = next;
     return next;
@@ -343,7 +370,11 @@ export class Game {
     const preferences = { ...this.userSettings };
     const overrides = this.keymap.overrides();
     this.pending = this.pending.then(() => store.save(preferences, overrides)).catch((error: unknown) => {
-      this.note('danger', this.strings.get('ui.save.failed', { reason: error instanceof Error ? error.message : String(error) }));
+      if (this.isQuotaError(error)) {
+        this.handleQuotaError();
+      } else {
+        this.note('danger', this.strings.get('ui.save.failed', { reason: error instanceof Error ? error.message : String(error) }));
+      }
     });
   }
 
@@ -440,12 +471,42 @@ export class Game {
     this.fortress.log.append(severity, text, this.host.readers.calendar.tick);
   }
 
-  /** Called after every tick: the autosave a `SeasonChanged` asked for. */
+  /** Called after every tick: the autosave and rolling snapshot a `SeasonChanged` asked for. */
   private takeAutosave(): void {
     const due = this.autosaveDue;
     this.autosaveDue = null;
-    if (due === null || this.saves === null || !this.userSettings.autosave) return;
-    void this.saveAs('auto', autoSaveId(due.year, due.season));
+    if (due === null || this.saves === null) return;
+    const saves = this.saves;
+    if (this.userSettings.autosave) {
+      void this.saveAs('auto', autoSaveId(due.year, due.season));
+    }
+    const keep = this.userSettings.snapshotsKept ?? SNAPSHOTS_KEPT;
+    const snapshotPromise = this.host.save({
+      kind: 'snapshot',
+      ui: this.uiSection(),
+      playTimeSeconds: this.playTimeSeconds(),
+      thumbnail: this.thumbnail(),
+    });
+    const savedAt = this.host.readers.calendar.tick;
+    void this.track(
+      (async (): Promise<void> => {
+        const id = await rollSnapshots(saves, keep);
+        const blob = await snapshotPromise;
+        try {
+          await saves.write(id, blob);
+        } catch (error) {
+          if (this.isQuotaError(error)) {
+            this.handleQuotaError(blob);
+            return;
+          }
+          throw error;
+        }
+        this.lastSaveId = id;
+        this.lastSaveTick = savedAt;
+        this.note('note', this.strings.get('ui.save.saved', { name: id }));
+        await this.refreshListing();
+      })(),
+    );
   }
 
   /** The hall falls silent only after the final death has been applied and removed. */
@@ -533,7 +594,16 @@ export class Game {
     const savedAt = this.host.readers.calendar.tick;
     return this.track(
       (async (): Promise<void> => {
-        await saves.write(id, await blob);
+        const data = await blob;
+        try {
+          await saves.write(id, data);
+        } catch (error) {
+          if (this.isQuotaError(error)) {
+            this.handleQuotaError(data);
+            return;
+          }
+          throw error;
+        }
         if (kind === 'auto') await rollAutosaves(saves);
         this.lastSaveId = id;
         this.lastSaveTick = savedAt;
@@ -579,9 +649,20 @@ export class Game {
     if (saves === null) return;
     const blob = await saves.read(id);
     if (blob === undefined) return;
-    this.enterLoaded(await this.host.load(blob));
-    this.lastSaveId = id;
-    this.lastSaveTick = this.host.readers.calendar.tick;
+    try {
+      this.enterLoaded(await this.host.load(blob));
+      this.lastSaveId = id;
+      this.lastSaveTick = this.host.readers.calendar.tick;
+    } catch (error) {
+      const reason = error instanceof SaveLoadError ? error.section : error instanceof Error ? error.message : String(error);
+      const row = this.listing.find((s) => s.id === id);
+      if (row) {
+        const at = this.listing.indexOf(row);
+        this.listing[at] = { ...row, unreadable: reason };
+      }
+      this.note('danger', this.strings.get('ui.save.failed', { reason }));
+      this.render();
+    }
   }
 
   /** The loaded game on screen: its `ui` section restored, the log tail back, paused. */
@@ -670,7 +751,16 @@ export class Game {
     if (this.saves === null || this.files === null) return;
     const blob = await this.files.pick('.deepholm');
     if (blob === null) return;
-    await this.importBlob(blob);
+    try {
+      await this.importBlob(blob);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.note('alert', this.strings.get('ui.load.import_failed', { reason: message }));
+      if (this.top() instanceof LoadScreen) {
+        (this.top() as LoadScreen).setMessage(this.strings.get('ui.load.import_failed', { reason: message }));
+        this.render();
+      }
+    }
   }
 
   /** "Import reads a file, validates magic and version, checks the content hash … and stores it as a manual save." */

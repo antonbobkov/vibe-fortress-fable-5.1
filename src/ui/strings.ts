@@ -41,6 +41,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.save.saved': 'Saved: {name}.',
   'ui.save.failed': 'The save failed: {reason}',
   'ui.save.no_quick': 'There is no quick save to load.',
+  'ui.save.quota': 'Storage quota exceeded; export offered to preserve progress.',
+  'ui.load.import_failed': 'Import failed: {reason}',
   'ui.confirm.yes': 'Yes',
   'ui.confirm.no': 'No',
   // World generation (§ World generation).

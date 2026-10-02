@@ -159,7 +159,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 
 - [ ] T-M8-01 — Profiling pass and per-system budgets
 - [ ] T-M8-02 — Load shedding
-- [ ] T-M8-03 — Snapshots, export, import, storage quota handling
+- [x] T-M8-03 — Snapshots, export, import, storage quota handling (agy-m803, 2026-10-02)
 - [ ] T-M8-04 — Golden renders for every screen and panel
 - [ ] T-M8-05 — E2E `full-year`
 - [ ] T-M8-06 — Balance pass
