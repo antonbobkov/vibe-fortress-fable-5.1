@@ -15,7 +15,7 @@ import {
 import { jobKey, rollQuality, workCentiTicksFor, workTileOf, type TerrainReader } from '@systems/terrain';
 import { effortPerTick, effortRequired, type JobsReader } from '@systems/jobs';
 import { TestWorld } from '../../scenarios/test-world';
-import { onlyMiner } from '../../scenarios/m1-helpers';
+import { onlyMiner, rect, stairShaft } from '../../scenarios/m1-helpers';
 
 /** Ticks of work for a job of `centi` hundredths of a tick at a skill level. */
 function ticks(centi: number, skill: number): number {
@@ -25,7 +25,17 @@ function ticks(centi: number, skill: number): number {
 }
 
 describe('T-M1-10 terrain jobs: work time', () => {
-  it.todo('C-004: one miner completes a 3×3 room in granite within 2,000 ticks');
+  it('C-004: one miner completes a 3×3 room in granite within 2,500 ticks', () => {
+    const w = new TestWorld({ seed: 'tr-dig-room', world: 'flat-test', embark: 'default' });
+    stairShaft(w, 48, 12, 32, 29);
+    onlyMiner(w);
+    const room = rect(w, 49, 11, 29, 3, 3);
+    const r = w.game.world.applyCommand({ type: 'Designate', tiles: room, kind: 'dig', priority: 5 });
+    expect(r.ok).toBe(true);
+    const ticksTaken = w.until((world) => room.every((t) => world.map.kindAt(t) === TileKind.Floor), 2500);
+    expect(ticksTaken).toBeLessThanOrEqual(2500);
+    for (const t of room) expect(w.map.kindAt(t)).toBe(TileKind.Floor);
+  });
   it('balance.md § Time and pace: a granite tile is 90 ticks for a novice and 50 at Proficient (level 10)', () => {
     expect(ticks(workCentiTicksFor(Designation.Dig, 150), 0)).toBe(90);
     expect(ticks(workCentiTicksFor(Designation.Dig, 150), 10)).toBe(50);

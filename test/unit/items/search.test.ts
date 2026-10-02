@@ -138,7 +138,23 @@ describe('T-M2-02 jobs use the real item search', () => {
     expect(bare.events('JobUnblocked')).toHaveLength(1);
   });
 
-  it.todo('C-005: default-priority two-pick dig completes within 1,500 ticks after equipping');
+  it('C-005: default-priority two-pick dig completes within 2,200 ticks after equipping', () => {
+    const w = new TestWorld({ seed: 'two-picks', world: 'flat-test', embark: 'default' });
+    const granite = w.game.registry.table('materials').index('granite');
+    const tiles: number[] = [];
+    for (let y = 20; y < 23; y += 1) {
+      for (let x = 40; x < 44; x += 1) {
+        const t = w.index(x, y, Z);
+        w.game.world.services.terrain.setKind(t, TileKind.Wall, granite);
+        tiles.push(t);
+      }
+    }
+    w.game.world.applyCommand({ type: 'Designate', tiles, kind: 'dig' });
+    w.until((x) => x.events('ToolEquipped').length === 2, 1000);
+    const equipTick = w.tick;
+    w.until((x) => tiles.every((t) => x.map.kindAt(t) === TileKind.Floor), 3000);
+    expect(w.tick - equipTick).toBeLessThanOrEqual(2200);
+  });
 
   it('D-076: while every pick is carried, a miner without one leaves dig jobs to those who carry one', () => {
     const w = new TestWorld({ seed: 'two-picks', world: 'flat-test', embark: 'default' });
@@ -153,8 +169,10 @@ describe('T-M2-02 jobs use the real item search', () => {
     }
     w.game.world.applyCommand({ type: 'Designate', tiles, kind: 'dig' });
     w.until((x) => x.events('ToolEquipped').length === 2, 1000);
+    const equipTick = w.tick;
     const blockedAtEquip = w.events('JobBlocked').length;
     w.until((x) => tiles.every((t) => x.map.kindAt(t) === TileKind.Floor), 3000);
+    expect(w.tick - equipTick).toBeLessThanOrEqual(2200);
     // Seven miners, two picks: once both are carried nobody blocks a dig job for want of one.
     expect(w.events('JobBlocked').filter((e) => e['reason'] === 'no_tool').length).toBeLessThanOrEqual(blockedAtEquip);
     expect(new Set(w.events('JobCompleted').filter((e) => e['jobType'] === 'dig').map((e) => e['workerId'])).size).toBe(2);

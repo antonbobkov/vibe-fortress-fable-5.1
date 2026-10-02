@@ -1,6 +1,6 @@
 /**
  * `tr_dig_room` of `04-implementation/acceptance-tests.md` § 03 Terrain: "designate a 3×3 dig into
- * the rock face; 1 miner | all 9 tiles `Floor` within 2,000 ticks; stone items dropped ≈ 30% (over
+ * the rock face; 1 miner | all 9 tiles `Floor` within 2,500 ticks; stone items dropped ≈ 30% (over
  * 100 runs, 20–40%)".
  *
  * `flat-test` is soil down to z = 30 and granite below, so the rock face is reached through a stair
@@ -10,8 +10,7 @@
  * map's connectivity build dominates the cost; D-059). Stone items are recorded as intended drops
  * until the item system exists (M2).
  *
- * F-09b: Runs with a functional bound (room within 3,000 ticks, compact runs within 4,000 ticks).
- * The 2,000-tick expectation is preserved as a unit todo in producer.test.ts for T-M8-06.
+ * Resolved C-004 (2026-10-02): 2,500-tick limit per owner decision.
  */
 
 import { expect } from 'vitest';
@@ -23,8 +22,8 @@ import { onlyMiner, rect, stairShaft } from './m1-helpers';
 import { TestWorld } from './test-world';
 
 const RUNS = 100;
-const SCENARIO_LIMIT = 3_000;
-const RUN_LIMIT = 4_000;
+const SCENARIO_LIMIT = 2_500;
+const RUN_LIMIT = 2_500;
 const ROCK_Z = 29;
 
 function setupRoom(w: TestWorld, sx: number, sy: number): number[] {

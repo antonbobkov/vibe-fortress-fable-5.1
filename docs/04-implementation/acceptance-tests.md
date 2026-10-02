@@ -27,7 +27,7 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 
 | id | Scenario | Expected |
 |---|---|---|
-| `tr_dig_room` | designate a 3×3 dig into the rock face; 1 miner | all 9 tiles `Floor` within 2,000 ticks; stone items dropped ≈ 30% (over 100 runs, 20–40%) |
+| `tr_dig_room` | designate a 3×3 dig into the rock face; 1 miner | all 9 tiles `Floor` within 2,500 ticks; stone items dropped ≈ 30% (over 100 runs, 20–40%) |
 | `tr_channel_ramp` | channel a floor tile above a wall | tile `Open`, tile below `Ramp`; a dwarf can walk down and up |
 | `tr_stairwell` | `DesignateStairwell` 3 levels | up/down stairs carved; connectivity label equal across levels |
 | `tr_support` | build a floor over open space, remove its only supporting wall | floor collapses; block item appears below; `ConstructionCollapsed` |
