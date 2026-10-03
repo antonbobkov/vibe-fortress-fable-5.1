@@ -422,6 +422,14 @@ task, and a batch of three spent about 70% of one 5-hour window. Check with
 [agy_usage.py](agy_usage.py) before dispatching a batch; the 5-hour window is
 usually the binding one.
 
+**agy backgrounds its own commands even when told not to.** Its stderr shows
+`root agent idle; waiting up to 4h0m0s for 1 background task(s)` within minutes of
+starting, and the final message is a long string of "I have launched … in the background
+and will wait". A three-task run (fixture repair, F-12, re-measure) took 5 hours, much of
+it sleeping between launches. The brief's "run in the foreground" did not stop it. The
+work is still correct; budget wall-clock time for it, and restate the rule in capitals in
+each follow-up.
+
 **Analysis tasks: check every mechanism against the code.** On the mood diagnosis
 (2026-10-02) the first pass produced clean tables that summed exactly, but two of its
 causes were invented: "bedrooms never built" (all eight were built) and "drink choice
