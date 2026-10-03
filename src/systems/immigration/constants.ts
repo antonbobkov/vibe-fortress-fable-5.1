@@ -1,5 +1,5 @@
 /** `21-immigration.md` tuning constants. */
-export const IMMIGRATION_SPIRIT_MIN = 65;
+export const IMMIGRATION_SPIRIT_MIN = 55;
 export const IMMIGRATION_PERMILLE = 700;
 export const REP_PERMILLE_PER_POINT = 2;
 export const WEALTH_PER_WAVE = 2000;

@@ -88,11 +88,11 @@ Renown follows: 5 → 15 → 30 → 75. Raid size at peril 2: year 2 → 6 + 4 =
 - Worst case with needs met: 55 − 35 + 0 = 20, and the floor keeps it at 20 for a sensitive, timid dwarf too (Unhappy, not Miserable). Misery requires need pressure, which requires the player to have failed to provide food, drink, beds or company.
 - A dwarf can be Miserable only while `need pressure > 0`; the moment needs are met the floor returns to 20 and the sulk counter decays. Sulks are capped at one per week per dwarf and cost at most a chair.
 - Positive thoughts cap at +40 so a fortress cannot become immune to bad news; grief always shows.
-- Hall spirit for immigration (65) needs an average of Content: a hearth hall (+4 to +10), decent bedrooms (+3), meals at a table (+2), ale (+3) and a chat (+3) give 55 + 11 + 4 = 70 to a fed and rested dwarf. Immigration is the reward for exactly the things the hints tell the player to build.
+- Hall spirit for immigration (55) needs a well-kept fortress: a hearth hall (+4 to +10), decent bedrooms (+3), meals at a table (+2), ale (+3) and a chat (+3) give 55 + 11 + 4 = 70 to a fed and rested dwarf at their peak. Event thoughts fade over their duration and average about half their peak, so a fortress with all of them settles near 55–60 (measured in T-M8-06), and some standing need thoughts are always present. Immigration is the reward for exactly the things the hints tell the player to build.
 
 ## Immigration
 
-Guaranteed: +2–4 in summer and +2–4 in autumn of year 1: 11–15 dwarves by winter. Then each season with spirit ≥ 65: 70% chance of `2 + wealth/3000 + spirit bonus`. Year 2: three waves of 4–8; year 3: waves of 8–12 until the cap (80). A player who wants a small fortress sets the cap; a player who neglects the hearth stays small without punishment.
+Guaranteed: +2–4 in summer and +2–4 in autumn of year 1: 11–15 dwarves by winter. Then each season with spirit ≥ 55: 70% chance of `2 + wealth/3000 + spirit bonus`. Year 2: three waves of 4–8; year 3: waves of 8–12 until the cap (80). A player who wants a small fortress sets the cap; a player who neglects the hearth stays small without punishment.
 
 ## Trade
 

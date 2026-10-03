@@ -221,7 +221,7 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 | id | Scenario | Expected |
 |---|---|---|
 | `im_guaranteed` | year 1, hall spirit 30 | waves at summer and autumn regardless |
-| `im_threshold` | year 2, spirit 60 vs 70 | 60: `ImmigrationSkipped { spirit }`; 70: a wave with probability ~70% (over 100 seeds: 58–82) |
+| `im_threshold` | year 2, spirit 50 vs 60 | 50: `ImmigrationSkipped { spirit }`; 60: a wave with probability ~70% (over 100 seeds: 58–82) |
 | `im_cap` | cap 20, population 20 | skipped `cap` |
 | `im_composition` | fortress with no medic | ≥ 1 medic in the next 2 waves (over 20 seeds, ≥ 90%) |
 

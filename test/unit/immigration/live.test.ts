@@ -4,6 +4,8 @@ import { TICKS_PER_DAY, TICKS_PER_YEAR } from '@core/constants';
 import { RngStream, seedFor } from '@core/rng';
 import { contentRegistry } from '@content/loader';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
+import type { MoraleSystem } from '@systems/morale';
+import type { ImmigrationReader } from '@systems/immigration/reader';
 import { guaranteedSize, planWave } from '@systems/immigration/waves';
 import { TestWorld } from '../../scenarios/test-world';
 
@@ -38,5 +40,30 @@ describe('T-M7-04 live immigrant arrival', () => {
       expect(equipment?.clothing.feet).toBeGreaterThan(0);
     }
     expect(w.tick).toBeGreaterThanOrEqual(28 * TICKS_PER_DAY + (ids.length - 1) * 20);
+  });
+});
+
+describe('F-14 immigration spirit threshold', () => {
+  it('eligibility at spirit 54 reports the spirit reason; at 55 it does not', () => {
+    const YEAR_TWO_SUMMER = (112 + 28) * TICKS_PER_DAY;
+    const w = new TestWorld({ seed: 'f14-threshold', world: 'flat-test', embark: 'none', startTick: YEAR_TWO_SUMMER });
+    for (let n = 0; n < 7; n += 1) w.spawnDwarf();
+    w.step(1);
+    const morale = w.game.world.scheduler.byId('15') as MoraleSystem;
+    const imReader = w.readers.of<ImmigrationReader>('21');
+
+    morale.deserialize({ ...morale.serialize(), hallSpirit: 54, hallSpiritTier: 1 }, {
+      world: w.game.world, registry: w.game.registry, rng: w.game.world.rngFor('15'),
+      readers: w.readers, register: w.game.world.registrations,
+    });
+    expect(imReader.eligibility().reasons).toContain('spirit');
+    expect(imReader.eligibility().eligible).toBe(false);
+
+    morale.deserialize({ ...morale.serialize(), hallSpirit: 55, hallSpiritTier: 1 }, {
+      world: w.game.world, registry: w.game.registry, rng: w.game.world.rngFor('15'),
+      readers: w.readers, register: w.game.world.registrations,
+    });
+    expect(imReader.eligibility().reasons).not.toContain('spirit');
+    expect(imReader.eligibility().eligible).toBe(true);
   });
 });

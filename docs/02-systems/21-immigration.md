@@ -92,7 +92,7 @@ Panel `population` (population, cap editor, hall spirit, eligibility reasons, la
 
 | Name | Value | Meaning |
 |---|---|---|
-| `IMMIGRATION_SPIRIT_MIN` | 65 | Content tier |
+| `IMMIGRATION_SPIRIT_MIN` | 55 | upper Fine tier; a well-kept fortress settles here (balance.md) |
 | `IMMIGRATION_PERMILLE` | 700 | Per eligible season |
 | `REP_PERMILLE_PER_POINT` | 2 | |
 | `WEALTH_PER_WAVE` | 2000 | Marks per prior wave |

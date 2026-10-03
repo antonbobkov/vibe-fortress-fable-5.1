@@ -182,7 +182,7 @@ const scenario: Scenario = {
       { metric: 'Wealth curve: Year 2', model: '15,000–25,000 marks', measured: `${y2Wealth} marks (pop ${y2Pop})` },
       { metric: 'Wealth curve: Year 3', model: '35,000–60,000 marks', measured: `${y3Wealth} marks (pop ${y3Pop})` },
       { metric: 'Immigration: Year 1 guaranteed', model: '2 waves (4–8 dwarves)', measured: `${waves.filter((w) => w.guaranteed).length} waves (${waves.reduce((s, w) => s + w.count, 0)} dwarves)` },
-      { metric: 'Immigration: Years 2–3', model: 'spirit >= 65: waves of 4–12', measured: `${waves.filter((w) => !w.guaranteed).length} waves (spirit < 65 threshold)` },
+      { metric: 'Immigration: Years 2–3', model: 'spirit >= 55: waves of 4–12', measured: `${waves.filter((w) => !w.guaranteed).length} waves${waves.filter((w) => !w.guaranteed).length === 0 ? ' (spirit < 55 threshold)' : ''}` },
       { metric: 'Raids: Peril 0', model: 'Thieves from Y2 spring (size 1)', measured: `${raids.length} thieves (sizes: ${raids.map((r) => r.size).join(', ')})` },
       { metric: 'Mood distribution: Mean', model: 'Content (~70 with hearth)', measured: `${avgMood} (min ${minMood.toFixed(1)}, max ${maxMood.toFixed(1)})` },
       { metric: 'Mood distribution: Breakdown', model: 'Content dominant', measured: `Fine: ${breakdown['Fine']}, Content: ${breakdown['Content']}, Unhappy: ${breakdown['Unhappy']}, Miserable: ${breakdown['Miserable']}` },

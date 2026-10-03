@@ -24,12 +24,12 @@ const scenario: Scenario = {
   startTick: YEAR_TWO_SUMMER - 2,
   setup: (w) => { for (let n = 0; n < 7; n += 1) w.spawnDwarf(); },
   run: (w) => {
-    withSpirit(w, 60);
+    withSpirit(w, 50);
     w.until((world) => world.events('ImmigrationSkipped').length > 0, 5);
     expect(w.events('ImmigrationSkipped')[0]?.['reason']).toBe('spirit');
     const high = new TestWorld({ seed: 'im-threshold-high', world: 'flat-test', embark: 'none', startTick: YEAR_TWO_SUMMER - 2 });
     for (let n = 0; n < 7; n += 1) high.spawnDwarf();
-    withSpirit(high, 70);
+    withSpirit(high, 60);
     expect(high.readers.of<ImmigrationReader>('21').eligibility()).toEqual({ eligible: true, reasons: [] });
     let arrivals = 0;
     for (let seed = 1; seed <= 100; seed += 1) {
