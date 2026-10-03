@@ -37,10 +37,24 @@ the flags you rely on — 0.156 had already removed `-a`/`--ask-for-approval`. I
 **Always pass the model and reasoning effort explicitly on every run:**
 
 ```
--m gpt-6-sol -c model_reasoning_effort="high"
+-m gpt-6.1-sol -c model_reasoning_effort="high"
 ```
 
-That pair *is* "GPT-6 Sol High".
+That pair *is* "GPT-6.1 Sol High", the model the owner chose on 2026-10-03.
+Earlier milestones (M4 to M8-04) ran on `gpt-6-sol`. Do not drop back to it unless
+the owner says so.
+
+**The effort flag matters more on 6.1.** Its default reasoning level is **low**;
+`gpt-6-sol` defaulted to medium. A run without `-c model_reasoning_effort="high"`
+silently does much less reasoning. The levels it accepts are low, medium, high,
+xhigh, max and ultra. "ultra" adds automatic task delegation, so avoid it here.
+
+To check which model slugs the CLI knows, and each one's levels and default, read
+`~/.codex/models_cache.json` (no TUI needed):
+
+```bash
+python -c "import json;[print(m['slug'],m['default_reasoning_level']) for m in json.load(open(r'C:/Users/anton/.codex/models_cache.json'))['models']]"
+```
 
 `~/.codex/config.toml` currently happens to set the same two values
 globally, but never rely on it — that file is shared with the Codex desktop
@@ -97,12 +111,12 @@ recorded, so you can continue it instead of starting cold:
 # continue the most recent session for this cwd, with a follow-up prompt
 Get-Content next-step.txt -Raw |
   & $CODEX exec resume --last `
-    -m gpt-6-sol -c model_reasoning_effort="high" `
+    -m gpt-6.1-sol -c model_reasoning_effort="high" `
     -s danger-full-access -c agents.enabled=false `
     -o last_message.txt -
 
 # or resume a specific session
-& $CODEX exec resume <SESSION_UUID> -m gpt-6-sol ... "<prompt>"
+& $CODEX exec resume <SESSION_UUID> -m gpt-6.1-sol ... "<prompt>"
 ```
 
 - `codex exec resume [SESSION_ID] [PROMPT]`, or `--last` for the newest.
@@ -211,10 +225,11 @@ A long prompt is best kept in a file and piped in as stdin (pass `-` as the
 prompt), which avoids quoting problems in PowerShell:
 
 ```powershell
-$CODEX = 'C:\Users\anton\AppData\Local\OpenAI\Codex\bin\247581e40ee272fb\codex.exe'
+$CODEX = (Get-ChildItem "$env:LOCALAPPDATA\OpenAI\Codex\bin" -Recurse -Filter codex.exe |
+          Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
 Get-Content prompt.txt -Raw |
   & $CODEX exec -C "E:\code\vibe-games\vibe-fortress-fable-5.1" `
-    -m gpt-6-sol -c model_reasoning_effort="high" `
+    -m gpt-6.1-sol -c model_reasoning_effort="high" `
     -s danger-full-access -c agents.enabled=false `
     -o last_message.txt -
 ```
