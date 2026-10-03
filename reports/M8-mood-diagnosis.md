@@ -831,3 +831,61 @@ Every live hostile party was sampled once per in-game hour (50 ticks) from arriv
      - Per `embark-catalog.md` line 145, this bonus budget remains unspent on presets. A player playing at Peril 2 or 4 has more than enough surplus points to buy `e_anvil` (270 marks) directly on top of the `Balanced` preset.
   4. **Summary**:
      The inability to forge iron weapons and armor in Year 1 is a property of the fixture choosing the `Balanced` preset without an anvil. A player aiming for military defense in Year 1 would choose `Miner's Guild` or purchase `e_anvil` with peril bonus points.
+
+---
+
+## 14. After the door-lock fix
+
+Following the fix in `src/systems/buildings/build.ts` (`fix(buildings): a lock_on_alert door that locks by timeout updates connectivity`), door locking via timeout (`ALERT_OUTSIDE_CLEAR_TICKS` and `ALERT_LOCK_GRACE_TICKS`) now deterministically marks footprint chunk passability dirty and emits `BuildingStateChanged { state: 'locked' }`. As a result, the map connectivity labels are rebuilt immediately, allowing `readers.pathing.reachable` to reflect the impassable locked state.
+
+The 20 seeds of the baseline sweep (7 peril 0, 7 peril 2, 6 peril 4) were re-measured under identical fixture conditions.
+
+### 14.1 Peril 0 Confirmation
+- **Survival Rate**: 7 / 7 seeds survived all 3 years (pop 12–17, 0 deaths across all 7 seeds).
+- Confirmed on `three-years-p0-1`: 14 surviving dwarves, 0 deaths, 0 combat casualties, extinct = null.
+
+### 14.2 Peril 2 (7 seeds: `three-years-p2-1` .. `p2-7`)
+- **Survival & Longevity**: Survival was dramatically extended beyond Year 1 on multiple seeds:
+  - `three-years-p2-1` survived into **Year 2 (Day 217)** (previously extinct at D144).
+  - `three-years-p2-4` survived into **Year 3 (Day 268)** (previously extinct at D81).
+  - `three-years-p2-3` reached **Day 138** (previously extinct at D88).
+- **Raid Behavior**: Every normal raid and ambush confronting locked gates properly detected the unreachable goal, transitioned to `loiter`, looted loose surface items, and retreated with `outcome: 'looted'` or `'repelled'` in 2–5 days. The locked-gate approach loop was completely eliminated.
+- **Raid Sizes (B-010)**:
+  - `Re-measured after the door-lock fix (2026-10-03): Size 8–9 on living seeds p2-1 (Day 126, size 9) and p2-4 (Day 122, size 8; Day 225, size 9); within 30% of model (10).`
+
+| Seed | Peril | Survival | Deaths (Combat / Starve) | Raids Faced (Day, Size, Type, Outcome, Stay) | Y1 Pop / Wealth | Y2 Pop / Wealth | Y3 Pop / Wealth | Extinction Day & Killer |
+|---|---|---|---|---|---|---|---|---|
+| `three-years-p2-1` | 2 | Extinct (D217) | 7 combat (6 bled_out, 1 killed), 6 starvation | D42 (1, thief, withdrew, 3.3h), D62 (3, bandits, repelled, 1.1d), D68 (4, ambush, looted, 2.6d), D92 (1, thief, withdrew, 2.7h), D126 (9, raid, looted, 5.2d), D144 (4, raid, looted, 2.6d), D152 (1, thief, looted, 4.5h), D195 (1, thief, withdrew, 2.5h), D199 (4, bandits, active [stockpile gap], 18.2d), D206 (4, raid, looted, 2.3d) | 10 / 5,168 | 0 / 14,192 (at D217) | 0 / 0 | D217 (starvation under D199 bandit lockdown) |
+| `three-years-p2-2` | 2 | Extinct (D85) | 3 combat (2 bled_out, 1 killed), 7 starvation | D33 (1, thief, withdrew, 1.8h), D61 (4, raid, looted, 2.9d), D68 (3, bandits, active [stockpile gap], 17.2d), D80 (1, thief, looted, 4.5h) | 0 / 0 | 0 / 0 | 0 / 4,610 | D85 (starvation under D68 bandit lockdown) |
+| `three-years-p2-3` | 2 | Extinct (D138) | 9 combat (8 bled_out, 1 killed), 6 starvation | D40 (1, thief, withdrew, 4.5h), D59 (3, bandits, repelled, 11.5d), D70 (4, raid, looted, 2.9d), D91 (1, thief, withdrew, 3.8h), D120 (8, raid, looted, 18.2d), D123 (1, thief, withdrew, 3.4h) | 8 / 6,240 | 0 / 8,785 (at D138) | 0 / 0 | D138 (starvation following D120 raid wipe) |
+| `three-years-p2-4` | 2 | Extinct (D268) | 9 combat (7 bled_out, 2 killed), 4 starvation | D36 (1, thief, withdrew, 3.4h), D63 (4, raid, looted, 2.7d), D76 (1, thief, withdrew, 5.1h), D76 (3, bandits, repelled, 18.2d), D122 (8, raid, looted, 2.9d), D127 (1, thief, looted, 3.4h), D168 (1, thief, looted, 3.0h), D181 (4, raid, looted, 3.3d), D214 (1, thief, looted, 5.4h), D225 (9, raid, looted, 3.3d), D250 (4, bandits, active [stockpile gap], 18.2d), D255 (4, raid, looted, 2.3d) | 12 / 5,352 | 8 / 14,210 | 0 / 18,444 (at D268) | D268 (starvation under D250 bandit lockdown) |
+| `three-years-p2-5` | 2 | Extinct (D90) | 5 combat (bled_out), 9 starvation | D36 (1, thief, withdrew, 2.9h), D58 (4, raid, looted, 2.9d), D72 (3, bandits, active [stockpile gap], 18.2d), D78 (1, thief, looted, 1.7h) | 0 / 0 | 0 / 0 | 0 / 5,322 | D90 (starvation under D72 bandit lockdown) |
+| `three-years-p2-6` | 2 | Extinct (D85) | 5 combat (bled_out), 8 starvation | D39 (1, thief, withdrew, 4.3h), D61 (4, raid, looted, 2.8d), D68 (3, bandits, active [stockpile gap], 17.2d), D80 (1, thief, looted, 5.6h) | 0 / 0 | 0 / 0 | 0 / 5,387 | D85 (starvation under D68 bandit lockdown) |
+| `three-years-p2-7` | 2 | Extinct (D78) | 4 combat (bled_out), 10 starvation | D49 (1, thief, withdrew, 5.2h), D60 (3, bandits, active [stockpile gap], 18.2d), D61 (4, raid, looted, 16.1d) | 0 / 0 | 0 / 0 | 0 / 4,615 | D78 (starvation under D60 bandit lockdown) |
+
+### 14.3 Peril 4 (6 seeds: `three-years-p4-1` .. `p4-6`)
+- **Survival Rate**: 0 / 6 seeds survived to Year 2, but extinction days were delayed from D49–D56 to **D74–D91** (except `p4-5` which suffered early combat collapse at D45).
+- **Raid Behavior**: Large raids (size 6) and sieges (size 12–13) loitered and looted exterior items instead of looping permanently at the gate.
+
+| Seed | Peril | Survival | Deaths (Combat / Starve) | Raids Faced (Day, Size, Type, Outcome, Stay) | Extinction Day & Killer |
+|---|---|---|---|---|---|
+| `three-years-p4-1` | 4 | Extinct (D74) | 12 combat (10 bled_out, 2 killed), 2 starvation | D22 (1, thief, withdrew, 1.8h), D31 (6, raid, looted, 2.7d), D34 (12, raid, looted, 6.0d), D41 (1, thief, withdrew, 4.4h), D58 (3, bandits, active [stockpile gap], 16.2d), D59 (1, thief, looted, 4.6h), D71 (6, raid, looted, 2.4d) | D74 (combat casualties and starvation under D58 bandit lockdown) |
+| `three-years-p4-2` | 4 | Extinct (D87) | 2 combat (bled_out), 13 starvation | D23 (1, thief, looted, 3.4h), D39 (6, raid, looted, 2.7d), D40 (12, raid, looted, 2.3d), D45 (1, thief, withdrew, 3.9h), D62 (1, thief, withdrew, 3.8h), D69 (4, bandits, active [stockpile gap], 18.2d), D82 (7, raid, looted, 2.3d) | D87 (starvation under D69 bandit lockdown) |
+| `three-years-p4-3` | 4 | Extinct (D89) | 7 combat (5 bled_out, 2 killed), 5 starvation | D31 (6, raid, looted, 2.7d), D34 (1, thief, withdrew, 3.7h), D49 (12, raid, looted, 13.8d), D60 (7, raid, looted, 23.0h), D62 (1, thief, looted, 5.6h), D71 (4, bandits, active [stockpile gap], 18.2d), D86 (1, thief, looted, 3.9h) | D89 (starvation under D71 bandit lockdown) |
+| `three-years-p4-4` | 4 | Extinct (D83) | 9 combat (6 bled_out, 3 killed), 6 starvation | D33 (6, raid, looted, 2.8d), D46 (13, raid, looted, 5.3d), D47 (1, thief, withdrew, 4.9h), D62 (1, thief, looted, 4.5h), D65 (4, bandits, active [stockpile gap], 18.2d), D80 (7, raid, looted, 2.3d), D83 (1, thief, looted, 4.6h) | D83 (starvation under D65 bandit lockdown) |
+| `three-years-p4-5` | 4 | Extinct (D45) | 9 combat (8 bled_out, 1 killed), 0 starvation | D27 (1, thief, withdrew, 4.7h), D32 (12, raid, looted, 5.2d), D43 (1, thief, looted, 5.4h), D44 (6, raid, active [loiter], 24.0h) | D45 (wiped out in open combat by D32/D44 attacks) |
+| `three-years-p4-6` | 4 | Extinct (D91) | 5 combat (4 bled_out, 1 killed), 9 starvation | D24 (1, thief, withdrew, 3.2h), D37 (6, raid, looted, 3.0d), D39 (1, thief, looted, 5.4h), D43 (12, raid, looted, 2.7d), D53 (1, thief, withdrew, 4.1h), D73 (4, bandits, active [stockpile gap], 18.2d), D81 (1, thief, withdrew, 4.3h), D91 (7, raid, active [loiter], 6.0h) | D91 (starvation under D73 bandit lockdown) |
+
+### 14.4 Classification of Remaining Lingering Parties
+
+Across all 20 seeds (7 peril 0, 7 peril 2, 6 peril 4), a total of 13 parties remained in `outcome: 'active'` at the exact moment of colony extinction:
+
+1. **`walkto_unreachable_loop` (Gate Pathing Loop)**: **0 parties (0%)**.
+   - Before the door-lock fix, 100% of raids, ambushes, and sieges arriving at locked gates were permanently stuck in `state === 'approach'` at `walkTgt === -1` because stale connectivity labels made `readers.pathing.reachable` return `true`.
+   - With the door-lock fix, stale connectivity labels are eliminated. Every standard raid, ambush, and siege correctly recognizes that the goal behind the locked door is unreachable, transitions to `loiter`, loots surface items, and departs with `outcome: 'looted'` or `'repelled'`.
+2. **`bandit_stockpile_gap` (Bandit Stockpile Spec Gap)**: **11 parties**.
+   - Exactly 6 parties in Peril 2 (`p2-1` D199, `p2-2` D68, `p2-4` D250, `p2-5` D72, `p2-6` D68, `p2-7` D60) and 5 parties in Peril 4 (`p4-1` D58, `p4-2` D69, `p4-3` D71, `p4-4` D65, `p4-6` D73).
+   - In all 11 instances, the party has `purpose === 'bandits'` and targets an outdoor trade depot or surface stockpile. Because the stockpile is outside the gate, `nearestStockpileTile` is reachable, setting `P.goalUnreachable = false`. Upon arrival (`dist === 0`), `ai.ts:881` never transitions the party to `'loiter'` because line 881 requires `P.goalUnreachable === true`. The party idles at the stockpile tile forever in `state = 'approach'`.
+3. **`other` (Active In-Flight Loitering at Colony Extinction)**: **2 parties**.
+   - Seed `p4-5` (Party #150994958, raid of 6, arrived Day 44) and seed `p4-6` (Party #117440534, raid of 7, arrived Day 91).
+   - Both parties arrived within 24 hours or 6 hours of fortress wipe. Both had correctly transitioned to `state = 'loiter'` with `P.goalUnreachable = true`, but the fortress succumbed to combat injuries or starvation before their 2-day loiter retreat timer expired.
