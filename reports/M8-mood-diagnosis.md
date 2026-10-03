@@ -1,5 +1,25 @@
 # T-M8-06 Dwarf Mood Shortfall Diagnosis (Revised)
 
+> **Parent review note (2026-10-02).** Accepted: the formula check (§1), the bedroom
+> facts (§3), the drink split (§4) and the decay arithmetic. Three caveats:
+>
+> 1. **The hearth term is unverified.** The first pass (40135a5) measured the same seed at
+>    mean 36.76 with a hearth bonus of +3.80 (tier 2); this pass measures 34.49 with +0.00,
+>    yet still records `new_hearth_hall_tier` active 0.7% of the time, which needs a tier to
+>    have been reached. One of the two runs is wrong, so treat C-5 (−3.59) as unconfirmed
+>    until the instrument is reconciled with the scenario runner.
+> 2. **The secondary-need gap is in the spec's own arithmetic, not only in its constants.**
+>    `balance.md` § Needs and consumption says comfort (+3/h) needs "a sit every day or
+>    two", but `10-dwarves.md` relieves 40 per sit in a decent room (20 in the hearth hall):
+>    72 a day calls for about 1.8 sits a day. Joy (+1.5/h, 36 a day) needs "a hearth visit
+>    every two days" relieving 30, which is 15 a day. Neither rate can stay under its want
+>    threshold at the stated frequency, so `bored` and `uncomfortable` are near-permanent by
+>    design. Dwarves then spend much of their day on comfort and joy activities instead of
+>    work, which also feeds `restless` (purpose rises while not working).
+> 3. **Minor divergence, not a cause.** `activities.ts:439` relieves 20 for any sit below
+>    decent tier. `10-dwarves.md` gives 40 for a decent room and 20 for the hearth hall, and
+>    says nothing about a chair in a room below decent.
+
 ## Executive Summary
 
 In the 3-year fortress simulation (`test/scenarios/three_years.scenario.ts`), mean dwarf mood measures **34.49** (ranging from 0.0 to 70.8; the single-point snapshot at the end of Year 3 measures **38.7** in the scenario runner). All measurements fall roughly 31 to 35.5 points short of the **~70 Content** modeled in `docs/03-content/balance.md` § Mood floor and the no-spiral guarantee.
