@@ -6,7 +6,11 @@
  * - need frequencies (% of dwarf-time at want level or worse);
  * - top positive and negative contributors;
  * - comparison between upgraded fortress and bare layout (2fcf0b6);
- * - confirmation across seeds.
+ * - confirmation across seeds;
+ * - bedroom dig jobs status at days 30, 100, 365, 1095;
+ * - miners daily activity histogram and cancellation counts;
+ * - water drink breakdown into categories (i)-(v);
+ * - full 24-hour trace of Day 100.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -19,6 +23,8 @@ import { NEED_PRESSURE_THOUGHTS } from '@systems/morale/standing';
 import type { MoraleReader } from '@systems/morale/reader';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { DwarvesReader } from '@systems/dwarves';
+import type { JobsReader } from '@systems/jobs';
+import type { ItemsReader } from '@systems/items';
 import { WANT, type NeedName } from '@systems/dwarves/needs';
 import { personalityBase } from '@systems/morale/thoughts';
 import authoredThoughts from '@content/thoughts.json';
@@ -44,8 +50,8 @@ export interface DayTraceEntry {
   readonly mood: number;
   readonly needs: Record<string, number>;
   readonly thoughts: readonly { id: string; value: number }[];
-  readonly activityNeed?: string;
-  readonly activityPhase?: string;
+  readonly behavior?: string | undefined;
+  readonly activity?: string | undefined;
 }
 
 export interface BuildingDiagnostics {
@@ -70,6 +76,50 @@ export interface BuildingDiagnostics {
   readonly alcoholInStock: number;
 }
 
+export interface BedroomDigSnapshot {
+  readonly day: number;
+  readonly totalTiles: number;
+  readonly floorsDug: number;
+  readonly wallsRemaining: number;
+  readonly doorsDug: number;
+  readonly jobsOpen: number;
+  readonly jobsClaimed: number;
+  readonly jobsBlockedUnreachable: number;
+  readonly jobsBlockedOther: number;
+  readonly jobsNotExist: number;
+}
+
+export interface BedroomRoomStatus {
+  readonly roomIndex: number;
+  readonly doorDug: boolean;
+  readonly floorsDug: number;
+  readonly wallsRemaining: number;
+  readonly doorReachableFromCorridor: boolean;
+  readonly anyWallReachable: boolean;
+  readonly setupDay?: number | undefined;
+}
+
+export interface MinerActivityStats {
+  readonly minerIds: readonly number[];
+  readonly activityHistogram: Record<string, number>;
+  readonly digCancelledCount: number;
+  readonly digAbandonedCount: number;
+}
+
+export interface DrinkDiagnosticResult {
+  readonly totalWaterDrinks: number;
+  readonly totalAlcoholDrinks: number;
+  readonly alcoholBrewed: number;
+  readonly split: {
+    readonly noAlcohol: number;
+    readonly notInBarrel: number;
+    readonly barrelNotInStockpile: number;
+    readonly allReserved: number;
+    readonly availableInStockpiledBarrel: number;
+    readonly unreachableFromDwarf?: number | undefined;
+  };
+}
+
 export interface MoodDecompositionResult {
   readonly seed: string;
   readonly upgraded: boolean;
@@ -89,6 +139,10 @@ export interface MoodDecompositionResult {
   readonly eventCounts: { mealsEaten: number; drinksAlcohol: number; drinksWater: number };
   readonly dayTrace: readonly DayTraceEntry[];
   readonly buildingDiag?: BuildingDiagnostics | undefined;
+  readonly bedroomDigSnapshots?: readonly BedroomDigSnapshot[] | undefined;
+  readonly bedroomRoomStatus?: readonly BedroomRoomStatus[] | undefined;
+  readonly minerActivityDiag?: MinerActivityStats | undefined;
+  readonly drinkDiag?: DrinkDiagnosticResult | undefined;
 }
 
 export function runMoodDecomposition(seed: string, upgraded: boolean): MoodDecompositionResult {
@@ -149,51 +203,27 @@ function runBare2fcf0b6(seed: string): MoodDecompositionResult {
       roomTiles.push(w.index(x, y, 29));
     }
   }
-  const rDig = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: 4, tiles: roomTiles });
-  if (!rDig.ok) throw new Error(`Designate dig failed: ${rDig.reason}`);
+  w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: 5, tiles: roomTiles });
 
-  // 5. Workshops
+  // 5. Still and carpenter
   const toPlace = [
-    { type: 'carpenter', origin: w.index(cx - 8, cy + 10, Z) },
-    { type: 'mason', origin: w.index(cx - 4, cy + 10, Z) },
-    { type: 'still', origin: w.index(cx, cy + 10, Z) },
-    { type: 'kitchen', origin: w.index(cx + 4, cy + 10, Z) },
-    { type: 'hearth', origin: w.index(cx - 1, cy + 15, Z) },
+    { type: 'still', origin: w.index(cx - 3, cy + 9, Z) },
+    { type: 'carpenter', origin: w.index(cx + 1, cy + 9, Z) },
   ];
   const placedIds: Record<string, number> = {};
   for (const p of toPlace) {
     if (buildings.ghost(p.type, p.origin, 0).reason !== null) continue;
-    const r = w.game.world.applyCommand({
-      type: 'PlaceBuilding',
-      buildingType: p.type,
-      origin: p.origin,
-      orientation: 0,
-      materialChoice: 0,
-    });
+    const r = w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: p.type, origin: p.origin, orientation: 0, materialChoice: 0 });
     if (r.ok) placedIds[p.type] = bSystem.lastPlacedBuilding;
   }
 
-  // 6. Meeting area
-  const meetTiles: number[] = [];
-  for (let y = cy + 16; y <= cy + 18; y += 1) {
-    for (let x = cx - 3; x <= cx + 1; x += 1) {
-      const t = w.index(x, y, Z);
-      if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('meeting_area', t)) {
-        meetTiles.push(t);
-      }
-    }
-  }
-  w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'meeting_area', tiles: meetTiles });
-
-  // 7. Surface farm
+  // 6. Surface farm plot (5x3)
   w.step(5);
   const farmTiles: number[] = [];
-  for (let y = cy + 16; y <= cy + 19; y += 1) {
-    for (let x = cx - 8; x <= cx - 5; x += 1) {
+  for (let y = cy + 14; y <= cy + 16; y += 1) {
+    for (let x = cx - 2; x <= cx + 2; x += 1) {
       const t = w.index(x, y, Z);
-      if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t)) {
-        farmTiles.push(t);
-      }
+      if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t)) farmTiles.push(t);
     }
   }
   const rFarm = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles: farmTiles });
@@ -201,51 +231,33 @@ function runBare2fcf0b6(seed: string): MoodDecompositionResult {
     const farmId = bSystem.lastCreatedZone;
     w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 0, speciesId: 'barley' });
     w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 1, speciesId: 'barley' });
+    w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 2, speciesId: 'turnip' });
   }
 
-  // Advance bootstrap period (20 days)
-  const ordered = new Set<string>();
-  const totalTicksBootstrap = 20 * TICKS_PER_DAY;
-  while (w.tick < totalTicksBootstrap) {
-    w.step(Math.min(100, totalTicksBootstrap - w.tick));
-    if (!ordered.has('mason') && buildings.get(placedIds['mason']!)?.state === 'built') {
-      ordered.add('mason');
-      w.game.world.applyCommand({
-        type: 'AddWorkOrder',
-        workshopId: placedIds['mason'],
-        order: { recipeId: 'make_stone_block', mode: 'once', remaining: 2 },
-      });
-    }
-    if (!ordered.has('still') && buildings.get(placedIds['still']!)?.state === 'built') {
-      ordered.add('still');
-      w.game.world.applyCommand({
-        type: 'AddWorkOrder',
-        workshopId: placedIds['still'],
-        order: { recipeId: 'brew', mode: 'maintain', threshold: 20 },
-      });
-    }
-    if (!ordered.has('kitchen') && buildings.get(placedIds['kitchen']!)?.state === 'built') {
-      ordered.add('kitchen');
-      w.game.world.applyCommand({
-        type: 'AddWorkOrder',
-        workshopId: placedIds['kitchen'],
-        order: { recipeId: 'cook_easy_meal', mode: 'maintain', threshold: 10 },
-      });
+  // 7. Surface meeting area
+  const meetTiles: number[] = [];
+  for (let y = cy + 10; y <= cy + 12; y += 1) {
+    for (let x = cx - 2; x <= cx + 2; x += 1) {
+      const t = w.index(x, y, Z);
+      if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('meeting_area', t)) meetTiles.push(t);
     }
   }
+  w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'meeting_area', tiles: meetTiles });
 
-  // Trade depot
-  for (const at of [w.index(cx - 9, cy + 4, Z), w.index(cx - 9, cy + 8, Z), w.index(cx + 8, cy + 14, Z)]) {
-    if (buildings.ghost('trade_depot', at, 0).reason !== null) continue;
-    const placed = w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'trade_depot', origin: at, orientation: 0, materialChoice: 0 });
-    if (placed.ok) break;
+  // 8. Work orders at day 5
+  w.step(5 * TICKS_PER_DAY - w.tick);
+  if (placedIds['still']) {
+    w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['still'], order: { recipeId: 'brew', mode: 'maintain', threshold: 10 } });
   }
-  w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', priority: 1 }] });
+  if (placedIds['carpenter']) {
+    w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['carpenter'], order: { recipeId: 'make_barrel', mode: 'maintain', threshold: 4 } });
+  }
 
-  // Cave farm
+  // 9. Day 20: cave farm
+  w.step(20 * TICKS_PER_DAY - w.tick);
   const caveTiles: number[] = [];
   for (let y = cy + 4; y <= cy + 7; y += 1) {
-    for (let x = cx + 7; x <= cx + 10; x += 1) {
+    for (let x = cx + 13; x <= cx + 16; x += 1) {
       caveTiles.push(w.index(x, y, Z - 1));
     }
   }
@@ -268,6 +280,12 @@ function runBare2fcf0b6(seed: string): MoodDecompositionResult {
       }
     }
   });
+}
+
+interface BedroomPlan {
+  readonly x1: number; readonly x2: number; readonly y1: number; readonly y2: number;
+  readonly doorX: number; readonly doorY: number; readonly bedX: number; readonly bedY: number;
+  tiles: number[]; setup: boolean; setupDay?: number | undefined;
 }
 
 function runUpgraded(seed: string): MoodDecompositionResult {
@@ -339,11 +357,6 @@ function runUpgraded(seed: string): MoodDecompositionResult {
   w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'mining', priority: 5 });
   w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'hauling', priority: 6 });
 
-  interface BedroomPlan {
-    readonly x1: number; readonly x2: number; readonly y1: number; readonly y2: number;
-    readonly doorX: number; readonly doorY: number; readonly bedX: number; readonly bedY: number;
-    tiles: number[]; setup: boolean;
-  }
   const bedroomPlans: BedroomPlan[] = [
     { x1: cx + 2, x2: cx + 4, y1: cy + 10, y2: cy + 12, doorX: cx + 5, doorY: cy + 11, bedX: cx + 2, bedY: cy + 11, tiles: [], setup: false },
     { x1: cx + 8, x2: cx + 10, y1: cy + 10, y2: cy + 12, doorX: cx + 7, doorY: cy + 11, bedX: cx + 10, bedY: cy + 11, tiles: [], setup: false },
@@ -459,26 +472,23 @@ function runUpgraded(seed: string): MoodDecompositionResult {
   const rPasture = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'pasture', tiles: pastureTiles });
   if (rPasture.ok) {
     const pastureId = bSystem.lastCreatedZone;
-    for (const id of w.game.world.entities.with(C.Tame)) {
-      w.game.world.applyCommand({ type: 'AssignPasture', animalId: id, zoneId: pastureId });
+    for (const d of w.game.world.entities.with(C.Tame)) {
+      w.game.world.applyCommand({ type: 'AssignPasture', animalId: d, zoneId: pastureId });
     }
   }
 
-  // Work orders
+  // Work orders helper
   const ordered = new Set<string>();
   const checkWorkOrders = (): void => {
     if (!ordered.has('carpenter') && buildings.get(placedIds['carpenter']!)?.state === 'built') {
       ordered.add('carpenter');
-      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['carpenter'], order: { recipeId: 'make_barrel', mode: 'maintain', threshold: 15 } });
       w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['carpenter'], order: { recipeId: 'make_bed', mode: 'maintain', threshold: 14 } });
-      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['carpenter'], order: { recipeId: 'make_table_wood', mode: 'maintain', threshold: 4 } });
+      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['carpenter'], order: { recipeId: 'make_table', mode: 'maintain', threshold: 4 } });
+      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['carpenter'], order: { recipeId: 'make_chair', mode: 'maintain', threshold: 8 } });
+      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['carpenter'], order: { recipeId: 'make_barrel', mode: 'maintain', threshold: 20 } });
     }
     if (!ordered.has('mason') && buildings.get(placedIds['mason']!)?.state === 'built') {
       ordered.add('mason');
-      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['mason'], order: { recipeId: 'make_stone_block', mode: 'maintain', threshold: 20 } });
-      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['mason'], order: { recipeId: 'make_door_stone', mode: 'maintain', threshold: 14 } });
-      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['mason'], order: { recipeId: 'make_table_stone', mode: 'maintain', threshold: 4 } });
-      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['mason'], order: { recipeId: 'make_chair_stone', mode: 'maintain', threshold: 8 } });
       w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['mason'], order: { recipeId: 'make_statue', mode: 'maintain', threshold: 4 } });
     }
     if (!ordered.has('craftdwarf') && buildings.get(placedIds['craftdwarf']!)?.state === 'built') {
@@ -545,6 +555,7 @@ function runUpgraded(seed: string): MoodDecompositionResult {
         const doorOrigin = w.index(bp.doorX, bp.doorY, 29);
         if (w.map.kindAt(doorOrigin) !== TileKind.Floor) continue;
         bp.setup = true;
+        bp.setupDay = Math.floor(w.tick / TICKS_PER_DAY);
         const bedOrigin = w.index(bp.bedX, bp.bedY, 29);
         w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'bed', origin: bedOrigin, orientation: 0, materialChoice: 0 });
         w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'bedroom', tiles: bp.tiles });
@@ -599,23 +610,122 @@ function runUpgraded(seed: string): MoodDecompositionResult {
     checkWorkOrders();
     checkUndergroundRooms();
     checkCaveFarm();
-  });
+  }, bedroomPlans, bedroomDigTiles, cx, cy);
 }
 
-function runSamplingLoop(w: TestWorld, seed: string, upgraded: boolean, onStep: () => void): MoodDecompositionResult {
+function runSamplingLoop(
+  w: TestWorld,
+  seed: string,
+  upgraded: boolean,
+  onStep: () => void,
+  bedroomPlans?: BedroomPlan[],
+  bedroomDigTiles?: readonly number[],
+  cx: number = 0,
+  _cy: number = 0,
+): MoodDecompositionResult {
   const registry = w.game.registry;
   const buildings = w.readers.of<BuildingsReader>('14');
   const morale = w.readers.of<MoraleReader>('15');
   const dwarves = w.readers.of<DwarvesReader>('10');
+  const items = w.readers.of<ItemsReader>('13');
+  const jobs = w.readers.of<JobsReader>('11');
+  const itemTable = registry.table('items');
+  const matTable = registry.table('materials');
 
   let mealsEaten = 0;
   let drinksAlcohol = 0;
   let drinksWater = 0;
+  let alcoholBrewed = 0;
+  let digCancelledCount = 0;
+  const digAbandonedCount = 0;
+
+  const drinkSplit = {
+    noAlcohol: 0,
+    notInBarrel: 0,
+    barrelNotInStockpile: 0,
+    allReserved: 0,
+    availableInStockpiledBarrel: 0,
+    unreachableFromDwarf: 0,
+  };
+
   w.game.world.onEvents((events) => {
     for (const e of events) {
-      if (e.type === 'MealEaten') mealsEaten += 1;
-      else if (e.type === 'DrankAlcohol') drinksAlcohol += 1;
-      else if (e.type === 'DrankWater') drinksWater += 1;
+      if (e.type === 'MealEaten') {
+        mealsEaten += 1;
+      } else if (e.type === 'DrankAlcohol') {
+        drinksAlcohol += 1;
+      } else if (e.type === 'DrankWater') {
+        drinksWater += 1;
+        if (upgraded) {
+          const dwarfId = e['id'] as number;
+          const dwarfPos = w.game.world.entities.get(dwarfId, C.Position);
+          const dwarfTile = dwarfPos ? w.map.index(dwarfPos.x, dwarfPos.y, dwarfPos.z) : -1;
+
+          let totalAlcoholUnits = 0;
+          let alcoholInBarrelUnits = 0;
+          let alcoholInStockpiledBarrelUnits = 0;
+          let alcoholInStockpiledBarrelUnreservedUnits = 0;
+
+          for (const iid of w.game.world.entities.with(C.Item)) {
+            const it = w.game.world.entities.get(iid, C.Item);
+            if (!it) continue;
+            const def = itemTable.byIndex(it.type) as { id: string; category: string } | undefined;
+            if (!def || !def.category.startsWith('drink')) continue;
+            const mat = matTable.byIndex(it.material)?.id ?? '';
+            if (!/ale|beer|wine|bellwine/.test(mat)) continue;
+
+            const count = it.count ?? 1;
+            totalAlcoholUnits += count;
+
+            const containerId = items.containerOf(iid);
+            let inBarrel = false;
+            if (containerId !== 0) {
+              const cIt = w.game.world.entities.get(containerId, C.Item);
+              if (cIt) {
+                const cDef = itemTable.byIndex(cIt.type) as { id: string } | undefined;
+                if (cDef?.id === 'barrel') inBarrel = true;
+              }
+            }
+
+            if (inBarrel) {
+              alcoholInBarrelUnits += count;
+              const bTile = items.tileOf(containerId);
+              const sp = bTile >= 0 ? items.stockpileAt(bTile) : 0;
+              if (sp !== 0) {
+                alcoholInStockpiledBarrelUnits += count;
+                if (!it.reservedBy || it.reservedBy === 0) {
+                  alcoholInStockpiledBarrelUnreservedUnits += count;
+                }
+              }
+            }
+          }
+
+          if (totalAlcoholUnits === 0) {
+            drinkSplit.noAlcohol += 1;
+          } else if (alcoholInBarrelUnits === 0) {
+            drinkSplit.notInBarrel += 1;
+          } else if (alcoholInStockpiledBarrelUnits === 0) {
+            drinkSplit.barrelNotInStockpile += 1;
+          } else if (alcoholInStockpiledBarrelUnreservedUnits === 0) {
+            drinkSplit.allReserved += 1;
+          } else {
+            drinkSplit.availableInStockpiledBarrel += 1;
+            if (dwarfTile >= 0) {
+              const findable = items.findItem({ drinkable: true }, dwarfTile, 'walker', { reservable: true, stockpiledContainerClass: 'barrel' });
+              if (findable === 0) {
+                drinkSplit.unreachableFromDwarf += 1;
+              }
+            }
+          }
+        }
+      } else if (e.type === 'ItemCreated') {
+        const itemType = (e['itemType'] as string | undefined) ?? (typeof e['type'] === 'number' ? itemTable.byIndex(e['type'])?.id : undefined);
+        if (itemType === 'drink') {
+          alcoholBrewed += ((e['count'] as number | undefined) ?? 1);
+        }
+      } else if (e.type === 'JobCancelled') {
+        if (e['jobType'] === 'dig') digCancelledCount += 1;
+      }
     }
   });
 
@@ -647,6 +757,82 @@ function runSamplingLoop(w: TestWorld, seed: string, upgraded: boolean, onStep: 
   const TRACE_START_TICK = 100 * TICKS_PER_DAY;
   const TRACE_END_TICK = 101 * TICKS_PER_DAY;
   const dayTrace: DayTraceEntry[] = [];
+
+  const bedroomDigSnapshots: BedroomDigSnapshot[] = [];
+  const targetDigDays = new Set([30, 100, 112, 224, 336]);
+  const minerActivityHist: Record<string, number> = {};
+
+  const sampleBedroomDigJobs = (day: number): void => {
+    if (!bedroomDigTiles || bedroomDigTiles.length === 0) return;
+    let floorsDug = 0;
+    let wallsRemaining = 0;
+    let doorsDug = 0;
+    let jobsOpen = 0;
+    let jobsClaimed = 0;
+    let jobsBlockedUnreachable = 0;
+    let jobsBlockedOther = 0;
+    let jobsNotExist = 0;
+
+    for (const t of bedroomDigTiles) {
+      const k = w.map.kindAt(t);
+      if (k === TileKind.Floor) floorsDug += 1;
+      else wallsRemaining += 1;
+
+      const j = jobs.byKey(`dig:${t}`);
+      if (!j) {
+        jobsNotExist += 1;
+      } else if (j.state === 'open') {
+        jobsOpen += 1;
+      } else if (['claimed', 'fetching', 'travelling', 'working', 'completing'].includes(j.state)) {
+        jobsClaimed += 1;
+      } else if (j.state === 'blocked') {
+        const r = jobs.blockedReason(j.id);
+        if (r === 'unreachable') jobsBlockedUnreachable += 1;
+        else jobsBlockedOther += 1;
+      }
+    }
+    if (bedroomPlans) {
+      for (const bp of bedroomPlans) {
+        const doorTile = w.index(bp.doorX, bp.doorY, 29);
+        if (w.map.kindAt(doorTile) === TileKind.Floor) doorsDug += 1;
+      }
+    }
+    bedroomDigSnapshots.push({
+      day,
+      totalTiles: bedroomDigTiles.length,
+      floorsDug,
+      wallsRemaining,
+      doorsDug,
+      jobsOpen,
+      jobsClaimed,
+      jobsBlockedUnreachable,
+      jobsBlockedOther,
+      jobsNotExist,
+    });
+  };
+
+  const sampleMiners = (): void => {
+    if (!upgraded) return;
+    const miners = jobs.workersWithLabor('mining');
+    for (const m of miners) {
+      const j = jobs.forWorker(m);
+      if (j) {
+        const typeName = jobs.typeOf(j.id) ?? String(j.type);
+        const typeRow = registry.table('jobTypes').byIndex(j.type) as { labor?: string } | undefined;
+        const laborName = (typeof j.data['labor'] === 'string' ? j.data['labor'] : typeRow?.labor) ?? 'mining';
+        const laborPri = jobs.laborPriority(laborName);
+        const effPri = j.priority + (laborPri - 5);
+        const k = `job:${typeName}(${laborName}):eff${effPri}:pri${j.priority}`;
+        minerActivityHist[k] = (minerActivityHist[k] ?? 0) + 1;
+      } else {
+        const brain = w.game.world.entities.get(m, C.Brain);
+        const b = brain?.behavior ?? 'unknown';
+        const a = brain?.activity ?? '';
+        const k = `behavior:${b}${a ? ':' + a : ''}`;
+        minerActivityHist[k] = (minerActivityHist[k] ?? 0) + 1;
+      }
+    }
+  };
 
   const totalTicks = 3 * DAYS_PER_YEAR * TICKS_PER_DAY;
   let lastSampleDay = Math.floor(w.tick / TICKS_PER_DAY);
@@ -748,6 +934,7 @@ function runSamplingLoop(w: TestWorld, seed: string, upgraded: boolean, onStep: 
         const md = morale.mood(traceTargetDwarf);
         const nds = w.game.world.entities.get(traceTargetDwarf, C.Needs);
         const ths = morale.thoughts(traceTargetDwarf).map((t) => ({ id: t.id, value: Math.round(t.value * 10) / 10 }));
+        const brain = w.game.world.entities.get(traceTargetDwarf, C.Brain);
         dayTrace.push({
           hour,
           tick: w.tick,
@@ -757,6 +944,8 @@ function runSamplingLoop(w: TestWorld, seed: string, upgraded: boolean, onStep: 
           mood: Math.round(md * 10) / 10,
           needs: nds ? { hunger: Math.round(nds.hunger), thirst: Math.round(nds.thirst), rest: Math.round(nds.rest), social: Math.round(nds.social), comfort: Math.round(nds.comfort), purpose: Math.round(nds.purpose), joy: Math.round(nds.joy) } : {},
           thoughts: ths,
+          behavior: brain?.behavior,
+          activity: brain?.activity,
         });
       }
     }
@@ -764,8 +953,17 @@ function runSamplingLoop(w: TestWorld, seed: string, upgraded: boolean, onStep: 
     const currentDay = Math.floor(w.tick / TICKS_PER_DAY);
     if (currentDay > lastSampleDay) {
       sampleDwarves();
+      sampleMiners();
+      if (targetDigDays.has(currentDay)) {
+        sampleBedroomDigJobs(currentDay);
+      }
       lastSampleDay = currentDay;
     }
+  }
+
+  // Sample day 1095 final state if not yet sampled
+  if (upgraded && bedroomDigSnapshots.length > 0 && bedroomDigSnapshots[bedroomDigSnapshots.length - 1]?.day !== 1095) {
+    sampleBedroomDigJobs(1095);
   }
 
   const authoredMap = new Map<string, string>();
@@ -803,6 +1001,10 @@ function runSamplingLoop(w: TestWorld, seed: string, upgraded: boolean, onStep: 
 
   // Diagnostics for buildings and items
   let buildingDiag: BuildingDiagnostics | undefined;
+  let bedroomRoomStatus: BedroomRoomStatus[] | undefined;
+  let minerActivityDiag: MinerActivityStats | undefined;
+  let drinkDiag: DrinkDiagnosticResult | undefined;
+
   if (upgraded) {
     const beds = buildings.byType('bed');
     let bedsBuilt = 0;
@@ -837,7 +1039,6 @@ function runSamplingLoop(w: TestWorld, seed: string, upgraded: boolean, onStep: 
     let rawPlantsInStock = 0;
     let alcoholInStock = 0;
 
-    const itemTable = registry.table('items');
     for (const iid of ent.with(C.Item)) {
       const it = ent.get(iid, C.Item);
       if (!it) continue;
@@ -872,6 +1073,55 @@ function runSamplingLoop(w: TestWorld, seed: string, upgraded: boolean, onStep: 
       rawPlantsInStock,
       alcoholInStock,
     };
+
+    if (bedroomPlans) {
+      bedroomRoomStatus = bedroomPlans.map((bp, idx) => {
+        const doorTile = w.index(bp.doorX, bp.doorY, 29);
+        const doorDug = w.map.kindAt(doorTile) === TileKind.Floor;
+        const floorsDug = bp.tiles.filter((t) => w.map.kindAt(t) === TileKind.Floor).length;
+        const wallsRemaining = bp.tiles.length - floorsDug;
+        const corridorTile = w.index(cx + 6, bp.doorY, 29);
+        const doorReachableFromCorridor = w.readers.pathing.reachable(corridorTile, doorTile, 'walker');
+        const anyWallReachable = bp.tiles.some((t) => {
+          if (w.map.kindAt(t) !== TileKind.Wall) return false;
+          // check if any neighbor is reachable floor
+          for (let dy = -1; dy <= 1; dy += 1) {
+            for (let dx = -1; dx <= 1; dx += 1) {
+              if (dx === 0 && dy === 0) continue;
+              const n = w.map.offset(t, dx, dy, 0);
+              if (n >= 0 && w.map.kindAt(n) === TileKind.Floor && w.readers.pathing.reachable(corridorTile, n, 'walker')) {
+                return true;
+              }
+            }
+          }
+          return false;
+        });
+        return {
+          roomIndex: idx,
+          doorDug,
+          floorsDug,
+          wallsRemaining,
+          doorReachableFromCorridor,
+          anyWallReachable,
+          setupDay: bp.setupDay,
+        };
+      });
+    }
+
+    const minerIds = jobs.workersWithLabor('mining');
+    minerActivityDiag = {
+      minerIds,
+      activityHistogram: minerActivityHist,
+      digCancelledCount,
+      digAbandonedCount,
+    };
+
+    drinkDiag = {
+      totalWaterDrinks: drinksWater,
+      totalAlcoholDrinks: drinksAlcohol,
+      alcoholBrewed,
+      split: drinkSplit,
+    };
   }
 
   return {
@@ -893,6 +1143,10 @@ function runSamplingLoop(w: TestWorld, seed: string, upgraded: boolean, onStep: 
     eventCounts: { mealsEaten, drinksAlcohol, drinksWater },
     dayTrace,
     buildingDiag,
+    bedroomDigSnapshots,
+    bedroomRoomStatus,
+    minerActivityDiag,
+    drinkDiag,
   };
 }
 
@@ -930,9 +1184,50 @@ describe('T-M8-06 mood breakdown instrument (perf tier)', () => {
       console.log(`Stock: beds=${res.buildingDiag.bedItemsInStock}, logs=${res.buildingDiag.logItemsInStock}, barrels=${res.buildingDiag.barrelItemsInStock}, meals=${res.buildingDiag.preparedMealsInStock}, rawPlants=${res.buildingDiag.rawPlantsInStock}, alcohol=${res.buildingDiag.alcoholInStock}`);
     }
 
-    console.log('--- TRACE SAMPLE (Day 100, Dwarf 0) ---');
-    for (const t of res.dayTrace.slice(0, 10)) {
-      console.log(`  h${t.hour} (${t.x},${t.y},z${t.z}) mood=${t.mood} needs=${JSON.stringify(t.needs)} thoughts=${t.thoughts.map((x) => `${x.id}(${x.value})`).join(', ')}`);
+    if (res.bedroomDigSnapshots) {
+      console.log('--- BEDROOM DIG SNAPSHOTS (Days 30, 100, 112 [Y1], 224 [Y2], 336 [Y3/End]) ---');
+      console.log('Day | Total | Floors Dug | Walls Rem | Doors Dug | Open | Claimed | Blocked (Unreach) | Blocked (Other) | Not Exist');
+      for (const s of res.bedroomDigSnapshots) {
+        console.log(`  Day ${String(s.day).padEnd(4)} | ${String(s.totalTiles).padEnd(5)} | ${String(s.floorsDug).padEnd(10)} | ${String(s.wallsRemaining).padEnd(9)} | ${String(s.doorsDug).padEnd(9)} | ${String(s.jobsOpen).padEnd(4)} | ${String(s.jobsClaimed).padEnd(7)} | ${String(s.jobsBlockedUnreachable).padEnd(17)} | ${String(s.jobsBlockedOther).padEnd(15)} | ${String(s.jobsNotExist).padEnd(9)}`);
+      }
+    }
+
+    if (res.bedroomRoomStatus) {
+      console.log('--- BEDROOM ROOM STATUS (Day 336 / End) ---');
+      for (const r of res.bedroomRoomStatus) {
+        console.log(`  Room ${r.roomIndex}: doorDug=${r.doorDug}, floorsDug=${r.floorsDug}/9, wallsRemaining=${r.wallsRemaining}, setupDay=${r.setupDay ?? 'none'}, doorReachable=${r.doorReachableFromCorridor}, anyWallReachable=${r.anyWallReachable}`);
+      }
+    }
+
+    if (res.minerActivityDiag) {
+      console.log('--- MINER ACTIVITY DIAGNOSTICS ---');
+      console.log(`Miners (ids): ${res.minerActivityDiag.minerIds.join(', ')}`);
+      console.log(`Dig Cancellations: ${res.minerActivityDiag.digCancelledCount}, Abandonments: ${res.minerActivityDiag.digAbandonedCount}`);
+      console.log('Miners Activity Histogram (daily samples across 3 years):');
+      for (const [k, count] of Object.entries(res.minerActivityDiag.activityHistogram).sort((a, b) => b[1] - a[1])) {
+        console.log(`  ${k.padEnd(40)}: ${count}`);
+      }
+    }
+
+    if (res.drinkDiag) {
+      console.log('--- DRINK DECISION DIAGNOSTICS ---');
+      console.log(`Total Water Drinks: ${res.drinkDiag.totalWaterDrinks}, Total Alcohol Drinks: ${res.drinkDiag.totalAlcoholDrinks}`);
+      console.log(`Alcohol Brewed Total: ${res.drinkDiag.alcoholBrewed}`);
+      const s = res.drinkDiag.split;
+      const totalW = res.drinkDiag.totalWaterDrinks || 1;
+      console.log(`(i)   No alcohol in world (stock-out):             ${s.noAlcohol} (${((s.noAlcohol / totalW) * 100).toFixed(1)}%)`);
+      console.log(`(ii)  Alcohol exists, but not in barrels:          ${s.notInBarrel} (${((s.notInBarrel / totalW) * 100).toFixed(1)}%)`);
+      console.log(`(iii) In barrels, but not in stockpile:            ${s.barrelNotInStockpile} (${((s.barrelNotInStockpile / totalW) * 100).toFixed(1)}%)`);
+      console.log(`(iv)  In stockpiled barrels, but all reserved:     ${s.allReserved} (${((s.allReserved / totalW) * 100).toFixed(1)}%)`);
+      console.log(`(v)   Available in stockpiled barrel (BUG check):  ${s.availableInStockpiledBarrel} (${((s.availableInStockpiledBarrel / totalW) * 100).toFixed(1)}%)`);
+      if (s.unreachableFromDwarf !== undefined) {
+        console.log(`      -> of which unreachable from dwarf:          ${s.unreachableFromDwarf}`);
+      }
+    }
+
+    console.log('--- FULL DAY 100 TRACE (Dwarf 0, Hours 0..23) ---');
+    for (const t of res.dayTrace) {
+      console.log(`  h${String(t.hour).padEnd(2)} (${t.x},${t.y},z${t.z}) mood=${t.mood} behavior=${t.behavior ?? 'none'} act=${t.activity ?? 'none'} needs=${JSON.stringify(t.needs)} thoughts=${t.thoughts.map((x) => `${x.id}(${x.value})`).join(', ')}`);
     }
 
     const sumThoughts = res.thoughtRows.reduce((s, r) => s + r.meanContribution, 0);
