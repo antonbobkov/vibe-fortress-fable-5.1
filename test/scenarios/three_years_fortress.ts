@@ -15,6 +15,7 @@ import { TICKS_PER_DAY } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import { C } from '@core/components';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
+import type { CombatReader } from '@systems/combat/reader';
 import type { TestWorld } from './test-world';
 
 export const Z = FLAT_TEST_SURFACE_Z;
@@ -59,7 +60,13 @@ export interface FortressState {
   caveFarmId1: number;
   caveFarmId2: number;
   hearthBuildingId: number;
+  gateDoorId: number;
+  gateDoorPlaced: boolean;
+  gateDoorId2: number;
+  gateDoorPlaced2: boolean;
+  squadId: number;
 }
+
 
 export function buildBedroomPlans(cx: number, cy: number, mapW: number, mapH: number): BedroomPlan[] {
   const plans: BedroomPlan[] = [];
@@ -330,6 +337,20 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     }
   }
 
+  // 11. Gatehouse walls around the surface entrance stairwell (cx + 6, cy + 6, Z)
+  // 6 walls leaving two door gaps: North door at (cx + 6, cy + 5) and South door at (cx + 6, cy + 7)
+  const gateWallTiles = [
+    w.index(cx + 5, cy + 5, Z),
+    w.index(cx + 7, cy + 5, Z),
+    w.index(cx + 5, cy + 6, Z),
+    w.index(cx + 7, cy + 6, Z),
+    w.index(cx + 5, cy + 7, Z),
+    w.index(cx + 7, cy + 7, Z),
+  ];
+  for (const t of gateWallTiles) {
+    w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'wall', origin: t, orientation: 0, materialChoice: 0, priority: 2 });
+  }
+
   return {
     cx,
     cy,
@@ -345,8 +366,14 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     caveFarmId1: 0,
     caveFarmId2: 0,
     hearthBuildingId: 0,
+    gateDoorId: 0,
+    gateDoorPlaced: false,
+    gateDoorId2: 0,
+    gateDoorPlaced2: false,
+    squadId: 0,
   };
 }
+
 
 export function checkFortressWorkOrders(w: TestWorld, state: FortressState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -616,3 +643,111 @@ export function checkFortressCaveFarm(w: TestWorld, state: FortressState): void 
     }
   }
 }
+
+export function checkFortressDefense(w: TestWorld, state: FortressState): void {
+  const { cx, cy } = state;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+
+  // 1. Place South door once supporting walls are built
+  if (!state.gateDoorPlaced) {
+    const w1 = buildings.at(w.index(cx + 5, cy + 7, Z));
+    const w2 = buildings.at(w.index(cx + 7, cy + 7, Z));
+    if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
+      const doorTile = w.index(cx + 6, cy + 7, Z);
+      const rDoor = w.game.world.applyCommand({
+        type: 'PlaceBuilding',
+        buildingType: 'door',
+        origin: doorTile,
+        orientation: 0,
+        materialChoice: 0,
+        priority: 2,
+      });
+      if (rDoor.ok) {
+        state.gateDoorPlaced = true;
+        state.gateDoorId = bSystem.lastPlacedBuilding;
+      }
+    }
+  }
+
+  // 1b. Place North door once supporting walls are built
+  if (!state.gateDoorPlaced2) {
+    const w1 = buildings.at(w.index(cx + 5, cy + 5, Z));
+    const w2 = buildings.at(w.index(cx + 7, cy + 5, Z));
+    if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
+      const doorTile2 = w.index(cx + 6, cy + 5, Z);
+      const rDoor2 = w.game.world.applyCommand({
+        type: 'PlaceBuilding',
+        buildingType: 'door',
+        origin: doorTile2,
+        orientation: 0,
+        materialChoice: 0,
+        priority: 2,
+      });
+      if (rDoor2.ok) {
+        state.gateDoorPlaced2 = true;
+        state.gateDoorId2 = bSystem.lastPlacedBuilding;
+      }
+    }
+  }
+
+  // 2. Set door modes: no_pets in calm to prevent pet doorway deadlocks; locked during hearth alert
+  const wantDoorMode = w.game.world.fortress.alert === 'hearth' ? 'locked' : 'no_pets';
+  if (state.gateDoorPlaced && state.gateDoorId !== 0) {
+    const b = buildings.get(state.gateDoorId);
+    if (b?.state === 'built' && b.mode !== wantDoorMode) {
+      w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: state.gateDoorId, mode: wantDoorMode });
+    }
+  }
+  if (state.gateDoorPlaced2 && state.gateDoorId2 !== 0) {
+    const b2 = buildings.get(state.gateDoorId2);
+    if (b2?.state === 'built' && b2.mode !== wantDoorMode) {
+      w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: state.gateDoorId2, mode: wantDoorMode });
+    }
+  }
+
+  // 3. Form squad of 3 once 3 adult dwarves exist
+  if (state.squadId === 0) {
+    const combat = w.readers.of<CombatReader>('16');
+    const adultDwarves = w.game.world.entities.with(C.Labors).filter((id) => {
+      const c = w.game.world.entities.get(id, C.Creature);
+      return c?.faction === 'fortress';
+    });
+    if (adultDwarves.length >= 3) {
+      const rSquad = w.game.world.applyCommand({ type: 'CreateSquad', name: 'Gate Guard' });
+      if (rSquad.ok) {
+        state.squadId = combat.squads()[0]!.id;
+        const members = adultDwarves.slice(0, 3);
+        w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: state.squadId, members });
+        w.game.world.applyCommand({ type: 'SetSquadMode', squadId: state.squadId, mode: 'off' });
+      }
+    }
+  }
+
+  // 4. Alert and squad orders on raid arrival / departure
+  const hostilePurposes = new Set(['bandits', 'ambush', 'raid', 'siege', 'restless']);
+  let hasActiveRaid = false;
+  for (const pId of w.game.world.entities.with(C.Party)) {
+    const p = w.game.world.entities.get(pId, C.Party);
+    if (p && hostilePurposes.has(p.purpose) && p.state !== 'gone' && p.state !== 'retreat') {
+      hasActiveRaid = true;
+      break;
+    }
+  }
+
+  const curAlert = w.game.world.fortress.alert;
+  const gatehouseStairsTile = w.index(cx + 6, cy + 6, Z);
+
+  if (hasActiveRaid && curAlert !== 'hearth') {
+    w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' });
+    if (state.squadId !== 0) {
+      w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'station', tile: gatehouseStairsTile } });
+    }
+  } else if (!hasActiveRaid && curAlert === 'hearth') {
+    w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' });
+    if (state.squadId !== 0) {
+      w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+    }
+  }
+}
+

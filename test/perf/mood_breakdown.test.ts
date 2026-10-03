@@ -34,6 +34,7 @@ import {
   checkFortressWorkOrders,
   checkFortressRooms,
   checkFortressCaveFarm,
+  checkFortressDefense,
   type BedroomPlan,
 } from '../scenarios/three_years_fortress';
 
@@ -309,6 +310,7 @@ function runUpgraded(seed: string): MoodDecompositionResult {
     checkFortressWorkOrders(w, state);
     checkFortressRooms(w, state);
     checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
   }
 
   // Trade depot
@@ -333,6 +335,7 @@ function runUpgraded(seed: string): MoodDecompositionResult {
       checkFortressWorkOrders(w, state);
       checkFortressRooms(w, state);
       checkFortressCaveFarm(w, state);
+      checkFortressDefense(w, state);
     },
     state.bedroomPlans,
     allBedroomTiles,

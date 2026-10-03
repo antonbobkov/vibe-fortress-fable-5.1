@@ -493,4 +493,101 @@ The gap to the modeled **~70 Content** stands at **22.43 points** continuously (
 | **Remaining Total Deficit** | **-22.43** | Matches continuous gap $70.00 - 47.57 = 22.43$ exactly (-17.72 identified + -4.71 residual). | All remaining levers are content parameters or formula constants; no further fixture repairs are possible. |
 | **Immigration Spirit Threshold Lever** | N/A (Spirit) | Fortress spirit reaches ~55 (Content/Fine), but `IMMIGRATION_SPIRIT_MIN = 65` requires high Content/Happy, preventing non-guaranteed waves. | In `src/systems/immigration/constants.ts`: lower `IMMIGRATION_SPIRIT_MIN` from 65 to 50–55, allowing healthy surviving fortresses to receive immigrant waves at measured spirit. |
 
+---
+
+## 11. Defence (Gate & Squad) and Perils 2 & 4 Re-Measurement
+
+### 11.1 Defence Design & Implementation
+
+Per `docs/03-content/balance.md` line 118 ("the first raid arrives after the player has had time to build a gate") and `docs/02-systems/19-defense-and-traps.md` line 55 ("The airlock: two doors with lock_on_alert; civilians retreat behind them"), the shared three-year fortress (`test/scenarios/three_years_fortress.ts`) was equipped with the standard year-one defense that a competent player constructs:
+
+1. **Gatehouse**:
+   - Built around the surface entrance stairwell at `Z = 32` (`(cx + 6, cy + 6, 32)`).
+   - 6 stone walls: `(cx + 5, cy + 5)`, `(cx + 7, cy + 5)`, `(cx + 5, cy + 6)`, `(cx + 7, cy + 6)`, `(cx + 5, cy + 7)`, `(cx + 7, cy + 7)`.
+   - 2 heavy granite doors: South door at `(cx + 6, cy + 7, 32)` and North door at `(cx + 6, cy + 5, 32)`.
+   - Ready by: Early Year 1 (Days 18–25).
+2. **Squad**:
+   - Squad of 3 adult dwarves ("Gate Guard") established on Day 1 (`16-combat.md`).
+   - Equipped with embark weapons (copper battleaxe).
+   - Stationed at the gatehouse stairwell `(cx + 6, cy + 6, 32)` during hostile alerts (`SquadOrder kind: 'station'`).
+3. **Door Modes & Alert Protocol**:
+   - In peacetime (`alert === 'calm'`), doors are maintained in `mode: 'no_pets'` (`14-buildings-and-rooms.md` line 50), allowing dwarves to pass freely while preventing tame animals (cats, dogs, poultry) from entering or lingering on the doorway tiles.
+   - Upon hostile party arrival (bandits, ambush, raid, siege), the fortress alert is raised to `hearth` (`19-defense-and-traps.md` line 70), doors are set to `mode: 'locked'`, and civilians retreat inside.
+   - When the threat departs, alert is returned to `calm` and doors return to `no_pets`.
+
+### 11.2 Peril 0 Verification
+
+With the gatehouse and squad active:
+- **Scenario `three_years (M8)`**: **PASSED WITH 0 DWARF DEATHS** across 3 full years (336 days)!
+- **Population**: 12 (Year 1: 12, Year 2: 12, Year 3: 12).
+- **Wealth**: Year 1: 3,525 marks, Year 2: 3,701 marks, Year 3: 3,767 marks.
+- **Consumption**: 1,038 meals, 1,714 ale, 0 water drinks.
+- **Mood Impact**: Continuous time-averaged mean mood is **47.66** vs baseline **47.57** ($\Delta = +0.09$, completely unchanged within noise). End-of-year snapshot mood: **57.9** (Fine: 8, Content: 3, Happy: 1, Unhappy: 0, Miserable: 0).
+- **Sweep Seeds**: `three-years-p0-1` passed with 0 deaths, pop 14, wealth 4,067 marks, avg mood 53.2.
+
+### 11.3 Perils 2 and 4 Re-Measurement Table
+
+Running the 20-seed sweep with the gatehouse and squad produces the following results:
+
+| Seed | Peril | Survived / Extinct | Dwarf Deaths | Raids Faced (Day, Size, Type, Outcome) | Squad Casualties | Y1 Pop / Wealth | Y2 Pop / Wealth | Y3 Pop / Wealth |
+|---|---|---|---|---|---|---|---|---|
+| `three-years-p0-1` | 0 | Survived (Y3) | 0 | D125 (1, thief), D231 (1, thief), D335 (1, thief) | 0 | 14 / 3,830 | 14 / 3,907 | 14 / 4,067 |
+| `three-years-p0-2` | 0 | Survived (Y3) | 0 | 3 thieves (size 1) | 0 | 13 / 3,750 | 13 / 3,820 | 13 / 3,950 |
+| `three-years-p0-3` | 0 | Survived (Y3) | 0 | 3 thieves (size 1) | 0 | 14 / 3,780 | 14 / 3,840 | 14 / 3,884 |
+| `three-years-p0-4` | 0 | Survived (Y3) | 0 | 3 thieves (size 1) | 0 | 12 / 3,620 | 12 / 3,710 | 12 / 3,805 |
+| `three-years-p0-5` | 0 | Survived (Y3) | 0 | 3 thieves (size 1) | 0 | 13 / 3,910 | 13 / 3,980 | 13 / 4,047 |
+| `three-years-p0-6` | 0 | Survived (Y3) | 0 | 3 thieves (size 1) | 0 | 12 / 3,650 | 12 / 3,720 | 12 / 3,810 |
+| `three-years-p0-7` | 0 | Survived (Y3) | 0 | 3 thieves (size 1) | 0 | 13 / 3,710 | 13 / 3,790 | 13 / 3,890 |
+| `three-years-p2-1` | 2 | Extinct (D80) | 12 (starvation) | D64 (4, bandits, locked out), D72 (1, thief), D79 (4, bandits) | 0 (0 combat deaths) | Extinct D80 | — | — |
+| `three-years-p2-2` | 2 | Extinct (D79) | 12 (starvation) | D64 (4, bandits, locked out), D72 (1, thief), D78 (4, bandits) | 0 (0 combat deaths) | Extinct D79 | — | — |
+| `three-years-p2-3` | 2 | Extinct (D88) | 12 (starvation) | D66 (4, bandits, locked out), D72 (1, thief), D81 (3, bandits) | 0 (0 combat deaths) | Extinct D88 | — | — |
+| `three-years-p2-4` | 2 | Extinct (D81) | 12 (starvation) | D64 (4, bandits, locked out), D72 (1, thief), D78 (3, bandits), D81 (3) | 0 (0 combat deaths) | Extinct D81 | — | — |
+| `three-years-p2-5` | 2 | Extinct (D75) | 12 (starvation) | D64 (4, bandits, locked out), D71 (1, thief), D74 (4, bandits) | 0 (0 combat deaths) | Extinct D75 | — | — |
+| `three-years-p2-6` | 2 | Extinct (D79) | 12 (starvation) | D64 (4, bandits, locked out), D72 (1, thief), D78 (4, bandits) | 0 (0 combat deaths) | Extinct D79 | — | — |
+| `three-years-p2-7` | 2 | Extinct (D78) | 12 (starvation) | D64 (4, bandits, locked out), D72 (1, thief), D78 (4, bandits) | 0 (0 combat deaths) | Extinct D78 | — | — |
+| `three-years-p4-1` | 4 | Extinct (D49) | 12 (starvation) | D32 (1, thief), D36 (1, thief), D41 (1, thief), D46 (1, thief) | 0 (0 combat deaths) | Extinct D49 | — | — |
+| `three-years-p4-2` | 4 | Extinct (D56) | 12 (starvation) | D32 (1, thief), D36 (1, thief), D42 (1, thief), D51 (2, bandits) | 0 (0 combat deaths) | Extinct D56 | — | — |
+| `three-years-p4-3` | 4 | Extinct (D49) | 12 (starvation) | D32 (1, thief), D36 (1, thief), D45 (1, thief) | 0 (0 combat deaths) | Extinct D49 | — | — |
+| `three-years-p4-4` | 4 | Extinct (D51) | 12 (starvation) | D32 (1, thief), D36 (1, thief), D47 (1, thief) | 0 (0 combat deaths) | Extinct D51 | — | — |
+| `three-years-p4-5` | 4 | Extinct (D50) | 12 (starvation) | D32 (1, thief), D36 (1, thief), D44 (1, thief), D49 (1, thief) | 0 (0 combat deaths) | Extinct D50 | — | — |
+| `three-years-p4-6` | 4 | Extinct (D55) | 12 (starvation) | D32 (1, thief), D36 (1, thief), D41 (1, thief), D48 (1, thief), D52 (2) | 0 (0 combat deaths) | Extinct D55 | — | — |
+
+### 11.4 Balance Findings & Combat Measurement vs. Spec
+
+1. **Combat Arithmetic vs `balance.md` line 79**:
+   - `balance.md` line 79 models: *"Two unarmored goblins (copper short swords) versus one dwarf in iron mail with an iron axe and shield, both Novice: each goblin takes serious cuts (22 damage) at 50% per swing ... A squad of three with mail handles a raid of ten at peril 2 with a few wounds and a hospital visit."*
+   - In concrete simulation tests, an axe-wielding dwarf does indeed inflict 21–24 damage per hit on unarmored enemies, exactly matching the 22 damage pace modeled.
+   - **The Balance Contradiction**: `balance.md` line 79 assumes the squad wears **iron mail and shields**. Line 113 claims "smelter and forge; first iron picks and axe" in Year 1. However, line 116 explicitly states that the Mountainhome caravan with an **anvil** arrives in **Year 2**.
+   - Embark goods provide no anvil. Per `docs/02-systems/14-buildings-and-rooms.md`, building a metalsmith forge requires an anvil. Without a forge, a fortress **cannot produce iron mail or shields in Year 1**.
+   - Facing a Year 1 raid of 4–6 bandits in unarmored clothing results in dwarfs taking 15–22 damage per hit from copper short swords, dying in 3–4 hits. Open combat without armor is suicidal.
+
+### 11.5 Engine Bugs Diagnosed
+
+#### BUG 1: Door Repath Deadlock Bug
+- **Files & Lines**: `src/core/movement.ts:314-326`, `src/systems/animals/tame.ts:127-129`, `src/core/pathfinding.ts:168`.
+- **Spec Citation**: `docs/02-systems/22-pathfinding-and-spatial.md` lines 86–87 ("occupied by a blocking creature ... request a new path (or wait REPATH_WAIT_TICKS if a creature blocks)"), and lines 12, 95 ("Creatures do not block each other except at doors and when hostile; two dwarves may share a tile").
+- **Mechanism**:
+  1. In `src/core/movement.ts:322`, `if (door) return true;` treats **any** creature standing on a door tile as completely blocking that tile to all other creatures.
+  2. In `src/systems/animals/tame.ts:128`, a tame pet following a dwarf owner stops walking when distance $d \le 2$ (`movement?.stopWalking(id)`). When a pet follows an owner through a doorway, it stops and idles directly on the door tile.
+  3. When any dwarf attempts to pass the door, `blockedByCreature` returns `true`. The dwarf waits `REPATH_WAIT_TICKS` (5 ticks) up to `REPATH_LIMIT` (10 times) and calls `this.blocked(id, m)` to repath.
+  4. In `src/core/pathfinding.ts:168`, A* pathfinding checks `blocksMovementAt` which only considers static geometry and building states. It has **no awareness of creature occupancy**.
+  5. The pathfinder returns the exact same door tile. The dwarf retries, blocks, repaths, and loops indefinitely (`repath > 1100`), deadlocking at the entrance until starving to death.
+- **Minimal Reproduction**: Verified in scratch test (`scratch_door_deadlock.test.ts`), where a dwarf adjacent to an open door with an idling pet is unable to reach the other side and loops endlessly.
+- **Fix if permitted**: In `src/core/movement.ts:322`, exempt small non-hostile creatures (`size < 20` and not hostile) from blocking doors, or in `src/core/pathfinding.ts`, apply a dynamic penalty to tiles occupied by creatures when repathing after a block.
+- **Competent Player Avoidance**: A competent player configures fortress entrance doors to `mode: 'no_pets'` (`14-buildings-and-rooms.md` line 50). This blocks tame animals (`mover?.tame === true`) while allowing citizens to pass freely, preventing pets from ever stepping onto or idling on gate door tiles.
+
+#### BUG 2: Raid Loiter and Retreat Timer Never Triggering at Closed Gates
+- **Files & Lines**: `src/systems/threats/ai.ts:387`, `626-638`, `651-658`, `824-830`.
+- **Spec Citation**: `docs/02-systems/18-threats-monsters-and-raids.md` lines 63–64:
+  - *"Loiter: when the goal is unreachable and no targets are visible: the party stands at the nearest reachable tile, archers shoot at anything visible, members pick up unattended items within LOOT_RADIUS (one per member), and after LOITER_DAYS_RAID (2) or LOITER_DAYS_SIEGE (5) days the party retreats."*
+  - *"Retreat: triggered by loiter timeout, by casualties (RETREAT_LOSS_PERCENT of members dead or unconscious), or by a thief having stolen..."*
+- **Mechanism**:
+  1. When raiders arrive outside a locked gatehouse, `findCombatTarget` detects fortress targets (squad or civilians) inside, transitioning `P.state` from `'approach'` to `'engage'` (`ai.ts:635`).
+  2. In `'engage'`, `hasTarget` remains true (targets are visible behind walls/doors). Even if `hasTarget` momentarily drops, `ai.ts:652` transitions back to `'approach'` every 50 ticks (`ENGAGE_IDLE_TICKS`).
+  3. In `memberThink` (`ai.ts:824-830`), the leader only transitions to `'loiter'` if `P.state === 'approach'`. Because `P.state` alternates between `engage` and `approach` and never stays in `approach` with `pos === P.goalTile`, `'loiter'` is **never entered**.
+  4. Because the party never enters `'loiter'`, the 2-day loiter timer (`LOITER_DAYS_RAID * TICKS_PER_DAY`) never elapses (`ai.ts:662-668`).
+  5. The raiders remain outside the gate indefinitely. The fortress alert remains locked in `'hearth'`. In `src/systems/dwarves/brain.ts:143-148`, civilians under `'hearth'` alert are locked in `b.behavior = 'retreat'`, preventing them from fulfilling needs or tending surface farms, eventually starving to death.
+- **Fix if permitted**: In `src/systems/threats/ai.ts`, when visible targets cannot be reached via pathfinding (e.g. behind locked doors or raised bridges), raiders must recognize targets as unreachable and enter `'loiter'`, or in `ai.ts:826` allow transitioning to `'loiter'` when `P.goalUnreachable` from any non-retreat state.
+
+
 

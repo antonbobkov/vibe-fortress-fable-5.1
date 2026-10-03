@@ -23,6 +23,7 @@ import {
   checkFortressWorkOrders,
   checkFortressRooms,
   checkFortressCaveFarm,
+  checkFortressDefense,
 } from './three_years_fortress';
 
 const Z = FLAT_TEST_SURFACE_Z;
@@ -57,6 +58,7 @@ const scenario: Scenario = {
       checkFortressWorkOrders(w, state);
       checkFortressRooms(w, state);
       checkFortressCaveFarm(w, state);
+      checkFortressDefense(w, state);
     }
 
     // Trade depot
@@ -108,6 +110,7 @@ const scenario: Scenario = {
       checkFortressWorkOrders(w, state);
       checkFortressRooms(w, state);
       checkFortressCaveFarm(w, state);
+      checkFortressDefense(w, state);
 
       if (w.tick === year1Tick) {
         y1Wealth = items.wealth();

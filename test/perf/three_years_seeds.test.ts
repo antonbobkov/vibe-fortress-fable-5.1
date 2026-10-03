@@ -25,6 +25,7 @@ import {
   checkFortressWorkOrders,
   checkFortressRooms,
   checkFortressCaveFarm,
+  checkFortressDefense,
 } from '../scenarios/three_years_fortress';
 
 const Z = FLAT_TEST_SURFACE_Z;
@@ -102,6 +103,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     checkFortressWorkOrders(w, state);
     checkFortressRooms(w, state);
     checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
   }
 
   // Depot
@@ -158,6 +160,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     checkFortressWorkOrders(w, state);
     checkFortressRooms(w, state);
     checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
 
     if (w.tick === year1Tick) {
       y1Wealth = items.wealth();
