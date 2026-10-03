@@ -42,9 +42,9 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 | thirst | 1.6 (× `weather.thirstModifier()`) | drink: alcohol −100, water −80 | 50 | 85 |
 | rest | 5 awake; −15 per hour asleep | sleeping | 60 | 90 |
 | social | 2 | talking: −40 per conversation | 50 | none |
-| comfort | 3 | sitting in a room of tier ≥ decent −40 per sit; hearth hall −20 | 55 | none |
+| comfort | 1 | sitting in a room of tier ≥ decent −40 per sit; hearth hall −20 | 55 | none |
 | purpose | 2 while idle; −10 per hour of work | working | 60 | none |
-| joy | 1.5 | hearth hall visit −30; mist −30; fine meal −20; seeing a masterwork −10 | 60 | none |
+| joy | 0.75 | hearth hall visit −30; mist −30; fine meal −20; seeing a masterwork −10 | 60 | none |
 
 - A need at or above its critical threshold interrupts any job (11 returns the job to open with progress kept) and takes precedence in behavior selection. Hunger or thirst at `NEED_MAX` for `STARVE_DAYS` (hunger) or `DEHYDRATE_DAYS` (thirst) causes daily `Starvation { id }` damage through 17; at `NEED_MAX` an announcement "X is starving" (alert) fires once per day.
 - Rest at `NEED_MAX` makes the dwarf fall asleep where they stand ("passed out").

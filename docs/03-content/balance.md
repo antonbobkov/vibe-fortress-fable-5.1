@@ -21,9 +21,9 @@ Need rates per hour (10 Dwarves, as revised by this pass):
 | thirst | 1.6 | 50 | a drink about every 31 hours: 0.77 drinks per dwarf per day |
 | rest | 5 awake, −15 asleep | 60 | 7 hours of sleep per 24 |
 | social | 2 | 50 | a chat a day |
-| comfort | 3 | 55 | a sit every day or two |
+| comfort | 1 | 55 | a sit about every 40 hours in a decent room (20 in the hearth hall) |
 | purpose | +2 idle, −10 working | 60 | dwarves dislike idling for more than a day |
-| joy | 1.5 | 60 | a hearth visit every two days |
+| joy | 0.75 | 60 | a hearth visit about every 40 hours, fewer with fine meals |
 
 Per dwarf per day: 0.48 food units + 0.77 drink units. Twenty dwarves: 9.6 food, 15.4 drink. Seven dwarves over a 28-day season: 94 food, 150 drink, which is the season `embark-catalog.md` § Rules of thumb describes.
 

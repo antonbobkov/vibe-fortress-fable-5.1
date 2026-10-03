@@ -31,9 +31,9 @@ describe('T-M4-05 needs', () => {
     expect(n.rest).toBeCloseTo(rest);
     expect(n.thirst).toBe(1.6);
     expect(n.social).toBe(2);
-    expect(n.comfort).toBe(3);
+    expect(n.comfort).toBe(1);
     expect(n.purpose).toBe(2);
-    expect(n.joy).toBe(1.5);
+    expect(n.joy).toBe(0.75);
     expect(advanceNeeds(zero, end, 100, true, true).purpose).toBe(0);
     expect(advanceNeeds({ ...zero, rest: 30 }, end, 100, true, true).rest).toBe(15);
   });
@@ -152,16 +152,16 @@ describe('F-10 need rates', () => {
     expect(totalDrinkEvents).toBeLessThanOrEqual(150 * 1.05);
   });
 
-  it('rest, social, comfort, purpose and joy rates are unchanged (guards F-10b)', () => {
+  it('rest, social, comfort, purpose and joy rates are unchanged (guards F-10b, F-12)', () => {
     expect(HUNGER_PER_HOUR).toBe(1);
     expect(THIRST_PER_HOUR).toBe(1.6);
     expect(REST_AWAKE_PER_HOUR).toBe(5);
     expect(REST_ASLEEP_PER_HOUR).toBe(-15);
     expect(SOCIAL_PER_HOUR).toBe(2);
-    expect(COMFORT_PER_HOUR).toBe(3);
+    expect(COMFORT_PER_HOUR).toBe(1);
     expect(PURPOSE_IDLE_PER_HOUR).toBe(2);
     expect(PURPOSE_WORK_PER_HOUR).toBe(-10);
-    expect(JOY_PER_HOUR).toBe(1.5);
+    expect(JOY_PER_HOUR).toBe(0.75);
 
     expect(WANT.rest).toBe(60);
     expect(WANT.social).toBe(50);
@@ -172,5 +172,35 @@ describe('F-10 need rates', () => {
     expect(CRITICAL.rest).toBe(90);
     expect(CRITICAL.hunger).toBe(85);
     expect(CRITICAL.thirst).toBe(85);
+  });
+
+  it('F-12 visit arithmetic: comfort and joy reach want at documented frequencies', () => {
+    // Starting from 0, comfort reaches want (55) in 55 hours (at 1/h)
+    let n = { ...zero };
+    for (let h = 0; h < 55; h += 1) {
+      n = advanceNeeds(n, 50, 100, false, false);
+    }
+    expect(n.comfort).toBe(55);
+    // After a 40-relief sit in a decent room, comfort is 15; returns to want (55) in 40 hours
+    n = { ...n, comfort: n.comfort - 40 };
+    expect(n.comfort).toBe(15);
+    for (let h = 0; h < 40; h += 1) {
+      n = advanceNeeds(n, 50, 100, false, false);
+    }
+    expect(n.comfort).toBe(55);
+
+    // Starting from 0, joy reaches want (60) in 80 hours (at 0.75/h)
+    let nj = { ...zero };
+    for (let h = 0; h < 80; h += 1) {
+      nj = advanceNeeds(nj, 50, 100, false, false);
+    }
+    expect(nj.joy).toBe(60);
+    // After a 30-relief hearth visit, joy is 30; returns to want (60) in 40 hours
+    nj = { ...nj, joy: nj.joy - 30 };
+    expect(nj.joy).toBe(30);
+    for (let h = 0; h < 40; h += 1) {
+      nj = advanceNeeds(nj, 50, 100, false, false);
+    }
+    expect(nj.joy).toBe(60);
   });
 });
