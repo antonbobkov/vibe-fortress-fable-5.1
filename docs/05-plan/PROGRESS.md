@@ -118,6 +118,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] F-09 — Small fixes (agy-f09, 2026-09-25)
 - [x] F-10 — Need rates: consumption matches the documented season (agy-f10, 2026-09-25)
 - [x] F-11 — Idle dwarves notice work without waiting out IDLE_TICKS (agy-f11, 2026-09-25)
+- [ ] F-12 — Comfort and joy rates match the documented visit frequency
 
 ## M6 — Steel and Blood ([M6-steel-and-blood.md](M6-steel-and-blood.md))
 
