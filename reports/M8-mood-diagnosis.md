@@ -689,5 +689,145 @@ In accordance with T-M8-06, the gate doors in `test/scenarios/three_years_fortre
   - Consequently, the fortress remains locked in `hearth` alert indefinitely. In `src/systems/dwarves/brain.ts:143`, civilians under `hearth` alert are locked in `b.behavior = 'retreat'`, preventing them from eating or drinking from surface stores until they starve to death.
 - **Classification**: **ENGINE BUG**.
 
+## 13. Why Hostile Parties Never Leave
 
+This section documents the investigation into why hostile parties at Peril 2 and Peril 4 remain in `state = 'active'` (specifically `state = 'approach'`) indefinitely, never loitering or retreating, and holding the fortress on permanent `hearth` alert until all surviving civilians and soldiers starve to death.
 
+### 13.1 Hourly Sampling Timelines (`three-years-p2-2` & `three-years-p4-1`)
+
+Every live hostile party was sampled once per in-game hour (50 ticks) from arrival until party despawn or fortress extinction.
+
+#### Seed `three-years-p2-2` (Peril 2)
+- **Map Layout**: Surface at Z=32. Wagon at (cx=24, cy=1, z=32). Gatehouse entrance stairwell at (30, 7, z=32), North door at (30, 6, z=32), South door at (30, 8, z=32). Hearth underground at (34, 7, z=29).
+- **Party #50331776 (`thief`, size 1)**:
+  - `D33:H1 (T38450)`: `state=approach (age 50t)`, `goal=(30, 5, z=32, unreach=false)`, leader `#16777531` at (7, 0, z=32), dist=23, walkTgt=73998, alive=1, loot=0, alert=calm.
+  - `D33:H2 (T38500)`: Spotted by dwarf. `state=engage (age 19t)`, leader at (14, 1, z=32), dist=16.
+  - `D33:H3 (T38550)`: `state=retreat (age 26t)`, leader at (15, 2, z=32), dist=15, walkTgt=73741 (map edge).
+  - `D33:H3`: `RaidEnded { partyId: 50331776, outcome: 'withdrew' }`. (Leaves cleanly).
+- **Party #184549616 (`ambush`, size 4, gloam archers & warriors)**:
+  - `D61:H1 (T72050)`: `AlertChanged: calm -> hearth`. `state=approach (age 50t)`, `goal=(13, 23, z=32, unreach=false, rch=true)` (targeting outdoor civilian `#16777517`), leader `#117440987` at (0, 5, z=32), dist=18, walkTgt=74845, alive=2 (trickling in), loot=0.
+  - `D61:H2–H4`: `state=engage`, leader advances (0, 9) -> (4, 19), alive=4, combat initiated.
+  - `D61:H5 (T72250)`: Outdoor target runs; `goal` retargets nearest outdoor dwarf `#50332138` at (26, 12, z=32). `state=approach`, leader at (10, 19).
+  - `D61:H6–H10`: `state=engage`, leader at (10, 19) -> (23, 15).
+  - `D61:H10 (T72500)`: Civilians `#16777517` and `#50332138` bleed out (`cause: bled_out`) in the field.
+  - `D61:H11 (T72550)`: Leader reaches target spot (26, 12, z=32), dist=0.
+  - `D61:H12 (T72600)`: No reachable fortress targets remain in perception. After `ENGAGE_IDLE_TICKS`, party switches `state=approach`. `chooseGoal` runs: no outdoor dwarves exist, underground hearth not yet built, so target falls back to nearest surface building: gate door at (30, 7, z=32). `goal=(30, 7, z=32, unreach=false, rch=true)`. Leader `#117440987` stands at (26, 12, z=32), dist=5, `walkTgt=-1`. Both gate doors are locked (`mech=locked`).
+  - `D62:H1 (T73250)`: Hearth built at (34, 7, z=29). `chooseGoal` switches `goal=(34, 7, z=29, unreach=false, rch=true)`. Leader `#117440987` stands at (26, 12, z=32), dist=13, `walkTgt=-1`.
+  - `D62:H1–D79:H0 (T73250–T94800)`: **Stuck in `state=approach` for 431 hours (18 straight days)**. Leader never moves (`walkTgt=-1`), alive=4, members target nothing (`tgt#0`).
+- **Party #251658410 (`bandits`, size 3, hillfolk)**:
+  - `D68:H1 (T80450)`: `state=approach (age 50t)`, `goal=(19, 5, z=32, unreach=false, rch=true)` (surface stockpile), leader `#150995153` at (5, 0, z=32), dist=14, walkTgt=73987, alive=2, loot=0.
+  - `D68:H4 (T80600)`: Leader arrives on stockpile tile (19, 5, z=32), `dist=0`, `walkTgt=-1`.
+  - `D68:H4–D79:H0 (T80600–T94800)`: **Stuck in `state=approach` on the stockpile for 284 hours (11.8 days)**. Leader at (19, 5, z=32), dist=0, loot=0, alive=3. Because `P.goalUnreachable` is `false`, line 881 never triggers `loiter`. Because state is `approach`, line 827 never loots.
+- **Extinction**:
+  - `D77–D79`: All 8 remaining dwarves locked inside the underground shelter die of starvation (`cause: starvation`).
+  - `D79:H0`: Fortress extinct. Both hostile parties are still `state=approach`.
+
+---
+
+#### Seed `three-years-p4-1` (Peril 4)
+- **Map Layout**: Surface at Z=32. Wagon at (cx=24, cy=1, z=32). Gatehouse at (30, 7, z=32), North door at (30, 6, z=32), South door at (30, 8, z=32).
+- **Party #83886444 (`thief`, size 1)**:
+  - `D22:H0–H1`: Arrives, spotted, retreats, and withdraws cleanly on D22:H1.
+- **Party #16777671 (`ambush`, size 6, gloam archers & warriors)**:
+  - `D31:H0 (T36000)`: Arrives. `AlertChanged: calm -> hearth`.
+  - `D31:H5–H10`: Combat outdoors. Dog `#16777274` killed (D31:H5); civilian `#16777278` killed (D31:H6); civilian `#16777647` killed (D31:H10).
+  - `D31:H13 (T36650)`: `state=approach (age 19t)`, `goal=(30, 7, z=32, unreach=false, rch=true)`, leader `#16777672` at (12, 9, z=32), dist=18, `walkTgt=-1`, alive=6, loot=2.
+  - `D33:H4 (T38800)`: Soldier `#16777276` trapped outside South door at (30, 9, z=32) is attacked and killed (`cause: killed`).
+  - `D31:H13–D49:H1 (T36650–T57650)`: **Stuck in `state=approach` for 420 hours (17.5 days)** at (12, 9, z=32).
+- **Party #50332170 (`raid`, size 12, gloam captain, archers, warriors)**:
+  - `D34:H0 (T39600)`: Arrives at map edge (0, 0, z=32).
+  - `D34:H1 (T39650)`: `state=approach`, `goal=(34, 7, z=29, unreach=false, rch=true)`, leader `#150995464` at (0, 0, z=32), dist=40, `walkTgt=67186`.
+  - `D34:H2–D49:H1 (T39700–T57650)`: **Stuck in `state=approach` for 359 hours (15 days)**. Never paths into the gatehouse, never transitions to `loiter`, alive=13.
+- **Party #16777995 (`thief`, size 1)**:
+  - `D41:H0–H5`: Arrives, picks up loose surface loot on D41:H3, retreats, despawns with `outcome: looted` on D41:H5.
+- **Extinction**:
+  - `D47–D49`: All remaining 8 dwarves starve to death behind the locked gates.
+  - `D49:H1`: Fortress extinct.
+
+---
+
+### 13.2 State Transitions & Code Paths Analysis
+
+| Party Type | Stuck State | Code Path (`file:line`) | Spec Line (`18` § Party AI) | Classification | Proposed Minimal Rule / Fix |
+|---|---|---|---|---|---|
+| **`thief`** | *Not stuck* | `src/systems/threats/ai.ts:736`, `866` | Lines 64, 69: "snatcher that is spotted flees empty-handed; ThiefEscaped when leaves map" | **WORKING** | None needed; thieves correctly retreat and despawn when spotted or after looting. |
+| **`bandits`** | `approach` | `src/systems/threats/ai.ts:514-517`, `881-884` | Line 60: "bandits target the nearest stockpile"; Line 63: "Loiter: when goal is unreachable... members pick up unattended items... retreats" | **SPEC GAP / BUG** | `ai.ts:514` targets reachable stockpile and sets `goalUnreachable = false`. Once leader arrives (`dist === 0`), `ai.ts:881` requires `goalUnreachable === true` to enter `loiter`. Bandits never enter `loiter` and never loot in `approach` (`ai.ts:827`). **Fix**: When bandits reach their stockpile target (`pos === P.goalTile`), transition to `loiter` so looting begins and the 2-day retreat timer starts. |
+| **`ambush`** | `approach` | `src/systems/threats/ai.ts:549-551`, `396-419`, `888-892` | Line 60: "ambushes target nearest dwarf outdoors; if no path exists target reachable tile nearest hearth"; Line 63: "after 2 days retreats" | **ENGINE BUG** | When outdoor targets die, `chooseGoal` falls back to `setHearthOrWagonGoal`. Because `build.ts:1015` fails to mark chunk dirty when doors lock (see § 13.3), `reachable` returns `true`, setting `goalUnreachable = false`. When `walkTo` returns `unreachable` at the door, line 889 ignores it because `goalUnreachable` is `false`. **Fix**: (1) Fix `tickAlertDoors` dirty-chunk emission; (2) In `memberThink` line 888, if `outcome === 'unreachable'`, set `P.goalUnreachable = true` and enter `loiter`. |
+| **`raid`** | `approach` | `src/systems/threats/ai.ts:396-419`, `888-892` | Line 60: "raids target the hearth; if no path exists, nearest reachable tile"; Line 63: "Loiter: when goal is unreachable... after 2 days party retreats" | **ENGINE BUG** | (1) Stale connectivity labels report hearth/stairs reachable, setting `goalUnreachable = false`. (2) `walkTo` returns `unreachable` at the gate door, but line 889 guards `loiter` behind `if (P.goalUnreachable)`. **Fix**: If leader's `walkTo` returns `unreachable`, mark `P.goalUnreachable = true` and transition party to `loiter`. |
+| **`siege`** | `approach` | `src/systems/threats/ai.ts:396-419`, `811-825`, `888-892` | Line 63: "Loiter: when goal unreachable... melee members with breaksDoors adjacent to locked door break it... after 5 days retreats" | **ENGINE BUG** | Same as `raid`. Furthermore, trollkin door-breaking is restricted to `state === 'engage' \|\| state === 'loiter'` (`ai.ts:827`). Because the siege is trapped in `approach`, trollkin never break doors and never loiter. **Fix**: Transitioning to `loiter` on `walkTo === 'unreachable'` allows trollkin to break doors or times out the siege in 5 days. |
+
+---
+
+### 13.3 Squad Position, Door Locking, and Fixture Role
+
+#### 1. Where is the squad stationed and where do fights happen?
+- The fixture orders the squad to station at `gatehouseStairsTile = w.index(cx + 6, cy + 6, Z)` (e.g. tile `(30, 7, z=32)` on `p2-2` and `p4-1`). This tile is the single interior floor tile of the 3×3 gatehouse, directly between the North door at `(30, 6)` and the South door at `(30, 8)`.
+- When ambushes and raids arrive, all combat casualties occur **outdoors on the surface**:
+  - In `three-years-p2-2`, civilians `#16777517` and `#50332138` were caught at coordinates `(26, 12, z=32)` and `(11, 19, z=32)` while farming/hauling and were shot down by gloam archers.
+  - In `three-years-p4-1`, soldier `#16777276` was stationed outside at `(30, 9, z=32)` when the South door locked and was slain by gloam raiders.
+- Raiders **never penetrate the gatehouse** and never reach the underground bunker. The surviving squad and civilians are completely safe from melee weapons once inside.
+
+#### 2. Do the gate doors actually lock over time?
+- **Yes, physically, but with a critical engine bug in state/event notification**:
+  - When alert `hearth` is declared, the doors start in `mode = 'lock_on_alert'`.
+  - Under `ALERT_LOCK_GRACE_TICKS = 400` (or `ALERT_OUTSIDE_CLEAR_TICKS = 20`), `doorLocked(b)` evaluates to `true` once the timeout expires.
+  - However, in `src/systems/buildings/build.ts:1015`:
+    ```typescript
+    if (b.mode !== 'lock_on_alert' || b.state !== 'built' || this.doorLocked(b)) continue;
+    ```
+    On the exact tick when `this.doorLocked(b)` becomes `true` via timeout, the guard at line 1015 triggers `continue`. Lines 1020–1023:
+    ```typescript
+    if (this.doorLocked(updated)) {
+      for (const tile of b.footprint) this.map.markChunkDirty(tile, true, true);
+      this.host.emit({ type: 'BuildingStateChanged', id, state: 'locked' });
+    }
+    ```
+    are **dead code for all timeout-based locks**.
+  - As a result:
+    1. `BuildingStateChanged (state = 'locked')` is **never emitted** when doors lock by grace/clear timeout.
+    2. `map.markChunkDirty(tile, true, true)` is **never called**.
+    3. The map chunk's `dirtyPath` flag is **never set**.
+    4. Connectivity labels are **never rebuilt**.
+    5. Connectivity labels retain the old state where outside tiles and interior stair tiles both have `label = 1`.
+    6. `readers.pathing.reachable(outside, stairs)` returns `true` despite the door physically blocking movement.
+
+#### 3. Is any of this caused by FIXTURE script behavior?
+- **Yes, in one significant way**:
+  - In `test/scenarios/three_years_fortress.ts:729-751`, `checkFortressDefense` checks:
+    ```typescript
+    let hasActiveRaid = false;
+    for (const pId of w.game.world.entities.with(C.Party)) {
+      const p = w.game.world.entities.get(pId, C.Party);
+      if (p && hostilePurposes.has(p.purpose) && p.state !== 'gone' && p.state !== 'retreat') {
+        hasActiveRaid = true;
+        break;
+      }
+    }
+    if (hasActiveRaid && curAlert !== 'hearth') {
+      w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' });
+    } else if (!hasActiveRaid && curAlert === 'hearth') {
+      w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' });
+    }
+    ```
+  - The fixture **never lifts `hearth` alert** as long as any hostile party has `state !== 'gone' && state !== 'retreat'`.
+  - Because hostile parties get trapped in `state = 'approach'` due to the engine bugs above, `hasActiveRaid` remains `true` permanently.
+  - Under permanent `hearth` alert, civilian dwarves are locked in `behavior = 'retreat'` (`src/systems/dwarves/brain.ts:143`), preventing them from gathering food/drink from surface stockpiles, leading directly to mass starvation.
+
+---
+
+### 13.4 Fixture Check: `balance.md` Year-One Anvil & Forge vs. Embark Presets
+
+- **Question**: `balance.md` § Year-one expectation, days 30–56, expects *"smelter and forge; first iron picks and axe"*, which requires an anvil to build the metalsmith forge (`14-buildings-and-rooms.md` line 44). The three-year fixture embarks with the `Balanced` preset, which has no anvil. Does the game define a preset or catalog entry that a competent player following `balance.md` would choose?
+- **Findings in Authoritative Content (`docs/03-content/embark-catalog.md`)**:
+  1. **The `Miner's Guild` Preset (1,490 / 1,500 marks)**:
+     - Specifically designed for early smelting and metalworking:
+       - Skills: `three dwarves mining 5; one smelting 5 + weaponsmithing 3 + armorsmithing 2; one masonry 5 + mechanics 5; one brewing 5 + cooking 3; one farming 5`.
+       - Supplies: 3 iron picks, 1 copper axe, **`1 iron anvil (270 marks)`**, 5 iron bars, 5 charcoal, 10 easy meals, 3 barrels of ale, seeds, etc.
+     - A player selecting `Miner's Guild` embarks with an anvil and smithing labor on Day 1, fully enabling forge construction between days 30–56.
+  2. **Embark Catalog Entry `e_anvil`**:
+     - `e_anvil`: iron anvil, price 270 marks, max 1 (`embark-catalog.md` line 19).
+  3. **Peril Budget Bonus**:
+     - At Peril 2 (`EMBARK_BUDGET_PER_PERIL = 200` per peril), the player receives **+400 marks** bonus budget (+800 marks at Peril 4).
+     - Per `embark-catalog.md` line 145, this bonus budget remains unspent on presets. A player playing at Peril 2 or 4 has more than enough surplus points to buy `e_anvil` (270 marks) directly on top of the `Balanced` preset.
+  4. **Summary**:
+     The inability to forge iron weapons and armor in Year 1 is a property of the fixture choosing the `Balanced` preset without an anvil. A player aiming for military defense in Year 1 would choose `Miner's Guild` or purchase `e_anvil` with peril bonus points.
