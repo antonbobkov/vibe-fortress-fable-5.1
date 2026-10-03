@@ -422,6 +422,15 @@ task, and a batch of three spent about 70% of one 5-hour window. Check with
 [agy_usage.py](agy_usage.py) before dispatching a batch; the 5-hour window is
 usually the binding one.
 
+**Analysis tasks: check every mechanism against the code.** On the mood diagnosis
+(2026-10-02) the first pass produced clean tables that summed exactly, but two of its
+causes were invented: "bedrooms never built" (all eight were built) and "drink choice
+weighted by distance" (the code already follows the spec's order). A follow-up demanding
+measured facts for each claim (job states over time, the alcohol split at every water
+drink) got real answers on the same `--conversation`. A residual of 0.00 is not
+evidence. Ask for the measurement behind each causal claim up front, and spot-check one
+claim against the source before accepting the report.
+
 Drop `--agent solo` if you want agy to be free to parallelise with subagents.
 A milestone-sized run is long; give it a generous `--print-timeout`.
 
