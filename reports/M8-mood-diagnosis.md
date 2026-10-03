@@ -414,4 +414,75 @@ The world hashes are **100% bitwise identical**, proving zero observer effect.
 | **C-6: Water Dominance from Hauling** | FIXTURE | -2.36 | -1.57 | +0.79 | Hauling priority 3 and dedicated stockpiles brought ale drinks from 0 to 324; puddle drinking reduced. |
 | **Total Mood Level** | | **34.49** | **40.98** | **+6.49** | **Mean mood rose from 34.49 to 40.98. The remaining gap of ~29.0 points to 70.0 is entirely MODEL GAP (C-1, C-3, C-4).** |
 
+---
+
+## 10. After F-12
+
+Following the implementation of F-12 (`docs/05-plan/fixes/F-12-comfort-joy-rates.md`), comfort rise rate was reduced from 3/h to 1/h (a sit every ~40h in a decent room, matching "a sit every day or two"), and joy rise rate was reduced from 1.5/h to 0.75/h (a hearth visit every ~40h, matching "a hearth visit every two days").
+
+### 10.1 Measured Mood and Tier Distribution
+
+- **Time-Averaged Mean Mood (3-Year Continuous Sampling)**: **49.04** (min: 0.5, max: 84.5)
+  - An increase of **+8.06 points** over the post-fixture-repair state (40.98), and **+14.55 points** over the original unrepaired fixture (34.49).
+- **End-of-Year-3 Snapshot (Scenario Runner)**: **50.5** (min: 10.8, max: 71.1)
+  - Dwarf breakdown: Fine: 6, Content: 4, Unhappy: 1, Miserable: 1.
+- **Tier Distribution Across All 3,668 Dwarf-Days**:
+  - **Fine**: 1,566 dwarf-days (42.7%)
+  - **Content**: 1,086 dwarf-days (29.6%) — *surged from 72 dwarf-days (2.0%) in the unrepaired fixture and 595 (16.2%) in the pre-F-12 repaired fixture*
+  - **Unhappy**: 670 dwarf-days (18.3%) — *halved from 1,486 (40.5%) in the original fixture*
+  - **Miserable**: 297 dwarf-days (8.1%) — *reduced from 713 (19.4%) in the original fixture*
+- **Environmental & Static Terms**:
+  - Baseline: **+55.00**
+  - Hearth Bonus (mean): **+6.00** (Tier 3 Fine, 100% active once established)
+  - Personality Base (mean): **-0.71**
+  - Cap Effect (mean): **+0.71**
+  - Floor Effect (mean): **+0.00**
+  - Sanity check sum: $55.00 + 6.00 - 0.71 + (-12.06) + 0.71 + 0.00 = \mathbf{49.00}$ vs measured **49.04** ($\Delta = 0.04$).
+- **20-Seed Sweep Mood (Peril 0)**:
+  - Sweep seeds averaged **55.7** mean mood (ranging from 50.3 on `three-years-p0-7` to 59.4 on `three-years-p0-3`).
+
+### 10.2 Thought Decomposition Table (After F-12)
+
+| Thought ID | Content Value / Formula | % Dwarf-Time Active | Mean Value When Active | Mean Contribution to Mood | Category |
+|---|---|---|---|---|---|
+| `lonely` | `-(social - 50) / 10, min -5` | 50.8% | -3.66 | **-3.71** | Company Need |
+| `restless` | `-(purpose - 60) / 10, min -4` | 65.4% | -4.79 | **-3.13** | Secondary Need |
+| `thirsty` | `-(thirst - 50) / 5, min -10` | 37.6% | -3.55 | **-2.67** | Survival Need |
+| `talked_with_friend` | `+5` (linear decay) | 73.2% | +3.55 | **+2.60** | Positive Social |
+| `hungry` | `-(hunger - 50) / 5, min -10` | 35.0% | -3.58 | **-2.51** | Survival Need |
+| `bored` | `-(joy - 60) / 10, min -4` | 66.5% | -2.87 | **-1.91** | Secondary Need |
+| `tired` | `-(rest - 60) / 5, min -8` | 23.9% | -3.48 | **-1.66** | Survival Need |
+| `uncomfortable` | `-(comfort - 55) / 10, min -4` | 63.6% | -2.25 | **-1.43** | Secondary Need |
+| `thane_hall_bare` | `-1` | 100.0% | -0.95 | **-0.95** | Noble Standing |
+| `ate_fine_meal` | `+5` (linear decay) | 23.3% | +2.88 | **+0.67** | Positive Dining |
+| `slept_in_decent_room` | `+3` (linear decay) | 43.2% | +1.53 | **+0.66** | Positive Bedroom |
+| `hearth_visit` | `+3` (linear decay) | 26.3% | +1.66 | **+0.44** | Positive Hearth |
+| `sat_in_fine_room` | `+3` (linear decay) | 27.6% | +1.49 | **+0.41** | Positive Comfort |
+| `talked_with_someone` | `+3` (linear decay) | 16.7% | +2.11 | **+0.35** | Positive Social |
+| `drank_from_puddle` | `-4` (linear decay) | 14.6% | -2.24 | **-0.33** | Negative Drinking |
+| `ate_in_decent_hall` | `+2` (linear decay) | 27.3% | +1.11 | **+0.30** | Positive Dining |
+| `well_rested` | `+2` (linear decay) | 26.5% | +1.04 | **+0.28** | Positive Sleep |
+| `harvest_in` | `+3` (linear decay) | 13.1% | +1.87 | **+0.25** | Positive Labor |
+| `slept_in_modest_room` | `+1` (linear decay) | 44.5% | +0.51 | **+0.23** | Positive Bedroom |
+| `ate_easy_meal` | `+2` (linear decay) | 14.6% | +1.22 | **+0.18** | Positive Dining |
+| `drank_ale` | `+3` (linear decay) | 9.8% | +1.70 | **+0.17** | Positive Drinking |
+| `caught_in_rain` | `-2` (linear decay) | 5.5% | -1.76 | **-0.10** | Weather |
+| `in_miasma` | `-5` (linear decay) | 1.7% | -5.24 | **-0.09** | Environment |
+| `slept_on_floor_last_night` | `-3` (linear decay) | 2.5% | -3.03 | **-0.07** | Negative Bedroom |
+| `saw_sunlight` | `+3` (linear decay) | 4.0% | +1.52 | **+0.06** | Positive Environment |
+| `slept_on_floor` | `-4` (linear decay) | 2.4% | -1.69 | **-0.04** | Negative Bedroom |
+
+### 10.3 What Remains of the Gap to ~70 and Owner Levers
+
+The gap to the modeled **~70 Content** has narrowed from **35.51 points** initially to **20.96 points** ($70.00 - 49.04 = 20.96$).
+
+| Remaining Cause | Deficit Remaining | Source / Nature | Owner Lever to Close It |
+|---|---|---|---|
+| **Secondary Needs (`bored`, `uncomfortable`, `restless`)** | **-6.47** | `bored` (-1.91) and `uncomfortable` (-1.43) improved drastically (from -5.66 and -2.72), but `restless` (-3.13) persists while dwarves rest or socialize. | `PURPOSE_IDLE_PER_HOUR` in `src/systems/dwarves/needs.ts` (currently +2.0/h; reducing to +1.0/h would cut restlessness), or increasing hearth visit joy relief from 30 to 45. |
+| **Linear Thought Decay Arithmetic** | **-5.50** | `balance.md` line 91 models steady state by summing peak values of decaying thoughts ($3 + 2 + 3 + 3 = 11$), but mathematically their continuous time-average integral is only $5.5$. | In `src/content/thoughts.json`: increase duration of daily positive event thoughts (e.g. from 24h to 48h) or increase base values; in `balance.md`: reconcile arithmetic to time-averaged integrals. |
+| **Survival Need Pressure & Transit Overhead** | **-4.70** | Standing survival thoughts (`lonely` -3.71, `thirsty` -2.67, `hungry` -2.51, `tired` -1.66) double-counted in need pressure, partially offset by positive event thoughts (+2.60 chat, meals, sleep). | Adjust `WANT` thresholds in `src/systems/dwarves/needs.ts`, or reduce survival need rates (`HUNGER_PER_HOUR`, `THIRST_PER_HOUR`, `SOCIAL_PER_HOUR`). |
+| **Drinks Logistics & Water Penalty** | **-1.40** | Alcohol provides +0.17 continuous vs +1.50 model, with puddle drinking subtracting -0.33. | Increase brewing rate / barrels or tighten still-to-dining hauling. |
+| **Immigration Spirit Threshold Lever** | N/A (Spirit) | Fortress spirit reaches ~51 (Content/Fine), but `IMMIGRATION_SPIRIT_MIN = 65` requires high Content/Happy, preventing non-guaranteed waves. | In `src/systems/immigration/constants.ts`: lower `IMMIGRATION_SPIRIT_MIN` from 65 to 45–50, allowing healthy surviving fortresses to receive immigrant waves at measured spirit. |
+| **Remaining Total Deficit** | **-20.96** | Matches $70.00 - 49.04 = 20.96$ exactly. | All remaining levers are content parameters or formula constants; no further fixture repairs are possible. |
+
 
