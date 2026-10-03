@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { ItemFlag } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import { TileKind } from '@core/map3d';
+import { ALERT_LOCK_GRACE_TICKS, ALERT_OUTSIDE_CLEAR_TICKS } from '@systems/defense/constants';
 import type { MoverOptions } from '@core/pathfinding';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
@@ -247,3 +248,65 @@ describe('T-M2-06 the wagon', () => {
     expect(items(w).containerOf(ids[149] as EntityId)).toBe(0);
   });
 });
+
+describe('T-M8-06 door lock', () => {
+  it('(a) a lock_on_alert door with no civilian outside locks after ALERT_OUTSIDE_CLEAR_TICKS, updating connectivity', () => {
+    const { w, door } = doorWorld('door-lock-clear');
+    w.build('hearth', w.index(40, 28, Z), 'granite');
+    const outside = w.index(40, 15, Z);
+    const inside = w.index(40, 25, Z);
+    expect(w.reachable(outside, inside)).toBe(true);
+    expect(apply(w, { type: 'SetDoorMode', buildingId: door, mode: 'lock_on_alert' })).toEqual({ ok: true });
+    expect(apply(w, { type: 'SetAlert', level: 'hearth' })).toEqual({ ok: true });
+    w.step(2);
+    expect(w.reachable(outside, inside)).toBe(true);
+    w.until(() => !w.reachable(outside, inside), ALERT_OUTSIDE_CLEAR_TICKS + 20);
+    expect(w.reachable(outside, inside)).toBe(false);
+    expect(bld(w).mechanismState(door)).toBe('locked');
+    const lockedEvents = w.events('BuildingStateChanged').filter((e) => e['id'] === door && e['state'] === 'locked');
+    expect(lockedEvents).toHaveLength(1);
+    // After more ticks, still unreachable and no duplicate event
+    w.step(20);
+    expect(w.reachable(outside, inside)).toBe(false);
+    expect(w.events('BuildingStateChanged').filter((e) => e['id'] === door && e['state'] === 'locked')).toHaveLength(1);
+  });
+
+  it('(b) a lock_on_alert door with a civilian standing outside locks via ALERT_LOCK_GRACE_TICKS', () => {
+    const { w, door } = doorWorld('door-lock-grace');
+    w.build('hearth', w.index(40, 28, Z), 'granite');
+    const outside = w.index(40, 15, Z);
+    const inside = w.index(40, 25, Z);
+    const dwarf = w.spawnDwarf({ at: outside });
+    w.game.world.entities.remove(dwarf, C.Brain);
+    expect(apply(w, { type: 'SetDoorMode', buildingId: door, mode: 'lock_on_alert' })).toEqual({ ok: true });
+    expect(apply(w, { type: 'SetAlert', level: 'hearth' })).toEqual({ ok: true });
+    // After ALERT_OUTSIDE_CLEAR_TICKS, civilian is outside, so door remains unlocked
+    w.step(ALERT_OUTSIDE_CLEAR_TICKS + 15);
+    expect(w.reachable(outside, inside)).toBe(true);
+    expect(w.events('BuildingStateChanged').filter((e) => e['id'] === door && e['state'] === 'locked')).toHaveLength(0);
+    // Locks after ALERT_LOCK_GRACE_TICKS
+    w.until(() => !w.reachable(outside, inside), ALERT_LOCK_GRACE_TICKS + 20);
+    expect(w.reachable(outside, inside)).toBe(false);
+    expect(bld(w).mechanismState(door)).toBe('locked');
+    const lockedEvents = w.events('BuildingStateChanged').filter((e) => e['id'] === door && e['state'] === 'locked');
+    expect(lockedEvents).toHaveLength(1);
+  });
+
+  it('(c) after AlertChanged to calm the door is passable and reachable again', () => {
+    const { w, door, t } = doorWorld('door-lock-calm');
+    w.build('hearth', w.index(40, 28, Z), 'granite');
+    const outside = w.index(40, 15, Z);
+    const inside = w.index(40, 25, Z);
+    expect(apply(w, { type: 'SetDoorMode', buildingId: door, mode: 'lock_on_alert' })).toEqual({ ok: true });
+    expect(apply(w, { type: 'SetAlert', level: 'hearth' })).toEqual({ ok: true });
+    w.until(() => !w.reachable(outside, inside), ALERT_OUTSIDE_CLEAR_TICKS + 20);
+    expect(w.reachable(outside, inside)).toBe(false);
+    expect(apply(w, { type: 'SetAlert', level: 'calm' })).toEqual({ ok: true });
+    w.step(1);
+    expect(w.reachable(outside, inside)).toBe(true);
+    expect(bld(w).blocksMovementAt(t, 'walker', 'fortress')).toBe(false);
+    const openEvents = w.events('BuildingStateChanged').filter((e) => e['id'] === door && e['state'] === 'open');
+    expect(openEvents.length).toBeGreaterThanOrEqual(1);
+  });
+});
+

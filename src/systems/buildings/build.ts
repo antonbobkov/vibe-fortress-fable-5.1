@@ -856,7 +856,16 @@ export class BuildingStore {
     const modes: readonly string[] = tag === 'door' ? DOOR_MODES : HATCH_MODES;
     if (typeof mode !== 'string' || !modes.includes(mode)) return reject('bad_setting');
     if (mode === b.mode) return OK;
-    this.write(id as EntityId, { mode });
+    const isHearth = this.host.alert() === 'hearth';
+    const settings = mode === 'lock_on_alert'
+      ? {
+          ...b.settings,
+          alertAt: isHearth ? this.host.tick() : null,
+          outsideClearSince: isHearth && !this.civilianOutsideDoor(b) ? this.host.tick() : null,
+          alertLocked: false,
+        }
+      : { ...b.settings, alertAt: null, outsideClearSince: null, alertLocked: false };
+    this.write(id as EntityId, { mode, settings });
     // "locking a door dirties its chunk" (22 § Connectivity).
     for (const t of b.footprint) this.map.markChunkDirty(t, true, true);
     this.host.emit({ type: 'BuildingStateChanged', id, state: mode });
@@ -998,12 +1007,25 @@ export class BuildingStore {
 
   /** `AlertChanged`: the `lock_on_alert` doors lock or unlock with the alert. */
   onAlertChanged(): void {
+    const isHearth = this.host.alert() === 'hearth';
     for (const id of this.all()) {
       const b = this.get(id) as Building;
       if (b.mode !== 'lock_on_alert') continue;
-      this.write(id, { settings: { ...b.settings, ...(this.host.alert() === 'hearth' ? { alertAt: this.host.tick(), outsideClearSince: null } : { alertAt: null, outsideClearSince: null }) } });
+      const outside = isHearth ? this.civilianOutsideDoor(b) : false;
+      this.write(id, {
+        settings: {
+          ...b.settings,
+          alertAt: isHearth ? this.host.tick() : null,
+          outsideClearSince: isHearth && !outside ? this.host.tick() : null,
+          alertLocked: false,
+        },
+      });
+      const locked = isHearth && this.doorLocked(this.get(id) as Building);
+      if (locked) {
+        this.write(id, { settings: { ...(this.get(id) as Building).settings, alertLocked: true } });
+      }
       for (const t of b.footprint) this.map.markChunkDirty(t, true, true);
-      this.host.emit({ type: 'BuildingStateChanged', id, state: this.doorLocked(this.get(id) as Building) ? 'locked' : 'open' });
+      this.host.emit({ type: 'BuildingStateChanged', id, state: locked ? 'locked' : 'open' });
     }
   }
 
@@ -1012,12 +1034,13 @@ export class BuildingStore {
     if (this.host.alert() !== 'hearth') return;
     for (const id of this.all()) {
       const b = this.get(id) as Building;
-      if (b.mode !== 'lock_on_alert' || b.state !== 'built' || this.doorLocked(b)) continue;
+      if (b.mode !== 'lock_on_alert' || b.state !== 'built' || b.settings['alertLocked'] === true) continue;
       const outside = this.civilianOutsideDoor(b);
       const clearSince = outside ? null : (typeof b.settings['outsideClearSince'] === 'number' ? b.settings['outsideClearSince'] : this.host.tick());
       this.write(id, { settings: { ...b.settings, outsideClearSince: clearSince } });
       const updated = this.get(id) as Building;
       if (this.doorLocked(updated)) {
+        this.write(id, { settings: { ...updated.settings, alertLocked: true } });
         for (const tile of b.footprint) this.map.markChunkDirty(tile, true, true);
         this.host.emit({ type: 'BuildingStateChanged', id, state: 'locked' });
       }
@@ -1096,6 +1119,7 @@ export class BuildingStore {
   doorLocked(b: Building): boolean {
     if (b.mode === 'locked') return true;
     if (b.mode !== 'lock_on_alert' || this.host.alert() !== 'hearth') return false;
+    if (b.settings['alertLocked'] === true) return true;
     const at = b.settings['alertAt'];
     if (typeof at !== 'number') return true;
     const clear = b.settings['outsideClearSince'];
