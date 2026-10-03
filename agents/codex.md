@@ -234,6 +234,25 @@ Get-Content prompt.txt -Raw |
     -o last_message.txt -
 ```
 
+**From a Claude Code session, launch it detached.** Background shell commands and
+monitors there are stopped after about 30 minutes, and stopping the wrapper kills Codex
+with it. This is the same limit as agy (see antigravity.md). Run the pipeline inside a
+detached PowerShell instead and watch git and the PID:
+
+```powershell
+$cmd = "Get-Content '<brief>' -Raw | & '$CODEX' exec -C '<repo>' -m gpt-6.1-sol " +
+       "-c model_reasoning_effort=`"high`" -s danger-full-access -c agents.enabled=false " +
+       "--json -o '<out.txt>' - > '<run.jsonl>' 2> '<run.err.txt>'"
+$proc = Start-Process powershell.exe -ArgumentList @('-NoProfile','-Command',$cmd) `
+          -WorkingDirectory '<repo>' -WindowStyle Hidden -PassThru
+```
+
+The `.jsonl` written through PowerShell's `>` is UTF-16. To confirm the model and effort
+actually used, grep the session's rollout file instead:
+`grep -o '"model":"[^"]*"\|"effort":"[^"]*"' ~/.codex/sessions/<Y>/<M>/<D>/rollout-*-<thread>.jsonl | sort | uniq -c`.
+For a parallel task, run it in a `git worktree` on its own branch. Its first step must
+be `npm ci`, because a new worktree has no `node_modules`.
+
 A milestone-sized handoff runs long; allow a generous timeout and stream the
 tail of stdout rather than waiting silently.
 
