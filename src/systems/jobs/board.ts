@@ -727,7 +727,12 @@ export class JobBoard implements JobsApi, JobSink {
     while (pool.length > 0) {
       const chosen = choose(pool);
       if (chosen === 0) return 0;
-      const job = this.jobs.get(chosen) as Job;
+      const job = this.jobs.get(chosen);
+      if (!job) {
+        const idx = pool.findIndex((c) => c.jobId === chosen);
+        if (idx >= 0) pool.splice(idx, 1);
+        continue;
+      }
       if (this.claim(workerId, job)) return job.id;
       const idx = pool.findIndex((c) => c.jobId === chosen);
       if (idx >= 0) pool.splice(idx, 1);

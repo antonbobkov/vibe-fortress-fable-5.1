@@ -630,3 +630,39 @@ describe('F-01 job loop', () => {
     expect(nearerJob?.blockedReason).toBe('missing_input');
   });
 });
+
+describe('T-M8-06 jobs: a candidate removed during assignment', () => {
+  it('skips a candidate whose job an earlier failed claim removed, and never claims a missing job', () => {
+    const r = rig();
+    r.driver.enabled = false;
+    const worker = r.worker(10, 10);
+    r.terrain.pending.push(['dig:a', { ...digSpec(wallAt(r, 20, 10)), tool: null }]);
+    r.terrain.pending.push(['dig:b', { ...digSpec(wallAt(r, 22, 10)), tool: null }]);
+    r.g.step(1);
+    const board = r.jobs.board;
+    const jobA = r.reader.byKey('dig:a') as Job;
+    const jobB = r.reader.byKey('dig:b') as Job;
+    expect(jobA).toBeDefined();
+    expect(jobB).toBeDefined();
+
+    // A failed claim can cascade into cancelling other jobs (11 § Blocking and retry). Simulate it:
+    // the first claim removes the other candidate from the board and fails. The assignment loop
+    // built its candidate pool before that happened, so it must not hand the removed job to claim.
+    const claimed: (Job | undefined)[] = [];
+    const realClaim = board.claim.bind(board);
+    let first = true;
+    (board as unknown as { claim: (w: EntityId, j: Job | undefined) => boolean }).claim = (w, job) => {
+      claimed.push(job);
+      if (first) {
+        first = false;
+        board.jobs.delete(job?.id === jobA.id ? jobB.id : jobA.id);
+        return false;
+      }
+      return realClaim(w, job as Job);
+    };
+
+    expect(() => board.assignOne(worker)).not.toThrow();
+    expect(claimed.length).toBe(1);
+    expect(claimed.every((j) => j !== undefined)).toBe(true);
+  });
+});
