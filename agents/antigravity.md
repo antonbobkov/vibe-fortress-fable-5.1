@@ -243,10 +243,24 @@ Get-Process | ? { $_.ProcessName -match 'agy|node' } |
 Get-CimInstance Win32_Process -Filter "ProcessId=<pid>" | % { $_.CommandLine }
 ```
 
-An old process with near-zero CPU and no recent file writes is stalled. Kill the
-children first, then `agy`, then resume the conversation (below) with a note
-saying what went wrong — the committed work stands and the model keeps its
-context.
+An old process with near-zero CPU and no recent file writes is stalled.
+
+**Try killing only the hung command first.** `taskkill /PID <the shell agy spawned> /T /F`
+removes that command's tree and leaves `agy` running. The agent gets a failed command
+back and carries on in the same run. Verified 2026-10-03: its conversation db
+(`~/.gemini/antigravity-cli/conversations/<id>.db`) was written again within a few minutes.
+Only if that does not work, kill `agy` too and resume the conversation (below) with a
+note saying what went wrong. The committed work stands and the model keeps its context.
+
+**Recurrence, 2026-10-03, with `npm_config_yes=1` set and the rule in the brief:** the
+agent ran `npx tsx -e "<multi-line script>"` through `powershell -Command` again. tsx was
+already in the npx cache, so it did not wait on an install prompt. Instead, `cmd`
+mangled the quoted multi-line `-e` argument, so tsx started its **REPL** and waited on
+stdin: 55 minutes at 0 CPU. Layer 1 does not cover this. The brief rule did not hold,
+and that is the second time.
+
+The conversation db's mtime is the cheapest stall signal: agy writes it on every step,
+so 20+ minutes without a write means it is waiting on something.
 
 A psutil watchdog (no stream-json events **and** no tree CPU for N minutes ⇒ kill
 and print the offending process tree) was prototyped and verified to catch this in
