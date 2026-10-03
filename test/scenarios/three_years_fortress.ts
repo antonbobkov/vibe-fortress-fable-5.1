@@ -12,7 +12,7 @@
 
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { TICKS_PER_DAY } from '@core/constants';
-import { TileKind } from '@core/map3d';
+import { TileFlag, TileKind } from '@core/map3d';
 import { C } from '@core/components';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { TestWorld } from './test-world';
@@ -172,7 +172,6 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   if (rDrinkSp.ok) {
     const dSpId = bSystem.lastCreatedZone;
     w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: dSpId, filter: 'drink' });
-    w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: dSpId, wants: { barrel: 8 } });
     w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId: dSpId, priority: 2 });
   }
 
@@ -428,19 +427,34 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
 }
 
 export function designateSmoothTiles(w: TestWorld, tiles: readonly number[], priority: number = 4): void {
-  const smoothTiles: number[] = [...tiles];
+  const candidateTiles = new Set<number>(tiles);
   for (const t of tiles) {
     for (let dy = -1; dy <= 1; dy += 1) {
       for (let dx = -1; dx <= 1; dx += 1) {
         if (dx === 0 && dy === 0) continue;
         const n = w.map.offset(t, dx, dy, 0);
-        if (n >= 0 && w.map.kindAt(n) === TileKind.Wall && !smoothTiles.includes(n)) {
-          smoothTiles.push(n);
+        if (n >= 0 && w.map.kindAt(n) === TileKind.Wall) {
+          candidateTiles.add(n);
         }
       }
     }
   }
-  w.game.world.applyCommand({ type: 'Designate', kind: 'smooth', priority, tiles: smoothTiles });
+  const smoothTiles: number[] = [];
+  const mats = w.game.registry.table<{ id: string; class: string }>('materials');
+  for (const t of candidateTiles) {
+    const k = w.map.kindAt(t);
+    if ((k === TileKind.Wall || k === TileKind.Floor) &&
+        !w.map.hasFlag(t, TileFlag.Constructed) &&
+        !w.map.hasFlag(t, TileFlag.Smoothed)) {
+      const m = w.map.materialAt(t);
+      if (mats.byIndex(m)?.class === 'stone') {
+        smoothTiles.push(t);
+      }
+    }
+  }
+  if (smoothTiles.length > 0) {
+    w.game.world.applyCommand({ type: 'Designate', kind: 'smooth', priority, tiles: smoothTiles });
+  }
 }
 
 export function checkFortressRooms(w: TestWorld, state: FortressState): void {
@@ -515,7 +529,6 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
         if (rD.ok) {
           const zid = bSystem.lastCreatedZone;
           w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: zid, filter: 'drink' });
-          w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: zid, wants: { barrel: 8 } });
           w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId: zid, priority: 2 });
         }
       }
