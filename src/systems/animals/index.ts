@@ -40,7 +40,7 @@ import {
 } from './constants';
 import { AnimalFacts } from './facts';
 import { tickAnimal, type BrainHost } from './brain';
-import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, thinkTame, type TameHost } from './tame';
+import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, isDoorTile, stepOffDoor, thinkTame, type TameHost } from './tame';
 import { AnimalsProducer, productKey, slaughterKey, trainKey, type AnimalsProducerHost } from './producer';
 import type { AnimalsReader } from './reader';
 import { dailySpawn, leavers, surfaceCap, cavernCap, type SpawnHost } from './spawn';
@@ -372,12 +372,22 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
           continue;
         }
       }
+      const at = this.tileOf(id);
+      const onDoor = at >= 0 && isDoorTile(host, at);
       const last = this.lastTameThink.get(id) ?? -TAME_THINK_TICKS;
-      if (ctx.tick - last >= TAME_THINK_TICKS) {
+      if (onDoor || ctx.tick - last >= TAME_THINK_TICKS) {
         this.lastTameThink.set(id, ctx.tick);
         ctx.world.entities.add(id, C.Tame, thinkTame(host, ctx, id, t));
       }
       ctx.world.services.movement?.moveAlongPath(id, ctx);
+      const posAfter = this.tileOf(id);
+      if (posAfter >= 0 && isDoorTile(host, posAfter)) {
+        const walkTarget = ctx.world.services.movement?.walkTarget(id) ?? -1;
+        if (walkTarget < 0 || walkTarget === posAfter) {
+          const headingTo = (t.petOf !== 0 || t.assignedTo !== 0) ? this.tileOf(t.petOf || t.assignedTo) : -1;
+          stepOffDoor(host, id, posAfter, headingTo, ctx);
+        }
+      }
     }
   }
 

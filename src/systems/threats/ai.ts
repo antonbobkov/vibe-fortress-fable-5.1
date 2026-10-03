@@ -172,7 +172,14 @@ export function findAdjacentLockedDoor(pos: TileIndex, ctx: TickContext): Entity
   return 0;
 }
 
-export function findCombatTarget(_m: EntityId, pos: TileIndex, role: string, ctx: TickContext, targets: readonly FortressTarget[] = fortressTargets(ctx)): EntityId {
+export function findCombatTarget(
+  _m: EntityId,
+  pos: TileIndex,
+  role: string,
+  ctx: TickContext,
+  targets: readonly FortressTarget[] = fortressTargets(ctx),
+  requireReachable = false,
+): EntityId {
   const map = ctx.world.map;
   const pathing = ctx.readers.pathing;
   const isArcher = role === 'archers';
@@ -194,6 +201,8 @@ export function findCombatTarget(_m: EntityId, pos: TileIndex, role: string, ctx
     if (dist > 14) continue; // perception radius 14
 
     if (!pathing.lineOfSight(pos, target.tile)) continue;
+
+    if (requireReachable && !pathing.reachable(pos, target.tile, 'walker')) continue;
 
     if (target.soldier && dist < bestSoldierDist) {
       bestSoldier = target.id;
@@ -384,14 +393,27 @@ function setHearthOrWagonGoal(
     targetTile = map.index(cx, cy, map.columnSurfaceZ(cx, cy));
   }
 
-  const isReachable = ctx.readers.pathing.reachable(leaderPos, targetTile, 'walker');
+  let isReachable = ctx.readers.pathing.reachable(leaderPos, targetTile, 'walker');
+  let chosenTile = targetTile;
+
+  if (!isReachable) {
+    const nearest = ctx.readers.pathing.nearestReachable(leaderPos, targetTile, 'walker', 3000);
+    if (nearest >= 0) {
+      if (chebyshevDist(nearest, targetTile, map) <= 1) {
+        isReachable = true;
+        chosenTile = nearest;
+      } else {
+        chosenTile = nearest;
+      }
+    }
+  }
+
   if (isReachable) {
-    P.goalTile = targetTile;
+    P.goalTile = chosenTile;
     P.goalEntity = 0;
     P.goalUnreachable = false;
   } else {
-    const nearest = ctx.readers.pathing.nearestReachable(leaderPos, targetTile, 'walker', 3000);
-    P.goalTile = nearest >= 0 ? nearest : leaderPos;
+    P.goalTile = chosenTile !== targetTile ? chosenTile : leaderPos;
     P.goalEntity = 0;
     P.goalUnreachable = true;
   }
@@ -626,7 +648,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
       let seesFortress = false;
       for (const m of alive) {
         const mPos = positionOf(m, ctx);
-        if (mPos >= 0 && findCombatTarget(m, mPos, 'warriors', ctx, targets) !== 0) {
+        if (mPos >= 0 && findCombatTarget(m, mPos, 'warriors', ctx, targets, true) !== 0) {
           seesFortress = true;
           break;
         }
@@ -639,12 +661,11 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
     }
     case 'engage': {
       let hasTarget = false;
-      if (ctx.world.services.combat) {
-        for (const m of alive) {
-          if (ctx.world.services.combat.targetOf(m) !== 0) {
-            hasTarget = true;
-            break;
-          }
+      for (const m of alive) {
+        const mPos = positionOf(m, ctx);
+        if (mPos >= 0 && findCombatTarget(m, mPos, 'warriors', ctx, targets, true) !== 0) {
+          hasTarget = true;
+          break;
         }
       }
       if (!hasTarget) {
@@ -659,6 +680,28 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
       break;
     }
     case 'loiter': {
+      // If a broken door makes the goal reachable, the party returns to approach.
+      if (P.goalUnreachable) {
+        chooseGoal(P, ctx);
+        if (!P.goalUnreachable) {
+          P.state = 'approach';
+          P.stateSince = ctx.tick;
+          break;
+        }
+      }
+      let seesReachableFortress = false;
+      for (const m of alive) {
+        const mPos = positionOf(m, ctx);
+        if (mPos >= 0 && findCombatTarget(m, mPos, 'warriors', ctx, targets, true) !== 0) {
+          seesReachableFortress = true;
+          break;
+        }
+      }
+      if (seesReachableFortress) {
+        P.state = 'engage';
+        P.stateSince = ctx.tick;
+        break;
+      }
       const loiterDays = P.purpose === 'siege' ? LOITER_DAYS_SIEGE : LOITER_DAYS_RAID;
       if (ctx.tick - P.stateSince >= loiterDays * TICKS_PER_DAY) {
         P.state = 'retreat';
@@ -741,15 +784,23 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
 
   // 4. Combat targeting (except stealthed thieves)
   if (!H.stealthed) {
-    const target = findCombatTarget(m, pos, H.role, ctx, targets);
+    const isLoitering = P?.state === 'loiter';
+    const isArcher = H.role === 'archers';
+    const allowUnreachable = isLoitering && isArcher;
+    const target = findCombatTarget(m, pos, H.role, ctx, targets, !allowUnreachable);
     if (target !== 0) {
       ctx.world.services.combat?.setTarget(m, target);
       H.behaviorState = 'attack';
-      if (P && P.state === 'approach') {
-        P.state = 'engage';
-        P.stateSince = ctx.tick;
+      if (P && (P.state === 'approach' || (P.state === 'loiter' && !allowUnreachable))) {
+        const targetPos = positionOf(target, ctx);
+        if (targetPos >= 0 && ctx.readers.pathing.reachable(pos, targetPos, 'walker')) {
+          P.state = 'engage';
+          P.stateSince = ctx.tick;
+        }
       }
       return;
+    } else if (ctx.world.services.combat?.targetOf(m) !== 0 && !allowUnreachable) {
+      ctx.world.services.combat?.setTarget(m, 0);
     }
   }
 
@@ -822,13 +873,24 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
   }
 
   if (m === P.leaderId) {
+    const map = ctx.world.map;
+    const sameZ = map.zOf(pos) === map.zOf(P.goalTile);
+    const distToGoal = sameZ ? chebyshevDist(pos, P.goalTile, map) : Infinity;
+
     if (pos === P.goalTile) {
       if (P.goalUnreachable && P.state === 'approach') {
         P.state = 'loiter';
         P.stateSince = ctx.tick;
       }
     } else {
-      ctx.world.services.movement?.walkTo(m, P.goalTile, 'combat', ctx);
+      const outcome = ctx.world.services.movement?.walkTo(m, P.goalTile, 'combat', ctx);
+      const arrived = outcome === 'arrived' || outcome === 'unreachable' || (outcome !== 'moving' && outcome !== 'pending' && sameZ && distToGoal <= 1);
+      if (arrived) {
+        if (P.goalUnreachable && P.state === 'approach') {
+          P.state = 'loiter';
+          P.stateSince = ctx.tick;
+        }
+      }
     }
   } else {
     const leaderPos = positionOf(P.leaderId, ctx);
@@ -838,7 +900,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
         ctx.world.services.movement?.walkTo(m, P.goalTile, 'combat', ctx);
       } else {
         const distToLeader = chebyshevDist(pos, leaderPos, ctx.world.map);
-        if (distToLeader > FOLLOW_RADIUS) {
+        if (distToLeader > (breaksDoors ? 1 : FOLLOW_RADIUS)) {
           ctx.world.services.movement?.walkTo(m, leaderPos, 'combat', ctx);
         }
       }

@@ -13,6 +13,8 @@ import type { MoraleReader } from '@systems/morale/reader';
 import { TestWorld } from '../../scenarios/test-world';
 import { chooseGoal, memberThink, stepThreatMembers } from '@systems/threats/ai';
 import { spawnHostileMember } from '@systems/threats/parties';
+import { arriveParty } from '@systems/threats';
+import type { BuildingsReader } from '@systems/buildings/reader';
 
 type PartyPurpose = 'thief' | 'bandits' | 'ambush' | 'raid' | 'siege' | 'restless' | 'caravan';
 
@@ -408,5 +410,177 @@ describe('T-M6-18 shared threat targets', () => {
     stepThreatMembers(makeCtx(w));
     expect(w.game.world.services.combat?.targetOf(first)).toBe(b);
     expect(w.game.world.services.combat?.targetOf(second)).toBe(b);
+  });
+});
+
+describe('F-13 raid loitering and door breaking', () => {
+  it('F-13: a raid party outside a locked door with unreachable visible dwarf enters loiter, never engage, and retreats with withdrew', () => {
+    const w = new TestWorld({ world: 'flat-test', seed: 'f13-unreachable-dwarf', embark: 'none' });
+    const z = FLAT_TEST_SURFACE_Z;
+    const center = w.index(24, 24, z);
+
+    w.build('hearth', center, 'granite');
+
+    // Build enclosure around hearth with a locked door at (24, 20)
+    for (let x = 20; x <= 28; x++) {
+      for (let y = 20; y <= 28; y++) {
+        if (x === 20 || x === 28 || y === 20 || y === 28) {
+          if (x === 24 && y === 20) continue; // door tile
+          const t = w.index(x, y, z);
+          w.carve(t, TileKind.Wall);
+          w.setBuildingBlock(t, true);
+        }
+      }
+    }
+    const doorTile = w.index(24, 20, z);
+    const doorId = w.build('door', doorTile, 'granite');
+    w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: doorId, mode: 'locked' });
+
+    // Open channel separating west side (x <= 20) from east side (x >= 22)
+    for (let y = 0; y < w.map.h; y++) {
+      w.carve(w.index(21, y, z), TileKind.Open);
+    }
+    w.step(1);
+
+    // Spawn a dwarf on the west side across the channel, visible from the door
+    w.spawnDwarf({ at: w.index(19, 19, z) });
+
+    // Spawn a raid party outside the locked door at (24, 19)
+    const partyId = createTestParty(w, 'raid', 'n');
+    const leader = spawnHostileMember(
+      w.game.world,
+      w.game.registry,
+      w.game.world.rngFor('18'),
+      partyId,
+      'gloam_warrior',
+      'warriors',
+      w.index(24, 19, z),
+      2,
+      false,
+    );
+    const party = w.game.world.entities.get(partyId, C.Party)!;
+    party.leaderId = leader;
+
+    // Step once to register entities
+    w.step(1);
+
+    let sawEngage = false;
+    w.until((world) => {
+      const p = world.game.world.entities.get(partyId, C.Party);
+      if (p?.state === 'engage') sawEngage = true;
+      return p?.state === 'loiter';
+    }, 1500);
+
+    expect(party.state).toBe('loiter');
+    expect(sawEngage).toBe(false);
+
+    // Party loiters for 2 days (2400 ticks), then retreats to edge and despawns
+    w.until((world) => {
+      const p = world.game.world.entities.get(partyId, C.Party);
+      if (p?.state === 'engage') sawEngage = true;
+      return world.events('RaidEnded').some((e) => e['partyId'] === partyId);
+    }, 4500);
+
+    expect(sawEngage).toBe(false);
+    const raidEnded = w.events('RaidEnded').find((e) => e['partyId'] === partyId);
+    expect(raidEnded).toBeDefined();
+    expect(raidEnded?.['outcome']).toBe('withdrew');
+    expect(party.state).toBe('gone');
+  });
+
+  it('F-13: a raid party with a reachable dwarf visible enters engage', () => {
+    const w = new TestWorld({ world: 'flat-test', seed: 'f13-reachable-dwarf', embark: 'none' });
+    const z = FLAT_TEST_SURFACE_Z;
+    const center = w.index(24, 24, z);
+    w.build('hearth', center, 'granite');
+
+    // Spawn a reachable dwarf outdoors along the path
+    w.spawnDwarf({ at: w.index(24, 15, z) });
+
+    const result = arriveParty(
+      w.game.world,
+      w.game.registry,
+      w.game.world.rngFor('18'),
+      'raid',
+      'gloam',
+      2,
+      'n',
+      w.tick,
+      0,
+      2,
+      false,
+    );
+    const partyId = result.partyId;
+
+    w.until((world) => {
+      const p = world.game.world.entities.get(partyId, C.Party);
+      return p?.state === 'engage';
+    }, 1000);
+
+    const party = w.game.world.entities.get(partyId, C.Party);
+    expect(party?.state).toBe('engage');
+  });
+
+  it('F-13: a breaksDoors party loitering at a locked door breaks it, returns to approach, and loiter timer does not fire', () => {
+    const w = new TestWorld({ world: 'flat-test', seed: 'f13-door-break', embark: 'none' });
+    const z = FLAT_TEST_SURFACE_Z;
+    const center = w.index(24, 24, z);
+    w.build('hearth', center, 'granite');
+
+    // Build enclosure with locked door
+    for (let x = 20; x <= 28; x++) {
+      for (let y = 20; y <= 28; y++) {
+        if (x === 20 || x === 28 || y === 20 || y === 28) {
+          if (x === 24 && y === 20) continue;
+          const t = w.index(x, y, z);
+          w.carve(t, TileKind.Wall);
+          w.setBuildingBlock(t, true);
+        }
+      }
+    }
+    const doorTile = w.index(24, 20, z);
+    const doorId = w.build('door', doorTile, 'granite');
+    w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: doorId, mode: 'locked' });
+
+    // Spawn a siege party with trollkin (breaksDoors = true) right outside the locked door
+    const partyId = createTestParty(w, 'siege', 'n');
+    const leader = spawnHostileMember(
+      w.game.world,
+      w.game.registry,
+      w.game.world.rngFor('18'),
+      partyId,
+      'trollkin',
+      'warriors',
+      w.index(24, 19, z),
+      2,
+      true,
+    );
+    const party = w.game.world.entities.get(partyId, C.Party)!;
+    party.leaderId = leader;
+
+    // Party enters loiter at the locked door
+    w.until((world) => {
+      const p = world.game.world.entities.get(partyId, C.Party);
+      return p?.state === 'loiter';
+    }, 1000);
+    expect(party.state).toBe('loiter');
+
+    // Wait for door to be broken
+    w.until((world) => {
+      const buildings = world.readers.of<BuildingsReader>('14');
+      const b = buildings.get(doorId);
+      return b === undefined || b.state !== 'built';
+    }, 1500);
+
+    // After door breaks, goal becomes reachable, party returns to 'approach'
+    w.until((world) => {
+      const p = world.game.world.entities.get(partyId, C.Party);
+      return p?.state === 'approach';
+    }, 500);
+    expect(party.state).toBe('approach');
+
+    // Run for another 500 ticks and verify it does NOT retreat due to withdrew
+    w.step(500);
+    expect(party.state).not.toBe('retreat');
   });
 });

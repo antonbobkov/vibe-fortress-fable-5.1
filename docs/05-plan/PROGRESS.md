@@ -119,7 +119,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] F-10 — Need rates: consumption matches the documented season (agy-f10, 2026-09-25)
 - [x] F-11 — Idle dwarves notice work without waiting out IDLE_TICKS (agy-f11, 2026-09-25)
 - [x] F-12 — Comfort and joy rates match the documented visit frequency (agy-f12, 2026-10-02)
-- [ ] F-13 — A locked gate makes a raid loiter and leave; animals never park on doors
+- [x] F-13 — A locked gate makes a raid loiter and leave; animals never park on doors (agy-f13, 2026-10-03)
 - [ ] F-14 — Immigration spirit threshold 65 → 55
 
 ## M6 — Steel and Blood ([M6-steel-and-blood.md](M6-steel-and-blood.md))

@@ -33,6 +33,75 @@ import {
   WAR_ANIMAL_RADIUS,
 } from './constants';
 import { fleeTile, grassNear, tileOf, type BrainHost } from './brain';
+import type { BuildingsReader } from '../buildings/reader';
+
+export function isDoorTile(host: BrainHost, tile: TileIndex): boolean {
+  if (tile < 0 || !host.readers.has('14')) return false;
+  return host.readers.of<BuildingsReader>('14').doorAt(tile);
+}
+
+export function findStepOffDoorTile(
+  host: BrainHost,
+  doorTile: TileIndex,
+  headingToTile: TileIndex = -1,
+): TileIndex {
+  const map = host.map;
+  const pathing = host.readers.pathing;
+  const buildings = host.readers.has('14') ? host.readers.of<BuildingsReader>('14') : null;
+  const x = map.xOf(doorTile);
+  const y = map.yOf(doorTile);
+  const z = map.zOf(doorTile);
+
+  const deltas: readonly [number, number][] = [
+    [-1, 0], [1, 0], [0, -1], [0, 1],
+    [-1, -1], [-1, 1], [1, -1], [1, 1],
+  ];
+
+  const targetX = headingToTile >= 0 ? map.xOf(headingToTile) : -1;
+  const targetY = headingToTile >= 0 ? map.yOf(headingToTile) : -1;
+
+  let bestTile = -1;
+  let bestScore = Infinity;
+
+  for (const [dx, dy] of deltas) {
+    const nx = x + dx;
+    const ny = y + dy;
+    if (!map.inBounds(nx, ny, z)) continue;
+    const nTile = map.index(nx, ny, z);
+    if (buildings && buildings.doorAt(nTile)) continue;
+    if (!pathing.passable(nTile, 'walker', { tame: true })) continue;
+
+    let score = 0;
+    if (headingToTile >= 0) {
+      const dist = Math.max(Math.abs(nx - targetX), Math.abs(ny - targetY));
+      const isDiag = Math.abs(dx) === 1 && Math.abs(dy) === 1;
+      score = dist * 10 + (isDiag ? 1 : 0);
+    } else {
+      const isDiag = Math.abs(dx) === 1 && Math.abs(dy) === 1;
+      score = isDiag ? 1 : 0;
+    }
+
+    if (score < bestScore) {
+      bestScore = score;
+      bestTile = nTile;
+    }
+  }
+
+  return bestTile;
+}
+
+export function stepOffDoor(
+  host: BrainHost,
+  id: EntityId,
+  doorTile: TileIndex,
+  headingToTile: TileIndex = -1,
+  ctx: TickContext,
+): void {
+  const stepOff = findStepOffDoorTile(host, doorTile, headingToTile);
+  if (stepOff >= 0) {
+    host.movement?.walkTo(id, stepOff, 'wander', ctx);
+  }
+}
 
 /** `08` § Pastures and feeding: "at 100 the animal is `starving`". */
 export const CONDITION_MAX = 100;
@@ -107,6 +176,7 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
     const distance = Math.max(Math.abs(host.map.xOf(station) - host.map.xOf(at)), Math.abs(host.map.yOf(station) - host.map.yOf(at)));
     const limit = next.assignedTo !== 0 ? 1 : 0;
     if (host.map.zOf(station) !== host.map.zOf(at) || distance > limit) movement?.walkTo(id, station, 'wander', ctx);
+    else if (isDoorTile(host, at)) stepOffDoor(host, id, at, station, ctx);
     else movement?.stopWalking(id);
     return next;
   }
@@ -125,7 +195,13 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
       if (d > PET_FOLLOW_RADIUS) {
         movement?.walkTo(id, to, 'wander', ctx);
       } else if (d <= 2) {
-        movement?.stopWalking(id);
+        if (isDoorTile(host, at)) {
+          stepOffDoor(host, id, at, to, ctx);
+        } else {
+          movement?.stopWalking(id);
+        }
+      } else if (isDoorTile(host, at)) {
+        stepOffDoor(host, id, at, to, ctx);
       }
       return next;
     }
@@ -137,7 +213,8 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
     if (inPasture && host.map.hasFlag(at, TileFlag.Grass) && !host.map.hasFlag(at, TileFlag.Snow)) {
       host.grazed(at);
       next.condition = Math.max(0, next.condition - CONDITION_PER_GRASS);
-      movement?.stopWalking(id);
+      if (isDoorTile(host, at)) stepOffDoor(host, id, at, -1, ctx);
+      else movement?.stopWalking(id);
       return next;
     }
     const grass = grassForTame(host, id, next);
@@ -151,11 +228,13 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
   const tiles = next.pastureId === 0 ? [] : host.pastureTiles(next.pastureId);
   if (tiles.length > 0) {
     if (!tiles.includes(at)) movement?.walkTo(id, tiles[host.rng.int(0, tiles.length - 1)] as TileIndex, 'wander', ctx);
+    else if (isDoorTile(host, at)) stepOffDoor(host, id, at, -1, ctx);
     else movement?.stopWalking(id);
     return next;
   }
   const home = host.homeTile();
   if (home >= 0 && movement !== null && movement.tileOf(id) !== home) movement.walkTo(id, home, 'wander', ctx);
+  else if (isDoorTile(host, at)) stepOffDoor(host, id, at, home, ctx);
   return next;
 }
 

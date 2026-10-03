@@ -9,6 +9,8 @@ import {
   trainingSuccessChance,
 } from '@systems/animals';
 import { isWarTrained } from '@systems/combat/melee';
+import { TileKind } from '@core/map3d';
+import type { GameEvent } from '@core/events';
 import type { CombatReader } from '@systems/combat';
 import { TestWorld } from '../../scenarios/test-world';
 
@@ -259,3 +261,56 @@ describe('T-M6-15 taming and training', () => {
     expect(dogTarget).toBe(foe);
   });
 });
+
+describe('F-13 door pet behavior', () => {
+  it('F-13: a pet whose owner walks through a doorway and stops two tiles beyond ends on a non-door tile; a dwarf walking the other way is never blocked', () => {
+    const w = world('f13-door-pets');
+    const moveCtx = { tick: w.tick, emit: (e: GameEvent) => w.game.world.events.emit(e) };
+
+    // Wall off across y = 15 except x = 16
+    for (let x = 0; x < w.map.w; x++) {
+      if (x !== 16) {
+        w.carve(at(w, x, 15), TileKind.Wall);
+      }
+    }
+    const doorTile = at(w, 16, 15);
+    w.build('door', doorTile, 'granite');
+    w.step(1);
+
+    // Owner dwarf starts at (16, 13) (north of the door)
+    const owner = w.spawnDwarf({ at: at(w, 16, 13) });
+    // Pet dog assigned to owner starts at (16, 12)
+    const dog = w.spawnTame('dog', at(w, 16, 12));
+    w.game.world.applyCommand({ type: 'AssignAnimal', animalId: dog, dwarfId: owner });
+
+    // Owner walks through the doorway to (16, 17) (2 tiles beyond the door at y = 15)
+    w.until(() => {
+      w.game.world.services.movement?.walkTo(owner, at(w, 16, 17), 'job', moveCtx);
+      const pOwner = w.game.world.entities.get(owner, C.Position);
+      return pOwner?.x === 16 && pOwner?.y === 17;
+    }, 200);
+
+    // Run additional steps for pet to follow and step off the door
+    w.step(30);
+
+    // Assert: dog does NOT end on the door tile
+    const pDog = w.game.world.entities.get(dog, C.Position)!;
+    const dogTile = at(w, pDog.x, pDog.y);
+    expect(dogTile).not.toBe(doorTile);
+
+    // Dwarf 2 starts on the south side at (16, 19) and walks north to (16, 13) through the door
+    const dwarf2 = w.spawnDwarf({ at: at(w, 16, 19) });
+
+    // Dwarf 2 should reach (16, 13) through the door without being blocked by the dog
+    w.until(() => {
+      w.game.world.services.movement?.walkTo(dwarf2, at(w, 16, 13), 'job', moveCtx);
+      const p2 = w.game.world.entities.get(dwarf2, C.Position);
+      return p2?.x === 16 && p2?.y === 13;
+    }, 200);
+
+    const p2 = w.game.world.entities.get(dwarf2, C.Position)!;
+    expect(p2.x).toBe(16);
+    expect(p2.y).toBe(13);
+  });
+});
+
