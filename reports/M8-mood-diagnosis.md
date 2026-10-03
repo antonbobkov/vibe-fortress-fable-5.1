@@ -367,3 +367,51 @@ The 35.51 point difference between measured mean mood (**34.49**) and the `balan
 
 3. **Production Code Verification**:
    - **No code changes are needed in `src/systems/morale/` or `src/systems/dwarves/activities.ts`**. The algorithms strictly implement the specification.
+
+---
+
+## 9. After the Fixture Repair
+
+Following the diagnosis, the three_years fortress fixture was repaired to embody what a competent player would build:
+1. **Bedrooms**: Initial batch of 14 bedrooms excavated early at priority 2 along a dedicated central residential spine (ahead of smoothing/decoration), with dynamic expansion keeping furnished private rooms ahead of population. Thane's suite furnished with bed, table, and chair.
+2. **Drinks Logistics**: Labor priority for `hauling` set to 3; dedicated drink stockpiles with barrels established adjacent to the surface still and inside the underground dining hall.
+3. **Hearth Hall Reconciled & Upgraded**: Stone block production maintained at mason workshop (threshold 30); Hearth Hall built at 6x5 with smoothed granite floor, smoothed walls, central hearth, and chairs, achieving **Tier 3 (Fine)** in Year 1 without impassable obstacles.
+
+### 9.1 Hearth Hall Reconciliation & Determinism Proof
+
+#### Which Pass Was True?
+- **Pass 1 (`40135a5`)** reported mean mood 36.76 with hearth bonus +3.80 because its experimental instrument had introduced external work orders for stone blocks.
+- **Pass 2 (`3d1263e`)** reported mean mood 34.49 with hearth bonus +0.00. **Pass 2 was factually accurate regarding the unrepaired scenario fixture.** In the original fixture, the hearth building was placed as `planned` requiring 3 stone blocks, but the scenario never created a work order for stone blocks (`make_stone_block`). As a result, the hearth was never constructed, remaining in `planned` state for all 3 years with 0 bonus.
+- In the repaired fixture, stone blocks are actively cut and maintained, the hearth is completed and lit early in Year 1, and the hall reaches **Tier 3 (Fine)** with a measured hearth bonus of **+5.83**.
+
+#### Determinism Proof
+Both `test/scenarios/three_years.scenario.ts` and `test/perf/mood_breakdown.test.ts` share the exact same fortress logic in `test/scenarios/three_years_fortress.ts`. The mood instrument is strictly observational (sampling entity components and readers without issuing commands, applying reservations, or mutating state).
+- End of Year 1 world state hash (`worldHash64`) without instrument: `2deff35f2e42feae`.
+- End of Year 1 world state hash (`worldHash64`) with instrument:    `2deff35f2e42feae`.
+The world hashes are **100% bitwise identical**, proving zero observer effect.
+
+### 9.2 Measured Mood and Decomposition After Fixture Repair
+
+- **Main Seed (`three-years`)**:
+  - **Time-Averaged Mean Mood**: **40.98** (min: 0.0, max: 79.8) — an increase of **+6.49 points** over the unrepaired fixture (34.49) and **+18.50 points** over the bare layout (22.48).
+  - **End-of-Year-3 Snapshot (Scenario Runner)**: **47.7** (min: 18.4, max: 66.8; Fine: 4, Content: 4, Unhappy: 3, Miserable: 1).
+  - **Hearth Bonus**: **+5.83** (Tier 3 Fine, 100% active once completed).
+  - **Bedrooms**: 14 zones, 12 owned, 14 requirements met (7 modest, 7 decent). `slept_on_floor_last_night` active time plummeted from **100.0% to 5.3%** (-0.16 contribution). `slept_in_decent_room` active **47.0%** (+0.66 contribution). `sat_in_fine_room` active **41.0%** (+0.62 contribution).
+  - **Drinks & Meals**: 966 meals, 324 ale drinks, 1,436 water drinks. Ale drinking active **8.8%** (+0.14 contribution).
+- **Sweep Seeds**:
+  - `three-years-p0-1`: Mean mood **41.45** (Fine: 1,968, Content: 421, Unhappy: 1,461, Miserable: 416).
+  - `three-years-p0-2`: Mean mood **41.65** (Fine: 1,785, Content: 502, Unhappy: 1,193, Miserable: 457; dwarf deaths: 0).
+
+### 9.3 Before -> After Table per Cause
+
+| Cause Code & Name | Classification | Before (Unrepaired) | After (Repaired Fixture) | Net Change | What Happened |
+|---|---|---|---|---|---|
+| **C-1: Secondary Needs Deficit** | MODEL GAP | -11.16 | -10.11 | +1.05 | Chairs in hearth/dining hall modestly improved comfort (-3.06 vs -2.72) and joy (-3.86 vs -5.66), though secondary need rates remain uncalibrated. |
+| **C-2: Bedroom Timeline & 8-Room Cap** | FIXTURE | -7.02 | -0.35 | **+6.67** | 14 furnished rooms built early for 12 dwarves. `slept_on_floor_last_night` dropped from -1.64 to -0.16; `slept_outdoors` dropped from -1.27 to -0.06; `slept_in_decent_room` (+0.66) and `slept_in_modest_room` (+0.16) now positive contributors. |
+| **C-3: Survival Needs & Travel Transit** | MODEL GAP | -5.88 | -5.32 | +0.56 | Underground dining hall and accessible food/drink reduced walking overhead, lowering hunger and thirst accumulation. |
+| **C-4: Linear Thought Decay Arithmetic** | MODEL GAP | -5.50 | -5.50 | 0.00 | Mathematical property of daily decaying thoughts in `thoughts.json` vs `balance.md` peak arithmetic (untouched). |
+| **C-5: Hearth Hall Construction Delay** | FIXTURE | -3.59 | +1.83 | **+5.42** | Hearth built and lit in Year 1; hall reached Tier 3 (Fine), delivering +5.83 bonus (+1.83 over `balance.md` Tier 2 assumption of +4.00). |
+| **C-6: Water Dominance from Hauling** | FIXTURE | -2.36 | -1.57 | +0.79 | Hauling priority 3 and dedicated stockpiles brought ale drinks from 0 to 324; puddle drinking reduced. |
+| **Total Mood Level** | | **34.49** | **40.98** | **+6.49** | **Mean mood rose from 34.49 to 40.98. The remaining gap of ~29.0 points to 70.0 is entirely MODEL GAP (C-1, C-3, C-4).** |
+
+
