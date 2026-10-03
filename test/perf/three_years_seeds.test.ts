@@ -18,6 +18,8 @@ import { NEED_PRESSURE_CAP, MOOD_NEEDS_MET_FLOOR } from '@systems/morale/mood';
 import { WAVE_MAX } from '@systems/immigration/constants';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
+import type { MoraleReader } from '@systems/morale/reader';
+import type { ThreatsReader } from '@systems/threats/reader';
 import { TestWorld } from '../scenarios/test-world';
 import { deathCounts } from '../scenarios/death-counts';
 import {
@@ -74,13 +76,23 @@ export interface ThreeYearsSeedResult {
   readonly tameDeaths: number;
   readonly wavesCount: number;
   readonly totalImmigrants: number;
+  readonly nonGuaranteedWaves: number;
   readonly raidsCount: number;
   readonly mealsEaten: number;
   readonly drinksDrunk: number;
+  readonly drinksAlcohol: number;
+  readonly drinksWater: number;
   readonly extinctDay: number | null;
   readonly avgMood: string;
   readonly minMood: number;
   readonly maxMood: number;
+  readonly moodBreakdown?: Record<string, number>;
+  readonly deathsList: readonly { day: number; cause: string; killerId?: number }[];
+  readonly raidsList: readonly { day: number; kind: string; size: number; partyId: number; outcome?: string }[];
+  readonly hallSpirit: { y1: number; y2: number; y3: number };
+  readonly renown: { y1: number; y2: number; y3: number };
+  readonly mealsPerDwarfDay: string;
+  readonly drinksPerDwarfDay: string;
 }
 
 export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedResult {
@@ -116,9 +128,14 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
 
   // Tracking
   const waves: { day: number; count: number; guaranteed: boolean }[] = [];
-  const raids: { day: number; kind: string; size: number }[] = [];
+  const raids: { day: number; kind: string; size: number; partyId: number; outcome?: string }[] = [];
+  const deathsList: { day: number; cause: string; killerId?: number }[] = [];
   let mealsEaten = 0;
   let drinksDrunk = 0;
+  let drinksAlcohol = 0;
+  let drinksWater = 0;
+
+  const dwarfSpecies = w.game.registry.table('creatures').index('dwarf');
 
   const unsub = w.game.world.onEvents((events) => {
     const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
@@ -126,11 +143,22 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
       if (e.type === 'ImmigrantsArrived') {
         waves.push({ day, count: Number(e['count'] ?? 0), guaranteed: e['guaranteed'] === true });
       } else if (e.type === 'RaidArrived') {
-        raids.push({ day, kind: String(e['threatKind'] ?? 'raid'), size: Number(e['size'] ?? 0) });
+        raids.push({ day, kind: String(e['threatKind'] ?? 'raid'), size: Number(e['size'] ?? 0), partyId: Number(e['partyId'] ?? 0) });
+      } else if (e.type === 'RaidEnded') {
+        const r = raids.find((x) => x.partyId === Number(e['partyId']) && !x.outcome);
+        if (r) r.outcome = String(e['outcome']);
       } else if (e.type === 'MealEaten') {
         mealsEaten += 1;
-      } else if (e.type === 'DrankAlcohol' || e.type === 'DrankWater') {
+      } else if (e.type === 'DrankAlcohol') {
+        drinksAlcohol += 1;
         drinksDrunk += 1;
+      } else if (e.type === 'DrankWater') {
+        drinksWater += 1;
+        drinksDrunk += 1;
+      } else if (e.type === 'CreatureDied') {
+        if (e['species'] === dwarfSpecies || (e['faction'] === 'fortress' && e['species'] === undefined)) {
+          deathsList.push({ day, cause: String(e['cause'] ?? 'unknown'), killerId: Number(e['killerId'] ?? 0) });
+        }
       }
     }
   });
@@ -145,9 +173,17 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   let y1Pop = 0;
   let y2Pop = 0;
   let y3Pop = 0;
+  let y1Spirit = 0;
+  let y2Spirit = 0;
+  let y3Spirit = 0;
+  let y1Renown = 0;
+  let y2Renown = 0;
+  let y3Renown = 0;
   let extinctDay: number | null = null;
 
   const items = w.readers.of<ItemsReader>('13');
+  const morale = w.readers.of<MoraleReader>('15');
+  const threats = w.readers.of<ThreatsReader>('18');
 
   while (w.tick < totalTicks) {
     const living = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress');
@@ -165,9 +201,13 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     if (w.tick === year1Tick) {
       y1Wealth = items.wealth();
       y1Pop = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
+      y1Spirit = Math.round(morale.hallSpirit());
+      y1Renown = Math.round(threats.renown());
     } else if (w.tick === year2Tick) {
       y2Wealth = items.wealth();
       y2Pop = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
+      y2Spirit = Math.round(morale.hallSpirit());
+      y2Renown = Math.round(threats.renown());
     }
   }
 
@@ -176,8 +216,11 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   y3Wealth = items.wealth();
   const survivingDwarves = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress');
   y3Pop = survivingDwarves.length;
+  y3Spirit = Math.round(morale.hallSpirit());
+  y3Renown = Math.round(threats.renown());
 
   const moods: number[] = [];
+  const moodBreakdown: Record<string, number> = { Fine: 0, Content: 0, Happy: 0, Unhappy: 0, Miserable: 0, Ecstatic: 0 };
   let minMood = 100;
   let maxMood = 0;
   let sumMood = 0;
@@ -190,6 +233,13 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     if (val < minMood) minMood = val;
     if (val > maxMood) maxMood = val;
     sumMood += val;
+
+    if (val < 20) moodBreakdown['Miserable'] = (moodBreakdown['Miserable'] ?? 0) + 1;
+    else if (val < 40) moodBreakdown['Unhappy'] = (moodBreakdown['Unhappy'] ?? 0) + 1;
+    else if (val < 60) moodBreakdown['Fine'] = (moodBreakdown['Fine'] ?? 0) + 1;
+    else if (val < 75) moodBreakdown['Content'] = (moodBreakdown['Content'] ?? 0) + 1;
+    else if (val < 90) moodBreakdown['Happy'] = (moodBreakdown['Happy'] ?? 0) + 1;
+    else moodBreakdown['Ecstatic'] = (moodBreakdown['Ecstatic'] ?? 0) + 1;
 
     // Assert deterministic mood floor and thought caps for surviving dwarves
     expect(val).toBeGreaterThanOrEqual(MOOD_MIN);
@@ -213,6 +263,10 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     expect(wave.count, `${seed} wave size within WAVE_MAX`).toBeLessThanOrEqual(WAVE_MAX);
   }
 
+  const totalDwarfDays = 7 * 28 + (waves[0]?.count ? (7 + waves[0].count) * 28 : 0) + y3Pop * (3 * DAYS_PER_YEAR - 56);
+  const mealsPerDwarfDay = totalDwarfDays > 0 ? (mealsEaten / totalDwarfDays).toFixed(2) : '0';
+  const drinksPerDwarfDay = totalDwarfDays > 0 ? (drinksDrunk / totalDwarfDays).toFixed(2) : '0';
+
   return {
     seed,
     peril,
@@ -226,13 +280,23 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     tameDeaths: deaths.tame,
     wavesCount: waves.length,
     totalImmigrants: waves.reduce((sum, w) => sum + w.count, 0),
+    nonGuaranteedWaves: waves.filter((w) => !w.guaranteed).length,
     raidsCount: raids.length,
     mealsEaten,
     drinksDrunk,
+    drinksAlcohol,
+    drinksWater,
     extinctDay,
     avgMood,
     minMood: moods.length > 0 ? minMood : 0,
     maxMood: moods.length > 0 ? maxMood : 0,
+    moodBreakdown,
+    deathsList,
+    raidsList: raids.map(({ day, kind, size, partyId, outcome }) => ({ day, kind, size, partyId, outcome: outcome ?? 'active' })),
+    hallSpirit: { y1: y1Spirit, y2: y2Spirit, y3: y3Spirit },
+    renown: { y1: y1Renown, y2: y2Renown, y3: y3Renown },
+    mealsPerDwarfDay,
+    drinksPerDwarfDay,
   };
 }
 
@@ -241,5 +305,6 @@ describe('T-M8-06 perf: three_years_seeds', () => {
     const res = runThreeYearsSeed(seed, peril);
     const line = `[three_years_seeds] ${res.seed} (peril ${res.peril}): pop=${res.y3Pop} (Y1:${res.y1Pop}, Y2:${res.y2Pop}), wealth=${res.y3Wealth} (Y1:${res.y1Wealth}, Y2:${res.y2Wealth}), deaths(dwarf=${res.dwarfDeaths}, tame=${res.tameDeaths}), waves=${res.wavesCount} (+${res.totalImmigrants} dw), raids=${res.raidsCount}, meals=${res.mealsEaten}, drinks=${res.drinksDrunk}, moodAvg=${res.avgMood}, extinct=${res.extinctDay ?? 'none'}`;
     console.log(line);
+    console.log(`[three_years_seeds_detail] ${JSON.stringify(res)}`);
   });
 });

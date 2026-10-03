@@ -589,5 +589,105 @@ Running the 20-seed sweep with the gatehouse and squad produces the following re
   5. The raiders remain outside the gate indefinitely. The fortress alert remains locked in `'hearth'`. In `src/systems/dwarves/brain.ts:143-148`, civilians under `'hearth'` alert are locked in `b.behavior = 'retreat'`, preventing them from fulfilling needs or tending surface farms, eventually starving to death.
 - **Fix if permitted**: In `src/systems/threats/ai.ts`, when visible targets cannot be reached via pathfinding (e.g. behind locked doors or raised bridges), raiders must recognize targets as unreachable and enter `'loiter'`, or in `ai.ts:826` allow transitioning to `'loiter'` when `P.goalUnreachable` from any non-retreat state.
 
+---
+
+## 12. After F-13 and F-14: Balance Re-Measurement
+
+Following the implementation of F-13 (raids loiter and withdraw at locked gates; tame animals never idle on doors) and F-14 (immigration spirit threshold lowered from 65 to 55), the fortress simulation was re-measured across:
+1. The shared baseline scenario `test/scenarios/three_years.scenario.ts` (peril 0).
+2. The 20-seed sweep across three regions (`test/perf/three_years_seeds.test.ts`):
+   - 7 seeds at Peril 0 (peaceful baseline)
+   - 7 seeds at Peril 2 (moderate danger)
+   - 6 seeds at Peril 4 (high danger)
+3. The mood decomposition instrument `test/perf/mood_breakdown.test.ts`.
+
+In accordance with T-M8-06, the gate doors in `test/scenarios/three_years_fortress.ts` were switched from the `no_pets` workaround back to the ordinary player setting (`lock_on_alert`, no pet restriction), allowing F-13's pet doorway step-off logic to operate natively.
+
+### 12.1 Per-Peril Survival & Raid Telemetry
+
+#### Peril 0 (7 seeds: `three-years-p0-1` .. `p0-7`)
+- **Survival Rate**: 7 / 7 seeds survived all 3 years (100% survival, 0 dwarf deaths).
+- **Raids Faced**: 21 thieves (size 1 each; 3 per seed arriving in Y2 Spring, Y2 Autumn/Winter, and Y3).
+- **Outcome**: 21 / 21 thieves had `RaidEnded` outcome `withdrew` after loitering outside the locked gatehouse. 0 combat deaths, 0 items stolen. F-13 functioned as specified.
+
+| Seed | Peril | Survival | Dwarf Deaths | Raids Faced (Day, Size, Type, Outcome) | Y1 Pop / Wealth | Y2 Pop / Wealth | Y3 Pop / Wealth | Non-Guaranteed Waves | Hall Spirit (Y1/Y2/Y3) | Renown (Y1/Y2/Y3) | Mood Avg (Snapshot) | Food/Drink per dwarf-day |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `three-years-p0-1` | 0 | Survived (Y3) | 0 | D115 (1, thief, withdrew), D224 (1, thief, withdrew), D287 (1, thief, withdrew) | 14 / 3,782 | 14 / 3,930 | 14 / 3,885 | 0 | 45 / 55 / 53 | 7 / 7 / 7 | 53.8 (F:5, C:6, H:0, U:3, M:0) | 0.28 / 0.45 |
+| `three-years-p0-2` | 0 | Survived (Y3) | 0 | D126 (1, thief, withdrew), D200 (1, thief, withdrew), D318 (1, thief, withdrew) | 13 / 3,846 | 13 / 3,977 | 13 / 4,063 | 0 | 54 / 53 / 57 | 7 / 7 / 7 | 56.9 (F:8, C:4, H:0, U:1, M:0) | 0.28 / 0.45 |
+| `three-years-p0-3` | 0 | Survived (Y3) | 0 | D117 (1, thief, withdrew), D215 (1, thief, withdrew), D305 (1, thief, withdrew) | 14 / 3,764 | 14 / 3,943 | 17 / 4,043 | 1 (+3 dw) | 56 / 60 / 64 | 6 / 7 / 8 | 63.7 (F:5, C:10, H:2, U:0, M:0) | 0.24 / 0.40 |
+| `three-years-p0-4` | 0 | Survived (Y3) | 0 | D123 (1, thief, withdrew), D198 (1, thief, withdrew), D282 (1, thief, withdrew) | 12 / 3,583 | 12 / 3,812 | 12 / 3,745 | 0 | 49 / 61 / 58 | 7 / 7 / 7 | 57.7 (F:4, C:5, H:1, U:2, M:0) | 0.30 / 0.46 |
+| `three-years-p0-5` | 0 | Survived (Y3) | 0 | D116 (1, thief, withdrew), D218 (1, thief, withdrew), D309 (1, thief, withdrew) | 13 / 3,921 | 15 / 4,086 | 15 / 4,242 | 1 (+2 dw) | 44 / 57 / 52 | 7 / 8 / 8 | 52.0 (F:9, C:4, H:0, U:1, M:1) | 0.26 / 0.42 |
+| `three-years-p0-6` | 0 | Survived (Y3) | 0 | D126 (1, thief, withdrew), D195 (1, thief, withdrew), D306 (1, thief, withdrew) | 12 / 3,557 | 12 / 3,851 | 12 / 3,812 | 0 | 51 / 61 / 58 | 6 / 7 / 7 | 59.1 (F:5, C:7, H:0, U:0, M:0) | 0.29 / 0.45 |
+| `three-years-p0-7` | 0 | Survived (Y3) | 0 | D131 (1, thief, withdrew), D226 (1, thief, withdrew), D312 (1, thief, withdrew) | 14 / 3,738 | 14 / 3,950 | 14 / 3,790 | 0 | 50 / 54 / 55 | 7 / 7 / 7 | 53.8 (F:6, C:5, H:1, U:1, M:1) | 0.28 / 0.46 |
+
+#### Peril 2 (7 seeds: `three-years-p2-1` .. `p2-7`)
+- **Survival Rate**: 0 / 7 seeds survived to Year 3; however, `three-years-p2-1` survived Year 1 entirely, reaching Day 144 of Year 2.
+- **Raids Faced**: Early thieves (size 1) withdrew under F-13. Mid-Y1 armed raids (sizes 3–4) and Y2 raids (sizes 4–8) engaged the squad.
+- **Casualties**: Combat deaths were caused by `bled_out` / `killed` from hostile weapons; subsequent civilian deaths were caused by `starvation` while locked down under extended `hearth` alert.
+
+| Seed | Peril | Survival | Deaths (Combat / Starve) | Raids Faced (Day, Size, Type, Outcome) | Y1 Pop / Wealth | Y2 Pop / Wealth | Y3 Pop / Wealth | Extinction Day & Killer |
+|---|---|---|---|---|---|---|---|---|
+| `three-years-p2-1` | 2 | Extinct (D144) | 4 combat (bled_out), 9 starvation | D42 (1, thief, withdrew), D62 (3, bandits, repelled), D68 (4, ambush, looted), D92 (1, thief, looted), D126 (8, raid, active), D144 (4, ambush, active) | 10 / 5,168 | 0 / 0 | 0 / 11,695 | D144 (starvation following D126 raid wipe) |
+| `three-years-p2-2` | 2 | Extinct (D79) | 3 combat (2 bled_out, 1 killed), 8 starvation | D33 (1, thief, withdrew), D61 (4, raid, active), D68 (3, ambush, active) | 0 / 0 | 0 / 0 | 0 / 4,252 | D79 (starvation under lockdown after D61 raid) |
+| `three-years-p2-3` | 2 | Extinct (D88) | 4 combat (3 bled_out, 1 killed), 11 starvation | D40 (1, thief, withdrew), D59 (3, bandits, repelled), D70 (4, raid, active) | 0 / 0 | 0 / 0 | 0 / 4,977 | D88 (starvation under lockdown after D70 raid) |
+| `three-years-p2-4` | 2 | Extinct (D81) | 3 combat (bled_out), 10 starvation | D36 (1, thief, withdrew), D63 (4, raid, active), D76 (1, thief, looted), D76 (3, ambush, active) | 0 / 0 | 0 / 0 | 0 / 5,352 | D81 (starvation under lockdown after D63 raid) |
+| `three-years-p2-5` | 2 | Extinct (D75) | 5 combat (bled_out), 9 starvation | D36 (1, thief, withdrew), D58 (4, raid, active), D72 (3, ambush, active) | 0 / 0 | 0 / 0 | 0 / 4,859 | D75 (starvation under lockdown after D58 raid) |
+| `three-years-p2-6` | 2 | Extinct (D79) | 4 combat (bled_out), 9 starvation | D39 (1, thief, withdrew), D61 (4, raid, active), D68 (3, ambush, active) | 0 / 0 | 0 / 0 | 0 / 4,962 | D79 (starvation under lockdown after D61 raid) |
+| `three-years-p2-7` | 2 | Extinct (D78) | 5 combat (4 bled_out, 1 killed), 9 starvation | D49 (1, thief, withdrew), D60 (3, bandits, active), D61 (4, ambush, active) | 0 / 0 | 0 / 0 | 0 / 4,709 | D78 (starvation under lockdown after D60 raid) |
+
+#### Peril 4 (6 seeds: `three-years-p4-1` .. `p4-6`)
+- **Survival Rate**: 0 / 6 seeds survived to Year 2 (all extinct days 49–56).
+- **Raids Faced**: Early thieves at days 22–27 withdrew; large raids of size 6 (days 31–39) and sieges/raids of size 12 (days 32–46) arrived early in Year 1.
+- **Casualties**: 2–6 combat deaths (`bled_out` / `killed`), followed by civilian starvation under permanent `hearth` alert.
+
+| Seed | Peril | Survival | Deaths (Combat / Starve) | Raids Faced (Day, Size, Type, Outcome) | Extinction Day & Killer |
+|---|---|---|---|---|---|
+| `three-years-p4-1` | 4 | Extinct (D49) | 5 combat (bled_out), 6 starvation | D22 (1, thief, withdrew), D31 (6, raid, active), D34 (12, raid, active), D41 (1, thief, looted) | D49 (starvation under D31/D34 siege lockdown) |
+| `three-years-p4-2` | 4 | Extinct (D56) | 2 combat (bled_out), 9 starvation | D23 (1, thief, looted), D39 (6, raid, active), D40 (12, raid, active), D45 (1, raid, active) | D56 (starvation under D39/D40 siege lockdown) |
+| `three-years-p4-3` | 4 | Extinct (D49) | 3 combat (bled_out), 6 starvation | D31 (6, raid, active), D34 (1, thief, looted), D49 (12, raid, active) | D49 (starvation under D31 raid lockdown) |
+| `three-years-p4-4` | 4 | Extinct (D51) | 4 combat (bled_out), 7 starvation | D33 (6, raid, active), D46 (12, raid, active), D47 (1, thief, looted) | D51 (starvation under D33/D46 siege lockdown) |
+| `three-years-p4-5` | 4 | Extinct (D50) | 6 combat (5 bled_out, 1 killed), 3 starvation | D27 (1, thief, withdrew), D32 (12, raid, active), D43 (1, thief, looted), D44 (6, raid, active) | D50 (starvation under D32/D44 siege lockdown) |
+| `three-years-p4-6` | 4 | Extinct (D55) | 5 combat (bled_out), 5 starvation | D24 (1, thief, withdrew), D37 (6, raid, active), D39 (1, thief, looted), D43 (12, raid, active), D53 (1, raid, active) | D55 (starvation under D37/D43 siege lockdown) |
+
+### 12.2 Balance Table Comparison vs. balance.md (Survivor Baseline & Sweep)
+
+| Metric | balance.md Model | Measured (After F-13/F-14) | Variance vs. Model | Within 30%? | Status |
+|---|---|---|---|---|---|
+| **Consumption: Food** | 0.48 food units/dwarf/day | 0.27 meals/dwarf-day (sweep 0.24–0.30) | -44% | **No** (bound 0.336–0.624) | Still a finding (B-012). Dwarves eat when hunger reaches want threshold; attribute variance (Endurance) lowers frequency. |
+| **Consumption: Drink** | 0.77 drink units/dwarf/day | 0.44 drinks/dwarf-day (sweep 0.40–0.46; 98.7% ale, 1.3% water) | -43% | **No** (bound 0.539–1.001) | Still a finding (B-012). Thirst want threshold and sleep cycle limit visits to ~0.44/day. |
+| **Wealth: Year 1** | 4,000–8,000 marks | 3,742 marks (sweep 3,557–3,921) | -6% vs 4,000 | **Yes** | Within 30% tolerance for Year 1. |
+| **Wealth: Year 2** | 15,000–25,000 marks | 3,944 marks (sweep 3,812–4,086) | -74% vs 15,000 | **No** | Still a finding (B-008). Plateaus without metal/gem craft loops. |
+| **Wealth: Year 3** | 35,000–60,000 marks | 3,948 marks (sweep 3,745–4,242) | -89% vs 35,000 | **No** | Still a finding (B-008). |
+| **Immigration: Y1 Guaranteed** | 2 waves (4–8 dwarves) | 2 waves, 5–8 dwarves (100% of seeds) | 0% | **Yes** | Rule guarantee. |
+| **Immigration: Y2–Y3 Waves** | Each season with spirit ≥ 55: 70% chance of wave (4–12 dwarves; ~18 in Y2) | Unlocked on high-spirit seeds: `p0-3` (1 wave, pop 17, spirit 64), `p0-5` (1 wave, pop 15, spirit 57). 0 waves on seeds with spirit 50–54. | Shortfall on average seeds | **No** (overall frequency) | Still a finding (B-009). However, F-14 successfully enabled non-guaranteed waves on well-kept fortresses as intended. |
+| **Raid Sizes: Peril 0** | Thieves from Y2 Spring (size 1) | 3 thieves per seed, size 1 each (100% of seeds) | 0% | **Yes** | Exactly matches model. All 21 withdrew under F-13. |
+| **Raid Sizes: Peril 2 (Y2)** | Size 10 (base 6 + renown 4) | Size 8 on living seed `three-years-p2-1` at Day 126 | -20% | **Yes** (bound 7.0–13.0) | **Now within 30%** (B-010). Measured on surviving fortress before extinction. |
+| **Mood: Mean / Snapshot** | Content (~70 with hearth hall) | 56.7 sweep average (min 52.0, max 63.7; time-avg 48.5) | -19% vs 70 | **Yes** (bound 49.0–91.0) | **Now within 30%** (B-011). Upper Fine / lower Content; no mood spirals. |
+| **Mood: Breakdown** | Content dominant | Fine: 42, Content: 41, Happy: 4, Unhappy: 8, Miserable: 2 | Split Fine / Content | Borderline | Fine and Content represent 87% of all dwarf-time. |
+
+### 12.3 Extinction Diagnosis: Classification (FIXTURE vs BUG)
+
+#### 1. Year 1 Military Equipment Contradiction (FIXTURE / BALANCE CONTRADICTION)
+- **Mechanism**:
+  - `balance.md` line 79 models combat balance assuming a squad of three equipped with **iron mail and shields**: *"A squad of three with mail handles a raid of ten at peril 2 with a few wounds and a hospital visit."*
+  - `balance.md` line 116 dictates that the Mountainhome caravan bringing an **anvil** arrives in **Year 2 Spring**.
+  - `docs/02-systems/14-buildings-and-rooms.md` line 44 establishes that constructing a metalsmith forge requires an anvil.
+  - The embark loadout provides no anvil and no iron mail.
+  - As a result, in Year 1, a fortress cannot build a forge or manufacture armor. The squad must face armed raiders (copper short swords, battleaxes, bows) wearing only regular civilian clothing.
+  - In combat, unarmored dwarves receive full, unmitigated damage from weapon strikes (15–24 damage per hit), suffering arterial bleeding (`bled_out`) within 1–2 combat rounds.
+- **Classification**: **BALANCE CONTRADICTION / SPEC DESIGN**. `balance.md` assumes an armored squad to withstand Peril 2/4 attacks in Year 1, but the game systems prevent forging armor until Year 2.
+
+#### 2. Bandit Outdoor Stockpile Goal & Loiter Engine Bug (BUG)
+- **Files & Lines**: `src/systems/threats/ai.ts:514-517`, `880-894`.
+- **Spec Citation**: `docs/02-systems/18-threats-monsters-and-raids.md` lines 63–64:
+  - *"Loiter: when the goal is unreachable and no targets are visible: the party stands at the nearest reachable tile, archers shoot at anything visible, members pick up unattended items within LOOT_RADIUS (one per member), and after LOITER_DAYS_RAID (2) or LOITER_DAYS_SIEGE (5) days the party retreats."*
+- **Mechanism**:
+  - In `ai.ts:514-517`, when a party has `purpose === 'bandits'`, it seeks the nearest stockpile. If an outdoor stockpile exists (such as a trade depot or surface wood/stone pile), `nearestStockpileTile` is found reachable outside the gate, setting `P.goalUnreachable = false`.
+  - In `memberThink` (`ai.ts:880-894`), the transition to `P.state = 'loiter'` is guarded by `if (P.goalUnreachable && P.state === 'approach')`.
+  - When bandits reach the outdoor stockpile, because `P.goalUnreachable === false`, they never transition to `'loiter'`.
+  - Instead, the party remains in `'approach'` indefinitely. Because it never enters `'loiter'`, the 2-day loiter retreat timer never begins, and the party never leaves.
+  - Consequently, the fortress remains locked in `hearth` alert indefinitely. In `src/systems/dwarves/brain.ts:143`, civilians under `hearth` alert are locked in `b.behavior = 'retreat'`, preventing them from eating or drinking from surface stores until they starve to death.
+- **Classification**: **ENGINE BUG**.
+
 
 

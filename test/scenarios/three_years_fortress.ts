@@ -691,8 +691,8 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     }
   }
 
-  // 2. Set door modes: no_pets in calm to prevent pet doorway deadlocks; locked during hearth alert
-  const wantDoorMode = w.game.world.fortress.alert === 'hearth' ? 'locked' : 'no_pets';
+  // 2. Set door modes: lock_on_alert (19 § The airlock, ordinary player setting)
+  const wantDoorMode = 'lock_on_alert';
   if (state.gateDoorPlaced && state.gateDoorId !== 0) {
     const b = buildings.get(state.gateDoorId);
     if (b?.state === 'built' && b.mode !== wantDoorMode) {
