@@ -10,15 +10,45 @@
  * and labor priorities, guaranteeing deterministic parity and consistent measurements.
  */
 
-import { FLAT_TEST_SURFACE_Z } from '@app/headless';
+import { FLAT_TEST_SURFACE_Z, type HeadlessEmbark } from '@app/headless';
 import { TICKS_PER_DAY } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import { C } from '@core/components';
+import type { Registry } from '@core/registry';
+import { EmbarkSession } from '@systems/embark';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
 import type { TestWorld } from './test-world';
 
 export const Z = FLAT_TEST_SURFACE_Z;
+
+/**
+ * Real embark path for the three-year fortress:
+ * At perils 2 and 4, the peril budget bonus covers e_anvil (270 marks) bought via EmbarkSession.
+ * Peril 0 embarks with plain 'default' (Balanced preset) without anvil so baseline remains comparable.
+ */
+export function threeYearsEmbark(registry: Registry, seed: string, peril: number): HeadlessEmbark {
+  if (peril >= 2) {
+    const session = new EmbarkSession(registry, seed, peril);
+    const rPreset = session.apply({ type: 'ApplyPreset', preset: 'balanced' });
+    if (!rPreset.ok) throw new Error(`threeYearsEmbark ApplyPreset failed: ${rPreset.reason}`);
+    if (session.budget() < session.total() + 270) {
+      // At peril 2, budget is 1700 (+200 peril bonus over 1500 base). Balanced preset is 1480 (+220 unspent).
+      // e_anvil costs 270 marks, requiring 50 marks. A player drops starter furniture
+      // (1 table = 10, 2 chairs = 16, 2 beds = 24; total 50 marks saved)
+      // which the carpenter and mason craft on site, balancing the budget to exactly 1700/1700.
+      session.apply({ type: 'SetSupply', entry: 'e_table', count: 0 });
+      session.apply({ type: 'SetSupply', entry: 'e_chair', count: 0 });
+      session.apply({ type: 'SetSupply', entry: 'e_bed', count: 1 });
+    }
+    const rSupply = session.apply({ type: 'SetSupply', entry: 'e_anvil', count: 1 });
+    if (!rSupply.ok) throw new Error(`threeYearsEmbark SetSupply e_anvil failed: ${rSupply.reason}`);
+    const rConfirm = session.apply({ type: 'ConfirmEmbark' });
+    if (!rConfirm.ok) throw new Error(`threeYearsEmbark ConfirmEmbark failed: ${rConfirm.reason}`);
+    return { session };
+  }
+  return 'default';
+}
 
 export interface BedroomPlan {
   readonly id: number;
@@ -65,6 +95,8 @@ export interface FortressState {
   gateDoorId2: number;
   gateDoorPlaced2: boolean;
   squadId: number;
+  forgePlaced: boolean;
+  forgeBuiltDay?: number;
 }
 
 
@@ -195,6 +227,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'brewing', priority: 2 });
   w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'carpentry', priority: 2 });
   w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'masonry', priority: 2 });
+  w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'smithing', priority: 2 });
   w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'mining', priority: 3 });
   w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'hauling', priority: 3 });
   w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'woodcutting', priority: 4 });
@@ -348,7 +381,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     w.index(cx + 7, cy + 7, Z),
   ];
   for (const t of gateWallTiles) {
-    w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'wall', origin: t, orientation: 0, materialChoice: 0, priority: 2 });
+    w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'wall', origin: t, orientation: 0, materialChoice: pine, priority: 2 });
   }
 
   return {
@@ -371,6 +404,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     gateDoorId2: 0,
     gateDoorPlaced2: false,
     squadId: 0,
+    forgePlaced: false,
   };
 }
 
@@ -449,6 +483,72 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
       type: 'AddWorkOrder',
       workshopId: placedIds['kitchen'],
       order: { recipeId: 'cook_fine_meal', mode: 'maintain', threshold: 10 },
+    });
+  }
+
+  // Forge: built as soon as balance.md year-one table allows (day 30–56, as soon as day 30 is reached and anvil available)
+  if (!state.forgePlaced && w.tick >= 30 * TICKS_PER_DAY) {
+    const items = w.game.registry.table('items');
+    const anvilType = items.index('anvil');
+    let hasAnvil = false;
+    for (const id of w.game.world.entities.with(C.Item)) {
+      const it = w.game.world.entities.get(id, C.Item);
+      if (it && it.type === anvilType) {
+        hasAnvil = true;
+        break;
+      }
+    }
+    if (hasAnvil) {
+      const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+      const forgeOrigin = w.index(state.cx + 12, state.cy + 10, Z);
+      if (buildings.ghost('forge', forgeOrigin, 0).reason === null) {
+        const rForge = w.game.world.applyCommand({
+          type: 'PlaceBuilding',
+          buildingType: 'forge',
+          origin: forgeOrigin,
+          orientation: 0,
+          materialChoice: 0,
+        });
+        if (rForge.ok) {
+          state.forgePlaced = true;
+          placedIds['forge'] = bSystem.lastPlacedBuilding;
+          const corners = [
+            w.index(state.cx + 12, state.cy + 10, Z),
+            w.index(state.cx + 14, state.cy + 10, Z),
+            w.index(state.cx + 12, state.cy + 12, Z),
+            w.index(state.cx + 14, state.cy + 12, Z),
+          ];
+          w.game.world.applyCommand({ type: 'SetTraffic', tiles: corners, mode: 'forbidden' });
+        }
+      }
+    }
+  }
+
+  if (!ordered.has('forge') && state.placedIds['forge'] !== undefined && buildings.get(state.placedIds['forge'])?.state === 'built') {
+    ordered.add('forge');
+    state.forgeBuiltDay = Math.floor(w.tick / TICKS_PER_DAY) + 1;
+    const corners = [
+      w.index(state.cx + 12, state.cy + 10, Z),
+      w.index(state.cx + 14, state.cy + 10, Z),
+      w.index(state.cx + 12, state.cy + 12, Z),
+      w.index(state.cx + 14, state.cy + 12, Z),
+    ];
+    w.game.world.applyCommand({ type: 'SetTraffic', tiles: corners, mode: 'normal' });
+    // Orders in order: mail for the 3 soldiers, then shields and/or weapons
+    w.game.world.applyCommand({
+      type: 'AddWorkOrder',
+      workshopId: state.placedIds['forge'],
+      order: { recipeId: 'forge_mail_shirt', mode: 'maintain', threshold: 3 },
+    });
+    w.game.world.applyCommand({
+      type: 'AddWorkOrder',
+      workshopId: state.placedIds['forge'],
+      order: { recipeId: 'forge_shield', mode: 'maintain', threshold: 3 },
+    });
+    w.game.world.applyCommand({
+      type: 'AddWorkOrder',
+      workshopId: state.placedIds['forge'],
+      order: { recipeId: 'forge_short_sword', mode: 'maintain', threshold: 3 },
     });
   }
 }
