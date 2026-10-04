@@ -472,7 +472,12 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       for (const pId of ctx.world.entities.with(C.Party)) {
         const P = ctx.world.entities.get(pId, C.Party);
         if (P && (P.state === 'approach' || P.state === 'loiter')) {
+          P.walkUnreachable = false;
           chooseGoal(P, ctx);
+          if (P.state === 'loiter' && !P.goalUnreachable) {
+            P.state = 'approach';
+            P.stateSince = ctx.tick;
+          }
         }
       }
     }

@@ -609,4 +609,166 @@ describe('F-13 raid loitering and door breaking', () => {
     w.step(500);
     expect(party.state).not.toBe('retreat');
   });
+
+  it('F-15: a bandit party reaches an outdoor stockpile holding items, loots, retreats with outcome looted, and despawns', () => {
+    const w = new TestWorld({ world: 'flat-test', seed: 'f15-bandits-loot', embark: 'none' });
+    const z = FLAT_TEST_SURFACE_Z;
+
+    const spTile1 = w.index(24, 10, z);
+    const spTile2 = w.index(25, 10, z);
+    w.zone('stockpile', [spTile1, spTile2]);
+
+    w.spawnItem('ring', 'gold', spTile1);
+    w.spawnItem('amulet', 'silver', spTile2);
+
+    const partyId = createTestParty(w, 'bandits', 'n');
+    const leader = spawnHostileMember(
+      w.game.world,
+      w.game.registry,
+      w.game.world.rngFor('18'),
+      partyId,
+      'hillfolk_bandit',
+      'warriors',
+      w.index(24, 2, z),
+      0,
+      false,
+    );
+    const member2 = spawnHostileMember(
+      w.game.world,
+      w.game.registry,
+      w.game.world.rngFor('18'),
+      partyId,
+      'hillfolk_bandit',
+      'warriors',
+      w.index(25, 2, z),
+      0,
+      false,
+    );
+
+    const party = w.game.world.entities.get(partyId, C.Party)!;
+    party.leaderId = leader;
+
+    w.step(1);
+
+    // Bandits approach stockpile, arrive, loot, retreat, and despawn at edge
+    w.until((world) => world.events('RaidEnded').some((e) => e['partyId'] === partyId), 3000);
+
+    const raidEnded = w.events('RaidEnded').find((e) => e['partyId'] === partyId);
+    expect(raidEnded).toBeDefined();
+    expect(raidEnded?.['outcome']).toBe('looted');
+    expect(party.state).toBe('gone');
+    expect(w.game.world.entities.alive(leader)).toBe(false);
+    expect(w.game.world.entities.alive(member2)).toBe(false);
+  });
+
+  it('F-15: a bandit party at an empty stockpile loiters and withdraws after LOITER_DAYS_RAID with outcome withdrew', () => {
+    const w = new TestWorld({ world: 'flat-test', seed: 'f15-bandits-empty', embark: 'none' });
+    const z = FLAT_TEST_SURFACE_Z;
+
+    const spTile1 = w.index(24, 10, z);
+    const spTile2 = w.index(25, 10, z);
+    w.zone('stockpile', [spTile1, spTile2]);
+
+    const partyId = createTestParty(w, 'bandits', 'n');
+    const leader = spawnHostileMember(
+      w.game.world,
+      w.game.registry,
+      w.game.world.rngFor('18'),
+      partyId,
+      'hillfolk_bandit',
+      'warriors',
+      w.index(24, 2, z),
+      0,
+      false,
+    );
+    const member2 = spawnHostileMember(
+      w.game.world,
+      w.game.registry,
+      w.game.world.rngFor('18'),
+      partyId,
+      'hillfolk_bandit',
+      'warriors',
+      w.index(25, 2, z),
+      0,
+      false,
+    );
+
+    const party = w.game.world.entities.get(partyId, C.Party)!;
+    party.leaderId = leader;
+
+    w.step(1);
+
+    // Party should reach stockpile and enter loiter
+    w.until((world) => {
+      const p = world.game.world.entities.get(partyId, C.Party);
+      return p?.state === 'loiter';
+    }, 1500);
+
+    expect(party.state).toBe('loiter');
+    expect(party.loot.length).toBe(0);
+
+    // After LOITER_DAYS_RAID (2 days = 2400 ticks), retreats to edge and despawns
+    w.until((world) => world.events('RaidEnded').some((e) => e['partyId'] === partyId), 4500);
+
+    const raidEnded = w.events('RaidEnded').find((e) => e['partyId'] === partyId);
+    expect(raidEnded).toBeDefined();
+    expect(raidEnded?.['outcome']).toBe('withdrew');
+    expect(party.state).toBe('gone');
+    expect(w.game.world.entities.alive(leader)).toBe(false);
+    expect(w.game.world.entities.alive(member2)).toBe(false);
+  });
+
+  it('F-15: a raid whose walk returns unreachable loiters at nearest reachable tile and leaves after LOITER_DAYS_RAID', () => {
+    const w = new TestWorld({ world: 'flat-test', seed: 'f15-walk-unreachable', embark: 'none' });
+    const z = FLAT_TEST_SURFACE_Z;
+    const center = w.index(24, 24, z);
+    w.build('hearth', center, 'granite');
+
+    const partyId = createTestParty(w, 'raid', 'n');
+    const leader = spawnHostileMember(
+      w.game.world,
+      w.game.registry,
+      w.game.world.rngFor('18'),
+      partyId,
+      'gloam_warrior',
+      'warriors',
+      w.index(24, 10, z),
+      0,
+      false,
+    );
+    const party = w.game.world.entities.get(partyId, C.Party)!;
+    party.leaderId = leader;
+
+    w.step(1);
+
+    // Force walkTo to return 'unreachable' during approach to center
+    const movement = w.game.world.services.movement!;
+    const origWalkTo = movement.walkTo.bind(movement);
+    let forced = false;
+    movement.walkTo = (id, target, urgency, ctx) => {
+      if (id === leader && target === center) {
+        forced = true;
+        return 'unreachable';
+      }
+      return origWalkTo(id, target, urgency, ctx);
+    };
+
+    // Step until party enters loiter
+    w.until((world) => {
+      const p = world.game.world.entities.get(partyId, C.Party);
+      return p?.state === 'loiter';
+    }, 1500);
+
+    expect(forced).toBe(true);
+    expect(party.goalUnreachable).toBe(true);
+    expect(party.state).toBe('loiter');
+
+    // Party loiters and retreats after LOITER_DAYS_RAID
+    w.until((world) => world.events('RaidEnded').some((e) => e['partyId'] === partyId), 4500);
+
+    const raidEnded = w.events('RaidEnded').find((e) => e['partyId'] === partyId);
+    expect(raidEnded).toBeDefined();
+    expect(raidEnded?.['outcome']).toBe('withdrew');
+    expect(party.state).toBe('gone');
+  });
 });
