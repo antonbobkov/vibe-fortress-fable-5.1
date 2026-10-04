@@ -148,6 +148,8 @@ export function equipHostileCreature(
     const spawnedId = world.services.spawn.item(itemType, matIdx, tile, count, quality);
     if (spawnedId === 0) continue;
 
+    // Remove the creation contribution before the legacy ownership writes below.
+    world.services.items?.setFlag(spawnedId, ItemFlag.Foreign, true);
     const itemComp = entities.get(spawnedId, C.Item);
     if (itemComp) {
       itemComp.carriedBy = creatureId;

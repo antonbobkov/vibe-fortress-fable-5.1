@@ -1,5 +1,5 @@
 /** 13 § Rot and corpses; algorithms/jobs-and-hauling.md § Rot queue. */
-import { C, type Corpse } from '@core/components';
+import { C, ItemFlag, type Corpse } from '@core/components';
 import { TICKS_PER_DAY, TICKS_PER_HOUR } from '@core/constants';
 import { TileFlag } from '@core/map3d';
 import type { TickContext } from '@core/system';
@@ -160,11 +160,12 @@ export class RotQueue {
     if (added.length > 0) ctx.emit({ type: 'MiasmaSpread', tiles: added.sort((a, b) => a - b) });
   }
 
-  createCorpse(ctx: TickContext, creatureId: EntityId, species: number, tile: TileIndex, name: string | null, wornItems: EntityId[] = []): EntityId {
+  createCorpse(ctx: TickContext, creatureId: EntityId, species: number, tile: TileIndex, name: string | null, wornItems: EntityId[] = [], foreign = false): EntityId {
     const speciesId = ctx.registry.table('creatures').idOf(species);
     const materials = ctx.registry.table('materials');
     const material = materials.has(`${speciesId}_meat`) ? materials.index(`${speciesId}_meat`) : materials.index('skull_bone');
     const id = ctx.spawn.item(ctx.registry.table('items').index('corpse'), material, tile, 1);
+    if (foreign) this.core.setFlag(id, ItemFlag.Foreign, true);
     const corpse: Corpse = { species, diedTick: ctx.tick, wornItems: wornItems.slice(), dwarfName: speciesId === 'dwarf' ? name : null,
       weight: ctx.registry.table<{ id: string; size: number }>('creatures').byIndex(species)?.size ?? 0 };
     ctx.world.entities.add(id, C.Corpse, corpse);

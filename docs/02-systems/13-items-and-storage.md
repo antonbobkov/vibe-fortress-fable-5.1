@@ -46,6 +46,8 @@ Stockpile filters select any node; selecting a node selects its subtree. Materia
 
 ### Value
 
+Implementation note: `ItemFlag.Foreign` preserves non-fortress origin through splitting, dropping and rot (queued deaths save the origin); such items join counts and wealth only on fortress pickup, including contents, or a completed `strip_corpse` recovery (DECISIONS D-219).
+
 `value(item) = materialValue × type.valueMultiplier × qualityMultiplier × count`, integer marks, where `qualityMultiplier` is 12's tier table (0.5 … 5.0) and 1.0 for non-quality items. Engravings, decorations and encrusting do not exist in version 1, so this is the whole formula.
 
 Fortress wealth is maintained incrementally: `+value` on `ItemCreated` (fortress faction), `−value` on `ItemDestroyed`, `±` on quality change (none in version 1), `+` when a hostile's loot is recovered, `−` when a thief escapes, plus building values from 14 (`BuildingCompleted` adds its material value plus a per-type bonus; `BuildingRemoved` subtracts). `WealthChanged` is emitted at the items cadence when the cached value differs from the last emitted by more than `WEALTH_EVENT_STEP`.

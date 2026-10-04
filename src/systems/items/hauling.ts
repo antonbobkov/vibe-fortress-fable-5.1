@@ -370,7 +370,10 @@ export class Hauling {
       const corpse = core.host.entities.get<Corpse>(id, C.Corpse);
       const tile = core.tileOf(id);
       if (corpse !== undefined && tile >= 0) {
-        for (const worn of corpse.wornItems) core.dropAt(worn, tile);
+        for (const worn of corpse.wornItems) {
+          core.recoverLoot(worn);
+          core.dropAt(worn, tile);
+        }
         core.host.entities.add<Corpse>(id, C.Corpse, { ...corpse, wornItems: [] });
       }
       return;

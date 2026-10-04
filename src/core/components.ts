@@ -225,6 +225,8 @@ export enum ItemFlag {
   Merchant = 64,
   /** Superset (D-074): linked to a built piece of furniture (`Building.itemId`); out of every search and count of available stock. */
   Installed = 128,
+  /** D-219: created outside fortress possession; retained until actual loot recovery. */
+  Foreign = 256,
 }
 
 export interface Item {

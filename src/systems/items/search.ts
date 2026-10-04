@@ -252,7 +252,7 @@ export class ItemSearch {
     let n = 0;
     for (const id of this.host.entities.with(C.Item)) {
       const it = core.item(id);
-      if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.Installed)) !== 0) continue;
+      if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Installed)) !== 0) continue;
       if (matches(core, id, it, filter)) n += it.count;
     }
     return n;
@@ -264,7 +264,7 @@ export class ItemSearch {
     let n = 0;
     for (const id of this.host.entities.with(C.Item)) {
       const it = core.item(id);
-      if ((it.flags & ItemFlag.Merchant) !== 0) continue;
+      if ((it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) !== 0) continue;
       if (matches(core, id, it, filter)) n += it.count;
     }
     return n;

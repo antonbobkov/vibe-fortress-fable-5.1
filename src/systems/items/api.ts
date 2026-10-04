@@ -342,9 +342,9 @@ export class ItemCore implements ItemsApi {
     return itemValue(this.host.facts.materialValue(it.material), row.mult, it.quality, row.quality, it.count);
   }
 
-  /** Items of a fortress's own: everything but merchants' goods (13 § Value, "in fortress possession"). */
+  /** 13 § Value: fortress possessions, excluding merchants' goods and unrecovered foreign items. */
   private counted(it: Item): boolean {
-    return (it.flags & ItemFlag.Merchant) === 0;
+    return (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) === 0;
   }
 
   private contribution(it: Item): Contribution {
@@ -502,7 +502,15 @@ export class ItemCore implements ItemsApi {
   attachToCarrier(itemId: EntityId, carrierId: EntityId): void {
     this.detach(itemId);
     this.mutate(itemId, { carriedBy: carrierId });
+    if (this.entities.get(carrierId, C.Creature)?.faction === 'fortress') this.recoverLoot(itemId);
     this.notify(itemId, 'lifted');
+  }
+
+  /** 13 § Value: physical recovery includes the contents of a carried container or corpse. */
+  recoverLoot(itemId: EntityId): void {
+    this.setFlag(itemId, ItemFlag.Foreign, false);
+    for (const id of this.container(itemId)?.contents ?? []) this.recoverLoot(id);
+    for (const id of this.entities.get(itemId, C.Corpse)?.wornItems ?? []) this.recoverLoot(id);
   }
 
   /** `items.dropAt(itemId, tile)`: on the ground, falling where the tile has no bottom. */

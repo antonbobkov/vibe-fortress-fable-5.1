@@ -101,7 +101,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   private entitiesAt: (i: TileIndex) => readonly number[] = () => [];
   private wealthLastEmitted = 0;
   private rotRef: RotQueue | null = null;
-  private readonly pendingDeaths = new Map<number, { id: number; species: number; tile: TileIndex; name: string | null; wornItems: number[] }>();
+  private readonly pendingDeaths = new Map<number, ItemsStateV1['pendingDeaths'][number]>();
 
   get core(): ItemCore {
     if (this.coreRef === null) throw new Error('13 items: used before init');
@@ -225,7 +225,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   override tick(ctx: TickContext): void {
     const core = this.core;
     for (const death of Array.from(this.pendingDeaths.values()).sort((a, b) => a.id - b.id)) {
-      if (ctx.world.map.validIndex(death.tile)) this.rotRef?.createCorpse(ctx, death.id, death.species, death.tile, death.name, death.wornItems);
+      if (ctx.world.map.validIndex(death.tile)) this.rotRef?.createCorpse(ctx, death.id, death.species, death.tile, death.name, death.wornItems, death.foreign);
     }
     this.pendingDeaths.clear();
     this.rotRef?.tick(ctx);
@@ -247,11 +247,13 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       const species = event['species'] ?? (typeof id === 'number' ? core.host.entities.get(id, C.Creature)?.species : undefined);
       if (typeof id === 'number' && typeof tile === 'number' && typeof species === 'number') {
         const equip = core.host.entities.get(id, C.Equipment);
+        const faction = event['faction'] ?? core.host.entities.get(id, C.Creature)?.faction;
         const wornItems = Array.isArray(event['wornItems']) ? (event['wornItems'] as number[]).slice() : equip === undefined ? [] :
           [equip.weapon, equip.shield, equip.quiver, ...Object.values(equip.armor), ...Object.values(equip.clothing)]
             .filter((itemId) => itemId !== 0 && core.isItem(itemId));
         this.pendingDeaths.set(id, { id, tile, species, name: typeof event['name'] === 'string' ? event['name'] : core.host.entities.get(id, C.Creature)?.name ?? null,
-          wornItems: Array.from(new Set(wornItems)).sort((a, b) => a - b) });
+          wornItems: Array.from(new Set(wornItems)).sort((a, b) => a - b),
+          ...(typeof faction === 'string' && faction !== 'fortress' ? { foreign: true } : {}) });
       }
     } else if (event.type === 'CorpseCreated') {
       const id = event['creatureId'];
