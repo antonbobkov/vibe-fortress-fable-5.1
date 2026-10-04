@@ -99,6 +99,8 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `animals.breedingCap`, `animals.capOf`, `animals.nestBoxes`; events additions: `CorpseCreated`, `CreatureDied`, `CreatureFled`, `Starvation`; commands additions: `NameAnimal`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `animals.isWild(id)`, `animals.isTame(id)`, `animals.state(id)`

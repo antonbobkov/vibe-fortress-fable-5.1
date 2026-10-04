@@ -61,6 +61,8 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `immigration.lastSkipReason`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `immigration.cap()`, `immigration.wavesSoFar()`, `immigration.lastWave()`

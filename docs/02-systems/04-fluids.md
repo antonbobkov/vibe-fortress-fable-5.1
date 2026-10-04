@@ -109,6 +109,8 @@ When a step ends with water at level ≥ 1 on a tile whose kind is `floor` and w
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `fluids.isActive`; events additions: `CreatureDied`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `fluids.levelAt(i)`, `fluids.typeAt(i)` (`none | water | magma`), `fluids.isSource(i)`, `fluids.isFrozen(i)`

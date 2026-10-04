@@ -62,6 +62,8 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
 
 ## Interfaces
 
+Implementation note: Hunt events are emitted by 11 while executing 09 jobs; CreateZone is owned by 14; events references: `HuntAbandoned`, `HuntKill`, `HuntStarted`; commands references: `CreateZone`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `foraging.isHuntable(species)`, `foraging.huntTargets()` (animal ids currently eligible)

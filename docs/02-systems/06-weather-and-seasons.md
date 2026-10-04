@@ -84,6 +84,8 @@ Freezing is 05's decision; this system only provides the temperature. In winter 
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `weather.daylightHours`, `weather.snowCoveredChunks`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `weather.state()`, `weather.surfaceTempC()`, `weather.isDaylight()`

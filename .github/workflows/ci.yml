@@ -1,0 +1,34 @@
+name: Verification
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *'
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run content:check
+      - run: npm run strings:check
+      - run: npm run interface:check
+      - run: npm test
+      - run: npm run build
+      - if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: node node_modules/@playwright/test/cli.js install --with-deps chromium
+      - if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: npm run test:e2e
+      - if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: npm run test:perf

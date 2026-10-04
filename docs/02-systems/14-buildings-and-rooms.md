@@ -124,6 +124,8 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `buildings.blocksSightAt`, `buildings.cageOccupant`, `buildings.cropLitAt`, `buildings.doorAt`, `buildings.doorOpen`, `buildings.ghost`, `buildings.hearthLightAt`, `buildings.holderTile`, `buildings.inputTypes`, `buildings.lockedHatchAt`, `buildings.memorialEligible`, `buildings.roomScore`, `buildings.types`, `buildings.value`, `buildings.wagon`, `buildings.wellWorking`, `buildings.zoneTileQualifies`, `buildings.zonesAt`; events additions: `DamageDealt`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `buildings.at(i)`, `buildings.get(id)`, `buildings.byType(type)`, `buildings.byTag(tag)`

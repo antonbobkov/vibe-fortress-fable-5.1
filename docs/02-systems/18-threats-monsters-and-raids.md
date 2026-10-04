@@ -107,6 +107,8 @@ Hostile parties target caravan members like fortress creatures (traders are `tra
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; events additions: `CreatureDied`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `threats.activeParties()`, `threats.party(id)`, `threats.partyOf(creatureId)`, `threats.isHostile(id)`, `threats.isStealthed(id)`, `threats.isSpotted(id)`

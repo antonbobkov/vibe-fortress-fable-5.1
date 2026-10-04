@@ -67,9 +67,10 @@ import { DEFAULT_USER_SETTINGS, type UserSettings } from '@ui/settings';
 import type { TradeReader } from '@systems/trade';
 import { createStorage, StorageQuotaError } from '@platform/storage';
 import type { Command } from '@core/commands';
+import { EventListeners, type EventListener, type Unsubscribe } from '@core/events';
 import type { Registry } from '@core/registry';
 import { localMapSpec } from '@systems/embark';
-import { generate, worldReader, type WorldMap, type WorldgenReader, type WorldgenStage } from '@systems/worldgen';
+import { generate, worldGeneratedEvent, worldReader, type WorldMap, type WorldgenReader, type WorldgenStage } from '@systems/worldgen';
 import { Keymap, type KeymapRow } from '@ui/keymap';
 import { Strings } from '@ui/strings';
 import { GlyphMap, Surface, themeOf, type Theme } from '@ui/surface';
@@ -826,6 +827,13 @@ export class Game {
     return top === FORTRESS ? null : top;
   }
 
+  private readonly appEvents = new EventListeners();
+
+  /** Events before a fortress exists, notably 01's completed world generation. */
+  onAppEvents(listener: EventListener): Unsubscribe {
+    return this.appEvents.add(listener);
+  }
+
   private top(): StackEntry {
     return this.stack[this.stack.length - 1] as StackEntry;
   }
@@ -904,10 +912,13 @@ export class Game {
       new WorldGenScreen(
         {
           randomSeed: () => this.randomSeed(),
-          generate: (seed, size, onProgress) =>
-            generate(seed, size, this.registry, {
+          generate: (seed, size, onProgress) => {
+            const world = generate(seed, size, this.registry, {
               onProgress: (stage: WorldgenStage, pct: number) => onProgress(stage, pct),
-            }),
+            });
+            this.appEvents.deliver([worldGeneratedEvent(world)]);
+            return world;
+          },
           back: () => this.popScreen(),
           continueTo: (world) => this.openWorldMap(world),
         },

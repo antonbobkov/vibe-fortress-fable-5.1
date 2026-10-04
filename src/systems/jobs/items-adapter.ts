@@ -14,6 +14,8 @@ import type { EntityReader } from '@core/readers';
 import type { ItemsApi } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { ItemsReader } from '@systems/items';
+import type { TickContext } from '@core/system';
+import type { JobBoard } from './board';
 import type { ItemSource } from './producers';
 import type { ItemFilter, Tool } from './state';
 
@@ -121,4 +123,28 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
     dropAt: (itemId, tile) => api.dropAt(itemId, tile),
     equip: (workerId, itemId) => api.attachToCarrier(itemId, workerId),
   };
+}
+
+/** 11 § Assignment: keep tools until both tool labors are off and a stockpile is passed. */
+export function dropUnusedTools(board: JobBoard, ctx: TickContext): void {
+  const api = ctx.world.services.items;
+  if (api === null || !ctx.readers.has('13')) return;
+  const items = ctx.readers.of<ItemsReader>('13');
+  const mining = board.laborOf('mining');
+  const woodcutting = board.laborOf('woodcutting');
+  for (const id of board.workers()) {
+    const worker = board.workerOf(id);
+    if (worker.toolId === 0 || board.laborEnabled(id, mining) || board.laborEnabled(id, woodcutting)) continue;
+    const item = items.get(worker.toolId);
+    if (item?.carriedBy !== id) continue;
+    const category = items.categoryOf(item.type);
+    if (category !== 'tool/pick' && category !== 'tool/axe') continue;
+    const tile = board.workerTile(id);
+    if (tile < 0 || items.stockpileAt(tile) === 0) continue;
+    const equipment = ctx.world.entities.get(id, C.Equipment);
+    if (equipment?.weapon === worker.toolId) ctx.world.entities.add(id, C.Equipment, { ...equipment, weapon: 0 });
+    api.dropAt(worker.toolId, tile);
+    board.setWorker(id, { toolId: 0 });
+    ctx.emit({ type: 'ToolDropped', itemId: worker.toolId });
+  }
 }

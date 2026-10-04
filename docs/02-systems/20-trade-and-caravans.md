@@ -86,6 +86,8 @@ Reputation drifts toward 0 by `REP_DRIFT_PER_YEAR` each year (grudges and favors
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `trade.reputationLog`, `trade.session`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `trade.activeCaravan()` (civ, state, days remaining), `trade.schedule()` ("Hillfolk: summer", never the day), `trade.isBanned(civ)`

@@ -127,6 +127,8 @@ Presentation-only: screen stack, active panel, tool state, cursor, selection, lo
 
 ## Interfaces
 
+Implementation note: The saved legend journal implemented in T-M7-06 shares system id 24; the presentation UI itself exposes no simulation reader; reader additions: `legend.deepestZ`, `legend.kills`, `legend.peakPopulation`; audited in DECISIONS D-220.
+
 - `ui.registerPanel(spec)`, `ui.registerInspector(kind, section)`, `ui.registerAnnouncement(type, spec)`, `ui.registerHint(hint)`
 - `ui.pushScreen(screen)`, `ui.popScreen()`, `ui.confirm(text) → Promise<boolean>`
 - `ui.announce(severity, text, focus?)` (for app-level messages such as save errors)

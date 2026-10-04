@@ -112,6 +112,8 @@ Speed: `Motion.speed` is recomputed by the owning brain when its inputs change: 
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `pathing.requestsPending`, `pathing.requestsServed`, `spatial.inBoxWhere`, `spatial.inRadiusWhere`; audited in DECISIONS D-220.
+
 Implementation note: `pathing.connectivityRevision()` is a derived rebuild token used to recheck only shut-out civilians after connectivity changes (F-16, D-217).
 
 ### Reader (`readers.pathing`, `readers.spatial`)

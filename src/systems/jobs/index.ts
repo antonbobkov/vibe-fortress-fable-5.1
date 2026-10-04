@@ -15,7 +15,7 @@ import { BaseSystem, Registrations, type InitContext, type TickContext } from '@
 import type { EntityId, TileIndex } from '@core/types';
 import type { ItemsReader } from '@systems/items';
 import { JobBoard } from './board';
-import { itemSourceOf } from './items-adapter';
+import { dropUnusedTools, itemSourceOf } from './items-adapter';
 import { NO_ITEMS } from './producers';
 import {
   applyCancelJob,
@@ -113,6 +113,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
   override tick(ctx: TickContext): void {
     this.readProducers();
     this.connectItems(ctx);
+    dropUnusedTools(this.board, ctx);
     this.board.tick(ctx);
   }
 

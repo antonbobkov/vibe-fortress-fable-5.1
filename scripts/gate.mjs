@@ -30,6 +30,7 @@ function steps(milestone) {
     { name: 'content:check', script: 'content:check' },
     // T-M7-10: the strings audit fails on a missing or an unused key.
     { name: 'strings:check', script: 'strings:check' },
+    { name: 'interface:check', script: 'interface:check' },
     // `--coverage` makes vitest enforce the thresholds of vitest.config.ts.
     { name: 'test', script: 'test', args: ['--coverage'] },
     // The e2e suite is part of every gate (M0: `boot`).

@@ -125,6 +125,8 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ## Interfaces
 
+Implementation note: SetLabor is owned by 11; DwarfDied is a legacy name for the CreatureDied event emitted by 17 and consumed by 10 and 18; reader additions: `dwarves.isUnclothed`, `dwarves.titles`; events additions: `Starvation`; events references: `DwarfDied`; commands references: `SetLabor`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `dwarves.list()`, `dwarves.population()`, `dwarves.adults()`, `dwarves.children()`

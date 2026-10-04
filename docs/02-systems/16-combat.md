@@ -133,6 +133,8 @@ Every `AttackResolved` is rendered by the announcement registry into a combat lo
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `combat.armorSpeedModifier`; commands additions: `RenameSquad`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `combat.isHostile(a, b)`, `combat.factionOf(id)`, `combat.targetOf(id)`

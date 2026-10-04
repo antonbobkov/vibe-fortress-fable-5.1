@@ -89,6 +89,8 @@ Fortifications are constructions (03, 14) and their firing rules are in 16. This
 
 ## Interfaces
 
+Implementation note: ReleaseCage and SetDoorMode are owned by 14; SetLockOnAlert denotes the SetDoorMode flag, not a separate command; events additions: `DamageDealt`, `ThiefSpotted`; commands additions: `PullLever`; commands references: `ReleaseCage`, `SetDoorMode`, `SetLockOnAlert`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `defense.trapAt(i)`, `defense.trapState(id)`, `defense.trapMode(id)`

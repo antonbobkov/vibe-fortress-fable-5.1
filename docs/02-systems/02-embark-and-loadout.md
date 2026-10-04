@@ -81,6 +81,8 @@ Embark state exists only during the embark screen: `budget`, `party[]`, `supplie
 
 ## Interfaces
 
+Implementation note: Embark session fields are constructor-owned state, not exported reader methods; reader references: `embark.session`; audited in DECISIONS D-220.
+
 ### Reader
 
 Not applicable after embark. During embark the screen holds the state directly through `embark.session()`.

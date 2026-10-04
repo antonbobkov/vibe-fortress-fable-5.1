@@ -88,6 +88,8 @@ On `MagmaContact { entities }`, for each item: if `meltsAtOf[material] ≤ MAGMA
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `materials.isWarmSpring`, `materials.surfaceTempC`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `materials.temperatureAt(i)`

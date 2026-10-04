@@ -137,6 +137,8 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `jobs.hasUrgent`, `jobs.hasWork`, `jobs.isQueued`, `jobs.typeOf`; events additions: `HuntAbandoned`, `HuntKill`, `HuntStarted`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `jobs.list(state?)`, `jobs.get(id)`, `jobs.byKey(key)`, `jobs.forWorker(dwarfId)`

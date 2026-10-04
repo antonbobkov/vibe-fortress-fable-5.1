@@ -91,6 +91,8 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `plants.ashTiles`, `plants.bareSoil`, `plants.cropReady`, `plants.crops`, `plants.grassIsDry`, `plants.plots`, `plants.saplings`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `plants.cropAt(i)`, `plants.cropInfo(id)` (species, stage, progress percent)

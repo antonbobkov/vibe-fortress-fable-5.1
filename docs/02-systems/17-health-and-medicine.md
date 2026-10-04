@@ -102,6 +102,8 @@ Tame animals get bandaging only (`stop_bleeding` when `animal_care` labor exists
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; events additions: `CreatureSubmerged`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `health.isConscious(id)`, `health.bloodPercent(id)`, `health.pain(id)`, `health.isWounded(id)`

@@ -115,6 +115,8 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `workshops.mealName`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `workshops.ordersOf(workshopId)`, `workshops.allOrders()`, `workshops.globalOrders()`

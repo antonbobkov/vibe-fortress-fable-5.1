@@ -104,6 +104,8 @@ When a designation is applied to a tile that no longer matches its precondition 
 
 ## Interfaces
 
+Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `terrain.inspect`, `terrain.intendedDrops`, `terrain.isForbidden`; commands additions: `ConfirmDeepsilver`; audited in DECISIONS D-220.
+
 ### Reader
 
 - `terrain.designationAt(i)`, `terrain.designations()`

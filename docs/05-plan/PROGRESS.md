@@ -169,6 +169,6 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M8-05 — E2E `full-year` (agy-m805, 2026-10-02)
 - [x] T-M8-06 — Balance pass (agy-m806, 2026-10-02)
 - [x] T-M8-07 — Colorblind palette and accessibility checks (agy-m807, 2026-10-02)
-- [ ] T-M8-08 — Documentation sync
+- [x] T-M8-08 — Documentation sync (codex-m808, 2026-10-04)
 - [ ] T-M8-09 — Release build
 - [ ] T-M8-10 — Gate M8 — release

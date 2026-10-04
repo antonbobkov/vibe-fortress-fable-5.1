@@ -141,6 +141,8 @@ Filters: `{ type | category | tag, materialClass | materialId, minQuality, edibl
 
 ## Interfaces
 
+Implementation note: SetHospitalSupplies is owned by 17; reader additions: `items.available`, `items.containerRecord`, `items.countMatching`, `items.countOf`, `items.findSlot`, `items.itemCategory`, `items.room`, `items.stock`, `items.stockedTypes`, `items.stockpile`, `items.tileOf`, `items.unburiedDead`; commands references: `SetHospitalSupplies`; audited in DECISIONS D-220.
+
 ### Reader
 
 Implementation note: `items.bestUnattendedItems(from, radius)` optionally visits only same-z tiles in the Chebyshev square, retaining value/slot ranking; hostile loot searches retain full candidates when party exclusions hide a tile maximum (DECISIONS D-211).

@@ -18,7 +18,8 @@
     "golden:update": "node scripts/golden-update.mjs",
     "golden:png": "node scripts/render-goldens-png.mjs",
     "hash": "node scripts/world-hash.mjs",
-    "gate": "node scripts/gate.mjs"
+    "gate": "node scripts/gate.mjs",
+    "interface:check": "node scripts/interface-check.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
