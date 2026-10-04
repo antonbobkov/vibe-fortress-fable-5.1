@@ -232,21 +232,26 @@ export function canLootItem(m: EntityId, P: Party, ctx: TickContext): boolean {
   return true;
 }
 
-export function findUnattendedItemWithinRadius(pos: TileIndex, radius: number, ctx: TickContext): EntityId {
+export function findUnattendedItemWithinRadius(pos: TileIndex, radius: number, ctx: TickContext, P?: Party): EntityId {
   const entities = ctx.world.entities;
   const map = ctx.world.map;
   const mx = map.xOf(pos);
   const my = map.yOf(pos);
   const mz = map.zOf(pos);
 
-  let bestItem: EntityId = 0;
-  let bestDist = Infinity;
+  const itemsReader = ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13') : null;
+  const buildingsReader = ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : null;
 
-  for (const itId of ctx.readers.spatial.inRadius(pos, radius, 'item').slice().sort((a, b) => entityIndex(a) - entityIndex(b))) {
+  let bestItem: EntityId = 0;
+  let bestInStockpile = false;
+  let bestValue = -Infinity;
+
+  for (const itId of ctx.readers.spatial.inRadius(pos, radius, 'item')) {
     if (!entities.alive(itId)) continue;
     const it = entities.get(itId, C.Item);
     if (!it || it.carriedBy !== 0 || it.containerId !== 0) continue;
     if ((it.flags & 1) !== 0) continue; // ItemFlag.Forbidden = 1
+    if (P && P.loot.includes(itId)) continue;
 
     const p = entities.get(itId, C.Position);
     if (!p || p.z !== mz) continue;
@@ -254,16 +259,70 @@ export function findUnattendedItemWithinRadius(pos: TileIndex, radius: number, c
     const dx = Math.abs(p.x - mx);
     const dy = Math.abs(p.y - my);
     const dist = Math.max(dx, dy);
-    if (dist <= radius && dist < bestDist) {
-      const itTile = map.index(p.x, p.y, p.z);
-      if (ctx.readers.pathing.reachable(pos, itTile, 'walker')) {
+    if (dist > radius) continue;
+
+    const itTile = map.index(p.x, p.y, p.z);
+    if (!ctx.readers.pathing.reachable(pos, itTile, 'walker')) continue;
+
+    const zId = buildingsReader ? buildingsReader.zoneAt(itTile) : 0;
+    const inStockpile = zId !== 0 && buildingsReader?.zone(zId)?.type === 'stockpile';
+    const value = itemsReader ? itemsReader.value(itId) : 0;
+
+    if (bestItem === 0) {
+      bestItem = itId;
+      bestInStockpile = inStockpile;
+      bestValue = value;
+    } else if (inStockpile !== bestInStockpile) {
+      if (inStockpile) {
         bestItem = itId;
-        bestDist = dist;
+        bestInStockpile = inStockpile;
+        bestValue = value;
       }
+    } else if (value !== bestValue) {
+      if (value > bestValue) {
+        bestItem = itId;
+        bestInStockpile = inStockpile;
+        bestValue = value;
+      }
+    } else if (entityIndex(itId) < entityIndex(bestItem)) {
+      bestItem = itId;
+      bestInStockpile = inStockpile;
+      bestValue = value;
     }
   }
 
   return bestItem;
+}
+
+export function banditPartyLootStockpile(P: Party, ctx: TickContext): void {
+  const entities = ctx.world.entities;
+
+  const alive = P.members.filter((m) => {
+    if (!entities.alive(m)) return false;
+    const body = entities.get(m, C.Body);
+    if (body !== undefined && !body.conscious) return false;
+    return true;
+  });
+
+  for (const m of alive) {
+    if (!canLootItem(m, P, ctx)) continue;
+    const mPos = positionOf(m, ctx);
+    if (mPos < 0) continue;
+
+    const lootItem = findUnattendedItemWithinRadius(mPos, LOOT_RADIUS, ctx, P);
+    if (lootItem !== 0) {
+      pickUpLoot(m, lootItem, P, ctx);
+    }
+  }
+
+  if (P.loot.length > 0) {
+    P.state = 'retreat';
+    P.stateSince = ctx.tick;
+    P.outcome = 'looted';
+  } else {
+    P.state = 'loiter';
+    P.stateSince = ctx.tick;
+  }
 }
 
 export function pickUpLoot(m: EntityId, lootId: EntityId, P: Party, ctx: TickContext): void {
@@ -503,7 +562,9 @@ export function chooseGoal(P: Party, ctx: TickContext): void {
     }
   } else if (P.purpose === 'bandits') {
     let nearestStockpileTile = -1;
-    let nearestDist = Infinity;
+    let nearestReachableStockpileTile = -1;
+    let nearestReachableDist = Infinity;
+    let nearestAnyDist = Infinity;
 
     if (buildingsReader) {
       const stockpiles = buildingsReader.zonesOfType('stockpile');
@@ -511,21 +572,30 @@ export function chooseGoal(P: Party, ctx: TickContext): void {
         const zone = buildingsReader.zone(spId);
         if (!zone) continue;
         for (const t of zone.tiles) {
+          const d = chebyshevDist(leaderPos, t, map);
+          if (d < nearestAnyDist) {
+            nearestAnyDist = d;
+            nearestStockpileTile = t;
+          }
           if (ctx.readers.pathing.reachable(leaderPos, t, 'walker')) {
-            const d = chebyshevDist(leaderPos, t, map);
-            if (d < nearestDist) {
-              nearestDist = d;
-              nearestStockpileTile = t;
+            if (d < nearestReachableDist) {
+              nearestReachableDist = d;
+              nearestReachableStockpileTile = t;
             }
           }
         }
       }
     }
 
-    if (nearestStockpileTile >= 0) {
-      P.goalTile = nearestStockpileTile;
+    if (nearestReachableStockpileTile >= 0) {
+      P.goalTile = nearestReachableStockpileTile;
       P.goalEntity = 0;
       P.goalUnreachable = false;
+    } else if (nearestStockpileTile >= 0) {
+      const nearest = ctx.readers.pathing.nearestReachable(leaderPos, nearestStockpileTile, 'walker', 3000);
+      P.goalTile = nearest >= 0 ? nearest : leaderPos;
+      P.goalEntity = 0;
+      P.goalUnreachable = true;
     } else {
       setHearthOrWagonGoal(P, leaderPos, buildingsReader, ctx);
     }
@@ -692,7 +762,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
     }
     case 'loiter': {
       // If a broken door makes the goal reachable, the party returns to approach.
-      if (P.goalUnreachable) {
+      if (P.goalUnreachable && !P.walkUnreachable) {
         chooseGoal(P, ctx);
         if (!P.goalUnreachable) {
           P.state = 'approach';
@@ -837,7 +907,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
 
   if (P && (P.state === 'engage' || P.state === 'loiter')) {
     if (canLootItem(m, P, ctx)) {
-      const lootItem = findUnattendedItemWithinRadius(pos, LOOT_RADIUS, ctx);
+      const lootItem = findUnattendedItemWithinRadius(pos, LOOT_RADIUS, ctx, P);
       if (lootItem !== 0) {
         let itemTile = -1;
         if (ctx.readers.has('13')) {
@@ -856,6 +926,11 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
 
   // 6. Movement / following leader
   if (!P) return;
+
+  if (P.state === 'approach' && P.goalTile === 0) {
+    chooseGoal(P, ctx);
+  }
+  if (P.goalTile === 0) return;
 
   if (P.purpose === 'thief') {
     let targetTile = P.goalTile;
@@ -887,19 +962,58 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
     const map = ctx.world.map;
     const sameZ = map.zOf(pos) === map.zOf(P.goalTile);
     const distToGoal = sameZ ? chebyshevDist(pos, P.goalTile, map) : Infinity;
+    const leaderArrivedAtGoal = pos === P.goalTile || (sameZ && distToGoal <= 1);
 
-    if (pos === P.goalTile) {
-      if (P.goalUnreachable && P.state === 'approach') {
-        P.state = 'loiter';
-        P.stateSince = ctx.tick;
-      }
-    } else {
-      const outcome = ctx.world.services.movement?.walkTo(m, P.goalTile, 'combat', ctx);
-      const arrived = outcome === 'arrived' || outcome === 'unreachable' || (outcome !== 'moving' && outcome !== 'pending' && sameZ && distToGoal <= 1);
-      if (arrived) {
-        if (P.goalUnreachable && P.state === 'approach') {
+    if (leaderArrivedAtGoal) {
+      if (P.goalUnreachable) {
+        if (P.state === 'approach') {
           P.state = 'loiter';
           P.stateSince = ctx.tick;
+        }
+      } else if (P.purpose === 'bandits') {
+        if (P.state === 'approach') {
+          banditPartyLootStockpile(P, ctx);
+        }
+      }
+      return;
+    }
+
+    const outcome = ctx.world.services.movement?.walkTo(m, P.goalTile, 'combat', ctx);
+    if (outcome === 'unreachable') {
+      if (P.state === 'approach') {
+        P.walkUnreachable = true;
+        if (!P.goalUnreachable) {
+          P.goalUnreachable = true;
+          const nearest = ctx.readers.pathing.nearestReachable(pos, P.goalTile, 'walker', 3000);
+          P.goalTile = nearest >= 0 ? nearest : pos;
+          const posAfter = positionOf(m, ctx);
+          const sameZNew = posAfter >= 0 && map.zOf(posAfter) === map.zOf(P.goalTile);
+          const distNew = sameZNew ? chebyshevDist(posAfter, P.goalTile, map) : Infinity;
+          if (posAfter === P.goalTile || (sameZNew && distNew <= 1)) {
+            P.state = 'loiter';
+            P.stateSince = ctx.tick;
+          }
+        } else {
+          P.state = 'loiter';
+          P.stateSince = ctx.tick;
+        }
+      }
+    } else {
+      const posAfter = positionOf(m, ctx);
+      const sameZAfter = posAfter >= 0 && map.zOf(posAfter) === map.zOf(P.goalTile);
+      const distAfter = sameZAfter ? chebyshevDist(posAfter, P.goalTile, map) : Infinity;
+      const arrivedAfter = outcome === 'arrived' || posAfter === P.goalTile || (sameZAfter && distAfter <= 1);
+
+      if (arrivedAfter) {
+        if (P.goalUnreachable) {
+          if (P.state === 'approach') {
+            P.state = 'loiter';
+            P.stateSince = ctx.tick;
+          }
+        } else if (P.purpose === 'bandits') {
+          if (P.state === 'approach') {
+            banditPartyLootStockpile(P, ctx);
+          }
         }
       }
     }

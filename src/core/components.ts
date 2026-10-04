@@ -370,6 +370,7 @@ export interface Party {
   outcome?: string;
   despawnedCount?: number;
   goalUnreachable?: boolean;
+  walkUnreachable?: boolean;
 }
 
 export interface Hostile {
