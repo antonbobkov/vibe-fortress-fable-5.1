@@ -13,6 +13,7 @@ import type { TickContext } from '@core/system';
 import type { BodySlot, DamageType, EntityId, TileIndex } from '@core/types';
 import { grantXp } from '@systems/dwarves';
 import type { BuildingsReader } from '@systems/buildings';
+import type { ItemsReader } from '@systems/items';
 import {
   AMMO_BREAK_PERMILLE,
   BLUNT_THROUGH_PERCENT,
@@ -344,6 +345,7 @@ export function findAmmoForShooter(
   registry: Registry,
   shooterId: EntityId,
   wantedAmmoId: string,
+  carriedItems?: readonly EntityId[],
 ): EntityId {
   const equip = entities.get(shooterId, C.Equipment);
   const itemsTable = registry.table<{ id: string }>('items');
@@ -359,7 +361,7 @@ export function findAmmoForShooter(
   }
 
   // Check carried items
-  for (const id of entities.with(C.Item)) {
+  for (const id of carriedItems ?? entities.with(C.Item)) {
     const item = entities.get(id, C.Item);
     if (item && item.carriedBy === shooterId && item.count > 0) {
       const row = itemsTable.byIndex(item.type);
@@ -565,7 +567,8 @@ export function fireRanged(
     weaponSize = naturalRanged.size;
   } else if (launcher && w) {
     // Find ammo
-    const ammoId = findAmmoForShooter(entities, registry, shooterId, launcher.ammo);
+    const carriedItems = ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13').carriedItems(shooterId) : undefined;
+    const ammoId = findAmmoForShooter(entities, registry, shooterId, launcher.ammo, carriedItems);
     if (ammoId === 0) return false;
 
     // Split or take 1 ammo unit

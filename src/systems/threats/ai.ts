@@ -12,6 +12,7 @@ import { TICKS_PER_DAY } from '@core/constants';
 import { entityIndex } from '@core/entities';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { ItemsReader } from '@systems/items/reader';
+import { PERCEPTION_RADIUS } from '@systems/combat/constants';
 import {
   ENGAGE_IDLE_TICKS,
   FOLLOW_RADIUS,
@@ -174,7 +175,7 @@ export function findAdjacentLockedDoor(pos: TileIndex, ctx: TickContext): Entity
 }
 
 export function findCombatTarget(
-  _m: EntityId,
+  m: EntityId,
   pos: TileIndex,
   role: string,
   ctx: TickContext,
@@ -187,6 +188,7 @@ export function findCombatTarget(
   const mx = map.xOf(pos);
   const my = map.yOf(pos);
   const mz = map.zOf(pos);
+  const movementClass = ctx.world.entities.get(m, C.Motion)?.movementClass ?? 'walker';
 
   let bestSoldier: EntityId = 0;
   let bestSoldierDist = Infinity;
@@ -199,13 +201,13 @@ export function findCombatTarget(
     const dx = Math.abs(target.x - mx);
     const dy = Math.abs(target.y - my);
     const dist = Math.max(dx, dy);
-    if (dist > 14) continue; // perception radius 14
+    if (dist > PERCEPTION_RADIUS) continue;
     // A farther visible target cannot displace either chosen minimum. Preserve strict ties.
     if (dist >= bestCreatureDist && (!isArcher || !target.soldier || dist >= bestSoldierDist)) continue;
 
     if (!pathing.lineOfSight(pos, target.tile)) continue;
 
-    if (requireReachable && !pathing.reachable(pos, target.tile, 'walker')) continue;
+    if (requireReachable && !pathing.reachable(pos, target.tile, movementClass)) continue;
 
     if (target.soldier && dist < bestSoldierDist) {
       bestSoldier = target.id;
@@ -220,7 +222,16 @@ export function findCombatTarget(
   if (isArcher && bestSoldier !== 0) {
     return bestSoldier;
   }
-  return bestCreature;
+  if (bestCreature !== 0) return bestCreature;
+  // Visibility acquires a target. Once acquired, 16 owns its lifetime: a turn in a
+  // reachable path may occlude it without taking it out of perception.
+  const current = ctx.world.services.combat?.targetOf(m) ?? 0;
+  const p = ctx.world.entities.get(current, C.Position);
+  if (current !== 0 && ctx.world.entities.alive(current) && p !== undefined &&
+      ctx.world.entities.get(current, C.Creature)?.faction === 'fortress' &&
+      Math.abs(p.z - mz) <= 2 && Math.max(Math.abs(p.x - mx), Math.abs(p.y - my)) <= PERCEPTION_RADIUS &&
+      (!requireReachable || pathing.reachable(pos, map.index(p.x, p.y, p.z), movementClass))) return current;
+  return 0;
 }
 
 export function canLootItem(m: EntityId, P: Party, ctx: TickContext): boolean {
@@ -885,14 +896,17 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
       H.behaviorState = 'attack';
       if (P && (P.state === 'approach' || (P.state === 'loiter' && !allowUnreachable))) {
         const targetPos = positionOf(target, ctx);
-        if (targetPos >= 0 && ctx.readers.pathing.reachable(pos, targetPos, 'walker')) {
+        if (targetPos >= 0 && ctx.readers.pathing.reachable(pos, targetPos, entities.get(m, C.Motion)?.movementClass ?? 'walker')) {
           P.state = 'engage';
           P.stateSince = ctx.tick;
         }
       }
       return;
-    } else if (ctx.world.services.combat?.targetOf(m) !== 0 && !allowUnreachable) {
-      ctx.world.services.combat?.setTarget(m, 0);
+    } else if ((ctx.world.services.combat?.targetOf(m) ?? 0) !== 0) {
+      // Let 16 finish its TARGET_LOSE_TICKS check; an AI fallback walk must not
+      // replace that combat path while the target is still held.
+      H.behaviorState = 'attack';
+      return;
     }
   }
 

@@ -17,6 +17,7 @@ import {
 } from '@core/system';
 import type { Alert, EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
+import type { ItemsReader } from '@systems/items';
 import {
   COMBAT_CADENCE,
   COMBAT_PHASE,
@@ -27,7 +28,7 @@ import {
 } from './constants';
 import { isCreatureHostile, isFactionHostile } from './factions';
 import { resolveMelee, weaponOf } from './melee';
-import { advanceProjectiles, fireRanged, lineOfSightRanged } from './ranged';
+import { advanceProjectiles, findAmmoForShooter, fireRanged, lineOfSightRanged } from './ranged';
 import { makeCombatReader, type CombatReader } from './reader';
 import {
   createSquad,
@@ -279,6 +280,10 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       const dx = Math.abs(xA - xT);
       const dy = Math.abs(yA - yT);
       const dz = Math.abs(zA - zT);
+      if (Math.max(dx, dy) > PERCEPTION_RADIUS || dz > 2) {
+        this.targets.clearTarget(id);
+        continue;
+      }
       const isAdjacent = dz === 0 && Math.max(dx, dy) <= 1;
 
       const w = weaponOf(entities, ctx.registry, id);
@@ -287,35 +292,34 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       const spRow = creatureA ? spTable.byIndex(creatureA.species) : undefined;
       const naturalRanged = spRow?.attacks?.find((a) => typeof a.range === 'number' && a.range > 0);
 
-      const isRanged = (w !== null && w.weaponDef.launcher !== undefined) || naturalRanged !== undefined;
+      const launcher = w?.weaponDef.launcher;
+      const hasAmmo = launcher !== undefined && findAmmoForShooter(entities, ctx.registry, id, launcher.ammo,
+        ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13').carriedItems(id) : undefined) !== 0;
+      const isRanged = hasAmmo || naturalRanged !== undefined;
       const maxRangedDist = w?.weaponDef.launcher?.range ?? naturalRanged?.range ?? 12;
       const tileA = map.index(xA, yA, zA);
       const tileT = map.index(xT, yT, zT);
       const dist = Math.max(dx, dy) + dz * 2;
 
-      if (
-        isRanged &&
-        dist <= maxRangedDist &&
-        this.lineOfSight(tileA, tileT)
-      ) {
-        const cooldown = this.targets.cooldownUntil.get(id) ?? 0;
-        if (cooldown <= tick) {
-          this.targets.engagements.set(id, tick);
-          this.fireAt(id, target);
-        }
-      } else if (isAdjacent) {
+      if (isAdjacent) {
+        this.targets.unreachableSince.delete(id);
         const cooldown = this.targets.cooldownUntil.get(id) ?? 0;
         if (cooldown <= tick) {
           this.targets.engagements.set(id, tick);
           resolveMelee(ctx, id, target, this.targets.cooldownUntil);
         }
-      } else {
-        // Perception check
-        if (Math.max(dx, dy) > PERCEPTION_RADIUS || dz > 2) {
-          this.targets.clearTarget(id);
-          continue;
+      } else if (
+        isRanged &&
+        dist <= maxRangedDist &&
+        this.lineOfSight(tileA, tileT)
+      ) {
+        this.targets.unreachableSince.delete(id);
+        const cooldown = this.targets.cooldownUntil.get(id) ?? 0;
+        if (cooldown <= tick) {
+          this.targets.engagements.set(id, tick);
+          this.fireAt(id, target);
         }
-
+      } else {
         // Approach toward target
         const soldier = entities.get(id, C.Soldier);
         if (soldier?.stance !== 'hold') {
@@ -357,13 +361,16 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
 
           const outcome = ctx.world.services.movement?.walkTo(id, tileT, 'combat', ctx);
           if (outcome === 'unreachable') {
-            const unreach = (this.targets.unreachableTicks.get(id) ?? 0) + 1;
-            this.targets.unreachableTicks.set(id, unreach);
-            if (unreach >= TARGET_LOSE_TICKS) {
-              this.targets.clearTarget(id);
-            }
-          } else {
-            this.targets.unreachableTicks.set(id, 0);
+            if (!this.targets.unreachableSince.has(id)) this.targets.unreachableSince.set(id, tick);
+          } else if (outcome === 'arrived' || (outcome === 'moving' && ctx.world.services.movement?.tileOf(id) !== tileA)) {
+            this.targets.unreachableSince.delete(id);
+          }
+          // A pending retry does not prove recovery. Count elapsed ticks from the failure,
+          // resetting only on an actual step or an attack opportunity.
+          const since = this.targets.unreachableSince.get(id);
+          if (since !== undefined && tick - since + 1 >= TARGET_LOSE_TICKS) {
+            this.targets.clearTarget(id);
+            ctx.world.services.movement?.stopWalking(id);
           }
         }
       }
@@ -490,6 +497,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       targets: this.targetManager ? Array.from(this.targetManager.targets.entries()) : [],
       cooldownUntil: this.targetManager ? Array.from(this.targetManager.cooldownUntil.entries()) : [],
       engagements: this.targetManager ? Array.from(this.targetManager.engagements.entries()) : [],
+      ...(this.targetManager?.unreachableSince.size ? { unreachableSince: Array.from(this.targetManager.unreachableSince) } : {}),
     };
   }
 
@@ -504,6 +512,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       for (const [k, v] of state.cooldownUntil ?? []) this.targetManager.cooldownUntil.set(k, v);
       this.targetManager.engagements.clear();
       for (const [k, v] of state.engagements ?? []) this.targetManager.engagements.set(k, v);
+      this.targetManager.unreachableSince.clear();
+      for (const [k, v] of state.unreachableSince ?? []) this.targetManager.unreachableSince.set(k, v);
     }
   }
 }

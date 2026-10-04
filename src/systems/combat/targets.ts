@@ -8,7 +8,7 @@ import type { EntityId, Tick } from '@core/types';
 
 export class TargetManager {
   readonly targets: Map<EntityId, EntityId> = new Map();
-  readonly unreachableTicks: Map<EntityId, number> = new Map();
+  readonly unreachableSince: Map<EntityId, Tick> = new Map();
   readonly cooldownUntil: Map<EntityId, Tick> = new Map();
   readonly engagements: Map<EntityId, Tick> = new Map();
 
@@ -21,6 +21,7 @@ export class TargetManager {
   }
 
   setTarget(id: EntityId, targetId: EntityId): void {
+    if (this.targetOf(id) !== targetId || targetId === 0) this.unreachableSince.delete(id);
     const soldier = this.entities.get(id, C.Soldier);
     if (soldier !== undefined) {
       this.entities.add(id, C.Soldier, { ...soldier, targetId });
@@ -30,9 +31,6 @@ export class TargetManager {
       } else {
         this.targets.set(id, targetId);
       }
-    }
-    if (targetId === 0) {
-      this.unreachableTicks.delete(id);
     }
   }
 
@@ -54,18 +52,18 @@ export class TargetManager {
 
   onCreatureDied(id: EntityId): void {
     this.targets.delete(id);
-    this.unreachableTicks.delete(id);
+    this.unreachableSince.delete(id);
     this.cooldownUntil.delete(id);
     this.engagements.delete(id);
 
     // Clear target for any creature that was targeting this dead creature
     for (const [attacker, target] of this.targets) {
-      if (target === id) this.targets.delete(attacker);
+      if (target === id) this.clearTarget(attacker);
     }
     for (const soldierId of this.entities.with(C.Soldier)) {
       const s = this.entities.get(soldierId, C.Soldier);
       if (s && s.targetId === id) {
-        this.entities.add(soldierId, C.Soldier, { ...s, targetId: 0 });
+        this.clearTarget(soldierId);
       }
     }
   }

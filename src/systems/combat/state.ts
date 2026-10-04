@@ -10,4 +10,5 @@ export interface CombatStateV1 {
   targets: [EntityId, EntityId][];
   cooldownUntil: [EntityId, Tick][];
   engagements: [EntityId, Tick][];
+  unreachableSince?: [EntityId, Tick][];
 }
