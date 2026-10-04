@@ -156,6 +156,13 @@ a killed child process at shutdown, not the on-disk record. So `resume` works
 after a quota abort; just confirm the rollout file for that uuid exists and is
 non-trivial before relying on it.
 
+**Not every abort is quota.** On 2026-10-03, a `gpt-6.1-sol` run ended mid-task with
+`{"type":"error","message":"Selected model is at capacity. Please try a different model."}`
+then `turn.failed`, while the usage endpoint showed only 22% of the 5-hour window used.
+This is a transient server-side capacity error: resume the same session straight away,
+with no wait for a reset. The `-o` last-message file is **not written** on such an abort,
+so read the end of the `--json` stream (`turn.failed`) to tell why it stopped.
+
 Keep a written state summary in the follow-up prompt anyway — this repo's
 workflow (commit per task, `PROGRESS.md`, `DECISIONS.md`) already makes the
 tree self-describing, so a cold restart is never fatal.
