@@ -172,3 +172,13 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M8-08 — Documentation sync (codex-m808, 2026-10-04)
 - [x] T-M8-09 — Release build (codex-m809, 2026-10-04)
 - [x] T-M8-10 — Gate M8 — release (claude-opus, 2026-10-04)
+
+## UI fixes ([ui-fixes/README.md](ui-fixes/README.md))
+- [ ] U-01 — Quick wins: embark default, honest messages, dead hints, small key fixes
+- [ ] U-02 — Paused input takes effect at once
+- [ ] U-03 — Work orders with quantity; panel hotkeys always win
+- [ ] U-04 — Drag to place many; out-of-stock prompt
+- [ ] U-05 — Building panel
+- [ ] U-06 — Labor manager, unit and squad multi-select
+- [ ] U-07 — Stockpile editor with keyboard; room panel
+- [ ] U-08 — Tooltips, palette distances, ghosts and glyphs
