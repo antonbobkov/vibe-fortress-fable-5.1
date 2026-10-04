@@ -1,6 +1,6 @@
 # Progress
 
-current-milestone: 8
+current-milestone: done
 
 Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agent, date). Agents edit this file in the same commit as the task. Sub-tasks added by splitting go directly under their parent.
 
@@ -171,4 +171,4 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M8-07 — Colorblind palette and accessibility checks (agy-m807, 2026-10-02)
 - [x] T-M8-08 — Documentation sync (codex-m808, 2026-10-04)
 - [x] T-M8-09 — Release build (codex-m809, 2026-10-04)
-- [ ] T-M8-10 — Gate M8 — release
+- [x] T-M8-10 — Gate M8 — release (claude-opus, 2026-10-04)

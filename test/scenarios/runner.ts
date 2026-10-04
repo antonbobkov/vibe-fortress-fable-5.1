@@ -16,12 +16,15 @@ import type { GameSystem } from '@core/system';
 
 const progressPath = fileURLToPath(new URL('../../docs/05-plan/PROGRESS.md', import.meta.url));
 
-/** The `current-milestone: n` header line of `PROGRESS.md`, which gates which scenarios run. */
+/**
+ * The `current-milestone: n` header line of `PROGRESS.md`, which gates which scenarios run.
+ * `done` (T-M8-10: every milestone gated) runs every scenario.
+ */
 export function currentMilestone(): number {
   const text = readFileSync(progressPath, 'utf8');
-  const match = /^current-milestone:\s*(\d+)\s*$/m.exec(text);
+  const match = /^current-milestone:\s*(\d+|done)\s*$/m.exec(text);
   if (match === null) throw new Error('PROGRESS.md has no "current-milestone: n" header line');
-  return Number(match[1]);
+  return match[1] === 'done' ? 8 : Number(match[1]);
 }
 
 export type Milestone = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;

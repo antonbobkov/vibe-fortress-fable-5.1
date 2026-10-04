@@ -15,9 +15,10 @@ function currentMilestone() {
   const arg = process.argv.slice(2).find((a) => /^\d+$/.test(a));
   if (arg) return Number(arg);
   const progress = readFileSync(join(root, 'docs/05-plan/PROGRESS.md'), 'utf8');
-  const m = /^current-milestone:\s*(\d+)\s*$/m.exec(progress);
+  const m = /^current-milestone:\s*(\d+|done)\s*$/m.exec(progress);
   if (!m) throw new Error('PROGRESS.md has no "current-milestone: n" header line');
-  return Number(m[1]);
+  // T-M8-10: `done` means every milestone is gated; a re-run gates the last one.
+  return m[1] === 'done' ? 8 : Number(m[1]);
 }
 
 /** Gates M3, M6 and M8 also run the performance smoke (`01-testing-strategy.md` § Tiers). */
