@@ -12,6 +12,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { buildFlatTestMap, FLAT_TEST_SURFACE_Z, regionSpec } from '@app/headless';
+import { contentRegistry } from '@content/loader';
 import { DAYS_PER_YEAR, TICKS_PER_DAY, POPULATION_CAP_DEFAULT, MOOD_MIN } from '@core/constants';
 import { C } from '@core/components';
 import { NEED_PRESSURE_CAP, MOOD_NEEDS_MET_FLOOR } from '@systems/morale/mood';
@@ -28,6 +29,7 @@ import {
   checkFortressRooms,
   checkFortressCaveFarm,
   checkFortressDefense,
+  threeYearsEmbark,
 } from '../scenarios/three_years_fortress';
 
 const Z = FLAT_TEST_SURFACE_Z;
@@ -100,7 +102,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     seed,
     map: buildFlatTestMap(undefined, 48, 48),
     spec: regionSpec(seed, { peril }),
-    embark: 'default',
+    embark: threeYearsEmbark(contentRegistry(), seed, peril),
   });
 
   const state = setupThreeYearsFortress(w);
