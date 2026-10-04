@@ -50,8 +50,8 @@ export interface TimingRow {
 export function timingRows(stats: HostStats): TimingRow[] {
   return stats.systems.map((s) => ({
     id: s.id,
-    avgMs: s.runs === 0 ? 0 : s.totalMs / s.runs,
-    worstMs: s.worstMs,
+    avgMs: s.movingAverageMs,
+    worstMs: s.rollingWorstMs,
     runs: s.runs,
   }));
 }

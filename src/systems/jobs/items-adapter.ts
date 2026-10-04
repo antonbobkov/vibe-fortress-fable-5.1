@@ -103,7 +103,7 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
             if (it !== undefined && it.count > 0 && reader.categoryOf(it.type).startsWith('ammo/')) return true;
           }
         }
-        for (const id of entities.with(C.Item)) {
+        for (const id of reader.carriedItems(workerId)) {
           const it = reader.get(id);
           if (it !== undefined && it.carriedBy === workerId && it.count > 0 && reader.categoryOf(it.type).startsWith('ammo/')) {
             return true;

@@ -173,6 +173,8 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
     const buildings = ctx.readers.of<BuildingsReader>('14');
     const items = ctx.readers.of<ItemsReader>('13');
     const season = Math.floor(ctx.tick / (DAYS_PER_SEASON * TICKS_PER_DAY));
+    const statues = buildings.byType('statue').map((id) => ({ id, view: buildings.get(id) }))
+      .filter(({ view }) => view?.state === 'built' && (items.get(view.itemId)?.quality ?? 0) >= 2);
     for (const [id, , to] of moves) {
       if (!ctx.world.entities.has(id, C.Brain) || !map.validIndex(to)) continue;
       const brain = ctx.world.entities.get(id, C.Brain);
@@ -181,9 +183,8 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
         if (def !== undefined) this.give(id, def, ctx);
         this.sunlightSeen.add(id);
       }
-      for (const statue of buildings.byType('statue')) {
-        const b = buildings.get(statue);
-        if (b === undefined || b.state !== 'built' || (items.get(b.itemId)?.quality ?? 0) < 2) continue;
+      for (const { id: statue, view: b } of statues) {
+        if (b === undefined) continue;
         if (map.zOf(to) !== map.zOf(b.origin) || Math.max(Math.abs(map.xOf(to) - map.xOf(b.origin)), Math.abs(map.yOf(to) - map.yOf(b.origin))) > 1) continue;
         const key = `${id}:${statue}:${season}`;
         if (this.statueSeen.has(key)) continue;

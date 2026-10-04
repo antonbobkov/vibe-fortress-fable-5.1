@@ -141,6 +141,8 @@ export interface CombatApi {
  * `Item[it].reservedBy = job.id`" of `algorithms/jobs-and-hauling.md` § Assignment.
  */
 export interface ItemsApi {
+  /** Derived indexes only: legacy combat writes keep their existing item state and events. */
+  refreshDerivedIndexes?(itemId: EntityId): void;
   attachToCarrier(itemId: EntityId, carrierId: EntityId): void;
   dropAt(itemId: EntityId, tile: TileIndex): void;
   /** False when the container has no room. */

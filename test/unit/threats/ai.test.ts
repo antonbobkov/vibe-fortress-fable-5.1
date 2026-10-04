@@ -47,8 +47,34 @@ function makeCtx(w: TestWorld): TickContext {
   } as unknown as TickContext;
 }
 
-describe('T-M6-09 Hostile AI', () => {
+describe('T-M6-09 / T-M8-01 Hostile AI', () => {
   describe('goal selection per purpose', () => {
+    it('T-M8-01 keeps slot-order ties and excludes an unreachable more valuable thief goal', () => {
+      const w = new TestWorld({ world: 'flat-test', seed: 'm801-thief-order', embark: 'none' });
+      const z = FLAT_TEST_SURFACE_Z;
+      const at = w.index(24, 10, z);
+      const old = w.spawnItem('ring', 'gold', at);
+      const second = w.spawnItem('ring', 'gold', at);
+      w.game.world.services.items?.destroy(old, 'test');
+      const reused = w.spawnItem('ring', 'gold', at);
+      expect(reused).toBeGreaterThan(second);
+      const sealed = w.index(30, 10, z);
+      const unreachable = w.spawnItem('ring', 'gold', sealed);
+      const item = w.game.world.entities.get(unreachable, C.Item)!;
+      w.game.world.entities.add(unreachable, C.Item, { ...item, quality: 5 });
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (dx !== 0 || dy !== 0) w.carve(w.index(30 + dx, 10 + dy, z), TileKind.Wall);
+      }
+      w.pathing.connectivity.rebuildDirty();
+      const partyId = createTestParty(w, 'thief');
+      spawnHostileMember(w.game.world, w.game.registry, w.game.world.rngFor('18'), partyId,
+        'gloam_snatcher', 'thief', w.index(24, 0, z), 0, false);
+      const party = w.game.world.entities.get(partyId, C.Party)!;
+      chooseGoal(party, makeCtx(w));
+      expect(party.goalEntity).toBe(reused);
+      expect(party.goalTile).toBe(at);
+    });
+
     it('thief prefers outdoor unattended item over indoor item and respects value', () => {
       const w = new TestWorld({ world: 'flat-test', seed: 'th-ai-thief-goal' });
       const z = FLAT_TEST_SURFACE_Z;

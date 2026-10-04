@@ -55,7 +55,7 @@ export function threatScan(
     if (!posH) continue;
     const tileH = map.index(posH.x, posH.y, posH.z);
 
-    const nearby = spatial.inRadiusWhere(tileH, THREAT_RADIUS, (otherId: EntityId) => {
+    const nearby = spatial.inRadius(tileH, THREAT_RADIUS, 'creature').filter((otherId: EntityId) => {
       if (otherId === hostileId || !entities.alive(otherId)) return false;
       const c = entities.get(otherId, C.Creature);
       if (c?.faction !== 'fortress') return false;

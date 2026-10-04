@@ -148,7 +148,7 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
   if (at < 0) return next;
   const movement = host.movement;
   const species = host.entities.get(id, C.Creature)?.species ?? 0;
-  const hostiles = host.readers.spatial.inRadiusWhere(at, host.facts.perceptionOf(species), (other) => {
+  const hostiles = host.readers.spatial.inRadius(at, host.facts.perceptionOf(species), 'creature').filter((other) => {
     const creature = host.entities.get(other, C.Creature);
     const to = tileOf(host, other);
     return creature !== undefined && (creature.faction.startsWith('hostile') || creature.faction === 'deep') && to >= 0 && host.map.zOf(to) === host.map.zOf(at) && host.readers.pathing.lineOfSight(at, to);

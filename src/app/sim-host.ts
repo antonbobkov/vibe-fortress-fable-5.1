@@ -59,6 +59,8 @@ export interface SimulationHost {
  * protocol; nothing in presentation would change.
  */
 export class InProcessHost implements SimulationHost {
+  /** Platform clock injection keeps core and systems independent of wall time. */
+  constructor(private readonly now: () => number = () => performance.now()) {}
   private game: HeadlessGame | null = null;
   private current: Speed = 0;
   /** Final saves are inspectable but cannot accept commands or advance. */
@@ -87,6 +89,7 @@ export class InProcessHost implements SimulationHost {
   async newGame(spec: NewGameSpec): Promise<void> {
     const options: HeadlessOptions = {
       seed: spec.seed,
+      now: this.now,
       world: spec.world ?? 'flat-test',
       ...(spec.fortressName === undefined ? {} : { fortressName: spec.fortressName }),
       ...(spec.spec === undefined ? {} : { spec: spec.spec }),
@@ -105,7 +108,7 @@ export class InProcessHost implements SimulationHost {
    * (step 6). The caller restores the `ui` section it returns.
    */
   async load(blob: Uint8Array): Promise<LoadedGame> {
-    const loaded = await loadGame(blob);
+    const loaded = await loadGame(blob, { now: this.now });
     this.game = loaded.game;
     this.finalView = loaded.header.kind === 'final';
     this.worldMap = loaded.worldMap;

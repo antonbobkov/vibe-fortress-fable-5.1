@@ -339,6 +339,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     if (this.coreRef === null) this.init(ctx);
     const core = this.core;
     core.counts.deserialize(state.counts);
+    core.resetSearchIndex();
     core.counts.dirty.length = 0;
     core.counts.dirty.push(...state.dirtyTypes);
     core.wealth = state.wealthCached;
@@ -364,6 +365,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     this.rotRef?.records.clear();
     for (const rec of state.rotRecords ?? []) this.rotRef?.records.set(rec.id, { ...rec });
     this.rotRef?.deserializeQueue(state.rotQueue);
+    this.rotRef?.rebuildSources();
     this.rotRef?.miasma.clear();
     for (const [tile, expiry] of state.miasmaTiles) this.rotRef?.miasma.set(tile, expiry);
     this.pendingDeaths.clear();

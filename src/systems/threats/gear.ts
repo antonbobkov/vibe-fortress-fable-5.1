@@ -8,6 +8,7 @@ import { C, ItemFlag, type Equipment } from '@core/components';
 import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
 import type { RngStream } from '@core/rng';
+import type { ItemsApi } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import { HOSTILE_SKILL_PER_TIER } from './constants';
 
@@ -73,7 +74,7 @@ export function assignHostileSkills(
  * Equips a hostile creature with weapons and armor according to gear tier.
  */
 export function equipHostileCreature(
-  world: { entities: EntityStore; services: { spawn: { item(type: number, material: number, at: number, count?: number, quality?: number): EntityId } } },
+  world: { entities: EntityStore; services: { items?: ItemsApi | null; spawn: { item(type: number, material: number, at: number, count?: number, quality?: number): EntityId } } },
   registry: Registry,
   rng: RngStream,
   creatureId: EntityId,
@@ -152,6 +153,7 @@ export function equipHostileCreature(
       itemComp.carriedBy = creatureId;
       itemComp.ownerId = creatureId;
       itemComp.flags |= ItemFlag.Owned;
+      world.services.items?.refreshDerivedIndexes?.(spawnedId);
     }
 
     if (wDef) {

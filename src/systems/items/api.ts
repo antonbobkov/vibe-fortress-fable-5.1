@@ -10,8 +10,9 @@
 
 import { C, ItemFlag, type Container, type Item, type Position } from '@core/components';
 import { FLUID_MAX_LEVEL } from '@core/path-constants';
+import { CHUNK_SIZE } from '@core/constants';
 import { TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
-import type { EntityStore } from '@core/entities';
+import { entityIndex, type EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import type { ItemsApi, SpatialWriter } from '@core/system';
 import type { EntityId, Quality, TileIndex } from '@core/types';
@@ -43,6 +44,220 @@ export class ItemCore implements ItemsApi {
   /** Building contributions (`BuildingCompleted` / `BuildingRemoved`, 14 § Value). */
   buildingWealth = 0;
   private readonly listeners: ItemListener[] = [];
+  private searchTypes: Map<number, Set<EntityId>> | null = null;
+  private readonly indexedItems = new Map<EntityId, { type: number; carrier: EntityId; container: EntityId; location: number; looseTile: number; looseValue: number }>();
+  private readonly carriers = new Map<EntityId, Set<EntityId>>();
+  private readonly contained = new Map<EntityId, Set<EntityId>>();
+  private readonly locations = new Map<number, Set<EntityId>>();
+  private readonly typeChunks = new Map<number, Set<number>>();
+  private readonly looseItems = new Map<TileIndex, Set<EntityId>>();
+  private readonly looseBest = new Map<TileIndex, { id: EntityId; value: number }>();
+  private readonly looseDirty = new Set<TileIndex>();
+  private readonly looseBands = new Map<number, Set<EntityId>>();
+  private readonly looseBandOrder = new Map<number, EntityId[]>();
+  private looseOrder: EntityId[] | null = null;
+
+  /** Derived stock instances; rebuilt after load, never part of simulation state. */
+  resetSearchIndex(): void {
+    this.searchTypes = null;
+    this.indexedItems.clear();
+    this.carriers.clear();
+    this.contained.clear();
+    this.locations.clear();
+    this.typeChunks.clear();
+    this.looseItems.clear();
+    this.looseBest.clear();
+    this.looseDirty.clear();
+    this.looseBands.clear();
+    this.looseBandOrder.clear();
+    this.looseOrder = null;
+  }
+
+  idsOfTypes(types: readonly number[]): EntityId[] {
+    this.ensureSearchIndex();
+    const ids: EntityId[] = [];
+    for (const type of types) ids.push(...(this.searchTypes?.get(type) ?? []));
+    return ids.sort((a, b) => entityIndex(a) - entityIndex(b));
+  }
+
+  hasTypes(types: readonly number[]): boolean {
+    this.ensureSearchIndex();
+    return types.some((type) => (this.searchTypes?.get(type)?.size ?? 0) > 0);
+  }
+
+  /** The same spatial rings as item search, narrowed by type before visiting instances. */
+  radiusItems(types: readonly number[], from: TileIndex, radius: number): EntityId[] {
+    this.ensureSearchIndex();
+    const map = this.map;
+    const fx = map.xOf(from); const fy = map.yOf(from); const fz = map.zOf(from);
+    const out: EntityId[] = [];
+    const inRadius = (id: EntityId): boolean => {
+      const pos = this.entities.get(id, C.Position);
+      return pos !== undefined && map.inBounds(pos.x, pos.y, pos.z)
+        && Math.max(Math.abs(fx - pos.x), Math.abs(fy - pos.y), Math.abs(fz - pos.z)) <= radius;
+    };
+    const stride = this.host.facts.typeCount + 1;
+    for (const type of types) for (const chunk of this.typeChunks.get(type) ?? []) {
+      const cx = chunk % map.chunksPerRow;
+      const cy = Math.floor(chunk / map.chunksPerRow) % map.chunksPerCol;
+      const z = Math.floor(chunk / (map.chunksPerRow * map.chunksPerCol));
+      if (Math.abs(fz - z) > radius || cx < Math.floor((fx - radius) / CHUNK_SIZE)
+        || cx > Math.floor((fx + radius) / CHUNK_SIZE) || cy < Math.floor((fy - radius) / CHUNK_SIZE)
+        || cy > Math.floor((fy + radius) / CHUNK_SIZE)) continue;
+      for (const id of this.locations.get(chunk * stride + type) ?? []) if (inRadius(id)) out.push(id);
+    }
+    // Containers move independently of their children; read their live position here.
+    for (const [holder, ids] of this.contained) {
+      if (!this.isItem(holder) || !inRadius(holder)) continue;
+      for (const id of ids) if (types.includes(this.get(id)?.type ?? 0) && this.container(holder)?.contents.includes(id)) out.push(id);
+    }
+    return out.sort((a, b) => a - b);
+  }
+
+  carriedItems(carrier: EntityId): EntityId[] {
+    this.ensureSearchIndex();
+    return Array.from(this.carriers.get(carrier) ?? []).filter((id) => this.get(id)?.carriedBy === carrier)
+      .sort((a, b) => entityIndex(a) - entityIndex(b));
+  }
+
+  /** Maintain metadata after an existing direct combat mutation, without changing accounting or events. */
+  refreshDerivedIndexes(id: EntityId): void { this.indexItem(id); }
+
+  /** Thief ranking: one maximum per eligible tile, descending value then ascending entity slot. */
+  bestUnattendedItems(): EntityId[] {
+    this.ensureSearchIndex();
+    for (const tile of this.looseDirty) {
+      let best: { id: EntityId; value: number } | undefined;
+      for (const id of this.looseItems.get(tile) ?? []) {
+        const item = this.get(id);
+        if (item === undefined || item.carriedBy !== 0 || item.containerId !== 0
+          || (item.flags & ItemFlag.Forbidden) !== 0 || this.positionTile(id) !== tile) continue;
+        const value = this.valueOf(item);
+        if (best === undefined || value > best.value
+          || (value === best.value && entityIndex(id) < entityIndex(best.id))) best = { id, value };
+      }
+      this.setLooseBest(tile, best);
+    }
+    this.looseDirty.clear();
+    if (this.looseOrder === null) {
+      this.looseOrder = [];
+      for (const value of Array.from(this.looseBands.keys()).sort((a, b) => b - a)) {
+        let ids = this.looseBandOrder.get(value);
+        if (ids === undefined) {
+          ids = Array.from(this.looseBands.get(value) ?? []).sort((a, b) => entityIndex(a) - entityIndex(b));
+          this.looseBandOrder.set(value, ids);
+        }
+        this.looseOrder.push(...ids);
+      }
+    }
+    return this.looseOrder.slice();
+  }
+
+  private setLooseBest(tile: TileIndex, best: { id: EntityId; value: number } | undefined): void {
+    const old = this.looseBest.get(tile);
+    if (old?.id === best?.id && old?.value === best?.value) return;
+    if (old !== undefined) {
+      const ids = this.looseBands.get(old.value);
+      ids?.delete(old.id);
+      if (ids?.size === 0) this.looseBands.delete(old.value);
+      this.looseBandOrder.delete(old.value);
+    }
+    if (best === undefined) this.looseBest.delete(tile);
+    else {
+      this.looseBest.set(tile, best);
+      let ids = this.looseBands.get(best.value);
+      if (ids === undefined) { ids = new Set(); this.looseBands.set(best.value, ids); }
+      ids.add(best.id);
+      this.looseBandOrder.delete(best.value);
+    }
+    this.looseOrder = null;
+  }
+
+  private indexLoose(id: EntityId, before: number, beforeValue: number, after: number, value: number): void {
+    if (before !== after) {
+      if (before >= 0) {
+        const ids = this.looseItems.get(before);
+        ids?.delete(id);
+        if (ids?.size === 0) this.looseItems.delete(before);
+        if (this.looseBest.get(before)?.id === id) {
+          this.setLooseBest(before, undefined);
+          this.looseDirty.add(before);
+        }
+      }
+      if (after >= 0) {
+        let ids = this.looseItems.get(after);
+        if (ids === undefined) { ids = new Set(); this.looseItems.set(after, ids); }
+        ids.add(id);
+      }
+    }
+    if (after < 0) return;
+    const best = this.looseBest.get(after);
+    if (best?.id === id && value < beforeValue) this.looseDirty.add(after);
+    if (!this.looseDirty.has(after) && (best === undefined || value > best.value
+      || (value === best.value && entityIndex(id) < entityIndex(best.id)))) this.setLooseBest(after, { id, value });
+  }
+
+  containedItems(classId: string, types: readonly number[]): EntityId[] {
+    this.ensureSearchIndex();
+    const ids: EntityId[] = [];
+    for (const type of types) for (const id of this.searchTypes?.get(type) ?? []) {
+      const container = this.get(id)?.containerId ?? 0;
+      if (container !== 0 && this.container(container)?.classId === classId) ids.push(id);
+    }
+    return ids.sort((a, b) => entityIndex(a) - entityIndex(b));
+  }
+
+  private ensureSearchIndex(): void {
+    if (this.searchTypes === null) {
+      this.searchTypes = new Map();
+      for (const id of this.entities.with(C.Item)) this.indexItem(id);
+    }
+  }
+
+  private indexItem(id: EntityId): void {
+    if (this.searchTypes === null) return;
+    const old = this.indexedItems.get(id);
+    const item = this.get(id);
+    const update = (index: Map<number, Set<EntityId>>, before: number | undefined, after: number | undefined): void => {
+      if (before === after) return;
+      if (before !== undefined) {
+        const ids = index.get(before);
+        ids?.delete(id);
+        if (ids?.size === 0) index.delete(before);
+      }
+      if (after !== undefined && after !== 0) {
+        let ids = index.get(after);
+        if (ids === undefined) { ids = new Set(); index.set(after, ids); }
+        ids.add(id);
+      }
+    };
+    update(this.searchTypes, old?.type, item?.type);
+    update(this.carriers, old?.carrier, item?.carriedBy);
+    update(this.contained, old?.container, item?.containerId);
+    const tile = this.positionTile(id);
+    const looseTile = item !== undefined && tile >= 0 && item.carriedBy === 0 && item.containerId === 0
+      && (item.flags & ItemFlag.Forbidden) === 0 ? tile : -1;
+    const looseValue = looseTile >= 0 && item !== undefined ? this.valueOf(item) : 0;
+    this.indexLoose(id, old?.looseTile ?? -1, old?.looseValue ?? 0, looseTile, looseValue);
+    const location = item === undefined || tile < 0 ? 0 : this.map.chunkOf(tile) * (this.host.facts.typeCount + 1) + item.type;
+    update(this.locations, old?.location, location);
+    const stride = this.host.facts.typeCount + 1;
+    if (old?.location !== location) {
+      if (old !== undefined && old.location !== 0 && !this.locations.has(old.location)) {
+        this.typeChunks.get(old.location % stride)?.delete(Math.floor(old.location / stride));
+      }
+      if (location !== 0) {
+        let chunks = this.typeChunks.get(location % stride);
+        if (chunks === undefined) { chunks = new Set(); this.typeChunks.set(location % stride, chunks); }
+        chunks.add(Math.floor(location / stride));
+      }
+    }
+    if (item === undefined) this.indexedItems.delete(id);
+    else if (old?.type !== item.type || old?.carrier !== item.carriedBy || old?.container !== item.containerId || old?.location !== location
+      || old?.looseTile !== looseTile || old?.looseValue !== looseValue) {
+      this.indexedItems.set(id, { type: item.type, carrier: item.carriedBy, container: item.containerId, location, looseTile, looseValue });
+    }
+  }
 
   constructor(host: ItemHost) {
     this.host = host;
@@ -61,6 +276,7 @@ export class ItemCore implements ItemsApi {
   }
 
   private notify(id: EntityId, change: ItemChange): void {
+    this.indexItem(id);
     for (let k = 0; k < this.listeners.length; k += 1) (this.listeners[k] as ItemListener)(id, change);
   }
 

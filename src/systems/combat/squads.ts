@@ -404,7 +404,7 @@ export function stepSquads(
       let closestHostile = 0;
       let closestDist = Infinity;
 
-      const nearby = ctx.readers.spatial.inRadiusWhere(tileM, PERCEPTION_RADIUS, (otherId) => {
+      const nearby = ctx.readers.spatial.inRadius(tileM, PERCEPTION_RADIUS, 'creature').filter((otherId) => {
         if (otherId === m || !entities.alive(otherId)) return false;
         const c = entities.get(otherId, C.Creature);
         if (!c) return false;

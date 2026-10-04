@@ -591,6 +591,7 @@ export function fireRanged(
       if (equip && equip.quiver === ammoId) {
         equip.quiver = 0;
       }
+      ctx.world.services.items?.refreshDerivedIndexes?.(ammoId);
     }
 
     const ammoTable = registry.table<AmmoRow>('ammo');

@@ -11,6 +11,40 @@ import { Z_DISTANCE_WEIGHT } from '@systems/jobs/constants';
 import { DINING_SEARCH_RADIUS, DRINK_TICKS, EAT_TICKS, FRIEND_TALKS, HEARTH_VISIT_TICKS, NEED_RETRY_TICKS, SIT_TICKS, SLEEP_HOURS, SOCIAL_WAIT_TICKS, TALK_TICKS } from './constants';
 import type { NeedName } from './needs';
 import type { ActivityPlan } from './state';
+import type { EntityStore } from '@core/entities';
+
+interface SeatTarget { tile: TileIndex; tier: number }
+interface ActivityTargets {
+  revision: string;
+  hall: TileIndex[];
+  social: TileIndex[];
+  freeBeds: EntityId[];
+  wells: EntityId[];
+  dining: SeatTarget[];
+  comfort: SeatTarget[];
+}
+const targetCache = new WeakMap<EntityStore, ActivityTargets>();
+
+/** Only static choices are cached; reachability, distance and occupancy stay live per dwarf. */
+function activityTargets(ctx: TickContext): ActivityTargets {
+  const entities = ctx.world.entities;
+  const revision = [C.Building, C.Room, C.Zone].map((type) => entities.revision(type)).join(':');
+  const cached = targetCache.get(entities);
+  if (cached?.revision === revision) return cached;
+  const b = buildings(ctx);
+  const hall = b?.hearthHallTiles() ?? [];
+  const targets = (ids: readonly EntityId[]): SeatTarget[] => ids.flatMap((id) => {
+    const view = b?.get(id);
+    return view?.state === 'built' ? [{ tile: view.origin, tier: roomTier(ctx, view.origin) }] : [];
+  });
+  const value = { revision, hall,
+    social: [...hall, ...(b?.zonesOfType('meeting_area') ?? []).flatMap((id) => b?.zone(id)?.tiles ?? [])],
+    freeBeds: b?.freeBeds() ?? [],
+    wells: b?.wells() ?? [],
+    dining: targets(b?.diningSeats() ?? []), comfort: targets(b?.byTag('sit') ?? []) };
+  targetCache.set(entities, value);
+  return value;
+}
 
 const clamp = (n: number): number => Math.max(0, Math.min(NEED_MAX, n));
 
@@ -60,24 +94,13 @@ function nearest(ctx: TickContext, from: TileIndex, choices: readonly TileIndex[
 }
 
 function hallTile(ctx: TickContext, from: TileIndex, wagon: TileIndex): TileIndex {
-  const hall = (buildings(ctx)?.hearthHallTiles() ?? []).filter((t) => reachable(ctx, from, t));
+  const hall = activityTargets(ctx).hall.filter((t) => reachable(ctx, from, t));
   if (hall.length > 0) return nearest(ctx, from, hall);
   return wagon >= 0 && reachable(ctx, from, wagon) ? wagon : -1;
 }
 
 function socialTile(ctx: TickContext, from: TileIndex): TileIndex {
-  const b = buildings(ctx);
-  if (b === null) return -1;
-  const candidates: TileIndex[] = [];
-  for (const t of b.hearthHallTiles()) {
-    if (reachable(ctx, from, t)) candidates.push(t);
-  }
-  for (const zone of b.zonesOfType('meeting_area')) {
-    for (const t of b.zone(zone)?.tiles ?? []) {
-      if (reachable(ctx, from, t)) candidates.push(t);
-    }
-  }
-  return nearest(ctx, from, candidates);
+  return nearest(ctx, from, activityTargets(ctx).social.filter((t) => reachable(ctx, from, t)));
 }
 
 function plan(need: NeedName, target: TileIndex, extra: Partial<ActivityPlan> = {}): ActivityPlan {
@@ -88,17 +111,13 @@ function plan(need: NeedName, target: TileIndex, extra: Partial<ActivityPlan> = 
 function seat(ctx: TickContext, from: TileIndex, dining: boolean): { tile: TileIndex; tier: number } | null {
   const b = buildings(ctx);
   if (b === null) return null;
-  const ids = dining ? b.diningSeats() : b.byTag('sit');
+  const choices = dining ? activityTargets(ctx).dining : activityTargets(ctx).comfort;
   let chosen: { tile: TileIndex; tier: number } | null = null;
   let chosenDistance = Number.POSITIVE_INFINITY;
-  for (const id of ids) {
-    const v = b.get(id);
-    if (v?.state !== 'built') continue;
-    const to = v.origin;
+  for (const { tile: to, tier } of choices) {
     if (!reachable(ctx, from, to)) continue;
     const d = distance(ctx, from, to);
     if (dining && d > DINING_SEARCH_RADIUS) continue;
-    const tier = roomTier(ctx, to);
     if (!dining && tier < 2) continue;
     if (ctx.readers.entities.at(to).some((occupant) => ctx.world.entities.has(occupant, C.Brain))) continue;
     if (chosen === null || (!dining && tier > chosen.tier) || (tier === chosen.tier && (d < chosenDistance || (d === chosenDistance && to < chosen.tile)))) {
@@ -123,7 +142,7 @@ function bed(ctx: TickContext, id: EntityId, from: TileIndex, wagon: TileIndex):
       }
     }
   }
-  const free = b?.freeBeds() ?? [];
+  const free = activityTargets(ctx).freeBeds;
   const reachableFree = free.filter((x) => {
     const orig = b?.get(x)?.origin ?? -1;
     return reachable(ctx, from, orig);
@@ -156,9 +175,13 @@ function water(ctx: TickContext, from: TileIndex): TileIndex {
     if (z < 0 || z >= m.d) continue;
 
     for (let dy = -32; dy <= 32; dy += 1) {
+      if (Math.abs(dy) - 1 + Math.abs(dz) * Z_DISTANCE_WEIGHT > bestDistance) continue;
       const wy = fy + dy;
       if (wy < 0 || wy >= m.h) continue;
       for (let dx = -32; dx <= 32; dx += 1) {
+        // Every standing tile is at most one cell closer than its water tile. Keep equal
+        // distances so the original lowest-tile tie remains eligible.
+        if (Math.max(Math.abs(dx), Math.abs(dy)) - 1 + Math.abs(dz) * Z_DISTANCE_WEIGHT > bestDistance) continue;
         const wx = fx + dx;
         if (wx < 0 || wx >= m.w) continue;
         const wTile = m.index(wx, wy, z);
@@ -170,8 +193,9 @@ function water(ctx: TickContext, from: TileIndex): TileIndex {
             if (sx < 0 || sx >= m.w) continue;
             if (sx === wx && sy === wy) continue;
             const sTile = m.index(sx, sy, z);
-            if (!reachable(ctx, from, sTile)) continue;
             const d = Math.max(Math.abs(sx - fx), Math.abs(sy - fy)) + Math.abs(dz) * Z_DISTANCE_WEIGHT;
+            if (d > bestDistance || (d === bestDistance && best >= 0 && sTile >= best)) continue;
+            if (!reachable(ctx, from, sTile)) continue;
             if (d < bestDistance || (d === bestDistance && (best < 0 || sTile < best))) {
               best = sTile;
               bestDistance = d;
@@ -277,7 +301,7 @@ export class Activities {
       if (p === null) {
         const br = buildings(ctx);
         if (br !== null) {
-          const wells = br.wells().filter((x) => br.wellWorking(x));
+          const wells = activityTargets(ctx).wells.filter((x) => br.wellWorking(x));
           const wellStands = wells.map((x) => standBeside(ctx, from, br.get(x)?.origin ?? -1)).filter((t) => t >= 0 && reachable(ctx, from, t));
           const target = wellStands.length === 0 ? -1 : nearest(ctx, from, wellStands);
           if (target >= 0) p = plan(need, target);
@@ -304,11 +328,11 @@ export class Activities {
       if (target >= 0) p = plan(need, target);
     } else if (need === 'comfort') {
       const s = seat(ctx, from, false);
-      const hall = (buildings(ctx)?.hearthHallTiles() ?? []).filter((t) => reachable(ctx, from, t));
+      const hall = activityTargets(ctx).hall.filter((t) => reachable(ctx, from, t));
       const target = s?.tile ?? (hall.length > 0 ? nearest(ctx, from, hall) : -1);
       if (target >= 0) p = plan(need, target, { roomTier: s?.tier ?? 0 });
     } else if (need === 'joy') {
-      const hall = (buildings(ctx)?.hearthHallTiles() ?? []).filter((t) => reachable(ctx, from, t));
+      const hall = activityTargets(ctx).hall.filter((t) => reachable(ctx, from, t));
       const target = hall.length > 0 ? nearest(ctx, from, hall) : -1;
       if (target >= 0) p = plan(need, target);
     }
