@@ -162,7 +162,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 ## M8 — Polish and Balance ([M8-polish.md](M8-polish.md))
 
 - [x] T-M8-01 — Profiling pass and per-system budgets (codex-m801, 2026-10-03)
-- [ ] T-M8-02 — Load shedding
+- [x] T-M8-02 — Load shedding (codex-m802, 2026-10-03)
 - [x] T-M8-03 — Snapshots, export, import, storage quota handling (agy-m803, 2026-10-02)
 - [x] T-M8-04 — Golden renders for every screen and panel (agy-m804, 2026-10-02)
 - [x] T-M8-05 — E2E `full-year` (agy-m805, 2026-10-02)

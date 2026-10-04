@@ -246,7 +246,18 @@ export function findUnattendedItemWithinRadius(pos: TileIndex, radius: number, c
   let bestInStockpile = false;
   let bestValue = -Infinity;
 
-  for (const itId of ctx.readers.spatial.inRadius(pos, radius, 'item')) {
+  // Reachability, radius and stockpile preference are identical for items on one tile.
+  // The existing index keeps its highest value / lowest slot eligible item. Party loot
+  // exclusions can hide that winner only while the excluded item remains loose.
+  const excludesLooseItem = P?.loot.some((id) => {
+    const it = entities.get(id, C.Item);
+    return it !== undefined && it.carriedBy === 0 && it.containerId === 0
+      && (it.flags & 1) === 0 && entities.has(id, C.Position);
+  }) ?? false;
+  const candidates = itemsReader && !excludesLooseItem
+    ? itemsReader.bestUnattendedItems(pos, radius)
+    : ctx.readers.spatial.inRadius(pos, radius, 'item');
+  for (const itId of candidates) {
     if (!entities.alive(itId)) continue;
     const it = entities.get(itId, C.Item);
     if (!it || it.carriedBy !== 0 || it.containerId !== 0) continue;

@@ -13,6 +13,7 @@
 import { FLUID_DEEP_LEVEL, FLUID_WADE_LEVEL } from './constants';
 import { Connectivity, type ConnectivityGraph } from './connectivity';
 import { FluidType, Map3D, TileFlag, TileKind } from './map3d';
+import { LOAD_SHEDDING_PATH_DIVISOR } from './performance-constants';
 import {
   DIAGONAL_COST_NUMERATOR,
   DOOR_COST_PENALTY,
@@ -630,6 +631,14 @@ export interface PathfinderOptions {
 }
 
 export class Pathfinder {
+  private shedNonDwarves = false;
+  private isNonDwarf: (entity: EntityId) => boolean = () => false;
+
+  /** App-owned policy/classification, never serialized; no wall clock or species tables in core. */
+  setLoadShedding(enabled: boolean, isNonDwarf?: (entity: EntityId) => boolean): void {
+    this.shedNonDwarves = enabled;
+    if (isNonDwarf !== undefined) this.isNonDwarf = isNonDwarf;
+  }
   readonly graph: TileGraph;
   private readonly map: Map3D;
   private labels: LabelSource | null;
@@ -769,6 +778,7 @@ export class Pathfinder {
    */
   tick(budget: number = PATH_NODES_PER_TICK): number {
     let left = budget;
+    let nonDwarfLeft = this.shedNonDwarves ? Math.floor(budget / LOAD_SHEDDING_PATH_DIVISOR) : budget;
     let running = 0;
     for (let k = 0; k < this.queue.length; k += 1) {
       if ((this.queue[k] as PathRequest).state === 'running') running += 1;
@@ -778,12 +788,16 @@ export class Pathfinder {
     for (let k = 0; k < order.length && left > 0; k += 1) {
       const r = order[k] as PathRequest;
       if (isSettled(r)) continue;
+      const nonDwarf = this.shedNonDwarves && this.isNonDwarf(r.entity);
+      if (nonDwarf && nonDwarfLeft <= 0) continue;
       if (r.state === 'pending') {
         if (running >= PATH_CONCURRENT) continue;
         if (!this.start(r)) continue;
         running += 1;
       }
-      left -= this.advance(r, left);
+      const used = this.advance(r, nonDwarf ? Math.min(left, nonDwarfLeft) : left);
+      left -= used;
+      if (nonDwarf) nonDwarfLeft -= used;
       if (isSettled(r)) running -= 1;
     }
     this.lastTickNodes = budget - left;

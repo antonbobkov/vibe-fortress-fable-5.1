@@ -13,6 +13,10 @@
 
 import { HeadlessGame, type HeadlessEmbark, type HeadlessOptions } from '@app/headless';
 import { MAX_TICKS_PER_FRAME, SIM_TICKS_PER_SECOND } from '@core/constants';
+import { C } from '@core/components';
+import { LOAD_SHEDDING_RATE_SAMPLE_MS } from '@core/performance-constants';
+import { AnimalsSystem } from '@systems/animals';
+import { LoadShedding, type SheddingRule } from './load-shedding';
 import { loadGame, saveGame, type LoadedGame, type SaveOptions } from '@app/game-save';
 import type { Command } from '@core/commands';
 import type { GameEvent } from '@core/events';
@@ -43,6 +47,11 @@ export interface NewGameSpec {
 }
 
 export interface SimulationHost {
+  /** Actual progress includes explicit host.step calls as well as frame-driven ticks. */
+  readonly tick?: number;
+  readonly rateEpoch?: number;
+  observeTickRate?(nowMs: number, actualRate: number, requestedRate: number): void;
+  interruptTickRate?(): void;
   newGame(spec: NewGameSpec): Promise<void>;
   setSpeed(speed: Speed): void;
   speed(): Speed;
@@ -63,6 +72,34 @@ export class InProcessHost implements SimulationHost {
   constructor(private readonly now: () => number = () => performance.now()) {}
   private game: HeadlessGame | null = null;
   private current: Speed = 0;
+  private readonly shedding = new LoadShedding((rule, enabled) => this.applyShedding(rule, enabled));
+  private epoch = 0;
+
+  get tick(): number { return this.game?.tick ?? 0; }
+  get rateEpoch(): number { return this.epoch; }
+  get loadSheddingActive(): boolean { return this.shedding.active; }
+  observeTickRate(nowMs: number, actualRate: number, requestedRate: number): void {
+    this.shedding.observe(nowMs, actualRate, requestedRate);
+  }
+  interruptTickRate(): void { this.shedding.interrupt(); }
+
+  private applyShedding(rule: SheddingRule, enabled: boolean): void {
+    if (rule === 2) this.game?.pathing.pathfinder.setLoadShedding(enabled);
+    if (rule === 3) {
+      const animals = this.game?.world.scheduler.byId('08');
+      if (animals instanceof AnimalsSystem) animals.setLoadShedding(enabled);
+    }
+  }
+
+  private configureShedding(): void {
+    const game = this.require();
+    const dwarf = game.registry.table('creatures').index('dwarf');
+    game.pathing.pathfinder.setLoadShedding(false, (id) => {
+      const creature = game.world.entities.get(id, C.Creature);
+      return creature !== undefined && creature.species !== dwarf;
+    });
+    this.epoch += 1;
+  }
   /** Final saves are inspectable but cannot accept commands or advance. */
   private finalView = false;
   /** The generated world of the running game, or `null` for the fixture map. */
@@ -95,7 +132,9 @@ export class InProcessHost implements SimulationHost {
       ...(spec.spec === undefined ? {} : { spec: spec.spec }),
       ...(spec.embark === undefined ? {} : { embark: spec.embark }),
     };
+    this.shedding.reset();
     this.game = new HeadlessGame(options);
+    this.configureShedding();
     this.finalView = false;
     this.worldMap = spec.worldMap ?? null;
     // Step 5: "begins the frame loop paused".
@@ -109,7 +148,9 @@ export class InProcessHost implements SimulationHost {
    */
   async load(blob: Uint8Array): Promise<LoadedGame> {
     const loaded = await loadGame(blob, { now: this.now });
+    this.shedding.reset();
     this.game = loaded.game;
+    this.configureShedding();
     this.finalView = loaded.header.kind === 'final';
     this.worldMap = loaded.worldMap;
     this.current = 0;
@@ -129,10 +170,11 @@ export class InProcessHost implements SimulationHost {
   afterTick: (() => void) | null = null;
 
   get viewOnly(): boolean { return this.finalView; }
-  setViewOnly(value: boolean): void { this.finalView = value; if (value) this.current = 0; }
+  setViewOnly(value: boolean): void { this.finalView = value; if (value) this.setSpeed(0); }
 
   setSpeed(speed: Speed): void {
     if (this.finalView && speed !== 0) return;
+    if (speed !== this.current) { this.epoch += 1; this.interruptTickRate(); }
     this.current = speed;
   }
 
@@ -201,6 +243,32 @@ export class FrameDriver {
   private accumulatorMs = 0;
   private lastFrameMs = 0;
   private ticks = 0;
+  private completedTicks = 0;
+  private rateStartMs: number | null = null;
+  private rateStartTick = 0;
+  private rateSpeed: Speed = 0;
+  private rateEpoch = 0;
+
+  private resetRate(nowMs: number): void {
+    this.host.interruptTickRate?.();
+    this.rateStartMs = nowMs;
+    this.rateStartTick = this.host.tick ?? this.completedTicks;
+    this.rateSpeed = this.host.speed();
+    this.rateEpoch = this.host.rateEpoch ?? 0;
+  }
+
+  private sampleRate(nowMs: number, speed: Speed): void {
+    const start = this.rateStartMs;
+    if (start === null || nowMs - start < LOAD_SHEDDING_RATE_SAMPLE_MS) return;
+    const tick = this.host.tick ?? this.completedTicks;
+    const actual = (tick - this.rateStartTick) * 1000 / (nowMs - start);
+    const requested = SIM_TICKS_PER_SECOND * speed;
+    // One completed wall-time window is evidence over its whole interval (D-210).
+    this.host.observeTickRate?.(start, actual, requested);
+    this.host.observeTickRate?.(nowMs, actual, requested);
+    this.rateStartMs = nowMs;
+    this.rateStartTick = tick;
+  }
 
   constructor(options: FrameDriverOptions) {
     this.host = options.host;
@@ -220,6 +288,7 @@ export class FrameDriver {
     this.ticks = 0;
     const speed = this.host.speed();
     if (hidden || speed === 0) {
+      this.resetRate(nowMs);
       this.accumulatorMs = 0;
       // The pseudo-code returns without moving `lastFrameMs`, which would let the first frame
       // after a pause add up to the 250 ms cap; "On return it does not catch up" is the rule.
@@ -228,14 +297,18 @@ export class FrameDriver {
       this.render();
       return;
     }
+    if (this.rateStartMs === null || speed !== this.rateSpeed || (this.host.rateEpoch ?? 0) !== this.rateEpoch) this.resetRate(nowMs);
     const tickIntervalMs = 1000 / (SIM_TICKS_PER_SECOND * speed);
     this.accumulatorMs += Math.min(nowMs - this.lastFrameMs, FrameDriver.MAX_FRAME_MS);
     while (this.accumulatorMs >= tickIntervalMs && this.ticks < MAX_TICKS_PER_FRAME) {
       this.host.step(1);
       this.accumulatorMs -= tickIntervalMs;
       this.ticks += 1;
+      this.completedTicks += 1;
     }
     if (this.ticks === MAX_TICKS_PER_FRAME) this.accumulatorMs = 0;
+    if (this.host.speed() === speed && (this.host.rateEpoch ?? 0) === this.rateEpoch) this.sampleRate(nowMs, speed);
+    else this.resetRate(nowMs);
     this.render();
     this.lastFrameMs = nowMs;
   }
@@ -245,5 +318,6 @@ export class FrameDriver {
     this.accumulatorMs = 0;
     this.lastFrameMs = nowMs;
     this.ticks = 0;
+    this.resetRate(nowMs);
   }
 }

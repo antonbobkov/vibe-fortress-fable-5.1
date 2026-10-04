@@ -5,13 +5,13 @@
 
 import { describe, expect, it } from 'vitest';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
-import { C } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { GameEvent } from '@core/events';
 import type { TickContext } from '@core/system';
 import type { MoraleReader } from '@systems/morale/reader';
 import { TestWorld } from '../../scenarios/test-world';
-import { chooseGoal, memberThink, stepThreatMembers } from '@systems/threats/ai';
+import { chooseGoal, findUnattendedItemWithinRadius, memberThink, stepThreatMembers } from '@systems/threats/ai';
 import { spawnHostileMember } from '@systems/threats/parties';
 import { arriveParty } from '@systems/threats';
 import type { BuildingsReader } from '@systems/buildings/reader';
@@ -48,6 +48,57 @@ function makeCtx(w: TestWorld): TickContext {
 }
 
 describe('T-M6-09 / T-M8-01 Hostile AI', () => {
+  it('T-M8-02 bounded loot ranking preserves stockpile priority, slot ties, live changes and party exclusions', () => {
+    const w = new TestWorld({ world: 'flat-test', seed: 'm802-loot-ranking', embark: 'none' });
+    const z = FLAT_TEST_SURFACE_Z;
+    const pos = w.index(24, 24, z);
+    const stockTile = w.index(25, 24, z);
+    w.zone('stockpile', [stockTile]);
+    const outside = w.spawnItem('ring', 'gold', pos, 1, 5);
+    const stone = w.spawnItem('raw_stone', 'granite', stockTile);
+    w.spawnItem('ring', 'gold', w.index(31, 24, z), 1, 5); // Beyond radius six.
+    const ctx = makeCtx(w);
+    const pick = () => findUnattendedItemWithinRadius(pos, 6, ctx);
+    expect(pick()).toBe(stone); // Stockpile outranks a more valuable loose item.
+    const old = w.spawnItem('ring', 'gold', stockTile);
+    const second = w.spawnItem('ring', 'gold', stockTile);
+    w.game.world.services.items!.destroy(old, 'test');
+    const reused = w.spawnItem('ring', 'gold', stockTile);
+    expect(reused).toBeGreaterThan(second);
+    expect(pick()).toBe(reused); // Slot order, not numeric entity id.
+    w.game.world.services.items!.setFlag(reused, ItemFlag.Forbidden, true);
+    expect(pick()).toBe(second);
+    w.game.world.services.items!.setFlag(reused, ItemFlag.Forbidden, false);
+    expect(pick()).toBe(reused);
+    const party = w.game.world.entities.get(createTestParty(w, 'bandits'), C.Party)!;
+    party.loot.push(reused); // Excluded tile maximum must not hide the runner-up.
+    expect(findUnattendedItemWithinRadius(pos, 6, ctx, party)).toBe(second);
+    w.game.world.services.items!.destroy(reused, 'test');
+    expect(pick()).toBe(second);
+    w.game.world.services.items!.destroy(second, 'test');
+    expect(pick()).toBe(stone);
+    w.game.world.services.items!.destroy(stone, 'test');
+    expect(pick()).toBe(outside);
+  });
+
+  it('T-M8-02 bounded loot search excludes disconnected tiles and different elevations', () => {
+    const w = new TestWorld({ world: 'flat-test', seed: 'm802-loot-connectivity', embark: 'none' });
+    const z = FLAT_TEST_SURFACE_Z;
+    const pos = w.index(24, 24, z);
+    const sealed = w.index(28, 24, z);
+    w.zone('stockpile', [sealed]);
+    w.spawnItem('ring', 'gold', sealed, 1, 5);
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      if (dx !== 0 || dy !== 0) w.carve(w.index(28 + dx, 24 + dy, z), TileKind.Wall);
+    }
+    const above = w.index(24, 24, z + 1);
+    w.carve(above, TileKind.Floor);
+    w.spawnItem('ring', 'gold', above, 1, 5);
+    const reachable = w.spawnItem('raw_stone', 'granite', pos);
+    w.pathing.connectivity.rebuildDirty();
+    expect(findUnattendedItemWithinRadius(pos, 6, makeCtx(w))).toBe(reachable);
+  });
+
   describe('goal selection per purpose', () => {
     it('T-M8-01 keeps slot-order ties and excludes an unreachable more valuable thief goal', () => {
       const w = new TestWorld({ world: 'flat-test', seed: 'm801-thief-order', embark: 'none' });

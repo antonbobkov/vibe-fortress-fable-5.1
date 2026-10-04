@@ -7,6 +7,8 @@
 
 /** Think interval when far from dwarves. */
 export const WILD_THINK_TICKS = 10;
+/** performance-budget.md § Load shedding rules; only far wild brains (D-210). */
+export const WILD_LOAD_SHEDDING_THINK_TICKS = 20;
 export const NEAR_DWARF_RADIUS = 20;
 export const WANDER_RADIUS = 16;
 export const GRAZE_TICKS = 60;

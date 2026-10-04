@@ -141,6 +141,8 @@ Filters: `{ type | category | tag, materialClass | materialId, minQuality, edibl
 
 ### Reader
 
+Implementation note: `items.bestUnattendedItems(from, radius)` optionally visits only same-z tiles in the Chebyshev square, retaining value/slot ranking; hostile loot searches retain full candidates when party exclusions hide a tile maximum (DECISIONS D-211).
+
 Implementation note: `items.carriedItems(carrierId)` supplies held ammunition and `items.bestUnattendedItems()` supplies per-tile value maxima for thief goals through derived stock indexes; the derived-only `items.refreshDerivedIndexes(itemId)` hook preserves legacy combat mutations, choice order and search rules (DECISIONS D-209).
 
 - `items.get(id)` (the `Item` record), `items.value(id)`, `items.rotStage(id)`, `items.isMiasma(i)`

@@ -78,6 +78,7 @@ const DIRECTIONS: readonly (readonly [number, number])[] = Object.freeze([
 ]);
 
 export interface BrainHost {
+  farWildThinkTicks?(): number;
   readonly map: Map3D;
   readonly entities: EntityStore;
   readonly facts: AnimalFacts;
@@ -113,8 +114,9 @@ function movementClassOf(host: BrainHost, id: EntityId): MovementClass {
 /** `08` § Perception and brains: `1` near a dwarf, `WILD_THINK_TICKS` otherwise. */
 export function thinkInterval(host: BrainHost, id: EntityId): number {
   const at = tileOf(host, id);
-  if (at < 0) return WILD_THINK_TICKS;
-  return nearestDwarf(host, at, NEAR_DWARF_RADIUS) === 0 ? WILD_THINK_TICKS : 1;
+  const farInterval = host.farWildThinkTicks?.() ?? WILD_THINK_TICKS;
+  if (at < 0) return farInterval;
+  return nearestDwarf(host, at, NEAR_DWARF_RADIUS) === 0 ? farInterval : 1;
 }
 
 function isDwarf(host: BrainHost, id: EntityId): boolean {
