@@ -13,7 +13,7 @@ import { POPULATION_CAP_DEFAULT } from './constants';
 import { ReaderSet } from './readers';
 import { Registrations, NO_JOBS_API, NO_SPAWN_API, type Clock, type CoreServices, type GameSystem, type InitContext, type SystemId, type TerrainApi, type TickContext } from './system';
 import { RngStream, seedFor } from './rng';
-import { Scheduler, isDue } from './scheduler';
+import { Scheduler, TimingWindow, isDue, type SystemTiming } from './scheduler';
 import { createEntityStore, type FortressState } from './components';
 import type { EntityStore } from './entities';
 import type { Registry } from './registry';
@@ -32,7 +32,9 @@ export interface WorldOptions {
 export interface HostStats {
   tick: number;
   lastTickMs: number;
-  systems: readonly { id: SystemId; lastMs: number; worstMs: number; totalMs: number; runs: number }[];
+  systems: readonly SystemTiming[];
+  movingAverageTickMs?: number;
+  rollingWorstTickMs?: number;
 }
 
 export function defaultFortressState(name = 'Deepholm'): FortressState {
@@ -115,6 +117,7 @@ export class World {
   private readonly now: Clock;
   private initialised = false;
   private lastTickMs = 0;
+  private readonly tickTimings = new TimingWindow();
 
   /** Called between step 2 and step 3; 22 installs the connectivity rebuild here (T-M0-09). */
   connectivityPass: (() => void) | null = null;
@@ -223,6 +226,12 @@ export class World {
   step(): void {
     const started = this.now();
     const tick = this.calendar.tick;
+    const contexts = new Map<SystemId, TickContext>();
+    const context = (system: GameSystem): TickContext => {
+      let ctx = contexts.get(system.id);
+      if (ctx === undefined) { ctx = this.tickContext(system); contexts.set(system.id, ctx); }
+      return ctx;
+    };
 
     // 1. Commands, FIFO, before any system ticks.
     for (const command of this.commands.drain()) {
@@ -236,7 +245,7 @@ export class World {
     // 2. Systems, in the fixed order, when their cadence and phase are due.
     for (const system of this.scheduler.inOrder()) {
       if (!isDue(tick, system.cadence, system.phase)) continue;
-      const ctx = this.tickContext(system);
+      const ctx = context(system);
       this.scheduler.runTick(system, () => system.tick(ctx));
     }
     this.services.terrain.flush?.((event) => this.events.emit(event));
@@ -249,7 +258,7 @@ export class World {
     const batch = this.events.drain();
     for (const event of batch) {
       for (const system of this.scheduler.subscribersTo(event.type)) {
-        system.handle(event, this.tickContext(system));
+        system.handle(event, context(system));
       }
     }
     this.events.seal();
@@ -267,6 +276,8 @@ export class World {
     if (this.calendar.season !== season) this.commandLog.startSeason();
 
     this.lastTickMs = this.now() - started;
+    this.tickTimings.add(this.lastTickMs);
+    this.scheduler.finishTick();
   }
 
   /** Run `n` ticks synchronously. */
@@ -300,6 +311,8 @@ export class World {
     return {
       tick: this.calendar.tick,
       lastTickMs: this.lastTickMs,
+      movingAverageTickMs: this.tickTimings.average,
+      rollingWorstTickMs: this.tickTimings.worst,
       systems: this.scheduler.stats(),
     };
   }

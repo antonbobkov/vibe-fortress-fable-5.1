@@ -239,7 +239,10 @@ export function checkProximityWake(
   monsterInfo: Map<EntityId, CavernMonsterInfo>,
 ): void {
   const entities = ctx.world.entities;
-  const dwarves = entities.with(C.Brain, C.Position);
+  const dwarves = entities.with(C.Brain, C.Position).flatMap((id) => {
+    const pos = entities.get(id, C.Position);
+    return pos === undefined ? [] : [pos];
+  });
 
   for (const [id] of monsterInfo) {
     if (!entities.alive(id)) continue;
@@ -249,9 +252,7 @@ export function checkProximityWake(
     const mPos = entities.get(id, C.Position);
     if (!mPos) continue;
 
-    for (const d of dwarves) {
-      const dPos = entities.get(d, C.Position);
-      if (!dPos) continue;
+    for (const dPos of dwarves) {
       const dist = Math.max(
         Math.abs(dPos.x - mPos.x),
         Math.abs(dPos.y - mPos.y),
@@ -666,6 +667,18 @@ export function stepCavernMonsters(
   }>('creatures');
 
   checkProximityWake(ctx, monsterInfo);
+  // Monster movement cannot move fortress targets: share their stable positions for this pass.
+  const fortress = new Map<number, { id: EntityId; pos: { x: number; y: number; z: number } }[]>();
+  for (const id of entities.with(C.Position, C.Creature)) {
+    if (entities.get(id, C.Creature)?.faction !== 'fortress') continue;
+    const pos = entities.get(id, C.Position);
+    if (pos === undefined) continue;
+    const label = ctx.readers.pathing.labelOf(map.index(pos.x, pos.y, pos.z), 'walker');
+    if (label === 0) continue;
+    let targets = fortress.get(label);
+    if (targets === undefined) { targets = []; fortress.set(label, targets); }
+    targets.push({ id, pos });
+  }
 
   for (const [m, info] of monsterInfo) {
     if (!entities.alive(m)) continue;
@@ -706,24 +719,18 @@ export function stepCavernMonsters(
     if (spRow?.temper === 'aggressive') {
       let bestTarget = 0;
       let bestDist = Infinity;
+      const label = ctx.readers.pathing.labelOf(myTile, 'walker');
 
-      for (const c of entities.with(C.Position, C.Creature)) {
-        if (!entities.alive(c)) continue;
-        const cComp = entities.get(c, C.Creature);
-        if (!cComp || cComp.faction !== 'fortress') continue;
-
-        const cPos = entities.get(c, C.Position);
-        if (!cPos) continue;
+      for (const { id: c, pos: cPos } of fortress.get(label) ?? []) {
 
         // Distance to cavern band: z distance if outside band, 0 if inside band
         const zDist =
           cPos.z < band[0] ? band[0] - cPos.z : cPos.z > band[1] ? cPos.z - band[1] : 0;
         if (zDist <= CAVE_SEEK_RADIUS) {
-          const cTile = map.index(cPos.x, cPos.y, cPos.z);
           // Check reachability
           if (
             ctx.world.services.movement &&
-            (ctx.readers.pathing.reachable(myTile, cTile, 'walker') ?? false)
+            label !== 0
           ) {
             const dist = Math.max(
               Math.abs(cPos.x - pos.x),

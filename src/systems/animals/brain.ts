@@ -126,7 +126,7 @@ function isHostile(host: BrainHost, id: EntityId): boolean {
 }
 
 export function nearestDwarf(host: BrainHost, at: TileIndex, radius: number): EntityId {
-  const found = host.readers.spatial.inRadiusWhere(at, radius, (other) => isDwarf(host, other));
+  const found = host.readers.spatial.inRadius(at, radius, 'creature').filter((other) => isDwarf(host, other));
   for (const id of found) if (visible(host, at, id)) return id;
   return 0;
 }
@@ -155,7 +155,7 @@ export function perceivedThreats(host: BrainHost, id: EntityId): EntityId[] {
   }
   const radius = host.facts.perceptionOf(species);
   const out: EntityId[] = [];
-  for (const other of host.readers.spatial.inRadiusWhere(at, radius, (o) => o !== id)) {
+  for (const other of host.readers.spatial.inRadius(at, radius, 'creature')) {
     const otherSpecies = speciesOf(host, other);
     if (otherSpecies === 0) continue;
     const scary = isDwarf(host, other) || isHostile(host, other) || host.facts.dietOf(otherSpecies) === 'carnivore';
@@ -173,7 +173,7 @@ export function findPrey(host: BrainHost, id: EntityId): EntityId {
   const species = speciesOf(host, id);
   const limit = (host.facts.sizeOf(species) * PREY_SIZE_PERMILLE) / 1000;
   const radius = host.facts.perceptionOf(species);
-  for (const other of host.readers.spatial.inRadiusWhere(at, radius, (o) => o !== id)) {
+  for (const other of host.readers.spatial.inRadius(at, radius, 'creature').filter((o) => o !== id)) {
     const s = speciesOf(host, other);
     if (s === 0 || host.facts.dietOf(s) === 'carnivore') continue;
     if (host.facts.sizeOf(s) >= limit) continue;
@@ -193,7 +193,7 @@ export function findHuntTarget(host: BrainHost, id: EntityId): EntityId {
   const species = speciesOf(host, id);
   const limit = (host.facts.sizeOf(species) * PREY_SIZE_PERMILLE) / 1000;
   const radius = host.facts.perceptionOf(species);
-  for (const other of host.readers.spatial.inRadiusWhere(at, radius, (o) => o !== id)) {
+  for (const other of host.readers.spatial.inRadius(at, radius, 'creature').filter((o) => o !== id)) {
     if (isDwarf(host, other)) {
       if (visible(host, at, other)) return other;
       continue;

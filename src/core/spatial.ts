@@ -31,6 +31,31 @@ export function chebyshev(map: Map3D, a: TileIndex, b: TileIndex): number {
 export class SpatialIndex {
   private readonly map: Map3D;
   private readonly entities: EntityStore;
+  private readonly tiles = new Map<TileIndex, Set<EntityId>>();
+  private readonly kinds = new Map<ChunkIndex, Map<EntityKind, Set<EntityId>>>();
+
+  private index(id: EntityId, tile: TileIndex, add: boolean): void {
+    if (!this.map.validIndex(tile)) return;
+    const chunk = this.map.chunkOf(tile);
+    const kind = this.entities.kind(id);
+    if (add) {
+      let at = this.tiles.get(tile);
+      if (at === undefined) { at = new Set(); this.tiles.set(tile, at); }
+      at.add(id);
+      if (kind === undefined) return;
+      let byKind = this.kinds.get(chunk);
+      if (byKind === undefined) { byKind = new Map(); this.kinds.set(chunk, byKind); }
+      let ids = byKind.get(kind);
+      if (ids === undefined) { ids = new Set(); byKind.set(kind, ids); }
+      ids.add(id);
+    } else {
+      const at = this.tiles.get(tile);
+      at?.delete(id);
+      if (at?.size === 0) this.tiles.delete(tile);
+      // Removal can follow entity destruction, when the kind is no longer available.
+      for (const ids of this.kinds.get(chunk)?.values() ?? []) ids.delete(id);
+    }
+  }
 
   constructor(map: Map3D, entities: EntityStore) {
     this.map = map;
@@ -49,16 +74,20 @@ export class SpatialIndex {
   insert(id: EntityId, tile: TileIndex): void {
     if (!this.map.validIndex(tile)) return;
     this.map.addEntityToChunk(this.map.chunkOf(tile), id);
+    this.index(id, tile, true);
   }
 
   /** Remove an entity from the bucket of `tile`'s chunk. */
   remove(id: EntityId, tile: TileIndex): void {
     if (!this.map.validIndex(tile)) return;
     this.map.removeEntityFromChunk(this.map.chunkOf(tile), id);
+    this.index(id, tile, false);
   }
 
   /** `spatial.move(id, a, b)` touches two buckets, and only when the chunk differs. */
   move(id: EntityId, from: TileIndex, to: TileIndex): void {
+    this.index(id, from, false);
+    this.index(id, to, true);
     const a = this.map.validIndex(from) ? this.map.chunkOf(from) : -1;
     const b = this.map.validIndex(to) ? this.map.chunkOf(to) : -1;
     if (a === b) return;
@@ -68,6 +97,8 @@ export class SpatialIndex {
 
   /** Rebuild every bucket from the entity store; used after a load. */
   rebuild(): void {
+    this.tiles.clear();
+    this.kinds.clear();
     for (let c = 0; c < this.map.chunkCount; c += 1) {
       const rec = this.map.chunk(c);
       if (rec !== undefined) rec.entities.length = 0;
@@ -83,14 +114,7 @@ export class SpatialIndex {
   /** The entities standing on exactly this tile, ascending by id. */
   at(i: TileIndex): readonly EntityId[] {
     if (!this.map.validIndex(i)) return EMPTY;
-    const rec = this.map.chunk(this.map.chunkOf(i));
-    if (rec === undefined || rec.entities.length === 0) return EMPTY;
-    const out: EntityId[] = [];
-    for (let k = 0; k < rec.entities.length; k += 1) {
-      const id = rec.entities[k] as EntityId;
-      if (this.tileOf(id) === i) out.push(id);
-    }
-    return out;
+    return Array.from(this.tiles.get(i) ?? []).filter((id) => this.tileOf(id) === i).sort((a, b) => a - b);
   }
 
   /** Every chunk index whose tiles intersect the given inclusive tile box. */
@@ -126,12 +150,12 @@ export class SpatialIndex {
   }
 
   /** Entities within Chebyshev radius `r` of tile `i`, ascending by id. */
-  inRadius(i: TileIndex, r: number, predicate?: EntityPredicate): readonly EntityId[] {
+  inRadius(i: TileIndex, r: number, predicate?: EntityPredicate, kind?: EntityKind): readonly EntityId[] {
     if (!this.map.validIndex(i) || r < 0) return EMPTY;
     const x = this.map.xOf(i);
     const y = this.map.yOf(i);
     const z = this.map.zOf(i);
-    return this.collect(x - r, y - r, z - r, x + r, y + r, z + r, predicate);
+    return this.collect(x - r, y - r, z - r, x + r, y + r, z + r, predicate, kind);
   }
 
   private collect(
@@ -142,6 +166,7 @@ export class SpatialIndex {
     y1: number,
     z1: number,
     predicate?: EntityPredicate,
+    kind?: EntityKind,
   ): readonly EntityId[] {
     const chunks = this.chunksIn(x0, y0, z0, x1, y1, z1);
     const out: EntityId[] = [];
@@ -149,8 +174,8 @@ export class SpatialIndex {
     for (let k = 0; k < chunks.length; k += 1) {
       const rec = this.map.chunk(chunks[k] as ChunkIndex);
       if (rec === undefined) continue;
-      for (let e = 0; e < rec.entities.length; e += 1) {
-        const id = rec.entities[e] as EntityId;
+      const ids = kind === undefined ? rec.entities : this.kinds.get(chunks[k] as ChunkIndex)?.get(kind) ?? [];
+      for (const id of ids) {
         if (seen.has(id)) continue;
         const p = this.entities.get<Position>(id, C.Position);
         if (p === undefined) continue;
@@ -191,7 +216,7 @@ export class SpatialIndex {
       kind === undefined ? undefined : (id: EntityId): boolean => this.entities.kind(id) === kind;
     return {
       at: (i) => this.at(i),
-      inRadius: (i, r, kind) => this.inRadius(i, r, kindFilter(kind)),
+      inRadius: (i, r, kind) => this.inRadius(i, r, kindFilter(kind), kind),
       inBox: (a, b, kind) => this.inBox(a, b, kindFilter(kind)),
       nearest: (i, predicate, maxRadius) => this.nearest(i, predicate, maxRadius),
       inRadiusWhere: (i, r, predicate) => this.inRadius(i, r, predicate),

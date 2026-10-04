@@ -118,13 +118,13 @@ function distance(core: ItemCore, from: TileIndex, to: TileIndex): number {
 }
 
 export class ItemSearch {
+  private readonly typeFilters = new Map<string, number[]>();
   constructor(private readonly host: SearchHost) {}
 
   private acceptable(id: EntityId, filter: ItemFilter, opts: SearchOptions, fromLabel: number, cls: MovementClass): TileIndex {
     const core = this.host.core;
     const it = core.get(id);
     if (it === undefined || !inReach(core, it)) return -1;
-    if (!matches(core, id, it, filter)) return -1;
     if (opts.reservable === true && (it.flags & UNRESERVABLE) !== 0) return -1;
     if (it.containerId !== 0 && opts.reservable === true && core.hasFlag(it.containerId, ItemFlag.Forbidden)) return -1;
     if (opts.stockpiledContainerClass !== undefined && core.container(it.containerId)?.classId !== opts.stockpiledContainerClass) return -1;
@@ -133,20 +133,30 @@ export class ItemSearch {
     if (opts.stockpiledContainerClass !== undefined && this.host.stockpileAt(t) === 0) return -1;
     const pathing = this.host.pathing();
     if (pathing !== null && (fromLabel === 0 || pathing.labelOf(t, cls) !== fromLabel)) return -1;
+    if (!matches(core, id, it, filter)) return -1;
     return t;
   }
 
-  /** The candidates around a set of item ids: each item and, for a container, its contents. */
-  private expand(ids: readonly EntityId[]): EntityId[] {
-    const core = this.host.core;
-    const out: EntityId[] = [];
-    for (const id of ids) {
-      if (!core.isItem(id)) continue;
-      out.push(id);
-      const c = core.container(id);
-      if (c !== undefined) for (const inner of c.contents) out.push(inner);
+  /** Filter content types once before visiting stock instances (not every spatial entity). */
+  private candidateTypes(filter: ItemFilter): number[] {
+    const key = JSON.stringify([filter.type, filter.types, filter.category, filter.tag, filter.edible, filter.drinkable, filter.emptyContainer]);
+    const cached = this.typeFilters.get(key);
+    if (cached !== undefined) return cached;
+    const facts = this.host.core.host.facts;
+    const types: number[] = [];
+    for (let type = 1; type <= facts.typeCount; type += 1) {
+      const row = facts.row(type);
+      if (filter.type !== undefined && type !== filter.type) continue;
+      if (filter.types !== undefined && !filter.types.includes(type)) continue;
+      if (filter.category !== undefined && !categoryUnder(row.category, filter.category)) continue;
+      if (filter.tag !== undefined && !facts.hasTag(type, filter.tag)) continue;
+      if (filter.edible !== undefined && (row.edible === true) !== filter.edible) continue;
+      if (filter.drinkable !== undefined && (row.drinkable === true) !== filter.drinkable) continue;
+      if (filter.emptyContainer !== undefined && facts.containerClassOf(type) !== filter.emptyContainer) continue;
+      types.push(type);
     }
-    return out.sort((a, b) => a - b);
+    this.typeFilters.set(key, types);
+    return types;
   }
 
   /** `items.findItem(filter, fromTile, movementClass, opts)`: the nearest match, or 0. */
@@ -155,29 +165,60 @@ export class ItemSearch {
     if (!core.host.map.validIndex(from)) return 0;
     const pathing = this.host.pathing();
     const fromLabel = pathing === null ? 1 : pathing.labelOf(from, cls);
+    // Every candidate would fail the same connectivity precheck, including the stock fallback.
+    if (pathing !== null && fromLabel === 0) return 0;
     if (filter.itemId !== undefined) return this.acceptable(filter.itemId, filter, opts, fromLabel, cls) >= 0 ? filter.itemId : 0;
+    const types = this.candidateTypes(filter);
+    if (!core.hasTypes(types)) return 0;
+    const contained = opts.stockpiledContainerClass === undefined ? undefined : core.containedItems(opts.stockpiledContainerClass, types);
+    if (contained?.length === 0) return 0;
     const spatial = this.host.spatial();
-    if (spatial !== null) {
+    const rejected = new Set<EntityId>();
+    if (spatial !== null && contained === undefined) {
       for (const r of FIND_RADII) {
-        let best: EntityId = 0;
+        const candidates = core.radiusItems(types, from, r);
+        let best = 0;
         let bestD = Number.POSITIVE_INFINITY;
-        for (const id of this.expand(spatial.inRadiusWhere(from, r, (e) => core.isItem(e)))) {
+        for (const id of candidates) {
+          if (rejected.has(id)) continue;
           const t = this.acceptable(id, filter, opts, fromLabel, cls);
-          if (t < 0) continue;
+          if (t < 0) { rejected.add(id); continue; }
           const d = distance(core, from, t);
-          if (d < bestD) {
-            bestD = d;
-            best = id;
-          }
+          if (d < bestD) { best = id; bestD = d; }
         }
         if (best !== 0) return best;
       }
+    } else if (spatial !== null && contained !== undefined) {
+      let best = 0;
+      let bestRing = Number.POSITIVE_INFINITY;
+      let bestD = Number.POSITIVE_INFINITY;
+      const map = core.host.map;
+      for (const id of contained) {
+        const t = this.acceptable(id, filter, opts, fromLabel, cls);
+        if (t < 0) continue;
+        // The old spatial expansion offers ground items and one level of an item container's
+        // contents. Building containers (wagon) participate only in the stock fallback.
+        const item = core.item(id);
+        const holder = core.host.entities.has(id, C.Position) ? id : item.containerId;
+        if (!core.isItem(holder) || (holder !== id && !core.container(holder)?.contents.includes(id))) continue;
+        const pos = core.host.entities.get(holder, C.Position);
+        if (pos === undefined || !map.inBounds(pos.x, pos.y, pos.z)) continue;
+        const radius = Math.max(Math.abs(map.xOf(from) - pos.x), Math.abs(map.yOf(from) - pos.y), Math.abs(map.zOf(from) - pos.z));
+        const ring = FIND_RADII.findIndex((r) => radius <= r);
+        if (ring < 0) continue;
+        const d = distance(core, from, t);
+        if (ring < bestRing || (ring === bestRing && (d < bestD || (d === bestD && id < best)))) {
+          best = id; bestRing = ring; bestD = d;
+        }
+      }
+      if (best !== 0) return best;
     }
     // The stock index: items in stockpiles first, then the rest, each in id order.
-    const all = this.host.entities.with(C.Item);
+    const all = contained ?? core.idsOfTypes(types);
     const inPile: EntityId[] = [];
     const rest: EntityId[] = [];
     for (const id of all) {
+      if (rejected.has(id)) continue;
       const t = core.tileOf(id);
       (t >= 0 && this.host.stockpileAt(t) !== 0 ? inPile : rest).push(id);
     }

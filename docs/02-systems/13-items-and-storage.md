@@ -141,6 +141,8 @@ Filters: `{ type | category | tag, materialClass | materialId, minQuality, edibl
 
 ### Reader
 
+Implementation note: `items.carriedItems(carrierId)` supplies held ammunition and `items.bestUnattendedItems()` supplies per-tile value maxima for thief goals through derived stock indexes; the derived-only `items.refreshDerivedIndexes(itemId)` hook preserves legacy combat mutations, choice order and search rules (DECISIONS D-209).
+
 - `items.get(id)` (the `Item` record), `items.value(id)`, `items.rotStage(id)`, `items.isMiasma(i)`
 - `items.at(i)` (ids on a tile), `items.inContainer(id)`, `items.containerOf(id)`
 - `items.findItem`, `items.findItems`, `items.countAvailable`, `items.count(typeId)`

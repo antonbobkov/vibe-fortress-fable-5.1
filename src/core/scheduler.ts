@@ -9,6 +9,25 @@
 import { EventDispatchTable } from './events';
 import type { EventType } from './event-types';
 import type { Clock, GameSystem, SystemId } from './system';
+import { SIM_TICKS_PER_SECOND } from './constants';
+
+/** Diagnostic only: timings never participate in simulation state or persistence. */
+export class TimingWindow {
+  private readonly samples = new Float64Array(SIM_TICKS_PER_SECOND);
+  private cursor = 0;
+  private count = 0;
+  private total = 0;
+
+  add(ms: number): void {
+    this.total += ms - (this.samples[this.cursor] as number);
+    this.samples[this.cursor] = ms;
+    this.cursor = (this.cursor + 1) % this.samples.length;
+    this.count = Math.min(this.count + 1, this.samples.length);
+  }
+
+  get average(): number { return this.count === 0 ? 0 : this.total / this.count; }
+  get worst(): number { return Math.max(...this.samples); }
+}
 
 /** `(tick - phase) mod cadence == 0`, with a modulo that is never negative. */
 export function isDue(tick: number, cadence: number, phase: number): boolean {
@@ -23,6 +42,8 @@ export interface SystemTiming {
   worstMs: number;
   totalMs: number;
   runs: number;
+  movingAverageMs: number;
+  rollingWorstMs: number;
 }
 
 /**
@@ -34,6 +55,8 @@ export class Scheduler {
   private readonly byIdMap = new Map<SystemId, GameSystem>();
   private dispatch: EventDispatchTable<GameSystem> | null = null;
   private readonly timings = new Map<SystemId, SystemTiming>();
+  private readonly windows = new Map<SystemId, TimingWindow>();
+  private readonly pending = new Map<SystemId, number>();
   private readonly now: Clock;
 
   /** `now` comes from the platform; `core` never reads a wall clock itself. */
@@ -48,7 +71,8 @@ export class Scheduler {
     let at = this.systems.length;
     while (at > 0 && (this.systems[at - 1] as GameSystem).order > system.order) at -= 1;
     this.systems.splice(at, 0, system);
-    this.timings.set(system.id, { id: system.id, lastMs: 0, worstMs: 0, totalMs: 0, runs: 0 });
+    this.timings.set(system.id, { id: system.id, lastMs: 0, worstMs: 0, totalMs: 0, runs: 0, movingAverageMs: 0, rollingWorstMs: 0 });
+    this.windows.set(system.id, new TimingWindow());
     this.dispatch = null;
   }
 
@@ -90,23 +114,36 @@ export class Scheduler {
       timing.worstMs = Math.max(timing.worstMs, timing.lastMs);
       timing.totalMs += timing.lastMs;
       timing.runs += 1;
+      this.pending.set(system.id, (this.pending.get(system.id) ?? 0) + timing.lastMs);
     }
   }
 
   stats(): readonly SystemTiming[] {
-    return this.systems.map((s) => this.timings.get(s.id) as SystemTiming);
+    return this.systems.map((s) => ({ ...this.timings.get(s.id) as SystemTiming,
+      movingAverageMs: this.windows.get(s.id)?.average ?? 0,
+      rollingWorstMs: this.windows.get(s.id)?.worst ?? 0 }));
+  }
+
+  /** Include zero-cost cadence ticks so the moving average is amortized per world tick. */
+  finishTick(): void {
+    for (const system of this.systems) this.windows.get(system.id)?.add(this.pending.get(system.id) ?? 0);
+    this.pending.clear();
   }
 
   resetStats(): void {
     for (const s of this.systems) {
-      this.timings.set(s.id, { id: s.id, lastMs: 0, worstMs: 0, totalMs: 0, runs: 0 });
+      this.timings.set(s.id, { id: s.id, lastMs: 0, worstMs: 0, totalMs: 0, runs: 0, movingAverageMs: 0, rollingWorstMs: 0 });
+      this.windows.set(s.id, new TimingWindow());
     }
+    this.pending.clear();
   }
 
   clear(): void {
     this.systems.length = 0;
     this.byIdMap.clear();
     this.timings.clear();
+    this.windows.clear();
+    this.pending.clear();
     this.dispatch = null;
   }
 }

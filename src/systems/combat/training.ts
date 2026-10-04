@@ -207,6 +207,7 @@ export function stepTraining(
                     const breaks = rng.chance(AMMO_BREAK_PERMILLE);
                     if (breaks) {
                       entities.destroy(ammoItemId);
+                      ctx.world.services.items?.refreshDerivedIndexes?.(ammoItemId);
                     } else {
                       ammoItem.flags &= ~ItemFlag.Owned;
                       ammoItem.ownerId = 0;

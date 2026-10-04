@@ -281,6 +281,10 @@ export class EntityStore {
   private readonly byKind: number[][];
   private destroyListener: DestroyListener | null = null;
   private liveCount = 0;
+  private readonly revisions: number[] = [];
+
+  /** Diagnostic/derived-cache invalidation; independent of entity data and serialization. */
+  revision(type: ComponentType<unknown>): number { return this.revisions[type.id] ?? 0; }
 
   constructor(types: readonly ComponentType<unknown>[]) {
     this.types = types;
@@ -336,7 +340,9 @@ export class EntityStore {
     if (!this.alive(id)) return;
     const index = entityIndex(id);
     const k = this.kindOf[index] as number;
-    for (let c = 0; c < this.stores.length; c += 1) (this.stores[c] as ComponentStore<unknown>).remove(index);
+    for (let c = 0; c < this.stores.length; c += 1) {
+      if ((this.stores[c] as ComponentStore<unknown>).remove(index)) this.revisions[c] = (this.revisions[c] ?? 0) + 1;
+    }
     const bucket = this.byKind[k] as number[];
     const at = lowerBound(bucket, index);
     if (bucket[at] === index) bucket.splice(at, 1);
@@ -375,6 +381,7 @@ export class EntityStore {
   add<T>(id: EntityId, type: ComponentType<T>, value: T): void {
     if (!this.alive(id)) throw new RangeError(`add ${type.name} to a dead entity ${id}`);
     this.storeOf(type).set(entityIndex(id), value);
+    this.revisions[type.id] = (this.revisions[type.id] ?? 0) + 1;
   }
 
   get<T>(id: EntityId, type: ComponentType<T>): T | undefined {
@@ -389,7 +396,7 @@ export class EntityStore {
 
   remove<T>(id: EntityId, type: ComponentType<T>): void {
     if (!this.alive(id)) return;
-    this.storeOf(type).remove(entityIndex(id));
+    if (this.storeOf(type).remove(entityIndex(id))) this.revisions[type.id] = (this.revisions[type.id] ?? 0) + 1;
   }
 
   /** Every living entity of a kind, ascending. */
@@ -503,7 +510,10 @@ export class EntityStore {
 
   /** Reset to an empty store. */
   clear(): void {
-    for (let c = 0; c < this.stores.length; c += 1) (this.stores[c] as ComponentStore<unknown>).clear();
+    for (let c = 0; c < this.stores.length; c += 1) {
+      (this.stores[c] as ComponentStore<unknown>).clear();
+      this.revisions[c] = (this.revisions[c] ?? 0) + 1;
+    }
     this.generations.length = 0;
     this.aliveFlags.length = 0;
     this.kindOf.length = 0;

@@ -6,7 +6,7 @@
 import { C, ItemFlag, type Squad } from '@core/components';
 import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
-import type { TickContext } from '@core/system';
+import type { ItemsApi, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import {
@@ -275,6 +275,7 @@ export function dropItemAtBarracks(
       entities.add(itemId, C.Position, ctx.world.map.unpack(dropTile));
     }
   }
+  ctx.world.services.items?.refreshDerivedIndexes?.(itemId);
 }
 
 /**
@@ -284,6 +285,7 @@ export function claimItemForSoldier(
   entities: EntityStore,
   itemId: EntityId,
   soldierId: EntityId,
+  items?: ItemsApi | null,
 ): void {
   const item = entities.get(itemId, C.Item);
   if (!item) return;
@@ -294,6 +296,7 @@ export function claimItemForSoldier(
     entities.remove(itemId, C.Position);
   }
   item.containerId = 0;
+  items?.refreshDerivedIndexes?.(itemId);
 }
 
 /**
@@ -344,7 +347,7 @@ export function reequipSoldier(
     if (equip.weapon !== 0 && entities.alive(equip.weapon)) {
       dropItemAtBarracks(ctx, equip.weapon, squad.barracksZoneId, soldierId);
     }
-    claimItemForSoldier(entities, bestWeaponId, soldierId);
+    claimItemForSoldier(entities, bestWeaponId, soldierId, ctx.world.services.items);
     equip.weapon = bestWeaponId;
   }
 
@@ -388,7 +391,7 @@ export function reequipSoldier(
       if (equip.shield !== 0 && entities.alive(equip.shield)) {
         dropItemAtBarracks(ctx, equip.shield, squad.barracksZoneId, soldierId);
       }
-      claimItemForSoldier(entities, bestShieldId, soldierId);
+      claimItemForSoldier(entities, bestShieldId, soldierId, ctx.world.services.items);
       equip.shield = bestShieldId;
     }
   }
@@ -423,7 +426,7 @@ export function reequipSoldier(
       if (currentPieceId !== 0 && entities.alive(currentPieceId)) {
         dropItemAtBarracks(ctx, currentPieceId, squad.barracksZoneId, soldierId);
       }
-      claimItemForSoldier(entities, bestPieceId, soldierId);
+      claimItemForSoldier(entities, bestPieceId, soldierId, ctx.world.services.items);
       equip.armor[slot] = bestPieceId;
     }
   }
@@ -438,7 +441,7 @@ export function reequipSoldier(
         if (item) {
           const row = itemsTable.byIndex(item.type);
           if (row?.id === 'quiver' || row?.category === 'container/quiver') {
-            claimItemForSoldier(entities, itemId, soldierId);
+            claimItemForSoldier(entities, itemId, soldierId, ctx.world.services.items);
             equip.quiver = itemId;
             break;
           }
@@ -474,9 +477,10 @@ export function reequipSoldier(
             if (!it) continue;
             const row = itemsTable.byIndex(it.type);
             if (row?.id === wantedAmmo && it.count > 0) {
-              claimItemForSoldier(entities, itemId, soldierId);
+              claimItemForSoldier(entities, itemId, soldierId, ctx.world.services.items);
               if (equip.quiver !== 0) {
                 it.containerId = equip.quiver;
+                ctx.world.services.items?.refreshDerivedIndexes?.(itemId);
               }
               toClaim -= it.count;
             }

@@ -9,6 +9,7 @@ import { TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { Edge, EntityId, TileIndex } from '@core/types';
 import type { TickContext } from '@core/system';
 import { TICKS_PER_DAY } from '@core/constants';
+import { entityIndex } from '@core/entities';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { ItemsReader } from '@systems/items/reader';
 import {
@@ -199,6 +200,8 @@ export function findCombatTarget(
     const dy = Math.abs(target.y - my);
     const dist = Math.max(dx, dy);
     if (dist > 14) continue; // perception radius 14
+    // A farther visible target cannot displace either chosen minimum. Preserve strict ties.
+    if (dist >= bestCreatureDist && (!isArcher || !target.soldier || dist >= bestSoldierDist)) continue;
 
     if (!pathing.lineOfSight(pos, target.tile)) continue;
 
@@ -239,7 +242,7 @@ export function findUnattendedItemWithinRadius(pos: TileIndex, radius: number, c
   let bestItem: EntityId = 0;
   let bestDist = Infinity;
 
-  for (const itId of entities.with(C.Item)) {
+  for (const itId of ctx.readers.spatial.inRadius(pos, radius, 'item').slice().sort((a, b) => entityIndex(a) - entityIndex(b))) {
     if (!entities.alive(itId)) continue;
     const it = entities.get(itId, C.Item);
     if (!it || it.carriedBy !== 0 || it.containerId !== 0) continue;
@@ -436,23 +439,37 @@ export function chooseGoal(P: Party, ctx: TickContext): void {
       value: number;
       dist: number;
     }
-    const candidates: Candidate[] = [];
+    let bestCandidate: Candidate | undefined;
+    const compare = (a: Candidate, b: Candidate): number => {
+      if (a.isOutdoors !== b.isOutdoors) return a.isOutdoors ? -1 : 1;
+      if (b.value !== a.value) return b.value - a.value;
+      return a.dist - b.dist;
+    };
 
     if (itemsReader) {
-      for (const itId of entities.with(C.Item)) {
-        if (!entities.alive(itId)) continue;
-        const it = entities.get(itId, C.Item);
-        if (!it || it.carriedBy !== 0 || it.containerId !== 0) continue;
-        if ((it.flags & 1) !== 0) continue; // Forbidden
+      const ranked = itemsReader.bestUnattendedItems();
+      // Outdoors precede indoors in the original comparison; lower value cannot improve
+        // a reachable winner within either pass. Equal-value distances and slot ties stay live.
+      for (const outdoors of [true, false]) {
+        for (const itId of ranked) {
+          if (!entities.alive(itId)) continue;
+          const it = entities.get(itId, C.Item);
+          if (!it || it.carriedBy !== 0 || it.containerId !== 0) continue;
+          if ((it.flags & 1) !== 0) continue; // Forbidden
 
-        const itTile = itemsReader.tileOf(itId);
-        if (itTile < 0) continue;
-        if (!ctx.readers.pathing.reachable(leaderPos, itTile, 'walker')) continue;
-
-        const isOutdoors = map.hasFlag(itTile, TileFlag.Outdoor);
-        const value = itemsReader.value(itId);
-        const dist = chebyshevDist(leaderPos, itTile, map);
-        candidates.push({ id: itId, tile: itTile, isOutdoors, value, dist });
+          const value = itemsReader.value(itId);
+          if (bestCandidate !== undefined && value < bestCandidate.value) break;
+          const itTile = itemsReader.tileOf(itId);
+          if (itTile < 0) continue;
+          const isOutdoors = map.hasFlag(itTile, TileFlag.Outdoor);
+          if (isOutdoors !== outdoors) continue;
+          const dist = chebyshevDist(leaderPos, itTile, map);
+          const candidate = { id: itId, tile: itTile, isOutdoors, value, dist };
+          if (bestCandidate !== undefined && compare(candidate, bestCandidate) >= 0) continue;
+          if (!ctx.readers.pathing.reachable(leaderPos, itTile, 'walker')) continue;
+          bestCandidate = candidate;
+        }
+        if (bestCandidate !== undefined) break;
       }
     }
 
@@ -466,21 +483,15 @@ export function chooseGoal(P: Party, ctx: TickContext): void {
 
       const aTile = positionOf(aId, ctx);
       if (aTile < 0) continue;
-      if (!ctx.readers.pathing.reachable(leaderPos, aTile, 'walker')) continue;
-
       const isOutdoors = map.hasFlag(aTile, TileFlag.Outdoor);
       const value = 10;
       const dist = chebyshevDist(leaderPos, aTile, map);
-      candidates.push({ id: aId, tile: aTile, isOutdoors, value, dist });
+      const candidate = { id: aId, tile: aTile, isOutdoors, value, dist };
+      if (bestCandidate !== undefined && compare(candidate, bestCandidate) >= 0) continue;
+      if (!ctx.readers.pathing.reachable(leaderPos, aTile, 'walker')) continue;
+      bestCandidate = candidate;
     }
 
-    candidates.sort((a, b) => {
-      if (a.isOutdoors !== b.isOutdoors) return a.isOutdoors ? -1 : 1;
-      if (b.value !== a.value) return b.value - a.value;
-      return a.dist - b.dist;
-    });
-
-    const bestCandidate = candidates[0];
     if (bestCandidate !== undefined) {
       P.goalEntity = bestCandidate.id;
       P.goalTile = bestCandidate.tile;

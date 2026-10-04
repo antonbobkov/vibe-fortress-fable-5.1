@@ -30,6 +30,25 @@ function spawn(
 }
 
 describe('T-M0-09 spatial: buckets and queries', () => {
+  it('T-M8-01 exact tiles and kind queries survive same-chunk moves, destruction and slot reuse', () => {
+    const { map, entities, spatial } = world();
+    const a = map.index(2, 2, 2);
+    const b = map.index(3, 2, 2);
+    const creature = spawn(map, entities, spatial, a);
+    const item = spawn(map, entities, spatial, a, 'item');
+    expect(spatial.inRadius(a, 1, undefined, 'creature')).toEqual([creature]);
+    entities.add(creature, C.Position, map.unpack(b));
+    spatial.move(creature, a, b);
+    expect(spatial.at(a)).toEqual([item]);
+    expect(spatial.at(b)).toEqual([creature]);
+    entities.destroy(creature);
+    spatial.remove(creature, b);
+    const replacement = spawn(map, entities, spatial, b, 'item');
+    expect(spatial.inRadius(a, 1, undefined, 'creature')).toEqual([]);
+    expect(spatial.inRadius(a, 1, undefined, 'item')).toEqual([item, replacement].sort((x, y) => x - y));
+    spatial.rebuild();
+    expect(spatial.at(b)).toEqual([replacement]);
+  });
   it('`at` lists exactly the entities on one tile, ascending', () => {
     const { map, entities, spatial } = world();
     const tile = map.index(5, 5, 2);

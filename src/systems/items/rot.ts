@@ -8,6 +8,8 @@ import { CORPSE_ROT_DAYS, MIASMA_DURATION, ROT_COLD_C, ROT_CONTAINER_PERCENT, RO
 import type { ItemCore, ItemChange } from './api';
 import type { StockpileStore } from './stockpiles';
 import { FREEZE_C } from '@systems/fluids/constants';
+import { entityIndex } from '@core/entities';
+import { sortedInsert, sortedRemove } from './state';
 
 export interface RotRecord { id: EntityId; type: number; progress: number; sampledTick: number; speed: number; due: number }
 
@@ -15,6 +17,15 @@ export class RotQueue {
   readonly records = new Map<EntityId, RotRecord>();
   readonly miasma = new Map<TileIndex, number>();
   private readonly buckets = new Map<number, EntityId[]>();
+  private readonly rotten = new Set<EntityId>();
+
+  /** Derived miasma sources are restored once, rather than scanning every stock item each tick. */
+  rebuildSources(): void {
+    this.rotten.clear();
+    for (const id of this.core.host.entities.with(C.Item)) {
+      if (this.core.get(id)?.rotStage === 2) this.rotten.add(id);
+    }
+  }
 
   constructor(private readonly core: ItemCore, private readonly store: StockpileStore,
     private readonly temperature: (tile: TileIndex) => number) {}
@@ -43,12 +54,12 @@ export class RotQueue {
   }
 
   private unqueue(id: EntityId): void {
-    for (const [bucket, ids] of this.buckets) {
-      const at = ids.indexOf(id);
-      if (at < 0) continue;
-      ids.splice(at, 1);
-      if (ids.length === 0) this.buckets.delete(bucket);
-    }
+    const due = this.records.get(id)?.due;
+    if (due === undefined) return;
+    const ids = this.buckets.get(due);
+    if (ids === undefined) return;
+    sortedRemove(ids, id);
+    if (ids.length === 0) this.buckets.delete(due);
   }
 
   private queue(record: RotRecord): void {
@@ -58,14 +69,15 @@ export class RotQueue {
     const remaining = Math.max(0, (stage + 1) * span - record.progress);
     record.due = Math.ceil((record.sampledTick + remaining / record.speed) / TICKS_PER_HOUR) * TICKS_PER_HOUR;
     const bucket = this.buckets.get(record.due) ?? [];
-    bucket.push(record.id);
-    bucket.sort((a, b) => a - b);
+    sortedInsert(bucket, record.id);
     this.buckets.set(record.due, bucket);
   }
 
   /** Creation and movement preserve elapsed decay, then sample the new location. */
   changed(id: EntityId, change: ItemChange): void {
-    if (change === 'destroyed') { this.records.delete(id); this.unqueue(id); return; }
+    if (this.core.get(id)?.rotStage === 2) this.rotten.add(id);
+    else this.rotten.delete(id);
+    if (change === 'destroyed') { this.unqueue(id); this.records.delete(id); return; }
     if (change !== 'created' && change !== 'placed' && change !== 'lifted' && change !== 'contained') return;
     const it = this.core.get(id);
     if (it === undefined) return;
@@ -132,7 +144,7 @@ export class RotQueue {
     for (const [tile, expiry] of this.miasma) if (expiry <= ctx.tick) this.miasma.delete(tile);
     const map = ctx.world.map;
     const added: number[] = [];
-    for (const id of ctx.world.entities.with(C.Item)) {
+    for (const id of Array.from(this.rotten).sort((a, b) => entityIndex(a) - entityIndex(b))) {
       const item = this.core.get(id);
       if (item?.rotStage !== 2 || item.containerId !== 0) continue;
       const origin = this.core.tileOf(id);
@@ -169,4 +181,3 @@ export class RotQueue {
     for (const b of buckets) this.buckets.set(b.bucketTick, b.items.slice());
   }
 }
-

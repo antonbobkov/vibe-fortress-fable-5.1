@@ -33,6 +33,10 @@ export interface ItemsReader {
   at(i: TileIndex): EntityId[];
   /** A container's contents, ascending. */
   inContainer(id: EntityId): EntityId[];
+  /** Directly carried stock instances, in entity-table order (T-M8-01). */
+  carriedItems(id: EntityId): EntityId[];
+  /** Highest-valued unattended, unforbidden item per tile, descending value then entity slot (T-M8-01). */
+  bestUnattendedItems(): EntityId[];
   /** The container an item is in, or 0. */
   containerOf(id: EntityId): EntityId;
   /** The tile an item is on, directly or through its container or carrier; -1 when nowhere. */
@@ -106,6 +110,8 @@ export function makeReader(
     unburiedDead,
     at: (i) => entities.at(i).filter((id) => core.isItem(id)),
     inContainer: (id) => (core.container(id)?.contents ?? []).slice(),
+    carriedItems: (id) => core.carriedItems(id),
+    bestUnattendedItems: () => core.bestUnattendedItems(),
     containerOf: (id) => core.get(id)?.containerId ?? 0,
     tileOf: (id) => core.tileOf(id),
     count: (typeId) => core.counts.total(typeOf(typeId)),
