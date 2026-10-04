@@ -139,6 +139,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.status.date': 'Day {day} of {season}, Year {year}',
   'ui.status.pop': '☺ {n}',
   'ui.status.z': 'z {z}',
+  'ui.status.slow': 'slow',
   'ui.status.weather': '{glyph} {word} {temp}°C',
   'ui.calendar.season': '{season}, Year {year}',
   'ui.calendar.day': 'Day {day}, hour {hour}',

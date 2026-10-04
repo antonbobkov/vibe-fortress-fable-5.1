@@ -20,6 +20,7 @@ import {
   FrameLoop,
   browserFrameScheduler,
   browserHidden,
+  browserNow,
   type FrameScheduler,
 } from '@platform/realtime';
 import { contentRegistry } from '@content/loader';
@@ -232,6 +233,7 @@ export class Game {
       ui: this.ui,
       submit: (command) => this.host.submit(command),
       speed: () => this.host.speed(),
+      get loadSheddingActive() { return host.loadSheddingActive; },
       setSpeed: (speed) => this.host.setSpeed(speed),
       pan: (dx, dy) => void this.pan(dx, dy),
       changeZ: (dz) => void this.changeZ(dz),
@@ -1409,6 +1411,9 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
     game.render();
   });
 
+  // Hidden tabs can suspend RAF entirely: visibility events break the rate window even then.
+  const now = browserNow();
+  document.addEventListener('visibilitychange', () => game.driver.reset(now()));
   const loop = new FrameLoop({
     scheduler: options.scheduler ?? browserFrameScheduler(),
     hidden: browserHidden(),

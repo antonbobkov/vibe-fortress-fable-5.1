@@ -124,7 +124,7 @@ export class ItemCore implements ItemsApi {
   refreshDerivedIndexes(id: EntityId): void { this.indexItem(id); }
 
   /** Thief ranking: one maximum per eligible tile, descending value then ascending entity slot. */
-  bestUnattendedItems(): EntityId[] {
+  bestUnattendedItems(from?: TileIndex, radius?: number): EntityId[] {
     this.ensureSearchIndex();
     for (const tile of this.looseDirty) {
       let best: { id: EntityId; value: number } | undefined;
@@ -139,6 +139,18 @@ export class ItemCore implements ItemsApi {
       this.setLooseBest(tile, best);
     }
     this.looseDirty.clear();
+    if (from !== undefined && radius !== undefined) {
+      if (!this.map.validIndex(from) || radius < 0) return [];
+      const x = this.map.xOf(from), y = this.map.yOf(from), z = this.map.zOf(from);
+      const candidates: { id: EntityId; value: number }[] = [];
+      for (let yy = Math.max(0, Math.ceil(y - radius)); yy <= Math.min(this.map.h - 1, y + radius); yy++) {
+        for (let xx = Math.max(0, Math.ceil(x - radius)); xx <= Math.min(this.map.w - 1, x + radius); xx++) {
+          const best = this.looseBest.get(this.map.index(xx, yy, z));
+          if (best !== undefined) candidates.push(best);
+        }
+      }
+      return candidates.sort((a, b) => b.value - a.value || entityIndex(a.id) - entityIndex(b.id)).map((best) => best.id);
+    }
     if (this.looseOrder === null) {
       this.looseOrder = [];
       for (const value of Array.from(this.looseBands.keys()).sort((a, b) => b - a)) {

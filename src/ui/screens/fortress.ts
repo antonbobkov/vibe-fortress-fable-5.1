@@ -89,6 +89,7 @@ export interface FortressSettings {
 }
 
 export interface FortressHost {
+  readonly loadSheddingActive?: boolean;
   readonly readers: ReaderSet;
   readonly registry: Registry;
   readonly ui: UiState;
@@ -488,13 +489,15 @@ export class FortressScreen implements Screen {
     if (rect.rows <= 0) return;
     const t = surface.theme;
     const readers = this.host.readers;
-    const row1 = statusRow1(readers, this.strings, this.ui.z, this.host.speed(), rect.cols);
+    const loadShedding = this.host.loadSheddingActive === true;
+    const row1 = statusRow1(readers, this.strings, this.ui.z, this.host.speed(), rect.cols, loadShedding);
     labelRow(surface, rect.col, rect.row, rect.cols, row1);
     // The date opens the calendar panel; the weather glyph takes its colour (T-M3-08).
-    const fields = statusFields(readers, this.strings, this.ui.z, this.host.speed());
+    const fields = statusFields(readers, this.strings, this.ui.z, this.host.speed(), loadShedding);
     let fieldCol = rect.col + 1;
     for (const field of fields) {
       if (field.startsWith('+') || field.startsWith('!')) surface.text(fieldCol, rect.row, field, t.danger, t.black, rect.cols - (fieldCol - rect.col));
+      if (loadShedding && field === fields[fields.length - 1]) surface.text(fieldCol, rect.row, field, surface.color('yellow'), t.black, rect.cols - (fieldCol - rect.col));
       fieldCol += Array.from(field).length + 3;
     }
     const date = Array.from(fields[0] ?? '').length;

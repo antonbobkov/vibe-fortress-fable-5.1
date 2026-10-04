@@ -30,7 +30,7 @@ export function speedText(speed: Speed): string {
 }
 
 /** The fields of row 1, left to right, without the right-aligned help. */
-export function statusFields(readers: ReaderSet, strings: Strings, z: number, speed: Speed): string[] {
+export function statusFields(readers: ReaderSet, strings: Strings, z: number, speed: Speed, loadShedding = false): string[] {
   const cal = readers.calendar;
   const season = cal.seasonName.charAt(0).toUpperCase() + cal.seasonName.slice(1);
   const fields = [strings.get('ui.status.date', { day: cal.dayOfSeason, season, year: cal.year })];
@@ -53,13 +53,13 @@ export function statusFields(readers: ReaderSet, strings: Strings, z: number, sp
     if (n > 0) fields.push(`!${n}`);
   }
   fields.push(strings.get('ui.status.z', { z }));
-  fields.push(speedText(speed));
+  fields.push(loadShedding ? `${speedText(speed)} ${strings.get('ui.status.slow')}` : speedText(speed));
   return fields;
 }
 
 /** Row 1 as one line of `cols` cells: the fields three spaces apart, `[?] help` at the right edge. */
-export function statusRow1(readers: ReaderSet, strings: Strings, z: number, speed: Speed, cols: number): string {
-  const left = ` ${statusFields(readers, strings, z, speed).join('   ')}`;
+export function statusRow1(readers: ReaderSet, strings: Strings, z: number, speed: Speed, cols: number, loadShedding = false): string {
+  const left = ` ${statusFields(readers, strings, z, speed, loadShedding).join('   ')}`;
   const help = `${strings.get('ui.status.help')} `;
   const pad = Math.max(1, cols - Array.from(left).length - Array.from(help).length);
   return `${left}${' '.repeat(pad)}${help}`;

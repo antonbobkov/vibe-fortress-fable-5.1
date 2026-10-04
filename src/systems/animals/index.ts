@@ -37,6 +37,8 @@ import {
   PREDATOR_HUNGER_DAYS,
   PASTURE_ZONE,
   TAME_THINK_TICKS,
+  WILD_THINK_TICKS,
+  WILD_LOAD_SHEDDING_THINK_TICKS,
 } from './constants';
 import { AnimalFacts } from './facts';
 import { tickAnimal, type BrainHost } from './brain';
@@ -74,6 +76,10 @@ export interface AnimalsOptions {
 }
 
 export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
+  private loadShedding = false;
+
+  /** Pace only; the app owns the clock and the switch is absent from saved simulation state. */
+  setLoadShedding(enabled: boolean): void { this.loadShedding = enabled; }
   readonly id = ANIMALS_ID;
   readonly order = 8;
   override readonly cadence = ANIMALS_CADENCE;
@@ -208,6 +214,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     const world = this.world as WorldLike;
     return {
       map: world.map,
+      farWildThinkTicks: () => this.loadShedding ? WILD_LOAD_SHEDDING_THINK_TICKS : WILD_THINK_TICKS,
       entities: world.entities,
       facts: this.facts,
       rng: this.rng,
@@ -1125,4 +1132,3 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     this.cavernTileCache = [null, null, null, null];
   }
 }
-
