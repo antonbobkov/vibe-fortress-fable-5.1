@@ -6,7 +6,7 @@
   "description": "Deepholm - a fortress simulation",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && node scripts/build-check.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
@@ -19,7 +19,9 @@
     "golden:png": "node scripts/render-goldens-png.mjs",
     "hash": "node scripts/world-hash.mjs",
     "gate": "node scripts/gate.mjs",
-    "interface:check": "node scripts/interface-check.mjs"
+    "interface:check": "node scripts/interface-check.mjs",
+    "build:test": "tsc --noEmit && vite build --mode test && node scripts/build-check.mjs --test",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",

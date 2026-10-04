@@ -53,7 +53,7 @@ import { validateImport, SaveLoadError, type LoadedGame } from '@app/game-save';
 import { browserFiles, type FileBridge } from '@platform/files';
 import { bytesToBase64 } from '@core/serialize';
 import { SIM_TICKS_PER_SECOND, STATUS_ROWS } from '@core/constants';
-import { FLUID_ANIM_MS, LOG_ROWS } from '@render/constants';
+import { BUNDLED_FONT_FAMILY, FLUID_ANIM_MS, LOG_ROWS } from '@render/constants';
 import { ConfirmScreen } from '@ui/screens/confirm';
 import { LoadScreen, type SaveListing } from '@ui/screens/load';
 import { TradeSessionScreen } from '@ui/screens/trade_session';
@@ -202,6 +202,7 @@ export class Game {
       cellPx: fit.cellPx,
       chars: glyphChars(this.registry),
       createCanvas: options.createCanvas,
+      fontFamily: BUNDLED_FONT_FAMILY,
     });
     this.compositor = new Compositor({ registry: this.registry, palette: this.palette });
     this.worldMapCompositor = new WorldMapCompositor(this.registry, this.palette);
@@ -1029,7 +1030,7 @@ export class Game {
     this.ui.zoom = fit.zoom;
     if (fit.cellPx !== this.atlas.cellPx) {
       // A new cell size needs a new atlas (23 § Atlas: "drawn once per zoom").
-      this.atlas = new GlyphAtlas({ cellPx: fit.cellPx, chars: glyphChars(this.registry), createCanvas: this.createCanvas });
+      this.atlas = new GlyphAtlas({ cellPx: fit.cellPx, chars: glyphChars(this.registry), createCanvas: this.createCanvas, fontFamily: BUNDLED_FONT_FAMILY });
       this.renderer = new Renderer({ surface: this.surface, atlas: this.atlas, palette: this.palette });
     }
     this.clampCamera();

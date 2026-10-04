@@ -16,6 +16,6 @@ export const aliases: Record<string, string> = {
 export default defineConfig({
   base: './',
   resolve: { alias: aliases },
-  build: { target: 'es2022', outDir: 'dist', sourcemap: true },
+  build: { target: 'es2022', outDir: 'dist', sourcemap: true, assetsInlineLimit: 0 },
   server: { port: 5173 },
 });

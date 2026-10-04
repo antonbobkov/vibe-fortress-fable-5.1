@@ -25,3 +25,6 @@ export const FLUID_ANIM_MS = 500;
 
 /** Blend factor for zone backgrounds. */
 export const ZONE_TINT_ALPHA = 0.25;
+
+/** The bundled square bitmap font, loaded before the browser builds any atlas. */
+export const BUNDLED_FONT_FAMILY = 'DeepholmMono';

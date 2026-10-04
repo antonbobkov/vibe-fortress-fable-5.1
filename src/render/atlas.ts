@@ -42,9 +42,8 @@ export interface AtlasOptions {
   readonly chars: readonly string[];
   readonly createCanvas: CanvasFactory;
   /**
-   * `tech-stack.md` § Font asks for a bundled bitmap-style monospace font. No font asset exists in
-   * the repository yet, so the default is the platform's generic `monospace`; see DECISIONS.md
-   * D-032.
+   * The app passes its bundled bitmap font. Standalone canvases may supply another family;
+   * their default remains generic monospace (D-032, superseded for the app by D-223).
    */
   readonly fontFamily?: string;
   /** Colors kept; defaults to `ATLAS_COLOR_CACHE`. */

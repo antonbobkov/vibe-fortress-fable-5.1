@@ -35,6 +35,8 @@ function steps(milestone) {
     { name: 'test', script: 'test', args: ['--coverage'] },
     // The e2e suite is part of every gate (M0: `boot`).
     { name: 'test:e2e', script: 'test:e2e' },
+    // T-M8-09: E2E builds test-mode dist; verify and leave production output for release.
+    ...(milestone >= 8 ? [{ name: 'build', script: 'build' }] : []),
     ...(PERF_GATES.has(milestone) ? [{ name: 'test:perf', script: 'test:perf' }] : []),
   ];
 }
