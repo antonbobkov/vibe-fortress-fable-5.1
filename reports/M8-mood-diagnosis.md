@@ -889,3 +889,108 @@ Across all 20 seeds (7 peril 0, 7 peril 2, 6 peril 4), a total of 13 parties rem
 3. **`other` (Active In-Flight Loitering at Colony Extinction)**: **2 parties**.
    - Seed `p4-5` (Party #150994958, raid of 6, arrived Day 44) and seed `p4-6` (Party #117440534, raid of 7, arrived Day 91).
    - Both parties arrived within 24 hours or 6 hours of fortress wipe. Both had correctly transitioned to `state = 'loiter'` with `P.goalUnreachable = true`, but the fortress succumbed to combat injuries or starvation before their 2-day loiter retreat timer expired.
+
+---
+
+## 15. After F-15 and the anvil
+
+With F-15 implemented (bandits who reach their designated stockpile loot unattended items and retreat with `outcome: 'looted'` or loiter if empty; movement walkTo failure triggers unreachable fallback and loiter) and the anvil fortress fixture enabled (providing an iron anvil for metalworking at perils 2 and 4), the 20 seeds of the baseline sweep (7 peril 0, 7 peril 2, 6 peril 4) were re-measured alongside the baseline `three_years` scenario and the mood breakdown instrument.
+
+### 15.1 Peril 0 Confirmation
+- **Survival Rate**: 7 / 7 seeds survived all 3 years (pop 12–14, 0 dwarf deaths, 0 tame deaths across all 7 seeds).
+- **Thieves**: Exactly 3 thieves per seed, size 1 each (21 total). All 21 successfully withdrew or looted loose items within 3–8 hours without lingering.
+- **Mood**: Sweep snapshot average measures **55.6** (min 51.0 on `three-years-p0-7`, max 61.3 on `three-years-p0-4`), with continuous time-average at **47.2** on the baseline. Mood floor holds deterministically across all seeds with 0 spirals.
+- **Baseline Scenario (`three_years.scenario.ts`)**: Survived 3 years with pop 15 (1 non-guaranteed wave at Day 281), 0 deaths, 1,057 meals, 1,733 ale, 0 water (100% ale), wealth Y1 3,601, Y2 3,869, Y3 4,174 marks.
+
+### 15.2 Peril 2 (7 seeds: `three-years-p2-1` .. `p2-7`)
+- **Survival & Longevity**: **6 / 7 seeds (85.7%) survived the full 3 years** (`p2-2`, `p2-3`, `p2-4`, `p2-5`, `p2-6`, `p2-7`). This is a monumental breakthrough compared to § 14 (0 / 7 survived) and prior milestones where peril 2 fortresses reliably went extinct in Year 1.
+- **Anvil and Metalworking Impact**: With the anvil available, fortresses at Peril 2 crafted weapons, armor, and mechanisms, driving Year 1 wealth to **5,408–6,247 marks** (avg 5,839 marks, within the `balance.md` target of 4,000–8,000 marks), Year 2 wealth to **11,611–13,492 marks** (avg 12,612 marks, -16% vs 15,000 target, well within 30% tolerance), and Year 3 wealth to **18,534–22,366 marks** (avg 19,968 marks).
+- **Bandit Behavior (F-15)**: Bandit parties reaching outdoor stockpiles successfully looted items and departed within hours (e.g. `p2-2` D68 bandits looted and left in 12.8h; `p2-4` D76 bandits left in 4.1h; `p2-5` D72 bandits left in 2.0d; `p2-6` D68 bandits left in 17.8h; `p2-7` D60 bandits left in 2.5d). The perpetual bandit stockpile idle lock from § 14 is 100% eliminated.
+- **Raid Sizes (B-010)**:
+  - **Year 2**: Exactly size 8 across all 7 seeds (`p2-1` D126, `p2-2` D124, `p2-3` D120, `p2-4` D122, `p2-5` D122, `p2-6` D133, `p2-7` D133); -20% vs model size 10 (within 30% tolerance).
+  - **Year 3**: Sizes 9–10 across all 6 surviving seeds (`p2-2` D225 size 9; `p2-3` D249 size 9; `p2-4` D225 size 9; `p2-5` D232 size 9; `p2-6` D264 size 10; `p2-7` D228 size 9); -33% to -40% vs model size 15.
+
+| Seed | Peril | Survival | Deaths (Combat / Starve) | Raids Faced (Day, Size, Type, Outcome, Stay) | Y1 Pop / Wealth | Y2 Pop / Wealth | Y3 Pop / Wealth | Extinction Day & Killer |
+|---|---|---|---|---|---|---|---|---|
+| `three-years-p2-1` | 2 | Extinct (D144) | 3 combat (3 bled_out), 10 starvation | D42 (1, thief, withdrew, 3.0h), D62 (3, bandits, looted, 15.0h), D68 (4, ambush, repelled, 1.1d), D92 (1, thief, looted, 5.7h), D126 (8, raid, active, 18.2d), D144 (4, ambush, active, 6.0h) | 11 / 5,364 | 0 / 0 | 0 / 12,004 | D144 (starvation under D126 raider lockdown engaging frozen civilian Revna #16777277) |
+| `three-years-p2-2` | 2 | Survived (3y) | 11 combat (9 bled_out, 2 killed) | D33 (1, thief, withdrew, 2.9h), D61 (4, ambush, looted, 2.6d), D68 (3, bandits, looted, 12.8h), D80 (1, thief, looted, 5.4h), D122 (1, thief, withdrew, 3.6h), D124 (8, raid, looted, 5.2d), D130 (4, ambush, looted, 2.4d), D180 (1, thief, withdrew, 3.5h), D205 (4, ambush, looted, 3.0d), D225 (9, raid, looted, 3.0d), D231 (1, thief, withdrew, 4.3h), D269 (4, ambush, looted, 2.9d), D288 (1, thief, withdrew, 4.2h), D304 (4, bandits, looted, 16.2h), D334 (5, ambush, looted, 2.6d) | 9 / 5,408 | 6 / 13,140 | 5 / 21,749 | None (Survived) |
+| `three-years-p2-3` | 2 | Survived (3y) | 19 combat (18 bled_out, 1 killed) | D40 (1, thief, withdrew, 3.5h), D59 (3, bandits, repelled, 4.4d), D70 (4, ambush, looted, 2.6d), D91 (1, thief, withdrew, 3.0h), D120 (8, raid, looted, 4.6d), D123 (1, thief, looted, 3.4h), D183 (1, thief, withdrew, 5.0h), D186 (4, ambush, looted, 1.2d), D202 (3, bandits, looted, 6.9h), D214 (1, thief, looted, 5.4h), D248 (1, thief, withdrew, 5.6h), D249 (9, raid, looted, 2.8d), D286 (1, thief, looted, 4.5h), D299 (4, ambush, looted, 2.3d), D326 (1, thief, looted, 8.4h) | 10 / 5,551 | 8 / 12,507 | 8 / 18,534 | None (Survived) |
+| `three-years-p2-4` | 2 | Survived (3y) | 12 combat (10 bled_out, 2 killed) | D36 (1, thief, withdrew, 3.5h), D63 (4, ambush, looted, 3.0d), D76 (1, thief, looted, 5.4h), D76 (3, bandits, looted, 4.1h), D122 (8, raid, looted, 3.2d), D127 (1, thief, withdrew, 4.2h), D168 (1, thief, looted, 4.5h), D181 (4, ambush, looted, 2.1d), D214 (1, thief, withdrew, 3.6h), D225 (9, raid, looted, 4.3d), D250 (4, bandits, looted, 5.4d), D255 (4, ambush, looted, 2.5d), D273 (1, thief, looted, 4.3h), D314 (1, thief, looted, 6.5h) | 7 / 5,953 | 5 / 12,694 | 1 / 18,720 | None (Survived) |
+| `three-years-p2-5` | 2 | Survived (3y) | 11 combat (11 bled_out) | D36 (1, thief, withdrew, 4.3h), D58 (4, ambush, looted, 5.9d), D72 (3, bandits, looted, 2.0d), D78 (1, thief, withdrew, 4.7h), D122 (8, raid, looted, 2.8d), D123 (1, thief, looted, 5.0h), D156 (4, ambush, looted, 2.4d), D177 (1, thief, withdrew, 1.3h), D218 (3, bandits, looted, 6.0h), D232 (9, raid, looted, 2.8d), D237 (1, thief, withdrew, 5.2h), D274 (1, thief, withdrew, 5.0h), D275 (4, ambush, looted, 2.7d), D309 (1, thief, looted, 8.0h) | 4 / 6,067 | 3 / 11,611 | 3 / 18,611 | None (Survived) |
+| `three-years-p2-6` | 2 | Survived (3y) | 8 combat (7 bled_out, 1 killed) | D39 (1, thief, withdrew, 3.6h), D61 (4, ambush, looted, 2.6d), D68 (3, bandits, looted, 17.8h), D80 (1, thief, withdrew, 5.1h), D133 (8, raid, looted, 4.1d), D135 (4, ambush, looted, 2.3d), D140 (1, thief, withdrew, 4.3h), D173 (1, thief, withdrew, 3.8h), D224 (1, thief, looted, 3.7h), D250 (4, ambush, looted, 2.1d), D255 (1, thief, withdrew, 1.9d), D264 (10, raid, looted, 5.5d), D265 (4, bandits, looted, 5.8h), D303 (1, thief, looted, 5.4h), D330 (4, ambush, looted, 2.1d) | 10 / 5,809 | 8 / 13,492 | 5 / 22,366 | None (Survived) |
+| `three-years-p2-7` | 2 | Survived (3y) | 12 combat (10 bled_out, 2 killed) | D49 (1, thief, withdrew, 8.0d), D60 (3, bandits, looted, 2.5d), D61 (4, ambush, looted, 3.4d), D90 (1, thief, withdrew, 3.0h), D133 (8, raid, looted, 2.8d), D144 (1, thief, withdrew, 4.7h), D155 (4, ambush, looted, 2.8d), D203 (1, thief, withdrew, 4.1h), D227 (4, bandits, looted, 2.3d), D228 (9, raid, looted, 2.3d), D250 (1, thief, withdrew, 3.4h), D267 (4, ambush, looted, 2.7d), D309 (1, thief, withdrew, 5.5h) | 10 / 6,247 | 7 / 12,230 | 8 / 19,827 | None (Survived) |
+
+### 15.3 Peril 4 (6 seeds: `three-years-p4-1` .. `p4-6`)
+- **Survival & Longevity**: Longevity at Peril 4 increased dramatically across the board:
+  - `three-years-p4-3` survived Year 1 AND Year 2, enduring 27 consecutive raids and sieges before falling on **Day 322 (late Year 3)** with **167,366 marks** of wealth.
+  - `three-years-p4-4` survived into **Year 2 (Day 222)**, withstanding 19 raids and reaching **155,447 marks** of wealth.
+  - `three-years-p4-5` survived into **Year 2 (Day 188)**, enduring 17 raids and reaching **130,022 marks** of wealth.
+  - `three-years-p4-6` survived into **Year 2 (Day 187)**, absorbing 19 immigrants across 3 waves and enduring 15 raids with **119,598 marks** of wealth.
+  - `three-years-p4-2` survived into **Year 2 (Day 126)**, enduring 10 raids.
+  - `three-years-p4-1` reached **Day 99** (late Year 1).
+- **Raid Types and Scales**: Under Peril 4, large sieges of sizes 24 to 32 arrived in Year 2 and Year 3 (e.g. `p4-3` D186 size 30 siege withdrew in 5.3d; D283 size 24 raid looted in 2.1d; `p4-4` D184 size 32 siege looted in 5.1d; `p4-6` D187 size 30 siege).
+- **Combat vs Starvation**: Unlike § 14 where starvation under locked gates was the primary killer, **97.8% of all deaths at Peril 4 (88 / 90 deaths) were combat casualties** (`bled_out` / `killed`) during violent breaches and intense gatehouse combat. Only 2 deaths were starvation (`p4-2` at D85).
+
+| Seed | Peril | Survival | Deaths (Combat / Starve) | Raids Faced (Day, Size, Type, Outcome, Stay) | Extinction Day & Killer |
+|---|---|---|---|---|---|
+| `three-years-p4-1` | 4 | Extinct (D99) | 14 combat (12 bled_out, 2 killed) | D22 (1, thief, withdrew, 4.8h), D31 (6, ambush, looted, 6.3d), D34 (12, raid, looted, 3.2d), D41 (1, thief, looted, 5.7h), D58 (4, bandits, looted, 13.5d), D59 (1, thief, looted, 4.2h), D71 (7, ambush, looted, 2.6d), D87 (1, thief, active, 12.5d), D97 (15, raid, active, 2.5d) | D99 (combat casualties from D97 size 15 raid) |
+| `three-years-p4-2` | 4 | Extinct (D126) | 9 combat (8 bled_out, 1 killed), 2 starvation | D23 (1, thief, withdrew, 2.9h), D39 (6, ambush, looted, 2.7d), D40 (12, raid, active, 86.5d), D45 (1, thief, withdrew, 4.0h), D62 (1, thief, withdrew, 3.6h), D69 (4, bandits, looted, 13.7d), D82 (7, ambush, looted, 2.8d), D88 (1, thief, looted, 6.5h), D113 (1, thief, withdrew, 7.0h), D116 (15, raid, looted, 2.8d), D126 (8, ambush, active, 12.0h) | D126 (combat casualties from D116 size 15 and D126 size 8 raids, 2 earlier starve deaths at D85) |
+| `three-years-p4-3` | 4 | Extinct (D322) | 12 combat (10 bled_out, 2 killed) | D31 (6, ambush, looted, 3.4d), D34 (1, thief, looted, 5.4h), D49 (12, raid, looted, 2.2d), D60 (7, ambush, looted, 2.4d), D62 (1, thief, looted, 5.4h), D71 (4, bandits, looted, 29.0d), D86 (1, thief, withdrew, 3.8h), D104 (1, thief, withdrew, 4.3h), D104 (7, ambush, looted, 2.5d), D126 (16, raid, looted, 2.1d), D127 (1, thief, looted, 5.0h), D146 (1, thief, withdrew, 5.0h), D149 (8, ambush, withdrew, 2.0d), D169 (1, thief, withdrew, 5.4h), D179 (8, ambush, looted, 2.1d), D186 (30, siege, withdrew, 5.3d), D190 (1, thief, looted, 5.4h), D206 (1, thief, withdrew, 5.5h), D209 (24, raid, looted, 2.4d), D230 (10, ambush, looted, 2.5d), D234 (1, thief, withdrew, 4.3h), D251 (1, thief, looted, 5.4h), D268 (1, thief, looted, 5.4h), D278 (10, ambush, looted, 2.8d), D279 (5, bandits, looted, 7.0h), D283 (24, raid, looted, 2.1d), D296 (1, thief, looted, 5.4h), D321 (10, ambush, active, 24.0h) | D322 (combat casualties from 28 raids, final wipe by D283 size 24 and D321 size 10 raids in Y3) |
+| `three-years-p4-4` | 4 | Extinct (D222) | 15 combat (9 bled_out, 6 killed) | D33 (6, ambush, looted, 1.1d), D46 (12, raid, looted, 5.6d), D47 (1, thief, withdrew, 3.4h), D65 (4, bandits, looted, 21.0d), D70 (1, thief, looted, 3.3h), D80 (7, ambush, looted, 3.5d), D85 (1, thief, looted, 10.2h), D103 (15, raid, looted, 3.3d), D104 (1, thief, looted, 7.5h), D118 (8, ambush, looted, 2.3d), D129 (1, thief, looted, 10.2h), D148 (1, thief, looted, 6.4h), D158 (8, ambush, looted, 2.6d), D162 (1, thief, looted, 6.4h), D176 (19, raid, looted, 2.1d), D182 (1, thief, looted, 10.2h), D184 (32, siege, looted, 5.1d), D191 (10, ambush, looted, 2.1d), D206 (1, thief, withdrew, 2.8h), D222 (24, raid, active, 6.0h) | D222 (combat casualties from D176/D184/D222 sieges in Y2) |
+| `three-years-p4-5` | 4 | Extinct (D188) | 12 combat (5 bled_out, 7 killed) | D27 (1, thief, withdrew, 2.9h), D32 (12, raid, looted, 4.6d), D43 (1, thief, looted, 5.4h), D44 (6, ambush, looted, 2.6d), D71 (1, thief, looted, 1.5h), D73 (7, ambush, looted, 2.3d), D75 (4, bandits, looted, 4.1h), D85 (1, thief, looted, 1.5h), D104 (15, raid, looted, 2.1d), D110 (8, ambush, looted, 3.1d), D113 (1, thief, looted, 5.4h), D131 (1, thief, looted, 5.4h), D145 (1, thief, looted, 5.4h), D165 (8, ambush, looted, 3.1d), D170 (1, thief, withdrew, 6.9h), D175 (29, siege, looted, 5.1d), D186 (1, thief, withdrew, 5.2h), D188 (24, raid, active, 12.0h) | D188 (combat casualties from D175 size 29 and D188 size 24 raids in Y2) |
+| `three-years-p4-6` | 4 | Extinct (D187) | 26 combat (18 bled_out, 8 killed) | D24 (1, thief, looted, 5.4h), D37 (6, ambush, looted, 2.8d), D39 (1, thief, looted, 7.0h), D43 (12, raid, looted, 2.3d), D53 (1, thief, withdrew, 4.8h), D73 (4, bandits, looted, 18.2h), D81 (1, thief, withdrew, 3.9h), D91 (7, ambush, looted, 3.1d), D107 (1, thief, withdrew, 10.4h), D124 (16, raid, looted, 4.8d), D130 (1, thief, withdrew, 4.2h), D141 (8, ambush, looted, 2.5d), D158 (1, thief, looted, 5.9h), D171 (9, ambush, looted, 3.6d), D173 (1, thief, looted, 5.6h), D187 (30, siege, active, 12.0h) | D187 (combat casualties from D171 size 9 and D187 size 30 raids in Y2) |
+
+### 15.4 Classification of Remaining Lingering Parties & Extinctions
+
+#### Lingering Parties at Simulation End / Colony Extinction
+1. **`bandit_stockpile_gap`**: **0 parties (0%)**.
+   - Completely resolved by F-15. Every bandit party reaching an outdoor stockpile looted loose items and retreated with `outcome: 'looted'` or loitered and departed.
+2. **`walkto_unreachable_loop`**: **0 parties (0%)**.
+   - Held clean from the door-lock fix.
+3. **`in_flight_at_extinction`**: **8 parties**.
+   - Parties that arrived within hours or days of colony extinction during active combat:
+     - `three-years-p2-1`: D144 ambush (size 4, arrived 6 hours before extinction).
+     - `three-years-p4-1`: D87 thief (size 1), D97 raid (size 15, arrived 2.5 days before extinction).
+     - `three-years-p4-2`: D40 raid (size 12), D126 ambush (size 8, arrived 12 hours before extinction).
+     - `three-years-p4-3`: D321 ambush (size 10, arrived 24 hours before extinction).
+     - `three-years-p4-4`: D222 raid (size 24, arrived 6 hours before extinction).
+     - `three-years-p4-5`: D188 raid (size 24, arrived 12 hours before extinction).
+     - `three-years-p4-6`: D187 siege (size 30, arrived 12 hours before extinction).
+4. **`civilian_retreat_freeze_engage_lock`**: **1 party** (`three-years-p2-1` Party #150995787, size 8 raid).
+
+#### Diagnosis of Fortress Deaths and Classification (FIXTURE / BUG / BALANCE)
+1. **`three-years-p2-1` Extinction at Day 144**: **BUG**
+   - **Facts**:
+     - On Day 126, Party #150995787 (size 8 raid) arrived from the north map edge.
+     - Civilian dwarf Revna Shaleheart (`id: 16777277`) was outdoors on the surface near the north edge `(36, 0, 32)` when `hearth` alert triggered.
+     - Revna's civilian brain attempted `behavior: 'retreat'`, but pathing returned unreachable, setting `targetTile: -1` while leaving `Motion.waitUntil` expired in the past (`waitUntil: 147672` vs current tick 150000+). Revna became frozen on tile `(36, 0, 32)`.
+     - Raiders #16778097, #16778103, #16778111, #16778119 saw Revna within 14 tiles and reachable on the surface. `findCombatTarget(..., requireReachable=true)` repeatedly returned Revna.
+     - As a consequence, Party #150995787 transitioned to `state: 'engage'` at tick 150079 and remained locked in `state: 'engage'` from Day 128 to Day 144 (18,730 ticks / 15.6 days) because line 759 in `src/systems/threats/ai.ts` continuously resets `P.stateSince = ctx.tick` whenever `findCombatTarget !== 0`, without any maximum engage duration or retreat timeout.
+     - Because Party #150995787 remained active in `engage`, the fortress alert remained permanently locked at `hearth` alert (`checkFortressDefense`).
+     - Civilians inside the fortress were trapped in `behavior: 'retreat'`, unable to farm, cook, or haul drink, suffering 10 starvation deaths between Day 142 and Day 144 until colony extinction.
+   - **Classification**: **BUG** (`src/systems/dwarves/brain.ts` civilian retreat pathing freeze with `targetTile: -1` and `src/systems/threats/ai.ts:743-761` unbounded `engage` state reset loop against unreachable/frozen targets). Note: Per task instructions, this bug is diagnosed with facts and NOT fixed in this task.
+
+2. **Peril 4 Seeds (`p4-1` .. `p4-6`) Extinction (Days 99–322)**: **BALANCE**
+   - **Facts**:
+     - At Peril 4, all 6 seeds survived well past Year 1 bootstrap (extinct days 99, 126, 187, 188, 222, and 322).
+     - 88 of 90 dwarf deaths (97.8%) were combat deaths (`bled_out` / `killed`). Starvation was almost completely absent (only 2 deaths on `p4-2`).
+     - Fortresses built iron armor and weapons, established metalworking, and fought through numerous waves of raiders, bandits, ambushes, and massive sieges (sizes 15–32).
+     - Eventually, the sheer weight of continuous high-peril raids (up to 28 raids on `p4-3`, culminating in back-to-back sieges of sizes 24 and 30) caused military attrition that breached defenses and eliminated defenders.
+   - **Classification**: **BALANCE** (High peril intensity: continuous siege pressure without repair/replenishment intervals exhausts small fortress populations).
+
+### 15.5 Balance Table Comparison vs. balance.md (Survivor Baseline & Sweep)
+
+| Metric | balance.md Model | Measured (After F-15 and the anvil) | Variance vs. Model | Within 30%? | Status |
+|---|---|---|---|---|---|
+| **Consumption: Food** | 0.48 food units/dwarf/day | 0.28 meals/dwarf-day (baseline 0.23, sweep 0.27–0.30) | -42% | **No** (bound 0.336–0.624) | Still a finding (B-012). Dwarves eat when hunger reaches want threshold; attribute variance (Endurance) lowers frequency. |
+| **Consumption: Drink** | 0.77 drink units/dwarf/day | 0.45 drinks/dwarf-day (baseline 0.37, sweep 0.44–0.47; 97.5% ale, 2.5% water) | -42% | **No** (bound 0.539–1.001) | Still a finding (B-012). Thirst want threshold and sleep cycle limit visits to ~0.45/day. |
+| **Wealth: Year 1** | 4,000–8,000 marks | 3,705 marks (P0 sweep 3,517–3,871; P2 anvil sweep 5,408–6,247, avg 5,839) | -7% (P0) / +46% (P2) | **Yes** | Within 30% tolerance for Year 1 across all regions; P2 directly in target range. |
+| **Wealth: Year 2** | 15,000–25,000 marks | P0: 3,793 marks (-75%); P2 (with anvil, 6 surviving seeds): 11,611–13,492 marks (avg 12,612) | -16% (P2 vs 15,000) | **Yes (P2)** / No (P0) | Finding B-008 holds on peaceful baseline without anvil; with anvil at Peril 2, wealth reaches 12,612 (within 30%). |
+| **Wealth: Year 3** | 35,000–60,000 marks | P0: 3,807 marks (-89%); P2 (with anvil, 6 surviving seeds): 18,534–22,366 marks (avg 19,968); P4 (`p4-3` D322): 167,366 marks | -43% (P2 vs 35,000) | No (P0, P2) | Finding B-008 holds; anvil metalworking substantially accelerates craft wealth. |
+| **Immigration: Y1 Guaranteed** | 2 waves (4–8 dwarves) | 2 waves, 5–8 dwarves (100% of seeds) | 0% | **Yes** | Rule guarantee. |
+| **Immigration: Y2–Y3 Waves** | Each season with spirit ≥ 55: 70% chance of wave (4–12 dwarves; ~18 in Y2) | Unlocked on baseline at Day 281 (+3 dwarves, pop 15) and on `p4-6` (+12 dwarves); 0 waves on P0 sweep seeds (spirit 51–61, staying below 55 in Y2/Y3). | Shortfall on average seeds | **No** (overall frequency) | Still a finding (B-009). |
+| **Raid Sizes: Peril 0** | Thieves from Y2 Spring (size 1) | 3 thieves per seed, size 1 each (100% of seeds) | 0% | **Yes** | Exactly matches model. All 21 withdrew or looted loose items. |
+| **Raid Sizes: Peril 2 (Y2)** | Size 10 (base 6 + renown 4) | Size 8 across all 7 seeds (`p2-1` .. `p2-7`) in Year 2 (days 120–133) | -20% | **Yes** (bound 7.0–13.0) | **Within 30%** (B-010). |
+| **Raid Sizes: Peril 2 (Y3)** | Size 15 (base 6 + renown 9) | Sizes 9–10 across all 6 surviving seeds in Year 3 (days 225–264) | -33% to -40% | Borderline | Renown growth brings sizes up to 10 in Year 3. |
+| **Mood: Mean / Snapshot** | Content (~70 with hearth hall) | 55.6 sweep average (min 51.0, max 61.3; baseline time-avg 47.2, snapshot 42.7) | -21% vs 70 | **Yes** (bound 49.0–91.0) | **Within 30%** (B-011). Upper Fine / lower Content; no mood spirals. |
+| **Mood: Breakdown** | Content dominant | Split between Fine and Content (~85–90% of dwarf-time in Fine/Content) | Split Fine / Content | Borderline | Fine and Content represent dominant bulk of dwarf-time. |

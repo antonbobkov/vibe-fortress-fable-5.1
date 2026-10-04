@@ -145,7 +145,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
       if (e.type === 'ImmigrantsArrived') {
         waves.push({ day, count: Number(e['count'] ?? 0), guaranteed: e['guaranteed'] === true });
       } else if (e.type === 'RaidArrived') {
-        raids.push({ day, kind: String(e['threatKind'] ?? 'raid'), size: Number(e['size'] ?? 0), partyId: Number(e['partyId'] ?? 0) });
+        raids.push({ day, kind: String(e['kind'] ?? 'raid'), size: Number(e['size'] ?? 0), partyId: Number(e['partyId'] ?? 0) });
       } else if (e.type === 'RaidEnded') {
         const r = raids.find((x) => x.partyId === Number(e['partyId']) && !x.outcome);
         if (r) r.outcome = String(e['outcome']);
