@@ -121,6 +121,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] F-12 — Comfort and joy rates match the documented visit frequency (agy-f12, 2026-10-02)
 - [x] F-13 — A locked gate makes a raid loiter and leave; animals never park on doors (agy-f13, 2026-10-03)
 - [x] F-14 — Immigration spirit threshold 65 → 55 (agy-f14, 2026-10-03)
+- [ ] F-15 — Bandits who reach their stockpile steal and leave; a failed walk means unreachable
 
 ## M6 — Steel and Blood ([M6-steel-and-blood.md](M6-steel-and-blood.md))
 
