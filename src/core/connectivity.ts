@@ -76,6 +76,8 @@ const NEAR_VERTICAL = 1;
 const NEAR_ALL = 2;
 
 export class Connectivity {
+  /** Derived invalidation token; labels and this token are rebuilt on load. */
+  revision = 0;
   private readonly map: Map3D;
   private readonly graph: ConnectivityGraph;
   private readonly classes: readonly MovementClass[];
@@ -389,6 +391,7 @@ export class Connectivity {
 
   /** Recompute everything, for every class. */
   rebuildAll(): void {
+    this.revision += 1;
     const chunks = this.map.chunkCount;
     for (let k = 0; k < this.classes.length; k += 1) {
       const cls = this.classes[k] as MovementClass;
@@ -418,6 +421,7 @@ export class Connectivity {
     }
     this.lastDirty = dirty;
     if (dirty.length === 0) return 0;
+    this.revision += 1;
     this.stamp += 1;
     const stamp = this.stamp;
     for (let d = 0; d < dirty.length; d += 1) this.dirtyStamp[dirty[d] as ChunkIndex] = stamp;

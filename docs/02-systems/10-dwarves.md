@@ -75,7 +75,7 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and when interrupted by an event. Priority order, the first that applies wins:
 
 1. `flee`: 16 has flagged the dwarf as threatened (a hostile within `THREAT_RADIUS` and the dwarf is not a soldier on duty): path away from the threat toward the hearth hall.
-2. `retreat`: fortress alert is `hearth` and the dwarf is a civilian: path to the hearth hall, or the nearest indoor tile behind a door if the hall is unreachable; stay until the alert ends.
+2. `retreat`: fortress alert is `hearth` and the dwarf is a civilian: path to the hearth hall, or the nearest indoor tile behind a door if the hall is unreachable; stay until the alert ends. A civilian for whom neither is reachable (shut out by a locked gate) skips this step until one becomes reachable; `flee` still protects them.
 3. `patient`: 17 has marked the dwarf as needing a hospital: go to the hospital bed (or the nearest bed) and rest; care jobs feed them.
 4. `need` (critical): satisfy the most critical need.
 5. `duty`: the dwarf is a soldier on duty (16): 16 controls movement and targets.

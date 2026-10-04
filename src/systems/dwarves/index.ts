@@ -74,7 +74,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AlertChanged'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AlertChanged', 'BuildingStateChanged'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -88,6 +88,11 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   /** The wagon tile of the arrival, the idle anchor until there is a hearth hall (D-057). */
   wagonTile: TileIndex = -1;
   readonly interruptFlags = new Set<EntityId>();
+  readonly shutOut = new Set<EntityId>();
+  private shelterRevision = -1;
+  private connectivityRevision = (): number => -1;
+  private shelterRestored = false;
+  private shelterCheckPending = false;
   readonly threatened = new Map<EntityId, { hostileId: EntityId; tick: number }>();
   readonly hungerMaxSince = new Map<EntityId, number>();
   readonly thirstMaxSince = new Map<EntityId, number>();
@@ -220,6 +225,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
 
   override init(ctx: InitContext): void {
     this.world = ctx.world;
+    this.connectivityRevision = () => ctx.readers.pathing.connectivityRevision();
     this.rng = ctx.rng;
     this.readerRef = makeReader(ctx.world.entities, ctx.registry, () => { this.seedTitles(); return this.titles; },
       (id) => {
@@ -258,6 +264,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       threatOf: (id) => this.threatened.get(id)?.hostileId ?? 0,
       clearThreat: (id) => { this.threatened.delete(id); },
       setCombatTarget: (id, targetId) => { ctx.world.services.combat?.setTarget(id, targetId); },
+      watchShelter: (id, shutOut) => { if (shutOut) this.shutOut.add(id); else this.shutOut.delete(id); },
     };
     ctx.register.panel({ id: 'units', title: 'Units', hotkey: 'u' });
     ctx.register.inspector('creature', { id: 'dwarf', order: 10 });
@@ -297,6 +304,14 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   }
 
   override tick(ctx: TickContext): void {
+    const revision = ctx.readers.pathing.connectivityRevision();
+    if (revision !== this.shelterRevision || this.shelterCheckPending) {
+      this.shelterRevision = revision;
+      // Loading rebuilds labels once; replay only a check that was pending in the saved game.
+      if (!this.shelterRestored || this.shelterCheckPending) this.checkShelters(ctx);
+    }
+    this.shelterRestored = false;
+    this.shelterCheckPending = false;
     this.seedTitles();
     const reader = this.reader();
     const entities = ctx.world.entities;
@@ -332,6 +347,14 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   }
 
   /** `JobCompleted` → experience: `xp = jobDef.xp × (100 + Wits) / 150` to the job's skill. */
+  private checkShelters(ctx: TickContext): void {
+    if (ctx.world.fortress.alert !== 'hearth' || !ctx.readers.has('19')) return;
+    const defense = ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19');
+    for (const id of Array.from(this.shutOut).sort((a, b) => a - b)) {
+      if (defense.retreatTile(id) >= 0) this.interruptFlags.add(id);
+    }
+  }
+
   override handle(event: GameEvent, ctx: TickContext): void {
     if (event.type === 'HourPassed') { this.hourly(ctx, event['hour'] as number); return; }
     if (event.type === 'DayPassed') { this.daily(ctx); return; }
@@ -364,11 +387,18 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       return;
     }
     if (event.type === 'AlertChanged') {
+      this.shutOut.clear();
       for (const dwarfId of this.reader().list()) {
         this.interruptFlags.add(dwarfId);
+        if (ctx.world.fortress.alert === 'hearth' && ctx.readers.has('19') &&
+            !ctx.world.entities.get(dwarfId, C.Soldier)?.onDuty &&
+            ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(dwarfId) < 0) {
+          this.shutOut.add(dwarfId);
+        }
       }
       return;
     }
+    if (event.type === 'BuildingStateChanged') { this.checkShelters(ctx); return; }
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
       this.threatened.delete(id);
@@ -380,6 +410,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       this.activities.plans.delete(id);
       this.idleAnnounced.delete(id);
       this.interruptFlags.delete(id);
+      this.shutOut.delete(id);
       this.hungerMaxSince.delete(id);
       this.thirstMaxSince.delete(id);
       this.starvingAnnounced.delete(id);
@@ -527,6 +558,9 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       starvingAnnounced: Array.from(this.starvingAnnounced).sort((a, b) => a[0] - b[0]),
       activities: Array.from(this.activities.plans).sort((a, b) => a[0] - b[0]),
       idleAnnounced: Array.from(this.idleAnnounced).sort((a, b) => a - b),
+      ...(this.shutOut.size > 0 ? { shutOut: Array.from(this.shutOut).sort((a, b) => a - b) } : {}),
+      ...(this.shutOut.size > 0 && (this.shelterCheckPending ||
+        (!this.shelterRestored && this.connectivityRevision() !== this.shelterRevision)) ? { shelterCheckPending: true } : {}),
       ...(this.sawMasterworks.size > 0 ? { sawMasterworks: Array.from(this.sawMasterworks).sort()
         .map((key) => key.split(':').map(Number) as [EntityId, EntityId]) } : {}),
       ...(this.activities.serializeRetryUntil().length > 0 ? { needRetryUntil: this.activities.serializeRetryUntil() } : {}),
@@ -541,6 +575,11 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     this.children = state.children.slice();
     this.stream.setState(state.rng);
     this.wagonTile = state.wagonTile;
+    this.shutOut.clear();
+    for (const id of state.shutOut ?? []) this.shutOut.add(id);
+    this.shelterRevision = -1;
+    this.shelterRestored = true;
+    this.shelterCheckPending = state.shelterCheckPending ?? false;
     this.interruptFlags.clear();
     for (const id of state.interruptFlags ?? []) this.interruptFlags.add(id);
     this.hungerMaxSince.clear();

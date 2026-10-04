@@ -11,6 +11,7 @@ import type { BuildingsSystem } from '@systems/buildings';
 import type { CombatReader, SquadWithId } from '@systems/combat/reader';
 import { dwarfComponents } from '@systems/dwarves/rules/components';
 import { makeDwarf } from '@systems/dwarves/rules/make-dwarf';
+import { TestWorld } from '../../scenarios/test-world';
 
 function spawnAdultDwarf(game: HeadlessGame, at: number): number {
   const record = makeDwarf(game.world.rngFor('testworld'), game.registry);
@@ -151,7 +152,10 @@ describe('T-M6-05: Squads, orders, duty, stations, patrols, alerts', () => {
   });
 
   it('T-M6-05: mode transitions under alert', () => {
-    const game = new HeadlessGame({ seed: 'squad-alerts', world: 'flat-test', embark: 'none' });
+    const w = new TestWorld({ seed: 'squad-alerts', world: 'flat-test', embark: 'none' });
+    const game = w.game;
+    // F-16: the retreat assertion requires an actual reachable shelter.
+    w.build('hearth', w.index(12, 10, FLAT_TEST_SURFACE_Z), 'granite');
     const entities = game.world.entities;
     const at = game.map.index(10, 10, FLAT_TEST_SURFACE_Z);
 
@@ -547,4 +551,3 @@ describe('T-M6-05: Squads, orders, duty, stations, patrols, alerts', () => {
     });
   });
 });
-

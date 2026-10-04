@@ -42,6 +42,7 @@ export interface BrainHost {
   threatOf(id: EntityId): EntityId;
   clearThreat(id: EntityId): void;
   setCombatTarget(id: EntityId, targetId: EntityId): void;
+  watchShelter?(id: EntityId, shutOut: boolean): void;
 }
 
 function write(ctx: TickContext, id: EntityId, brain: Brain): void {
@@ -59,6 +60,7 @@ function startIdle(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): v
   b.behavior = 'idle';
   b.behaviorUntil = ctx.tick + IDLE_TICKS;
   b.targetTile = host.idleGoal(id);
+  if (b.targetTile < 0) b.targetTile = ctx.world.services.movement?.tileOf(id) ?? -1;
   b.activity = NO_JOB;
   if (!wasIdle) { ctx.emit({ type: 'DwarfIdle', id }); host.markIdle(id); }
 }
@@ -107,6 +109,7 @@ export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId)
  * (`jobs.assign(id)`, answered in 11's tick of this same tick) and waits in `work` for the answer.
  */
 export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): void {
+  if (b.targetTile < 0) b.targetTile = ctx.world.services.movement?.tileOf(id) ?? -1;
   const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
   const threatId = host.threatOf(id);
   if (threatId !== 0 && civ) {
@@ -131,7 +134,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
       // Cornered: fight back with weapon/tool
       host.setCombatTarget(id, threatId);
       b.behavior = 'idle';
-      b.targetTile = -1;
+      b.targetTile = ctx.world.services.movement?.tileOf(id) ?? -1;
       b.activity = 'Fighting';
       return;
     }
@@ -141,11 +144,15 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     ? ctx.readers.of<{ alert(): string }>('16').alert()
     : ctx.world.fortress.alert;
   if (alert === 'hearth' && civ) {
-    b.behavior = 'retreat';
-    b.targetTile = ctx.readers.has('19') ? ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(id) : host.idleGoal(id);
-    b.activity = 'Retreating';
-    return;
-  }
+    const target = ctx.readers.has('19') ? ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(id) : host.idleGoal(id);
+    host.watchShelter?.(id, target < 0);
+    if (target >= 0) {
+      b.behavior = 'retreat';
+      b.targetTile = target;
+      b.activity = 'Retreating';
+      return;
+    }
+  } else host.watchShelter?.(id, false);
 
   if (ctx.readers.has('17') && ctx.readers.of<HealthReader>('17').isPatient(id)) {
     const conscious = ctx.readers.of<HealthReader>('17').isConscious(id);
@@ -177,7 +184,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
         }
       }
       b.behavior = 'patient';
-      b.targetTile = bedTile;
+      b.targetTile = bedTile >= 0 ? bedTile : ctx.world.services.movement?.tileOf(id) ?? -1;
       b.activity = 'Resting in hospital';
       return;
     }
@@ -196,7 +203,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   if (!civ) {
     b.behavior = 'duty';
     b.activity = 'On duty';
-    b.targetTile = -1;
+    b.targetTile = ctx.world.services.movement?.tileOf(id) ?? -1;
     return;
   }
 
@@ -243,6 +250,16 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
   const b: Brain = { ...current };
   const movement = ctx.world.services.movement;
   const interrupted = host.takeInterrupt(id);
+  // Alert/shelter changes interrupt even a running activity or job; flee still wins in select.
+  if (interrupted && ctx.world.fortress.alert === 'hearth' && host.threatOf(id) === 0 &&
+      (!ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id)) &&
+      ctx.readers.has('19') && ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(id) >= 0) {
+    host.activities.cancel(ctx, id);
+    movement?.stopWalking(id);
+    select(host, ctx, id, b);
+    write(ctx, id, b);
+    return;
+  }
   let reselect = false;
   if (b.behavior === 'need' || b.behavior === 'social') {
     const currentNeed = host.activities.plans.get(id)?.need;
@@ -258,7 +275,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
   } else if (b.behavior === 'retreat') {
     const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
     const alert = ctx.readers.has('16') ? ctx.readers.of<{ alert(): string }>('16').alert() : ctx.world.fortress.alert;
-    if (alert !== 'hearth' || !civ) {
+    if (alert !== 'hearth' || !civ || b.targetTile < 0 || (interrupted && host.threatOf(id) !== 0)) {
       reselect = true;
     } else if (movement !== null && b.targetTile >= 0 && movement.tileOf(id) !== b.targetTile) {
       const result = movement.walkTo(id, b.targetTile, 'flee', ctx);
@@ -319,7 +336,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
         } else {
           host.setCombatTarget(id, threatId);
           b.behavior = 'idle';
-          b.targetTile = -1;
+          b.targetTile = myTile;
           b.activity = 'Fighting';
         }
       } else {
@@ -332,7 +349,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
           } else {
             host.setCombatTarget(id, threatId);
             b.behavior = 'idle';
-            b.targetTile = -1;
+            b.targetTile = myTile;
             b.activity = 'Fighting';
           }
         }
@@ -360,11 +377,15 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
       }
     } else {
       const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
-      const alert = ctx.readers.has('16') ? ctx.readers.of<{ alert(): string }>('16').alert() : ctx.world.fortress.alert;
+      // Without an idle anchor, "stay" follows the current position (including a teleport or
+      // movement requested by another controller); it is not a return-to-spawn goal.
+      if (movement !== null && movement.tileOf(id) !== b.targetTile &&
+          movement.walkTarget(id) !== b.targetTile && host.idleGoal(id) < 0) {
+        b.targetTile = movement.tileOf(id);
+      }
       const hasWork = host.hasJobs && !host.dayOff(id) && ctx.readers.of<JobsReader>('11').hasWork(id);
       const onDuty = !civ;
-      const retreat = alert === 'hearth' && civ;
-      if (ctx.tick >= b.behaviorUntil || hasWork || onDuty || retreat) {
+      if (ctx.tick >= b.behaviorUntil || hasWork || onDuty) {
         reselect = true;
       } else if (movement !== null && b.targetTile >= 0 && movement.tileOf(id) !== b.targetTile) {
         movement.walkTo(id, b.targetTile, 'wander', ctx);

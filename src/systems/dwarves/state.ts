@@ -43,4 +43,6 @@ export interface DwarvesStateV1 {
   /** T-M5-07: each dwarf remembers individual masterwork items seen on room entry. */
   sawMasterworks?: [EntityId, EntityId][];
   needRetryUntil?: [EntityId, NeedName, number][];
+  shutOut?: EntityId[];
+  shelterCheckPending?: boolean;
 }

@@ -1155,6 +1155,7 @@ export class PathingCore {
   reader(): PathingCoreReader {
     return {
       reachable: (from, to, cls) => this.connectivity.reachable(from, to, cls),
+      connectivityRevision: () => this.connectivity.revision,
       nearestReachable: (from, target, cls, limit) =>
         this.connectivity.nearestReachable(from, target, cls, limit),
       labelOf: (i, cls) => this.connectivity.label(i, cls),
@@ -1172,6 +1173,8 @@ export class PathingCore {
 
 /** The shape `readers.pathing` exposes (`22` § Interfaces). */
 export interface PathingCoreReader {
+  /** Derived connectivity rebuild token (F-16 shelter invalidation). */
+  connectivityRevision(): number;
   reachable(from: TileIndex, to: TileIndex, cls: MovementClass): boolean;
   nearestReachable(from: TileIndex, target: TileIndex, cls: MovementClass, limit: number): TileIndex;
   labelOf(i: TileIndex, cls: MovementClass): number;

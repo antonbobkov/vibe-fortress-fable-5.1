@@ -112,6 +112,8 @@ Speed: `Motion.speed` is recomputed by the owning brain when its inputs change: 
 
 ## Interfaces
 
+Implementation note: `pathing.connectivityRevision()` is a derived rebuild token used to recheck only shut-out civilians after connectivity changes (F-16, D-217).
+
 ### Reader (`readers.pathing`, `readers.spatial`)
 
 - `pathing.reachable(from, to, class)`, `pathing.nearestReachable(from, target, class, limit)`
