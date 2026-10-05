@@ -182,7 +182,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 ## UI fixes ([ui-fixes/README.md](ui-fixes/README.md))
 - [x] U-01 — Quick wins: embark default, honest messages, dead hints, small key fixes (opus-u01, 2026-10-04)
 - [ ] U-02 — Paused input takes effect at once
-- [ ] U-03 — Work orders with quantity; panel hotkeys always win
+- [x] U-03 — Work orders with quantity; panel hotkeys always win (opus-u03, 2026-10-05)
 - [ ] U-04 — Drag to place many; out-of-stock prompt
 - [ ] U-05 — Building panel
 - [x] U-06 — Labor manager, unit and squad multi-select (opus-u06, 2026-10-05)
