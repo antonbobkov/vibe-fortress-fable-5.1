@@ -74,7 +74,47 @@ Stockpile settings replace the season rows with:
 │ …                                   │
 │ ─ click to toggle · shift-click:   │
 │   whole column · [a] all on/off    │
+│ [Enter] labor manager: all labors  │
 ```
+
+The panel is the quick view: the columns that do not fit scroll with `←` `→`, the rows scroll with the selection, and hovering a column head names the labor. `Enter`, or a click on the last row, opens the labor manager.
+
+## Labor manager
+
+A full-window screen over the fortress (`labor_manager`), opened with `Enter` in the labors panel or with the labors key in the units panel while dwarves are marked. The simulation keeps its speed under it.
+
+```
+ Labor manager                                                      [Esc] close
+ Ranulf Ashwall, Miner · Animal training: on · priority 5
+ 2 of 40 marked          A A B B C C C C C F F G H H H L M M M M S S T T W
+                         n n r u a l o o r a i e a e u e a e e i m m e r o
+                         i i e t r e n o a r s m u r n a s c d n e i x a o
+                         m m w c p a s k f m h   l b t t o h i i l t t d d
+                         a a i h e n t i t i i c i a i h n a c n t h i i c
+                         l l n e n i r n s n n u n l n e r n i g i i l n u
+                             g r t n u g   g g t g i g r y i n   n n e g t
+                         c t   y r g c         t   s       c e   g g s   t
+   Dwarf                 a r     y   t         i   m       s             i
+   Priority 1–9          5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5
+ • Embla Ashhold         ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■     █
+ • Ranulf Ashwall        ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■     │
+   Orm Ironward          ■ ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙     │
+   Vigdis Bearroot       ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙     │
+   …
+ ──────────────────────────────────────────────────────────────────────────────
+ [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column
+ [-] priority down  [+] priority up  [t] templates
+ Miner: 12 labors changed for 2 dwarves.
+```
+
+- **Rows**: every dwarf, scrolling with the cursor, `PageUp`/`PageDown`, `Home`/`End` and the wheel; a scrollbar column on the right. A child's row is dim: children take no labors, an action skips them and the status line says how many.
+- **Columns**: every labor under its name written downward (cut to `LABOR_HEADER_ROWS`, 9, within which every name is unique). A column is 2 to 4 cells wide by the room there is; when the labors do not all fit, the columns scroll with the cursor (`«` `»` mark more). Row 2 names the dwarf and the labor at the cursor, or under the mouse, in full, with the cell's state and the labor's priority; hovering a head shows the labor's name.
+- **Cells**: `■` on, `∙` off. `Enter` or a click toggles the cell; `[a]` the cursor's whole row; `[c]`, or a shift-click on a head, the whole column for the marked dwarves, or for everyone when none is marked.
+- **Marks**: `Space` or a click left of a name marks a row (`•`), a shift-click on a name marks the range from the last mark, `Shift`+`↑`/`↓` mark the rows they pass, `*` marks all or none. An action on a marked row applies to every marked dwarf.
+- **Priority row**: the labor priorities 1–9. `+`/`-` or a digit set the cursor labor's priority; a click on a number adds one, a shift-click takes one (`SetLaborPriority`). At a limit nothing is sent and the status line says the range.
+- **Templates** (`[t]`, then `1`–`6`, or `↑↓` and `Enter`, or a click): Miner, Hauler only, Farmer, Crafter, Soldier, Everything off. A template turns exactly its labors on, and every other labor off, for the marked dwarves (or the cursor's dwarf); only the cells that differ are sent (`SetLabor`). The menu shows what the highlighted template turns on.
+- The last row says what the last action did, or why it did nothing. A change shows at once and is confirmed by the simulation at the next command phase.
+- Every key row is a row of buttons, so each action has a mouse path.
 
 ## Orders (o)
 
@@ -125,6 +165,7 @@ Stockpile settings replace the season rows with:
 │ [+] new squad  [x] disband          │
 │ ── The Hearthguard ─────────────── │
 │ Leader  Halvar Grimshield (Warden)  │
+│         [S-l] pick  [S-n] rename    │
 │ Mode    [off] [train] [active]      │
 │ Members Halvar G., Einar R., Tova E.│
 │         [a] add  [r] remove         │
@@ -133,8 +174,24 @@ Stockpile settings replace the season rows with:
 │ Station (60,28,z31) [s] set [c]lear │
 │ Patrol  none [p] set                │
 │ Orders  [k] kill target [f] follow  │
-│ Barracks #2 · training 2/3 present  │
+│ Barracks #2  [S-b] change           │
 ```
+
+`[a] add` and `[r] remove` open a multi-select list in place of the squad's details; `[S-l] pick` (the leader, among the members) and `[S-b]` (the barracks zones, with "None" first) open a single-choice list:
+
+```
+│ ─── Add: 2 marked, 4 free ───────── │
+│ • Ketil Ironvein                    │
+│ • Brynja Coldhammer                 │
+│   Orm Ashbrow                       │
+│ [Space] mark  [*] all               │
+│ [Enter] choose  [Esc] cancel        │
+```
+
+- `Space` or a click marks a row (`•`), `*` marks all (as many as the squad has room for) or none, and `Enter` adds or removes every marked dwarf in one `SetSquadMembers`; with none marked, `Enter` takes the cursor's row. An add list takes no more marks than the squad has free places, and a full squad, an empty squad or no free adult says so on the status row instead of opening an empty list.
+- The leader list sends `SetSquadLeader`; `[S-n]` opens the text input and sends `RenameSquad`.
+- The barracks list sends `SetZoneSetting { key: squad }`: the zone the squad had lets go and the chosen one takes it; "None" clears it. Without a barracks zone the status row says to make one in Zones. The barracks row shows the assigned zone; "(default)" marks a zone the squad uses without being assigned.
+- The new keys are on `Shift` because `l`, `b` and `n` are panel hotkeys.
 
 ## Animals (n)
 
