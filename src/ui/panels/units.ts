@@ -97,5 +97,5 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
   const row = rect.row + 1 + height;
   separator(s, rect.col + 1, row, rect.cols - 2);
   label(s, rect.col + 1, row + 1, strings.get('ui.units.actions1'), { width: rect.cols - 2 });
-  label(s, rect.col + 1, row + 2, strings.get('ui.units.actions2'), { fg: t.dim, width: rect.cols - 2 });
+  label(s, rect.col + 1, row + 2, strings.get('ui.units.actions2'), { width: rect.cols - 2 });
 }

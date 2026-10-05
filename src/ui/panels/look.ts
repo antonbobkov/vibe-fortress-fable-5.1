@@ -16,6 +16,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
+import { buildingName, zoneName } from '../messages';
 import type { Strings } from '../strings';
 import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
@@ -140,7 +141,7 @@ export function drawLookPanel(
         line('Linked targets:', t.key);
         for (const target of b.get(id)?.linkedIds ?? []) {
           const targetView = b.get(target);
-          if (targetView !== undefined) line(`  ${targetView.typeId} #${target}: ${b.mechanismState(target)}`);
+          if (targetView !== undefined) line(`  ${buildingName({ readers, registry }, target)}: ${b.mechanismState(target)}`);
         }
         if (pullLever !== undefined && row < rect.row + rect.rows) {
           const buttonRow = row;
@@ -312,7 +313,7 @@ function buildingLines(readers: ReaderSet, registry: Registry, strings: Strings,
     const room = b.room(zoneId);
     const tiers = registry.table<{ id: string; tier: number }>('roomTiers');
     const tier = room === undefined ? '' : ` · ${tiers.ids().find((t) => tiers.byId(t)?.tier === room.tier) ?? ''} (${Math.floor(room.score)})`;
-    out.push(strings.get('ui.look.zone', { name: strings.get(`ui.zone.type.${zone.type}`), id: zoneId, n: zone.tiles.length, room: tier }));
+    out.push(strings.get('ui.look.zone', { name: zoneName({ readers, strings }, zoneId), n: zone.tiles.length, room: tier }));
   }
   return out;
 }

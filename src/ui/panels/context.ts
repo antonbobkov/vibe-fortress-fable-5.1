@@ -25,6 +25,8 @@ export interface PanelContext {
   openPanel(id: string): void;
   /** Whether the pointer's `Shift` was down for the click being handled. */
   shiftClick(): boolean;
+  /** A message on the status row: why an action did nothing (D-U4). Absent outside the fortress screen. */
+  notice?(text: string): void;
 }
 
 export function items(ctx: PanelContext): ItemsReader | null {

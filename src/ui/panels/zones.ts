@@ -455,7 +455,7 @@ function drawHospitalSettings(s: Surface, rect: Rect, ctx: PanelContext, zone: Z
     } else {
       for (const pId of patients) {
         if (row >= bottom) break;
-        const name = ctx.readers.entities.get(pId, C.Creature)?.name ?? `Patient #${pId}`;
+        const name = ctx.readers.entities.get(pId, C.Creature)?.name ?? 'a patient';
         const p = ctx.readers.entities.get(pId, C.Patient);
         const needs = p && p.needs.length > 0 ? p.needs.join(', ') : 'resting';
         label(s, rect.col + 2, row, `${name}: ${needs}`, { width: rect.cols - 3 });

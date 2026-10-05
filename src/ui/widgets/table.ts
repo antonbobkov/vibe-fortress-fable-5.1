@@ -46,4 +46,42 @@ export function table(
     state,
     onSelect,
   );
+
+  let headOffset = 0;
+  for (let k = 0; k < columns.length; k += 1) {
+    const c = columns[k] as Column;
+    const last = k === columns.length - 1;
+    const colWidth = last ? Math.max(0, rect.cols - headOffset) : c.width;
+    const contentWidth = last ? colWidth : Math.max(0, colWidth - 1);
+    if (Array.from(c.title).length > contentWidth && colWidth > 0) {
+      s.tooltip({ col: rect.col + headOffset, row: rect.row, cols: colWidth, rows: 1 }, c.title.trim());
+    }
+    headOffset += colWidth;
+  }
+
+  const listHeight = rect.rows - 1;
+  if (listHeight <= 0) return;
+  const scrollbar = rows.length > listHeight;
+  const listWidth = scrollbar ? rect.cols - 1 : rect.cols;
+
+  for (let r = 0; r < listHeight; r += 1) {
+    const index = state.scroll + r;
+    if (index >= rows.length) break;
+    const cells = rows[index];
+    if (!cells) continue;
+    let offset = 0;
+    for (let k = 0; k < columns.length; k += 1) {
+      const c = columns[k] as Column;
+      const last = k === columns.length - 1;
+      const colWidth = last ? Math.max(0, listWidth - offset) : c.width;
+      const contentWidth = last ? colWidth : Math.max(0, colWidth - 1);
+      const text = cells[k] ?? '';
+      const chars = Array.from(text);
+      if (chars.length > contentWidth && colWidth > 0) {
+        const cleanText = text.replace(/^[▶\s]+/, '').replace(/\s+$/, '');
+        s.tooltip({ col: rect.col + offset, row: rect.row + 1 + r, cols: colWidth, rows: 1 }, cleanText.length > 0 ? cleanText : text);
+      }
+      offset += colWidth;
+    }
+  }
 }

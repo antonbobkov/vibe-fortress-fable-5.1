@@ -30,7 +30,7 @@ import {
   GLYPH_STAIRS_UPDOWN,
   GLYPH_TREE,
 } from '@render/glyphs';
-import { ACTION_IDS, KEY_CONTEXTS, keyLabel, type Binding, type Keymap } from '../keymap';
+import { ACTION_IDS, KEY_CONTEXTS, keyLabel, type Binding, type KeyContext, type Keymap } from '../keymap';
 import type { Surface } from '../surface';
 import { label, tabs } from '../widgets';
 import { OVERLAY_ROWS } from './overlays';
@@ -41,6 +41,8 @@ export type HelpTab = 0 | 1;
 export interface HelpRow {
   readonly category: string;
   readonly text: string;
+  /** The key labels a keys row stands for (`←`, `→`, `↑`, `↓` for "←→↑↓  pan …"). */
+  readonly keys?: readonly string[];
   readonly heading?: true;
   /** The palette row the line is drawn in (the legend's colours). */
   readonly fg?: string;
@@ -102,23 +104,55 @@ interface GlyphRow {
   readonly fg?: string;
 }
 
-/** Every binding of the live keymap, grouped under its context heading. */
+/** Help's context order: the panel hotkeys first (Q14), then the keymap table's order. */
+export const HELP_CONTEXT_ORDER: readonly KeyContext[] = ['fortress_panel', ...KEY_CONTEXTS.filter((c) => c !== 'fortress_panel')];
+
+/** A group's keys as one label: a run of digits as a range (`1–9`), arrows side by side, the rest spaced. */
+export function keysLabel(labels: readonly string[]): string {
+  const shown = labels.map((l) => (l === 'any-letter' ? '[letter]' : l));
+  const digits = shown.map(Number);
+  if (shown.length > 2 && shown.every((l) => /^\d$/.test(l)) && digits.every((d, k) => k === 0 || d === (digits[k - 1] as number) + 1)) {
+    return `${shown[0] as string}–${shown[shown.length - 1] as string}`;
+  }
+  if (shown.every((l) => ['←', '→', '↑', '↓'].includes(l))) return shown.join('');
+  return shown.join(' ');
+}
+
+/**
+ * Every binding of the live keymap under its context heading, the panel hotkeys first; the keys
+ * of one action with the same wording share a row (Q14: "←→↑↓  pan by 1 cell", "1–9  set priority").
+ */
 export function helpKeyRows(keymap: Keymap): HelpRow[] {
   const out: HelpRow[] = [];
-  for (const context of KEY_CONTEXTS) {
+  for (const context of HELP_CONTEXT_ORDER) {
     const bindings = keymap.of(context);
     if (bindings.length === 0) continue;
     out.push({ category: context, text: CONTEXT_TITLES[context] ?? context, heading: true });
+    const groups: { text: string; id: string; keys: string[] }[] = [];
     for (const binding of bindings) {
-      out.push({ category: context, text: `${keyLabel(binding.spec)}  ${actionText(binding)}` });
+      const text = actionText(binding);
+      const last = groups[groups.length - 1];
+      if (last !== undefined && last.id === binding.id && last.text === text) last.keys.push(keyLabel(binding.spec));
+      else groups.push({ text, id: binding.id, keys: [keyLabel(binding.spec)] });
     }
+    for (const g of groups) out.push({ category: context, text: `${keysLabel(g.keys)}  ${g.text}`, keys: g.keys });
   }
   return out;
 }
 
-/** The wording the keymap table gives the action, or the action id read as words. */
+/**
+ * The wording the keymap table gives this row (Q14: per context, so Trade's `+` reads "quantity"),
+ * a panel hotkey's panel name, or the action id read as words.
+ */
 export function actionText(binding: Binding): string {
+  if (binding.text !== undefined) return binding.text;
+  if (binding.context === 'fortress_panel') return `${binding.id.charAt(0).toUpperCase()}${binding.id.slice(1)} panel`;
   return WORDING[binding.id] ?? binding.id.replaceAll('_', ' ');
+}
+
+/** A key context's heading, as the keymap table names its sections. */
+export function contextTitle(context: string): string {
+  return CONTEXT_TITLES[context] ?? context;
 }
 
 /** The six legend categories of § Help, generated from the content tables. */

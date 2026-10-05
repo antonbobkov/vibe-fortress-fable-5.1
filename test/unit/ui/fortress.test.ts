@@ -111,7 +111,11 @@ describe('T-M1-14 designate tool: drag rectangle → Designate', () => {
     ]);
     tool.choose('f');
     expect(tool.traffic).toBe('forbidden');
-    expect(tool.choose('h')).toBe(false);
+    // U-01 (audit Q9): the stale M4 gate is gone; Harvest is chosen and sends 07's DesignateHarvest.
+    expect(tool.choose('h')).toBe(true);
+    expect(tool.commands({ map, precondition: () => false }, { x: 0, y: 0, z: 0 }, { x: 1, y: 0, z: 0 })).toEqual([
+      { type: 'DesignateHarvest', tiles: [0, 1] },
+    ]);
   });
 
   it('Enter at the cursor starts and ends a rectangle', async () => {

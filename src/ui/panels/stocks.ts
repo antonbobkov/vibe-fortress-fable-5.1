@@ -84,7 +84,7 @@ export class StocksPanel {
           children.push({ id: `type:${type}`, name: it.def(type)?.name ?? String(type), children: (itemIds.get(type) ?? []).map((id) => {
             const rec = it.get(id);
             const material = rec === undefined ? '?' : ctx.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '?';
-            return { id: `item:${id}`, name: `${material} #${id}`, children: [] };
+            return { id: `item:${id}`, name: `${material} ×${rec?.count ?? 1}`, children: [] };
           }) });
         }
         return { ...n, children };

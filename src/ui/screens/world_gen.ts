@@ -73,6 +73,8 @@ export class WorldGenScreen implements Screen {
   world: WorldMap | null = null;
   stage = '';
   stagePct = 0;
+  /** The seed has been typed in since it was drawn: `g` then types, otherwise it generates. */
+  seedEdited = false;
   private last: Surface | null = null;
 
   constructor(
@@ -111,6 +113,7 @@ export class WorldGenScreen implements Screen {
     label(surface, 1, 1, s.get('ui.worldgen.seed'));
     textField(surface, 7, 1, 20, this.seed, () => this.setFocus('seed'));
     button(surface, 32, 1, 'r', s.get('ui.worldgen.random'), () => this.randomize());
+    if (this.focus === 'seed') label(surface, 46, 1, s.get('ui.worldgen.seed_hint'), { fg: t.dim, width: Math.max(0, surface.cols - 47) });
 
     label(surface, 1, 2, s.get('ui.worldgen.size'));
     let c = 7;
@@ -173,6 +176,7 @@ export class WorldGenScreen implements Screen {
 
   randomize(): void {
     this.seed.value = this.host.randomSeed();
+    this.seedEdited = false;
     this.world = null;
     this.stage = '';
   }
@@ -187,7 +191,13 @@ export class WorldGenScreen implements Screen {
         this.setFocus('size');
         return true;
       }
+      // Q11: `[g] Generate`, as advertised, while the drawn seed is untouched.
+      if (!this.seedEdited && !press.ctrl && !press.alt && !press.meta && press.key.toLowerCase() === 'g') {
+        this.generate();
+        return true;
+      }
       if (editText(this.seed, press)) {
+        this.seedEdited = true;
         this.world = null;
         this.stage = '';
         return true;

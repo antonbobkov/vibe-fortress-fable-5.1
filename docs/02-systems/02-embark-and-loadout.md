@@ -42,7 +42,7 @@ For each of `EMBARK_DWARF_COUNT` dwarves, from the `embark.party` rng stream:
 | `farmstead` | 2 farmers, 1 herbalist, 1 cook, 1 brewer, 1 carpenter, 1 miner | Seeds of every kind, 2 cows, 4 chickens, 2 sheep, fewer tools |
 | `warband` | 2 soldiers (axe, shield), 1 crossbow hunter, 1 armorsmith, 1 miner, 1 farmer, 1 medic | Iron weapons and mail for two, bolts, 3 war dogs, less food |
 
-A preset fills the party skills and the supply list to `EMBARK_BUDGET_BASE`; any extra peril budget stays unspent for the player.
+A preset fills the party skills and the supply list to `EMBARK_BUDGET_BASE`; any extra peril budget stays unspent for the player. The embark screen opens with `balanced` applied.
 
 ### Fortress name
 
@@ -102,7 +102,7 @@ The embark screen has three tabs and a footer:
 - **Dwarves**: list of seven; selecting one shows name (editable), age, attributes as bars, personality words, and the skill list with +/− controls and remaining points. Reroll button.
 - **Supplies**: catalog grouped by category with quantity fields, unit price, line total.
 - **Animals**: species with price and count.
-- Footer: budget remaining, preset menu, fortress name, Embark button. Embark is disabled while over budget and shows why.
+- Footer: budget remaining, preset menu, fortress name, Embark button. Embark is disabled while over budget and shows why. Embarking with no pick, or with no food or no drink, asks first ("Embark without a pick?", "Embark without food or drink?"; confirmations `c_embark_no_pick`, `c_embark_no_food_drink`, default No).
 
 Nothing chosen here is irreversible in the fortress: skills grow, items are consumed, animals breed.
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { loadContent } from '@content/loader';
 import { DIM_FACTOR } from '@render/constants';
-import { Palette, blend, blue, green, parseHex, red, rgb, toHex } from '@render/palette';
+import { Palette, blend, blue, green, parseHex, red, rgb, toHex, ciede2000, rgbToLab } from '@render/palette';
 
 const registry = loadContent();
 
@@ -18,7 +18,7 @@ describe('T-M0-12 palette: the named colors of glyphs-and-colors.md', () => {
     expect(toHex(palette.color('sky_day'))).toBe('#1e2e4a');
     expect(toHex(palette.color('abyss'))).toBe('#000000');
     // Fluid ramps, designation tints, material colors.
-    expect(toHex(palette.color('water_7'))).toBe('#183078');
+    expect(toHex(palette.color('water_7'))).toBe('#0c1c60');
     expect(toHex(palette.color('magma_bg'))).toBe('#3a0800');
     expect(toHex(palette.color('des_dig'))).toBe('#1e3a8a');
     expect(toHex(palette.color('granite_gray'))).toBe('#8c8c8c');
@@ -46,8 +46,8 @@ describe('T-M0-12 palette: the named colors of glyphs-and-colors.md', () => {
     const plain = new Palette(registry);
     const alt = new Palette(registry, { colorblind: true });
     expect(toHex(alt.color('dwarf_need'))).toBe('#ffb000');
-    expect(toHex(alt.color('hostile'))).toBe('#ff8c00');
-    expect(toHex(alt.color('water_1'))).toBe('#40b0ff');
+    expect(toHex(alt.color('hostile'))).toBe('#e65100');
+    expect(toHex(alt.color('water_1'))).toBe('#68d0ff');
     expect(toHex(plain.color('dwarf_need'))).toBe('#ffd34d');
     // Rows without an alternate are the same in both.
     expect(alt.color('granite_gray')).toBe(plain.color('granite_gray'));
@@ -110,3 +110,28 @@ describe('T-M0-12 palette: color arithmetic', () => {
     expect(blend(0x000000, 0x646464, 0.25)).toBe(rgb(25, 25, 25));
   });
 });
+
+describe('U-08: perceptual color distance (CIEDE2000) (D-U10, M12)', () => {
+  it('ciede2000 returns 0 for identical colors', () => {
+    expect(ciede2000(0xff0000, 0xff0000)).toBe(0);
+    expect(ciede2000(0x123456, 0x123456)).toBe(0);
+  });
+
+  it('rgbToLab transforms black and white to expected Lab coordinates', () => {
+    const black = rgbToLab(0x000000);
+    expect(black.L).toBeCloseTo(0, 1);
+    expect(black.a).toBeCloseTo(0, 1);
+    expect(black.b).toBeCloseTo(0, 1);
+
+    const white = rgbToLab(0xffffff);
+    expect(white.L).toBeCloseTo(100, 1);
+    expect(white.a).toBeCloseTo(0, 1);
+    expect(white.b).toBeCloseTo(0, 1);
+  });
+
+  it('ciede2000 computes perceptual distance between black and white close to 100', () => {
+    const de = ciede2000(0x000000, 0xffffff);
+    expect(de).toBeCloseTo(100, 0);
+  });
+});
+

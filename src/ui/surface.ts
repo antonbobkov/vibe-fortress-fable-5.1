@@ -75,6 +75,10 @@ export const GLYPH_ALIASES: Readonly<Record<string, string>> = Object.freeze({
   '□': ' ',
   '▪': '∙',
   '…': '»',
+  // Q7: the recipe list's makeable dot, a request's priority star, and a newline in a text cell.
+  '●': '•',
+  '★': '☼',
+  '\n': ' ',
 });
 
 /** Character to glyph index over the whole glyph set; CP437 first, then the content extras. */
@@ -118,8 +122,15 @@ export interface HitRegion {
   readonly action: () => void;
 }
 
+/** One tooltip region: the cell bounds of a truncated widget and its full text. */
+export interface TooltipRegion {
+  readonly rect: Rect;
+  readonly text: string;
+}
+
 export class Surface {
   readonly hits: HitRegion[] = [];
+  readonly tooltips: TooltipRegion[] = [];
 
   constructor(
     readonly cells: CellBuffer,
@@ -200,6 +211,21 @@ export class Surface {
       const h = this.hits[k] as HitRegion;
       const r = h.rect;
       if (col >= r.col && row >= r.row && col < r.col + r.cols && row < r.row + r.rows) return h;
+    }
+    return null;
+  }
+
+  /** Record a tooltip for a truncated cell or label. */
+  tooltip(rect: Rect, text: string): void {
+    this.tooltips.push({ rect, text });
+  }
+
+  /** The topmost tooltip under a cell (the last recorded wins). */
+  tooltipAt(col: number, row: number): TooltipRegion | null {
+    for (let k = this.tooltips.length - 1; k >= 0; k -= 1) {
+      const t = this.tooltips[k] as TooltipRegion;
+      const r = t.rect;
+      if (col >= r.col && row >= r.row && col < r.col + r.cols && row < r.row + r.rows) return t;
     }
     return null;
   }

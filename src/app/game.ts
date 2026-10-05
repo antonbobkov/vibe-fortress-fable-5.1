@@ -256,6 +256,7 @@ export class Game {
       quickSave: () => void this.quickSave(),
       quickLoad: () => void this.quickLoad(),
       gameMenu: () => this.openGameMenu(),
+      saveMenu: () => this.openGameMenu('save'),
       debug: {
         stats: () => this.host.stats(),
         seed: () => (this.host.started ? this.host.world.seed : ''),
@@ -423,11 +424,11 @@ export class Game {
   }
 
   /** Open the Esc menu after the fortress has dismissed its current tool and panel. */
-  openGameMenu(): void {
+  openGameMenu(selected = 'resume'): void {
     if (!this.host.started || this.top() !== FORTRESS) return;
     this.menuSpeed = this.host.speed();
     this.host.setSpeed(0);
-    this.pushScreen(new GameMenuScreen({
+    const menu = new GameMenuScreen({
       fortressName: () => (this.host.started ? this.host.world.fortress.name : ''),
       resume: () => {
         this.popScreen();
@@ -440,7 +441,9 @@ export class Game {
       retire: () => this.retireFortress(),
       mainMenu: () => this.leaveToMainMenu(),
       viewOnly: () => this.host.viewOnly,
-    }));
+    });
+    if (menu.items().some((item) => item.id === selected && item.enabled !== false)) menu.selected = selected;
+    this.pushScreen(menu);
     this.render();
   }
 
@@ -507,7 +510,7 @@ export class Game {
         }
         this.lastSaveId = id;
         this.lastSaveTick = savedAt;
-        this.note('note', this.strings.get('ui.save.saved', { name: id }));
+        this.note('note', this.strings.get('ui.save.saved', { fortress: this.host.world.fortress.name, date: formatDate(savedAt) }));
         await this.refreshListing();
       })(),
     );
@@ -611,7 +614,7 @@ export class Game {
         if (kind === 'auto') await rollAutosaves(saves);
         this.lastSaveId = id;
         this.lastSaveTick = savedAt;
-        this.note('note', this.strings.get('ui.save.saved', { name: id }));
+        this.note('note', this.strings.get('ui.save.saved', { fortress: this.host.world.fortress.name, date: formatDate(savedAt) }));
         await this.refreshListing();
       })(),
     );
@@ -652,7 +655,12 @@ export class Game {
     const saves = this.saves;
     if (saves === null) return;
     const blob = await saves.read(id);
-    if (blob === undefined) return;
+    if (blob === undefined) {
+      // §4.2: a listed save whose data is gone says so.
+      this.note('alert', this.strings.get('ui.load.unreadable_save'));
+      this.render();
+      return;
+    }
     try {
       this.enterLoaded(await this.host.load(blob));
       this.lastSaveId = id;
@@ -664,7 +672,7 @@ export class Game {
         const at = this.listing.indexOf(row);
         this.listing[at] = { ...row, unreadable: reason };
       }
-      this.note('danger', this.strings.get('ui.save.failed', { reason }));
+      this.note('danger', this.strings.get('ui.load.failed', { reason }));
       this.render();
     }
   }
@@ -961,6 +969,7 @@ export class Game {
         {
           embark: (session) => void this.embarkRegion(world, regionId, { session }),
           back: () => this.popScreen(),
+          confirm: (id, params, answer) => this.confirm(id, params, answer),
         },
         this.keymap,
         this.strings,
@@ -1066,6 +1075,7 @@ export class Game {
         submit: (command) => this.host.submit(command),
         commandTick: () => this.host.step(1),
         back: () => this.popScreen(),
+        strings: this.strings,
       }));
     }
     const top = this.top();

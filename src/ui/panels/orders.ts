@@ -7,6 +7,7 @@ import type { KeyPress } from '@platform/input';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { JobsReader } from '@systems/jobs';
 import { STANDING_ORDERS } from '@systems/jobs/constants';
+import { buildingName, workshopBlockText } from '../messages';
 import type { Surface } from '../surface';
 import { label, list, separator, type ListState } from '../widgets';
 import type { PanelContext } from './context';
@@ -153,7 +154,7 @@ export function drawOrdersPanel(s: Surface, rect: Rect, panel: OrdersPanel, ctx:
   const entries = panel.entries(ctx);
   const lines = entries.map((e) => {
     const recipe = reader.recipe(e.order.recipe);
-    const place = e.workshopId === 0 ? 'Global' : `${ctx.readers.of<import('@systems/buildings').BuildingsReader>('14').get(e.workshopId)?.typeId ?? 'Workshop'} #${e.workshopId}`;
+    const place = e.workshopId === 0 ? 'Global' : buildingName(ctx, e.workshopId);
     const qty = e.order.mode === 'maintain' ? `keep ≥ ${e.order.threshold}` : `×${e.order.remaining}`;
     return `${place} ${recipe?.name ?? '?'} ${qty} pri ${e.order.priority}`;
   });
@@ -179,13 +180,30 @@ export function drawOrdersPanel(s: Surface, rect: Rect, panel: OrdersPanel, ctx:
   }
 }
 
+/**
+ * Why a workshop is idle, with the input named (`12` § Operation 3: "waiting for <input>"; D-U4).
+ * The saved `lastBlockedReason` folds every missing input into `missing_input`; the reader's
+ * `isRunnable` of the orders in turn says which one.
+ */
+export function workshopWaiting(reader: WorkshopsReader, id: EntityId, workshop: Workshop): string | null {
+  const last = workshop.lastBlockedReason;
+  if (last === null) return null;
+  if (last !== 'missing_input') return last;
+  for (const order of workshop.orders) {
+    const recipe = reader.recipe(order.recipe);
+    const why = recipe === undefined ? null : reader.isRunnable(recipe.id, id).reason;
+    if (why !== null && why !== 'complete' && why !== 'stocked') return why;
+  }
+  return 'inputs';
+}
+
 export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: OrdersPanel, ctx: PanelContext, onDeconstruct?: () => void): void {
   const reader = panel.reader(ctx);
   const building = ctx.readers.of<import('@systems/buildings').BuildingsReader>('14').get(id);
   const workshop = ctx.readers.entities.get(id, C.Workshop) as Workshop | undefined;
   if (reader === null || building === undefined || workshop === undefined) return;
   const col = rect.col + 1; const width = rect.cols - 2;
-  label(s, col, rect.row, `${building.typeId} #${id}`, { fg: s.theme.key, width });
+  label(s, col, rect.row, buildingName(ctx, id), { fg: s.theme.key, width });
   label(s, col, rect.row + 1, `Worker: ${workshop.assignedWorker === 0 ? 'any' : ctx.readers.entities.get(workshop.assignedWorker, C.Creature)?.name ?? '?'}`, { width });
   label(s, col, rect.row + 2, `[s] ${workshop.suspended ? 'resume' : 'suspend'}  ${reader.isMagmaPowered(id) ? 'magma powered' : ''}`, { width });
   separator(s, col, rect.row + 3, width, 'Recipes');
@@ -210,5 +228,5 @@ export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: O
     const at = actions.indexOf('[x]');
     s.hit({ col: col + at, row: rect.row + rect.rows - 3, cols: 3, rows: 1 }, onDeconstruct);
   }
-  label(s, col, rect.row + rect.rows - 2, workshop.lastBlockedReason ?? '', { fg: s.theme.dim, width });
+  label(s, col, rect.row + rect.rows - 2, workshopBlockText(ctx, workshopWaiting(reader, id, workshop)), { fg: s.theme.alert, width, keys: false });
 }

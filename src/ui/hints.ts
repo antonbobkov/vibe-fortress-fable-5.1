@@ -6,6 +6,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
+import type { WorkshopsReader } from '@systems/workshops';
 import type { UiState } from './ui-state';
 import type { AnnouncementLog } from './announcements';
 import { HINT_CHECK_HOURS } from './constants';
@@ -47,6 +48,16 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_magma': return f.cavernTwoBreached;
     default: return false;
   }
+}
+
+/** Whether a workshop's orders wait for fuel: the reader says `missing_input` without naming an input. */
+export function fuelShort(readers: ReaderSet, workshopId: number): boolean {
+  if (!readers.has('12')) return false;
+  const reader = readers.of<WorkshopsReader>('12');
+  return reader.ordersOf(workshopId).some((order) => {
+    const recipe = reader.recipe(order.recipe);
+    return recipe !== undefined && reader.isRunnable(recipe.id, workshopId).reason === 'missing_input';
+  });
 }
 
 export class HintEngine {
@@ -100,9 +111,13 @@ export class HintEngine {
       const command = fields['command'] as { type?: string; zoneType?: string } | undefined;
       if (command?.type === 'CreateZone' && command.zoneType === 'farm_plot') this.markId('hint_farm');
     }
-    if (event.type === 'WorkshopBlocked' && fields['reason'] === 'no_fuel' && readers.has('14')) {
-      const type = readers.of<BuildingsReader>('14').get(Number(fields['workshopId']))?.typeId;
-      if (type === 'smelter' || type === 'forge') this.markId('hint_fuel');
+    if (event.type === 'WorkshopBlocked' && readers.has('14')) {
+      const id = Number(fields['workshopId']);
+      // 12 reports a fuel shortage as `missing_input` (only an input names itself, "waiting for
+      // <input>"), so the reader's runnable check of the orders tells fuel apart (Q12).
+      const fuel = fields['reason'] === 'no_fuel' || (fields['reason'] === 'missing_input' && fuelShort(readers, id));
+      const type = readers.of<BuildingsReader>('14').get(id)?.typeId;
+      if (fuel && (type === 'smelter' || type === 'forge')) this.markId('hint_fuel');
     }
   }
 

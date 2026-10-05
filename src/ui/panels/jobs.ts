@@ -12,17 +12,11 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { JobsReader } from '@systems/jobs';
 import type { Surface } from '../surface';
+import { jobBlockText, wrapText } from '../messages';
 import { label, separator, table, type ListState } from '../widgets';
 import { tileXyz, type PanelContext } from './context';
 
 type JobLike = ReturnType<JobsReader['list']>[number];
-
-const REASON_KEYS: Readonly<Record<string, string>> = Object.freeze({
-  unreachable: 'ui.jobs.reason.unreachable',
-  missing_input: 'ui.jobs.reason.missing_input',
-  no_tool: 'ui.jobs.reason.no_tool',
-  no_worker: 'ui.jobs.reason.no_worker',
-});
 
 export class JobsPanel {
   readonly list: ListState = { selected: 0, scroll: 0 };
@@ -79,11 +73,26 @@ function jobText(ctx: PanelContext, panel: JobsPanel, j: JobLike): string {
 
 function whoText(ctx: PanelContext, j: JobLike): string {
   if (j.workerId !== 0) return ctx.readers.entities.get(j.workerId, C.Creature)?.name ?? '';
-  if (j.state === 'blocked' && j.blockedReason !== null) {
-    const key = REASON_KEYS[j.blockedReason];
-    return key === undefined ? j.blockedReason.replace(/_/g, ' ') : ctx.strings.get(key);
-  }
+  if (j.state === 'blocked' && j.blockedReason !== null) return jobBlockText(ctx, j).short;
   return '—';
+}
+
+/**
+ * `11` § Player-facing behavior: the summary names the blocked jobs by reason ("6 blocked (4
+ * unreachable, 2 missing materials)"); the second header line when any job is blocked.
+ */
+export function blockedSummary(ctx: PanelContext, jobs: readonly JobLike[]): string {
+  const counts = new Map<string, number>();
+  for (const j of jobs) {
+    if (j.state !== 'blocked') continue;
+    const key = j.blockedReason ?? '';
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  if (counts.size === 0) return '';
+  const s = ctx.strings;
+  const parts = Array.from(counts).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).map(([reason, n]) =>
+    `${n} ${s.has(`ui.jobs.summary.${reason}`) ? s.get(`ui.jobs.summary.${reason}`) : s.get('ui.jobs.summary.other')}`);
+  return s.get('ui.jobs.blocked_by', { parts: parts.join(', ') });
 }
 
 export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: PanelContext): void {
@@ -94,10 +103,17 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   const c = reader.counts();
   label(s, rect.col + 1, rect.row, strings.get('ui.jobs.counts', { open: c.open, claimed: c.claimed, blocked: c.blocked }), { fg: t.value, width: rect.cols - 2 });
   const jobs = panel.jobs(ctx);
-  const height = Math.max(2, rect.rows - 7);
+  // The blocked breakdown and the selected job's full reason take a row each when there are any.
+  const summary = blockedSummary(ctx, jobs);
+  const top = summary === '' ? 1 : 2;
+  if (summary !== '') label(s, rect.col + 1, rect.row + 1, summary, { fg: t.dim, width: rect.cols - 2 });
+  if (jobs.length === 0) label(s, rect.col + 1, rect.row + top + 1, strings.get('ui.jobs.empty'), { fg: t.dim, width: rect.cols - 2 });
+  const chosen = panel.selected(ctx);
+  const detail = chosen !== undefined && chosen.state === 'blocked' && chosen.blockedReason !== null ? wrapText(jobBlockText(ctx, chosen).long, rect.cols - 2, 2) : [];
+  const height = Math.max(2, rect.rows - 7 - (top - 1) - detail.length);
   table(
     s,
-    { col: rect.col + 1, row: rect.row + 1, cols: rect.cols - 2, rows: height },
+    { col: rect.col + 1, row: rect.row + top, cols: rect.cols - 2, rows: height },
     [
       { title: strings.get('ui.jobs.pri'), width: 4 },
       { title: strings.get('ui.jobs.job'), width: 17 },
@@ -109,7 +125,11 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
       panel.list.selected = index;
     },
   );
-  let row = rect.row + 1 + height;
+  let row = rect.row + top + height;
+  for (const line of detail) {
+    label(s, rect.col + 1, row, line, { fg: t.alert, width: rect.cols - 2, keys: false });
+    row += 1;
+  }
   separator(s, rect.col + 1, row, rect.cols - 2);
   label(s, rect.col + 1, row + 1, strings.get('ui.jobs.actions1'), { width: rect.cols - 2 });
   label(s, rect.col + 1, row + 2, strings.get('ui.jobs.actions2'), { width: rect.cols - 2 });

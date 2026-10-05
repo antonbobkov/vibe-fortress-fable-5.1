@@ -17,7 +17,10 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { AnnouncementSpec } from '@core/system';
 import type { TileIndex } from '@core/types';
+import type { BuildingsReader } from '@systems/buildings';
 import { LOG_DEDUP_TICKS, LOG_MAX_LINES } from './constants';
+import { zoneName } from './messages';
+import { MOOD_TIER_NAMES } from './panels/mood';
 import type { Strings } from './strings';
 
 export type Severity = 'note' | 'alert' | 'danger';
@@ -161,6 +164,15 @@ export class AnnouncementLog {
       const creature = readers.entities.get(killerId, C.Creature);
       out['killer'] = creature?.name || (creature ? this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '' : '') || 'killer';
     }
+    // §4.5: a reason code reads as words ("No immigrants this season: hall spirit must be
+    // Content (now Unhappy)", "…fallen: they were offered wooden goods"); a stockpile by name.
+    if (event.type === 'ImmigrationSkipped' || event.type === 'ReputationChanged') {
+      const reason = String(e['reason'] ?? '');
+      const tier = readers.has('15') ? MOOD_TIER_NAMES[readers.of<{ hallSpiritTier(): number }>('15').hallSpiritTier()] ?? '' : '';
+      const keyOf = (code: string): string => event.type === 'ImmigrationSkipped' ? `announce.immigration_skipped.reason.${code}` : `announce.reputation_changed.reason.${code}`;
+      out['reason'] = this.strings.has(keyOf(reason)) ? this.strings.get(keyOf(reason), { tier }) : this.strings.get(keyOf('other'));
+    }
+    if (event.type === 'StockpileFull' && typeof deadId === 'number') out['zone'] = zoneName({ readers, strings: this.strings }, deadId) || 'A stockpile';
     const victimId = e['victimId'];
     if (typeof victimId === 'number' && victimId !== 0) {
       const creature = readers.entities.get(victimId, C.Creature);
@@ -197,11 +209,13 @@ export class AnnouncementLog {
       this.seen.add(event.type);
     }
     let key = spec.keyField === undefined ? spec.stringKey : `${spec.stringKey}.${String(fields[spec.keyField])}`;
+    // §4.5: "drop the clause when 0" children came.
+    if (event.type === 'ImmigrantsArrived' && fields['children'] === 0) key = 'announce.immigrants_arrived_adults';
     if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !readers.entities.has(creatureId, C.Brain)) {
       key = readers.entities.get(creatureId, C.Tame)?.petOf ? 'announce.pet_died' : 'announce.creature_died';
     }
     const text = this.strings.get(key, this.params(event, readers));
-    const focus = focusOf(event, readers);
+    const focus = focusOf(event, readers) ?? (event.type === 'StockpileFull' ? zoneFocus(readers, fields['id']) : undefined);
     const category = spec.category;
     let severity = spec.severity;
     if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !readers.entities.has(creatureId, C.Brain)) {
@@ -254,6 +268,12 @@ export class AnnouncementLog {
   markSeen(type: string): void {
     this.seen.add(type);
   }
+}
+
+/** A zone's first tile, for a line about the zone. */
+function zoneFocus(readers: ReaderSet, id: unknown): TileIndex | undefined {
+  if (typeof id !== 'number' || !readers.has('14')) return undefined;
+  return readers.of<BuildingsReader>('14').zone(id)?.tiles[0];
 }
 
 function materialByIndex(table: { ids(): readonly string[]; byId(id: string): NamedRow | undefined; index(id: string): number }, index: number): NamedRow | undefined {

@@ -8,7 +8,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { ForagingReader } from '@systems/foraging';
 import type { Surface } from '../surface';
 import { label, separator, table, textField, type ListState, type TextFieldState } from '../widgets';
-import type { PanelContext } from './context';
+import { buildings, type PanelContext } from './context';
 import { dwarvesOf } from './units';
 
 export class AnimalsPanel {
@@ -90,17 +90,17 @@ export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ct
         const hunt = ctx.readers.has('09') && ctx.readers.of<ForagingReader>('09').isHuntable(creature?.species ?? 0);
         return [`${species} ×${count}`, hunt ? 'hunt' : '—', '—', r.state(id)];
       }
-      return [species, creature?.name === species ? '—' : creature?.name ?? '—', r.pastureOf(id) === 0 ? '—' : `#${r.pastureOf(id)}`, `${Math.round(r.condition(id))} ${tame.trained}${tame.pregnantUntil > ctx.readers.calendar.tick ? ' P' : ''}${tame.slaughter ? ' S' : ''}`];
+      return [species, creature?.name === species ? '—' : creature?.name ?? '—', r.pastureOf(id) === 0 ? '—' : `#${(buildings(ctx)?.zonesOfType('pasture') ?? []).indexOf(r.pastureOf(id)) + 1}`, `${Math.round(r.condition(id))} ${tame.trained}${tame.pregnantUntil > ctx.readers.calendar.tick ? ' P' : ''}${tame.slaughter ? ' S' : ''}`];
     }), panel.list, (i) => { panel.list.selected = i; });
   let row = rect.row + height + 1;
   separator(s, col, row, width); row += 1;
   if (panel.tab === 0) {
     label(s, col, row, '[p] pasture [s] slaughter [c] cap', { width }); row += 1;
-    label(s, col, row, '[a] assign [n] name  [t] train (M6)', { width }); row += 1;
+    label(s, col, row, '[a] assign [n] name', { width }); row += 1;
     const species = ctx.readers.entities.get(panel.selected(ctx), C.Creature)?.species;
     if (species !== undefined) label(s, col, row, panel.name.focused ? 'Name:' : `Breeding cap: ${r.breedingCap(species)}`, { width });
     if (panel.name.focused) textField(s, col + 6, row, Math.max(1, width - 10), panel.name);
   } else {
-    label(s, col, row, '[h] hunt toggle (hunting M6)', { width });
+    label(s, col, row, '[h] hunt toggle', { width });
   }
 }

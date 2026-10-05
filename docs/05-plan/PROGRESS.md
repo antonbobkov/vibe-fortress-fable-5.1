@@ -179,11 +179,11 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [ ] T-M8-06 economy re-measurement (owner Task 2) — scenario, 20-seed sweep, mood instrument, wealth decomposition and B-008 through B-012 updates.
 
 ## UI fixes ([ui-fixes/README.md](ui-fixes/README.md))
-- [ ] U-01 — Quick wins: embark default, honest messages, dead hints, small key fixes
+- [x] U-01 — Quick wins: embark default, honest messages, dead hints, small key fixes (opus-u01, 2026-10-04)
 - [ ] U-02 — Paused input takes effect at once
 - [ ] U-03 — Work orders with quantity; panel hotkeys always win
 - [ ] U-04 — Drag to place many; out-of-stock prompt
 - [ ] U-05 — Building panel
 - [ ] U-06 — Labor manager, unit and squad multi-select
 - [ ] U-07 — Stockpile editor with keyboard; room panel
-- [ ] U-08 — Tooltips, palette distances, ghosts and glyphs
+- [x] U-08 — Tooltips, palette distances, ghosts and glyphs (agy-u08, 2026-10-04)

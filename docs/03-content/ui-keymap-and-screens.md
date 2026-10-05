@@ -205,12 +205,14 @@ Shown once, as notes with a lamp glyph, when the trigger holds (checked hourly).
 | `c_retire` | "Retire {fortress}? The hall will be recorded in the Legends and cannot be resumed." | No |
 | `c_quickload` | "Load the quick save? Unsaved progress will be lost." | No |
 | `c_remove_zone_crops` | "This plot has {n} growing crops. Remove it?" | No |
-| `c_remove_stockpile_items` | "This stockpile holds {n} items. They will stay where they are. Remove it?" | Yes |
+| `c_remove_stockpile_items` | "This stockpile holds {n} items. They will stay where they are. Remove it?" | No |
 | `c_disband_squad` | "Disband {squad}? Members keep their gear." | No |
 | `c_deconstruct_workshop` | "This workshop has {n} orders. Deconstruct it?" | No |
 | `c_load_snapshot` | "Load the {season} snapshot? The current game continues to exist as its own saves." | No |
 | `c_delete_save` | "Delete {save}? This cannot be undone." | No |
 | `c_main_menu` | "Return to the main menu? Unsaved progress since {time} will be lost." | No |
+| `c_embark_no_pick` | "Embark without a pick?" | No |
+| `c_embark_no_food_drink` | "Embark without food or drink?" | No |
 
 ## Settings
 
