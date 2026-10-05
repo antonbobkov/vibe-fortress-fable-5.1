@@ -50,11 +50,11 @@ export const DESIGNATE_KINDS: readonly DesignateKind[] = [
 ];
 
 /**
- * `harvest` is 07's `DesignateHarvest` (M4); until 07 exists the row is drawn dim and cannot be
- * chosen (DECISIONS.md D-066).
+ * Every row can be chosen. `harvest` was dim until 07 existed (DECISIONS.md D-066); 07 owns
+ * `DesignateHarvest` now (audit Q9).
  */
-export function kindAvailable(kind: DesignateKind): boolean {
-  return kind.designation !== Designation.Harvest;
+export function kindAvailable(_kind: DesignateKind): boolean {
+  return true;
 }
 
 export interface TilePoint {
@@ -148,6 +148,8 @@ export class DesignateTool {
       if (a.z === b.z) return [];
       return [{ type: 'DesignateStairwell', x: a.x, y: a.y, zTop: Math.max(a.z, b.z), zBottom: Math.min(a.z, b.z), priority: this.priority }];
     }
+    // `command-catalog.md`: `DesignateHarvest { tiles[] }` is 07's, which marks the ripe crops.
+    if (kind.designation === Designation.Harvest) return [{ type: 'DesignateHarvest', tiles: rectTiles(map, a, b) }];
     const designation = kind.designation as Designation;
     const tiles = rectTiles(map, a, b).filter(
       (i) => (map.flagsAt(i) & TileFlag.Discovered) === 0 || ctx.precondition(i, designation),

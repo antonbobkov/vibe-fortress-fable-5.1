@@ -23,6 +23,17 @@ function screen(peril = 0, tempC = 12): { s: EmbarkScreen; embarked: EmbarkSessi
   return { s, embarked, back };
 }
 
+/**
+ * The party as the screen opened before U-01 (no skills, no supplies), for the tests of the
+ * skill and reroll rules themselves; the screen now opens with Balanced applied (D-U3).
+ */
+function blank(s: EmbarkScreen): void {
+  for (const line of s.session.supplies.slice()) s.session.apply({ type: 'SetSupply', entry: line.entry, count: 0 });
+  s.session.party.forEach((d, dwarf) => {
+    for (const skill of Object.keys(d.skills)) s.session.apply({ type: 'SetSkill', dwarf, skill, level: 0 });
+  });
+}
+
 function text(s: EmbarkScreen): string {
   const surf = surface(100, 45);
   s.draw(surf);
@@ -49,7 +60,8 @@ describe('T-M1-13 embark: budget and presets', () => {
     const t = text(s);
     expect(t).toContain('Balanced');
     expect(t).toContain('1,480 ☼');
-    expect(t).toContain('Budget 1,500 ☼   Spent 0   Left 1,500');
+    // U-01 (D-U3): the screen opens with Balanced applied.
+    expect(t).toContain('Budget 1,500 ☼   Spent 1,480   Left 20');
     s.key(press('Enter'));
     expect(s.session.preset).toBe('balanced');
     expect(text(s)).toContain('Spent 1,480   Left 20');
@@ -60,17 +72,20 @@ describe('T-M1-13 embark: budget and presets', () => {
     s.key(press('2'));
     s.key(press('+'));
     expect(s.edited).toBe(true);
+    const edited = s.session.total();
     s.key(press('p'));
     s.key(press('Enter'));
     expect(s.pendingPreset).toBe('balanced');
     expect(text(s)).toContain('Replace your changes with Balanced?');
     s.key(press('Enter'));
     expect(s.pendingPreset).toBeNull();
-    expect(s.session.preset).toBeNull();
+    // U-01: the screen opened with Balanced, so "No" is seen as the edit kept, not a null preset.
+    expect(s.session.total()).toBe(edited);
     s.key(press('p'));
     s.key(press('Enter'));
     s.key(press('y'));
     expect(s.session.preset).toBe('balanced');
+    expect(s.session.total()).toBe(1480);
   });
 
   it('over budget disables Embark and says by how much', () => {
@@ -104,6 +119,7 @@ describe('T-M1-13 embark: budget and presets', () => {
 describe('T-M1-13 embark: skills', () => {
   it('enforces the per-dwarf point limit and the per-skill maximum', () => {
     const { s } = screen();
+    blank(s);
     // Tab to the skills list; + raises the selected skill up to the per-skill maximum of 5.
     s.key(press('Tab'));
     expect(s.focus).toBe('skills');
@@ -123,6 +139,7 @@ describe('T-M1-13 embark: skills', () => {
 
   it('draws the selected dwarf: name, sex and age, attributes, personality; rerolls and renames', () => {
     const { s } = screen();
+    blank(s);
     const d0 = s.session.party[0];
     const t = text(s);
     expect(t).toContain(d0?.name ?? '?');

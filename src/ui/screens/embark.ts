@@ -15,6 +15,7 @@ import type { Attributes } from '@core/components';
 import type { Registry } from '@core/registry';
 import type { KeyPress } from '@platform/input';
 import { EMBARK_REROLL_COST, EmbarkSession, skillPoints, suppliesTotal, type EmbarkCommand, type EmbarkPresetRow } from '@systems/embark';
+import { EMBARK_DEFAULT_PRESET } from '../constants';
 import type { Keymap } from '../keymap';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { Strings } from '../strings';
@@ -95,6 +96,15 @@ export function marks(n: number): string {
 export interface EmbarkHost {
   embark(session: EmbarkSession): void;
   back(): void;
+  /** 24 § Confirmations: the modal dialog; without it the screen embarks as asked. */
+  confirm?(id: string, params: Readonly<Record<string, string | number>>, answer: (yes: boolean) => void): void;
+}
+
+/** What the party's supply list lacks for a working start (D-U3). */
+export interface MissingSupplies {
+  readonly pick: boolean;
+  readonly food: boolean;
+  readonly drink: boolean;
 }
 
 export interface EmbarkRegion {
@@ -149,6 +159,8 @@ export class EmbarkScreen implements Screen {
     this.traitNames = new Map(traits.ids().map((id) => [id, (traits.byId(id) as TraitRow).name]));
     const presets = registry.table<EmbarkPresetRow>('embarkPresets');
     this.presetRows = presets.ids().map((id) => presets.byId(id) as EmbarkPresetRow);
+    // `02` § Presets: "The screen opens with `balanced` applied" (D-U3, audit Q1).
+    if (presets.has(EMBARK_DEFAULT_PRESET)) this.applyPreset(EMBARK_DEFAULT_PRESET);
   }
 
   // ---------- state ----------
@@ -230,8 +242,44 @@ export class EmbarkScreen implements Screen {
     return s.get('ui.embark.skill_over_max', { name, max: EMBARK_SKILL_MAX_PER_SKILL });
   }
 
+  /**
+   * The supply lines by the item each brings: a pick is an item of the `tool/pick` category, food
+   * any `food/…` item, drink the `drink` item (`items.json` categories).
+   */
+  missing(): MissingSupplies {
+    const catalog = this.registry.table<CatalogRow & { item?: string }>('embarkCatalog');
+    const items = this.registry.table<{ id: string; category?: string }>('items');
+    const categories = this.session.supplies
+      .filter((line) => line.count > 0)
+      .map((line) => items.byId(catalog.byId(line.entry)?.item ?? '')?.category ?? '');
+    const has = (prefix: string): boolean => categories.some((c) => c === prefix || c.startsWith(`${prefix}/`));
+    return { pick: !has('tool/pick'), food: !has('food'), drink: !has('drink') };
+  }
+
+  /**
+   * `Enter` Embark. A party with no pick, or with no food or no drink, is asked first ("Embark
+   * without a pick?", "Embark without food or drink?"), the safe answer being No (D-U3).
+   */
   confirm(): void {
     if (this.reason() !== null) return;
+    const missing = this.missing();
+    const asks: string[] = [];
+    if (missing.pick) asks.push('c_embark_no_pick');
+    if (missing.food || missing.drink) asks.push('c_embark_no_food_drink');
+    const ask = (k: number): void => {
+      const id = asks[k];
+      if (id === undefined || this.host.confirm === undefined) {
+        this.embarkNow();
+        return;
+      }
+      this.host.confirm(id, {}, (yes) => {
+        if (yes) ask(k + 1);
+      });
+    };
+    ask(0);
+  }
+
+  private embarkNow(): void {
     this.apply({ type: 'SetFortressName', name: this.fortressName.value });
     if (!this.session.apply({ type: 'ConfirmEmbark' }).ok) return;
     this.host.embark(this.session);

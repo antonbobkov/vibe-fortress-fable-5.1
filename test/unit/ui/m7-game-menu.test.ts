@@ -133,7 +133,8 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
     it('every id of the content table is wired somewhere in src, with the documented default', () => {
       const table = registry.table<ConfirmRow>('confirmations');
       const sources = everySourceFile(srcDir).map((file) => readFileSync(file, 'utf8')).join('\n');
-      expect(table.ids()).toHaveLength(10);
+      // U-01 (D-U3): the two embark confirmations joined the table.
+      expect(table.ids()).toHaveLength(12);
       for (const id of table.ids()) {
         expect(sources.includes(`'${id}'`), `${id} is never asked for in src/`).toBe(true);
         const row = table.byId(id) as ConfirmRow;
@@ -144,10 +145,11 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
 
     it('Enter answers the default, y and n answer directly, Esc answers no', () => {
       const answers: boolean[] = [];
-      const yesByDefault = new ConfirmScreen(registry, strings, 'c_remove_stockpile_items', { n: 4 }, (yes) => answers.push(yes));
-      expect(yesByDefault.defaultYes).toBe(true);
-      expect(yesByDefault.text).toContain('4 items');
-      yesByDefault.key(press('Enter'));
+      // U-01 (D-U9): c_remove_stockpile_items defaults to No like every confirmation.
+      const stockpile = new ConfirmScreen(registry, strings, 'c_remove_stockpile_items', { n: 4 }, (yes) => answers.push(yes));
+      expect(stockpile.defaultYes).toBe(false);
+      expect(stockpile.text).toContain('4 items');
+      stockpile.key(press('Enter'));
       const noByDefault = new ConfirmScreen(registry, strings, 'c_remove_zone_crops', { n: 7 }, (yes) => answers.push(yes));
       expect(noByDefault.defaultYes).toBe(false);
       expect(noByDefault.text).toContain('7 growing crops');
@@ -155,7 +157,7 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       noByDefault.key(press('y'));
       noByDefault.key(press('n'));
       noByDefault.key(press('Esc'));
-      expect(answers).toEqual([true, false, true, false, false]);
+      expect(answers).toEqual([false, false, true, false, false]);
     });
 
     it('removing a farm plot with crops asks first, and removes it on yes', () => {

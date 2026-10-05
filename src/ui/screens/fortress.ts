@@ -117,6 +117,8 @@ export interface FortressHost {
   quickSave?(): void;
   quickLoad?(): void;
   gameMenu?(): void;
+  /** `Ctrl+S`: the save menu (the game menu with Save chosen). */
+  saveMenu?(): void;
   /** The debug panel's timings and its three actions (`ui-screens/panels.md` § Debug). */
   debug?: DebugHost;
   confirm?(id: string, params: Readonly<Record<string, unknown>>, answer: (yes: boolean) => void): void;
@@ -838,12 +840,14 @@ export class FortressScreen implements Screen {
       this.host.gameMenu?.();
   }
 
+  /** `+`/`-`: the next speed. While paused the game stays paused and the speed it resumes at changes (Q10). */
   private step(delta: number): void {
     const now = this.host.speed();
     const at = SPEEDS.indexOf(now === 0 ? this.lastSpeed : now);
     const next = SPEEDS[Math.max(0, Math.min(SPEEDS.length - 1, at + delta))] as Speed;
-    this.host.setSpeed(next);
     this.lastSpeed = next;
+    if (now === 0) this.notice(this.strings.get('ui.status.paused_speed', { speed: next }));
+    else this.host.setSpeed(next);
   }
 
   key(press: KeyPress): boolean {
@@ -897,6 +901,11 @@ export class FortressScreen implements Screen {
           return true;
         case 'quick_load':
           this.host.quickLoad?.();
+          return true;
+        case 'save_menu':
+          // 24 § Input model: "`Ctrl+S` save menu" (Q10).
+          if (this.host.saveMenu !== undefined) this.host.saveMenu();
+          else this.host.quickSave?.();
           return true;
         case 'help':
           this.togglePanel('help');

@@ -94,7 +94,7 @@ The hint table (content) lists `{ id, trigger: predicate over readers, text, onc
 
 ### Confirmations
 
-Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default which is always the safe option) for: mining deepsilver (once per fortress), retiring the fortress, quick load, removing a zone with crops or a stockpile with items, disbanding a squad, deconstructing a workshop with orders, loading a snapshot, deleting a save.
+Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default which is always the safe option) for: mining deepsilver (once per fortress), retiring the fortress, quick load, removing a zone with crops or a stockpile with items, disbanding a squad, deconstructing a workshop with orders, loading a snapshot, deleting a save, embarking without a pick or without food or drink. Every default is No.
 
 ### Screens outside the fortress
 

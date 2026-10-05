@@ -19,6 +19,9 @@ export const LOG_DEDUP_TICKS = 100;
 /** Rejection reason display time in the status bar (D-U4: four seconds). */
 export const STATUS_HINT_SECONDS = 4;
 
+/** `02` § Presets: the preset the embark screen opens with (D-U3). */
+export const EMBARK_DEFAULT_PRESET = 'balanced';
+
 /** Hints are evaluated once per this many game hours. */
 export const HINT_CHECK_HOURS = 1;
 

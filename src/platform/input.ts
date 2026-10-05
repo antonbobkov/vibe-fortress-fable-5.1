@@ -129,7 +129,7 @@ export class InputSource {
     options: InputOptions = {},
   ) {
     this.toLocal = options.toLocal ?? ((x, y) => ({ x, y }));
-    this.swallow = options.swallow ?? ((key) => DEFAULT_SWALLOW.has(key.key));
+    this.swallow = options.swallow ?? ((key) => DEFAULT_SWALLOW.has(key.key) || (key.ctrl && key.key.toLowerCase() === 's'));
   }
 
   attach(): void {
@@ -152,6 +152,8 @@ export class InputSource {
       this.handlers.onPointerMove?.(this.pointer(event)),
     );
     this.on(this.pointerTarget, 'wheel', (event: MouseEventLike) => {
+      // `Ctrl` + wheel is the game's zoom, not the browser's.
+      if (event.ctrlKey === true) event.preventDefault?.();
       const at = this.toLocal(event.clientX, event.clientY);
       this.handlers.onWheel?.({
         x: at.x,
@@ -175,7 +177,9 @@ export class InputSource {
 
   private on<T>(target: EventTargetLike, type: string, listener: (event: T) => void): void {
     const wrapped = listener as (event: never) => void;
-    target.addEventListener(type, wrapped);
+    // A wheel listener must not be passive, or `preventDefault` is ignored.
+    if (type === 'wheel') target.addEventListener(type, wrapped, { passive: false });
+    else target.addEventListener(type, wrapped);
     this.disposers.push(() => target.removeEventListener(type, wrapped));
   }
 }

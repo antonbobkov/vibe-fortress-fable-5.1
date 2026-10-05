@@ -11,6 +11,8 @@
   "confirm.c_deepsilver": "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Mine it?",
   "confirm.c_delete_save": "Delete {save}? This cannot be undone.",
   "confirm.c_disband_squad": "Disband {squad}? Members keep their gear.",
+  "confirm.c_embark_no_food_drink": "Embark without food or drink?",
+  "confirm.c_embark_no_pick": "Embark without a pick?",
   "confirm.c_load_snapshot": "Load the {season} snapshot? The current game continues to exist as its own saves.",
   "confirm.c_main_menu": "Return to the main menu? Unsaved progress since {time} will be lost.",
   "confirm.c_quickload": "Load the quick save? Unsaved progress will be lost.",
