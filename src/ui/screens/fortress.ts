@@ -52,7 +52,7 @@ import { DebugPanel, drawDebugPanel, type DebugHost } from '../panels/debug';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import type { UiState } from '../ui-state';
-import { editText, label, labelRow } from '../widgets';
+import { drawTooltip, editText, label, labelRow } from '../widgets';
 
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
 export const UI_PANELS: readonly PanelSpec[] = [
@@ -167,6 +167,7 @@ export class FortressScreen implements Screen {
   private middle: { col: number; row: number } | null = null;
   private lastSpeed: Speed = 1;
   private last: Surface | null = null;
+  pointer: { col: number; row: number } | null = null;
   private registered = false;
 
   constructor(
@@ -367,6 +368,7 @@ export class FortressScreen implements Screen {
     if (layout.sidebar !== null) this.drawSidebar(surface, layout.sidebar);
     drawLogStrip(surface, layout.log, this.log.lines, this.pinned, this.host.now() < this.flashUntil);
     this.drawStatus(surface, layout.status);
+    drawTooltip(surface, this.pointer);
   }
 
   /** "While dragging: the rectangle is inverted on the map"; a zone rectangle shows its tiles green or red. */
@@ -433,14 +435,15 @@ export class FortressScreen implements Screen {
     const row = this.build.current(this.ctx);
     if (ghost === null || row === undefined) return;
     const t = surface.theme;
-    const glyph = surface.glyphs.index((row as { glyph?: string }).glyph ?? '▒');
+    const okGlyph = surface.glyphs.index('▒');
+    const badGlyph = surface.glyphs.index('x');
     const m = this.host.readers.map;
     for (const i of ghost.tiles) {
       const col = (i % m.w) - this.ui.camX;
       const r = (Math.floor(i / m.w) % m.h) - this.ui.camY;
       if (col < 0 || r < 0 || col >= map.cols || r >= map.rows) continue;
       const bad = ghost.reason !== null && (ghost.bad.includes(i) || ghost.bad.length === 0);
-      surface.put(map.col + col, map.row + r, glyph, t.black, bad ? t.ghostBad : t.ghostOk);
+      surface.put(map.col + col, map.row + r, bad ? badGlyph : okGlyph, t.black, bad ? t.ghostBad : t.ghostOk);
     }
   }
 
@@ -518,6 +521,10 @@ export class FortressScreen implements Screen {
   statusRow2(): string {
     const s = this.strings;
     if (this.rejection !== null && this.host.now() < this.rejection.until) return this.rejection.text;
+    if (this.pointer !== null && this.last !== null) {
+      const tip = this.last.tooltipAt(this.pointer.col, this.pointer.row);
+      if (tip !== null) return tip.text;
+    }
     if (this.build.active) {
       const row = this.build.current(this.ctx);
       const name = row === undefined ? '' : row.name.charAt(0).toUpperCase() + row.name.slice(1);
@@ -1210,6 +1217,7 @@ export class FortressScreen implements Screen {
   // ---------- mouse ----------
 
   pointerDown(p: CellPointer): void {
+    this.pointer = { col: p.col, row: p.row };
     const at = this.pointOfCell(p.col, p.row);
     if (at === null) {
       this.clickShift = p.shift;
@@ -1285,6 +1293,7 @@ export class FortressScreen implements Screen {
   }
 
   pointerMove(p: CellPointer): void {
+    this.pointer = { col: p.col, row: p.row };
     const at = this.pointOfCell(p.col, p.row);
     this.hover = at === null ? null : this.tileOf(at);
     if (this.middle !== null) {
@@ -1307,6 +1316,7 @@ export class FortressScreen implements Screen {
   }
 
   pointerUp(p: CellPointer): void {
+    this.pointer = { col: p.col, row: p.row };
     if (p.button === 1) {
       this.middle = null;
       return;

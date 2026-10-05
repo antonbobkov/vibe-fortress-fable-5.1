@@ -75,24 +75,24 @@ export const STATE_COLORS: readonly string[] = Object.freeze([
  */
 export const COLORBLIND_ALTERNATES: Readonly<Record<string, string>> = Object.freeze({
   dwarf_need: '#FFB000',
-  dwarf_wounded: '#FF7F00',
+  dwarf_wounded: '#FF77CC',
   dwarf_soldier: '#00A2FF',
-  hostile: '#FF8C00',
-  hostile_bright: '#FFB347',
+  hostile: '#E65100',
+  hostile_bright: '#FFB74D',
   alert: '#FFB000',
   danger: '#FF7F00',
   text_good: '#00A2FF',
   text_bad: '#FF7F00',
-  text_key: '#FFB000',
-  ghost_ok: '#1E3A5F',
-  ghost_bad: '#5F351E',
+  text_key: '#FFFF55',
+  ghost_ok: '#2B558C',
+  ghost_bad: '#8C4E2B',
   trader_wildwood: '#00C8FF',
   wyrm_red: '#E64500',
   grass_green: '#3A7A9C',
-  water_1: '#40B0FF',
-  water_2: '#2090E0',
-  water_3: '#1070C0',
-  water_7: '#0050A0',
+  water_1: '#68D0FF',
+  water_2: '#1890E8',
+  water_3: '#0058B8',
+  water_7: '#002878',
 });
 
 /**
@@ -120,10 +120,149 @@ export const SIDE_BY_SIDE_STATE_PAIRS: readonly (readonly [string, string])[] = 
   ['water_2', 'water_3'],
   ['water_3', 'water_7'],
   ['water_7', 'magma_7'],
+  ['hostile', 'dwarf_wounded'],
+  ['text_key', 'alert'],
   ['trader_mountainhome', 'trader_hillfolk'],
   ['trader_mountainhome', 'trader_wildwood'],
   ['trader_hillfolk', 'trader_wildwood'],
 ]);
+
+export interface Lab {
+  readonly L: number;
+  readonly a: number;
+  readonly b: number;
+}
+
+function srgbToLinear(c: number): number {
+  const v = c / 255;
+  return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+}
+
+function fLab(t: number): number {
+  return t > 0.0088564516790356308 ? Math.cbrt(t) : t * (841 / 108) + 4 / 29;
+}
+
+/** Convert sRGB color (`0xRRGGBB`) to CIELAB under D65 standard illuminant. */
+export function rgbToLab(color: Rgb): Lab {
+  const rLin = srgbToLinear((color >> 16) & 0xff);
+  const gLin = srgbToLinear((color >> 8) & 0xff);
+  const bLin = srgbToLinear(color & 0xff);
+
+  // Standard sRGB to XYZ (D65 illuminant, 2° observer) normalized by D65 reference white
+  // Xn = 0.95047, Yn = 1.00000, Zn = 1.08883
+  const x = (rLin * 0.4124564 + gLin * 0.3575761 + bLin * 0.1804375) / 0.95047;
+  const y = (rLin * 0.2126729 + gLin * 0.7151522 + bLin * 0.0721750) / 1.00000;
+  const z = (rLin * 0.0193339 + gLin * 0.1191920 + bLin * 0.9503041) / 1.08883;
+
+  const fx = fLab(x);
+  const fy = fLab(y);
+  const fz = fLab(z);
+
+  return {
+    L: 116 * fy - 16,
+    a: 500 * (fx - fy),
+    b: 200 * (fy - fz),
+  };
+}
+
+/**
+ * CIEDE2000 color difference formula (CIE Publication 142-2001).
+ * Calculates the perceptual color distance ΔE between two CIELAB colors.
+ */
+export function ciede2000Lab(lab1: Lab, lab2: Lab): number {
+  const { L: L1, a: a1, b: b1 } = lab1;
+  const { L: L2, a: a2, b: b2 } = lab2;
+
+  const C1 = Math.sqrt(a1 * a1 + b1 * b1);
+  const C2 = Math.sqrt(a2 * a2 + b2 * b2);
+  const Cbar = (C1 + C2) / 2;
+
+  const Cbar7 = Math.pow(Cbar, 7);
+  const G = 0.5 * (1 - Math.sqrt(Cbar7 / (Cbar7 + 6103515625))); // 25^7 = 6103515625
+
+  const a1Prime = a1 * (1 + G);
+  const a2Prime = a2 * (1 + G);
+
+  const C1Prime = Math.sqrt(a1Prime * a1Prime + b1 * b1);
+  const C2Prime = Math.sqrt(a2Prime * a2Prime + b2 * b2);
+
+  const radToDeg = 180 / Math.PI;
+  const degToRad = Math.PI / 180;
+
+  function hueDeg(aP: number, bVal: number): number {
+    if (aP === 0 && bVal === 0) return 0;
+    let deg = Math.atan2(bVal, aP) * radToDeg;
+    if (deg < 0) deg += 360;
+    return deg;
+  }
+
+  const h1Prime = hueDeg(a1Prime, b1);
+  const h2Prime = hueDeg(a2Prime, b2);
+
+  const deltaLPrime = L2 - L1;
+  const deltaCPrime = C2Prime - C1Prime;
+
+  let deltahPrime = 0;
+  if (C1Prime * C2Prime !== 0) {
+    const diff = h2Prime - h1Prime;
+    if (Math.abs(diff) <= 180) {
+      deltahPrime = diff;
+    } else if (diff > 180) {
+      deltahPrime = diff - 360;
+    } else {
+      deltahPrime = diff + 360;
+    }
+  }
+
+  const deltaHPrime = 2 * Math.sqrt(C1Prime * C2Prime) * Math.sin((deltahPrime / 2) * degToRad);
+
+  const LbarPrime = (L1 + L2) / 2;
+  const CbarPrime = (C1Prime + C2Prime) / 2;
+
+  let HbarPrime = 0;
+  if (C1Prime * C2Prime === 0) {
+    HbarPrime = h1Prime + h2Prime;
+  } else {
+    const diff = Math.abs(h1Prime - h2Prime);
+    if (diff <= 180) {
+      HbarPrime = (h1Prime + h2Prime) / 2;
+    } else if (h1Prime + h2Prime < 360) {
+      HbarPrime = (h1Prime + h2Prime + 360) / 2;
+    } else {
+      HbarPrime = (h1Prime + h2Prime - 360) / 2;
+    }
+  }
+
+  const T =
+    1 -
+    0.17 * Math.cos((HbarPrime - 30) * degToRad) +
+    0.24 * Math.cos(2 * HbarPrime * degToRad) +
+    0.32 * Math.cos((3 * HbarPrime + 6) * degToRad) -
+    0.20 * Math.cos((4 * HbarPrime - 63) * degToRad);
+
+  const deltaTheta = 30 * Math.exp(-Math.pow((HbarPrime - 275) / 25, 2));
+
+  const CbarPrime7 = Math.pow(CbarPrime, 7);
+  const RC = 2 * Math.sqrt(CbarPrime7 / (CbarPrime7 + 6103515625));
+
+  const LbarMinus50Sq = Math.pow(LbarPrime - 50, 2);
+  const SL = 1 + (0.015 * LbarMinus50Sq) / Math.sqrt(20 + LbarMinus50Sq);
+  const SC = 1 + 0.045 * CbarPrime;
+  const SH = 1 + 0.015 * CbarPrime * T;
+
+  const RT = -Math.sin(2 * deltaTheta * degToRad) * RC;
+
+  const dL = deltaLPrime / SL;
+  const dC = deltaCPrime / SC;
+  const dH = deltaHPrime / SH;
+
+  return Math.sqrt(dL * dL + dC * dC + dH * dH + RT * dC * dH);
+}
+
+/** Compute CIEDE2000 perceptual distance ΔE between two RGB colors (`0xRRGGBB`). */
+export function ciede2000(c1: Rgb, c2: Rgb): number {
+  return ciede2000Lab(rgbToLab(c1), rgbToLab(c2));
+}
 
 export interface PaletteOptions {
   /**

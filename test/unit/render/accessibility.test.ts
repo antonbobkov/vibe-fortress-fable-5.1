@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { loadContent } from '@content/loader';
-import { Palette, STATE_COLORS, SIDE_BY_SIDE_STATE_PAIRS, toHex } from '@render/palette';
+import { Palette, STATE_COLORS, SIDE_BY_SIDE_STATE_PAIRS, ciede2000, toHex } from '@render/palette';
 import { prefixOf, lineText, type LogLine } from '@ui/announcements';
 import { Game } from '@app/game';
 import { SettingsStore } from '@app/settings-store';
@@ -28,18 +28,27 @@ describe('T-M8-07 colorblind palette and accessibility checks', () => {
     }
   });
 
-  it('no two state colors used side-by-side or paired are identical in either palette', () => {
+  it('U-08: every side-by-side state pair has minimum perceptual distance (CIEDE2000 ΔE >= 15) in both palettes (D-U10, M12)', () => {
     const standard = new Palette(registry, { colorblind: false });
     const colorblind = new Palette(registry, { colorblind: true });
+
+    expect(SIDE_BY_SIDE_STATE_PAIRS).toEqual(expect.arrayContaining([
+      ['hostile', 'dwarf_wounded'],
+      ['text_key', 'alert'],
+    ]));
 
     for (const [a, b] of SIDE_BY_SIDE_STATE_PAIRS) {
       const stdA = standard.color(a);
       const stdB = standard.color(b);
       expect(stdA, `standard ${a} (${toHex(stdA)}) vs ${b} (${toHex(stdB)})`).not.toBe(stdB);
+      const stdDe = ciede2000(stdA, stdB);
+      expect(stdDe, `standard ${a} (${toHex(stdA)}) vs ${b} (${toHex(stdB)}) CIEDE2000 ΔE=${stdDe.toFixed(2)} >= 15`).toBeGreaterThanOrEqual(15);
 
       const cbA = colorblind.color(a);
       const cbB = colorblind.color(b);
       expect(cbA, `colorblind ${a} (${toHex(cbA)}) vs ${b} (${toHex(cbB)})`).not.toBe(cbB);
+      const cbDe = ciede2000(cbA, cbB);
+      expect(cbDe, `colorblind ${a} (${toHex(cbA)}) vs ${b} (${toHex(cbB)}) CIEDE2000 ΔE=${cbDe.toFixed(2)} >= 15`).toBeGreaterThanOrEqual(15);
     }
   });
 

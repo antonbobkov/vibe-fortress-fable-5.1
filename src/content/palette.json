@@ -5,7 +5,7 @@
   },
   {
     "id": "alert",
-    "hex": "#FFD34D",
+    "hex": "#FFB700",
     "alt": "#FFB000"
   },
   {
@@ -293,8 +293,8 @@
   },
   {
     "id": "dwarf_wounded",
-    "hex": "#FF4040",
-    "alt": "#FF7F00"
+    "hex": "#FF6060",
+    "alt": "#FF77CC"
   },
   {
     "id": "egg_cream",
@@ -354,13 +354,13 @@
   },
   {
     "id": "ghost_bad",
-    "hex": "#502020",
-    "alt": "#5F351E"
+    "hex": "#903535",
+    "alt": "#8C4E2B"
   },
   {
     "id": "ghost_ok",
-    "hex": "#205020",
-    "alt": "#1E3A5F"
+    "hex": "#358035",
+    "alt": "#2B558C"
   },
   {
     "id": "glitter_gray",
@@ -437,13 +437,13 @@
   },
   {
     "id": "hostile",
-    "hex": "#FF3030",
-    "alt": "#FF8C00"
+    "hex": "#E60000",
+    "alt": "#E65100"
   },
   {
     "id": "hostile_bright",
-    "hex": "#FF6A6A",
-    "alt": "#FFB347"
+    "hex": "#FF7A7A",
+    "alt": "#FFB74D"
   },
   {
     "id": "hound_umber",
@@ -817,8 +817,8 @@
   },
   {
     "id": "text_key",
-    "hex": "#FFD34D",
-    "alt": "#FFB000"
+    "hex": "#FFFF55",
+    "alt": "#FFFF55"
   },
   {
     "id": "text_value",
@@ -863,23 +863,23 @@
   },
   {
     "id": "water_1",
-    "hex": "#3060C0",
-    "alt": "#40B0FF"
+    "hex": "#60C0FF",
+    "alt": "#68D0FF"
   },
   {
     "id": "water_2",
-    "hex": "#2850A8",
-    "alt": "#2090E0"
+    "hex": "#2880E0",
+    "alt": "#1890E8"
   },
   {
     "id": "water_3",
-    "hex": "#204090",
-    "alt": "#1070C0"
+    "hex": "#1848A8",
+    "alt": "#0058B8"
   },
   {
     "id": "water_7",
-    "hex": "#183078",
-    "alt": "#0050A0"
+    "hex": "#0C1C60",
+    "alt": "#002878"
   },
   {
     "id": "water_bg",
