@@ -16,7 +16,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EventType } from '@core/event-types';
 import type { AnnouncementSpec, PanelSpec } from '@core/system';
-import type { TileIndex } from '@core/types';
+import type { EntityId, TileIndex } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Layout, Rect } from '@render/cellbuffer';
 import { AnnouncementLog, type LogLine } from '../announcements';
@@ -29,7 +29,7 @@ import { confirmThen, type PanelContext } from '../panels/context';
 import { drawJobsPanel, JobsPanel } from '../panels/jobs';
 import { drawLaborsPanel, LaborsPanel } from '../panels/labors';
 import { drawStocksPanel, StocksPanel } from '../panels/stocks';
-import { drawUnitsPanel, UnitsPanel } from '../panels/units';
+import { drawUnitsPanel, dwarvesOf, UnitsPanel } from '../panels/units';
 import { drawZonesPanel, removalConfirm, ZoneTool } from '../panels/zones';
 import { countStep, drawOrdersPanel, drawWorkshopPanel, OrdersPanel } from '../panels/orders';
 import { drawAnimalsPanel, AnimalsPanel } from '../panels/animals';
@@ -122,6 +122,10 @@ export interface FortressHost {
   /** The debug panel's timings and its three actions (`ui-screens/panels.md` § Debug). */
   debug?: DebugHost;
   confirm?(id: string, params: Readonly<Record<string, unknown>>, answer: (yes: boolean) => void): void;
+  /** Open the labor manager over the fortress, with these dwarves marked or the cursor on one (U-06). */
+  laborManager?(open: { readonly marked?: readonly EntityId[]; readonly focus?: EntityId | undefined }): void;
+  /** The `text_input` dialog: a rename. The answer is the text, or null when cancelled (U-06). */
+  prompt?(spec: { readonly title: string; readonly value: string; readonly maxLength: number }, answer: (text: string | null) => void): void;
 }
 
 export class FortressScreen implements Screen {
@@ -209,6 +213,8 @@ export class FortressScreen implements Screen {
           host.confirm?.(id, params, (yes) => { if (yes) run(); });
         },
       }),
+      ...(host.laborManager === undefined ? {} : { laborManager: (open) => host.laborManager?.(open) }),
+      ...(host.prompt === undefined ? {} : { prompt: (spec, answer) => host.prompt?.(spec, answer) }),
     };
   }
 
@@ -222,6 +228,20 @@ export class FortressScreen implements Screen {
     // `panels()` gives a registered panel the key it is bound to now, or its own letter when unbound.
     for (const panel of this.panels()) if (/^[a-z]$/.test(panel.hotkey)) out.add(panel.hotkey);
     return out;
+  }
+
+  /**
+   * `Space` marks a row where a list is a multi-select (the units table, the squad's add and
+   * remove lists) instead of pausing: UI audit § 3 "`Space` to mark rows" (D-247).
+   */
+  private markKey(): boolean {
+    if (!this.ui.sidebar) return false;
+    if (this.ui.panel === 'units' && !this.units.editing && this.units.choice === null) {
+      this.units.toggleMark(this.ctx);
+      return true;
+    }
+    if (this.ui.panel === 'military') return this.military.toggleMark(this.ctx);
+    return false;
   }
 
   /** The tool whose rectangle the map shows: the designate or the zone tool. */
@@ -830,6 +850,7 @@ export class FortressScreen implements Screen {
       this.units.editing = false;
       return;
     }
+    if (this.units.choice !== null) { this.units.choice = null; return; }
     if (this.zones.anchor !== null) {
       this.zones.anchor = null;
       this.zones.end = null;
@@ -890,6 +911,7 @@ export class FortressScreen implements Screen {
       this.pinned = null;
       return true;
     }
+    if ((press.key === ' ' || press.key === 'Space') && !press.ctrl && !press.alt && !press.meta && this.markKey()) return true;
     // The order picker and the material list are modal: they take every key they use (letters
     // are the picker's type-ahead filter) and leave the rest (`Space`, `F5`) to the screen.
     if (this.ui.panel === 'orders' && (this.orders.materialOpen || this.orders.picker.open) && this.orders.key(this.ctx, press)) return true;
@@ -1190,6 +1212,8 @@ export class FortressScreen implements Screen {
           this.units.list.selected = 0;
           return true;
         }
+        // U-06: marks, titles, rename, squads, sleep hour, and the open chooser's keys.
+        if (this.units.key(ctx, press)) return true;
         if (k === '/') {
           this.units.editing = true;
           return true;
@@ -1269,6 +1293,11 @@ export class FortressScreen implements Screen {
           return true;
         }
         if (letter === 'a') return submit(this.labors.toggleRow(ctx));
+        // U-06: the labor manager, with the cursor on the selected dwarf.
+        if (k === 'Enter') {
+          ctx.laborManager?.({ focus: dwarvesOf(ctx)[this.labors.selectedRow] });
+          return true;
+        }
         return false;
       case 'military':
         return this.military.key(ctx, press, this.host);

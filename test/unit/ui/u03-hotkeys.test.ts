@@ -5,6 +5,7 @@
  * single-key action asks through the confirmation dialog, default No.
  */
 import { describe, expect, it } from 'vitest';
+import { Game } from '@app/game';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { C } from '@core/components';
 import type { Command } from '@core/commands';
@@ -16,6 +17,7 @@ import { ConfirmScreen } from '@ui/screens/confirm';
 import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
 import { defaultUiState } from '@ui/ui-state';
 import { TestWorld } from '../../scenarios/test-world';
+import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import { keymap, press, registry, strings, surface } from './ui-fixture';
 
 const z = FLAT_TEST_SURFACE_Z;
@@ -56,6 +58,8 @@ interface Fixture {
   readonly screen: FortressScreen;
   readonly sent: Command[];
   readonly asked: Asked[];
+  /** Each time the screen asked for the labor manager (U-06). */
+  readonly managers: unknown[];
 }
 
 /** A fresh screen over the world; `answer` is what the dialog says (null: there is no dialog). */
@@ -63,6 +67,7 @@ function screenOf(world: World, answer: boolean | null = false, keys: Keymap = k
   const { w } = world;
   const sent: Command[] = [];
   const asked: Asked[] = [];
+  const managers: unknown[] = [];
   const host: FortressHost = {
     readers: w.readers,
     registry: w.game.registry,
@@ -80,6 +85,7 @@ function screenOf(world: World, answer: boolean | null = false, keys: Keymap = k
     registeredPanels: () => w.game.world.registrations.panels,
     announcements: () => w.game.world.registrations.announcements,
     now: () => 1000,
+    laborManager: (open) => { managers.push(open); },
     ...(answer === null ? {} : {
       confirm: (id: string, params: Readonly<Record<string, unknown>>, reply: (yes: boolean) => void): void => {
         asked.push({ id, params: params as Record<string, unknown> });
@@ -87,7 +93,7 @@ function screenOf(world: World, answer: boolean | null = false, keys: Keymap = k
       },
     }),
   };
-  return { screen: new FortressScreen(host, keys, strings), sent, asked };
+  return { screen: new FortressScreen(host, keys, strings), sent, asked, managers };
 }
 
 /** Every state a panel letter must still work in: each panel, and each panel with something selected or a tool chosen. */
@@ -105,7 +111,12 @@ const STATES: readonly { readonly name: string; readonly open: (f: Fixture, worl
   { name: 'zones with a zone selected', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; } },
   { name: 'stocks picking goods for the depot', open: (f) => { f.screen.openPanel('stocks'); f.screen.stocks.startDepot(1); } },
   { name: 'military setting a station', open: (f) => { f.screen.openPanel('military'); f.screen.military.settingStation = true; } },
-  { name: 'military choosing a member', open: (f) => { f.screen.openPanel('military'); f.screen.military.memberChoice = { kind: 'add', selected: 0 }; } },
+  // U-06's lists and choosers: marks, the squad's add list, the leader and title choosers.
+  { name: 'military choosing members to add', open: (f) => { f.screen.openPanel('military'); f.screen.military.openChoice(f.screen.ctx, 'add'); expect(f.screen.military.memberChoice?.kind).toBe('add'); } },
+  { name: 'military with a member marked', open: (f) => { f.screen.openPanel('military'); f.screen.military.openChoice(f.screen.ctx, 'add'); f.screen.key(press(' ')); expect(f.screen.military.memberChoice?.marks.size).toBe(1); } },
+  { name: 'units with a dwarf marked', open: (f) => { f.screen.openPanel('units'); f.screen.key(press(' ')); expect(f.screen.units.marks.size).toBe(1); } },
+  { name: 'units choosing a title', open: (f) => { f.screen.openPanel('units'); f.screen.key(press('T', { shift: true })); expect(f.screen.units.choice?.kind).toBe('title'); } },
+  { name: 'units choosing a squad', open: (f) => { f.screen.openPanel('units'); f.screen.key(press('M', { shift: true })); expect(f.screen.units.choice?.kind).toBe('squad'); } },
   { name: 'civilizations choosing a request', open: (f) => { f.screen.openPanel('civilizations'); f.screen.civilizations.choosingRequest = true; } },
   { name: 'a map selection', open: (f) => { f.screen.look({ x: 36, y: 36, z }); f.screen.selection = { a: { x: 36, y: 36, z }, b: { x: 37, y: 37, z } }; } },
   { name: 'no panel', open: (f) => f.screen.openPanel(null) },
@@ -133,6 +144,7 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
         // It did nothing else: no command, no question, no tool left behind from the old panel.
         expect(f.sent, `${key} in ${state.name}`).toEqual([]);
         expect(f.asked, `${key} in ${state.name}`).toEqual([]);
+        expect(f.managers, `${key} in ${state.name}`).toEqual([]);
         if (id !== 'build') expect(f.screen.build.active).toBe(false);
         if (id !== 'zones') expect(f.screen.zones.active).toBe(false);
         if (id !== 'designate') expect(f.screen.tool.active).toBe(false);
@@ -190,6 +202,11 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
       { open: (f) => f.screen.openPanel('designate'), key: 'c', check: (f) => expect(f.screen.tool.kind).toBe('channel') },
       { open: (f) => { f.screen.openPanel('mood'); f.screen.mood.sorted = false; }, key: 's', check: (f) => expect(f.screen.mood.sorted).toBe(true) },
       { open: (f) => { f.screen.workshopId = shared.busyShop; f.screen.openPanel('workshop'); }, key: 'o', check: (f) => expect(f.screen.orders.workshopId).toBe(shared.busyShop) },
+      // U-06's accelerators follow the same rule.
+      { open: (f) => f.screen.openPanel('units'), key: 't', check: (f) => expect(f.screen.units.choice?.kind).toBe('title') },
+      { open: (f) => f.screen.openPanel('units'), key: 'm', check: (f) => expect(f.screen.units.choice?.kind).toBe('squad') },
+      { open: (f) => f.screen.openPanel('military'), key: 'a', check: (f) => expect(f.screen.military.memberChoice?.kind).toBe('add') },
+      { open: (f) => { f.screen.openPanel('units'); f.screen.key(press(' ')); }, key: 'l', check: (f) => expect(f.managers).toHaveLength(1) },
     ];
     for (const c of cases) {
       const f = screenOf(shared);
@@ -204,6 +221,30 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
     f.screen.openPanel('military');
     f.screen.key(press('y'));
     expect(f.sent).toEqual([{ type: 'SetSquadPatrol', squadId: shared.squad, tiles: [] }]);
+  });
+
+  it('the labor manager is a screen of its own: a panel letter there never reaches the fortress', async () => {
+    const game = new Game({ canvas: new MockCanvas(), seed: 'u03-labor-manager', registry, createCanvas: mockCanvasFactory(), devicePixelRatio: 1, width: 1280, height: 800 });
+    await game.start({ embark: 'default' });
+    const sent: Command[] = [];
+    game.handleKey(press('l'));
+    game.handleKey(press('Enter'));
+    expect(game.screen).toBe('labor_manager');
+    const submit = game.host.submit.bind(game.host);
+    game.host.submit = (cmd: Command) => { sent.push(cmd); return submit(cmd); };
+    for (const { key } of FORTRESS_PANEL_KEYS) {
+      expect(game.handleKey(press(key)), key).toBe(true);
+      expect(game.screen, key).toBe('labor_manager');
+      expect(game.ui.panel, key).toBe('labors');
+    }
+    // Its own letters (`a` row, `c` column, `t` templates) are labor toggles: nothing destructive, no question.
+    expect(sent.every((cmd) => cmd.type === 'SetLabor' || cmd.type === 'SetLaborPriority')).toBe(true);
+    game.handleKey(press('Esc'));
+    game.handleKey(press('Esc'));
+    expect(game.screen).toBe('fortress');
+    // Back on the fortress the panel letters work at once.
+    game.handleKey(press('s'));
+    expect(game.ui.panel).toBe('stocks');
   });
 
   it('a focused text field takes letters as text', () => {

@@ -57,6 +57,8 @@ import { BUNDLED_FONT_FAMILY, FLUID_ANIM_MS, LOG_ROWS } from '@render/constants'
 import { ConfirmScreen } from '@ui/screens/confirm';
 import { LoadScreen, type SaveListing } from '@ui/screens/load';
 import { TradeSessionScreen } from '@ui/screens/trade_session';
+import { LaborManagerScreen, type LaborManagerOpen } from '@ui/screens/labor_manager';
+import { TextInputScreen, type TextInputSpec } from '@ui/screens/text_input';
 import { SettingsScreen } from '@ui/screens/settings';
 import { LegendScreen } from '@ui/screens/legend';
 import { GameMenuScreen } from '@ui/screens/game_menu';
@@ -265,6 +267,8 @@ export class Game {
         hashWorld: () => this.noteWorldHash(),
       },
       confirm: (id, params, answer) => this.confirm(id, params as Readonly<Record<string, string | number>>, answer),
+      laborManager: (open) => this.openLaborManager(open),
+      prompt: (spec, answer) => this.prompt(spec, answer),
     };
   }
 
@@ -647,6 +651,37 @@ export class Game {
       this.render();
     });
     this.pushScreen(dialog);
+    this.render();
+  }
+
+  /** Push the `text_input` dialog; the answer (null when cancelled) pops it. */
+  prompt(spec: TextInputSpec, answer: (text: string | null) => void): void {
+    const dialog = new TextInputScreen(spec, this.strings, (text) => {
+      if (this.top() === dialog) this.popScreen();
+      answer(text);
+      this.render();
+    });
+    this.pushScreen(dialog);
+    this.render();
+  }
+
+  /**
+   * The labor manager over the fortress (`ui-screens/panels.md` § Labor manager, U-06). The
+   * simulation keeps its speed under it; its commands apply at the next command phase.
+   */
+  openLaborManager(open: LaborManagerOpen = {}): void {
+    if (!this.host.started || this.top() !== FORTRESS) return;
+    const screen = new LaborManagerScreen({
+      readers: this.host.readers,
+      registry: this.registry,
+      strings: this.strings,
+      submit: (command) => this.host.submit(command),
+      back: () => {
+        if (this.top() === screen) this.popScreen();
+        this.render();
+      },
+    }, open);
+    this.pushScreen(screen);
     this.render();
   }
 

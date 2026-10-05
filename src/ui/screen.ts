@@ -23,6 +23,7 @@ export type ScreenId =
   | 'settings'
   | 'load'
   | 'trade_session'
+  | 'labor_manager'
   | 'confirm'
   | 'text_input';
 

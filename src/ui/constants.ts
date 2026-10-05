@@ -59,3 +59,37 @@ export const ORDER_RECENT_MAX = 5;
 
 /** Finished orders the order list keeps as `done` rows for `[r] repeat`. */
 export const ORDER_FINISHED_MAX = 3;
+
+/**
+ * The labor manager (`ui-screens/panels.md` § Labor manager; UI audit M5). The column heads are the
+ * labor names written downward, cut to this many rows; every labor name is unique within them.
+ */
+export const LABOR_HEADER_ROWS = 9;
+
+/** The dwarf-name column of the labor manager, in cells: as wide as the screen allows between these. */
+export const LABOR_NAME_COLS_MIN = 14;
+export const LABOR_NAME_COLS_MAX = 24;
+
+/** One labor column of the labor manager, in cells: as wide as the screen allows between these. */
+export const LABOR_CELL_COLS_MIN = 2;
+export const LABOR_CELL_COLS_MAX = 4;
+
+/**
+ * The profession templates of the labor manager: applying one turns exactly these labors on and
+ * every other labor off (D-246). Hauling stays on in the working professions because haul jobs
+ * rank below default work (`HAUL_PRIORITY`, 11 § Tuning constants); a soldier keeps none.
+ */
+export const LABOR_TEMPLATES: readonly { readonly id: string; readonly labors: readonly string[] }[] = Object.freeze([
+  { id: 'miner', labors: ['mining', 'hauling'] },
+  { id: 'hauler', labors: ['hauling'] },
+  { id: 'farmer', labors: ['farming', 'herbalism', 'brewing', 'cooking', 'hauling'] },
+  { id: 'crafter', labors: ['carpentry', 'masonry', 'crafts', 'mechanics', 'gem_cutting', 'leather', 'textiles', 'smelting', 'smithing', 'hauling'] },
+  { id: 'soldier', labors: [] },
+  { id: 'none', labors: [] },
+]);
+
+/** The titles a dwarf can hold, in the title table's order (10 § Titles). */
+export const TITLE_IDS = ['thane', 'warden', 'broker', 'chief_medic'] as const;
+
+/** `RenameSquad`: a name of at most 32 characters (16's `renameSquad`). */
+export const SQUAD_NAME_MAX_CHARS = 32;

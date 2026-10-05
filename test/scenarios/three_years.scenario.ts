@@ -1,32 +1,29 @@
+import { stepThreeYears, threeYearsMeasurements } from './three_years_measurements';
 /**
  * The three-years scenario (T-M8-06): extends the year-one bootstrap across three full years.
  *
- * Runs on seed `three-years` (flat-test 48×48, serene_vale peril-0 region, Balanced embark),
+ * Runs on seed `three-years` (generated wealth-2 48×48 map, serene_vale peril-0, Balanced embark),
  * asserting the deterministic guarantees named in `balance.md` § Mood floor and the no-spiral
  * guarantee and `M8-polish.md` (mood floor, no spiral, caps), and reporting the measured balance
  * table for consumption, wealth curve, immigration, and mood distribution.
  */
 
 import { expect } from 'vitest';
-import { buildFlatTestMap, FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { DAYS_PER_YEAR, TICKS_PER_DAY, POPULATION_CAP_DEFAULT, MOOD_MIN } from '@core/constants';
 import { C } from '@core/components';
 import { POSITIVE_CAP, NEED_PRESSURE_CAP, MOOD_NEEDS_MET_FLOOR } from '@systems/morale/mood';
 import { WAVE_MAX } from '@systems/immigration/constants';
 import { deathCounts } from './death-counts';
-import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import type { Scenario } from './runner';
-import { TestWorld } from './test-world';
 import {
   setupThreeYearsFortress,
+  threeYearsWorld,
   checkFortressWorkOrders,
   checkFortressRooms,
   checkFortressCaveFarm,
   checkFortressDefense,
 } from './three_years_fortress';
-
-const Z = FLAT_TEST_SURFACE_Z;
 
 export interface ThreeYearsRow {
   readonly metric: string;
@@ -39,35 +36,21 @@ const scenario: Scenario = {
   milestone: 8,
   timeoutMs: 300_000,
   seed: 'three-years',
-  world: 'flat-test',
+  world: { region: { wealth: 2, peril: 0, biome: 'temperate_forest', geology: 'mixed', traits: ['serene_vale'], river: { class: 'brook', inflow: ['w'], outflow: 's' } } },
   embark: 'default',
-  run: (outer) => {
-    const registry = outer.game.registry;
-    const map = buildFlatTestMap(registry, 48, 48);
-    const w = new TestWorld({ seed: 'three-years', registry, map, embark: 'default' });
-
+  run: () => {
+    const w = threeYearsWorld('three-years');
     const state = setupThreeYearsFortress(w);
-    const cx = state.cx;
-    const cy = state.cy;
-    const buildings = w.readers.of<BuildingsReader>('14');
 
     // Advance bootstrap period (20 days)
     const totalTicksBootstrap = 20 * TICKS_PER_DAY;
     while (w.tick < totalTicksBootstrap) {
-      w.step(Math.min(100, totalTicksBootstrap - w.tick));
+      stepThreeYears(w, Math.min(100, totalTicksBootstrap - w.tick));
       checkFortressWorkOrders(w, state);
       checkFortressRooms(w, state);
       checkFortressCaveFarm(w, state);
       checkFortressDefense(w, state);
     }
-
-    // Trade depot
-    for (const at of [w.index(cx - 9, cy + 4, Z), w.index(cx - 9, cy + 8, Z), w.index(cx + 8, cy + 14, Z)]) {
-      if (buildings.ghost('trade_depot', at, 0).reason !== null) continue;
-      const placed = w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'trade_depot', origin: at, orientation: 0, materialChoice: 0 });
-      if (placed.ok) break;
-    }
-    w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', priority: 1 }] });
 
     // Tracking
     const waves: { day: number; count: number; guaranteed: boolean }[] = [];
@@ -82,7 +65,7 @@ const scenario: Scenario = {
         if (e.type === 'ImmigrantsArrived') {
           waves.push({ day, count: Number(e['count'] ?? 0), guaranteed: e['guaranteed'] === true });
         } else if (e.type === 'RaidArrived') {
-          raids.push({ day, kind: String(e['threatKind'] ?? 'raid'), size: Number(e['size'] ?? 0) });
+          raids.push({ day, kind: String(e['kind'] ?? 'raid'), size: Number(e['size'] ?? 0) });
         } else if (e.type === 'MealEaten') {
           mealsEaten += 1;
         } else if (e.type === 'DrankAlcohol') {
@@ -106,7 +89,7 @@ const scenario: Scenario = {
     let y3Pop = 0;
 
     while (w.tick < totalTicks) {
-      w.step(Math.min(300, totalTicks - w.tick));
+      stepThreeYears(w, Math.min(300, totalTicks - w.tick));
       checkFortressWorkOrders(w, state);
       checkFortressRooms(w, state);
       checkFortressCaveFarm(w, state);
@@ -122,6 +105,16 @@ const scenario: Scenario = {
     }
 
     unsubscribe();
+    const economy = threeYearsMeasurements(w);
+    console.log(`three_years economy: ${JSON.stringify({ years: economy.years, minerals: economy.minerals, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
+
+    // Witness the real production chains, independently of any target wealth figure.
+    for (const recipe of ['craft_stone', 'make_charcoal', 'cut_gem', 'forge_pick', 'forge_mail_shirt', 'forge_crafts', 'alloy_steel']) {
+      expect(economy.recipes[recipe] ?? 0, `${recipe} completed through normal jobs`).toBeGreaterThan(0);
+    }
+    expect(economy.years[2]?.engraved ?? 0, 'halls engraved through terrain jobs').toBeGreaterThan(0);
+    expect(economy.caravans.filter((c) => c.state === 'TradeCompleted').length, 'trade with each visiting caravan')
+      .toBe(economy.caravans.filter((c) => c.state === 'CaravanArrived').length);
 
     y3Wealth = items.wealth();
     const livingDwarves = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress');
@@ -171,7 +164,10 @@ const scenario: Scenario = {
     const avgMood = moods.length > 0 ? (sumMood / moods.length).toFixed(1) : 'N/A';
 
     // Balance reporting table
-    const totalDwarfDays = 7 * 28 + (waves[0]?.count ? (7 + waves[0].count) * 28 : 0) + y3Pop * (3 * DAYS_PER_YEAR - 56);
+    const totalDwarfDays = economy.dwarfTicks / TICKS_PER_DAY;
+    mealsEaten = economy.meals;
+    drinksAlcohol = economy.alcohol;
+    drinksWater = economy.water;
     const mealsPerDwarfDay = totalDwarfDays > 0 ? (mealsEaten / totalDwarfDays).toFixed(2) : '0';
     const drinksPerDwarfDay = totalDwarfDays > 0 ? ((drinksAlcohol + drinksWater) / totalDwarfDays).toFixed(2) : '0';
 

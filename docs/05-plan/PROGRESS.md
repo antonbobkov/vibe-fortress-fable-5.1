@@ -123,6 +123,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] F-14 — Immigration spirit threshold 65 → 55 (agy-f14, 2026-10-03)
 - [x] F-15 — Bandits who reach their stockpile steal and leave; a failed walk means unreachable (agy-f15, 2026-10-03)
 - [x] F-16 — A civilian with no reachable shelter does not freeze (codex-f16, 2026-10-03)
+- [ ] F-17 — Balance follow-ups from the economy fortress
 
 ## M6 — Steel and Blood ([M6-steel-and-blood.md](M6-steel-and-blood.md))
 
@@ -173,12 +174,17 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M8-09 — Release build (codex-m809, 2026-10-04)
 - [x] T-M8-10 — Gate M8 — release (claude-opus, 2026-10-04)
 
+## Post-release owner balance workstream (2026-10-04)
+
+- [x] T-M8-06 economy fixture (owner Task 1) — real generated wealth-2 resources, production, halls and caravan trading; preserve all guarantees and three perils (GPT-6.1 Sol, 2026-10-04; D-225).
+- [x] T-M8-06 economy re-measurement (owner Task 2) — scenario, 20-seed sweep, mood instrument, wealth decomposition and B-008 through B-012 updates (GPT-6.1 Sol, 2026-10-05).
+
 ## UI fixes ([ui-fixes/README.md](ui-fixes/README.md))
 - [x] U-01 — Quick wins: embark default, honest messages, dead hints, small key fixes (opus-u01, 2026-10-04)
 - [ ] U-02 — Paused input takes effect at once
 - [ ] U-03 — Work orders with quantity; panel hotkeys always win
 - [ ] U-04 — Drag to place many; out-of-stock prompt
 - [ ] U-05 — Building panel
-- [ ] U-06 — Labor manager, unit and squad multi-select
+- [x] U-06 — Labor manager, unit and squad multi-select (opus-u06, 2026-10-05)
 - [ ] U-07 — Stockpile editor with keyboard; room panel
 - [x] U-08 — Tooltips, palette distances, ghosts and glyphs (agy-u08, 2026-10-04)

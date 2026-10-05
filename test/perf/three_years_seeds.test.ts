@@ -1,3 +1,4 @@
+import { stepThreeYears, threeYearsMeasurements } from '../scenarios/three_years_measurements';
 /**
  * 20-seed sweep across three regions (peril 0, 2, 4) for T-M8-06 (DECISIONS D-204).
  *
@@ -11,17 +12,13 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { buildFlatTestMap, FLAT_TEST_SURFACE_Z, regionSpec } from '@app/headless';
-import { contentRegistry } from '@content/loader';
 import { DAYS_PER_YEAR, TICKS_PER_DAY, POPULATION_CAP_DEFAULT, MOOD_MIN } from '@core/constants';
 import { C } from '@core/components';
 import { NEED_PRESSURE_CAP, MOOD_NEEDS_MET_FLOOR } from '@systems/morale/mood';
 import { WAVE_MAX } from '@systems/immigration/constants';
-import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import type { MoraleReader } from '@systems/morale/reader';
 import type { ThreatsReader } from '@systems/threats/reader';
-import { TestWorld } from '../scenarios/test-world';
 import { deathCounts } from '../scenarios/death-counts';
 import {
   setupThreeYearsFortress,
@@ -29,10 +26,8 @@ import {
   checkFortressRooms,
   checkFortressCaveFarm,
   checkFortressDefense,
-  threeYearsEmbark,
+  threeYearsWorld,
 } from '../scenarios/three_years_fortress';
-
-const Z = FLAT_TEST_SURFACE_Z;
 
 export interface SeedConfig {
   readonly seed: string;
@@ -98,35 +93,18 @@ export interface ThreeYearsSeedResult {
 }
 
 export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedResult {
-  const w = new TestWorld({
-    seed,
-    map: buildFlatTestMap(undefined, 48, 48),
-    spec: regionSpec(seed, { peril }),
-    embark: threeYearsEmbark(contentRegistry(), seed, peril),
-  });
-
+  const w = threeYearsWorld(seed, peril);
   const state = setupThreeYearsFortress(w);
-  const cx = state.cx;
-  const cy = state.cy;
-  const buildings = w.readers.of<BuildingsReader>('14');
 
   // Advance bootstrap period (20 days)
   const totalTicksBootstrap = 20 * TICKS_PER_DAY;
   while (w.tick < totalTicksBootstrap) {
-    w.step(Math.min(100, totalTicksBootstrap - w.tick));
+    stepThreeYears(w, Math.min(100, totalTicksBootstrap - w.tick));
     checkFortressWorkOrders(w, state);
     checkFortressRooms(w, state);
     checkFortressCaveFarm(w, state);
     checkFortressDefense(w, state);
   }
-
-  // Depot
-  for (const at of [w.index(cx - 9, cy + 4, Z), w.index(cx - 9, cy + 8, Z), w.index(cx + 8, cy + 14, Z)]) {
-    if (buildings.ghost('trade_depot', at, 0).reason !== null) continue;
-    const placed = w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'trade_depot', origin: at, orientation: 0, materialChoice: 0 });
-    if (placed.ok) break;
-  }
-  w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', priority: 1 }] });
 
   // Tracking
   const waves: { day: number; count: number; guaranteed: boolean }[] = [];
@@ -189,12 +167,11 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
 
   while (w.tick < totalTicks) {
     const living = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress');
-    if (w.tick > totalTicksBootstrap && living.length === 0) {
+    if (w.tick > totalTicksBootstrap && living.length === 0 && extinctDay === null) {
       extinctDay = Math.floor(w.tick / TICKS_PER_DAY) + 1;
-      break;
     }
 
-    w.step(Math.min(300, totalTicks - w.tick));
+    stepThreeYears(w, Math.min(300, totalTicks - w.tick));
     checkFortressWorkOrders(w, state);
     checkFortressRooms(w, state);
     checkFortressCaveFarm(w, state);
@@ -255,6 +232,9 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   const deaths = deathCounts(w);
   const avgMood = moods.length > 0 ? (sumMood / moods.length).toFixed(1) : 'extinct';
 
+  const economy = threeYearsMeasurements(w);
+  console.log(`[three_years_economy] ${JSON.stringify({ seed, peril, years: economy.years, deathsList, raids, minerals: economy.minerals, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
+
   // Assert deterministic guarantees
   if (peril === 0) {
     expect(deaths.dwarf, `${seed} (peril 0) has 0 dwarf deaths`).toBe(0);
@@ -265,7 +245,10 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     expect(wave.count, `${seed} wave size within WAVE_MAX`).toBeLessThanOrEqual(WAVE_MAX);
   }
 
-  const totalDwarfDays = 7 * 28 + (waves[0]?.count ? (7 + waves[0].count) * 28 : 0) + y3Pop * (3 * DAYS_PER_YEAR - 56);
+  const totalDwarfDays = economy.dwarfTicks / TICKS_PER_DAY;
+  mealsEaten = economy.meals;
+  drinksAlcohol = economy.alcohol;
+  drinksDrunk = economy.alcohol + economy.water;
   const mealsPerDwarfDay = totalDwarfDays > 0 ? (mealsEaten / totalDwarfDays).toFixed(2) : '0';
   const drinksPerDwarfDay = totalDwarfDays > 0 ? (drinksDrunk / totalDwarfDays).toFixed(2) : '0';
 

@@ -124,7 +124,7 @@ Fortress-wide toggles owned here and read by producers: `autoHarvest` (07), `aut
 - Designation priority is set while designating (keys 1–9) or afterward (`SetDesignationPriority`).
 - Work orders have a priority field.
 - Buildings have a priority field (build job).
-- Labor priorities are a row of 1–9 in the jobs panel.
+- Labor priorities are a row of 1–9 in the labor manager (`SetLaborPriority`); the jobs panel shows them.
 - Hauling priority is per stockpile.
 
 Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to wants (10).
@@ -166,7 +166,7 @@ Panel `jobs` (open jobs with worker and reason; labor priorities; standing order
 ## Player-facing behavior
 
 - Jobs panel: a list sorted by priority with columns: job, target (clickable to center), priority (editable), worker or reason. The reason names the missing item type and count ("waiting: 1 door"), and the selected job's reason also says where the item is made when one to three workshops make it ("— order at a carpenter's workshop"). A summary line: "42 open, 18 claimed, 6 blocked (4 unreachable, 2 missing materials)". Filters by labor and state.
-- Labor grid: rows are dwarves, columns are labors; click to toggle; shift-click toggles a column for everyone; a number row above sets labor priorities.
+- Labor grid: rows are dwarves, columns are labors; click to toggle; shift-click toggles a column for everyone; a number row above sets labor priorities. The labors panel is the quick view of the grid; the labor manager is the grid as a full-window screen with every labor named, the priority row, multi-select of dwarves and profession templates (Miner, Hauler only, Farmer, Crafter, Soldier, Everything off).
 - The look cursor on a designation shows its job state ("Dig, priority 3, claimed by Orm Ashbrow").
 - Hints: "No one has mining enabled", "Jobs are blocked: no path (check for doors and water)".
 

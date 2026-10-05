@@ -66,6 +66,9 @@ const CONTEXT_TITLES: Readonly<Record<string, string>> = Object.freeze({
   embark: 'Embark',
   trade_session: 'Trade session',
   fortress_panel: 'Fortress panels',
+  labor_manager: 'Labor manager',
+  units_panel: 'Units panel',
+  military_panel: 'Military panel',
 });
 
 /** § Terrain, the solid rows: the glyph the compositor draws and the thing it draws. */
