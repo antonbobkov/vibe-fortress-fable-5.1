@@ -87,10 +87,10 @@ describe('U-01 silent no-ops get a status message (§4.2, Q6)', () => {
     expect(screen.statusRow2()).toBe(`There can be at most ${SQUAD_MAX_COUNT} squads.`);
   });
 
-  it('[t] trade without a depot says so', () => {
+  it('[S-t] trade without a depot says so (U-03: `t` opens Threats)', () => {
     const { screen, sent } = setup('u01-trade');
     screen.openPanel('depot');
-    expect(screen.key(press('t'))).toBe(true);
+    expect(screen.key(press('t', { shift: true }))).toBe(true);
     expect(sent).toEqual([]);
     expect(screen.statusRow2()).toBe('There is no trade depot: build one [b › Special].');
   });

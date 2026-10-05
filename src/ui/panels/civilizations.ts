@@ -7,7 +7,7 @@ import { REQUEST_MAX, type TradeReader, type TradeRequest } from '@systems/trade
 import { itemName } from '../messages';
 import type { Surface } from '../surface';
 import { label } from '../widgets';
-import type { PanelContext } from './context';
+import { accel, type PanelContext } from './context';
 
 export const TRADE_CIVILIZATIONS: readonly Civ[] = ['mountainhome', 'hillfolk', 'wildwood'];
 const CIV_NAMES: Readonly<Record<Civ, string>> = { mountainhome: 'Mountainhome', hillfolk: 'Hillfolk', wildwood: 'Wildwood', gloam: 'Gloam' };
@@ -31,7 +31,8 @@ export class CivilizationsPanel {
 
   key(ctx: PanelContext, press: KeyPress, openTrade: () => void): boolean {
     const k = press.key;
-    const letter = k.length === 1 ? k.toLowerCase() : '';
+    // `d`, `t`, `a` and `p` open panels: the panel's own use of them takes `Shift` (D-U2).
+    const letter = accel(ctx, press);
     if (this.choosingRequest) {
       const candidates = this.candidates(ctx);
       if (k === 'ArrowUp' || k === '↑') { this.candidate = Math.max(0, this.candidate - 1); return true; }
@@ -51,7 +52,7 @@ export class CivilizationsPanel {
     if (letter === 'd') { ctx.openPanel('depot'); return true; }
     if (letter === 't') { openTrade(); return true; }
     const entries = this.trade(ctx).requests(this.civ());
-    if (letter === '+' || letter === 'a') { this.choosingRequest = true; this.candidate = 0; return true; }
+    if (k === '+' || letter === 'a') { this.choosingRequest = true; this.candidate = 0; return true; }
     if (k === 'ArrowLeft' || k === '←') { this.requestSelected = Math.max(0, this.requestSelected - 1); return true; }
     if (k === 'ArrowRight' || k === '→') { this.requestSelected = Math.min(entries.length - 1, this.requestSelected + 1); return true; }
     const entry = entries[this.requestSelected];
@@ -98,14 +99,14 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
     label(s, col, row++, `Add: ${itemName(ctx.registry, candidates[panel.candidate] ?? '')}`, { fg: s.theme.key, width });
     label(s, col, row++, '[↑/↓] item [Enter] add [Esc] cancel', { fg: s.theme.dim, width });
   }
-  if (row < rect.row + rect.rows - 4) label(s, col, row++, '[←/→] request [p] priority [x] remove', { fg: s.theme.dim, width });
+  if (row < rect.row + rect.rows - 4) label(s, col, row++, '[←→] pick [S-p] prio [x] remove', { fg: s.theme.dim, width });
   if (row < rect.row + rect.rows - 3) label(s, col, row++, 'Reputation log', { fg: s.theme.key, width });
   for (const entry of trade.reputationLog(civ).slice(-2).reverse()) {
     if (row >= rect.row + rect.rows - 2) break;
     label(s, col, row++, `${entry.delta >= 0 ? '+' : ''}${entry.delta} ${entry.reason} (${formatDate(entry.tick)})`, { width });
   }
   const footer = rect.row + rect.rows - 1;
-  label(s, col, footer, '[d] depot panel  [t] trade now', { fg: s.theme.key, width });
+  label(s, col, footer, '[S-d] depot  [S-t] trade now', { fg: s.theme.key, width });
   s.hit({ col, row: footer, cols: 15, rows: 1 }, () => ctx.openPanel('depot'));
   s.hit({ col: col + 17, row: footer, cols: 13, rows: 1 }, openTrade);
 }

@@ -157,8 +157,10 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
       w.step(1);
       expect((w.readers.of('16') as import('@systems/combat').CombatReader).alert()).toBe('calm');
 
-      // Press s enters settingStation mode
-      panel.key(ctx, { key: 's', repeat: false, shift: false, ctrl: false, alt: false, meta: false });
+      // U-03 (D-U2): `s` opens Stocks, so it is not the panel's; `[S-s]` enters settingStation mode.
+      expect(panel.key(ctx, { key: 's', repeat: false, shift: false, ctrl: false, alt: false, meta: false })).toBe(false);
+      expect(panel.settingStation).toBe(false);
+      panel.key(ctx, { key: 'S', repeat: false, shift: true, ctrl: false, alt: false, meta: false });
       expect(panel.settingStation).toBe(true);
       panel.cancel();
       expect(panel.settingStation).toBe(false);

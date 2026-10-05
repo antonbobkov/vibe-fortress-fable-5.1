@@ -25,6 +25,27 @@ export const FORTRESS_PANEL_KEYS: readonly { id: string; key: string }[] = [
   { id: 'look', key: 'k' }, { id: 'overlays', key: 'f' },
 ];
 
+/** The default panel letters: the set a panel's own accelerators may not use unshifted (D-U2, S4). */
+export const DEFAULT_PANEL_LETTERS: ReadonlySet<string> = new Set(FORTRESS_PANEL_KEYS.map((panel) => panel.key));
+
+/**
+ * The accelerator a press means inside a panel (`ui-keymap-and-screens.md` § Panels, D-U2): a
+ * letter that is a panel hotkey counts only with `Shift` (shown `[S-m]`), since the bare letter
+ * always opens or closes that panel; any other letter counts with or without it. Returns the
+ * lower-case letter, or `''`.
+ */
+export function acceleratorOf(press: KeyPress, reserved: ReadonlySet<string> = DEFAULT_PANEL_LETTERS): string {
+  if (press.ctrl || press.alt || press.meta || !/^[a-zA-Z]$/.test(press.key)) return '';
+  const letter = press.key.toLowerCase();
+  if (!reserved.has(letter)) return letter;
+  return press.shift ? letter : '';
+}
+
+/** An accelerator as a panel shows it: `[S-m]` for a panel letter, `[w]` for a free one. */
+export function acceleratorLabel(letter: string, reserved: ReadonlySet<string> = DEFAULT_PANEL_LETTERS): string {
+  return reserved.has(letter) ? `[S-${letter}]` : `[${letter}]`;
+}
+
 /** A resolved action; `arg` carries the direction, digit or tab the key stands for. */
 export interface UiAction {
   readonly id: string;
@@ -204,6 +225,13 @@ export class Keymap {
   /** Every binding of a context. */
   of(context: KeyContext): Binding[] {
     return this.bindings.filter((b) => b.context === context);
+  }
+
+  /** The bare letters the fortress panels are bound to now (rebinding moves them). */
+  panelLetters(): Set<string> {
+    const out = new Set<string>();
+    for (const b of this.of('fortress_panel')) if (!b.spec.ctrl && !b.spec.shift && /^[a-z]$/.test(b.spec.key)) out.add(b.spec.key);
+    return out;
   }
 
   overrides(): KeyOverride[] {

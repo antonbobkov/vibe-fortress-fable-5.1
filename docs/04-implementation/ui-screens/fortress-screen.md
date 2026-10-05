@@ -79,18 +79,20 @@ Sections come from the inspector registry in this order: identity, activity, nee
 
 ```
 │ Designate                          [d]  │
-│ [d] Dig        [c] Channel              │
-│ [u] Up stairs  [j] Down stairs          │
-│ [i] Up/down    [r] Ramp   [w] Stairwell │
-│ [s] Smooth     [e] Engrave              │
-│ [x] Remove construction                 │
-│ [t] Chop trees [g] Gather plants        │
-│ [h] Harvest    [f] Traffic              │
+│ [S-d] Dig        [S-c] Channel          │
+│ [S-u] Up stairs  [S-j] Down stairs      │
+│ [i] Up/down      [r] Ramp               │
+│ [w] Stairwell    [S-s] Smooth           │
+│ [S-e] Engrave    [x] Remove construction│
+│ [S-t] Chop trees [g] Gather plants      │
+│ [h] Harvest      [S-f] Traffic          │
 │ Priority: 5   (1–9 to change)           │
 │ [Ctrl+Z] undo last  [Del] clear rect    │
 │ ─ Drag a rectangle on the map, or      │
 │   click two corners. Enter confirms.    │
 ```
+
+`d` opens the panel with Dig chosen (`d` again closes it). The letters that open panels take `Shift` here (`panels.md`).
 
 While dragging: the rectangle is inverted on the map and the status bar reads `Dig 12×4 (48 tiles), priority 5`.
 
@@ -98,9 +100,9 @@ While dragging: the rectangle is inverted on the map and the status bar reads `D
 
 ```
 │ Build                              [b]  │
-│ [c] Constructions  [f] Furniture        │
-│ [w] Workshops      [m] Mechanisms       │
-│ [t] Traps          [s] Special          │
+│ [S-c] Constructions [S-f] Furniture     │
+│ [w] Workshops       [S-m] Mechanisms    │
+│ [S-t] Traps         [S-s] Special       │
 │ ── Workshops ──────────────────────     │
 │ ▶Carpenter's workshop   2 logs  (14)    │
 │  Mason's workshop      2 stone  (31)    │

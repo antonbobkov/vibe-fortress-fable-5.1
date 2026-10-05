@@ -15,7 +15,7 @@ import type { Rect } from '@render/cellbuffer';
 import { CATEGORY_TREE, categoryUnder } from '@systems/items';
 import type { Surface } from '../surface';
 import { buildTree, label, tree, type TreeNode, type TreeState } from '../widgets';
-import { buildings, items, marks, type PanelContext } from './context';
+import { buildings, confirmThen, items, marks, type PanelContext } from './context';
 
 interface NodeTotals {
   count: number;
@@ -157,6 +157,35 @@ export class StocksPanel {
     ctx.openPanel('depot');
   }
 
+  /** The selected row's name as the tree shows it ("Weapons", "sword", "iron ×3"). */
+  selectedName(ctx: PanelContext): string {
+    const id = this.selectedNode(ctx);
+    const find = (nodes: readonly TreeNode[]): string | null => {
+      for (const n of nodes) {
+        if (n.id === id) return n.name;
+        const below = find(n.children);
+        if (below !== null) return below;
+      }
+      return null;
+    };
+    return id === null ? '' : find(this.visibleForest(ctx)) ?? '';
+  }
+
+  /**
+   * `[S-f]` / `[S-d]` / `[S-m]`, by key or click: submit the flag for the selected row. Marking for
+   * the dump or the smelter asks first (D-U2); clearing a mark and forbidding do not.
+   */
+  flag(ctx: PanelContext, kind: 'ForbidItem' | 'DumpItem' | 'MeltItem'): void {
+    const commands = this.flagCommands(ctx, kind);
+    if (commands.length === 0) {
+      ctx.notice?.(ctx.strings.get(kind === 'MeltItem' ? 'ui.stocks.no_metal' : 'ui.stocks.nothing_selected'));
+      return;
+    }
+    const send = (): void => { for (const c of commands) ctx.submit(c); };
+    if (kind === 'ForbidItem' || !commands.some((c) => c['on'] === true)) send();
+    else confirmThen(ctx, kind === 'MeltItem' ? 'c_melt_items' : 'c_dump_items', { what: this.selectedName(ctx) }, send);
+  }
+
   /** `f` / `d` / `m` on the selected node. */
   flagCommands(ctx: PanelContext, kind: 'ForbidItem' | 'DumpItem' | 'MeltItem'): Command[] {
     const node = this.selectedNode(ctx);
@@ -223,21 +252,27 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
   label(s, rect.col + 1, row, strings.get('ui.stocks.wealth', { wealth: marks(it?.wealth() ?? 0), buildings: marks(built) }), { fg: t.value, width: rect.cols - 2 });
   row += 1;
   if (panel.depotSelection) {
-    label(s, rect.col + 1, row, `[Space] select [t] move ${panel.depotChosen.size} [Esc] cancel`, { fg: t.key, width: rect.cols - 2 });
+    label(s, rect.col + 1, row, strings.get('ui.stocks.depot_pick', { n: panel.depotChosen.size }), { fg: t.key, width: rect.cols - 2 });
     s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => panel.confirmDepot(ctx));
     return;
   }
-  label(s, rect.col + 1, row, strings.get('ui.stocks.actions'), { width: rect.cols - 2 });
-  label(s, rect.col + 24, row, '[t] depot', { fg: buildings(ctx)?.depots().length ? t.key : t.dim, width: rect.cols - 25 });
-  s.hit({ col: rect.col + 24, row, cols: 9, rows: 1 }, () => {
+  // `f`, `d`, `m` and `t` open panels, so the actions take `Shift` (D-U2); each is clickable.
+  let col = rect.col + 1;
+  const action = (key: string, kind: 'ForbidItem' | 'DumpItem' | 'MeltItem'): void => {
+    const n = label(s, col, row, strings.get(key), { width: rect.col + rect.cols - 1 - col });
+    s.hit({ col, row, cols: n, rows: 1 }, () => panel.flag(ctx, kind));
+    col += n + 2;
+  };
+  action('ui.stocks.forbid', 'ForbidItem');
+  action('ui.stocks.dump', 'DumpItem');
+  row += 1;
+  if (row >= rect.row + rect.rows) return;
+  col = rect.col + 1;
+  action('ui.stocks.melt', 'MeltItem');
+  const n = label(s, col, row, strings.get('ui.stocks.to_depot'), { fg: buildings(ctx)?.depots().length ? t.text : t.dim, width: rect.col + rect.cols - 1 - col });
+  s.hit({ col, row, cols: n, rows: 1 }, () => {
     const depotId = buildings(ctx)?.depots()[0] ?? 0;
     if (depotId) panel.startDepot(depotId);
+    else ctx.notice?.(strings.get('ui.status.no_depot'));
   });
-  const act = (col: number, width: number, kind: 'ForbidItem' | 'DumpItem' | 'MeltItem'): void =>
-    s.hit({ col: rect.col + 1 + col, row, cols: width, rows: 1 }, () => {
-      for (const c of panel.flagCommands(ctx, kind)) ctx.submit(c);
-    });
-  act(0, 8, 'ForbidItem');
-  act(9, 6, 'DumpItem');
-  act(16, 6, 'MeltItem');
 }

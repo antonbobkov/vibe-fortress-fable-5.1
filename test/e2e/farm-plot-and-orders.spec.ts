@@ -158,7 +158,8 @@ test('farm-plot-and-orders', async ({ page }) => {
     }
   }, f);
   for (let i = 0; i < 80 && (await view(page)).z !== f.z; i += 1) await page.keyboard.press((await view(page)).z > f.z ? '<' : '>');
-  await page.keyboard.press('d'); await page.keyboard.press('d');
+  // U-03 (D-241): `d` opens Designate with Dig chosen.
+  await page.keyboard.press('d');
   // The designation sidebar narrows the map. Pan again with its actual viewport active.
   const viewport = await page.evaluate(() => { const h = (window as unknown as { __deepholm: FarmHook }).__deepholm; const c = h.cells(); return { cols: c.cols - 36, rows: c.rows - 5 }; });
   for (let i = 0; i < 200; i += 1) {
@@ -191,7 +192,7 @@ test('farm-plot-and-orders', async ({ page }) => {
     expect(tick).toBeLessThan(60_000);
   }
   await page.keyboard.press('Space');
-  await page.keyboard.press('z'); await page.keyboard.press('f');
+  await page.keyboard.press('z'); await page.keyboard.press('Shift+F');
   const za = await pixel(page, f.x + PLOT_W - 3, f.y);
   const zb = await pixel(page, f.x + PLOT_W - 1, f.y);
   await page.mouse.move(za.x, za.y); await page.mouse.down(); await page.mouse.move(zb.x, zb.y, { steps: 4 }); await page.mouse.up();
@@ -209,7 +210,7 @@ test('farm-plot-and-orders', async ({ page }) => {
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
   // The fourth early floor is diagonal to the first strip, so it needs its own plot.
   await page.keyboard.press('Escape');
-  await page.keyboard.press('z'); await page.keyboard.press('f');
+  await page.keyboard.press('z'); await page.keyboard.press('Shift+F');
   const fourth = await pixel(page, f.x + PLOT_W - 1, f.y + 1);
   await page.mouse.move(fourth.x, fourth.y); await page.mouse.down(); await page.mouse.up();
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
@@ -260,21 +261,26 @@ test('farm-plot-and-orders', async ({ page }) => {
     }
   }, still);
   await page.keyboard.press('Escape');
+  // U-03 (D-U5): `[S-n]` opens the order picker; typing filters it; Enter adds. The mode and the
+  // material of the order are `[S-m]` and `[S-f]` (`m` and `f` open panels, D-U2).
   await page.keyboard.press('o');
-  await page.keyboard.press('+');
-  await expect.poll(() => textOf(page)).toContain('New global order');
-  const recipe = await textCell(page, 'Brew drink');
-  await page.mouse.click(recipe.x, recipe.y);
+  await page.keyboard.press('Shift+N');
+  await expect.poll(() => textOf(page)).toContain('Add order');
+  for (const ch of 'brewdrink') await page.keyboard.press(ch);
+  await expect.poll(() => textOf(page)).toContain('Brew drink');
+  await expect.poll(() => textOf(page)).toContain('any still');
+  await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
-  await page.keyboard.press('m');
+  await expect.poll(() => textOf(page)).toContain('x1 Brew drink');
+  await page.keyboard.press('Shift+M');
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
   await expect.poll(() => textOf(page)).toContain('keep');
-  await page.keyboard.press('f');
+  await page.keyboard.press('Shift+F');
   await expect.poll(() => textOf(page)).toContain('Material filter');
   const dimcap = await textCell(page, 'dimcap');
   await page.mouse.click(dimcap.x, dimcap.y);
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
-  await expect.poll(() => textOf(page)).toContain('Material: dimcap');
+  await expect.poll(() => textOf(page)).toContain('[S-f] dimcap');
 
   // The default maintain threshold is 20. Poll the harvest, drink stock and completed excavation.
   await page.keyboard.press('Space');
@@ -325,13 +331,15 @@ test('farm-plot-and-orders', async ({ page }) => {
       if (!result.ok) throw new Error(`masonry: ${result.reason}`);
     }
   });
-  await page.keyboard.press('+');
-  await expect.poll(() => textOf(page)).toContain('New global order');
-  for (let i = 0; i < 200 && !(await textOf(page)).includes('Blocks (mason)'); i += 1) await page.keyboard.press('ArrowDown');
-  const blocks = await textCell(page, 'Blocks (mason)');
-  await page.mouse.click(blocks.x, blocks.y);
+  // U-03: the picker again, filtered to "blocks" and moved to the mason's recipe.
+  await page.keyboard.press('Shift+N');
+  await expect.poll(() => textOf(page)).toContain('Add order');
+  for (const ch of 'blocks') await page.keyboard.press(ch);
+  for (let i = 0; i < 10 && !(await textOf(page)).includes("any mason's work"); i += 1) await page.keyboard.press('ArrowDown');
+  await expect.poll(() => textOf(page)).toContain("any mason's work");
+  await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
-  await expect.poll(() => textOf(page)).toContain('Global Blocks');
+  await expect.poll(() => textOf(page)).toContain('x1 Blocks');
   let blockCount = 0;
   for (let i = 0; i < 60 && blockCount === 0; i += 1) {
     blockCount = await page.evaluate(() => {

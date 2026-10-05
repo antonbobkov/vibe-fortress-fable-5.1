@@ -47,15 +47,17 @@ describe('T-M5-08 Stocks, global orders and material dropdown', () => {
     const g = await game();
     const spy = vi.spyOn(g.host, 'submit');
     g.handleKey(press('o'));
-    g.handleKey(press('+'));
-    const recipes = g.fortress.orders.recipesFor(g.fortress.ctx);
+    // U-03 (D-U5): `[S-n]` opens the order picker (`+` now changes the selected order's count).
+    g.handleKey(press('n', { shift: true }));
+    const recipes = g.fortress.orders.pickerRecipes(g.fortress.ctx);
     const at = recipes.findIndex((r) => r.id === 'forge_battle_axe');
     expect(at).toBeGreaterThanOrEqual(0);
-    g.fortress.orders.recipes.selected = at;
+    g.fortress.orders.picker.list.selected = at;
     g.handleKey(press('Enter'));
     expect(spy.mock.lastCall?.[0]).toMatchObject({ type: 'AddWorkOrder', workshopId: 0 });
     g.host.step(1);
-    g.handleKey(press('f'));
+    // U-03 (D-U2): `f` opens Overlays; the material filter is `[S-f]`.
+    g.handleKey(press('f', { shift: true }));
     expect(g.fortress.orders.materialOpen).toBe(true);
     const choices = g.fortress.orders.materialOptions(g.fortress.ctx);
     expect(choices.map((c) => c.id)).toContain('steel');
@@ -69,7 +71,7 @@ describe('T-M5-08 Stocks, global orders and material dropdown', () => {
     expect(g.fortress.orders.selected(g.fortress.ctx)?.order.materialFilter).toBe('steel');
     const s = surface(36, 32);
     drawOrdersPanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, g.fortress.orders, g.fortress.ctx);
-    expect(s.lines().join('\n')).toContain('Material: steel');
+    expect(s.lines().join('\n')).toContain('[S-f] steel');
   });
 
   it('shows a workshop order and opens its material filter from the workshop panel', async () => {
@@ -92,10 +94,10 @@ describe('T-M5-08 Stocks, global orders and material dropdown', () => {
     g.host.step(1);
     const s = surface(36, 32);
     drawWorkshopPanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, mason, g.fortress.orders, g.fortress.ctx);
-    expect(s.lines().join('\n')).toContain('Blocks x1 any p5');
+    expect(s.lines().join('\n')).toContain('x1 Blocks · '); // U-03 (D-U5): count, recipe, status
     g.fortress.workshopId = mason;
     g.ui.panel = 'workshop';
-    g.handleKey(press('f'));
+    g.handleKey(press('f', { shift: true }));
     expect(g.ui.panel).toBe('orders');
     expect(g.fortress.orders.materialOpen).toBe(true);
     expect(g.fortress.orders.workshopId).toBe(mason);

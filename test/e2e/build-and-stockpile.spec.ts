@@ -109,9 +109,9 @@ test('build-and-stockpile', async ({ page }) => {
   const pile = sites.pile as { x: number; y: number };
   const wallAt = sites.wall as { x: number; y: number };
 
-  // 1. A wood stockpile by drag: z, s, drag 3×3, then the preset row clicked to Wood.
+  // 1. A wood stockpile by drag: z, Shift+s (U-03: `s` opens Stocks), drag 3×3, then the preset row clicked to Wood.
   await page.keyboard.press('z');
-  await page.keyboard.press('s');
+  await page.keyboard.press('Shift+S');
   const a = await tilePixel(page, pile.x, pile.y);
   const b = await tilePixel(page, pile.x + 2, pile.y + 2);
   await page.mouse.move(a.x, a.y);
@@ -166,7 +166,8 @@ test('build-and-stockpile', async ({ page }) => {
 
   // 3. A wall from logs: constructions, down to Wall, the material cycled to pine logs, a click.
   await page.keyboard.press('Escape');
-  await page.keyboard.press('c');
+  // U-03 (D-U2): `c` opens Civilizations; the constructions category is `[S-c]`.
+  await page.keyboard.press('Shift+C');
   for (let k = 0; k < 7; k += 1) await page.keyboard.press('ArrowDown');
   await expect.poll(() => textOf(page)).toContain('Wall · click to place');
   for (let k = 0; k < 6; k += 1) {

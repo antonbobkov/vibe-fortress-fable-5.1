@@ -89,6 +89,19 @@
 | `/` | focus the filter field |
 | `Backspace` | back within nested menus |
 
+Panel hotkeys always win. The letters of § Fortress panels always open or close their panel, whatever panel is open; pressing an open panel's own key closes it. A panel's accelerator may not use one of those letters bare: it is bound to `Shift`+letter and shown `[S-m]`. A free letter is an accelerator with or without `Shift`. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text. With a map selection, forbid, dump and move to depot are `[S-f]`, `[S-d]` and `[S-t]` for the same reason.
+
+Every destructive single-key action asks through the confirmation dialog first, default **No** (§ Confirmations): melt, dump, slaughter, suspend, take apart, disband, remove (a zone, a work order). Undoing a mark (resume, unmark) does not ask.
+
+The Orders panel's own keys, beside the accelerators it shows (`ui-screens/panels.md` § Orders); they are the panel's, not rows of the rebindable keymap table:
+
+- `Shift+N`: new order (opens "Add order").
+- `+` `=` / `-`: the selected order's count ±1 (`Shift`: ±10); in "Add order", the quantity.
+- `r`: repeat the selected order, or the last finished one.
+- `x`: remove the selected order (confirm).
+- `Shift+↑` / `Shift+↓`: move the selected order in its queue.
+- In "Add order": letters and `Backspace` edit the recipe filter, `0`–`9` type the quantity, `Tab` / `Shift+Tab` move between the fields and `←` `→` change the focused one.
+
 ### World map
 
 | Key | Action |
@@ -124,7 +137,7 @@
 | Gesture | With no tool | With a tool |
 |---|---|---|
 | Left click | inspect the tile (look panel) | apply to one tile / place building |
-| Left drag | select a rectangle (then `Delete`, forbid, dump, move to depot) | designate / draw zone rectangle |
+| Left drag | select a rectangle (then `Delete`, `[S-f]` forbid, `[S-d]` dump, `[S-t]` move to depot) | designate / draw zone rectangle |
 | Right click | inspect with the entity list | cancel the tool |
 | Wheel | z-level | z-level |
 | `Ctrl` + wheel | zoom | zoom |
@@ -213,6 +226,14 @@ Shown once, as notes with a lamp glyph, when the trigger holds (checked hourly).
 | `c_main_menu` | "Return to the main menu? Unsaved progress since {time} will be lost." | No |
 | `c_embark_no_pick` | "Embark without a pick?" | No |
 | `c_embark_no_food_drink` | "Embark without food or drink?" | No |
+| `c_melt_items` | "Mark {what} for melting? Melted items are gone; the smelter gives back part of their metal as bars." | No |
+| `c_dump_items` | "Mark {what} for dumping? Dwarves will carry every one of them to a dump zone." | No |
+| `c_dump_selection` | "Dump everything on these {n} tiles? Dwarves will carry it to a dump zone." | No |
+| `c_slaughter_animal` | "Slaughter {animal}? It will be butchered for meat, hide and bone." | No |
+| `c_suspend_workshop` | "Suspend {workshop}? Its current job stops and its orders wait until you resume it." | No |
+| `c_deconstruct_building` | "Take apart {building}? Its materials are left where it stood." | No |
+| `c_remove_zone` | "Remove {zone}? Its settings are lost." | No |
+| `c_remove_order` | "Remove the order for {recipe}? Work in progress on it stops." | No |
 
 ## Settings
 

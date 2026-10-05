@@ -58,11 +58,12 @@ test('military-and-alert', async ({ page }) => {
     return squads[0]?.id ?? 0;
   });
   expect(squadId).toBeGreaterThan(0);
-  await page.keyboard.press('a');
+  // U-03 (D-U2): `a` opens the Log and `s` Stocks; the squad's add and station are `[S-a]` and `[S-s]`.
+  await page.keyboard.press('Shift+A');
   await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as { __deepholm: MilitaryHook }).__deepholm.step(1));
   expect(await page.evaluate((id) => (window as unknown as { __deepholm: MilitaryHook }).__deepholm.readers.of<{ squad(id: number): { members: number[] } }>('16').squad(id)?.members.length, squadId)).toBe(1);
-  await page.keyboard.press('s');
+  await page.keyboard.press('Shift+S');
   const clickAt = await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: MilitaryHook }).__deepholm;
     return h.cellCenter(12, 10);

@@ -37,7 +37,8 @@ describe('T-M4-17 panels: shortcuts and commands', () => {
     const g = await game();
     const spy = vi.spyOn(g.host, 'submit');
     g.handleKey(press('o'));
-    g.handleKey(press('+'));
+    // U-03 (D-U5): `[S-n]` opens the order picker.
+    g.handleKey(press('n', { shift: true }));
     expect(g.fortress.orders.adding).toBe(true);
     g.handleKey(press('Enter'));
     const add = spy.mock.lastCall?.[0] as Command;
@@ -45,7 +46,8 @@ describe('T-M4-17 panels: shortcuts and commands', () => {
     expect(add['workshopId']).toBe(0);
     g.host.step(1);
     expect(g.host.readers.of<WorkshopsReader>('12').globalOrders()).toHaveLength(1);
-    g.handleKey(press('m'));
+    // U-03 (D-U2): `m` opens Military; the mode toggle is `[S-m]`.
+    g.handleKey(press('m', { shift: true }));
     expect(spy.mock.lastCall?.[0]).toMatchObject({ type: 'EditWorkOrder', workshopId: 0, patch: { mode: 'maintain' } });
     g.render();
     expect(g.textRows().join('\n')).toContain('Standing orders');

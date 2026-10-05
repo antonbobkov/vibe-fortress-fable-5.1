@@ -43,3 +43,19 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   snapshotsKept: 4,
   combatLog: 'hits only',
 });
+
+/** `command-catalog.md` `AddWorkOrder`: "count 1–999 or maintain threshold 1–999" (the picker's bounds, D-U5). */
+export const ORDER_COUNT_MIN = 1;
+export const ORDER_COUNT_MAX = 999;
+
+/** D-U5: "`+`/`-` ±1, `Shift` ±10". */
+export const ORDER_COUNT_BIG_STEP = 10;
+
+/** The threshold a once order takes when it is first switched to `keep ≥ N`. */
+export const ORDER_KEEP_DEFAULT = 20;
+
+/** D-U5: recipes "with recent first": how many recently ordered recipes the picker lists. */
+export const ORDER_RECENT_MAX = 5;
+
+/** Finished orders the order list keeps as `done` rows for `[r] repeat`. */
+export const ORDER_FINISHED_MAX = 3;

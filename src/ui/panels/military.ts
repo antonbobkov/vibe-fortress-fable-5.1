@@ -12,7 +12,7 @@ import type { Rect } from '@render/cellbuffer';
 import type { CombatReader, SquadWithId } from '@systems/combat';
 import type { Surface } from '../surface';
 import { label, separator, table, type ListState } from '../widgets';
-import type { PanelContext } from './context';
+import { accel, type PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { FortressHost } from '../screens/fortress';
 import { creaturesAt } from './look';
@@ -211,7 +211,8 @@ export class MilitaryPanel {
     const k = press.key;
     const up = k === 'ArrowUp' || k === '↑';
     const down = k === 'ArrowDown' || k === '↓';
-    const letter = k.length === 1 ? k.toLowerCase() : '';
+    // A letter that opens a panel is an accelerator here only with `Shift` (`[S-s] set`, D-U2).
+    const letter = accel(ctx, press);
     const submit = (cmd: Command | null): boolean => {
       if (cmd !== null) {
         if (host !== undefined) host.submit(cmd);
@@ -260,7 +261,7 @@ export class MilitaryPanel {
       return true;
     }
     if (letter === 'c') return submit(this.clearStation(ctx));
-    if (letter === 'p' && press.shift) {
+    if (letter === 'y') {
       const squad = this.selectedSquad(ctx);
       return submit(squad ? { type: 'SetSquadPatrol', squadId: squad.id, tiles: [] } : null);
     }
@@ -387,10 +388,10 @@ export function drawMilitaryPanel(
 
   label(s, col, row, `Mode: ${squad.mode}`, { width });
   row += 1;
-  label(s, col, row, '[o] Off  [t] Train  [v] Active', { width });
-  s.hit({ col, row, cols: 7, rows: 1 }, () => ctx.submit({ type: 'SetSquadMode', squadId: squad.id, mode: 'off' }));
-  s.hit({ col: col + 9, row, cols: 9, rows: 1 }, () => ctx.submit({ type: 'SetSquadMode', squadId: squad.id, mode: 'train' }));
-  s.hit({ col: col + 20, row, cols: 10, rows: 1 }, () => ctx.submit({ type: 'SetSquadMode', squadId: squad.id, mode: 'active' }));
+  label(s, col, row, '[S-o] Off [S-t] Train [v] Active', { width });
+  s.hit({ col, row, cols: 9, rows: 1 }, () => ctx.submit({ type: 'SetSquadMode', squadId: squad.id, mode: 'off' }));
+  s.hit({ col: col + 10, row, cols: 11, rows: 1 }, () => ctx.submit({ type: 'SetSquadMode', squadId: squad.id, mode: 'train' }));
+  s.hit({ col: col + 22, row, cols: 10, rows: 1 }, () => ctx.submit({ type: 'SetSquadMode', squadId: squad.id, mode: 'active' }));
   row += 1;
 
   // Members line: Members Halvar G., Einar R.
@@ -401,11 +402,11 @@ export function drawMilitaryPanel(
   const membersStr = memberNames.length > 0 ? memberNames.join(', ') : 'none';
   label(s, col, row, `Members ${membersStr}`, { width });
   row += 1;
-  label(s, col, row, '        [a] add  [r] remove', { width });
-  s.hit({ col: col + 8, row, cols: 7, rows: 1 }, () => {
+  label(s, col, row, '        [S-a] add  [r] remove', { width });
+  s.hit({ col: col + 8, row, cols: 9, rows: 1 }, () => {
     panel.memberChoice = { kind: 'add', selected: 0 };
   });
-  s.hit({ col: col + 17, row, cols: 10, rows: 1 }, () => {
+  s.hit({ col: col + 19, row, cols: 10, rows: 1 }, () => {
     panel.memberChoice = { kind: 'remove', selected: 0 };
   });
   row += 1;
@@ -418,12 +419,13 @@ export function drawMilitaryPanel(
     if (cmd) ctx.submit(cmd);
   });
   row += 1;
-  label(s, col, row, `     [g] armor ${squad.equipment.armor}  [j] ranged ${rangedGlyph}`, { width });
-  s.hit({ col: col + 5, row, cols: 15, rows: 1 }, () => {
+  const armorText = `  [g] armor ${squad.equipment.armor}`;
+  label(s, col, row, `${armorText}  [S-j] ranged ${rangedGlyph}`, { width });
+  s.hit({ col: col + 2, row, cols: armorText.length - 2, rows: 1 }, () => {
     const cmd = panel.cycleArmor(ctx);
     if (cmd) ctx.submit(cmd);
   });
-  s.hit({ col: col + 21, row, cols: 13, rows: 1 }, () => {
+  s.hit({ col: col + armorText.length + 2, row, cols: 14, rows: 1 }, () => {
     const cmd = panel.toggleRanged(ctx);
     if (cmd) ctx.submit(cmd);
   });
@@ -441,12 +443,12 @@ export function drawMilitaryPanel(
   const stText = panel.settingStation ? 'Click tile...' : stationStr;
   label(s, col, row, `Station ${stText}`, { fg: panel.settingStation ? t.value : t.text, width });
   row += 1;
-  label(s, col, row, '        [s] set  [c] clear', { width });
-  s.hit({ col: col + 8, row, cols: 7, rows: 1 }, () => {
+  label(s, col, row, '        [S-s] set  [S-c] clear', { width });
+  s.hit({ col: col + 8, row, cols: 9, rows: 1 }, () => {
     panel.settingStation = true;
   });
   if (squad.station !== null) {
-    s.hit({ col: col + 17, row, cols: 10, rows: 1 }, () => {
+    s.hit({ col: col + 19, row, cols: 11, rows: 1 }, () => {
       const cmd = panel.clearStation(ctx);
       if (cmd) ctx.submit(cmd);
     });
@@ -454,15 +456,15 @@ export function drawMilitaryPanel(
   row += 1;
 
   // Patrol line
-  const patrolStr = squad.patrol && squad.patrol.length > 0 ? `${squad.patrol.length} tiles` : 'none';
-  label(s, col, row, `Patrol ${panel.settingPatrol ? 'Click tile...' : `${patrolStr} [p] add [P] clear`}`, { width });
-  s.hit({ col: col + 8 + patrolStr.length, row, cols: 7, rows: 1 }, () => { panel.settingPatrol = true; });
-  s.hit({ col: col + 16 + patrolStr.length, row, cols: 9, rows: 1 }, () => ctx.submit({ type: 'SetSquadPatrol', squadId: squad.id, tiles: [] }));
+  const patrolStr = squad.patrol && squad.patrol.length > 0 ? `${squad.patrol.length} pts` : 'none';
+  label(s, col, row, `Patrol ${panel.settingPatrol ? 'Click tile...' : `${patrolStr} [S-p] add [y] clear`}`, { width });
+  s.hit({ col: col + 8 + patrolStr.length, row, cols: 9, rows: 1 }, () => { panel.settingPatrol = true; });
+  s.hit({ col: col + 18 + patrolStr.length, row, cols: 9, rows: 1 }, () => ctx.submit({ type: 'SetSquadPatrol', squadId: squad.id, tiles: [] }));
   row += 1;
 
-  label(s, col, row, panel.settingKill ? 'Orders Click creature to attack' : panel.settingFollow ? 'Orders Click dwarf to follow' : 'Orders [k] kill [f] follow', { width });
-  s.hit({ col: col + 8, row, cols: 8, rows: 1 }, () => { panel.settingKill = true; });
-  s.hit({ col: col + 17, row, cols: 10, rows: 1 }, () => { panel.settingFollow = true; });
+  label(s, col, row, panel.settingKill ? 'Orders Click creature to attack' : panel.settingFollow ? 'Orders Click dwarf to follow' : 'Orders [S-k] kill [S-f] follow', { width });
+  s.hit({ col: col + 7, row, cols: 10, rows: 1 }, () => { panel.settingKill = true; });
+  s.hit({ col: col + 18, row, cols: 12, rows: 1 }, () => { panel.settingFollow = true; });
   row += 1;
   label(s, col, row, '       [q] cancel orders', { width });
   s.hit({ col: col + 7, row, cols: 19, rows: 1 }, () => {

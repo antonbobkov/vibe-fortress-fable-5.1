@@ -129,7 +129,7 @@ describe('U-08 ghosts: validity glyph difference (D-U10)', () => {
     const game = await fortressGame();
     key(game, 'b'); // Open build panel
     key(game, 'w'); // Select workshops category
-    key(game, 'c'); // Select carpenter's workshop (3x3)
+    game.handleKey(press('c', { shift: true })); // U-03 (D-U2): `c` opens Civilizations; `[S-c]` is the build panel's category accelerator
 
     const map = game.host.readers.map;
     const z = game.ui.z;
