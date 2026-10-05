@@ -136,3 +136,17 @@ Keybindings sub-screen: a table of context, action, key; `Enter` on a row then p
 │ [Esc] Back                                                       │
 └──────────────────────────────────────────────────────────────────┘
 ```
+
+## Text input
+
+The modal `text_input` dialog: a prompt, one text field, the count of characters, and two buttons. It renames a dwarf or a squad.
+
+```
+  Rename Ketil Ironvein
+
+  [ Ketil Ironvein___________ ]
+  14/24
+  [Enter] accept  [Esc] cancel
+```
+
+Printable keys append and `Backspace` deletes, up to the field's maximum. `Enter` answers with the text, trimmed; an empty text is not accepted and the count row says "Type at least 1 character." `Esc` cancels. No key reaches the screen below.

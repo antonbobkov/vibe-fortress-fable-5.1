@@ -11,9 +11,15 @@
 
 import type { KeyPress } from '@platform/input';
 
-export type KeyContext = 'global' | 'map' | 'panel' | 'world_map' | 'embark' | 'trade_session' | 'fortress_panel';
+export type KeyContext = 'global' | 'map' | 'panel' | 'world_map' | 'embark' | 'trade_session' | 'fortress_panel' | 'labor_manager' | 'units_panel' | 'military_panel';
 
-export const KEY_CONTEXTS: readonly KeyContext[] = ['global', 'map', 'panel', 'world_map', 'embark', 'trade_session', 'fortress_panel'];
+export const KEY_CONTEXTS: readonly KeyContext[] = ['global', 'map', 'panel', 'world_map', 'embark', 'trade_session', 'fortress_panel', 'labor_manager', 'units_panel', 'military_panel'];
+
+/**
+ * The contexts added after v1.0.0 (U-06). Their bindings come after the panel hotkeys, so the
+ * expanded row index of every older binding, which a saved rebinding is keyed by, stays the same.
+ */
+const LATE_CONTEXTS: readonly KeyContext[] = ['labor_manager', 'units_panel', 'military_panel'];
 
 /** The panel hotkeys named by ui-keymap-and-screens.md § Fortress panels. */
 export const FORTRESS_PANEL_KEYS: readonly { id: string; key: string }[] = [
@@ -89,6 +95,25 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   offer: 'offer',
   'gift (offer with nothing taken)': 'gift',
   close: 'cancel',
+  // U-06: the labor manager and the multi-select lists of the units and military panels.
+  'move the labor cursor (Shift+↑↓: mark the rows passed)': 'cursor',
+  'mark the dwarf': 'mark',
+  'mark all / none': 'mark_all',
+  'toggle the labor (for every marked dwarf when the row is marked)': 'toggle',
+  'whole row on / off': 'toggle_row',
+  'whole column on / off (the marked dwarves, or everyone)': 'toggle_column',
+  'labor priority up / down': 'adjust',
+  'set the labor priority': 'priority',
+  'profession templates': 'templates',
+  'mark the row (does not pause while the list is open)': 'mark',
+  'give or take away a title': 'title',
+  'rename the dwarf': 'rename_dwarf',
+  'add the marked dwarves to a squad': 'to_squad',
+  'sleep an hour earlier / later': 'sleep_hour',
+  'add or remove every marked dwarf': 'commit',
+  'choose the squad leader': 'leader',
+  'assign a barracks zone': 'barracks',
+  'rename the squad': 'rename_squad',
 });
 
 /** A parsed key column. `key` is the keymap spelling; `any` stands for `[letter]`. */
@@ -179,7 +204,9 @@ export class Keymap {
    */
   static fromRows(rows: readonly KeymapRow[]): Keymap {
     const out: Binding[] = [];
-    for (const row of rows) {
+    const late = rows.filter((row) => LATE_CONTEXTS.includes(row.context as KeyContext));
+    const add = (list: readonly KeymapRow[]): void => {
+    for (const row of list) {
       if (!KEY_CONTEXTS.includes(row.context as KeyContext)) {
         throw new RangeError(`keymap: unknown context "${row.context}"`);
       }
@@ -197,7 +224,10 @@ export class Keymap {
         }
       }
     }
+    };
+    add(rows.filter((row) => !late.includes(row)));
     for (const panel of FORTRESS_PANEL_KEYS) out.push({ context: 'fortress_panel', spec: { key: panel.key, ctrl: false, shift: false }, id: panel.id });
+    add(late);
     return new Keymap(out);
   }
 

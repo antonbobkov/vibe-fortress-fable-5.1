@@ -124,6 +124,9 @@ const KEY_CONTEXTS = [
   ['World map', 'world_map'],
   ['Embark', 'embark'],
   ['Trade session', 'trade_session'],
+  ['Labor manager', 'labor_manager'],
+  ['Units panel', 'units_panel'],
+  ['Military panel', 'military_panel'],
 ];
 
 export function exportKeymap() {

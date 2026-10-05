@@ -184,6 +184,6 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [ ] U-03 — Work orders with quantity; panel hotkeys always win
 - [ ] U-04 — Drag to place many; out-of-stock prompt
 - [ ] U-05 — Building panel
-- [ ] U-06 — Labor manager, unit and squad multi-select
+- [x] U-06 — Labor manager, unit and squad multi-select (opus-u06, 2026-10-05)
 - [ ] U-07 — Stockpile editor with keyboard; room panel
 - [x] U-08 — Tooltips, palette distances, ghosts and glyphs (agy-u08, 2026-10-04)

@@ -293,5 +293,130 @@
     "context": "trade_session",
     "key": "Esc",
     "action": "close"
+  },
+  {
+    "context": "labor_manager",
+    "key": "arrows",
+    "action": "move the labor cursor (Shift+↑↓: mark the rows passed)"
+  },
+  {
+    "context": "labor_manager",
+    "key": "Space",
+    "action": "mark the dwarf"
+  },
+  {
+    "context": "labor_manager",
+    "key": "*",
+    "action": "mark all / none"
+  },
+  {
+    "context": "labor_manager",
+    "key": "Enter",
+    "action": "toggle the labor (for every marked dwarf when the row is marked)"
+  },
+  {
+    "context": "labor_manager",
+    "key": "a",
+    "action": "whole row on / off"
+  },
+  {
+    "context": "labor_manager",
+    "key": "c",
+    "action": "whole column on / off (the marked dwarves, or everyone)"
+  },
+  {
+    "context": "labor_manager",
+    "key": "+",
+    "action": "labor priority up / down"
+  },
+  {
+    "context": "labor_manager",
+    "key": "-",
+    "action": "labor priority up / down"
+  },
+  {
+    "context": "labor_manager",
+    "key": "1",
+    "action": "set the labor priority"
+  },
+  {
+    "context": "labor_manager",
+    "key": "9",
+    "action": "set the labor priority"
+  },
+  {
+    "context": "labor_manager",
+    "key": "t",
+    "action": "profession templates"
+  },
+  {
+    "context": "labor_manager",
+    "key": "Esc",
+    "action": "close"
+  },
+  {
+    "context": "units_panel",
+    "key": "Space",
+    "action": "mark the row (does not pause while the list is open)"
+  },
+  {
+    "context": "units_panel",
+    "key": "*",
+    "action": "mark all / none"
+  },
+  {
+    "context": "units_panel",
+    "key": "Shift+T",
+    "action": "give or take away a title"
+  },
+  {
+    "context": "units_panel",
+    "key": "Shift+N",
+    "action": "rename the dwarf"
+  },
+  {
+    "context": "units_panel",
+    "key": "Shift+M",
+    "action": "add the marked dwarves to a squad"
+  },
+  {
+    "context": "units_panel",
+    "key": "[",
+    "action": "sleep an hour earlier / later"
+  },
+  {
+    "context": "units_panel",
+    "key": "]",
+    "action": "sleep an hour earlier / later"
+  },
+  {
+    "context": "military_panel",
+    "key": "Space",
+    "action": "mark the row (does not pause while the list is open)"
+  },
+  {
+    "context": "military_panel",
+    "key": "*",
+    "action": "mark all / none"
+  },
+  {
+    "context": "military_panel",
+    "key": "Enter",
+    "action": "add or remove every marked dwarf"
+  },
+  {
+    "context": "military_panel",
+    "key": "Shift+L",
+    "action": "choose the squad leader"
+  },
+  {
+    "context": "military_panel",
+    "key": "Shift+B",
+    "action": "assign a barracks zone"
+  },
+  {
+    "context": "military_panel",
+    "key": "Shift+N",
+    "action": "rename the squad"
   }
 ]

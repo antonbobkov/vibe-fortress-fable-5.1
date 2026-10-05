@@ -156,7 +156,7 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 
 - Units panel: a table of every dwarf with name, profession, activity, mood tier glyph, and a labor grid toggle view (dwarves × labors, with the profession's default labors highlighted).
 - Dwarf inspection: everything listed under the inspector section; every number the simulation uses is visible.
-- Title assignment from the units panel or the dwarf inspection.
+- Title assignment from the units panel or the dwarf inspection. The units panel also renames a dwarf, moves the sleep hour, and marks several dwarves to add to a squad or to open in the labor manager.
 - Glyph `☺` in a color by state: white normal, yellow when a need is critical, red when wounded, blue when asleep, gray as a child, green when a soldier on duty.
 
 ## Tuning constants

@@ -8,7 +8,7 @@ Give the player every action by keyboard and by mouse and every fact by inspecti
 
 ## Concepts
 
-- **Screen**: a full-window mode on a stack: `main_menu`, `world_gen`, `world_map`, `embark`, `fortress`, `legend`, `settings`, `load`, `trade_session` (modal over fortress), `confirm` (modal dialog), `text_input` (modal).
+- **Screen**: a full-window mode on a stack: `main_menu`, `world_gen`, `world_map`, `embark`, `fortress`, `legend`, `settings`, `load`, `trade_session` (modal over fortress), `labor_manager` (over fortress), `confirm` (modal dialog), `text_input` (modal).
 - **Panel**: a sidebar view inside the fortress screen, one active at a time, registered with a hotkey.
 - **Tool**: the current map interaction mode: `none` (inspect), a designation kind, a build placement, a zone type, a squad order, a selection for item commands.
 - **Widget**: an immediate-mode element: `List`, `Table`, `Menu`, `Toggle`, `Number`, `Text`, `Button`, `Tabs`, `Bar`, `Tree`, `Dropdown`, `Label`, `Separator`.
@@ -42,7 +42,7 @@ Keyboard:
 
 - Letters open panels and tools (the keymap table in Wave 3; the design fixes these): `d` designate, `b` build, `z` zones, `u` units, `j` jobs, `l` labors, `o` orders, `s` stocks, `m` military, `n` animals, `t` threats, `c` civilizations, `p` population, `e` mood, `a` log, `k` look, `f` overlays, `?` help.
 - `Esc` cancels the current tool, then closes the panel, then opens the game menu.
-- `Space` pause; `+` and `-` speed; `<` and `>` (also `,` and `.`) z-level down and up; arrow keys pan by one cell, `Shift` + arrows by ten; `Home` centers on the hearth (or the wagon).
+- `Space` pause (while a multi-select list is open, the units table or a squad's member list, `Space` marks the row instead); `+` and `-` speed; `<` and `>` (also `,` and `.`) z-level down and up; arrow keys pan by one cell, `Shift` + arrows by ten; `Home` centers on the hearth (or the wagon).
 - Within a designation or zone tool: `Enter` or a click starts and ends a rectangle; `1`–`9` set the priority; `Ctrl+Z` undoes the last batch.
 - `F5` quick save, `F9` quick load (with confirmation), `Ctrl+S` save menu, `F12` debug panel.
 - Within panels: arrows move the selection, `Enter` activates, `Tab` moves between fields, letters in `[brackets]` are accelerators, `PageUp`/`PageDown` scroll.

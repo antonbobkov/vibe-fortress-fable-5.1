@@ -38,17 +38,28 @@ The log strip shows the last three announcements; danger lines are prefixed `!!`
 ├──────────────────────────────────────────────────────────────────────────────────┬───────────────────────────────────┤
 │ map viewport ({mapCols − SIDEBAR_COLS} wide)                                      │ Units                       [u]  │
 │                                                                                  │ /filter: ____________             │
-│                                                                                  │ Name              Prof.    Act.   │
-│                                                                                  │ ▶Ketil Ironvein   Miner    Digging│
-│                                                                                  │  Brynja Coldhammer Farmer  Eating │
-│                                                                                  │  Orm Ashbrow      Carpenter No job│
+│                                                                                  │ Name               Prof.    Act.  │
+│                                                                                  │ •Ketil Ironvein  ☺ Miner    Diggin│
+│                                                                                  │ ▶Brynja Coldhamm ☺ Farmer   Eating│
+│                                                                                  │  Orm Ashbrow     ☻ Carpente No job│
 │                                                                                  │  …                                │
 │                                                                                  │ ─────────────────────────────────│
 │                                                                                  │ [Enter] inspect  [l] labors      │
-│                                                                                  │ [t] title  [n] rename  [c] center│
+│                                                                                  │ [c] center                       │
+│                                                                                  │ [Space] mark  [*] all  1 marked  │
+│                                                                                  │ [S-t] title  [S-n] rename        │
+│                                                                                  │ [S-m] squad  sleep 22h  [[]  []] │
 ```
 
-Rows: `▶` marks the selection; mood tier glyph after the name (`☺` white/yellow/red); activity from `dwarves.activityText`.
+Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows the name (`☺` white from Fine up, `☻` yellow Unhappy, `‼` red Miserable; hovering it names the tier); activity from `dwarves.activityText`.
+
+- **Marks**: `Space` marks the cursor's row (it does not pause while this list is open), a shift-click marks the range from the last mark, `*` marks all or none. An action applies to every marked dwarf when the cursor's row is marked, otherwise to the cursor's dwarf.
+- `[S-t] title` lists the four titles with their holders (`Thane  Halvar Grimshield`, `Warden  (vacant)`). `Enter` or a click gives the title to the cursor's dwarf (`AssignTitle`), or takes it away when that dwarf holds it. A child cannot hold one, and the status row says so.
+- `[S-n] rename` opens the text input with the dwarf's name (`RenameDwarf`, 1–24 characters).
+- `[S-m] squad` lists the squads with their sizes; `Enter` or a click adds the selection in one `SetSquadMembers`. Children, dwarves already in a squad and those the squad has no room for are left out, and the status row says how many. With no squad it says to make one in Military.
+- The labors key with dwarves marked opens the labor manager ([`panels.md`](panels.md) § Labor manager) with them marked.
+- `[` and `]` move the selection's sleep hour an hour earlier or later (`SetSchedule`).
+- Every action row is clickable. The new keys are on `Shift`, or are not letters, because the letters are panel hotkeys.
 
 ## Inspection panel (look)
 
