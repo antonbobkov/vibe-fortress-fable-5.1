@@ -34,7 +34,7 @@ Give the player every action by keyboard and by mouse and every fact by inspecti
 └───────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-The sidebar is closed until a panel is opened; `Tab` toggles it without changing the panel. The status bar hearth glyph is colored by hall spirit tier; a red cross with a count shows patients; a shield with a count shows active hostiles; a scale glyph shows a caravan present.
+The sidebar is closed until a panel is opened; `Tab` toggles it without changing the panel. The status bar hearth glyph is colored by hall spirit tier; a red cross with a count shows patients; a shield with a count shows active hostiles (those on discovered tiles that are not hidden, plus those spotted); a scale glyph shows a caravan present.
 
 ### Input model
 

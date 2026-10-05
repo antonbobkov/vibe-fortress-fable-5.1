@@ -10,6 +10,7 @@ import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
 import type { PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
+import { visibleHostiles } from '../status';
 
 export function deepQuote(level: number): string {
   switch (level) {
@@ -71,8 +72,11 @@ export function drawThreatsPanel(
 
   // Active threats
   const active = threats ? visibleThreatParties(threats) : [];
+  // D-U8: the status bar's `!n` and this line agree: hostiles in view without a party (a cavern
+  // monster come up, a wild predator) are counted here too.
+  const seen = visibleHostiles(ctx.readers);
   if (active.length === 0) {
-    label(s, col, row, 'Active: none', { fg: t.text, width });
+    label(s, col, row, seen > 0 ? `Active: ${seen} hostile creature${seen === 1 ? '' : 's'}` : 'Active: none', { fg: seen > 0 ? t.bad : t.text, width });
     row += 1;
   } else {
     for (const pId of active) {

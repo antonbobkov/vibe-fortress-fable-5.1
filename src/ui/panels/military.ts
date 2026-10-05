@@ -316,8 +316,10 @@ export function drawMilitaryPanel(
   row += 1;
 
   const squads = panel.squads(ctx);
-  const listHeight = Math.min(3, Math.max(1, squads.length));
-  table(
+  // Q13: the table's header takes a row, so the list is one row taller than its squads.
+  const listHeight = Math.min(SQUAD_MAX_COUNT, squads.length) + 1;
+  if (squads.length === 0) label(s, col, row, 'No squads yet: [+] makes one.', { fg: t.dim, width });
+  else table(
     s,
     { col, row, cols: width, rows: listHeight },
     [

@@ -174,7 +174,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M8-10 — Gate M8 — release (claude-opus, 2026-10-04)
 
 ## UI fixes ([ui-fixes/README.md](ui-fixes/README.md))
-- [ ] U-01 — Quick wins: embark default, honest messages, dead hints, small key fixes
+- [x] U-01 — Quick wins: embark default, honest messages, dead hints, small key fixes (opus-u01, 2026-10-04)
 - [ ] U-02 — Paused input takes effect at once
 - [ ] U-03 — Work orders with quantity; panel hotkeys always win
 - [ ] U-04 — Drag to place many; out-of-stock prompt

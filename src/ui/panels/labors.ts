@@ -11,7 +11,7 @@ import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { JobsReader } from '@systems/jobs';
 import type { Surface } from '../surface';
-import { label, separator, toggleGlyph } from '../widgets';
+import { clampList, label, separator, toggleGlyph } from '../widgets';
 import type { PanelContext } from './context';
 import { dwarvesOf, nameOf } from './units';
 
@@ -21,6 +21,8 @@ const NAME = 11;
 export class LaborsPanel {
   selectedRow = 0;
   firstColumn = 0;
+  /** The first dwarf row shown; the grid scrolls to keep the selected row in view (Q13). */
+  firstRow = 0;
 
   labors(ctx: PanelContext): string[] {
     return ctx.registry.table<{ id: string }>('labors').ids().slice();
@@ -90,13 +92,18 @@ export function drawLaborsPanel(s: Surface, rect: Rect, panel: LaborsPanel, ctx:
   });
   const dwarves = dwarvesOf(ctx);
   const height = Math.max(1, rect.rows - 4);
-  for (let r = 0; r < height && r < dwarves.length; r += 1) {
-    const d = dwarves[r] as EntityId;
+  const rows = { selected: panel.selectedRow, scroll: panel.firstRow };
+  clampList(rows, dwarves.length, height);
+  panel.selectedRow = rows.selected;
+  panel.firstRow = rows.scroll;
+  for (let r = 0; r < height && panel.firstRow + r < dwarves.length; r += 1) {
+    const index = panel.firstRow + r;
+    const d = dwarves[index] as EntityId;
     const row = rect.row + 1 + r;
     label(s, rect.col + 1, row, shortName(nameOf(ctx, d)).slice(0, NAME - 1), { width: NAME - 1, keys: false });
-    if (r === panel.selectedRow) s.invert({ col: rect.col + 1, row, cols: NAME - 1, rows: 1 });
+    if (index === panel.selectedRow) s.invert({ col: rect.col + 1, row, cols: NAME - 1, rows: 1 });
     s.hit({ col: rect.col + 1, row, cols: NAME - 1, rows: 1 }, () => {
-      panel.selectedRow = r;
+      panel.selectedRow = index;
     });
     columns.forEach((l, k) => {
       const col = rect.col + 1 + NAME + k * CELL;

@@ -77,7 +77,8 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
       const rows = helpKeyRows(keymap);
       for (const binding of keymap.bindings) {
         const key = `${binding.spec.ctrl ? 'Ctrl+' : ''}${binding.spec.shift ? 'Shift+' : ''}${binding.spec.key}`;
-        expect(rows.some((row) => row.category === binding.context && row.text.startsWith(`${key}  `))).toBe(true);
+        // U-01 (Q14): one action's keys share a row ("←→↑↓  pan …", "1–9  …"); each key is still listed.
+        expect(rows.some((row) => row.category === binding.context && (row.keys ?? []).includes(key))).toBe(true);
       }
       // Every context that binds anything contributes exactly one heading.
       const contexts = new Set(keymap.bindings.map((b) => b.context));

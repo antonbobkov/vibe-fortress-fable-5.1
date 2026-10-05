@@ -17,6 +17,7 @@ import type { Strings } from './strings';
 import type { MoraleReader } from '@systems/morale';
 import { MOOD_TIER_NAMES } from './panels/mood';
 import { C } from '@core/components';
+import { TileFlag } from '@core/map3d';
 import type { HealthReader } from '@systems/health';
 import type { ThreatsReader } from '@systems/threats';
 
@@ -47,14 +48,29 @@ export function statusFields(readers: ReaderSet, strings: Strings, z: number, sp
     if (n > 0) fields.push(`+${n}`);
   }
   if (readers.has('18')) {
-    const threats = readers.of<ThreatsReader>('18');
-    const n = readers.entities.with(C.Creature, C.Position).filter((id) => readers.entities.alive(id) && threats.isHostile(id) &&
-      (!threats.isStealthed(id) || threats.isSpotted(id))).length;
+    const n = visibleHostiles(readers);
     if (n > 0) fields.push(`!${n}`);
   }
   fields.push(strings.get('ui.status.z', { z }));
   fields.push(loadShedding ? `${speedText(speed)} ${strings.get('ui.status.slow')}` : speedText(speed));
   return fields;
+}
+
+/**
+ * `!n` (D-U8, S6): the hostiles on discovered tiles that are not hidden, plus every spotted one.
+ * A creature in a sealed cavern far below is not counted; the threats panel's "Active" agrees.
+ */
+export function visibleHostiles(readers: ReaderSet): number {
+  if (!readers.has('18')) return 0;
+  const threats = readers.of<ThreatsReader>('18');
+  const map = readers.map;
+  return readers.entities.with(C.Creature, C.Position).filter((id) => {
+    if (!readers.entities.alive(id) || !threats.isHostile(id)) return false;
+    if (threats.isSpotted(id)) return true;
+    const p = readers.entities.get(id, C.Position);
+    if (p === undefined || threats.isStealthed(id)) return false;
+    return (map.flagsAt(map.index(p.x, p.y, p.z)) & TileFlag.Discovered) !== 0;
+  }).length;
 }
 
 /** Row 1 as one line of `cols` cells: the fields three spaces apart, `[?] help` at the right edge. */

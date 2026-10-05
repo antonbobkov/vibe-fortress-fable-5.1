@@ -17,6 +17,8 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { BuildingRow } from '@systems/buildings';
 import type { WorkshopsReader } from '@systems/workshops';
+import type { Registry } from '@core/registry';
+import { itemName } from '../messages';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, list, separator, type ListState } from '../widgets';
@@ -39,10 +41,32 @@ function listed(row: BuildingRow, ctx: PanelContext): boolean {
     (ctx.readers.has('12') && ctx.readers.of<WorkshopsReader>('12').recipesFor(row.id).length > 0));
 }
 
-/** One input as the menu shows it: "2 log", "1 block|log". */
-function inputText(row: BuildingRow): string {
+/** The inputs as the menu shows them, by content name and the first alternative: "1 table+1 stone", "n blocks". */
+export function inputText(row: BuildingRow, registry: Registry): string {
   if (row.inputs.length === 0) return '';
-  return row.inputs.map((i) => `${i.count === 'tiles' ? 'n' : i.count} ${i.match.split('|')[0]}`).join('+');
+  return row.inputs.map((i) => {
+    const n = i.count === 'tiles' ? 2 : i.count;
+    return `${i.count === 'tiles' ? 'n' : i.count} ${itemName(registry, i.match.split('|')[0] ?? '', n)}`;
+  }).join('+');
+}
+
+/**
+ * A row of the build list in `width` cells: the name first and whole where it fits, then the
+ * inputs shortened to the room left, then the available count of the first input (D-U7, Q7).
+ */
+export function buildRowText(name: string, inputs: string, count: string, width: number): string {
+  const cells = (text: string): string[] => Array.from(text);
+  const nameCells = cells(name);
+  let right = `${inputs}${count}`;
+  const room = width - nameCells.length - 1;
+  if (cells(right).length > room) {
+    const keep = room - cells(count).length;
+    right = keep >= 4 ? `${cells(inputs).slice(0, keep - 1).join('')}…${count}` : count.trim();
+  }
+  const rightCells = cells(right);
+  const nameText = nameCells.slice(0, Math.max(1, width - rightCells.length - (rightCells.length > 0 ? 1 : 0))).join('');
+  const gap = Math.max(rightCells.length > 0 ? 1 : 0, width - cells(nameText).length - rightCells.length);
+  return `${nameText}${' '.repeat(gap)}${right}`;
 }
 
 export interface MaterialChoice {
@@ -252,14 +276,8 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
     { col: rect.col + 1, row, cols: rect.cols - 2, rows: height },
     rows.map((r) => {
       const name = r.name.charAt(0).toUpperCase() + r.name.slice(1);
-      const inputs = inputText(r);
       const count = r.inputs.length === 0 ? '' : ` (${tool.available(ctx, r)})`;
-      const right = `${inputs}${count}`;
-      const width = rect.cols - 3;
-      const rightText = Array.from(right).slice(0, Math.max(0, width - 9)).join('');
-      const nameText = Array.from(name).slice(0, Math.max(1, width - Array.from(rightText).length - 1)).join('');
-      const gap = Math.max(1, width - Array.from(nameText).length - Array.from(rightText).length);
-      return `${nameText}${' '.repeat(gap)}${rightText}`;
+      return buildRowText(name, inputText(r, ctx.registry), count, rect.cols - 3);
     }),
     tool.list,
     (index) => {

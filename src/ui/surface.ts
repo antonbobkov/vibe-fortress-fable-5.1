@@ -75,6 +75,10 @@ export const GLYPH_ALIASES: Readonly<Record<string, string>> = Object.freeze({
   '□': ' ',
   '▪': '∙',
   '…': '»',
+  // Q7: the recipe list's makeable dot, a request's priority star, and a newline in a text cell.
+  '●': '•',
+  '★': '☼',
+  '\n': ' ',
 });
 
 /** Character to glyph index over the whole glyph set; CP437 first, then the content extras. */
