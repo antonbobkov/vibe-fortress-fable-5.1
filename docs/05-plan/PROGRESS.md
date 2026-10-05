@@ -181,4 +181,4 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [ ] U-05 — Building panel
 - [ ] U-06 — Labor manager, unit and squad multi-select
 - [ ] U-07 — Stockpile editor with keyboard; room panel
-- [ ] U-08 — Tooltips, palette distances, ghosts and glyphs
+- [x] U-08 — Tooltips, palette distances, ghosts and glyphs (agy-u08, 2026-10-04)
