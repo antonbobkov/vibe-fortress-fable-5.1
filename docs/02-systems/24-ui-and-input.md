@@ -86,6 +86,7 @@ The look panel shows the tile under the cursor or the clicked tile with tabs for
 - `danger`: appended in red; the game pauses (`host.setSpeed(0)`) if the `auto-pause on danger` setting is on (default on); the view centers on the focus; the strip shows the line until dismissed by any key.
 - The log panel lists everything with filters by severity and category (combat has its own tab), newest first, and jumps to the focus on click. Log size `LOG_MAX_LINES` in memory; the last `LOG_SAVED_LINES` are saved.
 - Repeated identical announcements within `LOG_DEDUP_TICKS` are merged with a count ("×3").
+- A refused command (`CommandRejected`) shows its reason in the status bar for `STATUS_HINT_SECONDS` and is appended to the log as an alert with the command's focus. The reason names the thing and why ("Door needs walls on two opposite sides", "that zone no longer exists"); no content id, entity id, reason code or action id is shown.
 
 ### Hints
 
@@ -136,7 +137,7 @@ Implementation note: The saved legend journal implemented in T-M7-06 shares syst
 
 ### Events consumed (presentation subscriber)
 
-All events, filtered through the announcement registry; `CommandRejected` (shows the reason in the status bar for two seconds); `SeasonChanged` (autosave trigger lives in the app).
+All events, filtered through the announcement registry; `CommandRejected` (shows the reason in the status bar for `STATUS_HINT_SECONDS` and appends it to the log as an alert with the command's focus); `SeasonChanged` (autosave trigger lives in the app).
 
 ### Commands emitted
 
@@ -153,7 +154,7 @@ This entire document.
 | `LOG_MAX_LINES` | 2000 | In memory |
 | `LOG_SAVED_LINES` | 200 | |
 | `LOG_DEDUP_TICKS` | 100 | |
-| `STATUS_HINT_SECONDS` | 2 | Rejection reason display time |
+| `STATUS_HINT_SECONDS` | 4 | Rejection reason display time |
 | `HINT_CHECK_HOURS` | 1 | |
 
 ## Keymap, screens, hints and milestones (Wave 3)

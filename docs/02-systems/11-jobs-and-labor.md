@@ -165,7 +165,7 @@ Panel `jobs` (open jobs with worker and reason; labor priorities; standing order
 
 ## Player-facing behavior
 
-- Jobs panel: a list sorted by priority with columns: job, target (clickable to center), priority (editable), worker or reason. A summary line: "42 open, 18 claimed, 6 blocked (4 unreachable, 2 missing materials)". Filters by labor and state.
+- Jobs panel: a list sorted by priority with columns: job, target (clickable to center), priority (editable), worker or reason. The reason names the missing item type and count ("waiting: 1 door"), and the selected job's reason also says where the item is made when one to three workshops make it ("— order at a carpenter's workshop"). A summary line: "42 open, 18 claimed, 6 blocked (4 unreachable, 2 missing materials)". Filters by labor and state.
 - Labor grid: rows are dwarves, columns are labors; click to toggle; shift-click toggles a column for everyone; a number row above sets labor priorities.
 - The look cursor on a designation shows its job state ("Dig, priority 3, claimed by Orm Ashbrow").
 - Hints: "No one has mining enabled", "Jobs are blocked: no path (check for doors and water)".

@@ -53,6 +53,7 @@ import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import type { UiState } from '../ui-state';
 import { editText, label, labelRow } from '../widgets';
+import { blockedText, commandFocus, rejectionText } from '../messages';
 
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
 export const UI_PANELS: readonly PanelSpec[] = [
@@ -156,7 +157,7 @@ export class FortressScreen implements Screen {
   /** A danger line shown until any key dismisses it. */
   pinned: LogLine | null = null;
   private flashUntil = 0;
-  private rejection: { text: string; until: number } | null = null;
+  private message: { text: string; until: number } | null = null;
   private dragging = false;
   /**
    * `ui-keymap-and-screens.md` § Mouse: "Left drag | with no tool: select a rectangle (then
@@ -199,6 +200,7 @@ export class FortressScreen implements Screen {
       },
       openPanel: (id) => this.openPanel(id),
       shiftClick: () => this.clickShift,
+      notice: (text) => this.notice(text),
     };
   }
 
@@ -252,11 +254,15 @@ export class FortressScreen implements Screen {
         if (material !== undefined && this.host.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(material)?.deepsilver === true) this.ui.deepFound = true;
       }
       if (event.type === 'CommandRejected') {
-        // `command-catalog.md` section Rejection reasons: the reason's own `reject.<reason>` line.
-        const raw = String((event as unknown as { reason: string }).reason);
-        const key = `reject.${raw}`;
-        const reason = this.strings.has(key) ? this.strings.get(key) : raw.replace(/_/g, ' ');
-        this.rejection = { text: this.strings.get('ui.status.rejected', { reason }), until: this.host.now() + STATUS_HINT_SECONDS * 1000 };
+        // `command-catalog.md` § Rejection reasons, made specific where the command tells more
+        // (D-U4); 24 § Announcements: the status row shows it and the log keeps it as an alert
+        // with the command's focus.
+        const e = event as unknown as { reason: string; command?: Command };
+        const reason = rejectionText(this.ctx, e.command, String(e.reason));
+        const text = this.strings.get('ui.status.rejected', { reason });
+        this.notice(text);
+        this.log.append('alert', text, readers.calendar.tick, commandFocus(readers, e.command));
+        this.flashUntil = this.host.now() + ALERT_FLASH_MS;
         continue;
       }
       const done = this.log.announce(event, readers, readers.calendar.tick);
@@ -272,6 +278,19 @@ export class FortressScreen implements Screen {
       }
     }
     this.hints.onEvents(events, readers, this.settings.hintsEnabled);
+  }
+
+  /**
+   * A message on status row 2 for `STATUS_HINT_SECONDS`: a refusal, or why a gesture did nothing
+   * (D-U4: "UI-layer no-ops get a status message").
+   */
+  notice(text: string): void {
+    this.message = { text, until: this.host.now() + STATUS_HINT_SECONDS * 1000 };
+  }
+
+  /** The status message while it shows, or null. */
+  get currentNotice(): string | null {
+    return this.message !== null && this.host.now() < this.message.until ? this.message.text : null;
   }
 
   /** 02 § Arrival: the first hint appears when the paused fortress screen opens. */
@@ -517,13 +536,15 @@ export class FortressScreen implements Screen {
    */
   statusRow2(): string {
     const s = this.strings;
-    if (this.rejection !== null && this.host.now() < this.rejection.until) return this.rejection.text;
+    const notice = this.currentNotice;
+    if (notice !== null) return notice;
     if (this.build.active) {
       const row = this.build.current(this.ctx);
       const name = row === undefined ? '' : row.name.charAt(0).toUpperCase() + row.name.slice(1);
       const p = this.hoverPoint() ?? this.actionPoint();
       const ghost = this.build.ghost(this.ctx, p);
-      if (ghost !== null && ghost.reason !== null) return s.get('ui.status.build_blocked', { tool: name, reason: this.build.reasonText(s, ghost.reason, ghost.rule) });
+      const blocked = ghost === null || row === undefined ? null : blockedText(this.ctx, row.id, ghost);
+      if (blocked !== null) return s.get('ui.status.build_blocked', { tool: name, reason: blocked });
       return s.get('ui.status.build', { tool: name });
     }
     if (this.zones.active) {

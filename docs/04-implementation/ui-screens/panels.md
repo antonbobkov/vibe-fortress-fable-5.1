@@ -52,7 +52,7 @@ Stockpile settings replace the season rows with:
 │  1  Dig (52,31,z30)  Ketil Ironvein │
 │  3  Build bed        Orm Ashbrow    │
 │  5  Haul turnip      —              │
-│  5  Craft: bed       waiting: log   │
+│  5  Build bed        waiting: 1 bed │
 │  5  Dig (60,40,z29)  no path        │
 │  6  Haul stone ×12   —              │
 │ ─────────────────────────────────── │
