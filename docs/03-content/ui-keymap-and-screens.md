@@ -12,6 +12,7 @@
 | `embark` | Party, supplies, animals, name | world_map › Embark | fortress |
 | `fortress` | The game | embark, load | legend, main_menu |
 | `trade_session` | Modal exchange | fortress (depot panel › Trade) | fortress |
+| `labor_manager` | Every dwarf's labors, the labor priorities, profession templates | fortress (labors panel › `Enter`; units panel with marked dwarves) | fortress |
 | `legend` | A finished fortress's record | fortress end, main_menu › Legends | main_menu |
 | `settings` | Keys, palette, auto-pause, hints, autosave | main_menu, fortress menu | back |
 | `load` | Saves and autosaves | main_menu, fortress menu | fortress |
@@ -118,6 +119,47 @@
 | `Enter` | offer |
 | `g` | gift (offer with nothing taken) |
 | `Esc` | close |
+
+### Labor manager
+
+Opened with `Enter` in the labors panel, or from the units panel with dwarves marked.
+
+| Key | Action |
+|---|---|
+| arrows | move the labor cursor (Shift+↑↓: mark the rows passed) |
+| `Space` | mark the dwarf |
+| `*` | mark all / none |
+| `Enter` | toggle the labor (for every marked dwarf when the row is marked) |
+| `a` | whole row on / off |
+| `c` | whole column on / off (the marked dwarves, or everyone) |
+| `+` `-` | labor priority up / down |
+| `1` `9` | set the labor priority |
+| `t` | profession templates |
+| `Esc` | close |
+
+### Units panel
+
+A panel's own keys may not use a panel hotkey, so these are on `Shift` (shown `[S-t]`). An action applies to every marked dwarf when the cursor's row is marked, otherwise to the cursor's dwarf. The labors key opens the labor manager on the marked dwarves when any are marked.
+
+| Key | Action |
+|---|---|
+| `Space` | mark the row (does not pause while the list is open) |
+| `*` | mark all / none |
+| `Shift+T` | give or take away a title |
+| `Shift+N` | rename the dwarf |
+| `Shift+M` | add the marked dwarves to a squad |
+| `[` `]` | sleep an hour earlier / later |
+
+### Military panel
+
+| Key | Action |
+|---|---|
+| `Space` | mark the row (does not pause while the list is open) |
+| `*` | mark all / none |
+| `Enter` | add or remove every marked dwarf |
+| `Shift+L` | choose the squad leader |
+| `Shift+B` | assign a barracks zone |
+| `Shift+N` | rename the squad |
 
 ## Mouse
 

@@ -1,22 +1,30 @@
 /**
  * Military panel: squads, alert selector, duty and orders (`ui-screens/panels.md` § Military).
  * Spec: 16 § Squads, § Alerts, § Kills and loot; 24 § alert selector.
+ *
+ * U-06 (UI audit M11, § 3 "Add 6 dwarves to a squad"): the member list is a multi-select (`Space`
+ * marks, `*` all, `Enter` commits every marked dwarf in one `SetSquadMembers`; with none marked
+ * `Enter` takes the cursor's row). `[S-l]` picks the leader among the members (`SetSquadLeader`),
+ * `[S-b]` assigns a barracks zone (`SetZoneSetting { key: 'squad' }`), `[S-n]` renames the squad
+ * through the `text_input` dialog (`RenameSquad`). The new keys avoid the panel hotkeys (D-U2).
  */
 
 import { C } from '@core/components';
 import type { Command } from '@core/commands';
-import type { TileIndex, Alert } from '@core/types';
+import type { EntityId, TileIndex, Alert } from '@core/types';
 import { SQUAD_MAX_COUNT, SQUAD_MAX_SIZE, TICKS_PER_YEAR } from '@core/constants';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import type { Rect } from '@render/cellbuffer';
 import type { CombatReader, SquadWithId } from '@systems/combat';
 import type { Surface } from '../surface';
-import { label, separator, table, type ListState } from '../widgets';
+import { clampList, label, Marks, separator, table, type ListState } from '../widgets';
 import type { PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { FortressHost } from '../screens/fortress';
 import { creaturesAt } from './look';
 import { zoneName } from '../messages';
+import { SQUAD_NAME_MAX_CHARS } from '../constants';
+import type { BuildingsReader } from '@systems/buildings';
 import { dwarvesOf } from './units';
 
 export const SQUAD_PRESET_NAMES = [
@@ -36,13 +44,19 @@ export function shortDwarfName(fullName: string): string {
   return `${parts[0]} ${parts[1].charAt(0)}.`;
 }
 
+type ChoiceKind = 'add' | 'remove' | 'leader' | 'barracks';
+
 export class MilitaryPanel {
   readonly list: ListState = { selected: 0, scroll: 0 };
   settingStation = false;
   settingPatrol = false;
   settingKill = false;
   settingFollow = false;
-  memberChoice: { kind: 'add' | 'remove'; selected: number } | null = null;
+  /**
+   * The open list under the squad: dwarves to add or members to remove (both multi-select), the
+   * leader among the members, or the barracks zone. A barracks row's id is a zone, 0 for "none".
+   */
+  memberChoice: { kind: ChoiceKind; selected: number; scroll: number; marks: Marks } | null = null;
 
   cancel(): void {
     this.settingStation = false;
@@ -164,25 +178,122 @@ export class MilitaryPanel {
     else ctx.submit({ type: 'SetSquadStation', squadId: squad.id, tile });
   }
 
+  /** Open one of the lists, or say why it would be empty (D-U4). */
+  openChoice(ctx: PanelContext, kind: ChoiceKind): void {
+    const squad = this.selectedSquad(ctx);
+    const strings = ctx.strings;
+    if (!squad) {
+      ctx.notice?.(strings.get('ui.military.no_squad'));
+      return;
+    }
+    this.memberChoice = { kind, selected: 0, scroll: 0, marks: new Marks() };
+    let why: string | null = null;
+    if (kind === 'add' && squad.members.length >= SQUAD_MAX_SIZE) why = strings.get('ui.military.squad_full', { squad: squad.name, max: SQUAD_MAX_SIZE });
+    else if (kind === 'barracks' && this.barracksZones(ctx).length === 0) why = strings.get('ui.military.no_barracks');
+    else if (this.memberCandidates(ctx).length === 0) why = strings.get(kind === 'add' ? 'ui.military.no_candidates' : 'ui.military.no_members', { squad: squad.name });
+    if (why !== null) {
+      this.memberChoice = null;
+      ctx.notice?.(why);
+    }
+  }
+
+  /** Every barracks zone, in zone order. */
+  barracksZones(ctx: PanelContext): EntityId[] {
+    return ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14').zonesOfType('barracks') : [];
+  }
+
+  /** The barracks zone whose `squad` setting names this squad, or 0. */
+  assignedBarracks(ctx: PanelContext, squadId: EntityId): EntityId {
+    if (!ctx.readers.has('14')) return 0;
+    const b = ctx.readers.of<BuildingsReader>('14');
+    return this.barracksZones(ctx).find((z) => b.zone(z)?.settings['squad'] === squadId) ?? 0;
+  }
+
+  /** How many more dwarves the squad takes. */
+  freeSlots(ctx: PanelContext): number {
+    const squad = this.selectedSquad(ctx);
+    return squad ? Math.max(0, SQUAD_MAX_SIZE - squad.members.length) : 0;
+  }
+
+  /** `Space` in an add or remove list: mark the row; an add list takes no more marks than free places. */
+  toggleMark(ctx: PanelContext, index?: number): boolean {
+    const choice = this.memberChoice;
+    if (!choice || (choice.kind !== 'add' && choice.kind !== 'remove')) return false;
+    const id = this.memberCandidates(ctx)[index ?? choice.selected];
+    if (id === undefined) return true;
+    if (choice.kind === 'add' && !choice.marks.has(id) && choice.marks.size >= this.freeSlots(ctx)) {
+      ctx.notice?.(ctx.strings.get('ui.military.no_room', { free: this.freeSlots(ctx) }));
+      return true;
+    }
+    choice.marks.toggle(id);
+    return true;
+  }
+
+  /** `*`: mark every row (as many as the squad has room for), or none when that many are marked. */
+  markAll(ctx: PanelContext): void {
+    const choice = this.memberChoice;
+    if (!choice || (choice.kind !== 'add' && choice.kind !== 'remove')) return;
+    const rows = this.memberCandidates(ctx);
+    const reach = choice.kind === 'add' ? rows.slice(0, this.freeSlots(ctx)) : rows;
+    if (choice.marks.size >= reach.length) choice.marks.clear();
+    else {
+      choice.marks.clear();
+      choice.marks.all(reach);
+      if (reach.length < rows.length) ctx.notice?.(ctx.strings.get('ui.military.no_room', { free: reach.length }));
+    }
+  }
+
+  /**
+   * `Enter`: every marked row, or the cursor's with none marked. One `SetSquadMembers` for an add
+   * or a remove; `SetSquadLeader`; or the `SetZoneSetting`s that move the squad's barracks.
+   */
+  commitChoice(ctx: PanelContext, index?: number): Command[] {
+    const squad = this.selectedSquad(ctx);
+    const choice = this.memberChoice;
+    if (!squad || !choice) return [];
+    const rows = this.memberCandidates(ctx);
+    const at = rows[index ?? choice.selected];
+    this.memberChoice = null;
+    if (choice.kind === 'leader') return at === undefined ? [] : [{ type: 'SetSquadLeader', squadId: squad.id, leaderId: at }];
+    if (choice.kind === 'barracks') {
+      if (at === undefined) return [];
+      // One barracks per squad: the zone it had lets go, the chosen one (0: none) takes it.
+      const out: Command[] = [];
+      for (const zone of this.barracksZones(ctx)) {
+        const b = ctx.readers.of<BuildingsReader>('14');
+        if (zone !== at && b.zone(zone)?.settings['squad'] === squad.id) out.push({ type: 'SetZoneSetting', zoneId: zone, key: 'squad', value: 0 });
+      }
+      if (at !== 0) out.push({ type: 'SetZoneSetting', zoneId: at, key: 'squad', value: squad.id });
+      return out;
+    }
+    const picked = choice.marks.size > 0 ? choice.marks.list(rows) : at === undefined ? [] : [at];
+    if (picked.length === 0) return [];
+    const members = choice.kind === 'add' ? [...squad.members, ...picked].slice(0, SQUAD_MAX_SIZE) : squad.members.filter((m) => !picked.includes(m));
+    return [{ type: 'SetSquadMembers', squadId: squad.id, members }];
+  }
+
+  /** `[S-n]`: the `text_input` dialog, then `RenameSquad`. */
+  rename(ctx: PanelContext): void {
+    const squad = this.selectedSquad(ctx);
+    if (!squad) {
+      ctx.notice?.(ctx.strings.get('ui.military.no_squad'));
+      return;
+    }
+    ctx.prompt?.({ title: ctx.strings.get('ui.military.rename_title', { squad: squad.name }), value: squad.name, maxLength: SQUAD_NAME_MAX_CHARS }, (text) => {
+      if (text !== null && text !== squad.name) ctx.submit({ type: 'RenameSquad', squadId: squad.id, name: text });
+    });
+  }
+
   memberCandidates(ctx: PanelContext): number[] {
     const squad = this.selectedSquad(ctx);
     if (!squad || !this.memberChoice) return [];
-    if (this.memberChoice.kind === 'remove') return [...squad.members];
+    if (this.memberChoice.kind === 'remove' || this.memberChoice.kind === 'leader') return [...squad.members];
+    if (this.memberChoice.kind === 'barracks') return [0, ...this.barracksZones(ctx)];
     const assigned = new Set(this.squads(ctx).flatMap((s) => s.members));
     return dwarvesOf(ctx).filter((id) => {
       const c = ctx.readers.entities.get(id, C.Creature);
       return c?.faction === 'fortress' && c.ageTicks >= ADULT_AGE_YEARS * TICKS_PER_YEAR && ctx.readers.entities.alive(id) && !assigned.has(id);
     });
-  }
-
-  chooseMember(ctx: PanelContext, index: number): Command | null {
-    const squad = this.selectedSquad(ctx);
-    const choice = this.memberChoice;
-    const id = this.memberCandidates(ctx)[index];
-    if (!squad || !choice || id === undefined) return null;
-    this.memberChoice = null;
-    const members = choice.kind === 'add' ? [...squad.members, id] : squad.members.filter((m) => m !== id);
-    return { type: 'SetSquadMembers', squadId: squad.id, members };
   }
 
   setPatrol(ctx: PanelContext, tile: TileIndex, host?: FortressHost): void {
@@ -227,8 +338,14 @@ export class MilitaryPanel {
         this.memberChoice.selected = Math.max(0, Math.min(candidates.length - 1, this.memberChoice.selected + (up ? -1 : 1)));
         return true;
       }
-      if (k === 'Enter') return submit(this.chooseMember(ctx, this.memberChoice.selected));
-      return false;
+      if (k === ' ' || k === 'Space') return this.toggleMark(ctx);
+      if (k === '*') { this.markAll(ctx); return true; }
+      if (k === 'Enter') {
+        for (const cmd of this.commitChoice(ctx)) submit(cmd);
+        return true;
+      }
+      // The list is modal within the panel: the squad keys under it wait.
+      return k.length === 1;
     }
 
     if (up || down) {
@@ -260,6 +377,10 @@ export class MilitaryPanel {
       return true;
     }
     if (letter === 'c') return submit(this.clearStation(ctx));
+    // U-06: the leader, the barracks and the squad's name, on Shift so no panel hotkey is taken.
+    if (letter === 'l' && press.shift) { this.openChoice(ctx, 'leader'); return true; }
+    if (letter === 'b' && press.shift) { this.openChoice(ctx, 'barracks'); return true; }
+    if (letter === 'n' && press.shift) { this.rename(ctx); return true; }
     if (letter === 'p' && press.shift) {
       const squad = this.selectedSquad(ctx);
       return submit(squad ? { type: 'SetSquadPatrol', squadId: squad.id, tiles: [] } : null);
@@ -275,8 +396,8 @@ export class MilitaryPanel {
     if (letter === 'o') return submit(this.setMode(ctx, 'off'));
     if (letter === 't') return submit(this.setMode(ctx, 'train'));
     if (letter === 'v') return submit(this.setMode(ctx, 'active'));
-    if (letter === 'a') { this.memberChoice = { kind: 'add', selected: 0 }; return true; }
-    if (letter === 'r') { this.memberChoice = { kind: 'remove', selected: 0 }; return true; }
+    if (letter === 'a') { this.openChoice(ctx, 'add'); return true; }
+    if (letter === 'r') { this.openChoice(ctx, 'remove'); return true; }
     if (letter === 'w') return submit(this.cycleWeapon(ctx));
     if (letter === 'g') return submit(this.cycleArmor(ctx));
     if (letter === 'j') return submit(this.toggleRanged(ctx));
@@ -353,20 +474,7 @@ export function drawMilitaryPanel(
   if (!squad) return;
 
   if (panel.memberChoice) {
-    separator(s, col, row, width, panel.memberChoice.kind === 'add' ? 'Add squad member' : 'Remove squad member');
-    row += 1;
-    const ids = panel.memberCandidates(ctx);
-    const start = Math.max(0, panel.memberChoice.selected - Math.max(0, rect.rows - row + rect.row - 3));
-    for (let k = start; k < ids.length && row < rect.row + rect.rows - 1; k += 1) {
-      const id = ids[k] as number;
-      label(s, col, row, `${k === panel.memberChoice.selected ? '▶' : ' '} ${ctx.readers.entities.get(id, C.Creature)?.name ?? 'a dwarf'}`, { width });
-      s.hit({ col, row, cols: width, rows: 1 }, () => {
-        const cmd = panel.chooseMember(ctx, k);
-        if (cmd) ctx.submit(cmd);
-      });
-      row += 1;
-    }
-    label(s, col, rect.row + rect.rows - 1, '[Enter] select  [Esc] cancel', { width });
+    drawChoice(s, rect, row, panel, ctx);
     return;
   }
 
@@ -383,6 +491,10 @@ export function drawMilitaryPanel(
     leaderText = leaderTitle ? `${name} (${leaderTitle.charAt(0).toUpperCase() + leaderTitle.slice(1)})` : name;
   }
   label(s, col, row, `Leader  ${leaderText}`, { width });
+  row += 1;
+  label(s, col, row, ctx.strings.get('ui.military.leader_keys'), { width });
+  s.hit({ col: col + 8, row, cols: 10, rows: 1 }, () => panel.openChoice(ctx, 'leader'));
+  s.hit({ col: col + 20, row, cols: 12, rows: 1 }, () => panel.rename(ctx));
   row += 1;
 
   label(s, col, row, `Mode: ${squad.mode}`, { width });
@@ -402,12 +514,8 @@ export function drawMilitaryPanel(
   label(s, col, row, `Members ${membersStr}`, { width });
   row += 1;
   label(s, col, row, '        [a] add  [r] remove', { width });
-  s.hit({ col: col + 8, row, cols: 7, rows: 1 }, () => {
-    panel.memberChoice = { kind: 'add', selected: 0 };
-  });
-  s.hit({ col: col + 17, row, cols: 10, rows: 1 }, () => {
-    panel.memberChoice = { kind: 'remove', selected: 0 };
-  });
+  s.hit({ col: col + 8, row, cols: 7, rows: 1 }, () => panel.openChoice(ctx, 'add'));
+  s.hit({ col: col + 17, row, cols: 10, rows: 1 }, () => panel.openChoice(ctx, 'remove'));
   row += 1;
 
   // Gear preferences have separate rows so every control fits a narrow sidebar.
@@ -471,10 +579,69 @@ export function drawMilitaryPanel(
   });
   row += 1;
 
-  // Barracks line
-  if (squad.barracksZoneId > 0) {
-    label(s, col, row, `${zoneName(ctx, squad.barracksZoneId)} · training active`, { fg: t.dim, width });
-  } else {
-    label(s, col, row, 'Barracks none · assign zone', { fg: t.dim, width });
+  // Barracks: the zone assigned to the squad (`SetZoneSetting`), and the one it trains at when
+  // that differs (16 keeps the first barracks a squad trained in).
+  const strings = ctx.strings;
+  const assigned = panel.assignedBarracks(ctx, squad.id);
+  const used = squad.barracksZoneId;
+  const barracks = assigned !== 0
+    ? strings.get(used !== 0 && used !== assigned ? 'ui.military.barracks_other' : 'ui.military.barracks_assigned', { zone: zoneName(ctx, assigned), used: zoneName(ctx, used) })
+    : used !== 0 ? strings.get('ui.military.barracks_used', { zone: zoneName(ctx, used) }) : strings.get('ui.military.barracks_none');
+  label(s, col, row, barracks, { fg: assigned !== 0 ? t.text : t.dim, width });
+  s.hit({ col, row, cols: width, rows: 1 }, () => panel.openChoice(ctx, 'barracks'));
+}
+
+/** The open list: dwarves to add, members to remove, the leader, or the barracks. */
+function drawChoice(s: Surface, rect: Rect, top: number, panel: MilitaryPanel, ctx: PanelContext): void {
+  const choice = panel.memberChoice;
+  const squad = panel.selectedSquad(ctx);
+  if (!choice || !squad) return;
+  const strings = ctx.strings;
+  const col = rect.col + 1;
+  const width = rect.cols - 2;
+  const multi = choice.kind === 'add' || choice.kind === 'remove';
+  const ids = panel.memberCandidates(ctx);
+  choice.marks.prune(ids);
+  separator(s, col, top, width, strings.get(`ui.military.choice.${choice.kind}`, { n: choice.marks.size, free: panel.freeSlots(ctx) }));
+  const first = top + 1;
+  const foot = rect.row + rect.rows - 1;
+  const height = Math.max(1, foot - first - (multi ? 1 : 0));
+  const state = { selected: choice.selected, scroll: choice.scroll };
+  clampList(state, ids.length, height);
+  choice.selected = state.selected;
+  choice.scroll = state.scroll;
+  const b = ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : null;
+  for (let r = 0; r < height && state.scroll + r < ids.length; r += 1) {
+    const k = state.scroll + r;
+    const id = ids[k] as number;
+    let text: string;
+    if (choice.kind === 'barracks') {
+      const holder = id === 0 ? 0 : Number(b?.zone(id)?.settings['squad'] ?? 0);
+      const other = holder === 0 || holder === squad.id ? undefined : panel.squads(ctx).find((sq) => sq.id === holder)?.name;
+      text = id === 0 ? strings.get('ui.military.barracks_row_none') : other === undefined ? zoneName(ctx, id) : strings.get('ui.military.barracks_row_taken', { zone: zoneName(ctx, id), squad: other });
+      if (id !== 0 && id === panel.assignedBarracks(ctx, squad.id)) text = strings.get('ui.military.barracks_row_current', { zone: zoneName(ctx, id) });
+    } else {
+      const name = ctx.readers.entities.get(id, C.Creature)?.name ?? strings.get('ui.military.a_dwarf');
+      text = choice.kind === 'leader' && id === squad.leaderId ? strings.get('ui.military.leader_row_current', { dwarf: name }) : name;
+    }
+    const mark = choice.marks.has(id) ? '•' : ' ';
+    const cells = { col, row: first + r, cols: width, rows: 1 };
+    label(s, col, cells.row, `${mark} ${text}`, { fg: choice.marks.has(id) ? s.theme.value : s.theme.text, width, keys: false });
+    if (k === choice.selected) s.invert(cells);
+    // A click marks a row of a multi-select list (as `Space`), and chooses one of the others.
+    s.hit(cells, () => {
+      choice.selected = k;
+      if (multi) panel.toggleMark(ctx, k);
+      else for (const cmd of panel.commitChoice(ctx, k)) ctx.submit(cmd);
+    });
   }
+  const commit = (): void => { for (const cmd of panel.commitChoice(ctx)) ctx.submit(cmd); };
+  if (multi) {
+    label(s, col, foot - 1, strings.get('ui.military.choice_keys_mark'), { width });
+    s.hit({ col, row: foot - 1, cols: 12, rows: 1 }, () => { panel.toggleMark(ctx); });
+    s.hit({ col: col + 14, row: foot - 1, cols: 7, rows: 1 }, () => panel.markAll(ctx));
+  }
+  label(s, col, foot, strings.get('ui.military.choice_keys'), { width });
+  s.hit({ col, row: foot, cols: 14, rows: 1 }, commit);
+  s.hit({ col: col + 16, row: foot, cols: 12, rows: 1 }, () => { panel.memberChoice = null; });
 }

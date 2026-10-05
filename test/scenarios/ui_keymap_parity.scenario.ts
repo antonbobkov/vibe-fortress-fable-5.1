@@ -7,7 +7,7 @@
  * The three tables are parsed out of the document, so a row added there fails this scenario until it
  * is implemented (D-200):
  *
- * 1. § Keymap — every key cell of the five context tables is a row of `keymap.json` with the same
+ * 1. § Keymap — every key cell of the context tables is a row of `keymap.json` with the same
  *    action wording, and back; every row resolves in its context to the `ACTION_IDS` id of its
  *    wording.
  * 2. § Fortress panels — every row's panel is in the fortress screen's panel list under that
@@ -41,6 +41,10 @@ const CONTEXT_OF: Readonly<Record<string, string>> = {
   'World map': 'world_map',
   Embark: 'embark',
   'Trade session': 'trade_session',
+  // U-06: the labor manager and the units and military panels' own keys.
+  'Labor manager': 'labor_manager',
+  'Units panel': 'units_panel',
+  'Military panel': 'military_panel',
 };
 
 interface DocRow { readonly context: string; readonly keys: string[]; readonly action: string }

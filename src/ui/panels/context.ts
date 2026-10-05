@@ -7,7 +7,7 @@
 import type { Command } from '@core/commands';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
-import type { TileIndex } from '@core/types';
+import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import type { Strings } from '../strings';
@@ -27,6 +27,10 @@ export interface PanelContext {
   shiftClick(): boolean;
   /** A message on the status row: why an action did nothing (D-U4). Absent outside the fortress screen. */
   notice?(text: string): void;
+  /** Open the labor manager, with these dwarves marked or the cursor on one (U-06). Absent outside the app. */
+  laborManager?(open: { readonly marked?: readonly EntityId[]; readonly focus?: EntityId | undefined }): void;
+  /** Ask for a line of text (the `text_input` dialog): a rename (U-06). Absent outside the app. */
+  prompt?(spec: { readonly title: string; readonly value: string; readonly maxLength: number }, answer: (text: string | null) => void): void;
 }
 
 export function items(ctx: PanelContext): ItemsReader | null {

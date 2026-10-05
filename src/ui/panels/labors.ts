@@ -4,6 +4,10 @@
  * `labors.json` under two-letter heads; the columns that do not fit scroll with `←`/`→` while the
  * panel is open. A click submits `SetLabor`; a shift-click sets the whole column to the opposite of
  * "every dwarf has it"; `[a]` does the same for the selected dwarf's row (D-077).
+ *
+ * The panel is the quick view; `Enter` (or a click on its last row) opens the labor manager, the
+ * full-window screen with every column, the priorities and the templates (UI audit M5, D-246).
+ * Hovering a column head names the labor in full.
  */
 
 import type { Command } from '@core/commands';
@@ -86,12 +90,14 @@ export function drawLaborsPanel(s: Surface, rect: Rect, panel: LaborsPanel, ctx:
   const more = panel.firstColumn + columns.length < panel.labors(ctx).length ? '…' : '';
   label(s, rect.col + 1, rect.row, head + more, { fg: t.key, width: rect.cols - 2, keys: false });
   columns.forEach((l, k) => {
-    s.hit({ col: rect.col + 1 + NAME + k * CELL, row: rect.row, cols: 2, rows: 1 }, () => {
+    const cell = { col: rect.col + 1 + NAME + k * CELL, row: rect.row, cols: 2, rows: 1 };
+    s.tooltip({ ...cell, cols: CELL }, labors.byId(l)?.name ?? l);
+    s.hit(cell, () => {
       for (const c of panel.toggleColumn(ctx, l)) ctx.submit(c);
     });
   });
   const dwarves = dwarvesOf(ctx);
-  const height = Math.max(1, rect.rows - 4);
+  const height = Math.max(1, rect.rows - 5);
   const rows = { selected: panel.selectedRow, scroll: panel.firstRow };
   clampList(rows, dwarves.length, height);
   panel.selectedRow = rows.selected;
@@ -118,4 +124,6 @@ export function drawLaborsPanel(s: Surface, rect: Rect, panel: LaborsPanel, ctx:
   separator(s, rect.col + 1, row, rect.cols - 2);
   label(s, rect.col + 1, row + 1, strings.get('ui.labors.help1'), { fg: t.dim, width: rect.cols - 2 });
   label(s, rect.col + 1, row + 2, strings.get('ui.labors.help2'), { fg: t.dim, width: rect.cols - 2 });
+  label(s, rect.col + 1, row + 3, strings.get('ui.labors.manager'), { width: rect.cols - 2 });
+  s.hit({ col: rect.col + 1, row: row + 3, cols: rect.cols - 2, rows: 1 }, () => ctx.laborManager?.({ focus: dwarves[panel.selectedRow] }));
 }
