@@ -1,3 +1,4 @@
+import { stepThreeYears } from '../scenarios/three_years_measurements';
 /**
  * Reusable instrument for T-M8-06: decomposes dwarf mood in the three_years simulation.
  *
@@ -7,7 +8,7 @@
  * - top positive and negative contributors;
  * - comparison between upgraded fortress and bare layout (2fcf0b6);
  * - confirmation across seeds;
- * - bedroom dig jobs status at days 30, 100, 365, 1095;
+ * - bedroom dig jobs status at days 30, 100, 112, 224, 336;
  * - miners daily activity histogram and cancellation counts;
  * - water drink breakdown into categories (i)-(v);
  * - full 24-hour trace of Day 100.
@@ -31,11 +32,13 @@ import authoredThoughts from '@content/thoughts.json';
 import { TestWorld } from '../scenarios/test-world';
 import {
   setupThreeYearsFortress,
+  threeYearsWorld,
   checkFortressWorkOrders,
   checkFortressRooms,
   checkFortressCaveFarm,
   checkFortressDefense,
   type BedroomPlan,
+  HALL_Z,
 } from '../scenarios/three_years_fortress';
 
 const Z = FLAT_TEST_SURFACE_Z;
@@ -134,6 +137,8 @@ export interface MoodDecompositionResult {
   readonly totalDwarfDays: number;
   readonly finalPop: number;
   readonly meanMood: number;
+  readonly baselineForMean55: number;
+  readonly baselineForMean70: number;
   readonly minMood: number;
   readonly maxMood: number;
   readonly moodBreakdown: Record<string, number>;
@@ -291,39 +296,25 @@ function runBare2fcf0b6(seed: string): MoodDecompositionResult {
 }
 
 function runUpgraded(seed: string): MoodDecompositionResult {
-  const w = new TestWorld({
-    seed,
-    map: buildFlatTestMap(undefined, 48, 48),
-    spec: regionSpec(seed, { peril: 0 }),
-    embark: 'default',
-  });
+  const w = threeYearsWorld(seed);
 
   const state = setupThreeYearsFortress(w);
   const cx = state.cx;
   const cy = state.cy;
-  const buildings = w.readers.of<BuildingsReader>('14');
 
   // Advance bootstrap period (20 days)
   const totalTicksBootstrap = 20 * TICKS_PER_DAY;
   while (w.tick < totalTicksBootstrap) {
-    w.step(Math.min(100, totalTicksBootstrap - w.tick));
+    stepThreeYears(w, Math.min(100, totalTicksBootstrap - w.tick));
     checkFortressWorkOrders(w, state);
     checkFortressRooms(w, state);
     checkFortressCaveFarm(w, state);
     checkFortressDefense(w, state);
   }
 
-  // Trade depot
-  for (const at of [w.index(cx - 9, cy + 4, Z), w.index(cx - 9, cy + 8, Z), w.index(cx + 8, cy + 14, Z)]) {
-    if (buildings.ghost('trade_depot', at, 0).reason !== null) continue;
-    const placed = w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'trade_depot', origin: at, orientation: 0, materialChoice: 0 });
-    if (placed.ok) break;
-  }
-  w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', priority: 1 }] });
-
   const allBedroomTiles: number[] = [];
   for (const bp of state.bedroomPlans) {
-    allBedroomTiles.push(w.index(bp.doorX, bp.doorY, 29));
+    allBedroomTiles.push(w.index(bp.doorX, bp.doorY, HALL_Z));
     allBedroomTiles.push(...bp.tiles);
   }
 
@@ -462,6 +453,7 @@ function runSamplingLoop(
 
   let totalDwarfDays = 0;
   let sumMood = 0;
+  const baselineSamples: { offset: number; floor: number }[] = [];
   let minMood = 100;
   let maxMood = 0;
   const moodBreakdown: Record<string, number> = { Fine: 0, Content: 0, Happy: 0, Unhappy: 0, Miserable: 0, Ecstatic: 0 };
@@ -524,7 +516,7 @@ function runSamplingLoop(
     }
     if (bedroomPlans) {
       for (const bp of bedroomPlans) {
-        const doorTile = w.index(bp.doorX, bp.doorY, 29);
+        const doorTile = w.index(bp.doorX, bp.doorY, HALL_Z);
         if (w.map.kindAt(doorTile) === TileKind.Floor) doorsDug += 1;
       }
     }
@@ -640,6 +632,8 @@ function runSamplingLoop(
       const floor = MOOD_NEEDS_MET_FLOOR - cappedNP;
       const clamped = Math.max(MOOD_MIN, Math.min(100, Math.max(raw, floor)));
 
+      baselineSamples.push({ offset: raw - MOOD_BASELINE, floor });
+
       const uncappedRaw = MOOD_BASELINE + rawPos - rawNeg - rawNeedPressure + hearthBonus + pBase;
       const capEffect = raw - uncappedRaw;
       sumCapEffect += capEffect;
@@ -652,7 +646,8 @@ function runSamplingLoop(
   while (w.tick < totalTicks) {
     const isTraceWindow = w.tick >= TRACE_START_TICK && w.tick < TRACE_END_TICK;
     const stepSize = isTraceWindow ? 50 : (upgraded ? 300 : 600);
-    w.step(Math.min(stepSize, totalTicks - w.tick));
+    if (upgraded) stepThreeYears(w, Math.min(stepSize, totalTicks - w.tick));
+    else w.step(Math.min(stepSize, totalTicks - w.tick));
     onStep();
 
     if (isTraceWindow) {
@@ -692,9 +687,9 @@ function runSamplingLoop(
     }
   }
 
-  // Sample day 1095 final state if not yet sampled
-  if (upgraded && bedroomDigSnapshots.length > 0 && bedroomDigSnapshots[bedroomDigSnapshots.length - 1]?.day !== 1095) {
-    sampleBedroomDigJobs(1095);
+  // Sample the three-year boundary (112 days per year) if not yet sampled
+  if (upgraded && bedroomDigSnapshots.length > 0 && bedroomDigSnapshots[bedroomDigSnapshots.length - 1]?.day !== 3 * DAYS_PER_YEAR) {
+    sampleBedroomDigJobs(3 * DAYS_PER_YEAR);
   }
 
   const authoredMap = new Map<string, string>();
@@ -807,11 +802,11 @@ function runSamplingLoop(
 
     if (bedroomPlans) {
       bedroomRoomStatus = bedroomPlans.map((bp, idx) => {
-        const doorTile = w.index(bp.doorX, bp.doorY, 29);
+        const doorTile = w.index(bp.doorX, bp.doorY, HALL_Z);
         const doorDug = w.map.kindAt(doorTile) === TileKind.Floor;
         const floorsDug = bp.tiles.filter((t) => w.map.kindAt(t) === TileKind.Floor).length;
         const wallsRemaining = bp.tiles.length - floorsDug;
-        const corridorTile = w.index(cx + 6, cy + 6, 29);
+        const corridorTile = w.index(cx + 6, cy + 6, HALL_Z);
         const doorReachableFromCorridor = w.readers.pathing.reachable(corridorTile, doorTile, 'walker');
         const anyWallReachable = bp.tiles.some((t) => {
           if (w.map.kindAt(t) !== TileKind.Wall) return false;
@@ -855,11 +850,25 @@ function runSamplingLoop(
     };
   }
 
+  // Frozen-observation sensitivity: no constant or world state is changed.
+  const baselineForMean = (target: number): number => {
+    let low = 0, high = 150;
+    for (let iteration = 0; iteration < 50; iteration += 1) {
+      const midpoint = (low + high) / 2;
+      const mean = baselineSamples.reduce((sum, sample) => sum + Math.max(MOOD_MIN, Math.min(100, Math.max(midpoint + sample.offset, sample.floor))), 0) / baselineSamples.length;
+      if (mean < target) low = midpoint;
+      else high = midpoint;
+    }
+    return (low + high) / 2;
+  };
+
   return {
     seed,
     upgraded,
     totalDwarfDays,
     finalPop,
+    baselineForMean55: baselineForMean(55),
+    baselineForMean70: baselineForMean(70),
     meanMood: totalDwarfDays > 0 ? sumMood / totalDwarfDays : 55,
     minMood,
     maxMood,
@@ -884,6 +893,7 @@ function runSamplingLoop(
 describe('T-M8-06 mood breakdown instrument (perf tier)', () => {
   it('measures decomposition on upgraded main seed', () => {
     const res = runMoodDecomposition('three-years', true);
+    console.log(`[three_years_mood] ${JSON.stringify(res)}`);
 
     console.log(`=== UPGRADED MAIN SEED (${res.seed}) ===`);
     console.log(`Dwarf-days: ${res.totalDwarfDays}, Final Pop: ${res.finalPop}`);
@@ -969,6 +979,7 @@ describe('T-M8-06 mood breakdown instrument (perf tier)', () => {
 
   it('measures decomposition on bare layout (2fcf0b6)', () => {
     const res = runMoodDecomposition('three-years', false);
+    console.log(`[three_years_mood] ${JSON.stringify(res)}`);
 
     console.log(`=== BARE LAYOUT (2fcf0b6) (${res.seed}) ===`);
     console.log(`Dwarf-days: ${res.totalDwarfDays}, Final Pop: ${res.finalPop}`);
@@ -999,6 +1010,7 @@ describe('T-M8-06 mood breakdown instrument (perf tier)', () => {
   it('confirms decomposition on sweep seeds', () => {
     for (const seed of ['three-years-p0-1', 'three-years-p0-2']) {
       const res = runMoodDecomposition(seed, true);
+      console.log(`[three_years_mood] ${JSON.stringify(res)}`);
       console.log(`=== SEED ${seed} ===`);
       console.log(`Mean mood: ${res.meanMood.toFixed(2)} (min: ${res.minMood.toFixed(1)}, max: ${res.maxMood.toFixed(1)})`);
       console.log(`Mood breakdown: Fine: ${res.moodBreakdown['Fine']}, Content: ${res.moodBreakdown['Content']}, Unhappy: ${res.moodBreakdown['Unhappy']}, Miserable: ${res.moodBreakdown['Miserable']}`);
