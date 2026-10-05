@@ -9,12 +9,15 @@ import type { ItemsReader } from '@systems/items';
 import type { DwarvesReader } from '@systems/dwarves';
 import { requiredValue, type TradeReader } from '@systems/trade';
 import { clickHit, type CellPointer, type Screen } from '../screen';
+import { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { clampList, label, type ListState } from '../widgets';
 
 export interface TradeSessionHost {
   readonly readers: ReaderSet;
   readonly registry: Registry;
+  /** The strings table; the defaults when absent. */
+  readonly strings?: Strings;
   submit(command: Command): void;
   /** Apply a queued command while the modal keeps the game paused. */
   commandTick(): void;
@@ -57,8 +60,13 @@ export class TradeSessionScreen implements Screen {
   side: 'merchant' | 'fortress' = 'merchant';
   private last: Surface | null = null;
   private scrub: { id: EntityId; side: 'merchant' | 'fortress'; col: number; quantity: number } | null = null;
+  /** §4.2: why the last `Enter` or `[g]` sent nothing, shown on the verdict line until the next change. */
+  notice: string | null = null;
+  private readonly strings: Strings;
 
-  constructor(private readonly host: TradeSessionHost) {}
+  constructor(private readonly host: TradeSessionHost) {
+    this.strings = host.strings ?? new Strings(host.registry);
+  }
 
   private trade(): TradeReader { return this.host.readers.of<TradeReader>('20'); }
   private items(): ItemsReader { return this.host.readers.of<ItemsReader>('13'); }
@@ -104,17 +112,19 @@ export class TradeSessionScreen implements Screen {
   }
 
   private change(delta: number): void {
+    this.notice = null;
     const row = this.selected();
     if (row) this.setQuantity(this.side, row.id, this.quantity(this.side, row.id) + delta);
   }
 
   private offer(gift: boolean): void {
-    if (gift && this.take.size > 0) return;
+    this.notice = null;
+    if (gift && this.take.size > 0) { this.notice = this.strings.get('ui.trade.gift_takes_nothing'); return; }
     const give = this.goods('fortress').flatMap((row) => {
       const count = this.give.get(row.id) ?? 0;
       return count > 0 ? [{ itemId: row.id, count }] : [];
     });
-    if (give.length === 0) return;
+    if (give.length === 0) { this.notice = this.strings.get('ui.trade.choose_goods'); return; }
     const take = gift ? [] : this.goods('merchant').flatMap((row) => {
       const count = this.take.get(row.id) ?? 0;
       return count > 0 ? [{ itemId: row.id, count }] : [];
@@ -191,7 +201,8 @@ export class TradeSessionScreen implements Screen {
     const totals = this.totals();
     surface.text(2, footer, `We take ${Math.round(totals.take)} ☼ · We give ${Math.round(totals.give)} ☼ (their valuation) · They want at least ${trade.marginPercent(civ)}% over: ${totals.required} ☼`, t.value);
     const wood = trade.session()?.woodWarning ?? false;
-    surface.text(2, footer + 1, wood ? 'We do not care for wooden things.' : totals.shortfall > 0 ? `Not enough. Add ${totals.shortfall} ☼ of goods.` : 'A fair offer.', totals.shortfall > 0 ? t.bad : t.good);
+    if (this.notice !== null) surface.text(2, footer + 1, this.notice, t.alert);
+    else surface.text(2, footer + 1, wood ? 'We do not care for wooden things.' : totals.shortfall > 0 ? `Not enough. Add ${totals.shortfall} ☼ of goods.` : 'A fair offer.', totals.shortfall > 0 ? t.bad : t.good);
     surface.text(2, footer + 2, '[Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close', t.dim);
   }
 

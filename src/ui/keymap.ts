@@ -103,6 +103,8 @@ export interface Binding {
   readonly spec: KeySpec;
   readonly id: string;
   readonly arg?: string | number;
+  /** The keymap table's own wording for this row (help and settings show it). */
+  readonly text?: string;
 }
 
 /** Persist only changes from content defaults, keyed by the stable expanded row index. */
@@ -190,7 +192,7 @@ export class Keymap {
           if (id === 'priority' && row.key === '9' && key !== '9') continue;
           const s = { ...spec, key };
           const arg = key === 'any-letter' ? undefined : argOf(id, key);
-          const binding: Binding = arg === undefined ? { context, spec: s, id } : { context, spec: s, id, arg };
+          const binding: Binding = arg === undefined ? { context, spec: s, id, text: row.action } : { context, spec: s, id, arg, text: row.action };
           if (!out.some((b) => b.context === context && sameSpec(b.spec, s))) out.push(binding);
         }
       }

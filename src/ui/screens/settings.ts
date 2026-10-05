@@ -1,6 +1,7 @@
 /** Player preferences and keybinding editor (T-M7-07, menus-and-world.md § Settings). */
 import type { KeyPress } from '@platform/input';
 import { keyLabel, type Binding, type Keymap, type KeySpec } from '../keymap';
+import { actionText, contextTitle } from '../panels/help';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { UserSettings } from '../settings';
 import type { Surface } from '../surface';
@@ -128,12 +129,13 @@ export class SettingsScreen implements Screen {
     const rows = this.host.keymap.bindings;
     const height = Math.max(1, surface.rows - 6);
     clampList(this.bindingList, rows.length, height);
-    label(surface, 2, 2, 'Context         Action                    Key', { fg: t.key });
+    label(surface, 2, 2, 'Context         Action                                    Key', { fg: t.key });
     for (let index = this.bindingList.scroll; index < Math.min(rows.length, this.bindingList.scroll + height); index += 1) {
       const binding = rows[index] as Binding;
       const row = 3 + index - this.bindingList.scroll;
       const prefix = this.bindingList.selected === index ? '▶' : ' ';
-      label(surface, 2, row, `${prefix} ${binding.context.padEnd(14)} ${binding.id.padEnd(25)} ${keyLabel(binding.spec)}`, { fg: this.bindingList.selected === index ? t.key : t.text, width: surface.cols - 4 });
+      // Q3: the context title and the help's wording, never the action id.
+      label(surface, 2, row, `${prefix} ${contextTitle(binding.context).padEnd(14)} ${Array.from(actionText(binding)).slice(0, 40).join('').padEnd(41)} ${keyLabel(binding.spec)}`, { fg: this.bindingList.selected === index ? t.key : t.text, width: surface.cols - 4 });
       surface.hit({ col: 2, row, cols: surface.cols - 4, rows: 1 }, () => { this.bindingList.selected = index; this.capturing = true; this.conflict = null; });
     }
     label(surface, 2, surface.rows - 2, this.capturing ? 'Press a key · [Esc] cancel' : '[Enter] rebind  [Esc] Back', { fg: t.dim });

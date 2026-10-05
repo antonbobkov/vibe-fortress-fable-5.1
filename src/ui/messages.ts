@@ -24,6 +24,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
 import type { ItemsReader } from '@systems/items';
+import type { TradeReader } from '@systems/trade';
 import type { Strings } from './strings';
 
 /** What the message helpers read. A {@link PanelContext} is one. */
@@ -81,6 +82,37 @@ export function buildingName(env: Omit<MessageEnv, 'strings'>, id: EntityId): st
   const name = capitalize(row?.name ?? view.typeId.replace(/_/g, ' '));
   const ordinal = b.byType(view.typeId).indexOf(id) + 1;
   return ordinal > 0 ? `${name} #${ordinal}` : name;
+}
+
+/** A zone as the player knows it: its type and ordinal among zones of that type ("Stockpile #2"). */
+export function zoneName(env: Omit<MessageEnv, 'registry'>, zoneId: EntityId): string {
+  const b = buildingsOf(env.readers);
+  const zone = b?.zone(zoneId);
+  if (b === null || zone === undefined) return '';
+  const key = `ui.zone.type.${zone.type}`;
+  const name = env.strings.has(key) ? env.strings.get(key) : capitalize(zone.type.replace(/_/g, ' '));
+  return `${name} #${b.zonesOfType(zone.type).indexOf(zoneId) + 1}`;
+}
+
+/** A civilization id as a name ("hillfolk" → "Hillfolk"). */
+export function civName(civ: string): string {
+  return capitalize(civ);
+}
+
+/**
+ * Why `[t] trade` cannot open a session (§4.2: "No caravan is at the depot (next: …)"), or null
+ * when it can: no depot, a caravan still on its way, or none here and when each one comes.
+ */
+export function tradeBlocked(env: MessageEnv, depotId: EntityId): string | null {
+  const s = env.strings;
+  if (!depotId) return s.get('ui.status.no_depot');
+  if (!env.readers.has('20')) return s.get('ui.status.no_caravan_soon');
+  const trade = env.readers.of<TradeReader>('20');
+  const active = trade.activeCaravan();
+  if (active?.state === 'atDepot') return null;
+  if (active !== null) return s.get('ui.status.caravan_coming', { civ: civName(active.civ) });
+  const when = Object.entries(trade.schedule()).map(([civ, season]) => s.get('ui.status.caravan_when', { civ: civName(civ), season }));
+  return when.length === 0 ? s.get('ui.status.no_caravan_soon') : s.get('ui.status.no_caravan', { when: when.join(', ') });
 }
 
 /** An item type's name, singular or plural ("door", "doors"); a raw match word reads as words. */

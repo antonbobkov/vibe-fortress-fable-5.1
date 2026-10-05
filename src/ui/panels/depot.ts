@@ -3,6 +3,7 @@ import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { TradeReader } from '@systems/trade';
 import type { ItemsReader } from '@systems/items';
+import { buildingName, tradeBlocked } from '../messages';
 import type { Surface } from '../surface';
 import { label, type ListState, clampList } from '../widgets';
 import { buildings, type PanelContext } from './context';
@@ -37,10 +38,12 @@ export class DepotPanel {
     if (itemId !== undefined) ctx.submit({ type: 'RemoveFromDepot', depotId: this.selectedDepot(ctx), itemIds: [itemId] });
   }
 
+  /** `[t] Trade`: open the session, or say why it cannot open (§4.2). */
   trade(ctx: PanelContext): void {
     const depotId = this.selectedDepot(ctx);
-    const active = ctx.readers.has('20') ? ctx.readers.of<TradeReader>('20').activeCaravan() : null;
-    if (depotId && active?.state === 'atDepot') ctx.submit({ type: 'TradeOpen', depotId });
+    const why = tradeBlocked(ctx, depotId);
+    if (why === null) ctx.submit({ type: 'TradeOpen', depotId });
+    else ctx.notice?.(why);
   }
 }
 
@@ -49,7 +52,7 @@ export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: P
   const col = rect.col + 1;
   const width = rect.cols - 2;
   if (!depotId) { label(s, col, rect.row, 'No built trade depot.', { fg: s.theme.dim, width }); return; }
-  label(s, col, rect.row, `Depot #${depotId} · goods at depot`, { fg: s.theme.key, width });
+  label(s, col, rect.row, `${buildingName(ctx, depotId)} · goods at depot`, { fg: s.theme.key, width });
   const ids = panel.items(ctx);
   const items = ctx.readers.of<ItemsReader>('13');
   const active = ctx.readers.of<TradeReader>('20').activeCaravan();
@@ -72,5 +75,5 @@ export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: P
   label(s, col + 28, footer, '[t] Trade', { fg: active?.state === 'atDepot' ? s.theme.key : s.theme.dim, width: Math.max(0, width - 28) });
   s.hit({ col, row: footer, cols: 16, rows: 1 }, moveGoods);
   s.hit({ col: col + 17, row: footer, cols: 10, rows: 1 }, () => panel.remove(ctx));
-  if (active?.state === 'atDepot') s.hit({ col: col + 28, row: footer, cols: 9, rows: 1 }, () => panel.trade(ctx));
+  s.hit({ col: col + 28, row: footer, cols: 9, rows: 1 }, () => panel.trade(ctx));
 }

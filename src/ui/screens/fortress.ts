@@ -39,7 +39,6 @@ import { drawMilitaryPanel, MilitaryPanel } from '../panels/military';
 import { drawThreatsPanel, ThreatsPanel } from '../panels/threats';
 import { CivilizationsPanel, drawCivilizationsPanel } from '../panels/civilizations';
 import { DepotPanel, drawDepotPanel } from '../panels/depot';
-import type { TradeReader } from '@systems/trade';
 import { C } from '@core/components';
 import { creaturesAt, creatureSummary, drawLookPanel, tileSummary, type LookTab } from '../panels/look';
 import { drawLogPanel, drawLogStrip, type LogFilter } from '../panels/log';
@@ -344,6 +343,7 @@ export class FortressScreen implements Screen {
       const items = this.host.readers.has('13') ? this.host.readers.of<{ at(i: TileIndex): number[] }>('13') : null;
       const ids = items === null ? [] : tiles.flatMap((tile) => items.at(tile));
       if (ids.length > 0) this.host.submit({ type: 'MoveToDepot', itemIds: ids });
+      else this.notice(this.strings.get('ui.status.no_goods'));
       return true;
     }
     return false;
@@ -689,10 +689,9 @@ export class FortressScreen implements Screen {
     this.openPanel('stocks');
   }
 
+  /** `[t] trade`: open the session, or say why not (§4.2: no depot, no caravan yet). */
   private openTrade(): void {
-    const id = this.depot.selectedDepot(this.ctx);
-    const active = this.host.readers.has('20') ? this.host.readers.of<TradeReader>('20').activeCaravan() : null;
-    if (id && active?.state === 'atDepot') this.host.submit({ type: 'TradeOpen', depotId: id });
+    this.depot.trade(this.ctx);
   }
 
   /** Look at a tile: the look panel with the cursor on it. */
@@ -704,7 +703,17 @@ export class FortressScreen implements Screen {
 
   /** Submit a finished zone rectangle. */
   commitZone(a: TilePoint, b: TilePoint): Command[] {
+    const resized = this.zones.resizing ? this.host.readers.has('14') ? this.host.readers.of<import('@systems/buildings').BuildingsReader>('14').zone(this.zones.selected)?.type : undefined : undefined;
+    const type = resized ?? this.zones.kind ?? '';
     const commands = this.zones.commands(this.ctx, a, b);
+    if (commands.length === 0 && type !== '') {
+      // §4.2: a rectangle where no tile qualifies says which rule failed; a farm plot also
+      // brings up `hint_farm` (Q12: the zone tool never sends the rectangle that refusal needed).
+      const s = this.strings;
+      const rule = s.has(`ui.zone.rule.${type}`) ? s.get(`ui.zone.rule.${type}`) : s.get('ui.zone.rule.default');
+      this.notice(s.get('ui.status.zone_none', { tool: s.get(`ui.zone.type.${type}`), n: rectTiles(this.host.readers.map, a, b).length, rule }));
+      if (type === 'farm_plot') this.hints.show('hint_farm', this.host.readers.calendar.tick, this.settings.hintsEnabled);
+    }
     for (const c of commands) this.host.submit(c);
     this.zones.anchor = null;
     this.zones.end = null;
@@ -715,6 +724,7 @@ export class FortressScreen implements Screen {
   place(p: TilePoint): Command | null {
     const cmd = this.build.command(this.ctx, p);
     if (cmd !== null) this.host.submit(cmd);
+    else this.notice(this.strings.get('ui.status.off_map'));
     return cmd;
   }
 
@@ -747,11 +757,18 @@ export class FortressScreen implements Screen {
       this.tool.end = null;
       return [];
     }
+    if (commands.length === 0) this.notice(this.emptyRectText());
     for (const c of commands) this.host.submit(c);
     this.tool.remember(commands);
     this.tool.anchor = null;
     this.tool.end = null;
     return commands;
+  }
+
+  /** §4.2: why a designation rectangle sent nothing ("No tile here can be dug: …"). */
+  private emptyRectText(): string {
+    const key = this.tool.clearing ? 'ui.status.none.clear' : `ui.status.none.${this.tool.kind ?? ''}`;
+    return this.strings.has(key) ? this.strings.get(key) : this.strings.get('ui.status.none.any');
   }
 
   /** `Enter` with a tool: "start/end rectangle at the cursor". */
@@ -890,6 +907,7 @@ export class FortressScreen implements Screen {
         case 'undo': {
           const cmd = this.tool.undo();
           if (cmd !== null) this.host.submit(cmd);
+          else this.notice(this.strings.get('ui.status.nothing_to_undo'));
           return true;
         }
         default:
@@ -1132,7 +1150,7 @@ export class FortressScreen implements Screen {
           this.openPanel('labors');
           return true;
         }
-        return letter === 't' || letter === 'n';
+        return false;
       }
       case 'jobs': {
         if (!press.shift && (up || down)) {
@@ -1260,6 +1278,7 @@ export class FortressScreen implements Screen {
         if (this.military.settingStation) this.military.setStation(this.ctx, tile, this.host);
         else if (this.military.settingPatrol) this.military.setPatrol(this.ctx, tile, this.host);
         else if (this.military.setOrderTarget(this.ctx, tile, this.host)) this.military.cancel();
+        else this.notice(this.strings.get(this.military.settingKill ? 'ui.status.click_creature' : 'ui.status.click_dwarf'));
         if (!this.military.settingKill && !this.military.settingFollow) this.military.cancel();
       }
       return;

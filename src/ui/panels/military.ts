@@ -16,6 +16,7 @@ import type { PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { FortressHost } from '../screens/fortress';
 import { creaturesAt } from './look';
+import { zoneName } from '../messages';
 import { dwarvesOf } from './units';
 
 export const SQUAD_PRESET_NAMES = [
@@ -87,7 +88,8 @@ export class MilitaryPanel {
       });
       return null;
     }
-    return null;
+    // Without a dialog to ask through (a bare test host) the command goes as asked (§4.1).
+    return { type: 'DisbandSquad', squadId: squad.id };
   }
 
   addMember(ctx: PanelContext): Command | null {
@@ -240,7 +242,12 @@ export class MilitaryPanel {
     if (k === '3' || letter === 'h') return submit({ type: 'SetAlert', level: 'hearth' });
 
     // New squad / disband
-    if (k === '+') return submit(this.newSquad(ctx));
+    if (k === '+') {
+      // §4.1: the squad limit says so instead of doing nothing.
+      if (submit(this.newSquad(ctx))) return true;
+      ctx.notice?.(ctx.strings.get('ui.status.squad_limit', { max: SQUAD_MAX_COUNT }));
+      return true;
+    }
     if (letter === 'x') {
       const cmd = this.disbandSquad(ctx, host);
       if (cmd) submit(cmd);
@@ -333,6 +340,7 @@ export function drawMilitaryPanel(
   s.hit({ col, row, cols: 13, rows: 1 }, () => {
     const cmd = panel.newSquad(ctx);
     if (cmd) ctx.submit(cmd);
+    else ctx.notice?.(ctx.strings.get('ui.status.squad_limit', { max: SQUAD_MAX_COUNT }));
   });
   s.hit({ col: col + 15, row, cols: 12, rows: 1 }, () => {
     panel.disbandSquad(ctx, host);
@@ -349,7 +357,7 @@ export function drawMilitaryPanel(
     const start = Math.max(0, panel.memberChoice.selected - Math.max(0, rect.rows - row + rect.row - 3));
     for (let k = start; k < ids.length && row < rect.row + rect.rows - 1; k += 1) {
       const id = ids[k] as number;
-      label(s, col, row, `${k === panel.memberChoice.selected ? '▶' : ' '} ${ctx.readers.entities.get(id, C.Creature)?.name ?? `#${id}`}`, { width });
+      label(s, col, row, `${k === panel.memberChoice.selected ? '▶' : ' '} ${ctx.readers.entities.get(id, C.Creature)?.name ?? 'a dwarf'}`, { width });
       s.hit({ col, row, cols: width, rows: 1 }, () => {
         const cmd = panel.chooseMember(ctx, k);
         if (cmd) ctx.submit(cmd);
@@ -386,7 +394,7 @@ export function drawMilitaryPanel(
   // Members line: Members Halvar G., Einar R.
   const memberNames = squad.members.map((mid) => {
     const c = ctx.readers.entities.get(mid, C.Creature);
-    return c ? shortDwarfName(c.name) : `#${mid}`;
+    return c ? shortDwarfName(c.name) : '?';
   });
   const membersStr = memberNames.length > 0 ? memberNames.join(', ') : 'none';
   label(s, col, row, `Members ${membersStr}`, { width });
@@ -463,7 +471,7 @@ export function drawMilitaryPanel(
 
   // Barracks line
   if (squad.barracksZoneId > 0) {
-    label(s, col, row, `Barracks #${squad.barracksZoneId} · training active`, { fg: t.dim, width });
+    label(s, col, row, `${zoneName(ctx, squad.barracksZoneId)} · training active`, { fg: t.dim, width });
   } else {
     label(s, col, row, 'Barracks none · assign zone', { fg: t.dim, width });
   }

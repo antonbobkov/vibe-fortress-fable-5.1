@@ -4,6 +4,7 @@ import type { Civ } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
 import { REQUEST_MAX, type TradeReader, type TradeRequest } from '@systems/trade';
+import { itemName } from '../messages';
 import type { Surface } from '../surface';
 import { label } from '../widgets';
 import type { PanelContext } from './context';
@@ -88,13 +89,13 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   const entries = trade.requests(civ);
   for (const [index, entry] of entries.entries()) {
     if (row >= rect.row + rect.rows - 5) break;
-    label(s, col, row, `${index === panel.requestSelected ? '▶' : ' '} ${entry.itemType} ${'★'.repeat(entry.priority)}`, { width });
+    label(s, col, row, `${index === panel.requestSelected ? '▶' : ' '} ${itemName(ctx.registry, entry.itemType)} ${'★'.repeat(entry.priority)}`, { width });
     s.hit({ col, row, cols: width, rows: 1 }, () => { panel.requestSelected = index; });
     row += 1;
   }
   if (panel.choosingRequest && row < rect.row + rect.rows - 4) {
     const candidates = panel.candidates(ctx);
-    label(s, col, row++, `Add: ${candidates[panel.candidate] ?? ''}`, { fg: s.theme.key, width });
+    label(s, col, row++, `Add: ${itemName(ctx.registry, candidates[panel.candidate] ?? '')}`, { fg: s.theme.key, width });
     label(s, col, row++, '[↑/↓] item [Enter] add [Esc] cancel', { fg: s.theme.dim, width });
   }
   if (row < rect.row + rect.rows - 4) label(s, col, row++, '[←/→] request [p] priority [x] remove', { fg: s.theme.dim, width });

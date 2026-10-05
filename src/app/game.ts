@@ -507,7 +507,7 @@ export class Game {
         }
         this.lastSaveId = id;
         this.lastSaveTick = savedAt;
-        this.note('note', this.strings.get('ui.save.saved', { name: id }));
+        this.note('note', this.strings.get('ui.save.saved', { fortress: this.host.world.fortress.name, date: formatDate(savedAt) }));
         await this.refreshListing();
       })(),
     );
@@ -611,7 +611,7 @@ export class Game {
         if (kind === 'auto') await rollAutosaves(saves);
         this.lastSaveId = id;
         this.lastSaveTick = savedAt;
-        this.note('note', this.strings.get('ui.save.saved', { name: id }));
+        this.note('note', this.strings.get('ui.save.saved', { fortress: this.host.world.fortress.name, date: formatDate(savedAt) }));
         await this.refreshListing();
       })(),
     );
@@ -652,7 +652,12 @@ export class Game {
     const saves = this.saves;
     if (saves === null) return;
     const blob = await saves.read(id);
-    if (blob === undefined) return;
+    if (blob === undefined) {
+      // §4.2: a listed save whose data is gone says so.
+      this.note('alert', this.strings.get('ui.load.unreadable_save'));
+      this.render();
+      return;
+    }
     try {
       this.enterLoaded(await this.host.load(blob));
       this.lastSaveId = id;
@@ -664,7 +669,7 @@ export class Game {
         const at = this.listing.indexOf(row);
         this.listing[at] = { ...row, unreadable: reason };
       }
-      this.note('danger', this.strings.get('ui.save.failed', { reason }));
+      this.note('danger', this.strings.get('ui.load.failed', { reason }));
       this.render();
     }
   }
@@ -1066,6 +1071,7 @@ export class Game {
         submit: (command) => this.host.submit(command),
         commandTick: () => this.host.step(1),
         back: () => this.popScreen(),
+        strings: this.strings,
       }));
     }
     const top = this.top();

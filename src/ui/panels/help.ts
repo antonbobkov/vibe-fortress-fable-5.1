@@ -116,9 +116,19 @@ export function helpKeyRows(keymap: Keymap): HelpRow[] {
   return out;
 }
 
-/** The wording the keymap table gives the action, or the action id read as words. */
+/**
+ * The wording the keymap table gives this row (Q14: per context, so Trade's `+` reads "quantity"),
+ * a panel hotkey's panel name, or the action id read as words.
+ */
 export function actionText(binding: Binding): string {
+  if (binding.text !== undefined) return binding.text;
+  if (binding.context === 'fortress_panel') return `${binding.id.charAt(0).toUpperCase()}${binding.id.slice(1)} panel`;
   return WORDING[binding.id] ?? binding.id.replaceAll('_', ' ');
+}
+
+/** A key context's heading, as the keymap table names its sections. */
+export function contextTitle(context: string): string {
+  return CONTEXT_TITLES[context] ?? context;
 }
 
 /** The six legend categories of § Help, generated from the content tables. */
