@@ -123,6 +123,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] F-14 — Immigration spirit threshold 65 → 55 (agy-f14, 2026-10-03)
 - [x] F-15 — Bandits who reach their stockpile steal and leave; a failed walk means unreachable (agy-f15, 2026-10-03)
 - [x] F-16 — A civilian with no reachable shelter does not freeze (codex-f16, 2026-10-03)
+- [ ] F-17 — Balance follow-ups from the economy fortress
 
 ## M6 — Steel and Blood ([M6-steel-and-blood.md](M6-steel-and-blood.md))
 
