@@ -176,7 +176,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 ## Post-release owner balance workstream (2026-10-04)
 
 - [x] T-M8-06 economy fixture (owner Task 1) — real generated wealth-2 resources, production, halls and caravan trading; preserve all guarantees and three perils (GPT-6.1 Sol, 2026-10-04; D-225).
-- [ ] T-M8-06 economy re-measurement (owner Task 2) — scenario, 20-seed sweep, mood instrument, wealth decomposition and B-008 through B-012 updates.
+- [x] T-M8-06 economy re-measurement (owner Task 2) — scenario, 20-seed sweep, mood instrument, wealth decomposition and B-008 through B-012 updates (GPT-6.1 Sol, 2026-10-05).
 
 ## UI fixes ([ui-fixes/README.md](ui-fixes/README.md))
 - [x] U-01 — Quick wins: embark default, honest messages, dead hints, small key fixes (opus-u01, 2026-10-04)
