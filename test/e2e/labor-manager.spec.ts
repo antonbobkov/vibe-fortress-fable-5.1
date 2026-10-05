@@ -83,7 +83,7 @@ test('labor-manager', async ({ page }) => {
   await page.keyboard.press('m');
   await page.keyboard.press('+');
   await step(1);
-  await page.keyboard.press('a');
+  await page.keyboard.press('Shift+A');
   for (let k = 0; k < 3; k += 1) {
     await page.keyboard.press('Space');
     await page.keyboard.press('ArrowDown');

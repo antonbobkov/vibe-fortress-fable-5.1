@@ -18,6 +18,7 @@ import type { Rect } from '@render/cellbuffer';
 import type { BuildingRow } from '@systems/buildings';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { Registry } from '@core/registry';
+import { acceleratorLabel } from '../keymap';
 import { itemName } from '../messages';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
@@ -257,7 +258,7 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
       const c = BUILD_CATEGORIES[k + j];
       if (c === undefined) continue;
       const col = rect.col + 1 + j * colW;
-      const n = label(s, col, row, `[${c.key}] ${strings.get(`ui.build.category.${c.id}`)}`, { width: colW });
+      const n = label(s, col, row, `${acceleratorLabel(c.key, ctx.panelLetters)} ${strings.get(`ui.build.category.${c.id}`)}`, { width: colW - 1 });
       if (tool.category === c.id) s.invert({ col, row, cols: n, rows: 1 });
       s.hit({ col, row, cols: n, rows: 1 }, () => void tool.choose(c.key));
     }

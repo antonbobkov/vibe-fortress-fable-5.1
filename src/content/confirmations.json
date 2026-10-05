@@ -58,5 +58,45 @@
     "id": "c_embark_no_food_drink",
     "text": "Embark without food or drink?",
     "default": "no"
+  },
+  {
+    "id": "c_melt_items",
+    "text": "Mark {what} for melting? Melted items are gone; the smelter gives back part of their metal as bars.",
+    "default": "no"
+  },
+  {
+    "id": "c_dump_items",
+    "text": "Mark {what} for dumping? Dwarves will carry every one of them to a dump zone.",
+    "default": "no"
+  },
+  {
+    "id": "c_dump_selection",
+    "text": "Dump everything on these {n} tiles? Dwarves will carry it to a dump zone.",
+    "default": "no"
+  },
+  {
+    "id": "c_slaughter_animal",
+    "text": "Slaughter {animal}? It will be butchered for meat, hide and bone.",
+    "default": "no"
+  },
+  {
+    "id": "c_suspend_workshop",
+    "text": "Suspend {workshop}? Its current job stops and its orders wait until you resume it.",
+    "default": "no"
+  },
+  {
+    "id": "c_deconstruct_building",
+    "text": "Take apart {building}? Its materials are left where it stood.",
+    "default": "no"
+  },
+  {
+    "id": "c_remove_zone",
+    "text": "Remove {zone}? Its settings are lost.",
+    "default": "no"
+  },
+  {
+    "id": "c_remove_order",
+    "text": "Remove the order for {recipe}? Work in progress on it stops.",
+    "default": "no"
   }
 ]

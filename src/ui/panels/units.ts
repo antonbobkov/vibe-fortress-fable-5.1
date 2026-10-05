@@ -10,7 +10,7 @@
  * all; an action then applies to every marked dwarf when the cursor's row is marked, else to the
  * cursor's dwarf. `[S-t] title` opens a list of the four titles (`AssignTitle`; one holder each,
  * so it acts on the cursor's dwarf), `[S-n] rename` the `text_input` dialog (`RenameDwarf`),
- * `[S-m]` adds the selection to a squad (`SetSquadMembers`), `[l]` with marks opens the labor
+ * `[S-m]` adds the selection to a squad (`SetSquadMembers`), `[S-l]` with marks opens the labor
  * manager on them, and `[` `]` move the sleep hour (`SetSchedule`). The new keys avoid the panel
  * hotkeys (D-U2).
  */
@@ -285,8 +285,8 @@ export class UnitsPanel {
       for (const c of this.shiftSleep(ctx, k === '[' ? -1 : 1)) ctx.submit(c);
       return true;
     }
-    // `[l]` with marked dwarves: the labor manager on them.
-    if (letter === 'l' && this.marks.size > 0 && ctx.laborManager !== undefined) {
+    // `[S-l]` with marked dwarves: the labor manager on them (bare `l` always opens Labors, D-U2).
+    if (letter === 'l' && press.shift && this.marks.size > 0 && ctx.laborManager !== undefined) {
       ctx.laborManager({ marked: this.marks.list(dwarvesOf(ctx)), focus: this.selectedId(ctx) || undefined });
       return true;
     }

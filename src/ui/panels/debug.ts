@@ -94,7 +94,7 @@ export function drawDebugPanel(s: Surface, rect: Rect, panel: DebugPanel, ctx: P
 
 /** § Debug: the panel's three buttons, with the accelerators the panel keys use. */
 export const DEBUG_BUTTONS: readonly { readonly key: string; readonly text: string; readonly run: (host: DebugHost) => void }[] = [
-  { key: 'd', text: 'dump save', run: (host) => host.dumpSave() },
+  { key: 'S-d', text: 'dump save', run: (host) => host.dumpSave() },
   { key: 'r', text: 'replay season log', run: (host) => host.replaySeasonLog() },
   { key: 'h', text: 'hash world', run: (host) => host.hashWorld() },
 ];

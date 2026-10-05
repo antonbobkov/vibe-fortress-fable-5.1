@@ -27,6 +27,7 @@ import type { KeyPress } from '@platform/input';
 import { C } from '@core/components';
 import type { Surface } from '../surface';
 import { buildTree, label, nodeState, separator, toggleNode, tree, type TreeNode, type TreeState } from '../widgets';
+import { acceleratorLabel } from '../keymap';
 import { buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
 
@@ -57,7 +58,7 @@ const MEETING_OVERLAPS = ['hearth_hall', 'dining_hall'];
 function accelerator(s: Surface, col: number, row: number, text: string, key: string, run: () => void): void {
   const at = text.indexOf(`[${key}]`);
   if (at < 0) return;
-  s.hit({ col: col + at, row, cols: 3, rows: 1 }, run);
+  s.hit({ col: col + at, row, cols: key.length + 2, rows: 1 }, run);
 }
 
 /**
@@ -227,7 +228,7 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
       const kind = ZONE_KINDS[k + j];
       if (kind === undefined) continue;
       const col = rect.col + 1 + j * colW;
-      const n = label(s, col, row, `[${kind.key}] ${strings.get(`ui.zone.type.${kind.id}`)}`, { width: colW });
+      const n = label(s, col, row, `${acceleratorLabel(kind.key, ctx.panelLetters)} ${strings.get(`ui.zone.type.${kind.id}`)}`, { width: colW - 1 });
       if (tool.kind === kind.id) s.invert({ col, row, cols: n, rows: 1 });
       s.hit({ col, row, cols: n, rows: 1 }, () => void tool.choose(kind.key));
     }
@@ -281,7 +282,7 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     label(s, rect.col + 1, bottom, text, { width: rect.cols - 2 });
     // Keyboard and mouse reach the same actions (24 § Input model): the accelerators are clickable.
     accelerator(s, rect.col + 1, bottom, text, 'x', () => onRemove?.());
-    accelerator(s, rect.col + 1, bottom, text, 'e', () => { tool.resizing = true; });
+    accelerator(s, rect.col + 1, bottom, text, 'S-e', () => { tool.resizing = true; });
   }
 }
 

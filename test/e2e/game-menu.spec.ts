@@ -27,9 +27,9 @@ test('game-menu', async ({ page }) => {
   // The Esc chain: the tool, then the panel, then the menu.
   const panel = (): Promise<string | null> =>
     page.evaluate(() => (window as unknown as { __deepholm: MenuHook }).__deepholm.readers.ui.panel);
+  // U-03 (D-241): `d` opens Designate with Dig chosen.
   await page.keyboard.press('d');
   await expect.poll(panel).toBe('designate');
-  await page.keyboard.press('d');
   await expect.poll(() => textOf(page)).toContain('Dig · priority 5');
   await page.keyboard.press('Escape');
   await expect.poll(panel).toBe('designate');

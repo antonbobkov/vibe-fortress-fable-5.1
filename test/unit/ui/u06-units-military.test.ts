@@ -141,7 +141,8 @@ describe('U-06 units: marks and the mood glyph (M10)', () => {
     ]);
   });
 
-  it('[l] with marked dwarves opens the labor manager on them; Enter in the labors panel opens it on the row', () => {
+  // U-03 (D-U2): bare `l` always opens Labors, so the marked dwarves' labor manager is `[S-l]`.
+  it('[S-l] with marked dwarves opens the labor manager on them; Enter in the labors panel opens it on the row', () => {
     const f = setup('u06-units-labors', 5);
     f.screen.openPanel('units');
     f.draw();
@@ -157,7 +158,7 @@ describe('U-06 units: marks and the mood glyph (M10)', () => {
     f.screen.key(press(' '));
     f.screen.key(press('↓'));
     f.screen.key(press(' '));
-    f.screen.key(press('l'));
+    f.screen.key(press('L', { shift: true }));
     expect(f.managers[2]).toEqual({ marked: [f.dwarves[0], f.dwarves[1]], focus: f.dwarves[1] });
   });
 
@@ -265,12 +266,12 @@ describe('U-06 units: titles and renames round-trip (M10)', () => {
 });
 
 describe('U-06 squads: adding 6 dwarves takes one multi-select (M11)', () => {
-  it('from the military panel: [a], six marks, Enter sends one SetSquadMembers', () => {
+  it('from the military panel: [S-a] (U-03: `a` opens the Log), six marks, Enter sends one SetSquadMembers', () => {
     const f = setup('u06-mil-add', 9, 1);
     const id = squad(f);
     f.screen.openPanel('military');
     f.draw();
-    f.screen.key(press('a'));
+    f.screen.key(press('A', { shift: true }));
     expect(f.draw().join('\n')).toContain('Add: 0 marked, 6 free');
     // The child is not offered.
     expect(f.draw().join('\n')).not.toContain('Dwarf00 Stone');
@@ -290,7 +291,7 @@ describe('U-06 squads: adding 6 dwarves takes one multi-select (M11)', () => {
     expect(combat(f.w).squad(id)?.members).toEqual(f.dwarves.slice(1, 7));
     expect(f.w.events('CommandRejected')).toHaveLength(0);
     // A full squad says so instead of opening an empty list.
-    f.screen.key(press('a'));
+    f.screen.key(press('A', { shift: true }));
     expect(f.screen.military.memberChoice).toBeNull();
     expect(f.screen.currentNotice).toBe('The Hearthguard is full (6 members).');
     // Remove two by mouse: click two rows, then [Enter].
@@ -307,12 +308,12 @@ describe('U-06 squads: adding 6 dwarves takes one multi-select (M11)', () => {
     const id = squad(f);
     f.screen.openPanel('military');
     f.draw();
-    f.screen.key(press('a'));
+    f.screen.key(press('A', { shift: true }));
     f.screen.key(press('↓'));
     f.screen.key(press('Enter'));
     expect(f.sent).toEqual([{ type: 'SetSquadMembers', squadId: id, members: [f.dwarves[1]] }]);
     f.w.step(1);
-    f.screen.key(press('a'));
+    f.screen.key(press('A', { shift: true }));
     f.screen.key(press('*', { shift: true }));
     expect(f.screen.military.memberChoice?.marks.size).toBe(5);
     f.screen.key(press('Enter'));

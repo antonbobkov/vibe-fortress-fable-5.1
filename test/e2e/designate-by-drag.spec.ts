@@ -124,8 +124,7 @@ test('designate-by-drag', async ({ page }) => {
     if (after.camX === u.camX && after.camY === u.camY) break;
   }
 
-  // Press d, d: the designate panel, then the dig tool.
-  await page.keyboard.press('d');
+  // Press d: the designate panel, with the dig tool chosen (U-03, D-241: `d` again would close it).
   await page.keyboard.press('d');
   await expect.poll(() => textOf(page)).toContain('Dig · priority 5');
 

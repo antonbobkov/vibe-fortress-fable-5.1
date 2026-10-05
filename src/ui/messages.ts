@@ -331,6 +331,20 @@ export function jobBlockText(env: MessageEnv, job: BlockedJob): { short: string;
 }
 
 /**
+ * The input a `waiting for <match>` reason names and how many of it can be used now, or null for
+ * any other reason (the order list's "waiting for stone (0)", D-U5).
+ */
+export function waitingFor(env: Omit<MessageEnv, 'strings'>, reason: string | null): { match: string; item: string; n: number } | null {
+  const waiting = reason === null ? null : /^waiting for (.+)$/.exec(reason);
+  if (waiting === null) return null;
+  const match = waiting[1] as string;
+  const items = env.readers.has('13') ? env.readers.of<ItemsReader>('13') : null;
+  const table = env.registry.table<NamedRow>('items');
+  const n = items !== null && table.has(match) ? items.countAvailable({ type: table.index(match) }) : 0;
+  return { match, item: itemName(env.registry, match), n };
+}
+
+/**
  * A workshop order's waiting reason as words (`12` § Operation 3: "waiting for <input>"): the
  * reader's `isRunnable` reason, which names the input (`waiting for raw_stone`), or the fuel
  * shortage it reports as `missing_input`.
@@ -338,14 +352,10 @@ export function jobBlockText(env: MessageEnv, job: BlockedJob): { short: string;
 export function workshopBlockText(env: MessageEnv, reason: string | null): string {
   const s = env.strings;
   if (reason === null) return '';
-  const waiting = /^waiting for (.+)$/.exec(reason);
+  const waiting = waitingFor(env, reason);
   if (waiting !== null) {
-    const match = waiting[1] as string;
-    const items = env.readers.has('13') ? env.readers.of<ItemsReader>('13') : null;
-    const table = env.registry.table<NamedRow>('items');
-    const n = items !== null && table.has(match) ? items.countAvailable({ type: table.index(match) }) : 0;
-    const text = s.get('ui.block.waiting_for', { item: itemName(env.registry, match), n });
-    const where = whereMade(env.registry, [match]);
+    const text = s.get('ui.block.waiting_for', { item: waiting.item, n: waiting.n });
+    const where = whereMade(env.registry, [waiting.match]);
     return where === '' ? text : s.get('ui.block.order_at', { text, where });
   }
   if (reason === 'missing_input') {

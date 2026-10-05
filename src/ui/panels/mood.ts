@@ -30,5 +30,5 @@ export function drawMoodPanel(s: Surface, rect: Rect, panel: MoodPanel, ctx: Pan
     rows.map((id) => [nameOf(ctx, id), MOOD_TIER_NAMES[r.tier(id)], r.thoughts(id).slice().sort((a, b) => Math.abs(b.value) - Math.abs(a.value)).slice(0, 3).map((t) => `${t.value > 0 ? '+' : ''}${t.value} ${t.text}`).join(', ')]), panel.list,
     (i) => { panel.list.selected = i; });
   separator(s, col, rect.row + height + 1, width);
-  label(s, col, rect.row + height + 2, '[Enter] inspect [s]ort by tier', { width });
+  label(s, col, rect.row + height + 2, ctx.strings.get('ui.mood.actions'), { width });
 }

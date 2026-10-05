@@ -71,9 +71,14 @@ export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: P
     s.hit({ col, row, cols: width, rows: 1 }, () => { panel.list.selected = index; });
   }
   const footer = rect.row + rect.rows - 2;
-  label(s, col, footer, '[m] move goods… [r] remove', { fg: s.theme.key, width });
-  label(s, col + 28, footer, '[t] Trade', { fg: active?.state === 'atDepot' ? s.theme.key : s.theme.dim, width: Math.max(0, width - 28) });
-  s.hit({ col, row: footer, cols: 16, rows: 1 }, moveGoods);
-  s.hit({ col: col + 17, row: footer, cols: 10, rows: 1 }, () => panel.remove(ctx));
-  s.hit({ col: col + 28, row: footer, cols: 9, rows: 1 }, () => panel.trade(ctx));
+  // `m` and `t` open panels, so moving goods and trading take `Shift` (D-U2).
+  let at = col;
+  const action = (text: string, fg: typeof s.theme.key, run: () => void): void => {
+    const n = label(s, at, footer, text, { fg, width: Math.max(0, col + width - at) });
+    s.hit({ col: at, row: footer, cols: n, rows: 1 }, run);
+    at += n + 1;
+  };
+  action(ctx.strings.get('ui.depot.move'), s.theme.key, moveGoods);
+  action(ctx.strings.get('ui.depot.remove'), s.theme.key, () => panel.remove(ctx));
+  action(ctx.strings.get('ui.depot.trade'), active?.state === 'atDepot' ? s.theme.key : s.theme.dim, () => panel.trade(ctx));
 }

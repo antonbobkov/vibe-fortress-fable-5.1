@@ -130,7 +130,8 @@ describe('T-M2-09 zones tool and the stockpile editor', () => {
     const game = await fortressGame();
     const spy = vi.spyOn(game.host, 'submit');
     key(game, 'z');
-    key(game, 's');
+    // U-03 (D-U2): `s` opens Stocks, so the stockpile accelerator is `[S-s]`.
+    key(game, 's', { shift: true });
     expect(game.fortress.zones.kind).toBe('stockpile');
     const map = game.host.readers.map;
     const z = game.ui.z;
@@ -165,7 +166,11 @@ describe('T-M2-09 zones tool and the stockpile editor', () => {
     game.render();
     expect(game.textRows().join('\n')).toContain('Preset [Food');
     expect(game.textRows().join('\n')).toContain('Usage 0/11 tiles');
+    // U-03 (D-U2): removing a zone is a destructive single key, so it asks first (`c_remove_zone`).
     key(game, 'x');
+    expect(game.screen).toBe('confirm');
+    expect(spy.mock.calls.at(-1)?.[0]).not.toMatchObject({ type: 'RemoveZone' });
+    key(game, 'y');
     expect(spy.mock.calls.at(-1)?.[0]).toEqual({ type: 'RemoveZone', zoneId });
   });
 });
@@ -179,6 +184,8 @@ describe('T-M2-09 stocks, units, jobs and labors panels', () => {
       key(game, hotkey as string);
       expect(game.ui.panel).toBe(id);
       game.render();
+      // U-03 (D-241): Designate opens with Dig chosen, and Esc cancels a tool before the panel.
+      if (id === 'designate') key(game, 'Esc');
       key(game, 'Esc');
       expect(game.ui.panel).toBeNull();
     }
@@ -200,7 +207,8 @@ describe('T-M2-09 stocks, units, jobs and labors panels', () => {
     // Select `tool` (the rows are in category order) and forbid it.
     const rows = game.fortress.stocks.visibleForest(game.fortress.ctx).map((n) => n.id);
     game.fortress.stocks.tree.selected = rows.indexOf('tool');
-    key(game, 'f');
+    // U-03 (D-U2): `f` opens Overlays; forbid is `[S-f]`.
+    key(game, 'f', { shift: true });
     const cmds = spy.mock.calls.map((c) => c[0] as Command);
     expect(cmds.length).toBeGreaterThan(0);
     expect(cmds.every((c) => c.type === 'ForbidItem' && c['on'] === true)).toBe(true);
@@ -243,7 +251,8 @@ describe('T-M2-09 stocks, units, jobs and labors panels', () => {
     const column = spy.mock.calls.slice(1).map((c) => c[0] as Command);
     expect(new Set(column.map((c) => c['dwarfId']))).toEqual(new Set(dwarves));
     expect(column.every((c) => c['on'] === false && c['labor'] === column[0]?.['labor'])).toBe(true);
-    key(game, 'a');
+    // U-03 (D-U2): `a` opens the Log; the row toggle is `[S-a]`.
+    key(game, 'a', { shift: true });
     expect(spy.mock.calls.length).toBe(1 + dwarves.length + registry.table('labors').ids().length);
   });
 
@@ -260,7 +269,8 @@ describe('T-M2-09 stocks, units, jobs and labors panels', () => {
     game.render();
     expect(game.textRows().join('\n')).toMatch(/\d+ open · \d+ claimed · \d+ blocked/);
     expect(game.textRows().join('\n')).toContain('Dig (');
-    key(game, 'p');
+    // U-03 (D-U2): `p` opens Population; the job priority is `[S-p]`.
+    key(game, 'p', { shift: true });
     expect(spy.mock.calls.at(-1)?.[0]).toMatchObject({ type: 'SetJobPriority', priority: 4 });
     key(game, 'x');
     expect(spy.mock.calls.at(-1)?.[0]).toMatchObject({ type: 'CancelJob' });

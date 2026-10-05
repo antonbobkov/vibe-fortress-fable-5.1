@@ -117,7 +117,9 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       const w = new TestWorld({ seed: 'm7-esc-modal', world: 'flat-test', embark: 'none' });
       const screen = new FortressScreen(hostOf(w, []), keymap, strings);
       screen.openPanel('orders');
-      screen.orders.adding = true;
+      // U-03 (D-U5): the modal editor is the order picker.
+      screen.orders.openPicker(screen.ctx);
+      expect(screen.orders.adding).toBe(true);
       expect(screen.key(press('Esc'))).toBe(true);
       expect(screen.orders.adding).toBe(false);
       expect(screen.ui.panel).toBe('orders');
@@ -133,8 +135,10 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
     it('every id of the content table is wired somewhere in src, with the documented default', () => {
       const table = registry.table<ConfirmRow>('confirmations');
       const sources = everySourceFile(srcDir).map((file) => readFileSync(file, 'utf8')).join('\n');
-      // U-01 (D-U3): the two embark confirmations joined the table.
-      expect(table.ids()).toHaveLength(12);
+      // U-01 (D-U3): the two embark confirmations joined the table. U-03 (D-U2): and the eight
+      // for the destructive single-key actions (melt, dump ×2, slaughter, suspend, take apart,
+      // remove zone, remove order).
+      expect(table.ids()).toHaveLength(20);
       for (const id of table.ids()) {
         expect(sources.includes(`'${id}'`), `${id} is never asked for in src/`).toBe(true);
         const row = table.byId(id) as ConfirmRow;
@@ -191,18 +195,20 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       expect(w.readers.of<{ zone(id: number): unknown }>('14').zone(pile)).toBeDefined();
     });
 
-    it('an empty zone is removed with no question', () => {
+    // U-03 (D-U2): "every destructive single-key action asks": an empty zone asks too, with `c_remove_zone`.
+    it('an empty zone asks with c_remove_zone, and is removed on yes', () => {
       const w = new TestWorld({ seed: 'm7-confirm-empty', world: 'flat-test', embark: 'none' });
       const pile = w.zone('stockpile', [w.index(34, 30, z)]);
       const asked: { id: string; params: Record<string, unknown> }[] = [];
       const screen = new FortressScreen(hostOf(w, asked), keymap, strings);
       screen.removeZone(pile);
-      expect(asked).toEqual([]);
+      expect(asked).toEqual([{ id: 'c_remove_zone', params: { zone: 'Stockpile #1' } }]);
       w.step(2);
       expect(w.readers.of<{ zone(id: number): unknown }>('14').zone(pile)).toBeUndefined();
     });
 
-    it('deconstructing a workshop with orders asks first; without orders it does not', () => {
+    // U-03 (D-U2): without orders it asks too, with `c_deconstruct_building`.
+    it('deconstructing a workshop with orders asks with its order count; without orders it asks by name', () => {
       const w = new TestWorld({ seed: 'm7-confirm-workshop', world: 'flat-test', embark: 'none' });
       const at = w.index(24, 24, z);
       const shop = w.build('carpenter', at, 'pine');
@@ -210,7 +216,7 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       const asked: { id: string; params: Record<string, unknown> }[] = [];
       const screen = new FortressScreen(hostOf(w, asked), keymap, strings);
       screen.deconstruct(shop);
-      expect(asked).toEqual([]);
+      expect(asked).toEqual([{ id: 'c_deconstruct_building', params: { building: "Carpenter's workshop #1" } }]);
 
       const other = new TestWorld({ seed: 'm7-confirm-workshop-2', world: 'flat-test', embark: 'none' });
       const id = other.build('carpenter', other.index(24, 24, z), 'pine');

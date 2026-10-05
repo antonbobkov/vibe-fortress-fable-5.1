@@ -22,16 +22,16 @@ import type { Layout, Rect } from '@render/cellbuffer';
 import { AnnouncementLog, type LogLine } from '../announcements';
 import { HintEngine, type HintRow } from '../hints';
 import { STATUS_HINT_SECONDS } from '../constants';
-import { keyLabel, type Keymap } from '../keymap';
+import { acceleratorOf, keyLabel, type Keymap } from '../keymap';
 import { drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
-import type { PanelContext } from '../panels/context';
+import { confirmThen, type PanelContext } from '../panels/context';
 import { drawJobsPanel, JobsPanel } from '../panels/jobs';
 import { drawLaborsPanel, LaborsPanel } from '../panels/labors';
 import { drawStocksPanel, StocksPanel } from '../panels/stocks';
 import { drawUnitsPanel, dwarvesOf, UnitsPanel } from '../panels/units';
 import { drawZonesPanel, removalConfirm, ZoneTool } from '../panels/zones';
-import { drawOrdersPanel, drawWorkshopPanel, OrdersPanel } from '../panels/orders';
+import { countStep, drawOrdersPanel, drawWorkshopPanel, OrdersPanel } from '../panels/orders';
 import { drawAnimalsPanel, AnimalsPanel } from '../panels/animals';
 import { drawMoodPanel, MoodPanel } from '../panels/mood';
 import { changePopulationCap, drawPopulationPanel, POPULATION_CAP_STEP } from '../panels/population';
@@ -52,7 +52,7 @@ import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import type { UiState } from '../ui-state';
 import { drawTooltip, editText, label, labelRow } from '../widgets';
-import { blockedText, commandFocus, rejectionText } from '../messages';
+import { blockedText, buildingName, commandFocus, rejectionText, zoneName } from '../messages';
 
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
 export const UI_PANELS: readonly PanelSpec[] = [
@@ -183,7 +183,7 @@ export class FortressScreen implements Screen {
   ) {
     this.log = new AnnouncementLog(strings, host.registry);
     this.hints = new HintEngine(host.registry, host.ui, this.log);
-    this.help = new HelpPanel(host.registry, keymap);
+    this.help = new HelpPanel(host.registry, keymap, strings);
   }
 
   get ui(): UiState {
@@ -207,9 +207,27 @@ export class FortressScreen implements Screen {
       openPanel: (id) => this.openPanel(id),
       shiftClick: () => this.clickShift,
       notice: (text) => this.notice(text),
+      panelLetters: this.panelLetters(),
+      ...(host.confirm === undefined ? {} : {
+        confirm: (id: string, params: Readonly<Record<string, string | number>>, run: () => void): void => {
+          host.confirm?.(id, params, (yes) => { if (yes) run(); });
+        },
+      }),
       ...(host.laborManager === undefined ? {} : { laborManager: (open) => host.laborManager?.(open) }),
       ...(host.prompt === undefined ? {} : { prompt: (spec, answer) => host.prompt?.(spec, answer) }),
     };
+  }
+
+  /**
+   * The letters that open panels now (D-U2: "panel hotkeys always win"): the keymap's
+   * `fortress_panel` rows and any registered panel's own letter. An accelerator on one of them
+   * needs `Shift`.
+   */
+  panelLetters(): Set<string> {
+    const out = this.keymap.panelLetters();
+    // `panels()` gives a registered panel the key it is bound to now, or its own letter when unbound.
+    for (const panel of this.panels()) if (/^[a-z]$/.test(panel.hotkey)) out.add(panel.hotkey);
+    return out;
   }
 
   /**
@@ -270,6 +288,7 @@ export class FortressScreen implements Screen {
     this.ensureRegistered();
     const readers = this.host.readers;
     for (const event of events) {
+      this.orders.onEvent(event);
       if (event.type === 'AttackResolved' && (this.settings.combatLog === 'off' || (this.settings.combatLog === 'hits only' && event['outcome'] !== 'hit'))) continue;
       if (event.type === 'VeinFound') {
         const material = (event as unknown as { material?: string }).material;
@@ -340,7 +359,8 @@ export class FortressScreen implements Screen {
   private selectionKey(press: KeyPress): boolean {
     const tiles = this.selectionTiles();
     if (tiles.length === 0) return false;
-    const key = press.key.length === 1 ? press.key.toLowerCase() : press.key;
+    // `f`, `d` and `t` are panel letters: with a selection they take `Shift` (D-U2).
+    const key = press.key === 'Delete' ? 'Delete' : acceleratorOf(press, this.panelLetters());
     if (key === 'Delete') {
       this.host.submit({ type: 'UndoDesignation', tiles });
       const buildings = this.host.readers.has('14') ? this.host.readers.of<import('@systems/buildings').BuildingsReader>('14') : null;
@@ -361,7 +381,10 @@ export class FortressScreen implements Screen {
       return true;
     }
     if (key === 'f') { this.host.submit({ type: 'ForbidItem', tiles, on: true }); return true; }
-    if (key === 'd') { this.host.submit({ type: 'DumpItem', tiles, on: true }); return true; }
+    if (key === 'd') {
+      confirmThen(this.ctx, 'c_dump_selection', { n: tiles.length }, () => this.host.submit({ type: 'DumpItem', tiles, on: true }));
+      return true;
+    }
     if (key === 't') {
       const items = this.host.readers.has('13') ? this.host.readers.of<{ at(i: TileIndex): number[] }>('13') : null;
       const ids = items === null ? [] : tiles.flatMap((tile) => items.at(tile));
@@ -510,7 +533,8 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'jobs') drawJobsPanel(surface, body, this.jobs, ctx);
     else if (panel.id === 'labors') drawLaborsPanel(surface, body, this.labors, ctx);
     else if (panel.id === 'orders') drawOrdersPanel(surface, body, this.orders, ctx);
-    else if (panel.id === 'workshop') drawWorkshopPanel(surface, body, this.workshopId, this.orders, ctx, () => this.deconstruct(this.workshopId));
+    else if (panel.id === 'workshop') drawWorkshopPanel(surface, body, this.workshopId, this.orders, ctx,
+      (action, recipeId) => this.orders.workshopAction(ctx, this.workshopId, action, () => this.deconstruct(this.workshopId), recipeId));
     else if (panel.id === 'animals') drawAnimalsPanel(surface, body, this.animals, ctx);
     else if (panel.id === 'mood') drawMoodPanel(surface, body, this.mood, ctx);
     else if (panel.id === 'population') drawPopulationPanel(surface, body, ctx);
@@ -676,7 +700,8 @@ export class FortressScreen implements Screen {
 
   /**
    * `RemoveZone` with the confirmation 24 § Confirmations asks for: "removing a zone with crops or
-   * a stockpile with items" (`c_remove_zone_crops`, `c_remove_stockpile_items`).
+   * a stockpile with items" (`c_remove_zone_crops`, `c_remove_stockpile_items`), and for any other
+   * zone `c_remove_zone` (D-U2: every destructive single-key action asks first).
    */
   removeZone(zoneId: number): void {
     if (zoneId === 0) return;
@@ -685,30 +710,21 @@ export class FortressScreen implements Screen {
       if (this.zones.selected === zoneId) this.zones.selected = 0;
       this.host.submit({ type: 'RemoveZone', zoneId });
     };
-    if (ask === null || this.host.confirm === undefined) {
-      remove();
-      return;
-    }
-    this.host.confirm(ask.id, { n: ask.n }, (yes) => {
-      if (yes) remove();
-    });
+    if (ask === null) confirmThen(this.ctx, 'c_remove_zone', { zone: zoneName(this.ctx, zoneId) }, remove);
+    else confirmThen(this.ctx, ask.id, { n: ask.n }, remove);
   }
 
   /**
    * `DeconstructBuilding` (14 § Player-facing behavior: the building panel offers deconstruct) with
-   * 24 § Confirmations' `c_deconstruct_workshop` when the workshop still has orders.
+   * 24 § Confirmations' `c_deconstruct_workshop` when the workshop still has orders, and
+   * `c_deconstruct_building` for any other building (D-U2).
    */
   deconstruct(buildingId: number): void {
     if (buildingId === 0) return;
     const orders = this.host.readers.entities.get(buildingId, C.Workshop)?.orders.length ?? 0;
     const send = (): void => this.host.submit({ type: 'DeconstructBuilding', buildingId });
-    if (orders === 0 || this.host.confirm === undefined) {
-      send();
-      return;
-    }
-    this.host.confirm('c_deconstruct_workshop', { n: orders }, (yes) => {
-      if (yes) send();
-    });
+    if (orders === 0) confirmThen(this.ctx, 'c_deconstruct_building', { building: buildingName(this.ctx, buildingId) }, send);
+    else confirmThen(this.ctx, 'c_deconstruct_workshop', { n: orders }, send);
   }
 
   private moveGoods(): void {
@@ -825,7 +841,8 @@ export class FortressScreen implements Screen {
   private cancel(): void {
     // The Esc chain of 24 § Input model, innermost first: a modal editor, then a rectangle in
     // progress, then the selection, then the tool, then the panel, then the game menu.
-    if (this.orders.adding) { this.orders.adding = false; return; }
+    if (this.orders.materialOpen) { this.orders.materialOpen = false; return; }
+    if (this.orders.picker.open) { this.orders.picker.open = false; return; }
     if (this.animals.name.focused) { this.animals.name.focused = false; return; }
     if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow || this.military.memberChoice) { this.military.cancel(); return; }
     if (this.zones.farmMenus.some((m) => m.open)) { for (const m of this.zones.farmMenus) m.open = false; return; }
@@ -895,12 +912,16 @@ export class FortressScreen implements Screen {
       return true;
     }
     if ((press.key === ' ' || press.key === 'Space') && !press.ctrl && !press.alt && !press.meta && this.markKey()) return true;
-    if (this.ui.panel === 'orders' && this.orders.materialOpen) {
-      const result = this.orders.materialKey(this.ctx, press);
-      if (result !== null && result !== 'handled') this.host.submit(result);
-      return true;
+    // The order picker and the material list are modal: they take every key they use (letters
+    // are the picker's type-ahead filter) and leave the rest (`Space`, `F5`) to the screen.
+    if (this.ui.panel === 'orders' && (this.orders.materialOpen || this.orders.picker.open) && this.orders.key(this.ctx, press)) return true;
+    if (!press.ctrl && !press.alt && !press.meta) {
+      // `+`/`-` change the selected order's count before they are the game-speed keys (Q2); the
+      // military, civilizations and population panels keep their own `+` (and `-`).
+      if (this.ui.panel === 'orders' && this.ui.sidebar && countStep(press) !== 0 && this.orders.selectedRow(this.ctx) !== undefined) return this.orders.key(this.ctx, press);
+      if ((this.ui.panel === 'military' || this.ui.panel === 'civilizations') && press.key === '+') return this.panelKey(this.ui.panel, press);
+      if (this.ui.panel === 'population' && (press.key === '+' || press.key === '-')) return this.panelKey(this.ui.panel, press);
     }
-    if ((this.ui.panel === 'orders' || this.ui.panel === 'workshop' || this.ui.panel === 'military' || this.ui.panel === 'population' || this.ui.panel === 'civilizations') && (press.key === '+' || (press.key === '-' && (this.orders.editing || this.ui.panel === 'population'))) && !press.ctrl && !press.alt && !press.meta) return this.panelKey(this.ui.panel, press);
     const global = this.keymap.resolve('global', press);
     if (global !== null) {
       switch (global.id) {
@@ -954,12 +975,15 @@ export class FortressScreen implements Screen {
     }
     if (press.key === ' ') return this.key({ ...press, key: 'Space' });
 
-    // The open panel's own keys come before the map's and the panel hotkeys.
+    // D-U2: a panel hotkey always opens or closes its panel, whatever panel is open; only a
+    // focused text field (the units filter, an animal's name) takes the letter instead. The open
+    // panel's own keys come next, before the map's.
+    if (!this.textFocused() && this.panelHotkey(press)) return true;
     const panel = this.ui.panel;
     if (this.ui.sidebar && panel !== null && this.panelKey(panel, press)) return true;
     if (panel === 'designate' && this.ui.sidebar) {
-      const acc = this.keymap.resolve('panel', press);
-      if (acc?.id === 'accelerator' && !press.ctrl && this.tool.choose(String(acc.arg))) return true;
+      const letter = acceleratorOf(press, this.panelLetters());
+      if (letter !== '' && this.tool.choose(letter)) return true;
     }
     if (panel === 'look' && this.ui.sidebar && press.key.toLowerCase() === 'x' && !this.toolActive) {
       const tile = this.lookTile();
@@ -1047,17 +1071,39 @@ export class FortressScreen implements Screen {
     // keys are the stocks panel's own accelerators and Esc gives the panel hotkeys back.
     if (this.selection !== null && !press.ctrl && !press.alt && !press.meta && this.selectionKey(press)) return true;
 
-    if (!press.alt && !press.meta) {
-      const panelAction = this.keymap.resolve('fortress_panel', press);
-      const opened = this.panels().find((p) => p.id === panelAction?.id) ?? (!press.ctrl ? this.panels().find((p) => p.hotkey === press.key) : undefined);
-      if (opened !== undefined) {
-        if (this.ui.panel === opened.id && this.ui.sidebar) this.openPanel(null);
-        else if (opened.id === 'look') this.look(this.hoverPoint() ?? this.centerPoint());
-        else this.openPanel(opened.id);
-        return true;
-      }
-    }
     return false;
+  }
+
+  /** A text field of the open panel has the keyboard: letters are text, not hotkeys. */
+  private textFocused(): boolean {
+    if (!this.ui.sidebar) return false;
+    return (this.ui.panel === 'units' && this.units.editing) || (this.ui.panel === 'animals' && this.animals.name.focused);
+  }
+
+  /**
+   * A panel hotkey (`ui-keymap-and-screens.md` § Fortress panels): open the panel, or close it
+   * when it is the open one. A letter with `Shift` is never a panel hotkey: it is the open
+   * panel's accelerator (`[S-m]`, D-U2).
+   */
+  private panelHotkey(press: KeyPress): boolean {
+    if (press.alt || press.meta) return false;
+    const letter = /^[a-zA-Z]$/.test(press.key);
+    const binding = this.keymap.of('fortress_panel').find((b) => b.spec.key === press.key && b.spec.ctrl === press.ctrl &&
+      (b.spec.shift === press.shift || (!letter && !b.spec.shift)));
+    const panels = this.panels();
+    const opened = (binding === undefined ? undefined : panels.find((p) => p.id === binding.id))
+      ?? (!press.ctrl && !press.shift ? panels.find((p) => p.hotkey === press.key) : undefined);
+    if (opened === undefined) return false;
+    if (this.ui.panel === opened.id && this.ui.sidebar) this.openPanel(null);
+    else if (opened.id === 'look') this.look(this.hoverPoint() ?? this.centerPoint());
+    else {
+      this.openPanel(opened.id);
+      // `[o]` shows every order again after a workshop's own list.
+      if (opened.id === 'orders') { this.orders.workshopId = 0; this.orders.list.selected = 0; this.orders.picker.open = false; this.orders.materialOpen = false; }
+      // `[d] dig` (the status strip, `hint_dig`): the panel opens with Dig chosen, since `d` again closes it (D-241).
+      if (opened.id === 'designate' && !this.tool.active) this.tool.choose('d');
+    }
+    return true;
   }
 
   /**
@@ -1073,7 +1119,8 @@ export class FortressScreen implements Screen {
     const down = k === 'ArrowDown' || k === '↓';
     const left = k === 'ArrowLeft' || k === '←';
     const right = k === 'ArrowRight' || k === '→';
-    const letter = k.length === 1 ? k.toLowerCase() : '';
+    // An accelerator: a letter that opens a panel counts only with `Shift` (`[S-m]`, D-U2).
+    const letter = acceleratorOf(press, ctx.panelLetters);
     const submit = (cmds: readonly Command[] | Command | null): boolean => {
       if (cmds === null) return true;
       for (const c of Array.isArray(cmds) ? cmds : [cmds]) this.host.submit(c as Command);
@@ -1143,9 +1190,9 @@ export class FortressScreen implements Screen {
           this.stocks.expand(ctx);
           return true;
         }
-        if (letter === 'f') return submit(this.stocks.flagCommands(ctx, 'ForbidItem'));
-        if (letter === 'd') return submit(this.stocks.flagCommands(ctx, 'DumpItem'));
-        if (letter === 'm') return submit(this.stocks.flagCommands(ctx, 'MeltItem'));
+        if (letter === 'f') { this.stocks.flag(ctx, 'ForbidItem'); return true; }
+        if (letter === 'd') { this.stocks.flag(ctx, 'DumpItem'); return true; }
+        if (letter === 'm') { this.stocks.flag(ctx, 'MeltItem'); return true; }
         if (letter === 't') { this.moveGoods(); return true; }
         return false;
       case 'civilizations':
@@ -1186,10 +1233,6 @@ export class FortressScreen implements Screen {
           this.focusOn(at);
           return true;
         }
-        if (letter === 'l') {
-          this.openPanel('labors');
-          return true;
-        }
         return false;
       }
       case 'jobs': {
@@ -1205,38 +1248,12 @@ export class FortressScreen implements Screen {
           if (t !== null) this.focusOn(t);
           return true;
         }
-        if (letter === 'o') { this.openPanel('orders'); return true; }
         return false;
       }
-      case 'orders': {
-        if (!press.shift && (up || down)) { this.orders.move(up ? -1 : 1, ctx); return true; }
-        if (this.orders.adding) {
-          if (k === 'Enter') return submit(this.orders.add(ctx));
-          return false;
-        }
-        if (letter === '+' && !this.orders.editing) { this.orders.workshopId = 0; this.orders.adding = true; this.orders.recipes.selected = 0; return true; }
-        if (letter === 'x') return submit(this.orders.remove(ctx));
-        if (press.shift && (up || down)) return submit(this.orders.reorder(ctx, up ? -1 : 1));
-        if (k === 'Enter') { this.orders.editing = !this.orders.editing; return true; }
-        const entry = this.orders.selected(ctx);
-        if (entry !== undefined) {
-          if (letter === 'm') return submit(this.orders.patch(ctx, { mode: entry.order.mode === 'once' ? 'maintain' : 'once', threshold: entry.order.mode === 'once' ? Math.max(1, entry.order.threshold || 20) : 0 }));
-          if (letter === 'p') return submit(this.orders.patch(ctx, { priority: entry.order.priority >= 9 ? 1 : entry.order.priority + 1 }));
-          if (letter === 'f') { this.orders.openMaterials(ctx); return true; }
-          if (letter === '+' || letter === '-') return submit(this.orders.patch(ctx, this.orders.editing ? { threshold: Math.max(1, Math.min(999, entry.order.threshold + (letter === '+' ? 1 : -1))) } : { remaining: Math.max(1, Math.min(999, entry.order.remaining + (letter === '+' ? 1 : -1))) }));
-        }
-        return false;
-      }
-      case 'workshop': {
-        const ws = ctx.readers.entities.get(this.workshopId, C.Workshop);
-        if (letter === 's' && ws !== undefined) return submit({ type: 'SuspendWorkshop', workshopId: this.workshopId, on: !ws.suspended });
-        if (letter === 'o') { this.orders.workshopId = this.workshopId; this.orders.list.selected = 0; this.openPanel('orders'); return true; }
-        if (letter === 'f' && ws !== undefined && ws.orders.length > 0) { this.orders.workshopId = this.workshopId; this.orders.list.selected = 0; this.orders.openMaterials(ctx); this.openPanel('orders'); return true; }
-        if (letter === '+') { this.orders.workshopId = this.workshopId; this.orders.adding = true; this.openPanel('orders'); return true; }
-        if (letter === 'w') return submit(this.orders.nextWorker(ctx, this.workshopId));
-        if (letter === 'x') { this.deconstruct(this.workshopId); return true; }
-        return false;
-      }
+      case 'orders':
+        return this.orders.key(ctx, press);
+      case 'workshop':
+        return this.orders.workshopKey(ctx, this.workshopId, press, () => this.deconstruct(this.workshopId));
       case 'animals': {
         if (this.animals.name.focused) {
           if (k === 'Enter') return submit(this.animals.finishName(ctx));
@@ -1246,7 +1263,7 @@ export class FortressScreen implements Screen {
         if (!press.shift && (up || down)) { this.animals.move(up ? -1 : 1, ctx); return true; }
         if (this.animals.tab === 0) {
           if (letter === 'p') return submit(this.animals.pasture(ctx));
-          if (letter === 's') return submit(this.animals.slaughter(ctx));
+          if (letter === 's') { this.animals.slaughterAsk(ctx); return true; }
           if (letter === 'c') return submit(this.animals.cap(ctx));
           if (letter === 'a') return submit(this.animals.assign(ctx));
           if (letter === 'n') { this.animals.startName(ctx); return true; }

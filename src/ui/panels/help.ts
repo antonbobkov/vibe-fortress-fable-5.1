@@ -31,6 +31,7 @@ import {
   GLYPH_TREE,
 } from '@render/glyphs';
 import { ACTION_IDS, KEY_CONTEXTS, keyLabel, type Binding, type KeyContext, type Keymap } from '../keymap';
+import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, tabs } from '../widgets';
 import { OVERLAY_ROWS } from './overlays';
@@ -107,6 +108,11 @@ interface GlyphRow {
   readonly fg?: string;
 }
 
+/** The "Work orders" rows of the keys tab, in order. */
+const ORDER_HELP_KEYS: readonly string[] = [
+  'ui.help.orders.new', 'ui.help.orders.count', 'ui.help.orders.repeat', 'ui.help.orders.remove', 'ui.help.orders.edit', 'ui.help.orders.picker',
+];
+
 /** Help's context order: the panel hotkeys first (Q14), then the keymap table's order. */
 export const HELP_CONTEXT_ORDER: readonly KeyContext[] = ['fortress_panel', ...KEY_CONTEXTS.filter((c) => c !== 'fortress_panel')];
 
@@ -125,7 +131,7 @@ export function keysLabel(labels: readonly string[]): string {
  * Every binding of the live keymap under its context heading, the panel hotkeys first; the keys
  * of one action with the same wording share a row (Q14: "←→↑↓  pan by 1 cell", "1–9  set priority").
  */
-export function helpKeyRows(keymap: Keymap): HelpRow[] {
+export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
   const out: HelpRow[] = [];
   for (const context of HELP_CONTEXT_ORDER) {
     const bindings = keymap.of(context);
@@ -139,6 +145,13 @@ export function helpKeyRows(keymap: Keymap): HelpRow[] {
       else groups.push({ text, id: binding.id, keys: [keyLabel(binding.spec)] });
     }
     for (const g of groups) out.push({ category: context, text: `${keysLabel(g.keys)}  ${g.text}`, keys: g.keys });
+    // D-U2: an accelerator on a panel letter takes `Shift`; the keymap table has no row to say so.
+    if (context === 'panel' && strings !== undefined) out.push({ category: context, text: strings.get('ui.help.accelerators') });
+  }
+  if (strings !== undefined) {
+    // The order list's and the picker's keys (D-U5), which are the panel's own and not keymap rows.
+    out.push({ category: 'orders', text: strings.get('ui.help.orders.title'), heading: true });
+    for (const key of ORDER_HELP_KEYS) out.push({ category: 'orders', text: strings.get(key) });
   }
   return out;
 }
@@ -195,10 +208,10 @@ export class HelpPanel {
   scroll = 0;
   private legend: HelpRow[] | null = null;
 
-  constructor(private readonly registry: Registry, private readonly keymap: Keymap) {}
+  constructor(private readonly registry: Registry, private readonly keymap: Keymap, private readonly strings?: Strings) {}
 
   rows(charOf: (glyph: number) => string): HelpRow[] {
-    if (this.tab === 0) return helpKeyRows(this.keymap);
+    if (this.tab === 0) return helpKeyRows(this.keymap, this.strings);
     this.legend ??= helpGlyphRows(this.registry, charOf);
     return this.legend;
   }

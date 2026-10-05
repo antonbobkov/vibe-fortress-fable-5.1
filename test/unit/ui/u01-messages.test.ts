@@ -152,7 +152,7 @@ describe('U-01 blocked jobs and workshops name the item, count and maker (Q4, §
     const ctx = ctxOf(w);
     expect(workshopBlockText(ctx, 'waiting for raw_stone')).toBe('Waiting for stone (0 available)');
     expect(workshopBlockText(ctx, 'missing_input')).toContain('Needs fuel — order at a wood furnace');
-    expect(workshopBlockText(ctx, 'workshop_suspended')).toBe('Suspended: [s] resume');
+    expect(workshopBlockText(ctx, 'workshop_suspended')).toBe('Suspended: [S-s] resume');
     expect(workshopBlockText(ctx, null)).toBe('');
   });
 

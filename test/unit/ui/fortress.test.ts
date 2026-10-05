@@ -46,12 +46,12 @@ function cell(game: Game, col: number, row: number, button = 0): { x: number; y:
 }
 
 describe('T-M1-14 designate tool: drag rectangle → Designate', () => {
-  it('press d, d, pick a priority, drag a 4×3 rectangle: one Designate with those tiles and that priority', async () => {
+  it('press d, Shift+d (D-U2), pick a priority, drag a 4×3 rectangle: one Designate with those tiles and that priority', async () => {
     const game = await fortressGame();
     const spy = vi.spyOn(game.host, 'submit');
     key(game, 'd');
     expect(game.ui.panel).toBe('designate');
-    key(game, 'd');
+    key(game, 'd', { shift: true });
     expect(game.fortress.tool.kind).toBe('dig');
     key(game, '3');
     key(game, '<'); // z 31: the soil under the surface, undiscovered, accepted blind
@@ -78,13 +78,13 @@ describe('T-M1-14 designate tool: drag rectangle → Designate', () => {
     const game = await fortressGame();
     const spy = vi.spyOn(game.host, 'submit');
     key(game, 'd');
-    key(game, 'd');
+    key(game, 'd', { shift: true });
     // The surface: discovered floors cannot be dug, so nothing is submitted.
     game.pointerDown(cell(game, 2, 2));
     game.pointerUp(cell(game, 4, 4));
     expect(spy).not.toHaveBeenCalled();
     // A channel is allowed on floor.
-    key(game, 'c');
+    key(game, 'c', { shift: true });
     game.pointerDown(cell(game, 2, 2));
     game.pointerUp(cell(game, 2, 2));
     expect((spy.mock.calls[0]?.[0] as Command)['kind']).toBe('channel');
@@ -122,7 +122,7 @@ describe('T-M1-14 designate tool: drag rectangle → Designate', () => {
     const game = await fortressGame();
     const spy = vi.spyOn(game.host, 'submit');
     key(game, 'd');
-    key(game, 'c');
+    key(game, 'c', { shift: true });
     key(game, 'Enter');
     key(game, '→');
     key(game, 'Enter');
@@ -136,7 +136,7 @@ describe('T-M1-14 mouse model', () => {
   it('right click cancels the tool; with no tool it opens the look panel', async () => {
     const game = await fortressGame();
     key(game, 'd');
-    key(game, 'd');
+    key(game, 'd', { shift: true });
     game.pointerDown(cell(game, 3, 3));
     game.pointerDown(cell(game, 3, 3, 2));
     expect(game.fortress.tool.active).toBe(false);
@@ -183,7 +183,7 @@ describe('T-M1-14 keys', () => {
   it('Esc cancels the tool, then closes the panel; Tab toggles the sidebar without closing the panel', async () => {
     const game = await fortressGame();
     key(game, 'd');
-    key(game, 'd');
+    key(game, 'd', { shift: true });
     key(game, 'Esc');
     expect(game.fortress.tool.active).toBe(false);
     expect(game.ui.panel).toBe('designate');

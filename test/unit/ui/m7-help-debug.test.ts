@@ -293,7 +293,7 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
       drawDebugPanel(s, rect, new DebugPanel(), ctxOf(w), debugHostOf(w, calls));
       const lines = s.lines();
       const first = rect.rows - DEBUG_BUTTONS.length;
-      expect(lines[first]).toContain('[d] dump save');
+      expect(lines[first]).toContain('[S-d] dump save');
       expect(lines[first + 1]).toContain('[r] replay season log');
       expect(lines[first + 2]).toContain('[h] hash world');
       s.hitAt(2, first)?.action();
@@ -338,7 +338,7 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
       expect(screen.help.scroll).toBe(0);
       screen.openPanel('debug');
       expect(screen.key(press('h'))).toBe(true);
-      expect(screen.key(press('d'))).toBe(true);
+      expect(screen.key(press('d', { shift: true }))).toBe(true);
       expect(screen.key(press('r'))).toBe(true);
       expect(calls).toEqual(['hash', 'dump', 'log']);
     });

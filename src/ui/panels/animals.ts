@@ -8,7 +8,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { ForagingReader } from '@systems/foraging';
 import type { Surface } from '../surface';
 import { label, separator, table, textField, type ListState, type TextFieldState } from '../widgets';
-import { buildings, type PanelContext } from './context';
+import { buildings, confirmThen, type PanelContext } from './context';
 import { dwarvesOf } from './units';
 
 export class AnimalsPanel {
@@ -40,6 +40,17 @@ export class AnimalsPanel {
   slaughter(ctx: PanelContext): Command | null {
     const id = this.selected(ctx); if (id === 0) return null;
     return { type: ctx.readers.entities.get(id, C.Tame)?.slaughter ? 'UnmarkSlaughter' : 'MarkSlaughter', animalId: id };
+  }
+  /** `[S-s]`: mark for slaughter after asking (D-U2); taking the mark off needs no question. */
+  slaughterAsk(ctx: PanelContext): void {
+    const cmd = this.slaughter(ctx);
+    if (cmd === null) return;
+    if (cmd.type !== 'MarkSlaughter') { ctx.submit(cmd); return; }
+    const id = this.selected(ctx);
+    const creature = ctx.readers.entities.get(id, C.Creature);
+    const species = this.reader(ctx)?.def(creature?.species ?? 0)?.name ?? '';
+    const animal = creature === undefined || creature.name === species || creature.name === '' ? `the ${species}` : `${creature.name} the ${species}`;
+    confirmThen(ctx, 'c_slaughter_animal', { animal }, () => ctx.submit(cmd));
   }
   cap(ctx: PanelContext): Command | null {
     const id = this.selected(ctx); const r = this.reader(ctx); const species = ctx.readers.entities.get(id, C.Creature)?.species;
@@ -95,8 +106,9 @@ export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ct
   let row = rect.row + height + 1;
   separator(s, col, row, width); row += 1;
   if (panel.tab === 0) {
-    label(s, col, row, '[p] pasture [s] slaughter [c] cap', { width }); row += 1;
-    label(s, col, row, '[a] assign [n] name', { width }); row += 1;
+    // Every letter here opens a panel, so each action takes `Shift` (D-U2).
+    label(s, col, row, ctx.strings.get('ui.animals.actions1'), { width }); row += 1;
+    label(s, col, row, ctx.strings.get('ui.animals.actions2'), { width }); row += 1;
     const species = ctx.readers.entities.get(panel.selected(ctx), C.Creature)?.species;
     if (species !== undefined) label(s, col, row, panel.name.focused ? 'Name:' : `Breeding cap: ${r.breedingCap(species)}`, { width });
     if (panel.name.focused) textField(s, col + 6, row, Math.max(1, width - 10), panel.name);

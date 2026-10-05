@@ -29,7 +29,7 @@ describe('T-M7-03 trade session and civilization panels', () => {
     game.fortress.openPanel('civilizations');
     expect(panel.key(game.fortress.ctx, press('ArrowDown'), () => {})).toBe(true);
     expect(panel.civ()).toBe('hillfolk');
-    expect(panel.key(game.fortress.ctx, press('a'), () => {})).toBe(true);
+    expect(panel.key(game.fortress.ctx, press('a', { shift: true }), () => {})).toBe(true);
     expect(panel.choosingRequest).toBe(true);
     expect(panel.key(game.fortress.ctx, press('Enter'), () => {})).toBe(true);
     game.host.step(1);
@@ -58,14 +58,14 @@ describe('T-M7-03 trade session and civilization panels', () => {
     game.fortress.depot.select(game.fortress.ctx, depot);
     game.fortress.openPanel('depot');
     const speed = game.host.speed();
-    expect(game.fortress.key(press('m'))).toBe(true);
+    expect(game.fortress.key(press('m', { shift: true }))).toBe(true);
     expect(game.fortress.stocks.depotSelection).toBe(depot);
     for (let n = 0; n < 30 && game.fortress.stocks.depotChoices(game.fortress.ctx).length === 0; n += 1) game.fortress.stocks.move(1, game.fortress.ctx);
     expect(game.fortress.stocks.depotChoices(game.fortress.ctx).length).toBeGreaterThan(0);
     expect(game.fortress.key(press('Space'))).toBe(true);
     expect(game.fortress.stocks.depotChosen.size).toBeGreaterThan(0);
     expect(game.host.speed()).toBe(speed);
-    expect(game.fortress.key(press('t'))).toBe(true);
+    expect(game.fortress.key(press('t', { shift: true }))).toBe(true);
     expect(game.fortress.stocks.depotSelection).toBe(0);
     expect(game.ui.panel).toBe('depot');
   });

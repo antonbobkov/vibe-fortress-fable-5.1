@@ -16,6 +16,7 @@ import { Designation, TileFlag } from '@core/map3d';
 import type { MapReader } from '@core/readers';
 import type { TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
+import { acceleratorLabel } from '../keymap';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
@@ -190,9 +191,11 @@ export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, 
       const kind = DESIGNATE_KINDS[k + j];
       if (kind === undefined) continue;
       const col = rect.col + 1 + j * colW;
-      let caption = `[${kind.key}] ${strings.get(`ui.tool.designate.${kind.id}`)}`;
+      // A letter that opens a panel takes `Shift` here (`[S-d] Dig`, D-U2).
+      let caption = `${acceleratorLabel(kind.key)} ${strings.get(`ui.tool.designate.${kind.id}`)}`;
       if (kind.special === 'traffic') caption += ` (${strings.get(`ui.tool.traffic.${tool.traffic}`)})`;
-      const n = kindAvailable(kind) ? label(s, col, row, caption, { width: colW }) : s.text(col, row, caption, t.dim, t.black, colW);
+      // One cell short of the column, so a long caption does not run into its neighbour's key.
+      const n = kindAvailable(kind) ? label(s, col, row, caption, { width: colW - 1 }) : s.text(col, row, caption, t.dim, t.black, colW - 1);
       if (tool.kind === kind.id) s.invert({ col, row, cols: n, rows: 1 });
       if (kindAvailable(kind)) s.hit({ col, row, cols: n, rows: 1 }, () => void tool.choose(kind.key));
     }

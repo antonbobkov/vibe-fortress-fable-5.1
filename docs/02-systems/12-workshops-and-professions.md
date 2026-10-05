@@ -143,8 +143,9 @@ Job producer `workshops` (`craft`); panel `orders`; inspector section `building 
 
 ## Player-facing behavior
 
-- Clicking a workshop opens its panel: the recipe list grouped by output category with "makeable now" marked, the order list with counts, mode, threshold, material filter and priority, the assigned worker, suspend.
-- Orders panel: every order in the fortress; add a global order.
+- Clicking a workshop opens its panel: the recipe list with "makeable now" marked, the order list with counts and status, the assigned worker, suspend (after a confirmation), take apart. `[S-n]`, or a click on a recipe, adds an order.
+- Orders panel: every order in the fortress with its count, mode and status ("waiting for log (0)", "no carpenter's workshop", "in progress", "done"); `+`/`-` change the selected order's count (`remaining`, or the threshold of a `keep ≥ N` order), `[r]` repeats the selected or the last finished order, `[S-n]` adds an order.
+- Adding an order opens a picker: a type-ahead filter over the recipes grouped by output category with the recent ones first, the quantity (1–999), the mode `once N` / `keep ≥ N`, the material filter and, for a global order, the workshop (any of the type, or one). One order makes N items: "5 doors" is one order with `remaining` 5.
 - Hints: "Smelters and forges need fuel: a wood furnace makes charcoal", "Build a forge next to magma to skip fuel".
 
 ## Tuning constants

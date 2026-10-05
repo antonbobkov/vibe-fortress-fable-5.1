@@ -90,9 +90,9 @@ test('T-M7-03 trade-session', async ({ page }) => {
 
   await page.keyboard.press('c');
   expect(await textOf(page)).toContain('Civilizations');
-  await page.keyboard.press('d');
+  await page.keyboard.press('Shift+D');
   expect(await textOf(page)).toContain('Depot');
-  await page.keyboard.press('t');
+  await page.keyboard.press('Shift+T');
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: TradeHook }).__deepholm;
     const trade = h.readers.of<{ sessionOpen(): boolean }>('20');

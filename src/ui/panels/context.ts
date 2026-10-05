@@ -10,6 +10,8 @@ import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
+import type { KeyPress } from '@platform/input';
+import { acceleratorOf } from '../keymap';
 import type { Strings } from '../strings';
 
 export interface PanelContext {
@@ -27,10 +29,28 @@ export interface PanelContext {
   shiftClick(): boolean;
   /** A message on the status row: why an action did nothing (D-U4). Absent outside the fortress screen. */
   notice?(text: string): void;
+  /** The letters that open panels: an accelerator on one of them needs `Shift` (D-U2). The defaults when absent. */
+  readonly panelLetters?: ReadonlySet<string>;
+  /**
+   * Ask through the confirmation dialog (24 § Confirmations) and run on Yes. Absent on a bare host
+   * (a test without dialogs), where {@link confirmThen} runs at once.
+   */
+  confirm?(id: string, params: Readonly<Record<string, string | number>>, run: () => void): void;
   /** Open the labor manager, with these dwarves marked or the cursor on one (U-06). Absent outside the app. */
   laborManager?(open: { readonly marked?: readonly EntityId[]; readonly focus?: EntityId | undefined }): void;
   /** Ask for a line of text (the `text_input` dialog): a rename (U-06). Absent outside the app. */
   prompt?(spec: { readonly title: string; readonly value: string; readonly maxLength: number }, answer: (text: string | null) => void): void;
+}
+
+/** A destructive action: ask first where the host can ask (D-U2), otherwise do it as asked. */
+export function confirmThen(ctx: PanelContext, id: string, params: Readonly<Record<string, string | number>>, run: () => void): void {
+  if (ctx.confirm === undefined) run();
+  else ctx.confirm(id, params, run);
+}
+
+/** The accelerator a press means in a panel: see {@link acceleratorOf}. */
+export function accel(ctx: PanelContext, press: KeyPress): string {
+  return acceleratorOf(press, ctx.panelLetters);
 }
 
 export function items(ctx: PanelContext): ItemsReader | null {
