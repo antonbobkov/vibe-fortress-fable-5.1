@@ -1,5 +1,7 @@
 # Roadmap
 
+> **Archived.** How the specification was written, in four waves, kept as history. The specification is described as it stands in [`../../README.md`](../../README.md).
+
 **Detail level:** W1 · **Owner:** vision · **Depends on:** [../../README.md](../../README.md)
 
 The specification is delivered in four waves. Each wave is one commit on `master`. Each later wave adds detail without contradicting an earlier one; where a later wave must change an earlier decision, the change is called out in the commit message and the earlier document is updated in the same commit.

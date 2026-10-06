@@ -2,6 +2,8 @@
 
 **Needs:** the economy fortress (`1851d4a`) and its report (`23e4f98`) · **Spec touched:** `18-threats-monsters-and-raids.md`, `21-immigration.md` (only if the code is brought to it), `balance.md`, `workshops-and-recipes.md` exporter only
 
+> Moved here from `docs/05-plan/fixes/` by T-101; the text below is unchanged. The branch `f-17` was cut before the move, so three of its instructions name things that have moved: `PROGRESS.md` is archived (closing F-17 deletes its row from [`../backlog.md`](../backlog.md) and moves this file to `docs/archive/tasks/`), `reports/M8-balance-economy.md` is now `reports/audits/M8-balance-economy.md`, and the dated lines under B-008 … B-012 go to the decision log as written, where T-109 will collapse them.
+
 ## Why
 
 [`reports/M8-balance-economy.md`](../../reports/audits/M8-balance-economy.md) re-measured the balance with a fortress that runs a real economy.

@@ -64,8 +64,10 @@ Production builds omit `window.__deepholm`; run `npm run build` after E2E to
 restore production output. Golden files are updated intentionally with
 `npm run golden:update` and the reason recorded in the commit.
 
-The full rules and controls are in [docs/](docs/README.md), including the
-[system designs](docs/02-systems/README.md),
-[implementation plan](docs/archive/build-plan/README.md),
-[progress](docs/archive/build-plan/PROGRESS.md) and
-[decision log](docs/05-plan/DECISIONS.md).
+The full rules and controls are in [docs/](docs/README.md), starting with the
+[system designs](docs/02-systems/README.md). Open work is in the
+[backlog](docs/backlog.md); how a change is made is in the
+[agent workflow](docs/process/agent-workflow.md); decisions not yet folded into the
+specification are in the [decision log](docs/05-plan/DECISIONS.md). Gate reports and
+audits are under [reports/](reports/), and the plan that built v1.0.0 is in
+[docs/archive/](docs/archive/README.md).

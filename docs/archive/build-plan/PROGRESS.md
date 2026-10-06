@@ -1,5 +1,7 @@
 # Progress
 
+> **Archived.** The checklist of the build and of the fixes that followed, kept as history. Nothing reads this file any more: the `current-milestone` line below gates no test. Open items are in [`../../backlog.md`](../../backlog.md); a task that closes is deleted from the backlog, not ticked here.
+
 current-milestone: done
 
 Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agent, date). Agents edit this file in the same commit as the task. Sub-tasks added by splitting go directly under their parent.

@@ -1,5 +1,7 @@
 # UI fixes (post-release, from the UI audit)
 
+> **Archived.** U-01, U-03, U-06 and U-08 are done. U-02, U-04, U-05 and U-07 are open: each has a work file under [`../../work/`](../../work/) that carries the decisions it needs, and a row in [`../../backlog.md`](../../backlog.md). The decisions D-U1 … D-U10 below are unchanged. The closing follow-up is task T-111. Current work follows [`../../process/agent-workflow.md`](../../process/agent-workflow.md).
+
 **Source:** [`reports/ui-audit.md`](../../../reports/audits/ui-audit.md), a hands-on audit of v1.0.0 (2026-10-04). **Owner instruction (2026-10-04):** "Proceed with the recommendations." The owner wants a clean, intuitive UI, repetitive tasks that are easy, and a clear message wherever something cannot be done. Every decision below was made by the parent under the owner's standing instruction to use judgement. Agents implement these decisions; they do not design.
 
 The plan's ground rules ([`../build-plan/README.md`](../build-plan/README.md), [`../../process/agent-workflow.md`](../../process/agent-workflow.md)) apply, with one addition, as for [`../fixes/`](../fixes/README.md). A task below **may edit `docs/00-`…`docs/04-` exactly where its "Spec" line says**, to write the decided behaviour into the spec in the spec's own style. The edit must be minimal, must not touch unrelated text, and must be listed in the commit body.
@@ -38,16 +40,16 @@ Cite the audit's ids (Q1…, M1…, S1…, §4.x) in commits and tests. Tag test
 
 ## Tasks
 
-| Id | Title | Audit items | Size | Needs |
-|---|---|---|---|---|
-| U-01 | Quick wins: embark default, honest messages, dead hints, small key fixes | D-U3, D-U4 (strings, log, no-ops), D-U8, D-U9, Q1, Q3–Q14 except Q2 | L | — |
-| U-02 | Paused input takes effect at once | D-U1, M1, S2 | M | — |
-| U-03 | Work orders with quantity; panel hotkeys always win | D-U5, D-U2, M2, M3, Q2, S3, S4 | M | U-01 |
-| U-04 | Drag to place many; out-of-stock prompt | D-U6, M6, S9 | M | U-03 |
-| U-05 | Building panel: door/hatch modes, lever links, plates, traps, cages, owners, coffins, priority | M4, §5.4 | M | U-01 |
-| U-06 | Labor manager, unit and squad multi-select, titles and renames, barracks and leader | M5, M10, M11 | M | U-01 |
-| U-07 | Stockpile editor with keyboard; room panel names missing requirements and owner | M7, M9 | M | U-01 |
-| U-08 | Tooltips, palette distances, ghosts and glyphs | D-U7, D-U10, M8, M12 | M | U-01 |
+| Id | Title | Audit items | Size | Needs | Status at archiving |
+|---|---|---|---|---|---|
+| U-01 | Quick wins: embark default, honest messages, dead hints, small key fixes | D-U3, D-U4 (strings, log, no-ops), D-U8, D-U9, Q1, Q3–Q14 except Q2 | L | — | done |
+| U-02 | Paused input takes effect at once | D-U1, M1, S2 | M | — | open: [`U-02-paused-input.md`](../../work/U-02-paused-input.md) |
+| U-03 | Work orders with quantity; panel hotkeys always win | D-U5, D-U2, M2, M3, Q2, S3, S4 | M | U-01 | done |
+| U-04 | Drag to place many; out-of-stock prompt | D-U6, M6, S9 | M | U-03 | open: [`U-04-drag-to-place-many.md`](../../work/U-04-drag-to-place-many.md) |
+| U-05 | Building panel: door/hatch modes, lever links, plates, traps, cages, owners, coffins, priority | M4, §5.4 | M | U-01 | open: [`U-05-building-panel.md`](../../work/U-05-building-panel.md) |
+| U-06 | Labor manager, unit and squad multi-select, titles and renames, barracks and leader | M5, M10, M11 | M | U-01 | done |
+| U-07 | Stockpile editor with keyboard; room panel names missing requirements and owner | M7, M9 | M | U-01 | open: [`U-07-stockpile-editor-and-room-panel.md`](../../work/U-07-stockpile-editor-and-room-panel.md) |
+| U-08 | Tooltips, palette distances, ghosts and glyphs | D-U7, D-U10, M8, M12 | M | U-01 | done |
 
 U-02 touches the host and core command phase. The rest are in `src/ui`, `src/app` and strings.
 

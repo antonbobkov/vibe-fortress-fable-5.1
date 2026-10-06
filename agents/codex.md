@@ -164,7 +164,7 @@ with no wait for a reset. The `-o` last-message file is **not written** on such 
 so read the end of the `--json` stream (`turn.failed`) to tell why it stopped.
 
 Keep a written state summary in the follow-up prompt anyway — this repo's
-workflow (commit per task, `PROGRESS.md`, `DECISIONS.md`) already makes the
+workflow (commits per task, `docs/backlog.md`, one work file per task in `docs/work/`) already makes the
 tree self-describing, so a cold restart is never fatal.
 
 Also: the CLI's "try again at &lt;time&gt;" in the error names whichever window is
