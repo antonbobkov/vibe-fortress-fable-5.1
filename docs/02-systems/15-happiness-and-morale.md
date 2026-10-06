@@ -102,14 +102,13 @@ Need pressure is part of the mood formula, so a hungry fortress is an unhappy fo
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `morale.dayOff`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `morale.mood(id)`, `morale.tier(id)`, `morale.productivity(id)` (percent)
 - `morale.thoughts(id)` (id, text, current value, remaining hours)
 - `morale.hallSpirit()`, `morale.hallSpiritTier()`
 - `morale.def(thoughtId)`
+- `morale.dayOff(id)` — the dwarf is taking the day off after a `restless` sulk
 
 ### Commands
 

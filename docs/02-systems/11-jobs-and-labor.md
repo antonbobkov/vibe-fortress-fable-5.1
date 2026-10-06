@@ -137,8 +137,6 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `jobs.hasUrgent`, `jobs.hasWork`, `jobs.isQueued`, `jobs.typeOf`; events additions: `HuntAbandoned`, `HuntKill`, `HuntStarted`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `jobs.list(state?)`, `jobs.get(id)`, `jobs.byKey(key)`, `jobs.forWorker(dwarfId)`
@@ -146,6 +144,10 @@ Implementation note: Additional public queries and secondary emitters implement 
 - `jobs.laborEnabled(dwarfId, labor)`, `jobs.laborPriority(labor)`, `jobs.workersWithLabor(labor)`
 - `jobs.standingOrder(name)`
 - `jobs.wantsHaulingCount()`
+- `jobs.typeOf(id)` — the job type id of a job, or null
+- `jobs.isQueued(dwarfId)` — the worker is waiting in the assignment queue
+- `jobs.hasWork(dwarfId)` — an open job exists that this worker could take
+- `jobs.hasUrgent(dwarfId, priority)` — an open job of that priority or more urgent exists that this worker could take (the dwarf brain's interrupt check)
 
 ### Commands
 
@@ -157,7 +159,7 @@ Implementation note: Additional public queries and secondary emitters implement 
 
 ### Events emitted
 
-`JobCreated`, `JobClaimed`, `JobStarted` (entering `working`), `JobCompleted { jobId, type, workerId, target }`, `JobCancelled { jobId, reason }`, `JobBlocked { jobId, reason }`, `JobUnblocked`, `ItemReserved { itemId, jobId }`, `ItemReleased { itemId }`, `ToolEquipped { dwarfId, itemId }`, `ToolDropped { itemId }`.
+`JobCreated`, `JobClaimed`, `JobStarted` (entering `working`), `JobCompleted { jobId, type, workerId, target }`, `JobCancelled { jobId, reason }`, `JobBlocked { jobId, reason }`, `JobUnblocked`, `ItemReserved { itemId, jobId }`, `ItemReleased { itemId }`, `ToolEquipped { dwarfId, itemId }`, `ToolDropped { itemId }`. While it executes 09's hunt jobs it emits `HuntStarted { hunterId, targetId }`, `HuntKill { hunterId, targetId }` and `HuntAbandoned { hunterId, targetId, reason }`.
 
 ### Registrations
 

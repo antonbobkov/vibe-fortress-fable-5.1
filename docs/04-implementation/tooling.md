@@ -4,7 +4,7 @@
 
 ## package.json (dependencies)
 
-Runtime: none. Dev: `typescript`, `vite`, `vitest`, `@vitest/coverage-v8`, `jsdom`, `fast-check`, `@playwright/test`, `eslint`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, `eslint-plugin-import`, `prettier`.
+Runtime: none. Dev: `typescript`, `vite`, `vitest`, `@vitest/coverage-v8`, `jsdom`, `fast-check`, `@playwright/test`, `eslint`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, `eslint-plugin-import`, `prettier`, `@types/node` (types only: the configuration files, the scripts and the tests use Node's built-in modules).
 
 Scripts: `dev` (vite), `build` (tsc --noEmit && vite build), `typecheck` (tsc --noEmit), `test` (vitest run: unit, every scenario, property, golden), `test:e2e` (playwright test), `test:perf` (vitest run -c vitest.perf.config.ts), `lint` (eslint src test scripts), `content:check` (node scripts/content-check.mjs: validates JSON tables against the schemas and cross-references ids), `golden:update` (node scripts/golden-update.mjs <name>), `docs:check` (node scripts/docs-links-check.mjs: fails on a broken relative link in `docs/`, `reports/`, `agents/` or the root `README.md`), `gate` (node scripts/gate.mjs [label]: runs all of the above and writes `reports/gates/<label>-gate.md`; the label defaults to the date), `hash` (node scripts/world-hash.mjs <save>). [`../process/testing-strategy.md`](../process/testing-strategy.md) is the authority on test tiers and commands.
 
@@ -24,10 +24,12 @@ const boundaries = [
   { from: 'src/ui',       deny: ['@app'],                      denyPattern: ['@systems/*/state', '@systems/*/tick', '@systems/*/rules'] },
   { from: 'src/systems/*', denyPattern: ['@systems/!(<self>)/state'] },   // no system imports another's state.ts
 ];
-// implemented with eslint-plugin-import's no-restricted-paths, one zone per row
+// every row is enforced twice: by the core no-restricted-imports rule over the alias specifiers (the form
+// source files use), and by eslint-plugin-import's no-restricted-paths zones for relative cross-layer imports,
+// which cannot see a path alias
 ```
 
-Additional rules: `no-restricted-globals` for `Math.random`, `Date`, `performance` in `src/core`, `src/systems`, `src/content`; `no-restricted-syntax` forbidding `for...of` over `Map`/`Set` in `src/systems` and `src/core` (use the sorted helpers); `@typescript-eslint/switch-exhaustiveness-check`.
+Additional rules, in `src/core`, `src/systems` and `src/content`: `no-restricted-globals` for `Date` and `performance`, and `no-restricted-properties` for `Math.random`, `Date.now` and `performance.now` (a global rule can only ban a whole identifier, and `Math` must stay usable). In `src/systems` and `src/core`: `no-restricted-syntax` forbidding `for...of` over a `Map` or `Set` iterator method (`.keys()`, `.values()`, `.entries()`, and `.forEach`), except on `Object`, `Array` and `Reflect`; use the sorted helpers. A bare `for (const x of map)` cannot be told from an array loop without type information, so it is left to review and to the determinism scenario. Everywhere: `@typescript-eslint/switch-exhaustiveness-check`.
 
 ## Test layout
 
@@ -42,7 +44,7 @@ test/
   perf/            reference fortress builder and the budget assertions
 scripts/
   content-check.mjs   schema + id cross-reference over src/content/*.json
-  world-hash.mjs      loads a save and prints the world hash
+  world-hash.mjs      reads a save container and prints its header and world hash
   export-tables.mjs   converts docs/03-content Markdown tables to src/content JSON; the JSON is committed
   golden-update.mjs   rewrites a golden file and prints the diff summary
   replay.mjs          replays a season's command log from a save

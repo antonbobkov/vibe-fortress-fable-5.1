@@ -33,6 +33,7 @@ report or audit ──► backlog row ──► work file ──► code + tests
 | [`process/agent-workflow.md`](process/agent-workflow.md) | How a task is picked up, worked, verified, committed and closed; the rules below in full |
 | [`process/testing-strategy.md`](process/testing-strategy.md) | Test tiers, the scenario runner, golden files, the commands, the gate |
 | [`process/ambiguity-protocol.md`](process/ambiguity-protocol.md) | What to do when the spec is silent or contradicts itself |
+| [`process/tooling.md`](process/tooling.md) | How the repository's own scripts and checks are built, where that is a choice; where code constants live outside the systems |
 | [`05-plan/DECISIONS.md`](05-plan/DECISIONS.md) | The decision log of the build. It is being folded into the specification, system by system (see [`work/docs-restructure.md`](work/docs-restructure.md)). Until a row is folded it is still in force |
 | [`archive/`](archive/README.md) | Closed work, kept as history: the plan that built v1.0.0, the audit fixes, the closed UI fixes, closed task files |
 | [`../reports/`](../reports/) | Inputs: `gates/` (frozen gate reports), `audits/` (frozen audits and measurements), `screenshots/` (written by the e2e suite) |
@@ -73,9 +74,9 @@ docs/
   04-implementation/        schemas/, algorithms/, ui-screens/, tick-order, event-catalog, command-catalog,
                             save-format, acceptance-tests, build-milestones, tooling
   05-plan/                  DECISIONS (the decision log, until it is folded into the spec)
-  process/                  agent-workflow, testing-strategy, ambiguity-protocol
+  process/                  agent-workflow, testing-strategy, ambiguity-protocol, tooling
   work/                     one file per open task
-  archive/                  build-plan/, fixes/, ui-fixes/, tasks/ (closed work)
+  archive/                  build-plan/, fixes/, ui-fixes/, tasks/ (closed work), decisions-archive
 reports/
   gates/                    gate reports, frozen
   audits/                   audits and measurements, frozen

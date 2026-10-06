@@ -124,8 +124,6 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `buildings.blocksSightAt`, `buildings.cageOccupant`, `buildings.cropLitAt`, `buildings.doorAt`, `buildings.doorOpen`, `buildings.ghost`, `buildings.hearthLightAt`, `buildings.holderTile`, `buildings.inputTypes`, `buildings.lockedHatchAt`, `buildings.memorialEligible`, `buildings.roomScore`, `buildings.types`, `buildings.value`, `buildings.wagon`, `buildings.wellWorking`, `buildings.zoneTileQualifies`, `buildings.zonesAt`; events additions: `DamageDealt`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `buildings.at(i)`, `buildings.get(id)`, `buildings.byType(type)`, `buildings.byTag(tag)`
@@ -135,6 +133,15 @@ Implementation note: Additional public queries and secondary emitters implement 
 - `buildings.hearth()`, `buildings.hearthHallTier()`, `buildings.hearthHallTiles()`
 - `buildings.depots()`, `buildings.wells()`, `buildings.freeBeds()`, `buildings.freeCoffins()`, `buildings.diningSeats()`
 - `buildings.mechanismState(id)` (`raised`, `open`, `locked` …)
+- `buildings.doorAt(i)`, `buildings.lockedHatchAt(i)`, `buildings.blocksSightAt(i)` — 22's hooks for passability, falling and line of sight; `buildings.doorOpen(id)` — a creature stands in the doorway (for drawing)
+- `buildings.zonesAt(i)` — every zone on a tile, ascending (a meeting area may lie over a hall); `buildings.zoneTileQualifies(type, i)` — the tile qualifies for the zone type (the zone tool's green)
+- `buildings.types()` — every building type row (the build menu); `buildings.inputTypes(match)` — the item types an input's `match` names, by id or tag
+- `buildings.ghost(typeId, origin, orientation, width?, height?)` — the build tool's ghost: the footprint, the failing tiles, the reason `PlaceBuilding` would give (or null), and the `on` rule
+- `buildings.roomScore(zoneId)` — the score of a room right now, with its parts (the `zone › room` inspector)
+- `buildings.wellWorking(id)` — the well has water within `WELL_DEPTH` below; `buildings.cageOccupant(id)` — the creature held in a cage building, or 0; `buildings.memorialEligible(id)` — the dead dwarf has no intact body and can be named on a memorial slab
+- `buildings.wagon()` — the wagon, or 0; `buildings.holderTile(id)` — the tile a building's container contents lie on (the wagon), or −1
+- `buildings.hearthLightAt(i)` — the tile is in the built hearth's 5×5 comfort light (which is not crop light); `buildings.cropLitAt(i)` — the tile has crop light
+- `buildings.value(id)` — a building's contribution to wealth when built (material value plus the per-type bonus)
 
 ### Commands
 
@@ -146,7 +153,7 @@ Implementation note: Additional public queries and secondary emitters implement 
 
 ### Events emitted
 
-`BuildingPlaced`, `BuildingCompleted { id, type }`, `BuildingRemoved { id, type }`, `BuildingStateChanged { id, state }` (door mode, hatch mode, floodgate open/closed, bridge raised/lowered: consumed by 04, 22, 19), `ZoneChanged`, `RoomQualityChanged`, `RoomAssigned { zoneId, dwarfId }`, `HearthLit`, `DoorBroken { id }`, `Buried { dwarfId, coffinId, tombTier }`, `MechanismToggled { id, newState }`.
+`BuildingPlaced`, `BuildingCompleted { id, type }`, `BuildingRemoved { id, type }`, `BuildingStateChanged { id, state }` (door mode, hatch mode, floodgate open/closed, bridge raised/lowered: consumed by 04, 22, 19), `ZoneChanged`, `RoomQualityChanged`, `RoomAssigned { zoneId, dwarfId }`, `HearthLit`, `DoorBroken { id }`, `Buried { dwarfId, coffinId, tombTier }`, `MechanismToggled { id, newState }`, and 16's `DamageDealt` (a drawbridge that is raised with creatures on it).
 
 ### Registrations
 

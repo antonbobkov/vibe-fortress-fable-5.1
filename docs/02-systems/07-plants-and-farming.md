@@ -91,8 +91,6 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `plants.ashTiles`, `plants.bareSoil`, `plants.cropReady`, `plants.crops`, `plants.grassIsDry`, `plants.plots`, `plants.saplings`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `plants.cropAt(i)`, `plants.cropInfo(id)` (species, stage, progress percent)
@@ -100,6 +98,11 @@ Implementation note: Additional public queries and secondary emitters implement 
 - `plants.speciesAt(i)` for tree, sapling, shrub tiles; `plants.shrubReady(i)`
 - `plants.hasGrass(i)`
 - `plants.def(speciesId)`
+- `plants.crops()` — every crop, ascending id; `plants.cropReady(i)` — the crop on the tile is ready to harvest
+- `plants.plots()` — the farm plot zones, ascending id
+- `plants.saplings()` — the sapling tiles, ascending
+- `plants.grassIsDry()` — the region's biome has dry grass (`03-content/plants.md` § Grass)
+- `plants.bareSoil()` — the tiles waiting for grass to regrow, ascending; `plants.ashTiles()` — the tiles whose ash has not expired, ascending
 
 ### Commands
 

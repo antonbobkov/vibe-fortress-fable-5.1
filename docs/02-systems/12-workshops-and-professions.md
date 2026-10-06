@@ -115,8 +115,6 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `workshops.mealName`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `workshops.ordersOf(workshopId)`, `workshops.allOrders()`, `workshops.globalOrders()`
@@ -124,6 +122,7 @@ Implementation note: Additional public queries and secondary emitters implement 
 - `workshops.professionOf(dwarfId)`, `workshops.militaryTitle(dwarfId)`
 - `workshops.stockOf(recipeOutput)` (delegates to 13)
 - `workshops.isMagmaPowered(workshopId)`
+- `workshops.mealName(itemId)` — the dish name of a prepared meal, from its tier and its first ingredient; null for any other item
 
 ### Commands
 

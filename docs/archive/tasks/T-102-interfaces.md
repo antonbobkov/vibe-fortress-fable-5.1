@@ -1,6 +1,8 @@
 # T-102 — Interfaces: real entries instead of the 27 implementation notes
 
-**Source:** [`docs-restructure.md`](docs-restructure.md) § Where deltas are accumulating (item 2), § One-time migration (step 2) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** [`docs-restructure.md`](../../work/docs-restructure.md) § Where deltas are accumulating (item 2), § One-time migration (step 2) · **Size:** S · **Needs:** — · **Status:** open
+
+**Closed:** implemented by commit `bc18701` on branch `docs-a`.
 
 ## Why
 
@@ -27,5 +29,5 @@ Every `docs/02-systems/NN-*.md` that holds a note, and `docs/04-implementation/s
 
 - `grep -rn "^Implementation note:" docs/` finds nothing.
 - `npm run interface:check` reports 24 documents and 0 differences, and fails when a note is put back.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green. World hashes and render goldens do not move.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green. World hashes and render goldens do not move.
 - The decision-log rows that only record these notes (D-220 among them) are left for the triage task that owns them. Say in the final message which rows are now redundant.

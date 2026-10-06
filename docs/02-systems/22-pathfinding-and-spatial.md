@@ -112,17 +112,16 @@ Speed: `Motion.speed` is recomputed by the owning brain when its inputs change: 
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `pathing.requestsPending`, `pathing.requestsServed`, `spatial.inBoxWhere`, `spatial.inRadiusWhere`; audited in DECISIONS D-220.
-
-Implementation note: `pathing.connectivityRevision()` is a derived rebuild token used to recheck only shut-out civilians after connectivity changes (F-16, D-217).
-
 ### Reader (`readers.pathing`, `readers.spatial`)
 
 - `pathing.reachable(from, to, class)`, `pathing.nearestReachable(from, target, class, limit)`
 - `pathing.requestPath(id, from, to, class, urgency, options: { nearest?, avoidHostiles? }) → requestId`; `pathing.pathResult(requestId)` (`pending | ready(path) | failed(reason)`)
 - `pathing.passable(i, class, faction)`, `pathing.cost(i, class)`
 - `pathing.lineOfSight(a, b)`, `pathing.labelOf(i, class)` (debug)
+- `pathing.requestsPending()`, `pathing.requestsServed()` — the requests waiting or in progress, and the requests settled so far (the debug panel)
+- `pathing.connectivityRevision()` — a counter that changes whenever the connectivity labels are rebuilt. It is derived and not saved; 10 uses it to recheck the shelter of shut-out civilians only when connectivity has changed
 - `spatial.inRadius`, `spatial.inBox`, `spatial.at`, `spatial.nearest`
+- `spatial.inRadiusWhere(i, r, predicate)`, `spatial.inBoxWhere(from, to, predicate)` — the same searches with a caller's predicate in place of an entity kind
 
 ### Core API
 

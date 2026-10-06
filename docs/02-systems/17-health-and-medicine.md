@@ -102,8 +102,6 @@ Tame animals get bandaging only (`stop_bleeding` when `animal_care` labor exists
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; events additions: `CreatureSubmerged`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `health.isConscious(id)`, `health.bloodPercent(id)`, `health.pain(id)`, `health.isWounded(id)`
@@ -122,7 +120,7 @@ Implementation note: Additional public queries and secondary emitters implement 
 
 ### Events emitted
 
-`WoundInflicted { id, part, type, severity }`, `LimbLost { id, part }`, `CreatureUnconscious { id }`, `CreatureConscious { id }`, `CreatureDied { id, cause, killerId }`, `PatientAdmitted`, `PatientDischarged`, `PatientHealed { id, hospitalTier }`, `InfectionStarted { id }`, `InfectionCured { id }`, `TreatmentDone { patientId, medicId, kind }`.
+`WoundInflicted { id, part, type, severity }`, `LimbLost { id, part }`, `CreatureUnconscious { id }`, `CreatureConscious { id }`, `CreatureDied { id, cause, killerId }`, `PatientAdmitted`, `PatientDischarged`, `PatientHealed { id, hospitalTier }`, `InfectionStarted { id }`, `InfectionCured { id }`, `TreatmentDone { patientId, medicId, kind }`, and 04's `CreatureSubmerged { id, tile }` (each health tick, for every creature its own drowning check finds submerged).
 
 ### Registrations
 

@@ -104,8 +104,6 @@ When a designation is applied to a tile that no longer matches its precondition 
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `terrain.inspect`, `terrain.intendedDrops`, `terrain.isForbidden`; commands additions: `ConfirmDeepsilver`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `terrain.designationAt(i)`, `terrain.designations()`
@@ -115,6 +113,9 @@ Implementation note: Additional public queries and secondary emitters implement 
 - `terrain.cavernBreached(n)`
 - `terrain.materialClassAt(i)` (stone, soil, ore, gem, ice, wood, constructed)
 - `terrain.spec()` — the `LocalMapSpec`
+- `terrain.isForbidden(i)` — the tile's traffic mode is `forbidden`
+- `terrain.inspect(i)` — the look cursor's data for a tile (the inspector's `tile` section)
+- `terrain.intendedDrops()` — the items mining owes the world while no item system is present to take them (a copy)
 
 ### Terrain API (mutation, called by other systems)
 
@@ -122,7 +123,7 @@ Implementation note: Additional public queries and secondary emitters implement 
 
 ### Commands
 
-`Designate { tiles: TileIndex[], kind, priority }`, `UndoDesignation { tiles }`, `SetDesignationPriority { tiles, priority }`, `SetTraffic { tiles, mode }`, `DesignateStairwell { x, y, zTop, zBottom }` (expands to `stairs_updown` on intermediate levels, `stairs_down` at top, `stairs_up` at bottom).
+`Designate { tiles: TileIndex[], kind, priority }`, `UndoDesignation { tiles }`, `SetDesignationPriority { tiles, priority }`, `SetTraffic { tiles, mode }`, `DesignateStairwell { x, y, zTop, zBottom }` (expands to `stairs_updown` on intermediate levels, `stairs_down` at top, `stairs_up` at bottom), `ConfirmDeepsilver` (no payload; sets the fortress's `deepsilverConfirmed` when the player accepts the one-time confirmation).
 
 ### Events consumed
 

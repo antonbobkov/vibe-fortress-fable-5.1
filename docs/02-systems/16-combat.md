@@ -133,8 +133,6 @@ Every `AttackResolved` is rendered by the announcement registry into a combat lo
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `combat.armorSpeedModifier`; commands additions: `RenameSquad`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `combat.isHostile(a, b)`, `combat.factionOf(id)`, `combat.targetOf(id)`
@@ -142,6 +140,7 @@ Implementation note: Additional public queries and secondary emitters implement 
 - `combat.alert()`
 - `combat.weaponOf(id)`, `combat.armorOf(id)`, `combat.armorValue(id, part, damageType)` (for the inspector)
 - `combat.lineOfSight(from, to)` (delegates to 22)
+- `combat.armorSpeedModifier(id)` — the percent of movement speed left by the weight of worn armor, after `armor_use`
 
 ### Combat API (mutation)
 
@@ -149,7 +148,7 @@ Implementation note: Additional public queries and secondary emitters implement 
 
 ### Commands
 
-`CreateSquad { name }`, `DisbandSquad`, `SetSquadMembers { squadId, members }`, `SetSquadLeader`, `SetSquadMode { squadId, mode }`, `SetSquadEquipment`, `SetSquadStation { squadId, tile | null }`, `SetSquadPatrol`, `SquadOrder { squadId, order }`, `SetAlert { level }`.
+`CreateSquad { name }`, `DisbandSquad`, `SetSquadMembers { squadId, members }`, `SetSquadLeader`, `SetSquadMode { squadId, mode }`, `SetSquadEquipment`, `SetSquadStation { squadId, tile | null }`, `SetSquadPatrol`, `SquadOrder { squadId, order }`, `SetAlert { level }`, `RenameSquad { squadId, name }`.
 
 ### Events consumed
 

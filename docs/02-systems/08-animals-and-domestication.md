@@ -99,8 +99,6 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `animals.breedingCap`, `animals.capOf`, `animals.nestBoxes`; events additions: `CorpseCreated`, `CreatureDied`, `CreatureFled`, `Starvation`; commands additions: `NameAnimal`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `animals.isWild(id)`, `animals.isTame(id)`, `animals.state(id)`
@@ -108,10 +106,13 @@ Implementation note: Additional public queries and secondary emitters implement 
 - `animals.pastureOf(id)`, `animals.condition(id)`, `animals.assignedTo(id)`
 - `animals.threatTo(id)` — whether the animal currently treats the fortress as a threat (used by 16 for hostility)
 - `animals.def(species)`
+- `animals.capOf(species)` — the live cap of a wild species in this region
+- `animals.breedingCap(species)` — the player's breeding cap for a species (`BREEDING_CAP_DEFAULT` until set)
+- `animals.nestBoxes()` — the nest box buildings, ascending id
 
 ### Commands
 
-`AssignPasture`, `MarkSlaughter`, `UnmarkSlaughter`, `TrainAnimal`, `TameCaged`, `AssignAnimal`, `SetBreedingCap { species, cap }`, `ReleaseCaged { cageId }`.
+`AssignPasture`, `MarkSlaughter`, `UnmarkSlaughter`, `TrainAnimal`, `TameCaged`, `AssignAnimal`, `SetBreedingCap { species, cap }`, `ReleaseCaged { cageId }`, `NameAnimal { animalId, name }` (a tame animal).
 
 ### Events consumed
 
@@ -119,7 +120,7 @@ Implementation note: Additional public queries and secondary emitters implement 
 
 ### Events emitted
 
-`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `AnimalLeft { id }`.
+`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `AnimalLeft { id }`. This system also emits events that other systems own: `CreatureFled` (a wild animal starts to flee), `Starvation` (an animal has starved to the point of death; 17 applies it), and `CreatureDied` with `CorpseCreated` (a slaughter kills the animal and makes its corpse directly).
 
 ### Registrations
 

@@ -128,12 +128,18 @@ Presentation-only: screen stack, active panel, tool state, cursor, selection, lo
 
 ## Interfaces
 
-Implementation note: The saved legend journal implemented in T-M7-06 shares system id 24; the presentation UI itself exposes no simulation reader; reader additions: `legend.deepestZ`, `legend.kills`, `legend.peakPopulation`; audited in DECISIONS D-220.
-
 - `ui.registerPanel(spec)`, `ui.registerInspector(kind, section)`, `ui.registerAnnouncement(type, spec)`, `ui.registerHint(hint)`
 - `ui.pushScreen(screen)`, `ui.popScreen()`, `ui.confirm(text) → Promise<boolean>`
 - `ui.announce(severity, text, focus?)` (for app-level messages such as save errors)
 - Input: `input.onKey`, `input.onMouse` from the platform; the keymap resolves to `UiAction`s.
+
+### Reader (`readers.legend`)
+
+The presentation UI exposes no simulation reader. The legend journal, a saved simulation system that shares id 24 and records what the legend record needs, exposes:
+
+- `legend.peakPopulation()` — the highest population reached
+- `legend.deepestZ()` — the deepest level reached
+- `legend.kills()` — the kill tally, as name and count
 
 ### Events consumed (presentation subscriber)
 

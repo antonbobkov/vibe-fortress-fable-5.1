@@ -84,14 +84,14 @@ Freezing is 05's decision; this system only provides the temperature. In winter 
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `weather.daylightHours`, `weather.snowCoveredChunks`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `weather.state()`, `weather.surfaceTempC()`, `weather.isDaylight()`
 - `weather.growthModifier()` (percent, season × state), `weather.thirstModifier()`, `weather.visibilityModifier()`
 - `weather.isSnowCovered(i)` (reads the flag), `weather.isWet(i)`
 - `weather.forecast()` — the current state's remaining hours (shown to the player; no true forecast)
+- `weather.daylightHours()` — today's daylight window `[sunrise, sunset)` in hours, for the calendar panel
+- `weather.snowCoveredChunks()` — the chunks with snow cover, ascending (23 redraws them)
 
 ### Commands
 

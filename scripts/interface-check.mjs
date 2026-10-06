@@ -1,7 +1,10 @@
 #!/usr/bin/env node
-/** T-M8-08: audit public query methods, event emission sites and command owners. */
+/**
+ * T-M8-08: audit public query methods, event emission sites and command owners.
+ * T-102: the Interfaces sections are the whole declaration; an `Implementation note:` line fails.
+ */
 import ts from 'typescript';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -32,7 +35,6 @@ export function documentedInterfaces(markdown) {
         /^### Commands(?: \(|$)/.test(line) ? 'commands' : '';
       continue;
     }
-    if (line.startsWith('Implementation note:')) continue;
     for (const match of declarationsOnly(line).matchAll(/`([^`]+)`/g)) {
       const name = category === 'reader' ? /^([a-zA-Z]+\.\w+)/.exec(match[1])?.[1] :
         /^(\p{Lu}\w*)/u.exec(match[1])?.[1];
@@ -45,21 +47,30 @@ export function documentedInterfaces(markdown) {
       }
     }
   }
-  // Reviewed one-line amendments are explicit set deltas, never an ignore list in code.
-  for (const line of section.split(/\r?\n/).filter((s) => s.startsWith('Implementation note:'))) {
-    for (const delta of line.matchAll(/(reader|events|commands) (additions|references): ([^;\n]+)/g)) {
-      const names = [...delta[3].matchAll(/`([^`]+)`/g)].map((m) => m[1]);
-      if (delta[2] === 'additions') result[delta[1]].push(...names);
-      else result[delta[1]] = result[delta[1]].filter((name) => !names.includes(name));
-    }
-    // Existing approved reader notes predate the audit's delta notation.
-    if (!line.includes('reader additions:') && !line.includes('reader references:')) {
-      for (const m of line.matchAll(/`((?:items|pathing)\.\w+)\(/g)) {
-        if (!line.slice(m.index).split(';')[0].includes('hook')) result.reader.push(m[1]);
-      }
-    }
-  }
   return Object.fromEntries(categories.map((key) => [key, sorted(result[key])]));
+}
+
+/** The specification is edited in place; a note pinned beside the text it amends is a failure. */
+export const NOTE_PREFIX = 'Implementation note:';
+export const SPEC_FOLDERS = ['00-vision', '01-architecture', '02-systems', '03-content', '04-implementation'];
+
+/** Every line of one document that starts with the note prefix, as `<label>:<line>`. */
+export function noteLines(markdown, label) {
+  return markdown.split(/\r?\n/).flatMap((line, index) => line.startsWith(NOTE_PREFIX) ? [`${label}:${index + 1}`] : []);
+}
+
+/** Every such line in `docs/00-` … `docs/04-`, in path order. */
+export function implementationNotes(directory = root) {
+  const found = [];
+  const walk = (folder) => {
+    for (const entry of readdirSync(join(directory, folder), { withFileTypes: true }).sort((a, b) => a.name < b.name ? -1 : 1)) {
+      const path = `${folder}/${entry.name}`;
+      if (entry.isDirectory()) walk(path);
+      else if (entry.name.endsWith('.md')) found.push(...noteLines(readFileSync(join(directory, path), 'utf8'), path));
+    }
+  };
+  for (const folder of SPEC_FOLDERS) if (existsSync(join(directory, 'docs', folder))) walk(`docs/${folder}`);
+  return found;
 }
 
 export function differences(actual, expected) {
@@ -225,6 +236,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     for (const difference of result.differences) console.error(`  FAIL ${difference}`);
   }
   const errors = results.reduce((sum, result) => sum + result.differences.length, 0);
-  console.log(`interface-check: ${results.length} documents, ${errors} differences`);
-  if (errors) process.exitCode = 1;
+  const notes = implementationNotes();
+  for (const note of notes) console.error(`  FAIL ${note}: a line starts with "${NOTE_PREFIX}"; write it into the specification text instead`);
+  console.log(`interface-check: ${results.length} documents, ${errors} differences, ${notes.length} implementation notes`);
+  if (errors || notes.length) process.exitCode = 1;
 }

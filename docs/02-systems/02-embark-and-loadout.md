@@ -81,11 +81,9 @@ Embark state exists only during the embark screen: `budget`, `party[]`, `supplie
 
 ## Interfaces
 
-Implementation note: Embark session fields are constructor-owned state, not exported reader methods; reader references: `embark.session`; audited in DECISIONS D-220.
-
 ### Reader
 
-Not applicable after embark. During embark the screen holds the state directly through `embark.session()`.
+Not applicable: there is no embark reader. The app constructs the embark session before the world exists and the embark screen holds it directly. The session's fields (the party, the supplies, the preset, the fortress name) are state, not reader methods.
 
 ### Commands (embark session, handled by the app before the world exists)
 

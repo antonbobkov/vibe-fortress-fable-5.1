@@ -83,7 +83,7 @@ interface TradeState { stateVersion: 1; schedule: Record<Civ, { nextArrivalTick:
 interface ImmigrationState { stateVersion: 1; wavesSoFar: number; guaranteedDone: [boolean, boolean]; lastWave: { tick: Tick; count: number } | null;
   deferredUntilTick: Tick; lastSkipReason: string | null; rng: RngState }
 
-interface PathingState { stateVersion: 1 }   // labels, caches and requests are rebuilt on load; Motion components are saved with entities
+interface PathingState { stateVersion: 1; pathfinder: unknown; movement: unknown }   // pathfinder: every unreleased request with its path, each in-progress search, the queue order, the next request id, the path cache in LRU order; movement: the walks in progress. Labels and spatial buckets are rebuilt on load; Motion components are saved with entities
 interface CoreState { map: Map3D; entities: EntityStoreState; calendar: CalendarState; fortress: FortressState; rngSeed: string; commandLog: CommandLogEntry[] }
 interface EntityStoreState { slots: { generation: number; alive: boolean; kind: Kind }[]; components: Record<string, [number /* index */, unknown][]>; positionX: Int16Array; positionY: Int16Array; positionZ: Int8Array }
 interface CommandLogEntry { tick: Tick; command: Command; ok: boolean; reason?: string }
@@ -102,7 +102,5 @@ After `deserialize`, before the first tick, each system rebuilds derived structu
 | 12 | recipe registry (content + generated + registered sets) |
 | 13 | `itemsAtTile` (from the spatial index), `counts` are saved but verified against entities in a debug build |
 | 14 | `buildingAt` in `Map3D` is saved; room caches from `Room` components |
-| 22 | connectivity labels, path cache (empty), request queue (empty); every `Motion.pathId` is invalidated and brains re-request paths |
+| 22 | connectivity labels and spatial buckets only. The requests, in-progress searches, walks and path cache are saved, so that a loaded game continues exactly (`22` § State, `simulation-core.md` § Determinism) |
 | 23/24 | atlases, cell buffers |
-
-Implementation note: 22's requests, searches, walks and path cache are saved so that a loaded game continues exactly (`22` § State, `simulation-core.md` § Determinism); see DECISIONS.md D-081.

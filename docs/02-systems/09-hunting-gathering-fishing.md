@@ -62,8 +62,6 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
 
 ## Interfaces
 
-Implementation note: Hunt events are emitted by 11 while executing 09 jobs; CreateZone is owned by 14; events references: `HuntAbandoned`, `HuntKill`, `HuntStarted`; commands references: `CreateZone`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `foraging.isHuntable(species)`, `foraging.huntTargets()` (animal ids currently eligible)
@@ -72,7 +70,7 @@ Implementation note: Hunt events are emitted by 11 while executing 09 jobs; Crea
 
 ### Commands
 
-`SetHuntable { species, on }`. Gather and fishing zones are created through 14's `CreateZone` with the zone type; this system reads them.
+`SetHuntable { species, on }`. (Gather and fishing zones are created through 14's `CreateZone` with the zone type; this system reads them.)
 
 ### Events consumed
 
@@ -80,7 +78,7 @@ Implementation note: Hunt events are emitted by 11 while executing 09 jobs; Crea
 
 ### Events emitted
 
-`HuntStarted { hunterId, targetId }`, `HuntKill { hunterId, targetId }`, `HuntAbandoned { hunterId, reason }`, `FishCaught { fisherId, bodyId, species }`, `ButcheryDone { workshopId, species, yields }`, `FishPoolDepleted { bodyId }`.
+`FishCaught { fisherId, bodyId, species }`, `ButcheryDone { workshopId, species, yields }`, `FishPoolDepleted { bodyId }`. (The hunt events `HuntStarted`, `HuntKill` and `HuntAbandoned` are emitted by 11, which executes this system's hunt jobs; they are listed in 11.)
 
 ### Registrations
 
