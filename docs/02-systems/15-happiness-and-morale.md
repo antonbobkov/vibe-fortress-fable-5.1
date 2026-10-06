@@ -1,6 +1,6 @@
 # 15 Happiness & Morale
 
-**Detail level:** W2 · **Owner:** `systems/morale` · **Depends on:** [10-dwarves.md](10-dwarves.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [`../00-vision/vision.md`](../00-vision/vision.md)
+**Owner:** `systems/morale` · **Depends on:** [10-dwarves.md](10-dwarves.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [`../00-vision/vision.md`](../00-vision/vision.md)
 
 ## Purpose
 

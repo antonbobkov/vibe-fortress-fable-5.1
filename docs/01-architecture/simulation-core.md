@@ -1,6 +1,6 @@
 # Simulation Core
 
-**Detail level:** W2 · **Owner:** architecture (`core/`) · **Depends on:** [architecture-overview.md](architecture-overview.md), [constants.md](constants.md), [data-model.md](data-model.md), [module-interfaces.md](module-interfaces.md)
+**Owner:** architecture (`core/`) · **Depends on:** [architecture-overview.md](architecture-overview.md), [constants.md](constants.md), [data-model.md](data-model.md), [module-interfaces.md](module-interfaces.md)
 
 ## Purpose
 

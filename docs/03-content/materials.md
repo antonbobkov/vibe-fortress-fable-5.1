@@ -1,6 +1,6 @@
 # Materials
 
-**Detail level:** W3 · **Owner:** content (`materials`) · **Depends on:** [`../02-systems/05-materials-and-temperature.md`](../02-systems/05-materials-and-temperature.md), [glyphs-and-colors.md](glyphs-and-colors.md)
+**Owner:** content (`materials`) · **Depends on:** [`../02-systems/05-materials-and-temperature.md`](../02-systems/05-materials-and-temperature.md), [glyphs-and-colors.md](glyphs-and-colors.md)
 
 Every material the game knows. Ores, metals and gems have their own extended rows in [minerals-and-metals.md](minerals-and-metals.md) and are listed here only for completeness of ids and base properties. Plant, meat and hide materials are generated from species rows as described at the end.
 

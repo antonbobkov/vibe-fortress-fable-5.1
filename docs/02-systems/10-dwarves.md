@@ -1,6 +1,6 @@
 # 10 Dwarves
 
-**Detail level:** W2 · **Owner:** `systems/dwarves` · **Depends on:** [`../01-architecture/data-model.md`](../01-architecture/data-model.md), [11-jobs-and-labor.md](11-jobs-and-labor.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [15-happiness-and-morale.md](15-happiness-and-morale.md), [16-combat.md](16-combat.md), [17-health-and-medicine.md](17-health-and-medicine.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
+**Owner:** `systems/dwarves` · **Depends on:** [`../01-architecture/data-model.md`](../01-architecture/data-model.md), [11-jobs-and-labor.md](11-jobs-and-labor.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [15-happiness-and-morale.md](15-happiness-and-morale.md), [16-combat.md](16-combat.md), [17-health-and-medicine.md](17-health-and-medicine.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
 
 ## Purpose
 

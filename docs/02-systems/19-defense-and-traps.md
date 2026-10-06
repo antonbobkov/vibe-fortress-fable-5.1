@@ -1,6 +1,6 @@
 # 19 Defense & Traps
 
-**Detail level:** W2 · **Owner:** `systems/defense` · **Depends on:** [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [16-combat.md](16-combat.md), [17-health-and-medicine.md](17-health-and-medicine.md), [04-fluids.md](04-fluids.md), [18-threats-monsters-and-raids.md](18-threats-monsters-and-raids.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
+**Owner:** `systems/defense` · **Depends on:** [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [16-combat.md](16-combat.md), [17-health-and-medicine.md](17-health-and-medicine.md), [04-fluids.md](04-fluids.md), [18-threats-monsters-and-raids.md](18-threats-monsters-and-raids.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
 
 ## Purpose
 

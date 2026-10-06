@@ -2,7 +2,7 @@
 
 > **Archived.** This is the plan that built v1.0.0, kept as history. Its rules are no longer in force: current work follows [`../../process/agent-workflow.md`](../../process/agent-workflow.md) and [`../../backlog.md`](../../backlog.md). The workflow and testing strategy this plan names have moved to `docs/process/`; the decision log is still at [`../../05-plan/DECISIONS.md`](../../05-plan/DECISIONS.md).
 
-**Detail level:** plan · **Owner:** implementation · **Depends on:** the whole specification, especially [`../../04-implementation/build-milestones.md`](../../04-implementation/build-milestones.md), [`../../04-implementation/acceptance-tests.md`](../../04-implementation/acceptance-tests.md), [`../../04-implementation/tooling.md`](../../04-implementation/tooling.md)
+**Owner:** implementation · **Depends on:** the whole specification, especially [`../../04-implementation/build-milestones.md`](../../04-implementation/build-milestones.md), [`../../04-implementation/acceptance-tests.md`](../../04-implementation/acceptance-tests.md), [`../../04-implementation/tooling.md`](../../04-implementation/tooling.md)
 
 This folder turns the specification into a sequence of tasks that coding agents can execute without human intervention. Every task names the documents it implements, the files it produces, the tests it must add, and a mechanical definition of done. Nothing here introduces a design decision; where a task needs one, it points at the paragraph of the specification that already made it.
 

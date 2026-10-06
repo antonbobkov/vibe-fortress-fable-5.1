@@ -1,6 +1,6 @@
 # Tooling
 
-**Detail level:** W4 · **Owner:** implementation · **Depends on:** [`../01-architecture/tech-stack.md`](../01-architecture/tech-stack.md)
+**Owner:** implementation · **Depends on:** [`../01-architecture/tech-stack.md`](../01-architecture/tech-stack.md)
 
 ## package.json (dependencies)
 

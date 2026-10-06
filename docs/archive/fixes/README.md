@@ -2,7 +2,7 @@
 
 > **Archived.** F-01 … F-16 are done and their spec amendments are in the specification. F-17 is open: its document is [`../../work/F-17-balance-followups.md`](../../work/F-17-balance-followups.md), and its row is in [`../../backlog.md`](../../backlog.md). The rules quoted below (the plan's ground rules, the per-task permission to edit the spec, the progress block) are history; current work follows [`../../process/agent-workflow.md`](../../process/agent-workflow.md).
 
-**Detail level:** plan · **Owner:** implementation · **Source:** [`reports/audit-M5.md`](../../../reports/audits/audit-M5.md) and the verification work behind these documents (2026-09-24)
+**Owner:** implementation · **Source:** [`reports/audit-M5.md`](../../../reports/audits/audit-M5.md) and the verification work behind these documents (2026-09-24)
 
 These documents turn the findings of the M5 audit into tasks a coding agent can carry out without making design decisions. Every decision a task needs has been made here and is marked **Decision**. Wherever a task changes the specification, the exact old and new text is given as **Spec amendment**.
 

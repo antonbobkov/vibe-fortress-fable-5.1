@@ -1,6 +1,6 @@
 # Architecture Overview
 
-**Detail level:** W1 · **Owner:** architecture · **Depends on:** [`../00-vision/vision.md`](../00-vision/vision.md), [constants.md](constants.md), [tech-stack.md](tech-stack.md)
+**Owner:** architecture · **Depends on:** [`../00-vision/vision.md`](../00-vision/vision.md), [constants.md](constants.md), [tech-stack.md](tech-stack.md)
 
 ## Goals
 

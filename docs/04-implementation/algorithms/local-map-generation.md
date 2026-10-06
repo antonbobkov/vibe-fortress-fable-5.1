@@ -1,6 +1,6 @@
 # Algorithm: Local Map Generation
 
-**Detail level:** W4 · **Owner:** `systems/terrain` · **Depends on:** [`../../02-systems/03-terrain-and-mining.md`](../../02-systems/03-terrain-and-mining.md), [`../../03-content/minerals-and-metals.md`](../../03-content/minerals-and-metals.md), [`../../03-content/regions-biomes-and-traits.md`](../../03-content/regions-biomes-and-traits.md)
+**Owner:** `systems/terrain` · **Depends on:** [`../../02-systems/03-terrain-and-mining.md`](../../02-systems/03-terrain-and-mining.md), [`../../03-content/minerals-and-metals.md`](../../03-content/minerals-and-metals.md), [`../../03-content/regions-biomes-and-traits.md`](../../03-content/regions-biomes-and-traits.md)
 
 ```
 generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void

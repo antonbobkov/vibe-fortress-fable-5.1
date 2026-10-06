@@ -1,6 +1,6 @@
 # Persistence
 
-**Detail level:** W2 · **Owner:** architecture (`app/save-manager.ts`, `core/serialize.ts`, `platform/storage.ts`) · **Depends on:** [simulation-core.md](simulation-core.md), [data-model.md](data-model.md), [content-pipeline.md](content-pipeline.md)
+**Owner:** architecture (`app/save-manager.ts`, `core/serialize.ts`, `platform/storage.ts`) · **Depends on:** [simulation-core.md](simulation-core.md), [data-model.md](data-model.md), [content-pipeline.md](content-pipeline.md)
 
 ## What is saved
 

@@ -1,6 +1,6 @@
 # 02 Embark & Loadout
 
-**Detail level:** W2 · **Owner:** `systems/embark` · **Depends on:** [01-world-generation.md](01-world-generation.md), [03-terrain-and-mining.md](03-terrain-and-mining.md), [10-dwarves.md](10-dwarves.md), [`../01-architecture/constants.md`](../01-architecture/constants.md)
+**Owner:** `systems/embark` · **Depends on:** [01-world-generation.md](01-world-generation.md), [03-terrain-and-mining.md](03-terrain-and-mining.md), [10-dwarves.md](10-dwarves.md), [`../01-architecture/constants.md`](../01-architecture/constants.md)
 
 ## Purpose
 

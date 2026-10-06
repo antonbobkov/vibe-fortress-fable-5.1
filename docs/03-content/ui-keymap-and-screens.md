@@ -1,6 +1,6 @@
 # UI: Keymap, Screens, Panels, Hints
 
-**Detail level:** W3 · **Owner:** content (`keymap`, `hints`, `milestones`, `strings` index) · **Depends on:** [`../02-systems/24-ui-and-input.md`](../02-systems/24-ui-and-input.md), [`../02-systems/23-rendering.md`](../02-systems/23-rendering.md)
+**Owner:** content (`keymap`, `hints`, `milestones`, `strings` index) · **Depends on:** [`../02-systems/24-ui-and-input.md`](../02-systems/24-ui-and-input.md), [`../02-systems/23-rendering.md`](../02-systems/23-rendering.md)
 
 ## Screens
 

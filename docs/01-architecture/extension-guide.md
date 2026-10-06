@@ -1,6 +1,6 @@
 # Extension Guide
 
-**Detail level:** W2 · **Owner:** architecture · **Depends on:** [module-interfaces.md](module-interfaces.md), [content-pipeline.md](content-pipeline.md), [data-model.md](data-model.md)
+**Owner:** architecture · **Depends on:** [module-interfaces.md](module-interfaces.md), [content-pipeline.md](content-pipeline.md), [data-model.md](data-model.md)
 
 Each recipe below lists the files touched. If a recipe would require touching a file not listed, the architecture has a gap that should be fixed rather than worked around.
 

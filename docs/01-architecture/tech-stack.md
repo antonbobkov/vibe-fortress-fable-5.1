@@ -1,6 +1,6 @@
 # Tech Stack
 
-**Detail level:** W1 · **Owner:** architecture · **Depends on:** [architecture-overview.md](architecture-overview.md)
+**Owner:** architecture · **Depends on:** [architecture-overview.md](architecture-overview.md)
 
 ## Decisions
 

@@ -1,6 +1,6 @@
 # Threat Schedules
 
-**Detail level:** W3 · **Owner:** content (`threatSchedules`) · **Depends on:** [`../02-systems/18-threats-monsters-and-raids.md`](../02-systems/18-threats-monsters-and-raids.md), [creatures.md](creatures.md), [weapons-and-armor.md](weapons-and-armor.md)
+**Owner:** content (`threatSchedules`) · **Depends on:** [`../02-systems/18-threats-monsters-and-raids.md`](../02-systems/18-threats-monsters-and-raids.md), [creatures.md](creatures.md), [weapons-and-armor.md](weapons-and-armor.md)
 
 ## Renown
 

@@ -1,6 +1,6 @@
 # Content Pipeline
 
-**Detail level:** W2 · **Owner:** architecture (`content/`, `core/registry.ts`) · **Depends on:** [architecture-overview.md](architecture-overview.md), [data-model.md](data-model.md)
+**Owner:** architecture (`content/`, `core/registry.ts`) · **Depends on:** [architecture-overview.md](architecture-overview.md), [data-model.md](data-model.md)
 
 ## Principle
 

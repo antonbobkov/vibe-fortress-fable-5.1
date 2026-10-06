@@ -1,6 +1,6 @@
 # Skills and Professions
 
-**Detail level:** W3 · **Owner:** content (`skills`, `labors`) · **Depends on:** [`../02-systems/10-dwarves.md`](../02-systems/10-dwarves.md), [`../02-systems/11-jobs-and-labor.md`](../02-systems/11-jobs-and-labor.md), [`../02-systems/12-workshops-and-professions.md`](../02-systems/12-workshops-and-professions.md)
+**Owner:** content (`skills`, `labors`) · **Depends on:** [`../02-systems/10-dwarves.md`](../02-systems/10-dwarves.md), [`../02-systems/11-jobs-and-labor.md`](../02-systems/11-jobs-and-labor.md), [`../02-systems/12-workshops-and-professions.md`](../02-systems/12-workshops-and-professions.md)
 
 ## Skill levels
 

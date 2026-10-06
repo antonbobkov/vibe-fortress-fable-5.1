@@ -1,6 +1,6 @@
 # 03 Terrain & Mining
 
-**Detail level:** W2 · **Owner:** `systems/terrain` · **Depends on:** [`../01-architecture/data-model.md`](../01-architecture/data-model.md), [`../01-architecture/constants.md`](../01-architecture/constants.md), [01-world-generation.md](01-world-generation.md), [11-jobs-and-labor.md](11-jobs-and-labor.md)
+**Owner:** `systems/terrain` · **Depends on:** [`../01-architecture/data-model.md`](../01-architecture/data-model.md), [`../01-architecture/constants.md`](../01-architecture/constants.md), [01-world-generation.md](01-world-generation.md), [11-jobs-and-labor.md](11-jobs-and-labor.md)
 
 ## Purpose
 

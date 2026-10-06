@@ -1,6 +1,6 @@
 # Implementation Specification
 
-**Detail level:** W4 · **Owner:** implementation
+**Owner:** implementation
 
 Everything a developer needs beyond the system designs and content tables to write the code without inventing anything.
 

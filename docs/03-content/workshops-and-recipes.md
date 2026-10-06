@@ -1,6 +1,6 @@
 # Workshops and Recipes
 
-**Detail level:** W3 · **Owner:** content (`workshops`, `recipes`) · **Depends on:** [`../02-systems/12-workshops-and-professions.md`](../02-systems/12-workshops-and-professions.md), [items.md](items.md), [minerals-and-metals.md](minerals-and-metals.md), [weapons-and-armor.md](weapons-and-armor.md)
+**Owner:** content (`workshops`, `recipes`) · **Depends on:** [`../02-systems/12-workshops-and-professions.md`](../02-systems/12-workshops-and-professions.md), [items.md](items.md), [minerals-and-metals.md](minerals-and-metals.md), [weapons-and-armor.md](weapons-and-armor.md)
 
 ## Workshops
 

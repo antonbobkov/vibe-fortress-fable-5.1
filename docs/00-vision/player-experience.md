@@ -1,6 +1,6 @@
 # Player Experience
 
-**Detail level:** W1 · **Owner:** vision · **Depends on:** [vision.md](vision.md)
+**Owner:** vision · **Depends on:** [vision.md](vision.md)
 
 This document describes the game as the player lives it, from the main menu to the end of a fortress. It is the reference for what every system must add up to. Where it names a number, that number is pinned in [`../01-architecture/constants.md`](../01-architecture/constants.md) or in the relevant system document; it is repeated here only for readability.
 

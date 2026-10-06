@@ -1,6 +1,6 @@
 # Acceptance Tests
 
-**Detail level:** W4 · **Owner:** implementation (`test/scenarios/*`) · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md) (headless runner), every system document
+**Owner:** implementation (`test/scenarios/*`) · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md) (headless runner), every system document
 
 Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'default', commands[], ticks, assertions[] }`. `flat-test` is a generated local map with a flat granite surface at z=32, a 3-level soil layer, no river, no caverns above z=20, a `serene_vale`-like region (peril 0, wealth 2, temper 0) unless the test says otherwise. `default` embark is the Balanced preset. Scenario files live next to the tests; the ids below are the file names.
 

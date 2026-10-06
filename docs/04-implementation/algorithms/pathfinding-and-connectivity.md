@@ -1,6 +1,6 @@
 # Algorithm: Pathfinding, Connectivity, Movement
 
-**Detail level:** W4 · **Owner:** `core/pathfinding.ts`, `core/connectivity.ts`, `core/movement.ts` · **Depends on:** [`../../02-systems/22-pathfinding-and-spatial.md`](../../02-systems/22-pathfinding-and-spatial.md)
+**Owner:** `core/pathfinding.ts`, `core/connectivity.ts`, `core/movement.ts` · **Depends on:** [`../../02-systems/22-pathfinding-and-spatial.md`](../../02-systems/22-pathfinding-and-spatial.md)
 
 ## Passability and cost
 

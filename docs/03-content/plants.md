@@ -1,6 +1,6 @@
 # Plants
 
-**Detail level:** W3 · **Owner:** content (`plants`) · **Depends on:** [`../02-systems/07-plants-and-farming.md`](../02-systems/07-plants-and-farming.md), [materials.md](materials.md), [regions-biomes-and-traits.md](regions-biomes-and-traits.md)
+**Owner:** content (`plants`) · **Depends on:** [`../02-systems/07-plants-and-farming.md`](../02-systems/07-plants-and-farming.md), [materials.md](materials.md), [regions-biomes-and-traits.md](regions-biomes-and-traits.md)
 
 Columns: `stageDays` are days per stage at 100% growth (crops have four stages; the total is the cycle); `seasons` where surface species grow (cave species: all); `light` `sun` / `dark` / `any`; `minC`/`maxC` growth range; `yield` items per harvest `[min, max]` of `yieldItem` with the species as material unless stated; `seed` is always 1 per harvest; `value` is the plant material value per unit; `edible` raw; `cookable`; `brew` gives the drink material and the units per 4 plants at the still (always 20); `biomes` with spawn weights for wild shrubs and trees.
 

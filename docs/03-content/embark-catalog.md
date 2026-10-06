@@ -1,6 +1,6 @@
 # Embark Catalog
 
-**Detail level:** W3 · **Owner:** content (`embarkCatalog`) · **Depends on:** [`../02-systems/02-embark-and-loadout.md`](../02-systems/02-embark-and-loadout.md), [items.md](items.md), [creatures.md](creatures.md), [`../01-architecture/constants.md`](../01-architecture/constants.md)
+**Owner:** content (`embarkCatalog`) · **Depends on:** [`../02-systems/02-embark-and-loadout.md`](../02-systems/02-embark-and-loadout.md), [items.md](items.md), [creatures.md](creatures.md), [`../01-architecture/constants.md`](../01-architecture/constants.md)
 
 Price = item value × (100 + `EMBARK_MARKUP_PERCENT`) / 100, rounded up, for common quality. Quantities are per unit unless the entry is a stack. `max` is the most that can be bought of an entry.
 

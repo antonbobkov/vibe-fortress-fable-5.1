@@ -1,6 +1,6 @@
 # 01 World Generation
 
-**Detail level:** W2 · **Owner:** `systems/worldgen` · **Depends on:** [README.md](README.md), [`../01-architecture/constants.md`](../01-architecture/constants.md), [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md)
+**Owner:** `systems/worldgen` · **Depends on:** [README.md](README.md), [`../01-architecture/constants.md`](../01-architecture/constants.md), [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md)
 
 ## Purpose
 

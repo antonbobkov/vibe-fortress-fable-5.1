@@ -1,6 +1,6 @@
 # Schemas: Core Types and Components
 
-**Detail level:** W4 · **Owner:** implementation · **Depends on:** [`../../01-architecture/data-model.md`](../../01-architecture/data-model.md), [`../../01-architecture/module-interfaces.md`](../../01-architecture/module-interfaces.md)
+**Owner:** implementation · **Depends on:** [`../../01-architecture/data-model.md`](../../01-architecture/data-model.md), [`../../01-architecture/module-interfaces.md`](../../01-architecture/module-interfaces.md)
 
 TypeScript-style definitions. `Fixed` is an integer scaled by 1000. `TileIndex` and `EntityId` are numbers. `Id<T>` is a string content id; `Idx<T>` is its dense registry index. Arrays marked `sorted` are kept in ascending order.
 

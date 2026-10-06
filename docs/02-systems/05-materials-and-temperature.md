@@ -1,6 +1,6 @@
 # 05 Materials & Temperature
 
-**Detail level:** W2 · **Owner:** `systems/materials` · **Depends on:** [`../01-architecture/content-pipeline.md`](../01-architecture/content-pipeline.md), [04-fluids.md](04-fluids.md), [06-weather-and-seasons.md](06-weather-and-seasons.md), [03-terrain-and-mining.md](03-terrain-and-mining.md)
+**Owner:** `systems/materials` · **Depends on:** [`../01-architecture/content-pipeline.md`](../01-architecture/content-pipeline.md), [04-fluids.md](04-fluids.md), [06-weather-and-seasons.md](06-weather-and-seasons.md), [03-terrain-and-mining.md](03-terrain-and-mining.md)
 
 ## Purpose
 

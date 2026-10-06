@@ -1,6 +1,6 @@
 # Glyphs and Colors
 
-**Detail level:** W3 · **Owner:** content (`glyphs`, `palette`) · **Depends on:** [`../02-systems/23-rendering.md`](../02-systems/23-rendering.md), [`../01-architecture/tech-stack.md`](../01-architecture/tech-stack.md)
+**Owner:** content (`glyphs`, `palette`) · **Depends on:** [`../02-systems/23-rendering.md`](../02-systems/23-rendering.md), [`../01-architecture/tech-stack.md`](../01-architecture/tech-stack.md)
 
 ## Glyph set
 

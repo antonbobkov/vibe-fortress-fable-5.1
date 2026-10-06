@@ -1,6 +1,6 @@
 # 21 Immigration
 
-**Detail level:** W2 · **Owner:** `systems/immigration` · **Depends on:** [15-happiness-and-morale.md](15-happiness-and-morale.md), [13-items-and-storage.md](13-items-and-storage.md), [10-dwarves.md](10-dwarves.md), [20-trade-and-caravans.md](20-trade-and-caravans.md), [02-embark-and-loadout.md](02-embark-and-loadout.md)
+**Owner:** `systems/immigration` · **Depends on:** [15-happiness-and-morale.md](15-happiness-and-morale.md), [13-items-and-storage.md](13-items-and-storage.md), [10-dwarves.md](10-dwarves.md), [20-trade-and-caravans.md](20-trade-and-caravans.md), [02-embark-and-loadout.md](02-embark-and-loadout.md)
 
 ## Purpose
 

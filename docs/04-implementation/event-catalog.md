@@ -1,6 +1,6 @@
 # Event Catalog
 
-**Detail level:** W4 · **Owner:** implementation · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md), every system document
+**Owner:** implementation · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md), every system document
 
 Every event type, its fields, its emitters and its subscribers. `ui` means the presentation announcement registry or panels subscribe. Batched events carry arrays and are emitted at most once per emitter per tick. Every event has at least one emitter and one subscriber; the Wave 4 consistency pass checks this table against the system documents.
 

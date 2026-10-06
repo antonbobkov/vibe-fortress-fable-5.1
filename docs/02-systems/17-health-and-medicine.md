@@ -1,6 +1,6 @@
 # 17 Health & Medicine
 
-**Detail level:** W2 · **Owner:** `systems/health` · **Depends on:** [16-combat.md](16-combat.md), [10-dwarves.md](10-dwarves.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [11-jobs-and-labor.md](11-jobs-and-labor.md)
+**Owner:** `systems/health` · **Depends on:** [16-combat.md](16-combat.md), [10-dwarves.md](10-dwarves.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [11-jobs-and-labor.md](11-jobs-and-labor.md)
 
 ## Purpose
 

@@ -1,6 +1,6 @@
 # 09 Hunting, Gathering & Fishing
 
-**Detail level:** W2 · **Owner:** `systems/foraging` · **Depends on:** [08-animals-and-domestication.md](08-animals-and-domestication.md), [07-plants-and-farming.md](07-plants-and-farming.md), [04-fluids.md](04-fluids.md), [16-combat.md](16-combat.md), [12-workshops-and-professions.md](12-workshops-and-professions.md), [13-items-and-storage.md](13-items-and-storage.md)
+**Owner:** `systems/foraging` · **Depends on:** [08-animals-and-domestication.md](08-animals-and-domestication.md), [07-plants-and-farming.md](07-plants-and-farming.md), [04-fluids.md](04-fluids.md), [16-combat.md](16-combat.md), [12-workshops-and-professions.md](12-workshops-and-professions.md), [13-items-and-storage.md](13-items-and-storage.md)
 
 ## Purpose
 

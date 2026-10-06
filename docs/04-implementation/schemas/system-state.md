@@ -1,6 +1,6 @@
 # Schemas: System State
 
-**Detail level:** W4 · **Owner:** implementation · **Depends on:** [components.md](components.md), the `State` sections of every document in [`../../02-systems/`](../../02-systems/README.md)
+**Owner:** implementation · **Depends on:** [components.md](components.md), the `State` sections of every document in [`../../02-systems/`](../../02-systems/README.md)
 
 What each system's `serialize()` returns. Every state object carries `stateVersion: number` (starts at 1). Rng streams are `{ s: [number, number, number, number] }`. Sorted sets are plain sorted arrays.
 
