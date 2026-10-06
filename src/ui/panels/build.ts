@@ -19,12 +19,12 @@ import type { BuildingRow } from '@systems/buildings';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { Registry } from '@core/registry';
 import { acceleratorLabel } from '../keymap';
-import { itemName } from '../messages';
+import { blockedText, capitalize, itemName, matchName, whereMade } from '../messages';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, list, separator, type ListState } from '../widgets';
 import { buildings, items, type PanelContext } from './context';
-import type { TilePoint } from './designate';
+import { rectTiles, type TilePoint } from './designate';
 
 /** The panel's categories, in the wireframe's order, with their accelerators. */
 export const BUILD_CATEGORIES: readonly { readonly key: string; readonly id: BuildingRow['category'] }[] = [
@@ -76,6 +76,30 @@ export interface MaterialChoice {
   readonly count: number;
 }
 
+/** What a drag would place: one building per valid tile, the rest skipped by rule (D-U6, S9). */
+export interface DragPlan {
+  readonly ok: TileIndex[];
+  readonly blocked: number;
+  /** The rules that blocked tiles, as the status bar says them, the most frequent first. */
+  readonly rules: string[];
+}
+
+/** Buildings placed while the input was short: what `[o] order N` offers to make (D-U6). */
+export interface StockOffer {
+  /** The input as the build menu matches it ("door", "block|log"). */
+  readonly match: string;
+  /** Units of the input in stock now. */
+  readonly have: number;
+  /** Buildings that wait for it. */
+  readonly waiting: number;
+  /** The item a workshop order makes, or null when no recipe makes the input. */
+  readonly itemId: string | null;
+  /** A recipe for it at a workshop that is built, or null: then `workshops` says what to build. */
+  readonly recipeId: string | null;
+  /** The workshops that make it, as words: "a carpenter's workshop or a mason's workshop". */
+  readonly workshops: string;
+}
+
 export class BuildTool {
   category: BuildingRow['category'] | null = null;
   readonly list: ListState = { selected: 0, scroll: 0 };
@@ -85,6 +109,13 @@ export class BuildTool {
   /** Index into {@link materials}; 0 is "any". */
   materialIndex = 0;
   priority = PRIORITY_DEFAULT;
+  /** A drag in progress for a type placed one per tile (D-U6): its corners. */
+  anchor: TilePoint | null = null;
+  end: TilePoint | null = null;
+  /** Units of the first input that buildings placed with this tool wait for (D-U6). */
+  private short: number | null = null;
+  /** Units placed on this tick that the stock covers: the count does not know of them yet. */
+  private tally: { tick: number; covered: number } | null = null;
   private cache: { key: string; materials: MaterialChoice[] } | null = null;
   private readonly counts = { tick: -1, byRow: new Map<string, number>() };
 
@@ -94,6 +125,15 @@ export class BuildTool {
 
   cancel(): void {
     this.category = null;
+    this.resetRow();
+  }
+
+  /** Another type (or none): the drag, the stock offer and the type's settings start again. */
+  resetRow(): void {
+    this.anchor = null;
+    this.end = null;
+    this.short = null;
+    this.tally = null;
     this.orientation = 0;
     this.width = 1;
     this.height = 1;
@@ -107,10 +147,7 @@ export class BuildTool {
     this.category = c.id;
     this.list.selected = 0;
     this.list.scroll = 0;
-    this.orientation = 0;
-    this.width = 1;
-    this.height = 1;
-    this.materialIndex = 0;
+    this.resetRow();
     return true;
   }
 
@@ -128,10 +165,7 @@ export class BuildTool {
     const n = this.rows(ctx).length;
     if (n === 0) return;
     this.list.selected = Math.max(0, Math.min(n - 1, this.list.selected + delta));
-    this.materialIndex = 0;
-    this.orientation = 0;
-    this.width = 1;
-    this.height = 1;
+    this.resetRow();
   }
 
   /** `r`: rotate a rotatable type. */
@@ -240,6 +274,127 @@ export class BuildTool {
       ...(row.footprint.variable === undefined ? {} : { width: this.width, height: this.height }) };
   }
 
+  /**
+   * Whether a drag places one per tile (D-U6: "for 1×1 buildings and constructions"). The hearth
+   * and the well are single buildings of a fortress and keep the click.
+   */
+  multi(ctx: PanelContext): boolean {
+    const row = this.current(ctx);
+    return row !== undefined && row.footprint.w === 1 && row.footprint.h === 1 && row.footprint.variable === undefined && row.category !== 'special';
+  }
+
+  /** The tiles of a drag: the valid ones, ascending, and why the others are skipped. */
+  plan(ctx: PanelContext, a: TilePoint, b: TilePoint): DragPlan {
+    const row = this.current(ctx);
+    const reader = buildings(ctx);
+    const ok: TileIndex[] = [];
+    const rules = new Map<string, number>();
+    let blocked = 0;
+    if (row === undefined || reader === null) return { ok, blocked, rules: [] };
+    for (const tile of rectTiles(ctx.readers.map, a, b)) {
+      const text = blockedText(ctx, row.id, reader.ghost(row.id, tile, this.orientation));
+      if (text === null) ok.push(tile);
+      else {
+        blocked += 1;
+        rules.set(text, (rules.get(text) ?? 0) + 1);
+      }
+    }
+    return { ok, blocked, rules: Array.from(rules.keys()).sort((x, y) => (rules.get(y) as number) - (rules.get(x) as number) || (x < y ? -1 : 1)) };
+  }
+
+  /** The `PlaceBuilding` of one tile of a drag. */
+  commandAt(ctx: PanelContext, origin: TileIndex): Command | null {
+    const row = this.current(ctx);
+    if (row === undefined) return null;
+    return { type: 'PlaceBuilding', buildingType: row.id, origin, orientation: this.orientation, materialChoice: this.material(ctx), priority: this.priority };
+  }
+
+  /** Units of the first input one building takes; 0 when it has none or takes one per tile. */
+  private perBuilding(row: BuildingRow): number {
+    const first = row.inputs[0];
+    return first === undefined || first.count === 'tiles' ? 0 : first.count;
+  }
+
+  /** Units placed on this tick that the stock covers. */
+  private covered(ctx: PanelContext): number {
+    return this.tally !== null && this.tally.tick === ctx.readers.calendar.tick ? this.tally.covered : 0;
+  }
+
+  /** Units of the first input the stock cannot give `n` more buildings of the current type. */
+  private shortFor(ctx: PanelContext, row: BuildingRow, n: number): number {
+    const per = this.perBuilding(row);
+    if (per === 0 || n <= 0) return 0;
+    return Math.max(0, n * per - Math.max(0, this.available(ctx, row) - this.covered(ctx)));
+  }
+
+  /** Record `n` buildings of the current type as placed: those the stock cannot supply wait (D-U6). */
+  placed(ctx: PanelContext, n: number): void {
+    const row = this.current(ctx);
+    if (row === undefined || n <= 0) return;
+    const per = this.perBuilding(row);
+    if (per === 0) return;
+    const short = this.shortFor(ctx, row, n);
+    this.tally = { tick: ctx.readers.calendar.tick, covered: this.covered(ctx) + n * per - short };
+    if (short > 0) this.short = (this.short ?? 0) + short;
+  }
+
+  /**
+   * The out-of-stock offer, with `extra` more buildings about to be placed (a drag in progress), or
+   * null while the stock covers everything placed with this tool.
+   */
+  offer(ctx: PanelContext, extra = 0): StockOffer | null {
+    const row = this.current(ctx);
+    const reader = buildings(ctx);
+    if (row === undefined || reader === null) return null;
+    const per = this.perBuilding(row);
+    const first = row.inputs[0];
+    if (per === 0 || first === undefined) return null;
+    const units = (this.short ?? 0) + this.shortFor(ctx, row, extra);
+    if (units <= 0) return null;
+    // The item an order makes: the first alternative of the input that some recipe produces.
+    const items = ctx.registry.table<{ id: string }>('items');
+    const recipes = ctx.registry.table<{ id: string; workshop: string; outputs: readonly { item: string }[] }>('recipes');
+    const rows = recipes.ids().map((id) => recipes.byId(id)).filter((r): r is NonNullable<typeof r> => r !== undefined);
+    const built = (type: string): boolean => reader.byType(type).some((id) => reader.get(id)?.state === 'built');
+    let itemId: string | null = null;
+    let recipeId: string | null = null;
+    for (const part of first.match.split('|')) {
+      for (const index of reader.inputTypes(part)) {
+        const id = items.byIndex(index)?.id;
+        const makers = id === undefined ? [] : rows.filter((r) => r.outputs.some((o) => o.item === id));
+        if (id === undefined || makers.length === 0) continue;
+        const ready = makers.find((r) => built(r.workshop));
+        // The first alternative some recipe makes; one a built workshop makes is better still.
+        if (itemId === null || (recipeId === null && ready !== undefined)) {
+          itemId = id;
+          recipeId = ready?.id ?? null;
+        }
+      }
+    }
+    const workshops = itemId === null ? '' : whereMade(ctx.registry, [itemId]) || ctx.strings.get('ui.build.stock.a_workshop');
+    return { match: first.match, have: this.available(ctx, row), waiting: Math.ceil(units / per), itemId, recipeId, workshops };
+  }
+
+  /** The offer was taken (`[o] order N`): nothing placed so far waits for an order any more. */
+  clearOffer(): void {
+    this.short = null;
+  }
+
+  /** "0 doors in stock: 5 will wait", then "[o] order 5" or the workshop to build first; `key` is the Orders key. */
+  offerText(ctx: PanelContext, offer: StockOffer, key: string): { stock: string; action: string } {
+    const s = ctx.strings;
+    const stock = s.get('ui.build.stock.short', { have: offer.have, items: matchName(ctx.registry, offer.match.split('|')[0] ?? '', 2), n: offer.waiting });
+    if (offer.itemId === null) return { stock, action: '' };
+    if (offer.recipeId !== null) return { stock, action: s.get('ui.build.stock.order', { key, n: offer.waiting }) };
+    return { stock, action: s.get('ui.build.stock.needs_workshop', { workshop: offer.workshops }) };
+  }
+
+  /** The building's name as the status bar says it ("Door"). */
+  name(ctx: PanelContext): string {
+    const row = this.current(ctx);
+    return row === undefined ? '' : capitalize(row.name);
+  }
+
   /** The reason as the status bar says it ("needs a floor"). */
   reasonText(strings: Strings, reason: string, rule: string): string {
     if (reason === 'bad_placement' && strings.has(`ui.build.rule.${rule}`)) return strings.get(`ui.build.rule.${rule}`);
@@ -248,7 +403,7 @@ export class BuildTool {
 }
 
 /** The panel body (the title row is the sidebar's). */
-export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: PanelContext): void {
+export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: PanelContext, order?: { readonly key: string; run(): void }): void {
   const t = s.theme;
   const strings = ctx.strings;
   let row = rect.row;
@@ -283,10 +438,7 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
     tool.list,
     (index) => {
       tool.list.selected = index;
-      tool.materialIndex = 0;
-      tool.orientation = 0;
-      tool.width = 1;
-      tool.height = 1;
+      tool.resetRow();
     },
   );
   row += height;
@@ -306,6 +458,17 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
   const rotate = current?.footprint.rotatable === true ? strings.get('ui.build.rotate', { n: tool.orientation }) : strings.get('ui.build.no_rotate');
   label(s, rect.col + 1, row, rotate, { fg: current?.footprint.rotatable === true ? t.text : t.dim, width: rect.cols - 2 });
   row += 1;
+  // D-U6: what the stock cannot supply takes the help rows, with the order as a button.
+  const offer = tool.offer(ctx);
+  if (offer !== null) {
+    const text = tool.offerText(ctx, offer, order?.key ?? '');
+    label(s, rect.col + 1, row, text.stock, { fg: t.alert, width: rect.cols - 2 });
+    if (text.action !== '') {
+      label(s, rect.col + 1, row + 1, text.action, { fg: offer.recipeId !== null ? t.key : t.dim, width: rect.cols - 2 });
+      if (offer.recipeId !== null && order !== undefined) s.hit({ col: rect.col + 1, row: row + 1, cols: rect.cols - 2, rows: 1 }, () => order.run());
+    }
+    return;
+  }
   label(s, rect.col + 1, row, strings.get('ui.build.help1'), { fg: t.dim, width: rect.cols - 2 });
-  label(s, rect.col + 1, row + 1, strings.get('ui.build.help2'), { fg: t.dim, width: rect.cols - 2 });
+  label(s, rect.col + 1, row + 1, strings.get(tool.multi(ctx) ? 'ui.build.help2_drag' : 'ui.build.help2'), { fg: t.dim, width: rect.cols - 2 });
 }

@@ -493,15 +493,29 @@ export class FortressScreen implements Screen {
   /** The build tool's footprint ghost under the pointer: "a building ghost uses green or red `bg` by validity" (23 step 10). */
   private drawGhost(surface: Surface, map: Rect): void {
     if (!this.build.active) return;
+    const t = surface.theme;
+    const okGlyph = surface.glyphs.index('▒');
+    const badGlyph = surface.glyphs.index('x');
+    const m = this.host.readers.map;
+    const from = this.build.anchor;
+    if (from !== null) {
+      // A drag of a 1×1 type: one ghost per tile of the rectangle, blocked tiles marked (D-U6).
+      if (from.z !== this.ui.z) return;
+      const to = this.build.end ?? this.hoverPoint() ?? from;
+      const ok = new Set(this.build.plan(this.ctx, from, to).ok);
+      for (const i of rectTiles(m, from, { x: to.x, y: to.y, z: from.z })) {
+        const col = (i % m.w) - this.ui.camX;
+        const r = (Math.floor(i / m.w) % m.h) - this.ui.camY;
+        if (col < 0 || r < 0 || col >= map.cols || r >= map.rows) continue;
+        surface.put(map.col + col, map.row + r, ok.has(i) ? okGlyph : badGlyph, t.black, ok.has(i) ? t.ghostOk : t.ghostBad);
+      }
+      return;
+    }
     const p = this.hoverPoint();
     if (p === null) return;
     const ghost = this.build.ghost(this.ctx, p);
     const row = this.build.current(this.ctx);
     if (ghost === null || row === undefined) return;
-    const t = surface.theme;
-    const okGlyph = surface.glyphs.index('▒');
-    const badGlyph = surface.glyphs.index('x');
-    const m = this.host.readers.map;
     for (const i of ghost.tiles) {
       const col = (i % m.w) - this.ui.camX;
       const r = (Math.floor(i / m.w) % m.h) - this.ui.camY;
@@ -526,7 +540,7 @@ export class FortressScreen implements Screen {
     const readers = this.host.readers;
     const ctx = this.ctx;
     if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings);
-    else if (panel.id === 'build') drawBuildPanel(surface, body, this.build, ctx);
+    else if (panel.id === 'build') drawBuildPanel(surface, body, this.build, ctx, { key: this.ordersKey(), run: () => void this.orderMissing() });
     else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx, () => this.removeZone(this.zones.selected));
     else if (panel.id === 'stocks') drawStocksPanel(surface, body, this.stocks, ctx);
     else if (panel.id === 'units') drawUnitsPanel(surface, body, this.units, ctx);
@@ -595,10 +609,22 @@ export class FortressScreen implements Screen {
       const row = this.build.current(this.ctx);
       const name = row === undefined ? '' : row.name.charAt(0).toUpperCase() + row.name.slice(1);
       const p = this.hoverPoint() ?? this.actionPoint();
+      const from = this.build.anchor;
+      if (from !== null) {
+        // D-U6: "the status bar shows the count" while dragging, and what the stock cannot supply.
+        const to = this.build.end ?? p;
+        const plan = this.build.plan(this.ctx, from, { x: to.x, y: to.y, z: from.z });
+        const count = plan.blocked === 0 ? s.get('ui.status.build_drag', { tool: name, n: plan.ok.length })
+          : s.get(plan.blocked === 1 ? 'ui.status.build_drag_blocked_one' : 'ui.status.build_drag_blocked', { tool: name, n: plan.ok.length, blocked: plan.blocked });
+        const stock = this.stockText(plan.ok.length);
+        return stock === '' ? count : `${count} · ${stock}`;
+      }
       const ghost = this.build.ghost(this.ctx, p);
       const blocked = ghost === null || row === undefined ? null : blockedText(this.ctx, row.id, ghost);
-      if (blocked !== null) return s.get('ui.status.build_blocked', { tool: name, reason: blocked });
-      return s.get('ui.status.build', { tool: name });
+      const stock = this.stockText(0);
+      if (blocked !== null) return stock === '' ? s.get('ui.status.build_blocked', { tool: name, reason: blocked }) : s.get('ui.status.build_blocked_stock', { tool: name, reason: blocked, stock });
+      if (stock !== '') return s.get('ui.status.build_stock', { tool: name, stock });
+      return s.get(this.build.multi(this.ctx) ? 'ui.status.build_many' : 'ui.status.build', { tool: name });
     }
     if (this.zones.active) {
       const name = this.zones.resizing ? s.get('ui.zone.resize') : s.get(`ui.zone.type.${this.zones.kind ?? ''}`);
@@ -767,10 +793,74 @@ export class FortressScreen implements Screen {
 
   /** Place the build tool's building at a point ("Placing keeps the tool active until `Esc`"). */
   place(p: TilePoint): Command | null {
-    const cmd = this.build.command(this.ctx, p);
-    if (cmd !== null) this.host.submit(cmd);
-    else this.notice(this.strings.get('ui.status.off_map'));
+    const ctx = this.ctx;
+    const cmd = this.build.command(ctx, p);
+    if (cmd !== null) {
+      // One the simulation will take counts toward what the stock must supply (D-U6).
+      if (this.build.ghost(ctx, p)?.reason === null) this.build.placed(ctx, 1);
+      this.host.submit(cmd);
+    } else this.notice(this.strings.get('ui.status.off_map'));
     return cmd;
+  }
+
+  /**
+   * A finished drag of a type placed one per tile (D-U6, S9): one `PlaceBuilding` per valid tile of
+   * the rectangle; the others are skipped and reported in one message naming the rule. A drag that
+   * never left its tile is the single click.
+   */
+  placeMany(a: TilePoint, b: TilePoint): Command[] {
+    const ctx = this.ctx;
+    const s = this.strings;
+    this.build.anchor = null;
+    this.build.end = null;
+    const to = { x: b.x, y: b.y, z: a.z };
+    if (a.x === to.x && a.y === to.y) {
+      const one = this.place(a);
+      return one === null ? [] : [one];
+    }
+    const plan = this.build.plan(ctx, a, to);
+    const commands = plan.ok.map((tile) => this.build.commandAt(ctx, tile)).filter((c): c is Command => c !== null);
+    this.build.placed(ctx, commands.length);
+    for (const c of commands) this.host.submit(c);
+    const tool = this.build.name(ctx);
+    const rule = plan.rules.slice(0, 2).join(', ');
+    const n = commands.length;
+    let text = plan.blocked === 0 ? s.get('ui.status.build_placed', { tool, n })
+      : n === 0 ? s.get('ui.status.build_none', { tool, blocked: plan.blocked, rule })
+      : s.get(plan.blocked === 1 ? 'ui.status.build_skipped_one' : 'ui.status.build_skipped', { tool, n, blocked: plan.blocked, rule });
+    const stock = this.stockText(0);
+    if (stock !== '') text = `${text} · ${stock}`;
+    this.notice(text);
+    return commands;
+  }
+
+  /** The key that opens Orders, as the out-of-stock line shows it (`[o] order N`). */
+  private ordersKey(): string {
+    return this.panels().find((p) => p.id === 'orders')?.hotkey ?? '';
+  }
+
+  /** "0 doors in stock: 5 will wait · [o] order 5" with `extra` more about to be placed, or '' (D-U6). */
+  private stockText(extra: number): string {
+    const offer = this.build.offer(this.ctx, extra);
+    if (offer === null) return '';
+    const text = this.build.offerText(this.ctx, offer, this.ordersKey());
+    return text.action === '' ? text.stock : `${text.stock} · ${text.action}`;
+  }
+
+  /**
+   * `[o] order N` of the out-of-stock line: the order picker, preset to the missing item and the
+   * count that waits (D-U6). False when there is nothing to order or no workshop to order it at:
+   * the key then opens Orders as it always does.
+   */
+  orderMissing(): boolean {
+    const offer = this.build.offer(this.ctx);
+    if (offer === null || offer.recipeId === null) return false;
+    const preset = { recipeId: offer.recipeId, quantity: offer.waiting };
+    this.openPanel('orders');
+    this.orders.workshopId = 0;
+    this.orders.list.selected = 0;
+    this.orders.openPicker(this.ctx, preset);
+    return true;
   }
 
   /** Submit a finished rectangle. */
@@ -817,10 +907,14 @@ export class FortressScreen implements Screen {
   }
 
   /** `Enter` with a tool: "start/end rectangle at the cursor". */
-  private rectPoint(): void {
+  private rectPoint(shift = false): void {
     const p = this.actionPoint();
     if (this.build.active) {
-      this.place(p);
+      // D-U6 by keyboard: `Shift+Enter` marks a corner, `Enter` at the other places one per tile.
+      if (this.build.anchor !== null) this.placeMany(this.build.anchor, p);
+      else if (shift && this.build.multi(this.ctx)) this.build.anchor = p;
+      else if (shift) this.notice(this.strings.get('ui.status.build_single', { tool: this.build.name(this.ctx) }));
+      else this.place(p);
       return;
     }
     if (this.zones.active) {
@@ -858,6 +952,12 @@ export class FortressScreen implements Screen {
     }
     if (this.zones.active) {
       this.zones.cancel();
+      return;
+    }
+    if (this.build.anchor !== null) {
+      this.build.anchor = null;
+      this.build.end = null;
+      this.dragging = false;
       return;
     }
     if (this.build.active) {
@@ -978,6 +1078,8 @@ export class FortressScreen implements Screen {
     // D-U2: a panel hotkey always opens or closes its panel, whatever panel is open; only a
     // focused text field (the units filter, an animal's name) takes the letter instead. The open
     // panel's own keys come next, before the map's.
+    // D-U6: with the build tool's out-of-stock line showing, the Orders key opens the picker preset.
+    if (this.build.active && this.ui.sidebar && !press.ctrl && !press.alt && !press.meta && !press.shift && press.key === this.ordersKey() && this.orderMissing()) return true;
     if (!this.textFocused() && this.panelHotkey(press)) return true;
     const panel = this.ui.panel;
     if (this.ui.sidebar && panel !== null && this.panelKey(panel, press)) return true;
@@ -1041,7 +1143,7 @@ export class FortressScreen implements Screen {
           break;
         case 'rect_point':
           if (this.toolActive) {
-            this.rectPoint();
+            this.rectPoint(map.shift === true);
             return true;
           }
           break;
@@ -1347,7 +1449,15 @@ export class FortressScreen implements Screen {
       return;
     }
     if (this.build.active) {
-      this.place(at);
+      if (this.build.anchor !== null) {
+        // The corner was marked with `Shift+Enter`: the click is the other corner.
+        this.placeMany(this.build.anchor, at);
+      } else if (this.build.multi(this.ctx)) {
+        // D-U6: a drag places one per valid tile; the click is a drag that stays on its tile.
+        this.build.anchor = at;
+        this.build.end = at;
+        this.dragging = true;
+      } else this.place(at);
       return;
     }
     if (this.zones.active) {
@@ -1403,7 +1513,8 @@ export class FortressScreen implements Screen {
       const dy = p.row === map.row ? -1 : p.row === map.row + map.rows - 1 ? 1 : 0;
       if (dx || dy) this.host.pan(dx, dy);
     }
-    if (this.dragging && at !== null && this.zones.anchor !== null) this.zones.end = { x: at.x, y: at.y, z: this.zones.anchor.z };
+    if (this.dragging && at !== null && this.build.anchor !== null) this.build.end = { x: at.x, y: at.y, z: this.build.anchor.z };
+    else if (this.dragging && at !== null && this.zones.anchor !== null) this.zones.end = { x: at.x, y: at.y, z: this.zones.anchor.z };
     else if (this.dragging && at !== null && this.tool.anchor !== null) this.tool.end = { x: at.x, y: at.y, z: this.tool.anchor.z };
     else if (this.selecting !== null && at !== null && (at.x !== this.selecting.x || at.y !== this.selecting.y)) {
       this.selection = { a: this.selecting, b: { x: at.x, y: at.y, z: this.selecting.z } };
@@ -1419,6 +1530,12 @@ export class FortressScreen implements Screen {
     this.selecting = null;
     if (!this.dragging) return;
     this.dragging = false;
+    if (this.build.anchor !== null) {
+      const from = this.build.anchor;
+      const up = this.pointOfCell(p.col, p.row);
+      this.placeMany(from, up ?? this.build.end ?? from);
+      return;
+    }
     if (this.zones.anchor !== null) {
       const za = this.zones.anchor;
       const zat = this.pointOfCell(p.col, p.row);

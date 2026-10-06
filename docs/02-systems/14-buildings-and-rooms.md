@@ -155,6 +155,8 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
 ## Player-facing behavior
 
 - Build menu (hotkey `b`): categories → types; a footprint ghost follows the cursor, green where valid, red where not, with the reason; material choice list showing available counts; orientation with `r`. Placing several of the same type: the menu stays open.
+  - For a type with a 1×1 footprint (furniture, constructions, mechanisms, traps; not the hearth or the well), a drag places one per valid tile of the rectangle. The status bar shows the count while dragging ("Door ×5, 2 tiles blocked"). Tiles that fail the placement rule are skipped and reported in one message that names the rule. A single click still places one.
+  - When the first input is out of stock, the status bar says how many placed buildings will wait and offers the order: "0 doors in stock: 5 will wait · [o] order 5". `o` opens the work-order picker (12) preset to that item and count. When no built workshop makes the item, the line names the workshop to build instead.
 - Zones menu (hotkey `z`): type → drag → confirm; the zone panel shows settings and, for rooms, the quality breakdown.
 - Clicking a building opens its panel: state, mode toggles, links, owner, deconstruct; workshops delegate to 12.
 - Lever panel: linked targets with their states; a Pull button (creates the job).

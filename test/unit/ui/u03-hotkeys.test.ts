@@ -96,6 +96,14 @@ function screenOf(world: World, answer: boolean | null = false, keys: Keymap = k
   return { screen: new FortressScreen(host, keys, strings), sent, asked, managers };
 }
 
+/** The build tool on the bed (U-04: a type a drag places many of). */
+function bedTool(f: Fixture): void {
+  f.screen.openPanel('build');
+  f.screen.build.choose('f');
+  f.screen.build.list.selected = f.screen.build.rows(f.screen.ctx).findIndex((row) => row.id === 'bed');
+  expect(f.screen.build.multi(f.screen.ctx)).toBe(true);
+}
+
 /** Every state a panel letter must still work in: each panel, and each panel with something selected or a tool chosen. */
 const STATES: readonly { readonly name: string; readonly open: (f: Fixture, world: World) => void }[] = [
   ...['designate', 'build', 'zones', 'units', 'labors', 'jobs', 'orders', 'stocks', 'military', 'animals', 'threats', 'civilizations',
@@ -107,6 +115,9 @@ const STATES: readonly { readonly name: string; readonly open: (f: Fixture, worl
   { name: 'orders of a workshop, one selected', open: (f, world) => { f.screen.orders.workshopId = world.busyShop; f.screen.openPanel('orders'); } },
   { name: 'designate with the dig tool', open: (f) => { f.screen.openPanel('designate'); f.screen.tool.choose('d'); } },
   { name: 'build with a category', open: (f) => { f.screen.openPanel('build'); f.screen.build.choose('w'); } },
+  // U-04: a drag of a 1×1 type in progress, and the out-of-stock line (`o` then opens the picker, still on Orders).
+  { name: 'build dragging a row of beds', open: (f) => { bedTool(f); f.screen.build.anchor = { x: 30, y: 30, z }; f.screen.build.end = { x: 32, y: 30, z }; } },
+  { name: 'build with beds out of stock', open: (f) => { bedTool(f); f.screen.placeMany({ x: 30, y: 30, z }, { x: 32, y: 30, z }); expect(f.screen.statusRow2()).toContain('[o] order 3'); f.sent.length = 0; } },
   { name: 'zones with a tool', open: (f) => { f.screen.openPanel('zones'); f.screen.zones.choose('s'); } },
   { name: 'zones with a zone selected', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; } },
   { name: 'stocks picking goods for the depot', open: (f) => { f.screen.openPanel('stocks'); f.screen.stocks.startDepot(1); } },

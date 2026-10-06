@@ -113,6 +113,9 @@ const ORDER_HELP_KEYS: readonly string[] = [
   'ui.help.orders.new', 'ui.help.orders.count', 'ui.help.orders.repeat', 'ui.help.orders.remove', 'ui.help.orders.edit', 'ui.help.orders.picker',
 ];
 
+/** The "Build" rows of the keys tab: placing many and the out-of-stock order (D-U6). */
+const BUILD_HELP_KEYS: readonly string[] = ['ui.help.build.drag', 'ui.help.build.corner', 'ui.help.build.order'];
+
 /** Help's context order: the panel hotkeys first (Q14), then the keymap table's order. */
 export const HELP_CONTEXT_ORDER: readonly KeyContext[] = ['fortress_panel', ...KEY_CONTEXTS.filter((c) => c !== 'fortress_panel')];
 
@@ -152,6 +155,8 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     // The order list's and the picker's keys (D-U5), which are the panel's own and not keymap rows.
     out.push({ category: 'orders', text: strings.get('ui.help.orders.title'), heading: true });
     for (const key of ORDER_HELP_KEYS) out.push({ category: 'orders', text: strings.get(key) });
+    out.push({ category: 'build', text: strings.get('ui.help.build.title'), heading: true });
+    for (const key of BUILD_HELP_KEYS) out.push({ category: 'build', text: strings.get(key) });
   }
   return out;
 }

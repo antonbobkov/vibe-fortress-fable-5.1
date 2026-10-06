@@ -127,6 +127,17 @@ While dragging: the rectangle is inverted on the map and the status bar reads `D
 
 Counts in parentheses are available items. Placing keeps the tool active until `Esc`.
 
+Placing many (types with a 1×1 footprint, except the hearth and the well): a left drag shows one ghost per tile of the rectangle, `▒` where the tile is valid and `x` where it is blocked, and the status bar reads `Door ×5, 2 tiles blocked`. Releasing places one per valid tile and reports the skipped tiles in one message: `Door ×3 placed, 2 tiles skipped: needs walls on two opposite sides`. A click is a drag that stays on its tile and places one. By keyboard, `Shift+Enter` marks a corner and `Enter` at the other corner places the lot; `Esc` drops the corner first.
+
+Out of stock: when the stock of the first input does not cover what was placed with the tool, the two help rows of the panel and the status bar say so, and `o` (the Orders key; the second row is also a button) opens "Add order" preset to the item and the count:
+
+```
+│ 0 doors in stock: 5 will wait           │
+│ [o] order 5                             │
+```
+
+When no built workshop makes the item, the second row names what to build (`build a carpenter's workshop to make them`) and `o` opens Orders as usual.
+
 ## Game menu (Esc with nothing open)
 
 ```
