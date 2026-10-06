@@ -46,7 +46,7 @@ Stockpile filters select any node; selecting a node selects its subtree. Materia
 
 ### Value
 
-Implementation note: `ItemFlag.Foreign` preserves non-fortress origin through splitting, dropping and rot (queued deaths save the origin); such items join counts and wealth only on fortress pickup, including contents, or a completed `strip_corpse` recovery (DECISIONS D-219).
+An item that does not come from the fortress (a hostile's gear, its corpse, what it drops) carries the `foreign` flag (`ItemFlag.Foreign`). The flag survives splitting, dropping and rot, and a creature whose death is still queued when the game is saved keeps the origin of what it holds. A foreign item is in no stock count and adds nothing to wealth. The flag is cleared, and the item counted, when a fortress dwarf picks it up (a container's contents with it) or when the `strip_corpse` job that recovers it completes.
 
 `value(item) = materialValue × type.valueMultiplier × qualityMultiplier × count`, integer marks, where `qualityMultiplier` is 12's tier table (0.5 … 5.0) and 1.0 for non-quality items. Engravings, decorations and encrusting do not exist in version 1, so this is the whole formula.
 
@@ -141,13 +141,7 @@ Filters: `{ type | category | tag, materialClass | materialId, minQuality, edibl
 
 ## Interfaces
 
-Implementation note: SetHospitalSupplies is owned by 17; reader additions: `items.available`, `items.containerRecord`, `items.countMatching`, `items.countOf`, `items.findSlot`, `items.itemCategory`, `items.room`, `items.stock`, `items.stockedTypes`, `items.stockpile`, `items.tileOf`, `items.unburiedDead`; commands references: `SetHospitalSupplies`; audited in DECISIONS D-220.
-
 ### Reader
-
-Implementation note: `items.bestUnattendedItems(from, radius)` optionally visits only same-z tiles in the Chebyshev square, retaining value/slot ranking; hostile loot searches retain full candidates when party exclusions hide a tile maximum (DECISIONS D-211).
-
-Implementation note: `items.carriedItems(carrierId)` supplies held ammunition and `items.bestUnattendedItems()` supplies per-tile value maxima for thief goals through derived stock indexes; the derived-only `items.refreshDerivedIndexes(itemId)` hook preserves legacy combat mutations, choice order and search rules (DECISIONS D-209).
 
 - `items.get(id)` (the `Item` record), `items.value(id)`, `items.rotStage(id)`, `items.isMiasma(i)`
 - `items.at(i)` (ids on a tile), `items.inContainer(id)`, `items.containerOf(id)`
@@ -155,14 +149,22 @@ Implementation note: `items.carriedItems(carrierId)` supplies held ammunition an
 - `items.stockpileAt(i)`, `items.stockpileAccepts(stockpileId, itemId)`, `items.freeSlots(stockpileId)`
 - `items.wealth()`, `items.wantsHaulingCount()`
 - `items.def(typeId)`, `items.categoryOf(typeId)`
+- `items.tileOf(id)` — the tile an item is on, directly or through its container or carrier; −1 when nowhere
+- `items.countOf(typeId)` (the same as `items.count`), `items.available(typeId)` (units not forbidden, reserved or owned), `items.stock(typeId)` (total, available, and the count by quality), `items.stockedTypes()` (the types with a non-zero count), `items.countMatching(filter)` (units of matching items whatever their flags)
+- `items.room(containerId)` — room left in a container (units for barrels and bags, items for bins and chests); `items.containerRecord(id)` — the `Container` record (a copy)
+- `items.stockpile(id)` — the `Stockpile` record of a stockpile zone (a copy); `items.findSlot(stockpileId, itemId)` — the slot the item would go to, the wanted container to haul in first, or null when the stockpile refuses the item or is full
+- `items.itemCategory(id)` — the category path an item files under (a drink by its material's group)
+- `items.unburiedDead(tick)` — some dwarf's remains have lain unburied longer than 15's `UNBURIED_DAYS`
+- `items.carriedItems(carrierId)` — the items a creature carries directly, in entity-table order (held ammunition is read from it)
+- `items.bestUnattendedItems(from?, radius?)` — the highest-valued unattended, unforbidden item of each tile, by descending value and then entity slot. With `from` and `radius`, only the tiles of the same-z Chebyshev square are visited. Thief and loot goals read it; a caller that excludes some items itself (a party's own loot) searches in full when an excluded item could be hiding a tile's next best
 
 ### Item API (mutation, called by 11, 12, 10, 14, 16, 20)
 
-`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)`, `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`.
+`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)`, `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`, `refreshDerivedIndexes(itemId)` (re-derives the stock indexes of an item that another system changed in place; it changes no record, count or event).
 
 ### Commands
 
-`ForbidItem { itemId | tiles | typeId, on }`, `ClaimItem` (the same with `on: false`), `DumpItem { … }`, `MeltItem { … }`, `SetStockpileFilter { zoneId, filter }`, `SetStockpileContainers { zoneId, wants }`, `SetStockpilePriority`, `LinkStockpile { zoneId, sourceZoneId, on }`, `SetHospitalSupplies` is 17's but stored as a filter here.
+`ForbidItem { itemId | tiles | typeId, on }`, `ClaimItem` (the same with `on: false`), `DumpItem { … }`, `MeltItem { … }`, `SetStockpileFilter { zoneId, filter }`, `SetStockpileContainers { zoneId, wants }`, `SetStockpilePriority`, `LinkStockpile { zoneId, sourceZoneId, on }`. (`SetHospitalSupplies` is 17's command; its value is stored as a filter here.)
 
 ### Events consumed
 

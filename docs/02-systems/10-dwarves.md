@@ -125,12 +125,12 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ## Interfaces
 
-Implementation note: SetLabor is owned by 11; DwarfDied is a legacy name for the CreatureDied event emitted by 17 and consumed by 10 and 18; reader additions: `dwarves.isUnclothed`, `dwarves.titles`; events additions: `Starvation`; events references: `DwarfDied`; commands references: `SetLabor`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `dwarves.list()`, `dwarves.population()`, `dwarves.adults()`, `dwarves.children()`
 - `dwarves.isChild(id)`, `dwarves.title(id)`, `dwarves.holder(title)`
+- `dwarves.titles(id)` — every title the dwarf holds, in the order of the title table
+- `dwarves.isUnclothed(id)` — a body garment, a leg garment or boots are missing
 - `dwarves.skill(id, skillId)`, `dwarves.skillTier(id, skillId)`, `dwarves.attribute(id, attr)`
 - `dwarves.need(id, need)`, `dwarves.behavior(id)`, `dwarves.activityText(id)` (for the units panel: "Digging", "Eating", "Sleeping", "No job")
 - `dwarves.productivity(id)` — percent: mood multiplier (15) × wound modifier (17)
@@ -138,7 +138,7 @@ Implementation note: SetLabor is owned by 11; DwarfDied is a legacy name for the
 
 ### Commands
 
-`SetLabor { dwarfId, laborId, on }` (delegated to 11, which owns `Labors`; listed here because the units panel issues it), `AssignTitle`, `RenameDwarf`, `SetSchedule { dwarfId, sleepStartHour }`.
+`AssignTitle`, `RenameDwarf`, `SetSchedule { dwarfId, sleepStartHour }`. (The units panel also issues `SetLabor { dwarfId, laborId, on }`; that command is 11's, which owns `Labors`.)
 
 ### Events consumed
 
@@ -146,7 +146,7 @@ Implementation note: SetLabor is owned by 11; DwarfDied is a legacy name for the
 
 ### Events emitted
 
-`MealEaten`, `DrankAlcohol`, `DrankWater`, `Slept`, `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `DwarfDied { id, cause }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`.
+`MealEaten`, `DrankAlcohol`, `DrankWater`, `Slept`, `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`, `Starvation { id }` (hunger or thirst has reached the point of death; 17 applies it). (`DwarfDied` is an older name for a dwarf's death and nothing emits it: the death reaches 10, 18 and every other subscriber as 17's `CreatureDied`.)
 
 ### Registrations
 

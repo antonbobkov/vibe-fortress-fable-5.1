@@ -88,11 +88,11 @@ On `MagmaContact { entities }`, for each item: if `meltsAtOf[material] ≤ MAGMA
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `materials.isWarmSpring`, `materials.surfaceTempC`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `materials.temperatureAt(i)`
+- `materials.surfaceTempC()` — the surface temperature this system is using (06's, or its own fallback when 06 is absent)
+- `materials.isWarmSpring(i)` — the tile is a warm spring
 - `materials.isBurning(i)`, `materials.burningTiles()`
 - `materials.propertyOf(materialIdx, property)` and the typed accessors `hardness(idx)`, `meltsAt(idx)`, `burnable(idx)`, `value(idx)`, `classOf(idx)`, `isMagmaSafe(idx)`
 - `materials.yieldsOf(oreIdx)`, `materials.alloyInputs(metalIdx)`

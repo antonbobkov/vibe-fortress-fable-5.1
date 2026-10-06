@@ -60,7 +60,7 @@ npm run lint && npm run typecheck && npm run content:check && npm run strings:ch
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run content:check` | `src/content/*.json` against the schemas and the id cross-references |
 | `npm run strings:check` | every string key that is used exists, and every key that exists is used |
-| `npm run interface:check` | each system document's Interfaces section against the readers, events and commands in the code |
+| `npm run interface:check` | each system document's Interfaces section against the readers, events and commands in the code; it also fails on any line of the specification that starts with `Implementation note:` |
 | `npm run docs:check` | no relative link in `docs/`, `reports/`, `agents/` or the root `README.md` points at a file that does not exist |
 | `npm test` | unit, scenario (every scenario), property and golden tests; six to eight minutes |
 

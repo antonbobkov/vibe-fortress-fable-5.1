@@ -109,8 +109,6 @@ When a step ends with water at level ≥ 1 on a tile whose kind is `floor` and w
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `fluids.isActive`; events additions: `CreatureDied`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `fluids.levelAt(i)`, `fluids.typeAt(i)` (`none | water | magma`), `fluids.isSource(i)`, `fluids.isFrozen(i)`
@@ -118,6 +116,7 @@ Implementation note: Additional public queries and secondary emitters implement 
 - `fluids.waterBelow(i, maxDepth)`
 - `fluids.isMagmaAdjacent(i, radius)` — for magma workshops (12)
 - `fluids.activeCount()` — debug
+- `fluids.isActive(i)` — the tile is in the active set, so its fluid may still move (23 animates only these tiles)
 
 ### Commands
 
@@ -129,7 +128,7 @@ None directly. Channels, floodgates and bridges are 03 and 14 commands.
 
 ### Events emitted
 
-`FluidsChanged { chunks[] }`, `ObsidianFormed { tile }`, `CreatureSubmerged { id, tile }`, `MagmaContact { tile, entities[] }`, `TileFrozen { tile }`, `TileThawed { tile }`, `MistProduced { tiles[] }` (only when a new mist area starts, for the announcement "A waterfall's mist fills the hall").
+`FluidsChanged { chunks[] }`, `ObsidianFormed { tile }`, `CreatureSubmerged { id, tile }`, `MagmaContact { tile, entities[] }`, `TileFrozen { tile }`, `TileThawed { tile }`, `MistProduced { tiles[] }` (only when a new mist area starts, for the announcement "A waterfall's mist fills the hall"), `CreatureDied { id, cause }` with the cause `frozen` (a creature in water that freezes, when there is no walkable tile beside it to move it to).
 
 ### Registrations
 

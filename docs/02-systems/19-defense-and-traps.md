@@ -89,8 +89,6 @@ Fortifications are constructions (03, 14) and their firing rules are in 16. This
 
 ## Interfaces
 
-Implementation note: ReleaseCage and SetDoorMode are owned by 14; SetLockOnAlert denotes the SetDoorMode flag, not a separate command; events additions: `DamageDealt`, `ThiefSpotted`; commands additions: `PullLever`; commands references: `ReleaseCage`, `SetDoorMode`, `SetLockOnAlert`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `defense.trapAt(i)`, `defense.trapState(id)`, `defense.trapMode(id)`
@@ -100,7 +98,7 @@ Implementation note: ReleaseCage and SetDoorMode are owned by 14; SetLockOnAlert
 
 ### Commands
 
-`SetTrapMode { trapId, mode }`, `ReleaseCage` is 14's; `SetLockOnAlert` is 14's `SetDoorMode`.
+`SetTrapMode { trapId, mode }`, `PullLever { leverId }` (a built lever; creates the `pull_lever` job). (`ReleaseCage` and `SetDoorMode` are 14's. Lock-on-alert is a flag of `SetDoorMode`, not a command of its own.)
 
 ### Events consumed
 
@@ -108,7 +106,7 @@ Implementation note: ReleaseCage and SetDoorMode are owned by 14; SetLockOnAlert
 
 ### Events emitted
 
-`TrapTriggered`, `TrapSpent { trapId }`, `TrapJammed { trapId }`, `TrapRearmed { trapId }`, `CreatureCaged { creatureId, cageItemId }`, `MechanismTriggered { sourceId, on }`.
+`TrapTriggered`, `TrapSpent { trapId }`, `TrapJammed { trapId }`, `TrapRearmed { trapId }`, `CreatureCaged { creatureId, cageItemId }`, `MechanismTriggered { sourceId, on }`, and two events that other systems own: 16's `DamageDealt` (a stone-fall trap's hit) and 18's `ThiefSpotted` (a chained animal spots a stealthed hostile within `SPOT_RADIUS_DOG`).
 
 ### Registrations
 

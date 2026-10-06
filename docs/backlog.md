@@ -9,7 +9,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-102 | [Interfaces: real entries instead of the 27 implementation notes](work/T-102-interfaces.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-103 | [Triage D-rows: architecture and core](work/T-103-triage-architecture-and-core.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-104 | [Triage D-rows: systems 01–07](work/T-104-triage-systems-01-07.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-105 | [Triage D-rows: systems 08–13](work/T-105-triage-systems-08-13.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
@@ -20,6 +19,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-110 | [Close the migration: pending decisions, archive, large data files](work/T-110-close-the-migration.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | T-102 … T-109 | open |
 | T-111 | [UI audit follow-up: what the U tasks changed](work/T-111-ui-audit-follow-up.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) | U-02, U-07 | open |
 | T-112 | [Two tests that fail under load](work/T-112-timing-dependent-tests.md) | agent reports, 2026-10-05 and 2026-10-06 (see the work file) | — | open |
+| T-113 | [`DwarfDied`: the specification says 10 emits it, the code never does](work/T-113-dwarfdied-event.md) | T-102 (found while replacing the interface note of `02-systems/10-dwarves.md`) | — | open |
 | U-02 | [Paused input takes effect at once](work/U-02-paused-input.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) M1, S2 | — | open |
 | U-07 | [Stockpile editor with keyboard; room panel](work/U-07-stockpile-editor-and-room-panel.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) M7, M9 | — | open |
 | F-17 | [Balance follow-ups from the economy fortress](work/F-17-balance-followups.md) | [`../reports/audits/M8-balance-economy.md`](../reports/audits/M8-balance-economy.md) | — | in progress (branch `f-17`) |

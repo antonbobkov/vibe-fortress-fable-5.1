@@ -86,14 +86,13 @@ Reputation drifts toward 0 by `REP_DRIFT_PER_YEAR` each year (grudges and favors
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; reader additions: `trade.reputationLog`, `trade.session`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `trade.activeCaravan()` (civ, state, days remaining), `trade.schedule()` ("Hillfolk: summer", never the day), `trade.isBanned(civ)`
 - `trade.reputation(civ)`, `trade.marginPercent(civ)`, `trade.valuation(civ, itemId)`, `trade.price(civ, itemId)`
 - `trade.depotItems()`, `trade.merchantItems()`, `trade.requests(civ)`, `trade.lastBrought(civ)`
-- `trade.sessionOpen()`
+- `trade.sessionOpen()`, `trade.session()` — the open trade session (depot, trader, merchant, both sides of the offer; a copy), or null
+- `trade.reputationLog(civ)` — the reputation changes with a civilization, each with its tick, delta and reason
 
 ### Commands
 

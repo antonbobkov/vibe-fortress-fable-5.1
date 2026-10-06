@@ -107,8 +107,6 @@ Hostile parties target caravan members like fortress creatures (traders are `tra
 
 ## Interfaces
 
-Implementation note: Additional public queries and secondary emitters implement the rules above; events additions: `CreatureDied`; audited in DECISIONS D-220.
-
 ### Reader
 
 - `threats.activeParties()`, `threats.party(id)`, `threats.partyOf(creatureId)`, `threats.isHostile(id)`, `threats.isStealthed(id)`, `threats.isSpotted(id)`
@@ -126,7 +124,7 @@ None. (Alerts and squads are 16; the deepsilver confirmation is a UI gate on 03'
 
 ### Events emitted
 
-`ThreatWarning`, `RaidArrived`, `RaidEnded`, `ThiefSpotted { id }`, `ThiefEscaped { id, itemId | animalId }`, `AmbushSprung { partyId }`, `HostileSpawned { id, partyId }`, `MonsterSpawned { id, cavern }`, `MonsterEmerged { ids[], tile }`, `DeepStirred { level }`, `HostileFled { id }`, `DoorBreakAttempt { id, doorId }`, `RestlessRose { count }`, `WebSpun { tiles[] }`.
+`ThreatWarning`, `RaidArrived`, `RaidEnded`, `ThiefSpotted { id }`, `ThiefEscaped { id, itemId | animalId }`, `AmbushSprung { partyId }`, `HostileSpawned { id, partyId }`, `MonsterSpawned { id, cavern }`, `MonsterEmerged { ids[], tile }`, `DeepStirred { level }`, `HostileFled { id }`, `DoorBreakAttempt { id, doorId }`, `RestlessRose { count }`, `WebSpun { tiles[] }`, and 17's `CreatureDied` (the restless dead that collapse to bones at dawn).
 
 ### Registrations
 
