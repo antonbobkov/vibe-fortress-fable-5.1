@@ -9,7 +9,7 @@
  * hand while none existed) went with T-M2-08, when the embark supplies put the picks in the wagon.
  */
 
-import { C } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import type { EntityReader } from '@core/readers';
 import type { ItemsApi } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
@@ -118,6 +118,11 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
     },
     reserve: (itemId, jobId) => api.reserve(itemId, jobId),
     release: (itemId) => api.release(itemId),
+    reservedFor: (itemId) => {
+      const it = reader.get(itemId);
+      if (it === undefined || it.count <= 0) return -1;
+      return (it.flags & ItemFlag.Reserved) !== 0 ? it.reservedBy : 0;
+    },
     tileOf: (itemId): TileIndex => reader.tileOf(itemId),
     pickUp: (itemId, workerId) => api.attachToCarrier(itemId, workerId),
     dropAt: (itemId, tile) => api.dropAt(itemId, tile),

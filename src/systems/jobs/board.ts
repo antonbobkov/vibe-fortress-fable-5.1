@@ -471,6 +471,7 @@ export class JobBoard implements JobsApi, JobSink {
     if (from < 0 || !this.world.map.validIndex(from)) return false;
 
     if (job.blockedReason === 'missing_input') {
+      this.revalidateDelivered(job);
       for (const input of job.inputs) {
         const units = job.data['inputUnits'] === true && input.wholeItem !== true;
         const count = (id: EntityId): number => (units ? (this.items.countOf?.(id) ?? 1) : 1);
@@ -506,6 +507,79 @@ export class JobBoard implements JobsApi, JobSink {
   }
 
   // ---------- reservations ----------
+
+  /**
+   * F-17b (`11` § Job steps, `12` § Operation): a delivered input counts only while it exists,
+   * is unconsumed and is reserved to this job. After the reservations of an interrupted job lapse
+   * (or an unclaim released them) another job may take a delivered item, or a hauler may carry it
+   * off. Whatever this job no longer holds leaves `delivered` and is fetched again: an item that
+   * is still free is reserved again first (it is usually still lying at the workshop), one that is
+   * gone or another job's is replaced by `reserveInputs`. True when nothing was dropped.
+   */
+  revalidateDelivered(job: Job): boolean {
+    const reservedFor = this.items.reservedFor;
+    if (reservedFor === undefined) return true;
+    let intact = true;
+    for (const input of job.inputs) {
+      for (let k = input.delivered.length - 1; k >= 0; k -= 1) {
+        const it = input.delivered[k] as EntityId;
+        const holder = reservedFor(it);
+        if (holder === job.id) {
+          if (!input.reserved.includes(it)) input.reserved.push(it);
+          continue;
+        }
+        input.delivered.splice(k, 1);
+        const at = input.reserved.indexOf(it);
+        if (at >= 0) input.reserved.splice(at, 1);
+        if (holder === 0) {
+          this.items.reserve(it, job.id);
+          input.reserved.push(it);
+          this.emit({ type: 'ItemReserved', itemId: it, jobId: job.id });
+        }
+        intact = false;
+      }
+    }
+    return intact;
+  }
+
+  /**
+   * Reserve what a job still lacks, nearest to `from` (`11` § Assignment step 4). False, with
+   * nothing more reserved for the short input, when an input cannot be found.
+   */
+  private reserveInputs(job: Job, from: TileIndex): boolean {
+    for (const input of job.inputs) {
+      const units = job.data['inputUnits'] === true && input.wholeItem !== true;
+      const count = (id: EntityId): number => units ? (this.items.countOf?.(id) ?? 1) : 1;
+      const needed = input.count - input.delivered.reduce((sum, id) => sum + count(id), 0)
+        - input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
+      if (needed <= 0) continue;
+      const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
+      const isBuild = this.typeId(job) === 'build';
+      const found = units && this.items.findUnits !== undefined
+        ? this.items.findUnits(filter, needed, from, !isBuild)
+        : this.items.findItems(filter, needed, from);
+      if (found.reduce((sum, id) => sum + count(id), 0) < needed) return false;
+      for (const it of found) {
+        this.items.reserve(it, job.id);
+        input.reserved.push(it);
+        this.emit({ type: 'ItemReserved', itemId: it, jobId: job.id });
+      }
+    }
+    return true;
+  }
+
+  /**
+   * F-17b: a claimed job found, before consuming, that it no longer holds a delivered input. It
+   * reserves a replacement and goes back to `fetching` with its progress kept, or blocks
+   * `missing_input`; it never completes without its inputs.
+   */
+  refetch(job: Job, workerId: EntityId): void {
+    if (!this.reserveInputs(job, this.workerTile(workerId))) {
+      this.unclaim(job, 'missing_input');
+      return;
+    }
+    job.state = 'fetching';
+  }
 
   releaseReservations(job: Job): void {
     for (const input of job.inputs) {
@@ -749,26 +823,10 @@ export class JobBoard implements JobsApi, JobSink {
     delete job.data['reserveUntil'];
     this.setWorker(workerId, { jobId: job.id, phase: 0 });
     const from = this.workerTile(workerId);
-    for (const input of job.inputs) {
-      const units = job.data['inputUnits'] === true && input.wholeItem !== true;
-      const count = (id: EntityId): number => units ? (this.items.countOf?.(id) ?? 1) : 1;
-      const needed = input.count - input.delivered.reduce((sum, id) => sum + count(id), 0)
-        - input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
-      if (needed <= 0) continue;
-      const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
-      const isBuild = this.typeId(job) === 'build';
-      const found = units && this.items.findUnits !== undefined
-        ? this.items.findUnits(filter, needed, from, !isBuild)
-        : this.items.findItems(filter, needed, from);
-      if (found.reduce((sum, id) => sum + count(id), 0) < needed) {
-        this.unclaim(job, 'missing_input');
-        return false;
-      }
-      for (const it of found) {
-        this.items.reserve(it, job.id);
-        input.reserved.push(it);
-        this.emit({ type: 'ItemReserved', itemId: it, jobId: job.id });
-      }
+    this.revalidateDelivered(job);
+    if (!this.reserveInputs(job, from)) {
+      this.unclaim(job, 'missing_input');
+      return false;
     }
     if (job.tool !== null && !this.items.hasTool(workerId, job.tool) && job.data['toolToFetch'] === undefined) {
       const tool = this.items.findTool(job.tool, from);
