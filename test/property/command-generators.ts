@@ -1,5 +1,5 @@
 /**
- * The command generator registry of `05-plan/01-testing-strategy.md` § Property tests
+ * The command generator registry of `process/testing-strategy.md` § Property tests
  * ("determinism under commands ... the command generator producing only commands that exist so
  * far (none yet: the generator is a registry that later tasks extend)").
  *

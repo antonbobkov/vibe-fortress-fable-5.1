@@ -2,7 +2,7 @@
 
 **Goal:** fluids, temperature, fire, weather, ice, mist, mud, and their overlays. **Gate:** `fl_*`, `ma_*`, `we_*`, e2e `fluid-overlay`, performance smoke (fluids and pathing budgets).
 
-Spec: [`04-fluids.md`](../02-systems/04-fluids.md), [`05-materials-and-temperature.md`](../02-systems/05-materials-and-temperature.md), [`06-weather-and-seasons.md`](../02-systems/06-weather-and-seasons.md), algorithms `fluids.md`, `environment.md`.
+Spec: [`04-fluids.md`](../../02-systems/04-fluids.md), [`05-materials-and-temperature.md`](../../02-systems/05-materials-and-temperature.md), [`06-weather-and-seasons.md`](../../02-systems/06-weather-and-seasons.md), algorithms `fluids.md`, `environment.md`.
 
 ## T-M3-01 Fluids: state, active set, fall and spread (M)
 

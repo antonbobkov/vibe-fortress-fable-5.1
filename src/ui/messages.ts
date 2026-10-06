@@ -1,5 +1,5 @@
 /**
- * What the player reads when something cannot be done (`docs/05-plan/ui-fixes/README.md` D-U4,
+ * What the player reads when something cannot be done (`docs/archive/ui-fixes/README.md` D-U4,
  * the UI audit § 4): every refusal and every block names the thing and why.
  *
  * - Command rejections: `command-catalog.md` § Rejection reasons gives each reason a

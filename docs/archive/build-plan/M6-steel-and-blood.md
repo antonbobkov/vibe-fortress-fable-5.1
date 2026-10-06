@@ -2,11 +2,11 @@
 
 **Goal:** combat, health and hospitals, threats and cavern monsters, the Deep, traps and mechanisms, alerts. **Gate:** `cb_*`, `he_*`, `th_*`, `df_*`, `bd_bridge`, `bd_floodgate`, `bd_burial`, `an_predator`, `an_tame`, `fo_hunt`, `fo_no_ammo`, `fl_drown`, `dw_starve` (complete), e2e `military-and-alert`, performance smoke (full systems).
 
-Spec: [`16`](../02-systems/16-combat.md), [`17`](../02-systems/17-health-and-medicine.md), [`18`](../02-systems/18-threats-monsters-and-raids.md), [`19`](../02-systems/19-defense-and-traps.md), algorithms `combat-and-health.md`, `creature-brains.md` § Hostile party AI; content `weapons-and-armor.md`, `creatures.md`, `threat-schedules.md`.
+Spec: [`16`](../../02-systems/16-combat.md), [`17`](../../02-systems/17-health-and-medicine.md), [`18`](../../02-systems/18-threats-monsters-and-raids.md), [`19`](../../02-systems/19-defense-and-traps.md), algorithms `combat-and-health.md`, `creature-brains.md` § Hostile party AI; content `weapons-and-armor.md`, `creatures.md`, `threat-schedules.md`.
 
 ## T-M6-01 Health: body values, wounds, bleeding, consciousness, death (L)
 
-Needs: M5, F-01 … F-11 ([fixes/README.md](fixes/README.md)). Produces: `src/systems/health/{index,state,reader,wounds,tick}.ts`: `Body` fill from plans (`maxHp`, `maxBlood`), `onDamageDealt`, wound tables, limb loss and permanents, the health tick, `CreatureDied` as the single death path (re-route the M4 starvation and animal deaths through `Starvation` and health), environmental sources (`BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, heat and cold hourly), speed and productivity modifiers wired into 10 and 11.
+Needs: M5, F-01 … F-11 ([../fixes/README.md](../fixes/README.md)). Produces: `src/systems/health/{index,state,reader,wounds,tick}.ts`: `Body` fill from plans (`maxHp`, `maxBlood`), `onDamageDealt`, wound tables, limb loss and permanents, the health tick, `CreatureDied` as the single death path (re-route the M4 starvation and animal deaths through `Starvation` and health), environmental sources (`BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, heat and cold hourly), speed and productivity modifiers wired into 10 and 11.
 Spec: `17` § Body values … § Permanent injuries; algorithm § Health tick, § onDamageDealt.
 Tests: scenarios `he_bleed`, `he_limb`, `he_fall`, `fl_drown`, `dw_starve` (death); unit: severity thresholds; wound table values; unconscious/death thresholds with Toughness and Willpower; `badly_healed` on unsplinted fracture; speed modifiers.
 

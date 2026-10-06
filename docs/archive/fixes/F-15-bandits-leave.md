@@ -4,7 +4,7 @@
 
 ## Why
 
-[`reports/M8-mood-diagnosis.md`](../../../reports/M8-mood-diagnosis.md) § 14 re-measured perils 2 and 4 after F-13 and the door-lock fix. Raids, ambushes and sieges now loiter at a locked gate and leave. Of the 13 parties still active when a fortress died, **11 were bandits** standing on an outdoor stockpile.
+[`reports/M8-mood-diagnosis.md`](../../../reports/audits/M8-mood-diagnosis.md) § 14 re-measured perils 2 and 4 after F-13 and the door-lock fix. Raids, ambushes and sieges now loiter at a locked gate and leave. Of the 13 parties still active when a fortress died, **11 were bandits** standing on an outdoor stockpile.
 
 `18` § Party AI says "bandits target the nearest stockpile", and § Creatures says Hillfolk bandits are "melee, steals". It never says what bandits do on arrival. In `src/systems/threats/ai.ts`, a party whose reachable goal tile is reached stays in `approach` with nothing left to do. It never loots and never enters `loiter`, so it never leaves. The fortress alert stays on `hearth`, and the sheltered civilians starve.
 

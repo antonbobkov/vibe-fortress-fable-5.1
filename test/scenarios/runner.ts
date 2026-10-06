@@ -1,30 +1,27 @@
 /**
- * The scenario runner of `01-testing-strategy.md` § The scenario runner, which is the superset of
+ * The scenario runner of `testing-strategy.md` § The scenario runner, which is the superset of
  * the headless scenario spec of `01-architecture/simulation-core.md` § Headless mode.
  *
  * Every scenario file under `test/scenarios` exports one `Scenario` as its default export and is
  * discovered by `index.test.ts`.
  */
 
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { generatedSpec, regionSpec } from '@app/headless';
 import type { RegionRecord } from '@systems/worldgen';
 import { TestWorld } from './test-world';
 import type { Command } from '@core/commands';
 import type { GameSystem } from '@core/system';
 
-const progressPath = fileURLToPath(new URL('../../docs/05-plan/PROGRESS.md', import.meta.url));
+/** The last build milestone. A scenario's `milestone` records which one introduced it. */
+export const LAST_MILESTONE = 8;
 
 /**
- * The `current-milestone: n` header line of `PROGRESS.md`, which gates which scenarios run.
- * `done` (T-M8-10: every milestone gated) runs every scenario.
+ * The milestone the suites run up to. Every milestone is built, so every scenario runs
+ * (`testing-strategy.md` § The scenario runner). During the build this came from a
+ * `current-milestone` header and held back the scenarios of milestones not yet started.
  */
 export function currentMilestone(): number {
-  const text = readFileSync(progressPath, 'utf8');
-  const match = /^current-milestone:\s*(\d+|done)\s*$/m.exec(text);
-  if (match === null) throw new Error('PROGRESS.md has no "current-milestone: n" header line');
-  return match[1] === 'done' ? 8 : Number(match[1]);
+  return LAST_MILESTONE;
 }
 
 export type Milestone = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -74,7 +71,7 @@ export interface Scenario {
   readonly timeoutMs?: number;
   /**
    * The scenario cannot pass yet: a later milestone's system (`'M6'`) or a recorded spec
-   * contradiction (`'C-002'`). The index reports it as `it.todo` with this tag (`00-agent-workflow.md`
+   * contradiction (`'C-002'`). The index reports it as `it.todo` with this tag (`agent-workflow.md`
    * § Ambiguity protocol; `M3-water-fire-sky.md` T-M3-02 for `fl_drown`).
    */
   readonly todo?: string;

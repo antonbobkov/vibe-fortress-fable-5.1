@@ -2,7 +2,7 @@
 
 **Goal:** the year-one loop: plants and farming, animals, foraging, needs and activities, the first workshops, morale, the hearth, the embark supplies in play. **Gate:** `pl_*`, `an_*` (except `an_predator`, `an_tame`), `fo_*` (except `fo_hunt`, `fo_no_ammo`), `dw_*` (`dw_starve` up to the `Starvation` announcement; its death assertion is M6), `ws_bed`, `ws_maintain`, `mo_*`, `bd_hearth`, e2e `farm-plot-and-orders`.
 
-Spec: [`07`](../02-systems/07-plants-and-farming.md), [`08`](../02-systems/08-animals-and-domestication.md), [`09`](../02-systems/09-hunting-gathering-fishing.md), [`10`](../02-systems/10-dwarves.md), [`12`](../02-systems/12-workshops-and-professions.md), [`15`](../02-systems/15-happiness-and-morale.md), [`14`](../02-systems/14-buildings-and-rooms.md) § hearth; algorithms `environment.md` § Plant growth, `creature-brains.md` § Dwarf, § Animal, `economy.md` § Workshop operation.
+Spec: [`07`](../../02-systems/07-plants-and-farming.md), [`08`](../../02-systems/08-animals-and-domestication.md), [`09`](../../02-systems/09-hunting-gathering-fishing.md), [`10`](../../02-systems/10-dwarves.md), [`12`](../../02-systems/12-workshops-and-professions.md), [`15`](../../02-systems/15-happiness-and-morale.md), [`14`](../../02-systems/14-buildings-and-rooms.md) § hearth; algorithms `environment.md` § Plant growth, `creature-brains.md` § Dwarf, § Animal, `economy.md` § Workshop operation.
 
 ## T-M4-01 Plants: species data, growth, crops, plots, plant and harvest jobs (L)
 

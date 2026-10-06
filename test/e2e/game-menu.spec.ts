@@ -1,5 +1,5 @@
 /**
- * E2E `game-menu` of `05-plan/M7-outside-world.md` T-M7-09: "Esc opens the menu, Resume returns",
+ * E2E `game-menu` of `archive/build-plan/M7-outside-world.md` T-M7-09: "Esc opens the menu, Resume returns",
  * over 24 § Game menu (`Resume`, `Save`, `Load`, `Settings`, `Retire fortress`, `Main menu`
  * "(confirm if unsaved changes since the last save)") and the Esc chain of § Input model.
  */

@@ -1,6 +1,6 @@
 # Decision Log
 
-Ambiguities resolved during implementation, per the protocol in [`00-agent-workflow.md`](00-agent-workflow.md) § Ambiguity protocol. Append only. Ids are `D-<nnn>`.
+Ambiguities resolved during implementation, per the protocol in [`../process/agent-workflow.md`](../process/agent-workflow.md) § Ambiguity protocol. Append only. Ids are `D-<nnn>`.
 
 | Id | Date | Task | Question | Choice | Spec consulted | Pinning test |
 |---|---|---|---|---|---|---|

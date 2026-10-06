@@ -1,10 +1,10 @@
 # Audit fixes (between M5 and M6)
 
-**Detail level:** plan · **Owner:** implementation · **Source:** [`reports/audit-M5.md`](../../../reports/audit-M5.md) and the verification work behind these documents (2026-09-24)
+**Detail level:** plan · **Owner:** implementation · **Source:** [`reports/audit-M5.md`](../../../reports/audits/audit-M5.md) and the verification work behind these documents (2026-09-24)
 
 These documents turn the findings of the M5 audit into tasks a coding agent can carry out without making design decisions. Every decision a task needs has been made here and is marked **Decision**. Wherever a task changes the specification, the exact old and new text is given as **Spec amendment**.
 
-The plan's ground rules ([`../README.md`](../README.md), [`../00-agent-workflow.md`](../00-agent-workflow.md)) apply unchanged, with one addition: an agent working a task below **may edit `docs/00-` … `docs/04-` exactly as the task's spec amendments say**, and nowhere else. These documents are owner-approved amendments. They are not ambiguities to be resolved by the agent.
+The plan's ground rules ([`../build-plan/README.md`](../build-plan/README.md), [`../../process/agent-workflow.md`](../../process/agent-workflow.md)) apply unchanged, with one addition: an agent working a task below **may edit `docs/00-` … `docs/04-` exactly as the task's spec amendments say**, and nowhere else. These documents are owner-approved amendments. They are not ambiguities to be resolved by the agent.
 
 ## How these were verified
 
@@ -30,7 +30,7 @@ Findings F-01 to F-06 were reproduced and their fixes prototyped on a scratch co
 | [F-14](F-14-immigration-spirit-threshold.md) | Immigration spirit threshold 65 → 55 | S | F-12 | A fortress built as the hints describe settles at spirit ~55, so at 65 it never gets immigrants after year one. Added 2026-10-03 |
 | [F-15](F-15-bandits-leave.md) | Bandits who reach their stockpile steal and leave; a failed walk means unreachable | S | F-13 | Bandits standing on an outdoor stockpile never leave, holding the fortress on alert until it starves (11 of 13 lingering parties). Parent decision 2026-10-03 |
 | [F-16](F-16-retreat-without-shelter.md) | A civilian with no reachable shelter does not freeze | S | F-15 | A civilian shut out by a locked gate froze with targetTile −1 for 15 days, keeping a raid engaged and the alert up until the fortress starved. Parent decision 2026-10-03 |
-| [F-17](F-17-balance-followups.md) | Balance follow-ups from the economy fortress | L | F-16 | Two real bugs (crafts lose their quality; a job can output from inputs it no longer holds), three spec/code disagreements decided, and the fixture repairs the economy re-measure called for. Parent decisions 2026-10-05 |
+| [F-17](../../work/F-17-balance-followups.md) | Balance follow-ups from the economy fortress | L | F-16 | Two real bugs (crafts lose their quality; a job can output from inputs it no longer holds), three spec/code disagreements decided, and the fixture repairs the economy re-measure called for. Parent decisions 2026-10-05 |
 
 Suggested order: F-01 first (it changes the timing of most scenarios and so the golden hashes), then **F-10** (it changes need timing, so F-02's and F-04's bounds must be measured after it), then **F-11**, then F-02, F-03 and F-05 in any order, then F-04, then F-06 and F-07, with F-08 and F-09 at any point before T-M6-01. **Every task in this folder must be done before T-M6-01 starts.**
 
@@ -40,7 +40,7 @@ The one question reserved for the owner was whether the embark's food and drink 
 
 ## Progress block
 
-This block is already in [`../PROGRESS.md`](../PROGRESS.md), between the M5 and M6 sections, and `T-M6-01` in `M6-steel-and-blood.md` already lists F-01 … F-09 under *Needs*. It is reproduced here for reference:
+This block is already in [`../build-plan/PROGRESS.md`](../build-plan/PROGRESS.md), between the M5 and M6 sections, and `T-M6-01` in `M6-steel-and-blood.md` already lists F-01 … F-09 under *Needs*. It is reproduced here for reference:
 
 ```markdown
 ## M5.5 — Audit fixes ([fixes/README.md](fixes/README.md))

@@ -1,5 +1,5 @@
 /**
- * The scenario index of `01-testing-strategy.md` § The scenario runner.
+ * The scenario index of `testing-strategy.md` § The scenario runner.
  * F-09d: Checks that every scenario file exports a scenario whose id matches its file name.
  * Milestone scenario executions run in parallel from m0.test.ts ... m8.test.ts.
  */

@@ -1,5 +1,5 @@
 /**
- * E2E `quick-save-load` (M2) of `05-plan/01-testing-strategy.md` § E2E harness and `M2-things.md`
+ * E2E `quick-save-load` (M2) of `process/testing-strategy.md` § E2E harness and `M2-things.md`
  * T-M2-11: "F5 then F9 restores the hash (through the hook)". Also the Load screen's export and
  * import: the exported `.deepholm` file, picked through the real file chooser, is stored as a new
  * manual save that loads to the same hash.

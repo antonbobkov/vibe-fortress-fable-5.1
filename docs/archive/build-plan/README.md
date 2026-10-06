@@ -1,6 +1,6 @@
 # Implementation Plan
 
-**Detail level:** plan · **Owner:** implementation · **Depends on:** the whole specification, especially [`../04-implementation/build-milestones.md`](../04-implementation/build-milestones.md), [`../04-implementation/acceptance-tests.md`](../04-implementation/acceptance-tests.md), [`../04-implementation/tooling.md`](../04-implementation/tooling.md)
+**Detail level:** plan · **Owner:** implementation · **Depends on:** the whole specification, especially [`../../04-implementation/build-milestones.md`](../../04-implementation/build-milestones.md), [`../../04-implementation/acceptance-tests.md`](../../04-implementation/acceptance-tests.md), [`../../04-implementation/tooling.md`](../../04-implementation/tooling.md)
 
 This folder turns the specification into a sequence of tasks that coding agents can execute without human intervention. Every task names the documents it implements, the files it produces, the tests it must add, and a mechanical definition of done. Nothing here introduces a design decision; where a task needs one, it points at the paragraph of the specification that already made it.
 
@@ -8,11 +8,11 @@ This folder turns the specification into a sequence of tasks that coding agents 
 
 | File | Contents |
 |---|---|
-| [`00-agent-workflow.md`](00-agent-workflow.md) | How an agent picks up a task, works, verifies, commits; the ambiguity protocol; the decision log |
-| [`01-testing-strategy.md`](01-testing-strategy.md) | Test tiers, the scenario runner, golden files, property tests, e2e smoke tests, coverage gates, how to run everything |
+| [`../../process/agent-workflow.md`](../../process/agent-workflow.md) | How an agent picks up a task, works, verifies, commits; the ambiguity protocol; the decision log |
+| [`../../process/testing-strategy.md`](../../process/testing-strategy.md) | Test tiers, the scenario runner, golden files, property tests, e2e smoke tests, coverage gates, how to run everything |
 | [`M0-skeleton.md`](M0-skeleton.md) … [`M8-polish.md`](M8-polish.md) | Tasks per milestone |
 | [`PROGRESS.md`](PROGRESS.md) | The checklist of every task; agents tick tasks as they complete them |
-| [`DECISIONS.md`](DECISIONS.md) | The log of resolved ambiguities (empty at the start) |
+| [`../../05-plan/DECISIONS.md`](../../05-plan/DECISIONS.md) | The log of resolved ambiguities (empty at the start) |
 
 ## Milestone overview
 

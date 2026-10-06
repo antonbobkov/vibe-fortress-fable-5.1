@@ -1,6 +1,6 @@
 # Roadmap
 
-**Detail level:** W1 · **Owner:** vision · **Depends on:** [README.md](README.md)
+**Detail level:** W1 · **Owner:** vision · **Depends on:** [../../README.md](../../README.md)
 
 The specification is delivered in four waves. Each wave is one commit on `master`. Each later wave adds detail without contradicting an earlier one; where a later wave must change an earlier decision, the change is called out in the commit message and the earlier document is updated in the same commit.
 
@@ -65,4 +65,4 @@ Ended with a consistency pass: no placeholders remain, every content id referenc
 
 ## Implementation plan
 
-The task-level plan for building the game with coding agents is in [`05-plan/`](05-plan/README.md): one file per milestone M0–M8, a testing strategy, an agent workflow with an ambiguity protocol, and a progress checklist.
+The task-level plan for building the game with coding agents is in [`05-plan/`](README.md): one file per milestone M0–M8, a testing strategy, an agent workflow with an ambiguity protocol, and a progress checklist.

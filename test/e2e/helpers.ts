@@ -1,6 +1,6 @@
 /**
  * Shared steps of the M1 e2e tests: they drive the real keyboard and read state only through
- * `window.__deepholm` (`01-testing-strategy.md` § E2E harness).
+ * `window.__deepholm` (`testing-strategy.md` § E2E harness).
  */
 
 import { expect, type Page } from '@playwright/test';

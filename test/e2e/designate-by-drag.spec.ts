@@ -1,5 +1,5 @@
 /**
- * E2E `designate-by-drag` (M1) of `05-plan/01-testing-strategy.md` § E2E harness and
+ * E2E `designate-by-drag` (M1) of `process/testing-strategy.md` § E2E harness and
  * `M1-ground.md` T-M1-14: "press `d`, `d`, drag a 4×3 rectangle on the rock face, wait 3,000 ticks
  * at 4×, assert ≥ 10 `Floor` tiles via readers, screenshot".
  *

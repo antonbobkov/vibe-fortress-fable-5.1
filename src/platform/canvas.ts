@@ -6,7 +6,7 @@
  * device pixels (`devicePixelRatio` aware), CSS-sized to the window."
  *
  * Everything above L0 talks to the structural interfaces below, never to `HTMLCanvasElement`, so
- * the renderer and the atlas run under a mock in unit tests (`01-testing-strategy.md`: unit tests
+ * the renderer and the atlas run under a mock in unit tests (`testing-strategy.md`: unit tests
  * of `render/` run in jsdom, which has no 2D context).
  */
 

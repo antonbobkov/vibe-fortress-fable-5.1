@@ -1,10 +1,10 @@
 # Agent Workflow
 
-**Detail level:** plan · **Depends on:** [README.md](README.md), [01-testing-strategy.md](01-testing-strategy.md)
+**Detail level:** plan · **Depends on:** [../archive/build-plan/README.md](../archive/build-plan/README.md), [testing-strategy.md](testing-strategy.md)
 
 ## Picking up a task
 
-1. Open [`PROGRESS.md`](PROGRESS.md); take the first unchecked task whose *Needs* are all checked. Mark it `[~]` (in progress) with your agent name and the date, commit that change (`chore: start T-M1-03`).
+1. Open [`../archive/build-plan/PROGRESS.md`](../archive/build-plan/PROGRESS.md); take the first unchecked task whose *Needs* are all checked. Mark it `[~]` (in progress) with your agent name and the date, commit that change (`chore: start T-M1-03`).
 2. Read, in this order: the task; every spec section it cites (follow the links; read the whole section, not the sentence); the algorithm file for the subsystem if one exists in `04-implementation/algorithms/`; the schemas in `04-implementation/schemas/` for the types you will touch; the acceptance tests the task lists.
 3. Read the existing code of the modules you will change and their tests. Do not read the whole repository.
 
@@ -46,7 +46,7 @@ When the spec does not decide something you must decide to proceed:
 
 1. Search the spec again (`grep -ri` across `docs/`); most questions are answered in a table somewhere.
 2. If still undecided: choose the reading that (a) changes the least state, (b) is the simplest to test, (c) matches the nearest worked example in `03-content/balance.md` or the acceptance tests.
-3. Append a row to [`DECISIONS.md`](DECISIONS.md): date, task id, question, choice, spec sections consulted, and the test that pins the choice.
+3. Append a row to [`../05-plan/DECISIONS.md`](../05-plan/DECISIONS.md): date, task id, question, choice, spec sections consulted, and the test that pins the choice.
 4. Never change a constant's value or a formula to make a test pass. If a spec test and a spec rule contradict, record it in `DECISIONS.md` as a contradiction, implement the rule, mark the test `it.todo` with the decision id, and continue.
 
 > Mark as `it.todo` only the assertion that the contradiction makes impossible; keep every other assertion of the test running (with a functional bound where the contradicted one was a timing).

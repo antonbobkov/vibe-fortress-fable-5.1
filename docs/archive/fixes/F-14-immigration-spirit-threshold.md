@@ -6,7 +6,7 @@
 
 `balance.md` § Mood floor sets the immigration threshold at hall spirit 65 ("an average of Content"). It reaches that figure by adding a hearth hall, decent bedrooms, table meals, ale and a chat **at their peak values**: 55 + 11 + 4 = 70. Event thoughts decay linearly over their duration (`15` § Thoughts), so a thought refreshed about once a day averages roughly half its peak.
 
-[`reports/M8-mood-diagnosis.md`](../../../reports/M8-mood-diagnosis.md) measured the three-year fortress after the fixture repair, F-12 and the drink fix. It has decent bedrooms for everyone, a tier-3 hearth hall, a dining hall and 87% ale. The fortress settles at end-of-year-3 mood 55–58, a 20-seed peace sweep of 50–62, and hall spirit about 55. At 65, a fortress built exactly as the hints describe never gets an immigrant after the guaranteed year-one waves, so the population stays at 12 and wealth and renown stay flat.
+[`reports/M8-mood-diagnosis.md`](../../../reports/audits/M8-mood-diagnosis.md) measured the three-year fortress after the fixture repair, F-12 and the drink fix. It has decent bedrooms for everyone, a tier-3 hearth hall, a dining hall and 87% ale. The fortress settles at end-of-year-3 mood 55–58, a 20-seed peace sweep of 50–62, and hall spirit about 55. At 65, a fortress built exactly as the hints describe never gets an immigrant after the guaranteed year-one waves, so the population stays at 12 and wealth and renown stay flat.
 
 **Owner decision (2026-10-03):** lower `IMMIGRATION_SPIRIT_MIN` from 65 to **55** and leave the mood constants alone. With the measured spread of 50–62, a well-kept fortress attracts immigrants and a neglected one does not. That is the "reward for exactly the things the hints tell the player to build" that `balance.md` intends.
 

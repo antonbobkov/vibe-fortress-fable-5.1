@@ -2,7 +2,7 @@
 
 **Goal:** generate a world and a local map, embark a default party, walk, designate and dig. **Gate:** `wg_*`, `tr_dig_room`, `tr_channel_ramp`, `tr_stairwell`, `tr_discovery`, `pf_*`, e2e `generate-and-embark`, `designate-by-drag`.
 
-Spec: [`01-world-generation.md`](../02-systems/01-world-generation.md), [`02-embark-and-loadout.md`](../02-systems/02-embark-and-loadout.md), [`03-terrain-and-mining.md`](../02-systems/03-terrain-and-mining.md), [`10-dwarves.md`](../02-systems/10-dwarves.md) (movement and idle only), [`11-jobs-and-labor.md`](../02-systems/11-jobs-and-labor.md), algorithms `world-generation.md`, `local-map-generation.md`, `jobs-and-hauling.md`.
+Spec: [`01-world-generation.md`](../../02-systems/01-world-generation.md), [`02-embark-and-loadout.md`](../../02-systems/02-embark-and-loadout.md), [`03-terrain-and-mining.md`](../../02-systems/03-terrain-and-mining.md), [`10-dwarves.md`](../../02-systems/10-dwarves.md) (movement and idle only), [`11-jobs-and-labor.md`](../../02-systems/11-jobs-and-labor.md), algorithms `world-generation.md`, `local-map-generation.md`, `jobs-and-hauling.md`.
 
 ## T-M1-01 Value noise and hashing utilities (S)
 

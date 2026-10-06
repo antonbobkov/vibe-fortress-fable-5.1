@@ -2,7 +2,7 @@
 
 **Goal:** items, stockpiles, hauling, constructions, furniture, zones, rooms, embark supplies and the wagon, save and load. **Gate:** `jb_*`, `it_*` except `it_rot`/`it_miasma`, `bd_room_tiers`, `bd_support`, `bd_door_lock`, `core_save_roundtrip`, e2e `build-and-stockpile`, `panels-open-and-close`, `quick-save-load`.
 
-Spec: [`13-items-and-storage.md`](../02-systems/13-items-and-storage.md), [`14-buildings-and-rooms.md`](../02-systems/14-buildings-and-rooms.md), [`02-embark-and-loadout.md`](../02-systems/02-embark-and-loadout.md) § Arrival, algorithms `jobs-and-hauling.md` (hauling, slots, search, rot queue), `economy.md` § Room quality, `persistence.md`, `save-format.md`.
+Spec: [`13-items-and-storage.md`](../../02-systems/13-items-and-storage.md), [`14-buildings-and-rooms.md`](../../02-systems/14-buildings-and-rooms.md), [`02-embark-and-loadout.md`](../../02-systems/02-embark-and-loadout.md) § Arrival, algorithms `jobs-and-hauling.md` (hauling, slots, search, rot queue), `economy.md` § Room quality, `persistence.md`, `save-format.md`.
 
 ## T-M2-01 Items system: entities, item API, value, counts, wealth (M)
 

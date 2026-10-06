@@ -51,6 +51,7 @@ npm run typecheck
 npm run content:check
 npm run strings:check
 npm run interface:check
+npm run docs:check
 npm test
 node node_modules/@playwright/test/cli.js install chromium
 npm run test:e2e
@@ -65,6 +66,6 @@ restore production output. Golden files are updated intentionally with
 
 The full rules and controls are in [docs/](docs/README.md), including the
 [system designs](docs/02-systems/README.md),
-[implementation plan](docs/05-plan/README.md),
-[progress](docs/05-plan/PROGRESS.md) and
+[implementation plan](docs/archive/build-plan/README.md),
+[progress](docs/archive/build-plan/PROGRESS.md) and
 [decision log](docs/05-plan/DECISIONS.md).

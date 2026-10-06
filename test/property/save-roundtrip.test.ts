@@ -1,5 +1,5 @@
 /**
- * `05-plan/01-testing-strategy.md` § Property tests, "save round-trip": a random tick to save at
+ * `process/testing-strategy.md` § Property tests, "save round-trip": a random tick to save at
  * during a scripted run; the loaded game's hash equals the uninterrupted run's (T-M2-11).
  *
  * The scripted run is the busy fortress of `core_save_roundtrip` (hauling, building, digging) plus

@@ -1,6 +1,6 @@
 /**
  * U-01: the embark default and its confirmations, safe confirmation defaults, and the small key
- * fixes (`docs/05-plan/ui-fixes/README.md` D-U3, D-U9; UI audit Q1, Q9, Q10, Q11, S1, S5).
+ * fixes (`docs/archive/ui-fixes/README.md` D-U3, D-U9; UI audit Q1, Q9, Q10, Q11, S1, S5).
  */
 
 import { describe, expect, it, vi } from 'vitest';

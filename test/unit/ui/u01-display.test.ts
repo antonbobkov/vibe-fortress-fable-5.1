@@ -1,6 +1,6 @@
 /**
  * U-01: the hostile counter, glyph aliases, the build list, list heights and the help layout
- * (`docs/05-plan/ui-fixes/README.md` D-U8; UI audit Q7, Q8, Q12 `hint_fuel`, Q13, Q14, S6).
+ * (`docs/archive/ui-fixes/README.md` D-U8; UI audit Q7, Q8, Q12 `hint_fuel`, Q13, Q14, S6).
  */
 
 import { describe, expect, it } from 'vitest';

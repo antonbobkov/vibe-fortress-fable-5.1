@@ -1,6 +1,6 @@
 /**
  * Unit tests for threats schedule, renown, party composition, gear, and rules.
- * `05-plan/M6-steel-and-blood.md` § T-M6-08:
+ * `archive/build-plan/M6-steel-and-blood.md` § T-M6-08:
  * "unit: size formula caps; composition fractions; gear per tier; no winter raids at peril ≤ 2."
  */
 

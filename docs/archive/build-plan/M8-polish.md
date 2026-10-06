@@ -2,7 +2,7 @@
 
 **Goal:** performance within budget, load shedding, snapshots and export, golden renders for every screen, the e2e full year, and the balance pass. **Gate:** every scenario green, `perf_*` within budget, coverage thresholds, e2e suite including `full-year`.
 
-Spec: [`performance-budget.md`](../01-architecture/performance-budget.md), [`balance.md`](../03-content/balance.md), [`acceptance-tests.md`](../04-implementation/acceptance-tests.md) § Performance.
+Spec: [`performance-budget.md`](../../01-architecture/performance-budget.md), [`balance.md`](../../03-content/balance.md), [`acceptance-tests.md`](../../04-implementation/acceptance-tests.md) § Performance.
 
 ## T-M8-01 Profiling pass and per-system budgets (L)
 

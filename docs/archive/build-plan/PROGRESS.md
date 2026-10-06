@@ -105,7 +105,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M5-08 — Stocks panel complete; orders panel global orders; workshop panel material filter — gpt6-m5, 2026-09-24
 - [x] T-M5-09 — Gate M5 — gpt6-m5, 2026-09-24
 
-## M5.5 — Audit fixes ([fixes/README.md](fixes/README.md))
+## M5.5 — Audit fixes ([../fixes/README.md](../fixes/README.md))
 
 - [x] F-01 — Job assignment livelock (agy-f01, 2026-09-25)
 - [x] F-02 — Mood: need pressure and the needs-met floor (agy-f02, 2026-09-25)
@@ -179,7 +179,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] T-M8-06 economy fixture (owner Task 1) — real generated wealth-2 resources, production, halls and caravan trading; preserve all guarantees and three perils (GPT-6.1 Sol, 2026-10-04; D-225).
 - [x] T-M8-06 economy re-measurement (owner Task 2) — scenario, 20-seed sweep, mood instrument, wealth decomposition and B-008 through B-012 updates (GPT-6.1 Sol, 2026-10-05).
 
-## UI fixes ([ui-fixes/README.md](ui-fixes/README.md))
+## UI fixes ([../ui-fixes/README.md](../ui-fixes/README.md))
 - [x] U-01 — Quick wins: embark default, honest messages, dead hints, small key fixes (opus-u01, 2026-10-04)
 - [ ] U-02 — Paused input takes effect at once
 - [x] U-03 — Work orders with quantity; panel hotkeys always win (opus-u03, 2026-10-05)

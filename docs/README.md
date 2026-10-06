@@ -15,8 +15,8 @@ This repository holds the **complete specification** of the game and no code. It
 | [`02-systems/`](02-systems/README.md) | One design document per game system: rules, state, interfaces, player-facing behavior | Waves 1–2 |
 | [`03-content/`](03-content/) | Every material, creature, plant, item, skill, job, building, recipe, region trait and thought, as tables with numbers | Wave 3 |
 | [`04-implementation/`](04-implementation/) | Type schemas, algorithms in pseudocode, exact tick order, event and command catalogs, save format, screen wireframes, keymaps, acceptance tests, build milestones | Wave 4 |
-| [`roadmap.md`](roadmap.md) | What each wave adds and the recommended build order | Wave 1 |
-| [`05-plan/`](05-plan/README.md) | The implementation plan: agent workflow, testing strategy, 123 tasks across milestones M0–M8, progress checklist, decision log | Plan |
+| [`archive/build-plan/roadmap.md`](archive/build-plan/roadmap.md) | What each wave adds and the recommended build order | Wave 1 |
+| [`05-plan/`](archive/build-plan/README.md) | The implementation plan: agent workflow, testing strategy, 123 tasks across milestones M0–M8, progress checklist, decision log | Plan |
 
 Start with [`00-vision/vision.md`](00-vision/vision.md), then [`01-architecture/architecture-overview.md`](01-architecture/architecture-overview.md), then [`02-systems/README.md`](02-systems/README.md).
 

@@ -3,7 +3,7 @@
  * and `M3-water-fire-sky.md` T-M3-09 — "synthetic builder: standard map from `generated` with seed
  * `perf-1`, 40-tile waterfall channel dug through `TestWorld`, 20 dwarves walking random routes".
  *
- * The saved fixture of the reference fortress is made at the M6 gate (`01-testing-strategy.md`
+ * The saved fixture of the reference fortress is made at the M6 gate (`testing-strategy.md`
  * § Performance smoke); until then this builder stands in for it, with the parts M3 has: the
  * generated map, the embarked party grown to 20 dwarves, and a running waterfall.
  */

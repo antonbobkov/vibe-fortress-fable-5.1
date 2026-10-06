@@ -2,7 +2,7 @@
 
 **Goal:** the full production tree: smelting, alloys, steel, forge items, magma workshops, mechanisms, gems, melting, professions complete. **Gate:** `ws_*`, `it_value`, `it_wealth` (rerun with crafted goods).
 
-Spec: [`12`](../02-systems/12-workshops-and-professions.md), [`workshops-and-recipes.md`](../03-content/workshops-and-recipes.md), [`minerals-and-metals.md`](../03-content/minerals-and-metals.md), [`weapons-and-armor.md`](../03-content/weapons-and-armor.md) (item creation only; combat use is M6).
+Spec: [`12`](../../02-systems/12-workshops-and-professions.md), [`workshops-and-recipes.md`](../../03-content/workshops-and-recipes.md), [`minerals-and-metals.md`](../../03-content/minerals-and-metals.md), [`weapons-and-armor.md`](../../03-content/weapons-and-armor.md) (item creation only; combat use is M6).
 
 ## T-M5-01 Wood furnace and smelter: charcoal, ore smelting, coal (M)
 

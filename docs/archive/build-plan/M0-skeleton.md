@@ -2,7 +2,7 @@
 
 **Goal:** a repository that builds, lints, tests, loads all content, runs a headless world with the core loop, and draws a flat map in the browser. **Gate:** `core_*` scenarios, content check, lint, coverage thresholds, e2e `boot`.
 
-Spec: [`../01-architecture/`](../01-architecture/architecture-overview.md) (all files), [`../04-implementation/schemas/`](../04-implementation/schemas/components.md), [`../04-implementation/tooling.md`](../04-implementation/tooling.md), [`../04-implementation/tick-order.md`](../04-implementation/tick-order.md).
+Spec: [`../01-architecture/`](../../01-architecture/architecture-overview.md) (all files), [`../04-implementation/schemas/`](../../04-implementation/schemas/components.md), [`../../04-implementation/tooling.md`](../../04-implementation/tooling.md), [`../../04-implementation/tick-order.md`](../../04-implementation/tick-order.md).
 
 ## T-M0-01 Repository bootstrap (S)
 

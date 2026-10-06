@@ -4,7 +4,7 @@
 
 ## Why
 
-[`reports/M8-mood-diagnosis.md`](../../../reports/M8-mood-diagnosis.md) § 11 measured a three-year fortress with a gate (two doors with `lock_on_alert`, `19` § The airlock) and a squad of three. At peril 2 and peril 4, all 13 seeds survived every fight with no combat deaths, and then all 13 starved in year 1.
+[`reports/M8-mood-diagnosis.md`](../../../reports/audits/M8-mood-diagnosis.md) § 11 measured a three-year fortress with a gate (two doors with `lock_on_alert`, `19` § The airlock) and a squad of three. At peril 2 and peril 4, all 13 seeds survived every fight with no combat deaths, and then all 13 starved in year 1.
 
 **1. A raid locked out of the fortress never leaves.** `18` § Party AI says:
 

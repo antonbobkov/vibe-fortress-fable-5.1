@@ -4,7 +4,7 @@
 
 ## Why
 
-[`reports/M8-mood-diagnosis.md`](../../../reports/M8-mood-diagnosis.md) found that `bored` is active 100% of dwarf-time and `uncomfortable` 93%, costing about 8 mood points, and that `restless` costs about 3 more. Dwarves spend much of the day chasing comfort and joy instead of working, so purpose rises too.
+[`reports/M8-mood-diagnosis.md`](../../../reports/audits/M8-mood-diagnosis.md) found that `bored` is active 100% of dwarf-time and `uncomfortable` 93%, costing about 8 mood points, and that `restless` costs about 3 more. Dwarves spend much of the day chasing comfort and joy instead of working, so purpose rises too.
 
 The cause is that the spec contradicts itself. A dwarf acts at its want threshold and one visit relieves a fixed amount, so the interval between visits is `relief / rate` hours:
 

@@ -5,7 +5,7 @@ import { PathingCore, TileGraph } from '@core/pathfinding';
 import type { MovementClass, TileIndex } from '@core/types';
 
 /**
- * `01-testing-strategy.md` § Property tests, "connectivity consistency": random wall placements
+ * `testing-strategy.md` § Property tests, "connectivity consistency": random wall placements
  * and removals; `reachable(a, b)` equals a flood fill over the same edges for 50 random pairs.
  */
 

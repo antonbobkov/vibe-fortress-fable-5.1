@@ -102,7 +102,7 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 | `dw_critical_interrupt` | miner mid-dig with thirst forced to 90 | job returns to open with progress kept; miner drinks; job resumes |
 | `dw_child` | immigrant child | only hauling jobs; adult on the 12th birthday |
 | `dw_title` | assign Thane; give the Thane a grand bedroom | everyone gets `thane_hall_grand` |
-| `year_one` | 48×48 flat-test with one spring, Balanced embark, the opening orders of `05-plan/fixes/F-04-bootstrap-scenario.md`, 20 days | carpenter, still, mason, kitchen, hearth built and the room dug within their calibrated bounds; ≥ 1 brew; crops planted; nobody dies; ≤ 200 `missing_input` blocks |
+| `year_one` | 48×48 flat-test with one spring, Balanced embark, the opening orders of `archive/fixes/F-04-bootstrap-scenario.md`, 20 days | carpenter, still, mason, kitchen, hearth built and the room dug within their calibrated bounds; ≥ 1 brew; crops planted; nobody dies; ≤ 200 `missing_input` blocks |
 
 ## 11 Jobs
 

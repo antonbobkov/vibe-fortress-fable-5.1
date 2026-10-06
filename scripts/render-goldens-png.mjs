@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // `scripts/render-goldens-png.mjs`: render golden renders (*.json) to PNG images for the gate report.
 //
-// `05-plan/M8-polish.md` T-M8-04: "Produces: `test/golden/render/*.json` for each wireframe in
+// `archive/build-plan/M8-polish.md` T-M8-04: "Produces: `test/golden/render/*.json` for each wireframe in
 // `04-implementation/ui-screens/` at a fixed state (built through `TestWorld` and the UI state), plus
 // a visual diff script that renders goldens to PNG for the gate report."
 

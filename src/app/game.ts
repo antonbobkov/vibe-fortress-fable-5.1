@@ -1286,7 +1286,7 @@ export class Game {
   }
 }
 
-/** What `window.__deepholm` exposes in test builds (`01-testing-strategy.md` § E2E harness). */
+/** What `window.__deepholm` exposes in test builds (`testing-strategy.md` § E2E harness). */
 export interface TestHook {
   readonly host: InProcessHost;
   readonly readers: HookReaders;
@@ -1416,7 +1416,7 @@ export interface BootOptions {
 /**
  * Wire the platform to the game and start the frame loop on the main menu. `main.ts` calls this;
  * the e2e harness reads `window.__deepholm`, which exists only when the build mode is `test`
- * (`01-testing-strategy.md` § E2E harness). In a test build, `?start=flat-test` opens the
+ * (`testing-strategy.md` § E2E harness). In a test build, `?start=flat-test` opens the
  * `flat-test` fortress directly, the M0 start the `boot` test was written against (D-061).
  */
 export async function boot(options: BootOptions = {}): Promise<Game> {

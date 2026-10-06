@@ -2,7 +2,7 @@
  * `fl_perf` of `04-implementation/acceptance-tests.md` § 04 Fluids ("reference fortress with a
  * 40-tile waterfall channel, 2,000 ticks | average fluids tick ≤ 3 ms on CI (2× budget)") with the
  * pathing assertion of `M3-water-fire-sky.md` T-M3-09 (≤ 2 ms average, 2× 22's 1.0 ms budget) and
- * the two rules of `01-testing-strategy.md` § Performance smoke: "average tick ≤ 2× the budget of
+ * the two rules of `testing-strategy.md` § Performance smoke: "average tick ≤ 2× the budget of
  * the systems present, worst tick ≤ 40 ms".
  */
 
@@ -17,7 +17,7 @@ const PATHING_BUDGET_MS = 1.0;
 const CORE_BUDGET_MS = 0.3;
 /** "average tick ≤ 2× the budget", "average fluids tick ≤ 3 ms on CI (2× budget)". */
 const TOLERANCE = 2;
-/** `01-testing-strategy.md` § Performance smoke. */
+/** `testing-strategy.md` § Performance smoke. */
 const WORST_TICK_MS = 40;
 
 describe('T-M3-09 perf: fl_perf', () => {

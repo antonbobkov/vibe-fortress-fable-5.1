@@ -1,10 +1,10 @@
 /**
- * `05-plan/01-testing-strategy.md` § Property tests, "determinism under commands": random valid
+ * `process/testing-strategy.md` § Property tests, "determinism under commands": random valid
  * command streams over 2,000 ticks, run twice, equal hashes every 100 ticks.
  *
  * The command generator registry grows with the milestones (see `command-generators.ts`); from M1
  * the streams designate, undo, set traffic and set labors on the `flat-test` fortress with the
- * default party (`01-testing-strategy.md` § Golden tests: the default embark), so the dwarves act
+ * default party (`testing-strategy.md` § Golden tests: the default embark), so the dwarves act
  * on them (T-M1-16).
  */
 

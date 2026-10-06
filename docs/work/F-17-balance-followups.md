@@ -4,7 +4,7 @@
 
 ## Why
 
-[`reports/M8-balance-economy.md`](../../../reports/M8-balance-economy.md) re-measured the balance with a fortress that runs a real economy.
+[`reports/M8-balance-economy.md`](../../reports/audits/M8-balance-economy.md) re-measured the balance with a fortress that runs a real economy.
 
 **What it showed:**
 - **Peaceful wealth is close to the model.** It reaches 10,740 / 23,687 / 31,808 marks in years 1–3, against 4,000–8,000 / 15,000–25,000 / 35,000–60,000.

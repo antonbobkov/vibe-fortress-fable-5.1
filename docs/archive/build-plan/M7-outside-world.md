@@ -2,7 +2,7 @@
 
 **Goal:** caravans and trade, immigration, reputation, the legend, settings, keybindings, milestones; the complete game. **Gate:** `td_*`, `im_*`, `ui_*`, e2e `trade-session`, `save-load-settings`.
 
-Spec: [`20`](../02-systems/20-trade-and-caravans.md), [`21`](../02-systems/21-immigration.md), [`24`](../02-systems/24-ui-and-input.md), algorithms `economy.md` § Trade, § Immigration, `creature-brains.md` § Caravan AI; content `caravan-goods.md`, `ui-keymap-and-screens.md`.
+Spec: [`20`](../../02-systems/20-trade-and-caravans.md), [`21`](../../02-systems/21-immigration.md), [`24`](../../02-systems/24-ui-and-input.md), algorithms `economy.md` § Trade, § Immigration, `creature-brains.md` § Caravan AI; content `caravan-goods.md`, `ui-keymap-and-screens.md`.
 
 ## T-M7-01 Trade: schedule, caravan parties, goods generation, arrival, depot, departure (L)
 

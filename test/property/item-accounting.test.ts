@@ -7,7 +7,7 @@ import type { EntityId } from '@core/types';
 import { ItemsSystem, type ItemsReader } from '@systems/items';
 
 /**
- * `01-testing-strategy.md` § Property tests, "item accounting": random craft/haul/destroy streams;
+ * `testing-strategy.md` § Property tests, "item accounting": random craft/haul/destroy streams;
  * `counts` equals a recount from entities. The stream draws every mutation of the item API
  * (T-M2-01; hauling and crafting reach items only through these calls).
  */

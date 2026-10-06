@@ -4,7 +4,7 @@
 
 ## Why
 
-[`reports/M8-mood-diagnosis.md`](../../../reports/M8-mood-diagnosis.md) § 15.4 traced the last peril-2 extinction (`three-years-p2-1`, day 144). A civilian was outdoors near the map edge when the `hearth` alert sounded. `10` § Behavior step 2 says "path to the hearth hall, or the nearest indoor tile behind a door if the hall is unreachable; stay until the alert ends". Both were unreachable, because the gate had already locked, so `retreatTile` returned −1. The brain still chose `retreat` with `targetTile −1`, and the dwarf stood frozen on the surface for 15 days.
+[`reports/M8-mood-diagnosis.md`](../../../reports/audits/M8-mood-diagnosis.md) § 15.4 traced the last peril-2 extinction (`three-years-p2-1`, day 144). A civilian was outdoors near the map edge when the `hearth` alert sounded. `10` § Behavior step 2 says "path to the hearth hall, or the nearest indoor tile behind a door if the hall is unreachable; stay until the alert ends". Both were unreachable, because the gate had already locked, so `retreatTile` returned −1. The brain still chose `retreat` with `targetTile −1`, and the dwarf stood frozen on the surface for 15 days.
 
 A raid of eight stayed in `engage` against her the whole time without killing her. The alert never lifted, and the ten civilians sheltering inside starved. `10` does not say what a civilian does when no shelter is reachable.
 

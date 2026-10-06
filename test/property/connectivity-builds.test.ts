@@ -8,7 +8,7 @@ import type { TileIndex } from '@core/types';
 import type { BuildingsSystem } from '@systems/buildings';
 
 /**
- * `01-testing-strategy.md` § Property tests, "connectivity consistency", extended with random wall
+ * `testing-strategy.md` § Property tests, "connectivity consistency", extended with random wall
  * builds (T-M2-05): walls built through 14's completion path (constructions through the terrain
  * API), a hearth (an impassable building through 22's `blocksMovementAt` hook), and walls taken
  * down again; after the tick-end relabel `reachable(a, b)` equals a flood fill over the same edges.

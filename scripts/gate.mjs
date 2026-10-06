@@ -1,8 +1,13 @@
 #!/usr/bin/env node
-// Milestone gate: runs the verification scripts in order and writes reports/M<n>-gate.md.
-// `01-testing-strategy.md` § Commands, § Coverage gates; `00-agent-workflow.md` § The milestone
-// gate ("runs the full milestone test set, the performance smoke for that milestone, the e2e
-// suite, and produces `reports/M<n>-gate.md` (test counts, timings, coverage)").
+// Gate: runs every verification script in order and writes a frozen report under reports/gates/.
+// `testing-strategy.md` § Commands, § Coverage gates; `agent-workflow.md` § The gate.
+//
+//   npm run gate                      writes reports/gates/<YYYY-MM-DD>-gate.md
+//   npm run gate -- T-123             writes reports/gates/T-123-gate.md
+//   npm run gate -- v1.1.0 --no-perf  skips the performance tier and says so in the report
+//   npm run gate -- --where           prints the report path and the steps, runs nothing
+//
+// A gate report is never overwritten: a label that already has a report gets `-2`, `-3`, ….
 
 import { spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -10,21 +15,43 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const GATES_DIR = 'reports/gates';
 
-function currentMilestone() {
-  const arg = process.argv.slice(2).find((a) => /^\d+$/.test(a));
-  if (arg) return Number(arg);
-  const progress = readFileSync(join(root, 'docs/05-plan/PROGRESS.md'), 'utf8');
-  const m = /^current-milestone:\s*(\d+|done)\s*$/m.exec(progress);
-  if (!m) throw new Error('PROGRESS.md has no "current-milestone: n" header line');
-  // T-M8-10: `done` means every milestone is gated; a re-run gates the last one.
-  return m[1] === 'done' ? 8 : Number(m[1]);
+const flags = process.argv.slice(2).filter((a) => a.startsWith('--'));
+const positional = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+const unknown = flags.filter((f) => f !== '--no-perf' && f !== '--where');
+if (unknown.length > 0 || positional.length > 1) {
+  console.error('usage: npm run gate -- [label] [--no-perf] [--where]');
+  process.exit(2);
+}
+const runPerf = !flags.includes('--no-perf');
+
+function today() {
+  const now = new Date();
+  const two = (n) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${two(now.getMonth() + 1)}-${two(now.getDate())}`;
 }
 
-/** Gates M3, M6 and M8 also run the performance smoke (`01-testing-strategy.md` § Tiers). */
-const PERF_GATES = new Set([3, 6, 8]);
+/** The report's label: the argument (a task id, a version, a bare milestone number) or the date. */
+function gateLabel() {
+  const arg = positional[0];
+  if (arg === undefined) return today();
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(arg)) {
+    console.error(`gate: label "${arg}" may hold only letters, digits, ".", "_" and "-"`);
+    process.exit(2);
+  }
+  // The build's gates were called by milestone number: `npm run gate -- 8` labels the report M8.
+  return /^\d+$/.test(arg) ? `M${arg}` : arg;
+}
 
-function steps(milestone) {
+/** `reports/gates/<label>-gate.md`, or the first `<label>-<n>-gate.md` that does not exist yet. */
+function reportPath(label) {
+  let path = `${GATES_DIR}/${label}-gate.md`;
+  for (let n = 2; existsSync(join(root, path)); n += 1) path = `${GATES_DIR}/${label}-${n}-gate.md`;
+  return path;
+}
+
+function steps() {
   return [
     { name: 'lint', script: 'lint' },
     { name: 'typecheck', script: 'typecheck' },
@@ -32,18 +59,19 @@ function steps(milestone) {
     // T-M7-10: the strings audit fails on a missing or an unused key.
     { name: 'strings:check', script: 'strings:check' },
     { name: 'interface:check', script: 'interface:check' },
+    // A broken relative link in docs/, reports/, agents/ or the root README fails the gate.
+    { name: 'docs:check', script: 'docs:check' },
     // `--coverage` makes vitest enforce the thresholds of vitest.config.ts.
     { name: 'test', script: 'test', args: ['--coverage'] },
-    // The e2e suite is part of every gate (M0: `boot`).
     { name: 'test:e2e', script: 'test:e2e' },
     // T-M8-09: E2E builds test-mode dist; verify and leave production output for release.
-    ...(milestone >= 8 ? [{ name: 'build', script: 'build' }] : []),
-    ...(PERF_GATES.has(milestone) ? [{ name: 'test:perf', script: 'test:perf' }] : []),
+    { name: 'build', script: 'build' },
+    ...(runPerf ? [{ name: 'test:perf', script: 'test:perf' }] : []),
   ];
 }
 
 /**
- * `01-testing-strategy.md` § Coverage gates. The same globs are enforced by `vitest.config.ts`
+ * `testing-strategy.md` § Coverage gates. The same globs are enforced by `vitest.config.ts`
  * (`coverage.thresholds`) during the `test --coverage` step; this table reports them.
  */
 const COVERAGE_GATES = [
@@ -150,8 +178,20 @@ function testCounts(output) {
   return { files: files ? files[1].trim() : 'n/a', tests: tests ? tests[1].trim() : 'n/a' };
 }
 
-const milestone = currentMilestone();
-const results = steps(milestone).map(run);
+const label = gateLabel();
+const report = reportPath(label);
+if (flags.includes('--where')) {
+  console.log(`gate: would write ${report}`);
+  console.log(`gate: steps ${steps().map((s) => s.name).join(', ')}`);
+  process.exit(0);
+}
+
+function commit() {
+  const res = spawnSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: root, encoding: 'utf8' });
+  return res.status === 0 ? res.stdout.trim() : 'unknown';
+}
+
+const results = steps().map(run);
 const testOutput = results.find((r) => r.name === 'test')?.output ?? '';
 const counts = testCounts(testOutput);
 const e2eOutput = results.find((r) => r.name === 'test:e2e')?.output ?? '';
@@ -162,9 +202,9 @@ const cov = summary?.total ?? null;
 const scenarios = scenarioLines(testOutput);
 
 const lines = [
-  `# M${milestone} gate report`,
+  `# Gate report: ${label}`,
   '',
-  `Milestone: M${milestone}. Generated by \`npm run gate\` (scripts/gate.mjs).`,
+  `Label: ${label}. Date: ${today()}. Commit: \`${commit()}\`. Generated by \`npm run gate\` (scripts/gate.mjs). Frozen: a later run writes a new report.`,
   '',
   '## Steps',
   '',
@@ -172,7 +212,7 @@ const lines = [
   '|---|---|---|',
   ...results.map((r) => `| \`npm run ${r.name}\` | ${r.ok ? 'pass' : 'FAIL'} | ${(r.ms / 1000).toFixed(1)} s |`),
   '',
-  PERF_GATES.has(milestone) ? '' : `No performance smoke at M${milestone}; it runs at the M3, M6 and M8 gates.`,
+  runPerf ? '' : 'The performance tier was not run (`--no-perf`).',
   '',
   '## Tests',
   '',
@@ -203,12 +243,12 @@ const lines = [
   '',
 ];
 
-mkdirSync(join(root, 'reports'), { recursive: true });
-writeFileSync(join(root, `reports/M${milestone}-gate.md`), `${lines.join('\n')}\n`, 'utf8');
+mkdirSync(join(root, GATES_DIR), { recursive: true });
+writeFileSync(join(root, report), `${lines.join('\n')}\n`, 'utf8');
 
 const failed = results.filter((r) => !r.ok);
 if (failed.length > 0) {
   console.error(`gate: ${failed.map((f) => f.name).join(', ')} failed`);
   process.exit(1);
 }
-console.log(`gate: wrote reports/M${milestone}-gate.md`);
+console.log(`gate: wrote ${report}`);

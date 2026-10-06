@@ -1,5 +1,5 @@
 /**
- * U-03: panel hotkeys always win (`docs/05-plan/ui-fixes/README.md` D-U2; `reports/ui-audit.md`
+ * U-03: panel hotkeys always win (`docs/archive/ui-fixes/README.md` D-U2; `reports/audits/ui-audit.md`
  * issue 4, M3, S4). A panel letter opens or closes its panel whatever panel is open; a panel's own
  * accelerator on one of those letters takes `Shift` and is shown `[S-m]`; and every destructive
  * single-key action asks through the confirmation dialog, default No.

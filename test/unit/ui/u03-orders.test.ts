@@ -1,5 +1,5 @@
 /**
- * U-03: work orders have a quantity (`docs/05-plan/ui-fixes/README.md` D-U5; `reports/ui-audit.md`
+ * U-03: work orders have a quantity (`docs/archive/ui-fixes/README.md` D-U5; `reports/audits/ui-audit.md`
  * issue 3, M2, Q2, S3). Adding an order opens the picker (type-ahead filter, recipes grouped by
  * output category with the recent ones first, quantity, `once N` / `keep ≥ N`, material, and the
  * workshop of a global order); in the list `+`/`-` change the selected order's count, `[S-n]`

@@ -1,8 +1,8 @@
 # UI fixes (post-release, from the UI audit)
 
-**Source:** [`reports/ui-audit.md`](../../../reports/ui-audit.md), a hands-on audit of v1.0.0 (2026-10-04). **Owner instruction (2026-10-04):** "Proceed with the recommendations." The owner wants a clean, intuitive UI, repetitive tasks that are easy, and a clear message wherever something cannot be done. Every decision below was made by the parent under the owner's standing instruction to use judgement. Agents implement these decisions; they do not design.
+**Source:** [`reports/ui-audit.md`](../../../reports/audits/ui-audit.md), a hands-on audit of v1.0.0 (2026-10-04). **Owner instruction (2026-10-04):** "Proceed with the recommendations." The owner wants a clean, intuitive UI, repetitive tasks that are easy, and a clear message wherever something cannot be done. Every decision below was made by the parent under the owner's standing instruction to use judgement. Agents implement these decisions; they do not design.
 
-The plan's ground rules ([`../README.md`](../README.md), [`../00-agent-workflow.md`](../00-agent-workflow.md)) apply, with one addition, as for [`../fixes/`](../fixes/README.md). A task below **may edit `docs/00-`…`docs/04-` exactly where its "Spec" line says**, to write the decided behaviour into the spec in the spec's own style. The edit must be minimal, must not touch unrelated text, and must be listed in the commit body.
+The plan's ground rules ([`../build-plan/README.md`](../build-plan/README.md), [`../../process/agent-workflow.md`](../../process/agent-workflow.md)) apply, with one addition, as for [`../fixes/`](../fixes/README.md). A task below **may edit `docs/00-`…`docs/04-` exactly where its "Spec" line says**, to write the decided behaviour into the spec in the spec's own style. The edit must be minimal, must not touch unrelated text, and must be listed in the commit body.
 
 Cite the audit's ids (Q1…, M1…, S1…, §4.x) in commits and tests. Tag tests `U-0n`. Render goldens will move: regenerate them in the same commit with a `golden:` paragraph naming the screens and why. Never loosen a test to make a commit green.
 
