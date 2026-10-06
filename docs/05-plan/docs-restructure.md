@@ -87,18 +87,25 @@ Step 1 is the bulk of the work and pays off most. It is mechanical but touches m
 
 ### Tasks
 
-| Id | Title | Size | Needs |
-|---|---|---|---|
-| T-101 | Foundation: `docs/process/`, `docs/backlog.md`, `docs/work/`, `docs/archive/`, the new rules, a rewritten `docs/README.md`, W-levels stripped, `reports/` sorted | M | — |
-| T-102 | Interfaces: replace the 27 `Implementation note:` lines with real Interfaces entries; `interface:check` fails on any such note | S | T-101 |
-| T-103 | Triage D-rows: architecture and core (`00-`, `01-`, simulation core, data model, persistence, rendering, performance) | M | T-101 |
-| T-104 | Triage D-rows: systems 01–07 (world, embark, terrain, fluids, materials, weather, plants) | M | T-101 |
-| T-105 | Triage D-rows: systems 08–13 (animals, foraging, dwarves, jobs, workshops, items) | M | T-101 |
-| T-106 | Triage D-rows: systems 14–19 (buildings, morale, combat, health, threats, defense) | M | T-101 |
-| T-107 | Triage D-rows: systems 20–24 and content (trade, immigration, pathing, rendering, UI, `03-content`, `04-implementation`) | M | T-101 |
-| T-108 | Triage D-rows: tooling and tests (to `docs/process/tooling.md` and the testing strategy), plus the C- rows | S | T-101 |
-| T-109 | Balance: `docs/balance-status.md`, one row per measure with the latest figure; B-rows collapsed; open ones to the backlog | S | F-17 |
-| T-110 | Close the migration: what is left of the log moves to `docs/decisions.md` (pending only); archive the rest; large data files leave git or move under `reports/data/` | S | T-102 … T-109 |
+| Id | Title | Size | Needs | Estimate |
+|---|---|---|---|---|
+| T-101 | Foundation: `docs/process/`, `docs/backlog.md`, `docs/work/`, `docs/archive/`, the new rules, a rewritten `docs/README.md`, W-levels stripped, `reports/` sorted | M | — | 60–90 min |
+| T-102 | Interfaces: replace the 27 `Implementation note:` lines with real Interfaces entries; `interface:check` fails on any such note | S | T-101 | 30–45 min |
+| T-103 | Triage D-rows: architecture and core (`00-`, `01-`, simulation core, data model, persistence, rendering, performance) | M | T-101 | 45–75 min |
+| T-104 | Triage D-rows: systems 01–07 (world, embark, terrain, fluids, materials, weather, plants) | M | T-101 | 45–75 min |
+| T-105 | Triage D-rows: systems 08–13 (animals, foraging, dwarves, jobs, workshops, items) | M | T-101 | 45–75 min |
+| T-106 | Triage D-rows: systems 14–19 (buildings, morale, combat, health, threats, defense) | M | T-101 | 45–75 min |
+| T-107 | Triage D-rows: systems 20–24 and content (trade, immigration, pathing, rendering, UI, `03-content`, `04-implementation`) | M | T-101 | 45–75 min |
+| T-108 | Triage D-rows: tooling and tests (to `docs/process/tooling.md` and the testing strategy), plus the C- rows | S | T-101 | 30–45 min |
+| T-109 | Balance: `docs/balance-status.md`, one row per measure with the latest figure; B-rows collapsed; open ones to the backlog | S | F-17 | 20–30 min |
+| T-110 | Close the migration: what is left of the log moves to `docs/decisions.md` (pending only); archive the rest; large data files leave git or move under `reports/data/` | S | T-102 … T-109 | 20–30 min |
+
+**About the estimates.** Size is the plan's grading and is unchanged; the estimate is wall-clock time for one agent, added from measured runs on 2026-10-03 to 2026-10-05. No docs-only task has been measured, so these are extrapolated from the nearest ones:
+- T-M8-08 (documentation sync, a script plus 23 spec files): 27 min.
+- UI tasks of size M: 46–75 min.
+- A size-L UI task: 73 min.
+
+None of these tasks needs the performance tier, which adds about 40 minutes per run.
 
 **T-101 in detail.**
 
