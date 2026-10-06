@@ -1,6 +1,6 @@
 # Docs restructure: from a one-time build to a continuous stream
 
-**Detail level:** plan · **Owner:** implementation · **Status:** proposal, not started · **Written:** 2026-10-05
+**Detail level:** plan · **Owner:** implementation · **Status:** accepted, in progress (see § Decisions and tasks) · **Written:** 2026-10-05
 
 This is a review of how the specification, plan and reports are organised, and a proposal for reshaping them. The project will keep running audits, fixes and feature work with no end date. The question is whether the documents are organised for that, and whether deltas are piling up beside the base spec instead of being merged into it.
 
@@ -73,3 +73,58 @@ Step 1 is the bulk of the work and pays off most. It is mechanical but touches m
 - Whether to move the spec folders under `docs/spec/`, given the link and script churn.
 - Whether closed task files are deleted or kept under `archive/`.
 - Whether the new id series renumbers open items (U-02, U-04, U-05, U-07, F-17) or starts after them.
+
+## Decisions and tasks (accepted 2026-10-05)
+
+**Status:** accepted by the owner on 2026-10-05 ("incorporate into the workstreams, early if possible"). The open choices were decided by the parent under the owner's standing instruction to use judgement.
+
+### The open choices, decided
+
+- **The spec folders stay where they are.** `docs/00-` … `docs/04-` are not moved under `docs/spec/`. The link and script churn buys nothing that the rules do not already give. "The spec" means those five folders.
+- **Closed task files are archived, not deleted.** They move to `docs/archive/`. Nothing links into the archive from the spec.
+- **One id series from now on: `T-101`, `T-102`, …** The items already open keep their ids until they close (U-02, U-04, U-05, U-07, F-17, C-009, B-008 … B-012). Nothing new gets an `F-`, `U-`, `D-U` or "owner Task" id.
+- **The decision log stays at `docs/05-plan/DECISIONS.md` until the triage is done.** Branches in flight still append to it. T-110 then moves what is left to `docs/decisions.md`.
+
+### Tasks
+
+| Id | Title | Size | Needs |
+|---|---|---|---|
+| T-101 | Foundation: `docs/process/`, `docs/backlog.md`, `docs/work/`, `docs/archive/`, the new rules, a rewritten `docs/README.md`, W-levels stripped, `reports/` sorted | M | — |
+| T-102 | Interfaces: replace the 27 `Implementation note:` lines with real Interfaces entries; `interface:check` fails on any such note | S | T-101 |
+| T-103 | Triage D-rows: architecture and core (`00-`, `01-`, simulation core, data model, persistence, rendering, performance) | M | T-101 |
+| T-104 | Triage D-rows: systems 01–07 (world, embark, terrain, fluids, materials, weather, plants) | M | T-101 |
+| T-105 | Triage D-rows: systems 08–13 (animals, foraging, dwarves, jobs, workshops, items) | M | T-101 |
+| T-106 | Triage D-rows: systems 14–19 (buildings, morale, combat, health, threats, defense) | M | T-101 |
+| T-107 | Triage D-rows: systems 20–24 and content (trade, immigration, pathing, rendering, UI, `03-content`, `04-implementation`) | M | T-101 |
+| T-108 | Triage D-rows: tooling and tests (to `docs/process/tooling.md` and the testing strategy), plus the C- rows | S | T-101 |
+| T-109 | Balance: `docs/balance-status.md`, one row per measure with the latest figure; B-rows collapsed; open ones to the backlog | S | F-17 |
+| T-110 | Close the migration: what is left of the log moves to `docs/decisions.md` (pending only); archive the rest; large data files leave git or move under `reports/data/` | S | T-102 … T-109 |
+
+**T-101 in detail.**
+
+Folders and files:
+- `docs/process/` takes `00-agent-workflow.md`, `01-testing-strategy.md` and the ambiguity protocol, rewritten for continuous work.
+- `docs/backlog.md` is one table of open items only (id, title, source, needs, status), seeded with every item open today.
+- `docs/work/` holds one file per open task. F-17 moves there. U-02, U-04, U-05 and U-07 are split out of `ui-fixes/README.md`, carrying the D-U decisions each one needs.
+- `docs/archive/` takes the build plan (M0–M8 files, `README.md`, `roadmap.md`), the closed F and U documents, and `PROGRESS.md`.
+
+The rules, written into the workflow:
+- Spec edits are required, and are listed in the commit body.
+- Closing a task folds its decisions into the spec and archives the task file.
+- Audits are never updated.
+- There is one id series.
+
+Clean-up:
+- `docs/README.md` is rewritten to describe a living product.
+- The `W1`–`W4` detail levels come out of every header.
+- `reports/` is sorted into `gates/` and `audits/`.
+- Every script and test that reads a moved file is updated (`scripts/gate.mjs`, `test/scenarios/runner.ts`, `agents/*.md`, CI). The `current-milestone` header goes away with `PROGRESS.md`: every scenario runs, and the gate takes its milestone as an argument.
+
+**The triage tasks (T-103 … T-108).** For each `D-` row in scope, do exactly one of these and then delete the row from the log:
+- **Fold it:** write the rule into the spec section it governs, as plain spec text with no id and no date.
+- **Move it:** a tooling or harness choice goes to `docs/process/tooling.md`.
+- **Archive it:** a superseded or purely historical row goes to `docs/archive/decisions-archive.md`.
+
+A row whose rejected alternative is worth remembering stays as one short line. No game rule changes: if a row and the code disagree, the task stops on that row and reports it. `npm run gate`'s static checks and `npm test` stay green. World hashes do not move.
+
+**Order with the other workstreams.** T-101 goes first and early, because it changes where every later task writes. Branches already in flight (U-04/U-05, F-17) were cut before T-101. The parent resolves their `PROGRESS.md` and decision-log edits when it merges them. The triage tasks run two at a time between the remaining UI tasks.
