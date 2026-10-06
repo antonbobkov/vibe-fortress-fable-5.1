@@ -57,7 +57,7 @@
   {
     "id": "hint_alert",
     "trigger": "first ThreatWarning",
-    "text": "Raise the alert [m] to send civilians to the hearth and lock doors set to lock on alert."
+    "text": "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock."
   },
   {
     "id": "hint_depot",
@@ -77,7 +77,7 @@
   {
     "id": "hint_gate",
     "trigger": "first raid ended",
-    "text": "A drawbridge over a channel, linked to a lever inside, is the surest gate."
+    "text": "A drawbridge over a channel is the surest gate. Build a lever inside [b], click it, press [i] and click the bridge; [y] pulls it."
   },
   {
     "id": "hint_cage",

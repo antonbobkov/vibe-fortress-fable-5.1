@@ -173,6 +173,15 @@ export class DesignateTool {
     return cmd;
   }
 
+  /**
+   * `SetDesignationPriority` for the last batch: its tiles that are still designated take the tool's
+   * priority (`command-catalog.md`: "designations exist"), or null when there are none.
+   */
+  reprioritize(map: MapReader): Command | null {
+    const tiles = (this.lastBatch ?? []).filter((i) => map.designationAt(i) !== Designation.None);
+    return tiles.length === 0 ? null : { type: 'SetDesignationPriority', tiles, priority: this.priority };
+  }
+
   /** The tool's name for the status bar. */
   name(strings: Strings): string {
     if (this.clearing) return strings.get('ui.tool.designate.clear');
@@ -182,7 +191,7 @@ export class DesignateTool {
 }
 
 /** The panel body (the title row is the sidebar's). */
-export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, strings: Strings): void {
+export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, strings: Strings, reprioritize?: () => void): void {
   const t = s.theme;
   let row = rect.row;
   const colW = Math.floor((rect.cols - 2) / 2);
@@ -204,6 +213,10 @@ export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, 
   label(s, rect.col + 1, row, strings.get('ui.tool.designate.priority', { n: tool.priority }));
   row += 1;
   label(s, rect.col + 1, row, strings.get('ui.tool.designate.undo'));
+  row += 1;
+  // U-05: the last batch can take another priority (`SetDesignationPriority`).
+  label(s, rect.col + 1, row, strings.get('ui.tool.designate.reprioritize', { n: tool.priority }), { fg: tool.lastBatch === null ? s.theme.dim : s.theme.text, width: rect.cols - 2 });
+  if (reprioritize !== undefined) s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => reprioritize());
   row += 1;
   separator(s, rect.col + 1, row, 0);
   label(s, rect.col + 1, row, strings.get('ui.tool.designate.help1'), { fg: t.dim, width: rect.cols - 1 });

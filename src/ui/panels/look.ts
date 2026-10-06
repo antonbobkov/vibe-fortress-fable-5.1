@@ -103,6 +103,8 @@ export function drawLookPanel(
   pullLever?: (id: EntityId) => void,
   /** 14 § Player-facing behavior: the building panel offers deconstruct (T-M7-09). */
   deconstruct?: (id: EntityId) => void,
+  /** U-05: the building's own panel (`Enter`). */
+  open?: (id: EntityId) => void,
 ): void {
   const t = s.theme;
   if (tile === null) return;
@@ -148,6 +150,11 @@ export function drawLookPanel(
           line('[Pull lever]', t.value);
           s.hit({ col: rect.col + 1, row: buttonRow, cols: rect.cols - 2, rows: 1 }, () => pullLever(id));
         }
+      }
+      if (id !== 0 && open !== undefined && row < rect.row + rect.rows) {
+        const buttonRow = row;
+        line(strings.get('ui.look.open_building'), t.value);
+        s.hit({ col: rect.col + 1, row: buttonRow, cols: rect.cols - 2, rows: 1 }, () => open(id));
       }
       if (id !== 0 && deconstruct !== undefined && b.get(id)?.state === 'built' && row < rect.row + rect.rows) {
         const buttonRow = row;
