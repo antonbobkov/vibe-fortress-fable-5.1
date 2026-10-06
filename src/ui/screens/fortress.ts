@@ -25,6 +25,7 @@ import { STATUS_HINT_SECONDS } from '../constants';
 import { acceleratorOf, keyLabel, type Keymap } from '../keymap';
 import { drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
+import { BuildingPanel, drawBuildingPanel } from '../panels/building';
 import { confirmThen, type PanelContext } from '../panels/context';
 import { drawJobsPanel, JobsPanel } from '../panels/jobs';
 import { drawLaborsPanel, LaborsPanel } from '../panels/labors';
@@ -144,6 +145,8 @@ export class FortressScreen implements Screen {
   readonly threats = new ThreatsPanel();
   readonly civilizations = new CivilizationsPanel();
   readonly depot = new DepotPanel();
+  /** The building panel: a click on any building that is not a workshop or a depot (U-05). */
+  readonly building = new BuildingPanel();
   workshopId = 0;
   /** The shift state of the click being handled (the labor grid's "shift-click: whole column"). */
   private clickShift = false;
@@ -530,7 +533,8 @@ export class FortressScreen implements Screen {
     surface.fill(rect, t.black);
     const rule = surface.glyphs.index('│');
     for (let r = 0; r < rect.rows; r += 1) surface.put(rect.col, rect.row + r, rule, t.border, t.black);
-    const panel = this.panels().find((p) => p.id === this.ui.panel) ?? (this.ui.panel === 'workshop' || this.ui.panel === 'depot' ? { id: this.ui.panel, title: this.ui.panel === 'depot' ? 'Depot' : 'Workshop', hotkey: '' } : undefined);
+    const panel = this.panels().find((p) => p.id === this.ui.panel) ?? (this.ui.panel === 'workshop' || this.ui.panel === 'depot' ? { id: this.ui.panel, title: this.ui.panel === 'depot' ? 'Depot' : 'Workshop', hotkey: '' }
+        : this.ui.panel === 'building' ? { id: 'building', title: this.strings.get('ui.panel.building.title'), hotkey: '' } : undefined);
     if (panel === undefined) return;
     const inner = { col: rect.col + 1, row: rect.row, cols: rect.cols - 1, rows: rect.rows };
     const key = panel.hotkey === '' ? '' : `[${panel.hotkey}]`;
@@ -539,7 +543,7 @@ export class FortressScreen implements Screen {
     const body = { col: inner.col, row: inner.row + 1, cols: inner.cols, rows: inner.rows - 1 };
     const readers = this.host.readers;
     const ctx = this.ctx;
-    if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings);
+    if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings, () => this.reprioritize());
     else if (panel.id === 'build') drawBuildPanel(surface, body, this.build, ctx, { key: this.ordersKey(), run: () => void this.orderMissing() });
     else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx, () => this.removeZone(this.zones.selected));
     else if (panel.id === 'stocks') drawStocksPanel(surface, body, this.stocks, ctx);
@@ -549,11 +553,12 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'orders') drawOrdersPanel(surface, body, this.orders, ctx);
     else if (panel.id === 'workshop') drawWorkshopPanel(surface, body, this.workshopId, this.orders, ctx,
       (action, recipeId) => this.orders.workshopAction(ctx, this.workshopId, action, () => this.deconstruct(this.workshopId), recipeId));
+    else if (panel.id === 'building') drawBuildingPanel(surface, body, this.building, ctx, (id) => this.deconstruct(id));
     else if (panel.id === 'animals') drawAnimalsPanel(surface, body, this.animals, ctx);
     else if (panel.id === 'mood') drawMoodPanel(surface, body, this.mood, ctx);
     else if (panel.id === 'population') drawPopulationPanel(surface, body, ctx);
     else if (panel.id === 'look') drawLookPanel(surface, body, readers, this.host.registry, this.strings, this.lookTile(), this.lookTab,
-      (leverId) => ctx.submit({ type: 'PullLever', leverId }), (buildingId) => this.deconstruct(buildingId));
+      (leverId) => ctx.submit({ type: 'PullLever', leverId }), (buildingId) => this.deconstruct(buildingId), (buildingId) => this.openBuilding(buildingId));
     else if (panel.id === 'calendar') drawCalendarPanel(surface, body, readers, this.strings);
     else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
     else if (panel.id === 'help') drawHelpPanel(surface, body, this.help);
@@ -604,6 +609,9 @@ export class FortressScreen implements Screen {
     if (this.pointer !== null && this.last !== null) {
       const tip = this.last.tooltipAt(this.pointer.col, this.pointer.row);
       if (tip !== null) return tip.text;
+    }
+    if (this.ui.panel === 'building' && this.building.linking) {
+      return s.get('ui.status.link', { building: buildingName(this.ctx, this.building.id), kinds: s.get('ui.building.linkable') });
     }
     if (this.build.active) {
       const row = this.build.current(this.ctx);
@@ -720,6 +728,7 @@ export class FortressScreen implements Screen {
     if (id !== 'designate') this.tool.cancel();
     if (id !== 'build') this.build.cancel();
     if (id !== 'zones') this.zones.cancel();
+    if (id !== 'building') this.building.cancel();
     this.ui.panel = id;
     this.ui.sidebar = true;
   }
@@ -751,6 +760,25 @@ export class FortressScreen implements Screen {
     const send = (): void => this.host.submit({ type: 'DeconstructBuilding', buildingId });
     if (orders === 0) confirmThen(this.ctx, 'c_deconstruct_building', { building: buildingName(this.ctx, buildingId) }, send);
     else confirmThen(this.ctx, 'c_deconstruct_workshop', { n: orders }, send);
+  }
+
+  /**
+   * A building's own panel (14 § Player-facing behavior): the depot's, a workshop's ("workshops
+   * delegate to 12"), or the building panel for anything else (U-05).
+   */
+  openBuilding(buildingId: number): void {
+    if (buildingId === 0 || !this.host.readers.has('14')) return;
+    const reader = this.host.readers.of<import('@systems/buildings').BuildingsReader>('14');
+    if (reader.depots().includes(buildingId)) {
+      this.depot.select(this.ctx, buildingId);
+      this.openPanel('depot');
+    } else if (this.host.readers.entities.has(buildingId, C.Workshop)) {
+      this.workshopId = buildingId;
+      this.openPanel('workshop');
+    } else {
+      this.openPanel('building');
+      this.building.open(buildingId);
+    }
   }
 
   private moveGoods(): void {
@@ -900,6 +928,21 @@ export class FortressScreen implements Screen {
     return commands;
   }
 
+  /**
+   * `[S-p]` in Designate: `SetDesignationPriority` gives the tool's priority to the tiles of the
+   * last batch that are still designated (U-05; UI audit § 5.4).
+   */
+  reprioritize(): Command | null {
+    const cmd = this.tool.reprioritize(this.host.readers.map);
+    if (cmd === null) {
+      this.notice(this.strings.get('ui.status.nothing_to_prioritize'));
+      return null;
+    }
+    this.host.submit(cmd);
+    this.notice(this.strings.get('ui.status.reprioritized', { n: (cmd['tiles'] as TileIndex[]).length, priority: this.tool.priority }));
+    return cmd;
+  }
+
   /** §4.2: why a designation rectangle sent nothing ("No tile here can be dug: …"). */
   private emptyRectText(): string {
     const key = this.tool.clearing ? 'ui.status.none.clear' : `ui.status.none.${this.tool.kind ?? ''}`;
@@ -945,6 +988,7 @@ export class FortressScreen implements Screen {
       return;
     }
     if (this.units.choice !== null) { this.units.choice = null; return; }
+    if (this.ui.panel === 'building' && this.building.cancel()) return;
     if (this.zones.anchor !== null) {
       this.zones.anchor = null;
       this.zones.end = null;
@@ -1085,6 +1129,10 @@ export class FortressScreen implements Screen {
     if (this.ui.sidebar && panel !== null && this.panelKey(panel, press)) return true;
     if (panel === 'designate' && this.ui.sidebar) {
       const letter = acceleratorOf(press, this.panelLetters());
+      if (letter === 'p') {
+        this.reprioritize();
+        return true;
+      }
       if (letter !== '' && this.tool.choose(letter)) return true;
     }
     if (panel === 'look' && this.ui.sidebar && press.key.toLowerCase() === 'x' && !this.toolActive) {
@@ -1092,6 +1140,15 @@ export class FortressScreen implements Screen {
       const building = tile === null ? 0 : this.host.readers.map.buildingAt(tile);
       if (building !== 0) {
         this.deconstruct(building);
+        return true;
+      }
+    }
+    if (panel === 'look' && this.ui.sidebar && press.key === 'Enter' && !this.toolActive && !press.ctrl && !press.alt && !press.meta) {
+      // U-05: the keyboard's way to a building's panel (the mouse's is a click on it).
+      const tile = this.lookTile();
+      const building = tile === null ? 0 : this.host.readers.map.buildingAt(tile);
+      if (building !== 0) {
+        this.openBuilding(building);
         return true;
       }
     }
@@ -1356,6 +1413,8 @@ export class FortressScreen implements Screen {
         return this.orders.key(ctx, press);
       case 'workshop':
         return this.orders.workshopKey(ctx, this.workshopId, press, () => this.deconstruct(this.workshopId));
+      case 'building':
+        return this.building.key(ctx, press, (id) => this.deconstruct(id));
       case 'animals': {
         if (this.animals.name.focused) {
           if (k === 'Enter') return submit(this.animals.finishName(ctx));
@@ -1430,6 +1489,7 @@ export class FortressScreen implements Screen {
     if (p.button === 2) {
       // "Right click: cancels the current tool; with no tool, opens the inspection panel".
       if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) this.military.cancel();
+      else if (this.ui.panel === 'building' && this.building.linking) this.building.cancel();
       else if (this.build.active) this.build.cancel();
       else if (this.zones.active) this.zones.cancel();
       else if (this.tool.active) this.tool.cancel();
@@ -1446,6 +1506,12 @@ export class FortressScreen implements Screen {
         else this.notice(this.strings.get(this.military.settingKill ? 'ui.status.click_creature' : 'ui.status.click_dwarf'));
         if (!this.military.settingKill && !this.military.settingFollow) this.military.cancel();
       }
+      return;
+    }
+    if (this.ui.panel === 'building' && this.ui.sidebar && this.building.linking) {
+      // U-05: the link target is picked on the map.
+      const tile = this.tileOf(at);
+      if (tile !== null) this.building.pickAt(this.ctx, tile);
       return;
     }
     if (this.build.active) {
@@ -1482,17 +1548,16 @@ export class FortressScreen implements Screen {
     }
     const tile = this.tileOf(at);
     const buildingId = tile !== null && this.host.readers.has('14') ? this.host.readers.of<import('@systems/buildings').BuildingsReader>('14').at(tile) : 0;
-    if (buildingId !== 0 && this.host.readers.has('14') && this.host.readers.of<import('@systems/buildings').BuildingsReader>('14').depots().includes(buildingId)) {
-      this.depot.select(this.ctx, buildingId);
-      this.openPanel('depot');
-      return;
-    }
-    if (buildingId !== 0 && this.host.readers.entities.has(buildingId, C.Workshop)) {
-      this.workshopId = buildingId;
-      this.openPanel('workshop');
-      return;
-    }
     this.selection = null;
+    if (buildingId !== 0) {
+      // 14 § Player-facing behavior: "Clicking a building opens its panel"; a drag from it still selects.
+      this.openBuilding(buildingId);
+      if (this.ui.panel === 'building') {
+        this.ui.cursor = { x: at.x, y: at.y };
+        this.selecting = at;
+      }
+      return;
+    }
     this.selecting = at;
     this.look(at);
   }

@@ -116,6 +116,9 @@ const ORDER_HELP_KEYS: readonly string[] = [
 /** The "Build" rows of the keys tab: placing many and the out-of-stock order (D-U6). */
 const BUILD_HELP_KEYS: readonly string[] = ['ui.help.build.drag', 'ui.help.build.corner', 'ui.help.build.order'];
 
+/** The building panel's rows (U-05) and Designate's re-prioritize, which are the panels' own keys. */
+const BUILDING_HELP_KEYS: readonly string[] = ['ui.help.building.rows', 'ui.help.building.link', 'ui.help.building.cage', 'ui.help.building.owner', 'ui.help.building.plan', 'ui.help.designate.priority'];
+
 /** Help's context order: the panel hotkeys first (Q14), then the keymap table's order. */
 export const HELP_CONTEXT_ORDER: readonly KeyContext[] = ['fortress_panel', ...KEY_CONTEXTS.filter((c) => c !== 'fortress_panel')];
 
@@ -157,6 +160,8 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     for (const key of ORDER_HELP_KEYS) out.push({ category: 'orders', text: strings.get(key) });
     out.push({ category: 'build', text: strings.get('ui.help.build.title'), heading: true });
     for (const key of BUILD_HELP_KEYS) out.push({ category: 'build', text: strings.get(key) });
+    out.push({ category: 'building', text: strings.get('ui.help.building.title'), heading: true });
+    for (const key of BUILDING_HELP_KEYS) out.push({ category: 'building', text: strings.get(key) });
   }
   return out;
 }

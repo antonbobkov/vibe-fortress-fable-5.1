@@ -184,7 +184,7 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [ ] U-02 — Paused input takes effect at once
 - [x] U-03 — Work orders with quantity; panel hotkeys always win (opus-u03, 2026-10-05)
 - [x] U-04 — Drag to place many; out-of-stock prompt (opus-u04, 2026-10-05)
-- [ ] U-05 — Building panel
+- [x] U-05 — Building panel (opus-u05, 2026-10-05)
 - [x] U-06 — Labor manager, unit and squad multi-select (opus-u06, 2026-10-05)
 - [ ] U-07 — Stockpile editor with keyboard; room panel
 - [x] U-08 — Tooltips, palette distances, ghosts and glyphs (agy-u08, 2026-10-04)

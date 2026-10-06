@@ -32,6 +32,9 @@ interface World {
   readonly cow: number;
   readonly squad: number;
   readonly table: number;
+  /** U-05: a lever, a cage it can be linked to, and a bed in a bedroom. */
+  readonly lever: number;
+  readonly bed: number;
 }
 
 /** A world with one of everything a panel acts on. Its commands are never applied by a screen below. */
@@ -40,6 +43,10 @@ function world(seed: string): World {
   const shop = w.build('carpenter', w.index(15, 15, z));
   const busyShop = w.build('carpenter', w.index(25, 15, z));
   const table = w.build('table', w.index(40, 20, z), 'oak');
+  const lever = w.build('lever', w.index(44, 20, z));
+  w.build('cage_building', w.index(46, 20, z), 'oak');
+  const bed = w.build('bed', w.index(48, 20, z), 'oak');
+  w.zone('bedroom', [w.index(48, 20, z), w.index(49, 20, z)]);
   w.spawnDwarf({ at: w.index(17, 19, z), skills: { carpentry: 6 } });
   const pile = w.zone('stockpile', [w.index(30, 30, z), w.index(31, 30, z)]);
   const cow = w.spawnTame('cow', w.index(34, 34, z));
@@ -51,7 +58,7 @@ function world(seed: string): World {
   w.step(1);
   const squad = w.readers.of<CombatReader>('16').squads()[0]?.id ?? 0;
   expect(squad).not.toBe(0);
-  return { w, shop, busyShop, pile, cow, squad, table };
+  return { w, shop, busyShop, pile, cow, squad, table, lever, bed };
 }
 
 interface Fixture {
@@ -118,6 +125,10 @@ const STATES: readonly { readonly name: string; readonly open: (f: Fixture, worl
   // U-04: a drag of a 1×1 type in progress, and the out-of-stock line (`o` then opens the picker, still on Orders).
   { name: 'build dragging a row of beds', open: (f) => { bedTool(f); f.screen.build.anchor = { x: 30, y: 30, z }; f.screen.build.end = { x: 32, y: 30, z }; } },
   { name: 'build with beds out of stock', open: (f) => { bedTool(f); f.screen.placeMany({ x: 30, y: 30, z }, { x: 32, y: 30, z }); expect(f.screen.statusRow2()).toContain('[o] order 3'); f.sent.length = 0; } },
+  // U-05: the building panel, its link-target chooser and its owner chooser.
+  { name: 'the building panel on a table', open: (f, world) => { f.screen.openBuilding(world.table); expect(f.screen.ui.panel).toBe('building'); } },
+  { name: 'the building panel choosing a link target', open: (f, world) => { f.screen.openBuilding(world.lever); f.screen.key(press('i')); expect(f.screen.building.linking).toBe(true); } },
+  { name: 'the building panel choosing an owner', open: (f, world) => { f.screen.openBuilding(world.bed); f.screen.key(press('w')); expect(f.screen.building.choosing).toBe(true); } },
   { name: 'zones with a tool', open: (f) => { f.screen.openPanel('zones'); f.screen.zones.choose('s'); } },
   { name: 'zones with a zone selected', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; } },
   { name: 'stocks picking goods for the depot', open: (f) => { f.screen.openPanel('stocks'); f.screen.stocks.startDepot(1); } },
@@ -405,7 +416,7 @@ describe('U-03 every destructive single-key action asks first, default No (D-U2)
     w.step(1);
     expect(w.readers.entities.get(shop, C.Workshop)?.suspended).toBe(true);
     expect(w.readers.entities.get(cow, C.Tame)?.slaughter).toBe(true);
-    const local: World = { w, shop, busyShop: shop, pile: 0, cow, squad: 0, table: 0 };
+    const local: World = { w, shop, busyShop: shop, pile: 0, cow, squad: 0, table: 0, lever: 0, bed: 0 };
     const f = screenOf(local, false);
     f.screen.workshopId = shop;
     f.screen.openPanel('workshop');

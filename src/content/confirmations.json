@@ -98,5 +98,10 @@
     "id": "c_remove_order",
     "text": "Remove the order for {recipe}? Work in progress on it stops.",
     "default": "no"
+  },
+  {
+    "id": "c_release_cage",
+    "text": "Release {creature} from {cage}? It is set down beside the cage, as wild or hostile as it was.",
+    "default": "no"
   }
 ]
