@@ -68,9 +68,11 @@ Wealth is item value plus building value. Typical trajectory in a wealth-2, peri
 | End of | Wealth (marks) | Drivers |
 |---|---|---|
 | Year 1 | 4,000–8,000 | embark goods (about 1,500), stone blocks and furniture, first crafts, first meals |
-| Year 2 | 15,000–25,000 | iron goods, smoothed rooms, cut gems, a caravan's worth of purchases |
-| Year 3 | 35,000–60,000 | steel, masterworks, engraved halls, a hundred barrels |
+| Year 2 | 15,000–25,000 | iron goods, cut gems, a caravan's worth of purchases, prepared meals and drink |
+| Year 3 | 35,000–60,000 | steel, masterworks, a hundred barrels, lavish meals |
 | Year 5 | 100,000–200,000 | deepsilver items (250 each × multipliers), statues, a royal hearth hall |
+
+Smoothing and engraving raise room tiers (mood and immigration), not wealth.
 
 Renown follows: 5 → 15 → 30 → 75. Raid size at peril 2: year 2 → 6 + 4 = 10; year 3 → 6 + 9 = 15; year 5 → 16 (cap). Immigration wave at year 3: 2 + 13 (wealth) + 2 (Content) = 12 (cap). Both curves saturate on purpose: the game does not escalate without bound; it plateaus at "large fortress" and the Deep provides the endgame.
 

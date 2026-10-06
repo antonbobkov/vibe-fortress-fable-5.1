@@ -7,11 +7,20 @@ import { coverage, planWave, waveSize } from '@systems/immigration/waves';
 describe('T-M7-04 immigration waves', () => {
   const registry = contentRegistry();
 
-  it('clamps size at the cap and halves a winter wave before the clamp', () => {
+  it('F-17d: clamps the computed size, then halves a winter wave (21 § Wave size, in the written order)', () => {
     expect(waveSize(12000, 3, 50, 40, false)).toBe(10);
     expect(waveSize(12000, 3, 50, 40, true)).toBe(5);
     expect(waveSize(60000, 4, 100, 3, false)).toBe(3);
     expect(waveSize(0, 2, 0, 0, false)).toBe(0);
+    // The two orders differ once the clamp bites. Wealth 39,000, Content, reputation 0, 68 open
+    // slots: 2 + 13 + 2 = 17, clamped to WAVE_MAX 12, halved to 6 (halving first gave 9).
+    expect(waveSize(39000, 3, 0, 68, false)).toBe(12);
+    expect(waveSize(39000, 3, 0, 68, true)).toBe(6);
+    // Three open slots: 30 clamps to 3, and the winter wave is 2 (halving first gave 3).
+    expect(waveSize(60000, 4, 100, 3, true)).toBe(2);
+    // The lower clamp is applied before the halving too: IMMIGRANT_BASE 2 becomes a winter wave of 1.
+    expect(waveSize(0, 2, 0, 40, false)).toBe(2);
+    expect(waveSize(0, 2, 0, 40, true)).toBe(1);
   });
 
   it('gives children child ages and keeps every generated name unique', () => {
