@@ -42,7 +42,7 @@ From the audit's § 4.4, word for word:
 | Not enclosed | `Not enclosed` | "Not enclosed: 3 open border tiles" (and highlight them) |
 | Stockpile full | log note `A stockpile is full.` | "Stockpile #2 (Wood) is full" with focus on it |
 
-Commands this task gives a UI: `SetStockpileContainers` and `AssignRoom` (both are on the audit's § 5.4 list of commands the UI never emits). The accelerator letters must respect D-U2. The audit suggests `p` for the preset dropdown and `o` for the owner, but `p` is the Population panel and `o` is the Orders panel, so neither may be used bare: use `Shift`+letter, shown as `[S-p]` and `[S-o]`.
+Commands this task gives a UI: `SetStockpileContainers`, which the UI never emits (audit § 5.4), and `AssignRoom` from the room panel. U-05 (done) already issues `AssignRoom` from the building panel (`src/ui/panels/building.ts`); reuse its owner picker and strings. The accelerator letters must respect D-U2. The audit suggests `p` for the preset dropdown and `o` for the owner, but `p` is the Population panel and `o` is the Orders panel, so neither may be used bare: use `Shift`+letter, shown as `[S-p]` and `[S-o]`.
 
 ## Spec to edit
 

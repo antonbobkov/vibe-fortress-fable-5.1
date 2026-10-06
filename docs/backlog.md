@@ -18,10 +18,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-108 | [Triage D-rows: tooling and tests, and the C-rows](work/T-108-triage-tooling-and-tests.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-109 | [Balance status: one row per measure, latest figure only](work/T-109-balance-status.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | F-17 | open |
 | T-110 | [Close the migration: pending decisions, archive, large data files](work/T-110-close-the-migration.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | T-102 … T-109 | open |
-| T-111 | [UI audit follow-up: what the U tasks changed](work/T-111-ui-audit-follow-up.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) | U-02, U-04, U-05, U-07 | open |
+| T-111 | [UI audit follow-up: what the U tasks changed](work/T-111-ui-audit-follow-up.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) | U-02, U-07 | open |
 | U-02 | [Paused input takes effect at once](work/U-02-paused-input.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) M1, S2 | — | open |
-| U-04 | [Drag to place many; out-of-stock prompt](work/U-04-drag-to-place-many.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) M6, S9 | — | in progress (branch `ui-0405`) |
-| U-05 | [Building panel](work/U-05-building-panel.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) M4, § 5.4 | — | in progress (branch `ui-0405`) |
 | U-07 | [Stockpile editor with keyboard; room panel](work/U-07-stockpile-editor-and-room-panel.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) M7, M9 | — | open |
 | F-17 | [Balance follow-ups from the economy fortress](work/F-17-balance-followups.md) | [`../reports/audits/M8-balance-economy.md`](../reports/audits/M8-balance-economy.md) | — | in progress (branch `f-17`) |
 | C-009 | System 21's performance allocation is a literal 0.00 ms, which no measured run can meet; its budget assertion is `it.todo` | [`05-plan/DECISIONS.md`](05-plan/DECISIONS.md) § Contradictions, row C-009 | an owner decision: a positive allocation, or an exemption for zero allocations | open |

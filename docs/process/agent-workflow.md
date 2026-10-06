@@ -23,7 +23,7 @@ After a task closes, the specification alone says how the game behaves. Nobody s
 
 - **One id series for all work: `T-101`, `T-102`, ….** A new item takes the next free number, whatever kind of work it is. Take the number in the commit that adds the backlog row.
 - **Every item has a source.** The backlog's *Source* column and the work file's `Source:` field name the report, audit or plan that produced it. This replaces a separate id series for each kind of work.
-- **Older ids are not reused or extended.** `T-M<n>-<nn>` (the build), `F-nn` (audit fixes), `U-nn` (UI fixes), `D-Un` and "owner Task n" belong to closed work, which is in [`../archive/`](../archive/README.md). The items that were open when the series changed keep their ids until they close: U-02, U-04, U-05, U-07, F-17, C-009, B-008 … B-012.
+- **Older ids are not reused or extended.** `T-M<n>-<nn>` (the build), `F-nn` (audit fixes), `U-nn` (UI fixes), `D-Un` and "owner Task n" belong to closed work, which is in [`../archive/`](../archive/README.md). The items that were open when the series changed keep their ids until they close: U-02, U-07, F-17, C-009, B-008 … B-012.
 - **The backlog holds open items only.** It is one table: id, title, source, needs, status. A closed item's row is deleted, not ticked.
 - **Test and commit labels carry the task id**: `describe('T-123 …')`, commit subject `T-123: …`. Labels of closed work in existing tests (`T-M4-06`, `F-12`, `U-03`, `D-007`) stay as they are.
 

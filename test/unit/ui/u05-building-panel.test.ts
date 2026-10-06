@@ -1,5 +1,5 @@
 /**
- * U-05: the building panel (`reports/ui-audit.md` M4, § 5.4 "Missing UI for implemented commands";
+ * U-05: the building panel (`reports/audits/ui-audit.md` M4, § 5.4 "Missing UI for implemented commands";
  * `02-systems/14-buildings-and-rooms.md` § Player-facing behavior: "Clicking a building opens its
  * panel: state, mode toggles, links, owner, deconstruct"). Each kind of building shows its actions
  * and each action sends its command; the lever's link target is picked on the map; every failure

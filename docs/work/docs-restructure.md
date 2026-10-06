@@ -142,7 +142,7 @@ T-101 is done. Where it had to choose, it chose as follows; the later tasks buil
 
 - **Process.** `docs/process/agent-workflow.md`, `testing-strategy.md` and `ambiguity-protocol.md` (the numeric prefixes are gone). The rules of § Rules that keep it steady are written into the workflow.
 - **Archive.** `docs/archive/build-plan/` (the plan's `README.md`, `M0` … `M8`, `PROGRESS.md`, `roadmap.md`), `docs/archive/fixes/` (F-01 … F-16 and their index), `docs/archive/ui-fixes/README.md`. Closed `T-1nn` work files go to `docs/archive/tasks/`.
-- **Work.** One file per open task in `docs/work/`, this plan among them. U-02, U-04, U-05 and U-07 each carry the D-U decisions they need.
+- **Work.** One file per open task in `docs/work/`, this plan among them. U-02 and U-07 each carry the D-U decisions they need. U-04 and U-05 closed while T-101 was in progress, so they have no work file: they are marked done in the archived UI fixes plan.
 - **Backlog.** [`../backlog.md`](../backlog.md). One item was added that this plan did not list: T-111, the follow-up report the UI fixes plan asked for once all U tasks are done.
 - **Reports.** `reports/gates/` (frozen) and `reports/audits/` (frozen). `reports/screenshots/` and `reports/coverage/` stay where the tooling writes them. `reports/M8-balance-economy-data.json` stays until T-110.
 - **Scripts.** `PROGRESS.md`'s `current-milestone` header is read by nothing: every scenario runs. `npm run gate -- [label]` writes `reports/gates/<label>-gate.md` (the label defaults to the date) and never overwrites a report. `npm run docs:check` fails on a broken relative link in `docs/`, `reports/`, `agents/` or the root `README.md`; it runs in the gate, in CI and in `npm test`.
