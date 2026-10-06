@@ -20,6 +20,7 @@
     "hash": "node scripts/world-hash.mjs",
     "gate": "node scripts/gate.mjs",
     "interface:check": "node scripts/interface-check.mjs",
+    "docs:check": "node scripts/docs-links-check.mjs",
     "build:test": "tsc --noEmit && vite build --mode test && node scripts/build-check.mjs --test",
     "preview": "vite preview"
   },

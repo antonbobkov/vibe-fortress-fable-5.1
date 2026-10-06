@@ -1,6 +1,6 @@
 # 11 Jobs & Labor
 
-**Detail level:** W2 · **Owner:** `systems/jobs` · **Depends on:** [`../01-architecture/module-interfaces.md`](../01-architecture/module-interfaces.md), [10-dwarves.md](10-dwarves.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
+**Owner:** `systems/jobs` · **Depends on:** [`../01-architecture/module-interfaces.md`](../01-architecture/module-interfaces.md), [10-dwarves.md](10-dwarves.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
 
 ## Purpose
 

@@ -1,7 +1,7 @@
 /**
  * `ui-screens/panels.md` §§ Orders, Add order, Workshop and `12` § Player-facing behavior.
  *
- * Work orders have a quantity (`docs/05-plan/ui-fixes/README.md` D-U5): adding an order opens the
+ * Work orders have a quantity (`docs/archive/ui-fixes/README.md` D-U5): adding an order opens the
  * picker (type-ahead filter, recipes grouped by output category with the recent ones first,
  * quantity, `once N` / `keep ≥ N`, material, and for a global order the workshop); in the list
  * `+`/`-` change the selected order's count, `[S-n]` adds, `[r]` repeats, and every order shows

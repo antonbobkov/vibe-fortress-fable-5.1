@@ -1,6 +1,6 @@
 # Content Tables
 
-**Detail level:** W3 · **Owner:** content
+**Owner:** content
 
 This folder holds every table of game content. Systems refer to content only by `snake_case` id and by the properties in these tables. Nothing in a system document may name a specific piece of content that is not a row here. The JSON files in `src/content/` mirror these tables one to one.
 

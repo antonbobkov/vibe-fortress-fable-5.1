@@ -1,7 +1,7 @@
 /**
  * Golden render: the M0 compositor over the hand-built 8×8 terrain fixture.
  *
- * `05-plan/01-testing-strategy.md` § Golden tests: "`test/golden/render/*.json`: cell buffers of
+ * `process/testing-strategy.md` § Golden tests: "`test/golden/render/*.json`: cell buffers of
  * the fortress viewport for `{ seed, z, camera }` at tick 0 and after a scripted command list".
  * M0 has no commands, so this is the tick-0 buffer of T-M0-13's fixture.
  *

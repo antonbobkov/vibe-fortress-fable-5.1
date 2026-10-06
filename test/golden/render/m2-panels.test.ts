@@ -1,7 +1,7 @@
 /**
  * Golden render: the T-M2-09 panels drawn for a fixed state.
  *
- * `05-plan/M2-things.md` T-M2-09: "each panel renders a golden cell buffer for a fixed state".
+ * `archive/build-plan/M2-things.md` T-M2-09: "each panel renders a golden cell buffer for a fixed state".
  * The state: the `flat-test` fortress of seed `m2-panels` with the Balanced embark, one stockpile
  * with the Food preset and a dig designation, after one tick. Each panel draws into its own 36×40
  * surface through the fortress screen's panel context. Rewritten only by

@@ -1,6 +1,6 @@
 # Algorithm: World Generation
 
-**Detail level:** W4 · **Owner:** `systems/worldgen` · **Depends on:** [`../../02-systems/01-world-generation.md`](../../02-systems/01-world-generation.md), [`../../03-content/regions-biomes-and-traits.md`](../../03-content/regions-biomes-and-traits.md)
+**Owner:** `systems/worldgen` · **Depends on:** [`../../02-systems/01-world-generation.md`](../../02-systems/01-world-generation.md), [`../../03-content/regions-biomes-and-traits.md`](../../03-content/regions-biomes-and-traits.md)
 
 All arithmetic is integer or `Fixed`. Noise is value noise on an integer lattice with fixed-point smoothstep interpolation; `noise(stream, x, y, freq, octaves, amps)` sums octaves with lattice values drawn from a hash of `(seed, octave, lx, ly)` so that the field is a pure function of the seed (the stream is used only for the per-stage salt).
 

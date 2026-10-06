@@ -1,5 +1,5 @@
 /**
- * E2E `generate-and-embark` (M1) of `05-plan/01-testing-strategy.md` § E2E harness.
+ * E2E `generate-and-embark` (M1) of `process/testing-strategy.md` § E2E harness.
  *
  * Part 1 (T-M1-12): "New world → generate with seed `e2e-1` → world map → cursor moves → region
  * panel text contains 'Wealth'".

@@ -1,5 +1,5 @@
 /**
- * Golden world hashes (`05-plan/01-testing-strategy.md` § Golden tests).
+ * Golden world hashes (`process/testing-strategy.md` § Golden tests).
  *
  * `world-hashes.json` holds `{ seed, size } -> hash of WorldMap` (seeds `test-1`, `test-2`,
  * `test-3` at the standard size, T-M1-03) and `{ seed, ticks } -> hash of the world after N ticks of `flat-test` with no commands,
@@ -60,7 +60,7 @@ function worldMapHashes(): Record<string, string> {
   return out;
 }
 const TICKS = [0, 1_000, 5_000];
-/** `01-testing-strategy.md` § Golden tests: "with the default embark and no commands" (T-M1-11). */
+/** `testing-strategy.md` § Golden tests: "with the default embark and no commands" (T-M1-11). */
 const EMBARK = 'default' as const;
 
 const golden = JSON.parse(readFileSync(file, 'utf8')) as GoldenFile;

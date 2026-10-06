@@ -1,7 +1,7 @@
 /**
  * Golden render `m1-designations` (`M1-ground.md` T-M1-15): the `flat-test` fortress with the
  * default embark after a scripted command list of designations, composed with the default
- * overlays and with the priority digits on (`01-testing-strategy.md` § Golden tests: "cell buffers
+ * overlays and with the priority digits on (`testing-strategy.md` § Golden tests: "cell buffers
  * of the fortress viewport … after a scripted command list"). Covers step 6 (the dwarves) and
  * step 8 (tints, outlines on undiscovered tiles, digits that never cover a creature).
  */

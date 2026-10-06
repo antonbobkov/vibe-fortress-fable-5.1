@@ -1,6 +1,6 @@
 # Build Milestones
 
-**Detail level:** W4 · **Owner:** implementation · **Depends on:** [`../roadmap.md`](../roadmap.md), [acceptance-tests.md](acceptance-tests.md), [tooling.md](tooling.md)
+**Owner:** implementation · **Depends on:** [acceptance-tests.md](acceptance-tests.md), [tooling.md](tooling.md)
 
 The order in which to build the game so that something is testable at every step. Each milestone lists what is built, which acceptance tests pass, and what the player can do. Estimates assume one developer familiar with TypeScript.
 

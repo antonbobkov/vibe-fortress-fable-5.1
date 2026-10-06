@@ -6,7 +6,7 @@ import { PathingCore, TileGraph } from '@core/pathfinding';
 import type { MovementClass, TileIndex } from '@core/types';
 
 /**
- * `01-testing-strategy.md` § Property tests, "connectivity consistency", over the whole edge set
+ * `testing-strategy.md` § Property tests, "connectivity consistency", over the whole edge set
  * (T-M3-09, D-100): random kinds (walls, floors, open tiles, ramps, stairs, fortifications, trees)
  * and random water and magma on a map of 3 × 3 chunks and three levels, changed a few tiles at a
  * time with a tick-end relabel after each batch. For every movement class the labels equal a

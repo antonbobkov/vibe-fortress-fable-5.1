@@ -1,6 +1,6 @@
 # 23 Rendering
 
-**Detail level:** W2 · **Owner:** `render/` · **Depends on:** [`../01-architecture/constants.md`](../01-architecture/constants.md), [`../01-architecture/module-interfaces.md`](../01-architecture/module-interfaces.md), [`../01-architecture/tech-stack.md`](../01-architecture/tech-stack.md), [24-ui-and-input.md](24-ui-and-input.md)
+**Owner:** `render/` · **Depends on:** [`../01-architecture/constants.md`](../01-architecture/constants.md), [`../01-architecture/module-interfaces.md`](../01-architecture/module-interfaces.md), [`../01-architecture/tech-stack.md`](../01-architecture/tech-stack.md), [24-ui-and-input.md](24-ui-and-input.md)
 
 ## Purpose
 

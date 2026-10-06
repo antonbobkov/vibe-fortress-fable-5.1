@@ -1,6 +1,6 @@
 /**
- * U-04: placing many buildings is one gesture (`docs/05-plan/ui-fixes/README.md` D-U6;
- * `reports/ui-audit.md` M6, S9, § 3 "Build 5 doors / 5 beds"). For a 1×1 type a drag places one
+ * U-04: placing many buildings is one gesture (`docs/archive/ui-fixes/README.md` D-U6;
+ * `reports/audits/ui-audit.md` M6, S9, § 3 "Build 5 doors / 5 beds"). For a 1×1 type a drag places one
  * per valid tile of the rectangle, the status bar shows the count, blocked tiles are skipped and
  * reported in one message naming the rule; when the input is out of stock the status bar says how
  * many will wait and `o` opens the order picker preset to the item and the count.

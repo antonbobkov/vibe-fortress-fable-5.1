@@ -1,6 +1,6 @@
 # Buildings and Furniture
 
-**Detail level:** W3 · **Owner:** content (`buildings`, `zoneTypes`) · **Depends on:** [`../02-systems/14-buildings-and-rooms.md`](../02-systems/14-buildings-and-rooms.md), [`../02-systems/19-defense-and-traps.md`](../02-systems/19-defense-and-traps.md), [items.md](items.md), [glyphs-and-colors.md](glyphs-and-colors.md)
+**Owner:** content (`buildings`, `zoneTypes`) · **Depends on:** [`../02-systems/14-buildings-and-rooms.md`](../02-systems/14-buildings-and-rooms.md), [`../02-systems/19-defense-and-traps.md`](../02-systems/19-defense-and-traps.md), [items.md](items.md), [glyphs-and-colors.md](glyphs-and-colors.md)
 
 Columns: `footprint` `w×h` (rotatable when noted); `on` placement requirement; `inputs` items consumed or linked; `labor` for the build job; `ticks` build time; `tags` function tags; `room` the room-value contribution beyond the linked item's value (`item` = the item's value / 10); `pass` passable; `fluid` blocks fluid; `value` wealth bonus; `glyph` and `fg` (`item` = the linked item's glyph and material color; patterns for multi-tile buildings are in [glyphs-and-colors.md](glyphs-and-colors.md)).
 

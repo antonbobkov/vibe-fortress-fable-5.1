@@ -1,6 +1,6 @@
 # Minerals and Metals
 
-**Detail level:** W3 · **Owner:** content (`minerals`, `metals`) · **Depends on:** [materials.md](materials.md), [`../02-systems/03-terrain-and-mining.md`](../02-systems/03-terrain-and-mining.md), [`../02-systems/12-workshops-and-professions.md`](../02-systems/12-workshops-and-professions.md)
+**Owner:** content (`minerals`, `metals`) · **Depends on:** [materials.md](materials.md), [`../02-systems/03-terrain-and-mining.md`](../02-systems/03-terrain-and-mining.md), [`../02-systems/12-workshops-and-professions.md`](../02-systems/12-workshops-and-professions.md)
 
 ## Geology layer templates
 

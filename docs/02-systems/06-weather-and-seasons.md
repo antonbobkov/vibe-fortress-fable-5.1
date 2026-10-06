@@ -1,6 +1,6 @@
 # 06 Weather & Seasons
 
-**Detail level:** W2 · **Owner:** `systems/weather` · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md), [01-world-generation.md](01-world-generation.md), [05-materials-and-temperature.md](05-materials-and-temperature.md)
+**Owner:** `systems/weather` · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md), [01-world-generation.md](01-world-generation.md), [05-materials-and-temperature.md](05-materials-and-temperature.md)
 
 ## Purpose
 

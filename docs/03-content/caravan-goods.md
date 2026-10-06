@@ -1,6 +1,6 @@
 # Caravan Goods
 
-**Detail level:** W3 · **Owner:** content (`caravanGoods`) · **Depends on:** [`../02-systems/20-trade-and-caravans.md`](../02-systems/20-trade-and-caravans.md), [items.md](items.md), [creatures.md](creatures.md)
+**Owner:** content (`caravanGoods`) · **Depends on:** [`../02-systems/20-trade-and-caravans.md`](../02-systems/20-trade-and-caravans.md), [items.md](items.md), [creatures.md](creatures.md)
 
 ## Budget
 

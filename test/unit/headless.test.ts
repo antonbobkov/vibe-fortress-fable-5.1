@@ -140,7 +140,7 @@ describe('T-M0-11 headless: the scenario runner', () => {
     run: 0,
   };
 
-  it('reads the current milestone from PROGRESS.md', () => {
+  it('runs the scenarios of every milestone', () => {
     expect(currentMilestone()).toBeGreaterThanOrEqual(0);
   });
 

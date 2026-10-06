@@ -1,5 +1,5 @@
 /**
- * `TestWorld`: the scenario-facing wrapper of `01-testing-strategy.md` § The scenario runner.
+ * `TestWorld`: the scenario-facing wrapper of `testing-strategy.md` § The scenario runner.
  *
  * It calls only public APIs of the headless game. Helpers whose subsystem has not been built yet
  * throw `NotYetImplementedError` naming the task that provides them, the same way the M0 stubs of

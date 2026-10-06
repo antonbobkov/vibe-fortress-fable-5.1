@@ -1,6 +1,6 @@
 # Vision
 
-**Detail level:** W1 · **Owner:** vision · **Depends on:** none
+**Owner:** vision · **Depends on:** none
 
 ## One paragraph
 

@@ -1,6 +1,6 @@
 # 08 Animals & Domestication
 
-**Detail level:** W2 · **Owner:** `systems/animals` · **Depends on:** [07-plants-and-farming.md](07-plants-and-farming.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [16-combat.md](16-combat.md), [17-health-and-medicine.md](17-health-and-medicine.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
+**Owner:** `systems/animals` · **Depends on:** [07-plants-and-farming.md](07-plants-and-farming.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [16-combat.md](16-combat.md), [17-health-and-medicine.md](17-health-and-medicine.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
 
 ## Purpose
 

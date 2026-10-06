@@ -1,6 +1,6 @@
 # Algorithm: Temperature, Fire, Weather, Plants
 
-**Detail level:** W4 · **Owner:** `systems/materials`, `systems/weather`, `systems/plants` · **Depends on:** [`../../02-systems/05-materials-and-temperature.md`](../../02-systems/05-materials-and-temperature.md), [`../../02-systems/06-weather-and-seasons.md`](../../02-systems/06-weather-and-seasons.md), [`../../02-systems/07-plants-and-farming.md`](../../02-systems/07-plants-and-farming.md)
+**Owner:** `systems/materials`, `systems/weather`, `systems/plants` · **Depends on:** [`../../02-systems/05-materials-and-temperature.md`](../../02-systems/05-materials-and-temperature.md), [`../../02-systems/06-weather-and-seasons.md`](../../02-systems/06-weather-and-seasons.md), [`../../02-systems/07-plants-and-farming.md`](../../02-systems/07-plants-and-farming.md)
 
 ## Temperature
 

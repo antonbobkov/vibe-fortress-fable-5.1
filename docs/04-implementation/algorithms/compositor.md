@@ -1,6 +1,6 @@
 # Algorithm: Compositor and Frame
 
-**Detail level:** W4 · **Owner:** `render/` · **Depends on:** [`../../02-systems/23-rendering.md`](../../02-systems/23-rendering.md), [`../../03-content/glyphs-and-colors.md`](../../03-content/glyphs-and-colors.md)
+**Owner:** `render/` · **Depends on:** [`../../02-systems/23-rendering.md`](../../02-systems/23-rendering.md), [`../../03-content/glyphs-and-colors.md`](../../03-content/glyphs-and-colors.md)
 
 ```
 frame(now):

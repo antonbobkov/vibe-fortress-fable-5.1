@@ -1,6 +1,6 @@
 # Balance Model
 
-**Detail level:** W3 · **Owner:** content · **Depends on:** every system document, [`../01-architecture/constants.md`](../01-architecture/constants.md)
+**Owner:** content · **Depends on:** every system document, [`../01-architecture/constants.md`](../01-architecture/constants.md)
 
 This document is the cross-system arithmetic behind the tuning constants. It states the intended pace of a fortress and shows that the numbers in the system documents and content tables produce it. Where a constant in a system document was changed by this pass, the system document has been updated to match; this file is the explanation.
 

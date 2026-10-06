@@ -1,6 +1,6 @@
 # 12 Workshops & Professions
 
-**Detail level:** W2 · **Owner:** `systems/workshops` · **Depends on:** [11-jobs-and-labor.md](11-jobs-and-labor.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [05-materials-and-temperature.md](05-materials-and-temperature.md), [04-fluids.md](04-fluids.md), [10-dwarves.md](10-dwarves.md)
+**Owner:** `systems/workshops` · **Depends on:** [11-jobs-and-labor.md](11-jobs-and-labor.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [05-materials-and-temperature.md](05-materials-and-temperature.md), [04-fluids.md](04-fluids.md), [10-dwarves.md](10-dwarves.md)
 
 ## Purpose
 

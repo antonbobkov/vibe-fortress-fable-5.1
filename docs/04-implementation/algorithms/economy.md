@@ -1,6 +1,6 @@
 # Algorithm: Workshops, Quality, Rooms, Trade Valuation, Immigration, Embark Party
 
-**Detail level:** W4 · **Owner:** `systems/workshops`, `systems/buildings`, `systems/trade`, `systems/immigration`, `systems/embark` · **Depends on:** [`../../02-systems/12-workshops-and-professions.md`](../../02-systems/12-workshops-and-professions.md), [`../../02-systems/14-buildings-and-rooms.md`](../../02-systems/14-buildings-and-rooms.md), [`../../02-systems/20-trade-and-caravans.md`](../../02-systems/20-trade-and-caravans.md), [`../../02-systems/21-immigration.md`](../../02-systems/21-immigration.md)
+**Owner:** `systems/workshops`, `systems/buildings`, `systems/trade`, `systems/immigration`, `systems/embark` · **Depends on:** [`../../02-systems/12-workshops-and-professions.md`](../../02-systems/12-workshops-and-professions.md), [`../../02-systems/14-buildings-and-rooms.md`](../../02-systems/14-buildings-and-rooms.md), [`../../02-systems/20-trade-and-caravans.md`](../../02-systems/20-trade-and-caravans.md), [`../../02-systems/21-immigration.md`](../../02-systems/21-immigration.md)
 
 ## Workshop operation (every tick per built workshop)
 

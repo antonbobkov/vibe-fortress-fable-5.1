@@ -5,7 +5,7 @@ import type { TileIndex } from '@core/types';
 import { harness } from '../unit/fluids/harness';
 
 /**
- * `01-testing-strategy.md` § Property tests, "fluid conservation": random sealed basins, random
+ * `testing-strategy.md` § Property tests, "fluid conservation": random sealed basins, random
  * initial levels, 500 steps; "Σ levels constant; every tile settles".
  *
  * Σ is asserted with the units the rules themselves destroy (evaporation and steam, T-M3-02)

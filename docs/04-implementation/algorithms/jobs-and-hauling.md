@@ -1,6 +1,6 @@
 # Algorithm: Job Assignment, Job Steps, Hauling, Stockpile Slots
 
-**Detail level:** W4 · **Owner:** `systems/jobs`, `systems/items` · **Depends on:** [`../../02-systems/11-jobs-and-labor.md`](../../02-systems/11-jobs-and-labor.md), [`../../02-systems/13-items-and-storage.md`](../../02-systems/13-items-and-storage.md)
+**Owner:** `systems/jobs`, `systems/items` · **Depends on:** [`../../02-systems/11-jobs-and-labor.md`](../../02-systems/11-jobs-and-labor.md), [`../../02-systems/13-items-and-storage.md`](../../02-systems/13-items-and-storage.md)
 
 ## Jobs tick
 

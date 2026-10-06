@@ -1,6 +1,6 @@
 # 24 UI & Input
 
-**Detail level:** W2 · **Owner:** `ui/`, `platform/input.ts` · **Depends on:** [23-rendering.md](23-rendering.md), [`../01-architecture/module-interfaces.md`](../01-architecture/module-interfaces.md), [`../00-vision/player-experience.md`](../00-vision/player-experience.md)
+**Owner:** `ui/`, `platform/input.ts` · **Depends on:** [23-rendering.md](23-rendering.md), [`../01-architecture/module-interfaces.md`](../01-architecture/module-interfaces.md), [`../00-vision/player-experience.md`](../00-vision/player-experience.md)
 
 ## Purpose
 

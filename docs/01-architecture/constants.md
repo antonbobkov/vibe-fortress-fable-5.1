@@ -1,6 +1,6 @@
 # Global Constants
 
-**Detail level:** W1 · **Owner:** architecture · **Depends on:** none
+**Owner:** architecture · **Depends on:** none
 
 This is the single source for constants that more than one system depends on. A constant that only one system uses lives in that system's document. Later waves may add rows here; they must not change a value without a note in the wave's commit message and a search for every use.
 

@@ -1,6 +1,6 @@
 # Algorithm: Creature Brains (Dwarves, Animals, Hostiles, Caravans)
 
-**Detail level:** W4 · **Owner:** `systems/dwarves`, `systems/animals`, `systems/threats`, `systems/trade` · **Depends on:** [`../../02-systems/10-dwarves.md`](../../02-systems/10-dwarves.md), [`../../02-systems/08-animals-and-domestication.md`](../../02-systems/08-animals-and-domestication.md), [`../../02-systems/18-threats-monsters-and-raids.md`](../../02-systems/18-threats-monsters-and-raids.md)
+**Owner:** `systems/dwarves`, `systems/animals`, `systems/threats`, `systems/trade` · **Depends on:** [`../../02-systems/10-dwarves.md`](../../02-systems/10-dwarves.md), [`../../02-systems/08-animals-and-domestication.md`](../../02-systems/08-animals-and-domestication.md), [`../../02-systems/18-threats-monsters-and-raids.md`](../../02-systems/18-threats-monsters-and-raids.md)
 
 ## Dwarf brain (every tick per dwarf)
 

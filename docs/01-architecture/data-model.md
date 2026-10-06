@@ -1,6 +1,6 @@
 # Data Model
 
-**Detail level:** W2 · **Owner:** architecture (`core/`) · **Depends on:** [architecture-overview.md](architecture-overview.md), [constants.md](constants.md)
+**Owner:** architecture (`core/`) · **Depends on:** [architecture-overview.md](architecture-overview.md), [constants.md](constants.md)
 
 ## Overview
 

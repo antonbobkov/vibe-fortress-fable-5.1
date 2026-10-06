@@ -1,12 +1,12 @@
 # Tooling
 
-**Detail level:** W4 · **Owner:** implementation · **Depends on:** [`../01-architecture/tech-stack.md`](../01-architecture/tech-stack.md)
+**Owner:** implementation · **Depends on:** [`../01-architecture/tech-stack.md`](../01-architecture/tech-stack.md)
 
 ## package.json (dependencies)
 
 Runtime: none. Dev: `typescript`, `vite`, `vitest`, `@vitest/coverage-v8`, `jsdom`, `fast-check`, `@playwright/test`, `eslint`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, `eslint-plugin-import`, `prettier`.
 
-Scripts: `dev` (vite), `build` (tsc --noEmit && vite build), `typecheck` (tsc --noEmit), `test` (vitest run: unit, scenarios up to the current milestone, property, golden), `test:e2e` (playwright test), `test:perf` (vitest run -c vitest.perf.config.ts), `lint` (eslint src test scripts), `content:check` (node scripts/content-check.mjs: validates JSON tables against the schemas and cross-references ids), `golden:update` (node scripts/golden-update.mjs <name>), `gate` (runs all of the above and writes `reports/M<n>-gate.md`), `hash` (node scripts/world-hash.mjs <save>). The plan's [`../05-plan/01-testing-strategy.md`](../05-plan/01-testing-strategy.md) is the authority on test tiers and commands.
+Scripts: `dev` (vite), `build` (tsc --noEmit && vite build), `typecheck` (tsc --noEmit), `test` (vitest run: unit, every scenario, property, golden), `test:e2e` (playwright test), `test:perf` (vitest run -c vitest.perf.config.ts), `lint` (eslint src test scripts), `content:check` (node scripts/content-check.mjs: validates JSON tables against the schemas and cross-references ids), `golden:update` (node scripts/golden-update.mjs <name>), `docs:check` (node scripts/docs-links-check.mjs: fails on a broken relative link in `docs/`, `reports/`, `agents/` or the root `README.md`), `gate` (node scripts/gate.mjs [label]: runs all of the above and writes `reports/gates/<label>-gate.md`; the label defaults to the date), `hash` (node scripts/world-hash.mjs <save>). [`../process/testing-strategy.md`](../process/testing-strategy.md) is the authority on test tiers and commands.
 
 ## tsconfig
 
@@ -50,7 +50,7 @@ scripts/
 
 ## CI
 
-On every push: `lint`, `typecheck`, `test`, `content:check`, `build`; nightly: `test:e2e` and `test:perf`. Golden changes require a reviewer.
+On every push: `lint`, `typecheck`, `content:check`, `strings:check`, `interface:check`, `docs:check`, `test`, `build`; nightly: `test:e2e` and `test:perf`. Golden changes require a reviewer.
 
 ## Content authoring loop
 

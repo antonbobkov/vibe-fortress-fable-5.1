@@ -1,6 +1,6 @@
 # Creatures
 
-**Detail level:** W3 · **Owner:** content (`creatures`, `bodyPlans`) · **Depends on:** [`../02-systems/08-animals-and-domestication.md`](../02-systems/08-animals-and-domestication.md), [`../02-systems/16-combat.md`](../02-systems/16-combat.md), [`../02-systems/17-health-and-medicine.md`](../02-systems/17-health-and-medicine.md), [`../02-systems/18-threats-monsters-and-raids.md`](../02-systems/18-threats-monsters-and-raids.md)
+**Owner:** content (`creatures`, `bodyPlans`) · **Depends on:** [`../02-systems/08-animals-and-domestication.md`](../02-systems/08-animals-and-domestication.md), [`../02-systems/16-combat.md`](../02-systems/16-combat.md), [`../02-systems/17-health-and-medicine.md`](../02-systems/17-health-and-medicine.md), [`../02-systems/18-threats-monsters-and-raids.md`](../02-systems/18-threats-monsters-and-raids.md)
 
 ## Body plans
 

@@ -1,6 +1,6 @@
 # Personality and Thoughts
 
-**Detail level:** W3 · **Owner:** content (`personality`, `thoughts`) · **Depends on:** [`../02-systems/15-happiness-and-morale.md`](../02-systems/15-happiness-and-morale.md), [`../02-systems/10-dwarves.md`](../02-systems/10-dwarves.md)
+**Owner:** content (`personality`, `thoughts`) · **Depends on:** [`../02-systems/15-happiness-and-morale.md`](../02-systems/15-happiness-and-morale.md), [`../02-systems/10-dwarves.md`](../02-systems/10-dwarves.md)
 
 ## Personality traits
 

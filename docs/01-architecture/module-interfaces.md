@@ -1,6 +1,6 @@
 # Module Interfaces
 
-**Detail level:** W2 · **Owner:** architecture · **Depends on:** [architecture-overview.md](architecture-overview.md), [simulation-core.md](simulation-core.md), [data-model.md](data-model.md)
+**Owner:** architecture · **Depends on:** [architecture-overview.md](architecture-overview.md), [simulation-core.md](simulation-core.md), [data-model.md](data-model.md)
 
 ## The system contract, in full
 

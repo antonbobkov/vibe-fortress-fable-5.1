@@ -1,6 +1,6 @@
 # Systems Index
 
-**Detail level:** W1 · **Owner:** systems · **Depends on:** [`../01-architecture/architecture-overview.md`](../01-architecture/architecture-overview.md), [`../01-architecture/constants.md`](../01-architecture/constants.md)
+**Owner:** systems · **Depends on:** [`../01-architecture/architecture-overview.md`](../01-architecture/architecture-overview.md), [`../01-architecture/constants.md`](../01-architecture/constants.md)
 
 This page fixes the list of systems, their numbering, their tick order and cadence, and for each one its purpose, what state it owns, its key rules, what it reads, what it emits, and where the player meets it. Wave 2 writes the full design document for each; the file names below are the ones those documents will have.
 

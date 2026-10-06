@@ -1,6 +1,6 @@
 # Wireframe: Embark
 
-**Detail level:** W4 · **Owner:** `ui/screens/embark` · **Depends on:** [`../../02-systems/02-embark-and-loadout.md`](../../02-systems/02-embark-and-loadout.md), [`../../03-content/embark-catalog.md`](../../03-content/embark-catalog.md)
+**Owner:** `ui/screens/embark` · **Depends on:** [`../../02-systems/02-embark-and-loadout.md`](../../02-systems/02-embark-and-loadout.md), [`../../03-content/embark-catalog.md`](../../03-content/embark-catalog.md)
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────┐

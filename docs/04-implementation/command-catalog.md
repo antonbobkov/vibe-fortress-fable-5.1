@@ -1,6 +1,6 @@
 # Command Catalog
 
-**Detail level:** W4 · **Owner:** implementation · **Depends on:** [`../01-architecture/module-interfaces.md`](../01-architecture/module-interfaces.md), every system document
+**Owner:** implementation · **Depends on:** [`../01-architecture/module-interfaces.md`](../01-architecture/module-interfaces.md), every system document
 
 Every command, its fields, its owning system, its validation and the events its application emits. Rejection reasons are from the fixed list at the end. Commands are applied at the start of a tick in submission order.
 

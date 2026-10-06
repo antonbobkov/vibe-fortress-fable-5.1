@@ -1,6 +1,6 @@
 # Algorithm: Combat Resolution, Projectiles, Health
 
-**Detail level:** W4 · **Owner:** `systems/combat`, `systems/health` · **Depends on:** [`../../02-systems/16-combat.md`](../../02-systems/16-combat.md), [`../../02-systems/17-health-and-medicine.md`](../../02-systems/17-health-and-medicine.md), [`../../03-content/weapons-and-armor.md`](../../03-content/weapons-and-armor.md)
+**Owner:** `systems/combat`, `systems/health` · **Depends on:** [`../../02-systems/16-combat.md`](../../02-systems/16-combat.md), [`../../02-systems/17-health-and-medicine.md`](../../02-systems/17-health-and-medicine.md), [`../../03-content/weapons-and-armor.md`](../../03-content/weapons-and-armor.md)
 
 ## Combat tick
 

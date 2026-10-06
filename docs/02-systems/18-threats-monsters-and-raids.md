@@ -1,6 +1,6 @@
 # 18 Threats, Monsters & Raids
 
-**Detail level:** W2 · **Owner:** `systems/threats` · **Depends on:** [01-world-generation.md](01-world-generation.md), [16-combat.md](16-combat.md), [13-items-and-storage.md](13-items-and-storage.md), [03-terrain-and-mining.md](03-terrain-and-mining.md), [06-weather-and-seasons.md](06-weather-and-seasons.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
+**Owner:** `systems/threats` · **Depends on:** [01-world-generation.md](01-world-generation.md), [16-combat.md](16-combat.md), [13-items-and-storage.md](13-items-and-storage.md), [03-terrain-and-mining.md](03-terrain-and-mining.md), [06-weather-and-seasons.md](06-weather-and-seasons.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
 
 ## Purpose
 

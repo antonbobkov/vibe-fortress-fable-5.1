@@ -1,5 +1,5 @@
 /**
- * E2E `build-and-stockpile` (M2) of `05-plan/M2-things.md` T-M2-09: "place a wood stockpile by
+ * E2E `build-and-stockpile` (M2) of `archive/build-plan/M2-things.md` T-M2-09: "place a wood stockpile by
  * drag, place a carpenter's workshop ghost (rejected on rock face: reason shown), place a wall from
  * logs, wait, assert `BuildingCompleted`".
  *

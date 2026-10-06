@@ -1,6 +1,6 @@
 # Wireframe: Trade Session
 
-**Detail level:** W4 · **Owner:** `ui/screens/trade_session` · **Depends on:** [`../../02-systems/20-trade-and-caravans.md`](../../02-systems/20-trade-and-caravans.md), [`../../03-content/caravan-goods.md`](../../03-content/caravan-goods.md)
+**Owner:** `ui/screens/trade_session` · **Depends on:** [`../../02-systems/20-trade-and-caravans.md`](../../02-systems/20-trade-and-caravans.md), [`../../03-content/caravan-goods.md`](../../03-content/caravan-goods.md)
 
 Modal over the fortress screen; the simulation is paused while open.
 

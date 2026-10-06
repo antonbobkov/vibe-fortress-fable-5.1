@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The strings table audit of `05-plan/M7-outside-world.md` T-M7-10: "`strings.json` complete;
+// The strings table audit of `archive/build-plan/M7-outside-world.md` T-M7-10: "`strings.json` complete;
 // `scripts/strings-check.mjs` fails on a missing key or an unused key", over
 // `03-content/ui-keymap-and-screens.md` § Strings ("Every player-facing string is a key in
 // `strings.json`") and `01-architecture/content-pipeline.md` § Strings.

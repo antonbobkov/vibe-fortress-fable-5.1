@@ -1,6 +1,6 @@
 # 20 Trade & Caravans
 
-**Detail level:** W2 · **Owner:** `systems/trade` · **Depends on:** [01-world-generation.md](01-world-generation.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [10-dwarves.md](10-dwarves.md), [18-threats-monsters-and-raids.md](18-threats-monsters-and-raids.md), [16-combat.md](16-combat.md)
+**Owner:** `systems/trade` · **Depends on:** [01-world-generation.md](01-world-generation.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [10-dwarves.md](10-dwarves.md), [18-threats-monsters-and-raids.md](18-threats-monsters-and-raids.md), [16-combat.md](16-combat.md)
 
 ## Purpose
 

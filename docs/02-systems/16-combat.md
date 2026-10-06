@@ -1,6 +1,6 @@
 # 16 Combat
 
-**Detail level:** W2 · **Owner:** `systems/combat` · **Depends on:** [10-dwarves.md](10-dwarves.md), [17-health-and-medicine.md](17-health-and-medicine.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [18-threats-monsters-and-raids.md](18-threats-monsters-and-raids.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
+**Owner:** `systems/combat` · **Depends on:** [10-dwarves.md](10-dwarves.md), [17-health-and-medicine.md](17-health-and-medicine.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [18-threats-monsters-and-raids.md](18-threats-monsters-and-raids.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
 
 ## Purpose
 

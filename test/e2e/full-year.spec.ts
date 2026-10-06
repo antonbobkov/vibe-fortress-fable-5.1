@@ -1,5 +1,5 @@
 /**
- * E2E `full-year` (M8) of `05-plan/01-testing-strategy.md` § E2E harness and `M8-polish.md` T-M8-05:
+ * E2E `full-year` (M8) of `process/testing-strategy.md` § E2E harness and `M8-polish.md` T-M8-05:
  * Boots the app, generates world `e2e-year`, embarks Balanced at a serene_vale / peril-0 region
  * found through the filter panel, then drives a scripted first year through the real UI at 4×
  * (dig, stockpiles, still, farm, hearth, bedrooms, depot) with checkpoints from `balance.md`

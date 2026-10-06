@@ -1,7 +1,7 @@
 /**
  * Golden render: every widget of T-M1-12 laid out in cells with fixed inputs.
  *
- * `05-plan/M1-ground.md` T-M1-12: "widget layout in cells for each widget with fixed inputs
+ * `archive/build-plan/M1-ground.md` T-M1-12: "widget layout in cells for each widget with fixed inputs
  * (golden cell buffers)". Each widget draws into its own 40×4 surface; the file holds the text of
  * each row and every cell's `glyph:fg:bg`. Rewritten only by
  * `npm run golden:update -- render/m1-widgets`.

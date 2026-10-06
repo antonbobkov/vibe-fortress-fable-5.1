@@ -1,6 +1,6 @@
 # 04 Fluids
 
-**Detail level:** W2 · **Owner:** `systems/fluids` · **Depends on:** [`../01-architecture/data-model.md`](../01-architecture/data-model.md), [`../01-architecture/constants.md`](../01-architecture/constants.md), [03-terrain-and-mining.md](03-terrain-and-mining.md), [05-materials-and-temperature.md](05-materials-and-temperature.md)
+**Owner:** `systems/fluids` · **Depends on:** [`../01-architecture/data-model.md`](../01-architecture/data-model.md), [`../01-architecture/constants.md`](../01-architecture/constants.md), [03-terrain-and-mining.md](03-terrain-and-mining.md), [05-materials-and-temperature.md](05-materials-and-temperature.md)
 
 ## Purpose
 

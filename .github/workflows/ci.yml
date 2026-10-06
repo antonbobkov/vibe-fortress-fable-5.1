@@ -24,6 +24,7 @@ jobs:
       - run: npm run content:check
       - run: npm run strings:check
       - run: npm run interface:check
+      - run: npm run docs:check
       - run: npm test
       - run: npm run build
       - if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'

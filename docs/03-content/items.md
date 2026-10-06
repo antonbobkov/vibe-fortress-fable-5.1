@@ -1,6 +1,6 @@
 # Items
 
-**Detail level:** W3 · **Owner:** content (`items`) · **Depends on:** [`../02-systems/13-items-and-storage.md`](../02-systems/13-items-and-storage.md), [materials.md](materials.md), [glyphs-and-colors.md](glyphs-and-colors.md)
+**Owner:** content (`items`) · **Depends on:** [`../02-systems/13-items-and-storage.md`](../02-systems/13-items-and-storage.md), [materials.md](materials.md), [glyphs-and-colors.md](glyphs-and-colors.md)
 
 Columns: `category` is the three-level path; `mult` is the value multiplier (`value = material value × mult × quality`); `stack` is the maximum stack size (1 = not stackable); `container` is the container class the type wants in a stockpile; `rotDays` 0 means it never rots; `weight` is the carry weight class used by 10 (`light` no penalty, `medium` slows children, `heavy` halves speed for anyone; density-derived for stone and logs); `glyph`/`fg` per [glyphs-and-colors.md](glyphs-and-colors.md) (`fg = material` means the material's color).
 

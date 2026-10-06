@@ -1,5 +1,5 @@
 /**
- * U-01: every failure says what and why (`docs/05-plan/ui-fixes/README.md` D-U4; UI audit §§ 4.1,
+ * U-01: every failure says what and why (`docs/archive/ui-fixes/README.md` D-U4; UI audit §§ 4.1,
  * 4.3, Q3, Q4, Q5). Rejections reach the status row for `STATUS_HINT_SECONDS` and the log as an
  * alert with the command's focus; the reason names the cause where the command tells it; blocked
  * jobs and workshops name the missing item, its count and where it is made; buildings are named,

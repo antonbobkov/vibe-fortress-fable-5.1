@@ -1,6 +1,6 @@
 # 22 Pathfinding & Spatial
 
-**Detail level:** W2 · **Owner:** `core/pathfinding.ts`, `core/connectivity.ts`, `core/spatial.ts`, `core/movement.ts` · **Depends on:** [`../01-architecture/data-model.md`](../01-architecture/data-model.md), [04-fluids.md](04-fluids.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [`../01-architecture/performance-budget.md`](../01-architecture/performance-budget.md)
+**Owner:** `core/pathfinding.ts`, `core/connectivity.ts`, `core/spatial.ts`, `core/movement.ts` · **Depends on:** [`../01-architecture/data-model.md`](../01-architecture/data-model.md), [04-fluids.md](04-fluids.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [`../01-architecture/performance-budget.md`](../01-architecture/performance-budget.md)
 
 ## Purpose
 

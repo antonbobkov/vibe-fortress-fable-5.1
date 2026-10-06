@@ -1,5 +1,5 @@
 /**
- * E2E `panels-open-and-close` (M2) of `05-plan/M2-things.md` T-M2-09: "every hotkey opens its panel
+ * E2E `panels-open-and-close` (M2) of `archive/build-plan/M2-things.md` T-M2-09: "every hotkey opens its panel
  * and `Esc` closes it; `Tab` toggles the sidebar". Every panel registered by the systems present
  * (and the UI's own designate, look and log) is opened with its hotkey through the real keyboard;
  * `Esc` closes it (D-077).

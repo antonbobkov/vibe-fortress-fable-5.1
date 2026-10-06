@@ -1,5 +1,5 @@
 /**
- * `ui_keymap_parity` of `05-plan/M7-outside-world.md` T-M7-09: "a table-driven check over the keymap
+ * `ui_keymap_parity` of `archive/build-plan/M7-outside-world.md` T-M7-09: "a table-driven check over the keymap
  * and mouse tables of `ui-keymap-and-screens.md`: every UI action has a key and a mouse path", over
  * 24 § Input model ("Keyboard and mouse produce the same actions; there is no action reachable only
  * one way").

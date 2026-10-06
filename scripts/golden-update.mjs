@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // `npm run golden:update -- <name>`: rewrite one golden file and print the diff summary.
 //
-// `05-plan/01-testing-strategy.md` § Golden tests: "Update only through
+// `process/testing-strategy.md` § Golden tests: "Update only through
 // `npm run golden:update -- <name>`, which rewrites the file and prints the diff summary; the
 // commit message must start with `golden:` and explain why."
 //

@@ -1,6 +1,6 @@
 # Glossary
 
-**Detail level:** W1 · **Owner:** vision · **Depends on:** [vision.md](vision.md)
+**Owner:** vision · **Depends on:** [vision.md](vision.md)
 
 Every document uses these terms with exactly these meanings. When a later wave introduces a new term it is added here.
 

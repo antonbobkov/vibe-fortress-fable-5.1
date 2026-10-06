@@ -1,6 +1,6 @@
 # Regions, Biomes and Traits
 
-**Detail level:** W3 · **Owner:** content (`biomes`, `regionTraits`, `civilizations`, `weatherTables`) · **Depends on:** [`../02-systems/01-world-generation.md`](../02-systems/01-world-generation.md), [`../02-systems/06-weather-and-seasons.md`](../02-systems/06-weather-and-seasons.md), [`../02-systems/03-terrain-and-mining.md`](../02-systems/03-terrain-and-mining.md)
+**Owner:** content (`biomes`, `regionTraits`, `civilizations`, `weatherTables`) · **Depends on:** [`../02-systems/01-world-generation.md`](../02-systems/01-world-generation.md), [`../02-systems/06-weather-and-seasons.md`](../02-systems/06-weather-and-seasons.md), [`../02-systems/03-terrain-and-mining.md`](../02-systems/03-terrain-and-mining.md)
 
 ## Biome lookup
 

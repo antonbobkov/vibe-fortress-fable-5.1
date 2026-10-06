@@ -1,7 +1,7 @@
 /**
  * A recording 2D-canvas mock.
  *
- * `01-testing-strategy.md` § Tiers runs the unit tests of `render/` under jsdom, which implements
+ * `testing-strategy.md` § Tiers runs the unit tests of `render/` under jsdom, which implements
  * no 2D context; `src/platform/canvas.ts` is written against the structural `CanvasLike` /`Ctx2D`
  * interfaces exactly so that this mock can stand in for one.
  */

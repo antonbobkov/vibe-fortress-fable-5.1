@@ -1,6 +1,6 @@
 /**
  * U-01: a gesture that does nothing says why, and no raw id or code reaches the screen
- * (`docs/05-plan/ui-fixes/README.md` D-U4; UI audit §§ 4.1, 4.2, 4.5, Q3, Q6, Q12 `hint_farm`).
+ * (`docs/archive/ui-fixes/README.md` D-U4; UI audit §§ 4.1, 4.2, 4.5, Q3, Q6, Q12 `hint_farm`).
  */
 
 import { describe, expect, it } from 'vitest';

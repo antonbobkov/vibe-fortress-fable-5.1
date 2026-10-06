@@ -1,6 +1,6 @@
 # Schemas: Content Rows
 
-**Detail level:** W4 · **Owner:** implementation · **Depends on:** [`../../01-architecture/content-pipeline.md`](../../01-architecture/content-pipeline.md), every table in [`../../03-content/`](../../03-content/README.md)
+**Owner:** implementation · **Depends on:** [`../../01-architecture/content-pipeline.md`](../../01-architecture/content-pipeline.md), every table in [`../../03-content/`](../../03-content/README.md)
 
 Row types for every content table. Field names are the column names of the Markdown tables; the loader converts hours and days to ticks (`*Ticks` fields) and decimals to `Fixed`. `Id<X>` values are validated against table X.
 

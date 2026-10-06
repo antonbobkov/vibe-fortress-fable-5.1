@@ -1,6 +1,6 @@
 # Weapons and Armor
 
-**Detail level:** W3 · **Owner:** content (`weapons`, `armor`) · **Depends on:** [`../02-systems/16-combat.md`](../02-systems/16-combat.md), [minerals-and-metals.md](minerals-and-metals.md), [items.md](items.md)
+**Owner:** content (`weapons`, `armor`) · **Depends on:** [`../02-systems/16-combat.md`](../02-systems/16-combat.md), [minerals-and-metals.md](minerals-and-metals.md), [items.md](items.md)
 
 ## Weapons
 

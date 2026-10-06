@@ -1,6 +1,6 @@
 # Algorithm: Fluids
 
-**Detail level:** W4 · **Owner:** `systems/fluids` · **Depends on:** [`../../02-systems/04-fluids.md`](../../02-systems/04-fluids.md), [`../../01-architecture/data-model.md`](../../01-architecture/data-model.md)
+**Owner:** `systems/fluids` · **Depends on:** [`../../02-systems/04-fluids.md`](../../02-systems/04-fluids.md), [`../../01-architecture/data-model.md`](../../01-architecture/data-model.md)
 
 Bit helpers on the `fluid` byte: `level(f) = f & 7`, `isMagma(f) = f & 8`, `settled(f) = f & 16`, `source(f) = f & 32`, `frozen(f) = f & 64`. Writes go through `setLevel(i, n)` which preserves the other bits and touches the tile.
 `eq[i] = 0` unless the write is an equalizing move.

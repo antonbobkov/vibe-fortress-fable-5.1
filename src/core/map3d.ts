@@ -184,7 +184,7 @@ export class Map3D {
 
   /**
    * Maps smaller than the standard size are used by tests and by the hand-built fixtures of
-   * `01-testing-strategy.md`; the chunk grid is rounded up so a partial chunk still exists. At
+   * `testing-strategy.md`; the chunk grid is rounded up so a partial chunk still exists. At
    * the specified `LOCAL_MAP_W` / `LOCAL_MAP_H` this is exactly the formula in `data-model.md`.
    */
   constructor(w: number = LOCAL_MAP_W, h: number = LOCAL_MAP_H, d: number = LOCAL_MAP_Z) {

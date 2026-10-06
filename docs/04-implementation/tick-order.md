@@ -1,6 +1,6 @@
 # Tick Order
 
-**Detail level:** W4 · **Owner:** implementation (`core/scheduler.ts`) · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md), [`../02-systems/README.md`](../02-systems/README.md)
+**Owner:** implementation (`core/scheduler.ts`) · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md), [`../02-systems/README.md`](../02-systems/README.md)
 
 The exact sequence of one `World.step()`. Cadence and phase are from the scheduler table; a system runs when `(tick − phase) mod cadence == 0`.
 

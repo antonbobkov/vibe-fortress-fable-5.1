@@ -1,6 +1,6 @@
 # Save Format
 
-**Detail level:** W4 · **Owner:** implementation (`core/serialize.ts`, `app/save-manager.ts`) · **Depends on:** [`../01-architecture/persistence.md`](../01-architecture/persistence.md), [schemas/system-state.md](schemas/system-state.md)
+**Owner:** implementation (`core/serialize.ts`, `app/save-manager.ts`) · **Depends on:** [`../01-architecture/persistence.md`](../01-architecture/persistence.md), [schemas/system-state.md](schemas/system-state.md)
 
 ## Container
 

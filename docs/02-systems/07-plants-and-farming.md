@@ -1,6 +1,6 @@
 # 07 Plants & Farming
 
-**Detail level:** W2 · **Owner:** `systems/plants` · **Depends on:** [03-terrain-and-mining.md](03-terrain-and-mining.md), [05-materials-and-temperature.md](05-materials-and-temperature.md), [06-weather-and-seasons.md](06-weather-and-seasons.md), [11-jobs-and-labor.md](11-jobs-and-labor.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md)
+**Owner:** `systems/plants` · **Depends on:** [03-terrain-and-mining.md](03-terrain-and-mining.md), [05-materials-and-temperature.md](05-materials-and-temperature.md), [06-weather-and-seasons.md](06-weather-and-seasons.md), [11-jobs-and-labor.md](11-jobs-and-labor.md), [13-items-and-storage.md](13-items-and-storage.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md)
 
 ## Purpose
 

@@ -1,6 +1,6 @@
 # Performance Budget
 
-**Detail level:** W2 · **Owner:** architecture · **Depends on:** [tech-stack.md](tech-stack.md), [simulation-core.md](simulation-core.md)
+**Owner:** architecture · **Depends on:** [tech-stack.md](tech-stack.md), [simulation-core.md](simulation-core.md)
 
 ## Reference scenario
 

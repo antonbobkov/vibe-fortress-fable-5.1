@@ -1,6 +1,6 @@
 # 13 Items & Storage
 
-**Detail level:** W2 · **Owner:** `systems/items` · **Depends on:** [`../01-architecture/data-model.md`](../01-architecture/data-model.md), [05-materials-and-temperature.md](05-materials-and-temperature.md), [11-jobs-and-labor.md](11-jobs-and-labor.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
+**Owner:** `systems/items` · **Depends on:** [`../01-architecture/data-model.md`](../01-architecture/data-model.md), [05-materials-and-temperature.md](05-materials-and-temperature.md), [11-jobs-and-labor.md](11-jobs-and-labor.md), [14-buildings-and-rooms.md](14-buildings-and-rooms.md), [22-pathfinding-and-spatial.md](22-pathfinding-and-spatial.md)
 
 ## Purpose
 

@@ -1,5 +1,5 @@
 /**
- * E2E `fluid-overlay` (M3) of `05-plan/01-testing-strategy.md` § E2E harness and
+ * E2E `fluid-overlay` (M3) of `process/testing-strategy.md` § E2E harness and
  * `M3-water-fire-sky.md` T-M3-08: "press `f`, toggle fluid levels, `cells()` shows digits over the
  * river".
  *

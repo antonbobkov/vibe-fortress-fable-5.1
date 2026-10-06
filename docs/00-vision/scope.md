@@ -1,6 +1,6 @@
 # Scope and Traceability
 
-**Detail level:** W1 · **Owner:** vision · **Depends on:** [vision.md](vision.md), [`../02-systems/README.md`](../02-systems/README.md)
+**Owner:** vision · **Depends on:** [vision.md](vision.md), [`../02-systems/README.md`](../02-systems/README.md)
 
 ## Requested features and where they live
 

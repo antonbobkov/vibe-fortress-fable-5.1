@@ -1,6 +1,6 @@
 # Jobs
 
-**Detail level:** W3 · **Owner:** content (`jobTypes`) · **Depends on:** [`../02-systems/11-jobs-and-labor.md`](../02-systems/11-jobs-and-labor.md), [skills-and-professions.md](skills-and-professions.md)
+**Owner:** content (`jobTypes`) · **Depends on:** [`../02-systems/11-jobs-and-labor.md`](../02-systems/11-jobs-and-labor.md), [skills-and-professions.md](skills-and-professions.md)
 
 Every job type the game creates. Columns: `labor` required; `skill` used (— none; then no skill scaling and no xp); `target` kind; `workTile` where the worker stands (`adjacent` = an 8-neighbor on the same level, `at` = the target tile, `workshop` = the workshop's work tile, `entity` = adjacent to the entity); `baseTicks` before skill and productivity scaling (`—` when the producer computes it, e.g. from hardness or recipe); `tool`; `xp` on completion; `producer`; `interruptible` whether a critical need may interrupt it (`no` jobs are short enough to finish).
 

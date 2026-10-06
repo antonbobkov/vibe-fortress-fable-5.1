@@ -1,5 +1,5 @@
 /**
- * E2E `boot` (M0) of `05-plan/01-testing-strategy.md` § E2E harness and `M0-skeleton.md` T-M0-13:
+ * E2E `boot` (M0) of `process/testing-strategy.md` § E2E harness and `M0-skeleton.md` T-M0-13:
  * "page loads, canvas present, `cells()` non-empty, pressing `>` changes `readers.ui.z`,
  * screenshot saved".
  *
