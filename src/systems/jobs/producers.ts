@@ -50,6 +50,11 @@ export interface ItemSource {
   hasTool(workerId: EntityId, tool: Tool): boolean;
   reserve(itemId: EntityId, jobId: number): void;
   release(itemId: EntityId): void;
+  /**
+   * The job an item is reserved to, 0 when it is free, -1 when it no longer exists (F-17b: a
+   * delivered input is revalidated against this before a job resumes or consumes).
+   */
+  reservedFor?(itemId: EntityId): number;
   /** Where an item is (its container's tile when inside one), or -1. */
   tileOf(itemId: EntityId): TileIndex;
   pickUp(itemId: EntityId, workerId: EntityId): void;

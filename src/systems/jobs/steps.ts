@@ -159,6 +159,13 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
       const done = (typeof job.data['effort'] === 'number' ? (job.data['effort'] as number) : 0) +
         effortPerTick(SKILL_TIME_BONUS_PERCENT, board.skillFor(workerId, job), board.productivity(workerId));
       if (done >= required) {
+        // F-17b: before the producer consumes, every delivered input must still be this job's.
+        if (!board.revalidateDelivered(job)) {
+          job.data['effort'] = required;
+          job.progress = progressOf(required, required) - 1;
+          board.refetch(job, workerId);
+          return;
+        }
         const producer = board.producers.find((p) => p.id === job.producer);
         // The work is done but the producer holds completion back (a creature on a wall's tile).
         if (producer?.canComplete?.(job) === false) {

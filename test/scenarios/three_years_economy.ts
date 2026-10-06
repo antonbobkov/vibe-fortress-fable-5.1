@@ -19,6 +19,9 @@ export interface EconomyState {
   readonly mined: Set<number>;
 }
 
+/** Tiles kept free around the trade depot: the caravan's standing ring and a lane past it. */
+const DEPOT_CLEARANCE = 2;
+
 function order(w: TestWorld, workshopId: number, recipeId: string, threshold: number, materialFilter?: string): void {
   const result = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId,
     order: { recipeId, mode: 'maintain', threshold, priority: 3, ...(materialFilter ? { materialFilter } : {}) } });
@@ -81,9 +84,15 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
     const distance = (t: number): number => Math.abs(w.map.xOf(t) - state.cx - dx) + Math.abs(w.map.yOf(t) - state.cy - dy);
     return distance(a) - distance(b) || a - b;
   });
+  // A caravan's guards and pack animals stand on the ring around the depot (20 § Arrival); a
+  // workshop finished there walls one of them in and the caravan never leaves. Keep the ring and
+  // a walking lane beyond it clear of every other building.
+  const depot = type === 'trade_depot' ? undefined : buildings.get(state.placedIds['trade_depot'] ?? 0);
+  const nearDepot = (tile: number): boolean => depot !== undefined && depot.footprint.some((d) =>
+    Math.max(Math.abs(w.map.xOf(d) - w.map.xOf(tile)), Math.abs(w.map.yOf(d) - w.map.yOf(tile))) <= DEPOT_CLEARANCE);
   const origin = candidates.find((t) => {
     const ghost = buildings.ghost(type, t, 0);
-    return ghost.reason === null && ghost.tiles.every((tile) => buildings.zoneAt(tile) === 0 &&
+    return ghost.reason === null && ghost.tiles.every((tile) => buildings.zoneAt(tile) === 0 && !nearDepot(tile) &&
       !w.game.world.entities.with(C.Creature).some((id) => {
         const p = w.game.world.entities.get(id, C.Position);
         return p && w.index(p.x, p.y, p.z) === tile;
