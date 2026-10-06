@@ -92,7 +92,7 @@
 
 Panel hotkeys always win. The letters of § Fortress panels always open or close their panel, whatever panel is open; pressing an open panel's own key closes it. A panel's accelerator may not use one of those letters bare: it is bound to `Shift`+letter and shown `[S-m]`. A free letter is an accelerator with or without `Shift`. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text. With a map selection, forbid, dump and move to depot are `[S-f]`, `[S-d]` and `[S-t]` for the same reason.
 
-Every destructive single-key action asks through the confirmation dialog first, default **No** (§ Confirmations): melt, dump, slaughter, suspend, take apart, disband, remove (a zone, a work order). Undoing a mark (resume, unmark) does not ask.
+Every destructive single-key action asks through the confirmation dialog first, default **No** (§ Confirmations): melt, dump, slaughter, suspend, take apart, disband, remove (a zone, a work order), release (a caged creature). Undoing a mark (resume, unmark) does not ask.
 
 The Orders panel's own keys, beside the accelerators it shows (`ui-screens/panels.md` § Orders); they are the panel's, not rows of the rebindable keymap table:
 
@@ -102,6 +102,17 @@ The Orders panel's own keys, beside the accelerators it shows (`ui-screens/panel
 - `x`: remove the selected order (confirm).
 - `Shift+↑` / `Shift+↓`: move the selected order in its queue.
 - In "Add order": letters and `Backspace` edit the recipe filter, `0`–`9` type the quantity, `Tab` / `Shift+Tab` move between the fields and `←` `→` change the focused one.
+
+The building panel's own keys (`ui-screens/panels.md` § Building), which are the panel's and not rows of the rebindable keymap table. The panel opens with a left click on a building, or `Enter` in Look on its tile:
+
+- `↑` `↓`, `Enter`: move over the lines that act and activate one (a mode, a trigger, a linked target, an owner).
+- `i`: link a lever or a plate; the target is then picked with a left click on the map, or `↑` `↓` `Enter` in the list. `r`: unlink the target under the cursor. `y`: pull the lever.
+- `←` `→`: a pressure plate's smallest creature size or fluid depth.
+- `r`: release a caged creature (confirm). `g`: tame it.
+- `w`: the owner of a bed's bedroom, or whom a coffin is kept for.
+- `1`–`9`: a planned building's build priority. `x`: cancel the plan, or take a built building apart (confirm).
+
+In Designate, `Shift+P` gives the tool's priority to the last batch of designations.
 
 ### World map
 
@@ -178,7 +189,7 @@ A panel's own keys may not use a panel hotkey, so these are on `Shift` (shown `[
 
 | Gesture | With no tool | With a tool |
 |---|---|---|
-| Left click | inspect the tile (look panel) | apply to one tile / place building |
+| Left click | inspect the tile (look panel); on a building, open its panel | apply to one tile / place building |
 | Left drag | select a rectangle (then `Delete`, `[S-f]` forbid, `[S-d]` dump, `[S-t]` move to depot) | designate / draw zone rectangle |
 | Right click | inspect with the entity list | cancel the tool |
 | Wheel | z-level | z-level |
@@ -222,11 +233,11 @@ Shown once, as notes with a lamp glyph, when the trigger holds (checked hourly).
 | `hint_farm` | a farm plot placement is refused | "Farms need soil, mud left by water, or cave loam." |
 | `hint_seeds` | first harvest | "Harvest returns one seed. Brewing and cooking do not." |
 | `hint_room` | a bedroom zone with tier bare exists for 3 days | "A room needs walls or doors around it, a bed, and smooth stone to be worth sleeping in." |
-| `hint_alert` | first `ThreatWarning` | "Raise the alert [m] to send civilians to the hearth and lock doors set to lock on alert." |
+| `hint_alert` | first `ThreatWarning` | "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock." |
 | `hint_depot` | day 14 of summer, year 1, no depot | "Build a trade depot [b › Special] before the caravan arrives." |
 | `hint_hospital` | first serious wound with no hospital | "A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats infection." |
 | `hint_immigration` | first `ImmigrationSkipped` | "Immigrants come at the turn of the season when hall spirit is Content. Good rooms, meals and drink raise it." |
-| `hint_gate` | first raid ended | "A drawbridge over a channel, linked to a lever inside, is the surest gate." |
+| `hint_gate` | first raid ended | "A drawbridge over a channel is the surest gate. Build a lever inside [b], click it, press [i] and click the bridge; [y] pulls it." |
 | `hint_cage` | first cage trap built | "Cage traps catch anything smaller than a wyrm. Caged beasts can be tamed at a kennel or sold." |
 | `hint_troll` | first `DoorBroken` | "Trollkin break doors. Walls and raised bridges hold." |
 | `hint_deep` | first `VeinFound` deepsilver | "Deepsilver lies beside the Sea of Fire. Taking it wakes the Hollow. The threats panel shows the Deep gauge." |
@@ -276,6 +287,7 @@ Shown once, as notes with a lamp glyph, when the trigger holds (checked hourly).
 | `c_deconstruct_building` | "Take apart {building}? Its materials are left where it stood." | No |
 | `c_remove_zone` | "Remove {zone}? Its settings are lost." | No |
 | `c_remove_order` | "Remove the order for {recipe}? Work in progress on it stops." | No |
+| `c_release_cage` | "Release {creature} from {cage}? It is set down beside the cage, as wild or hostile as it was." | No |
 
 ## Settings
 

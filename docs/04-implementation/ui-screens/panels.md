@@ -209,6 +209,59 @@ Opened by a click on a finished workshop.
 - `[S-s]` suspends after `c_suspend_workshop` and resumes without asking; `[x]` takes the workshop apart after `c_deconstruct_workshop` (it has orders) or `c_deconstruct_building`.
 - The last two lines say why the workshop is idle (`12` § Operation 3).
 
+## Building
+
+Opened by a click on any building that is not a finished workshop or the depot (those keep their panels), or by `Enter` in Look on its tile. Right click on a building still opens Look.
+
+```
+│ Building                            │
+│ Door #3                             │
+│ Oak · built                         │
+│ Open now: it locks when the alert   │
+│ is Hearth.                          │
+│ ── Mode                             │
+│ ○ Open                              │
+│ ○ Locked                            │
+│ ○ No pets                           │
+│ ● Lock on alert                     │
+│ Look at the tile                    │
+│ [x] take apart                      │
+│                                     │
+│ Open until the alert is Hearth,     │
+│ then locked once the civilians are  │
+│ in.                                 │
+```
+
+The panel is a list: `↑` `↓` move the cursor over the lines that act, `Enter` or a click activates one, and the last three rows explain the cursor's line. The first two lines are the name with its ordinal and the material and state (`built`, `planned`, `being built`, `to be taken apart`). What follows depends on the building:
+
+- **Planned or being built**: why it waits, in the words of the Jobs panel (`Waiting: 1 door — order at a carpenter's workshop`); `Priority 5 · set 1 2 3 4 5 6 7 8 9` (`1`–`9` or a click on a digit, planned only: `SetBuildingPriority`); `[x] cancel the plan` (`CancelBuilding`). Nothing else is offered until it is built.
+- **Door, hatch**: the modes as a list with the current one marked `●` (`SetDoorMode`: Open, Locked, No pets, Lock on alert; `SetHatchMode`: Open, Locked). A door set to lock on alert says whether it is locked now.
+- **Trap**: `Trap: armed` (or spent, jammed) and the modes Enemies only / Everyone (`SetTrapMode`).
+- **Lever**: `Lever: off`, `[y] pull` (`PullLever`), then the links.
+- **Pressure plate**: `Plate: not pressed`, the trigger as a list (Enemies and wild creatures / Any creature, dwarves too / Water / Magma) and `← → smallest size 0 (a dwarf is 60)` or `← → depth 1 of 7 or more`; `←` `→` or a click on an arrow change the number (`SetPlateTrigger`). Then the links.
+- **Links** (lever, plate): `── Linked to (2)`, a line per target with its state (`→ Drawbridge #1: lowered`; `Enter` centres the map on it), a dim line per link a mechanic has still to make (`… Door #2: waiting: 1 mechanism`), `[i] link to…` and `[r] unlink` (the target under the cursor, or the only one: `UnlinkMechanism`). A linked target's own panel lists what works it (`← Lever #1`).
+- **Cage**: `Holds a wolf` or `Empty`; `[r] release` (`ReleaseCage`, after `c_release_cage`) and `[g] tame` (`TameCaged`).
+- **Bed**: `Owner: Urist (Bedroom #2)`, and `[w] owner…`, which assigns the bedroom zone the bed stands in (`AssignRoom`). A bed in no bedroom says so and how to make one.
+- **Coffin**: `Kept for anyone` / `Kept for Urist` / `Holds a body`, and `[w] keep for…` (`AssignCoffin`).
+- Every built building: `Look at the tile` and `[x] take apart` (after `c_deconstruct_building`).
+
+`[i] link to…` replaces the list with the buildings that can be linked, and the status bar reads `Link Lever #1: click a door, hatch, floodgate, drawbridge, spike trap or cage · [Esc] cancel`:
+
+```
+│ Link Lever #1 to:                   │
+│ Drawbridge #1: lowered              │
+│ Door #3: locks on alert             │
+│                                     │
+│ Click the target on the map, or     │
+│ Enter here. Esc cancels.            │
+```
+
+A left click on the map picks the building there; `↑` `↓` move the cursor (the map centres on each candidate) and `Enter` picks it; `Esc` or a right click goes back. A wrong pick says why (nothing there, not a kind that links, not finished, linked already, the lever itself) and the choice stays open. A link is made by a mechanic with one mechanism; with none in stock the message says where to order one.
+
+`[w]` replaces the list with `Nobody` and the dwarves, the current owner marked `●`; `Enter` or a click chooses, `Esc` goes back.
+
+Every action that cannot be done says why on the status row (an empty cage, a coffin that holds a body, a mode that is set already, a building not finished).
+
 ## Stocks (s)
 
 ```

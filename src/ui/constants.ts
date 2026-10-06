@@ -93,3 +93,18 @@ export const TITLE_IDS = ['thane', 'warden', 'broker', 'chief_medic'] as const;
 
 /** `RenameSquad`: a name of at most 32 characters (16's `renameSquad`). */
 export const SQUAD_NAME_MAX_CHARS = 32;
+
+/**
+ * The function tags a lever or a plate can be linked to (14 § Mechanisms; `LinkMechanism` refuses
+ * any other target with `not_linkable`). The building panel lists and names only these (U-05).
+ */
+export const LINKABLE_TAGS: readonly string[] = Object.freeze(['door', 'hatch', 'floodgate', 'bridge', 'trap:spike', 'cage']);
+
+/** A pressure plate's smallest creature size changes by this much per `←` `→` (a dwarf is 60; U-05). */
+export const PLATE_SIZE_STEP = 10;
+
+/** The largest "smallest size" the plate editor offers. */
+export const PLATE_SIZE_MAX = 300;
+
+/** The deepest fluid a plate can wait for: the fluid grid has levels 0..7 (`SetPlateTrigger`). */
+export const PLATE_LEVEL_MAX = 7;
