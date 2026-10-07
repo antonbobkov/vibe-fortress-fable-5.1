@@ -332,6 +332,36 @@ task itself. Gotchas found while verifying:
 Project agent files in `.agents/agents/` would be committed with the repo; only
 create one if you want it shared. Global scope is `~/.gemini/config/agents/`.
 
+## Running Claude Opus through agy
+
+`agy` can run Claude models, on a quota group separate from Gemini's. Tried once on 2026-10-06: it works, but the included quota is far too small for a task in this repository.
+
+**How.** Same launch pattern as a Gemini run; only the model changes. `agy models` lists the ids:
+
+```
+--model claude-opus-5-5-high        # also -medium and -low, and claude-sonnet-5-5-{low,medium,high}
+```
+
+Everything else is unchanged: `-p="…"` attached, `--add-dir`, `--dangerously-skip-permissions`, `--print-timeout`, `--output-format json`, a detached `Start-Process`, and the JSON envelope with `conversation_id` for `--conversation`.
+
+**Quota.** `python agents/agy_usage.py` reports it as the group `Claude And Gpt Models`, with its own weekly and 5-hour windows. It does not draw on the Claude Code plan ([claude-quota.md](claude-quota.md)) or on the Gemini group.
+
+**What one run cost.** The task was T-104, a decision-log triage, with the same brief Gemini had used for T-103. Both windows were at 100% before the run.
+
+| | |
+|---|---|
+| Ran for | 4 min 28 s, then stopped on quota |
+| Tokens | 275,497 input, 22,127 output, 3,816,090 cache-read |
+| 5-hour window | 100% → 0% |
+| Weekly window | 100% → 49.7% |
+| Work done | Read the brief, the process documents and the decision log, and had just opened the first source file. No edits, no commit. |
+
+So the included allowance is about **two five-minute runs a week**, each of roughly 300,000 fresh tokens. A task here spends that much on its first reads.
+
+**How it ends.** Exactly as a Gemini quota abort does: exit code 3, `status: "ERROR"` in the envelope, and on stderr `AGY_ERROR: {"short_error":"RESOURCE_EXHAUSTED (code 429): Individual quota reached. … Resets in 4h55m31s.", …, "retryable":true}`. The envelope still carries the `conversation_id`, so the run can be resumed after the reset.
+
+**Verdict.** Not usable for tasks in this repository, and not worth scheduling around. It could serve a question that fits in one short turn with little reading, such as a second opinion on a single diff pasted into the prompt. For Opus work, use Claude Code subagents within the hours [README.md](README.md) allows.
+
 ## Checking remaining quota
 
 **Use [agy_usage.py](agy_usage.py)** (verified). agy has no headless quota command,

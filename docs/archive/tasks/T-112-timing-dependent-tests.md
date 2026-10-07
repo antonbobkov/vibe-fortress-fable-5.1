@@ -2,6 +2,8 @@
 
 **Source:** agent reports during U-03, U-04/U-05, U-06 and T-101 (2026-10-05 and 2026-10-06), each run on a machine shared with another agent's test runs · **Size:** S · **Needs:** — · **Status:** open
 
+**Closed:** implemented by commit `1de5f41` and the closing commit on branch `t-112`.
+
 ## Why
 
 Two tests have failed intermittently when the machine was busy, and passed when rerun alone. Nobody found the cause, and a test that fails by timing hides real failures.
@@ -19,4 +21,4 @@ Two tests have failed intermittently when the machine was busy, and passed when 
 ## Done
 
 - Each test passes 20 runs in a row under load.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green.

@@ -130,11 +130,11 @@ add<T>(id, component: ComponentType<T>, value: T): void
 get<T>(id, component): T | undefined
 has(id, component): boolean
 remove(id, component): void
-each(kind, fn)                          // ascending id order
-with(a, b?, c?)                         // ascending id order over entities having all listed components
+each(kind, fn)                          // ascending slot index order
+with(a, b?, c?)                         // ascending slot index order over entities having all listed components
 ```
 
-Hot components (`Position`, `Motion`) are stored as structure-of-arrays typed arrays indexed by entity index; all others as `Map<index, T>` iterated through a sorted index list maintained on add and remove.
+Hot components (`Position`, `Motion`) are stored as structure-of-arrays typed arrays indexed by entity index; all others as `Map<index, T>` iterated through a sorted index list maintained on add and remove. Iteration through `each` and `with` follows ascending slot index, which is the entity-table order the world hash uses. For entities that have never been destroyed, slot index order and numeric id order are identical. `Motion` is stored as structure-of-arrays with `movementClass` held as a `Uint8` code into `MOVEMENT_CLASSES`; `get` decodes it back to the documented string, keeping the component's public shape.
 
 ### Components and their owners
 

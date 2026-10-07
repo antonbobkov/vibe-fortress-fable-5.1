@@ -44,6 +44,8 @@ That pair *is* "GPT-6.1 Sol High", the model the owner chose on 2026-10-03.
 Earlier milestones (M4 to M8-04) ran on `gpt-6-sol`. Do not drop back to it unless
 the owner says so.
 
+**Audits use `gpt-6-astra`.** The owner asked (2026-10-06) for audit tasks to run on the stronger model: `-m gpt-6-astra -c model_reasoning_effort="high"`. Its default reasoning level is also low, so pass the effort flag. Everything else stays on `gpt-6.1-sol`.
+
 **The effort flag matters more on 6.1.** Its default reasoning level is **low**;
 `gpt-6-sol` defaulted to medium. A run without `-c model_reasoning_effort="high"`
 silently does much less reasoning. The levels it accepts are low, medium, high,

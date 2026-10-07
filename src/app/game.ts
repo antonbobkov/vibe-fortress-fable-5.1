@@ -325,7 +325,7 @@ export class Game {
 
   // ---------- saving and loading (T-M2-11) ----------
 
-  /** Resolves when the saves the app started are compressed and stored. */
+  /** Resolves when saving and loading operations the app started are complete. */
   settled(): Promise<void> {
     return this.pending;
   }
@@ -630,17 +630,20 @@ export class Game {
   }
 
   /** `F9` quick load, "with confirmation" (`c_quickload`): the newest manual save (D-083). */
-  async quickLoad(): Promise<void> {
-    await this.pending;
-    const id = this.saves === null ? null : await newestManualId(this.saves);
-    if (id === null) {
-      this.note('note', this.strings.get('ui.save.no_quick'));
-      this.render();
-      return;
-    }
-    this.confirm('c_quickload', {}, (yes) => {
-      if (yes) void this.loadSave(id);
-    });
+  quickLoad(): Promise<void> {
+    return this.track(
+      (async (): Promise<void> => {
+        const id = this.saves === null ? null : await newestManualId(this.saves);
+        if (id === null) {
+          this.note('note', this.strings.get('ui.save.no_quick'));
+          this.render();
+          return;
+        }
+        this.confirm('c_quickload', {}, (yes) => {
+          if (yes) void this.loadSave(id);
+        });
+      })(),
+    );
   }
 
   /** Push a confirmation dialog; the answer pops it. */
@@ -686,30 +689,34 @@ export class Game {
   }
 
   /** Load a stored save and switch to its fortress, paused (`save-format.md` § Load procedure step 6). */
-  async loadSave(id: string): Promise<void> {
+  loadSave(id: string): Promise<void> {
     const saves = this.saves;
-    if (saves === null) return;
-    const blob = await saves.read(id);
-    if (blob === undefined) {
-      // §4.2: a listed save whose data is gone says so.
-      this.note('alert', this.strings.get('ui.load.unreadable_save'));
-      this.render();
-      return;
-    }
-    try {
-      this.enterLoaded(await this.host.load(blob));
-      this.lastSaveId = id;
-      this.lastSaveTick = this.host.readers.calendar.tick;
-    } catch (error) {
-      const reason = error instanceof SaveLoadError ? error.section : error instanceof Error ? error.message : String(error);
-      const row = this.listing.find((s) => s.id === id);
-      if (row) {
-        const at = this.listing.indexOf(row);
-        this.listing[at] = { ...row, unreadable: reason };
-      }
-      this.note('danger', this.strings.get('ui.load.failed', { reason }));
-      this.render();
-    }
+    if (saves === null) return Promise.resolve();
+    return this.track(
+      (async (): Promise<void> => {
+        const blob = await saves.read(id);
+        if (blob === undefined) {
+          // §4.2: a listed save whose data is gone says so.
+          this.note('alert', this.strings.get('ui.load.unreadable_save'));
+          this.render();
+          return;
+        }
+        try {
+          this.enterLoaded(await this.host.load(blob));
+          this.lastSaveId = id;
+          this.lastSaveTick = this.host.readers.calendar.tick;
+        } catch (error) {
+          const reason = error instanceof SaveLoadError ? error.section : error instanceof Error ? error.message : String(error);
+          const row = this.listing.find((s) => s.id === id);
+          if (row) {
+            const at = this.listing.indexOf(row);
+            this.listing[at] = { ...row, unreadable: reason };
+          }
+          this.note('danger', this.strings.get('ui.load.failed', { reason }));
+          this.render();
+        }
+      })(),
+    );
   }
 
   /** The loaded game on screen: its `ui` section restored, the log tail back, paused. */

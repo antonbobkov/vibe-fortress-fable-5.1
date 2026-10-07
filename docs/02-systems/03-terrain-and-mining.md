@@ -135,7 +135,11 @@ When a designation is applied to a tile that no longer matches its precondition 
 
 ### Registrations
 
-Job producer `terrain` (designation jobs); overlay `designations`; inspector section `tile` (kind, material, flags, designation, engraving, temperature from 05, fluid from 04).
+Job producer `terrain` (designation jobs); overlay `designations`; inspector section `tile` (kind, material, flags, designation, engraving, temperature from 05, fluid from 04). Announcements:
+- `VeinFound`: note, string key `announce.vein_found` ("{dwarf} has found {material}.")
+- `CavernBreached`: alert, string key `announce.cavern_breached` ("A cavern has been breached.")
+- `DeepsilverMined`: danger, string key `announce.deepsilver_mined` ("Deepsilver has been mined."), first occurrence only (`once: true`)
+- `ConstructionCollapsed`: alert, string key `announce.construction_collapsed` ("A construction has collapsed.")
 
 ## Player-facing behavior
 
