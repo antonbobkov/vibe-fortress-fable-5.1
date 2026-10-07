@@ -5,10 +5,14 @@ import { makeDwarf, type DwarfRecord } from '@systems/dwarves/rules/make-dwarf';
 import { CHILDREN_MAX, CHILD_AGE_MIN, COVERAGE_SKILL, DOG_PERMILLE, FAMILY_PERMILLE, FINE_INDEX, GUARANTEED_SIZE_MAX, GUARANTEED_SIZE_MIN, IMMIGRANT_BASE, KEY_PROFESSIONS, PEASANT_PERMILLE, PET_PERMILLE, PRIMARY_MAX, PRIMARY_MIN, REP_PER_IMMIGRANT, SECONDARY_MAX, SECONDARY_MIN, SPIRIT_SIZE_STEP, UNCOVERED_WEIGHT, WAVE_MAX, WEALTH_PER_IMMIGRANT } from './constants';
 import type { PlannedImmigrant } from './state';
 
+/**
+ * `21` § Wave size, in the written order (F-17d): compute, clamp to
+ * `IMMIGRANT_BASE..min(WAVE_MAX, cap − population)`, then halve a winter wave (rounding up).
+ */
 export function waveSize(wealth: number, tier: number, reputation: number, capRemaining: number, winter: boolean): number {
-  let size = IMMIGRANT_BASE + Math.floor(wealth / WEALTH_PER_IMMIGRANT) + (tier - FINE_INDEX) * SPIRIT_SIZE_STEP + Math.floor(reputation / REP_PER_IMMIGRANT);
-  if (winter) size = Math.ceil(size / 2);
-  return Math.max(0, Math.min(Math.min(WAVE_MAX, capRemaining), Math.max(IMMIGRANT_BASE, size)));
+  const raw = IMMIGRANT_BASE + Math.floor(wealth / WEALTH_PER_IMMIGRANT) + (tier - FINE_INDEX) * SPIRIT_SIZE_STEP + Math.floor(reputation / REP_PER_IMMIGRANT);
+  const size = Math.max(0, Math.min(Math.min(WAVE_MAX, capRemaining), Math.max(IMMIGRANT_BASE, raw)));
+  return winter ? Math.ceil(size / 2) : size;
 }
 
 export function guaranteedSize(rng: RngStream, capRemaining: number): number {

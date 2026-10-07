@@ -19,7 +19,7 @@ Bring danger on a schedule the player can read, scaled by the region's peril and
 
 ### Renown
 
-`renown = wealth / RENOWN_WEALTH_DIVISOR + population × RENOWN_POP_WEIGHT`, recomputed daily. Party sizes are `base + renown × perRenown`, capped at `max` per kind. Renown is shown to the player as a number with a one-line explanation.
+`renown = wealth / RENOWN_WEALTH_DIVISOR + dwarf population × RENOWN_POP_WEIGHT`, recomputed daily. Party sizes are `base + renown × perRenown`, capped at `max` per kind. Renown is shown to the player as a number with a one-line explanation.
 
 ### Schedule
 

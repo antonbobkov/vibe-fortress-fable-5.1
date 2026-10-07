@@ -16,6 +16,7 @@ import {
 } from '@core/system';
 import type { Edge, EntityId, TileIndex } from '@core/types';
 import { TICKS_PER_DAY } from '@core/constants';
+import type { DwarvesReader } from '@systems/dwarves/reader';
 import type { ItemsReader } from '@systems/items/reader';
 import type { TradeReader } from '@systems/trade/reader';
 import type { WeatherReader } from '@systems/weather/reader';
@@ -78,6 +79,22 @@ import {
   nextDeepThreshold,
   stepHollowBorn,
 } from './deep';
+
+/**
+ * The dwarf population of `10` (`18` § Renown, F-17c). Without `10` (a threats-only world) it is
+ * the living fortress creatures of the dwarf species.
+ */
+function dwarfPopulation(ctx: TickContext): number {
+  if (ctx.readers.has('10')) return ctx.readers.of<DwarvesReader>('10').population();
+  const entities = ctx.world.entities;
+  const dwarf = ctx.registry.table('creatures').index('dwarf');
+  let pop = 0;
+  for (const id of entities.with(C.Creature)) {
+    const c = entities.get(id, C.Creature);
+    if (entities.alive(id) && c?.faction === 'fortress' && c.species === dwarf) pop += 1;
+  }
+  return pop;
+}
 
 export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
   override readonly id: SystemId = '18';
@@ -225,18 +242,9 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       wealth = items.wealth();
     }
 
-    let pop = 0;
-    const entities = ctx.world.entities;
-    for (const id of entities.with(C.Creature)) {
-      if (entities.alive(id)) {
-        const c = entities.get(id, C.Creature);
-        if (c?.faction === 'fortress') {
-          pop++;
-        }
-      }
-    }
-
-    this.renownVal = calculateRenown(wealth, pop);
+    // F-17c (`18` § Renown): the population term is the dwarf population (`10`, `21`), so tame
+    // animals, pets and livestock add nothing.
+    this.renownVal = calculateRenown(wealth, dwarfPopulation(ctx));
   }
 
   private processArrivalsAndSpawns(ctx: TickContext): void {
