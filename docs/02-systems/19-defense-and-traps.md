@@ -41,7 +41,7 @@ Each tick, for each plate: evaluate its trigger condition from the plate's setti
 - `creatures { minSize, includeFortress }`: any creature on the tile with `size ≥ minSize` and (faction matches: hostiles, wild, deep, and fortress creatures only if `includeFortress`).
 - `water ≥ n` / `magma ≥ n`: the tile's fluid.
 
-When the condition changes from false to true, emit `MechanismTriggered { sourceId: plateId, on: true }`; from true to false, `{ on: false }`; both subject to `PLATE_RESET_TICKS` (14) between edges. 14 toggles linked targets. A plate linked to a bridge, a floodgate and a spike trap makes a corridor trap with no dwarf involved.
+A plate with no trigger set uses `creatures { minSize: 0, includeFortress: false }`: hostiles, wild and deep creatures of any size. When the condition changes from false to true, emit `MechanismTriggered { sourceId: plateId, on: true }`; from true to false, `{ on: false }`; both subject to `PLATE_RESET_TICKS` (14) between edges. 14 toggles linked targets. A plate linked to a bridge, a floodgate and a spike trap makes a corridor trap with no dwarf involved.
 
 ### Levers
 

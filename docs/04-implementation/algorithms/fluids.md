@@ -68,7 +68,7 @@ contactCheck(T): if isMagma(fluid[T]) : return
 
 A new game starts with an empty active set. Generated fluid remains still until touched; sinks drain on the first step. Source refills track only drained sources in ascending order. Save idle counters parallel to active tile indices, without a first-tick activation flag.
 
-Post-step entity checks: for each touched tile with entities (`spatial.at`): water level ≥ `FLUID_DEEP_LEVEL` → `CreatureSubmerged` per creature (unless `size ≥ WADE_LARGE_SIZE` and level < 7); magma level ≥ 1 → `MagmaContact { tile, entities }`.
+Post-step entity checks: for each touched tile with entities (`spatial.at`): water level ≥ `FLUID_DEEP_LEVEL` → `CreatureSubmerged` per creature (unless `size ≥ WADE_LARGE_SIZE` and level < 7); magma level ≥ 1 → `MagmaContact { tile, entities }`, also for a magma tile that holds a building and no entity (`entities` empty).
 
 On `EntitiesMoved`, also check each moved entity on its destination tile, including settled water or magma.
 

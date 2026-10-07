@@ -59,11 +59,11 @@ interface WorkshopsState { stateVersion: 1; globalOrders: WorkOrder[]; professio
 
 interface ItemsState { stateVersion: 1; wantsHauling: EntityId[]; noHome: EntityId[]; slotReservations: [string, number][];
   rotQueue: { bucketTick: Tick; items: EntityId[] }[]; miasmaTiles: [TileIndex, Tick][]; counts: [Idx<ItemTypeDef>, StockCount][];
-  wealthCached: number; wealthLastEmitted: number; stockpileTiles: [TileIndex, EntityId][]; rng: RngState }
+  wealthCached: number; wealthLastEmitted: number; stockpileTiles: [TileIndex, EntityId][]; explicitPriority: EntityId[]; rng: RngState }   // explicitPriority: the stockpiles whose haul priority the player set, ascending
 interface StockCount { total: number; available: number; byClass: [MaterialClass, number][]; byQuality: number[] }
 
 interface BuildingsState { stateVersion: 1; zoneAt: [TileIndex, EntityId][]; hearthId: EntityId; depots: EntityId[]; coffins: EntityId[];
-  dirtyRooms: EntityId[]; pendingToggles: { id: EntityId; on: boolean; atTick: Tick }[]; rng: RngState }
+  dirtyRooms: EntityId[]; pendingToggles: { id: EntityId; on: boolean; atTick: Tick }[]; pendingJobs: EntityId[]; magmaTouched?: TileIndex[]; rng: RngState }   // pendingJobs: buildings waiting for their build or deconstruct job; magmaTouched: tiles `MagmaContact` named, for 14's next tick
 
 interface MoraleState { stateVersion: 1; hallSpirit: number; hallSpiritTier: MoodTier; rng: RngState }
 
