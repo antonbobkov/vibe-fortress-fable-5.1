@@ -19,6 +19,9 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-111 | [UI audit follow-up: what the U tasks changed](work/T-111-ui-audit-follow-up.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) | U-02, U-07 | open |
 | T-112 | [Two tests that fail under load](work/T-112-timing-dependent-tests.md) | agent reports, 2026-10-05 and 2026-10-06 (see the work file) | — | open |
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | U-02, U-07, F-17, T-103 … T-112 | open |
+| T-114 | [Audit: do the scripted playthroughs cover the game's major features?](work/T-114-audit-test-coverage.md) | the owner, 2026-10-06 | T-113 | open |
+| T-115 | [Audit: bug hunt](work/T-115-audit-bug-hunt.md) | the owner, 2026-10-06 | T-114 and its fix tasks | open |
+| T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, T-115 and its fix tasks | open |
 | T-113 | [`DwarfDied`: the specification says 10 emits it, the code never does](work/T-113-dwarfdied-event.md) | T-102 (found while replacing the interface note of `02-systems/10-dwarves.md`) | — | open |
 | U-02 | [Paused input takes effect at once](work/U-02-paused-input.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) M1, S2 | — | open |
 | U-07 | [Stockpile editor with keyboard; room panel](work/U-07-stockpile-editor-and-room-panel.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) M7, M9 | — | open |
