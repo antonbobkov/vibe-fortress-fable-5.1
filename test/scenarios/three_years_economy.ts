@@ -159,7 +159,7 @@ function mine(w: TestWorld, state: FortressState, band: MineBand, wanted: (id: s
     const x = map.xOf(t), y = map.yOf(t), z = map.zOf(t);
     // Reuse the nearest open, connected drift instead of digging every route again from the
     // shaft. The hall corridors are already workings on the upper floor.
-    const fromLabel = w.pathing.label(w.index(band.x, band.y, z), 'walker');
+    const fromLabel = w.readers.pathing.labelOf(w.index(band.x, band.y, z), 'walker');
     let startX = band.x, startY = band.y, distance = Math.abs(x - startX) + Math.abs(y - startY);
     if (fromLabel !== 0) for (let yy = 2; yy < map.h - 2; yy += 1) for (let xx = 2; xx < map.w - 2; xx += 1) {
       const open = w.index(xx, yy, z);
@@ -167,7 +167,7 @@ function mine(w: TestWorld, state: FortressState, band: MineBand, wanted: (id: s
       if (d >= distance || !map.hasFlag(open, TileFlag.Discovered) ||
           ![TileKind.Floor, TileKind.StairsUp, TileKind.StairsDown, TileKind.StairsUpDown].includes(map.kindAt(open)) ||
           (band.deep && !economy.workings.has(open) && !(xx === band.x && yy === band.y)) ||
-          w.pathing.label(open, 'walker') !== fromLabel) continue;
+          w.readers.pathing.labelOf(open, 'walker') !== fromLabel) continue;
       startX = xx; startY = yy; distance = d;
     }
     const horizontal: number[] = [], vertical: number[] = [];

@@ -235,16 +235,6 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   const economy = threeYearsMeasurements(w);
   console.log(`[three_years_economy] ${JSON.stringify({ seed, peril, years: economy.years, deathsList, raids, minerals: economy.minerals, fixture: economy.fixture, allDeaths: economy.deaths, allRaids: economy.raids, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
 
-  // Assert deterministic guarantees
-  if (peril === 0) {
-    expect(deaths.dwarf, `${seed} (peril 0) has 0 dwarf deaths`).toBe(0);
-    expect(y3Pop, `${seed} (peril 0) grew past embark size`).toBeGreaterThan(7);
-  }
-  expect(y3Pop, `${seed} population within POPULATION_CAP_DEFAULT`).toBeLessThanOrEqual(POPULATION_CAP_DEFAULT);
-  for (const wave of waves) {
-    expect(wave.count, `${seed} wave size within WAVE_MAX`).toBeLessThanOrEqual(WAVE_MAX);
-  }
-
   const totalDwarfDays = economy.dwarfTicks / TICKS_PER_DAY;
   mealsEaten = economy.meals;
   drinksAlcohol = economy.alcohol;
@@ -252,7 +242,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   const mealsPerDwarfDay = totalDwarfDays > 0 ? (mealsEaten / totalDwarfDays).toFixed(2) : '0';
   const drinksPerDwarfDay = totalDwarfDays > 0 ? (drinksDrunk / totalDwarfDays).toFixed(2) : '0';
 
-  return {
+  const result = {
     seed,
     peril,
     y1Pop,
@@ -283,6 +273,20 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     mealsPerDwarfDay,
     drinksPerDwarfDay,
   };
+  // Preserve the measurement even when a deterministic guarantee fails.
+  console.log(`[three_years_seeds_detail] ${JSON.stringify(result)}`);
+
+  // Assert deterministic guarantees
+  if (peril === 0) {
+    expect(deaths.dwarf, `${seed} (peril 0) has 0 dwarf deaths`).toBe(0);
+    expect(y3Pop, `${seed} (peril 0) grew past embark size`).toBeGreaterThan(7);
+  }
+  expect(y3Pop, `${seed} population within POPULATION_CAP_DEFAULT`).toBeLessThanOrEqual(POPULATION_CAP_DEFAULT);
+  for (const wave of waves) {
+    expect(wave.count, `${seed} wave size within WAVE_MAX`).toBeLessThanOrEqual(WAVE_MAX);
+  }
+
+  return result;
 }
 
 describe('T-M8-06 perf: three_years_seeds', () => {
@@ -290,6 +294,5 @@ describe('T-M8-06 perf: three_years_seeds', () => {
     const res = runThreeYearsSeed(seed, peril);
     const line = `[three_years_seeds] ${res.seed} (peril ${res.peril}): pop=${res.y3Pop} (Y1:${res.y1Pop}, Y2:${res.y2Pop}), wealth=${res.y3Wealth} (Y1:${res.y1Wealth}, Y2:${res.y2Wealth}), deaths(dwarf=${res.dwarfDeaths}, tame=${res.tameDeaths}), waves=${res.wavesCount} (+${res.totalImmigrants} dw), raids=${res.raidsCount}, meals=${res.mealsEaten}, drinks=${res.drinksDrunk}, moodAvg=${res.avgMood}, extinct=${res.extinctDay ?? 'none'}`;
     console.log(line);
-    console.log(`[three_years_seeds_detail] ${JSON.stringify(res)}`);
   });
 });
