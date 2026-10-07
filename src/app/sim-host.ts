@@ -102,6 +102,11 @@ export class InProcessHost implements SimulationHost {
   }
   /** Final saves are inspectable but cannot accept commands or advance. */
   private finalView = false;
+  /**
+   * Commands accepted since the running game was created or loaded. Not saved: the app compares it
+   * with its value at the last save to find changes made while paused (24 § Game menu).
+   */
+  commandCount = 0;
   /** The generated world of the running game, or `null` for the fixture map. */
   worldMap: WorldMap | null = null;
 
@@ -134,6 +139,7 @@ export class InProcessHost implements SimulationHost {
     };
     this.shedding.reset();
     this.game = new HeadlessGame(options);
+    this.commandCount = 0;
     this.configureShedding();
     this.finalView = false;
     this.worldMap = spec.worldMap ?? null;
@@ -150,6 +156,7 @@ export class InProcessHost implements SimulationHost {
     const loaded = await loadGame(blob, { now: this.now });
     this.shedding.reset();
     this.game = loaded.game;
+    this.commandCount = 0;
     this.configureShedding();
     this.finalView = loaded.header.kind === 'final';
     this.worldMap = loaded.worldMap;
@@ -186,6 +193,7 @@ export class InProcessHost implements SimulationHost {
     if (this.finalView) return false;
     const world = this.require().world;
     world.submit(command);
+    this.commandCount += 1;
     // A presentation listener may submit, but its batch must finish before another command
     // mutates the world. Those submissions remain queued for the next command phase.
     if (this.current === 0 && !world.events.isSealed) world.commandPhase(true);

@@ -117,6 +117,8 @@ Written by the app when the fortress ends: name, seed, region name and ratings, 
 
 `Resume`, `Save`, `Load`, `Settings`, `Retire fortress` (confirm), `Main menu` (confirm if unsaved changes since the last save).
 
+Unsaved changes are ticks elapsed or commands applied since the last save. A command given while the game is paused takes effect at once without the calendar advancing, so it counts as an unsaved change too; the count of applied commands is kept beside the last-save tick and is not saved.
+
 ### Accessibility and comfort
 
 - No information is conveyed by color alone: state glyphs differ or the inspector states it in words.

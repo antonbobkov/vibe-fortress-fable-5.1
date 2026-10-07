@@ -1,6 +1,6 @@
 # T-118 — The main menu's unsaved-change check misses commands applied while paused
 
-**Source:** U-02 ([`../archive/tasks/U-02-paused-input.md`](../archive/tasks/U-02-paused-input.md)), found while checking paused save and load against [`../02-systems/24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Game menu · **Size:** S · **Needs:** — · **Status:** open
+**Source:** U-02 ([`U-02-paused-input.md`](U-02-paused-input.md)), found while checking paused save and load against [`../../02-systems/24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Game menu · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -15,4 +15,4 @@ Since U-02, a command given while the game is paused takes effect at once, witho
 ## Done
 
 - A regression test: pause, apply a command, open the game menu and choose to leave; the confirmation is shown. Save, then leave; it is not shown.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
