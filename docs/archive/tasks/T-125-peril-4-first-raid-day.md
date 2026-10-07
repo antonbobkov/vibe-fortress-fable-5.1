@@ -1,10 +1,10 @@
 # T-125 — Peril 4's first ambush and raid can come on day 28; the balance document says day 56
 
-**Source:** F-17 re-measure, [`../../reports/audits/2026-10-07-balance-after-f17.md`](../../reports/audits/2026-10-07-balance-after-f17.md) § Remaining findings (MODEL GAP) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** F-17 re-measure, [`../../../reports/audits/2026-10-07-balance-after-f17.md`](../../../reports/audits/2026-10-07-balance-after-f17.md) § Remaining findings (MODEL GAP) · **Size:** S · **Needs:** — · **Status:** open
 
 ## What is wrong
 
-In `src/content/threatSchedules.json` the peril-4 rows for `ambush` and `raid` have `earliest.year = 1, season = 1`. Seasons are counted from 0, so that is the start of summer, elapsed day 28. [`../03-content/balance.md`](../03-content/balance.md) gives day 56 as the first raid window, and F-17h planned the squad's first kit against day 56.
+In `src/content/threatSchedules.json` the peril-4 rows for `ambush` and `raid` have `earliest.year = 1, season = 1`. Seasons are counted from 0, so that is the start of summer, elapsed day 28. [`../../03-content/balance.md`](../../03-content/balance.md) gives day 56 as the first raid window, and F-17h planned the squad's first kit against day 56.
 
 ## Decision
 
@@ -20,4 +20,4 @@ In `src/content/threatSchedules.json` the peril-4 rows for `ambush` and `raid` h
 ## Done
 
 - The peril-4 rows give day 56, and the test holds.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green. Golden files that move are named in the commit body.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green. Golden files that move are named in the commit body.

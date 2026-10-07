@@ -41,8 +41,8 @@
 |---|---|---|---|---|---|
 | 0–1 | — | | | | |
 | 2 | year 1 autumn | 60–120 | 3 | 0.10 | 6 |
-| 3 | year 1 summer | 40–80 | 4 | 0.12 | 8 |
-| 4 | year 1 summer | 28–56 | 5 | 0.15 | 10 |
+| 3 | year 1 autumn | 40–80 | 4 | 0.12 | 8 |
+| 4 | year 1 autumn | 28–56 | 5 | 0.15 | 10 |
 
 ### Raids (warning 1 day; never in winter at peril ≤ 2)
 
@@ -52,7 +52,7 @@
 | 1 | year 2 autumn | 112–224 | 5 | 0.20 | 12 |
 | 2 | year 2 spring | 84–140 | 6 | 0.30 | 16 |
 | 3 | year 1 autumn | 56–112 | 8 | 0.35 | 20 |
-| 4 | year 1 summer | 42–84 | 10 | 0.40 | 24 |
+| 4 | year 1 autumn | 42–84 | 10 | 0.40 | 24 |
 
 ### Sieges (warning 1 day; Gloam plus trollkin)
 
