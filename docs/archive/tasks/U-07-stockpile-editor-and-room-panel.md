@@ -1,8 +1,10 @@
 # U-07 — Stockpile editor with keyboard; room panel
 
-**Source:** [`../../reports/audits/ui-audit.md`](../../reports/audits/ui-audit.md) M7, M9, § 3 "Configure a stockpile" and "Designate several rooms", § 4.4 · **Size:** M · **Needs:** — (U-01, which it needed, is done) · **Status:** open
+**Closed:** implemented by the closing commit `U-07: configure stockpiles and inspect rooms` on branch `codex-a`.
 
-Split out of [`../archive/ui-fixes/README.md`](../archive/ui-fixes/README.md), which holds the full list of UI decisions and the closed tasks. Its task row reads: "Stockpile editor with keyboard; room panel names missing requirements and owner". The decisions below are copied from it word for word and are final: implement them, do not redesign them.
+**Source:** [`../../../reports/audits/ui-audit.md`](../../../reports/audits/ui-audit.md) M7, M9, § 3 "Configure a stockpile" and "Designate several rooms", § 4.4 · **Size:** M · **Needs:** — (U-01, which it needed, is done) · **Status:** open
+
+Split out of [`../ui-fixes/README.md`](../ui-fixes/README.md), which holds the full list of UI decisions and the closed tasks. Its task row reads: "Stockpile editor with keyboard; room panel names missing requirements and owner". The decisions below are copied from it word for word and are final: implement them, do not redesign them.
 
 ## Decisions
 
@@ -58,5 +60,5 @@ Commands this task gives a UI: `SetStockpileContainers`, which the UI never emit
 
 - A stockpile can be configured from the keyboard alone: preset, tree, containers, priority, quality and materials.
 - The room panel names the missing requirement, counts and highlights open border tiles, and sets the owner.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with `npm run test:e2e`.
-- Closed as the workflow says: the spec edits are in the commit body, this file moves to `docs/archive/tasks/`, and the row leaves [`../backlog.md`](../backlog.md).
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with `npm run test:e2e`.
+- Closed as the workflow says: the spec edits are in the commit body, this file moves to `docs/archive/tasks/`, and the row leaves [`../../backlog.md`](../../backlog.md).

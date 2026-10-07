@@ -34,7 +34,7 @@ Give the player every action by keyboard and by mouse and every fact by inspecti
 └───────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-The sidebar is closed until a panel is opened; `Tab` toggles it without changing the panel. The status bar hearth glyph is colored by hall spirit tier; a red cross with a count shows patients; a shield with a count shows active hostiles (those on discovered tiles that are not hidden, plus those spotted); a scale glyph shows a caravan present.
+The sidebar is closed until a panel is opened; `Tab` toggles it without changing the panel. In a selected stockpile's editor, `Tab` and `Shift+Tab` move between the category tree and numeric fields instead. The status bar hearth glyph is colored by hall spirit tier; a red cross with a count shows patients; a shield with a count shows active hostiles (those on discovered tiles that are not hidden, plus those spotted); a scale glyph shows a caravan present.
 
 ### Input model
 
@@ -42,7 +42,7 @@ Keyboard:
 
 - Letters open panels and tools (the keymap table in Wave 3; the design fixes these): `d` designate, `b` build, `z` zones, `u` units, `j` jobs, `l` labors, `o` orders, `s` stocks, `m` military, `n` animals, `t` threats, `c` civilizations, `p` population, `e` mood, `a` log, `k` look, `f` overlays, `?` help.
 - `Esc` cancels the current tool, then closes the panel, then opens the game menu.
-- `Space` pause (while a multi-select list is open, the units table or a squad's member list, `Space` marks the row instead); `+` and `-` speed; `<` and `>` (also `,` and `.`) z-level down and up; arrow keys pan by one cell, `Shift` + arrows by ten; `Home` centers on the hearth (or the wagon).
+- `Space` pause (in a multi-select list it marks the row; in the stockpile category tree or material checklist it toggles the checkbox instead); `+` and `-` speed (in a stockpile numeric field they adjust its value); `<` and `>` (also `,` and `.`) z-level down and up; arrow keys pan by one cell, `Shift` + arrows by ten; `Home` centers on the hearth (or the wagon).
 - Within a designation or zone tool: `Enter` or a click starts and ends a rectangle; `1`–`9` set the priority; `Ctrl+Z` undoes the last batch.
 - `F5` quick save, `F9` quick load (with confirmation), `Ctrl+S` save menu, `F12` debug panel.
 - Within panels: arrows move the selection, `Enter` activates, `Tab` moves between fields, letters in `[brackets]` are accelerators, `PageUp`/`PageDown` scroll.

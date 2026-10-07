@@ -15,7 +15,6 @@ import type { Command } from '@core/commands';
 import type { StockpileFilter } from '@core/components';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import { CATEGORY_TREE, STOCKPILE_PRESETS } from '@systems/items';
 import type { ZoneView } from '@systems/buildings';
 import type { PlantsReader } from '@systems/plants';
 import type { AnimalsReader } from '@systems/animals';
@@ -26,10 +25,14 @@ import { dropdown, dropdownKey, type DropdownOption, type DropdownState } from '
 import type { KeyPress } from '@platform/input';
 import { C } from '@core/components';
 import type { Surface } from '../surface';
-import { buildTree, label, nodeState, separator, toggleNode, tree, type TreeNode, type TreeState } from '../widgets';
+import { label, separator, toggleNode, type TreeNode, type ListState } from '../widgets';
 import { acceleratorLabel } from '../keymap';
-import { buildings, items, type PanelContext } from './context';
+import { accel, buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
+import { stockpilePreset, zoneEditorMessage } from '../messages';
+import { drawBuildingLines, ownerPickLines, type BuildingLine } from './building';
+import { dwarvesOf, nameOf } from './units';
+import { drawStockpileEditor, StockpileEditor, PRESET_ORDER } from './stockpile-editor';
 
 /** The panel's zone types with their accelerators, in the wireframe's order. */
 export const ZONE_KINDS: readonly { readonly key: string; readonly id: string }[] = [
@@ -50,7 +53,7 @@ export const ZONE_KINDS: readonly { readonly key: string; readonly id: string }[
 ];
 
 /** The presets in the order 13 lists them. */
-export const PRESET_ORDER: readonly string[] = Object.keys(STOCKPILE_PRESETS);
+export { PRESET_ORDER } from './stockpile-editor';
 
 const MEETING_OVERLAPS = ['hearth_hall', 'dining_hall'];
 
@@ -90,8 +93,10 @@ export class ZoneTool {
   resizing = false;
   anchor: TilePoint | null = null;
   end: TilePoint | null = null;
-  readonly tree: TreeState = { selected: 0, scroll: 0, expanded: new Set<string>() };
-  private forest: TreeNode[] | null = null;
+  readonly stockpile = new StockpileEditor();
+  readonly tree = this.stockpile.tree;
+  ownerOpen = false;
+  readonly ownerPick: ListState = { selected: 0, scroll: 0 };
   readonly farmMenus: DropdownState[] = Array.from({ length: 4 }, () => ({ open: false, highlighted: 0 }));
   farmSeason = 0;
 
@@ -104,6 +109,59 @@ export class ZoneTool {
     this.resizing = false;
     this.anchor = null;
     this.end = null;
+    this.ownerOpen = false;
+    this.stockpile.reset();
+    for (const menu of this.farmMenus) menu.open = false;
+  }
+
+  /** Esc backs out of a chooser before cancelling the tool or panel. */
+  cancelEditor(): boolean {
+    if (this.ownerOpen) { this.ownerOpen = false; return true; }
+    return this.stockpile.cancel();
+  }
+
+  startOwner(ctx: PanelContext): void {
+    const b = buildings(ctx);
+    if (b?.zone(this.selected)?.type !== 'bedroom') { ctx.notice?.(zoneEditorMessage(ctx, 'unavailable')); return; }
+    if (b.roomDiagnostics(this.selected)?.missing.includes('bed')) { ctx.notice?.(zoneEditorMessage(ctx, 'no_bed')); return; }
+    if (b.room(this.selected) === undefined) { ctx.notice?.(zoneEditorMessage(ctx, 'pending_room')); return; }
+    this.ownerOpen = true;
+    const owner = b.ownerOf(this.selected);
+    this.ownerPick.selected = owner === 0 ? 0 : Math.max(0, dwarvesOf(ctx).indexOf(owner) + 1);
+    this.ownerPick.scroll = 0;
+  }
+
+  ownerLines(ctx: PanelContext): BuildingLine[] {
+    const b = buildings(ctx);
+    const zone = b?.zone(this.selected);
+    if (b === null || zone === undefined) return [];
+    const name = zoneName(ctx, zone);
+    return ownerPickLines(ctx, name, b.ownerOf(this.selected), (id) => {
+      if (b.zone(this.selected) === undefined) { ctx.notice?.(zoneEditorMessage(ctx, 'unavailable')); return; }
+      if (b.roomDiagnostics(this.selected)?.missing.includes('bed')) { ctx.notice?.(zoneEditorMessage(ctx, 'no_bed')); return; }
+      ctx.submit({ type: 'AssignRoom', zoneId: this.selected, dwarfId: id });
+      this.ownerOpen = false;
+      ctx.notice?.(ctx.strings.get(id === 0 ? 'ui.building.owner_cleared' : 'ui.building.owner_set', { building: name, dwarf: nameOf(ctx, id) }));
+    });
+  }
+
+  /** Only presentation state changes until an existing setting command is submitted. */
+  editorKey(ctx: PanelContext, key: KeyPress): boolean {
+    if (this.active || key.ctrl || key.alt || key.meta) return false;
+    const zone = buildings(ctx)?.zone(this.selected);
+    if (zone === undefined) return false;
+    if (this.ownerOpen) {
+      const rows = this.ownerLines(ctx).filter((line) => line.run !== undefined);
+      const up = key.key === '↑' || key.key === 'ArrowUp';
+      const down = key.key === '↓' || key.key === 'ArrowDown';
+      if (up || down) { this.ownerPick.selected = Math.max(0, Math.min(rows.length - 1, this.ownerPick.selected + (up ? -1 : 1))); return true; }
+      if (key.key === 'Enter') { rows[this.ownerPick.selected]?.run?.(); return true; }
+      return false;
+    }
+    if (zone.type === 'stockpile' && this.stockpile.key(ctx, zone.id, key)) return true;
+    if (zone.type === 'bedroom' && accel(ctx, key) === 'o') { this.startOwner(ctx); return true; }
+    if (accel(ctx, key) === 'y') { this.selected = 0; this.cancel(); return true; }
+    return false;
   }
 
   choose(key: string): boolean {
@@ -135,8 +193,7 @@ export class ZoneTool {
   }
 
   categories(): TreeNode[] {
-    if (this.forest === null) this.forest = buildTree(CATEGORY_TREE);
-    return this.forest;
+    return this.stockpile.categories();
   }
 
   /** Whether a tile may join a new zone of the tool's type: it qualifies and no other zone holds it. */
@@ -170,6 +227,7 @@ export class ZoneTool {
   select(ctx: PanelContext, i: TileIndex): boolean {
     const id = buildings(ctx)?.zoneAt(i) ?? 0;
     if (id === 0) return false;
+    if (id !== this.selected) { this.ownerOpen = false; this.stockpile.reset(); }
     this.selected = id;
     return true;
   }
@@ -193,13 +251,7 @@ export class ZoneTool {
   presetOf(ctx: PanelContext): string | null {
     const f = this.filterOf(ctx);
     if (f === null) return null;
-    for (const name of PRESET_ORDER) {
-      const p = STOCKPILE_PRESETS[name] as { categories: readonly string[]; allowRot: boolean };
-      const cats = [...p.categories].sort();
-      const have = [...f.categories].sort();
-      if (cats.length === have.length && cats.every((c, k) => have[k] === c) && p.allowRot === f.allowRot) return name;
-    }
-    return null;
+    return stockpilePreset(f);
   }
 
   /** Toggle a category node of the selected stockpile's filter (tri-state semantics). */
@@ -222,6 +274,15 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
   const t = s.theme;
   const strings = ctx.strings;
   let row = rect.row;
+  if (tool.ownerOpen) { drawBuildingLines(s, rect, tool.ownerLines(ctx), tool.ownerPick); return; }
+  const selectedZone = buildings(ctx)?.zone(tool.selected);
+  const inspector = !tool.active && selectedZone !== undefined && (selectedZone.type === 'stockpile' || buildings(ctx)?.roomScore(selectedZone.id) !== undefined);
+  if (inspector) {
+    const text = `${acceleratorLabel('y', ctx.panelLetters)} ${strings.get('ui.zone.types_action')}`;
+    label(s, rect.col + 1, row, text, { width: rect.cols - 2 });
+    s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => { tool.selected = 0; tool.cancel(); });
+    row += 1;
+  } else {
   const colW = Math.floor((rect.cols - 2) / 2);
   for (let k = 0; k < ZONE_KINDS.length; k += 2) {
     for (let j = 0; j < 2; j += 1) {
@@ -237,13 +298,14 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
   label(s, rect.col + 1, row, strings.get('ui.zone.help1'), { fg: t.dim, width: rect.cols - 2 });
   label(s, rect.col + 1, row + 1, strings.get('ui.zone.help2'), { fg: t.dim, width: rect.cols - 2 });
   row += 2;
+  }
   const b = buildings(ctx);
   const zone = b?.zone(tool.selected);
   if (b === null || zone === undefined) return;
   separator(s, rect.col + 1, row, rect.cols - 2, strings.get('ui.zone.selected', { name: zoneName(ctx, zone), n: zone.tiles.length }));
   row += 1;
   const bottom = rect.row + rect.rows - 1;
-  if (zone.type === 'stockpile') row = drawStockpileSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
+  if (zone.type === 'stockpile') { drawStockpileEditor(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool.stockpile, ctx, zone.id, zone.tiles.length); row = bottom; }
   else if (zone.type === 'farm_plot') row = drawFarmSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   else if (zone.type === 'pasture') {
     const animals = ctx.readers.has('08') ? ctx.readers.of<AnimalsReader>('08') : null;
@@ -253,29 +315,9 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     label(s, rect.col + 1, row, `Capacity: ${grass} grass / ${assigned} grazers (${Math.floor(grass / GRASS_PER_GRAZER)} supported)`, { fg: assigned > grass / GRASS_PER_GRAZER ? t.bad : t.value, width: rect.cols - 2 });
     row += 1;
   } else if (zone.type === 'hospital') {
-    row = drawHospitalSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, ctx, zone);
+    row = drawHospitalSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   } else {
-    const room = b.room(zone.id);
-    if (room !== undefined) {
-      const score = b.roomScore(zone.id);
-      const tier = ctx.registry.table<{ id: string; tier: number }>('roomTiers').ids().find((id) => ctx.registry.table<{ id: string; tier: number }>('roomTiers').byId(id)?.tier === room.tier) ?? '';
-      label(s, rect.col + 1, row, strings.get('ui.zone.room', { tier, score: Math.floor(room.score) }), { width: rect.cols - 2 });
-      row += 1;
-      if (score !== undefined) {
-        const p = score.parts;
-        label(s, rect.col + 1, row, strings.get('ui.zone.room_parts', { tiles: Math.floor(p.tiles), walls: Math.floor(p.walls), furniture: Math.floor(p.furniture), size: p.size }), { fg: t.dim, width: rect.cols - 2 });
-        row += 1;
-      }
-      label(s, rect.col + 1, row, strings.get(room.enclosed ? 'ui.zone.enclosed' : 'ui.zone.open'), { fg: room.enclosed ? t.good : t.bad, width: rect.cols - 2 });
-      row += 1;
-      label(s, rect.col + 1, row, strings.get(room.requirementsMet ? 'ui.zone.requirements_met' : 'ui.zone.requirements_unmet'), { fg: room.requirementsMet ? t.good : t.bad, width: rect.cols - 2 });
-      row += 1;
-      if (zone.type === 'bedroom') {
-        const owner = room.ownerId === 0 ? strings.get('ui.zone.nobody') : (ctx.readers.entities.get(room.ownerId, C.Creature)?.name ?? '');
-        label(s, rect.col + 1, row, strings.get('ui.zone.owner', { name: owner }), { width: rect.cols - 2 });
-        row += 1;
-      }
-    }
+    row = drawRoomSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   }
   if (row <= bottom) {
     const text = strings.get('ui.zone.actions');
@@ -314,75 +356,43 @@ function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
   return row + 1;
 }
 
-function drawStockpileSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, zone: ZoneView): number {
+/** Current room facts, including furniture names and the same border as the room score. */
+function drawRoomSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, zone: ZoneView): number {
+  const b = buildings(ctx);
+  const score = b?.roomScore(zone.id);
+  const diagnostics = b?.roomDiagnostics(zone.id);
+  if (score === undefined || diagnostics === undefined) return rect.row;
   const strings = ctx.strings;
-  const it = items(ctx);
-  const sp = it?.stockpile(zone.id);
+  const col = rect.col + 1;
+  const width = rect.cols - 2;
   let row = rect.row;
-  const preset = tool.presetOf(ctx);
-  label(s, rect.col + 1, row, strings.get('ui.stockpile.preset', { preset: preset === null ? strings.get('ui.stockpile.custom') : strings.get(`ui.stockpile.preset.${preset}`) }), { width: rect.cols - 2 });
-  s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => {
-    const cmd = tool.nextPreset(ctx);
-    if (cmd !== null) ctx.submit(cmd);
-  });
-  row += 1;
-  const f = tool.filterOf(ctx);
-  const treeRows = Math.max(1, rect.rows - 5);
-  tree(
-    s,
-    { col: rect.col + 1, row, cols: rect.cols - 2, rows: treeRows },
-    tool.categories(),
-    tool.tree,
-    (n) => nodeState(f?.categories ?? [], n.id),
-    {
-      toggle: (n) => {
-        const cmd = tool.toggleCategory(ctx, n.id);
-        if (cmd !== null) ctx.submit(cmd);
-      },
-    },
-  );
-  row += treeRows;
-  if (sp !== undefined && f !== null) {
-    const classes = f.materialClasses === 'any' ? strings.get('ui.build.any') : f.materialClasses.join(',');
-    label(s, rect.col + 1, row, strings.get('ui.stockpile.materials', { classes, min: f.minQuality, max: f.maxQuality }), { width: rect.cols - 2 });
-    row += 1;
-    const w = sp.containersWanted;
-    label(s, rect.col + 1, row, strings.get('ui.stockpile.containers', { barrels: w.barrel, bags: w.bag, bins: w.bin }), { width: rect.cols - 2 });
-    row += 1;
-    const links = sp.linkedSources.length === 0 ? strings.get('ui.stockpile.no_links') : String(sp.linkedSources.length);
-    label(s, rect.col + 1, row, strings.get('ui.stockpile.priority', { n: sp.priority, links }), { width: rect.cols - 2 });
-    row += 1;
-    const free = it?.freeSlots(zone.id) ?? 0;
-    label(s, rect.col + 1, row, strings.get('ui.stockpile.usage', { used: zone.tiles.length - free, n: zone.tiles.length }), { width: rect.cols - 2 });
-    row += 1;
+  const tiers = ctx.registry.table<{ id: string; tier: number }>('roomTiers');
+  const tierId = tiers.ids().find((id) => tiers.byId(id)?.tier === score.tier) ?? '';
+  label(s, col, row++, strings.get('ui.zone.room', { tier: strings.get(`ui.room_tier.${tierId}`), score: Math.floor(score.score) }), { width });
+  const p = score.parts;
+  label(s, col, row++, strings.get('ui.zone.room_parts', { tiles: Math.floor(p.tiles), walls: Math.floor(p.walls), furniture: Math.floor(p.furniture), size: p.size }), { width, fg: s.theme.dim });
+  label(s, col, row++, strings.get(score.enclosed ? 'ui.zone.enclosed' : 'ui.zone.open', { n: diagnostics.openBorder.length }), { width, fg: score.enclosed ? s.theme.good : s.theme.bad });
+  if (diagnostics.missing.length === 0) label(s, col, row++, strings.get('ui.zone.requirements_met'), { width, fg: s.theme.good });
+  else for (const missing of diagnostics.missing) label(s, col, row++, strings.get(`ui.zone.needs.${missing}`), { width, fg: s.theme.bad });
+  if (zone.type === 'bedroom') {
+    const ownerId = b?.ownerOf(zone.id) ?? 0;
+    const owner = ownerId === 0 ? strings.get('ui.zone.nobody') : nameOf(ctx, ownerId);
+    label(s, col, row++, strings.get('ui.zone.owner', { name: owner }), { width });
+    const caption = `${acceleratorLabel('o', ctx.panelLetters)} ${strings.get('ui.building.owner_caption')}`;
+    label(s, col, row, caption, { width });
+    s.hit({ col, row: row++, cols: width, rows: 1 }, () => tool.startOwner(ctx));
   }
   return row;
 }
 
-function drawHospitalSettings(s: Surface, rect: Rect, ctx: PanelContext, zone: ZoneView): number {
+function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, zone: ZoneView): number {
   const t = s.theme;
-  const strings = ctx.strings;
   const b = buildings(ctx);
   let row = rect.row;
   const bottom = rect.row + rect.rows;
 
   if (b !== null) {
-    const room = b.room(zone.id);
-    if (room !== undefined) {
-      const score = b.roomScore(zone.id);
-      const tier = ctx.registry.table<{ id: string; tier: number }>('roomTiers').ids().find((id) => ctx.registry.table<{ id: string; tier: number }>('roomTiers').byId(id)?.tier === room.tier) ?? '';
-      label(s, rect.col + 1, row, strings.get('ui.zone.room', { tier, score: Math.floor(room.score) }), { width: rect.cols - 2 });
-      row += 1;
-      if (score !== undefined) {
-        const p = score.parts;
-        label(s, rect.col + 1, row, strings.get('ui.zone.room_parts', { tiles: Math.floor(p.tiles), walls: Math.floor(p.walls), furniture: Math.floor(p.furniture), size: p.size }), { fg: t.dim, width: rect.cols - 2 });
-        row += 1;
-      }
-      label(s, rect.col + 1, row, strings.get(room.enclosed ? 'ui.zone.enclosed' : 'ui.zone.open'), { fg: room.enclosed ? t.good : t.bad, width: rect.cols - 2 });
-      row += 1;
-      label(s, rect.col + 1, row, strings.get(room.requirementsMet ? 'ui.zone.requirements_met' : 'ui.zone.requirements_unmet'), { fg: room.requirementsMet ? t.good : t.bad, width: rect.cols - 2 });
-      row += 1;
-    }
+    row = drawRoomSettings(s, rect, tool, ctx, zone);
 
     // Furniture in zone
     const uniqueBuildingIds = Array.from(new Set(zone.tiles.map((tile) => b.at(tile)).filter((id) => id !== 0)));

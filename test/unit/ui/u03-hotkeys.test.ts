@@ -131,6 +131,12 @@ const STATES: readonly { readonly name: string; readonly open: (f: Fixture, worl
   { name: 'the building panel choosing an owner', open: (f, world) => { f.screen.openBuilding(world.bed); f.screen.key(press('w')); expect(f.screen.building.choosing).toBe(true); } },
   { name: 'zones with a tool', open: (f) => { f.screen.openPanel('zones'); f.screen.zones.choose('s'); } },
   { name: 'zones with a zone selected', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; } },
+  ...(['tree', 'barrel', 'bag', 'bin', 'priority', 'minQuality', 'maxQuality'] as const).map((focus) => ({
+    name: `U-07 stockpile ${focus}`, open: (f: Fixture, world: World) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; f.screen.zones.stockpile.focus = focus; },
+  })),
+  { name: 'U-07 preset dropdown', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; f.screen.key(press('P', { shift: true })); expect(f.screen.zones.stockpile.preset.open).toBe(true); } },
+  { name: 'U-07 material classes', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; f.screen.key(press('v')); expect(f.screen.zones.stockpile.materialsOpen).toBe(true); } },
+  { name: 'U-07 room owner picker', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.w.readers.of<BuildingsReader>('14').zoneAt(world.w.index(48, 20, z)); f.screen.key(press('O', { shift: true })); expect(f.screen.zones.ownerOpen).toBe(true); } },
   { name: 'stocks picking goods for the depot', open: (f) => { f.screen.openPanel('stocks'); f.screen.stocks.startDepot(1); } },
   { name: 'military setting a station', open: (f) => { f.screen.openPanel('military'); f.screen.military.settingStation = true; } },
   // U-06's lists and choosers: marks, the squad's add list, the leader and title choosers.

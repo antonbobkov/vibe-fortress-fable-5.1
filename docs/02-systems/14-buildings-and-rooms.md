@@ -100,7 +100,9 @@ score = (Σ tileScore + wallScore + furnitureScore + sizeScore) × enclosure
 tier: bare < 20, modest < 60, decent < 150, fine < 400, grand < 1000, royal ≥ 1000
 ```
 
-Room type requirements for the zone to count as that room: bedroom needs a bed; dining hall needs at least one table with a chair; hearth hall needs the hearth inside; hospital needs a bed; barracks needs nothing (an armor stand or weapon rack adds value); tomb needs a coffin.
+Room type requirements for the zone to count as that room: bedroom needs a built bed; dining hall needs at least one built table with an adjacent built chair; hearth hall needs the built hearth inside; hospital needs a built bed and chest; barracks needs nothing (an armor stand or weapon rack adds value); tomb needs a built coffin.
+
+The room inspector names each missing requirement and counts the unique open border tiles in the same-z 8-neighbourhood. Walls, fortifications and built doors or hatches close the border; planned doors and hatches do not. Open border tiles on the viewed level are highlighted while the zone is selected. These diagnostics read current tiles and furniture without recomputing or writing the stored room state.
 
 Effects (thought ids in 15): bedroom tier on `Slept`; dining hall tier on `MealEaten` at a table; hearth hall tier as the fortress-wide baseline bonus; hospital tier on `PatientHealed`; barracks tier on training sessions; tomb tier on `Buried` for mourners. `RoomQualityChanged { zoneId, tier }` when the tier changes.
 
@@ -138,6 +140,7 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 - `buildings.types()` — every building type row (the build menu); `buildings.inputTypes(match)` — the item types an input's `match` names, by id or tag
 - `buildings.ghost(typeId, origin, orientation, width?, height?)` — the build tool's ghost: the footprint, the failing tiles, the reason `PlaceBuilding` would give (or null), and the `on` rule
 - `buildings.roomScore(zoneId)` — the score of a room right now, with its parts (the `zone › room` inspector)
+- `buildings.roomDiagnostics(zoneId)` — current missing furniture requirements and sorted, unique open border tiles; a read-only query, undefined for a non-room zone
 - `buildings.wellWorking(id)` — the well has water within `WELL_DEPTH` below; `buildings.cageOccupant(id)` — the creature held in a cage building, or 0; `buildings.memorialEligible(id)` — the dead dwarf has no intact body and can be named on a memorial slab
 - `buildings.wagon()` — the wagon, or 0; `buildings.holderTile(id)` — the tile a building's container contents lie on (the wagon), or −1
 - `buildings.hearthLightAt(i)` — the tile is in the built hearth's 5×5 comfort light (which is not crop light); `buildings.cropLitAt(i)` — the tile has crop light
@@ -165,6 +168,8 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
   - For a type with a 1×1 footprint (furniture, constructions, mechanisms, traps; not the hearth or the well), a drag places one per valid tile of the rectangle. The status bar shows the count while dragging ("Door ×5, 2 tiles blocked"). Tiles that fail the placement rule are skipped and reported in one message that names the rule. A single click still places one.
   - When the first input is out of stock, the status bar says how many placed buildings will wait and offers the order: "0 doors in stock: 5 will wait · [o] order 5". `o` opens the work-order picker (12) preset to that item and count. When no built workshop makes the item, the line names the workshop to build instead.
 - Zones menu (hotkey `z`): type → drag → confirm; the zone panel shows settings and, for rooms, the quality breakdown.
+  - Select a zone by clicking its map tiles, or centre the map/cursor on it and press `Enter` with no zone tool active. The stockpile and room inspectors replace the type list; `y`, or its button, returns to zone types. Other panel letters always open their panels.
+  - A room names missing furniture ("Needs a bed", "Needs a table with a chair", "Needs the hearth inside", "Needs a chest", "Needs a coffin") and says "Not enclosed: 3 open border tiles", highlighting those tiles. A bedroom offers `Shift+O` or its owner button, using the building panel's same Nobody/dwarf list, arrows and Enter or a click. It submits `AssignRoom`; Esc cancels the choice. A bedroom without a built bed, or whose room registration is still pending, explains why ownership is unavailable.
 - Clicking a building opens its panel: state, mode toggles, links, owner, deconstruct; workshops delegate to 12. From the keyboard, `Enter` in Look on the building's tile opens it.
   - Doors, hatches and traps list their modes with the current one marked.
   - A planned building shows what it waits for and takes a build priority (`1`–`9`).

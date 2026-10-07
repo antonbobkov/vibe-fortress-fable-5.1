@@ -30,7 +30,7 @@ import {
   GLYPH_STAIRS_UPDOWN,
   GLYPH_TREE,
 } from '@render/glyphs';
-import { ACTION_IDS, KEY_CONTEXTS, keyLabel, type Binding, type KeyContext, type Keymap } from '../keymap';
+import { ACTION_IDS, KEY_CONTEXTS, acceleratorLabel, keyLabel, type Binding, type KeyContext, type Keymap } from '../keymap';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, tabs } from '../widgets';
@@ -162,6 +162,13 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     for (const key of BUILD_HELP_KEYS) out.push({ category: 'build', text: strings.get(key) });
     out.push({ category: 'building', text: strings.get('ui.help.building.title'), heading: true });
     for (const key of BUILDING_HELP_KEYS) out.push({ category: 'building', text: strings.get(key) });
+    out.push({ category: 'zones', text: strings.get('ui.help.zones.title'), heading: true });
+    out.push({ category: 'zones', text: strings.get('ui.help.zones.select') });
+    const rows = [
+      ['p', 'ui.help.zones.preset'], ['g', 'ui.help.zones.tree'], ['q', 'ui.help.zones.numbers'],
+      ['v', 'ui.help.zones.materials'], ['o', 'ui.help.zones.owner'], ['y', 'ui.help.zones.types'],
+    ] as const;
+    for (const [letter, text] of rows) out.push({ category: 'zones', text: strings.get(text, { key: acceleratorLabel(letter, keymap.panelLetters()) }) });
   }
   return out;
 }

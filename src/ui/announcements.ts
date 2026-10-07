@@ -19,7 +19,7 @@ import type { AnnouncementSpec } from '@core/system';
 import type { TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import { LOG_DEDUP_TICKS, LOG_MAX_LINES } from './constants';
-import { zoneName } from './messages';
+import { stockpileName } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
 import type { Strings } from './strings';
 
@@ -172,7 +172,7 @@ export class AnnouncementLog {
       const keyOf = (code: string): string => event.type === 'ImmigrationSkipped' ? `announce.immigration_skipped.reason.${code}` : `announce.reputation_changed.reason.${code}`;
       out['reason'] = this.strings.has(keyOf(reason)) ? this.strings.get(keyOf(reason), { tier }) : this.strings.get(keyOf('other'));
     }
-    if (event.type === 'StockpileFull' && typeof deadId === 'number') out['zone'] = zoneName({ readers, strings: this.strings }, deadId) || 'A stockpile';
+    if (event.type === 'StockpileFull' && typeof deadId === 'number') out['zone'] = stockpileName({ readers, strings: this.strings }, deadId) || this.strings.get('ui.zone.type.stockpile');
     const victimId = e['victimId'];
     if (typeof victimId === 'number' && victimId !== 0) {
       const creature = readers.entities.get(victimId, C.Creature);

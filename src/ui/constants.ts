@@ -108,3 +108,7 @@ export const PLATE_SIZE_MAX = 300;
 
 /** The deepest fluid a plate can wait for: the fluid grid has levels 0..7 (`SetPlateTrigger`). */
 export const PLATE_LEVEL_MAX = 7;
+
+/** The stockpile editor uses the quality tiers accepted by SetStockpileFilter. */
+export const STOCKPILE_QUALITY_MIN = 0;
+export const STOCKPILE_QUALITY_MAX = 5;

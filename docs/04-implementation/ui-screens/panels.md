@@ -28,21 +28,51 @@ A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-scre
 │ [x] remove zone  [S-e] resize       │
 ```
 
-Stockpile settings replace the season rows with:
+Selecting a stockpile or room replaces the type list with its inspector; `[y] zone types` returns to the list. With no zone tool active, `Enter` selects the zone at the map cursor or centre; a click on its map tiles does the same.
 
 ```
+│ [y] zone types                    │
 │ ── Selected: Stockpile #1 (30 t)   │
-│ Preset [Food ▾]                    │
-│ ▸ food          [■] all            │
-│   ▸ meat        [■]                │
-│   ▸ meal        [■]                │
-│ ▸ drink         [□]                │
-│ ▸ seed          [▪] partial        │
-│ Materials [any ▾]  Quality 0–5     │
-│ Barrels 6/8   Bags 2/4   Bins 0/0  │
-│ Priority 5    Links: none [+]      │
-│ Usage 22/30 tiles                  │
+│ [S-p] Preset [Food ▾]              │
+│ [g] tree  [q] settings             │
+│ [v] materials                     │
+│ ▸ Food          [■]               │
+│ ▸ Drink         [□]               │
+│ ▸ Seed          [▪]               │
+│ Barrels wanted [-]   8 [+]         │
+│ Bags wanted    [-]   4 [+]         │
+│ Bins wanted    [-]   0 [+]         │
+│ Priority       [-]   5 [+]         │
+│ Min quality    [-]   0 [+]         │
+│ Max quality    [-]   5 [+]         │
+│ Materials [any]  Quality 0–5       │
+│ Priority 5    Links: none          │
+│ Usage 22/30 tiles                 │
+│ ↑↓ select ←→ expand Space toggle  │
+│ [x] remove zone  [S-e] resize      │
 ```
+
+The preset header opens a dropdown rather than cycling. Arrows highlight and Enter chooses; the first letter jumps to a matching name, using Shift when it is a panel letter, with that accelerator shown beside each option. A click chooses the same option. Esc closes without applying.
+
+In the category tree, arrows select and expand/collapse (Left on a collapsed child selects its parent), and Space toggles the tri-state checkbox. In numeric settings, arrows or Tab/Shift+Tab choose a field; Left/Right or +/- adjust it, just like the mouse buttons. The fields submit `SetStockpileContainers`, `SetStockpilePriority` and `SetStockpileFilter`, preserving unrelated settings. Counts stay non-negative, priority stays 1–9, and quality stays 0–5 with minimum no greater than maximum; a refused adjustment explains why in the status row.
+
+The materials checklist replaces the settings until Esc: arrows select, Space or Enter toggles, and a click does the same. Any toggles between all material classes and none. Panel hotkeys retain their panel action in every state. Help lists every action, and hovering a truncated value shows its full text.
+
+A room inspector shows current tier and score parts, named missing requirements, and its enclosure count:
+
+```
+│ [y] zone types                    │
+│ ── Selected: Bedroom #2 (9 t)      │
+│ Modest room (score 24)             │
+│ Tiles 9 Walls 2 Furniture 4 Size 9 │
+│ Not enclosed: 3 open border tiles │
+│ Needs a bed                       │
+│ Owner: nobody                     │
+│ [S-o] owner…                      │
+│ [x] remove zone  [S-e] resize      │
+```
+
+Open border tiles on the viewed level are highlighted using the room's existing same-z eight-neighbour enclosure rule; the inspector only reads and never recomputes stored room state. Missing requirements say Needs a bed / a table with a chair / the hearth inside / a chest / a coffin, as appropriate. A bedroom's owner button or Shift+O opens the same Nobody/dwarf picker as the building panel; arrows and Enter or a click submit `AssignRoom`, Esc cancels. A missing built bed or pending room registration is explained in the status row.
 
 ## Jobs (j)
 

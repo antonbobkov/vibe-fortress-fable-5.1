@@ -16,7 +16,7 @@
  * Presentation only: every function reads, none writes.
  */
 
-import { C } from '@core/components';
+import { C, type StockpileFilter } from '@core/components';
 import type { Command } from '@core/commands';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
@@ -24,6 +24,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
 import type { ItemsReader } from '@systems/items';
+import { STOCKPILE_PRESETS } from '@systems/items';
 import type { TradeReader } from '@systems/trade';
 import type { Strings } from './strings';
 
@@ -92,6 +93,30 @@ export function zoneName(env: Omit<MessageEnv, 'registry'>, zoneId: EntityId): s
   const key = `ui.zone.type.${zone.type}`;
   const name = env.strings.has(key) ? env.strings.get(key) : capitalize(zone.type.replace(/_/g, ' '));
   return `${name} #${b.zonesOfType(zone.type).indexOf(zoneId) + 1}`;
+}
+
+/** The category/rot preset name used by both the editor and stockpile announcements. */
+export function stockpilePreset(filter: StockpileFilter): string | null {
+  const have = [...filter.categories].sort();
+  for (const [name, preset] of Object.entries(STOCKPILE_PRESETS)) {
+    const cats = [...preset.categories].sort();
+    if (cats.length === have.length && cats.every((c, k) => have[k] === c) && preset.allowRot === filter.allowRot) return name;
+  }
+  return null;
+}
+
+/** U-07 §4.4: identify a full stockpile by ordinal and the player's preset name. */
+export function stockpileName(env: Omit<MessageEnv, 'registry'>, zoneId: EntityId): string {
+  const name = zoneName(env, zoneId);
+  const f = env.readers.has('13') ? env.readers.of<ItemsReader>('13').stockpile(zoneId)?.filter : undefined;
+  if (f === undefined) return name;
+  const preset = stockpilePreset(f);
+  return env.strings.get('ui.stockpile.name', { name, preset: env.strings.get(preset === null ? 'ui.stockpile.custom' : `ui.stockpile.preset.${preset}`) });
+}
+
+/** The presentation-only reasons a zone editor action can do nothing. */
+export function zoneEditorMessage(env: MessageEnv, reason: 'unavailable' | 'bounds' | 'quality' | 'no_bed' | 'pending_room' | 'no_zone'): string {
+  return env.strings.get(`ui.zone.edit.${reason}`);
 }
 
 /** A civilization id as a name ("hillfolk" → "Hillfolk"). */

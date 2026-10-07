@@ -8,7 +8,7 @@ import { TileFlag } from '@core/map3d';
 import type { MoverOptions } from '@core/pathfinding';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import type { BuildingRow, BuildingStore } from './build';
-import type { RoomStore, RoomScore } from './rooms';
+import type { RoomStore, RoomScore, RoomDiagnostics } from './rooms';
 import type { ZoneStore } from './zones';
 
 export interface BuildingView extends Building {
@@ -85,6 +85,8 @@ export interface BuildingsReader {
   room(zoneId: EntityId): Room | undefined;
   /** The score of a room right now, with its parts (the zone › room inspector). */
   roomScore(zoneId: EntityId): RoomScore | undefined;
+  /** Current missing furniture and open border tiles, without recomputing stored room state. */
+  roomDiagnostics(zoneId: EntityId): RoomDiagnostics | undefined;
   /** The bedroom zone a dwarf owns, or 0. */
   bedroomOf(dwarfId: EntityId): EntityId;
   /** A room's owner, or 0. */
@@ -178,6 +180,11 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
       const z = zones.zone(zoneId);
       if (z === undefined || !rooms.isRoomType(zones.typeIdOf(zoneId))) return undefined;
       return rooms.score(z.tiles, zones.typeIdOf(zoneId));
+    },
+    roomDiagnostics: (zoneId) => {
+      const z = zones.zone(zoneId);
+      if (z === undefined || !rooms.isRoomType(zones.typeIdOf(zoneId))) return undefined;
+      return rooms.diagnostics(z.tiles, zones.typeIdOf(zoneId));
     },
     bedroomOf: (dwarfId) => rooms.bedroomOf(dwarfId),
     ownerOf: (zoneId) => rooms.room(zoneId)?.ownerId ?? 0,
