@@ -9,7 +9,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-104 | [Triage D-rows: systems 01–07](work/T-104-triage-systems-01-07.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
+| T-104 | [Triage D-rows: systems 01–07](work/T-104-triage-systems-01-07.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | in progress (codex-a) |
 | T-105 | [Triage D-rows: systems 08–13](work/T-105-triage-systems-08-13.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-106 | [Triage D-rows: systems 14–19](work/T-106-triage-systems-14-19.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-107 | [Triage D-rows: systems 20–24, content and implementation](work/T-107-triage-systems-20-24-and-content.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |

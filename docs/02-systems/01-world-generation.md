@@ -50,13 +50,13 @@ Generation is a fixed sequence of stages, each with its own rng stream (`worldge
 8. `traits`
 9. `names`
 
-Each stage reports progress to the app so the world generation screen can draw the map as it fills in.
+Each stage reports progress to the app. Generation is synchronous; the screen draws the completed preview after the call returns.
 
 ### Elevation
 
-- Sum four octaves of value noise (integer lattice, fixed-point interpolation) with frequencies `1/32, 1/16, 1/8, 1/4` of the world size and amplitudes `128, 64, 32, 16`.
+- Sum four octaves of value noise (integer lattice, fixed-point interpolation) with periods in cells `size/32, size/16, size/8, size/4` and amplitudes `128, 64, 32, 16`.
 - Multiply by a continental mask: `1 − (distance from center / (size × 0.55))²`, clamped to `0..1`, so the edges are ocean.
-- Normalize to 0–255. `SEA_LEVEL = 96`. Regions below sea level are `ocean`.
+- Round the masked field half up, then stretch its minimum–maximum linearly onto 0–255, again rounding half up. A constant field becomes zero. `SEA_LEVEL = 96`. Regions below sea level are `ocean`.
 - Ensure at least `MIN_LAND_FRACTION` of regions are land and at least one 3×3 cluster of regions has elevation ≥ `MOUNTAIN_ELEVATION`; if not, reseed the stage stream with `seed + attempt` and retry (bounded to 8 attempts, then accept).
 
 ### Climate
@@ -80,6 +80,7 @@ The table itself is content (`regions-biomes-and-traits.md`). The biome list, fi
 - Trace: from a source, repeatedly move to the lowest cardinal neighbor with lower elevation (ties broken by the stream), stopping at ocean or at an existing river (a confluence) or when no lower neighbor exists (a lake is created there and the river ends).
 - Class: the first `BROOK_LENGTH` regions of a river are `brook`; then `river`; after a confluence or beyond `MAJOR_LENGTH`, `major`.
 - Each region on a river records its inflow edges and outflow edge.
+- A source already on a river starts no new river. Shared regions retain the higher of their existing class and the new path's class; a confluence and everything downstream become `major`. Read each river record's class from its last region after all rivers have been traced.
 
 ### Geology, volcanoes, deepness
 
@@ -96,7 +97,9 @@ Homes are placed in order with a preference score over regions and a minimum sep
 3. **Hillfolk**: `temperate_grassland` or `savanna` with a river.
 4. **Wildwood**: the largest connected `temperate_forest` or `tropical_forest` area.
 
-Then compute `civDistance` for every region by BFS over land with cost 1 per step (2 through mountains). `nearestEdgeTo[civ]` is the edge on the straight line toward the home.
+The Gloam's distance score uses Chebyshev distance, as does home separation. Placement consumes no draws from `worldgen.civs`: scores and id ties determine it.
+
+Then compute shortest `civDistance` over land with cost 1 per step (2 into mountain or alpine regions). A region with no land route has distance `size² × 2`, beyond every possible route, and contributes zero proximity peril. `nearestEdgeTo[civ]` follows the dominant axis toward the home, with horizontal ties; the home region itself faces `n`.
 
 ### Ratings
 
@@ -110,7 +113,7 @@ Each is computed as an integer score then bucketed into 0–4 by fixed threshold
 
 ### Traits
 
-For each land region, in id order, roll once for a trait from the trait table filtered by requirements (biome list, rating ranges, river or volcano requirements). Each trait has a permille frequency. A region gets at most two traits; a second roll happens only if the first succeeded and the trait allows a companion. The trait list, fixed here with its intent (effects are specified in the systems that implement them and quantified in Wave 3):
+For each region whose biome is embarkable (neither ocean nor glacier), in id order, roll once for a trait from the trait table filtered by requirements (biome list, rating ranges, river or volcano requirements). Each trait has a permille frequency. A region gets at most two traits; a second roll happens only if the first succeeded and the trait allows a companion. The trait list, fixed here with its intent (effects are specified in the systems that implement them and quantified in Wave 3):
 
 | Trait | Requirement | Effect summary |
 |---|---|---|
@@ -130,7 +133,7 @@ For each land region, in id order, roll once for a trait from the trait table fi
 
 ### Names
 
-Region names come from the names table: a biome-flavored word list joined to a landform word (`Coldmere`, `Ashfell`, `Greenhollow`). Names are for flavor and the legend page.
+Region names come from the names table: a biome-flavored word list joined to a landform word (`Coldmere`, `Ashfell`, `Greenhollow`). A region with no biome flavor group, including ocean, has the empty name `''`. Names are for flavor and the legend page.
 
 ## State
 
@@ -143,7 +146,7 @@ The `WorldMap` record: `size`, `seed`, `regions: RegionRecord[]`, `civHomes: Rec
 - `world.size()`, `world.region(id)`, `world.regionAt(x, y)`
 - `world.regions()` — frozen array in id order
 - `world.civHome(civ)`, `world.riverOf(regionId)`
-- `world.findRegions(filter: { biomes?, wealth?: [min, max], peril?: [min, max], temper?: [min, max], river?, volcano?, traits? })` — used by the map filter panel
+- `world.findRegions(filter: { biomes?, wealth?: [min, max], peril?: [min, max], temper?: [min, max], river?, volcano?, traits? })` — used by the map filter panel; a traits filter requires every listed trait
 
 ### Commands
 
@@ -151,12 +154,12 @@ None. Generation is invoked by the app: `worldgen.generate(seed, size, onProgres
 
 ### Events emitted
 
-`WorldGenerated { seed, size }` (dispatched by the app's flow, not by a tick).
+`WorldGenerated { seed, size }` is delivered once to app listeners after generation completes, before a fortress exists. It is dispatched by the app's flow, not by a tick.
 
 ## Player-facing behavior
 
-- **World generation screen**: seed field (text; a random seed by default), size selector, a Generate button, a preview that fills in stage by stage, and Continue.
-- **World map screen**: the map drawn with biome glyphs and colors; rivers as blue lines; civilization homes as their glyphs; the cursor moves by keyboard or mouse; a side panel shows the region record in words ("Temperate forest. Hills. A river runs east to south. Wealth 3, Peril 1, Temper 1. Trait: Gemsprings."); the filter panel highlights matching regions; Embark opens 02.
+- **World generation screen**: seed field (text; a random seed by default), size selector, a Generate button, the completed preview after Generate returns, with the final stage at 100%, and Continue.
+- **World map screen**: biome glyphs and colors, river regions as blue `~`, civilization home glyphs and colors over both. The cursor starts at the centre and moves by keyboard or mouse, inverting its cell. Matching regions retain full color; others dim one step. The side panel lists name, biome, river, lake, volcano, the three ratings as five-cell bars, traits, and each civilization's `civDistance` and `nearestEdgeTo`; it omits relief. Embark opens 02.
 - Regions that cannot be embarked on (ocean, glacier) say so.
 
 ## Tuning constants

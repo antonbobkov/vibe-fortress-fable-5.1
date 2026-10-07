@@ -36,7 +36,7 @@ Examples: Emberhall, Coldvein Hold (a space is inserted when the prefix ends in 
 
 ## Region names
 
-`flavor + landform`, where `flavor` depends on the biome and `landform` on elevation and water.
+`flavor + landform`, where `flavor` depends on the biome and `landform` on elevation and water. A biome without a flavor group, including ocean, produces the empty name `''`.
 
 | Biome group | Flavor words |
 |---|---|
