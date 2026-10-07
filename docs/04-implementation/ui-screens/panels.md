@@ -465,6 +465,8 @@ Depot panel (from a selected depot): items at the depot with values, `[S-m] move
 │        [□] chunks                   │
 ```
 
+The panel lists the overlays the compositor draws, in the order of 23 § Compositor step 8, with the debug overlays under the `Debug:` label. `↑` and `↓` move the selection and `Enter` toggles the selected overlay; a click toggles too.
+
 ## Help (?)
 
 Two tabs: `Keys` (the keymap table grouped by context, live from the keymap, then the "Work orders" keys of the Orders panel) and `Legend` (glyphs and colors by category, generated from content: terrain, fluids, creatures, items, buildings, overlays).

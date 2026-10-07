@@ -43,4 +43,4 @@ Animation phase: `animPhase(now) = floor(now / FLUID_ANIM_MS) & 1`; blink and pu
 
 Mouse mapping: `cellAt(px, py) = (floor(px / cellPx), floor(py / cellPx))`; `tileAt(col, row)` = map rect check then `camX + col, camY + row, camZ`.
 
-Layout: `sidebarCols = open ? SIDEBAR_COLS : 0`; `mapCols = cols − sidebarCols`; `mapRows = rows − STATUS_ROWS − LOG_ROWS`; zoom step-down when `mapCols < MIN_VIEW_COLS` or `mapRows < MIN_VIEW_ROWS`.
+Layout: `sidebarCols = open ? SIDEBAR_COLS : 0`; `mapCols = cols − sidebarCols`; `mapRows = rows − STATUS_ROWS − LOG_ROWS`; zoom step-down when the canvas grid has `cols < MIN_VIEW_COLS` or `rows < MIN_VIEW_ROWS` (the test is over the canvas, as 23 § Canvas and cells says, not over the map rectangle that the sidebar, log strip and status bar make smaller).
