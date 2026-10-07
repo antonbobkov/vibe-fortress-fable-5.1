@@ -17,7 +17,7 @@ The owner's standing rules for delegating work in this repository, set on 2026-1
 |---|---|---|
 | Codex (`gpt-6.1-sol`, high effort; `gpt-6-astra`, high effort, for audits) | [codex.md](codex.md) | the usage endpoint in codex.md |
 | Gemini (`agy`, Gemini 3.8 Flash High) | [antigravity.md](antigravity.md) | `python agents/agy_usage.py` |
-| Claude Opus subagents | [claude-quota.md](claude-quota.md) | the `get_usage` tool |
+| Claude Opus subagents | [claude-subagents.md](claude-subagents.md) (the `model` override), [claude-quota.md](claude-quota.md) | the `get_usage` tool |
 
 ## Working practice that has held up
 
