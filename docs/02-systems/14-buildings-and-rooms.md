@@ -19,17 +19,19 @@ Let the player shape the fortress: constructions, furniture, workshops, mechanis
 
 ### Placement
 
-`PlaceBuilding { type, origin, orientation, materialChoice, priority }`:
+`PlaceBuilding { buildingType, origin, orientation, materialChoice, priority }`:
 
-1. Footprint from the type (`w × h`, rotated by orientation for bridges and depots). Every footprint tile must be `discovered`, must be a `floor` (or per type: a bridge may span `open` tiles as long as one end tile is `floor`; a floodgate must be on a `floor`; a well must be over an `open` channel; a hatch over a `stairs_down` or ramp top; a door must have a wall on two opposite sides; constructions have their own rules below), must not be occupied by another building (except that furniture may be placed inside a zone), must not contain a creature for mechanisms that become walls, and must not be `restricted` for the placement of nothing (restrictions are for traffic only).
+1. Footprint from the type (`w × h`, rotated by orientation for bridges and depots). `origin` is the footprint's north-west tile; a rotatable type swaps `w` and `h` at odd orientations. Every footprint tile must be `discovered`, must be a `floor` (or per type: a bridge may span `open` tiles as long as one end tile is `floor`; a floodgate must be on a `floor`; a well must be over an `open` channel; a hatch over a `stairs_down` or ramp top; a door must have a wall on two opposite sides; constructions have their own rules below), must not be occupied by another building (except that furniture may be placed inside a zone), must not contain a creature for mechanisms that become walls, and must not be `restricted` for the placement of nothing (restrictions are for traffic only).
 2. Materials: the type lists inputs (for example a bed: one `furniture/bed` item; a wall: one block, log, bar or raw stone of the player's choice; a lever: one mechanism; a well: one bucket, one chain or rope, one mechanism, one block; a cage trap: one mechanism and one cage). `materialChoice` narrows the filter (oak, granite, steel).
-3. Magma safety: if any footprint tile is within 1 of magma or is over a channel to magma (a `magma_*` workshop), every material must be magma-safe (05) or the command is rejected with `not_magma_safe`.
-4. Create the entity in state `planned` and a `build` job (labor by category: `construction` for constructions, `carpentry` for wooden furniture placement, `masonry` for stone, `mechanics` for mechanisms and traps, `construction` for everything else; skill `building`) with the materials as inputs and `workTile: adjacent` (or `at` for floors and stairs the builder stands on). Priority from the command.
+3. Magma safety: if any footprint tile is within 1 of magma (the tile itself and its 26 neighbours) or is over a channel to magma (a `magma_*` workshop), every material must be magma-safe (05) or the command is rejected with `not_magma_safe`. With no `materialChoice` the placement is refused too, since the materials cannot be known to be safe.
+4. Create the entity in state `planned` and a `build` job (labor by category: `construction` for constructions, `carpentry` for wooden furniture placement, `masonry` for stone, `mechanics` for mechanisms and traps, `construction` for everything else; skill `building`; a type whose labor is "by material" takes it from the chosen material's class: wood carpentry, stone masonry, metal smithing, else `construction`) with the materials as inputs and `workTile: adjacent` (or `at` for floors and stairs the builder stands on). The job anchors at the centre of the footprint. Priority from the command. The inputs of an `adjacent` build whose site cannot be stood on (a wall over open space) are delivered to the worker's stand tile.
 5. `BuildingPlaced`. The planned building renders as a dim outline and is passable.
 
-`build` job completion: consume inputs (the furniture item is *linked*, not destroyed: `Building.itemId` keeps it for quality, material and value, and it returns on deconstruction), set state `built`, apply tile changes through the terrain API for constructions (`setKind`, `constructed` flag; the material grid gets the block's material), register mechanisms, emit `BuildingCompleted`. Constructions that become walls check that no creature is on the tile (the job waits otherwise).
+The `wagon` is placed at embark only (02); `PlaceBuilding` refuses it with `bad_placement`.
 
-A build input of more than one unit is counted in units, not stacks: a hearth's three blocks may arrive as a stack of two and a stack of one; the job consumes exactly the units it needs and leaves any remainder of a stack on the site.
+`build` job completion: consume inputs (the furniture item is *linked*, not destroyed: `Building.itemId` keeps it for quality, material and value, the item is `installed` (13) and so leaves every search, haul and available count while it stays in the totals and in wealth, and it returns to the building's anchor tile on deconstruction or removal), set state `built`, apply tile changes through the terrain API for constructions (`setKind`, `constructed` flag; the material grid gets the block's material), register mechanisms, emit `BuildingCompleted`. Constructions that become walls check that no creature is on the tile (the job waits otherwise).
+
+A build input of more than one unit is counted in units, not stacks: a hearth's three blocks may arrive as a stack of two and a stack of one; the job consumes exactly the units it needs and leaves any remainder of a stack on the site. A furniture building takes its linked item's material; any other building takes the material of the first unit consumed. The item types consumed are kept on the building, and deconstruction returns them.
 
 ### Constructions
 
@@ -38,35 +40,40 @@ A build input of more than one unit is counted in units, not stacks: a hearth's 
 | `wall` | `wall` tile, `constructed` | Blocks everything; support rule (03) |
 | `floor` | `floor` tile, `constructed` | Over `open`; needs support |
 | `paved_floor` | `floor` with `paved` material property | On existing floor; clears grass and mud; blocks regrowth; no room value |
-| `ramp` | `ramp` | Needs a wall side |
-| `stairs_up` / `stairs_down` / `stairs_updown` | as named | |
+| `ramp` | `ramp` | On a floor with a wall among its four same-level neighbours |
+| `stairs_up` / `stairs_down` / `stairs_updown` | as named | Up stairs on a floor; down and up/down stairs on a floor whose tile below is `open` |
 | `fortification` | `fortification` | Blocks movement, passes projectiles and fluids; ranged units adjacent can shoot through |
 | `bridge` (fixed) | `floor` tiles over open | A plain constructed floor; the drawbridge is a mechanism below |
 
 Deconstruct (`DeconstructBuilding` → `remove` designation for constructions, `deconstruct` job for others): returns the material item(s); constructions revert per 03's `remove` rule.
 
+A built construction keeps its building entity on its tile and remembers the items it was built from; the first is the item 03's `remove` and collapse return (`setConstructionItemSource`). This system removes the building on the `TilesChanged` that shows the tile no longer matches the construction (the flag cleared or the kind changed).
+
 ### Doors and hatches
 
-- `door`: passable to fortress creatures; **mode** `open` (default; anyone including hostiles that `opensDoors` can pass; wild animals cannot), `locked` (impassable to everyone; fluids still pass), `no_pets` (tame animals cannot pass), `lock_on_alert` (locks while the alert is `hearth`). Doors are 1×1 and need a wall on two opposite sides. Doors do not block fluids.
-- `hatch`: over stairs or a ramp top; modes `open` and `locked`; when locked blocks vertical movement and blocks fluid falling into the tile below.
+- `door`: passable to fortress creatures; **mode** `open` (default; anyone including hostiles that `opensDoors` can pass; wild animals cannot), `locked` (impassable to everyone; fluids still pass), `no_pets` (tame animals cannot pass), `lock_on_alert` (locks while the alert is `hearth`, under the conditions of 19 § Hearth alert retreat; the lock is noted once per alert, which dirties the door's chunks and emits `BuildingStateChanged`, and the alert returning to `calm` unlocks it the same way). Doors are 1×1 and need a wall on two opposite sides. Doors do not block fluids.
+  - Passability for 22's hook `blocksMovementAt(i, class, faction, mover)`: a locked door (or a `lock_on_alert` door that is locked) blocks everyone; otherwise it blocks `large` movers; with no faction (the connectivity labels) it passes; otherwise it blocks `wild` movers, `hostile:*` and `deep` movers without `opensDoors`, and tame movers at a `no_pets` door. The mover options carry `opensDoors` (species flag `O`) and `tame` (a `Tame` component).
+  - A built door stands open while a creature is in its doorway and is closed otherwise; a closed or locked door blocks line of sight.
+- `hatch`: over stairs or a ramp top; modes `open` and `locked`; when locked blocks vertical movement and blocks fluid falling into the tile below. A hatch never blocks horizontal movement. A locked hatch on the open tile over a ramp removes the ramp's edges through that tile as well as a stairs edge.
 - Trollkin and other `breaksDoors` creatures destroy a locked door after `DOOR_BREAK_TICKS` adjacent to it (18 AI; this system removes the building and emits `DoorBroken`).
 
 ### Mechanisms and links
 
 - `lever`: 1×1; needs 1 mechanism; `PullLever` creates a `pull_lever` job (any adult, `hauling` labor, no skill) that toggles every linked target after `LINK_DELAY_TICKS`.
-- `pressure_plate`: 1×1; settings: `triggerOn: creatures (minSize, includeFortress) | water ≥ n | magma ≥ n`; toggles linked targets when its condition becomes true and again when it becomes false, with `PLATE_RESET_TICKS` minimum between toggles.
+- `pressure_plate`: 1×1; settings: `triggerOn: creatures (minSize, includeFortress) | water ≥ n | magma ≥ n`, set by `SetPlateTrigger { plateId, trigger }` with `trigger` `{ kind: 'creatures', minSize, includeFortress }` or `{ kind: 'water' | 'magma', level }` (`level` 1 to 7) and stored as `settings.triggerOn`; a new plate is set to hostile, wild and deep creatures of any size; toggles linked targets when its condition becomes true and again when it becomes false, with `PLATE_RESET_TICKS` minimum between toggles.
 - Targets: `door` (toggle locked), `hatch` (toggle locked), `floodgate` (toggle open), `drawbridge` (toggle raised), `spike_trap` (extend), `cage` (open and release).
-- `LinkMechanism { sourceId, targetId }` creates a `link_mechanism` job (labor `mechanics`, skill `mechanics`, input 1 mechanism item, work at the target then at the source). Links are stored on both entities; `UnlinkMechanism` returns the mechanism.
+- `LinkMechanism { sourceId, targetId }` creates a `link_mechanism` job (labor `mechanics`, skill `mechanics`, input 1 mechanism item, work at the target then at the source): one job at the target, which delivers and consumes the mechanism, then a second at the source, which records the mechanism's material and the link, each lasting `LINK_WORK_TICKS`. Links are stored on both entities; `UnlinkMechanism` returns one mechanism of the recorded material at the source.
 - `floodgate`: 1×1; closed by default: acts as a `wall` for movement and fluid (a `blocks_fluid` building on a floor tile; 04 and 22 read `buildings.blocksAt(i)`); open: a floor. Magma-safe material required next to magma.
 - `drawbridge`: `w × h` up to `BRIDGE_MAX × BRIDGE_MAX`, one edge is the hinge; needs `w × h` blocks and 1 mechanism. **Lowered**: every footprint tile is a walkable floor (spanning open space). **Raised**: every footprint tile is impassable for movement and fluid; creatures on the tiles when it raises take `BRIDGE_CRUSH_DAMAGE` (17) and are moved to a random adjacent walkable tile, or die if none; items on the tiles are moved to adjacent tiles. Raising and lowering take effect after `LINK_DELAY_TICKS` from the trigger. A bridge over magma must be magma-safe.
 
 ### Special buildings
 
-- `hearth`: 1×1, one per fortress; inputs 3 stone blocks and 1 log; on completion emits `HearthLit` (15 gives everyone `hearth_lit`); provides `light` (the 5×5 around it is `lit` for the purpose of comfort, not crops) and a +2 temperature override (05). Cannot be deconstructed while dwarves live (the command is rejected with `hearth_is_home`). If no `hearth_hall` zone exists, the 5×5 around the hearth is treated as the hearth hall for behavior and quality.
+- `hearth`: 1×1, one per fortress; inputs 3 stone blocks and 1 log; on completion emits `HearthLit` (15 gives everyone `hearth_lit`); provides `light` and warmth over the 5×5 around it (`HEARTH_HALL_SIDE`): that square is lit for the purpose of comfort, not crops (`buildings.hearthLightAt`; the map's `lit` flag and `cropLitAt` are unchanged), and 05's `temperatureAt` adds `HEARTH_WARMTH_C` to a tile in it (the 5 °C override grid is unchanged). Cannot be deconstructed while dwarves live (the command is rejected with `hearth_is_home`). If no `hearth_hall` zone exists, the 5×5 around the hearth is treated as the hearth hall for behavior and quality.
 - `trade_depot`: 3×3; inputs 3 logs or 3 blocks; must be reachable from a map edge by a 1-wide walkable path (checked when a caravan arrives, 20). One or more.
 - `well`: 1×1 over an `open` tile with water within `WELL_DEPTH` below (04); provides drinking water and hospital water; `working` when 04's `waterBelow` finds liquid water through open tiles; rock or ice without liquid water ends that search.
 - `nest_box`: 1×1; chickens lay in it (08).
-- `cage`: a cage item placed as a building holds one creature (caught by a cage trap); `release` through a lever link or the `ReleaseCage` command.
+- `cage`: a cage item placed as a building holds one creature (caught by a cage trap; the building's `occupantId` names it, 0 when empty); `release` through a lever link or the `ReleaseCage` command.
+- `wagon`: placed at embark only, a building with its own container (class `wagon`, unlimited capacity) holding the supplies; the contents lie at its centre, are found by search and want hauling like items on the ground. Deconstructing it uses `construction` labor, yields the `WAGON_LOGS` logs recorded at its placement and leaves the contents where they lie.
 - `chain`: a rope or chain item placed; `AssignAnimal` to a chain restrains a tame animal to within 1 tile (war dogs at the gate).
 - `coffin`: a coffin item placed; inside a `tomb` zone it accepts a burial; a coffin outside a tomb also works but gives no tomb thought.
 - `memorial_slab`: an engraved slab item (crafted at the mason with `engraving` skill, naming a dead dwarf without a body) placed anywhere; counts as burial for grief.
@@ -79,12 +86,14 @@ Deconstruct (`DeconstructBuilding` → `remove` designation for constructions, `
 
 ### Zones
 
-`CreateZone { type, tiles }`, `ResizeZone`, `RemoveZone`, `SetZoneSetting`. Rules:
+`CreateZone { zoneType, tiles }`, `ResizeZone`, `RemoveZone`, `SetZoneSetting`. Rules:
 
-- Tiles must be walkable floors (fishing and gather zones may include non-walkable water-adjacent tiles as described in 09).
-- Zones of different types do not overlap, except `meeting_area` may overlap `hearth_hall` and `dining_hall` (it only adds a gathering spot).
-- Each zone type has settings (`plants`, `animals`, `items`, `health`, `combat` read theirs): farm plot crops, pasture nothing, stockpile filter, hospital desired supplies, barracks squad assignment, bedroom owner, tomb occupant, dump nothing.
-- `ZoneChanged { zoneId, type, change: created | resized | removed | settings }`.
+- Tiles must be walkable floors (fishing and gather zones may include non-walkable water-adjacent tiles as described in 09). A tile that holds a building on a floor also qualifies, so furniture, the hearth and doors may lie inside zones. A farm plot's tiles must also be all lit or all dark (07), and a fishing zone's tiles must be next to deep, unfrozen water (09): a walkable tile with a cardinal neighbour of water at level ≥ `FLUID_DEEP_LEVEL`.
+- A command whose tiles do not all qualify is rejected whole (`bad_zone_tiles`) and changes nothing; the zone tool submits only the tiles that qualify.
+- No two zones share a tile, whatever their types, except `meeting_area` over a `hearth_hall` or `dining_hall` (it only adds a gathering spot; two meeting areas never overlap). `zoneAt` names the hall there and `zonesAt(i)` lists both, ascending; removing the hall hands its tiles back to the meeting area.
+- Each zone type has settings (`plants`, `animals`, `items`, `health`, `combat` read theirs): farm plot crops, pasture nothing, stockpile filter, hospital desired supplies, barracks squad assignment, bedroom owner, tomb occupant, dump nothing. `SetZoneSetting` stores any other key of the zone-type table (in words or snake_case) on the zone; a stockpile's `filter`, `containers`, `priority` and `links` are 13's and are rejected (`bad_setting`).
+- A new stockpile accepts nothing until a filter is set. Its priority is `HAUL_PRIORITY`, or `HAUL_PRIORITY_FOOD` while its filter selects only food, until the player sets one. 13 defines the presets (§ Stockpiles).
+- `ZoneChanged { zoneId, zoneType, change: created | resized | removed | settings, tiles }`: `tiles` is the zone's tiles after the change (before it, for `removed`).
 
 ### Rooms and quality
 
@@ -113,16 +122,19 @@ Effects (thought ids in 15): bedroom tier on `Slept`; dining hall tier on `MealE
 
 ### Burial
 
-On `CorpseCreated` for a dwarf: a `bury` job (labor `hauling`) hauls the corpse to a free coffin; on completion `Buried { dwarfId, coffinId, tombTier }`; the corpse item is destroyed and the coffin becomes `occupied`. Without a coffin the corpse stays where it is (miasma follows). Placing a memorial slab for a dwarf whose body is gone (rotted, lost to magma) emits `Buried` with `tombTier: none`.
+On `CorpseCreated` for a dwarf: a `bury` job (labor `hauling`) hauls the corpse to a free coffin; on completion `Buried { dwarfId, coffinId, tombTier }`; the corpse item is destroyed and the coffin becomes `occupied`. Without a coffin the corpse stays where it is (miasma follows). Placing a memorial slab for a dwarf whose body is gone (rotted, lost to magma) emits `Buried` with `coffinId: 0` and `tombTier: none`; a `Buried` with `coffinId: 0` is how a memorial is told from a burial in a coffin outside a tomb, which also has `tombTier: none`.
+
+A slab names its dwarf through its work order: `AddWorkOrder` for `make_memorial_slab` takes an optional `memorialDwarfId`, which must name a dead dwarf with no intact body (a skeleton counts as a rotted body); the craft job carries the id onto the slab item. A slab without a name can be crafted but resolves no grief.
 
 ### Value
 
-Each built building contributes `materialValue + type.valueBonus` (plus the linked item's value) to fortress wealth (13 sums from `BuildingCompleted`/`BuildingRemoved`).
+Each built building contributes `materialValue + type.valueBonus` (plus the linked item's value) to fortress wealth (13 sums from `BuildingCompleted`/`BuildingRemoved`, whose `value` is the building's contribution, 0 for one that was never built). A bridge's bonus is per footprint tile.
 
 ## State
 
 - `Building` components (`type, material, state, origin, footprint, orientation, itemId, mode, linkedIds, ownerId, settings`), `buildingAt` map (in `Map3D`), `Zone` components with `tiles` sorted, `zoneAt: Map<TileIndex, zoneId>` (one per tile), `Room` components (`zoneId, score, tier, ownerId, enclosed`), `hearthId`, `depots[]`, `coffins[]`, `dirtyRooms`.
 - Rng stream (auto-assignment ties; reserved).
+- Superset fields of `BuildingsState` (schemas/system-state.md): `pendingJobs`, the buildings waiting for a build or deconstruct job, and `magmaTouched`.
 
 ## Interfaces
 
@@ -152,11 +164,11 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 
 ### Events consumed
 
-`JobCompleted`, `JobCancelled`, `TilesChanged` (validity of planned buildings; room recompute), `CorpseCreated`, `MechanismTriggered` (from 19 for plates and levers: this system applies the state change), `AlertChanged` (lock-on-alert doors), `DoorBreakAttempt` (from 18), `MagmaContact` (destroy non-magma-safe buildings), `FireOut` (wooden building burned: 05 asks through `terrain.setKind`; this system removes the entity on `TilesChanged` when its tile no longer matches).
+`JobCompleted`, `JobCancelled`, `TilesChanged` (validity of planned buildings; room recompute), `CorpseCreated`, `MechanismTriggered` (from 19 for plates and levers: this system applies the state change), `AlertChanged` (lock-on-alert doors), `DoorBreakAttempt` (from 18), `MagmaContact` (04 also emits it for a magma tile that holds a building, with the creatures there, possibly none; this system queues the tile and at its next tick removes each non-construction building on it whose material melts at or below `MAGMA_C`, destroying its linked item as `melted`; constructions are terrain, and 05's fire takes wooden ones), `SulkHappened` (a `break` sulk from 15 names a building: this system queues it, saves the queue, and in its own tick removes the building and destroys its linked item as `sulk`), `FireOut` (wooden building burned: 05 asks through `terrain.setKind`; this system removes the entity on `TilesChanged` when its tile no longer matches).
 
 ### Events emitted
 
-`BuildingPlaced`, `BuildingCompleted { id, type }`, `BuildingRemoved { id, type }`, `BuildingStateChanged { id, state }` (door mode, hatch mode, floodgate open/closed, bridge raised/lowered: consumed by 04, 22, 19), `ZoneChanged`, `RoomQualityChanged`, `RoomAssigned { zoneId, dwarfId }`, `HearthLit`, `DoorBroken { id }`, `Buried { dwarfId, coffinId, tombTier }`, `MechanismToggled { id, newState }`, and 16's `DamageDealt` (a drawbridge that is raised with creatures on it).
+`BuildingPlaced { id, buildingType, tiles }`, `BuildingCompleted { id, buildingType, value }`, `BuildingRemoved { id, buildingType, value }`, `BuildingStateChanged { id, state }` (door mode, hatch mode, floodgate open/closed, bridge raised/lowered: consumed by 04, 22, 19), `ZoneChanged`, `RoomQualityChanged`, `RoomAssigned { zoneId, dwarfId }`, `HearthLit`, `DoorBroken { id }`, `Buried { dwarfId, coffinId, tombTier }`, `MechanismToggled { id, newState }`, and 16's `DamageDealt` (a drawbridge that is raised with creatures on it).
 
 ### Registrations
 
@@ -165,12 +177,12 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
 ## Player-facing behavior
 
 - Build menu (hotkey `b`): categories → types; a footprint ghost follows the cursor, green where valid, red where not, with the reason; material choice list showing available counts; orientation with `r`. Placing several of the same type: the menu stays open.
-  - For a type with a 1×1 footprint (furniture, constructions, mechanisms, traps; not the hearth or the well), a drag places one per valid tile of the rectangle. The status bar shows the count while dragging ("Door ×5, 2 tiles blocked"). Tiles that fail the placement rule are skipped and reported in one message that names the rule. A single click still places one.
+  - For a type with a fixed 1×1 footprint (furniture, constructions, mechanisms, traps; not the `special` category, so not the hearth or the well), a drag places one per valid tile of the rectangle, on button-up. The status bar shows the count while dragging ("Door ×5, 2 tiles blocked"). Tiles that fail the placement rule are skipped and reported in one message that names the rule. A single click still places one: a drag that never leaves its tile is a click and is sent even when the tile is blocked, so the simulation's refusal names the rule.
   - When the first input is out of stock, the status bar says how many placed buildings will wait and offers the order: "0 doors in stock: 5 will wait · [o] order 5". `o` opens the work-order picker (12) preset to that item and count. When no built workshop makes the item, the line names the workshop to build instead.
 - Zones menu (hotkey `z`): type → drag → confirm; the zone panel shows settings and, for rooms, the quality breakdown.
   - Select a zone by clicking its map tiles, or centre the map/cursor on it and press `Enter` with no zone tool active. The stockpile and room inspectors replace the type list; `y`, or its button, returns to zone types. Other panel letters always open their panels.
   - A room names missing furniture ("Needs a bed", "Needs a table with a chair", "Needs the hearth inside", "Needs a chest", "Needs a coffin") and says "Not enclosed: 3 open border tiles", highlighting those tiles. A bedroom offers `Shift+O` or its owner button, using the building panel's same Nobody/dwarf list, arrows and Enter or a click. It submits `AssignRoom`; Esc cancels the choice. A bedroom without a built bed, or whose room registration is still pending, explains why ownership is unavailable.
-- Clicking a building opens its panel: state, mode toggles, links, owner, deconstruct; workshops delegate to 12. From the keyboard, `Enter` in Look on the building's tile opens it.
+- Clicking a building opens its panel: state, mode toggles, links, owner, deconstruct; workshops delegate to 12. A left click with no tool on a tile that holds a building opens the depot's panel, a finished workshop's panel, or the building panel for everything else (a planned workshop too); a drag from the tile still selects a rectangle, and a right click still opens Look. From the keyboard, `Enter` in Look on the building's tile opens it, and Look shows that as a clickable line; the building panel's "Look at the tile" line goes back. The panel is in the sidebar with no hotkey of its own.
   - Doors, hatches and traps list their modes with the current one marked.
   - A planned building shows what it waits for and takes a build priority (`1`–`9`).
   - A bed gives the bedroom zone it stands in an owner from the list of dwarves, or nobody; a coffin is kept for a dwarf, or for anyone.
@@ -191,6 +203,9 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
 | `ROOM_SIZE_CAP` | 40 | Tiles that count toward size |
 | `ENCLOSED_PERCENT` | 150 | Score multiplier for enclosed rooms |
 | `BUILD_BASE_TICKS` | 100 | Default build time; types override |
+| `LINK_WORK_TICKS` | 150 | Each of the two jobs of a link |
+| `HEARTH_HALL_SIDE` | 5 | Side of the square around the hearth that is its stand-in hall and comfort light |
+| `HEARTH_WARMTH_C` | 2 | °C added inside that square (05) |
 
 Material and item requirements, value bonuses and footprints are content.
 

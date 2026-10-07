@@ -82,7 +82,7 @@ interface Equipment { weapon: EntityId; shield: EntityId; armor: Record<'head'|'
 interface Soldier { squadId: EntityId; onDuty: boolean; stance: 'hold' | 'pursue'; targetId: EntityId;
                     cooldownUntil: Tick; lastShiftTick: Tick }
 interface Patient { hospitalZoneId: EntityId; bedId: EntityId; needs: string[] /* job kinds */; admittedTick: Tick }
-const enum ItemFlag { Forbidden=1, Dump=2, Melt=4, Reserved=8, Owned=16, AtDepot=32, Merchant=64 }
+const enum ItemFlag { Forbidden=1, Dump=2, Melt=4, Reserved=8, Owned=16, AtDepot=32, Merchant=64, Installed=128 }
 interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Quality; wear: number; count: number;
                  containerId: EntityId; ownerId: EntityId; flags: number; crafterId: EntityId;
                  rotStart: Tick; rotStage: 0|1|2|3; reservedBy: number /* jobId */; carriedBy: EntityId }

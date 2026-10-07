@@ -126,7 +126,7 @@ Written by the app when the fortress ends: name, seed, region name and ratings, 
 
 ## State
 
-Presentation-only: screen stack, active panel, tool state, cursor, selection, log lines, hints shown, settings, keymap overrides. Camera, z, zoom, overlays, hints shown and the open panel are saved in the `ui` section; settings and keymap in the settings store.
+Presentation-only: screen stack, active panel, tool state, cursor, selection, log lines, hints shown, settings, keymap overrides. Camera, z, zoom, overlays, hints shown, the open panel, whether a deepsilver vein has been found (it unlocks the Deep gauge, 18) and the last `LOG_SAVED_LINES` log lines with their categories are saved in the `ui` section; settings and keymap in the settings store.
 
 ## Interfaces
 

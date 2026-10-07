@@ -30,23 +30,23 @@ Every command, its fields, its owning system, its validation and the events its 
 | `AssignTitle` | `dwarfId \| 0, title` | 10 | adult; one holder per title | `TitleAssigned` |
 | `RenameDwarf` | `dwarfId, name` | 10 | 1–24 characters | — |
 | `SetSchedule` | `dwarfId, sleepStartHour` | 10 | 0–23 | — |
-| `AddWorkOrder` | `workshopId \| 0, order` | 12 | recipe belongs to the workshop type; count 1–999 or maintain threshold 1–999 | — |
+| `AddWorkOrder` | `workshopId \| 0, order` | 12 | recipe belongs to the workshop type; count 1–999 or maintain threshold 1–999; `order.memorialDwarfId` only on `make_memorial_slab`, naming a dead dwarf with no intact body | — |
 | `EditWorkOrder` / `RemoveWorkOrder` / `ReorderWorkOrder` | `workshopId, index[, patch \| to]` | 12 | index valid | — |
 | `SetWorkshopWorker` | `workshopId, dwarfId \| 0` | 12 | dwarf has the labor | — |
 | `SuspendWorkshop` | `workshopId, on` | 12 | — | `JobCancelled` if running |
 | `ForbidItem` / `ClaimItem` / `DumpItem` / `MeltItem` | `itemId \| tiles[] \| typeId, on` | 13 | items exist; melt only metal items | `ItemReleased` when forbidding a reserved item cancels its job |
 | `SetStockpileFilter` | `zoneId, filter` | 13 | zone is a stockpile; category nodes exist | — |
 | `SetStockpileContainers` / `SetStockpilePriority` / `LinkStockpile` | `zoneId, …` | 13 | — | — |
-| `PlaceBuilding` | `type, origin, orientation, materialChoice, priority` | 14 | footprint rules; materials exist in the fortress (`no_materials` is a warning, not a rejection: the job blocks); magma safety (`not_magma_safe`); one hearth (`hearth_exists`); depot reachability is checked at caravan time | `BuildingPlaced`, `JobCreated` |
+| `PlaceBuilding` | `type, origin, orientation, materialChoice, priority` | 14 | the payload field `type` is `buildingType`; footprint rules; materials exist in the fortress (`no_materials` is a warning, not a rejection: the job blocks); magma safety (`not_magma_safe`); one hearth (`hearth_exists`); depot reachability is checked at caravan time | `BuildingPlaced`, `JobCreated` |
 | `CancelBuilding` | `buildingId` | 14 | planned or constructing | `BuildingRemoved`, `JobCancelled` |
 | `DeconstructBuilding` | `buildingId` | 14 | built; not the hearth while dwarves live (`hearth_is_home`) | `JobCreated` |
 | `SetBuildingPriority` | `buildingId, priority` | 14 | planned | — |
-| `CreateZone` | `type, tiles[]` | 14 | tiles walkable (type-specific), no overlap (`overlap`), fishing and farm tile rules | `ZoneChanged` |
+| `CreateZone` | `type, tiles[]` | 14 | the payload field `type` is `zoneType`; tiles walkable (type-specific), no overlap (`overlap`), fishing and farm tile rules; a command with any bad tile is rejected whole (`bad_zone_tiles`) | `ZoneChanged` |
 | `ResizeZone` / `RemoveZone` / `SetZoneSetting` | `zoneId, …` | 14 | zone exists; setting key valid for the type | `ZoneChanged` |
 | `AssignRoom` | `zoneId, dwarfId \| 0` | 14 | bedroom with a bed | `RoomAssigned` |
 | `LinkMechanism` / `UnlinkMechanism` | `sourceId, targetId` | 14 | source is a lever or plate; target is linkable; mechanism available (blocks otherwise) | `JobCreated` |
 | `SetDoorMode` / `SetHatchMode` | `buildingId, mode` | 14 | building has the tag | `BuildingStateChanged` |
-| `SetPlateTrigger` | `plateId, trigger` | 14 | valid trigger | — |
+| `SetPlateTrigger` | `plateId, trigger` | 14 | valid trigger: `{ kind: 'creatures', minSize, includeFortress }` or `{ kind: 'water' or 'magma', level }` with level 1 to 7 | — |
 | `ReleaseCage` | `cageBuildingId` | 14 | occupied | `CreatureCaged` reverse (creature spawned adjacent) |
 | `AssignCoffin` | `coffinId, dwarfId \| 0` | 14 | coffin free | — |
 | `CreateSquad` | `name` | 16 | fewer than `SQUAD_MAX_COUNT` squads | — |

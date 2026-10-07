@@ -23,7 +23,7 @@ Answer "can this creature get there, and how" quickly and deterministically for 
 `passable(i, class, faction?)`:
 
 - Kind: `floor`, `ramp`, `stairs_*`, `sapling`, `shrub` are enterable by all land classes; `fortification` by `small` only; `open` is never chosen by pathfinding (falling is a consequence, not a move); `wall`, `tree`, `boulder` never.
-- Buildings (14): `blocksMovementAt(i, class, faction)`: constructed walls (already `wall` kind); a `door` blocks `wild`, `large`, and hostiles without `opensDoors` (they may break it, 18) and blocks everyone when `locked`; `hatch` never blocks horizontal movement; raised `drawbridge` and closed `floodgate` block all; buildings with the `impassable` tag (statue, cage, occupied coffin) block all.
+- Buildings (14): `blocksMovementAt(i, class, faction, mover)`: constructed walls (already `wall` kind); a `door` blocks `wild`, `large`, and hostiles without `opensDoors` (they may break it, 18), tame movers when its mode is `no_pets`, and everyone when `locked`; `hatch` never blocks horizontal movement; raised `drawbridge` and closed `floodgate` block all; buildings with the `impassable` tag (statue, cage, occupied coffin) block all.
 - Fluids (04): water level ≥ `FLUID_DEEP_LEVEL` blocks `walker`, `small`, `large` (except creatures with `size ≥ WADE_LARGE_SIZE`, which are blocked only at level 7); magma at any level blocks all classes except species with `magmaSafe`; `aquatic` may enter only water ≥ `FLUID_DEEP_LEVEL`; `amphibious` may enter any water.
 - Flags: `burning` blocks all; `restricted` is allowed at high cost for dwarves; the terrain's forbidden set blocks dwarves; `web` is allowed at high cost.
 - Faction: a `fortress` creature never paths through a tile occupied by a hostile (dynamic obstacles are handled by the movement helper, not the planner).
@@ -47,7 +47,7 @@ Answer "can this creature get there, and how" quickly and deterministically for 
 - Horizontal: to the eight neighbors on the same level if passable. A diagonal is allowed only if both orthogonally adjacent tiles are not `wall`, `tree`, `boulder` or `fortification` (no cutting corners through solids).
 - Stairs: from `stairs_up` or `stairs_updown` at `z` to the tile above if it is `stairs_down` or `stairs_updown`; from `stairs_down` or `stairs_updown` to the tile below if it is `stairs_up` or `stairs_updown`. Both tiles must be passable for the class; `large` creatures cannot use stairs.
 - Ramps: from a `ramp` at `R = (x, y, z)`: for each cardinal direction `d`, if the tile `(x + dx, y + dy, z)` is `wall`, `tree`, `boulder` or `fortification` (the ramp leans on it) and `U = (x + dx, y + dy, z + 1)` is passable, there is an edge `R ↔ U`. The tile directly above the ramp must be `open` for the ramp to function (03 guarantees it at creation; if a floor is built there the ramp becomes a dead end). Ramps are the only vertical route for `large` creatures.
-- Hatches: a `locked` hatch removes the stairs edge through its tile.
+- Hatches: a `locked` hatch removes the stairs edge through its tile, and the ramp edges through a hatch on the open tile above a ramp.
 
 ### A*
 

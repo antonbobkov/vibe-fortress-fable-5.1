@@ -35,7 +35,7 @@ else:
       base = surface + trunc((UNDERGROUND_BASE_C - surface) * depthBelowSurface / NEAR_SURFACE_DEPTH)
   else:
       base = UNDERGROUND_BASE_C + max(0, (DEEP_HEAT_START_Z − z)) × DEEP_HEAT_PER_Z
-return base + tempOverride(i) × 5
+return base + tempOverride(i) × 5 + (HEARTH_WARMTH_C if i is inside the built hearth's HEARTH_HALL_SIDE square (14))
 ```
 
 `surface` is 06's cached surface temperature, or `SURFACE_FALLBACK_C = UNDERGROUND_BASE_C` when 06 is absent. A forced tile temperature, set by the test/debug `forceTemperature(tile, c)`, takes precedence over the model and is saved; `null` releases it.

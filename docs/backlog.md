@@ -10,7 +10,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-105 | [Triage D-rows: systems 08–13](work/T-105-triage-systems-08-13.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
-| T-106 | [Triage D-rows: systems 14–19](work/T-106-triage-systems-14-19.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-107 | [Triage D-rows: systems 20–24, content and implementation](work/T-107-triage-systems-20-24-and-content.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-109 | [Balance status: one row per measure, latest figure only](work/T-109-balance-status.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | F-17 | open |
 | T-110 | [Close the migration: pending decisions, archive, large data files](work/T-110-close-the-migration.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | T-102 … T-109 | open |
@@ -22,6 +21,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-117 | [`DwarfDied`: the specification says 10 emits it, the code never does](work/T-117-dwarfdied-event.md) | T-102 (found while replacing the interface note of `02-systems/10-dwarves.md`) | — | open |
 | T-118 | [The main menu's unsaved-change check misses commands applied while paused](work/T-118-unsaved-check-while-paused.md) | U-02, found while checking paused save and load against `24-ui-and-input.md` § Game menu | — | open |
 | T-119 | [Resolve the systems 01–07 decision rows that the code disagrees with](work/T-119-retained-system-decisions.md) | T-104 (rows left in the log because the code and the row differ; resolutions are in the work file) | — | open |
+| T-120 | [Resolve the systems 14–19 decision rows that the code disagrees with](work/T-120-retained-decisions-14-19.md) | T-106 (rows left in the log because the code and the row differ, and catalog text that waits for a regenerate) | — | open |
 | F-17 | [Balance follow-ups from the economy fortress](work/F-17-balance-followups.md) | [`../reports/audits/M8-balance-economy.md`](../reports/audits/M8-balance-economy.md) | — | in progress (branch `f-17`) |
 | C-009 | System 21's performance allocation is a literal 0.00 ms, which no measured run can meet; its budget assertion is `it.todo` | [`05-plan/DECISIONS.md`](05-plan/DECISIONS.md) § Contradictions, row C-009 | an owner decision: a positive allocation, or an exemption for zero allocations | open |
 | B-008 | Balance finding: the wealth curve over years 1–3 against the model | [`../reports/audits/M8-balance-economy.md`](../reports/audits/M8-balance-economy.md) | F-17 (re-measure) | open; folds into T-109 |

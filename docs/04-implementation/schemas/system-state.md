@@ -59,15 +59,15 @@ interface WorkshopsState { stateVersion: 1; globalOrders: WorkOrder[]; professio
 
 interface ItemsState { stateVersion: 1; wantsHauling: EntityId[]; noHome: EntityId[]; slotReservations: [string, number][];
   rotQueue: { bucketTick: Tick; items: EntityId[] }[]; miasmaTiles: [TileIndex, Tick][]; counts: [Idx<ItemTypeDef>, StockCount][];
-  wealthCached: number; wealthLastEmitted: number; stockpileTiles: [TileIndex, EntityId][]; rng: RngState }
+  wealthCached: number; wealthLastEmitted: number; stockpileTiles: [TileIndex, EntityId][]; explicitPriority: EntityId[]; rng: RngState }   // explicitPriority: the stockpiles whose haul priority the player set, ascending
 interface StockCount { total: number; available: number; byClass: [MaterialClass, number][]; byQuality: number[] }
 
 interface BuildingsState { stateVersion: 1; zoneAt: [TileIndex, EntityId][]; hearthId: EntityId; depots: EntityId[]; coffins: EntityId[];
-  dirtyRooms: EntityId[]; pendingToggles: { id: EntityId; on: boolean; atTick: Tick }[]; rng: RngState }
+  dirtyRooms: EntityId[]; pendingToggles: { id: EntityId; on: boolean; atTick: Tick }[]; pendingJobs: EntityId[]; magmaTouched?: TileIndex[]; rng: RngState }   // pendingJobs: buildings waiting for their build or deconstruct job; magmaTouched: tiles `MagmaContact` named, for 14's next tick
 
 interface MoraleState { stateVersion: 1; hallSpirit: number; hallSpiritTier: MoodTier; rng: RngState }
 
-interface CombatState { stateVersion: 1; alert: Alert; engagements: [EntityId, Tick][]; targets: [EntityId, EntityId][]; nextSquadName: number; rng: RngState }
+interface CombatState { stateVersion: 1; alert: Alert; engagements: [EntityId, Tick][]; targets: [EntityId, EntityId][]; nextSquadName: number; unreachableSince?: [EntityId, Tick][]; rng: RngState }   // unreachableSince: when each creature's approach to its target first failed (16 § Targeting)
 
 interface HealthState { stateVersion: 1; wounded: EntityId[]; hospitals: EntityId[]; patientJobs: [EntityId, string[]][]; rng: RngState }
 
@@ -90,7 +90,7 @@ interface PendingConnectivityState { dirty: ChunkIndex[]; classes: { cls: Moveme
 interface CoreState { map: Map3D; entities: EntityStoreState; calendar: CalendarState; fortress: FortressState; rngSeed: string; commandLog: CommandLogEntry[] }
 interface EntityStoreState { slots: { generation: number; alive: boolean; kind: Kind }[]; components: Record<string, [number /* index */, unknown][]>; positionX: Int16Array; positionY: Int16Array; positionZ: Int8Array }
 interface CommandLogEntry { tick: Tick; command: Command; ok: boolean; reason?: string }
-interface UiState { camX: number; camY: number; z: number; zoom: number; panel: string | null; overlays: string[]; logTail: { tick: Tick; severity: string; text: string; focus?: number }[] }
+interface UiState { camX: number; camY: number; z: number; zoom: number; panel: string | null; overlays: string[]; deepFound?: boolean; logTail: { tick: Tick; severity: string; text: string; focus?: number; category?: string }[] }
 ```
 
 ## Rebuild-on-load rules
