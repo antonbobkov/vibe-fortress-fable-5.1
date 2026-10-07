@@ -67,7 +67,7 @@ interface BuildingsState { stateVersion: 1; zoneAt: [TileIndex, EntityId][]; hea
 
 interface MoraleState { stateVersion: 1; hallSpirit: number; hallSpiritTier: MoodTier; rng: RngState }
 
-interface CombatState { stateVersion: 1; alert: Alert; engagements: [EntityId, Tick][]; targets: [EntityId, EntityId][]; nextSquadName: number; rng: RngState }
+interface CombatState { stateVersion: 1; alert: Alert; engagements: [EntityId, Tick][]; targets: [EntityId, EntityId][]; nextSquadName: number; unreachableSince?: [EntityId, Tick][]; rng: RngState }   // unreachableSince: when each creature's approach to its target first failed (16 § Targeting)
 
 interface HealthState { stateVersion: 1; wounded: EntityId[]; hospitals: EntityId[]; patientJobs: [EntityId, string[]][]; rng: RngState }
 

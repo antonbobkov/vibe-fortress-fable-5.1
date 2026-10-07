@@ -10,6 +10,7 @@ T-106 verified the decision rows of systems 14–19 against the implementation. 
 |---|---|---|
 | D-075 | Auto-assignment gives an unowned bedroom to a titled dwarf first, then to the dwarf with the lowest mood (15's mood; `MOOD_BASELINE` only as the stand-in until 15 exists). | `src/systems/buildings/index.ts:157-158` still supplies `mood: () => MOOD_BASELINE` to the room store, so every dwarf ties at 55 and `src/systems/buildings/rooms.ts:454` falls through to the lowest id. 15's `MoraleReader.mood(id)` exists (`src/systems/morale/index.ts:66`). |
 | D-170 (T-M6-13) | `PlaceBuilding` accepts optional integer `width` and `height` only for a variable drawbridge, bounded by `BRIDGE_MAX`. | `src/systems/buildings/build.ts:387-388` reads `width` and `height` for every type, and `:391` builds the footprint from them; only the bridge branch at `:389-390` validates them, so a command can give any placeable type a larger footprint. |
+| D-249 | A squad's barracks is the barracks zone whose `squad` setting names it, one zone per squad; assigning another zone moves the squad's training there. The row records that re-assigning a squad that has already trained does not move it. | `src/systems/combat/training.ts:43-49` returns the squad's cached `barracksZoneId` before it looks at any zone setting, and `:129-132` caches the first barracks a squad used, so a later `SetZoneSetting { key: 'squad' }` (written by `src/ui/panels/military.ts:264-266`) changes nothing for a squad that has trained. |
 
 ## Spec text that needs a generated file regenerated
 

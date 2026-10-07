@@ -20,7 +20,7 @@ Resolve violence between creatures with rules the player can read: six body part
 
 ### Targeting
 
-A creature attacks when it has a `targetId` (set by 08 for animals, 18 for hostiles, this system for soldiers under orders or on duty, and 10 for civilians only when cornered: a civilian who cannot flee fights back with whatever they carry). Each tick a creature with a target: if adjacent (8-neighborhood, same level), perform a melee attack if its attack cooldown has elapsed; else if it has a ranged weapon with ammunition, range ≥ distance and line of sight, perform a ranged attack; else path toward the target (movement helper). Targets that die, leave perception (`PERCEPTION_RADIUS`), or become unreachable for `TARGET_LOSE_TICKS` are dropped.
+A creature attacks when it has a `targetId` (set by 08 for animals, 18 for hostiles, this system for soldiers under orders or on duty, and 10 for civilians only when cornered: a civilian who cannot flee fights back with whatever they carry). Each tick a creature with a target: if adjacent (8-neighborhood, same level), perform a melee attack if its attack cooldown has elapsed; else if it has a ranged weapon with ammunition, range ≥ distance and line of sight, perform a ranged attack; else path toward the target (movement helper). Targets that die, leave perception (`PERCEPTION_RADIUS`), or become unreachable for `TARGET_LOSE_TICKS` are dropped. A target is not dropped for being out of sight: this system alone ends an acquired target, and 18's party AI leaves a held target alone. The `TARGET_LOSE_TICKS` count starts at the first failed approach and is not reset by a pending path retry, only by an actual step or an attack opportunity; the start tick is saved (`CombatState.unreachableSince`).
 
 Soldiers on duty with no order pick the nearest hostile within perception. Ranged soldiers keep `RANGED_KEEP_DISTANCE` tiles away from melee threats when possible (kiting is limited: they move only when a threat is within 2 tiles).
 
@@ -110,7 +110,7 @@ Order = kill { targetId } | station { tile } | patrol { tiles } | follow { dwarf
 
 ### Equipment
 
-- On joining a squad, and every `REEQUIP_CHECK_DAYS`, each member claims from stockpiles the best available items matching the squad's preferences: weapon (highest `metalTier × qualityMultiplier` of the preferred class, then any melee class), shield (if the weapon is one-handed and `armor != none`), one armor piece per slot (highest armor value matching the material preference), and, for ranged members, a launcher, a quiver and `SOLDIER_AMMO` ammunition. Claimed items are `owned` (13). Better items replace worse ones, which are dropped at the barracks.
+- On joining a squad, and every `REEQUIP_CHECK_DAYS`, each member claims from stockpiles the best available items matching the squad's preferences: weapon (highest `metalTier × qualityMultiplier` of the preferred class, then any melee class), shield (if the weapon is one-handed and `armor != none`), one armor piece per slot (highest armor value matching the material preference), and, for ranged members, a launcher, a quiver and `SOLDIER_AMMO` ammunition. Claimed items are `owned` (13). Better items replace worse ones, which are dropped at the barracks. All squads are refreshed once on a dispatch tick that carries `ItemCreated`, however many items the tick created.
 - Soldiers wear their armor at all times (no armor-off in version 1). Armor slows: movement × `(100 − Σ armor.weight / 4)%` minimum `ARMOR_MIN_SPEED_PERCENT`, reduced by `armor_use` skill (each level restores 1%).
 - Civilian tools (picks, axes) are weapons of their class; a miner attacked fights with the pick.
 
@@ -124,7 +124,7 @@ On `CreatureDied` with a killer: `killed_hostile` thought for a fortress killer;
 
 ### Combat log
 
-Every `AttackResolved` is rendered by the announcement registry into a combat log line from the strings table ("Orm Ashbrow hits the gloam warrior in the torso with his iron axe (18 damage)" or "The wolf bites Brynja Coldhammer in the left leg"). The combat log is a separate tab of the log panel and does not raise alerts except for the first attack of an engagement, which is an alert that centers the view.
+Every `AttackResolved` is rendered by the announcement registry into a combat log line from the strings table ("Orm Ashbrow hits the gloam warrior in the torso with his iron axe (18 damage)" or "The wolf bites Brynja Coldhammer in the left leg"). The combat log is a separate tab of the log panel and does not raise alerts except for the first attack of an engagement, which is an alert that centers the view: the first observed attack of an attacker and defender pair is the alert, and later attacks of that pair are notes. A log line is saved with its category, so the combat tab works after a load.
 
 ## State
 
@@ -152,7 +152,7 @@ Every `AttackResolved` is rendered by the announcement registry into a combat lo
 
 ### Events consumed
 
-`CreatureDied`, `CreatureUnconscious`, `DayPassed` (re-equip), `HourPassed` (shifts), `ZoneChanged` (barracks), `ItemCreated` (better gear), `AlertChanged` (own), `HostileSpawned`, `RaidArrived`.
+`CreatureDied`, `CreatureUnconscious`, `DayPassed` (re-equip), `HourPassed` (shifts), `ZoneChanged` (barracks), `ItemCreated` (better gear; every squad once per tick), `AlertChanged` (own), `HostileSpawned`, `RaidArrived`.
 
 ### Events emitted
 
@@ -160,7 +160,7 @@ Every `AttackResolved` is rendered by the announcement registry into a combat lo
 
 ### Registrations
 
-Panel `military`; inspector section `creature › combat` (weapon, armor per part with values, skills, squad, target); overlay `squad stations`; announcements: first attack of an engagement (alert), `AlertChanged` (note), `KillRecorded` for hostiles (note).
+Panel `military`; inspector section `creature › combat` (weapon, armor per part with values, skills, squad, target); overlay `squad stations`; announcements: first attack of an attacker and defender pair (alert), `AlertChanged` (note), `KillRecorded` for hostiles (note).
 
 ## Player-facing behavior
 
