@@ -62,7 +62,7 @@ Columns: `logs` per chop `[min, max]`; `saplingYears`; `biomes (weight)`.
 | `tower_shroom` | tower shroom | 1–3 | 2 | cavern 1 (60), cavern 2 (40), cavern 3 (20) | `♠` | `shroom_gray` |
 | `stalk_fern` | stalk fern | 1–2 | 1 | cavern 1 (30), cavern 2 (50), cavern 3 (40) | `↑` | `fern_teal` |
 
-Tropical forest and savanna use `oak` (as "broadleaf") with weight 40 and `ash` 20; desert and badlands have `treeDensity` 0.02 with `pine` only; glacier none.
+Tropical forest and savanna use `oak` (as "broadleaf") with weight 40 and `ash` 20; desert and badlands use only `pine`, weight 1, with `treeDensity` from the biome table in `regions-biomes-and-traits.md`; glacier none.
 
 ## Grass
 

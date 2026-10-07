@@ -112,6 +112,7 @@ A re-evaluated job opens only when its reason is gone: a worker with the labor e
 ### Cancellation
 
 - The player cancels a job (`CancelJob`) or removes the designation, order or zone that produced it: the producer cancels through the sink; reservations release; delivered inputs stay where they are (they are hauled back by normal hauling).
+- Cancelling a terrain job with `CancelJob` clears its designation; removing or changing that designation cancels the job with `target_invalid`.
 - A target that changes (a tile designated for digging that is now a floor): the producer notices on `TilesChanged` and cancels with `target_invalid`.
 - A worker who dies: the job returns to `open` with progress kept.
 

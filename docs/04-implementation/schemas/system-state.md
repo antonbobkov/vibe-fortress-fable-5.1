@@ -18,7 +18,7 @@ interface LocalMapSpec { seed: string; regionId: number; biome: Id<BiomeDef>; el
 
 interface TerrainState { stateVersion: 1; designations: { tile: TileIndex; kind: Designation; priority: Priority; progress: Fixed }[];
   engravings: [TileIndex, { quality: Quality; engraverId: EntityId; motif: number }][]; forbiddenTiles: TileIndex[];
-  cavernBreached: [boolean, boolean, boolean]; layerStack: { material: Idx<MaterialDef>; thickness: number }[]; rng: RngState; bigDigCounter: number }
+  cavernBreached: [boolean, boolean, boolean]; veinsFound: TileIndex[] /* sorted vein keys */; layerStack: { material: Idx<MaterialDef>; thickness: number }[]; rng: RngState; bigDigCounter: number }
 
 interface FluidsState { stateVersion: 1; active: Uint32Array /* tile indices, all chunks concatenated */; activeChunkOffsets: Uint32Array;
   idleCounter: Uint8Array; waterSources: TileIndex[]; magmaSources: TileIndex[]; sinks: TileIndex[]; outdoorWaterTiles: TileIndex[];

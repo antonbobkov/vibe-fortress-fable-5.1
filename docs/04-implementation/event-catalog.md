@@ -15,7 +15,7 @@ Every event type, its fields, its emitters and its subscribers. `ui` means the p
 | `YearPassed` | `year` | core | 10, 20 |
 | `TilesChanged` | `tiles[]` | 03 (also on behalf of 04, 05, 14 through the terrain API) | 04, 07, 11, 13, 14, 18, 22, 23 |
 | `TilesDiscovered` | `tiles[]` | 03 | 23 |
-| `VeinFound` | `material, tile, finderId` | 03 | 15, 18 (deepsilver gauge unlock), ui |
+| `VeinFound` | `material, tile, finderId` | 03 (first mined tile of a new face-connected mineral vein key) | 15, 18 (deepsilver gauge unlock), ui |
 | `MineralMined` | `tile, material, minerId` | 03 | 13 (item spawn is done by 03 via spawn API; 13 counts) |
 | `DeepsilverMined` | `tile, minerId` | 03 | 18, ui |
 | `CavernBreached` | `cavern, tile` | 03 | 08, 18, 24 (milestone), ui |
