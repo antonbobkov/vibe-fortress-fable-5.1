@@ -36,27 +36,27 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 
 ### Composition
 
-1. Compute the fortress's *coverage*: for each key profession in the list (`miner`, `farmer`, `woodcutter_carpenter`, `mason`, `brewer`, `cook`, `smith`, `soldier`, `medic`, `hunter`, `mechanic`, `weaver`), coverage is true if any adult dwarf has the profession's skill at ≥ `COVERAGE_SKILL`.
+1. Compute the fortress's *coverage*: for each key profession in the list (`miner`, `farmer`, `woodcutter_carpenter`, `mason`, `brewer`, `cook`, `smith`, `soldier`, `medic`, `hunter`, `mechanic`, `weaver`), coverage is true if any adult dwarf has the profession's skill at ≥ `COVERAGE_SKILL`. Coverage is evaluated once, when the wave is planned. Each profession's skill and related secondary skill are authored skill ids: `miner` mining and pick, `farmer` farming and herbalism, `woodcutter_carpenter` woodcutting and carpentry, `mason` masonry and building, `brewer` brewing and farming, `cook` cooking and butchery, `smith` weaponsmithing and smelting, `soldier` axe and armor_use, `medic` medicine and herbalism, `hunter` hunting and crossbow, `mechanic` mechanics and building, `weaver` weaving and clothesmaking.
 2. Each immigrant's primary profession is drawn with weight `1 + (covered ? 0 : UNCOVERED_WEIGHT)`; with `PEASANT_PERMILLE` the immigrant is a `Settler` with no skills instead.
 3. Skills: primary skill `rng.int(PRIMARY_MIN, PRIMARY_MAX)`, a related secondary skill `rng.int(1, 3)`. Attributes and personality rolled as in 02. Age `rng.int(EMBARK_AGE_MIN, EMBARK_AGE_MAX)`.
-4. Families: with `FAMILY_PERMILLE` an immigrant comes with a spouse (another adult drawn the same way, the two are friends from the start and `spouse` in relationships) and `rng.int(0, CHILDREN_MAX)` children (age `rng.int(3, ADULT_AGE_YEARS − 1)`); family members count toward `size`.
+4. Families: with `FAMILY_PERMILLE` an immigrant comes with a spouse (another adult drawn the same way, the two are friends from the start and `spouse` in relationships) and `rng.int(0, CHILDREN_MAX)` children (age `rng.int(3, ADULT_AGE_YEARS − 1)`, children under the ordinary child rules of 10); family members count toward `size`. The wave plan keeps each child's parent by index.
 5. Pets: with `PET_PERMILLE` a family brings a `dog` or `cat` (tame, pet of one member).
-6. Equipment: clothing in all three slots; a tool for the profession (`pick`, `axe`, `crossbow` with `AMMO_FETCH` bolts) if the fortress has fewer than `TOOL_STOCK_MIN` of that tool; nothing else.
+6. Equipment: clothing in all three slots; a tool for the profession (`pick` for a miner, `axe` for a woodcutter or carpenter, `crossbow` with `AMMO_FETCH` bolts for a hunter) if the fortress has fewer than `TOOL_STOCK_MIN` of that tool, made of the first compatible material in registry order; nothing else.
 7. Names from the names table; no duplicates with living dwarves.
 
 ### Arrival
 
 - Spawn at `nearestEdgeTo.mountainhome`, one every `ARRIVAL_INTERVAL_TICKS`, with needs at 30, all labors enabled, no bedroom (14 auto-assigns daily).
-- `ImmigrantsArrived { ids, count, guaranteed }` (alert): "Six dwarves have come to join the hall, two of them children." Everyone gets `immigrants_arrived`.
+- `ImmigrantsArrived { ids, count, guaranteed }` (alert) is emitted once, after the last member of the wave has arrived: "Six dwarves have come to join the hall, two of them children." Everyone gets `immigrants_arrived`.
 - New dwarves walk to the hearth hall (or the wagon) and then behave normally.
 
 ### Population cap
 
-`SetPopulationCap { n }` clamps to `20..200`; default `POPULATION_CAP_DEFAULT`. A cap at or below the current population stops immigration (the panel says "Immigration paused by cap").
+`SetPopulationCap { n }` clamps to `20..200`; the population panel changes the cap by one per key press or click; default `POPULATION_CAP_DEFAULT`. A cap at or below the current population stops immigration (the panel says "Immigration paused by cap").
 
 ## State
 
-- `wavesSoFar`, `guaranteedDone: [boolean, boolean]`, `lastWave: { tick, count }`, `deferredUntilTick`, `lastSkipReason`.
+- `wavesSoFar`, `guaranteedDone: [boolean, boolean]`, `lastWave: { tick, count }`, `deferredUntilTick`, `lastSkipReason`, the pending wave (its plan, the members already arrived and the tick of the next arrival), which is saved so that the remaining arrivals resume after a load.
 - Rng stream.
 
 ## Interfaces

@@ -8,6 +8,8 @@
 
 Guards: `GUARDS_BASE + peril × GUARDS_PER_PERIL` = `2 + peril`, plus 1 with `twilight_pass`. Pack animals: one per `PACK_VALUE` = 800 marks.
 
+Every entry is available at every reputation. The `Rare` column names only the variant that is added at reputation ≥ 50 (never the whole row), and the deepsilver entry is drawn only at reputation ≥ 75. A live animal travels in a pine cage and is budgeted at its species value plus the cage's item value.
+
 ## Mountainhome (spring, from year 2)
 
 Merchants: dwarves. Guards: dwarves with iron axes, helms, mail shirts, shields (steel at reputation ≥ 50). Pack animals: mules.
