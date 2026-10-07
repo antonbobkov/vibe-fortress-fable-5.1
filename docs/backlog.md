@@ -19,7 +19,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-115 | [Audit: bug hunt](work/T-115-audit-bug-hunt.md) | the owner, 2026-10-06 | T-114 and its fix tasks | open |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, T-115 and its fix tasks | open |
 | T-117 | [`DwarfDied`: the specification says 10 emits it, the code never does](work/T-117-dwarfdied-event.md) | T-102 (found while replacing the interface note of `02-systems/10-dwarves.md`) | — | open |
-| T-118 | [The main menu's unsaved-change check misses commands applied while paused](work/T-118-unsaved-check-while-paused.md) | U-02, found while checking paused save and load against `24-ui-and-input.md` § Game menu | — | open |
 | T-119 | [Resolve the systems 01–07 decision rows that the code disagrees with](work/T-119-retained-system-decisions.md) | T-104 (rows left in the log because the code and the row differ; resolutions are in the work file) | — | open |
 | T-120 | [Resolve the systems 14–19 decision rows that the code disagrees with](work/T-120-retained-decisions-14-19.md) | T-106 (rows left in the log because the code and the row differ, and catalog text that waits for a regenerate) | — | open |
 | T-122 | [Civilians stay in "Fighting" on a narrow stair until their needs kill them](work/T-122-civilians-stuck-fighting.md) | F-17 fixture repair (Codex, 2026-10-07) | F-17 | open |

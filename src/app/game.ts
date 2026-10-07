@@ -179,6 +179,8 @@ export class Game {
   lastSaveId: string | null = null;
   /** The world tick of the last save of the running fortress (24 § Game menu's unsaved check). */
   lastSaveTick: number | null = null;
+  /** The host's applied-command count at the last save; not saved (T-118). */
+  private lastSaveCommands = 0;
   private pending: Promise<void> = Promise.resolve();
   private readonly randomSeed: () => string;
   private newest: string | null = null;
@@ -471,9 +473,14 @@ export class Game {
     return this.host.started ? this.host.readers.fortress.state.embarkTick : 0;
   }
 
-  /** Ticks have run since the last save (or since the embark, when there is none). */
+  /**
+   * Ticks have run, or commands have been applied, since the last save (or since the embark, when
+   * there is none). A command given while paused takes effect without the calendar advancing, so
+   * ticks alone would miss it (T-118).
+   */
   unsavedSince(): boolean {
     if (!this.host.started) return false;
+    if (this.host.commandCount !== this.lastSaveCommands) return true;
     return this.host.readers.calendar.tick > this.savedAtTick();
   }
 
@@ -499,6 +506,7 @@ export class Game {
       thumbnail: this.thumbnail(),
     });
     const savedAt = this.host.readers.calendar.tick;
+    const savedCommands = this.host.commandCount;
     void this.track(
       (async (): Promise<void> => {
         const id = await rollSnapshots(saves, keep);
@@ -514,6 +522,7 @@ export class Game {
         }
         this.lastSaveId = id;
         this.lastSaveTick = savedAt;
+        this.lastSaveCommands = savedCommands;
         this.note('note', this.strings.get('ui.save.saved', { fortress: this.host.world.fortress.name, date: formatDate(savedAt) }));
         await this.refreshListing();
       })(),
@@ -603,6 +612,7 @@ export class Game {
     if (saves === null || !this.host.started) return Promise.resolve();
     const blob = this.host.save({ kind, ui: this.uiSection(), playTimeSeconds: this.playTimeSeconds(), thumbnail: this.thumbnail() });
     const savedAt = this.host.readers.calendar.tick;
+    const savedCommands = this.host.commandCount;
     return this.track(
       (async (): Promise<void> => {
         const data = await blob;
@@ -618,6 +628,7 @@ export class Game {
         if (kind === 'auto') await rollAutosaves(saves);
         this.lastSaveId = id;
         this.lastSaveTick = savedAt;
+        this.lastSaveCommands = savedCommands;
         this.note('note', this.strings.get('ui.save.saved', { fortress: this.host.world.fortress.name, date: formatDate(savedAt) }));
         await this.refreshListing();
       })(),
@@ -705,6 +716,7 @@ export class Game {
           this.enterLoaded(await this.host.load(blob));
           this.lastSaveId = id;
           this.lastSaveTick = this.host.readers.calendar.tick;
+          this.lastSaveCommands = 0;
         } catch (error) {
           const reason = error instanceof SaveLoadError ? error.section : error instanceof Error ? error.message : String(error);
           const row = this.listing.find((s) => s.id === id);
@@ -906,6 +918,7 @@ export class Game {
   /** `simulation-core.md` § Startup sequence steps 3 to 5 for the `flat-test` world. */
   async start(spec: { seed?: string; embark?: NewGameSpec['embark'] } = {}): Promise<void> {
     await this.host.newGame({ seed: spec.seed ?? this.seed, ...(spec.embark === undefined ? {} : { embark: spec.embark }) });
+    this.lastSaveCommands = 0;
     this.fortress.resetHints();
     this.subscribe();
     this.resetTo(FORTRESS);
@@ -1030,6 +1043,7 @@ export class Game {
     try {
       const spec = localMapSpec(world, regionId, this.registry);
       await this.host.newGame({ seed: world.seed, world: 'local', spec, embark, worldMap: world });
+      this.lastSaveCommands = 0;
       this.subscribe();
     } finally {
       this.busy = null;
