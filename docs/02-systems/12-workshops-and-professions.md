@@ -93,6 +93,8 @@ WorkOrder { recipeId, remaining, mode: once | maintain, threshold (for maintain:
 
 Level 20 rolls 100–140, so masterworks are common for legends and impossible below level 13. Meals use the cook's roll the same way; drinks and bars have no quality.
 
+Seeing a masterwork follows 10's room-entry visibility and saved per-dwarf memory: floor items and installed furniture, excluding container contents and the crafter.
+
 A masterwork that is later destroyed (melted, burned, sold is fine) gives its crafter a grief-like thought `masterwork_lost`; 13 emits `ItemDestroyed` with the crafter id for this.
 
 ### Fuel and charcoal

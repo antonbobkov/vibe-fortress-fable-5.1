@@ -65,7 +65,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `SetRequests` | `civ, entries[]` | 20 | at most `REQUEST_MAX` | — |
 | `SetPopulationCap` | `n` | 21 | 20–200 | — |
 | `NameAnimal` | `animalId, name` | 08 | tame | — |
-| `RenameSquad` | `squadId, name` | 16 | — | — |
+| `RenameSquad` | `squadId, name` | 16 | 1–32 characters | — |
 | `RenameFortress` | `name` | core | 1–32 characters | — |
 
 App-level (not simulation commands, not logged): `Save`, `Load`, `RetireFortress`, `SetSpeed`, `SetSetting`, and the embark-session commands of 02 (`SetSkill`, `RerollDwarf`, `RenameDwarf`, `SetSupply`, `ApplyPreset`, `SetFortressName`, `ConfirmEmbark`), which run before the world exists.

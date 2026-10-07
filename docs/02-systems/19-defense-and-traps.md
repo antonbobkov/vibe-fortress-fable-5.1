@@ -74,7 +74,7 @@ All owned by 14; this system documents the patterns the design guarantees work, 
 3. Else the dwarf's bedroom if any.
 4. Else stay and flee locally (10 `flee`).
 
-10 calls this once on `AlertChanged` to `hearth` and when the dwarf's retreat tile becomes unreachable. 14 locks `lock_on_alert` doors after all civilians inside their enclosure have passed or after `ALERT_LOCK_GRACE_TICKS`, whichever comes first (the door locks when no fortress creature has been adjacent on the outside for 20 ticks, or when the grace period ends).
+10 calls this on `AlertChanged` to `hearth` and when a retreat target becomes unreachable. A civilian without a reachable shelter skips retreat while retaining flee precedence. Only those shut-out civilians are watched and rechecked after alert changes, building-state changes or a connectivity rebuild; 10 saves the watched ids. 14 locks `lock_on_alert` doors after all civilians inside their enclosure have passed or after `ALERT_LOCK_GRACE_TICKS`, whichever comes first (the door locks when no fortress creature has been adjacent on the outside for 20 ticks, or when the grace period ends).
 
 ### Fortifications and ranged defense
 

@@ -99,6 +99,8 @@ arrive(size, guaranteed):
 makeDwarf(): name = names.unique(rng); sex = rng.int(0,1); age = rng.int(EMBARK_AGE_MIN, EMBARK_AGE_MAX) years; attributes each = ATTRIBUTE_BASELINE + Σ3 rng.int(-8,8); personality = one trait from each of 3 random pairs; needs 30; all labors on
 ```
 
+`dwarfComponents(record, registry, world.rngFor('10'), title)` draws `sleepStartHour` uniformly in 20–23 and sets `sleepHours = SLEEP_HOURS` for both embark and immigration.
+
 `makeDwarf` is shared with 02 (embark party), which additionally lets the player assign skill points.
 
 ## Embark budget check (02)

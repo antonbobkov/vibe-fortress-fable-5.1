@@ -106,6 +106,8 @@ The room inspector names each missing requirement and counts the unique open bor
 
 Effects (thought ids in 15): bedroom tier on `Slept`; dining hall tier on `MealEaten` at a table; hearth hall tier as the fortress-wide baseline bonus; hospital tier on `PatientHealed`; barracks tier on training sessions; tomb tier on `Buried` for mourners. `RoomQualityChanged { zoneId, tier }` when the tier changes.
 
+On room entry, 10 observes visible floor masterworks and installed furniture throughout the room, excluding container contents and the viewer's own work; 10 saves its seen-item memory.
+
 ### Ownership
 
 - Bedroom: `AssignRoom { zoneId, dwarfId }`; auto-assignment daily: every unowned bedroom is given to a dwarf without one, titled dwarves first (Thane, then Warden, Broker, Chief Medic), then by lowest mood. An owner's bed is theirs; other dwarves do not sleep in it.

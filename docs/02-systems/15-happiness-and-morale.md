@@ -94,6 +94,8 @@ Sulks never involve violence, never target other dwarves' bodies, never destroy 
 
 Need pressure is part of the mood formula, so a hungry fortress is an unhappy fortress before it is a starving one. The standing need thoughts are both the legible form of the pressure ("Hungry (−6)" in the dwarf's thought list) and its measure: all seven count among `negatives`, and `hungry`, `thirsty`, `tired` and `lonely` also make up `needPressure`. `uncomfortable`, `restless` and `bored` are ordinary standing negatives: a fortress without chairs or a meeting area is gloomier, not miserable.
 
+Masterwork sight thoughts consume 10's `SawMasterwork` event on room entry. Its visible objects are floor items and installed furniture, excluding container contents and the viewer's own work; 10 saves the per-dwarf seen-item memory.
+
 ## State
 
 - `Mood` components: `value, tier, thoughts: { thoughtId, startTick, baseValue }[], sulkCounterDays`.

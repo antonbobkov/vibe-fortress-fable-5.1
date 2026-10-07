@@ -42,8 +42,12 @@ interface ForagingState { stateVersion: 1; huntable: Idx<SpeciesDef>[]; hunterAs
   waterBodies: { id: number; version: number; tileCount: number; fishPool: Fixed; kind: 'river'|'lake'|'cavern' }[]; bodyOfTile: [TileIndex, number][];
   bodiesStale: boolean; version: number; nextBodyId: number; nextFishTick: [EntityId, Tick][]; dailyDue: boolean; rng: RngState }
 
+interface ActivityPlan { need: string; phase: 'travel'|'seat'|'use'; itemId: EntityId; partner: EntityId; target: TileIndex; until: Tick;
+  ownBed: boolean; atTable: boolean; roomTier: number; startedRest: number }
 interface DwarvesState { stateVersion: 1; titles: Record<'thane'|'warden'|'broker'|'chief_medic', EntityId>; populationCached: number; children: EntityId[];
-  needRetryUntil?: [EntityId, NeedName, Tick][]; rng: RngState }
+  wagonTile: TileIndex; interruptFlags: EntityId[]; hungerMaxSince: [EntityId, Tick][]; thirstMaxSince: [EntityId, Tick][];
+  starvingAnnounced: [EntityId, number][]; activities?: [EntityId, ActivityPlan][]; idleAnnounced?: EntityId[]; sawMasterworks?: [EntityId, EntityId][];
+  needRetryUntil?: [EntityId, NeedName, Tick][]; shutOut?: EntityId[]; shelterCheckPending?: boolean; rng: RngState }
 
 interface JobsState { stateVersion: 1; jobs: Job[]; nextJobId: number; laborPriorities: Uint8Array; standingOrders: Record<string, boolean>;
   assignQueue: EntityId[]; blockedRetryCursor: number }

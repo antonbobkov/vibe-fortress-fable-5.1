@@ -93,6 +93,8 @@ Hauling is a family of job types produced by 13 (`haul_to_stockpile`), 12 (`haul
 - A `wheelbarrow` is not in version 1; heavy items (stone, logs, corpses) simply slow the carrier (10).
 - `hauling` labor on every dwarf is the default. The player is warned by a hint when more than `IDLE_HAULER_WARNING` items want hauling and fewer than three dwarves have hauling enabled.
 
+For idle wake-up, `hasWork` summarizes open jobs once per tick by reachable connectivity label and enabled labor. Restricted jobs keep exact worker-specific eligibility and tool checks. Invalidate this availability index on job state changes and load; assignment and its scoring remain unchanged.
+
 ### Blocking and retry
 
 | Reason | Meaning | Retry trigger |
