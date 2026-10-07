@@ -2,7 +2,10 @@
 
 **Source:** the owner, 2026-10-06 (the third of three audit/fix loops) · **Size:** M · **Needs:** T-111, T-115 and the fix tasks it produces · **Status:** open
 
-**Who:** an Opus subagent, or Codex on `gpt-6-astra` at high effort. Not Gemini ([`../../agents/README.md`](../../agents/README.md)).
+**Who:** two passes, so the strong model is spent on judgement and not on driving a browser ([`../../agents/README.md`](../../agents/README.md)).
+
+1. **Capture, by Codex on `gpt-6.1-sol`.** Play every flow below with Playwright and save, per step, a screenshot, a text dump of the cell buffer and the keys and clicks used. Trigger every failure path and save what the game shows. Write a plain index of what was captured, with no opinions.
+2. **Judgement, by an Opus subagent or Codex on `gpt-6-astra` at high effort.** Read the capture, replay the few flows where the capture raises a question, and write the report. Not Gemini.
 
 ## Why
 
