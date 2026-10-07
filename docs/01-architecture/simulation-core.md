@@ -33,8 +33,8 @@ The app owns one `requestAnimationFrame` loop:
 
 ```
 onFrame(nowMs):
-  if document.hidden: accumulatorMs = 0; render(); return
-  if speed == 0: accumulatorMs = 0; render(); return
+  if document.hidden: accumulatorMs = 0; lastFrameMs = nowMs; render(); return
+  if speed == 0: accumulatorMs = 0; lastFrameMs = nowMs; render(); return
   tickIntervalMs = 1000 / (SIM_TICKS_PER_SECOND × speed)
   accumulatorMs += min(nowMs − lastFrameMs, 250)     // cap: a long stall does not cause a burst
   ticksThisFrame = 0
@@ -125,9 +125,11 @@ Rules:
 
 - Commands are applied at the start of a tick, in submission order, before any system ticks.
 - A command is never applied partially. Validation runs first; mutation runs only if validation passes.
-- The command log keeps every command of the current season with its tick and result. The log is saved (it is small) and replayable in headless mode for reproducing bugs.
+- The command log keeps every command of the current season with its tick and result. The world clears its log in step 5 of the tick whose calendar advance enters a new season, so the log holds commands from the season's first tick onward (the `SeasonChanged` autosave, taken after the next tick, carries that tick's entries too). The log is saved (it is small) and replayable in headless mode for reproducing bugs.
 - Undo exists only for designations, zones and planned buildings before work starts, and is itself a command (`UndoDesignation`, `RemoveZone`, `CancelBuilding`) so that it goes through the same path.
 - The UI may submit many commands per frame (a drag designation submits one command per tile; the core coalesces consecutive designation commands with identical parameters into one batch for the log, but applies them individually).
+- Replay (`replay.mjs <save> <log>`) submits every entry whose tick is at or after the loaded game's tick, just before that tick runs (a coalesced entry as the one merged command), and prints the world hash every 100 ticks and at the end.
+- A command whose owning system is not present or does not list the command in its `ownsCommands` is rejected with `not_found` and logged, emitting `CommandRejected`.
 
 ## Events
 
@@ -143,7 +145,7 @@ An event is a plain record with a `type` and typed fields. The event table (Wave
 
 `core/rng.ts` implements `xoshiro128**` over 32-bit integers. The world seed is a 64-bit value shown to the player as a string. Streams:
 
-- `world.rngFor(systemId)` returns a persistent stream seeded from `hash(worldSeed, systemId)`. Its state is part of the system's saved state.
+- `world.rngFor(systemId)` returns a persistent stream seeded from `hash(worldSeed, systemId)`. `hashString` is FNV-1a/32 over UTF-16 code units, and `seedFor(worldSeed, streamId) = hashString(streamId, hashString(worldSeed))`. The four state words of `xoshiro128**` come from `splitmix32` of that seed, replacing the all-zero state with the golden-ratio constant (`0x9e3779b9`). Its state is part of the system's saved state.
 - World generation uses `rngFor('worldgen.elevation')`, `rngFor('worldgen.climate')`, and so on, one stream per stage, so that changing one stage does not change the others.
 - Local map generation uses one stream per stage in the same way.
 
@@ -158,6 +160,8 @@ weighted<T>(entries: readonly [T, weight][]): T
 shuffle<T>(array: T[]): void            // Fisher–Yates in place
 fixed(): Fixed                          // 0 … 999 as a fixed-point fraction
 ```
+
+`int(lo, hi)` uses rejection sampling to eliminate modulo bias, consuming further draws of the same stream deterministically.
 
 Nothing in L1–L3 uses `Math.random`. An ESLint rule forbids it outside `platform/`.
 
@@ -176,13 +180,13 @@ interface Calendar {
 }
 ```
 
-Boundary events are emitted in step 4 and dispatched in the next tick's step 3: `HourPassed { hour }`, `DayPassed { dayOfSeason, season, year }`, `SeasonChanged { season, year }`, `YearPassed { year }`. `SeasonChanged` is the trigger for autosave and the immigration check; `DayPassed` is the trigger for daily rolls (infection, threats, sulks).
+Boundary events are emitted in step 4 and dispatched in the next tick's step 3: `HourPassed { hour }`, `DayPassed { dayOfSeason, season, year }`, `SeasonChanged { season, year }`, `YearPassed { year }`. `hour` in `HourPassed` is the hour that has begun (the calendar's hour after the advance). When several boundaries coincide, events are emitted smallest first: `HourPassed`, `DayPassed`, `SeasonChanged`, `YearPassed`. `SeasonChanged` is the trigger for autosave and the immigration check; `DayPassed` is the trigger for daily rolls (infection, threats, sulks).
 
 Date display: "Day 12 of Spring, Year 3". Hour display in the status bar as a sun or moon glyph, not a number.
 
 ## Fixed-point math
 
-`core/fixed.ts` defines `type Fixed = number` holding an integer scaled by `FIXED_SCALE = 1000`. Helpers: `fx(n)`, `fmul(a, b)`, `fdiv(a, b)`, `flerp(a, b, t)`, `fclamp`, `fsqrt` (integer Newton), `fpercent(value, pct)`. Every fraction in a system (growth per tick, decay per hour, speed) is a `Fixed`. Floating point appears only in presentation (color blending, layout).
+`core/fixed.ts` defines `type Fixed = number` holding an integer scaled by `FIXED_SCALE = 1000`. Helpers: `fx(n)`, `fmul(a, b)`, `fdiv(a, b)`, `flerp(a, b, t)`, `fclamp`, `fsqrt` (integer Newton), `fpercent(value, pct)`. Every fraction in a system (growth per tick, decay per hour, speed) is a `Fixed`. All operations truncate toward zero (normalising `-0` to `0` so that hashes and saves cannot differ). Floating point appears only in presentation (color blending, layout).
 
 Integer overflow: all accumulators are checked against `2^31` in tests; anything that could exceed it (fortress wealth, total ticks) uses two 32-bit words or is bounded by design (`TICKS_PER_YEAR × 200 years < 2^31`).
 
@@ -191,12 +195,12 @@ Integer overflow: all accumulators are checked against `2^31` in tests; anything
 The rules in `architecture-overview.md` are enforced by:
 
 - `core/determinism-test.ts`: run scenario S for N ticks twice → hash equality; run S for N/2 ticks, save, load, run N/2 → hash equality with the uninterrupted run.
-- The world hash covers `Map3D` arrays, entity tables in id order, and each system's `serialize()` output.
+- The world hash covers `Map3D` arrays, entity tables in slot index order, and each system's `serialize()` output.
 - Iteration helpers in `core/` (`forEachEntityWith`, `forEachTileInChunk`, `sortedKeys`) are the only ways systems iterate shared state; they guarantee order.
 
 ## Speed and pause
 
-- Pause is speed 0. The renderer keeps running, so the player can inspect and issue commands while paused; commands queue and apply on the first tick after unpausing.
+- Pause is speed 0. The renderer keeps running, so the player can inspect and issue commands while paused; commands queue and apply on the first tick after unpausing. On resuming from pause or from a hidden tab, `lastFrameMs = nowMs`, so the simulation does not catch up.
 - Speed changes take effect on the next frame. Speeds above 1× do not change any rule; only the number of ticks per real second changes.
 - `danger` announcements set speed to 0 (see 24 UI). The core exposes `setSpeed` to presentation only; no system changes speed.
 

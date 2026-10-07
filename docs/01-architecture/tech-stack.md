@@ -10,7 +10,7 @@
 | Build | Vite | Fast dev loop, static output, no configuration burden |
 | UI framework | None | The UI is a text grid drawn on a canvas; a DOM framework would add nothing |
 | Rendering | HTML `Canvas 2D`, one canvas, a pre-rendered glyph atlas | Fast enough for a full redraw of a 160×60 grid at 60 fps; simple; portable |
-| Font | A bundled monospace bitmap-style font rendered once into the atlas at each zoom | Deterministic glyph shapes across platforms; no layout jitter |
+| Font | The pinned public-domain Unscii 8 bitmap font with seven original CC0 8×8 additions, bundled and rendered into the atlas at each zoom | Covers all 280 required CP437 and Unicode glyph slots; deterministic glyph shapes across platforms with zero layout jitter; committed in-tree so ordinary builds require no font dependencies |
 | Character set | CP437 glyphs plus a small set of extra Unicode glyphs listed in `03-content/glyphs-and-colors.md` (Wave 3) | The Dwarf Fortress visual vocabulary, extended where CP437 lacks a needed shape |
 | Randomness | `xoshiro128**` implemented in `core/rng.ts` with per-system streams | Deterministic, fast, seedable, splittable |
 | Numbers in simulation | Integers and fixed-point (`× 1000`) | Determinism across engines and easy serialization |
@@ -44,13 +44,13 @@ Content is authored as JSON files in `src/content/` with a TypeScript schema (`s
 
 ## Assets
 
-- One font file.
+- One font file: the committed public-domain Unscii 8 font with seven original CC0 8×8 symbol additions. Source bitmap patterns and a checksum-verified optional rebuild script are stored in-tree; ordinary builds consume the committed font without external tools. Loaded before boot and passed to the atlas at every zoom level.
 - No images, no audio.
 - The glyph atlas is generated at startup into an offscreen canvas per zoom level.
 
 ## Build output
 
-A static site: `index.html`, one JavaScript bundle, one CSS file for the canvas container, the font. Deployable to any static host. No server component.
+A static site: `index.html`, one JavaScript bundle, one CSS file for the canvas container (in its own bundled stylesheet), the font. Deployable to any static host. No server component.
 
 ## Performance targets
 
