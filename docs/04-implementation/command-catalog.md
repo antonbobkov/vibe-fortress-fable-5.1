@@ -8,7 +8,7 @@ Every command, its fields, its owning system, its validation and the events its 
 |---|---|---|---|---|
 | `Designate` | `tiles[], kind, priority` | 03 | each tile in bounds; kind precondition per 03's transition table for tiles that are discovered (undiscovered tiles accepted blind); `deepsilver_unconfirmed` if any tile is known deepsilver and `deepsilverConfirmed` is false | `JobCreated` via producer |
 | `UndoDesignation` | `tiles[]` | 03 | tiles have designations without progress (`has_progress` otherwise, partial) | `JobCancelled` |
-| `SetDesignationPriority` | `tiles[], priority` | 03 | designations exist | — |
+| `SetDesignationPriority` | `tiles[], priority` | 03 | designations exist; Designate tool applies it to the still-designated tiles of its last batch | — |
 | `SetTraffic` | `tiles[], mode` | 03 | in bounds | `TilesChanged` |
 | `DesignateStairwell` | `x, y, zTop, zBottom` | 03 | `zTop > zBottom`, in bounds | as Designate |
 | `DesignateHarvest` | `tiles[]` | 07 | crops at stage 3 | `JobCreated` |

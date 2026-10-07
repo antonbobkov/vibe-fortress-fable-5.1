@@ -64,7 +64,7 @@ Deconstruct (`DeconstructBuilding` → `remove` designation for constructions, `
 
 - `hearth`: 1×1, one per fortress; inputs 3 stone blocks and 1 log; on completion emits `HearthLit` (15 gives everyone `hearth_lit`); provides `light` (the 5×5 around it is `lit` for the purpose of comfort, not crops) and a +2 temperature override (05). Cannot be deconstructed while dwarves live (the command is rejected with `hearth_is_home`). If no `hearth_hall` zone exists, the 5×5 around the hearth is treated as the hearth hall for behavior and quality.
 - `trade_depot`: 3×3; inputs 3 logs or 3 blocks; must be reachable from a map edge by a 1-wide walkable path (checked when a caravan arrives, 20). One or more.
-- `well`: 1×1 over an `open` tile with water within `WELL_DEPTH` below (04); provides drinking water and hospital water; `working` when water is present.
+- `well`: 1×1 over an `open` tile with water within `WELL_DEPTH` below (04); provides drinking water and hospital water; `working` when 04's `waterBelow` finds liquid water through open tiles; rock or ice without liquid water ends that search.
 - `nest_box`: 1×1; chickens lay in it (08).
 - `cage`: a cage item placed as a building holds one creature (caught by a cage trap); `release` through a lever link or the `ReleaseCage` command.
 - `chain`: a rope or chain item placed; `AssignAnimal` to a chain restrains a tame animal to within 1 tile (war dogs at the gate).

@@ -75,7 +75,7 @@ Deaths: `year_one`, every seed of `year_one_seeds` and the played-fortress behav
 
 | Property | Generator | Invariant |
 |---|---|---|
-| fluid conservation | random sealed basins, random initial levels, 500 steps | Σ levels constant; every tile settles: after 500 steps the only active tiles are isolated level-1 water tiles waiting to evaporate (D-090) |
+| fluid conservation | random sealed basins, random initial levels, 500 steps | Σ levels constant; every tile settles: after 500 steps the only active tiles are isolated level-1 water tiles waiting to evaporate |
 | determinism under commands | random valid command streams over 2,000 ticks, run twice | equal hashes every 100 ticks |
 | save round-trip | random tick to save at during a scripted run | equal hash to the uninterrupted run |
 | connectivity consistency | random wall placements/removals | `reachable(a, b)` equals BFS reachability for 50 random pairs |

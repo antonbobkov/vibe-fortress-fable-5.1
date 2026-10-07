@@ -223,6 +223,8 @@ The headless runner is the basis of the acceptance tests in Wave 4 and of the de
 
 ## Startup sequence
 
+World-map generation runs in the app before a fortress `World` exists. After Generate completes, the app delivers `WorldGenerated { seed, size }` once through its app listener seam; embark then creates the fortress.
+
 1. Load content tables into the registry (`content-pipeline.md`).
 2. Build the glyph atlases (presentation).
 3. Construct `World` with the seed; construct systems in order; call `init` on each with the `InitContext` (which includes readers of all systems, so `init` may cache reader references but must not call them for state until `tick`).

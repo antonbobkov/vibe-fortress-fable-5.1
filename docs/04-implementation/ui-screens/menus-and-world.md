@@ -33,23 +33,25 @@
 │ Seed  [ coldmere-4471________ ]  [r] random                                  │
 │ Size  ( ) small 32   (•) standard 64   ( ) large 96                          │
 │ [g] Generate                                                                 │
-│ ┌──────────────────────────────────────────┐  Stage: rivers ▓▓▓▓▓▓░░░░ 62%    │
+│ ┌──────────────────────────────────────────┐  Stage: names ▓▓▓▓▓▓▓▓▓▓ 100%    │
 │ │≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│                                  │
 │ │≈≈≈≈""""♣♣♣∩∩▲▲▲∩♣♣""≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│  Land 41%   Mountains 6%         │
 │ │≈≈"""♣♣♣♣∩▲▲▲▲▲∩∩♣♣♣""".≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│  Rivers 7    Volcanoes 2         │
 │ │≈"""""♣♣∩∩▲▲▲∩∩♣♣♣""""..≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│                                  │
-│ │  (world preview; fills in by stage)      │                                  │
+│ │  (completed world preview)              │                                  │
 │ └──────────────────────────────────────────┘                                  │
 │ [Enter] Continue to the map        [Esc] Back                                │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
+
+Generate runs synchronously. On return, the screen shows the completed preview and the final stage at 100%.
 
 ## World map
 
 ```
 ┌────────────────────────────────────────────────────────────┬─────────────────────────────────┐
 │≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Greenhollow                     │
-│≈≈≈≈""""""♣♣♣♣♣∩∩∩▲▲▲▲∩∩♣♣♣♣""""≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Temperate forest · hills        │
+│≈≈≈≈""""""♣♣♣♣♣∩∩∩▲▲▲▲∩∩♣♣♣♣""""≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Temperate forest                │
 │≈≈"""""♣♣♣♣♣[♣]∩∩▲▲▲▲▲▲∩∩♣♣♣♣"""".≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ A river runs east to south.     │
 │≈"""""""♣♣♣♣♣∩∩∩▲▲▲▲▲∩∩♣♣♣♣♣""""..≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│                                 │
 │≈""""""♣♣♣♣☺♣∩∩∩▲▲▲▲∩∩∩♣♣♣♣""""...≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Wealth  ▓▓▓░░ 3                 │
@@ -57,16 +59,16 @@
 │≈≈""""""""♣♣♣♣∩∩∩∩∩∩∩∩♣♣♣"""".....≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Temper  ▓░░░░ 1                 │
 │≈≈≈"""""""""♣♣♣♣∩∩∩∩♣♣♣♣""""......≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Trait: Gemsprings               │
 │≈≈≈≈"""""""""""♣♣♣♣♣♣♣""""".......≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│                                 │
-│≈≈≈≈≈"""""""""""""""""""".........≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Mountainhome 9 regions (NE)     │
+│≈≈≈≈≈"""""""""""""""""""".........≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Mountainhome 9 regions (E)      │
 │≈≈≈≈≈≈"""""""""""""""""..........G.≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Hillfolk 5 (S) · Wildwood 3 (W) │
-│  (cursor [♣] · civ homes ☺ G · rivers drawn in blue)      │ Gloam 22 (SE)                   │
+│  (cursor [♣] · civ homes ☺ G · rivers drawn in blue)      │ Gloam 22 (E)                    │
 │                                                            │                                 │
 │                                                            │ [f] filter  [?] legend          │
 │                                                            │ [Enter] Embark here             │
 └────────────────────────────────────────────────────────────┴─────────────────────────────────┘
 ```
 
-Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings (`+`/`-` on the focused row), river / volcano toggles, trait list; matching regions keep full color, others dim.
+Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings (`+`/`-` on the focused row), river / volcano toggles, trait list; matching regions keep full color, others dim one step (`dim(c, 1)`). The cursor starts at the centre and inverts its cell. River regions draw blue `~`; civilization home glyphs and colors replace rivers and biomes. The region panel lists name, biome, river, lake, volcano, five-cell rating bars, traits and every civilization's distance and cardinal arrival edge; there is no relief field.
 
 ## Settings
 

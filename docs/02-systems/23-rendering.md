@@ -67,11 +67,14 @@ For each viewport cell, tile `t = (camX + col, camY + row, z)`:
 9. **Lighting**: outdoor tiles at night are dimmed one step (two under storm); fog dims the surface one step; underground tiles are not dimmed (the player sees what the dwarves know).
 10. **Cursor and selection**: the look cursor is drawn as an inverted cell (`fg`/`bg` swapped); a selection rectangle inverts its border cells; a building ghost uses green or red `bg` by validity.
 
+The world-map compositor draws a biome cell, replaces it with blue `~` for a river region, then with the civilization home glyph and color if present. A rejected filter region dims one step via `dim(c, 1)`; matching regions retain full color. The cursor inverts foreground and background after filtering.
+
 ### Animation
 
 Only presentation state animates; the simulation is discrete:
 
 - Active fluid tiles alternate `≈`/`~` every `FLUID_ANIM_MS`; settled tiles do not animate (a still lake looks still; a river shimmers).
+- Crop foreground uses `grass_green` dimmed by 3/2/1/0 for stages 0/1/2/3; a ready crop flashes `green` for one 500 ms phase in each four-phase cycle. Read readiness through `plants.cropReady`, which requires the fourth stage to finish.
 - Fire alternates `^`/`‼` and yellow/red.
 - The hearth `bg` pulses.
 - Rain draws `'` on a few random outdoor cells per frame; snow draws `*`.

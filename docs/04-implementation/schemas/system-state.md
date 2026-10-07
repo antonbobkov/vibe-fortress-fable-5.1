@@ -18,14 +18,16 @@ interface LocalMapSpec { seed: string; regionId: number; biome: Id<BiomeDef>; el
 
 interface TerrainState { stateVersion: 1; designations: { tile: TileIndex; kind: Designation; priority: Priority; progress: Fixed }[];
   engravings: [TileIndex, { quality: Quality; engraverId: EntityId; motif: number }][]; forbiddenTiles: TileIndex[];
-  cavernBreached: [boolean, boolean, boolean]; layerStack: { material: Idx<MaterialDef>; thickness: number }[]; rng: RngState; bigDigCounter: number }
+  cavernBreached: [boolean, boolean, boolean]; veinsFound: TileIndex[] /* sorted vein keys */; layerStack: { material: Idx<MaterialDef>; thickness: number }[]; rng: RngState; bigDigCounter: number }
 
 interface FluidsState { stateVersion: 1; active: Uint32Array /* tile indices, all chunks concatenated */; activeChunkOffsets: Uint32Array;
-  idleCounter: Uint8Array; waterSources: TileIndex[]; magmaSources: TileIndex[]; sinks: TileIndex[]; outdoorWaterTiles: TileIndex[];
-  frozenOriginalKind: [TileIndex, TileKind][]; mistTiles: [TileIndex, Tick][]; stepParity: 0|1; spreadRotation: 0|1|2|3; rng: RngState }
+  idleCounter: Uint8Array /* parallel to active */; waterSources: TileIndex[]; magmaSources: TileIndex[]; sinks: TileIndex[]; outdoorWaterTiles: TileIndex[];
+  frozenOriginalKind: [TileIndex, TileKind][]; frozenOriginalMaterial?: [TileIndex, number][]; frozenIceKind?: [TileIndex, TileKind][];
+  freezePending: boolean; mistTiles: [TileIndex, Tick][]; equalizeCounts?: [TileIndex, number][]; stepParity: 0|1; spreadRotation: 0|1|2|3; rng: RngState }
 
 interface MaterialsState { stateVersion: 1; burning: [TileIndex, { remainingTicks: number; spreadCooldown: number }][]; warmSprings: TileIndex[];
-  magmaSourceChunks: ChunkIndex[]; rng: RngState }
+  magmaSourceChunks: ChunkIndex[]; magmaSignatures: [ChunkIndex, number][]; started: boolean; pendingChunks: ChunkIndex[];
+  forced: [TileIndex, number][]; pendingIgnite: TileIndex[]; itemBurn: [EntityId, number][]; rng: RngState }
 
 interface WeatherState { stateVersion: 1; state: string; stateEndsTick: Tick; surfaceTempCached: number; growthModifierCached: Percent;
   snowCoveredChunks: ChunkIndex[]; wetChunks: [ChunkIndex, Tick][]; rng: RngState }

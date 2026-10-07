@@ -62,6 +62,8 @@ LocalMapSpec {
 }
 ```
 
+`relief = min(3, floor(maxDiff × 4 / 256))`, where `maxDiff` is the largest absolute elevation difference to the eight neighbouring regions that exist.
+
 03 generates the map from this and nothing else, so a region always generates the same local map.
 
 ### Arrival
@@ -70,7 +72,7 @@ LocalMapSpec {
 2. Find the wagon site: the 3×3 patch of walkable surface tiles with no trees, nearest to the midpoint of the `arrivalEdge`, searching inward up to `ARRIVAL_SEARCH_DEPTH` tiles; if none, clear trees from the first candidate patch (they become logs on the ground).
 3. Place the wagon building (function tag `container`, capacity unlimited, deconstructable, yields `WAGON_LOGS` logs).
 4. Spawn every purchased item inside the wagon's container. Spawn animals on walkable tiles adjacent to the wagon; each is `Tame` with no pasture.
-5. Spawn the dwarves adjacent to the wagon with all labors enabled except that dwarves with a combat skill ≥ 3 also get `Soldier`-ready flags (no squad yet). Needs start at 20 (mildly hungry, thirsty, rested).
+5. Spawn the dwarves through the creature spawn API, using the party records to build 10's dwarf components, adjacent to the wagon with all labors enabled except that dwarves with a combat skill ≥ 3 also get `Soldier`-ready flags (no squad yet). Needs start at 20 (mildly hungry, thirsty, rested).
 6. Assign the title Thane to the dwarf with the highest Charm (ties by id). No Warden, Broker or Chief Medic yet.
 7. Set the calendar to `START_SEASON`, day 1, `START_HOUR`, year 1.
 8. Emit `Embarked { fortressName, regionId }`. The app switches to the fortress screen, paused, centered on the wagon at the surface z-level, and shows the first hint.

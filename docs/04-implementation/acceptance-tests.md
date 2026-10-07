@@ -69,8 +69,8 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 |---|---|---|
 | `pl_cave_cycle` | 4×4 dimcap plot, 10 seeds, 1 farmer | first harvest at 16 ± 1 days; yield 3–5 per tile; seeds ≥ 10 after harvest |
 | `pl_light_rule` | dimcap on a lit tile; barley on a dark tile | neither grows; UI refuses mixed plots (`light_mismatch`) |
-| `pl_frost` | barley crop, temp forced to −5 | `CropDied { frost }` |
-| `pl_regrowth` | clear a 20×20 grass area of trees, run 2 years | ≥ 5 saplings, ≥ 2 trees |
+| `pl_frost` | winter barley crop, temp forced to −5 | `CropDied { frost }` |
+| `pl_regrowth` | clear a 20×20 grass area of trees; count saplings at 2 years and trees 30 days later | ≥ 5 saplings at the second anniversary, ≥ 2 trees after the additional 30 days |
 
 ## 08 Animals
 

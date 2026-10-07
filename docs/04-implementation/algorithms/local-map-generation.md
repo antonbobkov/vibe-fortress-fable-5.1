@@ -10,14 +10,16 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
   st = stream(S, 'terrain.height')
   base = SURFACE_Z_MIN + (spec.elevation - SEA_LEVEL) * (SURFACE_Z_MAX - SURFACE_Z_MIN) / (255 - SEA_LEVEL)
   amp = [1, 2, 4, 6][spec.relief]
-  h[x][y] = clamp(SURFACE_Z_MIN, SURFACE_Z_MAX, base + round(noise(st, x, y, [32, 12], [amp*0.7, amp*0.3]) - amp/2))
+  h[x][y] = clamp(SURFACE_Z_MIN, SURFACE_Z_MAX, base + roundTiesTowardZero(noise(st, x, y, [32, 12], [amp*0.7, amp*0.3]) - amp/2))
   h = median3x3(h)
   // 2. rivers and lakes (carve before layers so beds get stone)
   riverTiles = set(); st = stream(S, 'terrain.rivers')
   if spec.river: for each inflow edge: path = wander(st, midpoint(inflow), spec.river.outflowEdge ? midpoint(outflow) : lakeCenter(st))
        width = {brook:1, river:3, major:5}[class]; depth = {brook:1, river:2, major:2}[class]
        for each path tile p and its width-band tiles q: riverTiles.add(q); h[q] = min over band of h - depth (bed level); sourceEdge/sinkEdge marks kept
-  if spec.lake or lake created: center = lakeCenter; radius = st.int(6,12); for tiles within radius (noise-jittered): lakeTiles.add; h[q] = h - 2
+  if spec.lake or lake created: center = lakeCenter; radius = st.int(6,12); for tiles within radius (plain disc, no edge jitter): lakeTiles.add; h[q] = h - 2
+  lakeCenter(st): uniform centre where radius 12 fits inside the map
+  // A river with no inflow edge creates no path.
   wander(st, from, to): walk with steps toward `to` 70% / perpendicular 30%, never leaving the map, until reaching `to`
   // 3. columns: soil, rock layers, magma sea
   st = stream(S, 'terrain.layers')
@@ -34,18 +36,20 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
       else if z > top: kind=Open
       else if z > top - soilDepth: kind=Wall, material = soilMaterial or pick(biome.soil by weight, stream 'terrain.soil')
       else: kind=Wall, material = layerAt(stack, top - soilDepth - z + undulation)
-    surface tile (x,y,top): if in riverTiles or lakeTiles: kind of bed tile = Floor of the stone below; fill z from bed+1 to original top-1 with water 7; edge tiles of inflow → SOURCE; outflow → sink list
+    surface tile (x,y,top): if in riverTiles or lakeTiles: kind of bed tile = Floor of the stone below; fill z from the bed tile through waterTop-1 with water 7 (waterTop is the band's lowest original surface, or the lake column's original surface); edge tiles of inflow → SOURCE; outflow → sink list
     else: kind(x,y,top) = Floor (the column's top solid becomes the walkable surface: i.e. set tile at z=top to Floor with its material; tiles above Open)
   progress('layers')
   // 4. caverns
   for tier in [1,2,3]: (zmin, zmax) = band(tier); frac = CAVERN_OPEN_FRACTION(spec.deepness) + traitAdjust
     st = stream(S, 'terrain.cavern'+tier)
-    for x,y,z in band: n = noise3(st, x, y, z, [14, 6], [70, 30]); open = n < frac*100
-      if open and not (x<2 or y<2 or x>=W-2 or y>=H-2): kind=Open, material=0
+    interior = band tiles outside the two-tile map rim, in tile order
+    values = noise3(st, x, y, z, [14, 6], [70, 30]) for each interior tile
+    open the floor(interior.length * frac) lowest-noise tiles, ties by position; kind=Open, material=0
     for x,y: for z in band ascending: if kind(z)==Open and kind(z-1)==Wall: kind(z-1) = Floor; if st.chance(600): material(z-1) = cave_loam (else the stone) ; flags |= Grass if cave_loam
-    lakes: for floor tiles with noise3(..., [10],[100]) < 18: convert column above to water up to the band's lowest open z + 1
-    magma pools (tier >= 2): for st.chance(2) per 100 floor tiles: circle radius st.int(2,4) of magma level 7 (no source) at floor level (tile becomes Open with magma; floor below stays)
-    if 'deep_well' and tier == 1: lake threshold 60 instead of 18
+    lakes: select the lowest-noise 18% of floor tiles, ties by position, count rounded down
+      fill from the floor through lowestOpenZ+1, bounded by the band ceiling and fluid-passable kinds
+    magma pools (tier >= 2): for each dry floor tile: if st.chance(2): circle radius st.int(2,4) of magma level 7 (no source) at floor level (tile becomes Open with magma; floor below stays)
+    if 'deep_well' and tier == 1: lake fraction 60% instead of 18%
   progress('caverns')
   // 5. veins and clusters
   st = stream(S, 'terrain.minerals'); mult = wealthMultiplier[spec.wealth]

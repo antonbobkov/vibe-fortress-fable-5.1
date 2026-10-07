@@ -24,7 +24,7 @@ interface MetalDef extends MaterialDef {
   alloy?: { inputs: { material: Id<MaterialDef>; count: number; kind: 'bar'|'stone'|'fuel' }[]; output: number };
   armorWeightMult?: Fixed;   // deepsilver 0.5
 }
-interface GemDef extends MaterialDef { hosts: Id<MaterialDef>[]; count: number; cavernOnly?: boolean }
+interface GemDef extends MaterialDef { hosts: Id<MaterialDef>[]; count: number; cavernOnly?: boolean; zMax?: number }
 interface GeologyTemplateDef { id: 'sedimentary'|'igneous'|'metamorphic'|'mixed'; layers: { material: Id<MaterialDef>; min: number; max: number }[] }
 interface WealthMultiplierDef { wealth: 0|1|2|3|4; ore: Fixed; gem: Fixed; deepsilverVeins: number }
 

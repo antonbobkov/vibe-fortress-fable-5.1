@@ -6,25 +6,29 @@
 
 ```
 temperatureAt(i):
+  if forced[i] exists: return forced[i]
+  surface = weather.surfaceTempC() if 06 exists, else UNDERGROUND_BASE_C
   (x,y,z) = unpack(i); f = flags[i]
-  if f & (Outdoor|Lit): base = weather.surfaceTempC()
+  if f & (Outdoor|Lit): base = surface
   else: depth = terrain.surfaceZ(x,y) - z
-        if depth <= NEAR_SURFACE_DEPTH: base = lerp(weather.surfaceTempC(), UNDERGROUND_BASE_C, depth*1000/NEAR_SURFACE_DEPTH)
+        if depth <= NEAR_SURFACE_DEPTH: base = surface + trunc((UNDERGROUND_BASE_C - surface) * depth / NEAR_SURFACE_DEPTH)
         else: base = UNDERGROUND_BASE_C + max(0, DEEP_HEAT_START_Z - z) * DEEP_HEAT_PER_Z
   return base + tempOverride[i] * 5
 recomputeOverrides(chunk c):
   for i in tiles(c): tempOverride[i] = 0
   for src in sourcesTouching(c):   // magma tiles in c and its 8 neighbors and the chunk below/above; burning tiles; springs; snow tiles in c
-    for i in tiles(c) within Chebyshev 2 (same z or z+1) of src: add contribution (MAGMA_OVERRIDE / FIRE_OVERRIDE at distance 0, /2 at 1, /4 at 2; SPRING_OVERRIDE at 0; SNOW -1 at 0)
+    for i in tiles(c) within Chebyshev 2 (same z or z+1) of src: add contribution (magma at distances 0/1/2: MAGMA_OVERRIDE, /2, /4; fire at 0/1 only: FIRE_OVERRIDE, /2; springs and snow only on their own tile)
   clamp each to [-24, 24]   // ×5 °C = ±120
 ```
 
-Triggered by `FluidsChanged { chunks }`, `FireStarted/FireOut`, `SnowCoverChanged { chunks }`.
+At the first materials tick, compute magma and warm spring source reach and save `started`. A `FluidsChanged` chunk queues override work only when its magma index signature changes: itself, eight same-level neighbours and the nine above. Water alone does not queue work. Fire changes queue their reach; `SnowCoverChanged` queues named chunks. Process `pendingChunks` at the next materials tick. `forceTemperature(i, c)` sets a saved override that bypasses the model; `null` releases it.
 
 ## Fire (materials tick, every 10 ticks)
 
 ```
+for T in pendingIgnite (ascending T): if burnableTile(T) and no water: ignite(T), ignoring Wet/Snow; clear pendingIgnite
 for (T, s) in burning (ascending T):
+  if not burnableTile(T): extinguish(T, ash=false); continue
   s.remainingTicks -= 10
   if weather in {rain, storm} and outdoor(T) and rng.chance(RAIN_EXTINGUISH_PERMILLE*10): extinguish(T, ash=false); continue
   if level(fluid[T]) >= 1 and water: extinguish(T, ash=false); continue
@@ -34,16 +38,16 @@ for (T, s) in burning (ascending T):
   for it in items.at(T): if burnable(material(it)): burnTimer[it] -= 10; if <= 0: items.destroy(it, 'burned')
   for c in creatures at T: emit BurnDamage{c, BURN_TICK_DAMAGE}
   if s.remainingTicks <= 0: burnOut(T)
-ignite(T): burning.set(T, {remainingTicks: burnTicks(T), spreadCooldown: 0}); terrain.setFlag(T, Burning, true); emit FireStarted; recomputeOverrides
+ignite(T): burning.set(T, {remainingTicks: material burnTicks if positive else PLANT_BURN_TICKS, spreadCooldown: 0}); terrain.setFlag(T, Burning, true); emit FireStarted; recomputeOverrides
 burnOut(T): k = kind[T]
   if k in {Tree, Sapling, Shrub}: terrain.setKind(T, Floor, materialBelowOrSoil); terrain.setFlag(T, Grass, false); terrain.setFlag(T, Ash, true)
   else if k == Floor and flags & Grass: clear Grass, set Ash
   else if constructed wooden tile: terrain.setKind(T, Open or Floor per remove rule, 0)   // 14 removes the building entity on TilesChanged
   extinguish(T, ash=true)
-burnableTile(T): kind in {Tree, Sapling, Shrub} or (kind==Floor and flags&Grass) or (flags&Constructed and class(material)=='wood') or peat
+burnableTile(T): constructed wood anywhere, or outdoor natural tree/sapling/shrub/grass/peat; items do not make a tile burnable
 ```
 
-`BURN_TICK_DAMAGE` = 6 per materials tick. Ignition sources: magma adjacency (checked on `FluidsChanged` for burnable tiles adjacent to magma), `LightningStrike`, spread.
+`BURN_TICK_DAMAGE` = 6 per materials tick. Ignition sources: changed magma chunks queue burnable cardinal neighbours and the tile above each magma tile; `LightningStrike` queues its tile; spread occurs in the tick. All burning-flag changes occur during the materials tick and dirty connectivity. Emit FireStarted per queued-source ignition, and batch FireSpread/FireOut once per tick. Save pendingIgnite and itemBurn timers.
 
 ## Weather tick (hourly)
 
@@ -76,12 +80,13 @@ for crop in crops (ascending id):
   crop.growth += g
   stageLen = d.stageDays * HOURS_PER_DAY * BASE_GROWTH
   while crop.growth >= stageLen and crop.stage < 3: crop.growth -= stageLen; crop.stage++
+  if crop.stage == 3: keep accumulating, capped at stageLen; ready = crop.growth >= stageLen
   if weather=='heatwave' and surface and stage >= 1 and rng.chance(WILT_PERMILLE): crop.stage--
-plots (hourly): for zone in plots: species = settings.cropBySeason[season]; if none: continue
+plots (hourly): for zone in plots: species = settings.crop_per_season[season]; if none: continue
   for t in zone.tiles: if cropAtTile.has(t) or job exists: continue
     if items.countAvailable({type: seed, materialId: species}) > 0: sink.create('plant:'+t, plant job) else announceNeedsSeeds(zone, species) once per season
-harvest jobs: crops at stage 3 and (autoHarvest or designated) → sink.create('harvest:'+t)
+harvest jobs: crops with the fourth stage complete (plants.cropReady) and (autoHarvest or designated) → sink.create('harvest:'+t)
 daily: saplings (age ≥ saplingYears → Tree, SaplingGrew); regrowth tries; grass regrowth over bareSoil; shrub timers; ash expiry
 ```
 
-Harvest yield: `count = rng.int(min, max) + floor(skill/5)`, capped at `max + 2`; `SEEDS_PER_HARVEST` seeds; secondary yield; a quality tier from the farmer's roll (12's table) stored on the produce for meal quality.
+Harvest yield: `count = rng.int(min, max) + floor(skill/5)`, capped at `max + 2`; `SEEDS_PER_HARVEST` seeds; secondary yield only if no registry recipe produces its item; a quality tier from the farmer's roll (12's table) stored on the produce for meal quality.

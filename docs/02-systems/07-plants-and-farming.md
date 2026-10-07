@@ -9,7 +9,7 @@ Grow things. Trees for wood, shrubs for gathering, grass for grazing, crops on f
 ## Concepts
 
 - **Plant kind**: `tree`, `fungus_tree` (cavern wood), `shrub` (wild gatherable), `crop` (surface farm plant), `cave_crop` (underground farm plant), `grass`.
-- **Wild plant**: a tile of kind `tree`, `sapling` or `shrub` whose `material` is the plant species. Grass is a flag.
+- **Wild plant**: a tile of kind `tree`, `sapling` or `shrub` whose `material` is the material-table index of the plant species. Terrain plant facts are indexed by this material index, rather than by the plants table's index. Grass is a flag.
 - **Crop**: an entity on a farm plot tile with a species, a stage and growth progress.
 - **Stage**: crops have four stages `0 sprout, 1 growing, 2 ripening, 3 mature`; saplings have one long stage; shrubs are `mature` or `regrowing`.
 - **Farm plot**: a zone whose tiles are farmable; each tile holds at most one crop; the plot has a crop choice per season.
@@ -38,9 +38,9 @@ growthPerHour(plant, tile) =
   else BASE_GROWTH × weather.growthModifier() / 100        // growthModifier includes season and weather; 100 = normal
 ```
 
-A stage is `stageDays × HOURS_PER_DAY × BASE_GROWTH` units long; when the accumulator crosses it the stage advances and the accumulator keeps the remainder. Cave crops use a growth modifier of 100 in every season and ignore weather.
+A stage is `stageDays × HOURS_PER_DAY × BASE_GROWTH` units long; when the accumulator crosses it the stage advances and the accumulator keeps the remainder. Stage 3 begins after three stage lengths, but its accumulator continues through the fourth. A crop is ready only once the mature stage has completed, after four stage lengths at normal growth; `plants.cropReady(tile)` is the readiness query used by harvest jobs, harvest designation and the mature-crop blink. Cave crops use a growth modifier of 100 in every season and ignore weather.
 
-- `seasonAllows`: surface crops grow only in their `growSeasons`; outside them they are dormant (not dead). Winter with `surfaceTempC < FROST_KILL_C` at the crop's tile kills surface crops (`CropDied { reason: frost }`), which clears the tile for spring.
+- `seasonAllows`: surface crops grow only in their `growSeasons`; outside them they are dormant (not dead). Outside their growing seasons, `temperatureAt(tile) < FROST_KILL_C` kills surface crops (`CropDied { reason: frost }`), which clears the tile for spring.
 - `lightOk`: `sun` needs the `lit` flag; `dark` needs it clear; `any` ignores it.
 - `tempOk`: `minC ≤ temperatureAt(tile) ≤ maxC`.
 - Heatwave wilting (06): each heatwave hour a surface crop at stage ≥ 1 loses one stage with `WILT_PERMILLE`.
@@ -48,10 +48,10 @@ A stage is `stageDays × HOURS_PER_DAY × BASE_GROWTH` units long; when the accu
 ### Farm plots
 
 - A `farm_plot` zone can be drawn over tiles that are `floor` with material class `soil`, or with the `mud` flag, or cavern `cave_loam`. Tiles that do not qualify are excluded from the zone and shown in red during placement.
-- Settings: one crop per season (four slots), each `none` or a species whose light requirement matches the plot (the UI filters: a plot with any `lit` tile is a surface plot; a plot with no `lit` tile is a cave plot; mixed plots are refused).
+- Settings: one crop per season (four plant indices under `Zone.settings.crop_per_season`, 0 = none), each `none` or a species whose light requirement matches the plot (the UI filters: a plot with any `lit` tile is a surface plot; a plot with no `lit` tile is a cave plot; mixed plots are refused).
 - Each hour, for each plot tile without a crop, if the season's species is set and a seed exists in a stockpile or on the ground (13 `findItem(seedItem)`), the plants job producer creates `plant { tile, species }` (labor `farming`, skill `farming`); if no seed exists, the plot is marked `needsSeeds` once per season with a note.
 - `plant` job: fetch the seed, walk to the tile, work `PLANT_TICKS` (skill-scaled), consume the seed, create the `Crop` entity at stage 0.
-- `harvest` job: created for crops at stage 3 when `autoHarvest` (11 standing order) is on, or when the player designates harvest. Work `HARVEST_TICKS`; spawn `yieldCount` of `yieldItem` (rolled, +1 per 5 farming skill levels, capped at `yieldMax + 2`) and exactly `SEEDS_PER_HARVEST` seeds, plus the secondary yield if any; destroy the crop. Harvest by a skilled farmer gives the produce a quality tier used only for meal quality (13).
+- `harvest` job: created for crops with their fourth stage complete when `autoHarvest` (11 standing order) is on, or when the player designates harvest. Work `HARVEST_TICKS`; spawn `yieldCount` of `yieldItem` (rolled, +1 per 5 farming skill levels, capped at `yieldMax + 2`) and exactly `SEEDS_PER_HARVEST` seeds, plus the secondary yield only when no registry recipe produces that item (workshop conversions such as flour are not free harvest drops); destroy the crop. Harvest by a skilled farmer gives the produce a quality tier used only for meal quality (13).
 - A crop on a tile that stops qualifying (construction placed, tile dug, flooded to level ≥ 4) dies.
 - Removing the zone kills its crops and returns nothing.
 
@@ -85,7 +85,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 ## State
 
 - `crops`: entities with `Crop`; index `cropAtTile: Map<TileIndex, EntityId>`.
-- `plots`: zone ids with settings `{ cropBySeason[4], needsSeedsSeason }` (settings stored on the zone entity; this system keeps the index).
+- `plots`: zone ids indexed here. `SetPlotCrop` is applied by 07 and stores four plant indices (0 = none) in the zone's `crop_per_season` setting; it rejects a light mismatch. This system stores `plotIndex` and `needsSeedsAnnounced`, not a second copy of the zone's choices.
 - `saplings: Map<TileIndex, plantedTick>`, `shrubTimers: Map<TileIndex, matureTick>`, `bareSoil: SortedSet<TileIndex>`, `ashTiles: Map<TileIndex, clearTick>`.
 - Rng stream.
 
@@ -123,8 +123,8 @@ Job producer `plants` (`plant`, `harvest`); inspector sections `tile › plant` 
 ## Player-facing behavior
 
 - Zones menu › Farm plot: drag a rectangle; qualifying tiles highlight green, others red; confirm. The plot panel shows four season slots with species drop-downs filtered by light, a seed count per species, and the crops on the plot by stage.
-- Crops draw as the species glyph in a green that brightens with stage; mature crops flash once per two seconds in the plot until harvested.
-- Trees `♣`, `♠` and `↑` by species; saplings `τ`; shrubs `"` in species color; grass as a green background on the floor glyph; cave moss a blue-green background.
+- Crops draw as the species glyph with foreground `grass_green` dimmed by 3, 2, 1, 0 for stages 0–3. Once ready, the foreground is `green` for one 500 ms frame per four-frame (two-second) cycle until harvested.
+- Trees `♣`, `♠` and `↑` by species; saplings `τ`; shrubs `"` in species color; grass as a `grass_green` foreground on the floor glyph; cave moss uses `moss_teal`. Grass in `cold_steppe`, `tundra` and `savanna` uses `grass_dry` foreground.
 - Hints: "Farms need soil or mud", "Cave crops grow in the dark all year", "Harvest returns one seed; brewing does not".
 
 ## Tuning constants

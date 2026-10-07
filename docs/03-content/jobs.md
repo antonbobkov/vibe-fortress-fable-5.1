@@ -18,6 +18,8 @@ Every job type the game creates. Columns: `labor` required; `skill` used (— no
 | `chop` | Chop tree | woodcutting | woodcutting | tile | adjacent | `CHOP_BASE_TICKS` | axe | 10 | yes |
 | `gather` | Gather plant | herbalism | herbalism | tile | adjacent | `GATHER_BASE_TICKS` | — | 5 | no |
 
+For up or up/down stairs, the terrain producer's `extraStandTiles` also permits the tile directly above when it is a down or up/down stair. Floor smoothing and engraving, channel and down stairs work at the target; the other terrain rows work adjacent.
+
 ## Plants (producer `plants`)
 
 | id | name | labor | skill | target | workTile | baseTicks | tool | xp | interruptible |
