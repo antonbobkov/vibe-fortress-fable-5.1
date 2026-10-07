@@ -28,31 +28,33 @@ Quality interactions used elsewhere: weapon damage multiplier by metal tier (16)
 
 ```
 (x, y, z) = unpack(i)
-if outdoor(i) or lit(i):        base = weather.surfaceTempC()                     // from 06, includes season, hour and weather
+if outdoor(i) or lit(i):        base = surface                                  // cached 06 temperature, or fallback
 else:
   depthBelowSurface = surfaceZ(x, y) − z
   if depthBelowSurface ≤ NEAR_SURFACE_DEPTH:
-      base = lerp(weather.surfaceTempC(), UNDERGROUND_BASE_C, depthBelowSurface / NEAR_SURFACE_DEPTH)
+      base = surface + trunc((UNDERGROUND_BASE_C - surface) * depthBelowSurface / NEAR_SURFACE_DEPTH)
   else:
       base = UNDERGROUND_BASE_C + max(0, (DEEP_HEAT_START_Z − z)) × DEEP_HEAT_PER_Z
 return base + tempOverride(i) × 5
 ```
 
+`surface` is 06's cached surface temperature, or `SURFACE_FALLBACK_C = UNDERGROUND_BASE_C` when 06 is absent. A forced tile temperature, set by the test/debug `forceTemperature(tile, c)`, takes precedence over the model and is saved; `null` releases it.
+
 `tempOverride` is an `Int8` per tile written only by this system: the sum of source contributions in units of 5 °C, clamped to ±120 °C. Sources:
 
 - Magma tile: +`MAGMA_OVERRIDE` at the tile, +`MAGMA_OVERRIDE / 2` at distance 1, +`MAGMA_OVERRIDE / 4` at distance 2 (Chebyshev distance on the same level and the level above).
-- Burning tile: +`FIRE_OVERRIDE` at the tile, half at distance 1.
+- Burning tile: +`FIRE_OVERRIDE` at the tile, half at distance 1, on its own level and the level above; no distance-2 fire contribution.
 - Warm spring (`gemsprings`): +`SPRING_OVERRIDE` on its tiles.
 - Snow-covered tile: −`SNOW_OVERRIDE` at the tile.
 
-Overrides are recomputed for a chunk whenever `FluidsChanged` names it, when fire starts or ends in it, or when snow cover changes in it; the recompute clears the chunk's overrides and re-adds contributions from sources in the chunk and its neighbors. This keeps the per-tick cost near zero.
+On the first materials tick, compute the reach of all magma and warm spring source chunks and save `started`. On `FluidsChanged`, compare the named chunks' magma index signatures; only a changed magma signature queues recomputation of that chunk, its eight same-level neighbours and the nine above. Water alone queues nothing. Fire changes queue their reach; `SnowCoverChanged` queues its named chunks. At the next materials tick, clear and rebuild each queued chunk's summed contributions, clamped to ±24 override units (±120 °C).
 
 ### Uses of temperature
 
 | Consumer | Reads | Effect |
 |---|---|---|
 | 04 fluids | outdoor water tiles vs `FREEZE_C`/`THAW_C` | Ice |
-| 07 plants | tile temperature vs crop range | Growth or dormancy; frost kills surface crops below `FROST_KILL_C` |
+| 07 plants | tile temperature vs crop range | Growth or dormancy; frost kills surface crops below `FROST_KILL_C` outside their growing seasons |
 | 10 dwarves | tile temperature of the dwarf's position | Comfort need and outdoor thoughts (15) |
 | 17 health | tile temperature | Heat stroke above `HEAT_INJURY_C`, frostbite below `COLD_INJURY_C`, burn damage on burning tiles |
 | 12 workshops | `fluids.isMagmaAdjacent` | Magma-powered furnaces (not temperature; listed for completeness) |
@@ -62,13 +64,13 @@ Overrides are recomputed for a chunk whenever `FluidsChanged` names it, when fir
 
 State: `burning: Map<TileIndex, { remainingTicks, spreadCooldown }>`; the `burning` flag mirrors membership.
 
-- **Ignition.** A burnable tile ignites when: it is adjacent (cardinal or below) to a magma tile with level ≥ 1; a `LightningStrike` names it (06); a burning neighbor spreads to it; a creature carrying a burning status enters it (not in version 1); or a magma-adjacent wooden construction is built (14 warns and refuses unless the player confirms).
-- **Burnable tiles.** `tree`, `sapling`, `shrub`; `floor` with `grass`; constructed tiles whose material is `wood`; any tile with `burnable` items on it (items burn individually, see below). Cave flora is not burnable. Tiles with `wet` or `snow` flags are not ignitable by spread, only by magma or lightning.
-- **Burning.** Each materials tick (every 10 ticks): `remainingTicks −= 10`. When it reaches 0: a tree becomes `floor` with `ash` (grass cleared); a sapling or shrub becomes `floor` with `ash`; a grass floor loses `grass` and gains `ash`; a wooden construction is removed through `terrain.setKind` as if deconstructed with no item returned (support re-check follows). `ash` blocks grass regrowth and planting for `ASH_DURATION_DAYS` (07 clears it).
+- **Ignition.** Event handlers queue magma or lightning ignition for the next materials tick, ignoring wet/snow for those sources. A changed magma chunk queues its burnable cardinal neighbours and the tile above each magma tile. A burnable tile ignites when: it is adjacent (cardinal or below) to a magma tile with level ≥ 1; a `LightningStrike` names it (06); a burning neighbor spreads to it; a creature carrying a burning status enters it (not in version 1); or a magma-adjacent wooden construction is built (14 warns and refuses unless the player confirms).
+- **Burnable tiles.** Natural `tree`, `sapling`, `shrub`, grass floors and peat burn only outdoors. Constructed wood burns anywhere. Items on a burning tile burn individually but do not make the tile burnable; cave flora is not burnable. Tiles with `wet` or `snow` flags are not ignitable by spread, only by magma or lightning.
+- **Burning.** All burning-flag changes happen in the materials tick and mark connectivity dirty. A tile that is no longer burnable goes out without ash. A plant tile whose material has no burn duration uses `PLANT_BURN_TICKS = 300`; wood keeps its own material duration. Each materials tick (every 10 ticks): `remainingTicks −= 10`. When it reaches 0: a tree becomes `floor` with `ash` (grass cleared); a sapling or shrub becomes `floor` with `ash`; a grass floor loses `grass` and gains `ash`; a wooden construction is removed through `terrain.setKind` as if deconstructed with no item returned (support re-check follows). `ash` blocks grass regrowth and planting for `ASH_DURATION_DAYS` (07 clears it).
 - **Spread.** Each materials tick, each burning tile with `spreadCooldown == 0` tries each cardinal neighbor and the tile above: if burnable and not burning, ignite with `FIRE_SPREAD_PERMILLE` (`FIRE_SPREAD_WET_PERMILLE` under rain). After trying, `spreadCooldown = FIRE_SPREAD_COOLDOWN`.
 - **Items.** Items on a burning tile whose material is burnable are destroyed after `ITEM_BURN_TICKS`; non-burnable items survive. Items *in containers* on a burning tile: the container burns if burnable, and then its contents follow the rule.
 - **Creatures.** A creature on a burning tile receives `BurnDamage { id, amount }` every materials tick (17 applies it as burn wounds to random parts). Creatures avoid burning tiles in pathfinding (22 reads the flag).
-- **Extinguish.** Rain (06 weather is `rain` or `storm`) gives each outdoor burning tile `RAIN_EXTINGUISH_PERMILLE` per tick to go out early with no ash. Water at level ≥ 1 on a burning tile puts it out immediately. Fire never burns underground except on wooden constructions and items, which spread only along other wooden constructions.
+- **Extinguish.** Rain (06 weather is `rain` or `storm`) gives each outdoor burning tile a `RAIN_EXTINGUISH_PERMILLE × MATERIALS_CADENCE` draw per materials tick to go out early with no ash. Water at level ≥ 1 on a burning tile puts it out immediately. Fire never burns underground except on wooden constructions and items, which spread only along other wooden constructions.
 
 Fire is meant to be a hazard of magma, lightning and carelessness, not a weapon system; there is no way for the player to start a fire deliberately in version 1 except by channeling magma to wood.
 
@@ -84,6 +86,7 @@ On `MagmaContact { entities }`, for each item: if `meltsAtOf[material] ≤ MAGMA
 
 - `tempOverride` grid (owned here, stored in `Map3D`).
 - `burning` map; `warmSprings`; `magmaSourceChunks` (chunks containing magma, maintained from `FluidsChanged`).
+- `magmaSignatures` per source chunk; `pendingChunks` for override work; `started` for initial source computation; `forced` tile temperatures; `pendingIgnite` tiles and `itemBurn` timers.
 - Property typed arrays (rebuilt from the registry on load; not saved).
 
 ## Interfaces
@@ -111,7 +114,7 @@ None.
 
 ### Registrations
 
-Overlay `temperature` (a color ramp per tile, computed lazily for visible tiles only); inspector section `tile › temperature`; announcements for `FireStarted` (alert, "Fire on the surface" or "Fire in the hall").
+Overlay `temperature` (a color ramp per tile, computed lazily for visible tiles only); inspector section `tile › temperature`; announcements for `FireStarted` (alert, "A fire has started.").
 
 ## Player-facing behavior
 
@@ -136,7 +139,7 @@ Overlay `temperature` (a color ramp per tile, computed lazily for visible tiles 
 | `FIRE_SPREAD_COOLDOWN` | 30 | Ticks between spread attempts |
 | `ITEM_BURN_TICKS` | 100 | |
 | `BURN_TICK_DAMAGE` | 6 | Damage units per materials tick to a creature on a burning tile |
-| `RAIN_EXTINGUISH_PERMILLE` | 30 | Per tick |
+| `RAIN_EXTINGUISH_PERMILLE` | 30 | Per simulation tick, accumulated at materials cadence |
 | `ASH_DURATION_DAYS` | 28 | |
 | `FROST_KILL_C` | −2 | Surface crops die below this |
 | `HEAT_INJURY_C` | 55 | Heat stroke |

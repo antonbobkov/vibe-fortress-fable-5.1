@@ -9,7 +9,7 @@ The exact sequence of one `World.step()`. Cadence and phase are from the schedul
    for cmd in commandQueue (FIFO): owner.applyCommand(cmd) → log; CommandRejected on failure
 2. systems, in this order
    03 terrain      every tick        designation list → job producer state; apply pending tile mutations; discovery from last tick's EntitiesMoved; support checks; TilesChanged batch flushed at the end of its tick
-   04 fluids       tick % 2 == 0     water step; magma step when tick % 4 == 0; entity submersion/magma contact checks; FluidsChanged
+   04 fluids       tick % 2 == 0     queued freeze/thaw pass; water step; magma step when tick % 4 == 0; entity submersion/magma contact checks; FluidsChanged
    05 materials    (tick − 3) % 10   fire; override recompute for dirty chunks; TemperatureTick
    06 weather      (tick − 7) % 50   hourly weather logic (aligned to the game hour by phase 7 … note: the calendar hour boundary is at tick % 50 == 0; weather runs 7 ticks later on purpose so that HourPassed from the previous boundary has been dispatched)
    07 plants       (tick − 11) % 50  growth, plot jobs, harvest jobs

@@ -74,6 +74,7 @@ The world-map compositor draws a biome cell, replaces it with blue `~` for a riv
 Only presentation state animates; the simulation is discrete:
 
 - Active fluid tiles alternate `≈`/`~` every `FLUID_ANIM_MS`; settled tiles do not animate (a still lake looks still; a river shimmers).
+- Crop foreground uses `grass_green` dimmed by 3/2/1/0 for stages 0/1/2/3; a ready crop flashes `green` for one 500 ms phase in each four-phase cycle. Read readiness through `plants.cropReady`, which requires the fourth stage to finish.
 - Fire alternates `^`/`‼` and yellow/red.
 - The hearth `bg` pulses.
 - Rain draws `'` on a few random outdoor cells per frame; snow draws `*`.

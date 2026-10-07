@@ -9,7 +9,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-104 | [Triage D-rows: systems 01–07](work/T-104-triage-systems-01-07.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | in progress (codex-a) |
 | T-105 | [Triage D-rows: systems 08–13](work/T-105-triage-systems-08-13.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-106 | [Triage D-rows: systems 14–19](work/T-106-triage-systems-14-19.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-107 | [Triage D-rows: systems 20–24, content and implementation](work/T-107-triage-systems-20-24-and-content.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
@@ -21,6 +20,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-115 | [Audit: bug hunt](work/T-115-audit-bug-hunt.md) | the owner, 2026-10-06 | T-114 and its fix tasks | open |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, T-115 and its fix tasks | open |
 | T-113 | [`DwarfDied`: the specification says 10 emits it, the code never does](work/T-113-dwarfdied-event.md) | T-102 (found while replacing the interface note of `02-systems/10-dwarves.md`) | — | open |
+| T-117 | [Resolve retained systems 01–07 decision/code mismatches](work/T-117-retained-system-decisions.md) | [T-104 triage](archive/tasks/T-104-triage-systems-01-07.md) | owner resolutions for D-048, D-053, D-076, D-101 | open |
 | F-17 | [Balance follow-ups from the economy fortress](work/F-17-balance-followups.md) | [`../reports/audits/M8-balance-economy.md`](../reports/audits/M8-balance-economy.md) | — | in progress (branch `f-17`) |
 | C-009 | System 21's performance allocation is a literal 0.00 ms, which no measured run can meet; its budget assertion is `it.todo` | [`05-plan/DECISIONS.md`](05-plan/DECISIONS.md) § Contradictions, row C-009 | an owner decision: a positive allocation, or an exemption for zero allocations | open |
 | B-008 | Balance finding: the wealth curve over years 1–3 against the model | [`../reports/audits/M8-balance-economy.md`](../reports/audits/M8-balance-economy.md) | F-17 (re-measure) | open; folds into T-109 |
