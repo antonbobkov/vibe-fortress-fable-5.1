@@ -123,7 +123,8 @@ Legend: `[ ]` not started · `[~]` in progress (agent, date) · `[x]` done (agen
 - [x] F-14 — Immigration spirit threshold 65 → 55 (agy-f14, 2026-10-03)
 - [x] F-15 — Bandits who reach their stockpile steal and leave; a failed walk means unreachable (agy-f15, 2026-10-03)
 - [x] F-16 — A civilian with no reachable shelter does not freeze (codex-f16, 2026-10-03)
-- [ ] F-17 — Balance follow-ups from the economy fortress
+- [x] F-17 — Balance follow-ups from the economy fortress (codex-f17, 2026-10-06)
+  - Finished under the owner's three-run time box: main survives with zero deaths; four absent recipe witnesses and 4/8 trades remain explicit known gaps (D-258). Once-only sweep/mood data and unfixed simulation findings are in [the new audit](../../reports/M8-balance-after-f17.md) and its raw JSON. Five peaceful sweep failures and the tasks 1–2 reference performance failure remain reported; no constant tuning or simulation fixes were made in tasks 3–4.
 
 ## M6 — Steel and Blood ([M6-steel-and-blood.md](M6-steel-and-blood.md))
 
