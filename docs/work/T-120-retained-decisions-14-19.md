@@ -22,3 +22,15 @@ These are decisions the code follows and the specification should say. Writing t
 ## Resolution and verification
 
 Obtain the owner's resolution for each row before changing anything. Never resolve a row by silently deleting it, loosening a test, or changing unrelated simulation rules. If behavior or hashes change, regenerate only the predicted named goldens and include the required `golden:` paragraph. Fold each resolved rule into the specification and delete only its exact decision-log row. Run [the required checks](../process/agent-workflow.md) before each commit; the normal task closure rules apply once every row is resolved.
+
+## Resolutions (parent, 2026-10-07, under the owner's standing instruction to use judgement)
+
+| Item | Resolution |
+|---|---|
+| D-075 | **The rule stands; fix the code.** Bedroom auto-assignment prefers the dwarf with the lowest mood, as the row and `14` say. `buildings/index.ts` passes a constant mood of 55, so the tie-break never uses mood. Pass the real mood through the morale reader. Add a regression test with two unhoused dwarves of different mood. |
+| D-170 (T-M6-13) | **The rule stands; fix the code.** `width` and `height` in a placement apply only to a building type whose footprint is variable (the drawbridge). For any other type the command is rejected with a reason that names the building. Add a test for each side. |
+| D-249 | **The rule stands; fix the code.** A squad trains in the barracks its zone setting names. The cached `barracksZoneId` in `combat/training.ts` is refreshed when the zone setting changes, and a squad that has already trained moves to the newly assigned barracks. Add a regression test. Remove the "still trains at …" line from the military panel once this holds. |
+| Catalog field cells | **Regenerate.** The command and event catalogs' field cells are brought to the real names (`buildingType`, `zoneType`, `ZoneChanged.tiles`, the `Building*` and `CreatureDied` fields) together with `src/core/command-types.ts` and `event-types.ts`, through the export scripts, so the compared files stay in step. |
+| `fortification` placement | **The code stands.** A fortification is placed on a floor. Carving one out of an existing wall is not implemented, and nothing else in the spec depends on it. Change the content table's placement cell to "floor" and regenerate `src/content/buildings.json`. |
+
+Do the three fixes first, each with its test; then the two regenerations. World hashes may move for D-075 and D-249: regenerate the named goldens with a `golden:` paragraph.
