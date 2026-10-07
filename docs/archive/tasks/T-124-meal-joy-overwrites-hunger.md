@@ -1,6 +1,6 @@
 # T-124 — A high-quality meal's joy relief writes the old hunger back
 
-**Source:** F-17 re-measure, [`../../reports/audits/2026-10-07-balance-after-f17.md`](../../reports/audits/2026-10-07-balance-after-f17.md) § Simulation findings (read in code, not yet seen in a run) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** F-17 re-measure, [`../../../reports/audits/2026-10-07-balance-after-f17.md`](../../../reports/audits/2026-10-07-balance-after-f17.md) § Simulation findings (read in code, not yet seen in a run) · **Size:** S · **Needs:** — · **Status:** open
 
 ## What is wrong
 
@@ -8,7 +8,7 @@ In `src/systems/dwarves/activities.ts` (about lines 413–426) the eating step c
 
 Example: hunger 65 and joy 80 before. After the first write, hunger 0 and joy 80. After the second, hunger 65 and joy 60.
 
-[`../02-systems/10-dwarves.md`](../02-systems/10-dwarves.md) § Needs gives a meal hunger −100 and a fine meal joy −20. Both must persist.
+[`../../02-systems/10-dwarves.md`](../../02-systems/10-dwarves.md) § Needs gives a meal hunger −100 and a fine meal joy −20. Both must persist.
 
 ## What to do
 
@@ -20,4 +20,4 @@ Example: hunger 65 and joy 80 before. After the first write, hunger 0 and joy 80
 ## Done
 
 - The test fails before and passes after.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
