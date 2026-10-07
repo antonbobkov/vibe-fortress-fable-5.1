@@ -2,6 +2,8 @@
 
 **Source:** the owner, 2026-10-06 (the second of three audit/fix loops) · **Size:** L · **Needs:** T-114 and the fix tasks it produces · **Status:** open
 
+**Who:** an Opus subagent, or Codex on `gpt-6-astra` at high effort. Not Gemini ([`../../agents/README.md`](../../agents/README.md)).
+
 ## Why
 
 Every long measurement so far has turned up real defects that no test caught: raiders that never left, a door lock that never reached pathfinding, hostile gear counted as wealth, crafts losing their quality, a job producing output from inputs it no longer held, a save that diverged one tick after loading. Each was found by accident, while measuring something else. This audit looks for them on purpose.

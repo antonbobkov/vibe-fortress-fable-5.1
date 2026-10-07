@@ -2,6 +2,8 @@
 
 **Source:** the owner, 2026-10-06 (the third of three audit/fix loops) · **Size:** M · **Needs:** T-111, T-115 and the fix tasks it produces · **Status:** open
 
+**Who:** an Opus subagent, or Codex on `gpt-6-astra` at high effort. Not Gemini ([`../../agents/README.md`](../../agents/README.md)).
+
 ## Why
 
 The first UI audit ([`../../reports/audits/ui-audit.md`](../../reports/audits/ui-audit.md)) led to eight fix tasks, and T-111 records which of its items they closed. This is a fresh pass on the result, not a re-check of the old list. It goes last of the three audits, so that it looks at the game after the playthrough and bug fixes have landed.

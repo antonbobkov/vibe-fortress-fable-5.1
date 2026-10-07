@@ -2,6 +2,8 @@
 
 **Source:** the owner, 2026-10-06 (the first of three audit/fix loops) · **Size:** M · **Needs:** T-113 · **Status:** open
 
+**Who:** an Opus subagent, or Codex on `gpt-6-astra` at high effort. Not Gemini ([`../../agents/README.md`](../../agents/README.md)).
+
 ## Why
 
 The long scripted runs are what tell us the game works as a whole: the browser specs in `test/e2e/` (above all `full-year`), and the headless scenarios `year_one` and `three_years` with the 20-seed sweep. Unit tests and the acceptance scenarios cover rules one at a time. The question for this audit is narrower: **does a simulated playthrough actually exercise each major feature of the game, through the real commands and the real UI, and would it notice if that feature broke?**
