@@ -84,7 +84,7 @@ async function ui(page: Page): Promise<{ camX: number; camY: number; z: number }
   });
 }
 
-test('designate-by-drag', async ({ page }) => {
+test('U-02 M1/S2 designate-by-drag', async ({ page }) => {
   test.setTimeout(240_000);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -98,6 +98,7 @@ test('designate-by-drag', async ({ page }) => {
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await expect.poll(() => screenOf(page), { timeout: 60_000 }).toBe('fortress');
+  const initialTick = await page.evaluate(() => (window as unknown as { __deepholm: FullHook }).__deepholm.readers.calendar.tick);
 
   const face = await findFace(page);
   expect(face).not.toBeNull();
@@ -142,6 +143,16 @@ test('designate-by-drag', async ({ page }) => {
   await page.mouse.move(box.x + b.x, box.y + b.y, { steps: 4 });
   await expect.poll(() => textOf(page)).toContain('Dig 4x3 (12 tiles), priority 5');
   await page.mouse.up();
+
+  // U-02 M1/S2: the real drag is visible while the new fortress is still paused.
+  const paused = await page.evaluate((r) => {
+    const hook = (window as unknown as { __deepholm: FullHook }).__deepholm;
+    const map = hook.readers.map as FullHook['readers']['map'] & { designationAt(i: number): number };
+    return { tick: hook.readers.calendar.tick,
+      tiles: Array.from({ length: r.w * r.h }, (_, n) => map.designationAt(map.index(r.x + n % r.w, r.y + Math.floor(n / r.w), r.z))) };
+  }, rect);
+  expect(paused.tick).toBe(initialTick);
+  expect(paused.tiles).toEqual(Array(12).fill(1));
 
   // 4×: Space starts at 1×, `+` twice steps to 4×.
   const start = await page.evaluate(() => (window as unknown as { __deepholm: FullHook }).__deepholm.readers.calendar.tick);

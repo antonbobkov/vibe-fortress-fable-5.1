@@ -111,7 +111,7 @@ async function textCell(page: Page, needle: string, offset = 0): Promise<{ x: nu
   return { x: b.x + p.x, y: b.y + p.y };
 }
 
-test('farm-plot-and-orders', async ({ page }) => {
+test('U-02 farm-plot-and-orders', async ({ page }) => {
   test.setTimeout(600_000);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -204,9 +204,19 @@ test('farm-plot-and-orders', async ({ page }) => {
   for (const season of ['Spring', 'Summer', 'Autumn', 'Winter']) {
     const row = await textCell(page, season, 9);
     await page.mouse.click(row.x, row.y);
-    const dimcap = await textCell(page, 'dimcap');
+    // U-02: previously chosen seasons now show dimcap immediately. Select the indented open
+    // dropdown option, rather than matching a closed field that already contains that name.
+    const dimcap = await textCell(page, '  dimcap');
     await page.mouse.click(dimcap.x, dimcap.y);
   }
+  const selectedCrops = await page.evaluate(({ farm, width }) => {
+    const h = (window as unknown as { __deepholm: FarmHook }).__deepholm;
+    const buildings = h.readers.of('14') as { zoneAt(tile: number): number };
+    const plants = h.readers.of('07') as { plotSettings(id: number): number[] };
+    const zone = buildings.zoneAt(h.readers.map.index(farm.x + width - 3, farm.y, farm.z));
+    return { crops: plants.plotSettings(zone), dimcap: h.host.headless.registry.table('plants').index('dimcap') };
+  }, { farm: f, width: PLOT_W });
+  expect(selectedCrops.crops).toEqual(Array(4).fill(selectedCrops.dimcap));
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
   // The fourth early floor is diagonal to the first strip, so it needs its own plot.
   await page.keyboard.press('Escape');
@@ -220,7 +230,7 @@ test('farm-plot-and-orders', async ({ page }) => {
   for (const season of ['Spring', 'Summer', 'Autumn', 'Winter']) {
     const row = await textCell(page, season, 9);
     await page.mouse.click(row.x, row.y);
-    const dimcap = await textCell(page, 'dimcap');
+    const dimcap = await textCell(page, '  dimcap');
     await page.mouse.click(dimcap.x, dimcap.y);
   }
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));

@@ -68,6 +68,20 @@ interface ClassLabels {
   globals: Int32Array;
 }
 
+/** Labels not yet refreshed after a command, saved only around dirty chunks. */
+export interface PendingConnectivityState {
+  readonly dirty: readonly ChunkIndex[];
+  readonly classes: readonly {
+    readonly cls: MovementClass;
+    readonly chunks: readonly {
+      readonly chunk: ChunkIndex;
+      readonly local: readonly number[];
+      readonly count: number;
+      readonly portals: readonly number[];
+    }[];
+  }[];
+}
+
 /** How much of a clean neighbour's portal list a dirty chunk can change, per tile. */
 const NEAR_NONE = 0;
 /** The tile lies on another level than the dirty chunk: only its stairs and ramp edges. */
@@ -129,6 +143,61 @@ export class Connectivity {
   /** The chunks rebuilt by the last {@link rebuildDirty}, ascending. */
   lastRebuilt(): readonly ChunkIndex[] {
     return this.lastDirty;
+  }
+
+  /** Preserve the current query boundary without running the next tick's connectivity pass. */
+  savePendingState(): PendingConnectivityState | undefined {
+    const dirty: ChunkIndex[] = [];
+    for (let c = 0; c < this.map.chunkCount; c += 1) if (this.map.chunk(c)?.dirtyPath) dirty.push(c);
+    if (dirty.length === 0) return undefined;
+    // Only a dirty chunk and its 26 neighbours can have different labels or outgoing edges
+    // after a full rebuild. All other chunks can still be reconstructed from the saved map.
+    const affected = new Set<ChunkIndex>();
+    for (const c of dirty) {
+      const cx = c % this.map.chunksPerRow;
+      const cy = Math.floor(c / this.map.chunksPerRow) % this.map.chunksPerCol;
+      const cz = this.chunkZ(c);
+      for (let dz = -1; dz <= 1; dz += 1) for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+        const x = cx + dx; const y = cy + dy; const z = cz + dz;
+        if (x < 0 || x >= this.map.chunksPerRow || y < 0 || y >= this.map.chunksPerCol || z < 0 || z >= this.map.d) continue;
+        affected.add((z * this.map.chunksPerCol + y) * this.map.chunksPerRow + x);
+      }
+    }
+    const chunks = Array.from(affected).sort((a, b) => a - b);
+    return { dirty, classes: this.classes.map((cls) => {
+      const state = this.stateOf(cls);
+      return { cls, chunks: chunks.map((chunk) => {
+        const local: number[] = [];
+        this.eachChunkTile(chunk, (tile) => local.push(state.local[tile] as number));
+        return { chunk, local, count: state.counts[chunk] as number, portals: [...(state.portals[chunk] as number[])] };
+      }) };
+    }) };
+  }
+
+  /** Restore a pending query boundary after rebuilding the rest of the loaded map. */
+  loadPendingState(saved: PendingConnectivityState): void {
+    for (const { cls, chunks } of saved.classes) {
+      const state = this.stateOf(cls);
+      for (const { chunk, local, count, portals } of chunks) {
+        let at = 0;
+        this.eachChunkTile(chunk, (tile) => { state.local[tile] = local[at++] as number; });
+        state.counts[chunk] = count;
+        state.portals[chunk] = [...portals];
+      }
+      for (const { chunk } of chunks) this.resolveLinks(chunk, state);
+      this.rebuildGlobal(cls);
+    }
+    for (const c of saved.dirty) {
+      const rec = this.map.chunk(c);
+      if (rec !== undefined) rec.dirtyPath = true;
+    }
+  }
+
+  private eachChunkTile(chunk: ChunkIndex, visit: (tile: TileIndex) => void): void {
+    const x0 = this.chunkX0(chunk); const y0 = this.chunkY0(chunk); const z = this.chunkZ(chunk);
+    for (let y = y0; y < Math.min(y0 + SIZE, this.map.h); y += 1) {
+      for (let x = x0; x < Math.min(x0 + SIZE, this.map.w); x += 1) visit(this.map.index(x, y, z));
+    }
   }
 
   // ---------- chunk geometry ----------

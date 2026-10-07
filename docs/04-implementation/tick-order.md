@@ -35,6 +35,7 @@ The exact sequence of one `World.step()`. Cadence and phase are from the schedul
 
 ## Clarifications
 
+- While paused, the host runs step 1 immediately when a command is submitted, using `calendar.tick` (the next tick to run) for contexts and logging. Steps 2–5 do not run. Rejections are delivered once to presentation immediately; other command events stay queued for step 4. Commands applied while paused are not repeated when the next tick runs.
 - 18 and 20 are registered with cadence 1 for member movement and internally gate party logic to `(tick − phase) % 50 == 0`; the scheduler table's "50" describes the heavy part. This keeps the movement helper called exactly once per creature per tick.
 - Path requests made during a brain's tick are served in the core pathing pass of the same tick if budget allows; the brain sees the path on its next tick.
 - `EntitiesMoved` is assembled during step 2 and emitted at the end of step 2; 03, 04, 18 and 19 consume it in step 4 of the same tick.

@@ -70,6 +70,7 @@ Entity ids are written as numbers with generation. Content references are writte
 3. Inflate the body; parse sections into a map by name.
 4. Construct `World` with the seed; `deserialize` core sections; construct systems; for each system in order call `deserialize(state)` with migration from `stateVersion` to current.
 5. Run rebuild-on-load per `schemas/system-state.md`.
+   If `systems[22].state.pendingConnectivity` is present, restore its saved local labels, component counts and outgoing portals after the full connectivity rebuild, reconstruct the global labels and mark its saved dirty chunks for the normal tick pass. Do this before restoring path requests, searches, the path cache and walks. This optional field preserves the command boundary of a paused save; it does not advance connectivity while saving or loading.
 6. Restore `UiState`; start paused.
 
 ## Migration

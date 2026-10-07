@@ -18,6 +18,7 @@ import type { ComponentType, EntityKind } from '@core/entities';
 import { idsToStrings, referencedIds, stringsToIds } from '@core/id-fields';
 import { Map3D } from '@core/map3d';
 import type { MovementState } from '@core/movement';
+import type { PendingConnectivityState } from '@core/connectivity';
 import type { PathfinderState } from '@core/pathfinding';
 import type { Command, CommandLogEntry } from '@core/commands';
 import type { GameEvent } from '@core/events';
@@ -56,6 +57,7 @@ export interface PathingStateV1 {
   readonly stateVersion: 1;
   readonly pathfinder: PathfinderState;
   readonly movement: MovementState;
+  readonly pendingConnectivity?: PendingConnectivityState;
 }
 
 /** The `world` section: `WorldMap`, the chosen `regionId`, the `LocalMapSpec` (and D-079's extras). */
@@ -177,10 +179,12 @@ export function gameSections(game: HeadlessGame, options: Pick<SaveOptions, 'wor
     const state = system.serialize() as { stateVersion?: number } | null;
     systems[system.id] = { stateVersion: state?.stateVersion ?? 1, state };
   }
+  const pendingConnectivity = game.pathing.connectivity.savePendingState();
   const pathing: PathingStateV1 = {
     stateVersion: 1,
     pathfinder: game.pathing.pathfinder.saveState(),
     movement: game.movement.saveState(),
+    ...(pendingConnectivity === undefined ? {} : { pendingConnectivity }),
   };
   systems[PATHING_ID] = { stateVersion: 1, state: pathing };
   sections.push(jsonSection('systems', systems));
@@ -406,6 +410,7 @@ export function restoreGame(save: LoadedSave, registryIn?: Registry, now?: () =>
   game.pathing.connectivity.rebuildAll();
   const pathing = systems[PATHING_ID]?.state as PathingStateV1 | undefined;
   if (pathing !== undefined) {
+    if (pathing.pendingConnectivity !== undefined) game.pathing.connectivity.loadPendingState(pathing.pendingConnectivity);
     game.pathing.pathfinder.loadState(pathing.pathfinder);
     game.movement.loadState(pathing.movement);
   }

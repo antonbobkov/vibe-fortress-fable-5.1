@@ -222,6 +222,30 @@ export class World {
     return this.listeners.add(listener);
   }
 
+  /** The next tick's command phase, without systems, connectivity or calendar advancement. */
+  commandPhase(immediateRejections = false): void {
+    const rejections: GameEvent[] = [];
+    for (const command of this.commands.drain()) {
+      const result = this.applyCommand(command);
+      this.commandLog.append(this.calendar.tick, command, result);
+      if (!result.ok) {
+        const event: GameEvent = { type: 'CommandRejected', command, reason: result.reason };
+        if (immediateRejections) rejections.push(event);
+        else this.events.emit(event);
+      }
+    }
+    // Rejections have no simulation subscribers. Other command events keep their normal dispatch
+    // boundary so paused commands and replayed commands cause identical system reactions.
+    if (immediateRejections && rejections.length > 0) {
+      this.events.seal();
+      try {
+        this.listeners.deliver(rejections);
+      } finally {
+        this.events.unseal();
+      }
+    }
+  }
+
   /** The whole simulation tick, exactly as `tick-order.md` sequences it. */
   step(): void {
     const started = this.now();
@@ -234,13 +258,7 @@ export class World {
     };
 
     // 1. Commands, FIFO, before any system ticks.
-    for (const command of this.commands.drain()) {
-      const result = this.applyCommand(command);
-      this.commandLog.append(tick, command, result);
-      if (!result.ok) {
-        this.events.emit({ type: 'CommandRejected', command, reason: result.reason });
-      }
-    }
+    this.commandPhase();
 
     // 2. Systems, in the fixed order, when their cadence and phase are due.
     for (const system of this.scheduler.inOrder()) {

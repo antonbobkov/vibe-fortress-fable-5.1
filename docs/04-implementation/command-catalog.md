@@ -2,7 +2,7 @@
 
 **Owner:** implementation · **Depends on:** [`../01-architecture/module-interfaces.md`](../01-architecture/module-interfaces.md), every system document
 
-Every command, its fields, its owning system, its validation and the events its application emits. Rejection reasons are from the fixed list at the end. Commands are applied at the start of a tick in submission order.
+Every command, its fields, its owning system, its validation and the events its application emits. Rejection reasons are from the fixed list at the end. Commands are applied at the start of a tick in submission order. While paused, the host runs the same command phase immediately, stamped with the next tick's number, without running any other tick phase. Rejections reach presentation at once; other command events wait for the normal tick dispatch.
 
 | Command | Fields | Owner | Validation (reject reason) | Emits |
 |---|---|---|---|---|
