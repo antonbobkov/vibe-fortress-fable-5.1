@@ -125,9 +125,10 @@ Rules:
 
 - Commands are applied at the start of a tick, in submission order, before any system ticks.
 - A command is never applied partially. Validation runs first; mutation runs only if validation passes.
-- The command log keeps every command of the current season with its tick and result. The log is saved (it is small) and replayable in headless mode for reproducing bugs.
+- The command log keeps every command of the current season with its tick and result. The world clears its log in step 5 of the tick whose calendar advance enters a new season, so the log holds commands from the season's first tick onward (the `SeasonChanged` autosave, taken after the next tick, carries that tick's entries too). The log is saved (it is small) and replayable in headless mode for reproducing bugs.
 - Undo exists only for designations, zones and planned buildings before work starts, and is itself a command (`UndoDesignation`, `RemoveZone`, `CancelBuilding`) so that it goes through the same path.
 - The UI may submit many commands per frame (a drag designation submits one command per tile; the core coalesces consecutive designation commands with identical parameters into one batch for the log, but applies them individually).
+- Replay (`replay.mjs <save> <log>`) submits every entry whose tick is at or after the loaded game's tick, just before that tick runs (a coalesced entry as the one merged command), and prints the world hash every 100 ticks and at the end.
 - A command whose owning system is not present or does not list the command in its `ownsCommands` is rejected with `not_found` and logged, emitting `CommandRejected`.
 
 ## Events

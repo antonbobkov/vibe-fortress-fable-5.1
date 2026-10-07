@@ -27,7 +27,7 @@ Target: average tick ≤ 6 ms, worst tick ≤ 20 ms, so that 4× (80 ticks/s) fi
 | 15 morale | 0.20 | Thought decay, mood | Per-hour; thoughts as small arrays |
 | 16 combat | 0.20 | Attack resolution | Only creatures with a target |
 | 17 health | 0.10 | Bleeding, healing | Only wounded creatures in a list |
-| 18 threats | 0.10 | Hostile AI | Party-level goals; individuals reuse party paths |
+| 18 threats | 0.10 | Hostile AI | Party-level goals; individuals reuse party paths; loot search bounds bestUnattendedItems to same-z Chebyshev square |
 | 19 defense | 0.05 | Trap checks | Trap tiles indexed; check on entity step events, not per tick scans |
 | 20 trade | 0.02 | Schedule | Per-hour |
 | 21 immigration | 0.00 | Daily | Negligible |
@@ -65,14 +65,27 @@ The pathfinding budget is the one that stretches: if the budget is exhausted in 
 
 ## Measurement
 
-`host.stats()` exposes per-system timings (moving average and last worst case). The debug panel (24) shows them as a table. Acceptance tests in Wave 4 include a performance scenario that runs the reference fortress for 2,000 ticks in headless mode and asserts the budget with a 2× tolerance on CI machines.
+`host.stats()` exposes per-system timings (moving average and last worst case). Diagnostic moving-average windows cover one simulated second (`SIM_TICKS_PER_SECOND` ticks, 20 ticks), including zero-cost cadence ticks, alongside lifetime totals and worst cases. The application injects its platform `Clock` on host creation and load.
+
+Optimized candidate and spatial views avoid altering saved state or tie-break order:
+- Derived indexes (tile/kind, item type/chunk/carrier/container, rotten-source, and static activity indexes) rebuild cleanly on load and invalidate incrementally on owned component/API mutations (`ItemsApi.refreshDerivedIndexes`), leaving reachability, flags, occupancy, and slot/id tie orders intact.
+- `ItemsReader.carriedItems` supplies held ammunition directly.
+- `bestUnattendedItems` maintains per-tile value maxima in cached value bands ranked by value and entity slot (allowing thief and loot goals to stop after finding a reachable winner in top bands). For party loot searches (18), `bestUnattendedItems` accepts optional `from` and `radius` bounds restricting evaluation to the same-z Chebyshev square; if items excluded by party loot remain loose or in worlds lacking the item reader, the fallback full spatial search runs. Stockpile classification and connectivity are evaluated live.
+
+Acceptance tests in Wave 4 include a performance scenario that runs the reference fortress for 2,000 ticks in headless mode and asserts the budget with a 2× tolerance on CI machines.
 
 ## Load shedding rules
 
-When the actual tick rate falls below 80% of the requested rate for two seconds:
+The application measures completed simulation ticks over consecutive wall-time sample windows of at least one second (`LOAD_SHEDDING_RATE_SAMPLE_MS = 1_000`), including explicit host steps; a completed window supplies tick rate evidence over its full interval.
 
-1. The status bar shows the speed indicator in yellow.
-2. Pathfinding halves its per-tick node budget for creatures that are not dwarves.
-3. Wild animal brains run every 20 ticks instead of every 10 when far from dwarves.
+Thresholds:
+- Rate strictly below 80% (`LOAD_SHEDDING_RATE_PERCENT`) for 2 seconds (`LOAD_SHEDDING_ENGAGE_MS = 2_000`) engages shedding rules 1, 2, and 3.
+- Rate at or above 80% for 5 seconds (`LOAD_SHEDDING_RECOVER_MS = 5_000`) disengages rules in reverse order (3, 2, 1).
+- Interruptions: Pause, hidden browser tabs (`visibilitychange` resets the sampling clock even when requestAnimationFrame is suspended), frame reset, and requested speed changes interrupt continuous observation and reset the window. New games and loads initialize with clean policy flags (load shedding flags are unsaved runtime state).
 
-When the rate recovers for five seconds, the rules relax in reverse order. Nothing about rules changes; only the pace of non-critical thinking.
+Rules:
+1. The status bar shows the speed indicator in yellow and adds the localized text "slow" for accessibility.
+2. Pathfinding allocates a shared non-dwarf expansion pool capped at half of `PATH_NODES_PER_TICK` (`LOAD_SHEDDING_PATH_DIVISOR = 2`) within the unchanged global pool. Dwarf species (including merchants and hostiles without `Brain`) retain full eligibility, and interrupted searches preserve their queue state.
+3. Wild animal brains run every 20 ticks (`WILD_LOAD_SHEDDING_THINK_TICKS` in `animals/constants.ts`) instead of every 10 when far from dwarves. Near wild animals and tame animal cadence/movement remain unaffected.
+
+Named constants are defined in `src/core/performance-constants.ts` (`LOAD_SHEDDING_*`) and `src/systems/animals/constants.ts` (`WILD_LOAD_SHEDDING_THINK_TICKS`). Nothing about game rules changes; only the pace of non-critical thinking.

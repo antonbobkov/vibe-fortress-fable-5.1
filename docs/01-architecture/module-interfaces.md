@@ -43,6 +43,15 @@ type CommandResult = { ok: true } | { ok: false; reason: RejectReason }
 
 `ReaderSet` is typed: `readers.fluids.levelAt(i)`, `readers.items.countOf(typeId)`. Readers are constructed at `init` and stable for the life of the world. Timing uses a `Clock` (`() => number`) injected by the platform, because `core` may not read `performance`.
 
+To decouple systems from concrete `World` dependencies and prevent cyclic imports, `WorldLike` exposes `map`, `entities`, `fortress`, `calendar` (`tick` and `isDaylight`), `emit`, `rngFor`, and `services`. `ReaderSetLike` structurally types the core readers. The world holds mutation services in `world.services: CoreServices` (`{ terrain, jobs, spawn, movement, items, spatial, combat }`), which every tick context reads. A bare `World` initializes with default M0 implementations so isolated unit tests stand; owning systems and the simulation host replace them at `init`:
+- 03 installs the live `TerrainApi` (providing grids, entity store access, and `emit` for terrain collapse and breach events called during other systems' ticks).
+- 11 installs the live `JobsApi`.
+- The simulation host installs the `SpawnApi` and the `MovementApi` helper.
+- 13 installs `ItemsApi` (and registers its item creator into `spawn`).
+- The simulation host installs the spatial writer and combat APIs.
+
+`HeadlessGame` registers the full standard system suite unless a test scenario supplies an explicit replacement set.
+
 ## Reader conventions
 
 - A reader is an object of pure query functions. It never mutates and never returns mutable internals; arrays returned are either frozen views or fresh copies, as documented per method.
@@ -138,18 +147,37 @@ Every event has one or more emitters and any number of subscribers. The full cat
 
 ## The movement helper
 
-Movement is not a system; it is a core helper that three brains (10, 08, 18/20) call each tick for each creature they own:
+Movement is not a system; it is a core helper (`MovementApi`) installed by the host in `world.services.movement` that three brains (10, 08, 18/20) call each tick for each creature they own:
 
-```
-moveAlongPath(id, ctx): MoveResult    // advances Motion.progressFixed by speed; steps Position when a tile is crossed;
-                                      // returns arrived | moving | blocked (tile became impassable) | fell
+```typescript
+interface MovementApi {
+  moveAlongPath(id: EntityId, ctx: { readonly tick: number; emit(event: GameEvent): void }): MoveResult
+  teleport(id: EntityId, to: TileIndex): boolean
+  fall(id: EntityId, ctx: { readonly tick: number; emit(event: GameEvent): void }): FallResult
+  follow(id: EntityId, pathId: number): void       // point mover at a finished path request from first step
+  clearPath(id: EntityId): void                    // drop the mover's path
+  setSpeed(id: EntityId, speed: number): void      // write Motion.speed (documented as pathing.setSpeed)
+  tileOf(id: EntityId): TileIndex                  // tile the entity stands on, or -1
+  walkTo(id: EntityId, target: TileIndex, urgency: Urgency, ctx): WalkResult  // request, follow, re-request
+  stopWalking(id: EntityId): void                  // cancel walk and drop path
+  walkTarget(id: EntityId): TileIndex              // target of current walk, or -1
+}
 ```
 
-Speed is `Fixed` tiles per tick from the creature's species speed, attribute and wound modifiers (17), and terrain cost (22). Falling: a creature on an `open` tile falls to the next solid-bottomed tile below and takes fall damage through 17 by z-levels fallen.
+`moveAlongPath` advances `Motion.progressFixed` by speed, steps `Position` when a tile is crossed, and returns `arrived`, `moving`, `blocked` (tile became impassable), or `fell`. Speed is `Fixed` tiles per tick from the creature's species speed, attribute and wound modifiers (17), and terrain cost (22). Falling: a creature on an `open` tile falls to the next solid-bottomed tile below and takes fall damage through 17 by z-levels fallen.
 
 ## The spawn API
 
 `ctx.spawn.creature(species, at, faction, overrides?)` and `ctx.spawn.item(type, material, at | containerId, count?, quality?)` create entities with every component the data model requires for that kind. This keeps component invariants in one place. Systems that create creatures (10, 08, 18, 20, 21) and items (03, 07, 09, 12, 13, 20, 02) use only these.
+
+Invariants enforced by `spawn.creature`:
+- Every creature receives `Kind`, `Creature`, `Motion` (species base speed and movement class), `Body`, and `Position` placed through the movement helper (so the spatial index and current tick movement batch register it).
+- Age defaults to `0` if not specified in `overrides.ageTicks`.
+- Body parts start at full hit points with no initial wounds: `maxHp = Math.floor((size * hpFactor) / 1000)` per part. Blood and `maxBlood` are initialized to size capacity (`BLOOD_PER_SIZE = 10`), remaining unread by systems prior to health system activation (17).
+- A `wild` creature receives 08's `Wild` component initialized to the home chunk of its spawn tile.
+- Dwarves: the creator (02 embark, 21 immigration, or test helper) provides 10's eight dwarf components (`Attributes`, `Skills`, `Needs`, `Personality`, `Schedule`, `Relationships`, `Title`, `Brain`) via `overrides.dwarf`. The spawn API automatically attaches 11's `Labors` (all enabled, or restricted to `hauling` for children) and `Worker` component. The complete M1 dwarf set comprises `Position`, `Motion`, `Creature`, `Body`, 10's eight components, and 11's two components; subsequent systems (15 `Mood`, 16 `Equipment`) attach theirs during their respective tasks.
+
+`spawn.item` records `{ type, material, at, count, quality, tick }` and returns entity id `0` in stubbed mode (e.g. 03 terrain digging drops through it). Once system 13 initializes, it registers its concrete item creator via `spawn.setItemCreator(creator)`.
 
 ## Presentation contracts
 
@@ -181,13 +209,17 @@ interface PanelSpec {
 
 ### Announcements
 
-```
+The announcement specification remains pure data so that core simulation systems never import presentation modules:
+
+```typescript
 interface AnnouncementSpec {
-  severity: note | alert | danger
-  text(event, readers): string              // uses the strings table
-  focus?(event): TileIndex | EntityId       // where the view centers on click or on danger
+  readonly severity: 'note' | 'alert' | 'danger'
+  readonly stringKey: string
+  readonly once?: boolean
 }
 ```
+
+Presentation (24) maps `stringKey` against `strings.json`, filling placeholders (`{dwarf}`, `{material}`, etc.) from the event's payload and reader data (e.g., resolving `finderId` or `minerId` to dwarf names and material indices to material names). The view focus is derived automatically from the event's `tile` or first `tiles` entry. When `once: true`, only the first occurrence of the event generates an announcement (e.g. 03's `DeepsilverMined`).
 
 ## Interface stability
 
