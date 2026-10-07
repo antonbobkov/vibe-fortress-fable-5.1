@@ -101,6 +101,8 @@ memberThink(m): P = party(m); H = Hostile[m]
 spotted(m): any fortress creature within SPOT_RADIUS (dogs SPOT_RADIUS_DOG) with lineOfSight, or a trap trigger
 ```
 
+Each threat step builds one ascending-id snapshot of the living, conscious fortress creatures (position, soldier status, spotting radius) and shares it across the member decisions; the party cadence step builds its own, and a direct target or spotting query builds a fresh one. Each hostile's own distance, line-of-sight and tie rules are unchanged by the sharing.
+
 Thief specifics: on reaching the goal item: pick up (`P.loot`), `P.state = 'retreat'`; if spotted before pickup: retreat empty. Restless dead: `approach` target = nearest fortress creature; never retreat; at dawn (`HourPassed` hour == sunrise) all `restless_dead` collapse: `CreatureDied { cause: dawn }` with no corpse (a `bone_pile` item instead).
 
 Cavern monsters: `Wild`-like idle/wander within the cavern band; aggressive ones every think check `spatial.nearest(fortress creature within CAVE_SEEK_RADIUS)` and set targets; return after `CAVE_RETURN_TICKS` without a target. Hollow-born: target = nearest fortress creature on the map (global search every 50 ticks through the spatial index rings).
