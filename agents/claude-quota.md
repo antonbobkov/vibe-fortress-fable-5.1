@@ -1,113 +1,76 @@
-# Claude Code Quota & Usage
+# Checking Claude Code quota
 
-## Current Quota Status
+How to read the Claude Code plan limits and a session's context window from inside a session, and what the numbers mean when planning agent work. Companion to [codex.md](codex.md) and [antigravity.md](antigravity.md), which cover the same for Codex and Gemini.
 
-**Last checked: 2026-10-06**
+## How to check
 
-- **5-hour limit**: 21% used, resets in 4h 54m
-- **Weekly limit**: 12% used (all models), resets in 6d 12h
-- **Session context**: 44% used (88.7K of 200K tokens)
-- **Plan**: Pro
+The quota is read with a tool, not an SDK call. In a Claude Code desktop session the tool is `mcp__ccd_session_mgmt__get_usage`. It is read-only and costs no model usage beyond the call itself.
 
-## How to Check Quota Programmatically
+1. The tool is deferred, so load its schema first: call `ToolSearch` with the query `select:mcp__ccd_session_mgmt__get_usage`.
+2. Call the tool. It takes one optional parameter:
 
-### Via Claude Code Session Tool
+   | Parameter | Meaning |
+   |---|---|
+   | `session_id` | Whose context window to report: a session id from `list_sessions`, or `"self"` (the default) for this session. The plan limits are the account's either way. |
 
-Use the `mcp__ccd_session_mgmt__get_usage` tool to retrieve current quota and usage information:
+There is no command-line or HTTP equivalent documented here. A subagent can call the tool the same way if the tool is available to it.
 
-```typescript
-// Load the tool first
-import { ToolSearch } from "@anthropic-ai/sdk";
-const tools = await ToolSearch({
-  query: "select:mcp__ccd_session_mgmt__get_usage"
-});
+## What it returns
 
-// Call it with no parameters (defaults to "self" session)
-const usage = await client.mcp.ccd_session_mgmt.getUsage({
-  session_id: "self" // optional, defaults to current session
-});
-```
+Two sections. The values below are an example of the shape, not a reading.
 
-### Response Structure
-
-The response includes two main sections:
-
-#### 1. Plan Limits
-```typescript
+```json
 {
-  plan: {
-    status: "ok" | "unavailable",
-    plan: "Pro",
-    windows: [
-      {
-        label: "5-hour limit",
-        percentUsed: number,
-        resetsAt: ISO8601 timestamp,
-        resetsIn: "Xh Ym" (human-readable)
-      },
-      {
-        label: "Weekly · all models",
-        percentUsed: number,
-        resetsAt: ISO8601 timestamp,
-        resetsIn: "Xd Yh" (human-readable)
-      }
+  "plan": {
+    "status": "ok",
+    "plan": "Pro",
+    "windows": [
+      { "label": "5-hour limit", "percentUsed": 26, "resetsAt": "2026-10-07T06:30:00.307Z", "resetsIn": "4h 47m" },
+      { "label": "Weekly · all models", "percentUsed": 13, "resetsAt": "2026-10-13T14:00:00.307Z", "resetsIn": "6d 12h" }
     ],
-    extraUsage: {
-      enabled: boolean,
-      currency: "USD"
-    }
-  }
-}
-```
-
-#### 2. Session Context Window
-```typescript
-{
-  context: {
-    session: "self",
-    status: "ok" | "unavailable",
-    tokensUsed: number,
-    contextWindow: number,
-    percentUsed: number,
-    autoCompactsAtPercent: number,
-    categories: [
-      {
-        name: string,
-        tokens: number,
-        percent: number
-      }
+    "extraUsage": { "enabled": false, "currency": "USD" }
+  },
+  "context": {
+    "session": "self",
+    "status": "ok",
+    "tokensUsed": 842447,
+    "contextWindow": 1000000,
+    "percentUsed": 84,
+    "autoCompactsAtPercent": 97,
+    "categories": [
+      { "name": "Messages", "tokens": 772313, "percent": 77 },
+      { "name": "System tools", "tokens": 42915, "percent": 4 }
     ]
   }
 }
 ```
 
-### Quota Windows Explained
+### `plan`: the account's limits
 
-**5-hour limit**: Rolling window for rapid prototyping and testing. Useful for short bursts of development work.
+- **`windows`** is a list, one entry per limit the app's usage card shows. Expect a 5-hour limit and a weekly limit for all models; a plan may also show per-model weekly limits. Read them by `label`, not by position.
+- **`percentUsed`** is how much of that window is spent. **`resetsAt`** is an ISO 8601 UTC timestamp, and **`resetsIn`** is the same thing in words.
+- **`extraUsage`** says whether paid overage is switched on.
 
-**Weekly limit**: Cumulative usage across all models within one week. This is the primary constraint for ongoing work.
+### `context`: one session's context window
 
-### Context Categories
+- **`tokensUsed`**, **`contextWindow`** and **`percentUsed`** describe how full the window is. The window size depends on the model and plan, so read it from the response.
+- **`autoCompactsAtPercent`** is where the session summarises its history automatically. Read it from the response too; it is not a fixed number.
+- **`categories`** lists the largest consumers: messages, system tools, MCP tools, skills, the system prompt and memory files.
 
-The token usage is broken down by:
-- **System tools** - infrastructure overhead (Glob, Grep, Read, etc.)
-- **MCP tools** - integrated tool ecosystem tokens
-- **Messages** - your conversation exchanges
-- **System prompt** - Claude Code's system instructions
-- **Skills** - loaded skill documentation
-- **Memory files** - persistent memory system
+### `status`
 
-## For Agents
+Each section has its own `status`:
 
-When spawning agents or planning multi-turn work:
+| Status | Meaning |
+|---|---|
+| `ok` | The figures are current. |
+| `unavailable` | They could not be read now. The response's note says whether asking again helps. For `context`, an idle, starting or archived session reports this. |
+| `not_applicable` | Plan limits do not apply here: the session runs on an API key, Bedrock, Vertex or a gateway. |
 
-1. **Check quota before large tasks** - call `getUsage()` to see headroom
-2. **Watch the 5-hour window** - useful for detecting if you're in a rapid burst
-3. **Track weekly usage** - plan major work around reset times
-4. **Monitor context growth** - auto-compact triggers at 84% (200K token window)
+## Using it when running agents
 
-## Status Codes
-
-- `"ok"` - Information is current and accurate
-- `"unavailable"` - System could not read the data; try again
-- `"not_applicable"` - Quota limits do not apply (e.g., using API key directly)
+- **Subagents spend the same account limits.** An Opus subagent that stops with "You've hit your session limit · resets …" has hit the 5-hour window, and so has every other agent on the account. The reset time in that message is the `resetsAt` of the 5-hour window.
+- **Check before starting a batch, not after.** In this project, two Opus subagents running in parallel have repeatedly used up a 5-hour window in roughly one and a half to two hours, each time cutting both off mid-task.
+- **An agent cut off by the limit loses nothing that is committed.** Tell every agent to commit each piece of work as soon as it is green, and give each agent a worktree that you created yourself, so that an interrupted agent's files stay on disk.
+- **The weekly window is the one to plan around.** When it is nearly spent, hand new work to another pool (see [codex.md](codex.md) and [antigravity.md](antigravity.md)) and keep Claude for review and merging.
+- **Watch the session's own context as well.** A long orchestration session fills up with reports and tool output. Near `autoCompactsAtPercent` the history is summarised, so keep the durable state in the repository (the backlog, work files and commit messages) and not only in the conversation.
