@@ -29,15 +29,15 @@ Hostile cave creatures (`cave_crawler`, `blind_stalker`, `giant_cave_spider`, `t
 
 ### Perception and brains
 
-Every animal has a brain state and a `thinkEvery` interval: `WILD_THINK_TICKS` for wild animals farther than `NEAR_DWARF_RADIUS` from any dwarf, `1` otherwise (a fleeing deer must react every tick). Perception is a radius by species (`perception`, default 12) on the same z-level, using the spatial index; animals do not see through walls (a cheap line-of-sight check from 22 is used only when a candidate is within radius).
+Every animal has a brain state and a `thinkEvery` interval: `WILD_THINK_TICKS` for wild animals farther than `NEAR_DWARF_RADIUS` from any dwarf, `1` otherwise (a fleeing deer must react every tick). Tame animals use `WILD_THINK_TICKS` between ordinary thinks. Perception is a radius by species (`perception`, default 12) on the same z-level, using the spatial index; animals do not see through walls (a cheap line-of-sight check from 22 is used only when a candidate is within radius).
 
 ### Wild behavior
 
 States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 
-- `idle` → after a random 20–100 ticks, `graze` (grazers, if grass in radius 6), `wander` (a random walkable tile within `WANDER_RADIUS` of the home chunk), or `sleep` if it is the species' rest time (night for diurnal, day for nocturnal).
+- `idle` → after a random 20–100 ticks, `graze` (grazers, if grass in radius 6), `wander` (a random walkable tile within `WANDER_RADIUS` of the home chunk), or `sleep` if it is the species' rest time (night for diurnal, day for nocturnal). A wander ends on arrival or after `WANDER_TIMEOUT_TICKS = 200`.
 - `graze`: walk to a grass tile; on arrival, clear its grass (`GrassGrazed`), stay `GRAZE_TICKS`, then `idle`.
-- Threat check every think: a *threat* is any creature of a faction the species fears: for `timid`, dwarves, hostiles and carnivores; for `neutral`, anything that attacked it; for `territorial`, nothing, but any dwarf within `TERRITORY_RADIUS` triggers `attack`; for `aggressive` carnivores, any prey (species with `size < own size × 0.8` and not carnivore) or dwarf within perception triggers `hunt` when hungry, else ignores dwarves unless approached within 3 tiles.
+- Threat check every think: a *threat* is any creature of a faction the species fears: for `timid`, dwarves, hostiles and carnivores; for `neutral`, anything that attacked it; for `territorial`, nothing, but any dwarf within `TERRITORY_RADIUS` triggers `attack`; for `aggressive` carnivores, any prey (species with `size < own size × 0.8` and not carnivore) or dwarf within perception triggers `hunt` when hungry, else enters `attack` when a dwarf approaches within `APPROACH_RADIUS = 3`.
 - `flee`: run to the tile in perception that maximizes distance from all threats, re-evaluated every think for `FLEE_TICKS`; if a map edge is within perception, use `leave` instead.
 - `hunt`: path to the prey; when adjacent, `attack`. Predators are *hungry* every `PREDATOR_HUNGER_DAYS` days and stop hunting after a kill (they eat the corpse over `EAT_CORPSE_TICKS`, which consumes the corpse item).
 - `attack`: set `Soldier`-like targeting through 16 (`combat.setTarget(id, targetId)`); 16 resolves attacks; the animal returns to `idle` when the target dies, flees, or is out of perception for 50 ticks. Wounded animals (blood below the species' `flee` percent, defaulting to 16's `FLEE_BLOOD_PERCENT`) flee unless `aggressive`.
@@ -45,7 +45,7 @@ States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 
 ### Wild spawning
 
-- Each `DayPassed`, for each species in the biome's list for the current season (some species are seasonal, for example `elk` in autumn and winter), if `count(species, wild) < cap(species, biome)`: with `SPAWN_PERMILLE × weight`, spawn a group of `groupSize` at a walkable outdoor edge tile at least `SPAWN_MIN_DISTANCE` from any dwarf, with `home` set to the spawn chunk. `beastwood` doubles caps and makes `wolf` and `bear` groups larger; `serene_vale` doubles herbivore caps and removes `wolf` and `bear`.
+- Each `DayPassed`, for each species in the biome's list for the current season (some species are seasonal, for example `elk` in autumn and winter), if `count(species, wild) < cap(species, biome)`: with `min(1000, floor(SPAWN_PERMILLE × weight / 100))`, with weight a percentage of the base rate, spawn a group of `groupSize` at a walkable outdoor edge tile at least `SPAWN_MIN_DISTANCE` from any dwarf, with `home` set to the spawn chunk. The region-trait hooks govern wildlife: `beastwood` multiplies all caps by 1.5, then wolf and bear caps by 2, and doubles those species' groups; `serene_vale` doubles grazer caps and removes wolves, bears and snow leopards; `fungal_depths` multiplies cavern caps by 1.5. Each cap multiplier rounds up.
 - Cavern fauna spawns once at generation per cavern (initial populations) and respawns by the same daily rule at random walkable cavern tiles once the cavern is breached.
 - The global `MAX_CREATURES` cap applies.
 
@@ -60,7 +60,7 @@ States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 - `pasture` zone: tiles must be walkable; the zone has a capacity shown as "grass tiles / grazers" and a warning if grazers exceed `grass tiles / GRASS_PER_GRAZER`.
 - Assignment: `AssignPasture { animalId, zoneId | none }`. Assigned grazers path into the pasture and stay (they do not path out unless fleeing). Unassigned grazers wander near the wagon or hearth and eat any grass they find.
 - Condition rises `CONDITION_PER_HOUR` per hour; eating a grass tile lowers it by `CONDITION_PER_GRASS`. At 100 the animal is `starving` (announcement, once per animal per season); after `ANIMAL_STARVE_DAYS` at 100 it dies (`CreatureDied { cause: starvation }` through 17). Snow-covered grass cannot be eaten; cold snaps double the rise.
-- `none`-diet species (`dog`, `cat`, `chicken`, `pig`) need no feeding; they forage abstractly.
+- Only tame grazers accumulate condition and eat grass. Other diets, including carnivores, omnivores and `none`, forage abstractly without a concrete feeding action.
 
 ### Breeding
 
@@ -71,12 +71,12 @@ States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 
 - `milk`: adult females of milking species produce every `milkDays`; a `milk_animal` job (labor `animal_care`, skill `animal_care`) at a farmer's workshop is created when a product is ready; the dwarf leads the animal (the animal follows the dwarf when adjacent) to the workshop and yields one `milk` item (a liquid requiring a barrel in a stockpile; 13).
 - `wool`: shearing species every season; `shear_animal` job at the farmer's workshop yields `wool`.
-- `eggs`: chickens lay every `eggDays` in a `nest_box` building; if no nest box exists, nothing is laid. Eggs are items collected by hauling when `autoCollect` is on; a nest box with an egg left for `HATCH_DAYS` hatches a chick if a rooster exists (this is how chickens breed instead of the pregnancy rule).
+- `eggs`: chickens lay every `eggDays` in a `nest_box` building; if no nest box exists, nothing is laid. An egg is reserved while it stays in its nest box, keeping it out of ordinary item hauling. With `autoCollectProducts` on, the `collect_egg` job lifts it to the worker's tile and releases it for ordinary stockpile hauling; a nest box with an egg left for `HATCH_DAYS` hatches a chick if a rooster exists (this is how chickens breed instead of the pregnancy rule).
 - Products are announced as notes only when they are the first of their kind.
 
 ### Slaughter
 
-`MarkSlaughter { animalId }` sets a flag; the `slaughter` job (labor `butchery`, skill `butchery`) leads the animal to a butcher's workshop and kills it there (no combat; the animal becomes a corpse item at the workshop) and immediately queues the butcher job (09). Animals marked while assigned to a pasture leave the pasture with the butcher. War and hunting animals cannot be marked while assigned to a dwarf.
+`MarkSlaughter { animalId }` sets a flag; the `slaughter` job (labor `butchery`, skill `butchery`) leads the animal to a butcher's workshop and kills it there (no combat; the animal becomes a corpse item at the workshop) and emits `CorpseCreated`; 09 produces the butcher job for that corpse. Slaughter saves an optional `juvenile` marker on the corpse. Juvenile meat is `max(1, floor(adultMeat / 2))`; every other yield uses the species' full size. Animals marked while assigned to a pasture leave the pasture with the butcher. War and hunting animals cannot be marked while assigned to a dwarf.
 
 ### Training and taming
 
@@ -89,7 +89,7 @@ States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 
 ### Death
 
-Animals die through 17 like every creature. A dead animal leaves a corpse item (13). Tame deaths are announced as notes; pet deaths as alerts.
+Animals die through 17 like every creature. A dead animal leaves a corpse item (13). Slaughter completion creates its own corpse, and `CorpseCreated` removes the pending general death-to-corpse transition so no second corpse is created. Tame deaths are announced as notes; pet deaths as alerts.
 
 ## State
 

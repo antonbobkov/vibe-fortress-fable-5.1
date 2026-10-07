@@ -73,6 +73,8 @@ Stockpile { filter: { categories: Set<CategoryPath>, materialClasses: Set<Materi
 - Stockpile priority is the haul job priority for items going to it (default `HAUL_PRIORITY`, food stockpiles `HAUL_PRIORITY_FOOD`; both from 11).
 - Removing a stockpile zone leaves its items where they are; they become "wants hauling" again if another stockpile accepts them.
 
+Eggs reserved in nest boxes do not enter ordinary hauling. The `collect_egg` job releases a collected egg at its worker's tile, after which the normal hauling rules apply.
+
 ### The "wants hauling" set
 
 Maintained incrementally, sorted by item id:

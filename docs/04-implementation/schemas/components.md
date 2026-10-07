@@ -87,7 +87,7 @@ interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Qu
                  containerId: EntityId; ownerId: EntityId; flags: number; crafterId: EntityId;
                  rotStart: Tick; rotStage: 0|1|2|3; reservedBy: number /* jobId */; carriedBy: EntityId }
 interface Container { contents: EntityId[]; capacity: number; classId: 'barrel'|'bag'|'bin'|'chest'|'bucket'|'cage' }
-interface Corpse { species: Idx<SpeciesDef>; diedTick: Tick; wornItems: EntityId[]; dwarfName: string | null }
+interface Corpse { species: Idx<SpeciesDef>; diedTick: Tick; wornItems: EntityId[]; dwarfName: string | null; juvenile?: boolean }
 interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 'planned'|'constructing'|'built';
                      origin: TileIndex; footprint: TileIndex[]; orientation: 0|1|2|3; itemId: EntityId;
                      mode: string; /* door mode, hatch mode, trap mode */ linkedIds: EntityId[]; ownerId: EntityId;

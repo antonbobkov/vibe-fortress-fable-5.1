@@ -61,11 +61,11 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
   switch W.state:
     idle:   if threats: W.state = timid/neutral-attacked ? 'flee' : 'idle'
             else if aggressive carnivore and W.hungry and prey in perception: W.state='hunt'; target=prey
-            else if territorial and dwarf within TERRITORY_RADIUS: W.state='attack'; combat.setTarget
+            else if (territorial and dwarf within TERRITORY_RADIUS) or (aggressive and dwarf within APPROACH_RADIUS): W.state='attack'; combat.setTarget
             else if restTime(species): W.state='sleep'; W.stateUntil = tick + 600
             else if grazer and grass within 6: W.state='graze' else W.state='wander'
     graze:  walk to grass; on arrival GrassGrazed; wait GRAZE_TICKS; state='idle'
-    wander: walk to random tile within WANDER_RADIUS of homeChunk; on arrival or timeout: 'idle'
+    wander: walk to random tile within WANDER_RADIUS of homeChunk; on arrival or WANDER_TIMEOUT_TICKS: 'idle'
     flee:   goal = argmax over tiles within perception of Σ dist to threats (sampled 8 directions × 6 steps); if edge within perception: 'leave'; after FLEE_TICKS with no threat: 'idle'
     hunt:   combat.setTarget(id, prey); if prey dead: eat corpse EAT_CORPSE_TICKS (consume); W.hungry=false; 'idle'
     attack: (16 drives); if target gone: 'idle'; if blood < fleeBlood and not aggressive: 'flee'
@@ -73,6 +73,8 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
     leave:  walk to nearest edge tile; on arrival: despawn (AnimalLeft)
   moveAlongPath(id)
 ```
+
+Tame animals use `WILD_THINK_TICKS` between ordinary thinks. Only grazers accumulate hourly condition or seek grass; the other diets forage abstractly.
 
 Daily: spawning per 08 (edge tiles at `SPAWN_MIN_DISTANCE` from dwarves), breeding rolls, product timers, condition and starvation, lifetime and cap checks (`leave`).
 

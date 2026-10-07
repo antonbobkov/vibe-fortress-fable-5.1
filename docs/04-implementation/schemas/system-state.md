@@ -40,7 +40,7 @@ interface AnimalsState { stateVersion: 1; breedingCaps: [Idx<SpeciesDef>, number
 
 interface ForagingState { stateVersion: 1; huntable: Idx<SpeciesDef>[]; hunterAssignments: [EntityId, EntityId][];
   waterBodies: { id: number; version: number; tileCount: number; fishPool: Fixed; kind: 'river'|'lake'|'cavern' }[]; bodyOfTile: [TileIndex, number][];
-  bodiesStale: boolean; rng: RngState }
+  bodiesStale: boolean; version: number; nextBodyId: number; nextFishTick: [EntityId, Tick][]; dailyDue: boolean; rng: RngState }
 
 interface DwarvesState { stateVersion: 1; titles: Record<'thane'|'warden'|'broker'|'chief_medic', EntityId>; populationCached: number; children: EntityId[];
   needRetryUntil?: [EntityId, NeedName, Tick][]; rng: RngState }

@@ -70,7 +70,7 @@ Horses come only from Hillfolk caravans at reputation ≥ 50. Yaks from the Moun
 | `lynx` | lynx | quadruped | 25 | 0.15 | carnivore | neutral | walker | 2 | 6 | 30 | bite edge 8 size 3 | 0 | 50 | 1 | taiga 20, temperate_forest 10, mountain 10 | all | B N | `l` | `lynx_tan` |
 | `mammoth` | mammoth | quadruped | 220 | 0.08 | grazer | neutral | large | 8 | 20 | 300 | tusk pierce 30 size 10; trample blunt 25 size 9 | 4 | 40 | 2–4 | tundra 10, glacier-adjacent tundra 15 | winter | B | `M` | `mammoth_brown` |
 
-`beastwood` multiplies `wolf` and `bear` group sizes by 2 and their caps by 2; `serene_vale` removes `wolf`, `bear`, `snow_leopard` and doubles `deer` and `rabbit` caps.
+Wildlife follows the region-trait hooks: `beastwood` multiplies all wildlife caps by 1.5, then `wolf` and `bear` caps by 2, and doubles those species' group sizes; `serene_vale` removes `wolf`, `bear`, `snow_leopard` and doubles all grazer caps; `fungal_depths` multiplies cavern caps by 1.5. Cap multipliers round up.
 
 Per-species caps per biome are `cap = weight / 5` (rounded up, minimum 2); the biome's `wildlifeDensity` multiplies caps (see [regions-biomes-and-traits.md](regions-biomes-and-traits.md)).
 

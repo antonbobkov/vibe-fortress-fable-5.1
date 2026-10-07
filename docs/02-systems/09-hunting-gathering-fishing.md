@@ -36,7 +36,7 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
 ### Fishing
 
 - `fishing` zone: walkable tiles with at least one cardinal neighbor that is a water tile of level ≥ `FLUID_DEEP_LEVEL` and not frozen. Tiles that do not qualify are excluded at placement and shown red.
-- Water bodies: on `init` and whenever `TilesChanged` or `FluidsChanged` touches water tiles in a way that changes connectivity (checked lazily: a body is recomputed when a fishing job starts and the body's version is stale), flood-fill water tiles into bodies with an id, a tile count and a `fishPool`. `fishPool` starts at `tileCount × FISH_PER_TILE` and regenerates `FISH_REGEN_PERCENT` of capacity per day, capped at capacity. Bodies with fewer than `MIN_FISHING_TILES` tiles have no fish. River bodies (containing a source) regenerate at double rate.
+- Water bodies: on `init` and whenever `TilesChanged` or `FluidsChanged` touches water tiles in a way that changes connectivity (checked lazily: a body is recomputed when a fishing job starts and the body's version is stale), flood-fill water tiles through same-level cardinal neighbours into bodies (vertical flow does not join pools) with an id, a tile count and a `fishPool`. `fishPool` starts at `tileCount × FISH_PER_TILE` and regenerates `FISH_REGEN_PERCENT` of capacity per day, capped at capacity. Bodies with fewer than `MIN_FISHING_TILES` tiles have no fish. River bodies (containing a source) regenerate at double rate. Match each recomputed body to the unused old body with the largest tile overlap, ties by old id. Retain that id and, if the old body had fish capacity, its fraction of remaining capacity; a body without an eligible old pool starts full. Save the version, next body id and per-zone retry ticks alongside the bodies.
 - The `fish` job (labor `fishing`, skill `fishing`) is produced per fishing zone while its body has fish and a fisher is idle: the fisher stands on a zone tile and works `FISH_TICKS` (skill-scaled); success with `FISH_BASE_PERMILLE + skill × FISH_PER_SKILL`; on success the pool decreases by one and a `raw_fish` item is spawned with a material by body type (`trout` for rivers, `perch` for lakes, `blindfish` for cavern lakes). Failure ends the job; the producer re-creates it after `FISH_RETRY_TICKS`.
 - Frozen water and water with magma adjacency have no fishing.
 
@@ -50,8 +50,9 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
   - `fat`: `size / FAT_PER_SIZE` items, rendered to `tallow` at a kitchen.
   - `skull`: 1 if `size ≥ SKULL_MIN_SIZE` (crafts).
   - `shell`: for `cave_crab` and `crocodile` in place of hide.
-- A rotten corpse (13) yields only bones.
-- Slaughtered animals (08) go through the same job at the workshop where they were killed.
+- A shelled species gives `max(1, hideYield)` shells, even below `HIDE_MIN_SIZE`; that threshold still applies to hide. A corpse with its saved `juvenile` marker gives `max(1, floor(adultMeat / 2))` meat and unchanged other yields.
+- Keep the stage-2 admission limit for corpses; the separate `skeleton` item type is accepted as a bones-only input. A rotten corpse (13) yields only bones.
+- Slaughtered animals (08) go through the same job at the workshop where they were killed. Slaughter completion owns corpse creation; its `CorpseCreated` cancels the general pending corpse transition in 13.
 
 ## State
 
