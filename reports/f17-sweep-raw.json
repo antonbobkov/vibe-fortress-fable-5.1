@@ -1887,6 +1887,2153 @@
       "food": 196,
       "alcohol": 160,
       "water": 0
+    },
+    {
+      "seed": "three-years-p0-3",
+      "peril": 0,
+      "years": [
+        {
+          "day": 112,
+          "wealth": 3804,
+          "population": 14,
+          "meanEndurance": 53.92857142857143,
+          "renown": 4.737500000000001,
+          "fortressCreatures": 22,
+          "renownWealthEquivalent": 3875.000000000001,
+          "spirit": 60.44936904761905,
+          "marks": {
+            "embark goods": 1301,
+            "blocks": 45,
+            "furniture": 259,
+            "crafts": 0,
+            "meals/drink": 170,
+            "iron goods": 0,
+            "steel goods": 0,
+            "iron bars": 240,
+            "steel bars": 0,
+            "gems": 18,
+            "smoothing/engraving": 0,
+            "other building value": 144,
+            "trade purchases": 3,
+            "barrels": 165,
+            "other": 1459
+          },
+          "counts": {
+            "pick:iron": 2,
+            "axe:iron": 1,
+            "crossbow:oak": 1,
+            "bolt:copper": 25,
+            "quiver:leather": 1,
+            "plant_food:dimcap": 39,
+            "log:ash": 21,
+            "barrel:pine": 4,
+            "bar:iron": 21,
+            "raw_stone:sandstone": 29,
+            "log:yew": 14,
+            "bag:flax_cloth": 9,
+            "table:sandstone": 3,
+            "seed:turnip": 3,
+            "seed:strawberry": 10,
+            "seed:flax": 10,
+            "drink:dimcap_ale": 41,
+            "log:pine": 4,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "rotten:brightleaf": 5,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "log:oak": 71,
+            "chair:pine": 2,
+            "tunic:flax_cloth": 14,
+            "trousers:flax_cloth": 14,
+            "boots:flax_cloth": 14,
+            "log:birch": 16,
+            "ore:bituminous_coal": 40,
+            "log:maple": 17,
+            "rotten:cavewheat": 9,
+            "stone_block:sandstone": 31,
+            "bed:oak": 6,
+            "bed:maple": 1,
+            "bed:ash": 2,
+            "barrel:ash": 8,
+            "barrel:maple": 1,
+            "rough_gem:quartz": 4,
+            "chair:sandstone": 2,
+            "bed:birch": 1,
+            "barrel:oak": 7,
+            "rotten:barley": 1,
+            "easy_meal:cavewheat": 4,
+            "rotten:dimcap": 13,
+            "bed:yew": 1,
+            "barrel:yew": 1,
+            "plant_food:cavewheat": 30,
+            "barrel:birch": 1,
+            "charcoal_bar:charcoal": 1,
+            "table:ash": 2,
+            "table:maple": 4,
+            "door:sandstone": 6,
+            "drink:cavewheat_beer": 31,
+            "ore:lignite": 2,
+            "seed:barley": 5,
+            "plant_food:barley": 5,
+            "crossbow:ash": 1,
+            "ore:limonite": 2,
+            "easy_meal:dimcap": 15,
+            "cut_gem:quartz": 1,
+            "drink:ale": 13,
+            "bolt:ash": 20,
+            "seed:pumpkin": 1,
+            "seed:cabbage": 1
+          },
+          "qualities": {
+            "0": 45,
+            "1": 629,
+            "2": 15
+          },
+          "craftQualities": {},
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 1,
+            "armorsmithing": 3,
+            "axe": 4,
+            "bow": 0,
+            "brewing": 5,
+            "building": 3,
+            "butchery": 0,
+            "carpentry": 5,
+            "clothesmaking": 3,
+            "cooking": 6,
+            "crafting": 5,
+            "crossbow": 3,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 0,
+            "farming": 6,
+            "fishing": 2,
+            "gem_cutting": 5,
+            "hammer": 0,
+            "herbalism": 3,
+            "hunting": 7,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 6,
+            "mechanics": 0,
+            "medicine": 0,
+            "metalcrafting": 4,
+            "mining": 8,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 3,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 3,
+            "weaving": 5,
+            "woodcutting": 6
+          },
+          "recipes": {
+            "cook_easy_meal": 96,
+            "cook_fine_meal": 14,
+            "brew": 35,
+            "make_stone_block": 21,
+            "make_barrel": 18,
+            "make_door_stone": 6,
+            "make_table_stone": 3,
+            "smelt_limonite": 6,
+            "make_bed": 11,
+            "make_table_wood": 6,
+            "make_charcoal": 4,
+            "cut_gem": 1,
+            "make_chair_stone": 2,
+            "smelt_hematite": 2
+          },
+          "smoothed": 166,
+          "engraved": 0
+        },
+        {
+          "day": 224,
+          "wealth": 7217,
+          "population": 0,
+          "meanEndurance": 0,
+          "renown": 3.6085,
+          "fortressCreatures": 13,
+          "renownWealthEquivalent": 7217,
+          "spirit": 55,
+          "marks": {
+            "embark goods": 1290,
+            "blocks": 45,
+            "furniture": 331,
+            "crafts": 206,
+            "meals/drink": 2645,
+            "iron goods": 0,
+            "steel goods": 0,
+            "iron bars": 540,
+            "steel bars": 0,
+            "gems": 72,
+            "smoothing/engraving": 0,
+            "other building value": 156,
+            "trade purchases": 25,
+            "barrels": 411,
+            "other": 1496
+          },
+          "counts": {
+            "pick:iron": 2,
+            "axe:iron": 1,
+            "crossbow:oak": 1,
+            "bolt:copper": 25,
+            "quiver:leather": 1,
+            "rotten:dimcap": 44,
+            "ore:hematite": 9,
+            "boots:flax_cloth": 17,
+            "barrel:pine": 7,
+            "bar:iron": 41,
+            "amulet:sandstone": 18,
+            "plant_food:dimcap": 16,
+            "bag:flax_cloth": 9,
+            "chair:sandstone": 22,
+            "rotten:bramble_berry": 5,
+            "table:sandstone": 3,
+            "trousers:flax_cloth": 17,
+            "seed:strawberry": 13,
+            "seed:flax": 10,
+            "easy_meal:dimcap": 16,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "plant_food:cavewheat": 13,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "chair:pine": 2,
+            "corpse:skull_bone": 17,
+            "tunic:flax_cloth": 17,
+            "log:birch": 11,
+            "log:yew": 11,
+            "ore:bituminous_coal": 40,
+            "barrel:oak": 21,
+            "plant_food:nut": 2,
+            "rotten:cavewheat": 18,
+            "raw_stone:sandstone": 7,
+            "rotten:strawberry": 3,
+            "stone_block:sandstone": 31,
+            "log:oak": 38,
+            "log:ash": 16,
+            "bed:oak": 7,
+            "log:maple": 11,
+            "bed:maple": 1,
+            "bed:ash": 3,
+            "barrel:ash": 11,
+            "lavish_meal:dimcap": 40,
+            "barrel:maple": 5,
+            "cut_gem:quartz": 5,
+            "bed:birch": 1,
+            "figurine:sandstone": 27,
+            "bed:yew": 1,
+            "barrel:yew": 2,
+            "charcoal_bar:charcoal": 25,
+            "barrel:birch": 5,
+            "ring:sandstone": 24,
+            "table:ash": 2,
+            "table:maple": 4,
+            "door:sandstone": 6,
+            "ore:lignite": 2,
+            "crossbow:ash": 1,
+            "ore:limonite": 1,
+            "easy_meal:cavewheat": 5,
+            "lavish_meal:bramble_berry": 6,
+            "plant_food:bramble_berry": 9,
+            "plant_food:strawberry": 2,
+            "bolt:ash": 20,
+            "lavish_meal:cavewheat": 1,
+            "seed:pumpkin": 11,
+            "seed:cabbage": 1,
+            "fine_meal:dimcap": 12,
+            "rotten:nut": 2
+          },
+          "qualities": {
+            "0": 109,
+            "1": 653,
+            "2": 40
+          },
+          "craftQualities": {
+            "0": 6,
+            "1": 36,
+            "2": 27
+          },
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 0,
+            "armorsmithing": 0,
+            "axe": 0,
+            "bow": 0,
+            "brewing": 0,
+            "building": 0,
+            "butchery": 0,
+            "carpentry": 0,
+            "clothesmaking": 0,
+            "cooking": 0,
+            "crafting": 0,
+            "crossbow": 0,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 0,
+            "farming": 0,
+            "fishing": 0,
+            "gem_cutting": 0,
+            "hammer": 0,
+            "herbalism": 0,
+            "hunting": 0,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 0,
+            "mechanics": 0,
+            "medicine": 0,
+            "metalcrafting": 0,
+            "mining": 0,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 0,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 0,
+            "weaving": 0,
+            "woodcutting": 0
+          },
+          "recipes": {
+            "cook_easy_meal": 169,
+            "cook_fine_meal": 35,
+            "brew": 63,
+            "make_stone_block": 21,
+            "make_barrel": 47,
+            "make_door_stone": 6,
+            "make_table_stone": 3,
+            "smelt_limonite": 7,
+            "make_bed": 13,
+            "make_table_wood": 6,
+            "make_charcoal": 38,
+            "cut_gem": 5,
+            "make_chair_stone": 22,
+            "smelt_hematite": 11,
+            "craft_stone": 24,
+            "cook_lavish_meal": 32
+          },
+          "smoothed": 197,
+          "engraved": 0
+        },
+        {
+          "day": 336,
+          "wealth": 4366,
+          "population": 0,
+          "meanEndurance": 0,
+          "renown": 2.183,
+          "fortressCreatures": 13,
+          "renownWealthEquivalent": 4366,
+          "spirit": 55,
+          "marks": {
+            "embark goods": 1200,
+            "blocks": 45,
+            "furniture": 331,
+            "crafts": 206,
+            "meals/drink": 0,
+            "iron goods": 0,
+            "steel goods": 0,
+            "iron bars": 540,
+            "steel bars": 0,
+            "gems": 72,
+            "smoothing/engraving": 0,
+            "other building value": 156,
+            "trade purchases": 25,
+            "barrels": 411,
+            "other": 1380
+          },
+          "counts": {
+            "pick:iron": 1,
+            "axe:iron": 1,
+            "crossbow:oak": 1,
+            "bolt:copper": 25,
+            "quiver:leather": 1,
+            "ore:hematite": 9,
+            "boots:flax_cloth": 17,
+            "barrel:pine": 7,
+            "bar:iron": 41,
+            "amulet:sandstone": 18,
+            "rotten:dimcap": 8,
+            "bag:flax_cloth": 9,
+            "chair:sandstone": 22,
+            "table:sandstone": 3,
+            "trousers:flax_cloth": 17,
+            "seed:strawberry": 13,
+            "seed:flax": 10,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "chair:pine": 2,
+            "skeleton:skull_bone": 17,
+            "tunic:flax_cloth": 17,
+            "log:birch": 11,
+            "log:yew": 11,
+            "ore:bituminous_coal": 40,
+            "barrel:oak": 21,
+            "rotten:nut": 2,
+            "raw_stone:sandstone": 7,
+            "stone_block:sandstone": 31,
+            "log:oak": 38,
+            "log:ash": 16,
+            "bed:oak": 7,
+            "log:maple": 11,
+            "bed:maple": 1,
+            "bed:ash": 3,
+            "barrel:ash": 11,
+            "barrel:maple": 5,
+            "cut_gem:quartz": 5,
+            "bed:birch": 1,
+            "figurine:sandstone": 27,
+            "bed:yew": 1,
+            "barrel:yew": 2,
+            "charcoal_bar:charcoal": 25,
+            "barrel:birch": 5,
+            "ring:sandstone": 24,
+            "table:ash": 2,
+            "table:maple": 4,
+            "door:sandstone": 6,
+            "ore:lignite": 2,
+            "crossbow:ash": 1,
+            "ore:limonite": 1,
+            "rotten:cavewheat": 3,
+            "bolt:ash": 20,
+            "rotten:bramble_berry": 3,
+            "seed:pumpkin": 11,
+            "seed:cabbage": 1
+          },
+          "qualities": {
+            "0": 31,
+            "1": 561,
+            "2": 31
+          },
+          "craftQualities": {
+            "0": 6,
+            "1": 36,
+            "2": 27
+          },
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 0,
+            "armorsmithing": 0,
+            "axe": 0,
+            "bow": 0,
+            "brewing": 0,
+            "building": 0,
+            "butchery": 0,
+            "carpentry": 0,
+            "clothesmaking": 0,
+            "cooking": 0,
+            "crafting": 0,
+            "crossbow": 0,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 0,
+            "farming": 0,
+            "fishing": 0,
+            "gem_cutting": 0,
+            "hammer": 0,
+            "herbalism": 0,
+            "hunting": 0,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 0,
+            "mechanics": 0,
+            "medicine": 0,
+            "metalcrafting": 0,
+            "mining": 0,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 0,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 0,
+            "weaving": 0,
+            "woodcutting": 0
+          },
+          "recipes": {
+            "cook_easy_meal": 169,
+            "cook_fine_meal": 35,
+            "brew": 63,
+            "make_stone_block": 21,
+            "make_barrel": 47,
+            "make_door_stone": 6,
+            "make_table_stone": 3,
+            "smelt_limonite": 7,
+            "make_bed": 13,
+            "make_table_wood": 6,
+            "make_charcoal": 38,
+            "cut_gem": 5,
+            "make_chair_stone": 22,
+            "smelt_hematite": 11,
+            "craft_stone": 24,
+            "cook_lavish_meal": 32
+          },
+          "smoothed": 197,
+          "engraved": 0
+        }
+      ],
+      "deathsList": [
+        {
+          "day": 203,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        }
+      ],
+      "raids": [
+        {
+          "day": 117,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 318767671,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 225,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 419431036,
+          "outcome": "looted"
+        },
+        {
+          "day": 302,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 150995715,
+          "outcome": "looted"
+        }
+      ],
+      "minerals": {
+        "bituminous_coal": 40,
+        "lignite": 2,
+        "limonite": 8,
+        "quartz": 5,
+        "hematite": 20
+      },
+      "fixture": {
+        "armedDay": null,
+        "specialists": {},
+        "deepShaft": null
+      },
+      "allDeaths": [
+        {
+          "day": 203,
+          "id": 150995169,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "id": 16777289,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "id": 16777292,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "id": 16777294,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "id": 16777669,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "id": 16777677,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "id": 117441045,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "id": 117441048,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "id": 16777290,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "id": 16777291,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "id": 16777293,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "id": 16777295,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "id": 251658449,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "id": 50332095,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "id": 16777673,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "id": 218104274,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "id": 218104456,
+          "species": "dwarf",
+          "cause": "starvation",
+          "killerId": 0
+        }
+      ],
+      "allRaids": [
+        {
+          "day": 117,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 318767671,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 225,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 419431036,
+          "outcome": "looted"
+        },
+        {
+          "day": 302,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 150995715,
+          "outcome": "looted"
+        }
+      ],
+      "recipes": {
+        "cook_easy_meal": 169,
+        "cook_fine_meal": 35,
+        "brew": 63,
+        "make_stone_block": 21,
+        "make_barrel": 47,
+        "make_door_stone": 6,
+        "make_table_stone": 3,
+        "smelt_limonite": 7,
+        "make_bed": 13,
+        "make_table_wood": 6,
+        "make_charcoal": 38,
+        "cut_gem": 5,
+        "make_chair_stone": 22,
+        "smelt_hematite": 11,
+        "craft_stone": 24,
+        "cook_lavish_meal": 32
+      },
+      "immigration": [
+        {
+          "tick": 33600,
+          "trigger": "SeasonChanged",
+          "waveSize": 4,
+          "year": 1,
+          "season": "summer",
+          "population": 7,
+          "wealth": 2812,
+          "spirit": 54.115924603174605,
+          "wavesSoFar": 0,
+          "eligible": true,
+          "reasons": [],
+          "guaranteed": true,
+          "roll": null,
+          "probability": 700,
+          "outcome": "wave"
+        },
+        {
+          "tick": 67200,
+          "trigger": "SeasonChanged",
+          "waveSize": 3,
+          "year": 1,
+          "season": "autumn",
+          "population": 11,
+          "wealth": 3310,
+          "spirit": 57.71443181818181,
+          "wavesSoFar": 1,
+          "eligible": true,
+          "reasons": [],
+          "guaranteed": true,
+          "roll": null,
+          "probability": 700,
+          "outcome": "wave"
+        },
+        {
+          "tick": 100800,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 1,
+          "season": "winter",
+          "population": 14,
+          "wealth": 3477,
+          "spirit": 57.49294642857143,
+          "wavesSoFar": 2,
+          "eligible": false,
+          "reasons": [
+            "wealth"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "wealth"
+        },
+        {
+          "tick": 134400,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "spring",
+          "population": 14,
+          "wealth": 3804,
+          "spirit": 60.44936904761905,
+          "wavesSoFar": 2,
+          "eligible": false,
+          "reasons": [
+            "wealth"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "wealth"
+        },
+        {
+          "tick": 168000,
+          "trigger": "SeasonChanged",
+          "waveSize": 3,
+          "year": 2,
+          "season": "summer",
+          "population": 14,
+          "wealth": 5606,
+          "spirit": 62.935361077076045,
+          "wavesSoFar": 2,
+          "eligible": true,
+          "reasons": [],
+          "guaranteed": false,
+          "roll": 65,
+          "probability": 702,
+          "outcome": "wave"
+        },
+        {
+          "tick": 201600,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "autumn",
+          "population": 17,
+          "wealth": 5105,
+          "spirit": 60.27519035947712,
+          "wavesSoFar": 3,
+          "eligible": false,
+          "reasons": [
+            "wealth"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 702,
+          "outcome": "wealth"
+        },
+        {
+          "tick": 235200,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "winter",
+          "population": 17,
+          "wealth": 6561,
+          "spirit": 43.29505784313725,
+          "wavesSoFar": 3,
+          "eligible": false,
+          "reasons": [
+            "spirit"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 702,
+          "outcome": "spirit"
+        },
+        {
+          "tick": 268800,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "spring",
+          "population": 0,
+          "wealth": 7217,
+          "spirit": 55,
+          "wavesSoFar": 3,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 702,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 302400,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "summer",
+          "population": 0,
+          "wealth": 4510,
+          "spirit": 55,
+          "wavesSoFar": 3,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 336000,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "autumn",
+          "population": 0,
+          "wealth": 4461,
+          "spirit": 55,
+          "wavesSoFar": 3,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 369600,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "winter",
+          "population": 0,
+          "wealth": 4366,
+          "spirit": 55,
+          "wavesSoFar": 3,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        }
+      ],
+      "caravans": [
+        {
+          "day": 34,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 38,
+          "civ": "hillfolk",
+          "state": "TradeCompleted",
+          "given": 2,
+          "received": 1.2
+        },
+        {
+          "day": 39,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 64,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 67,
+          "civ": "wildwood",
+          "state": "TradeCompleted",
+          "given": 3,
+          "received": 2.4
+        },
+        {
+          "day": 69,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 123,
+          "civ": "mountainhome",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 126,
+          "civ": "mountainhome",
+          "state": "TradeCompleted",
+          "given": 3,
+          "received": 1.2
+        },
+        {
+          "day": 128,
+          "civ": "mountainhome",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 155,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 158,
+          "civ": "hillfolk",
+          "state": "TradeCompleted",
+          "given": 49.26666666666666,
+          "received": 40.32
+        },
+        {
+          "day": 160,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 179,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 182,
+          "civ": "wildwood",
+          "state": "TradeCompleted",
+          "given": 3.9,
+          "received": 2.4
+        },
+        {
+          "day": 184,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 235,
+          "civ": "mountainhome",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 240,
+          "civ": "mountainhome",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 265,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 270,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 293,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 298,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        }
+      ],
+      "dwarfDays": 2758.8258333333333,
+      "food": 929,
+      "alcohol": 1320,
+      "water": 0
+    },
+    {
+      "seed": "three-years-p0-4",
+      "peril": 0,
+      "years": [
+        {
+          "day": 112,
+          "wealth": 6433,
+          "population": 12,
+          "meanEndurance": 47.166666666666664,
+          "renown": 5.6370000000000005,
+          "fortressCreatures": 25,
+          "renownWealthEquivalent": 6474,
+          "spirit": 63.4087482685134,
+          "marks": {
+            "embark goods": 1311,
+            "blocks": 78,
+            "furniture": 376,
+            "crafts": 273,
+            "meals/drink": 2680,
+            "iron goods": 0,
+            "steel goods": 0,
+            "iron bars": 0,
+            "steel bars": 0,
+            "gems": 0,
+            "smoothing/engraving": 0,
+            "other building value": 171,
+            "trade purchases": 1,
+            "barrels": 159,
+            "other": 1384
+          },
+          "counts": {
+            "pick:iron": 2,
+            "axe:iron": 1,
+            "crossbow:oak": 1,
+            "bolt:copper": 25,
+            "quiver:leather": 1,
+            "rotten:cavewheat": 20,
+            "raw_stone:sandstone": 3,
+            "stone_block:slate": 25,
+            "barrel:pine": 4,
+            "log:ash": 22,
+            "boots:flax_cloth": 12,
+            "plant_food:dimcap": 31,
+            "barrel:birch": 3,
+            "bag:flax_cloth": 9,
+            "chair:sandstone": 7,
+            "ore:hematite": 23,
+            "trousers:flax_cloth": 12,
+            "seed:turnip": 6,
+            "seed:strawberry": 10,
+            "seed:flax": 10,
+            "amulet:sandstone": 6,
+            "rotten:dimcap": 33,
+            "charcoal_bar:charcoal": 20,
+            "bar:iron": 5,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "rotten:brightleaf": 5,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "log:oak": 61,
+            "chair:pine": 2,
+            "tunic:flax_cloth": 12,
+            "log:maple": 22,
+            "log:birch": 16,
+            "ore:limonite": 9,
+            "rotten:barley": 4,
+            "bed:birch": 3,
+            "log:yew": 5,
+            "bed:oak": 3,
+            "barrel:yew": 1,
+            "chair:slate": 7,
+            "bed:maple": 2,
+            "door:slate": 6,
+            "barrel:oak": 9,
+            "easy_meal:dimcap": 14,
+            "easy_meal:cavewheat": 8,
+            "barrel:ash": 5,
+            "table:slate": 5,
+            "raw_stone:slate": 13,
+            "stone_block:sandstone": 2,
+            "bed:ash": 4,
+            "bed:yew": 1,
+            "table:ash": 1,
+            "figurine:slate": 21,
+            "table:yew": 3,
+            "seed:barley": 3,
+            "drink:dimcap_ale": 85,
+            "lavish_meal:dimcap": 24,
+            "fine_meal:dimcap": 6,
+            "amulet:slate": 12,
+            "lavish_meal:cavewheat": 16,
+            "figurine:sandstone": 9,
+            "plant_food:cavewheat": 21,
+            "drink:cavewheat_beer": 45,
+            "fine_meal:cavewheat": 6
+          },
+          "qualities": {
+            "0": 77,
+            "1": 652,
+            "2": 56,
+            "3": 2
+          },
+          "craftQualities": {
+            "0": 3,
+            "1": 27,
+            "2": 18
+          },
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 0,
+            "armorsmithing": 3,
+            "axe": 2,
+            "bow": 0,
+            "brewing": 5,
+            "building": 3,
+            "butchery": 0,
+            "carpentry": 5,
+            "clothesmaking": 3,
+            "cooking": 6,
+            "crafting": 5,
+            "crossbow": 0,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 0,
+            "farming": 7,
+            "fishing": 2,
+            "gem_cutting": 5,
+            "hammer": 0,
+            "herbalism": 3,
+            "hunting": 0,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 5,
+            "mechanics": 6,
+            "medicine": 0,
+            "metalcrafting": 4,
+            "mining": 9,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 0,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 3,
+            "weaving": 6,
+            "woodcutting": 6
+          },
+          "recipes": {
+            "cook_easy_meal": 84,
+            "brew": 35,
+            "make_stone_block": 19,
+            "cook_fine_meal": 19,
+            "make_barrel": 18,
+            "make_door_stone": 6,
+            "make_bed": 13,
+            "make_table_stone": 5,
+            "make_table_wood": 4,
+            "make_chair_stone": 14,
+            "make_charcoal": 15,
+            "craft_stone": 16,
+            "cook_lavish_meal": 13
+          },
+          "smoothed": 89,
+          "engraved": 0
+        },
+        {
+          "day": 224,
+          "wealth": 5101,
+          "population": 20,
+          "meanEndurance": 48.5,
+          "renown": 6.5975,
+          "fortressCreatures": 33,
+          "renownWealthEquivalent": 5195,
+          "spirit": 51.467100308641974,
+          "marks": {
+            "embark goods": 1275,
+            "blocks": 90,
+            "furniture": 383,
+            "crafts": 440,
+            "meals/drink": 35,
+            "iron goods": 0,
+            "steel goods": 0,
+            "iron bars": 0,
+            "steel bars": 0,
+            "gems": 0,
+            "smoothing/engraving": 0,
+            "other building value": 183,
+            "trade purchases": 274,
+            "barrels": 354,
+            "other": 2067
+          },
+          "counts": {
+            "pick:iron": 2,
+            "axe:iron": 1,
+            "bolt:copper": 25,
+            "quiver:leather": 1,
+            "plant_food:bramble_berry": 10,
+            "stone_block:slate": 29,
+            "barrel:pine": 4,
+            "boots:flax_cloth": 20,
+            "ore:hematite": 46,
+            "barrel:birch": 15,
+            "bag:flax_cloth": 9,
+            "chair:sandstone": 9,
+            "trousers:flax_cloth": 20,
+            "rotten:nut": 1,
+            "plant_food:dimcap": 46,
+            "seed:strawberry": 11,
+            "seed:flax": 93,
+            "plant_food:cavewheat": 23,
+            "charcoal_bar:charcoal": 24,
+            "bar:iron": 5,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "chair:pine": 2,
+            "tunic:flax_cloth": 20,
+            "ore:limonite": 13,
+            "drink:cavewheat_beer": 61,
+            "seed:barley": 10,
+            "bed:birch": 3,
+            "bed:oak": 3,
+            "barrel:yew": 2,
+            "chair:slate": 7,
+            "bed:maple": 2,
+            "raw_stone:sandstone": 7,
+            "door:slate": 6,
+            "barrel:oak": 19,
+            "barrel:ash": 6,
+            "table:slate": 5,
+            "stone_block:sandstone": 2,
+            "bed:ash": 4,
+            "log:oak": 23,
+            "bed:yew": 1,
+            "rotten:cavewheat": 7,
+            "ore:lignite": 2,
+            "table:ash": 1,
+            "table:yew": 3,
+            "drink:dimcap_ale": 136,
+            "easy_meal:cavewheat": 3,
+            "log:yew": 1,
+            "raw_stone:slate": 1,
+            "log:maple": 17,
+            "plant_food:strawberry": 2,
+            "plant_food:nut": 7,
+            "figurine:sandstone": 24,
+            "amulet:sandstone": 3,
+            "figurine:slate": 21,
+            "amulet:limestone": 12,
+            "ring:slate": 15,
+            "amulet:slate": 15,
+            "ring:limestone": 6,
+            "log:ash": 3,
+            "rotten:dimcap": 9,
+            "plant_food:barley": 1,
+            "figurine:limestone": 3,
+            "chair:limestone": 1,
+            "rotten:barley": 1,
+            "easy_meal:dimcap": 4,
+            "barrel:maple": 1,
+            "log:birch": 2,
+            "bolt:ash": 20,
+            "crossbow:ash": 1,
+            "seed:hops": 49,
+            "ring:sandstone": 3,
+            "plant_food:turnip": 1
+          },
+          "qualities": {
+            "0": 77,
+            "1": 878,
+            "2": 35
+          },
+          "craftQualities": {
+            "0": 6,
+            "1": 78,
+            "2": 18
+          },
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 3,
+            "armorsmithing": 3,
+            "axe": 7,
+            "bow": 0,
+            "brewing": 7,
+            "building": 3,
+            "butchery": 0,
+            "carpentry": 5,
+            "clothesmaking": 3,
+            "cooking": 6,
+            "crafting": 5,
+            "crossbow": 3,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 0,
+            "farming": 7,
+            "fishing": 2,
+            "gem_cutting": 5,
+            "hammer": 0,
+            "herbalism": 3,
+            "hunting": 2,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 5,
+            "mechanics": 6,
+            "medicine": 0,
+            "metalcrafting": 4,
+            "mining": 10,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 0,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 3,
+            "weaving": 6,
+            "woodcutting": 7
+          },
+          "recipes": {
+            "cook_easy_meal": 206,
+            "brew": 88,
+            "make_stone_block": 21,
+            "cook_fine_meal": 35,
+            "make_barrel": 43,
+            "make_door_stone": 6,
+            "make_bed": 13,
+            "make_table_stone": 5,
+            "make_table_wood": 4,
+            "make_chair_stone": 17,
+            "make_charcoal": 19,
+            "craft_stone": 47,
+            "cook_lavish_meal": 40
+          },
+          "smoothed": 304,
+          "engraved": 0
+        },
+        {
+          "day": 336,
+          "wealth": 9156,
+          "population": 14,
+          "meanEndurance": 49.5,
+          "renown": 7.4285,
+          "fortressCreatures": 27,
+          "renownWealthEquivalent": 9256.999999999998,
+          "spirit": 41.59599766292466,
+          "marks": {
+            "embark goods": 1173,
+            "blocks": 81,
+            "furniture": 389,
+            "crafts": 93,
+            "meals/drink": 3365,
+            "iron goods": 225,
+            "steel goods": 0,
+            "iron bars": 0,
+            "steel bars": 0,
+            "gems": 0,
+            "smoothing/engraving": 0,
+            "other building value": 200,
+            "trade purchases": 541,
+            "barrels": 636,
+            "other": 2453
+          },
+          "counts": {
+            "pick:iron": 4,
+            "axe:iron": 1,
+            "bolt:copper": 25,
+            "log:oak": 30,
+            "easy_meal:bramble_berry": 4,
+            "stone_block:slate": 24,
+            "barrel:pine": 4,
+            "boots:flax_cloth": 20,
+            "ore:hematite": 57,
+            "barrel:birch": 17,
+            "bag:flax_cloth": 9,
+            "chair:sandstone": 9,
+            "trousers:flax_cloth": 20,
+            "seed:strawberry": 22,
+            "seed:flax": 112,
+            "rotten:cavewheat": 13,
+            "charcoal_bar:charcoal": 22,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "chair:pine": 2,
+            "corpse:skull_bone": 6,
+            "tunic:flax_cloth": 20,
+            "ore:limonite": 13,
+            "bed:birch": 3,
+            "bed:oak": 3,
+            "barrel:yew": 2,
+            "chair:slate": 8,
+            "bed:maple": 2,
+            "ring:sandstone": 9,
+            "rotten:strawberry": 12,
+            "door:slate": 6,
+            "barrel:oak": 37,
+            "plant_food:strawberry": 20,
+            "bar:bronze": 11,
+            "plant_food:cavewheat": 23,
+            "barrel:ash": 6,
+            "table:slate": 5,
+            "plant_food:bramble_berry": 55,
+            "stone_block:sandstone": 4,
+            "ore:bituminous_coal": 4,
+            "barrel:maple": 13,
+            "bed:ash": 4,
+            "bed:yew": 1,
+            "plant_food:dimcap": 25,
+            "plant_food:nut": 9,
+            "rotten:dimcap": 38,
+            "helm:iron": 1,
+            "lavish_meal:dimcap": 12,
+            "lavish_meal:bramble_berry": 16,
+            "ore:lignite": 4,
+            "table:ash": 1,
+            "rotten:bramble_berry": 20,
+            "lavish_meal:cavewheat": 21,
+            "rotten:nut": 21,
+            "table:yew": 3,
+            "seed:sporecloth": 3,
+            "drink:dimcap_ale": 132,
+            "log:yew": 2,
+            "log:maple": 12,
+            "raw_stone:sandstone": 6,
+            "chair:limestone": 4,
+            "drink:cavewheat_beer": 46,
+            "ring:limestone": 3,
+            "plant_food:cabbage": 1,
+            "easy_meal:dimcap": 12,
+            "figurine:limestone": 6,
+            "easy_meal:nut": 4,
+            "fine_meal:dimcap": 12,
+            "log:ash": 6,
+            "amulet:limestone": 9,
+            "log:birch": 7,
+            "rotten:barley": 1,
+            "lavish_meal:nut": 8,
+            "bolt:ash": 20,
+            "crossbow:ash": 1,
+            "seed:barley": 29,
+            "seed:hops": 49,
+            "stone_block:limestone": 2,
+            "rotten:turnip": 1,
+            "amulet:sandstone": 3,
+            "seed:cavewheat": 1
+          },
+          "qualities": {
+            "0": 113,
+            "1": 1090,
+            "2": 33,
+            "3": 2
+          },
+          "craftQualities": {
+            "1": 18,
+            "2": 12
+          },
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 0,
+            "armorsmithing": 3,
+            "axe": 0,
+            "bow": 0,
+            "brewing": 7,
+            "building": 1,
+            "butchery": 0,
+            "carpentry": 6,
+            "clothesmaking": 3,
+            "cooking": 6,
+            "crafting": 6,
+            "crossbow": 3,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 1,
+            "farming": 8,
+            "fishing": 2,
+            "gem_cutting": 5,
+            "hammer": 0,
+            "herbalism": 3,
+            "hunting": 2,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 5,
+            "mechanics": 0,
+            "medicine": 0,
+            "metalcrafting": 4,
+            "mining": 7,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 0,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 3,
+            "weaving": 6,
+            "woodcutting": 7
+          },
+          "recipes": {
+            "cook_easy_meal": 319,
+            "brew": 146,
+            "make_stone_block": 23,
+            "cook_fine_meal": 58,
+            "make_barrel": 75,
+            "make_door_stone": 6,
+            "make_bed": 13,
+            "make_table_stone": 5,
+            "make_table_wood": 4,
+            "make_chair_stone": 21,
+            "make_charcoal": 20,
+            "craft_stone": 70,
+            "cook_lavish_meal": 77,
+            "forge_pick": 2,
+            "forge_helm": 1
+          },
+          "smoothed": 352,
+          "engraved": 93
+        }
+      ],
+      "deathsList": [
+        {
+          "day": 330,
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 333,
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 333,
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 334,
+          "cause": "killed",
+          "killerId": 1426063988
+        },
+        {
+          "day": 335,
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 335,
+          "cause": "bled_out",
+          "killerId": 1426063988
+        }
+      ],
+      "raids": [
+        {
+          "day": 123,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 285213336,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 242,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 285213449,
+          "outcome": "withdrew"
+        }
+      ],
+      "minerals": {
+        "limonite": 13,
+        "hematite": 57,
+        "lignite": 4,
+        "bituminous_coal": 4
+      },
+      "fixture": {
+        "armedDay": null,
+        "specialists": {
+          "builder": 16777648,
+          "fuel": 50332078,
+          "craftdwarf": 16777293,
+          "forge": 16777296
+        },
+        "deepShaft": {
+          "x": 38,
+          "y": 15,
+          "bottom": 20
+        }
+      },
+      "allDeaths": [
+        {
+          "day": 330,
+          "id": 16777290,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 333,
+          "id": 83886506,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 333,
+          "id": 721420793,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 334,
+          "id": 285213324,
+          "species": "dwarf",
+          "cause": "killed",
+          "killerId": 1426063988
+        },
+        {
+          "day": 335,
+          "id": 251658757,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 335,
+          "id": 285212848,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 1426063988
+        }
+      ],
+      "allRaids": [
+        {
+          "day": 123,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 285213336,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 242,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 285213449,
+          "outcome": "withdrew"
+        }
+      ],
+      "recipes": {
+        "cook_easy_meal": 319,
+        "brew": 146,
+        "make_stone_block": 23,
+        "cook_fine_meal": 58,
+        "make_barrel": 75,
+        "make_door_stone": 6,
+        "make_bed": 13,
+        "make_table_stone": 5,
+        "make_table_wood": 4,
+        "make_chair_stone": 21,
+        "make_charcoal": 20,
+        "craft_stone": 70,
+        "cook_lavish_meal": 77,
+        "forge_pick": 2,
+        "forge_helm": 1
+      },
+      "immigration": [
+        {
+          "tick": 33600,
+          "trigger": "SeasonChanged",
+          "waveSize": 2,
+          "year": 1,
+          "season": "summer",
+          "population": 7,
+          "wealth": 3315,
+          "spirit": 41.53902475644694,
+          "wavesSoFar": 0,
+          "eligible": true,
+          "reasons": [],
+          "guaranteed": true,
+          "roll": null,
+          "probability": 700,
+          "outcome": "wave"
+        },
+        {
+          "tick": 67200,
+          "trigger": "SeasonChanged",
+          "waveSize": 3,
+          "year": 1,
+          "season": "autumn",
+          "population": 9,
+          "wealth": 3081,
+          "spirit": 53.45977573321347,
+          "wavesSoFar": 1,
+          "eligible": true,
+          "reasons": [],
+          "guaranteed": true,
+          "roll": null,
+          "probability": 700,
+          "outcome": "wave"
+        },
+        {
+          "tick": 100800,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 1,
+          "season": "winter",
+          "population": 12,
+          "wealth": 4748,
+          "spirit": 54.376225,
+          "wavesSoFar": 2,
+          "eligible": false,
+          "reasons": [
+            "spirit"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "spirit"
+        },
+        {
+          "tick": 134400,
+          "trigger": "SeasonChanged",
+          "waveSize": 4,
+          "year": 2,
+          "season": "spring",
+          "population": 12,
+          "wealth": 6433,
+          "spirit": 63.4087482685134,
+          "wavesSoFar": 2,
+          "eligible": true,
+          "reasons": [],
+          "guaranteed": false,
+          "roll": 659,
+          "probability": 700,
+          "outcome": "wave"
+        },
+        {
+          "tick": 168000,
+          "trigger": "SeasonChanged",
+          "waveSize": 4,
+          "year": 2,
+          "season": "summer",
+          "population": 16,
+          "wealth": 7037,
+          "spirit": 64.56858888888888,
+          "wavesSoFar": 3,
+          "eligible": true,
+          "reasons": [],
+          "guaranteed": false,
+          "roll": 466,
+          "probability": 700,
+          "outcome": "wave"
+        },
+        {
+          "tick": 201600,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "autumn",
+          "population": 20,
+          "wealth": 6240,
+          "spirit": 42.32497341578963,
+          "wavesSoFar": 4,
+          "eligible": false,
+          "reasons": [
+            "spirit",
+            "wealth"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "spirit"
+        },
+        {
+          "tick": 235200,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "winter",
+          "population": 20,
+          "wealth": 5021,
+          "spirit": 55.02758240740741,
+          "wavesSoFar": 4,
+          "eligible": false,
+          "reasons": [
+            "wealth"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "wealth"
+        },
+        {
+          "tick": 268800,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "spring",
+          "population": 20,
+          "wealth": 5101,
+          "spirit": 51.467100308641974,
+          "wavesSoFar": 4,
+          "eligible": false,
+          "reasons": [
+            "spirit",
+            "wealth"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "spirit"
+        },
+        {
+          "tick": 302400,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "summer",
+          "population": 20,
+          "wealth": 5735,
+          "spirit": 58.42481944444444,
+          "wavesSoFar": 4,
+          "eligible": false,
+          "reasons": [
+            "wealth"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 702,
+          "outcome": "wealth"
+        },
+        {
+          "tick": 336000,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "autumn",
+          "population": 20,
+          "wealth": 5530,
+          "spirit": 57.76366666666667,
+          "wavesSoFar": 4,
+          "eligible": false,
+          "reasons": [
+            "wealth"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 702,
+          "outcome": "wealth"
+        },
+        {
+          "tick": 369600,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "winter",
+          "population": 20,
+          "wealth": 6629,
+          "spirit": 54.7902732218613,
+          "wavesSoFar": 4,
+          "eligible": false,
+          "reasons": [
+            "spirit",
+            "wealth"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 702,
+          "outcome": "spirit"
+        }
+      ],
+      "caravans": [
+        {
+          "day": 43,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 48,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 65,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 67,
+          "civ": "wildwood",
+          "state": "TradeCompleted",
+          "given": 2,
+          "received": 1.2
+        },
+        {
+          "day": 70,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 127,
+          "civ": "mountainhome",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 132,
+          "civ": "mountainhome",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 152,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 157,
+          "civ": "hillfolk",
+          "state": "TradeCompleted",
+          "given": 447.8,
+          "received": 386.4
+        },
+        {
+          "day": 157,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 180,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 182,
+          "civ": "wildwood",
+          "state": "TradeCompleted",
+          "given": 27.9,
+          "received": 19.2
+        },
+        {
+          "day": 185,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 229,
+          "civ": "mountainhome",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 231,
+          "civ": "mountainhome",
+          "state": "TradeCompleted",
+          "given": 572,
+          "received": 497.15999999999997
+        },
+        {
+          "day": 234,
+          "civ": "mountainhome",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 265,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 269,
+          "civ": "hillfolk",
+          "state": "TradeCompleted",
+          "given": 50,
+          "received": 42.72
+        },
+        {
+          "day": 270,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 296,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 299,
+          "civ": "wildwood",
+          "state": "TradeCompleted",
+          "given": 54,
+          "received": 46.800000000000004
+        },
+        {
+          "day": 301,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        }
+      ],
+      "dwarfDays": 5467.3675,
+      "food": 1910,
+      "alcohol": 2802,
+      "water": 0
     }
   ],
   "summary": [
@@ -2091,6 +4238,252 @@
       },
       "mealsPerDwarfDay": "0.36",
       "drinksPerDwarfDay": "0.29"
+    },
+    {
+      "seed": "three-years-p0-3",
+      "peril": 0,
+      "y1Pop": 14,
+      "y2Pop": 0,
+      "y3Pop": 0,
+      "y1Wealth": 3804,
+      "y2Wealth": 7217,
+      "y3Wealth": 4366,
+      "dwarfDeaths": 17,
+      "tameDeaths": 0,
+      "wavesCount": 3,
+      "totalImmigrants": 10,
+      "nonGuaranteedWaves": 1,
+      "raidsCount": 3,
+      "mealsEaten": 929,
+      "drinksDrunk": 1320,
+      "drinksAlcohol": 1320,
+      "drinksWater": 0,
+      "extinctDay": 205,
+      "avgMood": "extinct",
+      "minMood": 0,
+      "maxMood": 0,
+      "moodBreakdown": {
+        "Fine": 0,
+        "Content": 0,
+        "Happy": 0,
+        "Unhappy": 0,
+        "Miserable": 0,
+        "Ecstatic": 0
+      },
+      "deathsList": [
+        {
+          "day": 203,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 204,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        },
+        {
+          "day": 205,
+          "cause": "starvation",
+          "killerId": 0
+        }
+      ],
+      "raidsList": [
+        {
+          "day": 117,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 318767671,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 225,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 419431036,
+          "outcome": "looted"
+        },
+        {
+          "day": 302,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 150995715,
+          "outcome": "looted"
+        }
+      ],
+      "hallSpirit": {
+        "y1": 60,
+        "y2": 55,
+        "y3": 55
+      },
+      "renown": {
+        "y1": 5,
+        "y2": 4,
+        "y3": 2
+      },
+      "mealsPerDwarfDay": "0.34",
+      "drinksPerDwarfDay": "0.48"
+    },
+    {
+      "seed": "three-years-p0-4",
+      "peril": 0,
+      "y1Pop": 12,
+      "y2Pop": 20,
+      "y3Pop": 14,
+      "y1Wealth": 6433,
+      "y2Wealth": 5101,
+      "y3Wealth": 9156,
+      "dwarfDeaths": 6,
+      "tameDeaths": 0,
+      "wavesCount": 4,
+      "totalImmigrants": 13,
+      "nonGuaranteedWaves": 2,
+      "raidsCount": 2,
+      "mealsEaten": 1910,
+      "drinksDrunk": 2802,
+      "drinksAlcohol": 2802,
+      "drinksWater": 0,
+      "extinctDay": null,
+      "avgMood": "40.6",
+      "minMood": 18.82183333333333,
+      "maxMood": 60.055346571171796,
+      "moodBreakdown": {
+        "Fine": 8,
+        "Content": 1,
+        "Happy": 0,
+        "Unhappy": 4,
+        "Miserable": 1,
+        "Ecstatic": 0
+      },
+      "deathsList": [
+        {
+          "day": 330,
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 333,
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 333,
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 334,
+          "cause": "killed",
+          "killerId": 1426063988
+        },
+        {
+          "day": 335,
+          "cause": "bled_out",
+          "killerId": 1426063988
+        },
+        {
+          "day": 335,
+          "cause": "bled_out",
+          "killerId": 1426063988
+        }
+      ],
+      "raidsList": [
+        {
+          "day": 123,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 285213336,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 242,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 285213449,
+          "outcome": "withdrew"
+        }
+      ],
+      "hallSpirit": {
+        "y1": 63,
+        "y2": 51,
+        "y3": 42
+      },
+      "renown": {
+        "y1": 6,
+        "y2": 7,
+        "y3": 7
+      },
+      "mealsPerDwarfDay": "0.35",
+      "drinksPerDwarfDay": "0.51"
     }
   ],
   "mood": [],
@@ -5958,10 +8351,65 @@
       ]
     }
   },
+  "verification": {
+    "lint": "passed",
+    "typecheck": "passed",
+    "content": {
+      "tables": 50,
+      "rows": 1612,
+      "status": "passed"
+    },
+    "strings": {
+      "keys": 774,
+      "status": "passed"
+    },
+    "interface": {
+      "documents": 24,
+      "differences": 0
+    },
+    "npmTest": {
+      "filesPassed": 187,
+      "testsPassed": 1710,
+      "seconds": 330.8,
+      "knownGapChecks": {
+        "absentRecipes": [
+          "cut_gem",
+          "forge_pick",
+          "forge_mail_shirt",
+          "forge_crafts"
+        ],
+        "caravans": {
+          "completed": 4,
+          "arrived": 8
+        }
+      }
+    },
+    "task1And2Perf": {
+      "filesPassed": 6,
+      "filesFailed": 1,
+      "testsPassed": 31,
+      "testsFailed": 1,
+      "todo": 1,
+      "seconds": 79.98,
+      "referenceWorstMs": 56.1807,
+      "referenceLimitMs": 40,
+      "referenceAvgMs": 4.492,
+      "retry": {
+        "seconds": 46.32,
+        "referenceWorstMs": 102.3579,
+        "referenceAvgMs": 7.965,
+        "weatherAvgMs": 0.02064435,
+        "weatherAvgLimitMs": 0.02
+      },
+      "perSystemTestsPassed": 22,
+      "perSystemTodo": 1,
+      "referenceBudgetConfirmed": false
+    }
+  },
   "moodInstrument": {
     "started": "2026-10-07T19:27:37.733573+00:00",
     "sourceCommit": "bdfee61f47893d3859fd099bf2d9b3236f7cb76c",
-    "status": "running",
+    "status": "passed",
     "economy": [],
     "summary": [],
     "mood": [
@@ -8186,62 +10634,2502 @@
         },
         "dayTrace": [],
         "bedroomDigSnapshots": []
-      }
-    ]
-  },
-  "verification": {
-    "lint": "passed",
-    "typecheck": "passed",
-    "content": {
-      "tables": 50,
-      "rows": 1612,
-      "status": "passed"
-    },
-    "strings": {
-      "keys": 774,
-      "status": "passed"
-    },
-    "interface": {
-      "documents": 24,
-      "differences": 0
-    },
-    "npmTest": {
-      "filesPassed": 187,
-      "testsPassed": 1710,
-      "seconds": 330.8,
-      "knownGapChecks": {
-        "absentRecipes": [
-          "cut_gem",
-          "forge_pick",
-          "forge_mail_shirt",
-          "forge_crafts"
+      },
+      {
+        "seed": "three-years-p0-1",
+        "upgraded": true,
+        "totalDwarfDays": 4564,
+        "finalPop": 16,
+        "baselineForMean55": 54.61474869654117,
+        "baselineForMean70": 69.61941959447542,
+        "meanMood": 55.42473192480683,
+        "minMood": 5.427208333333333,
+        "maxMood": 92.90666666666665,
+        "moodBreakdown": {
+          "Fine": 2476,
+          "Content": 1524,
+          "Happy": 134,
+          "Unhappy": 385,
+          "Miserable": 44,
+          "Ecstatic": 1
+        },
+        "baseline": 55,
+        "meanHearthBonus": 5.592462751971954,
+        "meanPersonalityBase": 0.3128834355828221,
+        "meanCapEffect": 0.3463044507269483,
+        "meanFloorEffect": 0.00033144171779141623,
+        "thoughtRows": [
+          {
+            "id": "talked_with_friend",
+            "contentValue": "5",
+            "pctActive": 87.33567046450482,
+            "meanContribution": 2.285145431638916,
+            "meanValueWhenActive": 2.616508718013049,
+            "totalTicksActive": 4783200
+          },
+          {
+            "id": "restless",
+            "contentValue": "\u2212(purpose \u2212 60) / 10, min \u22124",
+            "pctActive": 46.14373356704645,
+            "meanContribution": -2.2621757230499533,
+            "meanValueWhenActive": -4.902454890788218,
+            "totalTicksActive": 2527200
+          },
+          {
+            "id": "thirsty",
+            "contentValue": "\u2212(thirst \u2212 50) / 5, min \u221210",
+            "pctActive": 31.178790534618756,
+            "meanContribution": -1.655270815074497,
+            "meanValueWhenActive": -2.65448208011244,
+            "totalTicksActive": 1707600
+          },
+          {
+            "id": "hungry",
+            "contentValue": "\u2212(hunger \u2212 50) / 5, min \u221210",
+            "pctActive": 30.105170902716914,
+            "meanContribution": -1.5579769500438232,
+            "meanValueWhenActive": -2.5875570596797703,
+            "totalTicksActive": 1648800
+          },
+          {
+            "id": "slept_on_floor_last_night",
+            "contentValue": "\u22123",
+            "pctActive": 45.0920245398773,
+            "meanContribution": -1.1085670464504744,
+            "meanValueWhenActive": -2.45845481049561,
+            "totalTicksActive": 2469600
+          },
+          {
+            "id": "lonely",
+            "contentValue": "\u2212(social \u2212 50) / 10, min \u22125",
+            "pctActive": 31.156879929886067,
+            "meanContribution": -0.9556310254163007,
+            "meanValueWhenActive": -1.5335794655414896,
+            "totalTicksActive": 1706400
+          },
+          {
+            "id": "bored",
+            "contentValue": "\u2212(joy \u2212 60) / 10, min \u22124",
+            "pctActive": 45.17966695880806,
+            "meanContribution": -0.9421442265556548,
+            "meanValueWhenActive": -2.0853279582929236,
+            "totalTicksActive": 2474400
+          },
+          {
+            "id": "slept_on_floor",
+            "contentValue": "\u22124",
+            "pctActive": 44.25942156003506,
+            "meanContribution": -0.8372692813321728,
+            "meanValueWhenActive": -1.8917311881188301,
+            "totalTicksActive": 2424000
+          },
+          {
+            "id": "tired",
+            "contentValue": "\u2212(rest \u2212 60) / 5, min \u22128",
+            "pctActive": 16.301489921121824,
+            "meanContribution": -0.8189027169149873,
+            "meanValueWhenActive": -2.5117419354838724,
+            "totalTicksActive": 892800
+          },
+          {
+            "id": "drank_ale",
+            "contentValue": "3",
+            "pctActive": 53.81244522348817,
+            "meanContribution": 0.817181693689744,
+            "meanValueWhenActive": 1.5185737988599315,
+            "totalTicksActive": 2947200
+          },
+          {
+            "id": "no_bedroom",
+            "contentValue": "\u22122",
+            "pctActive": 45.72743207712533,
+            "meanContribution": -0.7497808939526777,
+            "meanValueWhenActive": -1.6396741734547298,
+            "totalTicksActive": 2504400
+          },
+          {
+            "id": "uncomfortable",
+            "contentValue": "\u2212(comfort \u2212 55) / 10, min \u22124",
+            "pctActive": 45.37686240140228,
+            "meanContribution": -0.6613168273444326,
+            "meanValueWhenActive": -1.4573877353935252,
+            "totalTicksActive": 2485200
+          },
+          {
+            "id": "well_rested",
+            "contentValue": "2",
+            "pctActive": 49.7808939526731,
+            "meanContribution": 0.5149068799298888,
+            "meanValueWhenActive": 1.034346390845076,
+            "totalTicksActive": 2726400
+          },
+          {
+            "id": "slept_in_decent_room",
+            "contentValue": "3",
+            "pctActive": 31.156879929886067,
+            "meanContribution": 0.5003089943032492,
+            "meanValueWhenActive": 1.6057737341772356,
+            "totalTicksActive": 1706400
+          },
+          {
+            "id": "hearth_visit",
+            "contentValue": "3",
+            "pctActive": 26.928133216476773,
+            "meanContribution": 0.4073810254163012,
+            "meanValueWhenActive": 1.512845402766476,
+            "totalTicksActive": 1474800
+          },
+          {
+            "id": "talked_with_someone",
+            "contentValue": "3",
+            "pctActive": 21.625766871165645,
+            "meanContribution": 0.3468397239263801,
+            "meanValueWhenActive": 1.6038262411347504,
+            "totalTicksActive": 1184400
+          },
+          {
+            "id": "sat_in_fine_room",
+            "contentValue": "3",
+            "pctActive": 23.707274320771255,
+            "meanContribution": 0.3244221625766879,
+            "meanValueWhenActive": 1.3684498613678406,
+            "totalTicksActive": 1298400
+          },
+          {
+            "id": "ate_in_decent_hall",
+            "contentValue": "2",
+            "pctActive": 31.967572304995617,
+            "meanContribution": 0.2904514680105175,
+            "meanValueWhenActive": 0.9085815627141892,
+            "totalTicksActive": 1750800
+          },
+          {
+            "id": "ate_easy_meal",
+            "contentValue": "2",
+            "pctActive": 21.713409290096404,
+            "meanContribution": 0.22190078147823566,
+            "meanValueWhenActive": 1.021952741338716,
+            "totalTicksActive": 1189200
+          },
+          {
+            "id": "harvest_in",
+            "contentValue": "3",
+            "pctActive": 12.510955302366344,
+            "meanContribution": 0.21799301599474122,
+            "meanValueWhenActive": 1.742417031523641,
+            "totalTicksActive": 685200
+          },
+          {
+            "id": "in_miasma",
+            "contentValue": "\u22125",
+            "pctActive": 2.6950043821209464,
+            "meanContribution": -0.19894829097283084,
+            "meanValueWhenActive": -7.382113821138211,
+            "totalTicksActive": 147600
+          },
+          {
+            "id": "thane_hall_bare",
+            "contentValue": "\u22121",
+            "pctActive": 16.87116564417178,
+            "meanContribution": -0.14490578439964924,
+            "meanValueWhenActive": -0.8588961038961027,
+            "totalTicksActive": 924000
+          },
+          {
+            "id": "slept_outdoors",
+            "contentValue": "\u22125",
+            "pctActive": 4.57931638913234,
+            "meanContribution": -0.12672536882851304,
+            "meanValueWhenActive": -2.7673425039872415,
+            "totalTicksActive": 250800
+          },
+          {
+            "id": "hearth_lit",
+            "contentValue": "12",
+            "pctActive": 1.687116564417178,
+            "meanContribution": 0.1033192375109554,
+            "meanValueWhenActive": 6.124012987012993,
+            "totalTicksActive": 92400
+          },
+          {
+            "id": "caught_in_rain",
+            "contentValue": "\u22122",
+            "pctActive": 5.368098159509203,
+            "meanContribution": -0.08867987434277536,
+            "meanValueWhenActive": -1.6519793734711294,
+            "totalTicksActive": 294000
+          },
+          {
+            "id": "slept_in_modest_room",
+            "contentValue": "1",
+            "pctActive": 17.26555652936021,
+            "meanContribution": 0.08046357361963193,
+            "meanValueWhenActive": 0.46603521573604073,
+            "totalTicksActive": 945600
+          },
+          {
+            "id": "saw_sunlight",
+            "contentValue": "3",
+            "pctActive": 3.6371603856266437,
+            "meanContribution": 0.046540479842243646,
+            "meanValueWhenActive": 1.2795828313253013,
+            "totalTicksActive": 199200
+          },
+          {
+            "id": "new_hearth_hall_tier",
+            "contentValue": "6",
+            "pctActive": 1.6432953549517966,
+            "meanContribution": 0.041253560473269,
+            "meanValueWhenActive": 2.510416666666663,
+            "totalTicksActive": 90000
+          },
+          {
+            "id": "ate_fine_meal",
+            "contentValue": "5",
+            "pctActive": 1.4022787028922,
+            "meanContribution": 0.03584836644269159,
+            "meanValueWhenActive": 2.556436631944444,
+            "totalTicksActive": 76800
+          },
+          {
+            "id": "caravan_arrived",
+            "contentValue": "2",
+            "pctActive": 5.039439088518844,
+            "meanContribution": 0.026226811276657866,
+            "meanValueWhenActive": 0.5204311594202892,
+            "totalTicksActive": 276000
+          },
+          {
+            "id": "ate_raw_food",
+            "contentValue": "\u22121",
+            "pctActive": 5.828220858895705,
+            "meanContribution": -0.025688869412795783,
+            "meanValueWhenActive": -0.4407669172932329,
+            "totalTicksActive": 319200
+          },
+          {
+            "id": "drank_fine_drink",
+            "contentValue": "5",
+            "pctActive": 0.7230499561787905,
+            "meanContribution": 0.01838628396143733,
+            "meanValueWhenActive": 2.5428787878787866,
+            "totalTicksActive": 39600
+          },
+          {
+            "id": "snowed_on",
+            "contentValue": "\u22122",
+            "pctActive": 0.9202453987730062,
+            "meanContribution": -0.014686958952107669,
+            "meanValueWhenActive": -1.5959828727957,
+            "totalTicksActive": 50400
+          },
+          {
+            "id": "immigrants_arrived",
+            "contentValue": "3",
+            "pctActive": 1.7966695880806312,
+            "meanContribution": 0.014491673970201577,
+            "meanValueWhenActive": 0.8065853658536586,
+            "totalTicksActive": 98400
+          },
+          {
+            "id": "raid_arrived",
+            "contentValue": "\u22124",
+            "pctActive": 0.7668711656441718,
+            "meanContribution": -0.01272860897606635,
+            "meanValueWhenActive": -1.659810610479052,
+            "totalTicksActive": 42000
+          },
+          {
+            "id": "first_vein",
+            "contentValue": "5",
+            "pctActive": 0.3286590709903593,
+            "meanContribution": 0.008640081799591004,
+            "meanValueWhenActive": 2.628888888888889,
+            "totalTicksActive": 18000
+          },
+          {
+            "id": "ate_stale_food",
+            "contentValue": "\u22122",
+            "pctActive": 0.4601226993865031,
+            "meanContribution": -0.006316831658312975,
+            "meanValueWhenActive": -1.3728580804066866,
+            "totalTicksActive": 25200
+          },
+          {
+            "id": "slept_in_shared_bed_room",
+            "contentValue": "\u22121",
+            "pctActive": 0.6792287467134093,
+            "meanContribution": -0.0037334392345895417,
+            "meanValueWhenActive": -0.5496586021505376,
+            "totalTicksActive": 37200
+          },
+          {
+            "id": "skill_milestone",
+            "contentValue": "4",
+            "pctActive": 0.13146362839614373,
+            "meanContribution": 0.0029330996202161846,
+            "meanValueWhenActive": 2.2311111111111113,
+            "totalTicksActive": 7200
+          }
         ],
-        "caravans": {
-          "completed": 4,
-          "arrived": 8
+        "needWants": {
+          "hunger": {
+            "pctAtWant": 29.27256792287467,
+            "meanLevel": 36.59031332164759
+          },
+          "thirst": {
+            "pctAtWant": 28.92199824715162,
+            "meanLevel": 35.90070113935146
+          },
+          "rest": {
+            "pctAtWant": 16.389132340052587,
+            "meanLevel": 32.065501752848434
+          },
+          "social": {
+            "pctAtWant": 31.13496932515337,
+            "meanLevel": 37.629272567922875
+          },
+          "comfort": {
+            "pctAtWant": 44.41279579316389,
+            "meanLevel": 53.982690622261174
+          },
+          "purpose": {
+            "pctAtWant": 48.1375985977213,
+            "meanLevel": 56.19281332164768
+          },
+          "joy": {
+            "pctAtWant": 43.076248904469765,
+            "meanLevel": 59.9683939526731
+          }
+        },
+        "eventCounts": {
+          "mealsEaten": 1602,
+          "drinksAlcohol": 2478,
+          "drinksWater": 0
+        },
+        "dayTrace": [
+          {
+            "hour": 1,
+            "tick": 120050,
+            "x": 33,
+            "y": 25,
+            "z": 26,
+            "mood": 77.4,
+            "needs": {
+              "hunger": 5,
+              "thirst": 43,
+              "rest": 63,
+              "social": 18,
+              "comfort": 49,
+              "purpose": 0,
+              "joy": 39
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 6
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 1.5
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 1.5
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 1.4
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1.4
+              },
+              {
+                "id": "hearth_visit",
+                "value": 0.9
+              },
+              {
+                "id": "tired",
+                "value": -0.6
+              }
+            ],
+            "behavior": "work",
+            "activity": "Dig"
+          },
+          {
+            "hour": 2,
+            "tick": 120100,
+            "x": 33,
+            "y": 25,
+            "z": 26,
+            "mood": 74,
+            "needs": {
+              "hunger": 6,
+              "thirst": 45,
+              "rest": 68,
+              "social": 20,
+              "comfort": 50,
+              "purpose": 0,
+              "joy": 40
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 5.5
+              },
+              {
+                "id": "tired",
+                "value": -1.6
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 1.5
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 1.5
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1.3
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 1
+              },
+              {
+                "id": "hearth_visit",
+                "value": 0.6
+              }
+            ],
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "hour": 3,
+            "tick": 120150,
+            "x": 31,
+            "y": 24,
+            "z": 26,
+            "mood": 75.3,
+            "needs": {
+              "hunger": 7,
+              "thirst": 46,
+              "rest": 53,
+              "social": 22,
+              "comfort": 51,
+              "purpose": 2,
+              "joy": 41
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 5.1
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 1.4
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 1.4
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1.1
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 0.6
+              },
+              {
+                "id": "hearth_visit",
+                "value": 0.4
+              }
+            ],
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "hour": 4,
+            "tick": 120200,
+            "x": 28,
+            "y": 20,
+            "z": 26,
+            "mood": 73.9,
+            "needs": {
+              "hunger": 8,
+              "thirst": 48,
+              "rest": 38,
+              "social": 24,
+              "comfort": 52,
+              "purpose": 4,
+              "joy": 42
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 4.7
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 1.3
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 1.3
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 0.1
+              },
+              {
+                "id": "hearth_visit",
+                "value": 0.1
+              }
+            ],
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "hour": 5,
+            "tick": 120250,
+            "x": 28,
+            "y": 16,
+            "z": 26,
+            "mood": 72.5,
+            "needs": {
+              "hunger": 9,
+              "thirst": 50,
+              "rest": 23,
+              "social": 26,
+              "comfort": 53,
+              "purpose": 6,
+              "joy": 42
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 4.3
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 1.2
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 1.2
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 0.9
+              }
+            ],
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "hour": 6,
+            "tick": 120300,
+            "x": 27,
+            "y": 13,
+            "z": 26,
+            "mood": 71.3,
+            "needs": {
+              "hunger": 11,
+              "thirst": 51,
+              "rest": 8,
+              "social": 28,
+              "comfort": 54,
+              "purpose": 8,
+              "joy": 43
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 3.9
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 1.1
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 1.1
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 0.8
+              },
+              {
+                "id": "thirsty",
+                "value": -0.2
+              }
+            ],
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "hour": 7,
+            "tick": 120350,
+            "x": 31,
+            "y": 13,
+            "z": 26,
+            "mood": 70.3,
+            "needs": {
+              "hunger": 12,
+              "thirst": 53,
+              "rest": 0,
+              "social": 30,
+              "comfort": 55,
+              "purpose": 10,
+              "joy": 44
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 3.5
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 2.9
+              },
+              {
+                "id": "well_rested",
+                "value": 1.8
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 1
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 1
+              },
+              {
+                "id": "thirsty",
+                "value": -0.6
+              }
+            ],
+            "behavior": "need",
+            "activity": "thirst"
+          },
+          {
+            "hour": 8,
+            "tick": 120400,
+            "x": 31,
+            "y": 8,
+            "z": 26,
+            "mood": 73.3,
+            "needs": {
+              "hunger": 13,
+              "thirst": 54,
+              "rest": 5,
+              "social": 32,
+              "comfort": 56,
+              "purpose": 12,
+              "joy": 45
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 3
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 2.8
+              },
+              {
+                "id": "well_rested",
+                "value": 1.7
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 1
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 1
+              },
+              {
+                "id": "thirsty",
+                "value": -0.9
+              },
+              {
+                "id": "uncomfortable",
+                "value": -0.1
+              }
+            ],
+            "behavior": "need",
+            "activity": "thirst"
+          },
+          {
+            "hour": 9,
+            "tick": 120450,
+            "x": 26,
+            "y": 8,
+            "z": 26,
+            "mood": 71,
+            "needs": {
+              "hunger": 14,
+              "thirst": 56,
+              "rest": 11,
+              "social": 34,
+              "comfort": 57,
+              "purpose": 14,
+              "joy": 45
+            },
+            "thoughts": [
+              {
+                "id": "slept_in_decent_room",
+                "value": 2.6
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 2.6
+              },
+              {
+                "id": "well_rested",
+                "value": 1.5
+              },
+              {
+                "id": "thirsty",
+                "value": -1.2
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 0.9
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 0.9
+              },
+              {
+                "id": "uncomfortable",
+                "value": -0.2
+              }
+            ],
+            "behavior": "need",
+            "activity": "thirst"
+          },
+          {
+            "hour": 10,
+            "tick": 120500,
+            "x": 22,
+            "y": 7,
+            "z": 26,
+            "mood": 69.7,
+            "needs": {
+              "hunger": 15,
+              "thirst": 58,
+              "rest": 16,
+              "social": 0,
+              "comfort": 58,
+              "purpose": 16,
+              "joy": 46
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 9.9
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 2.5
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 2.2
+              },
+              {
+                "id": "thirsty",
+                "value": -1.5
+              },
+              {
+                "id": "well_rested",
+                "value": 1.3
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 0.8
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 0.8
+              },
+              {
+                "id": "uncomfortable",
+                "value": -0.3
+              }
+            ],
+            "behavior": "need",
+            "activity": "thirst"
+          },
+          {
+            "hour": 11,
+            "tick": 120550,
+            "x": 23,
+            "y": 7,
+            "z": 26,
+            "mood": 78.2,
+            "needs": {
+              "hunger": 16,
+              "thirst": 0,
+              "rest": 21,
+              "social": 2,
+              "comfort": 59,
+              "purpose": 18,
+              "joy": 47
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 9.4
+              },
+              {
+                "id": "drank_ale",
+                "value": 2.9
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 2.4
+              },
+              {
+                "id": "thirsty",
+                "value": -1.8
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 1.8
+              },
+              {
+                "id": "well_rested",
+                "value": 1.2
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 0.7
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 0.7
+              },
+              {
+                "id": "uncomfortable",
+                "value": -0.4
+              }
+            ],
+            "behavior": "need",
+            "activity": "comfort"
+          },
+          {
+            "hour": 12,
+            "tick": 120600,
+            "x": 28,
+            "y": 7,
+            "z": 26,
+            "mood": 82.6,
+            "needs": {
+              "hunger": 17,
+              "thirst": 2,
+              "rest": 26,
+              "social": 4,
+              "comfort": 60,
+              "purpose": 20,
+              "joy": 48
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 9
+              },
+              {
+                "id": "drank_ale",
+                "value": 2.8
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 2.3
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 1.4
+              },
+              {
+                "id": "well_rested",
+                "value": 1
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 0.6
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 0.6
+              },
+              {
+                "id": "uncomfortable",
+                "value": -0.5
+              }
+            ],
+            "behavior": "need",
+            "activity": "comfort"
+          },
+          {
+            "hour": 13,
+            "tick": 120650,
+            "x": 33,
+            "y": 8,
+            "z": 26,
+            "mood": 81.1,
+            "needs": {
+              "hunger": 18,
+              "thirst": 3,
+              "rest": 32,
+              "social": 6,
+              "comfort": 61,
+              "purpose": 22,
+              "joy": 48
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 8.6
+              },
+              {
+                "id": "drank_ale",
+                "value": 2.7
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 2.1
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 1
+              },
+              {
+                "id": "well_rested",
+                "value": 0.8
+              },
+              {
+                "id": "uncomfortable",
+                "value": -0.6
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 0.5
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 0.5
+              }
+            ],
+            "behavior": "need",
+            "activity": "comfort"
+          },
+          {
+            "hour": 14,
+            "tick": 120700,
+            "x": 34,
+            "y": 8,
+            "z": 26,
+            "mood": 79.6,
+            "needs": {
+              "hunger": 19,
+              "thirst": 5,
+              "rest": 37,
+              "social": 8,
+              "comfort": 62,
+              "purpose": 24,
+              "joy": 49
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 8.2
+              },
+              {
+                "id": "drank_ale",
+                "value": 2.6
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 2
+              },
+              {
+                "id": "uncomfortable",
+                "value": -0.7
+              },
+              {
+                "id": "well_rested",
+                "value": 0.7
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 0.5
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 0.5
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 0.5
+              }
+            ],
+            "behavior": "need",
+            "activity": "comfort"
+          },
+          {
+            "hour": 15,
+            "tick": 120750,
+            "x": 34,
+            "y": 8,
+            "z": 26,
+            "mood": 78.1,
+            "needs": {
+              "hunger": 20,
+              "thirst": 6,
+              "rest": 42,
+              "social": 10,
+              "comfort": 63,
+              "purpose": 26,
+              "joy": 50
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 7.8
+              },
+              {
+                "id": "drank_ale",
+                "value": 2.4
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1.9
+              },
+              {
+                "id": "uncomfortable",
+                "value": -0.8
+              },
+              {
+                "id": "well_rested",
+                "value": 0.5
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 0.4
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 0.4
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 0.1
+              }
+            ],
+            "behavior": "need",
+            "activity": "comfort"
+          },
+          {
+            "hour": 16,
+            "tick": 120800,
+            "x": 31,
+            "y": 9,
+            "z": 26,
+            "mood": 76.5,
+            "needs": {
+              "hunger": 21,
+              "thirst": 8,
+              "rest": 47,
+              "social": 0,
+              "comfort": 24,
+              "purpose": 28,
+              "joy": 51
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 9.9
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 9.7
+              },
+              {
+                "id": "sat_in_fine_room",
+                "value": 2.8
+              },
+              {
+                "id": "drank_ale",
+                "value": 2.3
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1.8
+              },
+              {
+                "id": "uncomfortable",
+                "value": -0.9
+              },
+              {
+                "id": "well_rested",
+                "value": 0.3
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 0.3
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 0.3
+              }
+            ],
+            "behavior": "work",
+            "activity": "Dig"
+          },
+          {
+            "hour": 17,
+            "tick": 120850,
+            "x": 31,
+            "y": 13,
+            "z": 26,
+            "mood": 91.2,
+            "needs": {
+              "hunger": 22,
+              "thirst": 10,
+              "rest": 53,
+              "social": 2,
+              "comfort": 25,
+              "purpose": 18,
+              "joy": 51
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 9.4
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 9.2
+              },
+              {
+                "id": "sat_in_fine_room",
+                "value": 2.5
+              },
+              {
+                "id": "drank_ale",
+                "value": 2.2
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1.6
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 0.2
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 0.2
+              },
+              {
+                "id": "well_rested",
+                "value": 0.2
+              }
+            ],
+            "behavior": "work",
+            "activity": "Dig"
+          },
+          {
+            "hour": 18,
+            "tick": 120900,
+            "x": 31,
+            "y": 18,
+            "z": 26,
+            "mood": 89.6,
+            "needs": {
+              "hunger": 23,
+              "thirst": 11,
+              "rest": 58,
+              "social": 0,
+              "comfort": 26,
+              "purpose": 8,
+              "joy": 52
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 9.7
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 9
+              },
+              {
+                "id": "sat_in_fine_room",
+                "value": 2.3
+              },
+              {
+                "id": "drank_ale",
+                "value": 2.1
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1.5
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 0.1
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 0.1
+              },
+              {
+                "id": "well_rested",
+                "value": 0
+              }
+            ],
+            "behavior": "work",
+            "activity": "Dig"
+          },
+          {
+            "hour": 19,
+            "tick": 120950,
+            "x": 31,
+            "y": 23,
+            "z": 26,
+            "mood": 88.2,
+            "needs": {
+              "hunger": 24,
+              "thirst": 13,
+              "rest": 63,
+              "social": 2,
+              "comfort": 27,
+              "purpose": 0,
+              "joy": 53
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 9.3
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 8.6
+              },
+              {
+                "id": "sat_in_fine_room",
+                "value": 2
+              },
+              {
+                "id": "drank_ale",
+                "value": 1.9
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1.4
+              },
+              {
+                "id": "tired",
+                "value": -0.6
+              },
+              {
+                "id": "ate_easy_meal",
+                "value": 0
+              },
+              {
+                "id": "ate_in_decent_hall",
+                "value": 0
+              }
+            ],
+            "behavior": "work",
+            "activity": "Dig"
+          },
+          {
+            "hour": 20,
+            "tick": 121000,
+            "x": 33,
+            "y": 26,
+            "z": 26,
+            "mood": 84.6,
+            "needs": {
+              "hunger": 25,
+              "thirst": 14,
+              "rest": 68,
+              "social": 4,
+              "comfort": 28,
+              "purpose": 0,
+              "joy": 54
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 8.8
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 8.2
+              },
+              {
+                "id": "drank_ale",
+                "value": 1.8
+              },
+              {
+                "id": "sat_in_fine_room",
+                "value": 1.8
+              },
+              {
+                "id": "tired",
+                "value": -1.6
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1.3
+              }
+            ],
+            "behavior": "work",
+            "activity": "Dig"
+          },
+          {
+            "hour": 21,
+            "tick": 121050,
+            "x": 33,
+            "y": 26,
+            "z": 26,
+            "mood": 81.1,
+            "needs": {
+              "hunger": 26,
+              "thirst": 16,
+              "rest": 74,
+              "social": 6,
+              "comfort": 29,
+              "purpose": 0,
+              "joy": 54
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 8.4
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 7.8
+              },
+              {
+                "id": "tired",
+                "value": -2.7
+              },
+              {
+                "id": "drank_ale",
+                "value": 1.7
+              },
+              {
+                "id": "sat_in_fine_room",
+                "value": 1.5
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1.1
+              }
+            ],
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "hour": 22,
+            "tick": 121100,
+            "x": 31,
+            "y": 23,
+            "z": 26,
+            "mood": 84.5,
+            "needs": {
+              "hunger": 27,
+              "thirst": 18,
+              "rest": 59,
+              "social": 8,
+              "comfort": 30,
+              "purpose": 2,
+              "joy": 55
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 8
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 7.4
+              },
+              {
+                "id": "drank_ale",
+                "value": 1.6
+              },
+              {
+                "id": "sat_in_fine_room",
+                "value": 1.3
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 1
+              }
+            ],
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "hour": 23,
+            "tick": 121150,
+            "x": 28,
+            "y": 19,
+            "z": 26,
+            "mood": 83.2,
+            "needs": {
+              "hunger": 28,
+              "thirst": 19,
+              "rest": 44,
+              "social": 10,
+              "comfort": 31,
+              "purpose": 4,
+              "joy": 56
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 7.6
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 6.9
+              },
+              {
+                "id": "drank_ale",
+                "value": 1.4
+              },
+              {
+                "id": "sat_in_fine_room",
+                "value": 1
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 0.9
+              }
+            ],
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "hour": 0,
+            "tick": 121200,
+            "x": 28,
+            "y": 15,
+            "z": 26,
+            "mood": 81.8,
+            "needs": {
+              "hunger": 29,
+              "thirst": 21,
+              "rest": 29,
+              "social": 12,
+              "comfort": 32,
+              "purpose": 6,
+              "joy": 57
+            },
+            "thoughts": [
+              {
+                "id": "talked_with_friend",
+                "value": 7.2
+              },
+              {
+                "id": "talked_with_friend",
+                "value": 6.5
+              },
+              {
+                "id": "drank_ale",
+                "value": 1.3
+              },
+              {
+                "id": "sat_in_fine_room",
+                "value": 0.8
+              },
+              {
+                "id": "slept_in_decent_room",
+                "value": 0.8
+              }
+            ],
+            "behavior": "need",
+            "activity": "sleep"
+          }
+        ],
+        "buildingDiag": {
+          "bedsTotal": 14,
+          "bedsBuilt": 14,
+          "bedsPlanned": 0,
+          "bedroomZones": 14,
+          "bedroomsOwned": 14,
+          "bedroomsRequirementsMet": 14,
+          "bedroomTiers": {
+            "0": 2,
+            "1": 4,
+            "2": 8
+          },
+          "tablesTotal": 3,
+          "tablesBuilt": 3,
+          "chairsTotal": 9,
+          "chairsBuilt": 9,
+          "hearthState": "built",
+          "hearthTier": 3,
+          "bedItemsInStock": 15,
+          "logItemsInStock": 49,
+          "barrelItemsInStock": 65,
+          "preparedMealsInStock": 0,
+          "rawPlantsInStock": 0,
+          "alcoholInStock": 12
+        },
+        "bedroomDigSnapshots": [
+          {
+            "day": 30,
+            "totalTiles": 194,
+            "floorsDug": 31,
+            "wallsRemaining": 163,
+            "doorsDug": 4,
+            "jobsOpen": 7,
+            "jobsClaimed": 0,
+            "jobsBlockedUnreachable": 98,
+            "jobsBlockedOther": 0,
+            "jobsNotExist": 89
+          },
+          {
+            "day": 100,
+            "totalTiles": 194,
+            "floorsDug": 88,
+            "wallsRemaining": 106,
+            "doorsDug": 10,
+            "jobsOpen": 6,
+            "jobsClaimed": 1,
+            "jobsBlockedUnreachable": 71,
+            "jobsBlockedOther": 0,
+            "jobsNotExist": 116
+          },
+          {
+            "day": 112,
+            "totalTiles": 194,
+            "floorsDug": 96,
+            "wallsRemaining": 98,
+            "doorsDug": 10,
+            "jobsOpen": 0,
+            "jobsClaimed": 0,
+            "jobsBlockedUnreachable": 70,
+            "jobsBlockedOther": 0,
+            "jobsNotExist": 124
+          },
+          {
+            "day": 224,
+            "totalTiles": 194,
+            "floorsDug": 113,
+            "wallsRemaining": 81,
+            "doorsDug": 12,
+            "jobsOpen": 3,
+            "jobsClaimed": 0,
+            "jobsBlockedUnreachable": 53,
+            "jobsBlockedOther": 0,
+            "jobsNotExist": 138
+          },
+          {
+            "day": 336,
+            "totalTiles": 194,
+            "floorsDug": 164,
+            "wallsRemaining": 30,
+            "doorsDug": 17,
+            "jobsOpen": 3,
+            "jobsClaimed": 1,
+            "jobsBlockedUnreachable": 1,
+            "jobsBlockedOther": 0,
+            "jobsNotExist": 189
+          }
+        ],
+        "bedroomRoomStatus": [
+          {
+            "roomIndex": 0,
+            "doorDug": true,
+            "floorsDug": 16,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 27
+          },
+          {
+            "roomIndex": 1,
+            "doorDug": true,
+            "floorsDug": 16,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 46
+          },
+          {
+            "roomIndex": 2,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 37
+          },
+          {
+            "roomIndex": 3,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 47
+          },
+          {
+            "roomIndex": 4,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 67
+          },
+          {
+            "roomIndex": 5,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 70
+          },
+          {
+            "roomIndex": 6,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 104
+          },
+          {
+            "roomIndex": 7,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 110
+          },
+          {
+            "roomIndex": 8,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 223
+          },
+          {
+            "roomIndex": 9,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 243
+          },
+          {
+            "roomIndex": 10,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 269
+          },
+          {
+            "roomIndex": 11,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 271
+          },
+          {
+            "roomIndex": 12,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 297
+          },
+          {
+            "roomIndex": 13,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 302
+          },
+          {
+            "roomIndex": 14,
+            "doorDug": true,
+            "floorsDug": 6,
+            "wallsRemaining": 3,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": true
+          },
+          {
+            "roomIndex": 15,
+            "doorDug": false,
+            "floorsDug": 1,
+            "wallsRemaining": 8,
+            "doorReachableFromCorridor": false,
+            "anyWallReachable": true
+          },
+          {
+            "roomIndex": 16,
+            "doorDug": true,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": true
+          },
+          {
+            "roomIndex": 17,
+            "doorDug": true,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": true
+          }
+        ],
+        "minerActivityDiag": {
+          "minerIds": [
+            16777291,
+            419430599,
+            251658584,
+            184549915,
+            150995488,
+            50332515
+          ],
+          "activityHistogram": {
+            "behavior:need:hunger": 210,
+            "behavior:need:sleep": 416,
+            "job:craft(masonry):eff5:pri5": 5,
+            "job:dig(mining):eff5:pri5": 51,
+            "behavior:need:social": 107,
+            "behavior:need:joy": 115,
+            "behavior:need:thirst": 145,
+            "behavior:need:comfort": 154,
+            "job:craft(cooking):eff4:pri5": 54,
+            "job:haul_to_stockpile(hauling):eff4:pri5": 19,
+            "job:haul_to_depot(hauling):eff4:pri5": 6,
+            "job:craft(brewing):eff4:pri5": 68,
+            "job:plant(farming):eff4:pri5": 41,
+            "job:smooth(masonry):eff5:pri5": 5,
+            "job:harvest(farming):eff4:pri5": 41,
+            "job:gather(herbalism):eff5:pri5": 10,
+            "job:haul_to_depot(hauling):eff3:pri4": 2,
+            "job:carve_stairs(mining):eff5:pri5": 1,
+            "behavior:work:Craft (recipe)": 1,
+            "job:engrave(crafts):eff5:pri5": 9,
+            "job:build(masonry):eff5:pri5": 1,
+            "job:build(carpentry):eff5:pri5": 1
+          },
+          "digCancelledCount": 0,
+          "digAbandonedCount": 0
+        },
+        "drinkDiag": {
+          "totalWaterDrinks": 0,
+          "totalAlcoholDrinks": 2478,
+          "alcoholBrewed": 3720,
+          "split": {
+            "noAlcohol": 0,
+            "notInBarrel": 0,
+            "barrelNotInStockpile": 0,
+            "allReserved": 0,
+            "availableInStockpiledBarrel": 0,
+            "unreachableFromDwarf": 0
+          }
+        }
+      },
+      {
+        "seed": "three-years-p0-2",
+        "upgraded": true,
+        "totalDwarfDays": 406,
+        "finalPop": 0,
+        "baselineForMean55": 70.72138949624221,
+        "baselineForMean70": 85.82522564211283,
+        "meanMood": 39.358358125210344,
+        "minMood": 1.5107916666666696,
+        "maxMood": 82.49563492063491,
+        "moodBreakdown": {
+          "Fine": 177,
+          "Content": 45,
+          "Happy": 4,
+          "Unhappy": 102,
+          "Miserable": 78,
+          "Ecstatic": 0
+        },
+        "baseline": 55,
+        "meanHearthBonus": 2.812807881773399,
+        "meanPersonalityBase": -1.0862068965517242,
+        "meanCapEffect": 2.0656276716852204,
+        "meanFloorEffect": 0.005844417077175696,
+        "thoughtRows": [
+          {
+            "id": "thirsty",
+            "contentValue": "\u2212(thirst \u2212 50) / 5, min \u221210",
+            "pctActive": 75.61576354679804,
+            "meanContribution": -12.657733990147783,
+            "meanValueWhenActive": -8.369771986970685,
+            "totalTicksActive": 368400
+          },
+          {
+            "id": "talked_with_friend",
+            "contentValue": "5",
+            "pctActive": 62.80788177339901,
+            "meanContribution": 1.9407558497536925,
+            "meanValueWhenActive": 3.089987745098036,
+            "totalTicksActive": 306000
+          },
+          {
+            "id": "slept_on_floor_last_night",
+            "contentValue": "\u22123",
+            "pctActive": 74.63054187192118,
+            "meanContribution": -1.9167487684729017,
+            "meanValueWhenActive": -2.568316831683162,
+            "totalTicksActive": 363600
+          },
+          {
+            "id": "no_bedroom",
+            "contentValue": "\u22122",
+            "pctActive": 77.58620689655173,
+            "meanContribution": -1.324137931034487,
+            "meanValueWhenActive": -1.706666666666672,
+            "totalTicksActive": 378000
+          },
+          {
+            "id": "hungry",
+            "contentValue": "\u2212(hunger \u2212 50) / 5, min \u221210",
+            "pctActive": 27.093596059113302,
+            "meanContribution": -1.311639408866995,
+            "meanValueWhenActive": -2.420570909090909,
+            "totalTicksActive": 132000
+          },
+          {
+            "id": "slept_on_floor",
+            "contentValue": "\u22124",
+            "pctActive": 63.54679802955665,
+            "meanContribution": -1.251938013136288,
+            "meanValueWhenActive": -1.970104005167957,
+            "totalTicksActive": 309600
+          },
+          {
+            "id": "friend_died",
+            "contentValue": "\u221215",
+            "pctActive": 9.113300492610838,
+            "meanContribution": -1.1283213987538239,
+            "meanValueWhenActive": -12.38104021335277,
+            "totalTicksActive": 44400
+          },
+          {
+            "id": "talked_with_someone",
+            "contentValue": "3",
+            "pctActive": 54.679802955665025,
+            "meanContribution": 1.104264778325123,
+            "meanValueWhenActive": 2.0195112612612607,
+            "totalTicksActive": 266400
+          },
+          {
+            "id": "dwarf_died",
+            "contentValue": "\u22125",
+            "pctActive": 39.40886699507389,
+            "meanContribution": -1.090722357547986,
+            "meanValueWhenActive": -2.7677079822780146,
+            "totalTicksActive": 192000
+          },
+          {
+            "id": "lonely",
+            "contentValue": "\u2212(social \u2212 50) / 10, min \u22125",
+            "pctActive": 25.615763546798032,
+            "meanContribution": -0.8483251231527094,
+            "meanValueWhenActive": -1.6558653846153848,
+            "totalTicksActive": 124800
+          },
+          {
+            "id": "restless",
+            "contentValue": "\u2212(purpose \u2212 60) / 10, min \u22124",
+            "pctActive": 33.497536945812804,
+            "meanContribution": -0.8297783251231515,
+            "meanValueWhenActive": -2.477132352941173,
+            "totalTicksActive": 163200
+          },
+          {
+            "id": "hearth_lit",
+            "contentValue": "12",
+            "pctActive": 12.068965517241379,
+            "meanContribution": 0.7311724137931036,
+            "meanValueWhenActive": 6.058285714285716,
+            "totalTicksActive": 58800
+          },
+          {
+            "id": "uncomfortable",
+            "contentValue": "\u2212(comfort \u2212 55) / 10, min \u22124",
+            "pctActive": 59.85221674876847,
+            "meanContribution": -0.7236699507389156,
+            "meanValueWhenActive": -1.2090946502057602,
+            "totalTicksActive": 291600
+          },
+          {
+            "id": "in_pain",
+            "contentValue": "\u2212(pain / 10), min \u22128",
+            "pctActive": 22.660098522167488,
+            "meanContribution": -0.7069950738916255,
+            "meanValueWhenActive": -3.1199999999999997,
+            "totalTicksActive": 110400
+          },
+          {
+            "id": "tired",
+            "contentValue": "\u2212(rest \u2212 60) / 5, min \u22128",
+            "pctActive": 14.532019704433496,
+            "meanContribution": -0.6905763546798023,
+            "meanValueWhenActive": -2.3760508474576247,
+            "totalTicksActive": 70800
+          },
+          {
+            "id": "thane_hall_bare",
+            "contentValue": "\u22121",
+            "pctActive": 79.06403940886699,
+            "meanContribution": -0.6357142857142873,
+            "meanValueWhenActive": -0.8040498442367622,
+            "totalTicksActive": 385200
+          },
+          {
+            "id": "well_rested",
+            "contentValue": "2",
+            "pctActive": 42.857142857142854,
+            "meanContribution": 0.5491001642036122,
+            "meanValueWhenActive": 1.281233716475095,
+            "totalTicksActive": 208800
+          },
+          {
+            "id": "unburied_dead",
+            "contentValue": "\u22124",
+            "pctActive": 14.285714285714285,
+            "meanContribution": -0.5300492610837436,
+            "meanValueWhenActive": -3.7103448275862054,
+            "totalTicksActive": 69600
+          },
+          {
+            "id": "bored",
+            "contentValue": "\u2212(joy \u2212 60) / 10, min \u22124",
+            "pctActive": 39.6551724137931,
+            "meanContribution": -0.4618503694581284,
+            "meanValueWhenActive": -1.1646661490683239,
+            "totalTicksActive": 193200
+          },
+          {
+            "id": "hearth_visit",
+            "contentValue": "3",
+            "pctActive": 27.339901477832512,
+            "meanContribution": 0.40641009852216736,
+            "meanValueWhenActive": 1.4865090090090085,
+            "totalTicksActive": 133200
+          },
+          {
+            "id": "harvest_in",
+            "contentValue": "3",
+            "pctActive": 18.226600985221676,
+            "meanContribution": 0.35712931034482776,
+            "meanValueWhenActive": 1.9593851351351361,
+            "totalTicksActive": 88800
+          },
+          {
+            "id": "drank_fine_drink",
+            "contentValue": "5",
+            "pctActive": 13.054187192118228,
+            "meanContribution": 0.3418979200875753,
+            "meanValueWhenActive": 2.6190670859538785,
+            "totalTicksActive": 63600
+          },
+          {
+            "id": "new_hearth_hall_tier",
+            "contentValue": "6",
+            "pctActive": 10.098522167487685,
+            "meanContribution": 0.3271557881773399,
+            "meanValueWhenActive": 3.239640243902439,
+            "totalTicksActive": 49200
+          },
+          {
+            "id": "ate_easy_meal",
+            "contentValue": "2",
+            "pctActive": 29.802955665024633,
+            "meanContribution": 0.29787972085385883,
+            "meanValueWhenActive": 0.9994972451790635,
+            "totalTicksActive": 145200
+          },
+          {
+            "id": "drank_ale",
+            "contentValue": "3",
+            "pctActive": 10.098522167487685,
+            "meanContribution": 0.17771182266009852,
+            "meanValueWhenActive": 1.759780487804878,
+            "totalTicksActive": 49200
+          },
+          {
+            "id": "ate_fine_meal",
+            "contentValue": "5",
+            "pctActive": 6.157635467980295,
+            "meanContribution": 0.1645238095238095,
+            "meanValueWhenActive": 2.671866666666666,
+            "totalTicksActive": 30000
+          },
+          {
+            "id": "saw_death",
+            "contentValue": "\u22124",
+            "pctActive": 6.403940886699508,
+            "meanContribution": -0.13513138922263435,
+            "meanValueWhenActive": -2.110128616322675,
+            "totalTicksActive": 31200
+          },
+          {
+            "id": "in_miasma",
+            "contentValue": "\u22125",
+            "pctActive": 2.70935960591133,
+            "meanContribution": -0.1330049261083744,
+            "meanValueWhenActive": -4.909090909090909,
+            "totalTicksActive": 13200
+          },
+          {
+            "id": "slept_outdoors",
+            "contentValue": "\u22125",
+            "pctActive": 4.679802955665025,
+            "meanContribution": -0.11575841543513958,
+            "meanValueWhenActive": -2.4735745614035087,
+            "totalTicksActive": 22800
+          },
+          {
+            "id": "immigrants_arrived",
+            "contentValue": "3",
+            "pctActive": 10.344827586206897,
+            "meanContribution": 0.11112376847290635,
+            "meanValueWhenActive": 1.074196428571428,
+            "totalTicksActive": 50400
+          },
+          {
+            "id": "got_it_out",
+            "contentValue": "10",
+            "pctActive": 1.9704433497536946,
+            "meanContribution": 0.10680350301039958,
+            "meanValueWhenActive": 5.420277777777779,
+            "totalTicksActive": 9600
+          },
+          {
+            "id": "first_vein",
+            "contentValue": "5",
+            "pctActive": 2.955665024630542,
+            "meanContribution": 0.0902853037766831,
+            "meanValueWhenActive": 3.0546527777777785,
+            "totalTicksActive": 14400
+          },
+          {
+            "id": "slept_in_modest_room",
+            "contentValue": "1",
+            "pctActive": 14.039408866995073,
+            "meanContribution": 0.08247372742200328,
+            "meanValueWhenActive": 0.5874444444444444,
+            "totalTicksActive": 68400
+          },
+          {
+            "id": "ate_in_decent_hall",
+            "contentValue": "2",
+            "pctActive": 9.35960591133005,
+            "meanContribution": 0.08104433497536945,
+            "meanValueWhenActive": 0.8658947368421052,
+            "totalTicksActive": 45600
+          },
+          {
+            "id": "caught_in_rain",
+            "contentValue": "\u22122",
+            "pctActive": 3.9408866995073892,
+            "meanContribution": -0.07821448408882142,
+            "meanValueWhenActive": -1.9846925337538437,
+            "totalTicksActive": 19200
+          },
+          {
+            "id": "ate_lavish_meal",
+            "contentValue": "10",
+            "pctActive": 0.9852216748768473,
+            "meanContribution": 0.07100164203612479,
+            "meanValueWhenActive": 7.206666666666666,
+            "totalTicksActive": 4800
+          },
+          {
+            "id": "saw_sunlight",
+            "contentValue": "3",
+            "pctActive": 3.6945812807881775,
+            "meanContribution": 0.052827586206896544,
+            "meanValueWhenActive": 1.4298666666666664,
+            "totalTicksActive": 18000
+          },
+          {
+            "id": "caravan_arrived",
+            "contentValue": "2",
+            "pctActive": 6.403940886699508,
+            "meanContribution": 0.03651395730706075,
+            "meanValueWhenActive": 0.5701794871794872,
+            "totalTicksActive": 31200
+          },
+          {
+            "id": "wept",
+            "contentValue": "5",
+            "pctActive": 1.477832512315271,
+            "meanContribution": 0.032059729064039415,
+            "meanValueWhenActive": 2.1693750000000005,
+            "totalTicksActive": 7200
+          },
+          {
+            "id": "slept_in_shared_bed_room",
+            "contentValue": "\u22121",
+            "pctActive": 0.9852216748768473,
+            "meanContribution": -0.004178776683087028,
+            "meanValueWhenActive": -0.42414583333333333,
+            "totalTicksActive": 4800
+          },
+          {
+            "id": "ate_raw_food",
+            "contentValue": "\u22121",
+            "pctActive": 0.24630541871921183,
+            "meanContribution": -0.0012647783251231528,
+            "meanValueWhenActive": -0.5135000000000001,
+            "totalTicksActive": 1200
+          }
+        ],
+        "needWants": {
+          "hunger": {
+            "pctAtWant": 26.60098522167488,
+            "meanLevel": 35.71697044334976
+          },
+          "thirst": {
+            "pctAtWant": 75.1231527093596,
+            "meanLevel": 76.70246305418719
+          },
+          "rest": {
+            "pctAtWant": 14.532019704433496,
+            "meanLevel": 30.383128078817755
+          },
+          "social": {
+            "pctAtWant": 26.354679802955665,
+            "meanLevel": 36.251231527093594
+          },
+          "comfort": {
+            "pctAtWant": 57.14285714285714,
+            "meanLevel": 58.52709359605911
+          },
+          "purpose": {
+            "pctAtWant": 35.960591133004925,
+            "meanLevel": 44.477832512315274
+          },
+          "joy": {
+            "pctAtWant": 38.42364532019704,
+            "meanLevel": 58.133620689655174
+          }
+        },
+        "eventCounts": {
+          "mealsEaten": 143,
+          "drinksAlcohol": 78,
+          "drinksWater": 0
+        },
+        "dayTrace": [],
+        "buildingDiag": {
+          "bedsTotal": 6,
+          "bedsBuilt": 4,
+          "bedsPlanned": 2,
+          "bedroomZones": 6,
+          "bedroomsOwned": 4,
+          "bedroomsRequirementsMet": 4,
+          "bedroomTiers": {
+            "0": 3,
+            "1": 3
+          },
+          "tablesTotal": 3,
+          "tablesBuilt": 3,
+          "chairsTotal": 9,
+          "chairsBuilt": 2,
+          "hearthState": "built",
+          "hearthTier": 2,
+          "bedItemsInStock": 6,
+          "logItemsInStock": 155,
+          "barrelItemsInStock": 20,
+          "preparedMealsInStock": 0,
+          "rawPlantsInStock": 0,
+          "alcoholInStock": 0
+        },
+        "bedroomDigSnapshots": [
+          {
+            "day": 30,
+            "totalTiles": 194,
+            "floorsDug": 36,
+            "wallsRemaining": 158,
+            "doorsDug": 4,
+            "jobsOpen": 1,
+            "jobsClaimed": 1,
+            "jobsBlockedUnreachable": 78,
+            "jobsBlockedOther": 0,
+            "jobsNotExist": 114
+          },
+          {
+            "day": 100,
+            "totalTiles": 194,
+            "floorsDug": 76,
+            "wallsRemaining": 118,
+            "doorsDug": 8,
+            "jobsOpen": 1,
+            "jobsClaimed": 0,
+            "jobsBlockedUnreachable": 0,
+            "jobsBlockedOther": 79,
+            "jobsNotExist": 114
+          },
+          {
+            "day": 112,
+            "totalTiles": 194,
+            "floorsDug": 76,
+            "wallsRemaining": 118,
+            "doorsDug": 8,
+            "jobsOpen": 1,
+            "jobsClaimed": 0,
+            "jobsBlockedUnreachable": 0,
+            "jobsBlockedOther": 79,
+            "jobsNotExist": 114
+          },
+          {
+            "day": 224,
+            "totalTiles": 194,
+            "floorsDug": 76,
+            "wallsRemaining": 118,
+            "doorsDug": 8,
+            "jobsOpen": 1,
+            "jobsClaimed": 0,
+            "jobsBlockedUnreachable": 0,
+            "jobsBlockedOther": 79,
+            "jobsNotExist": 114
+          },
+          {
+            "day": 336,
+            "totalTiles": 194,
+            "floorsDug": 76,
+            "wallsRemaining": 118,
+            "doorsDug": 8,
+            "jobsOpen": 1,
+            "jobsClaimed": 0,
+            "jobsBlockedUnreachable": 0,
+            "jobsBlockedOther": 79,
+            "jobsNotExist": 114
+          }
+        ],
+        "bedroomRoomStatus": [
+          {
+            "roomIndex": 0,
+            "doorDug": true,
+            "floorsDug": 16,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 27
+          },
+          {
+            "roomIndex": 1,
+            "doorDug": true,
+            "floorsDug": 16,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 29
+          },
+          {
+            "roomIndex": 2,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 39
+          },
+          {
+            "roomIndex": 3,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 39
+          },
+          {
+            "roomIndex": 4,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 61
+          },
+          {
+            "roomIndex": 5,
+            "doorDug": true,
+            "floorsDug": 9,
+            "wallsRemaining": 0,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": false,
+            "setupDay": 61
+          },
+          {
+            "roomIndex": 6,
+            "doorDug": false,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": false,
+            "anyWallReachable": false
+          },
+          {
+            "roomIndex": 7,
+            "doorDug": false,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": false,
+            "anyWallReachable": true
+          },
+          {
+            "roomIndex": 8,
+            "doorDug": false,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": false,
+            "anyWallReachable": false
+          },
+          {
+            "roomIndex": 9,
+            "doorDug": false,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": false,
+            "anyWallReachable": false
+          },
+          {
+            "roomIndex": 10,
+            "doorDug": false,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": false,
+            "anyWallReachable": false
+          },
+          {
+            "roomIndex": 11,
+            "doorDug": false,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": false,
+            "anyWallReachable": false
+          },
+          {
+            "roomIndex": 12,
+            "doorDug": false,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": false,
+            "anyWallReachable": false
+          },
+          {
+            "roomIndex": 13,
+            "doorDug": false,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": false,
+            "anyWallReachable": false
+          },
+          {
+            "roomIndex": 14,
+            "doorDug": false,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": false,
+            "anyWallReachable": false
+          },
+          {
+            "roomIndex": 15,
+            "doorDug": false,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": false,
+            "anyWallReachable": false
+          },
+          {
+            "roomIndex": 16,
+            "doorDug": true,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": true
+          },
+          {
+            "roomIndex": 17,
+            "doorDug": true,
+            "floorsDug": 0,
+            "wallsRemaining": 9,
+            "doorReachableFromCorridor": true,
+            "anyWallReachable": true
+          }
+        ],
+        "minerActivityDiag": {
+          "minerIds": [],
+          "activityHistogram": {
+            "behavior:need:sleep": 61,
+            "job:dig(mining):eff5:pri5": 9,
+            "behavior:need:thirst": 4,
+            "behavior:need:comfort": 16,
+            "behavior:need:joy": 6,
+            "job:craft(masonry):eff5:pri5": 2,
+            "behavior:need:hunger": 11,
+            "behavior:need:social": 6,
+            "job:smooth(masonry):eff5:pri5": 1,
+            "job:craft(cooking):eff4:pri5": 4,
+            "job:plant(farming):eff4:pri5": 4,
+            "job:harvest(farming):eff4:pri5": 1,
+            "job:craft(brewing):eff4:pri5": 1,
+            "job:haul_to_depot(hauling):eff3:pri4": 4
+          },
+          "digCancelledCount": 0,
+          "digAbandonedCount": 0
+        },
+        "drinkDiag": {
+          "totalWaterDrinks": 0,
+          "totalAlcoholDrinks": 78,
+          "alcoholBrewed": 1300,
+          "split": {
+            "noAlcohol": 0,
+            "notInBarrel": 0,
+            "barrelNotInStockpile": 0,
+            "allReserved": 0,
+            "availableInStockpiledBarrel": 0,
+            "unreachableFromDwarf": 0
+          }
         }
       }
-    },
-    "task1And2Perf": {
-      "filesPassed": 6,
-      "filesFailed": 1,
-      "testsPassed": 31,
-      "testsFailed": 1,
-      "todo": 1,
-      "seconds": 79.98,
-      "referenceWorstMs": 56.1807,
-      "referenceLimitMs": 40,
-      "referenceAvgMs": 4.492,
-      "retry": {
-        "seconds": 46.32,
-        "referenceWorstMs": 102.3579,
-        "referenceAvgMs": 7.965,
-        "weatherAvgMs": 0.02064435,
-        "weatherAvgLimitMs": 0.02
-      },
-      "perSystemTestsPassed": 22,
-      "perSystemTodo": 1,
-      "referenceBudgetConfirmed": false
-    }
+    ],
+    "exitCode": 0,
+    "finished": "2026-10-07T19:37:28.842375+00:00"
   }
 }
