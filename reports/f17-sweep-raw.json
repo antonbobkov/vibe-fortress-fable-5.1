@@ -1,7 +1,7 @@
 {
   "started": "2026-10-07T19:27:26.900041+00:00",
   "sourceCommit": "bdfee61f47893d3859fd099bf2d9b3236f7cb76c",
-  "status": "running",
+  "status": "failed",
   "economy": [
     {
       "seed": "three-years-p0-1",
@@ -20700,6 +20700,2646 @@
       "food": 103,
       "alcohol": 154,
       "water": 0
+    },
+    {
+      "seed": "three-years-p4-5",
+      "peril": 4,
+      "years": [
+        {
+          "day": 112,
+          "wealth": 2798,
+          "population": 0,
+          "meanEndurance": 0,
+          "renown": 1.399,
+          "fortressCreatures": 0,
+          "renownWealthEquivalent": 2798,
+          "spirit": 55,
+          "marks": {
+            "embark goods": 1266,
+            "blocks": 90,
+            "furniture": 116,
+            "crafts": 0,
+            "meals/drink": 0,
+            "iron goods": 135,
+            "steel goods": 0,
+            "iron bars": 30,
+            "steel bars": 0,
+            "gems": 0,
+            "smoothing/engraving": 0,
+            "other building value": 88,
+            "trade purchases": 0,
+            "barrels": 144,
+            "other": 929
+          },
+          "counts": {
+            "pick:iron": 2,
+            "axe:iron": 1,
+            "crossbow:oak": 1,
+            "bolt:copper": 25,
+            "log:ash": 38,
+            "barrel:pine": 4,
+            "ore:hematite": 17,
+            "log:oak": 61,
+            "drink:ale": 20,
+            "bag:flax_cloth": 9,
+            "tunic:flax_cloth": 9,
+            "seed:turnip": 10,
+            "seed:strawberry": 10,
+            "seed:flax": 10,
+            "log:pine": 5,
+            "charcoal_bar:charcoal": 25,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "rotten:brightleaf": 5,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "chair:pine": 2,
+            "skeleton:skull_bone": 16,
+            "trousers:flax_cloth": 9,
+            "boots:flax_cloth": 9,
+            "barrel:oak": 8,
+            "table:yew": 1,
+            "shield:iron": 2,
+            "drink:dimcap_ale": 69,
+            "stone_block:slate": 30,
+            "barrel:ash": 5,
+            "bar:iron": 2,
+            "barrel:birch": 3,
+            "log:maple": 21,
+            "log:birch": 13,
+            "barrel:maple": 1,
+            "bed:maple": 1,
+            "log:yew": 7,
+            "bed:oak": 3,
+            "raw_stone:slate": 4,
+            "bed:ash": 1,
+            "table:oak": 1,
+            "door:slate": 1
+          },
+          "qualities": {
+            "0": 3,
+            "1": 481,
+            "2": 2
+          },
+          "craftQualities": {},
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 0,
+            "armorsmithing": 0,
+            "axe": 0,
+            "bow": 0,
+            "brewing": 0,
+            "building": 0,
+            "butchery": 0,
+            "carpentry": 0,
+            "clothesmaking": 0,
+            "cooking": 0,
+            "crafting": 0,
+            "crossbow": 0,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 0,
+            "farming": 0,
+            "fishing": 0,
+            "gem_cutting": 0,
+            "hammer": 0,
+            "herbalism": 0,
+            "hunting": 0,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 0,
+            "mechanics": 0,
+            "medicine": 0,
+            "metalcrafting": 0,
+            "mining": 0,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 0,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 0,
+            "weaving": 0,
+            "woodcutting": 0
+          },
+          "recipes": {
+            "cook_easy_meal": 21,
+            "brew": 9,
+            "make_stone_block": 20,
+            "make_barrel": 17,
+            "cook_fine_meal": 3,
+            "forge_mail_shirt": 1,
+            "make_charcoal": 27,
+            "forge_shield": 3,
+            "smelt_hematite": 3,
+            "make_bed": 5,
+            "make_door_stone": 1,
+            "make_table_wood": 2
+          },
+          "smoothed": 0,
+          "engraved": 0
+        },
+        {
+          "day": 224,
+          "wealth": 2165,
+          "population": 0,
+          "meanEndurance": 0,
+          "renown": 1.0825,
+          "fortressCreatures": 0,
+          "renownWealthEquivalent": 2165,
+          "spirit": 55,
+          "marks": {
+            "embark goods": 1129,
+            "blocks": 90,
+            "furniture": 4,
+            "crafts": 0,
+            "meals/drink": 0,
+            "iron goods": 0,
+            "steel goods": 0,
+            "iron bars": 30,
+            "steel bars": 0,
+            "gems": 0,
+            "smoothing/engraving": 0,
+            "other building value": 88,
+            "trade purchases": 0,
+            "barrels": 9,
+            "other": 815
+          },
+          "counts": {
+            "pick:iron": 2,
+            "axe:iron": 1,
+            "crossbow:oak": 1,
+            "bolt:copper": 25,
+            "log:ash": 38,
+            "barrel:pine": 3,
+            "ore:hematite": 17,
+            "log:oak": 60,
+            "drink:ale": 20,
+            "bag:flax_cloth": 9,
+            "tunic:flax_cloth": 6,
+            "seed:turnip": 10,
+            "seed:strawberry": 10,
+            "seed:flax": 10,
+            "log:pine": 5,
+            "charcoal_bar:charcoal": 3,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "chair:pine": 2,
+            "skeleton:skull_bone": 16,
+            "trousers:flax_cloth": 6,
+            "boots:flax_cloth": 7,
+            "barrel:oak": 1,
+            "drink:dimcap_ale": 69,
+            "stone_block:slate": 30,
+            "bar:iron": 2,
+            "log:maple": 21,
+            "log:birch": 13,
+            "log:yew": 7,
+            "raw_stone:slate": 4,
+            "door:slate": 1
+          },
+          "qualities": {
+            "0": 1,
+            "1": 423
+          },
+          "craftQualities": {},
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 0,
+            "armorsmithing": 0,
+            "axe": 0,
+            "bow": 0,
+            "brewing": 0,
+            "building": 0,
+            "butchery": 0,
+            "carpentry": 0,
+            "clothesmaking": 0,
+            "cooking": 0,
+            "crafting": 0,
+            "crossbow": 0,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 0,
+            "farming": 0,
+            "fishing": 0,
+            "gem_cutting": 0,
+            "hammer": 0,
+            "herbalism": 0,
+            "hunting": 0,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 0,
+            "mechanics": 0,
+            "medicine": 0,
+            "metalcrafting": 0,
+            "mining": 0,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 0,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 0,
+            "weaving": 0,
+            "woodcutting": 0
+          },
+          "recipes": {
+            "cook_easy_meal": 21,
+            "brew": 9,
+            "make_stone_block": 20,
+            "make_barrel": 17,
+            "cook_fine_meal": 3,
+            "forge_mail_shirt": 1,
+            "make_charcoal": 27,
+            "forge_shield": 3,
+            "smelt_hematite": 3,
+            "make_bed": 5,
+            "make_door_stone": 1,
+            "make_table_wood": 2
+          },
+          "smoothed": 0,
+          "engraved": 0
+        },
+        {
+          "day": 336,
+          "wealth": 2066,
+          "population": 0,
+          "meanEndurance": 0,
+          "renown": 1.033,
+          "fortressCreatures": 0,
+          "renownWealthEquivalent": 2066,
+          "spirit": 55,
+          "marks": {
+            "embark goods": 1057,
+            "blocks": 90,
+            "furniture": 4,
+            "crafts": 0,
+            "meals/drink": 0,
+            "iron goods": 0,
+            "steel goods": 0,
+            "iron bars": 30,
+            "steel bars": 0,
+            "gems": 0,
+            "smoothing/engraving": 0,
+            "other building value": 88,
+            "trade purchases": 0,
+            "barrels": 9,
+            "other": 788
+          },
+          "counts": {
+            "pick:iron": 2,
+            "axe:iron": 1,
+            "crossbow:oak": 1,
+            "bolt:copper": 25,
+            "log:ash": 37,
+            "barrel:pine": 3,
+            "ore:hematite": 17,
+            "log:oak": 60,
+            "drink:ale": 20,
+            "bag:flax_cloth": 9,
+            "seed:turnip": 10,
+            "seed:strawberry": 10,
+            "seed:flax": 10,
+            "log:pine": 5,
+            "charcoal_bar:charcoal": 3,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "chair:pine": 2,
+            "skeleton:skull_bone": 16,
+            "tunic:flax_cloth": 3,
+            "trousers:flax_cloth": 5,
+            "boots:flax_cloth": 7,
+            "barrel:oak": 1,
+            "drink:dimcap_ale": 69,
+            "stone_block:slate": 30,
+            "bar:iron": 2,
+            "log:maple": 21,
+            "log:birch": 13,
+            "log:yew": 7,
+            "raw_stone:slate": 4,
+            "door:slate": 1
+          },
+          "qualities": {
+            "0": 1,
+            "1": 418
+          },
+          "craftQualities": {},
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 0,
+            "armorsmithing": 0,
+            "axe": 0,
+            "bow": 0,
+            "brewing": 0,
+            "building": 0,
+            "butchery": 0,
+            "carpentry": 0,
+            "clothesmaking": 0,
+            "cooking": 0,
+            "crafting": 0,
+            "crossbow": 0,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 0,
+            "farming": 0,
+            "fishing": 0,
+            "gem_cutting": 0,
+            "hammer": 0,
+            "herbalism": 0,
+            "hunting": 0,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 0,
+            "mechanics": 0,
+            "medicine": 0,
+            "metalcrafting": 0,
+            "mining": 0,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 0,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 0,
+            "weaving": 0,
+            "woodcutting": 0
+          },
+          "recipes": {
+            "cook_easy_meal": 21,
+            "brew": 9,
+            "make_stone_block": 20,
+            "make_barrel": 17,
+            "cook_fine_meal": 3,
+            "forge_mail_shirt": 1,
+            "make_charcoal": 27,
+            "forge_shield": 3,
+            "smelt_hematite": 3,
+            "make_bed": 5,
+            "make_door_stone": 1,
+            "make_table_wood": 2
+          },
+          "smoothed": 0,
+          "engraved": 0
+        }
+      ],
+      "deathsList": [
+        {
+          "day": 32,
+          "cause": "killed",
+          "killerId": 16777689
+        },
+        {
+          "day": 32,
+          "cause": "killed",
+          "killerId": 16777684
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 50332173
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 50332127
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 16777689
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 50332127
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 16777689
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 16777684
+        },
+        {
+          "day": 32,
+          "cause": "killed",
+          "killerId": 16777721
+        }
+      ],
+      "raids": [
+        {
+          "day": 27,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332071,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 32,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886537
+        },
+        {
+          "day": 44,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 285213240
+        },
+        {
+          "day": 45,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549778,
+          "outcome": "looted"
+        },
+        {
+          "day": 64,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886523,
+          "outcome": "looted"
+        },
+        {
+          "day": 74,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886686
+        },
+        {
+          "day": 75,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 83886723,
+          "outcome": "looted"
+        },
+        {
+          "day": 79,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886736,
+          "outcome": "looted"
+        },
+        {
+          "day": 91,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 50331785
+        },
+        {
+          "day": 103,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441222,
+          "outcome": "looted"
+        },
+        {
+          "day": 125,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441195,
+          "outcome": "looted"
+        },
+        {
+          "day": 138,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886817
+        },
+        {
+          "day": 140,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778004
+        },
+        {
+          "day": 149,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 16778184,
+          "outcome": "looted"
+        },
+        {
+          "day": 170,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 50332435
+        },
+        {
+          "day": 174,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332466,
+          "outcome": "looted"
+        },
+        {
+          "day": 175,
+          "kind": "siege",
+          "size": 19,
+          "partyId": 50332117
+        },
+        {
+          "day": 193,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184550082,
+          "outcome": "looted"
+        },
+        {
+          "day": 200,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 150995099
+        },
+        {
+          "day": 216,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886921,
+          "outcome": "looted"
+        },
+        {
+          "day": 217,
+          "kind": "raid",
+          "size": 10,
+          "partyId": 50332088
+        },
+        {
+          "day": 233,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778363
+        },
+        {
+          "day": 240,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549537,
+          "outcome": "looted"
+        },
+        {
+          "day": 262,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332794,
+          "outcome": "looted"
+        },
+        {
+          "day": 264,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 50332825,
+          "outcome": "looted"
+        },
+        {
+          "day": 283,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441652,
+          "outcome": "looted"
+        },
+        {
+          "day": 285,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 150995969
+        },
+        {
+          "day": 299,
+          "kind": "raid",
+          "size": 10,
+          "partyId": 218104064
+        },
+        {
+          "day": 304,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332904,
+          "outcome": "looted"
+        },
+        {
+          "day": 320,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 83887327
+        },
+        {
+          "day": 329,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441626,
+          "outcome": "looted"
+        }
+      ],
+      "minerals": {
+        "hematite": 20
+      },
+      "fixture": {
+        "armedDay": null,
+        "specialists": {
+          "forge": 16777297,
+          "smelter": 16777294,
+          "builder": 16777654
+        },
+        "deepShaft": {
+          "x": 19,
+          "y": 27,
+          "bottom": 15
+        }
+      },
+      "allDeaths": [
+        {
+          "day": 32,
+          "id": 16777654,
+          "species": "dwarf",
+          "cause": "killed",
+          "killerId": 16777689
+        },
+        {
+          "day": 32,
+          "id": 16777288,
+          "species": "dog",
+          "cause": "killed",
+          "killerId": 50332133
+        },
+        {
+          "day": 32,
+          "id": 16777636,
+          "species": "dog",
+          "cause": "killed",
+          "killerId": 50332133
+        },
+        {
+          "day": 32,
+          "id": 16777289,
+          "species": "dog",
+          "cause": "killed",
+          "killerId": 16777713
+        },
+        {
+          "day": 32,
+          "id": 16777637,
+          "species": "dog",
+          "cause": "bled_out",
+          "killerId": 16777721
+        },
+        {
+          "day": 32,
+          "id": 50331894,
+          "species": "dog",
+          "cause": "killed",
+          "killerId": 16777713
+        },
+        {
+          "day": 32,
+          "id": 16777638,
+          "species": "dog",
+          "cause": "killed",
+          "killerId": 16777726
+        },
+        {
+          "day": 32,
+          "id": 16777292,
+          "species": "dwarf",
+          "cause": "killed",
+          "killerId": 16777684
+        },
+        {
+          "day": 32,
+          "id": 16777297,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 50332173
+        },
+        {
+          "day": 32,
+          "id": 150995217,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 50332127
+        },
+        {
+          "day": 32,
+          "id": 16777294,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 16777689
+        },
+        {
+          "day": 32,
+          "id": 16777293,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 50332127
+        },
+        {
+          "day": 32,
+          "id": 16777290,
+          "species": "cat",
+          "cause": "killed",
+          "killerId": 16777706
+        },
+        {
+          "day": 32,
+          "id": 16777291,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 16777689
+        },
+        {
+          "day": 32,
+          "id": 16777295,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 16777684
+        },
+        {
+          "day": 32,
+          "id": 16777296,
+          "species": "dwarf",
+          "cause": "killed",
+          "killerId": 16777721
+        }
+      ],
+      "allRaids": [
+        {
+          "day": 27,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332071,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 32,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886537
+        },
+        {
+          "day": 44,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 285213240
+        },
+        {
+          "day": 45,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549778,
+          "outcome": "looted"
+        },
+        {
+          "day": 64,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886523,
+          "outcome": "looted"
+        },
+        {
+          "day": 74,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886686
+        },
+        {
+          "day": 75,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 83886723,
+          "outcome": "looted"
+        },
+        {
+          "day": 79,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886736,
+          "outcome": "looted"
+        },
+        {
+          "day": 91,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 50331785
+        },
+        {
+          "day": 103,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441222,
+          "outcome": "looted"
+        },
+        {
+          "day": 125,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441195,
+          "outcome": "looted"
+        },
+        {
+          "day": 138,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886817
+        },
+        {
+          "day": 140,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778004
+        },
+        {
+          "day": 149,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 16778184,
+          "outcome": "looted"
+        },
+        {
+          "day": 170,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 50332435
+        },
+        {
+          "day": 174,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332466,
+          "outcome": "looted"
+        },
+        {
+          "day": 175,
+          "kind": "siege",
+          "size": 19,
+          "partyId": 50332117
+        },
+        {
+          "day": 193,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184550082,
+          "outcome": "looted"
+        },
+        {
+          "day": 200,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 150995099
+        },
+        {
+          "day": 216,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886921,
+          "outcome": "looted"
+        },
+        {
+          "day": 217,
+          "kind": "raid",
+          "size": 10,
+          "partyId": 50332088
+        },
+        {
+          "day": 233,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778363
+        },
+        {
+          "day": 240,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549537,
+          "outcome": "looted"
+        },
+        {
+          "day": 262,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332794,
+          "outcome": "looted"
+        },
+        {
+          "day": 264,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 50332825,
+          "outcome": "looted"
+        },
+        {
+          "day": 283,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441652,
+          "outcome": "looted"
+        },
+        {
+          "day": 285,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 150995969
+        },
+        {
+          "day": 299,
+          "kind": "raid",
+          "size": 10,
+          "partyId": 218104064
+        },
+        {
+          "day": 304,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332904,
+          "outcome": "looted"
+        },
+        {
+          "day": 320,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 83887327
+        },
+        {
+          "day": 329,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441626,
+          "outcome": "looted"
+        }
+      ],
+      "recipes": {
+        "cook_easy_meal": 21,
+        "brew": 9,
+        "make_stone_block": 20,
+        "make_barrel": 17,
+        "cook_fine_meal": 3,
+        "forge_mail_shirt": 1,
+        "make_charcoal": 27,
+        "forge_shield": 3,
+        "smelt_hematite": 3,
+        "make_bed": 5,
+        "make_door_stone": 1,
+        "make_table_wood": 2
+      },
+      "immigration": [
+        {
+          "tick": 33600,
+          "trigger": "SeasonChanged",
+          "waveSize": 2,
+          "year": 1,
+          "season": "summer",
+          "population": 7,
+          "wealth": 3095,
+          "spirit": 39.91440028059015,
+          "wavesSoFar": 0,
+          "eligible": true,
+          "reasons": [],
+          "guaranteed": true,
+          "roll": null,
+          "probability": 700,
+          "outcome": "wave"
+        },
+        {
+          "tick": 67200,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 1,
+          "season": "autumn",
+          "population": 0,
+          "wealth": 3032,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": true,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 100800,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 1,
+          "season": "winter",
+          "population": 0,
+          "wealth": 2888,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 134400,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "spring",
+          "population": 0,
+          "wealth": 2798,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 168000,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "summer",
+          "population": 0,
+          "wealth": 2798,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 201600,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "autumn",
+          "population": 0,
+          "wealth": 2663,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 235200,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "winter",
+          "population": 0,
+          "wealth": 2189,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 268800,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "spring",
+          "population": 0,
+          "wealth": 2165,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 302400,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "summer",
+          "population": 0,
+          "wealth": 2165,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 336000,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "autumn",
+          "population": 0,
+          "wealth": 2138,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 369600,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "winter",
+          "population": 0,
+          "wealth": 2090,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        }
+      ],
+      "caravans": [
+        {
+          "day": 37,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 42,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 65,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 70,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 120,
+          "civ": "mountainhome",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 125,
+          "civ": "mountainhome",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 148,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 153,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 182,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 187,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 230,
+          "civ": "mountainhome",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 235,
+          "civ": "mountainhome",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 263,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 268,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 288,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 293,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        }
+      ],
+      "dwarfDays": 227.88,
+      "food": 88,
+      "alcohol": 131,
+      "water": 0
+    },
+    {
+      "seed": "three-years-p4-6",
+      "peril": 4,
+      "years": [
+        {
+          "day": 112,
+          "wealth": 3202,
+          "population": 0,
+          "meanEndurance": 0,
+          "renown": 1.601,
+          "fortressCreatures": 0,
+          "renownWealthEquivalent": 3202,
+          "spirit": 55,
+          "marks": {
+            "embark goods": 1231,
+            "blocks": 88,
+            "furniture": 187,
+            "crafts": 0,
+            "meals/drink": 0,
+            "iron goods": 225,
+            "steel goods": 0,
+            "iron bars": 30,
+            "steel bars": 0,
+            "gems": 0,
+            "smoothing/engraving": 0,
+            "other building value": 88,
+            "trade purchases": 0,
+            "barrels": 156,
+            "other": 1197
+          },
+          "counts": {
+            "pick:iron": 2,
+            "axe:iron": 1,
+            "bolt:copper": 25,
+            "quiver:leather": 1,
+            "charcoal_bar:charcoal": 39,
+            "ore:hematite": 17,
+            "log:oak": 66,
+            "barrel:pine": 4,
+            "drink:ale": 10,
+            "barrel:birch": 5,
+            "bag:flax_cloth": 9,
+            "drink:dimcap_ale": 86,
+            "stone_block:slate": 28,
+            "seed:turnip": 10,
+            "seed:strawberry": 10,
+            "seed:flax": 10,
+            "log:pine": 4,
+            "log:maple": 18,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "rotten:brightleaf": 5,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "chair:pine": 2,
+            "skeleton:skull_bone": 13,
+            "tunic:flax_cloth": 10,
+            "trousers:flax_cloth": 10,
+            "boots:flax_cloth": 10,
+            "shield:iron": 3,
+            "log:yew": 5,
+            "barrel:ash": 4,
+            "barrel:maple": 3,
+            "log:birch": 26,
+            "door:slate": 2,
+            "table:birch": 2,
+            "bar:iron": 2,
+            "bed:oak": 1,
+            "table:oak": 3,
+            "log:ash": 44,
+            "bed:ash": 2,
+            "table:maple": 1,
+            "barrel:oak": 7,
+            "rotten:dimcap": 9,
+            "stone_block:limestone": 3,
+            "bed:yew": 2,
+            "crossbow:ash": 1,
+            "bolt:ash": 20,
+            "raw_stone:slate": 5,
+            "drink:cavewheat_beer": 20
+          },
+          "qualities": {
+            "0": 5,
+            "1": 575,
+            "2": 5
+          },
+          "craftQualities": {},
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 0,
+            "armorsmithing": 0,
+            "axe": 0,
+            "bow": 0,
+            "brewing": 0,
+            "building": 0,
+            "butchery": 0,
+            "carpentry": 0,
+            "clothesmaking": 0,
+            "cooking": 0,
+            "crafting": 0,
+            "crossbow": 0,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 0,
+            "farming": 0,
+            "fishing": 0,
+            "gem_cutting": 0,
+            "hammer": 0,
+            "herbalism": 0,
+            "hunting": 0,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 0,
+            "mechanics": 0,
+            "medicine": 0,
+            "metalcrafting": 0,
+            "mining": 0,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 0,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 0,
+            "weaving": 0,
+            "woodcutting": 0
+          },
+          "recipes": {
+            "cook_easy_meal": 25,
+            "make_barrel": 19,
+            "make_stone_block": 20,
+            "brew": 11,
+            "cook_fine_meal": 5,
+            "make_charcoal": 41,
+            "forge_mail_shirt": 1,
+            "forge_shield": 3,
+            "make_bed": 5,
+            "smelt_hematite": 3,
+            "make_table_wood": 6,
+            "make_door_stone": 2
+          },
+          "smoothed": 0,
+          "engraved": 0
+        },
+        {
+          "day": 224,
+          "wealth": 2863,
+          "population": 0,
+          "meanEndurance": 0,
+          "renown": 1.4315,
+          "fortressCreatures": 0,
+          "renownWealthEquivalent": 2863,
+          "spirit": 55,
+          "marks": {
+            "embark goods": 1231,
+            "blocks": 88,
+            "furniture": 150,
+            "crafts": 0,
+            "meals/drink": 0,
+            "iron goods": 0,
+            "steel goods": 0,
+            "iron bars": 30,
+            "steel bars": 0,
+            "gems": 0,
+            "smoothing/engraving": 0,
+            "other building value": 88,
+            "trade purchases": 0,
+            "barrels": 156,
+            "other": 1120
+          },
+          "counts": {
+            "pick:iron": 2,
+            "axe:iron": 1,
+            "bolt:copper": 25,
+            "quiver:leather": 1,
+            "charcoal_bar:charcoal": 39,
+            "ore:hematite": 17,
+            "log:oak": 66,
+            "barrel:pine": 4,
+            "drink:ale": 10,
+            "barrel:birch": 5,
+            "bag:flax_cloth": 9,
+            "stone_block:slate": 28,
+            "seed:turnip": 10,
+            "seed:strawberry": 10,
+            "seed:flax": 10,
+            "log:pine": 4,
+            "log:maple": 18,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "chair:pine": 2,
+            "skeleton:skull_bone": 13,
+            "tunic:flax_cloth": 10,
+            "trousers:flax_cloth": 10,
+            "boots:flax_cloth": 10,
+            "log:yew": 5,
+            "barrel:ash": 4,
+            "barrel:maple": 3,
+            "log:birch": 26,
+            "door:slate": 2,
+            "table:birch": 2,
+            "bar:iron": 2,
+            "bed:oak": 1,
+            "table:oak": 3,
+            "log:ash": 44,
+            "bed:ash": 2,
+            "table:maple": 1,
+            "barrel:oak": 7,
+            "drink:dimcap_ale": 67,
+            "stone_block:limestone": 3,
+            "bed:yew": 1,
+            "bolt:ash": 20,
+            "raw_stone:slate": 5,
+            "drink:cavewheat_beer": 20
+          },
+          "qualities": {
+            "0": 4,
+            "1": 539,
+            "2": 4
+          },
+          "craftQualities": {},
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 0,
+            "armorsmithing": 0,
+            "axe": 0,
+            "bow": 0,
+            "brewing": 0,
+            "building": 0,
+            "butchery": 0,
+            "carpentry": 0,
+            "clothesmaking": 0,
+            "cooking": 0,
+            "crafting": 0,
+            "crossbow": 0,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 0,
+            "farming": 0,
+            "fishing": 0,
+            "gem_cutting": 0,
+            "hammer": 0,
+            "herbalism": 0,
+            "hunting": 0,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 0,
+            "mechanics": 0,
+            "medicine": 0,
+            "metalcrafting": 0,
+            "mining": 0,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 0,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 0,
+            "weaving": 0,
+            "woodcutting": 0
+          },
+          "recipes": {
+            "cook_easy_meal": 25,
+            "make_barrel": 19,
+            "make_stone_block": 20,
+            "brew": 11,
+            "cook_fine_meal": 5,
+            "make_charcoal": 41,
+            "forge_mail_shirt": 1,
+            "forge_shield": 3,
+            "make_bed": 5,
+            "smelt_hematite": 3,
+            "make_table_wood": 6,
+            "make_door_stone": 2
+          },
+          "smoothed": 0,
+          "engraved": 0
+        },
+        {
+          "day": 336,
+          "wealth": 2713,
+          "population": 0,
+          "meanEndurance": 0,
+          "renown": 1.3565,
+          "fortressCreatures": 0,
+          "renownWealthEquivalent": 2713,
+          "spirit": 55,
+          "marks": {
+            "embark goods": 1117,
+            "blocks": 88,
+            "furniture": 150,
+            "crafts": 0,
+            "meals/drink": 0,
+            "iron goods": 0,
+            "steel goods": 0,
+            "iron bars": 0,
+            "steel bars": 0,
+            "gems": 0,
+            "smoothing/engraving": 0,
+            "other building value": 88,
+            "trade purchases": 0,
+            "barrels": 156,
+            "other": 1114
+          },
+          "counts": {
+            "pick:iron": 2,
+            "axe:iron": 1,
+            "bolt:copper": 25,
+            "charcoal_bar:charcoal": 39,
+            "ore:hematite": 17,
+            "log:oak": 64,
+            "barrel:pine": 4,
+            "drink:ale": 10,
+            "barrel:birch": 5,
+            "bag:flax_cloth": 9,
+            "stone_block:slate": 28,
+            "seed:turnip": 10,
+            "seed:strawberry": 10,
+            "seed:flax": 10,
+            "log:pine": 4,
+            "log:maple": 18,
+            "mechanism:granite": 1,
+            "leather_piece:leather": 5,
+            "cloth:flax_cloth": 5,
+            "thread:flax_thread": 5,
+            "splint:pine": 4,
+            "bucket:pine": 2,
+            "bed:pine": 3,
+            "chair:pine": 2,
+            "skeleton:skull_bone": 13,
+            "boots:flax_cloth": 10,
+            "tunic:flax_cloth": 8,
+            "trousers:flax_cloth": 8,
+            "log:yew": 5,
+            "barrel:ash": 4,
+            "barrel:maple": 3,
+            "log:birch": 26,
+            "door:slate": 2,
+            "table:birch": 2,
+            "bed:oak": 1,
+            "table:oak": 3,
+            "log:ash": 44,
+            "bed:ash": 2,
+            "table:maple": 1,
+            "barrel:oak": 7,
+            "drink:dimcap_ale": 67,
+            "stone_block:limestone": 3,
+            "bed:yew": 1,
+            "bolt:ash": 20,
+            "raw_stone:slate": 5,
+            "drink:cavewheat_beer": 20
+          },
+          "qualities": {
+            "0": 4,
+            "1": 530,
+            "2": 4
+          },
+          "craftQualities": {},
+          "craftQualityValueDelta": 0,
+          "skillMaxima": {
+            "animal_care": 0,
+            "animal_training": 0,
+            "armor_use": 0,
+            "armorsmithing": 0,
+            "axe": 0,
+            "bow": 0,
+            "brewing": 0,
+            "building": 0,
+            "butchery": 0,
+            "carpentry": 0,
+            "clothesmaking": 0,
+            "cooking": 0,
+            "crafting": 0,
+            "crossbow": 0,
+            "dagger": 0,
+            "dodge": 0,
+            "engraving": 0,
+            "farming": 0,
+            "fishing": 0,
+            "gem_cutting": 0,
+            "hammer": 0,
+            "herbalism": 0,
+            "hunting": 0,
+            "leatherworking": 0,
+            "mace": 0,
+            "masonry": 0,
+            "mechanics": 0,
+            "medicine": 0,
+            "metalcrafting": 0,
+            "mining": 0,
+            "pick": 0,
+            "shield": 0,
+            "sling": 0,
+            "smelting": 0,
+            "spear": 0,
+            "sword": 0,
+            "tanning": 0,
+            "trading": 0,
+            "unarmed": 0,
+            "weaponsmithing": 0,
+            "weaving": 0,
+            "woodcutting": 0
+          },
+          "recipes": {
+            "cook_easy_meal": 25,
+            "make_barrel": 19,
+            "make_stone_block": 20,
+            "brew": 11,
+            "cook_fine_meal": 5,
+            "make_charcoal": 41,
+            "forge_mail_shirt": 1,
+            "forge_shield": 3,
+            "make_bed": 5,
+            "smelt_hematite": 3,
+            "make_table_wood": 6,
+            "make_door_stone": 2
+          },
+          "smoothed": 0,
+          "engraved": 0
+        }
+      ],
+      "deathsList": [
+        {
+          "day": 37,
+          "cause": "bled_out",
+          "killerId": 16777710
+        },
+        {
+          "day": 37,
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 37,
+          "cause": "killed",
+          "killerId": 16777744
+        },
+        {
+          "day": 37,
+          "cause": "killed",
+          "killerId": 50332168
+        },
+        {
+          "day": 37,
+          "cause": "bled_out",
+          "killerId": 83886570
+        },
+        {
+          "day": 37,
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 38,
+          "cause": "bled_out",
+          "killerId": 83886570
+        },
+        {
+          "day": 39,
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 39,
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 39,
+          "cause": "bled_out",
+          "killerId": 50332148
+        }
+      ],
+      "raids": [
+        {
+          "day": 24,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 150995104,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 37,
+          "kind": "ambush",
+          "size": 6,
+          "partyId": 50332137
+        },
+        {
+          "day": 43,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 184549530
+        },
+        {
+          "day": 47,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549578,
+          "outcome": "looted"
+        },
+        {
+          "day": 73,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 117441088,
+          "outcome": "looted"
+        },
+        {
+          "day": 75,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 251658443,
+          "outcome": "looted"
+        },
+        {
+          "day": 81,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 83886381
+        },
+        {
+          "day": 95,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549836,
+          "outcome": "looted"
+        },
+        {
+          "day": 109,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 117441020
+        },
+        {
+          "day": 112,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886771
+        },
+        {
+          "day": 117,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332292,
+          "outcome": "looted"
+        },
+        {
+          "day": 131,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886137,
+          "outcome": "looted"
+        },
+        {
+          "day": 138,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 83886284
+        },
+        {
+          "day": 147,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50331974,
+          "outcome": "looted"
+        },
+        {
+          "day": 166,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 150995771,
+          "outcome": "looted"
+        },
+        {
+          "day": 183,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 16778171,
+          "outcome": "looted"
+        },
+        {
+          "day": 187,
+          "kind": "siege",
+          "size": 19,
+          "partyId": 150995782
+        },
+        {
+          "day": 189,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 16778204
+        },
+        {
+          "day": 190,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778276
+        },
+        {
+          "day": 206,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441346,
+          "outcome": "looted"
+        },
+        {
+          "day": 230,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332744,
+          "outcome": "looted"
+        },
+        {
+          "day": 231,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778316
+        },
+        {
+          "day": 244,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332743,
+          "outcome": "looted"
+        },
+        {
+          "day": 250,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 50332158
+        },
+        {
+          "day": 259,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 50332855,
+          "outcome": "looted"
+        },
+        {
+          "day": 261,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441718,
+          "outcome": "looted"
+        },
+        {
+          "day": 274,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 150994967
+        },
+        {
+          "day": 286,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332853,
+          "outcome": "looted"
+        },
+        {
+          "day": 300,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 50332983
+        },
+        {
+          "day": 314,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50333025,
+          "outcome": "looted"
+        },
+        {
+          "day": 318,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 50333073
+        },
+        {
+          "day": 332,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332991,
+          "outcome": "looted"
+        }
+      ],
+      "minerals": {
+        "hematite": 20
+      },
+      "fixture": {
+        "armedDay": null,
+        "specialists": {
+          "forge": 16777295,
+          "smelter": 16777292,
+          "builder": 16777632
+        },
+        "deepShaft": {
+          "x": 29,
+          "y": 10,
+          "bottom": 15
+        }
+      },
+      "allDeaths": [
+        {
+          "day": 37,
+          "id": 16777291,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 16777710
+        },
+        {
+          "day": 37,
+          "id": 16777287,
+          "species": "dog",
+          "cause": "bled_out",
+          "killerId": 16777744
+        },
+        {
+          "day": 37,
+          "id": 16777288,
+          "species": "cat",
+          "cause": "killed",
+          "killerId": 83886570
+        },
+        {
+          "day": 37,
+          "id": 16777286,
+          "species": "dog",
+          "cause": "killed",
+          "killerId": 16777744
+        },
+        {
+          "day": 37,
+          "id": 16777632,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 37,
+          "id": 16777293,
+          "species": "dwarf",
+          "cause": "killed",
+          "killerId": 16777744
+        },
+        {
+          "day": 37,
+          "id": 16777295,
+          "species": "dwarf",
+          "cause": "killed",
+          "killerId": 50332168
+        },
+        {
+          "day": 37,
+          "id": 16777294,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 83886570
+        },
+        {
+          "day": 37,
+          "id": 16777290,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 38,
+          "id": 16777292,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 83886570
+        },
+        {
+          "day": 39,
+          "id": 16777289,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 39,
+          "id": 251658585,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 39,
+          "id": 16777638,
+          "species": "dwarf",
+          "cause": "bled_out",
+          "killerId": 50332148
+        }
+      ],
+      "allRaids": [
+        {
+          "day": 24,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 150995104,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 37,
+          "kind": "ambush",
+          "size": 6,
+          "partyId": 50332137
+        },
+        {
+          "day": 43,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 184549530
+        },
+        {
+          "day": 47,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549578,
+          "outcome": "looted"
+        },
+        {
+          "day": 73,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 117441088,
+          "outcome": "looted"
+        },
+        {
+          "day": 75,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 251658443,
+          "outcome": "looted"
+        },
+        {
+          "day": 81,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 83886381
+        },
+        {
+          "day": 95,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549836,
+          "outcome": "looted"
+        },
+        {
+          "day": 109,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 117441020
+        },
+        {
+          "day": 112,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886771
+        },
+        {
+          "day": 117,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332292,
+          "outcome": "looted"
+        },
+        {
+          "day": 131,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886137,
+          "outcome": "looted"
+        },
+        {
+          "day": 138,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 83886284
+        },
+        {
+          "day": 147,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50331974,
+          "outcome": "looted"
+        },
+        {
+          "day": 166,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 150995771,
+          "outcome": "looted"
+        },
+        {
+          "day": 183,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 16778171,
+          "outcome": "looted"
+        },
+        {
+          "day": 187,
+          "kind": "siege",
+          "size": 19,
+          "partyId": 150995782
+        },
+        {
+          "day": 189,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 16778204
+        },
+        {
+          "day": 190,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778276
+        },
+        {
+          "day": 206,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441346,
+          "outcome": "looted"
+        },
+        {
+          "day": 230,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332744,
+          "outcome": "looted"
+        },
+        {
+          "day": 231,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778316
+        },
+        {
+          "day": 244,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332743,
+          "outcome": "looted"
+        },
+        {
+          "day": 250,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 50332158
+        },
+        {
+          "day": 259,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 50332855,
+          "outcome": "looted"
+        },
+        {
+          "day": 261,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441718,
+          "outcome": "looted"
+        },
+        {
+          "day": 274,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 150994967
+        },
+        {
+          "day": 286,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332853,
+          "outcome": "looted"
+        },
+        {
+          "day": 300,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 50332983
+        },
+        {
+          "day": 314,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50333025,
+          "outcome": "looted"
+        },
+        {
+          "day": 318,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 50333073
+        },
+        {
+          "day": 332,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332991,
+          "outcome": "looted"
+        }
+      ],
+      "recipes": {
+        "cook_easy_meal": 25,
+        "make_barrel": 19,
+        "make_stone_block": 20,
+        "brew": 11,
+        "cook_fine_meal": 5,
+        "make_charcoal": 41,
+        "forge_mail_shirt": 1,
+        "forge_shield": 3,
+        "make_bed": 5,
+        "smelt_hematite": 3,
+        "make_table_wood": 6,
+        "make_door_stone": 2
+      },
+      "immigration": [
+        {
+          "tick": 33600,
+          "trigger": "SeasonChanged",
+          "waveSize": 3,
+          "year": 1,
+          "season": "summer",
+          "population": 7,
+          "wealth": 3429,
+          "spirit": 37.20910317460317,
+          "wavesSoFar": 0,
+          "eligible": true,
+          "reasons": [],
+          "guaranteed": true,
+          "roll": null,
+          "probability": 700,
+          "outcome": "wave"
+        },
+        {
+          "tick": 67200,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 1,
+          "season": "autumn",
+          "population": 0,
+          "wealth": 3490,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": true,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 100800,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 1,
+          "season": "winter",
+          "population": 0,
+          "wealth": 3202,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 134400,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "spring",
+          "population": 0,
+          "wealth": 3202,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 168000,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "summer",
+          "population": 0,
+          "wealth": 3017,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 201600,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "autumn",
+          "population": 0,
+          "wealth": 2930,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 235200,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 2,
+          "season": "winter",
+          "population": 0,
+          "wealth": 2893,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 268800,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "spring",
+          "population": 0,
+          "wealth": 2863,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 302400,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "summer",
+          "population": 0,
+          "wealth": 2863,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 336000,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "autumn",
+          "population": 0,
+          "wealth": 2785,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        },
+        {
+          "tick": 369600,
+          "trigger": "SeasonChanged",
+          "waveSize": null,
+          "year": 3,
+          "season": "winter",
+          "population": 0,
+          "wealth": 2761,
+          "spirit": 55,
+          "wavesSoFar": 1,
+          "eligible": false,
+          "reasons": [
+            "no_population"
+          ],
+          "guaranteed": false,
+          "roll": null,
+          "probability": 700,
+          "outcome": "no_population"
+        }
+      ],
+      "caravans": [
+        {
+          "day": 38,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 43,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 64,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 69,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 125,
+          "civ": "mountainhome",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 130,
+          "civ": "mountainhome",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 155,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 160,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 180,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 185,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 232,
+          "civ": "mountainhome",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 237,
+          "civ": "mountainhome",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 264,
+          "civ": "hillfolk",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 269,
+          "civ": "hillfolk",
+          "state": "CaravanDeparted"
+        },
+        {
+          "day": 286,
+          "civ": "wildwood",
+          "state": "CaravanArrived"
+        },
+        {
+          "day": 291,
+          "civ": "wildwood",
+          "state": "CaravanDeparted"
+        }
+      ],
+      "dwarfDays": 287.9325,
+      "food": 105,
+      "alcohol": 163,
+      "water": 0
     }
   ],
   "summary": [
@@ -24263,9 +26903,640 @@
       },
       "mealsPerDwarfDay": "0.38",
       "drinksPerDwarfDay": "0.56"
+    },
+    {
+      "seed": "three-years-p4-5",
+      "peril": 4,
+      "y1Pop": 0,
+      "y2Pop": 0,
+      "y3Pop": 0,
+      "y1Wealth": 2798,
+      "y2Wealth": 2165,
+      "y3Wealth": 2066,
+      "dwarfDeaths": 9,
+      "tameDeaths": 7,
+      "wavesCount": 1,
+      "totalImmigrants": 2,
+      "nonGuaranteedWaves": 0,
+      "raidsCount": 31,
+      "mealsEaten": 88,
+      "drinksDrunk": 131,
+      "drinksAlcohol": 131,
+      "drinksWater": 0,
+      "extinctDay": 32,
+      "avgMood": "extinct",
+      "minMood": 0,
+      "maxMood": 0,
+      "moodBreakdown": {
+        "Fine": 0,
+        "Content": 0,
+        "Happy": 0,
+        "Unhappy": 0,
+        "Miserable": 0,
+        "Ecstatic": 0
+      },
+      "deathsList": [
+        {
+          "day": 32,
+          "cause": "killed",
+          "killerId": 16777689
+        },
+        {
+          "day": 32,
+          "cause": "killed",
+          "killerId": 16777684
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 50332173
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 50332127
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 16777689
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 50332127
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 16777689
+        },
+        {
+          "day": 32,
+          "cause": "bled_out",
+          "killerId": 16777684
+        },
+        {
+          "day": 32,
+          "cause": "killed",
+          "killerId": 16777721
+        }
+      ],
+      "raidsList": [
+        {
+          "day": 27,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332071,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 32,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886537,
+          "outcome": "active"
+        },
+        {
+          "day": 44,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 285213240,
+          "outcome": "active"
+        },
+        {
+          "day": 45,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549778,
+          "outcome": "looted"
+        },
+        {
+          "day": 64,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886523,
+          "outcome": "looted"
+        },
+        {
+          "day": 74,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886686,
+          "outcome": "active"
+        },
+        {
+          "day": 75,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 83886723,
+          "outcome": "looted"
+        },
+        {
+          "day": 79,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886736,
+          "outcome": "looted"
+        },
+        {
+          "day": 91,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 50331785,
+          "outcome": "active"
+        },
+        {
+          "day": 103,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441222,
+          "outcome": "looted"
+        },
+        {
+          "day": 125,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441195,
+          "outcome": "looted"
+        },
+        {
+          "day": 138,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886817,
+          "outcome": "active"
+        },
+        {
+          "day": 140,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778004,
+          "outcome": "active"
+        },
+        {
+          "day": 149,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 16778184,
+          "outcome": "looted"
+        },
+        {
+          "day": 170,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 50332435,
+          "outcome": "active"
+        },
+        {
+          "day": 174,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332466,
+          "outcome": "looted"
+        },
+        {
+          "day": 175,
+          "kind": "siege",
+          "size": 19,
+          "partyId": 50332117,
+          "outcome": "active"
+        },
+        {
+          "day": 193,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184550082,
+          "outcome": "looted"
+        },
+        {
+          "day": 200,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 150995099,
+          "outcome": "active"
+        },
+        {
+          "day": 216,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886921,
+          "outcome": "looted"
+        },
+        {
+          "day": 217,
+          "kind": "raid",
+          "size": 10,
+          "partyId": 50332088,
+          "outcome": "active"
+        },
+        {
+          "day": 233,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778363,
+          "outcome": "active"
+        },
+        {
+          "day": 240,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549537,
+          "outcome": "looted"
+        },
+        {
+          "day": 262,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332794,
+          "outcome": "looted"
+        },
+        {
+          "day": 264,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 50332825,
+          "outcome": "looted"
+        },
+        {
+          "day": 283,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441652,
+          "outcome": "looted"
+        },
+        {
+          "day": 285,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 150995969,
+          "outcome": "active"
+        },
+        {
+          "day": 299,
+          "kind": "raid",
+          "size": 10,
+          "partyId": 218104064,
+          "outcome": "active"
+        },
+        {
+          "day": 304,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332904,
+          "outcome": "looted"
+        },
+        {
+          "day": 320,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 83887327,
+          "outcome": "active"
+        },
+        {
+          "day": 329,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441626,
+          "outcome": "looted"
+        }
+      ],
+      "hallSpirit": {
+        "y1": 55,
+        "y2": 55,
+        "y3": 55
+      },
+      "renown": {
+        "y1": 1,
+        "y2": 1,
+        "y3": 1
+      },
+      "mealsPerDwarfDay": "0.39",
+      "drinksPerDwarfDay": "0.57"
+    },
+    {
+      "seed": "three-years-p4-6",
+      "peril": 4,
+      "y1Pop": 0,
+      "y2Pop": 0,
+      "y3Pop": 0,
+      "y1Wealth": 3202,
+      "y2Wealth": 2863,
+      "y3Wealth": 2713,
+      "dwarfDeaths": 10,
+      "tameDeaths": 3,
+      "wavesCount": 1,
+      "totalImmigrants": 3,
+      "nonGuaranteedWaves": 0,
+      "raidsCount": 32,
+      "mealsEaten": 105,
+      "drinksDrunk": 163,
+      "drinksAlcohol": 163,
+      "drinksWater": 0,
+      "extinctDay": 39,
+      "avgMood": "extinct",
+      "minMood": 0,
+      "maxMood": 0,
+      "moodBreakdown": {
+        "Fine": 0,
+        "Content": 0,
+        "Happy": 0,
+        "Unhappy": 0,
+        "Miserable": 0,
+        "Ecstatic": 0
+      },
+      "deathsList": [
+        {
+          "day": 37,
+          "cause": "bled_out",
+          "killerId": 16777710
+        },
+        {
+          "day": 37,
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 37,
+          "cause": "killed",
+          "killerId": 16777744
+        },
+        {
+          "day": 37,
+          "cause": "killed",
+          "killerId": 50332168
+        },
+        {
+          "day": 37,
+          "cause": "bled_out",
+          "killerId": 83886570
+        },
+        {
+          "day": 37,
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 38,
+          "cause": "bled_out",
+          "killerId": 83886570
+        },
+        {
+          "day": 39,
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 39,
+          "cause": "bled_out",
+          "killerId": 50332148
+        },
+        {
+          "day": 39,
+          "cause": "bled_out",
+          "killerId": 50332148
+        }
+      ],
+      "raidsList": [
+        {
+          "day": 24,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 150995104,
+          "outcome": "withdrew"
+        },
+        {
+          "day": 37,
+          "kind": "ambush",
+          "size": 6,
+          "partyId": 50332137,
+          "outcome": "active"
+        },
+        {
+          "day": 43,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 184549530,
+          "outcome": "active"
+        },
+        {
+          "day": 47,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549578,
+          "outcome": "looted"
+        },
+        {
+          "day": 73,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 117441088,
+          "outcome": "looted"
+        },
+        {
+          "day": 75,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 251658443,
+          "outcome": "looted"
+        },
+        {
+          "day": 81,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 83886381,
+          "outcome": "active"
+        },
+        {
+          "day": 95,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 184549836,
+          "outcome": "looted"
+        },
+        {
+          "day": 109,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 117441020,
+          "outcome": "active"
+        },
+        {
+          "day": 112,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 83886771,
+          "outcome": "active"
+        },
+        {
+          "day": 117,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332292,
+          "outcome": "looted"
+        },
+        {
+          "day": 131,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 83886137,
+          "outcome": "looted"
+        },
+        {
+          "day": 138,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 83886284,
+          "outcome": "active"
+        },
+        {
+          "day": 147,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50331974,
+          "outcome": "looted"
+        },
+        {
+          "day": 166,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 150995771,
+          "outcome": "looted"
+        },
+        {
+          "day": 183,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 16778171,
+          "outcome": "looted"
+        },
+        {
+          "day": 187,
+          "kind": "siege",
+          "size": 19,
+          "partyId": 150995782,
+          "outcome": "active"
+        },
+        {
+          "day": 189,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 16778204,
+          "outcome": "active"
+        },
+        {
+          "day": 190,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778276,
+          "outcome": "active"
+        },
+        {
+          "day": 206,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441346,
+          "outcome": "looted"
+        },
+        {
+          "day": 230,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332744,
+          "outcome": "looted"
+        },
+        {
+          "day": 231,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 16778316,
+          "outcome": "active"
+        },
+        {
+          "day": 244,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332743,
+          "outcome": "looted"
+        },
+        {
+          "day": 250,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 50332158,
+          "outcome": "active"
+        },
+        {
+          "day": 259,
+          "kind": "bandits",
+          "size": 3,
+          "partyId": 50332855,
+          "outcome": "looted"
+        },
+        {
+          "day": 261,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 117441718,
+          "outcome": "looted"
+        },
+        {
+          "day": 274,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 150994967,
+          "outcome": "active"
+        },
+        {
+          "day": 286,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332853,
+          "outcome": "looted"
+        },
+        {
+          "day": 300,
+          "kind": "raid",
+          "size": 11,
+          "partyId": 50332983,
+          "outcome": "active"
+        },
+        {
+          "day": 314,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50333025,
+          "outcome": "looted"
+        },
+        {
+          "day": 318,
+          "kind": "ambush",
+          "size": 5,
+          "partyId": 50333073,
+          "outcome": "active"
+        },
+        {
+          "day": 332,
+          "kind": "thief",
+          "size": 1,
+          "partyId": 50332991,
+          "outcome": "looted"
+        }
+      ],
+      "hallSpirit": {
+        "y1": 55,
+        "y2": 55,
+        "y3": 55
+      },
+      "renown": {
+        "y1": 2,
+        "y2": 1,
+        "y3": 1
+      },
+      "mealsPerDwarfDay": "0.36",
+      "drinksPerDwarfDay": "0.57"
     }
   ],
-  "mood": [],
   "main": {
     "fixtureRun": 3,
     "economy": {
@@ -28128,8 +31399,32 @@
           "killerId": 0
         }
       ]
+    },
+    "mealNeedsSnapshot": {
+      "evidenceType": "source counterexample; not attributed to a measured seed or death",
+      "source": "src/systems/dwarves/activities.ts:413-426",
+      "spec": [
+        "docs/02-systems/10-dwarves.md:41",
+        "docs/02-systems/10-dwarves.md:47"
+      ],
+      "premise": {
+        "mealQuality": 4,
+        "hunger": 65,
+        "joy": 80
+      },
+      "firstWrite": {
+        "hunger": 0,
+        "joy": 80
+      },
+      "secondWrite": {
+        "hunger": 65,
+        "joy": 60
+      },
+      "status": "BUG, unfixed; both writes spread the originally captured Needs value"
     }
   },
+  "exitCode": 1,
+  "finished": "2026-10-07T22:02:55.658790+00:00",
   "verification": {
     "lint": "passed",
     "typecheck": "passed",
@@ -28183,6 +31478,13 @@
       "perSystemTestsPassed": 22,
       "perSystemTodo": 1,
       "referenceBudgetConfirmed": false
+    },
+    "sweep": {
+      "testsFailed": 5,
+      "testsPassed": 15,
+      "elapsedCaptureSeconds": 9328.758749,
+      "invocations": 1,
+      "command": "npm run test:perf -- test/perf/three_years_seeds.test.ts --disableConsoleIntercept"
     }
   },
   "moodInstrument": {
