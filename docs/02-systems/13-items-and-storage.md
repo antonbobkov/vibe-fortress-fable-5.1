@@ -54,6 +54,7 @@ Fortress wealth is maintained incrementally: `+value` on `ItemCreated` (fortress
 
 ### Placement and pickup
 
+- A count above an item type's stack size creates several stacks at the requested place and returns the first id.
 - `spawn.item` places items on a walkable tile; if the tile is `open`, the item falls (movement helper rules) to the first solid-bottomed tile below.
 - Items on a tile stack in a list; a tile can hold any number of items (there is no tile capacity outside stockpiles), but the compositor shows the most valuable.
 - Pickup and drop are core operations used by 11 (`items.attachToCarrier(itemId, carrierId)`, `items.dropAt(itemId, tile)`, `items.putIn(itemId, containerId)`, `items.takeOut(itemId)`); each updates the spatial index and the "wants hauling" set.
@@ -67,10 +68,12 @@ Stockpile { filter: { categories: Set<CategoryPath>, materialClasses: Set<Materi
 
 - `accepts(stockpile, item)`: the item's category is under a selected node, its material class is allowed, its quality is in range, it is not forbidden, and (if `linkedSources` is non-empty) the item currently sits in one of those stockpiles or a workshop.
 - Slot search for an item: if the item's type wants a container class, find a container of that class in the stockpile with room, else an empty tile if a container is wanted and available to be hauled in (a `haul_to_stockpile` job for an empty container is created first), else refuse; if the type wants no container, find an empty tile. Empty tiles are filled in `(y, x)` order for a tidy look.
+- Each items tick requests one nearest free empty container per class per stockpile while wants exceed those present, including incoming containers. A wanted empty container already on its stockpile counts as stored.
 - Container filling: containers in stockpiles are themselves items; `containersWanted` produces haul jobs for empty containers from wherever they are (usually the carpenter's output).
 - Slot reservations: when a haul job is claimed, the destination slot is reserved for the job (`slotReservations: Map<slotKey, jobId>`), released on completion or cancellation.
-- A stockpile at capacity emits `StockpileFull { id }` once until it has space again.
+- A stockpile at capacity emits `StockpileFull { id }` once until it has space again; when it gains space, `noHome` items return to the wants set. Items waiting for a wanted or incoming container stay in the wants set without a job. Stale slot reservations are dropped each items tick.
 - Stockpile priority is the haul job priority for items going to it (default `HAUL_PRIORITY`, food stockpiles `HAUL_PRIORITY_FOOD`; both from 11).
+- Destroying an item or removing its destination stockpile cancels the affected haul jobs with `target_invalid`.
 - Removing a stockpile zone leaves its items where they are; they become "wants hauling" again if another stockpile accepts them.
 
 Eggs reserved in nest boxes do not enter ordinary hauling. The `collect_egg` job releases a collected egg at its worker's tile, after which the normal hauling rules apply.
@@ -89,14 +92,14 @@ Maintained incrementally, sorted by item id:
 - Drinks are made *into* a barrel at the still (12's `container` input) and stay in it; a dwarf drinks one unit from the barrel where it stands (10 finds the barrel, walks to it, takes one unit: the stack count in the barrel decrements; an empty barrel becomes a free container).
 - Seeds go into bags; bags into stockpiles.
 - Bins hold up to `BIN_CAPACITY` items of any bin-wanting category; a bin in a stockpile that accepts crafts and cloth may hold both.
-- A container is hauled with its contents.
+- Barrels, bags and buckets count units; bins and chests count items. A container never goes inside another. A container is hauled with its contents.
 - Items in containers are visible in the stocks panel and are found by `findItem`; taking one out is part of the fetch step (11).
 
 ### Forbid, dump, melt, claim
 
 `Item.flags`: `forbidden` (ignored by all jobs and searches), `dump` (wants hauling to a `dump` zone; on arrival the flag clears), `melt` (a smelter may consume it), `reserved` (held by a job; 11 sets and clears), `owned` (belongs to a dwarf: worn clothing, an assigned bed's owner's chest contents).
 
-Commands set flags on items, on all items in a rectangle, or on all items of a type in the stocks panel. Items dropped by dead dwarves and hostiles are not forbidden by default (unlike the inspiration); items *worn by a corpse* stay with the corpse until the corpse is buried, rots, or is butchered (hostile corpses can be looted by a `strip_corpse` hauling job that moves the equipment to the ground).
+Commands set flags on items, on all items in a rectangle including their container contents, or on all items of a type in the stocks panel. Items dropped by dead dwarves and hostiles are not forbidden by default (unlike the inspiration); items *worn by a corpse* stay with the corpse until the corpse is buried, rots, or is butchered (every non-dwarf corpse with worn items can be looted by a `strip_corpse` hauling job that moves the equipment to the ground). Dumped items stay in the dump zone; a dump-marked item uses the first tile of the nearest dump zone by centroid, and has no home without a dump zone.
 
 ### Rot
 
@@ -115,7 +118,7 @@ Miasma: each 13 tick, every rotting item on a tile that is not `outdoor` emits m
 
 ### Corpses
 
-A corpse is an item of type `refuse/corpse` with `Corpse { species, diedTick, wornItems[] }`, created on `CreatureDied` at the death tile with the creature's size as its weight (heavier than most things: hauling a troll corpse is slow). Dwarf corpses are `refuse/corpse` with the dwarf's name; they want hauling to a coffin (14 burial job) before a refuse stockpile. Sapient hostile corpses can be dumped or hauled to refuse; they cannot be butchered.
+A corpse is an item of type `refuse/corpse` with `Corpse { species, diedTick, wornItems[] }`, created on `CreatureDied` at the death tile with the creature's size as its weight (heavier than most things: hauling a troll corpse is slow). Dwarf corpses use `skull_bone` as material, preserving species and dwarf name on the `Corpse` component; they want hauling to a coffin (14 burial job) before a refuse stockpile. Sapient hostile corpses can be dumped or hauled to refuse; they cannot be butchered.
 
 ### Stock counts and the stocks panel
 
@@ -139,6 +142,7 @@ Filters: `{ type | category | tag, materialClass | materialId, minQuality, edibl
 ## State
 
 - `Item`, `Container`, `Corpse` components; `itemsAtTile` via the spatial index; `wantsHauling`, `noHome`; `slotReservations`; `rotQueue`; `miasmaTiles`; `counts`; `wealthCached`; `Stockpile` components and `stockpileTiles: Map<TileIndex, stockpileId>`.
+- `dirtyTypes`, `fullStockpiles` and `buildingWealth`; queued `pendingDeaths` retain foreign origin.
 - Rng stream (ammunition breakage, not used here; reserved).
 
 ## Interfaces
@@ -174,11 +178,11 @@ Filters: `{ type | category | tag, materialClass | materialId, minQuality, edibl
 
 ### Events emitted
 
-`ItemCreated { id, type, material, count }`, `ItemDestroyed { id, type, reason, crafterId }`, `ItemRotStage { id, stage }`, `ItemRotted { id }`, `MiasmaSpread { tiles[] }`, `StocksChanged { types[] }`, `StockpileFull { id }`, `WealthChanged { wealth }`, `CorpseCreated { itemId, creatureId }`.
+`ItemCreated { id, itemType, material, count }`, `ItemDestroyed { id, itemType, reason, crafterId }` (type and material are content ids), `ItemRotStage { id, stage }`, `ItemRotted { id }`, `MiasmaSpread { tiles[] }`, `StocksChanged { types[] }`, `StockpileFull { id }`, `WealthChanged { wealth }`, `CorpseCreated { itemId, creatureId }`.
 
 ### Registrations
 
-Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); panel `stocks`; inspector sections `item` (type, material, quality, count, value, rot, owner, flags, container) and `zone › stockpile` (filter, containers, usage, priority, links); overlay `stockpile usage` (tiles colored by fullness); announcements: `StockpileFull` note (once per stockpile per season), `MiasmaSpread` alert (once per area per day).
+Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); panel `stocks`; inspector sections `item` (type, material, quality, count, value, rot, owner, flags, container) and `zone › stockpile` (filter, containers, usage, priority, links); overlay `stockpile usage` (tiles colored by fullness); announcements: `StockpileFull` note (once per stockpile per season), `MiasmaSpread` alert (once per area per day, "Miasma spreads.").
 
 ## Player-facing behavior
 
@@ -187,7 +191,7 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
   - `q` focuses the wanted barrel count; `↑↓` or `Tab` moves through barrels, bags, bins, priority, minimum quality and maximum quality. `←→` or `+/-` changes the selected value, as do the mouse minus and plus buttons. Counts are non-negative, priority is 1–9 and quality is 0–5 with minimum no greater than maximum. A refused adjustment says why in the status row and changes nothing.
   - `g` returns to the category tree. `v` opens the material-class checklist; arrows select and `Space` toggles, as does a click. The Any row switches between all classes and none. `Esc` returns without another change. All these actions are buttons or fields as well as keys, and are listed in Help. Truncated values have full-text tooltips.
   - A full-stockpile announcement names its ordinal and category preset, or Custom, and focuses the stockpile: "Stockpile #2 (Wood) is full."
-- Stocks panel: category tree with counts and values; per-type actions.
+- Stocks panel: category tree with counts and values; stocked category leaves expand to type rows and individual item stacks. Forbid, dump and melt act on the selected scope. With mixed materials in a type, melt addresses only its metal stacks.
 - Item inspection: every field.
 - Glyphs: `%` food and corpses (corpses in dark red), `☼` drink barrels... the full glyph table is Wave 3; the rule is one glyph per category node at depth 2.
 - Hints: "Stockpiles need barrels for drink and bags for seeds", "Refuse rots: keep the refuse pile outside".

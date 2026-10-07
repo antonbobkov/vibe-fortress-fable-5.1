@@ -56,14 +56,16 @@ interface Job { id: number; key: string; type: Idx<JobTypeDef>; producer: string
   inputs: { filter: ItemFilter; count: number; reserved: EntityId[]; delivered: EntityId[] }[]; tool: 'pick'|'axe'|'ranged'|'bucket'|null;
   state: 'open'|'claimed'|'fetching'|'travelling'|'working'|'completing'|'blocked'|'cancelled'|'done';
   blockedReason: string | null; retryTick: Tick; workerId: EntityId; progress: Fixed; createdTick: Tick; claimedTick: Tick; data: Record<string, unknown> }
-interface ItemFilter { type?: Idx<ItemTypeDef>; category?: string; tag?: string; materialClass?: MaterialClass; materialId?: Idx<MaterialDef>;
+interface ItemFilter { itemId?: EntityId; type?: Idx<ItemTypeDef>; category?: string; tag?: string; materialClass?: MaterialClass; materialId?: Idx<MaterialDef>;
   minQuality?: Quality; edible?: boolean; drinkable?: boolean; emptyContainer?: string; excludeIds?: EntityId[] }
 
 interface WorkshopsState { stateVersion: 1; globalOrders: WorkOrder[]; professionCache: [EntityId, string][]; rng: RngState }
 
 interface ItemsState { stateVersion: 1; wantsHauling: EntityId[]; noHome: EntityId[]; slotReservations: [string, number][];
   rotQueue: { bucketTick: Tick; items: EntityId[] }[]; miasmaTiles: [TileIndex, Tick][]; counts: [Idx<ItemTypeDef>, StockCount][];
-  wealthCached: number; wealthLastEmitted: number; stockpileTiles: [TileIndex, EntityId][]; rng: RngState }
+  wealthCached: number; wealthLastEmitted: number; stockpileTiles: [TileIndex, EntityId][];
+  dirtyTypes: number[]; fullStockpiles: EntityId[]; buildingWealth: number;
+  pendingDeaths: { id: EntityId; species: number; tile: TileIndex; name: string | null; wornItems: EntityId[]; foreign?: boolean }[]; rng: RngState }
 interface StockCount { total: number; available: number; byClass: [MaterialClass, number][]; byQuality: number[] }
 
 interface BuildingsState { stateVersion: 1; zoneAt: [TileIndex, EntityId][]; hearthId: EntityId; depots: EntityId[]; coffins: EntityId[];

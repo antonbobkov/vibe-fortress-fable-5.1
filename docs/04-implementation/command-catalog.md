@@ -32,7 +32,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `SetSchedule` | `dwarfId, sleepStartHour` | 10 | 0–23 | — |
 | `AddWorkOrder` | `workshopId \| 0, order` | 12 | recipe belongs to the workshop type; count 1–999 or maintain threshold 1–999 | — |
 | `EditWorkOrder` / `RemoveWorkOrder` / `ReorderWorkOrder` | `workshopId, index[, patch \| to]` | 12 | index valid | — |
-| `SetWorkshopWorker` | `workshopId, dwarfId \| 0` | 12 | dwarf has the labor | — |
+| `SetWorkshopWorker` | `workshopId, dwarfId \| 0` | 12 | dwarf has any enabled recipe labor for the workshop type | — |
 | `SuspendWorkshop` | `workshopId, on` | 12 | — | `JobCancelled` if running |
 | `ForbidItem` / `ClaimItem` / `DumpItem` / `MeltItem` | `itemId \| tiles[] \| typeId, on` | 13 | items exist; melt only metal items | `ItemReleased` when forbidding a reserved item cancels its job |
 | `SetStockpileFilter` | `zoneId, filter` | 13 | zone is a stockpile; category nodes exist | — |

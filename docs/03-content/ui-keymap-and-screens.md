@@ -239,6 +239,10 @@ Container counts are non-negative integers, priorities are 1–9 and quality bou
 | paths (debug) | off | 22 |
 | chunks (debug) | off | core |
 
+## Announcements
+
+`MiasmaSpread` uses alert severity and the line "Miasma spreads."
+
 ## Hints
 
 Shown once, as notes with a lamp glyph, when the trigger holds (checked hourly). Ids and triggers:

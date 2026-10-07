@@ -44,6 +44,8 @@ Job {
 }
 ```
 
+For stand tiles and assignment distances, use `data.anchorTile` if supplied, else a numeric work tile, else the target. The board accesses items through an `ItemSource` seam; without 13, its test/core fallback finds no input and treats the tool as already held. Real games use 13's installed item source.
+
 Job types are content rows; the producer that owns the type executes its steps. Every type has a `baseTicks` and an `xp`.
 
 ### The board
@@ -58,12 +60,12 @@ Each tick, for up to `ASSIGN_WORKERS_PER_TICK` workers that asked for a job (10 
 1. Candidate jobs: `open` jobs whose labor is enabled for the worker, whose `minSkill` is met, and whose `workTile` region label equals the worker's region label for the worker's movement class (22 `reachable` is a constant-time label compare).
 2. Sort candidates by `(priority + laborPriorityShift)`, then by estimated distance (Chebyshev on x, y plus `Z_DISTANCE_WEIGHT` per z-level), then by the worker's skill descending. Take the first `CANDIDATE_LIMIT`.
 3. Score each: `score = effectivePriority × 1000 + distance × 10 − skillLevel × 15 − (worker is the workshop's assigned worker ? 500 : 0)`. Choose the minimum; ties by job id.
-4. Claim: `state = claimed`, `workerId`; reserve inputs (first matching unreserved items by nearest distance to the workshop or work tile, through 13 `findItems`); if an input cannot be found, unclaim and mark `blocked: missing_input`.
+4. Claim: `state = claimed`, `workerId`; reserve required input units from as few stacks as possible, splitting only a partial stack and fetching each selected stack in one trip. Other entity-counted inputs retain their item search. For unit inputs use largest stacks first, ties by ordinary search order; delivery follows that search order. Reserve inputs (first matching unreserved items by nearest distance to the workshop or work tile, through 13 `findItems`); if an input cannot be found, unclaim and mark `blocked: missing_input`.
 5. Tool: if the job needs a tool and the worker does not carry it, the first step is to fetch one from a stockpile (`fetching`); if none exists, `blocked: no_tool`.
 
 `laborPriorityShift = laborPriority − PRIORITY_DEFAULT`, so raising mining's labor priority to 3 makes every mining job behave two steps more urgent.
 
-Workers keep the tool in their weapon slot after the job; a dwarf whose `mining` and `woodcutting` labors are both off drops the tool at the next stockpile they pass.
+Workers keep their tool after the job. A living worker whose `mining` and `woodcutting` labors are both off drops a carried pick or axe on the next stockpile tile they pass, clears `Worker.toolId` and the matching weapon reference, and emits `ToolDropped` to unblock tool jobs. Other tools and a still-enabled labor retain their equipment.
 
 If the claim of the chosen job fails (it blocks `missing_input` or `no_tool`), the worker tries the next candidate in the same order; only when every candidate fails does the worker go idle.
 
@@ -76,11 +78,11 @@ switch job.state:
   claimed:     job.state = inputs.length ? fetching : travelling
   fetching:    for each input not yet delivered: path to the item, pick it up (13 attach to worker), path to the work tile, drop it there (or into the workshop); when all delivered → travelling
   travelling:  path to workTile (or an adjacent walkable tile for 'adjacent'); on arrival → working; on 'unreachable' → blocked: unreachable
-  working:     progress += workRate(worker, job); if progress ≥ 1000 → completing
+  working:     add effort; progress = floor(effort × 1000 / needed), capped at 1000; on reaching needed, complete in this step
   completing:  producer.onComplete(job) (spawns outputs, applies tile changes, etc.); grant xp; job.state = done; emit JobCompleted; worker becomes free
 ```
 
-`workRate = 1000 / (job.baseTicks × 100 / (100 + SKILL_TIME_BONUS_PERCENT × skill)) × productivity(worker) / 100` per tick.
+Each work tick adds `(100 + SKILL_TIME_BONUS_PERCENT × skill) × productivity(worker)` effort. Required effort is `baseTicks × 100 × 100`, without per-tick rounding; `progress` is its fixed-thousandths display. Completion runs in the same step that reaches required effort.
 
 Interruptions (critical need, threat, alert, cancellation): the job returns to `open` with `progress` kept if `state` was `working`; reserved items stay reserved for `RESERVE_KEEP_TICKS` so the same worker (or another) can resume; delivered inputs stay at the work tile. Hauling jobs interrupted mid-carry drop the item where the worker stands.
 
@@ -162,7 +164,7 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 
 ### Events emitted
 
-`JobCreated`, `JobClaimed`, `JobStarted` (entering `working`), `JobCompleted { jobId, type, workerId, target }`, `JobCancelled { jobId, reason }`, `JobBlocked { jobId, reason }`, `JobUnblocked`, `ItemReserved { itemId, jobId }`, `ItemReleased { itemId }`, `ToolEquipped { dwarfId, itemId }`, `ToolDropped { itemId }`. While it executes 09's hunt jobs it emits `HuntStarted { hunterId, targetId }`, `HuntKill { hunterId, targetId }` and `HuntAbandoned { hunterId, targetId, reason }`.
+`JobCreated`, `JobClaimed`, `JobStarted` (entering `working`; each job event carries the content id as `jobType`), `JobCompleted { jobId, jobType, workerId, target }`, `JobCancelled { jobId, reason }`, `JobBlocked { jobId, reason }`, `JobUnblocked`, `ItemReserved { itemId, jobId }`, `ItemReleased { itemId }`, `ToolEquipped { dwarfId, itemId }`, `ToolDropped { itemId }`. While it executes 09's hunt jobs it emits `HuntStarted { hunterId, targetId }`, `HuntKill { hunterId, targetId }` and `HuntAbandoned { hunterId, targetId, reason }`.
 
 ### Registrations
 
@@ -172,6 +174,7 @@ Panel `jobs` (open jobs with worker and reason; labor priorities; standing order
 
 - Jobs panel: a list sorted by priority with columns: job, target (clickable to center), priority (editable), worker or reason. The reason names the missing item type and count ("waiting: 1 door"), and the selected job's reason also says where the item is made when one to three workshops make it ("— order at a carpenter's workshop"). A summary line: "42 open, 18 claimed, 6 blocked (4 unreachable, 2 missing materials)". Filters by labor and state.
 - Labor grid: rows are dwarves, columns are labors; click to toggle; shift-click toggles a column for everyone; a number row above sets labor priorities. The labors panel is the quick view of the grid; the labor manager is the grid as a full-window screen with every labor named, the priority row, multi-select of dwarves and profession templates (Miner, Hauler only, Farmer, Crafter, Soldier, Everything off).
+- Labor templates enable exactly the named labors and disable the rest: Miner (`mining`, `hauling`); Hauler only (`hauling`); Farmer (`farming`, `herbalism`, `brewing`, `cooking`, `hauling`); Crafter (`carpentry`, `masonry`, `crafts`, `mechanics`, `gem_cutting`, `leather`, `textiles`, `smelting`, `smithing`, `hauling`); Soldier and Everything off (none). Send only changed cells. Children are skipped with a message. The manager displays pending values immediately and removes them when the reader agrees or a tick passes.
 - The look cursor on a designation shows its job state ("Dig, priority 3, claimed by Orm Ashbrow").
 - Hints: "No one has mining enabled", "Jobs are blocked: no path (check for doors and water)".
 
