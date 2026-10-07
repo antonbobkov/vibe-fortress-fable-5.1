@@ -374,11 +374,13 @@ Tried once on 2026-10-07 with `--model claude-sonnet-5-5-high`, on T-118: a size
 | Weekly window | 49.7% → 32.7% (17 points) |
 | Work done | The whole task: code in two files, the test, the spec sentence, the backlog row and the archived work file, one commit. Typecheck, lint, `docs:check` and the test were green, and the branch merged with no changes. |
 
-Sonnet costs about a third of what Opus does on this quota group. A full week's allowance is therefore about **six size-S tasks**, at most three in one 5-hour window, and nothing larger.
+Sonnet costs about a third of what Opus does on this quota group. A full week's allowance is therefore about **six or seven size-S tasks**, at most three in one 5-hour window, and nothing larger.
 
 - **The quality was good.** The diff was correct and small, and the agent ran its commands in the foreground and waited for them.
 - **One slip:** the commit body named the archived work file as the spec file, not `24-ui-and-input.md`.
 - **Keep the brief narrow.** The run stayed cheap because the brief listed the files to read. A brief that sends the agent through the process documents would spend the window on reading, as the Opus run did.
+
+Two more size-S tasks on the same day confirmed the rate. T-124 (a one-line fix with a test) took 10 min 54 s and 11 weekly points. T-125 (a content table, a regenerate and a new test) took 11 min 29 s and 14 weekly points. Both merged unchanged. The three tasks together took the weekly window from 49.7% to 7.7%, so a full week holds about seven of them.
 
 **Verdict for Sonnet.** Usable as a small extra pool for size-S tasks with a narrow brief, when Codex is waiting on a reset. It is not worth planning around: the weekly allowance is one or two hours of work.
 
