@@ -233,7 +233,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   const avgMood = moods.length > 0 ? (sumMood / moods.length).toFixed(1) : 'extinct';
 
   const economy = threeYearsMeasurements(w);
-  console.log(`[three_years_economy] ${JSON.stringify({ seed, peril, years: economy.years, deathsList, raids, minerals: economy.minerals, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
+  console.log(`[three_years_economy] ${JSON.stringify({ seed, peril, years: economy.years, deathsList, raids, minerals: economy.minerals, fixture: economy.fixture, allDeaths: economy.deaths, allRaids: economy.raids, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
 
   // Assert deterministic guarantees
   if (peril === 0) {

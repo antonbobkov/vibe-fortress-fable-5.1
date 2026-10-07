@@ -106,7 +106,7 @@ const scenario: Scenario = {
 
     unsubscribe();
     const economy = threeYearsMeasurements(w);
-    console.log(`three_years economy: ${JSON.stringify({ years: economy.years, minerals: economy.minerals, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
+    console.log(`three_years economy: ${JSON.stringify({ years: economy.years, minerals: economy.minerals, fixture: economy.fixture, allDeaths: economy.deaths, allRaids: economy.raids, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
 
     // Witness the real production chains, independently of any target wealth figure.
     for (const recipe of ['craft_stone', 'make_charcoal', 'cut_gem', 'forge_pick', 'forge_mail_shirt', 'forge_crafts', 'alloy_steel']) {
