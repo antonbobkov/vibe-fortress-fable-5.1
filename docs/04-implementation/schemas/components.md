@@ -53,7 +53,7 @@ type Kind = 'creature' | 'item' | 'building' | 'zone' | 'stockpile' | 'squad' | 
 
 interface Position { x: number; y: number; z: number }              // SoA: Int16Array x, y; Int8Array z
 interface Motion { pathId: number; stepIndex: number; progress: Fixed; speed: Fixed;
-                   movementClass: MovementClass; repathCount: number; waitUntil: Tick }
+                   movementClass: MovementClass /* SoA Uint8 code, decoded on get */; repathCount: number; waitUntil: Tick }
 interface Creature { species: Idx<SpeciesDef>; name: string; sex: 0|1; ageTicks: number;
                      faction: Faction; sizeClass: number /* species.size */; bodyPlan: Idx<BodyPlanDef> }
 interface Wound { type: WoundType; severity: Severity; bleed: Fixed; pain: number; healRemaining: number;

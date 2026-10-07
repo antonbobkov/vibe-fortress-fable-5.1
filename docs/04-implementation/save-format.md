@@ -66,7 +66,7 @@ Entity ids are written as numbers with generation. Content references are writte
 ## Load procedure
 
 1. Read magic and versions; refuse if `formatVersion > supported`.
-2. Parse header; check `contentHash`; on mismatch run the soft match (collect every string id in the save; if any is missing from the registry, fail with the list).
+2. Parse header; check `contentHash`; on mismatch run the soft match over referenced content ids (`checkContent(header, content, referencedIds)`); if any is missing from the registry, fail with the sorted list.
 3. Inflate the body; parse sections into a map by name.
 4. Construct `World` with the seed; `deserialize` core sections; construct systems; for each system in order call `deserialize(state)` with migration from `stateVersion` to current.
 5. Run rebuild-on-load per `schemas/system-state.md`.

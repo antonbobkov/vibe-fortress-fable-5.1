@@ -41,7 +41,7 @@ interface TickContext extends InitContext {
 type CommandResult = { ok: true } | { ok: false; reason: RejectReason }
 ```
 
-`ReaderSet` is typed: `readers.fluids.levelAt(i)`, `readers.items.countOf(typeId)`. Readers are constructed at `init` and stable for the life of the world.
+`ReaderSet` is typed: `readers.fluids.levelAt(i)`, `readers.items.countOf(typeId)`. Readers are constructed at `init` and stable for the life of the world. Timing uses a `Clock` (`() => number`) injected by the platform, because `core` may not read `performance`.
 
 ## Reader conventions
 
