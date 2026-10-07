@@ -86,7 +86,7 @@ const enum ItemFlag { Forbidden=1, Dump=2, Melt=4, Reserved=8, Owned=16, AtDepot
 interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Quality; wear: number; count: number;
                  containerId: EntityId; ownerId: EntityId; flags: number; crafterId: EntityId;
                  rotStart: Tick; rotStage: 0|1|2|3; reservedBy: number /* jobId */; carriedBy: EntityId }
-interface Container { contents: EntityId[]; capacity: number; classId: 'barrel'|'bag'|'bin'|'chest'|'bucket'|'cage' }
+interface Container { contents: EntityId[]; capacity: number; classId: 'barrel'|'bag'|'bin'|'chest'|'bucket'|'cage'|'wagon' }
 interface Corpse { species: Idx<SpeciesDef>; diedTick: Tick; wornItems: EntityId[]; dwarfName: string | null }
 interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 'planned'|'constructing'|'built';
                      origin: TileIndex; footprint: TileIndex[]; orientation: 0|1|2|3; itemId: EntityId;

@@ -31,10 +31,11 @@ No caravan in winter. A civilization with reputation ≤ `CARAVAN_BAN_REP` or un
 ### Party
 
 - Merchants: `MERCHANTS_MIN..MERCHANTS_MAX` (species: `dwarf` for Mountainhome, `human` for Hillfolk, `elf` for Wildwood; all `trader:<civ>`).
-- Guards: `GUARDS_BASE + peril × GUARDS_PER_PERIL`, armed from the civ's gear table.
+- Guards: `GUARDS_BASE + peril × GUARDS_PER_PERIL`, plus 1 when the region has the `twilight_pass` trait, armed from the civ's gear table.
 - Pack animals: `mule` (Hillfolk, Mountainhome) or `wildwood_bearer` (an elf carrying a pack), one per `PACK_VALUE` marks of goods.
 - Goods: generated from `caravan-goods.md` for the civ: a value budget `CARAVAN_VALUE_BASE + renown × CARAVAN_VALUE_PER_RENOWN + reputation × CARAVAN_VALUE_PER_REP`; `REQUEST_SHARE` of the budget is spent on the player's requests first (items that exist in the civ's list), the rest drawn by weight. Each civ's list is fixed by this design in Wave 3; its flavor: Mountainhome brings metal bars, weapons and armor, picks, anvils, animals, seeds of cave crops, ale, crafts; Hillfolk bring food, cloth, leather, livestock (including horses at reputation ≥ 50), seeds of surface crops, cheese, wine; Wildwood bring seeds and rare saplings (yew), herbs (brightleaf), bows and arrows, cloth, exotic fruit, and at reputation ≥ 50 tame forest animals.
-- Goods are items carried by pack animals (in their `Container`) until unloaded.
+- Goods are items carried by pack animals (in their `Container`) until unloaded. Each pack animal and the built depot hold a `Container` of class `wagon` with unlimited capacity, so goods nest and are counted through the ordinary item API.
+- A live animal in a goods list is an item: it travels in a pine cage, tame and caged, and its cargo value is its species value plus the cage's item value. It stays the merchant's until the fortress buys it.
 
 ### Movement
 
@@ -47,15 +48,15 @@ No caravan in winter. A civilization with reputation ≤ `CARAVAN_BAN_REP` or un
 
 ### Moving goods to the depot
 
-`MoveToDepot { itemIds }` (from the stocks panel, the depot panel, or a rectangle selection) creates `haul_to_depot` jobs (labor `hauling`, priority `DEPOT_HAUL_PRIORITY`) per item; items at the depot are `forbidden`-like for other jobs (flag `atDepot`). `RemoveFromDepot` reverses. A depot holds any number of items.
+`MoveToDepot { itemIds, depotId? }` (from the stocks panel, the depot panel, or a rectangle selection) creates `haul_to_depot` jobs (labor `hauling`, priority `DEPOT_HAUL_PRIORITY`) per item; items at the depot are `forbidden`-like for other jobs (flag `atDepot`). `RemoveFromDepot { itemIds, depotId? }` reverses: it clears `atDepot` and drops the item at the depot, where ordinary hauling takes it again. Both use the first built depot unless `depotId` is given, and both work with no caravan present, so that goods can be prepared before one arrives. A depot holds any number of items.
 
 ### The session
 
 - `TradeOpen { depotId }` requires the caravan at the depot. It creates a `trade` job for the Broker if one exists (labor `trading`), else for any dwarf with the labor enabled; the job walks the dwarf to the depot; when both the dwarf and a merchant are inside, the session screen opens (modal, the game pauses while it is open).
 - The screen: left, merchant goods with *their price* (merchant valuation × `MERCHANT_MARKUP`); right, fortress goods at the depot with *their valuation* of each; the player marks quantities on both sides; totals; the margin line "The merchant wants at least 12% profit"; Offer.
-- `TradeOffer { give, take }` is accepted when `Σ valuation(give) ≥ Σ price(take) × (100 + margin) / 100`; else `TradeRefused { shortfall }` and the merchant's line "Not enough. Add {shortfall} marks of goods." Accepted: items change owner (bought goods lose `merchant`, sold goods gain it), `TradeCompleted`, trading skill xp `TRADE_XP × (1 + value / 1000)`, reputation `+ clamp(1, 5, value / 500)`.
+- `TradeOffer { give, take }` lists unique `{ itemId, count }` lines (a bare item id means its whole stack, and a count of zero means the whole stack); both sides are validated before anything changes owner, and only an accepted partial line splits its stack. It is accepted when `Σ valuation(give) ≥ ceil(Σ price(take) × (100 + margin) / 100)` (the margin is not rounded); else `TradeRefused { shortfall }` and the merchant's line "Not enough. Add {shortfall} marks of goods." Accepted: items change owner (bought goods lose `merchant`, sold goods gain it), `TradeCompleted`, trading skill xp `TRADE_XP × (1 + value / 1000)`, reputation `+ clamp(1, 5, floor(Σ price(take) / 500))`.
 - An offer with an empty `take` is a gift: reputation `+ value / 100` (max +10 per caravan), `GiftGiven`.
-- Selling items the civ dislikes (Wildwood: any item with material class `wood`, and any `furniture` made of wood): each such item offered gives reputation −2 even if the trade succeeds, and the merchant's line says so once per session. Killing a caravan member gives −50 and a ban (see § Movement, step 5).
+- Selling items the civ dislikes (Wildwood: any item with material class `wood`, and any `furniture` made of wood): each such item offered gives reputation −2, once per item per session, also when the offer is refused and also when the trade then succeeds; the successful trade's own reputation is a separate event. The merchant's line says so once per session. Killing a caravan member gives −50 and a ban (see § Movement, step 5).
 - The session can be reopened as long as the caravan is at the depot.
 
 ### Valuation

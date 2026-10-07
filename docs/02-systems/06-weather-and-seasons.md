@@ -77,6 +77,8 @@ Freezing is 05's decision; this system only provides the temperature. In winter 
 
 `calendar.isDaylight` is set by this system each weather tick from the daylight table. Night effects: dwarves prefer to sleep (10 schedule), outdoor visibility for hunting and for spotting scouts is halved (18), wild nocturnal species are active (08).
 
+The cached surface temperature, growth modifier and daylight are recomputed each weather tick and once more when the arrival sets the calendar to its starting hour, which happens after this system's `init`.
+
 ## State
 
 - `state`, `stateEndsTick`, `surfaceTempCached`, `growthModifierCached`, `snowCoveredChunks: SortedSet`, `wetChunks: Map<chunk, lastRainTick>`.

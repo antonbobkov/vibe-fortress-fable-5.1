@@ -20,7 +20,7 @@ Answer "can this creature get there, and how" quickly and deterministically for 
 
 ### Passability
 
-`passable(i, class, faction?)`:
+`passable(i, class, mover?)`, where `mover` is the optional options bag `{ faction?, magmaSafe?, size?, opensDoors?, tame? }` (the species' `magmaSafe` flag, `Creature.sizeClass`, the `O` flag, a `Tame` component); every field defaults to the value that blocks nothing extra, so `passable(i, class)` is the plain terrain answer that the connectivity labels use. `cost` takes the same bag. The `burning` and forbidden-set checks come before any class-specific answer, so an aquatic creature does not enter a burning or forbidden tile.
 
 - Kind: `floor`, `ramp`, `stairs_*`, `sapling`, `shrub` are enterable by all land classes; `fortification` by `small` only; `open` is never chosen by pathfinding (falling is a consequence, not a move); `wall`, `tree`, `boulder` never.
 - Buildings (14): `blocksMovementAt(i, class, faction, mover)`: constructed walls (already `wall` kind); a `door` blocks `wild`, `large`, and hostiles without `opensDoors` (they may break it, 18), tame movers when its mode is `no_pets`, and everyone when `locked`; `hatch` never blocks horizontal movement; raised `drawbridge` and closed `floodgate` block all; buildings with the `impassable` tag (statue, cage, occupied coffin) block all.
@@ -62,18 +62,18 @@ Answer "can this creature get there, and how" quickly and deterministically for 
 Two-level scheme per movement class (`walker`, `small`, `large`, `aquatic`; `amphibious` uses `walker` labels unioned with `aquatic` at query time):
 
 1. **Chunk components**: within each chunk (16 × 16 × 1), a flood fill over passable tiles using horizontal edges only yields local components. Stored as `localLabel: Uint16Array` per tile and a per-chunk component count.
-2. **Portals**: for each pair of adjacent chunks (four horizontal neighbors, plus the chunk above and below for vertical edges), the set of tile pairs across the boundary that form an edge. Stored per chunk as a list of `(localA, chunkB, localB)`.
-3. **Global labels**: a union–find over all chunk components joined by portals. `globalLabel(component)` is the root. `label(tile) = globalLabel(chunk, localLabel(tile))`.
+2. **Portals**: every edge that leaves a chunk (to its four horizontal neighbors, and through stairs and ramps to the chunks above and below), kept as the tile pair that forms the crossing, so a stored portal never goes stale when the neighbouring chunk is rebuilt. Each chunk resolves its portals to its sorted, distinct component links `(localA, chunkB, localB)`.
+3. **Global labels**: a union–find over all chunk components joined by the links of every chunk. Components are numbered in chunk order and then by local label; the smaller root wins a union, so the sets and the labels do not depend on the order of the unions. `label(tile)` is one more than the smallest component number in the set of its component; `0` is an impassable tile.
 
-Incremental update: `TilesChanged`, `BuildingStateChanged` and `FluidsChanged` mark chunks `dirtyPath`. At the end of the tick (after step 3 of the tick, in a core phase), every dirty chunk recomputes its local components and portals; then the union–find is rebuilt from scratch over all chunks (about 1,728 chunks × a few components each; well under 1 ms). Labels are thus exact at the start of every tick.
+Incremental update: `TilesChanged` and `BuildingStateChanged` mark chunks `dirtyPath`; 04 marks the chunk of a fluid write itself, during its own step, and only when the write moves the tile into another passability band for the labels (empty or water below `FLUID_DEEP_LEVEL`; water from `FLUID_DEEP_LEVEL` up; magma). At the end of the tick (after step 3 of the tick, in a core phase), every dirty chunk is rebuilt whole. Every fact an edge depends on (both tiles, the corner tiles of a diagonal, the tiles a stair or ramp reads) lies within one tile of the edge's source tile, so a change inside a chunk can alter only the edges that leave a tile within one tile of it: in each of the dirty chunk's 26 neighbours only those edges are recomputed, and the links of the dirty chunks and their neighbours are resolved again. A class's union–find (a few thousand links; well under 1 ms) then runs only when a dirty chunk's component count or a link changed. Portals, links and labels equal those of a full rebuild, so a loaded game's full relabel gives a running game's labels, and labels are exact at the start of every tick.
 
-Doors: an unlocked door is passable for connectivity purposes for classes that can use doors; locking a door dirties its chunk. Bridges and floodgates likewise. Fluids: a rising river dirties the chunks it touches; connectivity follows.
+Doors: an unlocked door is passable for connectivity purposes for classes that can use doors; locking a door dirties its chunk. Bridges and floodgates likewise. Fluids: a rising river dirties the chunks where its water crosses a passability band; connectivity follows.
 
 `reachable(from, to, class)`: label equality. `nearestReachable(from, target, class, limit)`: BFS from `target` over passable tiles until one with `label == label(from)` is found, bounded by `limit` tiles.
 
 ### Path cache
 
-Frequently repeated routes (workshop ↔ stockpile, bed ↔ dining hall) are cached: key `(fromChunk, toTile, class)`, value the path and the set of chunks it crosses. A cached path is valid until any of its chunks is dirtied. Cache size `PATH_CACHE_SIZE`, LRU. A cache hit is spliced with a short A* from the requester's tile to the cached path's first tile in the same chunk.
+Frequently repeated routes (workshop ↔ stockpile, bed ↔ dining hall) are cached: key `(fromChunk, toTile, class)`, value the path and the set of chunks it crosses. A cached path is valid until any of its chunks is dirtied. Cache size `PATH_CACHE_SIZE`, LRU. A cache hit is spliced with a short A* from the requester's tile to the cached path's first tile in the same chunk. The cache is an option of the pathfinder: the game runs with it on, because it is saved with 22's state and a loaded game must answer as the uninterrupted one would; a pathfinder constructed without the option has no cache.
 
 ### Movement helper
 
@@ -84,7 +84,7 @@ moveAlongPath(id, ctx):
   while m.progress ≥ 1000 and path remains:
     next = path[m.stepIndex + 1]
     if not passable(next, class) or occupied by a blocking creature (hostile to the mover, or any creature if the tile is a door):
-        m.repathCount += 1; request a new path (or wait REPATH_WAIT_TICKS if a creature blocks); return blocked
+        m.repathCount += 1; clear the path (a blocking creature instead makes the mover wait REPATH_WAIT_TICKS, until REPATH_LIMIT waits have passed); return blocked
     Position(id) = next; m.stepIndex += 1; m.progress −= 1000
     spatial.move(id, prev, next); record (id, prev, next) in the tick's EntitiesMoved batch
     if kind(next) == open: fall(id) → Fell { levels }; return fell
@@ -92,7 +92,7 @@ moveAlongPath(id, ctx):
   return moving
 ```
 
-Creatures do not block each other except at doors and when hostile; two dwarves may share a tile (drawn as one). Falling: from an `open` tile, drop to the first solid-bottomed tile below (or into fluid: a creature landing in deep water is submerged; in magma, burned) and emit `Fell { id, levels }` for 17.
+`blocked` leaves the goal to the brain that asked for the path: the helper is not told the goal, so it issues no request itself, and the brain re-requests or gives up at `REPATH_LIMIT`. Creatures do not block each other except at doors and when hostile; two dwarves may share a tile (drawn as one). Falling: from an `open` tile, drop to the first solid-bottomed tile below (or into fluid: a creature landing in deep water is submerged; in magma, burned) and emit `Fell { id, levels }` for 17.
 
 Speed: `Motion.speed` is recomputed by the owning brain when its inputs change: species base × attributes (10) × wound modifier (17) × carry modifier (10) × armor modifier (16).
 
@@ -110,6 +110,8 @@ Speed: `Motion.speed` is recomputed by the owning brain when its inputs change: 
 - `localLabel` and `globalLabel` per class; portal lists; dirty chunk set; the request queue and in-progress searches; the path cache; spatial buckets; `Motion` components.
 - No rng.
 
+A save holds the pathfinder's state under 22's id: every unreleased request with its path, each in-progress search with its open heap and its touched `g`, parent and closed entries, the queue order, the next request id and the path cache in LRU order, and the movement helper's walks. Only the connectivity labels and the spatial buckets are rebuilt on load. A mover in mid-path therefore continues exactly as in the uninterrupted game.
+
 When a command has dirtied connectivity and its normal pass has not run, a save preserves the current local labels, component counts and outgoing portals of the dirty chunks and their 26 neighbours. Load restores this snapshot and its dirty set over the rebuilt map, reconstructs global labels, then restores requests and walks. The pending chunks are refreshed by the normal pass, so a paused save and its load make the same first resumed decisions. Clean and older saves use the ordinary derived-label rebuild.
 
 ## Interfaces
@@ -117,8 +119,8 @@ When a command has dirtied connectivity and its normal pass has not run, a save 
 ### Reader (`readers.pathing`, `readers.spatial`)
 
 - `pathing.reachable(from, to, class)`, `pathing.nearestReachable(from, target, class, limit)`
-- `pathing.requestPath(id, from, to, class, urgency, options: { nearest?, avoidHostiles? }) → requestId`; `pathing.pathResult(requestId)` (`pending | ready(path) | failed(reason)`)
-- `pathing.passable(i, class, faction)`, `pathing.cost(i, class)`
+- `pathing.requestPath(id, from, to, class, urgency, options: { nearest?, avoidHostiles? }, mover?) → requestId`; `pathing.pathResult(requestId)` (`pending | ready(path) | failed(reason)`)
+- `pathing.passable(i, class, mover?)`, `pathing.cost(i, class, mover?)`
 - `pathing.lineOfSight(a, b)`, `pathing.labelOf(i, class)` (debug)
 - `pathing.requestsPending()`, `pathing.requestsServed()` — the requests waiting or in progress, and the requests settled so far (the debug panel)
 - `pathing.connectivityRevision()` — a counter that changes whenever the connectivity labels are rebuilt. It is derived and not saved; 10 uses it to recheck the shelter of shut-out civilians only when connectivity has changed
@@ -131,7 +133,7 @@ When a command has dirtied connectivity and its normal pass has not run, a save 
 
 ### Events consumed
 
-`TilesChanged`, `BuildingStateChanged`, `FluidsChanged` (dirty chunks).
+`TilesChanged`, `BuildingStateChanged` (dirty chunks).
 
 ### Events emitted
 
