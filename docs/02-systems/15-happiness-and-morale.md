@@ -45,7 +45,7 @@ Productivity is read by 11 as the work rate multiplier and by 10 as `productivit
 
 ### Thoughts
 
-Thought triggers are declarative: `{ event: EventType, where?: predicate on fields, target: which field names the dwarf }`. The morale system subscribes to every event named by any thought row and applies matching thoughts. Complex thoughts (friend died, saw a friend hurt) come from `ThoughtSource`s registered by 10.
+Thought triggers are declarative: `{ event: EventType, where?: predicate on fields, target: which field names the dwarf }`. The morale system subscribes to every event named by any thought row and applies matching thoughts. A row of the meal, sleep or weather family that gives a condition and no event takes its family's event (`MealEaten`, `Slept`, `DwarfOutdoorsIn`), and the row is selected by the event's documented fields. Standing thoughts are condition checks, not events. `MealEaten` carries `mealType`, the id of the eaten item's type (easy, fine or lavish meal), and `ItemDestroyed` carries the item's final `quality`, so that the meal rows and `masterwork_lost` can be matched. Complex thoughts (friend died, saw a friend hurt) come from `ThoughtSource`s registered by 10.
 
 Value scaling: `value × personalityMultiplier(dwarf, thought) × stageMultiplier` where `stageMultiplier` handles meal staleness (13) and room tiers (14) through the `where` predicate selecting a specific row per tier.
 
@@ -82,7 +82,7 @@ The sulk kind depends on personality, first match wins:
 | `gregarious` | argument | picks the nearest dwarf; both get `argued` (−5, 2 days); a grudge is added (10); announcement note |
 | `sensitive` | weeps at the hearth | goes to the hearth hall; gets `wept` (+5 after: relief); announcement note |
 | `greedy` | hoards | takes one craft item to their bedroom (13 `owned`); no announcement |
-| otherwise | breaks a chair | destroys the nearest chair, table or cabinet of common quality or below (never masterworks, never beds); announcement alert |
+| otherwise | breaks a chair | destroys the nearest chair, table or cabinet of common quality or below (never masterworks, never beds); announcement alert. This system only chooses the furniture: `SulkHappened` carries its building id, and 14 removes it in its own tick |
 
 Sulks never involve violence, never target other dwarves' bodies, never destroy stockpiled goods, and never happen more than once per `SULK_DAYS` per dwarf.
 
