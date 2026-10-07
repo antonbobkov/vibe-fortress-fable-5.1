@@ -184,7 +184,11 @@ export class InProcessHost implements SimulationHost {
 
   submit(command: Command): boolean {
     if (this.finalView) return false;
-    this.require().world.submit(command);
+    const world = this.require().world;
+    world.submit(command);
+    // A presentation listener may submit, but its batch must finish before another command
+    // mutates the world. Those submissions remain queued for the next command phase.
+    if (this.current === 0 && !world.events.isSealed) world.commandPhase(true);
     return true;
   }
 

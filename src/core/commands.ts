@@ -32,7 +32,7 @@ export function ownerOf(type: CommandType): string {
   return owner;
 }
 
-/** FIFO. The UI may submit many commands per frame; they are all applied at the next tick. */
+/** FIFO. Drained by the tick's command phase, or immediately by the paused host. */
 export class CommandQueue {
   private pending: Command[] = [];
 

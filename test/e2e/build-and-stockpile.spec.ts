@@ -41,7 +41,7 @@ async function tilePixel(page: Page, x: number, y: number): Promise<{ x: number;
   return { x: box.x + c.x, y: box.y + c.y };
 }
 
-test('build-and-stockpile', async ({ page }) => {
+test('U-02 M1/S2 build-and-stockpile', async ({ page }) => {
   test.setTimeout(240_000);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -55,6 +55,7 @@ test('build-and-stockpile', async ({ page }) => {
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await expect.poll(() => screenOf(page), { timeout: 60_000 }).toBe('fortress');
+  const initialTick = await page.evaluate(() => (window as unknown as { __deepholm: BuildHook }).__deepholm.readers.calendar.tick);
 
   // The view: centred on the wagon at the surface. Pick, in view: a 3×3 patch of free floor for the
   // stockpile, a free floor tile for the wall, and a discovered wall tile of the rock with its
@@ -119,6 +120,13 @@ test('build-and-stockpile', async ({ page }) => {
   await page.mouse.move(b.x, b.y, { steps: 4 });
   await expect.poll(() => textOf(page)).toContain('Stockpile 3x3 (9 tiles, 9 qualify)');
   await page.mouse.up();
+  // U-02 M1/S2: zone creation is observable before any tick runs.
+  const pausedZone = await page.evaluate(([x, y, z]) => {
+    const h = (window as unknown as { __deepholm: BuildHook }).__deepholm;
+    return { tick: h.readers.calendar.tick, id: h.readers.buildings.zoneAt(h.readers.map.index(x as number, y as number, z as number)) };
+  }, [pile.x, pile.y, sites.z]);
+  expect(pausedZone.tick).toBe(initialTick);
+  expect(pausedZone.id).not.toBe(0);
   await page.evaluate(() => (window as unknown as { __deepholm: BuildHook }).__deepholm.step(1));
   await page.keyboard.press('Escape');
   await page.mouse.click(a.x, a.y);
@@ -175,7 +183,16 @@ test('build-and-stockpile', async ({ page }) => {
     await page.keyboard.press('x');
   }
   await expect.poll(() => textOf(page)).toContain('Material: [x] pine');
+  const beforePlacement = await page.evaluate(() => (window as unknown as { __deepholm: BuildHook }).__deepholm.readers.calendar.tick);
   await page.mouse.click(p.x, p.y);
+  // U-02 M1/S2: the planned wall appears with no simulation time elapsed.
+  const pausedBuilding = await page.evaluate(([x, y, z]) => {
+    const h = (window as unknown as { __deepholm: BuildHook }).__deepholm;
+    const origin = h.readers.map.index(x as number, y as number, z as number);
+    return { tick: h.readers.calendar.tick, state: h.readers.buildings.byType('wall')
+      .map((id) => h.readers.buildings.get(id)).find((w) => w?.origin === origin)?.state };
+  }, [wallAt.x, wallAt.y, sites.z]);
+  expect(pausedBuilding).toEqual({ tick: beforePlacement, state: 'planned' });
   await page.keyboard.press('Escape');
 
   // Wait at 4× until the wall stands.

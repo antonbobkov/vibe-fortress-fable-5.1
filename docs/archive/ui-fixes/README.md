@@ -43,7 +43,7 @@ Cite the audit's ids (Q1…, M1…, S1…, §4.x) in commits and tests. Tag test
 | Id | Title | Audit items | Size | Needs | Status at archiving |
 |---|---|---|---|---|---|
 | U-01 | Quick wins: embark default, honest messages, dead hints, small key fixes | D-U3, D-U4 (strings, log, no-ops), D-U8, D-U9, Q1, Q3–Q14 except Q2 | L | — | done |
-| U-02 | Paused input takes effect at once | D-U1, M1, S2 | M | — | open: [`U-02-paused-input.md`](../../work/U-02-paused-input.md) |
+| U-02 | Paused input takes effect at once | D-U1, M1, S2 | M | — | open: [`U-02-paused-input.md`](../tasks/U-02-paused-input.md) |
 | U-03 | Work orders with quantity; panel hotkeys always win | D-U5, D-U2, M2, M3, Q2, S3, S4 | M | U-01 | done |
 | U-04 | Drag to place many; out-of-stock prompt | D-U6, M6, S9 | M | U-03 | done |
 | U-05 | Building panel: door/hatch modes, lever links, plates, traps, cages, owners, coffins, priority | M4, §5.4 | M | U-01 | done |

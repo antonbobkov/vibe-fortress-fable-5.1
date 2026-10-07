@@ -60,6 +60,8 @@ Mouse:
 
 Keyboard and mouse produce the same actions; there is no action reachable only one way.
 
+While paused, submitted commands take effect immediately through the host's command phase, without advancing time. Designations, planned buildings and zones appear before unpausing. Rejections update the status row and alert log immediately with the command's focus. The command log stamps these inputs with the next tick to run, so replay and paused save/load preserve simulation state.
+
 ### Panels
 
 Registered by systems through `register.panel`; the design fixes this set and their content is defined in the owning system documents:

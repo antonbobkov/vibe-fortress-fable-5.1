@@ -1,8 +1,10 @@
 # U-02 — Paused input takes effect at once
 
-**Source:** [`../../reports/audits/ui-audit.md`](../../reports/audits/ui-audit.md) issue 2, M1, S2 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** implemented by the closing commit `U-02: apply commands immediately while paused` on branch `codex-a`.
 
-Split out of [`../archive/ui-fixes/README.md`](../archive/ui-fixes/README.md), which holds the full list of UI decisions and the closed tasks. The decisions below are copied from it word for word and are final: implement them, do not redesign them.
+**Source:** [`../../../reports/audits/ui-audit.md`](../../../reports/audits/ui-audit.md) issue 2, M1, S2 · **Size:** M · **Needs:** — · **Status:** open
+
+Split out of [`../ui-fixes/README.md`](../ui-fixes/README.md), which holds the full list of UI decisions and the closed tasks. The decisions below are copied from it word for word and are final: implement them, do not redesign them.
 
 ## Why
 
@@ -54,5 +56,5 @@ D-U1 chose the first alternative of M1 (apply at once), not the preview layer.
 
 - A designation, a placement and a zone issued while paused are visible before unpausing; a rejected one is reported at once, in the status row and the log.
 - A run with commands issued while paused replays to the same world hash.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with `npm run test:e2e` (the task touches `app/` and `ui/`).
-- Closed as the workflow says: the spec edits are in the commit body, this file moves to `docs/archive/tasks/`, and the row leaves [`../backlog.md`](../backlog.md).
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with `npm run test:e2e` (the task touches `app/` and `ui/`).
+- Closed as the workflow says: the spec edits are in the commit body, this file moves to `docs/archive/tasks/`, and the row leaves [`../../backlog.md`](../../backlog.md).

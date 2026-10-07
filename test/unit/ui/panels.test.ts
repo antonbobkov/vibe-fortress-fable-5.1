@@ -231,7 +231,7 @@ describe('T-M2-09 stocks, units, jobs and labors panels', () => {
     expect(game.ui.panel).toBe('labors');
   });
 
-  it('labors: a click toggles one cell; shift-click toggles the whole column; [a] the row', async () => {
+  it('U-02 labors: a click toggles immediately; shift-click toggles the whole column; [a] the row', async () => {
     const game = await fortressGame();
     const spy = vi.spyOn(game.host, 'submit');
     key(game, 'l');
@@ -250,7 +250,9 @@ describe('T-M2-09 stocks, units, jobs and labors panels', () => {
     expect(spy).toHaveBeenCalledTimes(1 + dwarves.length);
     const column = spy.mock.calls.slice(1).map((c) => c[0] as Command);
     expect(new Set(column.map((c) => c['dwarfId']))).toEqual(new Set(dwarves));
-    expect(column.every((c) => c['on'] === false && c['labor'] === column[0]?.['labor'])).toBe(true);
+    // U-02: the first paused click has already disabled one cell, so "not all enabled" now
+    // makes the following column toggle turn every cell on.
+    expect(column.every((c) => c['on'] === true && c['labor'] === column[0]?.['labor'])).toBe(true);
     // U-03 (D-U2): `a` opens the Log; the row toggle is `[S-a]`.
     key(game, 'a', { shift: true });
     expect(spy.mock.calls.length).toBe(1 + dwarves.length + registry.table('labors').ids().length);

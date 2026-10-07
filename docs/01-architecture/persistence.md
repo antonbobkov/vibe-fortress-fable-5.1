@@ -22,6 +22,8 @@ A save is the complete state needed to continue the simulation deterministically
 
 Content is not saved; it is identified by hash.
 
+When commands have dirtied connectivity before the next connectivity pass, the pathing state also saves the current local labels, component counts and outgoing portals of those chunks and their 26 neighbours, together with the dirty chunk set. Loading rebuilds the other derived state, restores this pending snapshot and reconstructs its global labels before restoring requests and walks. The dirty chunks are refreshed by the normal tick pass, so the first resumed system tick sees the same queries as an uninterrupted game. A clean save omits this optional snapshot; older saves retain the ordinary rebuild-on-load procedure.
+
 ## Container format
 
 A save is a single binary blob:

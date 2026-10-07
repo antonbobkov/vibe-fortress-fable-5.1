@@ -110,6 +110,8 @@ Speed: `Motion.speed` is recomputed by the owning brain when its inputs change: 
 - `localLabel` and `globalLabel` per class; portal lists; dirty chunk set; the request queue and in-progress searches; the path cache; spatial buckets; `Motion` components.
 - No rng.
 
+When a command has dirtied connectivity and its normal pass has not run, a save preserves the current local labels, component counts and outgoing portals of the dirty chunks and their 26 neighbours. Load restores this snapshot and its dirty set over the rebuilt map, reconstructs global labels, then restores requests and walks. The pending chunks are refreshed by the normal pass, so a paused save and its load make the same first resumed decisions. Clean and older saves use the ordinary derived-label rebuild.
+
 ## Interfaces
 
 ### Reader (`readers.pathing`, `readers.spatial`)

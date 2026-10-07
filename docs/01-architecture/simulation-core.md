@@ -17,7 +17,7 @@ interface SimulationHost {
   save(): Promise<SaveBlob>
   setSpeed(speed: 0 | 1 | 2 | 4): void           // 0 = paused
   speed(): 0 | 1 | 2 | 4
-  submit(command: Command): void                 // queued; applied at the next tick
+  submit(command: Command): void                 // next tick's command phase; immediate while paused
   step(ticks: number): void                      // synchronous; used by headless tests and by the frame loop
   readers: ReaderSet                             // read-only access to every system's reader and to core readers
   onEvents(listener: (events: readonly GameEvent[]) => void): Unsubscribe
@@ -124,6 +124,10 @@ A command is a plain record with a `type` and typed fields. The command table (W
 Rules:
 
 - Commands are applied at the start of a tick, in submission order, before any system ticks.
+- While paused, the host runs that same command phase immediately on submission. The phase uses `calendar.tick`, the number of the next tick to run, for command contexts and log entries. It does not run systems, connectivity, event handlers or the calendar. Already applied commands are removed from the queue and are not applied again on resuming.
+- Rejected paused commands are delivered immediately to presentation listeners, once, so the status row and alert log update at once. `CommandRejected` has no simulation subscribers. Other events emitted by commands remain queued for the normal tick dispatch and are saved with the pending queues. Presentation callbacks remain read-only; commands they submit wait until their event batch finishes and the next command phase runs.
+- A recorded paused command replays in the command phase of its stamped tick. With no system running between paused submissions and that tick, replay with or without pauses reaches the same world hash. A save taken while paused preserves the applied state, command log and pending events; loading it does not apply those commands again.
+- If a paused command dirties connectivity, its current labels remain in use until the normal connectivity pass. Saving preserves that pending boundary; loading must not refresh those queries before the first resumed system tick.
 - A command is never applied partially. Validation runs first; mutation runs only if validation passes.
 - The command log keeps every command of the current season with its tick and result. The world clears its log in step 5 of the tick whose calendar advance enters a new season, so the log holds commands from the season's first tick onward (the `SeasonChanged` autosave, taken after the next tick, carries that tick's entries too). The log is saved (it is small) and replayable in headless mode for reproducing bugs.
 - Undo exists only for designations, zones and planned buildings before work starts, and is itself a command (`UndoDesignation`, `RemoveZone`, `CancelBuilding`) so that it goes through the same path.
@@ -200,7 +204,7 @@ The rules in `architecture-overview.md` are enforced by:
 
 ## Speed and pause
 
-- Pause is speed 0. The renderer keeps running, so the player can inspect and issue commands while paused; commands queue and apply on the first tick after unpausing. On resuming from pause or from a hidden tab, `lastFrameMs = nowMs`, so the simulation does not catch up.
+- Pause is speed 0. The renderer keeps running, so the player can inspect and issue commands while paused; the host applies their command phase immediately without advancing time. On resuming from pause or from a hidden tab, `lastFrameMs = nowMs`, so the simulation does not catch up.
 - Speed changes take effect on the next frame. Speeds above 1× do not change any rule; only the number of ticks per real second changes.
 - `danger` announcements set speed to 0 (see 24 UI). The core exposes `setSpeed` to presentation only; no system changes speed.
 
