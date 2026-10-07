@@ -56,6 +56,16 @@ export interface BuildingLine {
   readonly cells?: readonly { readonly from: number; readonly cols: number; run(): void }[];
 }
 
+/** Shared bedroom/coffin owner picker: the same names, marks and strings in Zones. */
+export function ownerPickLines(ctx: PanelContext, name: string, owner: EntityId, assign: (id: EntityId) => void): BuildingLine[] {
+  const mark = (id: EntityId): string => id === owner ? '● ' : '○ ';
+  return [
+    { id: 'title', text: ctx.strings.get('ui.building.owner_title', { building: name }), tone: 'value' },
+    { id: 'owner:0', text: `${mark(0)}${ctx.strings.get('ui.building.nobody')}`, run: () => assign(0), help: ctx.strings.get('ui.building.owner_help') },
+    ...dwarvesOf(ctx).map((id) => ({ id: `owner:${id}`, text: `${mark(id)}${nameOf(ctx, id)}`, run: () => assign(id), help: ctx.strings.get('ui.building.owner_help') })),
+  ];
+}
+
 interface Trigger {
   readonly kind: 'creatures' | 'water' | 'magma';
   readonly minSize: number;
@@ -414,12 +424,7 @@ export class BuildingPanel {
       return out;
     }
     if (this.mode === 'owner') {
-      const owner = this.owner(ctx);
-      const mark = (id: EntityId): string => (id === owner ? '● ' : '○ ');
-      out.push({ id: 'title', text: s.get('ui.building.owner_title', { building: name }), tone: 'value' });
-      out.push({ id: 'owner:0', text: `${mark(0)}${s.get('ui.building.nobody')}`, run: () => void this.assign(ctx, 0), help: s.get('ui.building.owner_help') });
-      for (const id of dwarvesOf(ctx)) out.push({ id: `owner:${id}`, text: `${mark(id)}${nameOf(ctx, id)}`, run: () => void this.assign(ctx, id), help: s.get('ui.building.owner_help') });
-      return out;
+      return ownerPickLines(ctx, name, this.owner(ctx), (id) => void this.assign(ctx, id));
     }
     const tags = this.tags(ctx);
     const material = ctx.registry.table<{ id: string; name: string }>('materials').byIndex(view.material)?.name ?? '';
@@ -617,10 +622,13 @@ const WRAP_ROWS = 3;
 
 /** The panel body (the title row is the sidebar's). */
 export function drawBuildingPanel(s: Surface, rect: Rect, panel: BuildingPanel, ctx: PanelContext, takeApart?: (id: EntityId) => void): void {
+  drawBuildingLines(s, rect, panel.lines(ctx, takeApart), panel.mode === 'main' ? panel.list : panel.pick);
+}
+
+/** Shared list rendering for building and room owner choices. */
+export function drawBuildingLines(s: Surface, rect: Rect, lines: readonly BuildingLine[], cursor: ListState): void {
   const t = s.theme;
   const tones: Record<Tone, typeof t.text> = { text: t.text, dim: t.dim, value: t.value, key: t.key, alert: t.alert, good: t.good };
-  const lines = panel.lines(ctx, takeApart);
-  const cursor = panel.mode === 'main' ? panel.list : panel.pick;
   const rows = lines.filter((line) => line.run !== undefined);
   cursor.selected = Math.max(0, Math.min(Math.max(0, rows.length - 1), cursor.selected));
   const chosen = rows[cursor.selected];

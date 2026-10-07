@@ -185,6 +185,29 @@ A panel's own keys may not use a panel hotkey, so these are on `Shift` (shown `[
 | `Shift+B` | assign a barracks zone |
 | `Shift+N` | rename the squad |
 
+## Zones inspector keys
+
+These are the Zones panel's own accelerators and widget keys. Letters that open panels require Shift; the labels follow the current panel bindings. Every action has the mouse path listed here and a Help row.
+
+| Key | Action | Mouse |
+|---|---|---|
+| `Enter` with no tool or selection | select the zone at the map cursor or centre | click a zoned map tile |
+| `y` | return from an inspector to zone types | zone types button |
+| `Shift+P` | open the stockpile preset dropdown | preset header |
+| `↑↓`, `Enter`, accelerator letters | highlight/apply a preset; jump by its first letter, Shift for a panel letter | preset option |
+| `g` | focus the category tree | tree button or category name |
+| `↑↓`, `→`, `←`, `Space` in the tree | select, expand, collapse/parent, toggle subtree | category name or checkbox |
+| `q` | focus numeric settings | settings button or numeric label |
+| `Tab`, `Shift+Tab`, `↑↓` in numeric settings | choose barrels, bags, bins, priority, min quality or max quality | numeric label |
+| `←→`, `+`, `-` in numeric settings | adjust the focused value | minus or plus button |
+| `v` | open allowed material classes | materials button |
+| `↑↓`, `Space` or `Enter` in material classes | select/toggle; Any switches all/none | checklist row |
+| `Shift+O` in a bedroom | open the shared owner picker | owner button |
+| `↑↓`, `Enter` in owner picker | select Nobody or a dwarf and assign | owner row |
+| `Esc` in a chooser | cancel/back; applied settings remain applied | choose another zone or panel |
+
+Container counts are non-negative integers, priorities are 1–9 and quality bounds are 0–5 with minimum no greater than maximum. A refused adjustment reports its reason. In the selected stockpile editor, Space toggles a checkbox, +/- adjusts a numeric field and Tab chooses fields before their global pause, speed or sidebar actions. Bare panel letters always retain their panel action in every editor state. Zone removal continues to use the existing default-No confirmations in § Confirmations.
+
 ## Mouse
 
 | Gesture | With no tool | With a tool |

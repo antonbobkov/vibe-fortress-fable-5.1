@@ -41,7 +41,7 @@ async function tilePixel(page: Page, x: number, y: number): Promise<{ x: number;
   return { x: box.x + c.x, y: box.y + c.y };
 }
 
-test('U-02 M1/S2 build-and-stockpile', async ({ page }) => {
+test('U-02 M1/S2 and U-07 M7 build-and-stockpile', async ({ page }) => {
   test.setTimeout(240_000);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -110,7 +110,7 @@ test('U-02 M1/S2 build-and-stockpile', async ({ page }) => {
   const pile = sites.pile as { x: number; y: number };
   const wallAt = sites.wall as { x: number; y: number };
 
-  // 1. A wood stockpile by drag: z, Shift+s (U-03: `s` opens Stocks), drag 3×3, then the preset row clicked to Wood.
+  // 1. A wood stockpile by drag: z, Shift+s (U-03: `s` opens Stocks), drag 3×3, then the preset dropdown selects Wood.
   await page.keyboard.press('z');
   await page.keyboard.press('Shift+S');
   const a = await tilePixel(page, pile.x, pile.y);
@@ -141,8 +141,18 @@ test('U-02 M1/S2 build-and-stockpile', async ({ page }) => {
   const box = await page.locator('canvas#screen').boundingBox();
   if (box === null) throw new Error('no canvas box');
   const presetPx = await page.evaluate(([c, r]) => (window as unknown as { __deepholm: BuildHook }).__deepholm.cellCenter(c as number, r as number), [presetCell.col + 2, presetCell.row]);
+  // U-07: each former cycling click now opens the real dropdown, then chooses its option.
   for (const name of ['Food', 'Drink', 'Seeds', 'Stone', 'Ore and bars', 'Wood']) {
     await page.mouse.click(box.x + presetPx.x, box.y + presetPx.y);
+    await expect.poll(() => textOf(page)).toContain('Everything');
+    const choice = await page.evaluate((name) => {
+      const h = (window as unknown as { __deepholm: BuildHook }).__deepholm;
+      const rows = h.text();
+      const row = rows.findIndex((r) => r.includes(name) && !r.includes('Preset'));
+      if (row < 0) throw new Error(`no preset option ${name}`);
+      return h.cellCenter((rows[row] as string).indexOf(name) + 1, row);
+    }, name);
+    await page.mouse.click(box.x + choice.x, box.y + choice.y);
     await page.evaluate(() => (window as unknown as { __deepholm: BuildHook }).__deepholm.step(1));
     await expect.poll(() => textOf(page)).toContain(`Preset [${name}`);
   }

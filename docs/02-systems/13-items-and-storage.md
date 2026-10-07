@@ -181,6 +181,10 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
 ## Player-facing behavior
 
 - Zones menu › Stockpile: drag, then a filter editor with the category tree (checkboxes with tri-state for partial subtrees), material classes, quality range, container counts, priority, source links. Presets: Food, Drink, Seeds, Stone, Ore and bars, Wood, Furniture, Weapons and armor, Cloth and leather, Crafts and gems, Refuse, Corpses, Everything.
+  - The preset is a dropdown opened with its button or `Shift+P`; arrows choose, `Enter` applies, and accelerator letters jump to matching names (a panel letter requires Shift). In the tree, `↑↓` selects, `→` expands, `←` collapses or selects the parent, and `Space` toggles the selected subtree. Clicking a name expands it; clicking its checkbox toggles it.
+  - `q` focuses the wanted barrel count; `↑↓` or `Tab` moves through barrels, bags, bins, priority, minimum quality and maximum quality. `←→` or `+/-` changes the selected value, as do the mouse minus and plus buttons. Counts are non-negative, priority is 1–9 and quality is 0–5 with minimum no greater than maximum. A refused adjustment says why in the status row and changes nothing.
+  - `g` returns to the category tree. `v` opens the material-class checklist; arrows select and `Space` toggles, as does a click. The Any row switches between all classes and none. `Esc` returns without another change. All these actions are buttons or fields as well as keys, and are listed in Help. Truncated values have full-text tooltips.
+  - A full-stockpile announcement names its ordinal and category preset, or Custom, and focuses the stockpile: "Stockpile #2 (Wood) is full."
 - Stocks panel: category tree with counts and values; per-type actions.
 - Item inspection: every field.
 - Glyphs: `%` food and corpses (corpses in dark red), `☼` drink barrels... the full glyph table is Wave 3; the rule is one glyph per category node at depth 2.

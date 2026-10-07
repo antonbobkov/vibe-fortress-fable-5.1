@@ -26,7 +26,7 @@ import { acceleratorOf, keyLabel, type Keymap } from '../keymap';
 import { drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
 import { BuildingPanel, drawBuildingPanel } from '../panels/building';
-import { confirmThen, type PanelContext } from '../panels/context';
+import { buildings, confirmThen, type PanelContext } from '../panels/context';
 import { drawJobsPanel, JobsPanel } from '../panels/jobs';
 import { drawLaborsPanel, LaborsPanel } from '../panels/labors';
 import { drawStocksPanel, StocksPanel } from '../panels/stocks';
@@ -53,7 +53,7 @@ import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import type { UiState } from '../ui-state';
 import { drawTooltip, editText, label, labelRow } from '../widgets';
-import { blockedText, buildingName, commandFocus, rejectionText, zoneName } from '../messages';
+import { blockedText, buildingName, commandFocus, rejectionText, zoneName, zoneEditorMessage } from '../messages';
 
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
 export const UI_PANELS: readonly PanelSpec[] = [
@@ -431,6 +431,7 @@ export class FortressScreen implements Screen {
     const layout = this.host.layout();
     this.drawSelection(surface, layout.map);
     this.drawSelectionBorder(surface, layout.map);
+    this.drawRoomBorder(surface, layout.map);
     this.drawGhost(surface, layout.map);
     if (layout.sidebar !== null) this.drawSidebar(surface, layout.sidebar);
     drawLogStrip(surface, layout.log, this.log.lines, this.pinned, this.host.now() < this.flashUntil);
@@ -475,6 +476,21 @@ export class FortressScreen implements Screen {
         if (x < 0 || y < 0 || x >= map.cols || y >= map.rows) continue;
         surface.invert({ col: map.col + x, row: map.row + y, cols: 1, rows: 1 });
       }
+    }
+  }
+
+  /** A zone rectangle: "tiles that qualify show green", the rest red (the cell's background). */
+  private drawRoomBorder(surface: Surface, rect: Rect): void {
+    if (this.ui.panel !== 'zones' || this.zones.active) return;
+    const map = this.host.readers.map;
+    for (const tile of buildings(this.ctx)?.roomDiagnostics(this.zones.selected)?.openBorder ?? []) {
+      const z = Math.floor(tile / (map.w * map.h));
+      if (z !== this.ui.z) continue;
+      const col = tile % map.w - this.ui.camX;
+      const row = Math.floor(tile / map.w) % map.h - this.ui.camY;
+      if (col < 0 || row < 0 || col >= rect.cols || row >= rect.rows) continue;
+      const cell = surface.cells.get(rect.col + col, rect.row + row);
+      surface.put(rect.col + col, rect.row + row, cell.glyph, surface.theme.black, surface.theme.bad);
     }
   }
 
@@ -983,6 +999,7 @@ export class FortressScreen implements Screen {
     if (this.animals.name.focused) { this.animals.name.focused = false; return; }
     if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow || this.military.memberChoice) { this.military.cancel(); return; }
     if (this.zones.farmMenus.some((m) => m.open)) { for (const m of this.zones.farmMenus) m.open = false; return; }
+    if (this.zones.cancelEditor()) return;
     if (this.units.editing) {
       this.units.editing = false;
       return;
@@ -1060,6 +1077,8 @@ export class FortressScreen implements Screen {
     // are the picker's type-ahead filter) and leave the rest (`Space`, `F5`) to the screen.
     if (this.ui.panel === 'orders' && (this.orders.materialOpen || this.orders.picker.open) && this.orders.key(this.ctx, press)) return true;
     if (!press.ctrl && !press.alt && !press.meta) {
+      // U-07: settings widgets take Space, Tab and +/- before the global pause/speed/sidebar keys.
+      if (this.ui.panel === 'zones' && this.ui.sidebar && ['Space', ' ', 'Tab', '+', '=', '-'].includes(press.key) && this.zones.editorKey(this.ctx, press)) return true;
       // `+`/`-` change the selected order's count before they are the game-speed keys (Q2); the
       // military, civilizations and population panels keep their own `+` (and `-`).
       if (this.ui.panel === 'orders' && this.ui.sidebar && countStep(press) !== 0 && this.orders.selectedRow(this.ctx) !== undefined) return this.orders.key(this.ctx, press);
@@ -1323,8 +1342,14 @@ export class FortressScreen implements Screen {
           return true;
         }
         return letter !== '' && letter !== 'r' && letter !== 'x' && this.build.choose(letter);
-      case 'zones':
-        if (this.zones.farmKey(ctx, press)) return true;
+        case 'zones':
+          if (this.zones.editorKey(ctx, press)) return true;
+          if (this.zones.farmKey(ctx, press)) return true;
+          if (k === 'Enter' && !this.zones.active && this.zones.selected === 0) {
+            const tile = this.tileOf(this.actionPoint());
+            if (tile === null || !this.zones.select(ctx, tile)) this.notice(zoneEditorMessage(ctx, 'no_zone'));
+            return true;
+          }
         if (letter === 'x' && !this.zones.active && this.zones.selected !== 0) {
           this.removeZone(this.zones.selected);
           return true;

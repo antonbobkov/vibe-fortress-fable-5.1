@@ -90,6 +90,8 @@ The app exposes `window.__deepholm` in test builds only (`import.meta.env.MODE =
 
 E2E suite: `boot`, `generate-and-embark`, `designate-by-drag`, `build-and-stockpile`, `panels-open-and-close`, `quick-save-load`, `fluid-overlay`, `farm-plot-and-orders`, `military-and-alert`, `trade-session`, `save-load-settings`, `game-menu`, `export-import`, `labor-manager`, `drag-place`, `building-panel`, `full-year` (generates world `e2e-year`, filters the world map for peril 0, embarks on a `serene_vale` region if the seed has one and otherwise on a region of peril 0 and temper 0, plays a scripted first year at 4×, asserts the same rule-based rows as the `year_one` scenario and reports the balance rows), `boot-dist` (`boot` against the built output). A task that adds a screen or a multi-step interaction adds or extends a spec here.
 
+`zones-editor` configures a stockpile's preset, category tree, container counts, priority, quality and material classes through keyboard and mouse while paused. It also assigns and clears a bedroom owner through the shared picker, checks missing-bed and open-border messages, and asserts that the calendar did not advance.
+
 E2E starts a test-mode development server and a separate static server (Vite preview) for a test-mode build of `dist/`. `boot-dist` runs against the second the same assertions that `boot` runs against the first (`test/e2e/boot-smoke.ts`), so the built output is tested without putting the hook into a production build. Production builds omit `window.__deepholm`: run `npm run build` after the e2e suite to restore production output.
 
 ## Coverage gates

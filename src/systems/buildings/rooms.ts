@@ -82,6 +82,12 @@ export interface RoomScore {
   readonly parts: { readonly tiles: number; readonly walls: number; readonly furniture: number; readonly size: number };
 }
 
+/** Read-only facts for the room inspector; never stored in a Room component. */
+export interface RoomDiagnostics {
+  readonly openBorder: readonly TileIndex[];
+  readonly missing: readonly ('bed' | 'table_chair' | 'hearth' | 'chest' | 'coffin')[];
+}
+
 export class RoomStore {
   readonly host: RoomHost;
   /** `BuildingsState.dirtyRooms`: zone ids whose room waits for a recompute, ascending. */
@@ -195,6 +201,32 @@ export class RoomStore {
   }
 
   // ---------- scoring ----------
+
+  /** U-07 M9: the same border and built-furniture requirements used by scoring. */
+  diagnostics(tiles: readonly TileIndex[], typeId: string): RoomDiagnostics {
+    const inside = new Set(tiles);
+    const border = new Set<TileIndex>();
+    for (const t of tiles) for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+      if (dx === 0 && dy === 0) continue;
+      const n = this.map.offset(t, dx, dy, 0);
+      if (n >= 0 && !inside.has(n)) border.add(n);
+    }
+    const openBorder = Array.from(border).sort((a, b) => a - b).filter((tile) => {
+      const kind = this.map.kindAt(tile);
+      if (kind === TileKind.Wall || kind === TileKind.Fortification) return false;
+      const b = this.host.buildings.get(this.map.buildingAtTile(tile));
+      const tags = b === undefined ? [] : this.host.buildings.row(b.type).tags;
+      return b?.state !== 'built' || !(tags.includes('door') || tags.includes('hatch'));
+    });
+    const within = this.buildingsWithin(tiles);
+    const missing: RoomDiagnostics['missing'][number][] = [];
+    if ((typeId === 'bedroom' || typeId === 'hospital') && this.tagged(within, 'sleep').length === 0) missing.push('bed');
+    if (typeId === 'dining_hall' && this.seatsAmong(within).length === 0) missing.push('table_chair');
+    if (typeId === 'hearth_hall' && this.tagged(within, 'hearth').length === 0) missing.push('hearth');
+    if (typeId === 'hospital' && !within.some((id) => this.host.buildings.typeIdOf(id) === 'chest')) missing.push('chest');
+    if (typeId === 'tomb' && this.tagged(within, 'coffin').length === 0) missing.push('coffin');
+    return { openBorder, missing };
+  }
 
   /** `constructedFloorValue(m) = value(m)`; "metal blocks value(bar)/5". */
   private constructedFloorValue(m: number): number {

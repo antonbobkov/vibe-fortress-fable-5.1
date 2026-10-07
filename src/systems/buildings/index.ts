@@ -30,7 +30,7 @@ import type { Job } from '@systems/jobs';
 export { ZoneStore, settingKey, type ZoneTypeRow } from './zones';
 export { BuildingStore, buildKey, deconstructKey, type BuildingRow } from './build';
 export { CONSTRUCTION_KIND, onRuleOf, onRuleHolds, type OnRule } from './constructions';
-export { RoomStore, ROOM_TYPES, type RoomScore } from './rooms';
+export { RoomStore, ROOM_TYPES, type RoomScore, type RoomDiagnostics } from './rooms';
 export type { BuildingsReader, ZoneView, BuildingView } from './reader';
 
 export const BUILDINGS_ID = '14';
