@@ -326,7 +326,9 @@ test('farm-plot-and-orders', async ({ page }) => {
   expect(mason).toBeGreaterThan(0);
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: FarmHook }).__deepholm;
+    const reader = h.readers.of('10') as { isChild(id: number): boolean };
     for (const { id } of h.dwarves().slice(1)) {
+      if (reader.isChild(id)) continue;
       const result = h.host.world.applyCommand({ type: 'SetLabor', dwarfId: id, labor: 'masonry', on: true });
       if (!result.ok) throw new Error(`masonry: ${result.reason}`);
     }

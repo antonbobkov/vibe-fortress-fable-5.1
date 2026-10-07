@@ -4,7 +4,7 @@
  * screen, the confirmation dialog, and `F5` / `F9` through the app.
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { loadContent } from '@content/loader';
 import { C } from '@core/components';
 import { ID_FIELDS, idsToStrings, referencedIds, stringsToIds } from '@core/id-fields';
@@ -271,10 +271,9 @@ describe('T-M2-11 app: F5, F9, autosave, Continue', () => {
     expect(game.host.headless.hash()).not.toBe(hash);
     game.handleKey({ key: 'F9', repeat: false, shift: false, ctrl: false, alt: false, meta: false });
     await game.settled();
-    await new Promise((r) => setTimeout(r, 0));
     expect(game.screen).toBe('confirm');
     game.handleKey({ key: 'y', repeat: false, shift: false, ctrl: false, alt: false, meta: false });
-    await vi.waitFor(() => expect(game.host.headless.hash()).toBe(hash), { timeout: 2000 });
+    await game.settled();
     expect(game.screen).toBe('fortress');
     expect(game.host.headless.hash()).toBe(hash);
     expect(game.host.speed()).toBe(0);
