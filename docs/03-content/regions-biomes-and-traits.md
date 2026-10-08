@@ -14,7 +14,7 @@ Rows are temperature bands, columns rain bands; the elevation band overrides: `o
 | warm | `desert` | `savanna` | `temperate_forest` | `wetland` |
 | hot | `desert` | `badlands` | `savanna` | `tropical_forest` |
 
-`dark_forest` is painted around the Gloam home (01).
+`dark_forest` is painted around the Gloam home (01). The civilisation species wildcard `gloam_*` uses `gloam_warrior` as its representative species.
 
 ## Biomes
 

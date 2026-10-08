@@ -82,7 +82,7 @@ interface BuildingDef extends RowBase {
   category: 'construction'|'furniture'|'workshop'|'mechanism'|'trap'|'special';
   footprint: { w: number; h: number; rotatable: boolean; variable?: { max: number } };
   on: string; inputs: { match: Id<ItemTypeDef> | string; material?: MaterialClass[] | 'any'; count: number | 'tiles' }[];
-  labor: Id<LaborDef> | 'by_material'; buildTicks: number; tags: string[]; roomValue: 'item' | number; passable: boolean | 'rules';
+  labor: Id<LaborDef> | 'by_material'; buildTicks: number; tags: string[]; roomValue: 'item' | 'item_x2' | number; passable: boolean | 'rules';
   blocksFluid: boolean | 'rules'; value: number; pattern?: Id<PatternDef>; impassableTiles?: number[]; workTile?: number; outputTile?: number;
   magmaVariantOf?: Id<BuildingDef>;
 }
@@ -92,7 +92,7 @@ interface RecipeDef extends RowBase {
   inputs: { match: Id<ItemTypeDef> | string /* tag, class, 'a|b', or 'any' */; material?: MaterialClass | Id<MaterialDef> | 'any' | 'fuel' | 'flux';
             materials?: Id<MaterialDef>[]; materialProperty?: 'magma_safe' | 'brewable'; sameMaterial?: true; flagged?: 'melt';
             count: number; distinct?: boolean }[];
-  outputs: { item: Id<ItemTypeDef>; count: number; material: { from: 'input'; index: number; stage?: 'next' } | { fixed: Id<MaterialDef> } | { alloy: Id<MetalDef> } | { plantDrink: true } }[];
+  outputs: { item: Id<ItemTypeDef> | string /* item tag */; count: number; material: { from: 'input'; index: number; stage?: 'next' } | { fixed: Id<MaterialDef> } | { alloy: Id<MetalDef> } | { plantDrink: true } }[];
   baseTicks: number; fuel: boolean; quality: boolean; container?: 'barrel'|'bag'; xp: number; generated?: boolean;
 }
 
@@ -108,7 +108,9 @@ interface BiomeDef extends RowBase {
 }
 interface BiomeLookupDef { temp: 'frozen'|'cold'|'temperate'|'warm'|'hot'; rain: 'arid'|'dry'|'moderate'|'wet'; biome: Id<BiomeDef> }
 interface RegionTraitDef extends RowBase {
-  requirements: { biomes?: Id<BiomeDef>[]; peril?: [number, number]; wealth?: [number, number]; temper?: [number, number];
+  order: number; // position in the authored table, retained through id sorting
+  requirements: { biomes?: Id<BiomeDef>[]; notBiomes?: Id<BiomeDef>[];
+                  tempBands?: ('frozen'|'cold'|'temperate'|'warm'|'hot')[]; peril?: [number, number]; wealth?: [number, number]; temper?: [number, number];
                   deepness?: [number, number]; river?: boolean; volcano?: boolean; geology?: string[] };
   freq: Permille; companion: boolean; hooks: Record<string, unknown>;   // keys are the hook names in 03, 06, 07, 08, 18
 }
@@ -129,7 +131,8 @@ interface GlyphDef { index: number; char: string; codePoint: number }
 interface ColorDef { id: string; hex: string; alt?: string }
 interface PatternDef { id: string; rows: [string, string, string] }
 interface EmbarkEntryDef { id: string; entry: string; item?: Id<ItemTypeDef>; material?: Id<MaterialDef>; count?: number;
-  container?: Id<ItemTypeDef>; species?: Id<SpeciesDef>; trained?: 'war'; sex?: 0|1; price: number; max: number; condition?: string }
+  container?: Id<ItemTypeDef>; species?: Id<SpeciesDef>; trained?: 'war'; sex?: 0|1; price: number; max: number; condition?: string; note?: string;
+  category?: 'tools'|'food'|'drink'|'seeds'|'materials'|'furniture'|'animals' }
 interface EmbarkPresetDef { id: string; name: string; skills: { dwarf: number; skill: Id<SkillDef>; level: number }[]; supplies: { entry: string; count: number }[] }
 interface ThreatScheduleDef { kind: string; peril: 0|1|2|3|4; earliest: { year: number; season: Season; day?: number } | null;
   intervalDays: [number, number]; base: number; perRenown: Fixed; max: number; warningDays: number; extra?: Record<string, unknown> }
@@ -146,6 +149,12 @@ interface ConfirmationDef { id: string; text: string; default: 'yes'|'no' }
 interface KeyBindingDef { context: string; key: string; action: string }
 ```
 
+## Export conventions
+
+A missing material density uses the water baseline and missing hardness uses one `DIG_BASE_TICKS`, as defined in [materials.md](../../03-content/materials.md). Missing melting points are 1300 °C for mineral classes and 300 °C for organic classes; missing burn durations are zero. An item with no weight column is `light`, weather states with no temperature delta have `tempDelta: 0`, and wild plants with no temperature band use −100..100 °C. Prose-only fuels, drinks, meal and flour materials are exported alongside table rows; a drink's colour is its brewing plant's colour.
+
+Input `match` accepts an item id or item tag, with alternatives joined by `|`; `count: 'tiles'` scales a building input with its footprint. `roomValue: 'item_x2'` doubles the placed item's value. Recipe outputs may also name an item tag, resolved to its member item types.
+
 ## Validation rules beyond types
 
 - `SpeciesDef.plan` parts must sum `hit` to 100 (parts with hit 0 allowed).
@@ -155,3 +164,4 @@ interface KeyBindingDef { context: string; key: string; action: string }
 - `ItemTypeDef.category` has exactly one, two or three segments; every stockpile preset references existing nodes.
 - `MetalDef.alloy.inputs` reference existing bar materials or `flux`/`fuel` pseudo-materials.
 - Every `Id<ColorDef>` used by any row exists.
+- Every Deep threshold has a non-empty emergence list; only integer levels are threshold rows. The later wave formula is not a threshold row.

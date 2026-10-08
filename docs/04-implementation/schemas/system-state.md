@@ -69,7 +69,7 @@ interface ItemsState { stateVersion: 1; wantsHauling: EntityId[]; noHome: Entity
 interface StockCount { total: number; available: number; byClass: [MaterialClass, number][]; byQuality: number[] }
 
 interface BuildingsState { stateVersion: 1; zoneAt: [TileIndex, EntityId][]; hearthId: EntityId; depots: EntityId[]; coffins: EntityId[];
-  dirtyRooms: EntityId[]; pendingToggles: { id: EntityId; on: boolean; atTick: Tick }[]; pendingJobs: EntityId[]; magmaTouched?: TileIndex[]; rng: RngState }   // pendingJobs: buildings waiting for their build or deconstruct job; magmaTouched: tiles `MagmaContact` named, for 14's next tick
+  dirtyRooms: EntityId[]; pendingToggles: { id: EntityId; on: boolean; atTick: Tick }[]; pendingJobs: EntityId[]; magmaTouched?: TileIndex[]; lampLight?: { tile: TileIndex; count: number; baseLit: boolean }[]; rng: RngState }   // pendingJobs: buildings waiting for their build or deconstruct job; magmaTouched: tiles `MagmaContact` named, for 14's next tick
 
 interface MoraleState { stateVersion: 1; hallSpirit: number; hallSpiritTier: MoodTier; rng: RngState }
 

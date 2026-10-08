@@ -41,7 +41,7 @@ growthPerHour(plant, tile) =
 A stage is `stageDays × HOURS_PER_DAY × BASE_GROWTH` units long; when the accumulator crosses it the stage advances and the accumulator keeps the remainder. Stage 3 begins after three stage lengths, but its accumulator continues through the fourth. A crop is ready only once the mature stage has completed, after four stage lengths at normal growth; `plants.cropReady(tile)` is the readiness query used by harvest jobs, harvest designation and the mature-crop blink. Cave crops use a growth modifier of 100 in every season and ignore weather.
 
 - `seasonAllows`: surface crops grow only in their `growSeasons`; outside them they are dormant (not dead). Outside their growing seasons, `temperatureAt(tile) < FROST_KILL_C` kills surface crops (`CropDied { reason: frost }`), which clears the tile for spring.
-- `lightOk`: `sun` needs the `lit` flag; `dark` needs it clear; `any` ignores it.
+- `lightOk`: `sun` needs crop light; `dark` needs it clear; `any` ignores it. `buildings.cropLitAt` reads the original light bit recorded under lamp coverage, otherwise the `lit` flag; lamp comfort light does not alter crop eligibility.
 - `tempOk`: `minC ≤ temperatureAt(tile) ≤ maxC`.
 - Heatwave wilting (06): each heatwave hour a surface crop at stage ≥ 1 loses one stage with `WILT_PERMILLE`.
 

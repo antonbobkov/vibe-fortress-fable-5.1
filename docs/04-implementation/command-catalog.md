@@ -64,7 +64,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `TradeCancel` | — | 20 | session open | — |
 | `SetRequests` | `civ, entries[]` | 20 | at most `REQUEST_MAX` | — |
 | `SetPopulationCap` | `n` | 21 | 20–200 | — |
-| `NameAnimal` | `animalId, name` | 08 | tame | — |
+| `NameAnimal` | `animalId, name` | 08 | tame; name 1–24 characters | — |
 | `RenameSquad` | `squadId, name` | 16 | 1–32 characters | — |
 | `RenameFortress` | `name` | core | 1–32 characters | — |
 

@@ -22,6 +22,8 @@ Parts with hit weight 0 are never hit. Head and torso destruction kill every pla
 
 `speed` in tiles per tick; `diet` `grazer` / `carnivore` / `omnivore` / `none`; `temper` `timid` / `neutral` / `territorial` / `aggressive`; `class` movement class; `products` with intervals in days; `meat`/`hide` values for generated materials (0 = none); `value` in marks (embark and trade); `attacks` as `name type damage size`; `armor` natural armor; `flee` blood percent at which the creature flees (`—` never); `group` spawn group size; `season` when the species is seasonal; flags: `S` stealth, `D` breaks doors, `O` opens doors, `M` magma-safe, `N` nocturnal, `B` butcherable, `T` tameable, `W`/`H` trainable war/hunting.
 
+Species defaults follow their section: dwarves and domestic animals are `fortress`; humans are `trader:hillfolk`, elves and Wildwood bearers `trader:wildwood`; wild surface animals, cavern fauna, cavern monsters and the restless dead are `wild`; Hollow-born are `deep`; the Gloam and trollkin are `hostile:gloam`, and the Hillfolk bandit is `hostile:hillfolk`. Perception uses the default of [08 Animals](../02-systems/08-animals-and-domestication.md).
+
 ## Dwarves and traders
 
 | id | name | plan | size | speed | class | value | attacks | flags | glyph | fg |
@@ -55,7 +57,7 @@ Horses come only from Hillfolk caravans at reputation ≥ 50. Yaks from the Moun
 | id | name | plan | size | speed | diet | temper | class | meat | hide | value | attacks | armor | flee | group | biomes (weight) | season | flags | glyph | fg |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | `deer` | deer | quadruped | 40 | 0.16 | grazer | timid | walker | 4 | 6 | 25 | kick blunt 6 size 4 | 0 | 70 | 2–5 | temperate_forest 30, temperate_hills 25, temperate_grassland 20, taiga 15, wetland 10 | all | B | `d` | `deer_tan` |
-| `boar` | boar | quadruped | 60 | 0.12 | omnivore | territorial | walker | 5 | 6 | 30 | gore pierce 12 size 5 | 1 | 50 | 1–3 | temperate_forest 25, dark_forest 20, wetland 15, temperate_hills 10 | all | B | `b` | `boar_brown` |
+| `boar` | boar | quadruped | 60 | 0.12 | omnivore | territorial | walker | 5 | 6 | 30 | gore pierce 12 size 5 | 1 | 50 | 1–3 | temperate_forest 25, dark_forest 20, wetland 15, temperate_hills 10 | all | B T | `b` | `boar_brown` |
 | `wolf` | wolf | quadruped | 35 | 0.15 | carnivore | aggressive | walker | 2 | 5 | 20 | bite edge 10 size 3 | 0 | 45 | 3–6 | taiga 30, temperate_forest 15, cold_steppe 20, tundra 15, dark_forest 25, mountain 10 | all | B T W | `w` | `wolf_gray` |
 | `bear` | bear | quadruped | 130 | 0.11 | omnivore | aggressive | walker | 6 | 12 | 80 | claw edge 18 size 6; bite edge 16 size 5 | 2 | 35 | 1 | temperate_forest 10, taiga 15, mountain 10, dark_forest 15, temperate_hills 8 | spring–autumn | B T W | `B` | `bear_brown` |
 | `fox` | fox | quadruped | 12 | 0.15 | carnivore | timid | small | 1 | 3 | 12 | bite edge 4 size 2 | 0 | 60 | 1–2 | temperate_grassland 20, temperate_forest 15, cold_steppe 15, tundra 10, temperate_hills 15 | all | B T | `f` | `fox_orange` |
