@@ -311,6 +311,10 @@ describe('T-M6-05: Squads, orders, duty, stations, patrols, alerts', () => {
       const steelAxe = game.world.services.spawn.item(axeType, steelMat, at, 1, 1);   // 3 * 1.0 = 3.0
 
       const soldier = spawnAdultDwarf(game, at);
+      // T-161: isolate weapon ranking/shield exclusion from civilian tool demand.
+      for (const labor of ['mining', 'woodcutting']) {
+        expect(game.world.applyCommand({ type: 'SetLabor', dwarfId: soldier, labor, on: false })).toEqual({ ok: true });
+      }
       game.world.applyCommand({ type: 'CreateSquad', name: 'Elite Guard' });
       const combatReader = game.world.readers.of<CombatReader>('16');
       const squad = combatReader.squads()[0] as SquadWithId;
@@ -358,6 +362,10 @@ describe('T-M6-05: Squads, orders, duty, stations, patrols, alerts', () => {
       const maul = game.world.services.spawn.item(twoHandedMaulType, iron, at, 1, 1);
 
       const soldier = spawnAdultDwarf(game, at);
+      // T-161: isolate weapon ranking/shield exclusion from civilian tool demand.
+      for (const labor of ['mining', 'woodcutting']) {
+        expect(game.world.applyCommand({ type: 'SetLabor', dwarfId: soldier, labor, on: false })).toEqual({ ok: true });
+      }
       game.world.applyCommand({ type: 'CreateSquad', name: 'Hammer Squad' });
       const combatReader = game.world.readers.of<CombatReader>('16');
       const squad = combatReader.squads()[0] as SquadWithId;

@@ -9,6 +9,7 @@ import type { Registry } from '@core/registry';
 import type { ItemsApi, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
+import type { JobsReader } from '@systems/jobs/reader';
 import {
   ARMOR_MIN_SPEED_PERCENT,
   QUALITY_COMBAT_MULT,
@@ -299,6 +300,24 @@ export function claimItemForSoldier(
   items?.refreshDerivedIndexes?.(itemId);
 }
 
+/** An enabled civilian without this tool has first claim on picks and axes. */
+function neededCivilianTool(ctx: TickContext, itemId: EntityId): boolean {
+  if (!ctx.readers.has('11')) return false;
+  const entities = ctx.world.entities;
+  const table = ctx.registry.table<ItemDefRow>('items');
+  const item = entities.get(itemId, C.Item);
+  const category = item === undefined ? '' : table.byIndex(item.type)?.category;
+  const labor = category === 'tool/pick' ? 'mining' : category === 'tool/axe' ? 'woodcutting' : null;
+  if (labor === null) return false;
+  return ctx.readers.of<JobsReader>('11').workersWithLabor(labor).some((workerId) => {
+    return ![entities.get(workerId, C.Worker)?.toolId ?? 0, entities.get(workerId, C.Equipment)?.weapon ?? 0]
+      .some((toolId) => {
+        const tool = entities.get(toolId, C.Item);
+        return tool?.carriedBy === workerId && table.byIndex(tool.type)?.category === category;
+      });
+  });
+}
+
 /**
  * Re-equip an individual soldier according to squad preferences.
  */
@@ -335,7 +354,7 @@ export function reequipSoldier(
   let bestWeaponScore = currentWeaponScore;
 
   for (const itemId of entities.with(C.Item)) {
-    if (!isAvailableItem(entities, itemId)) continue;
+    if (!isAvailableItem(entities, itemId) || neededCivilianTool(ctx, itemId)) continue;
     const sc = scoreWeapon(registry, entities, itemId, preferredWeaponClass, isRanged);
     if (sc > bestWeaponScore) {
       bestWeaponScore = sc;

@@ -19,6 +19,8 @@ describe('T-M8-01 indexed search retains the original choices', () => {
     const core = (world.scheduler.byId('13') as ItemsSystem).core;
     const tile = w.index(10, 10, 32);
     const soldier = w.spawnDwarf({ at: tile });
+    // T-161: exercise a squad claim without an unmet civilian axe requirement.
+    expect(world.applyCommand({ type: 'SetLabor', dwarfId: soldier, labor: 'woodcutting', on: false })).toEqual({ ok: true });
     const spare = w.spawnItem('axe', 'iron', tile);
     const chosen = world.services.spawn.item(w.game.registry.table('items').index('axe'),
       w.game.registry.table('materials').index('steel'), tile, 1, 5);

@@ -100,6 +100,8 @@ Maintained incrementally, sorted by item id:
 
 `Item.flags`: `forbidden` (ignored by all jobs and searches), `dump` (wants hauling to a `dump` zone; on arrival the flag clears), `melt` (a smelter may consume it), `reserved` (held by a job; 11 sets and clears), `owned` (belongs to a dwarf: worn clothing, an assigned bed's owner's chest contents), `installed` (linked to a built piece of furniture, 14: off the map and out of every search, haul and available count, but still in the totals and in wealth; deconstruction clears it and returns the item to the building's tile).
 
+Ownership ends with its owner: on `CreatureDied` of a fortress creature, every item with its `ownerId` loses the owner and the `owned` flag through `items.setOwner(id, 0)`, including worn clothing, claimed gear and chest contents. Worn items stay with the corpse, unowned.
+
 Commands set flags on items, on all items in a rectangle including their container contents, or on all items of a type in the stocks panel. Items dropped by dead dwarves and hostiles are not forbidden by default (unlike the inspiration). A dead worker's held tool and carried item, when they are not in its `Equipment`, drop at the recorded death tile, with no owner or reservation and with the forbidden flag clear; items *worn by a corpse* stay with the corpse until the corpse is buried, rots, or is butchered (every non-dwarf corpse with worn items can be looted by a `strip_corpse` hauling job that moves the equipment to the ground). Dumped items stay in the dump zone; a dump-marked item uses the first tile of the nearest dump zone by centroid, and has no home without a dump zone.
 
 ### Rot
@@ -175,7 +177,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Events consumed
 
-`CreatureDied` (corpse), `ZoneChanged` (stockpiles), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall), `BuildingCompleted`/`BuildingRemoved` (wealth), `ThiefEscaped` (wealth), `TemperatureTick` (rot speed sampling for the head bucket).
+`CreatureDied` (release the fortress creature's item ownership; create corpse), `ZoneChanged` (stockpiles), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall), `BuildingCompleted`/`BuildingRemoved` (wealth), `ThiefEscaped` (wealth), `TemperatureTick` (rot speed sampling for the head bucket).
 
 ### Events emitted
 
