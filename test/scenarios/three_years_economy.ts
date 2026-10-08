@@ -110,7 +110,7 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
   }
 }
 
-function trade(w: TestWorld, state: FortressState): void {
+export function trade(w: TestWorld, state: FortressState): void {
   const reader = w.readers.of<TradeReader>('20');
   const buildings = w.readers.of<BuildingsReader>('14');
   const depot = buildings.depots()[0];
@@ -174,7 +174,7 @@ function trade(w: TestWorld, state: FortressState): void {
     if (priority(id) === 6) continue;
     const it = ent.get(id, C.Item)!;
     const unitPrice = reader.price(caravan.civ, id) / it.count;
-    const count = Math.min(it.count, Math.floor((budget / (1 + reader.marginPercent(caravan.civ) / 100) - cost) / unitPrice));
+    const count = Math.min(it.count, Math.floor((Math.floor(budget) / (1 + reader.marginPercent(caravan.civ) / 100) - cost) / unitPrice));
     if (count > 0) { take.push({ itemId: id, count }); cost += unitPrice * count; }
   }
   if (!take.length || requiredValue(cost, reader.marginPercent(caravan.civ)) > budget) return;

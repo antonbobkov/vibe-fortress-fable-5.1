@@ -12,7 +12,7 @@ import type { GameEvent } from '@core/events';
 import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, WorldLike } from '@core/system';
 import type { Registry } from '@core/registry';
 import type { EntityId, Priority, TileIndex } from '@core/types';
-import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
+import { ADULT_AGE_YEARS, THREAT_RADIUS } from '@systems/dwarves/constants';
 import { choose, effectivePriority, estDistance, type Candidate } from './assign';
 import {
   ASSIGN_WORKERS_PER_TICK,
@@ -677,6 +677,12 @@ export class JobBoard implements JobsApi, JobSink {
 
   /** True when an open job is available that this worker could take (F-11). */
   hasWork(workerId: EntityId): boolean {
+    if (this.avoidedThreatTile(workerId) >= 0) {
+      return this.ids.some((id) => {
+        const job = this.jobs.get(id) as Job;
+        return job.state === 'open' && this.eligible(job, workerId);
+      });
+    }
     if (this.workAvailabilityTick !== this.now) this.rebuildWorkAvailability();
     const from = this.workerTile(workerId);
     if (from < 0) return false;
@@ -735,6 +741,12 @@ export class JobBoard implements JobsApi, JobSink {
   }
 
   private eligible(job: Job, workerId: EntityId): boolean {
+    const threat = this.avoidedThreatTile(workerId);
+    if (threat >= 0) {
+      const map = this.world.map;
+      const target = this.anchorTile(job);
+      if (map.zOf(target) === map.zOf(threat) && Math.max(Math.abs(map.xOf(target) - map.xOf(threat)), Math.abs(map.yOf(target) - map.yOf(threat))) <= THREAT_RADIUS) return false;
+    }
     const assigned = job.data['assignedWorker'];
     if (typeof assigned === 'number' && assigned !== 0 && assigned !== workerId) return false;
     const labor = this.jobLabor(job);
@@ -743,6 +755,10 @@ export class JobBoard implements JobsApi, JobSink {
     if (typeof minSkill === 'number' && this.skillFor(workerId, job) < minSkill) return false;
     if (this.toolHeldElsewhere(job, workerId, labor)) return false;
     return this.hasReachableStand(job, workerId);
+  }
+
+  private avoidedThreatTile(workerId: EntityId): TileIndex {
+    return this.readers.has('10') ? this.readers.of<{ avoidedThreatTile?(id: EntityId): TileIndex }>('10').avoidedThreatTile?.(workerId) ?? -1 : -1;
   }
 
   private freeToolCache = { tick: -1, found: new Map<string, boolean>() };

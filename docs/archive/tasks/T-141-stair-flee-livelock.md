@@ -1,6 +1,8 @@
 # T-141 — A hostile near the entrance stair traps civilians on it
 
-**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ A hostile near the entrance stair traps civilians on it) · **Size:** S · **Needs:** — · **Status:** open
+Closed by the T-141: remember threats after escaping an entrance stair commit.
+
+**Source:** T-123 and its report, [`../../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ A hostile near the entrance stair traps civilians on it) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

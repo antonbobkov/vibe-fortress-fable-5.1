@@ -41,6 +41,7 @@ export interface BrainHost {
   markIdle(id: EntityId): void;
   clearIdle(id: EntityId): void;
   threatOf(id: EntityId): EntityId;
+  threatTile?(id: EntityId): TileIndex;
   clearThreat(id: EntityId): void;
   setCombatTarget(id: EntityId, targetId: EntityId): void;
   watchShelter?(id: EntityId, shutOut: boolean): void;
@@ -107,6 +108,10 @@ export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId)
     }
     frontier = next.sort((a, b) => a - b);
   }
+  if (hall.size > 0) {
+    // A reachable hall remains the goal even when the bounded fallback cannot visit it.
+    return [...hall].sort((a, b) => a - b)[0] as TileIndex;
+  }
   return fallback;
 }
 
@@ -138,18 +143,22 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   if (b.targetTile < 0) b.targetTile = ctx.world.services.movement?.tileOf(id) ?? -1;
   const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
   const threatId = host.threatOf(id);
+  let avoidTile = -1;
   if (threatId !== 0 && civ) {
     const threatPos = ctx.world.entities.get(threatId, C.Position);
     const myPos = ctx.world.entities.get(id, C.Position);
+    const needs = ctx.world.entities.get(id, C.Needs);
+    const critical = needs !== undefined && ranked(needs, true).length > 0;
+    const remembered = host.threatTile?.(id) ?? (threatPos === undefined ? -1 : ctx.world.map.index(threatPos.x, threatPos.y, threatPos.z));
     if (
       !ctx.world.entities.alive(threatId) ||
       !threatPos ||
-      !myPos ||
-      myPos.z !== threatPos.z ||
-      Math.max(Math.abs(myPos.x - threatPos.x), Math.abs(myPos.y - threatPos.y)) > THREAT_RADIUS
+      !myPos || remembered < 0
     ) {
       host.clearThreat(id);
-    } else {
+    } else if (myPos.z === threatPos.z && Math.max(Math.abs(myPos.x - threatPos.x), Math.abs(myPos.y - threatPos.y)) <= THREAT_RADIUS &&
+        !(b.behavior === 'flee' && critical)) {
+      avoidTile = remembered;
       const fleeGoal = findFleeTile(ctx, id, threatId);
       if (fleeGoal >= 0) {
         if (b.activity === 'Fighting') host.setCombatTarget(id, 0);
@@ -159,8 +168,6 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
         b.activity = 'Fleeing';
         return;
       }
-      const needs = ctx.world.entities.get(id, C.Needs);
-      const critical = needs !== undefined && ranked(needs, true).length > 0;
       const expired = b.activity === 'Fighting' && fightExpired(ctx, id, threatId, b);
       if (!critical && !expired) {
         startFight(host, ctx, id, b, threatId);
@@ -168,11 +175,18 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
       }
       // Critical needs always leave a civilian fight, even when no resource is available.
       b.activity = NO_JOB;
-      if (expired) host.clearThreat(id);
+      if (expired) { host.clearThreat(id); avoidTile = -1; }
       host.setCombatTarget(id, 0);
       ctx.world.services.movement?.stopWalking(id);
+    } else {
+      avoidTile = remembered;
     }
   }
+  const safeTarget = avoidTile < 0 ? undefined : (tile: TileIndex): boolean => {
+    const map = ctx.world.map;
+    return tile >= 0 && (map.zOf(tile) !== map.zOf(avoidTile) ||
+      Math.max(Math.abs(map.xOf(tile) - map.xOf(avoidTile)), Math.abs(map.yOf(tile) - map.yOf(avoidTile))) > THREAT_RADIUS);
+  };
 
   const alert = ctx.readers.has('16')
     ? ctx.readers.of<{ alert(): string }>('16').alert()
@@ -231,7 +245,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     for (const critical of ranked(n, true))
       if (host.activities.start(ctx, id, critical, b, host.idleGoal(id), host.dwarfIds())) return;
     const sleepWindow = schedule !== undefined && hourOf(ctx.tick) === schedule.sleepStartHour && n.rest > 20;
-    if (sleepWindow && host.activities.start(ctx, id, 'rest', b, host.idleGoal(id), host.dwarfIds())) return;
+    if (sleepWindow && host.activities.start(ctx, id, 'rest', b, host.idleGoal(id), host.dwarfIds(), safeTarget)) return;
   }
 
   if (!civ) {
@@ -243,7 +257,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
 
   if (n !== undefined && !urgent) {
     for (const want of ranked(n, false))
-      if (host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds())) return;
+      if (host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds(), safeTarget)) return;
   }
   const age = ctx.world.entities.get(id, C.Creature)?.ageTicks ?? ADULT_AGE_YEARS * TICKS_PER_YEAR;
   const child = age < ADULT_AGE_YEARS * TICKS_PER_YEAR;
@@ -301,8 +315,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
     const critical = needs === undefined ? undefined : ranked(needs, true)[0];
     const keepCritical = currentNeed !== undefined && needs !== undefined &&
       CRITICAL[currentNeed] !== undefined && needs[currentNeed] >= (CRITICAL[currentNeed] as number);
-    if (interrupted && host.threatOf(id) !== 0 &&
-        (!keepCritical || findFleeTile(ctx, id, host.threatOf(id)) >= 0)) {
+    if (interrupted && host.threatOf(id) !== 0 && !keepCritical) {
       host.activities.cancel(ctx, id);
       reselect = true;
     } else if (interrupted && critical !== undefined && critical !== currentNeed) {
@@ -359,20 +372,14 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
     const threatPos = threatId !== 0 ? ctx.world.entities.get(threatId, C.Position) : undefined;
     const myPos = ctx.world.entities.get(id, C.Position);
     const threatGone = threatId === 0 || !ctx.world.entities.alive(threatId) || !threatPos || !myPos ||
-      myPos.z !== threatPos.z || Math.max(Math.abs(myPos.x - threatPos.x), Math.abs(myPos.y - threatPos.y)) > THREAT_RADIUS;
+      (host.threatTile !== undefined && host.threatTile(id) < 0);
     if (threatGone) {
       host.clearThreat(id);
       reselect = true;
     } else if (movement !== null) {
       const myTile = movement.tileOf(id);
       if (myTile === b.targetTile || b.targetTile < 0) {
-        const nextFleeTile = findFleeTile(ctx, id, threatId);
-        if (nextFleeTile >= 0) {
-          b.targetTile = nextFleeTile;
-          movement.walkTo(id, nextFleeTile, 'flee', ctx);
-        } else {
-          reselect = true;
-        }
+        reselect = true;
       } else {
         const outcome = movement.walkTo(id, b.targetTile, 'flee', ctx);
         if (outcome === 'unreachable') {

@@ -146,6 +146,8 @@ match(it, filter): type/category/tag/materialClass/materialId/minQuality/edible/
 
 `findItems(filter, n, from, cls)` repeats `findItem` with `excludeIds` accumulating, stopping at `n`.
 
+An optional `allowedTile(tile)` search option rejects a matching candidate at its resolved tile before it can win either the radius search or the stock fallback. It changes no search radius, distance, tie or stockpile preference, and avoids a separate scan of all stock instances for threat exclusions.
+
 ## Rot queue (13)
 
 Buckets keyed by tick rounded to `TICKS_PER_HOUR`; an item's expiry tick for its next stage is computed when it is created or moved (`speed` from its location and temperature at that moment); moving an item re-queues it. Each items tick pops buckets with `bucketTick ≤ tick` and advances stages; the head bucket's items are re-sampled for temperature every `SeasonChanged` (cheap approximation stated in 13).

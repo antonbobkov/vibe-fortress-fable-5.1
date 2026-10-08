@@ -41,6 +41,20 @@ const scenario: Scenario = {
   run: () => {
     const w = threeYearsWorld('three-years');
     const state = setupThreeYearsFortress(w);
+    // T-141: observe every tick without changing the fixture, its commands or world state.
+    const fleeSince = new Map<number, number>();
+    let longestFlee = 0;
+    const originalStep = w.game.world.step.bind(w.game.world);
+    w.game.world.step = () => {
+      originalStep();
+      const fleeing = new Set(w.game.world.entities.with(C.Brain).filter((id) => w.game.world.entities.get(id, C.Brain)?.behavior === 'flee'));
+      for (const id of fleeSince.keys()) if (!fleeing.has(id)) fleeSince.delete(id);
+      for (const id of fleeing) {
+        const since = fleeSince.get(id) ?? w.tick - 1;
+        fleeSince.set(id, since);
+        longestFlee = Math.max(longestFlee, w.tick - since);
+      }
+    };
 
     // Advance bootstrap period (20 days)
     const totalTicksBootstrap = 20 * TICKS_PER_DAY;
@@ -105,6 +119,8 @@ const scenario: Scenario = {
     }
 
     unsubscribe();
+    expect(longestFlee, 'T-141: no uninterrupted flee lasts more than a day').toBeLessThanOrEqual(TICKS_PER_DAY);
+    console.log(`T-141 longest continuous flee: ${longestFlee} ticks`);
     const economy = threeYearsMeasurements(w);
     console.log(`three_years economy: ${JSON.stringify({ years: economy.years, minerals: economy.minerals, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
 
