@@ -400,9 +400,9 @@ export class JobBoard implements JobsApi, JobSink {
     this.notify(job, { type: 'JobBlocked', jobId: job.id, jobType: this.typeId(job), reason, target: job.target.ref });
   }
 
-  /** `unclaim(job, reason)`: release reservations, free the worker, block. */
+  /** `unclaim(job, reason)`: release undelivered inputs, free the worker, block. */
   unclaim(job: Job, reason: string): void {
-    this.releaseReservations(job);
+    this.releaseReservations(job, true);
     this.freeWorker(job, true);
     this.block(job, reason);
   }
@@ -510,9 +510,10 @@ export class JobBoard implements JobsApi, JobSink {
 
   /**
    * F-17b (`11` § Job steps, `12` § Operation): a delivered input counts only while it exists,
-   * is unconsumed and is reserved to this job. After the reservations of an interrupted job lapse
-   * (or an unclaim released them) another job may take a delivered item, or a hauler may carry it
-   * off. Whatever this job no longer holds leaves `delivered` and is fetched again: an item that
+   * is unconsumed and is reserved to this job. Delivered build and workshop inputs retain that
+   * reservation through interruptions and blocks, but an external release, destruction or changed
+   * holder still invalidates them. Whatever this job no longer holds leaves `delivered` and is
+   * fetched again: an item that
    * is still free is reserved again first (it is usually still lying at the workshop), one that is
    * gone or another job's is replaced by `reserveInputs`. True when nothing was dropped.
    */
@@ -581,10 +582,19 @@ export class JobBoard implements JobsApi, JobSink {
     job.state = 'fetching';
   }
 
-  releaseReservations(job: Job): void {
+  releaseReservations(job: Job, keepDelivered = false): void {
+    const siteInputs = this.typeId(job) === 'build' || job.producer === 'workshops';
+    const retain = keepDelivered && siteInputs;
+    if (retain) this.revalidateDelivered(job);
     for (const input of job.inputs) {
-      for (const it of input.reserved) this.releaseItem(it, job.id);
-      input.reserved = [];
+      const retained: EntityId[] = [];
+      for (const it of input.reserved) {
+        const holder = siteInputs ? this.items.reservedFor?.(it) : undefined;
+        if (holder !== undefined && holder !== job.id) continue;
+        if (retain && input.delivered.includes(it)) retained.push(it);
+        else this.releaseItem(it, job.id);
+      }
+      input.reserved = retained;
     }
     const tool = job.data['toolToFetch'];
     if (typeof tool === 'number' && tool !== 0) this.releaseItem(tool, job.id);
@@ -601,13 +611,13 @@ export class JobBoard implements JobsApi, JobSink {
     if (this.world.entities.alive(itemId)) this.emit({ type: 'ItemReleased', itemId, jobId });
   }
 
-  /** Reservations kept for an interrupted job lapse after `RESERVE_KEEP_TICKS`. */
+  /** Undelivered reservations lapse; delivered build/workshop inputs stay with the job. */
   private lapseReservations(): void {
     for (const id of this.ids) {
       const job = this.jobs.get(id) as Job;
       const until = job.data['reserveUntil'];
       if (job.state !== 'open' || typeof until !== 'number' || until > this.now) continue;
-      this.releaseReservations(job);
+      this.releaseReservations(job, true);
     }
   }
 
@@ -642,7 +652,8 @@ export class JobBoard implements JobsApi, JobSink {
 
   /**
    * `interrupt(w, keepProgress)`: the job returns to `open`, progress kept; reservations stay for
-   * `RESERVE_KEEP_TICKS`; a carried item is dropped where the worker stands.
+   * `RESERVE_KEEP_TICKS` for undelivered inputs; delivered build/workshop inputs stay held until
+   * completion or cancellation. A carried item is dropped where the worker stands.
    */
   interrupt(workerId: EntityId, keepProgress: boolean): void {
     const worker = this.world.entities.get(workerId, C.Worker);

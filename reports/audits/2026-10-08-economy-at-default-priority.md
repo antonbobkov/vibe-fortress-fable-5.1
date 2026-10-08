@@ -256,7 +256,7 @@ The escape across levels came with T-122 (`3cebc7a`). The earlier report's run, 
 |---|---|---|
 | S | [T-141](../../docs/archive/tasks/T-141-stair-flee-livelock.md) | A civilian who fled from a hostile does not walk back into its radius while it is still there. Fix first: it kills dwarves. |
 | S | [T-142](../../docs/archive/tasks/T-142-stale-trade-job.md) | The trade job ends with the caravan's stay and follows the broker title. |
-| M | [T-143](../../docs/work/T-143-interrupted-build-keeps-materials.md) | Materials delivered to a building site or a workshop stay with the job until it is finished or cancelled. Cause 6 is left as it is: with the materials kept, an interruption costs a walk. |
+| M | [T-143](../../docs/archive/tasks/T-143-interrupted-build-keeps-materials.md) | Materials delivered to a building site or a workshop stay with the job until it is finished or cancelled. Cause 6 is left as it is: with the materials kept, an interruption costs a walk. |
 | M | [T-140](../../docs/work/T-140-walking-speed-and-need-errands.md) | Raise walking speed against the need cycle, measured at 150 first. This is the balance change everything else waits on. |
 | M | [T-144](../../docs/work/T-144-wants-without-errands.md) | Talking, sitting and the hearth visit stop being separate errands taken before work. Do after T-140 and re-measure; it may no longer be needed in full. |
 | M | [T-145](../../docs/work/T-145-economy-fixture-default-priority.md) | Merge the rewritten fixture once T-140 to T-143 are in, with its own faults fixed (causes 7 to 11 and the anvil purchase). |

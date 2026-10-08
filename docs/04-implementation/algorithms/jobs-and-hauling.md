@@ -52,7 +52,7 @@ claim(w, job):
      if not tool: unclaim(job, 'no_tool'); return
      reserve tool; job.data.toolToFetch = tool
   emit JobClaimed
-unclaim(job, reason): release reservations; job.state = blocked; job.blockedReason = reason; job.retryTick = tick + BLOCKED_RETRY_TICKS; job.workerId = 0; emit JobBlocked
+unclaim(job, reason): release undelivered reservations (retain delivered build/workshop inputs); job.state = blocked; job.blockedReason = reason; job.retryTick = tick + BLOCKED_RETRY_TICKS; job.workerId = 0; emit JobBlocked
 ```
 
 Blocked jobs also record a `retryTrigger` from the reason (see 11's table) and are retried early when the corresponding event arrives (a per-reason dirty flag set by the event handler).
@@ -90,9 +90,11 @@ stepWorker(w, ctx):
       job.state = 'done'; Worker[w].jobId = 0; emit JobCompleted; remove job
 walkTo(w, t, urgency): if Motion[w].pathId targets t: r = movement.moveAlongPath(w); if r == 'blocked': re-request; return r
                        else: req = pathing.requestPath(w, position(w), t, 'walker', urgency); when ready: Motion[w].pathId = path; when failed: return 'unreachable'
-interrupt(w, keepProgress): job = current; if job.state == 'working' and keepProgress: job.state = 'open' (progress kept, reservations kept for RESERVE_KEEP_TICKS) else job.state='open'
+interrupt(w, keepProgress): job = current; if job.state == 'working' and keepProgress: job.state = 'open' (progress kept, undelivered reservations kept for RESERVE_KEEP_TICKS; delivered build/workshop inputs stay reserved until completion or cancellation) else job.state='open'
                             if Worker[w].carrying: items.dropAt(carrying, position(w)); Worker[w].jobId = 0; emit JobCancelled? (no: JobReleased is a JobBlocked with reason 'interrupted' not emitted; the job simply returns to open)
 ```
+
+When interrupted reservations expire, retain delivered build and workshop inputs and release only undelivered inputs and unequipped tools. Revalidate delivered ids before retention, resume and consumption: a missing, consumed, externally released or foreign-held input no longer counts as delivered. A free surviving item is reserved again and fetched; a missing or foreign-held item needs a replacement. A foreign reservation is never released or consumed by the old job. Cancelling or finishing releases all reservations still held by the job.
 
 Each selected input stack is carried in one trip. Unit searches select largest stacks first, ties by ordinary item search order; delivery uses that search order. The job anchor is `data.anchorTile`, else a numeric work tile, else the target.
 

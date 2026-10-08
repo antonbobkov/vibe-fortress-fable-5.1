@@ -1,6 +1,8 @@
 # T-143 — An interrupted build loses the materials already delivered
 
-**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ Beds, causes 5 and 6) · **Size:** M · **Needs:** — · **Status:** open
+Closed by the T-143: retain delivered build and workshop inputs through interruptions commit.
+
+**Source:** T-123 and its report, [`../../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ Beds, causes 5 and 6) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

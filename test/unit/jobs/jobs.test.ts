@@ -666,3 +666,83 @@ describe('T-M8-06 jobs: a candidate removed during assignment', () => {
     expect(claimed.every((j) => j !== undefined)).toBe(true);
   });
 });
+
+describe('T-143 delivered build inputs stay with their site', () => {
+  function partialBuild() {
+    const r = rig();
+    const first = r.worker(10, 10);
+    const site = r.g.map.index(20, 10, 32);
+    const list: StubItem[] = [
+      { id: 9001, type: 3, tile: r.g.map.index(12, 10, 32), reservedBy: 0, carrier: 0 },
+      { id: 9002, type: 3, tile: r.g.map.index(25, 10, 32), reservedBy: 0, carrier: 0 },
+    ];
+    const source = stub(list);
+    source.reservedFor = (id) => list.find((it) => it.id === id)?.reservedBy ?? -1;
+    const pickedUp: number[] = [];
+    const pickUp = source.pickUp;
+    source.pickUp = (id, worker) => { pickedUp.push(id); pickUp(id, worker); };
+    r.jobs.board.items = source;
+    const producer = new TestProducer('buildings');
+    producer.centi = 100000;
+    r.g.world.registrations.jobProducer(producer);
+    producer.pending.push(['build:t143', {
+      type: 'build', target: { kind: 'tile', ref: site }, workTile: 'at',
+      inputs: [{ filter: { type: 3 }, count: 2 }], data: { labor: 'construction' },
+    }]);
+    r.g.step(1);
+    const job = r.jobs.board.byKey('build:t143') as Job;
+    for (let k = 0; k < 600 && !job.inputs[0]!.delivered.includes(9001); k += 1) r.g.step(1);
+    expect(job.workerId).toBe(first);
+    expect(job.inputs[0]!.delivered).toEqual([9001]);
+    r.jobs.board.interrupt(first, true);
+    r.driver.enabled = false;
+    r.g.movement.teleport(first, r.g.map.index(35, 35, 32));
+    return { r, first, site, list, job, producer, pickedUp };
+  }
+
+  it('resumes 2,000 ticks after the first delivery with another worker and fetches only the other input', () => {
+    const { r, site, list, job, producer, pickedUp } = partialBuild();
+    r.g.step(2000);
+    expect(list[0]!.reservedBy).toBe(job.id);
+    expect(list[1]!.reservedBy).toBe(0);
+    expect(job.inputs[0]!.delivered).toEqual([9001]);
+    const beforeResume = pickedUp.length;
+    r.driver.workers.length = 0;
+    const next = r.worker(r.g.map.xOf(site), r.g.map.yOf(site));
+    r.driver.enabled = true;
+    for (let k = 0; k < 2000 && !producer.completed.includes(job.id); k += 1) r.g.step(1);
+    expect(producer.completed).toEqual([job.id]);
+    expect(r.events.find((e) => e.type === 'JobCompleted' && e['jobId'] === job.id)?.['workerId']).toBe(next);
+    expect(pickedUp.slice(beforeResume)).toEqual([9002]);
+    expect(pickedUp.filter((id) => id === 9001)).toHaveLength(1);
+  });
+
+  it('keeps a delivered input when the unfinished build blocks, then releases it on cancellation', () => {
+    const { r, list, job } = partialBuild();
+    r.jobs.board.unclaim(job, 'unreachable');
+    expect(list[0]!.reservedBy).toBe(job.id);
+    expect(list[1]!.reservedBy).toBe(0);
+    expect(job.state).toBe('blocked');
+    r.jobs.board.cancel(job.id, 'player');
+    expect(list.map((it) => it.reservedBy)).toEqual([0, 0]);
+    expect(r.reader.get(job.id)).toBeUndefined();
+  });
+
+  it('does not release a delivered item now held by another job when old reservations lapse', () => {
+    const { r, list, job } = partialBuild();
+    list[0]!.reservedBy = 99999;
+    r.g.step(2000);
+    expect(list[0]!.reservedBy).toBe(99999);
+    expect(job.inputs[0]!.delivered).toEqual([]);
+    expect(job.inputs[0]!.reserved).not.toContain(9001);
+  });
+
+  it('cancels the build without releasing a foreign reservation on its stale delivered id', () => {
+    const { r, list, job } = partialBuild();
+    list[0]!.reservedBy = 99999;
+    r.jobs.board.cancel(job.id, 'player');
+    expect(list[0]!.reservedBy).toBe(99999);
+    expect(list[1]!.reservedBy).toBe(0);
+    expect(r.reader.get(job.id)).toBeUndefined();
+  });
+});
