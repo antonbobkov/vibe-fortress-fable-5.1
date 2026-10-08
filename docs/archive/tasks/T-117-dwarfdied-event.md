@@ -1,6 +1,8 @@
 # T-117 — `DwarfDied`: the specification says 10 emits it, the code never does
 
-**Source:** T-102 (found while replacing the interface note of [`../02-systems/10-dwarves.md`](../02-systems/10-dwarves.md)) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-117: use CreatureDied throughout dwarf death consumers`.
+
+**Source:** T-102 (found while replacing the interface note of [`../02-systems/10-dwarves.md`](../../02-systems/10-dwarves.md)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -26,4 +28,4 @@ The code's behaviour is the rule: a dwarf's death is 17's `CreatureDied`, and th
 ## Done
 
 - `grep -rn DwarfDied docs/0[0-4]* src` finds nothing.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green. If step 1 changed behaviour, the commit says which golden files moved and why.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green. If step 1 changed behaviour, the commit says which golden files moved and why.

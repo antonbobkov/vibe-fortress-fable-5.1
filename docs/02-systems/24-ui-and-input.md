@@ -100,6 +100,8 @@ The look panel shows the tile under the cursor or the clicked tile with tabs for
 - Job and workshop block messages name the missing input and count and, when one workshop makes it, where to order it. UI actions that cannot act show a status message through the shared message helpers.
 - A refused command (`CommandRejected`) shows its reason in the status bar for `STATUS_HINT_SECONDS` and is appended to the log as an alert with the command's focus. The reason names the thing and why ("Door needs walls on two opposite sides", "that zone no longer exists"); no content id, entity id, reason code or action id is shown.
 
+A fortress dwarf’s `CreatureDied` announcement keeps danger severity, the recorded name and the recorded focus tile after simulation cleanup has removed the entity. Species and faction in the event identify that dwarf; other creature deaths retain their ordinary announcement severity.
+
 ### Hints
 
 The hint table (content) lists `{ id, trigger: predicate over readers, text, once: true }`. Hints are evaluated once per game hour; a triggered hint is shown as a note prefixed with `☼` and marked shown (saved). A setting disables hints. The design fixes these hints: designate to dig; build a still; place a stockpile; winter is coming; the hearth; stockpiles need containers; smelters need fuel; hunters need crossbows; farms need soil; harvest returns one seed; a room needs enclosure; lock doors on alert; build a depot before summer; hospitals need supplies; immigrants come when spirit is Content; the drawbridge gate; cage traps; trollkin break doors; the Deep (shown on the first deepsilver vein found).

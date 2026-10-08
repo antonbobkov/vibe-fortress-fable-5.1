@@ -108,7 +108,6 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     'HourPassed',
     'WealthChanged',
     'ImmigrantsArrived',
-    'DwarfDied',
     'WeatherChanged',
     'CreatureDied',
     'CreatureUnconscious',
@@ -407,7 +406,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     } else if (event.type === 'EntitiesMoved') {
       const moves = event['moves'] as [EntityId, TileIndex, TileIndex][];
       handleWebEntangle(ctx, moves);
-    } else if (event.type === 'WealthChanged' || event.type === 'ImmigrantsArrived' || event.type === 'DwarfDied') {
+    } else if (event.type === 'WealthChanged' || event.type === 'ImmigrantsArrived') {
       this.updateRenown(ctx);
     } else if (event.type === 'CreatureDied' || event.type === 'CreatureUnconscious') {
       const cId = event['id'] as EntityId;

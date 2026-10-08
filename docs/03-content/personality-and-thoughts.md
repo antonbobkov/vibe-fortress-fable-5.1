@@ -127,12 +127,14 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 
 ### Loss and fear
 
+The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Friendship comes from 10; the child row uses the recorded age when the dead entity is gone.
+
 | id | text | value | hours | decay | cap | group | trigger |
 |---|---|---|---|---|---|---|---|
-| `dwarf_died` | "One of us died." | −5 | 168 | halflife | 3 | loss | `DwarfDied` (everyone) |
-| `friend_died` | "My friend is dead." | −15 | 336 | halflife | 2 | loss | `DwarfDied` friend (10 source) |
+| `dwarf_died` | "One of us died." | −5 | 168 | halflife | 3 | loss | `CreatureDied` (everyone) |
+| `friend_died` | "My friend is dead." | −15 | 336 | halflife | 2 | loss | `CreatureDied` friend (10 source) |
 | `pet_died` | "My pet died." | −10 | 168 | halflife | 1 | loss | `CreatureDied` pet owner |
-| `child_died` | "A child died." | −10 | 336 | halflife | 1 | loss | `DwarfDied` child (everyone) |
+| `child_died` | "A child died." | −10 | 336 | halflife | 1 | loss | `CreatureDied` child (everyone) |
 | `saw_death` | "Watched someone die." | −4 | 72 | halflife | 2 | fear | `CreatureDied` within 8 tiles and line of sight, fortress creature |
 | `masterwork_lost` | "My masterwork is gone." | −8 | 168 | halflife | 1 | craft | `ItemDestroyed` masterwork, crafter |
 | `was_wounded` | "I was hurt." | −4 | 72 | halflife | 1 | fear | `WoundInflicted` serious or worse |

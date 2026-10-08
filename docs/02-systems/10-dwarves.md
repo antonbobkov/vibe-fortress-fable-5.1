@@ -122,7 +122,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ### Death
 
-17 emits `CreatureDied`; this system removes the dwarf from titles and squads (16 handles squads on the same event), updates population, and emits `DwarfDied { id, cause }`. The corpse item is created by 13; burial is 14 and 17.
+17 emits `CreatureDied`; this system removes the dwarf from titles and squads (16 handles squads on the same event), updates population. All death consumers use this single event and its recorded species, faction, name, age and tile after the entity is removed. The corpse item is created by 13; burial is 14 and 17.
 
 ## State
 
@@ -154,7 +154,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ### Events emitted
 
-`MealEaten`, `DrankAlcohol`, `DrankWater`, `Slept`, `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`, `Starvation { id }` (hunger or thirst has reached the point of death; 17 applies it). (`DwarfDied` is an older name for a dwarf's death and nothing emits it: the death reaches 10, 18 and every other subscriber as 17's `CreatureDied`.)
+`MealEaten`, `DrankAlcohol`, `DrankWater`, `Slept`, `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`, `Starvation { id }` (hunger or thirst has reached the point of death; 17 applies it).
 
 ### Registrations
 

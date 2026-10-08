@@ -202,6 +202,9 @@ export class AnnouncementLog {
     }
     const fields = event as unknown as Record<string, unknown>;
     const creatureId = fields['id'];
+    const dwarfDeath = event.type === 'CreatureDied' && typeof creatureId === 'number' &&
+      (readers.entities.has(creatureId, C.Brain) ||
+        (fields['species'] === this.registry.table('creatures').index('dwarf') && fields['faction'] === 'fortress'));
     if (event.type === 'CreatureUnconscious' && (typeof creatureId !== 'number' || !readers.entities.has(creatureId, C.Brain))) return null;
     if (spec.oneOf !== undefined && !spec.oneOf.values.includes(fields[spec.oneOf.field] as string | number)) return null;
     if (spec.once === true) {
@@ -211,14 +214,14 @@ export class AnnouncementLog {
     let key = spec.keyField === undefined ? spec.stringKey : `${spec.stringKey}.${String(fields[spec.keyField])}`;
     // §4.5: "drop the clause when 0" children came.
     if (event.type === 'ImmigrantsArrived' && fields['children'] === 0) key = 'announce.immigrants_arrived_adults';
-    if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !readers.entities.has(creatureId, C.Brain)) {
+    if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !dwarfDeath) {
       key = readers.entities.get(creatureId, C.Tame)?.petOf ? 'announce.pet_died' : 'announce.creature_died';
     }
     const text = this.strings.get(key, this.params(event, readers));
     const focus = focusOf(event, readers) ?? (event.type === 'StockpileFull' ? zoneFocus(readers, fields['id']) : undefined);
     const category = spec.category;
     let severity = spec.severity;
-    if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !readers.entities.has(creatureId, C.Brain)) {
+    if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !dwarfDeath) {
       severity = readers.entities.get(creatureId, C.Tame)?.petOf ? 'alert' : 'note';
     }
     if (event.type === 'RaidEnded' && fields['outcome'] === 'looted') severity = 'alert';
