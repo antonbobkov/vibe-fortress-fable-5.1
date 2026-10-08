@@ -1,0 +1,65 @@
+/* T-115 scratch: where a hostile's gear is while it walks, and what is left of it when the hostile leaves the map. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { ItemsReader } from '@systems/items';
+import { stepThreeYears } from '../test/scenarios/three_years_measurements';
+import { setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../test/scenarios/three_years_fortress';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const DAYS = Number(process.env['T115_DAYS'] ?? '30');
+
+describe('T-115 probe: hostile gear', () => {
+  it('three-years-p4-1, peril 4', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const w = threeYearsWorld('three-years-p4-1', 4);
+    const state = setupThreeYearsFortress(w);
+    const ent = w.game.world.entities;
+    const items = w.readers.of<ItemsReader>('13');
+    const tracked = new Map<number, { gear: number[]; spawnTick: number; logged: number; gone: boolean }>();
+    const item = (id: number): string => { const it = ent.get(id, C.Item); const p = ent.get(id, C.Position);
+      return it ? `${w.game.registry.table<{ id: string }>('items').byIndex(it.type)?.id} ${id} flags=${it.flags} ownerId=${it.ownerId} carriedBy=${it.carriedBy} pos=${p ? `${p.x},${p.y},${p.z}` : 'none'}` : `item ${id} GONE`; };
+    w.game.world.onEvents((events) => {
+      for (const e of events) {
+        if (e.type === 'HostileSpawned') {
+          const id = Number(e['id']);
+          const eq = ent.get(id, C.Equipment);
+          const gear = eq ? [eq.weapon, eq.shield, eq.quiver, ...Object.values(eq.armor), ...Object.values(eq.clothing)].filter((x) => x !== 0) : [];
+          const all = ent.with(C.Item).filter((i) => ent.get(i, C.Item)?.carriedBy === id);
+          tracked.set(id, { gear: Array.from(new Set([...gear, ...all])), spawnTick: w.tick, logged: 0, gone: false });
+          const p = ent.get(id, C.Position);
+          if (tracked.size <= 6) log.push(`t${w.tick} HostileSpawned ${id} at ${p ? `${p.x},${p.y},${p.z}` : 'none'} party ${String(e['partyId'])}; gear: ${Array.from(new Set([...gear, ...all])).map(item).join(' | ')}`);
+        }
+        if (['ThiefEscaped', 'RaidEnded', 'RaidArrived', 'HostileFled'].includes(e.type) && log.length < 200) log.push(`t${w.tick} ${e.type} ${JSON.stringify(e)}`);
+        if (e.type === 'CreatureDied' && tracked.has(Number(e['id']))) log.push(`t${w.tick} CreatureDied hostile ${String(e['id'])} cause ${String(e['cause'])}`);
+      }
+    });
+    const total = DAYS * TICKS_PER_DAY;
+    while (w.tick < total) {
+      stepThreeYears(w, Math.min(w.tick < 20 * TICKS_PER_DAY ? 100 : 50, total - w.tick));
+      if (w.tick % (w.tick < 20 * TICKS_PER_DAY ? 100 : 300) === 0) { checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state); }
+      for (const [id, t] of tracked) {
+        if (t.gone) continue;
+        const alive = ent.alive(id);
+        const p = ent.get(id, C.Position);
+        if (alive && t.logged < 2 && w.tick - t.spawnTick >= 100 * (t.logged + 1) && t.gear.length > 0) {
+          t.logged += 1;
+          const g = t.gear[0]!; const gp = ent.get(g, C.Position);
+          const tile = gp ? w.map.index(gp.x, gp.y, gp.z) : -1;
+          log.push(`t${w.tick} hostile ${id} now at ${p ? `${p.x},${p.y},${p.z}` : 'none'}; its gear: ${t.gear.map(item).join(' | ')}; items the reader lists on the gear tile: ${tile >= 0 ? JSON.stringify(items.at(tile)) : '-'}; spatial index there: ${tile >= 0 ? JSON.stringify(w.game.spatial.at(tile)) : '-'}`);
+        }
+        if (!alive) {
+          t.gone = true;
+          log.push(`t${w.tick} hostile ${id} is no longer alive; its gear: ${t.gear.map(item).join(' | ') || '(none)'}`);
+        }
+      }
+    }
+    const leftovers = ent.with(C.Item).filter((i) => { const it = ent.get(i, C.Item)!; return it.carriedBy !== 0 && !ent.alive(it.carriedBy); });
+    log.push(`--- day ${DAYS}: ${tracked.size} hostiles spawned; items still carried by an entity that no longer exists: ${leftovers.length}`);
+    for (const i of leftovers.slice(0, 12)) { const p = ent.get(i, C.Position); log.push(`    ${item(i)}; reader lists on its tile: ${p ? JSON.stringify(items.at(w.map.index(p.x, p.y, p.z))) : '-'}; value ${items.value(i)}`); }
+    writeFileSync(`${OUT}/gear.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 1_800_000);
+});

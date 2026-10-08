@@ -1,0 +1,106 @@
+/* T-115 scratch: what happens to the things a dwarf holds when it dies; what squad equipping does to the stock counts. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { buildFlatTestMap } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs/reader';
+import { TestWorld } from '../test/scenarios/test-world';
+import { Probe } from './invariants';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const Z = 32;
+
+function kill(w: TestWorld, id: number): void {
+  const hp = w.game.world.entities.get(id, C.Body)!.parts[1]!.maxHp;
+  w.game.world.emit({ type: 'DamageDealt', defenderId: id, attackerId: 0, part: 'torso', damageType: 'blunt', amount: hp * 2 });
+  w.until(() => w.events('CreatureDied').some((e) => e['id'] === id), 5);
+  w.step(1);
+}
+
+describe('T-115 probe: death and equipment', () => {
+  it('tools, weapons, rooms and pets of a dead dwarf', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const w = new TestWorld({ seed: 't115-death', map: buildFlatTestMap(contentRegistry(), 48, 48) });
+    const ent = w.game.world.entities;
+    const items = w.readers.of<ItemsReader>('13');
+    const jobs = w.readers.of<JobsReader>('11');
+    const item = (id: number): string => { const it = ent.get(id, C.Item); const p = ent.get(id, C.Position);
+      return it ? `item ${id} count=${it.count} flags=${it.flags} ownerId=${it.ownerId} carriedBy=${it.carriedBy} containerId=${it.containerId} reservedBy=${it.reservedBy} pos=${p ? `${p.x},${p.y},${p.z}` : 'none'} tileOf=${items.tileOf(id)}` : `item ${id} GONE`; };
+    const stock = (t: string): string => `${t}: total ${items.count(t)} available ${items.available(t)}`;
+    const probeNow = (label: string): void => { const p = new Probe(label); p.check(w.game); log.push(p.report()); };
+
+    const miner = w.spawnDwarf({ at: w.index(10, 10, Z), ageYears: 30, skills: { mining: 5 } });
+    const soldier = w.spawnDwarf({ at: w.index(12, 10, Z), ageYears: 30 });
+    const other = w.spawnDwarf({ at: w.index(14, 10, Z), ageYears: 30 });
+    for (const d of ent.with(C.Labors)) for (const l of w.game.registry.table('labors').ids()) w.game.world.applyCommand({ type: 'SetLabor', dwarfId: d, labor: l, on: d === miner ? l === 'mining' : l === 'hauling' });
+    const pick = w.spawnItem('pick', 'iron', w.index(11, 12, Z));
+    const axe = w.spawnItem('short_sword', 'iron', w.index(13, 12, Z));
+    const barrel = w.spawnItem('barrel', 'pine', w.index(15, 12, Z));
+    const axeInBarrel = w.spawnItem('short_sword', 'iron', { containerId: barrel });
+    w.spawnItem('easy_meal', 'dimcap', w.index(20, 20, Z), 40);
+    w.spawnItem('drink', 'ale', w.index(21, 20, Z), 40);
+    w.step(2);
+    log.push(`setup: miner ${miner} soldier ${soldier} other ${other}; pick ${pick}, axe ${axe}, barrel ${barrel} holding axe ${axeInBarrel}`);
+    log.push(`before: ${stock('pick')}; ${stock('short_sword')}`, item(pick), item(axe), item(axeInBarrel));
+
+    // --- squad equip
+    w.game.world.applyCommand({ type: 'CreateSquad', name: 'Probe' });
+    const squad = ent.with(C.Squad)[0]!;
+    log.push(`SetSquadMembers: ${JSON.stringify(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: squad, members: [soldier, other] }))}`);
+    log.push(`SetSquadMode active: ${JSON.stringify(w.game.world.applyCommand({ type: 'SetSquadMode', squadId: squad, mode: 'active' }))}`);
+    let waited = 0;
+    while (waited < 3 * TICKS_PER_DAY && ((ent.get(soldier, C.Equipment)?.weapon ?? 0) === 0 || (ent.get(other, C.Equipment)?.weapon ?? 0) === 0)) { w.step(1); waited += 1; }
+    const sp = ent.get(soldier, C.Position)!; const op = ent.get(other, C.Position)!;
+    log.push(`after ${waited} ticks: soldier weapon=${ent.get(soldier, C.Equipment)?.weapon} at ${sp.x},${sp.y}; other weapon=${ent.get(other, C.Equipment)?.weapon} at ${op.x},${op.y}`);
+    log.push(`after equip: ${stock('short_sword')}`, item(axe), item(axeInBarrel), `barrel contents: ${JSON.stringify(ent.get(barrel, C.Container)?.contents)}`);
+    log.push(`spatial index at the axe's old tile (13,12): ${JSON.stringify(w.game.spatial.at(w.index(13, 12, Z)))}; items reader at(13,12): ${JSON.stringify(items.at(w.index(13, 12, Z)))}`);
+    probeNow('after squad equip, nobody dead');
+
+    // --- miner takes the pick
+    w.game.world.applyCommand({ type: 'Designate', kind: 'dig', tiles: [w.index(10, 14, Z - 1), w.index(11, 14, Z - 1)], priority: 5 });
+    w.game.world.applyCommand({ type: 'Designate', kind: 'channel', tiles: [w.index(10, 16, Z), w.index(11, 16, Z), w.index(12, 16, Z), w.index(13, 16, Z), w.index(14, 16, Z), w.index(15, 16, Z)], priority: 5 });
+    waited = 0;
+    while (waited < 2 * TICKS_PER_DAY && (ent.get(miner, C.Worker)?.toolId ?? 0) === 0) { w.step(1); waited += 1; }
+    log.push(`miner toolId=${ent.get(miner, C.Worker)?.toolId} after ${waited} ticks; equipment.weapon=${ent.get(miner, C.Equipment)?.weapon}`, item(pick), stock('pick'));
+
+    // --- deaths
+    const minerJob = jobs.forWorker(miner);
+    log.push(`miner job before death: ${minerJob ? `${minerJob.id} ${jobs.typeOf(minerJob.id)} ${minerJob.state}` : 'none'}`);
+    kill(w, miner);
+    kill(w, soldier);
+    w.step(5);
+    log.push('--- 5 ticks after the miner and the soldier died');
+    const soldierWeapon = [axe, axeInBarrel].find((id) => ent.get(id, C.Item)?.ownerId === soldier) ?? axe;
+    log.push(item(pick), item(soldierWeapon), stock('pick'), stock('short_sword'));
+    for (const id of ent.with(C.Corpse)) log.push(`corpse ${id}: ${JSON.stringify(ent.get(id, C.Corpse))} ${item(id)}`);
+    log.push(`squad members now: ${JSON.stringify(ent.get(squad, C.Squad)?.members)}`);
+    probeNow('5 ticks after deaths');
+
+    // a new miner arrives: can it mine?
+    const miner2 = w.spawnDwarf({ at: w.index(10, 11, Z), ageYears: 30, skills: { mining: 5 } });
+    for (const l of w.game.registry.table('labors').ids()) w.game.world.applyCommand({ type: 'SetLabor', dwarfId: miner2, labor: l, on: l === 'mining' });
+    const soldier2 = w.spawnDwarf({ at: w.index(12, 11, Z), ageYears: 30 });
+    w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: squad, members: [other, soldier2] });
+    w.step(2 * TICKS_PER_DAY);
+    log.push('--- two days later, with a new miner and a new squad member');
+    log.push(`new miner toolId=${ent.get(miner2, C.Worker)?.toolId}; dig jobs: ${jobs.list().filter((j) => ['dig', 'channel'].includes(jobs.typeOf(j.id) ?? '')).map((j) => `${j.id}:${jobs.typeOf(j.id)}:${j.state}:${j.blockedReason}`).join(' ')}`);
+    log.push(`new squad member weapon=${ent.get(soldier2, C.Equipment)?.weapon}`);
+    log.push(item(pick), item(soldierWeapon), stock('pick'), stock('short_sword'));
+
+    // let the corpses rot away
+    w.step(24 * TICKS_PER_DAY);
+    log.push(`--- day ${Math.floor(w.tick / TICKS_PER_DAY)}: after the corpses have had time to rot`);
+    for (const id of ent.with(C.Corpse)) log.push(`corpse ${id}: ${JSON.stringify(ent.get(id, C.Corpse))} ${item(id)}`);
+    log.push(item(pick), item(soldierWeapon), stock('pick'), stock('short_sword'));
+    log.push(`new miner toolId=${ent.get(miner2, C.Worker)?.toolId}; new squad member weapon=${ent.get(soldier2, C.Equipment)?.weapon}`);
+    log.push(`dig jobs: ${jobs.list().filter((j) => ['dig', 'channel'].includes(jobs.typeOf(j.id) ?? '')).map((j) => `${j.id}:${jobs.typeOf(j.id)}:${j.state}:${j.blockedReason}`).join(' ')}`);
+    log.push(`alive: ${ent.with(C.Labors).length} dwarves; deaths: ${w.events('CreatureDied').map((e) => `${String(e['id'])}:${String(e['cause'])}`).join(' ')}`);
+    probeNow('end');
+    writeFileSync(`${OUT}/death.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 600_000);
+});

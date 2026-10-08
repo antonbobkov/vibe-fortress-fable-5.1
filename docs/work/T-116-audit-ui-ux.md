@@ -27,6 +27,7 @@ Audit only. Change no source, test or spec file. Play the real game in a browser
 4. **Every failure path again.** Trigger each rejection and block the game can produce and read the message as a player would: does it name the thing, the reason and the remedy?
 5. **Legibility.** Glyphs, both palettes, the smallest and largest supported window, long names, and a full log.
 6. **What is still missing.** Commands with no UI, information a player needs but cannot see, and anything a Dwarf Fortress player would expect and not find.
+7. **The UI under abuse**, moved here from T-115 (way 6), which could not use a browser on the night it ran: rapid input, a resize in the middle of a drag, every panel opened at every screen size the spec allows, text fields with long and unusual input, and the modal screens opened from each other. With it, the second half of T-115's way 3: the same seed and the same commands issued in the same ticks through the UI and headless give the same world hashes.
 
 ## Deliverable
 

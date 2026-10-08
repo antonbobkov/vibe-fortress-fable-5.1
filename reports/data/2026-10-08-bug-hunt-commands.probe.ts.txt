@@ -1,0 +1,97 @@
+/* T-115 scratch: minimal reproductions of the command findings of the fuzz run. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { roundTrip } from '@app/game-save';
+import type { Command } from '@core/commands';
+import { TestWorld } from '../test/scenarios/test-world';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const Z = 32;
+
+describe('T-115 probe: command reproductions', () => {
+  it('each finding on a fresh flat-test world', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const fresh = (): TestWorld => {
+      const w = new TestWorld({ seed: 't115-commands', world: 'flat-test', embark: 'default' });
+      w.build('carpenter', w.index(15, 15, Z));
+      w.build('pressure_plate', w.index(69, 65, Z), 'granite');
+      w.zone('hospital', [w.index(70, 70, Z)]);
+      w.zone('barracks', [w.index(74, 70, Z), w.index(75, 70, Z)]);
+      w.zone('stockpile', [w.index(50, 70, Z), w.index(51, 70, Z)]);
+      w.step(1);
+      w.game.world.applyCommand({ type: 'CreateSquad', name: 'Probe' });
+      return w;
+    };
+    const apply = (w: TestWorld, cmd: Record<string, unknown>): string => {
+      try { return JSON.stringify(w.game.world.applyCommand(cmd as unknown as Command)); } catch (e) { return `THROWS ${(e as Error).name}: ${(e as Error).message}`; }
+    };
+    const save = (w: TestWorld): string => { try { const g = roundTrip(w.game).game; return g.hash() === w.game.hash() ? 'save and load: equal hash' : 'save and load: HASH DIFFERS'; } catch (e) { return `save THROWS ${(e as Error).message}`; } };
+    const zoneOf = (w: TestWorld, type: string): number => { const t = w.game.registry.table('zoneTypes').index(type); return w.game.world.entities.with(C.Zone).find((id) => w.game.world.entities.get(id, C.Zone)?.type === t) ?? 0; };
+    const show = (cmd: Record<string, unknown>): string => JSON.stringify(cmd, (_k, v) => (typeof v === 'number' && !Number.isFinite(v) ? `#${String(v)}` : v));
+
+    // 1. throws
+    for (const cmd of [
+      { type: 'SetHuntable', species: 'no_such_species', on: true },
+      { type: 'AddWorkOrder', workshopId: 0, order: null },
+      { type: 'EditWorkOrder', workshopId: 0, index: 0, patch: null },
+      { type: 'DesignateStairwell', x: 1.5, y: 30, zTop: 32, zBottom: 30 },
+    ] as Record<string, unknown>[]) {
+      const w = fresh();
+      if (cmd['type'] === 'EditWorkOrder') {
+        const ws = w.game.world.entities.with(C.Workshop)[0] ?? 0;
+        w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: ws, order: { recipeId: 'make_bed', mode: 'once', remaining: 1, threshold: 0, priority: 5 } });
+        cmd['workshopId'] = ws;
+      }
+      log.push(`${show(cmd)} -> ${apply(w, cmd)}`);
+      // the same command through the queue, followed by a good one
+      const before = w.tick;
+      w.submit(cmd as unknown as Command);
+      w.submit({ type: 'RenameFortress', name: 'After The Bad One' });
+      let stepped = 'step ok';
+      try { w.step(1); } catch (e) { stepped = `world.step THROWS ${(e as Error).message}`; }
+      log.push(`    submitted before a RenameFortress: ${stepped}; tick ${before} -> ${w.tick}; fortress name now "${w.game.world.fortress.name}"; commands still queued: ${w.game.world.commands.size ?? 'n/a'}`);
+      let again = 'next step ok';
+      try { w.step(1); } catch (e) { again = `next step THROWS ${(e as Error).message}`; }
+      log.push(`    ${again}; tick ${w.tick}; fortress name "${w.game.world.fortress.name}"`);
+    }
+
+    // 2. accepted, then the game cannot be saved
+    {
+      const w = fresh();
+      const cmd = { type: 'SetHospitalSupplies', zoneId: zoneOf(w, 'hospital'), wants: { cloth: NaN } };
+      log.push(`${show(cmd)} -> ${apply(w, cmd)}; ${save(w)}`);
+    }
+    {
+      const w = fresh();
+      const cmd = { type: 'SetZoneSetting', zoneId: zoneOf(w, 'barracks'), key: 'squad', value: NaN };
+      log.push(`${show(cmd)} -> ${apply(w, cmd)}; ${save(w)}`);
+      const cmd2 = { type: 'SetZoneSetting', zoneId: zoneOf(w, 'barracks'), key: 'squad', value: 123456789 };
+      log.push(`${show(cmd2)} (no such squad) -> ${apply(w, cmd2)}; setting now ${JSON.stringify(w.game.world.entities.get(zoneOf(w, 'barracks'), C.Zone)?.settings)}`);
+    }
+    // 3. accepted where the catalog names a validation
+    {
+      const w = fresh();
+      for (const n of [-5, 0, 19, 201, 1e9]) log.push(`SetPopulationCap n=${n} -> ${apply(w, { type: 'SetPopulationCap', n })}; cap now ${w.game.world.fortress.populationCap}`);
+      for (const name of ['toString', 'constructor', '__proto__', 'hasOwnProperty']) log.push(`SetStandingOrder name=${name} -> ${apply(w, { type: 'SetStandingOrder', name, on: true })}`);
+      log.push(`    saved standing orders: ${JSON.stringify((w.game.world.scheduler.byId('11')?.serialize() as { standingOrders: unknown }).standingOrders)}`);
+      const sp = zoneOf(w, 'stockpile'); const bld = w.game.world.entities.with(C.Building)[0] ?? 0;
+      log.push(`LinkStockpile source = a building (${bld}) -> ${apply(w, { type: 'LinkStockpile', zoneId: sp, sourceZoneId: bld, on: true })}; linkedSources ${JSON.stringify(w.game.world.entities.get(sp, C.Stockpile)?.linkedSources)}`);
+      log.push(`LinkStockpile source = itself -> ${apply(w, { type: 'LinkStockpile', zoneId: sp, sourceZoneId: sp, on: true })}; linkedSources ${JSON.stringify(w.game.world.entities.get(sp, C.Stockpile)?.linkedSources)}`);
+      log.push(`SetStockpileContainers barrel=1e9 -> ${apply(w, { type: 'SetStockpileContainers', zoneId: sp, wants: { barrel: 1e9, bag: 0, bin: 0 } })}; ${JSON.stringify(w.game.world.entities.get(sp, C.Stockpile)?.containersWanted)}`);
+      const squad = w.game.world.entities.with(C.Squad)[0] ?? 0;
+      const dwarves = w.game.world.entities.with(C.Labors);
+      log.push(`SetSquadEquipment weaponClass 'nope' -> ${apply(w, { type: 'SetSquadEquipment', squadId: squad, equipment: { weaponClass: 'nope', armor: 'nope', ranged: 'x' } })}; ${JSON.stringify(w.game.world.entities.get(squad, C.Squad)?.equipment)}`);
+      log.push(`SetSquadLeader to a dwarf who is not a member -> ${apply(w, { type: 'SetSquadLeader', squadId: squad, leaderId: dwarves[0] })}; leader ${w.game.world.entities.get(squad, C.Squad)?.leaderId} members ${JSON.stringify(w.game.world.entities.get(squad, C.Squad)?.members)}`);
+      const plate = w.game.world.entities.with(C.Building).find((id) => w.game.registry.table<{ id: string }>('buildings').byIndex(w.game.world.entities.get(id, C.Building)?.type ?? -1)?.id === 'pressure_plate') ?? 0;
+      log.push(`SetPlateTrigger water level 1.5 -> ${apply(w, { type: 'SetPlateTrigger', plateId: plate, trigger: { kind: 'water', level: 1.5 } })}`);
+      const tame = w.game.world.entities.with(C.Tame);
+      const sp2 = w.game.registry.table<{ id: string; diet?: string }>('creatures');
+      for (const id of tame) { const row = sp2.byIndex(w.game.world.entities.get(id, C.Creature)?.species ?? -1); log.push(`AssignPasture for tame ${row?.id} (diet ${row?.diet}) to no pasture -> ${apply(w, { type: 'AssignPasture', animalId: id, zoneId: 0 })}`); }
+      log.push(save(w));
+    }
+    writeFileSync(`${OUT}/commands.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 600_000);
+});

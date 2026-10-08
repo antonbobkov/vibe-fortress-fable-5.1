@@ -1,0 +1,1286 @@
+################ three-years-p0-a.txt
+run three-years-p0-a ended at tick 403200 (day 336), dwarves alive 12, final hash 02422ba9578b10b7
+no exception
+end state: items 1167; carried by an entity that no longer exists 20 (of them foreign 8, counted in stock 0); with both a position and a carrier 8; owned by an entity that no longer exists 20; party entities 3 (state gone 3); rooms owned by a dead dwarf 0
+== three-years-p0-a: 37 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  container.content-mismatch: 372 hits, 1 classes, t148900..t295400
+  equip.item-in-container: 366 hits, 4 classes, t149000..t295400
+  equip.item-missing: 100 hits, 2 classes, t155100..t299200
+  equip.item-on-floor: 12 hits, 2 classes, t148900..t283500
+  item.carrier-dead: 33462 hits, 5 classes, t89100..t403200
+  item.in-two-containers: 366 hits, 4 classes, t149000..t295400
+  item.owner-dead: 33462 hits, 5 classes, t89100..t403200
+  item.two-places: 11520 hits, 3 classes, t148900..t403200
+  job.delivered-item-missing: 35 hits, 1 classes, t26900..t30300
+  party.gone-not-removed-2d: 3 hits, 1 classes, t151700..t391400
+  stock.available-drift: 14452 hits, 9 classes, t155300..t403200
+-- detail
+container.content-mismatch [wagon] x372 t148900..t295400
+    t148900: container 16778096 lists 16778157 but item.containerId=0
+    t148900: container 16778097 lists 16778129 but item.containerId=0
+    t149000: container 16778096 lists 16778157 but item.containerId=150995149
+    t149000: container 16778097 lists 16778129 but item.containerId=150995149
+equip.item-in-container [armor.feet/metal_boots] x183 t289400..t295400
+    t289400: creature 16777296 armor.feet=16778374 but containerId=150995149
+    t289400: creature 16777297 armor.feet=16778375 but containerId=150995149
+    t289400: creature 16777298 armor.feet=16778376 but containerId=150995149
+    t289500: creature 16777296 armor.feet=16778374 but containerId=150995149
+equip.item-in-container [weapon/pick] x61 t149000..t155000
+    t149000: creature 16777296 weapon=16778129 but containerId=150995149
+    t149100: creature 16777296 weapon=16778129 but containerId=150995149
+    t149200: creature 16777296 weapon=16778129 but containerId=150995149
+    t149300: creature 16777296 weapon=16778129 but containerId=150995149
+equip.item-in-container [weapon/short_sword] x61 t149000..t155000
+    t149000: creature 16777297 weapon=16778157 but containerId=150995149
+    t149100: creature 16777297 weapon=16778157 but containerId=150995149
+    t149200: creature 16777297 weapon=16778157 but containerId=150995149
+    t149300: creature 16777297 weapon=16778157 but containerId=150995149
+equip.item-in-container [weapon/axe] x61 t289400..t295400
+    t289400: creature 16777296 weapon=16778403 but containerId=150995149
+    t289500: creature 16777296 weapon=16778403 but containerId=150995149
+    t289600: creature 16777296 weapon=16778403 but containerId=150995149
+    t289700: creature 16777296 weapon=16778403 but containerId=150995149
+equip.item-missing [weapon] x54 t155100..t295700
+    t155100: creature 16777296 weapon=16778129 not a living item
+    t155100: creature 16777297 weapon=16778157 not a living item
+    t155200: creature 16777296 weapon=16778129 not a living item
+    t155200: creature 16777297 weapon=16778157 not a living item
+equip.item-missing [armor.feet] x46 t295500..t299200
+    t295500: creature 16777296 armor.feet=16778374 not a living item
+    t295500: creature 16777297 armor.feet=16778375 not a living item
+    t295500: creature 16777298 armor.feet=16778376 not a living item
+    t295600: creature 16777296 armor.feet=16778374 not a living item
+equip.item-on-floor [weapon/club] x6 t148900..t283500
+    t148900: creature 150995802 weapon=117441098 but the item has a Position (0,0,32); carriedBy=150995802
+    t149000: creature 150995802 weapon=117441098 but the item has a Position (0,0,32); carriedBy=150995802
+    t149100: creature 150995802 weapon=117441098 but the item has a Position (0,0,32); carriedBy=150995802
+    t283300: creature 352322036 weapon=16778329 but the item has a Position (0,0,32); carriedBy=352322036
+equip.item-on-floor [armor.head/cap] x6 t148900..t283500
+    t148900: creature 150995802 armor.head=16778080 but the item has a Position (0,0,32); carriedBy=150995802
+    t149000: creature 150995802 armor.head=16778080 but the item has a Position (0,0,32); carriedBy=150995802
+    t149100: creature 150995802 armor.head=16778080 but the item has a Position (0,0,32); carriedBy=150995802
+    t283300: creature 352322036 armor.head=16778331 but the item has a Position (0,0,32); carriedBy=352322036
+item.carrier-dead [arrow] x10980 t89100..t403200
+    t89100: item 16777822 arrow carriedBy=16777820 not alive; pos=(none) flags=80
+    t89100: item 16777827 arrow carriedBy=16777825 not alive; pos=(none) flags=80
+    t89200: item 16777822 arrow carriedBy=16777820 not alive; pos=(none) flags=80
+    t89200: item 16777827 arrow carriedBy=16777825 not alive; pos=(none) flags=80
+item.carrier-dead [dagger] x10980 t89100..t403200
+    t89100: item 16777823 dagger carriedBy=16777820 not alive; pos=(none) flags=80
+    t89100: item 16777828 dagger carriedBy=16777825 not alive; pos=(none) flags=80
+    t89200: item 16777823 dagger carriedBy=16777820 not alive; pos=(none) flags=80
+    t89200: item 16777828 dagger carriedBy=16777825 not alive; pos=(none) flags=80
+item.carrier-dead [short_sword] x3882 t149200..t403200
+    t149200: item 16778079 short_sword carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+    t149300: item 16778079 short_sword carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+    t149400: item 16778079 short_sword carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+    t149500: item 16778079 short_sword carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [cap] x3882 t149200..t403200
+    t149200: item 16778080 cap carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+    t149300: item 16778080 cap carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+    t149400: item 16778080 cap carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+    t149500: item 16778080 cap carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [club] x3738 t149200..t403200
+    t149200: item 117441098 club carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+    t149300: item 117441098 club carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+    t149400: item 117441098 club carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+    t149500: item 117441098 club carriedBy=150995802 not alive; pos=(0,0,32) flags=272
+item.in-two-containers [metal_boots] x183 t289400..t295400
+    t289400: item 16778374 in containers 150995149 and 16778354
+    t289400: item 16778375 in containers 150995149 and 16778354
+    t289400: item 16778376 in containers 150995149 and 16778354
+    t289500: item 16778374 in containers 150995149 and 16778354
+item.in-two-containers [short_sword] x61 t149000..t155000
+    t149000: item 16778157 in containers 150995149 and 16778096
+    t149100: item 16778157 in containers 150995149 and 16778096
+    t149200: item 16778157 in containers 150995149 and 16778096
+    t149300: item 16778157 in containers 150995149 and 16778096
+item.in-two-containers [pick] x61 t149000..t155000
+    t149000: item 16778129 in containers 150995149 and 16778097
+    t149100: item 16778129 in containers 150995149 and 16778097
+    t149200: item 16778129 in containers 150995149 and 16778097
+    t149300: item 16778129 in containers 150995149 and 16778097
+item.in-two-containers [axe] x61 t289400..t295400
+    t289400: item 16778403 in containers 150995149 and 16778353
+    t289500: item 16778403 in containers 150995149 and 16778353
+    t289600: item 16778403 in containers 150995149 and 16778353
+    t289700: item 16778403 in containers 150995149 and 16778353
+item.owner-dead [arrow] x10980 t89100..t403200
+    t89100: item 16777822 arrow ownerId=16777820 not alive, flags=80 pos=(none)
+    t89100: item 16777827 arrow ownerId=16777825 not alive, flags=80 pos=(none)
+    t89200: item 16777822 arrow ownerId=16777820 not alive, flags=80 pos=(none)
+    t89200: item 16777827 arrow ownerId=16777825 not alive, flags=80 pos=(none)
+item.owner-dead [dagger] x10980 t89100..t403200
+    t89100: item 16777823 dagger ownerId=16777820 not alive, flags=80 pos=(none)
+    t89100: item 16777828 dagger ownerId=16777825 not alive, flags=80 pos=(none)
+    t89200: item 16777823 dagger ownerId=16777820 not alive, flags=80 pos=(none)
+    t89200: item 16777828 dagger ownerId=16777825 not alive, flags=80 pos=(none)
+item.owner-dead [short_sword] x3882 t149200..t403200
+    t149200: item 16778079 short_sword ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+    t149300: item 16778079 short_sword ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+    t149400: item 16778079 short_sword ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+    t149500: item 16778079 short_sword ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [cap] x3882 t149200..t403200
+    t149200: item 16778080 cap ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+    t149300: item 16778080 cap ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+    t149400: item 16778080 cap ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+    t149500: item 16778080 cap ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [club] x3738 t149200..t403200
+    t149200: item 117441098 club ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+    t149300: item 117441098 club ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+    t149400: item 117441098 club ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+    t149500: item 117441098 club ownerId=150995802 not alive, flags=272 pos=(0,0,32)
+item.two-places [short_sword] x3888 t148900..t403200
+    t148900: item 16778079 short_sword pos=(0,0,32) containerId=0 carriedBy=150995802
+    t149000: item 16778079 short_sword pos=(0,0,32) containerId=0 carriedBy=150995802
+    t149100: item 16778079 short_sword pos=(0,0,32) containerId=0 carriedBy=150995802
+    t149200: item 16778079 short_sword pos=(0,0,32) containerId=0 carriedBy=150995802
+item.two-places [cap] x3888 t148900..t403200
+    t148900: item 16778080 cap pos=(0,0,32) containerId=0 carriedBy=150995802
+    t149000: item 16778080 cap pos=(0,0,32) containerId=0 carriedBy=150995802
+    t149100: item 16778080 cap pos=(0,0,32) containerId=0 carriedBy=150995802
+    t149200: item 16778080 cap pos=(0,0,32) containerId=0 carriedBy=150995802
+item.two-places [club] x3744 t148900..t403200
+    t148900: item 117441098 club pos=(0,0,32) containerId=0 carriedBy=150995802
+    t149000: item 117441098 club pos=(0,0,32) containerId=0 carriedBy=150995802
+    t149100: item 117441098 club pos=(0,0,32) containerId=0 carriedBy=150995802
+    t149200: item 117441098 club pos=(0,0,32) containerId=0 carriedBy=150995802
+job.delivered-item-missing [craft] x35 t26900..t30300
+    t26900: job 968 craft state open delivered 16777571, not a living item
+    t27000: job 968 craft state open delivered 16777571, not a living item
+    t27100: job 968 craft state open delivered 16777571, not a living item
+    t27200: job 968 craft state open delivered 16777571, not a living item
+party.gone-not-removed-2d [thief/gone] x3 t151700..t391400
+    t151700: party 184550031 gloam thief state gone since t149159 arrived t148800 members 0/1 size 1 loot 0 goalUnreachable=false walkUnreachable=false outcome=withdrew
+    t286100: party 385876141 gloam thief state gone since t283567 arrived t283200 members 0/1 size 1 loot 0 goalUnreachable=false walkUnreachable=false outcome=withdrew
+    t391400: party 486539975 gloam thief state gone since t388862 arrived t388800 members 0/1 size 1 loot 0 goalUnreachable=false walkUnreachable=undefined outcome=withdrew
+stock.available-drift [mail_shirt] x2381 t165200..t403200
+    t165200: available 1 recount 0
+    t165300: available 1 recount 0
+    t165400: available 1 recount 0
+    t165500: available 1 recount 0
+stock.available-drift [shield] x2074 t195900..t403200
+    t195900: available 1 recount 0
+    t196000: available 1 recount 0
+    t196100: available 1 recount 0
+    t196200: available 1 recount 0
+stock.available-drift [short_sword] x1907 t212600..t403200
+    t212600: available 1 recount 0
+    t212700: available 1 recount 0
+    t212800: available 1 recount 0
+    t212900: available 1 recount 0
+stock.available-drift [axe] x1781 t225200..t403200
+    t225200: available 2 recount 1
+    t225300: available 2 recount 1
+    t225400: available 2 recount 1
+    t225500: available 2 recount 1
+stock.available-drift [helm] x1695 t233800..t403200
+    t233800: available 1 recount 0
+    t233900: available 1 recount 0
+    t234000: available 1 recount 0
+    t234100: available 1 recount 0
+stock.available-drift [greaves] x1519 t251400..t403200
+    t251400: available 1 recount 0
+    t251500: available 1 recount 0
+    t251600: available 1 recount 0
+    t251700: available 1 recount 0
+stock.available-drift [gauntlets] x1321 t271200..t403200
+    t271200: available 1 recount 0
+    t271300: available 1 recount 0
+    t271400: available 1 recount 0
+    t271500: available 1 recount 0
+stock.available-drift [metal_boots] x1075 t295800..t403200
+    t295800: available 1 recount 0
+    t295900: available 1 recount 0
+    t296000: available 2 recount 0
+    t296100: available 2 recount 0
+stock.available-drift [pick] x699 t155300..t225100
+    t155300: available 3 recount 2
+    t155400: available 3 recount 2
+    t155500: available 3 recount 2
+    t155600: available 3 recount 2
+-- forks (save/load): at, why, diverged tick, first script tick after the fork, comparisons
+fork at t888 (hostile): equal; first script after t988; 12 comparisons; first load equals the unsaved game
+fork at t2088 (hostile): equal; first script after t2188; 12 comparisons; first load equals the unsaved game
+fork at t3288 (hostile): equal; first script after t3388; 12 comparisons; first load equals the unsaved game
+fork at t41100 (caravan): equal; first script after t41400; 12 comparisons; first load equals the unsaved game
+fork at t42900 (caravan): equal; first script after t43200; 12 comparisons; first load equals the unsaved game
+fork at t44100 (caravan): equal; first script after t44400; 12 comparisons; first load equals the unsaved game
+fork at t176100 (random): equal; first script after t176400; 12 comparisons; first load differs from the unsaved game:
+      entity 50332614 (building) Workshop: {"assignedWorker":0,"currentJobId":2546,"lastBlockedReason":null,"magmaPowered":false,"orders":[{"materialFilter":"iron","mode":"maintain","priority":2,"recipe":42,"remaining":1,"threshold":3},{"materialFilter":"iron","mode":"maintain","priority":2,"recipe":49,"remaining":1,"threshold":3},{"material vs {"assignedWorker":0,"currentJobId":2546,"lastBlockedReason":null,"magmaPowered":false,"orders":[{"materialFilter":96,"mode":"maintain","priority":2,"recipe":42,"remaining":1,"threshold":3},{"materialFilter":96,"mode":"maintain","priority":2,"recipe":49,"remaining":1,"threshold":3},{"materialFilter":
+fork at t201900 (random): equal; first script after t202200; 12 comparisons; first load differs from the unsaved game:
+      entity 50332614 (building) Workshop: {"assignedWorker":0,"currentJobId":2776,"lastBlockedReason":null,"magmaPowered":false,"orders":[{"materialFilter":"iron","mode":"maintain","priority":2,"recipe":42,"remaining":1,"threshold":3},{"materialFilter":"iron","mode":"maintain","priority":2,"recipe":49,"remaining":1,"threshold":3},{"material vs {"assignedWorker":0,"currentJobId":2776,"lastBlockedReason":null,"magmaPowered":false,"orders":[{"materialFilter":96,"mode":"maintain","priority":2,"recipe":42,"remaining":1,"threshold":3},{"materialFilter":96,"mode":"maintain","priority":2,"recipe":49,"remaining":1,"threshold":3},{"materialFilter":
+fork at t273600 (random): equal; first script after t273900; 12 comparisons; first load differs from the unsaved game:
+      entity 50332614 (building) Workshop: {"assignedWorker":0,"currentJobId":3489,"lastBlockedReason":null,"magmaPowered":false,"orders":[{"materialFilter":"iron","mode":"maintain","priority":2,"recipe":42,"remaining":1,"threshold":3},{"materialFilter":"iron","mode":"maintain","priority":2,"recipe":49,"remaining":1,"threshold":3},{"material vs {"assignedWorker":0,"currentJobId":3489,"lastBlockedReason":null,"magmaPowered":false,"orders":[{"materialFilter":96,"mode":"maintain","priority":2,"recipe":42,"remaining":1,"threshold":3},{"materialFilter":96,"mode":"maintain","priority":2,"recipe":49,"remaining":1,"threshold":3},{"materialFilter":
+fork at t283800 (random): equal; first script after t284100; 12 comparisons; first load differs from the unsaved game
+fork at t327000 (random): equal; first script after t327300; 12 comparisons; first load differs from the unsaved game
+fork at t381300 (random): equal; first script after t381600; 12 comparisons; first load differs from the unsaved game
+-- rejected commands
+{}
+-- events
+{"ZoneChanged":23,"FluidsChanged":9760,"JobCreated":3747,"StocksChanged":13452,"EntitiesMoved":229694,"TemperatureTick":40241,"HourPassed":8048,"JobStarted":4589,"TilesChanged":2232,"ItemReleased":633,"JobCompleted":3888,"ItemReserved":2320,"JobClaimed":7331,"ToolEquipped":6,"JobBlocked":980,"StockpileFull":148,"TreeFelled":296,"ItemCreated":3938,"BuildingPlaced":40,"JobCancelled":450,"CropPlanted":403,"JobUnblocked":1305,"MoodTierChanged":9145,"NeedCritical":5763,"DwarfIdle":3434,"Slept":3000,"DayPassed":335,"WebSpun":335,"Talked":533,"ItemDestroyed":5525,"BuildingCompleted":40,"TilesDiscovered":898,"DrankAlcohol":1555,"WeatherChanged":332,"DwarfOutdoorsIn":5899,"ItemCrafted":1088,"HallSpiritChanged":332,"MealEaten":942,"PlotNeedsSeeds":24,"WorkshopBlocked":28,"WealthChanged":225,"ItemRotStage":1344,"SulkHappened":17,"SkillLevelUp":86,"RoomQualityChanged":31,"HearthLit":1,"ThoughtGained":37,"ItemRotted":402,"CropHarvested":353,"RoomAssigned":12,"Starving":330,"AnimalBorn":10,"SeasonChanged":11,"SeasonEffectsChanged":11,"ImmigrantsArrived":2,"CaravanArrived":8,"ProductReady":2,"CaravanAtDepot":8,"ReputationChanged":13,"TradeCompleted":8,"AnimalStarving":17,"CaravanDeparted":8,"MineralMined":138,"VeinFound":8,"Sat":407,"HearthVisited":294,"MiasmaSpread":143,"ImmigrationSkipped":9,"TileFrozen":3487,"CropDied":30,"SnowCoverChanged":84,"TileThawed":3487,"YearPassed":2,"RaidArrived":3,"HostileSpawned":3,"ThiefSpotted":3,"ThreatNearby":4,"ThiefEscaped":3,"RaidEnded":3,"WorkOrderCom
+
+################ three-years-p2-1-p2-a.txt
+run three-years-p2-1-p2-a ended at tick 403200 (day 336), dwarves alive 0, final hash 44b1a14351128d80
+no exception
+end state: items 774; carried by an entity that no longer exists 73 (of them foreign 46, counted in stock 3); with both a position and a carrier 176; owned by an entity that no longer exists 70; party entities 13 (state gone 8); rooms owned by a dead dwarf 0
+== three-years-p2-1-p2-a: 55 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  equip.item-on-floor: 176312 hits, 10 classes, t49300..t403200
+  item.carrier-dead: 155046 hits, 11 classes, t38500..t403200
+  item.owner-dead: 144126 hits, 10 classes, t49400..t403200
+  item.reserved-by-missing-job: 1594 hits, 2 classes, t54100..t213400
+  item.two-places: 358356 hits, 15 classes, t49300..t403200
+  job.target-dead: 29647 hits, 1 classes, t73500..t403200
+  party.active-over-10d: 5 hits, 2 classes, t92600..t325400
+  party.approach-over-3d: 5 hits, 2 classes, t84100..t316900
+  party.gone-not-removed-2d: 8 hits, 2 classes, t51900..t362800
+-- detail
+equip.item-on-floor [armor.head/cap] x41041 t49300..t403200
+    t49300: creature 16777972 armor.head=16777976 but the item has a Position (0,0,32); carriedBy=16777972
+    t73300: creature 50332298 armor.head=50332299 but the item has a Position (4,0,32); carriedBy=50332298
+    t73300: creature 50332300 armor.head=50332302 but the item has a Position (0,0,32); carriedBy=50332300
+    t73300: creature 50332304 armor.head=50332295 but the item has a Position (2,0,32); carriedBy=50332304
+equip.item-on-floor [armor.legs/leggings] x31220 t49300..t403200
+    t49300: creature 16777972 armor.legs=16777979 but the item has a Position (0,0,32); carriedBy=16777972
+    t80500: creature 16777991 armor.legs=16777997 but the item has a Position (2,0,32); carriedBy=16777991
+    t80500: creature 16777998 armor.legs=16778005 but the item has a Position (4,0,32); carriedBy=16777998
+    t80600: creature 16777991 armor.legs=16777997 but the item has a Position (2,0,32); carriedBy=16777991
+equip.item-on-floor [weapon/short_sword] x27352 t49300..t403200
+    t49300: creature 16777972 weapon=16777973 but the item has a Position (0,0,32); carriedBy=16777972
+    t73300: creature 50332304 weapon=50332301 but the item has a Position (2,0,32); carriedBy=50332304
+    t73400: creature 50332304 weapon=50332301 but the item has a Position (2,0,32); carriedBy=50332304
+    t73500: creature 50332304 weapon=50332301 but the item has a Position (2,0,32); carriedBy=50332304
+equip.item-on-floor [armor.body/leather_jerkin] x27344 t49300..t403200
+    t49300: creature 16777972 armor.body=16777977 but the item has a Position (0,0,32); carriedBy=16777972
+    t80500: creature 16777991 armor.body=16777995 but the item has a Position (2,0,32); carriedBy=16777991
+    t80500: creature 16777998 armor.body=16778003 but the item has a Position (4,0,32); carriedBy=16777998
+    t80600: creature 16777991 armor.body=16777995 but the item has a Position (2,0,32); carriedBy=16777991
+equip.item-on-floor [shield/shield] x24041 t49300..t403200
+    t49300: creature 16777972 shield=16777978 but the item has a Position (0,0,32); carriedBy=16777972
+    t80500: creature 16777991 shield=16777996 but the item has a Position (2,0,32); carriedBy=16777991
+    t80500: creature 16777998 shield=16778004 but the item has a Position (4,0,32); carriedBy=16777998
+    t80600: creature 16777991 shield=16777996 but the item has a Position (2,0,32); carriedBy=16777991
+equip.item-on-floor [weapon/bow] x13668 t80500..t403200
+    t80500: creature 16777986 weapon=16777987 but the item has a Position (0,0,32); carriedBy=16777986
+    t80600: creature 16777986 weapon=16777987 but the item has a Position (0,0,32); carriedBy=16777986
+    t80700: creature 16777986 weapon=16777987 but the item has a Position (0,0,32); carriedBy=16777986
+    t80800: creature 16777986 weapon=16777987 but the item has a Position (0,0,32); carriedBy=16777986
+equip.item-on-floor [weapon/axe] x3876 t150100..t403200
+    t150100: creature 83886794 weapon=83886795 but the item has a Position (0,0,32); carriedBy=83886794
+    t150200: creature 83886794 weapon=83886795 but the item has a Position (0,0,32); carriedBy=83886794
+    t150300: creature 83886794 weapon=83886795 but the item has a Position (0,0,32); carriedBy=83886794
+    t150400: creature 83886794 weapon=83886795 but the item has a Position (0,0,32); carriedBy=83886794
+equip.item-on-floor [armor.head/helm] x3876 t150100..t403200
+    t150100: creature 83886794 armor.head=83886797 but the item has a Position (0,0,32); carriedBy=83886794
+    t150200: creature 83886794 armor.head=83886797 but the item has a Position (0,0,32); carriedBy=83886794
+    t150300: creature 83886794 armor.head=83886797 but the item has a Position (0,0,32); carriedBy=83886794
+    t150400: creature 83886794 armor.head=83886797 but the item has a Position (0,0,32); carriedBy=83886794
+equip.item-on-floor [armor.body/mail_shirt] x3876 t150100..t403200
+    t150100: creature 83886794 armor.body=83886799 but the item has a Position (0,0,32); carriedBy=83886794
+    t150200: creature 83886794 armor.body=83886799 but the item has a Position (0,0,32); carriedBy=83886794
+    t150300: creature 83886794 armor.body=83886799 but the item has a Position (0,0,32); carriedBy=83886794
+    t150400: creature 83886794 armor.body=83886799 but the item has a Position (0,0,32); carriedBy=83886794
+equip.item-on-floor [weapon/club] x18 t73300..t217300
+    t73300: creature 50332298 weapon=50332297 but the item has a Position (4,0,32); carriedBy=50332298
+    t73300: creature 50332300 weapon=50332303 but the item has a Position (0,0,32); carriedBy=50332300
+    t73400: creature 50332298 weapon=50332297 but the item has a Position (4,0,32); carriedBy=50332298
+    t73400: creature 50332300 weapon=50332303 but the item has a Position (0,0,32); carriedBy=50332300
+item.carrier-dead [cap] x27323 t49400..t403200
+    t49400: item 16777976 cap carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49500: item 16777976 cap carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49600: item 16777976 cap carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49700: item 16777976 cap carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [dagger] x21852 t82000..t403200
+    t82000: item 50332286 dagger carriedBy=50332288 not alive; pos=(none) flags=80
+    t82000: item 50332291 dagger carriedBy=50332293 not alive; pos=(none) flags=80
+    t82000: item 50332296 dagger carriedBy=83886732 not alive; pos=(none) flags=80
+    t82000: item 50332401 dagger carriedBy=50332283 not alive; pos=(none) flags=80
+item.carrier-dead [arrow] x21852 t82000..t403200
+    t82000: item 50332289 arrow carriedBy=50332288 not alive; pos=(none) flags=80
+    t82000: item 50332294 arrow carriedBy=50332293 not alive; pos=(none) flags=80
+    t82000: item 83886736 arrow carriedBy=83886732 not alive; pos=(none) flags=80
+    t82000: item 50332402 arrow carriedBy=50332283 not alive; pos=(none) flags=80
+item.carrier-dead [short_sword] x17023 t49400..t403200
+    t49400: item 16777973 short_sword carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49500: item 16777973 short_sword carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49600: item 16777973 short_sword carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49700: item 16777973 short_sword carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [leather_jerkin] x11872 t49400..t403200
+    t49400: item 16777977 leather_jerkin carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49500: item 16777977 leather_jerkin carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49600: item 16777977 leather_jerkin carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49700: item 16777977 leather_jerkin carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [leggings] x11872 t49400..t403200
+    t49400: item 16777979 leggings carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49500: item 16777979 leggings carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49600: item 16777979 leggings carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49700: item 16777979 leggings carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [axe] x11228 t38500..t403200
+    t38500: item 16777234 axe carriedBy=16777288 not alive; pos=(none) flags=0
+    t38600: item 16777234 axe carriedBy=16777288 not alive; pos=(none) flags=0
+    t38700: item 16777234 axe carriedBy=16777288 not alive; pos=(none) flags=0
+    t38800: item 16777234 axe carriedBy=16777288 not alive; pos=(none) flags=0
+item.carrier-dead [shield] x8479 t49400..t403200
+    t49400: item 16777978 shield carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49500: item 16777978 shield carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49600: item 16777978 shield carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49700: item 16777978 shield carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [club] x8442 t74100..t403200
+    t74100: item 50332303 club carriedBy=50332300 not alive; pos=(0,0,32) flags=272
+    t74200: item 50332297 club carriedBy=50332298 not alive; pos=(4,0,32) flags=272
+    t74200: item 50332303 club carriedBy=50332300 not alive; pos=(0,0,32) flags=272
+    t74300: item 50332297 club carriedBy=50332298 not alive; pos=(4,0,32) flags=272
+item.carrier-dead [mace] x7831 t49400..t403200
+    t49400: item 16777975 mace carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49500: item 16777975 mace carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49600: item 16777975 mace carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+    t49700: item 16777975 mace carriedBy=16777972 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [pick] x7272 t39700..t403200
+    t39700: item 16777232 pick carriedBy=16777287 not alive; pos=(none) flags=0
+    t39700: item 16777233 pick carriedBy=16777286 not alive; pos=(none) flags=0
+    t39800: item 16777232 pick carriedBy=16777287 not alive; pos=(none) flags=0
+    t39800: item 16777233 pick carriedBy=16777286 not alive; pos=(none) flags=0
+item.owner-dead [cap] x27323 t49400..t403200
+    t49400: item 16777976 cap ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49500: item 16777976 cap ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49600: item 16777976 cap ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49700: item 16777976 cap ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [dagger] x21852 t82000..t403200
+    t82000: item 50332286 dagger ownerId=50332288 not alive, flags=80 pos=(none)
+    t82000: item 50332291 dagger ownerId=50332293 not alive, flags=80 pos=(none)
+    t82000: item 50332296 dagger ownerId=83886732 not alive, flags=80 pos=(none)
+    t82000: item 50332401 dagger ownerId=50332283 not alive, flags=80 pos=(none)
+item.owner-dead [arrow] x21852 t82000..t403200
+    t82000: item 50332289 arrow ownerId=50332288 not alive, flags=80 pos=(none)
+    t82000: item 50332294 arrow ownerId=50332293 not alive, flags=80 pos=(none)
+    t82000: item 83886736 arrow ownerId=83886732 not alive, flags=80 pos=(none)
+    t82000: item 50332402 arrow ownerId=50332283 not alive, flags=80 pos=(none)
+item.owner-dead [short_sword] x17023 t49400..t403200
+    t49400: item 16777973 short_sword ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49500: item 16777973 short_sword ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49600: item 16777973 short_sword ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49700: item 16777973 short_sword ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [leather_jerkin] x11872 t49400..t403200
+    t49400: item 16777977 leather_jerkin ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49500: item 16777977 leather_jerkin ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49600: item 16777977 leather_jerkin ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49700: item 16777977 leather_jerkin ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [leggings] x11872 t49400..t403200
+    t49400: item 16777979 leggings ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49500: item 16777979 leggings ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49600: item 16777979 leggings ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49700: item 16777979 leggings ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [shield] x8479 t49400..t403200
+    t49400: item 16777978 shield ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49500: item 16777978 shield ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49600: item 16777978 shield ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49700: item 16777978 shield ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [club] x8442 t74100..t403200
+    t74100: item 50332303 club ownerId=50332300 not alive, flags=272 pos=(0,0,32)
+    t74200: item 50332297 club ownerId=50332298 not alive, flags=272 pos=(4,0,32)
+    t74200: item 50332303 club ownerId=50332300 not alive, flags=272 pos=(0,0,32)
+    t74300: item 50332297 club ownerId=50332298 not alive, flags=272 pos=(4,0,32)
+item.owner-dead [mace] x7831 t49400..t403200
+    t49400: item 16777975 mace ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49500: item 16777975 mace ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49600: item 16777975 mace ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49700: item 16777975 mace ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [axe] x7580 t49400..t403200
+    t49400: item 16777974 axe ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49500: item 16777974 axe ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49600: item 16777974 axe ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+    t49700: item 16777974 axe ownerId=16777972 not alive, flags=272 pos=(0,0,32)
+item.reserved-by-missing-job [plant_food] x1114 t54100..t165400
+    t54100: item 50332278 plant_food x1 reservedBy=16777783, no such job and no such living creature; pos=(none) container=16777242 carriedBy=0
+    t54200: item 50332278 plant_food x1 reservedBy=16777783, no such job and no such living creature; pos=(none) container=16777242 carriedBy=0
+    t54300: item 50332278 plant_food x1 reservedBy=16777783, no such job and no such living creature; pos=(none) container=16777242 carriedBy=0
+    t54400: item 50332278 plant_food x1 reservedBy=16777783, no such job and no such living creature; pos=(none) container=16777242 carriedBy=0
+item.reserved-by-missing-job [rotten] x480 t165500..t213400
+    t165500: item 50332278 rotten x1 reservedBy=16777783, no such job and no such living creature; pos=(none) container=16777242 carriedBy=0
+    t165600: item 50332278 rotten x1 reservedBy=16777783, no such job and no such living creature; pos=(none) container=16777242 carriedBy=0
+    t165700: item 50332278 rotten x1 reservedBy=16777783, no such job and no such living creature; pos=(none) container=16777242 carriedBy=0
+    t165800: item 50332278 rotten x1 reservedBy=16777783, no such job and no such living creature; pos=(none) container=16777242 carriedBy=0
+item.two-places [cap] x68364 t49300..t403200
+    t49300: item 16777976 cap pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49400: item 16777976 cap pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49500: item 16777976 cap pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49600: item 16777976 cap pos=(0,0,32) containerId=0 carriedBy=16777972
+item.two-places [short_sword] x44376 t49300..t403200
+    t49300: item 16777973 short_sword pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49400: item 16777973 short_sword pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49500: item 16777973 short_sword pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49600: item 16777973 short_sword pos=(0,0,32) containerId=0 carriedBy=16777972
+item.two-places [leggings] x43092 t49300..t403200
+    t49300: item 16777979 leggings pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49400: item 16777979 leggings pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49500: item 16777979 leggings pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49600: item 16777979 leggings pos=(0,0,32) containerId=0 carriedBy=16777972
+item.two-places [leather_jerkin] x39216 t49300..t403200
+    t49300: item 16777977 leather_jerkin pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49400: item 16777977 leather_jerkin pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49500: item 16777977 leather_jerkin pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49600: item 16777977 leather_jerkin pos=(0,0,32) containerId=0 carriedBy=16777972
+item.two-places [shield] x32520 t49300..t403200
+    t49300: item 16777978 shield pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49400: item 16777978 shield pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49500: item 16777978 shield pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49600: item 16777978 shield pos=(0,0,32) containerId=0 carriedBy=16777972
+item.two-places [mace] x32040 t49300..t403200
+    t49300: item 16777975 mace pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49400: item 16777975 mace pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49500: item 16777975 mace pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49600: item 16777975 mace pos=(0,0,32) containerId=0 carriedBy=16777972
+item.two-places [axe] x29904 t49300..t403200
+    t49300: item 16777974 axe pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49400: item 16777974 axe pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49500: item 16777974 axe pos=(0,0,32) containerId=0 carriedBy=16777972
+    t49600: item 16777974 axe pos=(0,0,32) containerId=0 carriedBy=16777972
+item.two-places [bow] x13668 t80500..t403200
+    t80500: item 16777987 bow pos=(0,0,32) containerId=0 carriedBy=16777986
+    t80600: item 16777987 bow pos=(0,0,32) containerId=0 carriedBy=16777986
+    t80700: item 16777987 bow pos=(0,0,32) containerId=0 carriedBy=16777986
+    t80800: item 16777987 bow pos=(0,0,32) containerId=0 carriedBy=16777986
+item.two-places [arrow] x13668 t80500..t403200
+    t80500: item 16777988 arrow pos=(0,0,32) containerId=0 carriedBy=16777986
+    t80600: item 16777988 arrow pos=(0,0,32) containerId=0 carriedBy=16777986
+    t80700: item 16777988 arrow pos=(0,0,32) containerId=0 carriedBy=16777986
+    t80800: item 16777988 arrow pos=(0,0,32) containerId=0 carriedBy=16777986
+item.two-places [dagger] x13668 t80500..t403200
+    t80500: item 16777989 dagger pos=(0,0,32) containerId=0 carriedBy=16777986
+    t80600: item 16777989 dagger pos=(0,0,32) containerId=0 carriedBy=16777986
+    t80700: item 16777989 dagger pos=(0,0,32) containerId=0 carriedBy=16777986
+    t80800: item 16777989 dagger pos=(0,0,32) containerId=0 carriedBy=16777986
+item.two-places [club] x8460 t73300..t403200
+    t73300: item 50332297 club pos=(4,0,32) containerId=0 carriedBy=50332298
+    t73300: item 50332303 club pos=(0,0,32) containerId=0 carriedBy=50332300
+    t73400: item 50332297 club pos=(4,0,32) containerId=0 carriedBy=50332298
+    t73400: item 50332303 club pos=(0,0,32) containerId=0 carriedBy=50332300
+item.two-places [mail_shirt] x7752 t150100..t403200
+    t150100: item 83886799 mail_shirt pos=(0,0,32) containerId=0 carriedBy=83886794
+    t150100: item 83886800 mail_shirt pos=(0,0,32) containerId=0 carriedBy=83886794
+    t150200: item 83886799 mail_shirt pos=(0,0,32) containerId=0 carriedBy=83886794
+    t150200: item 83886800 mail_shirt pos=(0,0,32) containerId=0 carriedBy=83886794
+item.two-places [helm] x6408 t150100..t403200
+    t150100: item 83886797 helm pos=(0,0,32) containerId=0 carriedBy=83886794
+    t150100: item 83886801 helm pos=(0,0,32) containerId=0 carriedBy=83886794
+    t150200: item 83886797 helm pos=(0,0,32) containerId=0 carriedBy=83886794
+    t150200: item 83886801 helm pos=(0,0,32) containerId=0 carriedBy=83886794
+item.two-places [greaves] x3876 t150100..t403200
+    t150100: item 83886802 greaves pos=(0,0,32) containerId=0 carriedBy=83886794
+    t150200: item 83886802 greaves pos=(0,0,32) containerId=0 carriedBy=83886794
+    t150300: item 83886802 greaves pos=(0,0,32) containerId=0 carriedBy=83886794
+    t150400: item 83886802 greaves pos=(0,0,32) containerId=0 carriedBy=83886794
+item.two-places [spear] x1344 t268900..t403200
+    t268900: item 184550128 spear pos=(0,0,32) containerId=0 carriedBy=150995108
+    t269000: item 184550128 spear pos=(0,0,32) containerId=0 carriedBy=150995108
+    t269100: item 184550128 spear pos=(0,0,32) containerId=0 carriedBy=150995108
+    t269200: item 184550128 spear pos=(0,0,32) containerId=0 carriedBy=150995108
+job.target-dead [stop_bleeding/entity/blocked] x29647 t73500..t403200
+    t73500: job 903 stop_bleeding target entity 16777285 not alive, state blocked, age 83
+    t73600: job 903 stop_bleeding target entity 16777285 not alive, state blocked, age 183
+    t73700: job 903 stop_bleeding target entity 16777285 not alive, state blocked, age 283
+    t73700: job 906 stop_bleeding target entity 50332308 not alive, state blocked, age 47
+party.active-over-10d [ambush/approach] x3 t92600..t325400
+    t92600: party 16777985 gloam ambush state approach since t80400 arrived t80400 members 3/3 size 3 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t236600: party 285212713 gloam ambush state approach since t224400 arrived t224400 members 3/3 size 3 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t325400: party 16778162 gloam ambush state approach since t313200 arrived t313200 members 3/3 size 3 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+party.active-over-10d [raid/approach] x2 t162200..t281000
+    t162200: party 83886793 gloam raid state approach since t150001 arrived t150001 members 7/7 size 6 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t281000: party 50331732 gloam raid state approach since t268801 arrived t268801 members 7/7 size 6 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+party.approach-over-3d [ambush/approach] x3 t84100..t316900
+    t84100: party 16777985 gloam ambush state approach since t80400 arrived t80400 members 3/3 size 3 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t228100: party 285212713 gloam ambush state approach since t224400 arrived t224400 members 3/3 size 3 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t316900: party 16778162 gloam ambush state approach since t313200 arrived t313200 members 3/3 size 3 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+party.approach-over-3d [raid/approach] x2 t153700..t272500
+    t153700: party 83886793 gloam raid state approach since t150001 arrived t150001 members 7/7 size 6 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t272500: party 50331732 gloam raid state approach since t268801 arrived t268801 members 7/7 size 6 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+party.gone-not-removed-2d [thief/gone] x6 t51900..t362800
+    t51900: party 83886835 gloam thief state gone since t49313 arrived t49200 members 0/1 size 1 loot 0 goalUnreachable=false walkUnreachable=undefined outcome=withdrew
+    t114300: party 83886713 gloam thief state gone since t111762 arrived t111600 members 0/1 size 1 loot 0 goalUnreachable=false walkUnreachable=false outcome=looted
+    t179100: party 83886640 gloam thief state gone since t176496 arrived t176400 members 0/1 size 1 loot 0 goalUnreachable=false walkUnreachable=undefined outcome=looted
+    t246300: party 150995571 gloam thief state gone since t243696 arrived t243600 members 0/1 size 1 loot 0 goalUnreachable=false walkUnreachable=false outcome=looted
+party.gone-not-removed-2d [bandits/gone] x2 t76700..t220000
+    t76700: party 50332305 hillfolk bandits state gone since t74032 arrived t73200 members 0/3 size 3 loot 0 goalUnreachable=false walkUnreachable=false outcome=looted
+    t220000: party 117440612 hillfolk bandits state gone since t217374 arrived t217200 members 0/3 size 3 loot 0 goalUnreachable=false walkUnreachable=undefined outcome=looted
+-- forks (save/load): at, why, diverged tick, first script tick after the fork, comparisons
+fork at t932 (hostile): equal; first script after t1032; 12 comparisons; first load equals the unsaved game
+fork at t2132 (hostile): equal; first script after t2232; 12 comparisons; first load equals the unsaved game
+fork at t3332 (hostile): equal; first script after t3432; 12 comparisons; first load equals the unsaved game
+fork at t47100 (caravan): equal; first script after t47400; 12 comparisons; first load differs from the unsaved game:
+      map.flags: 7 tiles differ, bits {"12":7}, first at (16,36,19) 0 vs 4096
+fork at t48300 (caravan): equal; first script after t48600; 12 comparisons; first load differs from the unsaved game:
+      map.flags: 7 tiles differ, bits {"12":7}, first at (16,36,19) 0 vs 4096
+fork at t51900 (caravan): equal; first script after t52200; 12 comparisons; first load differs from the unsaved game:
+      map.flags: 7 tiles differ, bits {"12":7}, first at (16,36,19) 0 vs 4096
+fork at t73500 (combat): equal; first script after t73800; 12 comparisons; first load differs from the unsaved game
+fork at t80700 (alert): equal; first script after t81000; 12 comparisons; first load differs from the unsaved game
+fork at t81900 (alert): equal; first script after t82200; 12 comparisons; first load differs from the unsaved game
+fork at t83100 (alert): equal; first script after t83400; 12 comparisons; first load differs from the unsaved game
+fork at t180600 (random): equal; first script after t180900; 12 comparisons; first load differs from the unsaved game
+fork at t206400 (random): equal; first script after t206700; 12 comparisons; first load differs from the unsaved game
+fork at t278100 (random): equal; first script after t278400; 12 comparisons; first load differs from the unsaved game
+fork at t288300 (random): equal; first script after t288600; 12 comparisons; first load differs from the unsaved game
+fork at t331500 (random): equal; first script after t331800; 12 comparisons; first load differs from the unsaved game
+fork at t385800 (random): equal; first script after t386100; 12 comparisons; first load differs from the unsaved game
+-- rejected commands
+{}
+-- events
+{"ZoneChanged":2,"FluidsChanged":9046,"JobCreated":540,"EntitiesMoved":12423,"TemperatureTick":40237,"StocksChanged":946,"HourPassed":8047,"TilesChanged":901,"JobStarted":366,"MoodTierChanged":334,"ItemReleased":78,"JobCompleted":331,"ItemReserved":115,"JobClaimed":701,"BuildingPlaced":10,"TreeFelled":207,"ItemCreated":1606,"JobBlocked":845,"JobCancelled":20,"ToolEquipped":2,"JobUnblocked":424,"NeedCritical":109,"Slept":358,"DwarfIdle":350,"CropPlanted":20,"DayPassed":335,"WebSpun":335,"HallSpiritChanged":41,"WeatherChanged":385,"StockpileFull":27,"Talked":179,"ItemDestroyed":1041,"DrankAlcohol":60,"BuildingCompleted":2,"ItemCrafted":28,"MealEaten":75,"DwarfOutdoorsIn":566,"ItemRotStage":110,"SkillLevelUp":3,"WealthChanged":7,"SulkHappened":17,"Starving":170,"ItemRotted":30,"Starvation":130,"WoundInflicted":150,"AnimalBorn":7,"ThoughtGained":8,"SeasonChanged":11,"SeasonEffectsChanged":11,"ImmigrantsArrived":1,"CreatureDied":20,"CorpseCreated":20,"CropHarvested":10,"PlotNeedsSeeds":3,"LightningStrike":34,"FireStarted":34,"FireOut":34,"CaravanArrived":8,"CaravanAtDepot":8,"RaidArrived":13,"HostileSpawned":35,"ThiefSpotted":1,"ThreatNearby":100,"RaidEnded":8,"CaravanDeparted":8,"AttackResolved":59,"DamageDealt":34,"KillRecorded":10,"AlertChanged":3,"SquadOrderIssued":3,"CreatureUnconscious":6,"LimbLost":6,"ThiefEscaped":11,"TileFrozen":3502,"CropDied":10,"SnowCoverChanged":100,"TileThawed":3451,"YearPassed":2,"SaplingGrew":15,"ThreatWarning":3,"ObsidianFormed":46,"MistProduced":
+
+################ three-years-p4-1-p4-a.txt
+run three-years-p4-1-p4-a ended at tick 403200 (day 336), dwarves alive 0, final hash e5574aa27192144b
+no exception
+== three-years-p4-1-p4-a: 91 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  creature.on-impassable: 408 hits, 1 classes, t382850..t403200
+  equip.item-missing: 50502 hits, 1 classes, t222400..t403200
+  equip.item-on-floor: 1208004 hits, 11 classes, t25250..t403200
+  item.carrier-dead: 546431 hits, 21 classes, t25350..t403200
+  item.owner-dead: 578669 hits, 17 classes, t25350..t403200
+  item.reserved-by-missing-job: 1615 hits, 3 classes, t27650..t82750
+  item.two-places: 2160793 hits, 16 classes, t25250..t403200
+  job.target-dead: 516423 hits, 7 classes, t68700..t403200
+  party.active-over-10d: 14 hits, 4 classes, t68500..t391300
+  party.approach-over-3d: 12 hits, 3 classes, t77500..t382850
+  party.gone-not-removed-2d: 18 hits, 2 classes, t27800..t386700
+  party.loot-missing: 1 hits, 1 classes, t79500..t79500
+  party.retreat-over-2d: 3 hits, 1 classes, t59050..t184950
+  room.owner-dead: 10 hits, 1 classes, t70050..t73850
+  stock.available-drift: 7657 hits, 2 classes, t43350..t403200
+-- detail
+creature.on-impassable [blind_stalker/hostile:cavern/kind8] x408 t382850..t403200
+    t382850: creature 16777225 blind_stalker at (37,42,13) class walker kind 8 fluid 0
+    t382900: creature 16777225 blind_stalker at (37,42,13) class walker kind 8 fluid 0
+    t382950: creature 16777225 blind_stalker at (37,42,13) class walker kind 8 fluid 0
+    t383000: creature 16777225 blind_stalker at (37,42,13) class walker kind 8 fluid 0
+equip.item-missing [weapon] x50502 t222400..t403200
+    t222400: creature 16778107 weapon=16778108 not a living item
+    t222450: creature 16778107 weapon=16778108 not a living item
+    t222500: creature 50332196 weapon=50332195 not a living item
+    t222500: creature 16778107 weapon=16778108 not a living item
+equip.item-on-floor [weapon/axe] x259363 t25250..t403200
+    t25250: creature 16777641 weapon=16777642 but the item has a Position (0,0,32); carriedBy=16777641
+    t25300: creature 16777641 weapon=16777642 but the item has a Position (0,0,32); carriedBy=16777641
+    t56450: creature 218103939 weapon=50332166 but the item has a Position (0,0,32); carriedBy=218103939
+    t56500: creature 218103939 weapon=50332166 but the item has a Position (0,0,32); carriedBy=218103939
+equip.item-on-floor [armor.legs/leggings] x190761 t25250..t403200
+    t25250: creature 16777641 armor.legs=16777644 but the item has a Position (0,0,32); carriedBy=16777641
+    t25300: creature 16777641 armor.legs=16777644 but the item has a Position (0,0,32); carriedBy=16777641
+    t56450: creature 218103939 armor.legs=50332162 but the item has a Position (0,0,32); carriedBy=218103939
+    t56500: creature 218103939 armor.legs=50332162 but the item has a Position (0,0,32); carriedBy=218103939
+equip.item-on-floor [armor.body/mail_shirt] x172624 t56450..t403200
+    t56450: creature 218103939 armor.body=50332163 but the item has a Position (0,0,32); carriedBy=218103939
+    t56500: creature 218103939 armor.body=50332163 but the item has a Position (0,0,32); carriedBy=218103939
+    t56550: creature 218103939 armor.body=50332163 but the item has a Position (0,0,32); carriedBy=218103939
+    t56600: creature 218103939 armor.body=50332163 but the item has a Position (0,0,32); carriedBy=218103939
+equip.item-on-floor [armor.head/helm] x157003 t56450..t403200
+    t56450: creature 218103939 armor.head=50332164 but the item has a Position (0,0,32); carriedBy=218103939
+    t56500: creature 218103939 armor.head=50332164 but the item has a Position (0,0,32); carriedBy=218103939
+    t56550: creature 218103939 armor.head=50332164 but the item has a Position (0,0,32); carriedBy=218103939
+    t56600: creature 218103939 armor.head=50332164 but the item has a Position (0,0,32); carriedBy=218103939
+equip.item-on-floor [shield/shield] x146272 t56450..t403200
+    t56450: creature 218103939 shield=50332165 but the item has a Position (0,0,32); carriedBy=218103939
+    t56500: creature 218103939 shield=50332165 but the item has a Position (0,0,32); carriedBy=218103939
+    t56550: creature 218103939 shield=50332165 but the item has a Position (0,0,32); carriedBy=218103939
+    t56600: creature 218103939 shield=50332165 but the item has a Position (0,0,32); carriedBy=218103939
+equip.item-on-floor [armor.head/cap] x97639 t68450..t403200
+    t68450: creature 50332281 armor.head=50332279 but the item has a Position (2,0,32); carriedBy=50332281
+    t68450: creature 50332285 armor.head=50332282 but the item has a Position (0,0,32); carriedBy=50332285
+    t68500: creature 50332278 armor.head=50332275 but the item has a Position (4,0,32); carriedBy=50332278
+    t68500: creature 50332281 armor.head=50332279 but the item has a Position (2,0,32); carriedBy=50332281
+equip.item-on-floor [armor.legs/greaves] x68602 t73250..t403200
+    t73250: creature 117441080 armor.legs=50332211 but the item has a Position (0,0,32); carriedBy=117441080
+    t73300: creature 117441080 armor.legs=50332211 but the item has a Position (0,0,32); carriedBy=117441080
+    t73350: creature 117441080 armor.legs=50332211 but the item has a Position (0,0,32); carriedBy=117441080
+    t73400: creature 117441080 armor.legs=50332211 but the item has a Position (0,0,32); carriedBy=117441080
+equip.item-on-floor [weapon/bow] x68262 t69650..t403200
+    t69650: creature 184549545 weapon=218104154 but the item has a Position (0,0,32); carriedBy=184549545
+    t69650: creature 83886713 weapon=83886710 but the item has a Position (2,0,32); carriedBy=83886713
+    t69700: creature 184549545 weapon=218104154 but the item has a Position (0,0,32); carriedBy=184549545
+    t69700: creature 83886713 weapon=83886710 but the item has a Position (2,0,32); carriedBy=83886713
+equip.item-on-floor [armor.arms/gauntlets] x47439 t73250..t403200
+    t73250: creature 117441080 armor.arms=50332210 but the item has a Position (0,0,32); carriedBy=117441080
+    t73300: creature 117441080 armor.arms=50332210 but the item has a Position (0,0,32); carriedBy=117441080
+    t73350: creature 117441080 armor.arms=50332210 but the item has a Position (0,0,32); carriedBy=117441080
+    t73400: creature 117441080 armor.arms=50332210 but the item has a Position (0,0,32); carriedBy=117441080
+equip.item-on-floor [weapon/club] x36 t68450..t258350
+    t68450: creature 50332281 weapon=50332280 but the item has a Position (2,0,32); carriedBy=50332281
+    t68450: creature 50332285 weapon=50332284 but the item has a Position (0,0,32); carriedBy=50332285
+    t68500: creature 50332278 weapon=50332277 but the item has a Position (4,0,32); carriedBy=50332278
+    t68500: creature 50332281 weapon=50332280 but the item has a Position (2,0,32); carriedBy=50332281
+equip.item-on-floor [weapon/short_sword] x3 t258100..t258200
+    t258100: creature 50332640 weapon=50332639 but the item has a Position (4,0,32); carriedBy=50332640
+    t258150: creature 50332640 weapon=50332639 but the item has a Position (4,0,32); carriedBy=50332640
+    t258200: creature 50332640 weapon=50332639 but the item has a Position (4,0,32); carriedBy=50332640
+item.carrier-dead [axe] x69049 t25350..t403200
+    t25350: item 16777642 axe carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25400: item 16777642 axe carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25450: item 16777642 axe carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25500: item 16777642 axe carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [arrow] x64560 t90350..t403200
+    t90350: item 16777898 arrow carriedBy=251658545 not alive; pos=(none) flags=80
+    t90350: item 16777903 arrow carriedBy=16777901 not alive; pos=(none) flags=80
+    t90350: item 16777908 arrow carriedBy=16777906 not alive; pos=(none) flags=80
+    t90350: item 16777913 arrow carriedBy=16777911 not alive; pos=(none) flags=80
+item.carrier-dead [dagger] x64560 t90350..t403200
+    t90350: item 16777899 dagger carriedBy=251658545 not alive; pos=(none) flags=80
+    t90350: item 16777904 dagger carriedBy=16777901 not alive; pos=(none) flags=80
+    t90350: item 16777909 dagger carriedBy=16777906 not alive; pos=(none) flags=80
+    t90350: item 16777914 dagger carriedBy=16777911 not alive; pos=(none) flags=80
+item.carrier-dead [leggings] x62387 t25350..t403200
+    t25350: item 16777644 leggings carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25400: item 16777644 leggings carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25450: item 16777644 leggings carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25500: item 16777644 leggings carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [mace] x39718 t71150..t403200
+    t71150: item 50332249 mace carriedBy=50332251 not alive; pos=(10,0,32) flags=272
+    t71200: item 50332249 mace carriedBy=50332251 not alive; pos=(10,0,32) flags=272
+    t71250: item 50332249 mace carriedBy=50332251 not alive; pos=(10,0,32) flags=272
+    t71300: item 50332249 mace carriedBy=50332251 not alive; pos=(10,0,32) flags=272
+item.carrier-dead [helm] x39054 t74900..t403200
+    t74900: item 50332209 helm carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t74950: item 50332209 helm carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t75000: item 50332209 helm carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t75050: item 50332209 helm carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [spear] x36134 t25350..t403200
+    t25350: item 16777643 spear carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25400: item 16777643 spear carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25450: item 16777643 spear carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25500: item 16777643 spear carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [shield] x29369 t84050..t403200
+    t84050: item 16777896 shield carriedBy=117441188 not alive; pos=(0,0,32) flags=272
+    t84100: item 16777896 shield carriedBy=117441188 not alive; pos=(0,0,32) flags=272
+    t84150: item 16777896 shield carriedBy=117441188 not alive; pos=(0,0,32) flags=272
+    t84200: item 16777896 shield carriedBy=117441188 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [cap] x28755 t68950..t403200
+    t68950: item 50332275 cap carriedBy=50332278 not alive; pos=(4,0,32) flags=272
+    t68950: item 50332279 cap carriedBy=50332281 not alive; pos=(2,0,32) flags=272
+    t68950: item 50332282 cap carriedBy=50332285 not alive; pos=(0,0,32) flags=272
+    t69000: item 50332275 cap carriedBy=50332278 not alive; pos=(4,0,32) flags=272
+item.carrier-dead [mail_shirt] x27957 t84050..t403200
+    t84050: item 16777895 mail_shirt carriedBy=117441188 not alive; pos=(0,0,32) flags=272
+    t84100: item 16777895 mail_shirt carriedBy=117441188 not alive; pos=(0,0,32) flags=272
+    t84150: item 16777895 mail_shirt carriedBy=117441188 not alive; pos=(0,0,32) flags=272
+    t84200: item 16777895 mail_shirt carriedBy=117441188 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [short_sword] x19169 t68950..t403200
+    t68950: item 50332276 short_sword carriedBy=50332278 not alive; pos=(4,0,32) flags=272
+    t68950: item 50332283 short_sword carriedBy=50332285 not alive; pos=(0,0,32) flags=272
+    t69000: item 50332276 short_sword carriedBy=50332278 not alive; pos=(4,0,32) flags=272
+    t69000: item 50332283 short_sword carriedBy=50332285 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [pick] x14104 t27650..t403200
+    t27650: item 16777230 pick carriedBy=16777289 not alive; pos=(none) flags=0
+    t27700: item 16777230 pick carriedBy=16777289 not alive; pos=(none) flags=0
+    t27750: item 16777230 pick carriedBy=16777289 not alive; pos=(none) flags=0
+    t27800: item 16777230 pick carriedBy=16777289 not alive; pos=(none) flags=0
+item.carrier-dead [club] x12135 t68950..t403200
+    t68950: item 50332277 club carriedBy=50332278 not alive; pos=(4,0,32) flags=272
+    t68950: item 50332280 club carriedBy=50332281 not alive; pos=(2,0,32) flags=272
+    t68950: item 50332284 club carriedBy=50332285 not alive; pos=(0,0,32) flags=272
+    t69000: item 50332277 club carriedBy=50332278 not alive; pos=(4,0,32) flags=272
+item.carrier-dead [bag] x6642 t71150..t403200
+    t71150: item 16777254 bag carriedBy=50332251 not alive; pos=(none) flags=0
+    t71200: item 16777254 bag carriedBy=50332251 not alive; pos=(none) flags=0
+    t71250: item 16777254 bag carriedBy=50332251 not alive; pos=(none) flags=0
+    t71300: item 16777254 bag carriedBy=50332251 not alive; pos=(none) flags=0
+item.carrier-dead [tunic] x6568 t70950..t403200
+    t70950: item 50331923 tunic carriedBy=83886195 not alive; pos=(none) flags=0
+    t74900: item 16777314 tunic carriedBy=117441080 not alive; pos=(none) flags=0
+    t74950: item 16777314 tunic carriedBy=117441080 not alive; pos=(none) flags=0
+    t75000: item 16777314 tunic carriedBy=117441080 not alive; pos=(none) flags=0
+item.carrier-dead [gauntlets] x6567 t74900..t403200
+    t74900: item 50332206 gauntlets carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t74950: item 50332206 gauntlets carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t75000: item 50332206 gauntlets carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t75050: item 50332206 gauntlets carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [greaves] x6567 t74900..t403200
+    t74900: item 50332207 greaves carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t74950: item 50332207 greaves carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t75000: item 50332207 greaves carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t75050: item 50332207 greaves carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [breastplate] x6567 t74900..t403200
+    t74900: item 50332208 breastplate carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t74950: item 50332208 breastplate carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t75000: item 50332208 breastplate carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t75050: item 50332208 breastplate carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [warhammer] x6567 t74900..t403200
+    t74900: item 50332215 warhammer carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t74950: item 50332215 warhammer carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t75000: item 50332215 warhammer carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+    t75050: item 50332215 warhammer carriedBy=117441080 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [trousers] x1 t70950..t70950
+    t70950: item 50331715 trousers carriedBy=83886195 not alive; pos=(none) flags=0
+item.carrier-dead [boots] x1 t70950..t70950
+    t70950: item 50331871 boots carriedBy=83886195 not alive; pos=(none) flags=0
+item.owner-dead [axe] x72036 t25350..t403200
+    t25350: item 16777642 axe ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25400: item 16777642 axe ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25450: item 16777642 axe ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25500: item 16777642 axe ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [leggings] x71448 t25350..t403200
+    t25350: item 16777644 leggings ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25400: item 16777644 leggings ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25450: item 16777644 leggings ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25500: item 16777644 leggings ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [arrow] x64560 t90350..t403200
+    t90350: item 16777898 arrow ownerId=251658545 not alive, flags=80 pos=(none)
+    t90350: item 16777903 arrow ownerId=16777901 not alive, flags=80 pos=(none)
+    t90350: item 16777908 arrow ownerId=16777906 not alive, flags=80 pos=(none)
+    t90350: item 16777913 arrow ownerId=16777911 not alive, flags=80 pos=(none)
+item.owner-dead [dagger] x64560 t90350..t403200
+    t90350: item 16777899 dagger ownerId=251658545 not alive, flags=80 pos=(none)
+    t90350: item 16777904 dagger ownerId=16777901 not alive, flags=80 pos=(none)
+    t90350: item 16777909 dagger ownerId=16777906 not alive, flags=80 pos=(none)
+    t90350: item 16777914 dagger ownerId=16777911 not alive, flags=80 pos=(none)
+item.owner-dead [helm] x49026 t70050..t403200
+    t70050: item 150995386 helm ownerId=16777293 not alive, flags=16 pos=(none)
+    t70100: item 150995386 helm ownerId=16777293 not alive, flags=16 pos=(none)
+    t70150: item 150995386 helm ownerId=16777293 not alive, flags=16 pos=(none)
+    t70200: item 150995386 helm ownerId=16777293 not alive, flags=16 pos=(none)
+item.owner-dead [mace] x39718 t71150..t403200
+    t71150: item 50332249 mace ownerId=50332251 not alive, flags=272 pos=(10,0,32)
+    t71200: item 50332249 mace ownerId=50332251 not alive, flags=272 pos=(10,0,32)
+    t71250: item 50332249 mace ownerId=50332251 not alive, flags=272 pos=(10,0,32)
+    t71300: item 50332249 mace ownerId=50332251 not alive, flags=272 pos=(10,0,32)
+item.owner-dead [shield] x38948 t70400..t403200
+    t70400: item 50332260 shield ownerId=50332261 not alive, flags=272 pos=(none)
+    t70450: item 50332260 shield ownerId=50332261 not alive, flags=272 pos=(none)
+    t70500: item 50332260 shield ownerId=50332261 not alive, flags=272 pos=(none)
+    t70550: item 50332260 shield ownerId=50332261 not alive, flags=272 pos=(none)
+item.owner-dead [spear] x36134 t25350..t403200
+    t25350: item 16777643 spear ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25400: item 16777643 spear ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25450: item 16777643 spear ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25500: item 16777643 spear ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [mail_shirt] x36074 t70400..t403200
+    t70400: item 50332259 mail_shirt ownerId=50332261 not alive, flags=272 pos=(none)
+    t70450: item 50332259 mail_shirt ownerId=50332261 not alive, flags=272 pos=(none)
+    t70500: item 50332259 mail_shirt ownerId=50332261 not alive, flags=272 pos=(none)
+    t70550: item 50332259 mail_shirt ownerId=50332261 not alive, flags=272 pos=(none)
+item.owner-dead [cap] x28755 t68950..t403200
+    t68950: item 50332275 cap ownerId=50332278 not alive, flags=272 pos=(4,0,32)
+    t68950: item 50332279 cap ownerId=50332281 not alive, flags=272 pos=(2,0,32)
+    t68950: item 50332282 cap ownerId=50332285 not alive, flags=272 pos=(0,0,32)
+    t69000: item 50332275 cap ownerId=50332278 not alive, flags=272 pos=(4,0,32)
+item.owner-dead [short_sword] x19169 t68950..t403200
+    t68950: item 50332276 short_sword ownerId=50332278 not alive, flags=272 pos=(4,0,32)
+    t68950: item 50332283 short_sword ownerId=50332285 not alive, flags=272 pos=(0,0,32)
+    t69000: item 50332276 short_sword ownerId=50332278 not alive, flags=272 pos=(4,0,32)
+    t69000: item 50332283 short_sword ownerId=50332285 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [gauntlets] x13134 t74900..t403200
+    t74900: item 50332206 gauntlets ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+    t74900: item 50332210 gauntlets ownerId=117441080 not alive, flags=272 pos=(none)
+    t74950: item 50332206 gauntlets ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+    t74950: item 50332210 gauntlets ownerId=117441080 not alive, flags=272 pos=(none)
+item.owner-dead [greaves] x13134 t74900..t403200
+    t74900: item 50332207 greaves ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+    t74900: item 50332211 greaves ownerId=117441080 not alive, flags=272 pos=(none)
+    t74950: item 50332207 greaves ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+    t74950: item 50332211 greaves ownerId=117441080 not alive, flags=272 pos=(none)
+item.owner-dead [club] x12135 t68950..t403200
+    t68950: item 50332277 club ownerId=50332278 not alive, flags=272 pos=(4,0,32)
+    t68950: item 50332280 club ownerId=50332281 not alive, flags=272 pos=(2,0,32)
+    t68950: item 50332284 club ownerId=50332285 not alive, flags=272 pos=(0,0,32)
+    t69000: item 50332277 club ownerId=50332278 not alive, flags=272 pos=(4,0,32)
+item.owner-dead [pick] x6704 t70050..t259450
+    t70050: item 150995289 pick ownerId=16777293 not alive, flags=16 pos=(none)
+    t70100: item 150995289 pick ownerId=16777293 not alive, flags=16 pos=(none)
+    t70150: item 150995289 pick ownerId=16777293 not alive, flags=16 pos=(none)
+    t70200: item 150995289 pick ownerId=16777293 not alive, flags=16 pos=(none)
+item.owner-dead [breastplate] x6567 t74900..t403200
+    t74900: item 50332208 breastplate ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+    t74950: item 50332208 breastplate ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+    t75000: item 50332208 breastplate ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+    t75050: item 50332208 breastplate ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [warhammer] x6567 t74900..t403200
+    t74900: item 50332215 warhammer ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+    t74950: item 50332215 warhammer ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+    t75000: item 50332215 warhammer ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+    t75050: item 50332215 warhammer ownerId=117441080 not alive, flags=272 pos=(0,0,32)
+item.reserved-by-missing-job [rotten] x1008 t36000..t82750
+    t36000: item 16777689 rotten x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t36050: item 16777689 rotten x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t36100: item 16777689 rotten x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t36150: item 16777689 rotten x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+item.reserved-by-missing-job [easy_meal] x440 t27650..t74350
+    t27650: item 50331868 easy_meal x1 reservedBy=16777289, no such job and no such living creature; pos=(none) container=16777247 carriedBy=0
+    t27700: item 50331868 easy_meal x1 reservedBy=16777289, no such job and no such living creature; pos=(none) container=16777247 carriedBy=0
+    t27750: item 50331868 easy_meal x1 reservedBy=16777289, no such job and no such living creature; pos=(none) container=16777247 carriedBy=0
+    t27800: item 50331868 easy_meal x1 reservedBy=16777289, no such job and no such living creature; pos=(none) container=16777247 carriedBy=0
+item.reserved-by-missing-job [fine_meal] x167 t27650..t35950
+    t27650: item 16777689 fine_meal x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t27700: item 16777689 fine_meal x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t27750: item 16777689 fine_meal x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t27800: item 16777689 fine_meal x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+item.two-places [axe] x321750 t25250..t403200
+    t25250: item 16777642 axe pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25300: item 16777642 axe pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25350: item 16777642 axe pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25400: item 16777642 axe pos=(0,0,32) containerId=0 carriedBy=16777641
+item.two-places [leggings] x253148 t25250..t403200
+    t25250: item 16777644 leggings pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25300: item 16777644 leggings pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25350: item 16777644 leggings pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25400: item 16777644 leggings pos=(0,0,32) containerId=0 carriedBy=16777641
+item.two-places [helm] x208222 t56450..t403200
+    t56450: item 50332164 helm pos=(0,0,32) containerId=0 carriedBy=218103939
+    t56500: item 50332164 helm pos=(0,0,32) containerId=0 carriedBy=218103939
+    t56550: item 50332164 helm pos=(0,0,32) containerId=0 carriedBy=218103939
+    t56600: item 50332164 helm pos=(0,0,32) containerId=0 carriedBy=218103939
+item.two-places [mail_shirt] x200581 t56450..t403200
+    t56450: item 50332163 mail_shirt pos=(0,0,32) containerId=0 carriedBy=218103939
+    t56500: item 50332163 mail_shirt pos=(0,0,32) containerId=0 carriedBy=218103939
+    t56550: item 50332163 mail_shirt pos=(0,0,32) containerId=0 carriedBy=218103939
+    t56600: item 50332163 mail_shirt pos=(0,0,32) containerId=0 carriedBy=218103939
+item.two-places [shield] x183093 t56450..t403200
+    t56450: item 50332165 shield pos=(0,0,32) containerId=0 carriedBy=218103939
+    t56500: item 50332165 shield pos=(0,0,32) containerId=0 carriedBy=218103939
+    t56550: item 50332165 shield pos=(0,0,32) containerId=0 carriedBy=218103939
+    t56600: item 50332165 shield pos=(0,0,32) containerId=0 carriedBy=218103939
+item.two-places [spear] x158943 t25250..t403200
+    t25250: item 16777643 spear pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25300: item 16777643 spear pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25350: item 16777643 spear pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25400: item 16777643 spear pos=(0,0,32) containerId=0 carriedBy=16777641
+item.two-places [mace] x156989 t69650..t403200
+    t69650: item 50332267 mace pos=(4,0,32) containerId=0 carriedBy=50332269
+    t69700: item 50332249 mace pos=(10,0,32) containerId=0 carriedBy=50332251
+    t69700: item 50332255 mace pos=(8,0,32) containerId=0 carriedBy=50332258
+    t69700: item 50332267 mace pos=(4,0,32) containerId=0 carriedBy=50332269
+item.two-places [short_sword] x137962 t68450..t403200
+    t68450: item 50332283 short_sword pos=(0,0,32) containerId=0 carriedBy=50332285
+    t68500: item 50332276 short_sword pos=(4,0,32) containerId=0 carriedBy=50332278
+    t68500: item 50332283 short_sword pos=(0,0,32) containerId=0 carriedBy=50332285
+    t68550: item 50332276 short_sword pos=(4,0,32) containerId=0 carriedBy=50332278
+item.two-places [cap] x126394 t68450..t403200
+    t68450: item 50332279 cap pos=(2,0,32) containerId=0 carriedBy=50332281
+    t68450: item 50332282 cap pos=(0,0,32) containerId=0 carriedBy=50332285
+    t68500: item 50332275 cap pos=(4,0,32) containerId=0 carriedBy=50332278
+    t68500: item 50332279 cap pos=(2,0,32) containerId=0 carriedBy=50332281
+item.two-places [arrow] x112113 t69650..t403200
+    t69650: item 50332272 arrow pos=(2,0,32) containerId=0 carriedBy=83886713
+    t69650: item 83886717 arrow pos=(0,0,32) containerId=0 carriedBy=184549545
+    t69700: item 50332272 arrow pos=(2,0,32) containerId=0 carriedBy=83886713
+    t69700: item 83886717 arrow pos=(0,0,32) containerId=0 carriedBy=184549545
+item.two-places [greaves] x87334 t73250..t403200
+    t73250: item 50332207 greaves pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73250: item 50332211 greaves pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73300: item 50332207 greaves pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73300: item 50332211 greaves pos=(0,0,32) containerId=0 carriedBy=117441080
+item.two-places [bow] x68262 t69650..t403200
+    t69650: item 218104154 bow pos=(0,0,32) containerId=0 carriedBy=184549545
+    t69650: item 83886710 bow pos=(2,0,32) containerId=0 carriedBy=83886713
+    t69700: item 218104154 bow pos=(0,0,32) containerId=0 carriedBy=184549545
+    t69700: item 83886710 bow pos=(2,0,32) containerId=0 carriedBy=83886713
+item.two-places [gauntlets] x58719 t73250..t403200
+    t73250: item 50332206 gauntlets pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73250: item 50332210 gauntlets pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73300: item 50332206 gauntlets pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73300: item 50332210 gauntlets pos=(0,0,32) containerId=0 carriedBy=117441080
+item.two-places [warhammer] x56380 t73250..t403200
+    t73250: item 50332215 warhammer pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73300: item 50332215 warhammer pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73350: item 50332215 warhammer pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73400: item 50332215 warhammer pos=(0,0,32) containerId=0 carriedBy=117441080
+item.two-places [breastplate] x18732 t73250..t403200
+    t73250: item 50332208 breastplate pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73300: item 50332208 breastplate pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73350: item 50332208 breastplate pos=(0,0,32) containerId=0 carriedBy=117441080
+    t73400: item 50332208 breastplate pos=(0,0,32) containerId=0 carriedBy=117441080
+item.two-places [club] x12171 t68450..t403200
+    t68450: item 50332280 club pos=(2,0,32) containerId=0 carriedBy=50332281
+    t68450: item 50332284 club pos=(0,0,32) containerId=0 carriedBy=50332285
+    t68500: item 50332277 club pos=(4,0,32) containerId=0 carriedBy=50332278
+    t68500: item 50332280 club pos=(2,0,32) containerId=0 carriedBy=50332281
+job.target-dead [stop_bleeding/entity/open] x112536 t68700..t403200
+    t68700: job 2764 stop_bleeding target entity 16777288 not alive, state open, age 96
+    t68750: job 2764 stop_bleeding target entity 16777288 not alive, state open, age 146
+    t68800: job 2764 stop_bleeding target entity 16777288 not alive, state open, age 196
+    t68850: job 2764 stop_bleeding target entity 16777288 not alive, state open, age 246
+job.target-dead [feed_patient/entity/open] x79471 t70050..t403200
+    t70050: job 2903 feed_patient target entity 16777293 not alive, state open, age 136
+    t70100: job 2903 feed_patient target entity 16777293 not alive, state open, age 186
+    t70150: job 2875 feed_patient target entity 16777291 not alive, state open, age 378
+    t70150: job 2903 feed_patient target entity 16777293 not alive, state open, age 236
+job.target-dead [suture/entity/open] x79471 t70050..t403200
+    t70050: job 2906 suture target entity 16777293 not alive, state open, age 136
+    t70100: job 2906 suture target entity 16777293 not alive, state open, age 186
+    t70150: job 2878 suture target entity 16777291 not alive, state open, age 378
+    t70150: job 2906 suture target entity 16777293 not alive, state open, age 236
+job.target-dead [clean_wound/entity/open] x79471 t70050..t403200
+    t70050: job 2907 clean_wound target entity 16777293 not alive, state open, age 136
+    t70100: job 2907 clean_wound target entity 16777293 not alive, state open, age 186
+    t70150: job 2879 clean_wound target entity 16777291 not alive, state open, age 378
+    t70150: job 2907 clean_wound target entity 16777293 not alive, state open, age 236
+job.target-dead [diagnose/entity/open] x79471 t70050..t403200
+    t70050: job 2908 diagnose target entity 16777293 not alive, state open, age 136
+    t70100: job 2908 diagnose target entity 16777293 not alive, state open, age 186
+    t70150: job 2880 diagnose target entity 16777291 not alive, state open, age 378
+    t70150: job 2908 diagnose target entity 16777293 not alive, state open, age 236
+job.target-dead [water_patient/entity/open] x72825 t70050..t403200
+    t70050: job 2904 water_patient target entity 16777293 not alive, state open, age 136
+    t70100: job 2904 water_patient target entity 16777293 not alive, state open, age 186
+    t70150: job 2876 water_patient target entity 16777291 not alive, state open, age 378
+    t70150: job 2904 water_patient target entity 16777293 not alive, state open, age 236
+job.target-dead [give_crutch/entity/open] x13178 t73750..t403200
+    t73750: job 2984 give_crutch target entity 184549869 not alive, state open, age 48
+    t73800: job 2984 give_crutch target entity 184549869 not alive, state open, age 98
+    t73850: job 2975 give_crutch target entity 16777698 not alive, state open, age 171
+    t73850: job 2984 give_crutch target entity 184549869 not alive, state open, age 148
+party.active-over-10d [ambush/approach] x7 t81700..t391300
+    t81700: party 83886312 gloam ambush state approach since t73881 arrived t69600 members 4/6 size 6 loot 5 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t136900: party 83886680 gloam ambush state approach since t124800 arrived t124800 members 5/5 size 5 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t171700: party 83886882 gloam ambush state approach since t159600 arrived t159600 members 5/5 size 5 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t223300: party 117441287 gloam ambush state approach since t211200 arrived t211200 members 5/5 size 5 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+party.active-over-10d [raid/approach] x4 t85300..t357700
+    t85300: party 117440665 gloam raid state approach since t73881 arrived t73201 members 11/12 size 11 loot 11 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t186100: party 16778084 gloam raid state approach since t174001 arrived t174001 members 12/12 size 11 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t271900: party 218103940 gloam raid state approach since t259801 arrived t259801 members 11/11 size 10 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t357700: party 83886689 gloam raid state approach since t345601 arrived t345601 members 11/11 size 10 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+party.active-over-10d [thief/retreat] x2 t68500..t194500
+    t68500: party 285213115 gloam thief state retreat since t56629 arrived t56400 members 1/1 size 1 loot 2 goalUnreachable=false walkUnreachable=undefined outcome=withdrew
+    t194500: party 83886137 gloam thief state retreat since t182529 arrived t182400 members 1/1 size 1 loot 1 goalUnreachable=false walkUnreachable=undefined outcome=looted
+party.active-over-10d [siege/approach] x1 t238900..t238900
+    t238900: party 150995713 gloam siege state approach since t226801 arrived t226801 members 23/23 size 19 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+party.approach-over-3d [ambush/approach] x7 t77500..t382850
+    t77500: party 83886312 gloam ambush state approach since t73881 arrived t69600 members 4/6 size 6 loot 5 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t128450: party 83886680 gloam ambush state approach since t124800 arrived t124800 members 5/5 size 5 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t163250: party 83886882 gloam ambush state approach since t159600 arrived t159600 members 5/5 size 5 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t214850: party 117441287 gloam ambush state approach since t211200 arrived t211200 members 5/5 size 5 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+party.approach-over-3d [raid/approach] x4 t77500..t349250
+    t77500: party 117440665 gloam raid state approach since t73881 arrived t73201 members 11/12 size 11 loot 11 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t177650: party 16778084 gloam raid state approach since t174001 arrived t174001 members 12/12 size 11 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t263450: party 218103940 gloam raid state approach since t259801 arrived t259801 members 11/11 size 10 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+    t349250: party 83886689 gloam raid state approach since t345601 arrived t345601 members 11/11 size 10 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+party.approach-over-3d [siege/approach] x1 t230450..t230450
+    t230450: party 150995713 gloam siege state approach since t226801 arrived t226801 members 23/23 size 19 loot 0 goalUnreachable=false walkUnreachable=false outcome=undefined
+party.gone-not-removed-2d [thief/gone] x16 t27800..t386700
+    t27800: party 16777640 gloam thief state gone since t25283 arrived t25200 members 0/1 size 1 loot 0 goalUnreachable=false walkUnreachable=false outcome=withdrew
+    t86500: party 117441157 gloam thief state gone since t76929 arrived t76800 members 0/1 size 1 loot 0 goalUnreachable=false walkUnreachable=undefined outcome=looted
+    t102200: party 285213115 gloam thief state gone since t56629 arrived t56400 members 0/1 size 1 loot 1 goalUnreachable=false walkUnreachable=undefined outcome=withdrew
+    t103500: party 50331665 gloam thief state gone since t100929 arrived t100800 members 0/1 size 1 loot 0 goalUnreachable=false walkUnreachable=false outcome=looted
+party.gone-not-removed-2d [bandits/gone] x2 t71400..t260850
+    t71400: party 83886718 hillfolk bandits state gone since t68882 arrived t68400 members 0/3 size 3 loot 0 goalUnreachable=false walkUnreachable=undefined outcome=looted
+    t260850: party 184549818 hillfolk bandits state gone since t258221 arrived t258000 members 0/3 size 3 loot 0 goalUnreachable=false walkUnreachable=false outcome=looted
+party.loot-missing [thief/retreat] x1 t79500..t79500
+    t79500: party 285213115 loot 218104113 not alive
+party.retreat-over-2d [thief/retreat] x3 t59050..t184950
+    t59050: party 285213115 gloam thief state retreat since t56629 arrived t56400 members 1/1 size 1 loot 2 goalUnreachable=false walkUnreachable=undefined outcome=withdrew
+    t79350: party 117441157 gloam thief state retreat since t76929 arrived t76800 members 1/1 size 1 loot 1 goalUnreachable=false walkUnreachable=undefined outcome=looted
+    t184950: party 83886137 gloam thief state retreat since t182529 arrived t182400 members 1/1 size 1 loot 1 goalUnreachable=false walkUnreachable=undefined outcome=looted
+room.owner-dead [-] x10 t70050..t73850
+    t70050: room 16777567 ownerId=16777293 not alive
+    t70150: room 50331968 ownerId=16777291 not alive
+    t70350: room 16777866 ownerId=50332122 not alive
+    t70500: room 16777578 ownerId=16777294 not alive
+stock.available-drift [pick] x7198 t43350..t403200
+    t43350: available 3 recount 2
+    t43400: available 3 recount 2
+    t43450: available 3 recount 2
+    t43500: available 3 recount 2
+stock.available-drift [helm] x459 t47100..t70000
+    t47100: available 1 recount 0
+    t47150: available 1 recount 0
+    t47200: available 1 recount 0
+    t47250: available 1 recount 0
+-- forks (save/load): at, why, diverged tick, first script tick after the fork, comparisons
+fork at t505 (hostile): equal; first script after t605; 24 comparisons
+fork at t605 (hostile): equal; first script after t705; 24 comparisons
+fork at t1705 (hostile): equal; first script after t1805; 24 comparisons
+fork at t48900 (caravan): DIVERGED by t48900; first script after tnull; 0 comparisons
+fork at t49800 (caravan): DIVERGED by t49800; first script after tnull; 0 comparisons
+fork at t51600 (caravan): DIVERGED by t51600; first script after tnull; 0 comparisons
+fork at t68700 (combat): DIVERGED by t68700; first script after tnull; 0 comparisons
+fork at t69900 (combat): DIVERGED by t69900; first script after tnull; 0 comparisons
+fork at t70200 (combat): DIVERGED by t70200; first script after tnull; 0 comparisons
+fork at t70500 (alert): DIVERGED by t70500; first script after tnull; 0 comparisons
+fork at t70800 (alert): DIVERGED by t70800; first script after tnull; 0 comparisons
+fork at t71100 (alert): DIVERGED by t71100; first script after tnull; 0 comparisons
+fork at t165300 (random): DIVERGED by t165300; first script after tnull; 0 comparisons
+fork at t190200 (random): DIVERGED by t190200; first script after tnull; 0 comparisons
+fork at t261000 (random): DIVERGED by t261000; first script after tnull; 0 comparisons
+fork at t270300 (random): DIVERGED by t270300; first script after tnull; 0 comparisons
+fork at t312600 (random): DIVERGED by t312600; first script after tnull; 0 comparisons
+fork at t366000 (random): DIVERGED by t366000; first script after tnull; 0 comparisons
+-- rejected commands
+{}
+-- events
+{"ZoneChanged":19,"JobCreated":2959,"PlotNeedsSeeds":16,"FluidsChanged":9984,"TilesChanged":1923,"StocksChanged":3023,"TemperatureTick":40279,"EntitiesMoved":41687,"ItemReleased":185,"ToolEquipped":3,"HourPassed":8055,"JobStarted":975,"JobCompleted":873,"ItemReserved":342,"JobClaimed":1483,"JobBlocked":910,"BuildingPlaced":41,"JobCancelled":1713,"TreeFelled":82,"ItemCreated":1956,"JobUnblocked":483,"StockpileFull":48,"TilesDiscovered":310,"CropPlanted":40,"MoodTierChanged":740,"Slept":347,"NeedCritical":556,"DwarfIdle":358,"DayPassed":335,"WebSpun":670,"ItemDestroyed":1522,"BuildingCompleted":32,"WeatherChanged":394,"Talked":50,"HallSpiritChanged":25,"DrankAlcohol":156,"ItemCrafted":115,"MealEaten":91,"DwarfOutdoorsIn":1158,"ItemRotStage":150,"LightningStrike":33,"FireStarted":27,"FireOut":576,"Starving":154,"WealthChanged":12,"SkillLevelUp":10,"RoomQualityChanged":18,"Starvation":72,"WoundInflicted":130,"ItemRotted":46,"RaidArrived":30,"HostileSpawned":127,"SulkHappened":10,"ThoughtGained":13,"ThiefSpotted":2,"ThreatNearby":2775,"ThiefEscaped":22,"RaidEnded":18,"WorkshopBlocked":10,"CreatureDied":22,"CorpseCreated":22,"RoomAssigned":10,"SeasonChanged":11,"SeasonEffectsChanged":11,"PetAdopted":1,"ImmigrantsArrived":2,"CropHarvested":13,"HearthLit":1,"MiasmaSpread":7,"WorkOrderCompleted":1,"CaravanArrived":8,"ProductReady":2,"CaravanAtDepot":8,"AnimalStarving":21,"ReputationChanged":2,"TradeCompleted":1,"CaravanDeparted":8,"GrassRegrown":83,"AnimalBorn":2,"BuildingRemoved":10,
+
+################ three-years-p4-1-p4-bisect.txt
+run three-years-p4-1-p4-bisect ended at tick 54000 (day 45), dwarves alive 9, final hash e6d755a08be210e7
+no exception
+end state: items 357; carried by an entity that no longer exists 4 (of them foreign 3, counted in stock 1); with both a position and a carrier 3; owned by an entity that no longer exists 3; party entities 1 (state gone 1); rooms owned by a dead dwarf 0
+== three-years-p4-1-p4-bisect: 18 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  equip.item-on-floor: 2 hits, 2 classes, t25300..t25300
+  item.carrier-dead: 1125 hits, 4 classes, t25400..t54000
+  item.owner-dead: 861 hits, 3 classes, t25400..t54000
+  item.reserved-by-missing-job: 431 hits, 3 classes, t27700..t54000
+  item.two-places: 864 hits, 3 classes, t25300..t54000
+  party.gone-not-removed-2d: 1 hits, 1 classes, t27900..t27900
+  stock.available-drift: 177 hits, 2 classes, t43400..t54000
+-- detail
+equip.item-on-floor [weapon/axe] x1 t25300..t25300
+    t25300: creature 16777641 weapon=16777642 but the item has a Position (0,0,32); carriedBy=16777641
+equip.item-on-floor [armor.legs/leggings] x1 t25300..t25300
+    t25300: creature 16777641 armor.legs=16777644 but the item has a Position (0,0,32); carriedBy=16777641
+item.carrier-dead [axe] x287 t25400..t54000
+    t25400: item 16777642 axe carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25500: item 16777642 axe carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25600: item 16777642 axe carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25700: item 16777642 axe carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [spear] x287 t25400..t54000
+    t25400: item 16777643 spear carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25500: item 16777643 spear carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25600: item 16777643 spear carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25700: item 16777643 spear carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [leggings] x287 t25400..t54000
+    t25400: item 16777644 leggings carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25500: item 16777644 leggings carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25600: item 16777644 leggings carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+    t25700: item 16777644 leggings carriedBy=16777641 not alive; pos=(0,0,32) flags=272
+item.carrier-dead [pick] x264 t27700..t54000
+    t27700: item 16777230 pick carriedBy=16777289 not alive; pos=(none) flags=0
+    t27800: item 16777230 pick carriedBy=16777289 not alive; pos=(none) flags=0
+    t27900: item 16777230 pick carriedBy=16777289 not alive; pos=(none) flags=0
+    t28000: item 16777230 pick carriedBy=16777289 not alive; pos=(none) flags=0
+item.owner-dead [axe] x287 t25400..t54000
+    t25400: item 16777642 axe ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25500: item 16777642 axe ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25600: item 16777642 axe ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25700: item 16777642 axe ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [spear] x287 t25400..t54000
+    t25400: item 16777643 spear ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25500: item 16777643 spear ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25600: item 16777643 spear ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25700: item 16777643 spear ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+item.owner-dead [leggings] x287 t25400..t54000
+    t25400: item 16777644 leggings ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25500: item 16777644 leggings ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25600: item 16777644 leggings ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+    t25700: item 16777644 leggings ownerId=16777641 not alive, flags=272 pos=(0,0,32)
+item.reserved-by-missing-job [easy_meal] x176 t27700..t45200
+    t27700: item 50331868 easy_meal x1 reservedBy=16777289, no such job and no such living creature; pos=(none) container=16777247 carriedBy=0
+    t27800: item 50331868 easy_meal x1 reservedBy=16777289, no such job and no such living creature; pos=(none) container=16777247 carriedBy=0
+    t27900: item 50331868 easy_meal x1 reservedBy=16777289, no such job and no such living creature; pos=(none) container=16777247 carriedBy=0
+    t28000: item 50331868 easy_meal x1 reservedBy=16777289, no such job and no such living creature; pos=(none) container=16777247 carriedBy=0
+item.reserved-by-missing-job [rotten] x172 t36000..t54000
+    t36000: item 16777689 rotten x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t36100: item 16777689 rotten x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t36200: item 16777689 rotten x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t36300: item 16777689 rotten x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+item.reserved-by-missing-job [fine_meal] x83 t27700..t35900
+    t27700: item 16777689 fine_meal x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t27800: item 16777689 fine_meal x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t27900: item 16777689 fine_meal x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+    t28000: item 16777689 fine_meal x1 reservedBy=16777295, no such job and no such living creature; pos=(18,7,32) container=0 carriedBy=0
+item.two-places [axe] x288 t25300..t54000
+    t25300: item 16777642 axe pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25400: item 16777642 axe pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25500: item 16777642 axe pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25600: item 16777642 axe pos=(0,0,32) containerId=0 carriedBy=16777641
+item.two-places [spear] x288 t25300..t54000
+    t25300: item 16777643 spear pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25400: item 16777643 spear pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25500: item 16777643 spear pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25600: item 16777643 spear pos=(0,0,32) containerId=0 carriedBy=16777641
+item.two-places [leggings] x288 t25300..t54000
+    t25300: item 16777644 leggings pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25400: item 16777644 leggings pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25500: item 16777644 leggings pos=(0,0,32) containerId=0 carriedBy=16777641
+    t25600: item 16777644 leggings pos=(0,0,32) containerId=0 carriedBy=16777641
+party.gone-not-removed-2d [thief/gone] x1 t27900..t27900
+    t27900: party 16777640 gloam thief state gone since t25283 arrived t25200 members 0/1 size 1 loot 0 goalUnreachable=false walkUnreachable=false outcome=withdrew
+stock.available-drift [pick] x107 t43400..t54000
+    t43400: available 3 recount 2
+    t43500: available 3 recount 2
+    t43600: available 3 recount 2
+    t43700: available 3 recount 2
+stock.available-drift [helm] x70 t47100..t54000
+    t47100: available 1 recount 0
+    t47200: available 1 recount 0
+    t47300: available 1 recount 0
+    t47400: available 1 recount 0
+-- forks (save/load): at, why, diverged tick, first script tick after the fork, comparisons
+fork at t505 (hostile): equal; first script after t605; 12 comparisons; first load equals the unsaved game
+fork at t1705 (hostile): equal; first script after t1805; 12 comparisons; first load equals the unsaved game
+fork at t2905 (hostile): equal; first script after t3005; 12 comparisons; first load equals the unsaved game
+fork at t49200 (caravan): equal; first script after t49500; 12 comparisons; first load differs from the unsaved game:
+      entity 150995436 (building) Workshop: {"assignedWorker":0,"currentJobId":0,"lastBlockedReason":"missing_input","magmaPowered":false,"orders":[{"materialFilter":"iron","mode":"maintain","priority":2,"recipe":42,"remaining":1,"threshold":3},{"materialFilter":"iron","mode":"maintain","priority":2,"recipe":49,"remaining":1,"threshold":3},{" vs {"assignedWorker":0,"currentJobId":0,"lastBlockedReason":"missing_input","magmaPowered":false,"orders":[{"materialFilter":96,"mode":"maintain","priority":2,"recipe":42,"remaining":1,"threshold":3},{"materialFilter":96,"mode":"maintain","priority":2,"recipe":49,"remaining":1,"threshold":3},{"material
+fork at t51000 (caravan): equal; first script after t51300; 12 comparisons; first load differs from the unsaved game:
+      entity 150995436 (building) Workshop: {"assignedWorker":0,"currentJobId":0,"lastBlockedReason":"missing_input","magmaPowered":false,"orders":[{"materialFilter":"iron","mode":"maintain","priority":2,"recipe":42,"remaining":1,"threshold":3},{"materialFilter":"iron","mode":"maintain","priority":2,"recipe":49,"remaining":1,"threshold":3},{" vs {"assignedWorker":0,"currentJobId":0,"lastBlockedReason":"missing_input","magmaPowered":false,"orders":[{"materialFilter":96,"mode":"maintain","priority":2,"recipe":42,"remaining":1,"threshold":3},{"materialFilter":96,"mode":"maintain","priority":2,"recipe":49,"remaining":1,"threshold":3},{"material
+-- rejected commands
+{}
+-- events
+{"ZoneChanged":18,"JobCreated":789,"PlotNeedsSeeds":3,"FluidsChanged":957,"TilesChanged":700,"StocksChanged":1453,"TemperatureTick":5359,"EntitiesMoved":20532,"ItemReleased":159,"ToolEquipped":3,"HourPassed":1071,"JobStarted":923,"JobCompleted":828,"ItemReserved":310,"JobClaimed":1135,"JobBlocked":333,"BuildingPlaced":40,"JobCancelled":51,"TreeFelled":82,"ItemCreated":562,"JobUnblocked":465,"StockpileFull":34,"TilesDiscovered":300,"CropPlanted":37,"MoodTierChanged":638,"Slept":300,"NeedCritical":440,"DwarfIdle":311,"DayPassed":44,"WebSpun":88,"ItemDestroyed":510,"BuildingCompleted":31,"WeatherChanged":54,"Talked":50,"HallSpiritChanged":19,"DrankAlcohol":133,"ItemCrafted":108,"MealEaten":82,"DwarfOutdoorsIn":907,"ItemRotStage":33,"LightningStrike":5,"FireStarted":4,"FireOut":4,"Starving":51,"WealthChanged":8,"SkillLevelUp":8,"RoomQualityChanged":16,"Starvation":26,"WoundInflicted":24,"ItemRotted":9,"RaidArrived":1,"HostileSpawned":1,"SulkHappened":1,"ThoughtGained":11,"ThiefSpotted":1,"ThreatNearby":2,"ThiefEscaped":1,"RaidEnded":1,"WorkshopBlocked":8,"CreatureDied":2,"CorpseCreated":2,"RoomAssigned":9,"SeasonChanged":1,"SeasonEffectsChanged":1,"PetAdopted":1,"ImmigrantsArrived":1,"CropHarvested":9,"HearthLit":1,"MiasmaSpread":1,"WorkOrderCompleted":1,"CaravanArrived":1,"ProductReady":2,"CaravanAtDepot":1,"AnimalStarving":8,"ReputationChanged":1,"TradeCompleted":1,"CaravanDeparted":1}
+
+################ year_one.txt
+year_one: pass 1 111 daily hashes, pass 2 111; all equal
+scenario assertions: pass 1 passed; pass 2 passed
+-- save and load
+t24000: first load equals the unsaved game; a second load played beside the first for 1,000 ticks with no commands: equal
+t48000: first load equals the unsaved game; a second load played beside the first for 1,000 ticks with no commands: equal
+t72000: first load equals the unsaved game; a second load played beside the first for 1,000 ticks with no commands: equal
+t96000: first load equals the unsaved game; a second load played beside the first for 1,000 ticks with no commands: equal
+t120000: first load equals the unsaved game; a second load played beside the first for 1,000 ticks with no commands: equal
+== year_one pass 1: 4 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  item.carrier-dead: 296 hits, 2 classes, t90600..t134400
+  item.owner-dead: 296 hits, 2 classes, t90600..t134400
+-- detail
+item.carrier-dead [dagger] x148 t90600..t134400
+    t90600: item 50331885 dagger carriedBy=50331888 not alive; pos=(none) flags=80
+    t90600: item 50331890 dagger carriedBy=117440549 not alive; pos=(none) flags=80
+    t91200: item 50331885 dagger carriedBy=50331888 not alive; pos=(none) flags=80
+    t91200: item 50331890 dagger carriedBy=117440549 not alive; pos=(none) flags=80
+item.carrier-dead [arrow] x148 t90600..t134400
+    t90600: item 50331886 arrow carriedBy=50331888 not alive; pos=(none) flags=80
+    t90600: item 687866110 arrow carriedBy=117440549 not alive; pos=(none) flags=80
+    t91200: item 50331886 arrow carriedBy=50331888 not alive; pos=(none) flags=80
+    t91200: item 687866110 arrow carriedBy=117440549 not alive; pos=(none) flags=80
+item.owner-dead [dagger] x148 t90600..t134400
+    t90600: item 50331885 dagger ownerId=50331888 not alive, flags=80 pos=(none)
+    t90600: item 50331890 dagger ownerId=117440549 not alive, flags=80 pos=(none)
+    t91200: item 50331885 dagger ownerId=50331888 not alive, flags=80 pos=(none)
+    t91200: item 50331890 dagger ownerId=117440549 not alive, flags=80 pos=(none)
+item.owner-dead [arrow] x148 t90600..t134400
+    t90600: item 50331886 arrow ownerId=50331888 not alive, flags=80 pos=(none)
+    t90600: item 687866110 arrow ownerId=117440549 not alive, flags=80 pos=(none)
+    t91200: item 50331886 arrow ownerId=50331888 not alive, flags=80 pos=(none)
+    t91200: item 687866110 arrow ownerId=117440549 not alive, flags=80 pos=(none)
+
+################ raid-three-years-p4-1.txt (ImmigrationSkipped lines removed)
+day 21.0 t25201 {"type":"RaidArrived","partyId":16777640,"kind":"thief","size":1,"tile":73728,"edge":"n"}
+day 21.1 t25311 {"type":"RaidEnded","partyId":16777640,"outcome":"withdrew"}
+day 23.0 t27602 fortress creature died: Asgeir Flintsong cause starvation id 16777289
+day 23.0 t27602 fortress creature died: Valdis Emberstair cause starvation id 16777295
+day 28.1 t33660 {"type":"ImmigrantsArrived","ids":[352321708,50332122,16777694,16777698],"count":4,"children":0,"guaranteed":true}
+day 47.0 t56401 {"type":"RaidArrived","partyId":285213115,"kind":"thief","size":1,"tile":73728,"edge":"n"}
+day 48.0: dwarves 9, alert calm; parties: 285213115 thief retreat for 0.8d, on map 1.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 0 ()
+day 49.0: dwarves 9, alert calm; parties: 285213115 thief retreat for 1.8d, on map 2.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 0 ()
+day 50.0: dwarves 9, alert calm; parties: 285213115 thief retreat for 2.8d, on map 3.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 0 ()
+day 51.0: dwarves 9, alert calm; parties: 285213115 thief retreat for 3.8d, on map 4.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 0 ()
+day 52.0: dwarves 9, alert calm; parties: 285213115 thief retreat for 4.8d, on map 5.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 0 ()
+day 53.0: dwarves 9, alert calm; parties: 285213115 thief retreat for 5.8d, on map 6.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 0 ()
+day 54.0: dwarves 9, alert calm; parties: 285213115 thief retreat for 6.8d, on map 7.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 0 ()
+day 55.0: dwarves 9, alert calm; parties: 285213115 thief retreat for 7.8d, on map 8.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 0 ()
+day 56.0: dwarves 9, alert calm; parties: 285213115 thief retreat for 8.8d, on map 9.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 0 ()
+day 56.0 t67240 {"type":"ImmigrantsArrived","ids":[251658429,83886195,184549869],"count":3,"children":0,"guaranteed":true}
+day 57.0: dwarves 12, alert calm; parties: 285213115 thief retreat for 9.8d, on map 10.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 0 ()
+day 57.0 t68401 {"type":"RaidArrived","partyId":83886718,"kind":"bandits","size":3,"tile":73728,"edge":"n"}
+day 57.2 t68664 fortress creature died: cat cause killed id 16777288
+day 57.3 t68700 {"type":"AlertChanged","from":"calm","to":"hearth"}
+day 57.4 t68939 {"type":"RaidEnded","partyId":83886718,"outcome":"looted"}
+day 57.5 t69000 {"type":"AlertChanged","from":"hearth","to":"calm"}
+day 58.0: dwarves 12, alert calm; parties: 285213115 thief retreat for 10.8d, on map 11.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 1 (stop_bleeding:open)
+day 58.0 t69601 {"type":"RaidArrived","partyId":83886312,"kind":"ambush","size":6,"tile":73728,"edge":"n"}
+day 58.1 t69772 {"type":"PatientAdmitted","id":16777291,"hospitalTier":0}
+day 58.2 t69834 {"type":"PatientAdmitted","id":16777294,"hospitalTier":0}
+day 58.3 t69900 {"type":"AlertChanged","from":"calm","to":"hearth"}
+day 58.3 t69914 {"type":"PatientAdmitted","id":16777293,"hospitalTier":0}
+day 58.3 t70012 fortress creature died: Gloin Stoneward cause killed id 16777293
+day 58.4 t70107 fortress creature died: Yrja Boarborn cause bled_out id 16777291
+day 58.5 t70143 {"type":"PatientAdmitted","id":50332122,"hospitalTier":0}
+day 58.6 t70327 fortress creature died: Dalla Thunderdelve cause bled_out id 50332122
+day 58.7 t70452 fortress creature died: Oddvar Veinbeard cause bled_out id 16777294
+day 58.8 t70611 {"type":"PatientAdmitted","id":83886195,"hospitalTier":0}
+day 58.9 t70652 {"type":"PatientAdmitted","id":251658429,"hospitalTier":0}
+day 59.0: dwarves 8, alert hearth; parties: 83886312 ambush engage for 0.0d, on map 1.0d, alive 5/6, loot 3, leader at 28,8,26, goalTile 60271 goalEntity 0 unreachable false/undefined || 285213115 thief retreat for 11.8d, on map 12.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 25 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open)
+day 59.1 t70947 fortress creature died: Modi Veinbrow cause bled_out id 83886195
+day 59.4 t71227 fortress creature died: Ragnhild Brineroot cause bled_out id 251658429
+day 60.0: dwarves 6, alert hearth; parties: 83886312 ambush engage for 0.0d, on map 2.0d, alive 4/6, loot 5, leader at 29,8,26, goalTile 60271 goalEntity 0 unreachable false/undefined || 285213115 thief retreat for 12.8d, on map 13.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 36 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open)
+day 60.0 t72001 {"type":"ThreatWarning","kind":"raid","civ":"gloam","sizeBand":"a band","edge":"the northern edge"}
+day 61.0: dwarves 6, alert hearth; parties: 83886312 ambush engage for 0.0d, on map 3.0d, alive 4/6, loot 5, leader at 29,8,26, goalTile 60271 goalEntity 0 unreachable false/undefined || 285213115 thief retreat for 13.8d, on map 14.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 36 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open)
+day 61.0 t73201 {"type":"RaidArrived","partyId":117440665,"kind":"raid","size":11,"tile":73728,"edge":"n"}
+day 61.2 t73452 fortress creature died: dog cause bled_out id 16777286
+day 61.2 t73487 fortress creature died: dog cause bled_out id 16777287
+day 61.3 t73521 fortress creature died: Jorunn Coldstone cause killed id 352321708
+day 61.3 t73521 {"type":"PatientAdmitted","id":352321708,"hospitalTier":0}
+day 61.3 t73544 {"type":"PatientAdmitted","id":16777694,"hospitalTier":0}
+day 61.3 t73553 {"type":"PatientAdmitted","id":16777292,"hospitalTier":0}
+day 61.3 t73572 fortress creature died: dog cause bled_out id 385876284
+day 61.3 t73593 {"type":"PatientAdmitted","id":16777290,"hospitalTier":0}
+day 61.4 t73633 fortress creature died: Bergthor Brineborn cause killed id 16777290
+day 61.4 t73656 fortress creature died: Ragnhild Grimroot cause killed id 16777292
+day 61.4 t73672 fortress creature died: dog cause bled_out id 150995454
+day 61.4 t73677 fortress creature died: Varin Frostvein cause bled_out id 16777694
+day 61.4 t73679 {"type":"PatientAdmitted","id":16777698,"hospitalTier":0}
+day 61.4 t73702 {"type":"PatientAdmitted","id":184549869,"hospitalTier":0}
+day 61.4 t73733 fortress creature died: Saga Boarpick cause killed id 184549869
+day 61.5 t73837 fortress creature died: Inga Boarward cause bled_out id 16777698
+day 62.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 0.4d, on map 1.0d, alive 12/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/undefined || 83886312 ambush approach for 0.4d, on map 4.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/undefined || 285213115 thief retreat for 14.8d, on map 15.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 63.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 1.4d, on map 2.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 1.4d, on map 5.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 15.8d, on map 16.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 64.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 2.4d, on map 3.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 2.4d, on map 6.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 16.8d, on map 17.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 64.0 t76801 {"type":"RaidArrived","partyId":117441157,"kind":"thief","size":1,"tile":73728,"edge":"n"}
+day 65.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 3.4d, on map 4.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 3.4d, on map 7.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 17.8d, on map 18.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined || 117441157 thief retreat for 0.9d, on map 1.0d, alive 1/1, loot 1, leader at 9,2,32, goalTile 74415 goalEntity 50331991 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 66.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 4.4d, on map 5.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 4.4d, on map 8.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 18.8d, on map 19.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined || 117441157 thief retreat for 1.9d, on map 2.0d, alive 1/1, loot 1, leader at 9,2,32, goalTile 74415 goalEntity 50331991 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 67.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 5.4d, on map 6.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 5.4d, on map 9.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 19.8d, on map 20.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined || 117441157 thief retreat for 2.9d, on map 3.0d, alive 1/1, loot 1, leader at 9,2,32, goalTile 74415 goalEntity 50331991 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 68.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 6.4d, on map 7.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 6.4d, on map 10.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 20.8d, on map 21.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined || 117441157 thief retreat for 3.9d, on map 4.0d, alive 1/1, loot 1, leader at 9,2,32, goalTile 74415 goalEntity 50331991 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 69.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 7.4d, on map 8.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 7.4d, on map 11.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 21.8d, on map 22.0d, alive 1/1, loot 2, leader at 29,13,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined || 117441157 thief retreat for 4.9d, on map 5.0d, alive 1/1, loot 1, leader at 9,2,32, goalTile 74415 goalEntity 50331991 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 70.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 8.4d, on map 9.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 8.4d, on map 12.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 22.8d, on map 23.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined || 117441157 thief retreat for 5.9d, on map 6.0d, alive 1/1, loot 1, leader at 9,2,32, goalTile 74415 goalEntity 50331991 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 70.0 t84032 {"type":"RaidEnded","partyId":117441157,"outcome":"looted"}
+day 71.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 9.4d, on map 10.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 9.4d, on map 13.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 23.8d, on map 24.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 72.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 10.4d, on map 11.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 10.4d, on map 14.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 24.8d, on map 25.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 73.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 11.4d, on map 12.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 11.4d, on map 15.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 25.8d, on map 26.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 74.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 12.4d, on map 13.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 12.4d, on map 16.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 26.8d, on map 27.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 75.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 13.4d, on map 14.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 13.4d, on map 17.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 27.8d, on map 28.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 76.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 14.4d, on map 15.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 14.4d, on map 18.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 28.8d, on map 29.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 77.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 15.4d, on map 16.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 15.4d, on map 19.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 29.8d, on map 30.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 78.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 16.4d, on map 17.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 16.4d, on map 20.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 30.8d, on map 31.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 79.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 17.4d, on map 18.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 17.4d, on map 21.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 31.8d, on map 32.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 80.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 18.4d, on map 19.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 18.4d, on map 22.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 32.8d, on map 33.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 81.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 19.4d, on map 20.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 19.4d, on map 23.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 33.8d, on map 34.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 82.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 20.4d, on map 21.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 20.4d, on map 24.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 34.8d, on map 35.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 83.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 21.4d, on map 22.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 21.4d, on map 25.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 285213115 thief retreat for 35.8d, on map 36.0d, alive 1/1, loot 2, leader at 28,12,32, goalTile 74336 goalEntity 218104113 unreachable false/undefined; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 83.1 t99718 {"type":"RaidEnded","partyId":285213115,"outcome":"withdrew"}
+day 84.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 22.4d, on map 23.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 22.4d, on map 26.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 84.0 t100801 {"type":"RaidArrived","partyId":50331665,"kind":"thief","size":1,"tile":73728,"edge":"n"}
+day 84.2 t101025 {"type":"RaidEnded","partyId":50331665,"outcome":"looted"}
+day 85.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 23.4d, on map 24.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 23.4d, on map 27.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 86.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 24.4d, on map 25.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 24.4d, on map 28.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 87.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 25.4d, on map 26.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 25.4d, on map 29.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 88.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 26.4d, on map 27.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 26.4d, on map 30.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 89.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 27.4d, on map 28.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 27.4d, on map 31.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 90.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 28.4d, on map 29.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 28.4d, on map 32.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 91.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 29.4d, on map 30.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 29.4d, on map 33.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 92.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 30.4d, on map 31.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 30.4d, on map 34.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 93.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 31.4d, on map 32.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 31.4d, on map 35.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 94.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 32.4d, on map 33.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 32.4d, on map 36.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 95.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 33.4d, on map 34.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 33.4d, on map 37.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 96.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 34.4d, on map 35.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 34.4d, on map 38.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 97.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 35.4d, on map 36.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 35.4d, on map 39.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 98.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 36.4d, on map 37.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 36.4d, on map 40.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 98.0 t117601 {"type":"RaidArrived","partyId":83886691,"kind":"thief","size":1,"tile":73728,"edge":"n"}
+day 98.3 t117976 {"type":"RaidEnded","partyId":83886691,"outcome":"looted"}
+day 99.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 37.4d, on map 38.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 37.4d, on map 41.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 100.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 38.4d, on map 39.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 38.4d, on map 42.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 101.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 39.4d, on map 40.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 39.4d, on map 43.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 102.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 40.4d, on map 41.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 40.4d, on map 44.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 103.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 41.4d, on map 42.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 41.4d, on map 45.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 104.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 42.4d, on map 43.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 42.4d, on map 46.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 104.0 t124801 {"type":"RaidArrived","partyId":83886680,"kind":"ambush","size":5,"tile":73728,"edge":"n"}
+day 105.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 43.4d, on map 44.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 43.4d, on map 47.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 1.0d, on map 1.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 106.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 44.4d, on map 45.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 44.4d, on map 48.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 2.0d, on map 2.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 107.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 45.4d, on map 46.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 45.4d, on map 49.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 3.0d, on map 3.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 108.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 46.4d, on map 47.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 46.4d, on map 50.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 4.0d, on map 4.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 109.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 47.4d, on map 48.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 47.4d, on map 51.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 5.0d, on map 5.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 110.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 48.4d, on map 49.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 48.4d, on map 52.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 6.0d, on map 6.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 111.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 49.4d, on map 50.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 49.4d, on map 53.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 7.0d, on map 7.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 112.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 50.4d, on map 51.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 50.4d, on map 54.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 8.0d, on map 8.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 113.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 51.4d, on map 52.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 51.4d, on map 55.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 9.0d, on map 9.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 113.0 t135601 {"type":"RaidArrived","partyId":50332334,"kind":"thief","size":1,"tile":73728,"edge":"n"}
+day 113.2 t135825 {"type":"RaidEnded","partyId":50332334,"outcome":"looted"}
+day 114.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 52.4d, on map 53.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 52.4d, on map 56.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 10.0d, on map 10.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 115.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 53.4d, on map 54.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 53.4d, on map 57.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 11.0d, on map 11.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 116.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 54.4d, on map 55.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 54.4d, on map 58.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 12.0d, on map 12.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 117.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 55.4d, on map 56.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 55.4d, on map 59.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 13.0d, on map 13.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 118.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 56.4d, on map 57.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 56.4d, on map 60.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 14.0d, on map 14.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 119.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 57.4d, on map 58.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 57.4d, on map 61.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 15.0d, on map 15.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+day 120.0: dwarves 0, alert hearth; parties: 117440665 raid approach for 58.4d, on map 59.0d, alive 11/12, loot 11, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886312 ambush approach for 58.4d, on map 62.0d, alive 4/6, loot 5, leader at 32,7,26, goalTile 60271 goalEntity 0 unreachable false/false || 83886680 ambush approach for 16.0d, on map 16.0d, alive 5/5, loot 0, leader at 30,8,26, goalTile 60271 goalEntity 0 unreachable false/false; jobs whose target entity no longer exists: 78 (stop_bleeding:open,feed_patient:open,water_patient:open,suture:open,clean_wound:open,diagnose:open,give_crutch:open)
+################ three-years-p4-1-p4-b.txt (second process; first lines)
+run three-years-p4-1-p4-b ended at tick 403200 (day 336), dwarves alive 0, final hash e5574aa27192144b
+no exception
+end state: items 842; carried by an entity that no longer exists 132 (of them foreign 91, counted in stock 5); with both a position and a carrier 570; owned by an entity that no longer exists 133; party entities 30 (state gone 18); rooms owned by a dead dwarf 10
+run three-years-p0-b ended at tick 403200 (day 336), dwarves alive 12, final hash 02422ba9578b10b7
+no exception
+end state: items 1167; carried by an entity that no longer exists 20 (of them foreign 8, counted in stock 0); with both a position and a carrier 8; owned by an entity that no longer exists 20; party entities 3 (state gone 3); rooms owned by a dead dwarf 0
+run three-years-p2-1-p2-b ended at tick 403200 (day 336), dwarves alive 0, final hash 44b1a14351128d80
+no exception
+end state: items 774; carried by an entity that no longer exists 73 (of them foreign 46, counted in stock 3); with both a position and a carrier 176; owned by an entity that no longer exists 70; party entities 13 (state gone 8); rooms owned by a dead dwarf 0
