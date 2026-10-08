@@ -1,6 +1,8 @@
 # T-123 — The economy fortress cannot run its economy at default priorities
 
-**Source:** F-17 ([`../archive/tasks/F-17-balance-followups.md`](../archive/tasks/F-17-balance-followups.md)) and its re-measure, [`../../reports/audits/2026-10-07-balance-after-f17.md`](../../reports/audits/2026-10-07-balance-after-f17.md) · **Size:** L · **Needs:** — · **Status:** open
+**Source:** F-17 ([`../archive/tasks/F-17-balance-followups.md`](F-17-balance-followups.md)) and its re-measure, [`../../reports/audits/2026-10-07-balance-after-f17.md`](../../../reports/audits/2026-10-07-balance-after-f17.md) · **Size:** L · **Needs:** — · **Status:** open
+
+Closed by the T-123 commit that archives this file. The diagnosis is [`2026-10-08-economy-at-default-priority.md`](../../../reports/audits/2026-10-08-economy-at-default-priority.md); the follow-ups are T-140 to T-145.
 
 **Who:** a diagnosis first, by a strong model (an Opus subagent, or Codex on `gpt-6-astra` at high effort). The fixes it leads to follow the ordinary rules.
 

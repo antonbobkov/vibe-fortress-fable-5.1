@@ -1,0 +1,335 @@
+/* eslint-disable */
+// T-123 scratch instrument. NOT to be committed.
+// Env: T123_OUT (output json path), T123_VARIANT (asis | all5 | nodefer | defer), T123_DAYS.
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C, ItemFlag } from '@core/components';
+import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import { WANT, CRITICAL, NEED_NAMES } from '@systems/dwarves/needs';
+import type { JobsReader } from '@systems/jobs';
+import type { ItemsReader } from '@systems/items';
+import type { BuildingsReader } from '@systems/buildings';
+import type { TradeReader } from '@systems/trade/reader';
+import type { DwarvesReader } from '@systems/dwarves';
+import type { MoraleReader } from '@systems/morale/reader';
+import { stepThreeYears, threeYearsMeasurements } from './three_years_measurements';
+import {
+  setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense,
+} from './three_years_fortress';
+
+const OUT = process.env['T123_OUT'] ?? 't123-probe.json';
+const VARIANT = process.env['T123_VARIANT'] ?? 'asis';
+const DAYS = Number(process.env['T123_DAYS'] ?? 3 * DAYS_PER_YEAR);
+const SAMPLE = 5;
+let weight = 5;
+
+function mapPriority(kind: 'labor' | 'job', p: number): number {
+  if (VARIANT === 'all5') return 5;
+  if (VARIANT === 'nodefer') return kind === 'labor' ? Math.min(9, p + 5) : p;
+  if (VARIANT === 'defer') return kind === 'labor' ? Math.max(1, p - 3) : p;
+  return p;
+}
+
+describe('T-123 probe', () => {
+  it('runs', () => {
+    const w = threeYearsWorld('three-years');
+    const world: any = w.game.world;
+    const orig = world.applyCommand.bind(world);
+    const cmdLog: any[] = [];
+    world.applyCommand = (cmd: any) => {
+      let c = cmd;
+      if (VARIANT !== 'asis') {
+        if (cmd.type === 'SetLaborPriority') c = { ...cmd, priority: mapPriority('labor', cmd.priority) };
+        else if (['Designate', 'DesignateStairwell', 'PlaceBuilding', 'SetJobPriority', 'SetStockpilePriority', 'SetDesignationPriority'].includes(cmd.type) && typeof cmd.priority === 'number') c = { ...cmd, priority: mapPriority('job', cmd.priority) };
+        else if (cmd.type === 'AddWorkOrder') c = { ...cmd, order: { ...cmd.order, priority: mapPriority('job', cmd.order.priority) } };
+        else if (cmd.type === 'EditWorkOrder' && typeof cmd.patch?.priority === 'number') c = { ...cmd, patch: { ...cmd.patch, priority: mapPriority('job', cmd.patch.priority) } };
+      }
+      const r = orig(c);
+      if (['SetLabor', 'SetLaborPriority', 'SetWorkshopWorker', 'AssignTitle', 'AddWorkOrder', 'TradeOpen', 'TradeOffer', 'DesignateStairwell', 'SetRequests'].includes(cmd.type) ||
+          (cmd.type === 'PlaceBuilding' && !['wall', 'chair', 'table', 'bed', 'door'].includes(cmd.buildingType))) {
+        if (cmdLog.length < 6000) cmdLog.push({ tick: w.tick, type: cmd.type, ok: r.ok, reason: r.ok ? undefined : r.reason,
+          a: cmd.labor ?? cmd.buildingType ?? cmd.order?.recipeId ?? cmd.title ?? '', b: cmd.dwarfId ?? cmd.workshopId ?? '', on: cmd.on, p: c.priority ?? c.order?.priority });
+      } else if (!r.ok && cmdLog.length < 6000) cmdLog.push({ tick: w.tick, type: cmd.type, ok: false, reason: r.reason, a: cmd.buildingType ?? cmd.kind ?? '' });
+      return r;
+    };
+    const labors = w.game.registry.table<{ id: string }>('labors').rows.slice(1).map((r) => r.id);
+    if (VARIANT === 'nodefer') for (const l of labors) orig({ type: 'SetLaborPriority', labor: l, priority: 9 });
+    if (VARIANT === 'defer') for (const l of labors) orig({ type: 'SetLaborPriority', labor: l, priority: 2 });
+
+    const state = setupThreeYearsFortress(w);
+    const ent = w.game.world.entities;
+    const jobs = w.readers.of<JobsReader>('11');
+    const items = w.readers.of<ItemsReader>('13');
+    const buildings = w.readers.of<BuildingsReader>('14');
+    const trade = w.readers.of<TradeReader>('20');
+    const dwarvesR = w.readers.of<DwarvesReader>('10');
+    const morale = w.readers.of<MoraleReader>('15');
+    const dsys: any = w.game.world.scheduler.byId('10');
+    const wsys: any = w.game.world.scheduler.byId('12');
+    const itemTypes = w.game.registry.table<{ id: string }>('items');
+    const mats = w.game.registry.table<{ id: string }>('materials');
+    const recipes = w.game.registry.table<{ id: string }>('recipes');
+
+    const fortress = (): number[] => ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+    const time: Record<string, Record<string, number>> = {}; // year -> key -> ticks
+    const perDwarf: Record<string, Record<string, number>> = {};
+    const overWant: Record<string, Record<string, number>> = {};
+    const add = (o: Record<string, Record<string, number>>, a: string, k: string, n: number): void => { (o[a] ??= {})[k] = ((o[a] as any)[k] ?? 0) + n; };
+
+    const sample = (): void => {
+      const year = String(Math.floor(w.tick / (DAYS_PER_YEAR * TICKS_PER_DAY)) + 1);
+      for (const id of fortress()) {
+        const b = ent.get(id, C.Brain);
+        if (!b) continue;
+        const n = ent.get(id, C.Needs);
+        let key: string;
+        let coarse: string;
+        if (b.behavior === 'work') {
+          const job = jobs.forWorker(id);
+          if (!job) { key = 'work|unassigned|-'; coarse = 'work:waiting-for-assignment'; }
+          else {
+            const type = jobs.typeOf(job.id) ?? '?';
+            const eff = job.priority + jobs.laborPriority((job.data['labor'] as string) ?? (w.game.registry.table<{ id: string; labor: string }>('jobTypes').byIndex(job.type)?.labor ?? 'hauling')) - 5;
+            key = `work|${type}${type === 'craft' ? ':' + String(job.data['recipe']) : ''}|${job.state}`;
+            const cls = type.startsWith('haul') || type === 'dump' || type === 'refuse' ? 'haul' : 'job';
+            coarse = `${cls}:${job.state}`;
+            add(time, year, `eff|${Number.isFinite(eff) ? (eff <= 2 ? 'urgent' : 'normal') : 'unknown'}`, weight);
+          }
+        } else if (b.behavior === 'need' || b.behavior === 'social') {
+          const p = dsys.activities.plans.get(id);
+          key = `${b.behavior}|${b.activity}|${p?.phase ?? '-'}`;
+          coarse = `need:${b.activity}:${p?.phase === 'use' ? 'use' : 'travel'}`;
+          if (lastNeed.get(id) !== b.activity && p) {
+            add(trips, year, `${b.activity}:starts`, 1);
+            const pos = ent.get(id, C.Position);
+            if (pos && p.target >= 0) {
+              const dist = Math.max(Math.abs(pos.x - w.map.xOf(p.target)), Math.abs(pos.y - w.map.yOf(p.target))) + Math.abs(pos.z - w.map.zOf(p.target));
+              add(trips, year, `${b.activity}:dist`, dist);
+              add(trips, year, `${b.activity}:dz`, Math.abs(pos.z - w.map.zOf(p.target)));
+            }
+          }
+        } else if (b.behavior === 'idle') {
+          const wants = n ? NEED_NAMES.filter((x) => x !== 'purpose' && n[x] >= WANT[x]) : [];
+          key = `idle|${b.activity}|${wants.length ? 'want:' + wants.join('+') : 'nowant'}`;
+          coarse = b.activity === 'Fighting' ? 'idle:fighting' : wants.length ? 'idle:with-unmet-want' : 'idle:nothing-to-do';
+        } else { key = `${b.behavior}|${b.activity}|-`; coarse = b.behavior; }
+        lastNeed.set(id, b.behavior === 'need' || b.behavior === 'social' ? b.activity : '');
+        add(time, year, key, weight);
+        add(time, year, `C|${coarse}`, weight);
+        const pz = ent.get(id, C.Position)?.z; if (pz !== undefined) add(time, year, `Z|${pz}`, weight);
+        add(perDwarf, String(id), coarse, weight);
+        if (n) for (const x of NEED_NAMES) {
+          if (n[x] >= WANT[x]) add(overWant, year, x, weight);
+          const cr = CRITICAL[x];
+          if (cr !== undefined && n[x] >= cr) add(overWant, year, `${x}:critical`, weight);
+        }
+        add(overWant, year, 'dwarfTicks', weight);
+      }
+    };
+
+    const needEvents: Record<string, Record<string, number>> = {};
+    const trips: Record<string, Record<string, number>> = {};
+    const lastNeed = new Map<number, string>();
+    const watch: any[] = [];
+    const watchRe = process.env['T123_WATCH'] ? new RegExp(process.env['T123_WATCH']) : null;
+    const watchFrom = Number(process.env['T123_WATCH_FROM'] ?? 0) * TICKS_PER_DAY;
+    const watchTo = Number(process.env['T123_WATCH_TO'] ?? 0) * TICKS_PER_DAY;
+    const watchLast = new Map<number, string>();
+    const dwarfWatch: any[] = [];
+    const dwFounder = process.env['T123_WATCH_DWARF'];
+    let dwLast = '';
+    const watchDwarf = (): void => {
+      if (dwFounder === undefined || w.tick < watchFrom || w.tick > watchTo) return;
+      const id = (w.game.arrival?.dwarves ?? [])[Number(dwFounder)] ?? Number(dwFounder);
+      const b = ent.get(id, C.Brain); const j = jobs.forWorker(id); const wk = ent.get(id, C.Worker);
+      const sig = `${b?.behavior}|${b?.activity}|${j?.key}|${j?.state}|${wk?.carrying ? 'carry' : ''}`;
+      if (sig === dwLast) return;
+      dwLast = sig;
+      const n = ent.get(id, C.Needs); const pos = ent.get(id, C.Position);
+      if (dwarfWatch.length < 20000) dwarfWatch.push({ tick: w.tick, sig, pos: pos ? [pos.x, pos.y, pos.z] : null, needs: n ? NEED_NAMES.map((x) => Math.round(n[x])).join(',') : '', plan: dsys.activities.plans.get(id)?.phase });
+    };
+    const stuck: any[] = [];
+    const stuckId = Number(process.env['T123_STUCK'] ?? 0);
+    let stuckLast = '';
+    const watchStuck = (): void => {
+      if (!stuckId || w.tick < watchFrom || w.tick > watchTo) return;
+      const pos = ent.get(stuckId, C.Position); const b = ent.get(stuckId, C.Brain); const m: any = ent.get(stuckId, C.Motion);
+      if (!pos || !b) return;
+      const p = dsys.activities.plans.get(stuckId);
+      const here = w.index(pos.x, pos.y, pos.z);
+      const near: string[] = [];
+      for (const cid of ent.with(C.Creature)) {
+        const cp = ent.get(cid, C.Position); if (!cp || cid === stuckId) continue;
+        if (Math.abs(cp.z - pos.z) <= 1 && Math.max(Math.abs(cp.x - pos.x), Math.abs(cp.y - pos.y)) <= 2) {
+          const cb = ent.get(cid, C.Brain); const cc = ent.get(cid, C.Creature);
+          near.push(`${cid}@${cp.x},${cp.y},${cp.z}:${cc?.faction}:${cb ? cb.behavior + '/' + cb.activity : 'nobrain'}`);
+        }
+      }
+      const tiles: string[] = [];
+      for (let dy = -2; dy <= 2; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+        const t = w.map.offset(here, dx, dy, 0); if (t < 0) continue;
+        const bid = buildings.at(t); const bv: any = bid ? buildings.get(bid) : undefined;
+        tiles.push(`${dx},${dy}:k${w.map.kindAt(t)}${bv ? ':' + bv.typeId + '/' + bv.state + '/' + (bv.mode ?? '') + (bv.locked ? '/LOCKED' : '') : ''}:${w.readers.pathing.passable(t, 'walker') ? 'P' : 'x'}`);
+      }
+      const tgt = p && p.target >= 0 ? [w.map.xOf(p.target), w.map.yOf(p.target), w.map.zOf(p.target)].join(',') : '-';
+      const reach = p && p.target >= 0 ? w.readers.pathing.reachable(here, p.target, 'walker') : null;
+      const thr = dsys.threatened?.get?.(stuckId);
+      const hostiles: string[] = [];
+      for (const cid of ent.with(C.Creature)) { const cc = ent.get(cid, C.Creature); const cp = ent.get(cid, C.Position); if (cc && cp && cc.faction !== 'fortress' && cc.faction !== 'merchant' && cc.faction !== 'wild' && ent.alive(cid)) hostiles.push(`${cid}:${cc.faction}@${cp.x},${cp.y},${cp.z}`); }
+      if (w.tick % 600 === 0 && stuck.length < 3000) stuck.push({ tick: w.tick, hostiles: hostiles.join(' '), thr: JSON.stringify(thr), fleeing: fortress().filter((i) => ent.get(i, C.Brain)?.behavior === 'flee').length, upper: fortress().filter((i) => (ent.get(i, C.Position)?.z ?? 0) >= 31).length });
+      const sig = `${pos.x},${pos.y},${pos.z}|${b.behavior}|${b.activity}|${p?.phase}|${tgt}|${reach}|${near.join(';')}|${w.game.world.fortress.alert}`;
+      if (sig === stuckLast) return; stuckLast = sig;
+      if (stuck.length < 3000) stuck.push({ tick: w.tick, sig, motion: m ? `path${m.pathId}/step${m.stepIndex}/re${m.repathCount}/wait${m.waitUntil}` : '-', tiles: tiles.join(' '), item: p?.itemId, retry: [...(dsys.activities.retryUntil.get(stuckId) ?? [])].join(',') });
+    };
+    const watchJobs = (): void => {
+      watchDwarf();
+      watchStuck();
+      if (!watchRe || w.tick < watchFrom || w.tick > watchTo) return;
+      for (const j of jobs.list()) {
+        if (!watchRe.test(j.key) && !watchRe.test(`${jobs.typeOf(j.id)}:${String(j.data['recipe'] ?? '')}`)) continue;
+        const sig = `${j.state}|${j.workerId}|${j.blockedReason}|${j.priority}`;
+        if (watchLast.get(j.id) === sig) continue;
+        watchLast.set(j.id, sig);
+        const wk = j.workerId ? ent.get(j.workerId, C.Brain) : undefined;
+        if (watch.length < 20000) watch.push({ tick: w.tick, id: j.id, key: j.key, type: jobs.typeOf(j.id), recipe: j.data['recipe'], state: j.state, worker: j.workerId, blocked: j.blockedReason, pr: j.priority, progress: j.progress,
+          inputs: j.inputs.map((i: any) => `${i.delivered.length}/${i.reserved.length}/${i.count}`).join(','), wbeh: wk ? `${wk.behavior}:${wk.activity}` : undefined });
+      }
+    };
+    const daily: any[] = [];
+    const tradeLog: any[] = [];
+    const events: any[] = [];
+    const firstCraft: Record<string, { first: number; last: number; n: number }> = {};
+    w.game.world.onEvents((evs: any) => {
+      for (const e of evs) {
+        if (['MealEaten', 'DrankAlcohol', 'DrankWater', 'Slept', 'Talked', 'Sat', 'HearthVisited'].includes(e.type)) {
+          const year = String(Math.floor(w.tick / (DAYS_PER_YEAR * TICKS_PER_DAY)) + 1);
+          add(needEvents, year, e.type, 1);
+          if (e.type === 'Slept') { if (e['onFloor']) add(needEvents, year, 'Slept:onFloor', 1); if (e['ownBed']) add(needEvents, year, 'Slept:ownBed', 1); add(needEvents, year, 'Slept:restored', Number(e['restored'] ?? 0)); }
+          if (e.type === 'MealEaten') { add(needEvents, year, `MealEaten:${e['mealType'] || e['kind']}`, 1); if (e['atTable']) add(needEvents, year, 'MealEaten:atTable', 1); }
+          if (e.type === 'Sat') add(needEvents, year, `Sat:tier${e['roomTier']}`, 1);
+        }
+        if (e.type === 'ItemCrafted') {
+          const r = String(e['recipeId']);
+          const f = (firstCraft[r] ??= { first: w.tick, last: w.tick, n: 0 });
+          f.last = w.tick; f.n += 1;
+        } else if (['CaravanArrived', 'CaravanDeparted', 'TradeCompleted', 'BuildingCompleted', 'ImmigrantsArrived', 'WorkshopBlocked', 'RaidArrived', 'CreatureDied', 'TradeSessionOpened', 'TradeOpened'].includes(e.type)) {
+          if (e.type === 'WorkshopBlocked' && events.length > 8000) continue;
+          if (e.type === 'CreatureDied' && e['faction'] !== 'fortress') continue;
+          const extra: any = {};
+          if (e.type === 'BuildingCompleted') { const b = buildings.get(Number(e['id'])); extra.btype = b?.typeId; if (['wall', 'chair', 'table', 'door'].includes(String(b?.typeId))) continue; }
+          if (e.type === 'WorkshopBlocked') extra.btype = buildings.get(Number(e['workshopId']))?.typeId;
+          events.push({ tick: w.tick, ...e, ...extra });
+        }
+      }
+    });
+
+    const jobBrief = (j: any): any => j ? { id: j.id, key: j.key, state: j.state, pr: j.priority, worker: j.workerId, blocked: j.blockedReason, created: j.createdTick, claimed: j.claimedTick, aw: j.data?.assignedWorker } : null;
+    const dwarfBrief = (id: number): any => {
+      const b = ent.get(id, C.Brain); const p = ent.get(id, C.Position); const n = ent.get(id, C.Needs);
+      return { id, beh: b?.behavior, act: b?.activity, job: jobs.forWorker(id)?.key, pos: p ? [p.x, p.y, p.z] : null,
+        needs: n ? NEED_NAMES.map((x) => Math.round(n[x])) : null };
+    };
+
+    const dailySnap = (): void => {
+      const day = Math.floor(w.tick / TICKS_PER_DAY);
+      const ds = fortress();
+      const moods = ds.map((id) => ent.get(id, C.Mood)?.value ?? 0);
+      const stock: Record<string, number> = {};
+      for (const id of ent.with(C.Item)) {
+        const it = ent.get(id, C.Item)!;
+        if (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) continue;
+        const t = itemTypes.byIndex(it.type)?.id ?? '?';
+        const k = ['bar', 'craft', 'raw_stone', 'ore', 'rough_gem', 'cut_gem'].includes(t) || t.includes('ore') ? `${t}:${mats.byIndex(it.material)?.id}` : t;
+        stock[k] = (stock[k] ?? 0) + it.count;
+      }
+      const all = jobs.list();
+      const byType: Record<string, number> = {};
+      for (const j of all) {
+        const t = jobs.typeOf(j.id) ?? '?';
+        const k = `${t}${t === 'craft' ? ':' + String(j.data['recipe']) : ''}|${j.state}${j.state === 'blocked' ? ':' + j.blockedReason : ''}|p${j.priority}`;
+        byType[k] = (byType[k] ?? 0) + 1;
+      }
+      const shops: any[] = [];
+      const notBuilt: Record<string, number> = {};
+      for (const id of ent.with(C.Building)) {
+        const b = buildings.get(id);
+        if (!b) continue;
+        if (b.state !== 'built') { notBuilt[`${b.typeId}:${b.state}`] = (notBuilt[`${b.typeId}:${b.state}`] ?? 0) + 1; }
+        const ws = ent.get(id, C.Workshop);
+        if (!ws || b.state !== 'built' || ws.orders.length === 0) continue;
+        shops.push({ type: b.typeId, id, aw: ws.assignedWorker, cur: jobBrief(jobs.get(ws.currentJobId)), lbr: ws.lastBlockedReason,
+          orders: ws.orders.map((o: any) => ({ r: recipes.byIndex(o.recipe)?.id, m: o.mode, th: o.threshold, rem: o.remaining, p: o.priority, mf: o.materialFilter, prob: wsys.operator.problem(o, id) })) });
+      }
+      const laborCount: Record<string, number> = {};
+      const dl: any[] = [];
+      for (const id of ds) {
+        const on = labors.filter((l) => jobs.laborEnabled(id, l));
+        for (const l of on) laborCount[l] = (laborCount[l] ?? 0) + 1;
+        dl.push({ id, n: on.length, on: on.length <= 6 ? on : undefined, mood: Math.round(ent.get(id, C.Mood)?.value ?? 0) });
+      }
+      const builtBeds = ent.with(C.Building).filter((id) => { const b = buildings.get(id); return b?.typeId === 'bed' && b.state === 'built'; }).length;
+      daily.push({ day, tick: w.tick, pop: ds.length, adults: dwarvesR.adults().length, moodMean: moods.length ? moods.reduce((a, b) => a + b, 0) / moods.length : null,
+        spirit: morale.hallSpirit(), wealth: items.wealth(), counts: jobs.counts(), wantsHauling: jobs.wantsHaulingCount(), byType, stock, shops, notBuilt, builtBeds,
+        laborCount, laborPr: Object.fromEntries(labors.map((l) => [l, jobs.laborPriority(l)]).filter(([, p]) => p !== 5)), dl,
+        phases: [...state.economy.phases], specialists: (state.economy as any).specialists, deepShaft: (state.economy as any).deepShaft, broker: dwarvesR.holder('broker') });
+    };
+
+    const tradeSnap = (): void => {
+      const c = trade.activeCaravan();
+      if (!c) return;
+      const depot = buildings.depots()[0] ?? 0;
+      const broker = dwarvesR.holder('broker');
+      const depotJobs = jobs.list().filter((j) => j.key.startsWith('depot:'));
+      const ds: Record<string, number> = {};
+      for (const j of depotJobs) ds[`${j.state}|p${j.priority}`] = (ds[`${j.state}|p${j.priority}`] ?? 0) + 1;
+      const tj = jobs.byKey(`trade:${depot}`);
+      const worker = tj?.workerId ? dwarfBrief(tj.workerId) : null;
+      const dItems = trade.depotItems();
+      tradeLog.push({ tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY), civ: c.civ, state: c.state, left: c.daysRemaining, session: trade.sessionOpen(),
+        tradeJob: jobBrief(tj), tradeWorker: worker, broker: broker ? dwarfBrief(broker) : null,
+        brokerTrading: broker ? jobs.laborEnabled(broker, 'trading') : null, traders: jobs.workersWithLabor('trading').length,
+        depotItems: dItems.length, depotValue: Math.round(dItems.reduce((s, id) => s + trade.valuation(c.civ, id), 0)), depotJobs: ds,
+        merchantAnvil: trade.merchantItems().some((id) => itemTypes.byIndex(ent.get(id, C.Item)?.type ?? -1)?.id === 'anvil'),
+        traded: [...state.economy.traded] });
+    };
+
+    const run = (chunk: number, until: number): void => {
+      while (w.tick < until) {
+        const end = Math.min(until, w.tick + chunk);
+        while (w.tick < end) {
+          const before = w.tick;
+          stepThreeYears(w, Math.min(SAMPLE, end - w.tick, TICKS_PER_DAY - (w.tick % TICKS_PER_DAY)));
+          weight = w.tick - before;
+          sample();
+          watchJobs();
+          if (Math.floor(w.tick / 50) !== Math.floor(before / 50)) tradeSnap();
+          if (w.tick % TICKS_PER_DAY === 0) dailySnap();
+        }
+        checkFortressWorkOrders(w, state);
+        checkFortressRooms(w, state);
+        checkFortressCaveFarm(w, state);
+        checkFortressDefense(w, state);
+      }
+    };
+    const flush = (): void => {
+      const economy = threeYearsMeasurements(w);
+      const out = { variant: VARIANT, tick: w.tick, stuck, dwarfWatch, needEvents, trips, watch, time, perDwarf, overWant, daily, tradeLog, events, firstCraft, cmdLog,
+        founders: w.game.arrival?.dwarves,
+        economy: { years: economy.years.map((y) => ({ day: y.day, wealth: y.wealth, population: y.population, marks: y.marks, recipes: y.recipes, spirit: y.spirit })),
+          recipes: economy.recipes, caravans: economy.caravans, minerals: economy.minerals, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water,
+          immigration: economy.immigration } };
+      writeFileSync(OUT, JSON.stringify(out));
+    };
+    dailySnap();
+    run(100, Math.min(20, DAYS) * TICKS_PER_DAY);
+    for (let y = 1; y <= 3; y += 1) {
+      const until = Math.min(DAYS, y * DAYS_PER_YEAR) * TICKS_PER_DAY;
+      run(300, until);
+      flush();
+      const e = threeYearsMeasurements(w);
+      console.log(`[t123 ${VARIANT}] day ${w.tick / TICKS_PER_DAY} wealth ${items.wealth()} pop ${fortress().length} recipes ${JSON.stringify(e.recipes)}`);
+    }
+    flush();
+  }, 3_600_000);
+});
