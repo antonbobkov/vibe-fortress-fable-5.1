@@ -18,7 +18,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-115 | [Audit: bug hunt](work/T-115-audit-bug-hunt.md) | the owner, 2026-10-06 | T-114 and its fix tasks | open |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, T-115 and its fix tasks | open |
 | T-123 | [The economy fortress cannot run its economy at default priorities](work/T-123-economy-fortress-at-default-priority.md) | F-17 and [`../reports/audits/2026-10-07-balance-after-f17.md`](../reports/audits/2026-10-07-balance-after-f17.md) | — | open |
-| T-130 | [Resolve retained animal/job decisions and catalog mirrors](work/T-130-retained-decisions-08-13.md) | [T-105 triage](archive/tasks/T-105-triage-systems-08-13.md) | — | open |
+| T-131 | [Preserve saved web flags during load bootstrap](work/T-131-load-web-flags.md) | T-130 save/load regression probe | ? | open |
 | C-009 | System 21's performance allocation is a literal 0.00 ms, which no measured run can meet; its budget assertion is `it.todo` | [`05-plan/DECISIONS.md`](05-plan/DECISIONS.md) § Contradictions, row C-009 | an owner decision: a positive allocation, or an exemption for zero allocations | open |
 | B-008 | Balance finding: the wealth curve over years 1–3 against the model | [`../reports/audits/M8-balance-economy.md`](../reports/audits/M8-balance-economy.md) | T-123 | open; folds into T-109 |
 | B-009 | Balance finding: immigration waves in years 2 and 3 against the model | [`../reports/audits/M8-balance-economy.md`](../reports/audits/M8-balance-economy.md) | T-123 | open; folds into T-109 |

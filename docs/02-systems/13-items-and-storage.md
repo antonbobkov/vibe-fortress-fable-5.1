@@ -127,11 +127,11 @@ A corpse is an item of type `refuse/corpse` with `Corpse { species, diedTick, wo
 
 ### Searching
 
-- `items.findItem(filter, fromTile, movementClass, { reservable: true })`: expanding-radius search through the spatial index over items with `Position` (including containers, whose contents are matched), skipping forbidden, reserved and owned items, checking connectivity between `fromTile` and the item's tile; returns the nearest match or `0`. Bounded by `FIND_RADIUS_MAX`; beyond that, falls back to the stock index (which lists items by type, iterating stockpiles first).
+- `items.findItem(filter, fromTile, movementClass, { reservable: true })`: expanding-radius search through the spatial index over items with `Position` (including containers, whose contents are matched), skipping forbidden, reserved and owned items, checking connectivity between `fromTile` and the item's tile; returns the nearest match or `0`. Bounded by `FIND_RADIUS_MAX`; beyond that, falls back to all matching items in ascending id order, stockpile items first and then the rest, with the same eligibility and connectivity checks. This works for a filter that names no type as well as one or several types. Carried items remain outside every search.
 - `items.findItems(filter, count, fromTile, movementClass)` for job inputs.
 - `items.countAvailable(filter)` from `counts`.
 
-Filters: `{ type | category | tag, materialClass | materialId, minQuality, edible, drinkable, emptyContainer(class) }`.
+Filters: `{ type | types (any of several types) | category | tag, materialClass | materialId, minQuality, edible, drinkable, emptyContainer(class) }`.
 
 ### Items and hazards
 

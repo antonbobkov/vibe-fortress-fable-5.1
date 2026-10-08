@@ -91,6 +91,8 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
 
 Tame animals use `WILD_THINK_TICKS` between ordinary thinks. Only grazers accumulate hourly condition or seek grass; the other diets forage abstractly.
 
+At first breach, initialize nonzero fauna from content once per cavern tier, under species and global caps; save the completed tier. Zero initial populations consume no randomness.
+
 Daily: spawning per 08 (edge tiles at `SPAWN_MIN_DISTANCE` from dwarves), breeding rolls, product timers, condition and starvation, lifetime and cap checks (`leave`).
 
 ## Hostile party AI (party every 50 ticks; members every tick)

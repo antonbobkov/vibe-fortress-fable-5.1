@@ -46,7 +46,7 @@ States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 ### Wild spawning
 
 - Each `DayPassed`, for each species in the biome's list for the current season (some species are seasonal, for example `elk` in autumn and winter), if `count(species, wild) < cap(species, biome)`: with `min(1000, floor(SPAWN_PERMILLE × weight / 100))`, with weight a percentage of the base rate, spawn a group of `groupSize` at a walkable outdoor edge tile at least `SPAWN_MIN_DISTANCE` from any dwarf, with `home` set to the spawn chunk. The region-trait hooks govern wildlife: `beastwood` multiplies all caps by 1.5, then wolf and bear caps by 2, and doubles those species' groups; `serene_vale` doubles grazer caps and removes wolves, bears and snow leopards; `fungal_depths` multiplies cavern caps by 1.5. Each cap multiplier rounds up.
-- Cavern fauna spawns once at generation per cavern (initial populations) and respawns by the same daily rule at random walkable cavern tiles once the cavern is breached.
+- On the first breach of each cavern with nonzero fauna `cavern.initial`, spawn that many individuals of each eligible fauna species on random walkable cavern floor tiles in that species' movement class, limited by its remaining live cap and `MAX_CREATURES`. No fauna thinks in an unbreached cavern. Record the tier as initialized even when caps or lack of safe tiles prevent a spawn; repeated breach notifications and loading never retry the initial population. A zero initial count consumes no spawning randomness and needs no saved completion entry. After breach, fauna respawns by the existing daily rule.
 - The global `MAX_CREATURES` cap applies.
 
 ### Tame behavior
@@ -95,6 +95,7 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 
 - Per animal: `Wild { state, homeChunk, stateUntilTick, hungry, lastThinkTick }` or `Tame { pastureId, condition, trained, assignedTo, pregnantUntil, lastProductTick[], juvenileUntil, slaughter, pet }`.
 - `breedingCaps: Map<species, number>`, `speciesCounts` (recomputed daily), `nestBoxes: EntityId[]`.
+- `initializedCaverns`: sorted tiers whose nonzero initial fauna has been attempted. Omitted when empty; older saves without it have no completed initial attempt.
 - Rng stream.
 
 ## Interfaces

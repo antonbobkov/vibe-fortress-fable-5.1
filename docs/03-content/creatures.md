@@ -78,6 +78,8 @@ Per-species caps per biome are `cap = weight / 5` (rounded up, minimum 2); the b
 
 ## Cavern fauna (non-hostile; owned by 08)
 
+The fauna cavern cell accepts an optional `initial N` after its weight and cap. When absent, `cavern.initial` is zero. The shipped rows therefore have zero initial fauna; a later nonzero row is initialized at first breach by 08 without changing code. Monsters use their separate initial/count/respawn cells and belong to 18.
+
 | id | name | plan | size | speed | diet | temper | class | meat | hide/shell | value | attacks | armor | flee | group | cavern (weight, cap) | flags | glyph | fg |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | `glow_beetle` | glow beetle | crawler | 5 | 0.08 | none | timid | small | 1 | shell 4 | 8 | — | 1 | 90 | 2–6 | 1 (40, cap 12) | B; lights its tile | `i` | `glow_green` |
