@@ -1,6 +1,8 @@
 # T-161 — A dead dwarf's claimed gear is nobody's
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 2) · **Size:** S · **Needs:** T-160 · **Status:** open
+Closed by `T-161: release dead dwarves' claims and preserve civilian tools`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 2) · **Size:** S · **Needs:** T-160 · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@ A squad member's claimed weapon and armour keep `flags = owned` and `ownerId` = 
 
 ## Reproduction
 
-[`death.probe.ts`](../../reports/data/2026-10-08-bug-hunt-death.probe.ts.txt), seed `t115-death`: the soldier that claimed the pick is killed at tick 2,411. On day 28 the pick lies at (21, 20, 32) with `flags=16 ownerId=<dead id>`, `pick: total 1 available 0`, and six channel jobs are `blocked: no_tool`. Copy the probe files from `reports/data/` into `t115-scratch/` at the repository root as the report's section "The probes" says, then run `node node_modules/vitest/vitest.mjs run -c t115-scratch/vitest.config.ts t115-scratch/death.probe.ts`.
+[`death.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-death.probe.ts.txt), seed `t115-death`: the soldier that claimed the pick is killed at tick 2,411. On day 28 the pick lies at (21, 20, 32) with `flags=16 ownerId=<dead id>`, `pick: total 1 available 0`, and six channel jobs are `blocked: no_tool`. Copy the probe files from `reports/data/` into `t115-scratch/` at the repository root as the report's section "The probes" says, then run `node node_modules/vitest/vitest.mjs run -c t115-scratch/vitest.config.ts t115-scratch/death.probe.ts`.
 
 ## What to do
 

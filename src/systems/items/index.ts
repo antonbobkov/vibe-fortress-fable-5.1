@@ -245,9 +245,14 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     if (event.type === 'CreatureDied') {
       const id = event['id']; const tile = event['tile'];
       const species = event['species'] ?? (typeof id === 'number' ? core.host.entities.get(id, C.Creature)?.species : undefined);
+      const faction = event['faction'] ?? (typeof id === 'number' ? core.host.entities.get(id, C.Creature)?.faction : undefined);
+      if (typeof id === 'number' && faction === 'fortress') {
+        for (const itemId of core.host.entities.with(C.Item)) {
+          if (core.get(itemId)?.ownerId === id) core.setOwner(itemId, 0);
+        }
+      }
       if (typeof id === 'number' && typeof tile === 'number' && typeof species === 'number') {
         const equip = core.host.entities.get(id, C.Equipment);
-        const faction = event['faction'] ?? core.host.entities.get(id, C.Creature)?.faction;
         const wornItems = Array.isArray(event['wornItems']) ? (event['wornItems'] as number[]).slice() : equip === undefined ? [] :
           [equip.weapon, equip.shield, equip.quiver, ...Object.values(equip.armor), ...Object.values(equip.clothing)]
             .filter((itemId) => itemId !== 0 && core.isItem(itemId));

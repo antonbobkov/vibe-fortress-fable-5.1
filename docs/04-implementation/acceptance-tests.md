@@ -209,6 +209,8 @@ A miner killed while holding the only pick outside its weapon slot leaves the pi
 | `cb_training` | squad in barracks with training axes, 10 days | weapon skill rises; no wounds |
 | `cb_alert_hearth` | `SetAlert hearth` | civilians reach the hearth hall; `lock_on_alert` doors lock within grace |
 
+A soldier's death clears ownership of its worn gear, clothing and contained possessions without moving them. Once its corpse rots, another miner can fetch the pick and complete a channel. A squad leaves picks and axes for enabled workers lacking that kind; a matching held tool in Equipment also satisfies the need, and disabling the labor permits normal weapon selection.
+
 ## 17 Health
 
 | id | Scenario | Expected |

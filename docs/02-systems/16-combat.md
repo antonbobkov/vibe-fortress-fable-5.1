@@ -114,7 +114,7 @@ An explicit barracks zone setting takes precedence over a cached training zone. 
 
 - On joining a squad, and every `REEQUIP_CHECK_DAYS`, each member claims from stockpiles the best available items matching the squad's preferences: weapon (highest `metalTier × qualityMultiplier` of the preferred class, then any melee class), shield (if the weapon is one-handed and `armor != none`), one armor piece per slot (highest armor value matching the material preference), and, for ranged members, a launcher, a quiver and `SOLDIER_AMMO` ammunition. Claimed items are `owned` (13). Better items replace worse ones, which are dropped at the barracks. All squads are refreshed once on a dispatch tick that carries `ItemCreated`, however many items the tick created.
 - Soldiers wear their armor at all times (no armor-off in version 1). Armor slows: movement × `(100 − Σ armor.weight / 4)%` minimum `ARMOR_MIN_SPEED_PERCENT`, reduced by `armor_use` skill (each level restores 1%).
-- Civilian tools (picks, axes) are weapons of their class; a miner attacked fights with the pick.
+- Civilian tools (picks, axes) are weapons of their class; a miner attacked fights with the pick. A squad member does not claim a pick or axe as a weapon while any dwarf has mining or woodcutting labor enabled, respectively, and lacks a held tool of that kind. A tool held through `Worker.toolId` or `Equipment.weapon` satisfies that need; a different kind does not. Once every enabled worker holds that kind, or the labor is disabled, a spare can be claimed normally.
 
 ### Alerts
 
