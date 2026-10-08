@@ -60,6 +60,8 @@ export interface JobsApi {
   stepWorker(workerId: EntityId, ctx: TickContext): void;
   /** Interruption: the job returns to `open`, keeping its progress when `keepProgress`. */
   interrupt(workerId: EntityId, keepProgress: boolean): void;
+  /** Before removing a dead worker, return its job and drop held, unworn items. */
+  workerDied?(workerId: EntityId, deathTile?: TileIndex): void;
   /** `SetBuildingPriority` and friends: a job's priority (11's sink). */
   setPriority?(jobId: number, priority: number): void;
 }

@@ -1,6 +1,8 @@
 # T-160 — A dwarf who dies holding a tool drops it
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 1) · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-160: drop held tools and loads before removing a dead dwarf`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 1) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@ A miner or woodcutter who dies takes the pick or axe out of the world. The item 
 
 ## Reproduction
 
-[`death2.probe.ts`](../../reports/data/2026-10-08-bug-hunt-death2.probe.ts.txt): flat-test 48 × 48, seed `t115-death2`. A miner takes the only pick at tick 25, is killed at tick 2,430. Afterwards: `item … carriedBy=<dead id> pos=none tileOf=-1`, `pick: total 1 available 1`, and four new channel jobs `blocked: no_tool` for 27 days. Copy the probe files from `reports/data/` into `t115-scratch/` at the repository root as the report's section "The probes" says, then run `node node_modules/vitest/vitest.mjs run -c t115-scratch/vitest.config.ts t115-scratch/death2.probe.ts`.
+[`death2.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-death2.probe.ts.txt): flat-test 48 × 48, seed `t115-death2`. A miner takes the only pick at tick 25, is killed at tick 2,430. Afterwards: `item … carriedBy=<dead id> pos=none tileOf=-1`, `pick: total 1 available 1`, and four new channel jobs `blocked: no_tool` for 27 days. Copy the probe files from `reports/data/` into `t115-scratch/` at the repository root as the report's section "The probes" says, then run `node node_modules/vitest/vitest.mjs run -c t115-scratch/vitest.config.ts t115-scratch/death2.probe.ts`.
 
 ## What to do
 

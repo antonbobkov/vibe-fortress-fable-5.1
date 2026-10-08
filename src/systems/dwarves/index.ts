@@ -413,6 +413,9 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     if (event.type === 'BuildingStateChanged') { this.checkShelters(ctx); return; }
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
+      if (ctx.world.entities.has(id, C.Worker)) {
+        ctx.jobs.workerDied?.(id, typeof event['tile'] === 'number' ? event['tile'] : undefined);
+      }
       this.threatened.delete(id);
       for (const dwarfId of this.reader().list()) {
         if (this.threatened.get(dwarfId)?.hostileId === id) this.threatened.delete(dwarfId);

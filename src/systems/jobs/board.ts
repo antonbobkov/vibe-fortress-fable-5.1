@@ -6,7 +6,7 @@
  * through it, and 10 queues workers and steps them through it (`steps.ts`).
  */
 
-import { C, type Worker } from '@core/components';
+import { C, ItemFlag, type Worker } from '@core/components';
 import { PRIORITY_DEFAULT, TICKS_PER_YEAR } from '@core/constants';
 import type { GameEvent } from '@core/events';
 import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, WorldLike } from '@core/system';
@@ -868,11 +868,29 @@ export class JobBoard implements JobsApi, JobSink {
     return true;
   }
 
-  /** A worker died: its job returns to `open` with progress kept (`11` § Cancellation). */
-  workerDied(workerId: EntityId): void {
+  /** Called before worker removal; the later death event repeats this idempotently. */
+  workerDied(workerId: EntityId, deathTile = this.workerTile(workerId)): void {
+    const worker = this.world.entities.get(workerId, C.Worker);
+    const equipment = this.world.entities.get(workerId, C.Equipment);
+    const worn = new Set(equipment === undefined ? [] : [equipment.weapon, equipment.shield,
+      ...Object.values(equipment.armor), ...Object.values(equipment.clothing), equipment.quiver]);
+    const api = this.world.services.items;
+    const dropped = new Set<EntityId>();
+    if (worker !== undefined && api !== null && this.world.map.validIndex(deathTile)) {
+      for (const itemId of [worker.toolId, worker.carrying]) {
+        if (itemId !== 0 && !worn.has(itemId) && this.world.entities.get(itemId, C.Item)?.carriedBy === workerId) {
+          dropped.add(itemId);
+        }
+      }
+    }
     for (const id of this.ids) {
       const job = this.jobs.get(id) as Job;
       if (job.workerId !== workerId) continue;
+      for (const input of job.inputs) {
+        input.reserved = input.reserved.filter((itemId) => !dropped.has(itemId));
+        input.delivered = input.delivered.filter((itemId) => !dropped.has(itemId));
+      }
+      if (dropped.has(job.data['toolToFetch'] as EntityId)) delete job.data['toolToFetch'];
       job.workerId = 0;
       job.state = 'open';
       this.invalidateWorkAvailability();
@@ -880,6 +898,22 @@ export class JobBoard implements JobsApi, JobSink {
     }
     const at = this.assignQueue.indexOf(workerId);
     if (at >= 0) this.assignQueue.splice(at, 1);
+    if (worker === undefined) return;
+    if (api !== null && this.world.map.validIndex(deathTile)) {
+      for (const itemId of dropped) {
+        const item = this.world.entities.get(itemId, C.Item);
+        if (item?.carriedBy !== workerId) continue;
+        if (item.reservedBy !== 0 || (item.flags & ItemFlag.Reserved) !== 0) {
+          api.release(itemId);
+          this.emit({ type: 'ItemReleased', itemId, jobId: item.reservedBy });
+        }
+        api.setOwner(itemId, 0);
+        api.setFlag(itemId, ItemFlag.Forbidden, false);
+        api.dropAt(itemId, deathTile);
+        if (itemId === worker.toolId) this.emit({ type: 'ToolDropped', itemId });
+      }
+    }
+    this.setWorker(workerId, { jobId: 0, phase: 0, toolId: 0, carrying: 0 });
   }
 
   // ---------- the tick ----------
