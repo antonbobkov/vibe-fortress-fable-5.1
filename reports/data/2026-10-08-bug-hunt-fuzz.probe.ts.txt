@@ -1,0 +1,357 @@
+/* T-115 scratch: command fuzzing over the whole catalog. NOT a permanent test.
+ * env: T115_OUT, T115_FUZZ_N (random trials per command, default 250), T115_ONLY (comma list of command types)
+ */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { COMMAND_TYPES, COMMAND_OWNERS, REJECT_REASONS } from '@core/command-types';
+import type { Command } from '@core/commands';
+import { roundTrip } from '@app/game-save';
+import type { HeadlessGame } from '@app/headless';
+import { TileFlag } from '@core/map3d';
+import { TestWorld } from '../test/scenarios/test-world';
+import { prepareBusyFortress } from '../test/scenarios/core_save_roundtrip.scenario';
+import { Probe } from './invariants';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const N = Number(process.env['T115_FUZZ_N'] ?? '250');
+const ONLY = (process.env['T115_ONLY'] ?? '').split(',').filter((s) => s.length > 0);
+const Z = 32;
+
+const FIELDS: Record<string, string[]> = {
+  '03': ['tiles', 'kind', 'priority', 'mode', 'x', 'y', 'zTop', 'zBottom'],
+  '07': ['zoneId', 'season', 'speciesId', 'tiles'],
+  '08': ['animalId', 'zoneId', 'kind', 'cageId', 'dwarfId', 'chainId', 'squadId', 'species', 'cap', 'name'],
+  '09': ['species', 'on'],
+  '10': ['dwarfId', 'title', 'name', 'sleepStartHour'],
+  '11': ['dwarfId', 'labor', 'on', 'priority', 'jobId', 'name'],
+  '12': ['workshopId', 'order', 'index', 'patch', 'to', 'from', 'dwarfId', 'on'],
+  '13': ['itemId', 'tiles', 'typeId', 'on', 'zoneId', 'filter', 'wants', 'priority', 'sourceZoneId'],
+  '14': ['buildingType', 'origin', 'orientation', 'materialChoice', 'priority', 'width', 'height', 'buildingId', 'zoneType', 'tiles', 'zoneId', 'key', 'value', 'dwarfId',
+    'sourceId', 'targetId', 'mode', 'plateId', 'trigger', 'cageBuildingId', 'coffinId'],
+  '16': ['name', 'squadId', 'members', 'leaderId', 'mode', 'equipment', 'tile', 'tiles', 'order', 'level'],
+  '17': ['zoneId', 'wants'],
+  '19': ['trapId', 'mode', 'leverId'],
+  '20': ['itemIds', 'depotId', 'give', 'take', 'civ', 'entries'],
+  '21': ['n'],
+  core: ['name'],
+};
+/** The documented fields of each command, so the single-field sweep starts from the right shape. */
+const OWN: Record<string, string[]> = {
+  Designate: ['tiles', 'kind', 'priority'], UndoDesignation: ['tiles'], SetDesignationPriority: ['tiles', 'priority'], SetTraffic: ['tiles', 'mode'],
+  DesignateStairwell: ['x', 'y', 'zTop', 'zBottom'], DesignateHarvest: ['tiles'], ConfirmDeepsilver: [], SetPlotCrop: ['zoneId', 'season', 'speciesId'],
+  AssignPasture: ['animalId', 'zoneId'], MarkSlaughter: ['animalId'], UnmarkSlaughter: ['animalId'], TrainAnimal: ['animalId', 'kind'], TameCaged: ['cageId'],
+  AssignAnimal: ['animalId', 'dwarfId', 'chainId', 'squadId'], SetBreedingCap: ['species', 'cap'], ReleaseCaged: ['cageId'], SetHuntable: ['species', 'on'],
+  SetLabor: ['dwarfId', 'labor', 'on'], SetLaborPriority: ['labor', 'priority'], CancelJob: ['jobId'], SetJobPriority: ['jobId', 'priority'], SetStandingOrder: ['name', 'on'],
+  AssignTitle: ['dwarfId', 'title'], RenameDwarf: ['dwarfId', 'name'], SetSchedule: ['dwarfId', 'sleepStartHour'], AddWorkOrder: ['workshopId', 'order'],
+  EditWorkOrder: ['workshopId', 'index', 'patch'], RemoveWorkOrder: ['workshopId', 'index'], ReorderWorkOrder: ['workshopId', 'index', 'to', 'from'],
+  SetWorkshopWorker: ['workshopId', 'dwarfId'], SuspendWorkshop: ['workshopId', 'on'], ForbidItem: ['itemId', 'tiles', 'typeId', 'on'], ClaimItem: ['itemId', 'tiles', 'typeId', 'on'],
+  DumpItem: ['itemId', 'tiles', 'typeId', 'on'], MeltItem: ['itemId', 'tiles', 'typeId', 'on'], SetStockpileFilter: ['zoneId', 'filter'], SetStockpileContainers: ['zoneId', 'wants'],
+  SetStockpilePriority: ['zoneId', 'priority'], LinkStockpile: ['zoneId', 'sourceZoneId', 'on'],
+  PlaceBuilding: ['buildingType', 'origin', 'orientation', 'materialChoice', 'priority', 'width', 'height'], CancelBuilding: ['buildingId'], DeconstructBuilding: ['buildingId'],
+  SetBuildingPriority: ['buildingId', 'priority'], CreateZone: ['zoneType', 'tiles'], ResizeZone: ['zoneId', 'tiles'], RemoveZone: ['zoneId'], SetZoneSetting: ['zoneId', 'key', 'value'],
+  AssignRoom: ['zoneId', 'dwarfId'], LinkMechanism: ['sourceId', 'targetId'], UnlinkMechanism: ['sourceId', 'targetId'], SetDoorMode: ['buildingId', 'mode'], SetHatchMode: ['buildingId', 'mode'],
+  SetPlateTrigger: ['plateId', 'trigger'], ReleaseCage: ['cageBuildingId'], AssignCoffin: ['coffinId', 'dwarfId'], CreateSquad: ['name'], DisbandSquad: ['squadId'],
+  SetSquadMembers: ['squadId', 'members'], SetSquadLeader: ['squadId', 'leaderId'], SetSquadMode: ['squadId', 'mode'], SetSquadEquipment: ['squadId', 'equipment'],
+  SetSquadStation: ['squadId', 'tile'], SetSquadPatrol: ['squadId', 'tiles'], SquadOrder: ['squadId', 'order'], SetAlert: ['level'], SetHospitalSupplies: ['zoneId', 'wants'],
+  SetTrapMode: ['trapId', 'mode'], PullLever: ['leverId'], MoveToDepot: ['itemIds'], RemoveFromDepot: ['itemIds'], TradeOpen: ['depotId'], TradeOffer: ['give', 'take'], TradeCancel: [],
+  SetRequests: ['civ', 'entries'], SetPopulationCap: ['n'], NameAnimal: ['animalId', 'name'], RenameSquad: ['squadId', 'name'], RenameFortress: ['name'],
+};
+
+let seed = 987654321;
+const rnd = (): number => { seed ^= seed << 13; seed >>>= 0; seed ^= seed >>> 17; seed ^= seed << 5; seed >>>= 0; return seed / 0x100000000; };
+const pick = <T>(xs: readonly T[]): T => xs[Math.floor(rnd() * xs.length)] as T;
+
+function buildWorld(): TestWorld {
+  const w = new TestWorld({ seed: 't115-fuzz', world: 'flat-test', embark: 'default', startTick: 31 * TICKS_PER_DAY });
+  prepareBusyFortress(w);
+  w.zone('farm_plot', [w.index(20, 70, Z), w.index(21, 70, Z)]);
+  const grass = [w.index(24, 70, Z), w.index(25, 70, Z)];
+  for (const tile of grass) w.map.setFlag(tile, TileFlag.Grass, true);
+  w.zone('pasture', grass);
+  const notes: string[] = [];
+  const tb = (...a: Parameters<TestWorld['build']>): void => { try { w.build(...a); } catch (e) { notes.push((e as Error).message); } };
+  const tz = (...a: Parameters<TestWorld['zone']>): void => { try { w.zone(...a); } catch (e) { notes.push((e as Error).message); } };
+  w.spawnTame('cow', w.index(24, 71, Z));
+  w.spawnTame('dog', w.index(26, 71, Z));
+  tb('carpenter', w.index(15, 15, Z));
+  tb('forge', w.index(15, 22, Z), 'granite');
+  tb('kennel', w.index(15, 29, Z), 'granite');
+  w.spawnItem('axe', 'iron', w.index(18, 17, Z));
+  w.spawnItem('bar', 'iron', w.index(19, 17, Z), 10);
+  w.spawnItem('mechanism', 'granite', w.index(20, 17, Z), 4);
+  tb('stone_fall_trap', w.index(65, 65, Z), 'granite');
+  tb('cage_trap', w.index(63, 65, Z), 'granite');
+  tb('lever', w.index(67, 65, Z), 'granite');
+  tb('pressure_plate', w.index(69, 65, Z), 'granite');
+  tb('wall', w.index(71, 64, Z), 'granite');
+  tb('wall', w.index(71, 66, Z), 'granite');
+  tb('door', w.index(71, 65, Z), 'granite');
+  tb('hatch', w.index(73, 65, Z), 'granite');
+  tb('coffin', w.index(75, 65, Z), 'granite');
+  tb('chain_post', w.index(77, 65, Z), 'granite');
+  tb('bed', w.index(60, 70, Z), 'pine');
+  tz('bedroom', [w.index(60, 70, Z), w.index(61, 70, Z)]);
+  tz('hospital', [w.index(70, 70, Z)]);
+  tz('dump', [w.index(72, 70, Z)]);
+  tz('barracks', [w.index(74, 70, Z), w.index(75, 70, Z)]);
+  tb('trade_depot', w.index(45, 8, Z), 'granite');
+  if (notes.length > 0) console.log('setup notes: ' + notes.join('; '));
+  w.step(1);
+  w.game.world.applyCommand({ type: 'CreateSquad', name: 'Fuzz Guard' });
+  w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: 0, order: { recipeId: 'make_bed', mode: 'once', remaining: 3, threshold: 0, priority: 5 } });
+  w.step(1);
+  const dwarves = w.game.world.entities.with(C.Labors);
+  const squad = w.game.world.entities.with(C.Squad)[0] ?? 0;
+  w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: squad, members: dwarves.slice(0, 2) });
+  w.game.world.applyCommand({ type: 'AssignTitle', dwarfId: dwarves[2] ?? 0, title: 'broker' });
+  try {
+    w.until((x) => x.events('CaravanAtDepot').length > 0, 80 * TICKS_PER_DAY);
+    const depot = w.game.world.readers.of<{ depots(): number[] }>('14').depots()[0] ?? 0;
+    const tile = w.game.world.entities.get(depot, C.Building)?.footprint[0] ?? 0;
+    const goods = [w.spawnItem('bar', 'iron', tile, 10), w.spawnItem('chair', 'pine', tile)];
+    w.submit({ type: 'MoveToDepot', itemIds: goods });
+    w.step(600);
+    w.submit({ type: 'TradeOpen', depotId: depot });
+    w.until(() => w.game.world.readers.of<{ sessionOpen(): boolean }>('20').sessionOpen(), 1200);
+  } catch (e) { console.log('setup: trade session not reached: ' + (e as Error).message); }
+  // things in flight for the commands that need them: planned buildings, blocked and open jobs, orders on a named workshop
+  const ws = w.game.world.entities.with(C.Workshop);
+  for (const id of ws) for (const r of ['make_bed', 'make_barrel', 'forge_battle_axe', 'forge_pick']) w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: id, order: { recipeId: r, mode: 'once', remaining: 2, threshold: 0, priority: 5 } });
+  for (let k = 0; k < 4; k += 1) w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'wall', origin: w.index(80 + k, 20, Z), orientation: 0, materialChoice: 0, priority: 5 });
+  w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'mason', origin: w.index(80, 30, Z), orientation: 0, materialChoice: 0, priority: 5 });
+  w.game.world.applyCommand({ type: 'Designate', kind: 'dig', tiles: [w.index(40, 40, 20), w.index(41, 40, 20)], priority: 5 });
+  w.game.world.applyCommand({ type: 'Designate', kind: 'channel', tiles: [w.index(88, 88, Z), w.index(89, 88, Z), w.index(90, 88, Z)], priority: 2 });
+  w.spawnCreature('gloam_warrior', w.index(92, 4, Z), 'hostile:gloam');
+  w.step(3);
+  console.log(`setup: dwarves ${w.game.world.entities.with(C.Labors).length}, tame ${w.game.world.entities.with(C.Tame).length}, jobs ${w.game.world.readers.of<{ list(): unknown[] }>('11').list().length}, deaths ${w.events('CreatureDied').length}`);
+  return w;
+}
+
+interface Pools { goodCount: Record<string, number>; ids: unknown[]; tiles: unknown[]; tileLists: unknown[]; byField: Record<string, unknown[]>; garbage: unknown[] }
+
+function pools(game: HeadlessGame): Pools {
+  const e = game.world.entities;
+  const map = game.map;
+  const reg = game.registry;
+  const ids = (name: string): string[] => [...reg.table(name).ids()];
+  const firstN = (xs: number[], n = 3): number[] => xs.slice(0, n);
+  const dead = game.world.services.spawn.item(reg.table('items').index('raw_stone'), reg.table('materials').index('granite'), map.index(30, 40, Z), 1, 1);
+  (game.world.services.items as unknown as { destroy(id: number, reason: string): void }).destroy(dead, 'test');
+  const jobs = game.world.readers.of<{ list(): { id: number }[] }>('11').list().map((j) => j.id);
+  const real: number[] = [
+    ...firstN(e.with(C.Labors), 4), ...firstN(e.with(C.Tame), 3), ...firstN(e.with(C.Hostile), 2), ...firstN(e.with(C.Item), 4), ...firstN(e.with(C.Container), 2),
+    ...e.with(C.Building), ...e.with(C.Zone), ...e.with(C.Squad), ...firstN(e.with(C.Party), 2), ...firstN(e.with(C.Merchant), 2), ...firstN(jobs, 4), ...firstN(jobs.slice(-3), 3),
+    ...firstN(e.with(C.Item).filter((id) => ((e.get(id, C.Item)?.flags ?? 0) & 64) !== 0), 3),
+  ];
+  const badIds: unknown[] = [0, -1, 1, 2 ** 31 - 1, 2 ** 32, 16777216 + 999999, dead, NaN, Infinity, 1.5, '5', null, undefined, {}, [], true, 'x'];
+  const t = (x: number, y: number, z: number): number => map.index(x, y, z);
+  const goodTiles = [t(30, 30, Z), t(31, 30, Z), t(50, 50, Z), t(60, 70, Z), t(45, 8, Z), t(24, 70, Z), t(0, 0, Z), t(95, 95, Z), t(40, 40, Z - 1), t(40, 40, 5), t(40, 40, Z + 1), t(40, 40, 63), t(40, 40, 0)];
+  const badTiles: unknown[] = [-1, map.tileCount, map.tileCount + 5, 1e12, NaN, Infinity, 1.5, '7', null, undefined, {}, [], true];
+  const big: number[] = [];
+  for (let k = 0; k < 60000; k += 1) big.push(t(k % 96, Math.floor(k / 96) % 96, Z));
+  const tileLists: unknown[] = [[], [goodTiles[0]], goodTiles.slice(0, 4), [goodTiles[0], goodTiles[0], goodTiles[0]], [-1], [map.tileCount], [NaN], [1.5], ['a'], [null], [goodTiles[0], -1], [goodTiles[0], map.tileCount + 1],
+    big, 'tiles', 7, null, undefined, {}, { length: 3 }, [[1, 2]], goodTiles.slice(8, 13), [t(40, 40, Z - 1), t(41, 40, Z - 1)]];
+  const numbers: unknown[] = [-1, 0, 1, 2, 3, 4, 5, 9, 10, 23, 24, 63, 64, 95, 96, 100, 200, 201, 999, 1000, 1e9, -1e9, NaN, Infinity, -Infinity, 1.5, '3', null, undefined, true, {}, []];
+  const strings: unknown[] = ['', 'x', '__proto__', 'constructor', 'toString', 'hasOwnProperty', 'a'.repeat(24), 'a'.repeat(25), 'a'.repeat(32), 'a'.repeat(33), 'a'.repeat(10000), ' ', '\n', '\u0000', '🙂'.repeat(20), 0, 1, null, undefined, {}, [], true];
+  const bools: unknown[] = [true, false, 0, 1, 'true', 'false', null, undefined, {}];
+  const idPool = [...real, ...badIds];
+  const bt = reg.table<{ id: string }>('buildings');
+  const allB = e.with(C.Building);
+  const ofType = (...names: string[]): number[] => allB.filter((id) => names.includes(bt.byIndex(e.get(id, C.Building)?.type ?? -1)?.id ?? ''));
+  const planned = allB.filter((id) => e.get(id, C.Building)?.state !== 'built');
+  const front = (xs: number[]): number[] => [...xs, ...allB.filter((b) => !xs.includes(b))];
+  const blds = front(planned);
+  const idsFor: Record<string, number[]> = {
+    zoneId: e.with(C.Zone), sourceZoneId: e.with(C.Zone), squadId: e.with(C.Squad), workshopId: [...e.with(C.Workshop), 0], buildingId: [...planned.slice(0, 2), ...ofType('door'), ...ofType('carpenter'), ...blds], sourceId: front(ofType('lever', 'pressure_plate')), targetId: front(ofType('door', 'cage_trap', 'stone_fall_trap', 'hatch')), plateId: front(ofType('pressure_plate')),
+    cageBuildingId: front(ofType('cage_trap', 'cage_building')), coffinId: front(ofType('coffin')), trapId: front(ofType('stone_fall_trap', 'cage_trap')), leverId: front(ofType('lever')), depotId: front(ofType('trade_depot')), chainId: front(ofType('chain_post')), cageId: front(ofType('cage_trap', 'cage_building')), dwarfId: firstN(e.with(C.Labors), 5), leaderId: firstN(e.with(C.Labors), 5),
+    animalId: firstN(e.with(C.Tame), 4), itemId: firstN(e.with(C.Item), 6), jobId: firstN(jobs, 8),
+  };
+  const recipes = ids('recipes');
+  const orders: unknown[] = [
+    { recipeId: 'make_bed', mode: 'once', remaining: 1, threshold: 0, priority: 5 }, { recipeId: 'make_bed', mode: 'maintain', remaining: 0, threshold: 5, priority: 5 },
+    { recipeId: 'make_bed', mode: 'once', remaining: 0, priority: 5 }, { recipeId: 'make_bed', mode: 'once', remaining: 1000, priority: 5 }, { recipeId: 'make_bed', mode: 'once', remaining: -1, priority: 5 },
+    { recipeId: 'make_bed', mode: 'once', remaining: NaN, priority: 5 }, { recipeId: 'make_bed', mode: 'once', remaining: 1.5, priority: 5 }, { recipeId: 'make_bed', mode: 'once', remaining: 1, priority: 0 },
+    { recipeId: 'make_bed', mode: 'once', remaining: 1, priority: 10 }, { recipeId: 'make_bed', mode: 'once', remaining: 1, priority: NaN }, { recipeId: 'make_bed', mode: 'maintain', remaining: 1, threshold: 1000, priority: 5 },
+    { recipeId: 'make_bed', mode: 'maintain', remaining: 1, threshold: NaN, priority: 5 }, { recipeId: 'make_bed', mode: 'forever', remaining: 1, priority: 5 }, { recipeId: 'nope', mode: 'once', remaining: 1, priority: 5 },
+    { recipeId: '__proto__', mode: 'once', remaining: 1, priority: 5 }, { recipeId: 'forge_battle_axe', mode: 'once', remaining: 1, priority: 5, materialFilter: 'nope' },
+    { recipeId: 'forge_battle_axe', mode: 'once', remaining: 1, priority: 5, materialFilter: 999999 }, { recipeId: 'forge_battle_axe', mode: 'once', remaining: 1, priority: 5, materialFilter: {} },
+    { recipeId: 'make_memorial_slab', mode: 'once', remaining: 1, priority: 5, memorialDwarfId: 12345 }, { recipeId: 'make_bed', mode: 'once', remaining: 1, priority: 5, memorialDwarfId: 1 },
+    { recipeId: pick(recipes), mode: 'once', remaining: 999, priority: 1 }, {}, null, undefined, 'make_bed', 5, [], { recipe: 1 }, { recipeId: 1, mode: 1, remaining: '3', priority: '5' },
+  ];
+  const patches: unknown[] = [{ priority: 3 }, { priority: 0 }, { priority: 10 }, { priority: NaN }, { remaining: 0 }, { remaining: -5 }, { remaining: 1e9 }, { remaining: NaN }, { mode: 'maintain' }, { mode: 'x' }, { threshold: 0 }, { threshold: 1e9 },
+    { recipeId: 'brew' }, { recipe: 99999 }, { materialFilter: 'x' }, { materialFilter: null }, {}, null, undefined, 5, 'x', [], { __proto__: { priority: 3 } }];
+  const filters: unknown[] = [{ categories: ['stone'], materialClasses: 'any', minQuality: 0, maxQuality: 5, allowRot: false }, { categories: [], materialClasses: 'any', minQuality: 0, maxQuality: 5, allowRot: false },
+    { categories: ['nope'], materialClasses: 'any', minQuality: 0, maxQuality: 5, allowRot: false }, { categories: ['stone'], materialClasses: ['nope'], minQuality: 0, maxQuality: 5, allowRot: false },
+    { categories: ['stone'], materialClasses: 'any', minQuality: 5, maxQuality: 0, allowRot: false }, { categories: ['stone'], materialClasses: 'any', minQuality: -1, maxQuality: 99, allowRot: false },
+    { categories: ['stone'], materialClasses: 'any', minQuality: NaN, maxQuality: NaN, allowRot: 'x' }, { categories: 'stone' }, { categories: [1, null, {}] }, {}, null, undefined, 'all', 'food', 'none', 5, [], { categories: ['food', 'food', 'food'] }];
+  const wants: unknown[] = [{ barrel: 1, bag: 1, bin: 1 }, { barrel: -1, bag: 0, bin: 0 }, { barrel: 1e9, bag: 0, bin: 0 }, { barrel: NaN, bag: NaN, bin: NaN }, { barrel: 1.5 }, { cloth: 5, thread: 5 }, { cloth: -5, thread: 1e9 }, { cloth: NaN },
+    { nope: 1 }, { __proto__: 1 }, {}, null, undefined, 5, 'x', []];
+  const triggers: unknown[] = [{ kind: 'creatures', minSize: 0, includeFortress: false }, { kind: 'creatures', minSize: -1, includeFortress: true }, { kind: 'creatures', minSize: NaN, includeFortress: 'x' }, { kind: 'water', level: 1 },
+    { kind: 'water', level: 0 }, { kind: 'water', level: 8 }, { kind: 'magma', level: 7 }, { kind: 'magma', level: NaN }, { kind: 'magma', level: 1.5 }, { kind: 'x' }, { kind: 'creatures' }, {}, null, undefined, 'water', 5, []];
+  const equipment: unknown[] = [{ weaponClass: 'any', armor: 'any', ranged: false }, { weaponClass: 'axe', armor: 'metal', ranged: true }, { weaponClass: 'nope', armor: 'nope', ranged: 'x' }, { weaponClass: 5 }, {}, null, undefined, 'any', 5, []];
+  const squadOrders: unknown[] = [{ kind: 'station', tile: goodTiles[0] }, { kind: 'station', tile: -1 }, { kind: 'station', tile: map.tileCount }, { kind: 'station', tile: NaN }, { kind: 'station', tile: t(40, 40, 5) }, { kind: 'station' },
+    { kind: 'kill', targetId: e.with(C.Hostile)[0] ?? 0 }, { kind: 'kill', targetId: e.with(C.Labors)[0] ?? 0 }, { kind: 'kill', targetId: dead }, { kind: 'kill', targetId: 0 }, { kind: 'kill', targetId: e.with(C.Item)[0] ?? 0 }, { kind: 'kill', targetId: e.with(C.Zone)[0] ?? 0 },
+    { kind: 'kill' }, { kind: 'patrol', tiles: goodTiles.slice(0, 3) }, { kind: 'patrol', tiles: [] }, { kind: 'patrol', tiles: [-1, NaN] }, { kind: 'patrol', tiles: big }, { kind: 'patrol' }, { kind: 'follow', dwarfId: e.with(C.Labors)[0] ?? 0 },
+    { kind: 'follow', dwarfId: dead }, { kind: 'follow', dwarfId: e.with(C.Hostile)[0] ?? 0 }, { kind: 'cancel' }, { kind: 'nope' }, {}, null, undefined, 'kill', 5, []];
+  const anItem = e.with(C.Item)[0] ?? 0;
+  const merchantItem = e.with(C.Item).find((id) => ((e.get(id, C.Item)?.flags ?? 0) & 64) !== 0) ?? 0;
+  const depotItems = e.with(C.Item).filter((id) => ((e.get(id, C.Item)?.flags ?? 0) & 32) !== 0);
+  const lines: unknown[] = [[], [{ itemId: anItem, count: 1 }], [{ itemId: merchantItem, count: 1 }], [{ itemId: merchantItem, count: 0 }], [{ itemId: merchantItem, count: -1 }], [{ itemId: merchantItem, count: 1e9 }], [{ itemId: merchantItem, count: NaN }],
+    [{ itemId: merchantItem, count: 1.5 }], [{ itemId: merchantItem, count: 1 }, { itemId: merchantItem, count: 1 }], [{ itemId: depotItems[0] ?? 0, count: 1 }], [{ itemId: depotItems[0] ?? 0, count: 1 }, { itemId: depotItems[0] ?? 0, count: 1 }],
+    [{ itemId: dead, count: 1 }], [{ itemId: 0, count: 1 }], [{ itemId: e.with(C.Labors)[0] ?? 0, count: 1 }], [{ itemId: e.with(C.Merchant)[0] ?? 0, count: 1 }], [{}], [null], [5], 'x', 5, null, undefined, {}];
+  const entries: unknown[] = [[], [{ itemType: 'anvil', priority: 1 }], [{ category: 'metal', priority: 1 }], [{ typeId: 'anvil' }], [{ itemType: 'nope' }], [{}], [null], new Array(50).fill({ itemType: 'anvil', priority: 1 }),
+    ['anvil'], [5], 'x', 5, null, undefined, {}, [{ itemType: '__proto__' }]];
+  const values: unknown[] = [...numbers.slice(0, 12), ...strings.slice(0, 8), true, false, {}, [], null, undefined, e.with(C.Labors)[0] ?? 0, e.with(C.Squad)[0] ?? 0, dead, 'any', 'metal'];
+  const goodCount: Record<string, number> = {};
+  const byField: Record<string, unknown[]> = {
+    kind: ['dig', 'channel', 'ramp', 'stairs_up', 'stairs_down', 'stairs_updown', 'remove', 'chop', 'smooth', 'engrave', 'gather', 'war', 'hunting', 'none', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 99, -1, ...strings],
+    mode: ['normal', 'low', 'high', 'restricted', 'open', 'locked', 'lock_on_alert', 'pet_passable', 'forbidden', 'off', 'train', 'active', 'armed', 'disarmed', 'safe', ...strings],
+    level: ['calm', 'watchful', 'hearth', ...strings],
+    title: ['none', 'thane', 'warden', 'broker', 'chief_medic', ...strings],
+    labor: [...ids('labors'), 0, 1, 2, 99, -1, NaN, ...strings],
+    name: ['Urist', 'haul_refuse', 'auto_butcher', 'auto_collect_webs', ...Object.keys({}), ...strings],
+    species: [...ids('creatures').slice(0, 12), ...ids('plants').slice(0, 4), 0, 1, 2, 999, -1, NaN, ...strings],
+    speciesId: [...ids('plants'), 0, 1, 2, 3, 999, -1, NaN, ...strings.slice(0, 6)],
+    zoneType: ['stockpile', 'meeting_area', 'dump', ...ids('zoneTypes'), 0, 1, 99, ...strings],
+    buildingType: ['wall', 'floor', 'door', 'bed', 'carpenter', 'well', ...ids('buildings'), 0, 1, 99, ...strings],
+    civ: ['mountainhome', 'hillfolk', 'wildwood', 'gloam', ...strings],
+    key: ['squad', 'owner', 'crop per season', 'desired supplies', 'priority', 'crop_per_season', 'desired_supplies', 'name', 'ownerId', 'squadId', 'allowPets', 'target', 'targets', 'capacity', 'pets', 'species', 'crops', 'wants', 'filter', 'type', 'tiles', 'settings', ...strings],
+    value: values, typeId: [...ids('items').slice(0, 10), 0, 1, 2, 9999, -1, NaN, ...strings.slice(0, 8)],
+    materialChoice: [0, 'granite', 'pine', ...ids('materials').slice(0, 8), 1, 2, 9999, -1, NaN, 1.5, ...strings.slice(0, 6)],
+    on: bools, order: [...orders, ...squadOrders], patch: patches, filter: filters, wants, trigger: triggers, equipment, entries, give: lines, take: lines,
+    tiles: tileLists, tile: [...goodTiles, ...badTiles], origin: [...goodTiles, ...badTiles], members: [[], e.with(C.Labors).slice(0, 2), e.with(C.Labors), [dead], [0], [-1], [NaN], [e.with(C.Hostile)[0] ?? 0], [e.with(C.Tame)[0] ?? 0],
+      [e.with(C.Labors)[0] ?? 0, e.with(C.Labors)[0] ?? 0], new Array(40).fill(e.with(C.Labors)[0] ?? 0), 'x', 5, null, undefined, {}, [e.with(C.Item)[0] ?? 0]],
+    itemIds: [[], [anItem], [anItem, anItem], [dead], [0], [-1, NaN], [merchantItem], depotItems.slice(0, 2), e.with(C.Item).slice(0, 200), [e.with(C.Labors)[0] ?? 0], [e.with(C.Building)[0] ?? 0], 'x', 5, null, undefined, {}],
+  };
+  for (const [f, good] of Object.entries(idsFor)) { byField[f] = [...good, ...idPool]; goodCount[f] = Math.max(1, good.length); }
+  const goodNumbers: Record<string, unknown[]> = { priority: [5, 1, 9], cap: [10, 0, 100], n: [50, 20, 200], season: [0, 1, 2, 3], sleepStartHour: [20, 0, 23], orientation: [0, 1, 2, 3], width: [undefined], height: [undefined],
+    x: [30, 31], y: [30, 31], zTop: [32], zBottom: [30, 31], index: [0, 1], from: [0, 1], to: [1, 0] };
+  for (const [f, good] of Object.entries(goodNumbers)) { byField[f] = [...good, ...numbers]; goodCount[f] = good.length; }
+  goodCount['materialChoice'] = 3; goodCount['on'] = 2; goodCount['origin'] = 6; goodCount['tile'] = 6; goodCount['tiles'] = 4; goodCount['order'] = 2; goodCount['patch'] = 1; goodCount['filter'] = 2; goodCount['wants'] = 1;
+  goodCount['trigger'] = 1; goodCount['equipment'] = 2; goodCount['members'] = 3; goodCount['itemIds'] = 2; goodCount['entries'] = 2; goodCount['civ'] = 3; goodCount['level'] = 3; goodCount['title'] = 5;
+  return { ids: idPool, tiles: [...goodTiles, ...badTiles], tileLists, byField, goodCount, garbage: [...numbers, ...strings, ...bools, [], {}, [[]], [{}], () => 0] };
+}
+
+function poolFor(field: string, p: Pools): unknown[] {
+  if (p.byField[field]) return p.byField[field] as unknown[];
+  if (/Id$/.test(field)) return p.ids;
+  return p.garbage;
+}
+
+function show(v: unknown): string {
+  const s = JSON.stringify(v, (_k, x) => (typeof x === 'number' && !Number.isFinite(x) ? `#${String(x)}` : x === undefined ? '#undefined' : typeof x === 'function' ? '#fn' : Array.isArray(x) && x.length > 12 ? `#array(${x.length})` : typeof x === 'string' && x.length > 40 ? `#string(${x.length})` : x));
+  return s === undefined ? '#undefined' : s.length > 300 ? `${s.slice(0, 300)}…` : s;
+}
+
+describe('T-115 probe: command fuzz', () => {
+  it('every command with boundary and malformed arguments', () => {
+    mkdirSync(OUT, { recursive: true });
+    const base = buildWorld();
+    const baseGame = base.game;
+    const caravan = base.events('CaravanAtDepot').length > 0;
+    const lines: string[] = [`base world at tick ${baseGame.tick}; caravan at depot: ${caravan}; trials per command: field sweep + ${N} random`];
+    const known = new Set<string>(REJECT_REASONS);
+    const baseline = new Probe('baseline (before any fuzzing)'); baseline.check(baseGame);
+    const loadedBase = roundTrip(baseGame).game; const baseline2 = new Probe('baseline after one save/load'); baseline2.check(loadedBase);
+    lines.push(baseline.report(), baseline2.report(), `hash equal after load: ${loadedBase.hash() === baseGame.hash()}`);
+    const summary: string[] = [];
+    for (const type of COMMAND_TYPES) {
+      if (ONLY.length > 0 && !ONLY.includes(type)) continue;
+      let game = roundTrip(baseGame).game;
+      let p = pools(game);
+      let probe = new Probe(type, 3);
+      const owner = COMMAND_OWNERS[type];
+      const fields = FIELDS[owner] ?? [];
+      const own = OWN[type] ?? fields;
+      const results: Record<string, number> = {};
+      const throws = new Map<string, { n: number; cmd: string }>();
+      const accepted = new Map<string, string>();
+      const unknownReasons = new Set<string>();
+      const invHits = new Map<string, string>();
+      let saveDiverged: string[] = [];
+      let acceptedSince: string[] = [];
+      let trials = 0;
+      const pre = new Set<string>();
+      const prime = (): void => { probe.check(game); for (const k of probe.findings.keys()) pre.add(k); };
+      prime();
+      const refork = (): void => { game = roundTrip(baseGame).game; p = pools(game); probe = new Probe(type, 3); acceptedSince = []; prime(); };
+      const trial = (cmd: Record<string, unknown>): void => {
+        trials += 1;
+        const text = show(cmd);
+        let res: { ok: boolean; reason?: string } | undefined;
+        try {
+          res = game.world.applyCommand(cmd as unknown as Command) as { ok: boolean; reason?: string };
+        } catch (err) {
+          const msg = `apply: ${(err as Error).message?.slice(0, 120)} @ ${String((err as Error).stack).split('\n')[1]?.trim().slice(0, 140)}`;
+          const t = throws.get(msg) ?? { n: 0, cmd: text }; t.n += 1; throws.set(msg, t);
+          results['THROW'] = (results['THROW'] ?? 0) + 1;
+          refork();
+          return;
+        }
+        const key = res.ok ? 'ok' : `reject:${String(res.reason)}`;
+        results[key] = (results[key] ?? 0) + 1;
+        if (!res.ok && !known.has(String(res.reason))) unknownReasons.add(String(res.reason));
+        if (res.ok) {
+          const shape = Object.keys(cmd).filter((k) => k !== 'type').map((k) => `${k}:${show(cmd[k]).slice(0, 60)}`).join(' ');
+          if (accepted.size < 400) accepted.set(shape, text);
+          acceptedSince.push(text);
+          try { game.step(2); } catch (err) {
+            const msg = `step after accept: ${(err as Error).message?.slice(0, 120)} @ ${String((err as Error).stack).split('\n')[1]?.trim().slice(0, 140)}`;
+            const t = throws.get(msg) ?? { n: 0, cmd: text }; t.n += 1; throws.set(msg, t);
+            results['THROW-IN-STEP'] = (results['THROW-IN-STEP'] ?? 0) + 1;
+            refork();
+            return;
+          }
+          const before = probe.findings.size;
+          try { probe.check(game); } catch (err) { invHits.set(`probe threw: ${(err as Error).message}`, text); refork(); return; }
+          if (probe.findings.size > before) for (const [fk, f] of probe.findings) if (!pre.has(fk) && !invHits.has(`${f.inv} [${f.cls}]`)) invHits.set(`${f.inv} [${f.cls}]`, `${f.samples[0]} <= after ${text}`);
+          if (acceptedSince.length >= 15) {
+            try {
+              const copy = roundTrip(game).game;
+              if (copy.hash() !== game.hash()) { saveDiverged.push(`hash differs after a save/load; accepted since the last check: ${acceptedSince.join(' ;; ')}`); refork(); }
+            } catch (err) { saveDiverged.push(`save/load threw ${(err as Error).message}; accepted: ${acceptedSince.join(' ;; ')}`); refork(); }
+            acceptedSince = [];
+          }
+        }
+      };
+      const baseCmd = (): Record<string, unknown> => {
+        const cmd: Record<string, unknown> = { type };
+        for (const f of own) cmd[f] = (poolFor(f, p)[0]);
+        return cmd;
+      };
+      // 0. no fields at all, and the documented fields each missing
+      trial({ type });
+      // 1. single-field sweep over a plausible base, three bases
+      for (let b = 0; b < 6; b += 1) {
+        const start = baseCmd();
+        if (b > 0) for (const f of own) start[f] = pick(poolFor(f, p).slice(0, p.goodCount[f] ?? 6));
+        for (const f of own) for (const v of poolFor(f, p)) trial({ ...start, [f]: v });
+      }
+      // 2. random
+      for (let k = 0; k < N; k += 1) {
+        const cmd: Record<string, unknown> = { type };
+        for (const f of own) if (rnd() < 0.92) cmd[f] = rnd() < 0.5 ? pick(poolFor(f, p).slice(0, p.goodCount[f] ?? 6)) : rnd() < 0.8 ? pick(poolFor(f, p)) : pick(p.garbage);
+        if (rnd() < 0.15) { const extra = pick(fields); if (extra !== undefined) cmd[extra] = pick(poolFor(extra, p)); }
+        trial(cmd);
+      }
+      if (acceptedSince.length > 0) {
+        try { const copy = roundTrip(game).game; if (copy.hash() !== game.hash()) saveDiverged.push(`hash differs after a save/load; accepted since the last check: ${acceptedSince.join(' ;; ')}`); }
+        catch (err) { saveDiverged.push(`save/load threw ${(err as Error).message}; accepted: ${acceptedSince.join(' ;; ')}`); }
+      }
+      const flag = throws.size > 0 || unknownReasons.size > 0 || invHits.size > 0 || saveDiverged.length > 0;
+      summary.push(`${flag ? '!!' : '  '} ${type} (${owner}): ${trials} trials ${JSON.stringify(results)}${unknownReasons.size ? ` UNKNOWN REASONS ${[...unknownReasons].join(',')}` : ''}${throws.size ? ` THROWS ${throws.size}` : ''}${invHits.size ? ` INVARIANTS ${invHits.size}` : ''}${saveDiverged.length ? ` SAVE ${saveDiverged.length}` : ''}`);
+      lines.push(`\n===== ${type} (${owner}) ${trials} trials ${JSON.stringify(results)}`);
+      for (const [msg, t] of throws) lines.push(`  THROW x${t.n}: ${msg}\n      first: ${t.cmd}`);
+      for (const r of unknownReasons) lines.push(`  UNKNOWN REASON: ${r}`);
+      for (const [k, v] of invHits) lines.push(`  INVARIANT ${k}: ${v}`);
+      for (const s of saveDiverged.slice(0, 3)) lines.push(`  SAVE: ${s.slice(0, 3000)}`);
+      lines.push(`  accepted shapes (${accepted.size}):`);
+      let shown = 0;
+      for (const text of accepted.values()) { if (shown >= 60) break; lines.push(`    ${text}`); shown += 1; }
+    }
+    writeFileSync(`${OUT}/fuzz.txt`, [...summary, ...lines].join('\n'));
+    console.log(summary.join('\n'));
+  }, 3_600_000);
+});

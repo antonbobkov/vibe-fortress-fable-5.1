@@ -1,0 +1,351 @@
+################ commands.txt
+{"type":"SetHuntable","species":"no_such_species","on":true} -> THROWS RangeError: creatures: unknown id "no_such_species"
+    submitted before a RenameFortress: world.step THROWS creatures: unknown id "no_such_species"; tick 401 -> 401; fortress name now "Deepholm"; commands still queued: 0
+    next step ok; tick 402; fortress name "Deepholm"
+{"type":"AddWorkOrder","workshopId":0,"order":null} -> THROWS TypeError: Cannot read properties of null (reading 'recipeId')
+    submitted before a RenameFortress: world.step THROWS Cannot read properties of null (reading 'recipeId'); tick 401 -> 401; fortress name now "Deepholm"; commands still queued: 0
+    next step ok; tick 402; fortress name "Deepholm"
+{"type":"EditWorkOrder","workshopId":16777303,"index":0,"patch":null} -> THROWS TypeError: Cannot read properties of null (reading 'recipeId')
+    submitted before a RenameFortress: world.step THROWS Cannot read properties of null (reading 'recipeId'); tick 401 -> 401; fortress name now "Deepholm"; commands still queued: 0
+    next step ok; tick 402; fortress name "Deepholm"
+{"type":"DesignateStairwell","x":1.5,"y":30,"zTop":32,"zBottom":30} -> THROWS RangeError: tile index out of range: 297793.5
+    submitted before a RenameFortress: world.step THROWS tile index out of range: 297793.5; tick 401 -> 401; fortress name now "Deepholm"; commands still queued: 0
+    next step ok; tick 402; fortress name "Deepholm"
+{"type":"SetHospitalSupplies","zoneId":16777305,"wants":{"cloth":"#NaN"}} -> {"ok":true}; save THROWS non-finite number in state: NaN
+{"type":"SetZoneSetting","zoneId":16777307,"key":"squad","value":"#NaN"} -> {"ok":true}; save THROWS non-finite number in state: NaN
+{"type":"SetZoneSetting","zoneId":16777307,"key":"squad","value":123456789} (no such squad) -> {"ok":true}; setting now {"squad":123456789}
+SetPopulationCap n=-5 -> {"ok":true}; cap now 20
+SetPopulationCap n=0 -> {"ok":true}; cap now 20
+SetPopulationCap n=19 -> {"ok":true}; cap now 20
+SetPopulationCap n=201 -> {"ok":true}; cap now 200
+SetPopulationCap n=1000000000 -> {"ok":true}; cap now 200
+SetStandingOrder name=toString -> {"ok":true}
+SetStandingOrder name=constructor -> {"ok":true}
+SetStandingOrder name=__proto__ -> {"ok":true}
+SetStandingOrder name=hasOwnProperty -> {"ok":true}
+    saved standing orders: {"autoHarvest":true,"autoCollectProducts":true,"autoButcher":true,"autoHaulRefuse":true,"autoRearmTraps":true,"autoMeltMarked":true,"toString":true,"constructor":true,"hasOwnProperty":true}
+LinkStockpile source = a building (16777216) -> {"ok":true}; linkedSources [16777216]
+LinkStockpile source = itself -> {"ok":false,"reason":"not_found"}; linkedSources [16777216]
+SetStockpileContainers barrel=1e9 -> {"ok":true}; {"barrel":1000000000,"bag":0,"bin":0}
+SetSquadEquipment weaponClass 'nope' -> {"ok":true}; {"weaponClass":"nope","armor":"nope","ranged":"x"}
+SetSquadLeader to a dwarf who is not a member -> {"ok":true}; leader 16777275 members []
+SetPlateTrigger water level 1.5 -> {"ok":true}
+AssignPasture for tame dog (diet none) to no pasture -> {"ok":false,"reason":"not_tame"}
+AssignPasture for tame dog (diet none) to no pasture -> {"ok":false,"reason":"not_tame"}
+AssignPasture for tame cat (diet none) to no pasture -> {"ok":false,"reason":"not_tame"}
+save and load: equal hash
+################ death.txt
+setup: miner 16777216 soldier 16777220 other 16777224; pick 16777228, axe 16777229, barrel 16777230 holding axe 16777231
+before: pick: total 1 available 1; short_sword: total 2 available 2
+item 16777228 count=1 flags=0 ownerId=0 carriedBy=0 containerId=0 reservedBy=0 pos=11,12,32 tileOf=74315
+item 16777229 count=1 flags=0 ownerId=0 carriedBy=0 containerId=0 reservedBy=0 pos=13,12,32 tileOf=74317
+item 16777231 count=1 flags=0 ownerId=0 carriedBy=0 containerId=16777230 reservedBy=0 pos=none tileOf=74319
+SetSquadMembers: {"ok":true}
+SetSquadMode active: {"ok":true}
+after 0 ticks: soldier weapon=16777228 at 12,10; other weapon=16777229 at 14,10
+after equip: short_sword: total 2 available 2
+item 16777229 count=1 flags=16 ownerId=16777224 carriedBy=16777224 containerId=0 reservedBy=0 pos=none tileOf=74222
+item 16777231 count=1 flags=0 ownerId=0 carriedBy=0 containerId=16777230 reservedBy=0 pos=none tileOf=74319
+barrel contents: [16777231]
+spatial index at the axe's old tile (13,12): []; items reader at(13,12): []
+== after squad equip, nobody dead: 2 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  stock.available-drift: 2 hits, 2 classes, t2..t2
+-- detail
+stock.available-drift [pick] x1 t2..t2
+    t2: available 1 recount 0
+stock.available-drift [short_sword] x1 t2..t2
+    t2: available 2 recount 1
+miner toolId=0 after 2400 ticks; equipment.weapon=0
+item 16777228 count=1 flags=16 ownerId=16777220 carriedBy=16777220 containerId=0 reservedBy=0 pos=none tileOf=74709
+pick: total 1 available 1
+miner job before death: none
+--- 5 ticks after the miner and the soldier died
+item 16777228 count=1 flags=16 ownerId=16777220 carriedBy=50331648 containerId=0 reservedBy=0 pos=none tileOf=74709
+item 16777229 count=1 flags=16 ownerId=16777224 carriedBy=16777224 containerId=0 reservedBy=0 pos=none tileOf=74709
+pick: total 1 available 0
+short_sword: total 2 available 2
+corpse 50331648: {"species":15,"diedTick":2411,"wornItems":[16777221,16777222,16777223,16777228],"dwarfName":"Snorri Hearthdelve","weight":60} item 50331648 count=1 flags=0 ownerId=0 carriedBy=0 containerId=0 reservedBy=0 pos=21,20,32 tileOf=74709
+corpse 50331652: {"species":15,"diedTick":2411,"wornItems":[16777217,16777218,16777219],"dwarfName":"Helga Stormhelm","weight":60} item 50331652 count=1 flags=0 ownerId=0 carriedBy=0 containerId=0 reservedBy=0 pos=20,20,32 tileOf=74708
+squad members now: [16777224]
+== 5 ticks after deaths: 3 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  item.owner-dead: 1 hits, 1 classes, t2413..t2413
+  item.reserved-by-missing-job: 1 hits, 1 classes, t2413..t2413
+  stock.available-drift: 1 hits, 1 classes, t2413..t2413
+-- detail
+item.owner-dead [pick] x1 t2413..t2413
+    t2413: item 16777228 pick ownerId=16777220 not alive, flags=16 pos=(none)
+item.reserved-by-missing-job [drink] x1 t2413..t2413
+    t2413: item 50331672 drink x1 reservedBy=16777216, no such job and no such living creature; pos=(21,20,32) container=0 carriedBy=0
+stock.available-drift [short_sword] x1 t2413..t2413
+    t2413: available 2 recount 1
+--- two days later, with a new miner and a new squad member
+new miner toolId=0; dig jobs: 1:dig:blocked:unreachable 2:dig:blocked:unreachable 3:channel:blocked:no_tool 4:channel:blocked:no_tool 5:channel:blocked:no_tool 6:channel:blocked:no_tool 7:channel:blocked:no_tool 8:channel:blocked:no_tool
+new squad member weapon=16777231
+item 16777228 count=1 flags=16 ownerId=16777220 carriedBy=50331648 containerId=0 reservedBy=0 pos=none tileOf=74709
+item 16777229 count=1 flags=16 ownerId=16777224 carriedBy=16777224 containerId=0 reservedBy=0 pos=none tileOf=74709
+pick: total 1 available 0
+short_sword: total 2 available 2
+--- day 28: after the corpses have had time to rot
+corpse 50331648: {"species":15,"diedTick":2411,"wornItems":[],"dwarfName":"Snorri Hearthdelve","weight":60} item 50331648 count=1 flags=0 ownerId=0 carriedBy=0 containerId=0 reservedBy=0 pos=21,20,32 tileOf=74709
+corpse 50331652: {"species":15,"diedTick":2411,"wornItems":[],"dwarfName":"Helga Stormhelm","weight":60} item 50331652 count=1 flags=0 ownerId=0 carriedBy=0 containerId=0 reservedBy=0 pos=20,20,32 tileOf=74708
+item 16777228 count=1 flags=16 ownerId=16777220 carriedBy=0 containerId=0 reservedBy=0 pos=21,20,32 tileOf=74709
+item 16777229 count=1 flags=16 ownerId=16777224 carriedBy=16777224 containerId=0 reservedBy=0 pos=none tileOf=74709
+pick: total 1 available 0
+short_sword: total 2 available 2
+new miner toolId=0; new squad member weapon=16777231
+dig jobs: 1:dig:blocked:unreachable 2:dig:blocked:unreachable 3:channel:blocked:no_tool 4:channel:blocked:no_tool 5:channel:blocked:no_tool 6:channel:blocked:no_tool 7:channel:blocked:no_tool 8:channel:blocked:no_tool
+alive: 4 dwarves; deaths: 16777216:killed 16777220:killed
+== end: 4 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  container.content-mismatch: 1 hits, 1 classes, t33613..t33613
+  item.owner-dead: 1 hits, 1 classes, t33613..t33613
+  item.reserved-by-missing-job: 1 hits, 1 classes, t33613..t33613
+  stock.available-drift: 1 hits, 1 classes, t33613..t33613
+-- detail
+container.content-mismatch [barrel] x1 t33613..t33613
+    t33613: container 16777230 lists 16777231 but item.containerId=0
+item.owner-dead [pick] x1 t33613..t33613
+    t33613: item 16777228 pick ownerId=16777220 not alive, flags=16 pos=(21,20,32)
+item.reserved-by-missing-job [drink] x1 t33613..t33613
+    t33613: item 50331672 drink x1 reservedBy=16777216, no such job and no such living creature; pos=(21,20,32) container=0 carriedBy=0
+stock.available-drift [short_sword] x1 t33613..t33613
+    t33613: available 2 recount 0
+################ death2.txt
+AssignRoom to sleeper: {"ok":true}
+rooms: room 16777247 zone 16777246 owner 16777224 requirementsMet false
+miner toolId=16777232 after 25 ticks; equipment.weapon=0
+item 16777232 count=1 flags=0 ownerId=0 carriedBy=16777216 containerId=0 reservedBy=0 pos=none tileOf=74315
+pick: total 1 available 1
+hauler carrying=0 after 2400 ticks (the stone is 16777242)
+item 0 GONE
+raw_stone: total 1 available 1
+hauler job undefined  undefined; miner job undefined  undefined
+--- 5 ticks after the miner, the hauler and the bedroom owner died
+item 16777232 count=1 flags=0 ownerId=0 carriedBy=16777216 containerId=0 reservedBy=0 pos=none tileOf=-1
+item 0 GONE
+pick: total 1 available 1
+raw_stone: total 1 available 1
+corpse 50331648: {"species":15,"diedTick":2431,"wornItems":[16777217,16777218,16777219],"dwarfName":"Ivar Ashhand","weight":60} item 50331648 count=1 flags=0 ownerId=0 carriedBy=0 containerId=0 reservedBy=0 pos=21,20,32 tileOf=74709
+jobs: 
+rooms: room 16777247 zone 16777246 owner 16777224 requirementsMet true
+== 5 ticks after deaths: 6 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  item.carrier-dead: 7 hits, 4 classes, t2441..t2441
+  item.reserved-by-missing-job: 1 hits, 1 classes, t2441..t2441
+  room.owner-dead: 1 hits, 1 classes, t2441..t2441
+-- detail
+item.carrier-dead [tunic] x2 t2441..t2441
+    t2441: item 16777221 tunic carriedBy=16777220 not alive; pos=(none) flags=0
+    t2441: item 16777225 tunic carriedBy=16777224 not alive; pos=(none) flags=0
+item.carrier-dead [trousers] x2 t2441..t2441
+    t2441: item 16777222 trousers carriedBy=16777220 not alive; pos=(none) flags=0
+    t2441: item 16777226 trousers carriedBy=16777224 not alive; pos=(none) flags=0
+item.carrier-dead [boots] x2 t2441..t2441
+    t2441: item 16777223 boots carriedBy=16777220 not alive; pos=(none) flags=0
+    t2441: item 16777227 boots carriedBy=16777224 not alive; pos=(none) flags=0
+item.carrier-dead [pick] x1 t2441..t2441
+    t2441: item 16777232 pick carriedBy=16777216 not alive; pos=(none) flags=0
+item.reserved-by-missing-job [drink] x1 t2441..t2441
+    t2441: item 50331683 drink x1 reservedBy=16777220, no such job and no such living creature; pos=(21,20,32) container=0 carriedBy=0
+room.owner-dead [-] x1 t2441..t2441
+    t2441: room 16777247 ownerId=16777224 not alive
+new channel designation: {"ok":true}
+--- three days later, with a new miner and a new hauler
+new miner toolId=0
+item 16777232 count=1 flags=0 ownerId=0 carriedBy=16777216 containerId=0 reservedBy=0 pos=none tileOf=-1
+item 0 GONE
+pick: total 1 available 1
+raw_stone: total 1 available 1
+jobs: 9:channel:blocked:no_tool:w0 10:channel:blocked:no_tool:w0 11:channel:blocked:no_tool:w0 12:channel:blocked:no_tool:w0
+rooms: room 16777247 zone 16777246 owner 16777224 requirementsMet true (heir is 16777228, new dwarves 50331656, 50331680; all without a bedroom)
+--- day 29
+new miner toolId=0
+item 16777232 count=1 flags=0 ownerId=0 carriedBy=16777216 containerId=0 reservedBy=0 pos=none tileOf=-1
+item 0 GONE
+pick: total 1 available 1
+raw_stone: total 1 available 1
+corpse 50331648: {"species":15,"diedTick":2431,"wornItems":[],"dwarfName":"Ivar Ashhand","weight":60} item 50331648 count=1 flags=0 ownerId=0 carriedBy=0 containerId=0 reservedBy=0 pos=21,20,32 tileOf=74709
+corpse 16777255: {"species":15,"diedTick":2441,"wornItems":[],"dwarfName":"Asa Shalespark","weight":60} item 16777255 count=1 flags=0 ownerId=0 carriedBy=0 containerId=0 reservedBy=0 pos=21,20,32 tileOf=74709
+corpse 16777256: {"species":15,"diedTick":2441,"wornItems":[],"dwarfName":"Nori Ashcloak","weight":60} item 16777256 count=1 flags=0 ownerId=0 carriedBy=0 containerId=0 reservedBy=0 pos=30,10,32 tileOf=74238
+jobs: 9:channel:blocked:no_tool:w0 10:channel:blocked:no_tool:w0 11:channel:blocked:no_tool:w0 12:channel:blocked:no_tool:w0
+rooms: room 16777247 zone 16777246 owner 16777224 requirementsMet true
+alive: 6 dwarves; deaths: 16777216:killed 16777220:killed 16777224:killed; channels dug: 8
+== end: 3 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  item.carrier-dead: 1 hits, 1 classes, t34841..t34841
+  item.reserved-by-missing-job: 1 hits, 1 classes, t34841..t34841
+  room.owner-dead: 1 hits, 1 classes, t34841..t34841
+-- detail
+item.carrier-dead [pick] x1 t34841..t34841
+    t34841: item 16777232 pick carriedBy=16777216 not alive; pos=(none) flags=0
+item.reserved-by-missing-job [drink] x1 t34841..t34841
+    t34841: item 50331683 drink x1 reservedBy=16777220, no such job and no such living creature; pos=(21,20,32) container=0 carriedBy=0
+room.owner-dead [-] x1 t34841..t34841
+    t34841: room 16777247 ownerId=16777224 not alive
+################ death3-burial.txt
+victim 16777216 wears: tunic 16777217 flags=0 ownerId=0 carriedBy=16777216 (carrier alive: true) pos=none tileOf=298792 | trousers 16777218 flags=0 ownerId=0 carriedBy=16777216 (carrier alive: true) pos=none tileOf=298792 | boots 16777219 flags=0 ownerId=0 carriedBy=16777216 (carrier alive: true) pos=none tileOf=298792
+buried at tick 118; corpses left: 0
+worn items now: tunic 16777217 flags=0 ownerId=0 carriedBy=50331648 (carrier alive: false) pos=none tileOf=-1 | trousers 16777218 flags=0 ownerId=0 carriedBy=50331648 (carrier alive: false) pos=none tileOf=-1 | boots 16777219 flags=0 ownerId=0 carriedBy=50331648 (carrier alive: false) pos=none tileOf=-1
+stock before: tunic total 2, trousers total 2, boots total 2; now: tunic total 2, trousers total 2, boots total 2; wealth before 142, now 142
+20 days later: tunic 16777217 flags=0 ownerId=0 carriedBy=50331648 (carrier alive: false) pos=none tileOf=-1 | trousers 16777218 flags=0 ownerId=0 carriedBy=50331648 (carrier alive: false) pos=none tileOf=-1 | boots 16777219 flags=0 ownerId=0 carriedBy=50331648 (carrier alive: false) pos=none tileOf=-1
+== after burial: 3 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  item.carrier-dead: 3 hits, 3 classes, t24118..t24118
+-- detail
+item.carrier-dead [tunic] x1 t24118..t24118
+    t24118: item 16777217 tunic carriedBy=50331648 not alive; pos=(none) flags=0
+item.carrier-dead [trousers] x1 t24118..t24118
+    t24118: item 16777218 trousers carriedBy=50331648 not alive; pos=(none) flags=0
+item.carrier-dead [boots] x1 t24118..t24118
+    t24118: item 16777219 boots carriedBy=50331648 not alive; pos=(none) flags=0
+################ death3-deconstruct.txt
+AddWorkOrder: {"ok":true}
+before: 1:craft:fetching:null:target building 16777303 alive=true
+DeconstructBuilding: {"ok":true}
+workshop alive=false after 379 ticks; jobs: 1:craft:fetching:null:target building 16777303 alive=false
++1 days: jobs: (none)
++3 days: jobs: (none)
++10 days: jobs: (none)
+== after deconstruction: 0 finding classes; alert-not-calm-with-no-hostile ticks: 0
+-- detail
+################ gear.txt
+t25201 RaidArrived {"type":"RaidArrived","partyId":16777520,"kind":"thief","size":1,"tile":73728,"edge":"n"}
+t25201 HostileSpawned 16777521 at 0,0,32 party 16777520; gear: axe 16777522 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32 | leggings 16777524 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32 | spear 16777523 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32
+t25305 hostile 16777521 now at 4,3,32; its gear: axe 16777522 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32 | leggings 16777524 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32 | spear 16777523 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32; items the reader lists on the gear tile: [16777522,16777523,16777524]; spatial index there: [16777522,16777523,16777524]
+t25405 hostile 16777521 now at 11,4,32; its gear: axe 16777522 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32 | leggings 16777524 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32 | spear 16777523 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32; items the reader lists on the gear tile: [16777522,16777523,16777524]; spatial index there: [16777522,16777523,16777524]
+t25431 ThiefEscaped {"type":"ThiefEscaped","id":16777521,"itemId":16777408,"ownerId":0}
+t25431 RaidEnded {"type":"RaidEnded","partyId":16777520,"outcome":"withdrew"}
+t25455 hostile 16777521 is no longer alive; its gear: axe 16777522 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32 | leggings 16777524 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32 | spear 16777523 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32
+--- day 30: 1 hostiles spawned; items still carried by an entity that no longer exists: 4
+    axe 16777232 flags=0 ownerId=0 carriedBy=16777291 pos=none; reader lists on its tile: -; value 120
+    axe 16777522 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32; reader lists on its tile: [16777522,16777523,16777524]; value 120
+    spear 16777523 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32; reader lists on its tile: [16777522,16777523,16777524]; value 90
+    leggings 16777524 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32; reader lists on its tile: [16777522,16777523,16777524]; value 24
+################ fuzz.txt (summary lines and flagged details)
+   Designate (03): 899 trials {"reject:out_of_bounds":205,"ok":168,"reject:precondition_failed":342,"reject:out_of_range":184}
+   UndoDesignation (03): 383 trials {"reject:out_of_bounds":196,"ok":187}
+   SetDesignationPriority (03): 593 trials {"reject:out_of_bounds":210,"ok":58,"reject:not_found":114,"reject:out_of_range":211}
+   SetTraffic (03): 605 trials {"reject:out_of_bounds":218,"ok":48,"reject:precondition_failed":339}
+!! DesignateStairwell (03): 1061 trials {"reject:out_of_bounds":679,"ok":298,"THROW":6,"reject:precondition_failed":78} THROWS 2
+   DesignateHarvest (07): 383 trials {"reject:out_of_bounds":260,"reject:precondition_failed":123}
+   ConfirmDeepsilver (03): 251 trials {"ok":251}
+   SetPlotCrop (07): 1223 trials {"reject:not_found":997,"reject:out_of_range":193,"ok":23,"reject:light_mismatch":10}
+   AssignPasture (08): 1181 trials {"reject:not_tame":1181}
+   MarkSlaughter (08): 707 trials {"reject:not_tame":545,"ok":162}
+   UnmarkSlaughter (08): 707 trials {"reject:not_tame":554,"ok":153}
+   TrainAnimal (08): 1013 trials {"reject:not_tame":546,"reject:precondition_failed":453,"ok":14}
+   TameCaged (08): 821 trials {"reject:not_found":821}
+   AssignAnimal (08): 2159 trials {"reject:not_tame":534,"ok":212,"reject:not_trainable":526,"reject:not_found":887}
+   SetBreedingCap (08): 725 trials {"reject:not_found":293,"ok":289,"reject:out_of_range":143}
+   ReleaseCaged (08): 821 trials {"reject:not_found":83,"reject:precondition_failed":738}
+!! SetHuntable (09): 569 trials {"reject:not_found":290,"ok":136,"THROW":143} THROWS 19
+   SetLabor (11): 1067 trials {"reject:not_found":742,"ok":325}
+   SetLaborPriority (11): 779 trials {"reject:not_found":225,"ok":320,"reject:out_of_range":234}
+   CancelJob (11): 731 trials {"reject:not_found":720,"ok":11}
+   SetJobPriority (11): 941 trials {"reject:not_found":486,"reject:precondition_failed":204,"ok":36,"reject:out_of_range":215}
+   SetStandingOrder (11): 461 trials {"reject:not_found":417,"ok":44}
+   AssignTitle (10): 857 trials {"reject:not_found":772,"ok":85}
+   RenameDwarf (10): 851 trials {"reject:not_found":549,"ok":176,"reject:bad_name":126}
+   SetSchedule (10): 905 trials {"reject:not_found":539,"ok":168,"reject:out_of_range":198}
+!! AddWorkOrder (12): 1061 trials {"reject:not_found":536,"ok":50,"reject:precondition_failed":460,"THROW":15} THROWS 1
+!! EditWorkOrder (12): 1055 trials {"reject:not_found":515,"ok":116,"reject:invalid_index":349,"reject:precondition_failed":71,"THROW":4} THROWS 1
+   RemoveWorkOrder (12): 917 trials {"reject:not_found":527,"ok":6,"reject:invalid_index":384}
+   ReorderWorkOrder (12): 1325 trials {"reject:not_found":527,"ok":286,"reject:invalid_index":512}
+   SetWorkshopWorker (12): 1157 trials {"reject:not_found":958,"ok":101,"reject:no_labor":42,"reject:precondition_failed":56}
+   SuspendWorkshop (12): 767 trials {"reject:not_found":579,"ok":108,"reject:precondition_failed":80}
+   ForbidItem (13): 1049 trials {"reject:precondition_failed":11,"ok":548,"reject:not_found":490}
+   ClaimItem (13): 1049 trials {"reject:precondition_failed":11,"ok":563,"reject:not_found":475}
+   DumpItem (13): 1049 trials {"reject:precondition_failed":12,"ok":545,"reject:not_found":492}
+   MeltItem (13): 1049 trials {"reject:precondition_failed":10,"ok":436,"reject:not_metal":115,"reject:not_found":488}
+   SetStockpileFilter (13): 833 trials {"reject:not_found":742,"ok":51,"reject:bad_category":33,"reject:out_of_range":7}
+   SetStockpileContainers (13): 821 trials {"reject:not_found":742,"ok":51,"reject:out_of_range":6,"reject:bad_setting":22}
+   SetStockpilePriority (13): 935 trials {"reject:not_found":865,"ok":46,"reject:out_of_range":24}
+   LinkStockpile (13): 1253 trials {"reject:not_found":1213,"ok":40}
+   PlaceBuilding (14): 1895 trials {"reject:not_found":266,"ok":7,"reject:footprint_blocked":705,"reject:bad_placement":5,"reject:not_discovered":14,"reject:out_of_bounds":143,"reject:out_of_range":352,"reject:fixed_footprint":403}
+   CancelBuilding (14): 851 trials {"reject:not_found":491,"ok":5,"reject:not_cancellable":355}
+!! DeconstructBuilding (14): 851 trials {"reject:not_found":379,"reject:precondition_failed":109,"ok":363} INVARIANTS 1
+   SetBuildingPriority (14): 1061 trials {"reject:not_found":383,"ok":111,"reject:precondition_failed":499,"reject:out_of_range":68}
+   CreateZone (14): 635 trials {"reject:not_found":233,"reject:out_of_bounds":252,"ok":1,"reject:overlap":128,"reject:bad_zone_tiles":21}
+   ResizeZone (14): 857 trials {"reject:not_found":507,"reject:out_of_bounds":209,"ok":13,"reject:overlap":112,"reject:bad_zone_tiles":16}
+   RemoveZone (14): 725 trials {"reject:not_found":718,"ok":7}
+   SetZoneSetting (14): 1175 trials {"reject:not_found":510,"reject:bad_setting":645,"ok":20}
+   AssignRoom (14): 1169 trials {"reject:not_found":581,"reject:precondition_failed":560,"ok":28}
+   LinkMechanism (14): 1391 trials {"reject:not_found":709,"reject:not_linkable":678,"ok":1,"reject:assigned":3}
+   UnlinkMechanism (14): 1391 trials {"reject:not_found":152,"reject:not_linkable":1239}
+   SetDoorMode (14): 1073 trials {"reject:not_found":387,"reject:no_tag":623,"reject:bad_setting":52,"ok":11}
+   SetHatchMode (14): 1073 trials {"reject:not_found":388,"reject:no_tag":685}
+   SetPlateTrigger (14): 923 trials {"reject:not_found":381,"ok":24,"reject:no_tag":488,"reject:bad_setting":30}
+   ReleaseCage (14): 821 trials {"reject:not_found":383,"reject:no_tag":438}
+   AssignCoffin (14): 1265 trials {"reject:not_found":1173,"reject:precondition_failed":92}
+   CreateSquad (16): 407 trials {"reject:bad_name":198,"ok":5,"reject:squad_limit":204}
+   DisbandSquad (16): 689 trials {"reject:not_found":688,"ok":1}
+   SetSquadMembers (16): 791 trials {"reject:not_found":596,"ok":107,"reject:not_adult":17,"reject:member_limit":9,"reject:bad_setting":62}
+!! SetSquadLeader (16): 1133 trials {"reject:not_found":672,"ok":101,"reject:not_adult":304,"reject:bad_setting":56} INVARIANTS 1
+   SetSquadMode (16): 911 trials {"reject:not_found":562,"reject:bad_setting":330,"ok":19}
+   SetSquadEquipment (16): 749 trials {"reject:not_found":552,"ok":130,"reject:bad_setting":67}
+   SetSquadStation (16): 845 trials {"reject:not_found":551,"ok":139,"reject:bad_placement":31,"reject:out_of_bounds":124}
+   SetSquadPatrol (16): 821 trials {"reject:not_found":551,"ok":108,"reject:out_of_bounds":70,"reject:bad_placement":27,"reject:bad_setting":65}
+   SquadOrder (16): 1037 trials {"reject:not_found":593,"reject:bad_setting":351,"ok":49,"reject:out_of_bounds":32,"reject:bad_placement":12}
+   SetAlert (16): 401 trials {"reject:out_of_range":256,"ok":145}
+!! SetHospitalSupplies (17): 821 trials {"reject:precondition_failed":788,"ok":33} SAVE 1
+   SetTrapMode (19): 1043 trials {"reject:not_found":966,"reject:bad_setting":77}
+   PullLever (19): 821 trials {"reject:not_found":371,"ok":22,"reject:no_tag":428}
+   MoveToDepot (20): 347 trials {"reject:precondition_failed":126,"ok":146,"reject:not_found":71,"reject:no_depot":4}
+   RemoveFromDepot (20): 347 trials {"reject:precondition_failed":110,"ok":75,"reject:not_at_depot":94,"reject:not_found":61,"reject:no_depot":7}
+   TradeOpen (20): 821 trials {"reject:no_depot":802,"ok":19}
+   TradeOffer (20): 527 trials {"reject:precondition_failed":380,"reject:not_at_depot":146,"ok":1}
+   TradeCancel (20): 251 trials {"ok":1,"reject:no_session":250}
+   SetRequests (20): 503 trials {"reject:bad_setting":413,"ok":90}
+   SetPopulationCap (21): 461 trials {"reject:bad_setting":116,"ok":345}
+   NameAnimal (08): 863 trials {"reject:not_tame":552,"ok":184,"reject:bad_name":127}
+   RenameSquad (16): 845 trials {"reject:not_found":567,"ok":147,"reject:bad_name":131}
+   RenameFortress (core): 407 trials {"reject:bad_name":178,"ok":229}
+base world at tick 50374; caravan at depot: true; trials per command: field sweep + 250 random
+== baseline (before any fuzzing): 9 finding classes; alert-not-calm-with-no-hostile ticks: 0
+!! DeconstructBuilding (14): 851 trials {"reject:not_found":379,"reject:precondition_failed":109,"ok":363} INVARIANTS 1
+!! SetSquadLeader (16): 1133 trials {"reject:not_found":672,"ok":101,"reject:not_adult":304,"reject:bad_setting":56} INVARIANTS 1
+  THROW x3: apply: tile index out of range: 297793.5 @ at TerrainCore.check (E:\code\vibe-games\vibe-fortress-t115\src\systems\terrain\api.ts:102:40)
+      first: {"type":"DesignateStairwell","x":1.5,"y":30,"zTop":32,"zBottom":30}
+  THROW x3: apply: tile index out of range: 297889.5 @ at TerrainCore.check (E:\code\vibe-games\vibe-fortress-t115\src\systems\terrain\api.ts:102:40)
+      first: {"type":"DesignateStairwell","x":1.5,"y":31,"zTop":32,"zBottom":31}
+  THROW x7: apply: creatures: unknown id "ash" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"ash","on":true}
+  THROW x9: apply: creatures: unknown id "barley" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"barley","on":true}
+  THROW x6: apply: creatures: unknown id "birch" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"birch","on":true}
+  THROW x8: apply: creatures: unknown id "bramble" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"bramble","on":true}
+  THROW x7: apply: creatures: unknown id "" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"","on":true}
+  THROW x8: apply: creatures: unknown id "x" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"x","on":true}
+  THROW x10: apply: creatures: unknown id "__proto__" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"__proto__","on":true}
+  THROW x6: apply: creatures: unknown id "constructor" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"constructor","on":true}
+  THROW x8: apply: creatures: unknown id "toString" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"toString","on":true}
+  THROW x7: apply: creatures: unknown id "hasOwnProperty" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"hasOwnProperty","on":true}
+  THROW x7: apply: creatures: unknown id "aaaaaaaaaaaaaaaaaaaaaaaa" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"aaaaaaaaaaaaaaaaaaaaaaaa","on":true}
+  THROW x7: apply: creatures: unknown id "aaaaaaaaaaaaaaaaaaaaaaaaa" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"aaaaaaaaaaaaaaaaaaaaaaaaa","on":true}
+  THROW x7: apply: creatures: unknown id "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","on":true}
+  THROW x10: apply: creatures: unknown id "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","on":true}
+  THROW x8: apply: creatures: unknown id "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"#string(10000)","on":true}
+  THROW x8: apply: creatures: unknown id " " @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":" ","on":true}
+  THROW x6: apply: creatures: unknown id "
+      first: {"type":"SetHuntable","species":"\n","on":true}
+  THROW x7: apply: creatures: unknown id "" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"\u0000","on":true}
+  THROW x7: apply: creatures: unknown id "🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂" @ at Table.index (E:\code\vibe-games\vibe-fortress-t115\src\core\registry.ts:75:32)
+      first: {"type":"SetHuntable","species":"🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂","on":true}
+  THROW x15: apply: Cannot read properties of null (reading 'recipeId') @ at Module.applyOrderCommand (E:\code\vibe-games\vibe-fortress-t115\src\systems\workshops\orders.ts:30:22)
+      first: {"type":"AddWorkOrder","workshopId":16777343,"order":null}
+  THROW x4: apply: Cannot read properties of null (reading 'recipeId') @ at Module.applyOrderCommand (E:\code\vibe-games\vibe-fortress-t115\src\systems\workshops\orders.ts:41:31)
+      first: {"type":"EditWorkOrder","workshopId":16777343,"index":0,"patch":null}
+  INVARIANT job.target-dead [craft/building/open]: t51072: job 51 craft target building 16777343 not alive, state open, age 171 <= after {"type":"DeconstructBuilding","buildingId":16777367}
+  INVARIANT squad.leader-not-member [-]: t50376: squad 16777381 leader 50331657 <= after {"type":"SetSquadLeader","squadId":16777381,"leaderId":50331657}
+  SAVE: save/load threw non-finite number in state: NaN; accepted: {"type":"SetHospitalSupplies","zoneId":16777371,"wants":{"barrel":1,"bag":1,"bin":1}} ;; {"type":"SetHospitalSupplies","zoneId":16777371,"wants":{"barrel":1,"bag":1,"bin":1}} ;; {"type":"SetHospitalSupplies","zoneId":16777371,"wants":{"cloth":"#NaN"}}

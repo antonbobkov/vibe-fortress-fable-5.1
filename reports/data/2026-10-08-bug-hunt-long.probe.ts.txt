@@ -1,0 +1,146 @@
+/* T-115 scratch: the three-year fixture with invariant checks, hash trace, and save/load forks. NOT a permanent test.
+ * env: T115_SEED, T115_PERIL, T115_DAYS (default 336), T115_OUT (dir), T115_SAVE=1 (fork a loaded copy at chosen ticks),
+ *      T115_EVERY (check cadence in ticks, default 50), T115_TAG
+ */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import { roundTrip } from '@app/game-save';
+import type { HeadlessGame } from '@app/headless';
+import { TestWorld } from '../test/scenarios/test-world';
+import { stepThreeYears, attachThreeYearsMeasurements } from '../test/scenarios/three_years_measurements';
+import { setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld, type FortressState } from '../test/scenarios/three_years_fortress';
+import { Probe } from './invariants';
+
+const SEED = process.env['T115_SEED'] ?? 'three-years';
+const PERIL = Number(process.env['T115_PERIL'] ?? '0');
+const DAYS = Number(process.env['T115_DAYS'] ?? '336');
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const SAVE = process.env['T115_SAVE'] === '1';
+const EVERY = Number(process.env['T115_EVERY'] ?? '50');
+const TAG = process.env['T115_TAG'] ?? 'a';
+const FORK_TICKS = 1200;
+
+function script(w: TestWorld, state: FortressState): void {
+  checkFortressWorkOrders(w, state);
+  checkFortressRooms(w, state);
+  checkFortressCaveFarm(w, state);
+  checkFortressDefense(w, state);
+}
+
+function wrap(game: HeadlessGame): TestWorld {
+  const w = Object.create(TestWorld.prototype) as TestWorld;
+  Object.defineProperty(w, 'game', { value: game });
+  Object.defineProperty(w, 'seen', { value: [] });
+  attachThreeYearsMeasurements(w);
+  return w;
+}
+
+interface Fork { at: number; why: string; w: TestWorld; state: FortressState; diverged: number | null; firstScriptAfter: number | null; checked: number }
+
+describe('T-115 probe: long run', () => {
+  it(`${SEED} peril ${PERIL} for ${DAYS} days`, () => {
+    mkdirSync(OUT, { recursive: true });
+    const name = `${SEED}-p${PERIL}-${TAG}`;
+    const w = threeYearsWorld(SEED, PERIL);
+    const state = setupThreeYearsFortress(w);
+    const probe = new Probe(name);
+    const hashes: string[] = [];
+    const eventCounts: Record<string, number> = {};
+    const rejected: Record<string, number> = {};
+    let attacksInChunk = 0;
+    let thrown: string | null = null;
+    w.game.world.onEvents((events) => {
+      for (const e of events) {
+        eventCounts[e.type] = (eventCounts[e.type] ?? 0) + 1;
+        if (e.type === 'AttackResolved') attacksInChunk += 1;
+        if (e.type === 'CommandRejected') { const k = `${String((e['command'] as { type: string }).type)}:${String(e['reason'])}`; rejected[k] = (rejected[k] ?? 0) + 1; }
+      }
+    });
+    const forks: Fork[] = [];
+    const doneForks: Omit<Fork, 'w' | 'state'>[] = [];
+    const forkBudget: Record<string, number> = { random: 6, combat: 3, hostile: 3, alert: 3, caravan: 3, trade: 3, paused: 2 };
+    let lcg = 12345;
+    const rnd = (): number => { lcg = (lcg * 1103515245 + 12345) & 0x7fffffff; return lcg / 0x7fffffff; };
+    const ent = w.game.world.entities;
+
+    const maybeFork = (): void => {
+      if (!SAVE || forks.length >= 2) return;
+      let why: string | null = null;
+      const hostile = ent.with(C.Hostile).length > 0;
+      const parties = ent.with(C.Party).map((id) => ent.get(id, C.Party)!);
+      const caravan = parties.find((p) => p.purpose === 'caravan');
+      if (attacksInChunk > 0 && (forkBudget['combat'] ?? 0) > 0) why = 'combat';
+      else if (w.game.world.fortress.alert !== 'calm' && (forkBudget['alert'] ?? 0) > 0) why = 'alert';
+      else if (hostile && (forkBudget['hostile'] ?? 0) > 0) why = 'hostile';
+      else if (caravan && /trad/.test(caravan.state) && (forkBudget['trade'] ?? 0) > 0) why = 'trade';
+      else if (caravan && (forkBudget['caravan'] ?? 0) > 0 && rnd() < 0.2) why = 'caravan';
+      else if ((forkBudget['random'] ?? 0) > 0 && rnd() < 0.004) why = 'random';
+      if (why === null) return;
+      forkBudget[why] = (forkBudget[why] ?? 0) - 1;
+      let loaded: HeadlessGame;
+      try { loaded = roundTrip(w.game).game; } catch (e) { doneForks.push({ at: w.tick, why: `${why}: LOAD THREW ${(e as Error).message}`, diverged: w.tick, firstScriptAfter: null, checked: 0 }); return; }
+      const fw = wrap(loaded);
+      const f: Fork = { at: w.tick, why, w: fw, state: structuredClone(state), diverged: null, firstScriptAfter: null, checked: 0 };
+      if (loaded.hash() !== w.game.hash()) f.diverged = w.tick;
+      forks.push(f);
+    };
+    const stepForks = (n: number): void => {
+      for (const f of forks) if (f.diverged === null) f.w.game.step(n);
+    };
+    const compareForks = (): void => {
+      const h = w.game.hash();
+      for (let k = forks.length - 1; k >= 0; k -= 1) {
+        const f = forks[k]!;
+        if (f.diverged === null) {
+          f.checked += 1;
+          if (f.w.game.hash() !== h) f.diverged = w.tick;
+        }
+        if (f.diverged !== null || w.tick - f.at >= FORK_TICKS) {
+          doneForks.push({ at: f.at, why: f.why, diverged: f.diverged, firstScriptAfter: f.firstScriptAfter, checked: f.checked });
+          forks.splice(k, 1);
+        }
+      }
+    };
+
+    const total = DAYS * TICKS_PER_DAY;
+    const bootstrap = 20 * TICKS_PER_DAY;
+    try {
+      while (w.tick < total) {
+        const chunk = w.tick < bootstrap ? Math.min(100, bootstrap - w.tick) : Math.min(300, total - w.tick);
+        let left = chunk;
+        attacksInChunk = 0;
+        while (left > 0) {
+          const n = Math.min(EVERY, left);
+          stepThreeYears(w, n);
+          stepForks(n);
+          left -= n;
+          probe.check(w.game);
+          if (forks.length > 0) compareForks();
+          if (w.tick % TICKS_PER_DAY === 0) hashes.push(`${w.tick} ${w.game.hash()}`);
+        }
+        script(w, state);
+        for (const f of forks) if (f.diverged === null) { script(f.w, f.state); if (f.firstScriptAfter === null) f.firstScriptAfter = w.tick; }
+        maybeFork();
+      }
+    } catch (e) {
+      thrown = `THROWN at tick ${w.tick}: ${(e as Error).stack ?? String(e)}`;
+    }
+    const dwarves = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+    const out = [
+      `run ${name} ended at tick ${w.tick} (day ${Math.floor(w.tick / TICKS_PER_DAY)}), dwarves alive ${dwarves}, final hash ${w.game.hash()}`,
+      thrown ?? 'no exception',
+      probe.report(),
+      '-- forks (save/load): at, why, diverged tick, first script tick after the fork, comparisons',
+      ...doneForks.map((f) => `fork at t${f.at} (${f.why}): ${f.diverged === null ? 'equal' : `DIVERGED by t${f.diverged}`}; first script after t${f.firstScriptAfter}; ${f.checked} comparisons`),
+      '-- rejected commands',
+      JSON.stringify(rejected),
+      '-- events',
+      JSON.stringify(eventCounts),
+    ].join('\n');
+    writeFileSync(`${OUT}/${name}.txt`, out);
+    writeFileSync(`${OUT}/${name}.hashes.txt`, hashes.join('\n'));
+    console.log(out.split('\n').slice(0, 60).join('\n'));
+  }, 3_600_000);
+});
