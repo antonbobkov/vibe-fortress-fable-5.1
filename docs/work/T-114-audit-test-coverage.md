@@ -1,6 +1,6 @@
 # T-114 — Audit: do the scripted playthroughs cover the game's major features?
 
-**Source:** the owner, 2026-10-06 (the first of three audit/fix loops) · **Size:** M · **Needs:** T-113 · **Status:** open
+**Source:** the owner, 2026-10-06 (the first of three audit/fix loops) · **Size:** M · **Needs:** — · **Status:** open
 
 **Who:** an Opus subagent, or Codex on `gpt-6-astra` at high effort. Not Gemini ([`../../agents/README.md`](../../agents/README.md)).
 
