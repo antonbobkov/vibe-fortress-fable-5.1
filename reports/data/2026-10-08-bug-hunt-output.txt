@@ -217,7 +217,12 @@ t25455 hostile 16777521 is no longer alive; its gear: axe 16777522 flags=272 own
     axe 16777522 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32; reader lists on its tile: [16777522,16777523,16777524]; value 120
     spear 16777523 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32; reader lists on its tile: [16777522,16777523,16777524]; value 90
     leggings 16777524 flags=272 ownerId=16777521 carriedBy=16777521 pos=0,0,32; reader lists on its tile: [16777522,16777523,16777524]; value 24
-################ fuzz.txt (summary lines and flagged details)
+################ save.txt
+materialFilter undefined: AddWorkOrder {"ok":true}; in play [null]; after a load [null]; hash 49577dfc692a55c0 -> 49577dfc692a55c0 (equal); a second load equals the first
+materialFilter "iron": AddWorkOrder {"ok":true}; in play ["iron"]; after a load [96]; hash f5c3f2c09d92b625 -> 4f66efe98cb25c84 (DIFFERENT); a second load equals the first
+materialFilter "metal": AddWorkOrder {"ok":true}; in play ["metal"]; after a load ["metal"]; hash e1d1cf25063f3a2f -> e1d1cf25063f3a2f (equal); a second load equals the first
+materialFilter 96: AddWorkOrder {"ok":true}; in play [96]; after a load [96]; hash 4f66efe98cb25c84 -> 4f66efe98cb25c84 (equal); a second load equals the first
+################ fuzz.txt (summary lines, the baseline of its world, and the flagged details)
    Designate (03): 899 trials {"reject:out_of_bounds":205,"ok":168,"reject:precondition_failed":342,"reject:out_of_range":184}
    UndoDesignation (03): 383 trials {"reject:out_of_bounds":196,"ok":187}
    SetDesignationPriority (03): 593 trials {"reject:out_of_bounds":210,"ok":58,"reject:not_found":114,"reject:out_of_range":211}
@@ -298,6 +303,66 @@ t25455 hostile 16777521 is no longer alive; its gear: axe 16777522 flags=272 own
    RenameFortress (core): 407 trials {"reject:bad_name":178,"ok":229}
 base world at tick 50374; caravan at depot: true; trials per command: field sweep + 250 random
 == baseline (before any fuzzing): 9 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  container.content-mismatch: 1 hits, 1 classes, t50374..t50374
+  item.carrier-dead: 5 hits, 4 classes, t50374..t50374
+  item.owner-dead: 2 hits, 1 classes, t50374..t50374
+  room.owner-dead: 1 hits, 1 classes, t50374..t50374
+  stock.available-drift: 1 hits, 1 classes, t50374..t50374
+  tame.pet-owner-dead: 1 hits, 1 classes, t50374..t50374
+-- detail
+container.content-mismatch [wagon] x1 t50374..t50374
+    t50374: container 16777216 lists 16777219 but item.containerId=0
+item.carrier-dead [pick] x2 t50374..t50374
+    t50374: item 16777217 pick carriedBy=16777275 not alive; pos=(none) flags=0
+    t50374: item 16777218 pick carriedBy=16777276 not alive; pos=(none) flags=0
+item.carrier-dead [tunic] x1 t50374..t50374
+    t50374: item 16777288 tunic carriedBy=50331709 not alive; pos=(none) flags=0
+item.carrier-dead [trousers] x1 t50374..t50374
+    t50374: item 16777289 trousers carriedBy=50331709 not alive; pos=(none) flags=0
+item.carrier-dead [boots] x1 t50374..t50374
+    t50374: item 16777290 boots carriedBy=50331709 not alive; pos=(none) flags=0
+item.owner-dead [axe] x2 t50374..t50374
+    t50374: item 16777219 axe ownerId=16777275 not alive, flags=16 pos=(none)
+    t50374: item 16777346 axe ownerId=16777276 not alive, flags=16 pos=(none)
+room.owner-dead [-] x1 t50374..t50374
+    t50374: room 16777370 ownerId=16777277 not alive
+stock.available-drift [axe] x1 t50374..t50374
+    t50374: available 2 recount 0
+tame.pet-owner-dead [cat] x1 t50374..t50374
+    t50374: creature 16777274 petOf=16777278
+== baseline after one save/load: 9 finding classes; alert-not-calm-with-no-hostile ticks: 0
+  container.content-mismatch: 1 hits, 1 classes, t50374..t50374
+  item.carrier-dead: 5 hits, 4 classes, t50374..t50374
+  item.owner-dead: 2 hits, 1 classes, t50374..t50374
+  room.owner-dead: 1 hits, 1 classes, t50374..t50374
+  stock.available-drift: 1 hits, 1 classes, t50374..t50374
+  tame.pet-owner-dead: 1 hits, 1 classes, t50374..t50374
+-- detail
+container.content-mismatch [wagon] x1 t50374..t50374
+    t50374: container 16777216 lists 16777219 but item.containerId=0
+item.carrier-dead [pick] x2 t50374..t50374
+    t50374: item 16777217 pick carriedBy=16777275 not alive; pos=(none) flags=0
+    t50374: item 16777218 pick carriedBy=16777276 not alive; pos=(none) flags=0
+item.carrier-dead [tunic] x1 t50374..t50374
+    t50374: item 16777288 tunic carriedBy=50331709 not alive; pos=(none) flags=0
+item.carrier-dead [trousers] x1 t50374..t50374
+    t50374: item 16777289 trousers carriedBy=50331709 not alive; pos=(none) flags=0
+item.carrier-dead [boots] x1 t50374..t50374
+    t50374: item 16777290 boots carriedBy=50331709 not alive; pos=(none) flags=0
+item.owner-dead [axe] x2 t50374..t50374
+    t50374: item 16777219 axe ownerId=16777275 not alive, flags=16 pos=(none)
+    t50374: item 16777346 axe ownerId=16777276 not alive, flags=16 pos=(none)
+room.owner-dead [-] x1 t50374..t50374
+    t50374: room 16777370 ownerId=16777277 not alive
+stock.available-drift [axe] x1 t50374..t50374
+    t50374: available 2 recount 0
+tame.pet-owner-dead [cat] x1 t50374..t50374
+    t50374: creature 16777274 petOf=16777278
+hash equal after load: true
+
+===== Designate (03) 899 trials {"reject:out_of_bounds":205,"ok":168,"reject:precondition_failed":342,"reject:out_of_range":184}
+  accepted shapes (77):
+    {"type":"Designate","tiles":[],"kind":"dig","priority":5}
 !! DeconstructBuilding (14): 851 trials {"reject:not_found":379,"reject:precondition_failed":109,"ok":363} INVARIANTS 1
 !! SetSquadLeader (16): 1133 trials {"reject:not_found":672,"ok":101,"reject:not_adult":304,"reject:bad_setting":56} INVARIANTS 1
   THROW x3: apply: tile index out of range: 297793.5 @ at TerrainCore.check (E:\code\vibe-games\vibe-fortress-t115\src\systems\terrain\api.ts:102:40)

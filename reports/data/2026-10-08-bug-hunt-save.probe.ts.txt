@@ -1,0 +1,28 @@
+/* T-115 scratch: a work order with a material filter given by id does not survive a save and load unchanged. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { roundTrip } from '@app/game-save';
+import { TestWorld } from '../test/scenarios/test-world';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+
+describe('T-115 probe: save and load of a material filter', () => {
+  it('forge order with materialFilter iron', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    for (const filter of [undefined, 'iron', 'metal', 96]) {
+      const w = new TestWorld({ seed: 't115-save', world: 'flat-test', embark: 'default' });
+      const forge = w.build('forge', w.index(15, 22, 32), 'granite');
+      w.step(1);
+      const r = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: forge, order: { recipeId: 'forge_pick', mode: 'once', remaining: 2, threshold: 0, priority: 5, ...(filter === undefined ? {} : { materialFilter: filter }) } });
+      w.step(1);
+      const loaded = roundTrip(w.game).game;
+      const again = roundTrip(loaded).game;
+      const f = (g: typeof loaded): string => JSON.stringify(g.world.entities.get(forge, C.Workshop)?.orders.map((o) => o.materialFilter));
+      log.push(`materialFilter ${JSON.stringify(filter)}: AddWorkOrder ${JSON.stringify(r)}; in play ${f(w.game)}; after a load ${f(loaded)}; hash ${w.game.hash()} -> ${loaded.hash()} (${w.game.hash() === loaded.hash() ? 'equal' : 'DIFFERENT'}); a second load ${again.hash() === loaded.hash() ? 'equals the first' : 'differs again'}`);
+    }
+    writeFileSync(`${OUT}/save.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 600_000);
+});

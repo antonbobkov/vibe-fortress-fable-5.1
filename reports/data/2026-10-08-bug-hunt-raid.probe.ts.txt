@@ -1,0 +1,47 @@
+/* T-115 scratch: how long parties stay, and what medical jobs do when the patient dies. Three-year fixture, peril 4. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { JobsReader } from '@systems/jobs/reader';
+import { stepThreeYears } from '../test/scenarios/three_years_measurements';
+import { setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../test/scenarios/three_years_fortress';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const DAYS = Number(process.env['T115_DAYS'] ?? '110');
+const SEED = process.env['T115_SEED'] ?? 'three-years-p4-1';
+const PERIL = Number(process.env['T115_PERIL'] ?? '4');
+
+describe('T-115 probe: parties and patients', () => {
+  it(`${SEED} peril ${PERIL}`, () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const w = threeYearsWorld(SEED, PERIL);
+    const state = setupThreeYearsFortress(w);
+    const ent = w.game.world.entities;
+    const jobs = w.readers.of<JobsReader>('11');
+    const day = (): string => (w.tick / TICKS_PER_DAY).toFixed(1);
+    w.game.world.onEvents((events) => {
+      for (const e of events) {
+        if (e.type === 'RaidArrived' || e.type === 'RaidEnded' || e.type === 'ThreatWarning' || e.type === 'ImmigrantsArrived' || e.type === 'ImmigrationSkipped' || e.type === 'AlertChanged' || e.type === 'PatientAdmitted') log.push(`day ${day()} t${w.tick} ${JSON.stringify(e)}`);
+        if (e.type === 'CreatureDied' && e['faction'] === 'fortress') log.push(`day ${day()} t${w.tick} fortress creature died: ${String(e['name'])} cause ${String(e['cause'])} id ${String(e['id'])}`);
+      }
+    });
+    const total = DAYS * TICKS_PER_DAY;
+    while (w.tick < total) {
+      stepThreeYears(w, w.tick < 20 * TICKS_PER_DAY ? Math.min(100, 20 * TICKS_PER_DAY - w.tick) : Math.min(300, total - w.tick)); // the same phase as three_years_seeds
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+      if (w.tick % TICKS_PER_DAY === 0 && w.tick >= 20 * TICKS_PER_DAY) {
+        const dwarves = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+        const parties = ent.with(C.Party).map((id) => ({ id, p: ent.get(id, C.Party)! })).filter((x) => x.p.state !== 'gone' && x.p.purpose !== 'caravan');
+        const deadTarget = jobs.list().filter((j) => j.target.kind === 'entity' && j.target.ref !== 0 && !ent.alive(j.target.ref));
+        const hearth = w.game.world.fortress.alert;
+        if (parties.length > 0 || deadTarget.length > 0) {
+          log.push(`day ${day()}: dwarves ${dwarves.length}, alert ${hearth}; parties: ${parties.map((x) => { const lead = ent.get(x.p.leaderId, C.Position); return `${x.id} ${x.p.purpose} ${x.p.state} for ${((w.tick - x.p.stateSince) / TICKS_PER_DAY).toFixed(1)}d, on map ${((w.tick - x.p.arrivedTick) / TICKS_PER_DAY).toFixed(1)}d, alive ${x.p.members.filter((m) => ent.alive(m)).length}/${x.p.members.length}, loot ${x.p.loot.length}, leader at ${lead ? `${lead.x},${lead.y},${lead.z}` : '-'}, goalTile ${x.p.goalTile} goalEntity ${x.p.goalEntity} unreachable ${String(x.p.goalUnreachable)}/${String(x.p.walkUnreachable)}`; }).join(' || ') || 'none'}; jobs whose target entity no longer exists: ${deadTarget.length} (${Array.from(new Set(deadTarget.map((j) => `${jobs.typeOf(j.id)}:${j.state}`))).join(',')})`);
+        }
+      }
+    }
+    writeFileSync(`${OUT}/raid-${SEED}.txt`, log.join('\n'));
+    console.log(log.slice(0, 20).join('\n'));
+  }, 3_600_000);
+});

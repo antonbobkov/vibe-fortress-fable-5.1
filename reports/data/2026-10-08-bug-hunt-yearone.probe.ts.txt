@@ -1,0 +1,58 @@
+/* T-115 scratch: the year_one scenario with the invariant checker every 100 ticks, a save/load check every 20 days,
+ * and a second run for determinism. The wrapper around HeadlessGame.step lives in this test file only. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { HeadlessGame } from '@app/headless';
+import { roundTrip } from '@app/game-save';
+import { TICKS_PER_DAY } from '@core/constants';
+import { runScenario } from '../test/scenarios/runner';
+import yearOne from '../test/scenarios/year_one.scenario';
+import { Probe } from './invariants';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+
+describe('T-115 probe: year_one', () => {
+  it('invariants, save and load, determinism', () => {
+    mkdirSync(OUT, { recursive: true });
+    const proto = HeadlessGame.prototype as unknown as { step(n?: number): void };
+    const orig = proto.step;
+    const runs: { hashes: string[]; probe: Probe; saves: string[]; error: string | null }[] = [];
+    for (let pass = 0; pass < 2; pass += 1) {
+      const rec = { hashes: [] as string[], probe: new Probe(`year_one pass ${pass + 1}`), saves: [] as string[], error: null as string | null };
+      let lastCheck = 0; let lastHash = 0; let lastSave = 0; let inside = false;
+      proto.step = function (this: HeadlessGame, n = 1): void {
+        orig.call(this, n);
+        if (inside) return;
+        inside = true;
+        try {
+          if (this.tick - lastCheck >= 100) { lastCheck = this.tick; rec.probe.check(this); }
+          if (this.tick - lastHash >= TICKS_PER_DAY) { lastHash = this.tick; rec.hashes.push(`${this.tick} ${this.hash()}`); }
+          if (pass === 0 && this.tick - lastSave >= 20 * TICKS_PER_DAY) {
+            lastSave = this.tick;
+            try {
+              const a = roundTrip(this).game; const b = roundTrip(a).game;
+              const first = a.hash() === this.hash();
+              let equal = a.hash() === b.hash();
+              for (let k = 0; k < 10 && equal; k += 1) { orig.call(a, 100); orig.call(b, 100); equal = a.hash() === b.hash(); }
+              rec.saves.push(`t${this.tick}: first load ${first ? 'equals' : 'DIFFERS from'} the unsaved game; a second load played beside the first for 1,000 ticks with no commands: ${equal ? 'equal' : 'DIVERGED'}`);
+            } catch (e) { rec.saves.push(`t${this.tick}: save/load THREW ${(e as Error).message}`); }
+          }
+        } finally { inside = false; }
+      };
+      try { runScenario(yearOne); } catch (e) { rec.error = (e as Error).message.slice(0, 600); }
+      proto.step = orig;
+      runs.push(rec);
+    }
+    const [a, b] = runs as [typeof runs[0], typeof runs[0]];
+    let firstDiff = -1;
+    for (let k = 0; k < Math.max(a.hashes.length, b.hashes.length); k += 1) if (a.hashes[k] !== b.hashes[k]) { firstDiff = k; break; }
+    const out = [
+      `year_one: pass 1 ${a.hashes.length} daily hashes, pass 2 ${b.hashes.length}; ${firstDiff < 0 ? 'all equal' : `FIRST DIFFERENCE at index ${firstDiff}: ${a.hashes[firstDiff]} vs ${b.hashes[firstDiff]}`}`,
+      `scenario assertions: pass 1 ${a.error ?? 'passed'}; pass 2 ${b.error ?? 'passed'}`,
+      '-- save and load', ...a.saves,
+      a.probe.report(),
+    ].join('\n');
+    writeFileSync(`${OUT}/year_one.txt`, out);
+    console.log(out.split('\n').slice(0, 70).join('\n'));
+  }, 3_600_000);
+});
