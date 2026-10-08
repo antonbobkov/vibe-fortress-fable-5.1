@@ -9,7 +9,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-121 | [Resolve retained UI decision/code mismatches](work/T-121-retained-ui-decisions.md) | [T-107 triage](archive/tasks/T-107-triage-systems-20-24-and-content.md) | — | open |
 | T-109 | [Balance status: one row per measure, latest figure only](work/T-109-balance-status.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-110 | [Close the migration: pending decisions, archive, large data files](work/T-110-close-the-migration.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | T-102 … T-109 | open |
 | T-111 | [UI audit follow-up: what the U tasks changed](work/T-111-ui-audit-follow-up.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) | U-02, U-07 | open |

@@ -87,6 +87,28 @@ interface RegistrationApi {
 
 Registration is a static declaration of intent, so the order in which systems `init` does not matter; the target systems read their registries lazily on first `tick`.
 
+### AnnouncementSpec
+
+```
+interface AnnouncementSpec {
+  severity: 'note' | 'alert' | 'danger'
+  stringKey: string
+  once?: boolean
+  atLeast?: { field: string; value: number }
+  atMost?: { field: string; value: number }
+  oneOf?: { field: string; values: readonly (string | number)[] }
+  keyField?: string
+  category?: string
+}
+```
+
+Multiple specs may register for one event, without replacing earlier specs.
+Numeric bounds require a numeric field; allowed values require an exact match.
+The UI selects the first matching spec, then resolves its string key (with
+`.fieldValue` when `keyField` is set), severity and category. With no match it
+does not log a line. A `once` spec records the event type only after a match;
+already-seen types stay suppressed when restored.
+
 ### JobProducer
 
 ```

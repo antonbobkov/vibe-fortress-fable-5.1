@@ -166,7 +166,7 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 
 ## Player-facing behavior
 
-- Units panel: a table of every dwarf with name, profession, activity, mood tier glyph, and a labor grid toggle view (dwarves × labors, with the profession's default labors highlighted).
+- Units panel: a table of every dwarf with name, profession, activity, mood tier glyph, and a labor grid toggle view (dwarves × labors, with the profession's default labors highlighted). The shown profession comes from the highest positive skill that has a profession title, ties by ascending skill content id; without one, show Peasant.
 - Dwarf inspection: everything listed under the inspector section; every number the simulation uses is visible.
 - Title assignment from the units panel or the dwarf inspection. Titles are chosen from the four roles with their current holders. Enter assigns the selected role to the selected dwarf, or vacates it if already held; a child is refused with a reason. Rename uses the modal text field (24 characters for a dwarf; squad rename uses 32). In the units panel, `[` and `]` change the selected dwarf's sleep hour by one, wrapping at midnight. The units panel also renames a dwarf, moves the sleep hour, and marks several dwarves to add to a squad or to open in the labor manager.
 - Glyph `☺` in a color by state: white normal, yellow when a need is critical, red when wounded, blue when asleep, gray as a child, green when a soldier on duty.

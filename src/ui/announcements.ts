@@ -60,7 +60,7 @@ export interface Announced {
 export class AnnouncementLog {
   private readonly combatPairs = new Set<string>();
   readonly lines: LogLine[] = [];
-  private readonly specs = new Map<string, AnnouncementSpec>();
+  private readonly specs = new Map<string, AnnouncementSpec[]>();
   private readonly seen = new Set<string>();
 
   constructor(
@@ -70,11 +70,16 @@ export class AnnouncementLog {
 
   /** Load the rows systems registered (`register.announcement`). */
   register(rows: readonly { type: EventType; spec: AnnouncementSpec }[]): void {
-    for (const row of rows) this.specs.set(row.type, row.spec);
+    for (const row of rows) {
+      const specs = this.specs.get(row.type) ?? [];
+      specs.push(row.spec);
+      this.specs.set(row.type, specs);
+    }
   }
 
   specFor(type: string): AnnouncementSpec | undefined {
-    return this.specs.get(type);
+    const specs = this.specs.get(type);
+    return specs?.[specs.length - 1];
   }
 
   /** The placeholders an event offers: its fields, with ids and indices named through the readers. */
@@ -190,23 +195,24 @@ export class AnnouncementLog {
 
   /** Map an event through the registry and append it; `null` when the event has no row. */
   announce(event: GameEvent, readers: ReaderSet, tick: number): Announced | null {
-    const spec = this.specs.get(event.type);
-    if (spec === undefined) return null;
-    if (spec.atLeast !== undefined) {
-      const v = (event as unknown as Record<string, unknown>)[spec.atLeast.field];
-      if (typeof v !== 'number' || v < spec.atLeast.value) return null;
-    }
-    if (spec.atMost !== undefined) {
-      const v = (event as unknown as Record<string, unknown>)[spec.atMost.field];
-      if (typeof v !== 'number' || v > spec.atMost.value) return null;
-    }
     const fields = event as unknown as Record<string, unknown>;
+    const spec = this.specs.get(event.type)?.find((candidate) => {
+      if (candidate.atLeast !== undefined) {
+        const value = fields[candidate.atLeast.field];
+        if (typeof value !== 'number' || value < candidate.atLeast.value) return false;
+      }
+      if (candidate.atMost !== undefined) {
+        const value = fields[candidate.atMost.field];
+        if (typeof value !== 'number' || value > candidate.atMost.value) return false;
+      }
+      return candidate.oneOf === undefined || candidate.oneOf.values.includes(fields[candidate.oneOf.field] as string | number);
+    });
+    if (spec === undefined) return null;
     const creatureId = fields['id'];
     const dwarfDeath = event.type === 'CreatureDied' && typeof creatureId === 'number' &&
       (readers.entities.has(creatureId, C.Brain) ||
         (fields['species'] === this.registry.table('creatures').index('dwarf') && fields['faction'] === 'fortress'));
     if (event.type === 'CreatureUnconscious' && (typeof creatureId !== 'number' || !readers.entities.has(creatureId, C.Brain))) return null;
-    if (spec.oneOf !== undefined && !spec.oneOf.values.includes(fields[spec.oneOf.field] as string | number)) return null;
     if (spec.once === true) {
       if (this.seen.has(event.type)) return null;
       this.seen.add(event.type);

@@ -89,7 +89,7 @@ Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings
 └──────────────────────────────────────────────────┘
 ```
 
-Keybindings sub-screen: a table of context, action, key; `Enter` on a row then press a key; conflicts are shown in red with the conflicting action; `Esc` cancels the rebind.
+Keybindings sub-screen: a table of context, action, key; `Enter` on a row then press a key; conflicts are shown in red with the conflicting action's Help wording and the player-facing context heading; `Esc` cancels the rebind. Clicking a binding row also starts capture. Failed rebinding uses the shared registry messages `ui.settings.binding_conflict` and `ui.settings.binding_modifiers` and leaves every binding unchanged.
 
 ## Load
 

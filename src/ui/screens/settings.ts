@@ -5,11 +5,14 @@ import { actionText, contextTitle } from '../panels/help';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { UserSettings } from '../settings';
 import type { Surface } from '../surface';
+import type { Strings } from '../strings';
+import { bindingConflict, invalidBindingModifiers } from '../messages';
 import { clampList, label, type ListState } from '../widgets';
 import { SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_ZOOM_OPTIONS } from '../constants';
 
 export interface SettingsHost {
   readonly keymap: Keymap;
+  readonly strings: Strings;
   settings(): Readonly<UserSettings>;
   change(patch: Partial<UserSettings>): void;
   bindingsChanged(): void;
@@ -68,10 +71,10 @@ export class SettingsScreen implements Screen {
   }
 
   private capture(press: KeyPress): void {
-    if (press.alt || press.meta) { this.conflict = 'Use a key with optional Ctrl or Shift.'; return; }
+    if (press.alt || press.meta) { this.conflict = invalidBindingModifiers(this.host.strings); return; }
     const spec: KeySpec = { key: press.key, ctrl: press.ctrl, shift: press.shift };
     const conflict = this.host.keymap.rebind(this.bindingList.selected, spec);
-    if (conflict) { this.conflict = `Conflicts with ${conflict.context}: ${conflict.id}`; return; }
+    if (conflict) { this.conflict = bindingConflict(this.host.strings, conflict); return; }
     this.capturing = false;
     this.conflict = null;
     this.host.bindingsChanged();

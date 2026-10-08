@@ -4,6 +4,8 @@
 
 Every event type, its fields, its emitters and its subscribers. `ui` means the presentation announcement registry or panels subscribe. Batched events carry arrays and are emitted at most once per emitter per tick, except `ConstructionCollapsed`: 03 emits one batch per terrain action that settles. Consumers must accept several collapse batches in one tick. Every event has at least one emitter and one subscriber; the Wave 4 consistency pass checks this table against the system documents.
 
+The presentation event surface is the union of registered announcements, named panel or screen consumers, and catalog rows explicitly marked `ui (none)`. This union must cover exactly the catalog's `ui` rows; `24` on KillRecorded names the presentation UI. Multiple announcement specs retain the owning system's severity, including the per-kind sulk split. CreatureUnconscious uses the health system's alert severity.
+
 JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and JobUnblocked carry the job content id as `jobType`; `type` remains the event discriminator. ItemCreated and ItemDestroyed carry the item content id as `itemType`, and ItemCreated material is its content id.
 
 | Event | Fields | Emitters | Subscribers |

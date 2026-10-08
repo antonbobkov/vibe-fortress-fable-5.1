@@ -16,6 +16,7 @@ import { acceleratorLabel, acceleratorOf, DEFAULT_PANEL_LETTERS, FORTRESS_PANEL_
 import { ConfirmScreen } from '@ui/screens/confirm';
 import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
 import { defaultUiState } from '@ui/ui-state';
+import { helpKeyRows } from '@ui/panels/help';
 import { TestWorld } from '../../scenarios/test-world';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import { keymap, press, registry, strings, surface } from './ui-fixture';
@@ -291,6 +292,30 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
     for (const ch of 'bed') f.screen.key(press(ch));
     expect(f.screen.orders.picker.filter).toBe('bed');
     expect(f.screen.ui.panel).toBe('orders');
+  });
+
+  it('T-121: zone inspector and Help captions follow rebound panel letters while fixed captions retain defaults', () => {
+    const keys = new Keymap(keymap.bindings);
+    const population = keys.bindings.findIndex((b) => b.context === 'fortress_panel' && b.id === 'population');
+    expect(keys.rebind(population, { key: 'g', ctrl: false, shift: false })).toBeNull();
+    const f = screenOf(shared, false, keys);
+    f.screen.zones.selected = shared.pile;
+    f.screen.openPanel('zones');
+    const s = surface(80, 42);
+    f.screen.draw(s);
+    expect(s.lines().join('\n')).toContain('[p] Preset');
+    expect(s.lines().join('\n')).toContain('[S-g]');
+    const help = helpKeyRows(keys, strings).filter((r) => r.category === 'zones').map((r) => r.text).join('\n');
+    expect(help).toContain('[p]');
+    expect(help).toContain('[S-g]');
+    const military = keys.bindings.findIndex((b) => b.context === 'fortress_panel' && b.id === 'military');
+    expect(keys.rebind(military, { key: 'y', ctrl: false, shift: false })).toBeNull();
+    f.screen.openPanel('stocks');
+    const stocks = surface(80, 42); f.screen.draw(stocks);
+    expect(stocks.lines().join('\n')).toContain('[S-m] melt');
+    f.screen.key(press('g'));
+    expect(f.screen.ui.panel).toBe('population');
+    expect(f.sent).toEqual([]);
   });
 
   it('the panels show the moved accelerators as [S-letter]', () => {
