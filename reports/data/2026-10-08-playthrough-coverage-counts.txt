@@ -1,0 +1,1101 @@
+groups: P:perf-fixtures (2 tests, max tick 272081); P:three_years_p0 (1 tests, max tick 403200); P:three_years_p2 (1 tests, max tick 403200); P:three_years_p4 (1 tests, max tick 403200); P:year_one (1 tests, max tick 134400); S:scenarios (125 tests, max tick 1344000); U:golden (13 tests, max tick 33622); U:property (9 tests, max tick 2403); U:unit (505 tests, max tick 270000)
+
+## Commands accepted (count of ok results through World.applyCommand)
+name | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit | only-in
+Designate | 0 | 28 | 10 | 26 | 2 | 120 | 5 | 20 | 43 | 
+UndoDesignation | 0 | 0 | 0 | 0 | 0 | 6 | 0 | 16 | 3 | #property__determinism-commands,core_determinism,#unit__terrain__producer,#unit__terrain__terrain-system,#unit__ui__fortress
+SetDesignationPriority | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | #unit__terrain__terrain-system,#unit__ui__u05-building-panel
+SetTraffic | 0 | 19 | 11 | 19 | 0 | 2 | 0 | 16 | 4 | 
+DesignateStairwell | 0 | 2 | 2 | 2 | 1 | 1 | 0 | 0 | 1 | 
+DesignateHarvest | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__plants__plants
+ConfirmDeepsilver | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 2 | tr_deepsilver_gate,th_deep,#unit__terrain__terrain-system,#unit__ui__m6-panels
+SetPlotCrop | 4 | 11 | 3 | 11 | 6 | 4 | 0 | 18 | 4 | 
+AssignPasture | 0 | 0 | 0 | 0 | 0 | 4 | 0 | 16 | 2 | #property__determinism-commands,#property__save-roundtrip,an_breed,an_pasture,#unit__animals__tame
+MarkSlaughter | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 14 | 3 | #property__determinism-commands,#unit__animals__tame,#unit__foraging__foraging,#unit__ui__u03-hotkeys
+UnmarkSlaughter | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__animals__tame
+TrainAnimal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__animals__taming
+TameCaged | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | an_tame,#unit__animals__taming
+AssignAnimal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 | #unit__animals__taming,#unit__defense__defense
+SetBreedingCap | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | #unit__animals__tame
+ReleaseCaged | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | #unit__animals__taming
+SetHuntable | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__foraging__foraging
+SetLabor | 0 | 14 | 14 | 14 | 0 | 814 | 0 | 16 | 273 | 
+SetLaborPriority | 0 | 14 | 14 | 14 | 0 | 2 | 0 | 0 | 9 | 
+CancelJob | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 | #unit__jobs__jobs,#unit__terrain__producer,#unit__ui__panels
+SetJobPriority | 0 | 191 | 1 | 89 | 0 | 0 | 0 | 0 | 1 | 
+SetStandingOrder | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 21 | 5 | #property__determinism-commands,#property__save-roundtrip,#unit__animals__products,#unit__jobs__jobs,#unit__workshops__melting
+AssignTitle | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 12 | 10 | #property__determinism-commands,dw_title,td_offer,#unit__dwarves__dwarves,#unit__dwarves__life,#unit__t117-death-consumers
+RenameDwarf | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3 | #unit__dwarves__dwarves,#unit__ui__u06-units-military
+SetSchedule | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3 | #unit__dwarves__activities,#unit__dwarves__dwarves,#unit__ui__u06-units-military
+AddWorkOrder | 6 | 30 | 3 | 30 | 3 | 10 | 3 | 36 | 185 | 
+EditWorkOrder | 0 | 4 | 2 | 8 | 0 | 0 | 0 | 16 | 18 | 
+RemoveWorkOrder | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | #unit__ui__u03-orders,#unit__workshops__operation
+ReorderWorkOrder | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | #unit__ui__u03-orders,#unit__workshops__operation
+SetWorkshopWorker | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 16 | 4 | #property__determinism-commands,#unit__workshops__f17-craft-quality-and-stale-inputs
+SuspendWorkshop | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 14 | 2 | #property__determinism-commands,#unit__ui__u03-hotkeys,#unit__workshops__operation
+ForbidItem | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 16 | 6 | #property__determinism-commands,it_forbid,#unit__items__items,#unit__items__search,#unit__ui__panels
+ClaimItem | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | it_forbid,#unit__items__items
+DumpItem | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | #unit__items__hauling,#unit__items__items
+MeltItem | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 13 | 14 | #property__determinism-commands,#property__save-roundtrip,#unit__items__items,#unit__ui__t121-retained-ui,#unit__ui__u03-hotkeys,#unit__workshops__melting
+SetStockpileFilter | 2 | 4 | 2 | 4 | 1 | 8 | 2 | 22 | 35 | 
+SetStockpileContainers | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 8 | it_containers,#unit__buildings__zones,#unit__items__hauling,#unit__ui__u07-zones
+SetStockpilePriority | 0 | 3 | 1 | 3 | 0 | 0 | 0 | 0 | 2 | 
+LinkStockpile | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | #unit__buildings__zones
+PlaceBuilding | 605 | 40 | 10 | 45 | 6 | 190 | 9 | 178 | 442 | 
+CancelBuilding | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 9 | 11 | #property__determinism-commands,#unit__buildings__build,#unit__ui__u05-building-panel
+DeconstructBuilding | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 | #unit__buildings__build,#unit__buildings__furniture
+SetBuildingPriority | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3 | #unit__buildings__build,#unit__ui__u05-building-panel
+CreateZone | 63 | 26 | 5 | 26 | 4 | 31 | 5 | 112 | 118 | 
+ResizeZone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__buildings__zones
+RemoveZone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 18 | 7 | #property__determinism-commands,#property__save-roundtrip,#unit__buildings__rooms,#unit__buildings__zones,#unit__items__hauling,#unit__ui__m7-game-menu
+SetZoneSetting | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 9 | #unit__buildings__zones,#unit__foraging__foraging,#unit__t120-retained-building-decisions,#unit__ui__u06-units-military
+AssignRoom | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 5 | dw_sleep,mo_hall_spirit,#unit__buildings__rooms,#unit__defense__defense,#unit__ui__u07-zones
+LinkMechanism | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3 | #unit__buildings__mechanisms,#unit__ui__u05-building-panel
+UnlinkMechanism | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | #unit__buildings__mechanisms,#unit__ui__u05-building-panel
+SetDoorMode | 0 | 0 | 0 | 2 | 0 | 6 | 1 | 0 | 24 | 
+SetHatchMode | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 4 | df_pattern_pit,#unit__buildings__furniture,#unit__t122-civilian-escape,#unit__ui__u05-building-panel
+SetPlateTrigger | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 | #unit__defense__defense,#unit__ui__u05-building-panel
+ReleaseCage | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
+AssignCoffin | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | bd_burial,#unit__ui__u05-building-panel
+CreateSquad | 1 | 1 | 1 | 1 | 0 | 3 | 2 | 45 | 36 | 
+DisbandSquad | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | #unit__combat__squads,#unit__ui__m6-panels
+SetSquadMembers | 1 | 1 | 1 | 1 | 0 | 3 | 1 | 0 | 16 | 
+SetSquadLeader | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3 | #unit__combat__squads,#unit__ui__u06-units-military
+SetSquadMode | 0 | 1 | 1 | 1 | 0 | 2 | 1 | 10 | 5 | 
+SetSquadEquipment | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 7 | cb_training,#unit__combat__squads,#unit__items__search-index,#unit__ui__m6-panels
+SetSquadStation | 1 | 0 | 0 | 0 | 0 | 2 | 1 | 0 | 3 | 
+SetSquadPatrol | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 1 | #golden__render__m6-raid,#unit__render__m6-compositor
+SquadOrder | 0 | 0 | 3 | 28 | 0 | 0 | 0 | 0 | 3 | 
+SetAlert | 0 | 0 | 3 | 28 | 0 | 2 | 0 | 12 | 15 | 
+SetHospitalSupplies | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 8 | 1 | #property__determinism-commands,#unit__health__health
+SetTrapMode | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 | 2 | #property__determinism-commands,#unit__defense__defense,#unit__ui__u05-building-panel
+PullLever | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 4 | 3 | #property__determinism-commands,bd_bridge,bd_floodgate,df_pattern_gate,#unit__defense__defense,#unit__ui__u05-building-panel
+MoveToDepot | 0 | 142 | 0 | 69 | 0 | 4 | 1 | 12 | 1 | 
+RemoveFromDepot | 0 | 8 | 0 | 7 | 0 | 1 | 0 | 0 | 0 | 
+TradeOpen | 0 | 9 | 36 | 9 | 0 | 3 | 0 | 0 | 0 | 
+TradeOffer | 0 | 8 | 0 | 7 | 0 | 6 | 0 | 0 | 0 | 
+TradeCancel | 0 | 8 | 0 | 7 | 0 | 1 | 0 | 0 | 0 | 
+SetRequests | 0 | 1 | 1 | 1 | 1 | 1 | 0 | 12 | 1 | 
+SetPopulationCap | 0 | 0 | 0 | 0 | 0 | 2 | 1 | 10 | 11 | #golden__render__m7-population,#property__determinism-commands,#property__save-roundtrip,im_cap,#unit__paused-input,#unit__t117-death-consumers
+NameAnimal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__animals__tame
+RenameSquad | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__ui__u06-units-military
+RenameFortress | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 21 | #unit__app,#unit__headless,#unit__paused-input,#unit__replay,#unit__world
+
+NEVER by any recorded test (1): ReleaseCage
+NOT by a playthrough, but by a scenario/unit (51): UndoDesignation, SetDesignationPriority, DesignateHarvest, ConfirmDeepsilver, AssignPasture, MarkSlaughter, UnmarkSlaughter, TrainAnimal, TameCaged, AssignAnimal, SetBreedingCap, ReleaseCaged, SetHuntable, CancelJob, SetStandingOrder, AssignTitle, RenameDwarf, SetSchedule, RemoveWorkOrder, ReorderWorkOrder, SetWorkshopWorker, SuspendWorkshop, ForbidItem, ClaimItem, DumpItem, MeltItem, SetStockpileContainers, LinkStockpile, CancelBuilding, DeconstructBuilding, SetBuildingPriority, ResizeZone, RemoveZone, SetZoneSetting, AssignRoom, LinkMechanism, UnlinkMechanism, SetHatchMode, SetPlateTrigger, AssignCoffin, DisbandSquad, SetSquadLeader, SetSquadEquipment, SetSquadPatrol, SetHospitalSupplies, SetTrapMode, PullLever, SetPopulationCap, NameAnimal, RenameSquad, RenameFortress
+BY a playthrough: Designate, SetTraffic, DesignateStairwell, SetPlotCrop, SetLabor, SetLaborPriority, SetJobPriority, AddWorkOrder, EditWorkOrder, SetStockpileFilter, SetStockpilePriority, PlaceBuilding, CreateZone, SetDoorMode, CreateSquad, SetSquadMembers, SetSquadMode, SetSquadStation, SquadOrder, SetAlert, MoveToDepot, RemoveFromDepot, TradeOpen, TradeOffer, TradeCancel, SetRequests
+P:perf-fixtures: 8/78
+P:three_years_p0: 22/78
+P:three_years_p2: 20/78
+P:three_years_p4: 25/78
+P:year_one: 8/78
+any playthrough: 26/78
+
+## Events delivered
+name | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit | only-in
+WorldGenerated | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
+Embarked | 2 | 1 | 1 | 1 | 1 | 121 | 9 | 38 | 63 | 
+CommandRejected | 0 | 0 | 0 | 0 | 0 | 4 | 0 | 34 | 9 | #property__determinism-commands,#property__save-roundtrip,core_command_rejection,tr_deepsilver_gate,bd_support,#unit__app
+HourPassed | 57 | 8055 | 8055 | 8055 | 2679 | 114065 | 397 | 1110 | 17568 | 
+DayPassed | 2 | 335 | 335 | 335 | 111 | 4716 | 17 | 50 | 686 | 
+SeasonChanged | 0 | 11 | 11 | 11 | 3 | 126 | 1 | 0 | 26 | 
+YearPassed | 0 | 2 | 2 | 2 | 0 | 29 | 0 | 0 | 4 | 
+TilesChanged | 408 | 2270 | 942 | 2459 | 180 | 4801 | 18 | 149 | 807 | 
+TilesDiscovered | 0 | 898 | 0 | 499 | 176 | 3989 | 14 | 6067 | 2468 | 
+VeinFound | 0 | 8 | 0 | 2 | 0 | 2 | 0 | 0 | 3 | 
+MineralMined | 0 | 138 | 0 | 24 | 0 | 6 | 0 | 0 | 4 | 
+DeepsilverMined | 0 | 0 | 0 | 0 | 0 | 6 | 0 | 0 | 0 | tr_deepsilver_gate,th_deep
+CavernBreached | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 7 | tr_discovery,#unit__t130-retained-decisions,#unit__terrain__terrain-system
+ConstructionCollapsed | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 4 | tr_support,#unit__materials__fire,#unit__t119-retained-system-decisions,#unit__terrain__terrain-system
+TreeFelled | 0 | 300 | 210 | 82 | 0 | 0 | 0 | 0 | 1 | 
+FluidsChanged | 1044 | 9954 | 9261 | 11269 | 206 | 7714 | 14 | 137 | 1186 | 
+ObsidianFormed | 2355 | 0 | 46 | 258 | 0 | 1 | 0 | 0 | 0 | 
+CreatureSubmerged | 15 | 0 | 0 | 0 | 0 | 19 | 0 | 0 | 0 | 
+MagmaContact | 0 | 0 | 0 | 0 | 0 | 13 | 0 | 0 | 4 | ma_magma_melt,df_pattern_magma,#unit__materials__fire
+TileFrozen | 0 | 3487 | 3502 | 3672 | 26 | 18 | 0 | 0 | 21 | 
+TileThawed | 0 | 3487 | 3451 | 3621 | 25 | 18 | 0 | 0 | 1 | 
+MistProduced | 62 | 0 | 1 | 2 | 0 | 2 | 0 | 0 | 2 | 
+TemperatureTick | 288 | 40280 | 40280 | 40280 | 13400 | 271576 | 2005 | 5537 | 74675 | 
+FireStarted | 0 | 0 | 34 | 25 | 0 | 43 | 0 | 0 | 26 | 
+FireSpread | 0 | 0 | 0 | 528 | 0 | 72 | 0 | 0 | 0 | 
+FireOut | 0 | 0 | 34 | 561 | 0 | 114 | 0 | 0 | 26 | 
+BurnDamage | 0 | 0 | 0 | 112 | 0 | 0 | 0 | 0 | 30 | 
+ItemMelted | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | ma_magma_melt,#unit__materials__fire
+WeatherChanged | 1 | 332 | 385 | 394 | 122 | 4723 | 10 | 0 | 581 | 
+LightningStrike | 0 | 0 | 34 | 33 | 0 | 348 | 0 | 0 | 24 | 
+SnowCoverChanged | 0 | 84 | 100 | 92 | 20 | 649 | 0 | 0 | 22 | 
+SeasonEffectsChanged | 0 | 11 | 11 | 11 | 3 | 116 | 1 | 0 | 22 | 
+CropPlanted | 10 | 403 | 20 | 203 | 103 | 10 | 0 | 0 | 0 | 
+CropHarvested | 0 | 353 | 10 | 160 | 77 | 10 | 0 | 0 | 0 | 
+CropDied | 0 | 30 | 10 | 23 | 10 | 1 | 0 | 0 | 1 | 
+PlotNeedsSeeds | 1 | 24 | 3 | 24 | 3 | 3 | 0 | 0 | 1 | 
+SaplingGrew | 0 | 3 | 15 | 5 | 0 | 18 | 0 | 0 | 1 | 
+ShrubRegrown | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__plants__wild
+GrassRegrown | 0 | 0 | 0 | 83 | 0 | 96 | 0 | 0 | 42 | 
+AnimalSpawned | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 15 | #unit__t130-retained-decisions
+AnimalBorn | 0 | 10 | 7 | 10 | 10 | 3 | 0 | 0 | 6 | 
+AnimalLeft | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__animals__wild
+AnimalStarving | 0 | 17 | 13 | 11 | 0 | 40 | 0 | 0 | 5 | 
+GrassGrazed | 0 | 0 | 0 | 0 | 0 | 192 | 0 | 51 | 62 | #property__determinism-commands,#property__save-roundtrip,an_breed,an_pasture,#unit__animals__tame
+ProductReady | 0 | 2 | 2 | 2 | 0 | 24 | 0 | 0 | 15 | 
+AnimalTamed | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | an_tame,#unit__animals__taming
+AnimalTrained | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__animals__taming
+PetAdopted | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 25 | 
+HuntStarted | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | fo_hunt
+HuntKill | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | fo_hunt
+HuntAbandoned | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
+FishCaught | 0 | 0 | 0 | 0 | 0 | 15 | 0 | 0 | 0 | fo_fish
+ButcheryDone | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 1 | fo_butcher_rot,fo_hunt,#unit__foraging__foraging
+FishPoolDepleted | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
+MealEaten | 16 | 942 | 75 | 402 | 484 | 1225 | 28 | 132 | 211 | 
+DrankAlcohol | 19 | 1555 | 60 | 669 | 210 | 1632 | 42 | 190 | 266 | 
+DrankWater | 0 | 0 | 0 | 0 | 569 | 5 | 0 | 0 | 3 | 
+Slept | 39 | 3000 | 356 | 1289 | 1649 | 3874 | 87 | 321 | 1249 | 
+Talked | 0 | 533 | 177 | 138 | 856 | 0 | 0 | 0 | 7 | 
+Sat | 0 | 407 | 0 | 64 | 1408 | 4 | 0 | 0 | 0 | 
+HearthVisited | 0 | 294 | 0 | 47 | 707 | 2 | 0 | 0 | 0 | 
+DwarfFeltMist | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__dwarves__movement-effects
+DwarfNearSpring | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
+DwarfOutdoorsIn | 0 | 5899 | 559 | 4193 | 1723 | 583 | 0 | 0 | 58 | 
+SawMasterwork | 0 | 0 | 0 | 0 | 0 | 20 | 0 | 0 | 10 | mo_caps,#unit__dwarves__masterwork-sight,#unit__morale__morale
+NeedCritical | 12 | 5763 | 110 | 2518 | 42 | 69 | 0 | 22 | 71 | 
+Starving | 1 | 330 | 170 | 413 | 4 | 234 | 0 | 0 | 364 | 
+Starvation | 0 | 0 | 130 | 43 | 0 | 126 | 0 | 0 | 263 | 
+SkillLevelUp | 0 | 86 | 3 | 37 | 5 | 9 | 0 | 0 | 0 | 
+LegendaryReached | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
+DwarfIdle | 36 | 3440 | 361 | 1406 | 351 | 1089 | 51 | 254 | 853 | 
+TitleAssigned | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 3 | td_offer,#unit__t117-death-consumers,#unit__ui__u06-units-military
+DwarfBecameAdult | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | dw_child,#unit__dwarves__life
+JobCreated | 235 | 4410 | 1177 | 3127 | 593 | 1650 | 15 | 161 | 432 | 
+JobClaimed | 221 | 7355 | 729 | 3498 | 579 | 1204 | 5 | 138 | 304 | 
+JobStarted | 129 | 4606 | 387 | 2339 | 569 | 1187 | 1 | 124 | 281 | 
+JobCompleted | 110 | 3905 | 352 | 2046 | 557 | 1180 | 1 | 112 | 276 | 
+JobCancelled | 38 | 450 | 25 | 373 | 35 | 1 | 0 | 9 | 9 | 
+JobBlocked | 63 | 1308 | 1175 | 1478 | 140 | 1366 | 9 | 72 | 168 | 
+JobUnblocked | 45 | 1305 | 423 | 975 | 140 | 938 | 0 | 48 | 56 | 
+ItemReserved | 133 | 2338 | 140 | 1251 | 470 | 202 | 2 | 81 | 312 | 
+ItemReleased | 81 | 647 | 99 | 479 | 238 | 177 | 1 | 61 | 43 | 
+ToolEquipped | 0 | 7 | 3 | 4 | 2 | 118 | 0 | 16 | 19 | 
+ToolDropped | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__jobs__tool-drop
+ItemCrafted | 34 | 1088 | 28 | 508 | 129 | 120 | 0 | 0 | 178 | 
+MasterworkCreated | 0 | 0 | 0 | 0 | 0 | 86 | 0 | 0 | 0 | it_value,ws_masterwork
+WorkOrderCompleted | 0 | 1 | 0 | 1 | 1 | 8 | 0 | 0 | 164 | 
+WorkshopBlocked | 3 | 28 | 0 | 65 | 9 | 2 | 0 | 0 | 15 | 
+WorkshopIdle | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 
+ItemCreated | 25496 | 4023 | 1576 | 3042 | 611 | 15120 | 721 | 3160 | 8211 | 
+ItemDestroyed | 78 | 5525 | 928 | 3335 | 1170 | 5173 | 70 | 342 | 1266 | 
+ItemRotStage | 5 | 1344 | 96 | 598 | 124 | 400 | 2 | 0 | 38 | 
+ItemRotted | 0 | 402 | 29 | 175 | 35 | 34 | 0 | 0 | 11 | 
+MiasmaSpread | 0 | 143 | 0 | 46 | 24 | 2 | 0 | 0 | 0 | 
+StocksChanged | 221 | 13478 | 970 | 6937 | 2910 | 6046 | 106 | 741 | 2100 | 
+StockpileFull | 11 | 149 | 28 | 112 | 9 | 5 | 0 | 36 | 8 | 
+WealthChanged | 2 | 226 | 8 | 88 | 3 | 269 | 8 | 30 | 81 | 
+CorpseCreated | 4 | 0 | 20 | 24 | 0 | 9 | 0 | 0 | 10 | 
+BuildingPlaced | 607 | 41 | 11 | 46 | 7 | 311 | 15 | 216 | 462 | 
+BuildingCompleted | 607 | 41 | 3 | 46 | 7 | 310 | 14 | 206 | 437 | 
+BuildingRemoved | 0 | 0 | 0 | 7 | 0 | 2 | 0 | 9 | 11 | 
+BuildingStateChanged | 0 | 0 | 0 | 86 | 0 | 22 | 0 | 0 | 27 | 
+ZoneChanged | 63 | 26 | 5 | 26 | 4 | 31 | 5 | 128 | 106 | 
+RoomQualityChanged | 0 | 31 | 0 | 32 | 0 | 6 | 0 | 0 | 10 | 
+RoomAssigned | 0 | 12 | 0 | 12 | 0 | 2 | 0 | 0 | 8 | 
+HearthLit | 0 | 1 | 0 | 1 | 1 | 9 | 0 | 15 | 22 | 
+DoorBroken | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | th_troll_door,#unit__threats__ai
+Buried | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 1 | bd_burial,mo_grief,#unit__buildings__burial
+MechanismToggled | 0 | 0 | 0 | 0 | 0 | 9 | 0 | 0 | 1 | bd_bridge,bd_floodgate,df_pattern_drowning,df_pattern_gate,df_pattern_magma,df_pattern_pit
+MoodTierChanged | 68 | 9145 | 325 | 3421 | 1405 | 1931 | 25 | 232 | 305 | 
+ThoughtGained | 0 | 37 | 8 | 13 | 7 | 111 | 0 | 0 | 43 | 
+SulkHappened | 0 | 17 | 18 | 9 | 0 | 32 | 0 | 0 | 48 | 
+HallSpiritChanged | 2 | 332 | 37 | 491 | 28 | 740 | 6 | 38 | 43 | 
+AttackResolved | 43 | 0 | 59 | 193 | 0 | 16 | 1 | 0 | 8 | 
+DamageDealt | 27 | 0 | 34 | 114 | 0 | 123 | 0 | 0 | 15 | 
+ProjectileFired | 0 | 0 | 0 | 112 | 0 | 10 | 0 | 0 | 1 | 
+CreatureFled | 38 | 0 | 0 | 1 | 0 | 4 | 0 | 0 | 1 | 
+ThreatNearby | 419 | 4 | 99 | 201 | 0 | 24 | 0 | 0 | 41 | 
+SquadOrderIssued | 0 | 0 | 3 | 28 | 0 | 0 | 0 | 0 | 2 | 
+AlertChanged | 0 | 0 | 3 | 28 | 0 | 2 | 0 | 8 | 14 | 
+KillRecorded | 3 | 0 | 10 | 17 | 0 | 2 | 0 | 0 | 1 | 
+TrainingSession | 0 | 0 | 0 | 0 | 0 | 40 | 0 | 0 | 4 | cb_training,#unit__combat__squads,#unit__t120-retained-building-decisions
+WoundInflicted | 43 | 0 | 150 | 280 | 0 | 260 | 0 | 0 | 281 | 
+LimbLost | 0 | 0 | 6 | 16 | 0 | 5 | 0 | 0 | 3 | 
+CreatureUnconscious | 2 | 0 | 6 | 19 | 0 | 3 | 0 | 0 | 1 | 
+CreatureConscious | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | #unit__threats__caverns
+CreatureDied | 4 | 0 | 20 | 24 | 0 | 19 | 0 | 0 | 23 | 
+PatientAdmitted | 0 | 0 | 0 | 13 | 0 | 108 | 0 | 0 | 4 | 
+PatientDischarged | 0 | 0 | 0 | 2 | 0 | 104 | 0 | 0 | 1 | 
+PatientHealed | 0 | 0 | 0 | 2 | 0 | 5 | 0 | 0 | 2 | 
+InfectionStarted | 0 | 0 | 0 | 0 | 0 | 61 | 0 | 0 | 0 | he_infection
+InfectionCured | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | he_infection
+TreatmentDone | 0 | 0 | 0 | 0 | 0 | 10 | 0 | 0 | 0 | he_bandage,he_fracture,he_infection
+ThreatWarning | 0 | 0 | 3 | 6 | 0 | 3 | 0 | 0 | 0 | 
+RaidArrived | 2 | 3 | 13 | 32 | 0 | 39 | 0 | 0 | 5 | 
+RaidEnded | 1 | 3 | 8 | 32 | 0 | 22 | 0 | 0 | 13 | 
+ThiefSpotted | 1 | 3 | 1 | 13 | 0 | 10 | 0 | 0 | 0 | 
+ThiefEscaped | 0 | 3 | 11 | 121 | 0 | 1 | 0 | 0 | 3 | 
+AmbushSprung | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
+HostileSpawned | 3 | 3 | 35 | 147 | 0 | 65 | 0 | 0 | 22 | 
+MonsterSpawned | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
+MonsterEmerged | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | th_deep
+DeepStirred | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | th_deep
+HostileFled | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0 | 
+DoorBreakAttempt | 0 | 0 | 0 | 0 | 0 | 600 | 0 | 0 | 600 | th_troll_door,#unit__threats__ai
+RestlessRose | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | th_restless
+WebSpun | 4 | 335 | 335 | 670 | 0 | 1177 | 0 | 0 | 4 | 
+TrapTriggered | 0 | 0 | 0 | 0 | 0 | 4 | 0 | 0 | 5 | an_tame,df_cage,df_pattern_corridor,df_stone_fall,#unit__animals__taming,#unit__defense__defense
+TrapSpent | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 0 | 3 | an_tame,df_cage,df_stone_fall,#unit__animals__taming,#unit__defense__defense
+TrapJammed | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
+TrapRearmed | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
+CreatureCaged | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 2 | an_tame,df_cage,#unit__animals__taming
+MechanismTriggered | 0 | 0 | 0 | 0 | 0 | 9 | 0 | 0 | 5 | bd_bridge,bd_floodgate,df_pattern_drowning,df_pattern_gate,df_pattern_magma,df_pattern_pit
+CaravanArrived | 1 | 8 | 8 | 8 | 2 | 33 | 0 | 0 | 10 | 
+CaravanWaiting | 1 | 0 | 0 | 0 | 0 | 29 | 0 | 0 | 10 | 
+CaravanAtDepot | 0 | 8 | 8 | 8 | 2 | 4 | 0 | 0 | 0 | 
+CaravanDeparted | 0 | 8 | 8 | 8 | 2 | 24 | 0 | 0 | 5 | 
+CaravanLost | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | td_attack
+CaravanAttacked | 0 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 
+TradeCompleted | 0 | 8 | 0 | 7 | 0 | 2 | 0 | 0 | 0 | 
+TradeRefused | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 0 | 0 | td_offer,td_wood_penalty
+GiftGiven | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | td_offer
+ReputationChanged | 0 | 13 | 0 | 11 | 0 | 41 | 0 | 0 | 10 | 
+ImmigrantsArrived | 0 | 2 | 1 | 2 | 2 | 2 | 1 | 0 | 4 | 
+ImmigrationSkipped | 0 | 9 | 0 | 9 | 1 | 2 | 0 | 0 | 1 | 
+EntitiesMoved | 2093 | 229868 | 12556 | 121929 | 32561 | 49685 | 43 | 10259 | 4847 | 
+Fell | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | df_pattern_pit,he_fall
+DangerAnnounced | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
+
+NEVER by any recorded test (10): WorldGenerated, HuntAbandoned, FishPoolDepleted, DwarfNearSpring, LegendaryReached, AmbushSprung, MonsterSpawned, TrapJammed, TrapRearmed, DangerAnnounced
+NOT by a playthrough, but by a scenario/unit (42): CommandRejected, DeepsilverMined, CavernBreached, ConstructionCollapsed, MagmaContact, ItemMelted, ShrubRegrown, AnimalSpawned, AnimalLeft, GrassGrazed, AnimalTamed, AnimalTrained, HuntStarted, HuntKill, FishCaught, ButcheryDone, DwarfFeltMist, SawMasterwork, TitleAssigned, DwarfBecameAdult, ToolDropped, MasterworkCreated, DoorBroken, Buried, MechanismToggled, TrainingSession, CreatureConscious, InfectionStarted, InfectionCured, TreatmentDone, MonsterEmerged, DeepStirred, DoorBreakAttempt, RestlessRose, TrapTriggered, TrapSpent, CreatureCaged, MechanismTriggered, CaravanLost, TradeRefused, GiftGiven, Fell
+BY a playthrough: Embarked, HourPassed, DayPassed, SeasonChanged, YearPassed, TilesChanged, TilesDiscovered, VeinFound, MineralMined, TreeFelled, FluidsChanged, ObsidianFormed, CreatureSubmerged, TileFrozen, TileThawed, MistProduced, TemperatureTick, FireStarted, FireSpread, FireOut, BurnDamage, WeatherChanged, LightningStrike, SnowCoverChanged, SeasonEffectsChanged, CropPlanted, CropHarvested, CropDied, PlotNeedsSeeds, SaplingGrew, GrassRegrown, AnimalBorn, AnimalStarving, ProductReady, PetAdopted, MealEaten, DrankAlcohol, DrankWater, Slept, Talked, Sat, HearthVisited, DwarfOutdoorsIn, NeedCritical, Starving, Starvation, SkillLevelUp, DwarfIdle, JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked, JobUnblocked, ItemReserved, ItemReleased, ToolEquipped, ItemCrafted, WorkOrderCompleted, WorkshopBlocked, WorkshopIdle, ItemCreated, ItemDestroyed, ItemRotStage, ItemRotted, MiasmaSpread, StocksChanged, StockpileFull, WealthChanged, CorpseCreated, BuildingPlaced, BuildingCompleted, BuildingRemoved, BuildingStateChanged, ZoneChanged, RoomQualityChanged, RoomAssigned, HearthLit, MoodTierChanged, ThoughtGained, SulkHappened, HallSpiritChanged, AttackResolved, DamageDealt, ProjectileFired, CreatureFled, ThreatNearby, SquadOrderIssued, AlertChanged, KillRecorded, WoundInflicted, LimbLost, CreatureUnconscious, CreatureDied, PatientAdmitted, PatientDischarged, PatientHealed, ThreatWarning, RaidArrived, RaidEnded, ThiefSpotted, ThiefEscaped, HostileSpawned, HostileFled, WebSpun, CaravanArrived, CaravanWaiting, CaravanAtDepot, CaravanDeparted, CaravanAttacked, TradeCompleted, ReputationChanged, ImmigrantsArrived, ImmigrationSkipped, EntitiesMoved
+P:perf-fixtures: 57/168
+P:three_years_p0: 84/168
+P:three_years_p2: 85/168
+P:three_years_p4: 113/168
+P:year_one: 64/168
+any playthrough: 116/168
+
+## Recipes completed (ItemCrafted.recipeId)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+brew | 0 | 81 | 0 | 35 | 9 | 0 | 0 | 0 | 4
+brew_hopped | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+cook_easy_meal | 3 | 124 | 0 | 106 | 118 | 3 | 0 | 0 | 1
+cook_fine_meal | 0 | 47 | 0 | 33 | 0 | 0 | 0 | 0 | 1
+cook_lavish_meal | 0 | 166 | 0 | 52 | 0 | 0 | 0 | 0 | 1
+craft_bone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+craft_shell | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+craft_stone | 6 | 116 | 0 | 63 | 0 | 0 | 0 | 0 | 11
+craft_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+cut_gem | 0 | 9 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_anvil | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_arrows | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_barrel | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_battle_axe | 0 | 3 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+forge_bin | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_bolts | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_breastplate | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1
+forge_bucket | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_buckler | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_cabinet | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_cage | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_chain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_chair | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_chest | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_coffin | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_crafts | 0 | 32 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_crossbow | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_dagger | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+forge_door | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_floodgate | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_gauntlets | 0 | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_great_axe | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_greaves | 0 | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_hatch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_helm | 0 | 6 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+forge_mace | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_mail_shirt | 0 | 6 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+forge_maul | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_metal_block | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_metal_boots | 0 | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_mug | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_pick | 0 | 2 | 0 | 2 | 0 | 0 | 0 | 0 | 1
+forge_pike | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_shield | 0 | 6 | 0 | 5 | 0 | 0 | 0 | 0 | 1
+forge_short_sword | 0 | 5 | 0 | 3 | 0 | 0 | 0 | 0 | 1
+forge_spear | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_spikes | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_statue | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_table | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_warhammer | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_archery_target | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_armor_stand_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_arrows_bone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_arrows_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bag_cloth | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bag_leather | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bandages | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_barrel | 0 | 98 | 15 | 56 | 0 | 0 | 0 | 0 | 1
+make_bed | 8 | 19 | 7 | 19 | 0 | 101 | 0 | 0 | 1
+make_bin | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bolts_bone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bolts_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_boots_cloth | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_boots_leather | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bow | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bracers | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bucket | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_buckler_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_cabinet_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_cabinet_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_cage_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_cap | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_chair_stone | 0 | 21 | 0 | 21 | 0 | 0 | 0 | 0 | 1
+make_chair_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_charcoal | 0 | 210 | 0 | 59 | 0 | 1 | 0 | 0 | 1
+make_cheese | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+make_chest_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_chest_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_cloak | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_club | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_coffin_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_coffin_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_crossbow_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_crutch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_door_stone | 0 | 4 | 0 | 6 | 0 | 0 | 0 | 0 | 1
+make_door_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 7
+make_floodgate | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_gambeson | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_glowstone_lamp | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_hatch_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_hatch_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_leather_boots | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_leather_jerkin | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_leggings | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_mechanism | 5 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_mechanism_metal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_memorial_slab | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+make_mug_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_mug_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_nest_box | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_nest_box_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_quiver | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_rope | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_shield_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_sling | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_sling_stones | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_spike_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_splint | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_statue | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_stone_block | 12 | 23 | 0 | 20 | 2 | 0 | 0 | 0 | 1
+make_table_stone | 0 | 1 | 0 | 5 | 0 | 10 | 0 | 0 | 1
+make_table_wood | 0 | 9 | 6 | 9 | 0 | 0 | 0 | 0 | 1
+make_totem | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_training_axe | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_training_spear | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_training_sword | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_trousers | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_trousers_leather | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_tunic | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_tunic_leather | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_weapon_rack_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_wood_block | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+mill_flour | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+process_flax | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+process_sporecloth | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+render_fat | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+spin_thread | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+tan_hide | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+weave_cloth | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_limonite (not in table) | 0 | 8 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_hematite (not in table) | 0 | 59 | 0 | 11 | 0 | 2 | 0 | 0 | 1
+alloy_steel (not in table) | 0 | 15 | 0 | 0 | 0 | 1 | 0 | 0 | 1
+smelt_magnetite (not in table) | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1
+melt_metal_item (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4
+alloy_bismuth_bronze (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+alloy_brass (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+alloy_bronze (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+alloy_electrum (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_bismuthinite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_bituminous_coal (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_cassiterite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_deepsilver_ore (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_galena (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+smelt_lignite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_malachite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_native_copper (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_native_gold (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_native_platinum (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_native_silver (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_sphalerite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_tetrahedrite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+
+NEVER (0/129): 
+NOT by a playthrough (123): brew_hopped, craft_bone, craft_shell, craft_wood, forge_anvil, forge_arrows, forge_barrel, forge_bin, forge_bolts, forge_breastplate, forge_bucket, forge_buckler, forge_cabinet, forge_cage, forge_chain, forge_chair, forge_chest, forge_coffin, forge_crossbow, forge_dagger, forge_door, forge_floodgate, forge_great_axe, forge_hatch, forge_mace, forge_maul, forge_metal_block, forge_mug, forge_pike, forge_spear, forge_spikes, forge_statue, forge_table, forge_warhammer, make_archery_target, make_armor_stand_wood, make_arrows_bone, make_arrows_wood, make_bag_cloth, make_bag_leather, make_bandages, make_bin, make_bolts_bone, make_bolts_wood, make_boots_cloth, make_boots_leather, make_bow, make_bracers, make_bucket, make_buckler_wood, make_cabinet_stone, make_cabinet_wood, make_cage_wood, make_cap, make_chair_wood, make_cheese, make_chest_stone, make_chest_wood, make_cloak, make_club, make_coffin_stone, make_coffin_wood, make_crossbow_wood, make_crutch, make_door_wood, make_floodgate, make_gambeson, make_glowstone_lamp, make_hatch_stone, make_hatch_wood, make_leather_boots, make_leather_jerkin, make_leggings, make_mechanism_metal, make_memorial_slab, make_mug_stone, make_mug_wood, make_nest_box, make_nest_box_stone, make_quiver, make_rope, make_shield_wood, make_sling, make_sling_stones, make_spike_wood, make_splint, make_statue, make_totem, make_training_axe, make_training_spear, make_training_sword, make_trousers, make_trousers_leather, make_tunic, make_tunic_leather, make_weapon_rack_wood, make_wood_block, mill_flour, process_flax, process_sporecloth, render_fat, spin_thread, tan_hide, weave_cloth, smelt_magnetite, melt_metal_item, alloy_bismuth_bronze, alloy_brass, alloy_bronze, alloy_electrum, smelt_bismuthinite, smelt_bituminous_coal, smelt_cassiterite, smelt_deepsilver_ore, smelt_galena, smelt_lignite, smelt_malachite, smelt_native_copper, smelt_native_gold, smelt_native_platinum, smelt_native_silver, smelt_sphalerite, smelt_tetrahedrite
+BY a playthrough: brew, cook_easy_meal, cook_fine_meal, cook_lavish_meal, craft_stone, cut_gem, forge_battle_axe, forge_crafts, forge_gauntlets, forge_greaves, forge_helm, forge_mail_shirt, forge_metal_boots, forge_pick, forge_shield, forge_short_sword, make_barrel, make_bed, make_chair_stone, make_charcoal, make_door_stone, make_mechanism, make_stone_block, make_table_stone, make_table_wood
+by a playthrough: 25/129
+P:perf-fixtures: 5/129
+P:three_years_p0: 24/129
+P:three_years_p2: 3/129
+P:three_years_p4: 19/129
+P:year_one: 3/129
+
+## Work orders added (AddWorkOrder.recipeId)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+brew | 1 | 1 | 0 | 1 | 1 | 0 | 1 | 0 | 3
+brew_hopped | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+cook_easy_meal | 1 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 1
+cook_fine_meal | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+cook_lavish_meal | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+craft_bone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+craft_shell | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+craft_stone | 1 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 6
+craft_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+cut_gem | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 1 | 1
+forge_anvil | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_arrows | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+forge_barrel | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_battle_axe | 0 | 1 | 0 | 1 | 0 | 0 | 1 | 22 | 2
+forge_bin | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_bolts | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1
+forge_breastplate | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1
+forge_bucket | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_buckler | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_cabinet | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1
+forge_cage | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_chain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_chair | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1
+forge_chest | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_coffin | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_crafts | 0 | 2 | 0 | 2 | 0 | 0 | 0 | 0 | 1
+forge_crossbow | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_dagger | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+forge_door | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_floodgate | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_gauntlets | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+forge_great_axe | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_greaves | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+forge_hatch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_helm | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+forge_mace | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_mail_shirt | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+forge_maul | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_metal_block | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_metal_boots | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 1 | 1
+forge_mug | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_pick | 0 | 2 | 0 | 2 | 0 | 0 | 0 | 0 | 1
+forge_pike | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_shield | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+forge_short_sword | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+forge_spear | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_spikes | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_statue | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_table | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge_warhammer | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_archery_target | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+make_armor_stand_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_arrows_bone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_arrows_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bag_cloth | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bag_leather | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bandages | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1
+make_barrel | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 4
+make_bed | 1 | 1 | 1 | 1 | 0 | 2 | 0 | 0 | 7
+make_bin | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bolts_bone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bolts_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_boots_cloth | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_boots_leather | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bow | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bracers | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_bucket | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_buckler_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_cabinet_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_cabinet_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_cage_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_cap | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_chair_stone | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+make_chair_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_charcoal | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 0 | 1
+make_cheese | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+make_chest_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 1
+make_chest_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_cloak | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_club | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_coffin_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_coffin_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_crossbow_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_crutch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_door_stone | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+make_door_wood | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 10
+make_floodgate | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_gambeson | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_glowstone_lamp | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_hatch_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_hatch_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_leather_boots | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_leather_jerkin | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_leggings | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_mechanism | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_mechanism_metal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1
+make_memorial_slab | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 2
+make_mug_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_mug_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_nest_box | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_nest_box_stone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_quiver | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_rope | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_shield_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_sling | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_sling_stones | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_spike_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_splint | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_statue | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_stone_block | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 3
+make_table_stone | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 0 | 1
+make_table_wood | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 1
+make_totem | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_training_axe | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_training_spear | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_training_sword | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 1
+make_trousers | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_trousers_leather | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_tunic | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_tunic_leather | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_weapon_rack_wood | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+make_wood_block | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+mill_flour | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+process_flax | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+process_sporecloth | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+render_fat | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+spin_thread | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+tan_hide | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+weave_cloth | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_hematite (not in table) | 0 | 1 | 0 | 1 | 0 | 2 | 0 | 0 | 2
+smelt_limonite (not in table) | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+smelt_magnetite (not in table) | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 0 | 1
+alloy_steel (not in table) | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 0 | 1
+smelt_lignite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1
+smelt_tetrahedrite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1
+alloy_bismuth_bronze (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+alloy_brass (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+alloy_bronze (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+alloy_electrum (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+melt_metal_item (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_bismuthinite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_bituminous_coal (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_cassiterite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_deepsilver_ore (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_galena (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_malachite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_native_copper (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_native_gold (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_native_platinum (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_native_silver (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelt_sphalerite (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+
+NEVER (0/129): 
+NOT by a playthrough (122): brew_hopped, craft_bone, craft_shell, craft_wood, forge_anvil, forge_arrows, forge_barrel, forge_bin, forge_bolts, forge_breastplate, forge_bucket, forge_buckler, forge_cabinet, forge_cage, forge_chain, forge_chair, forge_chest, forge_coffin, forge_crossbow, forge_dagger, forge_door, forge_floodgate, forge_great_axe, forge_hatch, forge_mace, forge_maul, forge_metal_block, forge_mug, forge_pike, forge_spear, forge_spikes, forge_statue, forge_table, forge_warhammer, make_archery_target, make_armor_stand_wood, make_arrows_bone, make_arrows_wood, make_bag_cloth, make_bag_leather, make_bandages, make_bin, make_bolts_bone, make_bolts_wood, make_boots_cloth, make_boots_leather, make_bow, make_bracers, make_bucket, make_buckler_wood, make_cabinet_stone, make_cabinet_wood, make_cage_wood, make_cap, make_chair_wood, make_cheese, make_chest_stone, make_chest_wood, make_cloak, make_club, make_coffin_stone, make_coffin_wood, make_crossbow_wood, make_crutch, make_door_wood, make_floodgate, make_gambeson, make_glowstone_lamp, make_hatch_stone, make_hatch_wood, make_leather_boots, make_leather_jerkin, make_leggings, make_mechanism_metal, make_memorial_slab, make_mug_stone, make_mug_wood, make_nest_box, make_nest_box_stone, make_quiver, make_rope, make_shield_wood, make_sling, make_sling_stones, make_spike_wood, make_splint, make_statue, make_totem, make_training_axe, make_training_spear, make_training_sword, make_trousers, make_trousers_leather, make_tunic, make_tunic_leather, make_weapon_rack_wood, make_wood_block, mill_flour, process_flax, process_sporecloth, render_fat, spin_thread, tan_hide, weave_cloth, smelt_lignite, smelt_tetrahedrite, alloy_bismuth_bronze, alloy_brass, alloy_bronze, alloy_electrum, melt_metal_item, smelt_bismuthinite, smelt_bituminous_coal, smelt_cassiterite, smelt_deepsilver_ore, smelt_galena, smelt_malachite, smelt_native_copper, smelt_native_gold, smelt_native_platinum, smelt_native_silver, smelt_sphalerite
+BY a playthrough: brew, cook_easy_meal, cook_fine_meal, cook_lavish_meal, craft_stone, cut_gem, forge_battle_axe, forge_crafts, forge_gauntlets, forge_greaves, forge_helm, forge_mail_shirt, forge_metal_boots, forge_pick, forge_shield, forge_short_sword, make_barrel, make_bed, make_chair_stone, make_charcoal, make_door_stone, make_mechanism, make_stone_block, make_table_stone, make_table_wood
+by a playthrough: 25/129
+P:perf-fixtures: 6/129
+P:three_years_p0: 24/129
+P:three_years_p2: 3/129
+P:three_years_p4: 24/129
+P:year_one: 3/129
+
+## Buildings completed (BuildingCompleted.buildingType)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+archery_target | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+armor_stand | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+bed | 99 | 14 | 0 | 14 | 0 | 107 | 1 | 0 | 30
+bowyer | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5
+butcher | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 2
+cabinet | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+cage_building | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3
+cage_trap | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 2
+carpenter | 1 | 1 | 1 | 1 | 1 | 4 | 2 | 22 | 54
+chain_post | 100 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+chair | 100 | 9 | 0 | 9 | 0 | 8 | 0 | 0 | 3
+chest | 0 | 0 | 0 | 0 | 0 | 4 | 0 | 0 | 2
+clothier | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 10
+coffin | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 0 | 2
+craftdwarf | 1 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 17
+door | 0 | 0 | 0 | 2 | 0 | 6 | 1 | 0 | 22
+drawbridge | 0 | 0 | 0 | 0 | 0 | 4 | 0 | 0 | 4
+farmers_workshop | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 11
+floodgate_building | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 0 | 1
+floor | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+forge | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 0 | 43
+fortification | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 0
+hatch | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 2
+hearth | 0 | 1 | 0 | 1 | 1 | 9 | 0 | 15 | 22
+jeweler | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 3
+kennel | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 3
+kitchen | 1 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 7
+leatherworks | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 12
+lever | 0 | 0 | 0 | 0 | 0 | 6 | 0 | 34 | 7
+loom | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5
+magma_forge | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+magma_kiln | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+magma_smelter | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1
+mason | 1 | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 16
+mechanic | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4
+memorial_slab | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+nest_box | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3
+paved_floor | 100 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+pressure_plate | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 3
+ramp | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+smelter | 0 | 1 | 0 | 1 | 0 | 2 | 0 | 0 | 31
+spike_trap | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+stairs_down | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+stairs_up | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+stairs_updown | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+statue | 100 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 1
+still | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 9
+stone_fall_trap | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 34 | 2
+table | 100 | 3 | 0 | 3 | 0 | 4 | 0 | 0 | 7
+tannery | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3
+trade_depot | 0 | 1 | 1 | 1 | 1 | 5 | 1 | 22 | 1
+wagon | 2 | 1 | 1 | 1 | 1 | 121 | 9 | 38 | 64
+wall | 0 | 3 | 0 | 6 | 0 | 4 | 0 | 41 | 9
+weapon_rack | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+weapon_trap | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1
+well | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+wood_furnace | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 0 | 1
+
+NEVER (7/57): armor_stand, magma_kiln, ramp, stairs_down, stairs_up, stairs_updown, weapon_rack
+NOT by a playthrough (29): archery_target, bowyer, butcher, cabinet, cage_building, cage_trap, chest, clothier, coffin, drawbridge, farmers_workshop, floodgate_building, floor, fortification, hatch, kennel, leatherworks, lever, loom, magma_forge, magma_smelter, memorial_slab, nest_box, pressure_plate, spike_trap, stone_fall_trap, tannery, weapon_trap, well
+BY a playthrough: bed, carpenter, chain_post, chair, craftdwarf, door, forge, hearth, jeweler, kitchen, mason, mechanic, paved_floor, smelter, statue, still, table, trade_depot, wagon, wall, wood_furnace
+by a playthrough: 21/57
+P:perf-fixtures: 13/57
+P:three_years_p0: 16/57
+P:three_years_p2: 3/57
+P:three_years_p4: 17/57
+P:year_one: 7/57
+
+## Buildings placed by command (PlaceBuilding.buildingType)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+archery_target | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 2
+armor_stand | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+bed | 99 | 14 | 0 | 14 | 0 | 107 | 1 | 0 | 42
+bowyer | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5
+butcher | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 2 | 3
+cabinet | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1
+cage_building | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5
+cage_trap | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 2
+carpenter | 1 | 1 | 1 | 1 | 1 | 4 | 2 | 28 | 58
+chain_post | 100 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3
+chair | 100 | 9 | 0 | 9 | 0 | 8 | 0 | 0 | 3
+chest | 0 | 0 | 0 | 0 | 0 | 4 | 0 | 0 | 3
+clothier | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 10
+coffin | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 1 | 3
+craftdwarf | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 17
+door | 0 | 0 | 0 | 2 | 0 | 6 | 1 | 0 | 33
+drawbridge | 0 | 0 | 0 | 0 | 0 | 4 | 1 | 0 | 5
+farmers_workshop | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 11
+floodgate_building | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 0 | 3
+floor | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 3
+forge | 0 | 1 | 1 | 1 | 0 | 1 | 0 | 0 | 44
+fortification | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 1
+hatch | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 4
+hearth | 0 | 1 | 0 | 1 | 1 | 9 | 1 | 16 | 24
+jeweler | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 3
+kennel | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 3
+kitchen | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 7
+leatherworks | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 12
+lever | 0 | 0 | 0 | 0 | 0 | 6 | 0 | 34 | 7
+loom | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5
+magma_forge | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+magma_kiln | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+magma_smelter | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 2
+mason | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 16
+mechanic | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4
+memorial_slab | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+nest_box | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4
+paved_floor | 100 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+pressure_plate | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 3
+ramp | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smelter | 0 | 1 | 1 | 1 | 0 | 2 | 0 | 1 | 31
+spike_trap | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+stairs_down | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+stairs_up | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+stairs_updown | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+statue | 100 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 4
+still | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 2 | 10
+stone_fall_trap | 0 | 0 | 0 | 0 | 0 | 2 | 1 | 34 | 2
+table | 100 | 3 | 0 | 3 | 0 | 4 | 0 | 0 | 7
+tannery | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3
+trade_depot | 0 | 1 | 1 | 1 | 1 | 5 | 1 | 22 | 3
+wagon | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+wall | 0 | 3 | 0 | 6 | 0 | 5 | 1 | 34 | 17
+weapon_rack | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+weapon_trap | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1
+well | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+wood_furnace | 0 | 1 | 1 | 1 | 0 | 1 | 0 | 0 | 1
+
+NEVER (4/57): armor_stand, magma_kiln, wagon, weapon_rack
+NOT by a playthrough (33): archery_target, bowyer, butcher, cabinet, cage_building, cage_trap, chest, clothier, coffin, drawbridge, farmers_workshop, floodgate_building, floor, fortification, hatch, kennel, leatherworks, lever, loom, magma_forge, magma_smelter, memorial_slab, nest_box, pressure_plate, ramp, spike_trap, stairs_down, stairs_up, stairs_updown, stone_fall_trap, tannery, weapon_trap, well
+BY a playthrough: bed, carpenter, chain_post, chair, craftdwarf, door, forge, hearth, jeweler, kitchen, mason, mechanic, paved_floor, smelter, statue, still, table, trade_depot, wall, wood_furnace
+by a playthrough: 20/57
+P:perf-fixtures: 12/57
+P:three_years_p0: 15/57
+P:three_years_p2: 10/57
+P:three_years_p4: 16/57
+P:year_one: 6/57
+
+## Job types completed (JobCompleted.jobType)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+bandage_animal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+build | 0 | 40 | 2 | 45 | 6 | 9 | 0 | 20 | 10
+bury | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 0
+butcher | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 1
+carry_patient | 0 | 0 | 0 | 6 | 0 | 0 | 0 | 0 | 0
+carve_ramp | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+carve_stairs | 0 | 11 | 0 | 11 | 4 | 3 | 0 | 0 | 0
+channel | 0 | 0 | 0 | 0 | 0 | 17 | 0 | 55 | 8
+chop | 0 | 300 | 210 | 82 | 0 | 0 | 0 | 0 | 1
+clean_trap | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+clean_wound | 0 | 0 | 0 | 0 | 0 | 6 | 0 | 0 | 0
+collect_egg | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+craft | 34 | 1088 | 28 | 508 | 129 | 120 | 0 | 0 | 174
+deconstruct | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3
+diagnose | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 0
+dig | 0 | 914 | 0 | 439 | 41 | 918 | 0 | 0 | 47
+dress_burn | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+engrave | 0 | 99 | 0 | 1 | 0 | 0 | 0 | 0 | 1
+feed_patient | 0 | 0 | 0 | 2 | 0 | 1 | 0 | 0 | 0
+fish | 0 | 0 | 0 | 0 | 0 | 30 | 0 | 0 | 0
+gather | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+give_crutch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+harvest | 0 | 353 | 10 | 160 | 77 | 10 | 0 | 0 | 0
+haul_to_depot | 0 | 182 | 0 | 78 | 0 | 7 | 1 | 6 | 0
+haul_to_dump | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+haul_to_stockpile | 66 | 162 | 81 | 114 | 197 | 30 | 0 | 31 | 14
+hunt | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+link_mechanism | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4
+milk_animal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+plant | 10 | 403 | 20 | 203 | 103 | 10 | 0 | 0 | 0
+pull_lever | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 0 | 1
+rearm_trap | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+remove_construction | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+set_bone | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+shear_animal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+slaughter | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+smooth | 0 | 345 | 0 | 385 | 0 | 0 | 0 | 0 | 1
+stop_bleeding | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+strip_corpse | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 2
+suture | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+tame_animal | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 1
+trade | 0 | 8 | 1 | 8 | 0 | 3 | 0 | 0 | 0
+train_animal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+water_patient | 0 | 0 | 0 | 2 | 0 | 2 | 0 | 0 | 0
+
+NEVER (7/44): bandage_animal, carve_ramp, clean_trap, dress_burn, give_crutch, rearm_trap, suture
+NOT by a playthrough (21): bury, butcher, channel, clean_wound, collect_egg, deconstruct, diagnose, fish, gather, haul_to_dump, hunt, link_mechanism, milk_animal, pull_lever, remove_construction, set_bone, shear_animal, slaughter, stop_bleeding, tame_animal, train_animal
+BY a playthrough: build, carry_patient, carve_stairs, chop, craft, dig, engrave, feed_patient, harvest, haul_to_depot, haul_to_stockpile, plant, smooth, strip_corpse, trade, water_patient
+by a playthrough: 16/44
+P:perf-fixtures: 3/44
+P:three_years_p0: 12/44
+P:three_years_p2: 7/44
+P:three_years_p4: 16/44
+P:year_one: 7/44
+
+## Zone types created by command (CreateZone.zoneType)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+archery_range | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0
+barracks | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 10
+bedroom | 15 | 14 | 0 | 14 | 0 | 3 | 1 | 1 | 30
+dining_hall | 15 | 1 | 0 | 1 | 0 | 0 | 0 | 3 | 5
+dump | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+farm_plot | 1 | 3 | 1 | 3 | 2 | 4 | 1 | 31 | 7
+fishing | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+gather | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+hearth_hall | 0 | 1 | 0 | 1 | 0 | 4 | 0 | 2 | 3
+hospital | 0 | 0 | 0 | 0 | 0 | 3 | 1 | 34 | 4
+meeting_area | 15 | 2 | 1 | 2 | 1 | 0 | 0 | 1 | 3
+pasture | 0 | 1 | 1 | 1 | 0 | 2 | 0 | 31 | 1
+stockpile | 17 | 4 | 2 | 4 | 1 | 12 | 2 | 7 | 51
+tomb | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 1 | 2
+
+NEVER (0/14): 
+NOT by a playthrough (7): archery_range, barracks, dump, fishing, gather, hospital, tomb
+BY a playthrough: bedroom, dining_hall, farm_plot, hearth_hall, meeting_area, pasture, stockpile
+by a playthrough: 7/14
+P:perf-fixtures: 5/14
+P:three_years_p0: 7/14
+P:three_years_p2: 4/14
+P:three_years_p4: 7/14
+P:year_one: 3/14
+
+## Designation kinds (Designate.kind)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+chop (not in table) | 0 | 3 | 3 | 2 | 0 | 2 | 0 | 3 | 3
+dig (not in table) | 0 | 8 | 7 | 7 | 2 | 110 | 2 | 1 | 27
+smooth (not in table) | 0 | 16 | 0 | 16 | 0 | 2 | 0 | 1 | 1
+engrave (not in table) | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 2 | 1
+stairs_up (not in table) | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 1 | 0
+channel (not in table) | 0 | 0 | 0 | 0 | 0 | 4 | 2 | 10 | 6
+stairs_down (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 1
+stairs_updown (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 2
+remove (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0
+1 (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2
+
+## Thought events (ThoughtGained.thoughtId)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+admired_statue | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+argued | 0 | 30 | 8 | 4 | 0 | 20 | 0 | 0 | 28
+ate_easy_meal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+ate_fine_meal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+ate_in_bare_hall | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+ate_in_decent_hall | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+ate_in_fine_hall | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+ate_in_grand_hall | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+ate_in_royal_hall | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+ate_lavish_meal | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+ate_raw_food | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+ate_stale_food | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+bedridden | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+bitter_cold | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+bored | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+buried_friend | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+came_of_age | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+caravan_arrived | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+caught_in_rain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+caught_in_storm | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+child_died | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+deep_stirred_dread | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+drank_ale | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+drank_fine_drink | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+drank_from_puddle | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+drank_water | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+dwarf_died | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+felt_mist | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+finished_big_job | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+first_vein | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+friend_died | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+got_it_out | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+harvest_in | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+healed | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+hearth_lit | 0 | 7 | 0 | 9 | 7 | 7 | 0 | 0 | 15
+hearth_visit | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+hoarded | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+hungry | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+immigrants_arrived | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+in_miasma | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+in_pain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+killed_hostile | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+legendary | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+lonely | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+lost_limb | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+made_fine_item | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+made_masterwork | 0 | 0 | 0 | 0 | 0 | 84 | 0 | 0 | 0
+masterwork_lost | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+memorial_placed | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+new_hearth_hall_tier | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+no_bedroom | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+pet_died | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+raid_arrived | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+raid_repelled | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+restless | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+sat_in_fine_room | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+saw_death | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+saw_hostile | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+saw_masterwork | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+saw_sunlight | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+skill_milestone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+slept_in_bare_room | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+slept_in_decent_room | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+slept_in_fine_room | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+slept_in_grand_room | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+slept_in_modest_room | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+slept_in_royal_room | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+slept_in_shared_bed_room | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+slept_on_floor | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+slept_on_floor_last_night | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+slept_outdoors | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+snowed_on | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+sweltering | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+talked_with_friend | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+talked_with_someone | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+thane_hall_bare | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+thane_hall_grand | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+thief_escaped_with_my_things | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+thirsty | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+tired | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+unburied_dead | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+unclothed | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+uncomfortable | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+warm_spring | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+was_wounded | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+well_rested | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+wept | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+
+NEVER (84/87): admired_statue, ate_easy_meal, ate_fine_meal, ate_in_bare_hall, ate_in_decent_hall, ate_in_fine_hall, ate_in_grand_hall, ate_in_royal_hall, ate_lavish_meal, ate_raw_food, ate_stale_food, bedridden, bitter_cold, bored, buried_friend, came_of_age, caravan_arrived, caught_in_rain, caught_in_storm, child_died, deep_stirred_dread, drank_ale, drank_fine_drink, drank_from_puddle, drank_water, dwarf_died, felt_mist, finished_big_job, first_vein, friend_died, got_it_out, harvest_in, healed, hearth_visit, hoarded, hungry, immigrants_arrived, in_miasma, in_pain, killed_hostile, legendary, lonely, lost_limb, made_fine_item, masterwork_lost, memorial_placed, new_hearth_hall_tier, no_bedroom, pet_died, raid_arrived, raid_repelled, restless, sat_in_fine_room, saw_death, saw_hostile, saw_masterwork, saw_sunlight, skill_milestone, slept_in_bare_room, slept_in_decent_room, slept_in_fine_room, slept_in_grand_room, slept_in_modest_room, slept_in_royal_room, slept_in_shared_bed_room, slept_on_floor, slept_on_floor_last_night, slept_outdoors, snowed_on, sweltering, talked_with_friend, talked_with_someone, thane_hall_bare, thane_hall_grand, thief_escaped_with_my_things, thirsty, tired, unburied_dead, unclothed, uncomfortable, warm_spring, was_wounded, well_rested, wept
+NOT by a playthrough (1): made_masterwork
+BY a playthrough: argued, hearth_lit
+by a playthrough: 2/87
+P:perf-fixtures: 0/87
+P:three_years_p0: 2/87
+P:three_years_p2: 1/87
+P:three_years_p4: 2/87
+P:year_one: 1/87
+
+## Raid kinds (RaidArrived.kind)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+thief (not in table) | 1 | 3 | 6 | 17 | 0 | 25 | 0 | 0 | 3
+bandits (not in table) | 1 | 0 | 2 | 2 | 0 | 5 | 0 | 0 | 1
+ambush (not in table) | 0 | 0 | 3 | 7 | 0 | 2 | 0 | 0 | 0
+raid (not in table) | 0 | 0 | 2 | 5 | 0 | 6 | 0 | 0 | 1
+siege (not in table) | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0
+- (not in table) | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+
+## Raid outcomes (RaidEnded.outcome)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+withdrew (not in table) | 1 | 3 | 1 | 13 | 0 | 7 | 0 | 0 | 3
+looted (not in table) | 0 | 0 | 7 | 19 | 0 | 14 | 0 | 0 | 2
+repelled (not in table) | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 3
+wiped (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5
+
+## Threat warnings
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+raid (not in table) | 0 | 0 | 3 | 5 | 0 | 3 | 0 | 0 | 0
+siege (not in table) | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0
+
+## Creature deaths (faction)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+hostile:cavern (not in table) | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+fortress (not in table) | 3 | 0 | 20 | 13 | 0 | 9 | 0 | 0 | 15
+hostile:gloam (not in table) | 0 | 0 | 0 | 11 | 0 | 3 | 0 | 0 | 4
+hostile:trollkin (not in table) | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+wild (not in table) | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+- (not in table) | 0 | 0 | 0 | 0 | 0 | 4 | 0 | 0 | 3
+trader:hillfolk (not in table) | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+
+## Treatments
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+stop_bleeding (not in table) | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+diagnose (not in table) | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 0
+set_bone (not in table) | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+clean_wound (not in table) | 0 | 0 | 0 | 0 | 0 | 6 | 0 | 0 | 0
+
+## Wounds
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+WoundInflicted (not in table) | 43 | 0 | 150 | 280 | 0 | 260 | 0 | 0 | 281
+
+## Traps triggered
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+cage (not in table) | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 2
+weapon (not in table) | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1
+stone_fall (not in table) | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 1
+spike (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+
+## Crops planted
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+ash | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+barley | 10 | 53 | 20 | 27 | 23 | 0 | 0 | 0 | 0
+birch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+bramble | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+brightleaf | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+cabbage | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+cavewheat | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+cavewheat_patch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+dimcap | 0 | 340 | 0 | 165 | 80 | 10 | 0 | 0 | 0
+dimcap_patch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+flax | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+frostberry | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+hops | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+maple | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+nutbush | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+oak | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+pale_bell | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+pale_bell_patch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+pine | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+pumpkin | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+sporecloth | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+sporecloth_patch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+stalk_fern | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+strawberry | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+sunfruit | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+sweetroot | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+sweetroot_patch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+tower_shroom | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+turnip | 0 | 10 | 0 | 11 | 0 | 0 | 0 | 0 | 0
+wild_barley | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+wild_flax | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+wild_strawberry | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+willow | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+yew | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+
+NEVER (31/34): ash, birch, bramble, brightleaf, cabbage, cavewheat, cavewheat_patch, dimcap_patch, flax, frostberry, hops, maple, nutbush, oak, pale_bell, pale_bell_patch, pine, pumpkin, sporecloth, sporecloth_patch, stalk_fern, strawberry, sunfruit, sweetroot, sweetroot_patch, tower_shroom, wild_barley, wild_flax, wild_strawberry, willow, yew
+NOT by a playthrough (0): 
+BY a playthrough: barley, dimcap, turnip
+by a playthrough: 3/34
+P:perf-fixtures: 1/34
+P:three_years_p0: 3/34
+P:three_years_p2: 1/34
+P:three_years_p4: 3/34
+P:year_one: 2/34
+
+## Caravans
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+hillfolk (not in table) | 1 | 3 | 3 | 3 | 1 | 18 | 0 | 0 | 7
+wildwood (not in table) | 0 | 3 | 3 | 3 | 1 | 10 | 0 | 0 | 2
+mountainhome (not in table) | 0 | 2 | 2 | 2 | 0 | 5 | 0 | 0 | 1
+
+## Alert levels (SetAlert)
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+hearth (not in table) | 0 | 0 | 2 | 14 | 0 | 2 | 0 | 3 | 11
+calm (not in table) | 0 | 0 | 1 | 14 | 0 | 0 | 0 | 6 | 3
+watchful (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3 | 1
+
+## Squad orders
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+station (not in table) | 0 | 0 | 2 | 14 | 0 | 0 | 0 | 0 | 1
+cancel (not in table) | 0 | 0 | 1 | 14 | 0 | 0 | 0 | 0 | 1
+kill (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+
+## Weather
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+overcast (not in table) | 1 | 104 | 119 | 116 | 41 | 1453 | 1 | 0 | 193
+rain (not in table) | 0 | 86 | 98 | 99 | 31 | 1138 | 5 | 0 | 179
+clear (not in table) | 0 | 102 | 92 | 96 | 35 | 1168 | 4 | 0 | 153
+fog (not in table) | 0 | 15 | 25 | 31 | 9 | 485 | 0 | 0 | 44
+snow (not in table) | 0 | 25 | 31 | 26 | 6 | 214 | 0 | 0 | 12
+storm (not in table) | 0 | 0 | 20 | 26 | 0 | 214 | 0 | 0 | 0
+cold_snap (not in table) | 0 | 0 | 0 | 0 | 0 | 38 | 0 | 0 | 0
+heatwave (not in table) | 0 | 0 | 0 | 0 | 0 | 13 | 0 | 0 | 0
+
+## Sulks
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+day_off (not in table) | 0 | 2 | 0 | 6 | 0 | 14 | 0 | 0 | 15
+argue (not in table) | 0 | 15 | 4 | 2 | 0 | 16 | 0 | 0 | 14
+weep (not in table) | 0 | 0 | 6 | 0 | 0 | 1 | 0 | 0 | 4
+break (not in table) | 0 | 0 | 6 | 1 | 0 | 1 | 0 | 0 | 15
+hoard (not in table) | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0
+
+## Immigration skipped reasons
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+spirit (not in table) | 0 | 9 | 0 | 9 | 1 | 1 | 0 | 0 | 0
+cap (not in table) | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0
+luck (not in table) | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1
+
+## Minerals mined
+id | P:perf-fixtures | P:three_years_p0 | P:three_years_p2 | P:three_years_p4 | P:year_one | S:scenarios | U:golden | U:property | U:unit
+bituminous_coal (not in table) | 0 | 25 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+quartz (not in table) | 0 | 9 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+limonite (not in table) | 0 | 9 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+hematite (not in table) | 0 | 91 | 0 | 21 | 0 | 0 | 0 | 0 | 4
+lignite (not in table) | 0 | 4 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+galena (not in table) | 0 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0
+deepsilver_ore (not in table) | 0 | 0 | 0 | 0 | 0 | 6 | 0 | 0 | 0
+
+## Rejections in playthroughs
+P:perf-fixtures: {}
+P:three_years_p0: {"AssignPasture:not_tame":3,"PlaceBuilding:bad_placement":1442,"PlaceBuilding:footprint_blocked":1430,"Designate:precondition_failed":1,"SetJobPriority:precondition_failed":1}
+P:three_years_p2: {"AssignPasture:not_tame":3,"SetJobPriority:precondition_failed":35}
+P:three_years_p4: {"AssignPasture:not_tame":3,"Designate:precondition_failed":1,"SetJobPriority:precondition_failed":1}
+P:year_one: {}
+
+## Creature deaths in playthroughs (faction/cause/species index)
+P:perf-fixtures: {"CreatureDied:hostile:cavern/drowned/45":1,"CreatureDied:fortress/killed/6":1,"CreatureDied:fortress/bled_out/14":2}
+P:three_years_p0: {}
+P:three_years_p2: {"CreatureDied:fortress/starvation/15":10,"CreatureDied:fortress/killed/6":1,"CreatureDied:fortress/killed/14":3,"CreatureDied:fortress/bled_out/14":6}
+P:three_years_p4: {"CreatureDied:fortress/starvation/15":2,"CreatureDied:fortress/killed/15":6,"CreatureDied:fortress/bled_out/15":4,"CreatureDied:hostile:gloam/bled_out/25":4,"CreatureDied:hostile:gloam/bled_out/22":2,"CreatureDied:hostile:gloam/killed/22":2,"CreatureDied:hostile:gloam/burnt/22":1,"CreatureDied:hostile:gloam/burnt/25":2,"CreatureDied:fortress/burnt/15":1}
+P:year_one: {}

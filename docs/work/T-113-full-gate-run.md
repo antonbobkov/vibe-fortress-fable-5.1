@@ -1,10 +1,12 @@
 # T-113 — A full gate run on the restructured repository
 
-**Source:** the owner, 2026-10-06; T-101 rewrote `scripts/gate.mjs` and only exercised `--where` and its argument validation · **Size:** S · **Needs:** U-02, U-07, F-17, T-103 … T-112 · **Status:** open
+**Source:** the owner, 2026-10-06; T-101 rewrote `scripts/gate.mjs` and only exercised `--where` and its argument validation · **Size:** S · **Needs:** T-140 … T-145 · **Status:** open
 
 ## Why
 
 The last full gate was the v1.0.0 release gate ([`../../reports/gates/M8-gate.md`](../../reports/gates/M8-gate.md)). Since then the UI fixes, the balance fixes and the docs restructure have landed, and the gate script itself was rewritten: it takes a label, writes `reports/gates/<label>-gate.md`, always runs the build and the performance tier, and adds `docs:check`. Nobody has run it end to end since.
+
+**Order changed, orchestrator, 2026-10-08.** The gate's performance tier runs the 20-seed balance sweep, and [the T-123 diagnosis](../../reports/audits/2026-10-08-economy-at-default-priority.md) shows that sweep cannot pass until the walking-speed and fixture tasks land. So the audits T-114 to T-116 no longer wait for the gate, and the gate runs after T-140 to T-145.
 
 ## What to do
 

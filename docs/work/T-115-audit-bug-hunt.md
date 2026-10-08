@@ -1,6 +1,6 @@
 # T-115 — Audit: bug hunt
 
-**Source:** the owner, 2026-10-06 (the second of three audit/fix loops) · **Size:** L · **Needs:** T-114 and the fix tasks it produces · **Status:** open
+**Source:** the owner, 2026-10-06 (the second of three audit/fix loops) · **Size:** L · **Needs:** — (order changed 2026-10-08: the bug hunt runs in parallel with the T-150 … T-157 coverage tasks, so that night-time strong-model hours are not left idle; it writes its own probes where a playthrough is missing) · **Status:** open
 
 **Who:** an Opus subagent, or Codex on `gpt-6-astra` at high effort. Not Gemini ([`../../agents/README.md`](../../agents/README.md)).
 

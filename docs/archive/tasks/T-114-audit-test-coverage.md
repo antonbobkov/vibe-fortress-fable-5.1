@@ -1,8 +1,10 @@
 # T-114 — Audit: do the scripted playthroughs cover the game's major features?
 
-**Source:** the owner, 2026-10-06 (the first of three audit/fix loops) · **Size:** M · **Needs:** T-113 · **Status:** open
+Closed by `T-114: audit of playthrough coverage`. The report is [`reports/audits/2026-10-08-playthrough-coverage.md`](../../../reports/audits/2026-10-08-playthrough-coverage.md); its follow-ups are T-150 to T-157.
 
-**Who:** an Opus subagent, or Codex on `gpt-6-astra` at high effort. Not Gemini ([`../../agents/README.md`](../../agents/README.md)).
+**Source:** the owner, 2026-10-06 (the first of three audit/fix loops) · **Size:** M · **Needs:** — · **Status:** open
+
+**Who:** an Opus subagent, or Codex on `gpt-6-astra` at high effort. Not Gemini ([`../../agents/README.md`](../../../agents/README.md)).
 
 ## Why
 
@@ -39,10 +41,10 @@ A new dated report, `reports/audits/<YYYY-MM-DD>-playthrough-coverage.md`:
 
 ## Follow-up
 
-For each recommended addition worth doing, add a `T-1nn` row to [`../backlog.md`](../backlog.md) with this report as its source, and a work file. Those fix tasks run before T-115 starts, so that the bug hunt has the new playthroughs to use.
+For each recommended addition worth doing, add a `T-1nn` row to [`../backlog.md`](../../backlog.md) with this report as its source, and a work file. Those fix tasks run before T-115 starts, so that the bug hunt has the new playthroughs to use.
 
 ## Done
 
 - The report exists; every system, panel and command appears in its table.
 - The follow-up rows are in the backlog.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
