@@ -1,0 +1,69 @@
+/* T-115 scratch: what a buried dwarf's worn items become; what a deconstructed workshop's order job becomes. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs/reader';
+import { TestWorld } from '../test/scenarios/test-world';
+import { Probe } from './invariants';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const Z = 32;
+
+describe('T-115 probe: burial and deconstruction', () => {
+  it('worn items of a buried dwarf', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const w = new TestWorld({ seed: 't115-burial', world: 'flat-test', embark: 'none' });
+    const ent = w.game.world.entities;
+    const items = w.readers.of<ItemsReader>('13');
+    const item = (id: number): string => { const it = ent.get(id, C.Item); const p = ent.get(id, C.Position);
+      return it ? `${w.game.registry.table<{ id: string }>('items').byIndex(it.type)?.id} ${id} flags=${it.flags} ownerId=${it.ownerId} carriedBy=${it.carriedBy} (carrier alive: ${ent.alive(it.carriedBy)}) pos=${p ? `${p.x},${p.y},${p.z}` : 'none'} tileOf=${items.tileOf(id)}` : `item ${id} GONE`; };
+    const victim = w.spawnDwarf({ at: w.index(40, 40, Z) });
+    w.spawnDwarf({ at: w.index(41, 40, Z) });
+    w.build('coffin', w.index(43, 40, Z), 'granite');
+    w.zone('tomb', [w.index(43, 40, Z), w.index(44, 40, Z)]);
+    w.step(2);
+    const eq = ent.get(victim, C.Equipment)!;
+    const worn = [eq.weapon, eq.shield, eq.quiver, ...Object.values(eq.armor), ...Object.values(eq.clothing)].filter((x) => x !== 0);
+    log.push(`victim ${victim} wears: ${worn.map(item).join(' | ')}`);
+    const stockBefore = ['tunic', 'trousers', 'boots'].map((t) => `${t} total ${items.count(t)}`).join(', ');
+    const wealthBefore = items.wealth();
+    const hp = ent.get(victim, C.Body)!.parts[1]!.maxHp;
+    w.game.world.emit({ type: 'DamageDealt', defenderId: victim, attackerId: 0, part: 'torso', damageType: 'blunt', amount: hp * 2 });
+    w.until(() => w.events('Buried').some((e) => e['dwarfId'] === victim), 3000);
+    w.step(5);
+    log.push(`buried at tick ${w.tick}; corpses left: ${ent.with(C.Corpse).length}`);
+    log.push(`worn items now: ${worn.map(item).join(' | ')}`);
+    log.push(`stock before: ${stockBefore}; now: ${['tunic', 'trousers', 'boots'].map((t) => `${t} total ${items.count(t)}`).join(', ')}; wealth before ${wealthBefore}, now ${items.wealth()}`);
+    w.step(20 * TICKS_PER_DAY);
+    log.push(`20 days later: ${worn.map(item).join(' | ')}`);
+    const p = new Probe('after burial'); p.check(w.game); log.push(p.report());
+    writeFileSync(`${OUT}/death3-burial.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 600_000);
+
+  it('order job of a deconstructed workshop', () => {
+    const log: string[] = [];
+    const w = new TestWorld({ seed: 't115-decon', world: 'flat-test', embark: 'default' });
+    const ent = w.game.world.entities;
+    const jobs = w.readers.of<JobsReader>('11');
+    const ws = w.build('carpenter', w.index(15, 15, Z));
+    for (let k = 0; k < 6; k += 1) { w.spawnItem('easy_meal', 'dimcap', w.index(34 + k, 34, Z), 60); w.spawnItem('drink', 'ale', w.index(34 + k, 35, Z), 60); }
+    w.step(1);
+    // an order with no wood on the map: its job stays without inputs
+    log.push(`AddWorkOrder: ${JSON.stringify(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: ws, order: { recipeId: 'make_bed', mode: 'once', remaining: 3, threshold: 0, priority: 5 } }))}`);
+    w.step(60);
+    const list = (): string => jobs.list().filter((j) => j.target.ref === ws || ['craft', 'deconstruct'].includes(jobs.typeOf(j.id) ?? '')).map((j) => `${j.id}:${jobs.typeOf(j.id)}:${j.state}:${j.blockedReason}:target ${j.target.kind} ${j.target.ref} alive=${ent.alive(j.target.ref)}`).join(' ; ');
+    log.push(`before: ${list()}`);
+    log.push(`DeconstructBuilding: ${JSON.stringify(w.game.world.applyCommand({ type: 'DeconstructBuilding', buildingId: ws }))}`);
+    let n = 0;
+    while (ent.alive(ws) && n < 5 * TICKS_PER_DAY) { w.step(1); n += 1; }
+    log.push(`workshop alive=${ent.alive(ws)} after ${n} ticks; jobs: ${list()}`);
+    for (const d of [1, 3, 10]) { w.step(d * TICKS_PER_DAY - (d === 1 ? 0 : 0)); log.push(`+${d} days: jobs: ${list() || '(none)'}`); }
+    const p = new Probe('after deconstruction'); p.check(w.game); log.push(p.report());
+    writeFileSync(`${OUT}/death3-deconstruct.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 600_000);
+});

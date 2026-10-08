@@ -1,0 +1,96 @@
+/* T-115 scratch: a miner holding a pick dies; a hauler dies mid-haul; a bedroom owner dies. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { buildFlatTestMap } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs/reader';
+import { TestWorld } from '../test/scenarios/test-world';
+import { Probe } from './invariants';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const Z = 32;
+
+function kill(w: TestWorld, id: number): void {
+  const hp = w.game.world.entities.get(id, C.Body)!.parts[1]!.maxHp;
+  w.game.world.emit({ type: 'DamageDealt', defenderId: id, attackerId: 0, part: 'torso', damageType: 'blunt', amount: hp * 2 });
+  w.until(() => w.events('CreatureDied').some((e) => e['id'] === id), 5);
+  w.step(1);
+}
+
+describe('T-115 probe: death 2', () => {
+  it('miner with a pick, hauler mid-haul, bedroom owner', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const w = new TestWorld({ seed: 't115-death2', map: buildFlatTestMap(contentRegistry(), 48, 48) });
+    const ent = w.game.world.entities;
+    const items = w.readers.of<ItemsReader>('13');
+    const jobs = w.readers.of<JobsReader>('11');
+    const item = (id: number): string => { const it = ent.get(id, C.Item); const p = ent.get(id, C.Position);
+      return it ? `item ${id} count=${it.count} flags=${it.flags} ownerId=${it.ownerId} carriedBy=${it.carriedBy} containerId=${it.containerId} reservedBy=${it.reservedBy} pos=${p ? `${p.x},${p.y},${p.z}` : 'none'} tileOf=${items.tileOf(id)}` : `item ${id} GONE`; };
+    const stock = (t: string): string => `${t}: total ${items.count(t)} available ${items.available(t)}`;
+    const probeNow = (label: string): void => { const p = new Probe(label); p.check(w.game); log.push(p.report()); };
+    const labors = w.game.registry.table('labors').ids();
+    const only = (d: number, labor: string): void => { for (const l of labors) w.game.world.applyCommand({ type: 'SetLabor', dwarfId: d, labor: l, on: l === labor }); };
+
+    const miner = w.spawnDwarf({ at: w.index(10, 10, Z), ageYears: 30, skills: { mining: 5 } });
+    const hauler = w.spawnDwarf({ at: w.index(30, 30, Z), ageYears: 30 });
+    const sleeper = w.spawnDwarf({ at: w.index(14, 10, Z), ageYears: 30 });
+    const heir = w.spawnDwarf({ at: w.index(16, 10, Z), ageYears: 30 });
+    only(miner, 'mining'); only(hauler, 'hauling'); only(sleeper, 'none'); only(heir, 'none');
+    const pick = w.spawnItem('pick', 'iron', w.index(11, 12, Z));
+    w.spawnItem('easy_meal', 'dimcap', w.index(20, 20, Z), 60);
+    w.spawnItem('drink', 'ale', w.index(21, 20, Z), 60);
+    const stone = w.spawnItem('raw_stone', 'granite', w.index(40, 40, Z));
+    w.zone('stockpile', [w.index(5, 40, Z), w.index(6, 40, Z)]);
+    w.build('bed', w.index(30, 10, Z), 'pine');
+    const bedroom = w.zone('bedroom', [w.index(30, 10, Z), w.index(31, 10, Z)]);
+    w.step(2);
+    log.push(`AssignRoom to sleeper: ${JSON.stringify(w.game.world.applyCommand({ type: 'AssignRoom', zoneId: bedroom, dwarfId: sleeper }))}`);
+    const roomOwner = (): string => ent.with(C.Room).map((r) => `room ${r} zone ${ent.get(r, C.Room)?.zoneId} owner ${ent.get(r, C.Room)?.ownerId} requirementsMet ${ent.get(r, C.Room)?.requirementsMet}`).join('; ');
+    log.push(`rooms: ${roomOwner()}`);
+
+    w.game.world.applyCommand({ type: 'Designate', kind: 'channel', tiles: [10, 11, 12, 13, 14, 15, 16, 17].map((x) => w.index(x, 16, Z)), priority: 5 });
+    let waited = 0;
+    while (waited < 2 * TICKS_PER_DAY && (ent.get(miner, C.Worker)?.toolId ?? 0) === 0) { w.step(1); waited += 1; }
+    log.push(`miner toolId=${ent.get(miner, C.Worker)?.toolId} after ${waited} ticks; equipment.weapon=${ent.get(miner, C.Equipment)?.weapon}`, item(pick), stock('pick'));
+    waited = 0;
+    while (waited < 2 * TICKS_PER_DAY && (ent.get(hauler, C.Worker)?.carrying ?? 0) === 0) { w.step(1); waited += 1; }
+    const carried = ent.get(hauler, C.Worker)?.carrying ?? 0;
+    log.push(`hauler carrying=${carried} after ${waited} ticks (the stone is ${stone})`, item(carried), stock('raw_stone'));
+    const hj = jobs.forWorker(hauler); const mj = jobs.forWorker(miner);
+    log.push(`hauler job ${hj?.id} ${hj ? jobs.typeOf(hj.id) : ''} ${hj?.state}; miner job ${mj?.id} ${mj ? jobs.typeOf(mj.id) : ''} ${mj?.state}`);
+
+    kill(w, miner); kill(w, hauler); kill(w, sleeper);
+    w.step(5);
+    log.push('--- 5 ticks after the miner, the hauler and the bedroom owner died');
+    log.push(item(pick), item(carried), stock('pick'), stock('raw_stone'));
+    for (const id of ent.with(C.Corpse)) log.push(`corpse ${id}: ${JSON.stringify(ent.get(id, C.Corpse))} ${item(id)}`);
+    log.push(`jobs: ${jobs.list().map((j) => `${j.id}:${jobs.typeOf(j.id)}:${j.state}:${j.blockedReason}:w${j.workerId}`).join(' ')}`);
+    log.push(`rooms: ${roomOwner()}`);
+    probeNow('5 ticks after deaths');
+
+    const miner2 = w.spawnDwarf({ at: w.index(10, 11, Z), ageYears: 30, skills: { mining: 5 } });
+    only(miner2, 'mining');
+    log.push(`new channel designation: ${JSON.stringify(w.game.world.applyCommand({ type: 'Designate', kind: 'channel', tiles: [10, 11, 12, 13].map((x) => w.index(x, 18, Z)), priority: 5 }))}`);
+    const hauler2 = w.spawnDwarf({ at: w.index(30, 31, Z), ageYears: 30 });
+    only(hauler2, 'hauling');
+    w.step(3 * TICKS_PER_DAY);
+    log.push('--- three days later, with a new miner and a new hauler');
+    log.push(`new miner toolId=${ent.get(miner2, C.Worker)?.toolId}`, item(pick), item(carried), stock('pick'), stock('raw_stone'));
+    log.push(`jobs: ${jobs.list().map((j) => `${j.id}:${jobs.typeOf(j.id)}:${j.state}:${j.blockedReason}:w${j.workerId}`).join(' ')}`);
+    log.push(`rooms: ${roomOwner()} (heir is ${heir}, new dwarves ${miner2}, ${hauler2}; all without a bedroom)`);
+    w.step(24 * TICKS_PER_DAY);
+    log.push(`--- day ${Math.floor(w.tick / TICKS_PER_DAY)}`);
+    log.push(`new miner toolId=${ent.get(miner2, C.Worker)?.toolId}`, item(pick), item(carried), stock('pick'), stock('raw_stone'));
+    for (const id of ent.with(C.Corpse)) log.push(`corpse ${id}: ${JSON.stringify(ent.get(id, C.Corpse))} ${item(id)}`);
+    log.push(`jobs: ${jobs.list().map((j) => `${j.id}:${jobs.typeOf(j.id)}:${j.state}:${j.blockedReason}:w${j.workerId}`).join(' ')}`);
+    log.push(`rooms: ${roomOwner()}`);
+    log.push(`alive: ${ent.with(C.Labors).length} dwarves; deaths: ${w.events('CreatureDied').map((e) => `${String(e['id'])}:${String(e['cause'])}`).join(' ')}; channels dug: ${w.events('JobCompleted').filter((e) => e['jobType'] === 'channel').length}`);
+    probeNow('end');
+    writeFileSync(`${OUT}/death2.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 600_000);
+});

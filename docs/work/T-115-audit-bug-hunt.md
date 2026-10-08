@@ -55,3 +55,14 @@ Add one `T-1nn` row per confirmed bug that breaks a fortress or gives a wrong re
 - The report exists, and every confirmed bug has a reproduction that a second agent can run.
 - The follow-up rows are in the backlog.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+
+## Progress
+
+**2026-10-08.** Report: [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md), at commit `afdbe66`. Fifteen confirmed bugs (one breaks a fortress), twelve cosmetic ones; follow-up rows T-160 to T-177 are in the backlog.
+
+- **Done:** way 1 (invariant probes over the three-year fixture at perils 0, 2 and 4 and over `year_one`), way 2 (save and load: 33 forks in the long runs, 5 in `year_one`), way 3 headless (two processes per seed), way 4 (all 78 commands, 68,010 trials).
+- **Done in part:** way 5. Read: the tuning constants of 11, 12, 13, 16, 18, 19 and 22 against their uses, the death consumers, the stealth and outcome rules of 18, the events with no emitter. **Remaining:** the rule-by-rule reading of those seven documents.
+- **Moved:** way 6, the UI under abuse, goes to T-116. The browser ports were in use by another agent on the night of the run. The second half of way 3 (the same commands through the UI and headless) goes with it.
+- **Also remaining from way 2:** a save while paused with commands applied by the paused command phase, and a save with a trade session open.
+
+The task closes when the remaining reading is done or is given its own row.
