@@ -1,12 +1,13 @@
 # T-130 — Resolve retained animal/job decisions and catalog mirrors
 
-**Source:** [T-105 triage](../archive/tasks/T-105-triage-systems-08-13.md) · **Size:** M · **Needs:** owner resolutions below · **Status:** open
+**Source:** [T-105 triage](../archive/tasks/T-105-triage-systems-08-13.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Scope and proposed resolutions
 
 T-105 leaves the two whole rows in [the decision log](../05-plan/DECISIONS.md).
-These proposals do not authorize a simulation change; the owner resolves them
-before implementation. Keep unrelated rules, constants and budgets unchanged.
+Keep unrelated rules, constants and budgets unchanged.
+
+**Resolved, orchestrator, 2026-10-07** (under the owner's standing instruction to use judgement): all three proposed resolutions below are accepted as written. In both rows the decision is the rule and the code is brought to it.
 
 | Item | Evidence | Proposed resolution |
 |---|---|---|
@@ -16,7 +17,7 @@ before implementation. Keep unrelated rules, constants and budgets unchanged.
 
 ## Verification and closure
 
-After the owner resolves the first two rows, implement only those resolutions,
+Implement only those resolutions,
 edit every affected spec section, and pin each change with a T-130 regression.
 Record any predicted golden movement in a `golden:` commit paragraph. Delete
 only the resolved exact rows, run the checks in
