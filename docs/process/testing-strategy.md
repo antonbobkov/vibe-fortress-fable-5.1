@@ -109,7 +109,7 @@ The tier measures two saved fortresses, because they are different workloads. `t
 ```
 npm run lint             eslint src test scripts
 npm run typecheck        tsc --noEmit
-npm run content:check    scripts/content-check.mjs: src/content JSON against schemas and id cross-references
+npm run content:check    scripts/content-check.mjs: src/content JSON against schemas and id cross-references, plus a temporary export compared byte for byte
 npm run strings:check    scripts/strings-check.mjs: no missing and no unused string key
 npm run interface:check  scripts/interface-check.mjs: Interfaces sections of docs/02-systems against the code; no "Implementation note:" line in docs/00- … docs/04-
 npm run docs:check       scripts/docs-links-check.mjs: no broken relative link in docs/, reports/, agents/, README.md

@@ -99,6 +99,8 @@ Player-facing text uses `strings.json` and the `UI_STRINGS` defaults in `ui/stri
 
 A save records the content hash. On load with a different hash, the loader attempts a *soft match*: if every content id referenced by the save (gathered from the component id fields generated from `schemas/components.md` per `save-format.md`) exists in the current tables, the load proceeds with a warning; if any id is missing, the load fails with a list of missing ids (`checkContent(header, content, referencedIds)` returns `exact`, `soft` or `failed` with the sorted missing list). There is no content migration in version 1.
 
+The content check exports every Markdown table into an isolated temporary directory and compares its bytes with committed JSON. Missing, unexpected or differing tables fail the check; validation and source parity must both pass. Checking never writes committed content.
+
 ## Authoring rules for content tables
 
 - One table per Markdown file; columns in the schema order; id first, name second.

@@ -31,11 +31,11 @@ export function exportPalette() {
     const table = findTable(tables, heading, 'id');
     for (const row of table.rows) push(row[0], row[1], row[2]);
   }
-  // "Material and nature colors" is a two-column-pair table: | id | hex | | id | hex |
+  // "Material and nature colors" carries an alternate for each id/hex pair.
   const pairs = findTable(tables, 'Material and nature colors');
   for (const row of pairs.rows) {
-    push(row[0], row[1]);
-    if (!isBlank(row[3])) push(row[3], row[4]);
+    push(row[0], row[1], row[2]);
+    if (!isBlank(row[4])) push(row[4], row[5], row[6]);
   }
   const seen = new Set();
   for (const c of out) {
@@ -149,7 +149,7 @@ export function exportKeymap() {
 
 /**
  * `content-pipeline.md` § Strings: every player-facing string is a key in `strings.json`. The
- * canonical values are the hint, milestone, confirmation and thought texts of Wave 3.
+ * canonical values are the announcement, hint, milestone, confirmation and thought texts.
  */
 export function exportStrings(thoughts) {
   const strings = {};
@@ -157,7 +157,10 @@ export function exportStrings(thoughts) {
   for (const m of exportMilestones()) strings[`milestone.${m.id}`] = m.text;
   for (const c of exportConfirmations()) strings[`confirm.${c.id}`] = c.text;
   for (const t of thoughts) strings[`thought.${t.id}`] = t.text;
+  const announcements = findTable(readTables(join(CONTENT_DIR, 'ui-keymap-and-screens.md')), 'Announcement strings', 'Key');
+  // Announcement rows retain their source order ahead of the sorted legacy groups.
   const sorted = {};
+  for (const row of asObjects(announcements)) sorted[plain(row.Key)] = textOf(row.Text);
   for (const key of Object.keys(strings).sort()) sorted[key] = strings[key];
   return sorted;
 }

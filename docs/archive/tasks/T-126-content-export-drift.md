@@ -1,5 +1,8 @@
 # T-126 — `content:export` no longer reproduces three committed content files
 
+Closed by `T-126: check source exports against committed content`.
+
+
 **Source:** found while doing T-125, 2026-10-07 · **Size:** S–M · **Needs:** — · **Status:** open
 
 ## What is wrong
@@ -20,7 +23,7 @@ The committed JSON is what the game ships and what the tests pass with, so it is
 
 1. For each of the three files, change the source table in `docs/03-content/` (or the exporter, if the table has no column for the field, as with `alt`) until `content:export` reproduces the committed JSON exactly.
 2. Run the export over every table and confirm `git status` is clean.
-3. Add the check to the gate: a script or test that runs the export into a temporary directory and fails on any difference from `src/content/`. Wire it into `content:check`, or add it beside it in [`../process/agent-workflow.md`](../process/agent-workflow.md)'s verification commands.
+3. Add the check to the gate: a script or test that runs the export into a temporary directory and fails on any difference from `src/content/`. Wire it into `content:check`, or add it beside it in [`../../process/agent-workflow.md`](../../process/agent-workflow.md)'s verification commands.
 4. If T-117 has not landed, leave the `DwarfDied` wording elsewhere to it; fix only the thoughts table here.
 
 ## Done

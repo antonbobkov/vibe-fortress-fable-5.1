@@ -39,7 +39,7 @@ UI glyph aliases use `▸`→`►`, `▾`→`▼`, `□`→space, `▪`→`∙`,
 
 ## Palette
 
-Hex values for the light-on-dark default. The colorblind palette replaces `dwarf_need`, `dwarf_wounded`, `hostile`, `grass_green` and the water ramp with the alternates in the last column where given.
+Hex values for the light-on-dark default. The colorblind palette replaces every color that supplies an alternate with that alternate. Material and nature rows carry an alternate column for each id/hex pair.
 
 ### Base 16
 
@@ -68,18 +68,18 @@ Hex values for the light-on-dark default. The colorblind palette replaces `dwarf
 |---|---|---|
 | `dwarf_normal` | #FFFFFF | |
 | `dwarf_need` | #FFD34D | #FFB000 |
-| `dwarf_wounded` | #FF4040 | #FF7F00 |
+| `dwarf_wounded` | #FF6060 | #FF77CC |
 | `dwarf_asleep` | #6A8CFF | |
 | `dwarf_child` | #B0B0B0 | |
 | `dwarf_soldier` | #4DFF88 | #00A2FF |
-| `hostile` | #FF3030 | #FF8C00 |
-| `hostile_bright` | #FF6A6A | #FFB347 |
+| `hostile` | #E60000 | #E65100 |
+| `hostile_bright` | #FF7A7A | #FFB74D |
 | `undead_gray` | #9C9C7A | |
 | `hollow_violet` | #B266FF | |
-| `wyrm_red` | #FF2A00 | |
+| `wyrm_red` | #FF2A00 | #E64500 |
 | `trader_mountainhome` | #FFD700 | |
 | `trader_hillfolk` | #D2B48C | |
-| `trader_wildwood` | #7CFC00 | |
+| `trader_wildwood` | #7CFC00 | #00C8FF |
 | `undiscovered` | #0A0A0A | |
 | `sky_day` | #1E2E4A | |
 | `sky_night` | #05070F | |
@@ -88,16 +88,16 @@ Hex values for the light-on-dark default. The colorblind palette replaces `dwarf
 | `panel_border` | #556677 | |
 | `text` | #E0E0E0 | |
 | `text_dim` | #808080 | |
-| `text_key` | #FFD34D | |
+| `text_key` | #FFFF55 | #FFFF55 |
 | `text_value` | #55FFFF | |
-| `text_good` | #55FF55 | |
-| `text_bad` | #FF5555 | |
+| `text_good` | #55FF55 | #00A2FF |
+| `text_bad` | #FF5555 | #FF7F00 |
 | `note` | #909090 | |
-| `alert` | #FFD34D | |
-| `danger` | #FF4040 | |
+| `alert` | #FFB700 | #FFB000 |
+| `danger` | #FF4040 | #FF7F00 |
 | `cursor` | inverted | |
-| `ghost_ok` | #205020 | |
-| `ghost_bad` | #502020 | |
+| `ghost_ok` | #358035 | #2B558C |
+| `ghost_bad` | #903535 | #8C4E2B |
 | `lever_gray` | #C0C0C0 | |
 | `trap_gray` | #8A8A8A | |
 | `well_blue` | #6AA6FF | |
@@ -107,10 +107,10 @@ Hex values for the light-on-dark default. The colorblind palette replaces `dwarf
 
 | id | hex | alternate |
 |---|---|---|
-| `water_1` (levels 1–2) | #3060C0 | #40B0FF |
-| `water_2` (3–4) | #2850A8 | #2090E0 |
-| `water_3` (5–6) | #204090 | #1070C0 |
-| `water_7` (7) | #183078 | #0050A0 |
+| `water_1` (levels 1–2) | #60C0FF | #68D0FF |
+| `water_2` (3–4) | #2880E0 | #1890E8 |
+| `water_3` (5–6) | #1848A8 | #0058B8 |
+| `water_7` (7) | #0C1C60 | #002878 |
 | `water_bg` | #0A1840 | |
 | `magma_1` | #FF8C1A | |
 | `magma_2` | #FF6A00 | |
@@ -150,86 +150,86 @@ Hex values for the light-on-dark default. The colorblind palette replaces `dwarf
 
 ### Material and nature colors
 
-| id | hex | | id | hex |
-|---|---|---|---|---|
-| `sand_tan` | #C8B88A | | `oak_brown` | #8B5A2B |
-| `bone_white` | #E8E0C8 | | `pine_yellow` | #C9A24C |
-| `slate_gray` | #6E7278 | | `pine_green` | #2F6B3A |
-| `pebble_gray` | #9A9080 | | `birch_pale` | #E6E0C8 |
-| `pale_gray` | #C0C0B8 | | `willow_green` | #7FA86B |
-| `chalk_white` | #F0EEE6 | | `yew_red` | #A0522D |
-| `dust_brown` | #9C8A6A | | `ash_pale` | #D8D0B8 |
-| `granite_gray` | #8C8C8C | | `maple_amber` | #C97A2F |
-| `diorite_gray` | #A8A8A0 | | `shroom_gray` | #B8B0C0 |
-| `dark_gray_rock` | #505050 | | `fern_teal` | #4E8C7A |
-| `basalt_black` | #3A3A3A | | `grass_green` | #2E8B2E |
-| `rose_gray` | #B08A8A | | `grass_dry` | #A8A040 |
-| `ash_gray` | #7A7A7A | | `moss_teal` | #2E7A6E |
-| `obsidian_black` | #1C1C24 | | `mud_brown` | #5A3E1E |
-| `marble_white` | #F2F2F2 | | `snow_white` | #F4F8FF |
-| `slate_blue` | #5A6A7A | | `bright_green` | #66FF66 |
-| `banded_gray` | #8A8A96 | | `berry_red` | #C81E3C |
-| `glitter_gray` | #A0A0B0 | | `nut_brown` | #8B6B3B |
-| `quartz_white` | #E8E8F0 | | `flax_straw` | #D8C878 |
-| `sheen_gray` | #9A9AA8 | | `sun_yellow` | #FFD23C |
-| `loam_brown` | #6B4E2E | | `frost_blue` | #8AC6FF |
-| `clay_red` | #A0522D | | `barley_gold` | #D4A017 |
-| `sand_yellow` | #E0C878 | | `turnip_violet` | #B07AC8 |
-| `silt_gray` | #8A8A78 | | `cabbage_green` | #7ACC52 |
-| `peat_black` | #2E2418 | | `pumpkin_orange` | #FF8C00 |
-| `cave_umber` | #4E3A2E | | `hops_green` | #6AB04C |
-| `hematite_red` | #8B2E2E | | `dimcap_violet` | #7A5AA0 |
-| `magnetite_black` | #2E2E38 | | `cavewheat_pale` | #C8C0A0 |
-| `limonite_yellow` | #B8962E | | `bell_white` | #E6E6FA |
-| `malachite_green` | #2E8B57 | | `root_amber` | #C8783C |
-| `copper_orange` | #B87333 | | `spore_violet` | #9A6ACC |
-| `tin_gray` | #C0C0C8 | | `linen_cream` | #EDE6D0 |
-| `galena_gray` | #6E6E78 | | `wool_cream` | #F0E8D8 |
-| `sphalerite_brown` | #7A5A3A | | `silk_white` | #F8F8F8 |
-| `tetra_gray` | #5E5E68 | | `leather_brown` | #7A4A1E |
-| `gold_yellow` | #FFD700 | | `hide_brown` | #8A5A3A |
-| `silver_white` | #E8E8E8 | | `meat_red` | #B03030 |
-| `platinum_white` | #E5E4E2 | | `corpse_red` | #6A1A1A |
-| `bismuth_pink` | #D8A0B8 | | `rot_green` | #5A7A2E |
-| `coal_black` | #202020 | | `meal_brown` | #A0703A |
-| `lignite_brown` | #4A3A2A | | `meal_gold` | #D8A040 |
-| `charcoal_gray` | #404040 | | `meal_red` | #C04040 |
-| `deepsilver_blue` | #9AD0FF | | `flour_white` | #F4F0E8 |
-| `bronze_gold` | #CD7F32 | | `cheese_yellow` | #F0D060 |
-| `bronze_pale` | #D8A860 | | `egg_cream` | #F0E8D0 |
-| `iron_gray` | #7A7A7A | | `milk_white` | #F8F8F0 |
-| `steel_bright` | #B8C0C8 | | `tallow_yellow` | #E8D890 |
-| `lead_gray` | #5A5A66 | | `shell_pink` | #F0C8C0 |
-| `zinc_gray` | #A8B0B8 | | `glow_green` | #7CFFB2 |
-| `brass_gold` | #D4AF37 | | `amethyst_violet` | #9966CC |
-| `electrum_pale` | #E8E0A0 | | `garnet_red` | #A02040 |
-| `dog_tan` | #C8A878 | | `emerald_green` | #50C878 |
-| `cat_gray` | #A0A0A0 | | `ruby_red` | #E0115F |
-| `cow_brown` | #8B5A3C | | `sapphire_blue` | #0F52BA |
-| `sheep_cream` | #F0EAD6 | | `diamond_white` | #F8FCFF |
-| `goat_gray` | #B0A898 | | `deer_tan` | #C8A070 |
-| `goat_white` | #F0F0F0 | | `boar_brown` | #6B4A2E |
-| `chicken_white` | #F8F8F0 | | `wolf_gray` | #8A8A90 |
-| `pig_pink` | #F0B0B0 | | `bear_brown` | #5A3A1E |
-| `mule_brown` | #7A5A3A | | `fox_orange` | #E07030 |
-| `yak_black` | #2E2A28 | | `rabbit_gray` | #B8B0A8 |
-| `horse_brown` | #8B4513 | | `elk_brown` | #7A5A3A |
-| `horse_dun` | #C2A878 | | `leopard_pale` | #E0D8C8 |
-| `crab_pale` | #E8D0C0 | | `lizard_green` | #6A8A3A |
-| `fish_pale` | #D0D8E0 | | `croc_green` | #4A6A3A |
-| `ox_gray` | #7A7A78 | | `badger_gray` | #6A6A6A |
-| `hound_umber` | #5A4030 | | `lynx_tan` | #C8B090 |
-| `ember_orange` | #FF7A2E | | `mammoth_brown` | #5A3E28 |
-| `prof_gray` | #A0A0A0 | | `prof_orange` | #FFA040 |
-| `prof_brown` | #C08040 | | `prof_steel` | #B0C0D0 |
-| `prof_tan` | #D8C8A0 | | `prof_white` | #F0F0F0 |
-| `prof_green` | #60D060 | | `prof_red` | #FF6060 |
-| `prof_violet` | #C090FF | | `prof_dim` | #707070 |
-| `tundra_gray` | #B8C0B0 | | `savanna_gold` | #D8B860 |
-| `forest_green` | #2E6B2E | | `badlands_red` | #A05030 |
-| `wetland_teal` | #3A7A6A | | `jungle_green` | #1E7A3E |
-| `hill_olive` | #7A8A3A | | `dark_forest_green` | #1E3A1E |
-| `alpine_white` | #E8ECF0 | | | |
+| id | hex | alternate | | id | hex | alternate |
+|---|---|---|---|---|---|---|
+| `sand_tan` | #C8B88A |  |  | `oak_brown` | #8B5A2B |  |
+| `bone_white` | #E8E0C8 |  |  | `pine_yellow` | #C9A24C |  |
+| `slate_gray` | #6E7278 |  |  | `pine_green` | #2F6B3A |  |
+| `pebble_gray` | #9A9080 |  |  | `birch_pale` | #E6E0C8 |  |
+| `pale_gray` | #C0C0B8 |  |  | `willow_green` | #7FA86B |  |
+| `chalk_white` | #F0EEE6 |  |  | `yew_red` | #A0522D |  |
+| `dust_brown` | #9C8A6A |  |  | `ash_pale` | #D8D0B8 |  |
+| `granite_gray` | #8C8C8C |  |  | `maple_amber` | #C97A2F |  |
+| `diorite_gray` | #A8A8A0 |  |  | `shroom_gray` | #B8B0C0 |  |
+| `dark_gray_rock` | #505050 |  |  | `fern_teal` | #4E8C7A |  |
+| `basalt_black` | #3A3A3A |  |  | `grass_green` | #2E8B2E | #3A7A9C |
+| `rose_gray` | #B08A8A |  |  | `grass_dry` | #A8A040 |  |
+| `ash_gray` | #7A7A7A |  |  | `moss_teal` | #2E7A6E |  |
+| `obsidian_black` | #1C1C24 |  |  | `mud_brown` | #5A3E1E |  |
+| `marble_white` | #F2F2F2 |  |  | `snow_white` | #F4F8FF |  |
+| `slate_blue` | #5A6A7A |  |  | `bright_green` | #66FF66 |  |
+| `banded_gray` | #8A8A96 |  |  | `berry_red` | #C81E3C |  |
+| `glitter_gray` | #A0A0B0 |  |  | `nut_brown` | #8B6B3B |  |
+| `quartz_white` | #E8E8F0 |  |  | `flax_straw` | #D8C878 |  |
+| `sheen_gray` | #9A9AA8 |  |  | `sun_yellow` | #FFD23C |  |
+| `loam_brown` | #6B4E2E |  |  | `frost_blue` | #8AC6FF |  |
+| `clay_red` | #A0522D |  |  | `barley_gold` | #D4A017 |  |
+| `sand_yellow` | #E0C878 |  |  | `turnip_violet` | #B07AC8 |  |
+| `silt_gray` | #8A8A78 |  |  | `cabbage_green` | #7ACC52 |  |
+| `peat_black` | #2E2418 |  |  | `pumpkin_orange` | #FF8C00 |  |
+| `cave_umber` | #4E3A2E |  |  | `hops_green` | #6AB04C |  |
+| `hematite_red` | #8B2E2E |  |  | `dimcap_violet` | #7A5AA0 |  |
+| `magnetite_black` | #2E2E38 |  |  | `cavewheat_pale` | #C8C0A0 |  |
+| `limonite_yellow` | #B8962E |  |  | `bell_white` | #E6E6FA |  |
+| `malachite_green` | #2E8B57 |  |  | `root_amber` | #C8783C |  |
+| `copper_orange` | #B87333 |  |  | `spore_violet` | #9A6ACC |  |
+| `tin_gray` | #C0C0C8 |  |  | `linen_cream` | #EDE6D0 |  |
+| `galena_gray` | #6E6E78 |  |  | `wool_cream` | #F0E8D8 |  |
+| `sphalerite_brown` | #7A5A3A |  |  | `silk_white` | #F8F8F8 |  |
+| `tetra_gray` | #5E5E68 |  |  | `leather_brown` | #7A4A1E |  |
+| `gold_yellow` | #FFD700 |  |  | `hide_brown` | #8A5A3A |  |
+| `silver_white` | #E8E8E8 |  |  | `meat_red` | #B03030 |  |
+| `platinum_white` | #E5E4E2 |  |  | `corpse_red` | #6A1A1A |  |
+| `bismuth_pink` | #D8A0B8 |  |  | `rot_green` | #5A7A2E |  |
+| `coal_black` | #202020 |  |  | `meal_brown` | #A0703A |  |
+| `lignite_brown` | #4A3A2A |  |  | `meal_gold` | #D8A040 |  |
+| `charcoal_gray` | #404040 |  |  | `meal_red` | #C04040 |  |
+| `deepsilver_blue` | #9AD0FF |  |  | `flour_white` | #F4F0E8 |  |
+| `bronze_gold` | #CD7F32 |  |  | `cheese_yellow` | #F0D060 |  |
+| `bronze_pale` | #D8A860 |  |  | `egg_cream` | #F0E8D0 |  |
+| `iron_gray` | #7A7A7A |  |  | `milk_white` | #F8F8F0 |  |
+| `steel_bright` | #B8C0C8 |  |  | `tallow_yellow` | #E8D890 |  |
+| `lead_gray` | #5A5A66 |  |  | `shell_pink` | #F0C8C0 |  |
+| `zinc_gray` | #A8B0B8 |  |  | `glow_green` | #7CFFB2 |  |
+| `brass_gold` | #D4AF37 |  |  | `amethyst_violet` | #9966CC |  |
+| `electrum_pale` | #E8E0A0 |  |  | `garnet_red` | #A02040 |  |
+| `dog_tan` | #C8A878 |  |  | `emerald_green` | #50C878 |  |
+| `cat_gray` | #A0A0A0 |  |  | `ruby_red` | #E0115F |  |
+| `cow_brown` | #8B5A3C |  |  | `sapphire_blue` | #0F52BA |  |
+| `sheep_cream` | #F0EAD6 |  |  | `diamond_white` | #F8FCFF |  |
+| `goat_gray` | #B0A898 |  |  | `deer_tan` | #C8A070 |  |
+| `goat_white` | #F0F0F0 |  |  | `boar_brown` | #6B4A2E |  |
+| `chicken_white` | #F8F8F0 |  |  | `wolf_gray` | #8A8A90 |  |
+| `pig_pink` | #F0B0B0 |  |  | `bear_brown` | #5A3A1E |  |
+| `mule_brown` | #7A5A3A |  |  | `fox_orange` | #E07030 |  |
+| `yak_black` | #2E2A28 |  |  | `rabbit_gray` | #B8B0A8 |  |
+| `horse_brown` | #8B4513 |  |  | `elk_brown` | #7A5A3A |  |
+| `horse_dun` | #C2A878 |  |  | `leopard_pale` | #E0D8C8 |  |
+| `crab_pale` | #E8D0C0 |  |  | `lizard_green` | #6A8A3A |  |
+| `fish_pale` | #D0D8E0 |  |  | `croc_green` | #4A6A3A |  |
+| `ox_gray` | #7A7A78 |  |  | `badger_gray` | #6A6A6A |  |
+| `hound_umber` | #5A4030 |  |  | `lynx_tan` | #C8B090 |  |
+| `ember_orange` | #FF7A2E |  |  | `mammoth_brown` | #5A3E28 |  |
+| `prof_gray` | #A0A0A0 |  |  | `prof_orange` | #FFA040 |  |
+| `prof_brown` | #C08040 |  |  | `prof_steel` | #B0C0D0 |  |
+| `prof_tan` | #D8C8A0 |  |  | `prof_white` | #F0F0F0 |  |
+| `prof_green` | #60D060 |  |  | `prof_red` | #FF6060 |  |
+| `prof_violet` | #C090FF |  |  | `prof_dim` | #707070 |  |
+| `tundra_gray` | #B8C0B0 |  |  | `savanna_gold` | #D8B860 |  |
+| `forest_green` | #2E6B2E |  |  | `badlands_red` | #A05030 |  |
+| `wetland_teal` | #3A7A6A |  |  | `jungle_green` | #1E7A3E |  |
+| `hill_olive` | #7A8A3A |  |  | `dark_forest_green` | #1E3A1E |  |
+| `alpine_white` | #E8ECF0 |  |  |  |  |  |
 
 ## Glyphs by thing
 

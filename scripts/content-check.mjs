@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { validateAll } from '../src/content/schema.ts';
 import { applyGenerated } from '../src/content/generate.ts';
+import { checkExport } from './content-export-check.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const contentDir = join(root, 'src/content');
@@ -73,3 +74,10 @@ if (issues.length > 0) {
 let rowCount = 0;
 for (const value of Object.values(data)) if (Array.isArray(value)) rowCount += value.length;
 console.log(`content:check: ${tableCount} tables, ${rowCount} rows, no issues`);
+
+const { tableCount: exportedCount, differences } = checkExport();
+if (differences.length > 0) {
+  console.error(`content:export-check: ${differences.length} difference(s)`);
+  for (const difference of differences) console.error(`  ${difference}`);
+  process.exitCode = 1;
+} else console.log(`content:export-check: ${exportedCount} tables match source exports byte for byte`);

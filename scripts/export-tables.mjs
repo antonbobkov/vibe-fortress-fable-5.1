@@ -7,6 +7,7 @@
 
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { ROOT } from './lib/md-tables.mjs';
 import {
   exportGems,
@@ -145,12 +146,12 @@ function build() {
   };
 }
 
-function main() {
+export function exportTables(outDir = OUT_DIR, { quiet = false } = {}) {
   const tables = build();
-  mkdirSync(OUT_DIR, { recursive: true });
+  mkdirSync(outDir, { recursive: true });
   let changed = 0;
   for (const [name, value] of Object.entries(tables)) {
-    const file = join(OUT_DIR, `${name}.json`);
+    const file = join(outDir, `${name}.json`);
     const text = `${JSON.stringify(value, null, 2)}\n`;
     const before = existsSync(file) ? readFileSync(file, 'utf8') : null;
     if (before !== text) {
@@ -158,9 +159,10 @@ function main() {
       changed += 1;
     }
     const count = Array.isArray(value) ? value.length : Object.keys(value).length;
-    console.log(`${name.padEnd(20)} ${String(count).padStart(5)} rows`);
+    if (!quiet) console.log(`${name.padEnd(20)} ${String(count).padStart(5)} rows`);
   }
-  console.log(`${Object.keys(tables).length} tables, ${changed} written`);
+  if (!quiet) console.log(`${Object.keys(tables).length} tables, ${changed} written`);
+  return Object.keys(tables).length;
 }
 
-main();
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) exportTables();
