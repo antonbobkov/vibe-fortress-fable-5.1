@@ -1,6 +1,8 @@
 # T-142 — The trade job outlives its caravan and its broker
 
-**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ The trade job outlives its caravan and its broker) · **Size:** S · **Needs:** — · **Status:** open
+Closed by the T-142: keep trade jobs with the caravan stay and current broker commit.
+
+**Source:** T-123 and its report, [`../../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ The trade job outlives its caravan and its broker) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
