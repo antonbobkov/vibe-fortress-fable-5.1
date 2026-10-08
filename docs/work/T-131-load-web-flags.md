@@ -28,5 +28,6 @@ Add a failing regression that carves new cavern floors after initialization,
 saves and loads, and checks the entire hash both immediately and after stepping.
 Also cover existing saved spider webs so the fix does not erase authentic webs.
 Edit [save-format.md](../04-implementation/save-format.md) and the threat system
-load rules, run the workflow checks, and close normally. Implement only after
-this resolution is accepted.
+load rules, run the workflow checks, and close normally.
+
+**Accepted, orchestrator, 2026-10-07** (under the owner's standing instruction to use judgement). A load must not change the world, so this is a bug fix and not a rule change.
