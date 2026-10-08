@@ -11,4 +11,5 @@ export interface CombatStateV1 {
   cooldownUntil: [EntityId, Tick][];
   engagements: [EntityId, Tick][];
   unreachableSince?: [EntityId, Tick][];
+  threatThrottles?: [EntityId, Tick][];
 }

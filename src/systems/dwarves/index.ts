@@ -553,6 +553,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       rng: this.stream.state(),
       wagonTile: this.wagonTile,
       interruptFlags: Array.from(this.interruptFlags).sort((a, b) => a - b),
+      ...(this.threatened.size > 0 ? { threatened: Array.from(this.threatened).sort((a, b) => a[0] - b[0]) } : {}),
       hungerMaxSince: Array.from(this.hungerMaxSince).sort((a, b) => a[0] - b[0]),
       thirstMaxSince: Array.from(this.thirstMaxSince).sort((a, b) => a[0] - b[0]),
       starvingAnnounced: Array.from(this.starvingAnnounced).sort((a, b) => a[0] - b[0]),
@@ -580,6 +581,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     this.shelterRevision = -1;
     this.shelterRestored = true;
     this.shelterCheckPending = state.shelterCheckPending ?? false;
+    this.threatened.clear();
+    for (const [id, threat] of state.threatened ?? []) this.threatened.set(id, { ...threat });
     this.interruptFlags.clear();
     for (const id of state.interruptFlags ?? []) this.interruptFlags.add(id);
     this.hungerMaxSince.clear();

@@ -100,6 +100,7 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 | `dw_starve` | no food | `Starving` at hunger 100; `Starvation` damage daily after `STARVE_DAYS`; death on the 13th day of damage |
 | `dw_sleep` | beds assigned | each dwarf sleeps once per day in their own bed; `Slept { ownBed: true }` |
 | `dw_critical_interrupt` | miner mid-dig with thirst forced to 90 | job returns to open with progress kept; miner drinks; job resumes |
+| `dw_stair_flee` | civilian on a narrow cavern stair, hostile nearby, hearth and ale reachable upstairs | paths through the stair to safety and drinks within 350 ticks; survives with thirst below want |
 | `dw_child` | immigrant child | only hauling jobs; adult on the 12th birthday |
 | `dw_title` | assign Thane; give the Thane a grand bedroom | everyone gets `thane_hall_grand` |
 | `year_one` | 48×48 flat-test, one spring, Balanced embark; opening orders below, then the whole first year | bootstrap bounds below; two guaranteed waves and caravans in their windows; no winter surface sowing, winter cave sowing, no peril-0 raid or dwarf death; population grows past seven |

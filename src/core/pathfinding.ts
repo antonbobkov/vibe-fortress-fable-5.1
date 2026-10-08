@@ -1161,6 +1161,7 @@ export class PathingCore {
       labelOf: (i, cls) => this.connectivity.label(i, cls),
       passable: (i, cls, mover) => this.graph.passable(i, cls, mover),
       cost: (i, cls, mover) => this.graph.cost(i, cls, mover),
+      edges: (i, cls, mover) => this.graph.edges(i, cls, mover),
       lineOfSight: (a, b) => this.graph.lineOfSight(a, b),
       requestPath: (entity, from, to, cls, urgency, opts, mover) =>
         this.pathfinder.requestPath(entity, from, to, cls, urgency, opts, mover),
@@ -1180,6 +1181,8 @@ export interface PathingCoreReader {
   labelOf(i: TileIndex, cls: MovementClass): number;
   passable(i: TileIndex, cls: MovementClass, mover?: MoverOptions): boolean;
   cost(i: TileIndex, cls: MovementClass, mover?: MoverOptions): number;
+  /** A fresh copy of legal next steps, including stairs and ramps. */
+  edges(i: TileIndex, cls: MovementClass, mover?: MoverOptions): [TileIndex, number][];
   lineOfSight(a: TileIndex, b: TileIndex): boolean;
   requestPath(
     entity: EntityId,

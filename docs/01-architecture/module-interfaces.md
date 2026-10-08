@@ -64,7 +64,7 @@ Core readers:
 - `readers.map`: `kindAt(i)`, `materialAt(i)`, `flagsAt(i)`, `designationAt(i)`, `fluidAt(i)`, `isWalkable(i, movementClass)`, `isOutdoor(i)`, `neighbors(i)`, `columnSurfaceZ(x, y)`, `chunkOf(i)`.
 - `readers.entities`: `get`, `has`, `alive`, `each`, `with`, `at(i)` (entities with `Position` on tile i, from the spatial index).
 - `readers.calendar`: the `Calendar` fields.
-- `readers.pathing`: `reachable(from, to, movementClass)`, `requestPath(...)` (see 22).
+- `readers.pathing`: `reachable(from, to, movementClass)`, `edges(i, movementClass, mover?)` (a fresh list of legal next steps and costs), `requestPath(...)` (see 22).
 - `readers.spatial`: `inRadius(i, r, kind?)`, `inBox(...)`, `nearest(i, predicate, maxRadius)`.
 - `readers.fortress`: the fortress-level state.
 

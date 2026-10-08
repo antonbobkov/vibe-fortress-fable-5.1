@@ -17,7 +17,12 @@ tickDwarf(id):
   if b.behavior == 'none' or interruptFlag[id]: select(id)
 select(id):
   N = Needs[id]; civ = not combat.onDuty(id); if b.targetTile < 0: b.targetTile = currentTile(id)
-  if threatened[id] and civ:                                    b.behavior = 'flee'; goal = fleeTile(id); return
+  if threatened[id] and civ:
+    goal = fleeTile(id)  // bounded legal-edge BFS: reached hearth hall first, else nearest safer tile
+    if goal >= 0: if activity == 'Fighting': clearCombatTarget(id)
+                  stopWalking(id); b.behavior = 'flee'; return
+    if no critical need and civilianFightDeadline not elapsed: startOrKeepCorneredFight(id); return
+    clearCombatTarget(id); stopWalking(id); if deadline elapsed: clearThreat(id)
   if alert == 'hearth' and civ: target = defense.retreatTile(id); watchShelter(id, target < 0)
      if target >= 0: b.behavior = 'retreat'; goal = target; return  // otherwise continue; flee has precedence
   if health.isPatient(id):                                      b.behavior = 'patient'; goal = bedTile(id) or stay; return
@@ -51,6 +56,8 @@ Movement side effects on entering a tile: mist → `DwarfFeltMist` (cooldown), w
 The movement handler writes `Brain` thought timers and `Needs` for masterwork joy relief, never tile grids. Mist uses zero as never and otherwise its cooldown; bad-weather thoughts use the saved hour index. Spring adjacency is an entry from outside its same-level 8-neighbourhood.
 
 Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position.
+
+A civilian fight uses `Brain.behaviorUntil` as its saved deadline. Refresh it on melee reach or a recorded attack opportunity, never merely on `ThreatNearby`. A critical need activity continues across threat scans when no escape exists; a new escape or a newly more critical need cancels it for selection. The escape search and combat timeout use 10's tuning constants and safety rules.
 
 Children: `select` skips `duty` and `work` except `haul_to_stockpile` jobs (labors fixed to hauling).
 

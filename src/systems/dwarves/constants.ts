@@ -25,6 +25,10 @@ export const DINING_SEARCH_RADIUS = 40;
 export const NEED_DEFER_PRIORITY = 2;
 export const NEED_RETRY_TICKS = 50;
 export const THREAT_RADIUS = 8;
+/** Ticks without a melee or ranged attack opportunity before a civilian leaves combat. */
+export const CIVILIAN_COMBAT_TIMEOUT_TICKS = 200;
+/** Legal tile visits in the civilian escape fallback search. */
+export const CIVILIAN_FLEE_NODE_LIMIT = 256;
 export const FRIEND_TALKS = 5;
 export const GRUDGE_DAYS = 28;
 export const THANE_SOCIAL_BONUS = 20;

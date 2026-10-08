@@ -1,12 +1,12 @@
 /**
- * The dwarf brain: `algorithms/creature-brains.md` § Dwarf brain and `10-dwarves.md` § Behavior
+ * The dwarf brain: `algorithms/creature-brains.md` Â§ Dwarf brain and `10-dwarves.md` Â§ Behavior
  * selection and civilian activities (T-M4-06). Combat and patient controllers arrive in M6.
  *
  * ```
- * work:  jobs.stepWorker(id); when the worker is free again → select
+ * work:  jobs.stepWorker(id); when the worker is free again â†’ select
  *        (a worker still in 11's assignment queue waits; one 11 answered with nothing goes idle)
- * idle:  walk to the hearth hall, or the wagon tile, and wait IDLE_TICKS → select
- * select: jobs.assign(id) → work (answered by 11 later this tick), else idle
+ * idle:  walk to the hearth hall, or the wagon tile, and wait IDLE_TICKS â†’ select
+ * select: jobs.assign(id) â†’ work (answered by 11 later this tick), else idle
  * ```
  */
 
@@ -14,13 +14,14 @@ import { C, type Brain, type Needs } from '@core/components';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import { hourOf } from '@core/calendar';
-import { ADULT_AGE_YEARS, IDLE_TICKS, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
+import { ADULT_AGE_YEARS, CIVILIAN_COMBAT_TIMEOUT_TICKS, CIVILIAN_FLEE_NODE_LIMIT, IDLE_TICKS, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
 import { Activities } from './activities';
 import { PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { HealthReader } from '@systems/health/reader';
 import type { JobsReader } from '@systems/jobs';
+import type { CombatReader } from '@systems/combat/reader';
 
 /** "Idle dwarves are shown as 'No job' in the units panel." */
 export const NO_JOB = 'No job';
@@ -65,43 +66,68 @@ function startIdle(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): v
   if (!wasIdle) { ctx.emit({ type: 'DwarfIdle', id }); host.markIdle(id); }
 }
 
-const FLEE_STEPS = 6;
-const DIRECTIONS: readonly (readonly [number, number])[] = [
-  [1, 0],
-  [1, 1],
-  [0, 1],
-  [-1, 1],
-  [-1, 0],
-  [-1, -1],
-  [0, -1],
-  [1, -1],
-];
-
+/** Legal edges make the escape search obey stairs, ramps, corners, hatches and traffic. */
 export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId): TileIndex {
   const map = ctx.world.map;
   const posA = ctx.world.entities.get(id, C.Position);
   const posT = ctx.world.entities.get(threatId, C.Position);
   if (!posA || !posT) return -1;
+  const from = map.index(posA.x, posA.y, posA.z);
   const currentDist = Math.max(Math.abs(posA.x - posT.x), Math.abs(posA.y - posT.y));
-  let bestDist = currentDist;
-  let bestTile = -1;
-
-  for (const [dx, dy] of DIRECTIONS) {
-    for (let step = 1; step <= FLEE_STEPS; step += 1) {
-      const nx = posA.x + dx * step;
-      const ny = posA.y + dy * step;
-      const z = posA.z;
-      if (!map.inBounds(nx, ny, z)) break;
-      const tile = map.index(nx, ny, z);
-      if (!ctx.readers.pathing.passable(tile, 'walker')) break;
-      const dist = Math.max(Math.abs(posT.x - nx), Math.abs(posT.y - ny));
-      if (dist > bestDist) {
-        bestDist = dist;
-        bestTile = tile;
+  const creature = ctx.world.entities.get(id, C.Creature);
+  const mover = { faction: creature?.faction, size: creature?.sizeClass };
+  const combat = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16') : undefined;
+  const occupied = (tile: TileIndex): boolean => ctx.readers.entities.at(tile)
+    .some((other) => other === threatId || (combat?.isHostile(id, other) ?? false));
+  const safer = (tile: TileIndex): boolean => map.zOf(tile) !== posT.z ||
+    Math.max(Math.abs(map.xOf(tile) - posT.x), Math.abs(map.yOf(tile) - posT.y)) > currentDist;
+  const hallTiles = ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14').hearthHallTiles() : [];
+  const hall = new Set(hallTiles.filter((tile) => tile !== from && safer(tile) && !occupied(tile) &&
+    ctx.readers.pathing.passable(tile, 'walker', mover) && ctx.readers.pathing.reachable(from, tile, 'walker')));
+  // Breadth first by legal step count, then tile index within a frontier.
+  let frontier = [from];
+  const seen = new Set([from]);
+  let visited = 0;
+  let fallback = -1;
+  while (frontier.length > 0 && visited < CIVILIAN_FLEE_NODE_LIMIT) {
+    const next: TileIndex[] = [];
+    for (const tile of frontier) {
+      if (visited >= CIVILIAN_FLEE_NODE_LIMIT) break;
+      visited += 1;
+      if (hall.has(tile)) return tile;
+      if (fallback < 0 && tile !== from && safer(tile)) {
+        fallback = tile;
+        if (hall.size === 0) return tile;
+      }
+      for (const [to] of ctx.readers.pathing.edges(tile, 'walker', mover)) {
+        if (seen.has(to) || occupied(to)) continue;
+        seen.add(to);
+        next.push(to);
       }
     }
+    frontier = next.sort((a, b) => a - b);
   }
-  return bestTile;
+  return fallback;
+}
+
+function startFight(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain, threatId: EntityId): void {
+  if (b.activity !== 'Fighting') b.behaviorUntil = ctx.tick + CIVILIAN_COMBAT_TIMEOUT_TICKS;
+  host.setCombatTarget(id, threatId);
+  b.behavior = 'idle';
+  b.targetTile = ctx.world.services.movement?.tileOf(id) ?? -1;
+  b.activity = 'Fighting';
+}
+
+/** A new scan must not reset a cornered fighter's existing deadline. */
+function fightExpired(ctx: TickContext, id: EntityId, threatId: EntityId, b: Brain): boolean {
+  const mine = ctx.world.entities.get(id, C.Position);
+  const theirs = ctx.world.entities.get(threatId, C.Position);
+  const inReach = mine && theirs && mine.z === theirs.z &&
+    Math.max(Math.abs(mine.x - theirs.x), Math.abs(mine.y - theirs.y)) <= 1;
+  const engaged = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16').lastEngagementTick(id) : undefined;
+  if (inReach) b.behaviorUntil = ctx.tick + CIVILIAN_COMBAT_TIMEOUT_TICKS;
+  else if (engaged !== undefined) b.behaviorUntil = Math.max(b.behaviorUntil, engaged + CIVILIAN_COMBAT_TIMEOUT_TICKS);
+  return ctx.tick >= b.behaviorUntil;
 }
 
 /**
@@ -126,17 +152,25 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     } else {
       const fleeGoal = findFleeTile(ctx, id, threatId);
       if (fleeGoal >= 0) {
+        if (b.activity === 'Fighting') host.setCombatTarget(id, 0);
+        ctx.world.services.movement?.stopWalking(id);
         b.behavior = 'flee';
         b.targetTile = fleeGoal;
         b.activity = 'Fleeing';
         return;
       }
-      // Cornered: fight back with weapon/tool
-      host.setCombatTarget(id, threatId);
-      b.behavior = 'idle';
-      b.targetTile = ctx.world.services.movement?.tileOf(id) ?? -1;
-      b.activity = 'Fighting';
-      return;
+      const needs = ctx.world.entities.get(id, C.Needs);
+      const critical = needs !== undefined && ranked(needs, true).length > 0;
+      const expired = b.activity === 'Fighting' && fightExpired(ctx, id, threatId, b);
+      if (!critical && !expired) {
+        startFight(host, ctx, id, b, threatId);
+        return;
+      }
+      // Critical needs always leave a civilian fight, even when no resource is available.
+      b.activity = NO_JOB;
+      if (expired) host.clearThreat(id);
+      host.setCombatTarget(id, 0);
+      ctx.world.services.movement?.stopWalking(id);
     }
   }
 
@@ -262,10 +296,13 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
   }
   let reselect = false;
   if (b.behavior === 'need' || b.behavior === 'social') {
-    const currentNeed = host.activities.plans.get(id)?.need;
+    const currentNeed = NEED_NAMES.find((name) => name === host.activities.plans.get(id)?.need);
     const needs = ctx.world.entities.get(id, C.Needs);
     const critical = needs === undefined ? undefined : ranked(needs, true)[0];
-    if (interrupted && host.threatOf(id) !== 0) {
+    const keepCritical = currentNeed !== undefined && needs !== undefined &&
+      CRITICAL[currentNeed] !== undefined && needs[currentNeed] >= (CRITICAL[currentNeed] as number);
+    if (interrupted && host.threatOf(id) !== 0 &&
+        (!keepCritical || findFleeTile(ctx, id, host.threatOf(id)) >= 0)) {
       host.activities.cancel(ctx, id);
       reselect = true;
     } else if (interrupted && critical !== undefined && critical !== currentNeed) {
@@ -334,10 +371,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
           b.targetTile = nextFleeTile;
           movement.walkTo(id, nextFleeTile, 'flee', ctx);
         } else {
-          host.setCombatTarget(id, threatId);
-          b.behavior = 'idle';
-          b.targetTile = myTile;
-          b.activity = 'Fighting';
+          reselect = true;
         }
       } else {
         const outcome = movement.walkTo(id, b.targetTile, 'flee', ctx);
@@ -347,10 +381,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
             b.targetTile = nextFleeTile;
             movement.walkTo(id, nextFleeTile, 'flee', ctx);
           } else {
-            host.setCombatTarget(id, threatId);
-            b.behavior = 'idle';
-            b.targetTile = myTile;
-            b.activity = 'Fighting';
+            reselect = true;
           }
         }
       }
@@ -365,6 +396,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
       if (threatGone) {
         host.clearThreat(id);
         host.setCombatTarget(id, 0);
+        b.activity = NO_JOB;
         reselect = true;
       } else {
         const escapeTile = findFleeTile(ctx, id, threatId);
@@ -373,6 +405,21 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
           b.behavior = 'flee';
           b.targetTile = escapeTile;
           b.activity = 'Fleeing';
+          movement?.stopWalking(id);
+        } else {
+          const needs = ctx.world.entities.get(id, C.Needs);
+          const critical = needs !== undefined && ranked(needs, true).length > 0;
+          if (fightExpired(ctx, id, threatId, b)) {
+            host.clearThreat(id);
+            host.setCombatTarget(id, 0);
+            movement?.stopWalking(id);
+            b.activity = NO_JOB;
+            reselect = true;
+          } else if (critical) {
+            host.setCombatTarget(id, 0);
+            movement?.stopWalking(id);
+            reselect = true;
+          }
         }
       }
     } else {

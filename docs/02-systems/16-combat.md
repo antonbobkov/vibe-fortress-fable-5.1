@@ -78,14 +78,14 @@ Line of sight (22): a Bresenham line on the same z-level with no wall, door, tre
 
 ### Fleeing and morale in combat
 
-- Civilians flee from any hostile within `THREAT_RADIUS` (10). A cornered civilian (no flee tile) fights.
+- Civilians flee from any hostile within `THREAT_RADIUS` (10), including escape through stairs and ramps. A cornered civilian (no flee tile) fights until a critical need or the civilian combat timeout in 10 interrupts it.
 - Squad members on duty do not flee.
 - Animals and hostiles flee at `FLEE_BLOOD_PERCENT` of blood (species value; `aggressive` species and `deep` faction never flee) or when 18 orders a retreat.
 - Fleeing creatures move away from all visible enemies; hostiles fleeing head for their arrival edge.
 
 ### Threat detection
 
-Each tick, for each hostile-to-fortress creature that is not stealthed (18), any fortress creature within `THREAT_RADIUS` is sent `ThreatNearby { id, hostileId }` (throttled to one per creature per `THREAT_THROTTLE_TICKS`). 10 reacts for civilians; war animals (08) react by attacking.
+Each tick, for each hostile-to-fortress creature that is not stealthed (18), any fortress creature within `THREAT_RADIUS` is sent `ThreatNearby { id, hostileId }` (throttled to one per creature per `THREAT_THROTTLE_TICKS`). 10 reacts for civilians; war animals (08) react by attacking. Save the last scan tick per fortress creature so loading preserves the throttle and civilian fighting deadline; omit the list when empty. Older saves without it have no scan throttle.
 
 ### Squads
 
@@ -131,6 +131,7 @@ Every `AttackResolved` is rendered by the announcement registry into a combat lo
 ## State
 
 - `Soldier` components (`squadId, onDuty, stance, targetId, cooldownUntil, lastShiftTick`), `Squad` entities, `Equipment` components (all creatures that can carry: dwarves, hostiles, traders), `Projectile` entities, `alert`, `engagements: Map<EntityId, lastAttackTick>` (for "first attack" announcements), `targets: Map<EntityId, EntityId>` for non-dwarf creatures (animals and hostiles set targets through `combat.setTarget`).
+- `threatThrottles: Map<EntityId, Tick>` records each fortress creature's last threat notification.
 - Rng stream.
 
 ## Interfaces
@@ -138,6 +139,7 @@ Every `AttackResolved` is rendered by the announcement registry into a combat lo
 ### Reader
 
 - `combat.isHostile(a, b)`, `combat.factionOf(id)`, `combat.targetOf(id)`
+- `combat.lastEngagementTick(id)` — the last recorded melee or ranged attack opportunity, or undefined; reads the saved engagement map
 - `combat.squads()`, `combat.squad(id)`, `combat.squadOf(dwarfId)`, `combat.onDuty(dwarfId)`
 - `combat.alert()`
 - `combat.weaponOf(id)`, `combat.armorOf(id)`, `combat.armorValue(id, part, damageType)` (for the inspector)
