@@ -28,6 +28,7 @@ report or audit ──► backlog row ──► work file ──► code + tests
 
 | Where | What it holds |
 |---|---|
+| [`balance-status.md`](balance-status.md) | Latest measurement and fixture qualification per balance measure; replaces the earlier balance journal |
 | [`backlog.md`](backlog.md) | Every open item in one table: id, title, source, needs, status. Nothing closed |
 | [`work/`](work/) | One file per open task: what to do, the decisions already made, the spec sections it changes, what "done" means |
 | [`process/agent-workflow.md`](process/agent-workflow.md) | How a task is picked up, worked, verified, committed and closed; the rules below in full |
