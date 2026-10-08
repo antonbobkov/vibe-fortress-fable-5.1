@@ -22,11 +22,7 @@ describe('T-M8-01 profiling pass and per-system budgets', () => {
   });
 
   for (const { id, budget } of budgets) {
-    if (id === '21') {
-      it.todo('C-009: system 21 has a literal zero-ms allocation; real clock measurements have nonzero overhead');
-      continue;
-    }
-    it(`system ${id} averages at most ${budget} ms × 2`, () => {
+    it(`${id === '21' ? 'C-009: ' : ''}system ${id} averages at most ${budget} ms × 2`, () => {
       const value = id === 'core' ? measured.core : id === '22' ? measured.pathing : measured.systems[id];
       expect(value, `system ${id}: ${value?.toFixed(6)} ms; budget ${budget} ms × 2`).toBeLessThanOrEqual(budget * 2);
     });

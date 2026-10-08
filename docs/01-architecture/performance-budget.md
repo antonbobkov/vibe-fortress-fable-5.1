@@ -30,10 +30,10 @@ Target: average tick ≤ 6 ms, worst tick ≤ 20 ms, so that 4× (80 ticks/s) fi
 | 18 threats | 0.10 | Hostile AI | Party-level goals; individuals reuse party paths; one shared fortress-creature snapshot per threat step; loot search bounds bestUnattendedItems to same-z Chebyshev square |
 | 19 defense | 0.05 | Trap checks | Trap tiles indexed; check on entity step events, not per tick scans |
 | 20 trade | 0.02 | Schedule | Per-hour |
-| 21 immigration | 0.00 | Daily | Negligible |
+| 21 immigration | 0.01 | Daily | Negligible |
 | 22 pathing | 1.00 | A* | Budget of `PATH_NODES_PER_TICK` expansions; connectivity precheck; route cache; requests queued by urgency |
 | core | 0.30 | Events, commands, calendar, spatial index | Batched events; bucket updates on movement only |
-| **Total** | **5.84** | | |
+| **Total** | **5.85** | | |
 
 The pathfinding budget is the one that stretches: if the budget is exhausted in a tick, remaining requests wait, and the requester's brain idles for that tick. This degrades gracefully: creatures pause for a few ticks under load instead of the frame stalling.
 
