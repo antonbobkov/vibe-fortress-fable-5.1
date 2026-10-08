@@ -216,10 +216,14 @@ interface AnnouncementSpec {
   readonly severity: 'note' | 'alert' | 'danger'
   readonly stringKey: string
   readonly once?: boolean
+  readonly oneOf?: { readonly field: string; readonly values: readonly (string | number)[] }
+  readonly keyField?: string
 }
 ```
 
 Presentation (24) maps `stringKey` against `strings.json`, filling placeholders (`{dwarf}`, `{material}`, etc.) from the event's payload and reader data (e.g., resolving `finderId` or `minerId` to dwarf names and material indices to material names). The view focus is derived automatically from the event's `tile` or first `tiles` entry. When `once: true`, only the first occurrence of the event generates an announcement (e.g. 03's `DeepsilverMined`).
+
+`oneOf` limits an announcement to events whose named field matches one of its values. `keyField` appends that event field's value to `stringKey`, separated by a dot, for weather-state and season-specific text. Weather changes announce only storm, snow, heatwave and cold snap; season lines use the season index.
 
 ## Interface stability
 

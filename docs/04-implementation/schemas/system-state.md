@@ -23,14 +23,15 @@ interface TerrainState { stateVersion: 1; designations: { tile: TileIndex; kind:
 interface FluidsState { stateVersion: 1; active: Uint32Array /* tile indices, all chunks concatenated */; activeChunkOffsets: Uint32Array;
   idleCounter: Uint8Array /* parallel to active */; waterSources: TileIndex[]; magmaSources: TileIndex[]; sinks: TileIndex[]; outdoorWaterTiles: TileIndex[];
   frozenOriginalKind: [TileIndex, TileKind][]; frozenOriginalMaterial?: [TileIndex, number][]; frozenIceKind?: [TileIndex, TileKind][];
-  freezePending: boolean; mistTiles: [TileIndex, Tick][]; equalizeCounts?: [TileIndex, number][]; stepParity: 0|1; spreadRotation: 0|1|2|3; rng: RngState }
+  freezePending: boolean; mistTiles: [TileIndex, Tick][]; mistNow?: Tick; equalizeCounts?: [TileIndex, number][]; stepParity: 0|1; spreadRotation: 0|1|2|3; rng: RngState }
 
 interface MaterialsState { stateVersion: 1; burning: [TileIndex, { remainingTicks: number; spreadCooldown: number }][]; warmSprings: TileIndex[];
   magmaSourceChunks: ChunkIndex[]; magmaSignatures: [ChunkIndex, number][]; started: boolean; pendingChunks: ChunkIndex[];
   forced: [TileIndex, number][]; pendingIgnite: TileIndex[]; itemBurn: [EntityId, number][]; rng: RngState }
 
 interface WeatherState { stateVersion: 1; state: string; stateEndsTick: Tick; surfaceTempCached: number; growthModifierCached: Percent;
-  snowCoveredChunks: ChunkIndex[]; wetChunks: [ChunkIndex, Tick][]; rng: RngState }
+  snowCoveredChunks: ChunkIndex[]; wetChunks: [ChunkIndex, Tick][]; started: boolean; forced: string | null;
+  rainHours: number; isDaylightCached: boolean; rng: RngState }
 
 interface PlantsState { stateVersion: 1; cropAtTile: [TileIndex, EntityId][]; plotIndex: EntityId[]; saplings: [TileIndex, Tick][];
   shrubTimers: [TileIndex, Tick][]; bareSoil: TileIndex[]; ashTiles: [TileIndex, Tick][]; needsSeedsAnnounced: [EntityId, Season][]; rng: RngState }

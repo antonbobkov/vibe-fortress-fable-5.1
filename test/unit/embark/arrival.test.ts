@@ -143,7 +143,7 @@ describe('T-M2-08 arrival: the wagon and its supplies', () => {
     const game = new HeadlessGame({ seed: 'arrival-trees', world: 'flat-test' });
     const map = game.map;
     const plants = game.registry.table<{ id: string; logs?: number[] }>('plants');
-    const ash = plants.index('ash');
+    const ash = game.registry.table('materials').index('ash');
     for (let y = 0; y < map.h; y += 1) for (let x = 0; x < map.w; x += 1) if ((x + y) % 5 === 0) map.setKind(map.index(x, y, 32), TileKind.Tree, ash);
     const system = game.world.scheduler.byId('14') as BuildingsSystem;
     const arrival = arrive(game.world, FLAT_TEST_SPEC, [], { fortressName: 'Woods', placeWagon: (c, l) => system.buildings.placeWagon(c, l) });

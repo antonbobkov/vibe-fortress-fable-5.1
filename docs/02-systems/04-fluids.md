@@ -69,7 +69,7 @@ This is how the player casts obsidian walls and how a water trap kills a magma l
 
 ### Mist
 
-When rule 1 moves units into a tile `B` that has a solid bottom (a `floor`, `ramp` or stairs), or into a tile whose own below tile is not passable, and the tile two above `T` (`T.z + 1`) also contains falling water (level > 0, kind `open`), then the fall is at least two levels tall: emit mist on the 3×3 around `B` at `B.z` and `B.z + 1`. Mist is stored in `mistTiles: Map<TileIndex, expiresTick>` with expiry `MIST_DURATION_TICKS` after the last emission. `fluids.isMisty(i)` reads it. 10 Dwarves checks it when a dwarf enters a tile and emits `DwarfFeltMist`; 15 turns that into a thought with a per-dwarf cooldown.
+When rule 1 moves units into a tile `B` that has a solid bottom (a `floor`, `ramp` or stairs), or into a tile whose own below tile is not passable, and the tile two above `T` (`T.z + 1`) also contains falling water (level > 0, kind `open`), then the fall is at least two levels tall: emit mist on the 3×3 around `B` at `B.z` and `B.z + 1`. Mist is stored in `mistTiles: Map<TileIndex, expiresTick>` with expiry `MIST_DURATION_TICKS` after the last emission. `fluids.isMisty(i)` compares expiry against `mistNow`, the tick of 04’s last step. A new area means that none of those tiles is still misty before the emission; emit one `MistProduced { tiles }` naming the area only in that case. Drop expired entries after each step and save `mistNow`. 10 Dwarves checks it when a dwarf enters a tile and emits `DwarfFeltMist`; 15 turns that into a thought with a per-dwarf cooldown.
 
 ### Mud
 
@@ -105,7 +105,7 @@ When a step ends with water at level ≥ 1 on a tile whose kind is `floor` and w
 - `active: per chunk Uint32Array + count`, `idleCounter: Uint8Array` (per tile, only meaningful for active tiles). The serialized idle counters are parallel to the flattened `active` array.
 - `sources: TileIndex[]` per type; `sinks: TileIndex[]`.
 - `outdoorWaterTiles: SortedSet<TileIndex>`; `frozenOriginalKind: Map<TileIndex, kind>`, `frozenOriginalMaterial` and `frozenIceKind`; `freezePending`.
-- `mistTiles: Map<TileIndex, expiresTick>`.
+- `mistTiles: Map<TileIndex, expiresTick>` and `mistNow` (last fluids-step tick).
 - `equalizeCounts`: equalizing moves made by each tile since its level was last written by another rule (non-zero entries only).
 - The rng stream state.
 

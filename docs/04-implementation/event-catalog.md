@@ -2,7 +2,7 @@
 
 **Owner:** implementation · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md), every system document
 
-Every event type, its fields, its emitters and its subscribers. `ui` means the presentation announcement registry or panels subscribe. Batched events carry arrays and are emitted at most once per emitter per tick. Every event has at least one emitter and one subscriber; the Wave 4 consistency pass checks this table against the system documents.
+Every event type, its fields, its emitters and its subscribers. `ui` means the presentation announcement registry or panels subscribe. Batched events carry arrays and are emitted at most once per emitter per tick, except `ConstructionCollapsed`: 03 emits one batch per terrain action that settles. Consumers must accept several collapse batches in one tick. Every event has at least one emitter and one subscriber; the Wave 4 consistency pass checks this table against the system documents.
 
 JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and JobUnblocked carry the job content id as `jobType`; `type` remains the event discriminator. ItemCreated and ItemDestroyed carry the item content id as `itemType`, and ItemCreated material is its content id.
 

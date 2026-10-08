@@ -59,12 +59,16 @@ deactivate(i): remove from active; activeFluidCount--; set settled bit
 idle(i): idle[i]++; if idle[i] >= FLUID_SETTLE_STEPS: deactivate(i)
 mud(b): terrain.setFlag(b, Mud, true) if material class of b is soil or stone
 mistCheck(T, B): if type==WATER and (kind(B) solid-bottomed or not passable(below(B))) and level(above(T)) > 0 and kind(above(T))==Open:
-           for each tile M in 3x3 around B at z(B) and z(B)+1: mist[M] = tick + MIST_DURATION_TICKS; if new area: emit MistProduced
+           area = valid tiles in 3x3 around B at z(B) and z(B)+1; newArea = none of area is misty at mistNow
+           for M in area: mist[M] = tick + MIST_DURATION_TICKS
+           if newArea: emit MistProduced{tiles: area}
 contactCheck(T): if isMagma(fluid[T]) : return
            for Y in 6-neighbors(T): if level(fluid[Y]) > 0 and isMagma(fluid[Y]):
              terrain.setKind(Y, level(Y) >= OBSIDIAN_WALL_LEVEL ? Wall : Floor, obsidian); fluid[Y] = 0; deactivate(Y)
              setLevel(T, level(T)-1); emit ObsidianFormed{Y}
 ```
+
+At each step set `mistNow = tick`; after the step drop mist entries whose expiry is at or before `mistNow`. `isMisty` compares with this saved last-step tick.
 
 A new game starts with an empty active set. Generated fluid remains still until touched; sinks drain on the first step. Source refills track only drained sources in ascending order. Save idle counters parallel to active tile indices, without a first-tick activation flag.
 

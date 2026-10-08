@@ -1,11 +1,13 @@
 # T-119 — Resolve retained systems 01–07 decision/code mismatches
 
-**Source:** [T-104 triage](../archive/tasks/T-104-triage-systems-01-07.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** `T-119: resolve terrain, arrival, weather and movement decisions`.
+
+**Source:** [T-104 triage](T-104-triage-systems-01-07.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Scope
 
 T-104 verified the decisions against the implementation. The five whole rows
-remain in [the decision log](../05-plan/DECISIONS.md) because code disagrees.
+remain in [the decision log](../../05-plan/DECISIONS.md) because code disagrees.
 This file reports the mismatches; it does not choose a rule or authorize a
 simulation change. Obtain the owner's resolution before implementation.
 
@@ -39,5 +41,5 @@ If behavior or hashes change, regenerate only the predicted named goldens and
 include the required `golden:` paragraph. Close each resolved row by folding
 the resulting rule and deleting only its exact decision-log row.
 
-Run [the required checks](../process/agent-workflow.md) before each commit.
+Run [the required checks](../../process/agent-workflow.md) before each commit.
 The normal task closure rules apply once all five owner resolutions are done.

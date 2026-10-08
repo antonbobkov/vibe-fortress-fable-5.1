@@ -48,6 +48,8 @@ Hourly (on `HourPassed`): apply the rates in 10's Needs table, clamping 0..100. 
 
 Movement side effects on entering a tile: mist → `DwarfFeltMist` (cooldown), warm spring adjacency → `DwarfNearSpring`, outdoors in bad weather → `DwarfOutdoorsIn` (hourly), miasma → 15 standing check, undiscovered neighbors → 03 discovery, a fine-or-better statue or a masterwork item in view (same room) → `admired_statue` / `SawMasterwork` (per-object memory sets).
 
+The movement handler writes `Brain` thought timers and `Needs` for masterwork joy relief, never tile grids. Mist uses zero as never and otherwise its cooldown; bad-weather thoughts use the saved hour index. Spring adjacency is an entry from outside its same-level 8-neighbourhood.
+
 Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position.
 
 Children: `select` skips `duty` and `work` except `haul_to_stockpile` jobs (labors fixed to hauling).

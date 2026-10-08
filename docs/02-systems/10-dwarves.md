@@ -97,6 +97,8 @@ Every target a need activity walks to must be reachable (connectivity labels). I
 
 Dwarves move with the movement helper at `speedFixed = species speed × (50 + Agility) / 100 × wound modifier (17) × carry modifier (a carried item heavier than `HEAVY_ITEM_DENSITY × size` halves speed)`. They avoid `restricted` tiles when a path without them exists (22 cost) and never enter `forbidden` tiles. A dwarf entering a misty tile emits `DwarfFeltMist` (once per `MIST_THOUGHT_COOLDOWN`); entering an outdoor tile during rain, storm, snow, heatwave or cold snap emits `DwarfOutdoorsIn { weather }` once per hour.
 
+The `EntitiesMoved` handler observes entries using the batch’s from/to tiles. It writes the dwarf’s `Brain` for mist and outdoor thought memory, and `Needs` for masterwork joy relief; it never changes a tile. A zero `lastMistTick` means mist has never been felt; otherwise the cooldown must have elapsed. `lastOutdoorThoughtHour` stores the hour index so the weather thought fires only once per hour. `DwarfNearSpring` fires when the destination is on or 8-adjacent to a spring on the same level and the origin was not. Miasma is a standing thought checked by 15, rather than a movement event.
+
 ### Relationships
 
 `Relationships.friends` and `grudges`; `talkCount: Map<id, n>`. Friend at `FRIEND_TALKS` talks; a sulk argument (15) adds a grudge; grudges fade after `GRUDGE_DAYS`. Friends' deaths cause stronger grief (15). Dwarves choose friends preferentially to talk to.
