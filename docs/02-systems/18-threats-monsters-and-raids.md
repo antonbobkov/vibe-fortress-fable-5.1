@@ -19,7 +19,7 @@ Bring danger on a schedule the player can read, scaled by the region's peril and
 
 ### Renown
 
-`renown = wealth / RENOWN_WEALTH_DIVISOR + dwarf population × RENOWN_POP_WEIGHT`, recomputed daily. Party sizes are `base + renown × perRenown`, capped at `max` per kind. Renown is shown to the player as a number with a one-line explanation.
+`renown = wealth / RENOWN_WEALTH_DIVISOR + dwarf population × RENOWN_POP_WEIGHT`, recomputed daily and on wealth changes, immigration arrivals and `CreatureDied` of a dwarf. Party sizes are `base + renown × perRenown`, capped at `max` per kind. Renown is shown to the player as a number with a one-line explanation.
 
 ### Schedule
 
@@ -122,7 +122,7 @@ None. (Alerts and squads are 16; the deepsilver confirmation is a UI gate on 03'
 
 ### Events consumed
 
-`DayPassed`, `HourPassed` (restless dead dusk and dawn), `WealthChanged`, `ImmigrantsArrived` and `DwarfDied` (population for renown), `CavernBreached`, `DeepsilverMined`, `CreatureDied`, `CreatureUnconscious`, `TrapTriggered`, `DoorBroken`, `WeatherChanged` (fog), `EntitiesMoved` (spotting; batched), `TilesChanged` (goal re-evaluation).
+`DayPassed`, `HourPassed` (restless dead dusk and dawn), `WealthChanged`, `ImmigrantsArrived` (population for renown), `CavernBreached`, `DeepsilverMined`, `CreatureDied` (dwarf population for renown, and party/monster cleanup), `CreatureUnconscious`, `TrapTriggered`, `DoorBroken`, `WeatherChanged` (fog), `EntitiesMoved` (spotting; batched), `TilesChanged` (goal re-evaluation).
 
 ### Events emitted
 

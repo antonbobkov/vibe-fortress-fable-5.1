@@ -65,7 +65,6 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `SkillLevelUp` | `id, skill, level` | 10 | 12, 15 |
 | `LegendaryReached` | `id, skill` | 10 | 15, 24 (milestone), ui |
 | `DwarfIdle` | `id` | 10 | ui (none) |
-| `DwarfDied` | `id, cause` | 10 | 15, 16, 18, 21, ui |
 | `TitleAssigned` | `dwarfId, title` | 10 | 16, 20, ui |
 | `DwarfBecameAdult` | `id` | 10 | 11, 15, ui |
 | `JobCreated` / `JobClaimed` / `JobStarted` / `JobCompleted` / `JobCancelled` / `JobBlocked` / `JobUnblocked` | `jobId, type[, workerId, target, reason]` | 11 | producers (03, 07, 08, 09, 12, 13, 14, 17, 19, 20), 10 (xp on completed), ui |
@@ -110,7 +109,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `WoundInflicted` | `id, part, type, severity` | 17 | 15 |
 | `LimbLost` | `id, part` | 17 | 15, 16, ui |
 | `CreatureUnconscious` / `CreatureConscious` | `id` | 17 | 10, 16, 18, ui |
-| `CreatureDied` | `id, cause, killerId, tile, species, name, faction, ageTicks, wornItems` | 17 | 08, 09, 10, 11, 13, 16, 18, 20, ui |
+| `CreatureDied` | `id, cause, killerId, tile, species, name, faction, ageTicks, wornItems` | 17 | 08, 09, 10, 11, 13, 15, 16, 18, 20, ui |
 | `PatientAdmitted` / `PatientDischarged` / `PatientHealed` | `id[, hospitalTier]` | 17 | 10, 15, ui |
 | `InfectionStarted` / `InfectionCured` | `id` | 17 | ui |
 | `TreatmentDone` | `patientId, medicId, kind` | 17 | 10 (xp) |

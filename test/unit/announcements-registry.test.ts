@@ -119,7 +119,6 @@ const CONSUMED_ELSEWHERE: Readonly<Record<string, string>> = {
   Embarked: 'the fortress screen opens, and the first hint',
   CommandRejected: 'the status bar for two seconds (24 § Events consumed)',
   FireSpread: 'the compositor’s fire layer; 05 names only FireStarted and FireOut',
-  DwarfDied: 'no system emits it: dwarf death is `CreatureDied` (D-174)',
   CropPlanted: 'the zones panel’s farm settings (crops by stage)',
   CropHarvested: 'the zones panel’s farm settings',
   CropDied: 'the zones panel’s farm settings',

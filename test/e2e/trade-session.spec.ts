@@ -88,6 +88,8 @@ test('T-M7-03 trade-session', async ({ page }) => {
     if (!title.ok) throw new Error(`broker: ${title.reason}`);
   }, fixture);
 
+  // T-117: deaths during the caravan wait leave a danger line; acknowledge it before panel input.
+  await page.keyboard.press('Escape');
   await page.keyboard.press('c');
   expect(await textOf(page)).toContain('Civilizations');
   await page.keyboard.press('Shift+D');

@@ -206,7 +206,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Children arrive with families, do light hauling, and become adults after a fixed number of years.
 - Positions: Thane (assigned by the player; their bedroom quality gives a small fortress-wide thought), Warden (commands squads), Broker (trades), Chief Medic (diagnoses).
 
-**Reads.** 11 jobs; 14 rooms; 15 mood; 16 orders. **Emits.** `NeedCritical`, `SkillLevelUp`, `DwarfIdle`, `DwarfDied`, `TitleAssigned`.
+**Reads.** 11 jobs; 14 rooms; 15 mood; 16 orders. **Emits.** `NeedCritical`, `SkillLevelUp`, `DwarfIdle`, `TitleAssigned`.
 
 **Player touchpoints.** Units panel; dwarf inspection (attributes, skills, needs, thoughts, labors, equipment, relationships); position assignment; labor toggles.
 

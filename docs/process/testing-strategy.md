@@ -92,6 +92,8 @@ E2E suite: `boot`, `generate-and-embark`, `designate-by-drag`, `build-and-stockp
 
 `zones-editor` configures a stockpile's preset, category tree, container counts, priority, quality and material classes through keyboard and mouse while paused. It also assigns and clears a bedroom owner through the shared picker, checks missing-bed and open-border messages, and asserts that the calendar did not advance.
 
+The caravan exchange harness acknowledges any danger announcement from the wait for arrival before issuing its panel keys; the trade assertions then run through the ordinary controls.
+
 E2E starts a test-mode development server and a separate static server (Vite preview) for a test-mode build of `dist/`. `boot-dist` runs against the second the same assertions that `boot` runs against the first (`test/e2e/boot-smoke.ts`), so the built output is tested without putting the hook into a production build. Production builds omit `window.__deepholm`: run `npm run build` after the e2e suite to restore production output.
 
 ## Coverage gates
