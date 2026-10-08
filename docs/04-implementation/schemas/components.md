@@ -69,7 +69,7 @@ interface Personality { traits: [Idx<TraitDef>, Idx<TraitDef>, Idx<TraitDef>] }
 interface Schedule { sleepStartHour: number; sleepHours: number }
 interface Relationships { friends: EntityId[]; grudges: { id: EntityId; untilTick: Tick }[];
                           talkCount: [EntityId, number][]; spouse: EntityId; pets: EntityId[] }
-interface Title { title: 'none' | 'thane' | 'warden' | 'broker' | 'chief_medic' }
+interface Title { title: 'none' | 'thane' | 'warden' | 'broker' | 'chief_medic' } // caches first held role; 10's saved per-role holders are authoritative
 interface Brain { behavior: 'flee' | 'retreat' | 'patient' | 'need' | 'duty' | 'work' | 'social' | 'idle';
                   behaviorUntil: Tick; targetTile: TileIndex; activity: string; lastMistTick: Tick;
                   lastOutdoorThoughtHour: number; daysUnderground: number }
@@ -87,7 +87,7 @@ interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Qu
                  containerId: EntityId; ownerId: EntityId; flags: number; crafterId: EntityId;
                  rotStart: Tick; rotStage: 0|1|2|3; reservedBy: number /* jobId */; carriedBy: EntityId }
 interface Container { contents: EntityId[]; capacity: number; classId: 'barrel'|'bag'|'bin'|'chest'|'bucket'|'cage'|'wagon' }
-interface Corpse { species: Idx<SpeciesDef>; diedTick: Tick; wornItems: EntityId[]; dwarfName: string | null }
+interface Corpse { species: Idx<SpeciesDef>; diedTick: Tick; wornItems: EntityId[]; dwarfName: string | null; juvenile?: boolean }
 interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 'planned'|'constructing'|'built';
                      origin: TileIndex; footprint: TileIndex[]; orientation: 0|1|2|3; itemId: EntityId;
                      mode: string; /* door mode, hatch mode, trap mode */ linkedIds: EntityId[]; ownerId: EntityId;

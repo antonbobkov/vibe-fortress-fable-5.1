@@ -1,10 +1,12 @@
 # T-105 — Triage D-rows: systems 08–13
 
-**Source:** [`docs-restructure.md`](docs-restructure.md) § Where deltas are accumulating (item 1), § The triage tasks · **Size:** M · **Needs:** — · **Status:** open
+Closed by a083b11, 1205046, and `T-105: fold job and item rules and close triage`; retained rows and catalog mirrors are recorded in T-130.
+
+**Source:** [`docs-restructure.md`](../../work/docs-restructure.md) § Where deltas are accumulating (item 1), § The triage tasks · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
-[`../05-plan/DECISIONS.md`](../05-plan/DECISIONS.md) holds about 240 `D-` rows. Many are normative and exist nowhere else, so the effective specification is the spec plus this log. This task empties the part of the log that belongs to its scope.
+[`../05-plan/DECISIONS.md`](../../05-plan/DECISIONS.md) holds about 240 `D-` rows. Many are normative and exist nowhere else, so the effective specification is the spec plus this log. This task empties the part of the log that belongs to its scope.
 
 ## Scope
 
@@ -17,7 +19,7 @@ A row belongs to the task whose scope holds the spec section the row governs (se
 For each row in scope, do exactly one of these, then delete the row from the log:
 
 - **Fold it.** Write the rule into the spec section it governs, as plain spec text in that document's own style, with no id and no date. If the section already says it, there is nothing to write.
-- **Move it.** A tooling or test-harness choice goes to `docs/process/tooling.md` (create it if it does not exist; one short entry per choice), or into [`../process/testing-strategy.md`](../process/testing-strategy.md) when it is about a test tier.
+- **Move it.** A tooling or test-harness choice goes to `docs/process/tooling.md` (create it if it does not exist; one short entry per choice), or into [`../process/testing-strategy.md`](../../process/testing-strategy.md) when it is about a test tier.
 - **Archive it.** A superseded or purely historical row goes to `docs/archive/decisions-archive.md` (create it if it does not exist; keep the row whole).
 
 A row whose rejected alternative is worth remembering stays in the log as one short line.
@@ -37,4 +39,4 @@ Rules:
 
 - No row of this scope is left in the log, except the one-line records kept on purpose.
 - The commit body lists every spec file edited and, per row, which of the three it was (a compact list, for example `D-005 fold simulation-core.md § Random numbers`).
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green. World hashes and render goldens do not move.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green. World hashes and render goldens do not move.

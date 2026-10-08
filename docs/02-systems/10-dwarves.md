@@ -30,11 +30,11 @@ Make dwarves people. A dwarf has a body with attributes, a mind with skills, nee
 - Level thresholds: `xpToNext(level) = 100 + level × 60` (level 0→1 needs 100, 19→20 needs 1240; the full ladder is 1,900 + 11,400 = about 13,000 xp).
 - Tier names by level (content): Dabbling 1, Novice 2–3, Adequate 4–5, Competent 6–7, Skilled 8–9, Proficient 10–11, Talented 12–13, Adept 14–15, Expert 16–17, Master 18–19, Legendary 20.
 - No skill rust.
-- `SkillLevelUp` at levels 5, 10, 15 and 20 gives a happy thought; reaching 20 emits `LegendaryReached`.
+- `SkillLevelUp { id, skill, level }` fires at every gained level; 15 gives a happy thought at levels 5, 10, 15 and 20; reaching 20 emits `LegendaryReached`.
 
 ### Needs
 
-Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger and rest: `rate × (150 − Endurance) / 100`):
+Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger and awake rest only: `rate × (150 − Endurance) / 100`):
 
 | Need | Rise per hour | Relieved by | Want threshold | Critical threshold |
 |---|---|---|---|---|
@@ -46,28 +46,29 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 | purpose | 2 while idle; −10 per hour of work | working | 60 | none |
 | joy | 0.75 | hearth hall visit −30; mist −30; fine meal −20; seeing a masterwork −10 | 60 | none |
 
-- A need at or above its critical threshold interrupts any job (11 returns the job to open with progress kept) and takes precedence in behavior selection. Hunger or thirst at `NEED_MAX` for `STARVE_DAYS` (hunger) or `DEHYDRATE_DAYS` (thirst) causes daily `Starvation { id }` damage through 17; at `NEED_MAX` an announcement "X is starving" (alert) fires once per day.
+- A need at or above its critical threshold interrupts any job (11 returns the job to open with progress kept) and takes precedence in behavior selection. Hunger or thirst at `NEED_MAX` for `STARVE_DAYS` (hunger) or `DEHYDRATE_DAYS` (thirst) causes daily `Starvation { id }` damage through 17; at `NEED_MAX` one `Starving { id, need }` announcement (alert) fires per dwarf per day, naming hunger when both hunger and thirst are maxed. Daily starvation requests fire once if either duration has elapsed.
+- Threshold crossings and the sleep schedule set saved `interruptFlags` for the next behavior selection; a critical crossing emits `NeedCritical`, which 11 consumes to return an interruptible job to open with progress kept.
 - Rest at `NEED_MAX` makes the dwarf fall asleep where they stand ("passed out").
 - Each need at or above its want threshold produces a standing negative thought while it persists (15: `hungry`, `thirsty`, `tired`, `lonely`, `uncomfortable`, `restless`, `bored`); satisfying it produces the positive event thought.
 
 ### Eating and drinking
 
 - Food search: nearest reachable edible item that is not forbidden or reserved, preferring `meal` items, then raw food, using 13's `findItem`. The dwarf carries it to the nearest dining hall chair with a table if one is within `DINING_SEARCH_RADIUS`, else eats on the spot. Emits `MealEaten { id, quality, atTable, roomTier }`.
-- Drink search: alcohol in a barrel in a stockpile, else a well with water, else the nearest reachable water tile of level ≥ 1 (not frozen) within 32 tiles horizontally and 8 levels up or down, drunk from any walkable tile 8-adjacent to it on its level. Emits `DrankAlcohol { id, quality }` or `DrankWater { id }` (dwarves prefer ale; water gives a mild negative thought).
+- Drink search: alcohol in a barrel in a stockpile, else a well with water, else the nearest reachable water tile of level ≥ 1 (not frozen) within 32 tiles horizontally and 8 levels up or down, drunk from any walkable tile 8-adjacent to it on its level. Rank water targets by horizontal Chebyshev distance plus vertical distance times `Z_DISTANCE_WEIGHT`, ties by the stand tile index. If none of the listed sources is reachable, a reachable loose alcohol item is a last resort; consume one unit and emit the same `DrankAlcohol` event. Emits `DrankAlcohol { id, quality }` or `DrankWater { id }` (dwarves prefer ale; water gives a mild negative thought).
 - Eating and drinking take `EAT_TICKS` and `DRINK_TICKS`.
 - Patients are fed by care jobs (17).
 
 ### Sleeping
 
-- Schedule: each dwarf has `sleepStartHour` (random 20–24) and sleeps `SLEEP_HOURS` unless rest is below 20. Rest at its want threshold outside the window also sends the dwarf to bed.
+- Schedule: each dwarf has `sleepStartHour` (uniformly 20–23 from 10's rng stream) and sleeps `SLEEP_HOURS` unless rest is below 20. Rest at its want threshold outside the window also sends the dwarf to bed.
 - Bed search: own bed (assigned bedroom), else any unassigned free bed, else the floor of the hearth hall, else where they stand. Emits `Slept { id, bedQuality, roomTier, onFloor }`.
 - Sleep is interrupted by `danger`-severity events nearby and by hearth alert.
 
 ### Social, comfort, joy
 
-- Social: go to the nearest reachable hearth-hall or meeting-area tile and wait up to `SOCIAL_WAIT_TICKS`; the first dwarf within 2 tiles on the same level who is not asleep (friends first, then by id) is the partner; both get `Talked { a, b }` after `TALK_TICKS`; relationships increment; friends after `FRIEND_TALKS` talks. Talking to a friend relieves 60 instead of 40. The partner is not interrupted.
+- Social: go to the nearest reachable hearth-hall or meeting-area tile and wait up to `SOCIAL_WAIT_TICKS`; the first living dwarf within Chebyshev distance 2 on the same level who is not asleep (friends first, then by id) is the partner; both get `Talked { a, b }` after `TALK_TICKS`; relationships increment; friends after `FRIEND_TALKS` talks. Talking to a friend relieves 60 instead of 40. The partner is not interrupted.
 - Comfort: sit on a free chair in the best-tier room within reach for `SIT_TICKS`.
-- Joy: a visit to the hearth hall counts (`HearthVisited`); mist (`DwarfFeltMist`), warm springs (`DwarfNearSpring`), fine meals and seeing a masterwork item in a room they enter (`SawMasterwork`, once per item per dwarf) count.
+- Joy: a visit to the hearth hall counts (`HearthVisited`); mist (`DwarfFeltMist`), warm springs (`DwarfNearSpring`), fine meals and seeing a masterwork item in a room they enter (`SawMasterwork`, once per item per dwarf) count. Room entry inspects floor items and installed furniture throughout the entered room, excluding container contents and the viewer's own work. Save the per-dwarf seen-item memory across visits and loads.
 - Idle dwarves without a want go to the hearth hall and stand or sit there; the hearth hall is the default place.
 
 ### Behavior selection
@@ -80,9 +81,13 @@ Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and
 4. `need` (critical): satisfy the most critical need.
 5. `duty`: the dwarf is a soldier on duty (16): 16 controls movement and targets.
 6. `need` (want): satisfy the highest need over its want threshold, unless a job with priority ≤ `NEED_DEFER_PRIORITY` is available and the need is below its critical threshold.
-7. `work`: ask 11 for a job (`jobs.assign(id)`); if given, run the job's steps.
+7. `work`: queue the dwarf for 11 through `jobs.assign(id)` and stay in `work` while waiting for its later tick to answer. With a job, run its steps; when no longer queued and without a job, go idle.
 8. `social`: if social or comfort or joy is over its want threshold, do the corresponding activity.
 9. `idle`: go to the hearth hall and wait up to `IDLE_TICKS`, then re-evaluate; re-evaluate at once if a job becomes available for this dwarf before the wait is over, so that new work is never ignored for a whole hour. Idle dwarves are shown as "No job" in the units panel.
+
+`DwarfIdle` fires once per stretch without a job and is reset by real work. With no hearth hall, idle uses the saved arrival wagon tile; without an arrival it stays at the current tile. Selection repairs legacy negative goals before queued work. Patient rest without a bed, cornered fighting and duty also use the current tile.
+
+Only shut-out civilians are watched for shelter becoming reachable. Recheck those ids on `AlertChanged`, `BuildingStateChanged` or a changed `pathing.connectivityRevision`, preserving flee precedence; save the watched ids. The revision is derived and does not change connectivity labels or saved path state.
 
 Children skip 5 and 7 except for hauling jobs (they have only the `hauling` labor and it cannot be turned off).
 
@@ -98,7 +103,7 @@ Dwarves move with the movement helper at `speedFixed = species speed × (50 + Ag
 
 ### Titles
 
-- `AssignTitle { dwarfId, title }` and `AssignTitle { dwarfId: 0, title }` to vacate. One dwarf per title; a dwarf may hold several.
+- `AssignTitle { dwarfId, title }` and `AssignTitle { dwarfId: 0, title }` to vacate. One dwarf per title; a dwarf may hold several. The saved per-role holder record is authoritative; reassigning or vacating one role preserves other roles. The singular `Title` component caches the first held role in title-table order, while `dwarves.titles(id)` returns them all.
 - Thane: the fortress-wide thought `thane_hall_grand` or `thane_hall_bare` depending on the Thane's bedroom tier (15, recomputed daily); the Thane's presence in the hearth hall lets talking relieve `THANE_SOCIAL_BONUS` more.
 - Warden: squads gain `WARDEN_TRAINING_BONUS_PERCENT` training experience; the Warden is the default squad leader.
 - Broker: their `trading` skill is used at the depot; without a Broker any dwarf with the `trading` labor trades at skill 0.
@@ -111,7 +116,7 @@ Dwarves move with the movement helper at `speedFixed = species speed × (50 + Ag
 
 ### Clothing
 
-Dwarves wear a body garment, a leg garment and boots (items with the `clothing` tag in three slots of `Equipment`). Missing clothing gives the `unclothed` thought and doubles cold injury risk (17). Clothing does not wear out. Immigrants and settlers arrive clothed; the clothier makes more for the naked.
+Dwarves wear a body garment, a leg garment and boots (items with the `clothing` tag in three slots of `Equipment`). Missing clothing gives the `unclothed` thought and doubles cold injury risk (17). Clothing does not wear out. Immigrants and settlers arrive with real carried cloth garments in the body, legs and feet slots, selecting each by clothing category and the material by cloth class from the registry. The `over` slot is optional; a missing required slot makes `isUnclothed` true. The same outfit helper serves both arrival paths; the clothier makes more for the naked.
 
 ### Death
 
@@ -121,6 +126,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 - Components: `Attributes`, `Skills`, `Needs`, `Personality`, `Schedule`, `Relationships`, `Title`, plus private `Brain { behavior, behaviorUntilTick, targetTile, activity, lastMistTick, lastOutdoorThoughtHour }`.
 - `titles: Record<Title, EntityId | 0>`, `populationCached`, `children: EntityId[]`.
+- `wagonTile` (−1 without an arrival); `interruptFlags`; hunger/thirst maximum-duration clocks and daily `starvingAnnounced` records; activity plans; `idleAnnounced`; per-dwarf `sawMasterworks`; `needRetryUntil`; `shutOut` ids and `shelterCheckPending`.
 - Rng stream.
 
 ## Interfaces
@@ -156,7 +162,7 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 
 - Units panel: a table of every dwarf with name, profession, activity, mood tier glyph, and a labor grid toggle view (dwarves × labors, with the profession's default labors highlighted).
 - Dwarf inspection: everything listed under the inspector section; every number the simulation uses is visible.
-- Title assignment from the units panel or the dwarf inspection. The units panel also renames a dwarf, moves the sleep hour, and marks several dwarves to add to a squad or to open in the labor manager.
+- Title assignment from the units panel or the dwarf inspection. Titles are chosen from the four roles with their current holders. Enter assigns the selected role to the selected dwarf, or vacates it if already held; a child is refused with a reason. Rename uses the modal text field (24 characters for a dwarf; squad rename uses 32). In the units panel, `[` and `]` change the selected dwarf's sleep hour by one, wrapping at midnight. The units panel also renames a dwarf, moves the sleep hour, and marks several dwarves to add to a squad or to open in the labor manager.
 - Glyph `☺` in a color by state: white normal, yellow when a need is critical, red when wounded, blue when asleep, gray as a child, green when a soldier on duty.
 
 ## Tuning constants

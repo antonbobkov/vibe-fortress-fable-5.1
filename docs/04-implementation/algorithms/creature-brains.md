@@ -8,41 +8,47 @@
 tickDwarf(id):
   if not health.isConscious(id): return
   b = Brain[id]
+  if b.behavior == 'idle' and jobs.hasWork(id): select(id) immediately, from the current position
   if b.behavior == 'need' or 'social' or 'idle': runActivity(id) ; if activity finished: b.behavior = 'none'
-  else if b.behavior == 'work': jobs.stepWorker(id) ; if Worker.jobId == 0: b.behavior = 'none'
+  else if b.behavior == 'work': if Worker.jobId: jobs.stepWorker(id)
+                                  else if not jobs.isQueued(id): startIdle(id)
   else if b.behavior == 'duty': (16 drives movement; nothing here)
   else if b.behavior in {'flee','retreat','patient'}: runMovementBehavior(id)
   if b.behavior == 'none' or interruptFlag[id]: select(id)
 select(id):
-  N = Needs[id]; civ = not combat.onDuty(id)
+  N = Needs[id]; civ = not combat.onDuty(id); if b.targetTile < 0: b.targetTile = currentTile(id)
   if threatened[id] and civ:                                    b.behavior = 'flee'; goal = fleeTile(id); return
-  if alert == 'hearth' and civ:                                 b.behavior = 'retreat'; goal = defense.retreatTile(id); return
+  if alert == 'hearth' and civ: target = defense.retreatTile(id); watchShelter(id, target < 0)
+     if target >= 0: b.behavior = 'retreat'; goal = target; return  // otherwise continue; flee has precedence
   if health.isPatient(id):                                      b.behavior = 'patient'; goal = bedTile(id) or stay; return
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
   if combat.onDuty(id):                                         b.behavior = 'duty'; return
   want = highest need over its want threshold
   if want and not (jobs.hasUrgent(id, NEED_DEFER_PRIORITY)):    startNeed(id, want); return
-  if jobs.assign(id) == 'assigned':                             b.behavior = 'work'; return
+  if able to work: jobs.assign(id); b.behavior = 'work'; return   // queue; 11 answers later this tick
   if want in {social, comfort, joy}:                            startNeed(id, want); return
-  b.behavior = 'idle'; goal = hearthHallTile(id) or wagonTile; activityEnd = tick + IDLE_TICKS; emit DwarfIdle (throttled)
+  b.behavior = 'idle'; goal = hearthHallTile(id) or saved wagonTile or currentTile(id); activityEnd = tick + IDLE_TICKS; emit DwarfIdle once per stretch without a job (clear after real work)
 startNeed(id, need):
   switch need:
     hunger:  it = items.findItem({edible: true}, pos, 'walker', {reservable: true}) preferring category food/meal; if none: emit Starving? (only at 100); b.behavior='idle'; return
              reserve it; plan: walk to it, pick up, walk to nearest dining seat within DINING_SEARCH_RADIUS (else eat in place), EAT_TICKS, consume 1, N.hunger -= (meal ? 100 : 70), emit MealEaten
-    thirst:  barrel = findItem({drinkable:true}) else well = nearest working well else water = nearest adjacent-walkable water tile (level ≥ 1, not magma)
+    thirst:  barrel = find reservable drink directly in a stockpiled barrel, else nearest working well, else reachable water (level ≥ 1, not magma or frozen); if none: reachable loose alcohol
+             water: horizontal radius 32, z−8..z+8; rank horizontal Chebyshev + |dz|*Z_DISTANCE_WEIGHT, ties by stand tile
              plan: walk adjacent, DRINK_TICKS, consume 1 unit (barrel) ; N.thirst -= 100/80; emit DrankAlcohol/DrankWater{outdoors}
     rest:    bed = ownBed or freeUnassignedBed or hearthHallFloor or here; plan: walk, sleep until N.rest <= 0 or SLEEP_HOURS elapsed (−15/hour); emit Slept
-    social:  plan: walk to hearth hall / meeting area; wait up to 200 ticks for another dwarf within 2; if found: both TALK_TICKS, N.social -= 40 (60 friends), relationships.talk++; emit Talked
+    social:  plan: walk to hearth hall / meeting area; wait up to 200 ticks for another dwarf within 2; choose living awake partners on the same level within Chebyshev 2 (friends then id); if found: TALK_TICKS without interrupting the partner, N.social -= 40 (60 friends), relationships.talk++; emit Talked
     comfort: chair = best-tier free chair reachable; plan: walk, sit SIT_TICKS, N.comfort -= 40 (hearth hall floor: 20); emit Sat
     purpose: (no activity: relieved by work) → treat as idle
     joy:     plan: walk to hearth hall, stay 100 ticks; N.joy -= 30; emit HearthVisited
   b.behavior = 'need'
 ```
 
-Hourly (on `HourPassed`): `N.hunger += 3*endFactor; N.thirst += 5*endFactor*thirstMod; N.rest += (asleep ? -15 : 5*endFactor); N.social += 2; N.comfort += 3; N.purpose += (working ? -10 : 2); N.joy += 1.5` (all clamped 0..100, `endFactor = (150 − Endurance)/100`); crossing a threshold sets `interruptFlag`. Sleep schedule: at `sleepStartHour` with `N.rest > 20` set `interruptFlag` and prefer `rest`.
+Hourly (on `HourPassed`): apply the rates in 10's Needs table, clamping 0..100. `endFactor = (150 − Endurance)/100` scales only hunger and awake rest; weather alone scales thirst, and sleeping rest uses the unscaled relief rate. Crossing a threshold sets a saved `interruptFlag`; critical crossing emits `NeedCritical`. Sleep schedule: at `sleepStartHour` with `N.rest > 20` set `interruptFlag` and prefer `rest`.
 
 Movement side effects on entering a tile: mist → `DwarfFeltMist` (cooldown), warm spring adjacency → `DwarfNearSpring`, outdoors in bad weather → `DwarfOutdoorsIn` (hourly), miasma → 15 standing check, undiscovered neighbors → 03 discovery, a fine-or-better statue or a masterwork item in view (same room) → `admired_statue` / `SawMasterwork` (per-object memory sets).
+
+Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position.
 
 Children: `select` skips `duty` and `work` except `haul_to_stockpile` jobs (labors fixed to hauling).
 
@@ -61,11 +67,11 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
   switch W.state:
     idle:   if threats: W.state = timid/neutral-attacked ? 'flee' : 'idle'
             else if aggressive carnivore and W.hungry and prey in perception: W.state='hunt'; target=prey
-            else if territorial and dwarf within TERRITORY_RADIUS: W.state='attack'; combat.setTarget
+            else if (territorial and dwarf within TERRITORY_RADIUS) or (aggressive and dwarf within APPROACH_RADIUS): W.state='attack'; combat.setTarget
             else if restTime(species): W.state='sleep'; W.stateUntil = tick + 600
             else if grazer and grass within 6: W.state='graze' else W.state='wander'
     graze:  walk to grass; on arrival GrassGrazed; wait GRAZE_TICKS; state='idle'
-    wander: walk to random tile within WANDER_RADIUS of homeChunk; on arrival or timeout: 'idle'
+    wander: walk to random tile within WANDER_RADIUS of homeChunk; on arrival or WANDER_TIMEOUT_TICKS: 'idle'
     flee:   goal = argmax over tiles within perception of Σ dist to threats (sampled 8 directions × 6 steps); if edge within perception: 'leave'; after FLEE_TICKS with no threat: 'idle'
     hunt:   combat.setTarget(id, prey); if prey dead: eat corpse EAT_CORPSE_TICKS (consume); W.hungry=false; 'idle'
     attack: (16 drives); if target gone: 'idle'; if blood < fleeBlood and not aggressive: 'flee'
@@ -73,6 +79,8 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
     leave:  walk to nearest edge tile; on arrival: despawn (AnimalLeft)
   moveAlongPath(id)
 ```
+
+Tame animals use `WILD_THINK_TICKS` between ordinary thinks. Only grazers accumulate hourly condition or seek grass; the other diets forage abstractly.
 
 Daily: spawning per 08 (edge tiles at `SPAWN_MIN_DISTANCE` from dwarves), breeding rolls, product timers, condition and starvation, lifetime and cap checks (`leave`).
 

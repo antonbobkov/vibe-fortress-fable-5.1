@@ -40,7 +40,7 @@ Convert materials into goods. Own workshop operation, recipes, work orders, qual
 | `kennel` | animal_training | training and taming (08) |
 | `bowyer` | carpentry | bows and crossbows from wood; arrows from wood |
 
-Magma variants: `magma_smelter`, `magma_forge`, `magma_kiln` (unused in version 1 but listed for glass later). A magma workshop is buildable only where at least one footprint tile has, directly below it, a tile with magma of level ≥ `MAGMA_POWER_LEVEL` (a channel over a magma pool or a pipe branch). It needs no fuel. If the magma drops below the level, its jobs block with `no_magma`.
+Magma variants: `magma_smelter`, `magma_forge`, `magma_kiln` (unused in version 1 but listed for glass later). A magma workshop is buildable only where at least one footprint tile has, directly below it, a tile with magma of level ≥ `MAGMA_POWER_LEVEL` (a channel over a magma pool or a pipe branch). Placement without that magma rejects with `bad_placement`; `no_magma` is reserved for workshop/job blocking after power is lost. It needs no fuel. If the magma drops below the level, its jobs block with `no_magma`.
 
 ### Recipes (content) and derived recipes
 
@@ -50,8 +50,10 @@ Generated at load from the minerals and metals tables:
 
 - `smelt_<ore>`: 1 ore → `yields` bars (the ore's `yields` list; `galena` gives 1 `lead` and, with `SILVER_FROM_GALENA_PERMILLE`, 1 `silver`), fuel, no quality.
 - `alloy_<metal>`: the metal's `alloyInputs` bars → `alloyOutput` bars, fuel, no quality (`bronze`: 1 copper + 1 tin → 2 bronze; `brass`: 1 copper + 1 zinc → 2 brass; `steel`: 1 iron + 1 flux stone + 1 fuel → 1 steel, on top of the workshop's fuel; `electrum`: 1 gold + 1 silver → 2 electrum).
-- `melt_<class>`: a marked metal item → `floor(itemBarValue × MELT_RETURN_PERCENT / 100)` bars of its metal, fuel, no quality.
+- `melt_<class>`: a marked metal item → `floor(stackCount × itemBarValue × MELT_RETURN_PERCENT / 100)` bars of its metal, fuel, no quality.
 - `forge_<weapon|armor|tool>`: bars → the item; bar counts per item type; material from input; quality.
+
+Melting takes the whole marked stack. Its bar cost comes from the weapon or armor row, else the matching metal recipe's bar inputs divided by its output units, else one bar. Explicit work orders run first; `autoMeltMarked` starts only when none starts and the smelter is idle.
 
 ### Operation
 
@@ -66,6 +68,8 @@ Job execution (producer `workshops`):
 - `onStart`: nothing.
 - Work: `baseTicks` skill-scaled by 11's work rate.
 - `onComplete`: consume inputs (destroy items; the container input becomes the output's container); consume fuel if applicable; roll quality if `quality`; spawn outputs at the workshop's output tile (into the container if any); emit `ItemCrafted { itemId, quality, crafterId, workshopId, recipeId }`; decrement the order; if `remaining == 0` and not `maintain`, remove the order and emit `WorkOrderCompleted`.
+
+`SetWorkshopWorker` accepts a dwarf with any enabled labor used by a recipe of the workshop type, rather than its construction labor. The assigned job still checks the specific recipe's labor. Recipe quantities are input units; 11 reserves the needed units in as few stacks as possible and fetches each stack once.
 
 ### Work orders
 
@@ -92,6 +96,8 @@ WorkOrder { recipeId, remaining, mode: once | maintain, threshold (for maintain:
 | ≥ 105 | masterwork | ×5.0 | Crafter gets `made_masterwork` thought; other dwarves get `saw_masterwork` on seeing it; the item is announced |
 
 Level 20 rolls 100–140, so masterworks are common for legends and impossible below level 13. Meals use the cook's roll the same way; drinks and bars have no quality.
+
+Seeing a masterwork follows 10's room-entry visibility and saved per-dwarf memory: floor items and installed furniture, excluding container contents and the crafter.
 
 A masterwork that is later destroyed (melted, burned, sold is fine) gives its crafter a grief-like thought `masterwork_lost`; 13 emits `ItemDestroyed` with the crafter id for this.
 
@@ -145,6 +151,7 @@ Job producer `workshops` (`craft`); panel `orders`; inspector section `building 
 - Clicking a workshop opens its panel: the recipe list with "makeable now" marked, the order list with counts and status, the assigned worker, suspend (after a confirmation), take apart. `[S-n]`, or a click on a recipe, adds an order.
 - Orders panel: every order in the fortress with its count, mode and status ("waiting for log (0)", "no carpenter's workshop", "in progress", "done"); `+`/`-` change the selected order's count (`remaining`, or the threshold of a `keep ≥ N` order), `[r]` repeats the selected or the last finished order, `[S-n]` adds an order.
 - Adding an order opens a picker: a type-ahead filter over the recipes grouped by output category with the recent ones first, the quantity (1–999), the mode `once N` / `keep ≥ N`, the material filter and, for a global order, the workshop (any of the type, or one). One order makes N items: "5 doors" is one order with `remaining` 5.
+- Material filters list relevant input material classes and their materials, falling back to output classes when inputs provide none; brewing lists brewable plants.
 - Hints: "Smelters and forges need fuel: a wood furnace makes charcoal", "Build a forge next to magma to skip fuel".
 
 ## Tuning constants

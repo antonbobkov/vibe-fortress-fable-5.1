@@ -153,7 +153,7 @@ Bandages are cloth cut at the clothier (1 cloth → 4 bandages); `stop_bleeding`
 
 | id | name | category | stack | rotDays | glyph | fg | notes |
 |---|---|---|---|---|---|---|---|
-| `corpse` | corpse | refuse/corpse | 1 | 14 | `%` | `corpse_red` | material = species meat material; carries worn items |
+| `corpse` | corpse | refuse/corpse | 1 | 14 | `%` | `corpse_red` | material = species meat material, or skull_bone for dwarves; carries worn items |
 | `skeleton` | skeleton | refuse/skeleton | 1 | 0 | `%` | `bone_white` | from a rotted corpse; animal skeletons yield `bone_pile` when butchered |
 | `rotten` | rotten food | refuse/rotten | 10 | 0 | `%` | `rot_green` | any food past rotting; destroyed at "gone" |
 

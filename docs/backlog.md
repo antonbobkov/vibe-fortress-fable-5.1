@@ -9,7 +9,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-105 | [Triage D-rows: systems 08–13](work/T-105-triage-systems-08-13.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-107 | [Triage D-rows: systems 20–24, content and implementation](work/T-107-triage-systems-20-24-and-content.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-109 | [Balance status: one row per measure, latest figure only](work/T-109-balance-status.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | — | open |
 | T-110 | [Close the migration: pending decisions, archive, large data files](work/T-110-close-the-migration.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | T-102 … T-109 | open |
@@ -24,6 +23,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-122 | [Civilians flee on their own level only, and starve in "Fighting" on a stair](work/T-122-civilians-stuck-fighting.md) | [`../reports/audits/2026-10-07-balance-after-f17.md`](../reports/audits/2026-10-07-balance-after-f17.md) | — | open |
 | T-123 | [The economy fortress cannot run its economy at default priorities](work/T-123-economy-fortress-at-default-priority.md) | F-17 and [`../reports/audits/2026-10-07-balance-after-f17.md`](../reports/audits/2026-10-07-balance-after-f17.md) | — | open |
 | T-126 | [`content:export` no longer reproduces three committed content files](work/T-126-content-export-drift.md) | found while doing T-125 | — | open |
+| T-130 | [Resolve retained animal/job decisions and catalog mirrors](work/T-130-retained-decisions-08-13.md) | [T-105 triage](archive/tasks/T-105-triage-systems-08-13.md) | owner resolutions for D-070 and D-109; catalog regeneration | open |
 | C-009 | System 21's performance allocation is a literal 0.00 ms, which no measured run can meet; its budget assertion is `it.todo` | [`05-plan/DECISIONS.md`](05-plan/DECISIONS.md) § Contradictions, row C-009 | an owner decision: a positive allocation, or an exemption for zero allocations | open |
 | B-008 | Balance finding: the wealth curve over years 1–3 against the model | [`../reports/audits/M8-balance-economy.md`](../reports/audits/M8-balance-economy.md) | T-123 | open; folds into T-109 |
 | B-009 | Balance finding: immigration waves in years 2 and 3 against the model | [`../reports/audits/M8-balance-economy.md`](../reports/audits/M8-balance-economy.md) | T-123 | open; folds into T-109 |

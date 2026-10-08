@@ -30,7 +30,8 @@ assign(w):
     if job.type.skill and job.minSkill > skill(w, job.type.skill): continue
     t = workTileOf(job); if t == null: continue
     if pathing.label(t, 'walker') != wLabel: continue           // 'adjacent' jobs: any walkable 8-neighbor with the label (cached per job)
-    cands.push(job); if cands.length == CANDIDATE_LIMIT: break
+    cands.push(job)
+  cands.sort(effectivePriority, distance, skill descending, job id); cands = first CANDIDATE_LIMIT
   if cands empty: return 'none'
   best = argmin over cands of score(w, job) with ties by job.id
   score(w, job) = effPriority(job) * 1000 + estDistance(position(w), workTileOf(job)) * 10 - skill(w, job.type.skill) * 15 - (job.workshopWorker == w ? 500 : 0)
@@ -42,8 +43,10 @@ assign(w):
   return 'none'
 claim(w, job):
   job.state = claimed; job.workerId = w; job.claimedTick = tick; Worker[w].jobId = job.id
-  for input in job.inputs: found = items.findItems(input.filter, input.count - input.delivered.length, workTileOf(job), 'walker', {reservable: true})
-     if found.length < needed: unclaim(job, 'missing_input'); return
+  for input in job.inputs:
+     needed = input.count - delivered amount (units for unit-counted inputs, entities otherwise)
+     found = unit input ? find required units in as few stacks as possible (split a partial stack) : items.findItems(input.filter, needed, workTileOf(job), 'walker', {reservable:true})
+     if found amount < needed: unclaim(job, 'missing_input'); return
      for it in found: items.setFlag(it, Reserved, true); Item[it].reservedBy = job.id; input.reserved.push(it); emit ItemReserved
   if job.tool and not hasTool(w, job.tool): tool = items.findItem({tag: job.tool, category: 'tool/*' or weapon for 'ranged'}, position(w), 'walker', {reservable:true})
      if not tool: unclaim(job, 'no_tool'); return
@@ -77,9 +80,10 @@ stepWorker(w, ctx):
       if at(w, t): job.state = 'working'; emit JobStarted
       else: r = walkTo(w, t, 'job'); if r == 'unreachable': release(w, job, 'unreachable')
     working:
-      rate = 1000 * (100 + SKILL_TIME_BONUS_PERCENT * skill(w, job.type.skill)) / 100 / baseTicks(job) * productivity(w) / 100
-      job.progress += rate
-      if job.progress >= 1000: job.state = 'completing'
+      job.effort += (100 + SKILL_TIME_BONUS_PERCENT * skill(w, job.type.skill)) * productivity(w)
+      needed = baseTicks(job) * 100 * 100
+      job.progress = min(1000, floor(job.effort * 1000 / needed))
+      if job.effort >= needed: run completing now
     completing:
       producer(job).onComplete(job, ctx)                                               // spawns outputs, applies tile changes, consumes inputs
       grantXp(w, job.type.skill, job.type.xp); release reservations of consumed inputs
@@ -90,6 +94,8 @@ interrupt(w, keepProgress): job = current; if job.state == 'working' and keepPro
                             if Worker[w].carrying: items.dropAt(carrying, position(w)); Worker[w].jobId = 0; emit JobCancelled? (no: JobReleased is a JobBlocked with reason 'interrupted' not emitted; the job simply returns to open)
 ```
 
+Each selected input stack is carried in one trip. Unit searches select largest stacks first, ties by ordinary item search order; delivery uses that search order. The job anchor is `data.anchorTile`, else a numeric work tile, else the target.
+
 Hauling jobs (`haul_to_stockpile`) are a special case of the same machine with one input (the item), delivery to the slot, and `working` of 5 ticks.
 
 ## Wants-hauling and haul job creation (13, every items tick)
@@ -98,7 +104,10 @@ Hauling jobs (`haul_to_stockpile`) are a special case of the same machine with o
 created = 0
 for it in wantsHauling (ascending id) while created < HAUL_JOBS_PER_TICK:
   if hasJob(it): continue
-  sp = bestStockpileFor(it); if sp == none: wantsHauling.remove(it); noHome.add(it); continue
+  if in dump zone: remove from wantsHauling; continue
+  if Dump flag: nearest dump zone by centroid, first tile; without one move to noHome; continue
+  sp = bestStockpileFor(it); if sp == waiting for wanted container: continue
+  if sp == none: wantsHauling.remove(it); noHome.add(it); continue
   slot = findSlot(sp, it); if slot == none: continue                         // full; StockpileFull emitted once
   reserveSlot(slot, jobId); sink.create('haul:'+it, { type: haul_to_stockpile, target: it, workTile: slot.tile, priority: sp.priority, inputs: [item it], data: {slot} })
   created++
@@ -112,6 +121,8 @@ findSlot(sp, it):
   for t in sp.tiles: if item on t is an identical stack with room: return {tile: t, merge: true}
   return none
 ```
+
+Each items tick re-examines `noHome` when a previously full stockpile gains space, drops slot reservations whose job is gone, and requests one nearest free empty container per wanted class per stockpile, counting incoming containers. Empty wanted containers already on their stockpile are stored. Non-dwarf corpses with worn items get `strip_corpse`; destroyed items and removed destination stockpiles cancel their haul jobs with `target_invalid`.
 
 On delivery: `dropAt(it, slot.tile)` or `putIn(it, slot.container)`; merge identical stacks; release the slot reservation; the item leaves `wantsHauling`.
 

@@ -40,10 +40,14 @@ interface AnimalsState { stateVersion: 1; breedingCaps: [Idx<SpeciesDef>, number
 
 interface ForagingState { stateVersion: 1; huntable: Idx<SpeciesDef>[]; hunterAssignments: [EntityId, EntityId][];
   waterBodies: { id: number; version: number; tileCount: number; fishPool: Fixed; kind: 'river'|'lake'|'cavern' }[]; bodyOfTile: [TileIndex, number][];
-  bodiesStale: boolean; rng: RngState }
+  bodiesStale: boolean; version: number; nextBodyId: number; nextFishTick: [EntityId, Tick][]; dailyDue: boolean; rng: RngState }
 
+interface ActivityPlan { need: string; phase: 'travel'|'seat'|'use'; itemId: EntityId; partner: EntityId; target: TileIndex; until: Tick;
+  ownBed: boolean; atTable: boolean; roomTier: number; startedRest: number }
 interface DwarvesState { stateVersion: 1; titles: Record<'thane'|'warden'|'broker'|'chief_medic', EntityId>; populationCached: number; children: EntityId[];
-  needRetryUntil?: [EntityId, NeedName, Tick][]; rng: RngState }
+  wagonTile: TileIndex; interruptFlags: EntityId[]; hungerMaxSince: [EntityId, Tick][]; thirstMaxSince: [EntityId, Tick][];
+  starvingAnnounced: [EntityId, number][]; activities?: [EntityId, ActivityPlan][]; idleAnnounced?: EntityId[]; sawMasterworks?: [EntityId, EntityId][];
+  needRetryUntil?: [EntityId, NeedName, Tick][]; shutOut?: EntityId[]; shelterCheckPending?: boolean; rng: RngState }
 
 interface JobsState { stateVersion: 1; jobs: Job[]; nextJobId: number; laborPriorities: Uint8Array; standingOrders: Record<string, boolean>;
   assignQueue: EntityId[]; blockedRetryCursor: number }
@@ -52,14 +56,16 @@ interface Job { id: number; key: string; type: Idx<JobTypeDef>; producer: string
   inputs: { filter: ItemFilter; count: number; reserved: EntityId[]; delivered: EntityId[] }[]; tool: 'pick'|'axe'|'ranged'|'bucket'|null;
   state: 'open'|'claimed'|'fetching'|'travelling'|'working'|'completing'|'blocked'|'cancelled'|'done';
   blockedReason: string | null; retryTick: Tick; workerId: EntityId; progress: Fixed; createdTick: Tick; claimedTick: Tick; data: Record<string, unknown> }
-interface ItemFilter { type?: Idx<ItemTypeDef>; category?: string; tag?: string; materialClass?: MaterialClass; materialId?: Idx<MaterialDef>;
+interface ItemFilter { itemId?: EntityId; type?: Idx<ItemTypeDef>; category?: string; tag?: string; materialClass?: MaterialClass; materialId?: Idx<MaterialDef>;
   minQuality?: Quality; edible?: boolean; drinkable?: boolean; emptyContainer?: string; excludeIds?: EntityId[] }
 
 interface WorkshopsState { stateVersion: 1; globalOrders: WorkOrder[]; professionCache: [EntityId, string][]; rng: RngState }
 
 interface ItemsState { stateVersion: 1; wantsHauling: EntityId[]; noHome: EntityId[]; slotReservations: [string, number][];
   rotQueue: { bucketTick: Tick; items: EntityId[] }[]; miasmaTiles: [TileIndex, Tick][]; counts: [Idx<ItemTypeDef>, StockCount][];
-  wealthCached: number; wealthLastEmitted: number; stockpileTiles: [TileIndex, EntityId][]; explicitPriority: EntityId[]; rng: RngState }   // explicitPriority: the stockpiles whose haul priority the player set, ascending
+  wealthCached: number; wealthLastEmitted: number; stockpileTiles: [TileIndex, EntityId][]; explicitPriority: EntityId[]; // ascending ids whose haul priority the player set
+  dirtyTypes: number[]; fullStockpiles: EntityId[]; buildingWealth: number;
+  pendingDeaths: { id: EntityId; species: number; tile: TileIndex; name: string | null; wornItems: EntityId[]; foreign?: boolean }[]; rng: RngState }
 interface StockCount { total: number; available: number; byClass: [MaterialClass, number][]; byQuality: number[] }
 
 interface BuildingsState { stateVersion: 1; zoneAt: [TileIndex, EntityId][]; hearthId: EntityId; depots: EntityId[]; coffins: EntityId[];
