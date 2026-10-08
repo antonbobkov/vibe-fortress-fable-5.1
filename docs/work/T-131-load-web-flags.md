@@ -1,6 +1,6 @@
-# T-131 ? Preserve saved web flags during load bootstrap
+# T-131 — Preserve saved web flags during load bootstrap
 
-**Source:** T-130 save/load regression probe ? **Size:** M ? **Needs:** ? ? **Status:** open
+**Source:** T-130 save/load regression probe · **Size:** M · **Needs:** — · **Status:** open
 
 ## Evidence and scope
 

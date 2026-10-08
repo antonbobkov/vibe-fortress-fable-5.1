@@ -109,6 +109,7 @@ Reports are inputs. A report is the evidence for a backlog item, frozen at the c
 
 - **A report is never updated.** No "After …" section, no corrected figure and no follow-up table is appended. A re-measure, a follow-up or a correction is a **new dated report**, which may link to the earlier one.
 - **Audits and measurements** go to `reports/audits/`, named `<YYYY-MM-DD>-<subject>.md`. An audit states what was examined, at which commit, how, and what was found. Each finding that needs work becomes a backlog row.
+- **Balance remeasures** write a new immutable audit report and overwrite the affected rows of [`../balance-status.md`](../balance-status.md) with the latest figures, source, fixture qualification and verdict. The living table holds no measurement history; earlier reports remain unchanged.
 - **Gate reports** go to `reports/gates/`, written by `npm run gate` (§ The gate). They are frozen as well.
 - **Screenshots** are written by the e2e suite to `reports/screenshots/`, and coverage to `reports/coverage/` (not tracked). A large data file does not go into git beside its report: it goes under `reports/data/`, or stays out of git with the command that reproduces it written in the report.
 - The older files (`reports/gates/M0-gate.md` … `M8-gate.md`, and those in `reports/audits/` without a date in their name) predate these rules. Some were appended to while they were live. They are frozen now.
