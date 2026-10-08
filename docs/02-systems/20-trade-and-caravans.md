@@ -52,7 +52,7 @@ No caravan in winter. A civilization with reputation ≤ `CARAVAN_BAN_REP` or un
 
 ### The session
 
-- `TradeOpen { depotId }` requires the caravan at the depot. It creates a `trade` job for the Broker if one exists (labor `trading`), else for any dwarf with the labor enabled; the job walks the dwarf to the depot; when both the dwarf and a merchant are inside, the session screen opens (modal, the game pauses while it is open).
+- `TradeOpen { depotId }` requires the caravan at the depot. It creates a `trade` job for the living Broker if their `trading` labor is enabled, else for any dwarf with the labor enabled; the job walks the dwarf to the depot; when both an eligible dwarf and a merchant are inside, the session screen opens (modal, the game pauses while it is open). The job belongs to that caravan stay and is cancelled as soon as the caravan leaves the depot, including when attacked. If the assigned Broker dies, loses the title or has `trading` disabled, reissue the waiting job for the present eligible Broker, or for any trading dwarf when none is eligible, preserving its priority. Repeating `TradeOpen` while a job waits returns ok and repairs its worker assignment. A worker who becomes ineligible on the completion tick cannot open the session; reissue the job after that completion is removed.
 - The screen: left, merchant goods with *their price* (merchant valuation × `MERCHANT_MARKUP`); right, fortress goods at the depot with *their valuation* of each; the player marks quantities on both sides; totals; the margin line "The merchant wants at least 12% profit"; Offer.
 - `TradeOffer { give, take }` lists unique `{ itemId, count }` lines (a bare item id means its whole stack, and a count of zero means the whole stack); both sides are validated before anything changes owner, and only an accepted partial line splits its stack. It is accepted when `Σ valuation(give) ≥ ceil(Σ price(take) × (100 + margin) / 100)` (the margin is not rounded); else `TradeRefused { shortfall }` and the merchant's line "Not enough. Add {shortfall} marks of goods." Accepted: items change owner (bought goods lose `merchant`, sold goods gain it), `TradeCompleted`, trading skill xp `TRADE_XP × (1 + value / 1000)`, reputation `+ clamp(1, 5, floor(Σ price(take) / 500))`.
 - An offer with an empty `take` is a gift: reputation `+ value / 100` (max +10 per caravan), `GiftGiven`.
@@ -101,7 +101,7 @@ Reputation drifts toward 0 by `REP_DRIFT_PER_YEAR` each year (grudges and favors
 
 ### Events consumed
 
-`DayPassed`, `SeasonChanged`, `YearPassed` (drift), `BuildingCompleted` (depot appears), `CreatureDied` (caravan members), `AttackResolved` (attacked), `JobCompleted` (trade job arrival), `WealthChanged` (renown via 18's reader), `RaidArrived` (caravan guards engage automatically through factions).
+`DayPassed`, `SeasonChanged`, `YearPassed` (drift), `BuildingCompleted` (depot appears), `CreatureDied` (caravan members and reassignment after Broker death), `TitleAssigned` (reassign the waiting job when the Broker changes), `AttackResolved` (attacked), `JobCompleted` (trade job arrival), `WealthChanged` (renown via 18's reader), `RaidArrived` (caravan guards engage automatically through factions).
 
 ### Events emitted
 

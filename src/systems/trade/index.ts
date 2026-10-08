@@ -14,7 +14,7 @@ import type { BuildingsReader } from '@systems/buildings/reader';
 import type { ThreatsReader } from '@systems/threats/reader';
 import type { DwarvesReader } from '@systems/dwarves/reader';
 import type { ItemsReader } from '@systems/items/reader';
-import type { Job } from '@systems/jobs';
+import type { Job, JobsReader } from '@systems/jobs';
 import { grantXp } from '@systems/dwarves/skills';
 import { CARAVAN_STAY_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED } from './constants';
 import { spawnCaravan } from './caravan';
@@ -36,7 +36,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   readonly id = '20';
   readonly order = 20;
   override readonly ownsCommands = ['MoveToDepot', 'RemoveFromDepot', 'TradeOpen', 'TradeOffer', 'TradeCancel', 'SetRequests'] as const;
-  override readonly subscribes: readonly EventType[] = ['DayPassed', 'YearPassed', 'BuildingCompleted', 'AttackResolved', 'CreatureDied'];
+  override readonly subscribes: readonly EventType[] = ['DayPassed', 'YearPassed', 'BuildingCompleted', 'AttackResolved', 'CreatureDied', 'TitleAssigned'];
   private rng!: RngStream;
   private scheduleState: TradeStateV1['schedule'] = {};
   private active: ActiveCaravan | null = null;
@@ -45,6 +45,9 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   private sessionState: TradeSession | null = null;
   private reputationEntries: ReputationEntry[] = [];
   private readerRef!: TradeReader;
+  // A completion rejected in 10 is retried in 11 after the old job is removed.
+  // This flag is cleared in the same atomic tick, before any save can observe it.
+  private retryTradeRequest = false;
 
   constructor(private readonly spec: LocalMapSpec | null = null) { super(); }
 
@@ -79,7 +82,12 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       session: () => this.sessionState && structuredClone(this.sessionState),
     };
     ctx.register.jobProducer({
-      id: 'trade', produce: () => {},
+      id: 'trade', produce: (tick) => {
+        const retry = this.retryTradeRequest;
+        this.retryTradeRequest = false;
+        if (this.active && this.active.state !== 'atDepot') this.cancelTradeJob(tick, this.active.depotId);
+        this.repairTradeJob(tick, retry);
+      },
       onComplete: (job, tick) => this.completeJob(job as Job, tick),
       workCentiTicks: (job) => (job as Job).key.startsWith('trade:') ? 100 : undefined,
     });
@@ -127,6 +135,37 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     return marginPercent(skill, ctx.world.fortress.reputation[civ] ?? 0);
   }
 
+  private broker(ctx: TickContext): EntityId {
+    const id = ctx.readers.of<DwarvesReader>('10').holder('broker');
+    return ctx.world.entities.alive(id) && ctx.readers.of<JobsReader>('11').laborEnabled(id, 'trading') ? id : 0;
+  }
+
+  private cancelTradeJob(ctx: TickContext, depotId: EntityId): void {
+    const job = ctx.readers.of<JobsReader>('11').byKey(`trade:${depotId}`);
+    if (job) ctx.jobs.cancel(job.id, 'target_invalid');
+  }
+
+  private repairTradeJob(ctx: TickContext, create = false): void {
+    const a = this.active;
+    if (!a || a.state !== 'atDepot' || this.sessionState) return;
+    const jobs = ctx.readers.of<JobsReader>('11');
+    const old = jobs.byKey(`trade:${a.depotId}`);
+    if (!old && !create) return;
+    const assignedWorker = this.broker(ctx);
+    const invalidWorker = old !== undefined && old.workerId !== 0 &&
+      (!ctx.world.entities.alive(old.workerId) || !jobs.laborEnabled(old.workerId, 'trading') ||
+        (assignedWorker !== 0 && old.workerId !== assignedWorker));
+    if (old && old.data['assignedWorker'] === assignedWorker && !invalidWorker) return;
+    const building = ctx.readers.of<BuildingsReader>('14').get(a.depotId);
+    if (old) ctx.jobs.cancel(old.id, 'target_invalid');
+    if (!building) return;
+    ctx.jobs.create(`trade:${a.depotId}`, {
+      type: 'trade', ...(old ? { priority: old.priority } : {}),
+      target: { kind: 'building', ref: a.depotId }, workTile: building.footprint[0] ?? building.origin,
+      data: { depotId: a.depotId, assignedWorker },
+    });
+  }
+
   private completeJob(job: Job, ctx: TickContext): void {
     const a = this.active;
     if (job.key.startsWith('depot:')) {
@@ -142,6 +181,12 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     }
     if (!a || a.state !== 'atDepot' || a.depotId !== job.data['depotId']) return;
     if (!job.key.startsWith('trade:')) return;
+    const broker = this.broker(ctx);
+    if (!ctx.world.entities.alive(job.workerId) || !ctx.readers.of<JobsReader>('11').laborEnabled(job.workerId, 'trading') ||
+        (broker !== 0 && broker !== job.workerId)) {
+      this.retryTradeRequest = true;
+      return;
+    }
     const merchantId = a.merchants.find((id) => ctx.world.entities.alive(id) && a.destinations[id] === ctx.readers.of<BuildingsReader>('14').holderTile(a.depotId))
       ?? a.merchants.find((id) => ctx.world.entities.alive(id)) ?? 0;
     if (!merchantId) return;
@@ -255,14 +300,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       if (!a || a.state !== 'atDepot') return reject('no_caravan');
       if (cmd['depotId'] !== a.depotId) return reject('no_depot');
       if (this.sessionState) return OK;
-      const dwarves = ctx.readers.of<DwarvesReader>('10');
-      const broker = dwarves.holder('broker');
-      const labor = ctx.registry.table('labors').index('trading');
-      const enabled = broker ? ctx.world.entities.get(broker, C.Labors)?.enabled : undefined;
-      const assignedWorker = enabled && ((enabled[labor >> 3] ?? 0) & (1 << (labor & 7))) !== 0 ? broker : 0;
-      const building = ctx.readers.of<BuildingsReader>('14').get(a.depotId);
-      if (!building) return reject('no_depot');
-      ctx.jobs.create(`trade:${a.depotId}`, { type: 'trade', target: { kind: 'building', ref: a.depotId }, workTile: building.footprint[0] ?? building.origin, data: { depotId: a.depotId, assignedWorker } });
+      if (!ctx.readers.of<BuildingsReader>('14').get(a.depotId)) return reject('no_depot');
+      this.repairTradeJob(ctx, true);
       return OK;
     }
     if (cmd.type === 'MoveToDepot' || cmd.type === 'RemoveFromDepot') {
@@ -387,6 +426,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   }
 
   private pack(ctx: TickContext, a: ActiveCaravan): void {
+    this.cancelTradeJob(ctx, a.depotId);
     this.sessionState = null;
     let carrier = 0;
     for (const id of a.animals) if (ctx.world.entities.alive(id)) { carrier = id; break; }
@@ -406,6 +446,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   private depart(ctx: TickContext, reason?: string): void {
     const a = this.active;
     if (!a) return;
+    this.cancelTradeJob(ctx, a.depotId);
     const inDepot = (itemId: EntityId): boolean => {
       let holder = ctx.world.entities.get(itemId, C.Item)?.containerId ?? 0;
       let depth = 0;
@@ -507,11 +548,15 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       if (!a || !ctx.world.entities.get(a.partyId, C.Party)?.members.includes(defender)) return;
       if (!a.attacked) ctx.emit({ type: 'CaravanAttacked', civ: a.civ, partyId: a.partyId });
       a.attacked = true;
+      this.cancelTradeJob(ctx, a.depotId);
       this.sessionState = null;
       for (const guard of a.guards) if (ctx.world.entities.alive(guard)) ctx.world.services.combat?.setTarget(guard, attacker);
       a.state = 'leave';
       a.stateSince = ctx.tick;
+    } else if (event.type === 'TitleAssigned' && event['title'] === 'broker') {
+      this.repairTradeJob(ctx);
     } else if (event.type === 'CreatureDied') {
+      this.repairTradeJob(ctx);
       const fallen = ctx.world.entities.get(event['id'] as EntityId, C.Creature);
       if (fallen && ctx.registry.table('creatures').idOf(fallen.species) === 'hillfolk_bandit') this.reputation(ctx, 'hillfolk', REP_BANDIT_KILLED, 'bandit_killed');
       const a = this.active;
@@ -544,6 +589,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
 
   deserialize(state: TradeStateV1, ctx: InitContext): void {
     if (!this.readerRef) this.init(ctx);
+    this.retryTradeRequest = false;
     this.scheduleState = structuredClone(state.schedule);
     this.active = state.activeCaravan && structuredClone(state.activeCaravan);
     this.requestsState = structuredClone(state.requests);
