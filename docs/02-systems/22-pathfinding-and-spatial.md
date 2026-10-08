@@ -121,6 +121,7 @@ When a command has dirtied connectivity and its normal pass has not run, a save 
 - `pathing.reachable(from, to, class)`, `pathing.nearestReachable(from, target, class, limit)`
 - `pathing.requestPath(id, from, to, class, urgency, options: { nearest?, avoidHostiles? }, mover?) → requestId`; `pathing.pathResult(requestId)` (`pending | ready(path) | failed(reason)`)
 - `pathing.passable(i, class, mover?)`, `pathing.cost(i, class, mover?)`
+- `pathing.edges(i, class, mover?)` — a fresh list of legal `[to, cost]` steps, horizontal then vertical, using the same mover restrictions as the pathfinder; at most the adjacent stair, ramp and horizontal edges
 - `pathing.lineOfSight(a, b)`, `pathing.labelOf(i, class)` (debug)
 - `pathing.requestsPending()`, `pathing.requestsServed()` — the requests waiting or in progress, and the requests settled so far (the debug panel)
 - `pathing.connectivityRevision()` — a counter that changes whenever the connectivity labels are rebuilt. It is derived and not saved; 10 uses it to recheck the shelter of shut-out civilians only when connectivity has changed

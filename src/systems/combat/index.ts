@@ -504,6 +504,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   override serialize(): CombatStateV1 {
     return {
       version: 1,
+      ...(this.threatThrottles.size > 0 ? { threatThrottles: Array.from(this.threatThrottles).sort((a, b) => a[0] - b[0]) } : {}),
       alert: this.alertState,
       targets: this.targetManager ? Array.from(this.targetManager.targets.entries()) : [],
       cooldownUntil: this.targetManager ? Array.from(this.targetManager.cooldownUntil.entries()) : [],
@@ -514,6 +515,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
 
   override deserialize(state: CombatStateV1): void {
     if (state.version !== 1) return;
+    this.threatThrottles.clear();
+    for (const [id, tick] of state.threatThrottles ?? []) this.threatThrottles.set(id, tick);
     this.alertState = state.alert ?? 'calm';
     if (this.world) this.world.fortress.alert = this.alertState;
     if (this.targetManager !== null) {

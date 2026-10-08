@@ -45,4 +45,5 @@ export interface DwarvesStateV1 {
   needRetryUntil?: [EntityId, NeedName, number][];
   shutOut?: EntityId[];
   shelterCheckPending?: boolean;
+  threatened?: [EntityId, { hostileId: EntityId; tick: number }][];
 }

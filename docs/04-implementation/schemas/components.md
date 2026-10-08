@@ -71,7 +71,7 @@ interface Relationships { friends: EntityId[]; grudges: { id: EntityId; untilTic
                           talkCount: [EntityId, number][]; spouse: EntityId; pets: EntityId[] }
 interface Title { title: 'none' | 'thane' | 'warden' | 'broker' | 'chief_medic' } // caches first held role; 10's saved per-role holders are authoritative
 interface Brain { behavior: 'flee' | 'retreat' | 'patient' | 'need' | 'duty' | 'work' | 'social' | 'idle';
-                  behaviorUntil: Tick; targetTile: TileIndex; activity: string; lastMistTick: Tick;
+                  behaviorUntil: Tick /* idle wait or cornered civilian combat deadline */; targetTile: TileIndex; activity: string; lastMistTick: Tick;
                   lastOutdoorThoughtHour: number; daysUnderground: number }
 interface Labors { enabled: Uint8Array /* bitset over labor indices */ }
 interface Worker { jobId: number; phase: number; carrying: EntityId; toolId: EntityId }

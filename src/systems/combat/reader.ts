@@ -18,6 +18,8 @@ export interface CombatReader {
   isHostile(a: EntityId, b: EntityId): boolean;
   factionOf(id: EntityId): string;
   targetOf(id: EntityId): EntityId;
+  /** Last melee/ranged attack opportunity, from the saved engagement map. */
+  lastEngagementTick(id: EntityId): number | undefined;
   squads(): readonly SquadWithId[];
   squad(id: EntityId): SquadWithId | undefined;
   squadOf(dwarfId: EntityId): SquadWithId | undefined;
@@ -49,6 +51,8 @@ export function makeCombatReader(
     targetOf: (id: EntityId): EntityId => {
       return targets.targetOf(id);
     },
+
+    lastEngagementTick: (id: EntityId): number | undefined => targets.engagements.get(id),
 
     squads: (): readonly SquadWithId[] => {
       const result: SquadWithId[] = [];
