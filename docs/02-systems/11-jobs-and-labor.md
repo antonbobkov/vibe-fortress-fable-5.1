@@ -67,7 +67,7 @@ Each tick, for up to `ASSIGN_WORKERS_PER_TICK` workers that asked for a job (10 
 
 A worker without a required tool skips the job while no free tool of that kind is reachable and another worker with the labor carries one, leaving the job available to that worker. If nobody could do it, the ordinary `no_tool` block still applies.
 
-Workers keep their tool after the job. A living worker whose `mining` and `woodcutting` labors are both off drops a carried pick or axe on the next stockpile tile they pass, clears `Worker.toolId` and the matching weapon reference, and emits `ToolDropped` to unblock tool jobs. Other tools and a still-enabled labor retain their equipment.
+Workers keep their tool after the job. On death, a held tool or carried item that is not in `Equipment` drops at the death tile through the item API, unowned, unreserved and unforbidden. Clear `Worker.toolId` and `Worker.carrying`; a dropped tool emits `ToolDropped` so `no_tool` jobs retry. Worn equipment stays with the corpse. A living worker whose `mining` and `woodcutting` labors are both off drops a carried pick or axe on the next stockpile tile they pass, clears `Worker.toolId` and the matching weapon reference, and emits `ToolDropped` to unblock tool jobs. Other tools and a still-enabled labor retain their equipment.
 
 If the claim of the chosen job fails (it blocks `missing_input` or `no_tool`), the worker tries the next candidate in the same order; only when every candidate fails does the worker go idle.
 
@@ -124,7 +124,7 @@ A re-evaluated job opens only when its reason is gone: a worker with the labor e
 - The player cancels a job (`CancelJob`) or removes the designation, order or zone that produced it: the producer cancels through the sink; reservations release; delivered inputs stay where they are (they are hauled back by normal hauling).
 - Cancelling a terrain job with `CancelJob` clears its designation; removing or changing that designation cancels the job with `target_invalid`.
 - A target that changes (a tile designated for digging that is now a floor): the producer notices on `TilesChanged` and cancels with `target_invalid`.
-- A worker who dies: the job returns to `open` with progress kept.
+- A worker who dies: the job returns to `open` with progress kept; only reservations on dropped held items release; all other inputs remain with their job. Before the creature is removed, `jobs.workerDied(id, deathTile)` releases its held, unworn items and clears its worker fields. Repeating this on the later death notification changes nothing.
 
 ### Standing orders
 

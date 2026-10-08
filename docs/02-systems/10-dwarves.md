@@ -126,7 +126,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ### Death
 
-17 emits `CreatureDied`; this system removes the dwarf from titles and squads (16 handles squads on the same event), updates population. All death consumers use this single event and its recorded species, faction, name, age and tile after the entity is removed. The corpse item is created by 13; burial is 14 and 17.
+17 emits `CreatureDied`; before removing the dwarf, this system calls 11's `jobs.workerDied` with the recorded death tile to release held, unworn tools and carried items. This system removes the dwarf from titles and squads (16 handles squads on the same event), updates population. All death consumers use this single event and its recorded species, faction, name, age and tile after the entity is removed. The corpse item is created by 13; burial is 14 and 17.
 
 ## State
 

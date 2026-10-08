@@ -46,7 +46,7 @@ type CommandResult = { ok: true } | { ok: false; reason: RejectReason }
 
 To decouple systems from concrete `World` dependencies and prevent cyclic imports, `WorldLike` exposes `map`, `entities`, `fortress`, `calendar` (`tick` and `isDaylight`), `emit`, `rngFor`, and `services`. `ReaderSetLike` structurally types the core readers. The world holds mutation services in `world.services: CoreServices` (`{ terrain, jobs, spawn, movement, items, spatial, combat }`), which every tick context reads. A bare `World` initializes with default M0 implementations so isolated unit tests stand; owning systems and the simulation host replace them at `init`:
 - 03 installs the live `TerrainApi` (providing grids, entity store access, and `emit` for terrain collapse and breach events called during other systems' ticks).
-- 11 installs the live `JobsApi`.
+- 11 installs the live `JobsApi`, including `workerDied(id, deathTile)` for death consumers to release the worker before its entity is removed. The board owns worker-field cleanup and uses 13's item API for drops.
 - The simulation host installs the `SpawnApi` and the `MovementApi` helper.
 - 13 installs `ItemsApi` (and registers its item creator into `spawn`).
 - The simulation host installs the spatial writer and combat APIs.

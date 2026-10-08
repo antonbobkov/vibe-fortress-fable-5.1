@@ -151,6 +151,8 @@ Check the Hillfolk and Wildwood caravan windows of 20, no winter caravan or year
 
 A two-input build interrupted after its first delivery and resumed 2,000 ticks later by another dwarf fetches only the remaining input. Delivered workshop inputs also survive that wait, cannot be hauled away, round-trip through save/load and release on order removal; stale foreign-held inputs still cannot be consumed. In the opening of the three-year fortress at default player-set job, order and labor priorities, the carpenter must finish within ten days of placement.
 
+A miner killed while holding the only pick outside its weapon slot leaves the pick at the recorded death tile, unowned, unreserved and unforbidden; another miner fetches it and completes a channel job. A hauler killed after pickup leaves its carried item on the death tile and another hauler completes the delivery. Held items also in Equipment remain on the corpse. Killing a builder holding one input releases that input, retains the job's other reserved inputs, and lets another builder finish. The later death notification neither repeats the drop nor emits a second ToolDropped.
+
 ## 12 Workshops
 
 | id | Scenario | Expected |
