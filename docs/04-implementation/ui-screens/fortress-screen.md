@@ -101,7 +101,7 @@ Sections come from the inspector registry in this order: identity, activity, nee
 │ [Ctrl+Z] undo last  [Del] clear rect    │
 │ [S-p] last batch to priority 5          │
 │ ─ Drag a rectangle on the map, or      │
-│   click two corners. Enter confirms.    │
+│   use Enter twice for corners.    │
 ```
 
 `d` opens the panel with Dig chosen (`d` again closes it). The letters that open panels take `Shift` here (`panels.md`).
@@ -128,7 +128,7 @@ While dragging: the rectangle is inverted on the map and the status bar reads `D
 │    red blocked: "needs a floor"         │
 ```
 
-Counts in parentheses are available items. Placing keeps the tool active until `Esc`.
+Build rows put the name before abbreviated inputs. Counts in parentheses are available items. The ghost is centred on the pointer; commands use its north-west tile as origin. Placing keeps the tool active until `Esc`.
 
 Placing many (types with a 1×1 footprint, except the hearth and the well): a left drag shows one ghost per tile of the rectangle, `▒` where the tile is valid and `x` where it is blocked, and the status bar reads `Door ×5, 2 tiles blocked`. Releasing places one per valid tile and reports the skipped tiles in one message: `Door ×3 placed, 2 tiles skipped: needs walls on two opposite sides`. A click is a drag that stays on its tile and places one. By keyboard, `Shift+Enter` marks a corner and `Enter` at the other corner places the lot; `Esc` drops the corner first.
 
@@ -139,7 +139,7 @@ Out of stock: when the stock of the first input does not cover what was placed w
 │ [o] order 5                             │
 ```
 
-When no built workshop makes the item, the second row names what to build (`build a carpenter's workshop to make them`) and `o` opens Orders as usual.
+The count records units of the first input not covered at each placement; placements on the same paused tick add up, and the waiting count is buildings waiting for those units. It clears on choosing another type, leaving the tool or taking the offer, and is not saved. The offered item is the first input alternative a recipe makes at a built workshop; Orders opens on that recipe with the waiting quantity. When no built workshop makes the item, the second row names what to build (`build a carpenter's workshop to make them`) and `o` opens Orders as usual. Inputs no recipe makes (logs, raw stone) show only the stock line.
 
 ## Game menu (Esc with nothing open)
 

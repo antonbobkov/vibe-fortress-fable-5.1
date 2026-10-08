@@ -4,7 +4,7 @@
 
 Columns: `category` is the three-level path; `mult` is the value multiplier (`value = material value × mult × quality`); `stack` is the maximum stack size (1 = not stackable); `container` is the container class the type wants in a stockpile; `rotDays` 0 means it never rots; `weight` is the carry weight class used by 10 (`light` no penalty, `medium` slows children, `heavy` halves speed for anyone; density-derived for stone and logs); `glyph`/`fg` per [glyphs-and-colors.md](glyphs-and-colors.md) (`fg = material` means the material's color).
 
-Weapons, ammunition and armor are in [weapons-and-armor.md](weapons-and-armor.md).
+Weapons, ammunition and armor are in [weapons-and-armor.md](weapons-and-armor.md). The `figurine`, `ring` and `amulet` types carry the tag `craft`; the meal ingredient types carry `ingredient`. Recipe inputs and outputs can refer to these tags.
 
 ## Food
 

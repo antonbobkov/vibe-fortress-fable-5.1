@@ -58,7 +58,8 @@ Save ids: `manual-<unixMs>`, `auto-<year>-<season>`, `snapshot-<n>`, `final-<for
 
 ## Autosave and snapshots
 
-- On every `SeasonChanged`, the app saves `auto-<year>-<season>` and keeps the four most recent autosaves. Older ones are deleted.
+- `F5` writes a manual save; `F9`, after confirmation, loads the newest manual save.
+- `SeasonChanged` records an autosave request; `InProcessHost.afterTick` takes it after the tick ends as `auto-<year>-<season>`. Rotation keeps the four newest by tick and deletes older autosaves.
 - A manual save is never deleted automatically.
 - The Load screen lists manual saves and autosaves separately, with the header thumbnail, date, population and wealth.
 - Saving runs synchronously on the simulation (the world is paused for the duration of `serialize`, which is under `1 s` by budget) and asynchronously for compression and storage.

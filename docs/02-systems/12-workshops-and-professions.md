@@ -44,7 +44,9 @@ Magma variants: `magma_smelter`, `magma_forge`, `magma_kiln` (unused in version 
 
 ### Recipes (content) and derived recipes
 
-A recipe row: `id`, `workshop`, `inputs: { match: itemType | tag | materialClass, material?: materialClass | 'any', count }[]`, `outputs: { itemType, count, material: from_input(n) | fixed(id) | alloy }[]`, `skill`, `baseTicks`, `fuel: boolean`, `quality: boolean`, `container?: barrel | bag` (an empty container is an input and the output goes in it), `name` for the menu.
+A recipe row has `id`, `name`, `workshop`, `inputs`, `outputs`, `skill`, `baseTicks`, `fuel`, `quality` and optional `container`, as defined in [Content rows](../04-implementation/schemas/content-rows.md). Input `match` accepts ids, tags and alternatives. `materials` restricts material ids; `materialProperty` selects brewable plants or magma-safe metals; `sameMaterial` requires every unit to share a material. Outputs using `stage: 'next'` take the input material's `nextStage`, falling back to that input when no next stage exists. An empty container input holds the output.
+
+Fuel inputs use the item tag `fuel`. An input with `flagged: 'melt'` takes one whole marked item, including its stack, instead of counted units. Automatic melting selects workshop types whose recipes have such an input; recipe operation reads these constraints from data.
 
 Generated at load from the minerals and metals tables:
 

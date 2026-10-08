@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Give the player every action by keyboard and by mouse and every fact by inspection, with a small consistent set of screens, panels and widgets drawn as text into the cell grid. Wave 3 pins the complete keymap and screen list; Wave 4 draws every screen.
+Give the player every action by keyboard and by mouse and every fact by inspection, with a small consistent set of screens, panels and widgets drawn as text into the cell grid.
 
 ## Concepts
 
@@ -34,19 +34,23 @@ Give the player every action by keyboard and by mouse and every fact by inspecti
 └───────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-The sidebar is closed until a panel is opened; `Tab` toggles it without changing the panel. In a selected stockpile's editor, `Tab` and `Shift+Tab` move between the category tree and numeric fields instead. The status bar hearth glyph is colored by hall spirit tier; a red cross with a count shows patients; a shield with a count shows active hostiles (those on discovered tiles that are not hidden, plus those spotted); a scale glyph shows a caravan present.
+The sidebar is closed until a panel is opened; `Tab` toggles it without changing the panel. In a selected stockpile's editor, `Tab` and `Shift+Tab` move between the category tree and numeric fields instead. The status bar hearth glyph is colored by hall spirit tier; a red cross with a count shows patients; `!n` shows active hostiles (those on discovered tiles that are not hidden, plus those spotted); a scale glyph shows a caravan present.
 
 ### Input model
 
 Keyboard:
 
-- Letters open panels and tools (the keymap table in Wave 3; the design fixes these): `d` designate, `b` build, `z` zones, `u` units, `j` jobs, `l` labors, `o` orders, `s` stocks, `m` military, `n` animals, `t` threats, `c` civilizations, `p` population, `e` mood, `a` log, `k` look, `f` overlays, `?` help.
+- Letters open panels and tools (the default keymap table): `d` designate, `b` build, `z` zones, `u` units, `j` jobs, `l` labors, `o` orders, `s` stocks, `m` military, `n` animals, `t` threats, `c` civilizations, `p` population, `e` mood, `a` log, `k` look, `f` overlays, `?` help.
 - `Esc` cancels the current tool, then closes the panel, then opens the game menu.
 - `Space` pause (in a multi-select list it marks the row; in the stockpile category tree or material checklist it toggles the checkbox instead); `+` and `-` speed (in a stockpile numeric field they adjust its value); `<` and `>` (also `,` and `.`) z-level down and up; arrow keys pan by one cell, `Shift` + arrows by ten; `Home` centers on the hearth (or the wagon).
-- Within a designation or zone tool: `Enter` or a click starts and ends a rectangle; `1`–`9` set the priority; `Ctrl+Z` undoes the last batch.
+- Within a designation or zone tool: a click applies to one tile, a drag defines a rectangle, and two presses of `Enter` define its corners. Each press uses the look cursor, otherwise the mouse tile, otherwise the map centre; a stairwell may span levels. `1`–`9` set the priority; `Ctrl+Z` undoes the last batch.
 - `F5` quick save, `F9` quick load (with confirmation), `Ctrl+S` save menu, `F12` debug panel.
-- Within panels: arrows move the selection, `Enter` activates, `Tab` moves between fields, letters in `[brackets]` are accelerators, `PageUp`/`PageDown` scroll.
-- Every key is rebindable in settings; the keymap is a data table (`keymap.json`) with defaults from Wave 3.
+- Within panels: unshifted arrows move the selection before they pan the map (the labor grid also takes left/right), `Enter` activates, `Tab` moves between fields, letters in `[brackets]` are accelerators, `PageUp`/`PageDown` scroll. State-specific keys are listed in the panel documents.
+- Bare panel letters always open or close their panel. Reserved letters come from the live panel bindings; colliding accelerators require Shift, shown `[S-x]`. Fixed captions use the defaults, while zone inspector captions follow the current panel bindings. With default bindings, the free letters are `g h i q r v w x y`; these work with or without Shift. Focused text fields take letters as text.
+- In the Units table and a squad's add/remove list, `Space` marks a row before it pauses; `*` marks all or none. An action uses every marked row when the cursor row is marked, otherwise just that row.
+- In Orders, `=` or numpad `+` adds one, `-` subtracts one, and Shift on either physical key changes ten (main-row `+` is Shift+`=`). These take precedence over speed only while an order is selected.
+- With a building tool that places many, `Shift+Enter` sets a corner; `Enter` or a click sets the other. Plain `Enter` places one. `Esc` clears the corner before leaving the tool.
+- Every key is rebindable in settings; the keymap is a data table (`keymap.json`).
 
 Mouse:
 
@@ -55,10 +59,12 @@ Mouse:
 - Right click: cancels the current tool; with no tool, opens the inspection panel for the tile (same as left) with the context list of entities on it.
 - Wheel: z-level (down = deeper). `Ctrl` + wheel: zoom. `Shift` + wheel: pan vertically.
 - Middle drag (or `Space` + left drag): pan.
-- Hover: the status bar's second row shows the tile summary ("Granite wall, undiscovered beyond" / "Ketil Ironvein, Miner, Digging" / "5 dimcaps in a bin"); panels show tooltips for truncated cells.
+- Hover: the status bar's second row shows the tile summary ("Granite wall, undiscovered beyond" / "Ketil Ironvein, Miner, Digging" / "5 dimcaps in a bin"). Clipped labels and table cells register their full text as a tooltip, shown in the status row and a box above the hovered cell; the sidebar retains `SIDEBAR_COLS`.
 - Edge scrolling is off by default (a setting).
 
-Keyboard and mouse produce the same actions; there is no action reachable only one way.
+A drag with no tool selects tiles as presentation state, without saving them. `Delete` undoes designations, cancels planned or constructing buildings, and removes zones wholly inside the selection after confirmation. Selection item commands use `[S-f]` forbid, `[S-d]` dump (confirm), and `[S-t]` move to depot. `Esc` clears the selection before closing the panel. Double-clicking a unit or job row centres the map on it.
+
+Keyboard and mouse produce the same actions; there is no action reachable only one way. The keymap parity scenario checks each Keymap, Fortress panels and Mouse row against the live bindings, panel list and mouse probes.
 
 While paused, submitted commands take effect immediately through the host's command phase, without advancing time. Designations, planned buildings and zones appear before unpausing. Rejections update the status row and alert log immediately with the command's focus. The command log stamps these inputs with the next tick to run, so replay and paused save/load preserve simulation state.
 
@@ -75,6 +81,9 @@ Panel conventions:
 - Actions available for the selected row are listed at the bottom with their accelerator letters.
 - Clicking a location reference (a job target, an announcement) centers the map.
 - Numbers are shown with units; percentages as `71%`; marks as `1,250 ☼`.
+- Opening Designate chooses Dig when no designation tool is chosen; `[S-d]` is its Dig accelerator.
+- New squads use the first unused UI preset name; choosing their members is a separate action.
+- Help and Debug use the global keymap bindings (`?` and `F12` by default). Debug is a sidebar panel, not a screen.
 
 ### Inspection
 
@@ -88,22 +97,25 @@ The look panel shows the tile under the cursor or the clicked tile with tabs for
 - `danger`: appended in red; the game pauses (`host.setSpeed(0)`) if the `auto-pause on danger` setting is on (default on); the view centers on the focus; the strip shows the line until dismissed by any key.
 - The log panel lists everything with filters by severity and category (combat has its own tab), newest first, and jumps to the focus on click. Log size `LOG_MAX_LINES` in memory; the last `LOG_SAVED_LINES` are saved.
 - Repeated identical announcements within `LOG_DEDUP_TICKS` are merged with a count ("×3").
+- Job and workshop block messages name the missing input and count and, when one workshop makes it, where to order it. UI actions that cannot act show a status message through the shared message helpers.
 - A refused command (`CommandRejected`) shows its reason in the status bar for `STATUS_HINT_SECONDS` and is appended to the log as an alert with the command's focus. The reason names the thing and why ("Door needs walls on two opposite sides", "that zone no longer exists"); no content id, entity id, reason code or action id is shown.
 
 ### Hints
 
-The hint table (content) lists `{ id, trigger: predicate over readers, text, once: true }`. Hints are evaluated once per game hour; a triggered hint is shown as a note prefixed with a lamp glyph and marked shown (saved). A setting disables hints. The design fixes these hints: designate to dig; build a still; place a stockpile; winter is coming; the hearth; stockpiles need containers; smelters need fuel; hunters need crossbows; farms need soil; harvest returns one seed; a room needs enclosure; lock doors on alert; build a depot before summer; hospitals need supplies; immigrants come when spirit is Content; the drawbridge gate; cage traps; trollkin break doors; the Deep (shown on the first deepsilver vein found).
+The hint table (content) lists `{ id, trigger: predicate over readers, text, once: true }`. Hints are evaluated once per game hour; a triggered hint is shown as a note prefixed with `☼` and marked shown (saved). A setting disables hints. The design fixes these hints: designate to dig; build a still; place a stockpile; winter is coming; the hearth; stockpiles need containers; smelters need fuel; hunters need crossbows; farms need soil; harvest returns one seed; a room needs enclosure; lock doors on alert; build a depot before summer; hospitals need supplies; immigrants come when spirit is Content; the drawbridge gate; cage traps; trollkin break doors; the Deep (shown on the first deepsilver vein found).
+
+Shown and pending hints belong to `UiState`, not fortress simulation state. A bare-bedroom timer starts at its first hourly observation, is saved by zone id, and clears when the room improves or disappears. The headless hint scenario uses the same presentation engine and world-event listener.
 
 ### Confirmations
 
-Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default which is always the safe option) for: mining deepsilver (once per fortress), retiring the fortress, quick load, removing a zone with crops or a stockpile with items, disbanding a squad, deconstructing a workshop with orders, loading a snapshot, deleting a save, embarking without a pick or without food or drink. Every default is No.
+Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default) use the shared `confirmThen` helper for destructive panel actions. Every default is No. They ask for: mining deepsilver (once per fortress), retiring, quick load, removing any zone or work order, disbanding, taking apart any built building, suspending a workshop, marking items for melt or dump, marking an animal for slaughter, releasing a caged creature, loading a snapshot, deleting a save, and embarking without a pick or without food or drink. Crop and occupied-stockpile removals show their specific counts. Clearing marks or resuming does not ask; neither do forbidding, returning depot goods to stock, removing a trade request, opening the squad member removal chooser, cancelling a job or cancelling a building plan. Dialog rows and texts are in the content table.
 
 ### Screens outside the fortress
 
 - **Main menu**: `New world`, `Continue` (loads the newest save), `Load`, `Legends`, `Settings`, `About`. Arrow keys and mouse.
 - **World generation** (01): seed text field, size dropdown, `Generate`, progress with the preview, `Continue`.
 - **World map** (01): the map with the cursor; the region panel on the right; the filter panel (`f`); `Embark` (`Enter` on a valid region). Legend of biome glyphs (`?`).
-- **Embark** (02): three tabs, footer with budget and `Embark`.
+- **Embark** (02): three tabs, footer with budget and `Embark`; Balanced is applied on opening. Missing pick or food/drink asks the default-No confirmation before embarking.
 - **Trade session** (20): modal two-column table.
 - **Legend**: the record of a fortress (see 24 › Legend record below); `Back`.
 - **Settings**: keybindings (rebind by selecting a row and pressing a key), auto-pause toggles per severity, hints on/off, zoom, colorblind palette, edge scrolling, autosave on/off, `Reset to defaults`.
@@ -112,6 +124,12 @@ Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default w
 ### The legend record
 
 Written by the app when the fortress ends: name, seed, region name and ratings, years and days survived, peak population, deepest level reached, final wealth, milestones with dates (content `milestones`: first hearth, first metal, first cavern, fifty dwarves, magma forge, first deepsilver, a Hollow-born slain, a decade), kills of note, the last 50 alert or danger announcements, and the cause of the end ("The hall fell silent on Day 4 of Winter, Year 6. The last dwarf, Solveig Deephand, died of her wounds." or "Retired in Year 8 with 61 dwarves."). Shown on the legend screen and listed under `Legends` in the main menu.
+
+Sea of Fire is awarded on `CavernBreached` 3. Kills of note are the three highest positive dwarf kill counts; the journal retains every count. After a tick carrying a creature death, the app checks extinction once, using the event's name and cause for the end record. The legend and view-only save share `final-<fortressSlug>`; its host never ticks and returns false for commands.
+
+### Settings
+
+Stored zoom applies to new games; a loaded save's UI zoom wins for that session. Viewport fitting may use smaller cells without changing the preferred zoom. The binding table includes panel hotkeys and refuses collisions within a context and with global/map bindings that take precedence. Only overrides of content defaults are saved. Additional binding contexts are appended after the panel bindings so older saved binding indices stay stable.
 
 ### Game menu (Esc from the fortress with no tool or panel)
 
@@ -128,7 +146,7 @@ Unsaved changes are ticks elapsed or commands applied since the last save. A com
 
 ## State
 
-Presentation-only: screen stack, active panel, tool state, cursor, selection, log lines, hints shown, settings, keymap overrides. Camera, z, zoom, overlays, hints shown, the open panel, whether a deepsilver vein has been found (it unlocks the Deep gauge, 18) and the last `LOG_SAVED_LINES` log lines with their categories are saved in the `ui` section; settings and keymap in the settings store.
+Presentation-only: screen stack, active panel, tool state, cursor, selection, log lines, hints shown, settings, keymap overrides. Camera, z, zoom, overlays, hints shown and pending, bare-bedroom observation ticks, the open panel, whether a deepsilver vein has been found (it unlocks the Deep gauge, 18) and the last `LOG_SAVED_LINES` log lines with their categories are saved in the `ui` section; settings and keymap in the settings store.
 
 ## Interfaces
 
@@ -167,7 +185,7 @@ This entire document.
 | `STATUS_HINT_SECONDS` | 4 | Rejection reason display time |
 | `HINT_CHECK_HOURS` | 1 | |
 
-## Keymap, screens, hints and milestones (Wave 3)
+## Keymap, screens, hints and milestones
 
 The complete default keymap, the screen and panel lists with hotkeys, the mouse model table, the overlay list, the hint table with triggers and texts, the milestone table, the confirmation dialogs and the settings list are in [`../03-content/ui-keymap-and-screens.md`](../03-content/ui-keymap-and-screens.md). That file is the source of `keymap.json`, `hints.json` and `milestones.json`.
 

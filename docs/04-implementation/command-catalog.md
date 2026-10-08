@@ -64,11 +64,13 @@ Every command, its fields, its owning system, its validation and the events its 
 | `TradeCancel` | — | 20 | session open | — |
 | `SetRequests` | `civ, entries[]` | 20 | at most `REQUEST_MAX` | — |
 | `SetPopulationCap` | `n` | 21 | 20–200 | — |
-| `NameAnimal` | `animalId, name` | 08 | tame | — |
+| `NameAnimal` | `animalId, name` | 08 | tame; name 1–24 characters | — |
 | `RenameSquad` | `squadId, name` | 16 | 1–32 characters | — |
 | `RenameFortress` | `name` | core | 1–32 characters | — |
 
 App-level (not simulation commands, not logged): `Save`, `Load`, `RetireFortress`, `SetSpeed`, `SetSetting`, and the embark-session commands of 02 (`SetSkill`, `RerollDwarf`, `RenameDwarf`, `SetSupply`, `ApplyPreset`, `SetFortressName`, `ConfirmEmbark`), which run before the world exists.
+
+`Designate` and `DesignateStairwell` reject the whole command if any discovered tile fails its precondition; UI tools submit only eligible or undiscovered tiles. Every designation kind on discovered deepsilver requires confirmation. The kind accepts a designation number or name, and priority defaults to `PRIORITY_DEFAULT`, with values outside 1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“9 rejected. `SetDesignationPriority` requires a designation on every tile. `UndoDesignation` clears each designation without progress, keeps progressed ones, and returns `has_progress` when any are kept: this is the explicit partial-application exception.
 
 ## Rejection reasons
 

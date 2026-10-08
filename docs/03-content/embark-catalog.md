@@ -116,7 +116,11 @@ Seed bag prices include a linen bag (value 2 × 2 = 4 → 5) plus 10 × species 
 
 Animals of a breeding species are sold as one sex per entry; the UI shows the sex and lets the player pick pairs.
 
+Catalog entries retain their section as `category` and any non-condition note as `note`. A condition naming temperature bands is checked against the region's temperature using [01 World generation](../02-systems/01-world-generation.md)'s bands; a failing entry remains visible, dim, with its reason, and cannot be bought.
+
 ## Presets (`EMBARK_BUDGET_BASE` = 1500)
+
+Preset supplies are matched to catalog entries by their unit count and exact price. Among valid candidates, the entry sharing the most words with the phrase wins, then the one with the fewest extra words; no match or an unresolved tie fails export. Each preset's parsed supplies must sum to its stated total.
 
 ### Balanced (1,480)
 

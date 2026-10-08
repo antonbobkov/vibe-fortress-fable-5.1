@@ -40,6 +40,8 @@ Supplies tab:
 │ Hint: two picks and one axe are the minimum for a working start.                        │
 ```
 
+Attributes use five cells, filled with `floor(value × 5 / ATTRIBUTE_MAX)`; skill bars use one cell per level. Supply groups and animal notes come from the catalog's `category` and `note`; an entry whose temperature condition fails is dim and shows that condition.
+
 Animals tab: rows `species · sex · price · [-] n [+]`, with a note line for species needing pasture or nest boxes. The `max` per entry disables `[+]` at the limit.
 
 Presets menu (`p`): Balanced, Miner's Guild, Farmstead, Warband, each with its one-line description and total; choosing replaces skills and supplies after a confirm if anything was edited.

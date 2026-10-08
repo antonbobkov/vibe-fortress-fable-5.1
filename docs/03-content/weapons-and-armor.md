@@ -88,6 +88,8 @@ Multiplier applied to a layer's armor value when reducing damage of the given ty
 
 Species rows in [creatures.md](creatures.md) give `naturalArmor` (a flat reduction applied like a plate layer with `armorMult` 1.0 covering every part) and a list of attacks `{ name, type, damage, size }`.
 
+The battle axe uses the item id `axe`, shared with the woodcutting tool, and carries `battle_axe` as its alias tag. The pick likewise uses the existing tool item id `pick`.
+
 ## Worked examples
 
 - **Iron battle axe vs unarmored goblin torso**: raw = 22 × 1.0 × 1.0 × (50 + 50)/100 = 22; the goblin's Toughness is the default 50, so damage round(22 × 0.95) = 21; goblin torso maxHp = 55; ratio 0.38 → serious cut. Bleed 3 per health tick; the goblin (blood 550) is unconscious after 330 / 3 = 110 health ticks = 550 ticks, dead after 733 ticks …
