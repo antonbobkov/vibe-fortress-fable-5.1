@@ -57,7 +57,7 @@ Job types are content rows; the producer that owns the type executes its steps. 
 
 Each tick, for up to `ASSIGN_WORKERS_PER_TICK` workers that asked for a job (10 calls `jobs.assign(id)` during behavior selection; the requests are queued and answered in the same tick in id order):
 
-1. Candidate jobs: `open` jobs whose labor is enabled for the worker, whose `minSkill` is met, and whose `workTile` region label equals the worker's region label for the worker's movement class (22 `reachable` is a constant-time label compare).
+1. Candidate jobs: `open` jobs whose labor is enabled for the worker, whose `minSkill` is met, and whose `workTile` region label equals the worker's region label for the worker's movement class (22 `reachable` is a constant-time label compare). A civilian with a remembered still-near living hostile skips jobs anchored on the hostile's last seen level within `THREAT_RADIUS` horizontally; the same eligibility applies to `hasUrgent` and `hasWork`.
 2. Sort candidates by `(priority + laborPriorityShift)`, then by estimated distance (Chebyshev on x, y plus `Z_DISTANCE_WEIGHT` per z-level), then by the worker's skill descending. Take the first `CANDIDATE_LIMIT`.
 3. Score each: `score = effectivePriority × 1000 + distance × 10 − skillLevel × 15 − (worker is the workshop's assigned worker ? 500 : 0)`. Choose the minimum; ties by job id.
 4. Claim: `state = claimed`, `workerId`; reserve required input units from as few stacks as possible, splitting only a partial stack and fetching each selected stack in one trip. Other entity-counted inputs retain their item search. For unit inputs use largest stacks first, ties by ordinary search order; delivery follows that search order. Reserve inputs (first matching unreserved items by nearest distance to the workshop or work tile, through 13 `findItems`); if an input cannot be found, unclaim and mark `blocked: missing_input`.
@@ -97,7 +97,7 @@ Hauling is a family of job types produced by 13 (`haul_to_stockpile`), 12 (`haul
 - A `wheelbarrow` is not in version 1; heavy items (stone, logs, corpses) simply slow the carrier (10).
 - `hauling` labor on every dwarf is the default. The player is warned by a hint when more than `IDLE_HAULER_WARNING` items want hauling and fewer than three dwarves have hauling enabled.
 
-For idle wake-up, `hasWork` summarizes open jobs once per tick by reachable connectivity label and enabled labor. Restricted jobs keep exact worker-specific eligibility and tool checks. Invalidate this availability index on job state changes and load; assignment and its scoring remain unchanged.
+For idle wake-up, `hasWork` summarizes open jobs once per tick by reachable connectivity label and enabled labor. Restricted jobs keep exact worker-specific eligibility and tool checks. A civilian holding a remembered threat uses exact target eligibility rather than the shared availability summary. Invalidate this availability index on job state changes and load; assignment and its scoring remain unchanged.
 
 A fetched tool's reservation ends when its worker equips it. Every released reservation whose item still exists emits exactly one `ItemReleased { itemId, jobId }`, including an equipped tool. A held tool remains unavailable to searches through `Worker.toolId` and the item's `carriedBy`, even after its reservation ends. Workers keep their equipped tool after the job.
 

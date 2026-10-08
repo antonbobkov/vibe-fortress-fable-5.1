@@ -24,7 +24,7 @@ import type { WeatherReader } from '@systems/weather';
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
 import { SLEEP_NEED_MIN, advanceNeeds, crossed, type NeedName } from './needs';
-import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS, HEAVY_ITEM_DENSITY } from './constants';
+import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS, HEAVY_ITEM_DENSITY, THREAT_RADIUS } from './constants';
 import { Activities } from './activities';
 
 export { makeReader, type DwarvesReader } from './reader';
@@ -93,7 +93,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   private connectivityRevision = (): number => -1;
   private shelterRestored = false;
   private shelterCheckPending = false;
-  readonly threatened = new Map<EntityId, { hostileId: EntityId; tick: number }>();
+  readonly threatened = new Map<EntityId, { hostileId: EntityId; tick: number; tile?: TileIndex }>();
   readonly hungerMaxSince = new Map<EntityId, number>();
   readonly thirstMaxSince = new Map<EntityId, number>();
   readonly starvingAnnounced = new Map<EntityId, number>();
@@ -103,6 +103,16 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
 
   hasInterrupt(id: EntityId): boolean { return this.interruptFlags.has(id); }
   takeInterrupt(id: EntityId): boolean { return this.interruptFlags.delete(id); }
+
+  private threatTile(id: EntityId): TileIndex {
+    const world = this.world;
+    const memory = this.threatened.get(id);
+    if (world === null || memory === undefined || !world.entities.alive(memory.hostileId)) return -1;
+    const pos = world.entities.get(memory.hostileId, C.Position);
+    if (pos === undefined) return -1;
+    const tile = memory.tile ?? world.map.index(pos.x, pos.y, pos.z);
+    return pos.z === world.map.zOf(tile) && Math.max(Math.abs(pos.x - world.map.xOf(tile)), Math.abs(pos.y - world.map.yOf(tile))) <= THREAT_RADIUS ? tile : -1;
+  }
 
   /** The embark Thane is written by the spawn API before 10's first tick. */
   private seedTitles(): void {
@@ -232,7 +242,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         const mood = ctx.readers.has('15') ? ctx.readers.of<{ productivity(id: EntityId): number }>('15').productivity(id) : 100;
         const health = ctx.readers.has('17') ? ctx.readers.of<{ productivityModifier(id: EntityId): number }>('17').productivityModifier(id) : 100;
         return Math.floor((mood * health) / 100);
-      });
+      }, (id) => ctx.world.entities.get(id, C.Soldier)?.onDuty ? -1 : this.threatTile(id));
     const jobTypes = ctx.registry.table<JobTypeRow>('jobTypes');
     this.host = {
       get hasJobs(): boolean {
@@ -262,6 +272,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       markIdle: (id) => { this.idleAnnounced.add(id); },
       clearIdle: (id) => { this.idleAnnounced.delete(id); },
       threatOf: (id) => this.threatened.get(id)?.hostileId ?? 0,
+      threatTile: (id) => this.threatTile(id),
       clearThreat: (id) => { this.threatened.delete(id); },
       setCombatTarget: (id, targetId) => { ctx.world.services.combat?.setTarget(id, targetId); },
       watchShelter: (id, shutOut) => { if (shutOut) this.shutOut.add(id); else this.shutOut.delete(id); },
@@ -381,7 +392,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       const hostileId = event['hostileId'] as EntityId;
       const soldier = ctx.world.entities.get(id, C.Soldier);
       if (!soldier || !soldier.onDuty) {
-        this.threatened.set(id, { hostileId, tick: ctx.tick });
+        const pos = ctx.world.entities.get(hostileId, C.Position);
+        this.threatened.set(id, { hostileId, tick: ctx.tick, ...(pos === undefined ? {} : { tile: ctx.world.map.index(pos.x, pos.y, pos.z) }) });
         this.interruptFlags.add(id);
       }
       return;
@@ -582,7 +594,10 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     this.shelterRestored = true;
     this.shelterCheckPending = state.shelterCheckPending ?? false;
     this.threatened.clear();
-    for (const [id, threat] of state.threatened ?? []) this.threatened.set(id, { ...threat });
+    for (const [id, threat] of state.threatened ?? []) {
+      const pos = ctx.world.entities.get(threat.hostileId, C.Position);
+      this.threatened.set(id, { ...threat, ...(threat.tile === undefined && pos !== undefined ? { tile: ctx.world.map.index(pos.x, pos.y, pos.z) } : {}) });
+    }
     this.interruptFlags.clear();
     for (const id of state.interruptFlags ?? []) this.interruptFlags.add(id);
     this.hungerMaxSince.clear();

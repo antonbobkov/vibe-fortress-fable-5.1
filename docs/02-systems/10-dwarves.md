@@ -75,7 +75,7 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 
 Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and when interrupted by an event. Priority order, the first that applies wins:
 
-1. `flee`: 16 has flagged the dwarf as threatened (a hostile within `THREAT_RADIUS` and the dwarf is not a soldier on duty): path away from the threat toward the hearth hall.
+1. `flee`: 16 has flagged the dwarf as threatened (a hostile within `THREAT_RADIUS` and the dwarf is not a soldier on duty): path away from the threat toward the hearth hall. After fleeing, remember the hostile and its last seen tile while it lives and remains within `THREAT_RADIUS` of that tile. Changing level or reaching the hall does not clear this memory. Do not start a noncritical need or a job whose target is on that tile's level within horizontal Chebyshev `THREAT_RADIUS`; serve a safe reachable target instead, or wait in the hearth hall. Critical needs override this avoidance and continue across threat scans.
 2. `retreat`: fortress alert is `hearth` and the dwarf is a civilian: path to the hearth hall, or the nearest indoor tile behind a door if the hall is unreachable; stay until the alert ends. A civilian for whom neither is reachable (shut out by a locked gate) skips this step until one becomes reachable; `flee` still protects them.
 3. `patient`: 17 has marked the dwarf as needing a hospital: go to the hospital bed (or the nearest bed) and rest; care jobs feed them.
 4. `need` (critical): satisfy the most critical need.
@@ -87,9 +87,9 @@ Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and
 
 `DwarfIdle` fires once per stretch without a job and is reset by real work. With no hearth hall, idle uses the saved arrival wagon tile; without an arrival it stays at the current tile. Selection repairs legacy negative goals before queued work. Patient rest without a bed, cornered fighting and duty also use the current tile.
 
-Civilian escape searches the legal walker edges, including stairs and ramps, with the dwarf's movement restrictions. Visit at most `CIVILIAN_FLEE_NODE_LIMIT` tiles breadth first by step count, breaking ties within each frontier by tile index. Prefer a reachable hearth-hall tile found within that search; otherwise use the nearest visited safer tile. A safer tile is on another level from the threat or has greater horizontal Chebyshev distance from it than the starting tile. Exclude hostile-occupied tiles. If no safer tile is found, the civilian is cornered and fights back with the weapon or tool they carry.
+Civilian escape searches the legal walker edges, including stairs and ramps, with the dwarf's movement restrictions. Visit at most `CIVILIAN_FLEE_NODE_LIMIT` tiles breadth first by step count, breaking ties within each frontier by tile index. Prefer a reachable safer hearth-hall tile even when the bounded search cannot visit it: use the hall tile reached by the search, or the lowest-index eligible hall tile when none was visited. Only without an eligible reachable hall use the nearest visited safer tile. A safer tile is on another level from the threat or has greater horizontal Chebyshev distance from it than the starting tile. Exclude hostile-occupied tiles. If no safer tile is found, the civilian is cornered and fights back with the weapon or tool they carry.
 
-A critical need always interrupts a civilian's cornered fight, even when no resource can be found; an available escape still has first priority. Repeated threat scans do not restart a critical need activity while there is no escape. They may interrupt it when an escape becomes available, and a newly more critical need still interrupts it normally. A cornered civilian with no enemy in melee reach and no melee or ranged attack opportunity for `CIVILIAN_COMBAT_TIMEOUT_TICKS` leaves combat, clears its held threat and combat target, stops its combat walk, and selects normally. Melee reach or an attack opportunity refreshes the deadline; another threat scan does not. Save that deadline in `Brain.behaviorUntil` and the held threat in the system state. Omit the threat list when empty; older saves without it start with no held threats. Leaving a fight clears its activity caption before normal selection queues work. A later threat scan may acquire a new threat.
+A critical need always interrupts a civilian's cornered fight, even when no resource can be found. An initial escape has first priority; after fleeing, a critical need may return through the remembered danger. Repeated threat scans do not restart a critical need activity, including when an escape is available; a newly more critical need still interrupts it normally. A cornered civilian with no enemy in melee reach and no melee or ranged attack opportunity for `CIVILIAN_COMBAT_TIMEOUT_TICKS` leaves combat, clears its held threat and combat target, stops its combat walk, and selects normally. Melee reach or an attack opportunity refreshes the deadline; another threat scan does not. Save that deadline in `Brain.behaviorUntil` and the held threat in the system state. Omit the threat list when empty; older saves without it start with no held threats, and older records without a tile capture the saved hostile position on load. Leaving a fight clears its activity caption before normal selection queues work. A later threat scan may acquire a new threat.
 
 Only shut-out civilians are watched for shelter becoming reachable. Recheck those ids on `AlertChanged`, `BuildingStateChanged` or a changed `pathing.connectivityRevision`, preserving flee precedence; save the watched ids. The revision is derived and does not change connectivity labels or saved path state.
 
@@ -132,7 +132,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 - Components: `Attributes`, `Skills`, `Needs`, `Personality`, `Schedule`, `Relationships`, `Title`, plus private `Brain { behavior, behaviorUntilTick, targetTile, activity, lastMistTick, lastOutdoorThoughtHour }`.
 - `titles: Record<Title, EntityId | 0>`, `populationCached`, `children: EntityId[]`.
-- `wagonTile` (−1 without an arrival); `interruptFlags`; `threatened` records (dwarf id, hostile id and last scan tick); hunger/thirst maximum-duration clocks and daily `starvingAnnounced` records; activity plans; `idleAnnounced`; per-dwarf `sawMasterworks`; `needRetryUntil`; `shutOut` ids and `shelterCheckPending`.
+- `wagonTile` (−1 without an arrival); `interruptFlags`; `threatened` records (dwarf id, hostile id, last scan tick and last seen tile); hunger/thirst maximum-duration clocks and daily `starvingAnnounced` records; activity plans; `idleAnnounced`; per-dwarf `sawMasterworks`; `needRetryUntil`; `shutOut` ids and `shelterCheckPending`.
 - Rng stream.
 
 ## Interfaces
@@ -147,6 +147,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 - `dwarves.need(id, need)`, `dwarves.behavior(id)`, `dwarves.activityText(id)` (for the units panel: "Digging", "Eating", "Sleeping", "No job")
 - `dwarves.productivity(id)` — percent: mood multiplier (15) × wound modifier (17)
 - `dwarves.friends(id)`, `dwarves.isFriend(a, b)`
+- `dwarves.avoidedThreatTile(id)` — the last seen tile of a still-near living hostile for a civilian, or −1; job eligibility uses this memory
 
 ### Commands
 

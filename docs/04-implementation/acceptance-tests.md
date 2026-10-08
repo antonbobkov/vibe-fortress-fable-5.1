@@ -101,6 +101,7 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 | `dw_sleep` | beds assigned | each dwarf sleeps once per day in their own bed; `Slept { ownBed: true }` |
 | `dw_critical_interrupt` | miner mid-dig with thirst forced to 90 | job returns to open with progress kept; miner drinks; job resumes |
 | `dw_stair_flee` | civilian on a narrow cavern stair, hostile nearby, hearth and ale reachable upstairs | paths through the stair to safety and drinks within 350 ticks; survives with thirst below want |
+| `dw_stair_threat_return` | hall below an entrance stair, noncritical hunger, food upstairs, stationary hostile five tiles from the stair head | at most two level changes in 500 ticks; hunger made critical permits returning to eat; no dwarf death |
 | `dw_child` | immigrant child | only hauling jobs; adult on the 12th birthday |
 | `dw_title` | assign Thane; give the Thane a grand bedroom | everyone gets `thane_hall_grand` |
 | `year_one` | 48×48 flat-test, one spring, Balanced embark; opening orders below, then the whole first year | bootstrap bounds below; two guaranteed waves and caravans in their windows; no winter surface sowing, winter cave sowing, no peril-0 raid or dwarf death; population grows past seven |
@@ -248,6 +249,8 @@ Check the Hillfolk and Wildwood caravan windows of 20, no winter caravan or year
 | `td_wood_penalty` | offer 3 oak chairs to the Wildwood | reputation −6; trade still accepted if value suffices |
 | `td_attack` | kill a merchant | `CaravanLost`; reputation −60 (−50 for the killing, −10 for the lost caravan); no caravan for 2 years |
 | `td_requests` | request iron bars from the Mountainhome | its next caravan carries ≥ 5 iron bars |
+
+Long fortress fixtures select trade quantities against the integer available offer budget before applying the merchant margin. A fractional available valuation cannot pay a larger rounded integer requirement: with 3.9 marks available, an offer requiring 4 marks is unaffordable, so select a smaller quantity. The three-year fortress must complete a trade with every visiting caravan.
 
 ## 21 Immigration
 

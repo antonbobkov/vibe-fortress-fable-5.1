@@ -6,7 +6,7 @@ import { C, type Attributes, type Needs } from '@core/components';
 import { TICKS_PER_YEAR } from '@core/constants';
 import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
-import type { EntityId } from '@core/types';
+import type { EntityId, TileIndex } from '@core/types';
 import { ADULT_AGE_YEARS } from './constants';
 import { tierName } from './rules/skills';
 import type { TitleName } from './state';
@@ -34,9 +34,11 @@ export interface DwarvesReader {
   productivity(id: EntityId): number;
   friends(id: EntityId): EntityId[];
   isFriend(a: EntityId, b: EntityId): boolean;
+  /** Last seen tile of a still-near, living hostile; -1 without a remembered civilian threat. */
+  avoidedThreatTile(id: EntityId): TileIndex;
 }
 
-export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100): DwarvesReader {
+export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1): DwarvesReader {
   const skills = registry.table('skills');
   const list = (): EntityId[] => entities.with(C.Brain, C.Creature).filter((id) => entities.alive(id));
   const isChild = (id: EntityId): boolean => {
@@ -66,5 +68,6 @@ export function makeReader(entities: EntityStore, registry: Registry, titles: ()
     productivity: moodProductivity,
     friends: (id) => (entities.get(id, C.Relationships)?.friends ?? []).slice(),
     isFriend: (a, b) => (entities.get(a, C.Relationships)?.friends ?? []).includes(b),
+    avoidedThreatTile,
   };
 }

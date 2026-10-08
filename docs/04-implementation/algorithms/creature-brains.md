@@ -17,8 +17,10 @@ tickDwarf(id):
   if b.behavior == 'none' or interruptFlag[id]: select(id)
 select(id):
   N = Needs[id]; civ = not combat.onDuty(id); if b.targetTile < 0: b.targetTile = currentTile(id)
-  if threatened[id] and civ:
-    goal = fleeTile(id)  // bounded legal-edge BFS: reached hearth hall first, else nearest safer tile
+  memory = threatened[id]; if hostile dead or outside THREAT_RADIUS of memory.tile: clearThreat(id)
+  avoid = civ and memory remains ? memory.tile : none
+  if hostile currently within THREAT_RADIUS on this level and civ, unless already fleeing with a critical need:
+    goal = fleeTile(id)  // bounded legal-edge BFS; reachable safer hall preferred even beyond visit limit, then nearest safer tile
     if goal >= 0: if activity == 'Fighting': clearCombatTarget(id)
                   stopWalking(id); b.behavior = 'flee'; return
     if no critical need and civilianFightDeadline not elapsed: startOrKeepCorneredFight(id); return
@@ -30,9 +32,9 @@ select(id):
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
   if combat.onDuty(id):                                         b.behavior = 'duty'; return
   want = highest need over its want threshold
-  if want and not (jobs.hasUrgent(id, NEED_DEFER_PRIORITY)):    startNeed(id, want); return
-  if able to work: jobs.assign(id); b.behavior = 'work'; return   // queue; 11 answers later this tick
-  if want in {social, comfort, joy}:                            startNeed(id, want); return
+  if want and not (jobs.hasUrgent(id, NEED_DEFER_PRIORITY)):    startNeed(id, want, targets outside remembered danger); return
+  if able to work: jobs.assign(id); b.behavior = 'work'; return   // queue; 11 skips targets inside remembered danger and answers later this tick
+  if want in {social, comfort, joy}:                            startNeed(id, want, targets outside remembered danger); return
   b.behavior = 'idle'; goal = hearthHallTile(id) or saved wagonTile or currentTile(id); activityEnd = tick + IDLE_TICKS; emit DwarfIdle once per stretch without a job (clear after real work)
 startNeed(id, need):
   switch need:
@@ -57,7 +59,7 @@ The movement handler writes `Brain` thought timers and `Needs` for masterwork jo
 
 Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position.
 
-A civilian fight uses `Brain.behaviorUntil` as its saved deadline. Refresh it on melee reach or a recorded attack opportunity, never merely on `ThreatNearby`. A critical need activity continues across threat scans when no escape exists; a new escape or a newly more critical need cancels it for selection. The escape search and combat timeout use 10's tuning constants and safety rules.
+A civilian fight uses `Brain.behaviorUntil` as its saved deadline. Refresh it on melee reach or a recorded attack opportunity, never merely on `ThreatNearby`. Reaching an escape goal ends the flee behavior without clearing a still-near living hostile's saved last seen tile. Critical need activities can enter that remembered danger and continue across threat scans even when an escape exists; a newly more critical need still cancels them for selection. Noncritical activity searches exclude unsafe resources, beds, water stands, meeting tiles and dining seats, trying safe alternatives. The escape search and combat timeout use 10's tuning constants and safety rules.
 
 Children: `select` skips `duty` and `work` except `haul_to_stockpile` jobs (labors fixed to hauling).
 

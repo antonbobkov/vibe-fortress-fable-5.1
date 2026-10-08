@@ -48,7 +48,7 @@ interface ActivityPlan { need: string; phase: 'travel'|'seat'|'use'; itemId: Ent
 interface DwarvesState { stateVersion: 1; titles: Record<'thane'|'warden'|'broker'|'chief_medic', EntityId>; populationCached: number; children: EntityId[];
   wagonTile: TileIndex; interruptFlags: EntityId[]; hungerMaxSince: [EntityId, Tick][]; thirstMaxSince: [EntityId, Tick][];
   starvingAnnounced: [EntityId, number][]; activities?: [EntityId, ActivityPlan][]; idleAnnounced?: EntityId[]; sawMasterworks?: [EntityId, EntityId][];
-  needRetryUntil?: [EntityId, NeedName, Tick][]; shutOut?: EntityId[]; shelterCheckPending?: boolean; threatened?: [EntityId, { hostileId: EntityId; tick: Tick }][]; rng: RngState }
+  needRetryUntil?: [EntityId, NeedName, Tick][]; shutOut?: EntityId[]; shelterCheckPending?: boolean; threatened?: [EntityId, { hostileId: EntityId; tick: Tick; tile?: TileIndex }][]; rng: RngState }
 
 interface JobsState { stateVersion: 1; jobs: Job[]; nextJobId: number; laborPriorities: Uint8Array; standingOrders: Record<string, boolean>;
   assignQueue: EntityId[]; blockedRetryCursor: number }

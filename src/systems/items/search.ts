@@ -59,6 +59,8 @@ export interface SearchOptions {
   readonly reservable?: boolean;
   /** Require an item in a container of this class, located in a stockpile. */
   readonly stockpiledContainerClass?: string;
+  /** Reject candidate locations, including container tiles, without changing search order. */
+  readonly allowedTile?: (tile: TileIndex) => boolean;
 }
 
 const UNRESERVABLE = ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.AtDepot | ItemFlag.Merchant | ItemFlag.Installed;
@@ -134,6 +136,7 @@ export class ItemSearch {
     const pathing = this.host.pathing();
     if (pathing !== null && (fromLabel === 0 || pathing.labelOf(t, cls) !== fromLabel)) return -1;
     if (!matches(core, id, it, filter)) return -1;
+    if (opts.allowedTile !== undefined && !opts.allowedTile(t)) return -1;
     return t;
   }
 
