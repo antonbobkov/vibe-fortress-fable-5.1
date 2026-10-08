@@ -112,10 +112,10 @@ describe('F-17b a job never outputs from inputs it no longer holds', () => {
   /**
    * reports/M8-balance-economy.md § Additional unfixed bugs 2 (seed three-years-p0-2, craft job
    * 1005 and job 1470), reduced: job A delivers its stone and is interrupted; its reservation
-   * lapses; job B reserves the same stone; A resumes. A used to keep the stale delivered id, so
+   * was released; job B reserves the same stone; A resumes. A used to keep the stale delivered id, so
    * two jobs "used" one stone and one of them completed with three material-0, value-0 crafts.
    */
-  it('the report trace: a lapsed, re-reserved delivered input is fetched again, never crafted from thin air', () => {
+  it('T-143: an externally released, re-reserved input is fetched again, never crafted from thin air', () => {
     const { w, shopA, shopB, first, stone, board, items, jobAt, order, crafted, expectRealCrafts } = setup('f17-stale-input');
     order(shopA, first);
     w.until(() => jobAt(shopA)?.inputs[0]?.delivered.includes(stone) === true, 3000);
@@ -123,13 +123,16 @@ describe('F-17b a job never outputs from inputs it no longer holds', () => {
     expect(jobA.workerId).toBe(first);
     expect(items.get(stone)?.reservedBy).toBe(jobA.id);
 
-    // Interrupted (a need, an alert): open, delivered kept, reserved for RESERVE_KEEP_TICKS.
+    // Interrupted (a need, an alert): delivered workshop inputs remain reserved to the order.
     board.interrupt(first, true);
     w.setLabor(first, 'crafts', false);
     expect(jobA.state).toBe('open');
     expect(jobA.inputs[0]?.delivered).toEqual([stone]);
     expect(items.get(stone)?.reservedBy).toBe(jobA.id);
     w.step(RESERVE_KEEP_TICKS + 2);
+    expect(items.get(stone)?.reservedBy).toBe(jobA.id);
+    // Keep the F-17 stale/foreign-input regression: explicitly release it through the item API.
+    w.items.release(stone);
     expect(items.get(stone)?.reservedBy).toBe(0);
     expect(jobA.state).toBe('open');
     expect(jobA.inputs[0]?.delivered).toEqual([stone]);

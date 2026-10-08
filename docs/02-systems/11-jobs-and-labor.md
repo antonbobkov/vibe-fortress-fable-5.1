@@ -86,7 +86,9 @@ switch job.state:
 
 Each work tick adds `(100 + SKILL_TIME_BONUS_PERCENT × skill) × productivity(worker)` effort. Required effort is `baseTicks × 100 × 100`, without per-tick rounding; `progress` is its fixed-thousandths display. Completion runs in the same step that reaches required effort.
 
-Interruptions (critical need, threat, alert, cancellation): the job returns to `open` with `progress` kept if `state` was `working`; reserved items stay reserved for `RESERVE_KEEP_TICKS` so the same worker (or another) can resume; delivered inputs stay at the work tile. Hauling jobs interrupted mid-carry drop the item where the worker stands.
+Interruptions (critical need, threat, alert): the job returns to `open` with `progress` kept if `state` was `working`; undelivered items stay reserved for `RESERVE_KEEP_TICKS` so the same worker (or another) can resume. Inputs delivered to a building site stay reserved to its build job until the building is finished or cancelled. Inputs delivered to a workshop stay reserved to the craft job while its order stands, until completion or cancellation. These delivered reservations survive the interruption timeout and a block/unclaim; haulers cannot take them. Other jobs retain the ordinary reservation timeout. Hauling jobs interrupted mid-carry drop the item where the worker stands. Cancellation releases every remaining reservation.
+
+On resume and before completion, a delivered input counts only while it exists, is unconsumed and is still reserved to this job. If an external release, destruction or another holder invalidates it, remove the stale delivered id and fetch a replacement with progress kept, or block for missing input. Never consume another job's item or release its reservation.
 
 ### Hauling
 
@@ -190,7 +192,7 @@ Panel `jobs` (open jobs with worker and reason; labor priorities; standing order
 | `CANDIDATE_LIMIT` | 32 | |
 | `Z_DISTANCE_WEIGHT` | 6 | Tiles of horizontal distance one z-level counts as |
 | `SKILL_TIME_BONUS_PERCENT` | 8 | Shared with 03; defined there; referenced here |
-| `RESERVE_KEEP_TICKS` | 600 | |
+| `RESERVE_KEEP_TICKS` | 600 | Interrupted undelivered reservations; delivered build/workshop inputs remain with their job |
 | `BLOCKED_RETRY_TICKS` | 100 | |
 | `BLOCKED_RETRIES_PER_TICK` | 20 | |
 | `HAUL_PRIORITY` | 6 | Hauling is below default work |

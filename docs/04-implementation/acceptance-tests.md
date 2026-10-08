@@ -149,6 +149,8 @@ Check the Hillfolk and Wildwood caravan windows of 20, no winter caravan or year
 | `jb_tool` | miner without a pick, pick in a stockpile | fetches the pick first; keeps it after the job |
 | `jb_hauling` | 50 stones on the ground, a stone stockpile of 20 tiles | 20 hauled; `StockpileFull` once; 30 remain |
 
+A two-input build interrupted after its first delivery and resumed 2,000 ticks later by another dwarf fetches only the remaining input. Delivered workshop inputs also survive that wait, cannot be hauled away, round-trip through save/load and release on order removal; stale foreign-held inputs still cannot be consumed. In the opening of the three-year fortress at default player-set job, order and labor priorities, the carpenter must finish within ten days of placement.
+
 ## 12 Workshops
 
 | id | Scenario | Expected |
