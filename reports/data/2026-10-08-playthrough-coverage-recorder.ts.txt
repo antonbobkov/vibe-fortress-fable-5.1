@@ -1,0 +1,92 @@
+/* T-114 scratch recorder. NOT committed. Counts commands and events per vitest test. */
+import { afterAll, expect } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { World } from '@core/world';
+
+type Bucket = {
+  commands: Record<string, number>;
+  commandDetail: Record<string, number>;
+  rejected: Record<string, number>;
+  events: Record<string, number>;
+  eventDetail: Record<string, number>;
+  maxTick: number;
+};
+const OUT = process.env['T114_OUT'] ?? 'C:/Users/anton/AppData/Local/Temp/claude/E--code-vibe-games-vibe-fortress-fable-5-1/63e66f04-0db8-4272-a8cd-c17a67e1804b/scratchpad/t114/rec';
+const buckets = new Map<string, Bucket>();
+const bump = (o: Record<string, number>, k: string, n = 1): void => { o[k] = (o[k] ?? 0) + n; };
+function bucket(): Bucket {
+  const name = expect.getState().currentTestName ?? '(outside test)';
+  let b = buckets.get(name);
+  if (!b) { b = { commands: {}, commandDetail: {}, rejected: {}, events: {}, eventDetail: {}, maxTick: 0 }; buckets.set(name, b); }
+  return b;
+}
+const s = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') ? String(v) : (v === undefined ? '-' : typeof v);
+
+const CMD_DETAIL: Record<string, readonly string[]> = {
+  Designate: ['kind'], PlaceBuilding: ['buildingType'], CreateZone: ['zoneType'], SetAlert: ['level'], SetDoorMode: ['mode'],
+  SetHatchMode: ['mode'], SetTraffic: ['mode'], SetStockpileFilter: ['filter'], SetStandingOrder: ['name'], TrainAnimal: ['kind'],
+  SetSquadMode: ['mode'], SetTrapMode: ['mode'], AssignTitle: ['title'], SetLabor: ['labor'], SetLaborPriority: ['labor'],
+  SetPlotCrop: ['speciesId'], SetRequests: ['civ'], SetPlateTrigger: ['trigger'], SetHuntable: ['species'],
+};
+const EVT_DETAIL: Record<string, readonly string[]> = {
+  ItemCrafted: ['recipeId'], JobCompleted: ['jobType'], JobCancelled: ['jobType'], BuildingCompleted: ['buildingType'], BuildingPlaced: ['buildingType'],
+  CreatureDied: ['faction', 'cause', 'species'], RaidArrived: ['kind'], RaidEnded: ['outcome'], ThreatWarning: ['kind'], ThoughtGained: ['thoughtId'],
+  TreatmentDone: ['kind'], WoundInflicted: ['type'], TrapTriggered: ['kind'], AnimalSpawned: ['species'], ZoneChanged: ['zoneType', 'change'],
+  CaravanArrived: ['civ'], TradeCompleted: ['civ'], WeatherChanged: ['to'], SulkHappened: ['kind'], MoodTierChanged: ['to'],
+  CropPlanted: ['species'], CropHarvested: ['species'], AnimalTrained: ['kind'], HuntKill: ['reason'], FishCaught: ['species'],
+  ImmigrantsArrived: ['guaranteed'], ImmigrationSkipped: ['reason'], JobBlocked: ['jobType', 'reason'], AttackResolved: ['outcome', 'damageType'],
+  MineralMined: ['material'], TreeFelled: ['species'], MonsterSpawned: ['cavern'], DeepStirred: ['level'], ReputationChanged: ['reason'],
+  SquadOrderIssued: ['order'], AlertChanged: ['to'], BuildingStateChanged: ['state'], RoomQualityChanged: ['tier'], HallSpiritChanged: ['tier'],
+  TitleAssigned: ['title'], ItemDestroyed: ['reason'], CommandRejected: ['reason'], SeasonChanged: ['season', 'year'],
+};
+
+const proto = World.prototype as unknown as {
+  applyCommand(c: Record<string, unknown>): { ok: boolean; reason?: string };
+  step(): void;
+  onEvents(l: (events: readonly Record<string, unknown>[]) => void): unknown;
+  calendar: { tick: number };
+};
+const origApply = proto.applyCommand;
+proto.applyCommand = function (this: typeof proto, c: Record<string, unknown>) {
+  const r = origApply.call(this, c);
+  const b = bucket();
+  const type = s(c['type']);
+  if (r.ok) {
+    bump(b.commands, type);
+    const fields = CMD_DETAIL[type];
+    if (fields) bump(b.commandDetail, `${type}:${fields.map((f) => s(c[f])).join('/')}`);
+    if (type === 'AddWorkOrder') bump(b.commandDetail, `AddWorkOrder:${s((c['order'] as Record<string, unknown> | undefined)?.['recipeId'])}`);
+    if (type === 'SquadOrder') bump(b.commandDetail, `SquadOrder:${s((c['order'] as Record<string, unknown> | undefined)?.['kind'])}`);
+    if (type === 'SetZoneSetting') bump(b.commandDetail, `SetZoneSetting:${Object.keys(c).filter((k) => k !== 'type' && k !== 'zoneId').join('+')}`);
+    if (type === 'ForbidItem' || type === 'ClaimItem' || type === 'DumpItem' || type === 'MeltItem') bump(b.commandDetail, `${type}:${Object.keys(c).filter((k) => k !== 'type').join('+')}`);
+  } else bump(b.rejected, `${type}:${s(r.reason)}`);
+  return r;
+};
+const attached = new WeakSet<object>();
+const origStep = proto.step;
+proto.step = function (this: typeof proto) {
+  if (!attached.has(this)) {
+    attached.add(this);
+    this.onEvents((events) => {
+      const b = bucket();
+      for (const e of events) {
+        const type = s(e['type']);
+        bump(b.events, type);
+        const fields = EVT_DETAIL[type];
+        if (fields) bump(b.eventDetail, `${type}:${fields.map((f) => s(e[f])).join('/')}`);
+      }
+    });
+  }
+  origStep.call(this);
+  const b = bucket();
+  if (this.calendar.tick > b.maxTick) b.maxTick = this.calendar.tick;
+};
+
+afterAll(() => {
+  const path = expect.getState().testPath ?? 'unknown';
+  const name = path.replace(/\\/g, '/').split('/test/')[1]?.replace(/[^a-zA-Z0-9_.-]/g, '__') ?? 'unknown';
+  mkdirSync(OUT, { recursive: true });
+  const out: Record<string, Bucket> = {};
+  for (const [k, v] of buckets) out[k] = v;
+  if (buckets.size > 0) writeFileSync(`${OUT}/${name}.json`, JSON.stringify(out));
+});
