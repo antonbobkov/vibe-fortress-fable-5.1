@@ -19,7 +19,7 @@ const FORESTS = new Set(['temperate_forest', 'tropical_forest']);
 
 /**
  * The `civDistance` of a region no land route reaches (the sea, an island): larger than any route
- * on the map, so it reads as "as far as can be" (DECISIONS.md D-041).
+ * on the map, so it reads as "as far as can be" (docs/02-systems/01-world-generation.md § Civilizations).
  */
 export function unreachableDistance(size: number): number {
   return size * size * CIV_MOUNTAIN_STEP_COST;

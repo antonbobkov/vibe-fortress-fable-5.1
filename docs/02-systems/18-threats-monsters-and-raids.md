@@ -27,7 +27,7 @@ Each `DayPassed`, for each kind enabled for the region's peril: if the current d
 
 A bandit party is due only while Hillfolk reputation is below 50 (read through 20's reader at the daily check). One that is due while reputation is higher is suppressed without advancing or rerolling `nextTick`; once reputation falls below 50 the due party arrives at the next daily check.
 
-Fixed by this design (numbers in Wave 3):
+Fixed by this design (numbers in `03-content/threat-schedules.md`):
 
 | Peril | Thieves | Bandits | Ambushes | Raids | Sieges |
 |---|---|---|---|---|---|

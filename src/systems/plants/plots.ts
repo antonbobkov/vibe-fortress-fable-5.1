@@ -6,7 +6,7 @@
  * A plot's four season slots live on the zone entity, under the `farm_plot` zone type's own
  * settings key of `03-content/buildings-and-furniture.md` ("crop per season"), exactly as
  * `07` § State prescribes ("settings stored on the zone entity; this system keeps the index").
- * DECISIONS.md D-105.
+ * docs/02-systems/07-plants-and-farming.md § Farm plots.
  */
 
 import { SEASONS_PER_YEAR } from '@core/constants';

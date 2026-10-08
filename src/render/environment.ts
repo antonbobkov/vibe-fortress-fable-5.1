@@ -2,7 +2,7 @@
  * The M3 layers of the compositor: `02-systems/23-rendering.md` § Compositor steps 3 (fluids, mist)
  * and 9 (lighting), the `fluid levels` and `temperature` overlays of step 8, § Animation (active
  * fluid shimmer, fire, rain and snow particles), and `algorithms/compositor.md` `fluidOver` and
- * `lighting`, over `glyphs-and-colors.md` § Fluid ramps. DECISIONS.md D-103.
+ * `lighting`, over `glyphs-and-colors.md` § Fluid ramps. docs/04-implementation/ui-screens/fortress-screen.md § Status bar.
  */
 
 import { FLUID_MAX_LEVEL } from '@core/constants';

@@ -23,7 +23,7 @@ export interface HintFacts {
   deepsilverFound: boolean; cavernTwoBreached: boolean;
 }
 
-/** Each row is the predicate stated by its Wave 3 content trigger. */
+/** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
 export function hintPredicate(id: string, f: HintFacts): boolean {
   switch (id) {
     case 'hint_dig': return f.tick >= 1;

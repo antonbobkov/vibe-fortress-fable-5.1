@@ -25,7 +25,7 @@ function rotl(x: number, k: number): number {
 /**
  * `splitmix32`: expands one 32-bit seed into a well-mixed sequence. Used only to fill the four
  * state words, which is the standard way to seed a xoshiro generator from a single value.
- * See DECISIONS.md D-005.
+ * See docs/01-architecture/simulation-core.md § Random numbers.
  */
 export function splitmix32(seed: number): () => number {
   let a = seed >>> 0;

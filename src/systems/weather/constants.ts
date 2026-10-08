@@ -45,7 +45,7 @@ export const WEATHER_DELTA_C: Readonly<Record<WeatherStateId, number>> = Object.
 /**
  * `06` § Surface temperature, `dayCurve`: "a fixed 24-entry table, −6 at hour 4 rising to +6 at
  * hour 15". The entries between are the straight lines between those two points (rising over
- * 11 hours, falling back over 13), rounded to whole degrees (DECISIONS.md D-101).
+ * 11 hours, falling back over 13), rounded to whole degrees (docs/archive/decisions-archive.md D-101).
  */
 export const DAY_CURVE_C: readonly number[] = Object.freeze([
   -2, -3, -4, -5, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0, 0, -1,

@@ -8,7 +8,7 @@
  * `simulation-core.md` § Determinism). The container itself is `save-manager.ts`'s.
  *
  * What is saved beyond the tables of `schemas/system-state.md` so that the contract holds is
- * listed in DECISIONS.md D-079 (slots and free list, pending events and commands, map size and
+ * listed in docs/04-implementation/save-format.md § Sections (slots and free list, pending events and commands, map size and
  * arrival), D-081 (22's requests, searches, walks and path cache) and D-082 (the load order).
  */
 

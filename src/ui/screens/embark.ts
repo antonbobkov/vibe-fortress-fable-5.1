@@ -38,7 +38,7 @@ import {
   type TextFieldState,
 } from '../widgets';
 
-/** One row of `embarkCatalog` as the screen reads it (`category` and `note`: DECISIONS.md D-063). */
+/** One row of `embarkCatalog` as the screen reads it (`category` and `note`: docs/03-content/embark-catalog.md). */
 export interface CatalogRow {
   readonly id: string;
   readonly entry: string;

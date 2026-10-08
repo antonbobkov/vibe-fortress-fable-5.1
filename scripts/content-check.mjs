@@ -3,7 +3,7 @@
 // `tooling.md` § package.json: `content:check` (node scripts/content-check.mjs).
 //
 // `src/content/schema.ts` and `src/content/generate.ts` import nothing, so Node's type stripping
-// loads them directly and the checker shares exactly the loader's rules. See DECISIONS.md D-015.
+// loads them directly and the checker shares exactly the loader's rules. See docs/01-architecture/content-pipeline.md § Loading.
 //
 // Usage: node scripts/content-check.mjs [--fixture <file.json>]
 //   --fixture merges a JSON object of table overrides, used by the tests to feed a broken table.

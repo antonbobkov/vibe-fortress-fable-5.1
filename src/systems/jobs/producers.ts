@@ -6,7 +6,7 @@
  * The item seam: jobs reserve inputs and fetch tools through 13's item search
  * (`algorithms/jobs-and-hauling.md` § Assignment, `findItems`, `findItem`), which arrives with
  * M2. Until then 11 uses {@link NO_ITEMS}: no input can be found, and the tool a job needs is taken
- * to be in hand, so digging works before items exist (DECISIONS.md D-054). The unit tests drive the
+ * to be in hand, so digging works before items exist (docs/archive/decisions-archive.md D-054). The unit tests drive the
  * reservation and fetch logic with an in-memory stub of the same interface.
  */
 

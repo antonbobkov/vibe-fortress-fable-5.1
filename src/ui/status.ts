@@ -7,7 +7,7 @@
  * `►►►`, paused `║`).
  *
  * A field whose owning system is not running is not drawn: hall spirit (15),
- * patients (17), hostiles (18) and the caravan (20) arrive in later milestones (DECISIONS.md
+ * patients (17), hostiles (18) and the caravan (20) arrive in later milestones (docs/archive/decisions-archive.md
  * D-066).
  */
 

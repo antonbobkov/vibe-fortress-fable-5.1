@@ -68,6 +68,6 @@ The full rules and controls are in [docs/](docs/README.md), starting with the
 [system designs](docs/02-systems/README.md). Open work is in the
 [backlog](docs/backlog.md); how a change is made is in the
 [agent workflow](docs/process/agent-workflow.md); decisions not yet folded into the
-specification are in the [decision log](docs/05-plan/DECISIONS.md). Gate reports and
+specification are in the [decision log](docs/decisions.md). Gate reports and
 audits are under [reports/](reports/), and the plan that built v1.0.0 is in
 [docs/archive/](docs/archive/README.md).

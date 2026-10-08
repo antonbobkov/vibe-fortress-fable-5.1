@@ -8,7 +8,7 @@
  *
  * `repath` clears the mover's path and counts the attempt; it does not issue a new request,
  * because the goal belongs to the brain that asked for the path and the helper does not know it.
- * See DECISIONS.md D-022.
+ * See docs/02-systems/22-pathfinding-and-spatial.md § Movement helper.
  */
 
 import { C, type Motion, type Position } from './components';
@@ -72,7 +72,7 @@ export class MovementHelper implements MovementApi {
    * The walks in progress and the unflushed moves, for a save. `schemas/system-state.md` rebuilds
    * 22's requests on load and lets the brains re-request, but that changes what the next ticks do,
    * which `simulation-core.md` § Determinism forbids; the walks are saved with the requests they
-   * follow (DECISIONS.md D-081).
+   * follow (docs/04-implementation/save-format.md § Load procedure).
    */
   saveState(): MovementState {
     const walks: [EntityId, TileIndex, number, boolean, number][] = [];

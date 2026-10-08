@@ -30,10 +30,10 @@ Target: average tick ≤ 6 ms, worst tick ≤ 20 ms, so that 4× (80 ticks/s) fi
 | 18 threats | 0.10 | Hostile AI | Party-level goals; individuals reuse party paths; one shared fortress-creature snapshot per threat step; loot search bounds bestUnattendedItems to same-z Chebyshev square |
 | 19 defense | 0.05 | Trap checks | Trap tiles indexed; check on entity step events, not per tick scans |
 | 20 trade | 0.02 | Schedule | Per-hour |
-| 21 immigration | 0.00 | Daily | Negligible |
+| 21 immigration | 0.01 | Daily | Negligible |
 | 22 pathing | 1.00 | A* | Budget of `PATH_NODES_PER_TICK` expansions; connectivity precheck; route cache; requests queued by urgency |
 | core | 0.30 | Events, commands, calendar, spatial index | Batched events; bucket updates on movement only |
-| **Total** | **5.84** | | |
+| **Total** | **5.85** | | |
 
 The pathfinding budget is the one that stretches: if the budget is exhausted in a tick, remaining requests wait, and the requester's brain idles for that tick. This degrades gracefully: creatures pause for a few ticks under load instead of the frame stalling.
 
@@ -72,7 +72,7 @@ Optimized candidate and spatial views avoid altering saved state or tie-break or
 - `ItemsReader.carriedItems` supplies held ammunition directly.
 - `bestUnattendedItems` maintains per-tile value maxima in cached value bands ranked by value and entity slot (allowing thief and loot goals to stop after finding a reachable winner in top bands). For party loot searches (18), `bestUnattendedItems` accepts optional `from` and `radius` bounds restricting evaluation to the same-z Chebyshev square; if items excluded by party loot remain loose or in worlds lacking the item reader, the fallback full spatial search runs. Stockpile classification and connectivity are evaluated live.
 
-Acceptance tests in Wave 4 include a performance scenario that runs the reference fortress for 2,000 ticks in headless mode and asserts the budget with a 2× tolerance on CI machines.
+Acceptance tests in `04-implementation/acceptance-tests.md` include a performance scenario that runs the reference fortress for 2,000 ticks in headless mode and asserts the budget with a 2× tolerance on CI machines.
 
 ## Load shedding rules
 

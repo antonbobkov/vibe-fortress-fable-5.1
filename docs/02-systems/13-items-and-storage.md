@@ -19,7 +19,7 @@ Track every object in the fortress: what it is, what it is made of, how good it 
 
 ## Rules
 
-### Category tree (fixed by this design; leaves in Wave 3)
+### Category tree (fixed by this design; leaves in `03-content/items.md`)
 
 ```
 food/      meat/{raw, cooked}  fish/raw  plant/{raw, processed}  meal/{easy, fine, lavish}  egg  cheese  milk  fat  tallow
@@ -194,7 +194,7 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
   - A full-stockpile announcement names its ordinal and category preset, or Custom, and focuses the stockpile: "Stockpile #2 (Wood) is full."
 - Stocks panel: category tree with counts and values; stocked category leaves expand to type rows and individual item stacks. Forbid, dump and melt act on the selected scope. With mixed materials in a type, melt addresses only its metal stacks.
 - Item inspection: every field.
-- Glyphs: `%` food and corpses (corpses in dark red), `☼` drink barrels... the full glyph table is Wave 3; the rule is one glyph per category node at depth 2.
+- Glyphs: `%` food and corpses (corpses in dark red), `☼` drink barrels... the full glyph table is in `03-content/glyphs-and-colors.md`; the rule is one glyph per category node at depth 2.
 - Hints: "Stockpiles need barrels for drink and bags for seeds", "Refuse rots: keep the refuse pile outside".
 
 ## Tuning constants

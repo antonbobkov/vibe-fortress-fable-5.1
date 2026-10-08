@@ -10,7 +10,7 @@
  * `amphibious` gets its own label set, computed with amphibious passability, exactly as the
  * algorithm document prescribes.
  *
- * Portals (DECISIONS.md D-100, superseding the re-check of D-020). A chunk keeps every edge that
+ * Portals (docs/04-implementation/algorithms/pathfinding-and-connectivity.md § Connectivity, superseding the re-check of D-020). A chunk keeps every edge that
  * leaves it as the tile pair that forms it, and, resolved from those, its component links
  * `(localA, chunkB, localB)` of the algorithm document, sorted and without repeats. Every fact an
  * edge depends on (both tiles, the corner tiles of a diagonal, the tiles a ramp or stair reads)

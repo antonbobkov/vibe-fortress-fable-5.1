@@ -2,7 +2,7 @@
 
 Closed by the T-109 balance-status commit: latest evidence is filed, the whole journal is archived, and B-008 through B-012 await T-123.
 
-**Source:** [`docs-restructure.md`](../../work/docs-restructure.md) § Where deltas are accumulating (item 3), § One-time migration (step 3) · **Size:** S · **Needs:** F-17 (its re-measure is the latest figure) · **Status:** open
+**Source:** [`docs-restructure.md`](docs-restructure.md) § Where deltas are accumulating (item 3), § One-time migration (step 3) · **Size:** S · **Needs:** F-17 (its re-measure is the latest figure) · **Status:** open
 
 ## Why
 
@@ -14,7 +14,7 @@ The balance findings B-001 … B-012 are a measurement journal inside the decisi
    - It is a living document. A later re-measure overwrites the row. It holds no history, and no date except through the report it links.
    - The name is `balance-status.md` because `docs/03-content/balance.md` is the model itself.
 2. Take the figures from the latest reports only: [`../../../reports/audits/M8-balance-economy.md`](../../../reports/audits/M8-balance-economy.md) and whatever F-17's re-measure produced.
-3. Delete the § Balance findings table and its journal lines from [`../../05-plan/DECISIONS.md`](../../05-plan/DECISIONS.md). Move the journal whole to `docs/archive/decisions-archive.md`.
+3. Delete the § Balance findings table and its journal lines from [`../../05-plan/DECISIONS.md`](../../decisions.md). Move the journal whole to `docs/archive/decisions-archive.md`.
 4. In [`../../backlog.md`](../../backlog.md), delete the rows B-008 … B-012. For each measure that is still a model gap or a bug after F-17, add one `T-1nn` row with `balance-status.md` as its source. Do not change a constant.
 5. Add `balance-status.md` to the table in [`../../README.md`](../../README.md), and to § Reports and audits in [`../../process/agent-workflow.md`](../../process/agent-workflow.md): a re-measure is a new dated report, and the matching row of `balance-status.md` is overwritten.
 

@@ -304,7 +304,7 @@ export class FrameDriver {
       this.accumulatorMs = 0;
       // The pseudo-code returns without moving `lastFrameMs`, which would let the first frame
       // after a pause add up to the 250 ms cap; "On return it does not catch up" is the rule.
-      // See DECISIONS.md D-034.
+      // See docs/01-architecture/simulation-core.md § Commands.
       this.lastFrameMs = nowMs;
       this.render();
       return;

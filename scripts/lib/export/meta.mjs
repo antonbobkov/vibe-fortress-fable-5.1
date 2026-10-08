@@ -28,7 +28,7 @@ const EMBARK_SECTIONS = [
   'Seeds (bags of 10)', 'Materials', 'Furniture', 'Animals',
 ];
 
-/** The category each section's rows carry: the embark screen's groups (DECISIONS.md D-063). */
+/** The category each section's rows carry: the embark screen's groups (docs/03-content/embark-catalog.md). */
 const EMBARK_CATEGORIES = ['tools', 'food', 'drink', 'seeds', 'materials', 'furniture', 'animals'];
 
 export function exportEmbarkCatalog() {
@@ -95,7 +95,7 @@ function leadingNumber(text) {
  * and a count. A candidate must price out exactly: `entry.price × count = stated price`, where the
  * count follows from the phrase's own number over the entry's unit ("50 iron bolts" over "25 iron
  * bolts" is 2); among those, the entry sharing the most words with the phrase wins, then the one
- * with the fewest words the phrase lacks. No match or a tie throws. DECISIONS.md D-043.
+ * with the fewest words the phrase lacks. No match or a tie throws. docs/03-content/names.md.
  */
 function matchSupply(phrase, price, catalog) {
   const times = /×\s*(\d+)/.exec(phrase);

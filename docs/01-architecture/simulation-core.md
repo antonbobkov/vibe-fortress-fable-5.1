@@ -119,7 +119,7 @@ Systems 01 and 02 do not tick; they run on demand from the app's screen flow.
 
 ## Commands
 
-A command is a plain record with a `type` and typed fields. The command table (Wave 4) names an owning system for every type. The core does not validate commands; the owning system does, in `applyCommand`, returning either `{ ok: true, events? }` or `{ ok: false, reason: ReasonCode }`.
+A command is a plain record with a `type` and typed fields. The command table in `04-implementation/command-catalog.md` names an owning system for every type. The core does not validate commands; the owning system does, in `applyCommand`, returning either `{ ok: true, events? }` or `{ ok: false, reason: ReasonCode }`.
 
 Rules:
 
@@ -137,7 +137,7 @@ Rules:
 
 ## Events
 
-An event is a plain record with a `type` and typed fields. The event table (Wave 4) lists fields, emitters and subscribers. Rules:
+An event is a plain record with a `type` and typed fields. The event table in `04-implementation/event-catalog.md` lists fields, emitters and subscribers. Rules:
 
 - Emit through `ctx.emit(event)` only. Events are queued; nothing runs when `emit` is called.
 - Subscriptions are declared statically in each system (`subscribes: EventType[]`). The scheduler builds the dispatch table at startup.
@@ -219,7 +219,7 @@ The rules in `architecture-overview.md` are enforced by:
   ticks: number }
 ```
 
-The headless runner is the basis of the acceptance tests in Wave 4 and of the determinism test. It runs in Vitest and in a Node script.
+The headless runner is the basis of the tests in `04-implementation/acceptance-tests.md` and of the determinism test. It runs in Vitest and in a Node script.
 
 ## Startup sequence
 

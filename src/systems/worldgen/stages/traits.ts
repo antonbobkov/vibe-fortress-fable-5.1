@@ -105,7 +105,7 @@ export function rollTraits(
 
 /**
  * Stage 8. Traits are rolled only for regions that can be embarked on: `ocean` and `glacier`
- * carry none (`acceptance-tests.md` `wg_ratings`; DECISIONS.md D-042).
+ * carry none (`acceptance-tests.md` `wg_ratings`; docs/04-implementation/algorithms/world-generation.md).
  */
 export function stageTraits(g: GenWorld, registry: Registry): void {
   const st = stageStream(g.s, 'worldgen.traits');

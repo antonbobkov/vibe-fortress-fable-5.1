@@ -68,7 +68,7 @@ export function wander(st: RngStream, from: Point, to: Point, w: number, h: numb
   return path;
 }
 
-/** A lake centre where the largest lake fits inside the map (DECISIONS.md D-045). */
+/** A lake centre where the largest lake fits inside the map (docs/04-implementation/algorithms/local-map-generation.md). */
 export function lakeCenter(st: RngStream, w: number, h: number): Point {
   return { x: st.int(LAKE_RADIUS_MAX, w - 1 - LAKE_RADIUS_MAX), y: st.int(LAKE_RADIUS_MAX, h - 1 - LAKE_RADIUS_MAX) };
 }
@@ -148,7 +148,7 @@ function carveLake(g: LocalGen, center: Point, radius: number): void {
 /**
  * Stage 2. A river's paths run from the midpoint of each inflow edge to the midpoint of the
  * outflow edge, or to the lake centre when it has none; a region with no inflow edge starts no
- * path (DECISIONS.md D-045). A lake (the region's own, or the end of a river) is carved last.
+ * path (docs/04-implementation/algorithms/local-map-generation.md). A lake (the region's own, or the end of a river) is carved last.
  */
 export function stageRivers(g: LocalGen): void {
   const st = stageStream(g.s, 'terrain.rivers');

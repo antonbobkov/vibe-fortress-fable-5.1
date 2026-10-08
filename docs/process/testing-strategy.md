@@ -130,4 +130,4 @@ CI (`.github/workflows/ci.yml`) runs `lint`, `typecheck`, `content:check`, `stri
 
 ## Test naming
 
-`describe('T-123 designations', ...)` for unit tests, with the id of the task that adds them; scenario ids as file names (`tr_dig_room.scenario.ts`). A test that pins a choice made under the [ambiguity protocol](ambiguity-protocol.md) says in its name what it pins; one that pins a decision-log row or a contradiction names the row: `it('D-007: ...')`, `it.todo('C-009: ...')`. Existing tests keep the labels they were written with (`T-M1-03`, `F-12`, `U-03`).
+`describe('T-123 designations', ...)` for unit tests, with the id of the task that adds them; scenario ids as file names (`tr_dig_room.scenario.ts`). A test that pins a choice made under the [ambiguity protocol](ambiguity-protocol.md) says in its name what it pins; one that pins a decision-log row or a contradiction names the row: `it('D-007: ...')`, `it.todo('C-nnn: ...')`. Existing tests keep the labels they were written with (`T-M1-03`, `F-12`, `U-03`).

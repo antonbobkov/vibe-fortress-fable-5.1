@@ -63,7 +63,7 @@ interface TraitRow {
 /** A dwarf before it is an entity. Skills are level by skill id; absent means 0. */
 export interface DwarfRecord {
   name: string;
-  /** 0 draws from list A, 1 from list B (DECISIONS.md D-043). */
+  /** 0 draws from list A, 1 from list B (docs/03-content/names.md). */
   sex: 0 | 1;
   ageYears: number;
   attributes: Attributes;

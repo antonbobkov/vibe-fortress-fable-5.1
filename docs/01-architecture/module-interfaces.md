@@ -134,9 +134,9 @@ Most thoughts come from the content table's `trigger` column (an event type plus
 
 ## Commands
 
-Every command type has one owning system. The core routes by the command table. A system's `applyCommand` returns a rejection with a `RejectReason` from a fixed enumeration (Wave 4 lists them) that the UI maps to a message.
+Every command type has one owning system. The core routes by the command table. A system's `applyCommand` returns a rejection with a `RejectReason` from a fixed enumeration (listed in `04-implementation/command-catalog.md`) that the UI maps to a message.
 
-Command ownership by system (the full list is the Wave 4 command catalog):
+Command ownership by system (the full list is `04-implementation/command-catalog.md`):
 
 | System | Commands |
 |---|---|
@@ -161,7 +161,7 @@ Command ownership by system (the full list is the Wave 4 command catalog):
 
 ## Events
 
-Every event has one or more emitters and any number of subscribers. The full catalog is in Wave 4. Conventions:
+Every event has one or more emitters and any number of subscribers. The full catalog is in `04-implementation/event-catalog.md`. Conventions:
 
 - Past tense: `TileChanged`, `JobCompleted`, `CreatureDied`.
 - Fields are ids and plain values. A consumer verifies `alive(id)` before reading.

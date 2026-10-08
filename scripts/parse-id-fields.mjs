@@ -6,7 +6,7 @@
 // through `registry.idOf` on save and `registry.indexOf` on load (a table of which fields are
 // indices is generated from the component schemas)". `src/core/id-fields.ts` holds the table;
 // `test/unit/save-game.test.ts` compares it with what this parser returns, so the two cannot drift
-// (the same arrangement as parse-component-owners.mjs, DECISIONS.md D-026, D-080).
+// (the same arrangement as parse-component-owners.mjs, docs/04-implementation/save-format.md § Serialization helpers, D-080).
 //
 // Usage: node scripts/parse-id-fields.mjs   (prints the table as JSON)
 

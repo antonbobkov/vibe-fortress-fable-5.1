@@ -10,7 +10,7 @@
  *
  * A river region draws `~` in `blue` over its biome; the cursor is an inverted cell (the look
  * cursor's style, 23 § Compositor step 10); a region the filter rejects is dimmed one step.
- * DECISIONS.md D-062.
+ * docs/04-implementation/ui-screens/menus-and-world.md § World map.
  */
 
 import type { Registry } from '@core/registry';

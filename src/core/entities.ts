@@ -6,7 +6,7 @@
  * components and `Map` storage with a sorted index list for the rest.
  *
  * Iteration order is ascending slot index, which is the entity table order the world hash uses.
- * See DECISIONS.md D-007.
+ * See docs/01-architecture/data-model.md § Entities.
  */
 
 import type { EntityId } from './types';
@@ -477,7 +477,7 @@ export class EntityStore {
   /**
    * The slot table for a save (`schemas/system-state.md` `EntityStoreState.slots`): one row per
    * slot ever allocated, living or not, plus the free list in its pop order, because the next
-   * `create` reuses the last freed slot (DECISIONS.md D-079).
+   * `create` reuses the last freed slot (docs/04-implementation/save-format.md § Sections).
    */
   exportSlots(): { slots: { generation: number; alive: boolean; kind: EntityKind }[]; free: number[] } {
     const slots = this.generations.map((generation, index) => ({

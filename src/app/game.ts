@@ -1336,7 +1336,7 @@ export interface TestHook {
 
 /**
  * The readers the harness sees: the world's own core readers plus `ui`, which is the presentation
- * state of `schemas/system-state.md` § UiState and belongs to no system (DECISIONS.md D-033), and
+ * state of `schemas/system-state.md` § UiState and belongs to no system (docs/04-implementation/schemas/system-state.md § UiState), and
  * `world`, the generated world's reader when there is one (it lives outside the tick loop, `01`).
  */
 export interface HookReaders {

@@ -2,11 +2,11 @@
 
 Closed by f709a7b, b96907d, and `T-104: fold fluid and plant rules and close triage`; five code disagreements remain in T-117.
 
-**Source:** [`docs-restructure.md`](../../work/docs-restructure.md) § Where deltas are accumulating (item 1), § The triage tasks · **Size:** M · **Needs:** — · **Status:** open
+**Source:** [`docs-restructure.md`](docs-restructure.md) § Where deltas are accumulating (item 1), § The triage tasks · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
-[`../05-plan/DECISIONS.md`](../../05-plan/DECISIONS.md) holds about 240 `D-` rows. Many are normative and exist nowhere else, so the effective specification is the spec plus this log. This task empties the part of the log that belongs to its scope.
+[`../05-plan/DECISIONS.md`](../../decisions.md) holds about 240 `D-` rows. Many are normative and exist nowhere else, so the effective specification is the spec plus this log. This task empties the part of the log that belongs to its scope.
 
 ## Scope
 

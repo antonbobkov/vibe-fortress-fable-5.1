@@ -24,7 +24,7 @@ export default defineConfig({
       // `src/systems/**/rules` 90%, `src/systems/**` 75%, `src/render` 60%, `src/ui` 50%.
       // Thresholds are set in `vitest.config.ts` and raised, never lowered." Active from the M0
       // gate (T-M0-14). `src/app`, `src/content` and `src/platform` carry no documented threshold;
-      // see DECISIONS.md D-037.
+      // see docs/process/testing-strategy.md § Coverage gates.
       thresholds: {
         'src/core/**': { lines: 90 },
         'src/systems/**/rules/**': { lines: 90 },

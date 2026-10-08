@@ -6,7 +6,7 @@
  * "`Continue` loads the newest save of any kind; hidden when none exists." The screens behind
  * `Load`, `Legends`, `Settings` and `About` belong to later milestones (save/load T-M2-11, the rest
  * M7); until the host offers them their entries are drawn dim and cannot be chosen
- * (DECISIONS.md D-061).
+ * (docs/archive/decisions-archive.md D-061).
  */
 
 import type { KeyPress } from '@platform/input';

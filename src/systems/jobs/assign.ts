@@ -5,7 +5,7 @@
  *
  * Candidates are sorted "by `(priority + laborPriorityShift)`, then by estimated distance …, then
  * by the worker's skill descending" and the first `CANDIDATE_LIMIT` are scored (the 11 wording;
- * DECISIONS.md D-055).
+ * docs/02-systems/11-jobs-and-labor.md § Assignment).
  */
 
 import { PRIORITY_DEFAULT } from '@core/constants';

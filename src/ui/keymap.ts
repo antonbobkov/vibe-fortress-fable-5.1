@@ -2,7 +2,7 @@
  * The keymap loader.
  *
  * `02-systems/24-ui-and-input.md` § Input model: "Every key is rebindable in settings; the keymap
- * is a data table (`keymap.json`) with defaults from Wave 3", and § Interfaces: "the keymap
+ * is a data table (`keymap.json`) with defaults from `03-content/ui-keymap-and-screens.md`", and § Interfaces: "the keymap
  * resolves to `UiAction`s". `keymap.json` is exported from `03-content/ui-keymap-and-screens.md`
  * § Keymap: rows of `{ context, key, action }` whose `action` is the table's own wording. This
  * module names each wording with an action id, parses the key column (`Ctrl+S`, `Shift+Tab`,

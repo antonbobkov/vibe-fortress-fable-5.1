@@ -3,11 +3,11 @@
  *
  * `01-architecture/content-pipeline.md` § Strings: "All player-facing text is in `strings.json`
  * keyed by a `StringKey`, with placeholders in braces". The generated `strings.json` carries the
- * Wave 3 texts (hints, milestones, confirmations, thoughts); the screen labels, announcement
+ * Content texts (hints, milestones, confirmations, thoughts); the screen labels, announcement
  * lines and rejection reasons have no generated rows yet, so their canonical values, copied from
- * the Wave 4 wireframes (`04-implementation/ui-screens/*.md`) and the system documents, live in
+ * the screen wireframes (`04-implementation/ui-screens/*.md`) and the system documents, live in
  * this default table under the key names those documents use. A row of the content table with
- * the same key wins, so moving a row into `strings.json` needs no code change. DECISIONS.md D-061.
+ * the same key wins, so moving a row into `strings.json` needs no code change. docs/archive/decisions-archive.md D-061.
  */
 
 import type { Registry } from '@core/registry';

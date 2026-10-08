@@ -5,7 +5,7 @@
  * The whole farming loop: a cave plot, `SetPlotCrop`, the `plants` producer's `plant` jobs, growth
  * at 100% (a cave crop ignores season and weather), the `autoHarvest` standing order's `harvest`
  * jobs, and the yields. Dimcap's `stageDays` is 4 and its cycle is four stages, so a tile is ready
- * 16 days after it was planted (DECISIONS.md D-107).
+ * 16 days after it was planted (docs/02-systems/07-plants-and-farming.md § Cave farming).
  *
  * The run is 17 game days, so it uses the compact `flat-test` columns (32 × 32, D-059): the rules
  * under test read only the plot's tiles, the seeds and the one farmer.

@@ -3,7 +3,7 @@
  * "submit `Designate` out of bounds | `CommandRejected { out_of_bounds }`, no state change".
  *
  * Since T-M1-07 the real 03 terrain system owns and validates `Designate` (`command-catalog.md`:
- * "each tile in bounds"); the M0 stand-in of DECISIONS.md D-036 is gone. The scenario pins what the
+ * "each tile in bounds"); the M0 stand-in of docs/process/testing-strategy.md § Stand-in systems is gone. The scenario pins what the
  * core does with a rejection: the reason reaches the command log and a `CommandRejected` event, and
  * the world is unchanged.
  *

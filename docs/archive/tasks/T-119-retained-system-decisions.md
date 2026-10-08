@@ -7,7 +7,7 @@
 ## Scope
 
 T-104 verified the decisions against the implementation. The five whole rows
-remain in [the decision log](../../05-plan/DECISIONS.md) because code disagrees.
+remain in [the decision log](../../decisions.md) because code disagrees.
 This file reports the mismatches; it does not choose a rule or authorize a
 simulation change. Obtain the owner's resolution before implementation.
 

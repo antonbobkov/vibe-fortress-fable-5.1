@@ -1,11 +1,13 @@
 # T-110 — Close the migration: pending decisions, archive, large data files
 
+Closed by the T-110: close the documentation migration commit.
+
 **Source:** [`docs-restructure.md`](docs-restructure.md) § Decisions and tasks · **Size:** S · **Needs:** T-102 … T-109 · **Status:** open
 
 ## What to do
 
 1. **The decision log.** What is left of `docs/05-plan/DECISIONS.md` after the triage moves to `docs/decisions.md`: pending decisions and open contradictions only, plus the one-line records kept on purpose. Rows added by branches that merged after their triage task ran are triaged here by the same three choices (fold, move, archive). The folder `docs/05-plan/` is then empty and is removed.
-2. **Everything that names the old path.** The root `README.md`, [`../README.md`](../README.md), [`../backlog.md`](../backlog.md), [`../process/agent-workflow.md`](../process/agent-workflow.md), [`../process/ambiguity-protocol.md`](../process/ambiguity-protocol.md), [`../process/testing-strategy.md`](../process/testing-strategy.md), [`../archive/README.md`](../archive/README.md), `agents/*.md`, and comments in `src/`, `test/` and `scripts/` (search for `05-plan` and `DECISIONS.md`). `npm run docs:check` finds the links; a search finds the rest.
+2. **Everything that names the old path.** The root `README.md`, [`../README.md`](../../README.md), [`../backlog.md`](../../backlog.md), [`../process/agent-workflow.md`](../../process/agent-workflow.md), [`../process/ambiguity-protocol.md`](../../process/ambiguity-protocol.md), [`../process/testing-strategy.md`](../../process/testing-strategy.md), [`../archive/README.md`](../README.md), `agents/*.md`, and comments in `src/`, `test/` and `scripts/` (search for `05-plan` and `DECISIONS.md`). `npm run docs:check` finds the links; a search finds the rest.
 3. **Large data files.** They leave git or move under `reports/data/`:
 
    | File | Size | Read by | Linked from |
@@ -25,4 +27,4 @@
 
 - `docs/05-plan/` does not exist, and `docs/decisions.md` holds only pending items.
 - No tracked data file over 300 KB is left under `reports/` outside `reports/data/`.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, `npm run docs:check` among them.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, `npm run docs:check` among them.

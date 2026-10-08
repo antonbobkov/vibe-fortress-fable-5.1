@@ -179,7 +179,7 @@ export interface TransitionRolls {
 /**
  * "Item produced" of `dig` (and every row that says "As dig"): "Per material class: soil none;
  * stone with `MINING_STONE_DROP_PERMILLE`; ore and gem always; ice none". Obsidian and other rock
- * classes count as stone (DECISIONS.md D-050).
+ * classes count as stone (docs/02-systems/03-terrain-and-mining.md § Digging).
  */
 export function digDrop(map: Map3D, i: TileIndex, facts: MaterialFacts, rolls: TransitionRolls): DropSpec | null {
   const material = map.materialAt(i);

@@ -9,7 +9,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-110 | [Close the migration: pending decisions, archive, large data files](work/T-110-close-the-migration.md) | [`work/docs-restructure.md`](work/docs-restructure.md) | T-102 … T-109 | open |
 | T-111 | [UI audit follow-up: what the U tasks changed](work/T-111-ui-audit-follow-up.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) | U-02, U-07 | open |
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | U-02, U-07, T-103 … T-112 | open |
 | T-114 | [Audit: do the scripted playthroughs cover the game's major features?](work/T-114-audit-test-coverage.md) | the owner, 2026-10-06 | T-113 | open |
@@ -17,6 +16,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, T-115 and its fix tasks | open |
 | T-123 | [The economy fortress cannot run its economy at default priorities](work/T-123-economy-fortress-at-default-priority.md) | F-17 and [`../reports/audits/2026-10-07-balance-after-f17.md`](../reports/audits/2026-10-07-balance-after-f17.md) | — | open |
 | T-131 | [Preserve saved web flags during load bootstrap](work/T-131-load-web-flags.md) | T-130 save/load regression probe | — | open |
-| C-009 | System 21's performance allocation is a literal 0.00 ms, which no measured run can meet; its budget assertion is `it.todo` | [`05-plan/DECISIONS.md`](05-plan/DECISIONS.md) § Contradictions, row C-009 | — | open. **Resolved, orchestrator, 2026-10-07:** system 21 gets a positive allocation of 0.01 ms, the smallest the table's two decimals can state (measured 0.0003 ms). It is taken from the table's unallocated headroom, so no other row moves. The `it.todo` becomes the same 2× assertion every other system has. |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). B-008 through B-012 await T-123; their measurement journal is in the [decision archive](archive/decisions-archive.md).

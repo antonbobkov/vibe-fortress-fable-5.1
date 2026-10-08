@@ -52,7 +52,7 @@ export function chooseSources(g: GenWorld): GenRegion[] {
  * `traceRiver`: follow the lowest lower cardinal neighbour (ties by id) until the sea, an existing
  * river (a confluence: the confluence and everything downstream of it become `major`), or a
  * local minimum (a lake). A source that an earlier river already runs through starts no new river
- * (DECISIONS.md D-039).
+ * (docs/04-implementation/algorithms/world-generation.md § Rivers).
  */
 export function traceRiver(g: GenWorld, src: GenRegion): void {
   if (src.river !== null) return;

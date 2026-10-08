@@ -5,7 +5,7 @@
  * `core_calendar` "with no real systems": they pin the core machinery (the tick of
  * `simulation-core.md` § The tick), not any system's rules. A stand-in implements the system
  * contract of `module-interfaces.md` with a real system id and order, records what the core does
- * to it, and owns no rule beyond what the scenario states. See DECISIONS.md D-036.
+ * to it, and owns no rule beyond what the scenario states. See docs/process/testing-strategy.md § Stand-in systems.
  *
  * Not a `*.scenario.ts` file, so `index.test.ts` does not collect it.
  */

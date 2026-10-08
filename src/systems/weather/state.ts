@@ -2,7 +2,7 @@
  * 06 Weather's saved state: `04-implementation/schemas/system-state.md` `WeatherState`, and
  * `02-systems/06-weather-and-seasons.md` § State.
  *
- * Supersets (DECISIONS.md D-101): `started` (the initial `clear` has had its duration rolled),
+ * Supersets (docs/archive/decisions-archive.md D-101): `started` (the initial `clear` has had its duration rolled),
  * `forced` (`TestWorld.forceWeather`: a state held until released, or null), `rainHours`
  * (consecutive rain or storm hours, for "mud … with rain for 2+ hours"), `isDaylightCached`.
  *

@@ -5,7 +5,7 @@
  * API").
  *
  * `10` § Sleeping: "each dwarf has `sleepStartHour` (random 20–24) and sleeps `SLEEP_HOURS`"; the
- * hour is drawn from 10's stream at spawn (DECISIONS.md D-057).
+ * hour is drawn from 10's stream at spawn (docs/02-systems/10-dwarves.md).
  */
 
 import type { Attributes, Brain, Needs, Personality, Relationships, Schedule, Skills, Title } from '@core/components';

@@ -328,7 +328,7 @@ export interface ContentCheck {
  * `content-pipeline.md`: on a hash mismatch the load proceeds with a warning when every content id
  * the save references still exists, and fails with the list of missing ids when one does not.
  * The referenced ids come from the caller, which owns the map from component fields to content
- * tables (`save-format.md` § Serialization helpers). See DECISIONS.md D-026.
+ * tables (`save-format.md` § Serialization helpers). See docs/04-implementation/save-format.md § Serialization helpers.
  */
 export function checkContent(
   header: SaveHeader,
@@ -476,7 +476,7 @@ export async function rollAutosaves(saves: SaveManager, keep: number = AUTOSAVES
   return doomed;
 }
 
-/** The quick save `F9` loads: the newest `manual-<unixMs>` save (DECISIONS.md D-083). */
+/** The quick save `F9` loads: the newest `manual-<unixMs>` save (docs/04-implementation/save-format.md § Snapshots and ids). */
 export async function newestManualId(saves: SaveManager): Promise<string | null> {
   const manual = (await saves.list()).filter((s) => s.header.kind === 'manual' && /^manual-\d+$/.test(s.id));
   if (manual.length === 0) return null;

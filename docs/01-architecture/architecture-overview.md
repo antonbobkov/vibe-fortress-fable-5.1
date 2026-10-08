@@ -120,7 +120,7 @@ The simulation core advances in fixed steps. One tick:
 3. **Dispatch events.** Events queued during steps 1–2 are delivered FIFO to subscribers in system order, then to presentation subscribers. Events emitted during dispatch are queued for the next tick.
 4. **Advance the calendar.** Increment the tick counter; emit `HourPassed`, `DayPassed`, `SeasonChanged`, `YearPassed` as the boundaries are crossed. These are dispatched at the next tick's step 3.
 
-The fixed order and each system's cadence are in [`../02-systems/README.md`](../02-systems/README.md). The precise algorithm, including how the frame loop calls ticks and what happens when the browser falls behind, is in `simulation-core.md` (Wave 2).
+The fixed order and each system's cadence are in [`../02-systems/README.md`](../02-systems/README.md). The precise algorithm, including how the frame loop calls ticks and what happens when the browser falls behind, is in [simulation-core.md](simulation-core.md).
 
 ## Core concepts
 
@@ -128,11 +128,11 @@ The fixed order and each system's cadence are in [`../02-systems/README.md`](../
 
 **Map3D.** Dense typed arrays indexed by `(z × H + y) × W + x`. Per tile: `kind` (Uint8: wall, floor, open, ramp, stairs variants, fortification, tree, sapling), `material` (Uint16 registry index), `fluid` (Uint8: 3 bits level, 1 bit type, 4 bits flags), `designation` (Uint8), `flags` (Uint16: discovered, constructed, smoothed, engraved, mud, snow, burning, vegetation, light, and reserved bits), `temperatureOverride` (Int8, used only by hot and cold sources). Per chunk: dirty flags for rendering, pathfinding and connectivity. No objects per tile. Total about 8 bytes per tile.
 
-**Entities and components.** Everything that is not a tile is an entity: creatures, items, buildings, zones, stockpiles, squads, caravans, projectiles. An entity is a 32-bit id (24-bit index, 8-bit generation) with a set of components. Components are plain records stored in per-component tables; hot components (`Position`, `Motion`) are structure-of-arrays. Systems own component *types* and declare them in the data model; any system may read any component, and writes follow the ownership table in `data-model.md` (Wave 2).
+**Entities and components.** Everything that is not a tile is an entity: creatures, items, buildings, zones, stockpiles, squads, caravans, projectiles. An entity is a 32-bit id (24-bit index, 8-bit generation) with a set of components. Components are plain records stored in per-component tables; hot components (`Position`, `Motion`) are structure-of-arrays. Systems own component *types* and declare them in the data model; any system may read any component, and writes follow the ownership table in [data-model.md](data-model.md).
 
 **Registry.** All content tables loaded at startup into typed arrays indexed by a dense integer, with `id ↔ index` maps. Saves store string ids, never indices. The registry is immutable after load.
 
-**Events.** Typed records with a `type` tag. Queued, never delivered synchronously, never return values. The full catalog is in Wave 4; each system document lists what it emits and consumes.
+**Events.** Typed records with a `type` tag. Queued, never delivered synchronously, never return values. The full catalog is in [`../04-implementation/event-catalog.md`](../04-implementation/event-catalog.md); each system document lists what it emits and consumes.
 
 **Commands.** Typed records of player intent (`Designate`, `PlaceBuilding`, `SetLabor`, `SetJobPriority`, `PullLever`, `TradeOffer`). The only way the UI changes the world. Validated, applied at the start of a tick, and appended to a command log that is part of the save (last season only) for debugging and replay.
 
@@ -173,7 +173,7 @@ The fixed order and each system's cadence are in [`../02-systems/README.md`](../
 - **Rendering** draws only the visible slice from the atlas.
 - **Memory**: roughly 8 bytes per tile, about 3.5 MB of grids at standard size.
 
-The numeric budget per system is in `performance-budget.md` (Wave 2).
+The numeric budget per system is in [performance-budget.md](performance-budget.md).
 
 ## Extension points
 
@@ -189,4 +189,4 @@ The numeric budget per system is in `performance-budget.md` (Wave 2).
 - **Headless runner** in `app/headless.ts`: world + systems, no platform, driven by a scenario (seed, commands with tick stamps, assertions).
 - **Golden determinism test**: two runs of 10,000 ticks from the same seed and command log produce identical world hashes; a save/load in the middle produces the same hash.
 - **Per-system rule tests**: rules are pure functions in `rules/` and are tested in isolation.
-- **Acceptance tests** (Wave 4) map each system's acceptance criteria to scenarios.
+- **Acceptance tests** ([`../04-implementation/acceptance-tests.md`](../04-implementation/acceptance-tests.md)) map each system's acceptance criteria to scenarios.

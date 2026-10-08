@@ -69,7 +69,7 @@ export interface CropProgress {
  * The accumulator runs on through the fourth (mature) stage, so a crop is ready to harvest
  * `4 × stageDays` after planting — the cycle `03-content/plants.md` states ("crops have four
  * stages; the total is the cycle", "a dimcap … completes a cycle in 16 days") and the one the
- * acceptance row `pl_cave_cycle` measures. DECISIONS.md D-107.
+ * acceptance row `pl_cave_cycle` measures. docs/02-systems/07-plants-and-farming.md § Cave farming.
  */
 export function advance(progress: CropProgress, gained: number, length: number): CropProgress {
   let stage = progress.stage;

@@ -6,7 +6,7 @@
 // debug panel's export) or a later save, whose `commandLog` section is the season's log.
 //
 // A plain Node script cannot import the TypeScript sources (D-028), so this one asks Vite, a
-// listed dev dependency, to load `src/app/replay.ts` with the project's aliases (DECISIONS.md
+// listed dev dependency, to load `src/app/replay.ts` with the project's aliases (docs/archive/decisions-archive.md
 // D-084). Options: `--until <tick>`, `--every <n>`.
 //
 // Usage: node scripts/replay.mjs <save.deepholm> <log.json|later.deepholm> [--until N] [--every N]

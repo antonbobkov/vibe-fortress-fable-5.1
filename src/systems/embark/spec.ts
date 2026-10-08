@@ -50,7 +50,7 @@ interface BiomeRow {
 /**
  * `relief (0–3 from neighbor elevation differences)`: the largest elevation difference to any of
  * the eight neighbouring regions, mapped linearly from the 0 … 255 elevation range onto the four
- * relief levels (`floor(diff × 4 / 256)`, so 64 per level). DECISIONS.md D-044.
+ * relief levels (`floor(diff × 4 / 256)`, so 64 per level). docs/02-systems/02-embark-and-loadout.md § Local map specification.
  */
 export function reliefOf(world: WorldMap, regionId: number): 0 | 1 | 2 | 3 {
   const size = world.size;

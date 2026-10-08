@@ -46,7 +46,7 @@ export function isWeatherState(s: string): s is WeatherStateId {
 /**
  * `frostmarrow` "uses winter values for autumn and spring as well" (`06` § Seasons; the trait's
  * 06 hook: "winter values in autumn and spring"): the season whose values the rules use.
- * DECISIONS.md D-101.
+ * docs/archive/decisions-archive.md D-101.
  */
 export function climateSeason(season: number, climate: Climate): number {
   if (climate.traits.includes('frostmarrow') && (season === SPRING || season === AUTUMN)) return WINTER;
