@@ -76,14 +76,17 @@ function build() {
   const thoughts = exportThoughts();
 
   // workshops-and-recipes.md marks quality-bearing recipes with `Q`; an item type is
-  // quality-bearing when a recipe that produces it is.
-  const qualityItems = new Set();
+  // quality-bearing when a recipe that produces it is. An output names either an item id or an
+  // item tag (the symbolic `craft` of the craft recipes stands for every item tagged `craft`),
+  // so every item a Q-marked recipe can output is quality-bearing (F-17a).
+  const qualityOutputs = new Set();
   for (const recipe of recipes) {
     if (!recipe.quality) continue;
-    for (const output of recipe.outputs) qualityItems.add(output.item);
+    for (const output of recipe.outputs) qualityOutputs.add(output.item);
   }
   for (const item of items) {
-    if (qualityItems.has(item.id)) item.quality = true;
+    if (qualityOutputs.has(item.id)) item.quality = true;
+    if (item.tags?.some((tag) => qualityOutputs.has(tag))) item.quality = true;
     // items.md marks the three meals "quality-bearing" in its notes column.
     if (item.category.startsWith('food/meal/')) item.quality = true;
   }

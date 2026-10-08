@@ -26,7 +26,7 @@ Every trap has a `mode`: `enemies` (default) or `all`. Under `enemies`, a trap t
 | Kind | Materials (14) | On trigger | After |
 |---|---|---|---|
 | `stone_fall` | 1 mechanism, 1 raw stone | The stone drops: `DamageDealt { blunt, amount: STONE_FALL_DAMAGE × density(stone) / 100 }` to a random part with head weight doubled; the stone becomes an item on the tile | `spent`; `rearm_trap` job (labor `mechanics`, input 1 raw stone) when `autoRearmTraps` |
-| `spike` | 1 mechanism, 1–3 spears or spikes, a link | Only when *extended* by a linked lever or plate: each spike attacks every creature on the tile with `pierce` at `TRAP_SKILL` (16 resolution, no dodge for surprised targets); a lever can extend and retract repeatedly; a plate extends on trigger and retracts on reset | never spent; spikes do not break |
+| `spike` | 1 mechanism, 1–3 spears or spikes, a link | Only when *extended* by a linked lever or plate: each spike attacks every creature on the tile with `pierce` at `TRAP_SKILL` (16 resolution, no dodge for surprised targets; a spike item has no weapon row, so it attacks with 16's unarmed base damage, while installed spears use their weapon row); a lever can extend and retract repeatedly; a plate extends on trigger and retracts on reset | never spent; spikes do not break |
 | `cage` | 1 mechanism, 1 empty cage | If `size(creature) ≤ CAGE_MAX_SIZE`: the creature is removed from the map into the cage item (`CreatureCaged`); the cage item stays on the trap tile until hauled; larger creatures trigger nothing and walk over | `spent`; `rearm_trap` with a new empty cage |
 | `weapon` | 1 mechanism, 1–3 weapons | Each weapon attacks the creature as in 16 at `TRAP_SKILL`; with `TRAP_JAM_PERMILLE` × (corpses on the tile + 1) the trap jams | `armed` unless jammed; `clean_trap` job (labor `cleaning`) unjams and removes corpses to refuse |
 
@@ -41,7 +41,7 @@ Each tick, for each plate: evaluate its trigger condition from the plate's setti
 - `creatures { minSize, includeFortress }`: any creature on the tile with `size ≥ minSize` and (faction matches: hostiles, wild, deep, and fortress creatures only if `includeFortress`).
 - `water ≥ n` / `magma ≥ n`: the tile's fluid.
 
-When the condition changes from false to true, emit `MechanismTriggered { sourceId: plateId, on: true }`; from true to false, `{ on: false }`; both subject to `PLATE_RESET_TICKS` (14) between edges. 14 toggles linked targets. A plate linked to a bridge, a floodgate and a spike trap makes a corridor trap with no dwarf involved.
+A plate with no trigger set uses `creatures { minSize: 0, includeFortress: false }`: hostiles, wild and deep creatures of any size. When the condition changes from false to true, emit `MechanismTriggered { sourceId: plateId, on: true }`; from true to false, `{ on: false }`; both subject to `PLATE_RESET_TICKS` (14) between edges. 14 toggles linked targets. A plate linked to a bridge, a floodgate and a spike trap makes a corridor trap with no dwarf involved.
 
 ### Levers
 
@@ -63,7 +63,7 @@ All owned by 14; this system documents the patterns the design guarantees work, 
 
 - A `chain` building (14) with an assigned animal (08 `AssignAnimal { animalId, chainId }`) keeps it within 1 tile; it attacks any hostile within `WAR_ANIMAL_RADIUS` (08). Chained animals spot stealthed creatures at `SPOT_RADIUS_DOG`.
 - A squad station also accepts assigned war animals (`AssignAnimal { animalId, squadId }`): the animal follows the squad's position.
-- On hearth alert, unassigned war animals go to the hearth hall entrance; assigned ones stay at their station.
+- On hearth alert, unassigned war animals go to the hearth hall entrance: the first hall tile adjacent to a door, else 08's hall home tile; assigned ones stay at their station.
 
 ### Hearth alert retreat
 
@@ -74,7 +74,7 @@ All owned by 14; this system documents the patterns the design guarantees work, 
 3. Else the dwarf's bedroom if any.
 4. Else stay and flee locally (10 `flee`).
 
-10 calls this on `AlertChanged` to `hearth` and when a retreat target becomes unreachable. A civilian without a reachable shelter skips retreat while retaining flee precedence. Only those shut-out civilians are watched and rechecked after alert changes, building-state changes or a connectivity rebuild; 10 saves the watched ids. 14 locks `lock_on_alert` doors after all civilians inside their enclosure have passed or after `ALERT_LOCK_GRACE_TICKS`, whichever comes first (the door locks when no fortress creature has been adjacent on the outside for 20 ticks, or when the grace period ends).
+10 calls this on `AlertChanged` to `hearth` and when a retreat target becomes unreachable. A civilian without a reachable shelter skips retreat while retaining flee precedence. Only those shut-out civilians are watched and rechecked after alert changes, building-state changes or a connectivity rebuild; 10 saves the watched ids. 14 locks `lock_on_alert` doors after all civilians inside their enclosure have passed or after `ALERT_LOCK_GRACE_TICKS`, whichever comes first (the door locks when no fortress creature has been adjacent on the outside for `ALERT_OUTSIDE_CLEAR_TICKS` (20) ticks, or when the grace period ends). The grace starts when the `AlertChanged` to `hearth` is handled. A door's outside is the side away from the hearth when the door stands in a straight corridor (so the inner door of an airlock counts its vestibule side as outside even indoors); when no corridor direction toward the hearth can be determined, it is the cardinal neighbour that is `outdoor`. 14 detects each door's lock exactly once per alert, whichever of the two rules caused it: the door's chunks are marked dirty so that connectivity treats it as locked, and `BuildingStateChanged { state: 'locked' }` is emitted. When the alert returns to `calm`, the alert lock clears, the chunks are dirtied again and `BuildingStateChanged { state: 'open' }` is emitted.
 
 ### Fortifications and ranged defense
 
@@ -129,6 +129,7 @@ Job producer `defense` (`rearm_trap`, `clean_trap`); inspector section `building
 | `WADE_LARGE_SIZE` | 180 | Creatures this large drown only at level 7 |
 | `RETREAT_SEARCH_LIMIT` | 3000 | Tiles |
 | `ALERT_LOCK_GRACE_TICKS` | 400 | |
+| `ALERT_OUTSIDE_CLEAR_TICKS` | 20 | Ticks without a fortress creature outside a `lock_on_alert` door before it locks |
 
 ## Extension points
 

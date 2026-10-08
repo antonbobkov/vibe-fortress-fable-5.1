@@ -1,4 +1,4 @@
-# T-113 — `DwarfDied`: the specification says 10 emits it, the code never does
+# T-117 — `DwarfDied`: the specification says 10 emits it, the code never does
 
 **Source:** T-102 (found while replacing the interface note of [`../02-systems/10-dwarves.md`](../02-systems/10-dwarves.md)) · **Size:** S · **Needs:** — · **Status:** open
 

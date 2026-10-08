@@ -290,6 +290,34 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       await vi.waitFor(() => expect(game.screen).toBe('main_menu'), { timeout: 2000 });
     }, 30_000);
 
+    it('T-118: a command applied while paused counts as an unsaved change until the next save', async () => {
+      const saves = new SaveManager(new MemoryStorage());
+      const game = newGame(saves);
+      await game.start({ embark: 'default' });
+      expect(game.host.speed()).toBe(0);
+      expect(game.unsavedSince()).toBe(false);
+
+      // Paused: the command takes effect at once and the calendar does not advance.
+      const map = game.host.readers.map;
+      const tick = game.host.readers.calendar.tick;
+      game.host.submit({ type: 'CreateZone', zoneType: 'farm_plot', tiles: [map.index(40, 30, game.ui.z)] });
+      expect(game.host.readers.calendar.tick).toBe(tick);
+      expect(game.unsavedSince()).toBe(true);
+
+      game.openGameMenu();
+      game.handleKey(press('m'));
+      expect(game.screen).toBe('confirm');
+      expect((game.topScreen as ConfirmScreen).confirmId).toBe('c_main_menu');
+      game.handleKey(press('n'));
+      expect(game.screen).toBe('game_menu');
+
+      game.handleKey(press('s'));
+      await game.settled();
+      expect(game.unsavedSince()).toBe(false);
+      game.handleKey(press('m'));
+      await vi.waitFor(() => expect(game.screen).toBe('main_menu'), { timeout: 2000 });
+    }, 30_000);
+
     it('Continue is hidden without a save and loads the newest of any kind with one', async () => {
       const saves = new SaveManager(new MemoryStorage());
       const empty = newGame(saves);

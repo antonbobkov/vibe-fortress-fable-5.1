@@ -207,7 +207,7 @@
     "peril": 3,
     "earliest": {
       "year": 1,
-      "season": 1
+      "season": 2
     },
     "intervalDays": [
       40,
@@ -223,7 +223,7 @@
     "peril": 4,
     "earliest": {
       "year": 1,
-      "season": 1
+      "season": 2
     },
     "intervalDays": [
       28,
@@ -300,7 +300,7 @@
     "peril": 4,
     "earliest": {
       "year": 1,
-      "season": 1
+      "season": 2
     },
     "intervalDays": [
       42,

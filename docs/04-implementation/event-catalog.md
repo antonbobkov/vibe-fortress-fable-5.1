@@ -140,5 +140,6 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 
 - Subscribers listed as "ui (none)" exist for the log's optional verbose filter and the debug panel; they need no announcement row.
 - Events carrying `ids` of destroyed entities are still delivered; handlers check `alive`.
+- A row lists the fields every emitter sets; an emitter may add the fields its subscribers read. `ZoneChanged` names the zone's type `zoneType` and carries the zone's `tiles`. `BuildingPlaced`, `BuildingCompleted` and `BuildingRemoved` name the type `buildingType`; `BuildingPlaced` also carries `tiles`, and the other two carry the building's wealth `value`. `CreatureDied` also carries `tile`, `species`, `name`, `faction`, `ageTicks` and `wornItems`: the dwarf-death thoughts read `species`, `faction` and `ageTicks`. `MealEaten` also carries `mealType` and `ItemDestroyed` also carries `quality`. `SulkHappened` also carries what the sulk chose: `partnerId` (argue), `targetTile` (weep), `itemId` (hoard) or `buildingId` (break).
 - `TilesChanged` is emitted by 03 only. When 04, 05 or 14 change tiles through the terrain API, 03 batches them into the same tick's event.
 - The announcement registry (24) has one row per event marked `ui` with a severity from the system document that emits it.

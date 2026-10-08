@@ -429,6 +429,20 @@ export class WorkshopOperator {
     return { bars: 1, units: 1 };
   }
 
+  /** Every consumed input (and the fuel and the container, when the recipe has them) is still there. */
+  private holdsInputs(job: Job, recipe: RecipeRow, fuelIndex: number, container: EntityId): boolean {
+    if (recipe.container && this.items.get(container) === undefined) return false;
+    for (let k = 0; k < job.inputs.length; k += 1) {
+      if (recipe.container && k === job.inputs.length - 1) continue;
+      if (k !== fuelIndex && k >= recipe.inputs.length) continue;
+      const needed = k === fuelIndex ? 1 : (recipe.inputs[k]?.count ?? 0);
+      let held = 0;
+      for (const item of job.inputs[k]?.delivered ?? []) held += this.items.get(item)?.count ?? 0;
+      if (held < needed) return false;
+    }
+    return true;
+  }
+
   private complete(job: Job, ctx: TickContext): void {
     const id = job.target.ref;
     const b = ctx.world.entities.get(id, C.Building);
@@ -444,6 +458,10 @@ export class WorkshopOperator {
     const container = recipe.container ? (job.inputs[job.inputs.length - 1]?.delivered[0] ?? 0) : 0;
     const fuelIndex = recipe.fuel && !this.isMagmaPowered(id) ? recipe.inputs.length : -1;
     const itemsApi = ctx.world.services.items;
+    // F-17b (`12` § Operation, onComplete: "consume inputs ... spawn outputs"): a job whose
+    // delivered inputs no longer cover the recipe makes nothing. 11 revalidates before it gets
+    // here, so this is the last line: no output is ever spawned from inputs that are not consumed.
+    if (!this.holdsInputs(job, recipe, fuelIndex, container)) return;
     for (let k = 0; k < job.inputs.length; k += 1) {
       if (recipe.container && k === job.inputs.length - 1) continue;
       if (k === fuelIndex || k < recipe.inputs.length) {

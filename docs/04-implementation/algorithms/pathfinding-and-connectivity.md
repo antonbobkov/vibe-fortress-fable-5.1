@@ -5,27 +5,27 @@
 ## Passability and cost
 
 ```
-passable(i, cls, faction):
+passable(i, cls, mover = {}):   // mover: { faction, magmaSafe, size, opensDoors, tame }; every field defaults to "blocks nothing extra"
   k = kind[i]
   if k in {Wall, Tree, Boulder, Open}: return false
   if k == Fortification and cls != 'small': return false
-  b = buildingAt.get(i); if b and buildings.blocksMovementAt(i, cls, faction): return false
+  b = buildingAt.get(i); if b and buildings.blocksMovementAt(i, cls, mover.faction, mover): return false
+  if flags[i] & Burning: return false                                   // before any class-specific answer
+  if mover.faction == 'fortress' and forbiddenTiles.has(i): return false
   f = fluid[i]; lv = level(f)
-  if isMagma(f) and lv > 0 and not speciesMagmaSafe(faction/creature): return false
+  if isMagma(f) and lv > 0 and not mover.magmaSafe: return false
   if cls == 'aquatic': return not isMagma(f) and lv >= FLUID_DEEP_LEVEL
-  if lv >= FLUID_DEEP_LEVEL and not isMagma(f) and cls != 'amphibious' and not (cls=='large' and sizeLarge and lv < 7): return false
-  if flags[i] & Burning: return false
-  if faction == 'fortress' and forbiddenTiles.has(i): return false
+  if lv >= FLUID_DEEP_LEVEL and not isMagma(f) and cls != 'amphibious' and not (cls=='large' and mover.size >= WADE_LARGE_SIZE and lv < 7): return false
   return true
-cost(i, cls, faction):   // Fixed, base 1000
+cost(i, cls, mover = {}):   // Fixed, base 1000
   c = 1000
   if 1 <= level(fluid[i]) <= FLUID_WADE_LEVEL and not aquatic: c *= 2
   if flags[i] & Snow: c = c * SNOW_MOVE_COST_PERCENT / 100
-  if flags[i] & Restricted and faction == 'fortress': c *= 5
+  if flags[i] & Restricted and mover.faction == 'fortress': c *= 5
   if flags[i] & Web: c *= 3
   if buildingAt has a door at i: c += 200
   return c
-edges(i, cls, faction) -> [(j, stepCost)]:
+edges(i, cls, mover) -> [(j, stepCost)]:
   for d in 8 horizontal dirs: j = i + d; if inBounds and passable(j):
      if diagonal(d): a, b = the two orthogonal neighbors; if kind[a] or kind[b] in {Wall, Tree, Boulder, Fortification}: continue; yield (j, cost(j)*1414/1000) else yield (j, cost(j))
   k = kind[i]
@@ -47,14 +47,23 @@ Ramp rule in words: a ramp `r` at level z connects to the tile `u` at level z+1 
 rebuildChunk(c, cls):
   localLabel[c] = fill 0; count = 0
   for each tile i in chunk order: if passable(i, cls) and localLabel[i] == 0: count++; floodFillHorizontal(i, count)   // within the chunk, horizontal edges only (including diagonals)
-  portals[c] = []
-  for each tile i on the chunk boundary or with a vertical edge: for (j, _) in edges(i, cls): if chunk(j) != c: portals[c].push((localLabel[i], chunk(j), localLabel[j]))
+  portals[c] = []                                  // the tile pair that forms each crossing, not local labels
+  for each tile i on the chunk boundary or with a vertical edge: for (j, _) in edges(i, cls): if chunk(j) != c: portals[c].push((i, j))
+resolveLinks(c, cls):                              // the portals of c, resolved against the current local labels
+  links[c] = sorted distinct { (localLabel[i], chunk(j), localLabel[j]) : (i, j) in portals[c], both tiles passable }
 rebuildGlobal(cls):
-  uf = unionFind(total components = Σ counts)
-  for c: for (la, cb, lb) in portals[c]: uf.union(gid(c, la), gid(cb, lb))
-  globalLabel[c][la] = uf.find(gid(c, la))
+  number the components in chunk order, then by local label; uf = unionFind(total components = Σ counts)
+  for c: for (la, cb, lb) in links[c]: uf.union(gid(c, la), gid(cb, lb))      // the smaller root wins
+  globalLabel[c][la] = uf.find(gid(c, la)) + 1
 label(i, cls) = globalLabel[chunk(i)][localLabel[i]] (0 if impassable)
-onTickEnd(): if dirtyChunks non-empty: for c in dirtyChunks: for cls in classes: rebuildChunk(c, cls); for cls: rebuildGlobal(cls); dirtyChunks.clear(); pathCache.invalidate(dirtyChunks)
+onTickEnd(): if dirtyChunks non-empty:
+  for cls in classes:
+    for c in dirtyChunks: rebuildChunk(c, cls)
+    for p in the 26 neighbours of the dirty chunks that are not dirty: recompute the portals of the tiles of p within one tile of a dirty chunk
+         (every edge on the dirty chunk's level, only the stairs and ramp edges on the levels above and below)
+    for c in dirtyChunks and their neighbours: resolveLinks(c, cls)
+    if a dirty chunk's component count or a link of any of them changed: rebuildGlobal(cls)
+  pathCache.invalidate(dirtyChunks); dirtyChunks.clear()
 ```
 
 Movement classes with labels: `walker`, `small`, `large`, `aquatic`. `amphibious` = `walker` labels merged with `aquatic` at query time (reachable if either matches through a chain: implemented by a third label set `amphibious` computed with amphibious passability; cheap enough).

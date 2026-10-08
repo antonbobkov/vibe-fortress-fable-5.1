@@ -16,7 +16,7 @@
       "shell"
     ],
     "glyph": "♀",
-    "quality": false,
+    "quality": true,
     "tags": [
       "craft"
     ]
@@ -770,7 +770,7 @@
       "shell"
     ],
     "glyph": "♀",
-    "quality": false,
+    "quality": true,
     "tags": [
       "craft"
     ]
@@ -1361,7 +1361,7 @@
       "shell"
     ],
     "glyph": "○",
-    "quality": false,
+    "quality": true,
     "tags": [
       "craft"
     ]

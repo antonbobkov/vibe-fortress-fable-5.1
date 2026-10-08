@@ -412,7 +412,10 @@ export class Activities {
     if (ctx.tick < p.until) return false;
     const n = ctx.world.entities.get(id, C.Needs);
     if (n === undefined) { this.cancel(ctx, id); return true; }
-    const change = (name: NeedName, relief: number): void => ctx.world.entities.add(id, C.Needs, { ...n, [name]: clamp(n[name] - relief) } as Needs);
+    const change = (name: NeedName, relief: number): void => {
+      const cur = ctx.world.entities.get(id, C.Needs) ?? n;
+      ctx.world.entities.add(id, C.Needs, { ...cur, [name]: clamp(cur[name] - relief) } as Needs);
+    };
     const its = items(ctx);
     if (p.need === 'hunger') {
       const item = its?.get(p.itemId);

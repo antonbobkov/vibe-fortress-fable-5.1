@@ -34,5 +34,6 @@ Rules of the display:
 - The merchant's line: "Not enough. Add 31 ☼ of goods." when short; "A fair offer." when acceptable; "We do not care for wooden things." once when any wooden item is selected for the Wildwood.
 - After `Offer` succeeds, the columns refresh; bought goods appear in the fortress column (they are now at the depot) and can be hauled away by removing them from the depot afterwards.
 - `Gift` requires the left quantities to be all zero.
+- `Offer`, `Gift` and `Close` are commands that are applied on a tick. The modal keeps the game paused and advances exactly one command tick for each trade action.
 - Keyboard: arrows move within a column, `Tab` switches, `+`/`-` change by 1 (`Shift` by 10), `Home`/`End` set 0/max.
 - Mouse: click a row to focus, click `[+]`/`[-]`, drag on the quantity to scrub.

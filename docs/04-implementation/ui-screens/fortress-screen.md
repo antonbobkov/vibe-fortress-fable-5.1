@@ -26,7 +26,7 @@ Wireframes are at 120×45 cells for illustration; the layout scales with the win
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Status row 1 fields left to right: date; weather glyph, word and temperature; `☺` population; `♥` hall spirit tier (colored); `+n` patients (red, hidden when 0); `!n` hostiles on discovered tiles or spotted, matching the threats panel's "Active" (red, hidden when 0); `$` caravan present (hidden otherwise); `z` current level; speed glyphs and multiplier (`║` when paused, yellow when the simulation lags); `[?] help` at the right edge.
+Status row 1 fields left to right: date (a click on it opens the calendar panel, which has no hotkey); weather glyph, word and temperature (`{glyph} {word} {temp}°C`; the moon `C` replaces the sun on a clear night; the glyph is red in a heatwave, cyan in a cold snap and dim in fog); `☺` population; `♥` hall spirit tier (colored); `+n` patients (red, hidden when 0); `!n` hostiles on discovered tiles or spotted, matching the threats panel's "Active" (red, hidden when 0); `$` caravan present (hidden otherwise); `z` current level; speed glyphs and multiplier (`║` when paused, yellow when the simulation lags); `[?] help` at the right edge.
 
 Status row 2: the tile summary under the mouse (or the cursor), then the hotkey strip for the most used panels; with a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`.
 

@@ -77,7 +77,7 @@ When a step ends with water at level ≥ 1 on a tile whose kind is `floor` and w
 
 ### Creatures and items in fluid
 
-- After each step, for each touched tile with entities (spatial index): water level ≥ `FLUID_DEEP_LEVEL` → emit `CreatureSubmerged { id }` per creature (17 applies drowning to non-aquatic creatures each health tick while submerged; 22 treats the tile as impassable); magma level ≥ 1 → emit `MagmaContact { tile, entities[] }` (17 applies burn damage; 13 destroys items whose material melts at or below `MAGMA_C`).
+- After each step, for each touched tile with entities (spatial index): water level ≥ `FLUID_DEEP_LEVEL` → emit `CreatureSubmerged { id }` per creature (17 applies drowning to non-aquatic creatures each health tick while submerged; 22 treats the tile as impassable); magma level ≥ 1 → emit `MagmaContact { tile, entities[] }` (17 applies burn damage; 13 destroys items whose material melts at or below `MAGMA_C`). A magma tile that holds a building is touched too, even with no entity on it (`entities` possibly empty): 14 destroys non-magma-safe buildings there.
 - On `EntitiesMoved`, run the same entity check on each destination, including settled fluid; resulting events dispatch with the next tick's event batch. Ongoing drowning while a creature stays submerged is 17's health check.
 - Movement into deep water is refused by 22 for walkers, so creatures end up submerged only when water rises around them, when they fall, or when pushed by a bridge.
 - Water at 1–`FLUID_WADE_LEVEL` doubles movement cost (22).

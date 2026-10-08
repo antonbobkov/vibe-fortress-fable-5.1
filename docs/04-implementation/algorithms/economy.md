@@ -61,12 +61,12 @@ price(civ, it) = valuation(civ, it) * MERCHANT_MARKUP / 100
 margin(civ) = max(MARGIN_MIN, MARGIN_BASE - tradingSkill(trader) * MARGIN_PER_SKILL - reputation[civ] / MARGIN_REP_DIVISOR)
 acceptOffer(give, take): G = Σ valuation(civ, it)*qty for give; T = Σ price(civ, it)*qty for take
   if take empty: gift: reputation += min(10 - giftedThisCaravan, G/100); transfer; emit GiftGiven; return
-  if G >= T * (100 + margin)/100: transfer both ways; reputation += clamp(1, 5, (G+T)/2 / 500); xp(trader, 'trading', TRADE_XP * (1 + (G+T)/2000)); emit TradeCompleted
-  else: emit TradeRefused{ shortfall: ceil(T*(100+margin)/100 - G) }
-  wood penalty: for it in give with class wood (or wooden furniture) and civ == wildwood: reputation -= 2 (once per item per session)
+  if G >= ceil(T * (100 + margin)/100): transfer both ways; reputation += clamp(1, 5, floor(T / 500)); xp(trader, 'trading', TRADE_XP * (1 + (G+T)/2000)); emit TradeCompleted
+  else: emit TradeRefused{ shortfall: ceil(ceil(T*(100+margin)/100) - G) }
+  wood penalty: for it in give with class wood (or wooden furniture) and civ == wildwood: reputation -= 2 (once per item per session; applied before the accept check, so a refused offer pays it too)
 goodsGeneration(civ): budget = CARAVAN_VALUE_BASE + renown*CARAVAN_VALUE_PER_RENOWN + rep*CARAVAN_VALUE_PER_REP
   reqBudget = budget * REQUEST_SHARE/100; for req in requests[civ] sorted by priority desc: if civ list contains req.item: spend up to reqBudget on it (count = min(entry max, floor(reqBudget/value)))
-  remaining: loop: e = rng.weighted(entries with rare filter by reputation); n = rng.int(e.count); mat = rng.weighted(e.materials); v = value*n; if v > remaining*1.2: continue (max 20 skips then stop); spawn into pack animals; remaining -= v
+  remaining: loop: e = rng.weighted(entries; the rare variants added at reputation >= 50, the deepsilver entry only at >= 75); n = rng.int(e.count); mat = rng.weighted(e.materials); v = value*n; if v > remaining*1.2: continue (max 20 skips then stop); spawn into pack animals; remaining -= v
 ```
 
 ## Immigration wave (21, on SeasonChanged)

@@ -2,11 +2,11 @@
 
 **Needs:** the economy fortress (`1851d4a`) and its report (`23e4f98`) · **Spec touched:** `18-threats-monsters-and-raids.md`, `21-immigration.md` (only if the code is brought to it), `balance.md`, `workshops-and-recipes.md` exporter only
 
-> Moved here from `docs/05-plan/fixes/` by T-101; the text below is unchanged. The branch `f-17` was cut before the move, so three of its instructions name things that have moved: `PROGRESS.md` is archived (closing F-17 deletes its row from [`../backlog.md`](../backlog.md) and moves this file to `docs/archive/tasks/`), `reports/M8-balance-economy.md` is now `reports/audits/M8-balance-economy.md`, and the dated lines under B-008 … B-012 go to the decision log as written, where T-109 will collapse them.
+> Moved here from `docs/05-plan/fixes/` by T-101; the text below is unchanged. The branch `f-17` was cut before the move, so three of its instructions name things that have moved: `PROGRESS.md` is archived (closing F-17 deletes its row from [`../backlog.md`](../../backlog.md) and moves this file to `docs/archive/tasks/`), `reports/M8-balance-economy.md` is now `reports/audits/M8-balance-economy.md`, and the dated lines under B-008 … B-012 go to the decision log as written, where T-109 will collapse them.
 
 ## Why
 
-[`reports/M8-balance-economy.md`](../../reports/audits/M8-balance-economy.md) re-measured the balance with a fortress that runs a real economy.
+[`reports/M8-balance-economy.md`](../../../reports/audits/M8-balance-economy.md) re-measured the balance with a fortress that runs a real economy.
 
 **What it showed:**
 - **Peaceful wealth is close to the model.** It reaches 10,740 / 23,687 / 31,808 marks in years 1–3, against 4,000–8,000 / 15,000–25,000 / 35,000–60,000.
@@ -64,3 +64,11 @@ Every decision below was made by the parent under the owner's standing instructi
 - The four commits, each green on lint, typecheck, content:check, strings:check, interface:check and `npm test`.
 - `test:perf` green for tasks 1 and 2: the per-system budgets must hold, since tasks 1 and 2 touch jobs, items and threats.
 - `PROGRESS.md` ticked, and DECISIONS rows added.
+
+## Outcome (2026-10-07)
+
+- **Tasks 1 and 2 are merged** (`ecfd41f`): crafts carry quality, a job never outputs from inputs it no longer holds, renown counts dwarves, the winter wave clamps before it halves, and `balance.md` names the measured wealth drivers.
+- **Task 3, the fixture rewrite, is not merged.** It is on the branch `f-17` (`ffbc723`). After about thirty tuning runs the rewritten fortress survives three years at default priorities but makes about 5,000 marks, completes no forge, gem or lavish-meal job, and trades at 4 of 8 visits. With the old fixture and the runtime fixes, the same seed makes 15,107 / 18,638 / 23,698. [T-123](../../work/T-123-economy-fortress-at-default-priority.md) takes it from here.
+- **Task 4, the re-measure,** is filed as a new report, [`2026-10-07-balance-after-f17.md`](../../../reports/audits/2026-10-07-balance-after-f17.md), with its raw data beside it. It was not written into the earlier report, because reports are not updated.
+- **No balance constant changed.** B-008 … B-012 wait on T-123.
+- **Bugs found and filed:** T-122 (civilians flee on their own level only), T-124 (a fine meal's joy relief writes the old hunger back), T-125 (peril-4 raids from day 28).

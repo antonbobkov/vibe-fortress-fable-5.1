@@ -34,6 +34,18 @@ describe('T-M4-06 activities', () => {
     expect(w.dwarves.reader().need(id, 'hunger')).toBeLessThan(20);
   });
 
+  it('T-124: a quality-4 meal relieves hunger and joy, neither write undoes the other', () => {
+    const w = new TestWorld({ seed: 't124-fine-meal', world: 'flat-test', embark: 'none' });
+    const id = w.spawnDwarf({ at: w.index(12, 12, Z) });
+    w.spawnItem('easy_meal', 'dimcap', w.index(13, 12, Z), 1, 4);
+    w.setNeed(id, 'hunger', 65);
+    w.setNeed(id, 'joy', 80);
+    w.step(100);
+    expect(w.events('MealEaten')).toMatchObject([{ type: 'MealEaten', id, kind: 'meal', quality: 4 }]);
+    expect(w.dwarves.reader().need(id, 'hunger')).toBeLessThan(20);
+    expect(w.dwarves.reader().need(id, 'joy')).toBeLessThan(80);
+  });
+
   it('uses alcohol, then a working well, then adjacent surface water', () => {
     const w = new TestWorld({ seed: 'm4-drink', world: 'flat-test', embark: 'none' });
     const at = w.index(60, 59, Z);

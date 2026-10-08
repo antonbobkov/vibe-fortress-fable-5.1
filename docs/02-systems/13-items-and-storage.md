@@ -72,7 +72,8 @@ Stockpile { filter: { categories: Set<CategoryPath>, materialClasses: Set<Materi
 - Container filling: containers in stockpiles are themselves items; `containersWanted` produces haul jobs for empty containers from wherever they are (usually the carpenter's output).
 - Slot reservations: when a haul job is claimed, the destination slot is reserved for the job (`slotReservations: Map<slotKey, jobId>`), released on completion or cancellation.
 - A stockpile at capacity emits `StockpileFull { id }` once until it has space again; when it gains space, `noHome` items return to the wants set. Items waiting for a wanted or incoming container stay in the wants set without a job. Stale slot reservations are dropped each items tick.
-- Stockpile priority is the haul job priority for items going to it (default `HAUL_PRIORITY`, food stockpiles `HAUL_PRIORITY_FOOD`; both from 11).
+- Stockpile priority is the haul job priority for items going to it (default `HAUL_PRIORITY`, food stockpiles `HAUL_PRIORITY_FOOD`; both from 11). A new stockpile has an empty filter and accepts nothing. Its priority is the default until the player sets one, and the default follows the filter: `HAUL_PRIORITY_FOOD` while the filter selects only food nodes. A priority the player has set stays when the filter changes (`ItemsState.explicitPriority`).
+- The presets select category nodes: Food `food`; Drink `drink`; Seeds `seed`; Stone `stone/raw`, `stone/block`; Ore and bars `ore`, `bar`; Wood `wood`; Furniture `furniture`; Weapons and armor `weapon`, `ammo`, `armor`; Cloth and leather `textile`, `clothing`; Crafts and gems `craft`, `stone/gem_rough`, `stone/gem_cut`; Refuse `refuse/skeleton`, `refuse/rotten`, `refuse/part` and Corpses `refuse/corpse` (both allow rot); Everything every top-level node (rot allowed). The quality range applies only to types that bear a quality.
 - Destroying an item or removing its destination stockpile cancels the affected haul jobs with `target_invalid`.
 - Removing a stockpile zone leaves its items where they are; they become "wants hauling" again if another stockpile accepts them.
 
@@ -97,7 +98,7 @@ Maintained incrementally, sorted by item id:
 
 ### Forbid, dump, melt, claim
 
-`Item.flags`: `forbidden` (ignored by all jobs and searches), `dump` (wants hauling to a `dump` zone; on arrival the flag clears), `melt` (a smelter may consume it), `reserved` (held by a job; 11 sets and clears), `owned` (belongs to a dwarf: worn clothing, an assigned bed's owner's chest contents).
+`Item.flags`: `forbidden` (ignored by all jobs and searches), `dump` (wants hauling to a `dump` zone; on arrival the flag clears), `melt` (a smelter may consume it), `reserved` (held by a job; 11 sets and clears), `owned` (belongs to a dwarf: worn clothing, an assigned bed's owner's chest contents), `installed` (linked to a built piece of furniture, 14: off the map and out of every search, haul and available count, but still in the totals and in wealth; deconstruction clears it and returns the item to the building's tile).
 
 Commands set flags on items, on all items in a rectangle including their container contents, or on all items of a type in the stocks panel. Items dropped by dead dwarves and hostiles are not forbidden by default (unlike the inspiration); items *worn by a corpse* stay with the corpse until the corpse is buried, rots, or is butchered (every non-dwarf corpse with worn items can be looted by a `strip_corpse` hauling job that moves the equipment to the ground). Dumped items stay in the dump zone; a dump-marked item uses the first tile of the nearest dump zone by centroid, and has no home without a dump zone.
 

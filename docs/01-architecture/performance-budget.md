@@ -27,7 +27,7 @@ Target: average tick ≤ 6 ms, worst tick ≤ 20 ms, so that 4× (80 ticks/s) fi
 | 15 morale | 0.20 | Thought decay, mood | Per-hour; thoughts as small arrays |
 | 16 combat | 0.20 | Attack resolution | Only creatures with a target |
 | 17 health | 0.10 | Bleeding, healing | Only wounded creatures in a list |
-| 18 threats | 0.10 | Hostile AI | Party-level goals; individuals reuse party paths; loot search bounds bestUnattendedItems to same-z Chebyshev square |
+| 18 threats | 0.10 | Hostile AI | Party-level goals; individuals reuse party paths; one shared fortress-creature snapshot per threat step; loot search bounds bestUnattendedItems to same-z Chebyshev square |
 | 19 defense | 0.05 | Trap checks | Trap tiles indexed; check on entity step events, not per tick scans |
 | 20 trade | 0.02 | Schedule | Per-hour |
 | 21 immigration | 0.00 | Daily | Negligible |

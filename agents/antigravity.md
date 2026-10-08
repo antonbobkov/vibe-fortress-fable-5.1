@@ -332,7 +332,7 @@ task itself. Gotchas found while verifying:
 Project agent files in `.agents/agents/` would be committed with the repo; only
 create one if you want it shared. Global scope is `~/.gemini/config/agents/`.
 
-## Running Claude Opus through agy
+## Running Claude models through agy
 
 `agy` can run Claude models, on a quota group separate from Gemini's. Tried once on 2026-10-06: it works, but the included quota is far too small for a task in this repository.
 
@@ -360,7 +360,29 @@ So the included allowance is about **two five-minute runs a week**, each of roug
 
 **How it ends.** Exactly as a Gemini quota abort does: exit code 3, `status: "ERROR"` in the envelope, and on stderr `AGY_ERROR: {"short_error":"RESOURCE_EXHAUSTED (code 429): Individual quota reached. … Resets in 4h55m31s.", …, "retryable":true}`. The envelope still carries the `conversation_id`, so the run can be resumed after the reset.
 
-**Verdict.** Not usable for tasks in this repository, and not worth scheduling around. It could serve a question that fits in one short turn with little reading, such as a second opinion on a single diff pasted into the prompt. For Opus work, use Claude Code subagents within the hours [README.md](README.md) allows.
+**Verdict for Opus.** Not usable for tasks in this repository, and not worth scheduling around. It could serve a question that fits in one short turn with little reading, such as a second opinion on a single diff pasted into the prompt. For Opus work, use Claude Code subagents within the hours [README.md](README.md) allows.
+
+### Sonnet 5.5 through agy
+
+Tried once on 2026-10-07 with `--model claude-sonnet-5-5-high`, on T-118: a size-S fix with one regression test, one spec sentence and the task's close-out. The brief named the files to read and told the agent to read no other docs.
+
+| | |
+|---|---|
+| Ran for | 6 min 7 s, `status: "SUCCESS"`, one turn |
+| Tokens | 90,886 input, 19,384 output, 2,228,658 cache-read |
+| 5-hour window | 100% → 65.9% |
+| Weekly window | 49.7% → 32.7% (17 points) |
+| Work done | The whole task: code in two files, the test, the spec sentence, the backlog row and the archived work file, one commit. Typecheck, lint, `docs:check` and the test were green, and the branch merged with no changes. |
+
+Sonnet costs about a third of what Opus does on this quota group. A full week's allowance is therefore about **six or seven size-S tasks**, at most three in one 5-hour window, and nothing larger.
+
+- **The quality was good.** The diff was correct and small, and the agent ran its commands in the foreground and waited for them.
+- **One slip:** the commit body named the archived work file as the spec file, not `24-ui-and-input.md`.
+- **Keep the brief narrow.** The run stayed cheap because the brief listed the files to read. A brief that sends the agent through the process documents would spend the window on reading, as the Opus run did.
+
+Two more size-S tasks on the same day confirmed the rate. T-124 (a one-line fix with a test) took 10 min 54 s and 11 weekly points. T-125 (a content table, a regenerate and a new test) took 11 min 29 s and 14 weekly points. Both merged unchanged. The three tasks together took the weekly window from 49.7% to 7.7%, so a full week holds about seven of them.
+
+**Verdict for Sonnet.** Usable as a small extra pool for size-S tasks with a narrow brief, when Codex is waiting on a reset. It is not worth planning around: the weekly allowance is one or two hours of work.
 
 ## Checking remaining quota
 
