@@ -154,8 +154,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       itemQuality: (id) => items()?.get(id)?.quality ?? 0,
       engravingQuality: (i) =>
         readers.has('03') ? (readers.of<{ engravingAt(i: number): { quality: number } | null }>('03').engravingAt(i)?.quality ?? 0) : 0,
-      // 15's mood arrives in M4; until then every dwarf stands at `MOOD_BASELINE` (T-M2-07).
-      mood: () => MOOD_BASELINE,
+      mood: (id) => readers.has('15') ? readers.of<{ mood(id: EntityId): number }>('15').mood(id) : MOOD_BASELINE,
       barMult: () => barMult,
     });
     this.burialRef = new BurialStore(store, this.roomsRef, this.zones);

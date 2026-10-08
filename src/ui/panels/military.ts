@@ -588,7 +588,7 @@ export function drawMilitaryPanel(
   const assigned = panel.assignedBarracks(ctx, squad.id);
   const used = squad.barracksZoneId;
   const barracks = assigned !== 0
-    ? strings.get(used !== 0 && used !== assigned ? 'ui.military.barracks_other' : 'ui.military.barracks_assigned', { zone: zoneName(ctx, assigned), used: zoneName(ctx, used) })
+    ? strings.get('ui.military.barracks_assigned', { zone: zoneName(ctx, assigned) })
     : used !== 0 ? strings.get('ui.military.barracks_used', { zone: zoneName(ctx, used) }) : strings.get('ui.military.barracks_none');
   label(s, col, row, barracks, { fg: assigned !== 0 ? t.text : t.dim, width });
   s.hit({ col, row, cols: width, rows: 1 }, () => panel.openChoice(ctx, 'barracks'));

@@ -611,7 +611,7 @@
       "h": 1,
       "rotatable": false
     },
-    "on": "floor, or converts a wall",
+    "on": "floor",
     "inputs": [
       {
         "match": "block|bar",

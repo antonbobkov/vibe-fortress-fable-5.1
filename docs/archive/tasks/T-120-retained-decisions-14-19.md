@@ -1,10 +1,12 @@
 # T-120 — Resolve retained systems 14–19 decision/code mismatches
 
+Closed by `T-120: resolve room assignment, building dimensions and training`.
+
 **Source:** T-106 triage (rows left in the log because the code and the row differ, and spec text that could not be written without a source change) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Scope
 
-T-106 verified the decision rows of systems 14–19 against the implementation. The rows below remain in [the decision log](../05-plan/DECISIONS.md) because the code disagrees with them. This file reports the mismatches; it does not choose a rule or authorize a simulation change. Obtain the owner's resolution before implementation.
+T-106 verified the decision rows of systems 14–19 against the implementation. The rows below remain in [the decision log](../../05-plan/DECISIONS.md) because the code disagrees with them. This file reports the mismatches; it does not choose a rule or authorize a simulation change. Obtain the owner's resolution before implementation.
 
 | Row | Decision | Code evidence |
 |---|---|---|
@@ -21,7 +23,7 @@ These are decisions the code follows and the specification should say. Writing t
 
 ## Resolution and verification
 
-Obtain the owner's resolution for each row before changing anything. Never resolve a row by silently deleting it, loosening a test, or changing unrelated simulation rules. If behavior or hashes change, regenerate only the predicted named goldens and include the required `golden:` paragraph. Fold each resolved rule into the specification and delete only its exact decision-log row. Run [the required checks](../process/agent-workflow.md) before each commit; the normal task closure rules apply once every row is resolved.
+Obtain the owner's resolution for each row before changing anything. Never resolve a row by silently deleting it, loosening a test, or changing unrelated simulation rules. If behavior or hashes change, regenerate only the predicted named goldens and include the required `golden:` paragraph. Fold each resolved rule into the specification and delete only its exact decision-log row. Run [the required checks](../../process/agent-workflow.md) before each commit; the normal task closure rules apply once every row is resolved.
 
 ## Resolutions (parent, 2026-10-07, under the owner's standing instruction to use judgement)
 

@@ -349,7 +349,7 @@ Every action that cannot be done says why on the status row (an empty cage, a co
 
 - `Space` or a click marks a row (`•`), `*` marks all (as many as the squad has room for) or none, and `Enter` adds or removes every marked dwarf in one `SetSquadMembers`; with none marked, `Enter` takes the cursor's row. An add list takes no more marks than the squad has free places, and a full squad, an empty squad or no free adult says so on the status row instead of opening an empty list.
 - The leader list sends `SetSquadLeader`; `[S-n]` opens the text input and sends `RenameSquad`.
-- The barracks list sends `SetZoneSetting { key: squad }`: the zone the squad had lets go and the chosen one takes it; "None" clears it. Without a barracks zone the status row says to make one in Zones. The barracks row shows the assigned zone; "(default)" marks a zone the squad uses without being assigned.
+- The barracks list sends `SetZoneSetting { key: squad }`: the zone the squad had lets go and the chosen one takes it; "None" clears it. Without a barracks zone the status row says to make one in Zones. Changing the assignment moves training to that barracks, including for a squad that has already trained. The barracks row shows the assigned zone; "(default)" marks a zone the squad uses without being assigned.
 - The new keys are on `Shift` because `l`, `b` and `n` are panel hotkeys.
 
 ## Animals (n)

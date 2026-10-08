@@ -108,6 +108,8 @@ Order = kill { targetId } | station { tile } | patrol { tiles } | follow { dwarf
 - Archery range: a zone with an `archery_target` building at one end; ranged members shoot `TRAIN_SHOTS` bolts or arrows per session at the target (ammunition drops and is recovered by hauling; training uses the cheapest ammunition available).
 - `WARDEN_TRAINING_BONUS_PERCENT` (10) applies when a Warden exists. Barracks room tier gives a thought per session.
 
+An explicit barracks zone setting takes precedence over a cached training zone. On `ZoneChanged` when a barracks setting changes, refresh each squad’s saved `barracksZoneId` from current assignments, or the first barracks when none is assigned. A squad that has already trained moves its training to a newly assigned zone; its next sessions require members to be present there.
+
 ### Equipment
 
 - On joining a squad, and every `REEQUIP_CHECK_DAYS`, each member claims from stockpiles the best available items matching the squad's preferences: weapon (highest `metalTier × qualityMultiplier` of the preferred class, then any melee class), shield (if the weapon is one-handed and `armor != none`), one armor piece per slot (highest armor value matching the material preference), and, for ranged members, a launcher, a quiver and `SOLDIER_AMMO` ammunition. Claimed items are `owned` (13). Better items replace worse ones, which are dropped at the barracks. All squads are refreshed once on a dispatch tick that carries `ItemCreated`, however many items the tick created.

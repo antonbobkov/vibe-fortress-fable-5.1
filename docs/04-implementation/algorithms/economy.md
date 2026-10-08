@@ -44,7 +44,7 @@ scoreRoom(zone):
      score += (f & Constructed) ? constructedFloorValue(m) : (f & Engraved) ? 3 + engravingQuality(t) : (f & Smoothed) ? 3 : class(m)=='stone' ? 1 : 0
   border = tiles' 8-neighbors not in tiles (same z); enclosed = every border tile is Wall/Fortification or has a door/hatch building
   for b in border: if kind[b]==Wall: score += (flags[b]&Engraved) ? 2 + engravingQuality(b)/2 : (flags[b]&Smoothed) ? 2 : 0
-  for bld in buildings within tiles: if bld.itemId and quality(item) > 0: score += value(item)/10; else if bld.type.roomValue is number: score += it
+  for bld in buildings within tiles: if bld.itemId and quality(item) > 0: score += value(item)/10 * (bld.type.roomValue == 'item_x2' ? 2 : 1); else if bld.type.roomValue is number: score += it
   score += min(tiles.length, ROOM_SIZE_CAP)
   if enclosed: score = score * ENCLOSED_PERCENT / 100
   tier = score < 20 ? 0 : < 60 ? 1 : < 150 ? 2 : < 400 ? 3 : < 1000 ? 4 : 5

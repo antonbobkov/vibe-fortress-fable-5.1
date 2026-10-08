@@ -249,7 +249,7 @@ describe('T-M0-07 catalogs: the type unions contain every catalog name', () => {
 
   it('every rejection reason of the catalog exists with its strings key', () => {
     expect([...REJECT_REASONS]).toEqual(reasons);
-    expect(REJECT_REASONS.length).toBe(40);
+    expect(REJECT_REASONS.length).toBe(41);
     expect(rejectStringKey('out_of_bounds')).toBe('reject.out_of_bounds');
   });
 

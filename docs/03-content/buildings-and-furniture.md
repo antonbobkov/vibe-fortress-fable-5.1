@@ -15,7 +15,7 @@ Columns: `footprint` `w×h` (rotatable when noted); `on` placement requirement; 
 | `stairs_up` | up stairs | 1×1 | floor | 1 block or log | construction | 80 | — | yes | no | 1 | `<` material |
 | `stairs_down` | down stairs | 1×1 | floor over open | 1 block or log | construction | 80 | — | yes | no | 1 | `>` material |
 | `stairs_updown` | up/down stairs | 1×1 | floor over open | 1 block or log | construction | 100 | — | yes | no | 1 | `X` material |
-| `fortification` | fortification | 1×1 | floor, or converts a wall | 1 block or bar (or a wall to carve) | construction (masonry to carve) | 120 | — | small only | no | 2 | `╬` material |
+| `fortification` | fortification | 1×1 | floor | 1 block or bar (or a wall to carve) | construction (masonry to carve) | 120 | — | small only | no | 2 | `╬` material |
 
 Blocks give constructed walls the smooth glyph; logs and raw stone give the rough glyph and no smoothing possibility.
 

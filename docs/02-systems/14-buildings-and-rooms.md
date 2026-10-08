@@ -21,7 +21,7 @@ Let the player shape the fortress: constructions, furniture, workshops, mechanis
 
 `PlaceBuilding { buildingType, origin, orientation, materialChoice, priority }`:
 
-1. Footprint from the type (`w × h`, rotated by orientation for bridges and depots). `origin` is the footprint's north-west tile; a rotatable type swaps `w` and `h` at odd orientations. Every footprint tile must be `discovered`, must be a `floor` (or per type: a bridge may span `open` tiles as long as one end tile is `floor`; a floodgate must be on a `floor`; a well must be over an `open` channel; a hatch over a `stairs_down` or ramp top; a door must have a wall on two opposite sides; constructions have their own rules below), must not be occupied by another building (except that furniture may be placed inside a zone), must not contain a creature for mechanisms that become walls, and must not be `restricted` for the placement of nothing (restrictions are for traffic only).
+1. Optional integer `width` and `height` are accepted only for a variable footprint (the drawbridge), from 1 through `BRIDGE_MAX`. Supplying either on a fixed type is rejected as `fixed_footprint` before creating an entity or job; the message names the building. Omitted dimensions use the type’s own footprint. Footprint from the type (`w × h`, rotated by orientation for bridges and depots). `origin` is the footprint's north-west tile; a rotatable type swaps `w` and `h` at odd orientations. Every footprint tile must be `discovered`, must be a `floor` (or per type: a bridge may span `open` tiles as long as one end tile is `floor`; a floodgate must be on a `floor`; a well must be over an `open` channel; a hatch over a `stairs_down` or ramp top; a door must have a wall on two opposite sides; constructions have their own rules below), must not be occupied by another building (except that furniture may be placed inside a zone), must not contain a creature for mechanisms that become walls, and must not be `restricted` for the placement of nothing (restrictions are for traffic only).
 2. Materials: the type lists inputs (for example a bed: one `furniture/bed` item; a wall: one block, log, bar or raw stone of the player's choice; a lever: one mechanism; a well: one bucket, one chain or rope, one mechanism, one block; a cage trap: one mechanism and one cage). `materialChoice` narrows the filter (oak, granite, steel).
 3. Magma safety: if any footprint tile is within 1 of magma (the tile itself and its 26 neighbours) or is over a channel to magma (a `magma_*` workshop), every material must be magma-safe (05) or the command is rejected with `not_magma_safe`. With no `materialChoice` the placement is refused too, since the materials cannot be known to be safe.
 4. Create the entity in state `planned` and a `build` job (labor by category: `construction` for constructions, `carpentry` for wooden furniture placement, `masonry` for stone, `mechanics` for mechanisms and traps, `construction` for everything else; skill `building`; a type whose labor is "by material" takes it from the chosen material's class: wood carpentry, stone masonry, metal smithing, else `construction`) with the materials as inputs and `workTile: adjacent` (or `at` for floors and stairs the builder stands on). The job anchors at the centre of the footprint. Priority from the command. The inputs of an `adjacent` build whose site cannot be stood on (a wall over open space) are delivered to the worker's stand tile.
@@ -64,7 +64,7 @@ A built construction keeps its building entity on its tile and remembers the ite
 - Targets: `door` (toggle locked), `hatch` (toggle locked), `floodgate` (toggle open), `drawbridge` (toggle raised), `spike_trap` (extend), `cage` (open and release).
 - `LinkMechanism { sourceId, targetId }` creates a `link_mechanism` job (labor `mechanics`, skill `mechanics`, input 1 mechanism item, work at the target then at the source): one job at the target, which delivers and consumes the mechanism, then a second at the source, which records the mechanism's material and the link, each lasting `LINK_WORK_TICKS`. Links are stored on both entities; `UnlinkMechanism` returns one mechanism of the recorded material at the source.
 - `floodgate`: 1×1; closed by default: acts as a `wall` for movement and fluid (a `blocks_fluid` building on a floor tile; 04 and 22 read `buildings.blocksAt(i)`); open: a floor. Magma-safe material required next to magma.
-- `drawbridge`: `w × h` up to `BRIDGE_MAX × BRIDGE_MAX`, one edge is the hinge; needs `w × h` blocks and 1 mechanism. **Lowered**: every footprint tile is a walkable floor (spanning open space). **Raised**: every footprint tile is impassable for movement and fluid; creatures on the tiles when it raises take `BRIDGE_CRUSH_DAMAGE` (17) and are moved to a random adjacent walkable tile, or die if none; items on the tiles are moved to adjacent tiles. Raising and lowering take effect after `LINK_DELAY_TICKS` from the trigger. A bridge over magma must be magma-safe.
+- `drawbridge`: `w × h` up to `BRIDGE_MAX × BRIDGE_MAX`, orientation 0/1 hinges on the low x/y edge and 2/3 on the high x/y edge; at least one hinge tile must be floor. Original open tiles are saved and restored when raised or deconstructed; needs `w × h` blocks and 1 mechanism. **Lowered**: every footprint tile is a walkable floor (spanning open space). **Raised**: every footprint tile is impassable for movement and fluid; creatures on the tiles when it raises take `BRIDGE_CRUSH_DAMAGE` (17) and are moved to a random adjacent walkable tile, or die if none; items on the tiles are moved to adjacent tiles. Raising and lowering take effect after `LINK_DELAY_TICKS` from the trigger. A bridge over magma must be magma-safe.
 
 ### Special buildings
 
@@ -99,12 +99,14 @@ A lamp is a placed glowstone statue. It lights the 3×3 around it for comfort. T
 
 ### Rooms and quality
 
-For each zone of a room type, recomputed when its tiles change, when a building inside completes or is removed, when a tile inside or on its border is smoothed or engraved, and daily:
+A room zone synchronously creates a `Room` entity with tier 0 and score 0. Dirty rooms recompute at this system’s tick: zone changes, building completion or removal on or beside the zone, and terrain changes on or beside it make it dirty. `DayPassed` marks every room dirty and runs recomputation before auto-assignment. A first score at tier 0 emits no quality-change event.
+
+For each zone of a room type:
 
 ```
 tileScore(tile) = constructedFloorValue(material) or (engraved ? 3 + engravingQuality : smoothed ? 3 : natural stone ? 1 : 0)
 wallScore = for each wall tile bordering the zone (8-neighborhood): engraved ? 2 + engravingQuality/2 : smoothed ? 2 : 0
-furnitureScore = Σ value(building.item) / 10 for buildings inside, poor quality counts 0
+furnitureScore = Σ value(building.item) / 10 for buildings inside, poor quality counts 0; statues multiply the linked item contribution by 2. Without a positive-quality linked item, use numeric type.roomValue, else 0
 sizeScore = min(tiles, ROOM_SIZE_CAP) × 1
 enclosed = every border tile is a wall, a door, a hatch, or a fortification → score × ENCLOSED_PERCENT / 100
 score = (Σ tileScore + wallScore + furnitureScore + sizeScore) × enclosure
@@ -121,7 +123,7 @@ On room entry, 10 observes visible floor masterworks and installed furniture thr
 
 ### Ownership
 
-- Bedroom: `AssignRoom { zoneId, dwarfId }`; auto-assignment daily: every unowned bedroom is given to a dwarf without one, titled dwarves first (Thane, then Warden, Broker, Chief Medic), then by lowest mood. An owner's bed is theirs; other dwarves do not sleep in it.
+- Bedroom: `AssignRoom { zoneId, dwarfId }`; auto-assignment daily: bedrooms with a built bed and no owner, in zone-id order, go to living fortress creatures with `Title` and no bedroom, titled dwarves first (Thane, then Warden, Broker, Chief Medic), then by lowest mood from 15’s reader, with id as the last tie-break. `MOOD_BASELINE` is used only when no morale reader exists in a standalone world. `Room.ownerId` stores ownership; assigning a dwarf elsewhere clears the previous bedroom. `freeBeds` excludes beds inside owned bedrooms. Auto-assignment draws no RNG. An owner’s bed is theirs; other dwarves do not sleep in it.
 - Tomb coffins: assigned to a living dwarf (reserved) or left open for anyone; burial fills the first free coffin, preferring a reserved one for its dwarf.
 
 ### Burial

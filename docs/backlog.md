@@ -18,7 +18,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-115 | [Audit: bug hunt](work/T-115-audit-bug-hunt.md) | the owner, 2026-10-06 | T-114 and its fix tasks | open |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, T-115 and its fix tasks | open |
 | T-117 | [`DwarfDied`: the specification says 10 emits it, the code never does](work/T-117-dwarfdied-event.md) | T-102 (found while replacing the interface note of `02-systems/10-dwarves.md`) | — | open |
-| T-120 | [Resolve the systems 14–19 decision rows that the code disagrees with](work/T-120-retained-decisions-14-19.md) | T-106 (rows left in the log because the code and the row differ, and catalog text that waits for a regenerate) | — | open |
 | T-122 | [Civilians flee on their own level only, and starve in "Fighting" on a stair](work/T-122-civilians-stuck-fighting.md) | [`../reports/audits/2026-10-07-balance-after-f17.md`](../reports/audits/2026-10-07-balance-after-f17.md) | — | open |
 | T-123 | [The economy fortress cannot run its economy at default priorities](work/T-123-economy-fortress-at-default-priority.md) | F-17 and [`../reports/audits/2026-10-07-balance-after-f17.md`](../reports/audits/2026-10-07-balance-after-f17.md) | — | open |
 | T-126 | [`content:export` no longer reproduces three committed content files](work/T-126-content-export-drift.md) | found while doing T-125 | — | open |
