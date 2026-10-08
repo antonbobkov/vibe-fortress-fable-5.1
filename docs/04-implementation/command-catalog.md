@@ -70,6 +70,8 @@ Every command, its fields, its owning system, its validation and the events its 
 
 App-level (not simulation commands, not logged): `Save`, `Load`, `RetireFortress`, `SetSpeed`, `SetSetting`, and the embark-session commands of 02 (`SetSkill`, `RerollDwarf`, `RenameDwarf`, `SetSupply`, `ApplyPreset`, `SetFortressName`, `ConfirmEmbark`), which run before the world exists.
 
+`Designate` and `DesignateStairwell` reject the whole command if any discovered tile fails its precondition; UI tools submit only eligible or undiscovered tiles. Every designation kind on discovered deepsilver requires confirmation. The kind accepts a designation number or name, and priority defaults to `PRIORITY_DEFAULT`, with values outside 1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“9 rejected. `SetDesignationPriority` requires a designation on every tile. `UndoDesignation` clears each designation without progress, keeps progressed ones, and returns `has_progress` when any are kept: this is the explicit partial-application exception.
+
 ## Rejection reasons
 
 `out_of_bounds`, `not_discovered`, `precondition_failed`, `has_progress`, `deepsilver_unconfirmed`, `light_mismatch`, `not_tame`, `assigned`, `no_kennel`, `not_trainable`, `child_labor`, `not_found`, `not_cancellable`, `invalid_index`, `no_labor`, `not_metal`, `bad_category`, `footprint_blocked`, `bad_placement`, `not_magma_safe`, `hearth_exists`, `hearth_is_home`, `overlap`, `bad_zone_tiles`, `bad_setting`, `no_bed`, `not_linkable`, `no_tag`, `squad_limit`, `member_limit`, `already_in_squad`, `not_adult`, `no_depot`, `no_caravan`, `no_session`, `not_at_depot`, `request_limit`, `out_of_range`, `bad_name`, `caravan_absent`.

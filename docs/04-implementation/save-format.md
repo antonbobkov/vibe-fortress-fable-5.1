@@ -86,6 +86,8 @@ Entity ids are written as numbers with generation. Content references are writte
 
 Each system keeps `migrations: Record<number, (old) => new>`; `deserialize` applies them in sequence from the saved `stateVersion`. Core migrations live in `core/serialize.ts`. A migration never reads other systems' state. Fixture saves for every published `formatVersion` are kept in the test suite and loaded in CI.
 
+The header's play time is simulated time since embark at 1×: `(tick − embarkTick) / SIM_TICKS_PER_SECOND`. The thumbnail is 48×27 map cells around the wagon at its z-level (map centre and z 32 without one). Its base64 payload is ten bytes per cell: `u16` glyph, `i32` foreground, `i32` background, all little-endian.
+
 ## Snapshots and ids
 
 Save ids: `manual-<unixMs>`, `auto-<year>-<season>`, `snapshot-<n>` (n = 0..3 rolling, written on `SeasonChanged` after the autosave), `final-<fortressSlug>`. The Load screen groups by kind. Deleting the four `snapshot-*` entries happens only by rolling; the player deletes manual saves explicitly.

@@ -18,7 +18,6 @@
 | `load` | Saves and autosaves | main_menu, fortress menu | fortress |
 | `confirm` | Yes/No dialog | anywhere | back |
 | `text_input` | A single text field | rename, save name | back |
-| `debug` | Timings, counts, seed, replay controls | `F12` | back |
 
 ## Fortress panels
 
@@ -90,14 +89,14 @@
 | `/` | focus the filter field |
 | `Backspace` | back within nested menus |
 
-Panel hotkeys always win. The letters of § Fortress panels always open or close their panel, whatever panel is open; pressing an open panel's own key closes it. A panel's accelerator may not use one of those letters bare: it is bound to `Shift`+letter and shown `[S-m]`. A free letter is an accelerator with or without `Shift`. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text. With a map selection, forbid, dump and move to depot are `[S-f]`, `[S-d]` and `[S-t]` for the same reason.
+Panel hotkeys always win. The letters of § Fortress panels always open or close their panel, whatever panel is open; pressing an open panel's own key closes it. A panel's accelerator may not use one of those letters bare: it is bound to `Shift`+letter and shown `[S-m]`. Reserved letters are read from the live panel bindings, including rebinds. Fixed accelerator captions show the defaults; zone inspector captions follow the current bindings. With default bindings, the free letters `g h i q r v w x y` work with or without `Shift`. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text. With a map selection, forbid, dump and move to depot are `[S-f]`, `[S-d]` and `[S-t]` for the same reason.
 
 Every destructive single-key action asks through the confirmation dialog first, default **No** (§ Confirmations): melt, dump, slaughter, suspend, take apart, disband, remove (a zone, a work order), release (a caged creature). Undoing a mark (resume, unmark) does not ask.
 
 The Orders panel's own keys, beside the accelerators it shows (`ui-screens/panels.md` § Orders); they are the panel's, not rows of the rebindable keymap table:
 
 - `Shift+N`: new order (opens "Add order").
-- `+` `=` / `-`: the selected order's count ±1 (`Shift`: ±10); in "Add order", the quantity.
+- `=` or numpad `+` / `-`: the selected order's count ±1, or the quantity in "Add order". Shift changes ten: main-row `+` is Shift+`=` and `_` is Shift+`-`. With no order selected these are speed keys.
 - `r`: repeat the selected order, or the last finished one.
 - `x`: remove the selected order (confirm).
 - `Shift+↑` / `Shift+↓`: move the selected order in its queue.
@@ -245,7 +244,7 @@ Container counts are non-negative integers, priorities are 1–9 and quality bou
 
 ## Hints
 
-Shown once, as notes with a lamp glyph, when the trigger holds (checked hourly). Ids and triggers:
+Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly). Ids and triggers:
 
 | id | Trigger | Text |
 |---|---|---|
@@ -333,4 +332,4 @@ Shown once, as notes with a lamp glyph, when the trigger holds (checked hourly).
 
 ## Strings
 
-Every player-facing string is a key in `strings.json`. Wave 4's screen wireframes list the keys per screen; announcement, thought, hint, milestone and confirmation texts above are their canonical values.
+Player-facing text uses string keys. The UI reads `strings.json` together with the `UI_STRINGS` defaults in `ui/strings.ts`; a content row wins over a default of the same key. Screen wireframes list the keys per screen; announcement, thought, hint, milestone and confirmation texts above are their canonical values. The strings check audits both tables, used keys, and the bidirectional text mirrors for confirmations, hints, milestones and thoughts.

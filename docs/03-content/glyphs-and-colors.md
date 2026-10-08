@@ -35,6 +35,8 @@ The atlas holds CP437 (256 glyphs, indices 0–255) followed by these extras (in
 
 CP437 already provides `☺`, `☻`, `♣`, `♠`, `♀`, `≈`, `≡`, `▒`, `█`, `▲`, `╬`, `╥`, `╫`, `╨`, `╧`, `╤`, `▄`, `▬`, `▪`, `▐`, `•`, `○`, `∙`, `≡`, `"`, `'`, `%`, `*`, `^`, `,`, `.`, `+`, `/`, `\`, `<`, `>`, `X`, `_`, `~`, `-`, `|`, letters and digits.
 
+UI glyph aliases use `▸`→`►`, `▾`→`▼`, `□`→space, `▪`→`∙`, `…`→`»`, `●`→`•`, `★`→`☼`, and newline→space. Recipe makeability therefore draws `•` when makeable and `○` otherwise.
+
 ## Palette
 
 Hex values for the light-on-dark default. The colorblind palette replaces `dwarf_need`, `dwarf_wounded`, `hostile`, `grass_green` and the water ramp with the alternates in the last column where given.

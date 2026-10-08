@@ -61,7 +61,7 @@ Numbers in Markdown tables are written in the unit named in the column header. T
 `content/loader.ts` runs at startup, before `World` is constructed:
 
 1. Parse every JSON table.
-2. Validate each row against its schema (`schema.ts`, hand-written validators generated in Wave 4 from the type definitions). A failure reports table, row id, field and expected type, and stops the game with a visible error.
+2. Validate each row against its schema (`schema.ts`, hand-written validators matching the type definitions). A failure reports table, row id, field and expected type, and stops the game with a visible error.
 3. Resolve references: every `Id<Table>` must exist. A dangling reference is a validation failure.
 4. Assign indices: rows are sorted by id and numbered from 1 (0 is reserved for "none" everywhere).
 5. Build derived structures: per-class material lists, recipes by workshop, thoughts by trigger event, species by biome and season, item types by category path.
@@ -93,15 +93,15 @@ Systems that need fast per-tick lookups copy the property they need into a typed
 
 ## Strings
 
-All player-facing text is in `strings.json` keyed by a `StringKey`, with placeholders in braces (`"{dwarf} has found {material}."`). Announcements, thoughts, hints, panel labels and rejection reasons are keys. Content `name` fields are the exception: they are display text directly.
+Player-facing text uses `strings.json` and the `UI_STRINGS` defaults in `ui/strings.ts`, keyed by a `StringKey`; a content row overrides a default of the same key, with placeholders in braces (`"{dwarf} has found {material}."`). Announcements, thoughts, hints, panel labels and rejection reasons are keys. Content `name` fields are the exception: they are display text directly.
 
 ## Saves and content
 
 A save records the content hash. On load with a different hash, the loader attempts a *soft match*: if every content id referenced by the save (gathered from the component id fields generated from `schemas/components.md` per `save-format.md`) exists in the current tables, the load proceeds with a warning; if any id is missing, the load fails with a list of missing ids (`checkContent(header, content, referencedIds)` returns `exact`, `soft` or `failed` with the sorted missing list). There is no content migration in version 1.
 
-## Authoring rules for Wave 3 tables
+## Authoring rules for content tables
 
 - One table per Markdown file; columns in the schema order; id first, name second.
-- Every row that a system document names must exist. The Wave 4 consistency pass grep-checks every backticked `snake_case` token in `02-systems/` against the union of table ids and constants.
+- Every row that a system document names must exist. The consistency checks compare every backticked `snake_case` token in `02-systems/` against the union of table ids and constants.
 - Numbers are integers or decimals with at most three decimal places.
 - Glyphs are written as the character itself with its code point in a comment column when it is not printable ASCII.

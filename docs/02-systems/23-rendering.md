@@ -37,7 +37,7 @@ Draw the world and the interface as colored glyphs on one canvas, fast, with rul
 - Material colors: each material row names a color from an extended list of about 60 (`granite_gray`, `hematite_red`, `oak_brown`, `copper_orange`, `deepsilver_blue` …) defined in `glyphs-and-colors.md`.
 - State colors: `dwarf_normal`, `dwarf_need`, `dwarf_wounded`, `dwarf_asleep`, `dwarf_child`, `dwarf_soldier`, `hostile`, `trader_<civ>`, water and magma ramps (4 shades each), designation tints, zone tints, `undiscovered`, `sky_day`, `sky_night`, `abyss`.
 - Dimming: `dim(color, level)` multiplies RGB by `DIM_FACTOR^level` (`level` 1 or 2 for tiles below, plus night and fog steps). Computed once per color and cached.
-- A colorblind-safe alternative palette swaps the reds and greens used for state to blue/orange pairs; state glyphs also differ in shape so color is never the only signal.
+- A colorblind-safe alternative palette swaps the reds and greens used for state to blue/orange pairs; state glyphs also differ in shape so color is never the only signal. Both palettes hold CIEDE2000 ΔE ≥ 15 for the side-by-side state pairs, including hostile/wounded dwarf and key text/alert.
 
 ### Compositor
 
@@ -53,19 +53,20 @@ For each viewport cell, tile `t = (camX + col, camY + row, z)`:
 4. **Building** on `t`: the building's glyph and color from its type row (workshops have a 3×3 glyph pattern; the pattern cell for this tile is used), planned buildings dimmed (`text_dim`), with `bg` from the terrain. A built construction is terrain and step 4 leaves it to step 2; a planned one draws its row glyph. A workshop with no pattern draws its row glyph. A pattern takes the footprint offset turned by the building's orientation (quarter turns clockwise), and a magma variant draws it in `magma_2`. Doors: `+` closed, `/` open (drawn open while a creature is on it), locked doors in red. Bridges: `═` lowered, `▓` raised. Floodgates `╪`. Levers `/` and `\` by state. Traps: `^` in trap color (only visible to the player; hostiles' knowledge is not modeled). The hearth `☼` in orange with a `bg` that pulses between `black` and `#3A1A00` on the 1000 ms clock.
 5. **Items** on `t`: the top item (highest value; corpses win over other items so the player notices them) with the category glyph and material color; if more than one item, the `bg` is blended with `gray` at `ZONE_TINT_ALPHA`. Items inside buildings (stockpile containers) show the container's glyph.
 6. **Creature** on `t` (if any, topmost by priority: dwarves > hostiles > tame > wild > vermin): species glyph, color by state; unconscious creatures alternate with `_` each second; stealthed hostiles are not drawn; a creature carrying an item shows the item's glyph in the inspector, not on the map.
+   Creature classes are fortress dwarf, hostile (`hostile*` or `deep`), tame (`Tame` or another fortress creature), and wild; ties use the lowest id. A dwarf's state colour takes precedence in this order: wounded or unconscious, asleep, on duty, child, need, normal. Harvest uses `des_gather`. The `priority_digits` overlay is off by default and never replaces a creature glyph.
 7. **Projectile** on `t`: `-`, `|`, `/`, `\` by direction, in `white`, over everything.
 8. **Overlays** (each toggled in the overlay menu, 24):
    - `designations` (default on): `bg` tinted by designation kind (dig blue, channel cyan, stairs magenta, ramp purple, smooth light gray, engrave white, remove red, chop green, gather yellow-green), priority digit as glyph when the `priority digits` sub-toggle is on.
    - `zones` (default on): `bg` tinted by zone type at low alpha; stockpiles gray-blue, farm plots brown, pastures green, bedrooms violet, dining halls gold, hearth hall orange, hospital white-red, barracks steel, tomb dark gray, dump dark yellow, fishing blue, gather olive.
    - `fluid levels`: level digits over fluid tiles.
    - `temperature`: `bg` ramp from `blue` at `TEMPERATURE_RAMP_COLD_C` and below to `red` at `TEMPERATURE_RAMP_HOT_C` and above, blended in between (computed for visible tiles only).
-   - `jobs`: highlights target tiles of claimed jobs and draws the worker's path.
+   - `jobs`: tints claimed jobs' target tiles `alert` and their workers' remaining routes `text_value`.
    - `squad stations`: station tiles take the `zone_barracks` tint and patrol tiles the `zone_range` tint, blended into the `bg` at `ZONE_TINT_ALPHA`.
    - `stockpile usage`: a stockpile's fullness is its used slots over its tiles, `(tiles − freeSlots) / tiles`; each of its tiles blends `green` (below one half), `yellow` (below full) or `red` (full) into its `bg` at `ZONE_TINT_ALPHA`.
-   - debug: `connectivity`, `paths`, `chunks`.
+   - Debug `paths` tints every mover's remaining route `text_value`; `connectivity` tints walker labels through a cycle of base palette colours, leaving label 0 untinted; `chunks` tints chunk-edge cells `panel_border`. All four jobs/debug overlays change only `bg` through `blend` at `ZONE_TINT_ALPHA`. Claimed jobs and movers are indexed once per frame, never per cell.
    Overlays alter `bg` or replace the glyph but never hide a creature; when an overlay glyph would cover a creature, the creature wins.
 9. **Lighting**: outdoor tiles at night are dimmed one step (two under storm); fog dims the surface one step; underground tiles are not dimmed (the player sees what the dwarves know). A cell whose look-down found only sky keeps the colour step 2 gave it (`sky_night` at night) and is not dimmed again.
-10. **Cursor and selection**: the look cursor is drawn as an inverted cell (`fg`/`bg` swapped); a selection rectangle inverts its border cells; a building ghost draws a black glyph on `ghost_ok` or `ghost_bad` as `bg` by validity.
+10. **Cursor and selection**: the look cursor is drawn as an inverted cell (`fg`/`bg` swapped); a selection rectangle inverts its border cells; a building ghost draws a black `▒` on `ghost_ok` or `x` on `ghost_bad` as `bg` by validity. Clipped UI text has a full-text tooltip in the status row and a box above the hovered cell.
 
 The world-map compositor draws a biome cell, replaces it with blue `~` for a river region, then with the civilization home glyph and color if present. A rejected filter region dims one step via `dim(c, 1)`; matching regions retain full color. The cursor inverts foreground and background after filtering.
 

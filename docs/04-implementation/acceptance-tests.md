@@ -102,7 +102,39 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 | `dw_critical_interrupt` | miner mid-dig with thirst forced to 90 | job returns to open with progress kept; miner drinks; job resumes |
 | `dw_child` | immigrant child | only hauling jobs; adult on the 12th birthday |
 | `dw_title` | assign Thane; give the Thane a grand bedroom | everyone gets `thane_hall_grand` |
-| `year_one` | 48×48 flat-test with one spring, Balanced embark, the opening orders of `archive/fixes/F-04-bootstrap-scenario.md`, 20 days | carpenter, still, mason, kitchen, hearth built and the room dug within their calibrated bounds; ≥ 1 brew; crops planted; nobody dies; ≤ 200 `missing_input` blocks |
+| `year_one` | 48×48 flat-test, one spring, Balanced embark; opening orders below, then the whole first year | bootstrap bounds below; two guaranteed waves and caravans in their windows; no winter surface sowing, winter cave sowing, no peril-0 raid or dwarf death; population grows past seven |
+
+
+### Year-one opening orders and checks
+
+Use seed `year-one`, a 48×48 flat-test map and default (Balanced) embark. Coordinates below are relative to the wagon centre `(cx, cy)`; `Z = FLAT_TEST_SURFACE_Z`. Zones contain only qualifying tiles with no existing zone, and every building placement must pass its ghost check.
+
+At day zero, in this order:
+
+1. Make a level-7 water source at `(cx+8, cy+3, Z)`, with granite walls on its four cardinal neighbours, through the terrain and fluids APIs.
+2. Create a 6×4 stockpile starting at `(cx−3, cy+4, Z)` and set its filter to Everything.
+3. Designate the stairwell at `(cx+6, cy+6)` from `Z` to `Z−3`, and a priority-4 5×5 dig starting at `(cx+7, cy+4, Z−3)`.
+4. Place orientation-0, material-choice-0 buildings on `Z`: carpenter at `(cx−8, cy+10)`, mason at `(cx−4, cy+10)`, still at `(cx, cy+10)`, kitchen at `(cx+4, cy+10)` and hearth at `(cx−1, cy+15)`.
+5. Create a 5×3 meeting area starting at `(cx−3, cy+16, Z)`.
+6. Run five ticks, then create a 4×4 farm starting at `(cx−8, cy+16, Z)` and select barley for spring and summer.
+
+Step in batches of 100 ticks until day 20. As each workshop completes, order once: mason `make_stone_block` ×2; still maintain `brew` at 20; kitchen maintain `cook_easy_meal` at 10.
+
+| Checkpoint | Latest day |
+|---|---|
+| Carpenter built | 2 |
+| Mason built | 6 |
+| Still built | 16 |
+| Kitchen built | 5 |
+| Hearth built and lit | 8 |
+| All 25 room tiles dug | 8 |
+| First brew crafted; first crop planted | 20 |
+
+The bootstrap has no dwarf death, at most 200 `missing_input` blocks, and at least ten `Talked` events. Checkpoint bounds are calibrated on `year-one` and suffixes `-b`, `-c`, `-d`, `-e`: `ceil(latest day × 1.25)`, never later than day 20. They are functional bounds, separate from the balance targets.
+
+After day 20, place a trade depot at the first valid surface origin among `(cx−9, cy+4)`, `(cx−9, cy+8)`, `(cx+8, cy+14)` and `(cx−9, cy+20)`, and request an anvil from the Mountainhome at priority 1. Dig a priority-4 4×4 cave plot starting at `(cx+7, cy+4, Z−1)`; when dug, zone its qualifying unzoned tiles and plant dimcap for every season. Step in batches of at most 600 ticks through `DAYS_PER_YEAR`.
+
+Check the Hillfolk and Wildwood caravan windows of 20, no winter caravan or year-one Mountainhome caravan, the scheduled Mountainhome spring window in year two, and 21's two guaranteed year-one waves with their size bounds. Surface sowing stops in winter while cave sowing continues; freezing occurs only in cold seasons; peril zero has no raid. No dwarf dies and population exceeds seven. Print the measured population, wealth, harvests, stocks and event days as balance observations.
 
 ## 11 Jobs
 
