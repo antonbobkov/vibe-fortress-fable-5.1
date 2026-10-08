@@ -349,6 +349,8 @@ export class Registrations implements RegistrationApi {
 export type Clock = () => number;
 
 export interface InitContext {
+  /** True only while bootstrapping a saved world; initial populations are restored, not spawned. */
+  readonly loading?: boolean;
   /** `World`, but typed structurally so `system.ts` does not depend on `world.ts`. */
   readonly world: WorldLike;
   readonly registry: Registry;

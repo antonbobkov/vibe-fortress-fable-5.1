@@ -15,6 +15,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-115 | [Audit: bug hunt](work/T-115-audit-bug-hunt.md) | the owner, 2026-10-06 | T-114 and its fix tasks | open |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, T-115 and its fix tasks | open |
 | T-123 | [The economy fortress cannot run its economy at default priorities](work/T-123-economy-fortress-at-default-priority.md) | F-17 and [`../reports/audits/2026-10-07-balance-after-f17.md`](../reports/audits/2026-10-07-balance-after-f17.md) | — | open |
-| T-131 | [Preserve saved web flags during load bootstrap](work/T-131-load-web-flags.md) | T-130 save/load regression probe | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). B-008 through B-012 await T-123; their measurement journal is in the [decision archive](archive/decisions-archive.md).

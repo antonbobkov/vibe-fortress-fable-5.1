@@ -383,6 +383,7 @@ export function restoreGame(save: LoadedSave, registryIn?: Registry, now?: () =>
     embark: 'none',
     fortressName: fortress.name,
     deferLabels: true,
+    loading: true,
     ...(now === undefined ? {} : { now }),
   });
   const world = game.world;

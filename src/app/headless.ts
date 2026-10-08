@@ -269,6 +269,8 @@ export interface HeadlessOptions {
   readonly spec?: LocalMapSpec;
   /** A loaded game labels its map once its buildings are restored (T-M2-11). */
   readonly deferLabels?: boolean;
+  /** Bootstrap a saved world without initial populations or their map side effects. */
+  readonly loading?: boolean;
   /**
    * The clock the scheduler times each system with (`host.stats()`); the performance smoke passes
    * `performance.now`. Omitted, every timing reads 0, as `core` may not read a clock itself.
@@ -350,7 +352,7 @@ export class HeadlessGame {
     const systems = options.systems ?? HeadlessGame.standardSystems(spec, local?.layerStack ?? FLAT_TEST_LAYERS, local);
     for (const system of systems) this.world.addSystem(system);
     this.terrain = (systems.find((s) => s instanceof TerrainSystem) as TerrainSystem | undefined) ?? null;
-    this.world.init();
+    this.world.init({ loading: options.loading === true });
     const terrain = this.terrain;
     if (terrain !== null) this.pathing.graph.hooks.forbidden = (i) => terrain.core.isForbidden(i);
     // 14's buildings block movement through 22's hook (T-M2-05), besides any hook the caller gave.
@@ -371,7 +373,7 @@ export class HeadlessGame {
     // A hostile that opens doors (the species flag `O`) passes an unlocked door (D-074).
     const species = this.registry.table<{ id: string; opensDoors?: boolean }>('creatures');
     this.movement.speciesOpensDoors = (s) => species.byIndex(s)?.opensDoors === true;
-    this.arrival = this.embark(options.embark ?? 'none', options.spec ?? FLAT_TEST_SPEC, options.fortressName);
+    this.arrival = options.loading === true ? null : this.embark(options.embark ?? 'none', options.spec ?? FLAT_TEST_SPEC, options.fortressName);
     // The arrival set the calendar to its hour after 06's `init`: 06 reads the hour again (D-103).
     if (this.arrival !== null) (systems.find((s) => s instanceof WeatherSystem) as WeatherSystem | undefined)?.refresh();
     // The idle anchor until there is a hearth hall: the wagon tile (`creature-brains.md`; D-057).
