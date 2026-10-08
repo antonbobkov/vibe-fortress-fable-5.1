@@ -27,14 +27,14 @@ The calendar defines the seasons. This system defines what they mean:
 | autumn | 80% | 6–19 | 7–18 | Harvest; the restless dead on `old_battlefield` |
 | winter | 0% | 8–17 | 9–16 | Surface farming stops; snow; cold snaps at temper ≥ 2 |
 
-`frostmarrow` uses winter values for autumn and spring as well, and its summer growth multiplier is 80%.
+`frostmarrow` uses winter for every seasonal lookup in autumn and spring as well (temperature, temper spread, daylight, growth, transition row and extreme-weather constraints); its summer growth multiplier is 80%, and rain or storm becomes snow.
 
 ### Surface temperature
 
 `surfaceTempC(hour) = seasonBase + dayCurve(hour) + weatherDelta + temperSpread`:
 
 - `seasonBase = biome.seasonTemp[season] + (region.tempC − biome.referenceTempC)`, so a warm region of a biome is warmer in every season.
-- `dayCurve`: a fixed 24-entry table, −6 at hour 4 rising to +6 at hour 15.
+- `dayCurve`: the fixed `DAY_CURVE_C` table of rounded straight lines, −6 at hour 4 rising to +6 at hour 15 over 11 hours, then falling to −6 at the next hour 4 over 13 hours.
 - `weatherDelta`: clear 0, overcast −2, rain −3, storm −4, snow −2, fog −1, heatwave +10, cold_snap −12.
 - `temperSpread`: temper × 1 added in summer and subtracted in winter, widening extremes for harsh regions.
 
@@ -42,7 +42,7 @@ The value is computed once per weather tick (every 50 ticks, one game hour) and 
 
 ### Weather transitions
 
-Each weather state has a duration rolled from its range in the content table (`4..36` hours by state). When it ends, the next state is drawn from the transition row `[season][temper][currentState]` from the content table. Constraints applied after the draw:
+Each weather state has a duration rolled from its range in the content table (`4..36` hours by state). When it ends, the next state is drawn from the transition row `[season][temper][currentState]` from the content table. Constraints applied after the draw use the cached temperature of the previous hour, before computing the new hour’s temperature:
 
 - `snow` requires `surfaceTempC ≤ SNOW_C`; otherwise it becomes `rain`.
 - `rain` and `storm` with `surfaceTempC ≤ SNOW_C` become `snow`.
@@ -63,10 +63,12 @@ Each weather state has a duration rolled from its range in the content table (`4
 | `heatwave` | thirst rises ×1.5 (10 reads `weather.thirstModifier()`); surface crops have `WILT_PERMILLE` per hour to lose one growth stage (07) |
 | `cold_snap` | outdoor water freezes (05 via temperature); outdoor thought `bitter_cold`; grazers lose condition faster (08) |
 
+Weather visits exposed tiles in ascending chunk index, then ascending tile index within each chunk. A chunk column groups the 16×16 map columns at every level. An exposed tile is outdoor, not `open`, and has no unfrozen liquid; sky tiles are excluded. Rain wets every exposed tile, and mud begins on exposed soil floors from the second consecutive rain or storm hour. Lightning weights a tree by `LIGHTNING_TREE_WEIGHT`, otherwise a tile with a creature of size class at least `WADE_LARGE_SIZE` by `LIGHTNING_TALL_WEIGHT`, otherwise by 1; the tree weight takes precedence over a creature on it.
+
 ### Snow cover
 
-- While `snow`, each weather tick sets `snow` on all outdoor tiles in `SNOW_CHUNKS_PER_HOUR` randomly chosen outdoor chunks (so cover builds over a few hours) until all outdoor chunks are covered.
-- Each weather tick, if `surfaceTempC > MELT_C`, clear `snow` in `SNOW_CHUNKS_PER_HOUR` covered chunks. Melting snow sets `mud` on soil floors.
+- While `snow`, each weather tick sets `snow` on all outdoor tiles in `SNOW_CHUNKS_PER_HOUR` randomly chosen uncovered chunk columns (so cover builds over a few hours), marking every chunk of each selected column that has an exposed tile until all such columns are covered.
+- Each weather tick, if `surfaceTempC > MELT_C`, clear `snow` in `SNOW_CHUNKS_PER_HOUR` randomly chosen covered chunk columns. Melting snow sets `mud` on soil floors.
 - Emit `SnowCoverChanged { chunks[] }` for 05 (overrides) and 23 (redraw).
 
 ### Rivers and lakes
@@ -75,13 +77,14 @@ Freezing is 05's decision; this system only provides the temperature. In winter 
 
 ### Daylight
 
-`calendar.isDaylight` is set by this system each weather tick from the daylight table. Night effects: dwarves prefer to sleep (10 schedule), outdoor visibility for hunting and for spotting scouts is halved (18), wild nocturnal species are active (08).
+`calendar.isDaylight` is set by this system each weather tick from the daylight table, with `sunrise ≤ hour < sunset`. Night effects: dwarves prefer to sleep (10 schedule), outdoor visibility for hunting and for spotting scouts is halved (18), wild nocturnal species are active (08).
 
 The cached surface temperature, growth modifier and daylight are recomputed each weather tick and once more when the arrival sets the calendar to its starting hour, which happens after this system's `init`.
 
 ## State
 
-- `state`, `stateEndsTick`, `surfaceTempCached`, `growthModifierCached`, `snowCoveredChunks: SortedSet`, `wetChunks: Map<chunk, lastRainTick>`.
+- `state`, `stateEndsTick`, `surfaceTempCached`, `growthModifierCached`, `isDaylightCached`, `snowCoveredChunks: SortedSet`, `wetChunks: Map<chunk, lastRainTick>` (both use chunk indices).
+- `started` records the first duration roll; `rainHours` counts consecutive rain/storm hours; `forced` holds a test-forced state, or `null` to release it for transition at the next weather tick. The local map spec supplies `tempC`, falling back to the biome’s `referenceTempC` when absent.
 - Rng stream.
 
 ## Interfaces
@@ -105,7 +108,7 @@ None.
 
 ### Events emitted
 
-`WeatherChanged { from, to }`, `LightningStrike { tile }`, `SnowCoverChanged { chunks[] }`, `SeasonEffectsChanged { season }` (after `SeasonChanged`, once modifiers are recomputed; 07 and 18 subscribe to this rather than to `SeasonChanged` so they see updated modifiers).
+`WeatherChanged { from, to }` (only when the state changes), `LightningStrike { tile }`, `SnowCoverChanged { chunks[] }`, `SeasonEffectsChanged { season }` (after `SeasonChanged`, once modifiers are recomputed; 07 and 18 subscribe to this rather than to `SeasonChanged` so they see updated modifiers).
 
 ### Registrations
 

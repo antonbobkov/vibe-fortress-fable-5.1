@@ -384,6 +384,7 @@ export class BuildingStore {
       if (this.materials[choice] === undefined) return reject('not_found');
       material = choice;
     }
+    if (row.footprint.variable === undefined && (cmd['width'] !== undefined || cmd['height'] !== undefined)) return reject('fixed_footprint');
     const width = cmd['width'] ?? row.footprint.w;
     const height = cmd['height'] ?? row.footprint.h;
     if (row.tags.includes('bridge') && (!Number.isInteger(width) || !Number.isInteger(height) ||

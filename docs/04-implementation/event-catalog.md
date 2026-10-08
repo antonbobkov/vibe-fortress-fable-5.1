@@ -2,7 +2,7 @@
 
 **Owner:** implementation · **Depends on:** [`../01-architecture/simulation-core.md`](../01-architecture/simulation-core.md), every system document
 
-Every event type, its fields, its emitters and its subscribers. `ui` means the presentation announcement registry or panels subscribe. Batched events carry arrays and are emitted at most once per emitter per tick. Every event has at least one emitter and one subscriber; the Wave 4 consistency pass checks this table against the system documents.
+Every event type, its fields, its emitters and its subscribers. `ui` means the presentation announcement registry or panels subscribe. Batched events carry arrays and are emitted at most once per emitter per tick, except `ConstructionCollapsed`: 03 emits one batch per terrain action that settles. Consumers must accept several collapse batches in one tick. Every event has at least one emitter and one subscriber; the Wave 4 consistency pass checks this table against the system documents.
 
 JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and JobUnblocked carry the job content id as `jobType`; `type` remains the event discriminator. ItemCreated and ItemDestroyed carry the item content id as `itemType`, and ItemCreated material is its content id.
 
@@ -83,9 +83,11 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `StockpileFull` | `id` | 13 | ui |
 | `WealthChanged` | `wealth` | 13 | 18, 20, 21 |
 | `CorpseCreated` | `itemId, creatureId` | 13 | 09, 14, 15 |
-| `BuildingPlaced` / `BuildingCompleted` / `BuildingRemoved` | `id, type` | 14 | 12, 13, 19, 20, 22, 24 (milestones), ui |
+| `BuildingPlaced` | `id, buildingType, tiles[]` | 14 | 12, 13, 19, 20, 22, 24 (milestones), ui |
+| `BuildingCompleted` | `id, buildingType, value` | 14 | 12, 13, 19, 20, 22, 24 (milestones), ui |
+| `BuildingRemoved` | `id, buildingType, value` | 14 | 12, 13, 19, 20, 22, 24 (milestones), ui |
 | `BuildingStateChanged` | `id, state` | 14 | 04, 11, 22, 23 |
-| `ZoneChanged` | `zoneId, type, change` | 14 | 07, 08, 09, 13, 16, 17 |
+| `ZoneChanged` | `zoneId, zoneType, change, tiles[]` | 14 | 07, 08, 09, 13, 16, 17 |
 | `RoomQualityChanged` | `zoneId, tier` | 14 | 15, 10 (thane), ui |
 | `RoomAssigned` | `zoneId, dwarfId` | 14 | 10 |
 | `HearthLit` | `id` | 14 | 10, 15, 24 (milestone), ui |
@@ -108,7 +110,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `WoundInflicted` | `id, part, type, severity` | 17 | 15 |
 | `LimbLost` | `id, part` | 17 | 15, 16, ui |
 | `CreatureUnconscious` / `CreatureConscious` | `id` | 17 | 10, 16, 18, ui |
-| `CreatureDied` | `id, cause, killerId` | 17 | 08, 09, 10, 11, 13, 16, 18, 20, ui |
+| `CreatureDied` | `id, cause, killerId, tile, species, name, faction, ageTicks, wornItems` | 17 | 08, 09, 10, 11, 13, 16, 18, 20, ui |
 | `PatientAdmitted` / `PatientDischarged` / `PatientHealed` | `id[, hospitalTier]` | 17 | 10, 15, ui |
 | `InfectionStarted` / `InfectionCured` | `id` | 17 | ui |
 | `TreatmentDone` | `patientId, medicId, kind` | 17 | 10 (xp) |

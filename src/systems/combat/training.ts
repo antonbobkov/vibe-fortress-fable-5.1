@@ -40,14 +40,6 @@ export function getBarracksForSquad(
   if (!ctx.readers.has('14')) return null;
   const buildings = ctx.readers.of<BuildingsReader>('14');
 
-  if (barracksZoneId !== 0) {
-    const z = buildings.zone(barracksZoneId);
-    if (z && z.tiles.length > 0) {
-      const room = buildings.room(barracksZoneId);
-      return { zoneId: barracksZoneId, tiles: z.tiles, tier: room?.tier ?? 0 };
-    }
-  }
-
   // Look for zone with squadId setting
   const bZones = buildings.zonesOfType('barracks');
   for (const zId of bZones) {
@@ -55,6 +47,14 @@ export function getBarracksForSquad(
     if (z && (z.settings['squadId'] === squadId || z.settings['squad'] === squadId)) {
       const room = buildings.room(zId);
       return { zoneId: zId, tiles: z.tiles, tier: room?.tier ?? 0 };
+    }
+  }
+
+  if (barracksZoneId !== 0) {
+    const z = buildings.zone(barracksZoneId);
+    if (z && z.tiles.length > 0) {
+      const room = buildings.room(barracksZoneId);
+      return { zoneId: barracksZoneId, tiles: z.tiles, tier: room?.tier ?? 0 };
     }
   }
 
@@ -126,8 +126,8 @@ export function stepTraining(
     const barracks = getBarracksForSquad(ctx, squadId, squad.barracksZoneId);
     if (!barracks || barracks.tiles.length === 0) continue;
 
-    // Cache barracksZoneId on squad if not already set
-    if (squad.barracksZoneId === 0) {
+    // Keep the cache in step with an explicit assignment.
+    if (squad.barracksZoneId !== barracks.zoneId) {
       squad.barracksZoneId = barracks.zoneId;
     }
 

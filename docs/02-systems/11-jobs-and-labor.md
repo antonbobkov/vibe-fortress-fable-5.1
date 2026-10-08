@@ -65,6 +65,8 @@ Each tick, for up to `ASSIGN_WORKERS_PER_TICK` workers that asked for a job (10 
 
 `laborPriorityShift = laborPriority − PRIORITY_DEFAULT`, so raising mining's labor priority to 3 makes every mining job behave two steps more urgent.
 
+A worker without a required tool skips the job while no free tool of that kind is reachable and another worker with the labor carries one, leaving the job available to that worker. If nobody could do it, the ordinary `no_tool` block still applies.
+
 Workers keep their tool after the job. A living worker whose `mining` and `woodcutting` labors are both off drops a carried pick or axe on the next stockpile tile they pass, clears `Worker.toolId` and the matching weapon reference, and emits `ToolDropped` to unblock tool jobs. Other tools and a still-enabled labor retain their equipment.
 
 If the claim of the chosen job fails (it blocks `missing_input` or `no_tool`), the worker tries the next candidate in the same order; only when every candidate fails does the worker go idle.

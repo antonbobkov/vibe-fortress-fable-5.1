@@ -58,15 +58,17 @@ onHour():
   growthModifierCached = seasonGrowth[season] * stateGrowth[state] / 100 (stateGrowth: overcast 90, else 100)
   isDaylight = hour in daylight window for (season, temper)
   if state == 'rain' or 'storm': for c in outdoorChunks: wetChunks[c] = tick; flag Wet on outdoor tiles of c (batched); mud on outdoor soil floors with rain for 2+ hours
-  if state == 'storm' and rng.chance(LIGHTNING_PER_HOUR_PERMILLE * (thunderhead?1.5:1)): T = weightedOutdoorTile(trees ×4, tall creatures ×2); emit LightningStrike{T}
+  if state == 'storm' and rng.chance(LIGHTNING_PER_HOUR_PERMILLE * (thunderhead?1.5:1)): T = weightedExposedTile(chunks ascending, tiles ascending within chunk; trees ×4, else creatures of sizeClass >= WADE_LARGE_SIZE ×2, else 1); emit LightningStrike{T}
   if state == 'snow': cover SNOW_CHUNKS_PER_HOUR random uncovered outdoor chunks (Snow flag on outdoor tiles); emit SnowCoverChanged
   else if surfaceTempCached > MELT_C: melt SNOW_CHUNKS_PER_HOUR covered chunks (clear Snow; mud on soil); emit SnowCoverChanged
   clear Wet on chunks with wetChunks[c] + WET_DURATION_HOURS*TICKS_PER_HOUR < tick
 transition():
   row = transitions[season][state]; weights = copy; apply temper scaling (storm, fog, heatwave, cold_snap × (1 + temper*0.5); clear × (1 - temper*0.1)); trait rules; disallow heatwave/cold_snap per season and temper
-  next = rng.weighted(weights); constraints: snow ↔ rain by SNOW_C
-  from = state; state = next; stateEndsTick = tick + rng.int(minHours, maxHours) * TICKS_PER_HOUR; emit WeatherChanged{from, to}
+  next = rng.weighted(weights); constraints: snow ↔ rain by SNOW_C using previous hour’s cached surface temperature
+  from = state; state = next; stateEndsTick = tick + rng.int(minHours, maxHours) * TICKS_PER_HOUR; if from != to: emit WeatherChanged{from, to}
 ```
+
+Outdoor iteration means exposed tiles (outdoor, non-open, no unfrozen liquid), excluding sky. Snow cover and melt choose chunk columns; stored sets and event arrays name the chunks with exposed tiles. Daylight uses `[sunrise, sunset)`. The seasonal lookups and `frostmarrow` constraints follow 06. A forced test state remains until released with `null`; the next weather tick then transitions.
 
 ## Plant growth (hourly)
 

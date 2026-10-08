@@ -231,6 +231,12 @@ const NOT_FOUND_SUBJECT: Readonly<Record<string, string>> = Object.freeze({
 export function rejectionText(env: MessageEnv, command: Command | undefined, reason: string): string {
   const s = env.strings;
   const type = command?.type ?? '';
+  if (reason === 'fixed_footprint' && type === 'PlaceBuilding' && command !== undefined) {
+    const table = env.registry.table<NamedRow>('buildings');
+    const buildingType = command['buildingType'];
+    const row = typeof buildingType === 'string' ? table.byId(buildingType) : typeof buildingType === 'number' ? table.byIndex(buildingType) : undefined;
+    if (row !== undefined) return s.get('ui.reject.fixed_footprint.building', { name: capitalize(row.name) });
+  }
   if (reason === 'bad_placement' && type === 'PlaceBuilding' && command !== undefined) {
     const rule = placementRule(env, command);
     if (rule !== null) return rule;

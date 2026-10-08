@@ -294,13 +294,13 @@ export function spawnSupplies(world: World, supplies: readonly SupplyLine[], wag
 }
 
 /** The logs a cleared tree leaves: the species' `logs` range (clamped as 03's `chop`), drawn from 02's stream. */
-function treeLogs(world: World, species: number): { material: number; count: number } | null {
+function treeLogs(world: World, speciesMaterial: number): { material: number; count: number } | null {
   const plants = world.registry.table<PlantRow>('plants');
-  const row = plants.byIndex(species);
+  const materials = world.registry.table('materials');
+  const row = plants.byId(materials.idOf(speciesMaterial));
   if (row === undefined) return null;
   const lo = Math.max(TREE_LOGS_MIN, row.logs?.[0] ?? TREE_LOGS_MIN);
   const hi = Math.min(TREE_LOGS_MAX, Math.max(lo, row.logs?.[1] ?? lo));
-  const materials = world.registry.table('materials');
   const wood = row.yieldMaterial ?? row.id;
   if (!materials.has(wood)) return null;
   return { material: materials.index(wood), count: world.rngFor('02').int(lo, hi) };

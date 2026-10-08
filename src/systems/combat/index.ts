@@ -48,7 +48,7 @@ import type { CombatStateV1 } from './state';
 import { TargetManager } from './targets';
 import { threatScan } from './threats';
 import { reequipAllSquads, reequipSquad } from './equipment';
-import { stepTraining } from './training';
+import { getBarracksForSquad, stepTraining } from './training';
 
 export type { CombatReader, SquadWithId } from './reader';
 export * from './constants';
@@ -88,6 +88,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     'AlertChanged',
     'DayPassed',
     'ItemCreated',
+    'ZoneChanged',
   ];
 
   private world: WorldLike | null = null;
@@ -380,6 +381,16 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   }
 
   override handle(event: GameEvent, ctx: TickContext): void {
+    if (event.type === 'ZoneChanged' && event['zoneType'] === 'barracks' && event['change'] === 'settings') {
+      const entities = ctx.world.entities;
+      for (const squadId of entities.with(C.Squad)) {
+        const squad = entities.get(squadId, C.Squad);
+        if (squad === undefined) continue;
+        const zoneId = getBarracksForSquad(ctx, squadId, 0)?.zoneId ?? 0;
+        if (squad.barracksZoneId !== zoneId) entities.add(squadId, C.Squad, { ...squad, barracksZoneId: zoneId });
+      }
+      return;
+    }
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
       const killer = (event['killer'] ?? event['killerId'] ?? 0) as EntityId;

@@ -65,7 +65,7 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
   progress('minerals')
   // 6. volcano
   if spec.volcano: c = randomSurfacePoint(st) at chebyshev >= 20 from arrivalEdge midpoint; r = glasslands ? 3 : st.int(1,2)
-    for z in 0..h[c]: tiles within r of c: kind=Open, fluid = 7|MAGMA|SOURCE; ring r+1..r+2: Wall obsidian; surface within 6: soil replaced by obsidian, no vegetation
+    for z in 0..h[c]: tiles within r of c: kind=Open, fluid = 7|MAGMA|SOURCE; ring r+1..r+2: Wall obsidian below each column’s surface, Floor obsidian at its surface; surface within 6: soil replaced by obsidian, no vegetation
   // 7. vegetation
   st = stream(S, 'terrain.plants')
   for surface floor tiles with soil material (not river/lake, not within 2 of river unless willow):
@@ -75,9 +75,9 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
   cavern floors (cave_loam): fungus trees with density 0.12 by cavern weights; cavern shrubs 0.08
   // 8. traits
   if old_battlefield: scatter BATTLEFIELD_ITEM_COUNT items on surface tiles in band 15..40 from arrival edge (spawned after entities exist: recorded as a spawn list applied by 02 arrival)
-  if sunken_halls: carveHallTemplate(st, farthest hillside from arrival edge); record furniture and vault spawn list
-  if gemsprings: 3 warm springs 2x2 on surface soil near the river: kind Open with water 7, springs list for 05
-  if wyrm_roost: carve 9x9 chamber in cavern 3 band at a random interior point; deepsilver vein adjacent; wyrm spawn list
+  if sunken_halls: site = highest dry floor in far half where the hall fits, ties by inward distance descending then column order; carve the layout in 03; record furniture and vault spawn list
+  if gemsprings: 3 warm springs 2x2 on dry surface soil nearest a stream-selected river tile (map centre without river), one tile apart: kind Open with water 7, springs list for 05
+  if wyrm_roost: carve 9x9 floor at the bottom of cavern 3 with two levels of headroom at a random interior point; vein starts in the east wall if the deepsilver magma-distance rule holds; sleeping wyrm spawn list
   // 9. discovery, outdoor, lit
   for x,y: top = highest non-Open z; for z: outdoor = z >= top ... (outdoor is true for tiles at or above the surface: the surface Floor tile and open tiles above it)
   discovered = outdoor tiles and their 26 neighbors; lit = outdoor or within LIGHT_SPREAD horizontally of an outdoor open tile on the same level with no wall between
