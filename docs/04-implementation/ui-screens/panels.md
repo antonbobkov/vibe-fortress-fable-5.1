@@ -109,7 +109,7 @@ Open border tiles on the viewed level are highlighted using the room's existing 
 │ [Enter] labor manager: all labors  │
 ```
 
-The panel is the quick view: the columns that do not fit scroll with `←` `→`, the rows scroll with the selection, and hovering a column head names the labor. `Enter`, or a click on the last row, opens the labor manager.
+The quick view's whole-row action turns every labor of the selected dwarf on unless all are on, then turns every labor off. Shift-click on a column applies the same rule across its dwarves. The panel is the quick view: the columns that do not fit scroll with `←` `→`, the rows scroll with the selection, and hovering a column head names the labor. `Enter`, or a click on the last row, opens the labor manager.
 
 ## Labor manager
 
@@ -311,6 +311,8 @@ Every action that cannot be done says why on the status row (an empty cage, a co
 │ [S-f] forbid  [S-d] dump            │
 │ [S-m] melt  [S-t] to depot          │
 ```
+
+Stocks actions apply to the selected category, type or individual stack. Forbid and dump toggle all applicable items; turn on when any selected item lacks the mark, otherwise clear all. Melt considers only eligible metal items and uses the same consistent toggle. A mixed-material type sends individual metal-item commands, while an all-metal type sends one type command. Nonmetal stacks cannot be marked for melt. Marking for dump or melt goes through the default-No confirmation; clearing marks and forbidding do not ask. Every action has a key caption and a clickable row.
 
 ## Military (m)
 

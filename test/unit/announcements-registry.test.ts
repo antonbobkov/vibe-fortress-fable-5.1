@@ -72,6 +72,7 @@ const DOCUMENTED: readonly { event: string; severity: 'note' | 'alert' | 'danger
   { event: 'RoomQualityChanged', severity: 'note', doc: '14' },
   // `15` § Registrations ("`SulkHappened` (note or alert per kind)": the registry carries both).
   { event: 'SulkHappened', severity: 'note', doc: '15' },
+  { event: 'SulkHappened', severity: 'alert', doc: '15' },
   { event: 'MoodTierChanged', severity: 'note', doc: '15' },
   // `16` § Registrations; the first attack of an engagement is the alert on `AttackResolved`.
   { event: 'AttackResolved', severity: 'alert', doc: '16' },

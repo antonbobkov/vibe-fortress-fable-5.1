@@ -46,7 +46,7 @@ Keyboard:
 - Within a designation or zone tool: a click applies to one tile, a drag defines a rectangle, and two presses of `Enter` define its corners. Each press uses the look cursor, otherwise the mouse tile, otherwise the map centre; a stairwell may span levels. `1`–`9` set the priority; `Ctrl+Z` undoes the last batch.
 - `F5` quick save, `F9` quick load (with confirmation), `Ctrl+S` save menu, `F12` debug panel.
 - Within panels: unshifted arrows move the selection before they pan the map (the labor grid also takes left/right), `Enter` activates, `Tab` moves between fields, letters in `[brackets]` are accelerators, `PageUp`/`PageDown` scroll. State-specific keys are listed in the panel documents.
-- Bare panel letters always open or close their panel. Reserved letters come from the live panel bindings; colliding accelerators require Shift, shown `[S-x]`. Fixed captions use the defaults, while zone inspector captions follow the current panel bindings. With default bindings, the free letters are `g h i q r v w x y`; these work with or without Shift. Focused text fields take letters as text.
+- Bare panel letters always open or close their panel. Reserved letters come from the live panel bindings; colliding accelerators require Shift, shown `[S-x]`. Fixed captions use the defaults, while zone inspector captions and their Help rows follow the current panel bindings. With default bindings, the free letters are `g h i q r v w x y`; these work with or without Shift. Focused text fields take letters as text.
 - In the Units table and a squad's add/remove list, `Space` marks a row before it pauses; `*` marks all or none. An action uses every marked row when the cursor row is marked, otherwise just that row.
 - In Orders, `=` or numpad `+` adds one, `-` subtracts one, and Shift on either physical key changes ten (main-row `+` is Shift+`=`). These take precedence over speed only while an order is selected.
 - With a building tool that places many, `Shift+Enter` sets a corner; `Enter` or a click sets the other. Plain `Enter` places one. `Esc` clears the corner before leaving the tool.
@@ -91,7 +91,7 @@ The look panel shows the tile under the cursor or the clicked tile with tabs for
 
 ### Announcements and the log
 
-- The announcement registry maps event types to `{ severity, text, focus }` (from `register.announcement`). Text comes from the strings table with placeholders filled from the event and readers.
+- The announcement registry retains every spec registered for an event type. Before formatting, select the first registered spec whose numeric bounds and allowed field values all match; an unmatched event produces no announcement. The owning system defines each spec's severity. Text comes from the strings table with placeholders filled from the event and readers. Sulk day-off, arguing and weeping kinds are notes; breaking furniture is an alert. Dwarf names resolve from finder, miner, dwarf or creature ids; thought text resolves from the thought content row.
 - `note`: appended to the log in gray; no interruption.
 - `alert`: appended in yellow; the log strip flashes for one second; a sound hook is left for the future.
 - `danger`: appended in red; the game pauses (`host.setSpeed(0)`) if the `auto-pause on danger` setting is on (default on); the view centers on the focus; the strip shows the line until dismissed by any key.
@@ -131,7 +131,7 @@ Sea of Fire is awarded on `CavernBreached` 3. Kills of note are the three highes
 
 ### Settings
 
-Stored zoom applies to new games; a loaded save's UI zoom wins for that session. Viewport fitting may use smaller cells without changing the preferred zoom. The binding table includes panel hotkeys and refuses collisions within a context and with global/map bindings that take precedence. Only overrides of content defaults are saved. Additional binding contexts are appended after the panel bindings so older saved binding indices stay stable.
+Stored zoom applies to new games; a loaded save's UI zoom wins for that session. Viewport fitting may use smaller cells without changing the preferred zoom. The binding table includes panel hotkeys and refuses collisions within a context and with global/map bindings that take precedence. Failed rebinding uses registry strings through the shared message helpers. Modifier errors say "Use a key with optional Ctrl or Shift."; conflicts say "Conflicts with {context}: {action}", using the player-facing context heading and Help wording, never binding ids. The bindings remain unchanged on failure. Only overrides of content defaults are saved. Additional binding contexts are appended after the panel bindings so older saved binding indices stay stable.
 
 ### Game menu (Esc from the fortress with no tool or panel)
 

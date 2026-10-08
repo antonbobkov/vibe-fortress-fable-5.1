@@ -420,6 +420,7 @@ export class Game {
   openSettings(): void {
     this.pushScreen(new SettingsScreen({
       keymap: this.keymap,
+      strings: this.strings,
       settings: () => this.userSettings,
       change: (patch) => this.changeSettings(patch),
       bindingsChanged: () => this.persistSettings(),

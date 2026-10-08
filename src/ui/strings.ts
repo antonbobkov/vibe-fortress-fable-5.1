@@ -14,6 +14,8 @@ import type { Registry } from '@core/registry';
 
 /** The UI's default rows, by `StringKey`. */
 export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
+  'ui.settings.binding_modifiers': 'Use a key with optional Ctrl or Shift.',
+  'ui.settings.binding_conflict': 'Conflicts with {context}: {action}',
   // Main menu (`ui-screens/menus-and-world.md` § Main menu).
   'ui.menu.title': 'D E E P H O L M',
   'ui.menu.subtitle': 'a hall beneath the world',

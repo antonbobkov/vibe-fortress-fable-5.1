@@ -346,6 +346,8 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 
 ## Strings
 
+Settings rebinding failures use the UI defaults `ui.settings.binding_modifiers` ("Use a key with optional Ctrl or Shift.") and `ui.settings.binding_conflict` ("Conflicts with {context}: {action}"). Context and action use the same headings and wording as Help.
+
 A refused fixed-footprint placement names the building and explains that width and height cannot be changed; its named message and generic rejection text are string-registry defaults.
 
 Player-facing text uses string keys. The UI reads `strings.json` together with the `UI_STRINGS` defaults in `ui/strings.ts`; a content row wins over a default of the same key. Screen wireframes list the keys per screen; announcement, thought, hint, milestone and confirmation texts above are their canonical values. The strings check audits both tables, used keys, and the bidirectional text mirrors for confirmations, hints, milestones and thoughts.

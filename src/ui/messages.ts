@@ -27,6 +27,8 @@ import type { ItemsReader } from '@systems/items';
 import { STOCKPILE_PRESETS } from '@systems/items';
 import type { TradeReader } from '@systems/trade';
 import type { Strings } from './strings';
+import type { Binding } from './keymap';
+import { actionText, contextTitle } from './panels/help';
 
 /** What the message helpers read. A {@link PanelContext} is one. */
 export interface MessageEnv {
@@ -46,6 +48,15 @@ interface RecipeRow {
   readonly id: string;
   readonly workshop: string;
   readonly outputs: readonly { readonly item: string }[];
+}
+
+/** Settings failures use the same action and context wording as Help. */
+export function bindingConflict(strings: Strings, binding: Binding): string {
+  return strings.get('ui.settings.binding_conflict', { context: contextTitle(binding.context), action: actionText(binding) });
+}
+
+export function invalidBindingModifiers(strings: Strings): string {
+  return strings.get('ui.settings.binding_modifiers');
 }
 
 /** Words into at most `maxLines` lines of `width` cells; the last line keeps what is left. */

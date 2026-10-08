@@ -146,6 +146,7 @@ function renderScreen(name: ScreenName): ScreenGolden {
     case 'settings_keybindings': {
       const userSettings: UserSettings = { ...DEFAULT_USER_SETTINGS };
       const settingsHost: SettingsHost = {
+        strings,
         keymap,
         settings: () => userSettings,
         change: (patch) => Object.assign(userSettings, patch),
