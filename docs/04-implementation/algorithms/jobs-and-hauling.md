@@ -68,7 +68,7 @@ stepWorker(w, ctx):
       target = job.data.toolToFetch ?? nextUndeliveredInput(job)
       if Worker[w].carrying == 0:                                                     // go pick it up
         if at(w, tileOf(target)): items.attachToCarrier(target, w); Worker[w].carrying = target
-           if target is tool: equip(w, target); Worker[w].carrying = 0; job.data.toolToFetch = null
+           if target is tool: equip(w, target); Worker[w].carrying = 0; release its reservation; emit ItemReleased{itemId: target, jobId: job.id} if live; job.data.toolToFetch = null
         else: walkTo(w, tileOf(target), 'job')
       else:                                                                            // deliver
         dest = deliveryTile(job)                                                       // workshop: input tile; build: origin; haul: slot tile
@@ -139,7 +139,7 @@ findItem(filter, from, cls, opts):
        d = chebyshev(from, t) + |dz|*Z_DISTANCE_WEIGHT; if d < bestD: best = it
     if best: return best
   // fallback through the stock index
-  for it in counts[filter.type].instances (stockpiles first): same checks; return first
+  for it in all matching items (stockpile items first, each group ascending id): same checks; return first
   return 0
 match(it, filter): type/category/tag/materialClass/materialId/minQuality/edible/drinkable/emptyContainer as in 13
 ```

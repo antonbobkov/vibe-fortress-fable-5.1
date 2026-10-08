@@ -157,6 +157,24 @@ export interface SpawnedGroup {
   readonly ids: readonly EntityId[];
 }
 
+/** The content's initial individuals, once at first breach; ordinary caps still apply. */
+export function initialCavernSpawn(host: SpawnHost, tier: number): SpawnedGroup[] {
+  const out: SpawnedGroup[] = [];
+  for (const [species] of host.facts.cavernSpecies(tier)) {
+    const initial = host.facts.row(species)?.cavern?.initial ?? 0;
+    const n = Math.min(initial, Math.max(0, cavernCap(host, species) - host.countWild(species)),
+      Math.max(0, MAX_CREATURES - host.creatureCount()));
+    if (n <= 0) continue;
+    const cls = (host.facts.row(species)?.movementClass ?? 'walker') as MovementClass;
+    const pool = host.cavernTiles(tier).filter((tile) => host.pathing.passable(tile, cls));
+    if (pool.length === 0) continue;
+    const ids: EntityId[] = [];
+    for (let k = 0; k < n; k++) ids.push(host.spawn(species, pool[host.rng.int(0, pool.length - 1)] as TileIndex));
+    out.push({ species, ids });
+  }
+  return out;
+}
+
 /** One day's wild spawning, surface and breached caverns. */
 export function dailySpawn(host: SpawnHost, season: number): SpawnedGroup[] {
   const out: SpawnedGroup[] = [];

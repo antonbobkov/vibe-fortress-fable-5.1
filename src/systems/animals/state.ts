@@ -24,6 +24,7 @@ export interface EggRecord {
 
 export interface AnimalsStateV1 {
   stateVersion: 1;
+  initializedCaverns?: number[];
   breedingCaps: [number, number][];
   speciesCounts: [number, SpeciesCount][];
   nestBoxes: EntityId[];

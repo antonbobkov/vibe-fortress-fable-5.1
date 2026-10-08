@@ -67,15 +67,15 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `DwarfIdle` | `id` | 10 | ui (none) |
 | `TitleAssigned` | `dwarfId, title` | 10 | 16, 20, ui |
 | `DwarfBecameAdult` | `id` | 10 | 11, 15, ui |
-| `JobCreated` / `JobClaimed` / `JobStarted` / `JobCompleted` / `JobCancelled` / `JobBlocked` / `JobUnblocked` | `jobId, type[, workerId, target, reason]` | 11 | producers (03, 07, 08, 09, 12, 13, 14, 17, 19, 20), 10 (xp on completed), ui |
+| `JobCreated` / `JobClaimed` / `JobStarted` / `JobCompleted` / `JobCancelled` / `JobBlocked` / `JobUnblocked` | `jobId, jobType[, workerId, target, reason]` | 11 | producers (03, 07, 08, 09, 12, 13, 14, 17, 19, 20), 10 (xp on completed), ui |
 | `ItemReserved` / `ItemReleased` | `itemId, jobId` | 11 | 13 |
 | `ToolEquipped` / `ToolDropped` | `dwarfId, itemId` / `itemId` | 11 | 11 (retry), 16 |
 | `ItemCrafted` | `itemId, quality, crafterId, workshopId, recipeId` | 12 | 13, 15, 16 (better gear), 24 (milestones) |
 | `MasterworkCreated` | `itemId, crafterId` | 12 | 15, ui |
 | `WorkOrderCompleted` | `workshopId, recipeId` | 12 | ui (none) |
 | `WorkshopBlocked` / `WorkshopIdle` | `workshopId, reason` / `workshopId` | 12 | ui |
-| `ItemCreated` | `id, type, material, count` | 13 | 11, 12, 16, 17 |
-| `ItemDestroyed` | `id, type, reason, crafterId` | 13 | 11, 12, 15 |
+| `ItemCreated` | `id, itemType, material, count` | 13 | 11, 12, 16, 17 |
+| `ItemDestroyed` | `id, itemType, reason, crafterId` | 13 | 11, 12, 15 |
 | `ItemRotStage` / `ItemRotted` | `id, stage` / `id` | 13 | ui (none) |
 | `MiasmaSpread` | `tiles[]` | 13 | 17 (infection modifier), ui |
 | `StocksChanged` | `types[]` | 13 | 11, 12, ui |

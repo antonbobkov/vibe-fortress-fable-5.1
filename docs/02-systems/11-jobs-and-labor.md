@@ -99,6 +99,8 @@ Hauling is a family of job types produced by 13 (`haul_to_stockpile`), 12 (`haul
 
 For idle wake-up, `hasWork` summarizes open jobs once per tick by reachable connectivity label and enabled labor. Restricted jobs keep exact worker-specific eligibility and tool checks. Invalidate this availability index on job state changes and load; assignment and its scoring remain unchanged.
 
+A fetched tool's reservation ends when its worker equips it. Every released reservation whose item still exists emits exactly one `ItemReleased { itemId, jobId }`, including an equipped tool. A held tool remains unavailable to searches through `Worker.toolId` and the item's `carriedBy`, even after its reservation ends. Workers keep their equipped tool after the job.
+
 ### Blocking and retry
 
 | Reason | Meaning | Retry trigger |
@@ -166,7 +168,7 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 
 ### Events emitted
 
-`JobCreated`, `JobClaimed`, `JobStarted` (entering `working`; each job event carries the content id as `jobType`), `JobCompleted { jobId, jobType, workerId, target }`, `JobCancelled { jobId, reason }`, `JobBlocked { jobId, reason }`, `JobUnblocked`, `ItemReserved { itemId, jobId }`, `ItemReleased { itemId }`, `ToolEquipped { dwarfId, itemId }`, `ToolDropped { itemId }`. While it executes 09's hunt jobs it emits `HuntStarted { hunterId, targetId }`, `HuntKill { hunterId, targetId }` and `HuntAbandoned { hunterId, targetId, reason }`.
+`JobCreated`, `JobClaimed`, `JobStarted` (entering `working`; each job event carries the content id as `jobType`), `JobCompleted { jobId, jobType, workerId, target }`, `JobCancelled { jobId, reason }`, `JobBlocked { jobId, reason }`, `JobUnblocked`, `ItemReserved { itemId, jobId }`, `ItemReleased { itemId, jobId }`, `ToolEquipped { dwarfId, itemId }`, `ToolDropped { itemId }`. While it executes 09's hunt jobs it emits `HuntStarted { hunterId, targetId }`, `HuntKill { hunterId, targetId }` and `HuntAbandoned { hunterId, targetId, reason }`.
 
 ### Registrations
 

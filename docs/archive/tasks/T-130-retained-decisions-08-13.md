@@ -1,10 +1,12 @@
 # T-130 — Resolve retained animal/job decisions and catalog mirrors
 
-**Source:** [T-105 triage](../archive/tasks/T-105-triage-systems-08-13.md) · **Size:** M · **Needs:** — · **Status:** open
+Closed by the T-130 implementation commit: initial fauna, live reservation releases and catalog mirrors are folded into the specification.
+
+**Source:** [T-105 triage](./T-105-triage-systems-08-13.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Scope and proposed resolutions
 
-T-105 leaves the two whole rows in [the decision log](../05-plan/DECISIONS.md).
+T-105 leaves the two whole rows in [the decision log](../../05-plan/DECISIONS.md).
 Keep unrelated rules, constants and budgets unchanged.
 
 **Resolved, orchestrator, 2026-10-07** (under the owner's standing instruction to use judgement): all three proposed resolutions below are accepted as written. In both rows the decision is the rule and the code is brought to it.
@@ -21,4 +23,4 @@ Implement only those resolutions,
 edit every affected spec section, and pin each change with a T-130 regression.
 Record any predicted golden movement in a `golden:` commit paragraph. Delete
 only the resolved exact rows, run the checks in
-[agent-workflow.md](../process/agent-workflow.md), and close the task normally.
+[agent-workflow.md](../../process/agent-workflow.md), and close the task normally.

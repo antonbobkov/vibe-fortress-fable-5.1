@@ -37,7 +37,7 @@ interface PlantsState { stateVersion: 1; cropAtTile: [TileIndex, EntityId][]; pl
   shrubTimers: [TileIndex, Tick][]; bareSoil: TileIndex[]; ashTiles: [TileIndex, Tick][]; needsSeedsAnnounced: [EntityId, Season][]; rng: RngState }
 
 interface AnimalsState { stateVersion: 1; breedingCaps: [Idx<SpeciesDef>, number][]; speciesCounts: [Idx<SpeciesDef>, { wild: number; tame: number }][];
-  nestBoxes: EntityId[]; caged: [EntityId /* cage item */, EntityId /* creature, kept as a dormant entity */][]; rng: RngState }
+  nestBoxes: EntityId[]; caged: [EntityId /* cage item */, EntityId /* creature, kept as a dormant entity */][]; initializedCaverns?: number[]; rng: RngState }
 
 interface ForagingState { stateVersion: 1; huntable: Idx<SpeciesDef>[]; hunterAssignments: [EntityId, EntityId][];
   waterBodies: { id: number; version: number; tileCount: number; fishPool: Fixed; kind: 'river'|'lake'|'cavern' }[]; bodyOfTile: [TileIndex, number][];
@@ -57,7 +57,7 @@ interface Job { id: number; key: string; type: Idx<JobTypeDef>; producer: string
   inputs: { filter: ItemFilter; count: number; reserved: EntityId[]; delivered: EntityId[] }[]; tool: 'pick'|'axe'|'ranged'|'bucket'|null;
   state: 'open'|'claimed'|'fetching'|'travelling'|'working'|'completing'|'blocked'|'cancelled'|'done';
   blockedReason: string | null; retryTick: Tick; workerId: EntityId; progress: Fixed; createdTick: Tick; claimedTick: Tick; data: Record<string, unknown> }
-interface ItemFilter { itemId?: EntityId; type?: Idx<ItemTypeDef>; category?: string; tag?: string; materialClass?: MaterialClass; materialId?: Idx<MaterialDef>;
+interface ItemFilter { itemId?: EntityId; type?: Idx<ItemTypeDef>; types?: Idx<ItemTypeDef>[]; category?: string; tag?: string; materialClass?: MaterialClass; materialId?: Idx<MaterialDef>;
   minQuality?: Quality; edible?: boolean; drinkable?: boolean; emptyContainer?: string; excludeIds?: EntityId[] }
 
 interface WorkshopsState { stateVersion: 1; globalOrders: WorkOrder[]; professionCache: [EntityId, string][]; rng: RngState }

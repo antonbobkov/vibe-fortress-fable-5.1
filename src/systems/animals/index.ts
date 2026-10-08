@@ -45,7 +45,7 @@ import { tickAnimal, type BrainHost } from './brain';
 import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, isDoorTile, stepOffDoor, thinkTame, type TameHost } from './tame';
 import { AnimalsProducer, productKey, slaughterKey, trainKey, type AnimalsProducerHost } from './producer';
 import type { AnimalsReader } from './reader';
-import { dailySpawn, leavers, surfaceCap, cavernCap, type SpawnHost } from './spawn';
+import { initialCavernSpawn, dailySpawn, leavers, surfaceCap, cavernCap, type SpawnHost } from './spawn';
 import type { AnimalsStateV1, EggRecord, SpeciesCount } from './state';
 
 export * from './constants';
@@ -105,6 +105,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   private readerRef: AnimalsReader | null = null;
   private brainRef: BrainHost | null = null;
   private spawnRef: SpawnHost | null = null;
+  private initialTiers: number[] = [];
+  private readonly initializedCaverns = new Set<number>();
   private wildlifeDensity = 1000;
   private cavernTileCache: (TileIndex[] | null)[] = [null, null, null, null];
 
@@ -193,6 +195,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     this.rngRef = ctx.rng;
     this.readersRef = ctx.readers;
     this.factsRef = new AnimalFacts(ctx.registry);
+    this.initialTiers = [1, 2, 3].filter((tier) => this.facts.cavernSpecies(tier)
+      .some(([species]) => (this.facts.row(species)?.cavern?.initial ?? 0) > 0));
     const biome = ctx.registry.table<BiomeRow>('biomes').byId(this.options.spec.biome);
     this.wildlifeDensity = biome?.wildlifeDensity ?? 1000;
     this.brainRef = this.makeBrainHost();
@@ -342,6 +346,17 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
 
   override tick(ctx: TickContext): void {
     this.flushGrazed(ctx);
+    if (this.initialTiers.some((tier) => !this.initializedCaverns.has(tier))) {
+      const breached = this.spawner.breachedCaverns();
+      for (const tier of this.initialTiers) {
+        if (this.initializedCaverns.has(tier) || !breached.includes(tier)) continue;
+        this.initializedCaverns.add(tier);
+        this.cavernTileCache[tier] = null;
+        for (const group of initialCavernSpawn(this.spawner, tier)) {
+          for (const id of group.ids) ctx.emit({ type: 'AnimalSpawned', id, species: this.facts.idOf(group.species) });
+        }
+      }
+    }
     const wild = ctx.world.entities.with(C.Wild);
     for (const id of wild) if (!ctx.world.entities.get(id, C.Creature)?.cagedIn) tickAnimal(this.brain, ctx, id);
     this.tickTame(ctx);
@@ -1066,6 +1081,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         .map((k): [number, V] => [k, m.get(k) as V]);
     return {
       stateVersion: 1,
+      ...(this.initializedCaverns.size > 0 ? { initializedCaverns: Array.from(this.initializedCaverns).sort((a, b) => a - b) } : {}),
       breedingCaps: sortedPairs(this.breedingCaps),
       speciesCounts: sortedPairs(this.speciesCounts).map(([s, c]): [number, SpeciesCount] => [s, { ...c }]),
       nestBoxes: this.nestBoxes.slice(),
@@ -1097,6 +1113,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
 
   deserialize(state: AnimalsStateV1, ctx: InitContext): void {
     if (this.world === null) this.init(ctx);
+    this.initializedCaverns.clear();
+    for (const tier of state.initializedCaverns ?? []) this.initializedCaverns.add(tier);
     this.breedingCaps.clear();
     for (const [s, cap] of state.breedingCaps) this.breedingCaps.set(s, cap);
     this.speciesCounts.clear();

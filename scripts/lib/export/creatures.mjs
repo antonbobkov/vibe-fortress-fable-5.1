@@ -131,7 +131,7 @@ function parseBreeding(cell) {
 }
 
 /** "1 (40, cap 12)" (fauna) or "1 (2 packs, cap 10, daily 80‰)" (monster). */
-function parseCavern(cell) {
+export function parseCavern(cell) {
   if (isBlank(cell)) return undefined;
   const s = plain(cell);
   const tier = /^(\d)/.exec(s);
@@ -142,11 +142,12 @@ function parseCavern(cell) {
   const respawn = /daily\s+(\d+)/.exec(body);
   const first = /(\d+)/.exec(body);
   const isMonster = /daily|packs|no respawn/.test(body);
+  const initial = /initial\s+(\d+)/.exec(body);
   return compact({
     tier: Number(tier[1]),
     weight: isMonster ? 0 : first === null ? 0 : Number(first[1]),
     cap: cap === null ? 0 : Number(cap[1]),
-    initial: isMonster ? (first === null ? 0 : Number(first[1])) : 0,
+    initial: isMonster ? (first === null ? 0 : Number(first[1])) : initial === null ? 0 : Number(initial[1]),
     respawnPermille: respawn === null ? 0 : Number(respawn[1]),
   });
 }
