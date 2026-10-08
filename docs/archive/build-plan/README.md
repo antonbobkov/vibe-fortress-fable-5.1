@@ -1,6 +1,6 @@
 # Implementation Plan
 
-> **Archived.** This is the plan that built v1.0.0, kept as history. Its rules are no longer in force: current work follows [`../../process/agent-workflow.md`](../../process/agent-workflow.md) and [`../../backlog.md`](../../backlog.md). The workflow and testing strategy this plan names have moved to `docs/process/`; the decision log is still at [`../../05-plan/DECISIONS.md`](../../05-plan/DECISIONS.md).
+> **Archived.** This is the plan that built v1.0.0, kept as history. Its rules are no longer in force: current work follows [`../../process/agent-workflow.md`](../../process/agent-workflow.md) and [`../../backlog.md`](../../backlog.md). The workflow and testing strategy this plan names have moved to `docs/process/`; the decision log is still at [`../../05-plan/DECISIONS.md`](../../decisions.md).
 
 **Owner:** implementation · **Depends on:** the whole specification, especially [`../../04-implementation/build-milestones.md`](../../04-implementation/build-milestones.md), [`../../04-implementation/acceptance-tests.md`](../../04-implementation/acceptance-tests.md), [`../../04-implementation/tooling.md`](../../04-implementation/tooling.md)
 
@@ -14,7 +14,7 @@ This folder turns the specification into a sequence of tasks that coding agents 
 | [`../../process/testing-strategy.md`](../../process/testing-strategy.md) | Test tiers, the scenario runner, golden files, property tests, e2e smoke tests, coverage gates, how to run everything |
 | [`M0-skeleton.md`](M0-skeleton.md) … [`M8-polish.md`](M8-polish.md) | Tasks per milestone |
 | [`PROGRESS.md`](PROGRESS.md) | The checklist of every task; agents tick tasks as they complete them |
-| [`../../05-plan/DECISIONS.md`](../../05-plan/DECISIONS.md) | The log of resolved ambiguities (empty at the start) |
+| [`../../05-plan/DECISIONS.md`](../../decisions.md) | The log of resolved ambiguities (empty at the start) |
 
 ## Milestone overview
 

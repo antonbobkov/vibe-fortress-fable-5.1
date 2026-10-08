@@ -4,7 +4,7 @@
 
 ## Requested features and where they live
 
-Every feature in the original brief maps to at least one system document (Wave 2), one content table (Wave 3) and one acceptance test group (Wave 4).
+Every feature in the original brief maps to at least one document in `02-systems/`, one table in `03-content/` and one test group in `04-implementation/acceptance-tests.md`.
 
 | Requested feature | System documents | Content tables | Notes |
 |---|---|---|---|
@@ -83,9 +83,9 @@ Ordered by expected value. Each names the seam it plugs into.
 6. **Sieges with breaching** — fill the raider `breach` behavior slot.
 7. **Adventure mode** — reuse the world, registry and local map with a different app screen flow.
 
-## Decisions fixed in Wave 1
+## Design foundations
 
-These are the decisions that later waves build on and must not change silently:
+These are the foundations of the system designs and must not change silently:
 
 - The four rating axes and the named region traits as the difficulty model.
 - Seven-level fluids with an active set; water and magma share the same rules with different parameters.

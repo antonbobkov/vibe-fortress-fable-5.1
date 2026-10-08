@@ -121,7 +121,7 @@ const INPUT_PHRASE_TAGS = { melee_weapons: 'weapon', blocks: 'block', weapons: '
 
 /**
  * Building and recipe input lists. Alternatives are joined with "|" in the match string, which
- * the loader resolves against item ids and item tags. See DECISIONS.md D-012.
+ * the loader resolves against item ids and item tags. See docs/04-implementation/schemas/content-rows.md § Buildings.
  */
 function parseInputs(cell) {
   if (isBlank(cell)) return [];

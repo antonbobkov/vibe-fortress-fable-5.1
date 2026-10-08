@@ -625,7 +625,7 @@ export interface PathfinderOptions {
   /**
    * Turn the route cache of `22` § Path cache on. A bare `Pathfinder` has it off (D-021); since
    * T-M2-11 the cache is part of 22's saved state and the game (`HeadlessGame`) turns it on
-   * (DECISIONS.md D-081).
+   * (docs/04-implementation/save-format.md § Load procedure).
    */
   readonly cache?: boolean | undefined;
 }
@@ -983,7 +983,7 @@ export class Pathfinder {
    * The request queue, the in-progress searches, the finished paths movers still follow and the
    * path cache, for a save. `22` § State lists all of them as 22's state, and
    * `simulation-core.md` § Determinism makes a loaded game answer exactly as the uninterrupted one
-   * would, so none of them is dropped on load (DECISIONS.md D-081).
+   * would, so none of them is dropped on load (docs/04-implementation/save-format.md § Load procedure).
    */
   saveState(): PathfinderState {
     const requests: PathRequestState[] = [];

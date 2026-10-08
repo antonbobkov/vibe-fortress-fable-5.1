@@ -23,7 +23,7 @@ import {
 } from '../md-tables.mjs';
 
 /**
- * Fields the tables do not carry, per DECISIONS.md D-009.
+ * Fields the tables do not carry, per docs/04-implementation/schemas/content-rows.md § Materials.
  * `density` 100 is the water baseline of materials.md § Columns; `hardness` 100 is one
  * `DIG_BASE_TICKS`; melting points fall back to the value the document repeats for its class.
  */
@@ -291,7 +291,7 @@ export function exportGems() {
       const gid = plain(row.id);
       const b = base.get(gid) ?? {};
       const cavernOnly = /cavern/i.test(plain(row.hosts));
-      // "`gabbro`, `diorite` (z ≤ 10)": a depth limit on the host (DECISIONS.md D-047).
+      // "`gabbro`, `diorite` (z ≤ 10)": a depth limit on the host (docs/04-implementation/algorithms/local-map-generation.md).
       const zLimit = /z\s*≤\s*(\d+)/.exec(plain(row.hosts));
       return compact({
         id: gid,

@@ -3,7 +3,7 @@
  * "two systems emit in the same tick | dispatched in emission order; handlers run in system order".
  *
  * M0 has no real systems, so stand-ins with real system ids do the emitting and the handling
- * (T-M0-08: "with no real systems"; DECISIONS.md D-036). 03 and 04 each emit two events at tick 0;
+ * (T-M0-08: "with no real systems"; docs/process/testing-strategy.md § Stand-in systems). 03 and 04 each emit two events at tick 0;
  * 10 and 16 subscribe to all of them and are registered in reverse order.
  */
 

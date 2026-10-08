@@ -51,7 +51,7 @@ export const DESIGNATE_KINDS: readonly DesignateKind[] = [
 ];
 
 /**
- * Every row can be chosen. `harvest` was dim until 07 existed (DECISIONS.md D-066); 07 owns
+ * Every row can be chosen. `harvest` was dim until 07 existed (docs/archive/decisions-archive.md D-066); 07 owns
  * `DesignateHarvest` now (audit Q9).
  */
 export function kindAvailable(_kind: DesignateKind): boolean {

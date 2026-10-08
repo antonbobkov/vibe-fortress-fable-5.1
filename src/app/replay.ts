@@ -9,7 +9,7 @@
  *
  * A log entry's `tick` is the tick whose step 1 applied it, so a command is submitted just before
  * that tick runs. Entries before the game's current tick happened before the save and are skipped
- * (DECISIONS.md D-084). A coalesced entry (consecutive designations differing only in their tiles)
+ * (docs/01-architecture/simulation-core.md § Commands). A coalesced entry (consecutive designations differing only in their tiles)
  * is replayed as the one command it was merged into.
  */
 

@@ -11,7 +11,7 @@
 | UI framework | None | The UI is a text grid drawn on a canvas; a DOM framework would add nothing |
 | Rendering | HTML `Canvas 2D`, one canvas, a pre-rendered glyph atlas | Fast enough for a full redraw of a 160×60 grid at 60 fps; simple; portable |
 | Font | The pinned public-domain Unscii 8 bitmap font with seven original CC0 8×8 additions, bundled and rendered into the atlas at each zoom | Covers all 280 required CP437 and Unicode glyph slots; deterministic glyph shapes across platforms with zero layout jitter; committed in-tree so ordinary builds require no font dependencies |
-| Character set | CP437 glyphs plus a small set of extra Unicode glyphs listed in `03-content/glyphs-and-colors.md` (Wave 3) | The Dwarf Fortress visual vocabulary, extended where CP437 lacks a needed shape |
+| Character set | CP437 glyphs plus a small set of extra Unicode glyphs listed in `03-content/glyphs-and-colors.md` | The Dwarf Fortress visual vocabulary, extended where CP437 lacks a needed shape |
 | Randomness | `xoshiro128**` implemented in `core/rng.ts` with per-system streams | Deterministic, fast, seedable, splittable |
 | Numbers in simulation | Integers and fixed-point (`× 1000`) | Determinism across engines and easy serialization |
 | Storage | IndexedDB via a thin adapter; file export/import through Blob download and file input | Large saves; no server |
@@ -25,7 +25,7 @@
 
 ## Layer boundary enforcement
 
-An ESLint `no-restricted-imports` configuration (Wave 4 lists it) forbids:
+An ESLint `no-restricted-imports` configuration (listed in `04-implementation/tooling.md`) forbids:
 
 - `@core/*` importing anything except `@platform/*` interfaces.
 - `@systems/*` importing `@render/*`, `@ui/*` or `@app/*`.
@@ -40,7 +40,7 @@ An ESLint `no-restricted-imports` configuration (Wave 4 lists it) forbids:
 
 ## Content pipeline
 
-Content is authored as JSON files in `src/content/` with a TypeScript schema (`schema.ts`) and a loader that validates every table at startup and fails loudly with the row and field at fault. Wave 2's `content-pipeline.md` specifies the schema conventions; Wave 3 provides the tables; Wave 4 provides the exact type definitions.
+Content is authored as JSON files in `src/content/` with a TypeScript schema (`schema.ts`) and a loader that validates every table at startup and fails loudly with the row and field at fault. `content-pipeline.md` specifies the schema conventions; `03-content/` provides the source tables; `04-implementation/schemas/content-rows.md` provides the exact type definitions.
 
 ## Assets
 
@@ -64,4 +64,4 @@ A static site: `index.html`, one JavaScript bundle, one CSS file for the canvas 
 | Load | ≤ 1.5 s |
 | Memory, steady state | ≤ 300 MB |
 
-The per-system breakdown of the tick budget is in `performance-budget.md` (Wave 2).
+The per-system breakdown of the tick budget is in [performance-budget.md](performance-budget.md).

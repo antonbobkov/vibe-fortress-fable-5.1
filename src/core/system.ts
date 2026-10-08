@@ -5,7 +5,7 @@
  * APIs and § The spawn API. The APIs that belong to later milestones (`TerrainApi` is core in M0,
  * `JobsApi` arrives with 11 in M1, `SpawnApi` with T-M1-11) are declared here so the contract is
  * complete, with M0 implementations that either work or say plainly that they do not exist yet.
- * See DECISIONS.md D-017.
+ * See docs/archive/decisions-archive.md D-017.
  */
 
 import type { Command, CommandResult } from './commands';
@@ -66,7 +66,7 @@ export interface JobsApi {
 
 /**
  * The movement helper as the brains see it (`module-interfaces.md` § The movement helper,
- * `22` § Core API). The host installs the core helper; DECISIONS.md D-049.
+ * `22` § Core API). The host installs the core helper; docs/01-architecture/module-interfaces.md § The system contract, in full.
  */
 export interface MovementApi {
   moveAlongPath(id: EntityId, ctx: { readonly tick: number; emit(event: GameEvent): void }): string;
@@ -100,7 +100,7 @@ export interface MovementApi {
  * The mutation services a tick context carries. The world starts with the M0 implementations
  * (the core terrain API and the stubs of D-017); the systems and the host that own the real ones
  * install them before the first tick (03 the terrain API, 11 the jobs API, the host the spawn API
- * and the movement helper). DECISIONS.md D-049.
+ * and the movement helper). docs/01-architecture/module-interfaces.md § The system contract, in full.
  */
 export interface CoreServices {
   terrain: TerrainApi;
@@ -254,7 +254,7 @@ export interface MilestoneSpec {
  * `module-interfaces.md` § Announcements, as data: the severity and the strings-table key whose
  * `{placeholders}` 24 fills from the event and readers; the focus is the event's `tile` (or its
  * first `tiles` entry). `once`: only the first occurrence is announced (03's `DeepsilverMined`).
- * DECISIONS.md D-065.
+ * docs/04-implementation/schemas/system-state.md § TerrainState.
  */
 export interface AnnouncementSpec {
   readonly severity: 'note' | 'alert' | 'danger';

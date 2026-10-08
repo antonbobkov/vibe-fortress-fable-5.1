@@ -359,7 +359,7 @@ export class Palette {
 
   /**
    * `dim(color, level)`: each channel × `DIM_FACTOR^level`, truncated (the project's rounding
-   * convention, DECISIONS.md D-006), cached per `(color, level)`.
+   * convention, docs/01-architecture/simulation-core.md § Fixed-point math), cached per `(color, level)`.
    */
   dim(color: Rgb, level: number): Rgb {
     if (level <= 0) return color;

@@ -5,7 +5,7 @@
 // `save-format.md` § Container. A save's canonical section stream *is* the saved world state, so
 // hashing it names that world; the mixing function is the same one `src/core/serialize.ts`
 // implements as `StateHasher`, and `test/unit/world-hash-script.test.ts` pins the two together.
-// See DECISIONS.md D-028.
+// See docs/01-architecture/simulation-core.md § Headless mode.
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

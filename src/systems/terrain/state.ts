@@ -33,7 +33,7 @@ export interface TerrainStateV1 {
   layerStack: { material: number; thickness: number }[];
   rng: RngState;
   bigDigCounter: number;
-  /** The veins already found, each keyed by its lowest tile (DECISIONS.md D-051). */
+  /** The veins already found, each keyed by its lowest tile (docs/02-systems/03-terrain-and-mining.md § Discovery). */
   veinsFound: TileIndex[];
   /** The `LocalMapSpec` of the map, for the legend and regeneration in tests (`03` § State). */
   spec: LocalMapSpec | null;

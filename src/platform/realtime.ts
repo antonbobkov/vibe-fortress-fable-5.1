@@ -6,7 +6,7 @@
  * rendering at up to `TARGET_FPS`" and "When the tab is hidden, the simulation pauses."
  *
  * Wall-clock time enters the program only here and is injected into the simulation as the `Clock`
- * of `core/system.ts` (DECISIONS.md D-017), because `core` may not read `performance`.
+ * of `core/system.ts` (docs/archive/decisions-archive.md D-017), because `core` may not read `performance`.
  */
 
 /** Milliseconds since an arbitrary origin; monotonic. */

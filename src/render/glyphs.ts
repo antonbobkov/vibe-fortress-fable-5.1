@@ -37,14 +37,14 @@ export const GLYPH_STAIRS_DOWN = 62;
 export const GLYPH_STAIRS_UPDOWN = 88;
 /** `╬` fortification. */
 export const GLYPH_FORTIFICATION = 206;
-/** `♣` broadleaf tree; 07 plants gives each species its own glyph in M4 (DECISIONS.md D-035). */
+/** `♣` broadleaf tree; 07 plants gives each species its own glyph in M4 (docs/archive/decisions-archive.md D-035). */
 export const GLYPH_TREE = 5;
 /** `τ` sapling (`glyphs-and-colors.md` § Glyph set, index 274). */
 export const GLYPH_SAPLING = 274;
 /** `○` boulder. */
 export const GLYPH_BOULDER = 9;
 
-/** `░`: a designation on an undiscovered tile, drawn as an outline in its tint (DECISIONS.md D-067). */
+/** `░`: a designation on an undiscovered tile, drawn as an outline in its tint (docs/archive/decisions-archive.md D-067). */
 export const GLYPH_DESIGNATION_OUTLINE = 176;
 
 /** `0`: the first priority digit; digit `n` is `GLYPH_DIGIT_0 + n`. */

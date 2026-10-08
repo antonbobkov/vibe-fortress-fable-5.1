@@ -3,7 +3,7 @@
  * entering a misty tile emits `DwarfFeltMist` (once per `MIST_THOUGHT_COOLDOWN`); entering an
  * outdoor tile during rain, storm, snow, heatwave or cold snap emits `DwarfOutdoorsIn { weather }`
  * once per hour") and `algorithms/creature-brains.md` § Dwarf brain ("warm spring adjacency →
- * `DwarfNearSpring`"). The thought consumers are 15's (M4); the events fire now. DECISIONS.md D-102.
+ * `DwarfNearSpring`"). The thought consumers are 15's (M4); the events fire now. docs/archive/decisions-archive.md D-102.
  */
 
 import { TICKS_PER_HOUR } from '@core/constants';

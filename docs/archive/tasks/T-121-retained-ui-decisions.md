@@ -6,7 +6,7 @@ Closed by the T-121 implementation commit: accepted UI rules are folded and all 
 
 ## Scope and proposed resolutions
 
-The whole rows below remain in [the decision log](../../05-plan/DECISIONS.md). Triage cannot choose between the standing decision and the code. Do not change simulation rules or silently discard a row.
+The whole rows below remain in [the decision log](../../decisions.md). Triage cannot choose between the standing decision and the code. Do not change simulation rules or silently discard a row.
 
 **Resolved, orchestrator, 2026-10-07** (under the owner's standing instruction to use judgement): the four proposed resolutions and the Settings strings proposal below are accepted as written. For D-077 and D-245 the later UI behaviour is the rule and the old clause is superseded. For D-163 and D-201 the decision is the rule and the code is fixed: the announcement registry keeps every spec per event.
 

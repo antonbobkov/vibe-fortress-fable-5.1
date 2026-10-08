@@ -5,7 +5,7 @@
  * `schemas/system-state.md` `WeatherState`.
  *
  * Every tile flag this system writes (`snow`, `wet`, `mud`) is written in its own tick through the
- * terrain API, never in an event handler (D-089). DECISIONS.md D-101.
+ * terrain API, never in an event handler (D-089). docs/archive/decisions-archive.md D-101.
  */
 
 import { C } from '@core/components';

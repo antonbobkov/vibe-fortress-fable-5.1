@@ -113,7 +113,7 @@ Each is computed as an integer score then bucketed into 0–4 by fixed threshold
 
 ### Traits
 
-For each region whose biome is embarkable (neither ocean nor glacier), in id order, roll once for a trait from the trait table filtered by requirements (biome list, rating ranges, river or volcano requirements). Each trait has a permille frequency. A region gets at most two traits; a second roll happens only if the first succeeded and the trait allows a companion. The trait list, fixed here with its intent (effects are specified in the systems that implement them and quantified in Wave 3):
+For each region whose biome is embarkable (neither ocean nor glacier), in id order, roll once for a trait from the trait table filtered by requirements (biome list, rating ranges, river or volcano requirements). Each trait has a permille frequency. A region gets at most two traits; a second roll happens only if the first succeeded and the trait allows a companion. The trait list, fixed here with its intent (effects are specified in the systems that implement them and quantified in `03-content/regions-biomes-and-traits.md`):
 
 | Trait | Requirement | Effect summary |
 |---|---|---|
@@ -164,7 +164,7 @@ None. Generation is invoked by the app: `worldgen.generate(seed, size, onProgres
 
 ## Tuning constants
 
-Values confirmed by the Wave 3 balance pass (see [`../03-content/balance.md`](../03-content/balance.md)).
+Values follow the balance model (see [`../03-content/balance.md`](../03-content/balance.md)).
 
 | Name | Value | Meaning |
 |---|---|---|

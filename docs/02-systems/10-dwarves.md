@@ -9,7 +9,7 @@ Make dwarves people. A dwarf has a body with attributes, a mind with skills, nee
 ## Concepts
 
 - **Attribute**: Strength, Agility, Toughness, Endurance, Willpower, Wits, Charm; 0–100.
-- **Skill**: 0–`SKILL_MAX_LEVEL` with experience. The skill list is content; the design fixes the list in `skills-and-professions.md` (Wave 3) with about forty skills across mining, wood, stone, crafts, farming, animals, food, metal, textiles, medicine, mechanics, trade, and combat.
+- **Skill**: 0–`SKILL_MAX_LEVEL` with experience. The skill list is content; the design fixes the list in `03-content/skills-and-professions.md` with about forty skills across mining, wood, stone, crafts, farming, animals, food, metal, textiles, medicine, mechanics, trade, and combat.
 - **Need**: hunger, thirst, rest, social, comfort, purpose, joy; 0 (satisfied) to `NEED_MAX`.
 - **Personality trait**: three per dwarf from the trait table; each trait scales certain thoughts and biases behavior.
 - **Behavior**: the state the dwarf's brain is in: `flee`, `retreat`, `need`, `duty`, `patient`, `work`, `social`, `idle`.
@@ -198,7 +198,7 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 | `HEAVY_ITEM_DENSITY` | 3 | Items heavier than 3 × the carrier's size units halve speed |
 | `MIST_THOUGHT_COOLDOWN` | 1200 | Ticks |
 
-Need rates and thresholds above were confirmed by the Wave 3 balance pass; the consumption arithmetic is in [`../03-content/balance.md`](../03-content/balance.md).
+Need rates and thresholds above follow the balance model; the consumption arithmetic is in [`../03-content/balance.md`](../03-content/balance.md).
 
 ## Extension points
 

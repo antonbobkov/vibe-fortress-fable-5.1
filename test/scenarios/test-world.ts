@@ -3,7 +3,7 @@
  *
  * It calls only public APIs of the headless game. Helpers whose subsystem has not been built yet
  * throw `NotYetImplementedError` naming the task that provides them, the same way the M0 stubs of
- * `ctx.jobs` and `ctx.spawn` do (DECISIONS.md D-017), so a scenario that reaches for one fails
+ * `ctx.jobs` and `ctx.spawn` do (docs/archive/decisions-archive.md D-017), so a scenario that reaches for one fails
  * loudly instead of quietly doing nothing.
  */
 

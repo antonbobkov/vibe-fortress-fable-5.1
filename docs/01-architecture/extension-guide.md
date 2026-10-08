@@ -72,7 +72,7 @@ Each recipe below lists the files touched. If a recipe would require touching a 
 
 ## Add a command or event
 
-1. Add to the Wave 4 catalog with fields and owner.
+1. Add to `04-implementation/event-catalog.md` with fields and owner.
 2. Owner implements `applyCommand` or `emit`. Subscribers add the event to `subscribes` and handle it.
 3. If the UI issues the command, add the panel action.
 

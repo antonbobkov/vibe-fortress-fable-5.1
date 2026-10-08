@@ -294,7 +294,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     hosts: arr(materialRef),
     count: int,
     cavernOnly: opt(bool),
-    // A host depth limit ("diamond: `gabbro`, `diorite` (z ≤ 10)"); DECISIONS.md D-047.
+    // A host depth limit ("diamond: `gabbro`, `diorite` (z ≤ 10)"); docs/04-implementation/algorithms/local-map-generation.md.
     zMax: opt(int),
     value: int,
     color: colorRef,
@@ -618,7 +618,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
   regionTraits: rows({
     id: nonEmptyStr,
     name: str,
-    // Table order, which the traits stage rolls in (01 § Traits); DECISIONS.md D-040.
+    // Table order, which the traits stage rolls in (01 § Traits); docs/03-content/regions-biomes-and-traits.md.
     order: int,
     requirements: obj({
       biomes: opt(arr(biomeRef)),

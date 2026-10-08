@@ -78,7 +78,7 @@ export function elevationAttempt(s: string, size: number, attempt: number, mask:
 /**
  * "Normalize to 0–255" (`01` § Elevation): a linear stretch of the masked field from its
  * minimum … maximum onto 0 … 255, rounded half up. The W4 pseudo-code omits the step; without it
- * the field tops out near 200 and no seed reaches `MIN_LAND_FRACTION`. See DECISIONS.md D-038.
+ * the field tops out near 200 and no seed reaches `MIN_LAND_FRACTION`. See docs/04-implementation/algorithms/world-generation.md § Elevation.
  */
 export function normalize255(values: number[]): number[] {
   let min = Infinity;

@@ -50,7 +50,7 @@ export interface Scenario {
    * Systems to register before `init`, built fresh for every run. The real systems join the
    * headless game as their milestones land; the `core_*` scenarios of M0 use this slot for the
    * stand-in systems that exercise the core machinery "with no real systems" (T-M0-08). See
-   * DECISIONS.md D-036.
+   * docs/process/testing-strategy.md § Stand-in systems.
    */
   readonly systems?: () => readonly GameSystem[];
   /**
@@ -83,7 +83,7 @@ function buildWorld(scenario: Scenario): TestWorld {
     throw new Error(`scenario ${scenario.id}: an embark spec names a preset ({ preset: id })`);
   }
   // T-M1-05: 'generated' is the standard world of the seed at its default region; a region spec is
-  // the flat-test region with the given fields (DECISIONS.md D-046).
+  // the flat-test region with the given fields (docs/process/testing-strategy.md § Worlds).
   const world =
     scenario.world === 'flat-test'
       ? ({ world: 'flat-test' } as const)

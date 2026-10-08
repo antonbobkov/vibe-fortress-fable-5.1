@@ -95,7 +95,7 @@ export const ANIMALS_PHASE = 0;
 /**
  * The `wander` state's safety timeout. `08` § Wild behavior ends a wander "on arrival or timeout"
  * but names no length; `FLEE_TICKS` is the only per-state duration the document gives, and the
- * same value keeps a wandering animal from holding a stale path for ever. DECISIONS.md D-112.
+ * same value keeps a wandering animal from holding a stale path for ever. docs/02-systems/08-animals-and-domestication.md § Perception and brains.
  */
 export const WANDER_TIMEOUT_TICKS = 200;
 
@@ -112,7 +112,7 @@ export const NEST_BOX_TAG = 'nest_box';
 /**
  * A tame animal's think interval. `08` § Perception and brains gives one only for wild animals;
  * a tame animal is never fleeing a threat it must react to every tick, so it uses the far interval
- * `WILD_THINK_TICKS`. DECISIONS.md D-114.
+ * `WILD_THINK_TICKS`. docs/02-systems/08-animals-and-domestication.md § Perception and brains.
  */
 export const TAME_THINK_TICKS = WILD_THINK_TICKS;
 /** The species that adopt a dwarf each season (`08` § Pets: "each `cat` not already a pet"). */

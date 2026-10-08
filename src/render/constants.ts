@@ -4,7 +4,7 @@
  * `23` is owned by `render/`, which is not a system directory, so these rows have no
  * `src/systems/<id>/constants.ts` to live in and they are not in `01-architecture/constants.md`
  * (which `test/unit/constants.test.ts` pins row for row). They live here, verbatim, for the same
- * reason `src/core/path-constants.ts` holds 22's rows. See DECISIONS.md D-030.
+ * reason `src/core/path-constants.ts` holds 22's rows. See docs/process/tooling.md § Where code constants live outside the systems.
  *
  * Global screen constants (`CELL_PX_ZOOM_1`, `ZOOM_LEVELS`, `MIN_VIEW_COLS`, `MIN_VIEW_ROWS`,
  * `SIDEBAR_COLS`, `STATUS_ROWS`, `LEVELS_VISIBLE_BELOW`, `TARGET_FPS`) stay in

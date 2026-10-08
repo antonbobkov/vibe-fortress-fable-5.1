@@ -23,7 +23,7 @@ export function baseSurfaceZ(elevation: number): number {
 
 /**
  * `round(noise − amp/2)` with ties toward zero, in `Fixed`: a sample exactly half an amplitude
- * away rounds to the nearer-to-base level (DECISIONS.md D-045), so relief 0 is flat at `base`.
+ * away rounds to the nearer-to-base level (docs/04-implementation/algorithms/local-map-generation.md), so relief 0 is flat at `base`.
  */
 export function roundOffset(offsetFx: number): number {
   const whole = Math.trunc(offsetFx / FIXED_SCALE);

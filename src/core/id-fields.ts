@@ -6,7 +6,7 @@
  * `registry.indexOf` on load (a table of which fields are indices is generated from the component
  * schemas)". The table below is what `scripts/parse-id-fields.mjs` generates from
  * `schemas/components.md`; `test/unit/save-game.test.ts` fails when the two differ. The string ids
- * the save references feed the content soft match of `content-pipeline.md` (DECISIONS.md D-026,
+ * the save references feed the content soft match of `content-pipeline.md` (docs/04-implementation/save-format.md § Serialization helpers,
  * D-080).
  */
 

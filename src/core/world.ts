@@ -133,9 +133,8 @@ export class World {
     this.scheduler = new Scheduler(this.now);
     this.readers = new ReaderSet(this.map, this.entities, this.calendar, this.fortress);
     this.services = { terrain: new CoreTerrainApi(this.map), jobs: NO_JOBS_API, spawn: NO_SPAWN_API, movement: null, items: null, spatial: null, combat: null };
-    // `data-model.md` § Store API says `destroy` queues a `DestroyedEntity` event, but the Wave 4
-    // event catalog has no such type; the owning systems emit `ItemDestroyed` / `CreatureDied`
-    // instead. See the contradiction C-001 in DECISIONS.md.
+    // `data-model.md` § Store API: destroy has no core event; owning systems emit
+    // `ItemDestroyed` / `CreatureDied` as listed in `04-implementation/event-catalog.md`.
   }
 
   /** `simulation-core.md` § Random numbers: one persistent stream per system. */
@@ -288,7 +287,7 @@ export class World {
 
     // 5. Calendar: tick++, boundary events queued for the next tick's dispatch. "The command log
     //    keeps every command of the current season" (`simulation-core.md` § Commands): it starts
-    //    afresh with the first tick of a season (DECISIONS.md D-084).
+    //    afresh with the first tick of a season (docs/01-architecture/simulation-core.md § Commands).
     const season = this.calendar.season;
     this.calendar.advance((event) => this.events.emit(event));
     if (this.calendar.season !== season) this.commandLog.startSeason();

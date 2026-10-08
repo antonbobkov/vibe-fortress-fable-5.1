@@ -49,7 +49,7 @@ The `pull_lever` job (14) completes here: `MechanismTriggered { sourceId: leverI
 
 ### Doors, bridges, floodgates as defense
 
-All owned by 14; this system documents the patterns the design guarantees work, and the acceptance tests in Wave 4 check them:
+All owned by 14; this system documents the patterns the design guarantees work, and the tests in `04-implementation/acceptance-tests.md` check them:
 
 - **The gate**: a drawbridge over a channel (a moat one tile wide, any depth, or filled with water) linked to a lever inside. Raised: no path. Hostiles loiter and retreat (18).
 - **The airlock**: two doors with `lock_on_alert`; civilians retreat behind them.

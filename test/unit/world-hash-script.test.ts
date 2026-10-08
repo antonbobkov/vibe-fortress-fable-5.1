@@ -3,7 +3,7 @@ import { StateHasher } from '@core/serialize';
 import { jsonSection, typedSection, writeSave, type SaveHeader } from '@app/save-manager';
 import { noCompressor } from '@platform/compress';
 // The script is the only reader of a save file outside the app; it carries its own copy of the
-// mixing function, and this test is what keeps the two identical (DECISIONS.md D-028).
+// mixing function, and this test is what keeps the two identical (docs/01-architecture/simulation-core.md § Headless mode).
 // @ts-expect-error -- a plain .mjs script without type declarations
 import { StateHasher as ScriptHasher, hashSections, readContainer } from '../../scripts/world-hash.mjs';
 // @ts-expect-error -- a plain .mjs script without type declarations

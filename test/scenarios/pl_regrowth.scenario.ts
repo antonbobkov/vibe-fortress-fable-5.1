@@ -10,7 +10,7 @@
  * tree table, whose `pine` and `birch` are the two-year species. Only 07 is registered: the rule
  * reads the map, the calendar and its own stream. The tree count is taken after the second
  * anniversary plus a month, because a sapling planted on day *d* is a tree on day *d* + 730 and the
- * first sapling cannot appear before day 1 (DECISIONS.md D-108).
+ * first sapling cannot appear before day 1 (docs/02-systems/07-plants-and-farming.md § Regrowth).
  */
 
 import { expect } from 'vitest';

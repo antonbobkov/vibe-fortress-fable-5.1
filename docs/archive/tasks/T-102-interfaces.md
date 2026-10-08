@@ -1,6 +1,6 @@
 # T-102 — Interfaces: real entries instead of the 27 implementation notes
 
-**Source:** [`docs-restructure.md`](../../work/docs-restructure.md) § Where deltas are accumulating (item 2), § One-time migration (step 2) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** [`docs-restructure.md`](docs-restructure.md) § Where deltas are accumulating (item 2), § One-time migration (step 2) · **Size:** S · **Needs:** — · **Status:** open
 
 **Closed:** implemented by commit `bc18701` on branch `docs-a`.
 

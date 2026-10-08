@@ -110,7 +110,7 @@ export function exportPlants() {
   // Trees: the species value is the value of its wood material (materials.md § Wood).
   // The prose under the tree table adds biome weights the table does not carry: "Tropical forest
   // and savanna use `oak` (as "broadleaf") with weight 40 and `ash` 20; desert and badlands have
-  // ... `pine` only" (DECISIONS.md D-047). Pine's weight there is 1: it is the only species.
+  // ... `pine` only" (docs/04-implementation/algorithms/local-map-generation.md). Pine's weight there is 1: it is the only species.
   const PROSE_TREE_BIOMES = {
     oak: [{ biome: 'tropical_forest', weight: 40 }, { biome: 'savanna', weight: 40 }],
     ash: [{ biome: 'tropical_forest', weight: 20 }, { biome: 'savanna', weight: 20 }],

@@ -65,7 +65,7 @@ export function formatDate(tick: Tick): string {
  * `simulation-core.md` § The tick emits in step 4 and dispatches in the next tick's step 3.
  *
  * When several boundaries coincide the events are emitted smallest first: `HourPassed`,
- * `DayPassed`, `SeasonChanged`, `YearPassed` (DECISIONS.md D-016).
+ * `DayPassed`, `SeasonChanged`, `YearPassed` (docs/01-architecture/simulation-core.md § Calendar).
  */
 export class Calendar {
   private current: Tick;

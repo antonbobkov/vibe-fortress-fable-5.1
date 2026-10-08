@@ -88,11 +88,11 @@ const BIOME_WORDS = new Set([
 
 function parseRequirements(cell) {
   const s = plain(cell);
-  // "not `ocean`, `glacier`" is an exclusion list, not a biome list (DECISIONS.md D-040).
+  // "not `ocean`, `glacier`" is an exclusion list, not a biome list (docs/03-content/regions-biomes-and-traits.md).
   const notClause = /\bnot\s+([`a-z_,\s]+)$/.exec(s);
   const excluded = notClause === null ? [] : notClause[1].split(/[,\s`]+/).filter((t) => BIOME_WORDS.has(t));
   const biomes = ticked(cell).filter((t) => BIOME_WORDS.has(t) && !excluded.includes(t));
-  // "frozen or cold band": temperature bands of 01 § Biomes (DECISIONS.md D-040).
+  // "frozen or cold band": temperature bands of 01 § Biomes (docs/03-content/regions-biomes-and-traits.md).
   const bandMatch = /\b((?:frozen|cold|temperate|warm|hot)(?:\s+or\s+(?:frozen|cold|temperate|warm|hot))*)\s+band\b/.exec(s);
   const tempBands = bandMatch === null ? undefined : bandMatch[1].split(/\s+or\s+/);
   const bound = (word) => {

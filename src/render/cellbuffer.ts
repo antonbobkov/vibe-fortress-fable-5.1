@@ -164,7 +164,7 @@ export function cellPxFor(zoom: number): number {
  * cellPx)`. If `cols < MIN_VIEW_COLS` or `rows < MIN_VIEW_ROWS`, the zoom steps down to the next
  * available level; below the smallest zoom the canvas is scaled with CSS".
  *
- * The test is over the canvas grid, not the map rectangle; see DECISIONS.md D-031.
+ * The test is over the canvas grid, not the map rectangle; see docs/04-implementation/ui-screens/fortress-screen.md § Layout.
  */
 export function computeViewport(widthPx: number, heightPx: number, requestedZoom: number): ViewportFit {
   const levels = ZOOM_LEVELS;

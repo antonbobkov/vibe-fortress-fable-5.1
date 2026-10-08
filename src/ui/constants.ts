@@ -3,7 +3,7 @@
  *
  * `24` is owned by `ui/`, which is not a system directory, and its rows are not in
  * `01-architecture/constants.md`; they live here verbatim, as `src/render/constants.ts` holds 23's
- * rows (DECISIONS.md D-030).
+ * rows (docs/process/tooling.md § Where code constants live outside the systems).
  */
 import type { UserSettings } from './settings';
 

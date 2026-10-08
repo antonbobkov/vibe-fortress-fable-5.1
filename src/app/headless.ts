@@ -82,7 +82,7 @@ function materialIndex(registry: Registry, id: string): number {
  * Columns follow `local-map-generation.md` § 3 with `top = FLAT_TEST_SURFACE_Z` everywhere and no
  * undulation: the Sea of Fire fills z ≤ `MAGMA_SEA_TOP_Z` behind a basalt rim and cap, granite
  * fills the rock, the top three solid levels are soil, and the topmost solid tile becomes the
- * walkable `Floor`. There is no river, no lake and no cavern; see DECISIONS.md D-027. A smaller
+ * walkable `Floor`. There is no river, no lake and no cavern; see docs/process/testing-strategy.md § Worlds. A smaller
  * `w × h` builds the same columns on a compact map, for statistical scenarios (D-059).
  */
 export function buildFlatTestMap(registry: Registry = contentRegistry(), w: number = LOCAL_MAP_W, h: number = LOCAL_MAP_H): Map3D {
@@ -155,7 +155,7 @@ export const FLAT_TEST_LAYERS: readonly StackLayer[] = Object.freeze([
 /**
  * The `LocalMapSpec` the `flat-test` map stands for: "a `serene_vale`-like region (peril 0,
  * wealth 2, temper 0)" (`acceptance-tests.md`). The arrival edge is north, the first of the
- * `n, e, s, w` edges (DECISIONS.md D-044).
+ * `n, e, s, w` edges (docs/02-systems/02-embark-and-loadout.md § Local map specification).
  */
 export const FLAT_TEST_SPEC: LocalMapSpec = Object.freeze({
   seed: 'flat-test',
@@ -180,7 +180,7 @@ export const FLAT_TEST_SPEC: LocalMapSpec = Object.freeze({
 
 /**
  * The region of a `'generated'` world: the first region in id order that can be embarked on
- * (DECISIONS.md D-046). Region id 0 is always sea (the continental mask), so "region 0" of a
+ * (docs/process/testing-strategy.md § Worlds). Region id 0 is always sea (the continental mask), so "region 0" of a
  * seed in the plan means index 0 of the embarkable regions.
  */
 export function defaultRegionId(world: WorldMap, registry: Registry): number {
@@ -263,7 +263,7 @@ export interface HeadlessOptions {
   readonly hooks?: Partial<TerrainHooks>;
   readonly pathfinder?: PathfinderOptions;
   readonly startTick?: number;
-  /** Omitted means `'none'` (DECISIONS.md D-029). */
+  /** Omitted means `'none'` (docs/process/testing-strategy.md § The scenario runner). */
   readonly embark?: HeadlessEmbark;
   /** The spec of the local map; the flat-test spec when omitted. */
   readonly spec?: LocalMapSpec;

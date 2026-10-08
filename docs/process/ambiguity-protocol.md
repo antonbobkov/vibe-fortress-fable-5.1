@@ -6,7 +6,7 @@ A task sometimes needs a decision the specification does not make: a rounding ru
 
 ## When the spec is silent
 
-1. **Search again.** Search all of `docs/00-` … `docs/04-` for the terms involved. Most questions are answered in a table somewhere. Then search the decision log ([`../05-plan/DECISIONS.md`](../05-plan/DECISIONS.md)): until its triage is finished, a row there is still in force.
+1. **Search again.** Search all of `docs/00-` … `docs/04-` for the terms involved. Most questions are answered in a table somewhere. Then search the pending decision log ([`../decisions.md`](../decisions.md)) for a choice awaiting confirmation or an unresolved contradiction.
 2. **Read the work file again.** If it decided the point, that decision stands.
 3. **If it is still undecided, choose the reading that**
    1. changes the least state;

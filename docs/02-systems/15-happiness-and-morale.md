@@ -29,7 +29,7 @@ raw          = MOOD_BASELINE + positives − negatives − needPressure + hearth
 mood         = clamp(MOOD_MIN, MOOD_MAX, max(raw, MOOD_NEEDS_MET_FLOOR − needPressure))
 ```
 
-With the constants below: baseline 55, positives up to +40, negatives down to −35, need pressure down to −20, hearth up to +10. The standing thoughts of the four survival and company needs count twice, once as thoughts and once as pressure: that is what makes neglect, and only neglect, able to take a dwarf below 20. With every need met, `needPressure` is 0 and mood is at least `MOOD_NEEDS_MET_FLOOR` (20, Unhappy, not Miserable) whatever the thoughts and the personality. This is the design's anti-spiral guarantee, and the Wave 4 acceptance tests check it.
+With the constants below: baseline 55, positives up to +40, negatives down to −35, need pressure down to −20, hearth up to +10. The standing thoughts of the four survival and company needs count twice, once as thoughts and once as pressure: that is what makes neglect, and only neglect, able to take a dwarf below 20. With every need met, `needPressure` is 0 and mood is at least `MOOD_NEEDS_MET_FLOOR` (20, Unhappy, not Miserable) whatever the thoughts and the personality. This is the design's anti-spiral guarantee, and the tests in `04-implementation/acceptance-tests.md` check it.
 
 ### Tiers and effects
 
@@ -53,7 +53,7 @@ Decay: `linear` (value falls to 0 over `durationHours`) or `halflife` (value hal
 
 Caps: a thought with `cap = 1` refreshes its start tick instead of stacking; `cap = n` allows n instances (for example `saw_masterwork` cap 3). No thought stacks without limit.
 
-The thought list fixed by this design (values and durations in Wave 3):
+The thought list fixed by this design (values and durations in `03-content/personality-and-thoughts.md`):
 
 - **Standing (needs):** `hungry`, `thirsty`, `tired`, `lonely`, `uncomfortable`, `restless`, `bored`; **standing (conditions):** `no_bedroom`, `slept_on_floor_last_night`, `unburied_dead` (any dwarf corpse unburied for 3+ days), `unclothed`, `in_miasma` (while standing in it), `in_pain` (pain above threshold), `bedridden`.
 - **Food and drink:** `ate_easy_meal`, `ate_fine_meal`, `ate_lavish_meal`, `ate_raw_food`, `ate_stale_food`, `ate_in_bare_hall`, `ate_in_decent_hall`, `ate_in_fine_hall`, `ate_in_grand_hall`, `ate_in_royal_hall`, `drank_ale`, `drank_fine_drink` (wine, bellwine), `drank_water`, `drank_from_puddle` (surface water outdoors).

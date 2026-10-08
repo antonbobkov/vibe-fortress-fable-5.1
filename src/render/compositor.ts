@@ -581,7 +581,7 @@ export class Compositor {
   /**
    * A dwarf's state color (23 § Palette › State colors): `dwarf_child` for a child, `dwarf_need`
    * while a need drives it (behavior `need`), else `dwarf_normal`. Wounded, asleep and soldier
-   * colors need 17, 10's sleep and 16 (DECISIONS.md D-067).
+   * colors need 17, 10's sleep and 16 (docs/archive/decisions-archive.md D-067).
    */
   stateColor(readers: ReaderSet, id: EntityId): Rgb {
     const body = readers.entities.get(id, C.Body);

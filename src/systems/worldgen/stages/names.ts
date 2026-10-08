@@ -40,7 +40,7 @@ export function landformOf(r: GenRegion): 'water' | 'high' | 'hills' | 'low' {
 
 /**
  * `regionName(st, r)`: a flavor word joined to a lowercase landform word ("Coldmere"). A region
- * with no flavor group (the sea) has no name (DECISIONS.md D-042).
+ * with no flavor group (the sea) has no name (docs/04-implementation/algorithms/world-generation.md).
  */
 export function regionName(st: RngStream, r: GenRegion, names: NamesTable): string {
   const group = flavorGroup(r.biome, Object.keys(names.regionFlavor));

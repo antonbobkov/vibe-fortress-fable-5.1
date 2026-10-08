@@ -63,7 +63,7 @@ export function cavernOpenTarget(deepness: number, tier: number, traits: readonl
 
 /**
  * The indices of the lowest `fraction` of `values` (ties by position): "a 3D noise field
- * thresholded so that roughly `CAVERN_OPEN_FRACTION` of the band is open" (DECISIONS.md D-047).
+ * thresholded so that roughly `CAVERN_OPEN_FRACTION` of the band is open" (docs/04-implementation/algorithms/local-map-generation.md).
  */
 export function lowestFraction(values: readonly number[], fraction: Fixed): number[] {
   const order = values.map((_, k) => k).sort((a, b) => (values[a] as number) - (values[b] as number) || a - b);

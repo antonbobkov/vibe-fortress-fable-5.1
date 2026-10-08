@@ -6,7 +6,7 @@ Closed by `T-120: resolve room assignment, building dimensions and training`.
 
 ## Scope
 
-T-106 verified the decision rows of systems 14–19 against the implementation. The rows below remain in [the decision log](../../05-plan/DECISIONS.md) because the code disagrees with them. This file reports the mismatches; it does not choose a rule or authorize a simulation change. Obtain the owner's resolution before implementation.
+T-106 verified the decision rows of systems 14–19 against the implementation. The rows below remain in [the decision log](../../decisions.md) because the code disagrees with them. This file reports the mismatches; it does not choose a rule or authorize a simulation change. Obtain the owner's resolution before implementation.
 
 | Row | Decision | Code evidence |
 |---|---|---|

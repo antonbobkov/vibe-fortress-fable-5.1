@@ -45,7 +45,7 @@ For each viewport cell, tile `t = (camX + col, camY + row, z)`:
 
 1. **Undiscovered**: if not `discovered(t)`: `{ ' ', undiscovered, undiscovered }`. Skip the rest, except overlays that the player placed there (a designation on an undiscovered tile is drawn as `░` in its tint over the undiscovered background).
 2. **Terrain base** by kind and flags:
-   - `wall`: rough `▒`, smoothed `█`, engraved `☼`-style engraved glyph (Wave 3 fixes the set), `fg = material color`, `bg = black`. Constructed walls use the block glyph regardless.
+   - `wall`: rough `▒`, smoothed `█`, engraved `☼`-style engraved glyph (`03-content/glyphs-and-colors.md` fixes the set), `fg = material color`, `bg = black`. Constructed walls use the block glyph regardless.
    - `floor`: rough `.`, smoothed `+`, engraved engraved-floor glyph, `fg = material color`; grass → glyph `"` with `fg` grass green (cave moss: blue-green); mud → `fg` brown; snow → `bg` white and `fg` gray; ash → `fg` dark gray; paved → `≡`.
    - `ramp` `▲`, `stairs_up` `<`, `stairs_down` `>`, `stairs_updown` `X`, `fortification` `╬`, `tree` species glyph (`♣`, `♠`, `↑`), `sapling` `τ`, `shrub` `"` in species color, `boulder` `○`.
    - `open`: look down through `open` tiles up to `LEVELS_VISIBLE_BELOW` levels; draw the first non-open tile's base cell dimmed by its depth; if the column is open all the way down that far, draw `{ ' ', -, outdoor ? sky : abyss }`. Fluids in `open` tiles below are drawn dimmed too.

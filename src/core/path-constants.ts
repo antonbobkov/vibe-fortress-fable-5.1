@@ -5,7 +5,7 @@
  * the passability and cost formulas of `04-implementation/algorithms/pathfinding-and-connectivity.md`
  * borrow from other system documents. They are not in `01-architecture/constants.md`, so they may
  * not live in `core/constants.ts`: that module is pinned name-for-name to the document by
- * `test/unit/constants.test.ts`. See DECISIONS.md D-019.
+ * `test/unit/constants.test.ts`. See docs/01-architecture/constants.md.
  *
  * Systems 06 and 19 re-export `SNOW_MOVE_COST_PERCENT` and `WADE_LARGE_SIZE` from here when they
  * arrive, rather than restating the value.

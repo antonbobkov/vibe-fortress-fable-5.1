@@ -72,7 +72,7 @@ Optimized candidate and spatial views avoid altering saved state or tie-break or
 - `ItemsReader.carriedItems` supplies held ammunition directly.
 - `bestUnattendedItems` maintains per-tile value maxima in cached value bands ranked by value and entity slot (allowing thief and loot goals to stop after finding a reachable winner in top bands). For party loot searches (18), `bestUnattendedItems` accepts optional `from` and `radius` bounds restricting evaluation to the same-z Chebyshev square; if items excluded by party loot remain loose or in worlds lacking the item reader, the fallback full spatial search runs. Stockpile classification and connectivity are evaluated live.
 
-Acceptance tests in Wave 4 include a performance scenario that runs the reference fortress for 2,000 ticks in headless mode and asserts the budget with a 2× tolerance on CI machines.
+Acceptance tests in `04-implementation/acceptance-tests.md` include a performance scenario that runs the reference fortress for 2,000 ticks in headless mode and asserts the budget with a 2× tolerance on CI machines.
 
 ## Load shedding rules
 

@@ -4,7 +4,7 @@
  * the skill table …, capped at `ATTRIBUTE_MAX`").
  *
  * `SkillLevelUp` is emitted for every level gained (12 re-reads professions, 10 drifts attributes);
- * 15 gives its thought at levels 5, 10, 15 and 20 (DECISIONS.md D-057).
+ * 15 gives its thought at levels 5, 10, 15 and 20 (docs/02-systems/10-dwarves.md).
  */
 
 import { C, type Attributes } from '@core/components';

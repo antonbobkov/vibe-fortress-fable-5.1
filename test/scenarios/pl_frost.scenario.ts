@@ -6,7 +6,7 @@
  * (`CropDied { reason: frost }`)", and `algorithms/environment.md` § Plant growth guards the frost
  * check with "season not in `d.seasons`" — a surface crop inside its growing seasons is merely
  * blocked by `tempOk`, never killed. The scenario therefore starts in winter, which is outside
- * barley's spring-and-summer seasons (DECISIONS.md D-106).
+ * barley's spring-and-summer seasons (docs/03-content/plants.md).
  */
 
 import { expect } from 'vitest';

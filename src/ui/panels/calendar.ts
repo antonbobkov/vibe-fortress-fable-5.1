@@ -2,7 +2,7 @@
  * The calendar panel and the status bar's weather field: `06` § Player-facing behavior ("Status
  * bar: a weather glyph and word … and the temperature in °C"; "The calendar panel (from the status
  * bar date) shows the season, the day, daylight hours, and the current weather with its remaining
- * hours") and `glyphs-and-colors.md` § Status bar glyphs. DECISIONS.md D-103.
+ * hours") and `glyphs-and-colors.md` § Status bar glyphs. docs/04-implementation/ui-screens/fortress-screen.md § Status bar.
  */
 
 import type { ReaderSet } from '@core/readers';

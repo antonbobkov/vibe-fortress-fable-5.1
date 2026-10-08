@@ -105,7 +105,7 @@ The world is not deeply simulated, but it is consistent. These are the only prop
 
 ## Naming
 
-Dwarves have a given name and a hall-name, generated from syllable tables specified in Wave 3. The flavor is Norse and Old English: *Ketil Ironvein*, *Brynja Coldhammer*, *Orm Ashbrow*, *Solveig Deephand*. Hall-names are compounds of a material or mood word and a body or place word. Animals are unnamed until adopted or trained. Fortresses are named by the player, with a generated default of the same style (*Emberhall*, *Coldvein Hold*).
+Dwarves have a given name and a hall-name, generated from syllable tables in `03-content/names.md`. The flavor is Norse and Old English: *Ketil Ironvein*, *Brynja Coldhammer*, *Orm Ashbrow*, *Solveig Deephand*. Hall-names are compounds of a material or mood word and a body or place word. Animals are unnamed until adopted or trained. Fortresses are named by the player, with a generated default of the same style (*Emberhall*, *Coldvein Hold*).
 
 ## Non-goals
 

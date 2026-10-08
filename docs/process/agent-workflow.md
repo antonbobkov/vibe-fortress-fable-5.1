@@ -96,11 +96,11 @@ The specification never links into `docs/archive/` or `docs/work/`. If a spec se
 
 ## The decision log
 
-The log is [`../05-plan/DECISIONS.md`](../05-plan/DECISIONS.md). It moves to `docs/decisions.md` when the migration in [`../work/docs-restructure.md`](../work/docs-restructure.md) is complete.
+The log is [`../decisions.md`](../decisions.md).
 
 - **It holds only what is pending**: a choice that still needs the owner's confirmation, and a contradiction (`C-nnn`) that is not resolved. A row is deleted when its content is folded into the spec.
 - **A row may stay as one short line** when the rejected alternative is worth remembering.
-- The rows written during the build are being triaged into the spec by tasks T-103 … T-108. Until a row is triaged it is still in force and is part of the effective specification: search the log when the spec is silent.
+- Search the log when the spec is silent. A pending choice requires confirmation before implementation; an unresolved contradiction follows the ambiguity protocol.
 - Row ids continue their own numbering (`D-nnn`, `C-nnn`, the next free number). They are not work ids.
 
 ## Reports and audits

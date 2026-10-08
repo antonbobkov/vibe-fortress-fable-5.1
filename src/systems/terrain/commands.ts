@@ -5,7 +5,7 @@
  *
  * A command is validated as a whole before anything changes, so a rejected command changes nothing
  * (`simulation-core.md` § Commands). `UndoDesignation` is the one command the catalog applies in
- * part ("has_progress otherwise, partial"; DECISIONS.md D-052).
+ * part ("has_progress otherwise, partial"; docs/02-systems/03-terrain-and-mining.md § Designations).
  */
 
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
