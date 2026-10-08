@@ -23,6 +23,7 @@ interface GameSystem<S = unknown> {
 }
 
 interface InitContext {
+  loading?: boolean           // true during saved-world bootstrap; absent or false otherwise
   world: World                 // map, entities, calendar, fortress state
   registry: Registry
   rng: RngStream               // this system's stream
@@ -51,6 +52,8 @@ To decouple systems from concrete `World` dependencies and prevent cyclic import
 - The simulation host installs the spatial writer and combat APIs.
 
 `HeadlessGame` registers the full standard system suite unless a test scenario supplies an explicit replacement set.
+
+`World.init({ loading: true })` supplies the loading flag only to initialization. Systems still install their readers, services and registrations, but do not create initial populations or their map side effects. `HeadlessGame` passes its loading option through and skips embark arrival; saved entities and system state are restored afterwards. Tick, command and event contexts do not retain the flag, and it is not saved.
 
 ## Reader conventions
 

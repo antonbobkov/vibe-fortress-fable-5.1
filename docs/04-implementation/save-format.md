@@ -70,7 +70,7 @@ Entity ids are written as numbers with generation. Content references are writte
 2. Parse header; check `contentHash`; on mismatch run the soft match over referenced content ids (`checkContent(header, content, referencedIds)`); if any is missing from the registry, fail with the sorted list.
 3. Inflate the body; parse sections into a map by name.
 4. Construct `Map3D` from `world.mapSize`; restore the six grids, `map.buildingAt`, and `map.chunkFluidCounts`.
-5. Construct `HeadlessGame` / `World` with the seed, map, and spec, with deferred labels (`deferLabels: true`).
+5. Construct `HeadlessGame` / `World` with the seed, map, and spec, with deferred labels (`deferLabels: true`) and load bootstrap (`loading: true`). Initialize readers, services and registrations without embark arrival or initial populations and their map side effects. Cavern monsters and spider webs come from the saved entities, grids and system state, not another initial spawn pass.
 6. Restore entities (`EntityStore` slots, generations, `free` list, component tables).
 7. Restore `fortress` state and `calendar` (`tick` and `isDaylight`).
 8. Restore RNG stream states.

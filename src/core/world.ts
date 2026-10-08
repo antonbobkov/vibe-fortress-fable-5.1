@@ -177,10 +177,10 @@ export class World {
   }
 
   /** `simulation-core.md` § Startup sequence step 3. */
-  init(): void {
+  init(options: { loading?: boolean } = {}): void {
     if (this.initialised) return;
     for (const system of this.scheduler.inOrder()) {
-      system.init(this.initContext(system));
+      system.init({ ...this.initContext(system), loading: options.loading === true });
       this.readers.register(system.id, system.reader());
     }
     this.initialised = true;

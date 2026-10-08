@@ -214,19 +214,21 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       severity: 'alert',
       stringKey: 'announce.restless_rose',
     });
-    const pathing =
-      ctx.readers && typeof ctx.readers.has === 'function' && ctx.readers.has('pathing')
-        ? ctx.readers.pathing
-        : undefined;
-    spawnInitialCavernMonsters(
-      ctx.world,
-      ctx.registry,
-      this.rng,
-      this.traits,
-      this.monsterInfo,
-      this.webs,
-      pathing,
-    );
+    if (ctx.loading !== true) {
+      const pathing =
+        ctx.readers && typeof ctx.readers.has === 'function' && ctx.readers.has('pathing')
+          ? ctx.readers.pathing
+          : undefined;
+      spawnInitialCavernMonsters(
+        ctx.world,
+        ctx.registry,
+        this.rng,
+        this.traits,
+        this.monsterInfo,
+        this.webs,
+        pathing,
+      );
+    }
   }
 
   override reader(): ThreatsReader {

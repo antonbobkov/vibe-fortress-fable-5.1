@@ -75,6 +75,8 @@ When a fortress ends (all dwarves dead, or retired), the app writes a legend rec
 
 ## Determinism and saves
 
+Loading bootstraps readers, services and registrations without creating initial populations or their map side effects. Saved entities and system state supply those populations. The restored map retains its saved Web flags, including authentic spider webs; newly carved cavern floors do not acquire webs from a temporary initialization pass.
+
 The save/load determinism test in `simulation-core.md` is the contract: loading a save and running N ticks produces the same world hash as running N ticks without saving. Anything that breaks this is a bug in `serialize`/`deserialize`, usually an unsaved cache or an iteration-order dependency.
 
 ## Failure handling
