@@ -242,6 +242,20 @@ Container counts are non-negative integers, priorities are 1–9 and quality bou
 
 `MiasmaSpread` uses alert severity and the line "Miasma spreads."
 
+### Announcement strings
+
+| Key | Text |
+|---|---|
+| `announce.caravan_arrived` | "A caravan has arrived from {civ}." |
+| `announce.caravan_departed` | "The {civ} caravan has departed." |
+| `announce.caravan_lost` | "The {civ} caravan has been lost." |
+| `announce.caravan_waiting` | "The {civ} caravan waits at the edge for a trade depot." |
+| `announce.trade_completed` | "A trade with {civ} is complete." |
+| `announce.immigrants_arrived` | "{count} dwarves have come to join the hall, {children} of them children." |
+| `announce.immigration_skipped` | "No immigrants this season: {reason}." |
+| `announce.reputation_changed` | "Our standing with {civ} has fallen: {reason}." |
+
+
 ## Hints
 
 Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly). Ids and triggers:
