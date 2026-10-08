@@ -68,7 +68,7 @@ Every decision below was made by the parent under the owner's standing instructi
 ## Outcome (2026-10-07)
 
 - **Tasks 1 and 2 are merged** (`ecfd41f`): crafts carry quality, a job never outputs from inputs it no longer holds, renown counts dwarves, the winter wave clamps before it halves, and `balance.md` names the measured wealth drivers.
-- **Task 3, the fixture rewrite, is not merged.** It is on the branch `f-17` (`ffbc723`). After about thirty tuning runs the rewritten fortress survives three years at default priorities but makes about 5,000 marks, completes no forge, gem or lavish-meal job, and trades at 4 of 8 visits. With the old fixture and the runtime fixes, the same seed makes 15,107 / 18,638 / 23,698. [T-123](../../work/T-123-economy-fortress-at-default-priority.md) takes it from here.
+- **Task 3, the fixture rewrite, is not merged.** It is on the branch `f-17` (`ffbc723`). After about thirty tuning runs the rewritten fortress survives three years at default priorities but makes about 5,000 marks, completes no forge, gem or lavish-meal job, and trades at 4 of 8 visits. With the old fixture and the runtime fixes, the same seed makes 15,107 / 18,638 / 23,698. [T-123](T-123-economy-fortress-at-default-priority.md) takes it from here.
 - **Task 4, the re-measure,** is filed as a new report, [`2026-10-07-balance-after-f17.md`](../../../reports/audits/2026-10-07-balance-after-f17.md), with its raw data beside it. It was not written into the earlier report, because reports are not updated.
 - **No balance constant changed.** B-008 … B-012 wait on T-123.
 - **Bugs found and filed:** T-122 (civilians flee on their own level only), T-124 (a fine meal's joy relief writes the old hunger back), T-125 (peril-4 raids from day 28).

@@ -4,7 +4,7 @@
 >
 > - **The "after" fortress is the rewritten fixture, and that rewrite is not merged.** Master keeps the old fixture.
 > - **The runtime fixes did not cause the fall in wealth.** With the runtime fixes applied and the old fixture unchanged, the main seed reaches 15,107 / 18,638 / 23,698 marks with every recipe chain and 8 of 8 trades complete. The rewrite at default priorities is what produces 3,423 / 4,338 / 4,950.
-> - **No balance constant should move on this evidence.** [T-123](../../docs/work/T-123-economy-fortress-at-default-priority.md) diagnoses why a fortress at default priorities does not run its economy.
+> - **No balance constant should move on this evidence.** [T-123](../../docs/archive/tasks/T-123-economy-fortress-at-default-priority.md) diagnoses why a fortress at default priorities does not run its economy.
 >
 > The simulation bugs it found are T-122, T-124 and T-125 in [the backlog](../../docs/backlog.md).
 
