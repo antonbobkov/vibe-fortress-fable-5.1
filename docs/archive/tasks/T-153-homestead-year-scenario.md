@@ -1,6 +1,6 @@
 # T-153 — A homestead year: livestock, leather, cloth, hunting, fishing, gathering
 
-**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 4) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-114 and its report, [`../../../reports/audits/2026-10-08-playthrough-coverage.md`](../../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 4) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -36,4 +36,4 @@ No long playthrough uses systems 08 and 09 or the workshops that depend on them.
 ## Done
 
 - `homestead_year` passes in `npm test`.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
