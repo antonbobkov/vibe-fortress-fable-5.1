@@ -1,6 +1,8 @@
 # T-182 — A workshop does not wait on a job it cannot supply
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 18, G5) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-182: a workshop lets go of a job blocked on a missing input and starts the next runnable order`.
+
+**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 18, G5) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@ A workshop creates the job of its first runnable order when the inputs are count
 
 ## Reproduction
 
-[`orders.probe.ts`](../../reports/data/2026-10-09-bug-hunt-orders.probe.ts.txt), first test: a `craftdwarf` workshop with the orders `craft_bone` and `make_mug_stone` × 2, one bone pile, two stones. The bone is forbidden after the job exists and before a dwarf arrives. Twenty days later the job is still `blocked: missing_input`, no mug has been made, and `isRunnable` says the second order is runnable.
+[`orders.probe.ts`](../../../reports/data/2026-10-09-bug-hunt-orders.probe.ts.txt), first test: a `craftdwarf` workshop with the orders `craft_bone` and `make_mug_stone` × 2, one bone pile, two stones. The bone is forbidden after the job exists and before a dwarf arrives. Twenty days later the job is still `blocked: missing_input`, no mug has been made, and `isRunnable` says the second order is runnable.
 
 Read: `src/systems/workshops/operate.ts:336` (`if (ws.currentJobId !== 0) continue`).
 

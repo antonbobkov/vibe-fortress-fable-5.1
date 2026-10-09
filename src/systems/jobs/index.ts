@@ -15,7 +15,7 @@ import { BaseSystem, Registrations, type InitContext, type TickContext } from '@
 import type { EntityId, TileIndex } from '@core/types';
 import type { ItemsReader } from '@systems/items';
 import { JobBoard } from './board';
-import { dropUnusedTools, itemSourceOf } from './items-adapter';
+import { dropStrandedTools, dropUnusedTools, itemSourceOf } from './items-adapter';
 import { NO_ITEMS } from './producers';
 import {
   applyCancelJob,
@@ -25,7 +25,7 @@ import {
   applySetStandingOrder,
 } from './commands';
 import { makeReader, type JobsReader } from './reader';
-import type { JobsStateV1 } from './state';
+import type { Job, JobsStateV1 } from './state';
 
 export { JobBoard, RETRY_TRIGGERS, type JobTypeRow } from './board';
 export { NO_ITEMS, type ItemSource, type JobSink, type JobSpec } from './producers';
@@ -60,6 +60,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     'ItemReleased',
     'StocksChanged',
     'CreatureDied',
+    'CorpseCreated',
     'ImmigrantsArrived',
     'NeedCritical',
     'AlertChanged',
@@ -113,6 +114,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
   override tick(ctx: TickContext): void {
     this.readProducers();
     this.connectItems(ctx);
+    dropStrandedTools(this.board, ctx);
     dropUnusedTools(this.board, ctx);
     this.board.tick(ctx);
   }
@@ -141,6 +143,12 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
       board.trigger('no_worker');
     } else if (type === 'CreatureDied') {
       board.workerDied(event['id'] as EntityId);
+    } else if (type === 'CorpseCreated') {
+      // A hunt job hauls the corpse of the creature it hunted (09 § Hunting).
+      for (const id of board.ids) {
+        const job = board.jobs.get(id) as Job;
+        if (job.target.ref === event['creatureId'] && board.typeId(job) === 'hunt') job.data['corpseId'] = event['itemId'] as EntityId;
+      }
     } else if (type === 'NeedCritical' || type === 'ThreatNearby') {
       // "A need at or above its critical threshold interrupts any job"; jobs marked not
       // interruptible in `jobs.md` are short enough to finish first.

@@ -350,7 +350,7 @@ export class ItemCore implements ItemsApi {
       units: it.count,
       materialClass: this.host.facts.materialClass(it.material),
       quality: it.quality,
-      available: isAvailable(it.flags),
+      available: isAvailable(it.flags, it.occupantId ?? 0),
     };
   }
 
@@ -740,6 +740,11 @@ export class ItemCore implements ItemsApi {
     this.notify(itemId, 'placed');
   }
 
+  /** A cage holds the creature (0: it holds none); the stock counts follow. */
+  setOccupant(itemId: EntityId, creatureId: EntityId): void {
+    if (this.isItem(itemId)) this.mutate(itemId, { occupantId: creatureId });
+  }
+
   /** Set the crafter (12 writes it after `spawn.item`; 13's `ItemDestroyed` carries it). */
   setCrafter(itemId: EntityId, crafterId: EntityId): void {
     if (this.isItem(itemId)) this.mutate(itemId, { crafterId });
@@ -784,7 +789,7 @@ export class ItemCore implements ItemsApi {
       if (!this.counted(it)) continue;
       const row = per.get(it.type) ?? [0, 0];
       row[0] += it.count;
-      if (isAvailable(it.flags)) row[1] += it.count;
+      if (isAvailable(it.flags, it.occupantId ?? 0)) row[1] += it.count;
       per.set(it.type, row);
       wealth += this.valueOf(it);
     }

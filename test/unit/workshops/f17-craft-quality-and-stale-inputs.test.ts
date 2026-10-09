@@ -159,9 +159,11 @@ describe('F-17b a job never outputs from inputs it no longer holds', () => {
     expectRealCrafts(1);
     expect(crafted()[0]?.workshopId).toBe(shopB);
     expect(items.get(stone)).toBeUndefined();
-    expect(board.jobs.get(jobA.id)?.state).toBe('blocked');
+    // T-182: the blocked job's order is no longer runnable, so the workshop lets the job go.
+    expect(board.jobs.get(jobA.id)).toBeUndefined();
+    expect(jobA.state).toBe('cancelled');
 
-    // A new stone: the blocked job fetches it and completes with real material.
+    // A new stone: the workshop makes a new job for the order, which completes with real material.
     const fresh = w.spawnItem('raw_stone', 'granite', w.index(14, 16, 32));
     w.until(() => w.events('ItemCrafted').length >= 2, 6000);
     expect(items.get(fresh)).toBeUndefined();
@@ -179,8 +181,9 @@ describe('F-17b a job never outputs from inputs it no longer holds', () => {
     w.step(1200);
     // No stone anywhere: the job blocks instead of completing with material 0.
     expectRealCrafts(0);
-    expect(board.jobs.get(jobA.id)?.state).toBe('blocked');
-    expect(board.jobs.get(jobA.id)?.blockedReason).toBe('missing_input');
+    // T-182: it blocks on the missing input, and the workshop then lets it go: its order is not runnable.
+    expect(board.jobs.get(jobA.id)).toBeUndefined();
+    expect(jobA.state).toBe('cancelled');
     expect(jobA.inputs[0]?.delivered).toEqual([]);
     expect(w.game.world.entities.get(first, C.Worker)?.jobId).toBe(0);
 

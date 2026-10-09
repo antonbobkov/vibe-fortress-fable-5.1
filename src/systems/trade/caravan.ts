@@ -136,8 +136,7 @@ export function spawnCaravan(ctx: TickContext, civ: Civ, edge: Edge, peril: numb
           assignedTo: 0, pregnantUntil: 0,
           lastProductTick: {}, juvenileUntil: 0, slaughter: false, petOf: 0, noBreed: false,
         });
-        const item = ctx.world.entities.get(cage, C.Item);
-        if (item) ctx.world.entities.add(cage, C.Item, { ...item, occupantId: occupant });
+        ctx.world.services.items?.setOccupant?.(cage, occupant);
         ctx.world.services.items?.setFlag(cage, ItemFlag.Merchant, true);
         goods.push(cage);
       }

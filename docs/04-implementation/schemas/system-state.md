@@ -58,7 +58,7 @@ interface Job { id: number; key: string; type: Idx<JobTypeDef>; producer: string
   state: 'open'|'claimed'|'fetching'|'travelling'|'working'|'completing'|'blocked'|'cancelled'|'done';
   blockedReason: string | null; retryTick: Tick; workerId: EntityId; progress: Fixed; createdTick: Tick; claimedTick: Tick; data: Record<string, unknown> }
 interface ItemFilter { itemId?: EntityId; type?: Idx<ItemTypeDef>; types?: Idx<ItemTypeDef>[]; category?: string; tag?: string; materialClass?: MaterialClass; materialId?: Idx<MaterialDef>;
-  minQuality?: Quality; edible?: boolean; drinkable?: boolean; emptyContainer?: string; excludeIds?: EntityId[] }
+  minQuality?: Quality; edible?: boolean; drinkable?: boolean; emptyContainer?: string; unoccupied?: boolean; excludeIds?: EntityId[] }
 
 interface WorkshopsState { stateVersion: 1; globalOrders: WorkOrder[]; professionCache: [EntityId, string][]; rng: RngState }
 

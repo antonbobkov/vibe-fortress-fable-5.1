@@ -14,9 +14,11 @@ import { C } from '@core/components';
 import type { TickContext } from '@core/system';
 import type { BuildingsReader } from '@systems/buildings';
 import { grantXp } from '@systems/dwarves';
+import { CORPSE_WAIT_TICKS } from '@systems/foraging/constants';
 import type { EntityId, TileIndex } from '@core/types';
 import { effortPerTick, effortRequired, estDistance, progressOf } from './assign';
 import type { JobBoard } from './board';
+import { dropHeldToolBeforeEquip } from './items-adapter';
 import { SKILL_TIME_BONUS_PERCENT } from './constants';
 import type { Job } from './state';
 
@@ -111,6 +113,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
         const at = board.items.tileOf(target);
         if (at === board.workerTile(workerId)) {
           if (target === toolId) {
+            dropHeldToolBeforeEquip(board, ctx, workerId);
             board.items.equip(workerId, target);
             board.setWorker(workerId, { toolId: target });
             // Held now: the fetch reservation ends; the worker keeps the tool after the job (11 § Assignment).
@@ -226,27 +229,15 @@ function stepHunt(board: JobBoard, job: Job, workerId: EntityId, ctx: TickContex
       grantXp(entities, ctx.registry, workerId, 'hunting', 15, (e) => ctx.emit(e));
     }
 
-    let corpseId = typeof job.data['corpseId'] === 'number' ? (job.data['corpseId'] as number) : 0;
-    if (corpseId === 0 || !entities.alive(corpseId)) {
-      const deathTile = typeof job.data['deathTile'] === 'number' ? (job.data['deathTile'] as number) : -1;
-      for (const id of entities.with(C.Corpse, C.Item)) {
-        if (deathTile >= 0 && board.items.tileOf(id) === deathTile) {
-          corpseId = id;
-          break;
-        }
-      }
-      if (corpseId === 0) {
-        for (const id of entities.with(C.Corpse, C.Item)) {
-          corpseId = id;
-          break;
-        }
-      }
-      if (corpseId !== 0) {
-        job.data['corpseId'] = corpseId;
-      }
-    }
-
+    // 09 § Hunting: the corpse is the quarry's own, which 11 learns from `CorpseCreated` (13 makes it
+    // on its next tick). The hunter waits `CORPSE_WAIT_TICKS` for it and takes no other corpse.
+    if (typeof job.data['diedTick'] !== 'number') job.data['diedTick'] = ctx.tick;
+    const corpseId = typeof job.data['corpseId'] === 'number' ? (job.data['corpseId'] as number) : 0;
     if (corpseId === 0) {
+      if (ctx.tick - (job.data['diedTick'] as number) >= CORPSE_WAIT_TICKS) complete(board, job, workerId, ctx);
+      return;
+    }
+    if (!entities.alive(corpseId)) {
       complete(board, job, workerId, ctx);
       return;
     }
@@ -329,7 +320,6 @@ function stepHunt(board: JobBoard, job: Job, workerId: EntityId, ctx: TickContex
 
   job.data['lostTicks'] = 0;
   const targetTile = map.index(posT.x, posT.y, posT.z);
-  job.data['deathTile'] = targetTile;
   job.data['anchorTile'] = targetTile;
 
   const workerTile = board.workerTile(workerId);

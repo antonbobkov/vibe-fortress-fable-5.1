@@ -1,6 +1,8 @@
 # T-183 — A hunter carries its own kill and nothing else
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 19, G17) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-183: a hunter carries the corpse of its own kill and waits for it`.
+
+**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 19, G17) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@ After a kill the hunt job looks for a corpse on the tile where the hunter last s
 
 ## Reproduction
 
-[`orders.probe.ts`](../../reports/data/2026-10-09-bug-hunt-orders.probe.ts.txt), second test: the setup of scenario `fo_hunt` and a dwarf killed at (45, 45) beforehand. `HuntKill` at tick 25; at tick 26 the job's `corpseId` is the dwarf's corpse; the hunter drops it on the butcher's workshop at tick 506.
+[`orders.probe.ts`](../../../reports/data/2026-10-09-bug-hunt-orders.probe.ts.txt), second test: the setup of scenario `fo_hunt` and a dwarf killed at (45, 45) beforehand. `HuntKill` at tick 25; at tick 26 the job's `corpseId` is the dwarf's corpse; the hunter drops it on the butcher's workshop at tick 506.
 
 Read: `src/systems/jobs/steps.ts:229–243`.
 
