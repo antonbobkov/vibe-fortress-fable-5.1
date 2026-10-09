@@ -1,6 +1,6 @@
 # T-113 — A full gate run on the restructured repository
 
-**Source:** the owner, 2026-10-06; T-101 rewrote `scripts/gate.mjs` and only exercised `--where` and its argument validation · **Size:** S · **Needs:** T-140 … T-145 · **Status:** open
+**Source:** the owner, 2026-10-06; T-101 rewrote `scripts/gate.mjs` and only exercised `--where` and its argument validation · **Size:** S · **Needs:** T-140, T-144, T-145, T-188 · **Status:** open
 
 ## Why
 
