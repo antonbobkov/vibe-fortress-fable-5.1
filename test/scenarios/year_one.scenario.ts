@@ -38,6 +38,7 @@ import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import type { Scenario } from './runner';
 import { TestWorld } from './test-world';
+import { checkInvariants, watchInvariants } from './invariants';
 
 const Z = FLAT_TEST_SURFACE_Z;
 
@@ -117,6 +118,7 @@ const scenario: Scenario = {
     const registry = outer.game.registry;
     const map = buildFlatTestMap(registry, 48, 48);
     const w = new TestWorld({ seed: 'year-one', registry, map, embark: 'default' });
+    const stopInvariants = watchInvariants(w.game, (findings) => expect(findings, `T-176 tick ${w.tick}`).toEqual([]));
 
     const arrival = w.game.arrival;
     if (!arrival) throw new Error('year_one: no arrival');
@@ -446,6 +448,9 @@ const scenario: Scenario = {
     console.log(`year_one year end: ${JSON.stringify({ population, wealth: items.wealth(),
       deaths: deathCounts(w), stocks, waves, caravanDay, trades: tradesDone,
       crafted: w.events('ItemCrafted').length, harvested: harvests, blocked })}`);
+
+    stopInvariants();
+    expect(checkInvariants(w.game), 'T-176 year end invariants').toEqual([]);
 
     // The rows that follow from a rule.
     const hillfolk = windowOf('hillfolk', 1);

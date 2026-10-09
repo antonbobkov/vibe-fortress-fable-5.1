@@ -1,4 +1,7 @@
 import { stepThreeYears, threeYearsMeasurements } from './three_years_measurements';
+import { checkInvariants, watchInvariants } from './invariants';
+import { reloadPlayedFortress } from './played-roundtrip';
+import type { TradeReader } from '@systems/trade';
 /**
  * The three-years scenario (T-M8-06): extends the year-one bootstrap across three full years.
  *
@@ -44,16 +47,34 @@ const scenario: Scenario = {
     // T-141: observe every tick without changing the fixture, its commands or world state.
     const fleeSince = new Map<number, number>();
     let longestFlee = 0;
-    const originalStep = w.game.world.step.bind(w.game.world);
-    w.game.world.step = () => {
-      originalStep();
-      const fleeing = new Set(w.game.world.entities.with(C.Brain).filter((id) => w.game.world.entities.get(id, C.Brain)?.behavior === 'flee'));
-      for (const id of fleeSince.keys()) if (!fleeing.has(id)) fleeSince.delete(id);
-      for (const id of fleeing) {
-        const since = fleeSince.get(id) ?? w.tick - 1;
-        fleeSince.set(id, since);
-        longestFlee = Math.max(longestFlee, w.tick - since);
-      }
+    const observeFlee = (): void => {
+      const world = w.game.world;
+      const originalStep = world.step.bind(world);
+      world.step = () => {
+        originalStep();
+        const fleeing = new Set(w.game.world.entities.with(C.Brain).filter((id) => w.game.world.entities.get(id, C.Brain)?.behavior === 'flee'));
+        for (const id of fleeSince.keys()) if (!fleeing.has(id)) fleeSince.delete(id);
+        for (const id of fleeing) {
+          const since = fleeSince.get(id) ?? w.tick - 1;
+          fleeSince.set(id, since);
+          longestFlee = Math.max(longestFlee, w.tick - since);
+        }
+      };
+    };
+    observeFlee();
+    let stopInvariants = watchInvariants(w.game, (findings) => expect(findings, `T-176 tick ${w.tick}`).toEqual([]));
+    const savedYears = new Set<number>();
+    const saveDuringCaravan = (): void => {
+      const year = Math.floor(w.tick / (DAYS_PER_YEAR * TICKS_PER_DAY)) + 1;
+      if (savedYears.has(year) || w.readers.of<TradeReader>('20').activeCaravan() === null) return;
+      stopInvariants();
+      reloadPlayedFortress(w);
+      unsubscribe();
+      unsubscribe = subscribeTracking();
+      items = w.readers.of<ItemsReader>('13');
+      observeFlee();
+      stopInvariants = watchInvariants(w.game, (findings) => expect(findings, `T-176 tick ${w.tick}`).toEqual([]));
+      savedYears.add(year);
     };
 
     // Advance bootstrap period (20 days)
@@ -73,7 +94,7 @@ const scenario: Scenario = {
     let drinksAlcohol = 0;
     let drinksWater = 0;
 
-    const unsubscribe = w.game.world.onEvents((events) => {
+    const subscribeTracking = (): (() => void) => w.game.world.onEvents((events) => {
       const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
       for (const e of events) {
         if (e.type === 'ImmigrantsArrived') {
@@ -90,7 +111,8 @@ const scenario: Scenario = {
       }
     });
 
-    const items = w.readers.of<ItemsReader>('13');
+    let unsubscribe = subscribeTracking();
+    let items = w.readers.of<ItemsReader>('13');
     const totalTicks = 3 * DAYS_PER_YEAR * TICKS_PER_DAY;
     const year1Tick = DAYS_PER_YEAR * TICKS_PER_DAY;
     const year2Tick = 2 * DAYS_PER_YEAR * TICKS_PER_DAY;
@@ -104,6 +126,7 @@ const scenario: Scenario = {
 
     while (w.tick < totalTicks) {
       stepThreeYears(w, Math.min(300, totalTicks - w.tick));
+      saveDuringCaravan();
       checkFortressWorkOrders(w, state);
       checkFortressRooms(w, state);
       checkFortressCaveFarm(w, state);
@@ -129,6 +152,9 @@ const scenario: Scenario = {
     }
 
     unsubscribe();
+    stopInvariants();
+    expect(checkInvariants(w.game), 'T-176 three-year end invariants').toEqual([]);
+    expect([...savedYears], 'T-176 a played caravan save in each year').toEqual([1, 2, 3]);
     expect(longestFlee, 'T-141: no uninterrupted flee lasts more than a day').toBeLessThanOrEqual(TICKS_PER_DAY);
     console.log(`T-141 longest continuous flee: ${longestFlee} ticks`);
     const economy = threeYearsMeasurements(w);

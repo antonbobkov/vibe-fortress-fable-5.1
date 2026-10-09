@@ -64,6 +64,10 @@ The three long-run harnesses (`three_years`, `three_years_seeds` and the mood in
 
 Deaths: `year_one`, every seed of `year_one_seeds` and the played-fortress behaviour test (`test/perf/played_behavior.test.ts`) assert that no dwarf dies. Deaths of tame animals and pets, and of other creatures, are counted and reported and are not asserted: a dead hostile can mean that combat worked.
 
+The year-one scenario and the main three-year scenario run `checkInvariants` every 1,200 ticks and at the end; the peril-2 and peril-4 three-year sweep seeds do the same. The checker validates jobs and reservations, item and equipment ownership, containers, stock and wealth recounts, creature state, buildings, crops and parties. Its stall and flee observations sample every tick, so a creature that walks or sleeps between daily checks is not mistaken for an unchanged creature. Observation never writes simulation state or consumes a random draw.
+
+The main three-year scenario saves and loads once in each year while a caravan is present, verifies the immediate hash, and continues its existing commands and assertions on the loaded game. Test-only event history, invariant observations and economy measurements continue across the load. A compact played-fortress test in the unit tier covers this replacement and subsequent deterministic progression at each of the three year boundaries; the full three-year scenario remains in the performance tier.
+
 ## Golden tests
 
 - `test/golden/world-hashes.json`: `{ seed, size }` → hash of `WorldMap`; `{ seed, ticks }` → hash of the world after N ticks of `flat-test` with the default embark and no commands, for N in {0, 1000, 5000}.
@@ -80,9 +84,12 @@ Deaths: `year_one`, every seed of `year_one_seeds` and the played-fortress behav
 | save round-trip | random tick to save at during a scripted run | equal hash to the uninterrupted run |
 | connectivity consistency | random wall placements/removals | `reachable(a, b)` equals BFS reachability for 50 random pairs |
 | item accounting | random craft/haul/destroy streams and squad membership/equipment commands | `counts` equals a recount from entities |
+| malformed command handling | field sweep and 40 deterministic random trials per command | no throw; known rejection reasons; no invariant findings; every 15 accepted commands saves and loads with equal hashes |
 | mood bounds | random thought streams with needs met | mood ≥ 20 |
 
 A command stream is drawn before it runs, so a generator cannot know the ids of the zones and buildings that earlier commands of the same stream will create. A generator for a command that names a stockpile, item, building or zone (`SetStockpileFilter`, `ForbidItem`, `CancelBuilding`, `RemoveZone`) draws a reference `{ $nth, of }`: the k-th living entity of that kind by ascending id, k modulo the count, 0 when there is none. The workshop generator setup includes an iron-filtered maintain order so that command round trips cover material filters. `resolveCommand` (`test/property/command-generators.ts`) resolves it against the world when the command is submitted. Both runs of a property resolve against identical worlds, so their streams stay equal. `PlaceBuilding` draws from the placements for which 14's ghost gives no reason in the world the stream starts from; `CreateZone` keeps the tiles of its rectangle that `zoneTileQualifies` accepts and no zone holds. A command that an earlier command has made invalid is refused identically in both runs.
+
+The malformed-command sweep uses a short synthetic fortress with valid targets for harvesting, pasture assignment, taming and releasing item-caged creatures, unlinking a lever, hatch modes, releasing building-caged creatures, coffin assignment and trap modes. Each of these commands must also accept a valid control command; rejection-only coverage is insufficient.
 
 ## E2E harness
 
@@ -103,6 +110,8 @@ Vitest coverage (`@vitest/coverage-v8`) thresholds, enforced whenever the tests 
 ## Performance smoke
 
 The tier measures two saved fortresses, because they are different workloads. `test/fixtures/reference-fortress.deepholm` is the scripted reference fortress of `performance-budget.md` (80 dwarves, year three), against which the allocations are defined. `test/fixtures/played-fortress.deepholm` is a 20-dwarf fortress that a script played for 4,200 ticks. `perf_reference.test.ts` holds the played fortress to every system's allocation (pathing ≤ 1.0 ms, core ≤ 0.30 ms, worst tick ≤ 40 ms), and the reference fortress to an average tick ≤ 12 ms and a worst tick ≤ 40 ms. `per-system.test.ts` holds each system on the reference fortress to twice its allocation. `played_behavior.test.ts` checks that the played fortress behaves (dwarves alive, the disturbed lake settles, orders and hauling run). The tier also holds the long measurements that are too slow for `npm test` (the main `three_years` scenario, the 20-seed three-year sweep, the mood instrument). It runs at every gate (unless the gate is run with `--no-perf`), nightly in CI, and for any task that touches budgeted code. It takes about 40 minutes.
+
+Each three-year sweep seed prints its final `{ seed, peril, tick, hash }` record. A full gate records those hashes and compares equal seed, peril and tick records with the most recently recorded gate that contains them. The report distinguishes equal hashes, changed hashes and absent comparable baselines. A changed hash needs review against intervening behavior or fixture changes; a gate without the performance tier reports that no comparison was made. Frozen prior reports are read, never rewritten.
 
 ## Commands
 

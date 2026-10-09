@@ -82,6 +82,12 @@ export class ThreeYearsMeasurements {
       const item = w.game.world.entities.get(id, C.Item)!;
       this.origins.set(id, { item: { ...item }, embark: item.count, purchase: 0 });
     }
+    this.connect();
+  }
+
+  /** Reattach observation to a loaded game, retaining all measured history and origins. */
+  connect(): void {
+    const w = this.w;
     // Public item notifications preserve acquisition provenance through stack splits and merges.
     // Mixed, fungible stacks use proportional depletion; no simulation item is modified.
     const core = w.game.world.services.items;
@@ -149,7 +155,7 @@ export class ThreeYearsMeasurements {
     this.lastPopulation = this.population();
   }
 
-  observeImmigration(system: GameSystem, event: GameEvent, ctx: TickContext): void {
+  observeImmigration(system: Pick<GameSystem, 'serialize' | 'handle'>, event: GameEvent, ctx: TickContext): void {
     const state = system.serialize() as ImmigrationStateV1;
     const seasonal = event.type === 'SeasonChanged';
     if (!seasonal && !(event.type === 'DayPassed' && state.deferredUntilTick > 0 && ctx.tick >= state.deferredUntilTick)) {
