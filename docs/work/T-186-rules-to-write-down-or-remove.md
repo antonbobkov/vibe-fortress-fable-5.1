@@ -31,6 +31,23 @@ Read, with the file and line for each in the report. G12 is also measured ([`thi
 
 Tests, `describe('T-186 …')`, one for each "code" decision (items 2, 5, 6, 9, 10, 11, 12). `interface:check` must pass after items 1 and 3.
 
+## Progress (2026-10-09)
+
+The spec-only items are done; code changes and their tests remain.
+
+- **Item 1 (G2): done (spec).** Removed `workshop_suspended` row from `11` § Blocking and retry table; added `SetLabor` to `unreachable` triggers. Note for code half: remaining (code) to remove `workshop_suspended` from `RETRY_TRIGGERS` and jobs panel reason strings if `strings:check` reports them unused.
+- **Item 2 (G3): remaining (code).** Priority of `haul_to_dump` and `strip_corpse` (`HAUL_PRIORITY` in `src/systems/items/hauling.ts` and `11` § Hauling).
+- **Item 3 (G4): done (spec).** Listed what `12` subscribes to (`BuildingCompleted`, `BuildingRemoved`, `JobCancelled`, `JobCompleted`, `SkillLevelUp`) in § Events consumed; noted in § Operation that magma power and stock are read each tick; noted in § Quality that `15` gives `masterwork_lost` on `13`'s `ItemDestroyed`.
+- **Item 4 (G6): done (spec).** Stated in `12` § Work orders that a global order goes to the first idle workshop of the type, in entity order.
+- **Item 5 (G7): remaining (code).** On `CreatureDied` of a workshop's assigned worker, clear the restriction and cancel the job.
+- **Item 6 (G8): remaining (code).** Stock counts `available` definition for carried tools and occupied cages in `src/systems/items/counts.ts` and `search.ts`.
+- **Item 7 (G9): done (spec).** Defined in `16` § Squads that a member of a squad in `train` or `active` mode is on duty (and in `off` mode under `watchful` or `hearth` alert), and what being on duty means (no flight, military title, no hearth interruption, attacks visible hostiles within perception).
+- **Item 8 (G10): done (spec).** Added Toughness (17), natural armor and war-animal point (08), buckler block chance and launcher as club (`weapons-and-armor.md`), and clothing as a `padding` layer of armor value 1 to `16` § Melee resolution formula block.
+- **Item 9 (G11): done (spec) for the level limit; remaining (code) for orders.** Added the level limit to `16` § Targeting (a target more than two levels away is out of perception). Replacing standing orders vs queueing kill orders in `16` remains for code.
+- **Item 10 (G13): done (spec) for the two spec rules; remaining (code) for ambush.** Stated in `18` § Party composition that restless dead attack fortress creatures, and in § Party AI (Retreat) that a member that fled and left the map counts toward `RETREAT_LOSS_PERCENT`. Ambush targeting nearest dwarf outdoors remains for code.
+- **Item 11 (G15): remaining (code).** Line of sight check for chained animal spotting in `19` § War animals.
+- **Item 12 (G16): remaining (code).** `clean_trap` unjams without moving corpses.
+
 ## Done
 
 - The seven documents are amended and the tests pass.
