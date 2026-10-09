@@ -120,9 +120,6 @@ export class ItemCore implements ItemsApi {
       .sort((a, b) => entityIndex(a) - entityIndex(b));
   }
 
-  /** Maintain metadata after an existing direct combat mutation, without changing accounting or events. */
-  refreshDerivedIndexes(id: EntityId): void { this.indexItem(id); }
-
   /** Thief ranking: one maximum per eligible tile, descending value then ascending entity slot. */
   bestUnattendedItems(from?: TileIndex, radius?: number): EntityId[] {
     this.ensureSearchIndex();
