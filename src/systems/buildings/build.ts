@@ -24,7 +24,7 @@
 
 import { C, type Building } from '@core/components';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
-import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
+import { FLUID_MAX_LEVEL, PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
 import { Designation, FluidType, TileFlag, TileKind, type Map3D } from '@core/map3d';
 import { MAGMA_C } from '@systems/fluids/constants';
 import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
@@ -925,8 +925,9 @@ export class BuildingStore {
     const value = trigger as Record<string, unknown>;
     if (value['kind'] === 'creatures') {
       if (typeof value['minSize'] !== 'number' || value['minSize'] < 0 || typeof value['includeFortress'] !== 'boolean') return reject('bad_setting');
-    } else if ((value['kind'] === 'water' || value['kind'] === 'magma') && typeof value['level'] === 'number' && value['level'] >= 1 && value['level'] <= 7) {
-      // The fluid grid has levels 0..7.
+    } else if (value['kind'] === 'water' || value['kind'] === 'magma') {
+      const level = value['level'];
+      if (typeof level !== 'number' || !Number.isInteger(level) || level < 1 || level > FLUID_MAX_LEVEL) return reject('out_of_range');
     } else return reject('bad_setting');
     this.write(id as EntityId, { settings: { ...b.settings, triggerOn: { ...value } } });
     return OK;

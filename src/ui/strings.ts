@@ -824,6 +824,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'reject.deepsilver_unconfirmed': 'the deepsilver must be confirmed first',
   'reject.light_mismatch': 'the light is wrong for that crop',
   'reject.not_tame': 'that animal is not tame',
+  'reject.not_grazer': 'that animal does not graze',
   'reject.assigned': 'that is assigned already',
   'reject.no_kennel': 'there is no kennel',
   'reject.not_trainable': 'that animal cannot be trained',

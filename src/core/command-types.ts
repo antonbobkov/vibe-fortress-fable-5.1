@@ -277,6 +277,7 @@ export const REJECT_REASONS = [
   'deepsilver_unconfirmed',
   'light_mismatch',
   'not_tame',
+  'not_grazer',
   'assigned',
   'no_kennel',
   'not_trainable',

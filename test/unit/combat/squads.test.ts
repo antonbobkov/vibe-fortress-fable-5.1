@@ -141,6 +141,8 @@ describe('T-M6-05: Squads, orders, duty, stations, patrols, alerts', () => {
     expect(allSquads.length).toBe(2);
     expect(allSquads[1]?.leaderId).toBe(0);
 
+    // T-175: a leader must first belong to the squad.
+    expect(game.world.applyCommand({ type: 'SetSquadMembers', squadId: allSquads[1]!.id, members: [dwarfRegular] })).toEqual({ ok: true });
     // Set leader of second squad
     const setLeaderRes = game.world.applyCommand({
       type: 'SetSquadLeader',

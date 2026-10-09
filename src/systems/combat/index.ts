@@ -474,7 +474,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     }
 
     if (cmd.type === 'CreateSquad') {
-      return createSquad(ctx.world.entities, cmd);
+      return createSquad(ctx.world.entities, cmd, this.alertState, ctx.tick);
     }
     if (cmd.type === 'DisbandSquad') {
       return disbandSquad(ctx.world.entities, cmd);
@@ -493,7 +493,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       return setSquadMode(ctx.world.entities, cmd, this.alertState);
     }
     if (cmd.type === 'SetSquadEquipment') {
-      const res = setSquadEquipment(ctx.world.entities, cmd);
+      const res = setSquadEquipment(ctx.world.entities, cmd, ctx.registry);
       if (res.ok) {
         reequipSquad(ctx, cmd['squadId'] as EntityId);
       }

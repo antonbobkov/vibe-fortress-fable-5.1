@@ -16,6 +16,15 @@ const scenario: Scenario = {
   world: { region: { peril: 1 } },
   embark: 'none',
   run: (w: TestWorld) => {
+    // T-175: ended parties expire after one day; observe their composition while arriving.
+    const arrivedParties = new Map<number, { members: number[]; leaderId: number }>();
+    w.game.world.onEvents((batch) => {
+      for (const event of batch) {
+        if (event.type !== 'HostileSpawned') continue;
+        const party = w.game.world.entities.get(event['partyId'] as number, C.Party);
+        if (party?.purpose === 'raid') arrivedParties.set(event['partyId'] as number, { members: [...party.members], leaderId: party.leaderId });
+      }
+    });
     const autumnYear2Tick = (112 + 56) * TICKS_PER_DAY; // Day 168
 
     // Step up to autumn year 2: no raids allowed before this point
@@ -37,7 +46,7 @@ const scenario: Scenario = {
       expect(size).toBeLessThanOrEqual(12);
 
       // Captain added on top: total members = size + 1
-      const party = w.game.world.entities.get(partyId, C.Party);
+      const party = arrivedParties.get(partyId);
       expect(party).toBeDefined();
       expect(party?.members.length).toBe(size + 1);
       expect(party?.leaderId).toBeGreaterThan(0);

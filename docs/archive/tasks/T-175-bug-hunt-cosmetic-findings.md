@@ -1,6 +1,8 @@
 # T-175 — Cosmetic findings of the bug hunt
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (the cosmetic list) · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-175: reject invalid settings and retire stale simulation records`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (the cosmetic list) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@ Twelve small faults, none of which changes a played fortress. They are grouped s
 
 ## Reproduction
 
-[`commands.probe.ts`](../../reports/data/2026-10-08-bug-hunt-commands.probe.ts.txt) for the command items; the long runs for the others.
+[`commands.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-commands.probe.ts.txt) for the command items; the long runs for the others.
 
 ## What to do
 

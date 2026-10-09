@@ -27,6 +27,7 @@ import {
   THREATS_CADENCE,
   THREATS_PHASE,
   WARNING_DAYS,
+  PARTY_HISTORY_DAYS,
 } from './constants';
 import { arriveParty, spawnHostileMember } from './parties';
 import { makeThreatsReader, type ThreatsReader } from './reader';
@@ -496,6 +497,10 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
   }
 
   override tick(ctx: TickContext): void {
+    for (const id of ctx.world.entities.with(C.Party)) {
+      const party = ctx.world.entities.get(id, C.Party);
+      if (party?.state === 'gone' && ctx.tick - party.stateSince >= PARTY_HISTORY_DAYS * TICKS_PER_DAY) ctx.world.entities.destroy(id);
+    }
     this.processArrivalsAndSpawns(ctx);
     stepThreatMembers(ctx);
     stepCavernMonsters(ctx, this.rng, this.monsterInfo);

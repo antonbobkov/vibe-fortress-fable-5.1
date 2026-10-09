@@ -990,7 +990,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     if (cmd.type === 'AssignPasture') {
       // "tame grazer; zone is a pasture".
       const species = ctx.world.entities.get(animalId, C.Creature)?.species ?? 0;
-      if (this.facts.dietOf(species) !== 'grazer') return reject('not_tame');
+      if (this.facts.dietOf(species) !== 'grazer') return reject('not_grazer');
       const zoneId = cmd['zoneId'];
       if (zoneId === 0) return write({ pastureId: 0 });
       if (typeof zoneId !== 'number') return reject('not_found');

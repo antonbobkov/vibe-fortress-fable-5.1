@@ -480,6 +480,7 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
   const remainingAlive = P.members.filter((id) => entities.alive(id));
   if (remainingAlive.length === 0) {
     P.state = 'gone';
+    P.stateSince = ctx.tick;
     const outcome = finalPartyOutcome(P);
     P.outcome = outcome;
     ctx.emit({
@@ -775,6 +776,7 @@ export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickConte
   if (alive.length === 0) {
     if (retreatSurvivors(P, ctx)) return;
     P.state = 'gone';
+    P.stateSince = ctx.tick;
     const outcome = finalPartyOutcome(P);
     P.outcome = outcome;
     ctx.emit({ type: 'RaidEnded', partyId, outcome });
@@ -811,6 +813,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
   if (alive.length === 0) {
     if (retreatSurvivors(P, ctx)) return;
     P.state = 'gone';
+    P.stateSince = ctx.tick;
     const outcome = finalPartyOutcome(P);
     P.outcome = outcome;
     ctx.emit({ type: 'RaidEnded', partyId, outcome });

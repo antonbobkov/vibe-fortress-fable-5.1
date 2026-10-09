@@ -136,7 +136,18 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     } else if (type === 'ItemCreated') {
       board.trigger('missing_input');
       board.trigger('no_tool');
-    } else if (type === 'ItemReleased' || type === 'StocksChanged' || type === 'ItemDestroyed') {
+    } else if (type === 'ItemDestroyed') {
+      const itemId = event['id'] as EntityId;
+      for (const id of board.ids) {
+        const job = board.jobs.get(id);
+        for (const input of job?.inputs ?? []) {
+          if (job !== undefined && (input.reserved.includes(itemId) || input.delivered.includes(itemId))) job.data['inputsInvalidated'] = true;
+          input.reserved = input.reserved.filter((id) => id !== itemId);
+          input.delivered = input.delivered.filter((id) => id !== itemId);
+        }
+      }
+      board.trigger('missing_input');
+    } else if (type === 'ItemReleased' || type === 'StocksChanged') {
       board.trigger('missing_input');
     } else if (type === 'ToolDropped') {
       board.trigger('no_tool');

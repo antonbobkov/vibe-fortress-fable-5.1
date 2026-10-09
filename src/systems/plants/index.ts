@@ -210,6 +210,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       treeDensity: this.treeDensity,
       treeWeights: this.treeWeights,
       fungusWeights: (tier) => this.fungusByTier[tier] ?? [],
+      isOccupied: (i) => ctx.readers.spatial.at(i).some((id) => ctx.world.entities.has(id, C.Creature)),
       // "Trees never spread onto farm plots, roads or constructed floors", and nothing grows under
       // a building.
       isReserved: (i) => this.map.buildingAtTile(i) !== 0 || (buildings !== null && this.plotIndex.includes(buildings.zoneAt(i))),

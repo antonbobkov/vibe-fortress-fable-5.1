@@ -1,3 +1,4 @@
+import { C } from '@core/components';
 /**
  * T-M4-02 unit tests for the wild plants: chop yields per species range, gather yields and the
  * `wildSeedPermille` statistics, grass regrowth needing a cardinal grass neighbour, and ash
@@ -127,6 +128,7 @@ describe('T-M4-02 wild plants: grass and ash', () => {
       treeWeights: [],
       fungusWeights: () => [],
       isReserved: () => false,
+      isOccupied: (i) => w.readers.spatial.at(i).some((id) => w.game.world.entities.has(id, C.Creature)),
     };
   }
 
