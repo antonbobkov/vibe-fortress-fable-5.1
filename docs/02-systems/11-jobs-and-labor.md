@@ -110,11 +110,10 @@ A fetched tool's reservation ends when its worker equips it. Every released rese
 | Reason | Meaning | Retry trigger |
 |---|---|---|
 | `no_worker` | no dwarf has the labor enabled (or all are children) | `SetLabor`, `ImmigrantsArrived` |
-| `unreachable` | no walkable route for any worker with the labor | `TilesChanged` in the target chunk, `BuildingStateChanged`, `FluidsChanged` |
+| `unreachable` | no walkable route for any worker with the labor | `SetLabor`, `TilesChanged` in the target chunk, `BuildingStateChanged`, `FluidsChanged` |
 | `missing_input` | an input item filter matches nothing available | `ItemCreated`, `ItemReleased`, `StocksChanged` |
 | `no_tool` | no free pick, axe or ranged weapon | `ItemCreated`, `ToolDropped` |
 | `target_invalid` | the target no longer matches (cancelled by the producer) | none; the job is removed |
-| `workshop_suspended` | the workshop is suspended or has no worker allowed | `SuspendWorkshop`, `SetWorkshopWorker` |
 | `no_magma` | magma workshop lost its magma | `FluidsChanged` |
 
 Blocked jobs are re-evaluated on their trigger or every `BLOCKED_RETRY_TICKS`, whichever comes first, in creation order, at most `BLOCKED_RETRIES_PER_TICK` per tick.

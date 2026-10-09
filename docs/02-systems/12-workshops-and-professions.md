@@ -59,7 +59,7 @@ Melting takes the whole marked stack. Its bar cost comes from the weapon or armo
 
 ### Operation
 
-Each tick, for each built, unsuspended workshop:
+Magma power and stock are read each tick. Each tick, for each built, unsuspended workshop:
 
 1. If it has a `currentJobId`, nothing to do (11 runs the job). The exception is a current job that is `blocked` with `missing_input` while its order is no longer runnable (an input was taken after the job was created): the workshop cancels it (`JobCancelled { reason: 'order_not_runnable' }`), which releases what it had reserved and leaves delivered inputs where they lie, and goes on to step 2 in the same tick. A job blocked for any other reason (`no_worker`, `unreachable`, `no_tool`, `no_magma`) is kept.
 2. Otherwise, walk its work orders in order; for the first order that is *runnable*, create the job `craft { workshopId, orderIndex }` with the recipe's inputs as job inputs (11 reserves them), `workTile = at` (the workshop's work tile), tool none, priority = the order's priority. An order is runnable when: its `remaining > 0` (or its `maintain` condition holds); every input filter matches at least `count` available items (13 `countAvailable(filter)`); if `fuel`, a fuel bar is available or the workshop is magma-powered; if `container`, an empty container is available; and if the workshop has an assigned worker restriction, that worker exists.
@@ -83,7 +83,7 @@ WorkOrder { recipeId, remaining, mode: once | maintain, threshold (for maintain:
 
 - `maintain` orders are runnable when `stock(outputItemType, materialFilter) < threshold`; they never complete.
 - Orders on the workshop are executed in list order (the player reorders). A `WorkOrder` panel lists all orders in the fortress by workshop.
-- Orders can be placed at a workshop or from the global orders panel (which picks any workshop of the type; the job is created at the least busy one).
+- Orders can be placed at a workshop or from the global orders panel (which picks any workshop of the type; a global order goes to the first idle workshop of the type, in entity order).
 - `materialFilter` restricts inputs (make steel axes, oak beds). A work order's material filter constrains only the input the first output takes its material from (`material.from.index`), or input 0 when that output's material is `fixed`, `alloy` or `plantDrink`.
 
 ### Quality
@@ -103,7 +103,7 @@ Level 20 rolls 100–140, so masterworks are common for legends and impossible b
 
 Seeing a masterwork follows 10's room-entry visibility and saved per-dwarf memory: floor items and installed furniture, excluding container contents and the crafter.
 
-A masterwork that is later destroyed (melted, burned, sold is fine) gives its crafter a grief-like thought `masterwork_lost`; 13 emits `ItemDestroyed` with the crafter id for this.
+A masterwork that is later destroyed (melted, burned, sold is fine) gives its crafter a grief-like thought `masterwork_lost`; 15 gives this on 13's `ItemDestroyed` with the crafter id.
 
 ### Fuel and charcoal
 
@@ -140,7 +140,7 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 
 ### Events consumed
 
-`JobCompleted`, `JobCancelled`, `BuildingCompleted` (new workshop), `BuildingRemoved`, `FluidsChanged` (magma power), `StocksChanged` (maintain orders), `SkillLevelUp` (profession cache), `ItemDestroyed` (masterwork loss).
+`BuildingCompleted` (new workshop), `BuildingRemoved`, `JobCancelled`, `JobCompleted`, `SkillLevelUp` (profession cache).
 
 ### Events emitted
 

@@ -20,7 +20,7 @@ Resolve violence between creatures with rules the player can read: six body part
 
 ### Targeting
 
-A creature attacks when it has a `targetId` (set by 08 for animals, 18 for hostiles, this system for soldiers under orders or on duty, and 10 for civilians only when cornered: a civilian who cannot flee fights back with whatever they carry). Each tick a creature with a target: if adjacent (8-neighborhood, same level), perform a melee attack if its attack cooldown has elapsed; else if it has a ranged weapon with ammunition, range ≥ distance and line of sight, perform a ranged attack; else path toward the target (movement helper). Targets that die, leave perception (`PERCEPTION_RADIUS`), or become unreachable for `TARGET_LOSE_TICKS` are dropped. A target is not dropped for being out of sight: this system alone ends an acquired target, and 18's party AI leaves a held target alone. The `TARGET_LOSE_TICKS` count starts at the first failed approach and is not reset by a pending path retry, only by an actual step or an attack opportunity; the start tick is saved (`CombatState.unreachableSince`).
+A creature attacks when it has a `targetId` (set by 08 for animals, 18 for hostiles, this system for soldiers under orders or on duty, and 10 for civilians only when cornered: a civilian who cannot flee fights back with whatever they carry). Each tick a creature with a target: if adjacent (8-neighborhood, same level), perform a melee attack if its attack cooldown has elapsed; else if it has a ranged weapon with ammunition, range ≥ distance and line of sight, perform a ranged attack; else path toward the target (movement helper). Targets that die, leave perception (`PERCEPTION_RADIUS`; a target more than two levels away is out of perception), or become unreachable for `TARGET_LOSE_TICKS` are dropped. A target is not dropped for being out of sight: this system alone ends an acquired target, and 18's party AI leaves a held target alone. The `TARGET_LOSE_TICKS` count starts at the first failed approach and is not reset by a pending path retry, only by an actual step or an attack opportunity; the start tick is saved (`CombatState.unreachableSince`).
 
 Soldiers on duty with no order pick the nearest hostile within perception. Ranged soldiers keep `RANGED_KEEP_DISTANCE` tiles away from melee threats when possible (kiting is limited: they move only when a threat is within 2 tiles).
 
@@ -31,7 +31,7 @@ Soldiers on duty with no order pick the nearest hostile within perception. Range
 ### Melee resolution
 
 ```
-attackSkill  = skill(attacker, weapon.skill)            // or the species' natural attack skill for animals
+attackSkill  = skill(attacker, weapon.skill)            // or the species' natural attack skill for animals; launcher in melee: club at half damage, hammer skill (weapons-and-armor.md)
 dodgeSkill   = skill(defender, 'dodge')
 hit = 50 + (attackSkill − dodgeSkill) × 3 + (Agility(att) − Agility(def)) / 4
     + (defender unconscious or asleep ? 40 : 0) + (defender fleeing ? 10 : 0) + (defender in deep water ? 20 : 0)
@@ -40,15 +40,19 @@ if rng.int(0, 99) ≥ hit: miss → AttackResolved { outcome: miss }; return
 
 // parry and block (defenders that can act: conscious, not fleeing)
 if defender wields a weapon with a melee skill: parryChance = min(30, skill(defender, weaponSkill) × 2); if rng < parryChance: outcome parried; return
-if defender has a shield: blockChance = min(40, 10 + skill(defender, 'shield') × 2); if rng < blockChance: outcome blocked; return
+if defender has a shield: blockChance = min(40, 10 + skill(defender, 'shield') × 2)    // buckler: min(30, 5 + skill × 2) (weapons-and-armor.md)
+if rng < blockChance: outcome blocked; return
 
 part = weighted pick from defender.bodyPlan hit weights (attacks from unconscious targets: head weight doubled)
 raw  = weapon.baseDamage × metalTierMultiplier(weapon.material) × qualityMultiplier(weapon) × (50 + Strength(att)) / 100
-       // natural attacks: species attack damage × (50 + Strength)/100; war-trained animals +50%
+       // natural attacks: species attack damage × (50 + Strength)/100; war-trained animals +50% (08)
 armorReduction = Σ over armor pieces covering `part` (outer layer first): piece.armorValue × metalTierArmor(piece.material) × coverage / 100 × qualityArmorMultiplier
                  × damageTypeVsLayer(damageType, piece.layer)
+                 // clothing counts as a padding layer of armor value 1 (weapons-and-armor.md)
+                 // natural armor: (naturalArmor + (war-trained ? 1 : 0)) × damageTypeVsLayer(damageType, plate) (08)
 damage = max(0, raw − armorReduction)
 if damageType == blunt and armorReduction > 0: damage = max(damage, raw × BLUNT_THROUGH_PERCENT / 100)    // blunt bruises through armor
+damage = round(damage × (100 − min(10, Toughness(def) / 10)) / 100)    // Toughness reduction (17)
 emit DamageDealt { defender, part, damageType, amount: damage, attackerId, weaponId }
 emit AttackResolved { attacker, defender, part, damageType, amount, outcome: hit }
 grant xp: attacker weapon skill; defender dodge (on miss), weapon skill (on parry), shield (on block), armor_use (on hit reduced by armor)
@@ -101,6 +105,7 @@ Order = kill { targetId } | station { tile } | patrol { tiles } | follow { dwarf
 - `train`: members go to the barracks zone assigned to the squad (`SetZoneSetting { barracks, squadId }`) and train (below); if the squad has a station they take turns: half train, half stand at the station, swapping every `TRAIN_SHIFT_HOURS`.
 - `active`: members go to the station (or patrol route) and attack hostiles on sight; without a station they gather at the barracks.
 - On `watchful` alert every squad is treated as `active`; on `hearth` alert the same, plus civilians retreat (10).
+- A member of a squad in `train` or `active` mode is on duty; one in `off` mode is on duty only under a `watchful` or `hearth` alert. Being on duty means: no flight, the military title, no interruption by the hearth alert, and attacking a visible hostile within perception.
 - Orders are executed in order; `kill` targets a creature (any faction; killing traders or peaceful wild animals has consequences in 20 and 08); `station` and `patrol` set the squad's position; `follow` follows a dwarf (an escort); `cancel` clears.
 - The Warden, if any, is the leader of the first squad by default; leaders are chosen by the player otherwise. A squad without a leader still works.
 
