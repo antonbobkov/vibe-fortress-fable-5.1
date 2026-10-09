@@ -49,6 +49,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'DoorBreakAttempt',
     'MechanismTriggered',
     'CorpseCreated',
+    'CreatureDied',
     'ItemDestroyed',
     'BuildingCompleted',
   ];
@@ -178,7 +179,9 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   override handle(event: GameEvent, _ctx: TickContext): void {
     const rooms = this.rooms;
     this.burial.handle(event, _ctx);
-    if (event.type === 'TilesChanged') {
+    if (event.type === 'CreatureDied') {
+      rooms.ownerDied(event['id'] as EntityId);
+    } else if (event.type === 'TilesChanged') {
       const tiles = event['tiles'] as readonly TileIndex[];
       this.buildings.onTilesChanged(tiles);
       this.buildings.refreshLampLight();

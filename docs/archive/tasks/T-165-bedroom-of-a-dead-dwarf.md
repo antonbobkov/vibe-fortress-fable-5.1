@@ -1,6 +1,8 @@
 # T-165 — A dead dwarf's bedroom is free again
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 6) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-165: release dead owners bedrooms and pets`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 6) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@
 
 ## Reproduction
 
-[`death2.probe.ts`](../../reports/data/2026-10-08-bug-hunt-death2.probe.ts.txt): `AssignRoom` to a dwarf, the dwarf is killed on day 2; on day 29 the line `rooms:` still shows `owner <dead id>` while three living dwarves have no bedroom.
+[`death2.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-death2.probe.ts.txt): `AssignRoom` to a dwarf, the dwarf is killed on day 2; on day 29 the line `rooms:` still shows `owner <dead id>` while three living dwarves have no bedroom.
 
 ## What to do
 

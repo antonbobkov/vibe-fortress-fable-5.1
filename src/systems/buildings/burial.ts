@@ -114,6 +114,7 @@ export class BurialStore {
     ctx.world.entities.add(coffinId, C.Building, { ...coffin, settings: { ...coffin.settings, occupantId: dwarfId } });
     dead.buried = true;
     dead.corpseId = 0;
+    ctx.world.services.items?.dropAt(corpseId, coffin.origin);
     ctx.world.services.items?.destroy(corpseId, 'buried');
     let tombTier: number | 'none' = 'none';
     for (const zoneId of this.zones.zonesAt(coffin.origin)) {

@@ -104,6 +104,8 @@ Ownership ends with its owner: on `CreatureDied` of a fortress creature, every i
 
 Commands set flags on items, on all items in a rectangle including their container contents, or on all items of a type in the stocks panel. Items dropped by dead dwarves and hostiles are not forbidden by default (unlike the inspiration). A dead worker's held tool and carried item, when they are not in its `Equipment`, drop at the recorded death tile, with no owner or reservation and with the forbidden flag clear; items *worn by a corpse* stay with the corpse until the corpse is buried, rots, or is butchered (every non-dwarf corpse with worn items can be looted by a `strip_corpse` hauling job that moves the equipment to the ground). Dumped items stay in the dump zone; a dump-marked item uses the first tile of the nearest dump zone by centroid, and has no home without a dump zone.
 
+When a corpse is buried, its worn clothing (the `clothing/*` items from `Equipment.clothing`) is destroyed with it as `ItemDestroyed { reason: 'buried' }`, leaving the stock counts and wealth. Its weapon, shield, armor and quiver drop unowned on the coffin's tile. Destroying any corpse through `items.destroy` applies the same disposition at its resolved tile, with clothing using the corpse's destruction reason. Only items still carried by that corpse are disposed of; a missing item or one already moved to another holder is untouched. Rot drops all worn items at the corpse's tile when it becomes a skeleton.
+
 ### Rot
 
 Types with `rotDays > 0` (raw meat, raw fish, raw plants, meals, eggs, cheese, milk, corpses, hides) have a rot timer. Rot advances in a bucket queue keyed by expiry tick (only the head bucket is inspected each 13 tick).

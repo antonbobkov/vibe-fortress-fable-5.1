@@ -111,7 +111,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `WoundInflicted` | `id, part, type, severity` | 17 | 15 |
 | `LimbLost` | `id, part` | 17 | 15, 16, ui |
 | `CreatureUnconscious` / `CreatureConscious` | `id` | 17 | 10, 16, 18, ui |
-| `CreatureDied` | `id, cause, killerId, tile, species, name, faction, ageTicks, wornItems` | 17 | 08, 09, 10, 11, 13, 15, 16, 18, 20, ui |
+| `CreatureDied` | `id, cause, killerId, tile, species, name, faction, ageTicks, wornItems` | 17 | 08, 09, 10, 11, 13, 14, 15, 16, 18, 20, ui |
 | `PatientAdmitted` / `PatientDischarged` / `PatientHealed` | `id[, hospitalTier]` | 17 | 10, 15, ui |
 | `InfectionStarted` / `InfectionCured` | `id` | 17 | ui |
 | `TreatmentDone` | `patientId, medicId, kind` | 17 | 10 (xp) |

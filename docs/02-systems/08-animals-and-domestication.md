@@ -85,7 +85,7 @@ States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 
 ### Pets
 
-- Each season, each `cat` not already a pet adopts a random dwarf with `ADOPT_PERMILLE` (`PetAdopted`, a thought for the dwarf). Dogs can be assigned as pets by the player. A pet follows its dwarf loosely (within 5 tiles) and its death gives the owner grief (15).
+- Each season, each `cat` not already a pet adopts a random dwarf with `ADOPT_PERMILLE` (`PetAdopted`, a thought for the dwarf). Dogs can be assigned as pets by the player. A pet follows its dwarf loosely (within 5 tiles) and its death gives the owner grief (15). On the owner's `CreatureDied`, the pet's `petOf` becomes 0 in the same tick, so it can be adopted again.
 
 ### Death
 
