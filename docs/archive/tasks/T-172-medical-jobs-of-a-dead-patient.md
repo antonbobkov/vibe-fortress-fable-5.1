@@ -1,6 +1,8 @@
 # T-172 — A dead patient's medical jobs are cancelled
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 13) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-172: cancel jobs when their entity target is destroyed`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 13) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

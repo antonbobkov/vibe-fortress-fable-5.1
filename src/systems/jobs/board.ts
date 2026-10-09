@@ -65,6 +65,9 @@ export class JobBoard implements JobsApi, JobSink {
   /** Every job id, ascending (creation order). */
   readonly ids: number[] = [];
   private readonly byKeyMap = new Map<string, number>();
+  private readonly byEntityTarget = new Map<EntityId, Set<number>>();
+  private readonly unsubscribeDestroyed: () => void;
+  private readonly unsubscribeBeforeDestroyed: () => void;
   nextJobId = 1;
   readonly laborPriorities: number[];
   readonly standingOrders: Record<string, boolean> = {};
@@ -92,6 +95,28 @@ export class JobBoard implements JobsApi, JobSink {
 
   constructor(world: WorldLike, registry: Registry, readers: ReaderSetLike) {
     this.world = world;
+    this.unsubscribeBeforeDestroyed = world.entities.onBeforeDestroy((target, kind) => {
+      if (kind !== 'creature') return;
+      const pos = world.entities.get(target, C.Position);
+      if (pos === undefined) return;
+      for (const id of Array.from(this.byEntityTarget.get(target) ?? []).sort((a, b) => a - b)) {
+        const job = this.jobs.get(id);
+        if (job === undefined || job.workerId === 0 || this.typeId(job) !== 'hunt') continue;
+        // 09's successful hunt continues by waiting for its own corpse, not its dead quarry.
+        this.unindexTarget(job);
+        job.data['animal'] = target;
+        job.data['anchorTile'] = world.map.index(pos.x, pos.y, pos.z);
+        job.target = { kind: 'tile', ref: job.data['anchorTile'] as TileIndex };
+        this.invalidateWorkAvailability();
+      }
+    });
+    this.unsubscribeDestroyed = world.entities.onDestroy((target) => {
+      for (const id of Array.from(this.byEntityTarget.get(target) ?? []).sort((a, b) => a - b)) {
+        const job = this.jobs.get(id);
+        // A deconstruction's own completion destroys its target as part of success.
+        if (job !== undefined && job.state !== 'completing') this.cancel(id, 'target_gone');
+      }
+    });
     this.registry = registry;
     this.readers = readers;
     const types = registry.table<JobTypeRow>('jobTypes');
@@ -107,6 +132,27 @@ export class JobBoard implements JobsApi, JobSink {
     const skills = registry.table('skills');
     for (let s = 1; s <= skills.size; s += 1) this.skillIndex.set(skills.idOf(s), s);
     for (const name of STANDING_ORDERS) this.standingOrders[name] = true;
+  }
+
+  dispose(): void {
+    this.unsubscribeDestroyed();
+    this.unsubscribeBeforeDestroyed();
+  }
+
+  private indexTarget(job: Job): void {
+    if (job.target.kind !== 'entity' && job.target.kind !== 'building' && job.target.kind !== 'zone') return;
+    let bucket = this.byEntityTarget.get(job.target.ref);
+    if (bucket === undefined) {
+      bucket = new Set<number>();
+      this.byEntityTarget.set(job.target.ref, bucket);
+    }
+    bucket.add(job.id);
+  }
+
+  private unindexTarget(job: Job): void {
+    const bucket = this.byEntityTarget.get(job.target.ref);
+    bucket?.delete(job.id);
+    if (bucket?.size === 0) this.byEntityTarget.delete(job.target.ref);
   }
 
   // ---------- lookups ----------
@@ -334,6 +380,7 @@ export class JobBoard implements JobsApi, JobSink {
       data: { ...(spec.data ?? {}) },
     };
     this.jobs.set(id, job);
+    this.indexTarget(job);
     this.invalidateWorkAvailability();
     this.ids.push(id);
     this.byKeyMap.set(key, id);
@@ -371,6 +418,7 @@ export class JobBoard implements JobsApi, JobSink {
 
   private remove(job: Job): void {
     this.invalidateWorkAvailability();
+    this.unindexTarget(job);
     this.jobs.delete(job.id);
     this.byKeyMap.delete(job.key);
     const at = this.ids.indexOf(job.id);
@@ -959,10 +1007,12 @@ export class JobBoard implements JobsApi, JobSink {
     this.workAvailability.clear();
     this.jobs.clear();
     this.byKeyMap.clear();
+    this.byEntityTarget.clear();
     this.ids.length = 0;
     for (const j of state.jobs) {
       const job = structuredCopy(j);
       this.jobs.set(job.id, job);
+      this.indexTarget(job);
       this.ids.push(job.id);
       this.byKeyMap.set(job.key, job.id);
     }

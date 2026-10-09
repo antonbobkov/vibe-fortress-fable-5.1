@@ -125,6 +125,8 @@ Each entity has exactly one `Kind` component that tags what it is. Kinds: `creat
 ```
 create(kind): EntityId
 destroy(id): void                       // components removed; slot generation incremented. No event is queued: the owning system emits ItemDestroyed or CreatureDied
+onBeforeDestroy(listener): unsubscribe  // synchronous (id, kind) while last components are readable; additive, derived, not saved
+onDestroy(listener): unsubscribe        // synchronous (id, kind) after destruction; additive, derived, not saved
 alive(id): boolean
 add<T>(id, component: ComponentType<T>, value: T): void
 get<T>(id, component): T | undefined

@@ -19,6 +19,8 @@ reasonGone(job): no_worker → a worker has the labor; unreachable → a worker 
                  no_tool → a worker carries the tool or findTool succeeds from that tile; any other reason → true
 ```
 
+Before removal of a hunted creature, an active hunt transitions from the quarry entity to a tile target at the death location and retains the quarry id in data.animal. It waits for CorpseCreated for that id and carries that corpse as 09 defines. Unclaimed hunts retain their entity target and cancel normally. After destruction, cancel all indexed non-completing jobs whose entity, building or zone target is that id, in job-id order, with target_gone. Ordinary cancellation releases reservations and frees workers immediately. A completing deconstruction is excluded because it destroys its own target on success. Rebuild the target index on load; it is derived and not serialized.
+
 ## Assignment
 
 ```
@@ -126,7 +128,7 @@ findSlot(sp, it):
   return none
 ```
 
-Each items tick re-examines `noHome` when a previously full stockpile gains space, drops slot reservations whose job is gone, and requests one nearest free empty container per wanted class per stockpile, counting incoming containers. Empty wanted containers already on their stockpile are stored. Non-dwarf corpses with worn items get `strip_corpse`; destroyed items and removed destination stockpiles cancel their haul jobs with `target_invalid`.
+Each items tick re-examines `noHome` when a previously full stockpile gains space, drops slot reservations whose job is gone, and requests one nearest free empty container per wanted class per stockpile, counting incoming containers. Empty wanted containers already on their stockpile are stored. Non-dwarf corpses with worn items get `strip_corpse`; destroyed item targets cancel their haul jobs with `target_gone`; removed destination stockpiles cancel their haul jobs with `target_invalid`.
 
 On delivery: `dropAt(it, slot.tile)` or `putIn(it, slot.container)`; merge identical stacks; release the slot reservation; the item leaves `wantsHauling`.
 

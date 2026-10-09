@@ -157,6 +157,8 @@ A two-input build interrupted after its first delivery and resumed 2,000 ticks l
 
 A miner killed while holding the only pick outside its weapon slot leaves the pick at the recorded death tile, unowned, unreserved and unforbidden; another miner fetches it and completes a channel job. A hauler killed after pickup leaves its carried item on the death tile and another hauler completes the delivery. Held items also in Equipment remain on the corpse. Killing a builder holding one input releases that input, retains the job's other reserved inputs, and lets another builder finish. The later death notification neither repeats the drop nor emits a second ToolDropped.
 
+A bleeding hospital patient's death cancels all jobs targeting it and frees every held reservation in that tick. Deconstructing a workshop cancels its interrupted craft job and releases delivered inputs while the deconstruction itself completes. Entity, building and zone targets all use this rule, including after save/load; tile targets and unrelated jobs survive. An active hunt transitions to its quarry's death tile, waits for its own corpse and continues after save/load; an unclaimed hunt is cancelled.
+
 ## 12 Workshops
 
 | id | Scenario | Expected |
