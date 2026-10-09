@@ -123,7 +123,7 @@ A command is a plain record with a `type` and typed fields. The command table in
 
 Rules:
 
-- Commands are applied at the start of a tick, in submission order, before any system ticks.
+- Commands are applied at the start of a tick, in submission order, before any system ticks. Each handler validates field types before using them. The command phase catches any throw from `applyCommand`, logs the command as rejected with `precondition_failed`, emits `CommandRejected` and continues the remaining queue; the tick still advances.
 - While paused, the host runs that same command phase immediately on submission. The phase uses `calendar.tick`, the number of the next tick to run, for command contexts and log entries. It does not run systems, connectivity, event handlers or the calendar. Already applied commands are removed from the queue and are not applied again on resuming.
 - Rejected paused commands are delivered immediately to presentation listeners, once, so the status row and alert log update at once. `CommandRejected` has no simulation subscribers. Other events emitted by commands remain queued for the normal tick dispatch and are saved with the pending queues. Presentation callbacks remain read-only; commands they submit wait until their event batch finishes and the next command phase runs.
 - A recorded paused command replays in the command phase of its stamped tick. With no system running between paused submissions and that tick, replay with or without pauses reaches the same world hash. A save taken while paused preserves the applied state, command log and pending events; loading it does not apply those commands again.

@@ -1,6 +1,8 @@
 # T-167 — No command throws: four that do reject instead
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 8) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-167: reject malformed commands and preserve the command queue`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 8) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@
 
 ## Reproduction
 
-[`commands.probe.ts`](../../reports/data/2026-10-08-bug-hunt-commands.probe.ts.txt), the first four blocks. Each shows the throw, `tick 401 -> 401`, and a `RenameFortress` queued behind it that is never applied.
+[`commands.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-commands.probe.ts.txt), the first four blocks. Each shows the throw, `tick 401 -> 401`, and a `RenameFortress` queued behind it that is never applied.
 
 ## What to do
 

@@ -2,7 +2,7 @@
 
 **Owner:** implementation · **Depends on:** [`../01-architecture/module-interfaces.md`](../01-architecture/module-interfaces.md), every system document
 
-Every command, its fields, its owning system, its validation and the events its application emits. Rejection reasons are from the fixed list at the end. Commands are applied at the start of a tick in submission order. While paused, the host runs the same command phase immediately, stamped with the next tick's number, without running any other tick phase. Rejections reach presentation at once; other command events wait for the normal tick dispatch.
+Every command, its fields, its owning system, its validation and the events its application emits. Rejection reasons are from the fixed list at the end. A handler validates the type of each field before using it. If a handler throws, the command phase records `precondition_failed`, emits `CommandRejected` and continues the remaining queue without losing a tick. Commands are applied at the start of a tick in submission order. While paused, the host runs the same command phase immediately, stamped with the next tick's number, without running any other tick phase. Rejections reach presentation at once; other command events wait for the normal tick dispatch.
 
 | Command | Fields | Owner | Validation (reject reason) | Emits |
 |---|---|---|---|---|
@@ -10,7 +10,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `UndoDesignation` | `tiles[]` | 03 | tiles have designations without progress (`has_progress` otherwise, partial) | `JobCancelled` |
 | `SetDesignationPriority` | `tiles[], priority` | 03 | designations exist; Designate tool applies it to the still-designated tiles of its last batch | — |
 | `SetTraffic` | `tiles[], mode` | 03 | in bounds | `TilesChanged` |
-| `DesignateStairwell` | `x, y, zTop, zBottom` | 03 | `zTop > zBottom`, in bounds | as Designate |
+| `DesignateStairwell` | `x, y, zTop, zBottom` | 03 | integer coordinates in the map (`out_of_bounds`); `zTop > zBottom` | as Designate |
 | `DesignateHarvest` | `tiles[]` | 07 | crops at stage 3 | `JobCreated` |
 | `ConfirmDeepsilver` | — | 03 | — | — (sets `deepsilverConfirmed`) |
 | `SetPlotCrop` | `zoneId, season, speciesId \| 0` | 07 | zone is a farm plot; species light matches the plot kind (`light_mismatch`) | — |
@@ -21,7 +21,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `AssignAnimal` | `animalId, dwarfId \| chainId \| squadId \| 0` | 08 | trained or pet-able; target exists | — |
 | `SetBreedingCap` | `species, cap` | 08 | 0–100 | — |
 | `ReleaseCaged` | `cageId` | 08 | cage occupied | `CreatureCaged`-reverse via 19 `ReleaseCage` |
-| `SetHuntable` | `species, on` | 09 | wild species | — |
+| `SetHuntable` | `species, on` | 09 | known wild species (`not_found` for unknown species); boolean `on` | — |
 | `SetLabor` | `dwarfId, labor, on` | 11 | adult (children: `child_labor`); `hauling` cannot be turned off for children | `JobUnblocked` retries |
 | `SetLaborPriority` | `labor, priority` | 11 | 1–9 | — |
 | `CancelJob` | `jobId` | 11 | job exists and is cancellable (not `completing`) | `JobCancelled` |
@@ -30,8 +30,8 @@ Every command, its fields, its owning system, its validation and the events its 
 | `AssignTitle` | `dwarfId \| 0, title` | 10 | adult; one holder per title | `TitleAssigned` |
 | `RenameDwarf` | `dwarfId, name` | 10 | 1–24 characters | — |
 | `SetSchedule` | `dwarfId, sleepStartHour` | 10 | 0–23 | — |
-| `AddWorkOrder` | `workshopId \| 0, order` | 12 | recipe belongs to the workshop type; count 1–999 or maintain threshold 1–999; `order.memorialDwarfId` only on `make_memorial_slab`, naming a dead dwarf with no intact body | — |
-| `EditWorkOrder` / `RemoveWorkOrder` / `ReorderWorkOrder` | `workshopId, index[, patch \| to]` | 12 | index valid | — |
+| `AddWorkOrder` | `workshopId \| 0, order` | 12 | `order` is a non-null record (`precondition_failed` otherwise); recipe belongs to the workshop type; count 1–999 or maintain threshold 1–999; `order.memorialDwarfId` only on `make_memorial_slab`, naming a dead dwarf with no intact body | — |
+| `EditWorkOrder` / `RemoveWorkOrder` / `ReorderWorkOrder` | `workshopId, index[, patch \| to]` | 12 | index valid; Edit requires a non-null record `patch` (`precondition_failed` otherwise) | — |
 | `SetWorkshopWorker` | `workshopId, dwarfId \| 0` | 12 | dwarf has any enabled recipe labor for the workshop type | — |
 | `SuspendWorkshop` | `workshopId, on` | 12 | — | `JobCancelled` if running |
 | `ForbidItem` / `ClaimItem` / `DumpItem` / `MeltItem` | `itemId \| tiles[] \| typeId, on` | 13 | items exist; melt only metal items | `ItemReleased` when forbidding a reserved item cancels its job |

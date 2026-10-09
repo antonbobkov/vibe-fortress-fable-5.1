@@ -14,6 +14,8 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 | `core_event_order` | two systems emit in the same tick | dispatched in emission order; handlers run in system order |
 | `core_calendar` | run `TICKS_PER_YEAR` ticks | `YearPassed { 2 }` once; 4 `SeasonChanged`; 112 `DayPassed` |
 
+Malformed commands for an unknown huntable species, null work order or patch, and a fractional stair coordinate reject with their catalogued reason. A rename queued behind each still applies and the tick advances. An unforeseen handler throw also records `precondition_failed` and preserves the remaining command queue.
+
 ## 01 World generation
 
 | id | Scenario | Expected |
