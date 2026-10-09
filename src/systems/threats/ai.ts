@@ -11,6 +11,7 @@ import type { TickContext } from '@core/system';
 import { TICKS_PER_DAY } from '@core/constants';
 import { entityIndex } from '@core/entities';
 import type { BuildingsReader } from '@systems/buildings/reader';
+import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import { PERCEPTION_RADIUS } from '@systems/combat/constants';
 import {
@@ -381,6 +382,7 @@ export function pickUpLoot(m: EntityId, lootId: EntityId, P: Party, ctx: TickCon
 
 export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: TickContext): void {
   const entities = ctx.world.entities;
+  const escapedLoot = P.loot.slice();
 
   for (const lootId of P.loot.slice()) {
     const it = entities.get(lootId, C.Item);
@@ -407,6 +409,7 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
     }
   }
 
+  removeLeavingEquipment(ctx.world, m, escapedLoot);
   ctx.world.services.combat?.clearTarget(m);
   entities.destroy(m);
   P.despawnedCount = (P.despawnedCount ?? 0) + 1;

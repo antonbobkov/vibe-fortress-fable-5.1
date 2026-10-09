@@ -1,6 +1,8 @@
 # T-163 — A raider's gear is carried, and leaves with the raider
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 4) · **Size:** S · **Needs:** T-162 · **Status:** open
+Closed by `T-163: carry hostile gear and remove equipment on departure`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 4) · **Size:** S · **Needs:** T-162 · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@ A hostile's gear is spawned on its arrival tile and marked carried without being
 
 ## Reproduction
 
-[`gear.probe.ts`](../../reports/data/2026-10-08-bug-hunt-gear.probe.ts.txt): `three-years-p4-1`, peril 4. Thief arrives at tick 25,201 on (0, 0, 32); at tick 25,405 it is at (11, 4, 32) and its axe, spear and leggings are listed on (0, 0, 32); it leaves at tick 25,431 and the three items are still there on day 30. Copy the probe files from `reports/data/` into `t115-scratch/` at the repository root as the report's section "The probes" says, then run `node node_modules/vitest/vitest.mjs run -c t115-scratch/vitest.config.ts t115-scratch/gear.probe.ts`.
+[`gear.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-gear.probe.ts.txt): `three-years-p4-1`, peril 4. Thief arrives at tick 25,201 on (0, 0, 32); at tick 25,405 it is at (11, 4, 32) and its axe, spear and leggings are listed on (0, 0, 32); it leaves at tick 25,431 and the three items are still there on day 30. Copy the probe files from `reports/data/` into `t115-scratch/` at the repository root as the report's section "The probes" says, then run `node node_modules/vitest/vitest.mjs run -c t115-scratch/vitest.config.ts t115-scratch/gear.probe.ts`.
 
 ## What to do
 

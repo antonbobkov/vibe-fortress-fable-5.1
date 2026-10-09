@@ -247,6 +247,8 @@ Squad claims from the ground or a container, replacement drops and archery pract
 | `th_deep` | mine 5 deepsilver tiles | `DeepStirred { 1 }`; 3 `hollow_crawler` emerge adjacent to the last mined tile |
 | `th_restless` | `old_battlefield`, autumn night | `RestlessRose`; all collapse at dawn |
 
+Spawned hostile gear has no ground position while carried and remains foreign. On edge departure no item retains that member as owner or carrier; worn gear and spare weapons/ammunition all leave as `left_map`, while escaped loot is destroyed once as `stolen`. Death transfers all gear to the unowned corpse instead. Departing Wildwood guards take their spare daggers and arrows with them.
+
 ## 19 Defense
 
 | id | Scenario | Expected |

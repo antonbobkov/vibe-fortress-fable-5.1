@@ -13,6 +13,7 @@ import type { LocalMapSpec } from '@systems/embark/spec';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { ThreatsReader } from '@systems/threats/reader';
 import type { DwarvesReader } from '@systems/dwarves/reader';
+import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import type { Job, JobsReader } from '@systems/jobs';
 import { grantXp } from '@systems/dwarves/skills';
@@ -475,11 +476,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     }
     for (const id of [...a.merchants, ...a.guards, ...a.animals]) {
       if (!ctx.world.entities.alive(id) || a.dead.includes(id)) continue;
-      const equipment = ctx.world.entities.get(id, C.Equipment);
-      if (equipment) {
-        const kit = [equipment.weapon, equipment.shield, equipment.quiver, ...Object.values(equipment.armor), ...Object.values(equipment.clothing)];
-        for (const itemId of kit) if (itemId && ctx.world.entities.alive(itemId)) ctx.world.services.items?.destroy(itemId, 'caravan_departed');
-      }
+      removeLeavingEquipment(ctx.world, id);
       ctx.world.entities.destroy(id);
     }
     if (ctx.world.entities.alive(a.partyId)) ctx.world.entities.destroy(a.partyId);

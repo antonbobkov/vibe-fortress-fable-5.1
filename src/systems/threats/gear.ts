@@ -148,15 +148,10 @@ export function equipHostileCreature(
     const spawnedId = world.services.spawn.item(itemType, matIdx, tile, count, quality);
     if (spawnedId === 0) continue;
 
-    // Remove the creation contribution before the legacy ownership writes below.
+    // Foreign equipment belongs to its carrier and uses 13 for every mutation.
     world.services.items?.setFlag(spawnedId, ItemFlag.Foreign, true);
-    const itemComp = entities.get(spawnedId, C.Item);
-    if (itemComp) {
-      itemComp.carriedBy = creatureId;
-      itemComp.ownerId = creatureId;
-      itemComp.flags |= ItemFlag.Owned;
-      world.services.items?.refreshDerivedIndexes?.(spawnedId);
-    }
+    world.services.items?.attachToCarrier(spawnedId, creatureId);
+    world.services.items?.setOwner(spawnedId, creatureId);
 
     if (wDef) {
       // If weapon slot is empty, equip it

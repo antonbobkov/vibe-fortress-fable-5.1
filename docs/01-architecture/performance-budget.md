@@ -68,7 +68,7 @@ The pathfinding budget is the one that stretches: if the budget is exhausted in 
 `host.stats()` exposes per-system timings (moving average and last worst case). Diagnostic moving-average windows cover one simulated second (`SIM_TICKS_PER_SECOND` ticks, 20 ticks), including zero-cost cadence ticks, alongside lifetime totals and worst cases. The application injects its platform `Clock` on host creation and load.
 
 Optimized candidate and spatial views avoid altering saved state or tie-break order:
-- Derived indexes (tile/kind, item type/chunk/carrier/container, rotten-source, and static activity indexes) rebuild cleanly on load and invalidate incrementally on owned component/API mutations (`ItemsApi.refreshDerivedIndexes`), leaving reachability, flags, occupancy, and slot/id tie orders intact.
+- Derived indexes (tile/kind, item type/chunk/carrier/container, rotten-source, and static activity indexes) rebuild cleanly on load and invalidate incrementally on owned component/API mutations through the item API, leaving reachability, flags, occupancy, and slot/id tie orders intact.
 - `ItemsReader.carriedItems` supplies held ammunition directly.
 - `bestUnattendedItems` maintains per-tile value maxima in cached value bands ranked by value and entity slot (allowing thief and loot goals to stop after finding a reachable winner in top bands). For party loot searches (18), `bestUnattendedItems` accepts optional `from` and `radius` bounds restricting evaluation to the same-z Chebyshev square; if items excluded by party loot remain loose or in worlds lacking the item reader, the fallback full spatial search runs. Stockpile classification and connectivity are evaluated live.
 

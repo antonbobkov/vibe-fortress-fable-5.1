@@ -9,7 +9,7 @@ Track every object in the fortress: what it is, what it is made of, how good it 
 ## Concepts
 
 - **Item type**: a row of `items.md` with a three-level category path (`food/meat/raw`), a value multiplier, stacking rules, the container class it wants in a stockpile, a rot time, tags, and a glyph.
-- **Item**: an entity with `Item { type, material, quality, wear, count, containerId, ownerId, flags }` and a `Position` when it lies on the ground. Items in a container have no `Position`; items carried have a `carriedBy` in the `Worker`/`Equipment` of the carrier.
+- **Item**: an entity with `Item { type, material, quality, wear, count, containerId, ownerId, flags }` and a `Position` when it lies on the ground. Items in a container have no `Position`; items carried have `Item.carriedBy` naming their creature, corpse or in-flight projectile, and no `Position`.
 - **Stack**: one entity with `count > 1` for stackable types (ammunition, seeds, meals, bars, blocks, coins). Stacks split when part of one is taken and merge when identical stacks meet in a stockpile slot.
 - **Container**: an item with `Container { contents, capacity }`. Classes: `barrel` (drink, liquids, food), `bag` (seeds, flour, powders), `bin` (crafts, cloth, leather, bars, ammunition), `chest` (personal items, hospital supplies), `bucket` (one unit of water or milk), `cage` (one creature).
 - **Stockpile**: a zone with a filter, container wants, a priority, and optional source links.
@@ -100,7 +100,7 @@ Maintained incrementally, sorted by item id:
 
 `Item.flags`: `forbidden` (ignored by all jobs and searches), `dump` (wants hauling to a `dump` zone; on arrival the flag clears), `melt` (a smelter may consume it), `reserved` (held by a job, or by a dwarf walking to eat or drink it; released when the holder dies or abandons the errand), `owned` (belongs to a dwarf: worn clothing, an assigned bed's owner's chest contents), `installed` (linked to a built piece of furniture, 14: off the map and out of every search, haul and available count, but still in the totals and in wealth; deconstruction clears it and returns the item to the building's tile).
 
-Ownership ends with its owner: on `CreatureDied` of a fortress creature, every item with its `ownerId` loses the owner and the `owned` flag through `items.setOwner(id, 0)`, including worn clothing, claimed gear and chest contents. Worn items stay with the corpse, unowned.
+Ownership ends with its owner: on `CreatureDied` of any creature, every item with its `ownerId` loses the owner and the `owned` flag through `items.setOwner(id, 0)`, including worn clothing, claimed gear and chest contents. Worn items and any extra carried equipment, including spare weapons and ammunition outside worn slots, stay with the corpse, unowned.
 
 Commands set flags on items, on all items in a rectangle including their container contents, or on all items of a type in the stocks panel. Items dropped by dead dwarves and hostiles are not forbidden by default (unlike the inspiration). A dead worker's held tool and carried item, when they are not in its `Equipment`, drop at the recorded death tile, with no owner or reservation and with the forbidden flag clear; items *worn by a corpse* stay with the corpse until the corpse is buried, rots, or is butchered (every non-dwarf corpse with worn items can be looted by a `strip_corpse` hauling job that moves the equipment to the ground). Dumped items stay in the dump zone; a dump-marked item uses the first tile of the nearest dump zone by centroid, and has no home without a dump zone.
 
@@ -171,7 +171,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Item API (mutation, called by 11, 12, 10, 14, 16, 20)
 
-`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)`, `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`, `reserve(itemId, holderId)`, `release(itemId)` (the caller emits `ItemReleased` when releasing a held reservation), `refreshDerivedIndexes(itemId)` (re-derives the stock indexes of an item that another system changed in place; it changes no record, count or event).
+`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)`, `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`, `reserve(itemId, holderId)`, `release(itemId)` (the caller emits `ItemReleased` when releasing a held reservation).
 
 ### Commands
 
@@ -179,7 +179,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Events consumed
 
-`CreatureDied` (release the fortress creature's item ownership; create corpse), `ZoneChanged` (stockpiles), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall), `BuildingCompleted`/`BuildingRemoved` (wealth), `ThiefEscaped` (wealth), `TemperatureTick` (rot speed sampling for the head bucket).
+`CreatureDied` (release the creature's item ownership; create corpse), `ZoneChanged` (stockpiles), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall), `BuildingCompleted`/`BuildingRemoved` (wealth), `ThiefEscaped` (wealth), `TemperatureTick` (rot speed sampling for the head bucket).
 
 ### Events emitted
 
