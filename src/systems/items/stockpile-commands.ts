@@ -17,8 +17,6 @@ export interface StockpileCommandHost {
   readonly store: StockpileStore;
   /** Every material class id (`materials.md` § Columns). */
   readonly materialClasses: ReadonlySet<string>;
-  /** Whether an entity is a building (a workshop may be a link source). */
-  isBuilding(id: EntityId): boolean;
   /** The stockpile's filter or settings changed: its items and the wants set are re-examined. */
   changed(spId: EntityId): void;
 }
@@ -93,7 +91,7 @@ export function applySetStockpileContainers(host: StockpileCommandHost, cmd: Com
   for (const key of Object.keys(raw as Record<string, unknown>)) {
     const v = (raw as Record<string, unknown>)[key];
     if (!(WANTED_CLASSES as readonly string[]).includes(key)) return reject('bad_setting');
-    if (typeof v !== 'number' || !Number.isInteger(v) || v < 0) return reject('out_of_range');
+    if (typeof v !== 'number' || !Number.isInteger(v) || v < 0 || v > host.store.tilesOf(id).length) return reject('out_of_range');
     wants[key as 'barrel' | 'bag' | 'bin'] = v;
   }
   host.store.write(id, { containersWanted: wants });
@@ -115,13 +113,13 @@ export function applySetStockpilePriority(host: StockpileCommandHost, cmd: Comma
   return OK;
 }
 
-/** `LinkStockpile { zoneId, sourceZoneId, on }`: the source is another stockpile or a building (a workshop). */
+/** `LinkStockpile { zoneId, sourceZoneId, on }`: the source is another stockpile. */
 export function applyLinkStockpile(host: StockpileCommandHost, cmd: Command): CommandResult {
   const id = stockpileOf(host, cmd);
   if (id === null) return reject('not_found');
   const source = cmd['sourceZoneId'];
   if (typeof source !== 'number' || source === id) return reject('not_found');
-  if (!host.store.ensure(source) && !host.isBuilding(source)) return reject('not_found');
+  if (host.store.host.zone(source)?.type !== 'stockpile' || !host.store.ensure(source)) return reject('not_found');
   const sp = host.store.stockpile(id);
   if (sp === undefined) return reject('not_found');
   const on = cmd['on'] !== false;

@@ -11,6 +11,8 @@ export const RENOWN_POP_WEIGHT = 0.2;
 /** `threat-schedules.md`: Hillfolk bandits appear only below reputation 50. */
 export const BANDIT_REPUTATION_LIMIT = 50;
 export const WARNING_DAYS = 1;
+/** Keep ended raid data long enough for legend events to be recorded. */
+export const PARTY_HISTORY_DAYS = 1;
 export const ARRIVAL_SPREAD = 2;
 export const ARRIVAL_TICKS = 100;
 export const STEAL_MAX_SIZE = 30;

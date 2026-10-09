@@ -230,7 +230,8 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
     if (cmd.type !== 'SetPopulationCap') return reject('not_found');
     const n = cmd['n'];
     if (!Number.isInteger(n)) return reject('bad_setting');
-    ctx.world.fortress.populationCap = Math.max(POPULATION_CAP_MIN, Math.min(POPULATION_CAP_MAX, n as number));
+    if ((n as number) < POPULATION_CAP_MIN || (n as number) > POPULATION_CAP_MAX) return reject('out_of_range');
+    ctx.world.fortress.populationCap = n as number;
     return OK;
   }
 

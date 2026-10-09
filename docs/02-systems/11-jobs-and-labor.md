@@ -90,6 +90,8 @@ Each work tick adds `(100 + SKILL_TIME_BONUS_PERCENT × skill) × productivity(w
 
 Interruptions (critical need, threat, alert): the job returns to `open` with `progress` kept if `state` was `working`; undelivered items stay reserved for `RESERVE_KEEP_TICKS` so the same worker (or another) can resume. Inputs delivered to a building site stay reserved to its build job until the building is finished or cancelled. Inputs delivered to a workshop stay reserved to the craft job while its order stands, until completion or cancellation. These delivered reservations survive the interruption timeout and a block/unclaim; haulers cannot take them. Other jobs retain the ordinary reservation timeout. Hauling jobs interrupted mid-carry drop the item where the worker stands. Cancellation releases every remaining reservation.
 
+On `ItemDestroyed`, remove that id from every job input’s reserved and delivered lists on the dispatch tick; surviving inputs and reservations remain unchanged. Remember the invalidation until the next delivered-input validation so a working job still refetches or blocks before completion, keeping its progress.
+
 On resume and before completion, a delivered input counts only while it exists, is unconsumed and is still reserved to this job. If an external release, destruction or another holder invalidates it, remove the stale delivered id and fetch a replacement with progress kept, or block for missing input. Never consume another job's item or release its reservation.
 
 ### Hauling
@@ -128,6 +130,8 @@ A re-evaluated job opens only when its reason is gone: a worker with the labor e
 - A worker who dies: the job returns to `open` with progress kept; only reservations on dropped held items release; all other inputs remain with their job. Before the creature is removed, `jobs.workerDied(id, deathTile)` releases its held, unworn items and clears its worker fields. Repeating this on the later death notification changes nothing.
 
 ### Standing orders
+
+`SetStandingOrder` accepts only an own name of the standing-order table and a boolean `on`. An unknown or inherited name rejects with `not_found`; a non-boolean value rejects with `bad_setting`, with no state change.
 
 Fortress-wide toggles owned here and read by producers: `autoHarvest` (07), `autoCollectProducts` (08), `autoButcher` (09: butcher any butcherable corpse), `autoHaulRefuse` (13), `autoRearmTraps` (19), `autoMeltMarked` (12). All default on.
 

@@ -26,7 +26,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `SetLaborPriority` | `labor, priority` | 11 | 1–9 | — |
 | `CancelJob` | `jobId` | 11 | job exists and is cancellable (not `completing`) | `JobCancelled` |
 | `SetJobPriority` | `jobId, priority` | 11 | job open or claimed | — |
-| `SetStandingOrder` | `name, on` | 11 | known name | — |
+| `SetStandingOrder` | `name, on` | 11 | own table name; boolean on | — |
 | `AssignTitle` | `dwarfId \| 0, title` | 10 | adult; one holder per title | `TitleAssigned` |
 | `RenameDwarf` | `dwarfId, name` | 10 | 1–24 characters | — |
 | `SetSchedule` | `dwarfId, sleepStartHour` | 10 | 0–23 | — |
@@ -63,17 +63,17 @@ Every command, its fields, its owning system, its validation and the events its 
 | `TradeOffer` | `give[], take[]` | 20 | session open; items are at the depot / merchant's | `TradeCompleted` or `TradeRefused`, `ReputationChanged` |
 | `TradeCancel` | — | 20 | session open | — |
 | `SetRequests` | `civ, entries[]` | 20 | at most `REQUEST_MAX` | — |
-| `SetPopulationCap` | `n` | 21 | 20–200 | — |
+| `SetPopulationCap` | `n` | 21 | integer 20–200; outside range rejects out_of_range without changing the cap | — |
 | `NameAnimal` | `animalId, name` | 08 | tame; name 1–24 characters | — |
 | `RenameSquad` | `squadId, name` | 16 | 1–32 characters | — |
 | `RenameFortress` | `name` | core | 1–32 characters | — |
 
 App-level (not simulation commands, not logged): `Save`, `Load`, `RetireFortress`, `SetSpeed`, `SetSetting`, and the embark-session commands of 02 (`SetSkill`, `RerollDwarf`, `RenameDwarf`, `SetSupply`, `ApplyPreset`, `SetFortressName`, `ConfirmEmbark`), which run before the world exists.
 
-`Designate` and `DesignateStairwell` reject the whole command if any discovered tile fails its precondition; UI tools submit only eligible or undiscovered tiles. Every designation kind on discovered deepsilver requires confirmation. The kind accepts a designation number or name, and priority defaults to `PRIORITY_DEFAULT`, with values outside 1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“9 rejected. `SetDesignationPriority` requires a designation on every tile. `UndoDesignation` clears each designation without progress, keeps progressed ones, and returns `has_progress` when any are kept: this is the explicit partial-application exception.
+`Designate` and `DesignateStairwell` reject the whole command if any discovered tile fails its precondition; UI tools submit only eligible or undiscovered tiles. Every designation kind on discovered deepsilver requires confirmation. The kind accepts a designation number or name, and priority defaults to `PRIORITY_DEFAULT`, with values outside 1 to 9 rejected. `SetDesignationPriority` requires a designation on every tile. `UndoDesignation` clears each designation without progress, keeps progressed ones, and returns `has_progress` when any are kept: this is the explicit partial-application exception.
 
 ## Rejection reasons
 
-`out_of_bounds`, `not_discovered`, `precondition_failed`, `has_progress`, `deepsilver_unconfirmed`, `light_mismatch`, `not_tame`, `assigned`, `no_kennel`, `not_trainable`, `child_labor`, `not_found`, `not_cancellable`, `invalid_index`, `no_labor`, `not_metal`, `bad_category`, `footprint_blocked`, `bad_placement`, `fixed_footprint`, `not_magma_safe`, `hearth_exists`, `hearth_is_home`, `overlap`, `bad_zone_tiles`, `bad_setting`, `no_bed`, `not_linkable`, `no_tag`, `squad_limit`, `member_limit`, `already_in_squad`, `not_adult`, `no_depot`, `no_caravan`, `no_session`, `not_at_depot`, `request_limit`, `out_of_range`, `bad_name`, `caravan_absent`.
+`out_of_bounds`, `not_discovered`, `precondition_failed`, `has_progress`, `deepsilver_unconfirmed`, `light_mismatch`, `not_tame`, `not_grazer`, `assigned`, `no_kennel`, `not_trainable`, `child_labor`, `not_found`, `not_cancellable`, `invalid_index`, `no_labor`, `not_metal`, `bad_category`, `footprint_blocked`, `bad_placement`, `fixed_footprint`, `not_magma_safe`, `hearth_exists`, `hearth_is_home`, `overlap`, `bad_zone_tiles`, `bad_setting`, `no_bed`, `not_linkable`, `no_tag`, `squad_limit`, `member_limit`, `already_in_squad`, `not_adult`, `no_depot`, `no_caravan`, `no_session`, `not_at_depot`, `request_limit`, `out_of_range`, `bad_name`, `caravan_absent`.
 
 Each reason has a string key `reject.<reason>` in the strings table; the UI shows it in the status bar for `STATUS_HINT_SECONDS`.

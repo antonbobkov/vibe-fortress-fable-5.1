@@ -107,6 +107,8 @@ Order = kill { targetId } | station { tile } | patrol { tiles } | follow { dwarf
 - On `watchful` alert every squad is treated as `active`; on `hearth` alert the same, plus civilians retreat (10).
 - A member of a squad in `train` or `active` mode is on duty; one in `off` mode is on duty only under a `watchful` or `hearth` alert. Being on duty means: no flight, the military title, no interruption by the hearth alert, and attacking a visible hostile within perception.
 - Orders are executed in order; `kill` targets a creature (any faction; killing traders or peaceful wild animals has consequences in 20 and 08); `station` and `patrol` set the squad's position; `follow` follows a dwarf (an escort); `cancel` clears.
+- `CreateSquad { leaderId }` adds a nonzero leader as its first member with the same Soldier duty state as any member; a leader already in another squad rejects with `already_in_squad`. `SetSquadLeader` accepts 0 to clear the leader or a living adult member of that squad; a nonmember rejects with `not_found`.
+- `SetSquadEquipment` accepts partial preferences: `weaponClass` is `any` or an authored weapon class, `armor` is `metal`, `leather` or `any`, and `ranged` is a boolean. Invalid values or a non-record reject with `bad_setting` before any preference is stored.
 - The Warden, if any, is the leader of the first squad by default; leaders are chosen by the player otherwise. A squad without a leader still works.
 
 ### Training

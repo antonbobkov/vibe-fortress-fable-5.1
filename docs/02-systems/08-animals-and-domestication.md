@@ -58,6 +58,7 @@ States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 ### Pastures and feeding
 
 - `pasture` zone: tiles must be walkable; the zone has a capacity shown as "grass tiles / grazers" and a warning if grazers exceed `grass tiles / GRASS_PER_GRAZER`.
+- Reject `AssignPasture` with `not_tame` for an untamed animal, or `not_grazer` for a tame animal whose diet is not grazer, without changing its assignment.
 - Assignment: `AssignPasture { animalId, zoneId | none }`. Assigned grazers path into the pasture and stay (they do not path out unless fleeing). Unassigned grazers wander near the wagon or hearth and eat any grass they find.
 - Condition rises `CONDITION_PER_HOUR` per hour; eating a grass tile lowers it by `CONDITION_PER_GRASS`. At 100 the animal is `starving` (announcement, once per animal per season); after `ANIMAL_STARVE_DAYS` at 100 it dies (`CreatureDied { cause: starvation }` through 17). Snow-covered grass cannot be eaten; cold snaps double the rise.
 - Only tame grazers accumulate condition and eat grass. Other diets, including carnivores, omnivores and `none`, forage abstractly without a concrete feeding action.

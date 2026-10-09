@@ -61,6 +61,8 @@ export interface WildHost {
   fungusWeights(tier: number): readonly (readonly [number, number])[];
   /** A tile belongs to a farm plot, a road or a constructed floor: nothing spreads onto it. */
   isReserved(i: TileIndex): boolean;
+  /** A sapling waits to become an impassable tree while a creature occupies its tile. */
+  isOccupied(i: TileIndex): boolean;
 }
 
 /** `rng.weighted` over `[value, weight]` pairs; 0 when the list is empty. */
@@ -119,6 +121,7 @@ export function growSaplings(host: WildHost, saplings: Map<TileIndex, number>): 
     const plant = host.facts.plantOfMaterial(material);
     const years = host.facts.saplingYearsOf(plant);
     if (host.tick - (saplings.get(tile) as number) < years * TICKS_PER_YEAR) continue;
+    if (host.isOccupied(tile)) continue;
     saplings.delete(tile);
     host.terrain.setKind(tile, TileKind.Tree, material);
     grown.push({ tile, species: host.facts.row(plant)?.id ?? '' });

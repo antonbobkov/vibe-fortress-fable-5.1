@@ -6,6 +6,7 @@ import { C, type Squad, type SquadOrder } from '@core/components';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import { SQUAD_MAX_COUNT, SQUAD_MAX_SIZE, TICKS_PER_YEAR } from '@core/constants';
 import type { EntityStore } from '@core/entities';
+import type { Registry } from '@core/registry';
 import type { GameEvent } from '@core/events';
 import type { Map3D } from '@core/map3d';
 import type { TickContext } from '@core/system';
@@ -38,7 +39,7 @@ export function updateSquadDuty(entities: EntityStore, alert: Alert): void {
   }
 }
 
-export function createSquad(entities: EntityStore, cmd: Command): CommandResult {
+export function createSquad(entities: EntityStore, cmd: Command, alert: Alert, tick: number): CommandResult {
   const name = cmd['name'];
   if (typeof name !== 'string' || name.trim().length === 0 || name.length > 32) {
     return reject('bad_name');
@@ -69,11 +70,13 @@ export function createSquad(entities: EntityStore, cmd: Command): CommandResult 
     }
   }
 
+  if (leaderId !== 0 && existingSquads.some((id) => entities.get(id, C.Squad)?.members.includes(leaderId))) return reject('already_in_squad');
+
   const squadId = entities.create('squad');
   const squad: Squad = {
     name: name.trim(),
     leaderId,
-    members: [],
+    members: leaderId === 0 ? [] : [leaderId],
     mode: 'off',
     station: null,
     patrol: null,
@@ -82,6 +85,9 @@ export function createSquad(entities: EntityStore, cmd: Command): CommandResult 
     barracksZoneId: 0,
   };
   entities.add(squadId, C.Squad, squad);
+  if (leaderId !== 0) {
+    entities.add(leaderId, C.Soldier, { squadId, onDuty: isSquadEffectiveActive(squad, alert), stance: 'pursue', targetId: 0, cooldownUntil: 0, lastShiftTick: tick });
+  }
   return OK;
 }
 
@@ -175,7 +181,7 @@ export function setSquadLeader(entities: EntityStore, cmd: Command): CommandResu
   const leaderId = cmd['leaderId'] as EntityId;
   if (typeof leaderId !== 'number') return reject('bad_setting');
   if (leaderId !== 0) {
-    if (!entities.alive(leaderId)) return reject('not_found');
+    if (!entities.alive(leaderId) || !squad.members.includes(leaderId)) return reject('not_found');
     const creature = entities.get(leaderId, C.Creature);
     if (!creature || creature.ageTicks < ADULT_AGE_YEARS * TICKS_PER_YEAR) {
       return reject('not_adult');
@@ -199,13 +205,19 @@ export function setSquadMode(entities: EntityStore, cmd: Command, alert: Alert):
   return OK;
 }
 
-export function setSquadEquipment(entities: EntityStore, cmd: Command): CommandResult {
+export function setSquadEquipment(entities: EntityStore, cmd: Command, registry: Registry): CommandResult {
   const squadId = cmd['squadId'] as EntityId;
   const squad = entities.get(squadId, C.Squad);
   if (squad === undefined) return reject('not_found');
 
   const rawEquipment = cmd['equipment'];
-  if (typeof rawEquipment !== 'object' || rawEquipment === null) return reject('bad_setting');
+  if (typeof rawEquipment !== 'object' || rawEquipment === null || Array.isArray(rawEquipment)) return reject('bad_setting');
+  const equipment = rawEquipment as Record<string, unknown>;
+  const weaponClass = equipment['weaponClass'];
+  if (weaponClass !== undefined && weaponClass !== 'any' && !registry.table<{ id: string; weaponClass: string }>('weapons').rows.some((row) => row.weaponClass === weaponClass)) return reject('bad_setting');
+  const armor = equipment['armor'];
+  if (armor !== undefined && armor !== 'metal' && armor !== 'leather' && armor !== 'any') return reject('bad_setting');
+  if (equipment['ranged'] !== undefined && typeof equipment['ranged'] !== 'boolean') return reject('bad_setting');
   squad.equipment = {
     ...squad.equipment,
     ...(rawEquipment as Partial<Squad['equipment']>),

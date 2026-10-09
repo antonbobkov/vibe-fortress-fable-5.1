@@ -88,7 +88,7 @@ plots (hourly): for zone in plots: species = settings.crop_per_season[season]; i
   for t in zone.tiles: if cropAtTile.has(t) or job exists: continue
     if items.countAvailable({type: seed, materialId: species}) > 0: sink.create('plant:'+t, plant job) else announceNeedsSeeds(zone, species) once per season
 harvest jobs: crops with the fourth stage complete (plants.cropReady) and (autoHarvest or designated) → sink.create('harvest:'+t)
-daily: saplings (age ≥ saplingYears → Tree, SaplingGrew); regrowth tries; grass regrowth over bareSoil; shrub timers; ash expiry
+daily: saplings (age ≥ saplingYears and no creature on tile → Tree, SaplingGrew; occupied mature saplings wait); regrowth tries; grass regrowth over bareSoil; shrub timers; ash expiry
 ```
 
 Harvest yield: `count = rng.int(min, max) + floor(skill/5)`, capped at `max + 2`; `SEEDS_PER_HARVEST` seeds; secondary yield only if no registry recipe produces its item; a quality tier from the farmer's roll (12's table) stored on the produce for meal quality.

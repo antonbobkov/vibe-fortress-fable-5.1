@@ -63,7 +63,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 ### Trees
 
 - A `tree` tile is one tile; it blocks movement and fluids; `chop` (03) turns it into `floor` and drops `logs` logs of the species (material `wood` with the species as the material row: each tree species is also a wood material with its own value and color).
-- A `sapling` tile grows into a `tree` after `saplingYears` (from `saplings: Map<tile, plantedTick>`), checked daily. A sapling is walkable and is trampled (removed) if a building is placed on it.
+- A `sapling` tile grows into a `tree` after `saplingYears` (from `saplings: Map<tile, plantedTick>`), checked daily. While any creature occupies the tile, keep the mature sapling and its planted tick; retry growth on the next daily pass after the tile clears. A sapling is walkable and is trampled (removed) if a building is placed on it.
 - Regrowth: each `DayPassed`, for `REGROWTH_TRIES_PER_DAY` random outdoor soil floor tiles with `grass` and no tree or sapling within 2 tiles, plant a sapling of a species drawn from the biome's tree weights with probability `biome.treeDensity × REGROWTH_PERMILLE`. Cavern floors do the same for fungus trees within the cavern band.
 - Trees never spread onto farm plots, roads or constructed floors.
 

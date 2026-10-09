@@ -156,7 +156,6 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     this.stockpileHost = {
       store,
       materialClasses: classes,
-      isBuilding: (id) => world.entities.kind(id) === 'building',
       changed: (id) => this.stockpileChanged(id),
     };
     this.search = new ItemSearch({

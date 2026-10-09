@@ -77,7 +77,8 @@ export function applySetJobPriority(board: JobBoard, cmd: Command): CommandResul
 /** `SetStandingOrder { name, on }`: "known name". */
 export function applySetStandingOrder(board: JobBoard, cmd: Command): CommandResult {
   const name = cmd['name'];
-  if (typeof name !== 'string' || !(name in board.standingOrders)) return reject('not_found');
-  board.standingOrders[name] = cmd['on'] === true;
+  if (typeof name !== 'string' || !Object.hasOwn(board.standingOrders, name)) return reject('not_found');
+  if (typeof cmd['on'] !== 'boolean') return reject('bad_setting');
+  board.standingOrders[name] = cmd['on'];
   return OK;
 }

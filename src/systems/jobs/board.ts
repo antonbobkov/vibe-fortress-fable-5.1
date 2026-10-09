@@ -568,7 +568,9 @@ export class JobBoard implements JobsApi, JobSink {
   revalidateDelivered(job: Job): boolean {
     const reservedFor = this.items.reservedFor;
     if (reservedFor === undefined) return true;
-    let intact = true;
+    // ItemDestroyed already pruned its ids on dispatch; completion must still refetch.
+    let intact = job.data['inputsInvalidated'] !== true;
+    delete job.data['inputsInvalidated'];
     for (const input of job.inputs) {
       for (let k = input.delivered.length - 1; k >= 0; k -= 1) {
         const it = input.delivered[k] as EntityId;
