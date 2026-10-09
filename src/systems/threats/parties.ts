@@ -206,14 +206,17 @@ export function spawnHostileMember(
   if (creatureId === 0) return 0;
 
   // Add Hostile component
+  const partyComp = world.entities.get(partyId, C.Party);
+  const isAmbush = partyComp?.purpose === 'ambush';
+  const revealed = isAmbush && partyComp.ambushSprung === true;
   const spRow = speciesTable.byIndex(speciesIdx);
-  const hasStealth = spRow?.flags?.stealth === true || role === 'thief';
+  const hasStealth = !revealed && (isAmbush || spRow?.flags?.stealth === true || role === 'thief');
   world.entities.add(creatureId, C.Hostile, {
     partyId,
     role,
     behaviorState: 'approach',
     stealthed: hasStealth,
-    spotted: false,
+    spotted: revealed,
     breakingDoorId: 0,
     breakingSince: 0,
   });
@@ -223,7 +226,6 @@ export function spawnHostileMember(
   equipHostileCreature(world, registry, rng, creatureId, tile, role, gearTier, isCaptain);
 
   // Add to party members
-  const partyComp = world.entities.get(partyId, C.Party);
   if (partyComp) {
     partyComp.members.push(creatureId);
     if (partyComp.leaderId === 0 || isCaptain) {
@@ -270,19 +272,22 @@ export function arriveParty(
     loot: [],
     edge,
     size,
+    ...(kind === 'ambush' ? { ambushSprung: false } : {}),
   });
 
   const planned = calculatePartyComposition(kind, size, renown, peril, isTwilightPass);
   const tiles = findEdgeTiles(world.map, edge, planned.length);
 
-  world.emit({
-    type: 'RaidArrived',
-    partyId,
-    kind,
-    size,
-    tile: tiles[0],
-    edge,
-  });
+  if (kind !== 'ambush') {
+    world.emit({
+      type: 'RaidArrived',
+      partyId,
+      kind,
+      size,
+      tile: tiles[0],
+      edge,
+    });
+  }
 
   const pendingSpawns: PendingSpawnState[] = [];
 

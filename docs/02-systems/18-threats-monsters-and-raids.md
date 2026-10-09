@@ -53,7 +53,7 @@ Hostile equipment is generated from the civ's equipment table with a peril-scale
 
 - Parties arrive at the map edge nearest the civ (`nearestEdgeTo`), at a walkable outdoor tile at least `ARRIVAL_SPREAD` apart per member, spawned over `ARRIVAL_TICKS` so they trickle in.
 - `ThreatWarning { kind, civ, sizeBand, edge }` is emitted `WARNING_DAYS` before raids and sieges (`sizeBand`: "a few", "a band", "a horde"; the exact count is not shown). Fog (06) halves the lead time. Thieves, bandits and ambushes give no warning.
-- `RaidArrived { partyId, kind, size }` at spawn: a danger announcement that pauses and centers on the edge.
+- `RaidArrived { partyId, kind, size }` at spawn for parties other than ambushes: a danger announcement that pauses and centers on the edge. Every ambush member arrives hidden; no `RaidArrived` announces that party. Its first spotting instead emits one `AmbushSprung { partyId }`, a danger announcement that pauses and centers on its leader.
 
 ### Party AI
 
@@ -70,7 +70,7 @@ Only the departing holder emits an item loot escape; an empty member cannot repo
 
 ### Stealth
 
-`gloam_snatcher` and `blind_stalker` have `stealth: true`. A stealthed creature is not drawn, not inspectable, and not targeted until *spotted*: any fortress creature within `SPOT_RADIUS` (dogs `SPOT_RADIUS_DOG`) with line of sight, or any trap trigger. Spotting emits `ThiefSpotted` (alert) or `AmbushSprung` and removes stealth for the creature's lifetime on the map. A snatcher that is spotted before stealing flees empty-handed.
+`gloam_snatcher` and `blind_stalker` have `stealth: true`. Every member of an `ambush` party also arrives stealthed regardless of its species. A hidden ambush does not enter engage merely because it perceives a fortress creature beyond spotting range; it still follows its approach and loiter rules. A stealthed creature is not drawn, not inspectable, and not targeted until *spotted*: any fortress creature within `SPOT_RADIUS` (dogs `SPOT_RADIUS_DOG`) with line of sight, or any trap trigger. Spotting emits `ThiefSpotted` (alert) for a thief and removes its stealth for its lifetime on the map. The first spotting of any ambush member, by a creature or trap, emits `AmbushSprung` once, reveals every living member and puts the party in `engage`. Save the party's reveal flag; members still arriving after it has sprung are visible and spotted, and loading never announces it again. A snatcher that is spotted before stealing flees empty-handed.
 
 ### Cavern monsters
 
@@ -105,7 +105,7 @@ Hostile parties target caravan members like fortress creatures (traders are `tra
 
 ## State
 
-- `Party` entities: `civ, purpose, members[], leaderId, state, goalTile, goalEntity, arrivedTick, stateSince, loot[], edge`, and the saved `escapedLootCount` (missing in older saves means zero), plus optional `goalIdleSince` while waiting at an arrived goal.
+- `Party` entities: `civ, purpose, members[], leaderId, state, goalTile, goalEntity, arrivedTick, stateSince, loot[], edge`, and the saved `escapedLootCount` (missing in older saves means zero), plus optional `goalIdleSince` while waiting at an arrived goal and `ambushSprung` for the one-time party reveal.
 - `Hostile` components on members: `partyId, role, behaviorState, stealthed, spotted, breakingDoorId`, plus optional `retreat { stateSince, goalTile, bestDistance, progressSince }`. Missing progress fields in older saves begin tracking on the next member step; the party's saved `stateSince` still governs its retreat deadline.
 - `schedule: Map<kind, { nextTick, earliestTick }>`, `renown`, `deepLevel`, `deepsilverTiles: TileIndex[]` (mined), `cavernSpawns: per cavern counts`, `webs: Map<TileIndex, ownerId>`.
 - Rng stream.

@@ -1,6 +1,8 @@
 # T-170 — An ambush is hidden until it is sprung
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 11) · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-170: ambushes hide until the whole party is revealed`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 11) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

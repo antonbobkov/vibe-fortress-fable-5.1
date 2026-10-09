@@ -377,6 +377,8 @@ export interface Party {
   walkUnreachable?: boolean;
   /** Consecutive idle time at an arrived goal; absent while still approaching. */
   goalIdleSince?: Tick;
+  /** An ambush has been revealed and its single announcement has been emitted. */
+  ambushSprung?: boolean;
 }
 
 export interface Hostile {

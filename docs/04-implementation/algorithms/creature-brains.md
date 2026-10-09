@@ -108,7 +108,7 @@ partyThink(P):
   if P.state != 'retreat' and (P.members.length - alive.length) * 100 / P.members.length >= RETREAT_LOSS_PERCENT: P.state='retreat'; outcome = P.loot.length ? 'looted' : 'repelled'
   switch P.state:
     approach: goal = chooseGoal(P); if goal unreachable: P.goalTile = pathing.nearestReachable(leaderPos, hearthTile, cls, 3000); P.state = 'loiter'? (only after reaching the nearest tile)
-              if any member perceives a reachable fortress creature: clear goalIdleSince; P.state = 'engage'; P.stateSince = tick
+              if any revealed ambush member (or any member of another party) perceives a reachable fortress creature: clear goalIdleSince; P.state = 'engage'; P.stateSince = tick
               else if leader on or adjacent to goal (except thieves and restless dead): begin goalIdleSince if absent; after ENGAGE_IDLE_TICKS enter loiter
               else: clear goalIdleSince
     engage:   if no member has a target for ENGAGE_IDLE_TICKS: P.state = 'approach'
@@ -116,7 +116,7 @@ partyThink(P):
     retreat:  if all members despawned or dead: P.state='gone'; emit RaidEnded{outcome}
 chooseGoal(P): thief → most valuable reachable unattended item / small tame animal (outdoors preferred); bandits → nearest stockpile tile; ambush → nearest outdoor dwarf; raid/siege → hearth tile (or wagon, or nearest fortress building)
 memberThink(m): P = party(m); H = Hostile[m]
-  if H.stealthed and spotted(m): H.stealthed = false; H.spotted = true; emit ThiefSpotted/AmbushSprung
+  if H.stealthed and spotted(m): for an ambush, spring the whole party once; otherwise H.stealthed = false; H.spotted = true; emit ThiefSpotted for a thief
   if P.state == 'retreat': at RETREAT_GIVE_UP_DAYS despawn even an unconscious survivor
                            otherwise clear combat target on beginning retreat; save one selected exit and progress clock, retaining the exit through geometric tie changes
                            if distance improves: save bestDistance and progressSince
@@ -136,6 +136,8 @@ An unrelated `TilesChanged` does not restart loiter at a reachable empty goal; o
 Each threat step builds one ascending-id snapshot of the living, conscious fortress creatures (position, soldier status, spotting radius) and shares it across the member decisions; the party cadence step builds its own, and a direct target or spotting query builds a fresh one. Each hostile's own distance, line-of-sight and tie rules are unchanged by the sharing.
 
 Only a departing item holder emits its ThiefEscaped; other members' held items stay. Unconscious survivors trigger retreat (except the restless dead, which never retreat), not a wiped ending. On a member escaping with loot, increment the party's saved escapedLootCount when emitting ThiefEscaped. At party end, any recorded loot escape makes the outcome looted even if remaining members die. Held loot that never left does not qualify; otherwise resolve wiped, repelled or withdrew from the actual ending and retreat reason. Missing escape counts in older saves mean zero.
+
+Ambush arrival emits no `RaidArrived`; all members start stealthed, independent of species. Creature and trap spotting share one reveal: save `ambushSprung`, clear stealth and set spotted on every living member, enter engage, then emit one `AmbushSprung`. Trap triggering may clear the victim's stealth before its queued event is delivered; the party reveal guard uses `ambushSprung`, independent of that victim flag. Late spawns read the reveal flag and arrive already visible; a restored flag prevents another reveal announcement. Hidden ambush members cannot start an engagement by perception alone, including during loiter.
 
 Thief specifics: on reaching the goal item: pick up (`P.loot`), `P.state = 'retreat'`; if spotted before pickup: retreat empty. Restless dead: `approach` target = nearest fortress creature; never retreat; at dawn (`HourPassed` hour == sunrise) all `restless_dead` collapse: `CreatureDied { cause: dawn }` with no corpse (a `bone_pile` item instead).
 
