@@ -316,7 +316,7 @@ export class WorkshopOperator {
     for (const id of entities.with(C.Building)) {
       this.ensure(id);
       const b = entities.get(id, C.Building);
-      const ws = this.workshop(id);
+      let ws = this.workshop(id);
       if (b === undefined || ws === undefined || b.state !== 'built' || ws.suspended ||
         this.recipesForType(this.typeOf(id)).length === 0) continue;
       const powered = this.isMagmaPowered(id);
@@ -333,7 +333,11 @@ export class WorkshopOperator {
         continue;
       }
       if (ws.lastBlockedReason === 'no_magma') this.save(id, { ...this.workshop(id) as Workshop, lastBlockedReason: null });
-      if (ws.currentJobId !== 0) continue;
+      if (ws.currentJobId !== 0) {
+        // 12 § Operation: a job blocked on a missing input whose order is no longer runnable is let go.
+        if (!this.dropUnrunnableJob(ctx, id, ws)) continue;
+        ws = this.workshop(id) as Workshop;
+      }
       const choices = [...ws.orders.map((o, index) => ({ order: o, index, global: false })),
         ...this.globalOrders.map((o, index) => ({ order: o, index, global: true }))];
       let started = false;
@@ -395,6 +399,19 @@ export class WorkshopOperator {
         if (reason !== ws.lastBlockedReason) this.save(id, { ...ws, lastBlockedReason: reason });
       }
     }
+  }
+
+  /** Cancels the current job when it is `blocked: missing_input` and its order is not runnable; true when it did. */
+  private dropUnrunnableJob(ctx: TickContext, id: EntityId, ws: Workshop): boolean {
+    const board = ctx.world.services.jobs as JobBoard;
+    const job = board.jobs.get(ws.currentJobId);
+    if (job === undefined || job.state !== 'blocked' || job.blockedReason !== 'missing_input') return false;
+    const index = job.data['orderIndex'];
+    if (typeof index !== 'number' || index < 0) return false;
+    const order = job.data['globalOrder'] === true ? this.globalOrders[index] : ws.orders[index];
+    if (order === undefined || this.problem(order, id) === null) return false;
+    board.cancel(job.id, 'order_not_runnable');
+    return true;
   }
 
   private onJobEvent(event: GameEvent): void {

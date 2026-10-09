@@ -61,7 +61,7 @@ Melting takes the whole marked stack. Its bar cost comes from the weapon or armo
 
 Each tick, for each built, unsuspended workshop:
 
-1. If it has a `currentJobId`, nothing to do (11 runs the job).
+1. If it has a `currentJobId`, nothing to do (11 runs the job). The exception is a current job that is `blocked` with `missing_input` while its order is no longer runnable (an input was taken after the job was created): the workshop cancels it (`JobCancelled { reason: 'order_not_runnable' }`), which releases what it had reserved and leaves delivered inputs where they lie, and goes on to step 2 in the same tick. A job blocked for any other reason (`no_worker`, `unreachable`, `no_tool`, `no_magma`) is kept.
 2. Otherwise, walk its work orders in order; for the first order that is *runnable*, create the job `craft { workshopId, orderIndex }` with the recipe's inputs as job inputs (11 reserves them), `workTile = at` (the workshop's work tile), tool none, priority = the order's priority. An order is runnable when: its `remaining > 0` (or its `maintain` condition holds); every input filter matches at least `count` available items (13 `countAvailable(filter)`); if `fuel`, a fuel bar is available or the workshop is magma-powered; if `container`, an empty container is available; and if the workshop has an assigned worker restriction, that worker exists.
 3. If no order is runnable, the workshop is idle; if an order is not runnable because of inputs, the order shows "waiting for <input>" in the panel and the workshop reports `WorkshopBlocked { reason }` once (not every tick).
 
