@@ -162,6 +162,8 @@ export interface ItemsApi {
   release(itemId: EntityId): void;
   /** Link an item to a built piece of furniture (14 § Placement: "the furniture item is *linked*"): off the map, `Installed`. D-074. */
   install?(itemId: EntityId): void;
+  /** A cage holds the creature `creatureId` (0 when it is released); an occupied cage is not available stock. */
+  setOccupant?(itemId: EntityId, creatureId: EntityId): void;
   /** The furniture is deconstructed: the linked item returns, on the ground at `tile`. D-074. */
   uninstall?(itemId: EntityId, tile: TileIndex): void;
 }

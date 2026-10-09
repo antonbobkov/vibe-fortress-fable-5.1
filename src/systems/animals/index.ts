@@ -959,16 +959,14 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
 
       ctx.world.services.movement?.teleport(occupantId, releaseTile);
 
-      const item = ctx.world.entities.get(cageId, C.Item);
-      if (item !== undefined) ctx.world.entities.add(cageId, C.Item, { ...item, occupantId: 0 });
+      ctx.world.services.items?.setOccupant?.(cageId, 0);
 
       for (const bId of ctx.world.entities.with(C.Building)) {
         const bld = ctx.world.entities.get(bId, C.Building);
         if (bld !== undefined && (bId === cageId || bld.itemId === cageId || bld.settings['occupantId'] === occupantId)) {
           ctx.world.entities.add(bId, C.Building, { ...bld, settings: { ...bld.settings, occupantId: 0 } });
           if (bld.itemId && bld.itemId !== cageId) {
-            const it = ctx.world.entities.get(bld.itemId, C.Item);
-            if (it !== undefined) ctx.world.entities.add(bld.itemId, C.Item, { ...it, occupantId: 0 });
+            ctx.world.services.items?.setOccupant?.(bld.itemId, 0);
           }
         }
       }

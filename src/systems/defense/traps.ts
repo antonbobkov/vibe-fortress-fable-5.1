@@ -1,4 +1,4 @@
-import { C, ItemFlag } from '@core/components';
+import { C } from '@core/components';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import { resolveMelee, weightedPickPart } from '@systems/combat';
@@ -56,7 +56,7 @@ export function triggerTrap(ctx: TickContext, trapId: EntityId, creatureId: Enti
     ctx.world.services.spatial?.remove(creatureId, from);
     entities.remove(creatureId, C.Position);
     entities.add(creatureId, C.Creature, { ...creature, cagedIn: cageId });
-    entities.add(cageId, C.Item, { ...cage, occupantId: creatureId, flags: cage.flags & ~ItemFlag.Installed });
+    ctx.world.services.items?.setOccupant?.(cageId, creatureId);
     ctx.world.services.items?.uninstall?.(cageId, tile);
     trap.state = 'spent';
     outcome = 'caged';

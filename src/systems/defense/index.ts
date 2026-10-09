@@ -172,7 +172,7 @@ export class DefenseSystem extends BaseSystem<DefenseStateV1> {
         const row = ctx.registry.table<{ id: string; inputs: readonly { match: string }[] }>('buildings').byIndex(b.type);
         const types = buildings.inputTypes(row?.inputs[1]?.match ?? '');
         ctx.jobs.create(`rearm_trap:${id}`, { type: 'rearm_trap', target: { kind: 'building', ref: id }, workTile: 'adjacent',
-          inputs: types.length > 0 ? [{ filter: { types, ...(trap.kind === 'cage' ? { emptyContainer: 'cage' } : {}) }, count: 1 }] : [], data: { anchorTile: b.origin } });
+          inputs: types.length > 0 ? [{ filter: { types, ...(trap.kind === 'cage' ? { unoccupied: true } : {}) }, count: 1 }] : [], data: { anchorTile: b.origin } });
       }
       if (trap.state === 'jammed' && !ctx.jobs.exists(`clean_trap:${id}`)) {
         ctx.jobs.create(`clean_trap:${id}`, { type: 'clean_trap', target: { kind: 'building', ref: id }, workTile: 'adjacent', data: { anchorTile: b.origin } });

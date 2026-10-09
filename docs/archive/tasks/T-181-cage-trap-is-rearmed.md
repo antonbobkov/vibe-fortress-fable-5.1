@@ -1,6 +1,8 @@
 # T-181 — A sprung cage trap is re-armed
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 17, G14) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-181: a sprung cage trap is re-armed with an unoccupied cage`.
+
+**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 17, G14) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@ After its first catch a cage trap stays `spent` for ever. The `rearm_trap` job a
 
 ## Reproduction
 
-[`cagetrap.probe.ts`](../../reports/data/2026-10-09-bug-hunt-cagetrap.probe.ts.txt): a cage trap and a stone-fall trap are sprung by a trollkin each; a spare cage, a spare stone and two mechanics are added. The stone-fall trap is re-armed within a day. The cage trap's job is `blocked: missing_input` after ten days. `countAvailable({ emptyContainer: 'cage' })` is 0; `countAvailable({ type: cage })` is 2, one of them the occupied cage.
+[`cagetrap.probe.ts`](../../../reports/data/2026-10-09-bug-hunt-cagetrap.probe.ts.txt): a cage trap and a stone-fall trap are sprung by a trollkin each; a spare cage, a spare stone and two mechanics are added. The stone-fall trap is re-armed within a day. The cage trap's job is `blocked: missing_input` after ten days. `countAvailable({ emptyContainer: 'cage' })` is 0; `countAvailable({ type: cage })` is 2, one of them the occupied cage.
 
 Read: `src/systems/defense/index.ts:175`; `src/systems/items/search.ts:95–98`; the `cage` row of `src/content/items.json` (no `containerClass`).
 

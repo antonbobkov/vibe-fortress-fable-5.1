@@ -234,10 +234,7 @@ export class AnimalsProducer implements JobProducer {
           ctx.world.entities.add(creatureId, C.Creature, { ...creature, faction: 'fortress', cagedIn: 0 });
 
           // Clear occupant from cage item or building
-          const item = ctx.world.entities.get(cageId, C.Item);
-          if (item !== undefined) {
-            ctx.world.entities.add(cageId, C.Item, { ...item, occupantId: 0 });
-          }
+          ctx.world.services.items?.setOccupant?.(cageId, 0);
           for (const bId of ctx.world.entities.with(C.Building)) {
             const b = ctx.world.entities.get(bId, C.Building);
             if (b !== undefined && (bId === cageId || b.itemId === cageId || b.settings['occupantId'] === creatureId)) {

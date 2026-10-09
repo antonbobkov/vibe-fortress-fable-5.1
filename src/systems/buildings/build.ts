@@ -246,6 +246,7 @@ export class BuildingStore {
     return row.inputs.map((input) => ({
       filter: { types: this.typesOf(input.match),
         ...(input.match === 'barrel' ? { emptyContainer: 'barrel' } : {}),
+        unoccupied: true,
         ...(material !== 0 && input.match !== 'anvil' ? { materialId: material } : {}),
         ...(row.id === 'magma_forge' && input.match === 'anvil'
           ? { materialIds: ['iron', 'steel'].map((id) => this.host.registry.table('materials').index(id)) } : {}) },
@@ -996,8 +997,7 @@ export class BuildingStore {
     for (const tile of this.map.neighbors(b.origin)) {
       if (this.map.kindAt(tile) === TileKind.Floor && this.host.services.movement?.teleport(occupant, tile)) {
         this.write(id as EntityId, { settings: { ...b.settings, occupantId: 0 } });
-        const item = this.host.entities.get(b.itemId, C.Item);
-        if (item !== undefined) this.host.entities.add(b.itemId, C.Item, { ...item, occupantId: 0 });
+        this.host.services.items?.setOccupant?.(b.itemId, 0);
         const creature = this.host.entities.get(occupant, C.Creature);
         if (creature !== undefined) this.host.entities.add(occupant, C.Creature, { ...creature, cagedIn: 0 });
         return OK;

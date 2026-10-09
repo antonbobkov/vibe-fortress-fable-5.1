@@ -145,7 +145,7 @@ findItem(filter, from, cls, opts):
   // fallback through the stock index
   for it in all matching items (stockpile items first, each group ascending id): same checks; return first
   return 0
-match(it, filter): type/category/tag/materialClass/materialId/minQuality/edible/drinkable/emptyContainer as in 13
+match(it, filter): type/category/tag/materialClass/materialId/minQuality/edible/drinkable/emptyContainer/unoccupied as in 13
 ```
 
 `findItems(filter, n, from, cls)` repeats `findItem` with `excludeIds` accumulating, stopping at `n`.

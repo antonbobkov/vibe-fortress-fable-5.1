@@ -49,6 +49,8 @@ export interface ItemFilter {
   drinkable?: boolean;
   /** An empty container of this class. */
   emptyContainer?: string;
+  /** An item with no occupant: a cage that holds no creature. */
+  unoccupied?: boolean;
   excludeIds?: readonly EntityId[];
   /** Item flags that must all be present (12's marked-for-melting input). */
   requiredFlags?: number;
@@ -96,6 +98,7 @@ export function matches(core: ItemCore, id: EntityId, it: Item, filter: ItemFilt
     const c = core.container(id);
     if (c === undefined || c.classId !== filter.emptyContainer || c.contents.length > 0) return false;
   }
+  if (filter.unoccupied === true && (it.occupantId ?? 0) !== 0) return false;
   return true;
 }
 
@@ -256,6 +259,7 @@ export class ItemSearch {
     for (const id of this.host.entities.with(C.Item)) {
       const it = core.item(id);
       if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Installed)) !== 0) continue;
+      if ((it.occupantId ?? 0) !== 0) continue;
       if (matches(core, id, it, filter)) n += it.count;
     }
     return n;
