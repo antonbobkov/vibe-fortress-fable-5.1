@@ -1,0 +1,68 @@
+/* T-115 scratch (2026-10-09): a dwarf with a pick takes a chop job, fetches an axe; what becomes of the pick? */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { buildFlatTestMap } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TileKind } from '@core/map3d';
+import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs/reader';
+import { TestWorld } from '../test/scenarios/test-world';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const Z = 32;
+
+describe('T-115 probe: tool swap', () => {
+  it('one dwarf, mining and woodcutting on, one pick, one axe', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const w = new TestWorld({ seed: 't115-toolswap', map: buildFlatTestMap(contentRegistry(), 48, 48) });
+    const ent = w.game.world.entities;
+    const items = w.readers.of<ItemsReader>('13');
+    const jobs = w.readers.of<JobsReader>('11');
+    const item = (id: number): string => { const it = ent.get(id, C.Item); const p = ent.get(id, C.Position);
+      return it ? `item ${id} flags=${it.flags} ownerId=${it.ownerId} carriedBy=${it.carriedBy} reservedBy=${it.reservedBy} pos=${p ? `${p.x},${p.y},${p.z}` : 'none'} tileOf=${items.tileOf(id)}` : `item ${id} GONE`; };
+    const stock = (t: string): string => `${t}: total ${items.count(t)} available ${items.available(t)}`;
+    const jl = (): string => jobs.list().map((j) => `${j.id}:${jobs.typeOf(j.id)}:${j.state}:${j.blockedReason}:w${j.workerId}`).join(' ');
+    const labors = w.game.registry.table('labors').ids();
+    const only = (d: number, on: string[]): void => { for (const l of labors) w.game.world.applyCommand({ type: 'SetLabor', dwarfId: d, labor: l, on: on.includes(l) }); };
+
+    const d = w.spawnDwarf({ at: w.index(10, 10, Z), ageYears: 30, skills: { mining: 5 } });
+    only(d, ['mining', 'woodcutting']);
+    const pick = w.spawnItem('pick', 'iron', w.index(11, 12, Z));
+    const axe = w.spawnItem('axe', 'iron', w.index(12, 12, Z));
+    w.spawnItem('easy_meal', 'dimcap', w.index(20, 20, Z), 60);
+    w.spawnItem('drink', 'ale', w.index(21, 20, Z), 60);
+    log.push(`dwarf ${d}, pick ${pick}, axe ${axe}`);
+
+    log.push(`channel: ${JSON.stringify(w.game.world.applyCommand({ type: 'Designate', kind: 'channel', tiles: [10, 11].map((x) => w.index(x, 16, Z)), priority: 5 }))}`);
+    let waited = 0;
+    while (waited < 2 * TICKS_PER_DAY && w.events('JobCompleted').filter((e) => e['jobType'] === 'channel').length < 2) { w.step(1); waited += 1; }
+    log.push(`after ${waited} ticks: channels dug ${w.events('JobCompleted').filter((e) => e['jobType'] === 'channel').length}; Worker ${JSON.stringify(ent.get(d, C.Worker))}; weapon ${ent.get(d, C.Equipment)?.weapon}`, item(pick), item(axe));
+
+    const mats = w.game.registry.table('materials');
+    const trees = [w.index(20, 10, Z), w.index(22, 10, Z)];
+    for (const t of trees) w.map.setKind(t, TileKind.Tree, mats.index('pine'));
+    w.step(2);
+    log.push(`chop: ${JSON.stringify(w.game.world.applyCommand({ type: 'Designate', kind: 'chop', tiles: trees, priority: 5 }))}`);
+    waited = 0;
+    while (waited < 2 * TICKS_PER_DAY && w.events('JobCompleted').filter((e) => e['jobType'] === 'chop').length < 2) { w.step(1); waited += 1; }
+    log.push(`after ${waited} ticks: trees felled ${w.events('JobCompleted').filter((e) => e['jobType'] === 'chop').length}; Worker ${JSON.stringify(ent.get(d, C.Worker))}; weapon ${ent.get(d, C.Equipment)?.weapon}`, item(pick), item(axe), stock('pick'), stock('axe'));
+    log.push(`carriedItems of the dwarf: ${JSON.stringify(items.carriedItems(d))}`);
+    log.push(`ToolEquipped: ${w.events('ToolEquipped').map((e) => String(e['itemId'])).join(' ')}; ToolDropped: ${w.events('ToolDropped').map((e) => String(e['itemId'])).join(' ')}`);
+    log.push(`channel again: ${JSON.stringify(w.game.world.applyCommand({ type: 'Designate', kind: 'channel', tiles: [10, 11, 12, 13].map((x) => w.index(x, 18, Z)), priority: 5 }))}`);
+    const d2 = w.spawnDwarf({ at: w.index(10, 11, Z), ageYears: 30, skills: { mining: 5 } });
+    only(d2, ['mining']);
+    w.step(3 * TICKS_PER_DAY);
+    log.push(`--- three days later (a second dwarf ${d2} with only mining was added)`);
+    log.push(`channels dug in all ${w.events('JobCompleted').filter((e) => e['jobType'] === 'channel').length}; Worker ${JSON.stringify(ent.get(d, C.Worker))}; Worker2 ${JSON.stringify(ent.get(d2, C.Worker))}`, item(pick), item(axe), stock('pick'), stock('axe'));
+    log.push(`jobs: ${jl()}`);
+    log.push(`ToolEquipped: ${w.events('ToolEquipped').map((e) => `${String(e['dwarfId'])}:${String(e['itemId'])}`).join(' ')}; ToolDropped: ${w.events('ToolDropped').map((e) => String(e['itemId'])).join(' ')}`);
+    w.step(20 * TICKS_PER_DAY);
+    log.push(`--- day ${Math.floor(w.tick / TICKS_PER_DAY)}`);
+    log.push(`channels dug in all ${w.events('JobCompleted').filter((e) => e['jobType'] === 'channel').length}`, item(pick), item(axe), `jobs: ${jl()}`, `alive ${ent.with(C.Labors).length}`);
+    writeFileSync(`${OUT}/toolswap.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 600_000);
+});

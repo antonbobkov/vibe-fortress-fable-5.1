@@ -1,0 +1,135 @@
+/* T-115 scratch (2026-10-09), way 2 leftovers: a save taken while paused after commands were applied by the
+ * paused command phase, and a save taken with a trade session open. Each is played 1,000 ticks beside the unsaved game. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { Command } from '@core/commands';
+import { roundTrip } from '@app/game-save';
+import type { HeadlessGame } from '@app/headless';
+import { TestWorld } from '../test/scenarios/test-world';
+import { whyDiffer } from './whydiffer';
+import { prepareBusyFortress } from '../test/scenarios/core_save_roundtrip.scenario';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const Z = 32;
+
+function build(): TestWorld {
+  const w = new TestWorld({ seed: 't115-save2', world: 'flat-test', embark: 'default', startTick: 31 * TICKS_PER_DAY });
+  prepareBusyFortress(w);
+  w.build('trade_depot', w.index(45, 8, Z), 'granite');
+  w.step(400);
+  return w;
+}
+
+function pausedCommands(w: TestWorld): Command[] {
+  const e = w.game.world.entities;
+  const dwarves = e.with(C.Labors);
+  const shop = e.with(C.Workshop)[0] ?? 0;
+  return [
+    { type: 'Designate', kind: 'channel', tiles: [60, 61, 62, 63].map((x) => w.index(x, 60, Z)), priority: 4 },
+    { type: 'CreateZone', zoneType: 'stockpile', tiles: [w.index(70, 30, Z), w.index(71, 30, Z), w.index(70, 31, Z), w.index(71, 31, Z)] },
+    { type: 'PlaceBuilding', buildingType: 'wall', origin: w.index(66, 40, Z), orientation: 0, materialChoice: 0, priority: 5 },
+    { type: 'PlaceBuilding', buildingType: 'carpenter', origin: w.index(70, 50, Z), orientation: 0, materialChoice: 0, priority: 3 },
+    { type: 'AddWorkOrder', workshopId: 0, order: { recipeId: 'make_bed', mode: 'once', remaining: 2, threshold: 0, priority: 5 } },
+    ...(shop === 0 ? [] : [{ type: 'AddWorkOrder', workshopId: shop, order: { recipeId: 'make_bed', mode: 'once', remaining: 1, threshold: 0, priority: 5 } } as Command]),
+    { type: 'SetLabor', dwarfId: dwarves[0] ?? 0, labor: 'mining', on: false },
+    { type: 'SetLaborPriority', labor: 'hauling', priority: 3 },
+    { type: 'CreateSquad', name: 'Paused Guard' },
+    { type: 'SetAlert', level: 'watchful' },
+    { type: 'SetStandingOrder', name: 'autoHarvest', on: false },
+    { type: 'RenameFortress', name: 'Pausehold' },
+    { type: 'CancelJob', jobId: 999999 },
+    { type: 'ForbidItem', tiles: [w.index(40, 18, Z), w.index(41, 18, Z)], on: true },
+  ];
+}
+
+function race(label: string, log: string[], a: HeadlessGame, b: HeadlessGame, ticks: number, _each: number, both?: (g: HeadlessGame, t: number) => void): boolean {
+  const start = a.tick;
+  const ranges: string[] = [];
+  let open = -1; let differing = 0; let why = '';
+  log.push(`${label}: at tick ${a.tick} ${a.hash() === b.hash() ? 'equal' : 'DIFFERENT'} (${a.hash()} / ${b.hash()})`);
+  if (a.hash() !== b.hash()) { open = a.tick; why = whyDiffer(a, b); }
+  for (let t = 0; t < ticks; t += 1) {
+    both?.(a, t); both?.(b, t); a.step(1); b.step(1);
+    const same = a.hash() === b.hash();
+    if (!same) { differing += 1; if (open < 0) { open = a.tick; if (why === '') why = `at tick ${a.tick}: ${whyDiffer(a, b)}`; } }
+    else if (open >= 0) { ranges.push(`${open}..${a.tick - 1}`); open = -1; }
+  }
+  if (open >= 0) ranges.push(`${open}..${a.tick} (still different at the end)`);
+  log.push(`${label}: compared after every tick from ${start} to ${a.tick}: ${differing === 0 ? 'all equal' : `${differing} ticks differ, in the ranges ${ranges.join(', ')}`}; final ${a.hash()} / ${b.hash()}`);
+  if (why !== '') log.push(`   first difference: ${why}`);
+  return differing === 0;
+}
+
+describe('T-115 probe: save while paused, save with a trade session open', () => {
+  it('paused', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const main = build();
+    const ref = build();
+    log.push(`two builds equal at tick ${main.tick}: ${main.hash() === ref.hash()}`);
+    const cmds = pausedCommands(main);
+    const before = main.hash();
+    // main: the paused host applies each command at once
+    for (const c of cmds) { main.game.world.submit(c); main.game.world.commandPhase(true); }
+    log.push(`paused command phase applied ${cmds.length} commands at tick ${main.tick}; the hash ${before === main.hash() ? 'did not change' : 'changed'}; rejected: ${main.events('CommandRejected').map((e) => `${String((e['command'] as Command).type)}:${String(e['reason'])}`).join(' ') || 'none seen through events()'}`);
+    // ref: the same commands queued and applied by the command phase of the next tick
+    for (const c of pausedCommands(ref)) ref.game.world.submit(c);
+    const twin = roundTrip(main.game).game;
+    const fork = roundTrip(twin).game;
+    const twin2 = roundTrip(main.game).game;
+    log.push(`save taken while paused, after the commands: first load ${twin.hash() === main.hash() ? 'equals' : 'DIFFERS FROM'} the unsaved game; second load ${fork.hash() === twin.hash() ? 'equals' : 'DIFFERS FROM'} the first`);
+    race('A. unsaved game against its load (paused, commands applied)', log, main.game, twin, 1000, 50);
+    race('B. first load against second load', log, twin2, fork, 1000, 50);
+    ref.step(1000);
+    log.push(`C. commands applied while paused against the same commands applied by the tick's command phase: after 1,000 ticks ${main.hash() === ref.hash() ? 'equal' : 'DIFFERENT'} (${main.hash()} / ${ref.hash()})`);
+    const ctl = build();
+    const ctlTwin = roundTrip(ctl.game).game;
+    race('F. control: the same world saved at the same tick with no command applied', log, ctl.game, ctlTwin, 1000, 50);
+    writeFileSync(`${OUT}/save2-paused.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 3_600_000);
+
+  it('trade session open', () => {
+    const log: string[] = [];
+    const w = build();
+    const e = w.game.world.entities;
+    w.game.world.applyCommand({ type: 'AssignTitle', dwarfId: e.with(C.Labors)[2] ?? 0, title: 'broker' });
+    try {
+      w.until((x) => x.events('CaravanAtDepot').length > 0, 90 * TICKS_PER_DAY);
+    } catch (err) { log.push(`no caravan reached the depot: ${(err as Error).message}`); }
+    const depot = w.game.world.readers.of<{ depots(): number[] }>('14').depots()[0] ?? 0;
+    const tile = e.get(depot, C.Building)?.footprint[0] ?? 0;
+    const goods = [w.spawnItem('bar', 'iron', tile, 10), w.spawnItem('chair', 'pine', tile)];
+    w.submit({ type: 'MoveToDepot', itemIds: goods });
+    w.step(600);
+    w.submit({ type: 'TradeOpen', depotId: depot });
+    const trade = (): { sessionOpen(): boolean; session(): unknown } => w.game.world.readers.of<{ sessionOpen(): boolean; session(): unknown }>('20');
+    try { w.until(() => trade().sessionOpen(), 1200); } catch (err) { log.push(`session not opened: ${(err as Error).message}`); }
+    log.push(`tick ${w.tick}: caravan at depot ${w.events('CaravanAtDepot').length > 0}; session open ${trade().sessionOpen()}; session ${(JSON.stringify(trade().session()) ?? '').slice(0, 300)}`);
+    log.push(`dwarves alive ${e.with(C.Labors).filter((d) => e.alive(d)).length}`);
+    const twin = roundTrip(w.game).game;
+    const fork = roundTrip(twin).game;
+    const twin2 = roundTrip(w.game).game;
+    const tr = (g: HeadlessGame): { sessionOpen(): boolean } => g.world.readers.of<{ sessionOpen(): boolean }>('20');
+    log.push(`save with the session open: first load ${twin.hash() === w.hash() ? 'equals' : 'DIFFERS FROM'} the unsaved game; second load ${fork.hash() === twin.hash() ? 'equals' : 'DIFFERS FROM'} the first; session open in the load: ${tr(twin).sessionOpen()}`);
+    const merchantItem = e.with(C.Item).find((id) => ((e.get(id, C.Item)?.flags ?? 0) & 64) !== 0 && e.get(id, C.Item)?.containerId === depot) ?? 0;
+    const depotItems = e.with(C.Item).filter((id) => ((e.get(id, C.Item)?.flags ?? 0) & 32) !== 0 && ((e.get(id, C.Item)?.flags ?? 0) & 64) === 0 && e.get(id, C.Item)?.containerId === depot);
+    log.push(`fortress goods at the depot: ${depotItems.length}; merchant goods in the depot: ${e.with(C.Item).filter((id) => ((e.get(id, C.Item)?.flags ?? 0) & 64) !== 0 && e.get(id, C.Item)?.containerId === depot).length}`);
+    const offer: Command = { type: 'TradeOffer', give: depotItems.slice(0, 1).map((itemId) => ({ itemId, count: 1 })), take: [{ itemId: merchantItem, count: 1 }] };
+    log.push(`offer: ${JSON.stringify(offer)}`);
+    const results: string[] = [];
+    const both = (g: HeadlessGame, t: number): void => {
+      const who = g === w.game ? 'unsaved' : 'loaded';
+      if (t === 10) results.push(`${who} TradeOffer at +10: ${JSON.stringify(g.world.applyCommand(offer))}; session open after ${tr(g).sessionOpen()}`);
+      if (t === 400) results.push(`${who} TradeCancel at +400: ${JSON.stringify(g.world.applyCommand({ type: 'TradeCancel' }))}`);
+    };
+    race('D. unsaved game against its load (session open; an offer at +10, a cancel at +400)', log, w.game, twin, 1000, 50, both);
+    log.push(...results);
+    log.push(`trade events in the unsaved game: completed ${w.events('TradeCompleted').length}, refused ${w.events('TradeRefused').length}`);
+    race('E. first load against second load, no commands', log, twin2, fork, 1000, 50);
+    writeFileSync(`${OUT}/save2-trade.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 3_600_000);
+});

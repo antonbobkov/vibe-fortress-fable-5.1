@@ -1,0 +1,50 @@
+/* T-115 scratch (2026-10-09): a thief with nothing to steal; a thief whose only quarry is a tame animal. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { FLAT_TEST_SURFACE_Z } from '@app/headless';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { arriveParty } from '@systems/threats';
+import { TestWorld } from '../test/scenarios/test-world';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const Z = FLAT_TEST_SURFACE_Z;
+
+function thief(w: TestWorld): number {
+  return arriveParty(w.game.world, w.game.registry, w.game.world.rngFor('18'), 'thief', 'gloam', 1, 'n', w.tick, 0, 2, false).partyId;
+}
+
+describe('T-115 probe: thieves', () => {
+  it('nothing to steal, and an animal as the only quarry', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const ev = (w: TestWorld, t: string): string => w.events(t as never).map((e) => JSON.stringify(e)).join(' ') || 'none';
+
+    {
+      const w = new TestWorld({ seed: 't115-thief-empty', world: 'flat-test', embark: 'none' });
+      const ent = w.game.world.entities;
+      const p = thief(w);
+      w.step(TICKS_PER_DAY);
+      log.push('--- A. a thief on an empty map (no item, no animal, no dwarf), one day');
+      log.push(`party: ${JSON.stringify(ent.get(p, C.Party))}`);
+      log.push(`RaidEnded: ${ev(w, 'RaidEnded')}; ThiefEscaped: ${ev(w, 'ThiefEscaped')}; ThiefSpotted: ${ev(w, 'ThiefSpotted')}`);
+    }
+    for (const species of ['cat', 'hen']) {
+      for (let k = 0; k < 5; k += 1) {
+        const w = new TestWorld({ seed: `t115-thief-${species}-${k}`, world: 'flat-test', embark: 'none' });
+        const ent = w.game.world.entities;
+        let animal = 0;
+        try { animal = w.spawnTame(species, w.index(24, 15, Z)); } catch (e) { log.push(`no species ${species}: ${String(e)}`); break; }
+        const p = thief(w);
+        w.step(TICKS_PER_DAY);
+        const pos = ent.get(animal, C.Position);
+        log.push(`--- B. ${species} #${k}: the only thing to steal is a tame ${species} at (24, 15); one day`);
+        log.push(`party goalEntity ${ent.get(p, C.Party)?.goalEntity} (animal is ${animal}); state ${ent.get(p, C.Party)?.state}; outcome ${String(ent.get(p, C.Party)?.outcome)}; loot ${JSON.stringify(ent.get(p, C.Party)?.loot)}`);
+        log.push(`animal alive ${ent.alive(animal)} position ${pos ? `${pos.x},${pos.y},${pos.z}` : 'none'}`);
+        log.push(`RaidEnded: ${ev(w, 'RaidEnded')}; ThiefEscaped: ${ev(w, 'ThiefEscaped')}; ThiefSpotted: ${ev(w, 'ThiefSpotted')}`);
+      }
+    }
+    writeFileSync(`${OUT}/thief.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 600_000);
+});

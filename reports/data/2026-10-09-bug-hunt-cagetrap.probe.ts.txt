@@ -1,0 +1,56 @@
+/* T-115 scratch (2026-10-09): a sprung cage trap, a spare empty cage, a mechanic. Is the trap re-armed? */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { DefenseReader } from '@systems/defense';
+import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs/reader';
+import { TestWorld } from '../test/scenarios/test-world';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const Z = 32;
+
+describe('T-115 probe: cage trap re-arm', () => {
+  it('cage trap and, for contrast, a stone-fall trap', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const w = new TestWorld({ seed: 't115-cagetrap', world: 'flat-test', embark: 'none' });
+    const ent = w.game.world.entities;
+    const items = w.readers.of<ItemsReader>('13');
+    const jobs = w.readers.of<JobsReader>('11');
+    const def = w.readers.of<DefenseReader>('19');
+    const jl = (): string => jobs.list().map((j) => `${j.id}:${jobs.typeOf(j.id)}:${j.state}:${j.blockedReason}:w${j.workerId}:inputs=${JSON.stringify(j.inputs.map((i) => i.filter))}`).join(' | ') || 'none';
+    const cageTrap = w.build('cage_trap', w.index(40, 40, Z), 'iron');
+    const stoneTrap = w.build('stone_fall_trap', w.index(30, 40, Z), 'granite');
+    const troll = w.spawnCreature('trollkin', w.index(39, 40, Z), 'hostile:gloam');
+    const troll2 = w.spawnCreature('trollkin', w.index(29, 40, Z), 'hostile:gloam');
+    w.step(1);
+    log.push(`cage trap loaded ${JSON.stringify(ent.get(cageTrap, C.Building)?.settings['trapLoaded'])}; stone trap loaded ${JSON.stringify(ent.get(stoneTrap, C.Building)?.settings['trapLoaded'])}`);
+    w.game.world.services.movement?.teleport(troll, w.index(40, 40, Z));
+    w.game.world.services.movement?.teleport(troll2, w.index(30, 40, Z));
+    w.step(2);
+    log.push(`CreatureCaged: ${JSON.stringify(w.events('CreatureCaged'))}`);
+    log.push(`TrapTriggered: ${JSON.stringify(w.events('TrapTriggered'))}`);
+    log.push(`cage trap ${def.trapState(cageTrap)}; stone trap ${def.trapState(stoneTrap)}`);
+    // remove the second troll so that the mechanic is not chased
+    if (ent.alive(troll2)) { const hp = ent.get(troll2, C.Body)!.parts[1]!.maxHp; for (let k = 0; k < 6 && ent.alive(troll2) && ent.has(troll2, C.Position); k += 1) { w.game.world.emit({ type: 'DamageDealt', defenderId: troll2, attackerId: 0, part: 'head', damageType: 'blunt', amount: hp * 4 }); w.step(2); } }
+    log.push(`second troll alive with a position: ${ent.alive(troll2) && ent.has(troll2, C.Position)}`);
+    const spareCage = w.spawnItem('cage', 'iron', w.index(42, 42, Z));
+    const spareStone = w.spawnItem('raw_stone', 'granite', w.index(32, 42, Z));
+    w.spawnItem('easy_meal', 'dimcap', w.index(45, 45, Z), 60);
+    w.spawnItem('drink', 'ale', w.index(46, 45, Z), 60);
+    const d = w.spawnDwarf({ at: w.index(44, 44, Z), ageYears: 30, skills: { mechanics: 5 } });
+    const d2 = w.spawnDwarf({ at: w.index(44, 45, Z), ageYears: 30, skills: { mechanics: 5 } });
+    log.push(`spare cage ${spareCage}: Container component ${JSON.stringify(ent.get(spareCage, C.Container) ?? null)}; spare stone ${spareStone}; dwarves ${d} ${d2}`);
+    log.push(`countAvailable({ type: cage }) = ${items.countAvailable({ type: w.game.registry.table('items').index('cage') })}; countAvailable({ emptyContainer: 'cage' }) = ${items.countAvailable({ emptyContainer: 'cage' })}`);
+    for (const day of [1, 3, 10]) {
+      w.step(day * TICKS_PER_DAY - (w.tick % TICKS_PER_DAY));
+      log.push(`--- tick ${w.tick}: cage trap ${def.trapState(cageTrap)}; stone trap ${def.trapState(stoneTrap)}; TrapRearmed ${JSON.stringify(w.events('TrapRearmed'))}`);
+      log.push(`jobs: ${jl()}`);
+    }
+    log.push(`standing order autoRearmTraps ${jobs.standingOrder('autoRearmTraps')}; dwarves alive ${ent.with(C.Labors).filter((x) => ent.alive(x)).length}`);
+    writeFileSync(`${OUT}/cagetrap.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 600_000);
+});

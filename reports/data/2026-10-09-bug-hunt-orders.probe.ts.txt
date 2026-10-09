@@ -1,0 +1,86 @@
+/* T-115 scratch (2026-10-09): (1) a craft job whose input goes away before it is claimed; (2) a hunter and an old corpse. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs/reader';
+import type { WorkshopsReader } from '@systems/workshops';
+import { TestWorld } from '../test/scenarios/test-world';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const Z = 32;
+
+describe('T-115 probe: orders and hunt', () => {
+  it('a blocked first order starves the second', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const w = new TestWorld({ seed: 't115-orders', world: 'flat-test', embark: 'none' });
+    const ent = w.game.world.entities;
+    const jobs = w.readers.of<JobsReader>('11');
+    const ws = w.readers.of<WorkshopsReader>('12');
+    const items = w.readers.of<ItemsReader>('13');
+    const jl = (): string => jobs.list().map((j) => `${j.id}:${jobs.typeOf(j.id)}:${j.state}:${j.blockedReason}:w${j.workerId}:${String(j.data['recipe'] ?? '')}`).join(' | ') || 'none';
+    const shop = w.build('craftdwarf', w.index(15, 15, Z));
+    const bone = w.spawnItem('bone_pile', 'bone', w.index(19, 17, Z));
+    w.spawnItem('raw_stone', 'granite', w.index(20, 17, Z));
+    w.spawnItem('raw_stone', 'granite', w.index(20, 18, Z));
+    w.spawnItem('easy_meal', 'dimcap', w.index(25, 25, Z), 60);
+    w.spawnItem('drink', 'ale', w.index(26, 25, Z), 60);
+    w.step(1);
+    log.push(`order 1 bone craft: ${JSON.stringify(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: shop, order: { recipeId: 'craft_bone', mode: 'once', remaining: 1, priority: 5 } }))}`);
+    log.push(`order 2 stone mug: ${JSON.stringify(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: shop, order: { recipeId: 'make_mug_stone', mode: 'once', remaining: 2, priority: 5 } }))}`);
+    w.step(3);
+    log.push(`tick ${w.tick}, no dwarf yet. jobs: ${jl()}; workshop ${JSON.stringify(ent.get(shop, C.Workshop))}`);
+    log.push(`the bone is forbidden (as if another job had taken it): ${JSON.stringify(w.game.world.applyCommand({ type: 'ForbidItem', itemId: bone, on: true }))}`);
+    const d = w.spawnDwarf({ at: w.index(17, 17, Z), ageYears: 30, skills: { crafting: 5 } });
+    for (const day of [1, 5, 20]) {
+      w.step(day * TICKS_PER_DAY - w.tick);
+      log.push(`--- day ${day}: jobs: ${jl()}`);
+      log.push(`orders ${JSON.stringify(ws.ordersOf(shop))}; ItemCrafted ${w.events('ItemCrafted').length}; mugs ${items.count('mug')}; WorkshopBlocked ${JSON.stringify(w.events('WorkshopBlocked'))}; dwarf job ${jobs.forWorker(d)?.id ?? 0}`);
+    }
+    log.push(`isRunnable(order 1) ${JSON.stringify(ws.isRunnable('craft_bone', shop))}; isRunnable(order 2) ${JSON.stringify(ws.isRunnable('make_mug_stone', shop))}`);
+    writeFileSync(`${OUT}/orders.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 600_000);
+
+  it('a hunter with an old corpse elsewhere on the map', () => {
+    const log: string[] = [];
+    const w = new TestWorld({ seed: 't115-hunt', world: 'flat-test', embark: 'none' });
+    const ent = w.game.world.entities;
+    const items = w.readers.of<ItemsReader>('13');
+    const jobs = w.readers.of<JobsReader>('11');
+    const creatures = w.game.registry.table('creatures');
+    // an old corpse 25 tiles away: a second dwarf, killed
+    const victim = w.spawnDwarf({ at: w.index(45, 45, Z), ageYears: 30 });
+    w.step(2);
+    const hp = ent.get(victim, C.Body)!.parts[1]!.maxHp;
+    w.game.world.emit({ type: 'DamageDealt', defenderId: victim, attackerId: 0, part: 'torso', damageType: 'blunt', amount: hp * 2 });
+    w.until(() => ent.with(C.Corpse).length > 0, 200);
+    const old = ent.with(C.Corpse)[0] as number;
+    const p0 = ent.get(old, C.Position);
+    log.push(`old corpse ${old} (a dwarf's: ${JSON.stringify(ent.get(old, C.Corpse)?.dwarfName)}) at ${p0?.x},${p0?.y}`);
+    const butcher = w.build('butcher', w.index(20, 20, Z));
+    const hunter = w.spawnDwarf({ at: w.index(21, 20, Z), skills: { crossbow: 10, hunting: 5, butchery: 5 } });
+    const it = w.game.registry.table('items'); const iron = w.game.registry.table('materials').index('iron');
+    const crossbow = w.spawnItem(it.index('crossbow'), iron, w.index(21, 20, Z));
+    const bolts = w.spawnItem(it.index('bolt'), iron, w.index(21, 20, Z), 20);
+    ent.add(hunter, C.Equipment, { weapon: crossbow, shield: 0, armor: { head: 0, body: 0, arms: 0, legs: 0, feet: 0 }, clothing: { body: 0, legs: 0, feet: 0, over: 0 }, quiver: bolts });
+    const deer = w.game.world.services.spawn.creature(creatures.index('deer'), w.index(25, 20, Z), 'wild');
+    w.until(() => w.events('HuntKill').length > 0, TICKS_PER_DAY);
+    log.push(`HuntKill at tick ${w.tick}: ${JSON.stringify(w.events('HuntKill'))}`);
+    let seen = '';
+    for (let t = 0; t < 1500; t += 1) {
+      w.step(1);
+      const j = jobs.forWorker(hunter);
+      const carrying = ent.get(hunter, C.Worker)?.carrying ?? 0;
+      const line = `job ${j ? jobs.typeOf(j.id) : 'none'} corpseId ${String(j?.data['corpseId'] ?? '')} carrying ${carrying}`;
+      if (line !== seen) { seen = line; const hp2 = ent.get(hunter, C.Position); log.push(`tick ${w.tick}: hunter at ${hp2?.x},${hp2?.y}: ${line}`); }
+    }
+    const p1 = ent.get(old, C.Position);
+    log.push(`old corpse now at ${p1 ? `${p1.x},${p1.y}` : 'no position'} tileOf ${items.tileOf(old)} (butcher origin tile ${w.index(20, 20, Z)}, id ${butcher}); deer ${deer} alive ${ent.alive(deer)}`);
+    log.push(`corpses: ${ent.with(C.Corpse).map((c) => { const p = ent.get(c, C.Position); return `${c}@${p ? `${p.x},${p.y}` : 'none'}`; }).join(' ')}; ButcheryDone ${w.events('ButcheryDone').length}`);
+    writeFileSync(`${OUT}/hunt.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 600_000);
+});

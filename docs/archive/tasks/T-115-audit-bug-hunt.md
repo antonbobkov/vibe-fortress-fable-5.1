@@ -1,8 +1,10 @@
 # T-115 — Audit: bug hunt
 
+Closed by `T-115: bug hunt, first version of the report`, `T-115: bug hunt, long runs, save and load, determinism, follow-up tasks`, `T-115: the spec read against the code, and the two save cases left over` and `T-115: follow-up rows T-180 to T-187, and the task is closed`. The reports are [`reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) and [`reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md); their follow-ups are T-160 to T-177 and T-180 to T-187.
+
 **Source:** the owner, 2026-10-06 (the second of three audit/fix loops) · **Size:** L · **Needs:** — (order changed 2026-10-08: the bug hunt runs in parallel with the T-150 … T-157 coverage tasks, so that night-time strong-model hours are not left idle; it writes its own probes where a playthrough is missing) · **Status:** open
 
-**Who:** an Opus subagent, or Codex on `gpt-6-astra` at high effort. Not Gemini ([`../../agents/README.md`](../../agents/README.md)).
+**Who:** an Opus subagent, or Codex on `gpt-6-astra` at high effort. Not Gemini ([`../../agents/README.md`](../../../agents/README.md)).
 
 ## Why
 
@@ -54,11 +56,11 @@ Add one `T-1nn` row per confirmed bug that breaks a fortress or gives a wrong re
 
 - The report exists, and every confirmed bug has a reproduction that a second agent can run.
 - The follow-up rows are in the backlog.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
 
 ## Progress
 
-**2026-10-08.** Report: [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md), at commit `afdbe66`. Fifteen confirmed bugs (one breaks a fortress), twelve cosmetic ones; follow-up rows T-160 to T-177 are in the backlog.
+**2026-10-08.** Report: [`../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md), at commit `afdbe66`. Fifteen confirmed bugs (one breaks a fortress), twelve cosmetic ones; follow-up rows T-160 to T-177 are in the backlog.
 
 - **Done:** way 1 (invariant probes over the three-year fixture at perils 0, 2 and 4 and over `year_one`), way 2 (save and load: 33 forks in the long runs, 5 in `year_one`), way 3 headless (two processes per seed), way 4 (all 78 commands, 68,010 trials).
 - **Done in part:** way 5. Read: the tuning constants of 11, 12, 13, 16, 18, 19 and 22 against their uses, the death consumers, the stealth and outcome rules of 18, the events with no emitter. **Remaining:** the rule-by-rule reading of those seven documents.
@@ -66,3 +68,5 @@ Add one `T-1nn` row per confirmed bug that breaks a fortress or gives a wrong re
 - **Also remaining from way 2:** a save while paused with commands applied by the paused command phase, and a save with a trade session open.
 
 The task closes when the remaining reading is done or is given its own row.
+
+**2026-10-09.** Report: [`../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md), at commit `d29ea8e`. The rule-by-rule reading of 11, 12, 13, 16, 18, 19 and 22 is done, and so are the two save cases left from way 2 (paused with commands applied; a trade session open). Six more confirmed bugs (one breaks a fortress), twelve cosmetic ones and eighteen rules to write down or remove; follow-up rows T-180 to T-187 are in the backlog. Way 6, the UI under abuse, and the UI half of way 3 (the same commands through the UI and headless) were not done here: they are part of T-116 (item 7 of its work file). The task is closed.

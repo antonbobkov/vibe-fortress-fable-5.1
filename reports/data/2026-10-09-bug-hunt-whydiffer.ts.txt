@@ -1,0 +1,38 @@
+/* T-115 scratch: where two games differ (taken from long.probe.ts). */
+import type { HeadlessGame } from '@app/headless';
+
+export function whyDiffer(a: HeadlessGame, b: HeadlessGame): string {
+  const out: string[] = [];
+  const canon = (x: unknown): unknown => {
+    if (ArrayBuffer.isView(x)) return Array.from(x as unknown as ArrayLike<number>);
+    if (x instanceof Map) return Array.from(x.entries()).map(canon);
+    if (x instanceof Set) return Array.from(x.values()).map(canon);
+    if (Array.isArray(x)) return x.map(canon);
+    if (x !== null && typeof x === 'object') { const o: Record<string, unknown> = {}; for (const k of Object.keys(x as object).sort()) { const v = (x as Record<string, unknown>)[k]; if (v !== undefined) o[k] = canon(v); } return o; }
+    return typeof x === 'number' && !Number.isFinite(x) ? `#${String(x)}` : x;
+  };
+  const J = (v: unknown): string => JSON.stringify(canon(v)) ?? 'undefined';
+  for (const grid of ['kind', 'material', 'fluid', 'designation', 'flags', 'tempOverride'] as const) {
+    const ga = a.map[grid] as ArrayLike<number>; const gb = b.map[grid] as ArrayLike<number>;
+    let n = 0; const bits: Record<number, number> = {}; let first = -1;
+    for (let i = 0; i < ga.length; i += 1) if (ga[i] !== gb[i]) { n += 1; if (first < 0) first = i; const x = (ga[i] as number) ^ (gb[i] as number); for (let k = 0; k < 16; k += 1) if (x & (1 << k)) bits[k] = (bits[k] ?? 0) + 1; }
+    if (n > 0) { const p = a.map.unpack(first); out.push(`map.${grid}: ${n} tiles differ, bits ${JSON.stringify(bits)}, first at (${p.x},${p.y},${p.z}) ${ga[first]} vs ${gb[first]}`); }
+  }
+  const ia = a.world.entities.allIds(); const ib = b.world.entities.allIds();
+  if (J(ia) !== J(ib)) out.push(`entity ids differ: ${ia.length} vs ${ib.length}`);
+  let shown = 0;
+  for (const id of ia) {
+    for (const type of a.world.entities.componentTypes()) {
+      const va = a.world.entities.get(id, type); const vb = b.world.entities.get(id, type);
+      if (J(va) !== J(vb) && shown < 6) { shown += 1; out.push(`entity ${id} (${a.world.entities.kind(id)}) ${type.name}: ${J(va)?.slice(0, 300)} vs ${J(vb)?.slice(0, 300)}`); }
+    }
+  }
+  if (J(a.world.fortress) !== J(b.world.fortress)) out.push(`fortress: ${J(a.world.fortress)} vs ${J(b.world.fortress)}`);
+  if (J(a.world.rngState()) !== J(b.world.rngState())) out.push('rng streams differ');
+  for (const sys of a.world.scheduler.inOrder()) {
+    const sa = J(sys.serialize()); const sb = J(b.world.scheduler.byId(sys.id)?.serialize());
+    if (sa !== sb) { let k = 0; while (k < sa.length && sa[k] === sb?.[k]) k += 1; out.push(`system ${sys.id} state differs at char ${k}: ...${sa.slice(Math.max(0, k - 120), k + 120)}... vs ...${sb?.slice(Math.max(0, k - 120), k + 120)}...`); }
+  }
+  return out.length > 0 ? out.join('\n      ') : 'no difference found in grids, entities, fortress, rng or system state';
+}
+
