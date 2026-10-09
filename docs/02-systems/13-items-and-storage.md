@@ -98,7 +98,7 @@ Maintained incrementally, sorted by item id:
 
 ### Forbid, dump, melt, claim
 
-`Item.flags`: `forbidden` (ignored by all jobs and searches), `dump` (wants hauling to a `dump` zone; on arrival the flag clears), `melt` (a smelter may consume it), `reserved` (held by a job; 11 sets and clears), `owned` (belongs to a dwarf: worn clothing, an assigned bed's owner's chest contents), `installed` (linked to a built piece of furniture, 14: off the map and out of every search, haul and available count, but still in the totals and in wealth; deconstruction clears it and returns the item to the building's tile).
+`Item.flags`: `forbidden` (ignored by all jobs and searches), `dump` (wants hauling to a `dump` zone; on arrival the flag clears), `melt` (a smelter may consume it), `reserved` (held by a job, or by a dwarf walking to eat or drink it; released when the holder dies or abandons the errand), `owned` (belongs to a dwarf: worn clothing, an assigned bed's owner's chest contents), `installed` (linked to a built piece of furniture, 14: off the map and out of every search, haul and available count, but still in the totals and in wealth; deconstruction clears it and returns the item to the building's tile).
 
 Ownership ends with its owner: on `CreatureDied` of a fortress creature, every item with its `ownerId` loses the owner and the `owned` flag through `items.setOwner(id, 0)`, including worn clothing, claimed gear and chest contents. Worn items stay with the corpse, unowned.
 
@@ -171,7 +171,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Item API (mutation, called by 11, 12, 10, 14, 16, 20)
 
-`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)`, `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`, `refreshDerivedIndexes(itemId)` (re-derives the stock indexes of an item that another system changed in place; it changes no record, count or event).
+`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)`, `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`, `reserve(itemId, holderId)`, `release(itemId)` (the caller emits `ItemReleased` when releasing a held reservation), `refreshDerivedIndexes(itemId)` (re-derives the stock indexes of an item that another system changed in place; it changes no record, count or event).
 
 ### Commands
 

@@ -294,7 +294,10 @@ function ranked(n: Needs, critical: boolean): NeedName[] {
 export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void {
   const current = ctx.world.entities.get(id, C.Brain);
   if (current === undefined) return;
-  if (ctx.readers.has('17') && !ctx.readers.of<{ isConscious(id: EntityId): boolean }>('17').isConscious(id)) return;
+  if (ctx.readers.has('17') && !ctx.readers.of<{ isConscious(id: EntityId): boolean }>('17').isConscious(id)) {
+    host.activities.cancel(ctx, id);
+    return;
+  }
   const b: Brain = { ...current };
   const movement = ctx.world.services.movement;
   const interrupted = host.takeInterrupt(id);

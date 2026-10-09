@@ -138,6 +138,8 @@ After day 20, place a trade depot at the first valid surface origin among `(cxâˆ
 
 Check the Hillfolk and Wildwood caravan windows of 20, no winter caravan or year-one Mountainhome caravan, the scheduled Mountainhome spring window in year two, and 21's two guaranteed year-one waves with their size bounds. Surface sowing stops in winter while cave sowing continues; freezing occurs only in cold seasons; peril zero has no raid. No dwarf dies and population exceeds seven. Print the measured population, wealth, harvests, stocks and event days as balance observations.
 
+An eater or drinker killed before arriving releases the reserved unit once. Unconsciousness, fleeing and food rotting during travel do the same; cancellation cannot release a reservation now belonging to another holder.
+
 ## 11 Jobs
 
 | id | Scenario | Expected |

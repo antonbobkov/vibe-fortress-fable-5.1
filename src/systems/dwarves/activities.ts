@@ -264,9 +264,13 @@ export class Activities {
     const p = this.plans.get(id);
     if (p?.itemId && (p.need === 'hunger' || p.need === 'thirst')) {
       const api = ctx.world.services.items;
-      if (api !== null) {
-        if (items(ctx)?.get(p.itemId)?.carriedBy === id) api.dropAt(p.itemId, tile(ctx, id));
-        api.release(p.itemId);
+      const item = items(ctx)?.get(p.itemId);
+      if (api !== null && item !== undefined) {
+        if (item.carriedBy === id) api.dropAt(p.itemId, tile(ctx, id));
+        if (item.reservedBy === id) {
+          api.release(p.itemId);
+          ctx.emit({ type: 'ItemReleased', itemId: p.itemId, jobId: id });
+        }
       }
     }
     this.plans.delete(id);
@@ -349,6 +353,16 @@ export class Activities {
   step(ctx: TickContext, id: EntityId, b: Brain): boolean {
     const p = this.plans.get(id);
     if (p === undefined) return true;
+    if (p.itemId !== 0 && (p.need === 'hunger' || p.need === 'thirst')) {
+      const reader = items(ctx);
+      const item = reader?.get(p.itemId);
+      const def = item === undefined ? undefined : reader?.def(item.type);
+      if (item === undefined || item.reservedBy !== id || item.rotStage >= 2 ||
+          !(p.need === 'hunger' ? def?.edible : def?.drinkable)) {
+        this.cancel(ctx, id);
+        return true;
+      }
+    }
     const movement = ctx.world.services.movement;
     const at = tile(ctx, id);
     if (p.phase !== 'use') {

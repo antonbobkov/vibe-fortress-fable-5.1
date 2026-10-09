@@ -51,6 +51,8 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 - Rest at `NEED_MAX` makes the dwarf fall asleep where they stand ("passed out").
 - Each need at or above its want threshold produces a standing negative thought while it persists (15: `hungry`, `thirsty`, `tired`, `lonely`, `uncomfortable`, `restless`, `bored`); satisfying it produces the positive event thought.
 
+A food or drink errand reserves one unit under the dwarf's id. Death, unconsciousness, flight, a failed walk or the item becoming inedible or undrinkable abandons that errand. Release its still-owned reservation through the item API and emit one `ItemReleased { itemId, jobId: dwarfId }`; a held meal drops at the dwarf's tile. Never release another holder's reservation. Consumption ends the reservation by consuming the reserved unit.
+
 ### Eating and drinking
 
 - Food search: nearest reachable edible item that is not forbidden or reserved, preferring `meal` items, then raw food, using 13's `findItem`. The dwarf carries it to the nearest dining hall chair with a table if one is within `DINING_SEARCH_RADIUS`, else eats on the spot. Emits `MealEaten { id, quality, atTable, roomTier }`.
@@ -155,11 +157,11 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ### Events consumed
 
-`HourPassed`, `DayPassed`, `YearPassed`, `JobCompleted` (experience), `CreatureDied`, `AlertChanged`, `ThreatNearby` (from 16), `PatientAdmitted` and `PatientDischarged` (17), `HearthLit`, `MoodTierChanged` (productivity cache).
+`HourPassed`, `DayPassed`, `YearPassed`, `JobCompleted` (experience), `CreatureDied`, `CreatureUnconscious` (abandon a need errand), `AlertChanged`, `ThreatNearby` (from 16), `PatientAdmitted` and `PatientDischarged` (17), `HearthLit`, `MoodTierChanged` (productivity cache).
 
 ### Events emitted
 
-`MealEaten`, `DrankAlcohol`, `DrankWater`, `Slept`, `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`, `Starvation { id }` (hunger or thirst has reached the point of death; 17 applies it).
+`ItemReleased { itemId, jobId: dwarfId }`, `MealEaten`, `DrankAlcohol`, `DrankWater`, `Slept`, `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`, `Starvation { id }` (hunger or thirst has reached the point of death; 17 applies it).
 
 ### Registrations
 

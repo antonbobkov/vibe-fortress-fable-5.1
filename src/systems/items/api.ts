@@ -713,7 +713,7 @@ export class ItemCore implements ItemsApi {
     this.notify(itemId, 'flags');
   }
 
-  /** 11: the reservation ends; `ItemReleased` is 11's event. */
+  /** The caller (11 for jobs, 10 for need errands) emits `ItemReleased` when it releases. */
   release(itemId: EntityId): void {
     const it = this.get(itemId);
     if (it === undefined || (it.reservedBy === 0 && (it.flags & ItemFlag.Reserved) === 0)) return;

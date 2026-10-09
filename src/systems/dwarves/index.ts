@@ -74,7 +74,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AlertChanged', 'BuildingStateChanged'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AlertChanged', 'BuildingStateChanged'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -411,6 +411,10 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       return;
     }
     if (event.type === 'BuildingStateChanged') { this.checkShelters(ctx); return; }
+    if (event.type === 'CreatureUnconscious') {
+      this.activities.cancel(ctx, event['id'] as EntityId);
+      return;
+    }
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
       if (ctx.world.entities.has(id, C.Worker)) {
@@ -422,7 +426,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       }
       this.seedTitles();
       for (const title of TITLES) if (this.titles[title] === id) this.titles[title] = 0;
-      this.activities.plans.delete(id);
+      this.activities.cancel(ctx, id);
       this.idleAnnounced.delete(id);
       this.interruptFlags.delete(id);
       this.shutOut.delete(id);
