@@ -72,6 +72,8 @@ hit = clamp(3, 95, hit)
 spawn Projectile { itemId: one unit of ammunition (13 split), from, to, speed: PROJECTILE_SPEED, shooterId, hitRoll }
 ```
 
+The ammunition unit is attached to the projectile through the item API while in flight, so it is not unattended stock on the shooter's tile.
+
 The projectile advances along a Bresenham line each tick by `PROJECTILE_SPEED` tiles. On entering the target's tile: if `hitRoll` succeeds, resolve as a melee hit with `raw = ammo.baseDamage × launcher.powerMultiplier × metalTier(ammo)`, no parry, block allowed, then the ammunition item drops on the tile with `AMMO_BREAK_PERMILLE` chance to be destroyed. On a miss the projectile continues to `launcher.range` and drops. A projectile entering a tile with a wall, closed door, raised bridge or (from the far side) a fortification stops and drops. A creature other than the target in the path is hit with half the hit chance.
 
 Line of sight (22): a Bresenham line on the same z-level with no wall, door, tree, raised bridge or closed floodgate in between; fortifications pass projectiles only if the shooter is adjacent to the fortification (a defender at the wall) or the target is adjacent to it (shooting in). Ranged creatures cannot shoot across z-levels except from a fortification one level up (an overlook) to a target on the level below within range.
@@ -113,6 +115,7 @@ An explicit barracks zone setting takes precedence over a cached training zone. 
 ### Equipment
 
 - On joining a squad, and every `REEQUIP_CHECK_DAYS`, each member claims from stockpiles the best available items matching the squad's preferences: weapon (highest `metalTier × qualityMultiplier` of the preferred class, then any melee class), shield (if the weapon is one-handed and `armor != none`), one armor piece per slot (highest armor value matching the material preference), and, for ranged members, a launcher, a quiver and `SOLDIER_AMMO` ammunition. Claimed items are `owned` (13). Better items replace worse ones, which are dropped at the barracks. All squads are refreshed once on a dispatch tick that carries `ItemCreated`, however many items the tick created.
+- Claiming and dropping equipment, including ammunition, use 13's item API. Take contained gear out before attaching it to the soldier and setting ownership; clear ownership before dropping replaced gear or recovered practice ammunition. Practice consumes units through the item API; the last unit is destroyed or dropped through it. Ammunition is carried separately from the quiver item, with no fabricated container link.
 - Soldiers wear their armor at all times (no armor-off in version 1). Armor slows: movement × `(100 − Σ armor.weight / 4)%` minimum `ARMOR_MIN_SPEED_PERCENT`, reduced by `armor_use` skill (each level restores 1%).
 - Civilian tools (picks, axes) are weapons of their class; a miner attacked fights with the pick. A squad member does not claim a pick or axe as a weapon while any dwarf has mining or woodcutting labor enabled, respectively, and lacks a held tool of that kind. A tool held through `Worker.toolId` or `Equipment.weapon` satisfies that need; a different kind does not. Once every enabled worker holds that kind, or the labor is disabled, a spare can be claimed normally.
 

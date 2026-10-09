@@ -384,18 +384,12 @@ export function dropOrBreakAmmo(
   tile: TileIndex,
 ): void {
   const breaks = rng.chance(AMMO_BREAK_PERMILLE);
-  if (breaks) {
-    if (ctx.world.services.items) {
-      ctx.world.services.items.destroy(itemId, 'projectile_break');
-    } else {
-      ctx.world.entities.destroy(itemId);
-    }
-  } else {
-    if (ctx.world.services.items) {
-      ctx.world.services.items.dropAt(itemId, tile);
-    } else {
-      ctx.world.entities.add(itemId, C.Position, ctx.world.map.unpack(tile));
-    }
+  const items = ctx.world.services.items;
+  if (items === null) return;
+  if (breaks) items.destroy(itemId, 'projectile_break');
+  else {
+    items.setOwner(itemId, 0);
+    items.dropAt(itemId, tile);
   }
 }
 
@@ -574,29 +568,13 @@ export function fireRanged(
     // Split or take 1 ammo unit
     projectileItemId = ammoId;
     const ammoItem = entities.get(ammoId, C.Item);
-    if (ammoItem && ammoItem.count > 1) {
-      if (ctx.world.services.items) {
-        projectileItemId = ctx.world.services.items.split(ammoId, 1);
-      } else {
-        ammoItem.count -= 1;
-        projectileItemId = entities.create('item');
-        entities.add(projectileItemId, C.Item, {
-          ...ammoItem,
-          count: 1,
-          carriedBy: 0,
-          containerId: 0,
-        });
-      }
-    } else if (ammoItem) {
-      ammoItem.carriedBy = 0;
-      ammoItem.containerId = 0;
+    const items = ctx.world.services.items;
+    if (items === null || ammoItem === undefined) return false;
+    if (ammoItem.count > 1) projectileItemId = items.split(ammoId, 1);
+    else {
       const equip = entities.get(shooterId, C.Equipment);
-      if (equip && equip.quiver === ammoId) {
-        equip.quiver = 0;
-      }
-      ctx.world.services.items?.refreshDerivedIndexes?.(ammoId);
+      if (equip?.quiver === ammoId) equip.quiver = 0;
     }
-
     const ammoTable = registry.table<AmmoRow>('ammo');
     const ammoRow = ammoTable.byId(launcher.ammo);
     const ammoBaseDamage = ammoRow?.damage ?? 16;
@@ -639,6 +617,7 @@ export function fireRanged(
     line,
     skipXp: options?.skipXp,
   });
+  if (projectileItemId !== 0) ctx.world.services.items?.attachToCarrier(projectileItemId, projId);
   entities.add(projId, C.Position, {
     x: posS.x,
     y: posS.y,

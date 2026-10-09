@@ -4,7 +4,7 @@
  * `04-implementation/algorithms/combat-and-health.md` § Threat scan, duties, training.
  */
 
-import { C, ItemFlag, type Squad } from '@core/components';
+import { C, type Squad } from '@core/components';
 import type { EntityStore } from '@core/entities';
 import type { RngStream } from '@core/rng';
 import type { TickContext } from '@core/system';
@@ -183,41 +183,18 @@ export function stepTraining(
               if (ammoItemId !== 0) {
                 const ammoItem = entities.get(ammoItemId, C.Item);
                 if (ammoItem) {
+                  const items = ctx.world.services.items;
+                  if (items === null) continue;
                   if (ammoItem.count > 1) {
-                    ammoItem.count -= 1;
-                    // Spawn dropped bolt at archery target
-                    const breaks = rng.chance(AMMO_BREAK_PERMILLE);
-                    if (!breaks) {
-                      const spawned = ctx.world.services.spawn?.item(
-                        ammoItem.type,
-                        ammoItem.material,
-                        archeryTargetTile,
-                        1,
-                        ammoItem.quality,
-                      );
-                      if (typeof spawned === 'number') {
-                        const spItem = entities.get(spawned, C.Item);
-                        if (spItem) {
-                          spItem.flags &= ~ItemFlag.Owned;
-                          spItem.ownerId = 0;
-                        }
-                      }
+                    items.consume(ammoItemId, 1);
+                    if (!rng.chance(AMMO_BREAK_PERMILLE)) {
+                      ctx.world.services.spawn.item(ammoItem.type, ammoItem.material, archeryTargetTile, 1, ammoItem.quality);
                     }
+                  } else if (rng.chance(AMMO_BREAK_PERMILLE)) {
+                    items.destroy(ammoItemId, 'training_break');
                   } else {
-                    const breaks = rng.chance(AMMO_BREAK_PERMILLE);
-                    if (breaks) {
-                      entities.destroy(ammoItemId);
-                      ctx.world.services.items?.refreshDerivedIndexes?.(ammoItemId);
-                    } else {
-                      ammoItem.flags &= ~ItemFlag.Owned;
-                      ammoItem.ownerId = 0;
-                      ammoItem.carriedBy = 0;
-                      if (ctx.world.services.items) {
-                        ctx.world.services.items.dropAt(ammoItemId, archeryTargetTile);
-                      } else {
-                        entities.add(ammoItemId, C.Position, map.unpack(archeryTargetTile));
-                      }
-                    }
+                    items.setOwner(ammoItemId, 0);
+                    items.dropAt(ammoItemId, archeryTargetTile);
                   }
                 }
               }

@@ -1,6 +1,8 @@
 # T-162 — Squad equipping goes through the item API
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 3) · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-162: route squad equipment through the item API`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 3) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@
 
 ## Reproduction
 
-[`death.probe.ts`](../../reports/data/2026-10-08-bug-hunt-death.probe.ts.txt), the block "after squad equip, nobody dead": `stock.available-drift [pick]: available 1 recount 0`, `[short_sword]: available 2 recount 1`; at the end `container … lists … but item.containerId=0`. In the long run: [`long.probe.ts`](../../reports/data/2026-10-08-bug-hunt-long.probe.ts.txt) with `T115_SEED=three-years T115_PERIL=0`, `stock.available-drift` from tick 155,300.
+[`death.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-death.probe.ts.txt), the block "after squad equip, nobody dead": `stock.available-drift [pick]: available 1 recount 0`, `[short_sword]: available 2 recount 1`; at the end `container … lists … but item.containerId=0`. In the long run: [`long.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-long.probe.ts.txt) with `T115_SEED=three-years T115_PERIL=0`, `stock.available-drift` from tick 155,300.
 
 ## What to do
 

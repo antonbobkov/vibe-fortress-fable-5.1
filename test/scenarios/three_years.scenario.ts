@@ -14,7 +14,7 @@ import { C } from '@core/components';
 import { POSITIVE_CAP, NEED_PRESSURE_CAP, MOOD_NEEDS_MET_FLOOR } from '@systems/morale/mood';
 import { WAVE_MAX } from '@systems/immigration/constants';
 import { deathCounts } from './death-counts';
-import type { ItemsReader } from '@systems/items';
+import { ItemsSystem, type ItemsReader } from '@systems/items';
 import type { Scenario } from './runner';
 import {
   setupThreeYearsFortress,
@@ -116,6 +116,16 @@ const scenario: Scenario = {
         y2Wealth = items.wealth();
         y2Pop = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
       }
+    }
+
+    // T-162: squad claims in the played fortress must leave stock and container accounting exact.
+    const itemCore = (w.game.world.scheduler.byId('13') as ItemsSystem).core;
+    expect(itemCore.counts.serialize().map(([type, count]) => [type, count.total, count.available]),
+      'T-162: incremental stock counts equal the entity recount after three years').toEqual(itemCore.recount().rows);
+    for (const holder of w.game.world.entities.with(C.Container)) {
+      expect(w.game.world.entities.get(holder, C.Container)?.contents,
+        'T-162: every container lists exactly the items that name it').toEqual(
+        w.game.world.entities.with(C.Item).filter((id) => w.game.world.entities.get(id, C.Item)?.containerId === holder).sort((a, b) => a - b));
     }
 
     unsubscribe();

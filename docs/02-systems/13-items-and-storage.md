@@ -127,7 +127,7 @@ A corpse is an item of type `refuse/corpse` with `Corpse { species, diedTick, wo
 
 ### Stock counts and the stocks panel
 
-`counts: Map<typeIndex, { total, byMaterialClass, byQuality, available (not forbidden, not reserved, not owned) }>` maintained incrementally. `StocksChanged { types[] }` is emitted batched each 13 tick for types whose counts changed. The stocks panel groups by category with expanders, shows counts and total value, and allows forbid, dump and melt on a type or a selected item.
+`counts: Map<typeIndex, { total, byMaterialClass, byQuality, available (not forbidden, not reserved, not owned) }>` maintained incrementally. On load, rebuild every stock dimension once from the restored item records, excluding merchant goods and unrecovered foreign items as usual; preserve the saved dirty-type queue. This heals stale counts in older saves and leaves valid counts unchanged. `StocksChanged { types[] }` is emitted batched each 13 tick for types whose counts changed. The stocks panel groups by category with expanders, shows counts and total value, and allows forbid, dump and melt on a type or a selected item.
 
 ### Searching
 
