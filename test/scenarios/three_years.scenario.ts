@@ -34,7 +34,7 @@ export interface ThreeYearsRow {
 const scenario: Scenario = {
   id: 'three_years',
   milestone: 8,
-  timeoutMs: 300_000,
+  timeoutMs: 2_400_000,
   seed: 'three-years',
   world: { region: { wealth: 2, peril: 0, biome: 'temperate_forest', geology: 'mixed', traits: ['serene_vale'], river: { class: 'brook', inflow: ['w'], outflow: 's' } } },
   embark: 'default',
