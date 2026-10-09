@@ -38,11 +38,11 @@ export const REPATH_LIMIT = 3;
 export const LOS_MAX = 30;
 
 /**
- * `22` § Tuning constants: the dwarf species' base speed, 0.1 tiles per tick, as a `Fixed`. The
+ * `22` § Tuning constants: the dwarf species' base speed, 0.15 tiles per tick, as a `Fixed`. The
  * value that actually reaches a creature is the `speed` column of `03-content/creatures.md`; this
  * row is the documented baseline.
  */
-export const DWARF_SPEED: Fixed = 100;
+export const DWARF_SPEED: Fixed = 150;
 
 /** `02-systems/06-weather-and-seasons.md` § Tuning constants: movement cost on a snow tile. */
 export const SNOW_MOVE_COST_PERCENT = 150;

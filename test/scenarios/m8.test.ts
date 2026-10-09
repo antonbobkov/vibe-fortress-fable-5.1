@@ -3,6 +3,7 @@
  */
 
 import { describe, it } from 'vitest';
+import { isPerfTierScenario } from './perf-tier';
 import { currentMilestone, runScenario, type Scenario } from './runner';
 
 const modules = import.meta.glob('./*.scenario.ts', { eager: true }) as Record<
@@ -13,7 +14,7 @@ const modules = import.meta.glob('./*.scenario.ts', { eager: true }) as Record<
 const scenarios = Object.keys(modules)
   .sort()
   .map((path) => (modules[path] as { default: Scenario }).default)
-  .filter((s) => s.milestone === 8);
+  .filter((s) => s.milestone === 8 && !isPerfTierScenario(s.id)); // perf-tier.ts names the ones that run in `npm run test:perf`
 
 const milestone = currentMilestone();
 

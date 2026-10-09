@@ -312,6 +312,7 @@ Long fortress fixtures select trade quantities against the integer available off
 |---|---|---|
 | `perf_reference` | the reference fortress, 2,000 ticks at 4× headless | average tick ≤ 12 ms on CI (2× budget); worst ≤ 40 ms |
 | `perf_gen` | standard world + local map | ≤ 4 s combined on CI |
+| `three_years` | the three-year economy fortress, 3 years (`test/perf/three_years_main.test.ts`) | runs in the performance tier (`npm run test:perf`); deterministic guarantees (mood floor, no spiral, caps) and balance measurements |
 
 ## Traceability
 
