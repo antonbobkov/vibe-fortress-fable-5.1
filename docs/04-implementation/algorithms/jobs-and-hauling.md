@@ -121,7 +121,7 @@ bestStockpileFor(it): among stockpiles that accept(it) and have a free slot: min
 accept(sp, it): categoryUnder(type.category, sp.filter.categories) and (sp.filter.materialClasses == 'any' or class(it) in it) and minQ <= quality <= maxQ and not (rotting and not allowRot) and (sp.linkedSources empty or stockpileOf(it) in linkedSources)
 findSlot(sp, it):
   cls = type.container
-  if cls != 'none': for c in containers in sp of class cls (tile order): if room(c) >= count(it) (or can merge a stack): return {tile: tileOf(c), container: c}
+  if cls != 'none': for c in containers in sp of class cls (tile order): if not Reserved(c) and room(c) >= count(it) (or can merge a stack): return {tile: tileOf(c), container: c}
                     if sp.containersWanted[cls] > containersPresent(cls): request an empty container haul (a separate haul job for the nearest empty container of that class) ; return none
   for t in sp.tiles (sorted): if no item on t and no reservation: return {tile: t, container: 0}
   for t in sp.tiles: if item on t is an identical stack with room: return {tile: t, merge: true}
@@ -130,7 +130,7 @@ findSlot(sp, it):
 
 Each items tick re-examines `noHome` when a previously full stockpile gains space, drops slot reservations whose job is gone, and requests one nearest free empty container per wanted class per stockpile, counting incoming containers. Empty wanted containers already on their stockpile are stored. Non-dwarf corpses with worn items get `strip_corpse`; destroyed item targets cancel their haul jobs with `target_gone`; removed destination stockpiles cancel their haul jobs with `target_invalid`.
 
-On delivery: `dropAt(it, slot.tile)` or `putIn(it, slot.container)`; merge identical stacks; release the slot reservation; the item leaves `wantsHauling`.
+On delivery: `dropAt(it, slot.tile)`; fill `slot.container` only if it remains unreserved and in the destination stockpile. Otherwise leave the item on the delivery tile for ordinary hauling to reconsider. Merge identical stacks; release the slot reservation; re-examine the item for `wantsHauling`.
 
 ## Item search
 

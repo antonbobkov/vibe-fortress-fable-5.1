@@ -1,5 +1,7 @@
 # T-132 — The year-long browser playthrough starves since T-168
 
+Closed by `T-132: keep brewing barrels free from stockpile hauls`.
+
 **Source:** found by Codex while closing T-174 and T-177, 2026-10-09; bisected by the orchestrator the same day · **Size:** M · **Needs:** — · **Status:** open
 
 ## What is wrong
@@ -52,3 +54,13 @@ Do not add farms or re-time the playthrough to get it green; its food margin is 
 - The cause is stated with evidence from a run.
 - `full-year` passes, and the whole browser suite with it.
 - T-174 and T-177, parked on this, are restored and closed.
+
+## Resolution and measurements (2026-10-09)
+
+Case (a): a game bug in stockpile hauling. This is not a rejected zone setting and the measured bisect boundary does not establish T-168 as its cause. Instrumented runs at both `2bbc86c` and `39ac892` failed with three surviving dwarves; all 27 commands, their ticks and successful results matched, and all 111 daily stock/job snapshots matched byte for byte. The original passing and failing runs therefore sampled different execution histories. No command, fixture, farm, timing, capacity, rate or balance constant was changed.
+
+At current master `2d6fd58`, brew job 452 was fetching on tick 98,400 (day 83), with its reserved barrel 16777244 empty and room for 20 drinks. By tick 99,600 (day 84), the job was working at progress 999 but the reserved barrel had only 9 units of room: pending food hauls had filled it even after it moved to the still. The job remained stalled until day 97; drink reached zero on day 86 despite plants and an active brewer. A later brew job hit the same fault, and all dwarves died by day 111. The unchanged playthrough passes after protecting those destinations: 12 living dwarves and 9 drinks at tick 134,400. Food margin remains separate work for T-150.
+
+The fix excludes reserved containers during slot selection and rechecks reservation and destination-stockpile membership before a pending haul fills a container. A stale haul leaves its item on the delivery tile, releases its slot, and lets ordinary hauling reconsider it. Five task-tagged headless regressions include a real still and brewer with a pending food haul; the unmodified source fails four cases (including a brew completion timeout), while the fixed source passes all five. Existing assertions are unchanged.
+
+The selected command/job/container evidence is saved in `reports/data/2026-10-09-t132-command-and-barrel-trace.json`. T-188's recorded open/fetching failures have not been reproduced here; this witnessed stall is at progress 999 because the output barrel is filled by unrelated hauls.
