@@ -1,3 +1,4 @@
+import { checkInvariants, watchInvariants } from '../scenarios/invariants';
 import { stepThreeYears, threeYearsMeasurements } from '../scenarios/three_years_measurements';
 /**
  * 20-seed sweep across three regions (peril 0, 2, 4) for T-M8-06 (DECISIONS D-204).
@@ -94,6 +95,9 @@ export interface ThreeYearsSeedResult {
 
 export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedResult {
   const w = threeYearsWorld(seed, peril);
+  const stopInvariants = peril === 2 || peril === 4
+    ? watchInvariants(w.game, (findings) => expect(findings, `T-176 ${seed} tick ${w.tick}`).toEqual([]))
+    : () => {};
   const state = setupThreeYearsFortress(w);
 
   // Advance bootstrap period (20 days)
@@ -191,6 +195,9 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   }
 
   unsub();
+  stopInvariants();
+  if (peril === 2 || peril === 4) expect(checkInvariants(w.game), `T-176 ${seed} final invariants`).toEqual([]);
+  console.log(`[three_years_hash] ${JSON.stringify({ seed, peril, tick: w.tick, hash: w.hash() })}`);
 
   y3Wealth = items.wealth();
   const survivingDwarves = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress');

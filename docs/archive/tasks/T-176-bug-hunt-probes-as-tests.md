@@ -1,6 +1,8 @@
 # T-176 — The bug hunt's probes become permanent tests
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) ("The probes") · **Size:** M · **Needs:** T-160 … T-174 · **Status:** open
+Closed by `T-176: keep invariant, command and played-save probes in the test tiers`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) ("The probes") · **Size:** M · **Needs:** T-160 … T-174 · **Status:** open
 
 ## Why
 

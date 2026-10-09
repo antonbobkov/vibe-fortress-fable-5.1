@@ -32,7 +32,7 @@ import type { EventType } from '@core/event-types';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 
 export class TestWorld {
-  readonly game: HeadlessGame;
+  game: HeadlessGame;
   private readonly seen: GameEvent[] = [];
   /** Tiles a building blocks; the M2 hook of `22` § Passability, driven by the scenario. */
   private readonly blocking = new Set<TileIndex>();
@@ -48,9 +48,19 @@ export class TestWorld {
         ...(options.hooks ?? {}),
       },
     });
+    this.captureEvents();
+  }
+
+  private captureEvents(): void {
     this.game.world.onEvents((batch) => {
       for (let k = 0; k < batch.length; k += 1) this.seen.push(batch[k] as GameEvent);
     });
+  }
+
+  /** T-176: continue the same script and accumulated event history on its loaded game. */
+  replaceGame(game: HeadlessGame): void {
+    this.game = game;
+    this.captureEvents();
   }
 
   get map(): Map3D {
