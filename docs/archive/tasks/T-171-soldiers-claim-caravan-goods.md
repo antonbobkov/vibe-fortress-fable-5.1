@@ -1,5 +1,7 @@
 # T-171 — Soldiers do not claim a caravan's goods
 
+Closed by `T-171: squads claim fortress gear and clear destroyed equipment`.
+
 ## Progress - 2026-10-09
 
 Parked under the owner's no-long-fixture-tuning rule; no T-171 commit was made. Implementation, specification edits and six regressions are saved in stash `5cc12547727d7d86a065efb330c0c8311d6e5ada` (`T-171 parked: fortress equipment; three-year raw thought cap assertion`). The backlog row and work file remain open. No fixture or assertion was changed, and no goldens moved.
@@ -10,7 +12,7 @@ At tick 403,200 (end of day 336), the fixture's final thought-cap assertion sums
 
 Next: merge master's announced movement/fixture-tier changes, then resume the stash and rerun the required checks and the original peril-0 equipment/container invariant reproduction. Keep the fixture's capacity, timing and assertions unchanged; the fragile economy fixture belongs to T-145/T-156.
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 12) · **Size:** S · **Needs:** T-162 · **Status:** open
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 12) · **Size:** S · **Needs:** T-162 · **Status:** open
 
 ## Why
 
@@ -18,7 +20,7 @@ When a caravan arrives, squad members claim merchant goods as their gear: a pick
 
 ## Reproduction
 
-[`long.probe.ts`](../../reports/data/2026-10-08-bug-hunt-long.probe.ts.txt) with `T115_SEED=three-years T115_PERIL=0 T115_SAVE=1 T115_EVERY=100` (seven minutes). Ticks 148,900 to 155,100 and 289,400 to 299,200: `equip.item-in-container`, `item.in-two-containers`, `container.content-mismatch [wagon]`, then `equip.item-missing [weapon]` and `[armor.feet]`.
+[`long.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-long.probe.ts.txt) with `T115_SEED=three-years T115_PERIL=0 T115_SAVE=1 T115_EVERY=100` (seven minutes). Ticks 148,900 to 155,100 and 289,400 to 299,200: `equip.item-in-container`, `item.in-two-containers`, `container.content-mismatch [wagon]`, then `equip.item-missing [weapon]` and `[armor.feet]`.
 
 ## What to do
 

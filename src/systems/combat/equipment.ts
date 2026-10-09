@@ -112,7 +112,7 @@ export function isAvailableItem(entities: EntityStore, itemId: EntityId): boolea
   if (!entities.alive(itemId)) return false;
   const item = entities.get(itemId, C.Item);
   if (!item) return false;
-  if ((item.flags & ItemFlag.Forbidden) !== 0) return false;
+  if ((item.flags & (ItemFlag.Forbidden | ItemFlag.Merchant | ItemFlag.AtDepot | ItemFlag.Foreign)) !== 0) return false;
   if ((item.flags & ItemFlag.Installed) !== 0) return false;
   if ((item.flags & ItemFlag.Reserved) !== 0 && item.reservedBy !== 0) return false;
   if ((item.flags & ItemFlag.Owned) !== 0 && item.ownerId !== 0) return false;
@@ -511,5 +511,22 @@ export function reequipSquad(ctx: TickContext, squadId: EntityId): void {
 export function reequipAllSquads(ctx: TickContext): void {
   for (const squadId of ctx.world.entities.with(C.Squad)) {
     reequipSquad(ctx, squadId);
+  }
+}
+
+/** Item destruction clears references before another tick or a save can observe stale gear. */
+export function clearDestroyedEquipment(entities: EntityStore, itemId: EntityId): void {
+  for (const id of entities.with(C.Equipment)) {
+    const equip = entities.get(id, C.Equipment);
+    if (equip === undefined) continue;
+    if (equip.weapon === itemId) equip.weapon = 0;
+    if (equip.shield === itemId) equip.shield = 0;
+    if (equip.quiver === itemId) equip.quiver = 0;
+    for (const slot of ['head', 'body', 'arms', 'legs', 'feet'] as const) {
+      if (equip.armor[slot] === itemId) equip.armor[slot] = 0;
+    }
+    for (const slot of ['body', 'legs', 'feet', 'over'] as const) {
+      if (equip.clothing[slot] === itemId) equip.clothing[slot] = 0;
+    }
   }
 }

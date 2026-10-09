@@ -221,6 +221,8 @@ Invalid hospital supplies and zone values, including non-finite numbers, reject 
 | `cb_training` | squad in barracks with training axes, 10 days | weapon skill rises; no wounds |
 | `cb_alert_hearth` | `SetAlert hearth` | civilians reach the hearth hall; `lock_on_alert` doors lock within grace |
 
+A squad member holding its own copper sword keeps it when a visiting caravan at the depot offers a better steel sword; merchant, depot, foreign and forbidden flags each prevent claiming. Destroying an equipped item clears all slots naming it in the same tick, preserves other gear, and behaves identically after loading.
+
 A soldier's death clears ownership of its worn gear, clothing and contained possessions without moving them. Once its corpse rots, another miner can fetch the pick and complete a channel. A squad leaves picks and axes for enabled workers lacking that kind; a matching held tool in Equipment also satisfies the need, and disabling the labor permits normal weapon selection.
 
 Squad claims from the ground or a container, replacement drops and archery practice preserve every stock dimension and container inverse. Deterministic random squad commands check accounting after each operation; the played three-year fortress ends with exact stock counts and container contents. Loading an older save repairs stale stock counts once, while a valid save keeps its world hash.
