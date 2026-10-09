@@ -109,7 +109,7 @@ type SquadOrder = { kind: 'kill'; targetId: EntityId } | { kind: 'station'; tile
                 | { kind: 'patrol'; tiles: TileIndex[] } | { kind: 'follow'; dwarfId: EntityId };
 interface Party { civ: Civ | 'deep' | 'none'; purpose: 'thief'|'bandits'|'ambush'|'raid'|'siege'|'restless'|'caravan';
                   members: EntityId[]; leaderId: EntityId; state: string; goalTile: TileIndex; goalEntity: EntityId;
-                  arrivedTick: Tick; stateSince: Tick; loot: EntityId[]; edge: Edge; size: number; escapedLootCount?: number; goalIdleSince?: Tick }
+                  arrivedTick: Tick; stateSince: Tick; loot: EntityId[]; edge: Edge; size: number; escapedLootCount?: number; goalIdleSince?: Tick; ambushSprung?: boolean }
 interface Hostile { partyId: EntityId; role: string; behaviorState: string; stealthed: boolean; spotted: boolean;
                     breakingDoorId: EntityId; breakingSince: Tick;
                     retreat?: { stateSince: Tick; goalTile: TileIndex; bestDistance: number; progressSince: Tick } }

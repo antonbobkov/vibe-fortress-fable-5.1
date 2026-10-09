@@ -39,6 +39,7 @@ import {
 import {
   checkPartyCasualties,
   chooseGoal,
+  springAmbush,
   stepThreatMembers,
   stepThreatParties,
 } from './ai';
@@ -450,20 +451,19 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       const cId = event['creatureId'] as EntityId;
       if (typeof cId === 'number') {
         const H = ctx.world.entities.get(cId, C.Hostile);
-        if (H && H.stealthed) {
-          H.stealthed = false;
-          H.spotted = true;
+        if (H) {
           const P = H.partyId !== 0 ? ctx.world.entities.get(H.partyId, C.Party) : undefined;
-          if (P?.purpose === 'thief') {
-            ctx.emit({ type: 'ThiefSpotted', id: cId });
-            if (P.state !== 'retreat') P.stateSince = ctx.tick;
-            P.state = 'retreat';
-            P.outcome = P.loot.length > 0 || (P.escapedLootCount ?? 0) > 0 ? 'looted' : 'withdrew';
-          } else if (P?.purpose === 'ambush') {
-            ctx.emit({ type: 'AmbushSprung', partyId: H.partyId });
-            if (P) {
-              P.state = 'engage';
-              P.stateSince = ctx.tick;
+          if (P?.purpose === 'ambush') {
+            // 19 marks the trap victim spotted before delivering this event.
+            springAmbush(H.partyId, P, ctx);
+          } else if (H.stealthed) {
+            H.stealthed = false;
+            H.spotted = true;
+            if (P?.purpose === 'thief') {
+              ctx.emit({ type: 'ThiefSpotted', id: cId });
+              if (P.state !== 'retreat') P.stateSince = ctx.tick;
+              P.state = 'retreat';
+              P.outcome = P.loot.length > 0 || (P.escapedLootCount ?? 0) > 0 ? 'looted' : 'withdrew';
             }
           }
         }

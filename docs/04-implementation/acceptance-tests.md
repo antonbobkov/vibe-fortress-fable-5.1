@@ -255,6 +255,8 @@ A thief spotted by a creature or trap after pickup ends as looted when it escape
 
 A raid already at the reachable hearth of an empty fortress loiters after its arrived-goal idle interval, loots if it can, and ends within three days. Unrelated terrain changes preserve its loiter deadline. Retreat destinations remain stable across a change in the nearest-edge geometric tie; after a stalled interval members try the nearest reachable exit on any edge, with tile-index ties. A thief enclosed after theft and an unconscious surviving raider both depart by the retreat deadline, emitting one ending with the actual escaped-loot outcome. A save during arrived-goal idle or retreat preserves the clocks, route choice and subsequent world hashes.
 
+A scheduled ambush on a flat-test map gives no edge arrival announcement; its warriors and archers are hidden from the compositor and soldier target acquisition outside spotting range. The first creature or trap spotting emits exactly one `AmbushSprung`, focused on the leader, reveals the whole party and enters engage. Later members arrive revealed. Saving before or after spotting preserves visibility, pending arrivals and world hashes, without a second announcement; ordinary raid arrivals remain announced.
+
 ## 19 Defense
 
 | id | Scenario | Expected |

@@ -840,6 +840,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
       }
       let seesFortress = false;
       for (const m of alive) {
+        if (P.purpose === 'ambush' && entities.get(m, C.Hostile)?.stealthed === true) continue;
         const mPos = positionOf(m, ctx);
         if (mPos >= 0 && findCombatTarget(m, mPos, 'warriors', ctx, targets, true) !== 0) {
           seesFortress = true;
@@ -898,6 +899,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
       }
       let seesReachableFortress = false;
       for (const m of alive) {
+        if (P.purpose === 'ambush' && entities.get(m, C.Hostile)?.stealthed === true) continue;
         const mPos = positionOf(m, ctx);
         if (mPos >= 0 && findCombatTarget(m, mPos, 'warriors', ctx, targets, true) !== 0) {
           seesReachableFortress = true;
@@ -924,6 +926,22 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
   }
 }
 
+/** Creature and trap spotting share one saved party-wide reveal. */
+export function springAmbush(partyId: EntityId, P: Party, ctx: TickContext): void {
+  if (P.ambushSprung === true) return;
+  P.ambushSprung = true;
+  P.state = 'engage';
+  P.stateSince = ctx.tick;
+  delete P.goalIdleSince;
+  for (const m of P.members) {
+    const hostile = ctx.world.entities.get(m, C.Hostile);
+    if (!ctx.world.entities.alive(m) || hostile === undefined) continue;
+    hostile.stealthed = false;
+    hostile.spotted = true;
+  }
+  ctx.emit({ type: 'AmbushSprung', partyId });
+}
+
 export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: TickContext, targets?: readonly FortressTarget[]): void {
   const entities = ctx.world.entities;
   if (!entities.alive(m)) return;
@@ -948,11 +966,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
       P.state = 'retreat';
       P.outcome = P.loot.length > 0 || (P.escapedLootCount ?? 0) > 0 ? 'looted' : 'withdrew';
     } else if (P?.purpose === 'ambush') {
-      ctx.emit({ type: 'AmbushSprung', partyId: H.partyId });
-      if (P) {
-        P.state = 'engage';
-        P.stateSince = ctx.tick;
-      }
+      springAmbush(H.partyId, P, ctx);
     }
   }
 
