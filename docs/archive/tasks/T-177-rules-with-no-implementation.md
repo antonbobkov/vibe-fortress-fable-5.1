@@ -1,5 +1,7 @@
 # T-177 — Three rules of the spec have no code
 
+Closed by `T-177: warn about hauling shortages and keep ranged soldiers away from melee`.
+
 ## Progress - 2026-10-09
 
 Parked under the owner's no-long-fixture-tuning rule. Implementation, spec edits and regressions are preserved in stash `fd3ab03598c7773039ac5925941b5815a9a44278` (`T-177 parked: unchanged full-year dies in winter`). No implementation commit was made, no fixture was changed, and generated screenshots were restored.
@@ -10,7 +12,7 @@ The full e2e suite passed nineteen cases and failed only full-year. An isolated 
 
 Next: after the owning full-year or stalled-workshop fix lands (T-150/T-188), merge master, restore this stash, run the full suite with the corrected catalog assertion and the unchanged e2e suite, then close T-177. The current implementation also checks sight from the soldier's tile before treating a nearby creature as a visible kiting threat.
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) ("Spec against code") · **Size:** S · **Needs:** — · **Status:** open
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) ("Spec against code") · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

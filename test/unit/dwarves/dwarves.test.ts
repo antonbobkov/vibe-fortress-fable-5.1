@@ -18,7 +18,6 @@ import {
   type DwarvesReader,
 } from '@systems/dwarves';
 import type { JobsReader, JobSink } from '@systems/jobs';
-import { DWARF_SPEED } from '@core/path-constants';
 import { IDLE_TICKS } from '@systems/dwarves/constants';
 import { TestWorld } from '../../scenarios/test-world';
 
@@ -89,11 +88,11 @@ describe('T-M1-09 dwarves: skills and experience', () => {
 });
 
 describe('T-M1-09 dwarves: movement speed', () => {
-  it('speed = species speed × (50 + Agility) / 100: DWARF_SPEED 0.15 at Agility 50', () => {
-    expect(dwarfSpeed(DWARF_SPEED, 50)).toBe(150);
-    expect(dwarfSpeed(DWARF_SPEED, 0)).toBe(75);
-    expect(dwarfSpeed(DWARF_SPEED, 100)).toBe(225);
-    expect(dwarfSpeed(DWARF_SPEED, 50, 50)).toBe(75);
+  it('speed = species speed × (50 + Agility) / 100: base speed 0.15 at Agility 50', () => {
+    expect(dwarfSpeed(150, 50)).toBe(150);
+    expect(dwarfSpeed(150, 0)).toBe(75);
+    expect(dwarfSpeed(150, 100)).toBe(225);
+    expect(dwarfSpeed(150, 50, 50)).toBe(75);
   });
 
   it('the brain writes each dwarf\'s speed into Motion from its Agility', () => {
@@ -101,7 +100,7 @@ describe('T-M1-09 dwarves: movement speed', () => {
     w.step(1);
     for (const id of w.game.arrival?.dwarves ?? []) {
       const agi = w.game.world.entities.get(id, C.Attributes)?.agi as number;
-      expect(w.game.world.entities.get(id, C.Motion)?.speed).toBe(dwarfSpeed(DWARF_SPEED, agi));
+      expect(w.game.world.entities.get(id, C.Motion)?.speed).toBe(dwarfSpeed(150, agi));
     }
   });
 });

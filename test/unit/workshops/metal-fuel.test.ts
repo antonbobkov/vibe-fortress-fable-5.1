@@ -3,7 +3,6 @@ import { C } from '@core/components';
 import type { TickContext } from '@core/system';
 import type { Job } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
-import { BARS_PER_ORE, COAL_PER_ORE, SILVER_FROM_GALENA_PERMILLE } from '@systems/workshops/constants';
 import type { RecipeRow, WorkshopsReader, WorkshopsSystem } from '@systems/workshops';
 import { TestWorld } from '../../scenarios/test-world';
 
@@ -22,10 +21,10 @@ describe('T-M5-01 wood furnace and smelter fuel and ore yields', () => {
       })));
       expect(recipe.fuel).toBe(!row.yields.some((y) => y.metal === 'coal'));
       if (row.yields.length === 1 && row.yields[0]?.permille === undefined && row.yields[0]?.metal !== 'coal' && ore !== 'deepsilver_ore') {
-        expect(recipe.outputs[0]?.count).toBe(BARS_PER_ORE);
+        expect(recipe.outputs[0]?.count).toBe(2);
       }
     }
-    expect(recipes.recipe('smelt_bituminous_coal')?.outputs[0]?.count).toBe(COAL_PER_ORE);
+    expect(recipes.recipe('smelt_bituminous_coal')?.outputs[0]?.count).toBe(2);
     expect(recipes.recipe('smelt_lignite')?.outputs[0]?.count).toBe(1);
     expect(recipes.recipe('make_charcoal')?.outputs[0]?.material).toEqual({ fixed: 'charcoal' });
   });
@@ -72,7 +71,7 @@ describe('T-M5-01 wood furnace and smelter fuel and ore yields', () => {
         if (yieldRow.permille === undefined) expect(actual, ore).toBe(expected);
         else expect(Math.abs(actual - expected), ore).toBeLessThanOrEqual(30);
       }
-      if (ore === 'galena' || ore === 'tetrahedrite') expect(row.yields[1]?.permille).toBe(SILVER_FROM_GALENA_PERMILLE);
+      if (ore === 'galena' || ore === 'tetrahedrite') expect(row.yields[1]?.permille).toBe(500);
     }
     expect(w.game.world.entities.get(smelter, C.Workshop)).toBeDefined();
   });

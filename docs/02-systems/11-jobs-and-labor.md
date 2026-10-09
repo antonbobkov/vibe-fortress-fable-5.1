@@ -99,7 +99,7 @@ Hauling is a family of job types produced by 13 (`haul_to_stockpile`), 12 (`haul
 - `haul_to_stockpile { itemId, stockpileId }`: 13 produces one per item that is not in a stockpile that accepts it and for which a stockpile with free capacity accepts it (13 keeps the "wants hauling" set incrementally). Priority is `HAUL_PRIORITY` by default, `HAUL_PRIORITY_FOOD` for food, and inherits the stockpile's priority setting if the player changes it.
 - A worker carries one item or one stack. Containers (bins, barrels, bags) in stockpiles are filled by the same job when the item's category needs one (13 decides the destination tile as "into container X at tile T").
 - A `wheelbarrow` is not in version 1; heavy items (stone, logs, corpses) simply slow the carrier (10).
-- `hauling` labor on every dwarf is the default. The player is warned by a hint when more than `IDLE_HAULER_WARNING` items want hauling and fewer than three dwarves have hauling enabled.
+- `hauling` labor on every dwarf is the default. The player is warned by a hint when more than `IDLE_HAULER_WARNING` items want hauling and fewer than `HAULER_WARNING_MIN_WORKERS` dwarves have hauling enabled. Check on `DayPassed` and show it once per fortress through the saved hint state, respecting the hints setting.
 
 For idle wake-up, `hasWork` summarizes open jobs once per tick by reachable connectivity label and enabled labor. Restricted jobs keep exact worker-specific eligibility and tool checks. A civilian holding a remembered threat uses exact target eligibility rather than the shared availability summary. Invalidate this availability index on job state changes and load; assignment and its scoring remain unchanged.
 
@@ -199,6 +199,7 @@ Panel `jobs` (open jobs with worker and reason; labor priorities; standing order
 | `HAUL_PRIORITY` | 6 | Hauling is below default work |
 | `HAUL_PRIORITY_FOOD` | 5 | |
 | `IDLE_HAULER_WARNING` | 200 | |
+| `HAULER_WARNING_MIN_WORKERS` | 3 | Enabled hauling labors needed to suppress the daily backlog hint |
 
 ## Extension points
 

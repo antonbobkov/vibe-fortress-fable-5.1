@@ -22,7 +22,7 @@ Resolve violence between creatures with rules the player can read: six body part
 
 A creature attacks when it has a `targetId` (set by 08 for animals, 18 for hostiles, this system for soldiers under orders or on duty, and 10 for civilians only when cornered: a civilian who cannot flee fights back with whatever they carry). Each tick a creature with a target: if adjacent (8-neighborhood, same level), perform a melee attack if its attack cooldown has elapsed; else if it has a ranged weapon with ammunition, range ≥ distance and line of sight, perform a ranged attack; else path toward the target (movement helper). Targets that die, leave perception (`PERCEPTION_RADIUS`; a target more than two levels away is out of perception), or become unreachable for `TARGET_LOSE_TICKS` are dropped. A target is not dropped for being out of sight: this system alone ends an acquired target, and 18's party AI leaves a held target alone. The `TARGET_LOSE_TICKS` count starts at the first failed approach and is not reset by a pending path retry, only by an actual step or an attack opportunity; the start tick is saved (`CombatState.unreachableSince`).
 
-Soldiers on duty with no order pick the nearest hostile within perception. Ranged soldiers keep `RANGED_KEEP_DISTANCE` tiles away from melee threats when possible (kiting is limited: they move only when a threat is within 2 tiles).
+Soldiers on duty with no order pick the nearest hostile within perception. An on-duty soldier with a loaded launcher keeps `RANGED_KEEP_DISTANCE` tiles away from melee threats when possible. If a visible, conscious melee threat on the same level is within `RANGED_KITE_TRIGGER_DISTANCE`, choose the nearest one (distance, then entity id), including while another target is held. Step to the first legal adjacent tile by tile index that is at least `RANGED_KEEP_DISTANCE` away and keeps line of sight to that threat. While making that step, retain the target and do not attack. If no such step exists, ordinary attack and approach continue. Launcher and natural-ranged opponents do not cause kiting.
 
 ### Attack cooldown
 
@@ -189,6 +189,7 @@ Panel `military`; inspector section `creature › combat` (weapon, armor per par
 | `PERCEPTION_RADIUS` | 14 | |
 | `TARGET_LOSE_TICKS` | 200 | |
 | `RANGED_KEEP_DISTANCE` | 3 | |
+| `RANGED_KITE_TRIGGER_DISTANCE` | 2 | Melee threat distance that triggers a possible adjacent retreat |
 | `MIN_ATTACK_COOLDOWN` | 12 | Ticks |
 | `BLUNT_THROUGH_PERCENT` | 30 | |
 | `FRACTURE_PERCENT` | 30 | Of part max hp in one blunt hit |

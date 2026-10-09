@@ -50,7 +50,7 @@ Fuel inputs use the item tag `fuel`. An input with `flagged: 'melt'` takes one w
 
 Generated at load from the minerals and metals tables:
 
-- `smelt_<ore>`: 1 ore → `yields` bars (the ore's `yields` list; `galena` gives 1 `lead` and, with `SILVER_FROM_GALENA_PERMILLE`, 1 `silver`), fuel, no quality.
+- `smelt_<ore>`: 1 ore → `yields` bars (the ore's `yields` list; `galena` gives 1 `lead` and, with the silver yield's `permille`, 1 `silver`), fuel, no quality.
 - `alloy_<metal>`: the metal's `alloyInputs` bars → `alloyOutput` bars, fuel, no quality (`bronze`: 1 copper + 1 tin → 2 bronze; `brass`: 1 copper + 1 zinc → 2 brass; `steel`: 1 iron + 1 flux stone + 1 fuel → 1 steel, on top of the workshop's fuel; `electrum`: 1 gold + 1 silver → 2 electrum).
 - `melt_<class>`: a marked metal item → `floor(stackCount × itemBarValue × MELT_RETURN_PERCENT / 100)` bars of its metal, fuel, no quality.
 - `forge_<weapon|armor|tool>`: bars → the item; bar counts per item type; material from input; quality.
@@ -108,8 +108,8 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 
 ### Fuel and charcoal
 
-- `wood_furnace`: `make_charcoal`: 1 log → `CHARCOAL_PER_LOG` charcoal bars, no fuel, no quality.
-- Coal: `bituminous_coal` and `lignite` are minerals; `smelt` recipes for them produce `coal` bars (`COAL_PER_ORE`), which count as fuel. A coal seam is worth finding.
+- `wood_furnace`: `make_charcoal`: logs to charcoal bars, with the input and output counts of the recipe's content row, no fuel, no quality.
+- Coal: `bituminous_coal` and `lignite` are minerals; `smelt` recipes for them produce `coal` bars in the count of the mineral's `yields` row, which count as fuel. A coal seam is worth finding.
 - Fuel bars are consumed one per fuel job. Magma workshops never consume fuel, including for the steel reaction's workshop fuel (the reaction's own fuel input is still required: steel needs carbon).
 
 ### Professions
@@ -165,11 +165,7 @@ Job producer `workshops` (`craft`); panel `orders`; inspector section `building 
 | Name | Value | Meaning |
 |---|---|---|
 | `MAGMA_POWER_LEVEL` | 4 | Magma level required below a magma workshop tile |
-| `SILVER_FROM_GALENA_PERMILLE` | 500 | |
 | `MELT_RETURN_PERCENT` | 60 | Of the item's bar cost returned |
-| `CHARCOAL_PER_LOG` | 1 | |
-| `COAL_PER_ORE` | 2 | Bars per coal mineral item |
-| `BARS_PER_ORE` | 2 | Default yield count where the ore row does not say otherwise |
 
 Recipe times, bar costs per item and profession names are content.
 

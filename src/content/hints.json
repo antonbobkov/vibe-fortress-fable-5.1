@@ -98,5 +98,10 @@
     "id": "hint_magma",
     "trigger": "first cavern 2 breach",
     "text": "A forge over channeled magma needs no fuel. Build it of magma-safe stone."
+  },
+  {
+    "id": "hint_haulers",
+    "trigger": "DayPassed: more than IDLE_HAULER_WARNING items want hauling and fewer than HAULER_WARNING_MIN_WORKERS dwarves have hauling enabled",
+    "text": "Items are waiting to be hauled. Enable hauling for more dwarves in the labors panel."
   }
 ]

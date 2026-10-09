@@ -37,6 +37,7 @@
   "hint.hint_farm": "Farms need soil, mud left by water, or cave loam.",
   "hint.hint_fuel": "Smelters and forges need fuel. A wood furnace makes charcoal from logs; coal seams burn too.",
   "hint.hint_gate": "A drawbridge over a channel is the surest gate. Build a lever inside [b], click it, press [i] and click the bridge; [y] pulls it.",
+  "hint.hint_haulers": "Items are waiting to be hauled. Enable hauling for more dwarves in the labors panel.",
   "hint.hint_hearth": "A hearth makes a hall a home. Build one [b › Special] in your main hall.",
   "hint.hint_hospital": "A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats infection.",
   "hint.hint_hunter": "Hunters need a crossbow and bolts, or a bow and arrows.",

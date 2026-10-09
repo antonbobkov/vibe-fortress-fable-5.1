@@ -9,6 +9,7 @@ export const COMBAT_PHASE = 0;
 export const PERCEPTION_RADIUS = 14;
 export const TARGET_LOSE_TICKS = 200;
 export const RANGED_KEEP_DISTANCE = 3;
+export const RANGED_KITE_TRIGGER_DISTANCE = 2;
 export const MIN_ATTACK_COOLDOWN = 12; // Ticks
 export const BLUNT_THROUGH_PERCENT = 30;
 export const FRACTURE_PERCENT = 30; // Of part max hp in one blunt hit

@@ -17,6 +17,7 @@ export const BLOCKED_RETRIES_PER_TICK = 20;
 export const HAUL_PRIORITY = 6;
 export const HAUL_PRIORITY_FOOD = 5;
 export const IDLE_HAULER_WARNING = 200;
+export const HAULER_WARNING_MIN_WORKERS = 3;
 
 /** `11` § Standing orders: "All default on." */
 export const STANDING_ORDERS: readonly string[] = [
