@@ -1,6 +1,8 @@
 # T-164 — A buried dwarf's worn items come back to the fortress
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 5) · **Size:** S · **Needs:** T-160 · **Status:** open
+Closed by `T-164: bury worn clothing and return gear at the coffin`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 5) · **Size:** S · **Needs:** T-160 · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@ Burial destroys the corpse item. The items the corpse wore keep `carriedBy` = th
 
 ## Reproduction
 
-[`death3.probe.ts`](../../reports/data/2026-10-08-bug-hunt-death3.probe.ts.txt), first test: a dwarf is killed and buried at tick 118; its tunic, trousers and boots are `carriedBy=<destroyed corpse> pos=none` 20 days later, `tunic total 2` and wealth 142 before and after.
+[`death3.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-death3.probe.ts.txt), first test: a dwarf is killed and buried at tick 118; its tunic, trousers and boots are `carriedBy=<destroyed corpse> pos=none` 20 days later, `tunic total 2` and wealth 142 before and after.
 
 ## What to do
 

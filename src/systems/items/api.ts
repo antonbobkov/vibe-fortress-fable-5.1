@@ -649,6 +649,22 @@ export class ItemCore implements ItemsApi {
   destroy(itemId: EntityId, reason: string): void {
     const it = this.get(itemId);
     if (it === undefined) return;
+    const corpse = this.entities.get(itemId, C.Corpse);
+    if (corpse !== undefined) {
+      const tile = this.tileOf(itemId);
+      for (const wornId of new Set(corpse.wornItems)) {
+        const worn = this.get(wornId);
+        if (wornId === itemId || worn?.carriedBy !== itemId) continue;
+        if (this.host.facts.row(worn.type).category.startsWith('clothing/')) {
+          this.destroy(wornId, reason);
+        } else {
+          this.setOwner(wornId, 0);
+          this.detach(wornId);
+          if (tile >= 0) this.place(wornId, tile);
+          this.notify(wornId, 'placed');
+        }
+      }
+    }
     const c = this.container(itemId);
     if (c !== undefined && c.contents.length > 0) {
       const tile = this.tileOf(itemId);

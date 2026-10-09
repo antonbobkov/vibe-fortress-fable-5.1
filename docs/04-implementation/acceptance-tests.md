@@ -187,6 +187,8 @@ A miner killed while holding the only pick outside its weapon slot leaves the pi
 | `bd_burial` | dead dwarf, coffin in a tomb | `Buried`; `unburied_dead` cleared |
 | `bd_support` | construct a wall on open space with no neighbor | rejected `bad_placement` |
 
+Burial destroys the dead dwarf's worn clothing exactly once as `buried`, decreases its type counts and wealth by those items' values, and leaves no item carried by the destroyed corpse, including twenty days later. A soldier's weapon, shield, armor and quiver drop unowned on the coffin's tile; another soldier can claim the sword. Direct corpse destruction also consumes worn clothing and drops gear. A saved corpse with `wornItems` alone has the same destruction and subsequent world hash after loading.
+
 ## 15 Morale
 
 | id | Scenario | Expected |
