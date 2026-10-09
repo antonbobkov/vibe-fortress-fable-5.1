@@ -253,6 +253,8 @@ Spawned hostile gear has no ground position while carried and remains foreign. O
 
 A thief spotted by a creature or trap after pickup ends as looted when it escapes; spotting before pickup ends as withdrew. Loot held by a wiped party does not qualify; an empty member cannot report another member's carried loot. Unconscious survivors trigger retreat rather than a wiped ending. An earlier member escape remains looted after save/load even if all remaining members die.
 
+A raid already at the reachable hearth of an empty fortress loiters after its arrived-goal idle interval, loots if it can, and ends within three days. Unrelated terrain changes preserve its loiter deadline. Retreat destinations remain stable across a change in the nearest-edge geometric tie; after a stalled interval members try the nearest reachable exit on any edge, with tile-index ties. A thief enclosed after theft and an unconscious surviving raider both depart by the retreat deadline, emitting one ending with the actual escaped-loot outcome. A save during arrived-goal idle or retreat preserves the clocks, route choice and subsequent world hashes.
+
 ## 19 Defense
 
 | id | Scenario | Expected |

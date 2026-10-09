@@ -103,18 +103,25 @@ Daily: spawning per 08 (edge tiles at `SPAWN_MIN_DISTANCE` from dwarves), breedi
 
 ```
 partyThink(P):
-  alive = P.members.filter(alive and conscious); if alive.length == 0: P.state = 'gone'; emit RaidEnded{wiped}; return
+  if P.state == 'retreat' and tick - P.stateSince >= RETREAT_GIVE_UP_DAYS * TICKS_PER_DAY: despawn every living member through the departure path; return
+  alive = P.members.filter(alive and conscious); if alive.length == 0: living unconscious survivors retreat; only no living survivors ends the party; return
   if P.state != 'retreat' and (P.members.length - alive.length) * 100 / P.members.length >= RETREAT_LOSS_PERCENT: P.state='retreat'; outcome = P.loot.length ? 'looted' : 'repelled'
   switch P.state:
     approach: goal = chooseGoal(P); if goal unreachable: P.goalTile = pathing.nearestReachable(leaderPos, hearthTile, cls, 3000); P.state = 'loiter'? (only after reaching the nearest tile)
-              if any member perceives a fortress creature: P.state = 'engage'; P.stateSince = tick
+              if any member perceives a reachable fortress creature: clear goalIdleSince; P.state = 'engage'; P.stateSince = tick
+              else if leader on or adjacent to goal (except thieves and restless dead): begin goalIdleSince if absent; after ENGAGE_IDLE_TICKS enter loiter
+              else: clear goalIdleSince
     engage:   if no member has a target for ENGAGE_IDLE_TICKS: P.state = 'approach'
     loiter:   if tick - P.stateSince > LOITER_DAYS(P.purpose) * TICKS_PER_DAY: P.state = 'retreat'; outcome = P.loot.length ? 'looted' : 'withdrew'
     retreat:  if all members despawned or dead: P.state='gone'; emit RaidEnded{outcome}
 chooseGoal(P): thief → most valuable reachable unattended item / small tame animal (outdoors preferred); bandits → nearest stockpile tile; ambush → nearest outdoor dwarf; raid/siege → hearth tile (or wagon, or nearest fortress building)
 memberThink(m): P = party(m); H = Hostile[m]
   if H.stealthed and spotted(m): H.stealthed = false; H.spotted = true; emit ThiefSpotted/AmbushSprung
-  if P.state == 'retreat': walkTo(edgeTile(P.edge)); if at edge: despawn (loot goes with them: ThiefEscaped per item); return
+  if P.state == 'retreat': at RETREAT_GIVE_UP_DAYS despawn even an unconscious survivor
+                           otherwise clear combat target on beginning retreat; save one selected exit and progress clock, retaining the exit through geometric tie changes
+                           if distance improves: save bestDistance and progressSince
+                           after RETREAT_STUCK_TICKS without improvement: choose nearest reachable passable tile on any edge by own movement class, distance, then tile index
+                           if at any edge: despawn (loot goes with them: ThiefEscaped per item); otherwise walk to the selected exit; return
   if blood(m) < fleeBlood(species) and P.purpose != 'restless' and faction != 'deep': flee to edge; emit HostileFled; return
   target = nearest fortress creature within perception (archers prefer soldiers; reachability by m's own movement class); if target: combat.setTarget(m, target); return
   if combat.targetOf(m) != 0: return        // a held target survives losing sight of it; 16 drops it
@@ -123,6 +130,8 @@ memberThink(m): P = party(m); H = Hostile[m]
   if m == P.leaderId: walkTo(P.goalTile, 'combat') else: if dist(m, leader) > FOLLOW_RADIUS: walkTo(leader's tile, sharing leader's path)
 spotted(m): any fortress creature within SPOT_RADIUS (dogs SPOT_RADIUS_DOG) with lineOfSight, or a trap trigger
 ```
+
+An unrelated `TilesChanged` does not restart loiter at a reachable empty goal; only a previously unreachable goal becoming reachable returns it to approach. Spotting an already retreating thief does not restart its deadline. The party idle clock and member retreat progress are saved with their components; absent fields begin tracking on the next decision without resetting the saved party retreat deadline.
 
 Each threat step builds one ascending-id snapshot of the living, conscious fortress creatures (position, soldier status, spotting radius) and shares it across the member decisions; the party cadence step builds its own, and a direct target or spotting query builds a fresh one. Each hostile's own distance, line-of-sight and tie rules are unchanged by the sharing.
 

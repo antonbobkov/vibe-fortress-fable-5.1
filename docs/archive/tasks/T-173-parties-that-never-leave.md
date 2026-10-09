@@ -1,6 +1,8 @@
 # T-173 — A party always leaves
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 14) · **Size:** M · **Needs:** T-169 · **Status:** open
+Closed by `T-173: hostile parties keep their exit route and always leave`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 14) · **Size:** M · **Needs:** T-169 · **Status:** open
 
 ## Why
 

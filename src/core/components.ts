@@ -375,6 +375,8 @@ export interface Party {
   escapedLootCount?: number;
   goalUnreachable?: boolean;
   walkUnreachable?: boolean;
+  /** Consecutive idle time at an arrived goal; absent while still approaching. */
+  goalIdleSince?: Tick;
 }
 
 export interface Hostile {
@@ -385,6 +387,8 @@ export interface Hostile {
   spotted: boolean;
   breakingDoorId: EntityId;
   breakingSince: Tick;
+  /** Stable exit and progress clock for the current retreat; absent in older saves. */
+  retreat?: { stateSince: Tick; goalTile: TileIndex; bestDistance: number; progressSince: Tick };
 }
 
 export interface Tame {

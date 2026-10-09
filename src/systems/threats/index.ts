@@ -456,8 +456,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
           const P = H.partyId !== 0 ? ctx.world.entities.get(H.partyId, C.Party) : undefined;
           if (P?.purpose === 'thief') {
             ctx.emit({ type: 'ThiefSpotted', id: cId });
+            if (P.state !== 'retreat') P.stateSince = ctx.tick;
             P.state = 'retreat';
-            P.stateSince = ctx.tick;
             P.outcome = P.loot.length > 0 || (P.escapedLootCount ?? 0) > 0 ? 'looted' : 'withdrew';
           } else if (P?.purpose === 'ambush') {
             ctx.emit({ type: 'AmbushSprung', partyId: H.partyId });
@@ -481,9 +481,12 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       for (const pId of ctx.world.entities.with(C.Party)) {
         const P = ctx.world.entities.get(pId, C.Party);
         if (P && (P.state === 'approach' || P.state === 'loiter')) {
+          const wasUnreachable = P.goalUnreachable === true || P.walkUnreachable === true;
+          const previousGoal = P.goalTile;
           P.walkUnreachable = false;
           chooseGoal(P, ctx);
-          if (P.state === 'loiter' && !P.goalUnreachable) {
+          if (P.goalTile !== previousGoal) delete P.goalIdleSince;
+          if (P.state === 'loiter' && wasUnreachable && !P.goalUnreachable) {
             P.state = 'approach';
             P.stateSince = ctx.tick;
           }
