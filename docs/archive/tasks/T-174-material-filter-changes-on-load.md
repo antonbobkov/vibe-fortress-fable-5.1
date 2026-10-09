@@ -1,5 +1,7 @@
 # T-174 — A work order's material filter is the same after a load
 
+Closed by `T-174: normalize material filters before work orders are stored`.
+
 ## Progress - 2026-10-09 (after T-140)
 
 Still parked under the owner's no-long-fixture-tuning rule. The updated implementation, specification edits and regressions are in stash `fff82b4440bc79b890cd899916a011ba740310be` (`T-174 parked after T-140: original full-year also dies in winter`); the older stash below is also preserved. No T-174 implementation commit was made, no fixture or assertion was weakened, and all generated screenshots were restored.
@@ -22,7 +24,7 @@ Diagnostic scratch observations at tick 42,000 (day 35): brewing job 198 had ful
 
 Next: after master lands its T-140 movement change and fixture-tier migration, resume the stash and rerun the original e2e fixture. If the blocker persists, leave T-174 open and pursue the fixture or reservation issue through its owning task.
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 15) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 15) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -30,7 +32,7 @@ A work order whose `materialFilter` was given as a material id (`'iron'`, which 
 
 ## Reproduction
 
-[`save.probe.ts`](../../reports/data/2026-10-08-bug-hunt-save.probe.ts.txt): `materialFilter "iron": … in play ["iron"]; after a load [96]; hash f5c3f2c09d92b625 -> 4f66efe98cb25c84 (DIFFERENT); a second load equals the first`. A class name (`'metal'`) and an index survive unchanged.
+[`save.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-save.probe.ts.txt): `materialFilter "iron": … in play ["iron"]; after a load [96]; hash f5c3f2c09d92b625 -> 4f66efe98cb25c84 (DIFFERENT); a second load equals the first`. A class name (`'metal'`) and an index survive unchanged.
 
 ## What to do
 

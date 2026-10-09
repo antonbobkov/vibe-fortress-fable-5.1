@@ -264,7 +264,7 @@ export function prepareM5GeneratorWorld(w: TestWorld): void {
   w.spawnItem('axe', 'iron', w.index(18, 17, FLAT_TEST_SURFACE_Z));
   w.step(1);
   const result = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: 0,
-    order: { recipeId: 'forge_battle_axe', mode: 'maintain', remaining: 1, threshold: 99, priority: 5 } });
+    order: { recipeId: 'forge_battle_axe', mode: 'maintain', remaining: 1, threshold: 99, priority: 5, materialFilter: 'iron' } });
   if (!result.ok) throw new Error(`M5 property setup: ${result.reason}`);
 }
 

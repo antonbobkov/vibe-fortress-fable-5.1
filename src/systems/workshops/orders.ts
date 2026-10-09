@@ -1,3 +1,4 @@
+import { MATERIAL_CLASSES } from '@content/schema';
 import { C, type WorkOrder } from '@core/components';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import { PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
@@ -31,6 +32,7 @@ export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandRe
     const recipe = op.recipe(recipeId as string | number);
     if (recipe === undefined || (!global && recipe.workshop !== op.typeOf(id))) return reject('precondition_failed');
     const order = parseOrder(op, raw, recipe.id);
+    if (order === 'bad_setting') return reject('bad_setting');
     if (order === null) return reject('precondition_failed');
     orders.push(order);
   } else if (cmd.type === 'EditWorkOrder') {
@@ -41,6 +43,7 @@ export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandRe
     const recipe = op.recipe((patch['recipeId'] ?? patch['recipe'] ?? before.recipe) as string | number);
     if (recipe === undefined || (!global && recipe.workshop !== op.typeOf(id))) return reject('precondition_failed');
     const order = parseOrder(op, { ...before, ...patch }, recipe.id);
+    if (order === 'bad_setting') return reject('bad_setting');
     if (order === null) return reject('precondition_failed');
     cancelCurrent();
     orders[index] = order;
@@ -61,7 +64,7 @@ export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandRe
   return OK;
 }
 
-function parseOrder(op: WorkshopOperator, raw: Record<string, unknown>, recipeId: string): WorkOrder | null {
+function parseOrder(op: WorkshopOperator, raw: Record<string, unknown>, recipeId: string): WorkOrder | null | 'bad_setting' {
   const mode = raw['mode'] ?? 'once';
   const remaining = raw['remaining'] ?? raw['count'] ?? 1;
   const threshold = raw['threshold'] ?? 0;
@@ -70,8 +73,14 @@ function parseOrder(op: WorkshopOperator, raw: Record<string, unknown>, recipeId
   if (!Number.isInteger(remaining) || (remaining as number) < 1 || (remaining as number) > 999) return null;
   if (!Number.isInteger(threshold) || (mode === 'maintain' && ((threshold as number) < 1 || (threshold as number) > 999))) return null;
   if (!Number.isInteger(priority) || (priority as number) < PRIORITY_MIN || (priority as number) > PRIORITY_MAX) return null;
-  const filter = raw['materialFilter'] ?? null;
-  if (filter !== null && typeof filter !== 'string' && typeof filter !== 'number') return null;
+  let filter = raw['materialFilter'] ?? null;
+  const materials = op.ctx.registry.table('materials');
+  if (typeof filter === 'number') {
+    if (!Number.isInteger(filter) || materials.byIndex(filter) === undefined) return 'bad_setting';
+  } else if (typeof filter === 'string') {
+    if (materials.has(filter)) filter = materials.index(filter);
+    else if (!MATERIAL_CLASSES.includes(filter as (typeof MATERIAL_CLASSES)[number])) return 'bad_setting';
+  } else if (filter !== null) return 'bad_setting';
   const named = raw['memorialDwarfId'];
   if (named !== undefined && (recipeId !== 'make_memorial_slab' || typeof named !== 'number' ||
     !op.ctx.readers.of<BuildingsReader>('14').memorialEligible(named))) return null;
