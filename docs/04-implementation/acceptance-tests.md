@@ -189,6 +189,8 @@ A miner killed while holding the only pick outside its weapon slot leaves the pi
 
 Burial destroys the dead dwarf's worn clothing exactly once as `buried`, decreases its type counts and wealth by those items' values, and leaves no item carried by the destroyed corpse, including twenty days later. A soldier's weapon, shield, armor and quiver drop unowned on the coffin's tile; another soldier can claim the sword. Direct corpse destruction also consumes worn clothing and drops gear. A saved corpse with `wornItems` alone has the same destruction and subsequent world hash after loading.
 
+A dead owner's bedroom becomes unowned in its death tick, offers its bed as free, and goes to another dwarf at the next daily assignment. A coffin reserved for the dead dwarf keeps its assignment. The dead owner's cat is unclaimed immediately and can adopt another living dwarf.
+
 ## 15 Morale
 
 | id | Scenario | Expected |

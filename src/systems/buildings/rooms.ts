@@ -404,6 +404,16 @@ export class RoomStore {
     return 0;
   }
 
+  /** A bedroom is free in its owner's death tick; reserved coffins are untouched. */
+  ownerDied(dwarfId: EntityId): void {
+    if (dwarfId === 0) return;
+    for (const zoneId of this.roomZones()) {
+      if (this.host.zones.typeIdOf(zoneId) === 'bedroom' && this.room(zoneId)?.ownerId === dwarfId) {
+        this.setOwner(zoneId, 0);
+      }
+    }
+  }
+
   private setOwner(zoneId: EntityId, dwarfId: EntityId): void {
     const roomId = this.roomOf(zoneId);
     const room = this.host.entities.get(roomId, C.Room) as Room;

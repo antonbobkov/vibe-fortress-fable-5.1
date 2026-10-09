@@ -849,6 +849,10 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     }
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
+      for (const animalId of ctx.world.entities.with(C.Tame)) {
+        const tame = ctx.world.entities.get(animalId, C.Tame);
+        if (tame !== undefined && tame.petOf === id) ctx.world.entities.add(animalId, C.Tame, { ...tame, petOf: 0 });
+      }
       this.targets.delete(id);
       this.provoked.delete(id);
       this.starvingSince.delete(id);
