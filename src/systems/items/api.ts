@@ -767,6 +767,15 @@ export class ItemCore implements ItemsApi {
     }
   }
 
+  /** Rebuild all stock dimensions from restored items; preserve the saved dirty queue in the caller. */
+  rebuildStockCounts(): void {
+    this.counts.clear();
+    for (const id of this.entities.with(C.Item)) {
+      const item = this.item(id);
+      if (this.counted(item)) this.counts.add(this.contribution(item), 1);
+    }
+  }
+
   // ---------- recount ----------
 
   /** A full recount from the entities: `[type, total, available]` rows, and the wealth. */

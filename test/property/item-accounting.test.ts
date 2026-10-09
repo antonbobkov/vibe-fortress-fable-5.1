@@ -4,6 +4,7 @@ import { HeadlessGame, buildFlatTestMap } from '@app/headless';
 import { contentRegistry } from '@content/loader';
 import { C, ItemFlag } from '@core/components';
 import type { EntityId } from '@core/types';
+import { TestWorld } from '../scenarios/test-world';
 import { ItemsSystem, type ItemsReader } from '@systems/items';
 
 /**
@@ -123,5 +124,51 @@ describe('T-M2-01 property: item accounting', () => {
       }),
       { numRuns: 40 },
     );
+  });
+});
+
+
+describe('T-162 property: squad item accounting', () => {
+  it('claims, replacements and ranged equipment preserve counts and container inverses after every command', () => {
+    const registry = contentRegistry();
+    const gear: readonly [string, string][] = [['short_sword', 'iron'], ['short_sword', 'steel'],
+      ['helm', 'iron'], ['shield', 'iron'], ['mail_shirt', 'iron'], ['crossbow', 'oak'],
+      ['quiver', 'leather'], ['bolt', 'iron']];
+    fc.assert(fc.property(fc.array(fc.record({ k: fc.constantFrom('spawn', 'contain', 'members', 'equipment', 'destroy'),
+      type: fc.nat(gear.length - 1), quality: fc.nat(5), ranged: fc.boolean() }), { minLength: 1, maxLength: 60 }), (ops) => {
+      const w = new TestWorld({ seed: 't162-squad-property', map: buildFlatTestMap(registry, 16, 16), embark: 'none' });
+      const at = w.index(8, 8, 32);
+      const a = w.spawnDwarf({ at, ageYears: 30 });
+      const b = w.spawnDwarf({ at, ageYears: 30 });
+      const barrel = w.spawnItem('barrel', 'oak', at);
+      expect(w.game.world.applyCommand({ type: 'CreateSquad', name: 'Guard' })).toEqual({ ok: true });
+      const squadId = w.game.world.entities.with(C.Squad)[0]!;
+      const core = (w.game.world.scheduler.byId('13') as ItemsSystem).core;
+      for (const op of ops) {
+        if (op.k === 'spawn') {
+          const [type, mat] = gear[op.type]!;
+          w.spawnItem(type, mat, at, type === 'bolt' ? 25 : 1, op.quality);
+        } else if (op.k === 'contain') {
+          const loose = w.game.world.entities.with(C.Item).filter((id) => {
+            const item = w.game.world.entities.get(id, C.Item)!;
+            return item.carriedBy === 0 && item.ownerId === 0 && item.containerId === 0 && id !== barrel;
+          });
+          if (loose.length > 0) w.game.world.services.items!.putIn(loose[op.type % loose.length]!, barrel);
+        } else if (op.k === 'destroy') {
+          const loose = w.game.world.entities.with(C.Item).filter((id) => id !== barrel && w.game.world.entities.get(id, C.Item)?.carriedBy === 0);
+          if (loose.length > 0) w.game.world.services.items!.destroy(loose[op.type % loose.length]!, 'test');
+        } else if (op.k === 'members') {
+          expect(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId, members: op.ranged ? [a, b] : [a] })).toEqual({ ok: true });
+        } else {
+          expect(w.game.world.applyCommand({ type: 'SetSquadEquipment', squadId,
+            equipment: { weaponClass: 'any', armor: 'any', ranged: op.ranged } })).toEqual({ ok: true });
+        }
+        expect(core.counts.serialize().map(([type, counts]) => [type, counts.total, counts.available])).toEqual(core.recount().rows);
+        for (const holder of w.game.world.entities.with(C.Container)) {
+          expect(w.game.world.entities.get(holder, C.Container)?.contents).toEqual(
+            w.game.world.entities.with(C.Item).filter((id) => w.game.world.entities.get(id, C.Item)?.containerId === holder).sort((a, b) => a - b));
+        }
+      }
+    }), { numRuns: 40, seed: 20261008 });
   });
 });

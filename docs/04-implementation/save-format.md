@@ -76,6 +76,7 @@ Entity ids are written as numbers with generation. Content references are writte
 8. Restore RNG stream states.
 9. For each system in order, call `deserialize(state)` with migration from `stateVersion` to current. (System 03 restores `pendingMoves` and `producerCurrent`; 11 restores `ticked` and reconnects producers and 13 if set). Restore `game.arrival`.
 10. Rebuild-on-load:
+    - During 13's deserialization, recount stock totals, available units, material classes and quality tiers once from restored items, preserving the saved dirty-type queue. Valid counts are unchanged; stale counts in older saves are repaired.
     - Rebuild spatial buckets (`game.spatial.rebuild()`) from restored entity positions.
     - Run full map relabel / connectivity rebuild (`game.pathing.connectivity.rebuildAll()`). If `systems[22].state.pendingConnectivity` is present, restore its saved local labels, component counts and outgoing portals over the rebuilt labels, reconstruct global labels and mark its saved dirty chunks for the normal tick pass. This preserves the command boundary of a paused save without advancing connectivity while saving or loading; clean saves and older saves use the ordinary full rebuild.
     - Restore 22's pathfinder requests, searches, and walks (`pathfinder.loadState`, `movement.loadState`).

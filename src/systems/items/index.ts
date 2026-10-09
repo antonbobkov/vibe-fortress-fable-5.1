@@ -345,7 +345,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   deserialize(state: ItemsStateV1, ctx: InitContext): void {
     if (this.coreRef === null) this.init(ctx);
     const core = this.core;
-    core.counts.deserialize(state.counts);
+    core.rebuildStockCounts();
     core.resetSearchIndex();
     core.counts.dirty.length = 0;
     core.counts.dirty.push(...state.dirtyTypes);

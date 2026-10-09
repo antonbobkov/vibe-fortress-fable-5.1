@@ -253,9 +253,9 @@ export function dropItemAtBarracks(
   const item = entities.get(itemId, C.Item);
   if (!item) return;
 
-  item.flags &= ~ItemFlag.Owned;
-  item.ownerId = 0;
-  item.carriedBy = 0;
+  const items = ctx.world.services.items;
+  if (items === null) return;
+  items.setOwner(itemId, 0);
 
   let dropTile: TileIndex = -1;
   if (barracksZoneId !== 0 && ctx.readers.has('14')) {
@@ -269,14 +269,7 @@ export function dropItemAtBarracks(
     if (pos) dropTile = ctx.world.map.index(pos.x, pos.y, pos.z);
   }
 
-  if (dropTile >= 0) {
-    if (ctx.world.services.items) {
-      ctx.world.services.items.dropAt(itemId, dropTile);
-    } else {
-      entities.add(itemId, C.Position, ctx.world.map.unpack(dropTile));
-    }
-  }
-  ctx.world.services.items?.refreshDerivedIndexes?.(itemId);
+  if (dropTile >= 0) items.dropAt(itemId, dropTile);
 }
 
 /**
@@ -289,15 +282,10 @@ export function claimItemForSoldier(
   items?: ItemsApi | null,
 ): void {
   const item = entities.get(itemId, C.Item);
-  if (!item) return;
-  item.flags |= ItemFlag.Owned;
-  item.ownerId = soldierId;
-  item.carriedBy = soldierId;
-  if (entities.has(itemId, C.Position)) {
-    entities.remove(itemId, C.Position);
-  }
-  item.containerId = 0;
-  items?.refreshDerivedIndexes?.(itemId);
+  if (item === undefined || items === undefined || items === null) return;
+  if (item.containerId !== 0) items.takeOut(itemId);
+  items.attachToCarrier(itemId, soldierId);
+  items.setOwner(itemId, soldierId);
 }
 
 /** An enabled civilian without this tool has first claim on picks and axes. */
@@ -497,10 +485,6 @@ export function reequipSoldier(
             const row = itemsTable.byIndex(it.type);
             if (row?.id === wantedAmmo && it.count > 0) {
               claimItemForSoldier(entities, itemId, soldierId, ctx.world.services.items);
-              if (equip.quiver !== 0) {
-                it.containerId = equip.quiver;
-                ctx.world.services.items?.refreshDerivedIndexes?.(itemId);
-              }
               toClaim -= it.count;
             }
           }
