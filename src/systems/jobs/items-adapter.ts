@@ -113,8 +113,11 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
         }
         return false;
       }
+      // A tool in the weapon slot is held too (16 § Equipment).
       const held = entities.get(workerId, C.Worker)?.toolId ?? 0;
-      return held !== 0 && matchesTool(held, tool) && reader.get(held)?.carriedBy === workerId;
+      if (held !== 0 && matchesTool(held, tool) && reader.get(held)?.carriedBy === workerId) return true;
+      const weapon = entities.get(workerId, C.Equipment)?.weapon ?? 0;
+      return weapon !== 0 && matchesTool(weapon, tool) && reader.get(weapon)?.carriedBy === workerId;
     },
     reserve: (itemId, jobId) => api.reserve(itemId, jobId),
     release: (itemId) => api.release(itemId),
@@ -128,6 +131,60 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
     dropAt: (itemId, tile) => api.dropAt(itemId, tile),
     equip: (workerId, itemId) => api.attachToCarrier(itemId, workerId),
   };
+}
+
+/** Drops a pick or axe the worker holds on `tile` through the item API and clears what referred to it. */
+function dropTool(board: JobBoard, ctx: TickContext, workerId: EntityId, itemId: EntityId, tile: TileIndex): void {
+  const api = ctx.world.services.items;
+  if (api === null) return;
+  const equipment = ctx.world.entities.get(workerId, C.Equipment);
+  if (equipment?.weapon === itemId) ctx.world.entities.add(workerId, C.Equipment, { ...equipment, weapon: 0 });
+  const item = ctx.world.entities.get(itemId, C.Item);
+  if (item !== undefined && (item.reservedBy !== 0 || (item.flags & ItemFlag.Reserved) !== 0)) api.release(itemId);
+  api.dropAt(itemId, tile);
+  if (board.workerOf(workerId).toolId === itemId) board.setWorker(workerId, { toolId: 0 });
+  ctx.emit({ type: 'ToolDropped', itemId });
+}
+
+function isPickOrAxe(items: ItemsReader, itemId: EntityId): boolean {
+  const item = items.get(itemId);
+  if (item === undefined) return false;
+  const category = items.categoryOf(item.type);
+  return category === 'tool/pick' || category === 'tool/axe';
+}
+
+/**
+ * 11 § Assignment: a worker holds one tool. A worker that is about to equip another tool first
+ * puts the pick or axe it holds down on its own tile (the tile it stands on).
+ */
+export function dropHeldToolBeforeEquip(board: JobBoard, ctx: TickContext, workerId: EntityId): void {
+  if (!ctx.readers.has('13')) return;
+  const items = ctx.readers.of<ItemsReader>('13');
+  const held = board.workerOf(workerId).toolId;
+  if (held === 0 || items.get(held)?.carriedBy !== workerId || !isPickOrAxe(items, held)) return;
+  const tile = board.workerTile(workerId);
+  if (tile < 0) return;
+  dropTool(board, ctx, workerId, held, tile);
+}
+
+/** 11 § Assignment: a worker carries no pick or axe it does not hold (its `toolId`, its `Equipment`, or the item it hauls). */
+export function dropStrandedTools(board: JobBoard, ctx: TickContext): void {
+  if (ctx.world.services.items === null || !ctx.readers.has('13')) return;
+  const items = ctx.readers.of<ItemsReader>('13');
+  for (const id of board.workers()) {
+    const carried = items.carriedItems(id);
+    if (carried.length === 0) continue;
+    const worker = board.workerOf(id);
+    const equipment = ctx.world.entities.get(id, C.Equipment);
+    const worn = equipment === undefined ? [] : [equipment.weapon, equipment.shield, equipment.quiver,
+      ...Object.values(equipment.armor), ...Object.values(equipment.clothing)];
+    const tile = board.workerTile(id);
+    if (tile < 0) continue;
+    for (const itemId of carried) {
+      if (itemId === worker.toolId || itemId === worker.carrying || worn.includes(itemId) || !isPickOrAxe(items, itemId)) continue;
+      dropTool(board, ctx, id, itemId, tile);
+    }
+  }
 }
 
 /** 11 § Assignment: keep tools until both tool labors are off and a stockpile is passed. */
@@ -146,10 +203,6 @@ export function dropUnusedTools(board: JobBoard, ctx: TickContext): void {
     if (category !== 'tool/pick' && category !== 'tool/axe') continue;
     const tile = board.workerTile(id);
     if (tile < 0 || items.stockpileAt(tile) === 0) continue;
-    const equipment = ctx.world.entities.get(id, C.Equipment);
-    if (equipment?.weapon === worker.toolId) ctx.world.entities.add(id, C.Equipment, { ...equipment, weapon: 0 });
-    api.dropAt(worker.toolId, tile);
-    board.setWorker(id, { toolId: 0 });
-    ctx.emit({ type: 'ToolDropped', itemId: worker.toolId });
+    dropTool(board, ctx, id, worker.toolId, tile);
   }
 }

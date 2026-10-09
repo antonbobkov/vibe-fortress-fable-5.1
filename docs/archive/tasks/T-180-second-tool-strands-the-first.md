@@ -1,6 +1,8 @@
 # T-180 — A dwarf that fetches a second tool puts the first one down
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 16) · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-180: a worker holds one tool, and a second tool puts the first one down`.
+
+**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 16) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@ A dwarf that holds a pick and takes a chop job fetches an axe and keeps the pick
 
 ## Reproduction
 
-[`toolswap.probe.ts`](../../reports/data/2026-10-09-bug-hunt-toolswap.probe.ts.txt): one dwarf with `mining` and `woodcutting`, one pick, one axe, two channel tiles, then two trees, then four channel tiles and a second miner. After the chop the dwarf carries both tools and `toolId` is the axe; the four channel jobs are `blocked: no_tool` 23 days later.
+[`toolswap.probe.ts`](../../../reports/data/2026-10-09-bug-hunt-toolswap.probe.ts.txt): one dwarf with `mining` and `woodcutting`, one pick, one axe, two channel tiles, then two trees, then four channel tiles and a second miner. After the chop the dwarf carries both tools and `toolId` is the axe; the four channel jobs are `blocked: no_tool` 23 days later.
 
 Read: `src/systems/jobs/steps.ts:113–119` writes `toolId` over the old tool. `hasTool` (`src/systems/jobs/items-adapter.ts:116`) reads `toolId` only.
 

@@ -17,6 +17,7 @@ import { grantXp } from '@systems/dwarves';
 import type { EntityId, TileIndex } from '@core/types';
 import { effortPerTick, effortRequired, estDistance, progressOf } from './assign';
 import type { JobBoard } from './board';
+import { dropHeldToolBeforeEquip } from './items-adapter';
 import { SKILL_TIME_BONUS_PERCENT } from './constants';
 import type { Job } from './state';
 
@@ -111,6 +112,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
         const at = board.items.tileOf(target);
         if (at === board.workerTile(workerId)) {
           if (target === toolId) {
+            dropHeldToolBeforeEquip(board, ctx, workerId);
             board.items.equip(workerId, target);
             board.setWorker(workerId, { toolId: target });
             // Held now: the fetch reservation ends; the worker keeps the tool after the job (11 § Assignment).
