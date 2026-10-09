@@ -21,6 +21,8 @@ import {
   LOITER_DAYS_SIEGE,
   LOOT_RADIUS,
   RETREAT_LOSS_PERCENT,
+  RETREAT_STUCK_TICKS,
+  RETREAT_GIVE_UP_DAYS,
   SPOT_RADIUS,
   SPOT_RADIUS_DOG,
   STEAL_MAX_SIZE,
@@ -120,6 +122,58 @@ export function getNearestEdgeTile(pos: TileIndex, edge: Edge, ctx: TickContext)
     }
   }
   return bestTile;
+}
+
+/** The nearest legal exit on any edge, with stable tile-index ties. */
+function nearestReachableExit(m: EntityId, pos: TileIndex, ctx: TickContext): TileIndex {
+  const { map, entities } = ctx.world;
+  const cls = entities.get(m, C.Motion)?.movementClass ?? 'walker';
+  const creature = entities.get(m, C.Creature);
+  const species = ctx.registry.table<{ id: string; opensDoors?: boolean }>('creatures');
+  const mover = { faction: creature?.faction, size: creature?.sizeClass,
+    opensDoors: creature !== undefined && species.byIndex(creature.species)?.opensDoors === true };
+  let best = -1;
+  let distance = Infinity;
+  const consider = (x: number, y: number, z: number): void => {
+    const tile = map.index(x, y, z);
+    if (!ctx.readers.pathing.passable(tile, cls, mover) || !ctx.readers.pathing.reachable(pos, tile, cls)) return;
+    const d = chebyshevDist(pos, tile, map);
+    if (d < distance || (d === distance && tile < best)) { best = tile; distance = d; }
+  };
+  for (let z = 0; z < map.d; z++) {
+    for (let x = 0; x < map.w; x++) { consider(x, 0, z); consider(x, map.h - 1, z); }
+    for (let y = 1; y < map.h - 1; y++) { consider(0, y, z); consider(map.w - 1, y, z); }
+  }
+  return best;
+}
+
+/** Hold one destination through detours; choosing again on every step can oscillate. */
+function retreatMember(m: EntityId, H: Hostile, P: Party, pos: TileIndex, ctx: TickContext): void {
+  const map = ctx.world.map;
+  if (isAtEdge(pos, 'n', map) || isAtEdge(pos, 's', map) ||
+      isAtEdge(pos, 'w', map) || isAtEdge(pos, 'e', map)) {
+    despawnMember(m, H.partyId, P, ctx);
+    return;
+  }
+  if (H.retreat === undefined || H.retreat.stateSince !== P.stateSince) {
+    const exit = getNearestEdgeTile(pos, P.edge ?? 'n', ctx);
+    const goalTile = exit === pos ? -1 : exit;
+    H.retreat = { stateSince: P.stateSince, goalTile, progressSince: ctx.tick,
+      bestDistance: goalTile < 0 ? map.tileCount : chebyshevDist(pos, goalTile, map) };
+    ctx.world.services.combat?.clearTarget(m);
+  }
+  const retreat = H.retreat;
+  const distance = retreat.goalTile < 0 ? map.tileCount : chebyshevDist(pos, retreat.goalTile, map);
+  if (distance < retreat.bestDistance) {
+    retreat.bestDistance = distance;
+    retreat.progressSince = ctx.tick;
+  }
+  if (ctx.tick - retreat.progressSince >= RETREAT_STUCK_TICKS) {
+    retreat.goalTile = nearestReachableExit(m, pos, ctx);
+    retreat.bestDistance = retreat.goalTile < 0 ? map.tileCount : chebyshevDist(pos, retreat.goalTile, map);
+    retreat.progressSince = ctx.tick;
+  }
+  if (retreat.goalTile >= 0) ctx.world.services.movement?.walkTo(m, retreat.goalTile, 'combat', ctx);
 }
 
 export function checkSpotted(_m: EntityId, pos: TileIndex, ctx: TickContext, targets: readonly FortressTarget[] = fortressTargets(ctx)): boolean {
@@ -738,6 +792,14 @@ export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickConte
 export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, targets?: readonly FortressTarget[]): void {
   const entities = ctx.world.entities;
   if (P.state === 'gone') return;
+  if (P.state !== 'approach') delete P.goalIdleSince;
+  if (P.state === 'retreat' && ctx.tick - P.stateSince >= RETREAT_GIVE_UP_DAYS * TICKS_PER_DAY) {
+    const remaining = P.members.filter((m) => entities.alive(m));
+    if (remaining.length > 0) {
+      for (const m of remaining) despawnMember(m, partyId, P, ctx);
+      return;
+    }
+  }
 
   const alive = P.members.filter((m) => {
     if (!entities.alive(m)) return false;
@@ -785,8 +847,22 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
         }
       }
       if (seesFortress) {
+        delete P.goalIdleSince;
         P.state = 'engage';
         P.stateSince = ctx.tick;
+      } else if (P.purpose !== 'restless' && P.purpose !== 'thief') {
+        const leaderPos = positionOf(P.leaderId, ctx);
+        const arrived = leaderPos >= 0 && P.goalTile !== 0 && chebyshevDist(leaderPos, P.goalTile, ctx.world.map) <= 1;
+        if (arrived) {
+          P.goalIdleSince ??= ctx.tick;
+          if (ctx.tick - P.goalIdleSince >= ENGAGE_IDLE_TICKS) {
+            delete P.goalIdleSince;
+            P.state = 'loiter';
+            P.stateSince = ctx.tick;
+          }
+        } else {
+          delete P.goalIdleSince;
+        }
       }
       break;
     }
@@ -851,6 +927,10 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
 export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: TickContext, targets?: readonly FortressTarget[]): void {
   const entities = ctx.world.entities;
   if (!entities.alive(m)) return;
+  if (P?.state === 'retreat' && ctx.tick - P.stateSince >= RETREAT_GIVE_UP_DAYS * TICKS_PER_DAY) {
+    despawnMember(m, H.partyId, P, ctx);
+    return;
+  }
 
   const body = entities.get(m, C.Body);
   if (body !== undefined && !body.conscious) return;
@@ -864,8 +944,8 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
     H.spotted = true;
     if (P?.purpose === 'thief') {
       ctx.emit({ type: 'ThiefSpotted', id: m });
+      if (P.state !== 'retreat') P.stateSince = ctx.tick;
       P.state = 'retreat';
-      P.stateSince = ctx.tick;
       P.outcome = P.loot.length > 0 || (P.escapedLootCount ?? 0) > 0 ? 'looted' : 'withdrew';
     } else if (P?.purpose === 'ambush') {
       ctx.emit({ type: 'AmbushSprung', partyId: H.partyId });
@@ -878,13 +958,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
 
   // 2. Retreating
   if (P && P.state === 'retreat') {
-    const edge = P.edge ?? 'n';
-    const edgeTile = getNearestEdgeTile(pos, edge, ctx);
-    if (isAtEdge(pos, edge, ctx.world.map) || pos === edgeTile) {
-      despawnMember(m, H.partyId, P, ctx);
-      return;
-    }
-    ctx.world.services.movement?.walkTo(m, edgeTile, 'combat', ctx);
+    retreatMember(m, H, P, pos, ctx);
     return;
   }
 
