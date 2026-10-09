@@ -397,7 +397,15 @@ export class Hauling {
     }
     const container = job.data['container'];
     const merge = job.data['merge'];
-    if (typeof container === 'number' && container !== 0) core.putIn(id, container);
+    if (typeof container === 'number' && container !== 0) {
+      const destination = core.get(container);
+      // A workshop can reserve and move the barrel after this haul selected its slot.
+      // Leave the delivered item on the ground so it can find another home.
+      if (destination !== undefined && (destination.flags & ItemFlag.Reserved) === 0 &&
+        this.host.store.stockpileAt(this.host.store.containerTile(container)) === job.data['stockpile']) {
+        core.putIn(id, container);
+      }
+    }
     else if (typeof merge === 'number' && merge !== 0) core.merge(merge, id);
     this.endJob(job.data, id);
     if (core.isItem(id)) this.examine(id);

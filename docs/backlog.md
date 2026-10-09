@@ -9,7 +9,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-132 | [The year-long browser playthrough starves since T-168](work/T-132-full-year-starves-in-winter.md) | found while closing T-174 and T-177; bisected 2026-10-09 | — | open; **do first**: it blocks T-174 and T-177 |
 | T-111 | [UI audit follow-up: what the U tasks changed](work/T-111-ui-audit-follow-up.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) | U-02, U-07 | open |
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | T-140, T-144, T-145, T-188 (the performance tier includes the 20-seed balance sweep, which cannot pass before them) | open |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, and the fix tasks of T-115 (T-169 … T-177, T-180 … T-187) | open |

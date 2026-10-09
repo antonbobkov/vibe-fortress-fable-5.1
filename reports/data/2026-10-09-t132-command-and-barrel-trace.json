@@ -1,0 +1,4512 @@
+{
+  "2bbc86c": {
+    "commands": [
+      {
+        "tick": 415,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "stockpile",
+          "tiles": [
+            262946,
+            262947,
+            262948,
+            262949,
+            263042,
+            263043,
+            263139,
+            263140,
+            263141,
+            263234,
+            263235
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetStockpileFilter",
+          "zoneId": 16777318,
+          "filter": "everything"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "farm_plot",
+          "tiles": [
+            262274,
+            262276,
+            262371,
+            262372,
+            262466,
+            262467
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777319,
+          "season": 0,
+          "speciesId": "turnip"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777319,
+          "season": 1,
+          "speciesId": "turnip"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777319,
+          "season": 2,
+          "speciesId": "turnip"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "farm_plot",
+          "tiles": [
+            262278,
+            262279,
+            262280,
+            262374,
+            262375,
+            262376,
+            262470
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777320,
+          "season": 0,
+          "speciesId": "barley"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777320,
+          "season": 1,
+          "speciesId": "barley"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "DesignateStairwell",
+          "x": 6,
+          "y": 54,
+          "zTop": 28,
+          "zBottom": 22
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "Designate",
+          "kind": "dig",
+          "priority": 4,
+          "tiles": [
+            244807,
+            244808,
+            244809,
+            244810,
+            244903,
+            244904,
+            244905,
+            244906,
+            244999,
+            245000,
+            245001,
+            245002,
+            245095,
+            245096,
+            245097,
+            245098
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "Designate",
+          "kind": "dig",
+          "priority": 4,
+          "tiles": [
+            235591,
+            235592,
+            235593,
+            235594,
+            235595,
+            235687,
+            235688,
+            235689,
+            235690,
+            235691,
+            235783,
+            235784,
+            235785,
+            235786,
+            235787,
+            235879,
+            235880,
+            235881,
+            235882,
+            235883,
+            235975,
+            235976,
+            235977,
+            235978,
+            235979
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "Designate",
+          "kind": "chop",
+          "priority": 4,
+          "tiles": [
+            261589,
+            261590,
+            261593,
+            261597,
+            261609,
+            261685,
+            261692,
+            261693
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "PlaceBuilding",
+          "buildingType": "carpenter",
+          "origin": 262202,
+          "orientation": 0,
+          "materialChoice": 0
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "PlaceBuilding",
+          "buildingType": "mason",
+          "origin": 262594,
+          "orientation": 0,
+          "materialChoice": 0
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "PlaceBuilding",
+          "buildingType": "still",
+          "origin": 263730,
+          "orientation": 0,
+          "materialChoice": 0
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1316,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "farm_plot",
+          "tiles": [
+            244807,
+            244808,
+            244809,
+            244903,
+            244904,
+            244905,
+            244999,
+            245000,
+            245001
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1316,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 0,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1316,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 1,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1316,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 2,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1316,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 3,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1616,
+        "command": {
+          "type": "AddWorkOrder",
+          "workshopId": 16777321,
+          "order": {
+            "recipeId": "make_barrel",
+            "mode": "maintain",
+            "threshold": 12
+          }
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 3116,
+        "command": {
+          "type": "AddWorkOrder",
+          "workshopId": 16777323,
+          "order": {
+            "recipeId": "brew",
+            "mode": "maintain",
+            "threshold": 60
+          }
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 3621,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "meeting_area",
+          "tiles": [
+            263244,
+            263246,
+            263340,
+            263341,
+            263342,
+            263436,
+            263437,
+            263438
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 3621,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "bedroom",
+          "tiles": [
+            263248,
+            263249,
+            263250,
+            263344,
+            263345,
+            263346,
+            263440,
+            263442
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 4223,
+        "command": {
+          "type": "AddWorkOrder",
+          "workshopId": 16777322,
+          "order": {
+            "recipeId": "make_stone_block",
+            "mode": "once",
+            "remaining": 2
+          }
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 12001,
+        "command": {
+          "type": "SetRequests",
+          "civ": "mountainhome",
+          "entries": [
+            {
+              "itemType": "anvil",
+              "priority": 1
+            }
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      }
+    ],
+    "dailyTraceSha256": "da248ed6b700c365b1e02e1f451c84ca2c697d2d0b43c52748f6a289f17ed5a6",
+    "selectedDays": [
+      {
+        "tick": 98400,
+        "stocks": {
+          "plant": 13,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": []
+      },
+      {
+        "tick": 99600,
+        "stocks": {
+          "plant": 24,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 362,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  721420430
+                ],
+                "delivered": [
+                  721420430
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777242
+                ],
+                "delivered": [
+                  16777242
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "working",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 83886196,
+            "progress": 710,
+            "createdTick": 98552,
+            "claimedTick": 99102,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "standTile": 263827,
+              "effort": 1420800
+            },
+            "items": [
+              {
+                "id": 721420430,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98552,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777242,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    150995166
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 15
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 100800,
+        "stocks": {
+          "plant": 43,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 362,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  721420430
+                ],
+                "delivered": [
+                  721420430
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777242
+                ],
+                "delivered": [
+                  16777242
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "working",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777294,
+            "progress": 999,
+            "createdTick": 98552,
+            "claimedTick": 100510,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 721420430,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98552,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777242,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    150995166,
+                    150995169
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 16
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 102000,
+        "stocks": {
+          "plant": 38,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 362,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  721420430
+                ],
+                "delivered": [
+                  721420430
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777242
+                ],
+                "delivered": [
+                  16777242
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "working",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 486539430,
+            "progress": 999,
+            "createdTick": 98552,
+            "claimedTick": 101702,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 721420430,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98552,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777242,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    150995166,
+                    150995169
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 16
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 103200,
+        "stocks": {
+          "plant": 33,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 362,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  721420430
+                ],
+                "delivered": [
+                  721420430
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777242
+                ],
+                "delivered": [
+                  16777242
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "travelling",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777292,
+            "progress": 999,
+            "createdTick": 98552,
+            "claimedTick": 103002,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 721420430,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98552,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777242,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    150995166,
+                    150995169
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 16
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 108000,
+        "stocks": {
+          "plant": 9,
+          "meal": 0,
+          "drink": 20
+        },
+        "jobs": [
+          {
+            "id": 392,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [],
+                "delivered": []
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 107848,
+            "claimedTick": 0,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827
+            },
+            "items": []
+          }
+        ]
+      },
+      {
+        "tick": 118800,
+        "stocks": {
+          "plant": 8,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 402,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  117440674,
+                  352321838
+                ],
+                "delivered": [
+                  117440674
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777246
+                ],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "fetching",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 83886196,
+            "progress": 0,
+            "createdTick": 118136,
+            "claimedTick": 118552,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827
+            },
+            "items": [
+              {
+                "id": 117440674,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118136,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 352321838,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118087,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 83886196
+                },
+                "room": 0
+              },
+              {
+                "id": 16777246,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    352321842,
+                    1124073503
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 18
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 120000,
+        "stocks": {
+          "plant": 15,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 402,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  117440674,
+                  352321838
+                ],
+                "delivered": [
+                  117440674,
+                  352321838
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777246
+                ],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "fetching",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777296,
+            "progress": 0,
+            "createdTick": 118136,
+            "claimedTick": 119632,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827
+            },
+            "items": [
+              {
+                "id": 117440674,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118136,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 352321838,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118087,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777246,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 16777296
+                },
+                "container": {
+                  "contents": [
+                    452984981
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 18
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 132000,
+        "stocks": {
+          "plant": 8,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 402,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  117440674,
+                  352321838
+                ],
+                "delivered": [
+                  117440674,
+                  352321838
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777246
+                ],
+                "delivered": [
+                  16777246
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 999,
+            "createdTick": 118136,
+            "claimedTick": 130951,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "reserveUntil": 132551
+            },
+            "items": [
+              {
+                "id": 117440674,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118136,
+                  "rotStage": 1,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 352321838,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118087,
+                  "rotStage": 1,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777246,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    520093824
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 19
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "endState": "{\"livingCount\":3,\"wealth\":1764,\"stocks\":{\"drink\":1,\"meal\":0,\"plantFood\":5,\"log\":3,\"stoneBlock\":4},\"waves\":[{\"day\":29,\"count\":2,\"guaranteed\":true},{\"day\":57,\"count\":3,\"guaranteed\":true}],\"caravanDay\":{\"hillfolk\":45,\"wildwood\":73,\"mountainhome\":null},\"trades\":0}"
+  },
+  "39ac892": {
+    "commands": [
+      {
+        "tick": 415,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "stockpile",
+          "tiles": [
+            262946,
+            262947,
+            262948,
+            262949,
+            263042,
+            263043,
+            263139,
+            263140,
+            263141,
+            263234,
+            263235
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetStockpileFilter",
+          "zoneId": 16777318,
+          "filter": "everything"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "farm_plot",
+          "tiles": [
+            262274,
+            262276,
+            262371,
+            262372,
+            262466,
+            262467
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777319,
+          "season": 0,
+          "speciesId": "turnip"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777319,
+          "season": 1,
+          "speciesId": "turnip"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777319,
+          "season": 2,
+          "speciesId": "turnip"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "farm_plot",
+          "tiles": [
+            262278,
+            262279,
+            262280,
+            262374,
+            262375,
+            262376,
+            262470
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777320,
+          "season": 0,
+          "speciesId": "barley"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777320,
+          "season": 1,
+          "speciesId": "barley"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "DesignateStairwell",
+          "x": 6,
+          "y": 54,
+          "zTop": 28,
+          "zBottom": 22
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "Designate",
+          "kind": "dig",
+          "priority": 4,
+          "tiles": [
+            244807,
+            244808,
+            244809,
+            244810,
+            244903,
+            244904,
+            244905,
+            244906,
+            244999,
+            245000,
+            245001,
+            245002,
+            245095,
+            245096,
+            245097,
+            245098
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "Designate",
+          "kind": "dig",
+          "priority": 4,
+          "tiles": [
+            235591,
+            235592,
+            235593,
+            235594,
+            235595,
+            235687,
+            235688,
+            235689,
+            235690,
+            235691,
+            235783,
+            235784,
+            235785,
+            235786,
+            235787,
+            235879,
+            235880,
+            235881,
+            235882,
+            235883,
+            235975,
+            235976,
+            235977,
+            235978,
+            235979
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "Designate",
+          "kind": "chop",
+          "priority": 4,
+          "tiles": [
+            261589,
+            261590,
+            261593,
+            261597,
+            261609,
+            261685,
+            261692,
+            261693
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "PlaceBuilding",
+          "buildingType": "carpenter",
+          "origin": 262202,
+          "orientation": 0,
+          "materialChoice": 0
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "PlaceBuilding",
+          "buildingType": "mason",
+          "origin": 262594,
+          "orientation": 0,
+          "materialChoice": 0
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "PlaceBuilding",
+          "buildingType": "still",
+          "origin": 263730,
+          "orientation": 0,
+          "materialChoice": 0
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1316,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "farm_plot",
+          "tiles": [
+            244807,
+            244808,
+            244809,
+            244903,
+            244904,
+            244905,
+            244999,
+            245000,
+            245001
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1316,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 0,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1316,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 1,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1316,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 2,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1316,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 3,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1616,
+        "command": {
+          "type": "AddWorkOrder",
+          "workshopId": 16777321,
+          "order": {
+            "recipeId": "make_barrel",
+            "mode": "maintain",
+            "threshold": 12
+          }
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 3116,
+        "command": {
+          "type": "AddWorkOrder",
+          "workshopId": 16777323,
+          "order": {
+            "recipeId": "brew",
+            "mode": "maintain",
+            "threshold": 60
+          }
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 3621,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "meeting_area",
+          "tiles": [
+            263244,
+            263246,
+            263340,
+            263341,
+            263342,
+            263436,
+            263437,
+            263438
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 3621,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "bedroom",
+          "tiles": [
+            263248,
+            263249,
+            263250,
+            263344,
+            263345,
+            263346,
+            263440,
+            263442
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 4223,
+        "command": {
+          "type": "AddWorkOrder",
+          "workshopId": 16777322,
+          "order": {
+            "recipeId": "make_stone_block",
+            "mode": "once",
+            "remaining": 2
+          }
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 12001,
+        "command": {
+          "type": "SetRequests",
+          "civ": "mountainhome",
+          "entries": [
+            {
+              "itemType": "anvil",
+              "priority": 1
+            }
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      }
+    ],
+    "dailyTraceSha256": "da248ed6b700c365b1e02e1f451c84ca2c697d2d0b43c52748f6a289f17ed5a6",
+    "selectedDays": [
+      {
+        "tick": 98400,
+        "stocks": {
+          "plant": 13,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": []
+      },
+      {
+        "tick": 99600,
+        "stocks": {
+          "plant": 24,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 362,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  721420430
+                ],
+                "delivered": [
+                  721420430
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777242
+                ],
+                "delivered": [
+                  16777242
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "working",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 83886196,
+            "progress": 710,
+            "createdTick": 98552,
+            "claimedTick": 99102,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "standTile": 263827,
+              "effort": 1420800
+            },
+            "items": [
+              {
+                "id": 721420430,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98552,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777242,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    150995166
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 15
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 100800,
+        "stocks": {
+          "plant": 43,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 362,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  721420430
+                ],
+                "delivered": [
+                  721420430
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777242
+                ],
+                "delivered": [
+                  16777242
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "working",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777294,
+            "progress": 999,
+            "createdTick": 98552,
+            "claimedTick": 100510,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 721420430,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98552,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777242,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    150995166,
+                    150995169
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 16
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 102000,
+        "stocks": {
+          "plant": 38,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 362,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  721420430
+                ],
+                "delivered": [
+                  721420430
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777242
+                ],
+                "delivered": [
+                  16777242
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "working",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 486539430,
+            "progress": 999,
+            "createdTick": 98552,
+            "claimedTick": 101702,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 721420430,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98552,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777242,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    150995166,
+                    150995169
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 16
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 103200,
+        "stocks": {
+          "plant": 33,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 362,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  721420430
+                ],
+                "delivered": [
+                  721420430
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777242
+                ],
+                "delivered": [
+                  16777242
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "travelling",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777292,
+            "progress": 999,
+            "createdTick": 98552,
+            "claimedTick": 103002,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 721420430,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98552,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777242,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 362,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    150995166,
+                    150995169
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 16
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 108000,
+        "stocks": {
+          "plant": 9,
+          "meal": 0,
+          "drink": 20
+        },
+        "jobs": [
+          {
+            "id": 392,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [],
+                "delivered": []
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 107848,
+            "claimedTick": 0,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827
+            },
+            "items": []
+          }
+        ]
+      },
+      {
+        "tick": 118800,
+        "stocks": {
+          "plant": 8,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 402,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  117440674,
+                  352321838
+                ],
+                "delivered": [
+                  117440674
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777246
+                ],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "fetching",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 83886196,
+            "progress": 0,
+            "createdTick": 118136,
+            "claimedTick": 118552,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827
+            },
+            "items": [
+              {
+                "id": 117440674,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118136,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 352321838,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118087,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 83886196
+                },
+                "room": 0
+              },
+              {
+                "id": 16777246,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    352321842,
+                    1124073503
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 18
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 120000,
+        "stocks": {
+          "plant": 15,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 402,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  117440674,
+                  352321838
+                ],
+                "delivered": [
+                  117440674,
+                  352321838
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777246
+                ],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "fetching",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777296,
+            "progress": 0,
+            "createdTick": 118136,
+            "claimedTick": 119632,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827
+            },
+            "items": [
+              {
+                "id": 117440674,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118136,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 352321838,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118087,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777246,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 16777296
+                },
+                "container": {
+                  "contents": [
+                    452984981
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 18
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 132000,
+        "stocks": {
+          "plant": 8,
+          "meal": 0,
+          "drink": 1
+        },
+        "jobs": [
+          {
+            "id": 402,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  117440674,
+                  352321838
+                ],
+                "delivered": [
+                  117440674,
+                  352321838
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777246
+                ],
+                "delivered": [
+                  16777246
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 999,
+            "createdTick": 118136,
+            "claimedTick": 130951,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "reserveUntil": 132551
+            },
+            "items": [
+              {
+                "id": 117440674,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118136,
+                  "rotStage": 1,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 352321838,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 2,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 118087,
+                  "rotStage": 1,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777246,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 402,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    520093824
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 19
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "endState": "{\"livingCount\":3,\"wealth\":1764,\"stocks\":{\"drink\":1,\"meal\":0,\"plantFood\":5,\"log\":3,\"stoneBlock\":4},\"waves\":[{\"day\":29,\"count\":2,\"guaranteed\":true},{\"day\":57,\"count\":3,\"guaranteed\":true}],\"caravanDay\":{\"hillfolk\":45,\"wildwood\":73,\"mountainhome\":null},\"trades\":0}"
+  },
+  "2d6fd58": {
+    "commands": [
+      {
+        "tick": 415,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "stockpile",
+          "tiles": [
+            262946,
+            262947,
+            262948,
+            262949,
+            263042,
+            263043,
+            263139,
+            263140,
+            263141,
+            263234,
+            263235
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetStockpileFilter",
+          "zoneId": 16777318,
+          "filter": "everything"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "farm_plot",
+          "tiles": [
+            262274,
+            262276,
+            262371,
+            262372,
+            262466,
+            262467
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777319,
+          "season": 0,
+          "speciesId": "turnip"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777319,
+          "season": 1,
+          "speciesId": "turnip"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777319,
+          "season": 2,
+          "speciesId": "turnip"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "farm_plot",
+          "tiles": [
+            262278,
+            262279,
+            262280,
+            262374,
+            262375,
+            262376,
+            262470
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777320,
+          "season": 0,
+          "speciesId": "barley"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777320,
+          "season": 1,
+          "speciesId": "barley"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "DesignateStairwell",
+          "x": 6,
+          "y": 54,
+          "zTop": 28,
+          "zBottom": 22
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "Designate",
+          "kind": "dig",
+          "priority": 4,
+          "tiles": [
+            244807,
+            244808,
+            244809,
+            244810,
+            244903,
+            244904,
+            244905,
+            244906,
+            244999,
+            245000,
+            245001,
+            245002,
+            245095,
+            245096,
+            245097,
+            245098
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "Designate",
+          "kind": "dig",
+          "priority": 4,
+          "tiles": [
+            235591,
+            235592,
+            235593,
+            235594,
+            235595,
+            235687,
+            235688,
+            235689,
+            235690,
+            235691,
+            235783,
+            235784,
+            235785,
+            235786,
+            235787,
+            235879,
+            235880,
+            235881,
+            235882,
+            235883,
+            235975,
+            235976,
+            235977,
+            235978,
+            235979
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "Designate",
+          "kind": "chop",
+          "priority": 4,
+          "tiles": [
+            261589,
+            261590,
+            261593,
+            261597,
+            261609,
+            261685,
+            261692,
+            261693
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "PlaceBuilding",
+          "buildingType": "carpenter",
+          "origin": 262202,
+          "orientation": 0,
+          "materialChoice": 0
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "PlaceBuilding",
+          "buildingType": "mason",
+          "origin": 262594,
+          "orientation": 0,
+          "materialChoice": 0
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 415,
+        "command": {
+          "type": "PlaceBuilding",
+          "buildingType": "still",
+          "origin": 263730,
+          "orientation": 0,
+          "materialChoice": 0
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1317,
+        "command": {
+          "type": "AddWorkOrder",
+          "workshopId": 16777321,
+          "order": {
+            "recipeId": "make_barrel",
+            "mode": "maintain",
+            "threshold": 12
+          }
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1317,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "farm_plot",
+          "tiles": [
+            244807,
+            244808,
+            244809,
+            244810,
+            244903,
+            244904,
+            244905,
+            244906,
+            244999,
+            245000,
+            245001,
+            245002,
+            245095,
+            245096,
+            245097,
+            245098
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1317,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 0,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1317,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 1,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1317,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 2,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 1317,
+        "command": {
+          "type": "SetPlotCrop",
+          "zoneId": 16777337,
+          "season": 3,
+          "speciesId": "dimcap"
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 2817,
+        "command": {
+          "type": "AddWorkOrder",
+          "workshopId": 16777323,
+          "order": {
+            "recipeId": "brew",
+            "mode": "maintain",
+            "threshold": 60
+          }
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 3620,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "meeting_area",
+          "tiles": [
+            263244,
+            263246,
+            263340,
+            263341,
+            263342,
+            263436,
+            263437,
+            263438
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 3620,
+        "command": {
+          "type": "CreateZone",
+          "zoneType": "bedroom",
+          "tiles": [
+            263248,
+            263249,
+            263250,
+            263344,
+            263345,
+            263346,
+            263440,
+            263442
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 4222,
+        "command": {
+          "type": "AddWorkOrder",
+          "workshopId": 16777322,
+          "order": {
+            "recipeId": "make_stone_block",
+            "mode": "once",
+            "remaining": 2
+          }
+        },
+        "result": {
+          "ok": true
+        }
+      },
+      {
+        "tick": 12001,
+        "command": {
+          "type": "SetRequests",
+          "civ": "mountainhome",
+          "entries": [
+            {
+              "itemType": "anvil",
+              "priority": 1
+            }
+          ]
+        },
+        "result": {
+          "ok": true
+        }
+      }
+    ],
+    "dailyTraceSha256": "6c4c0b781173ad38ba2092ad117f3d175dda80a38da7c54250b70d5a4aa80c64",
+    "selectedDays": [
+      {
+        "tick": 98400,
+        "stocks": {
+          "plant": 23,
+          "meal": 0,
+          "drink": 22
+        },
+        "jobs": [
+          {
+            "id": 452,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  251658406
+                ],
+                "delivered": []
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777244
+                ],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "fetching",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777296,
+            "progress": 0,
+            "createdTick": 98215,
+            "claimedTick": 98216,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827
+            },
+            "items": [
+              {
+                "id": 251658406,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98215,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 16777296
+                },
+                "room": 0
+              },
+              {
+                "id": 16777244,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 20
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 99600,
+        "stocks": {
+          "plant": 73,
+          "meal": 0,
+          "drink": 14
+        },
+        "jobs": [
+          {
+            "id": 452,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  251658406
+                ],
+                "delivered": [
+                  251658406
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777244
+                ],
+                "delivered": [
+                  16777244
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "working",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777294,
+            "progress": 999,
+            "createdTick": 98215,
+            "claimedTick": 99552,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 251658406,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98215,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777244,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    285212862,
+                    385875991,
+                    654311625
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 9
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 100800,
+        "stocks": {
+          "plant": 72,
+          "meal": 0,
+          "drink": 6
+        },
+        "jobs": [
+          {
+            "id": 452,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  251658406
+                ],
+                "delivered": [
+                  251658406
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777244
+                ],
+                "delivered": [
+                  16777244
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "travelling",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777294,
+            "progress": 999,
+            "createdTick": 98215,
+            "claimedTick": 100752,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 251658406,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98215,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777244,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    285212862,
+                    385875991,
+                    654311625
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 10
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 102000,
+        "stocks": {
+          "plant": 62,
+          "meal": 0,
+          "drink": 0
+        },
+        "jobs": [
+          {
+            "id": 452,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  251658406
+                ],
+                "delivered": [
+                  251658406
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777244
+                ],
+                "delivered": [
+                  16777244
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "working",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777295,
+            "progress": 999,
+            "createdTick": 98215,
+            "claimedTick": 101577,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 251658406,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98215,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777244,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    285212862,
+                    385875991,
+                    654311625
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 10
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 103200,
+        "stocks": {
+          "plant": 60,
+          "meal": 0,
+          "drink": 0
+        },
+        "jobs": [
+          {
+            "id": 452,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  251658406
+                ],
+                "delivered": [
+                  251658406
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777244
+                ],
+                "delivered": [
+                  16777244
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "working",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777294,
+            "progress": 999,
+            "createdTick": 98215,
+            "claimedTick": 103003,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 251658406,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98215,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777244,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    285212862,
+                    385875991,
+                    654311625
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 10
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 108000,
+        "stocks": {
+          "plant": 40,
+          "meal": 0,
+          "drink": 0
+        },
+        "jobs": [
+          {
+            "id": 452,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  251658406
+                ],
+                "delivered": [
+                  251658406
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777244
+                ],
+                "delivered": [
+                  16777244
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "travelling",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777292,
+            "progress": 999,
+            "createdTick": 98215,
+            "claimedTick": 107902,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 251658406,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 0,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 98215,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777244,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 452,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    285212862,
+                    385875991,
+                    654311625
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 10
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 118800,
+        "stocks": {
+          "plant": 31,
+          "meal": 0,
+          "drink": 0
+        },
+        "jobs": [
+          {
+            "id": 514,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  385876140
+                ],
+                "delivered": [
+                  385876140
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777242
+                ],
+                "delivered": [
+                  16777242
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "working",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 50331918,
+            "progress": 999,
+            "createdTick": 117724,
+            "claimedTick": 118651,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 385876140,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 117724,
+                  "rotStage": 0,
+                  "reservedBy": 514,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777242,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 514,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    419430590,
+                    553648151,
+                    553648319
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 7
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 120000,
+        "stocks": {
+          "plant": 53,
+          "meal": 0,
+          "drink": 0
+        },
+        "jobs": [
+          {
+            "id": 514,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  385876140
+                ],
+                "delivered": [
+                  385876140
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777242
+                ],
+                "delivered": [
+                  16777242
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "working",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 16777295,
+            "progress": 999,
+            "createdTick": 117724,
+            "claimedTick": 119502,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "standTile": 263827
+            },
+            "items": [
+              {
+                "id": 385876140,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 117724,
+                  "rotStage": 0,
+                  "reservedBy": 514,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777242,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 514,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    419430590,
+                    553648151,
+                    553648319
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 7
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tick": 132000,
+        "stocks": {
+          "plant": 9,
+          "meal": 0,
+          "drink": 0
+        },
+        "jobs": [
+          {
+            "id": 514,
+            "key": "craft:16777323:0",
+            "type": 13,
+            "producer": "workshops",
+            "priority": 5,
+            "target": {
+              "kind": "building",
+              "ref": 16777323
+            },
+            "workTile": 263827,
+            "inputs": [
+              {
+                "filter": {
+                  "type": 75,
+                  "materialIds": [
+                    8,
+                    37,
+                    57,
+                    92,
+                    127,
+                    168,
+                    171
+                  ]
+                },
+                "count": 4,
+                "reserved": [
+                  385876140
+                ],
+                "delivered": [
+                  385876140
+                ]
+              },
+              {
+                "filter": {
+                  "emptyContainer": "barrel"
+                },
+                "count": 1,
+                "reserved": [
+                  16777242
+                ],
+                "delivered": [
+                  16777242
+                ]
+              }
+            ],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 999,
+            "createdTick": 117724,
+            "claimedTick": 131202,
+            "data": {
+              "recipe": "brew",
+              "orderIndex": 0,
+              "globalOrder": false,
+              "labor": "brewing",
+              "skill": "brewing",
+              "assignedWorker": 0,
+              "workshopWorker": 0,
+              "inputUnits": true,
+              "anchorTile": 263827,
+              "effort": 2000000,
+              "reserveUntil": 132201
+            },
+            "items": [
+              {
+                "id": 385876140,
+                "item": {
+                  "type": 75,
+                  "material": 57,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 4,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 117724,
+                  "rotStage": 1,
+                  "reservedBy": 514,
+                  "carriedBy": 0
+                },
+                "room": 0
+              },
+              {
+                "id": 16777242,
+                "item": {
+                  "type": 10,
+                  "material": 134,
+                  "quality": 1,
+                  "wear": 0,
+                  "count": 1,
+                  "containerId": 0,
+                  "ownerId": 0,
+                  "flags": 8,
+                  "crafterId": 0,
+                  "rotStart": 400,
+                  "rotStage": 0,
+                  "reservedBy": 514,
+                  "carriedBy": 0
+                },
+                "container": {
+                  "contents": [
+                    553648319,
+                    587202583,
+                    721420551,
+                    788529260
+                  ],
+                  "capacity": 20,
+                  "classId": "barrel"
+                },
+                "room": 16
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "endState": "{\"livingCount\":0,\"wealth\":1819,\"stocks\":{\"drink\":0,\"meal\":0,\"plantFood\":9,\"log\":12,\"stoneBlock\":4},\"waves\":[{\"day\":29,\"count\":2,\"guaranteed\":true},{\"day\":57,\"count\":3,\"guaranteed\":true}],\"caravanDay\":{\"hillfolk\":45,\"wildwood\":73,\"mountainhome\":null},\"trades\":0}"
+  }
+}

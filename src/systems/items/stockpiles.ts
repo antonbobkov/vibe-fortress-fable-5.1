@@ -439,6 +439,7 @@ export class StockpileStore {
     const zone = this.host.zone(spId);
     if (zone?.type === 'hospital') {
       for (const c of this.containersIn(spId, 'chest')) {
+        if (((this.core.get(c)?.flags ?? 0) & ItemFlag.Reserved) !== 0) continue;
         const room = this.core.room(c) - this.pendingIn(c, 'chest');
         if (room >= this.core.needs(itemId, 'chest')) {
           const t = this.containerTile(c);
@@ -449,6 +450,7 @@ export class StockpileStore {
     const cls = this.core.container(itemId) !== undefined ? 'none' : facts.row(it.type).container;
     if (cls !== 'none') {
       for (const c of this.containersIn(spId, cls)) {
+        if (((this.core.get(c)?.flags ?? 0) & ItemFlag.Reserved) !== 0) continue;
         const room = this.core.room(c) - this.pendingIn(c, cls);
         if (room >= this.core.needs(itemId, cls)) {
           const t = this.core.tileOf(c);
