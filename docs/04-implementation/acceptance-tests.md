@@ -195,6 +195,8 @@ Burial destroys the dead dwarf's worn clothing exactly once as `buried`, decreas
 
 A dead owner's bedroom becomes unowned in its death tick, offers its bed as free, and goes to another dwarf at the next daily assignment. A coffin reserved for the dead dwarf keeps its assignment. The dead owner's cat is unclaimed immediately and can adopt another living dwarf.
 
+Invalid hospital supplies and zone values, including non-finite numbers, reject as `bad_setting` without changing the world. Valid supplies, squad ids, bedroom ownership and seasonal crop settings survive save/load. After 1,000 deterministic random setting commands, every sampled save round trip and the final round trip have the same world hash.
+
 ## 15 Morale
 
 | id | Scenario | Expected |

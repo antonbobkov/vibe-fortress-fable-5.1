@@ -28,6 +28,8 @@ export const DIAGNOSE_XP = 20;
 export const PAIN_DISCHARGE = 30;
 export const FRACTURE_PERCENT = 30;
 
+export const HOSPITAL_SUPPLY_MAX = 999;
+
 export const HOSPITAL_DEFAULT_SUPPLIES: Readonly<Record<string, number>> = Object.freeze({
   cloth: 10,
   thread: 5,

@@ -73,7 +73,7 @@ Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned` and
 ### Patients and hospitals
 
 - A dwarf becomes a `Patient` when: any wound bleeds, any fracture is unsplinted, any burn is undressed, any wound is infected, or the dwarf is unconscious from wounds. `PatientAdmitted { id }`.
-- Hospital zone settings: desired supplies `{ cloth, thread, splints, crutches, brightleaf, buckets }` (defaults `HOSPITAL_DEFAULT_SUPPLIES`); 13 treats the hospital's chests as a stockpile that wants those counts. A hospital needs at least one bed and one chest.
+- Hospital zone settings: desired supplies `{ cloth, thread, splints, crutches, brightleaf, buckets }` (defaults `HOSPITAL_DEFAULT_SUPPLIES`). Both `SetHospitalSupplies` and the zone setting require a non-null record containing only these supply kinds, with integer counts from 0 to `HOSPITAL_SUPPLY_MAX`; otherwise `bad_setting`, with no mutation. Store a copy of the validated record; 13 treats the hospital's chests as a stockpile that wants those counts. A hospital needs at least one bed and one chest.
 - Behavior (10 `patient`): a conscious patient walks to a free hospital bed (any bed if none); an unconscious one gets a `carry_patient` job (labor `hauling`; the carrier picks them up like an item and puts them in the bed). Patients in bed rest; `Needs` still rise; `feed_patient` and `water_patient` jobs (labor `hauling`, no skill) bring a meal or a drink when hunger or thirst pass 60.
 - Medic jobs (labor `medicine`, skill `medicine`), produced per patient per need, in priority order with the input each consumes:
   1. `stop_bleeding`: 1 `cloth` → every bleeding wound `bandaged`. Priority 1.
@@ -153,6 +153,7 @@ Job producer `health` (`carry_patient`, `feed_patient`, `water_patient`, `stop_b
 | `FALL_DAMAGE_PER_LEVEL_SQ` | 6 | |
 | `STARVE_PERCENT` | 8 | Of torso hp per day |
 | `PRODUCTIVITY_FLOOR` | 30 | Percent |
+| `HOSPITAL_SUPPLY_MAX` | 999 | Maximum count requested by a hospital setting |
 | `TREAT_TICKS` | 200 | |
 | `TREAT_FAIL_PERMILLE` | 200 | At skill 0 |
 | `DIAGNOSE_XP` | 20 | |

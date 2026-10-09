@@ -76,22 +76,22 @@ See [workshops-and-recipes.md](workshops-and-recipes.md) for inputs and recipes.
 
 ## Zone types
 
-| id | name | room | requirements to count | settings | consumers |
-|---|---|---|---|---|---|
-| `stockpile` | stockpile | no | — | filter, containers, priority, links | 13 |
-| `farm_plot` | farm plot | no | soil, mud or cave loam tiles | crop per season | 07 |
-| `pasture` | pasture | no | walkable | — | 08 |
-| `bedroom` | bedroom | yes | a bed | owner | 14, 10, 15 |
-| `dining_hall` | dining hall | yes | a table with an adjacent chair | — | 10, 15 |
-| `hearth_hall` | hearth hall | yes | contains the hearth | — | 10, 15, 19 |
-| `hospital` | hospital | yes | a bed and a chest | desired supplies | 17, 13 |
-| `barracks` | barracks | yes | — | squad | 16 |
-| `archery_range` | archery range | no | an archery target inside | squad | 16 |
-| `meeting_area` | meeting area | no | — | — | 10 |
-| `tomb` | tomb | yes | a coffin | — | 14, 15 |
-| `dump` | dump | no | — | — | 13 |
-| `fishing` | fishing | no | tiles adjacent to deep water | — | 09 |
-| `gather` | gather zone | no | — | priority | 09 |
+| id | name | room | requirements to count | settings | consumers | value types |
+|---|---|---|---|---|---|---|
+| `stockpile` | stockpile | no | — | filter, containers, priority, links | 13 | 13's dedicated commands; filter tree, container counts, priority and links |
+| `farm_plot` | farm plot | no | soil, mud or cave loam tiles | crop per season | 07 | four season slots: 0 or a farmed plant id/index matching plot light |
+| `pasture` | pasture | no | walkable | — | 08 | — |
+| `bedroom` | bedroom | yes | a bed | owner | 14, 10, 15 | 0 or a living dwarf, with AssignRoom checks |
+| `dining_hall` | dining hall | yes | a table with an adjacent chair | — | 10, 15 | — |
+| `hearth_hall` | hearth hall | yes | contains the hearth | — | 10, 15, 19 | — |
+| `hospital` | hospital | yes | a bed and a chest | desired supplies | 17, 13 | supply-kind record; integer counts 0 to 999 |
+| `barracks` | barracks | yes | — | squad | 16 | 0 or a living squad id |
+| `archery_range` | archery range | no | an archery target inside | squad | 16 | 0 or a living squad id |
+| `meeting_area` | meeting area | no | — | — | 10 | — |
+| `tomb` | tomb | yes | a coffin | — | 14, 15 | — |
+| `dump` | dump | no | — | — | 13 | — |
+| `fishing` | fishing | no | tiles adjacent to deep water | — | 09 | — |
+| `gather` | gather zone | no | — | priority | 09 | integer 1 to 9 |
 
 ## Room quality tiers (from 14)
 

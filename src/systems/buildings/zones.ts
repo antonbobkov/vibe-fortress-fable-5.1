@@ -13,13 +13,16 @@
 
 import { C, type Zone } from '@core/components';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
-import { FLUID_DEEP_LEVEL } from '@core/constants';
+import { FLUID_DEEP_LEVEL, PRIORITY_MAX, PRIORITY_MIN, SEASONS_PER_YEAR } from '@core/constants';
 import { FluidType, TileFlag, TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
 import type { EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import type { PathingReader } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, Idx, TileIndex } from '@core/types';
+import { validHospitalSupplies } from '@systems/health/supplies';
+import { cropChoice, plotKindOf } from '@systems/plants/plots';
+import type { PlantRow } from '@systems/plants/facts';
 
 export interface ZoneTypeRow {
   readonly id: string;
@@ -50,6 +53,8 @@ export interface ZoneHost {
   readonly entities: EntityStore;
   readonly registry: Registry;
   pathing(): PathingReader | null;
+  assignRoom?(zoneId: EntityId, dwarfId: EntityId): CommandResult;
+  cropLitAt?(tile: TileIndex): boolean;
   emit(event: GameEvent): void;
 }
 
@@ -260,7 +265,32 @@ export class ZoneStore {
     const keys = (row?.settings ?? []).map(settingKey);
     if (!keys.includes(key)) return reject('bad_setting');
     if (row?.id === 'stockpile' && STOCKPILE_OWNED_SETTINGS.includes(key)) return reject('bad_setting');
-    this.host.entities.add(id as EntityId, C.Zone, { ...zone, settings: { ...zone.settings, [key]: cmd['value'] } });
+    let value = cmd['value'];
+    let storedKey = key;
+    if (key === 'desired_supplies') {
+      if (!validHospitalSupplies(value)) return reject('bad_setting');
+      value = { ...value };
+      storedKey = 'desired supplies';
+    } else if (key === 'squad') {
+      if (typeof value !== 'number' || !Number.isInteger(value) ||
+          (value !== 0 && !this.host.entities.with(C.Squad).includes(value))) return reject('bad_setting');
+    } else if (key === 'owner') {
+      if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || this.host.assignRoom === undefined ||
+          !this.host.assignRoom(id as EntityId, value).ok) return reject('bad_setting');
+    } else if (key === 'crop_per_season') {
+      if (!Array.isArray(value) || value.length !== SEASONS_PER_YEAR) return reject('bad_setting');
+      const crops: number[] = [];
+      const kind = plotKindOf(this.host.map, zone.tiles, (tile) => this.host.cropLitAt?.(tile) ?? this.host.map.hasFlag(tile, TileFlag.Lit));
+      for (const raw of value as unknown[]) {
+        const choice = cropChoice(raw, this.host.registry.table<PlantRow>('plants'), kind);
+        if (!choice.ok) return reject('bad_setting');
+        crops.push(choice.plant);
+      }
+      value = crops;
+    } else if (key === 'priority') {
+      if (typeof value !== 'number' || !Number.isInteger(value) || value < PRIORITY_MIN || value > PRIORITY_MAX) return reject('bad_setting');
+    } else return reject('bad_setting');
+    this.host.entities.add(id as EntityId, C.Zone, { ...zone, settings: { ...zone.settings, [storedKey]: value } });
     this.changed(id as EntityId, 'settings');
     return OK;
   }
