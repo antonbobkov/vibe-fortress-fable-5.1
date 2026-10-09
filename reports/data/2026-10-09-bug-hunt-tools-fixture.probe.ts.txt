@@ -1,0 +1,67 @@
+/* T-115 scratch (2026-10-09): the three-year fixture, played as three_years_seeds plays it; once a day, where every pick and axe is.
+ * env: T115_SEED, T115_PERIL, T115_DAYS (default 60) */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs/reader';
+import type { TestWorld } from '../test/scenarios/test-world';
+import { stepThreeYears } from '../test/scenarios/three_years_measurements';
+import { setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld, type FortressState } from '../test/scenarios/three_years_fortress';
+
+const SEED = process.env['T115_SEED'] ?? 'three-years-p2-1';
+const PERIL = Number(process.env['T115_PERIL'] ?? '2');
+const DAYS = Number(process.env['T115_DAYS'] ?? '60');
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+
+function script(w: TestWorld, state: FortressState): void {
+  checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+}
+
+describe('T-115 probe: tools in the fixture', () => {
+  it(`${SEED} peril ${PERIL} for ${DAYS} days`, () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const w = threeYearsWorld(SEED, PERIL);
+    const state = setupThreeYearsFortress(w);
+    const ent = w.game.world.entities;
+    const items = w.readers.of<ItemsReader>('13');
+    const jobs = w.readers.of<JobsReader>('11');
+    const total = DAYS * TICKS_PER_DAY;
+    const bootstrap = 20 * TICKS_PER_DAY;
+    let last = '';
+    const firstOrphan = new Map<number, number>();
+    while (w.tick < total) {
+      const chunk = w.tick < bootstrap ? Math.min(100, bootstrap - w.tick) : Math.min(300, total - w.tick);
+      stepThreeYears(w, chunk);
+      script(w, state);
+      // every pick and axe of the fortress
+      const tools: string[] = [];
+      let orphans = 0; let held = 0; let free = 0;
+      for (const id of ent.with(C.Item)) {
+        const it = ent.get(id, C.Item)!;
+        const cat = items.categoryOf(it.type);
+        if (cat !== 'tool/pick' && cat !== 'tool/axe') continue;
+        if ((it.flags & (64 | 256)) !== 0) continue; // merchant, foreign
+        const kind = cat.slice(5);
+        if (it.carriedBy === 0) { free += 1; tools.push(`${kind}:free`); continue; }
+        const worker = ent.get(it.carriedBy, C.Worker);
+        const weapon = ent.get(it.carriedBy, C.Equipment)?.weapon ?? 0;
+        if (worker === undefined) { tools.push(`${kind}:on ${ent.kind(it.carriedBy)} ${it.carriedBy}`); continue; }
+        if (worker.toolId === id) { held += 1; tools.push(`${kind}:tool of ${it.carriedBy}`); }
+        else if (weapon === id) { tools.push(`${kind}:weapon of ${it.carriedBy} (tool ${worker.toolId}, soldier ${ent.has(it.carriedBy, C.Soldier)})`); }
+        else { orphans += 1; tools.push(`${kind}:CARRIED BY ${it.carriedBy} WHO HOLDS ${worker.toolId}`); if (!firstOrphan.has(id)) firstOrphan.set(id, w.tick); }
+      }
+      if (w.tick % TICKS_PER_DAY === 0) {
+        const blocked = jobs.list('blocked').filter((j) => j.blockedReason === 'no_tool').length;
+        const line = `tools ${tools.sort().join(' | ')}; jobs blocked no_tool ${blocked}`;
+        if (line !== last) { last = line; log.push(`day ${w.tick / TICKS_PER_DAY}: alive ${ent.with(C.Labors).filter((d) => ent.alive(d)).length}; held ${held}, free ${free}, orphaned ${orphans}; ${line}`); }
+      }
+    }
+    log.push(`first tick each tool was seen carried by a dwarf who holds another: ${JSON.stringify([...firstOrphan])}`);
+    log.push(`ToolEquipped ${w.events('ToolEquipped').length}; ToolDropped ${w.events('ToolDropped').length}; jobs done by type ${JSON.stringify(w.events('JobCompleted').reduce((m: Record<string, number>, e) => { const k = String(e['jobType']); m[k] = (m[k] ?? 0) + 1; return m; }, {}))}`);
+    writeFileSync(`${OUT}/tools-fixture-${SEED}-p${PERIL}.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 3_600_000);
+});

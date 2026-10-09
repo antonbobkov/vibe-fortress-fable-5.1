@@ -1,0 +1,164 @@
+===== toolswap.txt =====
+dwarf 16777216, pick 16777220, axe 16777221
+channel: {"ok":true}
+after 137 ticks: channels dug 2; Worker {"jobId":0,"phase":0,"carrying":0,"toolId":16777220}; weapon 0
+item 16777220 flags=0 ownerId=0 carriedBy=16777216 reservedBy=0 pos=none tileOf=74458
+item 16777221 flags=0 ownerId=0 carriedBy=0 reservedBy=0 pos=12,12,32 tileOf=74316
+chop: {"ok":true}
+after 579 ticks: trees felled 2; Worker {"jobId":0,"phase":0,"carrying":0,"toolId":16777221}; weapon 0
+item 16777220 flags=0 ownerId=0 carriedBy=16777216 reservedBy=0 pos=none tileOf=74181
+item 16777221 flags=0 ownerId=0 carriedBy=16777216 reservedBy=0 pos=none tileOf=74181
+pick: total 1 available 1
+axe: total 1 available 1
+carriedItems of the dwarf: [16777217,16777218,16777219,16777220,16777221]
+ToolEquipped: 16777220 16777221; ToolDropped: 
+channel again: {"ok":true}
+--- three days later (a second dwarf 16777237 with only mining was added)
+channels dug in all 2; Worker {"jobId":0,"phase":0,"carrying":0,"toolId":16777221}; Worker2 {"jobId":0,"phase":0,"carrying":0,"toolId":0}
+item 16777220 flags=0 ownerId=0 carriedBy=16777216 reservedBy=0 pos=none tileOf=74709
+item 16777221 flags=0 ownerId=0 carriedBy=16777216 reservedBy=0 pos=none tileOf=74709
+pick: total 1 available 1
+axe: total 1 available 1
+jobs: 5:channel:blocked:no_tool:w0 6:channel:blocked:no_tool:w0 7:channel:blocked:no_tool:w0 8:channel:blocked:no_tool:w0
+ToolEquipped: 16777216:16777220 16777216:16777221; ToolDropped: 
+--- day 23
+channels dug in all 2
+item 16777220 flags=0 ownerId=0 carriedBy=16777216 reservedBy=0 pos=none tileOf=74709
+item 16777221 flags=0 ownerId=0 carriedBy=16777216 reservedBy=0 pos=none tileOf=74709
+jobs: 5:channel:blocked:no_tool:w0 6:channel:blocked:no_tool:w0 7:channel:blocked:no_tool:w0 8:channel:blocked:no_tool:w0
+alive 2
+
+===== thief.txt =====
+--- A. a thief on an empty map (no item, no animal, no dwarf), one day
+party: {"civ":"gloam","purpose":"thief","members":[16777217],"leaderId":16777217,"state":"gone","goalTile":294912,"goalEntity":0,"arrivedTick":0,"stateSince":0,"loot":[],"edge":"n","size":1,"goalUnreachable":false,"outcome":"looted","despawnedCount":1}
+RaidEnded: {"type":"RaidEnded","partyId":16777216,"outcome":"looted"}; ThiefEscaped: none; ThiefSpotted: none
+--- B. cat #0: the only thing to steal is a tame cat at (24, 15); one day
+party goalEntity 16777216 (animal is 16777216); state gone; outcome withdrew; loot []
+animal alive true position 24,15,32
+RaidEnded: {"type":"RaidEnded","partyId":16777217,"outcome":"withdrew"}; ThiefEscaped: none; ThiefSpotted: {"type":"ThiefSpotted","id":16777218}
+--- B. cat #1: the only thing to steal is a tame cat at (24, 15); one day
+party goalEntity 16777216 (animal is 16777216); state gone; outcome withdrew; loot []
+animal alive true position 24,15,32
+RaidEnded: {"type":"RaidEnded","partyId":16777217,"outcome":"withdrew"}; ThiefEscaped: none; ThiefSpotted: {"type":"ThiefSpotted","id":16777218}
+--- B. cat #2: the only thing to steal is a tame cat at (24, 15); one day
+party goalEntity 16777216 (animal is 16777216); state gone; outcome withdrew; loot []
+animal alive true position 24,15,32
+RaidEnded: {"type":"RaidEnded","partyId":16777217,"outcome":"withdrew"}; ThiefEscaped: none; ThiefSpotted: {"type":"ThiefSpotted","id":16777218}
+--- B. cat #3: the only thing to steal is a tame cat at (24, 15); one day
+party goalEntity 16777216 (animal is 16777216); state gone; outcome withdrew; loot []
+animal alive true position 24,15,32
+RaidEnded: {"type":"RaidEnded","partyId":16777217,"outcome":"withdrew"}; ThiefEscaped: none; ThiefSpotted: {"type":"ThiefSpotted","id":16777218}
+--- B. cat #4: the only thing to steal is a tame cat at (24, 15); one day
+party goalEntity 16777216 (animal is 16777216); state gone; outcome withdrew; loot []
+animal alive true position 24,15,32
+RaidEnded: {"type":"RaidEnded","partyId":16777217,"outcome":"withdrew"}; ThiefEscaped: none; ThiefSpotted: {"type":"ThiefSpotted","id":16777218}
+no species hen: RangeError: creatures: unknown id "hen"
+
+===== cagetrap.txt =====
+cage trap loaded [16777217]; stone trap loaded [16777219]
+CreatureCaged: [{"type":"CreatureCaged","creatureId":16777220,"cageItemId":16777217}]
+TrapTriggered: [{"type":"TrapTriggered","trapId":16777216,"creatureId":16777220,"kind":"cage","outcome":"caged"},{"type":"TrapTriggered","trapId":16777218,"creatureId":16777221,"kind":"stone_fall","outcome":"hit"}]
+cage trap spent; stone trap spent
+second troll alive with a position: false
+spare cage 50331653: Container component null; spare stone 16777222; dwarves 16777232 16777236
+countAvailable({ type: cage }) = 2; countAvailable({ emptyContainer: 'cage' }) = 0
+--- tick 1200: cage trap spent; stone trap armed; TrapRearmed [{"type":"TrapRearmed","trapId":16777218}]
+jobs: 1:rearm_trap:blocked:missing_input:w0:inputs=[{"types":[23],"emptyContainer":"cage"}]
+--- tick 4800: cage trap spent; stone trap armed; TrapRearmed [{"type":"TrapRearmed","trapId":16777218}]
+jobs: 1:rearm_trap:blocked:missing_input:w0:inputs=[{"types":[23],"emptyContainer":"cage"}]
+--- tick 16800: cage trap spent; stone trap armed; TrapRearmed [{"type":"TrapRearmed","trapId":16777218}]
+jobs: 1:rearm_trap:blocked:missing_input:w0:inputs=[{"types":[23],"emptyContainer":"cage"}]
+standing order autoRearmTraps true; dwarves alive 2
+
+===== orders.txt =====
+order 1 bone craft: {"ok":true}
+order 2 stone mug: {"ok":true}
+tick 4, no dwarf yet. jobs: 1:craft:blocked:no_worker:w0:craft_bone; workshop {"orders":[{"recipe":11,"remaining":1,"mode":"once","threshold":0,"priority":5,"materialFilter":null},{"recipe":103,"remaining":2,"mode":"once","threshold":0,"priority":5,"materialFilter":null}],"currentJobId":1,"suspended":false,"assignedWorker":0,"magmaPowered":false,"lastBlockedReason":null}
+the bone is forbidden (as if another job had taken it): {"ok":true}
+--- day 1: jobs: 1:craft:blocked:missing_input:w0:craft_bone
+orders [{"recipe":11,"remaining":1,"mode":"once","threshold":0,"priority":5,"materialFilter":null},{"recipe":103,"remaining":2,"mode":"once","threshold":0,"priority":5,"materialFilter":null}]; ItemCrafted 0; mugs 0; WorkshopBlocked []; dwarf job 0
+--- day 5: jobs: 1:craft:blocked:missing_input:w0:craft_bone
+orders [{"recipe":11,"remaining":1,"mode":"once","threshold":0,"priority":5,"materialFilter":null},{"recipe":103,"remaining":2,"mode":"once","threshold":0,"priority":5,"materialFilter":null}]; ItemCrafted 0; mugs 0; WorkshopBlocked []; dwarf job 0
+--- day 20: jobs: 1:craft:blocked:missing_input:w0:craft_bone
+orders [{"recipe":11,"remaining":1,"mode":"once","threshold":0,"priority":5,"materialFilter":null},{"recipe":103,"remaining":2,"mode":"once","threshold":0,"priority":5,"materialFilter":null}]; ItemCrafted 0; mugs 0; WorkshopBlocked []; dwarf job 0
+isRunnable(order 1) {"runnable":false,"reason":"waiting for bone_pile"}; isRunnable(order 2) {"runnable":true,"reason":null}
+
+===== hunt.txt =====
+old corpse 50331648 (a dwarf's: "Ragnhild Ravensong") at 45,45
+HuntKill at tick 25: [{"type":"HuntKill","hunterId":16777221,"targetId":16777227}]
+tick 26: hunter at 21,20: job hunt corpseId 50331648 carrying 0
+tick 265: hunter at 45,45: job hunt corpseId 50331648 carrying 50331648
+tick 506: hunter at 20,20: job none corpseId  carrying 0
+tick 802: hunter at 20,20: job butcher corpseId  carrying 0
+tick 872: hunter at 27,20: job butcher corpseId  carrying 83886100
+tick 941: hunter at 20,20: job butcher corpseId  carrying 0
+tick 1038: hunter at 20,20: job none corpseId  carrying 0
+old corpse now at 20,20 tileOf 296852 (butcher origin tile 296852, id 16777220); deer 16777227 alive false
+corpses: 50331648@20,20; ButcheryDone 1
+
+===== save2-paused.txt =====
+two builds equal at tick 800: true
+paused command phase applied 13 commands at tick 800; the hash changed; rejected: CancelJob:not_found ForbidItem:not_found
+save taken while paused, after the commands: first load equals the unsaved game; second load equals the first
+A. unsaved game against its load (paused, commands applied): at tick 800 equal (5847b368e4522016 / 5847b368e4522016)
+A. unsaved game against its load (paused, commands applied): compared after every tick from 800 to 1800: 811 ticks differ, in the ranges 801..1611; final 7f4c32fd6acef86f / 7f4c32fd6acef86f
+   first difference: at tick 801: system 07 state differs at char 184: ...8501,298502,298503],"cropAtTile":[],"dailyDue":false,"needsSeedsAnnounced":[],"pendingBare":[296885,289188,298404,296884,300732,300733,300734,300735],"pendingGrazed":[],"pendingPlotTiles":[],"plotIndex":[],"producerDue":false,"rng":{"s0":26... vs ...8501,298502,298503],"cropAtTile":[],"dailyDue":false,"needsSeedsAnnounced":[],"pendingBare":[296885,289188,298404,296884],"pendingGrazed":[],"pendingPlotTiles":[],"plotIndex":[],"producerDue":false,"rng":{"s0":2612120390,"s1":3028349395,"s2...
+B. first load against second load: at tick 800 equal (5847b368e4522016 / 5847b368e4522016)
+B. first load against second load: compared after every tick from 800 to 1800: all equal; final 7f4c32fd6acef86f / 7f4c32fd6acef86f
+C. commands applied while paused against the same commands applied by the tick's command phase: after 1,000 ticks equal (7f4c32fd6acef86f / 7f4c32fd6acef86f)
+F. control: the same world saved at the same tick with no command applied: at tick 800 equal (78a09e46f0fe9225 / 78a09e46f0fe9225)
+F. control: the same world saved at the same tick with no command applied: compared after every tick from 800 to 1800: all equal; final 6f29805b59ee62e5 / 6f29805b59ee62e5
+
+===== save2-trade.txt =====
+tick 41894: caravan at depot true; session open true; session {"depotId":16777339,"traderId":117440640,"merchantId":16777347,"give":[],"take":[],"woodOffered":[],"woodWarning":false}
+dwarves alive 2
+save with the session open: first load equals the unsaved game; second load equals the first; session open in the load: true
+fortress goods at the depot: 2; merchant goods in the depot: 72
+offer: {"type":"TradeOffer","give":[{"itemId":16777445,"count":1}],"take":[{"itemId":16777364,"count":1}]}
+D. unsaved game against its load (session open; an offer at +10, a cancel at +400): at tick 41894 equal (930ecdf8dc05f5c7 / 930ecdf8dc05f5c7)
+D. unsaved game against its load (session open; an offer at +10, a cancel at +400): compared after every tick from 41894 to 42894: all equal; final c308586d44384279 / c308586d44384279
+unsaved TradeOffer at +10: {"ok":true}; session open after true
+loaded TradeOffer at +10: {"ok":true}; session open after true
+unsaved TradeCancel at +400: {"ok":true}
+loaded TradeCancel at +400: {"ok":true}
+trade events in the unsaved game: completed 1, refused 0
+E. first load against second load, no commands: at tick 41894 equal (930ecdf8dc05f5c7 / 930ecdf8dc05f5c7)
+E. first load against second load, no commands: compared after every tick from 41894 to 42894: all equal; final 4ba11a9c2e4c9501 / 4ba11a9c2e4c9501
+
+===== pausedevents.txt =====
+--- SetAlert hearth: applied while paused at tick 700
+events waiting in the unsaved game: 2 [HourPassed, AlertChanged]; in its load: 2 [HourPassed, AlertChanged]; hashes at the save equal
+600 ticks, compared every tick: unsaved and loaded are equal throughout; the two loads are equal at the end
+   unsaved game delivered AlertChanged 1 time(s)
+--- Designate channel: applied while paused at tick 700
+events waiting in the unsaved game: 1 [HourPassed]; in its load: 1 [HourPassed]; hashes at the save equal
+600 ticks, compared every tick: 600 ticks differ, the last at tick 1300; the two loads are equal at the end
+   first difference: tick 701: system 07 state differs at char 102: ...{"ashTiles":[],"bareSoil":[],"cropAtTile":[],"dailyDue":false,"needsSeedsAnnounced":[],"pendingBare":[300732,300733],"pendingGrazed":[],"pendingPlotTiles":[],"plotIndex":[],"producerDue":false,"rng":{"s0":1668931345,"s1":3... vs ...{"ashTiles":[],"bareSoil":[],"cropAtTile":[],"dailyDue":false,"needsSeedsAnnounced":[],"pendingBare":[],"pendingGrazed":[],"pendingPlotTiles":[],"plotIndex":[],"producerDue":false,"rng":{"s0":1668931345,"s1":3218838193,"s2...
+      system 09 state differs at char 15: ...{"bodiesStale":true,"bodyOfTile":[],"dailyDue":false,"huntable":[7,9,13,17,19,34,36,38,42,47],"hunterAssignments":[],"nextBodyId":1,"ne... vs ...{"bodiesStale":false,"bodyOfTile":[],"dailyDue":false,"huntable":[7,9,13,17,19,34,36,38,42,47],"hunterAssignments":[],"nextBodyId":1,"n...
+--- CreateZone stockpile: applied while paused at tick 700
+events waiting in the unsaved game: 2 [HourPassed, ZoneChanged]; in its load: 2 [HourPassed, ZoneChanged]; hashes at the save equal
+600 ticks, compared every tick: unsaved and loaded are equal throughout; the two loads are equal at the end
+--- PlaceBuilding wall: applied while paused at tick 700
+events waiting in the unsaved game: 2 [HourPassed, BuildingPlaced]; in its load: 2 [HourPassed, BuildingPlaced]; hashes at the save equal
+600 ticks, compared every tick: unsaved and loaded are equal throughout; the two loads are equal at the end
+--- SetLabor mining off: applied while paused at tick 700
+events waiting in the unsaved game: 1 [HourPassed]; in its load: 1 [HourPassed]; hashes at the save equal
+600 ticks, compared every tick: unsaved and loaded are equal throughout; the two loads are equal at the end
+--- CreateSquad: applied while paused at tick 700
+events waiting in the unsaved game: 1 [HourPassed]; in its load: 1 [HourPassed]; hashes at the save equal
+600 ticks, compared every tick: unsaved and loaded are equal throughout; the two loads are equal at the end
+
+===== tools-fixture-three-years-p0.txt =====
+day 20: alive 7; held 3, free 0, orphaned 0; tools axe:tool of 16777294 | pick:tool of 16777292 | pick:tool of 16777293; jobs blocked no_tool 0
+first tick each tool was seen carried by a dwarf who holds another: []
+ToolEquipped 3; ToolDropped 0; jobs done by type {"haul_to_stockpile":93,"chop":135,"plant":143,"carve_stairs":11,"build":39,"dig":488,"craft":346,"haul_to_depot":40,"smooth":342,"harvest":112,"trade":2}
+
+===== tools-fixture-three-years-p2-1-p2.txt =====
+day 20: alive 7; held 3, free 0, orphaned 0; tools axe:tool of 16777288 | pick:tool of 16777286 | pick:tool of 16777287; jobs blocked no_tool 0
+day 29: alive 10; held 3, free 0, orphaned 0; tools axe:tool of 16777288 | axe:weapon of 16777772 (tool 0, soldier false) | pick:tool of 16777286 | pick:tool of 16777287; jobs blocked no_tool 0
+day 33: alive 7; held 3, free 0, orphaned 0; tools axe:tool of 16777779 | axe:weapon of 16777772 (tool 0, soldier false) | pick:tool of 16777286 | pick:tool of 16777287; jobs blocked no_tool 0
+day 34: alive 3; held 3, free 0, orphaned 0; tools axe:tool of 16777779 | axe:weapon of 16777772 (tool 16777233, soldier false) | pick:tool of 16777772 | pick:tool of 16777783; jobs blocked no_tool 0
+day 46: alive 0; held 0, free 3, orphaned 0; tools axe:free | axe:on item 50332215 | pick:free | pick:free; jobs blocked no_tool 0
+first tick each tool was seen carried by a dwarf who holds another: []
+ToolEquipped 6; ToolDropped 6; jobs done by type {"haul_to_stockpile":81,"chop":262,"plant":20,"build":2,"craft":28,"harvest":10,"trade":1}
+

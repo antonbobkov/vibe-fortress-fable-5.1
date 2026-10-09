@@ -1,0 +1,59 @@
+/* T-115 scratch (2026-10-09): what becomes of the events a paused command emits when the game is saved before the next tick. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import type { Command } from '@core/commands';
+import { roundTrip } from '@app/game-save';
+import type { HeadlessGame } from '@app/headless';
+import { TestWorld } from '../test/scenarios/test-world';
+import { whyDiffer } from './whydiffer';
+
+const OUT = process.env['T115_OUT'] ?? 't115-scratch/out';
+const Z = 32;
+
+interface Bus { pendingCount?: number; peek?(): readonly { type: string }[] }
+
+function pendingOf(g: HeadlessGame): string {
+  const bus = (g.world as unknown as { events: Bus }).events;
+  const list = typeof bus.peek === 'function' ? bus.peek().map((e) => e.type) : [];
+  return `${String(bus.pendingCount ?? list.length)} [${list.join(', ')}]`;
+}
+
+describe('T-115 probe: events of paused commands across a save', () => {
+  it('one command at a time', () => {
+    mkdirSync(OUT, { recursive: true });
+    const log: string[] = [];
+    const cases: [string, (w: TestWorld) => Command][] = [
+      ['SetAlert hearth', () => ({ type: 'SetAlert', level: 'hearth' })],
+      ['Designate channel', (w) => ({ type: 'Designate', kind: 'channel', tiles: [60, 61].map((x) => w.index(x, 60, Z)), priority: 4 })],
+      ['CreateZone stockpile', (w) => ({ type: 'CreateZone', zoneType: 'stockpile', tiles: [w.index(70, 30, Z), w.index(71, 30, Z)] })],
+      ['PlaceBuilding wall', (w) => ({ type: 'PlaceBuilding', buildingType: 'wall', origin: w.index(66, 40, Z), orientation: 0, materialChoice: 0, priority: 5 })],
+      ['SetLabor mining off', (w) => ({ type: 'SetLabor', dwarfId: w.game.world.entities.with(C.Labors)[0] ?? 0, labor: 'mining', on: false })],
+      ['CreateSquad', () => ({ type: 'CreateSquad', name: 'Guard' })],
+    ];
+    for (const [name, make] of cases) {
+      const w = new TestWorld({ seed: 't115-paused-events', world: 'flat-test', embark: 'default' });
+      w.step(300);
+      const cmd = make(w);
+      w.game.world.submit(cmd);
+      w.game.world.commandPhase(true);
+      const twin = roundTrip(w.game).game;
+      const fork = roundTrip(twin).game;
+      log.push(`--- ${name}: applied while paused at tick ${w.tick}`);
+      log.push(`events waiting in the unsaved game: ${pendingOf(w.game)}; in its load: ${pendingOf(twin)}; hashes at the save ${w.hash() === twin.hash() ? 'equal' : 'DIFFERENT'}`);
+      let differing = 0; let first = ''; let last = -1;
+      for (let t = 0; t < 600; t += 1) {
+        w.game.step(1); twin.step(1); fork.step(1);
+        if (w.hash() !== twin.hash()) { differing += 1; last = w.tick; if (first === '') first = `tick ${w.tick}: ${whyDiffer(w.game, twin).slice(0, 1500)}`; }
+      }
+      log.push(`600 ticks, compared every tick: ${differing === 0 ? 'unsaved and loaded are equal throughout' : `${differing} ticks differ, the last at tick ${last}`}; the two loads are ${twin.hash() === fork.hash() ? 'equal' : 'DIFFERENT'} at the end`);
+      if (first !== '') log.push(`   first difference: ${first}`);
+      if (name === 'SetAlert hearth') {
+        const count = (g: HeadlessGame, type: string): number => (g === w.game ? w.events(type as never).length : -1);
+        log.push(`   unsaved game delivered AlertChanged ${count(w.game, 'AlertChanged')} time(s)`);
+      }
+    }
+    writeFileSync(`${OUT}/pausedevents.txt`, log.join('\n'));
+    console.log(log.join('\n'));
+  }, 3_600_000);
+});
