@@ -1,6 +1,6 @@
 # T-152 — A hospital and burial run
 
-**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 2) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-114 and its report, [`../../../reports/audits/2026-10-08-playthrough-coverage.md`](../../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 2) · **Size:** M · **Needs:** — · **Status:** closed
 
 ## Why
 
@@ -29,4 +29,4 @@ No long playthrough has a hospital, a well, a coffin or a tomb. In the measured 
 ## Done
 
 - `hospital_run` passes in `npm test`.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
