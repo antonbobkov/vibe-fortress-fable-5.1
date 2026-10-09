@@ -126,6 +126,8 @@ spotted(m): any fortress creature within SPOT_RADIUS (dogs SPOT_RADIUS_DOG) with
 
 Each threat step builds one ascending-id snapshot of the living, conscious fortress creatures (position, soldier status, spotting radius) and shares it across the member decisions; the party cadence step builds its own, and a direct target or spotting query builds a fresh one. Each hostile's own distance, line-of-sight and tie rules are unchanged by the sharing.
 
+Only a departing item holder emits its ThiefEscaped; other members' held items stay. Unconscious survivors trigger retreat (except the restless dead, which never retreat), not a wiped ending. On a member escaping with loot, increment the party's saved escapedLootCount when emitting ThiefEscaped. At party end, any recorded loot escape makes the outcome looted even if remaining members die. Held loot that never left does not qualify; otherwise resolve wiped, repelled or withdrew from the actual ending and retreat reason. Missing escape counts in older saves mean zero.
+
 Thief specifics: on reaching the goal item: pick up (`P.loot`), `P.state = 'retreat'`; if spotted before pickup: retreat empty. Restless dead: `approach` target = nearest fortress creature; never retreat; at dawn (`HourPassed` hour == sunrise) all `restless_dead` collapse: `CreatureDied { cause: dawn }` with no corpse (a `bone_pile` item instead).
 
 Cavern monsters: `Wild`-like idle/wander within the cavern band; aggressive ones every think check `spatial.nearest(fortress creature within CAVE_SEEK_RADIUS)` and set targets; return after `CAVE_RETURN_TICKS` without a target. Hollow-born: target = nearest fortress creature on the map (global search every 50 ticks through the spatial index rings).

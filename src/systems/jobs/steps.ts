@@ -218,7 +218,7 @@ function complete(board: JobBoard, job: Job, workerId: EntityId, ctx: TickContex
 function stepHunt(board: JobBoard, job: Job, workerId: EntityId, ctx: TickContext): void {
   const entities = board.world.entities;
   const map = board.world.map;
-  const targetId = job.target.ref;
+  const targetId = typeof job.data['animal'] === 'number' ? job.data['animal'] as EntityId : job.target.ref;
   const movement = board.movement;
 
   // Case 1: Target is dead -> haul corpse to butcher's workshop

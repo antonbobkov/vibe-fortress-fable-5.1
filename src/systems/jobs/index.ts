@@ -84,6 +84,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
 
   override init(ctx: InitContext): void {
     this.initCtx = ctx;
+    this.boardRef?.dispose();
     const board = new JobBoard(ctx.world, ctx.registry, ctx.readers);
     this.boardRef = board;
     this.readerRef = makeReader(board);
@@ -147,7 +148,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
       // A hunt job hauls the corpse of the creature it hunted (09 § Hunting).
       for (const id of board.ids) {
         const job = board.jobs.get(id) as Job;
-        if (job.target.ref === event['creatureId'] && board.typeId(job) === 'hunt') job.data['corpseId'] = event['itemId'] as EntityId;
+        if ((job.data['animal'] ?? job.target.ref) === event['creatureId'] && board.typeId(job) === 'hunt') job.data['corpseId'] = event['itemId'] as EntityId;
       }
     } else if (type === 'NeedCritical' || type === 'ThreatNearby') {
       // "A need at or above its critical threshold interrupts any job"; jobs marked not

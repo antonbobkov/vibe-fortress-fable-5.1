@@ -280,6 +280,8 @@ export class EntityStore {
   private readonly types: readonly ComponentType<unknown>[];
   private readonly byKind: number[][];
   private destroyListener: DestroyListener | null = null;
+  private readonly destroySubscribers = new Set<DestroyListener>();
+  private readonly beforeDestroySubscribers = new Set<DestroyListener>();
   private liveCount = 0;
   private readonly revisions: number[] = [];
 
@@ -300,6 +302,18 @@ export class EntityStore {
   /** Called with every destroyed id so the world can queue `DestroyedEntity`. */
   setDestroyListener(listener: DestroyListener | null): void {
     this.destroyListener = listener;
+  }
+
+  /** Subscribe to synchronous destruction; observers are derived, never serialized. */
+  onDestroy(listener: DestroyListener): () => void {
+    this.destroySubscribers.add(listener);
+    return () => { this.destroySubscribers.delete(listener); };
+  }
+
+  /** Read the last components to transition work before a target is removed. */
+  onBeforeDestroy(listener: DestroyListener): () => void {
+    this.beforeDestroySubscribers.add(listener);
+    return () => { this.beforeDestroySubscribers.delete(listener); };
   }
 
   /** Number of living entities. */
@@ -340,6 +354,7 @@ export class EntityStore {
     if (!this.alive(id)) return;
     const index = entityIndex(id);
     const k = this.kindOf[index] as number;
+    for (const listener of this.beforeDestroySubscribers) listener(id, ENTITY_KINDS[k] as EntityKind);
     for (let c = 0; c < this.stores.length; c += 1) {
       if ((this.stores[c] as ComponentStore<unknown>).remove(index)) this.revisions[c] = (this.revisions[c] ?? 0) + 1;
     }
@@ -352,6 +367,7 @@ export class EntityStore {
     this.generations[index] = nextGen === 0 ? 1 : nextGen;
     this.free.push(index);
     this.destroyListener?.(id, ENTITY_KINDS[k] as EntityKind);
+    for (const listener of this.destroySubscribers) listener(id, ENTITY_KINDS[k] as EntityKind);
   }
 
   alive(id: EntityId): boolean {
