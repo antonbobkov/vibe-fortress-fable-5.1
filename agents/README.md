@@ -24,6 +24,7 @@ The owner's standing rules for delegating work in this repository, set on 2026-1
 ## Working practice that has held up
 
 - Give each agent its own `git worktree` on its own branch, created by the orchestrator, with `npm ci` already run. The orchestrator merges into `master`, checks, and pushes.
+- **A change to behaviour under `src/` is not verified until the browser suite has run.** `npm test` does not include `npm run test:e2e`. On 2026-10-08 about twenty bug fixes were merged on `npm test` alone, and one of them left the year-long browser playthrough starving in winter; it went unseen for a day and then blocked two other tasks. The agent runs the full e2e suite before its commit and says so in the commit body; the orchestrator checks for that line before merging. The suite uses fixed ports 5174 and 5175, so only one agent can run it at a time.
 - Performance timings taken while another agent runs tests are noisy. Run a speed measurement, and the full gate, when nothing else is running.
 - Briefs point at the task's work file in `docs/work/` and at `docs/process/agent-workflow.md`. They do not restate the task.
 - When an agent is cut off, resume its session if it can be resumed. Otherwise start a new agent on the same worktree and tell it to begin from the uncommitted work it finds there.
