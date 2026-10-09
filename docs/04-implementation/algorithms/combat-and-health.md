@@ -9,12 +9,15 @@ tick(ctx):
   for id in creaturesWithTarget (ascending id):                       // Soldier.targetId or combat.targets map
     t = targetOf(id); if not alive(t) or not hostile(id, t): clearTarget(id); continue
     if not health.isConscious(id): continue
+    if onDuty(id) and loadedLauncher(id) and legalKitingStep(id): walkTo(id, firstSafeAdjacentTile, 'combat'); continue
     if adjacent8SameZ(id, t): if cooldownUntil[id] <= tick: melee(id, t)
     else if ranged = launcherOf(id) and ammoOf(id) > 0 and dist(id,t) <= ranged.range and lineOfSight(id, t): if cooldownUntil[id] <= tick: shoot(id, t)
     else: approach(id, t)                                             // walkTo with urgency 'combat'; ranged keeps RANGED_KEEP_DISTANCE
   advanceProjectiles()
   threatScan(); squadDuties(); training()
 ```
+
+A kiting step considers the nearest visible, conscious same-level melee threat within `RANGED_KITE_TRIGGER_DISTANCE`, ties by entity id, independent of the held target. Use legal horizontal path edges, finite cost and passability, at least `RANGED_KEEP_DISTANCE` from that threat and line of sight to it; ties by tile index. Without a qualifying tile, follow the ordinary attack/approach path.
 
 ## Melee
 

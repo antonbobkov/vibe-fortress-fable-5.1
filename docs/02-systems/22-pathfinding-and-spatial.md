@@ -160,7 +160,6 @@ None directly. Unreachable jobs are explained in the jobs panel; the connectivit
 | `REPATH_WAIT_TICKS` | 5 | |
 | `REPATH_LIMIT` | 3 | Attempts before the brain gives up the goal |
 | `LOS_MAX` | 30 | |
-| `DWARF_SPEED` | 0.15 | Tiles per tick (species base; content) |
 
 ## Extension points
 

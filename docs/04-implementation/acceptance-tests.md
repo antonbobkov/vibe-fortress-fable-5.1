@@ -159,6 +159,8 @@ A miner killed while holding the only pick outside its weapon slot leaves the pi
 
 A bleeding hospital patient's death cancels all jobs targeting it and frees every held reservation in that tick. Deconstructing a workshop cancels its interrupted craft job and releases delivered inputs while the deconstruction itself completes. Entity, building and zone targets all use this rule, including after save/load; tile targets and unrelated jobs survive. An active hunt transitions to its quarry's death tile, waits for its own corpse and continues after save/load; an unclaimed hunt is cancelled.
 
+The hauling hint is checked on a delivered `DayPassed`: a backlog above its warning threshold and fewer than its minimum enabled haulers shows one lamp note; threshold equality and enough haulers show none. The hint respects disabled hints and survives the UI save without repeating; an hourly check alone does not show it.
+
 ## 12 Workshops
 
 | id | Scenario | Expected |
@@ -228,6 +230,8 @@ A squad member holding its own copper sword keeps it when a visiting caravan at 
 A soldier's death clears ownership of its worn gear, clothing and contained possessions without moving them. Once its corpse rots, another miner can fetch the pick and complete a channel. A squad leaves picks and axes for enabled workers lacking that kind; a matching held tool in Equipment also satisfies the need, and disabling the labor permits normal weapon selection.
 
 Squad claims from the ground or a container, replacement drops and archery practice preserve every stock dimension and container inverse. Deterministic random squad commands check accounting after each operation; the played three-year fortress ends with exact stock counts and container contents. Loading an older save repairs stale stock counts once, while a valid save keeps its world hash.
+
+A loaded ranged soldier on duty steps to a legal adjacent tile at its keep distance from a nearby melee threat, preserving line of sight and its held target. The nearest threat is considered even when another creature is targeted. No legal step, blocked sight, a distant or ranged opponent, or off duty keeps ordinary behavior.
 
 ## 17 Health
 

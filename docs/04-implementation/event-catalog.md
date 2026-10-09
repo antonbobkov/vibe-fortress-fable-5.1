@@ -138,7 +138,6 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ImmigrationSkipped` | `reason` | 21 | ui |
 | `EntitiesMoved` | `moves: [id, from, to][]` | core movement helper | 03, 04, 18, 19 |
 | `Fell` | `id, levels, landedOn` | core movement helper | 17 |
-| `DangerAnnounced` | `text, focus` | ui | 23 |
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 

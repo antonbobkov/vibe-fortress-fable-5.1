@@ -258,7 +258,7 @@ Container counts are non-negative integers, priorities are 1–9 and quality bou
 
 ## Hints
 
-Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly). Ids and triggers:
+Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly, except the hauling shortage on DayPassed). Ids and triggers:
 
 | id | Trigger | Text |
 |---|---|---|
@@ -282,6 +282,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_troll` | first `DoorBroken` | "Trollkin break doors. Walls and raised bridges hold." |
 | `hint_deep` | first `VeinFound` deepsilver | "Deepsilver lies beside the Sea of Fire. Taking it wakes the Hollow. The threats panel shows the Deep gauge." |
 | `hint_magma` | first cavern 2 breach | "A forge over channeled magma needs no fuel. Build it of magma-safe stone." |
+| `hint_haulers` | DayPassed: more than IDLE_HAULER_WARNING items want hauling and fewer than HAULER_WARNING_MIN_WORKERS dwarves have hauling enabled | "Items are waiting to be hauled. Enable hauling for more dwarves in the labors panel." |
 
 ## Milestones (legend record)
 

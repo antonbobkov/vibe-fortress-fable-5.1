@@ -11,8 +11,6 @@
  * arrive, rather than restating the value.
  */
 
-import type { Fixed } from './fixed';
-
 /** `22` § A*: the per-z-level term of the heuristic. */
 export const Z_HEURISTIC_COST = 1000;
 
@@ -36,13 +34,6 @@ export const REPATH_LIMIT = 3;
 
 /** `22` § Line of sight: longest sight line, in tiles. */
 export const LOS_MAX = 30;
-
-/**
- * `22` § Tuning constants: the dwarf species' base speed, 0.15 tiles per tick, as a `Fixed`. The
- * value that actually reaches a creature is the `speed` column of `03-content/creatures.md`; this
- * row is the documented baseline.
- */
-export const DWARF_SPEED: Fixed = 150;
 
 /** `02-systems/06-weather-and-seasons.md` § Tuning constants: movement cost on a snow tile. */
 export const SNOW_MOVE_COST_PERCENT = 150;

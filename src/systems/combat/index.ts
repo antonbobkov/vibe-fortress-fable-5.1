@@ -47,6 +47,7 @@ import {
 import type { CombatStateV1 } from './state';
 import { TargetManager } from './targets';
 import { threatScan } from './threats';
+import { kitingTile } from './kiting';
 import { clearDestroyedEquipment, reequipAllSquads, reequipSquad } from './equipment';
 import { getBarracksForSquad, stepTraining } from './training';
 
@@ -309,6 +310,14 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       const tileA = map.index(xA, yA, zA);
       const tileT = map.index(xT, yT, zT);
       const dist = Math.max(dx, dy) + dz * 2;
+
+      if (launcher !== undefined && hasAmmo && entities.get(id, C.Soldier)?.onDuty === true) {
+        const kite = kitingTile(ctx, id, tileA, (other) => this.targets.targetOf(other), (from, to) => this.lineOfSight(from, to));
+        if (kite !== null) {
+          ctx.world.services.movement?.walkTo(id, kite, 'combat', ctx);
+          continue;
+        }
+      }
 
       if (isAdjacent) {
         this.targets.unreachableSince.delete(id);

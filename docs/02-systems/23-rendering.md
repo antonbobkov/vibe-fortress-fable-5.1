@@ -107,7 +107,7 @@ Presentation-only: atlases, cell buffers (two, for change detection), camera, an
 
 ### Events consumed (presentation subscriber)
 
-`TilesChanged`, `FluidsChanged`, `EntitiesMoved`, `BuildingStateChanged`, `ZoneChanged` (mark chunk render-dirty; the compositor may cache unchanged chunks' base cells), `AttackResolved` (flash), `DangerAnnounced` (from 24: center).
+`TilesChanged`, `FluidsChanged`, `EntitiesMoved`, `BuildingStateChanged`, `ZoneChanged` (mark chunk render-dirty; the compositor may cache unchanged chunks' base cells), `AttackResolved` (flash). The announcement log pauses and centers through its presentation path, without an additional simulation event.
 
 ### Registrations
 

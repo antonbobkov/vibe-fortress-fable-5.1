@@ -6,6 +6,8 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs';
+import { HAULER_WARNING_MIN_WORKERS, IDLE_HAULER_WARNING } from '@systems/jobs/constants';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { UiState } from './ui-state';
 import type { AnnouncementLog } from './announcements';
@@ -21,11 +23,13 @@ export interface HintFacts {
   bareRoomDays: number; threatWarned: boolean; depotMissing: boolean; seriousWound: boolean;
   immigrationSkipped: boolean; raidEnded: boolean; cageTrapBuilt: boolean; doorBroken: boolean;
   deepsilverFound: boolean; cavernTwoBreached: boolean;
+  haulingPressure?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
 export function hintPredicate(id: string, f: HintFacts): boolean {
   switch (id) {
+    case 'hint_haulers': return f.haulingPressure === true;
     case 'hint_dig': return f.tick >= 1;
     case 'hint_still': return f.stillMissing && f.drinkLow;
     case 'hint_stockpile': return f.stockpileMissing && f.groundItems > 20;
@@ -86,6 +90,12 @@ export class HintEngine {
     if (!enabled) return;
     for (const event of events) {
       this.mark(event, readers);
+      if (event.type === 'DayPassed' && readers.has('11')) {
+        const jobs = readers.of<JobsReader>('11');
+        if (jobs.wantsHaulingCount() > IDLE_HAULER_WARNING && jobs.workersWithLabor('hauling').length < HAULER_WARNING_MIN_WORKERS) {
+          this.show('hint_haulers', readers.calendar.tick);
+        }
+      }
       if (event.type === 'HourPassed' && readers.calendar.hour % HINT_CHECK_HOURS === 0) this.evaluate(readers);
     }
   }
