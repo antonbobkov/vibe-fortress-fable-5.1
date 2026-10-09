@@ -458,7 +458,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
             ctx.emit({ type: 'ThiefSpotted', id: cId });
             P.state = 'retreat';
             P.stateSince = ctx.tick;
-            P.outcome = 'withdrew';
+            P.outcome = P.loot.length > 0 || (P.escapedLootCount ?? 0) > 0 ? 'looted' : 'withdrew';
           } else if (P?.purpose === 'ambush') {
             ctx.emit({ type: 'AmbushSprung', partyId: H.partyId });
             if (P) {

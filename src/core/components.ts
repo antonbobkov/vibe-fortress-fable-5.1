@@ -371,6 +371,8 @@ export interface Party {
   size: number;
   outcome?: string;
   despawnedCount?: number;
+  /** Number of loot escapes actually emitted; missing in older saves means zero. */
+  escapedLootCount?: number;
   goalUnreachable?: boolean;
   walkUnreachable?: boolean;
 }

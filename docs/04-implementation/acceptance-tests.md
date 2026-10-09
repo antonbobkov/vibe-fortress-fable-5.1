@@ -249,6 +249,8 @@ Squad claims from the ground or a container, replacement drops and archery pract
 
 Spawned hostile gear has no ground position while carried and remains foreign. On edge departure no item retains that member as owner or carrier; worn gear and spare weapons/ammunition all leave as `left_map`, while escaped loot is destroyed once as `stolen`. Death transfers all gear to the unowned corpse instead. Departing Wildwood guards take their spare daggers and arrows with them.
 
+A thief spotted by a creature or trap after pickup ends as looted when it escapes; spotting before pickup ends as withdrew. Loot held by a wiped party does not qualify; an empty member cannot report another member's carried loot. Unconscious survivors trigger retreat rather than a wiped ending. An earlier member escape remains looted after save/load even if all remaining members die.
+
 ## 19 Defense
 
 | id | Scenario | Expected |

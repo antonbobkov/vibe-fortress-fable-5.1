@@ -11,7 +11,7 @@ import type { GameEvent } from '@core/events';
 import type { TickContext } from '@core/system';
 import type { MoraleReader } from '@systems/morale/reader';
 import { TestWorld } from '../../scenarios/test-world';
-import { chooseGoal, findUnattendedItemWithinRadius, memberThink, stepThreatMembers } from '@systems/threats/ai';
+import { chooseGoal, findUnattendedItemWithinRadius, memberThink, pickUpLoot, stepThreatMembers } from '@systems/threats/ai';
 import { spawnHostileMember } from '@systems/threats/parties';
 import { arriveParty } from '@systems/threats';
 import type { BuildingsReader } from '@systems/buildings/reader';
@@ -379,13 +379,12 @@ describe('T-M6-09 / T-M8-01 Hostile AI', () => {
       // Spawn an owned ring
       const ringTile = w.index(24, 1, z);
       const ringId = w.spawnItem('ring', 'gold', ringTile);
-      const itemComp = w.game.world.entities.get(ringId, C.Item)!;
-      itemComp.ownerId = dwarfId;
+      w.game.world.services.items!.setOwner(ringId, dwarfId);
 
       // Create thief party
       const partyId = createTestParty(w, 'thief', 'n');
       const edgeTile = w.index(24, 0, z); // North edge
-      spawnHostileMember(
+      const thiefId = spawnHostileMember(
         w.game.world,
         w.game.registry,
         w.game.world.rngFor('18'),
@@ -400,7 +399,7 @@ describe('T-M6-09 / T-M8-01 Hostile AI', () => {
       const partyComp = w.game.world.entities.get(partyId, C.Party)!;
       partyComp.edge = 'n';
       partyComp.state = 'retreat';
-      partyComp.loot.push(ringId);
+      pickUpLoot(thiefId, ringId, partyComp, makeCtx(w));
 
       // Step one tick so threats processes thief at edge
       w.step(1);
