@@ -7,7 +7,7 @@ This document is the cross-system arithmetic behind the tuning constants. It sta
 ## Time and pace
 
 - One game day = 1,200 ticks = 60 real seconds at 1×. A season is 28 minutes, a year just under two hours.
-- A dwarf walks 0.10 tiles per tick: 10 seconds real time to cross 20 tiles, 48 seconds to cross the map.
+- A dwarf walks 0.15 tiles per tick, 180 tiles in a day: 7 seconds real time to cross 20 tiles, 32 seconds to cross the map. Every creature's speed is in [creatures.md](creatures.md); they keep the same ratios to the dwarf's.
 - A 3×3 room in granite (hardness 150) takes a novice miner 9 × 90 = 810 ticks (41 s); a Proficient miner (level 10) 9 × 50 = 450 ticks. A ten-tile corridor is a minute's work.
 - A year-1 fortress digs about 400 tiles, builds 6 workshops, 10 bedrooms and a dining hall, and reaches 13 dwarves.
 
@@ -26,6 +26,17 @@ Need rates per hour (10 Dwarves, as revised by this pass):
 | joy | 0.75 | 60 | a hearth visit about every 40 hours, fewer with fine meals |
 
 Per dwarf per day: 0.48 food units + 0.77 drink units. Twenty dwarves: 9.6 food, 15.4 drink. Seven dwarves over a 28-day season: 94 food, 150 drink, which is the season `embark-catalog.md` § Rules of thumb describes.
+
+The intervals above count the need itself, not the walk to serve it. A dwarf at default priorities starts about four need errands a day: 1.2 for sleep, 0.6 for a drink, 0.4 for a meal, and 0.6 to 0.7 each for a talk, a sit and a hearth visit. Measured over the first year of a fortress of 12 to 14 dwarves, with no job more urgent than a need, the errands take three quarters of a dwarf's time, and more of it is travel than use:
+
+| Share of a dwarf's time | In use | In travel |
+|---|---|---|
+| Sleep | 12% | 14% |
+| Food and drink | 4% | 17% |
+| Talk, sit, hearth visit | 14% | 13% |
+| **All needs** | **30%** | **44%** |
+
+Work takes 23% and the rest is idle. Travel is the walk to the bed, the food, the seat or the hall, and for a meal the walk from the food to a table. A meal is 60 ticks of eating after about 300 ticks on the way; a drink is 40 ticks after about 145. The use shares follow from the need rates and do not change with walking speed. [balance-status.md](../balance-status.md) holds the latest measurement.
 
 ## Food chain
 
