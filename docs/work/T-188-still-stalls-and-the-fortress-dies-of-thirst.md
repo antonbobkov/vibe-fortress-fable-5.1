@@ -30,3 +30,7 @@ The cause is not established. The first trace looks like a job that keeps part o
 
 - Both reproductions end with drink in stock and no death by `starvation`.
 - The scenarios pass.
+
+## Note (2026-10-09, orchestrator)
+
+T-132 (`3f9e424`) fixed a fault that looks like this one: a stockpile haul could take or fill a barrel reserved by a brew job, and the job then stalled one step from done for weeks while drink ran out. **Start here by re-running this task's two reproductions on master after T-132.** If both stalls are gone, close this task with the measurement and no code change. If one remains, it is a second fault, and the trace saved by T-132 ([`2026-10-09-t132-command-and-barrel-trace.json`](../../reports/data/2026-10-09-t132-command-and-barrel-trace.json)) shows what to record.
