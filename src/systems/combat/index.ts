@@ -47,7 +47,7 @@ import {
 import type { CombatStateV1 } from './state';
 import { TargetManager } from './targets';
 import { threatScan } from './threats';
-import { reequipAllSquads, reequipSquad } from './equipment';
+import { clearDestroyedEquipment, reequipAllSquads, reequipSquad } from './equipment';
 import { getBarracksForSquad, stepTraining } from './training';
 
 export type { CombatReader, SquadWithId } from './reader';
@@ -88,9 +88,11 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     'AlertChanged',
     'DayPassed',
     'ItemCreated',
+    'ItemDestroyed',
     'ZoneChanged',
   ];
 
+  private releaseDestroyObserver: (() => void) | null = null;
   private world: WorldLike | null = null;
   private initCtx: InitContext | null = null;
   private currentCtx: TickContext | null = null;
@@ -116,6 +118,12 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   }
 
   override init(ctx: InitContext): void {
+    this.releaseDestroyObserver?.();
+    this.releaseDestroyObserver = ctx.world.entities.onBeforeDestroy((id, kind) => {
+      if (kind === 'item' && ctx.world.entities.has(id, C.Item)) {
+        clearDestroyedEquipment(ctx.world.entities, id);
+      }
+    });
     this.world = ctx.world;
     this.initCtx = ctx;
     ctx.world.services.combat = this;
@@ -381,6 +389,10 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   }
 
   override handle(event: GameEvent, ctx: TickContext): void {
+    if (event.type === 'ItemDestroyed') {
+      clearDestroyedEquipment(ctx.world.entities, event['id'] as EntityId);
+      return;
+    }
     if (event.type === 'ZoneChanged' && event['zoneType'] === 'barracks' && event['change'] === 'settings') {
       const entities = ctx.world.entities;
       for (const squadId of entities.with(C.Squad)) {

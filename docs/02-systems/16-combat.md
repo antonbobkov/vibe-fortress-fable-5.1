@@ -119,8 +119,9 @@ An explicit barracks zone setting takes precedence over a cached training zone. 
 
 ### Equipment
 
-- On joining a squad, and every `REEQUIP_CHECK_DAYS`, each member claims from stockpiles the best available items matching the squad's preferences: weapon (highest `metalTier × qualityMultiplier` of the preferred class, then any melee class), shield (if the weapon is one-handed and `armor != none`), one armor piece per slot (highest armor value matching the material preference), and, for ranged members, a launcher, a quiver and `SOLDIER_AMMO` ammunition. Claimed items are `owned` (13). Better items replace worse ones, which are dropped at the barracks. All squads are refreshed once on a dispatch tick that carries `ItemCreated`, however many items the tick created.
+- On joining a squad, and every `REEQUIP_CHECK_DAYS`, each member claims from stockpiles the best available items matching the squad's preferences: weapon (highest `metalTier × qualityMultiplier` of the preferred class, then any melee class), shield (if the weapon is one-handed and `armor != none`), one armor piece per slot (highest armor value matching the material preference), and, for ranged members, a launcher, a quiver and `SOLDIER_AMMO` ammunition. Available gear is fortress stock under 13's availability rules: items flagged `merchant`, `at_depot`, `foreign` or `forbidden` cannot be claimed. Claimed items are `owned` (13). Better items replace worse ones, which are dropped at the barracks. All squads are refreshed once on a dispatch tick that carries `ItemCreated`, however many items the tick created.
 - Claiming and dropping equipment, including ammunition, use 13's item API. Take contained gear out before attaching it to the soldier and setting ownership; clear ownership before dropping replaced gear or recovered practice ammunition. Practice consumes units through the item API; the last unit is destroyed or dropped through it. Ammunition is carried separately from the quiver item, with no fabricated container link.
+- When an item is destroyed, immediately clear every equipment slot naming it (weapon, shield, armor, clothing and quiver) to 0, preserving other gear. Destruction cleanup runs before a subsequent command or save can observe stale references; `ItemDestroyed` notification repeats that cleanup safely.
 - Soldiers wear their armor at all times (no armor-off in version 1). Armor slows: movement × `(100 − Σ armor.weight / 4)%` minimum `ARMOR_MIN_SPEED_PERCENT`, reduced by `armor_use` skill (each level restores 1%).
 - Civilian tools (picks, axes) are weapons of their class; a miner attacked fights with the pick. A squad member does not claim a pick or axe as a weapon while any dwarf has mining or woodcutting labor enabled, respectively, and lacks a held tool of that kind. A tool held through `Worker.toolId` or `Equipment.weapon` satisfies that need; a different kind does not. Once every enabled worker holds that kind, or the labor is disabled, a spare can be claimed normally.
 
@@ -164,7 +165,7 @@ Every `AttackResolved` is rendered by the announcement registry into a combat lo
 
 ### Events consumed
 
-`CreatureDied`, `CreatureUnconscious`, `DayPassed` (re-equip), `HourPassed` (shifts), `ZoneChanged` (barracks), `ItemCreated` (better gear; every squad once per tick), `AlertChanged` (own), `HostileSpawned`, `RaidArrived`.
+`CreatureDied`, `CreatureUnconscious`, `DayPassed` (re-equip), `HourPassed` (shifts), `ZoneChanged` (barracks), `ItemCreated` (better gear; every squad once per tick), `ItemDestroyed` (clear equipment slots), `AlertChanged` (own), `HostileSpawned`, `RaidArrived`.
 
 ### Events emitted
 
