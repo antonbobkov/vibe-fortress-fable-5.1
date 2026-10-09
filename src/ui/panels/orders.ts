@@ -580,7 +580,8 @@ export class OrdersPanel {
     const options = this.materialOptions(ctx);
     if (options.length === 0) return;
     const current = this.selected(ctx)?.order.materialFilter;
-    this.materials.selected = Math.max(0, options.findIndex((option) => option.id === (current ?? '')));
+    const selected = typeof current === 'number' ? ctx.registry.table('materials').byIndex(current)?.id : current;
+    this.materials.selected = Math.max(0, options.findIndex((option) => option.id === (selected ?? '')));
     this.materialOpen = true;
   }
   materialKey(ctx: PanelContext, key: KeyPress): void {

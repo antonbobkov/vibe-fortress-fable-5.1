@@ -170,6 +170,8 @@ A bleeding hospital patient's death cancels all jobs targeting it and frees ever
 | `ws_steel` | iron bar + limestone + 2 fuel | 1 steel bar |
 | `ws_masterwork` | legendary carpenter, 100 beds | ≥ 40 masterworks; `MasterworkCreated`; crafter gets `made_masterwork` |
 
+Local and global work orders added or edited with a material id hold its index at once and retain the same hash through the first load, a second load and subsequent ticks. Classes, valid indices and null survive unchanged; malformed filters reject before changing an order or its job. A filtered brewing maintain order counts its plant's drink output.
+
 ## 13 Items
 
 | id | Scenario | Expected |

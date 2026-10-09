@@ -2,6 +2,8 @@
 
 **Owner:** `systems/workshops`, `systems/buildings`, `systems/trade`, `systems/immigration`, `systems/embark` · **Depends on:** [`../../02-systems/12-workshops-and-professions.md`](../../02-systems/12-workshops-and-professions.md), [`../../02-systems/14-buildings-and-rooms.md`](../../02-systems/14-buildings-and-rooms.md), [`../../02-systems/20-trade-and-caravans.md`](../../02-systems/20-trade-and-caravans.md), [`../../02-systems/21-immigration.md`](../../02-systems/21-immigration.md)
 
+At order application, normalise a material id to its registry index, retain a valid material class or null, and reject malformed filters with bad_setting before changing work. Output filters for plantDrink map the selected plant index back to the plant's brew material for maintain counts.
+
 ## Workshop operation (every tick per built workshop)
 
 ```

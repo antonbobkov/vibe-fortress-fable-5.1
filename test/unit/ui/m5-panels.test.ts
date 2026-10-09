@@ -68,7 +68,7 @@ describe('T-M5-08 Stocks, global orders and material dropdown', () => {
     g.handleKey(press('Enter'));
     expect(spy.mock.lastCall?.[0] as Command).toMatchObject({ type: 'EditWorkOrder', workshopId: 0, patch: { materialFilter: 'steel' } });
     g.host.step(1);
-    expect(g.fortress.orders.selected(g.fortress.ctx)?.order.materialFilter).toBe('steel');
+    expect(g.fortress.orders.selected(g.fortress.ctx)?.order.materialFilter).toBe(g.host.headless.registry.table('materials').index('steel'));
     const s = surface(36, 32);
     drawOrdersPanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, g.fortress.orders, g.fortress.ctx);
     expect(s.lines().join('\n')).toContain('[S-f] steel');

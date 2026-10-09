@@ -225,7 +225,7 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     f.screen.key(press('Enter'));
     expect(f.sent.at(-1)).toEqual({ type: 'AddWorkOrder', workshopId: shop, order: { recipeId: 'make_barrel', mode: 'maintain', remaining: 1, threshold: 10, priority: 5, materialFilter: 'oak' } });
     f.w.step(1);
-    expect(f.orders().ordersOf(shop)[0]).toMatchObject({ mode: 'maintain', threshold: 10, materialFilter: 'oak' });
+    expect(f.orders().ordersOf(shop)[0]).toMatchObject({ mode: 'maintain', threshold: 10, materialFilter: f.w.game.registry.table('materials').index('oak') });
   });
 
   it('a global order chooses its workshop: any of the type, or one of them', () => {
@@ -513,5 +513,16 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     expect(rows).toContain('+ = -  count ±1 (Shift: ±10)');
     expect(rows).toContain('r  repeat the selected or last finished order');
     expect(rows).toContain('Shift+letter  a panel action on a panel letter: [S-m]');
+  });
+
+  it('T-174: reopening a material picker selects the normalized material instead of Any', () => {
+    const f = setup('t174-picker');
+    expect(f.w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: 0,
+      order: { recipeId: 'forge_pick', mode: 'once', remaining: 1, materialFilter: 'iron' } })).toEqual({ ok: true });
+    f.screen.openPanel('orders');
+    f.screen.orders.openMaterials(f.screen.ctx);
+    expect(f.screen.orders.materialOpen).toBe(true);
+    const options = f.screen.orders.materialOptions(f.screen.ctx);
+    expect(options[f.screen.orders.materials.selected]?.id).toBe('iron');
   });
 });

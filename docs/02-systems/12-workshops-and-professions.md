@@ -84,6 +84,7 @@ WorkOrder { recipeId, remaining, mode: once | maintain, threshold (for maintain:
 - `maintain` orders are runnable when `stock(outputItemType, materialFilter) < threshold`; they never complete.
 - Orders on the workshop are executed in list order (the player reorders). A `WorkOrder` panel lists all orders in the fortress by workshop.
 - Orders can be placed at a workshop or from the global orders panel (which picks any workshop of the type; a global order goes to the first idle workshop of the type, in entity order).
+- Applying AddWorkOrder or EditWorkOrder normalises materialFilter: a known material id becomes its registry index; another string must be a material class; null means no filter. Numeric filters must be valid integer material indices. Invalid filters reject with bad_setting before changing orders or cancelling work. The same form is held by local and global orders and survives save/load. A brewing maintain order counts the selected plant's drink output for either id or index input.
 - `materialFilter` restricts inputs (make steel axes, oak beds). A work order's material filter constrains only the input the first output takes its material from (`material.from.index`), or input 0 when that output's material is `fixed`, `alloy` or `plantDrink`.
 
 ### Quality
@@ -155,6 +156,7 @@ Job producer `workshops` (`craft`); panel `orders`; inspector section `building 
 - Clicking a workshop opens its panel: the recipe list with "makeable now" marked, the order list with counts and status, the assigned worker, suspend (after a confirmation), take apart. `[S-n]`, or a click on a recipe, adds an order.
 - Orders panel: every order in the fortress with its count, mode and status ("waiting for log (0)", "no carpenter's workshop", "in progress", "done"); `+`/`-` change the selected order's count (`remaining`, or the threshold of a `keep ≥ N` order), `[r]` repeats the selected or the last finished order, `[S-n]` adds an order.
 - Adding an order opens a picker: a type-ahead filter over the recipes grouped by output category with the recent ones first, the quantity (1–999), the mode `once N` / `keep ≥ N`, the material filter and, for a global order, the workshop (any of the type, or one). One order makes N items: "5 doors" is one order with `remaining` 5.
+- Opening the material picker selects the current filter, resolving an in-memory material index to its content id.
 - Material filters list relevant input material classes and their materials, falling back to output classes when inputs provide none; brewing lists brewable plants.
 - Hints: "Smelters and forges need fuel: a wood furnace makes charcoal", "Build a forge next to magma to skip fuel".
 
