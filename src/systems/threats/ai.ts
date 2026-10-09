@@ -380,13 +380,20 @@ export function pickUpLoot(m: EntityId, lootId: EntityId, P: Party, ctx: TickCon
   }
 }
 
+/** Final outcomes reflect escaped loot, not a planned retreat or a held item. */
+function finalPartyOutcome(P: Party): string {
+  if ((P.escapedLootCount ?? 0) > 0) return 'looted';
+  if ((P.despawnedCount ?? 0) === 0) return 'wiped';
+  return P.outcome === 'withdrew' ? 'withdrew' : 'repelled';
+}
+
 export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: TickContext): void {
   const entities = ctx.world.entities;
   const escapedLoot = P.loot.slice();
 
   for (const lootId of P.loot.slice()) {
     const it = entities.get(lootId, C.Item);
-    if (it && (it.carriedBy === m || P.purpose === 'thief')) {
+    if (it && it.carriedBy === m) {
       const ownerId = it.ownerId;
       ctx.emit({
         type: 'ThiefEscaped',
@@ -394,6 +401,7 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
         itemId: lootId,
         ownerId,
       });
+      P.escapedLootCount = (P.escapedLootCount ?? 0) + 1;
       P.loot = P.loot.filter((id) => id !== lootId);
     } else {
       const animal = entities.get(lootId, C.Creature);
@@ -404,6 +412,7 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
           animalId: lootId,
         });
         entities.destroy(lootId);
+        P.escapedLootCount = (P.escapedLootCount ?? 0) + 1;
         P.loot = P.loot.filter((id) => id !== lootId);
       }
     }
@@ -417,7 +426,8 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
   const remainingAlive = P.members.filter((id) => entities.alive(id));
   if (remainingAlive.length === 0) {
     P.state = 'gone';
-    const outcome = P.outcome ?? (P.loot.length > 0 ? 'looted' : 'repelled');
+    const outcome = finalPartyOutcome(P);
+    P.outcome = outcome;
     ctx.emit({
       type: 'RaidEnded',
       partyId,
@@ -687,6 +697,17 @@ export function chooseGoal(P: Party, ctx: TickContext): void {
   }
 }
 
+/** Unconscious casualties are still living members; only actual deaths can wipe a party. */
+function retreatSurvivors(P: Party, ctx: TickContext): boolean {
+  if (!P.members.some((id) => ctx.world.entities.alive(id))) return false;
+  if (P.purpose !== 'restless' && P.state !== 'retreat') {
+    P.state = 'retreat';
+    P.stateSince = ctx.tick;
+    P.outcome = P.loot.length > 0 ? 'looted' : 'repelled';
+  }
+  return true;
+}
+
 export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickContext): void {
   if (P.state === 'retreat' || P.state === 'gone' || P.purpose === 'restless') return;
   const entities = ctx.world.entities;
@@ -698,8 +719,10 @@ export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickConte
   });
 
   if (alive.length === 0) {
+    if (retreatSurvivors(P, ctx)) return;
     P.state = 'gone';
-    const outcome = P.outcome ?? (P.loot.length > 0 ? 'looted' : (P.despawnedCount && P.despawnedCount > 0 ? 'repelled' : 'wiped'));
+    const outcome = finalPartyOutcome(P);
+    P.outcome = outcome;
     ctx.emit({ type: 'RaidEnded', partyId, outcome });
     return;
   }
@@ -724,8 +747,10 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
   });
 
   if (alive.length === 0) {
+    if (retreatSurvivors(P, ctx)) return;
     P.state = 'gone';
-    const outcome = P.outcome ?? (P.loot.length > 0 ? 'looted' : (P.despawnedCount && P.despawnedCount > 0 ? 'repelled' : 'wiped'));
+    const outcome = finalPartyOutcome(P);
+    P.outcome = outcome;
     ctx.emit({ type: 'RaidEnded', partyId, outcome });
     return;
   }
@@ -841,7 +866,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
       ctx.emit({ type: 'ThiefSpotted', id: m });
       P.state = 'retreat';
       P.stateSince = ctx.tick;
-      P.outcome = 'withdrew';
+      P.outcome = P.loot.length > 0 || (P.escapedLootCount ?? 0) > 0 ? 'looted' : 'withdrew';
     } else if (P?.purpose === 'ambush') {
       ctx.emit({ type: 'AmbushSprung', partyId: H.partyId });
       if (P) {

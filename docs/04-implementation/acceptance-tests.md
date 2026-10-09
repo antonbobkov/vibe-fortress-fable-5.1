@@ -157,6 +157,8 @@ A two-input build interrupted after its first delivery and resumed 2,000 ticks l
 
 A miner killed while holding the only pick outside its weapon slot leaves the pick at the recorded death tile, unowned, unreserved and unforbidden; another miner fetches it and completes a channel job. A hauler killed after pickup leaves its carried item on the death tile and another hauler completes the delivery. Held items also in Equipment remain on the corpse. Killing a builder holding one input releases that input, retains the job's other reserved inputs, and lets another builder finish. The later death notification neither repeats the drop nor emits a second ToolDropped.
 
+A bleeding hospital patient's death cancels all jobs targeting it and frees every held reservation in that tick. Deconstructing a workshop cancels its interrupted craft job and releases delivered inputs while the deconstruction itself completes. Entity, building and zone targets all use this rule, including after save/load; tile targets and unrelated jobs survive. An active hunt transitions to its quarry's death tile, waits for its own corpse and continues after save/load; an unclaimed hunt is cancelled.
+
 ## 12 Workshops
 
 | id | Scenario | Expected |
@@ -248,6 +250,8 @@ Squad claims from the ground or a container, replacement drops and archery pract
 | `th_restless` | `old_battlefield`, autumn night | `RestlessRose`; all collapse at dawn |
 
 Spawned hostile gear has no ground position while carried and remains foreign. On edge departure no item retains that member as owner or carrier; worn gear and spare weapons/ammunition all leave as `left_map`, while escaped loot is destroyed once as `stolen`. Death transfers all gear to the unowned corpse instead. Departing Wildwood guards take their spare daggers and arrows with them.
+
+A thief spotted by a creature or trap after pickup ends as looted when it escapes; spotting before pickup ends as withdrew. Loot held by a wiped party does not qualify; an empty member cannot report another member's carried loot. Unconscious survivors trigger retreat rather than a wiped ending. An earlier member escape remains looted after save/load even if all remaining members die.
 
 ## 19 Defense
 
