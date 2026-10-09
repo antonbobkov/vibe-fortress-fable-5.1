@@ -1,6 +1,6 @@
 # T-145 — The economy fixture plays at default priorities
 
-**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (causes 7 to 11, § Not established) · **Size:** M · **Needs:** T-140, T-141, T-142, T-143 · **Status:** open
+**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (causes 7 to 11, § Not established) · **Size:** M · **Needs:** T-144, T-188 · **Status:** open
 
 ## Why
 
@@ -16,6 +16,8 @@ Merge the rewrite once T-140 to T-143 are in, with these changes to the script:
 - **A thief is a threat.** Add `thief` to the purposes that raise the alert and send the squad.
 - **The farm grows with the population.** Plots follow the dwarf count.
 - **The anvil is bought.** On days 230 to 234 of the urgent-priority run a session was open, the anvil cost about 311 marks, the depot held 524 to 1,841, and the script sent no offer. Find why in the script's `trade` routine and fix it. If the game refused something, that is a new backlog row.
+- **Work follows the population.** At walking speed ×1.5 the script leaves 4.6% of dwarf time idle with no work over three years ([the walking-speed report](../../reports/audits/2026-10-09-walking-speed.md)). Orders and designations grow as immigrants arrive.
+- **The scenario's run time is decided** (T-140, 2026-10-09): the main `three_years` scenario moved to the performance tier (`test/perf/three_years_main.test.ts`, `npm run test:perf`) with its `timeoutMs` raised to 2,400,000 and every assertion unchanged, because at walking speed ×1.5 it grows to about 43 dwarves and takes about 18 minutes.
 - **The original assertions come back**: every recipe witness above zero, a trade at every visit. Remove `F17_KNOWN_GAPS`.
 
 Before merging, also explain why the **old** script with no urgent jobs stops mining by day 112: every dig job is blocked "unreachable" and nothing is mined. If that is a game fault it gets its own row.

@@ -1,6 +1,6 @@
 # T-144 — Talking, sitting and the hearth visit take a quarter of the day
 
-**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ Where the time goes, cause 2) · **Size:** M · **Needs:** T-140 · **Status:** open
+**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ Where the time goes, cause 2) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -18,6 +18,8 @@ A crude scratch test changed little: 5,449 marks against 4,925, mood unchanged. 
 - **Step 6 serves hunger, thirst and rest. Social, comfort and joy are served at step 8**, when the dwarf has no work, and in passing as above.
 
 Do this after T-140 and measure first. If the work share at default priorities is already 35% and mood is in the 55–60 band, do only the three "in passing" rules and leave the order of the steps alone.
+
+**Measured after T-140** ([the walking-speed report](../../reports/audits/2026-10-09-walking-speed.md)): with every creature walking 1.5 times as fast, mood is 57.6 and the work share is 22.7% in year 1. The three wants take 27.4% of the time (14.1% in use, 13.3% on the way). So all four rules apply, the order of the steps included.
 
 ## What to do
 

@@ -1,6 +1,6 @@
 # T-140 — Dwarves walk too slowly for a day of needs
 
-**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ Where the time goes, cause 1) · **Size:** M · **Needs:** T-141, T-142, T-143 · **Status:** open
+**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ Where the time goes, cause 1) · **Size:** M · **Needs:** T-144, T-145 · **Status:** open
 
 ## Why
 
@@ -33,3 +33,18 @@ Spec touched: `03-content/creatures.md`; `03-content/balance.md` § Needs and co
 - At default priorities the fixture's work share is at least 35% of dwarf time and its daily mood mean is at least 55.
 - Year-1 wealth is inside 4,000–8,000, or the report says why not.
 - Goldens regenerated with a `golden:` paragraph; `npm run test:perf` passes.
+
+## Progress, 2026-10-09
+
+Measured and applied; the report is [`../../reports/audits/2026-10-09-walking-speed.md`](../../reports/audits/2026-10-09-walking-speed.md).
+
+- **Done: every creature's `speed` is ×1.5** (dwarf 0.15). `creatures.md`, `balance.md` §§ Time and pace, Needs and consumption, and `22` § Tuning constants are amended. The world-hash golden is regenerated. No acceptance bound moved; each is listed in the report with its ticks before and after.
+- **Holds: daily mood mean at least 55.** 57.6 with the rewritten fixture at default priorities, 56.5 with the old one, 61.7 on `three-years-p0-1`.
+- **Holds, with the explanation: year-1 wealth.** 11,234, of which 6,420 is a stock of 107 lavish meals; 4,814 without them; 6,162 on `three-years-p0-1`.
+- **Does not hold: work share at least 35%.** 22.7% in year 1, against 22.0% at ×1.0, 22.7% at ×1.75 and 23.3% at ×2. Walking speed does not move it: need errands take 74% of the time, 30 points of it in use. Re-measure after T-144.
+- **Not run: `npm run test:perf`.** Only `per-system` and `perf_reference` were run, once. The tier's seed sweep cannot pass before T-145.
+
+Found on the way and filed: T-188. The three-year scenario now simulates a fortress of 43 dwarves and takes several times as long; T-145 decides what it may cost in `npm test`.
+
+Close this task when the work share has been re-measured after T-144 and the performance tier has passed.
+
