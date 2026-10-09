@@ -1,6 +1,8 @@
 # T-166 — A meal reserved by a dwarf who dies is released
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 7) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-166: release abandoned meal and drink reservations`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 7) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@ A dwarf reserves the meal or drink it walks to (`reservedBy` = the dwarf's id). 
 
 ## Reproduction
 
-[`death.probe.ts`](../../reports/data/2026-10-08-bug-hunt-death.probe.ts.txt) and [`death2.probe.ts`](../../reports/data/2026-10-08-bug-hunt-death2.probe.ts.txt): `item.reserved-by-missing-job [drink] … reservedBy=<dead id>, no such job and no such living creature`, 5 ticks after the death and 26 days later.
+[`death.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-death.probe.ts.txt) and [`death2.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-death2.probe.ts.txt): `item.reserved-by-missing-job [drink] … reservedBy=<dead id>, no such job and no such living creature`, 5 ticks after the death and 26 days later.
 
 ## What to do
 

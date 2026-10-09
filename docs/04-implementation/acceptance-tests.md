@@ -14,6 +14,8 @@ Every test is a headless scenario: `{ seed, region | 'flat-test', embark | 'defa
 | `core_event_order` | two systems emit in the same tick | dispatched in emission order; handlers run in system order |
 | `core_calendar` | run `TICKS_PER_YEAR` ticks | `YearPassed { 2 }` once; 4 `SeasonChanged`; 112 `DayPassed` |
 
+Malformed commands for an unknown huntable species, null work order or patch, and a fractional stair coordinate reject with their catalogued reason. A rename queued behind each still applies and the tick advances. An unforeseen handler throw also records `precondition_failed` and preserves the remaining command queue.
+
 ## 01 World generation
 
 | id | Scenario | Expected |
@@ -137,6 +139,8 @@ The bootstrap has no dwarf death, at most 200 `missing_input` blocks, and at lea
 After day 20, place a trade depot at the first valid surface origin among `(cx−9, cy+4)`, `(cx−9, cy+8)`, `(cx+8, cy+14)` and `(cx−9, cy+20)`, and request an anvil from the Mountainhome at priority 1. Dig a priority-4 4×4 cave plot starting at `(cx+7, cy+4, Z−1)`; when dug, zone its qualifying unzoned tiles and plant dimcap for every season. Step in batches of at most 600 ticks through `DAYS_PER_YEAR`.
 
 Check the Hillfolk and Wildwood caravan windows of 20, no winter caravan or year-one Mountainhome caravan, the scheduled Mountainhome spring window in year two, and 21's two guaranteed year-one waves with their size bounds. Surface sowing stops in winter while cave sowing continues; freezing occurs only in cold seasons; peril zero has no raid. No dwarf dies and population exceeds seven. Print the measured population, wealth, harvests, stocks and event days as balance observations.
+
+An eater or drinker killed before arriving releases the reserved unit once. Unconsciousness, fleeing and food rotting during travel do the same; cancellation cannot release a reservation now belonging to another holder.
 
 ## 11 Jobs
 

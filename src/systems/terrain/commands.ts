@@ -113,7 +113,8 @@ export function applyStairwell(host: CommandHost, cmd: Command): CommandResult {
   if (typeof x !== 'number' || typeof y !== 'number' || typeof zTop !== 'number' || typeof zBottom !== 'number') {
     return reject('out_of_bounds');
   }
-  if (!map.inBounds(x, y, zTop) || !map.inBounds(x, y, zBottom)) return reject('out_of_bounds');
+  if (![x, y, zTop, zBottom].every(Number.isInteger) ||
+      !map.inBounds(x, y, zTop) || !map.inBounds(x, y, zBottom)) return reject('out_of_bounds');
   if (!(zTop > zBottom)) return reject('precondition_failed');
   const priority = priorityOf(cmd['priority']);
   if (priority === null) return reject('out_of_range');

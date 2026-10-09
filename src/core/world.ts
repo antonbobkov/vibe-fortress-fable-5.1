@@ -225,7 +225,12 @@ export class World {
   commandPhase(immediateRejections = false): void {
     const rejections: GameEvent[] = [];
     for (const command of this.commands.drain()) {
-      const result = this.applyCommand(command);
+      let result: CommandResult;
+      try {
+        result = this.applyCommand(command);
+      } catch {
+        result = reject('precondition_failed');
+      }
       this.commandLog.append(this.calendar.tick, command, result);
       if (!result.ok) {
         const event: GameEvent = { type: 'CommandRejected', command, reason: result.reason };

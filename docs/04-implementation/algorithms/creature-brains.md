@@ -6,7 +6,7 @@
 
 ```
 tickDwarf(id):
-  if not health.isConscious(id): return
+  if not health.isConscious(id): cancelActivity(id); return
   b = Brain[id]
   if b.behavior == 'idle' and jobs.hasWork(id): select(id) immediately, from the current position
   if b.behavior == 'need' or 'social' or 'idle': runActivity(id) ; if activity finished: b.behavior = 'none'
@@ -56,6 +56,8 @@ Hourly (on `HourPassed`): apply the rates in 10's Needs table, clamping 0..100. 
 Movement side effects on entering a tile: mist → `DwarfFeltMist` (cooldown), warm spring adjacency → `DwarfNearSpring`, outdoors in bad weather → `DwarfOutdoorsIn` (hourly), miasma → 15 standing check, undiscovered neighbors → 03 discovery, a fine-or-better statue or a masterwork item in view (same room) → `admired_statue` / `SawMasterwork` (per-object memory sets).
 
 The movement handler writes `Brain` thought timers and `Needs` for masterwork joy relief, never tile grids. Mist uses zero as never and otherwise its cooldown; bad-weather thoughts use the saved hour index. Spring adjacency is an entry from outside its same-level 8-neighbourhood.
+
+A food or drink plan validates that its item still exists, is reserved by its dwarf, and remains edible or drinkable before travelling or consuming. Cancellation on death, unconsciousness, flight, failed travel or rot drops any held meal and releases only that dwarf's reservation, emitting one `ItemReleased`. Repeated cancellation has no effect.
 
 Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position.
 

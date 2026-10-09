@@ -26,7 +26,7 @@ export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandRe
   };
   if (cmd.type === 'AddWorkOrder') {
     const raw = cmd['order'] as Record<string, unknown> | undefined;
-    if (raw === undefined || typeof raw !== 'object') return reject('precondition_failed');
+    if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return reject('precondition_failed');
     const recipeId = raw['recipeId'] ?? raw['recipe'];
     const recipe = op.recipe(recipeId as string | number);
     if (recipe === undefined || (!global && recipe.workshop !== op.typeOf(id))) return reject('precondition_failed');
@@ -36,7 +36,7 @@ export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandRe
   } else if (cmd.type === 'EditWorkOrder') {
     if (!Number.isInteger(index) || index < 0 || index >= orders.length) return reject('invalid_index');
     const patch = cmd['patch'] as Record<string, unknown> | undefined;
-    if (patch === undefined || typeof patch !== 'object') return reject('precondition_failed');
+    if (patch === null || typeof patch !== 'object' || Array.isArray(patch)) return reject('precondition_failed');
     const before = orders[index] as WorkOrder;
     const recipe = op.recipe((patch['recipeId'] ?? patch['recipe'] ?? before.recipe) as string | number);
     if (recipe === undefined || (!global && recipe.workshop !== op.typeOf(id))) return reject('precondition_failed');

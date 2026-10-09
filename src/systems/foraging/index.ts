@@ -160,6 +160,7 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
     if (cmd.type !== 'SetHuntable') return reject('not_found');
     const s = cmd['species']; const on = cmd['on'];
     if ((typeof s !== 'string' && typeof s !== 'number') || typeof on !== 'boolean') return reject('not_found');
+    if (typeof s === 'string' && !this.ctx.registry.table('creatures').has(s)) return reject('not_found');
     const idx = this.speciesIndex(s);
     const row = this.row(idx);
     if (row === undefined || row.factionDefault !== 'wild') return reject('not_found');

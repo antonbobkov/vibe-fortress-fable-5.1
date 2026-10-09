@@ -70,7 +70,8 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `TitleAssigned` | `dwarfId, title` | 10 | 16, 20, ui |
 | `DwarfBecameAdult` | `id` | 10 | 11, 15, ui |
 | `JobCreated` / `JobClaimed` / `JobStarted` / `JobCompleted` / `JobCancelled` / `JobBlocked` / `JobUnblocked` | `jobId, jobType[, workerId, target, reason]` | 11 | producers (03, 07, 08, 09, 12, 13, 14, 17, 19, 20), 10 (xp on completed), ui |
-| `ItemReserved` / `ItemReleased` | `itemId, jobId` | 11 | 13 |
+| `ItemReserved` | `itemId, jobId` | 11 | 13 |
+| `ItemReleased` | `itemId, jobId` | 10, 11 | 13 |
 | `ToolEquipped` / `ToolDropped` | `dwarfId, itemId` / `itemId` | 11 | 11 (retry), 16 |
 | `ItemCrafted` | `itemId, quality, crafterId, workshopId, recipeId` | 12 | 13, 15, 16 (better gear), 24 (milestones) |
 | `MasterworkCreated` | `itemId, crafterId` | 12 | 15, ui |
@@ -138,6 +139,8 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `EntitiesMoved` | `moves: [id, from, to][]` | core movement helper | 03, 04, 18, 19 |
 | `Fell` | `id, levels, landedOn` | core movement helper | 17 |
 | `DangerAnnounced` | `text, focus` | ui | 23 |
+
+For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 
 ## Notes for implementers
 
