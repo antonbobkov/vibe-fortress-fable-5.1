@@ -1,6 +1,8 @@
 # T-168 — No accepted command leaves a state that cannot be saved
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-08-bug-hunt.md`](../../reports/audits/2026-10-08-bug-hunt.md) (bug 9) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-168: validate zone and hospital settings before storing them`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-08-bug-hunt.md`](../../../reports/audits/2026-10-08-bug-hunt.md) (bug 9) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@
 
 ## Reproduction
 
-[`commands.probe.ts`](../../reports/data/2026-10-08-bug-hunt-commands.probe.ts.txt): the lines `SetHospitalSupplies … -> {"ok":true}; save THROWS …` and `SetZoneSetting … value NaN`.
+[`commands.probe.ts`](../../../reports/data/2026-10-08-bug-hunt-commands.probe.ts.txt): the lines `SetHospitalSupplies … -> {"ok":true}; save THROWS …` and `SetZoneSetting … value NaN`.
 
 ## What to do
 

@@ -114,6 +114,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       entities: world.entities,
       registry: ctx.registry,
       pathing: () => (readers.has('pathing') ? readers.pathing : null),
+      assignRoom: (zoneId, dwarfId) => this.rooms.assign({ type: 'AssignRoom', zoneId, dwarfId }),
+      cropLitAt: (tile) => this.reader().cropLitAt(tile),
       emit: (event) => world.emit(event),
     });
     const store = new BuildingStore({

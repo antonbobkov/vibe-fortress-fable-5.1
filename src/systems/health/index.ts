@@ -24,6 +24,7 @@ import {
   STARVE_PERCENT,
 } from './constants';
 import { HealthProducer } from './producer';
+import { validHospitalSupplies } from './supplies';
 import { type HealthReader, makeHealthReader } from './reader';
 import type { HealthStateV1 } from './state';
 import {
@@ -116,11 +117,12 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
   override applyCommand(cmd: Command, ctx: TickContext): CommandResult {
     if (cmd.type === 'SetHospitalSupplies') {
       const zoneId = cmd['zoneId'] as EntityId;
-      const wants = cmd['wants'] as Record<string, number>;
+      const wants = cmd['wants'];
       if (!ctx.readers.has('14')) return reject('precondition_failed');
       const buildings = ctx.readers.of<BuildingsReader>('14');
       const z = buildings.zone(zoneId);
       if (!z || z.type !== 'hospital') return reject('precondition_failed');
+      if (!validHospitalSupplies(wants)) return reject('bad_setting');
       const zoneComp = ctx.world.entities.get(zoneId, C.Zone);
       if (zoneComp) {
         ctx.world.entities.add(zoneId, C.Zone, {

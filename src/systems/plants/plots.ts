@@ -12,6 +12,7 @@
 import { SEASONS_PER_YEAR } from '@core/constants';
 import { TileFlag, type Map3D } from '@core/map3d';
 import type { TileIndex } from '@core/types';
+import type { RegistryTable } from '@core/registry';
 import type { PlantRow } from './facts';
 
 /** The zone type of a farm plot. */
@@ -61,4 +62,16 @@ export function withCrop(
   const crops = cropsOf(settings);
   crops[season] = plant;
   return { ...settings, [CROP_SETTING]: crops };
+}
+
+/** Resolve a typed crop choice with the same farmed-species and light rules for every setting path. */
+export function cropChoice(raw: unknown, plants: RegistryTable<PlantRow>, kind: PlotKind):
+  { ok: true; plant: number } | { ok: false; reason: 'not_found' | 'light_mismatch' } {
+  const plant = typeof raw === 'string' ? (plants.has(raw) ? plants.index(raw) : -1) : raw;
+  if (typeof plant !== 'number' || !Number.isInteger(plant) || plant < 0) return { ok: false, reason: 'not_found' };
+  if (plant === 0) return { ok: true, plant };
+  const row = plants.byIndex(plant);
+  if (row === undefined || (row.kind !== 'crop' && row.kind !== 'cave_crop')) return { ok: false, reason: 'not_found' };
+  if (!lightMatches(row, kind)) return { ok: false, reason: 'light_mismatch' };
+  return { ok: true, plant };
 }

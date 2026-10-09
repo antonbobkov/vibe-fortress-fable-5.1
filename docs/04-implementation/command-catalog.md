@@ -13,7 +13,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `DesignateStairwell` | `x, y, zTop, zBottom` | 03 | integer coordinates in the map (`out_of_bounds`); `zTop > zBottom` | as Designate |
 | `DesignateHarvest` | `tiles[]` | 07 | crops at stage 3 | `JobCreated` |
 | `ConfirmDeepsilver` | — | 03 | — | — (sets `deepsilverConfirmed`) |
-| `SetPlotCrop` | `zoneId, season, speciesId \| 0` | 07 | zone is a farm plot; species light matches the plot kind (`light_mismatch`) | — |
+| `SetPlotCrop` | `zoneId, season, speciesId \| 0` | 07 | zone is a farm plot; species is 0 or a known farmed plant id/integer index (`not_found` otherwise); light matches the plot kind (`light_mismatch`) | — |
 | `AssignPasture` | `animalId, zoneId \| 0` | 08 | tame grazer; zone is a pasture | — |
 | `MarkSlaughter` / `UnmarkSlaughter` | `animalId` | 08 | tame; not assigned as war or hunting animal (`assigned`) | `JobCreated` |
 | `TrainAnimal` | `animalId, kind` | 08 | species trainable for kind; a kennel exists (`no_kennel`) | `JobCreated` |
@@ -42,7 +42,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `DeconstructBuilding` | `buildingId` | 14 | built; not the hearth while dwarves live (`hearth_is_home`) | `JobCreated` |
 | `SetBuildingPriority` | `buildingId, priority` | 14 | planned | — |
 | `CreateZone` | `zoneType, tiles[]` | 14 | tiles walkable (type-specific), no overlap (`overlap`), fishing and farm tile rules; a command with any bad tile is rejected whole (`bad_zone_tiles`) | `ZoneChanged` |
-| `ResizeZone` / `RemoveZone` / `SetZoneSetting` | `zoneId, …` | 14 | zone exists; setting key valid for the type | `ZoneChanged` |
+| `ResizeZone` / `RemoveZone` / `SetZoneSetting` | `zoneId, …` | 14 | zone exists; setting key and typed value valid for the type (`bad_setting` otherwise); owner uses AssignRoom checks; seasonal crops use SetPlotCrop checks | `ZoneChanged` |
 | `AssignRoom` | `zoneId, dwarfId \| 0` | 14 | bedroom with a bed | `RoomAssigned` |
 | `LinkMechanism` / `UnlinkMechanism` | `sourceId, targetId` | 14 | source is a lever or plate; target is linkable; mechanism available (blocks otherwise) | `JobCreated` |
 | `SetDoorMode` / `SetHatchMode` | `buildingId, mode` | 14 | building has the tag | `BuildingStateChanged` |
@@ -55,7 +55,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `SetSquadLeader` / `SetSquadMode` / `SetSquadEquipment` / `SetSquadStation` / `SetSquadPatrol` | `squadId, …` | 16 | — | — |
 | `SquadOrder` | `squadId, order` | 16 | target exists; tiles walkable | `SquadOrderIssued` |
 | `SetAlert` | `level` | 16 | — | `AlertChanged` |
-| `SetHospitalSupplies` | `zoneId, wants` | 17 | hospital zone | — |
+| `SetHospitalSupplies` | `zoneId, wants` | 17 | hospital zone; wants is a supply-kind record with integer counts 0 to HOSPITAL_SUPPLY_MAX (`bad_setting` otherwise) | — |
 | `SetTrapMode` | `trapId, mode` | 19 | trap exists | — |
 | `PullLever` | `leverId` | 19 | built lever | `JobCreated` |
 | `MoveToDepot` / `RemoveFromDepot` | `itemIds[]` | 20 | items exist; a depot exists (`no_depot`) | `JobCreated` |

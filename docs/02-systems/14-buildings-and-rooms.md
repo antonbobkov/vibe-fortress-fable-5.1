@@ -88,6 +88,8 @@ A lamp is a placed glowstone statue. It lights the 3×3 around it for comfort. T
 
 ### Zones
 
+`SetZoneSetting` checks the setting's value type before changing state and rejects an invalid value with `bad_setting`. `desired supplies` is a record of 17's supply kinds with integer counts from 0 to `HOSPITAL_SUPPLY_MAX`, stored under `desired supplies` as by `SetHospitalSupplies`; `squad` is 0 or a living squad id. `owner` is an integer dwarf id or 0 and uses `AssignRoom`'s checks and assignment. `crop per season` is the four season slots, each 0 or a known farmed plant id/index with the plot's light requirement, using `SetPlotCrop`'s validation and stored as plant indices. Check every slot before storing any. `priority` is an integer from `PRIORITY_MIN` to `PRIORITY_MAX`. Stockpile settings use 13's dedicated commands.
+
 `CreateZone { zoneType, tiles }`, `ResizeZone`, `RemoveZone`, `SetZoneSetting`. Rules:
 
 - Tiles must be walkable floors (fishing and gather zones may include non-walkable water-adjacent tiles as described in 09). A tile that holds a building on a floor also qualifies, so furniture, the hearth and doors may lie inside zones. A farm plot's tiles must also be all lit or all dark (07), and a fishing zone's tiles must be next to deep, unfrozen water (09): a walkable tile with a cardinal neighbour of water at level ≥ `FLUID_DEEP_LEVEL`.

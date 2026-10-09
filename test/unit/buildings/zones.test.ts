@@ -40,15 +40,18 @@ describe('T-M2-03 buildings: tuning constants', () => {
 });
 
 describe('T-M2-03 zones', () => {
-  it('CreateZone makes a zone entity with sorted tiles, zoneAt and ZoneChanged; resize, setting, remove', () => {
+  it('T-168: CreateZone makes a zone entity with sorted tiles, zoneAt and ZoneChanged; resize, setting, remove', () => {
     const w = world();
     const tiles = rect(w, 10, 10, Z, 3, 2);
     const id = w.zone('bedroom', [...tiles].reverse());
     expect(bld(w).zone(id)).toMatchObject({ type: 'bedroom', tiles });
     for (const t of tiles) expect(bld(w).zoneAt(t)).toBe(id);
     expect(bld(w).zonesOfType('bedroom')).toEqual([id]);
-    expect(apply(w, { type: 'SetZoneSetting', zoneId: id, key: 'owner', value: 5 })).toEqual({ ok: true });
-    expect(bld(w).zoneSetting(id, 'owner')).toBe(5);
+    const owner = w.spawnDwarf({ at: tiles[0] as TileIndex, ageYears: 30 });
+    w.build('bed', tiles[0] as TileIndex, 'oak');
+    w.step(10);
+    expect(apply(w, { type: 'SetZoneSetting', zoneId: id, key: 'owner', value: owner })).toEqual({ ok: true });
+    expect(bld(w).zoneSetting(id, 'owner')).toBe(owner);
     expect(apply(w, { type: 'SetZoneSetting', zoneId: id, key: 'squad', value: 1 })).toEqual({ ok: false, reason: 'bad_setting' });
     const smaller = rect(w, 10, 10, Z, 2, 2);
     expect(apply(w, { type: 'ResizeZone', zoneId: id, tiles: smaller })).toEqual({ ok: true });

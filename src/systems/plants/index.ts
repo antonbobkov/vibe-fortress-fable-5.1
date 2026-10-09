@@ -32,7 +32,7 @@ import { WILT_PERMILLE } from '@systems/weather/constants';
 import { CROP_DROWN_LEVEL, HARVEST_PRIORITY, PLANTS_CADENCE, PLANTS_PHASE } from './constants';
 import { PlantFacts, type PlantRow } from './facts';
 import { advance, growthPerHour, isMature, progressPercent, seasonAllows, stageLength } from './growth';
-import { FARM_PLOT, cropsOf, lightMatches, plotKindOf, withCrop, type PlotKind } from './plots';
+import { FARM_PLOT, cropsOf, cropChoice, plotKindOf, withCrop, type PlotKind } from './plots';
 import { PlantsProducer } from './producer';
 import type { CropInfo, PlantsReader } from './reader';
 import type { PlantsStateV1 } from './state';
@@ -511,20 +511,10 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     const zone = entities.get(zoneId, C.Zone);
     const view = this.buildings()?.zone(zoneId);
     if (zone === undefined || view === undefined || view.type !== FARM_PLOT) return reject('not_found');
-    const raw = cmd['speciesId'];
-    let plant = 0;
-    if (typeof raw === 'string') {
-      plant = this.facts.indexOf(raw);
-      if (plant === 0) return reject('not_found');
-    } else if (typeof raw === 'number') {
-      plant = raw;
-    }
-    if (plant !== 0) {
-      const row = this.facts.row(plant);
-      if (row === undefined || !this.facts.isFarmed(plant)) return reject('not_found');
-      if (!lightMatches(row, plotKindOf(this.map, view.tiles,
-        (tile) => this.buildings()?.cropLitAt(tile) ?? this.map.hasFlag(tile, TileFlag.Lit)))) return reject('light_mismatch');
-    }
+    const choice = cropChoice(cmd['speciesId'], ctx.registry.table<PlantRow>('plants'),
+      plotKindOf(this.map, view.tiles, (tile) => this.buildings()?.cropLitAt(tile) ?? this.map.hasFlag(tile, TileFlag.Lit)));
+    if (!choice.ok) return choice;
+    const plant = choice.plant;
     entities.add(zoneId, C.Zone, { ...zone, settings: withCrop(zone.settings, season, plant) });
     this.addPlot(zoneId);
     this.needsSeedsAnnounced.delete(zoneId);
