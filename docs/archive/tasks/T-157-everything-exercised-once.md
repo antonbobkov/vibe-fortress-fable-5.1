@@ -1,6 +1,8 @@
 # T-157 — Every command, event, job type and building type is exercised by a test
 
-**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 10; § Never touched; bug 3) · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-157: inventory every command, event, job and building in stepped worlds`.
+
+**Source:** T-114 and its report, [`../../../reports/audits/2026-10-08-playthrough-coverage.md`](../../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 10; § Never touched; bug 3) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -43,4 +45,4 @@ A catalogue entry that nothing can produce is either dead content or a bug. Nobo
 ## Done
 
 - `inventory.test.ts` passes, and every exception names a reason or an open backlog row.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green.

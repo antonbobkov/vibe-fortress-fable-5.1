@@ -1,0 +1,118 @@
+import { describe, expect, it } from 'vitest';
+import { existsSync, readFileSync } from 'node:fs';
+import { COMMAND_TYPES } from '@core/command-types';
+import { EVENT_TYPES } from '@core/event-types';
+import { recordWorlds } from './recorder';
+import { runScenario, type Scenario } from './runner';
+import { TestWorld } from './test-world';
+
+const modules = import.meta.glob('./*.scenario.ts', { eager: true }) as Record<string, { default: Scenario }>;
+// T-157: these multi-season/year instruments run in their own suites, not twice in the inventory.
+const longScenarios = new Set([
+  'core_calendar', 'td_schedule', 'th_schedule', 'th_warning', 'year_one',
+  'homestead_year', 'three_years', 'descent',
+]);
+
+// Explicit entries, not a blanket exemption of the command catalog: adding an entry must fail
+// until a scenario reaches it or a concrete stepped test is checked and named here.
+const commandExceptions = [
+  'SetDesignationPriority', 'DesignateHarvest', 'MarkSlaughter', 'UnmarkSlaughter',
+  'TrainAnimal', 'AssignAnimal', 'SetBreedingCap', 'ReleaseCaged', 'SetHuntable',
+  'CancelJob', 'SetJobPriority', 'SetStandingOrder', 'RenameDwarf', 'SetSchedule',
+  'EditWorkOrder', 'RemoveWorkOrder', 'ReorderWorkOrder', 'SetWorkshopWorker',
+  'SuspendWorkshop', 'DumpItem', 'MeltItem', 'SetStockpilePriority', 'LinkStockpile',
+  'CancelBuilding', 'DeconstructBuilding', 'SetBuildingPriority', 'ResizeZone',
+  'RemoveZone', 'LinkMechanism', 'UnlinkMechanism', 'SetPlateTrigger', 'DisbandSquad',
+  'SetSquadLeader', 'SetSquadPatrol', 'SquadOrder', 'SetTrapMode', 'NameAnimal',
+  'RenameSquad', 'RenameFortress',
+] as const;
+const commandTest = 'test/property/t184-paused-command-catalog.test.ts';
+
+interface Exception { readonly reason: string; readonly test?: string; readonly task?: string }
+const exceptions: Readonly<Record<'commands' | 'events' | 'jobs' | 'buildings', Readonly<Record<string, Exception>>>> = {
+  commands: Object.fromEntries(commandExceptions.map((id) => [id, {
+    test: commandTest, reason: `Accepts ${id} while paused, saves, and compares all next 50 stepped hashes with its load.`,
+  }])),
+  events: {
+    WorldGenerated: { reason: 'World-map generation emits outside the simulation tick loop.' },
+    TreeFelled: { test: 'test/unit/terrain/producer.test.ts', reason: 'A commanded chop completes through the real job loop and delivers TreeFelled.' },
+    ShrubRegrown: { test: 'test/unit/plants/wild.test.ts', reason: 'A delivered gather completion starts the shrub timer; stepped days deliver regrowth.' },
+    AnimalTrained: { test: 'test/unit/animals/taming.test.ts', reason: 'TrainAnimal runs at a kennel until its actual completion event.' },
+    PetAdopted: { test: 'test/unit/t165-death-ownership.test.ts', reason: 'The remaining cat adopts another living dwarf during stepped days after its owner dies.' },
+    Talked: { test: 'test/unit/dwarves/activities.test.ts', reason: 'Dwarves actually talk through their stepped social plans and become friends.' },
+    ToolDropped: { test: 'test/unit/jobs/tool-drop.test.ts', reason: 'Labor commands release a carried pick when its dwarf reaches a stockpile during step.' },
+    SquadOrderIssued: { test: commandTest, reason: 'An accepted SquadOrder is dispatched through the following 50 ticks on both saved worlds.' },
+  },
+  jobs: {
+    bandage_animal: { test: 'test/unit/health/t190-bandage-animal.test.ts', reason: 'An animal-care worker fetches cloth and completes the catalog job for a bleeding cow.' },
+    collect_egg: { test: 'test/unit/animals/products.test.ts', reason: 'Standing orders start actual collection of a nest egg during step.' },
+    deconstruct: { test: 'test/unit/buildings/furniture.test.ts', reason: 'A DeconstructBuilding command runs to removal and returns its installed bed.' },
+    engrave: { test: 'test/unit/terrain/producer.test.ts', reason: 'A dwarf completes commanded smoothing and engraving through the job loop.' },
+    gather: { test: 'test/unit/foraging/foraging.test.ts', reason: 'The stepped gathering zone designates a shrub and creates its gather job.' },
+    haul_to_dump: { test: 'test/unit/items/hauling.test.ts', reason: 'DumpItem creates a real dump job during step.' },
+    link_mechanism: { test: 'test/unit/buildings/mechanisms.test.ts', reason: 'A mechanic fetches a mechanism and works at both buildings to finish LinkMechanism.' },
+    milk_animal: { test: 'test/unit/animals/products.test.ts', reason: 'The stepped four-day cow interval produces and completes milking at the farmer workshop.' },
+    remove_construction: { test: 'test/unit/buildings/build.test.ts', reason: 'A commanded construction deconstruction runs the remove job and returns its material.' },
+    shear_animal: { test: 'test/unit/animals/products.test.ts', reason: 'A seasonal sheep product is actually sheared through the worker loop.' },
+    slaughter: { test: 'test/unit/foraging/foraging.test.ts', reason: 'MarkSlaughter runs to CreatureDied, a corpse, and butchery outputs.' },
+    train_animal: { test: 'test/unit/animals/taming.test.ts', reason: 'A trainer completes the commanded dog training job at a kennel.' },
+  },
+  buildings: {
+    archery_target: { test: 'test/unit/combat/squads.test.ts', reason: 'A built target is used by a ranged soldier during stepped barracks training.' },
+    bowyer: { test: 'test/unit/workshops/recipe-smoke.test.ts', reason: 'The built bowyer completes each authored recipe through work orders and jobs.' },
+    chain_post: { test: 'test/unit/defense/defense.test.ts', reason: 'A chained animal guards and detects through the actual defense tick.' },
+    clothier: { test: 'test/unit/workshops/recipe-smoke.test.ts', reason: 'The built clothier completes each authored recipe through work orders and jobs.' },
+    craftdwarf: { test: 'test/unit/workshops/recipe-smoke.test.ts', reason: 'The built craftdwarf completes each authored recipe through work orders and jobs.' },
+    farmers_workshop: { test: 'test/unit/animals/products.test.ts', reason: 'Built farmer workshops receive milking and shearing and complete cheese orders.' },
+    jeweler: { test: 'test/unit/workshops/recipe-smoke.test.ts', reason: 'The built jeweler completes each authored recipe through work orders and jobs.' },
+    leatherworks: { test: 'test/unit/workshops/recipe-smoke.test.ts', reason: 'Built leatherworks completes each authored recipe through work orders and jobs.' },
+    loom: { test: 'test/unit/workshops/recipe-smoke.test.ts', reason: 'The built loom completes each authored recipe through work orders and jobs.' },
+    magma_forge: { test: 'test/unit/workshops/magma.test.ts', reason: 'A built forge completes a magma-powered order, consumes no fuel, and blocks after losing magma.' },
+    magma_kiln: { test: 'test/unit/workshops/t194-kiln-power.test.ts', reason: 'A built kiln reads actual magma power through a stepped world; the spec reserves its recipes for glass outside version 1.' },
+    mechanic: { test: 'test/unit/workshops/recipe-smoke.test.ts', reason: 'The built mechanic completes each authored recipe through work orders and jobs.' },
+    nest_box: { test: 'test/unit/animals/products.test.ts', reason: 'A built nest holds an egg until the standing collection order is enabled during step.' },
+    spike_trap: { test: 'test/unit/defense/defense.test.ts', reason: 'An installed spike trap damages a crossing creature when toggled through stepped defense.' },
+    tannery: { test: 'test/unit/workshops/recipe-smoke.test.ts', reason: 'The built tannery completes each authored recipe through work orders and jobs.' },
+  },
+};
+
+describe('T-157 stepped-world catalog inventory', () => {
+  it('reaches every entry or names the concrete stepped test or open task that owns it', () => {
+    const recorder = recordWorlds();
+    try {
+      const ids = Object.values(modules).map(({ default: scenario }) => scenario.id);
+      for (const id of longScenarios) expect(ids, `named long scenario ${id}`).toContain(id);
+      for (const path of Object.keys(modules).sort()) {
+        const scenario = modules[path]!.default;
+        if (longScenarios.has(scenario.id)) continue;
+        expect(scenario.todo, scenario.id).toBeUndefined();
+        runScenario(scenario);
+      }
+      const registry = new TestWorld({ seed: 't157-catalog', world: 'flat-test', embark: 'none' }).game.registry;
+      const rows = (name: string): string[] => [...registry.table(name).ids()];
+      const missing = {
+        commands: COMMAND_TYPES.filter((id) => !recorder.coverage.commands.has(id)),
+        events: EVENT_TYPES.filter((id) => !recorder.coverage.events.has(id)),
+        jobs: rows('jobTypes').filter((id) => !recorder.coverage.jobs.has(id)),
+        buildings: rows('buildings').filter((id) => !recorder.coverage.buildings.has(id)),
+      };
+      const catalog = { commands: [...COMMAND_TYPES], events: [...EVENT_TYPES], jobs: rows('jobTypes'), buildings: rows('buildings') };
+      const uncovered: Record<string, string[]> = {};
+      for (const kind of ['commands', 'events', 'jobs', 'buildings'] as const) {
+        for (const [id, exception] of Object.entries(exceptions[kind])) {
+          expect(catalog[kind], `exception ${kind}/${id} is still a catalog entry`).toContain(id);
+          expect(exception.reason.trim().length, `${kind}/${id} has a reason`).toBeGreaterThan(0);
+          if (exception.test) expect(existsSync(exception.test), `${kind}/${id}: ${exception.test}`).toBe(true);
+          if (exception.task) expect(readFileSync('docs/backlog.md', 'utf8')).toContain(`| ${exception.task} |`);
+          expect(exception.test || exception.task || (kind === 'events' && id === 'WorldGenerated')).toBeTruthy();
+        }
+        uncovered[kind] = missing[kind].filter((id) => !exceptions[kind][id]);
+      }
+      console.log('T-157 scenario coverage:', JSON.stringify(Object.fromEntries(
+        Object.entries(recorder.coverage).map(([kind, ids]) => [kind, [...ids].sort()]))));
+      expect(uncovered).toEqual({ commands: [], events: [], jobs: [], buildings: [] });
+    } finally {
+      recorder.dispose();
+    }
+  }, 600_000);
+});
