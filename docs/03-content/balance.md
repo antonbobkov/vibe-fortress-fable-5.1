@@ -27,16 +27,16 @@ Need rates per hour (10 Dwarves, as revised by this pass):
 
 Per dwarf per day: 0.48 food units + 0.77 drink units. Twenty dwarves: 9.6 food, 15.4 drink. Seven dwarves over a 28-day season: 94 food, 150 drink, which is the season `embark-catalog.md` § Rules of thumb describes.
 
-The intervals above count the need itself, not the walk to serve it. A dwarf at default priorities starts about four need errands a day: 1.2 for sleep, 0.6 for a drink, 0.4 for a meal, and 0.6 to 0.7 each for a talk, a sit and a hearth visit. Measured over the first year of a fortress of 12 to 14 dwarves, with no job more urgent than a need, the errands take three quarters of a dwarf's time, and more of it is travel than use:
+The intervals above count the need itself, not the walk to serve it. A dwarf at default priorities starts about three need errands a day: 1.2 for sleep, 0.6 for a drink, 0.4 for a meal, and 0.8 in all for a talk, a sit and a hearth visit, which it takes only when it has no work; the rest of those three needs is relieved in passing, at the table and in the hall, or not at all. Measured over the first year of a fortress of 12 dwarves, with no job more urgent than a need and no wild animal arrivals, the errands take three fifths of a dwarf's time, and most of it is travel:
 
 | Share of a dwarf's time | In use | In travel |
 |---|---|---|
-| Sleep | 12% | 14% |
-| Food and drink | 4% | 17% |
-| Talk, sit, hearth visit | 14% | 13% |
-| **All needs** | **30%** | **44%** |
+| Sleep | 8% | 19% |
+| Food and drink | 4% | 20% |
+| Talk, sit, hearth visit | 5% | 5% |
+| **All needs** | **17%** | **45%** |
 
-Work takes 23% and the rest is idle. Travel is the walk to the bed, the food, the seat or the hall, and for a meal the walk from the food to a table. A meal is 60 ticks of eating after about 300 ticks on the way; a drink is 40 ticks after about 145. The use shares follow from the need rates and do not change with walking speed. [balance-status.md](../balance-status.md) holds the latest measurement.
+Work takes 31% and the rest is idle. With work open most of the time, social, comfort and joy are each over their want threshold about two thirds of the time. Travel is the walk to the bed, the food, the seat or the hall, and for a meal the walk from the food to a table. A meal is 60 ticks of eating after about 300 ticks on the way; a drink is 40 ticks after about 145. The use shares follow from the need rates and do not change with walking speed. [balance-status.md](../balance-status.md) holds the latest measurement.
 
 ## Food chain
 
