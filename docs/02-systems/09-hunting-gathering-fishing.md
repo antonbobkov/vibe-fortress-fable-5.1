@@ -35,8 +35,9 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
 
 ### Fishing
 
-- `fishing` zone: walkable tiles with at least one cardinal neighbor that is a water tile of level ≥ `FLUID_DEEP_LEVEL` and not frozen. Tiles that do not qualify are excluded at placement and shown red.
+- `fishing` zone: walkable bank tiles beside deep, unfrozen water (level ≥ `FLUID_DEEP_LEVEL`). One of the four same-level cardinal neighbours must either contain that water or be open air above a straight drop through only open air to that water, at most `FISH_BANK_DROP` levels below the bank. Intervening floors, solid tiles or shallow fluid stop the lookup. Water with cardinal magma adjacency does not qualify. Zone validation and fishing jobs use the same bank-to-water lookup. Tiles that do not qualify are excluded at placement and shown red.
 - Water bodies: on `init` and whenever `TilesChanged` or `FluidsChanged` touches water tiles in a way that changes connectivity (checked lazily: a body is recomputed when a fishing job starts and the body's version is stale), flood-fill water tiles through same-level cardinal neighbours into bodies (vertical flow does not join pools) with an id, a tile count and a `fishPool`. `fishPool` starts at `tileCount × FISH_PER_TILE` and regenerates `FISH_REGEN_PERCENT` of capacity per day, capped at capacity. Bodies with fewer than `MIN_FISHING_TILES` tiles have no fish. River bodies (containing a source) regenerate at double rate. Match each recomputed body to the unused old body with the largest tile overlap, ties by old id. Retain that id and, if the old body had fish capacity, its fraction of remaining capacity; a body without an eligible old pool starts full. Save the version, next body id and per-zone retry ticks alongside the bodies.
+- A bank draws its catch from the water body at the bottom of its qualifying shore column. Looking down from a bank does not join water bodies on different levels.
 - The `fish` job (labor `fishing`, skill `fishing`) is produced per fishing zone while its body has fish and a fisher is idle: the fisher stands on a zone tile and works `FISH_TICKS` (skill-scaled); success with `FISH_BASE_PERMILLE + skill × FISH_PER_SKILL`; on success the pool decreases by one and a `raw_fish` item is spawned with a material by body type (`trout` for rivers, `perch` for lakes, `blindfish` for cavern lakes). Failure ends the job; the producer re-creates it after `FISH_RETRY_TICKS`.
 - Frozen water and water with magma adjacency have no fishing.
 
@@ -102,6 +103,7 @@ Job producer `foraging` (`hunt`, `fish`, `butcher`); inspector sections `zone �
 | `CARRY_MAX_SIZE` | 100 | Larger corpses are butchered in the field |
 | `FIELD_BUTCHER_PERCENT` | 60 | |
 | `CORPSE_WAIT_TICKS` | 20 | Twice 13's cadence: how long a hunter waits for its kill's corpse |
+| `FISH_BANK_DROP` | 2 | Maximum straight open-air drop from bank level to deep water |
 | `FISH_PER_TILE` | 2 | Pool capacity |
 | `FISH_REGEN_PERCENT` | 5 | Of capacity per day |
 | `MIN_FISHING_TILES` | 6 | |

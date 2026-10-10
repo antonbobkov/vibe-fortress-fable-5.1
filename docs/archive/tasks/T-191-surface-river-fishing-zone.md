@@ -1,5 +1,7 @@
 # T-191 — Surface river banks cannot qualify for fishing zones
 
+Closed by `T-191: fish from natural banks above deep water`.
+
 ## Progress - 2026-10-09: awaiting the bank-adjacency decision
 
 Checked at `2ae69c3`, after merging master. A reproduction using `homesteadYearWorld()` finds 103 walkable surface banks beside open air with deep water one level below, and zero qualifying surface fishing tiles. Bank `(31, 10, 32)` fails both the buildings zone qualification and the foraging reader; public `CreateZone` returns `bad_zone_tiles`. A same-level deep-water bank qualifies and its command succeeds. The isolated probe has one failing lower-water regression and one passing same-level control; no implementation changes have been made. It is retained in the ignored `.vite/task-resume/t191-bank.test.ts` scratch file and runs with `npx vitest run --config .vite/task-resume/t191.config.ts`; its output is `.vite/task-resume/t191-reproduction.log`.
@@ -17,7 +19,7 @@ Per the owner's instruction to record both readings and stop when the specificat
 
 ## Why
 
-[`docs/02-systems/09-hunting-gathering-fishing.md`](../02-systems/09-hunting-gathering-fishing.md) § Fishing specifies:
+[`docs/02-systems/09-hunting-gathering-fishing.md`](../../02-systems/09-hunting-gathering-fishing.md) § Fishing specifies:
 > "A fishing zone placed by the player along an open water tile (river, lake, stream, ocean shore) designates the bank as active for fishing."
 
 In generated 3D local maps (`src/systems/terrain/generate/rivers.ts:18`), river channels are carved to depth 1 below the local surface level (`surfaceZ - 1`). The river fluid (water level 7) sits at `z = surfaceZ - 1` (e.g. z = 31), while the surface banks are walkable floors at `z = surfaceZ` (e.g. z = 32). In the air above the water channel (`z = surfaceZ`), tiles are `TileKind.Open` air with fluid level 0.

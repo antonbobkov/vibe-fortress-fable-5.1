@@ -6,21 +6,23 @@
  *
  * Tile rules by type: every zone needs walkable tiles; a farm plot needs `floor` of material class
  * `soil`, or the `mud` flag, or cavern `cave_loam` (`07` § Farm plots); a fishing zone needs a
- * cardinal neighbour of water at level ≥ `FLUID_DEEP_LEVEL`, not frozen (`09` § Fishing). A command
+ * cardinal shore with deep, unfrozen water on the same level or below a bounded open-air drop
+ * (`09` § Fishing). A command
  * whose tiles do not all qualify is rejected whole (`bad_zone_tiles`); the zone tool submits only
  * the tiles that qualify (D-071).
  */
 
 import { C, type Zone } from '@core/components';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
-import { FLUID_DEEP_LEVEL, PRIORITY_MAX, PRIORITY_MIN, SEASONS_PER_YEAR } from '@core/constants';
-import { FluidType, TileFlag, TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
+import { PRIORITY_MAX, PRIORITY_MIN, SEASONS_PER_YEAR } from '@core/constants';
+import { TileFlag, TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
 import type { EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import type { PathingReader } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, Idx, TileIndex } from '@core/types';
 import { validHospitalSupplies } from '@systems/health/supplies';
+import { waterOfBank } from '@systems/foraging/fishing';
 import { cropChoice, plotKindOf } from '@systems/plants/plots';
 import type { PlantRow } from '@systems/plants/facts';
 
@@ -142,15 +144,9 @@ export class ZoneStore {
     return this.soilMaterials.has(m) || map.hasFlag(i, TileFlag.Mud) || m === this.caveLoam;
   }
 
-  /** `09` § Fishing: a cardinal neighbour of deep, unfrozen water. */
+  /** `09` § Fishing: the same cardinal shore lookup used by fishing jobs. */
   private fishable(i: TileIndex): boolean {
-    const map = this.host.map;
-    const z = map.zOf(i);
-    for (const n of map.neighbors6(i)) {
-      if (map.zOf(n) !== z) continue;
-      if (map.fluidLevelAt(n) >= FLUID_DEEP_LEVEL && map.fluidTypeAt(n) === FluidType.Water && !map.fluidFrozenAt(n)) return true;
-    }
-    return false;
+    return waterOfBank(this.host.map, i) >= 0;
   }
 
   /** Whether a tile qualifies for a zone type (the green of the zone tool). */

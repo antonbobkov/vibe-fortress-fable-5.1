@@ -15,7 +15,7 @@ import type { Job, JobSink } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
 import type { PlantsReader } from '@systems/plants';
 import { butcherYields } from './butcher';
-import { cardinal, fishingWater, floodBodies, type WaterBody } from './fishing';
+import { waterOfBank, floodBodies, type WaterBody } from './fishing';
 import { BUTCHER_ROT_LIMIT, BUTCHER_TICKS, FISH_BASE_PERMILLE, FISH_PER_SKILL, FISH_PER_TILE, FISH_REGEN_PERCENT,
   FISH_RETRY_TICKS, FISH_TICKS, HUNT_MIN_SIZE, MIN_FISHING_TILES } from './constants';
 import type { ForagingReader } from './reader';
@@ -123,8 +123,7 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
   private ensureBodies(): void { if (this.bodiesStale) this.rebuildBodies(); }
 
   private waterOfBank(tile: TileIndex): number {
-    for (const n of cardinal(this.map, tile)) if (fishingWater(this.map, n)) return n;
-    return -1;
+    return waterOfBank(this.map, tile);
   }
   private canFishAt(tile: TileIndex): boolean {
     return this.map.validIndex(tile) && this.ctx.readers.pathing.passable(tile, 'walker') && this.waterOfBank(tile) >= 0;

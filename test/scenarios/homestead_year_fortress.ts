@@ -639,7 +639,7 @@ export function runHomesteadYear(w: TestWorld): void {
   expect(completedJobs.has('gather'), 'job: gather').toBe(true);
   expect(completedJobs.has('haul_to_dump'), 'job: haul_to_dump').toBe(true);
   expect(completedJobs.has('hunt'), 'job: hunt').toBe(true);
-  // fish omitted per T-191: surface river banks do not qualify for fishing zones
+  // Fishing is covered by the short T-191 bank/catch regressions; this fixture has no fishing zone.
 
   // 2. Ordered recipes crafted
   const craftedRecipes = new Set(w.events('ItemCrafted').map((e) => e['recipeId']));
@@ -660,7 +660,7 @@ export function runHomesteadYear(w: TestWorld): void {
   expect(w.events('AnimalTrained').length, 'event: AnimalTrained').toBeGreaterThanOrEqual(1);
   expect(w.events('ButcheryDone').length, 'event: ButcheryDone').toBeGreaterThanOrEqual(1);
   expect(w.events('HuntKill').length, 'event: HuntKill').toBeGreaterThanOrEqual(1);
-  // FishCaught omitted per T-191: surface river banks do not qualify for fishing zones
+  // FishCaught is covered by the short T-191 regression, without adding a zone to this fixture.
 
   // 4. Invariants
   expect(w.events('Starvation').length, 'no tame animal starved').toBe(0);
