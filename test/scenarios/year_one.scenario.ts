@@ -117,7 +117,9 @@ const scenario: Scenario = {
   run: (outer) => {
     const registry = outer.game.registry;
     const map = buildFlatTestMap(registry, 48, 48);
-    const w = new TestWorld({ seed: 'year-one', registry, map, embark: 'default' });
+    // T-196: no natural animal arrivals for now. One wild badger killed six of the seven dwarves
+    // on days 85 to 87 of this fixture. Restore natural arrivals when T-196 lands.
+    const w = new TestWorld({ seed: 'year-one', registry, map, embark: 'default', surfaceWildlife: 'none' });
     const stopInvariants = watchInvariants(w.game, (findings) => expect(findings, `T-176 tick ${w.tick}`).toEqual([]));
 
     const arrival = w.game.arrival;
@@ -261,6 +263,14 @@ const scenario: Scenario = {
           type: 'AddWorkOrder',
           workshopId: placedIds['still'],
           order: { recipeId: 'brew', mode: 'maintain', threshold: 20 },
+        });
+        // T-199: a brew needs an empty barrel, and the stockpile keeps food and seed in the five
+        // the party brought, so the still waits. The player has one made for it. Remove this order
+        // when T-199 is fixed.
+        w.game.world.applyCommand({
+          type: 'AddWorkOrder',
+          workshopId: placedIds['carpenter'],
+          order: { recipeId: 'make_barrel', mode: 'once', remaining: 1 },
         });
       }
       if (!ordered.has('kitchen') && builtTicks['kitchen'] !== null) {

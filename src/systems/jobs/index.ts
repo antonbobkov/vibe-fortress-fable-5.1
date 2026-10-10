@@ -109,7 +109,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     if (board.items !== NO_ITEMS) return;
     const api = ctx.world.services.items;
     if (api === null || !ctx.readers.has(ITEMS_READER)) return;
-    board.items = itemSourceOf(api, ctx.readers.of<ItemsReader>(ITEMS_READER), ctx.readers.entities);
+    board.items = itemSourceOf(api, ctx.readers.of<ItemsReader>(ITEMS_READER), ctx.readers.entities, board.registry);
   }
 
   override tick(ctx: TickContext): void {
