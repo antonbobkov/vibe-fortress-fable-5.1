@@ -10,7 +10,7 @@ const modules = import.meta.glob('./*.scenario.ts', { eager: true }) as Record<s
 // T-157: these multi-season/year instruments run in their own suites, not twice in the inventory.
 const longScenarios = new Set([
   'core_calendar', 'td_schedule', 'th_schedule', 'th_warning', 'year_one',
-  'homestead_year', 'three_years', 'descent',
+  'homestead_year', 'three_years', 'descent', 't195_train_needs', 'defence_year',
 ]);
 
 // Explicit entries, not a blanket exemption of the command catalog: adding an entry must fail
