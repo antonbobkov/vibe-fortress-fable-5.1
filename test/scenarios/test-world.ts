@@ -391,13 +391,13 @@ export class TestWorld {
 
   /**
    * A tame animal of the fortress, the state the embark arrival and T-M4-04's breeding leave
-   * behind (`08` § State): no pasture, fed, untrained.
+   * behind (`08` § State): no pasture, fed, untrained unless explicitly supplied.
    */
-  spawnTame(species: string, at: TileIndex, opts: { sex?: 0 | 1; juvenileUntil?: number } = {}): EntityId {
+  spawnTame(species: string, at: TileIndex, opts: { sex?: 0 | 1; juvenileUntil?: number; trained?: 'none' | 'war' | 'hunting' } = {}): EntityId {
     const id = this.game.world.services.spawn.creature(this.game.registry.table('creatures').index(species), at, 'fortress', {
       ...(opts.sex === undefined ? {} : { sex: opts.sex }),
     });
-    this.game.world.entities.add(id, C.Tame, { ...arrivalTame('none'), juvenileUntil: opts.juvenileUntil ?? 0 });
+    this.game.world.entities.add(id, C.Tame, { ...arrivalTame('none'), trained: opts.trained ?? 'none', juvenileUntil: opts.juvenileUntil ?? 0 });
     return id;
   }
 

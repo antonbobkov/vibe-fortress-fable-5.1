@@ -26,6 +26,7 @@ import {
   SPOT_RADIUS,
   SPOT_RADIUS_DOG,
   STEAL_MAX_SIZE,
+  THIEF_WAIT_DAYS,
 } from './constants';
 
 interface FortressTarget {
@@ -42,7 +43,7 @@ interface FortressTarget {
 function fortressTargets(ctx: TickContext): FortressTarget[] {
   const entities = ctx.world.entities;
   const map = ctx.world.map;
-  const species = ctx.registry.table<{ id: string }>('creatures');
+  const species = ctx.registry.table<{ id: string; trainable?: string; flags?: Readonly<Record<string, unknown>> }>('creatures');
   const out: FortressTarget[] = [];
   for (const id of entities.with(C.Creature)) {
     if (!entities.alive(id)) continue;
@@ -52,9 +53,13 @@ function fortressTargets(ctx: TickContext): FortressTarget[] {
     if (body !== undefined && !body.conscious) continue;
     const p = entities.get(id, C.Position);
     if (p === undefined) continue;
+    const trained = entities.get(id, C.Tame)?.trained;
+    const row = species.byIndex(creature.species);
+    const trainable = row?.trainable ?? row?.flags?.['trainable'];
+    const guard = trained !== undefined && trained !== 'none' && (trainable === 'both' || trainable === trained);
     out.push({ id, x: p.x, y: p.y, z: p.z, tile: map.index(p.x, p.y, p.z),
       soldier: entities.has(id, C.Soldier),
-      spotRadius: species.byIndex(creature.species)?.id.includes('dog') ? SPOT_RADIUS_DOG : SPOT_RADIUS });
+      spotRadius: entities.has(id, C.Attributes) ? SPOT_RADIUS : guard ? SPOT_RADIUS_DOG : 0 });
   }
   return out;
 }
@@ -184,6 +189,7 @@ export function checkSpotted(_m: EntityId, pos: TileIndex, ctx: TickContext, tar
   const my = map.yOf(pos);
 
   for (const target of targets) {
+    if (target.spotRadius === 0) continue;
     if (Math.abs(target.z - mz) > 1) continue;
 
     const dx = Math.abs(target.x - mx);
@@ -429,9 +435,23 @@ export function pickUpLoot(m: EntityId, lootId: EntityId, P: Party, ctx: TickCon
     }
     const p = entities.get(lootId, C.Position);
     if (p) {
+      ctx.world.services.movement?.stopWalking(lootId);
+      ctx.world.services.spatial?.remove(lootId, ctx.world.map.index(p.x, p.y, p.z));
       entities.remove(lootId, C.Position);
     }
+    (P.animalCarriers ??= {})[lootId] = m;
   }
+}
+
+/** Death keeps stolen animals alive on the carrier's recorded death tile. */
+export function releaseStolenAnimals(carrier: EntityId, tile: TileIndex, P: Party, ctx: TickContext): void {
+  for (const animal of P.loot.slice()) {
+    if (P.animalCarriers?.[animal] !== carrier) continue;
+    if (ctx.world.entities.alive(animal)) ctx.world.services.movement?.teleport(animal, tile);
+    P.loot = P.loot.filter((id) => id !== animal);
+    delete P.animalCarriers[animal];
+  }
+  if (P.animalCarriers !== undefined && Object.keys(P.animalCarriers).length === 0) delete P.animalCarriers;
 }
 
 /** Final outcomes reflect escaped loot, not a planned retreat or a held item. */
@@ -459,7 +479,7 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
       P.loot = P.loot.filter((id) => id !== lootId);
     } else {
       const animal = entities.get(lootId, C.Creature);
-      if (animal && P.purpose === 'thief') {
+      if (animal && P.purpose === 'thief' && P.animalCarriers?.[lootId] === m) {
         ctx.emit({
           type: 'ThiefEscaped',
           id: m,
@@ -468,9 +488,12 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
         entities.destroy(lootId);
         P.escapedLootCount = (P.escapedLootCount ?? 0) + 1;
         P.loot = P.loot.filter((id) => id !== lootId);
+        delete P.animalCarriers[lootId];
       }
     }
   }
+
+  if (P.animalCarriers !== undefined && Object.keys(P.animalCarriers).length === 0) delete P.animalCarriers;
 
   removeLeavingEquipment(ctx.world, m, escapedLoot);
   ctx.world.services.combat?.clearTarget(m);
@@ -838,6 +861,15 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
 
   switch (P.state) {
     case 'approach': {
+      if (P.purpose === 'thief') {
+        chooseGoal(P, ctx);
+        if (P.goalEntity === 0 && ctx.tick - P.arrivedTick >= THIEF_WAIT_DAYS * TICKS_PER_DAY) {
+          P.state = 'retreat';
+          P.stateSince = ctx.tick;
+          P.outcome = 'withdrew';
+        }
+        break;
+      }
       if (P.goalTile === 0) {
         chooseGoal(P, ctx);
       }
@@ -854,7 +886,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
         delete P.goalIdleSince;
         P.state = 'engage';
         P.stateSince = ctx.tick;
-      } else if (P.purpose !== 'restless' && P.purpose !== 'thief') {
+      } else if (P.purpose !== 'restless') {
         const leaderPos = positionOf(P.leaderId, ctx);
         const arrived = leaderPos >= 0 && P.goalTile !== 0 && chebyshevDist(leaderPos, P.goalTile, ctx.world.map) <= 1;
         if (arrived) {
@@ -1077,6 +1109,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
   if (P.goalTile === 0) return;
 
   if (P.purpose === 'thief') {
+    if (P.goalEntity === 0) return;
     let targetTile = P.goalTile;
     if (P.goalEntity !== 0) {
       if (entities.has(P.goalEntity, C.Item)) {

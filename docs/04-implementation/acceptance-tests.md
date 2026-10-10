@@ -254,7 +254,7 @@ A loaded ranged soldier on duty steps to a legal adjacent tile at its keep dista
 | `th_warning` | peril 2, first raid | `ThreatWarning` exactly `WARNING_DAYS` before `RaidArrived`; half under fog |
 | `th_loiter` | raid with the gate up | party loiters; `RaidEnded { withdrew }` after 2 days |
 | `th_retreat` | raid loses half its members | `RaidEnded { repelled }`; `raid_repelled` thought |
-| `th_thief` | snatcher, unattended barrel outdoors, no dogs | `ThiefEscaped` within a day; with a dog within 10 tiles: `ThiefSpotted` before pickup ≥ 80% of runs |
+| `th_thief` | snatcher, unattended barrel outdoors, no dogs | `ThiefEscaped` within a day; with a war-trained dog within 10 tiles: `ThiefSpotted` before pickup ≥ 80% of runs |
 | `th_troll_door` | trollkin at a locked door | `DoorBroken` after `DOOR_BREAK_TICKS` |
 | `th_deep` | mine 5 deepsilver tiles | `DeepStirred { 1 }`; 3 `hollow_crawler` emerge adjacent to the last mined tile |
 | `th_restless` | `old_battlefield`, autumn night | `RestlessRose`; all collapse at dawn |

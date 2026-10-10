@@ -40,6 +40,7 @@ import {
 import {
   checkPartyCasualties,
   chooseGoal,
+  releaseStolenAnimals,
   springAmbush,
   stepThreatMembers,
   stepThreatParties,
@@ -442,6 +443,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       if (partyId !== 0) {
         const P = ctx.world.entities.get(partyId, C.Party);
         if (P) {
+          if (event.type === 'CreatureDied') releaseStolenAnimals(cId, event['tile'] as TileIndex, P, ctx);
           checkPartyCasualties(partyId, P, ctx);
         }
       }

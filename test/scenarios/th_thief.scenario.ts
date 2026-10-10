@@ -1,7 +1,7 @@
 /**
  * `th_thief` of `04-implementation/acceptance-tests.md` § 18 Threats:
  * "snatcher, unattended barrel outdoors, no dogs | ThiefEscaped within a day;
- * with a dog within 10 tiles: ThiefSpotted before pickup ≥ 80% of runs"
+ * with a war-trained dog within 10 tiles: ThiefSpotted before pickup ≥ 80% of runs"
  */
 
 import { expect } from 'vitest';
@@ -63,7 +63,8 @@ const scenario: Scenario = {
 
       // Spawn a tame dog at (25, 8), which is within 10 tiles of the approach path
       const dogTile = trialWorld.index(25, 8, z);
-      trialWorld.spawnCreature('dog', dogTile, 'fortress');
+      // T-185: the guard in this trial is explicitly trained; untrained livestock do not spot.
+      trialWorld.spawnTame('dog', dogTile, { trained: 'war' });
 
       // Arrive snatcher at north edge (24, 0)
       arriveParty(

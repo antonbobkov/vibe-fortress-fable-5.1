@@ -1,6 +1,8 @@
 # T-185 — A thief that finds nothing to steal leaves empty-handed
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 21, G12, G13) · **Size:** S · **Needs:** T-169 · **Status:** open
+Closed by `T-185: thieves wait for quarry and release stolen animals on death`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 21, G12, G13) · **Size:** S · **Needs:** T-169 · **Status:** open
 
 ## Why
 
@@ -11,7 +13,7 @@ Two faults of the thief's goal.
 
 ## Reproduction
 
-[`thief.probe.ts`](../../reports/data/2026-10-09-bug-hunt-thief.probe.ts.txt). Case A: an empty flat-test map and one thief: `RaidEnded { outcome: 'looted' }`, no `ThiefEscaped`. Case B: a tame cat at (24, 15) as the only quarry, five seeds: `ThiefSpotted` and `withdrew` five times, the cat untouched.
+[`thief.probe.ts`](../../../reports/data/2026-10-09-bug-hunt-thief.probe.ts.txt). Case A: an empty flat-test map and one thief: `RaidEnded { outcome: 'looted' }`, no `ThiefEscaped`. Case B: a tame cat at (24, 15) as the only quarry, five seeds: `ThiefSpotted` and `withdrew` five times, the cat untouched.
 
 Read: `src/systems/threats/ai.ts:583–587` and `:976–983`; `ai.ts:39–58` (every conscious fortress creature is a spotter).
 
