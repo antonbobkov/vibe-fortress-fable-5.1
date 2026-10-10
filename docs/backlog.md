@@ -27,5 +27,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-187 | [Cosmetic findings of the spec reading](work/T-187-spec-reading-cosmetic-findings.md) | T-115 and [`../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../reports/audits/2026-10-09-bug-hunt-spec-reading.md) | T-186 | open |
 | T-188 | [A workshop job stalls for weeks and the fortress dies of thirst](work/T-188-still-stalls-and-the-fortress-dies-of-thirst.md) | T-140 and [`../reports/audits/2026-10-09-walking-speed.md`](../reports/audits/2026-10-09-walking-speed.md) | — | open |
 | T-190 | [The bandage_animal job is not produced for wounded tame animals](work/T-190-bandage-animal-job.md) | T-152 and its run of `hospital_run.scenario.ts` | — | open |
+| T-193 | [Initial cavern monsters emit no MonsterSpawned event upon cavern breach](work/T-193-cavern-breach-monster-event.md) | T-154 and its run of `descent.scenario.ts` | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. B-008 through B-012 await T-144 (the three wants as errands), T-188 (the stalled still) and T-145 (the fixture at default priorities); their measurement journal is in the [decision archive](archive/decisions-archive.md).

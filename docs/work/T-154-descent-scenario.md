@@ -34,7 +34,20 @@ The late game is played by nothing. Measured: no long run breaches a cavern, min
 2. Add it to `04-implementation/acceptance-tests.md` and to `testing-strategy.md` § The long scenarios.
 3. File a row for every step that commands cannot do and for every event that is never delivered.
 
+## Progress
+
+### 2026-10-09 — Stage 1 complete
+
+- Stage 1 completed: standard 96×96×48 local map with seed `descent`, wealth 3, peril 1, igneous geology; surface start with 12 dwarves and stocked hall (food, drink, tools, forge, smelter, materials); single stairs down at z=32, single stairs updown at z=31, shaft down to z=20, hallway at z=20, channel to ramp at z=19, ramp at (20, 46, 19), corridor breaching Cavern 1 at (23, 45, 19).
+- Assertions verified: `CavernBreached` (cavern: 1), `TilesDiscovered`, cavern tile discovered.
+- `MonsterSpawned` not delivered upon cavern breach (only wakeCavernMonsters flips state); filed bug row T-193 (`docs/work/T-193-cavern-breach-monster-event.md`).
+- Remaining stages:
+  - Stage 2: continue descent to second cavern (z=11), breach Cavern 2, construct wall and door across each breach by command, create squad and station at lowest door.
+  - Stage 3: deepsilver vein designation rejected `deepsilver_unconfirmed`, accepted after `ConfirmDeepsilver`, mine deepsilver, assert `DeepsilverMined`, `DeepStirred`, `MonsterEmerged`, smelt ore and forge deepsilver item.
+  - Stage 4: descent to magma sea (z=3), channel over magma, build magma smelter, magma forge, magma kiln, issue 1 order each without fuel consumed, assert dwarf near magma is not burned and magma fluid total is unchanged.
+
 ## Done
 
 - `descent` passes where it runs.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+
