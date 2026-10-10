@@ -258,6 +258,7 @@ A loaded ranged soldier on duty steps to a legal adjacent tile at its keep dista
 | `th_troll_door` | trollkin at a locked door | `DoorBroken` after `DOOR_BREAK_TICKS` |
 | `th_deep` | mine 5 deepsilver tiles | `DeepStirred { 1 }`; 3 `hollow_crawler` emerge adjacent to the last mined tile |
 | `th_restless` | `old_battlefield`, autumn night | `RestlessRose`; all collapse at dawn |
+| `descent` | standard-size igneous map, descend to Cavern 1, Cavern 2, deepsilver, magma sea | CavernBreached 1 and 2; shaft sealed by doors; squad on duty; DeepsilverMined ≥ 5; DeepStirred 1; MonsterEmerged; surface smelt and forge; channel over magma; magma_smelter, magma_forge, magma_kiln built; magma work orders without fuel; no dwarf burned; magma fluid total unchanged |
 
 Spawned hostile gear has no ground position while carried and remains foreign. On edge departure no item retains that member as owner or carrier; worn gear and spare weapons/ammunition all leave as `left_map`, while escaped loot is destroyed once as `stolen`. Death transfers all gear to the unowned corpse instead. Departing Wildwood guards take their spare daggers and arrows with them.
 

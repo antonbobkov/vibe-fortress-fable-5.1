@@ -1,6 +1,6 @@
 # T-154 — A descent: caverns, deepsilver, the Deep, magma workshops
 
-**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 5) · **Size:** L · **Needs:** — · **Status:** open
+**Source:** T-114 and its report, [`../../../reports/audits/2026-10-08-playthrough-coverage.md`](../../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 5) · **Size:** L · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -82,5 +82,5 @@ The late game is played by nothing. Measured: no long run breaches a cavern, min
 ## Done
 
 - `descent` passes where it runs.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
 
