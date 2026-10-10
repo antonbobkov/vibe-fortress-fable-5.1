@@ -60,7 +60,11 @@ A scenario with dwarves that runs for more than a few days must feed them. With 
 
 Exceptions name a concrete unit or property test that reaches the entry through a stepped world, an open backlog row, or the outside-tick emission of `WorldGenerated`. Every reason is nonempty, referenced test files exist, and task exceptions name open rows. Entries are named explicitly, so new catalog content needs new measured coverage or a checked exception. Removed catalog entries cannot remain exceptions. A missing producing path is filed as a task rather than implemented by the inventory.
 
+<<<<<<< Updated upstream
 The inventory excludes `core_calendar` (ten years), `td_schedule` (two years), `th_schedule` (three years), `th_warning` (two first-raid waits), `year_one` (one year), `homestead_year` (forty days), `three_years` (three years, performance tier), `descent` (the full multilevel fortress), `t195_train_needs` (thirty days), and `defence_year` (three stages of a defence fortress). Their own suites retain all assertions and execution. Short cases isolate their relevant rules: a real final cavern dig, a world starting near its first raid warning, the ramp and stair constructions, and clearing a workshop's blocked order to deliver its idle transition. A kiln's magma power has stepped coverage; recipes remain reserved for future glass in the workshop specification.
+=======
+The inventory excludes `core_calendar` (ten years), `td_schedule` (two years), `th_schedule` (three years), `th_warning` (two first-raid waits), `year_one` (one year), `homestead_year` (forty days), `three_years` (three years, performance tier), `descent` (the full multilevel fortress), `t195_train_needs` (thirty days of training), and `defence_year` (the full defended fortress). Their own suites retain all assertions and execution. Short cases isolate their relevant rules: a real final cavern dig, a world starting near its first raid warning, and the ramp and stair constructions. A kiln's magma power has stepped coverage; recipes remain reserved for future glass in the workshop specification.
+>>>>>>> Stashed changes
 
 ### The long scenarios
 

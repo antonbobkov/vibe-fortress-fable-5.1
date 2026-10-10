@@ -107,9 +107,16 @@ Order = kill { targetId } | station { tile } | patrol { tiles } | follow { dwarf
 - On `watchful` alert every squad is treated as `active`; on `hearth` alert the same, plus civilians retreat (10).
 - A member of a squad in `train` or `active` mode is on duty; one in `off` mode is on duty only under a `watchful` or `hearth` alert. Being on duty means: no flight, the military title, no interruption by the hearth alert, and attacking a visible hostile within perception. While a soldier's brain behavior is `need` (or `flee`, `retreat`, `patient`), squad code does not move the soldier, assign a training partner, or cancel the soldier's activity plan; the squad resumes control only when the soldier returns to `duty`. A critical need always takes precedence over duty in every mode. In `train` mode, want-level needs also take precedence over duty: training is ordinary duty, and the soldier goes to eat, drink or sleep and returns to training afterwards. In `active` mode with a hostile in sight, or when the squad has an explicit station, patrol, follow or kill order during an alert, a want-level need waits, but a critical need still wins.
 - `kill` orders queue and execute in the order issued, ahead of the standing order; a target's death completes its kill order. A new `station`, `patrol` or `follow` replaces the previous standing order of those three, preserving queued kills. The standing order resumes when the kill queue is empty. `kill` targets a creature (any faction; killing traders or peaceful wild animals has consequences in 20 and 08); `station` and `patrol` set the squad's position; `follow` follows a dwarf (an escort); `cancel` clears.
+
 - `CreateSquad { leaderId }` adds a nonzero leader as its first member with the same Soldier duty state as any member; a leader already in another squad rejects with `already_in_squad`. `SetSquadLeader` accepts 0 to clear the leader or a living adult member of that squad; a nonmember rejects with `not_found`.
 - `SetSquadEquipment` accepts partial preferences: `weaponClass` is `any` or an authored weapon class, `armor` is `metal`, `leather` or `any`, and `ranged` is a boolean. Invalid values or a non-record reject with `bad_setting` before any preference is stored.
 - The Warden, if any, is the leader of the first squad by default; leaders are chosen by the player otherwise. A squad without a leader still works.
+
+Sleeping and travel to a bed are need activities even outside training mode:
+squad positioning cannot replace their walk with a station or patrol walk.
+Completing the need returns the soldier to duty and resumes the standing order.
+A calm order alone does not defer a want. Alert orders hold wants regardless of
+the stored squad mode, but critical needs still interrupt them.
 
 ### Training
 
