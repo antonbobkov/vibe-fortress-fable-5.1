@@ -67,6 +67,33 @@ function startIdle(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): v
   if (!wasIdle) { ctx.emit({ type: 'DwarfIdle', id }); host.markIdle(id); }
 }
 
+/** Hunger, thirst and rest are served at step 6; social, comfort and joy at step 8. */
+const LEISURE: readonly NeedName[] = ['social', 'comfort', 'joy'];
+
+/** Noncritical targets stay outside the remembered danger around `avoidTile`. */
+function safeTargetOf(ctx: TickContext, avoidTile: TileIndex): ((tile: TileIndex) => boolean) | undefined {
+  if (avoidTile < 0) return undefined;
+  const map = ctx.world.map;
+  return (tile: TileIndex): boolean => tile >= 0 && (map.zOf(tile) !== map.zOf(avoidTile) ||
+    Math.max(Math.abs(map.xOf(tile) - map.xOf(avoidTile)), Math.abs(map.yOf(tile) - map.yOf(avoidTile))) > THREAT_RADIUS);
+}
+
+/**
+ * Steps 8 and 9, for a dwarf with no work: finish a talk in passing, else serve the highest of
+ * social, comfort and joy over its want threshold, else idle. `workOpen` is false when the dwarf
+ * cannot or may not work, so that an open job it will never take does not keep it from its wants.
+ */
+function leisureOrIdle(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain, safeTarget: ((tile: TileIndex) => boolean) | undefined, workOpen: boolean): void {
+  const n = ctx.world.entities.get(id, C.Needs);
+  if (n !== undefined && !workOpen) {
+    if (host.activities.linger(ctx, id, b)) return;
+    for (const want of ranked(n, false)) {
+      if (LEISURE.includes(want) && host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds(), safeTarget)) return;
+    }
+  }
+  startIdle(host, ctx, id, b);
+}
+
 /** Legal edges make the escape search obey stairs, ramps, corners, hatches and traffic. */
 export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId): TileIndex {
   const map = ctx.world.map;
@@ -182,11 +209,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
       avoidTile = remembered;
     }
   }
-  const safeTarget = avoidTile < 0 ? undefined : (tile: TileIndex): boolean => {
-    const map = ctx.world.map;
-    return tile >= 0 && (map.zOf(tile) !== map.zOf(avoidTile) ||
-      Math.max(Math.abs(map.xOf(tile) - map.xOf(avoidTile)), Math.abs(map.yOf(tile) - map.yOf(avoidTile))) > THREAT_RADIUS);
-  };
+  const safeTarget = safeTargetOf(ctx, avoidTile);
 
   const alert = ctx.readers.has('16')
     ? ctx.readers.of<{ alert(): string }>('16').alert()
@@ -257,11 +280,11 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
 
   if (n !== undefined && !urgent) {
     for (const want of ranked(n, false))
-      if (host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds(), safeTarget)) return;
+      if (!LEISURE.includes(want) && host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds(), safeTarget)) return;
   }
   const age = ctx.world.entities.get(id, C.Creature)?.ageTicks ?? ADULT_AGE_YEARS * TICKS_PER_YEAR;
   const child = age < ADULT_AGE_YEARS * TICKS_PER_YEAR;
-  if (host.dayOff(id)) { startIdle(host, ctx, id, b); return; }
+  if (host.dayOff(id)) { leisureOrIdle(host, ctx, id, b, safeTarget, false); return; }
   if (jobIdOf(ctx, id) !== 0) {
     host.clearIdle(id);
     b.behavior = 'work';
@@ -275,7 +298,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     b.behaviorUntil = ctx.tick;
     return;
   }
-  startIdle(host, ctx, id, b);
+  leisureOrIdle(host, ctx, id, b, safeTarget, false);
 }
 
 /** First need above its threshold, ordered by excess over the threshold and then needs-table order. */
@@ -368,7 +391,8 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
       reselect = jobIdOf(ctx, id) === 0;
     } else if (!(host.hasJobs && ctx.jobs.isQueued(id))) {
       // 11 answered and had nothing for this dwarf.
-      startIdle(host, ctx, id, b);
+      leisureOrIdle(host, ctx, id, b, safeTargetOf(ctx, host.threatTile?.(id) ?? -1),
+        host.hasJobs && ctx.readers.of<JobsReader>('11').hasWork(id));
     }
   } else if (b.behavior === 'flee') {
     const threatId = host.threatOf(id);

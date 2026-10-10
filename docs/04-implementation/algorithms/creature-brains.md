@@ -11,7 +11,7 @@ tickDwarf(id):
   if b.behavior == 'idle' and jobs.hasWork(id): select(id) immediately, from the current position
   if b.behavior == 'need' or 'social' or 'idle': runActivity(id) ; if activity finished: b.behavior = 'none'
   else if b.behavior == 'work': if Worker.jobId: jobs.stepWorker(id)
-                                  else if not jobs.isQueued(id): startIdle(id)
+                                  else if not jobs.isQueued(id): leisureOrIdle(id, jobs.hasWork(id))
   else if b.behavior == 'duty': (16 drives movement; nothing here)
   else if b.behavior in {'flee','retreat','patient'}: runMovementBehavior(id)
   if b.behavior == 'none' or interruptFlag[id]: select(id)
@@ -31,25 +31,46 @@ select(id):
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
   if combat.onDuty(id):                                         b.behavior = 'duty'; return
-  want = highest need over its want threshold
+  want = highest of hunger, thirst, rest over its want threshold
   if want and not (jobs.hasUrgent(id, NEED_DEFER_PRIORITY)):    startNeed(id, want, targets outside remembered danger); return
   if able to work: jobs.assign(id); b.behavior = 'work'; return   // queue; 11 skips targets inside remembered danger and answers later this tick
-  if want in {social, comfort, joy}:                            startNeed(id, want, targets outside remembered danger); return
+  leisureOrIdle(id, workOpen = false)                             // a day off, a wound, a child with no hauling
+leisureOrIdle(id, workOpen):                                      // also from tickDwarf when 11 answered nothing, with workOpen = jobs.hasWork(id)
+  if not workOpen:
+    if talks[id] and tick < talks[id].until: plan = stay here until talks[id].until; b.behavior = 'need'; return
+    leisure = highest of social, comfort, joy over its want threshold
+    if leisure:                                                 startNeed(id, leisure, targets outside remembered danger); return
   b.behavior = 'idle'; goal = hearthHallTile(id) or saved wagonTile or currentTile(id); activityEnd = tick + IDLE_TICKS; emit DwarfIdle once per stretch without a job (clear after real work)
 startNeed(id, need):
   switch need:
     hunger:  it = items.findItem({edible: true}, pos, 'walker', {reservable: true}) preferring category food/meal; if none: emit Starving? (only at 100); b.behavior='idle'; return
              reserve it; plan: walk to it, pick up, walk to nearest dining seat within DINING_SEARCH_RADIUS (else eat in place), EAT_TICKS, consume 1, N.hunger -= (meal ? 100 : 70), emit MealEaten
+             at a table: relief = seat room tier ≥ decent ? 40 : seat in hearth hall ? 20 : 0; if relief: N.comfort -= relief; emit Sat
+             hearthTime(id, EAT_TICKS)
     thirst:  barrel = find reservable drink directly in a stockpiled barrel, else nearest working well, else reachable water (level ≥ 1, not magma or frozen); if none: reachable loose alcohol
              water: horizontal radius 32, z−8..z+8; rank horizontal Chebyshev + |dz|*Z_DISTANCE_WEIGHT, ties by stand tile
-             plan: walk adjacent, DRINK_TICKS, consume 1 unit (barrel) ; N.thirst -= 100/80; emit DrankAlcohol/DrankWater{outdoors}
+             plan: walk adjacent, DRINK_TICKS, consume 1 unit (barrel) ; N.thirst -= 100/80; emit DrankAlcohol/DrankWater{outdoors}; hearthTime(id, DRINK_TICKS)
     rest:    bed = ownBed or freeUnassignedBed or hearthHallFloor or here; plan: walk, sleep until N.rest <= 0 or SLEEP_HOURS elapsed (−15/hour); emit Slept
     social:  plan: walk to hearth hall / meeting area; wait up to 200 ticks for another dwarf within 2; choose living awake partners on the same level within Chebyshev 2 (friends then id); if found: TALK_TICKS without interrupting the partner, N.social -= 40 (60 friends), relationships.talk++; emit Talked
-    comfort: chair = best-tier free chair reachable; plan: walk, sit SIT_TICKS, N.comfort -= 40 (hearth hall floor: 20); emit Sat
+    comfort: chair = best-tier free chair reachable; plan: walk, sit SIT_TICKS, N.comfort -= 40 (hearth hall floor: 20); emit Sat; hearthTime(id, SIT_TICKS)
     purpose: (no activity: relieved by work) → treat as idle
-    joy:     plan: walk to hearth hall, stay 100 ticks; N.joy -= 30; emit HearthVisited
+    joy:     plan: walk to hearth hall, stay HEARTH_VISIT_TICKS; N.joy -= 30; emit HearthVisited
   b.behavior = 'need'
+  when a hunger, thirst, comfort or joy plan finishes and talks[id] is still running: plan = stay here until talks[id].until
+hearthTime(id, ticks):                                            // only on a hearth-hall tile
+  hearthTicks[id] += ticks; if hearthTicks[id] >= HEARTH_VISIT_TICKS: delete hearthTicks[id]; N.joy -= 30; emit HearthVisited
+passingTalks():                                                   // 10's tick, before the brains, when tick % TALK_CHECK_TICKS == 0
+  canTalk(d) = alive and conscious and not asleep and no walk under way
+  for each talk (a < b), ascending a:
+    together = canTalk(a) and canTalk(b) and same level and Chebyshev distance <= 2
+    if together and tick < until: continue
+    delete the talk; if together: relieve both (40, friends 60), relationships.talk++, emit Talked
+  for each dwarf d, ascending id, with N.social >= want, canTalk(d), not in a talk, not on a social errand:
+    p = first friend, else first dwarf, among spatial.inRadius(tile(d), 2) ascending id on d's level with canTalk(p), not in a talk, not on a social errand
+    if p: talks[d] = talks[p] = { partner, until: tick + TALK_TICKS }
 ```
+
+Talks in passing and the hearth-hall tick counts are saved with 10's state and omitted when empty. A dead dwarf's talk and count are dropped.
 
 Hourly (on `HourPassed`): apply the rates in 10's Needs table, clamping 0..100. `endFactor = (150 − Endurance)/100` scales only hunger and awake rest; weather alone scales thirst, and sleeping rest uses the unscaled relief rate. Crossing a threshold sets a saved `interruptFlag`; critical crossing emits `NeedCritical`. Sleep schedule: at `sleepStartHour` with `N.rest > 20` set `interruptFlag` and prefer `rest`.
 

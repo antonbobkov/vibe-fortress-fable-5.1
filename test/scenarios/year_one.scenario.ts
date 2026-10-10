@@ -117,7 +117,9 @@ const scenario: Scenario = {
   run: (outer) => {
     const registry = outer.game.registry;
     const map = buildFlatTestMap(registry, 48, 48);
-    const w = new TestWorld({ seed: 'year-one', registry, map, embark: 'default' });
+    // The bootstrap economy and the trade year are measured without natural animal arrivals: one
+    // wild badger can kill six of the seven (T-144's run of this fixture, days 85 to 87).
+    const w = new TestWorld({ seed: 'year-one', registry, map, embark: 'default', surfaceWildlife: 'none' });
     const stopInvariants = watchInvariants(w.game, (findings) => expect(findings, `T-176 tick ${w.tick}`).toEqual([]));
 
     const arrival = w.game.arrival;
@@ -261,6 +263,13 @@ const scenario: Scenario = {
           type: 'AddWorkOrder',
           workshopId: placedIds['still'],
           order: { recipeId: 'brew', mode: 'maintain', threshold: 20 },
+        });
+        // A brew needs an empty barrel, and the stockpile keeps food and seed in the five the
+        // party brought: the player has one made for the still.
+        w.game.world.applyCommand({
+          type: 'AddWorkOrder',
+          workshopId: placedIds['carpenter'],
+          order: { recipeId: 'make_barrel', mode: 'once', remaining: 1 },
         });
       }
       if (!ordered.has('kitchen') && builtTicks['kitchen'] !== null) {

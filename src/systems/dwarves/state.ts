@@ -46,4 +46,8 @@ export interface DwarvesStateV1 {
   shutOut?: EntityId[];
   shelterCheckPending?: boolean;
   threatened?: [EntityId, { hostileId: EntityId; tick: number; tile?: TileIndex }][];
+  /** Talks in passing: the two dwarves, lower id first, and the tick the talk ends. Absent means none. */
+  talks?: [EntityId, EntityId, number][];
+  /** Ticks of eating, drinking and sitting in the hearth hall counted toward the next hearth visit. Absent means none. */
+  hearthTicks?: [EntityId, number][];
 }
