@@ -11,7 +11,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-111 | [UI audit follow-up: what the U tasks changed](work/T-111-ui-audit-follow-up.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) | — | open; cloud agent (chain B): mechanical draft done, the walkthrough remains |
+| T-111 | [UI audit follow-up: what the U tasks changed](work/T-111-ui-audit-follow-up.md) | [`../reports/audits/ui-audit.md`](../reports/audits/ui-audit.md) | — | in progress; cloud agent on `cloud/T-111`: mechanical draft done, the walkthrough remains |
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | T-140, T-144, T-145 (the performance tier includes the 20-seed balance sweep, which cannot pass before them) | open; local side (needs a quiet machine) |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, and the fix tasks of T-115 (T-169 … T-177, T-180 … T-187) | open; cloud agent (chain B) |
 | T-133 | [A refused malformed command cannot poison the next save](work/T-133-malformed-command-log-save.md) | T-184 and [`../reports/audits/2026-10-09-paused-command-log-save.md`](../reports/audits/2026-10-09-paused-command-log-save.md) | — | open; cloud agent (chain A, step 4); resolution accepted |
