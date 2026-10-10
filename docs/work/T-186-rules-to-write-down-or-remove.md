@@ -1,5 +1,39 @@
 # T-186 — Eighteen rules to write down or remove
 
+## Progress (2026-10-09, code half parked)
+
+The accepted code changes and fourteen regressions are preserved in stash
+`37c40b8e1e63f73dd3e14c530a876bef5166594d`
+(`T-186 code half: parked on homestead AnimalBorn after HAUL_PRIORITY 6`).
+Do not close this task yet. No source, fixture or golden change was committed.
+
+All six static checks passed. The full suite had 2,212 passing tests and two
+failures: `homestead_year`'s unchanged `AnimalBorn >= 1` assertion, and the
+world-hash golden. The homestead failure repeated in isolation. Restoring
+only the original `items/hauling.ts` makes that scenario pass; restoring only
+the original availability code does not. The accepted priority 6 changes the
+seed's animal RNG path: the first dog pregnancy starts at tick 19,201 (day
+16) and is due at tick 43,201, after the fixture ends at 41,200; with priority
+5 it starts at 10,801 and puppies are born at 34,801 (day 29). The sheep
+pregnancy is due at 57,601 in both runs. Making the annual fixture wait for
+a birth or changing its schedule would be tuning, so the task is parked
+under the owner's long-fixture rule. The fixture and all assertions remain
+unchanged.
+
+A separate hash diagnostic proves that restoring only the old availability
+counts restores all six old flat-test hashes exactly: carried starting
+clothes, plus one held crossbow and its bolts in `deepholm` at 5,000 elapsed
+ticks, no longer count as available. Upon resuming, regenerate
+`test/golden/world-hashes.json` with the prescribed command and name this
+reason in the commit body; world-map and local-map hashes do not move.
+
+Local evidence: `.vite/task-resume/t186-final-test.log` (403.74 s),
+`t186-homestead-repeat.log`, `t186-homestead-{current,old-counts,old-priorities}.json`
+and their logs, and `t186-hash-delta2.log`. The fixture instrument changes no
+commands or simulation rules and records pregnancy, slaughter and births.
+Next: resolve the fixture's short breeding observation window in its owning
+coverage task, then restore this stash, verify, and close T-186.
+
 **Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) ("Rules to write down or remove", G1 to G18) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
