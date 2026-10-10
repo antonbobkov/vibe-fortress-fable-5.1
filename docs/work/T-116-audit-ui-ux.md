@@ -29,6 +29,11 @@ Audit only. Change no source, test or spec file. Play the real game in a browser
 6. **What is still missing.** Commands with no UI, information a player needs but cannot see, and anything a Dwarf Fortress player would expect and not find.
 7. **The UI under abuse**, moved here from T-115 (way 6), which could not use a browser on the night it ran: rapid input, a resize in the middle of a drag, every panel opened at every screen size the spec allows, text fields with long and unusual input, and the modal screens opened from each other. With it, the second half of T-115's way 3: the same seed and the same commands issued in the same ticks through the UI and headless give the same world hashes.
 
+**Questions handed over from other tasks:**
+
+- From T-194: the magma kiln can be built and has no recipe (its recipes are reserved for glass, outside version 1). Should the build menu say so, or not offer it?
+- From T-115: way 6 of the bug hunt (the UI under abuse) and the UI half of its determinism check were not done and belong here.
+
 ## Deliverable
 
 A new dated report, `reports/audits/<YYYY-MM-DD>-ui-ux.md`:
