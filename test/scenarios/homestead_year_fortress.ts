@@ -391,8 +391,7 @@ export function runHomesteadYear(w: TestWorld): void {
   }).ok).toBe(true);
 
   // 9. Simulation loop
-  // Forty days include a dog conceived in the first sixteen days, its twenty-day
-  // gestation and a few days of margin; the birth assertion must not need an early roll.
+  // The script runs forty days; the first birth is awaited after it (below).
   const totalTicks = 40 * TICKS_PER_DAY;
   const orderedWorkshops = new Set<string>();
   let dogTrainInitiated = false;
@@ -630,7 +629,7 @@ export function runHomesteadYear(w: TestWorld): void {
   }
   console.log(`T-192 homestead_year wildlife: ${JSON.stringify({ spawns: wildSpawns, liveAtEnd: w.animals.reader().wildList().length, huntsCompleted: w.events('JobCompleted').filter((ev) => ev['jobType'] === 'hunt').length, huntKills: w.events('HuntKill').length })}`);
 
-  // Snapshot events at the end of the script (day 40) so all other assertions are evaluated at the day they are evaluated now
+  // Everything but the birth is read at the end of the forty-day script.
   const completedJobs = new Set(w.events('JobCompleted').map((e) => e['jobType']));
   const craftedRecipes = new Set(w.events('ItemCrafted').map((e) => e['recipeId']));
   const animalTrainedCount = w.events('AnimalTrained').length;
@@ -639,21 +638,22 @@ export function runHomesteadYear(w: TestWorld): void {
   const starvationCount = w.events('Starvation').length;
   const dwarfDeaths = w.events('CreatureDied').filter((d) => dwarves.includes(d['id'] as number));
 
-  // Conception is a daily roll; a fixed end day made the test depend on the random sequence; T-186 and T-144 both tripped it.
-  // After the existing end of the script, keep stepping the world (no new commands) until an AnimalBorn event has been delivered,
-  // up to a hard limit of the current end day plus two full gestation periods plus ten days; assert that the birth happened
-  // within that limit, and print the day it happened.
-  const currentEndDay = Math.floor(w.tick / TICKS_PER_DAY);
-  const dogGestationDays = 20;
-  const hardLimitDay = currentEndDay + 2 * dogGestationDays + 10;
-  const hardLimitTick = hardLimitDay * TICKS_PER_DAY;
-  while (w.events('AnimalBorn').length === 0 && w.tick < hardLimitTick) {
-    w.step(Math.min(600, hardLimitTick - w.tick));
-  }
-  const birthEvents = w.events('AnimalBorn');
-  const birthDay = birthEvents.length > 0 ? (Math.floor(w.tick / TICKS_PER_DAY) + 1) : null;
-  console.log(`AnimalBorn: delivered on day ${birthDay}`);
-  expect(birthEvents.length, 'event: AnimalBorn within hard limit').toBeGreaterThanOrEqual(1);
+  // Conception is a daily roll, so a fixed end day made the birth depend on one random sequence
+  // (T-186 and T-144 both tripped it). After the script, the world steps on with no new command
+  // until the first AnimalBorn, for at most two of the dog's gestations and ten days more.
+  const creatures = w.game.registry.table<{ id: string; breeding?: { gestationDays: number } }>('creatures');
+  const dogBreeding = creatures.byIndex(creatures.index('dog'))?.breeding;
+  if (dogBreeding === undefined) throw new Error('homestead_year: the dog has no breeding row');
+  const hardLimitTick = (Math.floor(w.tick / TICKS_PER_DAY) + 2 * dogBreeding.gestationDays + 10) * TICKS_PER_DAY;
+  // A birth inside the forty days is stamped with the script's last tick.
+  let birthTick: number | null = w.events('AnimalBorn').length > 0 ? w.tick : null;
+  const stopBirthWatch = w.game.world.onEvents((events) => {
+    if (birthTick === null && events.some((e) => e.type === 'AnimalBorn')) birthTick = w.tick;
+  });
+  while (birthTick === null && w.tick < hardLimitTick) w.step(Math.min(600, hardLimitTick - w.tick));
+  stopBirthWatch();
+  console.log(`homestead_year first AnimalBorn: ${birthTick === null ? 'none' : `by day ${Math.floor(birthTick / TICKS_PER_DAY) + 1}`}`);
+  expect(w.events('AnimalBorn').length, 'event: AnimalBorn').toBeGreaterThanOrEqual(1);
 
   // 1. Job types completed
   expect(completedJobs.has('slaughter'), 'job: slaughter').toBe(true);

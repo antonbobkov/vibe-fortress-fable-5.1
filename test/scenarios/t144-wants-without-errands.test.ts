@@ -140,7 +140,9 @@ describe('T-144 wants without errands', () => {
       }
     }
   });
+});
 
+describe('T-197 at a high mark one sit in the hearth hall comes before ordinary work', () => {
   it('twelve hauls a day: below the high mark the wants wait for work, at the mark one sit in the hall comes first', () => {
     const p = play(12);
     premises(p, 12);

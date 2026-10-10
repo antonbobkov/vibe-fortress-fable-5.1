@@ -117,9 +117,7 @@ const scenario: Scenario = {
   run: (outer) => {
     const registry = outer.game.registry;
     const map = buildFlatTestMap(registry, 48, 48);
-    // T-196: no natural animal arrivals for now. One wild badger killed six of the seven dwarves
-    // on days 85 to 87 of this fixture. Restore natural arrivals when T-196 lands.
-    const w = new TestWorld({ seed: 'year-one', registry, map, embark: 'default', surfaceWildlife: 'none' });
+    const w = new TestWorld({ seed: 'year-one', registry, map, embark: 'default' });
     const stopInvariants = watchInvariants(w.game, (findings) => expect(findings, `T-176 tick ${w.tick}`).toEqual([]));
 
     const arrival = w.game.arrival;
