@@ -5,6 +5,7 @@
 
 import { expect } from 'vitest';
 import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
 import { TileKind, TileFlag } from '@core/map3d';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
@@ -402,6 +403,89 @@ export function checkDefenceYearBuildings(w: TestWorld, state: DefenceYearState)
       console.log(`SetTrapMode on stone_fall_trap issued at tick ${w.tick}`);
     }
   }
+
+  // 13. Form squad of 4 with a leader once barracks zone exists and day >= 25
+  if (!state.squadFormed && state.barracksZoneId !== 0 && w.tick >= 25 * TICKS_PER_DAY) {
+    const combat = w.readers.of<CombatReader>('16');
+    const adultDwarves = w.game.world.entities.with(C.Labors).filter((id) => {
+      const c = w.game.world.entities.get(id, C.Creature);
+      return c?.faction === 'fortress';
+    });
+
+    if (adultDwarves.length >= 4) {
+      // Ensure Dwarf 1 and 2 have civilian labors enabled
+      if (adultDwarves[1]) {
+        w.game.world.applyCommand({ type: 'SetLabor', dwarfId: adultDwarves[1], labor: 'mechanics', on: true });
+        w.game.world.applyCommand({ type: 'SetLabor', dwarfId: adultDwarves[1], labor: 'hauling', on: true });
+        w.game.world.applyCommand({ type: 'SetLabor', dwarfId: adultDwarves[1], labor: 'smithing', on: true });
+        w.game.world.applyCommand({ type: 'SetLabor', dwarfId: adultDwarves[1], labor: 'masonry', on: true });
+      }
+      if (adultDwarves[2]) {
+        w.game.world.applyCommand({ type: 'SetLabor', dwarfId: adultDwarves[2], labor: 'mechanics', on: true });
+        w.game.world.applyCommand({ type: 'SetLabor', dwarfId: adultDwarves[2], labor: 'hauling', on: true });
+        w.game.world.applyCommand({ type: 'SetLabor', dwarfId: adultDwarves[2], labor: 'smithing', on: true });
+        w.game.world.applyCommand({ type: 'SetLabor', dwarfId: adultDwarves[2], labor: 'masonry', on: true });
+      }
+
+      const rSquad = w.game.world.applyCommand({ type: 'CreateSquad', name: 'Iron Guard' });
+      if (rSquad.ok) {
+        state.squadId = combat.squads().find((s) => s.name === 'Iron Guard')?.id ?? 0;
+        const members = adultDwarves.slice(3, 7);
+        if (members.length < 4) {
+          members.push(...adultDwarves.slice(0, 4 - members.length));
+        }
+        w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: state.squadId, members });
+        for (const m of members) {
+          w.game.world.applyCommand({ type: 'SetLabor', dwarfId: m, labor: 'woodcutting', on: false });
+          w.game.world.applyCommand({ type: 'SetLabor', dwarfId: m, labor: 'mining', on: false });
+        }
+        w.game.world.applyCommand({ type: 'SetSquadLeader', squadId: state.squadId, leaderId: members[0]! });
+        w.game.world.applyCommand({
+          type: 'SetSquadEquipment',
+          squadId: state.squadId,
+          equipment: { weaponClass: 'sword', armor: 'metal' },
+        });
+        w.game.world.applyCommand({
+          type: 'SetZoneSetting',
+          zoneId: state.barracksZoneId,
+          key: 'squad',
+          value: state.squadId,
+        });
+        if (state.archeryRangeZoneId !== 0) {
+          w.game.world.applyCommand({
+            type: 'SetZoneSetting',
+            zoneId: state.archeryRangeZoneId,
+            key: 'squad',
+            value: state.squadId,
+          });
+        }
+        w.game.world.applyCommand({ type: 'SetSquadMode', squadId: state.squadId, mode: 'train' });
+        state.squadFormed = true;
+        console.log(`Squad formed with ${members.length} members at tick ${w.tick}`);
+      }
+    }
+  }
+
+  // Ensure archery range is assigned to squad if created later
+  if (state.squadId !== 0 && state.archeryRangeZoneId !== 0) {
+    const rangeZone = buildings.zone(state.archeryRangeZoneId);
+    if (rangeZone && rangeZone.settings['squad'] !== state.squadId) {
+      w.game.world.applyCommand({
+        type: 'SetZoneSetting',
+        zoneId: state.archeryRangeZoneId,
+        key: 'squad',
+        value: state.squadId,
+      });
+    }
+  }
+
+  if (state.squadFormed && state.squadId !== 0) {
+    const combat = w.readers.of<CombatReader>('16');
+    const squad = combat.squad(state.squadId);
+    if (squad && squad.mode !== 'train') {
+      w.game.world.applyCommand({ type: 'SetSquadMode', squadId: state.squadId, mode: 'train' });
+    }
+  }
 }
 
 export function runDefenceYear(): void {
@@ -411,6 +495,14 @@ export function runDefenceYear(): void {
   const fortressState = setupThreeYearsFortress(w);
   const { cx, cy } = fortressState;
   const buildings = w.readers.of<BuildingsReader>('14');
+
+  w.game.world.onEvents((events) => {
+    for (const e of events) {
+      if (e.type === 'CreatureDied') {
+        console.log(`[DEATH] tick ${w.tick} (day ${Math.floor(w.tick / TICKS_PER_DAY)}) id ${e['id']} name ${e['name']} cause ${e['cause']} killer ${e['killerId']} tile ${e['tile']}`);
+      }
+    }
+  });
 
   const state: DefenceYearState = {
     fortress: fortressState,
@@ -446,6 +538,23 @@ export function runDefenceYear(): void {
   w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'smithing', priority: 2 });
   w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'cleaning', priority: 2 });
 
+  // Remove distant tree designations created by setupThreeYearsFortress so dwarves don't wander into wolf territory
+  const distantTrees: number[] = [];
+  for (let y = 0; y < w.map.h; y++) {
+    for (let x = 0; x < w.map.w; x++) {
+      if (x < cx - 2 || x > cx + 10 || y < cy - 2 || y > cy + 18) {
+        const t = w.index(x, y, Z);
+        if (w.map.kindAt(t) === TileKind.Tree) {
+          distantTrees.push(t);
+        }
+      }
+    }
+  }
+  if (distantTrees.length > 0) {
+    const rUndo = w.game.world.applyCommand({ type: 'UndoDesignation', tiles: distantTrees });
+    console.log(`UndoDesignation for ${distantTrees.length} distant trees:`, rUndo);
+  }
+
   // Chop trees in the defense area (x = cx + 4..cx + 8, y = cy + 4..cy + 16)
   const treesToChop: number[] = [];
   for (let y = cy + 4; y <= cy + 16; y++) {
@@ -461,10 +570,10 @@ export function runDefenceYear(): void {
   // Initial placement of defense buildings and workshops before economy workshops can claim tiles
   checkDefenceYearBuildings(w, state);
 
-  // Step up to Day 45 (or until Stage 2 conditions are met) and manage workshop orders
-  const stage2Ticks = 45 * TICKS_PER_DAY;
-  while (w.tick < stage2Ticks) {
-    stepThreeYears(w, Math.min(100, stage2Ticks - w.tick));
+  // Step up to Day 35 and manage workshop orders and training
+  const stage3Ticks = 35 * TICKS_PER_DAY;
+  while (w.tick < stage3Ticks) {
+    stepThreeYears(w, Math.min(100, stage3Ticks - w.tick));
     checkDefenceYearBuildings(w, state);
     checkFortressWorkOrders(w, fortressState);
     checkFortressRooms(w, fortressState);
@@ -605,4 +714,37 @@ export function runDefenceYear(): void {
   expect(w.events('MechanismTriggered').some((e) => e['sourceId'] === state.leverId)).toBe(true);
   expect(state.bridgeRaised).toBe(true);
   expect(w.readers.of<DefenseReader>('19').trapMode(state.stoneFallTrapId)).toBe('enemies');
+
+  // Stage 3 Assertions
+  expect(state.squadId).toBeGreaterThan(0);
+  expect(state.squadFormed).toBe(true);
+  const combat = w.readers.of<CombatReader>('16');
+  const squad = combat.squads().find((s) => s.id === state.squadId);
+  expect(squad).toBeDefined();
+  expect(squad?.members.length).toBe(4);
+  expect(squad?.leaderId).toBeGreaterThan(0);
+  expect(squad?.mode).toBe('train');
+
+  // Verify training sessions occurred
+  const trainingEvents = w.events('TrainingSession');
+  console.log(`TrainingSession events count: ${trainingEvents.length}`);
+  expect(trainingEvents.length).toBeGreaterThan(0);
+
+  // Verify at least one squad member's weapon skill rose
+  const members = squad?.members ?? [];
+  const swordSkillIdx = w.game.registry.table('skills').index('sword');
+  const skillsWithGains = members.map((m) => {
+    const skills = w.game.world.entities.get(m, C.Skills);
+    const equip = w.game.world.entities.get(m, C.Equipment);
+    return {
+      id: m,
+      swordXp: skills?.xp[swordSkillIdx] ?? 0,
+      swordLevel: skills?.level[swordSkillIdx] ?? 0,
+      weapon: equip?.weapon ?? 0,
+    };
+  });
+  console.log('Squad members combat stats:', JSON.stringify(skillsWithGains));
+
+  const gainedWeaponSkill = skillsWithGains.some((s) => s.swordXp > 0 || s.swordLevel > 0);
+  expect(gainedWeaponSkill).toBe(true);
 }
