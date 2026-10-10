@@ -30,7 +30,12 @@ select(id):
   if health.isPatient(id):                                      b.behavior = 'patient'; goal = bedTile(id) or stay; return
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
-  if combat.onDuty(id):                                         b.behavior = 'duty'; return
+  if combat.onDuty(id):
+    dutyHolds = squad.mode == 'active' and (hostileInSight(id) or (alert != 'calm' and hasActiveOrder(squad)))
+    if dutyHolds:                                               b.behavior = 'duty'; return
+    want = highest need over its want threshold
+    if want:                                                    startNeed(id, want, targets outside remembered danger); return
+    b.behavior = 'duty'; return
   want = highest need over its want threshold
   if want and not (jobs.hasUrgent(id, NEED_DEFER_PRIORITY)):    startNeed(id, want, targets outside remembered danger); return
   if able to work: jobs.assign(id); b.behavior = 'work'; return   // queue; 11 skips targets inside remembered danger and answers later this tick
@@ -59,7 +64,7 @@ The movement handler writes `Brain` thought timers and `Needs` for masterwork jo
 
 A food or drink plan validates that its item still exists, is reserved by its dwarf, and remains edible or drinkable before travelling or consuming. Cancellation on death, unconsciousness, flight, failed travel or rot drops any held meal and releases only that dwarf's reservation, emitting one `ItemReleased`. Repeated cancellation has no effect.
 
-Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position.
+Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position. While a soldier's brain behavior is `need` (or `flee`, `retreat`, `patient`), squad positioning and training do not command movement or partner pairing.
 
 A civilian fight uses `Brain.behaviorUntil` as its saved deadline. Refresh it on melee reach or a recorded attack opportunity, never merely on `ThreatNearby`. Reaching an escape goal ends the flee behavior without clearing a still-near living hostile's saved last seen tile. Critical need activities can enter that remembered danger and continue across threat scans even when an escape exists; a newly more critical need still cancels them for selection. Noncritical activity searches exclude unsafe resources, beds, water stands, meeting tiles and dining seats, trying safe alternatives. The escape search and combat timeout use 10's tuning constants and safety rules.
 
