@@ -1,6 +1,7 @@
 /** 02-systems/09-hunting-gathering-fishing.md § Tuning constants. */
 export const HUNT_MIN_SIZE = 10;
 export const FISH_PER_TILE = 2;
+export const FISH_BANK_DROP = 2;
 export const FISH_REGEN_PERCENT = 5;
 export const MIN_FISHING_TILES = 6;
 export const FISH_TICKS = 200;

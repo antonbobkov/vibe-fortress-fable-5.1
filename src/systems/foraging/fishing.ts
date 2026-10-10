@@ -1,7 +1,7 @@
 import { FLUID_DEEP_LEVEL } from '@core/constants';
-import { FluidType, TileFlag, type Map3D } from '@core/map3d';
+import { FluidType, TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { TileIndex } from '@core/types';
-import { FISH_PER_TILE, MIN_FISHING_TILES } from './constants';
+import { FISH_BANK_DROP, FISH_PER_TILE, MIN_FISHING_TILES } from './constants';
 
 export type BodyKind = 'river' | 'lake' | 'cavern';
 export interface WaterBody { id: number; version: number; tileCount: number; fishPool: number; kind: BodyKind; }
@@ -46,4 +46,18 @@ export function water(map: Map3D, tile: TileIndex): boolean {
 export function fishingWater(map: Map3D, tile: TileIndex): boolean {
   if (map.fluidLevelAt(tile) < FLUID_DEEP_LEVEL || map.fluidTypeAt(tile) !== FluidType.Water || map.fluidFrozenAt(tile)) return false;
   return !cardinal(map, tile).some((n) => map.fluidLevelAt(n) > 0 && map.fluidTypeAt(n) === FluidType.Magma);
+}
+
+/** The bank's cardinal shore column: only open air may separate it from lower water. */
+export function waterOfBank(map: Map3D, bank: TileIndex): TileIndex {
+  if (!map.validIndex(bank)) return -1;
+  for (const shore of cardinal(map, bank)) {
+    let tile = shore;
+    for (let drop = 0; drop <= FISH_BANK_DROP; drop += 1) {
+      if (fishingWater(map, tile)) return tile;
+      if (map.kindAt(tile) !== TileKind.Open || map.fluidLevelAt(tile) !== 0 || map.zOf(tile) === 0) break;
+      tile = map.index(map.xOf(tile), map.yOf(tile), map.zOf(tile) - 1);
+    }
+  }
+  return -1;
 }
