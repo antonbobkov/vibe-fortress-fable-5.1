@@ -1,6 +1,6 @@
 # T-150 — `full-year` plays its year through the real UI
 
-**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 3; bugs 4 and 5) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 3; bugs 4 and 5) · **Size:** M · **Needs:** — · **Status:** in progress (t-150)
 
 ## Why
 
@@ -16,6 +16,9 @@ So no test shows that a player can run a fortress for a year with the keyboard a
 - **The spec trades once.** When the Hillfolk caravan stands at the depot it marks goods through the depot panel, opens the session and completes one offer through the trade screen, as `trade-session` does. It asserts one `TradeCompleted`.
 - **The spec asserts that no dwarf died**, by counting `CreatureDied` events of faction `fortress` whose species is the dwarf.
 - **It also uses, once each and with an assertion on the result:** the jobs panel (the list shows a dig job), the stocks panel (the drink count matches the reader), `Ctrl+Z` on a designation, and a quick save followed by a quick load in mid-summer with the world hash equal before and after.
+- **Food margin:** Make the fortress one a sensible player would run: enough farm plots for the population by the spec's own figure (`docs/03-content/balance.md`: food chain 0.25 plants per farm tile per day, 0.48 food units and 0.77 drinks per dwarf per day), a cook and a brewer with standing orders, a barrel order when the still is built. Assertions: on the last day meals + plant food >= 10 days for living dwarves, drink >= 10 days, and no `Starving` event occurred all year.
+- **Wild animals:** Kept on (do not switch them off). If a threat is announced, respond through the UI as a player would. If a civilian is killed by a hungry predator despite sensible response, record details in Progress, mark that single assertion `test.fixme` naming task T-212.
+- **Bugs:** Any game bug discovered when executing keymap actions is filed in `docs/backlog.md` (T-200 to T-209) and `docs/work/T-20n-<slug>.md` with exact keys pressed and reader output; the hook is then used for that one step naming the task.
 
 ## What to do
 
@@ -23,6 +26,15 @@ So no test shows that a player can run a fortress for a year with the keyboard a
 2. Add the trade, the death assertion and the four small uses above.
 3. Correct the `full-year` sentence of `testing-strategy.md` § E2E harness so that it says what the spec does: played through the UI, time stepped through the hook after the first day.
 4. Run `npm run test:e2e`.
+
+## Progress
+
+### 2026-10-10 (Stage 1)
+- Moved shared E2E helpers (`ui`, `tilePixel`, `clickTile`, `dragTiles`, `textCell`, `clickText`) into `test/e2e/helpers.ts`.
+- Updated `build-and-stockpile.spec.ts`, `zones-editor.spec.ts`, and `farm-plot-and-orders.spec.ts` to import them from `./helpers`.
+- Remaining `applyCommand` calls in `full-year.spec.ts`: 23. Remaining `submit` calls: 0.
+- `full-year.spec.ts` runtime: ~47.0s.
+- Whole E2E suite passes (24 tests, ~3.1m).
 
 ## Done
 
