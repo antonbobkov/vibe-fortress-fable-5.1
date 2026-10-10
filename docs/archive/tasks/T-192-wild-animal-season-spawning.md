@@ -1,10 +1,12 @@
 # T-192 — Wild animals never spawn in year >= 1
 
+Closed by `T-192: wild animals spawn`.
+
 **Source:** T-153 and its run of `homestead_year.scenario.ts` · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
-[`docs/02-systems/08-animals-and-domestication.md`](../02-systems/08-animals-and-domestication.md) § Wild spawning specifies:
+[`docs/02-systems/08-animals-and-domestication.md`](../../02-systems/08-animals-and-domestication.md) § Wild spawning specifies:
 > "Each day at dawn (`TICK_HOUR === 6`), for each biome present on the surface and each eligible species from `creatures` whose `season` includes the current season..."
 
 In `src/systems/animals/index.ts:476` (`daily(ctx)`):

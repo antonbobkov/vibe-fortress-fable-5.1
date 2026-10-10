@@ -473,7 +473,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
 
   /** `creature-brains.md`: "Daily: spawning per 08 …, lifetime and cap checks (`leave`)." */
   private daily(ctx: TickContext): void {
-    const season = ctx.readers.calendar.year * 4 + ctx.readers.calendar.season;
+    const season = ctx.readers.calendar.season;
     this.cavernTileCache = [null, null, null, null];
     for (const group of dailySpawn(this.spawner, season)) {
       for (const id of group.ids) ctx.emit({ type: 'AnimalSpawned', id, species: this.facts.idOf(group.species) });

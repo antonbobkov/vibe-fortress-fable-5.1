@@ -449,6 +449,13 @@ const scenario: Scenario = {
       deaths: deathCounts(w), stocks, waves, caravanDay, trades: tradesDone,
       crafted: w.events('ItemCrafted').length, harvested: harvests, blocked })}`);
 
+    const wildSpawns: Record<string, number> = {};
+    for (const ev of w.events('AnimalSpawned')) {
+      const species = String(ev['species']);
+      wildSpawns[species] = (wildSpawns[species] ?? 0) + 1;
+    }
+    console.log(`T-192 year_one wildlife: ${JSON.stringify({ spawns: wildSpawns, liveAtEnd: w.animals.reader().wildList().length, huntsCompleted: w.events('JobCompleted').filter((ev) => ev['jobType'] === 'hunt').length, huntKills: w.events('HuntKill').length })}`);
+
     stopInvariants();
     expect(checkInvariants(w.game), 'T-176 year end invariants').toEqual([]);
 

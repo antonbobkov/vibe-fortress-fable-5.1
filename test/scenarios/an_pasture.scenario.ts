@@ -7,6 +7,8 @@ import type { Scenario } from './runner';
 
 const scenario: Scenario = {
   id: 'an_pasture', milestone: 4, seed: 'an-pasture', world: 'flat-test', embark: 'none',
+  // T-192: this tests domestic feeding/breeding on its fixed grass patch without wild competitors.
+  surfaceWildlife: 'none',
   run: (w) => {
     const tiles = Array.from({ length: 20 }, (_, n) => w.index(8 + n % 5, 8 + Math.floor(n / 5), FLAT_TEST_SURFACE_Z));
     for (const tile of tiles) w.map.setFlag(tile, TileFlag.Grass, true);

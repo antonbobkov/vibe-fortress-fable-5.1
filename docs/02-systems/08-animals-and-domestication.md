@@ -36,7 +36,7 @@ Every animal has a brain state and a `thinkEvery` interval: `WILD_THINK_TICKS` f
 States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 
 - `idle` → after a random 20–100 ticks, `graze` (grazers, if grass in radius 6), `wander` (a random walkable tile within `WANDER_RADIUS` of the home chunk), or `sleep` if it is the species' rest time (night for diurnal, day for nocturnal). A wander ends on arrival or after `WANDER_TIMEOUT_TICKS = 200`.
-- `graze`: walk to a grass tile; on arrival, clear its grass (`GrassGrazed`), stay `GRAZE_TICKS`, then `idle`.
+- `graze`: grass in a pasture zone is eligible like other grass; zones do not fence out wild animals. Walk to a grass tile; on arrival, clear its grass (`GrassGrazed`), stay `GRAZE_TICKS`, then `idle`.
 - Threat check every think: a *threat* is any creature of a faction the species fears: for `timid`, dwarves, hostiles and carnivores; for `neutral`, anything that attacked it; for `territorial`, nothing, but any dwarf within `TERRITORY_RADIUS` triggers `attack`; for `aggressive` carnivores, any prey (species with `size < own size × 0.8` and not carnivore) or dwarf within perception triggers `hunt` when hungry, else enters `attack` when a dwarf approaches within `APPROACH_RADIUS = 3`.
 - `flee`: run to the tile in perception that maximizes distance from all threats, re-evaluated every think for `FLEE_TICKS`; if a map edge is within perception, use `leave` instead.
 - `hunt`: path to the prey; when adjacent, `attack`. Predators are *hungry* every `PREDATOR_HUNGER_DAYS` days and stop hunting after a kill (they eat the corpse over `EAT_CORPSE_TICKS`, which consumes the corpse item).
@@ -44,6 +44,8 @@ States: `idle`, `graze`, `wander`, `flee`, `hunt`, `attack`, `sleep`, `leave`.
 - `leave`: path to the nearest map edge tile and despawn on arrival. Wild animals leave when their species count exceeds the biome cap, when they have been on the map longer than `WILD_LIFETIME_DAYS`, or when fleeing reaches an edge.
 
 ### Wild spawning
+
+Species eligibility uses the season of the year (`0` spring, `1` summer, `2` autumn, `3` winter), independent of the year number.
 
 - Each `DayPassed`, for each species in the biome's list for the current season (some species are seasonal, for example `elk` in autumn and winter), if `count(species, wild) < cap(species, biome)`: with `min(1000, floor(SPAWN_PERMILLE × weight / 100))`, with weight a percentage of the base rate, spawn a group of `groupSize` at a walkable outdoor edge tile at least `SPAWN_MIN_DISTANCE` from any dwarf, with `home` set to the spawn chunk. The region-trait hooks govern wildlife: `beastwood` multiplies all caps by 1.5, then wolf and bear caps by 2, and doubles those species' groups; `serene_vale` doubles grazer caps and removes wolves, bears and snow leopards; `fungal_depths` multiplies cavern caps by 1.5. Each cap multiplier rounds up.
 - On the first breach of each cavern with nonzero fauna `cavern.initial`, spawn that many individuals of each eligible fauna species on random walkable cavern floor tiles in that species' movement class, limited by its remaining live cap and `MAX_CREATURES`. No fauna thinks in an unbreached cavern. Record the tier as initialized even when caps or lack of safe tiles prevent a spawn; repeated breach notifications and loading never retry the initial population. A zero initial count consumes no spawning randomness and needs no saved completion entry. After breach, fauna respawns by the existing daily rule.
