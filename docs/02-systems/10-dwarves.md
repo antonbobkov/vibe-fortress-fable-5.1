@@ -42,9 +42,9 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 | thirst | 1.6 (× `weather.thirstModifier()`) | drink: alcohol −100, water −80 | 50 | 85 |
 | rest | 5 awake; −15 per hour asleep | sleeping | 60 | 90 |
 | social | 2 | talking: −40 per conversation | 50 | none |
-| comfort | 1 | sitting in a room of tier ≥ decent −40 per sit; hearth hall −20 | 55 | none |
+| comfort | 1 | sitting in a room of tier ≥ decent −40 per sit; hearth hall −20; a meal at a table is a sit | 55 | none |
 | purpose | 2 while idle; −10 per hour of work | working | 60 | none |
-| joy | 0.75 | hearth hall visit −30; mist −30; fine meal −20; seeing a masterwork −10 | 60 | none |
+| joy | 0.75 | hearth hall visit −30, which eating, drinking and sitting in the hall add up to; mist −30; fine meal −20; seeing a masterwork −10 | 60 | none |
 
 - A need at or above its critical threshold interrupts any job (11 returns the job to open with progress kept) and takes precedence in behavior selection. Hunger or thirst at `NEED_MAX` for `STARVE_DAYS` (hunger) or `DEHYDRATE_DAYS` (thirst) causes daily `Starvation { id }` damage through 17; at `NEED_MAX` one `Starving { id, need }` announcement (alert) fires per dwarf per day, naming hunger when both hunger and thirst are maxed. Daily starvation requests fire once if either duration has elapsed.
 - Threshold crossings and the sleep schedule set saved `interruptFlags` for the next behavior selection; a critical crossing emits `NeedCritical`, which 11 consumes to return an interruptible job to open with progress kept.
@@ -58,6 +58,8 @@ A food or drink errand reserves one unit under the dwarf's id. Death, unconsciou
 - Food search: nearest reachable edible item that is not forbidden or reserved, preferring `meal` items, then raw food, using 13's `findItem`. The dwarf carries it to the nearest dining hall chair with a table if one is within `DINING_SEARCH_RADIUS`, else eats on the spot. Emits `MealEaten { id, quality, atTable, roomTier }`.
 - Drink search: alcohol in a barrel in a stockpile, else a well with water, else the nearest reachable water tile of level ≥ 1 (not frozen) within 32 tiles horizontally and 8 levels up or down, drunk from any walkable tile 8-adjacent to it on its level. Rank water targets by horizontal Chebyshev distance plus vertical distance times `Z_DISTANCE_WEIGHT`, ties by the stand tile index. If none of the listed sources is reachable, a reachable loose alcohol item is a last resort; consume one unit and emit the same `DrankAlcohol` event. Emits `DrankAlcohol { id, quality }` or `DrankWater { id }` (dwarves prefer ale; water gives a mild negative thought).
 - Eating and drinking take `EAT_TICKS` and `DRINK_TICKS`.
+- A meal eaten at a table is also a sit in the room of its chair. It relieves comfort as a sit there would and emits `Sat { id, roomTier }`: −40 in a room of tier ≥ decent, −20 in the hearth hall, nothing at a table in neither.
+- A meal or a drink finished on a hearth-hall tile counts its `EAT_TICKS` or `DRINK_TICKS` toward a hearth visit (§ Social, comfort, joy).
 - Patients are fed by care jobs (17).
 
 ### Sleeping
@@ -68,9 +70,16 @@ A food or drink errand reserves one unit under the dwarf's id. Death, unconsciou
 
 ### Social, comfort, joy
 
-- Social: go to the nearest reachable hearth-hall or meeting-area tile and wait up to `SOCIAL_WAIT_TICKS`; the first living dwarf within Chebyshev distance 2 on the same level who is not asleep (friends first, then by id) is the partner; both get `Talked { a, b }` after `TALK_TICKS`; relationships increment; friends after `FRIEND_TALKS` talks. Talking to a friend relieves 60 instead of 40. The partner is not interrupted.
-- Comfort: sit on a free chair in the best-tier room within reach for `SIT_TICKS`.
-- Joy: a visit to the hearth hall counts (`HearthVisited`); mist (`DwarfFeltMist`), warm springs (`DwarfNearSpring`), fine meals and seeing a masterwork item in a room they enter (`SawMasterwork`, once per item per dwarf) count. Room entry inspects floor items and installed furniture throughout the entered room, excluding container contents and the viewer's own work. Save the per-dwarf seen-item memory across visits and loads.
+- A talk needs no trip. Every `TALK_CHECK_TICKS` each awake dwarf that is not walking and whose social need is at or over its want threshold looks, through the spatial index, for another awake dwarf that is not walking within Chebyshev distance 2 on the same level; a friend first, then the lowest id. The two start a talk in passing. Awake means conscious and not asleep; a dwarf is walking while it has a walk under way. A dwarf already in a talk, or on a social errand, is not chosen. Two dwarves eating at the same table talk this way.
+- A talk in passing lasts `TALK_TICKS`. It is checked every `TALK_CHECK_TICKS`: if either dwarf has died, fallen asleep or unconscious, started to walk, or is no longer within distance 2, the talk ends with no effect. Otherwise at its end both get `Talked { a, b }` and its relief, exactly as for a social errand. Neither dwarf is held at its work. A dwarf that finishes a meal, a drink, a sit or a hearth visit during the talk stays where it is until the talk ends, and so does a dwarf with no work; a threat, an alert or a critical need takes it away as from any activity.
+- Social errand: go to the nearest reachable hearth-hall or meeting-area tile and wait up to `SOCIAL_WAIT_TICKS`; the first living dwarf within Chebyshev distance 2 on the same level who is not asleep (friends first, then by id) is the partner; both get `Talked { a, b }` after `TALK_TICKS`; relationships increment; friends after `FRIEND_TALKS` talks. Talking to a friend relieves 60 instead of 40. The partner is not interrupted.
+- Comfort errand: sit on a free chair in the best-tier room within reach for `SIT_TICKS`; without a chair in a room of tier ≥ decent, sit in the hearth hall.
+- Joy errand: stand in the hearth hall for `HEARTH_VISIT_TICKS`; this is a hearth visit (`HearthVisited`, −30).
+- Time in the hearth hall is a hearth visit. Each meal, drink or sit a dwarf finishes on a hearth-hall tile adds its `EAT_TICKS`, `DRINK_TICKS` or `SIT_TICKS` to the dwarf's saved count. When the count reaches `HEARTH_VISIT_TICKS` the dwarf gets one hearth visit (`HearthVisited`, −30) and the count returns to zero.
+- Joy is also relieved by mist (`DwarfFeltMist`), warm springs (`DwarfNearSpring`), fine meals and seeing a masterwork item in a room they enter (`SawMasterwork`, once per item per dwarf). Room entry inspects floor items and installed furniture throughout the entered room, excluding container contents and the viewer's own work. Save the per-dwarf seen-item memory across visits and loads.
+- The three errands are taken only at step 8 of behavior selection, by a dwarf with no work.
+- Hall errand: when social, comfort or joy is at or over `LEISURE_MARK`, a dwarf takes one sit in the hearth hall before ordinary work (step 6). It walks to the nearest free chair on a hearth-hall tile, or to a hall tile when no chair is free, and sits for `SIT_TICKS`. The sit relieves comfort as any sit there does and its `SIT_TICKS` count toward a hearth visit, which they complete. It is also the talk: every `TALK_CHECK_TICKS` while seated, a dwarf with social at or over its want threshold and no talk in passing under way takes as partner any other dwarf within Chebyshev distance 2 on its level that is not asleep (a friend first, then the lowest id), as on a social errand; at the end of the sit both get `Talked` and its relief. The partner is not interrupted. Without a hearth hall there is no hall errand.
+- If a hall errand ends with one of the three still at or over `LEISURE_MARK` and no talk under way (nobody came within reach), the dwarf takes no other hall errand for `LEISURE_RETRY_TICKS`. The tick is saved per dwarf.
 - Idle dwarves without a want go to the hearth hall and stand or sit there; the hearth hall is the default place.
 
 ### Behavior selection
@@ -82,9 +91,9 @@ Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and
 3. `patient`: 17 has marked the dwarf as needing a hospital: go to the hospital bed (or the nearest bed) and rest; care jobs feed them.
 4. `need` (critical): satisfy the most critical need. Always applies to soldiers on duty as well as civilians, in every squad mode.
 5. `duty`: the dwarf is a soldier on duty (16): 16 controls movement and targets. In `train` mode, training is ordinary duty, and want-level needs (step 6) take precedence so the soldier leaves duty to eat, drink, or sleep and returns when satisfied. In `active` mode with a hostile in sight, or when the squad has an explicit order (`station`, `patrol`, `follow`, `kill`) during an alert (`watchful` or `hearth`), duty holds the soldier against want-level needs; otherwise want-level needs also take precedence.
-6. `need` (want): satisfy the highest need over its want threshold, unless a job with priority ≤ `NEED_DEFER_PRIORITY` is available and the need is below its critical threshold.
+6. `need` (want): satisfy the highest of hunger, thirst and rest over its want threshold, unless a job with priority ≤ `NEED_DEFER_PRIORITY` is available and the need is below its critical threshold. Social, comfort and joy are not served here below `LEISURE_MARK`: they wait for step 8 and are relieved in passing (§ Eating and drinking; § Social, comfort, joy). With none of hunger, thirst and rest to serve, a dwarf with one of the three at or over `LEISURE_MARK` takes the hall errand here, before default-priority work and under the same exception for a job with priority ≤ `NEED_DEFER_PRIORITY`. A soldier whose duty does not hold (step 5) never reaches step 8, so it serves the highest of all its wants here, those three included.
 7. `work`: queue the dwarf for 11 through `jobs.assign(id)` and stay in `work` while waiting for its later tick to answer. With a job, run its steps; when no longer queued and without a job, go idle.
-8. `social`: if social or comfort or joy is over its want threshold, do the corresponding activity.
+8. `social`: the dwarf has no work: 11 has answered with no job and reports no open job the dwarf could take, or the dwarf cannot or may not work (a day off, a wound, a child with no hauling to do). A dwarf in a talk in passing stays for it. Otherwise do the errand of the highest of social, comfort and joy over its want threshold. No such errand starts while a job is open for the dwarf; only the hall errand of step 6 does.
 9. `idle`: go to the hearth hall and wait up to `IDLE_TICKS`, then re-evaluate; re-evaluate at once if a job becomes available for this dwarf before the wait is over, so that new work is never ignored for a whole hour. Idle dwarves are shown as "No job" in the units panel.
 
 `DwarfIdle` fires once per stretch without a job and is reset by real work. With no hearth hall, idle uses the saved arrival wagon tile; without an arrival it stays at the current tile. Selection repairs legacy negative goals before queued work. Patient rest without a bed, cornered fighting and duty also use the current tile.
@@ -134,7 +143,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 - Components: `Attributes`, `Skills`, `Needs`, `Personality`, `Schedule`, `Relationships`, `Title`, plus private `Brain { behavior, behaviorUntilTick, targetTile, activity, lastMistTick, lastOutdoorThoughtHour }`.
 - `titles: Record<Title, EntityId | 0>`, `populationCached`, `children: EntityId[]`.
-- `wagonTile` (−1 without an arrival); `interruptFlags`; `threatened` records (dwarf id, hostile id, last scan tick and last seen tile); hunger/thirst maximum-duration clocks and daily `starvingAnnounced` records; activity plans; `idleAnnounced`; per-dwarf `sawMasterworks`; `needRetryUntil`; `shutOut` ids and `shelterCheckPending`.
+- `wagonTile` (−1 without an arrival); `interruptFlags`; `threatened` records (dwarf id, hostile id, last scan tick and last seen tile); hunger/thirst maximum-duration clocks and daily `starvingAnnounced` records; activity plans; talks in passing (the two dwarves and the end tick), per-dwarf hearth-hall ticks and per-dwarf hall-errand retry ticks, each omitted when empty and empty in older saves; `idleAnnounced`; per-dwarf `sawMasterworks`; `needRetryUntil`; `shutOut` ids and `shelterCheckPending`.
 - Rng stream.
 
 ## Interfaces
@@ -186,7 +195,12 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 | `DRINK_TICKS` | 40 | |
 | `SLEEP_HOURS` | 7 | |
 | `TALK_TICKS` | 80 | |
+| `TALK_CHECK_TICKS` | 10 | Ticks between two scans that start, check and end talks in passing |
+| `SOCIAL_WAIT_TICKS` | 200 | A social errand waits this long for a partner |
 | `SIT_TICKS` | 100 | |
+| `LEISURE_MARK` | 75 | Social, comfort or joy at this level sends a dwarf to sit in the hearth hall before default-priority work |
+| `LEISURE_RETRY_TICKS` | 600 | After a hall errand that left one of the three at the mark, no other for this long |
+| `HEARTH_VISIT_TICKS` | 100 | Ticks in the hearth hall that make one hearth visit |
 | `IDLE_TICKS` | 50 | |
 | `DINING_SEARCH_RADIUS` | 40 | Tiles (path distance) |
 | `NEED_DEFER_PRIORITY` | 2 | A job at priority 1–2 is done before a want-level need |

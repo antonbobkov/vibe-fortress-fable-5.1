@@ -11,6 +11,7 @@
 
 import { C, ItemFlag } from '@core/components';
 import type { EntityReader } from '@core/readers';
+import type { Registry } from '@core/registry';
 import type { ItemsApi } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { ItemsReader } from '@systems/items';
@@ -35,13 +36,55 @@ export function toolFilter(tool: Tool): ItemFilter {
   }
 }
 
-export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: EntityReader): ItemSource {
+export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: EntityReader, registry?: Registry): ItemSource {
   const matchesTool = (id: EntityId, tool: Tool): boolean => {
     const it = reader.get(id);
     if (it === undefined) return false;
     const category = reader.categoryOf(it.type);
     const want = toolFilter(tool).category as string;
     return category === want || category.startsWith(`${want}/`);
+  };
+  /** The item id of the ammunition a launcher shoots (content: the weapon row's `launcher.ammo`). */
+  const ammoOf = (launcherId: EntityId): string | null => {
+    const it = reader.get(launcherId);
+    const def = it === undefined ? undefined : reader.def(it.type);
+    if (def === undefined || registry === undefined) return null;
+    return registry.table<{ id: string; launcher?: { ammo?: string } }>('weapons').byId(def.id)?.launcher?.ammo ?? null;
+  };
+  const heldLauncher = (workerId: EntityId): EntityId => {
+    const equip = entities.get(workerId, C.Equipment);
+    const worker = entities.get(workerId, C.Worker);
+    const weaponId = equip && equip.weapon !== 0 ? equip.weapon : worker && worker.toolId !== 0 ? worker.toolId : 0;
+    return weaponId !== 0 && matchesTool(weaponId, 'ranged') ? weaponId : 0;
+  };
+  /** Ammunition in the quiver or carried; of the item id `kind`, or of any kind when it is null. */
+  const holdsAmmo = (workerId: EntityId, kind: string | null): boolean => {
+    const isAmmo = (id: EntityId): boolean => {
+      const it = reader.get(id);
+      if (it === undefined || it.count <= 0 || !reader.categoryOf(it.type).startsWith('ammo/')) return false;
+      return kind === null || reader.def(it.type)?.id === kind;
+    };
+    const quiver = entities.get(workerId, C.Equipment)?.quiver ?? 0;
+    if (quiver !== 0 && (isAmmo(quiver) || reader.inContainer(quiver).some(isAmmo))) return true;
+    return reader.carriedItems(workerId).some((id) => reader.get(id)?.carriedBy === workerId && isAmmo(id));
+  };
+  const freeAmmo = (kind: string | null, from: TileIndex): EntityId => {
+    if (kind === null || registry === undefined) return 0;
+    const type = registry.table('items').index(kind);
+    return type <= 0 ? 0 : reader.findItem({ type }, from, 'walker', { reservable: true });
+  };
+  /** The nearest free launcher that has ammunition: its own kind held by `workerId`, or a free stack. */
+  const freeKit = (workerId: EntityId, from: TileIndex): { launcher: EntityId; ammo: EntityId } | null => {
+    const excludeIds: EntityId[] = [];
+    for (;;) {
+      const launcher = reader.findItem({ ...toolFilter('ranged'), excludeIds }, from, 'walker', { reservable: true });
+      if (launcher === 0) return null;
+      const kind = ammoOf(launcher);
+      if (kind !== null && workerId !== 0 && holdsAmmo(workerId, kind)) return { launcher, ammo: 0 };
+      const ammo = freeAmmo(kind, from);
+      if (ammo !== 0) return { launcher, ammo };
+      excludeIds.push(launcher);
+    }
   };
   return {
     findItems: (filter, n, from) => reader.findItems(filter, n, from, 'walker', { reservable: true }),
@@ -81,37 +124,28 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
     },
     countOf: (itemId) => reader.get(itemId)?.count ?? 0,
     findTool: (tool, from) => {
-      if (tool === 'ranged') {
-        const weapon = reader.findItem(toolFilter('ranged'), from, 'walker', { reservable: true });
-        const ammo = reader.findItem({ category: 'ammo' }, from, 'walker', { reservable: true });
-        if (ammo === 0) return 0;
-        return weapon !== 0 ? weapon : ammo;
-      }
+      // A ranged tool is a launcher with its own ammunition; ammunition is never the tool.
+      if (tool === 'ranged') return freeKit(0, from)?.launcher ?? 0;
       return reader.findItem(toolFilter(tool), from, 'walker', { reservable: true });
+    },
+    findRangedKit: (workerId, from) => {
+      const held = heldLauncher(workerId);
+      if (held === 0) return freeKit(workerId, from);
+      const kind = ammoOf(held);
+      if (holdsAmmo(workerId, kind)) return { launcher: 0, ammo: 0 };
+      const ammo = freeAmmo(kind, from);
+      return ammo === 0 ? null : { launcher: 0, ammo };
+    },
+    limitStack: (itemId, n) => {
+      const count = reader.get(itemId)?.count ?? 0;
+      if (count <= n) return itemId;
+      const part = api.split(itemId, n);
+      return part === 0 ? itemId : part;
     },
     hasTool: (workerId, tool) => {
       if (tool === 'ranged') {
-        const equip = entities.get(workerId, C.Equipment);
-        const worker = entities.get(workerId, C.Worker);
-        const weaponId = equip && equip.weapon !== 0 ? equip.weapon : worker && worker.toolId !== 0 ? worker.toolId : 0;
-        if (weaponId === 0 || !matchesTool(weaponId, 'ranged')) return false;
-
-        // Check quiver and carried items for ammo
-        if (equip && equip.quiver !== 0) {
-          const q = reader.get(equip.quiver);
-          if (q !== undefined && q.count > 0 && reader.categoryOf(q.type).startsWith('ammo/')) return true;
-          for (const inner of reader.inContainer(equip.quiver)) {
-            const it = reader.get(inner);
-            if (it !== undefined && it.count > 0 && reader.categoryOf(it.type).startsWith('ammo/')) return true;
-          }
-        }
-        for (const id of reader.carriedItems(workerId)) {
-          const it = reader.get(id);
-          if (it !== undefined && it.carriedBy === workerId && it.count > 0 && reader.categoryOf(it.type).startsWith('ammo/')) {
-            return true;
-          }
-        }
-        return false;
+        const launcher = heldLauncher(workerId);
+        return launcher !== 0 && holdsAmmo(workerId, ammoOf(launcher));
       }
       // A tool in the weapon slot is held too (16 § Equipment).
       const held = entities.get(workerId, C.Worker)?.toolId ?? 0;
