@@ -1,0 +1,46 @@
+/** T-196 micro probes: one light cut untreated; a kill order on a far target. */
+import { describe, it } from 'vitest';
+import { FLAT_TEST_SPEC, FLAT_TEST_SURFACE_Z, buildFlatTestMap } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { C } from '@core/components';
+import type { EntityId } from '@core/types';
+import type { CombatReader } from '@systems/combat';
+import { TestWorld } from '../scenarios/test-world';
+
+const registry = contentRegistry();
+const Z = FLAT_TEST_SURFACE_Z;
+
+function world(seed: string): TestWorld {
+  return new TestWorld({ seed, registry, world: 'flat-test', map: buildFlatTestMap(registry, 96, 96), embark: 'none', surfaceWildlife: 'none', spec: { ...FLAT_TEST_SPEC, traits: [] } });
+}
+
+describe('T-196 micro', () => {
+  it('one light cut, untreated', () => {
+    for (const [type, amount, part] of [['edge', 5, 'left_leg'], ['edge', 5, 'torso'], ['pierce', 5, 'left_leg'], ['pierce', 11, 'left_leg']] as const) {
+      const w = world('cut');
+      const d = w.spawnDwarf({ at: w.index(40, 40, Z) });
+      let died = -1;
+      w.game.world.onEvents((b) => { for (const e of b) if (e.type === 'CreatureDied' && e['id'] === d) died = w.tick; });
+      w.step(1);
+      w.game.world.emit({ type: 'DamageDealt', defenderId: d, part, damageType: type, amount, attackerId: 0, weaponId: 0 });
+      w.step(1);
+      const wounds = w.game.world.entities.get(d, C.Body)?.parts.flatMap((p) => p.wounds) ?? [];
+      w.until(() => died >= 0, 6000);
+      console.log(`${type} ${amount} ${part}: wounds ${JSON.stringify(wounds.map((x) => [x.type, x.severity, x.bleed]))} maxBlood ${w.game.world.entities.get(d, C.Body)?.maxBlood ?? '-'} died at ${died}`);
+    }
+  });
+
+  it('a kill order on a target 25 tiles away', () => {
+    const w = world('kill');
+    const soldier = w.spawnDwarf({ at: w.index(40, 70, Z) });
+    w.game.world.applyCommand({ type: 'CreateSquad', name: 'Guard', leaderId: soldier });
+    const squadId = w.readers.of<CombatReader>('16').squads()[0]?.id ?? 0;
+    w.game.world.applyCommand({ type: 'SetSquadMode', squadId, mode: 'active' });
+    const deer: EntityId = w.spawnCreature('deer', w.index(40, 45, Z), 'wild');
+    const r = w.game.world.applyCommand({ type: 'SquadOrder', squadId, order: { kind: 'kill', targetId: deer } });
+    const start = w.game.world.entities.get(soldier, C.Position);
+    w.step(400);
+    const end = w.game.world.entities.get(soldier, C.Position);
+    console.log(`kill order ok=${r.ok}; soldier from ${start?.x},${start?.y} to ${end?.x},${end?.y}; target ${w.readers.of<CombatReader>('16').targetOf(soldier)}; deer at ${JSON.stringify(w.game.world.entities.get(deer, C.Position))}`);
+  });
+});
