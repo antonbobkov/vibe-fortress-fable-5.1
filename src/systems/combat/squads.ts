@@ -286,11 +286,13 @@ export function squadOrder(
   }
   if (order.kind === 'kill') {
     if (!entities.alive(order.targetId)) return reject('not_found');
-    squad.orders.push(order);
+    const standing = squad.orders.findIndex((queued) => queued.kind !== 'kill');
+    squad.orders.splice(standing < 0 ? squad.orders.length : standing, 0, order);
     for (const m of squad.members) {
       const soldier = entities.get(m, C.Soldier);
       if (soldier?.onDuty) {
-        targets.setTarget(m, order.targetId);
+        const first = squad.orders[0];
+        if (first?.kind === 'kill') targets.setTarget(m, first.targetId);
       }
     }
     emit({ type: 'SquadOrderIssued', squadId, order });
@@ -299,6 +301,7 @@ export function squadOrder(
   if (order.kind === 'station') {
     if (!map.validIndex(order.tile)) return reject('out_of_bounds');
     if (!pathing.passable(order.tile, 'walker')) return reject('bad_placement');
+    squad.orders = squad.orders.filter((queued) => queued.kind === 'kill');
     squad.orders.push(order);
     emit({ type: 'SquadOrderIssued', squadId, order });
     return OK;
@@ -309,12 +312,14 @@ export function squadOrder(
       if (!map.validIndex(t)) return reject('out_of_bounds');
       if (!pathing.passable(t, 'walker')) return reject('bad_placement');
     }
+    squad.orders = squad.orders.filter((queued) => queued.kind === 'kill');
     squad.orders.push(order);
     emit({ type: 'SquadOrderIssued', squadId, order });
     return OK;
   }
   if (order.kind === 'follow') {
     if (!entities.alive(order.dwarfId)) return reject('not_found');
+    squad.orders = squad.orders.filter((queued) => queued.kind === 'kill');
     squad.orders.push(order);
     emit({ type: 'SquadOrderIssued', squadId, order });
     return OK;

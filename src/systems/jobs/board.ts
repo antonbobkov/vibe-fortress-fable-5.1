@@ -47,7 +47,6 @@ export const RETRY_TRIGGERS: Readonly<Record<string, readonly string[]>> = Objec
   unreachable: ['TilesChanged', 'BuildingStateChanged', 'FluidsChanged'],
   missing_input: ['ItemCreated', 'ItemReleased', 'StocksChanged'],
   no_tool: ['ItemCreated', 'ToolDropped'],
-  workshop_suspended: [],
   no_magma: ['FluidsChanged'],
 });
 

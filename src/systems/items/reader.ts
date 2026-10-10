@@ -46,7 +46,7 @@ export interface ItemsReader {
   count(typeId: string | number): number;
   /** `module-interfaces.md`'s `readers.items.countOf(typeId)`: the same as {@link count}. */
   countOf(typeId: string | number): number;
-  /** Units not forbidden, not reserved, not owned. */
+  /** Units not forbidden, not reserved, not owned or carried. */
   available(typeId: string | number): number;
   /** The stock count of a type (units). */
   stock(typeId: string | number): StockCountView;

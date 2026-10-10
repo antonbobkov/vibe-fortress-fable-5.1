@@ -1,5 +1,7 @@
 # T-186 — Eighteen rules to write down or remove
 
+Closed by `T-186: enforce the remaining held-stock, worker and squad rules`.
+
 ## Progress (2026-10-09, code half parked)
 
 The accepted code changes and fourteen regressions are preserved in stash
@@ -34,7 +36,7 @@ commands or simulation rules and records pregnancy, slaughter and births.
 Next: resolve the fixture's short breeding observation window in its owning
 coverage task, then restore this stash, verify, and close T-186.
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) ("Rules to write down or remove", G1 to G18) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) ("Rules to write down or remove", G1 to G18) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -42,7 +44,7 @@ Reading 11, 12, 13, 16, 18, 19 and 22 rule by rule found eighteen places where t
 
 ## Reproduction
 
-Read, with the file and line for each in the report. G12 is also measured ([`thief.probe.ts`](../../reports/data/2026-10-09-bug-hunt-thief.probe.ts.txt)).
+Read, with the file and line for each in the report. G12 is also measured ([`thief.probe.ts`](../../../reports/data/2026-10-09-bug-hunt-thief.probe.ts.txt)).
 
 ## What to do
 

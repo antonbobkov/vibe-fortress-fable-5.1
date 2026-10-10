@@ -350,7 +350,7 @@ export class ItemCore implements ItemsApi {
       units: it.count,
       materialClass: this.host.facts.materialClass(it.material),
       quality: it.quality,
-      available: isAvailable(it.flags, it.occupantId ?? 0),
+      available: isAvailable(it.flags, it.occupantId ?? 0, it.carriedBy),
     };
   }
 
@@ -789,7 +789,7 @@ export class ItemCore implements ItemsApi {
       if (!this.counted(it)) continue;
       const row = per.get(it.type) ?? [0, 0];
       row[0] += it.count;
-      if (isAvailable(it.flags, it.occupantId ?? 0)) row[1] += it.count;
+      if (isAvailable(it.flags, it.occupantId ?? 0, it.carriedBy)) row[1] += it.count;
       per.set(it.type, row);
       wealth += this.valueOf(it);
     }

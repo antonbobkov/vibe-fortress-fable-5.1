@@ -391,7 +391,9 @@ export function runHomesteadYear(w: TestWorld): void {
   }).ok).toBe(true);
 
   // 9. Simulation loop
-  const totalTicks = 34 * TICKS_PER_DAY;
+  // Forty days include a dog conceived in the first sixteen days, its twenty-day
+  // gestation and a few days of margin; the birth assertion must not need an early roll.
+  const totalTicks = 40 * TICKS_PER_DAY;
   const orderedWorkshops = new Set<string>();
   let dogTrainInitiated = false;
   let dogAssigned = false;

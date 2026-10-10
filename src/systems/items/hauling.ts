@@ -27,6 +27,7 @@ import type { JobsApi, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { ItemCore, ItemChange } from './api';
 import { HAUL_JOBS_PER_TICK } from './constants';
+import { HAUL_PRIORITY } from '@systems/jobs/constants';
 import { sortedHas, sortedInsert, sortedRemove } from './state';
 import { WANTED_CLASSES, type Slot, type StockpileStore } from './stockpiles';
 
@@ -332,6 +333,7 @@ export class Hauling {
     }
     jobs.create(dumpKey(id), {
       type: 'haul_to_dump',
+      priority: HAUL_PRIORITY,
       target: { kind: 'entity', ref: id },
       workTile: best.tile,
       inputs: [{ filter: { itemId: id }, count: 1 }],
@@ -354,7 +356,7 @@ export class Hauling {
       if (it === undefined || (it.flags & ItemFlag.Forbidden) !== 0 || it.carriedBy !== 0) continue;
       const tile = this.core.tileOf(id);
       if (tile < 0) continue;
-      jobs.create(stripKey(id), { type: 'strip_corpse', target: { kind: 'entity', ref: id }, workTile: 'adjacent', data: { anchorTile: tile } });
+      jobs.create(stripKey(id), { type: 'strip_corpse', priority: HAUL_PRIORITY, target: { kind: 'entity', ref: id }, workTile: 'adjacent', data: { anchorTile: tile } });
       n += 1;
     }
     return n;
