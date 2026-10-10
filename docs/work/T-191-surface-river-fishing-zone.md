@@ -56,3 +56,19 @@ Evaluating `bSystem.zones.qualifies('fishing', bankTile)` returns `false` for ev
 
 - Surface river bank tiles qualify for fishing zones and allow `CreateZone` to succeed.
 - `npm test` passes.
+
+## Decision (2026-10-09, orchestrator, under the owner's standing instruction to use judgement)
+
+**The lower-water bank qualifies, down to two levels.** A generated map with 103 walkable banks and no place to fish means a player cannot fish a natural brook, river or lake without digging down to it, and nothing in 09 suggests that was intended.
+
+- A walkable tile is a fishing bank when one of its four cardinal neighbours is deep, unfrozen water on the same level (today's rule), **or** is open air with nothing but open air below it down to deep, unfrozen water at most `FISH_BANK_DROP` = 2 levels lower. Two levels covers the generator's brooks (depth 1) and its rivers, major rivers and lakes (depth 2). A deeper drop does not qualify.
+- The water body that the catch is drawn from is the one found at the bottom of that drop. The flood fill that sizes a water body still stays on one level.
+- The same rule serves the zone validation in 14 and the foraging lookup in 09; write it once and use it in both. State it in both documents, and add `FISH_BANK_DROP` to 09's tuning constants.
+- Frozen water still disqualifies, on either reading.
+
+## What to do now
+
+1. Turn the saved reproduction into tests: the failing lower-water bank at one level and at two levels, a three-level drop that must not qualify, and the same-level control.
+2. Implement the rule above and the spec edits.
+3. Add the `fish` job and `FishCaught` assertions left out of `test/scenarios/homestead_year.scenario.ts`, if the scenario then passes with no change to its script beyond the fishing zone.
+4. The usual verification, with the browser suite; name any golden that moves.
