@@ -1,0 +1,241 @@
+/**
+ * T-196 probe (not a test of the suite): one wild animal against civilians on a flat map.
+ * Run: npx vitest run --config vitest.t196.config.ts
+ * Writes reports/data/<date>-t196-probe-<label>.json and prints a summary table.
+ */
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { FLAT_TEST_SPEC, FLAT_TEST_SURFACE_Z, buildFlatTestMap } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { C } from '@core/components';
+import type { EntityId, TileIndex } from '@core/types';
+import type { CombatReader } from '@systems/combat';
+import { TestWorld } from '../scenarios/test-world';
+
+const registry = contentRegistry();
+const Z = FLAT_TEST_SURFACE_Z;
+const LABEL = process.env['T196_LABEL'] ?? 'before';
+const SEEDS = (process.env['T196_SEEDS'] ?? 's1,s2,s3,s4,s5').split(',');
+const SPECIES = (process.env['T196_SPECIES'] ?? 'badger,boar,wolf').split(',');
+const MODES = (process.env['T196_MODES'] ?? 'lone,haul,hospital,react').split(',');
+const TICKS = Number(process.env['T196_TICKS'] ?? 3600);
+
+function rect(w: TestWorld, x: number, y: number, width: number, height: number): TileIndex[] {
+  const out: TileIndex[] = [];
+  for (let dy = 0; dy < height; dy += 1) for (let dx = 0; dx < width; dx += 1) out.push(w.index(x + dx, y + dy, Z));
+  return out;
+}
+
+interface VictimRecord {
+  id: number;
+  firstWoundTick: number | null;
+  firstAttackedDoing: string;
+  hitsTaken: number;
+  deathTick: number | null;
+  cause: string | null;
+  ticksFleeing: number;
+  bandagedTick: number | null;
+}
+
+interface RunSummary {
+  mode: string;
+  species: string;
+  seed: string;
+  dwarves: number;
+  deaths: number;
+  deathTicksAfterFirstWound: number[];
+  wounded: number;
+  animalAttacks: number;
+  animalHits: number;
+  dwarfAttacks: number;
+  dwarfHits: number;
+  animalDied: boolean;
+  animalEndState: string;
+  targetsTaken: number;
+  retargetsAfterKill: number;
+  maxChaseFromAttackStart: number;
+  ticksChasingFleeingTarget: number;
+  ticksAttackingUnconscious: number;
+  stopBleedingJobsCreated: number;
+  treatments: number;
+  alertChanges: number;
+  victims: VictimRecord[];
+}
+
+function run(mode: string, species: string, seed: string): RunSummary {
+  const w = new TestWorld({
+    seed,
+    registry,
+    world: 'flat-test',
+    map: buildFlatTestMap(registry, 96, 96),
+    embark: 'none',
+    spec: { ...FLAT_TEST_SPEC, biome: 'temperate_forest', traits: [] },
+  });
+  const ents = w.game.world.entities;
+  const civilians: EntityId[] = [];
+  const count = mode === 'lone' ? 1 : 7;
+  for (let i = 0; i < count; i += 1) civilians.push(w.spawnDwarf({ at: w.index(38 + (i % 3), 46 + Math.floor(i / 3), Z) }));
+  // Stone west of the animal, a stockpile east of it: every haul passes it.
+  for (let k = 0; k < 50; k += 1) w.spawnItem('raw_stone', 'granite', w.index(36 + (k % 5), 40 + Math.floor(k / 5), Z));
+  const pile = w.zone('stockpile', rect(w, 58, 40, 4, 4));
+  w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: pile, filter: 'stone' });
+
+  if (mode === 'hospital' || mode === 'react') {
+    const medic = civilians[6] as EntityId;
+    w.setSkill(medic, 'medicine', 5);
+    w.setLabor(medic, 'medicine', true);
+    w.setLabor(medic, 'hauling', false);
+    w.game.world.applyCommand({ type: 'AssignTitle', dwarfId: medic, title: 'chief_medic' });
+    w.zone('hospital', rect(w, 40, 56, 4, 3));
+    w.build('bed', w.index(40, 56, Z));
+    w.build('bed', w.index(41, 56, Z));
+    w.build('bed', w.index(42, 56, Z));
+    w.spawnItem('cloth', 'flax_cloth', w.index(40, 57, Z), 20);
+    w.spawnItem('thread', 'flax_thread', w.index(41, 57, Z), 20);
+  }
+  let squadId = 0;
+  const soldiers: EntityId[] = [];
+  if (mode === 'react') {
+    const iron = registry.table('materials').index('iron');
+    const axeType = registry.table('items').index('axe');
+    for (let s = 0; s < 2; s += 1) {
+      const at = w.index(40 + s, 70, Z);
+      const id = w.spawnDwarf({ at });
+      const axe = w.spawnItem(axeType, iron, at);
+      const eq = ents.get(id, C.Equipment);
+      if (eq) ents.add(id, C.Equipment, { ...eq, weapon: axe });
+      w.setSkill(id, 'axe', 4);
+      soldiers.push(id);
+    }
+    w.game.world.applyCommand({ type: 'CreateSquad', name: 'Guard', leaderId: soldiers[0] });
+    squadId = (w.readers.of<CombatReader>('16').squads()[0])?.id ?? 0;
+    w.game.world.applyCommand({ type: 'SetSquadMembers', squadId, members: soldiers });
+    w.step(1);
+  }
+
+  const animal = w.spawnCreature(species, w.index(48, 42, Z), 'wild');
+  const victims = new Map<EntityId, VictimRecord>();
+  const victim = (id: EntityId): VictimRecord => {
+    let v = victims.get(id);
+    if (!v) {
+      const b = ents.get(id, C.Brain);
+      v = { id, firstWoundTick: null, firstAttackedDoing: `${b?.behavior}/${b?.activity}`, hitsTaken: 0, deathTick: null, cause: null, ticksFleeing: 0, bandagedTick: null };
+      victims.set(id, v);
+    }
+    return v;
+  };
+  const s: RunSummary = {
+    mode, species, seed, dwarves: civilians.length, deaths: 0, deathTicksAfterFirstWound: [], wounded: 0,
+    animalAttacks: 0, animalHits: 0, dwarfAttacks: 0, dwarfHits: 0, animalDied: false, animalEndState: '',
+    targetsTaken: 0, retargetsAfterKill: 0, maxChaseFromAttackStart: 0, ticksChasingFleeingTarget: 0,
+    ticksAttackingUnconscious: 0, stopBleedingJobsCreated: 0, treatments: 0, alertChanges: 0, victims: [],
+  };
+  let reacted = false;
+  // Natural arrivals are removed as they come, so the probe measures one animal.
+  const intruders: EntityId[] = [];
+  let lastTarget = 0;
+  let attackStart = -1;
+  let killedRecently = false;
+  w.game.world.onEvents((batch) => {
+    for (const ev of batch) {
+      if (ev.type === 'AttackResolved') {
+        const a = ev['attackerId'] as EntityId;
+        const d = ev['defenderId'] as EntityId;
+        const hit = ev['outcome'] === 'hit';
+        if (a === animal) {
+          s.animalAttacks += 1;
+          if (hit) s.animalHits += 1;
+          const v = victim(d);
+          if (hit) { v.hitsTaken += 1; if (v.firstWoundTick === null) v.firstWoundTick = w.tick; }
+        } else if (d === animal) {
+          s.dwarfAttacks += 1;
+          if (hit) s.dwarfHits += 1;
+        }
+      } else if (ev.type === 'CreatureDied') {
+        const id = ev['id'] as EntityId;
+        if (id === animal) { s.animalDied = true; s.animalEndState = `died:${String(ev['cause'])}`; }
+        else if (civilians.includes(id) || soldiers.includes(id)) {
+          const v = victim(id);
+          v.deathTick = w.tick;
+          v.cause = ev['cause'] as string;
+          killedRecently = true;
+        }
+      } else if (ev.type === 'AnimalLeft' && ev['id'] === animal) { s.animalEndState = 'left'; }
+      else if (ev.type === 'AnimalSpawned' && ev['id'] !== animal) intruders.push(ev['id'] as EntityId);
+      else if (ev.type === 'JobCreated' && ev['jobType'] === 'stop_bleeding') s.stopBleedingJobsCreated += 1;
+      else if (ev.type === 'TreatmentDone') {
+        s.treatments += 1;
+        const v = victims.get(ev['patientId'] as EntityId);
+        if (v && v.bandagedTick === null && ev['kind'] === 'stop_bleeding') v.bandagedTick = w.tick;
+      } else if (ev.type === 'AlertChanged') s.alertChanges += 1;
+    }
+  });
+
+  const combat = w.readers.of<CombatReader>('16');
+  for (let t = 0; t < TICKS; t += 1) {
+    w.step(1);
+    for (const id of intruders.splice(0)) (w.animals.brain as { despawn(id: EntityId): void }).despawn(id);
+    if (!ents.alive(animal)) break;
+    const target = combat.targetOf(animal);
+    const wild = ents.get(animal, C.Wild);
+    const pa = ents.get(animal, C.Position);
+    if (target !== 0 && target !== lastTarget) {
+      s.targetsTaken += 1;
+      if (killedRecently) s.retargetsAfterKill += 1;
+      attackStart = pa ? w.index(pa.x, pa.y, pa.z) : -1;
+    }
+    if (target === 0) attackStart = -1;
+    killedRecently = false;
+    lastTarget = target;
+    if (target !== 0 && pa) {
+      const tb = ents.get(target, C.Brain);
+      const body = ents.get(target, C.Body);
+      if (tb?.behavior === 'flee') s.ticksChasingFleeingTarget += 1;
+      if (body && !body.conscious) s.ticksAttackingUnconscious += 1;
+      if (attackStart >= 0) {
+        const d = Math.max(Math.abs(pa.x - w.map.xOf(attackStart)), Math.abs(pa.y - w.map.yOf(attackStart)));
+        s.maxChaseFromAttackStart = Math.max(s.maxChaseFromAttackStart, d);
+      }
+    }
+    for (const id of civilians) {
+      if (!ents.alive(id)) continue;
+      const v = victims.get(id);
+      if (v && ents.get(id, C.Brain)?.behavior === 'flee') v.ticksFleeing += 1;
+    }
+    if (mode === 'react' && !reacted && s.animalAttacks > 0) {
+      reacted = true;
+      w.submit({ type: 'SetAlert', level: 'watchful' });
+      const r = w.game.world.applyCommand({ type: 'SquadOrder', squadId, order: { kind: 'kill', targetId: animal } });
+      if (!r.ok) throw new Error(`kill order refused: ${JSON.stringify(r)}`);
+    }
+  }
+  // Let the bleeding finish: run on without the animal's further help for the remaining time.
+  const remaining = TICKS - w.tick;
+  for (let t = 0; t < remaining; t += 1) {
+    w.step(1);
+    for (const id of intruders.splice(0)) (w.animals.brain as { despawn(id: EntityId): void }).despawn(id);
+  }
+  if (ents.alive(animal)) s.animalEndState = ents.get(animal, C.Wild)?.state ?? '?';
+  s.victims = [...victims.values()];
+  s.wounded = s.victims.filter((v) => v.firstWoundTick !== null).length;
+  s.deaths = s.victims.filter((v) => v.deathTick !== null && civilians.includes(v.id)).length;
+  s.deathTicksAfterFirstWound = s.victims.filter((v) => v.deathTick !== null && v.firstWoundTick !== null)
+    .map((v) => (v.deathTick as number) - (v.firstWoundTick as number));
+  return s;
+}
+
+describe('T-196 probe', () => {
+  it('runs', () => {
+    const all: RunSummary[] = [];
+    for (const mode of MODES) for (const species of SPECIES) for (const seed of SEEDS) {
+      const r = run(mode, species, seed);
+      all.push(r);
+      console.log([r.mode, r.species, r.seed, `dead ${r.deaths}/${r.dwarves}`, `wounded ${r.wounded}`,
+        `animal ${r.animalHits}/${r.animalAttacks}`, `dwarf ${r.dwarfHits}/${r.dwarfAttacks}`,
+        `animalDied ${r.animalDied}`, `end ${r.animalEndState}`, `targets ${r.targetsTaken}`, `retargetAfterKill ${r.retargetsAfterKill}`,
+        `chase ${r.maxChaseFromAttackStart}`, `chasingFleeing ${r.ticksChasingFleeingTarget}`, `onUnconscious ${r.ticksAttackingUnconscious}`,
+        `stopBleedJobs ${r.stopBleedingJobsCreated}`, `treat ${r.treatments}`, `deathAfterWound ${r.deathTicksAfterFirstWound.join(',')}`].join(' | '));
+    }
+    writeFileSync(`reports/data/2026-10-10-t196-probe-${LABEL}.json`, JSON.stringify(all, null, 1));
+  });
+});

@@ -8,6 +8,7 @@ import {
   BLOOD_DEATH_PERCENT,
   BLOOD_REGEN_PER_TICK,
   BLOOD_UNCONSCIOUS_PERCENT,
+  CLOT_TICKS,
   DROWN_DAMAGE,
   FALL_DAMAGE_PER_LEVEL_SQ,
   INFECTION_DEATH_PERMILLE,
@@ -363,9 +364,10 @@ export function tickHealth(
 
     const allWounds = b.parts.flatMap((p) => p.wounds);
 
-    // Sum unbandaged bleeding
+    // Sum unbandaged bleeding; a light wound stops bleeding by itself after CLOT_TICKS.
     let bleed = 0;
     for (const w of allWounds) {
+      if (w.bleed > 0 && w.severity === 'light' && ctx.tick - w.createdTick >= CLOT_TICKS) w.bleed = 0;
       if (w.bleed > 0 && !w.bandaged) {
         bleed += w.bleed;
       }

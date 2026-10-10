@@ -14,7 +14,9 @@
  *   flee:   the tile of 8 directions × 6 steps that maximises the distance to the threats; an edge
  *           within perception means leave; FLEE_TICKS without a threat means idle
  *   hunt:   combat.setTarget(prey) (16 resolves it; M6)
- *   attack: 16 drives; the target gone means idle
+ *   attack: 16 drives; the target dead or lost means idle (a kill ends the hunger); a defending
+ *           attack (provoked, not hunting) breaks off into wander when its target is beyond the
+ *           provoke radius of the tile where the attack began, or unconscious
  *   sleep:  stay until stateUntil; a threat wakes it
  *   leave:  walk to the nearest edge tile; despawn on arrival (AnimalLeft)
  * ```
@@ -376,6 +378,7 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
         const dwarf = nearestDwarf(host, at, provokeRadius);
         if (dwarf !== 0) {
           next.state = 'attack';
+          next.defendFrom = at;
           host.setTarget(id, dwarf);
           break;
         }
@@ -473,25 +476,31 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
           break;
         }
       }
-      let target = host.targetOf ? host.targetOf(id) : 0;
+      const target = host.targetOf ? host.targetOf(id) : 0;
       if (target === 0 || !host.entities.alive(target)) {
-        const dwarf = nearestDwarf(host, at, host.facts.perceptionOf(species));
-        if (dwarf !== 0) {
-          target = dwarf;
-          host.setTarget(id, target);
-        } else {
-          if (next.hungry) next.hungry = false;
-          toIdle(host, ctx, id, next);
-          host.setTarget(id, 0);
-          break;
-        }
-      }
-      const to = tileOf(host, target);
-      if (to < 0 || host.map.zOf(to) !== host.map.zOf(at) ||
-          Math.max(Math.abs(host.map.xOf(to) - host.map.xOf(at)), Math.abs(host.map.yOf(to) - host.map.yOf(at))) > host.facts.perceptionOf(species)) {
+        // "the animal returns to `idle` when the target dies" (a kill ends the hunger: index.ts).
         toIdle(host, ctx, id, next);
         host.setTarget(id, 0);
         break;
+      }
+      // An attack loaded from before the field existed: a fed animal was defending where it stands.
+      if (next.defendFrom === undefined && !next.hungry) next.defendFrom = at;
+      const to = tileOf(host, target);
+      if (to < 0 || host.map.zOf(to) !== host.map.zOf(at) || chebyshev(host, to, at) > host.facts.perceptionOf(species)) {
+        toIdle(host, ctx, id, next);
+        host.setTarget(id, 0);
+        break;
+      }
+      if (next.defendFrom !== undefined) {
+        // A defending animal drives the intruder out and leaves a beaten one alone.
+        const from = next.defendFrom;
+        const radius = temper === 'aggressive' ? APPROACH_RADIUS : TERRITORY_RADIUS;
+        const out = host.map.zOf(to) !== host.map.zOf(from) || chebyshev(host, to, from) > radius;
+        if (out || host.entities.get(target, C.Body)?.conscious === false) {
+          host.setTarget(id, 0);
+          breakOff(host, ctx, id, next);
+          break;
+        }
       }
       host.setTarget(id, target);
       break;
@@ -516,7 +525,22 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
   return next;
 }
 
+function chebyshev(host: BrainHost, a: TileIndex, b: TileIndex): number {
+  const map = host.map;
+  return Math.max(Math.abs(map.xOf(a) - map.xOf(b)), Math.abs(map.yOf(a) - map.yOf(b)));
+}
+
+/** A defending animal lets go and wanders; a `wander` ignores dwarves until it ends. */
+function breakOff(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild): void {
+  delete w.defendFrom;
+  w.state = 'wander';
+  w.stateUntil = ctx.tick + WANDER_TIMEOUT_TICKS;
+  host.movement?.stopWalking(id);
+  walk(host, ctx, id, wanderTile(host, id, w.homeChunk));
+}
+
 function toIdle(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild): void {
+  delete w.defendFrom;
   w.state = 'idle';
   w.stateUntil = ctx.tick + host.rng.int(IDLE_MIN_TICKS, IDLE_MAX_TICKS);
   host.movement?.stopWalking(id);
@@ -524,6 +548,7 @@ function toIdle(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild): void 
 
 function startFlee(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild, threats: readonly EntityId[]): void {
   const from = threats.length > 0 ? (threats[0] as EntityId) : 0;
+  delete w.defendFrom;
   ctx.emit({ type: 'CreatureFled', id, from });
   if (edgeWithinPerception(host, id)) {
     w.state = 'leave';

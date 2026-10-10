@@ -853,6 +853,10 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         const tame = ctx.world.entities.get(animalId, C.Tame);
         if (tame !== undefined && tame.petOf === id) ctx.world.entities.add(animalId, C.Tame, { ...tame, petOf: 0 });
       }
+      // "Predators … stop hunting after a kill" (08 § Wild behavior).
+      const killer = (event['killerId'] ?? 0) as EntityId;
+      const killerWild = killer === 0 ? undefined : ctx.world.entities.get(killer, C.Wild);
+      if (killerWild?.hungry === true) ctx.world.entities.add(killer, C.Wild, { ...killerWild, hungry: false });
       this.targets.delete(id);
       this.provoked.delete(id);
       this.starvingSince.delete(id);

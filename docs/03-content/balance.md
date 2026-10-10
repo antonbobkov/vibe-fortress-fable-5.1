@@ -93,6 +93,20 @@ Renown follows: 5 → 15 → 30 → 75. Raid size at peril 2: year 2 → 6 + 4 =
 - Trollkin (size 150, slam 28 blunt) versus the same dwarf: 28 − (mail 12 × 0.5 = 6 blunt) = 22 bruise to the torso (ratio 0.37, serious), fractures on limbs (22 ≥ 36 × 0.3 = 10.8). Three hits floor a dwarf. Trollkin are the reason for bridges, spikes and crossbow galleries; a steel warhammer (33 damage) fractures a trollkin limb in two hits.
 - Magma wyrm (torso 220, armor 12): iron axes do 22 − 12 × 1.1 = 9 per hit; steel 27.5 − 13.2 = 14; deepsilver 35 − 13 = 22. Ten deepsilver hits or twenty-five iron hits, while it breathes 40 burn at range 6 every 40 ticks. Cage traps do not hold it (size 220 > 150). Drowning does not work (it stands in water to level 6). Magma does not work. A pit of three levels (fall damage 6 × 9 = 54 to a leg, fracture) and a corridor of ten weapon traps loaded with steel spears (18 × 1.25 × 3 = 67 per trigger, minus armor 12 × 1.2 = 14) is the intended answer, or a squad in deepsilver.
 
+## Wild animals
+
+Wildlife on a peril-0 map without `serene_vale` is a hazard that a careless fortress pays for, not an extinction. The rules that make it so: a defending animal (08) lets go once its target is out of its provoke radius from where the attack began, or unconscious, and never takes a second target from the same attack; a light wound stops bleeding after `CLOT_TICKS` (17), so only serious and grievous wounds need a medic in time; a squad's kill order reaches the animal wherever it is (16).
+
+The intended figures, for one territorial animal (badger, boar) or one fed wolf whose ground seven civilians keep crossing for three days:
+
+| The fortress | Civilians lost |
+|---|---|
+| No medic, nobody answers | about one per animal (badger 0.9, boar 1.7, wolf 1.3 per encounter); never the whole group |
+| A medic with cloth | badger none; boar under one; wolf almost none |
+| A medic with cloth, and a squad sent to kill the animal | **none to a badger**; boar and wolf almost none |
+
+An unarmoured soldier sent against a boar or a wolf can still be killed; armour is the answer. A *hungry* predator (08 § `hunt`) keeps its prey until the prey dies, so it costs the dwarf it hunts unless a squad is within reach; that is the danger of wolves. [balance-status.md](../balance-status.md) holds the latest measurement.
+
 ## Mood floor and the no-spiral guarantee
 
 `mood = max(55 + min(40, positives) − min(35, negatives) − need pressure + hearth bonus + personality, 20 − need pressure)`, need pressure = the four survival and company thoughts (hungry, thirsty, tired, lonely), capped at 20:
