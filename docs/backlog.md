@@ -23,4 +23,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-157 | [Every command, event, job type and building type is exercised by a test](work/T-157-everything-exercised-once.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | — | open |
 | T-194 | [magma_kiln lacks magmaVariantOf and has no authored recipes](work/T-194-magma-kiln-no-recipes.md) | T-154 and its run of `descent.scenario.ts` | — | open; magma power fixed, recipe scope pending |
 
+
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. B-008 through B-012 await T-144 (the three wants as errands) (the stalled still) and T-145 (the fixture at default priorities); their measurement journal is in the [decision archive](archive/decisions-archive.md).
