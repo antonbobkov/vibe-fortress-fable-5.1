@@ -1,6 +1,6 @@
 # T-199 — The still waits for an empty barrel while every barrel holds food
 
-**Source:** T-144 and its report, [`../../reports/audits/2026-10-10-wants-without-errands.md`](../../reports/audits/2026-10-10-wants-without-errands.md) (§ What got worse, item 4) · **Size:** S · **Needs:** — · **Status:** open; cloud agent, next after T-144
+**Source:** T-144 and its report, [`../../reports/audits/2026-10-10-wants-without-errands.md`](../../reports/audits/2026-10-10-wants-without-errands.md) (§ What got worse, item 4) · **Size:** S · **Needs:** — · **Status:** in progress; cloud agent on `cloud/T-199`
 
 ## Why
 
@@ -16,6 +16,8 @@ Decide between, and write into `12` § Work orders or `13` § Containers:
 - **Or the game tells the player.** A `WorkshopBlocked` announcement that names the missing empty barrel, and a hint that points at the carpenter.
 
 The second is the smaller change and is the default if the owner does not choose.
+
+**Decided (cloud agent, 2026-10-10): the game tells the player.** The default above, for three reasons. It is the smaller change. Dwarf Fortress players expect a brew to need an empty barrel and to make barrels for it. And a brew that tips food onto the floor would quietly break the stockpile settings the player made. The announcement names the missing empty barrel and fires once per wait, not every tick; a hint points at the carpenter's barrel recipe. The barrel order T-144 added to `year_one` stays.
 
 ## What to do
 
