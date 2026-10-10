@@ -79,8 +79,8 @@ export interface Scenario {
 
 function buildWorld(scenario: Scenario): TestWorld {
   const embark = scenario.embark ?? 'none';
-  if (typeof embark === 'object' && typeof embark['preset'] !== 'string') {
-    throw new Error(`scenario ${scenario.id}: an embark spec names a preset ({ preset: id })`);
+  if (typeof embark === 'object' && typeof embark['preset'] !== 'string' && !('session' in embark)) {
+    throw new Error(`scenario ${scenario.id}: an embark spec names a preset ({ preset: id }) or session ({ session })`);
   }
   // T-M1-05: 'generated' is the standard world of the seed at its default region; a region spec is
   // the flat-test region with the given fields (docs/process/testing-strategy.md § Worlds).
@@ -97,7 +97,12 @@ function buildWorld(scenario: Scenario): TestWorld {
   return new TestWorld({
     seed: scenario.seed,
     ...world,
-    embark: typeof embark === 'object' ? { preset: embark['preset'] as string } : embark,
+    embark:
+      typeof embark === 'object'
+        ? 'session' in embark
+          ? { session: typeof embark['session'] === 'function' ? (embark['session'] as () => import('@systems/embark').EmbarkSession)() : (embark['session'] as import('@systems/embark').EmbarkSession) }
+          : { preset: embark['preset'] as string }
+        : embark,
     ...(scenario.startTick === undefined ? {} : { startTick: scenario.startTick }),
     ...(scenario.systems === undefined ? {} : { systems: scenario.systems() }),
   });
