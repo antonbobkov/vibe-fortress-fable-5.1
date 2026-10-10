@@ -24,6 +24,13 @@ export interface Engraving {
   motif: number;
 }
 
+/** Deferred terrain notifications and relighting, flushed at the normal tick boundary. */
+export interface PendingTerrain {
+  changed: TileIndex[];
+  discovered: TileIndex[];
+  litDirty: number[];
+}
+
 export interface TerrainStateV1 {
   stateVersion: 1;
   designations: DesignationEntry[];
@@ -41,6 +48,8 @@ export interface TerrainStateV1 {
   pendingMoves?: [EntityId, TileIndex, TileIndex][];
   /** The job producer has scanned the current designations (D-082). */
   producerCurrent?: boolean;
+  /** Absent in older or clean saves; never flushed by serialization. */
+  pendingTerrain?: PendingTerrain;
 }
 
 /** Keeps a sorted array of numbers sorted; the sets of `03` § State are sorted arrays. */

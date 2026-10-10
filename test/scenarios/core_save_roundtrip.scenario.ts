@@ -43,6 +43,9 @@ const scenario: Scenario = {
   setup: prepareBusyFortress,
   run: (w) => {
     w.step(HALF);
+    // T-184: planning while paused must retain the deferred terrain notification batch.
+    w.game.world.submit({ type: 'Designate', kind: 'channel', tiles: [w.index(60, 60, Z), w.index(61, 60, Z)], priority: 4 });
+    w.game.world.commandPhase(true);
     const header = { ...gameHeader(w.game, 'manual'), formatVersion: SAVE_FORMAT_VERSION, compressed: false };
     const loaded = restoreGame(inMemorySave(header, gameSections(w.game)));
     expect(loaded.game.hash()).toBe(w.hash());
@@ -50,7 +53,10 @@ const scenario: Scenario = {
 
     const uninterrupted = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });
     prepareBusyFortress(uninterrupted);
-    uninterrupted.step(2 * HALF);
+    uninterrupted.step(HALF);
+    uninterrupted.game.world.submit({ type: 'Designate', kind: 'channel', tiles: [uninterrupted.index(60, 60, Z), uninterrupted.index(61, 60, Z)], priority: 4 });
+    uninterrupted.game.world.commandPhase(true);
+    uninterrupted.step(HALF);
     expect(loaded.game.tick).toBe(uninterrupted.tick);
     expect(loaded.game.hash()).toBe(uninterrupted.hash());
     // There was work to carry across the save: something was built and something hauled.

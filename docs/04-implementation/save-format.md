@@ -79,6 +79,7 @@ Entity ids are written as numbers with generation. Content references are writte
     - During 13's deserialization, recount stock totals, available units, material classes and quality tiers once from restored items, preserving the saved dirty-type queue. Valid counts are unchanged; stale counts in older saves are repaired.
     - Rebuild spatial buckets (`game.spatial.rebuild()`) from restored entity positions.
     - Run full map relabel / connectivity rebuild (`game.pathing.connectivity.rebuildAll()`). If `systems[22].state.pendingConnectivity` is present, restore its saved local labels, component counts and outgoing portals over the rebuilt labels, reconstruct global labels and mark its saved dirty chunks for the normal tick pass. This preserves the command boundary of a paused save without advancing connectivity while saving or loading; clean saves and older saves use the ordinary full rebuild.
+    - System 03's `pendingTerrain` carries sorted changed and discovered tile batches and the levels awaiting relighting. Restore them for the next normal terrain flush without emitting notifications, recomputing light or advancing a tick during save or load. Older saves without this field have an empty pending batch.
     - Restore 22's pathfinder requests, searches, and walks (`pathfinder.loadState`, `movement.loadState`).
     - Restore `commandLog` and pending `queues` (`events` and `commands`).
 11. Restore `UiState`; start paused.

@@ -189,6 +189,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     const engravings = Array.from(core.engravings.keys())
       .sort((a, b) => a - b)
       .map((tile): [TileIndex, Engraving] => [tile, { ...(core.engravings.get(tile) as Engraving) }]);
+    const pendingTerrain = core.savePending();
     return {
       stateVersion: 1,
       designations: this.reader().designations(),
@@ -202,12 +203,14 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
       spec: this.specValue,
       pendingMoves: this.pendingMoves.map((m) => [m[0], m[1], m[2]] as [EntityId, TileIndex, TileIndex]),
       producerCurrent: this.producer?.current ?? false,
+      ...(pendingTerrain === undefined ? {} : { pendingTerrain }),
     };
   }
 
   deserialize(state: TerrainStateV1, ctx: InitContext): void {
     if (this.coreRef === null) this.init(ctx);
     const core = this.core;
+    core.loadPending(state.pendingTerrain);
     core.designated.length = 0;
     for (const d of state.designations) core.designated.push(d.tile);
     core.designated.sort((a, b) => a - b);

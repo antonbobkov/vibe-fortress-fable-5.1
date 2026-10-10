@@ -1,6 +1,8 @@
 # T-184 — A save taken while paused after a designation plays like the unsaved game
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 20, G18) · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-184: preserve paused terrain notifications across save and load`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (bug 20, G18) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -10,7 +12,7 @@ Planning while paused and then saving is ordinary play.
 
 ## Reproduction
 
-[`pausedevents.probe.ts`](../../reports/data/2026-10-09-bug-hunt-pausedevents.probe.ts.txt): flat-test, default embark, 700 ticks; `Designate { kind: 'channel' }` on two tiles through `world.submit` and `world.commandPhase(true)`; `roundTrip`; step both and compare after every tick. `SetAlert`, `CreateZone`, `PlaceBuilding`, `SetLabor` and `CreateSquad` in the same harness stay equal on every tick, and their queued events are in the save. [`save2.probe.ts`](../../reports/data/2026-10-09-bug-hunt-save2.probe.ts.txt), test "paused", is the busy case.
+[`pausedevents.probe.ts`](../../../reports/data/2026-10-09-bug-hunt-pausedevents.probe.ts.txt): flat-test, default embark, 700 ticks; `Designate { kind: 'channel' }` on two tiles through `world.submit` and `world.commandPhase(true)`; `roundTrip`; step both and compare after every tick. `SetAlert`, `CreateZone`, `PlaceBuilding`, `SetLabor` and `CreateSquad` in the same harness stay equal on every tick, and their queued events are in the save. [`save2.probe.ts`](../../../reports/data/2026-10-09-bug-hunt-save2.probe.ts.txt), test "paused", is the busy case.
 
 **The cause is not established.** Something the designation leaves for the end of its tick reaches 07 and 09 as changed tiles in the unsaved game and is not in the save. It is not the event queue.
 
