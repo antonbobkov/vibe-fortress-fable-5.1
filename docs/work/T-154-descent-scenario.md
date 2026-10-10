@@ -41,8 +41,18 @@ The late game is played by nothing. Measured: no long run breaches a cavern, min
 - Stage 1 completed: standard 96×96×48 local map with seed `descent`, wealth 3, peril 1, igneous geology; surface start with 12 dwarves and stocked hall (food, drink, tools, forge, smelter, materials); single stairs down at z=32, single stairs updown at z=31, shaft down to z=20, hallway at z=20, channel to ramp at z=19, ramp at (20, 46, 19), corridor breaching Cavern 1 at (23, 45, 19).
 - Assertions verified: `CavernBreached` (cavern: 1), `TilesDiscovered`, cavern tile discovered.
 - `MonsterSpawned` not delivered upon cavern breach (only wakeCavernMonsters flips state); filed bug row T-193 (`docs/work/T-193-cavern-breach-monster-event.md`).
+
+### 2026-10-09 — Stage 2 complete
+
+- Stage 2 completed:
+  - Wall built at (22, 46, 19) and door built at (22, 45, 19) across Breach 1.
+  - Shaft dug down column (21, 48) from z=20 to z=11 through solid rock.
+  - Corridor at z=11 dug: (21, 49, 11) to (15, 49, 11), breaching Cavern 2 at (14, 49, 11).
+  - Assertions verified: `CavernBreached` (cavern: 2), `TilesDiscovered`, cavern 2 tile discovered.
+  - Wall built at (15, 48, 11) and door built at (15, 49, 11) across Breach 2.
+  - Squad created ("Deep Guard"), 2 soldiers assigned, mode set to 'active', and stationed at lowest door (15, 49, 11).
+  - Verified soldiers on duty and squad stationed at door.
 - Remaining stages:
-  - Stage 2: continue descent to second cavern (z=11), breach Cavern 2, construct wall and door across each breach by command, create squad and station at lowest door.
   - Stage 3: deepsilver vein designation rejected `deepsilver_unconfirmed`, accepted after `ConfirmDeepsilver`, mine deepsilver, assert `DeepsilverMined`, `DeepStirred`, `MonsterEmerged`, smelt ore and forge deepsilver item.
   - Stage 4: descent to magma sea (z=3), channel over magma, build magma smelter, magma forge, magma kiln, issue 1 order each without fuel consumed, assert dwarf near magma is not burned and magma fluid total is unchanged.
 
