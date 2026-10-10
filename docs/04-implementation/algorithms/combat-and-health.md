@@ -80,7 +80,7 @@ squadDuties(): for sq in squads: mode = alert != 'calm' ? 'active' : sq.mode
   for m in sq.members: Soldier[m].onDuty = mode != 'off'
     if not onDuty: continue
     order = sq.orders[0]
-    if order.kind == 'kill': setTarget(m, order.targetId) (cleared when dead → orders.shift)
+    if order.kind == 'kill': if target in perception: setTarget(m, order.targetId) else walkTo(m, tile(target), 'combat') (cleared when dead → orders.shift)
     else if hostile in perception: setTarget(m, nearest hostile (archers prefer soldiers))
     else if mode == 'active': goal = order.station ?? sq.station ?? nextPatrolTile(sq, m) ?? barracksTile(sq); walkTo(m, goal, 'job')
     else if mode == 'train': shiftTrainOrStation(sq, m) // swap at floor(tick / (TRAIN_SHIFT_HOURS * TICKS_PER_HOUR)) % 2
@@ -99,7 +99,8 @@ Re-equipping considers only fortress items: exclude `merchant`, `at_depot`, `for
 
 ```
 for id in wounded (ascending):
-  B = Body[id]; bleed = Σ w.bleed for w in wounds where not w.bandaged
+  B = Body[id]; for w in wounds: if w.severity == light and tick - w.createdTick >= CLOT_TICKS: w.bleed = 0
+  bleed = Σ w.bleed for w in wounds where not w.bandaged
   if bleed > 0: B.blood -= bleed else B.blood = min(B.maxBlood, B.blood + BLOOD_REGEN_PER_TICK) unless infected
   B.pain = Σ w.pain * (100 - wil(id)/2)/100 (+10 if any infected)
   wasConscious = B.conscious
