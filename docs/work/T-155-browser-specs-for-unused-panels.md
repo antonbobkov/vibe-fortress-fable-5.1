@@ -36,8 +36,8 @@
 - Done:
   - `retire-and-legend.spec.ts`: plays a few hundred ticks, retires through the game menu and its confirmation, asserts the legend screen, returns to the main menu, opens Legends and asserts that the fortress is listed.
   - `embark-custom.spec.ts`: changes a skill, rerolls and renames a dwarf, changes supply and animal counts, renames the fortress, embarks and asserts the arrived party and stocks through the readers.
+  - `animals-panel.spec.ts`: marks and unmarks for slaughter, assigns to pasture, sets breeding cap, toggles huntable species on the wild tab; asserts through animals and foraging readers.
 - Remaining:
-  - `animals-panel.spec.ts`
   - `panels-act.spec.ts`
 
 ## Done
