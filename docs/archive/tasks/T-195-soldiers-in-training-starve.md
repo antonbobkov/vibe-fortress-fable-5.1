@@ -1,6 +1,6 @@
 # T-195 — A squad left in `train` mode starves
 
-**Source:** T-151, the defence-year scenario (Gemini, 2026-10-10); see the Progress section of [`T-151-defence-year-scenario.md`](T-151-defence-year-scenario.md) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-151, the defence-year scenario (Gemini, 2026-10-10); see the Progress section of [`T-151-defence-year-scenario.md`](../../work/T-151-defence-year-scenario.md) · **Size:** M · **Needs:** — · **Status:** closed
 
 ## What was seen
 
@@ -10,7 +10,7 @@ If it holds, it also bears on the balance work: every long fixture that arms a s
 
 ## What the spec says
 
-[`16-combat.md`](../02-systems/16-combat.md) § Squads says what being on duty means (no flight, the military title, no interruption by the hearth alert, attacking a visible hostile). [`10-dwarves.md`](../02-systems/10-dwarves.md) § Behavior selection orders the behaviours: `flee`, `retreat`, `need`, `duty`, and so on. If `need` ranks above `duty` there, a soldier with a need at its want or critical threshold must go and serve it, and the code is wrong. If the spec lets duty hold a soldier through a want-level need, it must still release the soldier at the critical threshold; no rule should let a dwarf starve beside food.
+[`16-combat.md`](../../02-systems/16-combat.md) § Squads says what being on duty means (no flight, the military title, no interruption by the hearth alert, attacking a visible hostile). [`10-dwarves.md`](../../02-systems/10-dwarves.md) § Behavior selection orders the behaviours: `flee`, `retreat`, `need`, `duty`, and so on. If `need` ranks above `duty` there, a soldier with a need at its want or critical threshold must go and serve it, and the code is wrong. If the spec lets duty hold a soldier through a want-level need, it must still release the soldier at the critical threshold; no rule should let a dwarf starve beside food.
 
 ## What to do
 
@@ -23,13 +23,41 @@ If it holds, it also bears on the balance work: every long fixture that arms a s
 
 - The reproduction fails before the fix and passes after it.
 - The spec states how needs and duty rank for a soldier in `train`, `active` and under an alert.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
 
 ## Progress (2026-10-10): reproduction
 
-**Outcome A: Soldiers starve.** The bug reproduced completely in the minimal scenario [`test/scenarios/t195_train_needs.scenario.ts`](../../test/scenarios/t195_train_needs.scenario.ts). All four soldiers in the training squad died of starvation on day 17 (tick 20,402) without eating or drinking once, despite 100 prepared meals and barrels of drink in a stockpile a short walk (2 tiles) from the barracks. The three civilians in the same fortress ate, drank, and survived the full 30 days.
+**Outcome A: Soldiers starve.** The bug reproduced completely in the minimal scenario [`test/scenarios/t195_train_needs.scenario.ts`](../../../test/scenarios/t195_train_needs.scenario.ts). All four soldiers in the training squad died of starvation on day 17 (tick 20,402) without eating or drinking once, despite 100 prepared meals and barrels of drink in a stockpile a short walk (2 tiles) from the barracks. The three civilians in the same fortress ate, drank, and survived the full 30 days.
 
-To keep `npm test` green while preserving the failure on record, the scenario is excluded from milestone 8 registration in [`test/scenarios/m8.test.ts`](../../test/scenarios/m8.test.ts) and registered in [`test/scenarios/t195-reproduction.test.ts`](../../test/scenarios/t195-reproduction.test.ts) running inside `it.fails(...)`.
+The scenario is registered with the milestone 8 scenarios in [`test/scenarios/m8.test.ts`](../../../test/scenarios/m8.test.ts).
+
+### Mechanism (measured)
+
+In a tick-by-tick instrumented run over 600 ticks after hunger passed 50:
+1. `src/systems/dwarves/activities.ts:371` (`Activities.step`):
+   When a need activity starts (e.g. sleep or eating), `this.movement.walkTo(id, p.target, 'need', ctx)` sets the movement target to the need's destination (bed or stockpile meal/drink tile).
+2. `src/systems/combat/squads.ts:494` (`stepSquadOrders`):
+   Later in the exact same tick, `stepSquadOrders` iterates over all squad members with `soldier.onDuty`. In `train` mode during `calm` alert, `destTile` is the barracks tile. Because it did not check whether `brain.behavior === 'duty'`, it unconditionally executed:
+   `ctx.world.services.movement?.walkTo(m, destTile, 'combat', ctx);`
+3. `src/core/movement.ts:177–183` (`MovementCore.walkTo`):
+   When differing movement targets are submitted in the same tick (`walk.target !== target`), `this.stopWalking(id)` is triggered. Measured on 599 out of 600 ticks: every tick `stopWalking` cleared the path request, so the dwarf was frozen in place and never moved a single tile toward food, drink, or bed.
+4. `src/systems/dwarves/brain.ts:251–256` (`select`):
+   `if (!civ)` intercepted non-civilian dwarves prior to want-level needs evaluation (lines 258–261), preventing soldiers in `train` mode from ever selecting want-level needs (hunger/thirst 50–84).
+
+### Spec quotes
+
+- [`docs/02-systems/10-dwarves.md`](../../02-systems/10-dwarves.md) § Behavior selection:
+  > "4. `need` (critical): satisfy the most critical need. Always applies to soldiers on duty as well as civilians, in every squad mode."
+  > "5. `duty`: the dwarf is a soldier on duty (16): 16 controls movement and targets. In `train` mode, training is ordinary duty, and want-level needs (step 6) take precedence so the soldier leaves duty to eat, drink, or sleep and returns when satisfied. In `active` mode with a hostile in sight, or when the squad has an explicit order (`station`, `patrol`, `follow`, `kill`) during an alert (`watchful` or `hearth`), duty holds the soldier against want-level needs; otherwise want-level needs also take precedence."
+  > "6. `need` (want): satisfy the highest need over its want threshold, unless a job with priority ≤ `NEED_DEFER_PRIORITY` is available and the need is below its critical threshold."
+
+- [`docs/02-systems/16-combat.md`](../../02-systems/16-combat.md) § Squads and § Training:
+  > "While a soldier's brain behavior is `need` (or `flee`, `retreat`, `patient`), squad code does not move the soldier, assign a training partner, or cancel the soldier's activity plan; the squad resumes control only when the soldier returns to `duty`. A critical need always takes precedence over duty in every mode. In `train` mode, want-level needs also take precedence over duty: training is ordinary duty, and the soldier goes to eat, drink or sleep and returns to training afterwards. In `active` mode with a hostile in sight, or when the squad has an explicit station, patrol, follow or kill order during an alert, a want-level need waits, but a critical need still wins."
+  > "Sparring: pairs of present members who are currently in `duty` behavior (not satisfying a need, fleeing, or hospitalized)..."
+
+- [`docs/04-implementation/algorithms/creature-brains.md`](../../04-implementation/algorithms/creature-brains.md) § Dwarf brain:
+  > "if combat.onDuty(id): dutyHolds = squad.mode == 'active' and (hostileInSight(id) or (alert != 'calm' and hasActiveOrder(squad))); if dutyHolds: b.behavior = 'duty'; return; want = highest need over its want threshold; if want: startNeed(id, want); return; b.behavior = 'duty'; return"
+  > "While a soldier's brain behavior is `need` (or `flee`, `retreat`, `patient`), squad positioning and training do not command movement or partner pairing."
 
 ### Summary lines
 
@@ -83,4 +111,18 @@ To keep `npm test` green while preserving the failure on record, the scenario is
    - Even when a soldier's brain switches to `behavior = 'need'` at critical need levels, `soldier.onDuty` remains true.
 3. `src/core/movement.ts` lines 177–183 (`walkTo()`):
    - When dwarf activities calls `movement.walkTo(id, foodOrDrinkTile, 'need', ctx)` and combat subsequently calls `movement.walkTo(id, barracksTile, 'combat', ctx)` within the same tick, `walk.target !== target` triggers `this.stopWalking(id)` every single tick. The path request is repeatedly discarded and recreated, so the soldier never moves a single tile toward food or drink and starves in place.
+
+## Fix (2026-10-10)
+
+1. `src/systems/dwarves/brain.ts` (`select()`):
+   - Preserved critical needs ranking before military duty checks for all dwarves.
+   - Evaluated `dutyHolds` for active soldiers with hostiles in sight, active orders, or non-calm alert.
+   - Allowed want-level needs to be served when in `train` mode or when duty does not hold.
+2. `src/systems/combat/training.ts` (`stepTraining()`):
+   - Skipped training pairing and sparring movement commands when soldier's brain behavior is `need` (or `flee`, `retreat`, `patient`).
+3. `src/systems/combat/squads.ts` (`stepSquadOrders()`):
+   - Skipped squad positioning movement commands and hostile targeting when soldier's brain behavior is `need` (unless sleeping on post in active duty).
+4. Tests:
+   - Unit tests added in `test/unit/combat/soldier-needs.test.ts` verifying want-level and critical-level needs across squad modes and resume of training.
+   - Scenario `test/scenarios/t195_train_needs.scenario.ts` registered in `test/scenarios/m8.test.ts`.
 

@@ -138,6 +138,8 @@ export function stepTraining(
       if (!entities.alive(m)) continue;
       const soldier = entities.get(m, C.Soldier);
       if (!soldier || !soldier.onDuty) continue;
+      const brain = entities.get(m, C.Brain);
+      if (brain !== undefined && (brain.behavior === 'need' || brain.behavior === 'flee' || brain.behavior === 'retreat' || brain.behavior === 'patient')) continue;
 
       if (isOnStationShift(squad, m, ctx.tick)) continue;
 
