@@ -1,6 +1,6 @@
 # Brief for the cloud agent
 
-Written by the local orchestrator on 2026-10-10 for a Claude agent that runs in the cloud on this repository. You coordinate: you hand each task to a Claude subagent, review what comes back, merge it and report. You do not do the tasks yourself. The local orchestrator keeps working in parallel on other tasks with Codex and Gemini; this brief is how the two of you stay out of each other's way.
+Written by the local orchestrator on 2026-10-10 for a Claude agent that runs in the cloud on this repository. You coordinate: you hand each task to a Claude subagent, review what comes back, merge it into your own branch and report. The local orchestrator merges your branch into `master`. You do not do the tasks yourself. The local orchestrator keeps working in parallel on other tasks with Codex and Gemini; this brief is how the two of you stay out of each other's way.
 
 ## What Deepholm is, and where things are
 
@@ -59,16 +59,21 @@ If you find a bug outside your tasks, file it (see "New rows") and go on. Do not
 
 ## How to work with git
 
-- **One branch per task**, named `cloud/<task id>`, cut from the current `origin/master`. Give each subagent its own checkout or worktree of its branch.
-- **You merge your own work.** When a task is verified (next section) and its branch is up to date with `origin/master`, merge it into `master` with a merge commit (`git merge --no-ff`, no squash, no rebase of published commits) and push. Pull first, every time: the local orchestrator pushes to `master` too, several times a day.
-- **Never force-push `master`,** and never push to the local side's branches (`codex-a`, anything starting `t-`) except `t-144` and `t-134-wip`, which are handed to you.
+**You work in your own worktree, on your own branches. You never merge into `master` and never push to it. The local orchestrator does all merging into `master`.**
+
+- **Your integration branch is `cloud/main`.** Create it from the current `origin/master` and check it out in a worktree of its own (`git worktree add ../deepholm-cloud -b cloud/main origin/master`, or the equivalent in your environment). It is the branch you keep, and the one the local orchestrator merges from.
+- **One branch and one worktree per task,** named `cloud/<task id>`, cut from `cloud/main`. Give each subagent its own worktree of its task branch (`git worktree add ../deepholm-T-196 -b cloud/T-196 cloud/main`). A subagent never works in your worktree or in another subagent's.
+- **When a task is verified** (next section), merge its branch into `cloud/main` with a merge commit (`git merge --no-ff`, no squash, no rebase of pushed commits) and push `cloud/main` and the task branch. Chain A's later steps build on the earlier ones through `cloud/main`, so they do not wait for the local merge.
+- **Keep `cloud/main` close to `master`.** Merge `origin/master` into `cloud/main` before you start each task and again before you declare a step ready. The local orchestrator pushes to `master` several times a day. If that merge breaks something of yours, fixing it is part of your step.
+- **Say when a step is ready to merge.** Add a line to the top section "Ready to merge" of your log (see the last section) with the `cloud/main` commit id and what it contains, and push. The local orchestrator then re-runs the checks on its machine, merges `cloud/main` into `master` and removes the line. Do not wait for that; go on with the next task.
+- **The two branches handed to you** are `origin/t-144` and `origin/t-134-wip`. Merge them into task branches of your own (`cloud/T-144`, `cloud/T-134`); do not push to them, to `master`, to `codex-a` or to any other branch that does not start with `cloud/`. Never force-push.
 - **`docs/backlog.md` conflicts at almost every merge,** because both sides add and delete rows. Resolve by keeping every row from both sides and removing only the rows of tasks that are closed.
 - **Commit messages:** `T-nnn: <what the game now does>`, then a body that lists the spec sections edited, the tests added, the golden files that moved and why (a paragraph starting `golden:`), and the verification run (`e2e: N passed`). End with the attribution line of the model that wrote the change.
 - **New rows.** A bug or follow-up you file takes the next free id in **T-210 … T-259**, a row in the backlog and a work file in `docs/work/` in the shape of the others (Source, Size, Needs, Status; Why; Reproduction; What the spec says; What to do; Done). The local side uses T-200 … T-209 and T-260 upward.
 
-## Verification, before every merge
+## Verification, before every merge into `cloud/main`
 
-A change to behaviour under `src/` is verified only when all of these have run on the branch after merging `origin/master` into it:
+A change to behaviour under `src/` is verified only when all of these have run on the task branch after merging the current `cloud/main` (itself up to date with `origin/master`) into it:
 
 ```bash
 npm ci
@@ -102,6 +107,8 @@ What has worked on this project:
 
 ## What to report, and where
 
-- Keep the backlog true: a row's Status says who has the task and where it stands (`cloud agent: in progress on cloud/T-196`).
-- When a chain step lands, add a short dated entry to a running log, `reports/cloud-agent-log.md` (new file; this one is a log, so appending to it is right): what merged, the decisions you made and why, what the measurements were, what you filed, what you could not establish.
-- If you are blocked on something only the owner can settle, write it at the top of that log under "Needs the owner", and carry on with the next task.
+- Keep the backlog true on `cloud/main`: a row's Status says who has the task and where it stands (`cloud agent: in progress on cloud/T-196`).
+- Keep a running log, `reports/cloud-agent-log.md` (new file, on `cloud/main`; it is a log, so appending to it is right). It starts with two short sections that you keep current:
+  - **Ready to merge:** one line per step that the local orchestrator can merge now, with the `cloud/main` commit id and what it contains.
+  - **Needs the owner:** anything only the owner can settle. Write it there and carry on with the next task.
+- Below those, add a short dated entry when a chain step lands on `cloud/main`: what it changed, the decisions you made and why, what the measurements were, what you filed, what you could not establish.

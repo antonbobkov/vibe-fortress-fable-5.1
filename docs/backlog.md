@@ -7,7 +7,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 - **Needs.** Items that must be closed first. "—" means it can start now.
 - **Status.** `open`, `in progress (who or which branch)`, or `blocked (why)`.
 
-**Who has what (2026-10-10).** Rows marked "cloud agent" in the Status column are handed to the Claude agent that runs in the cloud; its brief is [`../agents/cloud-agent.md`](../agents/cloud-agent.md). It works on branches `cloud/<task id>`, merges its own work into `master`, and files new rows as T-210 … T-259. Everything else is the local orchestrator's.
+**Who has what (2026-10-10).** Rows marked "cloud agent" in the Status column are handed to the Claude agent that runs in the cloud; its brief is [`../agents/cloud-agent.md`](../agents/cloud-agent.md). It works in its own worktrees on branches `cloud/main` and `cloud/<task id>` and never pushes to `master`; the local orchestrator merges `cloud/main` when its log lists a step as ready. It files new rows as T-210 … T-259. Everything else is the local orchestrator's.
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
