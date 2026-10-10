@@ -414,7 +414,7 @@ class Probe {
             );
         } else if (
           j.tool !== null &&
-          (j.data['toolToFetch'] === id || ent.get(j.workerId, C.Worker)?.toolId === id)
+          (j.data['toolToFetch'] === id || j.data['ammoToFetch'] === id || ent.get(j.workerId, C.Worker)?.toolId === id)
         ) {
           // the job's tool
         } else if (

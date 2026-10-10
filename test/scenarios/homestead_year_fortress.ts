@@ -630,8 +630,32 @@ export function runHomesteadYear(w: TestWorld): void {
   }
   console.log(`T-192 homestead_year wildlife: ${JSON.stringify({ spawns: wildSpawns, liveAtEnd: w.animals.reader().wildList().length, huntsCompleted: w.events('JobCompleted').filter((ev) => ev['jobType'] === 'hunt').length, huntKills: w.events('HuntKill').length })}`);
 
-  // 1. Job types completed
+  // Snapshot events at the end of the script (day 40) so all other assertions are evaluated at the day they are evaluated now
   const completedJobs = new Set(w.events('JobCompleted').map((e) => e['jobType']));
+  const craftedRecipes = new Set(w.events('ItemCrafted').map((e) => e['recipeId']));
+  const animalTrainedCount = w.events('AnimalTrained').length;
+  const butcheryDoneCount = w.events('ButcheryDone').length;
+  const huntKillCount = w.events('HuntKill').length;
+  const starvationCount = w.events('Starvation').length;
+  const dwarfDeaths = w.events('CreatureDied').filter((d) => dwarves.includes(d['id'] as number));
+
+  // Conception is a daily roll; a fixed end day made the test depend on the random sequence; T-186 and T-144 both tripped it.
+  // After the existing end of the script, keep stepping the world (no new commands) until an AnimalBorn event has been delivered,
+  // up to a hard limit of the current end day plus two full gestation periods plus ten days; assert that the birth happened
+  // within that limit, and print the day it happened.
+  const currentEndDay = Math.floor(w.tick / TICKS_PER_DAY);
+  const dogGestationDays = 20;
+  const hardLimitDay = currentEndDay + 2 * dogGestationDays + 10;
+  const hardLimitTick = hardLimitDay * TICKS_PER_DAY;
+  while (w.events('AnimalBorn').length === 0 && w.tick < hardLimitTick) {
+    w.step(Math.min(600, hardLimitTick - w.tick));
+  }
+  const birthEvents = w.events('AnimalBorn');
+  const birthDay = birthEvents.length > 0 ? (Math.floor(w.tick / TICKS_PER_DAY) + 1) : null;
+  console.log(`AnimalBorn: delivered on day ${birthDay}`);
+  expect(birthEvents.length, 'event: AnimalBorn within hard limit').toBeGreaterThanOrEqual(1);
+
+  // 1. Job types completed
   expect(completedJobs.has('slaughter'), 'job: slaughter').toBe(true);
   expect(completedJobs.has('butcher'), 'job: butcher').toBe(true);
   expect(completedJobs.has('milk_animal'), 'job: milk_animal').toBe(true);
@@ -644,7 +668,6 @@ export function runHomesteadYear(w: TestWorld): void {
   // Fishing is covered by the short T-191 bank/catch regressions; this fixture has no fishing zone.
 
   // 2. Ordered recipes crafted
-  const craftedRecipes = new Set(w.events('ItemCrafted').map((e) => e['recipeId']));
   expect(craftedRecipes.has('make_cheese'), 'recipe: make_cheese').toBe(true);
   expect(craftedRecipes.has('spin_thread'), 'recipe: spin_thread').toBe(true);
   expect(craftedRecipes.has('weave_cloth'), 'recipe: weave_cloth').toBe(true);
@@ -658,14 +681,12 @@ export function runHomesteadYear(w: TestWorld): void {
   expect(craftedRecipes.has('process_flax'), 'recipe: process_flax').toBe(true);
 
   // 3. Events emitted
-  expect(w.events('AnimalBorn').length, 'event: AnimalBorn').toBeGreaterThanOrEqual(1);
-  expect(w.events('AnimalTrained').length, 'event: AnimalTrained').toBeGreaterThanOrEqual(1);
-  expect(w.events('ButcheryDone').length, 'event: ButcheryDone').toBeGreaterThanOrEqual(1);
-  expect(w.events('HuntKill').length, 'event: HuntKill').toBeGreaterThanOrEqual(1);
+  expect(animalTrainedCount, 'event: AnimalTrained').toBeGreaterThanOrEqual(1);
+  expect(butcheryDoneCount, 'event: ButcheryDone').toBeGreaterThanOrEqual(1);
+  expect(huntKillCount, 'event: HuntKill').toBeGreaterThanOrEqual(1);
   // FishCaught is covered by the short T-191 regression, without adding a zone to this fixture.
 
   // 4. Invariants
-  expect(w.events('Starvation').length, 'no tame animal starved').toBe(0);
-  const dwarfDeaths = w.events('CreatureDied').filter((d) => dwarves.includes(d['id'] as number));
+  expect(starvationCount, 'no tame animal starved').toBe(0);
   expect(dwarfDeaths.length, 'no dwarf died').toBe(0);
 }
