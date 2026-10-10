@@ -4,7 +4,7 @@
 
 This is the latest filed evidence, not a tuning decision. **B-008 through B-012
 wait on [T-144](work/T-144-wants-without-errands.md),
-[T-188](work/T-188-still-stalls-and-the-fortress-dies-of-thirst.md) and
+[T-188](archive/tasks/T-188-still-stalls-and-the-fortress-dies-of-thirst.md) (closed 2026-10-09: the stall was T-132's barrel fault) and
 [T-145](work/T-145-economy-fixture-default-priority.md).** Their journal is archived.
 
 [The walking-speed measurement](../reports/audits/2026-10-09-walking-speed.md) re-measured the seed `three-years` on master

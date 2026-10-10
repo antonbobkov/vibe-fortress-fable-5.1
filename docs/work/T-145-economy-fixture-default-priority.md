@@ -22,6 +22,8 @@ Merge the rewrite once T-140 to T-143 are in, with these changes to the script:
 
 Before merging, also explain why the **old** script with no urgent jobs stops mining by day 112: every dig job is blocked "unreachable" and nothing is mined. If that is a game fault it gets its own row.
 
+- **Wild animals are part of the map now (added 2026-10-09).** Since T-192 they spawn, and in [the T-188 re-measure](../../reports/audits/2026-10-09-t188-reproduction.md) badgers and boars killed seven dwarves of the rewritten fortress at peril 0. The script must treat dangerous wild animals as it treats a thief: an alert, the squad sent, civilians kept in. The same run showed two surviving brewers choosing farm and kitchen work over an eligible brew; the script should keep at least one dwarf with brewing as its top labor.
+
 ## What to do
 
 1. Rebase the six fixture files of `f-17` onto master.
