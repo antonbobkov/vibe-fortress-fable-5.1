@@ -43,8 +43,8 @@ The fortress must also live at peril 2, which it does not before T-140 and T-141
 ## Progress
 
 - 2026-10-10: Stage 1 complete (`T-151: defence year, stage 1`). Fortress gate with door set to `lock_on_alert`, 10 walls and 4 fortifications built, mechanic workshop built, forge workshop built, archery target built, archery range and barracks zones created.
+- 2026-10-10: Stage 2 complete (`T-151: defence year, stage 2`). Traps (cage, weapon, stone-fall) built, lever and drawbridge built, linked via `LinkMechanism`, lever pulled (`PullLever`), drawbridge raised and lowered, `SetTrapMode` set on stone-fall trap.
 - Remaining stages:
-  - Stage 2: Traps (cage, weapon, stone-fall), levers, drawbridge linked (`LinkMechanism`) and pulled (`PullLever`).
   - Stage 3: Squad formed, equipped through gameplay (iron weapons/armor), assigned barracks and archery range, trained.
   - Stage 4: Threat/raid repelled, alert cycle (`watchful` -> `hearth` -> `calm`), door locked during alert, trap rearm/clean, verifications.
 

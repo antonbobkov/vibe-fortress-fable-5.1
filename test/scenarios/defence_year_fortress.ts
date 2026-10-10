@@ -8,6 +8,7 @@ import { TICKS_PER_DAY } from '@core/constants';
 import { TileKind, TileFlag } from '@core/map3d';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
+import type { DefenseReader } from '@systems/defense';
 import type { ItemsReader } from '@systems/items';
 import type { TestWorld } from './test-world';
 import {
@@ -38,6 +39,9 @@ export interface DefenceYearState {
   trapsPlaced: boolean;
   leverLinked: boolean;
   leverPulled: boolean;
+  bridgeRaised: boolean;
+  bridgeLowered: boolean;
+  trapModeSet: boolean;
   squadId: number;
   squadFormed: boolean;
   wallIds: number[];
@@ -69,6 +73,7 @@ export function checkDefenceYearBuildings(w: TestWorld, state: DefenceYearState)
   // 1. Place workshops using placeEconomyBuilding
   placeEconomyBuilding(w, state.fortress, 'mechanic', -12, 10);
   placeEconomyBuilding(w, state.fortress, 'forge', 12, 10);
+  placeEconomyBuilding(w, state.fortress, 'wood_furnace', -16, 10);
 
   // 2. Gate Walls and Fortifications flanking corridor leading South from stairwell (cx + 6, cy + 6)
   const wallTiles = [
@@ -238,6 +243,165 @@ export function checkDefenceYearBuildings(w: TestWorld, state: DefenceYearState)
       }
     }
   }
+
+  // 7. Place drawbridge at (cx + 6, cy + 11, Z) = (35, 15, Z)
+  if (state.drawbridgeId === 0) {
+    const tBridge = w.index(cx + 6, cy + 11, Z);
+    if (!buildings.at(tBridge) && w.map.kindAt(tBridge) === TileKind.Floor) {
+      const r = w.game.world.applyCommand({
+        type: 'PlaceBuilding',
+        buildingType: 'drawbridge',
+        origin: tBridge,
+        width: 1,
+        height: 1,
+        orientation: 0,
+        materialChoice: 0,
+        priority: 1,
+      });
+      if (r.ok) {
+        state.drawbridgeId = bSystem.lastPlacedBuilding;
+        console.log(`Drawbridge placed at tick ${w.tick}`);
+      }
+    }
+  }
+
+  // 8. Place lever at (cx + 4, cy + 6, Z) = (33, 10, Z)
+  if (state.leverId === 0) {
+    const tLever = w.index(cx + 4, cy + 6, Z);
+    if (!buildings.at(tLever) && w.map.kindAt(tLever) === TileKind.Floor) {
+      const r = w.game.world.applyCommand({
+        type: 'PlaceBuilding',
+        buildingType: 'lever',
+        origin: tLever,
+        orientation: 0,
+        materialChoice: 0,
+        priority: 1,
+      });
+      if (r.ok) {
+        state.leverId = bSystem.lastPlacedBuilding;
+        console.log(`Lever placed at tick ${w.tick}`);
+      }
+    }
+  }
+
+  // 9. Place Traps along corridor
+  if (!state.trapsPlaced) {
+    const tStone = w.index(cx + 6, cy + 8, Z);
+    const tWeapon = w.index(cx + 6, cy + 9, Z);
+    const tCage = w.index(cx + 6, cy + 10, Z);
+
+    if (state.stoneFallTrapId === 0 && !buildings.at(tStone) && w.map.kindAt(tStone) === TileKind.Floor) {
+      const r = w.game.world.applyCommand({
+        type: 'PlaceBuilding',
+        buildingType: 'stone_fall_trap',
+        origin: tStone,
+        orientation: 0,
+        materialChoice: 0,
+        priority: 1,
+      });
+      if (r.ok) {
+        state.stoneFallTrapId = bSystem.lastPlacedBuilding;
+        console.log(`Stone-fall trap placed at tick ${w.tick}`);
+      }
+    }
+
+    if (state.weaponTrapId === 0 && !buildings.at(tWeapon) && w.map.kindAt(tWeapon) === TileKind.Floor) {
+      const r = w.game.world.applyCommand({
+        type: 'PlaceBuilding',
+        buildingType: 'weapon_trap',
+        origin: tWeapon,
+        orientation: 0,
+        materialChoice: 0,
+        priority: 1,
+      });
+      if (r.ok) {
+        state.weaponTrapId = bSystem.lastPlacedBuilding;
+        console.log(`Weapon trap placed at tick ${w.tick}`);
+      }
+    }
+
+    if (state.cageTrapId === 0 && !buildings.at(tCage) && w.map.kindAt(tCage) === TileKind.Floor) {
+      const r = w.game.world.applyCommand({
+        type: 'PlaceBuilding',
+        buildingType: 'cage_trap',
+        origin: tCage,
+        orientation: 0,
+        materialChoice: 0,
+        priority: 1,
+      });
+      if (r.ok) {
+        state.cageTrapId = bSystem.lastPlacedBuilding;
+        console.log(`Cage trap placed at tick ${w.tick}`);
+      }
+    }
+
+    if (state.stoneFallTrapId !== 0 && state.weaponTrapId !== 0 && state.cageTrapId !== 0) {
+      state.trapsPlaced = true;
+    }
+  }
+
+  // 10. Link lever to drawbridge once both are built
+  if (state.leverId !== 0 && state.drawbridgeId !== 0 && !state.leverLinked) {
+    const leverB = buildings.get(state.leverId);
+    const bridgeB = buildings.get(state.drawbridgeId);
+    if (leverB?.state === 'built' && bridgeB?.state === 'built') {
+      const items = w.readers.of<ItemsReader>('13');
+      if (items.count('mechanism') > 0 && !leverB.linkedIds.includes(state.drawbridgeId)) {
+        w.game.world.applyCommand({
+          type: 'LinkMechanism',
+          sourceId: state.leverId,
+          targetId: state.drawbridgeId,
+        });
+      }
+      if (leverB.linkedIds.includes(state.drawbridgeId)) {
+        state.leverLinked = true;
+        console.log(`Lever linked to drawbridge at tick ${w.tick}`);
+      }
+    }
+  }
+
+  // 11. Pull lever once linked
+  if (state.leverLinked && !state.leverPulled) {
+    const rPull = w.game.world.applyCommand({
+      type: 'PullLever',
+      leverId: state.leverId,
+    });
+    if (rPull.ok) {
+      state.leverPulled = true;
+      console.log(`PullLever (to raise) issued at tick ${w.tick}`);
+    }
+  }
+
+  // Check bridge raising and lower it back down
+  if (state.leverPulled && !state.bridgeRaised && buildings.mechanismState(state.drawbridgeId) === 'raised') {
+    state.bridgeRaised = true;
+    console.log(`Drawbridge raised at tick ${w.tick}`);
+    const rLower = w.game.world.applyCommand({
+      type: 'PullLever',
+      leverId: state.leverId,
+    });
+    if (rLower.ok) {
+      console.log(`PullLever (to lower) issued at tick ${w.tick}`);
+    }
+  }
+
+  if (state.bridgeRaised && !state.bridgeLowered && buildings.mechanismState(state.drawbridgeId) === 'lowered') {
+    state.bridgeLowered = true;
+    console.log(`Drawbridge lowered at tick ${w.tick}`);
+  }
+
+  // 12. SetTrapMode on stone_fall_trap once built
+  if (!state.trapModeSet && state.stoneFallTrapId !== 0 && buildings.get(state.stoneFallTrapId)?.state === 'built') {
+    const rMode = w.game.world.applyCommand({
+      type: 'SetTrapMode',
+      trapId: state.stoneFallTrapId,
+      mode: 'enemies',
+    });
+    if (rMode.ok) {
+      state.trapModeSet = true;
+      console.log(`SetTrapMode on stone_fall_trap issued at tick ${w.tick}`);
+    }
+  }
 }
 
 export function runDefenceYear(): void {
@@ -263,6 +427,9 @@ export function runDefenceYear(): void {
     trapsPlaced: false,
     leverLinked: false,
     leverPulled: false,
+    bridgeRaised: false,
+    bridgeLowered: false,
+    trapModeSet: false,
     squadId: 0,
     squadFormed: false,
     wallIds: [],
@@ -294,10 +461,10 @@ export function runDefenceYear(): void {
   // Initial placement of defense buildings and workshops before economy workshops can claim tiles
   checkDefenceYearBuildings(w, state);
 
-  // Step for 25 days and manage workshop orders
-  const bootstrapTicks = 25 * TICKS_PER_DAY;
-  while (w.tick < bootstrapTicks) {
-    stepThreeYears(w, Math.min(100, bootstrapTicks - w.tick));
+  // Step up to Day 45 (or until Stage 2 conditions are met) and manage workshop orders
+  const stage2Ticks = 45 * TICKS_PER_DAY;
+  while (w.tick < stage2Ticks) {
+    stepThreeYears(w, Math.min(100, stage2Ticks - w.tick));
     checkDefenceYearBuildings(w, state);
     checkFortressWorkOrders(w, fortressState);
     checkFortressRooms(w, fortressState);
@@ -309,7 +476,6 @@ export function runDefenceYear(): void {
       if (!fortressState.orderedWorkshops.has('carpenter_defence')) {
         fortressState.orderedWorkshops.add('carpenter_defence');
         console.log(`Carpenter defence work orders added at tick ${w.tick}`);
-        // Priority 1 for target, door and cage
         w.game.world.applyCommand({
           type: 'AddWorkOrder',
           workshopId: carpenterId,
@@ -324,6 +490,11 @@ export function runDefenceYear(): void {
           type: 'AddWorkOrder',
           workshopId: carpenterId,
           order: { recipeId: 'make_cage_wood', mode: 'maintain', threshold: 3, priority: 1 },
+        });
+        w.game.world.applyCommand({
+          type: 'AddWorkOrder',
+          workshopId: carpenterId,
+          order: { recipeId: 'make_training_sword', mode: 'maintain', threshold: 2, priority: 1 },
         });
       }
     }
@@ -352,18 +523,60 @@ export function runDefenceYear(): void {
         console.log(`Mechanic work order added at tick ${w.tick}`);
       }
     }
+
+    const wfId = fortressState.placedIds['wood_furnace'];
+    if (wfId && buildings.get(wfId)?.state === 'built') {
+      if (!fortressState.orderedWorkshops.has('wood_furnace')) {
+        fortressState.orderedWorkshops.add('wood_furnace');
+        w.game.world.applyCommand({
+          type: 'AddWorkOrder',
+          workshopId: wfId,
+          order: { recipeId: 'make_charcoal', mode: 'maintain', threshold: 10, priority: 1 },
+        });
+        console.log(`Wood furnace work order added at tick ${w.tick}`);
+      }
+    }
+
+    const forgeId = fortressState.placedIds['forge'];
+    if (forgeId && buildings.get(forgeId)?.state === 'built') {
+      if (!fortressState.orderedWorkshops.has('forge_defence')) {
+        fortressState.orderedWorkshops.add('forge_defence');
+        w.game.world.applyCommand({
+          type: 'AddWorkOrder',
+          workshopId: forgeId,
+          order: { recipeId: 'forge_short_sword', mode: 'maintain', threshold: 4, priority: 1 },
+        });
+        w.game.world.applyCommand({
+          type: 'AddWorkOrder',
+          workshopId: forgeId,
+          order: { recipeId: 'forge_mail_shirt', mode: 'maintain', threshold: 4, priority: 1 },
+        });
+        w.game.world.applyCommand({
+          type: 'AddWorkOrder',
+          workshopId: forgeId,
+          order: { recipeId: 'forge_helm', mode: 'maintain', threshold: 4, priority: 1 },
+        });
+        w.game.world.applyCommand({
+          type: 'AddWorkOrder',
+          workshopId: forgeId,
+          order: { recipeId: 'forge_greaves', mode: 'maintain', threshold: 4, priority: 1 },
+        });
+        w.game.world.applyCommand({
+          type: 'AddWorkOrder',
+          workshopId: forgeId,
+          order: { recipeId: 'forge_shield', mode: 'maintain', threshold: 4, priority: 1 },
+        });
+        console.log(`Forge defence work orders added at tick ${w.tick}`);
+      }
+    }
   }
 
   console.log(`Tick ${w.tick} reached (Day ${Math.floor(w.tick / TICKS_PER_DAY)}).`);
-  console.log(`Carpenter: ${fortressState.placedIds['carpenter']}, state: ${buildings.get(fortressState.placedIds['carpenter'] ?? 0)?.state}`);
-  console.log(`Archery target item count: ${w.readers.of<ItemsReader>('13').count('archery_target')}`);
-  console.log(`Mechanic workshop: ${fortressState.placedIds['mechanic']}, state: ${buildings.get(fortressState.placedIds['mechanic'] ?? 0)?.state}`);
-  console.log(`Forge workshop: ${fortressState.placedIds['forge']}, state: ${buildings.get(fortressState.placedIds['forge'] ?? 0)?.state}`);
-  console.log(`Gate door: ${state.gateDoorId}, state: ${buildings.get(state.gateDoorId)?.state}, mode: ${buildings.get(state.gateDoorId)?.mode}`);
-  console.log(`Walls built: ${state.wallIds.filter((id) => buildings.get(id)?.state === 'built').length} / ${state.wallIds.length}`);
-  console.log(`Fortifications built: ${state.fortificationIds.filter((id) => buildings.get(id)?.state === 'built').length} / ${state.fortificationIds.length}`);
-  console.log(`Archery target: ${state.archeryTargetId}, state: ${buildings.get(state.archeryTargetId)?.state}`);
-  console.log(`Archery range zone: ${state.archeryRangeZoneId}, Barracks zone: ${state.barracksZoneId}`);
+  console.log(`Drawbridge: ${state.drawbridgeId}, state: ${buildings.get(state.drawbridgeId)?.state}, mechState: ${buildings.mechanismState(state.drawbridgeId)}`);
+  console.log(`Lever: ${state.leverId}, state: ${buildings.get(state.leverId)?.state}, linked: ${state.leverLinked}, pulled: ${state.leverPulled}`);
+  console.log(`Stone-fall trap: ${state.stoneFallTrapId}, state: ${buildings.get(state.stoneFallTrapId)?.state}`);
+  console.log(`Cage trap: ${state.cageTrapId}, state: ${buildings.get(state.cageTrapId)?.state}`);
+  console.log(`Weapon trap: ${state.weaponTrapId}, state: ${buildings.get(state.weaponTrapId)?.state}`);
 
   // Stage 1 Assertions
   expect(fortressState.placedIds['mechanic']).toBeDefined();
@@ -376,4 +589,20 @@ export function runDefenceYear(): void {
   expect(buildings.get(state.archeryTargetId)?.state).toBe('built');
   expect(state.archeryRangeZoneId).toBeGreaterThan(0);
   expect(state.barracksZoneId).toBeGreaterThan(0);
+
+  // Stage 2 Assertions
+  expect(state.drawbridgeId).toBeGreaterThan(0);
+  expect(buildings.get(state.drawbridgeId)?.state).toBe('built');
+  expect(state.leverId).toBeGreaterThan(0);
+  expect(buildings.get(state.leverId)?.state).toBe('built');
+  expect(state.stoneFallTrapId).toBeGreaterThan(0);
+  expect(buildings.get(state.stoneFallTrapId)?.state).toBe('built');
+  expect(state.cageTrapId).toBeGreaterThan(0);
+  expect(buildings.get(state.cageTrapId)?.state).toBe('built');
+  expect(state.weaponTrapId).toBeGreaterThan(0);
+  expect(buildings.get(state.weaponTrapId)?.state).toBe('built');
+  expect(state.leverLinked).toBe(true);
+  expect(w.events('MechanismTriggered').some((e) => e['sourceId'] === state.leverId)).toBe(true);
+  expect(state.bridgeRaised).toBe(true);
+  expect(w.readers.of<DefenseReader>('19').trapMode(state.stoneFallTrapId)).toBe('enemies');
 }
