@@ -31,6 +31,15 @@
 3. A panel action that has no effect or shows a raw string key is a bug: file a row with the screenshot named, and leave the assertion in as a `test.fixme` naming the row.
 4. Run `npm run test:e2e`.
 
+## Progress (2026-10-10)
+
+- Done:
+  - `retire-and-legend.spec.ts`: plays a few hundred ticks, retires through the game menu and its confirmation, asserts the legend screen, returns to the main menu, opens Legends and asserts that the fortress is listed.
+- Remaining:
+  - `embark-custom.spec.ts`
+  - `animals-panel.spec.ts`
+  - `panels-act.spec.ts`
+
 ## Done
 
 - The four specs pass in `npm run test:e2e`.
