@@ -25,5 +25,6 @@ Write a dated report with the measurements, classify each finding as GAME, BALAN
 
 ## Done
 
+- **Capture pass (2026-10-10):** measurements recorded across experiments A–E on three seeds in [`2026-10-10-wildlife-capture.md`](../../reports/data/2026-10-10-wildlife-capture.md) and [`2026-10-10-wildlife-capture.json`](../../reports/data/2026-10-10-wildlife-capture.json).
 - The report exists; each finding carries its evidence and its class.
 - The follow-up rows are in the backlog.

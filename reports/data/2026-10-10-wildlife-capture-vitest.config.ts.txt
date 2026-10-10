@@ -1,0 +1,16 @@
+import { defineConfig } from 'vitest/config';
+import { fileURLToPath } from 'node:url';
+import { aliases } from '../../vite.config';
+
+export default defineConfig({
+  resolve: { alias: aliases },
+  test: {
+    root: fileURLToPath(new URL('../..', import.meta.url)),
+    include: ['test/t196-scratch/**/*.test.ts'],
+    environment: 'node',
+    testTimeout: 3_600_000,
+    hookTimeout: 3_600_000,
+    pool: 'forks',
+    fileParallelism: false,
+  },
+});
