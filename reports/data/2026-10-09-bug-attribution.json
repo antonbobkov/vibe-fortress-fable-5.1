@@ -3,17 +3,17 @@
  "head": "e33db83",
  "commits": 437,
  "summary": {
-  "bugs_total": 122,
-  "charged": 100,
+  "bugs_total": 124,
+  "charged": 102,
   "spec": 22,
   "shared": 4,
   "by_confidence": {
-   "medium": 48,
+   "medium": 49,
    "high": 46,
-   "low": 6
+   "low": 7
   },
-  "omissions": 27,
-  "fix_commits": 65
+  "omissions": 28,
+  "fix_commits": 66
  },
  "confidence_weights": {
   "high": 1.0,
@@ -34,12 +34,12 @@
    "code_lines_added": 45923,
    "test_lines_added": 40779,
    "surviving_code_lines": 40699,
-   "bugs_all": 34.5,
-   "bugs_weighted": 22.95,
+   "bugs_all": 35.5,
+   "bugs_weighted": 23.55,
    "bugs_high": 9.0,
    "bugs_no_omission": 20.0,
    "bugs_high_no_om": 9.0,
-   "bugs_no_ui": 23.0,
+   "bugs_no_ui": 24.0,
    "bugs_no_valid": 13.0
   },
   {
@@ -118,13 +118,13 @@
    "code_lines_added": 12089,
    "test_lines_added": 64070,
    "surviving_code_lines": 10293,
-   "bugs_all": 25.5,
-   "bugs_weighted": 21.3,
+   "bugs_all": 26.5,
+   "bugs_weighted": 21.6,
    "bugs_high": 15.0,
-   "bugs_no_omission": 20.5,
+   "bugs_no_omission": 21.5,
    "bugs_high_no_om": 15.0,
-   "bugs_no_ui": 25.5,
-   "bugs_no_valid": 17.5
+   "bugs_no_ui": 26.5,
+   "bugs_no_valid": 18.5
   },
   {
    "agent": "Claude Sonnet 5.5",
@@ -199,12 +199,12 @@
    "tasks_with_code": 67,
    "code_lines_added": 51251,
    "surviving_code_lines": 45501,
-   "bugs_all": 34.5,
-   "bugs_weighted": 22.95,
+   "bugs_all": 35.5,
+   "bugs_weighted": 23.55,
    "bugs_high": 9.0,
    "bugs_no_omission": 20.0,
    "bugs_high_no_om": 9.0,
-   "bugs_no_ui": 23.0,
+   "bugs_no_ui": 24.0,
    "bugs_no_valid": 13.0
   },
   {
@@ -231,13 +231,13 @@
    "tasks_with_code": 32,
    "code_lines_added": 12089,
    "surviving_code_lines": 10293,
-   "bugs_all": 25.5,
-   "bugs_weighted": 21.3,
+   "bugs_all": 26.5,
+   "bugs_weighted": 21.6,
    "bugs_high": 15.0,
-   "bugs_no_omission": 20.5,
+   "bugs_no_omission": 21.5,
    "bugs_high_no_om": 15.0,
-   "bugs_no_ui": 25.5,
-   "bugs_no_valid": 17.5
+   "bugs_no_ui": 26.5,
+   "bugs_no_valid": 18.5
   },
   {
    "vendor": "Claude Sonnet",
@@ -1262,6 +1262,50 @@
   },
   {
    "id": "B044",
+   "fix_commit": "03ae75b",
+   "fix_subject": "T-180: a worker holds one tool, and a second tool puts the first one down",
+   "task": "T-180",
+   "description": "A worker that fetches a second tool keeps the first; the first is lost to every search",
+   "files": "jobs/steps.ts, items-adapter.ts",
+   "introducing_commit": "9e6d0ad",
+   "introducing_subject": "T-M1-08: Jobs system: board, labors, assignment, steps",
+   "introducing_agent": "Claude Opus 5",
+   "attribution": "single",
+   "kind": "wrong logic (omission)",
+   "omission": true,
+   "confidence": "medium",
+   "found_by": "T-115 spec reading",
+   "fixed_by": "Claude Sonnet 5.5",
+   "system": "jobs",
+   "kind_group": "wrong logic",
+   "charged": {
+    "Claude Opus 5": 1.0
+   }
+  },
+  {
+   "id": "B045",
+   "fix_commit": "03ae75b",
+   "fix_subject": "T-180: a worker holds one tool, and a second tool puts the first one down",
+   "task": "T-180",
+   "description": "A pick or axe in the weapon slot does not count as a held tool",
+   "files": "jobs/items-adapter.ts hasTool",
+   "introducing_commit": "2efbdd9",
+   "introducing_subject": "T-M6-06: Training and equipment",
+   "introducing_agent": "Gemini 3.8 Flash",
+   "attribution": "single",
+   "kind": "wrong logic",
+   "omission": false,
+   "confidence": "low",
+   "found_by": "T-115 spec reading",
+   "fixed_by": "Claude Sonnet 5.5",
+   "system": "jobs",
+   "kind_group": "wrong logic",
+   "charged": {
+    "Gemini 3.8 Flash": 1.0
+   }
+  },
+  {
+   "id": "B046",
    "fix_commit": "0d9373c",
    "fix_subject": "T-182: a workshop lets go of a job blocked on a missing input and starts the next runnable order",
    "task": "T-182",
@@ -1283,7 +1327,7 @@
    }
   },
   {
-   "id": "B045",
+   "id": "B047",
    "fix_commit": "90ba3c9",
    "fix_subject": "T-181: a sprung cage trap is re-armed with an unoccupied cage",
    "task": "T-181",
@@ -1305,7 +1349,7 @@
    }
   },
   {
-   "id": "B046",
+   "id": "B048",
    "fix_commit": "90ba3c9",
    "fix_subject": "T-181: a sprung cage trap is re-armed with an unoccupied cage",
    "task": "T-181",
@@ -1328,7 +1372,7 @@
    }
   },
   {
-   "id": "B047",
+   "id": "B049",
    "fix_commit": "6af8f84",
    "fix_subject": "T-183: a hunter carries the corpse of its own kill and waits for it",
    "task": "T-183",
@@ -1350,7 +1394,7 @@
    }
   },
   {
-   "id": "B048",
+   "id": "B050",
    "fix_commit": "23f3961",
    "fix_subject": "T-117: use CreatureDied throughout dwarf death consumers",
    "task": "T-117",
@@ -1372,7 +1416,7 @@
    }
   },
   {
-   "id": "B049",
+   "id": "B051",
    "fix_commit": "678774e",
    "fix_subject": "T-118: the unsaved-change check counts commands applied while paused",
    "task": "T-118",
@@ -1394,7 +1438,7 @@
    }
   },
   {
-   "id": "B050",
+   "id": "B052",
    "fix_commit": "082aa6b",
    "fix_subject": "T-119: resolve terrain, arrival, weather and movement decisions",
    "task": "T-119",
@@ -1416,7 +1460,7 @@
    }
   },
   {
-   "id": "B051",
+   "id": "B053",
    "fix_commit": "59042a9",
    "fix_subject": "T-120: resolve room assignment, building dimensions and training",
    "task": "T-120",
@@ -1438,7 +1482,7 @@
    }
   },
   {
-   "id": "B052",
+   "id": "B054",
    "fix_commit": "59042a9",
    "fix_subject": "T-120: resolve room assignment, building dimensions and training",
    "task": "T-120",
@@ -1460,7 +1504,7 @@
    }
   },
   {
-   "id": "B053",
+   "id": "B055",
    "fix_commit": "59042a9",
    "fix_subject": "T-120: resolve room assignment, building dimensions and training",
    "task": "T-120",
@@ -1482,7 +1526,7 @@
    }
   },
   {
-   "id": "B054",
+   "id": "B056",
    "fix_commit": "5bb5581",
    "fix_subject": "T-121: retain filtered announcements and name Settings failures",
    "task": "T-121",
@@ -1504,7 +1548,7 @@
    }
   },
   {
-   "id": "B055",
+   "id": "B057",
    "fix_commit": "5bb5581",
    "fix_subject": "T-121: retain filtered announcements and name Settings failures",
    "task": "T-121",
@@ -1526,7 +1570,7 @@
    }
   },
   {
-   "id": "B056",
+   "id": "B058",
    "fix_commit": "3cebc7a",
    "fix_subject": "T-122: let cornered civilians escape across levels and leave combat",
    "task": "T-122",
@@ -1548,7 +1592,7 @@
    }
   },
   {
-   "id": "B057",
+   "id": "B059",
    "fix_commit": "16c13d1",
    "fix_subject": "T-124: a fine meal relieves hunger and joy",
    "task": "T-124",
@@ -1570,7 +1614,7 @@
    }
   },
   {
-   "id": "B058",
+   "id": "B060",
    "fix_commit": "512f810",
    "fix_subject": "T-125: peril 4's first ambush and raid wait for day 56",
    "task": "T-125",
@@ -1592,7 +1636,7 @@
    }
   },
   {
-   "id": "B059",
+   "id": "B061",
    "fix_commit": "b7430d4",
    "fix_subject": "T-130: honor initial fauna and release equipped tool reservations",
    "task": "T-130",
@@ -1614,7 +1658,7 @@
    }
   },
   {
-   "id": "B060",
+   "id": "B062",
    "fix_commit": "b7430d4",
    "fix_subject": "T-130: honor initial fauna and release equipped tool reservations",
    "task": "T-130",
@@ -1636,7 +1680,7 @@
    }
   },
   {
-   "id": "B061",
+   "id": "B063",
    "fix_commit": "ad27193",
    "fix_subject": "T-131: preserve saved populations and web flags during load",
    "task": "T-131",
@@ -1658,7 +1702,7 @@
    }
   },
   {
-   "id": "B062",
+   "id": "B064",
    "fix_commit": "8f92e42",
    "fix_subject": "T-141: remember threats after escaping an entrance stair",
    "task": "T-141",
@@ -1680,7 +1724,7 @@
    }
   },
   {
-   "id": "B063",
+   "id": "B065",
    "fix_commit": "13118e0",
    "fix_subject": "T-142: keep trade jobs with the caravan stay and current broker",
    "task": "T-142",
@@ -1702,7 +1746,7 @@
    }
   },
   {
-   "id": "B064",
+   "id": "B066",
    "fix_commit": "c2b8ca8",
    "fix_subject": "T-143: retain delivered build and workshop inputs through interruptions",
    "task": "T-143",
@@ -1722,7 +1766,7 @@
    "charged": {}
   },
   {
-   "id": "B065",
+   "id": "B067",
    "fix_commit": "a28626d",
    "fix_subject": "F-17: crafts carry quality; jobs never output from inputs they no longer hold",
    "task": "F-17",
@@ -1744,7 +1788,7 @@
    }
   },
   {
-   "id": "B066",
+   "id": "B068",
    "fix_commit": "a28626d",
    "fix_subject": "F-17: crafts carry quality; jobs never output from inputs they no longer hold",
    "task": "F-17",
@@ -1766,7 +1810,7 @@
    }
   },
   {
-   "id": "B067",
+   "id": "B069",
    "fix_commit": "9a02dcf",
    "fix_subject": "F-17: renown counts dwarves; the winter wave clamps before halving; balance.md wealth drivers",
    "task": "F-17",
@@ -1788,7 +1832,7 @@
    }
   },
   {
-   "id": "B068",
+   "id": "B070",
    "fix_commit": "9a02dcf",
    "fix_subject": "F-17: renown counts dwarves; the winter wave clamps before halving; balance.md wealth drivers",
    "task": "F-17",
@@ -1810,7 +1854,7 @@
    }
   },
   {
-   "id": "B069",
+   "id": "B071",
    "fix_commit": "f82bb84",
    "fix_subject": "fix(threats): preserve combat pursuit through occlusion",
    "task": "fix(threats)",
@@ -1832,7 +1876,7 @@
    }
   },
   {
-   "id": "B070",
+   "id": "B072",
    "fix_commit": "63bc36e",
    "fix_subject": "fix(items): count hostile gear only after fortress recovery",
    "task": "fix(items)",
@@ -1852,7 +1896,7 @@
    "charged": {}
   },
   {
-   "id": "B071",
+   "id": "B073",
    "fix_commit": "5f64ad7",
    "fix_subject": "F-16: a civilian with no reachable shelter does not freeze",
    "task": "F-16",
@@ -1872,7 +1916,7 @@
    "charged": {}
   },
   {
-   "id": "B072",
+   "id": "B074",
    "fix_commit": "c34a9bb",
    "fix_subject": "F-15: bandits who reach their stockpile steal and leave; a failed walk means unreachable",
    "task": "F-15",
@@ -1892,7 +1936,7 @@
    "charged": {}
   },
   {
-   "id": "B073",
+   "id": "B075",
    "fix_commit": "c34a9bb",
    "fix_subject": "F-15: bandits who reach their stockpile steal and leave; a failed walk means unreachable",
    "task": "F-15",
@@ -1914,7 +1958,7 @@
    }
   },
   {
-   "id": "B074",
+   "id": "B076",
    "fix_commit": "cc4c070",
    "fix_subject": "fix(buildings): a lock_on_alert door that locks by timeout updates connectivity",
    "task": "fix(buildings)",
@@ -1936,7 +1980,7 @@
    }
   },
   {
-   "id": "B075",
+   "id": "B077",
    "fix_commit": "cbbf8a9",
    "fix_subject": "F-13: a locked gate makes a raid loiter and leave; animals never park on doors",
    "task": "F-13",
@@ -1956,7 +2000,7 @@
    "charged": {}
   },
   {
-   "id": "B076",
+   "id": "B078",
    "fix_commit": "cbbf8a9",
    "fix_subject": "F-13: a locked gate makes a raid loiter and leave; animals never park on doors",
    "task": "F-13",
@@ -1976,7 +2020,7 @@
    "charged": {}
   },
   {
-   "id": "B077",
+   "id": "B079",
    "fix_commit": "79fbf68",
    "fix_subject": "F-12: comfort and joy rates match the documented visit frequency",
    "task": "F-12",
@@ -1996,7 +2040,7 @@
    "charged": {}
   },
   {
-   "id": "B078",
+   "id": "B080",
    "fix_commit": "1764159",
    "fix_subject": "fix(jobs): skip a candidate job that was removed during assignment",
    "task": "fix(jobs)",
@@ -2018,7 +2062,7 @@
    }
   },
   {
-   "id": "B079",
+   "id": "B081",
    "fix_commit": "95cff2b",
    "fix_subject": "F-01: job assignment livelock",
    "task": "F-01",
@@ -2038,7 +2082,7 @@
    "charged": {}
   },
   {
-   "id": "B080",
+   "id": "B082",
    "fix_commit": "95cff2b",
    "fix_subject": "F-01: job assignment livelock",
    "task": "F-01",
@@ -2060,7 +2104,7 @@
    }
   },
   {
-   "id": "B081",
+   "id": "B083",
    "fix_commit": "95cff2b",
    "fix_subject": "F-01: job assignment livelock",
    "task": "F-01",
@@ -2082,7 +2126,7 @@
    }
   },
   {
-   "id": "B082",
+   "id": "B084",
    "fix_commit": "39147e7",
    "fix_subject": "F-02: mood need pressure",
    "task": "F-02",
@@ -2102,7 +2146,7 @@
    "charged": {}
   },
   {
-   "id": "B083",
+   "id": "B085",
    "fix_commit": "67002ab",
    "fix_subject": "F-03: fluid settling",
    "task": "F-03",
@@ -2122,7 +2166,7 @@
    "charged": {}
   },
   {
-   "id": "B084",
+   "id": "B086",
    "fix_commit": "94d7e56",
    "fix_subject": "F-05: dwarf need activities",
    "task": "F-05",
@@ -2144,7 +2188,7 @@
    }
   },
   {
-   "id": "B085",
+   "id": "B087",
    "fix_commit": "94d7e56",
    "fix_subject": "F-05: dwarf need activities",
    "task": "F-05",
@@ -2166,7 +2210,7 @@
    }
   },
   {
-   "id": "B086",
+   "id": "B088",
    "fix_commit": "94d7e56",
    "fix_subject": "F-05: dwarf need activities",
    "task": "F-05",
@@ -2188,7 +2232,7 @@
    }
   },
   {
-   "id": "B087",
+   "id": "B089",
    "fix_commit": "696bd49",
    "fix_subject": "F-10: need rates match the documented season",
    "task": "F-10",
@@ -2208,7 +2252,7 @@
    "charged": {}
   },
   {
-   "id": "B088",
+   "id": "B090",
    "fix_commit": "a4f8883",
    "fix_subject": "F-11: idle responsiveness",
    "task": "F-11",
@@ -2228,7 +2272,7 @@
    "charged": {}
   },
   {
-   "id": "B089",
+   "id": "B091",
    "fix_commit": "a72826b",
    "fix_subject": "F-08: M6/M7 spec arithmetic and gaps",
    "task": "F-08",
@@ -2250,7 +2294,7 @@
    }
   },
   {
-   "id": "B090",
+   "id": "B092",
    "fix_commit": "aca6ea4",
    "fix_subject": "F-09: small fixes",
    "task": "F-09",
@@ -2272,7 +2316,7 @@
    }
   },
   {
-   "id": "B091",
+   "id": "B093",
    "fix_commit": "261ad68",
    "fix_subject": "fix(jobs): fetch a stacked craft input in one trip",
    "task": "fix(jobs)",
@@ -2294,7 +2338,7 @@
    }
   },
   {
-   "id": "B092",
+   "id": "B094",
    "fix_commit": "479cb6a",
    "fix_subject": "fix(health): emit CreatureDied exactly once per death",
    "task": "fix(health)",
@@ -2316,7 +2360,7 @@
    }
   },
   {
-   "id": "B093",
+   "id": "B095",
    "fix_commit": "a8e0a26",
    "fix_subject": "U-01: hostile counter, glyphs, build list, list heights, help, hint_fuel",
    "task": "U-01",
@@ -2338,7 +2382,7 @@
    }
   },
   {
-   "id": "B094",
+   "id": "B096",
    "fix_commit": "a8e0a26",
    "fix_subject": "U-01: hostile counter, glyphs, build list, list heights, help, hint_fuel",
    "task": "U-01",
@@ -2360,7 +2404,7 @@
    }
   },
   {
-   "id": "B095",
+   "id": "B097",
    "fix_commit": "a8e0a26",
    "fix_subject": "U-01: hostile counter, glyphs, build list, list heights, help, hint_fuel",
    "task": "U-01",
@@ -2382,7 +2426,7 @@
    }
   },
   {
-   "id": "B096",
+   "id": "B098",
    "fix_commit": "a8e0a26",
    "fix_subject": "U-01: hostile counter, glyphs, build list, list heights, help, hint_fuel",
    "task": "U-01",
@@ -2404,7 +2448,7 @@
    }
   },
   {
-   "id": "B097",
+   "id": "B099",
    "fix_commit": "a8e0a26",
    "fix_subject": "U-01: hostile counter, glyphs, build list, list heights, help, hint_fuel",
    "task": "U-01",
@@ -2426,7 +2470,7 @@
    }
   },
   {
-   "id": "B098",
+   "id": "B100",
    "fix_commit": "a8e0a26",
    "fix_subject": "U-01: hostile counter, glyphs, build list, list heights, help, hint_fuel",
    "task": "U-01",
@@ -2448,7 +2492,7 @@
    }
   },
   {
-   "id": "B099",
+   "id": "B101",
    "fix_commit": "a8e0a26",
    "fix_subject": "U-01: hostile counter, glyphs, build list, list heights, help, hint_fuel",
    "task": "U-01",
@@ -2470,7 +2514,7 @@
    }
   },
   {
-   "id": "B100",
+   "id": "B102",
    "fix_commit": "a8e0a26",
    "fix_subject": "U-01: hostile counter, glyphs, build list, list heights, help, hint_fuel",
    "task": "U-01",
@@ -2490,7 +2534,7 @@
    "charged": {}
   },
   {
-   "id": "B101",
+   "id": "B103",
    "fix_commit": "0d7199b",
    "fix_subject": "U-01: failures say what and why; rejections reach the log",
    "task": "U-01",
@@ -2510,7 +2554,7 @@
    "charged": {}
   },
   {
-   "id": "B102",
+   "id": "B104",
    "fix_commit": "cc8c064",
    "fix_subject": "U-01: no-op messages; no raw ids or codes on screen",
    "task": "U-01",
@@ -2532,7 +2576,7 @@
    }
   },
   {
-   "id": "B103",
+   "id": "B105",
    "fix_commit": "cc8c064",
    "fix_subject": "U-01: no-op messages; no raw ids or codes on screen",
    "task": "U-01",
@@ -2554,7 +2598,7 @@
    }
   },
   {
-   "id": "B104",
+   "id": "B106",
    "fix_commit": "cc8c064",
    "fix_subject": "U-01: no-op messages; no raw ids or codes on screen",
    "task": "U-01",
@@ -2576,7 +2620,7 @@
    }
   },
   {
-   "id": "B105",
+   "id": "B107",
    "fix_commit": "cc8c064",
    "fix_subject": "U-01: no-op messages; no raw ids or codes on screen",
    "task": "U-01",
@@ -2598,7 +2642,7 @@
    }
   },
   {
-   "id": "B106",
+   "id": "B108",
    "fix_commit": "cc8c064",
    "fix_subject": "U-01: no-op messages; no raw ids or codes on screen",
    "task": "U-01",
@@ -2620,7 +2664,7 @@
    }
   },
   {
-   "id": "B107",
+   "id": "B109",
    "fix_commit": "cc8c064",
    "fix_subject": "U-01: no-op messages; no raw ids or codes on screen",
    "task": "U-01",
@@ -2642,7 +2686,7 @@
    }
   },
   {
-   "id": "B108",
+   "id": "B110",
    "fix_commit": "0b124b1",
    "fix_subject": "U-01: embark default and confirmation; safe defaults; key fixes",
    "task": "U-01",
@@ -2664,7 +2708,7 @@
    }
   },
   {
-   "id": "B109",
+   "id": "B111",
    "fix_commit": "0b124b1",
    "fix_subject": "U-01: embark default and confirmation; safe defaults; key fixes",
    "task": "U-01",
@@ -2686,7 +2730,7 @@
    }
   },
   {
-   "id": "B110",
+   "id": "B112",
    "fix_commit": "0b124b1",
    "fix_subject": "U-01: embark default and confirmation; safe defaults; key fixes",
    "task": "U-01",
@@ -2706,7 +2750,7 @@
    "charged": {}
   },
   {
-   "id": "B111",
+   "id": "B113",
    "fix_commit": "0b124b1",
    "fix_subject": "U-01: embark default and confirmation; safe defaults; key fixes",
    "task": "U-01",
@@ -2726,7 +2770,7 @@
    "charged": {}
   },
   {
-   "id": "B112",
+   "id": "B114",
    "fix_commit": "fac58ce",
    "fix_subject": "U-02: apply commands immediately while paused",
    "task": "U-02",
@@ -2746,7 +2790,7 @@
    "charged": {}
   },
   {
-   "id": "B113",
+   "id": "B115",
    "fix_commit": "42b1f7a",
    "fix_subject": "U-03: work orders with quantity; panel hotkeys always win",
    "task": "U-03",
@@ -2768,7 +2812,7 @@
    }
   },
   {
-   "id": "B114",
+   "id": "B116",
    "fix_commit": "42b1f7a",
    "fix_subject": "U-03: work orders with quantity; panel hotkeys always win",
    "task": "U-03",
@@ -2790,7 +2834,7 @@
    }
   },
   {
-   "id": "B115",
+   "id": "B117",
    "fix_commit": "42b1f7a",
    "fix_subject": "U-03: work orders with quantity; panel hotkeys always win",
    "task": "U-03",
@@ -2810,7 +2854,7 @@
    "charged": {}
   },
   {
-   "id": "B116",
+   "id": "B118",
    "fix_commit": "5d9759f",
    "fix_subject": "U-04: drag to place many; out-of-stock prompt",
    "task": "U-04",
@@ -2830,7 +2874,7 @@
    "charged": {}
   },
   {
-   "id": "B117",
+   "id": "B119",
    "fix_commit": "3b06f7b",
    "fix_subject": "U-05: building panel: modes, links, plates, traps, cages, owners, priority",
    "task": "U-05",
@@ -2853,7 +2897,7 @@
    }
   },
   {
-   "id": "B118",
+   "id": "B120",
    "fix_commit": "9d92c17",
    "fix_subject": "U-06: labor manager; unit and squad multi-select; titles, renames, leader, barracks",
    "task": "U-06",
@@ -2876,7 +2920,7 @@
    }
   },
   {
-   "id": "B119",
+   "id": "B121",
    "fix_commit": "9d92c17",
    "fix_subject": "U-06: labor manager; unit and squad multi-select; titles, renames, leader, barracks",
    "task": "U-06",
@@ -2898,7 +2942,7 @@
    }
   },
   {
-   "id": "B120",
+   "id": "B122",
    "fix_commit": "0e875a7",
    "fix_subject": "U-07: configure stockpiles and inspect rooms",
    "task": "U-07",
@@ -2920,7 +2964,7 @@
    }
   },
   {
-   "id": "B121",
+   "id": "B123",
    "fix_commit": "42c623d",
    "fix_subject": "U-08: tooltips, palette distances and ghosts",
    "task": "U-08",
@@ -2942,7 +2986,7 @@
    }
   },
   {
-   "id": "B122",
+   "id": "B124",
    "fix_commit": "42c623d",
    "fix_subject": "U-08: tooltips, palette distances and ghosts",
    "task": "U-08",
