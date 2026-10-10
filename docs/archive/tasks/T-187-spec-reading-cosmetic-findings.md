@@ -1,6 +1,8 @@
 # T-187 — Cosmetic findings of the spec reading
 
-**Source:** T-115 and its report, [`../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (C13 to C24, and "Suspected") · **Size:** M · **Needs:** T-186 (it decides the rule for items 2, 3, 6 and 9) · **Status:** open
+Closed by `T-187: preserve order identity and retry failed walks only on a trigger`.
+
+**Source:** T-115 and its report, [`../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../../../reports/audits/2026-10-09-bug-hunt-spec-reading.md) (C13 to C24, and "Suspected") · **Size:** M · **Needs:** T-186 (it decides the rule for items 2, 3, 6 and 9) · **Status:** open
 
 ## Why
 
@@ -8,7 +10,7 @@ Twelve small faults and four suspected ones, none of which ends a fortress. Most
 
 ## Reproduction
 
-Read, with the file and line for each in the report. Measured: C21 ([`tools-fixture.probe.ts`](../../reports/data/2026-10-09-bug-hunt-tools-fixture.probe.ts.txt), peril 2, day 29) and C22 ([`toolswap.probe.ts`](../../reports/data/2026-10-09-bug-hunt-toolswap.probe.ts.txt), [`cagetrap.probe.ts`](../../reports/data/2026-10-09-bug-hunt-cagetrap.probe.ts.txt)).
+Read, with the file and line for each in the report. Measured: C21 ([`tools-fixture.probe.ts`](../../../reports/data/2026-10-09-bug-hunt-tools-fixture.probe.ts.txt), peril 2, day 29) and C22 ([`toolswap.probe.ts`](../../../reports/data/2026-10-09-bug-hunt-toolswap.probe.ts.txt), [`cagetrap.probe.ts`](../../../reports/data/2026-10-09-bug-hunt-cagetrap.probe.ts.txt)).
 
 ## What to do
 

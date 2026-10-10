@@ -452,6 +452,8 @@ export class JobBoard implements JobsApi, JobSink {
   unclaim(job: Job, reason: string): void {
     this.releaseReservations(job, true);
     this.freeWorker(job, true);
+    if (reason === 'unreachable') job.failedWalk = true;
+    else delete job.failedWalk;
     this.block(job, reason);
   }
 
@@ -464,6 +466,7 @@ export class JobBoard implements JobsApi, JobSink {
       if (chunks !== null && job.target.kind === 'tile' && map.validIndex(job.target.ref) && !chunks.has(map.chunkOf(job.target.ref))) {
         continue;
       }
+      delete job.failedWalk;
       job.retryTick = Math.min(job.retryTick, this.now);
     }
   }
@@ -476,7 +479,7 @@ export class JobBoard implements JobsApi, JobSink {
   retryBlocked(): void {
     const due = this.ids.filter((id) => {
       const job = this.jobs.get(id) as Job;
-      return job.state === 'blocked' && job.retryTick <= this.now;
+      return job.state === 'blocked' && job.retryTick <= this.now && job.failedWalk !== true;
     });
     if (due.length === 0) return;
     let start = due.findIndex((id) => id > this.blockedRetryCursor);
@@ -1032,7 +1035,7 @@ function structuredCopy(job: Job): Job {
   return {
     ...job,
     target: { ...job.target },
-    inputs: job.inputs.map((i) => ({ filter: { ...i.filter }, count: i.count, reserved: i.reserved.slice(), delivered: i.delivered.slice() })),
+    inputs: job.inputs.map((i) => ({ filter: { ...i.filter }, count: i.count, ...(i.wholeItem === true ? { wholeItem: true as const } : {}), reserved: i.reserved.slice(), delivered: i.delivered.slice() })),
     data: { ...job.data },
   };
 }

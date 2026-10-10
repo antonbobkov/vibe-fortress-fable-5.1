@@ -6,6 +6,7 @@ import type { EntityId } from '@core/types';
 export interface WorkshopsStateV1 {
   stateVersion: 1;
   globalOrders: WorkOrder[];
+  nextOrderSerial?: number;
   professionCache: [EntityId, string][];
   rng: RngState;
   /** D-082: registration was connected before the saved tick. */

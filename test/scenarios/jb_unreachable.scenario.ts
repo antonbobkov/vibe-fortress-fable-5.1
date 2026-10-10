@@ -4,8 +4,8 @@
  *
  * A pen of walls on the `flat-test` surface whose one gap is held by a blocking building through
  * `TestWorld`'s passability hook (22's `blocksMovementAt`), standing in for the locked door of 14
- * (M2). The dig target is inside. Unlocking takes the block away, which dirties the chunk but
- * changes no tile, so only the periodic retry can see it.
+ * (M2). The dig target is inside. T-187: unlocking dirties the chunk and emits the same
+ * BuildingStateChanged trigger as a real door, so a failed walk can retry.
  */
 
 import { expect } from 'vitest';
@@ -57,6 +57,7 @@ const scenario: Scenario = {
     expect(w.events('JobUnblocked')).toHaveLength(0);
     // Unlock.
     w.setBuildingBlock(w.index(X0 + 3, Y0, Z), false);
+    w.game.world.emit({ type: 'BuildingStateChanged', id: 0, state: 'open' });
     const spent = w.until((world) => world.events('JobUnblocked').length > 0, BLOCKED_RETRY_TICKS + 1);
     expect(spent).toBeLessThanOrEqual(BLOCKED_RETRY_TICKS);
     w.until((world) => world.map.kindAt(world.index(X0 + 3, Y0 + 3, Z)) === TileKind.Floor, 1_500);

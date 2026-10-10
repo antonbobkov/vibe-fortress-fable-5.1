@@ -13,14 +13,16 @@ export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandRe
   const global = id === 0;
   const ws = global ? undefined : op.workshop(id);
   if (!global && ws === undefined) return reject('not_found');
-  const orders = global ? op.globalOrders : (ws as NonNullable<typeof ws>).orders.slice();
+  const orders = global ? op.globalOrders.slice() : (ws as NonNullable<typeof ws>).orders.slice();
   const index = cmd['index'] as number;
   const board = op.ctx.world.services.jobs as JobBoard;
+  const current = global ? undefined : board.jobs.get((ws as NonNullable<typeof ws>).currentJobId);
+  const runningOrder = current === undefined || current.data['globalOrder'] === true ? undefined : orders[current.data['orderIndex'] as number];
   const cancelCurrent = (): void => {
     if (global) {
-      const job = board.byKey(`craft:global:${index}`);
+      const job = board.byKey(`craft:global:${orders[index]?.serial}`);
       if (job !== undefined) board.cancel(job.id, 'order_changed');
-    } else if ((ws as NonNullable<typeof ws>).currentJobId !== 0) {
+    } else if (current !== undefined && current.data['globalOrder'] !== true && current.data['orderIndex'] === index) {
       board.cancel((ws as NonNullable<typeof ws>).currentJobId, 'order_changed');
       op.save(id, { ...(ws as NonNullable<typeof ws>), currentJobId: 0 });
     }
@@ -34,6 +36,7 @@ export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandRe
     const order = parseOrder(op, raw, recipe.id);
     if (order === 'bad_setting') return reject('bad_setting');
     if (order === null) return reject('precondition_failed');
+    if (global) { op.ensureGlobalSerials(); order.serial = op.nextOrderSerial++; }
     orders.push(order);
   } else if (cmd.type === 'EditWorkOrder') {
     if (!Number.isInteger(index) || index < 0 || index >= orders.length) return reject('invalid_index');
@@ -45,22 +48,30 @@ export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandRe
     const order = parseOrder(op, { ...before, ...patch }, recipe.id);
     if (order === 'bad_setting') return reject('bad_setting');
     if (order === null) return reject('precondition_failed');
+    if (global) { op.ensureGlobalSerials(); order.serial = before.serial as number; }
     cancelCurrent();
     orders[index] = order;
   } else if (cmd.type === 'RemoveWorkOrder') {
     if (!Number.isInteger(index) || index < 0 || index >= orders.length) return reject('invalid_index');
+    if (global) op.ensureGlobalSerials();
     cancelCurrent();
     orders.splice(index, 1);
   } else if (cmd.type === 'ReorderWorkOrder') {
     const from = (cmd['from'] ?? index) as number;
     const to = cmd['to'] as number;
     if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || from >= orders.length || to < 0 || to >= orders.length) return reject('invalid_index');
-    cancelCurrent();
+    if (global) op.ensureGlobalSerials();
     const order = orders.splice(from, 1)[0] as WorkOrder;
     orders.splice(to, 0, order);
   } else return reject('not_found');
-  if (global) op.globalOrders.splice(0, op.globalOrders.length, ...orders);
-  else op.save(id, { ...(op.workshop(id) as NonNullable<typeof ws>), orders });
+  if (global) {
+    op.globalOrders.splice(0, op.globalOrders.length, ...orders);
+    op.reindexGlobalJobs();
+  } else {
+    if (current !== undefined && board.jobs.has(current.id) && runningOrder !== undefined)
+      current.data['orderIndex'] = orders.indexOf(runningOrder);
+    op.save(id, { ...(op.workshop(id) as NonNullable<typeof ws>), orders });
+  }
   return OK;
 }
 

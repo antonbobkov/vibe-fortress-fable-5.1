@@ -159,6 +159,7 @@ export class WorkshopOperator {
   readonly numberRecipes = new Map<number, RecipeRow>();
   readonly byWorkshop = new Map<string, RecipeRow[]>();
   readonly globalOrders: WorkOrder[] = [];
+  nextOrderSerial = 0;
   readonly professionCache = new Map<EntityId, string>();
   private registered = false;
 
@@ -184,6 +185,37 @@ export class WorkshopOperator {
     const sets = (this.ctx.register as { recipeSets?: readonly { recipes: readonly unknown[] }[] }).recipeSets ?? [];
     let index = this.ctx.registry.table<RecipeRow>('recipes').size + 1;
     for (const set of sets) for (const raw of set.recipes) this.addRecipe(raw as RecipeRow, index++);
+  }
+
+  /** Upgrade legacy identities only on use, preserving the immediate loaded hash. */
+  ensureGlobalSerials(): void {
+    if (this.globalOrders.every((order) => order.serial !== undefined)) return;
+    for (const order of this.globalOrders) if (order.serial !== undefined)
+      this.nextOrderSerial = Math.max(this.nextOrderSerial, order.serial + 1);
+    for (const order of this.globalOrders) if (order.serial === undefined)
+      order.serial = this.nextOrderSerial++;
+    const board = this.ctx.world.services.jobs as JobBoard;
+    for (const id of board.ids) {
+      const job = board.jobs.get(id) as Job;
+      if (job.data['globalOrder'] !== true || job.data['orderSerial'] !== undefined) continue;
+      const order = this.globalOrders[job.data['orderIndex'] as number];
+      if (order !== undefined) job.data['orderSerial'] = order.serial;
+    }
+  }
+
+  reindexGlobalJobs(): void {
+    const board = this.ctx.world.services.jobs as JobBoard;
+    for (const id of board.ids) {
+      const job = board.jobs.get(id) as Job;
+      if (job.data['globalOrder'] !== true) continue;
+      const index = this.globalOrders.findIndex((order) => order.serial === job.data['orderSerial']);
+      if (index >= 0) job.data['orderIndex'] = index;
+    }
+  }
+
+  private globalOrderIndex(job: Job): number {
+    return job.data['orderSerial'] === undefined ? job.data['orderIndex'] as number
+      : this.globalOrders.findIndex((order) => order.serial === job.data['orderSerial']);
   }
 
   get items(): ItemsReader { return this.ctx.readers.of<ItemsReader>('13'); }
@@ -314,6 +346,7 @@ export class WorkshopOperator {
 
   produce(ctx: TickContext, sink: JobSink): void {
     this.mergeRegistered();
+    this.ensureGlobalSerials();
     const entities = ctx.world.entities;
     for (const id of entities.with(C.Building)) {
       this.ensure(id);
@@ -347,7 +380,7 @@ export class WorkshopOperator {
       for (const choice of choices) {
         const recipe = this.recipe(choice.order.recipe);
         if (recipe === undefined || recipe.workshop !== this.typeOf(id)) continue;
-        if (choice.global && sink.exists(`craft:global:${choice.index}`)) continue;
+        if (choice.global && sink.exists(`craft:global:${choice.order.serial}`)) continue;
         const problem = this.problem(choice.order, id);
         if (problem !== null) { if (reason === null && problem !== 'stocked' && problem !== 'complete') reason = problem.startsWith('waiting for ') ? 'missing_input' : problem; continue; }
         const inputs = recipe.inputs.map((input) => ({
@@ -357,9 +390,10 @@ export class WorkshopOperator {
         }));
         if (recipe.fuel && !powered) inputs.push({ filter: this.fuelFilter() as ItemFilter, count: 1 });
         if (recipe.container) inputs.push({ filter: { emptyContainer: recipe.container }, count: 1 });
-        const key = choice.global ? `craft:global:${choice.index}` : `craft:${id}:${choice.index}`;
+        const key = choice.global ? `craft:global:${choice.order.serial}` : `craft:${id}:${choice.index}`;
         const jobId = sink.create(key, { type: 'craft', target: { kind: 'building', ref: id }, workTile: this.workTile(b),
           priority: choice.order.priority, inputs, data: { recipe: recipe.id, orderIndex: choice.index, globalOrder: choice.global,
+            ...(choice.global ? { orderSerial: choice.order.serial } : {}),
             ...(choice.order.memorialDwarfId === undefined ? {} : { memorialDwarfId: choice.order.memorialDwarfId }),
             labor: ctx.registry.table<{ id: string; labor: string | null }>('skills').byId(recipe.skill)?.labor ?? 'crafts',
             skill: recipe.skill, assignedWorker: ws.assignedWorker, workshopWorker: ws.assignedWorker,
@@ -410,7 +444,7 @@ export class WorkshopOperator {
     if (job === undefined || job.state !== 'blocked' || job.blockedReason !== 'missing_input') return false;
     const index = job.data['orderIndex'];
     if (typeof index !== 'number' || index < 0) return false;
-    const order = job.data['globalOrder'] === true ? this.globalOrders[index] : ws.orders[index];
+    const order = job.data['globalOrder'] === true ? this.globalOrders[this.globalOrderIndex(job)] : ws.orders[index];
     if (order === undefined || this.problem(order, id) === null) return false;
     board.cancel(job.id, 'order_not_runnable');
     return true;
@@ -520,8 +554,8 @@ export class WorkshopOperator {
     }
     const attrs = ctx.world.entities.get(job.workerId, C.Attributes);
     grantXp(ctx.world.entities, ctx.registry, job.workerId, recipe.skill, jobXp(recipe.xp, attrs?.wit ?? 0), (e) => ctx.emit(e));
-    const index = job.data['orderIndex'] as number;
     const global = job.data['globalOrder'] === true;
+    const index = global ? this.globalOrderIndex(job) : job.data['orderIndex'] as number;
     const orders = global ? this.globalOrders : ws.orders;
     const order = orders[index];
     if (order !== undefined && order.recipe === this.recipeIndex(recipe.id) && order.mode === 'once') {
@@ -531,6 +565,7 @@ export class WorkshopOperator {
         ctx.emit({ type: 'WorkOrderCompleted', workshopId: id, recipeId: recipe.id });
       } else orders[index] = next;
     }
+    if (global) this.reindexGlobalJobs();
     this.save(id, { ...ws, orders: ws.orders.slice(), currentJobId: 0 });
   }
 }

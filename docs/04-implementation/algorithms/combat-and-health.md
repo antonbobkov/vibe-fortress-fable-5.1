@@ -82,7 +82,7 @@ squadDuties(): for sq in squads: mode = alert != 'calm' ? 'active' : sq.mode
     if order.kind == 'kill': setTarget(m, order.targetId) (cleared when dead → orders.shift)
     else if hostile in perception: setTarget(m, nearest hostile (archers prefer soldiers))
     else if mode == 'active': goal = order.station ?? sq.station ?? nextPatrolTile(sq, m) ?? barracksTile(sq); walkTo(m, goal, 'job')
-    else if mode == 'train': shiftTrainOrStation(sq, m)
+    else if mode == 'train': shiftTrainOrStation(sq, m) // swap at floor(tick / (TRAIN_SHIFT_HOURS * TICKS_PER_HOUR)) % 2
 on ZoneChanged for barracks settings: refresh each squad’s barracksZoneId from its explicit zone setting, else the first barracks
 training(): resolve the explicit assigned zone before any cached/default zone and refresh the cache; for that barracks: present = members on zone tiles; pairs = present sorted by id, paired consecutively
   for pair: if sessionEnd[pair] <= tick: for each: xp(weaponSkill, TRAIN_XP*bonus); xp('dodge', TRAIN_XP); if shield: xp('shield'); if armored: xp('armor_use');

@@ -118,7 +118,7 @@ A fetched tool's reservation ends when its worker equips it. Every released rese
 | `target_invalid` | the target no longer matches (cancelled by the producer) | none; the job is removed |
 | `no_magma` | magma workshop lost its magma | `FluidsChanged` |
 
-Blocked jobs are re-evaluated on their trigger or every `BLOCKED_RETRY_TICKS`, whichever comes first, in creation order, at most `BLOCKED_RETRIES_PER_TICK` per tick.
+Blocked jobs are re-evaluated on their trigger or every `BLOCKED_RETRY_TICKS`, whichever comes first, in creation order, at most `BLOCKED_RETRIES_PER_TICK` per tick. When an actual walk fails despite connected labels, the job remembers that failure through save/load and stays `unreachable` until a listed reachability trigger fires. A periodic label check alone cannot reopen it, and it consumes no retry budget while waiting.
 
 A re-evaluated job opens only when its reason is gone: a worker with the labor exists (`no_worker`), a stand tile shares a connectivity label with such a worker (`unreachable`), every input still needed can be found (`missing_input`), and the tool is carried by a worker or can be found (`no_tool`). Otherwise it stays blocked until its next trigger or `BLOCKED_RETRY_TICKS`. A job whose inputs cannot be found must never be offered to workers, or it starves every job ranked below it.
 
