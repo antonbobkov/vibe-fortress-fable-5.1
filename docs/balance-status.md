@@ -3,8 +3,7 @@
 **Owner:** balance audits · **Depends on:** [the balance model](03-content/balance.md), [the backlog](backlog.md)
 
 This is the latest filed evidence, not a tuning decision. **B-008 through B-012
-wait on [T-197](work/T-197-wants-under-served-with-work-open.md),
-[T-196](work/T-196-wild-predators-and-civilians.md) and
+wait on [T-197](work/T-197-wants-under-served-with-work-open.md) and
 [T-145](work/T-145-economy-fixture-default-priority.md).** Their journal is archived.
 
 [The T-144 measurement](../reports/audits/2026-10-10-wants-without-errands.md) re-measured year 1 of the seed `three-years` before and

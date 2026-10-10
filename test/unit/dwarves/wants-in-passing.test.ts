@@ -264,6 +264,9 @@ describe('T-144 wants without errands', () => {
     expect(waited).toBeGreaterThanOrEqual(EAT_TICKS);
     expect(hungry.events('MealEaten')).toHaveLength(1);
   });
+});
+
+describe('T-197 at a high mark one sit in the hearth hall comes before ordinary work', () => {
   it('at the high mark one sit in the hearth hall comes before default-priority work and serves all three', () => {
     const { w, west } = hall('t144-hall-errand');
     const id = w.spawnDwarf({ at: w.index(14, 19, Z) });
