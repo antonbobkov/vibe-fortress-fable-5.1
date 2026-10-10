@@ -717,7 +717,7 @@ export function chooseGoal(P: Party, ctx: TickContext): void {
     let nearestTile = -1;
     let nearestDist = Infinity;
 
-    for (const cId of entities.with(C.Creature)) {
+    for (const cId of entities.with(C.Creature, C.Attributes)) {
       if (!entities.alive(cId)) continue;
       const c = entities.get(cId, C.Creature);
       if (!c || c.faction !== 'fortress') continue;

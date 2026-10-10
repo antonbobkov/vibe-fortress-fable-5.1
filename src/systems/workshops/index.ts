@@ -22,7 +22,7 @@ export class WorkshopsSystem extends BaseSystem<WorkshopsStateV1> {
   readonly id = WORKSHOPS_ID;
   readonly order = 12;
   override readonly ownsCommands: readonly CommandType[] = ['AddWorkOrder', 'EditWorkOrder', 'RemoveWorkOrder', 'ReorderWorkOrder', 'SetWorkshopWorker', 'SuspendWorkshop'];
-  override readonly subscribes: readonly EventType[] = ['BuildingCompleted', 'BuildingRemoved', 'JobCancelled', 'JobCompleted', 'SkillLevelUp'];
+  override readonly subscribes: readonly EventType[] = ['BuildingCompleted', 'BuildingRemoved', 'JobCancelled', 'JobCompleted', 'SkillLevelUp', 'CreatureDied'];
   private op: WorkshopOperator | null = null;
   private readerRef: WorkshopsReader | null = null;
   private ticked = false;
@@ -53,6 +53,12 @@ export class WorkshopsSystem extends BaseSystem<WorkshopsStateV1> {
       const jobId = op.workshop(id)?.currentJobId ?? 0;
       if (jobId !== 0) op.ctx.world.services.jobs.cancel(jobId, 'building_removed');
       op.ctx.world.entities.remove(id, C.Workshop);
+    }
+    else if (event.type === 'CreatureDied') {
+      for (const id of op.ctx.world.entities.with(C.Workshop)) {
+        if (op.workshop(id)?.assignedWorker === event['id'])
+          applyWorkerCommand(op, { type: 'SetWorkshopWorker', workshopId: id, dwarfId: 0 });
+      }
     }
     else if (event.type === 'SkillLevelUp') op.professionCache.delete(event['id'] as number);
   }

@@ -2,7 +2,7 @@
  * Stock counts: `02-systems/13-items-and-storage.md` § Stock counts and the stocks panel.
  *
  * ```
- * counts: Map<typeIndex, { total, byMaterialClass, byQuality, available (not forbidden, not reserved, not owned) }>
+ * counts: Map<typeIndex, { total, byMaterialClass, byQuality, available (not forbidden, not reserved, not owned, not carried) }>
  * ```
  *
  * Maintained incrementally: every change to an item subtracts its old contribution and adds its
@@ -28,10 +28,10 @@ const UNAVAILABLE = ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | It
 
 /**
  * Whether an item is available (13: "not forbidden, not reserved, not owned"; an installed item is in use, D-074;
- * a cage that holds a creature is in use).
+ * a cage that holds a creature and a carried item are in use).
  */
-export function isAvailable(flags: number, occupantId = 0): boolean {
-  return (flags & UNAVAILABLE) === 0 && occupantId === 0;
+export function isAvailable(flags: number, occupantId = 0, carriedBy = 0): boolean {
+  return (flags & UNAVAILABLE) === 0 && occupantId === 0 && carriedBy === 0;
 }
 
 interface Count {

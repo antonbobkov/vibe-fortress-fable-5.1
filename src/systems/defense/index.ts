@@ -1,5 +1,5 @@
 /** System 19: `02-systems/19-defense-and-traps.md`. */
-import { C, ItemFlag } from '@core/components';
+import { C } from '@core/components';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import type { CommandType } from '@core/command-types';
 import type { EventType } from '@core/event-types';
@@ -131,7 +131,7 @@ export class DefenseSystem extends BaseSystem<DefenseStateV1> {
           const hostile = ctx.world.entities.get(hostileId, C.Hostile);
           const pos = ctx.world.entities.get(hostileId, C.Position);
           if (hostile?.stealthed !== true || pos === undefined || pos.z !== ctx.world.map.zOf(at)) continue;
-          if (Math.max(Math.abs(pos.x - ctx.world.map.xOf(at)), Math.abs(pos.y - ctx.world.map.yOf(at))) <= SPOT_RADIUS_DOG) {
+          if (Math.max(Math.abs(pos.x - ctx.world.map.xOf(at)), Math.abs(pos.y - ctx.world.map.yOf(at))) <= SPOT_RADIUS_DOG && ctx.readers.pathing.lineOfSight(at, ctx.world.map.index(pos.x, pos.y, pos.z))) {
             ctx.world.entities.add(hostileId, C.Hostile, { ...hostile, stealthed: false, spotted: true });
             ctx.emit({ type: 'ThiefSpotted', id: hostileId, animalId });
           }
@@ -194,9 +194,6 @@ export class DefenseSystem extends BaseSystem<DefenseStateV1> {
     } else if (job.key.startsWith('clean_trap:')) {
       const b = ctx.world.entities.get(id, C.Building);
       if (b === undefined) return;
-      for (const corpse of ctx.readers.entities.at(b.origin)) {
-        if (ctx.world.entities.has(corpse, C.Corpse)) ctx.world.services.items?.setFlag(corpse, ItemFlag.Dump, true);
-      }
       trap.state = 'armed';
     }
   }

@@ -249,7 +249,7 @@ export class ItemSearch {
 
   /**
    * `items.countAvailable(filter)`: units of matching items that are not forbidden, reserved or
-   * owned. A filter of one type reads the stock counts; any other filter counts the items.
+   * owned or carried. A filter of one type reads the stock counts; any other filter counts the items.
    */
   countAvailable(filter: ItemFilter): number {
     const core = this.host.core;
@@ -259,7 +259,7 @@ export class ItemSearch {
     for (const id of this.host.entities.with(C.Item)) {
       const it = core.item(id);
       if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Installed)) !== 0) continue;
-      if ((it.occupantId ?? 0) !== 0) continue;
+      if ((it.occupantId ?? 0) !== 0 || it.carriedBy !== 0) continue;
       if (matches(core, id, it, filter)) n += it.count;
     }
     return n;

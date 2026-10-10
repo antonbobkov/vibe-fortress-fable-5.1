@@ -73,6 +73,8 @@ Job execution (producer `workshops`):
 
 Delivered inputs stay reserved to the craft job while its order stands, through a need/threat interruption, a block or a reservation timeout. Only undelivered reservations use `RESERVE_KEEP_TICKS`; completed or cancelled jobs release all remaining reservations, and removing the order cancels the job. Haulers cannot remove delivered reserved inputs.
 
+Suspending a workshop cancels its current job; the order waits until it is resumed. Setting or clearing its assigned worker also cancels the current job. On `CreatureDied` of an assigned worker, clear `assignedWorker` to 0 and cancel the current job exactly as `SetWorkshopWorker { dwarfId: 0 }` does; another eligible worker can run the retained order.
+
 `SetWorkshopWorker` accepts a dwarf with any enabled labor used by a recipe of the workshop type, rather than its construction labor. The assigned job still checks the specific recipe's labor. Recipe quantities are input units; 11 reserves the needed units in as few stacks as possible and fetches each stack once.
 
 ### Work orders
@@ -142,7 +144,7 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 
 ### Events consumed
 
-`BuildingCompleted` (new workshop), `BuildingRemoved`, `JobCancelled`, `JobCompleted`, `SkillLevelUp` (profession cache).
+`BuildingCompleted` (new workshop), `BuildingRemoved`, `JobCancelled`, `JobCompleted`, `SkillLevelUp` (profession cache), `CreatureDied` (clear the dead assigned worker and cancel its job).
 
 ### Events emitted
 
