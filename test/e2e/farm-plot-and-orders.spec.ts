@@ -1,6 +1,6 @@
 /** T-M4-17: a cave farm and a still's maintain order through the browser UI. */
 import { expect, test, type Page } from '@playwright/test';
-import { generateWorld, moveCursorTo, screenOf, textOf, type Hook } from './helpers';
+import { generateWorld, moveCursorTo, screenOf, textOf, ui as view, tilePixel as pixel, textCell, type Hook } from './helpers';
 
 interface FarmHook extends Hook {
   step(n: number): void;
@@ -86,29 +86,6 @@ async function face(page: Page): Promise<Point | null> {
     }
     return best;
   });
-}
-
-async function view(page: Page): Promise<{ camX: number; camY: number; z: number }> {
-  return page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.readers.ui);
-}
-async function pixel(page: Page, x: number, y: number): Promise<{ x: number; y: number }> {
-  const u = await view(page);
-  const b = await page.locator('canvas#screen').boundingBox();
-  if (b === null) throw new Error('no canvas');
-  const p = await page.evaluate(([col, row]) => (window as unknown as { __deepholm: FarmHook }).__deepholm.cellCenter(col as number, row as number), [x - u.camX, y - u.camY]);
-  return { x: b.x + p.x, y: b.y + p.y };
-}
-async function textCell(page: Page, needle: string, offset = 0): Promise<{ x: number; y: number }> {
-  const cell = await page.evaluate((n) => {
-    const rows = (window as unknown as { __deepholm: FarmHook }).__deepholm.text();
-    const row = rows.findIndex((line) => line.includes(n));
-    return { col: row < 0 ? -1 : rows[row]!.indexOf(n), row };
-  }, needle);
-  expect(cell.row).toBeGreaterThanOrEqual(0);
-  const b = await page.locator('canvas#screen').boundingBox();
-  if (b === null) throw new Error('no canvas');
-  const p = await page.evaluate(([col, row]) => (window as unknown as { __deepholm: FarmHook }).__deepholm.cellCenter(col as number, row as number), [cell.col + offset, cell.row]);
-  return { x: b.x + p.x, y: b.y + p.y };
 }
 
 test('U-02 farm-plot-and-orders', async ({ page }) => {
