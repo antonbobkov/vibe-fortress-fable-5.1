@@ -382,4 +382,155 @@ export function runDescent(w: TestWorld): void {
   expect(combat.squad(squad.id)?.station).toBe(door2Tile);
   expect(combat.squad(squad.id)?.mode).toBe('active');
   console.log('Squad created, active and stationed at door 2!');
+
+  // 13. Shaft down from z=10 to z=5 at (21, 48)
+  console.log('--- Step 13: Dig shaft down to z=5 ---');
+  const updown3: number[] = [];
+  for (let z = 10; z >= 5; z--) {
+    updown3.push(map.index(21, 48, z));
+  }
+  const rUpdown3 = w.game.world.applyCommand({
+    type: 'Designate',
+    tiles: updown3,
+    kind: 'stairs_updown',
+    priority: 5,
+  });
+  console.log('rUpdown3:', rUpdown3);
+  const spentShaft3 = w.until(() => map.kindAt(map.index(21, 48, 5)) === TileKind.StairsUpDown, 3000);
+  console.log(`Shaft down to z=5 completed in ${spentShaft3} ticks!`);
+
+  const deepTile = map.index(21, 48, 4);
+  console.log('Deep tile (21, 48, 4):', {
+    kind: map.kindAt(deepTile),
+    material: w.game.registry.table('materials').idOf(map.materialAt(deepTile)),
+    discovered: map.hasFlag(deepTile, TileFlag.Discovered),
+  });
+
+  // 14. Deepsilver gate: reject unconfirmed, confirm, then accept
+  console.log('--- Step 14: Deepsilver gate ---');
+  const rUnconfirmed = w.game.world.applyCommand({
+    type: 'Designate',
+    tiles: [deepTile],
+    kind: 'stairs_updown',
+    priority: 5,
+  });
+  console.log('rUnconfirmed:', rUnconfirmed);
+  expect(rUnconfirmed).toEqual({ ok: false, reason: 'deepsilver_unconfirmed' });
+
+  // Confirm deepsilver
+  const rConfirm = w.game.world.applyCommand({ type: 'ConfirmDeepsilver' });
+  expect(rConfirm.ok).toBe(true);
+  expect(w.game.world.fortress.deepsilverConfirmed).toBe(true);
+
+  // Designate accepted after confirmation
+  const rConfirmed = w.game.world.applyCommand({
+    type: 'Designate',
+    tiles: [deepTile],
+    kind: 'stairs_updown',
+    priority: 5,
+  });
+  expect(rConfirmed.ok).toBe(true);
+
+  w.until(() => map.kindAt(deepTile) === TileKind.StairsUpDown, 3000);
+  console.log('Deepsilver tile (21, 48, 4) mined to stairs_updown!');
+
+  const deepMinedEvents1 = w.events('DeepsilverMined');
+  console.log('DeepsilverMined count after 1st:', deepMinedEvents1.length);
+  expect(deepMinedEvents1.length).toBeGreaterThanOrEqual(1);
+
+  // 15. Mine 4 more deepsilver tiles to stir the Deep
+  console.log('--- Step 15: Mine 4 more deepsilver tiles ---');
+  const moreDeepsilver = [
+    map.index(22, 48, 4),
+    map.index(21, 47, 4),
+    map.index(22, 47, 4),
+    map.index(23, 48, 4),
+  ];
+  w.game.world.applyCommand({
+    type: 'Designate',
+    tiles: moreDeepsilver,
+    kind: 'dig',
+    priority: 5,
+  });
+
+  const spentDeepMining = w.until(() => w.events('DeepsilverMined').length >= 5, 4000);
+  console.log(`Mined 5 deepsilver tiles in ${spentDeepMining} ticks!`);
+  w.step(1);
+
+  const allMined = w.events('DeepsilverMined');
+  console.log('Total DeepsilverMined events:', allMined.length);
+  expect(allMined.length).toBeGreaterThanOrEqual(5);
+
+  // Assert DeepStirred { level: 1 }
+  const stirred = w.events('DeepStirred');
+  console.log('DeepStirred events:', stirred);
+  expect(stirred).toHaveLength(1);
+  expect(stirred[0]!['level']).toBe(1);
+
+  // Assert MonsterEmerged
+  const emerged = w.events('MonsterEmerged');
+  console.log('MonsterEmerged events:', emerged);
+  expect(emerged).toHaveLength(1);
+  const emergedIds = emerged[0]!['ids'] as number[];
+  expect(emergedIds.length).toBeGreaterThanOrEqual(1);
+  for (const mId of emergedIds) {
+    const creature = w.game.world.entities.get(mId, C.Creature);
+    expect(creature?.faction).toBe('deep');
+  }
+
+  // 16. Smelt deepsilver ore at surface smelter
+  console.log('--- Step 16: Smelt deepsilver ore ---');
+  const smelters = w.readers.of<BuildingsReader>('14').byType('smelter');
+  expect(smelters.length).toBeGreaterThan(0);
+  const surfaceSmelter = smelters[0]!;
+
+  const rSmelt = w.game.world.applyCommand({
+    type: 'AddWorkOrder',
+    workshopId: surfaceSmelter,
+    order: {
+      recipeId: 'smelt_deepsilver_ore',
+      mode: 'once',
+      remaining: 1,
+      priority: 5,
+    },
+  });
+  console.log('rSmelt:', rSmelt);
+  expect(rSmelt.ok).toBe(true);
+
+  const spentSmelt = w.until(
+    () => w.events('ItemCrafted').some((e) => e['recipeId'] === 'smelt_deepsilver_ore'),
+    4000,
+  );
+  console.log(`Deepsilver smelted in ${spentSmelt} ticks!`);
+
+  // 17. Forge deepsilver item at surface forge
+  console.log('--- Step 17: Forge deepsilver item ---');
+  const forges = w.readers.of<BuildingsReader>('14').byType('forge');
+  expect(forges.length).toBeGreaterThan(0);
+  const surfaceForge = forges[0]!;
+
+  const rForge = w.game.world.applyCommand({
+    type: 'AddWorkOrder',
+    workshopId: surfaceForge,
+    order: {
+      recipeId: 'forge_dagger',
+      mode: 'once',
+      remaining: 1,
+      priority: 5,
+    },
+  });
+  console.log('rForge:', rForge);
+  expect(rForge.ok).toBe(true);
+
+  const spentForge = w.until(
+    () => w.events('ItemCrafted').some((e) => e['recipeId'] === 'forge_dagger'),
+    4000,
+  );
+  console.log(`Deepsilver item forged in ${spentForge} ticks!`);
+
+  const craftedDagger = w.events('ItemCrafted').find((e) => e['recipeId'] === 'forge_dagger');
+  expect(craftedDagger).toBeDefined();
+  const daggerItem = w.game.world.entities.get(craftedDagger!['itemId'] as number, C.Item);
+  const deepsilverMatIdx = w.game.registry.table('materials').index('deepsilver');
+  expect(daggerItem?.material).toBe(deepsilverMatIdx);
 }

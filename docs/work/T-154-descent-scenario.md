@@ -52,8 +52,18 @@ The late game is played by nothing. Measured: no long run breaches a cavern, min
   - Wall built at (15, 48, 11) and door built at (15, 49, 11) across Breach 2.
   - Squad created ("Deep Guard"), 2 soldiers assigned, mode set to 'active', and stationed at lowest door (15, 49, 11).
   - Verified soldiers on duty and squad stationed at door.
+### 2026-10-09 — Stage 3 complete
+
+- Stage 3 completed:
+  - Shaft dug down column (21, 48) from z=10 to z=5 through solid rock, discovering deepsilver vein at (21, 48, 4).
+  - Designating deepsilver tile (21, 48, 4) before confirmation rejected with `deepsilver_unconfirmed`.
+  - Applied `ConfirmDeepsilver` and verified `fortress.deepsilverConfirmed === true`.
+  - Designating deepsilver tile accepted after confirmation; mined to stairs_updown emitting `DeepsilverMined`.
+  - Mined 4 more deepsilver tiles at z=4 (5 total deepsilver mined).
+  - Assertions verified: `DeepsilverMined` (count >= 5), `DeepStirred` (level 1), `MonsterEmerged` (with faction 'deep' creatures).
+  - Surface smelter executed `smelt_deepsilver_ore` work order, consuming mined deepsilver ore and fuel to produce deepsilver bar.
+  - Surface forge executed `forge_dagger` work order, forging deepsilver dagger (`material === 'deepsilver'`).
 - Remaining stages:
-  - Stage 3: deepsilver vein designation rejected `deepsilver_unconfirmed`, accepted after `ConfirmDeepsilver`, mine deepsilver, assert `DeepsilverMined`, `DeepStirred`, `MonsterEmerged`, smelt ore and forge deepsilver item.
   - Stage 4: descent to magma sea (z=3), channel over magma, build magma smelter, magma forge, magma kiln, issue 1 order each without fuel consumed, assert dwarf near magma is not burned and magma fluid total is unchanged.
 
 ## Done
