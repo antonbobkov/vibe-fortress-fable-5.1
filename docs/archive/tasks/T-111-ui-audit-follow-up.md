@@ -1,6 +1,8 @@
 # T-111 — UI audit follow-up: what the U tasks changed
 
-**Source:** [`../../reports/audits/ui-audit.md`](../../reports/audits/ui-audit.md); the closing instruction of [`../archive/ui-fixes/README.md`](../archive/ui-fixes/README.md) ("When all eight are done …") · **Size:** S · **Needs:** U-02, U-04, U-05, U-07 · **Status:** open
+Closed by `T-111: first version of the UI audit follow-up report` (e87105f), `T-111: file T-240 … T-252 for the UI audit items still open or partly fixed` (1b1093f) and `T-111: close the UI audit follow-up`; the report is [`2026-10-10-ui-audit-follow-up.md`](../../../reports/audits/2026-10-10-ui-audit-follow-up.md).
+
+**Source:** [`../../reports/audits/ui-audit.md`](../../../reports/audits/ui-audit.md); the closing instruction of [`../archive/ui-fixes/README.md`](../ui-fixes/README.md) ("When all eight are done …") · **Size:** S · **Needs:** U-02, U-04, U-05, U-07 · **Status:** open
 
 ## Why
 
@@ -11,13 +13,13 @@ The UI fixes plan ends with a follow-up: once all eight U tasks are done, record
 1. Write a new dated report, `reports/audits/<YYYY-MM-DD>-ui-audit-follow-up.md`, with:
    - a table: audit item (the audit's own ids: issues 1–10, Q1 … Q14, M1 … M12, S1 … S9, § 4.x, § 5.x) → task (U-01 … U-08) → commit → state (fixed, partly fixed, open);
    - the hands-on walkthrough of the audit's § 2 ("A new player's first 20 minutes"), run again on the current build, saying what changed and what is still wrong.
-2. For every item that is still open or only partly fixed, add a `T-1nn` row to [`../backlog.md`](../backlog.md) with the new report as its source.
+2. For every item that is still open or only partly fixed, add a `T-1nn` row to [`../backlog.md`](../../backlog.md) with the new report as its source.
 3. Do not edit `reports/audits/ui-audit.md`.
 
 ## Done
 
 - The report exists, and every audit item appears in its table exactly once.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
 
 ## Draft: mechanical closure record (part 1 only)
 

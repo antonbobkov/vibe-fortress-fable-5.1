@@ -16,7 +16,7 @@
 ## Method
 
 - I read the first audit, the mechanical draft in the T-111 work file (archived as `docs/archive/tasks/T-111-ui-audit-follow-up.md`), the UI decisions D-U1 … D-U10 in `docs/archive/ui-fixes/README.md`, and the spec sections each check needed.
-- I drove the real game with Playwright scripts kept outside the repository. Each run generated seed `audit-1`, walked to the hilliest region (the e2e helper's rule), and embarked with the default party. Two runs used the test start `?start=flat-test&embark=default` to reach a trade caravan, as `test/e2e/trade-session.spec.ts` does.
+- I drove the real game with Playwright scripts kept outside the repository. Each run generated seed `audit-1`, walked to the hilliest region (the e2e helper's rule), and embarked with the default party. The trade checks used the test start `?start=flat-test&embark=default` to reach a caravan, as `test/e2e/trade-session.spec.ts` does.
 - Player actions went through the real keyboard and mouse. To let time pass I used the test hook's `step(n)`, and to set up the caravan fixture I used the same hook calls as the trade e2e test. State was read through `window.__deepholm` (`text()`, `readers`).
 - Screenshots and text dumps of the screen are in my session scratch folder as `shots/NN-*.png|.txt`, cited as **shot NN**. They are not committed. Three crops that show colour or layout are committed under [`../screenshots/t-111/`](../screenshots/t-111/).
 - Each claim is marked **observed** (seen in play, with its shot) or **code** (read at `26b6b86`, with file and line). "Draft" means I did not re-check the draft's code reading, and it still stands as the draft wrote it.
@@ -58,7 +58,7 @@ States: **fixed** (the item's stated behaviour is now as the audit asked, or as 
 | Q11 seed field | U-01 `0b124b1` | fixed | fixed | Observed: the focused field shows `[Enter] done · [g] Generate`; `g` in an untouched field generates (shots 02, 02c); after an edit `g` types (shot 02d), as the hint says. |
 | Q12 fuel and farm hints | U-01 `a8e0a26` | fixed | fixed | Observed: a farm drag on rock shows "☼ Farms need soil, mud left by water, or cave loam." (shot 19a). The fuel hint was not exercised; draft. |
 | Q13 list heights | U-01 `a8e0a26` | fixed | fixed | Observed: shot 13a. |
-| Q14 grouped Help | U-01 `a8e0a26` | fixed | fixed | Observed: panel keys first, `←→↑↓` and `1-9` grouped (shot 14e). Rows are still clipped at 36 columns; hover shows them. |
+| Q14 grouped Help | U-01 `a8e0a26` | fixed | fixed | Observed: panel keys first, `←→↑↓` and `1-9` grouped (shot 14e). Rows are still clipped at 36 columns; I did not hover them here, but the same tooltip works on Designate (shot 15i). |
 
 ### Medium recommendations
 
@@ -127,7 +127,7 @@ States: **fixed** (the item's stated behaviour is now as the audit asked, or as 
 | R9 six squad members | U-06 | fixed | fixed | Observed: shots 13b–13d. |
 | R10 multi-select units | U-06 | fixed | fixed | Observed: shot 15f. |
 | R11 undo stack | none (pre-existing `c38d1d8`) | open | open | Observed: two dig batches, `Ctrl+Z` removes the second, a second `Ctrl+Z` says "Nothing to undo." and the first batch stays (shot 15h). Code: `src/ui/panels/designate.ts:97,163-174` keeps one batch. → T-249 |
-| R12 breeding cap | none | open | open | Observed: `Shift+C` raises the cap 12 → 13 → 15; `-` does nothing (run p16). Code: `src/ui/panels/animals.ts:58` adds one modulo 101. → T-249 |
+| R12 breeding cap | none | open | open | Observed: `Shift+C` raises the cap 12 → 13 → 15; `-` does nothing (script p16; no screenshot). Code: `src/ui/panels/animals.ts:58` adds one modulo 101. → T-249 |
 | R13 forbid or dump selection | U-03 | fixed | fixed | Observed: the selection row offers `[S-f] forbid  [S-d] dump  [S-t] to depot` (shot 06c). |
 | R14 trade quantities | pre-existing `4b8ef2f` | fixed | fixed | Observed: `[+]/[-] quantity` per row (shot 18f). Merchant goods are not stacked (one row per item); see N6 (T-251). |
 
@@ -159,7 +159,7 @@ States: **fixed** (the item's stated behaviour is now as the audit asked, or as 
 
 ## 2. A new player's first 20 minutes, again
 
-The same route as the first audit, on this build. "Then" is the first audit; "now" is what I saw.
+The same route as the first audit, on this build. Each step says what changed and what is still wrong.
 
 **Main menu** (shot 01). Unchanged and clean. `[a] About` is still dim and does nothing.
 
@@ -171,7 +171,7 @@ The same route as the first audit, on this build. "Then" is the first audit; "no
 
 **Arrival** (shots 05, 05b). Fixed: no red `!12`; Threats says "Active: none". The first hint is shown. The hotkey strip still ends at `[s] stocks`.
 
-**Dig** (shots 06–07h). Mostly fixed. One `d` opens Designate with Dig already armed, so one key is enough. A drag on rock shows the blue designation at once, while paused. A drag on floor says "No tile here can be dug: dig marks rock walls and boulders." Two things still go wrong:
+**Dig** (shots 06–07h). Mostly fixed. One `d` opens Designate with Dig already armed, so one key is enough. A drag on rock shows the blue designation at once, while paused. A drag on floor says "No tile here can be dug: dig marks rock walls and boulders." Three things still go wrong:
 - A player who presses `d` twice, as the old game taught, closes Designate with the second press. The next drag then makes an item selection with `[S-f] forbid  [S-d] dump  [S-t] to depot` (shots 06b, 06c). (5.3, T-252.)
 - The refusal stays on the status row for 4 seconds, and it hides the live readout of the next drag. A good drag on rock right after a refused one still reads "No tile here can be dug" while dragging and after release (shots 07e, 07f). (N3, T-243.)
 - `Ctrl+Z` still undoes only the last batch (shot 15h; R11).
@@ -210,7 +210,7 @@ These are not in the first audit's list. Each has a row.
 | N6 | Trade: merchant goods are one row per item, though the spec groups them as stacks (`docs/04-implementation/ui-screens/trade-session.md:32`); a paused `[S-t]` says nothing. | Observed: shots 18e2, 18f. | T-251 |
 | N7 | After a placement, the ghost over the new building turns red and says "blocked: something is built here". | Observed: shot 09f. | T-251 |
 
-Outside the UI, and not filed here: in these runs the embark dog and cat died within four days, and in the flat-test run five of seven dwarves were dead by Day 10 of Summer. That is the wildlife problem T-196 is working on.
+Outside the UI, and not filed here: in these runs the embark dog and cat died within four days, and in the flat-test run five of seven dwarves were dead by Day 10 of Summer. I did not look for the cause. T-196 (wild predators kill civilians) is open on deaths of this kind and is the place to check them.
 
 ## 4. What I could not establish
 

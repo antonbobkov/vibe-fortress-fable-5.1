@@ -8,7 +8,7 @@ Two repetitive tasks of the first audit were not taken up by any U task. `Ctrl+Z
 
 ## Reproduction
 
-Seed `audit-1`, default embark, paused. `d`, drag two separate rectangles on the rock face, `Ctrl+Z` twice: the second batch goes, then "Nothing to undo." and the first batch stays (report shot 15h; code `src/ui/panels/designate.ts:97,163-174`). Animals, select the dog, `Shift+C`: 12 → 13; `-` does nothing (run p16; code `src/ui/panels/animals.ts:58` adds one modulo 101).
+Seed `audit-1`, default embark, paused. `d`, drag two separate rectangles on the rock face, `Ctrl+Z` twice: the second batch goes, then "Nothing to undo." and the first batch stays (report shot 15h; code `src/ui/panels/designate.ts:97,163-174`). Animals, select the dog, `Shift+C`: 12 → 13; `-` does nothing (observed in the T-111 walkthrough, no screenshot; code `src/ui/panels/animals.ts:58` adds one modulo 101).
 
 ## What the spec says
 
