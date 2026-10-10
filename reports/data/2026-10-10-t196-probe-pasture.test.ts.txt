@@ -1,0 +1,77 @@
+/** T-196 pasture probe: six embark grazers on a small and a capacity-sized pasture. */
+import { describe, it } from 'vitest';
+import { regionSpec } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TileFlag } from '@core/map3d';
+import type { BuildingsSystem } from '@systems/buildings';
+import type { EntityId, TileIndex } from '@core/types';
+import { TestWorld } from '../scenarios/test-world';
+
+const registry = contentRegistry();
+
+function run(width: number, height: number, startTick: number, biome: string, peril: number): string {
+  const spec = regionSpec('pasture', { wealth: 2, peril, biome, geology: 'mixed', traits: [] } as never);
+  const w = new TestWorld({ seed: 'pasture', registry, world: 'local', spec, embark: 'none', startTick });
+  const buildings = w.readers.of<{ zoneTileQualifies(type: string, t: TileIndex): boolean }>('14');
+  // The first block of the map whose every tile qualifies and has grass.
+  let ox = -1; let oy = -1; let Z = 0;
+  search: for (let y = 20; y < 80; y += 1) for (let x = 20; x < 80; x += 1) {
+    const z = w.map.columnSurfaceZ(x, y);
+    let ok = true;
+    for (let dy = 0; dy < height && ok; dy += 1) for (let dx = 0; dx < width && ok; dx += 1) {
+      const t = w.index(x + dx, y + dy, z);
+      ok = w.map.columnSurfaceZ(x + dx, y + dy) === z && buildings.zoneTileQualifies('pasture', t) && w.map.hasFlag(t, TileFlag.Grass);
+    }
+    if (ok) { ox = x; oy = y; Z = z; break search; }
+  }
+  if (ox < 0) return `${width}x${height}: no site`;
+  const tiles: TileIndex[] = [];
+  for (let y = oy; y < oy + height; y += 1) for (let x = ox; x < ox + width; x += 1) tiles.push(w.index(x, y, Z));
+  const made = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'pasture', tiles });
+  if (!made.ok) return `${width}x${height}: zone refused ${JSON.stringify(made)}`;
+  const zoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
+  const ids: EntityId[] = [];
+  for (const sp of ['cow', 'cow', 'sheep', 'sheep', 'goat', 'goat']) {
+    const id = w.spawnTame(sp, tiles[0] as TileIndex);
+    ids.push(id);
+    const a = w.game.world.applyCommand({ type: 'AssignPasture', animalId: id, zoneId });
+    if (!a.ok) throw new Error('assign refused');
+  }
+  let starving = 0;
+  let deaths = 0;
+  let grazed = 0;
+  let wildGrazedInPasture = 0;
+  const pastureSet = new Set(tiles);
+  w.game.world.onEvents((b) => { for (const e of b) {
+    if (e.type === 'AnimalStarving') starving += 1;
+    if (e.type === 'CreatureDied' && ids.includes(e['id'] as EntityId)) deaths += 1;
+    if (e.type === 'GrassGrazed') { grazed += 1; }
+  } });
+  const daily: string[] = [];
+  const wildIds = (): EntityId[] => w.game.world.entities.with(C.Wild);
+  for (let d = 0; d < 60; d += 1) {
+    for (let t = 0; t < TICKS_PER_DAY; t += 1) {
+      const before = new Map(wildIds().map((id) => [id, w.game.world.entities.get(id, C.Wild)?.state]));
+      w.step(1);
+      for (const [id] of before) {
+        const p = w.game.world.entities.get(id, C.Position);
+        if (p && w.game.world.entities.get(id, C.Wild)?.state === 'idle' && before.get(id) === 'graze' && pastureSet.has(w.index(p.x, p.y, p.z))) wildGrazedInPasture += 1;
+      }
+    }
+    const grass = tiles.filter((t) => w.map.hasFlag(t, TileFlag.Grass)).length;
+    const cond = ids.filter((id) => w.game.world.entities.alive(id)).map((id) => w.game.world.entities.get(id, C.Tame)?.condition ?? -1);
+    daily.push(`d${d + 1}:grass ${grass}/${tiles.length} cond ${cond.join(',')}`);
+  }
+  const wildSpecies = [...new Set(wildIds().map((id) => registry.table('creatures').byIndex(w.game.world.entities.get(id, C.Creature)?.species ?? -1)?.id))];
+  return `${biome} p${peril} ${width}x${height} start ${startTick}: wild now ${wildSpecies.join('/')} wildGrazedInPasture ${wildGrazedInPasture} grazed ${grazed} starvingNotes ${starving} deaths ${deaths}\n  ${daily.join('\n  ')}`;
+}
+
+describe('T-196 pasture', () => {
+  it('runs', () => {
+    console.log(run(5, 4, 0, 'temperate_grassland', 0));
+    console.log(run(6, 6, 0, 'temperate_grassland', 0));
+    console.log(run(10, 10, 0, 'temperate_grassland', 0));
+  });
+});
