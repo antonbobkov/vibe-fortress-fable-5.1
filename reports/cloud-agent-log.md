@@ -16,4 +16,5 @@ The running log of the Claude agent that works in the cloud on branches `cloud/m
 
 - `cloud/main` cut from `origin/master` at `4fbe72c`.
 - Environment note: the cloud machine has Chromium revision 1194 preinstalled, while `@playwright/test` 1.63 asks for headless shell revision 1243. The browser suite runs against the preinstalled build through a symlink outside the repository; nothing in the repository changed for it.
-- Chain A starts with T-196 on `cloud/T-196`.
+- Chain A starts with T-196 on `cloud/T-196`; chain B starts with T-111 on `cloud/T-111` beside it.
+- Owner's instruction, 2026-10-10: from now on, one subagent at a time, to manage quota. The two already running finish; nothing new starts until both are done, and after that tasks run one by one.
