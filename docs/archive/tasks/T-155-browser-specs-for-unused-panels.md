@@ -1,6 +1,6 @@
 # T-155 — Browser specs for the panels and screens that are only opened
 
-**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 7; the screens and panels table) · **Size:** L · **Needs:** — · **Status:** open
+**Source:** T-114 and its report, [`../../../reports/audits/2026-10-08-playthrough-coverage.md`](../../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 7; the screens and panels table) · **Size:** L · **Needs:** — · **Status:** closed
 
 ## Why
 
@@ -45,4 +45,4 @@
 
 - The four specs pass in `npm run test:e2e`.
 - Every panel of `03-content/ui-keymap-and-screens.md` § Fortress panels has at least one browser assertion on an effect, and the legend screen is reached.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
