@@ -1,5 +1,11 @@
 # T-188 — A workshop job stalls for weeks and the fortress dies of thirst
 
+## Progress (2026-10-09, codex-a)
+
+Both original speed reproductions were re-run after T-132. At speed 175 the fortress reaches day 277 with 37 dwarves, 390 drink and 199 completed brews, without a death or the old fetching stall. At speed 100, seven badger/boar combat deaths leave five dwarves before an unclaimed brew is created on day 90.718; drink is zero from day 110, and the last five die on days 123-126. Two additional runs repeat this collapse. The assignment trace shows the brew eligible on all 39 observed requests, while the remaining brewers take farm/kitchen jobs or needs; candidate pools are below the limit. No new reservation fault was established, and the no-starvation Done criterion is not met.
+
+Parked without game or fixture edits under the no-long-fixture-tuning rule. [Measurement and next step](../../reports/audits/2026-10-09-t188-reproduction.md): an owner decision is needed on qualifying the older slow fixture after wild spawning and workforce loss. The priority/distance/skill formula was not changed.
+
 **Source:** T-140 and its report, [`../../reports/audits/2026-10-09-walking-speed.md`](../../reports/audits/2026-10-09-walking-speed.md) (§ A fortress dies of thirst beside its still) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why

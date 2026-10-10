@@ -1,0 +1,6610 @@
+{
+  "commit": "23d58fa",
+  "fixture": "f-17 ffbc723",
+  "slow": {
+    "deaths": [
+      {
+        "killerSpecies": "badger",
+        "tick": 87647,
+        "type": "CreatureDied",
+        "id": 16777298,
+        "cause": "bled_out",
+        "killerId": 318767532,
+        "tile": 74042,
+        "species": 15,
+        "name": "Freydis Coldhammer",
+        "faction": "fortress",
+        "ageTicks": 8332800,
+        "wornItems": [
+          16777317,
+          16777318,
+          16777319
+        ]
+      },
+      {
+        "killerSpecies": "badger",
+        "tick": 87927,
+        "type": "CreatureDied",
+        "id": 50332110,
+        "cause": "bled_out",
+        "killerId": 318767532,
+        "tile": 74041,
+        "species": 15,
+        "name": "Baldr Thunderfoot",
+        "faction": "fortress",
+        "ageTicks": 8064000,
+        "wornItems": [
+          16777683,
+          16777680,
+          16777681,
+          16777682,
+          16777684
+        ]
+      },
+      {
+        "killerSpecies": "badger",
+        "tick": 88257,
+        "type": "CreatureDied",
+        "id": 318767302,
+        "cause": "bled_out",
+        "killerId": 318767532,
+        "tile": 74095,
+        "species": 15,
+        "name": "Inga Hearthroot",
+        "faction": "fortress",
+        "ageTicks": 8198400,
+        "wornItems": [
+          83886521,
+          117440709,
+          83886524
+        ]
+      },
+      {
+        "killerSpecies": "badger",
+        "tick": 90692,
+        "type": "CreatureDied",
+        "id": 150995475,
+        "cause": "bled_out",
+        "killerId": 318767532,
+        "tile": 73795,
+        "species": 15,
+        "name": "Unn Craghand",
+        "faction": "fortress",
+        "ageTicks": 7526400,
+        "wornItems": [
+          218104418,
+          184549990,
+          83886704
+        ]
+      },
+      {
+        "killerSpecies": "badger",
+        "tick": 90932,
+        "type": "CreatureDied",
+        "id": 184549984,
+        "cause": "bled_out",
+        "killerId": 318767532,
+        "tile": 73793,
+        "species": 15,
+        "name": "Saga Granitefell",
+        "faction": "fortress",
+        "ageTicks": 2688000,
+        "wornItems": [
+          218104287,
+          83886533,
+          117440949
+        ]
+      },
+      {
+        "killerSpecies": "boar",
+        "tick": 100437,
+        "type": "CreatureDied",
+        "id": 16777294,
+        "cause": "killed",
+        "killerId": 150995374,
+        "tile": 74039,
+        "species": 15,
+        "name": "Brynja Flintheart",
+        "faction": "fortress",
+        "ageTicks": 3360000,
+        "wornItems": [
+          16777305,
+          16777306,
+          16777307
+        ]
+      },
+      {
+        "killerSpecies": "boar",
+        "tick": 103692,
+        "type": "CreatureDied",
+        "id": 16777295,
+        "cause": "killed",
+        "killerId": 285213304,
+        "tile": 74183,
+        "species": 15,
+        "name": "Orm Steeldelve",
+        "faction": "fortress",
+        "ageTicks": 6182400,
+        "wornItems": [
+          16777308,
+          16777309,
+          16777310
+        ]
+      },
+      {
+        "tick": 147602,
+        "type": "CreatureDied",
+        "id": 16777685,
+        "cause": "starvation",
+        "killerId": 0,
+        "tile": 60698,
+        "species": 15,
+        "name": "Saga Hawkbrow",
+        "faction": "fortress",
+        "ageTicks": 6316800,
+        "wornItems": [
+          16777686,
+          16777687,
+          16777688
+        ]
+      },
+      {
+        "tick": 148802,
+        "type": "CreatureDied",
+        "id": 16777292,
+        "cause": "starvation",
+        "killerId": 0,
+        "tile": 60688,
+        "species": 15,
+        "name": "Steinn Coldfoot",
+        "faction": "fortress",
+        "ageTicks": 3225600,
+        "wornItems": [
+          16777299,
+          16777300,
+          16777301
+        ]
+      },
+      {
+        "tick": 150002,
+        "type": "CreatureDied",
+        "id": 16777297,
+        "cause": "starvation",
+        "killerId": 0,
+        "tile": 60273,
+        "species": 15,
+        "name": "Thurid Darkvein",
+        "faction": "fortress",
+        "ageTicks": 4838400,
+        "wornItems": [
+          16777234,
+          16777314,
+          16777315,
+          16777316
+        ]
+      },
+      {
+        "tick": 151202,
+        "type": "CreatureDied",
+        "id": 16777293,
+        "cause": "starvation",
+        "killerId": 0,
+        "tile": 60943,
+        "species": 15,
+        "name": "Hrolf Stormwall",
+        "faction": "fortress",
+        "ageTicks": 4838400,
+        "wornItems": [
+          16777302,
+          16777303,
+          16777304
+        ]
+      },
+      {
+        "tick": 151202,
+        "type": "CreatureDied",
+        "id": 16777296,
+        "cause": "starvation",
+        "killerId": 0,
+        "tile": 71887,
+        "species": 15,
+        "name": "Ottar Stonehelm",
+        "faction": "fortress",
+        "ageTicks": 7123200,
+        "wornItems": [
+          16777236,
+          16777311,
+          16777312,
+          16777313
+        ]
+      }
+    ],
+    "assignments": [
+      {
+        "tick": 108301,
+        "worker": 16777296,
+        "brew": 1760,
+        "brewEligible": true,
+        "selected": 1760,
+        "candidates": [
+          {
+            "id": 1760,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 111297,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1763,
+        "candidates": [
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 1763,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 113144,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1767,
+        "candidates": [
+          {
+            "id": 1767,
+            "key": "harvest:71793",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1768,
+            "key": "harvest:71895",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 113287,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1769,
+        "candidates": [
+          {
+            "id": 1769,
+            "key": "plant:71793",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1768,
+            "key": "harvest:71895",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 113322,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1768,
+        "candidates": [
+          {
+            "id": 1768,
+            "key": "harvest:71895",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 113765,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1766,
+        "candidates": [
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 1766,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 113996,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1770,
+        "candidates": [
+          {
+            "id": 1770,
+            "key": "plant:71895",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 115165,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1772,
+        "candidates": [
+          {
+            "id": 1772,
+            "key": "harvest:71792",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1773,
+            "key": "harvest:71840",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 115308,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1777,
+        "candidates": [
+          {
+            "id": 1777,
+            "key": "plant:71792",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1773,
+            "key": "harvest:71840",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1776,
+            "key": "harvest:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 115343,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1773,
+        "candidates": [
+          {
+            "id": 1773,
+            "key": "harvest:71840",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1776,
+            "key": "harvest:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 115387,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1778,
+        "candidates": [
+          {
+            "id": 1778,
+            "key": "plant:71840",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1776,
+            "key": "harvest:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 115994,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1780,
+        "candidates": [
+          {
+            "id": 1780,
+            "key": "harvest:71841",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1776,
+            "key": "harvest:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1779,
+            "key": "harvest:71794",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1781,
+            "key": "harvest:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1782,
+            "key": "harvest:71889",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1783,
+            "key": "harvest:71888",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 117048,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1783,
+        "candidates": [
+          {
+            "id": 1783,
+            "key": "harvest:71888",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1782,
+            "key": "harvest:71889",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1784,
+            "key": "plant:71841",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1776,
+            "key": "harvest:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1779,
+            "key": "harvest:71794",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1781,
+            "key": "harvest:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 117191,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1786,
+        "candidates": [
+          {
+            "id": 1786,
+            "key": "plant:71888",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1782,
+            "key": "harvest:71889",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1784,
+            "key": "plant:71841",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1776,
+            "key": "harvest:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1779,
+            "key": "harvest:71794",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1781,
+            "key": "harvest:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 117819,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1784,
+        "candidates": [
+          {
+            "id": 1784,
+            "key": "plant:71841",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1776,
+            "key": "harvest:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1779,
+            "key": "harvest:71794",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1781,
+            "key": "harvest:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1782,
+            "key": "harvest:71889",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 118449,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1782,
+        "candidates": [
+          {
+            "id": 1782,
+            "key": "harvest:71889",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1776,
+            "key": "harvest:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1779,
+            "key": "harvest:71794",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1781,
+            "key": "harvest:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 118642,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1787,
+        "candidates": [
+          {
+            "id": 1787,
+            "key": "plant:71889",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1776,
+            "key": "harvest:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1781,
+            "key": "harvest:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1779,
+            "key": "harvest:71794",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 118677,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1776,
+        "candidates": [
+          {
+            "id": 1776,
+            "key": "harvest:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1781,
+            "key": "harvest:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1779,
+            "key": "harvest:71794",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 118725,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1766,
+        "candidates": [
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 1766,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 120651,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1790,
+        "candidates": [
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 1790,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 122572,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1779,
+        "candidates": [
+          {
+            "id": 1779,
+            "key": "harvest:71794",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1781,
+            "key": "harvest:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1788,
+            "key": "plant:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1812,
+            "key": "harvest:71891",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 123964,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1811,
+        "candidates": [
+          {
+            "id": 1811,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 125601,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1817,
+        "candidates": [
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 1817,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 125872,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1781,
+        "candidates": [
+          {
+            "id": 1781,
+            "key": "harvest:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1788,
+            "key": "plant:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1815,
+            "key": "plant:71794",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1812,
+            "key": "harvest:71891",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 128622,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1788,
+        "candidates": [
+          {
+            "id": 1788,
+            "key": "plant:71890",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1815,
+            "key": "plant:71794",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1820,
+            "key": "plant:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1812,
+            "key": "harvest:71891",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 130191,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1815,
+        "candidates": [
+          {
+            "id": 1815,
+            "key": "plant:71794",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1820,
+            "key": "plant:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1812,
+            "key": "harvest:71891",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1824,
+            "key": "harvest:71892",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 130601,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1820,
+        "candidates": [
+          {
+            "id": 1820,
+            "key": "plant:71842",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1812,
+            "key": "harvest:71891",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1824,
+            "key": "harvest:71892",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 131751,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1822,
+        "candidates": [
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 1822,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 131924,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1812,
+        "candidates": [
+          {
+            "id": 1812,
+            "key": "harvest:71891",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1824,
+            "key": "harvest:71892",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 132087,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1838,
+        "candidates": [
+          {
+            "id": 1838,
+            "key": "plant:71891",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1824,
+            "key": "harvest:71892",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 132122,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1775,
+        "candidates": [
+          {
+            "id": 1775,
+            "key": "harvest:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1824,
+            "key": "harvest:71892",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 132166,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1839,
+        "candidates": [
+          {
+            "id": 1839,
+            "key": "plant:71939",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1824,
+            "key": "harvest:71892",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 132201,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1824,
+        "candidates": [
+          {
+            "id": 1824,
+            "key": "harvest:71892",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 132245,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1841,
+        "candidates": [
+          {
+            "id": 1841,
+            "key": "plant:71892",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 132501,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1842,
+        "candidates": [
+          {
+            "id": 1842,
+            "key": "harvest:71938",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 132707,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1843,
+        "candidates": [
+          {
+            "id": 1843,
+            "key": "plant:71938",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 132745,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1814,
+        "candidates": [
+          {
+            "id": 1814,
+            "key": "harvest:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 133201,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1840,
+        "candidates": [
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 1840,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 133708,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1847,
+        "candidates": [
+          {
+            "id": 1847,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 134746,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1844,
+        "candidates": [
+          {
+            "id": 1844,
+            "key": "harvest:71936",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1849,
+            "key": "harvest:71937",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1845,
+            "key": "plant:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 7
+          }
+        ]
+      },
+      {
+        "tick": 135845,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1813,
+        "candidates": [
+          {
+            "id": 1813,
+            "key": "harvest:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1845,
+            "key": "plant:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1849,
+            "key": "harvest:71937",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2118,
+            "key": "plant:71936",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 7
+          }
+        ]
+      },
+      {
+        "tick": 136008,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2121,
+        "candidates": [
+          {
+            "id": 2121,
+            "key": "plant:71795",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1845,
+            "key": "plant:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1849,
+            "key": "harvest:71937",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2118,
+            "key": "plant:71936",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 7
+          }
+        ]
+      },
+      {
+        "tick": 136043,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1823,
+        "candidates": [
+          {
+            "id": 1823,
+            "key": "harvest:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1845,
+            "key": "plant:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1849,
+            "key": "harvest:71937",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2118,
+            "key": "plant:71936",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 7
+          }
+        ]
+      },
+      {
+        "tick": 136087,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2122,
+        "candidates": [
+          {
+            "id": 2122,
+            "key": "plant:71843",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1845,
+            "key": "plant:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1849,
+            "key": "harvest:71937",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2118,
+            "key": "plant:71936",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 7
+          }
+        ]
+      },
+      {
+        "tick": 136122,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1845,
+        "candidates": [
+          {
+            "id": 1845,
+            "key": "plant:71844",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1849,
+            "key": "harvest:71937",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2118,
+            "key": "plant:71936",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 7
+          }
+        ]
+      },
+      {
+        "tick": 136401,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2118,
+        "candidates": [
+          {
+            "id": 2118,
+            "key": "plant:71936",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1849,
+            "key": "harvest:71937",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 136599,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1849,
+        "candidates": [
+          {
+            "id": 1849,
+            "key": "harvest:71937",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 7
+          }
+        ]
+      },
+      {
+        "tick": 137075,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1850,
+        "candidates": [
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 1850,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 138381,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2125,
+        "candidates": [
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 2125,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 140472,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2129,
+        "candidates": [
+          {
+            "id": 2129,
+            "key": "harvest:71793",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 7
+          }
+        ]
+      },
+      {
+        "tick": 140581,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2128,
+        "candidates": [
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 2128,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 140612,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2130,
+        "candidates": [
+          {
+            "id": 2130,
+            "key": "plant:71793",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 7
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 7
+          }
+        ]
+      },
+      {
+        "tick": 140643,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1825,
+        "candidates": [
+          {
+            "id": 1825,
+            "key": "harvest:71940",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      },
+      {
+        "tick": 140703,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2131,
+        "candidates": [
+          {
+            "id": 2131,
+            "key": "plant:71940",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      },
+      {
+        "tick": 140734,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 1818,
+        "candidates": [
+          {
+            "id": 1818,
+            "key": "harvest:71893",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      },
+      {
+        "tick": 140774,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2132,
+        "candidates": [
+          {
+            "id": 2132,
+            "key": "plant:71893",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      },
+      {
+        "tick": 141292,
+        "worker": 16777297,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2133,
+        "candidates": [
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 0
+          },
+          {
+            "id": 2133,
+            "key": "craft:16777341:0",
+            "recipe": "cook_easy_meal",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 888,
+            "key": "build:16777725",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 889,
+            "key": "build:83886323",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 890,
+            "key": "build:117440782",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 887,
+            "key": "build:16777724",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 850,
+            "key": "build:16777706",
+            "eff": 5,
+            "skill": 0
+          },
+          {
+            "id": 851,
+            "key": "build:16777707",
+            "eff": 5,
+            "skill": 0
+          }
+        ]
+      },
+      {
+        "tick": 142572,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2134,
+        "candidates": [
+          {
+            "id": 2134,
+            "key": "harvest:71792",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2135,
+            "key": "harvest:71840",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      },
+      {
+        "tick": 142713,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2137,
+        "candidates": [
+          {
+            "id": 2137,
+            "key": "plant:71792",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2135,
+            "key": "harvest:71840",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      },
+      {
+        "tick": 142748,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2135,
+        "candidates": [
+          {
+            "id": 2135,
+            "key": "harvest:71840",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      },
+      {
+        "tick": 144433,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2141,
+        "candidates": [
+          {
+            "id": 2141,
+            "key": "harvest:71841",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2138,
+            "key": "plant:71840",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2140,
+            "key": "harvest:71888",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2142,
+            "key": "harvest:71889",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      },
+      {
+        "tick": 146622,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2143,
+        "candidates": [
+          {
+            "id": 2143,
+            "key": "plant:71841",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2138,
+            "key": "plant:71840",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2140,
+            "key": "harvest:71888",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2142,
+            "key": "harvest:71889",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2145,
+            "key": "harvest:71895",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      },
+      {
+        "tick": 146757,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2138,
+        "candidates": [
+          {
+            "id": 2138,
+            "key": "plant:71840",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2140,
+            "key": "harvest:71888",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2142,
+            "key": "harvest:71889",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2145,
+            "key": "harvest:71895",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      },
+      {
+        "tick": 147401,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2140,
+        "candidates": [
+          {
+            "id": 2140,
+            "key": "harvest:71888",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2142,
+            "key": "harvest:71889",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2145,
+            "key": "harvest:71895",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 147983,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2142,
+        "candidates": [
+          {
+            "id": 2142,
+            "key": "harvest:71889",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2146,
+            "key": "plant:71888",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2145,
+            "key": "harvest:71895",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      },
+      {
+        "tick": 148351,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2146,
+        "candidates": [
+          {
+            "id": 2146,
+            "key": "plant:71888",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2148,
+            "key": "plant:71889",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2145,
+            "key": "harvest:71895",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          }
+        ]
+      },
+      {
+        "tick": 148539,
+        "worker": 16777296,
+        "brew": 1764,
+        "brewEligible": true,
+        "selected": 2123,
+        "candidates": [
+          {
+            "id": 2123,
+            "key": "plant:71937",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2148,
+            "key": "plant:71889",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1848,
+            "key": "harvest:71796",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1774,
+            "key": "harvest:71845",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1819,
+            "key": "harvest:71797",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2120,
+            "key": "harvest:71941",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1835,
+            "key": "harvest:71846",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1836,
+            "key": "harvest:71798",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2127,
+            "key": "harvest:71894",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1837,
+            "key": "harvest:71799",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2126,
+            "key": "harvest:71847",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2145,
+            "key": "harvest:71895",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 1764,
+            "key": "craft:16777340:0",
+            "recipe": "brew",
+            "eff": 4,
+            "skill": 5
+          },
+          {
+            "id": 2116,
+            "key": "plant:74660",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2115,
+            "key": "plant:74659",
+            "eff": 4,
+            "skill": 8
+          },
+          {
+            "id": 2117,
+            "key": "plant:74705",
+            "eff": 4,
+            "skill": 8
+          }
+        ]
+      }
+    ],
+    "daily": [
+      {
+        "day": 73,
+        "pop": 12,
+        "stock": {
+          "pick": 2,
+          "axe": 1,
+          "crossbow": 2,
+          "bolt": 45,
+          "quiver": 1,
+          "log": 196,
+          "amulet": 3,
+          "table": 8,
+          "charcoal_bar": 28,
+          "barrel": 15,
+          "plant_food": 86,
+          "figurine": 12,
+          "bag": 9,
+          "seed": 34,
+          "bar:iron": 5,
+          "mechanism": 1,
+          "leather_piece": 5,
+          "cloth": 5,
+          "thread": 5,
+          "rotten": 36,
+          "splint": 4,
+          "bucket": 2,
+          "bed": 3,
+          "chair": 9,
+          "tunic": 12,
+          "trousers": 12,
+          "boots": 12,
+          "stone_block": 25,
+          "raw_stone:sandstone": 19,
+          "door": 6,
+          "ring": 12,
+          "ore:limonite": 9,
+          "raw_stone:slate": 5
+        },
+        "laborCount": {
+          "mining": 4,
+          "carpentry": 4,
+          "woodcutting": 3,
+          "crafts": 4,
+          "brewing": 5,
+          "farming": 4,
+          "construction": 5,
+          "cooking": 4,
+          "animal_care": 3,
+          "animal_training": 3,
+          "butchery": 3,
+          "cleaning": 3,
+          "fishing": 3,
+          "gem_cutting": 3,
+          "hauling": 4,
+          "herbalism": 3,
+          "hunting": 3,
+          "leather": 3,
+          "masonry": 4,
+          "mechanics": 3,
+          "medicine": 3,
+          "smelting": 5,
+          "smithing": 3,
+          "textiles": 3,
+          "trading": 4
+        },
+        "brewers": [
+          {
+            "id": 16777296,
+            "beh": "need",
+            "act": "sleep",
+            "pos": [
+              33,
+              7,
+              26
+            ],
+            "needs": [
+              24,
+              24,
+              14,
+              10,
+              50,
+              34,
+              61
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 16777297,
+            "beh": "need",
+            "act": "sleep",
+            "pos": [
+              35,
+              14,
+              26
+            ],
+            "needs": [
+              10,
+              69,
+              2,
+              16,
+              64,
+              100,
+              57
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 16777298,
+            "beh": "flee",
+            "act": "Fleeing",
+            "pos": [
+              26,
+              6,
+              32
+            ],
+            "needs": [
+              49,
+              45,
+              72,
+              30,
+              63,
+              58,
+              56
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 150995475,
+            "beh": "work",
+            "act": "Bandage",
+            "job": "stop_bleeding:16777298",
+            "pos": [
+              31,
+              9,
+              27
+            ],
+            "needs": [
+              24,
+              13,
+              74,
+              30,
+              57,
+              90,
+              65
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 184549984,
+            "beh": "need",
+            "act": "social",
+            "pos": [
+              33,
+              11,
+              26
+            ],
+            "needs": [
+              18,
+              11,
+              52,
+              60,
+              57,
+              100,
+              35
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          }
+        ]
+      },
+      {
+        "day": 86,
+        "pop": 6,
+        "stock": {
+          "pick": 2,
+          "axe": 1,
+          "crossbow": 2,
+          "bolt": 45,
+          "quiver": 1,
+          "log": 194,
+          "amulet": 6,
+          "table": 8,
+          "charcoal_bar": 28,
+          "barrel": 17,
+          "plant_food": 140,
+          "figurine": 18,
+          "bag": 9,
+          "seed": 32,
+          "ore:hematite": 7,
+          "bar:iron": 5,
+          "mechanism": 1,
+          "leather_piece": 5,
+          "cloth": 5,
+          "thread": 5,
+          "rotten": 49,
+          "splint": 4,
+          "bucket": 2,
+          "bed": 3,
+          "chair": 9,
+          "corpse": 6,
+          "tunic": 12,
+          "trousers": 12,
+          "boots": 12,
+          "stone_block": 25,
+          "raw_stone:sandstone": 25,
+          "easy_meal": 5,
+          "door": 6,
+          "ring": 15,
+          "ore:limonite": 9,
+          "raw_stone:slate": 4,
+          "drink": 14
+        },
+        "laborCount": {
+          "mining": 2,
+          "crafts": 1,
+          "brewing": 2,
+          "farming": 1,
+          "construction": 2,
+          "cooking": 1,
+          "masonry": 1,
+          "smelting": 1
+        },
+        "brewers": [
+          {
+            "id": 16777296,
+            "beh": "need",
+            "act": "hunger",
+            "pos": [
+              31,
+              9,
+              30
+            ],
+            "needs": [
+              64,
+              16,
+              20,
+              8,
+              62,
+              22,
+              55
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 16777297,
+            "beh": "need",
+            "act": "sleep",
+            "pos": [
+              31,
+              9,
+              31
+            ],
+            "needs": [
+              48,
+              5,
+              32,
+              18,
+              36,
+              56,
+              51
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          }
+        ]
+      },
+      {
+        "day": 90,
+        "pop": 5,
+        "stock": {
+          "pick": 2,
+          "axe": 1,
+          "crossbow": 2,
+          "bolt": 45,
+          "quiver": 1,
+          "log": 194,
+          "amulet": 6,
+          "table": 8,
+          "charcoal_bar": 28,
+          "barrel": 17,
+          "plant_food": 118,
+          "figurine": 18,
+          "bag": 9,
+          "seed": 32,
+          "ore:hematite": 11,
+          "bar:iron": 5,
+          "mechanism": 1,
+          "leather_piece": 5,
+          "cloth": 5,
+          "thread": 5,
+          "rotten": 43,
+          "splint": 4,
+          "bucket": 2,
+          "bed": 3,
+          "chair": 9,
+          "corpse": 7,
+          "tunic": 12,
+          "trousers": 12,
+          "boots": 12,
+          "stone_block": 25,
+          "raw_stone:sandstone": 26,
+          "door": 6,
+          "ring": 15,
+          "ore:bituminous_coal": 1,
+          "ore:limonite": 9,
+          "easy_meal": 6,
+          "raw_stone:slate": 4,
+          "drink": 24
+        },
+        "laborCount": {
+          "mining": 2,
+          "brewing": 2,
+          "farming": 1,
+          "construction": 2,
+          "cooking": 1,
+          "masonry": 1,
+          "smelting": 1
+        },
+        "brewers": [
+          {
+            "id": 16777296,
+            "beh": "need",
+            "act": "joy",
+            "pos": [
+              33,
+              11,
+              26
+            ],
+            "needs": [
+              18,
+              6,
+              64,
+              32,
+              38,
+              100,
+              67
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 16777297,
+            "beh": "need",
+            "act": "sleep",
+            "pos": [
+              31,
+              13,
+              26
+            ],
+            "needs": [
+              69,
+              10,
+              75,
+              66,
+              52,
+              68,
+              93
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          }
+        ]
+      },
+      {
+        "day": 100,
+        "pop": 5,
+        "stock": {
+          "pick": 2,
+          "axe": 1,
+          "crossbow": 2,
+          "bolt": 45,
+          "quiver": 1,
+          "log": 194,
+          "amulet": 6,
+          "table": 8,
+          "charcoal_bar": 28,
+          "barrel": 17,
+          "rotten": 43,
+          "plant_food": 124,
+          "figurine": 18,
+          "bag": 9,
+          "seed": 33,
+          "ore:hematite": 11,
+          "bar:iron": 5,
+          "mechanism": 1,
+          "leather_piece": 5,
+          "cloth": 5,
+          "thread": 5,
+          "splint": 4,
+          "bucket": 2,
+          "bed": 3,
+          "chair": 9,
+          "corpse": 7,
+          "tunic": 12,
+          "trousers": 12,
+          "boots": 12,
+          "stone_block": 25,
+          "raw_stone:sandstone": 28,
+          "door": 6,
+          "ring": 15,
+          "ore:bituminous_coal": 6,
+          "ore:limonite": 9,
+          "raw_stone:slate": 5,
+          "easy_meal": 4,
+          "drink": 20
+        },
+        "laborCount": {
+          "mining": 2,
+          "brewing": 2,
+          "farming": 1,
+          "construction": 2,
+          "cooking": 1,
+          "masonry": 1,
+          "smelting": 1
+        },
+        "brewers": [
+          {
+            "id": 16777296,
+            "beh": "need",
+            "act": "hunger",
+            "pos": [
+              31,
+              9,
+              26
+            ],
+            "needs": [
+              60,
+              58,
+              25,
+              40,
+              38,
+              50,
+              67
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 16777297,
+            "beh": "need",
+            "act": "joy",
+            "pos": [
+              31,
+              9,
+              31
+            ],
+            "needs": [
+              37,
+              3,
+              43,
+              10,
+              52,
+              54,
+              63
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          }
+        ]
+      },
+      {
+        "day": 110,
+        "pop": 5,
+        "stock": {
+          "pick": 2,
+          "axe": 1,
+          "crossbow": 2,
+          "bolt": 45,
+          "quiver": 1,
+          "log": 194,
+          "amulet": 6,
+          "table": 8,
+          "charcoal_bar": 28,
+          "barrel": 17,
+          "rotten": 54,
+          "figurine": 18,
+          "bag": 9,
+          "seed": 32,
+          "ore:hematite": 12,
+          "bar:iron": 5,
+          "mechanism": 1,
+          "leather_piece": 5,
+          "cloth": 5,
+          "thread": 5,
+          "splint": 4,
+          "bucket": 2,
+          "bed": 3,
+          "chair": 9,
+          "corpse": 7,
+          "tunic": 12,
+          "trousers": 12,
+          "boots": 12,
+          "stone_block": 25,
+          "plant_food": 94,
+          "raw_stone:sandstone": 34,
+          "ore:bituminous_coal": 8,
+          "door": 6,
+          "ring": 15,
+          "ore:limonite": 9,
+          "raw_stone:slate": 5
+        },
+        "laborCount": {
+          "mining": 2,
+          "brewing": 2,
+          "farming": 1,
+          "construction": 2,
+          "cooking": 1,
+          "masonry": 1,
+          "smelting": 1
+        },
+        "brewers": [
+          {
+            "id": 16777296,
+            "beh": "work",
+            "act": "Harvest",
+            "job": "harvest:71891",
+            "pos": [
+              31,
+              9,
+              29
+            ],
+            "needs": [
+              14,
+              94,
+              34,
+              8,
+              38,
+              64,
+              37
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 16777297,
+            "beh": "work",
+            "act": "Craft (recipe)",
+            "job": "craft:16777341:0",
+            "pos": [
+              31,
+              10,
+              32
+            ],
+            "needs": [
+              9,
+              100,
+              17,
+              14,
+              52,
+              60,
+              63
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          }
+        ]
+      },
+      {
+        "day": 120,
+        "pop": 5,
+        "stock": {
+          "pick": 2,
+          "axe": 1,
+          "crossbow": 2,
+          "bolt": 45,
+          "quiver": 1,
+          "log": 194,
+          "amulet": 6,
+          "table": 8,
+          "charcoal_bar": 28,
+          "barrel": 17,
+          "ore:hematite": 30,
+          "figurine": 18,
+          "bag": 9,
+          "seed": 34,
+          "plant_food": 100,
+          "bar:iron": 5,
+          "mechanism": 1,
+          "leather_piece": 5,
+          "cloth": 5,
+          "thread": 5,
+          "rotten": 60,
+          "splint": 4,
+          "bucket": 2,
+          "bed": 3,
+          "chair": 9,
+          "corpse": 7,
+          "tunic": 12,
+          "trousers": 12,
+          "boots": 12,
+          "stone_block": 25,
+          "raw_stone:sandstone": 36,
+          "ore:bituminous_coal": 8,
+          "easy_meal": 13,
+          "door": 6,
+          "ring": 15,
+          "ore:limonite": 9,
+          "raw_stone:slate": 5
+        },
+        "laborCount": {
+          "mining": 2,
+          "brewing": 2,
+          "farming": 1,
+          "construction": 2,
+          "cooking": 1,
+          "masonry": 1,
+          "smelting": 1
+        },
+        "brewers": [
+          {
+            "id": 16777296,
+            "beh": "need",
+            "act": "comfort",
+            "pos": [
+              31,
+              11,
+              26
+            ],
+            "needs": [
+              36,
+              100,
+              5,
+              38,
+              78,
+              100,
+              67
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 16777297,
+            "beh": "need",
+            "act": "sleep",
+            "pos": [
+              35,
+              14,
+              26
+            ],
+            "needs": [
+              3,
+              100,
+              26,
+              48,
+              52,
+              86,
+              63
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          }
+        ]
+      },
+      {
+        "day": 123,
+        "pop": 5,
+        "stock": {
+          "pick": 2,
+          "axe": 1,
+          "crossbow": 2,
+          "bolt": 45,
+          "quiver": 1,
+          "log": 194,
+          "amulet": 6,
+          "table": 8,
+          "charcoal_bar": 28,
+          "barrel": 17,
+          "ore:hematite": 39,
+          "figurine": 18,
+          "bag": 9,
+          "seed": 34,
+          "plant_food": 111,
+          "bar:iron": 5,
+          "mechanism": 1,
+          "leather_piece": 5,
+          "cloth": 5,
+          "thread": 5,
+          "rotten": 30,
+          "splint": 4,
+          "bucket": 2,
+          "bed": 3,
+          "chair": 9,
+          "corpse": 5,
+          "skeleton": 2,
+          "tunic": 12,
+          "trousers": 12,
+          "boots": 12,
+          "stone_block": 25,
+          "easy_meal": 9,
+          "raw_stone:sandstone": 37,
+          "ore:bituminous_coal": 10,
+          "door": 6,
+          "ring": 15,
+          "raw_stone:slate": 6,
+          "ore:limonite": 9
+        },
+        "laborCount": {
+          "mining": 2,
+          "brewing": 2,
+          "farming": 1,
+          "construction": 2,
+          "cooking": 1,
+          "masonry": 1,
+          "smelting": 1
+        },
+        "brewers": [
+          {
+            "id": 16777296,
+            "beh": "need",
+            "act": "joy",
+            "pos": [
+              31,
+              9,
+              31
+            ],
+            "needs": [
+              31,
+              100,
+              15,
+              40,
+              30,
+              54,
+              61
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 16777297,
+            "beh": "need",
+            "act": "hunger",
+            "pos": [
+              31,
+              14,
+              26
+            ],
+            "needs": [
+              65,
+              100,
+              0,
+              62,
+              44,
+              100,
+              57
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          }
+        ]
+      },
+      {
+        "day": 124,
+        "pop": 4,
+        "stock": {
+          "pick": 2,
+          "axe": 1,
+          "crossbow": 2,
+          "bolt": 45,
+          "quiver": 1,
+          "log": 194,
+          "amulet": 6,
+          "table": 8,
+          "charcoal_bar": 28,
+          "barrel": 17,
+          "ore:hematite": 39,
+          "figurine": 18,
+          "bag": 9,
+          "seed": 33,
+          "plant_food": 111,
+          "bar:iron": 5,
+          "mechanism": 1,
+          "leather_piece": 5,
+          "cloth": 5,
+          "thread": 5,
+          "rotten": 26,
+          "splint": 4,
+          "bucket": 2,
+          "bed": 3,
+          "chair": 9,
+          "corpse": 6,
+          "skeleton": 2,
+          "tunic": 12,
+          "trousers": 12,
+          "boots": 12,
+          "stone_block": 25,
+          "easy_meal": 8,
+          "raw_stone:sandstone": 37,
+          "ore:bituminous_coal": 11,
+          "door": 6,
+          "ring": 15,
+          "raw_stone:slate": 6,
+          "ore:limonite": 9
+        },
+        "laborCount": {
+          "mining": 2,
+          "brewing": 2,
+          "farming": 1,
+          "construction": 1,
+          "cooking": 1
+        },
+        "brewers": [
+          {
+            "id": 16777296,
+            "beh": "need",
+            "act": "hunger",
+            "pos": [
+              30,
+              14,
+              26
+            ],
+            "needs": [
+              54,
+              100,
+              0,
+              32,
+              54,
+              18,
+              49
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 16777297,
+            "beh": "need",
+            "act": "hunger",
+            "pos": [
+              34,
+              12,
+              32
+            ],
+            "needs": [
+              86,
+              100,
+              65,
+              100,
+              68,
+              100,
+              75
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          }
+        ]
+      },
+      {
+        "day": 125,
+        "pop": 3,
+        "stock": {
+          "pick": 2,
+          "axe": 1,
+          "crossbow": 2,
+          "bolt": 45,
+          "quiver": 1,
+          "log": 194,
+          "amulet": 6,
+          "table": 8,
+          "charcoal_bar": 28,
+          "barrel": 17,
+          "ore:hematite": 39,
+          "figurine": 18,
+          "bag": 9,
+          "seed": 33,
+          "plant_food": 100,
+          "bar:iron": 5,
+          "mechanism": 1,
+          "leather_piece": 5,
+          "cloth": 5,
+          "thread": 5,
+          "rotten": 37,
+          "splint": 4,
+          "bucket": 2,
+          "bed": 3,
+          "chair": 9,
+          "corpse": 5,
+          "skeleton": 4,
+          "tunic": 12,
+          "trousers": 12,
+          "boots": 12,
+          "stone_block": 25,
+          "raw_stone:sandstone": 37,
+          "ore:bituminous_coal": 11,
+          "easy_meal": 5,
+          "door": 6,
+          "ring": 15,
+          "raw_stone:slate": 6,
+          "ore:limonite": 9
+        },
+        "laborCount": {
+          "mining": 1,
+          "brewing": 2,
+          "farming": 1,
+          "construction": 1,
+          "cooking": 1
+        },
+        "brewers": [
+          {
+            "id": 16777296,
+            "beh": "need",
+            "act": "joy",
+            "pos": [
+              31,
+              9,
+              26
+            ],
+            "needs": [
+              10,
+              100,
+              5,
+              20,
+              38,
+              66,
+              67
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          },
+          {
+            "id": 16777297,
+            "beh": "need",
+            "act": "social",
+            "pos": [
+              33,
+              7,
+              26
+            ],
+            "needs": [
+              9,
+              100,
+              13,
+              100,
+              92,
+              100,
+              93
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          }
+        ]
+      },
+      {
+        "day": 126,
+        "pop": 2,
+        "stock": {
+          "pick": 2,
+          "axe": 1,
+          "crossbow": 2,
+          "bolt": 45,
+          "quiver": 1,
+          "log": 194,
+          "amulet": 6,
+          "table": 8,
+          "charcoal_bar": 28,
+          "barrel": 17,
+          "ore:hematite": 39,
+          "figurine": 18,
+          "bag": 9,
+          "seed": 33,
+          "plant_food": 118,
+          "bar:iron": 5,
+          "mechanism": 1,
+          "leather_piece": 5,
+          "cloth": 5,
+          "thread": 5,
+          "rotten": 49,
+          "splint": 4,
+          "bucket": 2,
+          "bed": 3,
+          "chair": 9,
+          "corpse": 6,
+          "skeleton": 4,
+          "tunic": 12,
+          "trousers": 12,
+          "boots": 12,
+          "stone_block": 25,
+          "raw_stone:sandstone": 37,
+          "ore:bituminous_coal": 12,
+          "door": 6,
+          "ring": 15,
+          "raw_stone:slate": 6,
+          "ore:limonite": 9
+        },
+        "laborCount": {
+          "mining": 1,
+          "brewing": 1,
+          "farming": 1
+        },
+        "brewers": [
+          {
+            "id": 16777296,
+            "beh": "need",
+            "act": "sleep",
+            "pos": [
+              31,
+              9,
+              31
+            ],
+            "needs": [
+              33,
+              100,
+              62,
+              16,
+              22,
+              0,
+              55
+            ],
+            "conscious": true,
+            "hasWork": true,
+            "queued": false
+          }
+        ]
+      },
+      {
+        "day": 127,
+        "pop": 0,
+        "stock": {
+          "pick": 2,
+          "axe": 1,
+          "crossbow": 2,
+          "bolt": 45,
+          "quiver": 1,
+          "log": 194,
+          "amulet": 6,
+          "table": 8,
+          "charcoal_bar": 28,
+          "barrel": 17,
+          "ore:hematite": 39,
+          "figurine": 18,
+          "bag": 9,
+          "seed": 33,
+          "plant_food": 118,
+          "bar:iron": 5,
+          "mechanism": 1,
+          "leather_piece": 5,
+          "cloth": 5,
+          "thread": 5,
+          "rotten": 49,
+          "splint": 4,
+          "bucket": 2,
+          "bed": 3,
+          "chair": 9,
+          "corpse": 8,
+          "skeleton": 4,
+          "tunic": 12,
+          "trousers": 12,
+          "boots": 12,
+          "stone_block": 25,
+          "raw_stone:sandstone": 37,
+          "ore:bituminous_coal": 12,
+          "door": 6,
+          "ring": 15,
+          "raw_stone:slate": 6,
+          "ore:limonite": 9
+        },
+        "laborCount": {},
+        "brewers": []
+      }
+    ]
+  },
+  "fast": {
+    "endTick": 332400,
+    "deaths": [],
+    "lastDaily": {
+      "day": 277,
+      "pop": 37,
+      "stock": {
+        "pick": 2,
+        "axe": 1,
+        "crossbow": 2,
+        "bolt": 45,
+        "quiver": 1,
+        "ore:bituminous_coal": 28,
+        "stone_block": 30,
+        "barrel": 102,
+        "seed": 196,
+        "raw_stone:slate": 17,
+        "table": 9,
+        "bag": 9,
+        "trousers": 37,
+        "ore:hematite": 57,
+        "bed": 24,
+        "bar:iron": 32,
+        "charcoal_bar": 41,
+        "mechanism": 1,
+        "leather_piece": 5,
+        "cloth": 5,
+        "thread": 5,
+        "splint": 4,
+        "bucket": 2,
+        "log": 62,
+        "chair": 23,
+        "tunic": 37,
+        "boots": 37,
+        "cut_gem:quartz": 9,
+        "plant_food": 48,
+        "drink": 390,
+        "rotten": 11,
+        "bar:steel": 9,
+        "ore:lignite": 9,
+        "raw_stone:sandstone": 30,
+        "figurine": 45,
+        "easy_meal": 18,
+        "ore:limonite": 8,
+        "door": 6,
+        "ring": 45,
+        "amulet": 31,
+        "raw_stone:limestone": 4,
+        "fine_meal": 8
+      }
+    },
+    "brew": {
+      "first": 4754,
+      "last": 332321,
+      "n": 199
+    }
+  }
+}
