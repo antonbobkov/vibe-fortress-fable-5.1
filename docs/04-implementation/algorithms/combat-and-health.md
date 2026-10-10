@@ -129,4 +129,6 @@ Daily: infection roll per untreated cut/puncture/burn older than one day (`INFEC
 
 Patient management: `updatePatient(id)` admits when any wound bleeds, any fracture is unsplinted, any burn undressed, any wound infected, or the creature is unconscious from wounds; it computes `needs` in priority order and the producer creates one job per need with the inputs from 17; discharge when no needs remain, conscious, and `pain < PAIN_DISCHARGE`; `PatientHealed` when all wounds are light or gone.
 
+Animal care: for each tame animal with an unbandaged bleeding wound, create one `bandage_animal` job with one cloth and the job catalogue's duration. On successful completion, bandage every bleeding wound, set its bleed to 0, consume the cloth and emit `TreatmentDone` with that job kind. Failure uses animal-care skill and the treatment-failure rule. No animal surgery or care for wild/hostile creatures.
+
 Speed and productivity: `speedModifier = Π over permanent: lost leg 50% (75% with a crutch), badly healed leg 85%; both legs lost → 0 (bedridden)`; `productivityModifier = max(PRODUCTIVITY_FLOOR, 100 − pain/2 − (100 − bloodPct)/2 − permanent arm penalties)`.

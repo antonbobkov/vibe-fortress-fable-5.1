@@ -1,10 +1,12 @@
 # T-190 — The bandage_animal job is not produced for wounded tame animals
 
+Closed by `T-190: animal-care workers complete animal bandaging`.
+
 **Source:** T-152 and its run of `hospital_run.scenario.ts` · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
-[`docs/03-content/jobs.md`](../03-content/jobs.md) § Animals and [`docs/03-content/skills-and-professions.md`](../03-content/skills-and-professions.md) specify a `bandage_animal` job (labor `animal_care`, skill `animal_care`, target `entity`, work tile `entity`, duration 100 ticks):
+[`docs/03-content/jobs.md`](../../03-content/jobs.md) § Animals and [`docs/03-content/skills-and-professions.md`](../../03-content/skills-and-professions.md) specify a `bandage_animal` job (labor `animal_care`, skill `animal_care`, target `entity`, work tile `entity`, duration 100 ticks):
 > `| bandage_animal | Bandage animal | animal_care | animal_care | entity | entity | 100 | - | 6 | no |`
 
 However, in `src/systems/health/producer.ts:320–349`, when a tame animal is bleeding, the health job producer creates a job with `type: 'stop_bleeding'` and `data: { labor: 'animal_care', patient: animalId }`:

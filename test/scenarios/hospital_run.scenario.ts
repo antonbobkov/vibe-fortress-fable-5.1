@@ -543,9 +543,8 @@ const scenario: Scenario = {
       expect(morale.thoughts(d).some((t) => t.id === 'unburied_dead')).toBe(false);
     }
 
-    // 7. bandage_animal: Omitted per T-190.
-    // In src/systems/health/producer.ts:320-349, animal wound care produces type: 'stop_bleeding' with labor: 'animal_care',
-    // rather than a 'bandage_animal' job type. See docs/work/T-190-bandage-animal-job.md.
+    // 7. T-190 animal bandaging is covered by the short stepped-world regression in
+    // test/unit/health/t190-bandage-animal.test.ts.
 
   },
 };
