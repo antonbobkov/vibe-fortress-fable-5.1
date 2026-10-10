@@ -102,7 +102,7 @@ Order = kill { targetId } | station { tile } | patrol { tiles } | follow { dwarf
 ```
 
 - `off`: members are civilians (do their labors), keep their gear, respond to `hearth` alert by going active.
-- `train`: members go to the barracks zone assigned to the squad (`SetZoneSetting { barracks, squadId }`) and train (below); if the squad has a station they take turns: half train, half stand at the station, swapping every `TRAIN_SHIFT_HOURS`.
+- `train`: members go to the barracks zone assigned to the squad (`SetZoneSetting { barracks, squadId }`) and train (below); if the squad has a station they take turns: half train, half stand at the station, swapping every `TRAIN_SHIFT_HOURS * TICKS_PER_HOUR` ticks of the calendar.
 - `active`: members go to the station (or patrol route) and attack hostiles on sight; without a station they gather at the barracks.
 - On `watchful` alert every squad is treated as `active`; on `hearth` alert the same, plus civilians retreat (10).
 - A member of a squad in `train` or `active` mode is on duty; one in `off` mode is on duty only under a `watchful` or `hearth` alert. Being on duty means: no flight, the military title, no interruption by the hearth alert, and attacking a visible hostile within perception.

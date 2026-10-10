@@ -288,6 +288,8 @@ export interface Building {
 }
 
 export interface WorkOrder {
+  /** Stable identity for global orders; assigned on first use for older saves. */
+  serial?: number;
   recipe: Idx<'RecipeDef'>;
   remaining: number;
   mode: 'once' | 'maintain';

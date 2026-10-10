@@ -10,7 +10,7 @@ tick(ctx):
   retryBlocked(min(BLOCKED_RETRIES_PER_TICK, blocked.length))
   served = 0
   while assignQueue non-empty and served < ASSIGN_WORKERS_PER_TICK: w = assignQueue.shift(); assign(w); served++
-retryBlocked(n): for job in blocked (creation order, cursor-resumed): if job.retryTick <= tick or job.retryTrigger fired:
+retryBlocked(n): for job in blocked (creation order, cursor-resumed): if not job.failedWalk and (job.retryTick <= tick or job.retryTrigger fired):
                    if reasonGone(job): job.state = open; job.blockedReason = null; emit JobUnblocked
                    else: job.retryTick = tick + BLOCKED_RETRY_TICKS
                    n--; if n==0: break
@@ -18,6 +18,8 @@ reasonGone(job): no_worker → a worker has the labor; unreachable → a worker 
                  missing_input → every input's still-needed units are found (same search as claim, from the job's first stand tile);
                  no_tool → a worker carries the tool or findTool succeeds from that tile; any other reason → true
 ```
+
+An unreachable unclaim after a failed walk sets `failedWalk`. A matching reachability trigger clears it and brings the retry forward; until then, periodic retries omit that job even when its stand tiles share a connectivity label.
 
 Before removal of a hunted creature, an active hunt transitions from the quarry entity to a tile target at the death location and retains the quarry id in data.animal. It waits for CorpseCreated for that id and carries that corpse as 09 defines. Unclaimed hunts retain their entity target and cancel normally. After destruction, cancel all indexed non-completing jobs whose entity, building or zone target is that id, in job-id order, with target_gone. Ordinary cancellation releases reservations and frees workers immediately. A completing deconstruction is excluded because it destroys its own target on success. Rebuild the target index on load; it is derived and not serialized.
 

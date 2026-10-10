@@ -23,7 +23,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-156 | [The long fixtures check their own steps, and the sweep asserts what it exercises](work/T-156-long-fixtures-check-their-steps.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | T-145 | open |
 | T-157 | [Every command, event, job type and building type is exercised by a test](work/T-157-everything-exercised-once.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | — | open |
 | T-186 | [Eighteen rules to write down or remove](work/T-186-rules-to-write-down-or-remove.md) | T-115 and [`../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../reports/audits/2026-10-09-bug-hunt-spec-reading.md) | — | open; spec items done, code items remain |
-| T-187 | [Cosmetic findings of the spec reading](work/T-187-spec-reading-cosmetic-findings.md) | T-115 and [`../reports/audits/2026-10-09-bug-hunt-spec-reading.md`](../reports/audits/2026-10-09-bug-hunt-spec-reading.md) | T-186 | open |
 | T-188 | [A workshop job stalls for weeks and the fortress dies of thirst](work/T-188-still-stalls-and-the-fortress-dies-of-thirst.md) | T-140 and [`../reports/audits/2026-10-09-walking-speed.md`](../reports/audits/2026-10-09-walking-speed.md) | — | open |
 | T-190 | [The bandage_animal job is not produced for wounded tame animals](work/T-190-bandage-animal-job.md) | T-152 and its run of `hospital_run.scenario.ts` | — | open |
 

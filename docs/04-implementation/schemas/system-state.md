@@ -56,14 +56,14 @@ interface JobsState { stateVersion: 1; jobs: Job[]; nextJobId: number; laborPrio
   assignQueue: EntityId[]; blockedRetryCursor: number }
 interface Job { id: number; key: string; type: Idx<JobTypeDef>; producer: string; priority: Priority;
   target: { kind: 'tile'|'entity'|'building'|'zone'|'pair'; ref: number; ref2?: number }; workTile: TileIndex | 'adjacent' | 'at';
-  inputs: { filter: ItemFilter; count: number; reserved: EntityId[]; delivered: EntityId[] }[]; tool: 'pick'|'axe'|'ranged'|'bucket'|null;
+  inputs: { filter: ItemFilter; count: number; wholeItem?: true /* reserve the whole stack, retained on save */; reserved: EntityId[]; delivered: EntityId[] }[]; tool: 'pick'|'axe'|'ranged'|'bucket'|null;
   state: 'open'|'claimed'|'fetching'|'travelling'|'working'|'completing'|'blocked'|'cancelled'|'done';
-  blockedReason: string | null; retryTick: Tick; workerId: EntityId; progress: Fixed; createdTick: Tick; claimedTick: Tick; data: Record<string, unknown> }
+  blockedReason: string | null; failedWalk?: true /* wait for a reachability trigger */; retryTick: Tick; workerId: EntityId; progress: Fixed; createdTick: Tick; claimedTick: Tick; data: Record<string, unknown> }
 // Job.data.inputsInvalidated?: true remembers a destroyed input already pruned from the lists, until the next delivered-input validation; absent means no pending invalidation.
 interface ItemFilter { itemId?: EntityId; type?: Idx<ItemTypeDef>; types?: Idx<ItemTypeDef>[]; category?: string; tag?: string; materialClass?: MaterialClass; materialId?: Idx<MaterialDef>;
   minQuality?: Quality; edible?: boolean; drinkable?: boolean; emptyContainer?: string; unoccupied?: boolean; excludeIds?: EntityId[] }
 
-interface WorkshopsState { stateVersion: 1; globalOrders: WorkOrder[]; professionCache: [EntityId, string][]; rng: RngState }
+interface WorkshopsState { stateVersion: 1; globalOrders: WorkOrder[]; nextOrderSerial?: number /* absent means 0; never reuse a removed serial */; professionCache: [EntityId, string][]; rng: RngState }
 
 interface ItemsState { stateVersion: 1; wantsHauling: EntityId[]; noHome: EntityId[]; slotReservations: [string, number][];
   rotQueue: { bucketTick: Tick; items: EntityId[] }[]; miasmaTiles: [TileIndex, Tick][]; counts: [Idx<ItemTypeDef>, StockCount][];

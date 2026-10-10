@@ -1065,7 +1065,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
     H.behaviorState = P?.state ?? 'approach';
   }
 
-  // 5. Door breaking and looting in engage or loiter (or if door blocks path)
+  // 5. Break blocking doors; loot only in loiter.
   const creature = entities.get(m, C.Creature);
   const spTable = ctx.registry.table<{ id: string; breaksDoors?: boolean; flags?: { breaksDoors?: boolean } }>('creatures');
   const spRow = creature ? spTable.byIndex(creature.species) : undefined;
@@ -1081,7 +1081,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
     }
   }
 
-  if (P && (P.state === 'engage' || P.state === 'loiter')) {
+  if (P && P.state === 'loiter') {
     if (canLootItem(m, P, ctx)) {
       const lootItem = findUnattendedItemWithinRadius(pos, LOOT_RADIUS, ctx, P);
       if (lootItem !== 0) {

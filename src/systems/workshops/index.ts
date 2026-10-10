@@ -69,6 +69,7 @@ export class WorkshopsSystem extends BaseSystem<WorkshopsStateV1> {
   serialize(): WorkshopsStateV1 {
     const op = this.operator;
     return { stateVersion: 1, globalOrders: op.globalOrders.map((o) => ({ ...o })),
+      ...(op.nextOrderSerial === 0 ? {} : { nextOrderSerial: op.nextOrderSerial }),
       professionCache: Array.from(op.professionCache.entries()).sort((a, b) => a[0] - b[0]), rng: op.ctx.rng.state(), ticked: this.ticked };
   }
 
@@ -76,6 +77,7 @@ export class WorkshopsSystem extends BaseSystem<WorkshopsStateV1> {
     if (this.op === null) this.init(ctx);
     const op = this.operator;
     op.globalOrders.splice(0, op.globalOrders.length, ...state.globalOrders.map((o) => ({ ...o })));
+    op.nextOrderSerial = state.nextOrderSerial ?? 0;
     op.professionCache.clear();
     for (const [id, title] of state.professionCache) op.professionCache.set(id, title);
     op.ctx.rng.setState(state.rng);

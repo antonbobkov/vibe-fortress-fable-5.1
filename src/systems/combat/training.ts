@@ -4,6 +4,7 @@
  * `04-implementation/algorithms/combat-and-health.md` § Threat scan, duties, training.
  */
 
+import { TICKS_PER_HOUR } from '@core/constants';
 import { C, type Squad } from '@core/components';
 import type { EntityStore } from '@core/entities';
 import type { RngStream } from '@core/rng';
@@ -82,7 +83,7 @@ export function isOnStationShift(squad: Squad, memberId: EntityId, tick: number)
   if (memberIdx < 0) return false;
   const shiftCount = Math.ceil(sorted.length / 2);
   const isFirstHalf = memberIdx < shiftCount;
-  const shiftIndex = Math.floor(tick / (TRAIN_SHIFT_HOURS * 100)) % 2;
+  const shiftIndex = Math.floor(tick / (TRAIN_SHIFT_HOURS * TICKS_PER_HOUR)) % 2;
   return shiftIndex === 0 ? !isFirstHalf : isFirstHalf;
 }
 

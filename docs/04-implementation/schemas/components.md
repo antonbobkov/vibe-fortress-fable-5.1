@@ -92,7 +92,7 @@ interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 
                      origin: TileIndex; footprint: TileIndex[]; orientation: 0|1|2|3; itemId: EntityId;
                      mode: string; /* door mode, hatch mode, trap mode */ linkedIds: EntityId[]; ownerId: EntityId;
                      settings: Record<string, unknown>; toggled: boolean /* bridge raised, floodgate open, lever on */ }
-interface WorkOrder { recipe: Idx<RecipeDef>; remaining: number; mode: 'once'|'maintain'; threshold: number;
+interface WorkOrder { serial?: number /* stable global identity */; recipe: Idx<RecipeDef>; remaining: number; mode: 'once'|'maintain'; threshold: number;
                       priority: Priority; materialFilter: Idx<MaterialDef> | string | null }
 interface Workshop { orders: WorkOrder[]; currentJobId: number; suspended: boolean; assignedWorker: EntityId;
                      magmaPowered: boolean; lastBlockedReason: string | null }

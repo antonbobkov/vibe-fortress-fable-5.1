@@ -78,10 +78,11 @@ Delivered inputs stay reserved to the craft job while its order stands, through 
 ### Work orders
 
 ```
-WorkOrder { recipeId, remaining, mode: once | maintain, threshold (for maintain: keep at least N in stock), priority, materialFilter?: materialClass | materialId }
+WorkOrder { recipeId, serial? (global identity), remaining, mode: once | maintain, threshold (for maintain: keep at least N in stock), priority, materialFilter?: materialClass | materialId }
 ```
 
 - `maintain` orders are runnable when `stock(outputItemType, materialFilter) < threshold`; they never complete.
+- Editing or removing an order cancels only the job belonging to that order; another order's running job keeps its progress. Reordering cancels no job and updates each running job's `orderIndex`. Global orders have non-reused serials, saved with their next serial; a global job is keyed by its order serial, independently of list position. Completion decrements that same order and renumbers remaining running jobs. Older saves without serials retain their immediate loaded state; serials are assigned in list order on first use.
 - Orders on the workshop are executed in list order (the player reorders). A `WorkOrder` panel lists all orders in the fortress by workshop.
 - Orders can be placed at a workshop or from the global orders panel (which picks any workshop of the type; a global order goes to the first idle workshop of the type, in entity order).
 - Applying AddWorkOrder or EditWorkOrder normalises materialFilter: a known material id becomes its registry index; another string must be a material class; null means no filter. Numeric filters must be valid integer material indices. Invalid filters reject with bad_setting before changing orders or cancelling work. The same form is held by local and global orders and survives save/load. A brewing maintain order counts the selected plant's drink output for either id or index input.
