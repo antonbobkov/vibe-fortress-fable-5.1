@@ -107,8 +107,9 @@ partyThink(P):
   alive = P.members.filter(alive and conscious); if alive.length == 0: living unconscious survivors retreat; only no living survivors ends the party; return
   if P.state != 'retreat' and (P.members.length - alive.length) * 100 / P.members.length >= RETREAT_LOSS_PERCENT: P.state='retreat'; outcome = P.loot.length ? 'looted' : 'repelled'
   switch P.state:
-    approach: goal = chooseGoal(P); if goal unreachable: P.goalTile = pathing.nearestReachable(leaderPos, hearthTile, cls, 3000); P.state = 'loiter'? (only after reaching the nearest tile)
-              if any revealed ambush member (or any member of another party) perceives a reachable fortress creature: clear goalIdleSince; P.state = 'engage'; P.stateSince = tick
+    approach: for a thief, chooseGoal each threats tick; if no quarry, wait hidden at arrival, then retreat with withdrew at THIEF_WAIT_DAYS after arrival; reaching an empty goal never counts as theft; return
+              goal = chooseGoal(P); if goal unreachable: P.goalTile = pathing.nearestReachable(leaderPos, hearthTile, cls, 3000); P.state = 'loiter'? (only after reaching the nearest tile)
+              if any revealed ambush member (or any member of another non-thief party) perceives a reachable fortress creature: clear goalIdleSince; P.state = 'engage'; P.stateSince = tick
               else if leader on or adjacent to goal (except thieves and restless dead): begin goalIdleSince if absent; after ENGAGE_IDLE_TICKS enter loiter
               else: clear goalIdleSince
     engage:   if no member has a target for ENGAGE_IDLE_TICKS: P.state = 'approach'
@@ -128,7 +129,7 @@ memberThink(m): P = party(m); H = Hostile[m]
   if P.state in {engage, loiter}: if breaksDoors(m) and adjacent locked door on the way to the goal: emit DoorBreakAttempt each tick (14 counts DOOR_BREAK_TICKS); return
                                   if item within LOOT_RADIUS unattended and m carries nothing: pick up (P.loot.push); return
   if m == P.leaderId: walkTo(P.goalTile, 'combat') else: if dist(m, leader) > FOLLOW_RADIUS: walkTo(leader's tile, sharing leader's path)
-spotted(m): any fortress creature within SPOT_RADIUS (dogs SPOT_RADIUS_DOG) with lineOfSight, or a trap trigger
+spotted(m): conscious dwarf within SPOT_RADIUS, or conscious war/hunting-trained animal of an eligible trainable species within SPOT_RADIUS_DOG, with lineOfSight, or a trap trigger
 ```
 
 An unrelated `TilesChanged` does not restart loiter at a reachable empty goal; only a previously unreachable goal becoming reachable returns it to approach. Spotting an already retreating thief does not restart its deadline. The party idle clock and member retreat progress are saved with their components; absent fields begin tracking on the next decision without resetting the saved party retreat deadline.
@@ -142,6 +143,8 @@ Ambush arrival emits no `RaidArrived`; all members start stealthed, independent 
 Thief specifics: on reaching the goal item: pick up (`P.loot`), `P.state = 'retreat'`; if spotted before pickup: retreat empty. Restless dead: `approach` target = nearest fortress creature; never retreat; at dawn (`HourPassed` hour == sunrise) all `restless_dead` collapse: `CreatureDied { cause: dawn }` with no corpse (a `bone_pile` item instead).
 
 Cavern monsters: `Wild`-like idle/wander within the cavern band; aggressive ones every think check `spatial.nearest(fortress creature within CAVE_SEEK_RADIUS)` and set targets; return after `CAVE_RETURN_TICKS` without a target. Hollow-born: target = nearest fortress creature on the map (global search every 50 ticks through the spatial index rings).
+
+Animal loot saves its carrier in Party.animalCarriers and has neither Position nor a spatial entry while held; pickup stops its movement. Only its carrier reports its escape. CreatureDied restores the carrier's stolen animals at the recorded death tile through the movement/spatial API, then clears their party loot and carrier entries.
 
 ## Caravan AI (party every 50 ticks; members every tick)
 

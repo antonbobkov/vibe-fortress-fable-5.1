@@ -549,7 +549,14 @@ class Probe {
             );
         }
       }
-      if (!p && !cr.cagedIn)
+      const heldByThief = !p && ent.has(id, C.Tame) && ent.with(C.Party).some((partyId) => {
+        const party = ent.get(partyId, C.Party)!;
+        const carrier = party.animalCarriers?.[id];
+        return party.purpose === 'thief' && party.loot.includes(id) && carrier !== undefined &&
+          party.members.includes(carrier) && ent.alive(carrier) && ent.has(carrier, C.Position) &&
+          ent.get(carrier, C.Hostile)?.partyId === partyId;
+      });
+      if (!p && !cr.cagedIn && !heldByThief)
         this.hit(
           tick,
           'creature.no-position',

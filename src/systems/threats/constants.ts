@@ -16,6 +16,7 @@ export const PARTY_HISTORY_DAYS = 1;
 export const ARRIVAL_SPREAD = 2;
 export const ARRIVAL_TICKS = 100;
 export const STEAL_MAX_SIZE = 30;
+export const THIEF_WAIT_DAYS = 1;
 export const FOLLOW_RADIUS = 4;
 export const ENGAGE_IDLE_TICKS = 150;
 export const LOOT_RADIUS = 6;

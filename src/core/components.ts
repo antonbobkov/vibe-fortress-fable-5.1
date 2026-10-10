@@ -373,6 +373,8 @@ export interface Party {
   despawnedCount?: number;
   /** Number of loot escapes actually emitted; missing in older saves means zero. */
   escapedLootCount?: number;
+  /** Animal loot has no Position while held; this records its individual carrier. */
+  animalCarriers?: Record<EntityId, EntityId>;
   goalUnreachable?: boolean;
   walkUnreachable?: boolean;
   /** Consecutive idle time at an arrived goal; absent while still approaching. */

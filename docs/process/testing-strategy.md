@@ -117,6 +117,10 @@ The tier measures two saved fortresses, because they are different workloads. `t
 
 Each three-year sweep seed prints its final `{ seed, peril, tick, hash }` record. A full gate records those hashes and compares equal seed, peril and tick records with the most recently recorded gate that contains them. The report distinguishes equal hashes, changed hashes and absent comparable baselines. A changed hash needs review against intervening behavior or fixture changes; a gate without the performance tier reports that no comparison was made. Frozen prior reports are read, never rewritten.
 
+A creature with no Position is valid only while caged or, for a tame animal stolen by a thief, while the party loot and animal-carrier mapping identify a living member with a position and the matching Hostile party id. An absent, mismatched or dead carrier still violates the creature-position invariant.
+
+The test-world `spawnTame` helper accepts an explicit `trained` state for guard fixtures; omitted training remains `none`.
+
 ## Commands
 
 ```
