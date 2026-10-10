@@ -14,8 +14,8 @@ Every figure is marked **[run: name]** (a run named in [Method](#method)) or **[
 - **The three wants take 14.9% of dwarf time in year 1** (27.4% before T-144, 10.4% after T-144 alone). Each is over its want threshold less often than after T-144 alone: social 51.4%, comfort 17.8%, joy 39.3% (65.6%, 66.2%, 65.9%). **[run: new-nowild-cloud]**
 - **With wild animals, every as-is run of either fixture on `cloud/T-144` lost most or all of its dwarves to boars.** Rewritten fixture, seed `three-years`: 8 bled out to three boars on days 19–32, one starved on day 50, nobody left from day 51. Seed `three-years-p0-1`: it lives two years (28 dwarves on day 224), then three boars kill 24 dwarves on days 246–267; one is left on day 336. Old fixture: 15 bled out to boars on days 45–117; nobody left by day 224. **[run: new-asis-cloud, new-p01-asis-cloud, old-asis-cloud]**
 - **On `cloud/main`, without T-144, the rewritten fixture on seed `three-years` lost one dwarf to a badger in three years** and grew to 35; boars were on its map too, and no dwarf was wounded in the first 60 days. **[run: new-asis-main, spawns-main]** **The old fixture on `cloud/main` died out**: boars killed all nine dwarves on days 24–35. **[run: old-asis-main]** So the boars are not a consequence of T-144: which fortress meets them, and when, differs from run to run, and why was not established. Without wildlife the share of time dwarves spend on the surface is the same within 1.2 points before and after T-144 (33.6% and 34.8% in year 1). **[run: new-nowild-main, new-nowild-cloud]**
-- **Two traced deaths** show wounded dwarves and a medic staying within reach of the boars at the hospital on the surface: a patient alternating between its hospital bed and fleeing, with the boar one or two tiles behind, until it bled out; a medic cleaning a wound two tiles from a boar. **[run: trace-hrolf, trace-freydis]** Filed as T-214.
-- **The old fixture without wild arrivals: four dwarves starved on days 251–255** of year 3. Before T-144 nobody died in the same run, though dwarves were over the critical hunger mark 13.4% of year 3. **[run: old-nowild-cloud, old-nowild-main]** Cause not established. Filed as T-215.
+- **Two traced deaths** show wounded dwarves and a medic staying within reach of the boars on the surface near the north edge, where the hospital beds are: a patient alternating between its hospital bed and fleeing, with the boar one or two tiles behind, until it bled out; a medic cleaning a wound two tiles from a boar. **[run: trace-hrolf, trace-freydis]** Filed as T-214.
+- **The old fixture without wild arrivals: four dwarves starved on days 251–255** of year 3. On `cloud/main`, before T-144, nobody died in the same fixture, though dwarves were over the critical hunger mark 13.4% of year 3. **[run: old-nowild-cloud, old-nowild-main]** Cause not established. Filed as T-215.
 
 ## Method
 
@@ -183,6 +183,26 @@ Spawn probe, 60 days, seed `three-years`. **[run: spawns-main, spawns-cloud]**
 - `homestead_year` passes; the first birth comes on day 42, after the 40-day script. 4 hunts killed. **[run: `npm test`]**
 - `hospital_run` passes on its seed `hospital-run-4`. **[run: `npm test`]**
 - **The perf-tier `three_years` (`test/perf/three_years_main.test.ts`) fails after 3 seconds** on `cloud/T-144`, `cloud/main` and `origin/master` (`4fbe72c`) alike, at its invariant check of tick 3600: `item.inside-wall`, "item 16777328 log at (33,9,32)". So it measures nothing at present, before and after this change. **[run: three_years_main on the three commits]** Filed as T-216.
+
+## System costs
+
+`test/perf/per-system.test.ts` on the reference fortress, run on this machine after the probes had finished: twice on `cloud/T-144` (`4e57110`, the code of `38c59f6`) and once on `cloud/main` (`a1ed087`). Indicative only; no budget is changed on them. **[run: per-system]**
+
+| System | Allocation (test allows × 2) | `cloud/main` | `cloud/T-144`, two runs |
+|---|---|---|---|
+| 10 dwarves | 0.50 ms | 0.597 | 0.640, 0.635 |
+| 11 jobs | 0.60 ms | 0.486 | 0.663, 0.639 |
+| 08 animals | 0.40 ms | **0.804** (fails) | **0.825**, **0.803** (fails) |
+| 04 fluids | 1.50 ms | 0.874 | 0.900, 0.890 |
+| 16 combat | 0.20 ms | 0.153 | 0.166 |
+| 18 threats | 0.10 ms | 0.156 | 0.168 |
+| pathing | 1.00 ms | 0.416 | 0.423 |
+| core | 0.30 ms | 0.319 | 0.332 |
+| Average / worst tick | 12 / 40 ms | 3.95 / 43.5 | 4.27 / 53.9 |
+
+- **21 of 22 pass on both codes.** System 08 is over twice its allocation on both, as it was before T-196 (0.82–0.85 ms).
+- The worst tick is over 40 ms in both runs; this test does not assert it (`perf_reference.test.ts` does, and was not run).
+- **Systems 10 and 11 cost more on `cloud/T-144`**: 10 by about 0.04 ms (7%), 11 by about 0.16 ms (30%). Both stay within twice their allocation; 10 is over its allocation on both codes. Which part of T-144, T-197 or T-198 costs it was not measured (11's ranged-kit claim and 10's idle `hasWork` check and talk scan are the changed paths **[code: `src/systems/jobs/board.ts:551`, `:916`, `src/systems/jobs/items-adapter.ts` `findRangedKit`; `src/systems/dwarves/brain.ts:87` `leisureOrIdle`; `src/systems/dwarves/activities.ts:304` `passingTalks`]**).
 
 ## Not established
 
