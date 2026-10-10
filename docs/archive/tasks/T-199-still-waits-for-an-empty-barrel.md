@@ -1,6 +1,8 @@
 # T-199 — The still waits for an empty barrel while every barrel holds food
 
-**Source:** T-144 and its report, [`../../reports/audits/2026-10-10-wants-without-errands.md`](../../reports/audits/2026-10-10-wants-without-errands.md) (§ What got worse, item 4) · **Size:** S · **Needs:** — · **Status:** in progress; cloud agent on `cloud/T-199`
+Closed by `T-199: the game tells the player when a brew waits for an empty barrel` (d67e2b2) and the commit that archived this file.
+
+**Source:** T-144 and its report, [`../../reports/audits/2026-10-10-wants-without-errands.md`](../../../reports/audits/2026-10-10-wants-without-errands.md) (§ What got worse, item 4) · **Size:** S · **Needs:** — · **Status:** in progress; cloud agent on `cloud/T-199`
 
 ## Why
 
