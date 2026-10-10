@@ -38,6 +38,8 @@ select(id):
     b.behavior = 'duty'; return
   want = highest of hunger, thirst, rest over its want threshold
   if want and not (jobs.hasUrgent(id, NEED_DEFER_PRIORITY)):    startNeed(id, want, targets outside remembered danger); return
+  if not want and not jobs.hasUrgent(id, NEED_DEFER_PRIORITY) and max(N.social, N.comfort, N.joy) >= LEISURE_MARK and tick >= hallRetryUntil[id]:
+    seat = nearest free chair on a reachable hearth-hall tile, else nearest reachable hall tile; if seat: plan = sit there SIT_TICKS, hall = true; return
   if able to work: jobs.assign(id); b.behavior = 'work'; return   // queue; 11 skips targets inside remembered danger and answers later this tick
   leisureOrIdle(id, workOpen = false)                             // a day off, a wound, a child with no hauling
 leisureOrIdle(id, workOpen):                                      // also from tickDwarf when 11 answered nothing, with workOpen = jobs.hasWork(id)
@@ -58,6 +60,9 @@ startNeed(id, need):
     rest:    bed = ownBed or freeUnassignedBed or hearthHallFloor or here; plan: walk, sleep until N.rest <= 0 or SLEEP_HOURS elapsed (−15/hour); emit Slept
     social:  plan: walk to hearth hall / meeting area; wait up to 200 ticks for another dwarf within 2; choose living awake partners on the same level within Chebyshev 2 (friends then id); if found: TALK_TICKS without interrupting the partner, N.social -= 40 (60 friends), relationships.talk++; emit Talked
     comfort: chair = best-tier free chair reachable; plan: walk, sit SIT_TICKS, N.comfort -= 40 (hearth hall floor: 20); emit Sat; hearthTime(id, SIT_TICKS)
+             hall errand only: every TALK_CHECK_TICKS while seated, if no partner yet, N.social >= want and no talk in passing: partner = friend first, then lowest id, among dwarves within 2 on this level not asleep
+                               at the end: if partner alive and no talk in passing: relieve both, relationships.talk++, emit Talked
+                               then if no talk in passing and max(N.social, N.comfort, N.joy) >= LEISURE_MARK: hallRetryUntil[id] = tick + LEISURE_RETRY_TICKS
     purpose: (no activity: relieved by work) → treat as idle
     joy:     plan: walk to hearth hall, stay HEARTH_VISIT_TICKS; N.joy -= 30; emit HearthVisited
   b.behavior = 'need'
@@ -75,7 +80,7 @@ passingTalks():                                                   // 10's tick, 
     if p: talks[d] = talks[p] = { partner, until: tick + TALK_TICKS }
 ```
 
-Talks in passing and the hearth-hall tick counts are saved with 10's state and omitted when empty. A dead dwarf's talk and count are dropped.
+Talks in passing, the hearth-hall tick counts and `hallRetryUntil` are saved with 10's state and omitted when empty. A dead dwarf's talk, count and retry tick are dropped.
 
 Hourly (on `HourPassed`): apply the rates in 10's Needs table, clamping 0..100. `endFactor = (150 − Endurance)/100` scales only hunger and awake rest; weather alone scales thirst, and sleeping rest uses the unscaled relief rate. Crossing a threshold sets a saved `interruptFlag`; critical crossing emits `NeedCritical`. Sleep schedule: at `sleepStartHour` with `N.rest > 20` set `interruptFlag` and prefer `rest`.
 

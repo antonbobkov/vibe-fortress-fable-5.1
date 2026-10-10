@@ -27,3 +27,7 @@ Write a dated report with the measurements, classify each finding as GAME, BALAN
 
 - The report exists; each finding carries its evidence and its class.
 - The follow-up rows are in the backlog.
+
+## Fixtures to restore
+
+- `test/scenarios/year_one.scenario.ts` runs with `surfaceWildlife: 'none'` since T-144: one wild badger killed six of its seven dwarves on days 85 to 87. Give it natural animal arrivals again when this task lands.

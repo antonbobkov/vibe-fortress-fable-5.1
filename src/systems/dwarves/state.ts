@@ -20,6 +20,8 @@ export interface ActivityPlan {
   atTable: boolean;
   roomTier: number;
   startedRest: number;
+  /** A sit in the hearth hall taken at `LEISURE_MARK`, before work. Absent on every other plan. */
+  hall?: true;
 }
 
 export interface DwarvesStateV1 {
@@ -50,4 +52,6 @@ export interface DwarvesStateV1 {
   talks?: [EntityId, EntityId, number][];
   /** Ticks of eating, drinking and sitting in the hearth hall counted toward the next hearth visit. Absent means none. */
   hearthTicks?: [EntityId, number][];
+  /** Per dwarf, the tick before which it takes no hall errand before work. Absent means none. */
+  hallRetryUntil?: [EntityId, number][];
 }

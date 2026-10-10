@@ -14,7 +14,7 @@ import { C, type Brain, type Needs } from '@core/components';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import { hourOf } from '@core/calendar';
-import { ADULT_AGE_YEARS, CIVILIAN_COMBAT_TIMEOUT_TICKS, CIVILIAN_FLEE_NODE_LIMIT, IDLE_TICKS, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
+import { ADULT_AGE_YEARS, CIVILIAN_COMBAT_TIMEOUT_TICKS, CIVILIAN_FLEE_NODE_LIMIT, IDLE_TICKS, LEISURE_MARK, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
 import { Activities } from './activities';
 import { PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
@@ -342,6 +342,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   if (n !== undefined && !urgent) {
     for (const want of ranked(n, false))
       if (!LEISURE.includes(want) && host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds(), safeTarget)) return;
+    if (LEISURE.some((want) => n[want] >= LEISURE_MARK) && host.activities.startHallErrand(ctx, id, b, safeTarget)) return;
   }
   const age = ctx.world.entities.get(id, C.Creature)?.ageTicks ?? ADULT_AGE_YEARS * TICKS_PER_YEAR;
   const child = age < ADULT_AGE_YEARS * TICKS_PER_YEAR;

@@ -3,7 +3,7 @@ import { roundTrip } from '@app/game-save';
 import { C } from '@core/components';
 import { TileKind } from '@core/map3d';
 import type { EntityId } from '@core/types';
-import { EAT_TICKS, HEARTH_VISIT_TICKS, TALK_TICKS } from '@systems/dwarves/constants';
+import { EAT_TICKS, HEARTH_VISIT_TICKS, LEISURE_MARK, LEISURE_RETRY_TICKS, SIT_TICKS, TALK_TICKS } from '@systems/dwarves/constants';
 import { SOCIAL_PER_HOUR } from '@systems/dwarves/needs';
 import type { DwarvesStateV1 } from '@systems/dwarves/state';
 import type { JobSink, JobsReader } from '@systems/jobs';
@@ -192,7 +192,7 @@ describe('T-144 wants without errands', () => {
     expect(w.events('Talked')).toHaveLength(1);
   });
 
-  it('social, comfort and joy wait for work to run out; hunger does not', () => {
+  it('social, comfort and joy under the high mark wait for work to run out; hunger does not', () => {
     const w = new TestWorld({ seed: 't144-order', world: 'flat-test', embark: 'none' });
     w.build('hearth', w.index(20, 20, Z), 'granite');
     const at = w.index(12, 12, Z);
@@ -213,9 +213,10 @@ describe('T-144 wants without errands', () => {
     } };
     w.game.world.registrations.jobProducer(producer);
     w.step(2);
-    w.setNeed(id, 'social', 90);
-    w.setNeed(id, 'comfort', 90);
-    w.setNeed(id, 'joy', 90);
+    // Over the want thresholds, under the mark that sends a dwarf to the hall before work.
+    w.setNeed(id, 'social', LEISURE_MARK - 5);
+    w.setNeed(id, 'comfort', LEISURE_MARK - 5);
+    w.setNeed(id, 'joy', LEISURE_MARK - 5);
     const jobs = w.readers.of<JobsReader>('11');
     const jobOf = (): number => w.game.world.entities.get(id, C.Worker)?.jobId ?? 0;
     expect(jobs.byKey('t144-dig-0')?.workerId).toBe(id);
@@ -234,8 +235,8 @@ describe('T-144 wants without errands', () => {
     // With the work done the wants are served, the highest first.
     w.until(() => w.events('HearthVisited').length === 1 && w.events('Sat').length === 1, 600);
     expect(jobOf()).toBe(0);
-    expect(need(w, id, 'joy')).toBeLessThan(90);
-    expect(need(w, id, 'comfort')).toBeLessThan(90);
+    expect(need(w, id, 'joy')).toBeLessThan(LEISURE_MARK - 5);
+    expect(need(w, id, 'comfort')).toBeLessThan(LEISURE_MARK - 5);
 
     // A body want at default priority still goes before the job.
     const hungry = new TestWorld({ seed: 't144-order-hunger', world: 'flat-test', embark: 'none' });
@@ -262,5 +263,86 @@ describe('T-144 wants without errands', () => {
     }
     expect(waited).toBeGreaterThanOrEqual(EAT_TICKS);
     expect(hungry.events('MealEaten')).toHaveLength(1);
+  });
+  it('at the high mark one sit in the hearth hall comes before default-priority work and serves all three', () => {
+    const { w, west } = hall('t144-hall-errand');
+    const id = w.spawnDwarf({ at: w.index(14, 19, Z) });
+    const friend = w.spawnDwarf({ at: w.index(18, 20, Z) });
+    quiet(w, id, []);
+    quiet(w, friend, []);
+    w.game.world.applyCommand({ type: 'SetLabor', dwarfId: id, labor: 'mining', on: true });
+    w.game.world.applyCommand({ type: 'SetLabor', dwarfId: friend, labor: 'mining', on: false });
+    w.spawnItem('pick', 'copper', w.index(14, 19, Z));
+    const wall = w.index(12, 19, Z);
+    w.game.world.services.terrain.setKind(wall, TileKind.Wall, w.game.registry.table('materials').index('granite'));
+    for (const name of ['social', 'comfort', 'joy'] as const) w.setNeed(id, name, LEISURE_MARK);
+    let created = false;
+    w.game.world.registrations.jobProducer({ id: 't144-hall-dig', produce(_ctx: unknown, sink: JobSink): void {
+      if (created) return;
+      created = true;
+      sink.create('t144-hall-dig', { type: 'dig', target: { kind: 'tile', ref: wall }, workTile: 'adjacent', priority: 5 });
+    } });
+    const jobs = w.readers.of<JobsReader>('11');
+    w.until(() => w.dwarves.activities.plans.get(id)?.hall === true, 10);
+    expect(w.dwarves.activities.plans.get(id)).toMatchObject({ need: 'comfort', hall: true });
+    const before = { social: need(w, id, 'social'), comfort: need(w, id, 'comfort'), joy: need(w, id, 'joy') };
+    let sat = 0;
+    for (; sat < 400 && w.events('Sat').length === 0; sat += 1) {
+      // The job is open and waits for the sit.
+      expect(jobs.byKey('t144-hall-dig')?.workerId).toBe(0);
+      w.step(1);
+    }
+    expect(w.events('Sat')).toMatchObject([{ type: 'Sat', id }]);
+    expect(sat).toBeGreaterThanOrEqual(SIT_TICKS);
+    // One sit: comfort, a hearth visit (SIT_TICKS is HEARTH_VISIT_TICKS) and a talk with the dwarf beside the seat.
+    expect(SIT_TICKS).toBeGreaterThanOrEqual(HEARTH_VISIT_TICKS);
+    expect(w.events('HearthVisited')).toMatchObject([{ type: 'HearthVisited', id }]);
+    expect(w.events('Talked').some((e) => e['a'] === id || e['b'] === id)).toBe(true);
+    for (const name of ['social', 'comfort', 'joy'] as const) expect(need(w, id, name), name).toBeLessThan(before[name] - 15);
+    expect(w.dwarves.activities.hallRetryUntil.has(id)).toBe(false);
+    // Then the job, with no second errand.
+    w.until(() => jobs.byKey('t144-hall-dig') === undefined, 300);
+    expect(w.events('Sat')).toHaveLength(1);
+    void west;
+  });
+
+  it('an urgent job defers the hall errand, and a sit that could not relieve everything is not repeated at once', () => {
+    const { w } = hall('t144-hall-urgent');
+    const id = w.spawnDwarf({ at: w.index(14, 19, Z) });
+    quiet(w, id, []);
+    w.game.world.applyCommand({ type: 'SetLabor', dwarfId: id, labor: 'mining', on: true });
+    w.spawnItem('pick', 'copper', w.index(14, 19, Z));
+    const granite = w.game.registry.table('materials').index('granite');
+    const walls = [w.index(12, 19, Z), w.index(12, 21, Z)];
+    for (const wall of walls) w.game.world.services.terrain.setKind(wall, TileKind.Wall, granite);
+    for (const name of ['social', 'comfort', 'joy'] as const) w.setNeed(id, name, 100);
+    let made = 0;
+    w.game.world.registrations.jobProducer({ id: 't144-urgent-dig', produce(_ctx: unknown, sink: JobSink): void {
+      while (made < walls.length) {
+        sink.create(`t144-urgent-dig-${made}`, { type: 'dig', target: { kind: 'tile', ref: walls[made] as number }, workTile: 'adjacent', priority: 1 });
+        made += 1;
+      }
+    } });
+    const jobs = w.readers.of<JobsReader>('11');
+    let ticks = 0;
+    for (; ticks < 300 && (jobs.byKey('t144-urgent-dig-0') !== undefined || jobs.byKey('t144-urgent-dig-1') !== undefined); ticks += 1) {
+      w.step(1);
+      expect(w.dwarves.activities.plans.has(id), 'no errand while an urgent job is open').toBe(false);
+    }
+    expect(ticks).toBeLessThan(300);
+    // Alone in the fortress: the sit relieves comfort and joy and leaves social at the mark.
+    w.until(() => w.events('Sat').length === 1, 400);
+    expect(need(w, id, 'social')).toBeGreaterThanOrEqual(LEISURE_MARK);
+    const until = w.dwarves.activities.hallRetryUntil.get(id) ?? 0;
+    expect(until).toBe(w.tick - 1 + LEISURE_RETRY_TICKS);
+    expect((w.dwarves.serialize() as DwarvesStateV1).hallRetryUntil).toEqual([[id, until]]);
+    const loaded = roundTrip(w.game).game;
+    expect(loaded.hash()).toBe(w.hash());
+    for (let tick = 0; tick < 150; tick += 1) {
+      w.step(1);
+      loaded.step(1);
+      expect(w.dwarves.activities.plans.get(id)?.hall).toBeUndefined();
+    }
+    expect(loaded.hash()).toBe(w.hash());
   });
 });

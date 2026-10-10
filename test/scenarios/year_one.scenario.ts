@@ -117,8 +117,8 @@ const scenario: Scenario = {
   run: (outer) => {
     const registry = outer.game.registry;
     const map = buildFlatTestMap(registry, 48, 48);
-    // The bootstrap economy and the trade year are measured without natural animal arrivals: one
-    // wild badger can kill six of the seven (T-144's run of this fixture, days 85 to 87).
+    // T-196: no natural animal arrivals for now. One wild badger killed six of the seven dwarves
+    // on days 85 to 87 of this fixture. Restore natural arrivals when T-196 lands.
     const w = new TestWorld({ seed: 'year-one', registry, map, embark: 'default', surfaceWildlife: 'none' });
     const stopInvariants = watchInvariants(w.game, (findings) => expect(findings, `T-176 tick ${w.tick}`).toEqual([]));
 
@@ -264,8 +264,9 @@ const scenario: Scenario = {
           workshopId: placedIds['still'],
           order: { recipeId: 'brew', mode: 'maintain', threshold: 20 },
         });
-        // A brew needs an empty barrel, and the stockpile keeps food and seed in the five the
-        // party brought: the player has one made for the still.
+        // T-199: a brew needs an empty barrel, and the stockpile keeps food and seed in the five
+        // the party brought, so the still waits. The player has one made for it. Remove this order
+        // when T-199 is fixed.
         w.game.world.applyCommand({
           type: 'AddWorkOrder',
           workshopId: placedIds['carpenter'],

@@ -20,6 +20,10 @@ export const SOCIAL_WAIT_TICKS = 200;
 /** `creature-brains.md` § startNeed joy: visit the hearth for 100 ticks. */
 export const HEARTH_VISIT_TICKS = 100;
 export const SIT_TICKS = 100;
+/** Social, comfort or joy at this level sends a dwarf to sit in the hearth hall before ordinary work. */
+export const LEISURE_MARK = 75;
+/** After a hall errand that left one of the three at the mark, no other before work for this long. */
+export const LEISURE_RETRY_TICKS = 600;
 export const IDLE_TICKS = 50;
 /** Tiles (path distance). */
 export const DINING_SEARCH_RADIUS = 40;

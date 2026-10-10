@@ -588,6 +588,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       ...(this.activities.serializeRetryUntil().length > 0 ? { needRetryUntil: this.activities.serializeRetryUntil() } : {}),
       ...(this.activities.talks.size > 0 ? { talks: this.activities.serializeTalks() } : {}),
       ...(this.activities.hearthTicks.size > 0 ? { hearthTicks: Array.from(this.activities.hearthTicks).sort((a, b) => a[0] - b[0]) } : {}),
+      ...(this.activities.hallRetryUntil.size > 0 ? { hallRetryUntil: Array.from(this.activities.hallRetryUntil).sort((a, b) => a[0] - b[0]) } : {}),
     };
   }
 
@@ -634,5 +635,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     }
     this.activities.hearthTicks.clear();
     for (const [id, ticks] of state.hearthTicks ?? []) this.activities.hearthTicks.set(id, ticks);
+    this.activities.hallRetryUntil.clear();
+    for (const [id, until] of state.hallRetryUntil ?? []) this.activities.hallRetryUntil.set(id, until);
   }
 }

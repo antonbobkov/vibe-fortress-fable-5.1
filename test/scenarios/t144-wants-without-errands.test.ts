@@ -3,7 +3,7 @@ import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
-import { NEED_DEFER_PRIORITY } from '@systems/dwarves/constants';
+import { LEISURE_MARK, NEED_DEFER_PRIORITY } from '@systems/dwarves/constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { WANT } from '@systems/dwarves/needs';
 import type { JobsReader } from '@systems/jobs';
@@ -12,8 +12,6 @@ import { TestWorld } from './test-world';
 /** One level of the flat test world, dug out below the surface. */
 const Z = FLAT_TEST_SURFACE_Z - 7;
 const DAYS = 10;
-/** Eight hauls a day across the chamber keep the seven on a job for about 28% of their time. */
-const LOGS_PER_DAY = 8;
 const WANTS = ['social', 'comfort', 'joy'] as const;
 type Want = typeof WANTS[number];
 
@@ -25,7 +23,7 @@ function rect(w: TestWorld, x: number, y: number, width: number, height: number)
 
 /**
  * Seven dwarves in one dug chamber: a 7×7 hearth hall with four tables and eight chairs, meals and
- * barrels of ale beside it, and `LOGS_PER_DAY` logs each morning to haul to a wood pile at the
+ * barrels of ale beside it, and a number of logs each morning to haul to a wood pile at the
  * default priority, which is work for part of each day and none for the rest.
  */
 function fortress(): { w: TestWorld; dwarves: EntityId[]; hall: EntityId } {
@@ -57,8 +55,15 @@ function fortress(): { w: TestWorld; dwarves: EntityId[]; hall: EntityId } {
   return { w, dwarves, hall };
 }
 
-describe('T-144 wants without errands', () => {
-  it('seven dwarves with a hall keep social, comfort and joy served and take no errand for them while work is open', () => {
+interface Played {
+  w: TestWorld; dwarves: EntityId[]; hall: EntityId; samples: number; urgent: number; working: number;
+  under: Map<EntityId, Record<Want, number>>; atMark: Map<EntityId, Record<Want, number>>;
+  errands: { id: EntityId; need: string; tick: number; workOpen: boolean }[];
+  hallErrands: { id: EntityId; tick: number; workOpen: boolean; highest: number }[];
+}
+
+/** Ten days with `logsPerDay` hauls each morning, sampled every 10 ticks. */
+function play(logsPerDay: number): Played {
     const { w, dwarves, hall } = fortress();
     const jobs = w.readers.of<JobsReader>('11');
     const activities = w.dwarves.activities;
@@ -73,12 +78,24 @@ describe('T-144 wants without errands', () => {
       return started;
     };
 
+    // Every hall errand taken before work, with the dwarf's highest of the three wants then.
+    const hallErrands: { id: EntityId; tick: number; workOpen: boolean; highest: number }[] = [];
+    const startHall = activities.startHallErrand.bind(activities);
+    activities.startHallErrand = (ctx, id, ...rest) => {
+      const workOpen = jobs.hasWork(id);
+      const n = w.game.world.entities.get(id, C.Needs);
+      const started = startHall(ctx, id, ...rest);
+      if (started) hallErrands.push({ id, tick: ctx.tick, workOpen, highest: Math.max(n?.social ?? 0, n?.comfort ?? 0, n?.joy ?? 0) });
+      return started;
+    };
+
     const under = new Map<EntityId, Record<Want, number>>(dwarves.map((id) => [id, { social: 0, comfort: 0, joy: 0 }]));
+    const atMark = new Map<EntityId, Record<Want, number>>(dwarves.map((id) => [id, { social: 0, comfort: 0, joy: 0 }]));
     let samples = 0;
     let urgent = 0;
     let working = 0;
     for (let day = 0; day < DAYS; day += 1) {
-      for (let k = 0; k < LOGS_PER_DAY; k += 1) w.spawnItem('log', 'oak', w.index(50 + (k % 4), 20 + day, Z));
+      for (let k = 0; k < logsPerDay; k += 1) w.spawnItem('log', 'oak', w.index(50 + (k % 4), 20 + day, Z));
       for (let tick = 0; tick < TICKS_PER_DAY; tick += 10) {
         w.step(10);
         samples += 1;
@@ -88,25 +105,57 @@ describe('T-144 wants without errands', () => {
           if (n === undefined) continue;
           const row = under.get(id) as Record<Want, number>;
           for (const want of WANTS) if (n[want] < WANT[want]) row[want] += 1;
+          for (const want of WANTS) if (n[want] >= LEISURE_MARK) (atMark.get(id) as Record<Want, number>)[want] += 1;
           if (jobs.hasUrgent(id, NEED_DEFER_PRIORITY)) urgent += 1;
           if ((w.game.world.entities.get(id, C.Worker)?.jobId ?? 0) !== 0) working += 1;
         }
       }
     }
 
-    // The scenario's own premises: no urgent job, real work done, and wants served both ways.
-    expect(urgent).toBe(0);
-    expect(w.readers.of<BuildingsReader>('14').room(hall)).toMatchObject({ requirementsMet: true, tier: 2 });
-    expect(w.events('JobCompleted').filter((e) => e['jobType'] === 'haul_to_stockpile').length).toBe(DAYS * LOGS_PER_DAY);
-    expect(working / (samples * dwarves.length)).toBeGreaterThan(0.25);
-    expect(errands.length).toBeGreaterThan(0);
-    expect(w.events('MealEaten').some((e) => e['atTable'] === true)).toBe(true);
+    return { w, dwarves, hall, samples, urgent, working, under, atMark, errands, hallErrands };
+}
 
-    expect(errands.filter((e) => e.workOpen)).toEqual([]);
-    for (const id of dwarves) {
-      const row = under.get(id) as Record<Want, number>;
+/** The scenario's own premises: no urgent job, a decent hall, every haul done, meals at the tables. */
+function premises(p: Played, logsPerDay: number): void {
+  expect(p.urgent).toBe(0);
+  expect(p.w.readers.of<BuildingsReader>('14').room(p.hall)).toMatchObject({ requirementsMet: true, tier: 2 });
+  expect(p.w.events('JobCompleted').filter((e) => e['jobType'] === 'haul_to_stockpile').length).toBe(DAYS * logsPerDay);
+  expect(p.w.events('MealEaten').some((e) => e['atTable'] === true)).toBe(true);
+}
+
+describe('T-144 wants without errands', () => {
+  it('eight hauls a day: each want is under its threshold at least 70% of the time and no errand for it starts while work is open', () => {
+    const p = play(8);
+    premises(p, 8);
+    // About 28% of the seven's time is on a job.
+    expect(p.working / (p.samples * p.dwarves.length)).toBeGreaterThan(0.25);
+    expect(p.errands.length).toBeGreaterThan(0);
+    expect(p.errands.filter((e) => e.workOpen)).toEqual([]);
+    // Nobody reaches the high mark at this workload, so nobody takes the hall errand before work.
+    expect(p.hallErrands).toEqual([]);
+    for (const id of p.dwarves) {
+      const row = p.under.get(id) as Record<Want, number>;
       for (const want of WANTS) {
-        expect(row[want] / samples, `dwarf ${id}: share of time with ${want} under its want threshold`).toBeGreaterThanOrEqual(0.7);
+        expect(row[want] / p.samples, `dwarf ${id}: share of time with ${want} under its want threshold`).toBeGreaterThanOrEqual(0.7);
+      }
+    }
+  });
+
+  it('twelve hauls a day: below the high mark the wants wait for work, at the mark one sit in the hall comes first', () => {
+    const p = play(12);
+    premises(p, 12);
+    // About 41% of the seven's time is on a job.
+    expect(p.working / (p.samples * p.dwarves.length)).toBeGreaterThan(0.35);
+    // Below the mark no errand for the three starts while a job is open for the dwarf.
+    expect(p.errands.filter((e) => e.workOpen)).toEqual([]);
+    // At the mark one sit in the hall does start, work open or not, and never below it.
+    expect(p.hallErrands.filter((e) => e.highest < LEISURE_MARK)).toEqual([]);
+    expect(p.hallErrands.filter((e) => e.workOpen).length).toBeGreaterThan(0);
+    // So no want stays at the mark: under 15% of the time for every dwarf and want.
+    for (const id of p.dwarves) {
+      const row = p.atMark.get(id) as Record<Want, number>;
+      for (const want of WANTS) {
+        expect(row[want] / p.samples, `dwarf ${id}: share of time with ${want} at the high mark`).toBeLessThan(0.15);
       }
     }
   });

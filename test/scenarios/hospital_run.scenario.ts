@@ -28,6 +28,10 @@ const scenario: Scenario = {
   seed: 'hospital-run-4',
   world: 'flat-test',
   // T-192: stage hospital casualties independently of unrelated natural animal arrivals.
+  // The seed is one roll of the staged fight (T-156): the raid must wound two soldiers who live.
+  // Measured for T-144: on master 3095a3e the seed 'hospital-run' passed and 'hospital-run-2' to
+  // '-6' all failed; on branch t-144 before T-195's fix 'hospital-run' and '-2' to '-48' all
+  // failed; with T-195's fix merged 'hospital-run', '-2' and '-3' fail and '-4' passes.
   surfaceWildlife: 'none',
   embark: 'default',
   timeoutMs: 300_000,
