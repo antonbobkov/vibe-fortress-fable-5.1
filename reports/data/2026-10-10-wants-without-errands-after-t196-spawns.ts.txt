@@ -1,0 +1,41 @@
+/* eslint-disable */
+// Scratch: wild arrivals, attacks and deaths in the rewritten fixture, days 0..SPAWN_DAYS.
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { stepThreeYears } from './three_years_measurements';
+import { setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense } from './three_years_fortress';
+
+describe('spawns', () => {
+  it('runs', () => {
+    const w = threeYearsWorld(process.env['T140_SEED'] ?? 'three-years', 0);
+    const state = setupThreeYearsFortress(w);
+    const ent = w.game.world.entities;
+    const species = w.game.registry.table<{ id: string }>('creatures');
+    const log: any[] = [];
+    const wounds = new Map<number, number>();
+    w.game.world.onEvents((evs: any) => {
+      for (const e of evs) {
+        if (e.type === 'AnimalSpawned') log.push({ day: +(w.tick / TICKS_PER_DAY).toFixed(2), type: e.type, species: e.species, id: e.id, at: e.tile ?? e.at });
+        if (e.type === 'AnimalLeft' || e.type === 'CreatureDied' && ent.get(e.id, C.Creature)?.faction === 'wild') log.push({ day: +(w.tick / TICKS_PER_DAY).toFixed(2), type: e.type, id: e.id, cause: e.cause });
+        if (e.type === 'CreatureDied' && e.faction === 'fortress') log.push({ day: +(w.tick / TICKS_PER_DAY).toFixed(2), type: 'DwarfDied', id: e.id, cause: e.cause, killer: e.killerId });
+        if (e.type === 'WoundInflicted') { const c = ent.get(e.id, C.Creature); if (c?.faction === 'fortress') wounds.set(e.id, (wounds.get(e.id) ?? 0) + 1); }
+      }
+    });
+    const days = Number(process.env['SPAWN_DAYS'] ?? 60);
+    let lastSample = -1;
+    while (w.tick < days * TICKS_PER_DAY) {
+      stepThreeYears(w, 300);
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+      const d = Math.floor(w.tick / TICKS_PER_DAY);
+      if (d !== lastSample) {
+        lastSample = d;
+        const wild = ent.with(C.Creature).filter((id) => ent.get(id, C.Creature)?.faction === 'wild').map((id) => { const p = ent.get(id, C.Position); return `${species.byIndex(ent.get(id, C.Creature)!.species)?.id}#${id}@${p?.x},${p?.y},${p?.z}`; });
+        log.push({ day: d, type: 'wild', wild });
+      }
+    }
+    log.push({ type: 'woundsPerDwarf', wounds: [...wounds] });
+    writeFileSync(process.env['SPAWN_OUT'] ?? 'spawns.json', JSON.stringify(log));
+  }, 3_600_000);
+});

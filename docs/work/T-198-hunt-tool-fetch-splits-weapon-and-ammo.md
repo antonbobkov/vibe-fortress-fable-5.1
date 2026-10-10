@@ -25,3 +25,11 @@ Write the rule into `11` § Tools (or the section that owns `findTool`) and `09`
 
 - The unit test passes, with `describe('T-198 …')`.
 - `homestead_year` passes.
+
+## Outcome
+
+Done on branch `t-144` in commit `f715dc2`, with the invariant checker's line for fetched ammunition in `f952eab`.
+
+- A claim reserves a launcher and a stack of that launcher's own ammunition together (at most `AMMO_FETCH`), or fails with `no_tool` and takes nothing. A worker that holds a launcher fetches only its ammunition (`ammoToFetch` in the job's data). `hasTool` asks for ammunition of the launcher's kind, so bolts do not count for a bow. Spec: `11` § Assignment step 5 and § Blocking and retry; `09` § Hunting, hunter equipment; `jobs-and-hauling.md`.
+- The unit test `test/unit/jobs/t198-ranged-kit.test.ts` (`describe('T-198 …')`) fails on the code before the change and passes after.
+- **`homestead_year` completes hunts**: 4 kills in the 40 days on `cloud/T-144`. Item 3's question (why one hunter and a staged deer produced no hunt in T-144's attempts) was not traced: with the kit rule the unchanged fixture hunts without staging, so it no longer blocks anything. Its cause is not established.
