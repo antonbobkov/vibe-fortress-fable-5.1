@@ -46,11 +46,13 @@ interface ForagingState { stateVersion: 1; huntable: Idx<SpeciesDef>[]; hunterAs
   bodiesStale: boolean; version: number; nextBodyId: number; nextFishTick: [EntityId, Tick][]; dailyDue: boolean; rng: RngState }
 
 interface ActivityPlan { need: string; phase: 'travel'|'seat'|'use'; itemId: EntityId; partner: EntityId; target: TileIndex; until: Tick;
-  ownBed: boolean; atTable: boolean; roomTier: number; startedRest: number }
+  ownBed: boolean; atTable: boolean; roomTier: number; startedRest: number; hall?: true /* a hall errand taken at LEISURE_MARK; its `partner` is the talk partner found from the seat */ }
 interface DwarvesState { stateVersion: 1; titles: Record<'thane'|'warden'|'broker'|'chief_medic', EntityId>; populationCached: number; children: EntityId[];
   wagonTile: TileIndex; interruptFlags: EntityId[]; hungerMaxSince: [EntityId, Tick][]; thirstMaxSince: [EntityId, Tick][];
   starvingAnnounced: [EntityId, number][]; activities?: [EntityId, ActivityPlan][]; idleAnnounced?: EntityId[]; sawMasterworks?: [EntityId, EntityId][];
-  needRetryUntil?: [EntityId, NeedName, Tick][]; shutOut?: EntityId[]; shelterCheckPending?: boolean; threatened?: [EntityId, { hostileId: EntityId; tick: Tick; tile?: TileIndex }][]; rng: RngState }
+  needRetryUntil?: [EntityId, NeedName, Tick][]; shutOut?: EntityId[]; shelterCheckPending?: boolean; threatened?: [EntityId, { hostileId: EntityId; tick: Tick; tile?: TileIndex }][];
+  talks?: [EntityId, EntityId, Tick][] /* talks in passing: lower id, higher id, end tick; absent means none */; hearthTicks?: [EntityId, number][] /* ticks eaten, drunk and sat in the hearth hall toward the next hearth visit; absent means none */; hallRetryUntil?: [EntityId, Tick][] /* no hall errand before this tick; absent means none */; rng: RngState }
+// A stay for a talk in passing is an ActivityPlan with need 'social', phase 'use', partner 0 and until = the talk's end tick.
 
 interface JobsState { stateVersion: 1; jobs: Job[]; nextJobId: number; laborPriorities: Uint8Array; standingOrders: Record<string, boolean>;
   assignQueue: EntityId[]; blockedRetryCursor: number }
