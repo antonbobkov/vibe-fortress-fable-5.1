@@ -262,6 +262,14 @@ const scenario: Scenario = {
           workshopId: placedIds['still'],
           order: { recipeId: 'brew', mode: 'maintain', threshold: 20 },
         });
+        // T-199: a brew needs an empty barrel, and the stockpile keeps food and seed in the five
+        // the party brought, so the still waits. The player has one made for it. Remove this order
+        // when T-199 is fixed.
+        w.game.world.applyCommand({
+          type: 'AddWorkOrder',
+          workshopId: placedIds['carpenter'],
+          order: { recipeId: 'make_barrel', mode: 'once', remaining: 1 },
+        });
       }
       if (!ordered.has('kitchen') && builtTicks['kitchen'] !== null) {
         ordered.add('kitchen');

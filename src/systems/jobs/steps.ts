@@ -41,7 +41,8 @@ function nextUndelivered(job: Job): EntityId {
 
 function pendingWork(job: Job): boolean {
   const tool = job.data['toolToFetch'];
-  return (typeof tool === 'number' && tool !== 0) || nextUndelivered(job) !== 0;
+  const ammo = job.data['ammoToFetch'];
+  return (typeof tool === 'number' && tool !== 0) || (typeof ammo === 'number' && ammo !== 0) || nextUndelivered(job) !== 0;
 }
 
 /**
@@ -103,7 +104,9 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
       return;
     case 'fetching': {
       const toolId = job.data['toolToFetch'];
-      const target = typeof toolId === 'number' && toolId !== 0 ? toolId : nextUndelivered(job);
+      const ammoId = job.data['ammoToFetch'];
+      const target = typeof toolId === 'number' && toolId !== 0 ? toolId
+        : typeof ammoId === 'number' && ammoId !== 0 ? ammoId : nextUndelivered(job);
       if (target === 0) {
         job.state = 'travelling';
         return;
@@ -120,6 +123,11 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
             board.releaseItem(target, job.id);
             delete job.data['toolToFetch'];
             ctx.emit({ type: 'ToolEquipped', dwarfId: workerId, itemId: target });
+          } else if (target === ammoId) {
+            // The launcher's ammunition is carried beside it and kept after the job.
+            board.items.equip(workerId, target);
+            board.releaseItem(target, job.id);
+            delete job.data['ammoToFetch'];
           } else {
             board.items.pickUp(target, workerId);
             board.setWorker(workerId, { carrying: target });

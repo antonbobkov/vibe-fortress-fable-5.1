@@ -39,3 +39,7 @@ T-145 rewrites `three_years_fortress.ts` to play at default priorities. This tas
 
 - `three_years` and `year_one` pass with no unexpected rejected command.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+
+## Found by T-144
+
+- `hospital_run` hangs on one roll of a fight. Its staged raid must wound two soldiers who survive, and that held on one seed in six on master `3095a3e` and on one in four after T-144 and T-195 (the scenario's header comment lists the seeds). It should assert on a staged, repeatable casualty, as it already does for the burn, instead of on the outcome of the raid.
