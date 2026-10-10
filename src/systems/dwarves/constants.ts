@@ -13,11 +13,17 @@ export const EAT_TICKS = 60;
 export const DRINK_TICKS = 40;
 export const SLEEP_HOURS = 7;
 export const TALK_TICKS = 80;
+/** Ticks between two scans for talks in passing. */
+export const TALK_CHECK_TICKS = 10;
 /** `creature-brains.md` § startNeed social: wait up to 200 ticks. */
 export const SOCIAL_WAIT_TICKS = 200;
 /** `creature-brains.md` § startNeed joy: visit the hearth for 100 ticks. */
 export const HEARTH_VISIT_TICKS = 100;
 export const SIT_TICKS = 100;
+/** Social, comfort or joy at this level sends a dwarf to sit in the hearth hall before ordinary work. */
+export const LEISURE_MARK = 75;
+/** After a hall errand that left one of the three at the mark, no other before work for this long. */
+export const LEISURE_RETRY_TICKS = 600;
 export const IDLE_TICKS = 50;
 /** Tiles (path distance). */
 export const DINING_SEARCH_RADIUS = 40;
