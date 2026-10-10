@@ -311,7 +311,7 @@ describe('T-M6-01 health unit tests', () => {
       expect(w.game.world.entities.alive(id)).toBe(true);
     });
 
-    it('animal care: tame bleeding animal creates stop_bleeding job with labor animal_care', () => {
+    it('T-190 animal care: tame bleeding animal creates bandage_animal job with labor animal_care', () => {
       const w = new TestWorld({ seed: 'animal-care', world: 'flat-test', embark: 'none' });
       const pos = w.index(10, 10, FLAT_TEST_SURFACE_Z);
       const cat = w.spawnCreature('cat', pos, 'player');
@@ -337,7 +337,7 @@ describe('T-M6-01 health unit tests', () => {
       w.step(1);
 
       const jobs = w.readers.of<{ byKey(key: string): unknown }>('11');
-      const job = jobs.byKey(`stop_bleeding:${cat}`) as { data: Record<string, unknown>; priority: number } | undefined;
+      const job = jobs.byKey(`bandage_animal:${cat}`) as { data: Record<string, unknown>; priority: number } | undefined;
       expect(job).toBeDefined();
       expect(job?.data['labor']).toBe('animal_care');
       expect(job?.priority).toBe(1);

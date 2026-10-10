@@ -40,6 +40,10 @@ export class HealthProducer implements JobProducer {
     const job = jobIn as Job;
     const typeStr = this.typeIdOf(job);
     switch (typeStr) {
+      case 'bandage_animal': {
+        const ticks = this.host.registry.table<{ id: string; baseTicks: number | string }>('jobTypes').byIndex(job.type)?.baseTicks;
+        return typeof ticks === 'number' ? ticks * 100 : undefined;
+      }
       case 'stop_bleeding':
       case 'suture':
       case 'clean_wound':
@@ -317,17 +321,17 @@ export class HealthProducer implements JobProducer {
       }
     }
 
-    // Tame animals: stop_bleeding only
+    // Tame animals: bandaging only.
     for (const animalId of entities.with(C.Tame, C.Body)) {
       if (!entities.alive(animalId)) continue;
       const ab = entities.get(animalId, C.Body);
       if (!ab) continue;
       const isBleeding = ab.parts.some((p) => p.wounds.some((w) => w.bleed > 0 && !w.bandaged));
-      const key = `stop_bleeding:${animalId}`;
+      const key = `bandage_animal:${animalId}`;
       if (isBleeding) {
         if (!sink.exists(key)) {
           sink.create(key, {
-            type: 'stop_bleeding',
+            type: 'bandage_animal',
             target: { kind: 'entity', ref: animalId },
             workTile: 'adjacent',
             priority: 1,
@@ -358,6 +362,7 @@ export class HealthProducer implements JobProducer {
 
     const typeStr = this.typeIdOf(job);
     const canFail = [
+      'bandage_animal',
       'stop_bleeding',
       'set_bone',
       'suture',
@@ -406,6 +411,18 @@ export class HealthProducer implements JobProducer {
         if (needs) {
           needs.thirst = 0;
         }
+        break;
+      }
+      case 'bandage_animal': {
+        this.consumeDelivered(job, ctx);
+        const body = ctx.world.entities.get(patientId, C.Body);
+        if (body !== undefined) for (const part of body.parts) for (const wound of part.wounds) {
+          if (wound.bleed > 0 && !wound.bandaged) {
+            wound.bandaged = true;
+            wound.bleed = 0;
+          }
+        }
+        ctx.emit({ type: 'TreatmentDone', patientId, medicId: job.workerId, kind: 'bandage_animal' });
         break;
       }
       case 'stop_bleeding': {

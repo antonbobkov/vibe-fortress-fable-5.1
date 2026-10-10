@@ -89,7 +89,7 @@ Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned` and
 
 ### Animals
 
-Tame animals get bandaging only (`stop_bleeding` when `animal_care` labor exists and cloth is available), never surgery. Wild and hostile creatures get nothing.
+Tame animals get bandaging only: the health producer creates `bandage_animal` (labor and skill `animal_care`) when any wound bleeds without a bandage. The job consumes one cloth at priority 1, uses the base duration in the job catalogue (skill-scaled), and bandages every bleeding wound, setting its bleed to 0. It has the same treatment-failure rule, using the worker's animal-care skill; a failed treatment consumes the cloth and can be produced again. Completion emits `TreatmentDone { kind: 'bandage_animal' }`. Animals never get surgery; wild and hostile creatures get nothing.
 
 ### Death and corpses
 
@@ -124,7 +124,7 @@ Tame animals get bandaging only (`stop_bleeding` when `animal_care` labor exists
 
 ### Registrations
 
-Job producer `health` (`carry_patient`, `feed_patient`, `water_patient`, `stop_bleeding`, `set_bone`, `suture`, `clean_wound`, `dress_burn`, `diagnose`, `give_crutch`); inspector section `creature › health` (parts with hp bars, wounds with treatment flags, blood, pain, consciousness, permanent injuries); announcements: `PatientAdmitted` (note), `CreatureUnconscious` for dwarves (alert), `CreatureDied` for dwarves (danger, pauses; "Ketil Ironvein has bled to death"), for pets (alert), for others (note), `InfectionStarted` (alert), `LimbLost` (alert).
+Job producer `health` (`carry_patient`, `feed_patient`, `water_patient`, `stop_bleeding`, `set_bone`, `suture`, `clean_wound`, `dress_burn`, `diagnose`, `give_crutch`, `bandage_animal`); inspector section `creature › health` (parts with hp bars, wounds with treatment flags, blood, pain, consciousness, permanent injuries); announcements: `PatientAdmitted` (note), `CreatureUnconscious` for dwarves (alert), `CreatureDied` for dwarves (danger, pauses; "Ketil Ironvein has bled to death"), for pets (alert), for others (note), `InfectionStarted` (alert), `LimbLost` (alert).
 
 ## Player-facing behavior
 

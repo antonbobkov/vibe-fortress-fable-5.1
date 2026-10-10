@@ -37,7 +37,6 @@ For up or up/down stairs, the terrain producer's `extraStandTiles` also permits 
 | `slaughter` | Slaughter | butchery | butchery | entity | workshop (butcher) | 60 | — | 4 | yes |
 | `train_animal` | Train animal | animal_training | animal_training | entity | workshop (kennel) | `TRAIN_TICKS` | — | 20 | yes |
 | `tame_animal` | Tame animal | animal_training | animal_training | entity (caged) | workshop (kennel) | `TRAIN_TICKS` | — | 25 | yes |
-| `bandage_animal` | Bandage animal | animal_care | animal_care | entity | entity | 100 | — | 6 | no |
 
 ## Foraging (producer `foraging`)
 
@@ -85,6 +84,8 @@ For up or up/down stairs, the terrain producer's `extraStandTiles` also permits 
 | `dress_burn` | Dress burn | medicine | medicine | entity | entity | `TREAT_TICKS` | — | 10 | no |
 | `diagnose` | Diagnose | medicine | medicine | entity | entity | `TREAT_TICKS / 2` | — | 20 | no |
 | `give_crutch` | Give crutch | medicine | medicine | entity | entity | 30 | — | 4 | no |
+| `bandage_animal` | Bandage animal | animal_care | animal_care | entity | entity | 100 | — | 6 | no |
+
 
 ## Defense (producer `defense`)
 
