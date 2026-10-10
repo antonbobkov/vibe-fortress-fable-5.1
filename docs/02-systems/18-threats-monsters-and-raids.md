@@ -86,11 +86,11 @@ Cavern spawn tables (content) per cavern tier:
 | 2 | `blind_stalker` (stealth ambusher), `troll` (large, breaks doors, eats livestock) | |
 | 3 | `magma_wyrm` (boss: huge, fire breath as a ranged `burn` attack, magma-safe; one per map from `wyrm_roost` or from the Deep) | |
 
-- At generation each cavern gets `initialSpawns` placed asleep at random walkable tiles in its band; they wake on `CavernBreached` for that cavern.
+- At generation each cavern gets `initialSpawns` placed asleep at random walkable tiles in its band; they wake on `CavernBreached` for that cavern, emitting one `MonsterSpawned { id, cavern }` per living monster that changes from asleep to awake. Repeated breaches do not announce monsters that are already awake. As events emitted by a handler, these notifications are delivered on the following tick under the core dispatch rule.
 - During load bootstrap, initialization installs the threat reader and registrations without spawning initial monsters or spinning initial webs. Restore the saved monsters, web-owner records and Web flags; floors carved since generation receive no new initial population or webs. Ordinary new-world initialization still creates the initial population and lair webs.
 - Each `DayPassed` after breach, each species respawns toward its cap at a random cavern tile at least `SPAWN_MIN_DISTANCE` (08) from dwarves.
 - Monsters wander their cavern; aggressive ones seek fortress creatures within `CAVE_SEEK_RADIUS` of any cavern tile (they will follow a breach corridor into the fortress); they return to the cavern when no target is found for `CAVE_RETURN_TICKS`. Sealing the breach with a wall or a locked door (trolls break doors) stops them.
-- `MonsterSpawned { id, cavern }` (note if far, alert if a path to dwarves exists).
+- `MonsterSpawned { id, cavern }` is a note, both when an initial sleeper wakes at breach and when a daily respawn creates a monster; visibility and proximity do not change its severity.
 
 ### The Deep
 

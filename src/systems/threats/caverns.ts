@@ -226,6 +226,7 @@ export function wakeCavernMonsters(
       const H = world.entities.get(id, C.Hostile);
       if (H && H.behaviorState === 'asleep') {
         H.behaviorState = 'wander';
+        world.emit({ type: 'MonsterSpawned', id, cavern: tier });
       }
     }
   }

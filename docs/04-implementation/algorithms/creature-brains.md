@@ -142,6 +142,8 @@ Ambush arrival emits no `RaidArrived`; all members start stealthed, independent 
 
 Thief specifics: on reaching the goal item: pick up (`P.loot`), `P.state = 'retreat'`; if spotted before pickup: retreat empty. Restless dead: `approach` target = nearest fortress creature; never retreat; at dawn (`HourPassed` hour == sunrise) all `restless_dead` collapse: `CreatureDied { cause: dawn }` with no corpse (a `bone_pile` item instead).
 
+On `CavernBreached`, change each living sleeping monster of that cavern to `wander` and emit `MonsterSpawned { id, cavern }` once for it; leave already-awake monsters and other caverns unchanged.
+
 Cavern monsters: `Wild`-like idle/wander within the cavern band; aggressive ones every think check `spatial.nearest(fortress creature within CAVE_SEEK_RADIUS)` and set targets; return after `CAVE_RETURN_TICKS` without a target. Hollow-born: target = nearest fortress creature on the map (global search every 50 ticks through the spatial index rings).
 
 Animal loot saves its carrier in Party.animalCarriers and has neither Position nor a spatial entry while held; pickup stops its movement. Only its carrier reports its escape. CreatureDied restores the carrier's stolen animals at the recorded death tile through the movement/spatial API, then clears their party loot and carrier entries.
