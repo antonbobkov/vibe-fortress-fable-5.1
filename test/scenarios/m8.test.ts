@@ -14,7 +14,12 @@ const modules = import.meta.glob('./*.scenario.ts', { eager: true }) as Record<
 const scenarios = Object.keys(modules)
   .sort()
   .map((path) => (modules[path] as { default: Scenario }).default)
-  .filter((s) => s.milestone === 8 && !isPerfTierScenario(s.id)); // perf-tier.ts names the ones that run in `npm run test:perf`
+  .filter(
+    (s) =>
+      s.milestone === 8 &&
+      !isPerfTierScenario(s.id) &&
+      s.id !== 't195_train_needs', // T-195: reproduction runs in test/scenarios/t195-reproduction.test.ts
+  );
 
 const milestone = currentMilestone();
 
