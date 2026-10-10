@@ -1,5 +1,11 @@
 # T-194 — magma_kiln lacks magmaVariantOf and has no authored recipes
 
+## Progress (2026-10-10, codex-a)
+
+The power claim is verified. A stepped regression first returned false for a built kiln over level 7 magma; detecting power by its authored `magma` tag fixes it and preserves the existing threshold and fluid-type checks. An ordinary smelter over magma still reports false. The descent assertion for kiln power is turned around.
+
+The recipe claim conflicts with the current spec: 12 reserves the magma kiln for future glass, and the authored workshop table says it has no recipes and stays hidden until one exists. There is no base `kiln` row, so adding `magmaVariantOf: kiln` alone would also violate the content reference schema. No input/output quantities, skill, duration or XP for a new glass recipe have been decided. The independent power correction can be committed, but leave this task open pending resolution of its completed-recipe Done item; keep the existing zero-recipes assertion. An owner question is pending. No recipe, balance constant or runtime dependency is added.
+
 **Source:** T-154 and its run of `descent.scenario.ts` · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
