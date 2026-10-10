@@ -680,8 +680,8 @@ export function runDescent(w: TestWorld): void {
   const wsReader = w.readers.of<WorkshopsReader>('12');
   expect(wsReader.isMagmaPowered(magmaSmelterId)).toBe(true);
   expect(wsReader.isMagmaPowered(magmaForgeId)).toBe(true);
-  // T-194: magma_kiln lacks magmaVariantOf in buildings.json, so isMagmaPowered returns false
-  expect(wsReader.isMagmaPowered(magmaKilnId)).toBe(false);
+  // T-194: the reserved kiln has magma power even before its recipes are authored.
+  expect(wsReader.isMagmaPowered(magmaKilnId)).toBe(true);
 
   // 20. Work orders in magma workshops without fuel consumption
   console.log('--- Step 20: Work orders without fuel ---');

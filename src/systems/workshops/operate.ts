@@ -47,7 +47,7 @@ export interface RecipeRow {
   readonly xp: number;
 }
 
-interface BuildingRow { readonly id: string; readonly category: string; readonly magmaVariantOf?: string; readonly workTile?: number; readonly outputTile?: number }
+interface BuildingRow { readonly id: string; readonly category: string; readonly tags: readonly string[]; readonly magmaVariantOf?: string; readonly workTile?: number; readonly outputTile?: number }
 interface MaterialRow { readonly id: string; readonly class: string; readonly tags?: readonly string[]; readonly meltsAtC: number; readonly nextStage?: string }
 interface ItemRow { readonly id: string; readonly category?: string; readonly tags?: readonly string[] }
 interface PlantRow { readonly id: string; readonly brew?: string }
@@ -246,7 +246,7 @@ export class WorkshopOperator {
 
   isMagmaPowered(id: EntityId): boolean {
     const b = this.ctx.world.entities.get(id, C.Building);
-    if (b === undefined || !this.row(b).magmaVariantOf) return false;
+    if (b === undefined || !this.row(b).tags.includes('magma')) return false;
     const map = this.ctx.world.map;
     return b.footprint.some((t) => {
       const below = map.below(t);

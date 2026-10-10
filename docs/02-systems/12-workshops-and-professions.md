@@ -40,7 +40,7 @@ Convert materials into goods. Own workshop operation, recipes, work orders, qual
 | `kennel` | animal_training | training and taming (08) |
 | `bowyer` | carpentry | bows and crossbows from wood; arrows from wood |
 
-Magma variants: `magma_smelter`, `magma_forge`, `magma_kiln` (unused in version 1 but listed for glass later). A magma workshop is buildable only where at least one footprint tile has, directly below it, a tile with magma of level ≥ `MAGMA_POWER_LEVEL` (a channel over a magma pool or a pipe branch). Placement without that magma rejects with `bad_placement`; `no_magma` is reserved for workshop/job blocking after power is lost. It needs no fuel. If the magma drops below the level, its jobs block with `no_magma`.
+Magma variants: `magma_smelter`, `magma_forge`, `magma_kiln` (unused in version 1 but listed for glass later). The `magma` building tag identifies a magma workshop for power detection, independently of whether a base workshop or recipes exist. The reserved magma kiln therefore reports power by the same footprint rule while its recipe list remains empty. A magma workshop is buildable only where at least one footprint tile has, directly below it, a tile with magma of level ≥ `MAGMA_POWER_LEVEL` (a channel over a magma pool or a pipe branch). Placement without that magma rejects with `bad_placement`; `no_magma` is reserved for workshop/job blocking after power is lost. It needs no fuel. If the magma drops below the level, its jobs block with `no_magma`.
 
 ### Recipes (content) and derived recipes
 
