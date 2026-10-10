@@ -22,6 +22,7 @@ import type { BuildingsReader } from '@systems/buildings/reader';
 import type { HealthReader } from '@systems/health/reader';
 import type { JobsReader } from '@systems/jobs';
 import type { CombatReader } from '@systems/combat/reader';
+import { PERCEPTION_RADIUS } from '@systems/combat/constants';
 
 /** "Idle dwarves are shown as 'No job' in the units panel." */
 export const NO_JOB = 'No job';
@@ -135,6 +136,29 @@ function fightExpired(ctx: TickContext, id: EntityId, threatId: EntityId, b: Bra
   return ctx.tick >= b.behaviorUntil;
 }
 
+function hasHostileInSight(ctx: TickContext, id: EntityId): boolean {
+  if (!ctx.readers.has('16')) return false;
+  const combat = ctx.readers.of<CombatReader>('16');
+  if (combat.targetOf(id) !== 0) return true;
+  const pos = ctx.world.entities.get(id, C.Position);
+  if (!pos) return false;
+  const tileM = ctx.world.map.index(pos.x, pos.y, pos.z);
+  const nearby = ctx.readers.spatial.inRadius(tileM, PERCEPTION_RADIUS, 'creature');
+  for (const otherId of nearby) {
+    if (otherId === id || !ctx.world.entities.alive(otherId)) continue;
+    const h = ctx.world.entities.get(otherId, C.Hostile);
+    if (h?.stealthed) continue;
+    if (!combat.isHostile(id, otherId)) continue;
+    const posO = ctx.world.entities.get(otherId, C.Position);
+    if (!posO || Math.abs(pos.z - posO.z) > 2) continue;
+    const dist = Math.max(Math.abs(pos.x - posO.x), Math.abs(pos.y - posO.y));
+    if (dist > PERCEPTION_RADIUS) continue;
+    const tileO = ctx.world.map.index(posO.x, posO.y, posO.z);
+    if (combat.lineOfSight(tileM, tileO)) return true;
+  }
+  return false;
+}
+
 /**
  * `select(id)`, steps 7 and 9: a dwarf that already holds a job works it; otherwise it asks 11
  * (`jobs.assign(id)`, answered in 11's tick of this same tick) and waits in `work` for the answer.
@@ -242,17 +266,54 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   const schedule = ctx.world.entities.get(id, C.Schedule);
   const urgent = host.hasJobs && ctx.readers.of<JobsReader>('11').hasUrgent(id, NEED_DEFER_PRIORITY);
   if (n !== undefined) {
-    for (const critical of ranked(n, true))
-      if (host.activities.start(ctx, id, critical, b, host.idleGoal(id), host.dwarfIds())) return;
-    const sleepWindow = schedule !== undefined && hourOf(ctx.tick) === schedule.sleepStartHour && n.rest > 20;
-    if (sleepWindow && host.activities.start(ctx, id, 'rest', b, host.idleGoal(id), host.dwarfIds(), safeTarget)) return;
+    for (const critical of ranked(n, true)) {
+      if (host.activities.start(ctx, id, critical, b, host.idleGoal(id), host.dwarfIds())) {
+        host.setCombatTarget(id, 0);
+        return;
+      }
+    }
   }
 
   if (!civ) {
+    const combat = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16') : undefined;
+    const squad = combat?.squadOf(id);
+    const alert = combat?.alert() ?? ctx.world.fortress.alert;
+    const hostileInSight = hasHostileInSight(ctx, id);
+    const hasOrder =
+      squad !== undefined &&
+      (squad.station !== null ||
+        (squad.patrol !== null && squad.patrol.length > 0) ||
+        squad.orders.length > 0);
+    const dutyHolds =
+      squad?.mode === 'active' && (hostileInSight || hasOrder || alert !== 'calm');
+    if (dutyHolds) {
+      b.behavior = 'duty';
+      b.activity = 'On duty';
+      b.targetTile = ctx.world.services.movement?.tileOf(id) ?? -1;
+      return;
+    }
+    if (n !== undefined) {
+      const sleepWindow = schedule !== undefined && hourOf(ctx.tick) === schedule.sleepStartHour && n.rest > 20;
+      if (sleepWindow && host.activities.start(ctx, id, 'rest', b, host.idleGoal(id), host.dwarfIds(), safeTarget)) {
+        host.setCombatTarget(id, 0);
+        return;
+      }
+      for (const want of ranked(n, false)) {
+        if (host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds(), safeTarget)) {
+          host.setCombatTarget(id, 0);
+          return;
+        }
+      }
+    }
     b.behavior = 'duty';
     b.activity = 'On duty';
     b.targetTile = ctx.world.services.movement?.tileOf(id) ?? -1;
     return;
+  }
+
+  if (n !== undefined) {
+    const sleepWindow = schedule !== undefined && hourOf(ctx.tick) === schedule.sleepStartHour && n.rest > 20;
+    if (sleepWindow && host.activities.start(ctx, id, 'rest', b, host.idleGoal(id), host.dwarfIds(), safeTarget)) return;
   }
 
   if (n !== undefined && !urgent) {

@@ -39,3 +39,31 @@ The fortress must also live at peril 2, which it does not before T-140 and T-141
 
 - `defence_year` passes in `npm test`, with `describe`/scenario id as above.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+
+## Progress
+
+- 2026-10-10: Stage 1 complete (`T-151: defence year, stage 1`). Fortress gate with door set to `lock_on_alert`, 10 walls and 4 fortifications built, mechanic workshop built, forge workshop built, archery target built, archery range and barracks zones created.
+- 2026-10-10: Stage 2 complete (`T-151: defence year, stage 2`). Traps (cage, weapon, stone-fall) built, lever and drawbridge built, linked via `LinkMechanism`, lever pulled (`PullLever`), drawbridge raised and lowered, `SetTrapMode` set on stone-fall trap.
+- 2026-10-10: Stage 3 complete (`T-151: defence year, stage 3`). Squad formed (`CreateSquad`, `SetSquadMembers`, `SetSquadLeader`), equipped through gameplay (`SetSquadEquipment`), assigned barracks (`SetZoneSetting`), mode set to `train`, training sessions occurred (`TrainingSession`), weapon skill XP gained on squad members. Clean pass at Day 35 with 0 deaths.
+- 2026-10-10: Stage 4 investigation & time box limit reached (`T-151: defence year, progress`).
+  - **What happens (timeline):**
+    - Day 41: `hearth` alert cycle tested; gate door locked after 400 grace ticks (`buildings.mechanismState` = `locked`).
+    - Day 42 (tick 50401): First scheduled hostile party arrives: party 150995181 (kind: `thief`, size: 1, north map edge tile 73730). When spotted, it retreats and despawns at edge at tick 50528 with `RaidEnded { outcome: 'withdrew' }` (empty-handed withdrawal), not `repelled` or `wiped`.
+    - Day 56 (tick 67252): Livestock starvation deaths (cow 16777765, sheep 16777789, sheep 16777791).
+    - Day 58 (tick 69602): All four squad members died of starvation: Norna Wolfborn (id 16777290), Berit Veinwall (id 16777291), Kari Mosswall (id 16777292), Frida Hollowstair (id 16777293).
+  - **Deaths by cause from events:**
+    - Starvation: 4 dwarves (Norna Wolfborn, Berit Veinwall, Kari Mosswall, Frida Hollowstair all at tick 69602 / Day 58), 3 livestock (cow 16777765, sheep 16777789, sheep 16777791 at tick 67252 / Day 56). In continuous training without scheduled breaks, squad starved earlier on Day 41 (Norna at tick 49202, Frida at tick 50402).
+    - Wildlife attacks (in calm alert / un-gated runs where civilians exit fortress): 5 dwarves died of `bled_out` killed by wild predators (wolves/bears): Embla Brighthall at tick 49447 / Day 41 (wolf), Solveig Hawkfell at tick 51572 / Day 42 (wolf), Baldr Deepmark at tick 52717 / Day 43 (wolf), Gefjun Coalwall at tick 59727 / Day 49 (wolf), Melkorka Silverfoot at tick 67012 / Day 55 (bear species 5).
+  - **Which assertions fail with numbers:**
+    - `expect(squad?.members.length).toBe(4)`: failed with expected 4, received 0 (all 4 squad members died of starvation at Day 58).
+    - `at most two dwarves die`: failed with 4 dwarf starvation deaths by Day 58 (and up to 5 additional predator deaths if civilians exit fortress during calm alert).
+    - `at least one party ends repelled or wiped`: failed with thief party ending `withdrew` at tick 50528. Peril 2 schedule does not roll ambushes until Autumn (Day 57+) or raids until Year 2 Spring (Day 113+), which the fortress cannot survive to reach.
+    - `rearm_trap and clean_trap jobs complete`: `clean_trap` only jobs when a trap enters `jammed` state, which requires a percentage roll upon weapon trap corpse jamming (`TRAP_JAM_PERMILLE * (corpses + 1)` = 20 / 1000 = 2% chance without prior corpses).
+  - **What was tried:**
+    - Issued `UndoDesignation` for 438 distant trees to prevent civilians wandering into wolf territory.
+    - Provided an off-duty squad break (`SetSquadMode` `off`) from Day 35 to Day 41 so soldiers could eat and drink (preventing Day 41 starvation).
+    - Activated `watchful` then `hearth` alert at Day 41, pulled lever to raise drawbridge, stationed squad behind traps, and issued kill order on hostile.
+    - Verified `lock_on_alert` door correctly locked after grace ticks.
+    - Confirmed that re-engaging `train` mode after threat alert caused squad starvation at Day 58 because on-duty soldiers do not leave training to eat/drink.
+    - Per TIME BOX instructions: Stopped tuning, restored scenario in `defence_year_fortress.ts` to passing Stage 3 (Day 35, 0 deaths), left T-151 open.
+

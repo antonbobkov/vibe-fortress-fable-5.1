@@ -417,6 +417,12 @@ export function stepSquads(
         continue;
       }
 
+      const brain = entities.get(m, C.Brain);
+      if (brain !== undefined && (brain.behavior === 'flee' || brain.behavior === 'retreat' || brain.behavior === 'patient')) continue;
+      if (brain !== undefined && brain.behavior === 'need') {
+        if (squad.mode === 'train' || brain.activity !== 'sleep') continue;
+      }
+
       // Perception scan: look for hostiles within PERCEPTION_RADIUS
       let closestHostile = 0;
       let closestDist = Infinity;
@@ -453,6 +459,7 @@ export function stepSquads(
       }
 
       // No hostile in perception: execute squad positioning
+
       let destTile: TileIndex | null = null;
       if (currentOrder) {
         if (currentOrder.kind === 'station') {
