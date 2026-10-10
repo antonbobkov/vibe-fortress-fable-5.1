@@ -107,6 +107,8 @@ When a designation is applied to a tile that no longer matches its precondition 
 - `veinsFound: TileIndex[]`: sorted keys of veins already announced.
 - `layerStack` and `LocalMapSpec` for the legend and for regeneration in tests.
 
+The saved state retains the changed and discovered tile batches and the levels awaiting relighting until the normal terrain flush. Saving and loading neither dispatch these notifications nor recompute light. An older save without these pending fields starts with empty batches.
+
 ## Interfaces
 
 ### Reader

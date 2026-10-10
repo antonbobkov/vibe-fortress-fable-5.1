@@ -18,7 +18,7 @@ import type { EntityId, Priority, TileIndex } from '@core/types';
 import { computeLitLevel } from './generate/light';
 import type { TerrainFacts } from './facts';
 import { constructionItem, isStructuralKind, isSupportKind, precondition } from './rules/transitions';
-import { sortedIndexOf, sortedInsert, sortedRemove } from './state';
+import { sortedIndexOf, sortedInsert, sortedRemove, type PendingTerrain } from './state';
 
 /** The cavern bands of `constants.md`, index 1-3. */
 export const CAVERN_BANDS: readonly (readonly [number, number])[] = [
@@ -434,6 +434,23 @@ export class TerrainCore implements TerrainApi {
   /** Add a tile to this tick's `TilesChanged` batch without changing it (a traffic mark). */
   markChanged(i: TileIndex): void {
     this.changed.push(i);
+  }
+
+  /** Snapshot work owed to the normal terrain flush without running it. */
+  savePending(): PendingTerrain | undefined {
+    const changed = Array.from(new Set(this.changed)).sort((a, b) => a - b);
+    const discovered = Array.from(new Set(this.discovered)).sort((a, b) => a - b);
+    const litDirty: number[] = [];
+    for (let z = 0; z < this.litDirty.length; z += 1) if (this.litDirty[z]) litDirty.push(z);
+    return changed.length || discovered.length || litDirty.length ? { changed, discovered, litDirty } : undefined;
+  }
+
+  /** Older saves have no pending batch; loading does not emit or relight. */
+  loadPending(state: PendingTerrain | undefined): void {
+    this.changed = state?.changed.slice() ?? [];
+    this.discovered = state?.discovered.slice() ?? [];
+    this.litDirty.fill(0);
+    for (const z of state?.litDirty ?? []) this.litDirty[z] = 1;
   }
 
   // ---------- the tick's batch ----------
