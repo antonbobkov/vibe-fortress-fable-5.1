@@ -46,6 +46,8 @@ export interface Scenario {
   readonly seed: string;
   readonly world: ScenarioWorld;
   readonly embark?: ScenarioEmbark;
+  /** Isolate a single-rule flat-map fixture from natural surface arrivals (T-192). */
+  readonly surfaceWildlife?: 'none';
   /**
    * Systems to register before `init`, built fresh for every run. The real systems join the
    * headless game as their milestones land; the `core_*` scenarios of M0 use this slot for the
@@ -104,6 +106,7 @@ function buildWorld(scenario: Scenario): TestWorld {
           : { preset: embark['preset'] as string }
         : embark,
     ...(scenario.startTick === undefined ? {} : { startTick: scenario.startTick }),
+    ...(scenario.surfaceWildlife === undefined ? {} : { surfaceWildlife: scenario.surfaceWildlife }),
     ...(scenario.systems === undefined ? {} : { systems: scenario.systems() }),
   });
 }

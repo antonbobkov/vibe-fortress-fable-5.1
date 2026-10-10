@@ -1,0 +1,45 @@
+import { describe,it,expect } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TileFlag } from '@core/map3d';
+import { TestWorld } from '../../test/scenarios/test-world';
+import breed from '../../test/scenarios/an_breed.scenario';
+import pasture from '../../test/scenarios/an_pasture.scenario';
+import hospital from '../../test/scenarios/hospital_run.scenario';
+
+describe('T-192 measured scenario reproductions',()=>{
+for(const s of [breed,pasture,hospital]) it(s.id,()=>{
+ const w=new TestWorld({seed:s.seed,world:'flat-test',embark:s.embark as 'none'|'default'});
+ const names=new Map<number,string>(); const rows:unknown[]=[]; const daily:unknown[]=[];
+ const refresh=()=>{for(const id of w.game.world.entities.with(C.Creature)) names.set(id,w.animals.facts.idOf(w.game.world.entities.get(id,C.Creature)!.species));};
+ const e=w.game.world.entities;
+ const targetChanges:unknown[]=[]; const lastTargets=new Map<number,number>();
+ const oldStep=w.step.bind(w);
+ w.step=(n=1)=>{for(let k=0;k<n;k++){
+  const before=w.tick>=5990&&w.tick<6090?Object.fromEntries(e.with(C.Creature,C.Position).map(id=>[id,{species:names.get(id),position:e.get(id,C.Position)}])):null;
+  oldStep(1);refresh();
+  if(before)for(const id of e.with(C.Soldier)){const target=e.get(id,C.Soldier)!.targetId;if(target!==0&&lastTargets.get(id)!==target)targetChanges.push({tick:w.tick,id,target,before});lastTargets.set(id,target);}
+ }};
+ refresh();
+ w.game.world.onEvents(batch=>{ refresh();
+  for(const ev of batch){
+   if(['AnimalSpawned','AnimalBorn','AnimalStarving','CreatureDied','PatientAdmitted','PatientDischarged','RaidEnded'].includes(ev.type)) rows.push({tick:w.tick,event:ev,names:{id:names.get(ev['id'] as number)}});
+   if(ev.type==='DamageDealt') rows.push({tick:w.tick,event:ev,attacker:names.get(ev['attackerId'] as number),defender:names.get(ev['defenderId'] as number)});
+   if(ev.type==='GrassGrazed') {
+    const tile=ev['tile'] as number;
+    if(w.map.xOf(tile)>=8&&w.map.xOf(tile)<13&&w.map.yOf(tile)>=8&&w.map.yOf(tile)<12){
+     const occupants=e.with(C.Creature,C.Position).filter(id=>{const p=e.get(id,C.Position)!;return w.index(p.x,p.y,p.z)===tile;}).map(id=>({id,species:names.get(id),wild:e.get(id,C.Wild),tame:e.get(id,C.Tame)}));
+     rows.push({tick:w.tick,event:ev,occupants});
+    }
+   }
+   if(ev.type==='DayPassed')daily.push({tick:w.tick,grass:Array.from({length:20},(_,n)=>w.index(8+n%5,8+Math.floor(n/5),32)).filter(t=>w.map.hasFlag(t,TileFlag.Grass)).length,tame:e.with(C.Tame).map(id=>({id,species:names.get(id),condition:e.get(id,C.Tame)?.condition,position:e.get(id,C.Position)})),wild:e.with(C.Wild).map(id=>({id,species:names.get(id),position:e.get(id,C.Position)}))});
+  }
+ });
+ let error:unknown;
+ try{s.setup?.(w); (s.run as (v:TestWorld)=>void)(w);s.expect?.(w);}catch(err){error=err;}
+ const data={id:s.id,tick:w.tick,error:error instanceof Error?error.message:null,names:Object.fromEntries(names),daily,rows,targetChanges};
+ writeFileSync(`.vite/task-resume/t192-${process.env.T192_MODE??'baseline'}-${s.id}.json`,JSON.stringify(data,null,2));
+ console.log(s.id,JSON.stringify({tick:w.tick,error:data.error,spawn:w.events('AnimalSpawned').length,born:w.events('AnimalBorn').length,deaths:w.events('CreatureDied'),tame:e.with(C.Tame).map(id=>({id,condition:e.get(id,C.Tame)?.condition})),wild:e.with(C.Wild).length}));
+ expect(error).toBeUndefined();
+},300000);
+});

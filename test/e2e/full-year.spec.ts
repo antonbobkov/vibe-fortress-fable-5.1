@@ -55,6 +55,9 @@ interface YearTracker {
   frozenDays: number[];
   tradesDone: number;
   harvests: number;
+  wildSpawns: Record<string, number>;
+  huntKills: number;
+  huntsCompleted: number;
 }
 
 test('full-year', async ({ page }) => {
@@ -127,6 +130,9 @@ test('full-year', async ({ page }) => {
       frozenDays: [],
       tradesDone: 0,
       harvests: 0,
+      wildSpawns: {},
+      huntKills: 0,
+      huntsCompleted: 0,
     };
     (window as unknown as { __tracker: YearTracker }).__tracker = tracker;
 
@@ -158,6 +164,13 @@ test('full-year', async ({ page }) => {
           tracker.tradesDone += 1;
         } else if (event.type === 'CropHarvested') {
           tracker.harvests += 1;
+        } else if (event.type === 'AnimalSpawned') {
+          const species = String(event['species']);
+          tracker.wildSpawns[species] = (tracker.wildSpawns[species] ?? 0) + 1;
+        } else if (event.type === 'HuntKill') {
+          tracker.huntKills += 1;
+        } else if (event.type === 'JobCompleted' && event['jobType'] === 'hunt') {
+          tracker.huntsCompleted += 1;
         } else if (event.type === 'CreatureDied') {
           console.log(`[full-year] Day ${day}: CreatureDied ${JSON.stringify(event)}`);
         } else if (event.type === 'Starving') {
@@ -558,6 +571,7 @@ test('full-year', async ({ page }) => {
       harvests: tracker.harvests,
       nextDay,
       livingCount: livingDwarves.length,
+      wildAtEnd: h.readers.of<{ wildList(): readonly number[] }>('08').wildList().length,
       stocks: {
         drink: items.count('drink'),
         meal: items.count('meal'),
@@ -595,6 +609,8 @@ test('full-year', async ({ page }) => {
 
   console.log(['full-year balance table:', ...table.map((row) => `  ${row.day} -> ${row.measured}`)].join('\n'));
   console.log(`full-year end state: ${JSON.stringify({ livingCount, wealth, stocks, waves: tracker.waves, caravanDay: tracker.caravanDay, trades: tracker.tradesDone })}`);
+
+  console.log(`T-192 full-year wildlife: ${JSON.stringify({ spawns: tracker.wildSpawns, liveAtEnd: results.wildAtEnd, huntsCompleted: tracker.huntsCompleted, huntKills: tracker.huntKills })}`);
 
   // Assert rule-based rows (matching year_one.scenario.ts precedent)
   const hillfolk = windowOf('hillfolk', 1);

@@ -9,7 +9,7 @@ import { describe, it, expect } from 'vitest';
 import { contentRegistry } from '@content/loader';
 import { FLAT_TEST_SPEC, FLAT_TEST_SURFACE_Z, buildFlatTestMap } from '@app/headless';
 import { C } from '@core/components';
-import { MAX_CREATURES, TICKS_PER_DAY } from '@core/constants';
+import { MAX_CREATURES, DAYS_PER_SEASON, TICKS_PER_DAY, TICKS_PER_YEAR } from '@core/constants';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import * as K from '@systems/animals/constants';
@@ -32,9 +32,9 @@ import { tuningConstants } from '../system-constants';
 const registry = contentRegistry();
 const Z = FLAT_TEST_SURFACE_Z;
 
-function newWorld(seed: string, traits: readonly string[] = FLAT_TEST_SPEC.traits, biome = FLAT_TEST_SPEC.biome): TestWorld {
+function newWorld(seed: string, traits: readonly string[] = FLAT_TEST_SPEC.traits, biome = FLAT_TEST_SPEC.biome, startTick = 0): TestWorld {
   const spec = { ...FLAT_TEST_SPEC, traits: [...traits], biome };
-  return new TestWorld({ seed, registry, map: buildFlatTestMap(registry, 64, 64), embark: 'none', spec });
+  return new TestWorld({ seed, registry, map: buildFlatTestMap(registry, 64, 64), embark: 'none', spec, startTick });
 }
 
 /** A tick context good enough for one `thinkWild` (it reads `tick` and the mover's `{tick, emit}`). */
@@ -265,5 +265,34 @@ describe('T-M4-03 animals: spawning', () => {
     const going = leavers(w.animals.spawner, 0, 10, ids, { get: info });
     const cap = surfaceCap(w.animals.spawner, w.animals.facts.indexOf('deer'), 20);
     expect(going).toEqual(ids.slice(cap));
+  });
+});
+
+describe('T-192 wild animal season spawning', () => {
+  it.each([1, 2].flatMap((year) => [0, 1, 2, 3].map((season) => [year, season]))) (
+    'spawns seasonal wildlife in year %i, season %i',
+    (year, season) => {
+      const w = newWorld('year2', [], 'temperate_grassland', (year - 1) * TICKS_PER_YEAR + season * DAYS_PER_SEASON * TICKS_PER_DAY);
+      expect(w.readers.calendar.year).toBe(year);
+      expect(w.readers.calendar.season).toBe(season);
+      const species = w.animals.facts.surfaceSpecies('temperate_grassland', season);
+      expect(species.length).toBeGreaterThan(0);
+      for (let day = 0; day < DAYS_PER_SEASON; day += 1) {
+        w.step(TICKS_PER_DAY);
+        if (w.events('AnimalSpawned').length > 0) break;
+      }
+      expect(w.events('AnimalSpawned').length).toBeGreaterThan(0);
+      expect(w.readers.of<AnimalsReader>('08').wildList().length).toBeGreaterThan(0);
+      for (const ev of w.events('AnimalSpawned')) expect(species.some(([s]) => w.animals.facts.idOf(s) === ev['species'])).toBe(true);
+    },
+  );
+  it('can explicitly isolate a flat test world from natural surface spawns while keeping manually supplied animals', () => {
+    const w = new TestWorld({ seed: 'year2', world: 'flat-test', map: buildFlatTestMap(registry, 64, 64), embark: 'none', surfaceWildlife: 'none' });
+    w.step(DAYS_PER_SEASON * TICKS_PER_DAY);
+    expect(w.events('AnimalSpawned')).toEqual([]);
+    const deer = w.spawnCreature('deer', w.index(8, 8, Z), 'wild');
+    expect(w.game.world.entities.has(deer, C.Wild)).toBe(true);
+    const cow = w.spawnTame('cow', w.index(9, 8, Z));
+    expect(w.game.world.entities.has(cow, C.Tame)).toBe(true);
   });
 });

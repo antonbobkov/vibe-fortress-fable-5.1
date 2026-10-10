@@ -7,14 +7,14 @@
  * loudly instead of quietly doing nothing.
  */
 
-import { HeadlessGame, type HeadlessOptions } from '@app/headless';
+import { HeadlessGame, FLAT_TEST_SPEC, FLAT_TEST_LAYERS, type HeadlessOptions } from '@app/headless';
 import type { BuildingsSystem } from '@systems/buildings';
 import type { ItemsSystem } from '@systems/items';
 import type { FluidsSystem } from '@systems/fluids';
 import type { MaterialsSystem } from '@systems/materials';
 import type { WeatherStateId, WeatherSystem } from '@systems/weather';
 import type { PlantsSystem } from '@systems/plants';
-import type { AnimalsSystem } from '@systems/animals';
+import { AnimalsSystem } from '@systems/animals';
 import type { DwarvesSystem } from '@systems/dwarves';
 import { NotYetImplementedError } from '@core/system';
 import { C } from '@core/components';
@@ -31,6 +31,11 @@ import type { GameEvent } from '@core/events';
 import type { EventType } from '@core/event-types';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 
+export interface TestWorldOptions extends HeadlessOptions {
+  /** Single-rule flat-map fixtures may exclude natural surface arrivals, not animal behavior. */
+  readonly surfaceWildlife?: 'none';
+}
+
 export class TestWorld {
   game: HeadlessGame;
   private readonly seen: GameEvent[] = [];
@@ -39,9 +44,20 @@ export class TestWorld {
   /** Tiles a door stands on. */
   private readonly doors = new Set<TileIndex>();
 
-  constructor(options: HeadlessOptions) {
+  constructor(options: TestWorldOptions) {
+    let systems = options.systems;
+    if (options.surfaceWildlife === 'none') {
+      if (options.world === 'local') throw new Error('surfaceWildlife: none is a flat test-world option');
+      // The species-free ocean list isolates natural arrivals in 08 only. The flat map,
+      // climate, plants, threats and manually supplied animals keep their normal rules.
+      systems = (systems ?? HeadlessGame.standardSystems(options.spec ?? FLAT_TEST_SPEC, FLAT_TEST_LAYERS))
+        .map((system) => system instanceof AnimalsSystem
+          ? new AnimalsSystem({ spec: { biome: 'ocean', traits: [] } })
+          : system);
+    }
     this.game = new HeadlessGame({
       ...options,
+      ...(systems === undefined ? {} : { systems }),
       hooks: {
         blocksMovementAt: (i) => this.blocking.has(i),
         doorAt: (i) => this.doors.has(i),

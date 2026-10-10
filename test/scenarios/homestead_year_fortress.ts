@@ -621,6 +621,13 @@ export function runHomesteadYear(w: TestWorld): void {
 
   // Assertions per T-153 decisions:
 
+  const wildSpawns: Record<string, number> = {};
+  for (const ev of w.events('AnimalSpawned')) {
+    const species = String(ev['species']);
+    wildSpawns[species] = (wildSpawns[species] ?? 0) + 1;
+  }
+  console.log(`T-192 homestead_year wildlife: ${JSON.stringify({ spawns: wildSpawns, liveAtEnd: w.animals.reader().wildList().length, huntsCompleted: w.events('JobCompleted').filter((ev) => ev['jobType'] === 'hunt').length, huntKills: w.events('HuntKill').length })}`);
+
   // 1. Job types completed
   const completedJobs = new Set(w.events('JobCompleted').map((e) => e['jobType']));
   expect(completedJobs.has('slaughter'), 'job: slaughter').toBe(true);
@@ -631,7 +638,7 @@ export function runHomesteadYear(w: TestWorld): void {
   expect(completedJobs.has('train_animal'), 'job: train_animal').toBe(true);
   expect(completedJobs.has('gather'), 'job: gather').toBe(true);
   expect(completedJobs.has('haul_to_dump'), 'job: haul_to_dump').toBe(true);
-  // hunt omitted per T-192: wild animals do not spawn in year >= 1
+  expect(completedJobs.has('hunt'), 'job: hunt').toBe(true);
   // fish omitted per T-191: surface river banks do not qualify for fishing zones
 
   // 2. Ordered recipes crafted
@@ -652,7 +659,7 @@ export function runHomesteadYear(w: TestWorld): void {
   expect(w.events('AnimalBorn').length, 'event: AnimalBorn').toBeGreaterThanOrEqual(1);
   expect(w.events('AnimalTrained').length, 'event: AnimalTrained').toBeGreaterThanOrEqual(1);
   expect(w.events('ButcheryDone').length, 'event: ButcheryDone').toBeGreaterThanOrEqual(1);
-  // HuntKill omitted per T-192: wild animals do not spawn in year >= 1
+  expect(w.events('HuntKill').length, 'event: HuntKill').toBeGreaterThanOrEqual(1);
   // FishCaught omitted per T-191: surface river banks do not qualify for fishing zones
 
   // 4. Invariants

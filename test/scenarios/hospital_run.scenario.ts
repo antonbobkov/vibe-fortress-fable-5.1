@@ -27,6 +27,8 @@ const scenario: Scenario = {
   milestone: 8,
   seed: 'hospital-run',
   world: 'flat-test',
+  // T-192: stage hospital casualties independently of unrelated natural animal arrivals.
+  surfaceWildlife: 'none',
   embark: 'default',
   timeoutMs: 300_000,
   setup: (w: TestWorld) => {
