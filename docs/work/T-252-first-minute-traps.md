@@ -6,7 +6,7 @@
 
 Two parts of the first audit were declined by the U decisions and are still traps for a new player:
 - **Q1.** D-U3 warns at embark only for a missing pick, food or drink. The Supplies tab itself says "two picks and one axe are the minimum for a working start", but a party without an axe embarks with no question, and without an axe there are no logs beyond the embark load: no beds, barrels or more workshops.
-- **§5.3.** D-U2 keeps "pressing an open panel's own key closes it". A player who types `d` `d` for "designate, dig" (the old habit, and what the first hint suggests) closes Designate with the second press. The next drag then makes an item selection that offers `[S-d] dump`, and nothing says why no dig appeared.
+- **§5.3.** D-U2 keeps "pressing an open panel's own key closes it". A player who types `d` `d` for "designate, dig" (the habit the first audit described: "dig takes two presses of the same key") closes Designate with the second press. The next drag then makes an item selection that offers `[S-d] dump`, and nothing says why no dig appeared.
 
 ## Reproduction
 
