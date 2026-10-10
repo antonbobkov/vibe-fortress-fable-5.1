@@ -417,6 +417,8 @@ export interface Wild {
   hungry: boolean;
   lastThinkTick: Tick;
   arrivedTick: Tick;
+  /** While a defending `attack` lasts: the tile where it began (08 § Wild behavior). */
+  defendFrom?: TileIndex;
 }
 
 export interface Projectile {

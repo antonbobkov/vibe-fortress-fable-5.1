@@ -10,6 +10,8 @@ export const LIGHT_MAX = 0.2;
 export const SERIOUS_MAX = 0.5;
 export const HEAL_BASE_TICKS = 6000;
 export const BLOOD_REGEN_PER_TICK = 1;
+/** Ticks after which a light wound stops bleeding by itself. */
+export const CLOT_TICKS = 300;
 export const PAIN_UNCONSCIOUS = 80;
 export const BLOOD_UNCONSCIOUS_PERCENT = 40;
 export const BLOOD_DEATH_PERCENT = 20;

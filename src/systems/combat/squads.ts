@@ -411,8 +411,15 @@ export function stepSquads(
       const activeTarget = targets.targetOf(m);
       if (activeTarget !== 0) continue;
 
-      // Kill order takes precedence
+      // Kill order takes precedence. A target out of perception is walked toward, since the
+      // targeting of 16 drops a target beyond perception (§ Squads).
       if (currentOrder && currentOrder.kind === 'kill' && entities.alive(currentOrder.targetId)) {
+        const posT = entities.get(currentOrder.targetId, C.Position);
+        if (posT !== undefined && (Math.abs(posM.z - posT.z) > 2 ||
+            Math.max(Math.abs(posM.x - posT.x), Math.abs(posM.y - posT.y)) > PERCEPTION_RADIUS)) {
+          ctx.world.services.movement?.walkTo(m, map.index(posT.x, posT.y, posT.z), 'combat', ctx);
+          continue;
+        }
         targets.setTarget(m, currentOrder.targetId);
         continue;
       }
