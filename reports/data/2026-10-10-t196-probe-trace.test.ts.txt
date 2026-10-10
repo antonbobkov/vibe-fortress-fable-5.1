@@ -1,0 +1,87 @@
+/** T-196 trace: one react run, printing a soldier's state every 25 ticks. */
+import { describe, it } from 'vitest';
+import { FLAT_TEST_SPEC, FLAT_TEST_SURFACE_Z, buildFlatTestMap } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { C } from '@core/components';
+import type { EntityId, TileIndex } from '@core/types';
+import type { CombatReader } from '@systems/combat';
+import { TestWorld } from '../scenarios/test-world';
+
+const registry = contentRegistry();
+const Z = FLAT_TEST_SURFACE_Z;
+const SPECIES = process.env['T196_SPECIES'] ?? 'badger';
+const SEED = process.env['T196_SEEDS'] ?? 's3';
+
+function rect(w: TestWorld, x: number, y: number, width: number, height: number): TileIndex[] {
+  const out: TileIndex[] = [];
+  for (let dy = 0; dy < height; dy += 1) for (let dx = 0; dx < width; dx += 1) out.push(w.index(x + dx, y + dy, Z));
+  return out;
+}
+
+describe('T-196 trace', () => {
+  it('runs', () => {
+    const w = new TestWorld({ seed: SEED, registry, world: 'flat-test', map: buildFlatTestMap(registry, 96, 96), embark: 'none', spec: { ...FLAT_TEST_SPEC, biome: 'temperate_forest', traits: [] } });
+    const ents = w.game.world.entities;
+    const civilians: EntityId[] = [];
+    for (let i = 0; i < 7; i += 1) civilians.push(w.spawnDwarf({ at: w.index(38 + (i % 3), 46 + Math.floor(i / 3), Z) }));
+    for (let k = 0; k < 50; k += 1) w.spawnItem('raw_stone', 'granite', w.index(36 + (k % 5), 40 + Math.floor(k / 5), Z));
+    const pile = w.zone('stockpile', rect(w, 58, 40, 4, 4));
+    w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: pile, filter: 'stone' });
+    const medic = civilians[6] as EntityId;
+    w.setSkill(medic, 'medicine', 5);
+    w.setLabor(medic, 'medicine', true);
+    w.setLabor(medic, 'hauling', false);
+    w.game.world.applyCommand({ type: 'AssignTitle', dwarfId: medic, title: 'chief_medic' });
+    w.zone('hospital', rect(w, 40, 56, 4, 3));
+    w.build('bed', w.index(40, 56, Z));
+    w.build('bed', w.index(41, 56, Z));
+    w.build('bed', w.index(42, 56, Z));
+    w.spawnItem('cloth', 'flax_cloth', w.index(40, 57, Z), 20);
+    w.spawnItem('thread', 'flax_thread', w.index(41, 57, Z), 20);
+    const iron = registry.table('materials').index('iron');
+    const axeType = registry.table('items').index('axe');
+    const soldiers: EntityId[] = [];
+    for (let s = 0; s < 2; s += 1) {
+      const at = w.index(40 + s, 70, Z);
+      const id = w.spawnDwarf({ at });
+      const axe = w.spawnItem(axeType, iron, at);
+      const eq = ents.get(id, C.Equipment);
+      if (eq) ents.add(id, C.Equipment, { ...eq, weapon: axe });
+      w.setSkill(id, 'axe', 4);
+      soldiers.push(id);
+    }
+    w.game.world.applyCommand({ type: 'CreateSquad', name: 'Guard', leaderId: soldiers[0] });
+    const squadId = (w.readers.of<CombatReader>('16').squads()[0])?.id ?? 0;
+    w.game.world.applyCommand({ type: 'SetSquadMembers', squadId, members: soldiers });
+    w.step(1);
+    const animal = w.spawnCreature(SPECIES, w.index(48, 42, Z), 'wild');
+    const intruders: EntityId[] = [];
+    let attacked = false;
+    w.game.world.onEvents((b) => { for (const e of b) {
+      if (e.type === 'AnimalSpawned' && e['id'] !== animal) intruders.push(e['id'] as EntityId);
+      if (e.type === 'AttackResolved') { attacked = true; console.log(w.tick, 'attack', e['attackerId'] === animal ? 'animal' : e['attackerId'], '->', e['defenderId'] === animal ? 'animal' : e['defenderId'], e['outcome'], e['amount'], e['part']); }
+      if (e.type === 'WoundInflicted') console.log(w.tick, 'wound', e['id'], e['type'], e['severity']);
+      if (e.type === 'JobClaimed' || e.type === 'JobCreated' || e.type === 'JobCompleted' || e.type === 'JobCancelled') if (String(e['jobType'] ?? '').match(/bleed|carry|suture/)) console.log(w.tick, e.type, e['jobType'], e['target'], e['workerId'] ?? '', e['reason'] ?? '');
+      if (e.type === 'CreatureDied') console.log(w.tick, 'died', e['id'], e['cause']);
+    } });
+    let reacted = false;
+    for (let t = 0; t < 2400; t += 1) {
+      w.step(1);
+      for (const id of intruders.splice(0)) (w.animals.brain as { despawn(id: EntityId): void }).despawn(id);
+      if (attacked && !reacted) {
+        reacted = true;
+        w.submit({ type: 'SetAlert', level: 'watchful' });
+        w.game.world.applyCommand({ type: 'SquadOrder', squadId, order: { kind: 'kill', targetId: animal } });
+      }
+      if (w.tick % 25 === 0) {
+        const watch = [...soldiers, ...civilians.filter((c) => ents.get(c, C.Body)?.parts.some((p) => p.wounds.length > 0))];
+        const parts = watch.filter((id) => ents.alive(id)).map((id) => {
+          const b = ents.get(id, C.Brain); const p = ents.get(id, C.Position); const body = ents.get(id, C.Body);
+          return `${id}:${b?.behavior}/${b?.activity} @${p?.x},${p?.y} blood ${body?.blood} bleed ${body?.parts.flatMap((q) => q.wounds).map((x) => `${x.severity[0]}${x.bleed}${x.bandaged ? 'B' : ''}`).join('')} pat ${ents.has(id, C.Patient)} tgt ${w.readers.of<CombatReader>('16').targetOf(id)}`;
+        });
+        const ap = ents.get(animal, C.Position);
+        console.log(w.tick, `animal ${ents.get(animal, C.Wild)?.state} @${ap?.x},${ap?.y}`, parts.join(' | '));
+      }
+    }
+  });
+});

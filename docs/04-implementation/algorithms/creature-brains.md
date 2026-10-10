@@ -85,14 +85,17 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
   switch W.state:
     idle:   if threats: W.state = timid/neutral-attacked ? 'flee' : 'idle'
             else if aggressive carnivore and W.hungry and prey in perception: W.state='hunt'; target=prey
-            else if (territorial and dwarf within TERRITORY_RADIUS) or (aggressive and dwarf within APPROACH_RADIUS): W.state='attack'; combat.setTarget
+            else if (territorial and dwarf within TERRITORY_RADIUS) or (aggressive and dwarf within APPROACH_RADIUS): W.state='attack'; W.defendFrom = tile; combat.setTarget
             else if restTime(species): W.state='sleep'; W.stateUntil = tick + 600
             else if grazer and grass within 6: W.state='graze' else W.state='wander'
     graze:  walk to grass; on arrival GrassGrazed; wait GRAZE_TICKS; state='idle'
     wander: walk to random tile within WANDER_RADIUS of homeChunk; on arrival or WANDER_TIMEOUT_TICKS: 'idle'
     flee:   goal = argmax over tiles within perception of Σ dist to threats (sampled 8 directions × 6 steps); if edge within perception: 'leave'; after FLEE_TICKS with no threat: 'idle'
     hunt:   combat.setTarget(id, prey); if prey dead: eat corpse EAT_CORPSE_TICKS (consume); W.hungry=false; 'idle'
-    attack: (16 drives); if target gone: 'idle'; if blood < fleeBlood and not aggressive: 'flee'
+    attack: (16 drives); if blood < fleeBlood and not aggressive: 'flee'
+            if target dead or gone or out of perception: 'idle' (no new target here)
+            if W.defendFrom and (dist(target, W.defendFrom) > provoke radius or other level or target unconscious): clear target; W.state = 'wander' (WANDER_TIMEOUT_TICKS)
+    on CreatureDied with killerId = a hungry predator: W.hungry = false
     sleep:  stay; if threat: 'flee'/'attack'; at stateUntil: 'idle'
     leave:  walk to nearest edge tile; on arrival: despawn (AnimalLeft)
   moveAlongPath(id)

@@ -426,15 +426,13 @@ export class HealthProducer implements JobProducer {
         break;
       }
       case 'stop_bleeding': {
+        // 17 § Patients: "1 `cloth` → every bleeding wound `bandaged`"; bandaging sets bleed 0.
         this.consumeDelivered(job, ctx);
         const b = ctx.world.entities.get(patientId, C.Body);
-        if (b) {
-          for (const p of b.parts) {
-            const w = p.wounds.find((wnd) => wnd.bleed > 0 && !wnd.bandaged);
-            if (w) {
-              w.bandaged = true;
-              break;
-            }
+        if (b) for (const p of b.parts) for (const w of p.wounds) {
+          if (w.bleed > 0 && !w.bandaged) {
+            w.bandaged = true;
+            w.bleed = 0;
           }
         }
         ctx.emit({ type: 'TreatmentDone', patientId, medicId: job.workerId, kind: 'stop_bleeding' });

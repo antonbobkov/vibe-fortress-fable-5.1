@@ -1,0 +1,1994 @@
+[
+ {
+  "mode": "lone",
+  "species": "wolf",
+  "seed": "s1",
+  "dwarves": 1,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   184
+  ],
+  "wounded": 1,
+  "animalAttacks": 13,
+  "animalHits": 10,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 23,
+  "ticksChasingFleeingTarget": 164,
+  "ticksAttackingUnconscious": 20,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 202,
+    "cause": "bled_out",
+    "ticksFleeing": 151,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "lone",
+  "species": "wolf",
+  "seed": "s2",
+  "dwarves": 1,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   264
+  ],
+  "wounded": 1,
+  "animalAttacks": 19,
+  "animalHits": 10,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 31,
+  "ticksChasingFleeingTarget": 244,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 282,
+    "cause": "bled_out",
+    "ticksFleeing": 231,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "lone",
+  "species": "wolf",
+  "seed": "s3",
+  "dwarves": 1,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   184
+  ],
+  "wounded": 1,
+  "animalAttacks": 13,
+  "animalHits": 10,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 23,
+  "ticksChasingFleeingTarget": 164,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 202,
+    "cause": "bled_out",
+    "ticksFleeing": 151,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "lone",
+  "species": "wolf",
+  "seed": "s4",
+  "dwarves": 1,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   184
+  ],
+  "wounded": 1,
+  "animalAttacks": 13,
+  "animalHits": 11,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 23,
+  "ticksChasingFleeingTarget": 164,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 202,
+    "cause": "bled_out",
+    "ticksFleeing": 151,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "lone",
+  "species": "wolf",
+  "seed": "s5",
+  "dwarves": 1,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   219
+  ],
+  "wounded": 1,
+  "animalAttacks": 15,
+  "animalHits": 8,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 25,
+  "ticksChasingFleeingTarget": 199,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 8,
+    "deathTick": 237,
+    "cause": "bled_out",
+    "ticksFleeing": 186,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "lone",
+  "species": "wolf",
+  "seed": "s6",
+  "dwarves": 1,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   234
+  ],
+  "wounded": 1,
+  "animalAttacks": 16,
+  "animalHits": 11,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 27,
+  "ticksChasingFleeingTarget": 214,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 252,
+    "cause": "bled_out",
+    "ticksFleeing": 201,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "lone",
+  "species": "wolf",
+  "seed": "s7",
+  "dwarves": 1,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   220
+  ],
+  "wounded": 1,
+  "animalAttacks": 15,
+  "animalHits": 11,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 30,
+  "ticksChasingFleeingTarget": 201,
+  "ticksAttackingUnconscious": 25,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 17,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 237,
+    "cause": "bled_out",
+    "ticksFleeing": 189,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "lone",
+  "species": "wolf",
+  "seed": "s8",
+  "dwarves": 1,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   260
+  ],
+  "wounded": 1,
+  "animalAttacks": 19,
+  "animalHits": 11,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 26,
+  "ticksChasingFleeingTarget": 254,
+  "ticksAttackingUnconscious": 25,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 32,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 292,
+    "cause": "bled_out",
+    "ticksFleeing": 241,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "lone",
+  "species": "wolf",
+  "seed": "s9",
+  "dwarves": 1,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   229
+  ],
+  "wounded": 1,
+  "animalAttacks": 16,
+  "animalHits": 12,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 27,
+  "ticksChasingFleeingTarget": 209,
+  "ticksAttackingUnconscious": 25,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 12,
+    "deathTick": 247,
+    "cause": "bled_out",
+    "ticksFleeing": 196,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "lone",
+  "species": "wolf",
+  "seed": "s10",
+  "dwarves": 1,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   189
+  ],
+  "wounded": 1,
+  "animalAttacks": 13,
+  "animalHits": 11,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 21,
+  "ticksChasingFleeingTarget": 169,
+  "ticksAttackingUnconscious": 35,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 207,
+    "cause": "bled_out",
+    "ticksFleeing": 156,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "haul",
+  "species": "wolf",
+  "seed": "s1",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   184
+  ],
+  "wounded": 2,
+  "animalAttacks": 16,
+  "animalHits": 11,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 3,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 23,
+  "ticksChasingFleeingTarget": 206,
+  "ticksAttackingUnconscious": 20,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 1,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 202,
+    "cause": "bled_out",
+    "ticksFleeing": 151,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777224,
+    "firstWoundTick": 2921,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 37,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "haul",
+  "species": "wolf",
+  "seed": "s2",
+  "dwarves": 7,
+  "deaths": 2,
+  "deathTicksAfterFirstWound": [
+   264,
+   347
+  ],
+  "wounded": 3,
+  "animalAttacks": 34,
+  "animalHits": 16,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 4,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 31,
+  "ticksChasingFleeingTarget": 317,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 3,
+  "treatments": 1,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 282,
+    "cause": "bled_out",
+    "ticksFleeing": 231,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777236,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 79,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": 1705,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 2,
+    "deathTick": 2052,
+    "cause": "bled_out",
+    "ticksFleeing": 33,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777224,
+    "firstWoundTick": 3339,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 4,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 42,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "haul",
+  "species": "wolf",
+  "seed": "s3",
+  "dwarves": 7,
+  "deaths": 2,
+  "deathTicksAfterFirstWound": [
+   184,
+   254
+  ],
+  "wounded": 2,
+  "animalAttacks": 25,
+  "animalHits": 15,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 23,
+  "ticksChasingFleeingTarget": 200,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 202,
+    "cause": "bled_out",
+    "ticksFleeing": 151,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": 3218,
+    "firstAttackedDoing": "need/sleep",
+    "hitsTaken": 5,
+    "deathTick": 3472,
+    "cause": "bled_out",
+    "ticksFleeing": 36,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "haul",
+  "species": "wolf",
+  "seed": "s4",
+  "dwarves": 7,
+  "deaths": 2,
+  "deathTicksAfterFirstWound": [
+   184,
+   2591
+  ],
+  "wounded": 2,
+  "animalAttacks": 22,
+  "animalHits": 15,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 3,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 23,
+  "ticksChasingFleeingTarget": 200,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 1,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 202,
+    "cause": "bled_out",
+    "ticksFleeing": 151,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": 1006,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 4,
+    "deathTick": 3597,
+    "cause": "bled_out",
+    "ticksFleeing": 49,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "haul",
+  "species": "wolf",
+  "seed": "s5",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   219
+  ],
+  "wounded": 1,
+  "animalAttacks": 17,
+  "animalHits": 8,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 3,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 25,
+  "ticksChasingFleeingTarget": 218,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 8,
+    "deathTick": 237,
+    "cause": "bled_out",
+    "ticksFleeing": 186,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 13,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777224,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 5,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "haul",
+  "species": "wolf",
+  "seed": "s6",
+  "dwarves": 7,
+  "deaths": 2,
+  "deathTicksAfterFirstWound": [
+   234,
+   945
+  ],
+  "wounded": 3,
+  "animalAttacks": 21,
+  "animalHits": 15,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 6,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 27,
+  "ticksChasingFleeingTarget": 288,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 3,
+  "treatments": 1,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 252,
+    "cause": "bled_out",
+    "ticksFleeing": 201,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777236,
+    "firstWoundTick": 307,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 3,
+    "deathTick": 1252,
+    "cause": "bled_out",
+    "ticksFleeing": 67,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 41,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777224,
+    "firstWoundTick": 1565,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 40,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "haul",
+  "species": "wolf",
+  "seed": "s7",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   220
+  ],
+  "wounded": 2,
+  "animalAttacks": 16,
+  "animalHits": 12,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 30,
+  "ticksChasingFleeingTarget": 210,
+  "ticksAttackingUnconscious": 25,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 1,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 17,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 237,
+    "cause": "bled_out",
+    "ticksFleeing": 189,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777228,
+    "firstWoundTick": 1861,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 4,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "haul",
+  "species": "wolf",
+  "seed": "s8",
+  "dwarves": 7,
+  "deaths": 2,
+  "deathTicksAfterFirstWound": [
+   250,
+   883
+  ],
+  "wounded": 2,
+  "animalAttacks": 20,
+  "animalHits": 12,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 11,
+  "ticksChasingFleeingTarget": 253,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 1,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 32,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 282,
+    "cause": "bled_out",
+    "ticksFleeing": 231,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777232,
+    "firstWoundTick": 839,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": 1722,
+    "cause": "bled_out",
+    "ticksFleeing": 20,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "haul",
+  "species": "wolf",
+  "seed": "s9",
+  "dwarves": 7,
+  "deaths": 3,
+  "deathTicksAfterFirstWound": [
+   229,
+   1772,
+   200
+  ],
+  "wounded": 4,
+  "animalAttacks": 27,
+  "animalHits": 20,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 5,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 27,
+  "ticksChasingFleeingTarget": 278,
+  "ticksAttackingUnconscious": 25,
+  "stopBleedingJobsCreated": 4,
+  "treatments": 2,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 12,
+    "deathTick": 247,
+    "cause": "bled_out",
+    "ticksFleeing": 196,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777236,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 94,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": 629,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": 2401,
+    "cause": "infection",
+    "ticksFleeing": 121,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777228,
+    "firstWoundTick": 831,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 76,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777240,
+    "firstWoundTick": 1987,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 6,
+    "deathTick": 2187,
+    "cause": "bled_out",
+    "ticksFleeing": 37,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "haul",
+  "species": "wolf",
+  "seed": "s10",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   189
+  ],
+  "wounded": 4,
+  "animalAttacks": 33,
+  "animalHits": 20,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "attack",
+  "targetsTaken": 7,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 21,
+  "ticksChasingFleeingTarget": 250,
+  "ticksAttackingUnconscious": 35,
+  "stopBleedingJobsCreated": 4,
+  "treatments": 1,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 207,
+    "cause": "bled_out",
+    "ticksFleeing": 156,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777236,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 63,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777224,
+    "firstWoundTick": 3502,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 4,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 88,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777240,
+    "firstWoundTick": 1975,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 102,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": 3380,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 4,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 24,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "hospital",
+  "species": "wolf",
+  "seed": "s1",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   184
+  ],
+  "wounded": 2,
+  "animalAttacks": 14,
+  "animalHits": 11,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 23,
+  "ticksChasingFleeingTarget": 173,
+  "ticksAttackingUnconscious": 20,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 3,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 202,
+    "cause": "bled_out",
+    "ticksFleeing": 151,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777224,
+    "firstWoundTick": 1941,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 4,
+    "bandagedTick": 2304
+   }
+  ]
+ },
+ {
+  "mode": "hospital",
+  "species": "wolf",
+  "seed": "s2",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   264
+  ],
+  "wounded": 3,
+  "animalAttacks": 25,
+  "animalHits": 12,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 6,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 31,
+  "ticksChasingFleeingTarget": 304,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 3,
+  "treatments": 5,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 282,
+    "cause": "bled_out",
+    "ticksFleeing": 231,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777232,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 29,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777228,
+    "firstWoundTick": 1634,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 67,
+    "bandagedTick": 1953
+   },
+   {
+    "id": 16777224,
+    "firstWoundTick": 662,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 31,
+    "bandagedTick": 906
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 5,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "hospital",
+  "species": "wolf",
+  "seed": "s3",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   184
+  ],
+  "wounded": 1,
+  "animalAttacks": 14,
+  "animalHits": 10,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 23,
+  "ticksChasingFleeingTarget": 173,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 202,
+    "cause": "bled_out",
+    "ticksFleeing": 151,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777228,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 4,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "hospital",
+  "species": "wolf",
+  "seed": "s4",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   179
+  ],
+  "wounded": 2,
+  "animalAttacks": 14,
+  "animalHits": 12,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 22,
+  "ticksChasingFleeingTarget": 167,
+  "ticksAttackingUnconscious": 25,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 2,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 197,
+    "cause": "bled_out",
+    "ticksFleeing": 146,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777232,
+    "firstWoundTick": 1795,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 3,
+    "bandagedTick": 2129
+   }
+  ]
+ },
+ {
+  "mode": "hospital",
+  "species": "wolf",
+  "seed": "s5",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   219
+  ],
+  "wounded": 3,
+  "animalAttacks": 25,
+  "animalHits": 10,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 5,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 25,
+  "ticksChasingFleeingTarget": 245,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 3,
+  "treatments": 4,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 8,
+    "deathTick": 237,
+    "cause": "bled_out",
+    "ticksFleeing": 186,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": 2143,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 56,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777228,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 5,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777224,
+    "firstWoundTick": 1878,
+    "firstAttackedDoing": "idle/No job",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 0,
+    "bandagedTick": 2212
+   }
+  ]
+ },
+ {
+  "mode": "hospital",
+  "species": "wolf",
+  "seed": "s6",
+  "dwarves": 7,
+  "deaths": 2,
+  "deathTicksAfterFirstWound": [
+   234,
+   203
+  ],
+  "wounded": 3,
+  "animalAttacks": 30,
+  "animalHits": 21,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 3,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 27,
+  "ticksChasingFleeingTarget": 287,
+  "ticksAttackingUnconscious": 31,
+  "stopBleedingJobsCreated": 3,
+  "treatments": 2,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 252,
+    "cause": "bled_out",
+    "ticksFleeing": 201,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777232,
+    "firstWoundTick": 891,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 132,
+    "bandagedTick": 1167
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": 2129,
+    "firstAttackedDoing": "idle/No job",
+    "hitsTaken": 9,
+    "deathTick": 2332,
+    "cause": "bled_out",
+    "ticksFleeing": 99,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "hospital",
+  "species": "wolf",
+  "seed": "s7",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   225
+  ],
+  "wounded": 2,
+  "animalAttacks": 17,
+  "animalHits": 13,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 30,
+  "ticksChasingFleeingTarget": 230,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 3,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 17,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 242,
+    "cause": "bled_out",
+    "ticksFleeing": 194,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777228,
+    "firstWoundTick": 998,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 2,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 37,
+    "bandagedTick": 1265
+   }
+  ]
+ },
+ {
+  "mode": "hospital",
+  "species": "wolf",
+  "seed": "s8",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   250
+  ],
+  "wounded": 3,
+  "animalAttacks": 21,
+  "animalHits": 13,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 3,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 11,
+  "ticksChasingFleeingTarget": 262,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 3,
+  "treatments": 6,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 32,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 282,
+    "cause": "bled_out",
+    "ticksFleeing": 231,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777236,
+    "firstWoundTick": 337,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 23,
+    "bandagedTick": 730
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": 1038,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 24,
+    "bandagedTick": 1304
+   }
+  ]
+ },
+ {
+  "mode": "hospital",
+  "species": "wolf",
+  "seed": "s9",
+  "dwarves": 7,
+  "deaths": 2,
+  "deathTicksAfterFirstWound": [
+   229,
+   221
+  ],
+  "wounded": 6,
+  "animalAttacks": 36,
+  "animalHits": 24,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 7,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 27,
+  "ticksChasingFleeingTarget": 318,
+  "ticksAttackingUnconscious": 26,
+  "stopBleedingJobsCreated": 7,
+  "treatments": 8,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 12,
+    "deathTick": 247,
+    "cause": "bled_out",
+    "ticksFleeing": 196,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777232,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 172,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777236,
+    "firstWoundTick": 609,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 157,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777220,
+    "firstWoundTick": 815,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 160,
+    "bandagedTick": 1341
+   },
+   {
+    "id": 16777224,
+    "firstWoundTick": 1972,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 35,
+    "bandagedTick": 2387
+   },
+   {
+    "id": 16777240,
+    "firstWoundTick": 2021,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 8,
+    "deathTick": 2242,
+    "cause": "bled_out",
+    "ticksFleeing": 37,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777228,
+    "firstWoundTick": 2998,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 4,
+    "bandagedTick": 3371
+   }
+  ]
+ },
+ {
+  "mode": "hospital",
+  "species": "wolf",
+  "seed": "s10",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   189
+  ],
+  "wounded": 2,
+  "animalAttacks": 21,
+  "animalHits": 14,
+  "dwarfAttacks": 0,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "sleep",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 21,
+  "ticksChasingFleeingTarget": 201,
+  "ticksAttackingUnconscious": 35,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 4,
+  "alertChanges": 0,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 207,
+    "cause": "bled_out",
+    "ticksFleeing": 156,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777236,
+    "firstWoundTick": 1981,
+    "firstAttackedDoing": "need/sleep",
+    "hitsTaken": 3,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 40,
+    "bandagedTick": 2348
+   }
+  ]
+ },
+ {
+  "mode": "react",
+  "species": "wolf",
+  "seed": "s1",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   184
+  ],
+  "wounded": 1,
+  "animalAttacks": 13,
+  "animalHits": 10,
+  "dwarfAttacks": 2,
+  "dwarfHits": 1,
+  "animalDied": false,
+  "animalEndState": "left",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 23,
+  "ticksChasingFleeingTarget": 164,
+  "ticksAttackingUnconscious": 20,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 1,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 202,
+    "cause": "bled_out",
+    "ticksFleeing": 151,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "react",
+  "species": "wolf",
+  "seed": "s2",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   264,
+   327
+  ],
+  "wounded": 2,
+  "animalAttacks": 26,
+  "animalHits": 13,
+  "dwarfAttacks": 7,
+  "dwarfHits": 3,
+  "animalDied": true,
+  "animalEndState": "died:killed",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 31,
+  "ticksChasingFleeingTarget": 244,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 0,
+  "alertChanges": 1,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 282,
+    "cause": "bled_out",
+    "ticksFleeing": 231,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777307,
+    "firstWoundTick": 335,
+    "firstAttackedDoing": "duty/On duty",
+    "hitsTaken": 3,
+    "deathTick": 662,
+    "cause": "bled_out",
+    "ticksFleeing": 0,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "react",
+  "species": "wolf",
+  "seed": "s3",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   184
+  ],
+  "wounded": 1,
+  "animalAttacks": 13,
+  "animalHits": 10,
+  "dwarfAttacks": 1,
+  "dwarfHits": 0,
+  "animalDied": false,
+  "animalEndState": "left",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 23,
+  "ticksChasingFleeingTarget": 164,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 1,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 10,
+    "deathTick": 202,
+    "cause": "bled_out",
+    "ticksFleeing": 151,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "react",
+  "species": "wolf",
+  "seed": "s4",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   179
+  ],
+  "wounded": 1,
+  "animalAttacks": 13,
+  "animalHits": 11,
+  "dwarfAttacks": 1,
+  "dwarfHits": 1,
+  "animalDied": true,
+  "animalEndState": "died:killed",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 22,
+  "ticksChasingFleeingTarget": 159,
+  "ticksAttackingUnconscious": 25,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 1,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 197,
+    "cause": "bled_out",
+    "ticksFleeing": 146,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "react",
+  "species": "wolf",
+  "seed": "s5",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   219,
+   345
+  ],
+  "wounded": 2,
+  "animalAttacks": 20,
+  "animalHits": 10,
+  "dwarfAttacks": 4,
+  "dwarfHits": 1,
+  "animalDied": false,
+  "animalEndState": "left",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 25,
+  "ticksChasingFleeingTarget": 199,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 0,
+  "alertChanges": 1,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 8,
+    "deathTick": 237,
+    "cause": "bled_out",
+    "ticksFleeing": 186,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777307,
+    "firstWoundTick": 307,
+    "firstAttackedDoing": "duty/On duty",
+    "hitsTaken": 2,
+    "deathTick": 652,
+    "cause": "bled_out",
+    "ticksFleeing": 0,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "react",
+  "species": "wolf",
+  "seed": "s6",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   234
+  ],
+  "wounded": 1,
+  "animalAttacks": 17,
+  "animalHits": 11,
+  "dwarfAttacks": 2,
+  "dwarfHits": 2,
+  "animalDied": true,
+  "animalEndState": "died:killed",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 27,
+  "ticksChasingFleeingTarget": 214,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 1,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 252,
+    "cause": "bled_out",
+    "ticksFleeing": 201,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777307,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "duty/On duty",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 0,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "react",
+  "species": "wolf",
+  "seed": "s7",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   220
+  ],
+  "wounded": 1,
+  "animalAttacks": 15,
+  "animalHits": 11,
+  "dwarfAttacks": 1,
+  "dwarfHits": 1,
+  "animalDied": false,
+  "animalEndState": "left",
+  "targetsTaken": 1,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 29,
+  "ticksChasingFleeingTarget": 198,
+  "ticksAttackingUnconscious": 25,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 1,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 17,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 237,
+    "cause": "bled_out",
+    "ticksFleeing": 186,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "react",
+  "species": "wolf",
+  "seed": "s8",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   250,
+   403
+  ],
+  "wounded": 3,
+  "animalAttacks": 24,
+  "animalHits": 14,
+  "dwarfAttacks": 7,
+  "dwarfHits": 4,
+  "animalDied": true,
+  "animalEndState": "died:bled_out",
+  "targetsTaken": 3,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 11,
+  "ticksChasingFleeingTarget": 253,
+  "ticksAttackingUnconscious": 30,
+  "stopBleedingJobsCreated": 3,
+  "treatments": 3,
+  "alertChanges": 1,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 32,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 282,
+    "cause": "bled_out",
+    "ticksFleeing": 231,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777236,
+    "firstWoundTick": 337,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 23,
+    "bandagedTick": 736
+   },
+   {
+    "id": 16777307,
+    "firstWoundTick": 379,
+    "firstAttackedDoing": "duty/On duty",
+    "hitsTaken": 2,
+    "deathTick": 782,
+    "cause": "bled_out",
+    "ticksFleeing": 0,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "react",
+  "species": "wolf",
+  "seed": "s9",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   229
+  ],
+  "wounded": 1,
+  "animalAttacks": 17,
+  "animalHits": 12,
+  "dwarfAttacks": 2,
+  "dwarfHits": 1,
+  "animalDied": false,
+  "animalEndState": "left",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 27,
+  "ticksChasingFleeingTarget": 209,
+  "ticksAttackingUnconscious": 25,
+  "stopBleedingJobsCreated": 1,
+  "treatments": 0,
+  "alertChanges": 1,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 12,
+    "deathTick": 247,
+    "cause": "bled_out",
+    "ticksFleeing": 196,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777312,
+    "firstWoundTick": null,
+    "firstAttackedDoing": "duty/On duty",
+    "hitsTaken": 0,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 0,
+    "bandagedTick": null
+   }
+  ]
+ },
+ {
+  "mode": "react",
+  "species": "wolf",
+  "seed": "s10",
+  "dwarves": 7,
+  "deaths": 1,
+  "deathTicksAfterFirstWound": [
+   189
+  ],
+  "wounded": 2,
+  "animalAttacks": 18,
+  "animalHits": 12,
+  "dwarfAttacks": 3,
+  "dwarfHits": 2,
+  "animalDied": true,
+  "animalEndState": "died:bled_out",
+  "targetsTaken": 2,
+  "retargetsAfterKill": 0,
+  "maxChaseFromAttackStart": 21,
+  "ticksChasingFleeingTarget": 169,
+  "ticksAttackingUnconscious": 35,
+  "stopBleedingJobsCreated": 2,
+  "treatments": 3,
+  "alertChanges": 1,
+  "victims": [
+   {
+    "id": 16777216,
+    "firstWoundTick": 18,
+    "firstAttackedDoing": "flee/Fleeing",
+    "hitsTaken": 11,
+    "deathTick": 207,
+    "cause": "bled_out",
+    "ticksFleeing": 156,
+    "bandagedTick": null
+   },
+   {
+    "id": 16777312,
+    "firstWoundTick": 307,
+    "firstAttackedDoing": "duty/On duty",
+    "hitsTaken": 1,
+    "deathTick": null,
+    "cause": null,
+    "ticksFleeing": 0,
+    "bandagedTick": 763
+   }
+  ]
+ }
+]
