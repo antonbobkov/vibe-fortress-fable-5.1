@@ -1,6 +1,8 @@
 # T-144 — Talking, sitting and the hearth visit take a quarter of the day
 
-**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ Where the time goes, cause 2) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-123 and its report, [`../../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ Where the time goes, cause 2) · **Size:** M · **Needs:** — · **Status:** open
+
+Closed by the commits e1416e1, 3744789 and 27e2dd7 (the rules, the fixtures and the first re-measure), 38c59f6 (the fixtures after T-196), 5cc653e (the re-measure after T-196) and the closing commit that moved this file.
 
 ## Why
 
@@ -19,7 +21,7 @@ A crude scratch test changed little: 5,449 marks against 4,925, mood unchanged. 
 
 Do this after T-140 and measure first. If the work share at default priorities is already 35% and mood is in the 55–60 band, do only the three "in passing" rules and leave the order of the steps alone.
 
-**Measured after T-140** ([the walking-speed report](../../reports/audits/2026-10-09-walking-speed.md)): with every creature walking 1.5 times as fast, mood is 57.6 and the work share is 22.7% in year 1. The three wants take 27.4% of the time (14.1% in use, 13.3% on the way). So all four rules apply, the order of the steps included.
+**Measured after T-140** ([the walking-speed report](../../../reports/audits/2026-10-09-walking-speed.md)): with every creature walking 1.5 times as fast, mood is 57.6 and the work share is 22.7% in year 1. The three wants take 27.4% of the time (14.1% in use, 13.3% on the way). So all four rules apply, the order of the steps included.
 
 ## What to do
 
@@ -38,11 +40,11 @@ Do this after T-140 and measure first. If the work share at default priorities i
 Done on branch `t-144` (commits `e1416e1`, `3744789`, `27e2dd7`) and landed on `cloud/T-144`.
 
 - **All four rules, the step order included,** as decided above. Talks in passing are found through the spatial index every `TALK_CHECK_TICKS` (10), not by comparing every pair of dwarves each tick; the cost of system 10 stayed within its tolerance. Talks in passing and the hearth-hall tick counts are saved, and omitted from the save when empty.
-- **The re-measure** ([`2026-10-10-wants-without-errands.md`](../../reports/audits/2026-10-10-wants-without-errands.md)) found the work share at 30.5% and mood at 49.9: the three wants were under-served with work always open. That became T-197, which restored mood without giving back the work share.
+- **The re-measure** ([`2026-10-10-wants-without-errands.md`](../../../reports/audits/2026-10-10-wants-without-errands.md)) found the work share at 30.5% and mood at 49.9: the three wants were under-served with work always open. That became T-197, which restored mood without giving back the work share.
 - **Fixtures, as the branch left them.** `year_one`: the player orders one barrel when the still is built (T-199 removes that order if it lets a brew empty a barrel). `hospital_run`: seed `hospital-run-4`, measured as the one roll of its staged fight that wounds two soldiers who live; no assertion changed (T-156 is to make it independent of the roll). `descent`: back to master's file.
 
 ### Decisions made while landing it (cloud agent, 2026-10-10)
 
 - **`year_one` meets wild animals again.** Its `surfaceWildlife: 'none'` was a stopgap naming T-196. With T-196 on `cloud/main`, the fixture passes with natural arrivals (21 rabbits, 6 deer, 3 badgers, 2 foxes in the year; no dwarf died). No other fixture names T-196 as the reason for running without wildlife: the flat single-rule scenarios that use the option (`hospital_run`, `an_breed`, `an_pasture`, `t195_train_needs`, `fo_*`) had it from T-192 or for their own isolation, as `testing-strategy.md` allows.
 - **`homestead_year` waits for its first birth.** The WIP commit `f952eab` let the world step on, with no new command, after the forty days until the first `AnimalBorn`. Kept, because conception is a daily roll and a fixed end day made the assertion depend on one random sequence (T-186 and T-144 both tripped it); every other assertion is still read at day 40, so nothing else was loosened. Finished: the limit (two gestations and ten days) reads the dog's gestation from the content instead of a literal 20; the birth is stamped by an event subscriber; `testing-strategy.md` and `acceptance-tests.md` say what the scenario now does. The first birth comes on day 42.
-- **The landing re-measure** is a new report, [`2026-10-10-wants-without-errands-after-t196.md`](../../reports/audits/2026-10-10-wants-without-errands-after-t196.md); the earlier one is not edited.
+- **The landing re-measure** is a new report, [`2026-10-10-wants-without-errands-after-t196.md`](../../../reports/audits/2026-10-10-wants-without-errands-after-t196.md); the earlier one is not edited.

@@ -1,6 +1,8 @@
 # T-197 — Social, comfort and joy are under-served when work is always open
 
-**Source:** T-144 and its report, [`../../reports/audits/2026-10-10-wants-without-errands.md`](../../reports/audits/2026-10-10-wants-without-errands.md) (§§ What the three wants cost now; Recommended next step) · **Size:** M · **Needs:** T-144 · **Status:** open (needs the owner's decision)
+**Source:** T-144 and its report, [`../../../reports/audits/2026-10-10-wants-without-errands.md`](../../../reports/audits/2026-10-10-wants-without-errands.md) (§§ What the three wants cost now; Recommended next step) · **Size:** M · **Needs:** T-144 · **Status:** open (needs the owner's decision)
+
+Closed by the commits c8307e2 (the hall errand and the spec), 38c59f6 (its tests under its id), 5cc653e (the re-measure) and the closing commit that moved this file.
 
 ## Why
 
@@ -42,4 +44,4 @@ Taken on branch `t-144` in commit `c8307e2`, under the owner's standing instruct
 - **Below the mark, T-144's rules stand unchanged.** No threshold or relief was changed.
 - **The scenario criterion at 12 hauls a day** is "no want at the mark for 15% of the time or more, for every dwarf", not "70% under the want threshold": with 41% of time on a job the rule serves the three at the mark, not at the threshold, and the test states the rule as it is. The 8-hauls case keeps T-144's 70% criterion and shows that nobody reaches the mark at that workload.
 
-The tests are in `test/unit/dwarves/wants-in-passing.test.ts` and `test/scenarios/t144-wants-without-errands.test.ts`, under `describe('T-197 …')`. The re-measure after T-196 is [`2026-10-10-wants-without-errands-after-t196.md`](../../reports/audits/2026-10-10-wants-without-errands-after-t196.md).
+The tests are in `test/unit/dwarves/wants-in-passing.test.ts` and `test/scenarios/t144-wants-without-errands.test.ts`, under `describe('T-197 …')`. The re-measure after T-196 is [`2026-10-10-wants-without-errands-after-t196.md`](../../../reports/audits/2026-10-10-wants-without-errands-after-t196.md).

@@ -10,7 +10,7 @@
 - Rewritten fixture, seed `three-years-p0-1`: three boars kill 24 dwarves on days 246–267; 1 of 28 is left on day 336.
 - Old fixture (the one the perf-tier `three_years` plays), seed `three-years`: 15 dwarves bleed out to boars on days 45–117, 14 of them to two boars; empty by day 224.
 
-On `cloud/main`, without T-144, the rewritten fixture on seed `three-years` loses one dwarf to a badger in three years, although boars are on its map for weeks. Why the two codes differ was not established; without wildlife they keep dwarves on the surface for the same share of time (33.6% and 34.8% of year 1).
+On `cloud/main`, without T-144, the rewritten fixture on seed `three-years` loses one dwarf to a badger in three years, although boars are on its map for weeks; but the old fixture on `cloud/main` dies out, all nine dwarves killed by boars on days 24–35. So it is not T-144's doing: which run meets the boars fatally differs from run to run, for a reason not established. Without wildlife the two codes keep dwarves on the surface for the same share of time (33.6% and 34.8% of year 1).
 
 ## Reproduction
 
@@ -29,7 +29,7 @@ The probe [`2026-10-10-wants-without-errands-probe.ts.txt`](../../reports/data/2
 ## What to do
 
 1. Trace every death of `new-asis-cloud` (and a sample of `new-p01-asis-cloud`): what brought the dwarf within reach (job, need, patient walk, medic job, flight), whether it had fled from that animal before, and whether the animal was defending or hunting.
-2. Find why `cloud/main` and `cloud/T-144` differ on the same seed, or show that it is chance, with more seeds of both codes.
+2. Find why some runs share the map with boars unharmed for weeks and others lose everyone, with more seeds.
 3. Classify each link as a code fault (the spec says avoid, the code does not), a missing rule (patient and medic near a remembered danger) or a balance number, and fix the faults with a failing test first. A missing rule is decided and written into `10` or `17`.
 4. Re-measure both fixtures, both seeds, as is, for a year, with a dated report.
 
