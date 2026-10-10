@@ -85,3 +85,9 @@ The spec-only items are done; code changes and their tests remain.
 ## Done
 
 - The seven documents are amended and the tests pass.
+
+## Decision on the parked code half (2026-10-09, orchestrator)
+
+The `homestead_year` scenario asserts that an animal is born, but its run ends on day 34 and a pregnancy takes 20 days, so the assertion holds only when the first conception happens to fall in the first two weeks. That is a fragile witness, not a rule the hauling priority should be bent to. **Lengthen the scenario** so that a conception anywhere in its first 16 days is born inside the run, with a few days' margin (about day 40), and say in a comment why that length. Change nothing else in its script. This is the scenario's own length, so it is not "tuning a long fixture".
+
+Then restore the stash, regenerate the world-hash golden that moves (name it and say why: the accepted hauling priority changes the order of hauls), run everything including the browser suite, and close the task.
