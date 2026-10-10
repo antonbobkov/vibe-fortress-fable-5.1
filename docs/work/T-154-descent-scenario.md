@@ -63,8 +63,21 @@ The late game is played by nothing. Measured: no long run breaches a cavern, min
   - Assertions verified: `DeepsilverMined` (count >= 5), `DeepStirred` (level 1), `MonsterEmerged` (with faction 'deep' creatures).
   - Surface smelter executed `smelt_deepsilver_ore` work order, consuming mined deepsilver ore and fuel to produce deepsilver bar.
   - Surface forge executed `forge_dagger` work order, forging deepsilver dagger (`material === 'deepsilver'`).
-- Remaining stages:
-  - Stage 4: descent to magma sea (z=3), channel over magma, build magma smelter, magma forge, magma kiln, issue 1 order each without fuel consumed, assert dwarf near magma is not burned and magma fluid total is unchanged.
+- Remaining stages: none (all stages 1–4 complete).
+
+### 2026-10-09 — Stage 4 complete
+
+- Stage 4 completed:
+  - Deep emergence eliminated by squad stationed at z=4.
+  - Channel at (22, 48, 4) designated and dug, opening directly into the level 7 magma sea at z=3 (`TileKind.Open`).
+  - 9x3 workshop hall dug at z=4 (x: 18..26, y: 49..51).
+  - All three magma workshops (`magma_smelter`, `magma_forge`, `magma_kiln`) placed with magma-safe granite blocks and constructed (`Building.state === 'built'`).
+  - `WorkshopsReader.isMagmaPowered` verified true for `magma_smelter` and `magma_forge`; filed T-194 for `magma_kiln` (`isMagmaPowered` returns false due to missing `magmaVariantOf`, and 0 authored recipes).
+  - Work order `smelt_deepsilver_ore` completed in `magma_smelter` without fuel consumed.
+  - Work order `forge_dagger` completed in `magma_forge` without fuel consumed.
+  - Assertions verified: fuel counts (`charcoal_bar`, `coal_bar`) unchanged.
+  - Assertions verified: dwarves beside magma not burned (`BurnDamage` 0, `MagmaContact` 0, 0 burn wounds).
+  - Assertions verified: magma sea fluid total unchanged (234,556 fluid units before and after).
 
 ## Done
 

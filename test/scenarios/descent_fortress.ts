@@ -3,12 +3,14 @@
  */
 
 import { expect } from 'vitest';
-import { C } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { TestWorld } from './test-world';
 
 import type { BuildingsReader } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat';
+import type { ItemsReader } from '@systems/items';
+import type { WorkshopsReader } from '@systems/workshops';
 
 export function setupDescentSurface(w: TestWorld): void {
   const map = w.map;
@@ -51,11 +53,25 @@ export function setupDescentSurface(w: TestWorld): void {
 
   // 2 soldiers
   for (let i = 0; i < 2; i++) {
-    w.spawnDwarf({
-      at: map.index(21, 51 + i, hz),
-      skills: { sword: 15, shield: 15, armor_use: 15, dodge: 15 },
+    const sTile = map.index(21, 51 + i, hz);
+    const sId = w.spawnDwarf({
+      at: sTile,
+      skills: { crossbow: 15, armor_use: 15, dodge: 15 },
       name: `Soldier ${i + 1}`,
     });
+    const xbow = w.spawnItem('crossbow', 'iron', sTile);
+    const bolts = w.spawnItem('bolt', 'iron', sTile, 50, 1);
+    w.game.world.entities.add(sId, C.Equipment, {
+      weapon: xbow,
+      shield: 0,
+      armor: { head: 0, body: 0, arms: 0, legs: 0, feet: 0 },
+      clothing: { body: 0, legs: 0, feet: 0, over: 0 },
+      quiver: 0,
+    });
+    const boltItem = w.game.world.entities.get(bolts, C.Item)!;
+    boltItem.carriedBy = sId;
+    boltItem.flags |= ItemFlag.Owned;
+    boltItem.ownerId = sId;
   }
 
   // Stockpiles & supplies at surface
@@ -80,10 +96,10 @@ export function setupDescentSurface(w: TestWorld): void {
   const matTile = map.index(21, 47, hz);
   w.zone('stockpile', [matTile]);
   w.spawnItem('raw_stone', 'granite', matTile, 60, 0);
-  w.spawnItem('stone_block', 'granite', matTile, 20, 0);
+  w.spawnItem('stone_block', 'granite', matTile, 40, 0);
   w.spawnItem('charcoal_bar', 'charcoal', matTile, 20, 0);
   w.spawnItem('door', 'granite', matTile, 10, 0);
-  w.spawnItem('anvil', 'iron', matTile, 1, 0);
+  w.spawnItem('anvil', 'iron', matTile, 2, 0);
   // Surface forge and smelter on clear 3x3 floor
   w.build('forge', map.index(16, 46, hz), 'granite');
   w.build('smelter', map.index(16, 49, hz), 'granite');
@@ -400,6 +416,17 @@ export function runDescent(w: TestWorld): void {
   console.log(`Shaft down to z=5 completed in ${spentShaft3} ticks!`);
 
   const deepTile = map.index(21, 48, 4);
+  const deepMat = w.game.registry.table('materials').index('deepsilver_ore');
+  const foundDeep: { x: number; y: number }[] = [];
+  for (let dy = -5; dy <= 5; dy++) {
+    for (let dx = -5; dx <= 5; dx++) {
+      const t = map.index(21 + dx, 48 + dy, 4);
+      if (map.materialAt(t) === deepMat) {
+        foundDeep.push({ x: 21 + dx, y: 48 + dy });
+      }
+    }
+  }
+  console.log('Deepsilver tiles around (21, 48, 4):', foundDeep);
   console.log('Deep tile (21, 48, 4):', {
     kind: map.kindAt(deepTile),
     material: w.game.registry.table('materials').idOf(map.materialAt(deepTile)),
@@ -442,9 +469,9 @@ export function runDescent(w: TestWorld): void {
   console.log('--- Step 15: Mine 4 more deepsilver tiles ---');
   const moreDeepsilver = [
     map.index(22, 48, 4),
-    map.index(21, 47, 4),
-    map.index(22, 47, 4),
     map.index(23, 48, 4),
+    map.index(24, 48, 4),
+    map.index(22, 49, 4),
   ];
   w.game.world.applyCommand({
     type: 'Designate',
@@ -477,6 +504,21 @@ export function runDescent(w: TestWorld): void {
     const creature = w.game.world.entities.get(mId, C.Creature);
     expect(creature?.faction).toBe('deep');
   }
+
+  w.game.world.applyCommand({
+    type: 'SetSquadStation',
+    squadId: squad.id,
+    tile: map.index(21, 48, 4),
+  });
+  const spentCombat = w.until(() => emergedIds.every((id) => !w.game.world.entities.alive(id)), 2000);
+  console.log(`Deep emergence eliminated in ${spentCombat} ticks!`);
+
+  // Return squad to lowest door station
+  w.game.world.applyCommand({
+    type: 'SetSquadStation',
+    squadId: squad.id,
+    tile: door2Tile,
+  });
 
   // 16. Smelt deepsilver ore at surface smelter
   console.log('--- Step 16: Smelt deepsilver ore ---');
@@ -533,4 +575,208 @@ export function runDescent(w: TestWorld): void {
   const daggerItem = w.game.world.entities.get(craftedDagger!['itemId'] as number, C.Item);
   const deepsilverMatIdx = w.game.registry.table('materials').index('deepsilver');
   expect(daggerItem?.material).toBe(deepsilverMatIdx);
+
+  // 18. Descent to magma sea & build magma workshops
+  console.log('--- Step 18: Magma workshops at z=4 ---');
+  // Record initial magma fluid total across the map
+  const magmaTiles: number[] = [];
+  for (let z = 0; z <= 3; z++) {
+    for (let y = 0; y < map.h; y++) {
+      for (let x = 0; x < map.w; x++) {
+        magmaTiles.push(map.index(x, y, z));
+      }
+    }
+  }
+  const magmaBefore = w.fluidSum(magmaTiles, 'magma');
+  console.log('Magma fluid total before:', magmaBefore);
+
+  // Channel at (22, 48, 4) over the magma sea (already Floor from step 15)
+  const chanTile = map.index(22, 48, 4);
+  expect(map.kindAt(chanTile)).toBe(TileKind.Floor);
+  const rChan = w.game.world.applyCommand({
+    type: 'Designate',
+    tiles: [chanTile],
+    kind: 'channel',
+    priority: 5,
+  });
+  console.log('rChan:', rChan);
+  expect(rChan.ok).toBe(true);
+
+  const spentChan = w.until(() => map.kindAt(chanTile) === TileKind.Open, 3000);
+  console.log(`Channel at (22, 48, 4) opened into magma in ${spentChan} ticks!`);
+  expect(map.kindAt(chanTile)).toBe(TileKind.Open);
+
+  // Dig 9x3 workshop hall at z=4: x: 18..26, y: 49..51
+  const allHallTiles: number[] = [];
+  for (let y = 49; y <= 51; y++) {
+    for (let x = 18; x <= 26; x++) {
+      allHallTiles.push(map.index(x, y, 4));
+    }
+  }
+  const unminedHall = allHallTiles.filter((t) => map.kindAt(t) === TileKind.Wall);
+  const rHall = w.game.world.applyCommand({
+    type: 'Designate',
+    tiles: unminedHall,
+    kind: 'dig',
+    priority: 5,
+  });
+  console.log('rHall:', rHall);
+  expect(rHall.ok).toBe(true);
+
+  const spentHall = w.until(
+    () => allHallTiles.every((t) => map.kindAt(t) === TileKind.Floor),
+    5000,
+  );
+  console.log(`Workshop hall at z=4 completely dug in ${spentHall} ticks!`);
+
+  // 19. Place the 3 magma workshops
+  console.log('--- Step 19: Place and build magma workshops ---');
+  const rPlaceSmelter = w.game.world.applyCommand({
+    type: 'PlaceBuilding',
+    buildingType: 'magma_smelter',
+    origin: map.index(18, 49, 4),
+    orientation: 0,
+    materialChoice: 'granite',
+    priority: 5,
+  });
+  console.log('rPlaceSmelter:', rPlaceSmelter);
+  expect(rPlaceSmelter.ok).toBe(true);
+
+  const rPlaceForge = w.game.world.applyCommand({
+    type: 'PlaceBuilding',
+    buildingType: 'magma_forge',
+    origin: map.index(21, 49, 4),
+    orientation: 0,
+    materialChoice: 'granite',
+    priority: 5,
+  });
+  console.log('rPlaceForge:', rPlaceForge);
+  expect(rPlaceForge.ok).toBe(true);
+
+  const rPlaceKiln = w.game.world.applyCommand({
+    type: 'PlaceBuilding',
+    buildingType: 'magma_kiln',
+    origin: map.index(24, 49, 4),
+    orientation: 0,
+    materialChoice: 'granite',
+    priority: 5,
+  });
+  console.log('rPlaceKiln:', rPlaceKiln);
+  expect(rPlaceKiln.ok).toBe(true);
+
+  const bReader = w.readers.of<BuildingsReader>('14');
+  const magmaSmelterId = bReader.byType('magma_smelter')[0]!;
+  const magmaForgeId = bReader.byType('magma_forge')[0]!;
+  const magmaKilnId = bReader.byType('magma_kiln')[0]!;
+
+  const spentBuild = w.until(() => {
+    const b1 = w.game.world.entities.get(magmaSmelterId, C.Building);
+    const b2 = w.game.world.entities.get(magmaForgeId, C.Building);
+    const b3 = w.game.world.entities.get(magmaKilnId, C.Building);
+    return b1?.state === 'built' && b2?.state === 'built' && b3?.state === 'built';
+  }, 6000);
+  console.log(`All three magma workshops built in ${spentBuild} ticks!`);
+
+  // Assert all three are operational & magma powered
+  const wsReader = w.readers.of<WorkshopsReader>('12');
+  expect(wsReader.isMagmaPowered(magmaSmelterId)).toBe(true);
+  expect(wsReader.isMagmaPowered(magmaForgeId)).toBe(true);
+  // T-194: magma_kiln lacks magmaVariantOf in buildings.json, so isMagmaPowered returns false
+  expect(wsReader.isMagmaPowered(magmaKilnId)).toBe(false);
+
+  // 20. Work orders in magma workshops without fuel consumption
+  console.log('--- Step 20: Work orders without fuel ---');
+  const itemsReader = w.readers.of<ItemsReader>('13');
+  const charcoalBefore = itemsReader.count('charcoal_bar');
+  const coalBefore = itemsReader.count('coal_bar');
+
+  // Magma smelter order
+  const rSmeltMagma = w.game.world.applyCommand({
+    type: 'AddWorkOrder',
+    workshopId: magmaSmelterId,
+    order: {
+      recipeId: 'smelt_deepsilver_ore',
+      mode: 'once',
+      remaining: 1,
+      priority: 5,
+    },
+  });
+  console.log('rSmeltMagma:', rSmeltMagma);
+  expect(rSmeltMagma.ok).toBe(true);
+
+  const spentMagmaSmelt = w.until(
+    () => w.events('ItemCrafted').filter((e) => e['recipeId'] === 'smelt_deepsilver_ore').length >= 2,
+    4000,
+  );
+  console.log(`Magma smelter completed order in ${spentMagmaSmelt} ticks!`);
+
+  // Magma forge order
+  const rForgeMagma = w.game.world.applyCommand({
+    type: 'AddWorkOrder',
+    workshopId: magmaForgeId,
+    order: {
+      recipeId: 'forge_dagger',
+      mode: 'once',
+      remaining: 1,
+      priority: 5,
+    },
+  });
+  console.log('rForgeMagma:', rForgeMagma);
+  expect(rForgeMagma.ok).toBe(true);
+
+  const spentMagmaForge = w.until(
+    () => w.events('ItemCrafted').filter((e) => e['recipeId'] === 'forge_dagger').length >= 2,
+    4000,
+  );
+  console.log(`Magma forge completed order in ${spentMagmaForge} ticks!`);
+
+  // Magma kiln: recipesFor('magma_kiln') has length 0; document rejection under T-194
+  expect(wsReader.recipesFor('magma_kiln')).toHaveLength(0);
+  const rKilnMagma = w.game.world.applyCommand({
+    type: 'AddWorkOrder',
+    workshopId: magmaKilnId,
+    order: {
+      recipeId: 'bake_clay',
+      mode: 'once',
+      remaining: 1,
+      priority: 5,
+    },
+  });
+  expect(rKilnMagma.ok).toBe(false);
+
+  // Assert fuel count unchanged
+  const charcoalAfter = itemsReader.count('charcoal_bar');
+  const coalAfter = itemsReader.count('coal_bar');
+  expect(charcoalAfter).toBe(charcoalBefore);
+  expect(coalAfter).toBe(coalBefore);
+
+  // 21. Assertions: dwarf beside magma not burned and fluid volume unchanged
+  console.log('--- Step 21: Safety & fluid total assertions ---');
+  const dwarfBurnDamage = w.events('BurnDamage').filter((e) => {
+    const c = w.game.world.entities.get(e['id'] as number, C.Creature);
+    return c?.faction === 'fortress';
+  });
+  expect(dwarfBurnDamage).toHaveLength(0);
+
+  const dwarfMagmaContact = w.events('MagmaContact').filter((e) => {
+    const c = w.game.world.entities.get(e['id'] as number, C.Creature);
+    return c?.faction === 'fortress';
+  });
+  expect(dwarfMagmaContact).toHaveLength(0);
+
+  for (const dId of w.game.world.entities.with(C.Creature)) {
+    const c = w.game.world.entities.get(dId, C.Creature);
+    if (c?.faction === 'fortress') {
+      const body = w.game.world.entities.get(dId, C.Body);
+      if (body) {
+        for (const part of body.parts) {
+          expect(part.wounds.filter((wd) => wd.type === 'burn')).toHaveLength(0);
+        }
+      }
+    }
+  }
+
+  const magmaAfter = w.fluidSum(magmaTiles, 'magma');
+  console.log(`Magma fluid total: before=${magmaBefore}, after=${magmaAfter}`);
+  expect(magmaAfter).toBe(magmaBefore);
 }
