@@ -6,14 +6,14 @@ Every figure is marked **[run: name]** (a run named in [Method](#method)) or **[
 
 ## Summary
 
-**In the rewritten economy fixture without wild animals, the three tasks hold up over three years: mood 58.8 in year 1 and about 60 after, and no dwarf dies. The work share in year 1 is 28.4%, against 22.7% before T-144. With wild animals the rewritten economy fixture still dies out on seed `three-years`: three boars kill eight of its nine dwarves on days 19 to 32. T-196 did not prevent it; on `cloud/main` without T-144 the same seed loses one dwarf.**
+**In the rewritten economy fixture without wild animals, the three tasks hold up over three years: mood 58.8 in year 1 and about 60 after, and no dwarf dies. The work share in year 1 is 28.4%, against 22.7% before T-144. With wild animals the economy fixtures still die out to boars, with T-196 and with or without T-144: on seed `three-years` three boars kill eight of the rewritten fixture's nine dwarves on days 19 to 32 on `cloud/T-144`, and boars kill all nine of the old fixture's on days 24 to 35 on `cloud/main`.**
 
 - **T-196 changes nothing without wild animals.** The branch `t-144` before T-196 and `cloud/T-144` after it give the same figures, to the mark and the tick, over 336 days with no wild arrivals. **[run: new-nowild-t144, new-nowild-cloud]**
 - **Year 1, rewritten fixture, no wild arrivals: mood 58.8, work share 28.4%.** Before T-144 57.7 and 22.7%; after T-144 alone 49.9 and 30.5%. These are the figures commit `c8307e2` gave for T-197 (58.8 and 28.4%). **[run: new-nowild-main, new-nowild-cloud; the T-144-alone column is the earlier report's run `new-nowild-after`]**
 - **Years 2 and 3, the first time after T-144:** mood 61.1 and 59.8, no death, population 33. The work share falls to 13.8% and 17.1%, with 18.4% and 16.5% of dwarf time idle for lack of work. Before T-144 the same years gave mood 60.5 and 59.3 and work 17.2% and 14.5%. **[run: new-nowild-main, new-nowild-cloud]**
 - **The three wants take 14.9% of dwarf time in year 1** (27.4% before T-144, 10.4% after T-144 alone). Each is over its want threshold less often than after T-144 alone: social 51.4%, comfort 17.8%, joy 39.3% (65.6%, 66.2%, 65.9%). **[run: new-nowild-cloud]**
 - **With wild animals, every as-is run of either fixture on `cloud/T-144` lost most or all of its dwarves to boars.** Rewritten fixture, seed `three-years`: 8 bled out to three boars on days 19–32, one starved on day 50, nobody left from day 51. Seed `three-years-p0-1`: it lives two years (28 dwarves on day 224), then three boars kill 24 dwarves on days 246–267; one is left on day 336. Old fixture: 15 bled out to boars on days 45–117; nobody left by day 224. **[run: new-asis-cloud, new-p01-asis-cloud, old-asis-cloud]**
-- **On `cloud/main`, without T-144, the rewritten fixture on seed `three-years` lost one dwarf to a badger in three years** and grew to 35. Boars were on the map there too, and no dwarf was wounded in the first 60 days. **[run: new-asis-main, spawns-main]** Why one code meets the boars and the other does not was not established; the share of time dwarves spend on the surface is the same within 1.2 points without wildlife (33.6% and 34.8% in year 1). **[run: new-nowild-main, new-nowild-cloud]**
+- **On `cloud/main`, without T-144, the rewritten fixture on seed `three-years` lost one dwarf to a badger in three years** and grew to 35; boars were on its map too, and no dwarf was wounded in the first 60 days. **[run: new-asis-main, spawns-main]** **The old fixture on `cloud/main` died out**: boars killed all nine dwarves on days 24–35. **[run: old-asis-main]** So the boars are not a consequence of T-144: which fortress meets them, and when, differs from run to run, and why was not established. Without wildlife the share of time dwarves spend on the surface is the same within 1.2 points before and after T-144 (33.6% and 34.8% in year 1). **[run: new-nowild-main, new-nowild-cloud]**
 - **Two traced deaths** show wounded dwarves and a medic staying within reach of the boars at the hospital on the surface: a patient alternating between its hospital bed and fleeing, with the boar one or two tiles behind, until it bled out; a medic cleaning a wound two tiles from a boar. **[run: trace-hrolf, trace-freydis]** Filed as T-214.
 - **The old fixture without wild arrivals: four dwarves starved on days 251–255** of year 3. Before T-144 nobody died in the same run, though dwarves were over the critical hunger mark 13.4% of year 3. **[run: old-nowild-cloud, old-nowild-main]** Cause not established. Filed as T-215.
 
@@ -40,6 +40,7 @@ Every figure is marked **[run: name]** (a run named in [Method](#method)) or **[
 | new-p01-asis-cloud | cloud | rewritten, seed `three-years-p0-1` | as is |
 | old-nowild-main | main | old | none |
 | old-nowild-cloud | cloud | old | none |
+| old-asis-main | main | old | as is |
 | old-asis-cloud | cloud | old | as is |
 | spawns-main, spawns-cloud | main, cloud | rewritten, 60 days, scratch spawn probe | as is |
 | trace-hrolf, trace-freydis | cloud | rewritten, 20 and 22 days, the probe's `T140_STUCK` watch on dwarves `16777293` and `16777298` | as is |
@@ -149,6 +150,7 @@ All **[run: new-nowild-main, new-nowild-cloud]**.
 | new-asis-t144 | t144 (no T-196) | 15: badger 11, boar 2 (bled out); 2 starved | 16–160 | 3 / 0 / 0 |
 | new-asis-cloud | cloud | 9: boar 8 (bled out); 1 starved | 19–50 | 0 / 0 / 0 |
 | new-p01-asis-cloud | cloud, seed `three-years-p0-1` | 27: boar 24 bled out and 2 of infection; 1 of infection with no killer | 246–312 | 14 / 28 / 1 |
+| old-asis-main | main | 9: boar 8 bled out, 1 killed | 24–35 | 0 / 0 / 0 |
 | old-asis-cloud | cloud | 16: boar 15 (bled out); 1 starved | 45–172 | 6 / 0 / 0 |
 
 All **[run]**. Killers are the probe's species of the `killerId` on `CreatureDied`.
@@ -180,14 +182,15 @@ Spawn probe, 60 days, seed `three-years`. **[run: spawns-main, spawns-cloud]**
 - `year_one` now runs with natural animal arrivals: 21 rabbits, 6 deer, 3 badgers and 2 foxes came, no dwarf died, 5 hunts killed. **[run: `npm test`, `year_one` stdout]**
 - `homestead_year` passes; the first birth comes on day 42, after the 40-day script. 4 hunts killed. **[run: `npm test`]**
 - `hospital_run` passes on its seed `hospital-run-4`. **[run: `npm test`]**
+- **The perf-tier `three_years` (`test/perf/three_years_main.test.ts`) fails after 3 seconds** on `cloud/T-144`, `cloud/main` and `origin/master` (`4fbe72c`) alike, at its invariant check of tick 3600: `item.inside-wall`, "item 16777328 log at (33,9,32)". So it measures nothing at present, before and after this change. **[run: three_years_main on the three commits]** Filed as T-216.
 
 ## Not established
 
-- Why the `cloud` fortress meets the boars and the `main` fortress, on the same seed and map, does not; and whether T-144 or T-197 has anything to do with it. One run per cell; trajectories diverge from the first day the code differs.
+- Why some runs meet the boars early and fatally and others share the map with them unharmed (the rewritten fixture on `main` against `cloud`; the old fixture dies out on both). One run per cell; trajectories diverge from the first day the code differs.
 - Which rule should keep a patient or a medic away from an animal still nearby (T-214).
 - Why the old fixture runs short of food in year 3, and whether the change made it worse (T-215).
 - Why sleep travel is higher and sleep use lower than before T-144 while rest is served as well or better.
-- Whether the perf-tier `three_years` scenario passes on `cloud/T-144` (see below).
+- What the perf-tier `three_years` scenario would show after day 3 (see [The long scenarios](#the-long-scenarios-on-cloudt-144)).
 - Wall-clock figures: the machine ran up to four probes at once.
 
 ## What is still off the model

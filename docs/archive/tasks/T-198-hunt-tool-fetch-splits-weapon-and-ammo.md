@@ -1,6 +1,8 @@
 # T-198 — Hunters split the weapons and the bolts between them and none can shoot
 
-**Source:** T-144 and its report, [`../../reports/audits/2026-10-10-wants-without-errands.md`](../../reports/audits/2026-10-10-wants-without-errands.md) (§ What got worse, item 4) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-144 and its report, [`../../../reports/audits/2026-10-10-wants-without-errands.md`](../../../reports/audits/2026-10-10-wants-without-errands.md) (§ What got worse, item 4) · **Size:** M · **Needs:** — · **Status:** open
+
+Closed by the commits f715dc2 (the ranged kit and the spec), f952eab (the invariant for fetched ammunition) and the closing commit that moved this file.
 
 ## Why
 
