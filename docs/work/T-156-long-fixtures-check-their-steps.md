@@ -2,6 +2,8 @@
 
 **Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gaps 6 and 9; bugs 1 and 2) · **Size:** M · **Needs:** T-145 · **Status:** open
 
+**Held (2026-10-10).** T-145, which the cloud agent has, rewrites the same three-year fixture files. Start this task after T-145 is closed. Two notes from other tasks: `hospital_run` hangs on one roll of a fight and should assert on a staged, repeatable casualty; `homestead_year`'s birth check was made robust on branch `t-144`.
+
 ## Why
 
 The three-year script ignores the result of most commands it sends. Measured:
