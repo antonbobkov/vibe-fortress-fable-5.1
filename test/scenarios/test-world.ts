@@ -323,8 +323,8 @@ export class TestWorld {
     system.setNeed(id, need, value);
   }
 
-  /** Set a dwarf's skill level, with the cumulative xp of that level (T-M1-09). */
-  setSkill(id: EntityId, skill: string, level: number): void {
+  /** Set a dwarf's skill level and initial XP (defaults to that level's threshold). */
+  setSkill(id: EntityId, skill: string, level: number, initialXp = cumulativeXp(level)): void {
     const entities = this.game.world.entities;
     const skills = entities.get(id, C.Skills);
     if (skills === undefined) throw new Error(`setSkill: ${id} has no Skills`);
@@ -332,7 +332,7 @@ export class TestWorld {
     const levels = skills.level.slice();
     const xp = skills.xp.slice();
     levels[s] = level;
-    xp[s] = cumulativeXp(level);
+    xp[s] = initialXp;
     entities.add(id, C.Skills, { ...skills, level: levels, xp });
   }
 

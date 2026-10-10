@@ -29,6 +29,7 @@ Malformed commands for an unknown huntable species, null work order or patch, an
 
 | id | Scenario | Expected |
 |---|---|---|
+| `tr_ramp_and_stairs` | miner with a pick and builder with blocks; designated ramp and placed ramp, three stair types, floor and paving | real `carve_ramp` completion and `BuildingCompleted` for each construction; correct terrain kinds |
 | `tr_dig_room` | designate a 3×3 dig into the rock face; 1 miner | all 9 tiles `Floor` within 2,500 ticks; stone items dropped ≈ 30% (over 100 runs, 20–40%) |
 | `tr_channel_ramp` | channel a floor tile above a wall | tile `Open`, tile below `Ramp`; a dwarf can walk down and up |
 | `tr_stairwell` | `DesignateStairwell` 3 levels | up/down stairs carved; connectivity label equal across levels |
@@ -90,6 +91,8 @@ Malformed commands for an unknown huntable species, null work order or patch, an
 
 | id | Scenario | Expected |
 |---|---|---|
+| `fo_hunt_abandoned` | hunter loses its bolts after `HuntStarted` | `HuntAbandoned { no_ammo }`; hunt unclaimed |
+| `fo_pool_depleted` | four fishers above a contained six-tile lake | at least 12 real catches; `FishPoolDepleted`; pool below one |
 | `fo_hunt` | hunter with crossbow + 20 bolts, one deer | `HuntKill` within a day; corpse hauled to the butcher; meat 3, hide 1, bones 1 |
 | `fo_no_ammo` | hunter with crossbow and no bolts | no `hunt` job; jobs panel reason `no_tool` |
 | `fo_fish` | fishing zone on a river, fisher skill 5, 7 days | ≥ 2 `FishCaught`; pool regenerates |
@@ -99,6 +102,9 @@ Malformed commands for an unknown huntable species, null work order or patch, an
 
 | id | Scenario | Expected |
 |---|---|---|
+| `dw_legendary` | level-19 miner one XP below level 20 completes a real dig | `LegendaryReached` exactly once for mining |
+| `dw_near_spring` | squad station walk crosses into a configured warm-spring neighbourhood | one `DwarfNearSpring`; staying there does not repeat it |
+| `dw_felt_mist` | station walk into mist above a source-fed waterfall | `DwarfFeltMist` for the walking dwarf |
 | `dw_needs` | 7 dwarves, food and drink stocked, 3 days | each eats 3–5 times and drinks 6–8 times; no need reaches 100 |
 | `dw_starve` | no food | `Starving` at hunger 100; `Starvation` damage daily after `STARVE_DAYS`; death on the 13th day of damage |
 | `dw_sleep` | beds assigned | each dwarf sleeps once per day in their own bed; `Slept { ownBed: true }` |
@@ -190,6 +196,7 @@ Local and global work orders added or edited with a material id hold its index a
 
 | id | Scenario | Expected |
 |---|---|---|
+| `bd_racks` | builder installs a weapon rack and armor stand in a barracks; squad trains there | linked furniture contributes its item value to the room; actual `TrainingSession` in that assigned barracks |
 | `bd_room_tiers` | the bedroom and hearth hall examples in buildings-and-furniture.md | tiers bare → decent → fine; grand for the hall |
 | `bd_door_lock` | locked door between a dwarf and a stockpile | job `unreachable`; unlock resolves |
 | `bd_bridge` | drawbridge over a channel, lever inside, raise with a goblin on it | goblin crushed or displaced; raid loiters; lower → path exists |
@@ -238,6 +245,9 @@ A loaded ranged soldier on duty steps to a legal adjacent tile at its keep dista
 
 | id | Scenario | Expected |
 |---|---|---|
+| `he_conscious` | slightly wounded unconscious dwarf with sufficient blood and low pain | health tick delivers `CreatureConscious` and restores consciousness |
+| `he_crutch` | severed-leg casualty, medical worker, cloth, thread and crutch | actual `give_crutch` treatment; crutch carried by the living amputee |
+| `he_carry_patient` | unconscious casualty away from a hospital bed | real `carry_patient` completion places the patient at the bed, alive and still unconscious |
 | `he_bleed` | a dwarf with Toughness 50 and a serious cut on the torso, no treatment | unconscious at 600 ± 10 ticks; dead at 800 ± 10 ticks |
 | `he_bandage` | same, with a hospital, cloth (no thread) and a medic of medicine skill 20 | `stop_bleeding` within 300 ticks of admission; survives; `PatientHealed` at day 15 ± 1 |
 | `he_fracture` | fracture untreated vs splinted | untreated: `badly_healed_*` permanent; splinted: none |
@@ -250,6 +260,10 @@ A loaded ranged soldier on duty steps to a legal adjacent tile at its keep dista
 
 | id | Scenario | Expected |
 |---|---|---|
+| `th_ambush` | arriving ambush party approaches an outdoor dwarf | one `AmbushSprung`; every member revealed |
+| `th_cavern_spawn` | miner completes the final dig beside a generated cavern | actual `CavernBreached`; distinct `MonsterSpawned` events for awakened tier-one sleepers |
+| `th_fled` | living thief-party member below its species blood threshold | one `HostileFled`; member enters fleeing state |
+| `th_warning_near_due` | peril-two world starts after the maximum initial year-two raid offset | next day emits a raid warning before its arrival |
 | `th_schedule` | peril 1 region, 3 years | no raid before autumn year 2; `size` 5–12 (the captain is added on top) |
 | `th_warning` | peril 2, first raid | `ThreatWarning` exactly `WARNING_DAYS` before `RaidArrived`; half under fog |
 | `th_loiter` | raid with the gate up | party loiters; `RaidEnded { withdrew }` after 2 days |
@@ -272,6 +286,8 @@ A scheduled ambush on a flat-test map gives no edge arrival announcement; its wa
 
 | id | Scenario | Expected |
 |---|---|---|
+| `df_release_cage` | trap captures a trollkin; occupied cage installed as furniture; `ReleaseCage` | creature positioned beside the cage; item, building and creature occupancy cleared |
+| `df_trap_upkeep` | real weapon-trap crossings jam it; cleaner works; spent stone trap receives a replacement block | `TrapJammed`, completed `clean_trap`, armed weapon trap; completed `rearm_trap` and `TrapRearmed` for the stone trap |
 | `df_stone_fall` | goblin walks over an armed stone-fall trap | `TrapTriggered`; damage to a part; `spent`; rearm job |
 | `df_cage` | trollkin over a cage trap | caged (size 150 ≤ cap); wyrm over it: nothing |
 | `df_plate_bridge` | plate linked to a bridge, goblin steps on the plate | bridge raises after `LINK_DELAY_TICKS` (+ up to 9) |
