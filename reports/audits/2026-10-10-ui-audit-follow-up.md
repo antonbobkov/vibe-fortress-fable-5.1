@@ -15,7 +15,7 @@
 
 ## Method
 
-- I read the first audit, the mechanical draft in `docs/work/T-111-ui-audit-follow-up.md` (now archived), the UI decisions D-U1 … D-U10 in `docs/archive/ui-fixes/README.md`, and the spec sections each check needed.
+- I read the first audit, the mechanical draft in the T-111 work file (archived as `docs/archive/tasks/T-111-ui-audit-follow-up.md`), the UI decisions D-U1 … D-U10 in `docs/archive/ui-fixes/README.md`, and the spec sections each check needed.
 - I drove the real game with Playwright scripts kept outside the repository. Each run generated seed `audit-1`, walked to the hilliest region (the e2e helper's rule), and embarked with the default party. Two runs used the test start `?start=flat-test&embark=default` to reach a trade caravan, as `test/e2e/trade-session.spec.ts` does.
 - Player actions went through the real keyboard and mouse. To let time pass I used the test hook's `step(n)`, and to set up the caravan fixture I used the same hook calls as the trade e2e test. State was read through `window.__deepholm` (`text()`, `readers`).
 - Screenshots and text dumps of the screen are in my session scratch folder as `shots/NN-*.png|.txt`, cited as **shot NN**. They are not committed. Three crops that show colour or layout are committed under [`../screenshots/t-111/`](../screenshots/t-111/).
@@ -45,7 +45,7 @@ States: **fixed** (the item's stated behaviour is now as the audit asked, or as 
 
 | Item | Task / commit | Draft | Now | How checked, and what remains |
 |---|---|---|---|---|
-| Q1 Balanced, unsafe-loadout warning | U-01 `0b124b1` | partly | partly | Observed: Balanced and the pick warning (shots 04, 04g). Code: only pick, food and drink are checked (`src/ui/screens/embark.ts:256`); D-U3 left out the axe the audit asked for. → T-252 |
+| Q1 Balanced, unsafe-loadout warning | U-01 `0b124b1` | partly | partly | Observed: Balanced and the pick warning (shots 04, 04g); with the iron axe set to 0, `Enter` embarks with no question (shots 21a, 21b). Code: only pick, food and drink are checked (`src/ui/screens/embark.ts:256`); D-U3 left out the axe the audit asked for. → T-252 |
 | Q2 order count keys | U-03 `42b1f7a` | fixed | fixed | Observed: shots 10g, 10h (count keys); `Shift+N` new order (shot 10b). |
 | Q3 friendly names and settings | U-01 | fixed | fixed | Observed: shots 10a, 14c, 17b, 18b. |
 | Q4 named input and blocked summary | U-01 | fixed | fixed | Observed: shot 11e. |
@@ -202,12 +202,12 @@ These are not in the first audit's list. Each has a row.
 | # | Finding | How established | Row |
 |---|---|---|---|
 | N1 | A stockpile made while paused has no editor until time runs ("That zone is no longer available."). | Observed: shots 08g0, 08g. Code: `src/systems/items/index.ts:286-296`, `src/ui/panels/stockpile-editor.ts:186-188`. | T-240 |
-| N2 | The stockpile preset list shows the raw key `ui.stockpile.preset.hospital`, and its accelerator captions collide. D-U4 says no raw key ever reaches the screen. | Observed: shot 08h. Code: the `hospital` preset (`src/systems/items/stockpiles.ts:91`) has no string (`src/ui/strings.ts:331-343`), and `presetOptions` builds the key for every preset (`src/ui/panels/stockpile-editor.ts:44-46`). | T-242 |
-| N2b | Unnamed creatures start log lines in lower case with their species id: "dog has died.", "! cat has lost a limb." The Stocks panel lists categories by id (`food`, `bar`); Animals lists `dog` under Species. | Observed: shots 10k, 15a, 15c. | T-242 |
+| N2 | The stockpile preset list shows the raw key `ui.stockpile.preset.hospital`, and its accelerator captions collide. D-U4 says no raw key ever reaches the screen. | Observed: shot 08h. Code: the `hospital` preset (`src/systems/items/stockpiles.ts:91`) has no string (`src/ui/strings.ts:331-343`), and `presetOptions` builds the key for every preset (`src/ui/panels/stockpile-editor.ts:44-46`). The spec's preset list does not include it (`docs/02-systems/13-items-and-storage.md:196`). | T-242 |
+| N2b | An unnamed animal starts its log line in lower case: "dog has died.", "! cat has lost a limb." (Lower-case species and category names inside the Animals and Stocks tables match their wireframes and are not a finding.) | Observed: shot 10k. Code: `src/ui/strings.ts:988-991` put `{name}` first. | T-242 |
 | N3 | A status notice (4 s) hides the live readout of the next drag and the result of the next action. Long notices are cut at 80 columns. "1 tables in stock". | Observed: shots 07e, 07f, 08c, 08d, 11b, 18c. | T-243 |
-| N4 | Jobs shows no empty-state line, and names build jobs by coordinates. | Observed: shots 11d, 11e. Code: `src/ui/panels/jobs.ts:65-72,110`. | T-241 |
+| N4 | Jobs shows no empty-state line, and names build jobs by coordinates. Stocks has no `/filter` row either, though its wireframe has one (`docs/04-implementation/ui-screens/panels.md:300`). | Observed: shots 11d, 11e, 15a. Code: `src/ui/panels/jobs.ts:65-72,110`. | T-241 |
 | N5 | Embark at 1280×800: `[p]` with no label, `reroll (25 ☼` cut, `Left 236` drawn as `Left 23`. | Observed: shots 04, 04f. | T-244 |
-| N6 | Trade: merchant goods are one row per item; a paused `[S-t]` says nothing. | Observed: shots 18e2, 18f. | T-251 |
+| N6 | Trade: merchant goods are one row per item, though the spec groups them as stacks (`docs/04-implementation/ui-screens/trade-session.md:32`); a paused `[S-t]` says nothing. | Observed: shots 18e2, 18f. | T-251 |
 | N7 | After a placement, the ghost over the new building turns red and says "blocked: something is built here". | Observed: shot 09f. | T-251 |
 
 Outside the UI, and not filed here: in these runs the embark dog and cat died within four days, and in the flat-test run five of seven dwarves were dead by Day 10 of Summer. That is the wildlife problem T-196 is working on.
