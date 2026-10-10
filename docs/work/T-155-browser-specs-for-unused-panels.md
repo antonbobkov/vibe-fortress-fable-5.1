@@ -37,8 +37,9 @@
   - `retire-and-legend.spec.ts`: plays a few hundred ticks, retires through the game menu and its confirmation, asserts the legend screen, returns to the main menu, opens Legends and asserts that the fortress is listed.
   - `embark-custom.spec.ts`: changes a skill, rerolls and renames a dwarf, changes supply and animal counts, renames the fortress, embarks and asserts the arrived party and stocks through the readers.
   - `animals-panel.spec.ts`: marks and unmarks for slaughter, assigns to pasture, sets breeding cap, toggles huntable species on the wild tab; asserts through animals and foraging readers.
+  - `panels-act.spec.ts`: covers stocks (forbid, dump, melt), jobs (priority, cancel), orders (reorder, remove, auto-harvest toggle), units (title assignment, shift sleep hour), population (cap change), mood (morale tier), threats (renown), log (filter change), look (tile material), overlays (all 11 toggle with cell buffer glyph change), and map actions (Ctrl+Z designation undo, Delete on selection cancels planned building and removes zone with confirmation dialog, selection forbids items); screenshot saved.
 - Remaining:
-  - `panels-act.spec.ts`
+  - (none; all four specs implemented and passing)
 
 ## Done
 
