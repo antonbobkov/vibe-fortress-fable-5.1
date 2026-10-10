@@ -329,6 +329,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     const species = ctx.registry.table<SpeciesRow & { id: string }>('creatures');
     const movement = ctx.world.services.movement;
     const dwarves = reader.list();
+    this.activities.passingTalks(ctx, dwarves);
     for (const id of dwarves) {
       // `10` § Movement: species speed × (50 + Agility) / 100 (wounds and carrying from M4/M6).
       const creature = entities.get(id, C.Creature);
@@ -427,6 +428,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       this.seedTitles();
       for (const title of TITLES) if (this.titles[title] === id) this.titles[title] = 0;
       this.activities.cancel(ctx, id);
+      this.activities.forget(id);
       this.idleAnnounced.delete(id);
       this.interruptFlags.delete(id);
       this.shutOut.delete(id);
@@ -584,6 +586,9 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       ...(this.sawMasterworks.size > 0 ? { sawMasterworks: Array.from(this.sawMasterworks).sort()
         .map((key) => key.split(':').map(Number) as [EntityId, EntityId]) } : {}),
       ...(this.activities.serializeRetryUntil().length > 0 ? { needRetryUntil: this.activities.serializeRetryUntil() } : {}),
+      ...(this.activities.talks.size > 0 ? { talks: this.activities.serializeTalks() } : {}),
+      ...(this.activities.hearthTicks.size > 0 ? { hearthTicks: Array.from(this.activities.hearthTicks).sort((a, b) => a[0] - b[0]) } : {}),
+      ...(this.activities.hallRetryUntil.size > 0 ? { hallRetryUntil: Array.from(this.activities.hallRetryUntil).sort((a, b) => a[0] - b[0]) } : {}),
     };
   }
 
@@ -623,5 +628,14 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     for (const [id, need, until] of state.needRetryUntil ?? []) {
       this.activities.setRetryUntil(id, need, until);
     }
+    this.activities.talks.clear();
+    for (const [a, b, until] of state.talks ?? []) {
+      this.activities.talks.set(a, { partner: b, until });
+      this.activities.talks.set(b, { partner: a, until });
+    }
+    this.activities.hearthTicks.clear();
+    for (const [id, ticks] of state.hearthTicks ?? []) this.activities.hearthTicks.set(id, ticks);
+    this.activities.hallRetryUntil.clear();
+    for (const [id, until] of state.hallRetryUntil ?? []) this.activities.hallRetryUntil.set(id, until);
   }
 }

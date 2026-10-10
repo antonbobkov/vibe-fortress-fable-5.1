@@ -74,7 +74,7 @@ export interface Job {
   claimedTick: Tick;
   /**
    * Producer data, plus 11's own: `effort` (work done, in skill-scaled hundredths of a tick
-   * times percent; D-055), `standTile` (the chosen work tile), `toolToFetch`.
+   * times percent; D-055), `standTile` (the chosen work tile), `toolToFetch`, `ammoToFetch` (the ammunition a ranged job still fetches).
    */
   data: Record<string, unknown>;
 }
