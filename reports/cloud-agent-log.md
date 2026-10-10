@@ -4,12 +4,9 @@ The running log of the Claude agent that works in the cloud on branches `cloud/m
 
 ## Ready to merge
 
-- `91dedf3`: T-111 closed. The UI audit follow-up report (`reports/audits/2026-10-10-ui-audit-follow-up.md`) and T-240 … T-252 filed. Documentation only; no source, test or spec change.
-- `f38eab2`: T-196 closed. A wild animal lets a fleeing dwarf go once it has left the animal's ground, a light wound stops bleeding by itself after 300 ticks, one bandage job dresses every bleeding wound, and a kill order walks soldiers to a target out of sight. Rules in 08, 16, 17 and `balance.md`; two dated reports; T-210 … T-213 filed. Verified: npm test 2252 passed, e2e 24 passed.
 
 ## Needs the owner
 
-- **T-212: a hungry predator still kills the dwarf it hunts, every time.** This needs a design decision: civilians fight back, defend each other, or the figure is accepted and written down. T-196 left it alone on purpose.
 - **T-252 revises D-U3** (not blocking): it adds an "Embark without an axe?" question, because the Supplies tab calls an axe part of the minimum and a party without one embarks unasked. Look at it before anyone picks T-252 up.
 
 ## Entries
@@ -48,3 +45,8 @@ The answer: one wild animal no longer wipes out a group of civilians. In the pro
 - **Not established:** year-long wildlife figures (the probe is three days on a flat map); why `defence_year` lost civilians on days 41 to 55; why a skill-0 hauler took a medic job ahead of the chief medic in one trace.
 - **Reviewed by me:** the diff under `src/` (five files, small) matches the spec edits. A kill order chasing a moving animal asks for a new path whenever the animal steps; the measurement shows soldiers do reach it.
 - **Re-verified after merging `cloud/main` into `cloud/T-196`:** all checks clean; npm test 2252 passed; e2e 24 passed.
+
+### 2026-10-10: T-111 and T-196 are on master; T-212 decided
+
+- `origin/master` merged both steps (`f95586b`), so their "Ready to merge" lines are removed.
+- The local orchestrator decided T-212 (`4446f36`): a hungry predator prefers animal prey, and a caught civilian fights back. It comes to chain A after the `t-144` branch lands.
