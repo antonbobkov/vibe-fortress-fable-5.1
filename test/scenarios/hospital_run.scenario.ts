@@ -25,7 +25,7 @@ const Z = FLAT_TEST_SURFACE_Z;
 const scenario: Scenario = {
   id: 'hospital_run',
   milestone: 8,
-  seed: 'hospital-run',
+  seed: 'hospital-run-4',
   world: 'flat-test',
   // T-192: stage hospital casualties independently of unrelated natural animal arrivals.
   surfaceWildlife: 'none',

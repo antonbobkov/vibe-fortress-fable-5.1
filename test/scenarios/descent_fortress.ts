@@ -382,17 +382,6 @@ export function runDescent(w: TestWorld): void {
     mode: 'active',
   });
   expect(rMode.ok).toBe(true);
-  // The Deep Guard stands at its door for days. A soldier on duty whose thirst turns critical
-  // starts for a drink while 16 walks it back to the station every tick; it goes nowhere and
-  // does not fight. This fixture is about the descent, so it keeps the two on duty fed, watered
-  // and rested at each hour.
-  w.game.world.onEvents((events) => {
-    if (!events.some((e) => e.type === 'HourPassed')) return;
-    for (const id of soldierIds) {
-      if (!w.game.world.entities.alive(id) || w.game.world.entities.get(id, C.Soldier)?.onDuty !== true) continue;
-      for (const need of ['hunger', 'thirst', 'rest'] as const) w.setNeed(id, need, 0);
-    }
-  });
 
   const rMembers = w.game.world.applyCommand({
     type: 'SetSquadMembers',
