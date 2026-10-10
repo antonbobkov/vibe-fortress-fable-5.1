@@ -6,7 +6,7 @@
 import { expect } from 'vitest';
 import { TICKS_PER_DAY } from '@core/constants';
 import { C } from '@core/components';
-import { TileKind, TileFlag } from '@core/map3d';
+import { TileKind } from '@core/map3d';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
 import type { DefenseReader } from '@systems/defense';
@@ -19,7 +19,6 @@ import {
   checkFortressRooms,
   checkFortressCaveFarm,
   Z,
-  HALL_Z,
   type FortressState,
 } from './three_years_fortress';
 import { placeEconomyBuilding } from './three_years_economy';
