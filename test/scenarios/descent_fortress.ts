@@ -207,12 +207,11 @@ export function runDescent(w: TestWorld): void {
   const cavern1Tile = map.index(23, 45, 19);
   expect(map.hasFlag(cavern1Tile, TileFlag.Discovered)).toBe(true);
 
-  // Cavern creature is spawned and awakened in Cavern 1.
-  // Note: Spec 18 § Cavern monsters specifies MonsterSpawned { id, cavern }, but wakeCavernMonsters
-  // only updates behaviorState from 'asleep' to 'wander' without emitting MonsterSpawned (filed as T-193).
-  // Assertion omitted pending T-193.
+  // T-193: breach handlers queue their notifications for the next dispatch tick.
+  w.step(1);
+  // Initial cavern sleepers are announced as they awaken on the breach.
   const monsterEvents = w.events('MonsterSpawned');
-  expect(monsterEvents).toHaveLength(0); // See T-193: MonsterSpawned not delivered on breach
+  expect(monsterEvents.filter((event) => event['cavern'] === 1).length).toBeGreaterThan(0);
 
   // 8. Build wall and door across Breach 1
   console.log('--- Step 8: Build wall and door across Breach 1 ---');

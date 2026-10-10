@@ -1,10 +1,12 @@
 # T-193 — Initial cavern monsters emit no MonsterSpawned event upon cavern breach
 
+Closed by `T-193: announce cavern monsters when a breach wakes them`.
+
 **Source:** T-154 and its run of `descent.scenario.ts` · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
-[`docs/02-systems/18-threats-monsters-and-raids.md`](../02-systems/18-threats-monsters-and-raids.md) § Cavern monsters specifies:
+[`docs/02-systems/18-threats-monsters-and-raids.md`](../../02-systems/18-threats-monsters-and-raids.md) § Cavern monsters specifies:
 > Each cavern band has an initial population spawned asleep at generation and placed at random floor tiles ... A breach wakes the sleeping monsters of that cavern.
 And under § Events:
 > `MonsterSpawned { id, cavern }` (note if far, alert if a path to dwarves exists).
