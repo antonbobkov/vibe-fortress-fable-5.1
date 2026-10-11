@@ -1,0 +1,14 @@
+{
+  "runtimeBase": "182d2fd",
+  "patch": "animals CreatureDied clears newly fed hunting targets and paths",
+  "patchSourceSHA256": "371f1f5c82468fc1ede4281f849df47ce175170a5264a8216454a51544e278bc",
+  "baselineAllRowsIdentical": true,
+  "sourceHashesUTF8LF": {
+    "reports\\data\\2026-10-11-t220-observer.ts.txt": "8d0a67e3b3fcb76d93f127a91cb7304d90689abc7076ce2e31cda7f5b4aee8e1",
+    "reports\\data\\2026-10-11-t220-original.test.ts.txt": "ef7e5967402a11db8fde0fd5ba741c59dd5713b2fea32b32f0bee6bd2f74fdfb",
+    "reports\\data\\2026-10-11-t220.config.ts.txt": "9c91be4f962e6811121757a96e2f11028896ef003b5ad269d67d805d3785f995",
+    "reports\\data\\2026-10-11-t220-prepared-fixture.ts.txt": "1c17a537a2fd6abb52a926266facc3987d0ff5d4b5ff8bad0a039bc2812d0045",
+    "reports\\data\\2026-10-11-t220-prepared.test.ts.txt": "bc38582f0e082db58fb66daa619cc3bac12a61cb3a94d85577af539abb27a926",
+    "reports\\data\\2026-10-11-t220-prepared.config.ts.txt": "01c8257a4af5f55bde2bda3855588e0a9f97b9e5f5f16bb80bf70b0efeb1171d"
+  }
+}
