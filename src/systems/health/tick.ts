@@ -158,7 +158,7 @@ export function updatePatient(
 
   const existingPatient = entities.get(id, C.Patient);
 
-  if (shouldBePatient) {
+  if (shouldBePatient || existingPatient !== undefined) {
     const needs: string[] = [];
     if (anyBleeds) needs.push('stop_bleeding');
     if (anyUnsplintedFracture) needs.push('set_bone');
@@ -179,7 +179,10 @@ export function updatePatient(
     const lostLeg = b.permanent.includes('lost_left_leg') || b.permanent.includes('lost_right_leg');
     if (lostLeg && !hasCrutchItem(entities, ctx.registry, id)) needs.push('give_crutch');
 
-    if (existingPatient === undefined) {
+    if (!shouldBePatient && existingPatient !== undefined) {
+      // A treated patient can remain admitted for pain, but needs no repeated treatment.
+      entities.add(id, C.Patient, { ...existingPatient, needs });
+    } else if (existingPatient === undefined) {
       const bedInfo = findHospitalOrFreeBed(ctx);
       entities.add(id, C.Patient, {
         hospitalZoneId: bedInfo.hospitalZoneId,
@@ -202,7 +205,8 @@ export function updatePatient(
         needs,
       });
     }
-  } else if (existingPatient !== undefined) {
+  }
+  if (!shouldBePatient && existingPatient !== undefined) {
     // Discharge: no bleeding, no unsplinted fractures, no undressed burns, no infection, conscious, pain < PAIN_DISCHARGE
     if (
       !anyBleeds &&
@@ -345,9 +349,9 @@ export function tickHealth(
   // 1. Submersion environmental check
   checkSubmersion(ctx, woundedSet, lastAttacker);
 
-  // 2. Process all wounded creatures in ascending id order
+  // 2. Process wounds and every admitted patient, even after its last wound healed.
   const entities = ctx.world.entities;
-  const sortedWounded = Array.from(woundedSet).sort((a, b) => a - b);
+  const sortedWounded = Array.from(new Set([...woundedSet, ...entities.with(C.Patient)])).sort((a, b) => a - b);
 
   for (const id of sortedWounded) {
     if (!entities.alive(id)) {
