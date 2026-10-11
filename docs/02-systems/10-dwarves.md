@@ -67,9 +67,7 @@ A food or drink errand reserves one unit under the dwarf's id. Death, unconsciou
 - Schedule: each dwarf has `sleepStartHour` (uniformly 20–23 from 10's rng stream) and sleeps `SLEEP_HOURS` unless rest is below 20. Rest at its want threshold outside the window also sends the dwarf to bed.
 - Bed search: own bed (assigned bedroom), else any unassigned free bed, else the floor of the hearth hall, else where they stand. Emits `Slept { id, bedQuality, roomTier, onFloor }`.
 - Sleep is interrupted by `danger`-severity events nearby and by hearth alert.
-
-Squad positioning never redirects a soldier travelling to bed or sleeping as a
-need activity, in any mode. Critical rest takes precedence over all squad orders.
+- A soldier on duty who walks to a bed or sleeps is serving a need: in every squad mode, 16's squad code neither moves it nor gives it a target until it is back on duty (16 § Squads).
 
 ### Social, comfort, joy
 
@@ -93,21 +91,13 @@ Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and
 2. `retreat`: fortress alert is `hearth` and the dwarf is a civilian: path to the hearth hall, or the nearest indoor tile behind a door if the hall is unreachable; stay until the alert ends. A civilian for whom neither is reachable (shut out by a locked gate) skips this step until one becomes reachable; `flee` still protects them.
 3. `patient`: 17 has marked the dwarf as needing a hospital: go to the hospital bed (or the nearest bed) and rest; care jobs feed them.
 4. `need` (critical): satisfy the most critical need. Always applies to soldiers on duty as well as civilians, in every squad mode.
-5. `duty`: the dwarf is a soldier on duty (16): 16 controls movement and targets. In `train` mode, training is ordinary duty, and want-level needs (step 6) take precedence so the soldier leaves duty to eat, drink, or sleep and returns when satisfied. In `active` mode with a hostile in sight, or when the squad has an explicit order (`station`, `patrol`, `follow`, `kill`) during an alert (`watchful` or `hearth`), duty holds the soldier against want-level needs; otherwise want-level needs also take precedence.
+5. `duty`: the dwarf is a soldier on duty (16): 16 controls movement and targets. Duty holds the soldier against its want-level needs (step 6) and its scheduled sleep in two cases only: its squad is treated as active (`active` mode, or any mode under a `watchful` or `hearth` alert, 16 § Squads) and a hostile is in sight; or its squad has an explicit order (`station`, `patrol`, `follow`, `kill`) during a `watchful` or `hearth` alert. A hostile is in sight when it is alive, not stealthed, within `PERCEPTION_RADIUS` (16) horizontally and two levels vertically, and in line of sight; a combat target the soldier still holds is not by itself in sight, since 16 keeps a target that is out of sight (16 § Targeting). In every other case the want takes precedence: training, a station, patrol, follow or kill order while the alert is `calm`, and an alert without an order do not hold it, and the soldier returns to duty when the need is met. A critical need (step 4) wins in every case.
 6. `need` (want): satisfy the highest of hunger, thirst and rest over its want threshold, unless a job with priority ≤ `NEED_DEFER_PRIORITY` is available and the need is below its critical threshold. Social, comfort and joy are not served here below `LEISURE_MARK`: they wait for step 8 and are relieved in passing (§ Eating and drinking; § Social, comfort, joy). With none of hunger, thirst and rest to serve, a dwarf with one of the three at or over `LEISURE_MARK` takes the hall errand here, before default-priority work and under the same exception for a job with priority ≤ `NEED_DEFER_PRIORITY`. A soldier whose duty does not hold (step 5) never reaches step 8, so it serves the highest of all its wants here, those three included.
 7. `work`: queue the dwarf for 11 through `jobs.assign(id)` and stay in `work` while waiting for its later tick to answer. With a job, run its steps; when no longer queued and without a job, go idle.
 8. `social`: the dwarf has no work: 11 has answered with no job and reports no open job the dwarf could take, or the dwarf cannot or may not work (a day off, a wound, a child with no hauling to do). A dwarf in a talk in passing stays for it. Otherwise do the errand of the highest of social, comfort and joy over its want threshold. No such errand starts while a job is open for the dwarf; only the hall errand of step 6 does.
 9. `idle`: go to the hearth hall and wait up to `IDLE_TICKS`, then re-evaluate; re-evaluate at once if a job becomes available for this dwarf before the wait is over, so that new work is never ignored for a whole hour. Idle dwarves are shown as "No job" in the units panel.
 
 `DwarfIdle` fires once per stretch without a job and is reset by real work. With no hearth hall, idle uses the saved arrival wagon tile; without an arrival it stays at the current tile. Selection repairs legacy negative goals before queued work. Patient rest without a bed, cornered fighting and duty also use the current tile.
-
-A calm station or patrol does not by itself defer a soldier's want-level need,
-nor does an alert without an explicit order or a hostile in sight. An explicit
-order during an alert holds wants in every squad mode. Current sight requires a
-visible hostile within perception and line of sight; a retained combat target
-alone is insufficient. Query sight for need selection only when an active
-soldier has a want or scheduled sleep to defer and no alert order already holds
-it; combat's ordinary perception and target retention continue independently.
 
 Civilian escape searches the legal walker edges, including stairs and ramps, with the dwarf's movement restrictions. Visit at most `CIVILIAN_FLEE_NODE_LIMIT` tiles breadth first by step count, breaking ties within each frontier by tile index. Prefer a reachable safer hearth-hall tile even when the bounded search cannot visit it: use the hall tile reached by the search, or the lowest-index eligible hall tile when none was visited. Only without an eligible reachable hall use the nearest visited safer tile. A safer tile is on another level from the threat or has greater horizontal Chebyshev distance from it than the starting tile. Exclude hostile-occupied tiles. If no safer tile is found, the civilian is cornered and fights back with the weapon or tool they carry: the weapon it wields, else the tool it holds, when 16 counts that item as a weapon (16 § Equipment), else its natural attack. A load it hauls is not a weapon.
 
