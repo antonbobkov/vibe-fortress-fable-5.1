@@ -50,7 +50,7 @@ Typed array section names carry the element type after a colon: `map.kind:u8`, `
 | `fortress` | JSON | `FortressState` |
 | `calendar` | JSON | `{ tick, isDaylight }` |
 | `rng` | JSON | `{ streamId: [s0,s1,s2,s3] }` for every stream |
-| `systems` | JSON | `{ id: { stateVersion, state } }` for every system; typed arrays inside are base64 with a `"$type"` marker |
+| `systems` | JSON | `{ id: { stateVersion, state } }` for every system; typed arrays inside are base64 with a `"$type"` marker. System 15 saves pending initial or hourly recomputation in `hourlyDue`, so a fresh embark save continues its first morale tick exactly |
 | `commandLog` | JSON | current season's entries |
 | `queues` | JSON | pending `{ events, commands }` |
 | `ui` | JSON | `UiState` |
