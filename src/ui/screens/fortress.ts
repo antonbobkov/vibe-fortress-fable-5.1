@@ -166,6 +166,7 @@ export class FortressScreen implements Screen {
   pinned: LogLine | null = null;
   private flashUntil = 0;
   private message: { text: string; until: number } | null = null;
+  private noticeGhost: string | null = null;
   private dragging = false;
   /**
    * `ui-keymap-and-screens.md` § Mouse: "Left drag | with no tool: select a rectangle (then
@@ -326,10 +327,27 @@ export class FortressScreen implements Screen {
 
   /**
    * A message on status row 2 for `STATUS_HINT_SECONDS`: a refusal, or why a gesture did nothing
-   * (D-U4: "UI-layer no-ops get a status message").
+   * (D-U4: "UI-layer no-ops get a status message"). Replaced at once by starting a drag, a new
+   * ghost state or a new notice (T-243).
    */
   notice(text: string): void {
     this.message = { text, until: this.host.now() + STATUS_HINT_SECONDS * 1000 };
+    this.noticeGhost = this.build.active ? this.ghostKey() : null;
+  }
+
+  clearNotice(): void {
+    this.message = null;
+    this.noticeGhost = null;
+  }
+
+  private ghostKey(): string {
+    if (!this.build.active) return '';
+    const p = this.hoverPoint() ?? this.actionPoint();
+    const row = this.build.current(this.ctx);
+    if (row === undefined) return '';
+    const ghost = this.build.ghost(this.ctx, p);
+    const blocked = ghost === null ? 'null' : (blockedText(this.ctx, row.id, ghost) ?? 'ok');
+    return `${row.id}:${p.x},${p.y},${p.z}:${blocked}`;
   }
 
   /** The status message while it shows, or null. */
@@ -610,16 +628,34 @@ export class FortressScreen implements Screen {
       const at = rect.col + 1 + date + 3;
       surface.put(at, rect.row, surface.glyphs.index(weatherGlyph(weather)), weatherColor(weather, t), t.black);
     }
-    if (rect.rows > 1) labelRow(surface, rect.col, rect.row + 1, rect.cols, ` ${this.statusRow2()}`, { fg: t.text });
+    if (rect.rows > 1) {
+      const text2 = this.statusRow2();
+      const full = ` ${text2}`;
+      const chars = Array.from(full);
+      if (chars.length > rect.cols && rect.cols > 0) {
+        surface.tooltip({ col: rect.col, row: rect.row + 1, cols: rect.cols, rows: 1 }, text2);
+        const visible = `${chars.slice(0, rect.cols - 1).join('')}…`;
+        labelRow(surface, rect.col, rect.row + 1, rect.cols, visible, { fg: t.text });
+      } else {
+        labelRow(surface, rect.col, rect.row + 1, rect.cols, full, { fg: t.text });
+      }
+    }
   }
 
   /**
    * Row 2: "the tile summary under the mouse (or the cursor), then the hotkey strip …; with a tool
    * active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc]
-   * cancel`." A rejection reason takes the row for `STATUS_HINT_SECONDS`.
+   * cancel`." A rejection reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier
+   * by starting a drag, a new ghost state or a new notice (T-243).
    */
   statusRow2(): string {
     const s = this.strings;
+    if (this.dragging || this.build.anchor !== null || this.zones.anchor !== null || this.tool.anchor !== null || this.selection !== null) {
+      this.clearNotice();
+    }
+    if (this.build.active && this.noticeGhost !== null && this.ghostKey() !== this.noticeGhost) {
+      this.clearNotice();
+    }
     const notice = this.currentNotice;
     if (notice !== null) return notice;
     if (this.pointer !== null && this.last !== null) {
@@ -971,18 +1007,19 @@ export class FortressScreen implements Screen {
     if (this.build.active) {
       // D-U6 by keyboard: `Shift+Enter` marks a corner, `Enter` at the other places one per tile.
       if (this.build.anchor !== null) this.placeMany(this.build.anchor, p);
-      else if (shift && this.build.multi(this.ctx)) this.build.anchor = p;
+      else if (shift && this.build.multi(this.ctx)) { this.build.anchor = p; this.clearNotice(); }
       else if (shift) this.notice(this.strings.get('ui.status.build_single', { tool: this.build.name(this.ctx) }));
       else this.place(p);
       return;
     }
     if (this.zones.active) {
-      if (this.zones.anchor === null) this.zones.anchor = p;
+      if (this.zones.anchor === null) { this.zones.anchor = p; this.clearNotice(); }
       else this.commitZone(this.zones.anchor, { x: p.x, y: p.y, z: this.zones.anchor.z });
       return;
     }
     if (this.tool.anchor === null) {
       this.tool.anchor = p;
+      this.clearNotice();
       return;
     }
     const a = this.tool.anchor;
@@ -1548,6 +1585,7 @@ export class FortressScreen implements Screen {
         this.build.anchor = at;
         this.build.end = at;
         this.dragging = true;
+        this.clearNotice();
       } else this.place(at);
       return;
     }
@@ -1555,6 +1593,7 @@ export class FortressScreen implements Screen {
       this.zones.anchor = at;
       this.zones.end = at;
       this.dragging = true;
+      this.clearNotice();
       return;
     }
     if (this.ui.panel === 'zones' && this.ui.sidebar) {
@@ -1569,6 +1608,7 @@ export class FortressScreen implements Screen {
       this.tool.anchor = at;
       this.tool.end = at;
       this.dragging = true;
+      this.clearNotice();
       return;
     }
     const tile = this.tileOf(at);
@@ -1580,10 +1620,12 @@ export class FortressScreen implements Screen {
       if (this.ui.panel === 'building') {
         this.ui.cursor = { x: at.x, y: at.y };
         this.selecting = at;
+        this.clearNotice();
       }
       return;
     }
     this.selecting = at;
+    this.clearNotice();
     this.look(at);
   }
 
