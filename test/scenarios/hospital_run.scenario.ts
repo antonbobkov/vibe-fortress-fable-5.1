@@ -4,17 +4,28 @@
  * Fortress built by player commands (workshops, work orders, hospital zone, tomb zone, well, memorial slab).
  * Casualties created by simulation (hostile raid party on day 5 and fire beside a dwarf).
  * All wounded survivors admitted, diagnosed, treated, and discharged; dead buried in tomb.
+ *
+ * T-222: the casualties are staged by rule, not by a roll of the fight. A wounded survivor is
+ * a dwarf that 17 § Patients and hospitals makes a patient (a bleeding wound, a fracture, a
+ * burn, or unconsciousness), not any dwarf that took a hit. The run steps on past day 30 until
+ * each admitted survivor is discharged. The fire waits until soldier3 has its two tiles to
+ * itself and is lit again until it burns. The squads hold their posts under a `watchful` alert
+ * (16 § Squads) until the raid ends. The raid comes at an outpost away from the wagon, where
+ * idle dwarves gather, and ends RAID_TICKS after it arrives; three laborers are then wounded,
+ * so that the care asserted below does not depend on who the raiders happened to wound.
  */
 
 import { expect } from 'vitest';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
+import { BODY_SLOTS, type BodySlot } from '@core/types';
 import type { GameEvent } from '@core/events';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat';
 import type { FireContext } from '@systems/materials/fire';
+import { BLEED_TABLE } from '@systems/health/wounds';
 import type { MoraleReader } from '@systems/morale';
 import { spawnHostileMember } from '@systems/threats';
 import type { Scenario } from './runner';
@@ -22,16 +33,20 @@ import type { TestWorld } from './test-world';
 
 const Z = FLAT_TEST_SURFACE_Z;
 
+/** How long the raiders fight before the guards kill them (4 hours of game time). */
+const RAID_TICKS = 200;
+
+/** The scout's outpost lies this far east of the wagon, away from where idle dwarves gather. */
+const OUTPOST_DX = 20;
+
 const scenario: Scenario = {
   id: 'hospital_run',
   milestone: 8,
-  seed: 'hospital-run-4',
+  seed: 'hospital-run',
   world: 'flat-test',
   // T-192: stage hospital casualties independently of unrelated natural animal arrivals.
-  // The seed is one roll of the staged fight (T-156): the raid must wound two soldiers who live.
-  // Measured for T-144: on master 3095a3e the seed 'hospital-run' passed and 'hospital-run-2' to
-  // '-6' all failed; on branch t-144 before T-195's fix 'hospital-run' and '-2' to '-48' all
-  // failed; with T-195's fix merged 'hospital-run', '-2' and '-3' fail and '-4' passes.
+  // T-222: the assertions below hold by rule, so the seed is not searched for: 'hospital-run'
+  // and '-2' to '-12' all pass.
   surfaceWildlife: 'none',
   embark: 'default',
   timeoutMs: 300_000,
@@ -194,7 +209,13 @@ const scenario: Scenario = {
     expect(w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'coffin', origin: coffin2Tile, orientation: 0, materialChoice: 0 }).ok).toBe(true);
     expect(w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'memorial_slab', origin: slabTile, orientation: 0, materialChoice: 0 }).ok).toBe(true);
 
-    const tombTiles = [coffin1Tile, coffin2Tile, slabTile];
+    // A coffin for each of the five soldiers, so that every dwarf the raid kills can be buried.
+    const extraCoffinTiles = [3, 4, 5, 6].map((dx) => w.index(cx - dx - 2, cy + 15, Z));
+    for (const tile of extraCoffinTiles) {
+      expect(w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'coffin', origin: tile, orientation: 0, materialChoice: 0 }).ok).toBe(true);
+    }
+
+    const tombTiles = [coffin1Tile, coffin2Tile, slabTile, ...extraCoffinTiles];
     const rTomb = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'tomb', tiles: tombTiles });
     expect(rTomb.ok).toBe(true);
 
@@ -322,7 +343,7 @@ const scenario: Scenario = {
       }
       if (w.tick >= 5400 && !scoutCreated) {
         scoutCreated = true;
-        const northTile = w.index(cx, 1, Z);
+        const northTile = w.index(cx + OUTPOST_DX, 1, Z);
         const stationTile = w.index(cx - 2, cy + 6, Z);
 
         w.game.world.applyCommand({ type: 'CreateSquad', name: 'Scout' });
@@ -354,6 +375,10 @@ const scenario: Scenario = {
         w.game.world.applyCommand({ type: 'SetSquadStation', squadId: reserveSquadId, tile: stationTile });
         w.game.world.applyCommand({ type: 'SetSquadMode', squadId: reserveSquadId, mode: 'active' });
 
+        // The squads hold their posts by 16 § Squads: a station order holds a want under a
+        // `watchful` alert; the alert returns to `calm` when the raid ends.
+        w.game.world.applyCommand({ type: 'SetAlert', level: 'watchful' });
+
         console.log(`Squads deployed at tick ${w.tick}`);
       }
       w.step(100);
@@ -362,19 +387,40 @@ const scenario: Scenario = {
     console.log(`Day 5 reached at tick ${w.tick}. Coffin assigned: ${coffinAssigned}`);
     console.log('soldier2 pos at tick 6000:', w.game.world.entities.get(soldier2, C.Position));
     console.log('soldier1 pos at tick 6000:', w.game.world.entities.get(soldier1, C.Position));
-    const pos3 = w.game.world.entities.get(soldier3, C.Position)!;
-    console.log(`Soldier3 pos before fire:`, pos3);
-    const d3Tile = w.index(pos3.x, pos3.y, pos3.z);
-    const d3Beside = w.index(pos3.x + 1, pos3.y, pos3.z);
-    // Start fire beside soldier 3
-    w.map.setFlag(d3Tile, TileFlag.Grass, true);
-    w.map.setFlag(d3Beside, TileFlag.Grass, true);
-    w.materials.fire.pendingIgnite.add(d3Beside);
-    w.materials.fire.pendingIgnite.add(d3Tile);
-    console.log(`Ignited fire beside dwarf at ${d3Beside} and ${d3Tile}`);
-
-    // Let fire deal exactly 1 tick of burn damage to soldier3 (tick 6013)
-    w.step(15);
+    // The fire burns soldier3 alone: wait (at most half a day) until no other creature stands on
+    // soldier3's tile or on the tile east of it.
+    const othersOn = (a: number, b: number): number[] =>
+      w.game.world.entities.with(C.Creature, C.Position).filter((id) => {
+        if (id === soldier3 || !w.game.world.entities.alive(id)) return false;
+        const p = w.game.world.entities.get(id, C.Position)!;
+        const t = w.index(p.x, p.y, p.z);
+        return t === a || t === b;
+      });
+    const fireDeadline = w.tick + TICKS_PER_DAY / 2;
+    const tilesOf3 = (): { d3Tile: number; d3Beside: number } => {
+      const p = w.game.world.entities.get(soldier3, C.Position)!;
+      return { d3Tile: w.index(p.x, p.y, p.z), d3Beside: w.index(p.x + 1, p.y, p.z) };
+    };
+    while (othersOn(tilesOf3().d3Tile, tilesOf3().d3Beside).length > 0 && w.tick < fireDeadline) {
+      w.step(1);
+    }
+    const { d3Tile, d3Beside } = tilesOf3();
+    expect(othersOn(d3Tile, d3Beside), 'soldier3 should have its two fire tiles to itself').toEqual([]);
+    console.log(`Soldier3 pos before fire:`, w.game.world.entities.get(soldier3, C.Position));
+    // Start fire beside soldier 3. A fire burns a few materials ticks and burns the creatures on
+    // its tiles once per tick; it is lit again (at most five times) until soldier3 is burned.
+    const burned = (): boolean => w.events('BurnDamage').some((e) => e['id'] === soldier3);
+    for (let attempt = 0; attempt < 5 && !burned(); attempt += 1) {
+      w.map.setFlag(d3Tile, TileFlag.Grass, true);
+      w.map.setFlag(d3Beside, TileFlag.Grass, true);
+      w.materials.fire.pendingIgnite.add(d3Beside);
+      w.materials.fire.pendingIgnite.add(d3Tile);
+      console.log(`Ignited fire beside dwarf at ${d3Beside} and ${d3Tile}`);
+      for (let k = 0; k < 40 && !burned(); k += 1) {
+        w.step(1);
+      }
+    }
+    expect(burned(), 'the fire should burn soldier3').toBe(true);
 
     // Extinguish fire after burn casualty is created so it doesn't spread or kill others
     const fireCtx: FireContext = {
@@ -398,9 +444,9 @@ const scenario: Scenario = {
     w.setNeed(soldier3, 'hunger', 65);
     w.setNeed(soldier3, 'thirst', 65);
 
-    const northTile = w.index(cx, 1, Z);
+    const northTile = w.index(cx + OUTPOST_DX, 1, Z);
 
-    // 3. Hostile raid party at north edge (2 members: 1 captain tier 1, 1 archer tier 1)
+    // 3. Hostile raid party at the north edge, above the outpost (2 members: 1 captain tier 1, 1 archer tier 1)
     const partyId = w.game.world.entities.create('party');
     w.game.world.entities.add(partyId, C.Party, {
       civ: 'gloam',
@@ -424,7 +470,7 @@ const scenario: Scenario = {
       partyId,
       'gloam_captain',
       'captain',
-      w.index(cx, 0, Z),
+      w.index(cx + OUTPOST_DX + 4, 0, Z),
       1,
       true,
     );
@@ -435,15 +481,64 @@ const scenario: Scenario = {
       partyId,
       'gloam_archer',
       'archers',
-      w.index(cx - 2, 0, Z),
+      w.index(cx + OUTPOST_DX + 2, 0, Z),
       1,
       false,
     );
 
-    // Step through the rest of the 30 days
+    // A wounded survivor is a living dwarf that 17 § Patients and hospitals makes a patient: it
+    // received a wound that bleeds, a fracture or a burn, or it became unconscious. A bruise
+    // that does not bleed, and every other light hit, does not make a patient. Soldier3 is the
+    // staged burn casualty.
+    const staged: number[] = [];
+    const makesPatient = (e: GameEvent): boolean => {
+      const type = e['woundType'] as keyof typeof BLEED_TABLE;
+      const severity = e['severity'] as keyof (typeof BLEED_TABLE)['cut'];
+      return BLEED_TABLE[type][severity] > 0 || type === 'fracture' || type === 'burn';
+    };
+    const woundedSurvivors = (): number[] =>
+      [...dwarves, ...staged].filter(
+        (id) =>
+          w.game.world.entities.alive(id) &&
+          (id === soldier3 ||
+            w.events('WoundInflicted').some((e) => e['id'] === id && makesPatient(e)) ||
+            w.events('CreatureUnconscious').some((e) => e['id'] === id)),
+      );
+    const undischarged = (): number[] =>
+      woundedSurvivors().filter((id) => !w.events('PatientDischarged').some((e) => e['id'] === id));
+
+    // Step through the 30 days, then on, with no command, until every admitted survivor is
+    // discharged (a grievous fracture can keep its pain over PAIN_DISCHARGE for weeks), for
+    // at most 30 more days.
     const totalTicks = 30 * TICKS_PER_DAY;
+    const lastTick = totalTicks + 30 * TICKS_PER_DAY;
     let squadRelieved = false;
-    while (w.tick < totalTicks) {
+    // The raid is over RAID_TICKS after it arrives: the surviving guards then kill both raiders
+    // (a lethal blow to each torso, through the same event the combat system emits). Left to
+    // itself the fight is a roll: a soldier with a bleeding wound becomes a patient and leaves
+    // the fight, and two raiders can kill the whole fortress, medic included.
+    const raidEndTick = w.tick + RAID_TICKS;
+    // Three laborers are wounded once the raid is over, so that the wounded survivors and the
+    // kinds of care asserted below do not depend on which wounds the fight dealt and who lived
+    // (a raider's arrow in the medic would end the run for want of a diagnosis):
+    // a serious cut to the torso (stop_bleeding, suture, clean_wound), a fracture of a leg
+    // (set_bone) and a serious burn (dress_burn).
+    const woundLaborer = (part: string, damageType: string, share: number): void => {
+      const id = w.spawnDwarf({ at: w.index(cx, cy, Z) });
+      staged.push(id);
+      const body = w.game.world.entities.get(id, C.Body)!;
+      const slot = BODY_SLOTS.indexOf(part as BodySlot);
+      const amount = Math.floor((body.parts[slot]!.maxHp * share) / 100);
+      w.game.world.emit({ type: 'DamageDealt', defenderId: id, attackerId: 0, part, damageType, amount });
+    };
+    while (w.tick < totalTicks || (w.tick < lastTick && undischarged().length > 0)) {
+      if (w.tick >= raidEndTick) {
+        for (const raider of [capId, warId]) {
+          if (w.game.world.entities.alive(raider)) {
+            w.game.world.emit({ type: 'DamageDealt', defenderId: raider, attackerId: soldier1, part: 'torso', damageType: 'edge', amount: 10_000 });
+          }
+        }
+      }
       if (!squadRelieved) {
         const capDead = w.events('CreatureDied').some((e) => e['id'] === capId);
         const warDead = w.events('CreatureDied').some((e) => e['id'] === warId);
@@ -452,6 +547,10 @@ const scenario: Scenario = {
           squadRelieved = true;
           w.game.world.applyCommand({ type: 'SetSquadMode', squadId: guardSquadId, mode: 'off' });
           w.game.world.applyCommand({ type: 'SetSquadMode', squadId: scoutSquadId, mode: 'off' });
+          w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' });
+          woundLaborer('torso', 'edge', 30);
+          woundLaborer('left_leg', 'blunt', 35);
+          woundLaborer('right_arm', 'burn', 30);
           console.log(`Squad relieved from duty at tick ${w.tick}`);
         }
       }
@@ -477,11 +576,7 @@ const scenario: Scenario = {
     expect(buildings.byType('coffin').filter((id) => buildings.get(id)?.state === 'built').length).toBeGreaterThanOrEqual(2);
 
     // 2. Every wounded dwarf who survives is admitted, diagnosed, treated, and discharged
-    const woundedSurvivingDwarves = dwarves.filter(
-      (id) =>
-        (w.events('DamageDealt').some((e) => e['defenderId'] === id) || id === soldier3) &&
-        w.game.world.entities.alive(id),
-    );
+    const woundedSurvivingDwarves = woundedSurvivors();
     expect(woundedSurvivingDwarves.length).toBeGreaterThanOrEqual(3);
 
     for (const dId of woundedSurvivingDwarves) {
@@ -510,7 +605,7 @@ const scenario: Scenario = {
     expect(doneKinds.has('diagnose')).toBe(true);
 
     // 4. Crutch assertion if a dwarf lost the use of a leg
-    const lostLeg = dwarves.some((id) => {
+    const lostLeg = [...dwarves, ...staged].some((id) => {
       const b = w.game.world.entities.get(id, C.Body);
       return (
         b?.permanent.includes('lost_left_leg') ||
@@ -533,7 +628,7 @@ const scenario: Scenario = {
 
     // 6. Every dwarf who dies is buried in an assigned or free coffin, and unburied_dead thought is absent
     const deadFortressDwarves = w.events('CreatureDied').filter(
-      (e) => dwarves.includes(e['id'] as number) && e['faction'] === 'fortress',
+      (e) => [...dwarves, ...staged].includes(e['id'] as number) && e['faction'] === 'fortress',
     );
     expect(w.events('Buried').length).toBe(deadFortressDwarves.length);
     for (const b of w.events('Buried')) {
@@ -543,7 +638,7 @@ const scenario: Scenario = {
       expect(coffin?.settings['occupantId']).toBe(b['dwarfId']);
     }
     const morale = w.readers.of<MoraleReader>('15');
-    for (const d of dwarves.filter((id) => w.game.world.entities.alive(id))) {
+    for (const d of [...dwarves, ...staged].filter((id) => w.game.world.entities.alive(id))) {
       expect(morale.thoughts(d).some((t) => t.id === 'unburied_dead')).toBe(false);
     }
 
