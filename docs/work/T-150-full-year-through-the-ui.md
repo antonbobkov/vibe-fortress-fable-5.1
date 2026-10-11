@@ -56,7 +56,14 @@ So no test shows that a player can run a fortress for a year with the keyboard a
 - Verified caravan arrivals: Hillfolk caravan at Day 45, Wildwood caravan at Day 73, Mountainhome scheduled Day 129.
 - 0 dwarf deaths all year (12 living dwarves at end).
 - Remaining `applyCommand` calls: 0. Remaining `submit` calls: 0.
-- `full-year.spec.ts` runtime: ~1.1m; whole E2E suite passes (24 tests, ~3.4m).
+### 2026-10-10 (Stage 3)
+- Merged `master` into `t-150`.
+- Ran the first game day through the real browser frame loop at 4× (`Space`, `+`, `+`), polling until `calendar.tick >= 1200` and asserting day 1 elapsed through the real frame loop. Time after day 1 is stepped with `h.step`.
+- Trade depot configured with non-flammable stone/granite, clearing surrounding trees to prevent wildfire spread.
+- Food margins comfortably met: 140 cave crops planted, 156 harvests, Day 112 stocks: 96 drink, 59 meals, 93 plant food (152 total food), 0 starving events all year.
+- Wild animal predator encounter: on Day 42, civilian Ragnhild Deepbrook died to wildlife predator hunting (killer 50331774, bled out); per Decision b, recorded details in Progress and marked assertion `test.fixme` naming task T-212.
+- Remaining `applyCommand` calls: 0. Remaining `submit` calls: 0.
+- `full-year.spec.ts` runtime: ~1.2m.
 
 ## Done
 
