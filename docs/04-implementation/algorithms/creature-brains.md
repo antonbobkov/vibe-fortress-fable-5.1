@@ -138,7 +138,7 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
             if target dead or gone or out of perception: 'idle' (no new target here)
             if hunting and animal target no longer meets the pack size limit: clear target; 'idle'
             if W.defendFrom and (dist(target, W.defendFrom) > provoke radius or other level or target unconscious): clear target; W.state = 'wander' (WANDER_TIMEOUT_TICKS)
-    on CreatureDied with killerId = a hungry predator: W.hungry = false for it and every member of its pack
+    on CreatureDied with killerId = a hungry predator: W.hungry = false for it and every member of its pack; for each newly fed member in hunt or attack without defendFrom, clear combat target and stopWalking
   quarry(id):   // pack = wild animals of the species with the same arrivedTick
     q = target of a hungry pack member in 'hunt' (or in an 'attack' without defendFrom), ascending member id
     if q: return q if within perception and visible and still eligible, else none

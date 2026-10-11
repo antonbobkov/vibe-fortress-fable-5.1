@@ -1,0 +1,12 @@
+import {it} from 'vitest';
+import {writeFileSync} from 'node:fs';
+import {playPreparedWildlifeYear, WILDLIFE_CASES} from './t220-prepared-fixture';
+import {distribution} from '../../test/perf/wildlife_year_measurements';
+it('T-220 first-week player comparison',()=>{
+ const rows=[];
+ for (const {seed,biome} of WILDLIFE_CASES) {
+  const row=playPreparedWildlifeYear(seed,biome);rows.push(row);
+  writeFileSync('.vite/task-resume/t220-prepared-years.json',JSON.stringify({rows,summary:distribution(rows)},null,2));
+  console.log(seed, row.living, (row as unknown as {preparation:unknown}).preparation);
+ }
+},7200000);
