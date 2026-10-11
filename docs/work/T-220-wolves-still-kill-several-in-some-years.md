@@ -1,6 +1,6 @@
 # T-220 — In a third of forest and taiga years a hungry pack still kills several dwarves
 
-**Source:** T-212 and [`2026-10-11-hungry-predators.md`](../../reports/audits/2026-10-11-hungry-predators.md) (§ A year with wolves only) · **Size:** M · **Needs:** T-218, T-219 (both change who a pack and a caught civilian fight) · **Status:** open (diagnosis first)
+**Source:** T-212 and [`2026-10-11-hungry-predators.md`](../../reports/audits/2026-10-11-hungry-predators.md) (§ A year with wolves only) · **Size:** M · **Needs:** T-136 (its instrument first), T-218 and T-219 (both done) · **Status:** open (diagnosis first)
 
 ## Why
 
@@ -25,3 +25,7 @@ The year probe of the report ([source](../../reports/data/2026-10-11-t212-probe-
 
 - Each link is classified with evidence in a dated report.
 - The wolf figures of `balance.md` § Wild animals hold over the six seeds, or `balance.md` says what holds instead.
+
+## Note (2026-10-11, orchestrator)
+
+Do T-136 first and use its instrument for step 4. The latest figures to beat are in [the T-253 re-measure](../../reports/audits/2026-10-11-wildlife-after-t219.md): wolf-only years cost 13 dwarves when ignored and 10 when reacting over six seeds; all-species years 42 and 18, with 3 and 2 fortresses wiped out.
