@@ -1,6 +1,8 @@
 # T-224 — A treated patient whose pain keeps it in hospital is treated again and again
 
-**Source:** T-134 (`docs/archive/tasks/T-134-soldier-need-interruptions.md` § Findings) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-224: treated patients wait for discharge without repeated treatment`.
+
+**Source:** T-134 (`docs/work/T-134-soldier-need-interruptions.md` § Findings) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
