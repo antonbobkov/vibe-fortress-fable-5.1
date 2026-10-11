@@ -4,10 +4,13 @@ The running log of the Claude agent that works in the cloud on branches `cloud/m
 
 ## Ready to merge
 
+- `54fb118`: T-212 closed. A hungry predator hunts animal prey before a dwarf and a pack shares one quarry; a civilian caught while fleeing fights back with what it carries. Rules in 08, 10, 16 and `balance.md`; two dated reports; T-218 … T-221 filed. Verified: npm test 2275 passed, e2e 24 passed (full-year passed, not skipped).
 
 ## Needs the owner
 
-- **The year-long browser playthrough can hide a lost fortress** (for the local side, T-150; not blocking). `test/e2e/full-year.spec.ts:636` (from `dd513ee`) calls `test.fixme(true, …)` when `livingCount <= 7`, so a run that ends with one dwarf alive reports as *skipped* and `npm run test:e2e` stays green. It caught nothing here only because I read the skip: on `cloud/T-212` the playthrough ended with 1 living dwarf against 11 on `cloud/main`. T-212 is held until that is fixed. Suggest making the fixme name a specific known cause, or failing.
+- **The year-long browser playthrough is a coin toss, and its fixme hides it** (local side: T-150, T-221). On `cloud/main` without T-212, `full-year.spec.ts` ended at 7 or fewer living dwarves in 6 of 10 repeated runs (twice with 0), because its UI commands land on different ticks each run at 4× real time. The conditional `test.fixme` at `full-year.spec.ts:636` turns each of those into a skip, so `npm run test:e2e` stays green while the fortress dies. Measured in `reports/audits/2026-10-11-full-year-with-t212.md`.
+- **T-218: should pastured grazers be wolf prey?** Under 08's size rule (prey smaller than 0.8 × the predator) sheep, goats, pigs and cows are not, so T-212's "a pasture behind a door" protects nothing from wolves.
+- **T-219: should a civilian caught by an animal that only defends its ground, or by an armed raider, fight back?** As decided, it does, and it costs: in the browser year 14 of T-212's 21 deaths were civilians caught by a defending boar, wolf or badger; raider deaths in the reference fortress went from 2 to 4. Exempting defenders (they let a fleeing dwarf go anyway) is the obvious change.
 - **T-252 revises D-U3** (not blocking): it adds an "Embark without an axe?" question, because the Supplies tab calls an axe part of the minimum and a party without one embarks unasked. Look at it before anyone picks T-252 up.
 
 ## Entries
@@ -81,3 +84,16 @@ The answer: the wants now cost about half the dwarf time they did, and mood is b
 - The T-212 subagent finished (both rules in, 10 tests, npm test 2275 passed, e2e 23 passed and 1 skipped). The skipped one was `full-year`: its new conditional fixme fires at 7 or fewer living dwarves.
 - Measured: `full-year.spec.ts` alone passes on `cloud/main` (11 living at year end) and ends with 1 living on `cloud/T-212`. Wild spawns differ between the runs (2 boars against 11), so the runs diverge early; cause not yet established.
 - Not merged. The task went back to its subagent to find the cause and fix it, without editing the spec file.
+
+### 2026-10-11: T-212 closed (merge `54fb118`)
+
+The answer: a hungry wolf pack now costs a careless fortress fewer dwarves, and a dwarf with a pick usually kills the wolf. In T-196's probe (10 seeds, a hungry wolf), haulers holding picks lost 9 of 70 against 27 before, and the wolf died in every run; plain hauling lost 14 against 17. Over a year on 3 forest and 3 taiga seeds at peril 0 with wolves only, a fortress that ignores them lost 12 dwarves against 17, one that reacts 7 against 8. Four of six seeds lost none; two still lose several (T-220). Report: `reports/audits/2026-10-11-hungry-predators.md`.
+
+- **Rules (the local orchestrator's decision):** a hungry predator hunts the nearest animal prey in perception and a dwarf only when none is in sight; a pack (one species, one arrival) shares one quarry and one kill feeds it. A fleeing civilian hit in melee by an attacker at least as fast is caught and fights with its weapon, or a tool with a melee row, or its fists, until the attacker lets go or dies, or a door the attacker cannot pass opens a way out. It never walks toward its attacker.
+- **Silent details decided by the subagent** (in 08, 10 and the archived work file): prey keeps 08's size rule, so a wolf's prey is dogs, cats, chickens, rabbits and badgers, not sheep or cows (T-218 asks the owner); the escape that ends a fight must pass a tile the attacker cannot enter.
+- **Held back once:** my single browser run ended with 1 living dwarf against 11 on `cloud/main`. The subagent's 22 repeated runs showed that was variance in the spec, not T-212: `cloud/main` is at 7 or fewer in 6 of 10 runs, `cloud/T-212` in 1 of 12 (median 8.5 against 11 living). Report: `reports/audits/2026-10-11-full-year-with-t212.md`. Lesson for me: one run of `full-year` is not a measurement.
+- **Costs measured:** caught civilians now stay in a defending animal's ground (with a medic, boar deaths 7 → 9 of 70 in the probe; 14 of 21 browser-year deaths). Filed as T-219 for the owner.
+- **Reviewed by me:** the `combat/index.ts` change stops every off-duty dwarf from approaching its combat target; only the dwarf brain gives such dwarves a target (cornered or caught), hunting fires directly, and pets have no brain, so it changes nothing else.
+- **Filed:** T-218, T-219 (owner decisions, above), T-220 (two seeds of six still lose several dwarves to a pack), T-221 (the browser year varies run to run; local side).
+- **Performance (indicative):** system 10 rose from about 0.64 to 0.81 ms (allocation 0.5, test limit 1.0), from the escape search a fighting civilian runs every tick. System 08 unchanged and still over, as before.
+- **Not established:** why two seeds lose several dwarves to a pack while four lose none; why one reacting fortress starved.
