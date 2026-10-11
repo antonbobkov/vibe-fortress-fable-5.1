@@ -1,0 +1,28 @@
+import { describe, it } from 'vitest';
+import { C } from '@core/components';
+import { ensureScriptedReference } from '../perf/scripted-reference';
+
+describe('T-212 reference probe', () => {
+  it('counts', async () => {
+    const game = await ensureScriptedReference(() => 0);
+    const e = game.world.entities;
+    const c: Record<string, number> = {};
+    const add = (k: string, n = 1): void => { c[k] = (c[k] ?? 0) + n; };
+    game.world.onEvents((b) => { for (const ev of b) {
+      if (ev.type === 'AttackResolved') add(`attack:${e.has(ev['attackerId'] as number, C.Brain) ? 'dwarf' : 'other'}->${e.has(ev['defenderId'] as number, C.Brain) ? 'dwarf' : 'other'}`);
+      if (ev.type === 'AttackResolved' && e.has(ev['defenderId'] as number, C.Brain)) { const a = e.get(ev['attackerId'] as number, C.Creature); add(`by:${game.registry.table('creatures').byIndex(a?.species ?? 0)?.id}:${a?.faction}:${e.has(ev['attackerId'] as number, C.Wild) ? (e.get(ev['attackerId'] as number, C.Wild)?.defendFrom === undefined ? 'hunt' : 'defend') : '-'}`); }
+      if (ev.type === 'CreatureDied') add(`died:${game.registry.table('creatures').byIndex(ev['species'] as number)?.id}:${ev['cause']}`);
+      if (ev.type === 'ThreatNearby') add('threatNearby');
+    } });
+    for (let t = 0; t < 2200; t += 1) {
+      game.step(1);
+      for (const id of e.with(C.Brain)) {
+        const b = e.get(id, C.Brain);
+        if (b?.activity === 'Fighting') add('fightingTicks');
+        if (b?.behavior === 'flee') add('fleeTicks');
+      }
+    }
+    const d = game.world.scheduler.byId('10') as unknown as { threatened: Map<number, { caught?: true }> };
+    console.log('REF', JSON.stringify(c), 'caughtNow', [...d.threatened.values()].filter((x) => x.caught).length);
+  }, 900_000);
+});

@@ -12,7 +12,8 @@
 
 import { C, type Brain, type Needs } from '@core/components';
 import type { TickContext } from '@core/system';
-import type { EntityId, TileIndex } from '@core/types';
+import type { EntityId, MovementClass, TileIndex } from '@core/types';
+import type { MoverOptions } from '@core/pathfinding';
 import { hourOf } from '@core/calendar';
 import { ADULT_AGE_YEARS, CIVILIAN_COMBAT_TIMEOUT_TICKS, CIVILIAN_FLEE_NODE_LIMIT, IDLE_TICKS, LEISURE_MARK, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
@@ -44,6 +45,10 @@ export interface BrainHost {
   threatOf(id: EntityId): EntityId;
   threatTile?(id: EntityId): TileIndex;
   clearThreat(id: EntityId): void;
+  /** Whether the remembered threat caught the dwarf as it fled (`10` § Behavior selection). */
+  caught?(id: EntityId): boolean;
+  /** Forget that the dwarf was caught; the threat itself stays remembered. */
+  release?(id: EntityId): void;
   setCombatTarget(id: EntityId, targetId: EntityId): void;
   watchShelter?(id: EntityId, shutOut: boolean): void;
 }
@@ -95,8 +100,26 @@ function leisureOrIdle(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   startIdle(host, ctx, id, b);
 }
 
-/** Legal edges make the escape search obey stairs, ramps, corners, hatches and traffic. */
-export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId): TileIndex {
+/** The movement class and mover options a creature paths with (22 § Passability). */
+function moverOf(ctx: TickContext, id: EntityId): { cls: MovementClass; mover: MoverOptions } {
+  const creature = ctx.world.entities.get(id, C.Creature);
+  const species = ctx.registry.table<{ id: string; opensDoors?: boolean }>('creatures');
+  return {
+    cls: ctx.world.entities.get(id, C.Motion)?.movementClass ?? 'walker',
+    mover: { faction: creature?.faction, size: creature?.sizeClass,
+      opensDoors: creature !== undefined && species.byIndex(creature.species)?.opensDoors === true,
+      tame: ctx.world.entities.has(id, C.Tame) },
+  };
+}
+
+/**
+ * Legal edges make the escape search obey stairs, ramps, corners, hatches and traffic.
+ *
+ * With `sealed`, the search is a caught civilian's (`10` § Behavior selection): it returns the
+ * first tile, in the same breadth-first order, that the civilian reaches through a tile the threat
+ * cannot enter (a door it cannot pass), or -1. No hall or distance preference applies.
+ */
+export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId, sealed = false): TileIndex {
   const map = ctx.world.map;
   const posA = ctx.world.entities.get(id, C.Position);
   const posT = ctx.world.entities.get(threatId, C.Position);
@@ -110,7 +133,7 @@ export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId)
     .some((other) => other === threatId || (combat?.isHostile(id, other) ?? false));
   const safer = (tile: TileIndex): boolean => map.zOf(tile) !== posT.z ||
     Math.max(Math.abs(map.xOf(tile) - posT.x), Math.abs(map.yOf(tile) - posT.y)) > currentDist;
-  const hallTiles = ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14').hearthHallTiles() : [];
+  const hallTiles = !sealed && ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14').hearthHallTiles() : [];
   const hall = new Set(hallTiles.filter((tile) => tile !== from && safer(tile) && !occupied(tile) &&
     ctx.readers.pathing.passable(tile, 'walker', mover) && ctx.readers.pathing.reachable(from, tile, 'walker')));
   // Breadth first by legal step count, then tile index within a frontier.
@@ -118,11 +141,24 @@ export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId)
   const seen = new Set([from]);
   let visited = 0;
   let fallback = -1;
+  const pursuer = sealed ? moverOf(ctx, threatId) : null;
+  const behindBarrier = new Set<TileIndex>();
   while (frontier.length > 0 && visited < CIVILIAN_FLEE_NODE_LIMIT) {
     const next: TileIndex[] = [];
     for (const tile of frontier) {
       if (visited >= CIVILIAN_FLEE_NODE_LIMIT) break;
       visited += 1;
+      if (pursuer !== null) {
+        if (behindBarrier.has(tile)) return tile;
+        const barrier = tile !== from && !ctx.readers.pathing.passable(tile, pursuer.cls, pursuer.mover);
+        for (const [to] of ctx.readers.pathing.edges(tile, 'walker', mover)) {
+          if (seen.has(to) || occupied(to)) continue;
+          seen.add(to);
+          if (barrier) behindBarrier.add(to);
+          next.push(to);
+        }
+        continue;
+      }
       if (hall.has(tile)) return tile;
       if (fallback < 0 && tile !== from && safer(tile)) {
         fallback = tile;
@@ -136,6 +172,7 @@ export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId)
     }
     frontier = next.sort((a, b) => a - b);
   }
+  if (pursuer !== null) return -1;
   if (hall.size > 0) {
     // A reachable hall remains the goal even when the bounded fallback cannot visit it.
     return [...hall].sort((a, b) => a - b)[0] as TileIndex;
@@ -161,6 +198,12 @@ function fightExpired(ctx: TickContext, id: EntityId, threatId: EntityId, b: Bra
   if (inReach) b.behaviorUntil = ctx.tick + CIVILIAN_COMBAT_TIMEOUT_TICKS;
   else if (engaged !== undefined) b.behaviorUntil = Math.max(b.behaviorUntil, engaged + CIVILIAN_COMBAT_TIMEOUT_TICKS);
   return ctx.tick >= b.behaviorUntil;
+}
+
+/** A caught civilian fights while its attacker still holds it as its target (it has not broken off or fled). */
+function stillHeld(ctx: TickContext, threatId: EntityId, id: EntityId): boolean {
+  if (!ctx.readers.has('16')) return true;
+  return ctx.readers.of<CombatReader>('16').targetOf(threatId) === id;
 }
 
 function hasHostileInSight(ctx: TickContext, id: EntityId): boolean {
@@ -210,8 +253,12 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     } else if (myPos.z === threatPos.z && Math.max(Math.abs(myPos.x - threatPos.x), Math.abs(myPos.y - threatPos.y)) <= THREAT_RADIUS &&
         !(b.behavior === 'flee' && critical)) {
       avoidTile = remembered;
-      const fleeGoal = findFleeTile(ctx, id, threatId);
+      if (host.caught?.(id) === true && !stillHeld(ctx, threatId, id)) host.release?.(id);
+      const caught = host.caught?.(id) === true;
+      // A caught civilian runs only by a route its attacker cannot follow.
+      const fleeGoal = findFleeTile(ctx, id, threatId, caught);
       if (fleeGoal >= 0) {
+        if (caught) host.release?.(id);
         if (b.activity === 'Fighting') host.setCombatTarget(id, 0);
         ctx.world.services.movement?.stopWalking(id);
         b.behavior = 'flee';
@@ -494,9 +541,17 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
         host.setCombatTarget(id, 0);
         b.activity = NO_JOB;
         reselect = true;
+      } else if (host.caught?.(id) === true && !stillHeld(ctx, threatId, id)) {
+        // The attacker broke off or fled: the civilian stops fighting and selects again.
+        host.release?.(id);
+        host.setCombatTarget(id, 0);
+        b.activity = NO_JOB;
+        reselect = true;
       } else {
-        const escapeTile = findFleeTile(ctx, id, threatId);
+        const caught = host.caught?.(id) === true;
+        const escapeTile = findFleeTile(ctx, id, threatId, caught);
         if (escapeTile >= 0) {
+          if (caught) host.release?.(id);
           host.setCombatTarget(id, 0);
           b.behavior = 'flee';
           b.targetTile = escapeTile;
