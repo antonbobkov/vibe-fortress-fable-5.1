@@ -859,7 +859,14 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       if (killerWild?.hungry === true) {
         for (const member of [killer, ...packOf(this.brain, killer)]) {
           const w = ctx.world.entities.get(member, C.Wild);
-          if (w?.hungry === true) ctx.world.entities.add(member, C.Wild, { ...w, hungry: false });
+          if (w?.hungry !== true) continue;
+          ctx.world.entities.add(member, C.Wild, { ...w, hungry: false });
+          // A fed hunting attack must not become a territorial defence on its next think.
+          // Keep genuine defending attacks; only the hunt's quarry and path end here.
+          if (w.state === 'hunt' || (w.state === 'attack' && w.defendFrom === undefined)) {
+            this.brain.setTarget(member, 0);
+            ctx.world.services.movement?.stopWalking(member);
+          }
         }
       }
       this.targets.delete(id);

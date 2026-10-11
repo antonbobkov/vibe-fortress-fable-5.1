@@ -1,0 +1,3 @@
+import { defineConfig } from 'vitest/config';
+import { aliases } from '../../vite.config';
+export default defineConfig({resolve:{alias:aliases},test:{include:['.vite/task-resume/t220-prepared.test.ts'],environment:'node',testTimeout:7200000,fileParallelism:false}});
