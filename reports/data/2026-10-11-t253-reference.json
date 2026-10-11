@@ -1,0 +1,74 @@
+{
+ "counts": {
+  "threatNearby": 413,
+  "fleeTicks": 12944,
+  "attack:other->dwarf": 58,
+  "by:hillfolk_bandit:hostile:hillfolk:-": 58,
+  "dwarfDeathsToRaiders": 2,
+  "died:dwarf:bled_out": 2,
+  "attack:other->other": 18,
+  "died:goat:bled_out": 1
+ },
+ "deaths": [
+  {
+   "tick": 270452,
+   "type": "CreatureDied",
+   "id": 16777370,
+   "cause": "bled_out",
+   "killerId": 50351896,
+   "tile": 248936,
+   "species": 15,
+   "name": "Hrolf Brighteye",
+   "faction": "fortress",
+   "ageTicks": 4838400,
+   "wornItems": [
+    16777371,
+    16777373,
+    16777372
+   ],
+   "killer": {
+    "species": "hillfolk_bandit",
+    "faction": "hostile:hillfolk"
+   }
+  },
+  {
+   "tick": 270642,
+   "type": "CreatureDied",
+   "id": 16777470,
+   "cause": "bled_out",
+   "killerId": 50350600,
+   "tile": 249149,
+   "species": 15,
+   "name": "Alva Hawkbrow",
+   "faction": "fortress",
+   "ageTicks": 4032000,
+   "wornItems": [
+    16777471,
+    16777473,
+    16777472
+   ],
+   "killer": {
+    "species": "hillfolk_bandit",
+    "faction": "hostile:hillfolk"
+   }
+  },
+  {
+   "tick": 270967,
+   "type": "CreatureDied",
+   "id": 16777616,
+   "cause": "bled_out",
+   "killerId": 50351896,
+   "tile": 249711,
+   "species": 27,
+   "name": "goat",
+   "faction": "fortress",
+   "ageTicks": 0,
+   "wornItems": [],
+   "killer": {
+    "species": "hillfolk_bandit",
+    "faction": "hostile:hillfolk"
+   }
+  }
+ ],
+ "caughtNow": 0
+}

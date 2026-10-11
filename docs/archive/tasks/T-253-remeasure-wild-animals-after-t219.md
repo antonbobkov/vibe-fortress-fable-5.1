@@ -1,5 +1,7 @@
 # T-253 — Re-measure the wild-animal figures after the caught-civilian rule changed
 
+Closed by `T-253: remeasure wildlife after hunted-only catching`.
+
 **Source:** T-219 (the closing commit measured only the scenario tests, not the chain probe or the year) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
@@ -12,7 +14,7 @@ A fleeing civilian is caught, and turns to fight, only when the attacker that hi
 
 ## What to do
 
-1. Re-run the T-196 chain probe (all modes, three species, ten seeds) and the year probes of [`2026-10-11-hungry-predators.md`](../../reports/audits/2026-10-11-hungry-predators.md), and the 2,200 ticks of the reference fortress: dwarves dead to a bandit, strikes by caught civilians.
+1. Re-run the T-196 chain probe (all modes, three species, ten seeds) and the year probes of [`2026-10-11-hungry-predators.md`](../../../reports/audits/2026-10-11-hungry-predators.md), and the 2,200 ticks of the reference fortress: dwarves dead to a bandit, strikes by caught civilians.
 2. Write a dated report and update `balance.md` § Wild animals and `balance-status.md` with the new figures.
 3. If the wolf figures no longer hold, say what holds instead, or file the cause.
 
