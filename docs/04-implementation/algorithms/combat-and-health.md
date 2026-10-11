@@ -98,7 +98,7 @@ Re-equipping considers only fortress items: exclude `merchant`, `at_depot`, `for
 ## Health tick (every 5 ticks)
 
 ```
-for id in wounded (ascending):
+for id in union(wounded, admittedPatients) (ascending, once each):
   B = Body[id]; for w in wounds: if w.severity == light and tick - w.createdTick >= CLOT_TICKS: w.bleed = 0
   bleed = Σ w.bleed for w in wounds where not w.bandaged
   if bleed > 0: B.blood -= bleed else B.blood = min(B.maxBlood, B.blood + BLOOD_REGEN_PER_TICK) unless infected
@@ -111,7 +111,7 @@ for id in wounded (ascending):
      w.healRemaining -= 5 * rate/100 * (w.sutured ? SUTURED_HEAL_PERCENT/100 : 1)
      if w.healRemaining <= 0: part.hp += w.damage; remove w; if w.type=='fracture' and not w.splinted: B.permanent.push('badly_healed_'+part)
   if wounds empty and blood == max: wounded.remove(id)
-  updatePatient(id)
+  updatePatient(id) // refresh every admitted patient's needs, even when only pain delays discharge
 onDamageDealt(e):
   B = Body[e.defender]; part = B.parts[e.part]; maxHp = part.maxHp
   ratio = e.amount / maxHp; sev = ratio < LIGHT_MAX ? light : ratio < SERIOUS_MAX ? serious : grievous
@@ -129,7 +129,7 @@ Wound tables (per type × severity): bleed light/serious/grievous: cut 1/3/6, pu
 
 Daily: infection roll per untreated cut/puncture/burn older than one day (`INFECTION_PERMILLE`, ×2 in miasma or after a floor sleep); infected daily death roll (`INFECTION_DEATH_PERMILLE`); `clean_wound` with brightleaf sets `curedAt = today + INFECTION_CURE_DAYS`.
 
-Patient management: `updatePatient(id)` admits when any wound bleeds, any fracture is unsplinted, any burn undressed, any wound infected, or the creature is unconscious from wounds; it computes `needs` in priority order and the producer creates one job per need with the inputs from 17; discharge when no needs remain, conscious, and `pain < PAIN_DISCHARGE`; `PatientHealed` when all wounds are light or gone.
+Patient management: `updatePatient(id)` admits when any wound bleeds, any fracture is unsplinted, any burn undressed, any wound infected, or the creature is unconscious from wounds; it refreshes `needs` in priority order for every admitted patient and the producer creates one job per need with the inputs from 17; discharge when none of the admission reasons remain, conscious, and `pain < PAIN_DISCHARGE`; `PatientHealed` when all wounds are light or gone.
 
 Animal care: for each tame animal with an unbandaged bleeding wound, create one `bandage_animal` job with one cloth and the job catalogue's duration. On successful completion, bandage every bleeding wound, set its bleed to 0, consume the cloth and emit `TreatmentDone` with that job kind. Failure uses animal-care skill and the treatment-failure rule. No animal surgery or care for wild/hostile creatures.
 

@@ -12,6 +12,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-136 | [Fresh embark save loses next-tick mood reactions](work/T-136-fresh-embark-mood-save.md) | T-133 save-continuation control, 2026-10-11 | — | open |
+| T-137 | [Repeated infection cleaning restarts a pending cure](work/T-137-infection-treatment-restarts-cure.md) | T-224 treatment-refresh investigation, 2026-10-11 | — | open |
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | T-140, T-145 (the performance tier includes the 20-seed balance sweep, which cannot pass before them) | open; local side (needs a quiet machine) |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, and the fix tasks of T-115 (T-169 … T-177, T-180 … T-187) | open; local side (the cloud agent stopped before it) |
 | T-134 | T-195 follow-up: squad orders respect need activities (work in progress on branch `t-134-wip`, commit `c97c17c`; its task file is in that commit) | Codex's critical read of the T-195 fix, 2026-10-10 | T-222 | open; cloud agent stopped: the code, spec edits and 14 regressions are on branch `cloud/T-134` (not merged); red only on `hospital_run`, whose staged fight passes on one roll (T-222) |
@@ -31,7 +32,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-220 | [In a third of forest and taiga years a hungry pack still kills several dwarves](work/T-220-wolves-still-kill-several-in-some-years.md) | T-212 and [`../reports/audits/2026-10-11-hungry-predators.md`](../reports/audits/2026-10-11-hungry-predators.md) | T-218, T-219 | open (diagnosis first) |
 | T-222 | [`hospital_run` passes on one roll of its staged fight](work/T-222-hospital-run-casualties-are-a-roll.md) | T-134 | — | open |
 | T-223 | [Several dwarves sleep in one bed at the same time](work/T-223-several-dwarves-in-one-bed.md) | T-134 | — | open; decided 2026-10-11 (see the work file) |
-| T-224 | [A treated patient whose pain keeps it in hospital is treated again and again](work/T-224-treated-patient-is-treated-again.md) | T-134 | — | open |
 | T-240 | [A stockpile made while paused can be set up at once](work/T-240-stockpile-made-while-paused.md) | T-111 and [`../reports/audits/2026-10-10-ui-audit-follow-up.md`](../reports/audits/2026-10-10-ui-audit-follow-up.md) | — | open |
 | T-241 | [The Jobs panel: its empty line, job names, filters and labor priority row](work/T-241-jobs-panel-empty-names-filters.md) | T-111 and [`../reports/audits/2026-10-10-ui-audit-follow-up.md`](../reports/audits/2026-10-10-ui-audit-follow-up.md) | — | open |
 | T-242 | [No raw string key or clashing letters in the stockpile preset list; log lines start with a capital](work/T-242-raw-key-in-stockpile-presets.md) | T-111 and [`../reports/audits/2026-10-10-ui-audit-follow-up.md`](../reports/audits/2026-10-10-ui-audit-follow-up.md) | — | open |
