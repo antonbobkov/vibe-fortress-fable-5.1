@@ -11,7 +11,7 @@ const base: HintFacts = {
   tick: 0, year: 0, season: 0, day: 0,
   stillMissing: false, drinkLow: false, stockpileMissing: false, groundItems: 0,
   hearthMissing: false, hasDiningHall: false, bedrooms: 0, containersMissing: false,
-  fuelBlocked: false, hunterReady: false, farmRejected: false, harvested: false,
+  fuelBlocked: false, barrelBlocked: false, hunterReady: false, farmRejected: false, harvested: false,
   bareRoomDays: 0, threatWarned: false, depotMissing: false, seriousWound: false,
   immigrationSkipped: false, raidEnded: false, cageTrapBuilt: false, doorBroken: false,
   deepsilverFound: false, cavernTwoBreached: false,
@@ -25,6 +25,7 @@ const positive: Record<string, Partial<HintFacts>> = {
   hint_winter: { year: 1, season: 0, day: 20 },
   hint_hearth: { hearthMissing: true, bedrooms: 5 },
   hint_containers: { containersMissing: true },
+  hint_barrel: { barrelBlocked: true },
   hint_fuel: { fuelBlocked: true },
   hint_hunter: { hunterReady: true },
   hint_farm: { farmRejected: true },
@@ -44,7 +45,7 @@ const positive: Record<string, Partial<HintFacts>> = {
 describe('T-M4-16 year-one hints', () => {
   it('has an exact positive and negative predicate fixture for every authored hint', () => {
     const rows = contentRegistry().table('hints').ids();
-    expect(rows).toHaveLength(21);
+    expect(rows).toHaveLength(22);
     expect(rows.slice().sort()).toEqual(Object.keys(positive).sort());
     for (const id of rows) {
       expect(hintPredicate(id, base), `${id} baseline`).toBe(false);
@@ -60,7 +61,7 @@ describe('T-M4-16 year-one hints', () => {
     const ui = defaultUiState(32);
     const log = new AnnouncementLog(new Strings(registry), registry);
     const hints = new HintEngine(registry, ui, log);
-    expect(hints.registered).toHaveLength(21);
+    expect(hints.registered).toHaveLength(22);
     expect(hints.show('hint_dig', 1, false)).toBe(false);
     expect(ui.hintsShown).toEqual([]);
     expect(hints.show('hint_dig', 1)).toBe(true);

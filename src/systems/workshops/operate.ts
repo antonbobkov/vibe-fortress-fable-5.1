@@ -377,12 +377,21 @@ export class WorkshopOperator {
         ...this.globalOrders.map((o, index) => ({ order: o, index, global: true }))];
       let started = false;
       let reason: string | null = null;
+      let missingContainer: string | null = null;
       for (const choice of choices) {
         const recipe = this.recipe(choice.order.recipe);
         if (recipe === undefined || recipe.workshop !== this.typeOf(id)) continue;
         if (choice.global && sink.exists(`craft:global:${choice.order.serial}`)) continue;
         const problem = this.problem(choice.order, id);
-        if (problem !== null) { if (reason === null && problem !== 'stocked' && problem !== 'complete') reason = problem.startsWith('waiting for ') ? 'missing_input' : problem; continue; }
+        if (problem !== null) {
+          if (reason === null && problem !== 'stocked' && problem !== 'complete') {
+            // 12 § Operation 3: a wait for an empty container is its own reason and names the container class.
+            const container = recipe.container !== undefined && problem === `waiting for ${recipe.container}` ? recipe.container : null;
+            reason = container !== null ? 'no_empty_container' : problem.startsWith('waiting for ') ? 'missing_input' : problem;
+            missingContainer = container;
+          }
+          continue;
+        }
         const inputs = recipe.inputs.map((input) => ({
           filter: this.inputFilter(recipe, input, choice.order) as ItemFilter,
           count: input.count,
@@ -430,7 +439,9 @@ export class WorkshopOperator {
             continue;
           }
         }
-        if (reason !== null && reason !== ws.lastBlockedReason) ctx.emit({ type: 'WorkshopBlocked', workshopId: id, reason });
+        if (reason !== null && reason !== ws.lastBlockedReason) {
+          ctx.emit({ type: 'WorkshopBlocked', workshopId: id, reason, ...(missingContainer === null ? {} : { container: missingContainer }) });
+        }
         if (reason === null && ws.lastBlockedReason !== null) ctx.emit({ type: 'WorkshopIdle', workshopId: id });
         if (reason !== ws.lastBlockedReason) this.save(id, { ...ws, lastBlockedReason: reason });
       }
