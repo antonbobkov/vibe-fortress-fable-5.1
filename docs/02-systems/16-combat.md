@@ -111,6 +111,12 @@ Order = kill { targetId } | station { tile } | patrol { tiles } | follow { dwarf
 - `SetSquadEquipment` accepts partial preferences: `weaponClass` is `any` or an authored weapon class, `armor` is `metal`, `leather` or `any`, and `ranged` is a boolean. Invalid values or a non-record reject with `bad_setting` before any preference is stored.
 - The Warden, if any, is the leader of the first squad by default; leaders are chosen by the player otherwise. A squad without a leader still works.
 
+Sleeping and travel to a bed are need activities even outside training mode:
+squad positioning cannot replace their walk with a station or patrol walk.
+Completing the need returns the soldier to duty and resumes the standing order.
+A calm order alone does not defer a want. Alert orders hold wants regardless of
+the stored squad mode, but critical needs still interrupt them.
+
 ### Training
 
 - Barracks zone with `squadId` setting; sparring: pairs of present members who are currently in `duty` behavior (not satisfying a need, fleeing, or hospitalized), `SPAR_TICKS` per session, grant `TRAIN_XP` to the weapon skill, `dodge`, `shield` (if held) and `armor_use` (if armored); solo drills grant half. Sparring uses the members' real weapons; each session has `SPAR_INJURY_PERMILLE` chance of a `light` bruise (never with training weapons, which are wooden items of the weapon class with `training: true` and 0 damage).
