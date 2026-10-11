@@ -267,7 +267,6 @@ function stillHeld(ctx: TickContext, threatId: EntityId, id: EntityId): boolean 
 function hasHostileInSight(ctx: TickContext, id: EntityId): boolean {
   if (!ctx.readers.has('16')) return false;
   const combat = ctx.readers.of<CombatReader>('16');
-  if (combat.targetOf(id) !== 0) return true;
   const pos = ctx.world.entities.get(id, C.Position);
   if (!pos) return false;
   const tileM = ctx.world.map.index(pos.x, pos.y, pos.z);
@@ -406,15 +405,20 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   if (!civ) {
     const combat = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16') : undefined;
     const squad = combat?.squadOf(id);
-    const alert = combat?.alert() ?? ctx.world.fortress.alert;
-    const hostileInSight = hasHostileInSight(ctx, id);
     const hasOrder =
       squad !== undefined &&
       (squad.station !== null ||
         (squad.patrol !== null && squad.patrol.length > 0) ||
         squad.orders.length > 0);
-    const dutyHolds =
-      squad?.mode === 'active' && (hostileInSight || hasOrder || alert !== 'calm');
+    // Purpose has no errand: a want of it alone gives nothing for duty to hold back.
+    const wants = n === undefined ? [] : ranked(n, false).filter((want) => want !== 'purpose');
+    const sleepWindow = n !== undefined && schedule !== undefined && hourOf(ctx.tick) === schedule.sleepStartHour && n.rest > 20;
+    // Under an alert every squad is treated as active (16 § Squads). The sight scan runs only
+    // when there is a want to hold back and no alert order already holds it; combat keeps its
+    // own perception scan and target retention.
+    const active = squad?.mode === 'active' || alert !== 'calm';
+    const dutyHolds = (wants.length > 0 || sleepWindow) &&
+      ((alert !== 'calm' && hasOrder) || (active && hasHostileInSight(ctx, id)));
     if (dutyHolds) {
       b.behavior = 'duty';
       b.activity = 'On duty';
@@ -422,12 +426,11 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
       return;
     }
     if (n !== undefined) {
-      const sleepWindow = schedule !== undefined && hourOf(ctx.tick) === schedule.sleepStartHour && n.rest > 20;
       if (sleepWindow && host.activities.start(ctx, id, 'rest', b, host.idleGoal(id), host.dwarfIds(), safeTarget)) {
         host.setCombatTarget(id, 0);
         return;
       }
-      for (const want of ranked(n, false)) {
+      for (const want of wants) {
         if (host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds(), safeTarget)) {
           host.setCombatTarget(id, 0);
           return;
