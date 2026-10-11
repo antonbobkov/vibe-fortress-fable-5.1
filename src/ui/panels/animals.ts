@@ -3,18 +3,22 @@ import { C } from '@core/components';
 import type { Command } from '@core/commands';
 import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import type { AnimalsReader } from '@systems/animals';
+import { trainKey, type AnimalsReader } from '@systems/animals';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ForagingReader } from '@systems/foraging';
+import type { JobsReader } from '@systems/jobs';
 import type { Surface } from '../surface';
-import { label, separator, table, textField, type ListState, type TextFieldState } from '../widgets';
+import { button, label, separator, table, textField, type ListState, type TextFieldState } from '../widgets';
 import { buildings, confirmThen, type PanelContext } from './context';
 import { dwarvesOf } from './units';
+import { acceleratorLabel } from '../keymap';
+import { rejectionText } from '../messages';
 
 export class AnimalsPanel {
   readonly list: ListState = { selected: 0, scroll: 0 };
   tab: 0 | 1 = 0;
   readonly name: TextFieldState = { value: '', focused: false, maxLength: 24 };
+  trainChoice: { animalId: EntityId; selected: 0 | 1 } | null = null;
   reader(ctx: PanelContext): AnimalsReader | null { return ctx.readers.has('08') ? ctx.readers.of<AnimalsReader>('08') : null; }
   rows(ctx: PanelContext): EntityId[] {
     const r = this.reader(ctx);
@@ -73,6 +77,7 @@ export class AnimalsPanel {
     return { type: 'SetHuntable', species, on: !r.isHuntable(species) };
   }
   startName(ctx: PanelContext): void {
+    this.trainChoice = null;
     this.name.value = ctx.readers.entities.get(this.selected(ctx), C.Creature)?.name ?? '';
     this.name.focused = true;
   }
@@ -82,6 +87,37 @@ export class AnimalsPanel {
     const value = this.name.value.trim();
     return id === 0 || value.length === 0 ? null : { type: 'NameAnimal', animalId: id, name: value };
   }
+  startTrain(ctx: PanelContext): void {
+    const id = this.selected(ctx);
+    const refuse = (reason: string): void => ctx.notice?.(rejectionText(ctx, { type: 'TrainAnimal', animalId: id, kind: 'war' }, reason));
+    const creature = ctx.readers.entities.get(id, C.Creature);
+    if (id === 0 || creature === undefined) { refuse('not_tame'); return; }
+    const def = this.reader(ctx)?.def(creature.species);
+    const trainable = def?.trainable ?? def?.flags['trainable'];
+    if (typeof trainable !== 'string' || trainable === 'none') {
+      refuse('not_trainable');
+      return;
+    }
+    this.name.focused = false;
+    this.trainChoice = { animalId: id, selected: 0 };
+  }
+  finishTrain(): Command | null {
+    if (this.trainChoice === null) return null;
+    const { animalId, selected } = this.trainChoice;
+    this.trainChoice = null;
+    const kind: 'war' | 'hunting' = selected === 0 ? 'war' : 'hunting';
+    return { type: 'TrainAnimal', animalId, kind };
+  }
+}
+
+function trainStatus(ctx: PanelContext, id: EntityId, trained: string): string {
+  if (ctx.readers.has('11')) {
+    const job = ctx.readers.of<JobsReader>('11').byKey(trainKey(id));
+    if (job !== undefined && job.state !== 'done' && job.state !== 'cancelled') return ctx.strings.get('ui.animals.training');
+  }
+  if (trained === 'war') return ctx.strings.get('ui.animals.trained_war');
+  if (trained === 'hunting') return ctx.strings.get('ui.animals.trained_hunting');
+  return '';
 }
 
 export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ctx: PanelContext): void {
@@ -89,9 +125,11 @@ export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ct
   const col = rect.col + 1; const width = rect.cols - 2;
   label(s, col, rect.row, `[1] Tame (${r.tameList().length})  [2] Wild (${r.wildList().length})`, { fg: s.theme.key, width });
   const ids = panel.rows(ctx);
-  const height = Math.max(2, rect.rows - 7);
+  const height = Math.max(2, rect.rows - (panel.tab === 0 ? 8 : 7));
   table(s, { col, row: rect.row + 1, cols: width, rows: height },
-    [{ title: 'Species', width: 10 }, { title: 'Name', width: 9 }, { title: 'Pasture', width: 8 }, { title: 'Cond/Tr', width: 9 }],
+    panel.tab === 0
+      ? [{ title: 'Species', width: 8 }, { title: 'Name', width: 7 }, { title: 'Pasture', width: 6 }, { title: 'Cond/Tr', width: 12 }]
+      : [{ title: 'Species', width: 10 }, { title: 'Name', width: 9 }, { title: 'Pasture', width: 8 }, { title: 'Cond/Tr', width: 9 }],
     ids.map((id) => {
       const creature = ctx.readers.entities.get(id, C.Creature);
       const tame = ctx.readers.entities.get(id, C.Tame);
@@ -101,17 +139,43 @@ export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ct
         const hunt = ctx.readers.has('09') && ctx.readers.of<ForagingReader>('09').isHuntable(creature?.species ?? 0);
         return [`${species} ×${count}`, hunt ? 'hunt' : '—', '—', r.state(id)];
       }
-      return [species, creature?.name === species ? '—' : creature?.name ?? '—', r.pastureOf(id) === 0 ? '—' : `#${(buildings(ctx)?.zonesOfType('pasture') ?? []).indexOf(r.pastureOf(id)) + 1}`, `${Math.round(r.condition(id))} ${tame.trained}${tame.pregnantUntil > ctx.readers.calendar.tick ? ' P' : ''}${tame.slaughter ? ' S' : ''}`];
+      const tr = trainStatus(ctx, id, tame.trained);
+      const cond = Math.round(r.condition(id));
+      const preg = tame.pregnantUntil > ctx.readers.calendar.tick ? ' P' : '';
+      const slaught = tame.slaughter ? ' S' : '';
+      const condTr = tr ? `${cond} ${tr}${preg}${slaught}` : `${cond}${preg}${slaught}`;
+      return [species, creature?.name === species ? '—' : creature?.name ?? '—', r.pastureOf(id) === 0 ? '—' : `#${(buildings(ctx)?.zonesOfType('pasture') ?? []).indexOf(r.pastureOf(id)) + 1}`, condTr];
     }), panel.list, (i) => { panel.list.selected = i; });
   let row = rect.row + height + 1;
   separator(s, col, row, width); row += 1;
   if (panel.tab === 0) {
-    // Every letter here opens a panel, so each action takes `Shift` (D-U2).
-    label(s, col, row, ctx.strings.get('ui.animals.actions1'), { width }); row += 1;
-    label(s, col, row, ctx.strings.get('ui.animals.actions2'), { width }); row += 1;
-    const species = ctx.readers.entities.get(panel.selected(ctx), C.Creature)?.species;
-    if (species !== undefined) label(s, col, row, panel.name.focused ? 'Name:' : `Breeding cap: ${r.breedingCap(species)}`, { width });
-    if (panel.name.focused) textField(s, col + 6, row, Math.max(1, width - 10), panel.name);
+    if (panel.trainChoice !== null) {
+      label(s, col, row, ctx.strings.get('ui.animals.train_prompt'), { fg: s.theme.key, width }); row += 1;
+      const labels = [ctx.strings.get('ui.animals.war'), ctx.strings.get('ui.animals.hunting')] as const;
+      for (let i = 0; i < labels.length; i += 1) {
+        const selected = panel.trainChoice.selected === i;
+        const cells = { col, row, cols: width, rows: 1 };
+        label(s, col, row, `${selected ? '▶ ' : '  '}${labels[i]}`, { fg: selected ? s.theme.value : s.theme.text, width });
+        if (selected) s.invert(cells);
+        const idx = i as 0 | 1;
+        s.hit(cells, () => {
+          if (panel.trainChoice !== null) panel.trainChoice.selected = idx;
+          const cmd = panel.finishTrain();
+          if (cmd) ctx.submit(cmd);
+        });
+        row += 1;
+      }
+      const n = button(s, col, row, 'Enter', ctx.strings.get('ui.animals.train'), () => { const cmd = panel.finishTrain(); if (cmd) ctx.submit(cmd); });
+      button(s, col + n + 1, row, 'Esc', ctx.strings.get('ui.text_input.cancel'), () => { panel.trainChoice = null; });
+    } else {
+      // Every letter here opens a panel, so each action takes `Shift` (D-U2).
+      label(s, col, row, ctx.strings.get('ui.animals.actions1'), { width }); row += 1;
+      label(s, col, row, ctx.strings.get('ui.animals.actions2'), { width }); row += 1;
+      button(s, col, row, acceleratorLabel('t', ctx.panelLetters).slice(1, -1), ctx.strings.get('ui.animals.train'), () => panel.startTrain(ctx)); row += 1;
+      const species = ctx.readers.entities.get(panel.selected(ctx), C.Creature)?.species;
+      if (species !== undefined) label(s, col, row, panel.name.focused ? 'Name:' : `Breeding cap: ${r.breedingCap(species)}`, { width });
+      if (panel.name.focused) textField(s, col + 6, row, Math.max(1, width - 10), panel.name);
+    }
   } else {
     label(s, col, row, '[h] hunt toggle', { width });
   }

@@ -1,6 +1,8 @@
 # T-246 — Training an animal and renaming the fortress have a UI
 
-**Source:** T-111 and its report, [`../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../reports/audits/2026-10-10-ui-audit-follow-up.md) (Issue 5, §5.4, 7.10) · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-246: train animals and rename the fortress from the UI`.
+
+**Source:** T-111 and its report, [`../../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../../reports/audits/2026-10-10-ui-audit-follow-up.md) (Issue 5, §5.4, 7.10) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -12,9 +14,9 @@ Seed `audit-1`, default embark. Animals (`n`): the Tame tab offers `[S-p] pastur
 
 ## What the spec says
 
-- [`command-catalog.md`](../04-implementation/command-catalog.md): `TrainAnimal { animalId, kind }` (08; needs a kennel, `no_kennel`) and `RenameFortress { name }` (core; 1–32 characters).
-- [`08-animals-and-domestication.md`](../02-systems/08-animals-and-domestication.md) § Rules: `kind: war | hunting` for `trainable` species; § Player-facing behavior: the Tame tab has "trained" and "actions".
-- [`panels.md`](../04-implementation/ui-screens/panels.md) § Animals: the `Tr` column (`war`, `pet`).
+- [`command-catalog.md`](../../04-implementation/command-catalog.md): `TrainAnimal { animalId, kind }` (08; needs a kennel, `no_kennel`) and `RenameFortress { name }` (core; 1–32 characters).
+- [`08-animals-and-domestication.md`](../../02-systems/08-animals-and-domestication.md) § Rules: `kind: war | hunting` for `trainable` species; § Player-facing behavior: the Tame tab has "trained" and "actions".
+- [`panels.md`](../../04-implementation/ui-screens/panels.md) § Animals: the `Tr` column (`war`, `pet`).
 
 ## What to do
 
@@ -29,4 +31,4 @@ Seed `audit-1`, default embark. Animals (`n`): the Tame tab offers `[S-p] pastur
 ## Done
 
 - Both commands can be issued from the UI, and a refusal says why.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

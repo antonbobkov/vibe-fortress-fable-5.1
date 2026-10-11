@@ -134,7 +134,7 @@ Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_anima
 
 ## Player-facing behavior
 
-- Animals panel: tabs Tame (species, name if any, pasture, condition bar, trained, pregnant, actions) and Wild (species, count, huntable toggle from 09, "seen near" location); breeding caps per species.
+- Animals panel: tabs Tame (species, name if any, pasture, condition bar, trained, pregnant, actions) and Wild (species, count, huntable toggle from 09, "seen near" location); breeding caps per species. Tame offers a clickable train action (`Shift+T`): War/Hunting, arrows and Enter or a click, Esc to cancel. Training status is shown while a job exists (also for retraining), otherwise war, hunting or blank. A non-trainable species is explained on the status row; a missing kennel refusal says to build one.
 - Pasture zone: capacity line; assigning by selecting animals in the panel or by clicking an animal and choosing "Pasture".
 - Glyphs: lowercase letters by species (`d` dog, `c` cat, `C` cow is uppercase to read as large; the convention is lowercase for small and medium, uppercase for large animals; hostiles are uppercase in red).
 - Announcements: "A pack of wolves has arrived from the north" (note), "The cow is starving" (alert), "The cat has adopted Ketil Ironvein" (note).

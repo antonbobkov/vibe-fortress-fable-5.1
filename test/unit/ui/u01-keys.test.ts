@@ -47,7 +47,7 @@ describe('U-01 embark opens with Balanced and asks before a start without a pick
     expect(s.session.preset).toBe(EMBARK_DEFAULT_PRESET);
     expect(s.session.total()).toBe(1480);
     expect(s.edited).toBe(false);
-    expect(s.missing()).toEqual({ pick: false, food: false, drink: false });
+    expect(s.missing()).toEqual({ pick: false, axe: false, food: false, drink: false });
     s.key(press('Enter'));
     expect(asked).toEqual([]);
     expect(embarked).toHaveLength(1);

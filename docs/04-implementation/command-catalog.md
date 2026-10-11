@@ -66,7 +66,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `SetPopulationCap` | `n` | 21 | integer 20–200; outside range rejects out_of_range without changing the cap | — |
 | `NameAnimal` | `animalId, name` | 08 | tame; name 1–24 characters | — |
 | `RenameSquad` | `squadId, name` | 16 | 1–32 characters | — |
-| `RenameFortress` | `name` | core | 1–32 characters | — |
+| `RenameFortress` | `name` | core | 1–`FORTRESS_NAME_MAX_CHARS` characters | — |
 
 App-level (not simulation commands, not logged): `Save`, `Load`, `RetireFortress`, `SetSpeed`, `SetSetting`, and the embark-session commands of 02 (`SetSkill`, `RerollDwarf`, `RenameDwarf`, `SetSupply`, `ApplyPreset`, `SetFortressName`, `ConfirmEmbark`), which run before the world exists.
 

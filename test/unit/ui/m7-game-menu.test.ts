@@ -138,7 +138,7 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       // U-01 (D-U3): the two embark confirmations joined the table. U-03 (D-U2): and the eight
       // for the destructive single-key actions (melt, dump ×2, slaughter, suspend, take apart,
       // remove zone, remove order). U-05: and releasing a caged creature (c_release_cage).
-      expect(table.ids()).toHaveLength(21);
+      expect(table.ids()).toHaveLength(22);
       for (const id of table.ids()) {
         expect(sources.includes(`'${id}'`), `${id} is never asked for in src/`).toBe(true);
         const row = table.byId(id) as ConfirmRow;
@@ -244,6 +244,7 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
         save: () => calls.push('save'),
         load: () => calls.push('load'),
         settings: () => calls.push('settings'),
+        rename: () => calls.push('rename'),
         retire: () => calls.push('retire'),
         mainMenu: () => calls.push('main_menu'),
         viewOnly: () => false,
@@ -253,15 +254,15 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       menu.draw(s);
       const text = s.lines().join('\n');
       expect(text).toContain('Deepholm · Emberhall');
-      for (const entry of ['[r] Resume', '[s] Save', '[l] Load', '[o] Settings', '[x] Retire fortress', '[m] Main menu']) {
+      for (const entry of ['[r] Resume', '[s] Save', '[l] Load', '[o] Settings', '[n] Rename fortress', '[x] Retire fortress', '[m] Main menu']) {
         expect(text).toContain(entry);
       }
-      for (const key of ['r', 's', 'l', 'o', 'x', 'm']) expect(menu.key(press(key))).toBe(true);
-      expect(calls).toEqual(['resume', 'save', 'load', 'settings', 'retire', 'main_menu']);
-      // Esc resumes; a view-only (final) save offers neither Save nor Retire.
+      for (const key of ['r', 's', 'l', 'o', 'n', 'x', 'm']) expect(menu.key(press(key))).toBe(true);
+      expect(calls).toEqual(['resume', 'save', 'load', 'settings', 'rename', 'retire', 'main_menu']);
+      // Esc resumes; a view-only (final) save disables Save, Rename and Retire.
       expect(menu.key(press('Esc'))).toBe(true);
       const viewOnly = new GameMenuScreen({ ...host, viewOnly: () => true });
-      expect(viewOnly.items().filter((i) => i.enabled === false).map((i) => i.id)).toEqual(['save', 'retire']);
+      expect(viewOnly.items().filter((i) => i.enabled === false).map((i) => i.id)).toEqual(['save', 'rename', 'retire']);
     });
   });
 

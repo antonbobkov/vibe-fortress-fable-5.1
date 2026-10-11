@@ -31,6 +31,7 @@ interface World {
   readonly busyShop: number;
   readonly pile: number;
   readonly cow: number;
+  readonly dog?: number;
   readonly squad: number;
   readonly table: number;
   /** U-05: a lever, a cage it can be linked to, and a bed in a bedroom. */
@@ -51,6 +52,7 @@ function world(seed: string): World {
   w.spawnDwarf({ at: w.index(17, 19, z), skills: { carpentry: 6 } });
   const pile = w.zone('stockpile', [w.index(30, 30, z), w.index(31, 30, z)]);
   const cow = w.spawnTame('cow', w.index(34, 34, z));
+  const dog = w.spawnTame('dog', w.index(35, 34, z));
   w.spawnItem('stone_block', 'iron', w.index(36, 36, z), 2);
   // A finished workshop takes orders from the tick after it is built.
   w.step(1);
@@ -59,7 +61,7 @@ function world(seed: string): World {
   w.step(1);
   const squad = w.readers.of<CombatReader>('16').squads()[0]?.id ?? 0;
   expect(squad).not.toBe(0);
-  return { w, shop, busyShop, pile, cow, squad, table, lever, bed };
+  return { w, shop, busyShop, pile, cow, dog, squad, table, lever, bed };
 }
 
 interface Fixture {
@@ -71,7 +73,7 @@ interface Fixture {
 }
 
 /** A fresh screen over the world; `answer` is what the dialog says (null: there is no dialog). */
-function screenOf(world: World, answer: boolean | null = false, keys: Keymap = keymap): Fixture {
+function screenOf(world: World, answer: boolean | null = false, keys: Keymap = keymap, now: () => number = () => 1000): Fixture {
   const { w } = world;
   const sent: Command[] = [];
   const asked: Asked[] = [];
@@ -92,7 +94,7 @@ function screenOf(world: World, answer: boolean | null = false, keys: Keymap = k
     precondition: () => true,
     registeredPanels: () => w.game.world.registrations.panels,
     announcements: () => w.game.world.registrations.announcements,
-    now: () => 1000,
+    now,
     laborManager: (open) => { managers.push(open); },
     ...(answer === null ? {} : {
       confirm: (id: string, params: Readonly<Record<string, unknown>>, reply: (yes: boolean) => void): void => {
@@ -148,6 +150,7 @@ const STATES: readonly { readonly name: string; readonly open: (f: Fixture, worl
   { name: 'units choosing a squad', open: (f) => { f.screen.openPanel('units'); f.screen.key(press('M', { shift: true })); expect(f.screen.units.choice?.kind).toBe('squad'); } },
   { name: 'civilizations choosing a request', open: (f) => { f.screen.openPanel('civilizations'); f.screen.civilizations.choosingRequest = true; } },
   { name: 'a map selection', open: (f) => { f.screen.look({ x: 36, y: 36, z }); f.screen.selection = { a: { x: 36, y: 36, z }, b: { x: 37, y: 37, z } }; } },
+  ...([0, 1] as const).map(selected => ({ name: `T-246 animal training choice ${selected}`, open: (f: Fixture, world: World) => { f.screen.openPanel('animals'); expect(world.dog).toBeGreaterThan(0); f.screen.animals.list.selected = f.screen.animals.rows(f.screen.ctx).indexOf(world.dog ?? 0); f.screen.key(press('T', { shift: true })); expect(f.screen.animals.trainChoice).not.toBeNull(); f.screen.animals.trainChoice!.selected = selected; } })),
   { name: 'no panel', open: (f) => f.screen.openPanel(null) },
 ];
 
@@ -182,7 +185,8 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
   }
 
   it('the open panel\'s own key closes it; Designate opens with Dig chosen (D-241)', () => {
-    const f = screenOf(shared);
+    let time = 1000;
+    const f = screenOf(shared, false, keymap, () => time);
     for (const { id, key } of FORTRESS_PANEL_KEYS) {
       f.screen.key(press(key));
       expect(f.screen.ui.panel).toBe(id);
@@ -191,6 +195,8 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
     }
     f.screen.key(press('d'));
     expect(f.screen.tool.kind).toBe('dig');
+    expect(f.screen.statusRow2()).toBe('Designate closed \u00b7 [d] opens it again');
+    time += 10000; // The T-252 close notice expires; the armed tool hint returns.
     expect(f.screen.statusRow2()).toMatch(/^Dig · priority 5/);
     f.screen.key(press('d'));
     expect(f.screen.tool.active).toBe(false);

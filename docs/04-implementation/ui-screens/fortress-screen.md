@@ -150,6 +150,7 @@ The count records units of the first input not covered at each placement; placem
         │  [s] Save            │
         │  [l] Load            │
         │  [o] Settings        │
+        │  [n] Rename fortress │
         │  [x] Retire fortress │
         │  [m] Main menu       │
         └──────────────────────┘

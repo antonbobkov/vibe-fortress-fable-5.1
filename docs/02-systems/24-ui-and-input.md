@@ -135,7 +135,9 @@ Stored zoom applies to new games; a loaded save's UI zoom wins for that session.
 
 ### Game menu (Esc from the fortress with no tool or panel)
 
-`Resume`, `Save`, `Load`, `Settings`, `Retire fortress` (confirm), `Main menu` (confirm if unsaved changes since the last save).
+`Resume`, `Save`, `Load`, `Settings`, `Rename fortress`, `Retire fortress` (confirm), `Main menu` (confirm if unsaved changes since the last save).
+
+The game menu's Rename fortress row also works by mouse and is disabled in a view-only final save, as Save and Retire are. Its text input starts with the current name and uses the core `FORTRESS_NAME_MAX_CHARS` limit. Empty input remains in the dialog with its minimum-length reason; a command refusal uses the normal message path and names the 1–32-character rule. Help lists the menu action.
 
 Unsaved changes are ticks elapsed or commands applied since the last save. A command given while the game is paused takes effect at once without the calendar advancing, so it counts as an unsaved change too; the count of applied commands is kept beside the last-save tick and is not saved.
 
