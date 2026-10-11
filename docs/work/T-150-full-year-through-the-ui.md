@@ -36,6 +36,28 @@ So no test shows that a player can run a fortress for a year with the keyboard a
 - `full-year.spec.ts` runtime: ~47.0s.
 - Whole E2E suite passes (24 tests, ~3.1m).
 
+### 2026-10-10 (Stage 2)
+- Converted all 23 fortress setup `applyCommand` calls to UI keyboard and mouse actions:
+  - Surface stockpile dragged with `Shift+P` preset `[Everything]`.
+  - Surface turnip and barley farm plots created and configured via `textCell`.
+  - Dig designations: 6-level entrance stairwell (`d`, `w`), 8x4 cave room on `wz - 2`, 5x5 stone hall on `wz - 3`.
+  - Tree chopping: 10 closest trees to wagon designated plus west-edge barrier at `x: 0..3, y: 16..20` cleared to ensure caravan access.
+  - Workshops placed: Carpenter, Mason, Still, Kitchen via `placeBuilding`.
+  - Special buildings placed: Hearth and Trade depot via `placeBuilding('Shift+S', ...)`.
+  - Zones created: Meeting area and Bedrooms via UI drag.
+  - Underground cave farm plot (8x4) created on `wz - 2` with dimcap set for 4 seasons.
+  - Mountainhome anvil requested via `c` diplomacy panel.
+  - Work orders added via `addWorkOrder`: barrels (maintain 20), blocks (once 4), brew drink (maintain 100), easy meals (maintain 60).
+- Fixed food margin requirement (T-150 decision a):
+  - Fixed meal stock reading to count `easy_meal`, `fine_meal`, and `lavish_meal` (instead of non-existent item id `'meal'`).
+  - Day 112 stocks: 95 food (45 easy meals + 50 plant food) >= 57.6 (10 days for 12 dwarves).
+  - Day 112 drink: 103 >= 92.4 (10 days for 12 dwarves).
+  - 0 starving events throughout the year.
+- Verified caravan arrivals: Hillfolk caravan at Day 45, Wildwood caravan at Day 73, Mountainhome scheduled Day 129.
+- 0 dwarf deaths all year (12 living dwarves at end).
+- Remaining `applyCommand` calls: 0. Remaining `submit` calls: 0.
+- `full-year.spec.ts` runtime: ~1.1m; whole E2E suite passes (24 tests, ~3.4m).
+
 ## Done
 
 - `full-year.spec.ts` contains no `applyCommand` and no `submit` call.

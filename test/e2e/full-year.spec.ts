@@ -6,8 +6,8 @@
  * § Year-one expectation; three screenshots for the report.
  */
 
-import { expect, test } from '@playwright/test';
-import { generateWorld, moveCursorTo, screenOf, textOf, type Hook } from './helpers';
+import { expect, test, type Page } from '@playwright/test';
+import { generateWorld, moveCursorTo, screenOf, textOf, clickTile, dragTiles, textCell, clickText, type Hook } from './helpers';
 import { CARAVAN_DAY_MAX, CARAVAN_DAY_MIN } from '../../src/systems/trade/constants';
 import { CARAVAN_SEASON } from '../../src/systems/trade/schedule';
 import { GUARANTEED_SIZE_MAX, GUARANTEED_SIZE_MIN } from '../../src/systems/immigration/constants';
@@ -24,7 +24,8 @@ interface FullYearHook extends Hook {
     items: { wealth(): number; count(kind: string): number };
     buildings: {
       wagon(): number;
-      get(id: number): { origin: number; state: string; type: number } | undefined;
+      all(): readonly number[];
+      get(id: number): { origin: number; state: string; type: number; typeId?: string } | undefined;
       zoneAt(i: number): number;
       zoneTileQualifies(type: string, i: number): boolean;
       ghost(typeId: string, origin: number, orientation: number): { reason: string | null };
@@ -33,12 +34,12 @@ interface FullYearHook extends Hook {
       regions(): readonly { id: number; biome: string; peril: number; temper: number; wealth: number; traits: readonly string[]; name: string }[];
       findRegions(filter: Record<string, unknown>): readonly { id: number }[];
     } | null;
+    ui: { camX: number; camY: number; z: number; panel: string | null };
     of<T>(id: string): T;
   };
   host: {
     world: {
       calendar: { tick: number };
-      applyCommand(cmd: Record<string, unknown>): { ok: boolean; reason?: string };
       scheduler: { byId(id: string): { lastPlacedBuilding: number; lastCreatedZone: number } };
       onEvents(listener: (events: readonly { type: string; [k: string]: unknown }[]) => void): () => void;
     };
@@ -58,6 +59,43 @@ interface YearTracker {
   wildSpawns: Record<string, number>;
   huntKills: number;
   huntsCompleted: number;
+  starvingCount: number;
+}
+
+async function closePanels(page: Page): Promise<void> {
+  for (let i = 0; i < 5; i += 1) {
+    const panel = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.ui.panel);
+    if (panel === null) break;
+    await page.keyboard.press('Escape');
+  }
+}
+
+async function placeBuilding(page: Page, categoryKey: string, nameQuery: string, clickX: number, clickY: number): Promise<void> {
+  await page.keyboard.press('b');
+  await page.keyboard.press(categoryKey);
+  await clickText(page, nameQuery);
+  await expect.poll(async () => (await textOf(page)).toLowerCase()).toContain(`${nameQuery.toLowerCase()} ·`);
+  await clickTile(page, clickX, clickY);
+  await closePanels(page);
+}
+
+async function addWorkOrder(page: Page, filter: string, workshopHint: string, mode: 'once' | 'maintain', target: number): Promise<void> {
+  await page.keyboard.press('o');
+  await page.keyboard.press('Shift+N');
+  await expect.poll(() => textOf(page)).toContain('Add order');
+  for (const ch of filter) await page.keyboard.press(ch);
+  for (let k = 0; k < 10 && !(await textOf(page)).toLowerCase().includes(`any ${workshopHint.toLowerCase()}`); k += 1) {
+    await page.keyboard.press('ArrowDown');
+  }
+  await expect.poll(async () => (await textOf(page)).toLowerCase()).toContain(`any ${workshopHint.toLowerCase()}`);
+  if (mode === 'maintain') {
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('ArrowRight');
+  }
+  for (const digit of String(target)) await page.keyboard.press(digit);
+  await page.keyboard.press('Enter');
+  await closePanels(page);
 }
 
 test('full-year', async ({ page }) => {
@@ -116,7 +154,7 @@ test('full-year', async ({ page }) => {
     h.setSpeed(4);
   });
 
-  // 5. Initialize tracking and scripted setup
+  // 5. Initialize tracking
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
     const w = h.host.world;
@@ -133,6 +171,7 @@ test('full-year', async ({ page }) => {
       wildSpawns: {},
       huntKills: 0,
       huntsCompleted: 0,
+      starvingCount: 0,
     };
     (window as unknown as { __tracker: YearTracker }).__tracker = tracker;
 
@@ -148,6 +187,9 @@ test('full-year', async ({ page }) => {
           if (tracker.caravanDay[civ] === null || tracker.caravanDay[civ] === undefined) {
             tracker.caravanDay[civ] = day;
           }
+          console.log(`[full-year] Day ${day}: ${event.type} civ=${civ}`);
+        } else if (event.type === 'CaravanAtDepot' || event.type === 'CaravanDeparted') {
+          console.log(`[full-year] Day ${day}: ${event.type} civ=${event['civ']}`);
         } else if (event.type === 'ImmigrantsArrived') {
           tracker.waves.push({ day, count: Number(event['count'] ?? 0), guaranteed: event['guaranteed'] === true });
         } else if (event.type === 'RaidArrived') {
@@ -174,15 +216,10 @@ test('full-year', async ({ page }) => {
         } else if (event.type === 'CreatureDied') {
           console.log(`[full-year] Day ${day}: CreatureDied ${JSON.stringify(event)}`);
         } else if (event.type === 'Starving') {
+          tracker.starvingCount += 1;
           console.log(`[full-year] Day ${day}: Starving ${JSON.stringify(event)}`);
-        } else if (event.type === 'CaravanArrived' || event.type === 'CaravanWaiting') {
-          console.log(`[full-year] Day ${day}: ${event.type} civ=${event['civ']}`);
-        } else if (event.type === 'CaravanAtDepot') {
-          console.log(`[full-year] Day ${day}: CaravanAtDepot civ=${event['civ']}`);
-        } else if (event.type === 'CaravanDeparted') {
-          console.log(`[full-year] Day ${day}: CaravanDeparted civ=${event['civ']}`);
         } else if (event.type === 'ItemCrafted') {
-          if (event['recipeId'] === 'brew' || event['recipeId'] === 'cook_easy_meal' || event['recipeId'] === 'make_barrel') {
+          if (event['recipeId'] === 'brew' || event['recipeId'] === 'cook_easy_meal' || event['recipeId'] === 'make_barrel' || event['recipeId'] === 'make_stone_block') {
             console.log(`[full-year] Day ${day}: Crafted ${event['recipeId']}`);
           }
         }
@@ -190,119 +227,64 @@ test('full-year', async ({ page }) => {
     });
   });
 
-  // Checkpoint 1 (Days 1–3): Entrance dug, stockpiles placed, still and carpenter built
-  await page.evaluate(() => {
+  // Locate wagon, stairwell, trees, and free 3x3 patches
+  const site = await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
     const map = h.readers.map;
     const bReader = h.readers.buildings;
-    const bSystem = h.host.world.scheduler.byId('14');
     const wagon = bReader.get(bReader.wagon())!;
     const wx = wagon.origin % map.w;
     const wy = Math.floor(wagon.origin / map.w) % map.h;
     const wz = Math.floor(wagon.origin / (map.w * map.h));
 
-    // Stockpile on surface near wagon
-    const spTiles: number[] = [];
-    for (let dy = 2; dy <= 5; dy += 1) {
-      for (let dx = 2; dx <= 5; dx += 1) {
-        const t = map.index(wx + dx, wy + dy, wz);
-        if (bReader.zoneTileQualifies('stockpile', t)) spTiles.push(t);
-      }
-    }
-    const rSp = h.host.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles: spTiles });
-    if (!rSp.ok) throw new Error(`stockpile: ${rSp.reason}`);
-    const spId = bSystem.lastCreatedZone;
-    h.host.world.applyCommand({ type: 'SetStockpileFilter', zoneId: spId, filter: 'everything' });
-
-    // Surface farm plots: turnip (fast edible food) and barley (brewable)
-    const turnipTiles: number[] = [];
-    for (let dy = -5; dy <= -3; dy += 1) {
-      for (let dx = 2; dx <= 4; dx += 1) {
-        const t = map.index(wx + dx, wy + dy, wz);
-        if (bReader.zoneTileQualifies('farm_plot', t) && bReader.zoneAt(t) === 0) turnipTiles.push(t);
-      }
-    }
-    if (turnipTiles.length > 0) {
-      const rTurnip = h.host.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles: turnipTiles });
-      if (rTurnip.ok) {
-        const farmId = bSystem.lastCreatedZone;
-        for (const season of [0, 1, 2]) {
-          h.host.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season, speciesId: 'turnip' });
-        }
-      }
-    }
-
-    const barleyTiles: number[] = [];
-    for (let dy = -5; dy <= -3; dy += 1) {
-      for (let dx = 6; dx <= 8; dx += 1) {
-        const t = map.index(wx + dx, wy + dy, wz);
-        if (bReader.zoneTileQualifies('farm_plot', t) && bReader.zoneAt(t) === 0) barleyTiles.push(t);
-      }
-    }
-    if (barleyTiles.length > 0) {
-      const rBarley = h.host.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles: barleyTiles });
-      if (rBarley.ok) {
-        const farmId = bSystem.lastCreatedZone;
-        for (const season of [0, 1]) {
-          h.host.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season, speciesId: 'barley' });
-        }
-      }
-    }
-
-    // Entrance stairwell on free floor near wagon from surface to wz - 6
     let sx = wx + 4;
-    let sy = wy + 2;
-    for (let dy = -3; dy <= 5; dy += 1) {
+    let sy = wy - 1;
+    for (let dy = -2; dy <= 5; dy += 1) {
       for (let dx = 2; dx <= 6; dx += 1) {
-        const idx = map.index(wx + dx, wy + dy, wz);
+        const px = wx + dx;
+        const py = wy + dy;
+        // Avoid wagon (0..2, 49..51), stockpile (3..6, 51..54), farm plots (2..9, 44..46)
+        if (px >= wx && px <= wx + 2 && py >= wy && py <= wy + 2) continue;
+        if (px >= wx + 3 && px <= wx + 6 && py >= wy + 2 && py <= wy + 5) continue;
+        if (px >= wx + 2 && px <= wx + 9 && py >= wy - 5 && py <= wy - 3) continue;
+        const idx = map.index(px, py, wz);
         if (map.kindAt(idx) === 2 && bReader.zoneAt(idx) === 0) {
-          sx = wx + dx;
-          sy = wy + dy;
+          sx = px;
+          sy = py;
           break;
         }
       }
+      if (sx !== wx + 4 || sy !== wy - 1) break;
     }
-    const rStairs = h.host.world.applyCommand({ type: 'DesignateStairwell', x: sx, y: sy, zTop: wz, zBottom: wz - 6 });
-    if (!rStairs.ok) throw new Error(`stairwell: ${rStairs.reason}`);
 
-    // Dig cave room on wz - 2 (soil layer for cave farm) and stone hall on wz - 3 (stone layer for raw stone)
-    const caveRoomTiles: number[] = [];
-    for (let y = sy; y <= sy + 3; y += 1) {
-      for (let x = sx + 1; x <= sx + 4; x += 1) {
-        caveRoomTiles.push(map.index(x, y, wz - 2));
-      }
-    }
-    h.host.world.applyCommand({ type: 'Designate', kind: 'dig', priority: 4, tiles: caveRoomTiles });
-
-    const roomTiles: number[] = [];
-    for (let y = sy; y <= sy + 4; y += 1) {
-      for (let x = sx + 1; x <= sx + 5; x += 1) {
-        roomTiles.push(map.index(x, y, wz - 3));
-      }
-    }
-    h.host.world.applyCommand({ type: 'Designate', kind: 'dig', priority: 4, tiles: roomTiles });
-
-    // Designate 8 nearby surface trees to chop for continuous log supply
-    const chopTiles: number[] = [];
+    const trees: { x: number; y: number }[] = [];
     for (let dy = -12; dy <= 12; dy += 1) {
-      for (let dx = -12; dx <= 12; dx += 1) {
-        if (chopTiles.length >= 8) break;
-        const t = map.index(wx + dx, wy + dy, wz);
-        if (map.kindAt(t) === 8) {
-          chopTiles.push(t);
+      for (let dx = 1; dx <= 30; dx += 1) {
+        const px = wx + dx;
+        const py = wy + dy;
+        if (px >= 0 && px < map.w && py >= 0 && py < map.h) {
+          const t = map.index(px, py, wz);
+          if (map.kindAt(t) === 8) {
+            trees.push({ x: px, y: py });
+          }
         }
       }
-      if (chopTiles.length >= 8) break;
     }
-    if (chopTiles.length > 0) {
-      h.host.world.applyCommand({ type: 'Designate', kind: 'chop', priority: 4, tiles: chopTiles });
-      console.log(`[full-year] designated ${chopTiles.length} trees to chop`);
-    }
+    trees.sort((a, b) => (a.x - wx) ** 2 + (a.y - wy) ** 2 - ((b.x - wx) ** 2 + (b.y - wy) ** 2));
 
-    // Find free 3x3 surface floor patches for workshops (spaced by 4 tiles to guarantee walkable borders)
-    const free3x3: { x: number; y: number }[] = [];
-    for (let y = wy - 14; y <= wy + 14; y += 4) {
-      for (let x = wx + 6; x <= wx + 36; x += 4) {
+    const patches: { x: number; y: number }[] = [];
+    const used = (px: number, py: number): boolean => {
+      if (px <= 14 && py >= 42 && py <= 56) return true;
+      for (const p of patches) {
+        if (Math.abs(p.x - px) < 4 && Math.abs(p.y - py) < 4) return true;
+      }
+      return false;
+    };
+
+    const u = h.readers.ui;
+    for (let y = u.camY + 2; y <= u.camY + 36 && patches.length < 8; y += 1) {
+      for (let x = u.camX + 2; x <= u.camX + 38 && patches.length < 8; x += 1) {
+        if (used(x, y)) continue;
         let allFloor = true;
         for (let dy = 0; dy < 3 && allFloor; dy += 1) {
           for (let dx = 0; dx < 3 && allFloor; dx += 1) {
@@ -310,95 +292,116 @@ test('full-year', async ({ page }) => {
             if (map.kindAt(idx) !== 2 || bReader.zoneAt(idx) !== 0) allFloor = false;
           }
         }
-        if (allFloor) free3x3.push({ x, y });
-      }
-    }
-
-    const placedIds: Record<string, number> = {};
-    let patchIdx = 0;
-    for (const bType of ['carpenter', 'mason', 'still']) {
-      while (patchIdx < free3x3.length) {
-        const patch = free3x3[patchIdx++]!;
-        const origin = map.index(patch.x, patch.y, wz);
-        const ghost = bReader.ghost(bType, origin, 0);
-        if (ghost.reason === null) {
-          const res = h.host.world.applyCommand({ type: 'PlaceBuilding', buildingType: bType, origin, orientation: 0, materialChoice: 0 });
-          if (res.ok) {
-            placedIds[bType] = bSystem.lastPlacedBuilding;
-            break;
-          }
+        if (allFloor) {
+          patches.push({ x, y });
         }
       }
     }
 
-    const ordered = new Set<string>();
-    let caveFarmId = 0;
-
-    const checkWorkOrders = (): void => {
-      const b = h.readers.buildings;
-      if (!ordered.has('carpenter') && b.get(placedIds['carpenter'] ?? 0)?.state === 'built') {
-        ordered.add('carpenter');
-        h.host.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['carpenter'], order: { recipeId: 'make_barrel', mode: 'maintain', threshold: 12 } });
-        console.log(`[full-year] Day ${Math.floor(h.readers.calendar.tick / 1200)}: carpenter work order added`);
-      }
-      if (!ordered.has('mason') && b.get(placedIds['mason'] ?? 0)?.state === 'built') {
-        ordered.add('mason');
-        h.host.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['mason'], order: { recipeId: 'make_stone_block', mode: 'once', remaining: 2 } });
-        console.log(`[full-year] Day ${Math.floor(h.readers.calendar.tick / 1200)}: mason work order added`);
-      }
-      if (!ordered.has('still') && b.get(placedIds['still'] ?? 0)?.state === 'built') {
-        ordered.add('still');
-        h.host.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['still'], order: { recipeId: 'brew', mode: 'maintain', threshold: 60 } });
-        console.log(`[full-year] Day ${Math.floor(h.readers.calendar.tick / 1200)}: still work order added`);
-      }
-      if (!ordered.has('kitchen') && b.get(placedIds['kitchen'] ?? 0)?.state === 'built') {
-        ordered.add('kitchen');
-        h.host.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['kitchen'], order: { recipeId: 'cook_easy_meal', mode: 'maintain', threshold: 30 } });
-        console.log(`[full-year] Day ${Math.floor(h.readers.calendar.tick / 1200)}: kitchen work order added`);
-      }
-    };
-
-    const checkCaveFarm = (): void => {
-      if (caveFarmId === 0) {
-        const dug = caveRoomTiles.filter((t) => map.kindAt(t) === 2);
-        if (dug.length >= 9) {
-          const plantable = dug.filter((t) => bReader.zoneAt(t) === 0 && bReader.zoneTileQualifies('farm_plot', t));
-          if (plantable.length >= 9) {
-            const rFarm = h.host.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles: plantable });
-            if (rFarm.ok) {
-              caveFarmId = bSystem.lastCreatedZone;
-              for (const season of [0, 1, 2, 3]) {
-                h.host.world.applyCommand({ type: 'SetPlotCrop', zoneId: caveFarmId, season, speciesId: 'dimcap' });
-              }
-              console.log(`[full-year] Day ${Math.floor(h.readers.calendar.tick / 1200)}: cave farm plot created`);
-            }
-          }
-        }
-      }
-    };
-
-    (window as unknown as { __setup: { free3x3: typeof free3x3; patchIdx: number; placedIds: typeof placedIds; sx: number; sy: number; wz: number } }).__setup = {
-      free3x3,
-      patchIdx,
-      placedIds,
-      sx,
-      sy,
-      wz,
-    };
-    (window as unknown as { __checkWorkOrders: () => void }).__checkWorkOrders = checkWorkOrders;
-    (window as unknown as { __checkCaveFarm: () => void }).__checkCaveFarm = checkCaveFarm;
+    return { wx, wy, wz, sx, sy, trees, patches, u: { camX: u.camX, camY: u.camY } };
   });
+
+  console.log(`[full-year] wx=${site.wx}, wy=${site.wy}, wz=${site.wz}, camX=${site.u.camX}, camY=${site.u.camY}, patches=${site.patches.length}, trees=${site.trees.length}`);
+
+  expect(site.patches.length).toBeGreaterThanOrEqual(6);
+  expect(site.trees.length).toBeGreaterThanOrEqual(8);
+
+  // Checkpoint 1 (Days 1–3): Entrance dug, stockpiles placed, still and carpenter built
+  // 1. Stockpile on surface near wagon: z, Shift+S, drag, set Everything preset
+  await page.keyboard.press('z');
+  await page.keyboard.press('Shift+S');
+  await dragTiles(page, { x: site.wx + 3, y: site.wy + 2 }, { x: site.wx + 6, y: site.wy + 5 });
+  await page.keyboard.press('Escape');
+  await clickTile(page, site.wx + 3, site.wy + 2);
+  await expect.poll(() => textOf(page)).toContain('[S-p] Preset');
+  await page.keyboard.press('Shift+P');
+  await expect.poll(() => textOf(page)).toContain('Everything');
+  await clickText(page, 'Everything');
+  await expect.poll(() => textOf(page)).toContain('Preset [Everything');
+  await closePanels(page);
+
+  // 2. Surface turnip plot: z, Shift+F, drag, set Spring, Summer, Autumn to turnip
+  await page.keyboard.press('z');
+  await page.keyboard.press('Shift+F');
+  await dragTiles(page, { x: site.wx + 2, y: site.wy - 5 }, { x: site.wx + 5, y: site.wy - 3 });
+  await page.keyboard.press('Escape');
+  await clickTile(page, site.wx + 2, site.wy - 5);
+  await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
+  for (const season of ['Spring', 'Summer', 'Autumn']) {
+    const row = await textCell(page, season, 9);
+    await page.mouse.click(row.x, row.y);
+    const turnip = await textCell(page, '  turnip');
+    await page.mouse.click(turnip.x, turnip.y);
+  }
+  await closePanels(page);
+
+  // 3. Surface barley plot: z, Shift+F, drag, set Spring, Summer to barley
+  await page.keyboard.press('z');
+  await page.keyboard.press('Shift+F');
+  await dragTiles(page, { x: site.wx + 6, y: site.wy - 5 }, { x: site.wx + 9, y: site.wy - 3 });
+  await page.keyboard.press('Escape');
+  await clickTile(page, site.wx + 6, site.wy - 5);
+  await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
+  for (const season of ['Spring', 'Summer']) {
+    const row = await textCell(page, season, 9);
+    await page.mouse.click(row.x, row.y);
+    const barley = await textCell(page, '  barley');
+    await page.mouse.click(barley.x, barley.y);
+  }
+  await closePanels(page);
+
+  // 4. Entrance stairwell: d, w, click, down 6 levels, click, back up
+  await page.keyboard.press('d');
+  await page.keyboard.press('w');
+  await clickTile(page, site.sx, site.sy);
+  for (let i = 0; i < 6; i += 1) await page.keyboard.press('<');
+  await clickTile(page, site.sx, site.sy);
+  await closePanels(page);
+  for (let i = 0; i < 6; i += 1) await page.keyboard.press('>');
+
+  // 5. Dig cave room on wz - 2 (8x4 = 32 tiles for cave farm) and stone hall on wz - 3 (5x5 = 25 tiles)
+  for (let i = 0; i < 2; i += 1) await page.keyboard.press('<');
+  await page.keyboard.press('d');
+  await dragTiles(page, { x: site.sx + 1, y: site.sy }, { x: site.sx + 8, y: site.sy + 3 });
+  await closePanels(page);
+
+  await page.keyboard.press('<');
+  await page.keyboard.press('d');
+  await dragTiles(page, { x: site.sx + 1, y: site.sy }, { x: site.sx + 5, y: site.sy + 4 });
+  await closePanels(page);
+
+  for (let i = 0; i < 3; i += 1) await page.keyboard.press('>');
+
+  // 6. Surface trees chop: d, Shift+T, designate 10 nearby trees for carpentry and construction
+  await page.keyboard.press('d');
+  await page.keyboard.press('Shift+T');
+  for (const t of site.trees.slice(0, 10)) {
+    await dragTiles(page, { x: t.x, y: t.y }, { x: t.x, y: t.y });
+  }
+  // Clear tree barrier at x: 0..3, y: 16..20 so caravan edge path is open
+  await page.keyboard.press('Shift+ArrowUp');
+  await page.keyboard.press('Shift+ArrowUp');
+  await dragTiles(page, { x: 0, y: 16 }, { x: 3, y: 20 });
+  await page.keyboard.press('Shift+ArrowDown');
+  await page.keyboard.press('Shift+ArrowDown');
+  await closePanels(page);
+
+  // 7. Workshops on surface: carpenter, mason, still
+  await placeBuilding(page, 'w', "Carpenter's workshop", site.patches[0]!.x + 1, site.patches[0]!.y + 1);
+  await placeBuilding(page, 'w', "Mason's workshop", site.patches[1]!.x + 1, site.patches[1]!.y + 1);
+  await placeBuilding(page, 'w', 'Still', site.patches[2]!.x + 1, site.patches[2]!.y + 1);
+
+  // 8. Global work orders: barrel maintain 20, blocks once 4, brew drink maintain 100
+  await addWorkOrder(page, 'barrel', 'carpenter', 'maintain', 20);
+  await addWorkOrder(page, 'blocks', 'mason', 'once', 4);
+  await addWorkOrder(page, 'brewdrink', 'still', 'maintain', 100);
 
   // Advance to Day 3
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const checkWorkOrders = (window as unknown as { __checkWorkOrders: () => void }).__checkWorkOrders;
-    const checkCaveFarm = (window as unknown as { __checkCaveFarm: () => void }).__checkCaveFarm;
     const targetTick = 3 * 1200;
     while (h.readers.calendar.tick < targetTick) {
       h.step(Math.min(300, targetTick - h.readers.calendar.tick));
-      checkWorkOrders();
-      checkCaveFarm();
     }
   });
 
@@ -406,97 +409,70 @@ test('full-year', async ({ page }) => {
   const shot1 = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.screenshotName('full-year-spring'));
   await page.screenshot({ path: shot1 });
 
-  // Checkpoint 2 (Days 4–10): First bedrooms, dining hall, hearth
-  await page.evaluate(() => {
-    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const map = h.readers.map;
-    const bReader = h.readers.buildings;
-    const bSystem = h.host.world.scheduler.byId('14');
-    const s = (window as unknown as { __setup: { free3x3: { x: number; y: number }[]; patchIdx: number; placedIds: Record<string, number>; sx: number; sy: number; wz: number } }).__setup;
+  // Checkpoint 2 (Days 4–10): First bedrooms, dining hall, hearth, kitchen
+  // 1. Place hearth (1x1) and kitchen (3x3)
+  await placeBuilding(page, 'Shift+S', 'Hearth', site.patches[3]!.x, site.patches[3]!.y);
+  await placeBuilding(page, 'w', 'Kitchen', site.patches[4]!.x + 1, site.patches[4]!.y + 1);
 
-    // Place hearth and kitchen
-    for (const bType of ['hearth', 'kitchen']) {
-      while (s.patchIdx < s.free3x3.length) {
-        const patch = s.free3x3[s.patchIdx++]!;
-        const origin = map.index(patch.x, patch.y, s.wz);
-        const ghost = bReader.ghost(bType, origin, 0);
-        if (ghost.reason === null) {
-          const res = h.host.world.applyCommand({ type: 'PlaceBuilding', buildingType: bType, origin, orientation: 0, materialChoice: 0 });
-          if (res.ok) {
-            s.placedIds[bType] = bSystem.lastPlacedBuilding;
-            break;
-          }
-        }
-      }
-    }
+  // 2. Kitchen work order: Easy meal maintain 60
+  await addWorkOrder(page, 'easymeal', 'kitchen', 'maintain', 60);
 
-    // Meeting area (dining hall) and bedroom zones on surface near workshops
-    const meetTiles: number[] = [];
-    const bedTiles: number[] = [];
-    for (let dy = 0; dy < 3; dy += 1) {
-      for (let dx = 0; dx < 3; dx += 1) {
-        const mt = map.index(s.sx + 6 + dx, s.sy + dy, s.wz);
-        if (bReader.zoneTileQualifies('meeting_area', mt)) meetTiles.push(mt);
-        const bt = map.index(s.sx + 10 + dx, s.sy + dy, s.wz);
-        if (bReader.zoneTileQualifies('bedroom', bt)) bedTiles.push(bt);
-      }
-    }
-    if (meetTiles.length > 0) h.host.world.applyCommand({ type: 'CreateZone', zoneType: 'meeting_area', tiles: meetTiles });
-    if (bedTiles.length > 0) h.host.world.applyCommand({ type: 'CreateZone', zoneType: 'bedroom', tiles: bedTiles });
-  });
+  // 3. Meeting area (dining hall) and bedroom zones on surface near workshops
+  await page.keyboard.press('z');
+  await page.keyboard.press('Shift+M');
+  await dragTiles(page, { x: site.patches[6]!.x, y: site.patches[6]!.y }, { x: site.patches[6]!.x + 2, y: site.patches[6]!.y + 2 });
+  await closePanels(page);
+
+  await page.keyboard.press('z');
+  await page.keyboard.press('Shift+B');
+  await dragTiles(page, { x: site.patches[7]!.x, y: site.patches[7]!.y }, { x: site.patches[7]!.x + 2, y: site.patches[7]!.y + 2 });
+  await closePanels(page);
 
   // Advance to Day 10
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const checkWorkOrders = (window as unknown as { __checkWorkOrders: () => void }).__checkWorkOrders;
-    const checkCaveFarm = (window as unknown as { __checkCaveFarm: () => void }).__checkCaveFarm;
     const targetTick = 10 * 1200;
     while (h.readers.calendar.tick < targetTick) {
       h.step(Math.min(300, targetTick - h.readers.calendar.tick));
-      checkWorkOrders();
-      checkCaveFarm();
     }
   });
 
-  // Checkpoint 3 (Days 10–20): Cave farm, kitchen, trade depot
-  await page.evaluate(() => {
-    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const map = h.readers.map;
-    const bReader = h.readers.buildings;
-    const bSystem = h.host.world.scheduler.byId('14');
-    const s = (window as unknown as { __setup: { free3x3: { x: number; y: number }[]; patchIdx: number; placedIds: Record<string, number>; wz: number } }).__setup;
+  // Checkpoint 3 (Days 10–20): Cave farm, trade depot, anvil request
+  // 1. Cave farm plot on wz - 2: dug soil tiles planted with dimcap for all 4 seasons
+  for (let i = 0; i < 2; i += 1) await page.keyboard.press('<');
+  await page.keyboard.press('z');
+  await page.keyboard.press('Shift+F');
+  await dragTiles(page, { x: site.sx + 1, y: site.sy }, { x: site.sx + 8, y: site.sy + 3 });
+  await page.keyboard.press('Escape');
+  await clickTile(page, site.sx + 1, site.sy);
+  await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
+  for (const season of ['Spring', 'Summer', 'Autumn', 'Winter']) {
+    const row = await textCell(page, season, 9);
+    await page.mouse.click(row.x, row.y);
+    const dimcap = await textCell(page, '  dimcap');
+    await page.mouse.click(dimcap.x, dimcap.y);
+  }
+  await closePanels(page);
+  for (let i = 0; i < 2; i += 1) await page.keyboard.press('>');
 
-    // Trade depot
-    while (s.patchIdx < s.free3x3.length) {
-      const patch = s.free3x3[s.patchIdx++]!;
-      const origin = map.index(patch.x, patch.y, s.wz);
-      const ghost = bReader.ghost('trade_depot', origin, 0);
-      if (ghost.reason === null) {
-        const res = h.host.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'trade_depot', origin, orientation: 0, materialChoice: 0 });
-        if (res.ok) {
-          s.placedIds['trade_depot'] = bSystem.lastPlacedBuilding;
-          console.log(`[full-year] Day ${Math.floor(h.readers.calendar.tick / 1200)}: trade_depot placed at (${patch.x}, ${patch.y})`);
-          break;
-        }
-      }
-    }
+  // 2. Trade depot (3x3)
+  await placeBuilding(page, 'Shift+S', 'Trade depot', site.patches[5]!.x + 1, site.patches[5]!.y + 1);
 
-    // Request anvil from Mountainhome
-    h.host.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', priority: 1 }] });
-  });
+  // 3. Request anvil from Mountainhome
+  await page.keyboard.press('c');
+  await expect.poll(() => textOf(page)).toContain('Mountainhome');
+  await page.keyboard.press('+');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await closePanels(page);
 
   // Advance to Day 20
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const checkWorkOrders = (window as unknown as { __checkWorkOrders: () => void }).__checkWorkOrders;
-    const checkCaveFarm = (window as unknown as { __checkCaveFarm: () => void }).__checkCaveFarm;
     const targetTick = 20 * 1200;
     while (h.readers.calendar.tick < targetTick) {
       h.step(Math.min(300, targetTick - h.readers.calendar.tick));
-      checkWorkOrders();
-      checkCaveFarm();
     }
-    console.log('[full-year] Day 20 reached');
   });
 
   // Screenshot 2: full-year-summer
@@ -506,8 +482,6 @@ test('full-year', async ({ page }) => {
   // Advance through summer and autumn to Day 84
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const checkWorkOrders = (window as unknown as { __checkWorkOrders: () => void }).__checkWorkOrders;
-    const checkCaveFarm = (window as unknown as { __checkCaveFarm: () => void }).__checkCaveFarm;
     const targetTick = 84 * 1200;
     let lastLoggedDay = 20;
     while (h.readers.calendar.tick < targetTick) {
@@ -517,12 +491,10 @@ test('full-year', async ({ page }) => {
         console.log(`[full-year] STALLED at tick ${prevTick}! Dwarves: ${h.dwarves().length}`);
         break;
       }
-      checkWorkOrders();
-      checkCaveFarm();
       const day = Math.floor(h.readers.calendar.tick / 1200);
       if (day >= lastLoggedDay + 10 || day >= 80) {
         lastLoggedDay = day;
-        console.log(`[full-year] Day ${day}/112 (tick ${h.readers.calendar.tick}, dwarves: ${h.dwarves().length}, drink: ${h.readers.items.count('drink')}, meal: ${h.readers.items.count('meal')}, food: ${h.readers.items.count('plant_food')})`);
+        console.log(`[full-year] Day ${day}/112 (tick ${h.readers.calendar.tick}, dwarves: ${h.dwarves().length}, drink: ${h.readers.items.count('drink')}, meal: ${h.readers.items.count('easy_meal')}, food: ${h.readers.items.count('plant_food')})`);
       }
     }
   });
@@ -534,8 +506,6 @@ test('full-year', async ({ page }) => {
   // Advance through winter to Year 2 (Day 112)
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const checkWorkOrders = (window as unknown as { __checkWorkOrders: () => void }).__checkWorkOrders;
-    const checkCaveFarm = (window as unknown as { __checkCaveFarm: () => void }).__checkCaveFarm;
     const targetTick = 112 * 1200;
     let lastLoggedDay = 84;
     while (h.readers.calendar.tick < targetTick) {
@@ -545,12 +515,10 @@ test('full-year', async ({ page }) => {
         console.log(`[full-year] STALLED at tick ${prevTick}! Dwarves: ${h.dwarves().length}`);
         break;
       }
-      checkWorkOrders();
-      checkCaveFarm();
       const day = Math.floor(h.readers.calendar.tick / 1200);
       if (day >= lastLoggedDay + 10 || day >= 105) {
         lastLoggedDay = day;
-        console.log(`[full-year] Day ${day}/112 (tick ${h.readers.calendar.tick}, dwarves: ${h.dwarves().length}, drink: ${h.readers.items.count('drink')}, meal: ${h.readers.items.count('meal')}, food: ${h.readers.items.count('plant_food')})`);
+        console.log(`[full-year] Day ${day}/112 (tick ${h.readers.calendar.tick}, dwarves: ${h.dwarves().length}, drink: ${h.readers.items.count('drink')}, meal: ${h.readers.items.count('easy_meal')}, food: ${h.readers.items.count('plant_food')})`);
       }
     }
   });
@@ -574,7 +542,7 @@ test('full-year', async ({ page }) => {
       wildAtEnd: h.readers.of<{ wildList(): readonly number[] }>('08').wildList().length,
       stocks: {
         drink: items.count('drink'),
-        meal: items.count('meal'),
+        meal: items.count('easy_meal') + items.count('fine_meal') + items.count('lavish_meal'),
         plantFood: items.count('plant_food'),
         log: items.count('log'),
         stoneBlock: items.count('stone_block'),
@@ -651,6 +619,13 @@ test('full-year', async ({ page }) => {
 
   // No dwarf died and population grew past the initial seven
   expect(livingCount, 'the hall grew past the initial 7 dwarves').toBeGreaterThan(7);
+
+  // Food margin assertions (T-150 decision a)
+  expect(tracker.starvingCount, 'no dwarf starved all year').toBe(0);
+  const tenDaysFood = livingCount * 0.48 * 10;
+  const tenDaysDrink = livingCount * 0.77 * 10;
+  expect(stocks.meal + stocks.plantFood, 'at least 10 days of food in stock at year end').toBeGreaterThanOrEqual(tenDaysFood);
+  expect(stocks.drink, 'at least 10 days of drink in stock at year end').toBeGreaterThanOrEqual(tenDaysDrink);
 
   expect(errors).toEqual([]);
 });
