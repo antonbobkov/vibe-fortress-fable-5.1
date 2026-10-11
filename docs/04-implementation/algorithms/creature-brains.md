@@ -27,10 +27,12 @@ select(id):
                   stopWalking(id); b.behavior = 'flee'; return
     if no critical need and civilianFightDeadline not elapsed: startOrKeepCorneredFight(id); return
     clearCombatTarget(id); stopWalking(id); if deadline elapsed: clearThreat(id)
-  if alert == 'hearth' and civ: target = defense.retreatTile(id); watchShelter(id, target < 0)
+  if alert == 'hearth' and civ and not (health.isPatient(id) and health.isConscious(id)): target = defense.retreatTile(id); watchShelter(id, target < 0)
      if target >= 0:                                            // a critical need overrides the retreat; a want-level hunger, thirst or rest is served only from a target inside the shelter
        if crit = highest need over its critical threshold and startNeed(id, crit): return
        if want = highest of hunger, thirst, rest over its want threshold and startNeed(id, want, targets in shelterArea(target), rest only where a bed is free there): return
+       if jobs.holdsPatientCare(id) or (able to work and not day off and jobs.hasUrgent(id, PRIORITY_MAX)):   // under the alert 11 offers a sheltering civilian patient-care jobs only
+         jobs.assign(id) unless it holds the job; b.behavior = 'work'; return   // back to 'retreat' when the job ends; a retreating dwarf looks for such a job every tick
        b.behavior = 'retreat'; goal = target; return          // otherwise continue; flee has precedence
                                                                 // shelterArea(target): the hearth hall when target is one of its tiles, else the non-outdoor tiles around target reached without passing a door
   if health.isPatient(id):                                      b.behavior = 'patient'; goal = bedTile(id) or stay; return
