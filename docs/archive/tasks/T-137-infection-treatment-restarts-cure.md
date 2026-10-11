@@ -1,5 +1,7 @@
 # T-137 - Repeated infection cleaning restarts a cure already in progress
 
+Closed by `T-137: infection cleaning keeps its first cure deadline`.
+
 ## Progress (2026-10-11): parked on the annual distribution guard
 
 Four stepped regressions and the narrow fix are in stash `e3b1fed802d5bde466529aa3c5f086bb4d714a5c`
@@ -15,7 +17,7 @@ first successful cleaning at 78124 now cures at 81727 rather than restarting
 until 82872. The changed workforce later encounters wolves; Palnir is admitted
 at 130192, remains a patient on exposed surface tile (27,36,32) beside a hungry
 attacking wolf at 130290, and bleeds out at 130407 (day 109). A causal game fault
-in the cure fix is not established. See the [frozen measurements](../../reports/audits/2026-10-11-pending-infection-cure-annual-check.md).
+in the cure fix is not established. See the [frozen measurements](../../../reports/audits/2026-10-11-pending-infection-cure-annual-check.md).
 
 Next: retain the tested cure fix; investigate the exposed-patient danger under
 T-214/T-211, then rerun the annual guard before landing T-137. A separate

@@ -27,7 +27,7 @@ import type { TickContext } from '@core/system';
 import type { BodySlot, EntityId, TileIndex } from '@core/types';
 import { BODY_SLOTS } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings/reader';
-import { createWound, severityFor, woundTypeFor } from './wounds';
+import { createWound, needsCleaning, severityFor, woundTypeFor } from './wounds';
 import { hasCrutchItem } from './reader';
 
 const LIMB_SLOTS: readonly BodySlot[] = ['left_arm', 'right_arm', 'left_leg', 'right_leg'];
@@ -171,7 +171,7 @@ export function updatePatient(
         if (!needs.includes('suture')) needs.push('suture');
       }
     }
-    if (anyInfected || allWounds.some((w) => !w.cleaned)) {
+    if (allWounds.some(needsCleaning)) {
       needs.push('clean_wound');
     }
     if (anyUndressedBurn) needs.push('dress_burn');

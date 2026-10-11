@@ -7,6 +7,11 @@ import type { Wound } from '@core/components';
 import type { Fixed, Severity, Tick, WoundType } from '@core/types';
 import { FRACTURE_PERCENT, HEAL_BASE_TICKS, LIGHT_MAX, SERIOUS_MAX } from './constants';
 
+/** A pending infection cure needs rest, not another cleaning. */
+export function needsCleaning(wound: Wound): boolean {
+  return wound.infected ? wound.curedAt === undefined : !wound.cleaned;
+}
+
 export const BLEED_TABLE: Readonly<Record<WoundType, Readonly<Record<Severity, Fixed>>>> = {
   cut: { light: 1, serious: 3, grievous: 6 },
   puncture: { light: 2, serious: 4, grievous: 8 },

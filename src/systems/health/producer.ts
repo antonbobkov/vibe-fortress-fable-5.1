@@ -19,6 +19,7 @@ import {
   TREAT_TICKS,
 } from './constants';
 import { updatePatient } from './tick';
+import { needsCleaning } from './wounds';
 
 export interface HealthProducerHost {
   readonly rng: RngStream;
@@ -231,7 +232,7 @@ export class HealthProducer implements JobProducer {
             });
             break;
           case 'clean_wound': {
-            const anyInfected = b.parts.some((p) => p.wounds.some((w) => w.infected));
+            const anyInfected = b.parts.some((p) => p.wounds.some((w) => w.infected && needsCleaning(w)));
             const inputs = anyInfected
               ? [
                   {
@@ -479,12 +480,12 @@ export class HealthProducer implements JobProducer {
         if (b) {
           let targetWound: Wound | undefined;
           for (const p of b.parts) {
-            targetWound = p.wounds.find((wnd) => wnd.infected);
+            targetWound = p.wounds.find((wnd) => wnd.infected && needsCleaning(wnd));
             if (targetWound) break;
           }
           if (!targetWound) {
             for (const p of b.parts) {
-              targetWound = p.wounds.find((wnd) => !wnd.cleaned);
+              targetWound = p.wounds.find(needsCleaning);
               if (targetWound) break;
             }
           }

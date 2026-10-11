@@ -56,7 +56,7 @@ Each health tick (every 5 ticks) for each creature in the `wounded` list or stil
 
 ### Infection
 
-Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned` and not `sutured`, older than one day: `INFECTION_PERMILLE` (doubled in miasma or when the creature slept on the floor) → `infected`. Infected: fever (`Patient` regardless of severity; no work), pain +10, no blood regeneration; each day `INFECTION_DEATH_PERMILLE`. `clean_wound` with brightleaf cures the infection after `INFECTION_CURE_DAYS`; cleaning before infection prevents it.
+Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned` and not `sutured`, older than one day: `INFECTION_PERMILLE` (doubled in miasma or when the creature slept on the floor) → `infected`. Infected: fever (`Patient` regardless of severity; no work), pain +10, no blood regeneration; each day `INFECTION_DEATH_PERMILLE`. `clean_wound` with brightleaf cures the infection after `INFECTION_CURE_DAYS`; cleaning before infection prevents it. The first successful infection cleaning sets its cure deadline; while that cure is pending, the wound requests no further cleaning and the deadline is never restarted. The infection still keeps the patient admitted until the cure completes.
 
 ### Permanent injuries and their effects
 
@@ -79,7 +79,7 @@ Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned` and
   1. `stop_bleeding`: 1 `cloth` → every bleeding wound `bandaged`. Priority 1.
   2. `set_bone`: 1 `splint` per fracture → `splinted`. Priority 2.
   3. `suture`: 1 `thread` per `serious` or `grievous` cut or puncture → `sutured` (heals at `SUTURED_HEAL_PERCENT` speed, infection-proof). Priority 3.
-  4. `clean_wound`: 1 `bucket` of water (a bucket item filled at a well or water tile by the medic as part of the job) + 1 `brightleaf` if infected → `cleaned`, and cures infection over `INFECTION_CURE_DAYS`. Priority 3.
+  4. `clean_wound`: 1 `bucket` of water (a bucket item filled at a well or water tile by the medic as part of the job) + 1 `brightleaf` if the selected wound has an untreated infection → `cleaned`, and cures infection over `INFECTION_CURE_DAYS`. Priority 3. Select the first infected wound without a pending cure, otherwise the first uncleaned uninfected wound, in body-part/wound order. Skip wounds whose infection cure is pending, including when another wound needs cleaning; cleaning an uninfected wound consumes no brightleaf for a different pending infection.
   5. `dress_burn`: 1 `cloth` per burn → `dressed` (halves burn pain, heals normally). Priority 3.
   6. `diagnose`: no input; the Chief Medic if any, else any medic; sets `diagnosed`, which makes the wound list visible in the inspector in full detail (undiagnosed patients show "wounded, bleeding" only) and gives `DIAGNOSE_XP`. Priority 4; created once per admission.
   7. `give_crutch`: 1 `crutch` to a dwarf with a lost leg. Priority 5.
