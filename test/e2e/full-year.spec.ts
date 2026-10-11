@@ -60,6 +60,7 @@ interface YearTracker {
   huntKills: number;
   huntsCompleted: number;
   starvingCount: number;
+  fortressDeaths: number;
 }
 
 async function closePanels(page: Page): Promise<void> {
@@ -160,7 +161,6 @@ test('full-year', async ({ page }) => {
   // 5. Initialize tracking
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const w = h.host.world;
     const tracker: YearTracker = {
       caravanDay: { hillfolk: null, wildwood: null, mountainhome: null },
       waves: [],
@@ -175,6 +175,7 @@ test('full-year', async ({ page }) => {
       huntKills: 0,
       huntsCompleted: 0,
       starvingCount: 0,
+      fortressDeaths: 0,
     };
     (window as unknown as { __tracker: YearTracker }).__tracker = tracker;
 
@@ -182,52 +183,60 @@ test('full-year', async ({ page }) => {
     const wagon = h.readers.buildings.get(wagonId);
     const wz = wagon === undefined ? 28 : Math.floor(wagon.origin / (h.readers.map.w * h.readers.map.h));
 
-    w.onEvents((events) => {
-      const day = Math.floor(h.readers.calendar.tick / 1200) + 1;
-      for (const event of events) {
-        if (event.type === 'CaravanArrived' || event.type === 'CaravanWaiting') {
-          const civ = String(event['civ'] ?? '');
-          if (tracker.caravanDay[civ] === null || tracker.caravanDay[civ] === undefined) {
-            tracker.caravanDay[civ] = day;
-          }
-          console.log(`[full-year] Day ${day}: ${event.type} civ=${civ}`);
-        } else if (event.type === 'CaravanAtDepot' || event.type === 'CaravanDeparted') {
-          console.log(`[full-year] Day ${day}: ${event.type} civ=${event['civ']}`);
-        } else if (event.type === 'ImmigrantsArrived') {
-          tracker.waves.push({ day, count: Number(event['count'] ?? 0), guaranteed: event['guaranteed'] === true });
-        } else if (event.type === 'RaidArrived') {
-          tracker.raidDays.push(day);
-        } else if (event.type === 'ThreatWarning') {
-          tracker.warningDays.push(day);
-        } else if (event.type === 'CropPlanted') {
-          const tile = Number(event['tile'] ?? 0);
-          const z = Math.floor(tile / (h.readers.map.w * h.readers.map.h));
-          (z === wz ? tracker.plantedDays : tracker.cavePlantedDays).push(day);
-        } else if (event.type === 'TileFrozen') {
-          tracker.frozenDays.push(day);
-        } else if (event.type === 'TradeCompleted') {
-          tracker.tradesDone += 1;
-        } else if (event.type === 'CropHarvested') {
-          tracker.harvests += 1;
-        } else if (event.type === 'AnimalSpawned') {
-          const species = String(event['species']);
-          tracker.wildSpawns[species] = (tracker.wildSpawns[species] ?? 0) + 1;
-        } else if (event.type === 'HuntKill') {
-          tracker.huntKills += 1;
-        } else if (event.type === 'JobCompleted' && event['jobType'] === 'hunt') {
-          tracker.huntsCompleted += 1;
-        } else if (event.type === 'CreatureDied') {
-          console.log(`[full-year] Day ${day}: CreatureDied ${JSON.stringify(event)}`);
-        } else if (event.type === 'Starving') {
-          tracker.starvingCount += 1;
-          console.log(`[full-year] Day ${day}: Starving ${JSON.stringify(event)}`);
-        } else if (event.type === 'ItemCrafted') {
-          if (event['recipeId'] === 'brew' || event['recipeId'] === 'cook_easy_meal' || event['recipeId'] === 'make_barrel' || event['recipeId'] === 'make_stone_block') {
-            console.log(`[full-year] Day ${day}: Crafted ${event['recipeId']}`);
+    const attachEvents = () => {
+      const curH = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+      curH.host.world.onEvents((events) => {
+        const day = Math.floor(curH.readers.calendar.tick / 1200) + 1;
+        for (const event of events) {
+          if (event.type === 'CaravanArrived' || event.type === 'CaravanWaiting') {
+            const civ = String(event['civ'] ?? '');
+            if (tracker.caravanDay[civ] === null || tracker.caravanDay[civ] === undefined) {
+              tracker.caravanDay[civ] = day;
+            }
+            console.log(`[full-year] Day ${day}: ${event.type} civ=${civ}`);
+          } else if (event.type === 'CaravanAtDepot' || event.type === 'CaravanDeparted') {
+            console.log(`[full-year] Day ${day}: ${event.type} civ=${event['civ']}`);
+          } else if (event.type === 'ImmigrantsArrived') {
+            tracker.waves.push({ day, count: Number(event['count'] ?? 0), guaranteed: event['guaranteed'] === true });
+          } else if (event.type === 'RaidArrived') {
+            tracker.raidDays.push(day);
+          } else if (event.type === 'ThreatWarning') {
+            tracker.warningDays.push(day);
+          } else if (event.type === 'CropPlanted') {
+            const tile = Number(event['tile'] ?? 0);
+            const z = Math.floor(tile / (curH.readers.map.w * curH.readers.map.h));
+            (z === wz ? tracker.plantedDays : tracker.cavePlantedDays).push(day);
+          } else if (event.type === 'TileFrozen') {
+            tracker.frozenDays.push(day);
+          } else if (event.type === 'TradeCompleted') {
+            tracker.tradesDone += 1;
+          } else if (event.type === 'CropHarvested') {
+            tracker.harvests += 1;
+          } else if (event.type === 'AnimalSpawned') {
+            const species = String(event['species']);
+            tracker.wildSpawns[species] = (tracker.wildSpawns[species] ?? 0) + 1;
+          } else if (event.type === 'HuntKill') {
+            tracker.huntKills += 1;
+          } else if (event.type === 'JobCompleted' && event['jobType'] === 'hunt') {
+            tracker.huntsCompleted += 1;
+          } else if (event.type === 'CreatureDied') {
+            console.log(`[full-year] Day ${day}: CreatureDied ${JSON.stringify(event)}`);
+            if (event['faction'] === 'fortress' && event['species'] === 15) {
+              tracker.fortressDeaths += 1;
+            }
+          } else if (event.type === 'Starving') {
+            tracker.starvingCount += 1;
+            console.log(`[full-year] Day ${day}: Starving ${JSON.stringify(event)}`);
+          } else if (event.type === 'ItemCrafted') {
+            if (event['recipeId'] === 'brew' || event['recipeId'] === 'cook_easy_meal' || event['recipeId'] === 'make_barrel' || event['recipeId'] === 'make_stone_block') {
+              console.log(`[full-year] Day ${day}: Crafted ${event['recipeId']}`);
+            }
           }
         }
-      }
-    });
+      });
+    };
+    (window as unknown as { __attachEvents: () => void }).__attachEvents = attachEvents;
+    attachEvents();
   });
 
   // Locate wagon, stairwell, trees, and free 3x3 patches
@@ -401,6 +410,30 @@ test('full-year', async ({ page }) => {
   await addWorkOrder(page, 'blocks', 'mason', 'once', 4);
   await addWorkOrder(page, 'brewdrink', 'still', 'maintain', 100);
 
+  // Four small UI uses (1/4): Ctrl+Z undoes designation batch
+  await page.keyboard.press('d');
+  await page.keyboard.press('Shift+C');
+  const undoTile = { x: site.patches[7]!.x + 3, y: site.patches[7]!.y + 3, z: site.wz };
+  await dragTiles(page, { x: undoTile.x, y: undoTile.y }, { x: undoTile.x, y: undoTile.y });
+  await closePanels(page);
+  const desBefore = await page.evaluate(({ x, y, z }) => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    const map = h.readers.map as unknown as { designationAt(i: number): number; index(x: number, y: number, z: number): number };
+    return map.designationAt(map.index(x, y, z)) !== 0;
+  }, undoTile);
+  expect(desBefore, 'test tile designated before undo').toBe(true);
+  await page.keyboard.press('Control+z');
+  await expect.poll(async () => page.evaluate(({ x, y, z }) => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    const map = h.readers.map as unknown as { designationAt(i: number): number; index(x: number, y: number, z: number): number };
+    return map.designationAt(map.index(x, y, z)) === 0;
+  }, undoTile), 'test tile designation undone via Ctrl+Z').toBe(true);
+
+  // Four small UI uses (2/4): Jobs panel shows dig job
+  await page.keyboard.press('j');
+  await expect.poll(() => textOf(page)).toContain('Dig');
+  await closePanels(page);
+
   // Run the first game day through the real frame loop at 4×
   await expect.poll(
     () => page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.calendar.tick),
@@ -493,11 +526,113 @@ test('full-year', async ({ page }) => {
   const shot2 = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.screenshotName('full-year-summer'));
   await page.screenshot({ path: shot2 });
 
+  // Four small UI uses (3/4): Stocks panel drink count matches reader
+  await page.keyboard.press('s');
+  await expect.poll(() => textOf(page)).toContain('Stocks');
+  const drinkStockCount = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.items.count('drink'));
+  const txtStocks = await textOf(page);
+  expect(txtStocks).toContain('Drink');
+  expect(txtStocks).toContain(String(drinkStockCount));
+  await closePanels(page);
+
+  // Advance to mid-summer Day 35
+  await page.evaluate(() => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    const targetTick = 35 * 1200;
+    while (h.readers.calendar.tick < targetTick) {
+      h.step(Math.min(300, targetTick - h.readers.calendar.tick));
+    }
+  });
+
+  // Four small UI uses (4/4): Quick save (F5) and quick load (F9) with equal world hash before and after
+  const hashBefore = await page.evaluate(() => (window as unknown as { __deepholm: { hash(): string } }).__deepholm.hash());
+  expect(hashBefore.length).toBe(16);
+
+  await page.keyboard.press('F5');
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __deepholm: { lastSaveId(): string | null } }).__deepholm.lastSaveId())).toMatch(/^manual-\d+$/);
+
+  await page.keyboard.press('F9');
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __deepholm: { screen(): string } }).__deepholm.screen())).toBe('confirm');
+  await page.keyboard.press('y');
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __deepholm: { screen(): string } }).__deepholm.screen())).toBe('fortress');
+
+  const hashAfter = await page.evaluate(() => (window as unknown as { __deepholm: { hash(): string } }).__deepholm.hash());
+  expect(hashAfter, 'world hash equal before and after quick-save and quick-load').toBe(hashBefore);
+
+  // Re-attach event listener to the reloaded world
+  await page.evaluate(() => {
+    const fn = (window as unknown as { __attachEvents: () => void }).__attachEvents;
+    if (fn) fn();
+  });
+
+  // Advance to Day 45 when Hillfolk caravan arrives
+  await page.evaluate(() => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    const targetTick = 45 * 1200;
+    while (h.readers.calendar.tick < targetTick) {
+      h.step(Math.min(300, targetTick - h.readers.calendar.tick));
+    }
+    const trade = h.readers.of<{ activeCaravan(): { civ: string; state: string } | null }>('20');
+    for (let n = 0; n < 100 && trade.activeCaravan()?.state !== 'atDepot'; n += 1) {
+      h.step(50);
+    }
+  });
+
+  // Complete 1 trade session via UI
+  // 1. Move goods: open depot panel, press 'm' to open stocks in depot mode
+  await page.keyboard.press('c');
+  await expect.poll(() => textOf(page)).toContain('Civilizations');
+  await page.keyboard.press('Shift+D');
+  await expect.poll(() => textOf(page)).toContain('goods at depot');
+  await page.keyboard.press('m');
+  await expect.poll(() => textOf(page)).toContain('Stocks');
+  await page.keyboard.press('Space');
+  await page.keyboard.press('Shift+T');
+  await expect.poll(() => textOf(page)).toContain('goods at depot');
+  await closePanels(page);
+
+  // Step until goods arrive at depot
+  await page.evaluate(() => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    const trade = h.readers.of<{ depotItems(): number[] }>('20');
+    for (let n = 0; n < 100 && trade.depotItems().length === 0; n += 1) {
+      h.step(20);
+    }
+  });
+
+  // 2. Open trade session via depot panel
+  await page.keyboard.press('c');
+  await page.keyboard.press('Shift+D');
+  await expect.poll(() => textOf(page)).toContain('goods at depot');
+  await page.keyboard.press('t');
+
+  await page.evaluate(() => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    const trade = h.readers.of<{ sessionOpen(): boolean }>('20');
+    for (let n = 0; n < 300 && !trade.sessionOpen(); n += 1) {
+      h.step(5);
+    }
+  });
+
+  await expect.poll(() => screenOf(page)).toBe('trade_session');
+  expect(await textOf(page)).toContain('Trading with the Hillfolk');
+
+  // Select merchant item on left, fortress items on right, and offer
+  await page.keyboard.press('+');
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __tracker: YearTracker }).__tracker.tradesDone)).toBeGreaterThanOrEqual(1);
+
+  await page.keyboard.press('Escape');
+  await expect.poll(() => screenOf(page)).toBe('fortress');
+
   // Advance through summer and autumn to Day 84
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
     const targetTick = 84 * 1200;
-    let lastLoggedDay = 20;
+    let lastLoggedDay = 45;
     while (h.readers.calendar.tick < targetTick) {
       const prevTick = h.readers.calendar.tick;
       h.step(Math.min(600, targetTick - h.readers.calendar.tick));
