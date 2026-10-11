@@ -28,7 +28,11 @@ select(id):
     if no critical need and civilianFightDeadline not elapsed: startOrKeepCorneredFight(id); return
     clearCombatTarget(id); stopWalking(id); if deadline elapsed: clearThreat(id)
   if alert == 'hearth' and civ: target = defense.retreatTile(id); watchShelter(id, target < 0)
-     if target >= 0: b.behavior = 'retreat'; goal = target; return  // otherwise continue; flee has precedence
+     if target >= 0:                                            // a critical need overrides the retreat; a want-level hunger, thirst or rest is served only from a target inside the shelter
+       if crit = highest need over its critical threshold and startNeed(id, crit): return
+       if want = highest of hunger, thirst, rest over its want threshold and startNeed(id, want, targets in shelterArea(target), rest only where a bed is free there): return
+       b.behavior = 'retreat'; goal = target; return          // otherwise continue; flee has precedence
+                                                                // shelterArea(target): the hearth hall when target is one of its tiles, else the non-outdoor tiles around target reached without passing a door
   if health.isPatient(id):                                      b.behavior = 'patient'; goal = bedTile(id) or stay; return
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs

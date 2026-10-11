@@ -14,6 +14,7 @@ import { C, type Brain, type Needs } from '@core/components';
 import type { TickContext } from '@core/system';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import type { MoverOptions } from '@core/pathfinding';
+import { TileFlag } from '@core/map3d';
 import { hourOf } from '@core/calendar';
 import { ADULT_AGE_YEARS, CIVILIAN_COMBAT_TIMEOUT_TICKS, CIVILIAN_FLEE_NODE_LIMIT, IDLE_TICKS, LEISURE_MARK, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
@@ -75,6 +76,63 @@ function startIdle(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): v
 
 /** Hunger, thirst and rest are served at step 6; social, comfort and joy at step 8. */
 const LEISURE: readonly NeedName[] = ['social', 'comfort', 'joy'];
+
+/** Hunger, thirst and rest are the needs a sheltering dwarf serves from inside its shelter. */
+const SHELTER_WANTS: readonly NeedName[] = ['hunger', 'thirst', 'rest'];
+
+/**
+ * The tiles a retreating civilian is sheltered by: the hearth hall when `shelter` is one of its
+ * tiles, else the indoor tiles around `shelter` that a dwarf walks to without passing a door.
+ */
+function shelterAreaOf(ctx: TickContext, shelter: TileIndex): (tile: TileIndex) => boolean {
+  const buildings = ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : undefined;
+  const hall = new Set<TileIndex>(buildings?.hearthHallTiles() ?? []);
+  if (hall.has(shelter)) return (tile) => hall.has(tile);
+  const map = ctx.world.map;
+  const area = new Set<TileIndex>([shelter]);
+  const queue = [shelter];
+  for (let cursor = 0; cursor < queue.length && area.size < CIVILIAN_FLEE_NODE_LIMIT; cursor += 1) {
+    for (const next of map.neighbors(queue[cursor] as TileIndex)) {
+      if (area.has(next) || map.hasFlag(next, TileFlag.Outdoor) || buildings?.doorAt(next) === true ||
+          !ctx.readers.pathing.passable(next, 'walker')) continue;
+      area.add(next);
+      queue.push(next);
+    }
+  }
+  return (tile) => area.has(tile);
+}
+
+/**
+ * Step 2 of `10` § Behavior selection: a critical need overrides the retreat, served by the usual
+ * rules; a want-level hunger, thirst or rest is served only from a target inside the shelter.
+ * Returns whether the dwarf started a need activity (it returns to `retreat` when it ends).
+ */
+function leaveShelterForNeed(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain, shelter: TileIndex): boolean {
+  const n = ctx.world.entities.get(id, C.Needs);
+  if (n === undefined) return false;
+  for (const critical of ranked(n, true)) {
+    if (host.activities.start(ctx, id, critical, b, host.idleGoal(id), host.dwarfIds())) {
+      host.setCombatTarget(id, 0);
+      return true;
+    }
+  }
+  const wants = ranked(n, false).filter((want) => SHELTER_WANTS.includes(want));
+  if (wants.length === 0) return false;
+  const inside = shelterAreaOf(ctx, shelter);
+  for (const want of wants) {
+    const before = { ...b };
+    if (!host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds(), inside)) continue;
+    // Rest falls back to the floor where no bed is free; the floor is not a thing the shelter lacks.
+    if (want === 'rest' && (host.activities.plans.get(id)?.itemId ?? 0) === 0) {
+      host.activities.cancel(ctx, id);
+      Object.assign(b, before);
+      continue;
+    }
+    host.setCombatTarget(id, 0);
+    return true;
+  }
+  return false;
+}
 
 /** Noncritical targets stay outside the remembered danger around `avoidTile`. */
 function safeTargetOf(ctx: TickContext, avoidTile: TileIndex): ((tile: TileIndex) => boolean) | undefined {
@@ -289,6 +347,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     const target = ctx.readers.has('19') ? ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(id) : host.idleGoal(id);
     host.watchShelter?.(id, target < 0);
     if (target >= 0) {
+      if (leaveShelterForNeed(host, ctx, id, b, target)) return;
       b.behavior = 'retreat';
       b.targetTile = target;
       b.activity = 'Retreating';
