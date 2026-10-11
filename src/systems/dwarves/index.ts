@@ -18,7 +18,7 @@ import { makeReader, type DwarvesReader } from './reader';
 import { dwarfSpeed, jobXp } from './rules/skills';
 import { grantXp } from './skills';
 import { movementEffects, type MoveFacts } from './movement-effects';
-import type { DwarvesStateV1, TitleName } from './state';
+import type { DwarvesStateV1, ThreatMemory, TitleName } from './state';
 import { TileFlag } from '@core/map3d';
 import type { WeatherReader } from '@systems/weather';
 import type { ItemsReader } from '@systems/items';
@@ -74,7 +74,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AlertChanged', 'BuildingStateChanged'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AttackResolved', 'AlertChanged', 'BuildingStateChanged'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -93,7 +93,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   private connectivityRevision = (): number => -1;
   private shelterRestored = false;
   private shelterCheckPending = false;
-  readonly threatened = new Map<EntityId, { hostileId: EntityId; tick: number; tile?: TileIndex }>();
+  readonly threatened = new Map<EntityId, ThreatMemory>();
   readonly hungerMaxSince = new Map<EntityId, number>();
   readonly thirstMaxSince = new Map<EntityId, number>();
   readonly starvingAnnounced = new Map<EntityId, number>();
@@ -112,6 +112,24 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     if (pos === undefined) return -1;
     const tile = memory.tile ?? world.map.index(pos.x, pos.y, pos.z);
     return pos.z === world.map.zOf(tile) && Math.max(Math.abs(pos.x - world.map.xOf(tile)), Math.abs(pos.y - world.map.yOf(tile))) <= THREAT_RADIUS ? tile : -1;
+  }
+
+  /**
+   * `10` § Behavior selection: a fleeing civilian hit in melee by an attacker at least as fast as
+   * itself is caught; from then on it fights that attacker instead of fleeing.
+   */
+  private caughtFleeing(ctx: TickContext, attacker: EntityId, id: EntityId, outcome: unknown): void {
+    const entities = ctx.world.entities;
+    if (outcome !== 'hit' || !entities.alive(attacker) || !entities.alive(id)) return;
+    if (entities.get(id, C.Brain)?.behavior !== 'flee' || entities.get(id, C.Soldier)?.onDuty === true) return;
+    if (entities.get(id, C.Creature)?.faction !== 'fortress') return;
+    const mine = entities.get(id, C.Position);
+    const theirs = entities.get(attacker, C.Position);
+    if (mine === undefined || theirs === undefined || mine.z !== theirs.z ||
+      Math.max(Math.abs(mine.x - theirs.x), Math.abs(mine.y - theirs.y)) > 1) return;
+    if ((entities.get(attacker, C.Motion)?.speed ?? 0) < (entities.get(id, C.Motion)?.speed ?? 0)) return;
+    this.threatened.set(id, { hostileId: attacker, tick: ctx.tick, tile: ctx.world.map.index(theirs.x, theirs.y, theirs.z), caught: true });
+    this.interruptFlags.add(id);
   }
 
   /** The embark Thane is written by the spawn API before 10's first tick. */
@@ -274,6 +292,13 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       threatOf: (id) => this.threatened.get(id)?.hostileId ?? 0,
       threatTile: (id) => this.threatTile(id),
       clearThreat: (id) => { this.threatened.delete(id); },
+      caught: (id) => this.threatened.get(id)?.caught === true,
+      release: (id) => {
+        const memory = this.threatened.get(id);
+        if (memory?.caught !== true) return;
+        const { caught: _caught, ...rest } = memory;
+        this.threatened.set(id, rest);
+      },
       setCombatTarget: (id, targetId) => { ctx.world.services.combat?.setTarget(id, targetId); },
       watchShelter: (id, shutOut) => { if (shutOut) this.shutOut.add(id); else this.shutOut.delete(id); },
     };
@@ -394,9 +419,18 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       const soldier = ctx.world.entities.get(id, C.Soldier);
       if (!soldier || !soldier.onDuty) {
         const pos = ctx.world.entities.get(hostileId, C.Position);
-        this.threatened.set(id, { hostileId, tick: ctx.tick, ...(pos === undefined ? {} : { tile: ctx.world.map.index(pos.x, pos.y, pos.z) }) });
+        const memory: ThreatMemory = { hostileId, tick: ctx.tick, ...(pos === undefined ? {} : { tile: ctx.world.map.index(pos.x, pos.y, pos.z) }) };
+        const held = this.threatened.get(id);
+        // A caught civilian keeps its attacker in mind while the attacker lives.
+        if (held?.caught === true && ctx.world.entities.alive(held.hostileId)) {
+          if (held.hostileId === hostileId) this.threatened.set(id, { ...memory, caught: true });
+        } else this.threatened.set(id, memory);
         this.interruptFlags.add(id);
       }
+      return;
+    }
+    if (event.type === 'AttackResolved') {
+      this.caughtFleeing(ctx, event['attackerId'] as EntityId, event['defenderId'] as EntityId, event['outcome']);
       return;
     }
     if (event.type === 'AlertChanged') {
