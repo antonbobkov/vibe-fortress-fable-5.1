@@ -8,6 +8,8 @@ The running log of the Claude agent that works in the cloud on branches `cloud/m
 
 ## Needs the owner
 
+- **The cloud agent has stopped, on the owner's instruction (2026-10-11).** Chain A stopped after T-212. T-134 is not merged (below). T-133, T-145, T-151 and chain B's T-116 were not started; their rows still say "cloud agent" and are free to reassign.
+- **T-223: what is a free bed?** Several dwarves sleep in one bed at the same time today; T-134 found three on one hospital bed.
 - **The year-long browser playthrough is a coin toss, and its fixme hides it** (local side: T-150, T-221). On `cloud/main` without T-212, `full-year.spec.ts` ended at 7 or fewer living dwarves in 6 of 10 repeated runs (twice with 0), because its UI commands land on different ticks each run at 4× real time. The conditional `test.fixme` at `full-year.spec.ts:636` turns each of those into a skip, so `npm run test:e2e` stays green while the fortress dies. Measured in `reports/audits/2026-10-11-full-year-with-t212.md`.
 - **T-218: should pastured grazers be wolf prey?** Under 08's size rule (prey smaller than 0.8 × the predator) sheep, goats, pigs and cows are not, so T-212's "a pasture behind a door" protects nothing from wolves.
 - **T-219: should a civilian caught by an animal that only defends its ground, or by an armed raider, fight back?** As decided, it does, and it costs: in the browser year 14 of T-212's 21 deaths were civilians caught by a defending boar, wolf or badger; raider deaths in the reference fortress went from 2 to 4. Exempting defenders (they let a fleeing dwarf go anyway) is the obvious change.
@@ -97,3 +99,12 @@ The answer: a hungry wolf pack now costs a careless fortress fewer dwarves, and 
 - **Filed:** T-218, T-219 (owner decisions, above), T-220 (two seeds of six still lose several dwarves to a pack), T-221 (the browser year varies run to run; local side).
 - **Performance (indicative):** system 10 rose from about 0.64 to 0.81 ms (allocation 0.5, test limit 1.0), from the escape search a fighting civilian runs every tick. System 08 unchanged and still over, as before.
 - **Not established:** why two seeds lose several dwarves to a pack while four lose none; why one reacting fortress starved.
+
+### 2026-10-11: T-134 not merged; the cloud agent stops
+
+- **Where T-134 stands:** branch `cloud/T-134` (`9682f22`, pushed) has Codex's correction merged onto T-144 and T-212 and completed, with 14 regressions `describe('T-134 …')` and the spec edits (10 § Sleeping and § Behavior selection step 5, 16 § Squads, `creature-brains.md`). All three of Codex's points held; two were incomplete and were finished (a kill order no longer pulls a soldier off a need; under an alert a hostile in sight holds a want whatever the squad's stored mode).
+- **Why it is not merged:** `npm test` gives 2287 passed and 2 failed, both `hospital_run`. The subagent traced it: on `cloud/main` the fixture's scout stands at a calm station all night with rest 84–89 (the old fault); with the change it goes to sleep, on the same hospital bed as the medic, and the fixture's fire burns all three, so the only medic becomes a patient and three guards bleed out. Only 1 of 12 seeds passes on `cloud/main` and 0 of 40 on the branch. Three fix rounds did not give a fixture that passes and keeps its meaning, so the fixture was not changed. Filed T-222 (stage `hospital_run` by rule), which T-134 now needs.
+- **Per-system:** no failure added (21 of 22 on both sides; system 08 over on both). Codex's 19 of 22 did not reproduce.
+- **Browser suite on the branch:** 24 passed; `full-year` ran and was not skipped (12 living).
+- **Brought onto `cloud/main` without the code:** the rows and work files of T-222, T-223 (several dwarves in one bed; needs a decision) and T-224 (a treated patient whose pain keeps it in hospital is treated again and again, using a splint each time), so the findings reach master. T-134's backlog row now points at the branch and needs T-222.
+- **To resume T-134:** do T-222, merge `cloud/main` into `cloud/T-134`, re-run `hospital_run`, then the full checks.
