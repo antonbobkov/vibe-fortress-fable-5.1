@@ -10,6 +10,8 @@ Measured with the T-196 chain probe (seven civilians crossing one fed animal's g
 
 The rule also covers hostiles. On the saved 80-dwarf reference fortress (`test/fixtures/reference-fortress.deepholm`, the 2,200 ticks the per-system perf test steps), Hillfolk bandits attack civilians: before T-212 they attacked dwarves 58 times and 2 dwarves bled out; after, caught civilians fought back (25 strikes, 645 dwarf-ticks of fighting), the bandits attacked 126 times and 4 dwarves bled out.
 
+In the browser year (`test/e2e/full-year.spec.ts`, twelve runs on `cloud/T-212`, [`2026-10-11-full-year-with-t212.md`](../../reports/audits/2026-10-11-full-year-with-t212.md)), 14 of the 21 dwarf deaths were civilians caught by an animal defending its ground: 7 to boars, 5 to wolves, 2 to badgers. Survival was still better than without T-212 (a median of 11 living against 8.5 in ten runs on `cloud/main`).
+
 ## What the spec says
 
 `10` § Behavior selection (the caught civilian); `08` § Wild behavior (defending and hunting attacks).
