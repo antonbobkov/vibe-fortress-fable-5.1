@@ -9,6 +9,7 @@
  */
 
 import { COMMAND_OWNERS, isCommandType, type CommandType, type RejectReason } from './command-types';
+import { isTypedArray } from './serialize';
 import type { Tick } from './types';
 
 /** A plain record with a `type` and typed fields. */
@@ -71,15 +72,55 @@ export interface CommandLogEntry {
   count: number;
 }
 
+/** Diagnostic history may contain bad payloads; simulation state must remain plain data. */
+function diagnosticCommand(command: Command): Command {
+  let changed = false;
+  const ancestors = new Set<object>();
+  const invalid = (kind: string, value?: string): Record<string, string> => {
+    changed = true;
+    return value === undefined ? { $invalid: kind } : { $invalid: kind, value };
+  };
+  const visit = (value: unknown): unknown => {
+    if (typeof value === 'number' && !Number.isFinite(value)) return invalid(String(value));
+    if (typeof value === 'bigint') return invalid('bigint', value.toString());
+    if (typeof value === 'function' || typeof value === 'symbol') return invalid(typeof value);
+    if (value === null || typeof value !== 'object') return value;
+    if (ancestors.has(value)) return invalid('circular');
+    ancestors.add(value);
+    try {
+      if (isTypedArray(value)) return value;
+      if (Array.isArray(value)) return value.map(visit);
+      if (value instanceof Map) return new Map([...value].map(([key, field]) => [visit(key), visit(field)]));
+      if (value instanceof Set) return new Set([...value].map(visit));
+      const prototype = Object.getPrototypeOf(value) as unknown;
+      if (prototype !== Object.prototype && prototype !== null) return invalid('object');
+      const out: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
+      for (const key of Object.keys(value)) {
+        const descriptor = Object.getOwnPropertyDescriptor(value, key);
+        out[key] = descriptor !== undefined && 'value' in descriptor
+          ? visit(descriptor.value) : invalid('accessor');
+      }
+      return out;
+    } catch {
+      return invalid('unreadable');
+    } finally {
+      ancestors.delete(value);
+    }
+  };
+  const data = visit(command) as Command;
+  // Keep ordinary commands and their existing canonical representation untouched.
+  return changed ? { ...data, type: command.type } : command;
+}
+
 /** Every field but `tiles` equal, so two designation commands differ only in their tiles. */
 function sameExceptTiles(a: Command, b: Command): boolean {
-  if (a.type !== b.type) return false;
+  if (a.type !== b.type || !Array.isArray(a['tiles']) || !Array.isArray(b['tiles'])) return false;
   const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
   keys.delete('tiles');
   for (const key of Array.from(keys).sort()) {
     if (JSON.stringify(a[key]) !== JSON.stringify(b[key])) return false;
   }
-  return Array.isArray(a['tiles']) && Array.isArray(b['tiles']);
+  return true;
 }
 
 function sameResult(a: CommandResult, b: CommandResult): boolean {
@@ -98,23 +139,25 @@ export class CommandLog {
   }
 
   /** Append, coalescing consecutive tile commands that differ only in their tiles. */
-  append(tick: Tick, command: Command, result: CommandResult): void {
+  append(tick: Tick, command: Command, result: CommandResult): Command {
+    const recorded = diagnosticCommand(command);
     const last = this.entries[this.entries.length - 1];
     if (
       last !== undefined &&
       last.tick === tick &&
       sameResult(last.result, result) &&
-      sameExceptTiles(last.command, command)
+      sameExceptTiles(last.command, recorded)
     ) {
       const merged = [
         ...(last.command['tiles'] as number[]),
-        ...(command['tiles'] as number[]),
+        ...(recorded['tiles'] as number[]),
       ];
       last.command = { ...last.command, tiles: merged };
       last.count += 1;
-      return;
+      return recorded;
     }
-    this.entries.push({ tick, command, result, count: 1 });
+    this.entries.push({ tick, command: recorded, result, count: 1 });
+    return recorded;
   }
 
   all(): readonly CommandLogEntry[] {
@@ -132,7 +175,7 @@ export class CommandLog {
   }
 
   serialize(): CommandLogEntry[] {
-    return this.entries.map((e) => ({ ...e, command: { ...e.command } }));
+    return this.entries.map((e) => ({ ...e, command: { ...diagnosticCommand(e.command) } }));
   }
 
   deserialize(entries: readonly CommandLogEntry[]): void {
