@@ -20,8 +20,10 @@ select(id):
   memory = threatened[id]; if hostile dead or outside THREAT_RADIUS of memory.tile: clearThreat(id)
   avoid = civ and memory remains ? memory.tile : none
   if hostile currently within THREAT_RADIUS on this level and civ, unless already fleeing with a critical need:
-    goal = fleeTile(id)  // bounded legal-edge BFS; reachable safer hall preferred even beyond visit limit, then nearest safer tile
-    if goal >= 0: if activity == 'Fighting': clearCombatTarget(id)
+    if memory.caught and combat.targetOf(memory.hostile) != id: memory.caught = false   // the attacker broke off or fled
+    goal = memory.caught ? sealedTile(id) : fleeTile(id)  // bounded legal-edge BFS; reachable safer hall preferred even beyond visit limit, then nearest safer tile
+                                                          // sealedTile: first tile reached through a tile the attacker cannot enter
+    if goal >= 0: memory.caught = false; if activity == 'Fighting': clearCombatTarget(id)
                   stopWalking(id); b.behavior = 'flee'; return
     if no critical need and civilianFightDeadline not elapsed: startOrKeepCorneredFight(id); return
     clearCombatTarget(id); stopWalking(id); if deadline elapsed: clearThreat(id)
@@ -92,6 +94,8 @@ A food or drink plan validates that its item still exists, is reserved by its dw
 
 Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position. While a soldier's brain behavior is `need` (or `flee`, `retreat`, `patient`), squad positioning and training do not command movement or partner pairing.
 
+On `AttackResolved` with outcome `hit` against a civilian whose behavior is `flee`, from an adjacent attacker on its level with `Motion.speed` at least the civilian's: `threatened[id] = { hostile: attacker, tick, tile: attacker's tile, caught: true }` and set the interrupt flag. A `ThreatNearby` from another hostile leaves a caught record alone; one from the same hostile refreshes its tick and tile. A fighting civilian (cornered or caught) never paths toward its target (16).
+
 A civilian fight uses `Brain.behaviorUntil` as its saved deadline. Refresh it on melee reach or a recorded attack opportunity, never merely on `ThreatNearby`. Reaching an escape goal ends the flee behavior without clearing a still-near living hostile's saved last seen tile. Critical need activities can enter that remembered danger and continue across threat scans even when an escape exists; a newly more critical need still cancels them for selection. Noncritical activity searches exclude unsafe resources, beds, water stands, meeting tiles and dining seats, trying safe alternatives. The escape search and combat timeout use 10's tuning constants and safety rules.
 
 Children: `select` skips `duty` and `work` except `haul_to_stockpile` jobs (labors fixed to hauling).
@@ -110,18 +114,25 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
         wander within pasture or near hearth; return
   switch W.state:
     idle:   if threats: W.state = timid/neutral-attacked ? 'flee' : 'idle'
-            else if aggressive carnivore and W.hungry and prey in perception: W.state='hunt'; target=prey
+            else if aggressive carnivore and W.hungry and quarry(id): W.state='hunt'; combat.setTarget(id, quarry(id))
             else if (territorial and dwarf within TERRITORY_RADIUS) or (aggressive and dwarf within APPROACH_RADIUS): W.state='attack'; W.defendFrom = tile; combat.setTarget
             else if restTime(species): W.state='sleep'; W.stateUntil = tick + 600
             else if grazer and grass within 6: W.state='graze' else W.state='wander'
     graze:  walk to grass; on arrival GrassGrazed; wait GRAZE_TICKS; state='idle'
     wander: walk to random tile within WANDER_RADIUS of homeChunk; on arrival or WANDER_TIMEOUT_TICKS: 'idle'
     flee:   goal = argmax over tiles within perception of Σ dist to threats (sampled 8 directions × 6 steps); if edge within perception: 'leave'; after FLEE_TICKS with no threat: 'idle'
-    hunt:   combat.setTarget(id, prey); if prey dead: eat corpse EAT_CORPSE_TICKS (consume); W.hungry=false; 'idle'
+    hunt:   if not W.hungry: 'idle'
+            target = combat.targetOf(id) if alive else quarry(id); none or on another level: 'idle'
+            combat.setTarget(id, target); adjacent: 'attack' else walk to it
     attack: (16 drives); if blood < fleeBlood and not aggressive: 'flee'
             if target dead or gone or out of perception: 'idle' (no new target here)
             if W.defendFrom and (dist(target, W.defendFrom) > provoke radius or other level or target unconscious): clear target; W.state = 'wander' (WANDER_TIMEOUT_TICKS)
-    on CreatureDied with killerId = a hungry predator: W.hungry = false
+    on CreatureDied with killerId = a hungry predator: W.hungry = false for it and every member of its pack
+  quarry(id):   // pack = wild animals of the species with the same arrivedTick
+    q = target of a hungry pack member in 'hunt' (or in an 'attack' without defendFrom), ascending member id
+    if q: return q if within perception and visible, else none
+    prey = animals (Wild or Tame) within perception and visible, not carnivore, size < own size × 0.8
+    return nearest prey (Chebyshev, then id), else nearest visible dwarf within perception, else none
     sleep:  stay; if threat: 'flee'/'attack'; at stateUntil: 'idle'
     leave:  walk to nearest edge tile; on arrival: despawn (AnimalLeft)
   moveAlongPath(id)
