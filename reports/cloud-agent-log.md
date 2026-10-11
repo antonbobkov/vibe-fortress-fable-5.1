@@ -4,11 +4,15 @@ The running log of the Claude agent that works in the cloud on branches `cloud/m
 
 ## Ready to merge
 
-- `6ea68b2`: T-144, T-197 and T-198 closed (the `t-144` branch landed on T-196). Social, comfort and joy are served in passing; at a mark of 75 one sit in the hearth hall comes first; a ranged hunt takes launcher and ammunition together; `year_one` meets wild animals again; `homestead_year` waits for its first birth. Verified: npm test 2263 passed, e2e 24 passed.
-- `3fbf367`: T-199 closed. A brew that waits because every barrel holds something is announced once per wait ("A workshop is waiting for an empty barrel"), and a hint points at the carpenter. Verified: npm test 2265 passed, e2e 24 passed.
+- `54fb118`: T-212 closed. A hungry predator hunts animal prey before a dwarf and a pack shares one quarry; a civilian caught while fleeing fights back with what it carries. Rules in 08, 10, 16 and `balance.md`; two dated reports; T-218 … T-221 filed. Verified: npm test 2275 passed, e2e 24 passed (full-year passed, not skipped).
 
 ## Needs the owner
 
+- **The cloud agent has stopped, on the owner's instruction (2026-10-11).** Chain A stopped after T-212. T-134 is not merged (below). T-133, T-145, T-151 and chain B's T-116 were not started; their rows still say "cloud agent" and are free to reassign.
+- **T-223: what is a free bed?** Several dwarves sleep in one bed at the same time today; T-134 found three on one hospital bed.
+- **The year-long browser playthrough is a coin toss, and its fixme hides it** (local side: T-150, T-221). On `cloud/main` without T-212, `full-year.spec.ts` ended at 7 or fewer living dwarves in 6 of 10 repeated runs (twice with 0), because its UI commands land on different ticks each run at 4× real time. The conditional `test.fixme` at `full-year.spec.ts:636` turns each of those into a skip, so `npm run test:e2e` stays green while the fortress dies. Measured in `reports/audits/2026-10-11-full-year-with-t212.md`.
+- **T-218: should pastured grazers be wolf prey?** Under 08's size rule (prey smaller than 0.8 × the predator) sheep, goats, pigs and cows are not, so T-212's "a pasture behind a door" protects nothing from wolves.
+- **T-219: should a civilian caught by an animal that only defends its ground, or by an armed raider, fight back?** As decided, it does, and it costs: in the browser year 14 of T-212's 21 deaths were civilians caught by a defending boar, wolf or badger; raider deaths in the reference fortress went from 2 to 4. Exempting defenders (they let a fleeing dwarf go anyway) is the obvious change.
 - **T-252 revises D-U3** (not blocking): it adds an "Embark without an axe?" question, because the Supplies tab calls an axe part of the minimum and a party without one embarks unasked. Look at it before anyone picks T-252 up.
 
 ## Entries
@@ -76,3 +80,31 @@ The answer: the wants now cost about half the dwarf time they did, and mood is b
 - **Filed:** T-217 (workshop alerts carry no focus tile, so the log cannot centre the map on the workshop).
 - **Heads-up for whoever takes T-250:** it plans an `input` field on `WorkshopBlocked`; it should build on the new `container` field and reason.
 - Implemented by a Sonnet subagent; I reviewed the diff and re-ran every check on the branch.
+
+### 2026-10-11: T-212 held back
+
+- The T-212 subagent finished (both rules in, 10 tests, npm test 2275 passed, e2e 23 passed and 1 skipped). The skipped one was `full-year`: its new conditional fixme fires at 7 or fewer living dwarves.
+- Measured: `full-year.spec.ts` alone passes on `cloud/main` (11 living at year end) and ends with 1 living on `cloud/T-212`. Wild spawns differ between the runs (2 boars against 11), so the runs diverge early; cause not yet established.
+- Not merged. The task went back to its subagent to find the cause and fix it, without editing the spec file.
+
+### 2026-10-11: T-212 closed (merge `54fb118`)
+
+The answer: a hungry wolf pack now costs a careless fortress fewer dwarves, and a dwarf with a pick usually kills the wolf. In T-196's probe (10 seeds, a hungry wolf), haulers holding picks lost 9 of 70 against 27 before, and the wolf died in every run; plain hauling lost 14 against 17. Over a year on 3 forest and 3 taiga seeds at peril 0 with wolves only, a fortress that ignores them lost 12 dwarves against 17, one that reacts 7 against 8. Four of six seeds lost none; two still lose several (T-220). Report: `reports/audits/2026-10-11-hungry-predators.md`.
+
+- **Rules (the local orchestrator's decision):** a hungry predator hunts the nearest animal prey in perception and a dwarf only when none is in sight; a pack (one species, one arrival) shares one quarry and one kill feeds it. A fleeing civilian hit in melee by an attacker at least as fast is caught and fights with its weapon, or a tool with a melee row, or its fists, until the attacker lets go or dies, or a door the attacker cannot pass opens a way out. It never walks toward its attacker.
+- **Silent details decided by the subagent** (in 08, 10 and the archived work file): prey keeps 08's size rule, so a wolf's prey is dogs, cats, chickens, rabbits and badgers, not sheep or cows (T-218 asks the owner); the escape that ends a fight must pass a tile the attacker cannot enter.
+- **Held back once:** my single browser run ended with 1 living dwarf against 11 on `cloud/main`. The subagent's 22 repeated runs showed that was variance in the spec, not T-212: `cloud/main` is at 7 or fewer in 6 of 10 runs, `cloud/T-212` in 1 of 12 (median 8.5 against 11 living). Report: `reports/audits/2026-10-11-full-year-with-t212.md`. Lesson for me: one run of `full-year` is not a measurement.
+- **Costs measured:** caught civilians now stay in a defending animal's ground (with a medic, boar deaths 7 → 9 of 70 in the probe; 14 of 21 browser-year deaths). Filed as T-219 for the owner.
+- **Reviewed by me:** the `combat/index.ts` change stops every off-duty dwarf from approaching its combat target; only the dwarf brain gives such dwarves a target (cornered or caught), hunting fires directly, and pets have no brain, so it changes nothing else.
+- **Filed:** T-218, T-219 (owner decisions, above), T-220 (two seeds of six still lose several dwarves to a pack), T-221 (the browser year varies run to run; local side).
+- **Performance (indicative):** system 10 rose from about 0.64 to 0.81 ms (allocation 0.5, test limit 1.0), from the escape search a fighting civilian runs every tick. System 08 unchanged and still over, as before.
+- **Not established:** why two seeds lose several dwarves to a pack while four lose none; why one reacting fortress starved.
+
+### 2026-10-11: T-134 not merged; the cloud agent stops
+
+- **Where T-134 stands:** branch `cloud/T-134` (`9682f22`, pushed) has Codex's correction merged onto T-144 and T-212 and completed, with 14 regressions `describe('T-134 …')` and the spec edits (10 § Sleeping and § Behavior selection step 5, 16 § Squads, `creature-brains.md`). All three of Codex's points held; two were incomplete and were finished (a kill order no longer pulls a soldier off a need; under an alert a hostile in sight holds a want whatever the squad's stored mode).
+- **Why it is not merged:** `npm test` gives 2287 passed and 2 failed, both `hospital_run`. The subagent traced it: on `cloud/main` the fixture's scout stands at a calm station all night with rest 84–89 (the old fault); with the change it goes to sleep, on the same hospital bed as the medic, and the fixture's fire burns all three, so the only medic becomes a patient and three guards bleed out. Only 1 of 12 seeds passes on `cloud/main` and 0 of 40 on the branch. Three fix rounds did not give a fixture that passes and keeps its meaning, so the fixture was not changed. Filed T-222 (stage `hospital_run` by rule), which T-134 now needs.
+- **Per-system:** no failure added (21 of 22 on both sides; system 08 over on both). Codex's 19 of 22 did not reproduce.
+- **Browser suite on the branch:** 24 passed; `full-year` ran and was not skipped (12 living).
+- **Brought onto `cloud/main` without the code:** the rows and work files of T-222, T-223 (several dwarves in one bed; needs a decision) and T-224 (a treated patient whose pain keeps it in hospital is treated again and again, using a splint each time), so the findings reach master. T-134's backlog row now points at the branch and needs T-222.
+- **To resume T-134:** do T-222, merge `cloud/main` into `cloud/T-134`, re-run `hospital_run`, then the full checks.
