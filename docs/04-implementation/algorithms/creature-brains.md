@@ -132,15 +132,18 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
     flee:   goal = argmax over tiles within perception of Σ dist to threats (sampled 8 directions × 6 steps); if edge within perception: 'leave'; after FLEE_TICKS with no threat: 'idle'
     hunt:   if not W.hungry: 'idle'
             target = combat.targetOf(id) if alive else quarry(id); none or on another level: 'idle'
+            if animal target no longer meets the pack size limit: clear target; 'idle'
             combat.setTarget(id, target); adjacent: 'attack' else walk to it
     attack: (16 drives); if blood < fleeBlood and not aggressive: 'flee'
             if target dead or gone or out of perception: 'idle' (no new target here)
+            if hunting and animal target no longer meets the pack size limit: clear target; 'idle'
             if W.defendFrom and (dist(target, W.defendFrom) > provoke radius or other level or target unconscious): clear target; W.state = 'wander' (WANDER_TIMEOUT_TICKS)
     on CreatureDied with killerId = a hungry predator: W.hungry = false for it and every member of its pack
   quarry(id):   // pack = wild animals of the species with the same arrivedTick
     q = target of a hungry pack member in 'hunt' (or in an 'attack' without defendFrom), ascending member id
-    if q: return q if within perception and visible, else none
-    prey = animals (Wild or Tame) within perception and visible, not carnivore, size < own size × 0.8
+    if q: return q if within perception and visible and still eligible, else none
+    members(q) = living members of this pack perceiving q (same level, range and line of sight), including id, capped at PREY_PACK_MAX_MEMBERS
+    prey = animals (Wild or Tame) within perception and visible, not carnivore, size < own size × 0.8 × members(prey)
     return nearest prey (Chebyshev, then id), else nearest visible dwarf within perception, else none
     sleep:  stay; if threat: 'flee'/'attack'; at stateUntil: 'idle'
     leave:  walk to nearest edge tile; on arrival: despawn (AnimalLeft)

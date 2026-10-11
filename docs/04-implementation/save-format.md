@@ -55,6 +55,22 @@ Typed array section names carry the element type after a colon: `map.kind:u8`, `
 | `queues` | JSON | pending `{ events, commands }` |
 | `ui` | JSON | `UiState` |
 
+### Command diagnostics
+
+Command history and the command payload in a pending `CommandRejected` preserve
+the handler's result while replacing unsupported values recursively with plain
+diagnostic records. Non-finite numbers use `{ "$invalid": "NaN" }`,
+`{ "$invalid": "Infinity" }` or `{ "$invalid": "-Infinity" }`; functions and
+symbols use their type name. A bigint uses `{ "$invalid": "bigint", "value": "12" }`
+with its decimal value. Other unsupported objects use `object`, a back-reference
+to an ancestor uses `circular`, an accessor uses `accessor` without evaluating
+it, and a payload that cannot be inspected uses `unreadable`. Supported typed
+arrays, Maps and Sets retain their ordinary serialization forms; shared objects
+are not circular unless they refer back to an ancestor. Diagnostic markers
+remain plain records on load. Valid command entries retain exactly their existing
+encoding. The general serializer still rejects non-finite or unsupported
+simulation state outside command diagnostics.
+
 ## Serialization helpers
 
 ```

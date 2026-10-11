@@ -231,9 +231,9 @@ export class World {
       } catch {
         result = reject('precondition_failed');
       }
-      this.commandLog.append(this.calendar.tick, command, result);
+      const recorded = this.commandLog.append(this.calendar.tick, command, result);
       if (!result.ok) {
-        const event: GameEvent = { type: 'CommandRejected', command, reason: result.reason };
+        const event: GameEvent = { type: 'CommandRejected', command: recorded, reason: result.reason };
         if (immediateRejections) rejections.push(event);
         else this.events.emit(event);
       }
