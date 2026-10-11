@@ -5,6 +5,7 @@ import { TileFlag, TileKind } from '@core/map3d';
 import { MilitaryPanel, SQUAD_PRESET_NAMES } from '@ui/panels/military';
 import { deepQuote, drawThreatsPanel, ThreatsPanel, visibleThreatParties } from '@ui/panels/threats';
 import type { ThreatsReader } from '@systems/threats';
+import type { BuildingsReader } from '@systems/buildings';
 import type { Party } from '@core/components';
 import { drawZonesPanel, ZoneTool } from '@ui/panels/zones';
 import { drawLookPanel } from '@ui/panels/look';
@@ -331,6 +332,18 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
       const partyId = w.game.world.entities.create('party');
       w.game.world.entities.add(partyId, C.Party, { purpose: 'ambush', members: [member] } as Party);
       expect(focusOf({ type: 'AmbushSprung', partyId }, w.readers)).toBe(tile);
+    });
+    it('T-217: centers a workshop announcement on the workshop first footprint tile', () => {
+      const w = new TestWorld({ seed: 'm6-workshop-focus', world: 'flat-test', embark: 'none' });
+      const still = w.build('still', w.index(15, 15, 32));
+      const building = w.readers.of<BuildingsReader>('14').get(still);
+      expect(building).toBeDefined();
+      const log = new AnnouncementLog(strings, w.game.registry);
+      log.register(w.game.world.registrations.announcements);
+      const event = { type: 'WorkshopBlocked', workshopId: still, reason: 'no_empty_container', container: 'barrel' } as const;
+      expect(focusOf(event, w.readers)).toBe(building!.footprint[0]);
+      const announced = log.announce(event, w.readers, 1);
+      expect(announced?.focus).toBe(building!.footprint[0]);
     });
     it('D-178: death and raid outcome severities interrupt only for the named danger', () => {
       const w = new TestWorld({ seed: 'm6-announcement-severity', world: 'flat-test', embark: 'none' });
