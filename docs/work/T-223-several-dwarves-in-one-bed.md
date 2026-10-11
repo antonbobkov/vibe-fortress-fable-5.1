@@ -1,6 +1,6 @@
 # T-223 — Several dwarves sleep in one bed at the same time
 
-**Source:** T-134 (`docs/work/T-134-soldier-need-interruptions.md` § Findings) · **Size:** S · **Needs:** — · **Status:** open; decided 2026-10-11, see Decision
+**Source:** T-134 (`docs/archive/tasks/T-134-soldier-need-interruptions.md` § Findings) · **Size:** S · **Needs:** — · **Status:** open; decided 2026-10-11, see Decision
 
 ## Why
 

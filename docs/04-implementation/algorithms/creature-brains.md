@@ -27,19 +27,24 @@ select(id):
                   stopWalking(id); b.behavior = 'flee'; return
     if no critical need and civilianFightDeadline not elapsed: startOrKeepCorneredFight(id); return
     clearCombatTarget(id); stopWalking(id); if deadline elapsed: clearThreat(id)
-  if alert == 'hearth' and civ: target = defense.retreatTile(id); watchShelter(id, target < 0)
+  if alert == 'hearth' and civ and not (health.isPatient(id) and health.isConscious(id)): target = defense.retreatTile(id); watchShelter(id, target < 0)
      if target >= 0:                                            // a critical need overrides the retreat; a want-level hunger, thirst or rest is served only from a target inside the shelter
        if crit = highest need over its critical threshold and startNeed(id, crit): return
        if want = highest of hunger, thirst, rest over its want threshold and startNeed(id, want, targets in shelterArea(target), rest only where a bed is free there): return
+       if jobs.holdsPatientCare(id) or (able to work and not day off and jobs.hasUrgent(id, PRIORITY_MAX)):   // under the alert 11 offers a sheltering civilian patient-care jobs only
+         jobs.assign(id) unless it holds the job; b.behavior = 'work'; return   // back to 'retreat' when the job ends; a retreating dwarf looks for such a job every tick
        b.behavior = 'retreat'; goal = target; return          // otherwise continue; flee has precedence
                                                                 // shelterArea(target): the hearth hall when target is one of its tiles, else the non-outdoor tiles around target reached without passing a door
   if health.isPatient(id):                                      b.behavior = 'patient'; goal = bedTile(id) or stay; return
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
   if combat.onDuty(id):
-    dutyHolds = squad.mode == 'active' and (hostileInSight(id) or (alert != 'calm' and hasActiveOrder(squad)))
+    want = highest need with an errand (not purpose) over its want threshold, or scheduled sleep
+    active = squad.mode == 'active' or alert != 'calm'                 // an alert treats every squad as active
+    dutyHolds = want and ((alert != 'calm' and hasExplicitOrder(squad)) or (active and hostileInSight(id)))
+                                                                    // hostileInSight scans perception last, only when nothing else decides;
+                                                                    // a held combat target is not sight
     if dutyHolds:                                               b.behavior = 'duty'; return
-    want = highest need over its want threshold
     if want:                                                    startNeed(id, want, targets outside remembered danger); return
     b.behavior = 'duty'; return
   want = highest of hunger, thirst, rest over its want threshold
@@ -96,7 +101,7 @@ The movement handler writes `Brain` thought timers and `Needs` for masterwork jo
 
 A food or drink plan validates that its item still exists, is reserved by its dwarf, and remains edible or drinkable before travelling or consuming. Cancellation on death, unconsciousness, flight, failed travel or rot drops any held meal and releases only that dwarf's reservation, emitting one `ItemReleased`. Repeated cancellation has no effect.
 
-Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position. While a soldier's brain behavior is `need` (or `flee`, `retreat`, `patient`), squad positioning and training do not command movement or partner pairing.
+Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position. While a soldier's brain behavior is `need` (or `flee`, `retreat`, `patient`), squad positioning and training do not command movement, set a target (a kill order's included) or pair partners; the squad's step skips such a member before its kill-order and perception steps.
 
 On `AttackResolved` with outcome `hit` against a civilian whose behavior is `flee`, from an adjacent attacker on its level that is a wild animal hunting (`Wild.state == 'hunt'`, or `'attack'` with `Wild.defendFrom` unset) with `Motion.speed` at least the civilian's (any other attacker leaves the civilian fleeing): `threatened[id] = { hostile: attacker, tick, tile: attacker's tile, caught: true }` and set the interrupt flag. A `ThreatNearby` from another hostile leaves a caught record alone; one from the same hostile refreshes its tick and tile. A fighting civilian (cornered or caught) never paths toward its target (16).
 

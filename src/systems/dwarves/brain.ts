@@ -134,6 +134,37 @@ function leaveShelterForNeed(host: BrainHost, ctx: TickContext, id: EntityId, b:
   return false;
 }
 
+/** A conscious patient goes to its hospital bed under any alert (step 3); an unconscious one is carried. */
+function walksToHospital(ctx: TickContext, id: EntityId): boolean {
+  if (!ctx.readers.has('17')) return false;
+  const health = ctx.readers.of<HealthReader>('17');
+  return health.isPatient(id) && health.isConscious(id);
+}
+
+/**
+ * Medical work under a `hearth` alert (step 2): a sheltering civilian that holds a job for a
+ * patient keeps working it, and one that could claim such a job (the only jobs 11 offers it under
+ * the alert) asks for it. Returns whether the dwarf is on a patient-care job or waiting for one;
+ * it is back in `retreat` when the job ends.
+ */
+function patientCareUnderAlert(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): boolean {
+  if (!host.hasJobs) return false;
+  const jobs = ctx.readers.of<JobsReader>('11');
+  if (jobIdOf(ctx, id) !== 0) {
+    if (!jobs.holdsPatientCare(id)) return false;
+    host.clearIdle(id);
+    b.behavior = 'work';
+    b.activity = host.jobName(id);
+    return true;
+  }
+  const canWork = !ctx.readers.has('17') || ctx.readers.of<{ canWork(id: EntityId): boolean }>('17').canWork(id);
+  if (!canWork || host.dayOff(id) || !jobs.hasUrgent(id, PRIORITY_MAX)) return false;
+  ctx.jobs.assign(id);
+  b.behavior = 'work';
+  b.behaviorUntil = ctx.tick;
+  return true;
+}
+
 /** Noncritical targets stay outside the remembered danger around `avoidTile`. */
 function safeTargetOf(ctx: TickContext, avoidTile: TileIndex): ((tile: TileIndex) => boolean) | undefined {
   if (avoidTile < 0) return undefined;
@@ -267,7 +298,6 @@ function stillHeld(ctx: TickContext, threatId: EntityId, id: EntityId): boolean 
 function hasHostileInSight(ctx: TickContext, id: EntityId): boolean {
   if (!ctx.readers.has('16')) return false;
   const combat = ctx.readers.of<CombatReader>('16');
-  if (combat.targetOf(id) !== 0) return true;
   const pos = ctx.world.entities.get(id, C.Position);
   if (!pos) return false;
   const tileM = ctx.world.map.index(pos.x, pos.y, pos.z);
@@ -343,11 +373,12 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   const alert = ctx.readers.has('16')
     ? ctx.readers.of<{ alert(): string }>('16').alert()
     : ctx.world.fortress.alert;
-  if (alert === 'hearth' && civ) {
+  if (alert === 'hearth' && civ && !walksToHospital(ctx, id)) {
     const target = ctx.readers.has('19') ? ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(id) : host.idleGoal(id);
     host.watchShelter?.(id, target < 0);
     if (target >= 0) {
       if (leaveShelterForNeed(host, ctx, id, b, target)) return;
+      if (patientCareUnderAlert(host, ctx, id, b)) return;
       b.behavior = 'retreat';
       b.targetTile = target;
       b.activity = 'Retreating';
@@ -406,15 +437,20 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   if (!civ) {
     const combat = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16') : undefined;
     const squad = combat?.squadOf(id);
-    const alert = combat?.alert() ?? ctx.world.fortress.alert;
-    const hostileInSight = hasHostileInSight(ctx, id);
     const hasOrder =
       squad !== undefined &&
       (squad.station !== null ||
         (squad.patrol !== null && squad.patrol.length > 0) ||
         squad.orders.length > 0);
-    const dutyHolds =
-      squad?.mode === 'active' && (hostileInSight || hasOrder || alert !== 'calm');
+    // Purpose has no errand: a want of it alone gives nothing for duty to hold back.
+    const wants = n === undefined ? [] : ranked(n, false).filter((want) => want !== 'purpose');
+    const sleepWindow = n !== undefined && schedule !== undefined && hourOf(ctx.tick) === schedule.sleepStartHour && n.rest > 20;
+    // Under an alert every squad is treated as active (16 § Squads). The sight scan runs only
+    // when there is a want to hold back and no alert order already holds it; combat keeps its
+    // own perception scan and target retention.
+    const active = squad?.mode === 'active' || alert !== 'calm';
+    const dutyHolds = (wants.length > 0 || sleepWindow) &&
+      ((alert !== 'calm' && hasOrder) || (active && hasHostileInSight(ctx, id)));
     if (dutyHolds) {
       b.behavior = 'duty';
       b.activity = 'On duty';
@@ -422,12 +458,11 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
       return;
     }
     if (n !== undefined) {
-      const sleepWindow = schedule !== undefined && hourOf(ctx.tick) === schedule.sleepStartHour && n.rest > 20;
       if (sleepWindow && host.activities.start(ctx, id, 'rest', b, host.idleGoal(id), host.dwarfIds(), safeTarget)) {
         host.setCombatTarget(id, 0);
         return;
       }
-      for (const want of ranked(n, false)) {
+      for (const want of wants) {
         if (host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds(), safeTarget)) {
           host.setCombatTarget(id, 0);
           return;
@@ -520,6 +555,8 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
     const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
     const alert = ctx.readers.has('16') ? ctx.readers.of<{ alert(): string }>('16').alert() : ctx.world.fortress.alert;
     if (alert !== 'hearth' || !civ || b.targetTile < 0 || (interrupted && host.threatOf(id) !== 0)) {
+      reselect = true;
+    } else if (walksToHospital(ctx, id) || (host.hasJobs && ctx.readers.of<JobsReader>('11').hasUrgent(id, PRIORITY_MAX))) {
       reselect = true;
     } else if (movement !== null && b.targetTile >= 0 && movement.tileOf(id) !== b.targetTile) {
       const result = movement.walkTo(id, b.targetTile, 'flee', ctx);

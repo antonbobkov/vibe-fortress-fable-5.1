@@ -809,7 +809,23 @@ export class JobBoard implements JobsApi, JobSink {
     this.workAvailabilityTick = this.now;
   }
 
+  /**
+   * A job for a patient: a health job whose target is a dwarf with a `Patient` component (not
+   * `bandage_animal`). Medical work continues under a `hearth` alert (10 § Behavior selection).
+   */
+  isPatientCare(job: Job): boolean {
+    return job.producer === 'health' && job.target.kind === 'entity' && this.world.entities.has(job.target.ref, C.Patient);
+  }
+
+  /** Under a `hearth` alert a sheltering civilian takes patient-care jobs only. */
+  private shelteredFrom(job: Job, workerId: EntityId): boolean {
+    if (!this.readers.has('16')) return false;
+    const combat = this.readers.of<{ alert(): string; onDuty(id: EntityId): boolean }>('16');
+    return combat.alert() === 'hearth' && !combat.onDuty(workerId) && !this.isPatientCare(job);
+  }
+
   private eligible(job: Job, workerId: EntityId): boolean {
+    if (this.shelteredFrom(job, workerId)) return false;
     const threat = this.avoidedThreatTile(workerId);
     if (threat >= 0) {
       const map = this.world.map;
