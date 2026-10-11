@@ -541,7 +541,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Shift+S');
   await dragTiles(page, { x: site.wx + 3, y: site.wy + 2 }, { x: site.wx + 6, y: site.wy + 5 });
   await page.keyboard.press('Escape');
-  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped
+  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped (T-240 removes the need)
   await clickTile(page, site.wx + 3, site.wy + 2);
   await expect.poll(() => textOf(page)).toContain('[S-p] Preset');
   await page.keyboard.press('Shift+P');
@@ -555,7 +555,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Shift+F');
   await dragTiles(page, { x: site.wx + 2, y: site.wy - 5 }, { x: site.wx + 5, y: site.wy - 3 });
   await page.keyboard.press('Escape');
-  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped
+  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped (T-240 removes the need)
   await clickTile(page, site.wx + 2, site.wy - 5);
   await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
   for (const season of ['Spring', 'Summer', 'Autumn']) {
@@ -571,7 +571,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Shift+F');
   await dragTiles(page, { x: site.wx + 6, y: site.wy - 5 }, { x: site.wx + 9, y: site.wy - 3 });
   await page.keyboard.press('Escape');
-  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped
+  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped (T-240 removes the need)
   await clickTile(page, site.wx + 6, site.wy - 5);
   await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
   for (const season of ['Spring', 'Summer']) {
@@ -689,7 +689,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Shift+F');
   await dragTiles(page, { x: site.sx + 1, y: site.sy }, { x: site.sx + 8, y: site.sy + 3 });
   await page.keyboard.press('Escape');
-  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped
+  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped (T-240 removes the need)
   await clickTile(page, site.sx + 1, site.sy);
   await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
   for (const season of ['Spring', 'Summer', 'Autumn', 'Winter']) {
