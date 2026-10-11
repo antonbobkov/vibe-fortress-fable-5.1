@@ -1,6 +1,6 @@
 /** U-07 M7/M9/§4.4: configure stockpiles and room ownership through the real keyboard and mouse. */
-import { test, expect, type Page } from '@playwright/test';
-import { screenOf, textOf, type Hook } from './helpers';
+import { test, expect } from '@playwright/test';
+import { screenOf, textOf, clickText, clickTile, type Hook } from './helpers';
 
 interface ZoneHook extends Hook {
   step(n: number): void;
@@ -21,29 +21,6 @@ interface ZoneHook extends Hook {
     };
     items: { stockpile(id: number): { containersWanted: { barrel: number; bag: number; bin: number }; priority: number; filter: { categories: string[]; minQuality: number; maxQuality: number; materialClasses: string[] | 'any' } } };
   };
-}
-
-async function clickText(page: Page, needle: string): Promise<void> {
-  const box = await page.locator('canvas#screen').boundingBox();
-  if (box === null) throw new Error('no canvas');
-  const at = await page.evaluate((needle) => {
-    const h = (window as unknown as { __deepholm: ZoneHook }).__deepholm;
-    const rows = h.text();
-    const row = rows.findIndex((r) => r.includes(needle));
-    if (row < 0) throw new Error(`no ${needle}`);
-    return h.cellCenter((rows[row] as string).indexOf(needle) + 1, row);
-  }, needle);
-  await page.mouse.click(box.x + at.x, box.y + at.y);
-}
-
-async function clickTile(page: Page, x: number, y: number): Promise<void> {
-  const box = await page.locator('canvas#screen').boundingBox();
-  if (box === null) throw new Error('no canvas');
-  const at = await page.evaluate(([x, y]) => {
-    const h = (window as unknown as { __deepholm: ZoneHook }).__deepholm;
-    return h.cellCenter(x! - h.readers.ui.camX, y! - h.readers.ui.camY);
-  }, [x, y]);
-  await page.mouse.click(box.x + at.x, box.y + at.y);
 }
 
 test('U-07 M7/M9 stockpile editor and room panel', async ({ page }) => {
