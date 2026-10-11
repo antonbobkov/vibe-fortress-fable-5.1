@@ -12,8 +12,8 @@ Seed `flat-test`: build a still, add a brew order with no empty barrel, announce
 
 ## What the spec says
 
-- [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules: "Clicking a location reference (a job target, an announcement) centers the map."
-- [`12-workshops-and-professions.md`](../02-systems/12-workshops-and-professions.md) § Registrations: the `WorkshopBlocked` alerts.
+- [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules: "Clicking a location reference (a job target, an announcement) centers the map."
+- [`12-workshops-and-professions.md`](../../02-systems/12-workshops-and-professions.md) § Registrations: the `WorkshopBlocked` alerts.
 
 ## What to do
 
