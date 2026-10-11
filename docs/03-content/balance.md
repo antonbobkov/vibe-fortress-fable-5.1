@@ -107,7 +107,7 @@ The intended figures, for one territorial animal (badger, boar) or one fed wolf 
 
 An unarmoured soldier sent against a boar or a wolf can still be killed; armour is the answer.
 
-A *hungry* predator (08 § `hunt`) prefers animal prey to dwarves, and its pack shares one quarry and one meal; it keeps its quarry until the quarry dies. A civilian it catches fleeing turns and fights with what it carries (10 § Behavior selection), so a wolf that hunts a group of haulers usually dies of it, though the first dwarf it catches usually dies too. The intended figures, for a forest or taiga map at peril 0 over a year: a fortress that ignores wolves loses livestock regularly and a dwarf now and then, a few a year at most; one that reacts (pasture behind a door, alert raised, squad sent) loses no dwarf to wildlife.
+A *hungry* predator (08 § `hunt`) prefers animal prey to dwarves, and its pack shares one quarry and one meal; it keeps its quarry while it remains eligible and in perception. A civilian it catches fleeing turns and fights with what it carries (10 § Behavior selection), so a wolf that hunts a group of haulers usually dies of it, though the first dwarf it catches usually dies too. The intended figures, for a forest or taiga map at peril 0 over a year: a fortress that ignores wolves loses livestock regularly and a dwarf now and then, a few a year at most; one that reacts (pasture behind a door, alert raised, squad sent) loses no dwarf to wildlife.
 
 Measured, with the game's own wolf arrivals and the compact three-year fortress (Balanced embark, three forest and three taiga seeds, one year each):
 
@@ -117,6 +117,18 @@ Measured, with the game's own wolf arrivals and the compact three-year fortress 
 | Raises the alert and sends its squad | none in four seeds of six, 3 and 4 in the other two (7 in six fortress-years) |
 
 A seven-hauler group crossing a hungry wolf's ground for three days loses 14 of 70 (9 of 70 when every hauler holds a pick), and the wolf dies in nine runs of ten. The figures for a year do not yet meet the intent in a third of the seeds. [balance-status.md](../balance-status.md) holds the latest measurement.
+
+With one sheep, goat and cow added to the existing pasture in each of six forest/taiga years, the measured losses to wolves are:
+
+| Pasture and response | Grazers killed by wolves / 18 supplied | Dwarves killed by wolves / six fortress-years |
+|---|---|---|
+| Exposed, ignores wolves | 1 goat | 24 |
+| Exposed, raises the alert and sends its squad | 1 goat | 14 |
+| Wall enclosure and door, ignores wolves | 1 goat, 1 sheep | 26 |
+| Wall enclosure and door, raises the alert and sends its squad | 1 goat, 1 sheep | 22 |
+
+The enclosure is added after the fortress setup: one seed already has wolves inside on day 7; the other five have none at placement and lose no grazer to wolves. In a short control with the enclosure present before the wolves, the exposed pasture loses a sheep and the enclosure loses none. The cow is never eligible wolf prey. Forty-three grazers starve across the 24 year cases, 42 in winter; several runs stop with living grazers after the last dwarf dies. These modified fixtures do not establish a competent player's whole-fortress defence, and the original no-grazer year figures above await re-measure. The [pack-prey report](../../reports/audits/2026-10-11-pack-prey-size.md) states the starting conditions and measured causes; no farm capacity or production timing was added.
+
 
 ## Mood floor and the no-spiral guarantee
 

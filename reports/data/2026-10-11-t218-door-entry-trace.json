@@ -1,0 +1,1013 @@
+{
+ "seed": "t212-temperate_forest-2",
+ "biome": "temperate_forest",
+ "mode": "ignore",
+ "only": "wolf",
+ "days": 12,
+ "endDay": 13,
+ "enclosureSetup": {
+  "cx": 22,
+  "cy": 7,
+  "gate": {
+   "x": 26,
+   "y": 22,
+   "z": 32
+  },
+  "tiles": [
+   {
+    "at": {
+     "x": 23,
+     "y": 22,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777330
+   },
+   {
+    "at": {
+     "x": 24,
+     "y": 22,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777331
+   },
+   {
+    "at": {
+     "x": 25,
+     "y": 22,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777332
+   },
+   {
+    "at": {
+     "x": 26,
+     "y": 22,
+     "z": 32
+    },
+    "kind": "Floor",
+    "building": 0
+   },
+   {
+    "at": {
+     "x": 27,
+     "y": 22,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777333
+   },
+   {
+    "at": {
+     "x": 28,
+     "y": 22,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777334
+   },
+   {
+    "at": {
+     "x": 29,
+     "y": 22,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777335
+   },
+   {
+    "at": {
+     "x": 23,
+     "y": 23,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777336
+   },
+   {
+    "at": {
+     "x": 29,
+     "y": 23,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777337
+   },
+   {
+    "at": {
+     "x": 23,
+     "y": 24,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777338
+   },
+   {
+    "at": {
+     "x": 29,
+     "y": 24,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777339
+   },
+   {
+    "at": {
+     "x": 23,
+     "y": 25,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777340
+   },
+   {
+    "at": {
+     "x": 29,
+     "y": 25,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777341
+   },
+   {
+    "at": {
+     "x": 23,
+     "y": 26,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777342
+   },
+   {
+    "at": {
+     "x": 29,
+     "y": 26,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777343
+   },
+   {
+    "at": {
+     "x": 23,
+     "y": 27,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777344
+   },
+   {
+    "at": {
+     "x": 24,
+     "y": 27,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777345
+   },
+   {
+    "at": {
+     "x": 25,
+     "y": 27,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777346
+   },
+   {
+    "at": {
+     "x": 26,
+     "y": 27,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777347
+   },
+   {
+    "at": {
+     "x": 27,
+     "y": 27,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777348
+   },
+   {
+    "at": {
+     "x": 28,
+     "y": 27,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777349
+   },
+   {
+    "at": {
+     "x": 29,
+     "y": 27,
+     "z": 32
+    },
+    "kind": "Wall",
+    "building": 16777350
+   }
+  ]
+ },
+ "enclosureChanges": [
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 23,
+    "y": 22,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777330
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 24,
+    "y": 22,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777331
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 25,
+    "y": 22,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777332
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 27,
+    "y": 22,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777333
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 28,
+    "y": 22,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777334
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 29,
+    "y": 22,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777335
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 23,
+    "y": 23,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777336
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 29,
+    "y": 23,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777337
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 23,
+    "y": 24,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777338
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 29,
+    "y": 24,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777339
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 23,
+    "y": 25,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777340
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 29,
+    "y": 25,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777341
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 23,
+    "y": 26,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777342
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 29,
+    "y": 26,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777343
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 23,
+    "y": 27,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777344
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 24,
+    "y": 27,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777345
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 25,
+    "y": 27,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777346
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 26,
+    "y": 27,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777347
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 27,
+    "y": 27,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777348
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 28,
+    "y": 27,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777349
+  },
+  {
+   "tick": 7605,
+   "tile": {
+    "x": 29,
+    "y": 27,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777350
+  },
+  {
+   "tick": 7707,
+   "tile": {
+    "x": 23,
+    "y": 22,
+    "z": 32
+   },
+   "kind": "Wall",
+   "building": 16777330
+  }
+ ],
+ "livestockAttacks": [
+  {
+   "tick": 7612,
+   "type": "AttackResolved",
+   "attackerId": 117440619,
+   "defenderId": 16777328,
+   "targetId": 16777328,
+   "part": null,
+   "damageType": "edge",
+   "amount": 0,
+   "outcome": "miss",
+   "attackerPosition": {
+    "x": 26,
+    "y": 24,
+    "z": 32
+   },
+   "defenderPosition": {
+    "x": 25,
+    "y": 23,
+    "z": 32
+   },
+   "attackerTileKind": "Floor",
+   "defenderTileKind": "Floor",
+   "attackerBuilding": 0,
+   "defenderBuilding": 0,
+   "priorMoves": [
+    {
+     "tick": 6857,
+     "from": {
+      "x": 44,
+      "y": 26,
+      "z": 32
+     },
+     "to": {
+      "x": 43,
+      "y": 26,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6862,
+     "from": {
+      "x": 43,
+      "y": 26,
+      "z": 32
+     },
+     "to": {
+      "x": 42,
+      "y": 26,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6865,
+     "from": {
+      "x": 42,
+      "y": 26,
+      "z": 32
+     },
+     "to": {
+      "x": 41,
+      "y": 25,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6870,
+     "from": {
+      "x": 41,
+      "y": 25,
+      "z": 32
+     },
+     "to": {
+      "x": 40,
+      "y": 24,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6873,
+     "from": {
+      "x": 40,
+      "y": 24,
+      "z": 32
+     },
+     "to": {
+      "x": 40,
+      "y": 23,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6877,
+     "from": {
+      "x": 40,
+      "y": 23,
+      "z": 32
+     },
+     "to": {
+      "x": 39,
+      "y": 23,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6882,
+     "from": {
+      "x": 39,
+      "y": 23,
+      "z": 32
+     },
+     "to": {
+      "x": 38,
+      "y": 22,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6885,
+     "from": {
+      "x": 38,
+      "y": 22,
+      "z": 32
+     },
+     "to": {
+      "x": 37,
+      "y": 22,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6890,
+     "from": {
+      "x": 37,
+      "y": 22,
+      "z": 32
+     },
+     "to": {
+      "x": 36,
+      "y": 22,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6893,
+     "from": {
+      "x": 36,
+      "y": 22,
+      "z": 32
+     },
+     "to": {
+      "x": 35,
+      "y": 22,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6896,
+     "from": {
+      "x": 35,
+      "y": 22,
+      "z": 32
+     },
+     "to": {
+      "x": 34,
+      "y": 22,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6899,
+     "from": {
+      "x": 34,
+      "y": 22,
+      "z": 32
+     },
+     "to": {
+      "x": 33,
+      "y": 23,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6904,
+     "from": {
+      "x": 33,
+      "y": 23,
+      "z": 32
+     },
+     "to": {
+      "x": 32,
+      "y": 23,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6907,
+     "from": {
+      "x": 32,
+      "y": 23,
+      "z": 32
+     },
+     "to": {
+      "x": 31,
+      "y": 23,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6911,
+     "from": {
+      "x": 31,
+      "y": 23,
+      "z": 32
+     },
+     "to": {
+      "x": 30,
+      "y": 24,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6916,
+     "from": {
+      "x": 30,
+      "y": 24,
+      "z": 32
+     },
+     "to": {
+      "x": 29,
+      "y": 25,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6919,
+     "from": {
+      "x": 29,
+      "y": 25,
+      "z": 32
+     },
+     "to": {
+      "x": 28,
+      "y": 25,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 6924,
+     "from": {
+      "x": 28,
+      "y": 25,
+      "z": 32
+     },
+     "to": {
+      "x": 27,
+      "y": 26,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 7609,
+     "from": {
+      "x": 27,
+      "y": 26,
+      "z": 32
+     },
+     "to": {
+      "x": 26,
+      "y": 25,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    },
+    {
+     "tick": 7611,
+     "from": {
+      "x": 26,
+      "y": 25,
+      "z": 32
+     },
+     "to": {
+      "x": 26,
+      "y": 24,
+      "z": 32
+     },
+     "fromKind": "Floor",
+     "toKind": "Floor",
+     "toBuilding": 0
+    }
+   ],
+   "attackerMotion": {
+    "pathId": 2569,
+    "stepIndex": 2,
+    "progress": 250,
+    "speed": 225,
+    "movementClass": "walker",
+    "repathCount": 0,
+    "waitUntil": 0
+   },
+   "defenderMotion": {
+    "pathId": 0,
+    "stepIndex": 0,
+    "progress": 0,
+    "speed": 165,
+    "movementClass": "walker",
+    "repathCount": 0,
+    "waitUntil": 0
+   },
+   "defenderTame": {
+    "pastureId": 184549482,
+    "condition": 0,
+    "trained": "none",
+    "assignedTo": 0,
+    "pregnantUntil": 0,
+    "lastProductTick": {},
+    "juvenileUntil": 0,
+    "slaughter": false,
+    "petOf": 0,
+    "noBreed": false
+   }
+  }
+ ],
+ "probeRevision": 3,
+ "enclosure": "door",
+ "pastureTiles": 16,
+ "perimeterCleared": {
+  "Floor": 17,
+  "Shrub": 2,
+  "Tree": 3
+ },
+ "doorId": 16777351,
+ "livestock": [
+  {
+   "id": 50331671,
+   "species": "sheep",
+   "alive": false,
+   "death": {
+    "day": 10,
+    "victim": "sheep:tame",
+    "victimId": 50331671,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   "condition": null
+  },
+  {
+   "id": 16777328,
+   "species": "goat",
+   "alive": false,
+   "death": {
+    "day": 7,
+    "victim": "goat:tame",
+    "victimId": 16777328,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   "condition": null
+  },
+  {
+   "id": 16777329,
+   "species": "cow",
+   "alive": true,
+   "death": null,
+   "condition": 22
+  }
+ ],
+ "firstQuarry": [
+  {
+   "day": 7,
+   "wolfId": 117440619,
+   "species": "goat",
+   "id": 16777328,
+   "insidePasture": true
+  },
+  {
+   "day": 7,
+   "wolfId": 117440621,
+   "species": "goat",
+   "id": 16777328,
+   "insidePasture": true
+  },
+  {
+   "day": 10,
+   "wolfId": 117440619,
+   "species": "sheep",
+   "id": 50331671,
+   "insidePasture": true
+  },
+  {
+   "day": 10,
+   "wolfId": 117440621,
+   "species": "sheep",
+   "id": 50331671,
+   "insidePasture": true
+  }
+ ],
+ "dailyPasture": [
+  {
+   "day": 8,
+   "grass": 14,
+   "animals": [
+    {
+     "species": "sheep",
+     "condition": 23,
+     "inside": true
+    },
+    {
+     "species": "cow",
+     "condition": 23,
+     "inside": true
+    }
+   ]
+  },
+  {
+   "day": 9,
+   "grass": 12,
+   "animals": [
+    {
+     "species": "sheep",
+     "condition": 21,
+     "inside": true
+    },
+    {
+     "species": "cow",
+     "condition": 21,
+     "inside": true
+    }
+   ]
+  },
+  {
+   "day": 10,
+   "grass": 11,
+   "animals": [
+    {
+     "species": "sheep",
+     "condition": 19,
+     "inside": true
+    },
+    {
+     "species": "cow",
+     "condition": 19,
+     "inside": true
+    }
+   ]
+  },
+  {
+   "day": 11,
+   "grass": 9,
+   "animals": [
+    {
+     "species": "cow",
+     "condition": 42,
+     "inside": true
+    }
+   ]
+  },
+  {
+   "day": 12,
+   "grass": 7,
+   "animals": [
+    {
+     "species": "cow",
+     "condition": 40,
+     "inside": true
+    }
+   ]
+  }
+ ],
+ "spawnedBySpecies": {
+  "wolf": 4
+ },
+ "wolfArrivalDays": [
+  4
+ ],
+ "dwarvesAlive": 7,
+ "tameAlive": [
+  "dog:tame",
+  "dog:tame",
+  "cat:tame",
+  "cow:tame"
+ ],
+ "dwarfDeaths": [],
+ "dwarfDeathsToWildlife": 0,
+ "tameDeaths": [
+  {
+   "day": 7,
+   "victim": "goat:tame",
+   "victimId": 16777328,
+   "cause": "bled_out",
+   "killer": "wolf:wild",
+   "soldier": false
+  },
+  {
+   "day": 10,
+   "victim": "sheep:tame",
+   "victimId": 50331671,
+   "cause": "bled_out",
+   "killer": "wolf:wild",
+   "soldier": false
+  }
+ ],
+ "tameDeathsToWildlife": 2,
+ "wildDeaths": [],
+ "attacks": {
+  "wolf:wild->tame": 24,
+  "wolf:wild(hunting)->tame": 24,
+  "wolf:wild->tame:hit": 12,
+  "wolf:wild->civilian": 1,
+  "wolf:wild(defending)->civilian": 1,
+  "wolf:wild->civilian:hit": 1
+ },
+ "hunts": {
+  "wolf:wild->goat:tame": 2,
+  "wolf:wild->sheep:tame": 2
+ }
+}

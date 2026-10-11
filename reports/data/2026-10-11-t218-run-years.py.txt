@@ -1,0 +1,21 @@
+from pathlib import Path
+import json, os, subprocess, time
+root=Path.cwd()
+out=root/'reports/data/2026-10-11-t218-pack-years'
+out.mkdir(exist_ok=True)
+for biome in ('temperate_forest','taiga'):
+ for n in range(1,4):
+  seed=f't212-{biome}-{n}'
+  for mode in ('ignore','react'):
+   for enclosure in ('open','door'):
+    label=f'{seed}-{mode}-{enclosure}'
+    result=out/(label+'.json')
+    if result.exists() and json.loads(result.read_text('utf8')).get('probeRevision') == 3: continue
+    env=dict(os.environ,T212_SEED=seed,T212_BIOME=biome,T212_MODE=mode,T212_ONLY='wolf',T212_DAYS='112',T218_ENCLOSURE=enclosure,T212_OUT=str(result))
+    started=time.monotonic()
+    print('START '+label,flush=True)
+    with (root/'.vite/task-resume'/(label+'.log')).open('wb') as log:
+     proc=subprocess.run(['npm.cmd','exec','--','vitest','run','--config','.vite/task-resume/t218-probe.config.ts'],env=env,stdout=log,stderr=subprocess.STDOUT)
+    if proc.returncode: raise SystemExit(f'{label}: failed {proc.returncode}')
+    d=json.loads(result.read_text('utf8'))
+    print(json.dumps({'run':label,'seconds':round(time.monotonic()-started,1),'dwarvesAlive':d['dwarvesAlive'],'dwarfWolfDeaths':d['dwarfDeathsToWildlife'],'livestock':d['livestock']}),flush=True)

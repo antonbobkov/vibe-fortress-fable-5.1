@@ -1,0 +1,69 @@
+[
+ {
+  "mode": "open",
+  "ticks": 6000,
+  "maximumWolvesInside": 3,
+  "livestock": [
+   {
+    "id": 16777217,
+    "species": "sheep",
+    "alive": false,
+    "death": {
+     "type": "CreatureDied",
+     "id": 16777217,
+     "cause": "killed",
+     "killerId": 16777222,
+     "tile": 297923,
+     "species": 43,
+     "name": "sheep",
+     "faction": "fortress",
+     "ageTicks": 0,
+     "wornItems": []
+    },
+    "condition": null
+   },
+   {
+    "id": 16777218,
+    "species": "goat",
+    "alive": true,
+    "death": null,
+    "condition": 38
+   },
+   {
+    "id": 16777219,
+    "species": "cow",
+    "alive": true,
+    "death": null,
+    "condition": 38
+   }
+  ]
+ },
+ {
+  "mode": "door",
+  "ticks": 6000,
+  "maximumWolvesInside": 0,
+  "livestock": [
+   {
+    "id": 16777240,
+    "species": "sheep",
+    "alive": true,
+    "death": null,
+    "condition": 38
+   },
+   {
+    "id": 16777241,
+    "species": "goat",
+    "alive": true,
+    "death": null,
+    "condition": 38
+   },
+   {
+    "id": 16777242,
+    "species": "cow",
+    "alive": true,
+    "death": null,
+    "condition": 38
+   }
+  ]
+ }
+]
