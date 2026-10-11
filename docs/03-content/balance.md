@@ -168,3 +168,19 @@ A cave plot must be fully dark; a surface plot fully lit. Digging out a farm cha
 | 112 | Year 2: Mountainhome caravan with an anvil if requested; the fortress is 11–15 dwarves with iron tools and a squad |
 
 The pace is deliberate: the first hour of play (day 1 to about day 60) contains every basic system once, and the first raid arrives after the player has had time to build a gate.
+
+### Many-seed annual survival
+
+The standard-size, command-driven wildlife-year instrument uses twelve distinct seeds, four in each of temperate forest, taiga and temperate grassland, at peril 0. Balanced embark, the browser opening and work orders, its three-member squad and wildlife alert policy define the player. Actual immigration counts and qualifying farm areas are recorded rather than fixed to a nominal population or made uniform by extra supplies.
+
+| Measure | Target | Measured bound |
+|---|---|---|
+| Median living dwarves | At least 11 of the nominal twelve | At least 12.5 |
+| Minimum living dwarves | At least 8 | At least 0 |
+| Years without a wildlife dwarf death | All | At least 8 of 12 |
+| Extinct fortresses | None | At most 1 of 12 |
+| Dwarf deaths from hunger or thirst | None | At most 2 across the cohort |
+
+The [annual survival measurement](../../reports/audits/2026-10-11-wildlife-survival-over-twelve-seeds.md) has forest median/minimum 10/8, taiga 11.5/0 and grassland 14.5/14. There are 22 wildlife dwarf deaths (14 wolf, 3 boar, 5 badger), two deaths labelled starvation, and three fortress-animal deaths, all dogs killed by wolves. Arrivals vary from 11 to 15; the grassland halls raise the pooled median. The minimum of zero and the need-related deaths miss the target even though the pooled median meets it. The minimum bound preserves the measured extinction, while the median, wildlife-free share and extinction cap constrain regressions; it is not a successful survival result. Read the per-biome distribution with the pooled one.
+
+Re-measure the distribution before and after a change to wildlife, fleeing, alerts or treatment. The instrument records its target beside the measured bounds. The browser year's single sample asserts that the fortress survives and nobody dies of hunger or thirst, and prints its remaining end state.
