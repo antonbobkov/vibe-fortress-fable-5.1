@@ -1037,10 +1037,22 @@ export class Strings {
   }
 }
 
-/** `"{dwarf} has found {material}."` with the named values; unknown placeholders stay. */
+/**
+ * `"{dwarf} has found {material}."` with the named values; unknown placeholders stay.
+ * Plural forms `{count|singular|plural}` format as count and chosen noun (e.g. `{n|table|tables}`
+ * yields "1 table" or "4 tables"; `!` prefix on singular yields only the noun).
+ */
 export function fill(template: string, params: Readonly<Record<string, string | number>>): string {
-  return template.replace(/\{(\w+)\}/g, (whole, name: string) => {
+  return template.replace(/\{(\w+)(?:\|([^|}]+)\|([^|}]+))?\}/g, (whole, name: string, singular?: string, plural?: string) => {
     const value = params[name];
-    return value === undefined ? whole : String(value);
+    if (value === undefined) return whole;
+    if (singular !== undefined && plural !== undefined) {
+      const isOne = Number(value) === 1;
+      const form = isOne ? singular : plural;
+      if (form.startsWith('!')) return form.slice(1);
+      if (form.includes('#')) return form.replace(/#/g, String(value));
+      return `${value} ${form}`;
+    }
+    return String(value);
   });
 }

@@ -98,7 +98,7 @@ The look panel shows the tile under the cursor or the clicked tile with tabs for
 - The log panel lists everything with filters by severity and category (combat has its own tab), newest first, and jumps to the focus on click. Log size `LOG_MAX_LINES` in memory; the last `LOG_SAVED_LINES` are saved.
 - Repeated identical announcements within `LOG_DEDUP_TICKS` are merged with a count ("×3").
 - Job and workshop block messages name the missing input and count and, when one workshop makes it, where to order it. UI actions that cannot act show a status message through the shared message helpers.
-- A refused command (`CommandRejected`) shows its reason in the status bar for `STATUS_HINT_SECONDS` and is appended to the log as an alert with the command's focus. The reason names the thing and why ("Door needs walls on two opposite sides", "that zone no longer exists"); no content id, entity id, reason code or action id is shown.
+- A refused command (`CommandRejected`) shows its reason in the status bar for `STATUS_HINT_SECONDS` (or until replaced earlier by starting a drag, a new ghost state or a new notice) and is appended to the log as an alert with the command's focus. The reason names the thing and why ("Door needs walls on two opposite sides", "that zone no longer exists"); no content id, entity id, reason code or action id is shown. Status row text that does not fit ends with `…` and registers its full text as a tooltip on the row, like any clipped label.
 
 A fortress dwarf’s `CreatureDied` announcement keeps danger severity, the recorded name and the recorded focus tile after simulation cleanup has removed the entity. Species and faction in the event identify that dwarf; other creature deaths retain their ordinary announcement severity.
 

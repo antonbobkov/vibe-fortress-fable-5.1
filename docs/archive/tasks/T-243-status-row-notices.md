@@ -1,6 +1,6 @@
 # T-243 — The status row: a notice must not hide the next readout, and long lines must not be cut silently
 
-**Source:** T-111 and its report, [`../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../reports/audits/2026-10-10-ui-audit-follow-up.md) (new finding N3; a side effect of Q5) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** T-111 and its report, [`../../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../../reports/audits/2026-10-10-ui-audit-follow-up.md) (new finding N3; a side effect of Q5) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -12,8 +12,8 @@ Seed `audit-1`, default embark, paused, at 1280×800. `d`, drag over open floor 
 
 ## What the spec says
 
-- [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules: a refused command shows in the status bar for `STATUS_HINT_SECONDS` and goes to the log.
-- [`fortress-screen.md`](../04-implementation/ui-screens/fortress-screen.md) § Status row 2: "with a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`".
+- [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules: a refused command shows in the status bar for `STATUS_HINT_SECONDS` and goes to the log.
+- [`fortress-screen.md`](../../04-implementation/ui-screens/fortress-screen.md) § Status row 2: "with a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`".
 - 24 § Rules (input model, hover): clipped labels register their full text as a tooltip.
 
 ## What to do
@@ -30,4 +30,4 @@ Seed `audit-1`, default embark, paused, at 1280×800. `d`, drag over open floor 
 ## Done
 
 - The reproduction shows the second drag's own readout, and no status line is cut without `…`.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

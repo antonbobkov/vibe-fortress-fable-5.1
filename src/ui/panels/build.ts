@@ -383,7 +383,7 @@ export class BuildTool {
   /** "0 doors in stock: 5 will wait", then "[o] order 5" or the workshop to build first; `key` is the Orders key. */
   offerText(ctx: PanelContext, offer: StockOffer, key: string): { stock: string; action: string } {
     const s = ctx.strings;
-    const stock = s.get('ui.build.stock.short', { have: offer.have, items: matchName(ctx.registry, offer.match.split('|')[0] ?? '', 2), n: offer.waiting });
+    const stock = s.get('ui.build.stock.short', { have: offer.have, items: matchName(ctx.registry, offer.match.split('|')[0] ?? '', offer.have), n: offer.waiting });
     if (offer.itemId === null) return { stock, action: '' };
     if (offer.recipeId !== null) return { stock, action: s.get('ui.build.stock.order', { key, n: offer.waiting }) };
     return { stock, action: s.get('ui.build.stock.needs_workshop', { workshop: offer.workshops }) };
