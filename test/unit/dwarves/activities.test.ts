@@ -128,9 +128,12 @@ describe('T-M4-06 activities', () => {
     w.zone('meeting_area', [aa, bb]);
     const a = w.spawnDwarf({ at: aa });
     const b = w.spawnDwarf({ at: bb });
-    for (let k = 0; k < 6; k += 1) {
+    // Two dwarves standing together have one talk in passing, not an errand each.
+    for (let k = 0; k < 10; k += 1) {
       w.setNeed(a, 'social', 55);
       w.setNeed(b, 'social', 55);
+      w.setNeed(a, 'rest', 0);
+      w.setNeed(b, 'rest', 0);
       w.step(105);
     }
     expect(w.events('Talked').length).toBeGreaterThanOrEqual(5);

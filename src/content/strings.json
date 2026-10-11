@@ -29,6 +29,7 @@
   "confirm.c_slaughter_animal": "Slaughter {animal}? It will be butchered for meat, hide and bone.",
   "confirm.c_suspend_workshop": "Suspend {workshop}? Its current job stops and its orders wait until you resume it.",
   "hint.hint_alert": "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock.",
+  "hint.hint_barrel": "A brew needs an empty barrel, and a barrel that holds food or seed is not empty. Order a barrel at the carpenter's workshop.",
   "hint.hint_cage": "Cage traps catch anything smaller than a wyrm. Caged beasts can be tamed at a kennel or sold.",
   "hint.hint_containers": "Stockpiles need barrels for drink and bags for seeds. The carpenter makes barrels; the clothier makes bags.",
   "hint.hint_deep": "Deepsilver lies beside the Sea of Fire. Taking it wakes the Hollow. The threats panel shows the Deep gauge.",

@@ -13,6 +13,7 @@ import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, Wor
 import type { Registry } from '@core/registry';
 import type { EntityId, Priority, TileIndex } from '@core/types';
 import { ADULT_AGE_YEARS, THREAT_RADIUS } from '@systems/dwarves/constants';
+import { AMMO_FETCH } from '@systems/foraging/constants';
 import { choose, effectivePriority, estDistance, type Candidate } from './assign';
 import {
   ASSIGN_WORKERS_PER_TICK,
@@ -546,7 +547,10 @@ export class JobBoard implements JobsApi, JobSink {
       const tool = job.tool;
       if (tool !== null && job.data['toolToFetch'] === undefined) {
         const carried = this.workers().some((w) => this.items.hasTool(w, tool));
-        if (!carried && this.items.findTool(tool, from) === 0) {
+        // A worker that holds a launcher may need only its ammunition.
+        const kit = tool === 'ranged' && this.items.findRangedKit !== undefined &&
+          this.workers().some((w) => (this.items.findRangedKit?.(w, this.workerTile(w)) ?? null) !== null);
+        if (!carried && !kit && this.items.findTool(tool, from) === 0) {
           return false;
         }
       }
@@ -648,9 +652,11 @@ export class JobBoard implements JobsApi, JobSink {
       }
       input.reserved = retained;
     }
-    const tool = job.data['toolToFetch'];
-    if (typeof tool === 'number' && tool !== 0) this.releaseItem(tool, job.id);
-    delete job.data['toolToFetch'];
+    for (const key of ['toolToFetch', 'ammoToFetch']) {
+      const tool = job.data[key];
+      if (typeof tool === 'number' && tool !== 0) this.releaseItem(tool, job.id);
+      delete job.data[key];
+    }
     delete job.data['reserveUntil'];
   }
 
@@ -907,7 +913,25 @@ export class JobBoard implements JobsApi, JobSink {
       this.unclaim(job, 'missing_input');
       return false;
     }
-    if (job.tool !== null && !this.items.hasTool(workerId, job.tool) && job.data['toolToFetch'] === undefined) {
+    if (job.tool === 'ranged' && this.items.findRangedKit !== undefined) {
+      // A launcher and its own ammunition together, or the job is not taken (11 § Assignment).
+      if (!this.items.hasTool(workerId, 'ranged') && job.data['toolToFetch'] === undefined && job.data['ammoToFetch'] === undefined) {
+        const kit = this.items.findRangedKit(workerId, from);
+        if (kit === null) {
+          this.unclaim(job, 'no_tool');
+          return false;
+        }
+        if (kit.launcher !== 0) {
+          this.items.reserve(kit.launcher, job.id);
+          job.data['toolToFetch'] = kit.launcher;
+        }
+        if (kit.ammo !== 0) {
+          const ammo = this.items.limitStack?.(kit.ammo, AMMO_FETCH) ?? kit.ammo;
+          this.items.reserve(ammo, job.id);
+          job.data['ammoToFetch'] = ammo;
+        }
+      }
+    } else if (job.tool !== null && !this.items.hasTool(workerId, job.tool) && job.data['toolToFetch'] === undefined) {
       const tool = this.items.findTool(job.tool, from);
       if (tool === 0) {
         this.unclaim(job, 'no_tool');
@@ -943,6 +967,7 @@ export class JobBoard implements JobsApi, JobSink {
         input.delivered = input.delivered.filter((itemId) => !dropped.has(itemId));
       }
       if (dropped.has(job.data['toolToFetch'] as EntityId)) delete job.data['toolToFetch'];
+      if (dropped.has(job.data['ammoToFetch'] as EntityId)) delete job.data['ammoToFetch'];
       job.workerId = 0;
       job.state = 'open';
       this.invalidateWorkAvailability();
