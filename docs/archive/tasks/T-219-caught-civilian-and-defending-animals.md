@@ -1,6 +1,8 @@
 # T-219 — A caught civilian stays and fights a defending animal or an armed raider it could have escaped
 
-**Source:** T-212 and [`2026-10-11-hungry-predators.md`](../../reports/audits/2026-10-11-hungry-predators.md) (§ The chain probe with fed animals, § The reference fortress) · **Size:** S (a decision, then a rule and a re-measure) · **Needs:** — · **Status:** open; decided 2026-10-11, see Decision
+Closed by `T-219: only a hunting animal catches a fleeing civilian`, the commit that archived this file. The re-measure of the chain probe and the year is T-253.
+
+**Source:** T-212 and [`2026-10-11-hungry-predators.md`](../../../reports/audits/2026-10-11-hungry-predators.md) (§ The chain probe with fed animals, § The reference fortress) · **Size:** S (a decision, then a rule and a re-measure) · **Needs:** — · **Status:** open; decided 2026-10-11, see Decision
 
 ## Why
 
@@ -10,7 +12,7 @@ Measured with the T-196 chain probe (seven civilians crossing one fed animal's g
 
 The rule also covers hostiles. On the saved 80-dwarf reference fortress (`test/fixtures/reference-fortress.deepholm`, the 2,200 ticks the per-system perf test steps), Hillfolk bandits attack civilians: before T-212 they attacked dwarves 58 times and 2 dwarves bled out; after, caught civilians fought back (25 strikes, 645 dwarf-ticks of fighting), the bandits attacked 126 times and 4 dwarves bled out.
 
-In the browser year (`test/e2e/full-year.spec.ts`, twelve runs on `cloud/T-212`, [`2026-10-11-full-year-with-t212.md`](../../reports/audits/2026-10-11-full-year-with-t212.md)), 14 of the 21 dwarf deaths were civilians caught by an animal defending its ground: 7 to boars, 5 to wolves, 2 to badgers. Survival was still better than without T-212 (a median of 11 living against 8.5 in ten runs on `cloud/main`).
+In the browser year (`test/e2e/full-year.spec.ts`, twelve runs on `cloud/T-212`, [`2026-10-11-full-year-with-t212.md`](../../../reports/audits/2026-10-11-full-year-with-t212.md)), 14 of the 21 dwarf deaths were civilians caught by an animal defending its ground: 7 to boars, 5 to wolves, 2 to badgers. Survival was still better than without T-212 (a median of 11 living against 8.5 in ten runs on `cloud/main`).
 
 ## What the spec says
 
