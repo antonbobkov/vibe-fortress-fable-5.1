@@ -11,6 +11,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
+| T-139 | [Clothing keeps a dead carrier](work/T-139-dead-carrier-clothing.md) | T-216 full-run verification, 2026-10-11 | — | open |
 | T-138 | [Fresh embark save loses next-tick mood reactions](work/T-138-fresh-embark-mood-save.md) | T-133 save-continuation control, 2026-10-11 | — | open |
 | T-136 | [Wildlife survival over many seeds](work/T-136-wildlife-survival-over-many-seeds.md) | T-221, T-134 and T-135; orchestrator decision, 2026-10-11 | — | open; **next after the task in hand, before T-220**: wolves cost a fifth to a third of the dwarves on forest and taiga maps (T-218, T-253) |
 | T-137 | [Repeated infection cleaning restarts a pending cure](work/T-137-infection-treatment-restarts-cure.md) | T-224 treatment-refresh investigation, 2026-10-11 | — | open |
@@ -26,7 +27,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-213 | [Two rules of 08 for attacking animals that the code does not do](work/T-213-predator-leftovers.md) | T-196 and [`../reports/audits/2026-10-10-wild-animals-and-civilians.md`](../reports/audits/2026-10-10-wild-animals-and-civilians.md) | — | open |
 | T-214 | [Three boars still wipe out the economy fixture after T-196](work/T-214-boars-still-wipe-out-the-economy-fixture.md) | T-144 and [`../reports/audits/2026-10-10-wants-without-errands-after-t196.md`](../reports/audits/2026-10-10-wants-without-errands-after-t196.md) | — | open (diagnosis first) |
 | T-215 | [The old economy fixture runs out of food in year 3](work/T-215-old-economy-fixture-starves-in-year-three.md) | T-144 and [`../reports/audits/2026-10-10-wants-without-errands-after-t196.md`](../reports/audits/2026-10-10-wants-without-errands-after-t196.md) | — | open |
-| T-216 | [The performance tier's `three_years` stops on day 3: a log inside a wall](work/T-216-three-years-log-inside-a-wall.md) | T-144 and [`../reports/audits/2026-10-10-wants-without-errands-after-t196.md`](../reports/audits/2026-10-10-wants-without-errands-after-t196.md) | — | open; local side (the three-year files are T-156's) |
 | T-217 | [A workshop's announcement does not centre the map on the workshop](work/T-217-workshop-announcements-have-no-location.md) | T-199 | — | open |
 | T-220 | [In a third of forest and taiga years a hungry pack still kills several dwarves](work/T-220-wolves-still-kill-several-in-some-years.md) | T-212 and [`../reports/audits/2026-10-11-hungry-predators.md`](../reports/audits/2026-10-11-hungry-predators.md) | T-136 (do it first: its many-seed instrument is what this diagnosis is measured with) | open (diagnosis first) |
 | T-223 | [Several dwarves sleep in one bed at the same time](work/T-223-several-dwarves-in-one-bed.md) | T-134 | — | open; decided 2026-10-11 (see the work file) |
