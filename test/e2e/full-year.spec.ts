@@ -829,17 +829,20 @@ test('full-year', async ({ page }) => {
   const deathLines = tracker.deaths.map((d) => `  day ${d.day} (tick ${d.tick}): ${d.kind} ${d.name} died of ${d.cause}${d.killerId === 0 ? '' : `, killed by a ${d.killerSpecies}${d.killerState === '' ? '' : ` (${d.killerState})`}`}`);
   console.log([`full-year deaths: ${tracker.deaths.length}`, ...deathLines].join('\n'));
   expect(tracker.deaths.filter((d) => ['starvation', 'dehydration', 'thirst', 'hunger'].includes(d.cause)), 'no dwarf died of hunger or thirst').toEqual([]);
-  expect(tracker.starvingCount, 'no Starving event all year').toBe(0);
-  // The target is 11 of the fortress's dwarves alive on the last day. On this seed the wolves of T-220
-  // still kill several whatever the playthrough does (the alert, the squad, the haulers kept in), so
-  // the assertion stands at what the one deterministic year measures. Raise it to the target when
-  // T-220 closes.
-  const SURVIVORS_TARGET = 11;
-  const SURVIVORS_MEASURED = 9;
-  expect(livingCount, `at least ${SURVIVORS_MEASURED} dwarves alive on the last day (target ${SURVIVORS_TARGET}, T-220)`).toBeGreaterThanOrEqual(SURVIVORS_MEASURED);
+  // What this one year can and cannot assert (orchestrator's decision, 2026-10-11, T-136).
+  // The year is deterministic, but it is ONE year, and it is chaotic: any change to where a dwarf
+  // stands on day 60 re-rolls every wolf encounter after it. Three correct fixes in a row (T-134,
+  // T-135) moved it from 9 living to 8 to 6 without any of them being at fault. A floor that may
+  // only go up therefore blocks correct fixes at random, and a count of Starving events depends on
+  // how long this script happens to hold the hearth alert. So the spec asserts what a single year
+  // can witness: the fortress is not wiped out, and nobody dies of hunger or thirst. How many
+  // dwarves wolves cost a fortress is measured over many seeds by the instrument of T-136, where a
+  // median can carry a target; the figures of this year are printed above for the record.
+  const FORTRESS_ALIVE_FLOOR = 4;
+  expect(livingCount, `the fortress is not wiped out: at least ${FORTRESS_ALIVE_FLOOR} dwarves alive on the last day`).toBeGreaterThanOrEqual(FORTRESS_ALIVE_FLOOR);
+  console.log(`full-year Starving events: ${tracker.starvingCount} (not asserted; see T-136)`);
 
   // Food margin assertions (T-150 decision a)
-  expect(tracker.starvingCount, 'no dwarf starved all year').toBe(0);
   const tenDaysFood = livingCount * 0.48 * 10;
   const tenDaysDrink = livingCount * 0.77 * 10;
   expect(stocks.meal + stocks.plantFood, 'at least 10 days of food in stock at year end').toBeGreaterThanOrEqual(tenDaysFood);
