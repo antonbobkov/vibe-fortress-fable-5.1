@@ -25,7 +25,7 @@ import {
 } from '@platform/realtime';
 import { contentRegistry } from '@content/loader';
 import { formatDate, SEASON_NAMES, seasonOf } from '@core/calendar';
-import { LOCAL_MAP_Z, ZOOM_LEVELS } from '@core/constants';
+import { FORTRESS_NAME_MAX_CHARS, LOCAL_MAP_Z, ZOOM_LEVELS } from '@core/constants';
 import { Compositor, type ViewState } from '@render/compositor';
 import { GlyphAtlas, glyphChars } from '@render/atlas';
 import { Palette } from '@render/palette';
@@ -445,13 +445,30 @@ export class Game {
       save: () => void this.quickSave(),
       load: () => void this.openLoad(),
       settings: () => this.openSettings(),
+      rename: () => this.renameFortress(),
       retire: () => this.retireFortress(),
       mainMenu: () => this.leaveToMainMenu(),
       viewOnly: () => this.host.viewOnly,
-    });
+    }, this.strings);
     if (menu.items().some((item) => item.id === selected && item.enabled !== false)) menu.selected = selected;
     this.pushScreen(menu);
     this.render();
+  }
+
+  private renameFortress(): void {
+    const current = this.host.started ? this.host.world.fortress.name : '';
+    this.prompt(
+      {
+        title: this.strings.get('ui.menu.rename_title', { fortress: current }),
+        value: current,
+        maxLength: FORTRESS_NAME_MAX_CHARS,
+      },
+      (name) => {
+        if (name !== null) {
+          this.host.submit({ type: 'RenameFortress', name });
+        }
+      },
+    );
   }
 
   /**

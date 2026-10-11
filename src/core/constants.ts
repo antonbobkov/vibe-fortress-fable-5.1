@@ -149,3 +149,6 @@ export const STATUS_ROWS = 2;
 export const TARGET_FPS = 60;
 /** How many z-levels below the slice show through open tiles, each dimmer. */
 export const LEVELS_VISIBLE_BELOW = 2;
+
+/** Fortress rename limit, shared by the core command and its text input. */
+export const FORTRESS_NAME_MAX_CHARS = 32;

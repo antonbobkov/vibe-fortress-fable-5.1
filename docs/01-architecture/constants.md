@@ -104,3 +104,9 @@ These are shared by fluids, pathfinding, terrain, rendering, health and defense.
 | `STATUS_ROWS` | 2 | Height of the bottom status bar |
 | `TARGET_FPS` | 60 | Render loop target; rendering is decoupled from simulation |
 | `LEVELS_VISIBLE_BELOW` | 2 | How many z-levels below the slice show through open tiles, each dimmer |
+
+## Text limits
+
+| Name | Value | Meaning |
+|---|---|---|
+| `FORTRESS_NAME_MAX_CHARS` | 32 | Fortress rename command and its text input limit |

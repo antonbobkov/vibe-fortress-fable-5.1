@@ -9,7 +9,7 @@ import { Calendar } from './calendar';
 import { CommandLog, CommandQueue, ownerOf, reject, type Command, type CommandResult } from './commands';
 import { EventListeners, EventQueue, type EventListener, type GameEvent, type Unsubscribe } from './events';
 import { Map3D, type Designation, type TileFlag, type TileKind } from './map3d';
-import { POPULATION_CAP_DEFAULT } from './constants';
+import { FORTRESS_NAME_MAX_CHARS, POPULATION_CAP_DEFAULT } from './constants';
 import { ReaderSet } from './readers';
 import { Registrations, NO_JOBS_API, NO_SPAWN_API, type Clock, type CoreServices, type GameSystem, type InitContext, type SystemId, type TerrainApi, type TickContext } from './system';
 import { RngStream, seedFor } from './rng';
@@ -324,7 +324,7 @@ export class World {
   private applyCoreCommand(command: Command): CommandResult {
     if (command.type !== 'RenameFortress') return reject('not_found');
     const name = command['name'];
-    if (typeof name !== 'string' || name.length < 1 || name.length > 32) return reject('bad_name');
+    if (typeof name !== 'string' || name.length < 1 || name.length > FORTRESS_NAME_MAX_CHARS) return reject('bad_name');
     this.fortress.name = name;
     return { ok: true };
   }

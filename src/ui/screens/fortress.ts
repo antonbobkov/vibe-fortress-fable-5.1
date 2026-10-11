@@ -1034,6 +1034,7 @@ export class FortressScreen implements Screen {
     if (this.orders.materialOpen) { this.orders.materialOpen = false; return; }
     if (this.orders.picker.open) { this.orders.picker.open = false; return; }
     if (this.animals.name.focused) { this.animals.name.focused = false; return; }
+    if (this.animals.trainChoice !== null) { this.animals.trainChoice = null; return; }
     if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow || this.military.memberChoice) { this.military.cancel(); return; }
     if (this.zones.farmMenus.some((m) => m.open)) { for (const m of this.zones.farmMenus) m.open = false; return; }
     if (this.zones.cancelEditor()) return;
@@ -1482,7 +1483,19 @@ export class FortressScreen implements Screen {
           if (k === 'Enter') return submit(this.animals.finishName(ctx));
           return editText(this.animals.name, press);
         }
-        if (k === '1' || k === '2') { this.animals.tab = k === '1' ? 0 : 1; this.animals.list.selected = 0; return true; }
+        if (this.animals.trainChoice !== null) {
+          if (up || down) {
+            this.animals.trainChoice.selected = this.animals.trainChoice.selected === 0 ? 1 : 0;
+            return true;
+          }
+          if (k === 'Enter') return submit(this.animals.finishTrain());
+          if (k === 'Backspace' || k === 'Esc' || k === 'Escape') {
+            this.animals.trainChoice = null;
+            return true;
+          }
+          return false;
+        }
+        if (k === '1' || k === '2') { this.animals.trainChoice = null; this.animals.tab = k === '1' ? 0 : 1; this.animals.list.selected = 0; return true; }
         if (!press.shift && (up || down)) { this.animals.move(up ? -1 : 1, ctx); return true; }
         if (this.animals.tab === 0) {
           if (letter === 'p') return submit(this.animals.pasture(ctx));
@@ -1490,6 +1503,7 @@ export class FortressScreen implements Screen {
           if (letter === 'c') return submit(this.animals.cap(ctx));
           if (letter === 'a') return submit(this.animals.assign(ctx));
           if (letter === 'n') { this.animals.startName(ctx); return true; }
+          if (letter === 't') { this.animals.startTrain(ctx); return true; }
         } else {
           if (letter === 'h') return submit(this.animals.hunt(ctx));
         }

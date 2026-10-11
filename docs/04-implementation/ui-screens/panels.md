@@ -357,21 +357,24 @@ Stocks actions apply to the selected category, type or individual stack. Forbid 
 ## Animals (n)
 
 ```
-│ Animals                        [n]  │
-│ [1] Tame (14)  [2] Wild (23)        │
-│ Species   Name    Pasture  Cond  Tr │
-│ ▶ cow     —       #1       ▓▓░ 38   │
-│   cow     —       #1       ▓░░ 12   │
-│   dog     Bramble —        —    war │
-│   cat     Sooty   —        —    pet │
-│   chicken ×4      —        —        │
-│ ─────────────────────────────────── │
-│ [S-p] pasture  [S-s] slaughter      │
-│ [S-c] cap [S-a] assign [S-n] name   │
-│ ── Wild ────────────────────────── │
-│ deer ×5   [■] hunt   seen NE        │
-│ wolf ×3   [□] hunt   seen N         │
+│ Animals                                       [n]  │
+│ [1] Tame (14)  [2] Wild (23)                       │
+│ Species   Name    Pasture  Cond  Tr                │
+│ ▶ cow     —       #1       ▓▓░ 38                  │
+│   cow     —       #1       ▓░░ 12                  │
+│   dog     Bramble —        —    war                │
+│   cat     Sooty   —        —                       │
+│   chicken ×4      —        —                       │
+│ ────────────────────────────────────────────────── │
+│ [S-p] pasture  [S-s] slaughter                    │
+│ [S-c] cap [S-a] assign [S-n] name                  │
+│ [S-t] train                                        │
+│ ── Wild ────────────────────────────────────────── │
+│ deer ×5   [■] hunt   seen NE                       │
+│ wolf ×3   [□] hunt   seen N                        │
 ```
+
+The Tame tab offers a clickable `[S-t] train` row below the existing actions, visible at the normal sidebar width. It opens War/Hunting; arrows select and Enter submits, or click a choice. Esc or its Cancel button returns to the list. The Tr status shows training while a job exists, including retraining an animal that already has a role, otherwise war, hunting or blank. With no selected tame animal, or a non-trainable species, the normal message path explains the refusal. All panel letters keep their usual behavior inside both choice rows; Help lists this action and its controls.
 
 ## Threats (t)
 
