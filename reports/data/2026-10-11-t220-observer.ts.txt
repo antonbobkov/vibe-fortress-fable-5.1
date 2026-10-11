@@ -1,0 +1,61 @@
+import { C } from '@core/components';
+import { World } from '@core/world';
+import type { BuildingsReader } from '@systems/buildings';
+import type { CombatReader } from '@systems/combat/reader';
+import type { HealthReader } from '@systems/health';
+import type { JobsReader } from '@systems/jobs';
+import type { EntityId } from '@core/types';
+
+export function observeDeaths(records: unknown[]): () => void {
+ const step=World.prototype.step;
+ const observed=new WeakSet<World>();
+ const scanned=new WeakMap<World,Set<string>>();
+ const prior=new WeakMap<World,Map<number,Record<string,unknown>>>();
+ const state=(w:World,id:number):Record<string,unknown> => {
+  const e=w.entities,c=e.get(id,C.Creature),p=e.get(id,C.Position),b=e.get(id,C.Brain),worker=e.get(id,C.Worker);
+  const hp=w.readers.of<HealthReader>('17'), jobs=w.readers.of<JobsReader>('11'),combat=w.readers.of<CombatReader>('16');
+  const types=w.registry.table<{id:string}>('items'),spec=w.registry.table<{id:string}>('creatures');
+  const weapon=combat.weaponOf(id),rec=e.get(weapon,C.Item);
+  const job=worker?.jobId?jobs.get(worker.jobId):undefined;
+  const needs=e.get(id,C.Needs);
+  return {id,species:c?spec.idOf(c.species):'gone',faction:c?.faction,wild:e.get(id,C.Wild),tame:e.get(id,C.Tame),
+   position:p,behavior:b?.behavior,activity:b?.activity,targetTile:b?.targetTile,interruptFlags:b?.interruptFlags,behaviorUntil:b?.behaviorUntil,
+   hunger:needs?.hunger,thirst:needs?.thirst,rest:needs?.rest,blood:hp.bloodPercent(id),wounds:hp.wounds(id),needsTreatment:hp.needsTreatment(id),patient:e.get(id,C.Patient),
+   worker,job:job?{id:job.id,key:job.key,type:jobs.typeOf(job.id),state:job.state,target:job.target,data:job.data}:null,
+   onDuty:combat.onDuty(id),combatTarget:combat.targetOf(id),weapon:{id:weapon,type:rec?types.idOf(rec.type):'',material:rec?.material},armor:e.get(id,C.Equipment)?.armor,threat:(w.scheduler.byId('10') as unknown as {threatened: Map<number,unknown>}).threatened.get(id)};
+ };
+ const context=(w:World,id:number,tile:number) => {
+  const buildings=w.readers.of<BuildingsReader>('14'),combat=w.readers.of<CombatReader>('16');
+  const doors=buildings.byType('door').map(x=>buildings.get(x)).filter(b=>b?.state==='built'&&b.typeId==='door').map(b=>({id:b!.id,tile:b!.origin,
+   distance:tile<0?-1:Math.max(Math.abs(w.map.xOf(tile)-w.map.xOf(b!.origin)),Math.abs(w.map.yOf(tile)-w.map.yOf(b!.origin))),
+   z:w.map.zOf(b!.origin),settings:b!.settings,reachable:tile>=0&&w.readers.pathing.reachable(tile,b!.origin,'walker')})).sort((a,b)=>a.distance-b.distance).slice(0,3);
+  return {doors,squads:combat.squads().map(s=>({id:s.id,mode:s.mode,members:s.members.map(x=>state(w,x))})),
+   dogs:w.entities.with(C.Tame).filter(x=>w.registry.table<{id:string}>('creatures').idOf(w.entities.get(x,C.Creature)!.species)==='dog').map(x=>state(w,x))};
+ };
+ World.prototype.step=function() {
+  if(!observed.has(this)) {
+   observed.add(this);prior.set(this,new Map());scanned.set(this,new Set());
+   this.onEvents(batch=>{
+    const cache=prior.get(this)!;
+    for(const ev of batch) {
+     const victim=Number(ev['defenderId']??ev['patientId']??ev['id']??0), attacker=Number(ev['attackerId']??ev['killerId']??0);
+     if(ev.type==='ThreatNearby'&&cache.has(victim)) {
+      const key=`${victim}:${ev['hostileId']}`;
+      if(!scanned.get(this)!.has(key)) {scanned.get(this)!.add(key);records.push({tick:this.calendar.tick,event:ev,before:cache.get(victim),victim:state(this,victim)});}
+     }
+     if(ev.type==='AnimalSpawned'&&ev['species']==='wolf') records.push({tick:this.calendar.tick,event:ev});
+     if(ev.type==='CreatureDied'&&ev['faction']==='fortress'||ev.type==='TreatmentDone'||ev.type==='AttackResolved'&&(this.entities.has(victim,C.Labors)||cache.has(victim))) {
+      const actual=this.entities.alive(victim)?state(this,victim):cache.get(victim),p=this.entities.get(victim,C.Position);
+      const tile=Number(ev['tile']??(p?this.map.index(p.x,p.y,p.z):-1));
+      records.push({tick:this.calendar.tick,event:ev,before:cache.get(victim),victim:actual,attacker:this.entities.alive(attacker)?state(this,attacker):null,
+       ...context(this,victim,tile),alert:this.fortress.alert});
+     }
+    }
+   });
+  }
+  const cache=prior.get(this)!;cache.clear();
+  for(const id of this.entities.with(C.Labors)) cache.set(id,JSON.parse(JSON.stringify(state(this,id))) as Record<string,unknown>);
+  step.call(this);
+ };
+ return ()=>{World.prototype.step=step;};
+}
