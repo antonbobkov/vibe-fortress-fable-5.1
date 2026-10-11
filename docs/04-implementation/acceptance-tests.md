@@ -85,7 +85,7 @@ Malformed commands for an unknown huntable species, null work order or patch, an
 | `an_flee` | deer 8 tiles from a dwarf | deer enters `flee` within 10 ticks; distance increases |
 | `an_predator` | wolf pack near unarmed dwarves, `beastwood` | ≥ 1 attack within a day; wolves flee below their species `flee` percent (45; `FLEE_BLOOD_PERCENT` is only the default) |
 | `an_tame` | caged boar, kennel, trainer skill 10 | `AnimalTamed` within 5 attempts |
-| `homestead_year` | 40-day homestead playthrough on temperate grassland stream: livestock, crafting, farming | jobs (`slaughter`, `butcher`, `milk_animal`, `shear_animal`, `collect_egg`, `train_animal`, `gather`, `haul_to_dump`); recipes (`make_cheese`, `spin_thread`, `weave_cloth`, `make_tunic`, `make_leather_boots`, `make_quiver`, `make_bow`, `make_bolts_bone`, `brew_hopped`, `mill_flour`, `process_flax`); events (`AnimalBorn`, `AnimalTrained`, `ButcheryDone`); no dwarf death, no starvation |
+| `homestead_year` | 40-day homestead playthrough, then up to two dog gestations and ten days more for the first birth on temperate grassland stream: livestock, crafting, farming | jobs (`slaughter`, `butcher`, `milk_animal`, `shear_animal`, `collect_egg`, `train_animal`, `gather`, `haul_to_dump`); recipes (`make_cheese`, `spin_thread`, `weave_cloth`, `make_tunic`, `make_leather_boots`, `make_quiver`, `make_bow`, `make_bolts_bone`, `brew_hopped`, `mill_flour`, `process_flax`); events (`AnimalBorn`, `AnimalTrained`, `ButcheryDone`); no dwarf death, no starvation |
 
 ## 09 Foraging
 

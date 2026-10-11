@@ -967,6 +967,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // 12 § Registrations: a created masterwork names its maker and item; missing magma is an alert.
   'announce.masterwork': '{crafter} has created a masterwork {item}.',
   'announce.workshop_blocked': 'A workshop needs magma power.',
+  'announce.workshop_no_container': 'A workshop is waiting for an empty {container}: every one holds something.',
   'announce.mood_tier': '{dwarf} is miserable.',
   'announce.sulk.day_off': '{dwarf} is taking the day off.',
   'announce.sulk.argue': '{dwarf} has picked a quarrel.',

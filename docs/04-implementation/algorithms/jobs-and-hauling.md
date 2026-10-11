@@ -16,7 +16,7 @@ retryBlocked(n): for job in blocked (creation order, cursor-resumed): if not job
                    n--; if n==0: break
 reasonGone(job): no_worker → a worker has the labor; unreachable → a worker with the labor shares a label with a stand tile;
                  missing_input → every input's still-needed units are found (same search as claim, from the job's first stand tile);
-                 no_tool → a worker carries the tool or findTool succeeds from that tile; any other reason → true
+                 no_tool → a worker carries the tool, or findTool succeeds from that tile (for 'ranged': a free launcher with free ammunition of its kind), or some worker can complete a ranged kit; any other reason → true
 ```
 
 An unreachable unclaim after a failed walk sets `failedWalk`. A matching reachability trigger clears it and brings the retry forward; until then, periodic retries omit that job even when its stand tiles share a connectivity label.
@@ -52,7 +52,12 @@ claim(w, job):
      found = unit input ? find required units in as few stacks as possible (split a partial stack) : items.findItems(input.filter, needed, workTileOf(job), 'walker', {reservable:true})
      if found amount < needed: unclaim(job, 'missing_input'); return
      for it in found: items.setFlag(it, Reserved, true); Item[it].reservedBy = job.id; input.reserved.push(it); emit ItemReserved
-  if job.tool and not hasTool(w, job.tool): tool = items.findItem({tag: job.tool, category: 'tool/*' or weapon for 'ranged'}, position(w), 'walker', {reservable:true})
+  if job.tool == 'ranged' and not hasTool(w, 'ranged'):          // hasTool: a launcher and ammunition of its kind, held
+     kit = w holds a launcher L ? { ammo: free stack of ammoOf(L) }
+           : nearest free launcher L with (w holds ammoOf(L) or a free stack of ammoOf(L)) → { launcher: L, ammo: that stack unless held }
+     if not kit: unclaim(job, 'no_tool'); return                  // nothing is reserved or taken
+     reserve kit.launcher → job.data.toolToFetch; reserve at most AMMO_FETCH of kit.ammo (split the stack) → job.data.ammoToFetch
+  else if job.tool and not hasTool(w, job.tool): tool = items.findItem({tag: job.tool, category: 'tool/*'}, position(w), 'walker', {reservable:true})
      if not tool: unclaim(job, 'no_tool'); return
      reserve tool; job.data.toolToFetch = tool
   emit JobClaimed
@@ -67,9 +72,9 @@ Blocked jobs also record a `retryTrigger` from the reason (see 11's table) and a
 stepWorker(w, ctx):
   job = jobs[Worker[w].jobId]
   switch job.state:
-    claimed:    job.state = job.data.toolToFetch or pendingInputs(job) ? 'fetching' : 'travelling'; job.phase = 0
+    claimed:    job.state = job.data.toolToFetch or job.data.ammoToFetch or pendingInputs(job) ? 'fetching' : 'travelling'; job.phase = 0
     fetching:
-      target = job.data.toolToFetch ?? nextUndeliveredInput(job)
+      target = job.data.toolToFetch ?? job.data.ammoToFetch ?? nextUndeliveredInput(job)   // fetched ammunition is carried beside the launcher, its reservation released
       if Worker[w].carrying == 0:                                                     // go pick it up
         if at(w, tileOf(target)): items.attachToCarrier(target, w); Worker[w].carrying = target
            if target is tool: equip(w, target); Worker[w].carrying = 0; release its reservation; emit ItemReleased{itemId: target, jobId: job.id} if live; job.data.toolToFetch = null

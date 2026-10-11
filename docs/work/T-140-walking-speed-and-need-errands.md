@@ -48,3 +48,12 @@ Found on the way and filed: T-188. The three-year scenario now simulates a fortr
 
 Close this task when the work share has been re-measured after T-144 and the performance tier has passed.
 
+## Progress, 2026-10-10
+
+Re-measured after T-144; the report is [`../../reports/audits/2026-10-10-wants-without-errands.md`](../../reports/audits/2026-10-10-wants-without-errands.md). Rewritten fixture, default priorities, seed `three-years`, year 1, no wild animal arrivals.
+
+- **Does not hold: work share at least 35%.** 30.5% (22.7% before T-144). Idle with no work available is 7.6%, so work plus idle is 38.1%: the fixture's work supply now limits the share. Re-measure with T-145's fixture.
+- **No longer holds: daily mood mean at least 55.** 49.9 (57.7 before T-144). Social, comfort and joy are each over their want threshold about 66% of the time. T-197.
+- **Year-1 wealth** is 17,517, of which 12,000 is lavish meals.
+- With master's wildlife on, the same fixture dies out by boar in year 1, before and after T-144. T-196.
+

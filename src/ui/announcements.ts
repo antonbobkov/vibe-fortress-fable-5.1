@@ -19,7 +19,7 @@ import type { AnnouncementSpec } from '@core/system';
 import type { TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import { LOG_DEDUP_TICKS, LOG_MAX_LINES } from './constants';
-import { stockpileName } from './messages';
+import { itemName, stockpileName } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
 import type { Strings } from './strings';
 
@@ -127,6 +127,8 @@ export class AnnouncementLog {
     if (typeof skill === 'string' && this.registry.hasTable('skills')) {
       out['skill'] = this.registry.table<NamedRow>('skills').byId(skill)?.name ?? skill;
     }
+    // A workshop waiting for an empty container names the container class (12 § Operation 3).
+    if (event.type === 'WorkshopBlocked' && typeof e['container'] === 'string') out['container'] = itemName(this.registry, e['container']);
     const crafter = e['crafterId'];
     if (typeof crafter === 'number') out['crafter'] = readers.entities.get(crafter, C.Creature)?.name ?? '';
     const itemId = e['itemId'];

@@ -19,7 +19,7 @@ export interface HintFacts {
   tick: number; year: number; season: number; day: number;
   stillMissing: boolean; drinkLow: boolean; stockpileMissing: boolean; groundItems: number;
   hearthMissing: boolean; hasDiningHall: boolean; bedrooms: number; containersMissing: boolean;
-  fuelBlocked: boolean; hunterReady: boolean; farmRejected: boolean; harvested: boolean;
+  fuelBlocked: boolean; barrelBlocked: boolean; hunterReady: boolean; farmRejected: boolean; harvested: boolean;
   bareRoomDays: number; threatWarned: boolean; depotMissing: boolean; seriousWound: boolean;
   immigrationSkipped: boolean; raidEnded: boolean; cageTrapBuilt: boolean; doorBroken: boolean;
   deepsilverFound: boolean; cavernTwoBreached: boolean;
@@ -36,6 +36,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_winter': return f.year === 1 && f.season === 0 && f.day === 20;
     case 'hint_hearth': return f.hearthMissing && (f.hasDiningHall || f.bedrooms >= 5);
     case 'hint_containers': return f.containersMissing;
+    case 'hint_barrel': return f.barrelBlocked;
     case 'hint_fuel': return f.fuelBlocked;
     case 'hint_hunter': return f.hunterReady;
     case 'hint_farm': return f.farmRejected;
@@ -121,6 +122,8 @@ export class HintEngine {
       const command = fields['command'] as { type?: string; zoneType?: string } | undefined;
       if (command?.type === 'CreateZone' && command.zoneType === 'farm_plot') this.markId('hint_farm');
     }
+    // 12 names the container class of a wait for an empty container; the hint is about barrels.
+    if (event.type === 'WorkshopBlocked' && fields['reason'] === 'no_empty_container' && fields['container'] === 'barrel') this.markId('hint_barrel');
     if (event.type === 'WorkshopBlocked' && readers.has('14')) {
       const id = Number(fields['workshopId']);
       // 12 reports a fuel shortage as `missing_input` (only an input names itself, "waiting for
@@ -167,7 +170,8 @@ export class HintEngine {
       stockpileMissing: stockpiles.length === 0, groundItems: readers.entities.with(C.Item, C.Position).length,
       hearthMissing: (buildings?.hearth() ?? 0) === 0, hasDiningHall: zones('dining_hall').length > 0,
       bedrooms: zones('bedroom').length, containersMissing,
-      fuelBlocked: this.pending('hint_fuel'), hunterReady: hunterLabor && (items?.count('bow') ?? 0) + (items?.count('crossbow') ?? 0) === 0,
+      fuelBlocked: this.pending('hint_fuel'), barrelBlocked: this.pending('hint_barrel'),
+      hunterReady: hunterLabor && (items?.count('bow') ?? 0) + (items?.count('crossbow') ?? 0) === 0,
       farmRejected: this.pending('hint_farm'), harvested: this.pending('hint_seeds'), bareRoomDays,
       threatWarned: this.pending('hint_alert'), depotMissing: (buildings?.depots().length ?? 0) === 0,
       seriousWound: this.pending('hint_hospital') && zones('hospital').length === 0,
