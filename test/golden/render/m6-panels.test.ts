@@ -77,7 +77,8 @@ describe('T-M6-16 golden: military, threats, hospital, creature health, and comb
           splinted: false,
           cleaned: false,
           dressed: false,
-          infected: false,
+          // A bandaged, low-pain cut stays admitted because it still needs infection care.
+          infected: true,
           infectedSince: 0,
           createdTick: 0,
         });
