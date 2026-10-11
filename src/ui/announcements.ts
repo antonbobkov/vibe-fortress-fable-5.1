@@ -92,22 +92,26 @@ export class AnnouncementLog {
     const deadId = e['id'];
     if (event.type === 'CreatureDied' && typeof deadId === 'number') {
       const creature = readers.entities.get(deadId, C.Creature);
-      const name = typeof e['name'] === 'string' && e['name'].length > 0 ? e['name'] : creature?.name;
-      if (name) { out['name'] = name; out['dwarf'] = name; }
-      else if (typeof e['species'] === 'number') out['name'] = this.registry.table<NamedRow>('creatures').byIndex(e['species'])?.name ?? 'A creature';
+      const rawName = typeof e['name'] === 'string' && e['name'].length > 0 ? e['name'] : creature?.name;
+      const speciesIdx = typeof e['species'] === 'number' ? e['species'] : creature?.species;
+      const formatted = this.formatCreatureName(rawName, speciesIdx);
+      out['name'] = formatted;
+      out['dwarf'] = formatted;
     }
     const trapped = e['creatureId'];
     if (typeof trapped === 'number') {
       const creature = readers.entities.get(trapped, C.Creature);
       if (creature !== undefined) out['species'] = this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '';
     }
-    for (const key of ['finderId', 'minerId', 'dwarfId', 'id'] as const) {
-      const who = e[key];
-      if (typeof who === 'number') {
-        const name = readers.entities.get(who, C.Creature)?.name;
-        if (typeof name === 'string' && name.length > 0) {
-          out['dwarf'] = name;
-          break;
+    if (out['dwarf'] === undefined) {
+      for (const key of ['finderId', 'minerId', 'dwarfId', 'id'] as const) {
+        const who = e[key];
+        if (typeof who === 'number') {
+          const creature = readers.entities.get(who, C.Creature);
+          if (creature !== undefined) {
+            out['dwarf'] = this.formatCreatureName(creature.name, creature.species);
+            break;
+          }
         }
       }
     }
@@ -195,6 +199,18 @@ export class AnnouncementLog {
     return this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '';
   }
 
+  private formatCreatureName(name: string | undefined, speciesIndex: number | undefined): string {
+    const table = this.registry.table<NamedRow>('creatures');
+    const speciesRow = typeof speciesIndex === 'number' ? table.byIndex(speciesIndex) : undefined;
+    if (name && (!speciesRow || (name !== speciesRow.id && name !== speciesRow.name))) {
+      return name;
+    }
+    const species = speciesRow?.name ?? speciesRow?.id ?? 'creature';
+    const first = species.charAt(0).toLowerCase();
+    const article = 'aeiou'.includes(first) ? 'an' : 'a';
+    return `${article} ${species}`;
+  }
+
   /** Map an event through the registry and append it; `null` when the event has no row. */
   announce(event: GameEvent, readers: ReaderSet, tick: number): Announced | null {
     const fields = event as unknown as Record<string, unknown>;
@@ -248,6 +264,9 @@ export class AnnouncementLog {
 
   /** `ui.announce(severity, text, focus?, category?)`, with the dedup rule. */
   append(severity: Severity, text: string, tick: number, focus?: TileIndex, category?: string): LogLine {
+    if (text.length > 0) {
+      text = text.charAt(0).toUpperCase() + text.slice(1);
+    }
     for (let k = this.lines.length - 1; k >= 0; k -= 1) {
       const prev = this.lines[k] as LogLine;
       if (tick - prev.tick > LOG_DEDUP_TICKS) break;
