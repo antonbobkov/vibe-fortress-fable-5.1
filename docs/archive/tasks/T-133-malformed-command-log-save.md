@@ -1,6 +1,8 @@
 # T-133 - A refused malformed command cannot poison the next save
 
-**Source:** T-184 and [the command-log reproduction](../../reports/audits/2026-10-09-paused-command-log-save.md) | **Size:** S | **Needs:** none | **Status:** open (resolution proposed)
+Closed by `T-133: malformed command history stays saveable`.
+
+**Source:** T-184 and [the command-log reproduction](../../../reports/audits/2026-10-09-paused-command-log-save.md) | **Size:** S | **Needs:** none | **Status:** open (resolution proposed)
 
 ## Why and reproduction
 
@@ -18,6 +20,14 @@ how unsupported command payload values are represented or omitted in the log,
 and ensure a rejected command cannot make saving throw. Do not silently change a
 valid command's effects or the rejection reason. Confirm the log representation
 before implementation.
+
+## Decision
+
+The owner accepted the proposed resolution on 2026-10-11. Unsupported values in
+command history use tagged `$invalid` diagnostic records, including ignored extra
+fields; finite command data, handler results and valid replay remain unchanged.
+Pending refusal events carry the same diagnostic command so the queues section
+cannot retain the rejected unsupported value. Markers remain plain data on load.
 
 ## Tests and spec
 
