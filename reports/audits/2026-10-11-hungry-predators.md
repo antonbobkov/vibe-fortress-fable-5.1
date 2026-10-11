@@ -10,7 +10,8 @@ The two rules the T-212 decision chose are in the game: a hungry predator hunts 
 - **Over a year, wolves kill fewer dwarves but the target is not met.** The three-year fortress script played for one year on three temperate-forest and three taiga seeds at peril 0, with only the game's own wolf arrivals left on the map: a fortress that ignores wolves loses **12 dwarves to wolves in 6 fortress-years** (17 before), none in four seeds and 7 and 5 in the other two, and no fortress dies out (two did before). A fortress that raises the alert and sends its squad loses **7** (8 before), none in four seeds and 3 and 4 in the other two; one of those fortresses later dies out of starvation. Livestock lost to wolves: 0 and 1 dog (2 and 2 dogs before). The decision's target, "a few a year at most" for a careless fortress and none for one that reacts, holds in four seeds of six and fails in two (T-220).
 - **With every wild species, boars and bears still decide whether the compact fortress survives (T-214).** Ignoring wildlife: 22 dwarves lost to wild animals in 6 fortress-years, one fortress extinct (47 and four extinct before). Reacting: 21, one extinct (26, two extinct before).
 - **Wolves take very little livestock, because a wolf's prey does not include grazers.** 08's size rule (prey is smaller than 0.8 × the predator) gives a wolf dogs, cats, chickens, rabbits and badgers, and no sheep, goat, pig or cow. The Balanced embark brings two dogs and a cat, which spend most of their time below ground; the wolves' quarry in the year runs was a dwarf in every observed hunt but one. Whether a pack should take grazers is filed as T-218.
-- **The caught rule costs something against defending animals.** A badger, a boar and a wolf are all at least as fast as a dwarf. A caught civilian no longer runs out of a defending animal's ground, so with a medic the chain probe lost more: boar 7 → 9 of 70, fed wolf 0 → 3; with a squad, boar 2 → 4. Without a medic it lost fewer: boar 18 → 16, fed wolf 16 → 10. Filed as T-219.
+- **The caught rule costs something against defending animals.** A badger, a boar and a wolf are all at least as fast as a dwarf. A caught civilian no longer runs out of a defending animal's ground, so with a medic the chain probe lost more: boar 7 → 9 of 70, fed wolf 0 → 3; with a squad, boar 2 → 4. Without a medic it lost fewer: boar 18 → 16, fed wolf 16 → 10. Against Hillfolk bandits on the reference fortress, caught civilians fought back and twice as many bled out (2 → 4 in 2,200 ticks). Filed as T-219.
+- **System 10 costs about 0.18 ms more per tick on the reference fortress** (0.64 → 0.82 ms, under its test limit of 1.0), because fighting civilians run the escape search every tick.
 
 ## What was changed
 
@@ -95,6 +96,31 @@ Dwarves killed by wild animals per fortress (same seed order):
 | reacts | 5, 0, 3, 11, 6, 1 (**26**), 2 extinct | 4, 0, 2, 8, 7, 0 (**21**), 1 extinct | wolf 10, boar 8, bear 3 |
 
 Before, the killers were bears (9 on `taiga-1`), a wolf pack (19 on `taiga-3`), boars (11 on `forest-1`) and wolves (6 on `forest-2`). After, `forest-1` keeps 6 dwarves alive at day 112 (it was empty on day 33 before), and the one fortress that dies out (`forest-2`, both modes) loses 3 to wolves and then the rest to starvation (8 ignoring, days 19–47), and in the reacting run 4 more to boars. Dwarves who were not soldiers on duty struck wild animals 471 times after (162 of them wounding), 116 at wolves and 117 at boars; before, 140 times (20 wounding), none at a wolf and 2 at a boar. Both counts include hunters at work (deer, elk) and cornered civilians (lynx). One dwarf on `forest-3` was killed by another dwarf after the change: a hunter's bolt (job `Hunt`) hit a crafting dwarf in its path on tick 73,079 (traced; 16 § Ranged resolution lets a projectile hit a creature in its path). That is not this task's rule.
+
+## The reference fortress
+
+The saved 80-dwarf reference fortress (`test/fixtures/reference-fortress.deepholm`), stepped the 2,200 ticks the per-system performance test steps, with a probe counting events and brain states ([source](../data/2026-10-11-t212-probe-ref.test.ts.txt)). Its attackers are Hillfolk bandits, not animals.
+
+| | Before (`b409eed`) | After (`cf8b8b5`) |
+|---|---|---|
+| Bandit attacks on dwarves | 58 | 126 |
+| Dwarf strikes at the bandits | 0 | 25 |
+| Dwarf-ticks spent fighting / fleeing | 0 / 12,944 | 645 / 8,668 |
+| Dwarves who bled out | 2 | 4 |
+
+The caught rule covers every attacker, so civilians caught by bandits stand and fight them with fists and tools, and lose twice as many. This is filed with the defending animals as T-219.
+
+## Performance
+
+`npx vitest run --config vitest.perf.config.ts test/perf/per-system.test.ts` on the reference fortress, mean milliseconds per tick against `performance-budget.md` (the test allows twice the allocation). Indicative: one or two runs each on a shared four-core machine.
+
+| System | Allocation | Before | After (three runs) |
+|---|---|---|---|
+| 08 animals | 0.40 | 0.842, 0.819 | 0.805, 0.788, 0.842 |
+| 10 dwarves | 0.50 | 0.631, 0.643 | 0.822, 0.800, 0.829 |
+| 11 jobs | 0.60 | 0.650, 0.652 | 0.673, 0.670, 0.696 |
+
+System 08 is at or over twice its allocation before and after (the test fails in four of the five runs, the limit being 0.8); the pack and quarry choice did not move it measurably. System 10 rose by about 0.18 ms, and stays under its limit of 1.0. Cause, read in code and counted above: a fighting civilian runs the escape search every tick (`src/systems/dwarves/brain.ts:552`, as the cornered fight already did), and the caught rule produced 645 dwarf-ticks of fighting where there were none.
 
 ## Effects on related rows
 

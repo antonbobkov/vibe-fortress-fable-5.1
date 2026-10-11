@@ -105,7 +105,18 @@ The intended figures, for one territorial animal (badger, boar) or one fed wolf 
 | A medic with cloth | badger none; boar under one; wolf almost none |
 | A medic with cloth, and a squad sent to kill the animal | **none to a badger**; boar and wolf almost none |
 
-An unarmoured soldier sent against a boar or a wolf can still be killed; armour is the answer. A *hungry* predator (08 § `hunt`) keeps its prey until the prey dies, so it costs the dwarf it hunts unless a squad is within reach; that is the danger of wolves. [balance-status.md](../balance-status.md) holds the latest measurement.
+An unarmoured soldier sent against a boar or a wolf can still be killed; armour is the answer.
+
+A *hungry* predator (08 § `hunt`) prefers animal prey to dwarves, and its pack shares one quarry and one meal; it keeps its quarry until the quarry dies. A civilian it catches fleeing turns and fights with what it carries (10 § Behavior selection), so a wolf that hunts a group of haulers usually dies of it, though the first dwarf it catches usually dies too. The intended figures, for a forest or taiga map at peril 0 over a year: a fortress that ignores wolves loses livestock regularly and a dwarf now and then, a few a year at most; one that reacts (pasture behind a door, alert raised, squad sent) loses no dwarf to wildlife.
+
+Measured, with the game's own wolf arrivals and the compact three-year fortress (Balanced embark, three forest and three taiga seeds, one year each):
+
+| The fortress | Dwarves lost to wolves in a year |
+|---|---|
+| Ignores wolves | none in four seeds of six, 7 and 5 in the other two (12 in six fortress-years) |
+| Raises the alert and sends its squad | none in four seeds of six, 3 and 4 in the other two (7 in six fortress-years) |
+
+A seven-hauler group crossing a hungry wolf's ground for three days loses 14 of 70 (9 of 70 when every hauler holds a pick), and the wolf dies in nine runs of ten. The figures for a year do not yet meet the intent in a third of the seeds. [balance-status.md](../balance-status.md) holds the latest measurement.
 
 ## Mood floor and the no-spiral guarantee
 

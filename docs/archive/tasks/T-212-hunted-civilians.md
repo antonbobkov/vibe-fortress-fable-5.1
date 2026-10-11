@@ -1,6 +1,8 @@
 # T-212 — A hungry predator kills the civilian it hunts
 
-**Source:** T-196 and [`2026-10-10-wild-animals-and-civilians.md`](../../reports/audits/2026-10-10-wild-animals-and-civilians.md) · **Size:** M · **Needs:** — · **Status:** open; decided 2026-10-10, see Decision
+Closed by `T-212: a hungry predator prefers animal prey; a civilian caught as it flees fights back` (cf8b8b5), `T-212: file the hungry-predator measurement (report and data)` (00adfdd) and the commit that archived this file.
+
+**Source:** T-196 and [`2026-10-10-wild-animals-and-civilians.md`](../../../reports/audits/2026-10-10-wild-animals-and-civilians.md) · **Size:** M · **Needs:** — · **Status:** open; decided 2026-10-10, see Decision
 
 ## Why
 
@@ -10,7 +12,7 @@ A wolf is hungry every `PREDATOR_HUNGER_DAYS` (3) and stays on the map up to `WI
 
 ## Reproduction
 
-`reports/data/2026-10-10-t196-probe-chain-v2.test.ts.txt` with `T196_HUNGRY=1 T196_SPECIES=wolf`; results in `reports/data/2026-10-10-t196-probe-final-hungry.json` and the report [`2026-10-10-wild-animals-after-the-fixes.md`](../../reports/audits/2026-10-10-wild-animals-after-the-fixes.md).
+`reports/data/2026-10-10-t196-probe-chain-v2.test.ts.txt` with `T196_HUNGRY=1 T196_SPECIES=wolf`; results in `reports/data/2026-10-10-t196-probe-final-hungry.json` and the report [`2026-10-10-wild-animals-after-the-fixes.md`](../../../reports/audits/2026-10-10-wild-animals-after-the-fixes.md).
 
 ## What the spec says
 
