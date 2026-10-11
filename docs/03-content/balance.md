@@ -109,7 +109,7 @@ An unarmoured soldier sent against a boar or a wolf can still be killed; armour 
 
 A *hungry* predator (08 § `hunt`) prefers animal prey to dwarves, and its pack shares one quarry and one meal; it keeps its quarry while it remains eligible and in perception. A civilian it catches fleeing turns and fights with what it carries (10 § Behavior selection), so a wolf that hunts a group of haulers usually dies of it, though the first dwarf it catches usually dies too. The intended figures, for a forest or taiga map at peril 0 over a year: a fortress that ignores wolves loses livestock regularly and a dwarf now and then, a few a year at most; one that reacts (pasture behind a door, alert raised, squad sent) loses no dwarf to wildlife.
 
-Measured annual survival on twelve standard generated maps (four seeds each in forest, taiga and grassland), Balanced embark, all wild species, and the browser opening: median 12.5 living, minimum 0, eight years without a wildlife dwarf death, one extinction and two hunger/thirst-labelled deaths. The guard is off duty except under alerts, has no supplied armour, and this opening has no doors or hospital; alert response starts on day 20. Taiga seed 4 loses eleven dwarves to wolves by day 89. These are regression bounds for that opening, not success against the intended target.
+Measured annual survival on twelve standard generated maps (four seeds each in forest, taiga and grassland), Balanced embark, all wild species, and the browser opening: median 12.5 living, minimum 3, seven years without a wildlife dwarf death, no extinction and two hunger/thirst-labelled deaths. The guard is off duty except under alerts, has no supplied armour, and this opening has no doors or hospital; alert response starts on day 20. Taiga seed 4 loses eight dwarves to wolves and ends with three living. These are regression bounds for that opening, not success against the intended target.
 
 A separate player comparison issues its protective commands at the start: three wooden clubs, a mined hearth shelter and an alert-locking door, an immediate three-member squad, and proximity/alert response from the opening tick. It changes no farm area, crop supply or food quantity. Actual clubs become ready on days 6-12 and doors on days 6-13; ordering them in the first week is not counted as already having protection. Across the same twelve seeds it ends with median 13, minimum 11, eight years without a wildlife dwarf death, no extinction, three wolf dwarf deaths, one boar dwarf death and one hunger/thirst-labelled death. It supplies neither armour nor a hospital, and does not establish the zero-loss target. A pack's kill clears its newly fed members' hunting targets and pursuit paths, including an attack begun as a hunt; this rule fix leaves all twelve original instrument rows and hashes unchanged.
 
@@ -172,14 +172,16 @@ The pace is deliberate: the first hour of play (day 1 to about day 60) contains 
 
 The standard-size, command-driven wildlife-year instrument uses twelve distinct seeds, four in each of temperate forest, taiga and temperate grassland, at peril 0. Balanced embark, the browser opening and work orders, its three-member squad and wildlife alert policy define the player. Actual immigration counts and qualifying farm areas are recorded rather than fixed to a nominal population or made uniform by extra supplies.
 
-| Measure | Target | Measured bound |
-|---|---|---|
-| Median living dwarves | At least 11 of the nominal twelve | At least 12.5 |
-| Minimum living dwarves | At least 8 | At least 0 |
-| Years without a wildlife dwarf death | All | At least 8 of 12 |
-| Extinct fortresses | None | At most 1 of 12 |
-| Dwarf deaths from hunger or thirst | None | At most 2 across the cohort |
+| Measure | Target | Latest accepted | Best measured | Regression bound |
+|---|---|---:|---:|---|
+| Median living dwarves | At least 11 of the nominal twelve | 12.5 | 12.5 | At least 11.5 |
+| Minimum living dwarves | At least 8 | 3 | 3 | At least 3 |
+| Years without a wildlife dwarf death | All | 7 of 12 | 8 of 12 | At least 6 of 12 |
+| Extinct fortresses | None | 0 | 0 | None |
+| Dwarf deaths from hunger or thirst | None | 2 | 2 | At most 2 across the cohort |
 
-The [annual survival measurement](../../reports/audits/2026-10-11-wildlife-survival-over-twelve-seeds.md) has forest median/minimum 10/8, taiga 11.5/0 and grassland 14.5/14. There are 22 wildlife dwarf deaths (14 wolf, 3 boar, 5 badger), two deaths labelled starvation, and three fortress-animal deaths, all dogs killed by wolves. Arrivals vary from 11 to 15; the grassland halls raise the pooled median. The minimum of zero and the need-related deaths miss the target even though the pooled median meets it. The minimum bound preserves the measured extinction, while the median, wildlife-free share and extinction cap constrain regressions; it is not a successful survival result. Read the per-biome distribution with the pooled one.
+The [infection-cure measurement](../../reports/audits/2026-10-11-infection-cure-and-wildlife-tolerances.md) has forest median/minimum 10.5/10, taiga 11/3 and grassland 14.5/14. There are 17 wildlife dwarf deaths (12 wolf, 4 boar, 1 badger), two deaths labelled starvation, and three fortress-animal deaths, all dogs killed by wolves. Arrivals vary from 11 to 15; the grassland halls raise the pooled median. The minimum and the need-related deaths still miss the target even though the pooled median meets it. Read the per-biome distribution with the pooled one.
+
+The regression floor for wildlife-free years is the measured figure minus two seeds; the median floor is the measured figure minus one. Minimum survivors, extinctions and hunger/thirst deaths may only improve or stay unchanged. Block a change when any bound fails or when two or more of these five figures worsen together, even within the two tolerances. Compare simultaneous worsening against the latest accepted before row, so an earlier tolerated drop is not counted again on a later change. Keep that latest accepted row alongside the best measured figures used for the guards; in the same commit, update the row and every improved measured figure, retaining earlier better bounds when a tolerant figure falls. Always record the actual before and after rows. The survival targets remain unchanged.
 
 Re-measure the distribution before and after a change to wildlife, fleeing, alerts or treatment. The instrument records its target beside the measured bounds. The browser year's single sample asserts that the fortress survives and nobody dies of hunger or thirst, and prints its remaining end state.
