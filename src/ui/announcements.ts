@@ -299,6 +299,11 @@ export function focusOf(event: GameEvent, readers?: ReaderSet): TileIndex | unde
   const tiles = e['tiles'];
   if (Array.isArray(tiles) && typeof tiles[0] === 'number') return tiles[0];
   if (readers !== undefined) {
+    const workshopId = e['workshopId'];
+    if (typeof workshopId === 'number' && readers.has('14')) {
+      const tile = readers.of<BuildingsReader>('14').get(workshopId)?.footprint[0];
+      if (tile !== undefined) return tile;
+    }
     const partyId = e['partyId'];
     if (typeof partyId === 'number') {
       const party = readers.entities.get(partyId, C.Party);
