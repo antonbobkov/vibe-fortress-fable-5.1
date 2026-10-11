@@ -1,0 +1,290 @@
+/**
+ * T-218: T-212's natural wolf years with three male grazers on the existing pasture.
+ * Open has the existing exposed pasture; door adds a prebuilt wall enclosure
+ * with a normal unlocked oak door. These are measurement worlds, not suite tests.
+ * Use the accompanying config at .vite/task-resume/t218-probe.config.ts.
+ * T212_SEED, T212_BIOME, T212_MODE=ignore|react, T212_ONLY=wolf,
+ * T212_DAYS=112, T218_ENCLOSURE=open|door, T212_OUT=<json>.
+ */
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { HeadlessGame, regionSpec } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { Map3D } from '@core/map3d';
+import { generateLocal } from '@systems/terrain/generate';
+import { DAYS_PER_YEAR, LOCAL_MAP_Z, TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import { TileKind, TileFlag } from '@core/map3d';
+import type { EntityId } from '@core/types';
+import type { BuildingsReader } from '@systems/buildings/reader';
+import type { CombatReader } from '@systems/combat/reader';
+import { TestWorld } from '../../test/scenarios/test-world';
+import { attachThreeYearsMeasurements, observeImmigration, stepThreeYears, type ThreeYearsMeasurements } from '../../test/scenarios/three_years_measurements';
+import {
+  checkFortressCaveFarm, checkFortressDefense, checkFortressRooms, checkFortressWorkOrders, setupThreeYearsFortress, threeYearsEmbark, Z,
+} from '../../test/scenarios/three_years_fortress';
+
+const SEED = process.env['T212_SEED'] ?? 'forest-a';
+const BIOME = process.env['T212_BIOME'] ?? 'temperate_forest';
+const MODE = process.env['T212_MODE'] ?? 'ignore';
+const DAYS = Number(process.env['T212_DAYS'] ?? DAYS_PER_YEAR);
+const OUT = process.env['T212_OUT'] ?? `t212-year-${SEED}-${MODE}.json`;
+/** `wolf`: every other natural arrival is removed as it comes, so the year measures wolves alone. */
+const ENCLOSURE = process.env['T218_ENCLOSURE'] ?? 'open';
+const ONLY = process.env['T212_ONLY'] ?? '';
+
+function world(): TestWorld {
+  const registry = contentRegistry();
+  const spec = regionSpec(SEED, { peril: 0, wealth: 2, biome: BIOME, geology: 'mixed', traits: [],
+    river: { class: 'brook', inflow: ['w'], outflow: 's' } }, registry);
+  const map = new Map3D(48, 48, LOCAL_MAP_Z);
+  const local = generateLocal(spec, map, registry);
+  let instrument: ThreeYearsMeasurements | null = null;
+  const systems = HeadlessGame.standardSystems(spec, local.layerStack, local).map((s) =>
+    s.id === '21' ? observeImmigration(s, () => instrument) : s);
+  const w = new TestWorld({ seed: SEED, registry, map, spec, systems, embark: threeYearsEmbark(registry, SEED, 0) });
+  instrument = attachThreeYearsMeasurements(w);
+  return w;
+}
+
+describe('T-218 pack pasture year probe', () => {
+  it('runs', () => {
+    const w = world();
+    const ents = w.game.world.entities;
+    const creatures = w.game.registry.table<{ id: string }>('creatures');
+    const dwarfSpecies = creatures.index('dwarf');
+    const day = (): number => Math.floor(w.tick / TICKS_PER_DAY) + 1;
+    const known = new Map<EntityId, string>();
+    const name = (id: EntityId): string => {
+      const c = ents.get(id, C.Creature);
+      if (c !== undefined) {
+        const s = `${creatures.byIndex(c.species)?.id ?? '?'}${ents.has(id, C.Wild) ? ':wild' : ents.has(id, C.Tame) ? ':tame' : c.faction === 'fortress' ? '' : ':' + c.faction}`;
+        known.set(id, s);
+        return s;
+      }
+      return known.get(id) ?? '?';
+    };
+    const isDwarf = (id: EntityId): boolean => ents.get(id, C.Creature)?.species === dwarfSpecies;
+    const isSoldier = (id: EntityId): boolean => ents.get(id, C.Soldier)?.onDuty === true;
+    const spawned: { day: number; species: string; id: number }[] = [];
+    const perimeterSet = new Set<number>();
+    const enclosureChanges: unknown[] = [];
+    const wolfMoves = new Map<number, unknown[]>();
+    const livestockAttacks: unknown[] = [];
+    const deaths: { day: number; victim: string; victimId: number; cause: string; killer: string; soldier: boolean }[] = [];
+    const attacks: Record<string, number> = {};
+    const add = (k: string, n = 1): void => { attacks[k] = (attacks[k] ?? 0) + n; };
+    const firstBite = new Map<EntityId, number>();
+    let lastWildAttack = -1e9;
+    const pendingAttackers: EntityId[] = [];
+    const ordered = new Set<EntityId>();
+    const soldiersNow = new Set<EntityId>();
+    const combat = w.readers.of<CombatReader>('16');
+    const removed: EntityId[] = [];
+
+    w.game.world.onEvents((batch) => {
+      for (const ev of batch) {
+        if (ev.type === 'TilesChanged') {
+          for (const tile of ev['tiles'] as number[]) if (perimeterSet.has(tile)) enclosureChanges.push({ tick:w.tick, tile:w.map.unpack(tile), kind:TileKind[w.map.kindAt(tile)], building:w.map.buildingAtTile(tile) });
+        }
+        if (ev.type === 'BuildingRemoved' || ev.type === 'ConstructionCollapsed') enclosureChanges.push({ tick:w.tick,...ev });
+        if (ev.type === 'EntitiesMoved') {
+          for (const [id,from,to] of ev['moves'] as [number,number,number][]) {
+            if (name(id) !== 'wolf:wild') continue;
+            const moves = wolfMoves.get(id) ?? [];
+            moves.push({ tick:w.tick, from:w.map.unpack(from), to:w.map.unpack(to),
+              fromKind:TileKind[w.map.kindAt(from)],toKind:TileKind[w.map.kindAt(to)],toBuilding:w.map.buildingAtTile(to) });
+            if (moves.length > 20) moves.shift();
+            wolfMoves.set(id,moves);
+          }
+        }
+        if (ev.type === 'AnimalSpawned') {
+          if (ONLY !== '' && String(ev['species']) !== ONLY) { removed.push(ev['id'] as EntityId); continue; }
+          spawned.push({ day: day(), species: String(ev['species']), id: ev['id'] as number });
+          name(ev['id'] as EntityId);
+        } else if (ev.type === 'AttackResolved') {
+          const a = ev['attackerId'] as EntityId;
+          const d = ev['defenderId'] as EntityId;
+          const hit = ev['outcome'] === 'hit';
+          const an = name(a);
+          const dn = name(d);
+          if (an === 'wolf:wild' && ['goat:tame','sheep:tame','cow:tame'].includes(dn)) {
+            const ap = ents.get(a, C.Position)!; const dp = ents.get(d, C.Position)!;
+            const at = w.index(ap.x,ap.y,ap.z); const dt = w.index(dp.x,dp.y,dp.z);
+            livestockAttacks.push({ tick:w.tick, ...ev, attackerPosition:ap, defenderPosition:dp,
+              attackerTileKind: TileKind[w.map.kindAt(at)], defenderTileKind:TileKind[w.map.kindAt(dt)],
+              attackerBuilding: w.map.buildingAtTile(at), defenderBuilding: w.map.buildingAtTile(dt),
+              priorMoves:[...(wolfMoves.get(a) ?? [])], attackerMotion:ents.get(a,C.Motion), defenderMotion:ents.get(d,C.Motion),
+              defenderTame:ents.get(d,C.Tame) });
+          }
+          const aw = an.endsWith(':wild');
+          const dw = dn.endsWith(':wild');
+          if (aw && (isDwarf(d) || dn.endsWith(':tame'))) {
+            const kind = isDwarf(d) ? (isSoldier(d) ? 'soldier' : 'civilian') : 'tame';
+            const wa = ents.get(a, C.Wild);
+            const why = wa === undefined ? '?' : wa.state === 'hunt' || (wa.state === 'attack' && wa.defendFrom === undefined && wa.hungry) ? 'hunting' : 'defending';
+            add(`${an}->${kind}`);
+            add(`${an}(${why})->${kind}`);
+            if (hit) add(`${an}->${kind}:hit`);
+            if (isDwarf(d) && !firstBite.has(d)) firstBite.set(d, w.tick);
+            lastWildAttack = w.tick;
+            if (!pendingAttackers.includes(a)) pendingAttackers.push(a);
+          } else if (process.env['T212_TRACE'] && isDwarf(a) && isDwarf(d)) {
+            const dsys = w.game.world.scheduler.byId('10') as unknown as { threatened: Map<number, unknown> };
+            const ba = ents.get(a, C.Brain); const bd = ents.get(d, C.Brain);
+            console.log('DD', w.tick, a, d, ev['outcome'], ev['amount'], 'att', ba?.behavior, ba?.activity, 'soldier', JSON.stringify(ents.get(a, C.Soldier)),
+              'thr', JSON.stringify(dsys.threatened.get(a)), 'def', bd?.behavior, bd?.activity, 'thrD', JSON.stringify(dsys.threatened.get(d)), 'tgtA', combat.targetOf(a), 'tgtD', combat.targetOf(d));
+          } else if (dw && isDwarf(a)) {
+            const kind = isSoldier(a) ? 'soldier' : 'civilian';
+            if (hit && Number(ev['amount'] ?? 0) > 0) add(`${kind}->${dn}:wounding`);
+            add(`${kind}->${dn}`);
+            if (hit) add(`${kind}->${dn}:hit`);
+          } else if (aw && dw) {
+            add(`${an}->${dn}`);
+            if (hit) add(`${an}->${dn}:hit`);
+          }
+        } else if (ev.type === 'CreatureDied') {
+          const id = ev['id'] as EntityId;
+          const killer = (ev['killerId'] ?? 0) as EntityId;
+          const species = creatures.byIndex(ev['species'] as number)?.id ?? '?';
+          const faction = String(ev['faction'] ?? '');
+          const victim = species === 'dwarf' ? 'dwarf' : `${species}:${faction === 'fortress' ? 'tame' : faction}`;
+          deaths.push({ day: day(), victim, victimId: id, cause: String(ev['cause']), killer: killer === 0 ? '' : name(killer), soldier: soldiersNow.has(id) });
+        }
+      }
+    });
+
+    const state = setupThreeYearsFortress(w);
+    // A controlled comparison: the existing pasture, three supplied male grazers and a
+    // exposed pasture or a prebuilt wall-and-door enclosure. No farms,
+    // work-order timing, military kit or food stocks are added to the fortress script.
+    const buildings = w.readers.of<BuildingsReader>('14');
+    const pastureId = buildings.zonesOfType('pasture')[0]!;
+    const pasture = buildings.zone(pastureId)!;
+    if (pasture.tiles.length < 3) throw new Error('probe: fewer than three pasture tiles');
+    const livestock = ['sheep', 'goat', 'cow'].map((species, i) => {
+      const id = w.spawnTame(species, pasture.tiles[i]!, { sex: 0 });
+      const r = w.game.world.applyCommand({ type: 'AssignPasture', animalId: id, zoneId: pastureId });
+      if (!r.ok) throw new Error(`probe: ${species} pasture assignment ${r.reason}`);
+      return { id, species };
+    });
+    const { cx, cy } = state;
+    const gate = w.index(cx + 4, cy + 15, Z);
+    const perimeter: number[] = [];
+    for (let y = cy + 15; y <= cy + 20; y += 1) for (let x = cx + 1; x <= cx + 7; x += 1) {
+      if (x === cx + 1 || x === cx + 7 || y === cy + 15 || y === cy + 20) perimeter.push(w.index(x, y, Z));
+    }
+    const cleared: Record<string, number> = {};
+    for (const tile of ENCLOSURE === 'door' ? perimeter : []) {
+      if (w.map.buildingAtTile(tile) !== 0) throw new Error('probe: perimeter overlaps a building');
+      const kind = w.map.kindAt(tile);
+      cleared[TileKind[kind]] = (cleared[TileKind[kind]] ?? 0) + 1;
+      // Prebuilt enclosure setup only: generated trees have no Plant entity.
+      // This creates no logs, changes no grass flags and does not enlarge the pasture.
+      if (kind !== TileKind.Floor) w.map.setKind(tile, TileKind.Floor, w.map.materialAt(tile));
+      if (tile !== gate) w.build('wall', tile, 'granite');
+    }
+    for (const tile of perimeter) perimeterSet.add(tile);
+    const enclosureSetup = {cx,cy,gate:w.map.unpack(gate), tiles:perimeter.map(tile=>({ at:w.map.unpack(tile),kind:TileKind[w.map.kindAt(tile)],building:w.map.buildingAtTile(tile) }))};
+    const doorId = ENCLOSURE === 'door' ? w.build('door', gate, 'oak') : 0;
+    const tileOf = (id: EntityId): number => {
+      const p = ents.get(id, C.Position);
+      return p === undefined ? -1 : w.index(p.x, p.y, p.z);
+    };
+    const livestockIds = new Set(livestock.map(a => a.id));
+    const firstQuarry: { day: number; wolfId: number; species: string; id: number; insidePasture: boolean }[] = [];
+    const quarrySeen = new Set<string>();
+    const daily: { day: number; grass: number; animals: { species: string; condition: number; inside: boolean }[] }[] = [];
+
+    let reacting = false;
+    const end = DAYS * TICKS_PER_DAY;
+    let sinceChecks = 0;
+    const hunts = new Map<string, Set<string>>();
+    let steps = 0;
+    while (w.tick < end) {
+      stepThreeYears(w, 10);
+      steps += 1;
+      if (steps % 5 === 0) {
+        for (const id of ents.with(C.Wild)) {
+          const quarry = combat.targetOf(id);
+          if (!livestockIds.has(quarry)) continue;
+          const key = `${id}:${quarry}`;
+          if (quarrySeen.has(key)) continue;
+          quarrySeen.add(key);
+          firstQuarry.push({ day: day(), wolfId: id, species: livestock.find(a => a.id === quarry)!.species, id: quarry,
+            insidePasture: pasture.tiles.includes(tileOf(quarry)) });
+        }
+      }
+      if (steps % 120 === 0) daily.push({ day: day(), grass: pasture.tiles.filter(t => w.map.hasFlag(t, TileFlag.Grass)).length,
+        animals: livestock.filter(a => ents.alive(a.id)).map(a => ({ species: a.species,
+          condition: ents.get(a.id, C.Tame)!.condition, inside: pasture.tiles.includes(tileOf(a.id)) })) });
+
+      for (const id of removed.splice(0)) if (ents.alive(id)) (w.animals.brain as { despawn(id: EntityId): void }).despawn(id);
+      soldiersNow.clear();
+      for (const id of ents.with(C.Soldier)) if (isSoldier(id)) soldiersNow.add(id);
+      if (steps % 2 === 0) {
+        for (const id of ents.with(C.Wild)) {
+          const wi = ents.get(id, C.Wild);
+          if (wi?.state !== 'hunt' && !(wi?.state === 'attack' && wi.defendFrom === undefined && wi.hungry)) continue;
+          const t = combat.targetOf(id);
+          if (t === 0) continue;
+          const key = `${name(id)}->${isDwarf(t) ? 'dwarf' : name(t)}`;
+          (hunts.get(key) ?? hunts.set(key, new Set()).get(key)!).add(`${id}:${t}`);
+        }
+      }
+      if (MODE === 'react') {
+        if (pendingAttackers.length > 0 && state.squadId !== 0) {
+          if (!reacting) {
+            reacting = true;
+            if (w.game.world.fortress.alert === 'calm') w.game.world.applyCommand({ type: 'SetAlert', level: 'watchful' });
+            w.game.world.applyCommand({ type: 'SetSquadMode', squadId: state.squadId, mode: 'active' });
+            add('react:raised');
+          }
+          for (const a of pendingAttackers.splice(0)) {
+            if (ordered.has(a) || !ents.alive(a)) continue;
+            const r = w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'kill', targetId: a } });
+            ordered.add(a);
+            add(r.ok ? 'react:kill-order' : `react:kill-order-refused:${r.ok ? '' : r.reason}`);
+          }
+        }
+        if (reacting && w.tick - lastWildAttack > 600) {
+          reacting = false;
+          if (w.game.world.fortress.alert === 'watchful') w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' });
+          w.game.world.applyCommand({ type: 'SetSquadMode', squadId: state.squadId, mode: 'off' });
+          add('react:stood-down');
+        }
+      } else pendingAttackers.length = 0;
+      if (steps % 100 === 0 && ents.with(C.Labors).every((id) => ents.get(id, C.Creature)?.faction !== 'fortress')) break;
+      sinceChecks += 10;
+      if (sinceChecks >= 100) {
+        sinceChecks = 0;
+        checkFortressWorkOrders(w, state);
+        checkFortressRooms(w, state);
+        checkFortressCaveFarm(w, state);
+        checkFortressDefense(w, state);
+      }
+    }
+    const fortressDwarves = ents.with(C.Labors).filter((id) => ents.get(id, C.Creature)?.faction === 'fortress');
+    const tame = ents.with(C.Tame).map((id) => name(id));
+    const summary = {
+      seed: SEED, biome: BIOME, mode: MODE, only: ONLY, days: DAYS, endDay: day(),
+      enclosureSetup, enclosureChanges, livestockAttacks, probeRevision: 3, enclosure: ENCLOSURE, pastureTiles: pasture.tiles.length, perimeterCleared: cleared, doorId,
+      livestock: livestock.map(a => ({ ...a, alive: ents.alive(a.id), death: deaths.find(d => d.victimId === a.id) ?? null,
+        condition: ents.get(a.id, C.Tame)?.condition ?? null })), firstQuarry, dailyPasture: daily,
+      spawnedBySpecies: spawned.reduce<Record<string, number>>((acc, s) => { acc[s.species] = (acc[s.species] ?? 0) + 1; return acc; }, {}),
+      wolfArrivalDays: [...new Set(spawned.filter((s) => s.species === 'wolf').map((s) => s.day))],
+      dwarvesAlive: fortressDwarves.length,
+      tameAlive: tame,
+      dwarfDeaths: deaths.filter((d) => d.victim === 'dwarf'),
+      dwarfDeathsToWildlife: deaths.filter((d) => d.victim === 'dwarf' && d.killer.endsWith(':wild')).length,
+      tameDeaths: deaths.filter((d) => d.victim.endsWith(':tame')),
+      tameDeathsToWildlife: deaths.filter((d) => d.victim.endsWith(':tame') && d.killer.endsWith(':wild')).length,
+      wildDeaths: deaths.filter((d) => d.victim.endsWith(':wild')),
+      attacks,
+      hunts: Object.fromEntries([...hunts].map(([k, v]) => [k, v.size])),
+    };
+    console.log(JSON.stringify({ seed: SEED, biome: BIOME, mode: MODE, enclosure: ENCLOSURE, livestock: summary.livestock, alive: summary.dwarvesAlive, dwarfDeaths: summary.dwarfDeaths.length,
+      toWild: summary.dwarfDeathsToWildlife, tameToWild: summary.tameDeathsToWildlife, spawned: summary.spawnedBySpecies, hunts: summary.hunts }));
+    writeFileSync(OUT, JSON.stringify(summary, null, 1));
+  });
+});

@@ -1,0 +1,6 @@
+import { defineConfig } from 'vitest/config';
+import { aliases } from '../../vite.config';
+export default defineConfig({ resolve: { alias: aliases }, test: {
+ include: ['.vite/task-resume/t218-door-short.test.ts'], environment: 'node',
+ testTimeout: 7_200_000, hookTimeout: 7_200_000,
+} });
