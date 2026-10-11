@@ -1,0 +1,19 @@
+{
+ "runtimeCommit": "9714b856c7378bb7675de7e0b9942710b002ad25",
+ "referenceSha256": "e4cefc31bdb4b217747b22a7fe13f1b3802a2500f7638686d17dfb892f1ea41a",
+ "ticksPerChain": 3600,
+ "chainSeeds": [
+  "s1",
+  "s2",
+  "s3",
+  "s4",
+  "s5",
+  "s6",
+  "s7",
+  "s8",
+  "s9",
+  "s10"
+ ],
+ "fortressYearDays": 112,
+ "referenceTicks": 2200
+}

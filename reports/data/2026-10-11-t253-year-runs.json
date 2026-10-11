@@ -1,0 +1,2221 @@
+[
+ {
+  "seed": "t212-taiga-1",
+  "biome": "taiga",
+  "mode": "ignore",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 16
+  },
+  "wolfArrivalDays": [
+   16,
+   56,
+   86,
+   95
+  ],
+  "dwarvesAlive": 4,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 86,
+    "victim": "dwarf",
+    "victimId": 16777291,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 87,
+    "victim": "dwarf",
+    "victimId": 16777820,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 88,
+    "victim": "dwarf",
+    "victimId": 16777292,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 89,
+    "victim": "dwarf",
+    "victimId": 16777290,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 91,
+    "victim": "dwarf",
+    "victimId": 16777587,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 92,
+    "victim": "dwarf",
+    "victimId": 16777591,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 92,
+    "victim": "dwarf",
+    "victimId": 16777289,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 93,
+    "victim": "dwarf",
+    "victimId": 16777825,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   }
+  ],
+  "dwarfDeathsToWildlife": 8,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 89,
+    "victim": "wolf:wild",
+    "victimId": 318767496,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 92,
+    "victim": "wolf:wild",
+    "victimId": 218103859,
+    "cause": "killed",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 92,
+    "victim": "wolf:wild",
+    "victimId": 218104224,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 93,
+    "victim": "wolf:wild",
+    "victimId": 218103948,
+    "cause": "killed",
+    "killer": "dwarf",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "wolf:wild->civilian": 53,
+   "wolf:wild(defending)->civilian": 19,
+   "wolf:wild->civilian:hit": 32,
+   "wolf:wild(hunting)->civilian": 34,
+   "civilian->wolf:wild": 15,
+   "civilian->wolf:wild:wounding": 7,
+   "civilian->wolf:wild:hit": 7
+  },
+  "hunts": {
+   "wolf:wild->dwarf": 8
+  }
+ },
+ {
+  "seed": "t212-taiga-2",
+  "biome": "taiga",
+  "mode": "ignore",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 6
+  },
+  "wolfArrivalDays": [
+   11
+  ],
+  "dwarvesAlive": 13,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [],
+  "attacks": {},
+  "hunts": {}
+ },
+ {
+  "seed": "t212-taiga-3",
+  "biome": "taiga",
+  "mode": "ignore",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 10
+  },
+  "wolfArrivalDays": [
+   12,
+   30,
+   45,
+   85
+  ],
+  "dwarvesAlive": 18,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [],
+  "attacks": {},
+  "hunts": {
+   "wolf:wild->dwarf": 8
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-1",
+  "biome": "temperate_forest",
+  "mode": "ignore",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 6
+  },
+  "wolfArrivalDays": [
+   35,
+   109
+  ],
+  "dwarvesAlive": 17,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [],
+  "attacks": {},
+  "hunts": {
+   "wolf:wild->dwarf": 3
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-2",
+  "biome": "temperate_forest",
+  "mode": "ignore",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 9
+  },
+  "wolfArrivalDays": [
+   4,
+   9,
+   77
+  ],
+  "dwarvesAlive": 7,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 7,
+    "victim": "dwarf",
+    "victimId": 16777292,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 10,
+    "victim": "dwarf",
+    "victimId": 16777294,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 12,
+    "victim": "dwarf",
+    "victimId": 16777291,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 14,
+    "victim": "dwarf",
+    "victimId": 16777297,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 16,
+    "victim": "dwarf",
+    "victimId": 16777295,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 19,
+    "victim": "dwarf",
+    "victimId": 16777293,
+    "cause": "starvation",
+    "killer": "",
+    "soldier": false
+   }
+  ],
+  "dwarfDeathsToWildlife": 5,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 7,
+    "victim": "wolf:wild",
+    "victimId": 117440619,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 10,
+    "victim": "wolf:wild",
+    "victimId": 117440620,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 12,
+    "victim": "wolf:wild",
+    "victimId": 16777336,
+    "cause": "killed",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 15,
+    "victim": "wolf:wild",
+    "victimId": 117440621,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 16,
+    "victim": "wolf:wild",
+    "victimId": 251658350,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "wolf:wild->civilian": 60,
+   "wolf:wild(hunting)->civilian": 59,
+   "wolf:wild->civilian:hit": 31,
+   "civilian->wolf:wild:wounding": 24,
+   "civilian->wolf:wild": 44,
+   "civilian->wolf:wild:hit": 24,
+   "wolf:wild(defending)->civilian": 1
+  },
+  "hunts": {
+   "wolf:wild->dwarf": 9
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-3",
+  "biome": "temperate_forest",
+  "mode": "ignore",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 4
+  },
+  "wolfArrivalDays": [
+   91
+  ],
+  "dwarvesAlive": 18,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [],
+  "attacks": {},
+  "hunts": {}
+ },
+ {
+  "seed": "t212-taiga-1",
+  "biome": "taiga",
+  "mode": "react",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 16
+  },
+  "wolfArrivalDays": [
+   16,
+   56,
+   86,
+   103
+  ],
+  "dwarvesAlive": 6,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 86,
+    "victim": "dwarf",
+    "victimId": 16777291,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 90,
+    "victim": "dwarf",
+    "victimId": 16777290,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 106,
+    "victim": "dwarf",
+    "victimId": 16777591,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 106,
+    "victim": "dwarf",
+    "victimId": 16777289,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 106,
+    "victim": "dwarf",
+    "victimId": 16777293,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": true
+   }
+  ],
+  "dwarfDeathsToWildlife": 5,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 89,
+    "victim": "wolf:wild",
+    "victimId": 218103859,
+    "cause": "killed",
+    "killer": "dwarf",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "wolf:wild->civilian": 20,
+   "wolf:wild(defending)->civilian": 16,
+   "wolf:wild->civilian:hit": 13,
+   "react:raised": 3,
+   "react:kill-order": 8,
+   "soldier->wolf:wild": 14,
+   "soldier->wolf:wild:wounding": 6,
+   "soldier->wolf:wild:hit": 6,
+   "react:stood-down": 3,
+   "wolf:wild(hunting)->civilian": 4,
+   "civilian->wolf:wild:wounding": 2,
+   "civilian->wolf:wild": 4,
+   "civilian->wolf:wild:hit": 2,
+   "wolf:wild->soldier": 11,
+   "wolf:wild(hunting)->soldier": 11,
+   "wolf:wild->soldier:hit": 11
+  },
+  "hunts": {
+   "wolf:wild->dwarf": 5
+  }
+ },
+ {
+  "seed": "t212-taiga-2",
+  "biome": "taiga",
+  "mode": "react",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 6
+  },
+  "wolfArrivalDays": [
+   11
+  ],
+  "dwarvesAlive": 13,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [],
+  "attacks": {},
+  "hunts": {}
+ },
+ {
+  "seed": "t212-taiga-3",
+  "biome": "taiga",
+  "mode": "react",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 10
+  },
+  "wolfArrivalDays": [
+   12,
+   30,
+   45,
+   85
+  ],
+  "dwarvesAlive": 18,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [],
+  "attacks": {},
+  "hunts": {
+   "wolf:wild->dwarf": 8
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-1",
+  "biome": "temperate_forest",
+  "mode": "react",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 6
+  },
+  "wolfArrivalDays": [
+   35,
+   109
+  ],
+  "dwarvesAlive": 17,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [],
+  "attacks": {},
+  "hunts": {
+   "wolf:wild->dwarf": 3
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-2",
+  "biome": "temperate_forest",
+  "mode": "react",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 9
+  },
+  "wolfArrivalDays": [
+   4,
+   9,
+   71
+  ],
+  "dwarvesAlive": 7,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 7,
+    "victim": "dwarf",
+    "victimId": 16777292,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 10,
+    "victim": "dwarf",
+    "victimId": 16777294,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 13,
+    "victim": "dwarf",
+    "victimId": 16777291,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 15,
+    "victim": "dwarf",
+    "victimId": 16777296,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": true
+   },
+   {
+    "day": 15,
+    "victim": "dwarf",
+    "victimId": 16777295,
+    "cause": "killed",
+    "killer": "wolf:wild",
+    "soldier": true
+   },
+   {
+    "day": 19,
+    "victim": "dwarf",
+    "victimId": 16777293,
+    "cause": "starvation",
+    "killer": "",
+    "soldier": false
+   }
+  ],
+  "dwarfDeathsToWildlife": 5,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 7,
+    "victim": "wolf:wild",
+    "victimId": 117440619,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 10,
+    "victim": "wolf:wild",
+    "victimId": 117440620,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 13,
+    "victim": "wolf:wild",
+    "victimId": 16777336,
+    "cause": "killed",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 15,
+    "victim": "wolf:wild",
+    "victimId": 251658350,
+    "cause": "killed",
+    "killer": "dwarf",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "wolf:wild->civilian": 33,
+   "wolf:wild(hunting)->civilian": 33,
+   "wolf:wild->civilian:hit": 15,
+   "civilian->wolf:wild:wounding": 17,
+   "civilian->wolf:wild": 26,
+   "civilian->wolf:wild:hit": 17,
+   "react:raised": 3,
+   "react:stood-down": 3,
+   "react:kill-order": 3,
+   "soldier->wolf:wild:wounding": 6,
+   "soldier->wolf:wild": 11,
+   "soldier->wolf:wild:hit": 6,
+   "wolf:wild->soldier": 22,
+   "wolf:wild(hunting)->soldier": 22,
+   "wolf:wild->soldier:hit": 14
+  },
+  "hunts": {
+   "wolf:wild->dwarf": 14
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-3",
+  "biome": "temperate_forest",
+  "mode": "react",
+  "only": "wolf",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 4
+  },
+  "wolfArrivalDays": [
+   91
+  ],
+  "dwarvesAlive": 18,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [],
+  "attacks": {},
+  "hunts": {}
+ },
+ {
+  "seed": "t212-taiga-1",
+  "biome": "taiga",
+  "mode": "ignore",
+  "only": "",
+  "days": 112,
+  "endDay": 49,
+  "spawnedBySpecies": {
+   "wolf": 4,
+   "bear": 2
+  },
+  "wolfArrivalDays": [
+   16
+  ],
+  "dwarvesAlive": 0,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 33,
+    "victim": "dwarf",
+    "victimId": 16777293,
+    "cause": "bled_out",
+    "killer": "bear:wild",
+    "soldier": false
+   },
+   {
+    "day": 33,
+    "victim": "dwarf",
+    "victimId": 16777290,
+    "cause": "bled_out",
+    "killer": "bear:wild",
+    "soldier": false
+   },
+   {
+    "day": 34,
+    "victim": "dwarf",
+    "victimId": 16777289,
+    "cause": "bled_out",
+    "killer": "bear:wild",
+    "soldier": false
+   },
+   {
+    "day": 37,
+    "victim": "dwarf",
+    "victimId": 16777590,
+    "cause": "bled_out",
+    "killer": "bear:wild",
+    "soldier": false
+   },
+   {
+    "day": 38,
+    "victim": "dwarf",
+    "victimId": 16777292,
+    "cause": "bled_out",
+    "killer": "bear:wild",
+    "soldier": false
+   },
+   {
+    "day": 38,
+    "victim": "dwarf",
+    "victimId": 16777291,
+    "cause": "bled_out",
+    "killer": "bear:wild",
+    "soldier": false
+   },
+   {
+    "day": 39,
+    "victim": "dwarf",
+    "victimId": 16777294,
+    "cause": "bled_out",
+    "killer": "bear:wild",
+    "soldier": false
+   },
+   {
+    "day": 44,
+    "victim": "dwarf",
+    "victimId": 16777295,
+    "cause": "bled_out",
+    "killer": "bear:wild",
+    "soldier": false
+   },
+   {
+    "day": 48,
+    "victim": "dwarf",
+    "victimId": 16777594,
+    "cause": "bled_out",
+    "killer": "bear:wild",
+    "soldier": false
+   }
+  ],
+  "dwarfDeathsToWildlife": 9,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [],
+  "attacks": {
+   "bear:wild->civilian": 27,
+   "bear:wild(defending)->civilian": 27,
+   "bear:wild->civilian:hit": 15
+  },
+  "hunts": {}
+ },
+ {
+  "seed": "t212-taiga-2",
+  "biome": "taiga",
+  "mode": "ignore",
+  "only": "",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 18,
+   "deer": 14,
+   "lynx": 4,
+   "bear": 2,
+   "elk": 10,
+   "cave_crab": 11,
+   "glow_beetle": 11
+  },
+  "wolfArrivalDays": [
+   11,
+   45,
+   87
+  ],
+  "dwarvesAlive": 13,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 74,
+    "victim": "deer:wild",
+    "victimId": 150995747,
+    "cause": "killed",
+    "killer": "dwarf",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "civilian->elk:wild:wounding": 4,
+   "civilian->elk:wild": 20,
+   "civilian->elk:wild:hit": 4,
+   "civilian->deer:wild": 14,
+   "civilian->deer:wild:wounding": 3,
+   "civilian->deer:wild:hit": 3,
+   "civilian->lynx:wild": 1
+  },
+  "hunts": {}
+ },
+ {
+  "seed": "t212-taiga-3",
+  "biome": "taiga",
+  "mode": "ignore",
+  "only": "",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 13,
+   "lynx": 4,
+   "deer": 5,
+   "elk": 6
+  },
+  "wolfArrivalDays": [
+   12,
+   30,
+   44,
+   82,
+   90,
+   105
+  ],
+  "dwarvesAlive": 7,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 85,
+    "victim": "dwarf",
+    "victimId": 16777297,
+    "cause": "killed",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 85,
+    "victim": "dwarf",
+    "victimId": 16777291,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 85,
+    "victim": "dwarf",
+    "victimId": 16777656,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 88,
+    "victim": "dwarf",
+    "victimId": 16777295,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 91,
+    "victim": "dwarf",
+    "victimId": 16777293,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 91,
+    "victim": "dwarf",
+    "victimId": 150995592,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 95,
+    "victim": "dwarf",
+    "victimId": 16777296,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 96,
+    "victim": "dwarf",
+    "victimId": 50332287,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 96,
+    "victim": "dwarf",
+    "victimId": 16777294,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 96,
+    "victim": "dwarf",
+    "victimId": 285212945,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 97,
+    "victim": "dwarf",
+    "victimId": 83886512,
+    "cause": "killed",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 101,
+    "victim": "dwarf",
+    "victimId": 83886484,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 101,
+    "victim": "dwarf",
+    "victimId": 16777292,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   }
+  ],
+  "dwarfDeathsToWildlife": 13,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 86,
+    "victim": "wolf:wild",
+    "victimId": 285213284,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "civilian->lynx:wild": 21,
+   "wolf:wild->civilian": 130,
+   "wolf:wild(hunting)->civilian": 104,
+   "wolf:wild->civilian:hit": 78,
+   "civilian->wolf:wild:wounding": 9,
+   "civilian->wolf:wild": 30,
+   "civilian->wolf:wild:hit": 9,
+   "wolf:wild(defending)->civilian": 26
+  },
+  "hunts": {
+   "wolf:wild->dwarf": 16
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-1",
+  "biome": "temperate_forest",
+  "mode": "ignore",
+  "only": "",
+  "days": 112,
+  "endDay": 33,
+  "spawnedBySpecies": {
+   "deer": 8,
+   "rabbit": 3,
+   "wolf": 3,
+   "badger": 1,
+   "boar": 2,
+   "lynx": 1
+  },
+  "wolfArrivalDays": [
+   20
+  ],
+  "dwarvesAlive": 0,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 26,
+    "victim": "dwarf",
+    "victimId": 16777295,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 27,
+    "victim": "dwarf",
+    "victimId": 16777290,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 29,
+    "victim": "dwarf",
+    "victimId": 16777293,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 29,
+    "victim": "dwarf",
+    "victimId": 16777291,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 29,
+    "victim": "dwarf",
+    "victimId": 16777296,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 29,
+    "victim": "dwarf",
+    "victimId": 16777292,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 30,
+    "victim": "dwarf",
+    "victimId": 16777606,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 30,
+    "victim": "dwarf",
+    "victimId": 16777294,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 30,
+    "victim": "dwarf",
+    "victimId": 16777589,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 31,
+    "victim": "dwarf",
+    "victimId": 16777602,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 32,
+    "victim": "dwarf",
+    "victimId": 16777597,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   }
+  ],
+  "dwarfDeathsToWildlife": 11,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 23,
+    "victim": "badger:wild",
+    "victimId": 50331944,
+    "cause": "killed",
+    "killer": "wolf:wild",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "wolf:wild->badger:wild": 6,
+   "wolf:wild->badger:wild:hit": 2,
+   "boar:wild->civilian": 36,
+   "boar:wild(defending)->civilian": 36,
+   "boar:wild->civilian:hit": 24
+  },
+  "hunts": {
+   "wolf:wild->badger:wild": 1
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-2",
+  "biome": "temperate_forest",
+  "mode": "ignore",
+  "only": "",
+  "days": 112,
+  "endDay": 34,
+  "spawnedBySpecies": {
+   "wolf": 8,
+   "boar": 1,
+   "deer": 5,
+   "lynx": 1
+  },
+  "wolfArrivalDays": [
+   4,
+   23
+  ],
+  "dwarvesAlive": 0,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 7,
+    "victim": "dwarf",
+    "victimId": 16777292,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 8,
+    "victim": "dwarf",
+    "victimId": 16777296,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 11,
+    "victim": "dwarf",
+    "victimId": 16777297,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 13,
+    "victim": "dwarf",
+    "victimId": 16777295,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 13,
+    "victim": "dwarf",
+    "victimId": 16777294,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 19,
+    "victim": "dwarf",
+    "victimId": 16777293,
+    "cause": "starvation",
+    "killer": "",
+    "soldier": false
+   },
+   {
+    "day": 29,
+    "victim": "dwarf",
+    "victimId": 16777291,
+    "cause": "starvation",
+    "killer": "",
+    "soldier": false
+   },
+   {
+    "day": 30,
+    "victim": "dwarf",
+    "victimId": 16777470,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 30,
+    "victim": "dwarf",
+    "victimId": 16777465,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 32,
+    "victim": "dwarf",
+    "victimId": 16777461,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 33,
+    "victim": "dwarf",
+    "victimId": 16777474,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   }
+  ],
+  "dwarfDeathsToWildlife": 9,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 7,
+    "victim": "wolf:wild",
+    "victimId": 117440619,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 11,
+    "victim": "wolf:wild",
+    "victimId": 117440621,
+    "cause": "killed",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 12,
+    "victim": "wolf:wild",
+    "victimId": 117440620,
+    "cause": "killed",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 13,
+    "victim": "wolf:wild",
+    "victimId": 251658350,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 30,
+    "victim": "wolf:wild",
+    "victimId": 16777434,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "wolf:wild->civilian": 109,
+   "wolf:wild(hunting)->civilian": 86,
+   "wolf:wild->civilian:hit": 63,
+   "civilian->wolf:wild:wounding": 33,
+   "civilian->wolf:wild": 54,
+   "civilian->wolf:wild:hit": 33,
+   "wolf:wild(defending)->civilian": 23
+  },
+  "hunts": {
+   "wolf:wild->dwarf": 7,
+   "wolf:wild->dog:tame": 1
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-3",
+  "biome": "temperate_forest",
+  "mode": "ignore",
+  "only": "",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "lynx": 2,
+   "rabbit": 3,
+   "badger": 2,
+   "bear": 1,
+   "fox": 5,
+   "wolf": 5,
+   "boar": 3,
+   "glow_beetle": 14,
+   "deer": 4
+  },
+  "wolfArrivalDays": [
+   33,
+   109
+  ],
+  "dwarvesAlive": 17,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 36,
+    "victim": "badger:wild",
+    "victimId": 83886573,
+    "cause": "killed",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 39,
+    "victim": "badger:wild",
+    "victimId": 16777668,
+    "cause": "killed",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 61,
+    "victim": "boar:wild",
+    "victimId": 50332254,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "wolf:wild->badger:wild": 8,
+   "wolf:wild->badger:wild:hit": 6,
+   "wolf:wild->boar:wild": 15,
+   "wolf:wild->boar:wild:hit": 5,
+   "civilian->fox:wild": 20,
+   "civilian->deer:wild": 6,
+   "civilian->deer:wild:wounding": 2,
+   "civilian->deer:wild:hit": 2,
+   "wolf:wild->civilian": 13,
+   "wolf:wild(hunting)->civilian": 13,
+   "wolf:wild->civilian:hit": 8,
+   "civilian->wolf:wild": 1
+  },
+  "hunts": {
+   "wolf:wild->badger:wild": 3,
+   "wolf:wild->dwarf": 7,
+   "wolf:wild->boar:wild": 3
+  }
+ },
+ {
+  "seed": "t212-taiga-1",
+  "biome": "taiga",
+  "mode": "react",
+  "only": "",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 10,
+   "bear": 3,
+   "deer": 11,
+   "elk": 5,
+   "lynx": 2
+  },
+  "wolfArrivalDays": [
+   16,
+   50,
+   59
+  ],
+  "dwarvesAlive": 11,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 32,
+    "victim": "dwarf",
+    "victimId": 16777293,
+    "cause": "bled_out",
+    "killer": "bear:wild",
+    "soldier": true
+   }
+  ],
+  "dwarfDeathsToWildlife": 1,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [],
+  "attacks": {
+   "bear:wild->civilian": 2,
+   "bear:wild(defending)->civilian": 2,
+   "react:raised": 2,
+   "react:kill-order": 2,
+   "soldier->bear:wild:wounding": 6,
+   "soldier->bear:wild": 12,
+   "soldier->bear:wild:hit": 6,
+   "react:stood-down": 2,
+   "bear:wild->soldier": 10,
+   "bear:wild(defending)->soldier": 10,
+   "bear:wild->soldier:hit": 6,
+   "civilian->lynx:wild": 21,
+   "civilian->elk:wild": 1
+  },
+  "hunts": {}
+ },
+ {
+  "seed": "t212-taiga-2",
+  "biome": "taiga",
+  "mode": "react",
+  "only": "",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 18,
+   "deer": 14,
+   "lynx": 4,
+   "bear": 2,
+   "elk": 10,
+   "cave_crab": 11,
+   "glow_beetle": 11
+  },
+  "wolfArrivalDays": [
+   11,
+   45,
+   87
+  ],
+  "dwarvesAlive": 13,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 74,
+    "victim": "deer:wild",
+    "victimId": 150995747,
+    "cause": "killed",
+    "killer": "dwarf",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "civilian->elk:wild:wounding": 4,
+   "civilian->elk:wild": 20,
+   "civilian->elk:wild:hit": 4,
+   "civilian->deer:wild": 14,
+   "civilian->deer:wild:wounding": 3,
+   "civilian->deer:wild:hit": 3,
+   "civilian->lynx:wild": 1
+  },
+  "hunts": {}
+ },
+ {
+  "seed": "t212-taiga-3",
+  "biome": "taiga",
+  "mode": "react",
+  "only": "",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "wolf": 13,
+   "lynx": 4,
+   "deer": 8,
+   "elk": 8
+  },
+  "wolfArrivalDays": [
+   12,
+   30,
+   44,
+   82,
+   98
+  ],
+  "dwarvesAlive": 18,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 85,
+    "victim": "dwarf",
+    "victimId": 16777656,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 85,
+    "victim": "dwarf",
+    "victimId": 16777295,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": true
+   }
+  ],
+  "dwarfDeathsToWildlife": 2,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 87,
+    "victim": "lynx:wild",
+    "victimId": 83886915,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "civilian->lynx:wild": 23,
+   "wolf:wild->civilian": 14,
+   "wolf:wild(hunting)->civilian": 14,
+   "wolf:wild->civilian:hit": 9,
+   "react:raised": 1,
+   "react:kill-order": 2,
+   "soldier->wolf:wild": 28,
+   "soldier->wolf:wild:wounding": 11,
+   "soldier->wolf:wild:hit": 11,
+   "civilian->wolf:wild": 2,
+   "wolf:wild->soldier": 10,
+   "wolf:wild(hunting)->soldier": 4,
+   "wolf:wild->soldier:hit": 5,
+   "wolf:wild(defending)->soldier": 6,
+   "react:stood-down": 1,
+   "civilian->lynx:wild:wounding": 1,
+   "civilian->lynx:wild:hit": 1,
+   "civilian->elk:wild:wounding": 1,
+   "civilian->elk:wild": 3,
+   "civilian->elk:wild:hit": 1
+  },
+  "hunts": {
+   "wolf:wild->dwarf": 8
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-1",
+  "biome": "temperate_forest",
+  "mode": "react",
+  "only": "",
+  "days": 112,
+  "endDay": 49,
+  "spawnedBySpecies": {
+   "deer": 12,
+   "rabbit": 3,
+   "wolf": 3,
+   "badger": 1,
+   "boar": 2,
+   "bear": 1,
+   "lynx": 1
+  },
+  "wolfArrivalDays": [
+   20
+  ],
+  "dwarvesAlive": 0,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "chicken:tame",
+   "chicken:tame",
+   "chicken:tame",
+   "chicken:tame",
+   "cow:tame",
+   "cow:tame",
+   "cow:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 26,
+    "victim": "dwarf",
+    "victimId": 16777290,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 27,
+    "victim": "dwarf",
+    "victimId": 16777294,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": true
+   },
+   {
+    "day": 27,
+    "victim": "dwarf",
+    "victimId": 16777295,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": true
+   },
+   {
+    "day": 27,
+    "victim": "dwarf",
+    "victimId": 16777296,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": true
+   },
+   {
+    "day": 32,
+    "victim": "dwarf",
+    "victimId": 16777293,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 35,
+    "victim": "dwarf",
+    "victimId": 218104144,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 37,
+    "victim": "dwarf",
+    "victimId": 16777577,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 38,
+    "victim": "dwarf",
+    "victimId": 16777573,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 42,
+    "victim": "dwarf",
+    "victimId": 16777291,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 43,
+    "victim": "dwarf",
+    "victimId": 16777292,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   },
+   {
+    "day": 49,
+    "victim": "dwarf",
+    "victimId": 16777583,
+    "cause": "bled_out",
+    "killer": "boar:wild",
+    "soldier": false
+   }
+  ],
+  "dwarfDeathsToWildlife": 11,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 23,
+    "victim": "badger:wild",
+    "victimId": 50331944,
+    "cause": "killed",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 27,
+    "victim": "boar:wild",
+    "victimId": 16777555,
+    "cause": "killed",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 43,
+    "victim": "wolf:wild",
+    "victimId": 117440727,
+    "cause": "bled_out",
+    "killer": "",
+    "soldier": false
+   },
+   {
+    "day": 44,
+    "victim": "wolf:wild",
+    "victimId": 16777541,
+    "cause": "bled_out",
+    "killer": "",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "wolf:wild->badger:wild": 6,
+   "wolf:wild->badger:wild:hit": 2,
+   "boar:wild->civilian": 33,
+   "boar:wild(defending)->civilian": 33,
+   "boar:wild->civilian:hit": 22,
+   "react:raised": 11,
+   "react:kill-order": 3,
+   "soldier->boar:wild:wounding": 24,
+   "soldier->boar:wild": 54,
+   "soldier->boar:wild:hit": 24,
+   "react:stood-down": 11,
+   "civilian->boar:wild": 1,
+   "boar:wild->soldier": 13,
+   "boar:wild(defending)->soldier": 13,
+   "boar:wild->soldier:hit": 9,
+   "wolf:wild->civilian": 14,
+   "wolf:wild(hunting)->civilian": 14,
+   "wolf:wild->civilian:hit": 11
+  },
+  "hunts": {
+   "wolf:wild->badger:wild": 1,
+   "wolf:wild->dwarf": 1
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-2",
+  "biome": "temperate_forest",
+  "mode": "react",
+  "only": "",
+  "days": 112,
+  "endDay": 48,
+  "spawnedBySpecies": {
+   "wolf": 4,
+   "boar": 7,
+   "deer": 5
+  },
+  "wolfArrivalDays": [
+   4
+  ],
+  "dwarvesAlive": 0,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame"
+  ],
+  "dwarfDeaths": [
+   {
+    "day": 7,
+    "victim": "dwarf",
+    "victimId": 16777292,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 8,
+    "victim": "dwarf",
+    "victimId": 16777296,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 11,
+    "victim": "dwarf",
+    "victimId": 16777291,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 13,
+    "victim": "dwarf",
+    "victimId": 16777294,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": true
+   },
+   {
+    "day": 19,
+    "victim": "dwarf",
+    "victimId": 16777293,
+    "cause": "starvation",
+    "killer": "",
+    "soldier": false
+   },
+   {
+    "day": 46,
+    "victim": "dwarf",
+    "victimId": 16777393,
+    "cause": "starvation",
+    "killer": "",
+    "soldier": false
+   },
+   {
+    "day": 46,
+    "victim": "dwarf",
+    "victimId": 16777401,
+    "cause": "starvation",
+    "killer": "",
+    "soldier": false
+   },
+   {
+    "day": 48,
+    "victim": "dwarf",
+    "victimId": 16777295,
+    "cause": "starvation",
+    "killer": "",
+    "soldier": false
+   },
+   {
+    "day": 48,
+    "victim": "dwarf",
+    "victimId": 16777297,
+    "cause": "starvation",
+    "killer": "",
+    "soldier": false
+   },
+   {
+    "day": 48,
+    "victim": "dwarf",
+    "victimId": 16777387,
+    "cause": "starvation",
+    "killer": "",
+    "soldier": false
+   },
+   {
+    "day": 48,
+    "victim": "dwarf",
+    "victimId": 16777397,
+    "cause": "starvation",
+    "killer": "",
+    "soldier": false
+   }
+  ],
+  "dwarfDeathsToWildlife": 4,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 7,
+    "victim": "wolf:wild",
+    "victimId": 117440619,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 11,
+    "victim": "wolf:wild",
+    "victimId": 117440621,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   },
+   {
+    "day": 12,
+    "victim": "wolf:wild",
+    "victimId": 117440620,
+    "cause": "bled_out",
+    "killer": "dwarf",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "wolf:wild->civilian": 32,
+   "wolf:wild(hunting)->civilian": 26,
+   "wolf:wild->civilian:hit": 17,
+   "civilian->wolf:wild:wounding": 11,
+   "civilian->wolf:wild": 17,
+   "civilian->wolf:wild:hit": 11,
+   "wolf:wild(defending)->civilian": 6,
+   "react:raised": 3,
+   "react:kill-order": 3,
+   "react:stood-down": 3,
+   "soldier->wolf:wild": 21,
+   "soldier->wolf:wild:wounding": 10,
+   "soldier->wolf:wild:hit": 10,
+   "wolf:wild->soldier": 11,
+   "wolf:wild(hunting)->soldier": 11,
+   "wolf:wild->soldier:hit": 6
+  },
+  "hunts": {
+   "wolf:wild->dwarf": 3
+  }
+ },
+ {
+  "seed": "t212-temperate_forest-3",
+  "biome": "temperate_forest",
+  "mode": "react",
+  "only": "",
+  "days": 112,
+  "endDay": 113,
+  "spawnedBySpecies": {
+   "lynx": 2,
+   "rabbit": 3,
+   "badger": 2,
+   "bear": 1,
+   "fox": 5,
+   "wolf": 5,
+   "boar": 3,
+   "glow_beetle": 14,
+   "deer": 4
+  },
+  "wolfArrivalDays": [
+   33,
+   109
+  ],
+  "dwarvesAlive": 17,
+  "tameAlive": [
+   "dog:tame",
+   "dog:tame",
+   "cat:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame",
+   "dog:tame"
+  ],
+  "dwarfDeaths": [],
+  "dwarfDeathsToWildlife": 0,
+  "tameDeaths": [],
+  "tameDeathsToWildlife": 0,
+  "wildDeaths": [
+   {
+    "day": 36,
+    "victim": "badger:wild",
+    "victimId": 83886573,
+    "cause": "killed",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 39,
+    "victim": "badger:wild",
+    "victimId": 16777668,
+    "cause": "killed",
+    "killer": "wolf:wild",
+    "soldier": false
+   },
+   {
+    "day": 61,
+    "victim": "boar:wild",
+    "victimId": 50332254,
+    "cause": "bled_out",
+    "killer": "wolf:wild",
+    "soldier": false
+   }
+  ],
+  "attacks": {
+   "wolf:wild->badger:wild": 8,
+   "wolf:wild->badger:wild:hit": 6,
+   "wolf:wild->boar:wild": 15,
+   "wolf:wild->boar:wild:hit": 5,
+   "civilian->fox:wild": 20,
+   "civilian->deer:wild": 6,
+   "civilian->deer:wild:wounding": 2,
+   "civilian->deer:wild:hit": 2,
+   "wolf:wild->civilian": 13,
+   "wolf:wild(hunting)->civilian": 13,
+   "wolf:wild->civilian:hit": 7,
+   "react:raised": 1,
+   "react:kill-order": 1,
+   "soldier->wolf:wild": 10,
+   "soldier->wolf:wild:wounding": 4,
+   "soldier->wolf:wild:hit": 4
+  },
+  "hunts": {
+   "wolf:wild->badger:wild": 3,
+   "wolf:wild->dwarf": 7,
+   "wolf:wild->boar:wild": 3
+  }
+ }
+]
