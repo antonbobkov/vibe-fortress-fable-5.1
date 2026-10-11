@@ -16,6 +16,7 @@ export interface GameMenuHost {
   save(): void;
   load(): void;
   settings(): void;
+  rename?(): void;
   retire(): void;
   mainMenu(): void;
   viewOnly(): boolean;
@@ -34,6 +35,7 @@ export class GameMenuScreen implements Screen {
       { id: 'save', key: 's', label: 'Save', enabled },
       { id: 'load', key: 'l', label: 'Load' },
       { id: 'settings', key: 'o', label: 'Settings' },
+      { id: 'rename', key: 'n', label: 'Rename fortress' },
       { id: 'retire', key: 'x', label: 'Retire fortress', enabled },
       { id: 'main_menu', key: 'm', label: 'Main menu' },
     ];
@@ -56,6 +58,7 @@ export class GameMenuScreen implements Screen {
       case 'save': this.host.save(); break;
       case 'load': this.host.load(); break;
       case 'settings': this.host.settings(); break;
+      case 'rename': this.host.rename?.(); break;
       case 'retire': this.host.retire(); break;
       case 'main_menu': this.host.mainMenu(); break;
       default: break;

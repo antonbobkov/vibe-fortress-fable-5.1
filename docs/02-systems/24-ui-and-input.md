@@ -135,7 +135,7 @@ Stored zoom applies to new games; a loaded save's UI zoom wins for that session.
 
 ### Game menu (Esc from the fortress with no tool or panel)
 
-`Resume`, `Save`, `Load`, `Settings`, `Retire fortress` (confirm), `Main menu` (confirm if unsaved changes since the last save).
+`Resume`, `Save`, `Load`, `Settings`, `Rename fortress`, `Retire fortress` (confirm), `Main menu` (confirm if unsaved changes since the last save).
 
 Unsaved changes are ticks elapsed or commands applied since the last save. A command given while the game is paused takes effect at once without the calendar advancing, so it counts as an unsaved change too; the count of applied commands is kept beside the last-save tick and is not saved.
 

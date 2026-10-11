@@ -25,6 +25,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.menu.legends': 'Legends',
   'ui.menu.settings': 'Settings',
   'ui.menu.about': 'About',
+  'ui.menu.rename_title': 'Rename {fortress}',
   // Load (`ui-screens/menus-and-world.md` § Load) and the confirmation dialog (24 § Confirmations).
   'ui.load.title': 'Load',
   'ui.load.manual': 'Manual',
@@ -493,7 +494,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.workshop.resume': '[S-s] resume',
   'ui.workshop.deconstruct': '[x] take apart',
   // Animals, mood and depot actions whose letters open panels (D-U2).
-  'ui.animals.actions1': '[S-p] pasture  [S-s] slaughter',
+  'ui.animals.actions1': '[S-p] pasture  [S-s] slaughter  [S-t] train',
   'ui.animals.actions2': '[S-c] cap [S-a] assign [S-n] name',
   'ui.mood.actions': '[Enter] inspect  [S-s] sort tier',
   'ui.depot.move': '[S-m] move',
@@ -786,6 +787,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.reject.precondition_failed.SetTraffic': 'no such traffic mode',
   'ui.reject.precondition_failed.DesignateHarvest': 'no ripe crops there',
   'ui.reject.precondition_failed.TrainAnimal': 'an animal trains for war or hunting',
+  'ui.reject.no_kennel.TrainAnimal': 'build a kennel to train animals',
   'ui.reject.precondition_failed.TameCaged': 'that creature cannot be tamed',
   'ui.reject.precondition_failed.ReleaseCaged': 'the cage is empty or has no free floor beside it',
   'ui.reject.precondition_failed.ReleaseCage': 'the cage is empty or has no free floor beside it',
