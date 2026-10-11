@@ -341,6 +341,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.stockpile.preset.refuse': 'Refuse',
   'ui.stockpile.preset.corpses': 'Corpses',
   'ui.stockpile.preset.everything': 'Everything',
+  'ui.stockpile.preset_help': '↑↓ select  letters jump  Esc back',
   'ui.stockpile.materials': 'Materials [{classes}]  Quality {min}–{max}',
   'ui.stockpile.priority': 'Priority {n}    Links: {links}',
   'ui.stockpile.no_links': 'none',

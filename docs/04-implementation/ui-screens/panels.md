@@ -52,7 +52,7 @@ Selecting a stockpile or room replaces the type list with its inspector; `[y] zo
 │ [x] remove zone  [S-e] resize      │
 ```
 
-The preset header opens a dropdown rather than cycling. Arrows highlight and Enter chooses; the first letter jumps to a matching name, using Shift when it is a panel letter, with that accelerator shown beside each option. A click chooses the same option. Esc closes without applying.
+The preset header opens a dropdown rather than cycling with the thirteen presets. Arrows highlight and Enter chooses; letters jump to the next matching preset without accelerator captions; the help line says "letters jump". A click chooses the same option. Esc closes without applying.
 
 In the category tree, arrows select and expand/collapse (Left on a collapsed child selects its parent), and Space toggles the tri-state checkbox. In numeric settings, arrows or Tab/Shift+Tab choose a field; Left/Right or +/- adjust it, just like the mouse buttons. The fields submit `SetStockpileContainers`, `SetStockpilePriority` and `SetStockpileFilter`, preserving unrelated settings. Counts stay non-negative, priority stays 1–9, and quality stays 0–5 with minimum no greater than maximum; a refused adjustment explains why in the status row.
 

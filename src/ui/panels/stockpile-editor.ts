@@ -11,7 +11,7 @@ import type { Surface } from '../surface';
 import { buildTree, dropdown, dropdownKey, label, list, nodeState, numberField, tree, toggleNode, visibleRows, type DropdownState, type ListState, type TreeNode, type TreeState } from '../widgets';
 import { accel, items, type PanelContext } from './context';
 
-export const PRESET_ORDER: readonly string[] = Object.keys(STOCKPILE_PRESETS);
+export const PRESET_ORDER: readonly string[] = Object.keys(STOCKPILE_PRESETS).filter((id) => id !== 'hospital');
 export const STOCKPILE_FIELDS = ['barrel', 'bag', 'bin', 'priority', 'minQuality', 'maxQuality'] as const;
 export type StockpileField = typeof STOCKPILE_FIELDS[number];
 type Focus = 'tree' | StockpileField;
@@ -206,13 +206,15 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
   const preset = stockpilePreset(sp.filter);
   const value = strings.get(preset === null ? 'ui.stockpile.custom' : `ui.stockpile.preset.${preset}`);
   const options = editor.presetOptions(ctx);
-  const shownOptions = options.map((o) => ({ ...o, label: `${acceleratorLabel(o.label[0]?.toLowerCase() ?? '', ctx.panelLetters)} ${o.label}` }));
-  dropdown(s, col, row, width, value, shownOptions, editor.preset,
+  dropdown(s, col, row, width, value, options, editor.preset,
     (id) => editor.choosePreset(ctx, zoneId, id), () => editor.openPreset(ctx, zoneId));
   // Keep the existing compact header; label supplies its truncation tooltip.
   s.fill({ col, row, cols: width, rows: 1 }, s.theme.black);
   label(s, col, row++, `${acceleratorLabel('p', ctx.panelLetters)} ${strings.get('ui.stockpile.preset', { preset: value })}`, { width });
-  if (editor.preset.open) return;
+  if (editor.preset.open) {
+    label(s, col, rect.row + rect.rows - 1, strings.get('ui.stockpile.preset_help'), { width, fg: s.theme.dim });
+    return;
+  }
   const controls: readonly [string, string, () => void][] = [
     ['g', 'ui.stockpile.tree_action', () => { editor.focus = 'tree'; }],
     ['q', 'ui.stockpile.settings_action', () => { editor.focus = 'barrel'; }],
