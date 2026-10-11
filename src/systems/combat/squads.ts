@@ -18,6 +18,15 @@ import { isCreatureHostile } from './factions';
 import type { TargetManager } from './targets';
 import { getBarracksForSquad, isOnStationShift } from './training';
 
+/**
+ * Whether the squad controls a member now: not while its brain serves a need (travel to a bed and
+ * sleep included), flees, retreats or is a patient (16 § Squads).
+ */
+function followsSquad(entities: EntityStore, id: EntityId): boolean {
+  const behavior = entities.get(id, C.Brain)?.behavior;
+  return behavior !== 'need' && behavior !== 'flee' && behavior !== 'retreat' && behavior !== 'patient';
+}
+
 export function isSquadEffectiveActive(squad: Squad, alert: Alert): boolean {
   if (alert === 'watchful' || alert === 'hearth') return true;
   return squad.mode === 'active' || squad.mode === 'train';
@@ -290,7 +299,7 @@ export function squadOrder(
     squad.orders.splice(standing < 0 ? squad.orders.length : standing, 0, order);
     for (const m of squad.members) {
       const soldier = entities.get(m, C.Soldier);
-      if (soldier?.onDuty) {
+      if (soldier?.onDuty && followsSquad(entities, m)) {
         const first = squad.orders[0];
         if (first?.kind === 'kill') targets.setTarget(m, first.targetId);
       }
@@ -407,6 +416,10 @@ export function stepSquads(
       if (!posM) continue;
       const tileM = map.index(posM.x, posM.y, posM.z);
 
+      // A soldier serving a need, fleeing, retreating or in hospital is not the squad's to move
+      // or to give a target, a kill target included; the squad resumes control on its return to duty.
+      if (!followsSquad(entities, m)) continue;
+
       // If already has an active target, keep engaging
       const activeTarget = targets.targetOf(m);
       if (activeTarget !== 0) continue;
@@ -423,9 +436,6 @@ export function stepSquads(
         targets.setTarget(m, currentOrder.targetId);
         continue;
       }
-
-      const brain = entities.get(m, C.Brain);
-      if (brain !== undefined && (brain.behavior === 'need' || brain.behavior === 'flee' || brain.behavior === 'retreat' || brain.behavior === 'patient')) continue;
 
       // Perception scan: look for hostiles within PERCEPTION_RADIUS
       let closestHostile = 0;

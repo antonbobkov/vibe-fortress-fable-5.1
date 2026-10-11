@@ -24,10 +24,10 @@ function soldier(mode: 'train' | 'active' | 'off', alert: 'calm' | 'watchful', s
   expect(world.applyCommand({ type: 'SetAlert', level: alert }).ok).toBe(true);
   w.step(5);
   expect(combat.onDuty(id)).toBe(true);
-  return { w, id, combat, bed, at };
+  return { w, id, combat, bed, at, squadId };
 }
 
-describe('T-195 follow-up (T-134): needs interrupt squad movement in every mode', () => {
+describe('T-134 needs interrupt squad movement in every mode (T-195 follow-up)', () => {
   it.each([
     ['train', 'calm'], ['active', 'calm'], ['off', 'watchful'],
   ] as const)('a critically tired %s soldier under %s reaches a bed and sleeps', (mode, alert) => {
@@ -84,5 +84,45 @@ describe('T-195 follow-up (T-134): needs interrupt squad movement in every mode'
     expect(combat.targetOf(id)).toBe(0);
     w.until(() => w.events('MealEaten').some((e) => e['id'] === id), 300);
     expect(w.events('MealEaten').some((e) => e['id'] === id)).toBe(true);
+  });
+});
+
+describe('T-134 squad orders and sight under an alert', () => {
+  it.each(['train', 'off'] as const)('under a watchful alert a %s squad is treated as active: a hostile in sight holds a want', (mode) => {
+    const { w, id, combat } = soldier(mode, 'watchful', false);
+    const hostile = w.spawnCreature('gloam_warrior', w.index(30, 20, FLAT_TEST_SURFACE_Z), 'hostile:gloam');
+    w.step(1);
+    expect(combat.targetOf(id)).toBe(hostile);
+    w.setNeed(id, 'hunger', 50);
+    w.step(1);
+    expect(w.game.world.entities.get(id, C.Brain)?.behavior).toBe('duty');
+    expect(combat.targetOf(id)).toBe(hostile);
+  });
+
+  it('a calm kill order does not walk a soldier away from a want it serves', () => {
+    const { w, id, combat, squadId } = soldier('active', 'calm', false);
+    // A peaceful animal out of perception: the kill order walks the soldier toward it.
+    const prey = w.spawnCreature('rabbit', w.index(70, 20, FLAT_TEST_SURFACE_Z), 'wild');
+    expect(w.game.world.applyCommand({ type: 'SquadOrder', squadId, order: { kind: 'kill', targetId: prey } }).ok).toBe(true);
+    w.step(5);
+    w.setNeed(id, 'hunger', 50);
+    w.step(1);
+    expect(w.game.world.entities.get(id, C.Brain)?.behavior).toBe('need');
+    w.until(() => w.events('MealEaten').some((e) => e['id'] === id), 300);
+    expect(combat.targetOf(id)).toBe(0);
+  });
+
+  it('a kill order issued while a soldier walks to bed does not take it from its sleep', () => {
+    const { w, id, combat, squadId, bed } = soldier('active', 'watchful', false);
+    w.setNeed(id, 'rest', 90);
+    w.step(1);
+    expect(w.game.world.entities.get(id, C.Brain)?.activity).toBe('sleep');
+    const prey = w.spawnCreature('rabbit', w.index(20, 28, FLAT_TEST_SURFACE_Z), 'wild');
+    expect(w.game.world.applyCommand({ type: 'SquadOrder', squadId, order: { kind: 'kill', targetId: prey } }).ok).toBe(true);
+    expect(combat.targetOf(id)).toBe(0);
+    w.until(() => w.events('Slept').some((e) => e['id'] === id), TICKS_PER_DAY);
+    expect(w.events('Slept').find((e) => e['id'] === id)?.['onFloor']).toBe(false);
+    const p = w.game.world.entities.get(id, C.Position)!;
+    expect(w.map.index(p.x, p.y, p.z)).toBe(bed);
   });
 });

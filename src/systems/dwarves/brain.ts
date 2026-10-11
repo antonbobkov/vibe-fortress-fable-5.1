@@ -351,12 +351,15 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
       (squad.station !== null ||
         (squad.patrol !== null && squad.patrol.length > 0) ||
         squad.orders.length > 0);
-    const wants = n === undefined ? [] : ranked(n, false);
+    // Purpose has no errand: a want of it alone gives nothing for duty to hold back.
+    const wants = n === undefined ? [] : ranked(n, false).filter((want) => want !== 'purpose');
     const sleepWindow = n !== undefined && schedule !== undefined && hourOf(ctx.tick) === schedule.sleepStartHour && n.rest > 20;
-    // Sight matters only when an active soldier has a need to defer and no alert order
-    // already holds it. Combat performs its own ordinary targeting scan.
+    // Under an alert every squad is treated as active (16 § Squads). The sight scan runs only
+    // when there is a want to hold back and no alert order already holds it; combat keeps its
+    // own perception scan and target retention.
+    const active = squad?.mode === 'active' || alert !== 'calm';
     const dutyHolds = (wants.length > 0 || sleepWindow) &&
-      ((alert !== 'calm' && hasOrder) || (squad?.mode === 'active' && hasHostileInSight(ctx, id)));
+      ((alert !== 'calm' && hasOrder) || (active && hasHostileInSight(ctx, id)));
     if (dutyHolds) {
       b.behavior = 'duty';
       b.activity = 'On duty';
