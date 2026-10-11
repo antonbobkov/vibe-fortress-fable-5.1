@@ -45,6 +45,7 @@ import {
   IDLE_MAX_TICKS,
   IDLE_MIN_TICKS,
   NEAR_DWARF_RADIUS,
+  PREY_PACK_MAX_MEMBERS,
   PREY_SIZE_PERMILLE,
   SLEEP_TICKS,
   TERRITORY_RADIUS,
@@ -185,12 +186,31 @@ function nearestOf(host: BrainHost, at: TileIndex, ids: readonly EntityId[]): En
   return best;
 }
 
-/** An animal (wild or tame) of a species a predator of `species` takes as prey. */
-function isAnimalPrey(host: BrainHost, species: number, other: EntityId): boolean {
+/** An animal (wild or tame) within this predator pack's current prey-size limit. */
+function isAnimalPrey(host: BrainHost, id: EntityId, other: EntityId): boolean {
   if (!host.entities.has(other, C.Wild) && !host.entities.has(other, C.Tame)) return false;
   const s = speciesOf(host, other);
   if (s === 0 || host.facts.dietOf(s) === 'carnivore') return false;
-  return host.facts.sizeOf(s) < (host.facts.sizeOf(species) * PREY_SIZE_PERMILLE) / 1000;
+  const species = speciesOf(host, id);
+  const singleLimit = (host.facts.sizeOf(species) * PREY_SIZE_PERMILLE) / 1000;
+  const size = host.facts.sizeOf(s);
+  if (size >= singleLimit * PREY_PACK_MAX_MEMBERS) return false;
+  const quarryTile = tileOf(host, other);
+  if (quarryTile < 0) return false;
+  const radius = host.facts.perceptionOf(species);
+  let members = 0;
+  for (const member of [id, ...packOf(host, id)]) {
+    if (!host.entities.alive(member)) continue;
+    const at = tileOf(host, member);
+    if (at < 0 || chebyshev(host, at, quarryTile) > radius || !visible(host, at, other)) continue;
+    members += 1;
+    if (members === PREY_PACK_MAX_MEMBERS) break;
+  }
+  return size < singleLimit * members;
+}
+
+function isHuntQuarry(host: BrainHost, id: EntityId, target: EntityId): boolean {
+  return isDwarf(host, target) || isAnimalPrey(host, id, target);
 }
 
 /**
@@ -230,10 +250,11 @@ export function findHuntTarget(host: BrainHost, id: EntityId): EntityId {
   const shared = packQuarry(host, id);
   if (shared !== 0) {
     const to = tileOf(host, shared);
-    return to >= 0 && chebyshev(host, at, to) <= radius && visible(host, at, shared) ? shared : 0;
+    return to >= 0 && chebyshev(host, at, to) <= radius && visible(host, at, shared) &&
+      isHuntQuarry(host, id, shared) ? shared : 0;
   }
   const near = host.readers.spatial.inRadius(at, radius, 'creature').filter((o) => o !== id && host.entities.alive(o));
-  const prey = near.filter((o) => isAnimalPrey(host, species, o) && visible(host, at, o));
+  const prey = near.filter((o) => visible(host, at, o) && isAnimalPrey(host, id, o));
   if (prey.length > 0) return nearestOf(host, at, prey);
   return nearestOf(host, at, near.filter((o) => isDwarf(host, o) && visible(host, at, o)));
 }
@@ -476,7 +497,7 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
       if (target === 0 || !host.entities.alive(target)) {
         target = findHuntTarget(host, id);
       }
-      if (target === 0 || !host.entities.alive(target)) {
+      if (target === 0 || !host.entities.alive(target) || !isHuntQuarry(host, id, target)) {
         toIdle(host, ctx, id, next);
         host.setTarget(id, 0);
         break;
@@ -512,6 +533,11 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
       const target = host.targetOf ? host.targetOf(id) : 0;
       if (target === 0 || !host.entities.alive(target)) {
         // "the animal returns to `idle` when the target dies" (a kill ends the hunger: index.ts).
+        toIdle(host, ctx, id, next);
+        host.setTarget(id, 0);
+        break;
+      }
+      if (next.hungry && next.defendFrom === undefined && !isHuntQuarry(host, id, target)) {
         toIdle(host, ctx, id, next);
         host.setTarget(id, 0);
         break;

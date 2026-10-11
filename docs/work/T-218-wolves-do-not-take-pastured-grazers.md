@@ -1,6 +1,26 @@
 # T-218 — A wolf takes no pastured grazer, so a pasture costs nothing against wolves
 
-**Source:** T-212 and [`2026-10-11-hungry-predators.md`](../../reports/audits/2026-10-11-hungry-predators.md) · **Size:** S (a decision, then a rules change with a test and a re-measure) · **Needs:** — · **Status:** open; decided 2026-10-11, see Decision
+## Progress ? 2026-10-11 (codex-a)
+
+The accepted pack rule is implemented: living same-arrival members that perceive the
+quarry contribute to its size limit, capped at three, and choosing, sharing and holding
+an animal quarry recheck that limit. Fourteen regressions pin the decision; seven failed
+on the previous code. The six static checks pass, `npm test` passes 2,321 tests in 259
+files, and the whole `npm run test:e2e` passes 25 tests. Its full-year end state is
+unchanged: nine survivors, hash `9321580b8c3227e1`; the survivor floor remains nine.
+No golden changed. The code/spec/test commit is `T-218: packs judge animal prey against
+nearby living members`.
+
+The required pasture re-measure is still running. It uses the six T-212 forest/taiga
+seeds, natural wolves only, both ignore/react modes, three supplied male grazers on the
+existing pasture, and exposed versus prebuilt wall-and-door enclosures. The initial
+open-entrance pilots had walls; exclude them from the final comparison. No farms,
+production timing or shared long fixture changed. Complete the 24 revision-3 records,
+file the dated report, update `balance.md` and `balance-status.md`, then close this task.
+The resumable local probe and runners are in `.vite/task-resume/t218-*`; individual
+results are in `reports/data/2026-10-11-t218-pack-years/` pending consolidation.
+
+**Source:** T-212 and [`2026-10-11-hungry-predators.md`](../../reports/audits/2026-10-11-hungry-predators.md) · **Size:** S (a decision, then a rules change with a test and a re-measure) · **Needs:** — · **Status:** in progress (codex-a); decided 2026-10-11, see Decision
 
 ## Why
 
