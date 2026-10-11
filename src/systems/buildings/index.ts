@@ -125,6 +125,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       services: world.services,
       emit: (event) => world.emit(event),
       creaturesAt: (i) => readers.entities.at(i).filter((id) => world.entities.kind(id) === 'creature'),
+      itemsAt: (i) => readers.entities.at(i).filter((id) => world.entities.has(id, C.Item) && world.entities.has(id, C.Position)),
+      walkable: (i) => readers.pathing.passable(i, 'walker'),
       dwarvesAlive: () => world.entities.with(C.Labors).some((id) => world.entities.get(id, C.Creature)?.faction === 'fortress'),
       alert: () => world.fortress.alert,
       tick: () => world.calendar.tick,
@@ -279,9 +281,10 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     const store = this.buildings;
     const b = store.get(id);
     if (b === undefined || b.state === 'built') return;
+    store.complete(id, [], material, linked);
+    if (store.get(id)?.state !== 'built') return;
     const at = store.pending.indexOf(id);
     if (at >= 0) store.pending.splice(at, 1);
-    store.complete(id, [], material, linked);
   }
 
   override reader(): BuildingsReader {
