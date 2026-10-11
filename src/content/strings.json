@@ -14,6 +14,7 @@
   "confirm.c_disband_squad": "Disband {squad}? Members keep their gear.",
   "confirm.c_dump_items": "Mark {what} for dumping? Dwarves will carry every one of them to a dump zone.",
   "confirm.c_dump_selection": "Dump everything on these {n} tiles? Dwarves will carry it to a dump zone.",
+  "confirm.c_embark_no_axe": "Embark without an axe?",
   "confirm.c_embark_no_food_drink": "Embark without food or drink?",
   "confirm.c_embark_no_pick": "Embark without a pick?",
   "confirm.c_load_snapshot": "Load the {season} snapshot? The current game continues to exist as its own saves.",

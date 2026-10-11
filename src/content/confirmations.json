@@ -55,6 +55,11 @@
     "default": "no"
   },
   {
+    "id": "c_embark_no_axe",
+    "text": "Embark without an axe?",
+    "default": "no"
+  },
+  {
     "id": "c_embark_no_food_drink",
     "text": "Embark without food or drink?",
     "default": "no"

@@ -104,7 +104,7 @@ The embark screen has three tabs and a footer:
 - **Dwarves**: list of seven; selecting one shows name (editable), age, attributes as bars, personality words, and the skill list with +/− controls and remaining points. Reroll button.
 - **Supplies**: catalog grouped by category with quantity fields, unit price, line total.
 - **Animals**: species with price and count.
-- Footer: budget remaining, preset menu, fortress name, Embark button. Embark is disabled while over budget and shows why. Embarking with no pick, or with no food or no drink, asks first ("Embark without a pick?", "Embark without food or drink?"; confirmations `c_embark_no_pick`, `c_embark_no_food_drink`, default No).
+- Footer: budget remaining, preset menu, fortress name, Embark button. Embark is disabled while over budget and shows why. Embarking with no pick, no axe, or with no food or no drink, asks first ("Embark without a pick?", "Embark without an axe?", "Embark without food or drink?"; confirmations `c_embark_no_pick`, `c_embark_no_axe`, `c_embark_no_food_drink`, default No).
 
 Nothing chosen here is irreversible in the fortress: skills grow, items are consumed, animals breed.
 

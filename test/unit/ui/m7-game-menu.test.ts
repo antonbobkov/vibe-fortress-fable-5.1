@@ -138,7 +138,7 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       // U-01 (D-U3): the two embark confirmations joined the table. U-03 (D-U2): and the eight
       // for the destructive single-key actions (melt, dump ×2, slaughter, suspend, take apart,
       // remove zone, remove order). U-05: and releasing a caged creature (c_release_cage).
-      expect(table.ids()).toHaveLength(21);
+      expect(table.ids()).toHaveLength(22);
       for (const id of table.ids()) {
         expect(sources.includes(`'${id}'`), `${id} is never asked for in src/`).toBe(true);
         const row = table.byId(id) as ConfirmRow;

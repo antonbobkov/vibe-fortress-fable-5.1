@@ -73,7 +73,7 @@ interface Fixture {
 }
 
 /** A fresh screen over the world; `answer` is what the dialog says (null: there is no dialog). */
-function screenOf(world: World, answer: boolean | null = false, keys: Keymap = keymap): Fixture {
+function screenOf(world: World, answer: boolean | null = false, keys: Keymap = keymap, now: () => number = () => 1000): Fixture {
   const { w } = world;
   const sent: Command[] = [];
   const asked: Asked[] = [];
@@ -94,7 +94,7 @@ function screenOf(world: World, answer: boolean | null = false, keys: Keymap = k
     precondition: () => true,
     registeredPanels: () => w.game.world.registrations.panels,
     announcements: () => w.game.world.registrations.announcements,
-    now: () => 1000,
+    now,
     laborManager: (open) => { managers.push(open); },
     ...(answer === null ? {} : {
       confirm: (id: string, params: Readonly<Record<string, unknown>>, reply: (yes: boolean) => void): void => {
@@ -185,7 +185,8 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
   }
 
   it('the open panel\'s own key closes it; Designate opens with Dig chosen (D-241)', () => {
-    const f = screenOf(shared);
+    let time = 1000;
+    const f = screenOf(shared, false, keymap, () => time);
     for (const { id, key } of FORTRESS_PANEL_KEYS) {
       f.screen.key(press(key));
       expect(f.screen.ui.panel).toBe(id);
@@ -194,6 +195,8 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
     }
     f.screen.key(press('d'));
     expect(f.screen.tool.kind).toBe('dig');
+    expect(f.screen.statusRow2()).toBe('Designate closed \u00b7 [d] opens it again');
+    time += 10000; // The T-252 close notice expires; the armed tool hint returns.
     expect(f.screen.statusRow2()).toMatch(/^Dig · priority 5/);
     f.screen.key(press('d'));
     expect(f.screen.tool.active).toBe(false);

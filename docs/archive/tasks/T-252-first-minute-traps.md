@@ -1,6 +1,8 @@
 # T-252 — Two first-minute traps left by declined proposals: no axe warning, and the second `d`
 
-**Source:** T-111 and its report, [`../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../reports/audits/2026-10-10-ui-audit-follow-up.md) (Q1, §5.3) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-252: explain missing axes and armed panel toggles`.
+
+**Source:** T-111 and its report, [`../../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../../reports/audits/2026-10-10-ui-audit-follow-up.md) (Q1, §5.3) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -15,8 +17,8 @@ Two parts of the first audit were declined by the U decisions and are still trap
 
 ## What the spec says
 
-- [`embark.md`](../04-implementation/ui-screens/embark.md) § notes: "Embarking with no pick, or with no food or no drink, asks first … default No"; [`02-embark-and-loadout.md`](../02-systems/02-embark-and-loadout.md) § Player-facing behavior.
-- [`ui-keymap-and-screens.md`](../03-content/ui-keymap-and-screens.md) § Panels: "pressing an open panel's own key closes it."
+- [`embark.md`](../../04-implementation/ui-screens/embark.md) § notes: "Embarking with no pick, or with no food or no drink, asks first … default No"; [`02-embark-and-loadout.md`](../../02-systems/02-embark-and-loadout.md) § Player-facing behavior.
+- [`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-screens.md) § Panels: "pressing an open panel's own key closes it."
 
 ## What to do
 
@@ -31,7 +33,7 @@ Two parts of the first audit were declined by the U decisions and are still trap
 ## Done
 
 - Both reproductions now ask or explain.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
 
 ## Decision (2026-10-11, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
 
