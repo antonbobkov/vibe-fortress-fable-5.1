@@ -33,9 +33,9 @@ select(id):
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
   if combat.onDuty(id):
-    dutyHolds = squad.mode == 'active' and (hostileInSight(id) or (alert != 'calm' and hasActiveOrder(squad)))
+    want = highest need over its want threshold, or scheduled sleep
+    dutyHolds = want and ((alert != 'calm' and hasActiveOrder(squad)) or (squad.mode == 'active' and hostileInSight(id)))
     if dutyHolds:                                               b.behavior = 'duty'; return
-    want = highest need over its want threshold
     if want:                                                    startNeed(id, want, targets outside remembered danger); return
     b.behavior = 'duty'; return
   want = highest of hunger, thirst, rest over its want threshold

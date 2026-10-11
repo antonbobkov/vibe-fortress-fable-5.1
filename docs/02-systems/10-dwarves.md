@@ -68,6 +68,9 @@ A food or drink errand reserves one unit under the dwarf's id. Death, unconsciou
 - Bed search: own bed (assigned bedroom), else any unassigned free bed, else the floor of the hearth hall, else where they stand. Emits `Slept { id, bedQuality, roomTier, onFloor }`.
 - Sleep is interrupted by `danger`-severity events nearby and by hearth alert.
 
+Squad positioning never redirects a soldier travelling to bed or sleeping as a
+need activity, in any mode. Critical rest takes precedence over all squad orders.
+
 ### Social, comfort, joy
 
 - A talk needs no trip. Every `TALK_CHECK_TICKS` each awake dwarf that is not walking and whose social need is at or over its want threshold looks, through the spatial index, for another awake dwarf that is not walking within Chebyshev distance 2 on the same level; a friend first, then the lowest id. The two start a talk in passing. Awake means conscious and not asleep; a dwarf is walking while it has a walk under way. A dwarf already in a talk, or on a social errand, is not chosen. Two dwarves eating at the same table talk this way.
@@ -97,6 +100,14 @@ Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and
 9. `idle`: go to the hearth hall and wait up to `IDLE_TICKS`, then re-evaluate; re-evaluate at once if a job becomes available for this dwarf before the wait is over, so that new work is never ignored for a whole hour. Idle dwarves are shown as "No job" in the units panel.
 
 `DwarfIdle` fires once per stretch without a job and is reset by real work. With no hearth hall, idle uses the saved arrival wagon tile; without an arrival it stays at the current tile. Selection repairs legacy negative goals before queued work. Patient rest without a bed, cornered fighting and duty also use the current tile.
+
+A calm station or patrol does not by itself defer a soldier's want-level need,
+nor does an alert without an explicit order or a hostile in sight. An explicit
+order during an alert holds wants in every squad mode. Current sight requires a
+visible hostile within perception and line of sight; a retained combat target
+alone is insufficient. Query sight for need selection only when an active
+soldier has a want or scheduled sleep to defer and no alert order already holds
+it; combat's ordinary perception and target retention continue independently.
 
 Civilian escape searches the legal walker edges, including stairs and ramps, with the dwarf's movement restrictions. Visit at most `CIVILIAN_FLEE_NODE_LIMIT` tiles breadth first by step count, breaking ties within each frontier by tile index. Prefer a reachable safer hearth-hall tile even when the bounded search cannot visit it: use the hall tile reached by the search, or the lowest-index eligible hall tile when none was visited. Only without an eligible reachable hall use the nearest visited safer tile. A safer tile is on another level from the threat or has greater horizontal Chebyshev distance from it than the starting tile. Exclude hostile-occupied tiles. If no safer tile is found, the civilian is cornered and fights back with the weapon or tool they carry: the weapon it wields, else the tool it holds, when 16 counts that item as a weapon (16 § Equipment), else its natural attack. A load it hauls is not a weapon.
 
