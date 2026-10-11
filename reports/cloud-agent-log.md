@@ -7,6 +7,7 @@ The running log of the Claude agent that works in the cloud on branches `cloud/m
 
 ## Needs the owner
 
+- **The year-long browser playthrough can hide a lost fortress** (for the local side, T-150; not blocking). `test/e2e/full-year.spec.ts:636` (from `dd513ee`) calls `test.fixme(true, …)` when `livingCount <= 7`, so a run that ends with one dwarf alive reports as *skipped* and `npm run test:e2e` stays green. It caught nothing here only because I read the skip: on `cloud/T-212` the playthrough ended with 1 living dwarf against 11 on `cloud/main`. T-212 is held until that is fixed. Suggest making the fixme name a specific known cause, or failing.
 - **T-252 revises D-U3** (not blocking): it adds an "Embark without an axe?" question, because the Supplies tab calls an axe part of the minimum and a party without one embarks unasked. Look at it before anyone picks T-252 up.
 
 ## Entries
@@ -74,3 +75,9 @@ The answer: the wants now cost about half the dwarf time they did, and mood is b
 - **Filed:** T-217 (workshop alerts carry no focus tile, so the log cannot centre the map on the workshop).
 - **Heads-up for whoever takes T-250:** it plans an `input` field on `WorkshopBlocked`; it should build on the new `container` field and reason.
 - Implemented by a Sonnet subagent; I reviewed the diff and re-ran every check on the branch.
+
+### 2026-10-11: T-212 held back
+
+- The T-212 subagent finished (both rules in, 10 tests, npm test 2275 passed, e2e 23 passed and 1 skipped). The skipped one was `full-year`: its new conditional fixme fires at 7 or fewer living dwarves.
+- Measured: `full-year.spec.ts` alone passes on `cloud/main` (11 living at year end) and ends with 1 living on `cloud/T-212`. Wild spawns differ between the runs (2 boars against 11), so the runs diverge early; cause not yet established.
+- Not merged. The task went back to its subagent to find the cause and fix it, without editing the spec file.
