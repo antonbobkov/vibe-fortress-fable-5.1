@@ -7,8 +7,8 @@
  * surface has rock faces); everything is keys and the mouse, and state is read through the hook.
  */
 
-import { test, expect, type Page } from '@playwright/test';
-import { generateWorld, hilliestRegion, moveCursorTo, screenOf, textOf, type Hook } from './helpers';
+import { test, expect } from '@playwright/test';
+import { generateWorld, hilliestRegion, moveCursorTo, screenOf, textOf, tilePixel, type Hook } from './helpers';
 
 const TILE_FLOOR = 2;
 const TILE_WALL = 1;
@@ -23,22 +23,6 @@ interface BuildHook extends Hook {
     items: { stockpile(id: number): { filter: { categories: string[] } } | undefined };
     of(id: '03'): { inspect(i: number): { discovered: boolean } };
   };
-}
-
-async function ui(page: Page): Promise<{ camX: number; camY: number; z: number }> {
-  return page.evaluate(() => {
-    const u = (window as unknown as { __deepholm: BuildHook }).__deepholm.readers.ui;
-    return { camX: u.camX, camY: u.camY, z: u.z };
-  });
-}
-
-/** The map cell of a tile on the current view, as canvas pixels. */
-async function tilePixel(page: Page, x: number, y: number): Promise<{ x: number; y: number }> {
-  const u = await ui(page);
-  const box = await page.locator('canvas#screen').boundingBox();
-  if (box === null) throw new Error('no canvas box');
-  const c = await page.evaluate(([cx, cy]) => (window as unknown as { __deepholm: BuildHook }).__deepholm.cellCenter(cx as number, cy as number), [x - u.camX, y - u.camY]);
-  return { x: box.x + c.x, y: box.y + c.y };
 }
 
 test('U-02 M1/S2 and U-07 M7 build-and-stockpile', async ({ page }) => {
