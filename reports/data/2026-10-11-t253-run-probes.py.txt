@@ -1,0 +1,33 @@
+from pathlib import Path
+import json, os, subprocess, sys, time
+root=Path.cwd()
+out=root/'.vite/task-resume/t253-results'
+out.mkdir(exist_ok=True)
+group=sys.argv[1]
+def run(label, probe, extra):
+ result=out/(label+'.json')
+ if result.exists():
+  json.loads(result.read_text('utf8'))
+  print('EXISTS '+label,flush=True)
+  return
+ env=dict(os.environ, **extra)
+ env['T212_OUT' if probe!='ref' else 'T253_OUT']=str(result)
+ start=time.monotonic()
+ print('START '+label,flush=True)
+ with (out/(label+'.log')).open('wb') as log:
+  proc=subprocess.run(['npm.cmd','exec','--','vitest','run','--config','.vite/task-resume/t253-probe.config.ts','.vite/task-resume/t253-probe-'+probe+'.test.ts'],env=env,stdout=log,stderr=subprocess.STDOUT)
+ if proc.returncode: raise SystemExit(label+': failed '+str(proc.returncode))
+ d=json.loads(result.read_text('utf8'))
+ print(json.dumps({'run':label,'seconds':round(time.monotonic()-start,1),'runs':len(d) if isinstance(d,list) else None,'alive':d.get('dwarvesAlive') if isinstance(d,dict) else None,'wildDeaths':d.get('dwarfDeathsToWildlife') if isinstance(d,dict) else None}),flush=True)
+if group=='chain':
+ seeds=','.join('s'+str(i) for i in range(1,11))
+ run('chain-fed','chain',{'T196_LABEL':'t253-fed','T196_SEEDS':seeds,'T196_SPECIES':'badger,boar,wolf','T196_MODES':'lone,haul,hospital,react','T196_HUNGRY':'0'})
+ run('chain-hungry','chain',{'T196_LABEL':'t253-hungry','T196_SEEDS':seeds,'T196_SPECIES':'wolf','T196_MODES':'lone,haul,haulpick,hospital,react','T196_HUNGRY':'1'})
+ run('reference','ref',{})
+else:
+ biome=group
+ for n in range(1,4):
+  seed='t212-'+biome+'-'+str(n)
+  for mode in ('ignore','react'):
+   for only in ('wolf',''):
+    run(seed+'-'+mode+'-'+(only or 'all'),'year',{'T212_SEED':seed,'T212_BIOME':biome,'T212_MODE':mode,'T212_ONLY':only,'T212_DAYS':'112'})

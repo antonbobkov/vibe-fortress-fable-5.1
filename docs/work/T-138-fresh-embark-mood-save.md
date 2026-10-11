@@ -1,4 +1,4 @@
-# T-136 - A fresh embark save loses mood reactions on its next tick
+# T-138 - A fresh embark save loses mood reactions on its next tick
 
 **Source:** T-133's save-continuation control, 2026-10-11 | **Size:** S | **Needs:** none | **Status:** open
 
@@ -26,3 +26,7 @@ tick. Do not flush reactions or advance a tick while saving. Edit the save-forma
 and owning system's saved-state specification for the actual omitted state.
 Run all six checks, npm test and the whole e2e suite, recording the browser-year
 end state before and after. Name any golden change and its cause.
+
+## Progress (2026-10-11)
+
+Renumbered from T-136 to T-138 because master independently assigned T-136 to the many-seed wildlife instrument. The save reproduction and proposed resolution are unchanged.

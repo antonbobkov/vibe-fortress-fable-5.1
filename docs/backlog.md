@@ -11,7 +11,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-136 | [Fresh embark save loses next-tick mood reactions](work/T-136-fresh-embark-mood-save.md) | T-133 save-continuation control, 2026-10-11 | — | open |
+| T-138 | [Fresh embark save loses next-tick mood reactions](work/T-138-fresh-embark-mood-save.md) | T-133 save-continuation control, 2026-10-11 | — | open |
+| T-136 | [Wildlife survival over many seeds](work/T-136-wildlife-survival-over-many-seeds.md) | T-221, T-134 and T-135; orchestrator decision, 2026-10-11 | — | open |
 | T-137 | [Repeated infection cleaning restarts a pending cure](work/T-137-infection-treatment-restarts-cure.md) | T-224 treatment-refresh investigation, 2026-10-11 | — | open |
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | T-140, T-145 (the performance tier includes the 20-seed balance sweep, which cannot pass before them) | open; local side (needs a quiet machine) |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, and the fix tasks of T-115 (T-169 … T-177, T-180 … T-187) | open; local side (the cloud agent stopped before it) |
@@ -42,6 +43,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-250 | [The refusals, idle alerts and hints the first audit asked for that are still missing](work/T-250-messages-and-hints-still-missing.md) | T-111 and [`../reports/audits/2026-10-10-ui-audit-follow-up.md`](../reports/audits/2026-10-10-ui-audit-follow-up.md) | — | open |
 | T-251 | [A placed building does not look refused; trade stacks merchant goods and answers a paused request](work/T-251-placement-and-trade-feedback.md) | T-111 and [`../reports/audits/2026-10-10-ui-audit-follow-up.md`](../reports/audits/2026-10-10-ui-audit-follow-up.md) | — | open |
 | T-252 | [Two first-minute traps left by declined proposals: no axe warning, and the second `d`](work/T-252-first-minute-traps.md) | T-111 and [`../reports/audits/2026-10-10-ui-audit-follow-up.md`](../reports/audits/2026-10-10-ui-audit-follow-up.md) | — | open; decided 2026-10-11 (see the work file) |
-| T-253 | [Re-measure the wild-animal figures after the caught-civilian rule changed](work/T-253-remeasure-wild-animals-after-t219.md) | T-219 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. B-008 through B-012 await T-145 (the fixture at default priorities) and, for survival with wildlife, T-214; their measurement journal is in the [decision archive](archive/decisions-archive.md).
