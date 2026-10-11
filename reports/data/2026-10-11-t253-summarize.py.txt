@@ -1,0 +1,27 @@
+from pathlib import Path
+from collections import Counter
+import json, statistics
+root=Path('.vite/task-resume/t253-results')
+for name in ('chain-fed','chain-hungry'):
+ p=root/(name+'.json')
+ if not p.exists(): continue
+ data=json.loads(p.read_text('utf8'))
+ print(name)
+ for mode in sorted(set(r['mode'] for r in data)):
+  for species in sorted(set(r['species'] for r in data)):
+   rows=[r for r in data if r['mode']==mode and r['species']==species]
+   times=[v for r in rows for v in r['deathTicksAfterFirstWound']]
+   print(json.dumps({'mode':mode,'species':species,'deaths':sum(r['deaths'] for r in rows),'risk':sum(r['dwarves'] for r in rows),'runsDeath':sum(r['deaths']>0 for r in rows),'animalDied':sum(r['animalDied'] for r in rows),'dwarfHits':sum(r['dwarfHits'] for r in rows),'dwarfAttacks':sum(r['dwarfAttacks'] for r in rows),'medianWoundDeath':statistics.median(times) if times else None,'timeRange':[min(times),max(times)] if times else []}))
+for only in ('wolf',''):
+ for mode in ('ignore','react'):
+  rows=[]
+  for biome in ('taiga','temperate_forest'):
+   for n in range(1,4):
+    p=root/(f't212-{biome}-{n}-{mode}-{only or "all"}.json')
+    if p.exists(): rows.append(json.loads(p.read_text('utf8')))
+  if not rows:continue
+  killers=Counter(d['killer'] for r in rows for d in r['dwarfDeaths'] if d['killer'].endswith(':wild'))
+  others=Counter(d['cause'] for r in rows for d in r['dwarfDeaths'] if not d['killer'].endswith(':wild'))
+  print(json.dumps({'only':only or 'all','mode':mode,'runs':len(rows),'seeds':[r['seed'] for r in rows],'deaths':[r['dwarfDeathsToWildlife'] for r in rows],'total':sum(r['dwarfDeathsToWildlife'] for r in rows),'zero':sum(r['dwarfDeathsToWildlife']==0 for r in rows),'extinct':sum(r['dwarvesAlive']==0 for r in rows),'alive':[r['dwarvesAlive'] for r in rows],'endDay':[r['endDay'] for r in rows],'killers':killers,'otherCauses':others,'tameKilled':sum(r['tameDeathsToWildlife'] for r in rows),'wildKilledByDwarves':sum(d['killer']=='dwarf' for r in rows for d in r['wildDeaths'])}))
+p=root/'reference.json'
+if p.exists():print('REFERENCE '+p.read_text('utf8'))
