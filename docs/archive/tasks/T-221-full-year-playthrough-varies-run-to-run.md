@@ -1,6 +1,8 @@
 # T-221 — The browser year gives a different year on every run of the same code
 
-**Source:** T-212 and [`2026-10-11-full-year-with-t212.md`](../../reports/audits/2026-10-11-full-year-with-t212.md) · **Size:** S · **Needs:** — · **Status:** open; local side; decided 2026-10-11, see Decision
+**Source:** T-212 and [`2026-10-11-full-year-with-t212.md`](../../../reports/audits/2026-10-11-full-year-with-t212.md) · **Size:** S · **Needs:** — · **Status:** closed
+
+Closed by `9fe6088`, `58b2e75` and `894a0fc`.
 
 ## Why
 
@@ -8,7 +10,7 @@
 
 ## Reproduction
 
-Run `CI=1 npx playwright test full-year.spec.ts` several times on one commit and compare the printed `full-year end state` and `T-192 full-year wildlife` lines. The per-run data of the report: [`2026-10-11-full-year-repeat-runs.json`](../../reports/data/2026-10-11-full-year-repeat-runs.json).
+Run `CI=1 npx playwright test full-year.spec.ts` several times on one commit and compare the printed `full-year end state` and `T-192 full-year wildlife` lines. The per-run data of the report: [`2026-10-11-full-year-repeat-runs.json`](../../../reports/data/2026-10-11-full-year-repeat-runs.json).
 
 ## What the spec says
 
