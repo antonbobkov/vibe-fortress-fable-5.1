@@ -12,11 +12,16 @@ import { CARAVAN_DAY_MAX, CARAVAN_DAY_MIN } from '../../src/systems/trade/consta
 import { CARAVAN_SEASON } from '../../src/systems/trade/schedule';
 import { GUARANTEED_SIZE_MAX, GUARANTEED_SIZE_MIN } from '../../src/systems/immigration/constants';
 import { DAYS_PER_SEASON, DAYS_PER_YEAR } from '../../src/core/constants';
+import { readFileSync } from 'node:fs';
+
+/** Species ids of the content table, for naming the species of a killer. */
+const speciesNames: string[] = (JSON.parse(readFileSync('src/content/creatures.json', 'utf8')) as { id: string }[]).map((row) => row.id);
 
 interface FullYearHook extends Hook {
   step(n: number): void;
   setSpeed(speed: number): void;
   screenshotName(name: string): string;
+  hash(): string;
   dwarves(): { id: number; x: number; y: number; z: number }[];
   readers: {
     calendar: { tick: number };
@@ -38,6 +43,7 @@ interface FullYearHook extends Hook {
     of<T>(id: string): T;
   };
   host: {
+    speed(): number;
     world: {
       calendar: { tick: number };
       scheduler: { byId(id: string): { lastPlacedBuilding: number; lastCreatedZone: number } };
@@ -60,6 +66,19 @@ interface YearTracker {
   huntKills: number;
   huntsCompleted: number;
   starvingCount: number;
+  deaths: Death[];
+}
+
+/** A fortress creature that died: when, of what, and who killed it (T-221). */
+interface Death {
+  day: number;
+  tick: number;
+  name: string;
+  cause: string;
+  killerId: number;
+  killerSpecies: string;
+  killerState: string;
+  tame: boolean;
 }
 
 async function closePanels(page: Page): Promise<void> {
@@ -102,6 +121,40 @@ async function addWorkOrder(page: Page, filter: string, workshopHint: string, mo
   for (const digit of String(target)) await page.keyboard.press(digit);
   await page.keyboard.press('Enter');
   await closePanels(page);
+}
+
+/**
+ * The playthrough's clock (T-221): it is paused from the embark to the end, and the only way it
+ * moves is `advance`. `expectPaused` checks, before the UI commands of a checkpoint, that nothing
+ * but `advance` has moved it.
+ */
+function playClock(page: Page, startTick: number): {
+  advance(ticks: number): Promise<void>;
+  advanceTo(tick: number): Promise<void>;
+  expectPaused(): Promise<void>;
+} {
+  let expected = startTick;
+  const clock = {
+    async advance(ticks: number): Promise<void> {
+      await clock.advanceTo(expected + ticks);
+    },
+    async advanceTo(tick: number): Promise<void> {
+      await page.evaluate((target) => {
+        const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+        while (h.readers.calendar.tick < target) h.step(Math.min(300, target - h.readers.calendar.tick));
+      }, tick);
+      expected = tick;
+      await clock.expectPaused();
+    },
+    async expectPaused(): Promise<void> {
+      const now = await page.evaluate(() => {
+        const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+        return { speed: h.host.speed(), tick: h.readers.calendar.tick };
+      });
+      expect(now, `the clock is paused at tick ${expected} while the UI commands are given`).toEqual({ speed: 0, tick: expected });
+    },
+  };
+  return clock;
 }
 
 test('full-year', async ({ page }) => {
@@ -151,14 +204,19 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Enter');
   await expect.poll(() => screenOf(page), { timeout: 60_000 }).toBe('fortress');
 
-  // 4. Set speed to 4× in UI
-  await page.keyboard.press('Space');
-  await page.keyboard.press('+');
-  await page.keyboard.press('+');
-  await expect.poll(() => textOf(page)).toContain('4x');
+  // 4. The fortress opens paused and stays paused: every UI command below takes effect at once
+  //    (U-02) on the tick it is given, and time advances only through the hook's `step`, so
+  //    real time cannot change the year (T-221). The frame loop at 4x has a spec of its own,
+  //    `frame-loop-day`.
+  const opening = await page.evaluate(() => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    return { speed: h.host.speed(), tick: h.readers.calendar.tick };
+  });
+  expect(opening.speed, 'the fortress opens paused').toBe(0);
+  const clock = playClock(page, opening.tick);
 
   // 5. Initialize tracking
-  await page.evaluate(() => {
+  await page.evaluate((speciesNames) => {
     const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
     const w = h.host.world;
     const tracker: YearTracker = {
@@ -175,6 +233,7 @@ test('full-year', async ({ page }) => {
       huntKills: 0,
       huntsCompleted: 0,
       starvingCount: 0,
+      deaths: [],
     };
     (window as unknown as { __tracker: YearTracker }).__tracker = tracker;
 
@@ -218,6 +277,21 @@ test('full-year', async ({ page }) => {
           tracker.huntsCompleted += 1;
         } else if (event.type === 'CreatureDied') {
           console.log(`[full-year] Day ${day}: CreatureDied ${JSON.stringify(event)}`);
+          if (event['faction'] === 'fortress') {
+            const killerId = Number(event['killerId'] ?? 0);
+            const animals = h.readers.of<{ bySpecies(species: string, wild?: boolean): readonly number[]; state(id: number): string; isTame(id: number): boolean }>('08');
+            const killerSpecies = killerId === 0 ? 'none' : (speciesNames.find((name) => animals.bySpecies(name).includes(killerId)) ?? 'unknown');
+            tracker.deaths.push({
+              day,
+              tick: h.readers.calendar.tick,
+              name: String(event['name'] ?? ''),
+              cause: String(event['cause'] ?? ''),
+              killerId,
+              killerSpecies,
+              killerState: killerId === 0 ? '' : animals.state(killerId),
+              tame: animals.isTame(Number(event['id'])),
+            });
+          }
         } else if (event.type === 'Starving') {
           tracker.starvingCount += 1;
           console.log(`[full-year] Day ${day}: Starving ${JSON.stringify(event)}`);
@@ -228,7 +302,7 @@ test('full-year', async ({ page }) => {
         }
       }
     });
-  });
+  }, speciesNames);
 
   // Locate wagon, stairwell, trees, and free 3x3 patches
   const site = await page.evaluate(() => {
@@ -315,6 +389,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Shift+S');
   await dragTiles(page, { x: site.wx + 3, y: site.wy + 2 }, { x: site.wx + 6, y: site.wy + 5 });
   await page.keyboard.press('Escape');
+  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped
   await clickTile(page, site.wx + 3, site.wy + 2);
   await expect.poll(() => textOf(page)).toContain('[S-p] Preset');
   await page.keyboard.press('Shift+P');
@@ -328,6 +403,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Shift+F');
   await dragTiles(page, { x: site.wx + 2, y: site.wy - 5 }, { x: site.wx + 5, y: site.wy - 3 });
   await page.keyboard.press('Escape');
+  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped
   await clickTile(page, site.wx + 2, site.wy - 5);
   await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
   for (const season of ['Spring', 'Summer', 'Autumn']) {
@@ -343,6 +419,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Shift+F');
   await dragTiles(page, { x: site.wx + 6, y: site.wy - 5 }, { x: site.wx + 9, y: site.wy - 3 });
   await page.keyboard.press('Escape');
+  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped
   await clickTile(page, site.wx + 6, site.wy - 5);
   await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
   for (const season of ['Spring', 'Summer']) {
@@ -401,23 +478,8 @@ test('full-year', async ({ page }) => {
   await addWorkOrder(page, 'blocks', 'mason', 'once', 4);
   await addWorkOrder(page, 'brewdrink', 'still', 'maintain', 100);
 
-  // Run the first game day through the real frame loop at 4×
-  await expect.poll(
-    () => page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.calendar.tick),
-    { timeout: 30_000 },
-  ).toBeGreaterThanOrEqual(1200);
-
-  const day1Tick = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.calendar.tick);
-  expect(day1Tick, 'first game day elapsed through the real frame loop').toBeGreaterThanOrEqual(1200);
-
-  // Advance remaining time to Day 3 with h.step
-  await page.evaluate(() => {
-    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const targetTick = 3 * 1200;
-    while (h.readers.calendar.tick < targetTick) {
-      h.step(Math.min(300, targetTick - h.readers.calendar.tick));
-    }
-  });
+  await clock.expectPaused();
+  await clock.advanceTo(3 * 1200); // Day 3
 
   // Screenshot 1: full-year-spring
   const shot1 = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.screenshotName('full-year-spring'));
@@ -442,14 +504,8 @@ test('full-year', async ({ page }) => {
   await dragTiles(page, { x: site.patches[7]!.x, y: site.patches[7]!.y }, { x: site.patches[7]!.x + 2, y: site.patches[7]!.y + 2 });
   await closePanels(page);
 
-  // Advance to Day 10
-  await page.evaluate(() => {
-    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const targetTick = 10 * 1200;
-    while (h.readers.calendar.tick < targetTick) {
-      h.step(Math.min(300, targetTick - h.readers.calendar.tick));
-    }
-  });
+  await clock.expectPaused();
+  await clock.advanceTo(10 * 1200); // Day 10
 
   // Checkpoint 3 (Days 10–20): Cave farm, trade depot, anvil request
   // 1. Cave farm plot on wz - 2: dug soil tiles planted with dimcap for all 4 seasons
@@ -458,6 +514,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Shift+F');
   await dragTiles(page, { x: site.sx + 1, y: site.sy }, { x: site.sx + 8, y: site.sy + 3 });
   await page.keyboard.press('Escape');
+  await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped
   await clickTile(page, site.sx + 1, site.sy);
   await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
   for (const season of ['Spring', 'Summer', 'Autumn', 'Winter']) {
@@ -480,14 +537,8 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Enter');
   await closePanels(page);
 
-  // Advance to Day 20
-  await page.evaluate(() => {
-    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const targetTick = 20 * 1200;
-    while (h.readers.calendar.tick < targetTick) {
-      h.step(Math.min(300, targetTick - h.readers.calendar.tick));
-    }
-  });
+  await clock.expectPaused();
+  await clock.advanceTo(20 * 1200); // Day 20
 
   // Screenshot 2: full-year-summer
   const shot2 = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.screenshotName('full-year-summer'));
@@ -553,6 +604,7 @@ test('full-year', async ({ page }) => {
       harvests: tracker.harvests,
       nextDay,
       livingCount: livingDwarves.length,
+      hash: h.hash(),
       wildAtEnd: h.readers.of<{ wildList(): readonly number[] }>('08').wildList().length,
       stocks: {
         drink: items.count('drink'),
@@ -564,7 +616,7 @@ test('full-year', async ({ page }) => {
     };
   });
 
-  const { tracker, wealth, harvests, nextDay, livingCount, stocks } = results;
+  const { tracker, wealth, harvests, nextDay, livingCount, stocks, hash } = results;
 
   const windowOf = (civ: string, year: number): [number, number] => {
     const base = (year - 1) * DAYS_PER_YEAR + (CARAVAN_SEASON[civ] ?? 0) * DAYS_PER_SEASON;
@@ -590,7 +642,7 @@ test('full-year', async ({ page }) => {
   ];
 
   console.log(['full-year balance table:', ...table.map((row) => `  ${row.day} -> ${row.measured}`)].join('\n'));
-  console.log(`full-year end state: ${JSON.stringify({ livingCount, wealth, stocks, waves: tracker.waves, caravanDay: tracker.caravanDay, trades: tracker.tradesDone })}`);
+  console.log(`full-year end state: ${JSON.stringify({ livingCount, wealth, stocks, waves: tracker.waves, caravanDay: tracker.caravanDay, trades: tracker.tradesDone, starving: tracker.starvingCount, deaths: tracker.deaths, hash })}`);
 
   console.log(`T-192 full-year wildlife: ${JSON.stringify({ spawns: tracker.wildSpawns, liveAtEnd: results.wildAtEnd, huntsCompleted: tracker.huntsCompleted, huntKills: tracker.huntKills })}`);
 
