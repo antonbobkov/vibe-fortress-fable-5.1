@@ -46,7 +46,7 @@ Environmental sources create wounds through the same path with synthetic damage:
 
 ### Bleeding, pain, consciousness
 
-Each health tick (every 5 ticks) for each creature in the `wounded` list:
+Each health tick (every 5 ticks) for each creature in the `wounded` list or still admitted as a `Patient`, once in ascending entity-id order:
 
 - `blood −= Σ wound.bleed` for wounds not `bandaged` (bandaging sets `bleed = 0`; suturing keeps it 0 and heals faster). A `light` wound stops bleeding by itself `CLOT_TICKS` after it was made (its `bleed` becomes 0); a `serious` or `grievous` wound bleeds until it is bandaged. Blood regenerates `BLOOD_REGEN_PER_TICK` per health tick when no wound bleeds.
 - `pain = Σ wound.pain × (100 − Willpower / 2) / 100` (dwarves; other creatures use 100).
@@ -83,6 +83,7 @@ Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned` and
   5. `dress_burn`: 1 `cloth` per burn → `dressed` (halves burn pain, heals normally). Priority 3.
   6. `diagnose`: no input; the Chief Medic if any, else any medic; sets `diagnosed`, which makes the wound list visible in the inspector in full detail (undiagnosed patients show "wounded, bleeding" only) and gives `DIAGNOSE_XP`. Priority 4; created once per admission.
   7. `give_crutch`: 1 `crutch` to a dwarf with a lost leg. Priority 5.
+- Recompute each admitted patient's treatment needs from the current wounds and treatment flags on every health tick, including while pain alone delays discharge. A fully treated patient has no treatment needs and produces no repeated medic jobs; an unfinished treatment remains a need.
 - Job work time `TREAT_TICKS` skill-scaled; a treatment can fail at low skill (`TREAT_FAIL_PERMILLE − skill × 10`, minimum 0) consuming the input without effect; the job is re-created.
 - Discharge: no bleeding, no unsplinted fractures, no undressed burns, no infection, conscious, pain below `PAIN_DISCHARGE`. `PatientDischarged { id }`; `PatientHealed { id, hospitalTier }` when all wounds are light or gone, giving the `healed` thought (scaled by the hospital tier).
 - Without a hospital, medics still treat patients wherever they lie if supplies are in any stockpile; the hospital's value is proximity, beds and the room tier.
