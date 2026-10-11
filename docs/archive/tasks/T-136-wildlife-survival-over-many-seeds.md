@@ -1,5 +1,7 @@
 # T-136 — How many dwarves wild animals cost a fortress, measured over many seeds
 
+Closed by `T-136: measure annual wildlife survival over twelve seeds`.
+
 **Source:** T-221, T-134 and T-135 (the browser year moved from 9 living to 8 to 6 across three correct fixes); decided by the local orchestrator, 2026-10-11 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
@@ -24,3 +26,15 @@ The browser year now asserts only what one year can witness: the fortress is not
 
 - The instrument runs in `npm run test:perf` and its report is filed.
 - `balance.md` states the target and the measured distribution.
+
+## Progress (2026-10-11, codex-a)
+
+Instrument in progress: twelve distinct seeds, four each for forest, taiga and grassland, standard-size generated local maps, peril 0 and Balanced embark. The browser's commands and opening schedule are reproduced headless, with the same three farm capacities, six building placements, work-order targets, three-member squad and alert policy. Regions have a west arrival and no suppressing traits; this is a controlled wildlife instrument, not a sample of arbitrary climates or a retuned three-year fixture. Taiga's same-sized dimcap plot uses its deeper soil floor one level below the surface (forest and grassland use two); no extra farm or supply is added. The browser's wildlife response begins after the opening on day 20, and that qualification is retained for this initial measurement.
+
+First forest seed: 10 living of 13 arrivals at tick 134400; three dwarves bled out after wolf attacks on days 100, 101 and 105; two dogs killed by wolves; nine Starving events but no dwarf hunger/thirst death. The full twelve-seed run is measuring the distribution before pinning its measured floors next to the proposed target.
+
+## Final measurement (2026-10-11)
+
+Both full twelve-seed runs agree on every world hash. Overall median 12.5, minimum 0, 8/12 without a wildlife dwarf death, one extinction and two deaths labelled starvation. Forest median/minimum 10/8, taiga 11.5/0, grassland 14.5/14. The proposed minimum and no-need-death target fail; the work file's accepted measured-bounds case is implemented, retaining the target beside those bounds and additionally capping extinctions and guarding the wildlife-free share. The new instrument changes no game rule or balance constant. T-260 diagnoses the two need-related deaths; T-220 uses this cohort for pack losses.
+
+The final run records sleeping dwarves bitten with nearby dwarves fleeing, and critical need maxima during long hearth holds. The [dated report](../../../reports/audits/2026-10-11-wildlife-survival-over-twelve-seeds.md) states the evidence and its limits. Instrument: twelve seed cases passed; three accounting controls passed; `npm test`: 263 files, 2346 tests passed. No golden moved. The browser's updated survival/need-death assertions and the instrument method are folded into testing-strategy.md; target and measured distribution into balance.md and balance-status.md.
