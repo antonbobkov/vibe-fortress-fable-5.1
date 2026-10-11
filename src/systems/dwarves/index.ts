@@ -115,8 +115,10 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   }
 
   /**
-   * `10` § Behavior selection: a fleeing civilian hit in melee by an attacker at least as fast as
-   * itself is caught; from then on it fights that attacker instead of fleeing.
+   * `10` § Behavior selection: a fleeing civilian hit in melee by a wild animal that is hunting it,
+   * at least as fast as itself, is caught; from then on it fights that attacker instead of fleeing.
+   * An animal defending its ground (`defendFrom` set, `08` § Wild behavior) and a hostile of a
+   * party do not catch it.
    */
   private caughtFleeing(ctx: TickContext, attacker: EntityId, id: EntityId, outcome: unknown): void {
     const entities = ctx.world.entities;
@@ -128,6 +130,9 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     if (mine === undefined || theirs === undefined || mine.z !== theirs.z ||
       Math.max(Math.abs(mine.x - theirs.x), Math.abs(mine.y - theirs.y)) > 1) return;
     if ((entities.get(attacker, C.Motion)?.speed ?? 0) < (entities.get(id, C.Motion)?.speed ?? 0)) return;
+    // A hunt, or the attack a hunt led to; a defence keeps `defendFrom` (creature-brains.md).
+    const wild = entities.get(attacker, C.Wild);
+    if (wild === undefined || !(wild.state === 'hunt' || (wild.state === 'attack' && wild.defendFrom === undefined))) return;
     this.threatened.set(id, { hostileId: attacker, tick: ctx.tick, tile: ctx.world.map.index(theirs.x, theirs.y, theirs.z), caught: true });
     this.interruptFlags.add(id);
   }
