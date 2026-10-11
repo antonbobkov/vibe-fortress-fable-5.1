@@ -11,9 +11,9 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
+| T-260 | [Two dwarves starve under wildlife alerts](work/T-260-starvation-under-wildlife-alerts.md) | T-136 twelve-seed instrument, 2026-10-11 | — | open; diagnosis first |
 | T-139 | [Clothing keeps a dead carrier](work/T-139-dead-carrier-clothing.md) | T-216 full-run verification, 2026-10-11 | — | open |
 | T-138 | [Fresh embark save loses next-tick mood reactions](work/T-138-fresh-embark-mood-save.md) | T-133 save-continuation control, 2026-10-11 | — | open |
-| T-136 | [Wildlife survival over many seeds](work/T-136-wildlife-survival-over-many-seeds.md) | T-221, T-134 and T-135; orchestrator decision, 2026-10-11 | — | open; **next after the task in hand, before T-220**: wolves cost a fifth to a third of the dwarves on forest and taiga maps (T-218, T-253) |
 | T-137 | [Repeated infection cleaning restarts a pending cure](work/T-137-infection-treatment-restarts-cure.md) | T-224 treatment-refresh investigation, 2026-10-11 | — | open |
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | T-140, T-145 (the performance tier includes the 20-seed balance sweep, which cannot pass before them) | open; local side (needs a quiet machine) |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, and the fix tasks of T-115 (T-169 … T-177, T-180 … T-187) | open; local side (the cloud agent stopped before it) |
