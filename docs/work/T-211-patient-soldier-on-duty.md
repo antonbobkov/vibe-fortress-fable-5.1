@@ -1,6 +1,6 @@
 # T-211 — A wounded soldier stays on duty instead of becoming a patient
 
-**Source:** T-196 and [`2026-10-10-wild-animals-and-civilians.md`](../../reports/audits/2026-10-10-wild-animals-and-civilians.md) · **Size:** S · **Needs:** T-134 (it changes the same `select()` and the duty branch) · **Status:** open
+**Source:** T-196 and [`2026-10-10-wild-animals-and-civilians.md`](../../reports/audits/2026-10-10-wild-animals-and-civilians.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -16,7 +16,9 @@ The trace probe of T-196 (`reports/data/2026-10-10-t196-probe-trace.test.ts.txt`
 
 ## What to do
 
-On `PatientAdmitted` (and `PatientDischarged`) set the dwarf's interrupt flag so the next think reselects; check that a soldier on duty then takes `patient` while its squad has no fight in sight, and returns to duty on discharge. Do it after T-134, which rewrites the same branch.
+What T-134 changed for this task: squad code (`stepSquads` in `src/systems/combat/squads.ts`, and a `kill` `SquadOrder`) now skips a member whose brain behavior is `need`, `flee`, `retreat` or `patient` before its kill-order step, so a soldier in `patient` is no longer given its squad's kill target or walked toward it. It does not make a soldier in `duty` reselect on admission: that is still this task. In `select()` the `patient` step still comes before the duty branch, which T-134 changed only in what holds a want back.
+
+On `PatientAdmitted` (and `PatientDischarged`) set the dwarf's interrupt flag so the next think reselects; check that a soldier on duty then takes `patient` while its squad has no fight in sight, and returns to duty on discharge. T-134 has rewritten the same branch.
 
 ## Done
 

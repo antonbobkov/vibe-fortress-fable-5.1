@@ -1,5 +1,7 @@
 # T-222 — `hospital_run` passes on one roll of its staged fight
 
+Closed by `T-222: hospital_run is staged by rule, not by a roll`.
+
 **Source:** T-134 (`docs/work/T-134-soldier-need-interruptions.md` § Findings) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why

@@ -529,7 +529,7 @@ describe('U-05 the building panel (M4)', () => {
   it('U-05 the alert and gate hints name steps the player can take, with their keys', () => {
     const alert = strings.get('hint.hint_alert');
     const gate = strings.get('hint.hint_gate');
-    expect(alert).toBe('Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock, but a dwarf in dire need still goes out to eat, drink or sleep.');
+    expect(alert).toBe('Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock, but a dwarf in dire need still goes out to eat, drink or sleep, and the medics still tend the wounded.');
     expect(gate).toBe('A drawbridge over a channel is the surest gate. Build a lever inside [b], click it, press [i] and click the bridge; [y] pulls it.');
     // The steps exist: the mode's name is the panel's, `[3]` raises the alert, `[i]` and `[y]` are the lever's keys.
     expect(alert).toContain(strings.get('ui.building.mode.lock_on_alert'));

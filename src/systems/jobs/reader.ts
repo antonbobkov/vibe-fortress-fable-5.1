@@ -37,6 +37,8 @@ export interface JobsReader {
   hasUrgent(dwarfId: EntityId, priority: number): boolean;
   /** True when an open job is available that this worker could take (F-11). */
   hasWork(dwarfId: EntityId): boolean;
+  /** True while the dwarf holds a job for a patient (a health job whose target is a patient). */
+  holdsPatientCare(dwarfId: EntityId): boolean;
 }
 
 function copy(job: Job | undefined): Job | undefined {
@@ -94,5 +96,9 @@ export function makeReader(board: JobBoard): JobsReader {
     isQueued: (dwarfId) => board.isQueued(dwarfId),
     hasUrgent: (dwarfId, priority) => board.hasUrgent(dwarfId, priority),
     hasWork: (dwarfId) => board.hasWork(dwarfId),
+    holdsPatientCare: (dwarfId) => {
+      const job = board.jobs.get(board.workerOf(dwarfId).jobId);
+      return job !== undefined && board.isPatientCare(job);
+    },
   };
 }
