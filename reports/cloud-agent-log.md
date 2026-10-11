@@ -5,6 +5,7 @@ The running log of the Claude agent that works in the cloud on branches `cloud/m
 ## Ready to merge
 
 - `6ea68b2`: T-144, T-197 and T-198 closed (the `t-144` branch landed on T-196). Social, comfort and joy are served in passing; at a mark of 75 one sit in the hearth hall comes first; a ranged hunt takes launcher and ammunition together; `year_one` meets wild animals again; `homestead_year` waits for its first birth. Verified: npm test 2263 passed, e2e 24 passed.
+- `3fbf367`: T-199 closed. A brew that waits because every barrel holds something is announced once per wait ("A workshop is waiting for an empty barrel"), and a hint points at the carpenter. Verified: npm test 2265 passed, e2e 24 passed.
 
 ## Needs the owner
 
@@ -66,3 +67,12 @@ The answer: the wants now cost about half the dwarf time they did, and mood is b
 - **Reviewed by me:** the merge, the fixture changes and the T-197 check. The T-197 limit ("at the mark less than 15% of the time") is how the `t-144` branch wrote it, not a loosening made to land it.
 - **Re-verified after merging `cloud/main` (with `origin/master` at `4446f36`) into `cloud/T-144`:** all checks clean; npm test 2263 passed; e2e 24 passed.
 - **Next:** T-199 (the still waits for an empty barrel), then T-212 as decided.
+
+### 2026-10-11: T-199 closed (merge `3fbf367`)
+
+- **Decision (mine, recorded in the work file before the work):** the game tells the player; a brew does not empty a barrel. It was the work file's default and the smaller change; Dwarf Fortress players expect a brew to need an empty barrel; and tipping food onto the floor would quietly break the player's stockpile settings.
+- **What the game does now:** a workshop whose only shortage is an empty container emits `WorkshopBlocked` with the new reason `no_empty_container` and the container class, once per wait. The log shows an alert naming the barrel, and the hint `hint_barrel` points at the carpenter. The spec had no reason name for this; `no_empty_container` was added to 12 and to the event catalogue.
+- **Tests:** `test/unit/t199-brew-waits-for-barrel.test.ts` (failed first: the reason was `missing_input` and no alert appeared). No golden moved.
+- **Filed:** T-217 (workshop alerts carry no focus tile, so the log cannot centre the map on the workshop).
+- **Heads-up for whoever takes T-250:** it plans an `input` field on `WorkshopBlocked`; it should build on the new `container` field and reason.
+- Implemented by a Sonnet subagent; I reviewed the diff and re-ran every check on the branch.
