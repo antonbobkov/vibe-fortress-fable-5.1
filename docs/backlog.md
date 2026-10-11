@@ -12,6 +12,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-260 | [Two dwarves starve under wildlife alerts](work/T-260-starvation-under-wildlife-alerts.md) | T-136 twelve-seed instrument, 2026-10-11 | — | open; diagnosis first |
+| T-261 | [Infection appearing after cleaning-job planning is cured without brightleaf](work/T-261-infection-after-cleaning-job-planned.md) | T-137 investigation, 2026-10-11 | — | open |
 | T-139 | [Clothing keeps a dead carrier](work/T-139-dead-carrier-clothing.md) | T-216 full-run verification, 2026-10-11 | — | open |
 | T-138 | [Fresh embark save loses next-tick mood reactions](work/T-138-fresh-embark-mood-save.md) | T-133 save-continuation control, 2026-10-11 | — | open |
 | T-137 | [Repeated infection cleaning restarts a pending cure](work/T-137-infection-treatment-restarts-cure.md) | T-224 treatment-refresh investigation, 2026-10-11 | — | open |

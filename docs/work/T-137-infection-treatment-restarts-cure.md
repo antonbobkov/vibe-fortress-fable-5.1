@@ -1,5 +1,26 @@
 # T-137 - Repeated infection cleaning restarts a cure already in progress
 
+## Progress (2026-10-11): parked on the annual distribution guard
+
+Four stepped regressions and the narrow fix are in stash `e3b1fed802d5bde466529aa3c5f086bb4d714a5c`
+(`T-137 pending cure fix parked: annual wildlife-free guard 7/12 below 8/12`).
+Six statics, 2353 tests and the whole 25-test browser suite pass; the browser
+end state is unchanged (seven living, hash `54f0bf60c7e768c3`). No golden moves.
+The annual instrument keeps median 12.5, improves minimum 0 to 3 and extinctions
+1 to 0, but drops wildlife-free seeds 8/12 to 7/12, failing its existing guard.
+No assertion or long fixture was weakened or tuned.
+
+Taiga seed 1 reproduces its changed annual hash in a second event-traced run:
+first successful cleaning at 78124 now cures at 81727 rather than restarting
+until 82872. The changed workforce later encounters wolves; Palnir is admitted
+at 130192, remains a patient on exposed surface tile (27,36,32) beside a hungry
+attacking wolf at 130290, and bleeds out at 130407 (day 109). A causal game fault
+in the cure fix is not established. See the [frozen measurements](../../reports/audits/2026-10-11-pending-infection-cure-annual-check.md).
+
+Next: retain the tested cure fix; investigate the exposed-patient danger under
+T-214/T-211, then rerun the annual guard before landing T-137. A separate
+planning-time infection/input race is filed as T-261. T-137 remains open.
+
 **Source:** T-224 treatment-refresh investigation, 2026-10-11 | **Size:** S | **Needs:** none | **Status:** open
 
 ## Finding and reproduction
