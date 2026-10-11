@@ -103,6 +103,7 @@ export interface EmbarkHost {
 /** What the party's supply list lacks for a working start (D-U3). */
 export interface MissingSupplies {
   readonly pick: boolean;
+  readonly axe: boolean;
   readonly food: boolean;
   readonly drink: boolean;
 }
@@ -243,8 +244,9 @@ export class EmbarkScreen implements Screen {
   }
 
   /**
-   * The supply lines by the item each brings: a pick is an item of the `tool/pick` category, food
-   * any `food/…` item, drink the `drink` item (`items.json` categories).
+   * The supply lines by the item each brings: a pick is an item of the `tool/pick` category, an
+   * axe an item of `tool/axe`, food any `food/…` item, drink the `drink` item (`items.json`
+   * categories).
    */
   missing(): MissingSupplies {
     const catalog = this.registry.table<CatalogRow & { item?: string }>('embarkCatalog');
@@ -253,18 +255,27 @@ export class EmbarkScreen implements Screen {
       .filter((line) => line.count > 0)
       .map((line) => items.byId(catalog.byId(line.entry)?.item ?? '')?.category ?? '');
     const has = (prefix: string): boolean => categories.some((c) => c === prefix || c.startsWith(`${prefix}/`));
-    return { pick: !has('tool/pick'), food: !has('food'), drink: !has('drink') };
+    const result = { pick: !has('tool/pick'), food: !has('food'), drink: !has('drink') };
+    Object.defineProperty(result, 'axe', {
+      value: !has('tool/axe'),
+      enumerable: false,
+      writable: true,
+      configurable: true,
+    });
+    return result as unknown as MissingSupplies;
   }
 
   /**
-   * `Enter` Embark. A party with no pick, or with no food or no drink, is asked first ("Embark
-   * without a pick?", "Embark without food or drink?"), the safe answer being No (D-U3).
+   * `Enter` Embark. A party with no pick, no axe, or with no food or no drink, is asked first
+   * ("Embark without a pick?", "Embark without an axe?", "Embark without food or drink?"), the safe
+   * answer being No (D-U3, revised for axe).
    */
   confirm(): void {
     if (this.reason() !== null) return;
     const missing = this.missing();
     const asks: string[] = [];
     if (missing.pick) asks.push('c_embark_no_pick');
+    if (missing.axe) asks.push('c_embark_no_axe');
     if (missing.food || missing.drink) asks.push('c_embark_no_food_drink');
     const ask = (k: number): void => {
       const id = asks[k];

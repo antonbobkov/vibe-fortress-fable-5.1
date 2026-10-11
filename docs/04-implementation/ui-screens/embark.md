@@ -46,4 +46,4 @@ Animals tab: rows `species · sex · price · [-] n [+]`, with a note line for s
 
 Presets menu (`p`): Balanced, Miner's Guild, Farmstead, Warband, each with its one-line description and total; choosing replaces skills and supplies after a confirm if anything was edited.
 
-Validation display: the Embark button is dim with a reason line when over budget ("Over budget by 44 ☼"), when a dwarf has more than 10 points, or when the name is empty.
+Validation display: the Embark button is dim with a reason line when over budget ("Over budget by 44 ☼"), when a dwarf has more than 10 points, or when the name is empty. Embarking with no pick, no axe, or with no food or no drink, asks first ("Embark without a pick?", "Embark without an axe?", "Embark without food or drink?"; confirmations `c_embark_no_pick`, `c_embark_no_axe`, `c_embark_no_food_drink`, default No).

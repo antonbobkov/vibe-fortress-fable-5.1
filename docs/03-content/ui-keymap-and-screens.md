@@ -89,7 +89,7 @@
 | `/` | focus the filter field |
 | `Backspace` | back within nested menus |
 
-Panel hotkeys always win. The letters of § Fortress panels always open or close their panel, whatever panel is open; pressing an open panel's own key closes it. A panel's accelerator may not use one of those letters bare: it is bound to `Shift`+letter and shown `[S-m]`. Reserved letters are read from the live panel bindings, including rebinds. Fixed accelerator captions show the defaults; zone inspector captions follow the current bindings. With default bindings, the free letters `g h i q r v w x y` work with or without `Shift`. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text. With a map selection, forbid, dump and move to depot are `[S-f]`, `[S-d]` and `[S-t]` for the same reason.
+Panel hotkeys always win. The letters of § Fortress panels always open or close their panel, whatever panel is open; pressing an open panel's own key closes it; when a panel closes while one of its tools was armed, the status row shows a notice ("Designate closed · [d] opens it again", naming the panel and its key; also for Build and Zones). A panel's accelerator may not use one of those letters bare: it is bound to `Shift`+letter and shown `[S-m]`. Reserved letters are read from the live panel bindings, including rebinds. Fixed accelerator captions show the defaults; zone inspector captions follow the current bindings. With default bindings, the free letters `g h i q r v w x y` work with or without `Shift`. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text. With a map selection, forbid, dump and move to depot are `[S-f]`, `[S-d]` and `[S-t]` for the same reason.
 
 Every destructive single-key action asks through the confirmation dialog first, default **No** (§ Confirmations): melt, dump, slaughter, suspend, take apart, disband, remove (a zone, a work order), release (a caged creature). Undoing a mark (resume, unmark) does not ask.
 
@@ -320,6 +320,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `c_delete_save` | "Delete {save}? This cannot be undone." | No |
 | `c_main_menu` | "Return to the main menu? Unsaved progress since {time} will be lost." | No |
 | `c_embark_no_pick` | "Embark without a pick?" | No |
+| `c_embark_no_axe` | "Embark without an axe?" | No |
 | `c_embark_no_food_drink` | "Embark without food or drink?" | No |
 | `c_melt_items` | "Mark {what} for melting? Melted items are gone; the smelter gives back part of their metal as bars." | No |
 | `c_dump_items` | "Mark {what} for dumping? Dwarves will carry every one of them to a dump zone." | No |

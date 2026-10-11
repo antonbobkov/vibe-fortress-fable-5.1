@@ -158,6 +158,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.status.stairwell_top': 'Stairwell from z {z}: change level, then pick the bottom · [Esc] cancel',
   'ui.status.selection': 'Selection {w}×{h} ({n} tiles)  [Del] clear  [S-f] forbid  [S-d] dump  [S-t] to depot  [Esc] cancel',
   'ui.status.strip': '[k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks',
+  'ui.status.panel_closed': '{panel} closed · [{key}] opens it again',
   // §4.2: a gesture that sends nothing says why (D-U4).
   'ui.status.none.dig': 'No tile here can be dug: dig marks rock walls and boulders.',
   'ui.status.none.channel': 'No tile here can be channelled: channel marks floor, ramps and down stairs.',

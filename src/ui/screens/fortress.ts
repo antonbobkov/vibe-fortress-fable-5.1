@@ -1310,8 +1310,15 @@ export class FortressScreen implements Screen {
     const opened = (binding === undefined ? undefined : panels.find((p) => p.id === binding.id))
       ?? (!press.ctrl && !press.shift ? panels.find((p) => p.hotkey === press.key) : undefined);
     if (opened === undefined) return false;
-    if (this.ui.panel === opened.id && this.ui.sidebar) this.openPanel(null);
-    else if (opened.id === 'look') this.look(this.hoverPoint() ?? this.centerPoint());
+    if (this.ui.panel === opened.id && this.ui.sidebar) {
+      const wasArmed = (opened.id === 'designate' && this.tool.active)
+        || (opened.id === 'build' && this.build.active)
+        || (opened.id === 'zones' && this.zones.active);
+      this.openPanel(null);
+      if (wasArmed) {
+        this.notice(this.strings.get('ui.status.panel_closed', { panel: opened.title, key: opened.hotkey }));
+      }
+    } else if (opened.id === 'look') this.look(this.hoverPoint() ?? this.centerPoint());
     else {
       this.openPanel(opened.id);
       // `[o]` shows every order again after a workshop's own list.
