@@ -1,6 +1,6 @@
 # T-223 — Several dwarves sleep in one bed at the same time
 
-**Source:** T-134 (`docs/work/T-134-soldier-need-interruptions.md` § Findings) · **Size:** S · **Needs:** — · **Status:** open (needs a decision)
+**Source:** T-134 (`docs/work/T-134-soldier-need-interruptions.md` § Findings) · **Size:** S · **Needs:** — · **Status:** open; decided 2026-10-11, see Decision
 
 ## Why
 
@@ -21,3 +21,7 @@ Decide, by the ambiguity protocol, whether a bed holds one sleeper. The conserva
 ## Done
 
 Two dwarves who go to sleep together sleep in two beds; the test names T-223; goldens that move are named in the commit.
+
+## Decision (2026-10-11, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
+
+**A bed holds one sleeper.** The conservative reading stands, as the task proposes: a bed is free when it is unassigned and not in use. A dwarf that is asleep in a bed, or walking to one it has chosen, holds it until it wakes, gives up or dies. The next dwarf takes the next free bed, else sleeps on the floor of the hall with the floor's penalty. Hospital beds follow the same rule: one patient per bed, and a tired medic does not get into a patient's bed.

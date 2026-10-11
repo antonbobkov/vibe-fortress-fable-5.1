@@ -1,6 +1,6 @@
 # T-219 — A caught civilian stays and fights a defending animal or an armed raider it could have escaped
 
-**Source:** T-212 and [`2026-10-11-hungry-predators.md`](../../reports/audits/2026-10-11-hungry-predators.md) (§ The chain probe with fed animals, § The reference fortress) · **Size:** S (a decision, then a rule and a re-measure) · **Needs:** — · **Status:** open (needs a decision)
+**Source:** T-212 and [`2026-10-11-hungry-predators.md`](../../reports/audits/2026-10-11-hungry-predators.md) (§ The chain probe with fed animals, § The reference fortress) · **Size:** S (a decision, then a rule and a re-measure) · **Needs:** — · **Status:** open; decided 2026-10-11, see Decision
 
 ## Why
 
@@ -24,3 +24,13 @@ Decide whether a defending animal's bite, or an armed raider's blow, catches a f
 
 - The rule is in 10 § Behavior selection, with a test that names this task.
 - `balance.md` § Wild animals and `balance-status.md` carry the re-measured figures.
+
+## Decision (2026-10-11, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
+
+**A civilian is caught only by a hunting predator.** "No escape" in 10 means an attacker that does not let go. A wild animal that hunts the dwarf is one. An animal defending its ground is not (it lets a fleeing dwarf go, T-196), and an armed raider is not for this rule either: the fortress's answer to raiders is doors, the alert and the squad, and a civilian that turns on an armed raider dies where it could have reached a door.
+
+- A fleeing civilian hit by a **wild animal that is hunting it** is caught and fights back, as T-212 wrote.
+- A fleeing civilian hit by a **defending** animal, or by a **hostile of a party** (thief, bandit, raider, the restless dead, the Deep), keeps fleeing. The existing rule for a civilian with no route to flee at all is unchanged.
+- The reason is measured: with fighting back against everything, 14 of T-212's 21 browser-year deaths were civilians who stayed in a defending animal's ground, and raider deaths in the reference fortress went from 2 to 4.
+
+Re-measure as the task says, and update `balance.md` § Wild animals.
