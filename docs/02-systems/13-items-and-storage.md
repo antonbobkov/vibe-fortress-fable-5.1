@@ -92,7 +92,7 @@ Maintained incrementally, sorted by item id:
 
 ### Containers in play
 
-- Drinks are made *into* a barrel at the still (12's `container` input) and stay in it; a dwarf drinks one unit from the barrel where it stands (10 finds the barrel, walks to it, takes one unit: the stack count in the barrel decrements; an empty barrel becomes a free container).
+- Drinks are made *into* a barrel at the still (12's `container` input) and stay in it; a dwarf drinks one unit from the barrel where it stands (10 finds the barrel, walks to it, takes one unit: the stack count in the barrel decrements; an empty barrel becomes a free container). A barrel that holds anything is not empty, so a brew never takes one that holds food, seed or another drink; when every barrel holds something the still waits for a new one (12 § Operation).
 - Seeds go into bags; bags into stockpiles.
 - Bins hold up to `BIN_CAPACITY` items of any bin-wanting category; a bin in a stockpile that accepts crafts and cloth may hold both.
 - Barrels, bags and buckets count units; bins and chests count items. An item container never goes inside another item container. The wagon’s building container can hold item containers; everything held in it resolves to its centre and is found and unloaded as on the ground. A container is hauled with its contents.

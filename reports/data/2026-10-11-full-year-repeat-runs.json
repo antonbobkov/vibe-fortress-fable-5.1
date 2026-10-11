@@ -1,0 +1,810 @@
+[
+ {
+  "code": "cloud/main 61c95c1",
+  "run": "e2e-main/run-1.log",
+  "livingCount": 7,
+  "spawns": {
+   "deer": 10,
+   "lynx": 3,
+   "badger": 4,
+   "wolf": 8,
+   "boar": 10,
+   "fox": 3
+  },
+  "dwarfDeaths": [
+   {
+    "day": 98,
+    "cause": "killed",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 99,
+    "cause": "killed",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 99,
+    "cause": "killed",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 104,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 107,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   }
+  ]
+ },
+ {
+  "code": "cloud/main 61c95c1",
+  "run": "e2e-main/run-2.log",
+  "livingCount": 2,
+  "spawns": {
+   "deer": 18,
+   "lynx": 2,
+   "boar": 11,
+   "fox": 2,
+   "badger": 4,
+   "rabbit": 4,
+   "wolf": 4,
+   "elk": 3
+  },
+  "dwarfDeaths": [
+   {
+    "day": 91,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 92,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 94,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 94,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 95,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 95,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 96,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 106,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 106,
+    "cause": "killed",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 107,
+    "cause": "killed",
+    "killer": "wolf hunting",
+    "caught": false
+   }
+  ]
+ },
+ {
+  "code": "cloud/main 61c95c1",
+  "run": "e2e-main/run-3.log",
+  "livingCount": 3,
+  "spawns": {
+   "deer": 11,
+   "lynx": 5,
+   "badger": 4,
+   "wolf": 7,
+   "fox": 4,
+   "boar": 9,
+   "elk": 5
+  },
+  "dwarfDeaths": [
+   {
+    "day": 26,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 27,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 30,
+    "cause": "killed",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 36,
+    "cause": "killed",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 44,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 45,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 47,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 67,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 74,
+    "cause": "bled_out",
+    "killer": "badger defending",
+    "caught": false
+   }
+  ]
+ },
+ {
+  "code": "cloud/main 61c95c1",
+  "run": "e2e-main/run-4.log",
+  "livingCount": 10,
+  "spawns": {
+   "deer": 25,
+   "lynx": 2,
+   "rabbit": 3,
+   "boar": 6,
+   "bear": 3,
+   "badger": 2,
+   "wolf": 4,
+   "fox": 3,
+   "elk": 2
+  },
+  "dwarfDeaths": [
+   {
+    "day": 54,
+    "cause": "bled_out",
+    "killer": "badger defending",
+    "caught": false
+   },
+   {
+    "day": 78,
+    "cause": "bled_out",
+    "killer": "badger defending",
+    "caught": false
+   }
+  ]
+ },
+ {
+  "code": "cloud/main 61c95c1",
+  "run": "e2e-main/run-5.log",
+  "livingCount": 0,
+  "spawns": {
+   "deer": 13,
+   "lynx": 1,
+   "fox": 2,
+   "boar": 6,
+   "badger": 1,
+   "bear": 1
+  },
+  "dwarfDeaths": [
+   {
+    "day": 43,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 48,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 48,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 51,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 56,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 58,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 58,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 60,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 60,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 62,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 62,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 63,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   }
+  ]
+ },
+ {
+  "code": "cloud/main 61c95c1",
+  "run": "e2e-main2/run-1.log",
+  "livingCount": 0,
+  "spawns": {
+   "deer": 2,
+   "lynx": 2,
+   "wolf": 4,
+   "badger": 1
+  },
+  "dwarfDeaths": [
+   {
+    "day": 17,
+    "cause": "bled_out",
+    "killer": "wolf defending",
+    "caught": false
+   },
+   {
+    "day": 21,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 24,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 29,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 32,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 35,
+    "cause": "bled_out",
+    "killer": "wolf defending",
+    "caught": false
+   },
+   {
+    "day": 35,
+    "cause": "bled_out",
+    "killer": "wolf defending",
+    "caught": false
+   },
+   {
+    "day": 36,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   },
+   {
+    "day": 39,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": false
+   }
+  ]
+ },
+ {
+  "code": "cloud/main 61c95c1",
+  "run": "e2e-main2/run-2.log",
+  "livingCount": 7,
+  "spawns": {
+   "deer": 15,
+   "lynx": 2,
+   "boar": 11,
+   "fox": 5,
+   "bear": 2,
+   "rabbit": 3,
+   "badger": 1,
+   "wolf": 3
+  },
+  "dwarfDeaths": [
+   {
+    "day": 95,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 95,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 108,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 109,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   },
+   {
+    "day": 110,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": false
+   }
+  ]
+ },
+ {
+  "code": "cloud/main 61c95c1",
+  "run": "e2e-main2/run-3.log",
+  "livingCount": 11,
+  "spawns": {
+   "deer": 30,
+   "lynx": 1,
+   "rabbit": 3,
+   "wolf": 8,
+   "fox": 3,
+   "boar": 1,
+   "badger": 1,
+   "elk": 3
+  },
+  "dwarfDeaths": [
+   {
+    "day": 43,
+    "cause": "bled_out",
+    "killer": "wolf defending",
+    "caught": false
+   }
+  ]
+ },
+ {
+  "code": "cloud/main 61c95c1",
+  "run": "e2e-main2/run-4.log",
+  "livingCount": 10,
+  "spawns": {
+   "deer": 22,
+   "lynx": 3,
+   "wolf": 3,
+   "badger": 5,
+   "bear": 2,
+   "boar": 2
+  },
+  "dwarfDeaths": [
+   {
+    "day": 79,
+    "cause": "bled_out",
+    "killer": "bear defending",
+    "caught": false
+   },
+   {
+    "day": 84,
+    "cause": "bled_out",
+    "killer": "bear defending",
+    "caught": false
+   }
+  ]
+ },
+ {
+  "code": "cloud/main 61c95c1",
+  "run": "e2e-main2/run-5.log",
+  "livingCount": 12,
+  "spawns": {
+   "deer": 25,
+   "lynx": 2,
+   "boar": 2,
+   "fox": 2,
+   "bear": 1,
+   "rabbit": 3
+  },
+  "dwarfDeaths": []
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212-trace/run-1.log",
+  "livingCount": 12,
+  "spawns": {
+   "deer": 7,
+   "lynx": 2,
+   "boar": 8,
+   "fox": 5,
+   "bear": 2,
+   "wolf": 4,
+   "elk": 3,
+   "badger": 1
+  },
+  "dwarfDeaths": []
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212-trace/run-2.log",
+  "livingCount": 11,
+  "spawns": {
+   "deer": 7,
+   "lynx": 2,
+   "fox": 7,
+   "boar": 9,
+   "wolf": 8,
+   "badger": 2,
+   "elk": 3
+  },
+  "dwarfDeaths": [
+   {
+    "day": 43,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": true
+   }
+  ]
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212-trace/run-3.log",
+  "livingCount": 11,
+  "spawns": {
+   "deer": 29,
+   "lynx": 1,
+   "bear": 1,
+   "rabbit": 6,
+   "fox": 3,
+   "wolf": 4,
+   "elk": 2,
+   "boar": 3,
+   "badger": 1
+  },
+  "dwarfDeaths": [
+   {
+    "day": 65,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": true
+   }
+  ]
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212/run-1.log",
+  "livingCount": 12,
+  "spawns": {
+   "deer": 31,
+   "lynx": 2,
+   "fox": 1,
+   "bear": 2,
+   "rabbit": 3,
+   "boar": 4,
+   "elk": 2
+  },
+  "dwarfDeaths": []
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212/run-2.log",
+  "livingCount": 8,
+  "spawns": {
+   "deer": 11,
+   "lynx": 3,
+   "rabbit": 3,
+   "boar": 7,
+   "wolf": 4,
+   "bear": 1,
+   "fox": 2,
+   "badger": 3,
+   "elk": 3
+  },
+  "dwarfDeaths": [
+   {
+    "day": 70,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": true
+   },
+   {
+    "day": 91,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": true
+   },
+   {
+    "day": 91,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": true
+   },
+   {
+    "day": 92,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": true
+   }
+  ]
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212/run-3.log",
+  "livingCount": 1,
+  "spawns": {
+   "deer": 14,
+   "lynx": 2,
+   "boar": 10,
+   "rabbit": 5,
+   "badger": 5,
+   "elk": 6,
+   "wolf": 4,
+   "fox": 2
+  },
+  "dwarfDeaths": [
+   {
+    "day": 73,
+    "cause": "bled_out",
+    "killer": "badger defending",
+    "caught": false
+   },
+   {
+    "day": 83,
+    "cause": "bled_out",
+    "killer": "wolf defending",
+    "caught": true
+   },
+   {
+    "day": 86,
+    "cause": "killed",
+    "killer": "wolf defending",
+    "caught": true
+   },
+   {
+    "day": 92,
+    "cause": "bled_out",
+    "killer": "wolf defending",
+    "caught": true
+   },
+   {
+    "day": 93,
+    "cause": "bled_out",
+    "killer": "wolf defending",
+    "caught": true
+   },
+   {
+    "day": 93,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": true
+   },
+   {
+    "day": 93,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": true
+   },
+   {
+    "day": 98,
+    "cause": "bled_out",
+    "killer": "wolf hunting",
+    "caught": true
+   },
+   {
+    "day": 101,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": true
+   },
+   {
+    "day": 103,
+    "cause": "bled_out",
+    "killer": "boar defending",
+    "caught": true
+   },
+   {
+    "day": 104,
+    "cause": "bled_out",
+    "killer": "wolf defending",
+    "caught": true
+   }
+  ]
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212/run-4.log",
+  "livingCount": 11,
+  "spawns": {
+   "deer": 19,
+   "lynx": 2,
+   "boar": 6,
+   "wolf": 6,
+   "bear": 1,
+   "fox": 4,
+   "badger": 3
+  },
+  "dwarfDeaths": [
+   {
+    "day": 57,
+    "cause": "killed",
+    "killer": "wolf hunting",
+    "caught": true
+   }
+  ]
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212/run-5.log",
+  "livingCount": 12,
+  "spawns": {
+   "deer": 5,
+   "lynx": 2,
+   "fox": 7,
+   "badger": 2,
+   "boar": 2,
+   "wolf": 7,
+   "bear": 2,
+   "rabbit": 5
+  },
+  "dwarfDeaths": []
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212b/run-1.log",
+  "livingCount": 12,
+  "spawns": {
+   "deer": 31,
+   "lynx": 3,
+   "wolf": 7,
+   "fox": 6,
+   "badger": 2,
+   "boar": 1,
+   "bear": 2,
+   "rabbit": 3
+  },
+  "dwarfDeaths": []
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212b/run-2.log",
+  "livingCount": 12,
+  "spawns": {
+   "deer": 19,
+   "lynx": 5,
+   "rabbit": 4,
+   "boar": 8,
+   "wolf": 7,
+   "badger": 2
+  },
+  "dwarfDeaths": []
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212b/run-3.log",
+  "livingCount": 11,
+  "spawns": {
+   "deer": 21,
+   "lynx": 1,
+   "fox": 4,
+   "wolf": 4,
+   "boar": 6,
+   "badger": 4,
+   "rabbit": 3,
+   "elk": 3
+  },
+  "dwarfDeaths": [
+   {
+    "day": 73,
+    "cause": "bled_out",
+    "killer": "badger defending",
+    "caught": true
+   }
+  ]
+ },
+ {
+  "code": "cloud/T-212 caf4a6a",
+  "run": "e2e-t212b/run-4.log",
+  "livingCount": 10,
+  "spawns": {
+   "deer": 9,
+   "lynx": 2,
+   "rabbit": 12,
+   "wolf": 7,
+   "badger": 3,
+   "boar": 10,
+   "elk": 3
+  },
+  "dwarfDeaths": [
+   {
+    "day": 53,
+    "cause": "bled_out",
+    "killer": "badger defending",
+    "caught": false
+   },
+   {
+    "day": 57,
+    "cause": "bled_out",
+    "killer": "badger defending",
+    "caught": true
+   }
+  ]
+ }
+]

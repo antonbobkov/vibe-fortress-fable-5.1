@@ -1,6 +1,6 @@
 # T-155 — Browser specs for the panels and screens that are only opened
 
-**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 7; the screens and panels table) · **Size:** L · **Needs:** — · **Status:** open
+**Source:** T-114 and its report, [`../../../reports/audits/2026-10-08-playthrough-coverage.md`](../../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 7; the screens and panels table) · **Size:** L · **Needs:** — · **Status:** closed
 
 ## Why
 
@@ -31,8 +31,18 @@
 3. A panel action that has no effect or shows a raw string key is a bug: file a row with the screenshot named, and leave the assertion in as a `test.fixme` naming the row.
 4. Run `npm run test:e2e`.
 
+## Progress (2026-10-10)
+
+- Done:
+  - `retire-and-legend.spec.ts`: plays a few hundred ticks, retires through the game menu and its confirmation, asserts the legend screen, returns to the main menu, opens Legends and asserts that the fortress is listed.
+  - `embark-custom.spec.ts`: changes a skill, rerolls and renames a dwarf, changes supply and animal counts, renames the fortress, embarks and asserts the arrived party and stocks through the readers.
+  - `animals-panel.spec.ts`: marks and unmarks for slaughter, assigns to pasture, sets breeding cap, toggles huntable species on the wild tab; asserts through animals and foraging readers.
+  - `panels-act.spec.ts`: covers stocks (forbid, dump, melt), jobs (priority, cancel), orders (reorder, remove, auto-harvest toggle), units (title assignment, shift sleep hour), population (cap change), mood (morale tier), threats (renown), log (filter change), look (tile material), overlays (all 11 toggle with cell buffer glyph change), and map actions (Ctrl+Z designation undo, Delete on selection cancels planned building and removes zone with confirmation dialog, selection forbids items); screenshot saved.
+- Remaining:
+  - (none; all four specs implemented and passing)
+
 ## Done
 
 - The four specs pass in `npm run test:e2e`.
 - Every panel of `03-content/ui-keymap-and-screens.md` § Fortress panels has at least one browser assertion on an effect, and the legend screen is reached.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green.

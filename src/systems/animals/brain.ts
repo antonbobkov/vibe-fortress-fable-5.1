@@ -6,15 +6,18 @@
  * tickAnimal(id):
  *   if tick < lastThink + thinkInterval(id): moveAlongPath(id); return
  *   lastThink = tick; threats = perceivedThreats(id)
- *   idle:   threats → flee; aggressive carnivore and hungry with prey → hunt; territorial with a
+ *   idle:   threats → flee; aggressive carnivore and hungry with a quarry → hunt (the pack's
+ *           quarry, else the nearest animal prey, else the nearest dwarf); territorial with a
  *           dwarf within TERRITORY_RADIUS → attack; rest time → sleep; grazer with grass within 6
  *           → graze; else wander
  *   graze:  walk to grass; on arrival GrassGrazed, wait GRAZE_TICKS, idle
  *   wander: walk to a random tile within WANDER_RADIUS of the home chunk; on arrival or timeout idle
  *   flee:   the tile of 8 directions × 6 steps that maximises the distance to the threats; an edge
  *           within perception means leave; FLEE_TICKS without a threat means idle
- *   hunt:   combat.setTarget(prey) (16 resolves it; M6)
- *   attack: 16 drives; the target gone means idle
+ *   hunt:   combat.setTarget(prey) (16 resolves it); no longer hungry (the pack has eaten) → idle
+ *   attack: 16 drives; the target dead or lost means idle (a kill ends the hunger); a defending
+ *           attack (provoked, not hunting) breaks off into wander when its target is beyond the
+ *           provoke radius of the tile where the attack began, or unconscious
  *   sleep:  stay until stateUntil; a threat wakes it
  *   leave:  walk to the nearest edge tile; despawn on arrival (AnimalLeft)
  * ```
@@ -168,45 +171,71 @@ export function perceivedThreats(host: BrainHost, id: EntityId): EntityId[] {
   return out;
 }
 
-/** "prey (species with `size < own size × 0.8` and not carnivore)" within perception. */
-export function findPrey(host: BrainHost, id: EntityId): EntityId {
-  const at = tileOf(host, id);
-  if (at < 0) return 0;
+/** The candidate nearest to `at` (Chebyshev distance, then ascending id), or 0. */
+function nearestOf(host: BrainHost, at: TileIndex, ids: readonly EntityId[]): EntityId {
+  let best: EntityId = 0;
+  let bestD = Number.MAX_SAFE_INTEGER;
+  for (const id of ids) {
+    const d = chebyshev(host, at, tileOf(host, id));
+    if (d < bestD || (d === bestD && id < best)) {
+      best = id;
+      bestD = d;
+    }
+  }
+  return best;
+}
+
+/** An animal (wild or tame) of a species a predator of `species` takes as prey. */
+function isAnimalPrey(host: BrainHost, species: number, other: EntityId): boolean {
+  if (!host.entities.has(other, C.Wild) && !host.entities.has(other, C.Tame)) return false;
+  const s = speciesOf(host, other);
+  if (s === 0 || host.facts.dietOf(s) === 'carnivore') return false;
+  return host.facts.sizeOf(s) < (host.facts.sizeOf(species) * PREY_SIZE_PERMILLE) / 1000;
+}
+
+/**
+ * `08` § Wild behavior: a *pack* is the wild animals of one species that arrived on the map in the
+ * same group (the same species and the same `arrivedTick`). The other living members, ascending id.
+ */
+export function packOf(host: BrainHost, id: EntityId): EntityId[] {
+  const w = host.entities.get(id, C.Wild);
   const species = speciesOf(host, id);
-  const limit = (host.facts.sizeOf(species) * PREY_SIZE_PERMILLE) / 1000;
-  const radius = host.facts.perceptionOf(species);
-  for (const other of host.readers.spatial.inRadius(at, radius, 'creature').filter((o) => o !== id)) {
-    const s = speciesOf(host, other);
-    if (s === 0 || host.facts.dietOf(s) === 'carnivore') continue;
-    if (host.facts.sizeOf(s) >= limit) continue;
-    if (!visible(host, at, other)) continue;
-    return other;
+  if (w === undefined || species === 0) return [];
+  return host.entities.with(C.Wild).filter((other) => other !== id && host.entities.alive(other) &&
+    speciesOf(host, other) === species && host.entities.get(other, C.Wild)?.arrivedTick === w.arrivedTick);
+}
+
+/** The quarry a hungry member of the pack is hunting (`hunt`, or an `attack` a hunt led to), or 0. */
+export function packQuarry(host: BrainHost, id: EntityId): EntityId {
+  for (const mate of packOf(host, id)) {
+    const w = host.entities.get(mate, C.Wild);
+    if (w === undefined || !w.hungry) continue;
+    if (w.state !== 'hunt' && !(w.state === 'attack' && w.defendFrom === undefined)) continue;
+    const quarry = host.targetOf ? host.targetOf(mate) : 0;
+    if (quarry !== 0 && host.entities.alive(quarry)) return quarry;
   }
   return 0;
 }
 
 /**
- * `08` § Wild behavior: "any prey (species with `size < own size × 0.8` and not carnivore)
- * or dwarf within perception triggers `hunt` when hungry".
+ * `08` § Wild behavior, the hungry predator's quarry: the quarry its pack already hunts, if it
+ * perceives it (else none); otherwise the nearest animal prey in perception, wild or tame; a dwarf
+ * in perception only when no animal prey is.
  */
 export function findHuntTarget(host: BrainHost, id: EntityId): EntityId {
   const at = tileOf(host, id);
   if (at < 0) return 0;
   const species = speciesOf(host, id);
-  const limit = (host.facts.sizeOf(species) * PREY_SIZE_PERMILLE) / 1000;
   const radius = host.facts.perceptionOf(species);
-  for (const other of host.readers.spatial.inRadius(at, radius, 'creature').filter((o) => o !== id)) {
-    if (isDwarf(host, other)) {
-      if (visible(host, at, other)) return other;
-      continue;
-    }
-    const s = speciesOf(host, other);
-    if (s === 0 || host.facts.dietOf(s) === 'carnivore') continue;
-    if (host.facts.sizeOf(s) >= limit) continue;
-    if (!visible(host, at, other)) continue;
-    return other;
+  const shared = packQuarry(host, id);
+  if (shared !== 0) {
+    const to = tileOf(host, shared);
+    return to >= 0 && chebyshev(host, at, to) <= radius && visible(host, at, shared) ? shared : 0;
   }
-  return 0;
+  const near = host.readers.spatial.inRadius(at, radius, 'creature').filter((o) => o !== id && host.entities.alive(o));
+  const prey = near.filter((o) => isAnimalPrey(host, species, o) && visible(host, at, o));
+  if (prey.length > 0) return nearestOf(host, at, prey);
+  return nearestOf(host, at, near.filter((o) => isDwarf(host, o) && visible(host, at, o)));
 }
 
 /** "sleep if it is the species' rest time (night for diurnal, day for nocturnal)". */
@@ -376,6 +405,7 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
         const dwarf = nearestDwarf(host, at, provokeRadius);
         if (dwarf !== 0) {
           next.state = 'attack';
+          next.defendFrom = at;
           host.setTarget(id, dwarf);
           break;
         }
@@ -436,6 +466,12 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
       break;
     }
     case 'hunt': {
+      if (!next.hungry) {
+        // The pack's kill ended the hunger (index.ts).
+        toIdle(host, ctx, id, next);
+        host.setTarget(id, 0);
+        break;
+      }
       let target = host.targetOf ? host.targetOf(id) : 0;
       if (target === 0 || !host.entities.alive(target)) {
         target = findHuntTarget(host, id);
@@ -473,25 +509,31 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
           break;
         }
       }
-      let target = host.targetOf ? host.targetOf(id) : 0;
+      const target = host.targetOf ? host.targetOf(id) : 0;
       if (target === 0 || !host.entities.alive(target)) {
-        const dwarf = nearestDwarf(host, at, host.facts.perceptionOf(species));
-        if (dwarf !== 0) {
-          target = dwarf;
-          host.setTarget(id, target);
-        } else {
-          if (next.hungry) next.hungry = false;
-          toIdle(host, ctx, id, next);
-          host.setTarget(id, 0);
-          break;
-        }
-      }
-      const to = tileOf(host, target);
-      if (to < 0 || host.map.zOf(to) !== host.map.zOf(at) ||
-          Math.max(Math.abs(host.map.xOf(to) - host.map.xOf(at)), Math.abs(host.map.yOf(to) - host.map.yOf(at))) > host.facts.perceptionOf(species)) {
+        // "the animal returns to `idle` when the target dies" (a kill ends the hunger: index.ts).
         toIdle(host, ctx, id, next);
         host.setTarget(id, 0);
         break;
+      }
+      // An attack loaded from before the field existed: a fed animal was defending where it stands.
+      if (next.defendFrom === undefined && !next.hungry) next.defendFrom = at;
+      const to = tileOf(host, target);
+      if (to < 0 || host.map.zOf(to) !== host.map.zOf(at) || chebyshev(host, to, at) > host.facts.perceptionOf(species)) {
+        toIdle(host, ctx, id, next);
+        host.setTarget(id, 0);
+        break;
+      }
+      if (next.defendFrom !== undefined) {
+        // A defending animal drives the intruder out and leaves a beaten one alone.
+        const from = next.defendFrom;
+        const radius = temper === 'aggressive' ? APPROACH_RADIUS : TERRITORY_RADIUS;
+        const out = host.map.zOf(to) !== host.map.zOf(from) || chebyshev(host, to, from) > radius;
+        if (out || host.entities.get(target, C.Body)?.conscious === false) {
+          host.setTarget(id, 0);
+          breakOff(host, ctx, id, next);
+          break;
+        }
       }
       host.setTarget(id, target);
       break;
@@ -516,7 +558,22 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
   return next;
 }
 
+function chebyshev(host: BrainHost, a: TileIndex, b: TileIndex): number {
+  const map = host.map;
+  return Math.max(Math.abs(map.xOf(a) - map.xOf(b)), Math.abs(map.yOf(a) - map.yOf(b)));
+}
+
+/** A defending animal lets go and wanders; a `wander` ignores dwarves until it ends. */
+function breakOff(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild): void {
+  delete w.defendFrom;
+  w.state = 'wander';
+  w.stateUntil = ctx.tick + WANDER_TIMEOUT_TICKS;
+  host.movement?.stopWalking(id);
+  walk(host, ctx, id, wanderTile(host, id, w.homeChunk));
+}
+
 function toIdle(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild): void {
+  delete w.defendFrom;
   w.state = 'idle';
   w.stateUntil = ctx.tick + host.rng.int(IDLE_MIN_TICKS, IDLE_MAX_TICKS);
   host.movement?.stopWalking(id);
@@ -524,6 +581,7 @@ function toIdle(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild): void 
 
 function startFlee(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild, threats: readonly EntityId[]): void {
   const from = threats.length > 0 ? (threats[0] as EntityId) : 0;
+  delete w.defendFrom;
   ctx.emit({ type: 'CreatureFled', id, from });
   if (edgeWithinPerception(host, id)) {
     w.state = 'leave';

@@ -11,7 +11,7 @@ tickDwarf(id):
   if b.behavior == 'idle' and jobs.hasWork(id): select(id) immediately, from the current position
   if b.behavior == 'need' or 'social' or 'idle': runActivity(id) ; if activity finished: b.behavior = 'none'
   else if b.behavior == 'work': if Worker.jobId: jobs.stepWorker(id)
-                                  else if not jobs.isQueued(id): startIdle(id)
+                                  else if not jobs.isQueued(id): leisureOrIdle(id, jobs.hasWork(id))
   else if b.behavior == 'duty': (16 drives movement; nothing here)
   else if b.behavior in {'flee','retreat','patient'}: runMovementBehavior(id)
   if b.behavior == 'none' or interruptFlag[id]: select(id)
@@ -20,13 +20,19 @@ select(id):
   memory = threatened[id]; if hostile dead or outside THREAT_RADIUS of memory.tile: clearThreat(id)
   avoid = civ and memory remains ? memory.tile : none
   if hostile currently within THREAT_RADIUS on this level and civ, unless already fleeing with a critical need:
-    goal = fleeTile(id)  // bounded legal-edge BFS; reachable safer hall preferred even beyond visit limit, then nearest safer tile
-    if goal >= 0: if activity == 'Fighting': clearCombatTarget(id)
+    if memory.caught and combat.targetOf(memory.hostile) != id: memory.caught = false   // the attacker broke off or fled
+    goal = memory.caught ? sealedTile(id) : fleeTile(id)  // bounded legal-edge BFS; reachable safer hall preferred even beyond visit limit, then nearest safer tile
+                                                          // sealedTile: first tile reached through a tile the attacker cannot enter
+    if goal >= 0: memory.caught = false; if activity == 'Fighting': clearCombatTarget(id)
                   stopWalking(id); b.behavior = 'flee'; return
     if no critical need and civilianFightDeadline not elapsed: startOrKeepCorneredFight(id); return
     clearCombatTarget(id); stopWalking(id); if deadline elapsed: clearThreat(id)
   if alert == 'hearth' and civ: target = defense.retreatTile(id); watchShelter(id, target < 0)
-     if target >= 0: b.behavior = 'retreat'; goal = target; return  // otherwise continue; flee has precedence
+     if target >= 0:                                            // a critical need overrides the retreat; a want-level hunger, thirst or rest is served only from a target inside the shelter
+       if crit = highest need over its critical threshold and startNeed(id, crit): return
+       if want = highest of hunger, thirst, rest over its want threshold and startNeed(id, want, targets in shelterArea(target), rest only where a bed is free there): return
+       b.behavior = 'retreat'; goal = target; return          // otherwise continue; flee has precedence
+                                                                // shelterArea(target): the hearth hall when target is one of its tiles, else the non-outdoor tiles around target reached without passing a door
   if health.isPatient(id):                                      b.behavior = 'patient'; goal = bedTile(id) or stay; return
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
@@ -36,25 +42,51 @@ select(id):
     want = highest need over its want threshold
     if want:                                                    startNeed(id, want, targets outside remembered danger); return
     b.behavior = 'duty'; return
-  want = highest need over its want threshold
+  want = highest of hunger, thirst, rest over its want threshold
   if want and not (jobs.hasUrgent(id, NEED_DEFER_PRIORITY)):    startNeed(id, want, targets outside remembered danger); return
+  if not want and not jobs.hasUrgent(id, NEED_DEFER_PRIORITY) and max(N.social, N.comfort, N.joy) >= LEISURE_MARK and tick >= hallRetryUntil[id]:
+    seat = nearest free chair on a reachable hearth-hall tile, else nearest reachable hall tile; if seat: plan = sit there SIT_TICKS, hall = true; return
   if able to work: jobs.assign(id); b.behavior = 'work'; return   // queue; 11 skips targets inside remembered danger and answers later this tick
-  if want in {social, comfort, joy}:                            startNeed(id, want, targets outside remembered danger); return
+  leisureOrIdle(id, workOpen = false)                             // a day off, a wound, a child with no hauling
+leisureOrIdle(id, workOpen):                                      // also from tickDwarf when 11 answered nothing, with workOpen = jobs.hasWork(id)
+  if not workOpen:
+    if talks[id] and tick < talks[id].until: plan = stay here until talks[id].until; b.behavior = 'need'; return
+    leisure = highest of social, comfort, joy over its want threshold
+    if leisure:                                                 startNeed(id, leisure, targets outside remembered danger); return
   b.behavior = 'idle'; goal = hearthHallTile(id) or saved wagonTile or currentTile(id); activityEnd = tick + IDLE_TICKS; emit DwarfIdle once per stretch without a job (clear after real work)
 startNeed(id, need):
   switch need:
     hunger:  it = items.findItem({edible: true}, pos, 'walker', {reservable: true}) preferring category food/meal; if none: emit Starving? (only at 100); b.behavior='idle'; return
              reserve it; plan: walk to it, pick up, walk to nearest dining seat within DINING_SEARCH_RADIUS (else eat in place), EAT_TICKS, consume 1, N.hunger -= (meal ? 100 : 70), emit MealEaten
+             at a table: relief = seat room tier ≥ decent ? 40 : seat in hearth hall ? 20 : 0; if relief: N.comfort -= relief; emit Sat
+             hearthTime(id, EAT_TICKS)
     thirst:  barrel = find reservable drink directly in a stockpiled barrel, else nearest working well, else reachable water (level ≥ 1, not magma or frozen); if none: reachable loose alcohol
              water: horizontal radius 32, z−8..z+8; rank horizontal Chebyshev + |dz|*Z_DISTANCE_WEIGHT, ties by stand tile
-             plan: walk adjacent, DRINK_TICKS, consume 1 unit (barrel) ; N.thirst -= 100/80; emit DrankAlcohol/DrankWater{outdoors}
+             plan: walk adjacent, DRINK_TICKS, consume 1 unit (barrel) ; N.thirst -= 100/80; emit DrankAlcohol/DrankWater{outdoors}; hearthTime(id, DRINK_TICKS)
     rest:    bed = ownBed or freeUnassignedBed or hearthHallFloor or here; plan: walk, sleep until N.rest <= 0 or SLEEP_HOURS elapsed (−15/hour); emit Slept
     social:  plan: walk to hearth hall / meeting area; wait up to 200 ticks for another dwarf within 2; choose living awake partners on the same level within Chebyshev 2 (friends then id); if found: TALK_TICKS without interrupting the partner, N.social -= 40 (60 friends), relationships.talk++; emit Talked
-    comfort: chair = best-tier free chair reachable; plan: walk, sit SIT_TICKS, N.comfort -= 40 (hearth hall floor: 20); emit Sat
+    comfort: chair = best-tier free chair reachable; plan: walk, sit SIT_TICKS, N.comfort -= 40 (hearth hall floor: 20); emit Sat; hearthTime(id, SIT_TICKS)
+             hall errand only: every TALK_CHECK_TICKS while seated, if no partner yet, N.social >= want and no talk in passing: partner = friend first, then lowest id, among dwarves within 2 on this level not asleep
+                               at the end: if partner alive and no talk in passing: relieve both, relationships.talk++, emit Talked
+                               then if no talk in passing and max(N.social, N.comfort, N.joy) >= LEISURE_MARK: hallRetryUntil[id] = tick + LEISURE_RETRY_TICKS
     purpose: (no activity: relieved by work) → treat as idle
-    joy:     plan: walk to hearth hall, stay 100 ticks; N.joy -= 30; emit HearthVisited
+    joy:     plan: walk to hearth hall, stay HEARTH_VISIT_TICKS; N.joy -= 30; emit HearthVisited
   b.behavior = 'need'
+  when a hunger, thirst, comfort or joy plan finishes and talks[id] is still running: plan = stay here until talks[id].until
+hearthTime(id, ticks):                                            // only on a hearth-hall tile
+  hearthTicks[id] += ticks; if hearthTicks[id] >= HEARTH_VISIT_TICKS: delete hearthTicks[id]; N.joy -= 30; emit HearthVisited
+passingTalks():                                                   // 10's tick, before the brains, when tick % TALK_CHECK_TICKS == 0
+  canTalk(d) = alive and conscious and not asleep and no walk under way
+  for each talk (a < b), ascending a:
+    together = canTalk(a) and canTalk(b) and same level and Chebyshev distance <= 2
+    if together and tick < until: continue
+    delete the talk; if together: relieve both (40, friends 60), relationships.talk++, emit Talked
+  for each dwarf d, ascending id, with N.social >= want, canTalk(d), not in a talk, not on a social errand:
+    p = first friend, else first dwarf, among spatial.inRadius(tile(d), 2) ascending id on d's level with canTalk(p), not in a talk, not on a social errand
+    if p: talks[d] = talks[p] = { partner, until: tick + TALK_TICKS }
 ```
+
+Talks in passing, the hearth-hall tick counts and `hallRetryUntil` are saved with 10's state and omitted when empty. A dead dwarf's talk, count and retry tick are dropped.
 
 Hourly (on `HourPassed`): apply the rates in 10's Needs table, clamping 0..100. `endFactor = (150 − Endurance)/100` scales only hunger and awake rest; weather alone scales thirst, and sleeping rest uses the unscaled relief rate. Crossing a threshold sets a saved `interruptFlag`; critical crossing emits `NeedCritical`. Sleep schedule: at `sleepStartHour` with `N.rest > 20` set `interruptFlag` and prefer `rest`.
 
@@ -65,6 +97,8 @@ The movement handler writes `Brain` thought timers and `Needs` for masterwork jo
 A food or drink plan validates that its item still exists, is reserved by its dwarf, and remains edible or drinkable before travelling or consuming. Cancellation on death, unconsciousness, flight, failed travel or rot drops any held meal and releases only that dwarf's reservation, emitting one `ItemReleased`. Repeated cancellation has no effect.
 
 Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position. While a soldier's brain behavior is `need` (or `flee`, `retreat`, `patient`), squad positioning and training do not command movement or partner pairing.
+
+On `AttackResolved` with outcome `hit` against a civilian whose behavior is `flee`, from an adjacent attacker on its level that is a wild animal hunting (`Wild.state == 'hunt'`, or `'attack'` with `Wild.defendFrom` unset) with `Motion.speed` at least the civilian's (any other attacker leaves the civilian fleeing): `threatened[id] = { hostile: attacker, tick, tile: attacker's tile, caught: true }` and set the interrupt flag. A `ThreatNearby` from another hostile leaves a caught record alone; one from the same hostile refreshes its tick and tile. A fighting civilian (cornered or caught) never paths toward its target (16).
 
 A civilian fight uses `Brain.behaviorUntil` as its saved deadline. Refresh it on melee reach or a recorded attack opportunity, never merely on `ThreatNearby`. Reaching an escape goal ends the flee behavior without clearing a still-near living hostile's saved last seen tile. Critical need activities can enter that remembered danger and continue across threat scans even when an escape exists; a newly more critical need still cancels them for selection. Noncritical activity searches exclude unsafe resources, beds, water stands, meeting tiles and dining seats, trying safe alternatives. The escape search and combat timeout use 10's tuning constants and safety rules.
 
@@ -84,15 +118,25 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
         wander within pasture or near hearth; return
   switch W.state:
     idle:   if threats: W.state = timid/neutral-attacked ? 'flee' : 'idle'
-            else if aggressive carnivore and W.hungry and prey in perception: W.state='hunt'; target=prey
-            else if (territorial and dwarf within TERRITORY_RADIUS) or (aggressive and dwarf within APPROACH_RADIUS): W.state='attack'; combat.setTarget
+            else if aggressive carnivore and W.hungry and quarry(id): W.state='hunt'; combat.setTarget(id, quarry(id))
+            else if (territorial and dwarf within TERRITORY_RADIUS) or (aggressive and dwarf within APPROACH_RADIUS): W.state='attack'; W.defendFrom = tile; combat.setTarget
             else if restTime(species): W.state='sleep'; W.stateUntil = tick + 600
             else if grazer and grass within 6: W.state='graze' else W.state='wander'
     graze:  walk to grass; on arrival GrassGrazed; wait GRAZE_TICKS; state='idle'
     wander: walk to random tile within WANDER_RADIUS of homeChunk; on arrival or WANDER_TIMEOUT_TICKS: 'idle'
     flee:   goal = argmax over tiles within perception of Σ dist to threats (sampled 8 directions × 6 steps); if edge within perception: 'leave'; after FLEE_TICKS with no threat: 'idle'
-    hunt:   combat.setTarget(id, prey); if prey dead: eat corpse EAT_CORPSE_TICKS (consume); W.hungry=false; 'idle'
-    attack: (16 drives); if target gone: 'idle'; if blood < fleeBlood and not aggressive: 'flee'
+    hunt:   if not W.hungry: 'idle'
+            target = combat.targetOf(id) if alive else quarry(id); none or on another level: 'idle'
+            combat.setTarget(id, target); adjacent: 'attack' else walk to it
+    attack: (16 drives); if blood < fleeBlood and not aggressive: 'flee'
+            if target dead or gone or out of perception: 'idle' (no new target here)
+            if W.defendFrom and (dist(target, W.defendFrom) > provoke radius or other level or target unconscious): clear target; W.state = 'wander' (WANDER_TIMEOUT_TICKS)
+    on CreatureDied with killerId = a hungry predator: W.hungry = false for it and every member of its pack
+  quarry(id):   // pack = wild animals of the species with the same arrivedTick
+    q = target of a hungry pack member in 'hunt' (or in an 'attack' without defendFrom), ascending member id
+    if q: return q if within perception and visible, else none
+    prey = animals (Wild or Tame) within perception and visible, not carnivore, size < own size × 0.8
+    return nearest prey (Chebyshev, then id), else nearest visible dwarf within perception, else none
     sleep:  stay; if threat: 'flee'/'attack'; at stateUntil: 'idle'
     leave:  walk to nearest edge tile; on arrival: despawn (AnimalLeft)
   moveAlongPath(id)

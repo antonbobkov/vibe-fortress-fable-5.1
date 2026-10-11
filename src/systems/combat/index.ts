@@ -338,6 +338,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
           this.fireAt(id, target);
         }
       } else {
+        // A civilian who fights back (10) strikes only what is in reach; it does not chase.
+        if (entities.has(id, C.Brain) && creatureA?.faction === 'fortress' && entities.get(id, C.Soldier)?.onDuty !== true) continue;
         // Approach toward target
         const soldier = entities.get(id, C.Soldier);
         if (soldier?.stance !== 'hold') {

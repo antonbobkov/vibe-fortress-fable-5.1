@@ -2,6 +2,8 @@
 
 **Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gaps 6 and 9; bugs 1 and 2) · **Size:** M · **Needs:** T-145 · **Status:** open
 
+**Held (2026-10-10).** T-145, which the cloud agent has, rewrites the same three-year fixture files. Start this task after T-145 is closed. Two notes from other tasks: `hospital_run` hangs on one roll of a fight and should assert on a staged, repeatable casualty; `homestead_year`'s birth check was made robust on branch `t-144`.
+
 ## Why
 
 The three-year script ignores the result of most commands it sends. Measured:
@@ -37,3 +39,7 @@ T-145 rewrites `three_years_fortress.ts` to play at default priorities. This tas
 
 - `three_years` and `year_one` pass with no unexpected rejected command.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+
+## Found by T-144
+
+- `hospital_run` hangs on one roll of a fight. Its staged raid must wound two soldiers who survive, and that held on one seed in six on master `3095a3e` and on one in four after T-144 and T-195 (the scenario's header comment lists the seeds). It should assert on a staged, repeatable casualty, as it already does for the burn, instead of on the outcome of the raid.

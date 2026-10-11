@@ -8,8 +8,8 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { Z_DISTANCE_WEIGHT } from '@systems/jobs/constants';
-import { DINING_SEARCH_RADIUS, DRINK_TICKS, EAT_TICKS, FRIEND_TALKS, HEARTH_VISIT_TICKS, NEED_RETRY_TICKS, SIT_TICKS, SLEEP_HOURS, SOCIAL_WAIT_TICKS, TALK_TICKS, THREAT_RADIUS } from './constants';
-import { CRITICAL, type NeedName } from './needs';
+import { DINING_SEARCH_RADIUS, DRINK_TICKS, EAT_TICKS, FRIEND_TALKS, HEARTH_VISIT_TICKS, LEISURE_MARK, LEISURE_RETRY_TICKS, NEED_RETRY_TICKS, SIT_TICKS, SLEEP_HOURS, SOCIAL_WAIT_TICKS, TALK_CHECK_TICKS, TALK_TICKS, THREAT_RADIUS } from './constants';
+import { CRITICAL, WANT, type NeedName } from './needs';
 import type { ActivityPlan } from './state';
 import type { EntityStore } from '@core/entities';
 
@@ -17,6 +17,8 @@ interface SeatTarget { tile: TileIndex; tier: number }
 interface ActivityTargets {
   revision: string;
   hall: TileIndex[];
+  /** Membership only; never iterated. */
+  hallSet: Set<TileIndex>;
   social: TileIndex[];
   freeBeds: EntityId[];
   wells: EntityId[];
@@ -37,7 +39,7 @@ function activityTargets(ctx: TickContext): ActivityTargets {
     const view = b?.get(id);
     return view?.state === 'built' ? [{ tile: view.origin, tier: roomTier(ctx, view.origin) }] : [];
   });
-  const value = { revision, hall,
+  const value = { revision, hall, hallSet: new Set(hall),
     social: [...hall, ...(b?.zonesOfType('meeting_area') ?? []).flatMap((id) => b?.zone(id)?.tiles ?? [])],
     freeBeds: b?.freeBeds() ?? [],
     wells: b?.wells() ?? [],
@@ -220,9 +222,165 @@ function standBeside(ctx: TickContext, from: TileIndex, source: TileIndex): Tile
   return nearest(ctx, from, choices);
 }
 
+/** Talk partners stand within Chebyshev distance 2 on one level. */
+function inTalkReach(ctx: TickContext, a: TileIndex, b: TileIndex): boolean {
+  const m = ctx.world.map;
+  return a >= 0 && b >= 0 && m.zOf(a) === m.zOf(b) &&
+    Math.max(Math.abs(m.xOf(a) - m.xOf(b)), Math.abs(m.yOf(a) - m.yOf(b))) <= 2;
+}
+
 export class Activities {
   readonly plans = new Map<EntityId, ActivityPlan>();
   readonly retryUntil = new Map<EntityId, Map<NeedName, number>>();
+  /** Talks in passing; each talk has an entry for both dwarves. */
+  readonly talks = new Map<EntityId, { partner: EntityId; until: number }>();
+  /** Ticks eaten, drunk and sat in the hearth hall toward the next hearth visit. */
+  readonly hearthTicks = new Map<EntityId, number>();
+  /** The tick before which a dwarf takes no hall errand before work. */
+  readonly hallRetryUntil = new Map<EntityId, number>();
+
+  serializeTalks(): [EntityId, EntityId, number][] {
+    return Array.from(this.talks).filter(([id, talk]) => id < talk.partner)
+      .map(([id, talk]) => [id, talk.partner, talk.until] as [EntityId, EntityId, number]).sort((a, b) => a[0] - b[0]);
+  }
+
+  private endTalk(id: EntityId): void {
+    const talk = this.talks.get(id);
+    if (talk === undefined) return;
+    this.talks.delete(id);
+    this.talks.delete(talk.partner);
+  }
+
+  /** A dead dwarf keeps no talk and no hearth time. */
+  forget(id: EntityId): void {
+    this.endTalk(id);
+    this.hearthTicks.delete(id);
+    this.hallRetryUntil.delete(id);
+  }
+
+  /**
+   * `10` § Behavior selection step 6: one sit in the hearth hall for a dwarf with social, comfort or
+   * joy at `LEISURE_MARK`. The seat is the nearest free chair on a hall tile, else a hall tile.
+   */
+  startHallErrand(ctx: TickContext, id: EntityId, b: Brain, allowTarget?: (tile: TileIndex) => boolean): boolean {
+    if (ctx.tick < (this.hallRetryUntil.get(id) ?? 0)) return false;
+    const from = tile(ctx, id);
+    if (from < 0) return false;
+    const allowed = allowTarget ?? (() => true);
+    const targets = activityTargets(ctx);
+    const usable = (to: TileIndex): boolean => reachable(ctx, from, to) && allowed(to);
+    const free = (to: TileIndex): boolean => !ctx.readers.entities.at(to).some((occupant) => occupant !== id && ctx.world.entities.has(occupant, C.Brain));
+    const chairs = targets.comfort.filter((s) => targets.hallSet.has(s.tile) && usable(s.tile) && free(s.tile)).map((s) => s.tile);
+    const target = chairs.length > 0 ? nearest(ctx, from, chairs) : nearest(ctx, from, targets.hall.filter(usable));
+    if (target < 0) return false;
+    this.plans.set(id, plan('comfort', target, { roomTier: roomTier(ctx, target), hall: true }));
+    b.behavior = 'need'; b.activity = 'comfort';
+    b.targetTile = target;
+    return true;
+  }
+
+  /** Awake and not walking. */
+  private canTalk(ctx: TickContext, id: EntityId): boolean {
+    const entities = ctx.world.entities;
+    if (!entities.alive(id) || !entities.has(id, C.Brain) || tile(ctx, id) < 0) return false;
+    if (ctx.readers.has('17') && !ctx.readers.of<{ isConscious(id: EntityId): boolean }>('17').isConscious(id)) return false;
+    const p = this.plans.get(id);
+    if (p !== undefined && p.need === 'rest' && p.phase === 'use') return false;
+    return (ctx.world.services.movement?.walkTarget(id) ?? -1) < 0;
+  }
+
+  /** A social errand finds its own partner; a stay for a talk in passing has no partner of its own. */
+  private onSocialErrand(id: EntityId): boolean {
+    const p = this.plans.get(id);
+    return p !== undefined && p.need === 'social' && !(p.phase === 'use' && p.partner === 0);
+  }
+
+  /**
+   * `10` § Social, comfort, joy, talks in passing. Every `TALK_CHECK_TICKS`: a talk whose two
+   * dwarves no longer stand awake and still within reach ends without effect, a talk that has
+   * lasted `TALK_TICKS` relieves both, and each still, awake dwarf over its social want threshold
+   * starts one with a neighbour found through the spatial index.
+   */
+  passingTalks(ctx: TickContext, dwarves: readonly EntityId[]): void {
+    if (ctx.tick % TALK_CHECK_TICKS !== 0) return;
+    for (const id of Array.from(this.talks.keys()).sort((a, b) => a - b)) {
+      const talk = this.talks.get(id);
+      if (talk === undefined || id > talk.partner) continue;
+      const together = this.canTalk(ctx, id) && this.canTalk(ctx, talk.partner) &&
+        inTalkReach(ctx, tile(ctx, id), tile(ctx, talk.partner));
+      if (together && ctx.tick < talk.until) continue;
+      this.endTalk(id);
+      if (together) this.talked(ctx, id, talk.partner);
+    }
+    if (!ctx.readers.has('spatial')) return;
+    let all: Set<EntityId> | null = null;
+    for (const id of dwarves) {
+      if (this.talks.has(id) || this.onSocialErrand(id)) continue;
+      if ((ctx.world.entities.get(id, C.Needs)?.social ?? 0) < WANT.social || !this.canTalk(ctx, id)) continue;
+      all ??= new Set(dwarves);
+      const at = tile(ctx, id);
+      const friends = ctx.world.entities.get(id, C.Relationships)?.friends ?? [];
+      let partner = 0;
+      // Ascending ids from the index: the first friend, else the first other dwarf.
+      for (const other of ctx.readers.spatial.inRadius(at, 2, 'creature')) {
+        if (other === id || !all.has(other) || this.talks.has(other) || this.onSocialErrand(other)) continue;
+        if (!inTalkReach(ctx, at, tile(ctx, other)) || !this.canTalk(ctx, other)) continue;
+        if (friends.includes(other)) { partner = other; break; }
+        if (partner === 0) partner = other;
+      }
+      if (partner === 0) continue;
+      this.talks.set(id, { partner, until: ctx.tick + TALK_TICKS });
+      this.talks.set(partner, { partner: id, until: ctx.tick + TALK_TICKS });
+    }
+  }
+
+  /**
+   * The partner of a dwarf seated on a hall errand whose social need is at its want threshold: as
+   * on a social errand, any other dwarf within reach that is not asleep; a friend first, then by id.
+   */
+  private hallPartner(ctx: TickContext, id: EntityId, at: TileIndex): EntityId {
+    if ((ctx.world.entities.get(id, C.Needs)?.social ?? 0) < WANT.social || !ctx.readers.has('spatial')) return 0;
+    const friends = ctx.world.entities.get(id, C.Relationships)?.friends ?? [];
+    let partner = 0;
+    for (const other of ctx.readers.spatial.inRadius(at, 2, 'creature')) {
+      if (other === id || !ctx.world.entities.alive(other) || !ctx.world.entities.has(other, C.Brain) || !ctx.world.entities.has(other, C.Needs)) continue;
+      if (!inTalkReach(ctx, at, tile(ctx, other))) continue;
+      const plan = this.plans.get(other);
+      if (plan !== undefined && plan.need === 'rest' && plan.phase === 'use') continue;
+      if (friends.includes(other)) return other;
+      if (partner === 0) partner = other;
+    }
+    return partner;
+  }
+
+  /** A dwarf in a talk in passing stays where it is until the talk ends. */
+  linger(ctx: TickContext, id: EntityId, b: Brain): boolean {
+    const talk = this.talks.get(id);
+    const at = tile(ctx, id);
+    if (talk === undefined || ctx.tick >= talk.until || at < 0) return false;
+    this.plans.set(id, plan('social', at, { phase: 'use', until: talk.until }));
+    b.behavior = 'need'; b.activity = 'social';
+    b.targetTile = at;
+    return true;
+  }
+
+  /** Both dwarves are relieved, their talk counts rise, and `Talked` is emitted. */
+  private talked(ctx: TickContext, id: EntityId, partner: EntityId): void {
+    const friends = (ctx.world.entities.get(id, C.Relationships)?.friends ?? []).includes(partner);
+    for (const who of [id, partner]) {
+      const n = ctx.world.entities.get(who, C.Needs);
+      if (n !== undefined) ctx.world.entities.add(who, C.Needs, { ...n, social: clamp(n.social - (friends ? 60 : 40)) });
+    }
+    for (const [a, z] of [[id, partner], [partner, id]] as [EntityId, EntityId][]) {
+      const rel = ctx.world.entities.get(a, C.Relationships);
+      if (rel === undefined) continue;
+      const counts = new Map(rel.talkCount);
+      const count = (counts.get(z) ?? 0) + 1; counts.set(z, count);
+      const friendsList = count >= FRIEND_TALKS && !rel.friends.includes(z) ? [...rel.friends, z].sort((x, y) => x - y) : rel.friends;
+      ctx.world.entities.add(a, C.Relationships, { ...rel, friends: friendsList, talkCount: Array.from(counts).sort((x, y) => x[0] - y[0]) } as Relationships);
+    }
+    ctx.emit({ type: 'Talked', a: id, b: partner, friends });
+  }
 
   isBlocked(id: EntityId, need: NeedName, tick: number): boolean {
     const dwarfMap = this.retryUntil.get(id);
@@ -365,6 +523,12 @@ export class Activities {
     }
     const movement = ctx.world.services.movement;
     const at = tile(ctx, id);
+    if (p.need === 'social' && p.phase === 'use' && p.partner === 0) {
+      // Staying for a talk in passing: `passingTalks` ends it and relieves both.
+      if (this.talks.has(id) && ctx.tick < p.until) return false;
+      this.plans.delete(id);
+      return true;
+    }
     if (p.phase !== 'use') {
       if (p.target < 0) { this.cancel(ctx, id); return true; }
       if (at !== p.target) {
@@ -429,12 +593,21 @@ export class Activities {
       p.startedRest = ctx.world.entities.get(id, C.Needs)?.rest ?? 0;
     }
     if (p.need === 'rest' && (ctx.world.entities.get(id, C.Needs)?.rest ?? 0) <= 0) p.until = ctx.tick;
+    if (p.hall === true && p.partner === 0 && ctx.tick % TALK_CHECK_TICKS === 0 && !this.talks.has(id)) p.partner = this.hallPartner(ctx, id, at);
     if (ctx.tick < p.until) return false;
     const n = ctx.world.entities.get(id, C.Needs);
     if (n === undefined) { this.cancel(ctx, id); return true; }
     const change = (name: NeedName, relief: number): void => {
       const cur = ctx.world.entities.get(id, C.Needs) ?? n;
       ctx.world.entities.add(id, C.Needs, { ...cur, [name]: clamp(cur[name] - relief) } as Needs);
+    };
+    // Eating, drinking and sitting in the hearth hall add up to a hearth visit.
+    const hearthTime = (ticks: number): void => {
+      if (!activityTargets(ctx).hallSet.has(at)) return;
+      const total = (this.hearthTicks.get(id) ?? 0) + ticks;
+      if (total < HEARTH_VISIT_TICKS) { this.hearthTicks.set(id, total); return; }
+      this.hearthTicks.delete(id);
+      change('joy', 30); ctx.emit({ type: 'HearthVisited', id });
     };
     const its = items(ctx);
     if (p.need === 'hunger') {
@@ -447,6 +620,12 @@ export class Activities {
         ctx.emit({ type: 'MealEaten', id, quality: item.quality, atTable: p.atTable, roomTier: p.roomTier,
           stage: item.rotStage, kind: meal ? 'meal' : 'raw', mealType: def?.id ?? '' });
         if (meal && item.quality >= 4) change('joy', 20);
+        if (p.atTable) {
+          // A meal at a table is also a sit in that room.
+          const relief = p.roomTier >= 2 ? 40 : activityTargets(ctx).hallSet.has(at) ? 20 : 0;
+          if (relief > 0) { change('comfort', relief); ctx.emit({ type: 'Sat', id, roomTier: p.roomTier }); }
+        }
+        hearthTime(EAT_TICKS);
       }
     } else if (p.need === 'thirst') {
       if (p.itemId !== 0) {
@@ -454,10 +633,12 @@ export class Activities {
         if (item !== undefined) {
           ctx.world.services.items?.consume(p.itemId, 1); change('thirst', 100);
           ctx.emit({ type: 'DrankAlcohol', id, material: item.material, quality: item.quality });
+          hearthTime(DRINK_TICKS);
         }
       } else {
         change('thirst', 80);
         ctx.emit({ type: 'DrankWater', id, outdoors: ctx.world.map.hasFlag(at, TileFlag.Outdoor) });
+        hearthTime(DRINK_TICKS);
       }
     } else if (p.need === 'rest') {
       change('rest', n.rest);
@@ -467,28 +648,26 @@ export class Activities {
         restored: p.startedRest - n.rest });
     } else if (p.need === 'social') {
       const partner = p.partner;
-      if (partner !== 0 && ctx.world.entities.alive(partner)) {
-        const friends = (ctx.world.entities.get(id, C.Relationships)?.friends ?? []).includes(partner);
-        change('social', friends ? 60 : 40);
-        const other = ctx.world.entities.get(partner, C.Needs);
-        if (other !== undefined) ctx.world.entities.add(partner, C.Needs, { ...other, social: clamp(other.social - (friends ? 60 : 40)) });
-        for (const [a, z] of [[id, partner], [partner, id]] as [EntityId, EntityId][]) {
-          const rel = ctx.world.entities.get(a, C.Relationships);
-          if (rel === undefined) continue;
-          const counts = new Map(rel.talkCount);
-          const count = (counts.get(z) ?? 0) + 1; counts.set(z, count);
-          const friendsList = count >= FRIEND_TALKS && !rel.friends.includes(z) ? [...rel.friends, z].sort((x, y) => x - y) : rel.friends;
-          ctx.world.entities.add(a, C.Relationships, { ...rel, friends: friendsList, talkCount: Array.from(counts).sort((x, y) => x[0] - y[0]) } as Relationships);
-        }
-        ctx.emit({ type: 'Talked', a: id, b: partner, friends });
-      }
+      if (partner !== 0 && ctx.world.entities.alive(partner)) this.talked(ctx, id, partner);
     } else if (p.need === 'comfort') {
       change('comfort', p.roomTier >= 2 ? 40 : 20);
       ctx.emit({ type: 'Sat', id, roomTier: p.roomTier });
+      hearthTime(SIT_TICKS);
+      // The sit was also the talk, with the partner found from the seat, as on a social errand.
+      if (p.hall === true && p.partner !== 0 && !this.talks.has(id) && ctx.world.entities.alive(p.partner)) this.talked(ctx, id, p.partner);
+      if (p.hall === true && !this.talks.has(id)) {
+        // The sit could not relieve everything (nobody to talk to): do not come straight back.
+        const after = ctx.world.entities.get(id, C.Needs);
+        if (after !== undefined && (after.social >= LEISURE_MARK || after.comfort >= LEISURE_MARK || after.joy >= LEISURE_MARK)) {
+          this.hallRetryUntil.set(id, ctx.tick + LEISURE_RETRY_TICKS);
+        }
+      }
     } else if (p.need === 'joy') {
       change('joy', 30); ctx.emit({ type: 'HearthVisited', id });
     }
     this.plans.delete(id);
+    // A talk in passing that began over the meal, the drink or the seat is finished before leaving.
+    if (p.need !== 'rest' && p.need !== 'social' && this.linger(ctx, id, b)) return false;
     return true;
   }
 }
