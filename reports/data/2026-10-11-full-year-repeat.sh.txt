@@ -1,0 +1,8 @@
+#!/bin/bash
+# usage: e2eloop.sh <tree> <label> <n>
+SP=/tmp/claude-0/-home-user-vibe-fortress-fable-5-1/046ed019-fa18-5b23-82f1-975568875606/scratchpad/t212
+cd $1; mkdir -p $SP/e2e-$2
+for i in $(seq 1 $3); do
+  CI=1 timeout 1500 npx playwright test zz-t212-trace.spec.ts > $SP/e2e-$2/run-$i.log 2>&1
+  echo "$2 $i $(grep -o '"livingCount":[0-9]*' $SP/e2e-$2/run-$i.log)"
+done
