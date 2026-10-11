@@ -1,6 +1,6 @@
 # T-242 — No raw string key or clashing letters in the stockpile preset list; log lines start with a capital
 
-**Source:** T-111 and its report, [`../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../reports/audits/2026-10-10-ui-audit-follow-up.md) (new findings N2, N2b) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** T-111 and its report, [`../../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../../reports/audits/2026-10-10-ui-audit-follow-up.md) (new findings N2, N2b) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,12 +8,12 @@ D-U4 says no raw string key ever reaches the screen. The stockpile preset list n
 
 ## Reproduction
 
-Seed `audit-1`, default embark. Make a stockpile, let a few ticks run, select it, `Shift+P` (report shot 08h; [`stockpile-presets.png`](../../reports/screenshots/t-111/stockpile-presets.png)). For the log: run about three days and open Log (`a`): "dog has died.", "! cat has lost a limb." (shot 10k).
+Seed `audit-1`, default embark. Make a stockpile, let a few ticks run, select it, `Shift+P` (report shot 08h; [`stockpile-presets.png`](../../../reports/screenshots/t-111/stockpile-presets.png)). For the log: run about three days and open Log (`a`): "dog has died.", "! cat has lost a limb." (shot 10k).
 
 ## What the spec says
 
-- [`13-items-and-storage.md`](../02-systems/13-items-and-storage.md) § Player-facing behavior names thirteen presets, from Food to Everything. `hospital` in `STOCKPILE_PRESETS` (`src/systems/items/stockpiles.ts:91`) is the hospital zone's own filter, not a player preset; `presetOptions` (`src/ui/panels/stockpile-editor.ts:44-46`) offers every key and builds a string key that does not exist.
-- [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules (announcements): no content id is shown.
+- [`13-items-and-storage.md`](../../02-systems/13-items-and-storage.md) § Player-facing behavior names thirteen presets, from Food to Everything. `hospital` in `STOCKPILE_PRESETS` (`src/systems/items/stockpiles.ts:91`) is the hospital zone's own filter, not a player preset; `presetOptions` (`src/ui/panels/stockpile-editor.ts:44-46`) offers every key and builds a string key that does not exist.
+- [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules (announcements): no content id is shown.
 - The death and limb strings put `{name}` first (`src/ui/strings.ts:988-991`); an unnamed creature's name is its species.
 
 ## What to do
@@ -31,4 +31,4 @@ Seed `audit-1`, default embark. Make a stockpile, let a few ticks run, select it
 ## Done
 
 - The preset list shows thirteen names, none a key, with no repeated captions; the log reads "A dog has died."
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
