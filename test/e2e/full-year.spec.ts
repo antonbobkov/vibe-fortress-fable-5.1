@@ -203,9 +203,9 @@ const aggressiveSpecies: string[] = (JSON.parse(readFileSync('src/content/creatu
 /** Ticks from the last sign of a predator to the alert going back to calm. */
 const ALERT_CALM_TICKS = 600;
 /**
- * The longest the civilians shelter at one time, and how long they are then left out before the
- * next hearth alert. They cannot eat or drink while they shelter (10 § Behavior selection: step 2
- * comes before step 4), and thirst alone reaches its maximum in about two days.
+ * The shortest a hearth alert is held, and how long the civilians are then left out before the
+ * next one. The alert ends when no predator is near; a sheltering civilian whose hunger, thirst or
+ * rest is critical goes out to serve it and returns (10 § Behavior selection: step 2).
  */
 const HEARTH_HOLD_TICKS = 300;
 const HEARTH_PAUSE_TICKS = 1500;
@@ -218,8 +218,8 @@ const LOOK_EVERY_TICKS = 20;
  * Play to `target` by stepping, answering wildlife as a player would (T-221, decision 4). A
  * predator near the wagon puts the fortress on watch, which sends the squad out and leaves the
  * civilians at work. When a wild animal attacks a fortress creature the alert goes to hearth, so
- * the civilians, the haulers among them, come in; after HEARTH_HOLD_TICKS it goes back to watch so
- * that they can eat and drink. With no predator near for ALERT_CALM_TICKS it goes back to calm.
+ * the civilians, the haulers among them, come in; after HEARTH_HOLD_TICKS, once no predator is near,
+ * it goes back to watch. With no predator near for ALERT_CALM_TICKS it goes back to calm.
  * The answers come at tick boundaries that the simulation decides, so the year is the same on
  * every run.
  */
@@ -252,7 +252,7 @@ async function playTo(page: Page, clock: ReturnType<typeof playClock>, target: n
           console.log(`[full-year] Day ${day}/112 (tick ${tick}, dwarves: ${h.dwarves().length}, drink: ${h.readers.items.count('drink')}, meal: ${h.readers.items.count('easy_meal')}, food: ${h.readers.items.count('plant_food')})`);
         }
         if (tracker.level === 'hearth') {
-          if (tick - tracker.raisedAt >= hold) return 'watchful';
+          if (tick - tracker.raisedAt >= hold && !predatorNear()) return 'watchful';
         } else if (tracker.attacked && tick >= tracker.noHearthUntil) {
           return 'hearth';
         } else if (predatorNear()) {
@@ -835,7 +835,7 @@ test('full-year', async ({ page }) => {
   // the assertion stands at what the one deterministic year measures. Raise it to the target when
   // T-220 closes.
   const SURVIVORS_TARGET = 11;
-  const SURVIVORS_MEASURED = 5;
+  const SURVIVORS_MEASURED = 9;
   expect(livingCount, `at least ${SURVIVORS_MEASURED} dwarves alive on the last day (target ${SURVIVORS_TARGET}, T-220)`).toBeGreaterThanOrEqual(SURVIVORS_MEASURED);
 
   // Food margin assertions (T-150 decision a)

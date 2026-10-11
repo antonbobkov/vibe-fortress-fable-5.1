@@ -32,7 +32,8 @@ describe('F-16 retreat without shelter', () => {
     expect(brain()?.behavior).not.toBe('retreat');
     expect(brain()?.targetTile).toBe(at);
     w.spawnItem('drink', 'dimcap_ale', w.index(37, 0, 32), 10);
-    w.setNeed(dwarf, 'thirst', 90);
+    // Want level: a critical need overrides the retreat (T-200), so the door opening would not end it.
+    w.setNeed(dwarf, 'thirst', 60);
     w.until(() => brain()?.behavior === 'need', 60);
     expect(brain()?.targetTile).toBeGreaterThanOrEqual(0);
     expect(w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: door, mode: 'open' }).ok).toBe(true);
@@ -74,7 +75,8 @@ describe('F-16 retreat without shelter', () => {
   it('keeps shelter watching deterministic across save/load during a need', () => {
     const { w, dwarf, door } = shutOut();
     w.spawnItem('drink', 'dimcap_ale', w.index(37, 0, 32), 10);
-    w.setNeed(dwarf, 'thirst', 90);
+    // Want level: a critical need overrides the retreat (T-200), so the door opening would not end it.
+    w.setNeed(dwarf, 'thirst', 60);
     w.until(() => w.game.world.entities.get(dwarf, C.Brain)?.behavior === 'need', 60);
     const loaded = roundTrip(w.game).game;
     expect(loaded.hash()).toBe(w.hash());

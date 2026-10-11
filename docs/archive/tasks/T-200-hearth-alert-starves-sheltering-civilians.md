@@ -1,5 +1,7 @@
 # T-200 — A hearth alert held for days starves the civilians who shelter
 
+Closed by `T-200: a critical need overrides sheltering under a hearth alert`, the commit that archived this file.
+
 **Source:** T-221 (the answer to wildlife in `test/e2e/full-year.spec.ts`; see the commit `894a0fc` message for the variants tried) · **Size:** S · **Needs:** — · **Status:** open (decision first)
 
 ## Why

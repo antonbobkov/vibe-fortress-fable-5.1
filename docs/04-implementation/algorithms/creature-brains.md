@@ -28,7 +28,11 @@ select(id):
     if no critical need and civilianFightDeadline not elapsed: startOrKeepCorneredFight(id); return
     clearCombatTarget(id); stopWalking(id); if deadline elapsed: clearThreat(id)
   if alert == 'hearth' and civ: target = defense.retreatTile(id); watchShelter(id, target < 0)
-     if target >= 0: b.behavior = 'retreat'; goal = target; return  // otherwise continue; flee has precedence
+     if target >= 0:                                            // a critical need overrides the retreat; a want-level hunger, thirst or rest is served only from a target inside the shelter
+       if crit = highest need over its critical threshold and startNeed(id, crit): return
+       if want = highest of hunger, thirst, rest over its want threshold and startNeed(id, want, targets in shelterArea(target), rest only where a bed is free there): return
+       b.behavior = 'retreat'; goal = target; return          // otherwise continue; flee has precedence
+                                                                // shelterArea(target): the hearth hall when target is one of its tiles, else the non-outdoor tiles around target reached without passing a door
   if health.isPatient(id):                                      b.behavior = 'patient'; goal = bedTile(id) or stay; return
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
@@ -94,7 +98,7 @@ A food or drink plan validates that its item still exists, is reserved by its dw
 
 Need targets must be reachable; a failed walk blocks that need until `tick + NEED_RETRY_TICKS`, saved in `needRetryUntil`. Recheck only watched shut-out civilian ids when alerts, building state or the derived connectivity revision change. Save their ids. Patient rest without a bed, cornered fighting and duty target the current tile. Idle without an anchor follows the current position. While a soldier's brain behavior is `need` (or `flee`, `retreat`, `patient`), squad positioning and training do not command movement or partner pairing.
 
-On `AttackResolved` with outcome `hit` against a civilian whose behavior is `flee`, from an adjacent attacker on its level with `Motion.speed` at least the civilian's: `threatened[id] = { hostile: attacker, tick, tile: attacker's tile, caught: true }` and set the interrupt flag. A `ThreatNearby` from another hostile leaves a caught record alone; one from the same hostile refreshes its tick and tile. A fighting civilian (cornered or caught) never paths toward its target (16).
+On `AttackResolved` with outcome `hit` against a civilian whose behavior is `flee`, from an adjacent attacker on its level that is a wild animal hunting (`Wild.state == 'hunt'`, or `'attack'` with `Wild.defendFrom` unset) with `Motion.speed` at least the civilian's (any other attacker leaves the civilian fleeing): `threatened[id] = { hostile: attacker, tick, tile: attacker's tile, caught: true }` and set the interrupt flag. A `ThreatNearby` from another hostile leaves a caught record alone; one from the same hostile refreshes its tick and tile. A fighting civilian (cornered or caught) never paths toward its target (16).
 
 A civilian fight uses `Brain.behaviorUntil` as its saved deadline. Refresh it on melee reach or a recorded attack opportunity, never merely on `ThreatNearby`. Reaching an escape goal ends the flee behavior without clearing a still-near living hostile's saved last seen tile. Critical need activities can enter that remembered danger and continue across threat scans even when an escape exists; a newly more critical need still cancels them for selection. Noncritical activity searches exclude unsafe resources, beds, water stands, meeting tiles and dining seats, trying safe alternatives. The escape search and combat timeout use 10's tuning constants and safety rules.
 
