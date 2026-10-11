@@ -14,7 +14,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-260 | [Two dwarves starve under wildlife alerts](work/T-260-starvation-under-wildlife-alerts.md) | T-136 twelve-seed instrument, 2026-10-11 | — | open; diagnosis first |
 | T-261 | [Infection appearing after cleaning-job planning is cured without brightleaf](work/T-261-infection-after-cleaning-job-planned.md) | T-137 investigation, 2026-10-11 | — | open |
 | T-139 | [Clothing keeps a dead carrier](work/T-139-dead-carrier-clothing.md) | T-216 full-run verification, 2026-10-11 | — | open |
-| T-138 | [Fresh embark save loses next-tick mood reactions](work/T-138-fresh-embark-mood-save.md) | T-133 save-continuation control, 2026-10-11 | — | open |
 | T-137 | [Repeated infection cleaning restarts a pending cure](work/T-137-infection-treatment-restarts-cure.md) | T-224 treatment-refresh investigation, 2026-10-11 | — | open; decided 2026-10-11: land the stashed fix with the instrument guard given a tolerance (see the work file) |
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | T-140, T-145 (the performance tier includes the 20-seed balance sweep, which cannot pass before them) | open; local side (needs a quiet machine) |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, and the fix tasks of T-115 (T-169 … T-177, T-180 … T-187) | open; local side (the cloud agent stopped before it) |

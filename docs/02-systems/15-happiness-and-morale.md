@@ -100,6 +100,7 @@ Masterwork sight thoughts consume 10's `SawMasterwork` event on room entry. Its 
 
 - `Mood` components: `value, tier, thoughts: { thoughtId, startTick, baseValue }[], sulkCounterDays`.
 - `hallSpirit`, `hallSpiritTier`.
+- Saved `hourlyDue`: a pending mood/hall-spirit recomputation, including the initial recomputation before the first system tick. Loading restores that pending work; saving neither executes it nor advances the clock. Once the initial recomputation has run, loading does not schedule it again.
 - Rng stream (sulk target choice).
 
 ## Interfaces

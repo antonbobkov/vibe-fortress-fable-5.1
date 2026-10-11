@@ -7,7 +7,7 @@ import { serializeJson, SerializationError } from '@core/serialize';
 
 function game(): HeadlessGame {
   const original = new HeadlessGame({ seed: 't133-save', world: 'flat-test', embark: 'default' });
-  // Drain embark's bootstrap reactions; fresh-save mood continuation is tracked by T-136.
+  // Drain embark's bootstrap reactions; fresh-save mood continuation is covered by T-138.
   original.step(1);
   return original;
 }

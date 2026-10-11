@@ -1,5 +1,7 @@
 # T-138 - A fresh embark save loses mood reactions on its next tick
 
+Closed by `T-138: fresh saves retain the pending morale bootstrap`.
+
 **Source:** T-133's save-continuation control, 2026-10-11 | **Size:** S | **Needs:** none | **Status:** open
 
 ## Reproduction and measurement

@@ -256,7 +256,7 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
     if (this.rng === null) throw new Error('15 morale: serialize before init');
     return { stateVersion: 1, hallSpirit: this.spirit, hallSpiritTier: this.spiritTier, rng: this.rng.state(),
       floorSleepers: Array.from(this.floorSleepers).sort((a, b) => a - b), dailyStandingDue: this.dayDue,
-      hourlyDue: this.hourDue, lastHearthTier: this.lastHearthTier,
+      hourlyDue: this.firstTick || this.hourDue, lastHearthTier: this.lastHearthTier,
       dayOffUntil: Array.from(this.dayOffUntil).sort((a, b) => a[0] - b[0]),
       sunlightSeen: Array.from(this.sunlightSeen).sort((a, b) => a - b),
       statueSeen: Array.from(this.statueSeen).sort().map((key) => key.split(':').map(Number) as [EntityId, EntityId, number]) };

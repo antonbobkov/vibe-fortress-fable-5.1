@@ -11,6 +11,7 @@ export interface MoraleStateV1 {
   floorSleepers: EntityId[];
   /** Cached daily conditions; recomputed at the next day boundary. */
   dailyStandingDue: boolean;
+  /** Pending recomputation, including the initial bootstrap tick. */
   hourlyDue: boolean;
   lastHearthTier: number;
   dayOffUntil: [EntityId, number][];
