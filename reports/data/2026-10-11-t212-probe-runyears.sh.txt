@@ -1,0 +1,9 @@
+#!/bin/bash
+# usage: runyears.sh <tree> <label> <parallel>
+TREE=$1; LABEL=$2; PAR=${3:-3}; SP=/tmp/claude-0/-home-user-vibe-fortress-fable-5-1/046ed019-fa18-5b23-82f1-975568875606/scratchpad
+SP=$SP/t212; mkdir -p $SP/year-$LABEL
+cd $TREE
+jobs_list=()
+for b in temperate_forest taiga; do for i in 1 2 3; do for m in ignore react; do jobs_list+=("$b $i $m"); done; done; done
+printf '%s\n' "${jobs_list[@]}" | xargs -P $PAR -L 1 bash -c 'b=$0; i=$1; m=$2; T212_SEED=t212-$b-$i T212_BIOME=$b T212_MODE=$m T212_OUT='$SP'/year-'$LABEL'/$b-$i-$m.json timeout 3000 npx vitest run --config vitest.t212.config.ts test/t212-probe/year.test.ts > '$SP'/year-'$LABEL'/$b-$i-$m.log 2>&1'
+echo ALLDONE

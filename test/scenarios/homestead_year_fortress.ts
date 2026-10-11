@@ -391,8 +391,7 @@ export function runHomesteadYear(w: TestWorld): void {
   }).ok).toBe(true);
 
   // 9. Simulation loop
-  // Forty days include a dog conceived in the first sixteen days, its twenty-day
-  // gestation and a few days of margin; the birth assertion must not need an early roll.
+  // The script runs forty days; the first birth is awaited after it (below).
   const totalTicks = 40 * TICKS_PER_DAY;
   const orderedWorkshops = new Set<string>();
   let dogTrainInitiated = false;
@@ -630,8 +629,33 @@ export function runHomesteadYear(w: TestWorld): void {
   }
   console.log(`T-192 homestead_year wildlife: ${JSON.stringify({ spawns: wildSpawns, liveAtEnd: w.animals.reader().wildList().length, huntsCompleted: w.events('JobCompleted').filter((ev) => ev['jobType'] === 'hunt').length, huntKills: w.events('HuntKill').length })}`);
 
-  // 1. Job types completed
+  // Everything but the birth is read at the end of the forty-day script.
   const completedJobs = new Set(w.events('JobCompleted').map((e) => e['jobType']));
+  const craftedRecipes = new Set(w.events('ItemCrafted').map((e) => e['recipeId']));
+  const animalTrainedCount = w.events('AnimalTrained').length;
+  const butcheryDoneCount = w.events('ButcheryDone').length;
+  const huntKillCount = w.events('HuntKill').length;
+  const starvationCount = w.events('Starvation').length;
+  const dwarfDeaths = w.events('CreatureDied').filter((d) => dwarves.includes(d['id'] as number));
+
+  // Conception is a daily roll, so a fixed end day made the birth depend on one random sequence
+  // (T-186 and T-144 both tripped it). After the script, the world steps on with no new command
+  // until the first AnimalBorn, for at most two of the dog's gestations and ten days more.
+  const creatures = w.game.registry.table<{ id: string; breeding?: { gestationDays: number } }>('creatures');
+  const dogBreeding = creatures.byIndex(creatures.index('dog'))?.breeding;
+  if (dogBreeding === undefined) throw new Error('homestead_year: the dog has no breeding row');
+  const hardLimitTick = (Math.floor(w.tick / TICKS_PER_DAY) + 2 * dogBreeding.gestationDays + 10) * TICKS_PER_DAY;
+  // A birth inside the forty days is stamped with the script's last tick.
+  let birthTick: number | null = w.events('AnimalBorn').length > 0 ? w.tick : null;
+  const stopBirthWatch = w.game.world.onEvents((events) => {
+    if (birthTick === null && events.some((e) => e.type === 'AnimalBorn')) birthTick = w.tick;
+  });
+  while (birthTick === null && w.tick < hardLimitTick) w.step(Math.min(600, hardLimitTick - w.tick));
+  stopBirthWatch();
+  console.log(`homestead_year first AnimalBorn: ${birthTick === null ? 'none' : `by day ${Math.floor(birthTick / TICKS_PER_DAY) + 1}`}`);
+  expect(w.events('AnimalBorn').length, 'event: AnimalBorn').toBeGreaterThanOrEqual(1);
+
+  // 1. Job types completed
   expect(completedJobs.has('slaughter'), 'job: slaughter').toBe(true);
   expect(completedJobs.has('butcher'), 'job: butcher').toBe(true);
   expect(completedJobs.has('milk_animal'), 'job: milk_animal').toBe(true);
@@ -644,7 +668,6 @@ export function runHomesteadYear(w: TestWorld): void {
   // Fishing is covered by the short T-191 bank/catch regressions; this fixture has no fishing zone.
 
   // 2. Ordered recipes crafted
-  const craftedRecipes = new Set(w.events('ItemCrafted').map((e) => e['recipeId']));
   expect(craftedRecipes.has('make_cheese'), 'recipe: make_cheese').toBe(true);
   expect(craftedRecipes.has('spin_thread'), 'recipe: spin_thread').toBe(true);
   expect(craftedRecipes.has('weave_cloth'), 'recipe: weave_cloth').toBe(true);
@@ -658,14 +681,12 @@ export function runHomesteadYear(w: TestWorld): void {
   expect(craftedRecipes.has('process_flax'), 'recipe: process_flax').toBe(true);
 
   // 3. Events emitted
-  expect(w.events('AnimalBorn').length, 'event: AnimalBorn').toBeGreaterThanOrEqual(1);
-  expect(w.events('AnimalTrained').length, 'event: AnimalTrained').toBeGreaterThanOrEqual(1);
-  expect(w.events('ButcheryDone').length, 'event: ButcheryDone').toBeGreaterThanOrEqual(1);
-  expect(w.events('HuntKill').length, 'event: HuntKill').toBeGreaterThanOrEqual(1);
+  expect(animalTrainedCount, 'event: AnimalTrained').toBeGreaterThanOrEqual(1);
+  expect(butcheryDoneCount, 'event: ButcheryDone').toBeGreaterThanOrEqual(1);
+  expect(huntKillCount, 'event: HuntKill').toBeGreaterThanOrEqual(1);
   // FishCaught is covered by the short T-191 regression, without adding a zone to this fixture.
 
   // 4. Invariants
-  expect(w.events('Starvation').length, 'no tame animal starved').toBe(0);
-  const dwarfDeaths = w.events('CreatureDied').filter((d) => dwarves.includes(d['id'] as number));
+  expect(starvationCount, 'no tame animal starved').toBe(0);
   expect(dwarfDeaths.length, 'no dwarf died').toBe(0);
 }

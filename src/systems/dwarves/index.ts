@@ -18,7 +18,7 @@ import { makeReader, type DwarvesReader } from './reader';
 import { dwarfSpeed, jobXp } from './rules/skills';
 import { grantXp } from './skills';
 import { movementEffects, type MoveFacts } from './movement-effects';
-import type { DwarvesStateV1, TitleName } from './state';
+import type { DwarvesStateV1, ThreatMemory, TitleName } from './state';
 import { TileFlag } from '@core/map3d';
 import type { WeatherReader } from '@systems/weather';
 import type { ItemsReader } from '@systems/items';
@@ -74,7 +74,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AlertChanged', 'BuildingStateChanged'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AttackResolved', 'AlertChanged', 'BuildingStateChanged'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -93,7 +93,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   private connectivityRevision = (): number => -1;
   private shelterRestored = false;
   private shelterCheckPending = false;
-  readonly threatened = new Map<EntityId, { hostileId: EntityId; tick: number; tile?: TileIndex }>();
+  readonly threatened = new Map<EntityId, ThreatMemory>();
   readonly hungerMaxSince = new Map<EntityId, number>();
   readonly thirstMaxSince = new Map<EntityId, number>();
   readonly starvingAnnounced = new Map<EntityId, number>();
@@ -112,6 +112,29 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     if (pos === undefined) return -1;
     const tile = memory.tile ?? world.map.index(pos.x, pos.y, pos.z);
     return pos.z === world.map.zOf(tile) && Math.max(Math.abs(pos.x - world.map.xOf(tile)), Math.abs(pos.y - world.map.yOf(tile))) <= THREAT_RADIUS ? tile : -1;
+  }
+
+  /**
+   * `10` § Behavior selection: a fleeing civilian hit in melee by a wild animal that is hunting it,
+   * at least as fast as itself, is caught; from then on it fights that attacker instead of fleeing.
+   * An animal defending its ground (`defendFrom` set, `08` § Wild behavior) and a hostile of a
+   * party do not catch it.
+   */
+  private caughtFleeing(ctx: TickContext, attacker: EntityId, id: EntityId, outcome: unknown): void {
+    const entities = ctx.world.entities;
+    if (outcome !== 'hit' || !entities.alive(attacker) || !entities.alive(id)) return;
+    if (entities.get(id, C.Brain)?.behavior !== 'flee' || entities.get(id, C.Soldier)?.onDuty === true) return;
+    if (entities.get(id, C.Creature)?.faction !== 'fortress') return;
+    const mine = entities.get(id, C.Position);
+    const theirs = entities.get(attacker, C.Position);
+    if (mine === undefined || theirs === undefined || mine.z !== theirs.z ||
+      Math.max(Math.abs(mine.x - theirs.x), Math.abs(mine.y - theirs.y)) > 1) return;
+    if ((entities.get(attacker, C.Motion)?.speed ?? 0) < (entities.get(id, C.Motion)?.speed ?? 0)) return;
+    // A hunt, or the attack a hunt led to; a defence keeps `defendFrom` (creature-brains.md).
+    const wild = entities.get(attacker, C.Wild);
+    if (wild === undefined || !(wild.state === 'hunt' || (wild.state === 'attack' && wild.defendFrom === undefined))) return;
+    this.threatened.set(id, { hostileId: attacker, tick: ctx.tick, tile: ctx.world.map.index(theirs.x, theirs.y, theirs.z), caught: true });
+    this.interruptFlags.add(id);
   }
 
   /** The embark Thane is written by the spawn API before 10's first tick. */
@@ -274,6 +297,13 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       threatOf: (id) => this.threatened.get(id)?.hostileId ?? 0,
       threatTile: (id) => this.threatTile(id),
       clearThreat: (id) => { this.threatened.delete(id); },
+      caught: (id) => this.threatened.get(id)?.caught === true,
+      release: (id) => {
+        const memory = this.threatened.get(id);
+        if (memory?.caught !== true) return;
+        const { caught: _caught, ...rest } = memory;
+        this.threatened.set(id, rest);
+      },
       setCombatTarget: (id, targetId) => { ctx.world.services.combat?.setTarget(id, targetId); },
       watchShelter: (id, shutOut) => { if (shutOut) this.shutOut.add(id); else this.shutOut.delete(id); },
     };
@@ -329,6 +359,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     const species = ctx.registry.table<SpeciesRow & { id: string }>('creatures');
     const movement = ctx.world.services.movement;
     const dwarves = reader.list();
+    this.activities.passingTalks(ctx, dwarves);
     for (const id of dwarves) {
       // `10` § Movement: species speed × (50 + Agility) / 100 (wounds and carrying from M4/M6).
       const creature = entities.get(id, C.Creature);
@@ -393,9 +424,18 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       const soldier = ctx.world.entities.get(id, C.Soldier);
       if (!soldier || !soldier.onDuty) {
         const pos = ctx.world.entities.get(hostileId, C.Position);
-        this.threatened.set(id, { hostileId, tick: ctx.tick, ...(pos === undefined ? {} : { tile: ctx.world.map.index(pos.x, pos.y, pos.z) }) });
+        const memory: ThreatMemory = { hostileId, tick: ctx.tick, ...(pos === undefined ? {} : { tile: ctx.world.map.index(pos.x, pos.y, pos.z) }) };
+        const held = this.threatened.get(id);
+        // A caught civilian keeps its attacker in mind while the attacker lives.
+        if (held?.caught === true && ctx.world.entities.alive(held.hostileId)) {
+          if (held.hostileId === hostileId) this.threatened.set(id, { ...memory, caught: true });
+        } else this.threatened.set(id, memory);
         this.interruptFlags.add(id);
       }
+      return;
+    }
+    if (event.type === 'AttackResolved') {
+      this.caughtFleeing(ctx, event['attackerId'] as EntityId, event['defenderId'] as EntityId, event['outcome']);
       return;
     }
     if (event.type === 'AlertChanged') {
@@ -427,6 +467,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       this.seedTitles();
       for (const title of TITLES) if (this.titles[title] === id) this.titles[title] = 0;
       this.activities.cancel(ctx, id);
+      this.activities.forget(id);
       this.idleAnnounced.delete(id);
       this.interruptFlags.delete(id);
       this.shutOut.delete(id);
@@ -584,6 +625,9 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       ...(this.sawMasterworks.size > 0 ? { sawMasterworks: Array.from(this.sawMasterworks).sort()
         .map((key) => key.split(':').map(Number) as [EntityId, EntityId]) } : {}),
       ...(this.activities.serializeRetryUntil().length > 0 ? { needRetryUntil: this.activities.serializeRetryUntil() } : {}),
+      ...(this.activities.talks.size > 0 ? { talks: this.activities.serializeTalks() } : {}),
+      ...(this.activities.hearthTicks.size > 0 ? { hearthTicks: Array.from(this.activities.hearthTicks).sort((a, b) => a[0] - b[0]) } : {}),
+      ...(this.activities.hallRetryUntil.size > 0 ? { hallRetryUntil: Array.from(this.activities.hallRetryUntil).sort((a, b) => a[0] - b[0]) } : {}),
     };
   }
 
@@ -623,5 +667,14 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     for (const [id, need, until] of state.needRetryUntil ?? []) {
       this.activities.setRetryUntil(id, need, until);
     }
+    this.activities.talks.clear();
+    for (const [a, b, until] of state.talks ?? []) {
+      this.activities.talks.set(a, { partner: b, until });
+      this.activities.talks.set(b, { partner: a, until });
+    }
+    this.activities.hearthTicks.clear();
+    for (const [id, ticks] of state.hearthTicks ?? []) this.activities.hearthTicks.set(id, ticks);
+    this.activities.hallRetryUntil.clear();
+    for (const [id, until] of state.hallRetryUntil ?? []) this.activities.hallRetryUntil.set(id, until);
   }
 }

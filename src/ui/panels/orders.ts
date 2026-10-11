@@ -880,13 +880,13 @@ export function drawOrdersPanel(s: Surface, rect: Rect, panel: OrdersPanel, ctx:
 
 /**
  * Why a workshop is idle, with the input named (`12` § Operation 3: "waiting for <input>"; D-U4).
- * The saved `lastBlockedReason` folds every missing input into `missing_input`; the reader's
+ * The saved `lastBlockedReason` folds every missing input into `missing_input` (an empty container into `no_empty_container`); the reader's
  * `isRunnable` of the orders in turn says which one.
  */
 export function workshopWaiting(reader: WorkshopsReader, id: EntityId, workshop: Workshop): string | null {
   const last = workshop.lastBlockedReason;
   if (last === null) return null;
-  if (last !== 'missing_input') return last;
+  if (last !== 'missing_input' && last !== 'no_empty_container') return last;
   for (const order of workshop.orders) {
     const recipe = reader.recipe(order.recipe);
     const why = recipe === undefined ? null : reader.isRunnable(recipe.id, id).reason;

@@ -30,6 +30,11 @@
     "text": "Stockpiles need barrels for drink and bags for seeds. The carpenter makes barrels; the clothier makes bags."
   },
   {
+    "id": "hint_barrel",
+    "trigger": "a workshop is blocked because no barrel is empty",
+    "text": "A brew needs an empty barrel, and a barrel that holds food or seed is not empty. Order a barrel at the carpenter's workshop."
+  },
+  {
     "id": "hint_fuel",
     "trigger": "a smelter or forge is blocked for fuel",
     "text": "Smelters and forges need fuel. A wood furnace makes charcoal from logs; coal seams burn too."
@@ -57,7 +62,7 @@
   {
     "id": "hint_alert",
     "trigger": "first ThreatWarning",
-    "text": "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock."
+    "text": "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock, but a dwarf in dire need still goes out to eat, drink or sleep."
   },
   {
     "id": "hint_depot",

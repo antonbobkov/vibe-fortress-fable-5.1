@@ -27,16 +27,16 @@ Need rates per hour (10 Dwarves, as revised by this pass):
 
 Per dwarf per day: 0.48 food units + 0.77 drink units. Twenty dwarves: 9.6 food, 15.4 drink. Seven dwarves over a 28-day season: 94 food, 150 drink, which is the season `embark-catalog.md` § Rules of thumb describes.
 
-The intervals above count the need itself, not the walk to serve it. A dwarf at default priorities starts about four need errands a day: 1.2 for sleep, 0.6 for a drink, 0.4 for a meal, and 0.6 to 0.7 each for a talk, a sit and a hearth visit. Measured over the first year of a fortress of 12 to 14 dwarves, with no job more urgent than a need, the errands take three quarters of a dwarf's time, and more of it is travel than use:
+The intervals above count the need itself, not the walk to serve it. A dwarf at default priorities starts about three and a half need errands a day: 1.2 for sleep, 0.6 for a drink, 0.4 for a meal, and 1.2 in all for a talk, a sit and a hearth visit. It takes those last three when it has no work, or, once one of them reaches `LEISURE_MARK`, as one sit in the hearth hall before its work; the rest of them is relieved in passing, at the table and in the hall. Measured over the first year of a fortress of 7 to 15 dwarves, with no job more urgent than a need and no wild animal arrivals, the errands take two thirds of a dwarf's time, and most of it is travel:
 
 | Share of a dwarf's time | In use | In travel |
 |---|---|---|
-| Sleep | 12% | 14% |
-| Food and drink | 4% | 17% |
-| Talk, sit, hearth visit | 14% | 13% |
-| **All needs** | **30%** | **44%** |
+| Sleep | 9% | 18% |
+| Food and drink | 4% | 20% |
+| Talk, sit, hearth visit | 8% | 7% |
+| **All needs** | **20%** | **45%** |
 
-Work takes 23% and the rest is idle. Travel is the walk to the bed, the food, the seat or the hall, and for a meal the walk from the food to a table. A meal is 60 ticks of eating after about 300 ticks on the way; a drink is 40 ticks after about 145. The use shares follow from the need rates and do not change with walking speed. [balance-status.md](../balance-status.md) holds the latest measurement.
+Work takes 28% and the rest is idle. Social is over its want threshold about half the time, joy two fifths and comfort a fifth. Travel is the walk to the bed, the food, the seat or the hall, and for a meal the walk from the food to a table. A meal is 60 ticks of eating after about 300 ticks on the way; a drink is 40 ticks after about 145. The use shares follow from the need rates and do not change with walking speed. [balance-status.md](../balance-status.md) holds the latest measurement.
 
 ## Food chain
 
@@ -92,6 +92,31 @@ Renown follows: 5 → 15 → 30 → 75. Raid size at peril 2: year 2 → 6 + 4 =
 - Two unarmored goblins (copper short swords) versus one dwarf in iron mail with an iron axe and shield, both Novice: the dwarf takes light cuts (7 damage through the mail) about 40% of the time an attack lands (hit 50%, block 14%); each goblin takes serious cuts (22 damage) at 50% per swing. Expected: the dwarf kills the first goblin in about 5 swings (100 ticks), the second in another 5, having taken 2–3 light cuts (bleed 1 each: 100 blood over the fight; unconscious at 240 lost). A squad of three with mail handles a raid of ten at peril 2 with a few wounds and a hospital visit.
 - Trollkin (size 150, slam 28 blunt) versus the same dwarf: 28 − (mail 12 × 0.5 = 6 blunt) = 22 bruise to the torso (ratio 0.37, serious), fractures on limbs (22 ≥ 36 × 0.3 = 10.8). Three hits floor a dwarf. Trollkin are the reason for bridges, spikes and crossbow galleries; a steel warhammer (33 damage) fractures a trollkin limb in two hits.
 - Magma wyrm (torso 220, armor 12): iron axes do 22 − 12 × 1.1 = 9 per hit; steel 27.5 − 13.2 = 14; deepsilver 35 − 13 = 22. Ten deepsilver hits or twenty-five iron hits, while it breathes 40 burn at range 6 every 40 ticks. Cage traps do not hold it (size 220 > 150). Drowning does not work (it stands in water to level 6). Magma does not work. A pit of three levels (fall damage 6 × 9 = 54 to a leg, fracture) and a corridor of ten weapon traps loaded with steel spears (18 × 1.25 × 3 = 67 per trigger, minus armor 12 × 1.2 = 14) is the intended answer, or a squad in deepsilver.
+
+## Wild animals
+
+Wildlife on a peril-0 map without `serene_vale` is a hazard that a careless fortress pays for, not an extinction. The rules that make it so: a defending animal (08) lets go once its target is out of its provoke radius from where the attack began, or unconscious, and never takes a second target from the same attack; a light wound stops bleeding after `CLOT_TICKS` (17), so only serious and grievous wounds need a medic in time; a squad's kill order reaches the animal wherever it is (16).
+
+The intended figures, for one territorial animal (badger, boar) or one fed wolf whose ground seven civilians keep crossing for three days:
+
+| The fortress | Civilians lost |
+|---|---|
+| No medic, nobody answers | about one per animal (badger 0.9, boar 1.7, wolf 1.3 per encounter); never the whole group |
+| A medic with cloth | badger none; boar under one; wolf almost none |
+| A medic with cloth, and a squad sent to kill the animal | **none to a badger**; boar and wolf almost none |
+
+An unarmoured soldier sent against a boar or a wolf can still be killed; armour is the answer.
+
+A *hungry* predator (08 § `hunt`) prefers animal prey to dwarves, and its pack shares one quarry and one meal; it keeps its quarry until the quarry dies. A civilian it catches fleeing turns and fights with what it carries (10 § Behavior selection), so a wolf that hunts a group of haulers usually dies of it, though the first dwarf it catches usually dies too. The intended figures, for a forest or taiga map at peril 0 over a year: a fortress that ignores wolves loses livestock regularly and a dwarf now and then, a few a year at most; one that reacts (pasture behind a door, alert raised, squad sent) loses no dwarf to wildlife.
+
+Measured, with the game's own wolf arrivals and the compact three-year fortress (Balanced embark, three forest and three taiga seeds, one year each):
+
+| The fortress | Dwarves lost to wolves in a year |
+|---|---|
+| Ignores wolves | none in four seeds of six, 7 and 5 in the other two (12 in six fortress-years) |
+| Raises the alert and sends its squad | none in four seeds of six, 3 and 4 in the other two (7 in six fortress-years) |
+
+A seven-hauler group crossing a hungry wolf's ground for three days loses 14 of 70 (9 of 70 when every hauler holds a pick), and the wolf dies in nine runs of ten. The figures for a year do not yet meet the intent in a third of the seeds. [balance-status.md](../balance-status.md) holds the latest measurement.
 
 ## Mood floor and the no-spiral guarantee
 

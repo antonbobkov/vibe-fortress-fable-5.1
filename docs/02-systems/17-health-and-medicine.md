@@ -48,7 +48,7 @@ Environmental sources create wounds through the same path with synthetic damage:
 
 Each health tick (every 5 ticks) for each creature in the `wounded` list:
 
-- `blood −= Σ wound.bleed` for wounds not `bandaged` (bandaging sets `bleed = 0`; suturing keeps it 0 and heals faster). Blood regenerates `BLOOD_REGEN_PER_TICK` per health tick when no wound bleeds.
+- `blood −= Σ wound.bleed` for wounds not `bandaged` (bandaging sets `bleed = 0`; suturing keeps it 0 and heals faster). A `light` wound stops bleeding by itself `CLOT_TICKS` after it was made (its `bleed` becomes 0); a `serious` or `grievous` wound bleeds until it is bandaged. Blood regenerates `BLOOD_REGEN_PER_TICK` per health tick when no wound bleeds.
 - `pain = Σ wound.pain × (100 − Willpower / 2) / 100` (dwarves; other creatures use 100).
 - `conscious = pain < PAIN_UNCONSCIOUS and blood ≥ maxBlood × BLOOD_UNCONSCIOUS_PERCENT / 100`. An unconscious creature does nothing, is hit at +40, and is carried as a patient if a dwarf.
 - Death: `blood < maxBlood × BLOOD_DEATH_PERCENT / 100` → `CreatureDied { cause: bled_out }`.
@@ -141,6 +141,7 @@ Job producer `health` (`carry_patient`, `feed_patient`, `water_patient`, `stop_b
 | `LIGHT_MAX` / `SERIOUS_MAX` | 0.2 / 0.5 | Damage ratio thresholds |
 | `HEAL_BASE_TICKS` | 6000 | 5 days for a light wound; serious ×3, grievous ×6 |
 | `BLOOD_REGEN_PER_TICK` | 1 | Blood units per health tick |
+| `CLOT_TICKS` | 300 | Ticks after which a light wound stops bleeding by itself |
 | `PAIN_UNCONSCIOUS` | 80 | |
 | `BLOOD_UNCONSCIOUS_PERCENT` | 40 | |
 | `BLOOD_DEATH_PERCENT` | 20 | |

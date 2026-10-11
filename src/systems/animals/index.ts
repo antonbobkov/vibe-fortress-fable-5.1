@@ -41,7 +41,7 @@ import {
   WILD_LOAD_SHEDDING_THINK_TICKS,
 } from './constants';
 import { AnimalFacts } from './facts';
-import { tickAnimal, type BrainHost } from './brain';
+import { packOf, tickAnimal, type BrainHost } from './brain';
 import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, isDoorTile, stepOffDoor, thinkTame, type TameHost } from './tame';
 import { AnimalsProducer, productKey, slaughterKey, trainKey, type AnimalsProducerHost } from './producer';
 import type { AnimalsReader } from './reader';
@@ -852,6 +852,15 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       for (const animalId of ctx.world.entities.with(C.Tame)) {
         const tame = ctx.world.entities.get(animalId, C.Tame);
         if (tame !== undefined && tame.petOf === id) ctx.world.entities.add(animalId, C.Tame, { ...tame, petOf: 0 });
+      }
+      // "Predators … stop hunting after a kill" (08 § Wild behavior): the pack shares the kill.
+      const killer = (event['killerId'] ?? 0) as EntityId;
+      const killerWild = killer === 0 ? undefined : ctx.world.entities.get(killer, C.Wild);
+      if (killerWild?.hungry === true) {
+        for (const member of [killer, ...packOf(this.brain, killer)]) {
+          const w = ctx.world.entities.get(member, C.Wild);
+          if (w?.hungry === true) ctx.world.entities.add(member, C.Wild, { ...w, hungry: false });
+        }
       }
       this.targets.delete(id);
       this.provoked.delete(id);

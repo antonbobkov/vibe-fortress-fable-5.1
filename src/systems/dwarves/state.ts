@@ -9,6 +9,17 @@ import type { NeedName } from './needs';
 
 export type TitleName = 'thane' | 'warden' | 'broker' | 'chief_medic';
 
+/**
+ * A remembered threat: the hostile, the scan tick and its last seen tile; `caught` while it holds a
+ * civilian it caught fleeing (`10` § Behavior selection). Absent means not caught.
+ */
+export interface ThreatMemory {
+  hostileId: EntityId;
+  tick: number;
+  tile?: TileIndex;
+  caught?: true;
+}
+
 export interface ActivityPlan {
   need: string;
   phase: 'travel' | 'seat' | 'use';
@@ -20,6 +31,8 @@ export interface ActivityPlan {
   atTable: boolean;
   roomTier: number;
   startedRest: number;
+  /** A sit in the hearth hall taken at `LEISURE_MARK`, before work. Absent on every other plan. */
+  hall?: true;
 }
 
 export interface DwarvesStateV1 {
@@ -45,5 +58,11 @@ export interface DwarvesStateV1 {
   needRetryUntil?: [EntityId, NeedName, number][];
   shutOut?: EntityId[];
   shelterCheckPending?: boolean;
-  threatened?: [EntityId, { hostileId: EntityId; tick: number; tile?: TileIndex }][];
+  threatened?: [EntityId, ThreatMemory][];
+  /** Talks in passing: the two dwarves, lower id first, and the tick the talk ends. Absent means none. */
+  talks?: [EntityId, EntityId, number][];
+  /** Ticks of eating, drinking and sitting in the hearth hall counted toward the next hearth visit. Absent means none. */
+  hearthTicks?: [EntityId, number][];
+  /** Per dwarf, the tick before which it takes no hall errand before work. Absent means none. */
+  hallRetryUntil?: [EntityId, number][];
 }

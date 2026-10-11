@@ -1,0 +1,750 @@
+import { describe, it } from 'vitest';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { FLAT_TEST_SPEC, FLAT_TEST_SURFACE_Z, buildFlatTestMap } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TileKind } from '@core/map3d';
+import type { EntityId, TileIndex, BodySlot } from '@core/types';
+import type { CombatReader, SquadWithId } from '@systems/combat';
+import type { HealthReader } from '@systems/health';
+import { BLEED_TABLE, severityFor, woundTypeFor } from '@systems/health/wounds';
+import { TestWorld } from '../scenarios/test-world';
+
+const registry = contentRegistry();
+const Z = FLAT_TEST_SURFACE_Z;
+const dwarfSpeciesIndex = registry.table('creatures').index('dwarf');
+
+function rect(w: TestWorld, x: number, y: number, z: number, width: number, height: number): TileIndex[] {
+  const tiles: TileIndex[] = [];
+  for (let dy = 0; dy < height; dy++) {
+    for (let dx = 0; dx < width; dx++) {
+      tiles.push(w.index(x + dx, y + dy, z));
+    }
+  }
+  return tiles;
+}
+
+export interface AttackRecord {
+  tick: number;
+  attackerId: number;
+  attackerType: 'animal' | 'dwarf';
+  defenderId: number;
+  defenderType: 'animal' | 'dwarf';
+  weaponOrNatural: string;
+  outcome: string;
+  damage: number;
+  part: string | null;
+  woundSeverity: string | null;
+  bleedingStarted: boolean;
+}
+
+export interface DwarfSnapshot {
+  id: number;
+  name: string;
+  alive: boolean;
+  position: { x: number; y: number; z: number } | null;
+  distanceToAnimal: number | null;
+  behavior: string;
+  activity: string;
+  combatTarget: number;
+  hp: Record<string, number>;
+  wounds: Array<{ type: string; severity: string; bleed: number; bandaged: boolean }>;
+  blood: number;
+  bleedingRate: number;
+  conscious: boolean;
+}
+
+export interface AnimalSnapshot {
+  id: number;
+  species: string;
+  alive: boolean;
+  position: { x: number; y: number; z: number } | null;
+  state08: string;
+  combatTarget: number;
+  hunger: boolean;
+  targetReason: string;
+  blood: number;
+  conscious: boolean;
+}
+
+export interface TickSnapshot {
+  tick: number;
+  dwarves: DwarfSnapshot[];
+  animal: AnimalSnapshot;
+}
+
+export interface DeathRecord {
+  dwarfId: number;
+  name: string;
+  tick: number;
+  timeFromFirstAttack: number;
+  cause: string;
+}
+
+export interface DwarfStrikeBack {
+  dwarfId: number;
+  name: string;
+  weapon: string;
+  attacksMade: number;
+  attacksLanded: number;
+  damageDealt: number;
+}
+
+export interface RunTotals {
+  attacksMadeAnimal: number;
+  attacksLandedAnimal: number;
+  attacksMadeDwarves: number;
+  attacksLandedDwarves: number;
+  damageDealtAnimal: number;
+  damageTakenAnimal: number;
+  damageDealtDwarves: number;
+  damageTakenDwarves: number;
+  deaths: DeathRecord[];
+  dwarvesEverFled: number;
+  dwarvesStruckBack: DwarfStrikeBack[];
+  dwarvesTreated: number;
+  alertLevelChanged: boolean;
+  huntOrKillJobsCreated: number;
+  animalBrokeOff: boolean;
+}
+
+export interface DistancePoint {
+  tick: number;
+  animalPos: { x: number; y: number };
+  dwarfPos: { x: number; y: number };
+  distance: number;
+  animalState: string;
+}
+
+export interface RunResult {
+  experiment: string;
+  species: string;
+  seed: string;
+  durationTicks: number;
+  firstAttackTick: number | null;
+  attacks: AttackRecord[];
+  snapshots?: TickSnapshot[];
+  distanceLog?: DistancePoint[];
+  totals: RunTotals;
+}
+
+export function runSimulation(opts: {
+  experiment: string;
+  species: string;
+  seed: string;
+  durationTicks: number;
+  dwarfCount: number;
+  animalPos: { x: number; y: number };
+  dwarfPositions: Array<{ x: number; y: number }>;
+  haulingSetup?: {
+    stonePos: { x: number; y: number };
+    stockpilePos: { x: number; y: number; w: number; h: number };
+  };
+  hospitalSetup?: {
+    medicIndex: number;
+    hospArea: { x: number; y: number; w: number; h: number };
+  };
+  squadSetup?: {
+    soldierPositions: Array<{ x: number; y: number }>;
+    stationPos: { x: number; y: number };
+  };
+  dwarfStationary?: boolean;
+  recordDistances?: boolean;
+  saveFullSnapshots?: boolean;
+}): RunResult {
+  const {
+    experiment,
+    species,
+    seed,
+    durationTicks,
+    dwarfCount,
+    animalPos,
+    dwarfPositions,
+    haulingSetup,
+    hospitalSetup,
+    squadSetup,
+    dwarfStationary,
+    recordDistances,
+    saveFullSnapshots,
+  } = opts;
+
+  const w = new TestWorld({
+    seed,
+    registry,
+    world: 'flat-test',
+    map: buildFlatTestMap(registry, 64, 64),
+    embark: 'none',
+    surfaceWildlife: 'none',
+    spec: { ...FLAT_TEST_SPEC, biome: 'temperate_forest', traits: [] },
+  });
+
+  // Spawn dwarves
+  const dwarfIds: EntityId[] = [];
+  const dwarfNames = new Map<EntityId, string>();
+  for (let i = 0; i < dwarfCount; i++) {
+    const pos = dwarfPositions[i] ?? { x: 36, y: 30 };
+    const id = w.spawnDwarf({ at: w.index(pos.x, pos.y, Z) });
+    dwarfIds.push(id);
+    const cr = w.game.world.entities.get(id, C.Creature);
+    dwarfNames.set(id, cr?.name ?? `Dwarf-${id}`);
+
+    if (dwarfStationary) {
+      for (const l of ['hauling', 'mining', 'woodcutting', 'carpentry', 'masonry', 'farming', 'brewing', 'cooking', 'building', 'cleaning', 'crafting', 'hunting']) {
+        w.setLabor(id, l, false);
+      }
+    }
+  }
+
+  // Setup hauling
+  if (haulingSetup) {
+    for (let k = 0; k < 50; k++) {
+      const sx = haulingSetup.stonePos.x + (k % 5);
+      const sy = haulingSetup.stonePos.y + Math.floor(k / 5);
+      w.spawnItem('raw_stone', 'granite', w.index(sx, sy, Z));
+    }
+    const pileTiles = rect(w, haulingSetup.stockpilePos.x, haulingSetup.stockpilePos.y, Z, haulingSetup.stockpilePos.w, haulingSetup.stockpilePos.h);
+    const pile = w.zone('stockpile', pileTiles);
+    w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: pile, filter: 'stone' });
+  }
+
+  // Setup hospital
+  if (hospitalSetup) {
+    const medicId = dwarfIds[hospitalSetup.medicIndex]!;
+    w.setSkill(medicId, 'medicine', 5);
+    w.setLabor(medicId, 'medicine', true);
+    w.game.world.applyCommand({ type: 'AssignTitle', dwarfId: medicId, title: 'chief_medic' });
+
+    const hx = hospitalSetup.hospArea.x;
+    const hy = hospitalSetup.hospArea.y;
+    const hospTiles = rect(w, hx, hy, Z, hospitalSetup.hospArea.w, hospitalSetup.hospArea.h);
+    w.zone('hospital', hospTiles);
+
+    // Beds and table
+    w.build('bed', w.index(hx, hy, Z));
+    w.build('bed', w.index(hx + 1, hy, Z));
+    w.build('table', w.index(hx + 2, hy, Z));
+
+    // Supplies placed in hospital
+    w.spawnItem('cloth', 'flax_cloth', w.index(hx, hy + 1, Z), 20);
+    w.spawnItem('thread', 'flax_thread', w.index(hx, hy + 1, Z), 20);
+    w.spawnItem('bucket', 'oak', w.index(hx + 1, hy + 1, Z), 2);
+    w.spawnItem('splint', 'oak', w.index(hx + 1, hy + 1, Z), 4);
+
+    // Well: open tile with water below
+    const wellTile = w.index(hx + 3, hy, Z);
+    const waterTile = w.index(hx + 3, hy, Z - 1);
+    const graniteMat = registry.table('materials').index('granite');
+    w.carve(wellTile, TileKind.Open);
+    w.carve(waterTile, TileKind.Floor, graniteMat);
+    w.setFluid(waterTile, 7, 'water', true);
+    w.build('well', wellTile);
+  }
+
+  // Setup squad (2 soldiers)
+  if (squadSetup) {
+    const soldierIds: EntityId[] = [];
+    const iron = registry.table('materials').index('iron');
+    const axeType = registry.table('items').index('axe');
+
+    for (let sIdx = 0; sIdx < squadSetup.soldierPositions.length; sIdx++) {
+      const sp = squadSetup.soldierPositions[sIdx]!;
+      const sId = w.spawnDwarf({ at: w.index(sp.x, sp.y, Z) });
+      soldierIds.push(sId);
+      dwarfIds.push(sId);
+      const cr = w.game.world.entities.get(sId, C.Creature);
+      dwarfNames.set(sId, cr?.name ?? `Soldier-${sId}`);
+
+      const axe = w.spawnItem(axeType, iron, w.index(sp.x, sp.y, Z));
+      w.game.world.entities.add(sId, C.Equipment, {
+        weapon: axe,
+        shield: 0,
+        armor: { head: 0, body: 0, arms: 0, legs: 0, feet: 0 },
+        clothing: { body: 0, legs: 0, feet: 0, over: 0 },
+        quiver: 0,
+      });
+      w.setSkill(sId, 'axe', 4);
+    }
+
+    w.game.world.applyCommand({ type: 'CreateSquad', name: 'Guard', leaderId: soldierIds[0] });
+    const combat = w.readers.of<CombatReader>('16');
+    const squads = combat.squads();
+    const squad = squads[0] as SquadWithId;
+    w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: squad.id, members: soldierIds });
+    w.game.world.applyCommand({
+      type: 'SetSquadStation',
+      squadId: squad.id,
+      tile: w.index(squadSetup.stationPos.x, squadSetup.stationPos.y, Z),
+    });
+    w.game.world.applyCommand({ type: 'SetSquadMode', squadId: squad.id, mode: 'active' });
+    w.step(1);
+  }
+
+  // Spawn wild animal
+  const animalId = w.spawnCreature(species, w.index(animalPos.x, animalPos.y, Z), 'wild');
+
+  const attacks: AttackRecord[] = [];
+  const snapshots: TickSnapshot[] = [];
+  const distanceLog: DistancePoint[] = [];
+  const deaths: DeathRecord[] = [];
+  const fleeingDwarves = new Set<EntityId>();
+  const dwarfStrikes = new Map<EntityId, { name: string; weapon: string; made: number; landed: number; damage: number }>();
+  let firstAttackTick: number | null = null;
+  let animalEnteredAttack = false;
+  let animalBrokeOff = false;
+  let alertLevelChanged = false;
+  let dwarvesTreatedCount = 0;
+  let huntOrKillJobsCount = 0;
+
+  const initialAlert = w.readers.of<CombatReader>('16').alert();
+
+  // Tick loop
+  for (let step = 0; step < durationTicks; step++) {
+    const stepAttacks: Array<{
+      attackerId: number;
+      defenderId: number;
+      outcome: string;
+      damage: number;
+      part: string | null;
+      damageType: string;
+    }> = [];
+
+    const unsubscribe = w.game.world.onEvents((batch) => {
+      for (const ev of batch) {
+        if (ev.type === 'AttackResolved') {
+          stepAttacks.push({
+            attackerId: ev['attackerId'] as number,
+            defenderId: ev['defenderId'] as number,
+            outcome: ev['outcome'] as string,
+            damage: (ev['amount'] as number) ?? 0,
+            part: (ev['part'] as string) ?? null,
+            damageType: (ev['damageType'] as string) ?? 'blunt',
+          });
+        } else if (ev.type === 'CreatureDied') {
+          const id = ev['id'] as number;
+          if (dwarfIds.includes(id)) {
+            deaths.push({
+              dwarfId: id,
+              name: dwarfNames.get(id) ?? `Dwarf-${id}`,
+              tick: w.tick,
+              timeFromFirstAttack: firstAttackTick !== null ? w.tick - firstAttackTick : 0,
+              cause: (ev['cause'] as string) ?? 'unknown',
+            });
+          }
+        } else if (ev.type === 'AlertChanged') {
+          if (ev['to'] !== initialAlert) alertLevelChanged = true;
+        } else if (ev.type === 'TreatmentDone') {
+          dwarvesTreatedCount++;
+        } else if (ev.type === 'SquadOrderIssued') {
+          const order = ev['order'] as any;
+          if (order && order.type === 'kill' && order.targetId === animalId) {
+            huntOrKillJobsCount++;
+          }
+        }
+      }
+    });
+
+    w.step(1);
+    unsubscribe();
+
+    // Process attacks
+    for (const atk of stepAttacks) {
+      if (firstAttackTick === null) firstAttackTick = w.tick;
+
+      const isAttackerAnimal = atk.attackerId === animalId;
+      const isDefenderAnimal = atk.defenderId === animalId;
+      const attackerType = isAttackerAnimal ? 'animal' : 'dwarf';
+      const defenderType = isDefenderAnimal ? 'animal' : 'dwarf';
+
+      let weaponOrNatural = 'natural';
+      if (isAttackerAnimal) {
+        const spRow = registry.table('creatures').byIndex(w.game.world.entities.get(animalId, C.Creature)?.species ?? -1);
+        weaponOrNatural = spRow?.attacks?.[0]?.name ?? 'natural';
+      } else {
+        const eq = w.game.world.entities.get(atk.attackerId, C.Equipment);
+        if (eq?.weapon) {
+          const item = w.game.world.entities.get(eq.weapon, C.Item);
+          const iRow = registry.table('items').byIndex(item?.type ?? -1);
+          weaponOrNatural = iRow?.id ?? 'weapon';
+        } else {
+          weaponOrNatural = 'punch';
+        }
+
+        const current = dwarfStrikes.get(atk.attackerId) ?? {
+          name: dwarfNames.get(atk.attackerId) ?? `Dwarf-${atk.attackerId}`,
+          weapon: weaponOrNatural,
+          made: 0,
+          landed: 0,
+          damage: 0,
+        };
+        current.made++;
+        if (atk.outcome === 'hit') {
+          current.landed++;
+          current.damage += atk.damage;
+        }
+        dwarfStrikes.set(atk.attackerId, current);
+      }
+
+      // Calculate severity and bleeding
+      let woundSeverity: string | null = null;
+      let bleedingStarted = false;
+      if (atk.outcome === 'hit' && atk.damage > 0 && atk.part) {
+        const defBody = w.game.world.entities.get(atk.defenderId, C.Body);
+        const defCreature = w.game.world.entities.get(atk.defenderId, C.Creature);
+        const plans = registry.table('bodyPlans');
+        const plan = defCreature ? plans.byIndex(defCreature.bodyPlan) : null;
+        const partFactor = plan?.parts[atk.part as BodySlot]?.hpFactor ?? 0.6;
+        const sizeClass = defCreature?.sizeClass ?? 60;
+        const maxHp = Math.round(sizeClass * partFactor);
+
+        woundSeverity = severityFor(atk.damage, maxHp);
+        const wType = woundTypeFor(atk.damageType, atk.damage, maxHp);
+        const bleedRate = BLEED_TABLE[wType]?.[woundSeverity] ?? 0;
+        bleedingStarted = bleedRate > 0;
+      }
+
+      attacks.push({
+        tick: w.tick,
+        attackerId: atk.attackerId,
+        attackerType,
+        defenderId: atk.defenderId,
+        defenderType,
+        weaponOrNatural,
+        outcome: atk.outcome,
+        damage: atk.damage,
+        part: atk.part,
+        woundSeverity,
+        bleedingStarted,
+      });
+    }
+
+    // Track fleeing
+    for (const dId of dwarfIds) {
+      if (!w.game.world.entities.alive(dId)) continue;
+      const brain = w.game.world.entities.get(dId, C.Brain);
+      if (brain?.behavior === 'flee' || brain?.activity === 'Fleeing') {
+        fleeingDwarves.add(dId);
+      }
+    }
+
+    // Track animal state
+    const wildComp = w.game.world.entities.get(animalId, C.Wild);
+    if (wildComp) {
+      if (wildComp.state === 'attack') {
+        animalEnteredAttack = true;
+      } else if (animalEnteredAttack && (wildComp.state === 'idle' || wildComp.state === 'wander' || wildComp.state === 'flee')) {
+        const anyLivingDwarf = dwarfIds.some((id) => w.game.world.entities.alive(id));
+        if (anyLivingDwarf) animalBrokeOff = true;
+      }
+    }
+
+    // Distance logging for Exp E
+    if (recordDistances && step % 50 === 0) {
+      const aPos = w.game.world.entities.get(animalId, C.Position);
+      const dPos = w.game.world.entities.get(dwarfIds[0]!, C.Position);
+      if (aPos && dPos) {
+        const dist = Math.max(Math.abs(aPos.x - dPos.x), Math.abs(aPos.y - dPos.y));
+        distanceLog.push({
+          tick: w.tick,
+          animalPos: { x: aPos.x, y: aPos.y },
+          dwarfPos: { x: dPos.x, y: dPos.y },
+          distance: dist,
+          animalState: wildComp?.state ?? 'unknown',
+        });
+      }
+    }
+
+    // Snapshots: sample every 100 ticks from first attack if saveFullSnapshots
+    if (saveFullSnapshots && firstAttackTick !== null && (w.tick - firstAttackTick) % 100 === 0) {
+      const animalPosComp = w.game.world.entities.get(animalId, C.Position);
+      const combat = w.readers.of<CombatReader>('16');
+
+      const dwarfSnaps: DwarfSnapshot[] = dwarfIds.map((id) => {
+        const alive = w.game.world.entities.alive(id);
+        const pos = alive ? w.game.world.entities.get(id, C.Position) : null;
+        const brain = alive ? w.game.world.entities.get(id, C.Brain) : null;
+        const body = alive ? w.game.world.entities.get(id, C.Body) : null;
+
+        let dist: number | null = null;
+        if (pos && animalPosComp) {
+          dist = Math.max(Math.abs(pos.x - animalPosComp.x), Math.abs(pos.y - animalPosComp.y));
+        }
+
+        const hpMap: Record<string, number> = {};
+        const woundsList: Array<{ type: string; severity: string; bleed: number; bandaged: boolean }> = [];
+        let bleedingRate = 0;
+        if (body) {
+          for (let pIdx = 0; pIdx < body.parts.length; pIdx++) {
+            const part = body.parts[pIdx];
+            if (!part) continue;
+            hpMap[`part_${pIdx}`] = part.hp;
+            for (const wound of part.wounds) {
+              woundsList.push({
+                type: wound.type,
+                severity: wound.severity,
+                bleed: wound.bleed,
+                bandaged: wound.bandaged,
+              });
+              if (!wound.bandaged) bleedingRate += wound.bleed;
+            }
+          }
+        }
+
+        return {
+          id,
+          name: dwarfNames.get(id) ?? `Dwarf-${id}`,
+          alive,
+          position: pos ? { x: pos.x, y: pos.y, z: pos.z } : null,
+          distanceToAnimal: dist,
+          behavior: brain?.behavior ?? 'dead',
+          activity: brain?.activity ?? 'dead',
+          combatTarget: alive ? combat.targetOf(id) : 0,
+          hp: hpMap,
+          wounds: woundsList,
+          blood: body?.blood ?? 0,
+          bleedingRate,
+          conscious: body?.conscious ?? false,
+        };
+      });
+
+      const animalAlive = w.game.world.entities.alive(animalId);
+      const animalBody = animalAlive ? w.game.world.entities.get(animalId, C.Body) : null;
+      const targetReason = wildComp?.state === 'attack' ? 'territory_or_proximity' : 'none';
+
+      snapshots.push({
+        tick: w.tick,
+        dwarves: dwarfSnaps,
+        animal: {
+          id: animalId,
+          species,
+          alive: animalAlive,
+          position: animalPosComp ? { x: animalPosComp.x, y: animalPosComp.y, z: animalPosComp.z } : null,
+          state08: wildComp?.state ?? 'dead',
+          combatTarget: animalAlive ? combat.targetOf(animalId) : 0,
+          hunger: wildComp?.hungry ?? false,
+          targetReason,
+          blood: animalBody?.blood ?? 0,
+          conscious: animalBody?.conscious ?? false,
+        },
+      });
+    }
+  }
+
+  // Calculate totals
+  let attacksMadeAnimal = 0;
+  let attacksLandedAnimal = 0;
+  let attacksMadeDwarves = 0;
+  let attacksLandedDwarves = 0;
+  let damageDealtAnimal = 0;
+  let damageTakenAnimal = 0;
+  let damageDealtDwarves = 0;
+  let damageTakenDwarves = 0;
+
+  for (const atk of attacks) {
+    if (atk.attackerType === 'animal') {
+      attacksMadeAnimal++;
+      if (atk.outcome === 'hit') {
+        attacksLandedAnimal++;
+        damageDealtAnimal += atk.damage;
+        damageTakenDwarves += atk.damage;
+      }
+    } else {
+      attacksMadeDwarves++;
+      if (atk.outcome === 'hit') {
+        attacksLandedDwarves++;
+        damageDealtDwarves += atk.damage;
+        damageTakenAnimal += atk.damage;
+      }
+    }
+  }
+
+  const strikeBackList: DwarfStrikeBack[] = Array.from(dwarfStrikes.entries()).map(([id, data]) => ({
+    dwarfId: id,
+    name: data.name,
+    weapon: data.weapon,
+    attacksMade: data.made,
+    attacksLanded: data.landed,
+    damageDealt: data.damage,
+  }));
+
+  const totals: RunTotals = {
+    attacksMadeAnimal,
+    attacksLandedAnimal,
+    attacksMadeDwarves,
+    attacksLandedDwarves,
+    damageDealtAnimal,
+    damageTakenAnimal,
+    damageDealtDwarves,
+    damageTakenDwarves,
+    deaths,
+    dwarvesEverFled: fleeingDwarves.size,
+    dwarvesStruckBack: strikeBackList,
+    dwarvesTreated: dwarvesTreatedCount,
+    alertLevelChanged,
+    huntOrKillJobsCreated: huntOrKillJobsCount,
+    animalBrokeOff,
+  };
+
+  return {
+    experiment,
+    species,
+    seed,
+    durationTicks,
+    firstAttackTick,
+    attacks,
+    snapshots: saveFullSnapshots ? snapshots : undefined,
+    distanceLog: recordDistances ? distanceLog : undefined,
+    totals,
+  };
+}
+
+describe('T-196 capture pass experiments A-E', () => {
+  it('runs all experiments A through E and writes reports', () => {
+    const allResults: RunResult[] = [];
+    const seeds = ['seed-1', 'seed-2', 'seed-3'];
+
+    // Experiment A: 1 badger/boar/wolf/bear vs 1 civilian dwarf, 6 tiles apart, 3 game days
+    console.log('=== EXPERIMENT A ===');
+    for (const species of ['badger', 'boar', 'wolf', 'bear']) {
+      for (const seed of seeds) {
+        console.log(`Running Exp A: ${species} on ${seed}...`);
+        const res = runSimulation({
+          experiment: 'A',
+          species,
+          seed,
+          durationTicks: 3 * TICKS_PER_DAY,
+          dwarfCount: 1,
+          animalPos: { x: 30, y: 30 },
+          dwarfPositions: [{ x: 36, y: 30 }],
+          saveFullSnapshots: seed === 'seed-2' || seed === 'seed-1',
+        });
+        allResults.push(res);
+        console.log(`Exp A ${species} ${seed}: attacks=${res.attacks.length}, deaths=${res.totals.deaths.length}`);
+      }
+    }
+
+    // Experiment B: 1 badger/boar/wolf vs 7 dwarves hauling outdoors, 5 game days
+    console.log('=== EXPERIMENT B ===');
+    const bDwarfPositions: Array<{ x: number; y: number }> = [
+      { x: 26, y: 28 }, { x: 27, y: 28 }, { x: 28, y: 28 },
+      { x: 26, y: 29 }, { x: 27, y: 29 }, { x: 28, y: 29 },
+      { x: 27, y: 30 },
+    ];
+    for (const species of ['badger', 'boar', 'wolf']) {
+      for (const seed of seeds) {
+        console.log(`Running Exp B: ${species} on ${seed}...`);
+        const res = runSimulation({
+          experiment: 'B',
+          species,
+          seed,
+          durationTicks: 5 * TICKS_PER_DAY,
+          dwarfCount: 7,
+          animalPos: { x: 30, y: 30 },
+          dwarfPositions: bDwarfPositions,
+          haulingSetup: {
+            stonePos: { x: 23, y: 31 },
+            stockpilePos: { x: 36, y: 28, w: 4, h: 4 },
+          },
+          saveFullSnapshots: seed === 'seed-1',
+        });
+        allResults.push(res);
+        console.log(`Exp B ${species} ${seed}: attacks=${res.attacks.length}, deaths=${res.totals.deaths.length}, fled=${res.totals.dwarvesEverFled}`);
+      }
+    }
+
+    // Experiment C: As B with badger + hospital zone (beds, table, supplies, well, medic dwarf)
+    console.log('=== EXPERIMENT C ===');
+    for (const seed of seeds) {
+      console.log(`Running Exp C: badger on ${seed}...`);
+      const res = runSimulation({
+        experiment: 'C',
+        species: 'badger',
+        seed,
+        durationTicks: 5 * TICKS_PER_DAY,
+        dwarfCount: 7,
+        animalPos: { x: 30, y: 30 },
+        dwarfPositions: bDwarfPositions,
+        haulingSetup: {
+          stonePos: { x: 23, y: 31 },
+          stockpilePos: { x: 36, y: 28, w: 4, h: 4 },
+        },
+        hospitalSetup: {
+          medicIndex: 6,
+          hospArea: { x: 44, y: 28, w: 4, h: 4 },
+        },
+        saveFullSnapshots: seed === 'seed-1',
+      });
+      allResults.push(res);
+      console.log(`Exp C badger ${seed}: attacks=${res.attacks.length}, deaths=${res.totals.deaths.length}, treated=${res.totals.dwarvesTreated}`);
+    }
+
+    // Experiment D: As B with badger + squad of 2 armed dwarves in active mode stationed 10 tiles away
+    console.log('=== EXPERIMENT D ===');
+    for (const seed of seeds) {
+      console.log(`Running Exp D: badger on ${seed}...`);
+      const res = runSimulation({
+        experiment: 'D',
+        species: 'badger',
+        seed,
+        durationTicks: 5 * TICKS_PER_DAY,
+        dwarfCount: 7,
+        animalPos: { x: 30, y: 30 },
+        dwarfPositions: bDwarfPositions,
+        haulingSetup: {
+          stonePos: { x: 23, y: 31 },
+          stockpilePos: { x: 36, y: 28, w: 4, h: 4 },
+        },
+        squadSetup: {
+          soldierPositions: [{ x: 29, y: 20 }, { x: 31, y: 20 }],
+          stationPos: { x: 30, y: 20 },
+        },
+        saveFullSnapshots: seed === 'seed-1',
+      });
+      allResults.push(res);
+      console.log(`Exp D badger ${seed}: attacks=${res.attacks.length}, deaths=${res.totals.deaths.length}, soldiers/dwarves strikes=${res.totals.dwarvesStruckBack.length}`);
+    }
+
+    // Experiment E: 1 wild badger and 1 dwarf standing still 20 tiles away, dwarf never approaching
+    console.log('=== EXPERIMENT E ===');
+    for (const seed of seeds) {
+      console.log(`Running Exp E: badger on ${seed}...`);
+      const res = runSimulation({
+        experiment: 'E',
+        species: 'badger',
+        seed,
+        durationTicks: 3 * TICKS_PER_DAY,
+        dwarfCount: 1,
+        animalPos: { x: 30, y: 30 },
+        dwarfPositions: [{ x: 50, y: 30 }],
+        dwarfStationary: true,
+        recordDistances: true,
+      });
+      allResults.push(res);
+      const minDistance = Math.min(...(res.distanceLog?.map((d) => d.distance) ?? [20]));
+      console.log(`Exp E badger ${seed}: minDistance=${minDistance}, attacks=${res.attacks.length}`);
+    }
+
+    mkdirSync('reports/data', { recursive: true });
+
+    // Filter snapshots down to keep JSON under 300 KB
+    const sanitizedResults = allResults.map((r) => {
+      // Keep snapshots only for seed-1 of A, B, C, D (and only up to 25 snapshots)
+      let snaps = r.snapshots;
+      if (snaps && snaps.length > 25) {
+        snaps = snaps.filter((_, idx) => idx % Math.ceil(snaps!.length / 25) === 0);
+      }
+      return {
+        ...r,
+        snapshots: snaps,
+      };
+    });
+
+    const jsonStr = JSON.stringify({
+      captureDate: '2026-10-10',
+      experiments: sanitizedResults,
+    }, null, 2);
+
+    writeFileSync('reports/data/2026-10-10-wildlife-capture.json', jsonStr);
+    console.log(`Wrote reports/data/2026-10-10-wildlife-capture.json (length: ${jsonStr.length} bytes)`);
+  }, 3_600_000);
+});

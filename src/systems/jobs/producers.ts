@@ -46,8 +46,15 @@ export interface ItemSource {
   countOf?(itemId: EntityId): number;
   /** A free tool of the kind (`tag: pick`, `axe`, …) near `from`, or 0. */
   findTool(tool: Tool, from: TileIndex): EntityId;
-  /** The worker already carries the tool in the weapon slot. */
+  /** The worker already carries the tool in the weapon slot; for `ranged`, a launcher and its own ammunition. */
   hasTool(workerId: EntityId, tool: Tool): boolean;
+  /**
+   * What a worker must still fetch to hunt: a free launcher (0 when it holds one) and a free stack of
+   * that launcher's ammunition (0 when it holds some). Null when it cannot have both.
+   */
+  findRangedKit?(workerId: EntityId, from: TileIndex): { launcher: EntityId; ammo: EntityId } | null;
+  /** A stack of at most `n` units of the item: the item itself, or a part split from it. */
+  limitStack?(itemId: EntityId, n: number): EntityId;
   reserve(itemId: EntityId, jobId: number): void;
   release(itemId: EntityId): void;
   /**
