@@ -4,8 +4,6 @@ The running log of the Claude agent that works in the cloud on branches `cloud/m
 
 ## Ready to merge
 
-- `6ea68b2`: T-144, T-197 and T-198 closed (the `t-144` branch landed on T-196). Social, comfort and joy are served in passing; at a mark of 75 one sit in the hearth hall comes first; a ranged hunt takes launcher and ammunition together; `year_one` meets wild animals again; `homestead_year` waits for its first birth. Verified: npm test 2263 passed, e2e 24 passed.
-- `3fbf367`: T-199 closed. A brew that waits because every barrel holds something is announced once per wait ("A workshop is waiting for an empty barrel"), and a hint points at the carpenter. Verified: npm test 2265 passed, e2e 24 passed.
 
 ## Needs the owner
 
