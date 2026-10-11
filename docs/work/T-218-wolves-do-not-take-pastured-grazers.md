@@ -1,6 +1,6 @@
 # T-218 — A wolf takes no pastured grazer, so a pasture costs nothing against wolves
 
-**Source:** T-212 and [`2026-10-11-hungry-predators.md`](../../reports/audits/2026-10-11-hungry-predators.md) · **Size:** S (a decision, then a rules change with a test and a re-measure) · **Needs:** — · **Status:** open (needs a decision)
+**Source:** T-212 and [`2026-10-11-hungry-predators.md`](../../reports/audits/2026-10-11-hungry-predators.md) · **Size:** S (a decision, then a rules change with a test and a re-measure) · **Needs:** — · **Status:** open; decided 2026-10-11, see Decision
 
 ## Why
 
@@ -18,3 +18,13 @@ Decide whether pastured grazers should be prey for a wolf pack, for example by j
 
 - The decision is in 08 § Wild behavior, with a test.
 - `balance.md` § Wild animals states the measured livestock and dwarf losses.
+
+## Decision (2026-10-11, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
+
+**A pack judges its prey against the pack.** A lone predator keeps 08's rule: prey is smaller than 0.8 × its own size. For a pack (one species, one arrival), the limit is 0.8 × the predator's size × the number of living pack members within perception of the quarry, counted up to 3. Three wolves can then take a sheep, a goat or a pig and cannot take a cow; a lone wolf still takes only small animals.
+
+- The pack size is counted when the quarry is chosen and again each time the pack re-targets; a pack that shrinks below what its quarry needs lets it go.
+- This makes T-212's advice true: a pasture near the forest edge costs sheep unless it is behind a door, fenced by walls, or guarded.
+- A dwarf is not judged by this size rule; T-212's order (animal prey first, a dwarf only when no animal prey is in perception) stands.
+
+Then the test and the re-measure the task names. If the re-measure shows livestock wiped out everywhere, report the figure and propose the cap (2 instead of 3) instead of changing it silently.

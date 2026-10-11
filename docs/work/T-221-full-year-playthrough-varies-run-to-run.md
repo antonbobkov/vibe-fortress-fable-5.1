@@ -1,6 +1,6 @@
 # T-221 — The browser year gives a different year on every run of the same code
 
-**Source:** T-212 and [`2026-10-11-full-year-with-t212.md`](../../reports/audits/2026-10-11-full-year-with-t212.md) · **Size:** S · **Needs:** — · **Status:** open; local side (the spec is T-150's)
+**Source:** T-212 and [`2026-10-11-full-year-with-t212.md`](../../reports/audits/2026-10-11-full-year-with-t212.md) · **Size:** S · **Needs:** — · **Status:** open; local side; decided 2026-10-11, see Decision
 
 ## Why
 
@@ -22,3 +22,12 @@ Make the year deterministic for a given commit: pause the clock while the UI com
 
 - Two runs of the spec on one commit print the same end state.
 - The survival check is a rule-based assertion or a reported row, not a skip.
+
+## Decision (2026-10-11, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
+
+1. **Determinism first.** The playthrough gives all its UI commands with the clock paused (a command given while paused applies at once, U-02), and advances time only by `step`. The check that a day runs through the real frame loop at 4× moves out of this spec into a short spec of its own that asserts the calendar advances and nothing else, so that real time can no longer change the year.
+2. **Then prove it:** the spec's end state (living dwarves, deaths, stocks, world hash) is equal across five consecutive runs of the same commit. Record the five in the commit body.
+3. **Then remove the conditional `test.fixme`** at the survival check. A dead or halved fortress must fail the suite. T-212 has landed, so the reason for the guard is gone.
+4. **What the spec asserts about survival:** no dwarf starves or dies of thirst all year; at least 11 of the fortress's dwarves are alive on the last day; and every death is listed with its cause in the output. If the one deterministic year has a death to wildlife, the playthrough answers as a player would (the alert, haulers kept in, the squad sent) through the UI; if a dwarf still dies with that response, the death stays in the output and the count assertion stands at 11.
+
+One run of this spec was never a measurement while it varied; treat earlier "24 passed" results accordingly.

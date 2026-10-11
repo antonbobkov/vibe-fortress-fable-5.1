@@ -32,3 +32,7 @@ Two parts of the first audit were declined by the U decisions and are still trap
 
 - Both reproductions now ask or explain.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+
+## Decision (2026-10-11, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
+
+**Accepted as proposed:** embarking without an axe asks "Embark without an axe?" with the default on No, because the Supplies tab calls an axe part of the minimum. This revises D-U3 for this one case and the spec edit says so.
