@@ -445,6 +445,7 @@ export class Game {
       save: () => void this.quickSave(),
       load: () => void this.openLoad(),
       settings: () => this.openSettings(),
+      rename: () => this.renameFortress(),
       retire: () => this.retireFortress(),
       mainMenu: () => this.leaveToMainMenu(),
       viewOnly: () => this.host.viewOnly,
@@ -452,6 +453,23 @@ export class Game {
     if (menu.items().some((item) => item.id === selected && item.enabled !== false)) menu.selected = selected;
     this.pushScreen(menu);
     this.render();
+  }
+
+  private renameFortress(): void {
+    const current = this.host.started ? this.host.world.fortress.name : '';
+    this.prompt(
+      {
+        title: this.strings.get('ui.menu.rename_title', { fortress: current }),
+        value: current,
+        maxLength: 32,
+        minLength: 1,
+      },
+      (name) => {
+        if (name !== null && name.length >= 1 && name.length <= 32) {
+          this.host.submit({ type: 'RenameFortress', name });
+        }
+      },
+    );
   }
 
   /**

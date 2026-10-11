@@ -357,20 +357,20 @@ Stocks actions apply to the selected category, type or individual stack. Forbid 
 ## Animals (n)
 
 ```
-│ Animals                        [n]  │
-│ [1] Tame (14)  [2] Wild (23)        │
-│ Species   Name    Pasture  Cond  Tr │
-│ ▶ cow     —       #1       ▓▓░ 38   │
-│   cow     —       #1       ▓░░ 12   │
-│   dog     Bramble —        —    war │
-│   cat     Sooty   —        —    pet │
-│   chicken ×4      —        —        │
-│ ─────────────────────────────────── │
-│ [S-p] pasture  [S-s] slaughter      │
-│ [S-c] cap [S-a] assign [S-n] name   │
-│ ── Wild ────────────────────────── │
-│ deer ×5   [■] hunt   seen NE        │
-│ wolf ×3   [□] hunt   seen N         │
+│ Animals                                       [n]  │
+│ [1] Tame (14)  [2] Wild (23)                       │
+│ Species   Name    Pasture  Cond  Tr                │
+│ ▶ cow     —       #1       ▓▓░ 38                  │
+│   cow     —       #1       ▓░░ 12                  │
+│   dog     Bramble —        —    war                │
+│   cat     Sooty   —        —    pet                │
+│   chicken ×4      —        —                       │
+│ ────────────────────────────────────────────────── │
+│ [S-p] pasture  [S-s] slaughter  [S-t] train        │
+│ [S-c] cap [S-a] assign [S-n] name                  │
+│ ── Wild ────────────────────────────────────────── │
+│ deer ×5   [■] hunt   seen NE                       │
+│ wolf ×3   [□] hunt   seen N                        │
 ```
 
 ## Threats (t)

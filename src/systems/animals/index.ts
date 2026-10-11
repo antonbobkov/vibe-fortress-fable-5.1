@@ -51,7 +51,7 @@ import type { AnimalsStateV1, EggRecord, SpeciesCount } from './state';
 export * from './constants';
 export * from './brain';
 export * from './tame';
-export { AnimalsProducer, type AnimalsProducerHost } from './producer';
+export { AnimalsProducer, trainKey, type AnimalsProducerHost } from './producer';
 export { AnimalFacts, type SpeciesRow, type Diet, type Temperament } from './facts';
 export { cavernCap, dailySpawn, edgeSpawnTiles, farFromDwarves, groupSize, groupTiles, leavers, spawnPermille, surfaceCap, type SpawnHost } from './spawn';
 export type { AnimalsReader } from './reader';
