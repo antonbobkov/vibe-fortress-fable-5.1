@@ -1,0 +1,33 @@
+import { it, expect } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { World } from '@core/world';
+import { C } from '@core/components';
+import { playWildlifeYear } from '../../test/perf/wildlife_year_fixture';
+it('T-137 annual taiga-1 treatment and new death trace', () => {
+ const records: unknown[] = [];
+ const step = World.prototype.step;
+ const observed = new WeakSet<World>();
+ const state = (w: World, id: number) => ({id, brain:w.entities.get(id,C.Brain),
+   needs:w.entities.get(id,C.Needs),body:w.entities.get(id,C.Body),patient:w.entities.get(id,C.Patient),
+   worker:w.entities.get(id,C.Worker),position:w.entities.get(id,C.Position),wild:w.entities.get(id,C.Wild)});
+ World.prototype.step = function() {
+  if (!observed.has(this)) {
+   observed.add(this);
+   this.onEvents(batch => { for (const event of batch) {
+    const id = Number(event['patientId'] ?? event['defenderId'] ?? event['id'] ?? 0);
+    if (['TreatmentDone','InfectionCured','InfectionStarted','PatientAdmitted','PatientDischarged'].includes(event.type)
+       || event.type === 'CreatureDied' && event['faction'] === 'fortress'
+       || event.type === 'AttackResolved' && id === 16777291) {
+     records.push(JSON.parse(JSON.stringify({tick:this.calendar.tick,event,subject:state(this,id),
+       attacker:state(this,Number(event['attackerId']??event['killerId']??0)),alert:this.fortress.alert})));
+    }
+   }});
+  }
+  step.call(this);
+ };
+ try {
+  const row = playWildlifeYear('wildlife-taiga-1','taiga');
+  expect(row.hash).toBe(process.env['TRACE_HASH']);
+  writeFileSync(process.env['TRACE_OUT']!, JSON.stringify({row,records},null,2));
+ } finally { World.prototype.step = step; }
+}, 600000);
