@@ -1,0 +1,44 @@
+/** T-218: a short boundary control, with the enclosure present before its wolves. */
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { FLAT_TEST_SURFACE_Z as Z } from '@app/headless';
+import { C } from '@core/components';
+import { TileKind, TileFlag } from '@core/map3d';
+import { TestWorld } from '../../test/scenarios/test-world';
+
+describe('T-218 short pasture boundary control',()=>{
+ it('measures exposed pasture and a prebuilt enclosure',()=>{
+  const results=[];
+  for (const mode of ['open','door']) {
+   const w=new TestWorld({seed:'t218-boundary',world:'flat-test',embark:'none',surfaceWildlife:'none'});
+   const e=w.game.world.entities;
+   const tiles=[];
+   for(let y=31;y<=34;y++)for(let x=33;x<=37;x++){
+    const t=w.index(x,y,Z);w.map.setKind(t,TileKind.Floor,w.map.materialAt(t));w.game.world.services.terrain.setFlag(t,TileFlag.Grass,true);tiles.push(t);
+   }
+   const pasture=w.zone('pasture',tiles);
+   if(mode==='door'){
+    for(let y=30;y<=35;y++)for(let x=32;x<=38;x++){
+     if((x===32||x===38||y===30||y===35)&&!(x===35&&y===30))w.build('wall',w.index(x,y,Z),'granite');
+    }
+    w.build('door',w.index(35,30,Z),'oak');
+   }
+   const livestock=['sheep','goat','cow'].map((species,i)=>{
+    const id=w.spawnTame(species,w.index(35,31+i,Z),{sex:0});
+    const r=w.game.world.applyCommand({type:'AssignPasture',animalId:id,zoneId:pasture});if(!r.ok)throw new Error(r.reason);
+    return {id,species};
+   });
+   const wolves=[29,28,27].map(y=>w.spawnCreature('wolf',w.index(35,y,Z),'wild'));
+   for(const id of wolves)e.add(id,C.Wild,{...e.get(id,C.Wild)!,hungry:true});
+   let maximumWolvesInside=0;
+   for(let t=0;t<6000;t++){
+    w.step(1);
+    maximumWolvesInside=Math.max(maximumWolvesInside,wolves.filter(id=>{const p=e.get(id,C.Position);return p&&tiles.includes(w.index(p.x,p.y,p.z));}).length);
+   }
+   const deaths=w.events('CreatureDied');
+   results.push({mode,ticks:w.tick,maximumWolvesInside,livestock:livestock.map(a=>({...a,alive:e.alive(a.id),death:deaths.find(d=>d['id']===a.id)??null,condition:e.get(a.id,C.Tame)?.condition??null}))});
+  }
+  console.log(JSON.stringify(results));
+  writeFileSync('.vite/task-resume/t218-door-short.json',JSON.stringify(results,null,1));
+ });
+});
