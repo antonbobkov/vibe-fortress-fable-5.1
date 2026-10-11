@@ -13,7 +13,7 @@
  *      `workTile: adjacent`, or `at` for floors and stairs the builder stands on)
  *   5. BuildingPlaced; a planned building is passable
  * build completion: consume inputs, state `built`, constructions through the terrain API
- *   (`setKind`, `constructed`), BuildingCompleted; a wall waits while a creature is on its tile
+ *   (`setKind`, `constructed`), BuildingCompleted; a wall waits for creatures and item clearance
  * ```
  *
  * T-M2-06: furniture links its item (`Building.itemId`) instead of consuming it and returns it on
@@ -25,7 +25,7 @@
 import { C, type Building } from '@core/components';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import { FLUID_MAX_LEVEL, PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
-import { Designation, FluidType, TileFlag, TileKind, type Map3D } from '@core/map3d';
+import { Designation, FluidType, TileFlag, TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
 import { MAGMA_C } from '@systems/fluids/constants';
 import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
 import type { EntityStore } from '@core/entities';
@@ -85,6 +85,9 @@ export interface BuildHost {
   emit(event: GameEvent): void;
   /** Creatures standing on a tile. */
   creaturesAt(i: TileIndex): readonly EntityId[];
+  /** Loose items with their own ground position. */
+  itemsAt(i: TileIndex): readonly EntityId[];
+  walkable(i: TileIndex): boolean;
   /** Whether a fortress creature is alive (the hearth cannot be deconstructed while dwarves live). */
   dwarvesAlive(): boolean;
   /** 11's job id for a key, or 0. */
@@ -594,14 +597,53 @@ export class BuildingStore {
     }
   }
 
-  /** "Constructions that become walls check that no creature is on the tile (the job waits otherwise)." */
+  /** Plan clearance before consuming inputs; a wall may not entomb leftover ground items. */
+  private wallItemMoves(b: Building, delivered: readonly EntityId[], take?: ReadonlyMap<EntityId, number>): readonly [EntityId, TileIndex][] | null {
+    if (CONSTRUCTION_KIND[this.row(b.type).id] !== TileKind.Wall) return [];
+    const consumed = new Map<EntityId, number>();
+    for (const id of delivered) consumed.set(id, (consumed.get(id) ?? 0) + (take?.get(id) ?? 1));
+    const moves: [EntityId, TileIndex][] = [];
+    for (const tile of b.footprint) {
+      const remaining = this.host.itemsAt(tile).filter((id) =>
+        (this.host.entities.get(id, C.Item)?.count ?? 0) > (consumed.get(id) ?? 0));
+      if (remaining.length === 0) continue;
+      const destination = this.map.neighbors8(tile).filter((at) =>
+        !b.footprint.includes(at) && isSolidBottomed(this.map.kindAt(at)) && this.host.walkable(at))
+        .sort((a, other) => a - other)[0];
+      if (destination === undefined) return null;
+      for (const id of remaining) moves.push([id, destination]);
+    }
+    return moves;
+  }
+
+  private buildInputs(job: JobLike): { delivered: EntityId[]; take: Map<EntityId, number> } {
+    const delivered: EntityId[] = [];
+    const take = new Map<EntityId, number>();
+    for (const input of job.inputs) {
+      let remaining = input.count;
+      for (const it of input.delivered) {
+        delivered.push(it);
+        if (remaining > 0) {
+          const stackCount = this.host.entities.get(it, C.Item)?.count ?? 1;
+          const units = Math.min(remaining, stackCount);
+          take.set(it, units);
+          remaining -= units;
+        }
+      }
+    }
+    return { delivered, take };
+  }
+
+  /** A wall waits for creatures and for space to clear leftover items. */
   private canComplete(job: JobLike): boolean {
     const id = job.data['building'];
     if (typeof id !== 'number' || !job.key.startsWith('build:')) return true;
     const b = this.get(id);
     if (b === undefined) return true;
     if (CONSTRUCTION_KIND[this.row(b.type).id] !== TileKind.Wall) return true;
-    return b.footprint.every((t) => this.host.creaturesAt(t).length === 0);
+    if (b.footprint.some((t) => this.host.creaturesAt(t).length !== 0)) return false;
+    const { delivered, take } = this.buildInputs(job);
+    return this.wallItemMoves(b, delivered, take) !== null;
   }
 
   private onComplete(job: JobLike, _ctx: TickContext): void {
@@ -635,20 +677,7 @@ export class BuildingStore {
     const id = job.data['building'];
     if (typeof id !== 'number' || this.get(id) === undefined) return;
     if (job.key.startsWith('build:')) {
-      const delivered: EntityId[] = [];
-      const take = new Map<EntityId, number>();
-      for (const input of job.inputs) {
-        let remaining = input.count;
-        for (const it of input.delivered) {
-          delivered.push(it);
-          if (remaining > 0) {
-            const stackCount = this.host.entities.get(it, C.Item)?.count ?? 1;
-            const units = Math.min(remaining, stackCount);
-            take.set(it, units);
-            remaining -= units;
-          }
-        }
-      }
+      const { delivered, take } = this.buildInputs(job);
       this.complete(id, delivered, 0, 0, take);
     } else if (job.key.startsWith('deconstruct:')) {
       this.dismantle(id);
@@ -667,6 +696,8 @@ export class BuildingStore {
   complete(id: EntityId, delivered: readonly EntityId[], material: number, linked: EntityId = 0, take?: ReadonlyMap<EntityId, number>): void {
     const b = this.get(id) as Building;
     const row = this.row(b.type);
+    const moves = this.wallItemMoves(b, delivered, take);
+    if (moves === null) return;
     const items = this.host.services.items;
     const used: { type: string; material: number }[] = [];
     const furniture = row.category === 'furniture';
@@ -713,6 +744,7 @@ export class BuildingStore {
         }
       });
     }
+    for (const [item, destination] of moves) items?.dropAt(item, destination);
     const linkedRec = itemId === 0 ? undefined : this.host.entities.get(itemId, C.Item);
     if (linkedRec === undefined) itemId = 0;
     if (itemId !== 0) items?.install?.(itemId);

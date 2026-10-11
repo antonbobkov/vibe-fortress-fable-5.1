@@ -1,6 +1,8 @@
 # T-216 — The performance tier's `three_years` stops on day 3: a log inside a wall
 
-**Source:** T-144 and its re-measure, [`../../reports/audits/2026-10-10-wants-without-errands-after-t196.md`](../../reports/audits/2026-10-10-wants-without-errands-after-t196.md) (§ The long scenarios) · **Size:** S · **Needs:** — · **Status:** open; local side (the three-year files are T-156's)
+Closed by `T-216: walls clear loose items before sealing the ground`.
+
+**Source:** T-144 and its re-measure, [`../../../reports/audits/2026-10-10-wants-without-errands-after-t196.md`](../../../reports/audits/2026-10-10-wants-without-errands-after-t196.md) (§ The long scenarios) · **Size:** S · **Needs:** — · **Status:** open; local side (the three-year files are T-156's)
 
 ## Why
 
@@ -32,3 +34,9 @@ The command above, on any of the three commits. The probe runs of the T-144 re-m
 ## Done
 
 - `three_years_main` passes the tick-3600 check, and the result of the full run is recorded.
+
+## Measurement and resolution (2026-10-11)
+
+The unmodified main scenario creates oak log 16777328 at (33,9,32) on `TreeFelled` at tick 673. The item remains there until a wall completes over it at tick 2950; the first invariant watch that sees it is tick 3600. This is a game construction fault, not a fixture placement. The construction rule now clears loose items that remain after input consumption onto the lowest-index adjacent solid-bottomed walker-passable tile, preserving their metadata and contents. With no destination the build waits before consuming its inputs. No fixture changed.
+
+Before the fix, `three_years_main` fails at tick 3600 on `item.inside-wall`. The complete invocation after the fix passes that check and continues to tick 37200, where it stops on `item.carrier-dead`: tunic 16777302, trousers 16777303 and boots 16777304 have `carriedBy=16777293`, which is no longer alive. That separate fault is filed as T-139; no assertion is removed or weakened. Five focused tests cover stepped clearance, containers and partial input stacks, waiting and retrying, fully consumed inputs and the creature guard, and solid ground versus open air.
