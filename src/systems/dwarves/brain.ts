@@ -134,6 +134,37 @@ function leaveShelterForNeed(host: BrainHost, ctx: TickContext, id: EntityId, b:
   return false;
 }
 
+/** A conscious patient goes to its hospital bed under any alert (step 3); an unconscious one is carried. */
+function walksToHospital(ctx: TickContext, id: EntityId): boolean {
+  if (!ctx.readers.has('17')) return false;
+  const health = ctx.readers.of<HealthReader>('17');
+  return health.isPatient(id) && health.isConscious(id);
+}
+
+/**
+ * Medical work under a `hearth` alert (step 2): a sheltering civilian that holds a job for a
+ * patient keeps working it, and one that could claim such a job (the only jobs 11 offers it under
+ * the alert) asks for it. Returns whether the dwarf is on a patient-care job or waiting for one;
+ * it is back in `retreat` when the job ends.
+ */
+function patientCareUnderAlert(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): boolean {
+  if (!host.hasJobs) return false;
+  const jobs = ctx.readers.of<JobsReader>('11');
+  if (jobIdOf(ctx, id) !== 0) {
+    if (!jobs.holdsPatientCare(id)) return false;
+    host.clearIdle(id);
+    b.behavior = 'work';
+    b.activity = host.jobName(id);
+    return true;
+  }
+  const canWork = !ctx.readers.has('17') || ctx.readers.of<{ canWork(id: EntityId): boolean }>('17').canWork(id);
+  if (!canWork || host.dayOff(id) || !jobs.hasUrgent(id, PRIORITY_MAX)) return false;
+  ctx.jobs.assign(id);
+  b.behavior = 'work';
+  b.behaviorUntil = ctx.tick;
+  return true;
+}
+
 /** Noncritical targets stay outside the remembered danger around `avoidTile`. */
 function safeTargetOf(ctx: TickContext, avoidTile: TileIndex): ((tile: TileIndex) => boolean) | undefined {
   if (avoidTile < 0) return undefined;
@@ -342,11 +373,12 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   const alert = ctx.readers.has('16')
     ? ctx.readers.of<{ alert(): string }>('16').alert()
     : ctx.world.fortress.alert;
-  if (alert === 'hearth' && civ) {
+  if (alert === 'hearth' && civ && !walksToHospital(ctx, id)) {
     const target = ctx.readers.has('19') ? ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(id) : host.idleGoal(id);
     host.watchShelter?.(id, target < 0);
     if (target >= 0) {
       if (leaveShelterForNeed(host, ctx, id, b, target)) return;
+      if (patientCareUnderAlert(host, ctx, id, b)) return;
       b.behavior = 'retreat';
       b.targetTile = target;
       b.activity = 'Retreating';
@@ -523,6 +555,8 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
     const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
     const alert = ctx.readers.has('16') ? ctx.readers.of<{ alert(): string }>('16').alert() : ctx.world.fortress.alert;
     if (alert !== 'hearth' || !civ || b.targetTile < 0 || (interrupted && host.threatOf(id) !== 0)) {
+      reselect = true;
+    } else if (walksToHospital(ctx, id) || (host.hasJobs && ctx.readers.of<JobsReader>('11').hasUrgent(id, PRIORITY_MAX))) {
       reselect = true;
     } else if (movement !== null && b.targetTile >= 0 && movement.tileOf(id) !== b.targetTile) {
       const result = movement.walkTo(id, b.targetTile, 'flee', ctx);

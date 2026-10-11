@@ -86,6 +86,7 @@ Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned` and
 - Job work time `TREAT_TICKS` skill-scaled; a treatment can fail at low skill (`TREAT_FAIL_PERMILLE − skill × 10`, minimum 0) consuming the input without effect; the job is re-created.
 - Discharge: no bleeding, no unsplinted fractures, no undressed burns, no infection, conscious, pain below `PAIN_DISCHARGE`. `PatientDischarged { id }`; `PatientHealed { id, hospitalTier }` when all wounds are light or gone, giving the `healed` thought (scaled by the hospital tier).
 - Without a hospital, medics still treat patients wherever they lie if supplies are in any stockpile; the hospital's value is proximity, beds and the room tier.
+- Care continues under a `hearth` alert. A conscious patient walks to its bed as under any alert, an unconscious one is carried, and a dwarf with the labor leaves the shelter for a patient's job (`carry_patient`, `feed_patient`, `water_patient`, the treatments and `diagnose`) and returns when it ends (10 § Behavior selection step 2). Under the alert 11 offers a sheltering civilian these jobs only. A hostile near the patient keeps the medic away by the ordinary `flee` rule.
 
 ### Animals
 

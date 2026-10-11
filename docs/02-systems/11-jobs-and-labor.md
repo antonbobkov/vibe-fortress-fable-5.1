@@ -59,7 +59,7 @@ Job types are content rows; the producer that owns the type executes its steps. 
 
 Each tick, for up to `ASSIGN_WORKERS_PER_TICK` workers that asked for a job (10 calls `jobs.assign(id)` during behavior selection; the requests are queued and answered in the same tick in id order):
 
-1. Candidate jobs: `open` jobs whose labor is enabled for the worker, whose `minSkill` is met, and whose `workTile` region label equals the worker's region label for the worker's movement class (22 `reachable` is a constant-time label compare). A civilian with a remembered still-near living hostile skips jobs anchored on the hostile's last seen level within `THREAT_RADIUS` horizontally; the same eligibility applies to `hasUrgent` and `hasWork`.
+1. Candidate jobs: `open` jobs whose labor is enabled for the worker, whose `minSkill` is met, and whose `workTile` region label equals the worker's region label for the worker's movement class (22 `reachable` is a constant-time label compare). A civilian with a remembered still-near living hostile skips jobs anchored on the hostile's last seen level within `THREAT_RADIUS` horizontally; the same eligibility applies to `hasUrgent` and `hasWork`. Under a `hearth` alert a civilian that is not on duty is offered only jobs for a patient (health jobs whose target is a patient with a `Patient` component), and a patient-care job is not interrupted by the alert's change to `hearth`.
 2. Sort candidates by `(priority + laborPriorityShift)`, then by estimated distance (Chebyshev on x, y plus `Z_DISTANCE_WEIGHT` per z-level), then by the worker's skill descending. Take the first `CANDIDATE_LIMIT`.
 3. Score each: `score = effectivePriority × 1000 + distance × 10 − skillLevel × 15 − (worker is the workshop's assigned worker ? 500 : 0)`. Choose the minimum; ties by job id.
 4. Claim: `state = claimed`, `workerId`; reserve required input units from as few stacks as possible, splitting only a partial stack and fetching each selected stack in one trip. Other entity-counted inputs retain their item search. For unit inputs use largest stacks first, ties by ordinary search order; delivery follows that search order. Reserve inputs (first matching unreserved items by nearest distance to the workshop or work tile, through 13 `findItems`); if an input cannot be found, unclaim and mark `blocked: missing_input`.
@@ -163,6 +163,7 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 - `jobs.wantsHaulingCount()`
 - `jobs.typeOf(id)` — the job type id of a job, or null
 - `jobs.isQueued(dwarfId)` — the worker is waiting in the assignment queue
+- `jobs.holdsPatientCare(dwarfId)` — the dwarf holds a health job whose target is a patient (the dwarf brain's test for medical work under a `hearth` alert)
 - `jobs.hasWork(dwarfId)` — an open job exists that this worker could take
 - `jobs.hasUrgent(dwarfId, priority)` — an open job of that priority or more urgent exists that this worker could take (the dwarf brain's interrupt check)
 

@@ -177,7 +177,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
           const jobId = board.workerOf(id).jobId;
           if (jobId !== 0 && !onDuty(id)) {
             const job = board.jobs.get(jobId);
-            if (job !== undefined && board.typeRow(job).interruptible) {
+            if (job !== undefined && board.typeRow(job).interruptible && !board.isPatientCare(job)) {
               board.interrupt(id, true);
             }
           }
