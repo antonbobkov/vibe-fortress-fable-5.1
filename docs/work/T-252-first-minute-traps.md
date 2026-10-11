@@ -36,3 +36,14 @@ Two parts of the first audit were declined by the U decisions and are still trap
 ## Decision (2026-10-11, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
 
 **Accepted as proposed:** embarking without an axe asks "Embark without an axe?" with the default on No, because the Supplies tab calls an axe part of the minimum. This revises D-U3 for this one case and the spec edit says so.
+
+## Existing test failure (2026-10-11)
+
+Task parked under queue rule 4 because existing tests failed:
+1. `test/unit/ui/m7-game-menu.test.ts`: `T-M7-09 game menu, main menu Continue, confirmations > Confirmations > every id of the content table is wired somewhere in src, with the documented default`:
+   `AssertionError: expected [ 'c_deconstruct_building', …(21) ] to have a length of 21 but got 22`
+   (`m7-game-menu.test.ts` hardcodes `expect(table.ids()).toHaveLength(21)` for the confirmations table count).
+2. `test/unit/ui/u03-hotkeys.test.ts`: `U-03 panel hotkeys always win (D-U2, M3, S4) > the open panel's own key closes it; Designate opens with Dig chosen (D-241)`:
+   `AssertionError: expected 'Designate closed · [d] opens it again' to match /^Dig · priority 5/`
+   (The test presses `d` twice in a loop to verify close, leaving the notice active when it subsequently presses `d` and checks the status row for `Dig · priority 5`).
+

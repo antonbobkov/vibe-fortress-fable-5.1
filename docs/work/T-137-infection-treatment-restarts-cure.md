@@ -59,3 +59,18 @@ the deadline never moves. Also cover a second untreated infection and treatment
 failure. Edit 17's Infection and Patients rules and the health algorithm; run
 the six checks, npm test and whole e2e suite with before/after full-year states.
 Name any golden change and its cause. Do not change cure time or failure rates.
+
+## Decision (2026-10-11, local orchestrator, under the owner's standing instruction to use judgement)
+
+**Land the fix.** It is correct by its four regressions, and on the twelve-seed instrument it makes the distribution better where it matters: the worst seed goes from 0 to 3 alive and extinctions from 1 to 0, with the median unchanged. The one figure that fell, seeds with no dwarf lost to wildlife, went from 8 of 12 to 7 of 12, which is one seed changing sides because a different dwarf was outdoors when the wolves came. That is noise of the same kind that made the single browser year useless as a floor, one level up.
+
+**So the instrument's guards get a tolerance, and it is written down once:**
+
+- `wildlifeFree`: the floor is the measured figure minus 2 seeds. One or two seeds change sides with any change to who is where; three is a signal.
+- `median`: the floor is the measured figure minus 1.
+- `worst` and `extinct`: these may only improve or stay; a fix that adds an extinction or lowers the worst seed is stopped and reported.
+- `hungerThirstDeaths`: may not rise.
+- A change is blocked when a guard with tolerance fails, **or** when two or more of the five figures get worse at once even inside their tolerances. In every case the before and after rows go in the commit body.
+- When a change improves a figure, the measured figures in the instrument are updated to the new measurement in the same commit, and the floors follow from them by the rule above. The targets (median at least 11, no seed below 8, no hunger or thirst death) stay beside them unchanged.
+
+Write this rule into `testing-strategy.md` where the instrument is described and into `balance.md` § Wild animals, change the instrument to compute its floors from its measured figures by it, then restore the stash, re-run the instrument, and close this task. T-261 (an infection that appears after the cleaning job was planned is cured without brightleaf) stays its own task.
