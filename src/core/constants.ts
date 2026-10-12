@@ -136,8 +136,8 @@ export const BODY_PART_COUNT = 6;
 
 /** Screen cell is 16x16 px at zoom 1; cells are square. */
 export const CELL_PX_ZOOM_1 = 16;
-/** Cell sizes 12, 16, 24 px. */
-export const ZOOM_LEVELS: readonly [0.75, 1, 1.5] = [0.75, 1, 1.5];
+/** Cell sizes 12, 16, 24, 32 px. */
+export const ZOOM_LEVELS: readonly [0.75, 1, 1.5, 2] = [0.75, 1, 1.5, 2];
 /** Below this the canvas scales down instead of hiding cells. */
 export const MIN_VIEW_COLS = 80;
 export const MIN_VIEW_ROWS = 45;

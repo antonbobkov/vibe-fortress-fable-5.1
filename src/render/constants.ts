@@ -11,6 +11,10 @@
  * `src/core/constants.ts`, because `constants.md` carries them.
  */
 
+/** The grid the automatic zoom keeps at least: the largest level of 1 or more that leaves this many cells. */
+export const AUTO_ZOOM_MIN_COLS = 100;
+export const AUTO_ZOOM_MIN_ROWS = 56;
+
 /** Announcement strip above the status bar, in cell rows. */
 export const LOG_ROWS = 3;
 

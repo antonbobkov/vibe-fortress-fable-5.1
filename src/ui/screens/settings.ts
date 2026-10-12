@@ -14,6 +14,8 @@ export interface SettingsHost {
   readonly keymap: Keymap;
   readonly strings: Strings;
   settings(): Readonly<UserSettings>;
+  /** The zoom the setting asks for (`Auto` resolved) and the zoom the window shows. */
+  zoomView?(): { requested: number; shown: number };
   change(patch: Partial<UserSettings>): void;
   bindingsChanged(): void;
   resetDefaults(): void;
@@ -43,7 +45,7 @@ export class SettingsScreen implements Screen {
       case 1: return settings.autoPauseAlert ? 'on' : 'off';
       case 2: return settings.hints ? 'on' : 'off';
       case 3: return settings.colorblind ? 'on' : 'off';
-      case 4: return `${settings.zoom}×`;
+      case 4: return settings.zoom === 'auto' ? 'Auto' : `${settings.zoom}×`;
       case 5: return settings.edgeScrolling ? 'on' : 'off';
       case 6: return settings.autosave ? 'on' : 'off';
       case 7: return String(settings.snapshotsKept);
@@ -60,7 +62,7 @@ export class SettingsScreen implements Screen {
       case 1: this.host.change({ autoPauseAlert: !current.autoPauseAlert }); break;
       case 2: this.host.change({ hints: !current.hints }); break;
       case 3: this.host.change({ colorblind: !current.colorblind }); break;
-      case 4: this.host.change({ zoom: cycle(SETTINGS_ZOOM_OPTIONS, current.zoom as typeof SETTINGS_ZOOM_OPTIONS[number]) }); break;
+      case 4: this.host.change({ zoom: cycle(SETTINGS_ZOOM_OPTIONS, current.zoom) }); break;
       case 5: this.host.change({ edgeScrolling: !current.edgeScrolling }); break;
       case 6: this.host.change({ autosave: !current.autosave }); break;
       case 7: this.host.change({ snapshotsKept: cycle(SETTINGS_SNAPSHOT_OPTIONS, current.snapshotsKept) }); break;
@@ -123,6 +125,12 @@ export class SettingsScreen implements Screen {
         label(surface, 2, row, `${prefix} ${SETTING_NAMES[index]}`, { fg: index === this.selected ? t.key : t.text, width: 29 });
         if (index < 9) label(surface, 32, row, `[${this.value(index)}]`, { fg: t.value, width: 18 });
         surface.hit({ col: 2, row, cols: 48, rows: 1 }, () => { this.selected = index; this.change(index); });
+      }
+      label(surface, 2, 13, this.host.strings.get('ui.settings.zoom_hint'), { fg: t.dim });
+      const view = this.host.zoomView?.();
+      if (view !== undefined && view.shown < view.requested) {
+        const zoom = this.host.settings().zoom === 'auto' ? 'Auto' : String(view.requested);
+        label(surface, 2, 14, this.host.strings.get('ui.settings.zoom_shown', { zoom, shown: view.shown }), { fg: t.alert });
       }
       label(surface, 2, 15, '[d] Reset to defaults    [Esc] Back', { fg: t.dim });
       surface.hit({ col: 2, row: 15, cols: 21, rows: 1 }, () => this.host.resetDefaults());

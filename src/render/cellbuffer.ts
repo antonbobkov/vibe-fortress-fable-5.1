@@ -19,7 +19,7 @@ import {
   STATUS_ROWS,
   ZOOM_LEVELS,
 } from '@core/constants';
-import { LOG_ROWS } from './constants';
+import { AUTO_ZOOM_MIN_COLS, AUTO_ZOOM_MIN_ROWS, LOG_ROWS } from './constants';
 import type { Rgb } from './palette';
 
 /** One screen position. */
@@ -153,6 +153,20 @@ export interface ViewportFit {
    * the grid stays `MIN_VIEW_COLS × MIN_VIEW_ROWS` and the canvas element is drawn smaller.
    */
   readonly cssScale: number;
+}
+
+/**
+ * `23` § Canvas and cells, the automatic zoom: the largest level of `ZOOM_LEVELS` that is at least 1
+ * and leaves a grid of `AUTO_ZOOM_MIN_COLS` x `AUTO_ZOOM_MIN_ROWS` cells or more, else 1.
+ */
+export function autoZoom(widthPx: number, heightPx: number): number {
+  let best = 1;
+  for (const zoom of ZOOM_LEVELS) {
+    if (zoom < 1) continue;
+    const cellPx = cellPxFor(zoom);
+    if (Math.floor(widthPx / cellPx) >= AUTO_ZOOM_MIN_COLS && Math.floor(heightPx / cellPx) >= AUTO_ZOOM_MIN_ROWS) best = zoom;
+  }
+  return best;
 }
 
 export function cellPxFor(zoom: number): number {

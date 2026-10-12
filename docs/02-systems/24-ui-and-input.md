@@ -131,7 +131,7 @@ Sea of Fire is awarded on `CavernBreached` 3. Kills of note are the three highes
 
 ### Settings
 
-Stored zoom applies to new games; a loaded save's UI zoom wins for that session. Viewport fitting may use smaller cells without changing the preferred zoom. The binding table includes panel hotkeys and refuses collisions within a context and with global/map bindings that take precedence. Failed rebinding uses registry strings through the shared message helpers. Modifier errors say "Use a key with optional Ctrl or Shift."; conflicts say "Conflicts with {context}: {action}", using the player-facing context heading and Help wording, never binding ids. The bindings remain unchanged on failure. Only overrides of content defaults are saved. Additional binding contexts are appended after the panel bindings so older saved binding indices stay stable.
+The stored zoom applies to every game, new or loaded: a save records the zoom that was in effect, and loading fits again from the setting. Viewport fitting may use smaller cells without changing the requested zoom (23 § Canvas and cells). The binding table includes panel hotkeys and refuses collisions within a context and with global/map bindings that take precedence. Failed rebinding uses registry strings through the shared message helpers. Modifier errors say "Use a key with optional Ctrl or Shift."; conflicts say "Conflicts with {context}: {action}", using the player-facing context heading and Help wording, never binding ids. The bindings remain unchanged on failure. Only overrides of content defaults are saved. Additional binding contexts are appended after the panel bindings so older saved binding indices stay stable.
 
 ### Game menu (Esc from the fortress with no tool or panel)
 

@@ -97,7 +97,7 @@ These are shared by fluids, pathfinding, terrain, rendering, health and defense.
 | Name | Value | Meaning |
 |---|---|---|
 | `CELL_PX_ZOOM_1` | 16 | Screen cell is 16×16 px at zoom 1; cells are square |
-| `ZOOM_LEVELS` | 0.75, 1, 1.5 | Cell sizes 12, 16, 24 px |
+| `ZOOM_LEVELS` | 0.75, 1, 1.5, 2 | Cell sizes 12, 16, 24, 32 px |
 | `MIN_VIEW_COLS` | 80 | Below this the canvas scales down instead of hiding cells |
 | `MIN_VIEW_ROWS` | 45 | |
 | `SIDEBAR_COLS` | 36 | Width of the right-hand panel when open |
