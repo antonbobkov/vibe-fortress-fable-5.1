@@ -408,3 +408,8 @@ export function workshopBlockText(env: MessageEnv, reason: string | null): strin
   }
   return s.has(`ui.block.${reason}`) ? s.get(`ui.block.${reason}`) : s.get('ui.jobs.reason.other');
 }
+
+/** Why a gear or member chooser cannot open. */
+export function militaryNoSquad(env: MessageEnv): string {
+  return env.strings.get('ui.military.no_squad');
+}

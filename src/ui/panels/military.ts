@@ -22,7 +22,7 @@ import { accel, type PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { FortressHost } from '../screens/fortress';
 import { creaturesAt } from './look';
-import { zoneName } from '../messages';
+import { militaryNoSquad, zoneName } from '../messages';
 import { SQUAD_NAME_MAX_CHARS } from '../constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { dwarvesOf } from './units';
@@ -44,7 +44,7 @@ export function shortDwarfName(fullName: string): string {
   return `${parts[0]} ${parts[1].charAt(0)}.`;
 }
 
-type ChoiceKind = 'add' | 'remove' | 'leader' | 'barracks';
+type ChoiceKind = 'add' | 'remove' | 'leader' | 'barracks' | 'weapon' | 'armor';
 
 export class MilitaryPanel {
   readonly list: ListState = { selected: 0, scroll: 0 };
@@ -141,22 +141,9 @@ export class MilitaryPanel {
     return { type: 'SetSquadMode', squadId: squad.id, mode };
   }
 
-  cycleWeapon(ctx: PanelContext): Command | null {
-    const squad = this.selectedSquad(ctx);
-    if (!squad) return null;
-    const weapons = ['any', 'axe', 'sword', 'hammer', 'spear', 'crossbow'];
-    const cur = weapons.indexOf(squad.equipment.weaponClass);
-    const next = weapons[(cur + 1) % weapons.length] as string;
-    return { type: 'SetSquadEquipment', squadId: squad.id, equipment: { ...squad.equipment, weaponClass: next } };
-  }
-
-  cycleArmor(ctx: PanelContext): Command | null {
-    const squad = this.selectedSquad(ctx);
-    if (!squad) return null;
-    const armors: ('any' | 'metal' | 'leather')[] = ['any', 'metal', 'leather'];
-    const cur = armors.indexOf(squad.equipment.armor);
-    const next = armors[(cur + 1) % armors.length] as 'any' | 'metal' | 'leather';
-    return { type: 'SetSquadEquipment', squadId: squad.id, equipment: { ...squad.equipment, armor: next } };
+  /** The exact choices accepted by SetSquadEquipment; weapon classes come from content. */
+  gearOptions(ctx: PanelContext, kind: 'weapon' | 'armor'): string[] {
+    return kind === 'armor' ? ['any', 'metal', 'leather'] : ['any', ...new Set(ctx.registry.table<{ id: string; weaponClass?: string }>('weapons').rows.flatMap((weapon) => typeof weapon.weaponClass === 'string' ? [weapon.weaponClass] : []))];
   }
 
   toggleRanged(ctx: PanelContext): Command | null {
@@ -183,10 +170,10 @@ export class MilitaryPanel {
     const squad = this.selectedSquad(ctx);
     const strings = ctx.strings;
     if (!squad) {
-      ctx.notice?.(strings.get('ui.military.no_squad'));
+      ctx.notice?.(militaryNoSquad(ctx));
       return;
     }
-    this.memberChoice = { kind, selected: 0, scroll: 0, marks: new Marks() };
+    this.memberChoice = { kind, selected: kind === 'weapon' || kind === 'armor' ? Math.max(0, this.gearOptions(ctx, kind).indexOf(kind === 'weapon' ? squad.equipment.weaponClass : squad.equipment.armor)) : 0, scroll: 0, marks: new Marks() };
     let why: string | null = null;
     if (kind === 'add' && squad.members.length >= SQUAD_MAX_SIZE) why = strings.get('ui.military.squad_full', { squad: squad.name, max: SQUAD_MAX_SIZE });
     else if (kind === 'barracks' && this.barracksZones(ctx).length === 0) why = strings.get('ui.military.no_barracks');
@@ -254,6 +241,11 @@ export class MilitaryPanel {
     const rows = this.memberCandidates(ctx);
     const at = rows[index ?? choice.selected];
     this.memberChoice = null;
+    if (choice.kind === 'weapon' || choice.kind === 'armor') {
+      const value = at === undefined ? undefined : this.gearOptions(ctx, choice.kind)[at];
+      if (value === undefined) return [];
+      return [{ type: 'SetSquadEquipment', squadId: squad.id, equipment: { ...squad.equipment, ...(choice.kind === 'weapon' ? { weaponClass: value } : { armor: value as 'any' | 'metal' | 'leather' }) } }];
+    }
     if (choice.kind === 'leader') return at === undefined ? [] : [{ type: 'SetSquadLeader', squadId: squad.id, leaderId: at }];
     if (choice.kind === 'barracks') {
       if (at === undefined) return [];
@@ -288,6 +280,7 @@ export class MilitaryPanel {
     const squad = this.selectedSquad(ctx);
     if (!squad || !this.memberChoice) return [];
     if (this.memberChoice.kind === 'remove' || this.memberChoice.kind === 'leader') return [...squad.members];
+    if (this.memberChoice.kind === 'weapon' || this.memberChoice.kind === 'armor') return this.gearOptions(ctx, this.memberChoice.kind).map((_value, index) => index);
     if (this.memberChoice.kind === 'barracks') return [0, ...this.barracksZones(ctx)];
     const assigned = new Set(this.squads(ctx).flatMap((s) => s.members));
     return dwarvesOf(ctx).filter((id) => {
@@ -400,8 +393,8 @@ export class MilitaryPanel {
     if (letter === 'v') return submit(this.setMode(ctx, 'active'));
     if (letter === 'a') { this.openChoice(ctx, 'add'); return true; }
     if (letter === 'r') { this.openChoice(ctx, 'remove'); return true; }
-    if (letter === 'w') return submit(this.cycleWeapon(ctx));
-    if (letter === 'g') return submit(this.cycleArmor(ctx));
+    if (letter === 'w') { this.openChoice(ctx, 'weapon'); return true; }
+    if (letter === 'g') { this.openChoice(ctx, 'armor'); return true; }
     if (letter === 'j') return submit(this.toggleRanged(ctx));
 
     return false;
@@ -520,21 +513,16 @@ export function drawMilitaryPanel(
   s.hit({ col: col + 19, row, cols: 10, rows: 1 }, () => panel.openChoice(ctx, 'remove'));
   row += 1;
 
-  // Gear preferences have separate rows so every control fits a narrow sidebar.
+  // Separate rows keep the dropdown marks and ranged control visible in a narrow sidebar.
   const rangedGlyph = squad.equipment.ranged ? '■' : '□';
-  label(s, col, row, `Gear [w] weapon ${squad.equipment.weaponClass}`, { width });
-  s.hit({ col: col + 5, row, cols: width - 5, rows: 1 }, () => {
-    const cmd = panel.cycleWeapon(ctx);
-    if (cmd) ctx.submit(cmd);
-  });
+  label(s, col, row, ctx.strings.get('ui.military.weapon', { value: squad.equipment.weaponClass }), { width });
+  s.hit({ col: col + 5, row, cols: width - 5, rows: 1 }, () => panel.openChoice(ctx, 'weapon'));
   row += 1;
-  const armorText = `  [g] armor ${squad.equipment.armor}`;
-  label(s, col, row, `${armorText}  [S-j] ranged ${rangedGlyph}`, { width });
-  s.hit({ col: col + 2, row, cols: armorText.length - 2, rows: 1 }, () => {
-    const cmd = panel.cycleArmor(ctx);
-    if (cmd) ctx.submit(cmd);
-  });
-  s.hit({ col: col + armorText.length + 2, row, cols: 14, rows: 1 }, () => {
+  label(s, col, row, ctx.strings.get('ui.military.armor', { value: squad.equipment.armor }), { width });
+  s.hit({ col: col + 2, row, cols: width - 2, rows: 1 }, () => panel.openChoice(ctx, 'armor'));
+  row += 1;
+  label(s, col, row, ctx.strings.get('ui.military.ranged', { mark: rangedGlyph }), { width });
+  s.hit({ col: col + 2, row, cols: width - 2, rows: 1 }, () => {
     const cmd = panel.toggleRanged(ctx);
     if (cmd) ctx.submit(cmd);
   });
@@ -618,7 +606,11 @@ function drawChoice(s: Surface, rect: Rect, top: number, panel: MilitaryPanel, c
     const k = state.scroll + r;
     const id = ids[k] as number;
     let text: string;
-    if (choice.kind === 'barracks') {
+    if (choice.kind === 'weapon' || choice.kind === 'armor') {
+      const value = panel.gearOptions(ctx, choice.kind)[id] ?? '';
+      const current = choice.kind === 'weapon' ? squad.equipment.weaponClass : squad.equipment.armor;
+      text = value === current ? strings.get('ui.military.gear_current', { value }) : value;
+    } else if (choice.kind === 'barracks') {
       const holder = id === 0 ? 0 : Number(b?.zone(id)?.settings['squad'] ?? 0);
       const other = holder === 0 || holder === squad.id ? undefined : panel.squads(ctx).find((sq) => sq.id === holder)?.name;
       text = id === 0 ? strings.get('ui.military.barracks_row_none') : other === undefined ? zoneName(ctx, id) : strings.get('ui.military.barracks_row_taken', { zone: zoneName(ctx, id), squad: other });

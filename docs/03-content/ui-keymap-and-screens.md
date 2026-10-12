@@ -187,6 +187,8 @@ A panel's own keys may not use a panel hotkey, so these are on `Shift` (shown `[
 | `Shift+L` | choose the squad leader |
 | `Shift+B` | assign a barracks zone |
 | `Shift+N` | rename the squad |
+| `w` | choose the squad weapon class |
+| `g` | choose the squad armor |
 
 ## Zones inspector keys
 

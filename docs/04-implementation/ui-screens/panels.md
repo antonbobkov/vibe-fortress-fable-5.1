@@ -224,7 +224,9 @@ Opened by a click on a finished workshop.
 │ Worker: any                         │
 │ Suspended · magma powered           │
 │ ── Recipes ──────────────────────── │
+│ ── Container ───────────────────── │
 │ ● Barrel                            │
+│ ── Furniture ───────────────────── │
 │ ● Bed                               │
 │ ○ Door                              │
 │ …                                   │
@@ -239,6 +241,7 @@ Opened by a click on a finished workshop.
 │ furnace                             │
 ```
 
+- The recipes use the Add order picker's output-category headings and alphabetical category order, with the content recipe order inside each category. The picker alone adds its Recent group. `↑↓` selects a recipe and scrolls the list; `Enter` opens Add order on it. Clicking the scrollbar browses the list.
 - `[S-n]`, or a click on a recipe, opens "Add order" for this workshop (on the clicked recipe). `[S-o]` opens the Orders panel on this workshop's orders; `[S-f]` opens the material list of its first order.
 - `[S-s]` suspends after `c_suspend_workshop` and resumes without asking; `[x]` takes the workshop apart after `c_deconstruct_workshop` (it has orders) or `c_deconstruct_building`.
 - The last two lines say why the workshop is idle (`12` § Operation 3).
@@ -334,8 +337,9 @@ Stocks actions apply to the selected category, type or individual stack. Forbid 
 │ Mode    [off] [train] [active]      │
 │ Members Halvar G., Einar R., Tova E.│
 │         [S-a] add  [r] remove       │
-│ Gear    weapon [axe ▾] armor [metal▾]│
-│         ranged [□]                  │
+│ Gear [w] weapon [axe ▾]             │
+│   [g] armor [metal ▾]               │
+│   [S-j] ranged □                   │
 │ Station (60,28,z31)                 │
 │         [S-s] set  [S-c] clear      │
 │ Patrol none [S-p] add [y] clear     │
@@ -355,6 +359,7 @@ Stocks actions apply to the selected category, type or individual stack. Forbid 
 ```
 
 - `Space` or a click marks a row (`•`), `*` marks all (as many as the squad has room for) or none, and `Enter` adds or removes every marked dwarf in one `SetSquadMembers`; with none marked, `Enter` takes the cursor's row. An add list takes no more marks than the squad has free places, and a full squad, an empty squad or no free adult says so on the status row instead of opening an empty list.
+- `[w] weapon` and `[g] armor` (or their dropdown captions) replace the squad details with a single-choice list. The weapon list offers `any` and every weapon class in content; armor offers `any`, `metal`, `leather`. The current value is marked `(current)` and selected initially. `↑↓` moves, `Enter` or a clicked row sends `SetSquadEquipment`, preserving the other preferences; `Esc` or the cancel caption leaves them unchanged.
 - The leader list sends `SetSquadLeader`; `[S-n]` opens the text input and sends `RenameSquad`.
 - The barracks list sends `SetZoneSetting { key: squad }`: the zone the squad had lets go and the chosen one takes it; "None" clears it. Without a barracks zone the status row says to make one in Zones. Changing the assignment moves training to that barracks, including for a squad that has already trained. The barracks row shows the assigned zone; "(default)" marks a zone the squad uses without being assigned.
 - The new keys are on `Shift` because `l`, `b` and `n` are panel hotkeys.

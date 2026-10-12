@@ -418,5 +418,15 @@
     "context": "military_panel",
     "key": "Shift+N",
     "action": "rename the squad"
+  },
+  {
+    "context": "military_panel",
+    "key": "w",
+    "action": "choose the squad weapon class"
+  },
+  {
+    "context": "military_panel",
+    "key": "g",
+    "action": "choose the squad armor"
   }
 ]

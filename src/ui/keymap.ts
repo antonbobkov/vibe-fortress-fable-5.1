@@ -135,6 +135,8 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'choose the squad leader': 'leader',
   'assign a barracks zone': 'barracks',
   'rename the squad': 'rename_squad',
+  'choose the squad weapon class': 'weapon',
+  'choose the squad armor': 'armor',
 });
 
 /** A parsed key column. `key` is the keymap spelling; `any` stands for `[letter]`. */
