@@ -1,0 +1,64 @@
+# flow: 3-mature-fortress   step: 46-B-jobs
+# what: Key j: Jobs panel (is the order explained there?)
+# input: key j
+# tick: 272981   paused: yes   screen: fortress   panel: jobs   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,0,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|                                            │ Jobs                          [j]
+01|                                            │ 32 open · 4 claimed · 1 blocked
+02|                                            │ /filter: [ ____________________ ]
+03|                                            │ [S-l] labor: all
+04|                                            │ [S-s] state: all
+05|                                            │ Blocked: 1 missing items
+06|                                            │ Pri Job              Who / reason
+07|                                            │  1  stop bleeding    -          █
+08|                                            │  1  stop bleeding    waiting: 1 │
+09|                                            │  5  craft still      Rannveig Am│
+10|                                            │  5  craft kitchen    -          │
+11|                                            │  5  craft mechanic's -          │
+12|                                            │  5  craft mason's wo -          │
+13|                                            │  5  craft craftsdwar -          │
+14|                                            │  5  craft carpenter' Lofn Darkst│
+15|                                            │  6  Haul plant       -          │
+16|                                            │  6  Haul plant       -          │
+17|                                            │  6  Haul plant       -          │
+18|                                            │  6  Haul plant       -          │
+19|                                            │  6  Haul plant       -          │
+20|                                            │  6  Haul plant       -          │
+21|                                            │  6  Haul plant       -          │
+22|                                            │  6  Haul plant       -          │
+23|                                            │  6  Haul plant       -          │
+24|                                            │  6  Haul plant       -          │
+25|                                            │  6  Haul plant       -          │
+26|                                            │  6  Haul plant       Snorri Pine│
+27|                                            │  6  Haul plant       Vera Deepma│
+28|                                            │  6  Haul plant       -          │
+29|                                            │  6  Haul plant       -          │
+30|                                            │  6  Haul plant       -          │
+31|                                            │  6  Haul plant       -          │
+32|                                            │  6  Haul plant       -          │
+33|                                            │  6  Haul plant       -          │
+34|                                            │  6  Haul plant       -          │
+35|                                            │  6  Haul plant       -          │
+36|                                            │  6  Haul log         -          │
+37|                                            │  6  Haul plant       -          │
+38|                                            │ ─────────────────────────────────
+39|                                            │ [Enter] center  [S-p] priority
+40|                                            │ [x] cancel  [o] standing orders
+41|                                            │ ─── Labor priorities (1-9) ──────
+42|                                            │ All labors at priority 5: change
+43|                                            │ them in the labor manager ([l],
+44|                                            │ Enter).
+45| Ulf Emberaxe is miserable.
+46| Stockpile #2 (Everything) is full.
+47| Stockpile #2 (Everything) is full.
+48| Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h
+49| Ordered: x1 Mail shirt · any forge
+----- log strip rows -----
+ Ulf Emberaxe is miserable.
+ Stockpile #2 (Everything) is full.
+ Stockpile #2 (Everything) is full.
+----- status rows -----
+ Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h
+ Ordered: x1 Mail shirt · any forge

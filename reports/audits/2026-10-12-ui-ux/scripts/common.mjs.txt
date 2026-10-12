@@ -1,0 +1,130 @@
+// Shared helpers for the T-116 capture flows.
+import { launch, Recorder } from './lib.mjs';
+
+export { launch, Recorder };
+
+/** Wait until the text rows contain needle (polling), up to ms. */
+export async function waitText(r, needle, ms = 30000) {
+  const t0 = Date.now();
+  for (;;) {
+    const rows = await r.text();
+    if (rows.some((x) => x.includes(needle))) return true;
+    if (Date.now() - t0 > ms) return false;
+    await r.wait(150);
+  }
+}
+
+export async function stepTo(r, target) {
+  await r.page.evaluate((t) => {
+    const h = window.__deepholm;
+    while (h.readers.calendar.tick < t) h.step(Math.min(300, t - h.readers.calendar.tick));
+  }, target);
+  r.log(`hook step to tick ${target}`);
+}
+
+export async function stepBy(r, n) {
+  await r.page.evaluate((k) => {
+    const h = window.__deepholm;
+    const t = h.readers.calendar.tick + k;
+    while (h.readers.calendar.tick < t) h.step(Math.min(300, t - h.readers.calendar.tick));
+  }, n);
+  r.log(`hook step ${n} ticks`);
+}
+
+export async function closePanels(r, max = 5) {
+  for (let i = 0; i < max; i += 1) {
+    const st = await r.state();
+    if (st.panel === null || st.screen !== 'fortress') break;
+    await r.key('Escape');
+  }
+}
+
+/** Setup-only: locate wagon, free 3x3 patches and trees (copied from full-year.spec.ts). Not an input. */
+export async function findSite(r, minX = 0) {
+  return r.page.evaluate((minX) => {
+    const h = window.__deepholm;
+    const map = h.readers.map;
+    const b = h.readers.buildings;
+    const wagon = b.get(b.wagon());
+    const wx = wagon.origin % map.w;
+    const wy = Math.floor(wagon.origin / map.w) % map.h;
+    const wz = Math.floor(wagon.origin / (map.w * map.h));
+    const u = h.readers.ui;
+    const free = (x, y) => x >= 0 && y >= 0 && x < map.w && y < map.h && map.kindAt(map.index(x, y, wz)) === 2 && b.zoneAt(map.index(x, y, wz)) === 0;
+    const patches = [];
+    const usedNear = (px, py) => patches.some((p) => Math.abs(p.x - px) < 5 && Math.abs(p.y - py) < 5);
+    for (let y = wy - 14; y <= wy + 14; y += 1) {
+      for (let x = Math.max(wx + 6, minX); x <= wx + 60; x += 1) {
+        if (patches.length >= 12) break;
+        if (usedNear(x, y)) continue;
+        let ok = true;
+        for (let dy = 0; dy < 3 && ok; dy += 1) for (let dx = 0; dx < 3 && ok; dx += 1) if (!free(x + dx, y + dy)) ok = false;
+        if (ok) patches.push({ x, y });
+      }
+    }
+    const trees = [];
+    for (let dy = -14; dy <= 14; dy += 1) for (let dx = 1; dx <= 34; dx += 1) {
+      const px = wx + dx, py = wy + dy;
+      if (px >= 0 && px < map.w && py >= 0 && py < map.h && map.kindAt(map.index(px, py, wz)) === 8) trees.push({ x: px, y: py });
+    }
+    trees.sort((a, c) => (a.x - wx) ** 2 + (a.y - wy) ** 2 - ((c.x - wx) ** 2 + (c.y - wy) ** 2));
+    return { wx, wy, wz, w: map.w, h: map.h, d: map.d, patches, trees, cam: { x: u.camX, y: u.camY, z: u.z } };
+  }, minX);
+}
+
+/** The map-centre tile and camera (setup read, not an input). */
+export async function centreTile(r) {
+  return r.page.evaluate(() => {
+    const h = window.__deepholm;
+    const u = h.readers.ui;
+    const c = h.cells();
+    const mapCols = u.sidebar ? c.cols - 36 : c.cols;
+    const mapRows = c.rows - 5;
+    return { x: u.camX + Math.floor(mapCols / 2), y: u.camY + Math.floor(mapRows / 2), camX: u.camX, camY: u.camY, z: u.z };
+  });
+}
+
+/** Keyboard-only: pan with arrow keys (Shift = 10) until the map-centre tile equals (tx,ty). Logs each key. */
+export async function panCentreTo(r, tx, ty) {
+  let presses = 0;
+  for (let guard = 0; guard < 120; guard += 1) {
+    const c = await centreTile(r);
+    const dx = tx - c.x;
+    const dy = ty - c.y;
+    if (dx === 0 && dy === 0) return { presses, ok: true, centre: c };
+    let key;
+    if (Math.abs(dx) >= 10) key = dx > 0 ? 'Shift+ArrowRight' : 'Shift+ArrowLeft';
+    else if (Math.abs(dy) >= 10) key = dy > 0 ? 'Shift+ArrowDown' : 'Shift+ArrowUp';
+    else if (dx !== 0) key = dx > 0 ? 'ArrowRight' : 'ArrowLeft';
+    else key = dy > 0 ? 'ArrowDown' : 'ArrowUp';
+    await r.key(key);
+    presses += 1;
+    const c2 = await centreTile(r);
+    if (c2.camX === c.camX && c2.camY === c.camY) return { presses, ok: false, centre: c2 };
+  }
+  return { presses, ok: false, centre: await centreTile(r) };
+}
+
+/** Keyboard path from the main menu to an embarked fortress at the Bitterbrae region (id 2339) of seed deep-3588-1. No snaps. */
+export async function embarkBitterbrae(r, { regionId = 2339, stopAtEmbark = false } = {}) {
+  await r.goto('/');
+  await r.key('n');
+  await r.key('g');
+  await waitText(r, 'Stage: names', 30000);
+  await r.wait(600);
+  await r.key('Enter');
+  const target = await r.page.evaluate((id) => ({ id, size: window.__deepholm.readers.world.size() }), regionId);
+  const start = Math.floor(target.size / 2);
+  const walk = async (delta, plus, minus) => {
+    const k = delta > 0 ? plus : minus;
+    let left = Math.abs(delta);
+    while (left >= 8) { await r.key(`Shift+${k}`); left -= 8; }
+    for (; left > 0; left -= 1) await r.key(k);
+  };
+  await walk((target.id % target.size) - start, 'ArrowRight', 'ArrowLeft');
+  await walk(Math.floor(target.id / target.size) - start, 'ArrowDown', 'ArrowUp');
+  await r.key('Enter');
+  if (stopAtEmbark) return;
+  await r.key('Enter');
+  await r.wait(2500);
+}

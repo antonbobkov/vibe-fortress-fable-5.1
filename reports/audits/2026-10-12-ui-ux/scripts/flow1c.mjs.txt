@@ -1,0 +1,224 @@
+// Flow 1, part 3: designations, zones, buildings, orders, panels. Mouse wherever the mouse can do it.
+import { stepBy } from './common.mjs';
+
+export async function run(r, site) {
+  const P = site.patches;
+  const press = async (k, why) => r.key(k, `${k} [KEY - ${why}]`);
+
+  // ---- Designate ----
+  await press('d', 'no mouse path to open Designate was found');
+  await r.snap('designate-open', 'Designate panel open (opened by key d)');
+  await r.clickText('Dig');
+  await r.snap('dig-tool', 'Clicked the "Dig" row of the panel: tool armed');
+  // drag with a mid-drag capture
+  const a = await r.tileCell(P[0].x, P[0].y);
+  const b = await r.tileCell(P[0].x + 3, P[0].y + 2);
+  const pa = await r.cellPx(a.col, a.row);
+  const pb = await r.cellPx(b.col, b.row);
+  r.log(`left-down at tile ${P[0].x},${P[0].y}; move to tile ${P[0].x + 3},${P[0].y + 2} (not released)`);
+  await r.page.mouse.move(pa.x, pa.y);
+  await r.page.mouse.down();
+  await r.page.mouse.move(pb.x, pb.y, { steps: 5 });
+  await r.snap('dig-dragging', 'Mid-drag of a Dig rectangle over 4x3 ground tiles (button held)');
+  r.log('left-up');
+  await r.page.mouse.up();
+  await r.snap('dig-released', 'Released the Dig rectangle');
+  await r.clickText('Chop tree');
+  await r.snap('chop-tool', 'Clicked "Chop tree" row');
+  const t0 = site.trees[0];
+  await r.dragTiles({ x: t0.x, y: t0.y }, { x: t0.x, y: t0.y }, 'single tree');
+  await r.snap('chop-drag', 'Dragged on a single tree tile');
+  await r.clickText('Stairwell');
+  await r.snap('stairwell-tool', 'Clicked "Stairwell" row');
+  await r.clickTile(P[1].x, P[1].y, 'stairwell top');
+  await r.snap('stairwell-first', 'Clicked first corner of the stairwell');
+  for (let i = 0; i < 3; i += 1) {
+    r.log('wheel down 1 notch');
+    await r.page.mouse.wheel(0, 100);
+    await r.wait(100);
+  }
+  await r.snap('stairwell-wheel', 'Wheel down 3 notches (z level) with the stairwell tool pending');
+  await r.clickTile(P[1].x, P[1].y, 'stairwell bottom');
+  await r.snap('stairwell-second', 'Clicked second corner of the stairwell at the lower level');
+  for (let i = 0; i < 3; i += 1) { await r.page.mouse.wheel(0, -100); await r.wait(80); }
+  r.log('wheel up 3 notches');
+  await r.clickCell(30, 40, 'right-click on the map to cancel the tool', { button: 'right' });
+  await r.snap('designate-right-click-cancel', 'Right click on the map with a tool armed');
+  await stepBy(r, 60);
+  await r.snap('after-60-ticks', 'After 60 ticks of the clock (hook step); designations visible');
+
+  // ---- Zones: stockpile ----
+  await press('z', 'no mouse path to open Zones was found');
+  await r.snap('zones-open', 'Zones panel open (opened by key z)');
+  await r.clickText('Stockpile');
+  await r.snap('stockpile-tool', 'Clicked the "Stockpile" row');
+  await r.dragTiles({ x: P[2].x, y: P[2].y }, { x: P[2].x + 3, y: P[2].y + 2 }, 'stockpile rectangle');
+  await r.snap('stockpile-dragged', 'Dragged a 4x3 stockpile rectangle');
+  await r.clickCell(30, 40, 'right-click on the map to cancel the tool', { button: 'right' });
+  await r.snap('stockpile-cancel-tool', 'Right click on the map: tool cancelled?');
+  await stepBy(r, 1);
+  await r.clickTile(P[2].x, P[2].y, 'stockpile tile');
+  await r.snap('stockpile-editor', 'Clicked the new stockpile (after 1 tick): its editor');
+  await r.clickText('Preset [');
+  await r.snap('stockpile-preset-dropdown', 'Clicked the "Preset [Custom]" header');
+  await r.clickText('Everything');
+  await r.snap('stockpile-preset-everything', 'Clicked the "Everything" option');
+  await r.clickInRow('Barrels wanted', '[+]');
+  await r.snap('stockpile-barrels-plus', 'Clicked the [+] of "Barrels wanted"');
+  await r.clickInRow('Priority       [-]', '[+]');
+  await r.snap('stockpile-priority-plus', 'Clicked the [+] of "Priority"');
+  await r.clickText('Food');
+  await r.snap('stockpile-click-food', 'Clicked the category name "Food"');
+  await r.clickText('[y] zone types');
+  await r.snap('zone-types-back', 'Clicked "[y] zone types": back to the zone type list');
+  // ---- Farm plot ----
+  await r.clickText('Farm plot');
+  await r.snap('farm-tool', 'Clicked the "Farm plot" row');
+  await r.dragTiles({ x: P[3].x, y: P[3].y }, { x: P[3].x + 3, y: P[3].y + 2 }, 'farm plot rectangle');
+  await r.snap('farm-dragged', 'Dragged a 4x3 farm plot rectangle');
+  await r.clickCell(30, 40, 'right-click on the map to cancel the tool', { button: 'right' });
+  await stepBy(r, 1);
+  await r.clickTile(P[3].x, P[3].y, 'farm plot tile');
+  await r.snap('farm-editor', 'Clicked the new farm plot (after 1 tick): its editor');
+  for (const season of ['Spring', 'Summer', 'Autumn']) {
+    await r.clickInRow(season + '  [', '[ none');
+    await r.snap(`farm-${season.toLowerCase()}-dropdown`, `Clicked the ${season} crop dropdown`);
+    await r.clickText('  turnip');
+    await r.snap(`farm-${season.toLowerCase()}-turnip`, `Clicked "turnip" for ${season}`);
+  }
+  // ---- Workshop ----
+  await press('b', 'no mouse path to open Build was found');
+  await r.snap('build-open', 'Build panel open (opened by key b)');
+  await r.clickText('Workshops');
+  await r.snap('build-workshops', 'Clicked the "Workshops" category');
+  await r.clickText("Carpenter's workshop");
+  await r.snap('carpenter-tool', 'Clicked the carpenter workshop row: placement tool armed');
+  await r.hoverCell((await r.tileCell(P[4].x + 1, P[4].y + 1)).col, (await r.tileCell(P[4].x + 1, P[4].y + 1)).row, 'ghost position');
+  await r.snap('carpenter-ghost', 'Pointer over a free 3x3 patch: ghost footprint');
+  await r.clickTile(P[4].x + 1, P[4].y + 1, 'workshop centre');
+  await r.snap('carpenter-placed', 'Clicked the patch: workshop placed');
+  await r.clickCell(30, 40, 'right-click on the map to cancel the tool', { button: 'right' });
+  await r.snap('carpenter-cancel', 'Right click on the map to leave the tool');
+  // ---- Work order ----
+  await press('o', 'no mouse path to open Orders was found');
+  await r.snap('orders-open', 'Orders panel open (opened by key o)');
+  await r.clickText('new order');
+  await r.snap('orders-new-click', 'Clicked "[S-n] new order"');
+  const sp = await r.cellPx(60, 20);
+  await r.page.mouse.move(sp.x, sp.y);
+  for (let i = 0; i < 4; i += 1) { r.log('wheel down 1 notch over the sidebar list'); await r.page.mouse.wheel(0, 100); await r.wait(100); }
+  await r.snap('orders-picker-wheel', 'Wheel down 4 notches over the order picker list');
+  for (let i = 0; i < 4; i += 1) { await r.page.mouse.wheel(0, -100); await r.wait(80); }
+  r.log('wheel up 4 notches (restore z)');
+  await r.clickCell(78, 30, 'scrollbar track of the picker list');
+  await r.snap('orders-picker-scrollbar', 'Clicked the scrollbar track (col 78, row 30) of the picker list');
+  await r.dragCells({ col: 78, row: 3 }, { col: 78, row: 30 }, 'drag the scrollbar thumb');
+  await r.snap('orders-picker-scrollbar-drag', 'Dragged the scrollbar thumb from row 3 to row 30');
+  await r.clickText('Charcoal');
+  await r.snap('orders-picker-click-recipe', 'Clicked the recipe row "Charcoal"');
+  await r.clickText('[Enter] add');
+  await r.snap('orders-picker-click-add', 'Clicked "[Enter] add"');
+  // ---- more zones ----
+  await press('z', 'no mouse path to open Zones was found');
+  await r.clickText('Meeting');
+  await r.snap('meeting-tool', 'Zones panel (key z), clicked the "Meeting area" row');
+  await r.dragTiles({ x: P[5].x, y: P[5].y }, { x: P[5].x + 2, y: P[5].y + 2 }, 'meeting area 3x3');
+  await r.snap('meeting-dragged', 'Dragged a 3x3 meeting area');
+  await r.clickCell(30, 40, 'right-click on the map to cancel the tool', { button: 'right' });
+  await r.clickText('Bedroom');
+  await r.snap('bedroom-tool', 'Clicked the "Bedroom" row');
+  await r.dragTiles({ x: P[6].x, y: P[6].y }, { x: P[6].x + 2, y: P[6].y + 2 }, 'bedroom 3x3');
+  await r.snap('bedroom-dragged', 'Dragged a 3x3 bedroom');
+  await r.clickCell(30, 40, 'right-click on the map to cancel the tool', { button: 'right' });
+  await stepBy(r, 1);
+  await r.clickTile(P[6].x, P[6].y, 'bedroom tile');
+  await r.snap('bedroom-editor', 'Clicked the new bedroom after 1 tick: its inspector');
+  // ---- door ----
+  await press('b', 'no mouse path to open Build was found');
+  await r.clickText('Furniture');
+  await r.snap('furniture-category', 'Build panel (key b), clicked "Furniture"');
+  await r.clickText('Door');
+  await r.snap('door-tool', 'Clicked the "Door" row');
+  await r.clickTile(P[4].x - 2, P[4].y - 2, 'open ground, no walls');
+  await r.snap('door-refused', 'Clicked a tile with no walls on two sides: placement refused?');
+  await r.clickCell(30, 40, 'right-click on the map to cancel the tool', { button: 'right' });
+  // ---- panels ----
+  for (const [k, nm] of [['u', 'units'], ['j', 'jobs'], ['l', 'labors'], ['o', 'orders'], ['s', 'stocks'], ['m', 'military'], ['n', 'animals'], ['t', 'threats'], ['c', 'civilizations'], ['p', 'population'], ['e', 'mood'], ['a', 'log'], ['k', 'look'], ['f', 'overlays'], ['?', 'help'], ['F12', 'debug']]) {
+    await press(k, 'no mouse path to open this panel was found');
+    await r.snap(`panel-${nm}`, `Panel ${nm} opened by key ${k}`);
+  }
+  await closeAll(r);
+  // ---- parity probes: things the keyboard can do; try them with the mouse ----
+  await press('d', 'opening Designate again to probe');
+  await r.clickText('Priority: 5');
+  await r.snap('probe-priority-row', 'Probe: clicked the "Priority: 5 (1-9 to change)" row');
+  await r.clickText('undo last');
+  await r.snap('probe-undo-row', 'Probe: clicked the "[Ctrl+Z] undo last" row');
+  await r.clickText('clear re');
+  await r.snap('probe-clear-row', 'Probe: clicked the "[Del] clear re..." row');
+  await r.clickText('last batch to priority');
+  await r.snap('probe-batch-priority-row', 'Probe: clicked the "[S-p] last batch to priority 5" row');
+  await r.clickText('[d]', { nth: 0, offset: 1 });
+  await r.snap('probe-title-click', 'Probe: clicked the "[d]" in the panel title row (is there a close control?)');
+  await r.page.keyboard.down('Control');
+  r.log('Ctrl held');
+  await r.page.mouse.move(...Object.values(await r.cellPx(20, 20)));
+  await r.page.mouse.wheel(0, -100);
+  r.log('Ctrl+wheel up 1 notch (zoom?)');
+  await r.page.keyboard.up('Control');
+  await r.wait(200);
+  await r.snap('probe-ctrl-wheel', 'Probe: Ctrl + wheel up over the map (zoom in)');
+  await r.page.keyboard.down('Control');
+  await r.page.mouse.wheel(0, 100);
+  r.log('Ctrl+wheel down 1 notch (zoom out)');
+  await r.page.keyboard.up('Control');
+  await r.wait(200);
+  await r.snap('probe-ctrl-wheel-back', 'Probe: Ctrl + wheel down (zoom back)');
+  for (let k = 0; k < 2; k += 1) {
+    const g = (await r.state()).cols;
+    if (g === 80) break;
+    await r.page.keyboard.down('Control');
+    await r.page.mouse.wheel(0, -100);
+    r.log(`Ctrl+wheel up 1 notch (grid was ${g} cols)`);
+    await r.page.keyboard.up('Control');
+    await r.wait(200);
+  }
+  await r.snap('probe-ctrl-wheel-restore', 'Probe: Ctrl + wheel up again to restore zoom 1 (grid width shown in the dump header)');
+  await r.page.keyboard.down('Shift');
+  r.log('Shift held');
+  await r.page.mouse.wheel(0, 100);
+  r.log('Shift+wheel down 1 notch (pan vertically)');
+  await r.page.keyboard.up('Shift');
+  await r.wait(200);
+  await r.snap('probe-shift-wheel', 'Probe: Shift + wheel (pan vertically)');
+  await closeAll(r);
+  // pause / speed: try mouse, then key
+  await r.clickText('║');
+  await r.snap('probe-speed-glyph', 'Probe: clicked the speed glyph in status row 1');
+  await press('Space', 'resume; no mouse control for the clock was found');
+  await r.snap('key-space-resume', 'Key Space: resume the clock');
+  await stepBy(r, 0);
+  await press('Space', 'pause again');
+  await r.snap('key-space-pause', 'Key Space: pause the clock');
+  // game menu: Escape only
+  await press('Escape', 'game menu; no mouse way to open it was found');
+  await r.snap('game-menu', 'Escape with no panel open: game menu');
+  for (const row of ['Resume', 'Save', 'Settings', 'Rename fortress']) {
+    const f = await r.findText(row);
+    r.log(`(game menu text "${row}" ${f ? 'present' : 'absent'} on screen)`);
+  }
+  await r.clickText('Rename fortress');
+  await r.snap('game-menu-rename-click', 'Game menu: clicked "Rename fortress"');
+  await r.key('Escape', 'Escape [KEY]');
+  await r.snap('rename-escape', 'Escape from the text input');
+}
+
+async function closeAllDummy() {}
+
+async function closeAll(r) {
+  for (let i = 0; i < 4; i += 1) {
+    const st = await r.state();
+    if (st.panel === null) break;
+    await r.key('Escape', 'Escape [KEY]');
+  }
+}

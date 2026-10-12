@@ -1,0 +1,64 @@
+# flow: 1-mouse-only   step: 93-panel-jobs
+# what: Panel jobs opened by key j
+# input: key j [KEY - no mouse path to open this panel was found]
+# tick: 463   paused: yes   screen: fortress   panel: jobs   viewport: 1280x800   grid: 80x50
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|""""""""""""""""""""""""""""""""""""""↑"""""│ Jobs                          [j]
+01|""""""""""""""""""""""""""""""""""""""""""""│ 9 open · 7 claimed · 12 blocked
+02|""""""""""""""""""""""""""""""""""""""""""""│ /filter: [ ____________________ ]
+03|""""""""↑"""""""""""↑"""""""""""""""""""""""│ [S-l] labor: all
+04|""""""""↑"""""""""""""""""""""""""""""""""""│ [S-s] state: all
+05|""""""""""""""""""""""""""""""""""""""""""""│ Blocked: 9 missing items, 3 no pa
+06|""""""""""""""""""""""""""""""""""""""""""""│ Pri Job              Who / reason
+07|""""""""""""""""""""""""""""""""""""""""""""│  5  carve stairs (12 no path
+08|""""""""""""""""""""""""""""""""""↑╥≡╥""""""│  5  carve stairs (12 no path
+09|"""""""""""""""""""""""""""""""""""≡┼≡""""""│  5  carve stairs (12 no path
+10|""""""""""""""""""""""""""↑""""""""╥≡╥""""""│  5  carve stairs (12 Thurid Ashsp
+11|""""""""""""""""""""""""↑"""""""""""""""""""│  5  chop (7,46,z32)  Kolfinna Sha
+12|""""""""""""""""""""""""""""""""""""""""""""│  5  plant (28,33,z32 Vidar Elkaxe
+13|""""""""""""""""""""""""""""""""""""""""""""│  5  plant (29,33,z32 waiting: 1 t
+14|""""""""""""""""""""""""""""""""""""""""""""│  5  plant (30,33,z32 waiting: 1 t
+15|""""""""""""""""""""""""""""""""""""""""""""│  5  plant (31,33,z32 waiting: 1 t
+16|""""☺"""""""""""""""""""""""""""""""""""""""│  5  plant (28,34,z32 waiting: 1 t
+17|""""""""""""""""""""""""""""""""""""""""""""│  5  plant (29,34,z32 waiting: 1 t
+18|""""""""""""""""""""""""""""""""""""""""""""│  5  plant (30,34,z32 waiting: 1 t
+19|""""""""""""""""""""""""""""""""""""""""""""│  5  plant (31,34,z32 waiting: 1 t
+20|""""""☺""""""""""""""""↑""""""""""""""""""""│  5  plant (28,35,z32 waiting: 1 t
+21|"""""""↑"""""""""""""""""""""""""""↑""""""""│  5  plant (29,35,z32 waiting: 1 t
+22|"○═○""""""""""""""""""""""""""""""""""""""""│  5  Build carpenter' Frode Bronze
+23|d═☺═d"""""""""""""""""""""""""""""""""""""""│  7  Haul barrel      Vali Forgeax
+24|c○═○"""""""""""""""↑"""""""""""""""""""""""↑│  7  Haul pick        -
+25|""""""""""""""""""↑"""""""""""""""""""""""""│  7  Haul crossbow    -
+26|""""""""""""""""""""""""""""""""""""""""""""│  7  Haul quiver      -
+27|""""""""↑""↑""""""""""""""""""""""""""""""""│  7  Haul barrel      Kolfinna Bri
+28|""""""""""""""""""↑"""""""""""""""""""""""""│  7  Haul barrel      -
+29|"""""""""""""""""""""""""""""""""""""""""""↑│  7  Haul barrel      -
+30|""""""""""""""""""""""""""""""""""""""""""""│  7  Haul barrel      -
+31|""""""""""""""""""""""""↑"""""""""""""""""""│  7  Haul bag         Torunn Storm
+32|"""""""""↑""""""""""""""""""""""""""""""""""│  7  Haul bag         -
+33|""↑"""""""""""""""""""""""""""""""""""""""""│  7  Haul bag         -
+34|""""""""""""""""""""""""""""""""""""""""""""│  7  Haul bag         -
+35|""""""""""""""""""""""""""""""""""""""""""""│
+36|""""""""""""""""""""""""""""""""""""""""""""│ No path: blocked by water, a
+37|""""""""""""""""""""""""""""""""""""""""""""│ locked door or undug rock.
+38|""""""""""""""""""""""""""""""""""""""""""""│ ─────────────────────────────────
+39|""""""""""""""""""""""""""""""""""""""""""""│ [Enter] center  [S-p] priority
+40|"""""""""↑"""""↑""""""""""""""""""""""""""""│ [x] cancel  [o] standing orders
+41|"""""""""""""↑""""""""""""""""""""""""""""""│ ─── Labor priorities (1-9) ──────
+42|""""""""""""""""""""""""""""""""""""""""""""│ All labors at priority 5: change
+43|""""""""""""""""""""""""""""""""""""""""""""│ them in the labor manager ([l],
+44|""""""""""""""""""""""""""""""""""""""""""""│ Enter).
+45| ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side
+46| A farm plot has no turnip seeds.
+47| ! Refused: Door needs walls on two opposite sides
+48| Day 1 of Spring, Year 1   ☼ clear -4°C   ☺ 7   ♥ Fine   z 32   ║      [?] help
+49| Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»
+----- log strip rows -----
+ ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side
+ A farm plot has no turnip seeds.
+ ! Refused: Door needs walls on two opposite sides
+----- status rows -----
+ Day 1 of Spring, Year 1   ☼ clear -4°C   ☺ 7   ♥ Fine   z 32   ║      [?] help
+ Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»

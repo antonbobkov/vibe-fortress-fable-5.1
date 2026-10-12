@@ -1,0 +1,64 @@
+# flow: 1-mouse-only   step: 121-game-menu-rename-click
+# what: Game menu: clicked "Rename fortress"
+# input: (game menu text "Resume" present on screen) ; (game menu text "Save" present on screen) ; (game menu text "Settings" present on screen) ; (game menu text "Rename fortress" present on screen) ; left-click cell(col 35, row 26) px(568,424) [text "Rename fortress"]
+# tick: 472   paused: yes   screen: text_input   panel: null   viewport: 1280x800   grid: 80x50
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|
+01|
+02|
+03|
+04|
+05|
+06|
+07|
+08|
+09|
+10|
+11|
+12|
+13|
+14|
+15|
+16|
+17|
+18|
+19|
+20|
+21|
+22|                       Rename Grimvault
+23|
+24|                       [ Grimvault____________________ ]
+25|                       9/32
+26|                       [Enter] accept  [Esc] cancel
+27|
+28|
+29|
+30|
+31|
+32|
+33|
+34|
+35|
+36|
+37|
+38|
+39|
+40|
+41|
+42|
+43|
+44|
+45|
+46|
+47|
+48|
+49|
+----- log strip rows -----
+
+
+
+----- status rows -----
+
+

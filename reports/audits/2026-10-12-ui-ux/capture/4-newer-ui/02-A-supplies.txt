@@ -1,0 +1,64 @@
+# flow: 4-newer-ui   step: 02-A-supplies
+# what: Key 2: Supplies tab
+# input: key 2
+# tick: null   paused: n/a   screen: embark   panel: null   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,0,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00| Embark at Bitterbrae           [1] Dwarves   [2] Supplies   [3] Animals    [p]
+01|────────────────────────────────────────────────────────────────────────────────
+02| /filter: [ __________ ]  Tools │ Food │ Drink │ Seeds │ Materials │ Furniture
+03| ► Iron anvil                270 ☼  [-]  0 [+]
+04|   Copper axe                 96 ☼  [-]  0 [+]
+05|   Iron axe                  144 ☼  [-]  1 [+]  =  144
+06|   25 copper bolts            60 ☼  [-]  1 [+]  =   60
+07|   25 iron bolts              90 ☼  [-]  0 [+]
+08|   Bucket                      5 ☼  [-]  2 [+]  =   10
+09|   Leather cap                22 ☼  [-]  0 [+]
+10|   Crossbow                   36 ☼  [-]  1 [+]  =   36
+11|   Crutch                      8 ☼  [-]  0 [+]
+12|   Iron helm                 108 ☼  [-]  0 [+]
+13|   Leather jerkin             44 ☼  [-]  0 [+]
+14|   Iron mace                 126 ☼  [-]  0 [+]
+15|   Iron mail shirt           270 ☼  [-]  0 [+]
+16|   Copper pick                72 ☼  [-]  0 [+]
+17|   Iron pick                 108 ☼  [-]  2 [+]  =  216
+18|   Quiver                     22 ☼  [-]  1 [+]  =   22
+19|   Wooden shield              22 ☼  [-]  0 [+]
+20|   Iron short sword          144 ☼  [-]  0 [+]
+21|   Iron spear                108 ☼  [-]  0 [+]
+22|   4 splints                  10 ☼  [-]  1 [+]  =   10
+23|
+24|
+25|
+26|
+27|
+28|
+29|
+30|
+31|
+32|
+33|
+34|
+35|
+36|
+37|
+38|
+39|
+40|
+41|
+42|
+43|
+44| Hint: two picks and one axe are the minimum for a working start.
+45|
+46|────────────────────────────────────────────────────────────────────────────────
+47| Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,480   Left 20
+48| [Enter] Embark                                                     [Esc] Back
+49|
+----- log strip rows -----
+
+────────────────────────────────────────────────────────────────────────────────
+ Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,480   Left 20
+----- status rows -----
+ [Enter] Embark                                                     [Esc] Back
+

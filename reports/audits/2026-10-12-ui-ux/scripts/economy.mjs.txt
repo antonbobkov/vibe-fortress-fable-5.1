@@ -1,0 +1,167 @@
+// A UI-driven opening economy ported from test/e2e/full-year.spec.ts (no squad, no alert, no door, no weapons).
+import { waitText, stepBy, closePanels } from './common.mjs';
+
+export async function generateWorldKeys(r, seed) {
+  await r.goto('/');
+  await r.key('n');
+  for (let k = 0; k < 40; k += 1) await r.key('Backspace');
+  await r.typeText(seed);
+  await r.key('Enter');
+  await r.key('g');
+  await waitText(r, 'Stage: names', 40000);
+  await r.wait(600);
+  await r.key('Enter');
+}
+
+export async function embarkAtRegion(r) {
+  const target = await r.page.evaluate(() => {
+    const w = window.__deepholm.readers.world;
+    const regions = w.regions();
+    const sv = regions.find((x) => x.traits.includes('serene_vale'));
+    const pick = sv ?? regions.find((x) => x.peril === 0 && x.temper === 0 && x.biome !== 'ocean' && x.biome !== 'glacier') ?? regions.find((x) => x.peril === 0 && x.biome !== 'ocean' && x.biome !== 'glacier');
+    return { id: pick.id, name: pick.name, biome: pick.biome, peril: pick.peril, temper: pick.temper, wealth: pick.wealth, traits: pick.traits, size: w.size() };
+  });
+  const start = Math.floor(target.size / 2);
+  const walk = async (delta, plus, minus) => {
+    const k = delta > 0 ? plus : minus;
+    let left = Math.abs(delta);
+    while (left >= 8) { await r.key(`Shift+${k}`); left -= 8; }
+    for (; left > 0; left -= 1) await r.key(k);
+  };
+  await walk((target.id % target.size) - start, 'ArrowRight', 'ArrowLeft');
+  await walk(Math.floor(target.id / target.size) - start, 'ArrowDown', 'ArrowUp');
+  return target;
+}
+
+export async function siteFor(r) {
+  return r.page.evaluate(() => {
+    const h = window.__deepholm;
+    const map = h.readers.map; const bR = h.readers.buildings;
+    const wagon = bR.get(bR.wagon());
+    const wx = wagon.origin % map.w; const wy = Math.floor(wagon.origin / map.w) % map.h; const wz = Math.floor(wagon.origin / (map.w * map.h));
+    let sx = wx + 4; let sy = wy - 1;
+    outer: for (let dy = -2; dy <= 5; dy += 1) for (let dx = 2; dx <= 6; dx += 1) {
+      const px = wx + dx; const py = wy + dy;
+      if (px >= wx && px <= wx + 2 && py >= wy && py <= wy + 2) continue;
+      if (px >= wx + 3 && px <= wx + 6 && py >= wy + 2 && py <= wy + 5) continue;
+      if (px >= wx + 2 && px <= wx + 9 && py >= wy - 5 && py <= wy - 3) continue;
+      const idx = map.index(px, py, wz);
+      if (map.kindAt(idx) === 2 && bR.zoneAt(idx) === 0) { sx = px; sy = py; break outer; }
+    }
+    const trees = [];
+    for (let dy = -12; dy <= 12; dy += 1) for (let dx = 1; dx <= 30; dx += 1) {
+      const px = wx + dx; const py = wy + dy;
+      if (px >= 0 && px < map.w && py >= 0 && py < map.h && map.kindAt(map.index(px, py, wz)) === 8) trees.push({ x: px, y: py });
+    }
+    trees.sort((a, b) => (a.x - wx) ** 2 + (a.y - wy) ** 2 - ((b.x - wx) ** 2 + (b.y - wy) ** 2));
+    const patches = [];
+    const used = (px, py) => { if (px <= 14 && py >= 42 && py <= 56) return true; for (const p of patches) if (Math.abs(p.x - px) < 4 && Math.abs(p.y - py) < 4) return true; return false; };
+    const u = h.readers.ui;
+    for (let y = u.camY + 2; y <= u.camY + 36 && patches.length < 8; y += 1) for (let x = u.camX + 2; x <= u.camX + 38 && patches.length < 8; x += 1) {
+      if (used(x, y)) continue;
+      let ok = true;
+      for (let dy = 0; dy < 3 && ok; dy += 1) for (let dx = 0; dx < 3 && ok; dx += 1) { const idx = map.index(x + dx, y + dy, wz); if (map.kindAt(idx) !== 2 || bR.zoneAt(idx) !== 0) ok = false; }
+      if (ok) patches.push({ x, y });
+    }
+    return { wx, wy, wz, sx, sy, trees, patches, cam: { x: u.camX, y: u.camY, z: u.z } };
+  });
+}
+
+/** Opening economy by the real UI (mouse and keys), paused; one snap per block. */
+export async function openingEconomy(r, site, snapPrefix = 'E') {
+  const log = (m) => console.log(`[economy] ${m}`);
+  const closeAll = () => closePanels(r);
+  const placeBuilding = async (cat, name, x, y) => {
+    await r.key('b');
+    await r.key(cat);
+    await r.clickText(name);
+    await r.clickTile(x, y, name);
+    await closeAll();
+  };
+  const addOrder = async (filter, hint, mode, target) => {
+    await r.key('o');
+    await r.key('Shift+N');
+    await r.typeText(filter);
+    for (let k = 0; k < 10; k += 1) {
+      const rows = await r.text();
+      if (rows.some((x) => x.toLowerCase().includes(`any ${hint.toLowerCase()}`))) break;
+      await r.key('ArrowDown');
+    }
+    if (mode === 'maintain') { await r.key('Tab'); await r.key('Tab'); await r.key('ArrowRight'); }
+    await r.typeText(String(target));
+    await r.key('Enter');
+    await closeAll();
+  };
+  const cropPlot = async (tx, ty, seasons, crop) => {
+    await r.key('z');
+    await r.key('Shift+F');
+    await r.dragTiles({ x: tx, y: ty }, { x: tx + 3, y: ty + 2 });
+    await r.key('Escape');
+    await stepBy(r, 1);
+    await r.clickTile(tx, ty, 'farm plot');
+    for (const season of seasons) {
+      await r.clickInRow(season + '  [', '[ ');
+      await r.clickText('  ' + crop);
+    }
+    await closeAll();
+  };
+  const { wx, wy, sx, sy } = site;
+  const P = site.patches;
+  // stockpile
+  await r.key('z'); await r.key('Shift+S');
+  await r.dragTiles({ x: wx + 3, y: wy + 2 }, { x: wx + 6, y: wy + 5 });
+  await r.key('Escape'); await stepBy(r, 1);
+  await r.clickTile(wx + 3, wy + 2, 'stockpile');
+  await r.key('Shift+P');
+  await r.clickText('Everything');
+  await closeAll();
+  await r.snap(`${snapPrefix}1-stockpile`, 'Opening economy: a stockpile with the "Everything" preset near the wagon');
+  await cropPlot(wx + 2, wy - 5, ['Spring', 'Summer', 'Autumn'], 'turnip');
+  await cropPlot(wx + 6, wy - 5, ['Spring', 'Summer'], 'barley');
+  await r.snap(`${snapPrefix}2-farms`, 'Opening economy: two surface farm plots with turnip and barley');
+  // entrance stairwell and cave rooms
+  await r.key('d'); await r.key('w');
+  await r.clickTile(sx, sy, 'stairwell top');
+  for (let i = 0; i < 6; i += 1) await r.key('<');
+  await r.clickTile(sx, sy, 'stairwell bottom');
+  await closeAll();
+  for (let i = 0; i < 6; i += 1) await r.key('>');
+  for (let i = 0; i < 2; i += 1) await r.key('<');
+  await r.key('d');
+  await r.dragTiles({ x: sx + 1, y: sy }, { x: sx + 8, y: sy + 3 });
+  await closeAll();
+  await r.key('<'); await r.key('d');
+  await r.dragTiles({ x: sx + 1, y: sy }, { x: sx + 5, y: sy + 4 });
+  await closeAll();
+  for (let i = 0; i < 3; i += 1) await r.key('>');
+  await r.snap(`${snapPrefix}3-dig`, 'Opening economy: an entrance stairwell and two rooms designated below');
+  // cave farm
+  for (let i = 0; i < 2; i += 1) await r.key('<');
+  await cropPlot(sx + 1, sy, ['Spring', 'Summer', 'Autumn', 'Winter'], 'dimcap');
+  for (let i = 0; i < 2; i += 1) await r.key('>');
+  // trees
+  await r.key('d'); await r.key('Shift+T');
+  for (const t of site.trees.slice(0, 10)) await r.dragTiles({ x: t.x, y: t.y }, { x: t.x, y: t.y });
+  await closeAll();
+  // workshops
+  await placeBuilding('w', "Carpenter's workshop", P[0].x + 1, P[0].y + 1);
+  await placeBuilding('w', "Mason's workshop", P[1].x + 1, P[1].y + 1);
+  await placeBuilding('w', 'Still', P[2].x + 1, P[2].y + 1);
+  await addOrder('barrel', 'carpenter', 'maintain', 20);
+  await addOrder('blocks', 'mason', 'once', 4);
+  await addOrder('brewdrink', 'still', 'maintain', 100);
+  await r.snap(`${snapPrefix}4-workshops-orders`, 'Opening economy: carpenter, mason and still placed; orders barrel (maintain 20), blocks (4) and brewdrink (maintain 100)');
+  await stepBy(r, 1200 * 3 - 600);
+  // hearth, kitchen, rooms
+  await r.key('b'); await r.key('Shift+S'); await r.clickText('Hearth'); await r.clickTile(P[3].x, P[3].y, 'hearth'); await closeAll();
+  await placeBuilding('w', 'Kitchen', P[4].x + 1, P[4].y + 1);
+  await addOrder('easymeal', 'kitchen', 'maintain', 60);
+  await r.key('z'); await r.key('Shift+M');
+  await r.dragTiles({ x: P[6].x, y: P[6].y }, { x: P[6].x + 2, y: P[6].y + 2 });
+  await closeAll();
+  await r.key('z'); await r.key('Shift+B');
+  await r.dragTiles({ x: P[7].x, y: P[7].y }, { x: P[7].x + 2, y: P[7].y + 2 });
+  await closeAll();
+  await r.snap(`${snapPrefix}5-hearth-kitchen-rooms`, 'Opening economy: hearth, kitchen with an easy-meal order, a meeting area and a bedroom zone. No squad, no alert, no door and no weapon work were set up.');
+  log('economy done');
+}

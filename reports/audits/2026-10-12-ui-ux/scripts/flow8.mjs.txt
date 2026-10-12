@@ -1,0 +1,59 @@
+// Flow 8: the magma kiln.
+import { launch, Recorder, findSite, stepBy, closePanels, embarkBitterbrae } from './common.mjs';
+const s = await launch();
+const r = new Recorder('8-magma-kiln', s);
+await embarkBitterbrae(r);
+await r.snap('A-start', 'Default embark at region 2339 of seed deep-3588-1, fortress paused at tick 400');
+await r.key('b');
+await r.snap('B-build-panel', 'Key b: Build panel (categories)');
+const cats = [['Shift+C', 'construct'], ['Shift+F', 'furniture'], ['w', 'workshops'], ['Shift+M', 'mechanism'], ['Shift+T', 'traps'], ['Shift+S', 'special']];
+const kilnRows = [];
+for (const [k, nm] of cats) {
+  await r.key(k);
+  const rows = await r.text();
+  const hits = rows.map((x, i) => [i, x]).filter(([, x]) => /kiln/i.test(x)).map(([i, x]) => `row ${i}: ${x.trim()}`);
+  kilnRows.push([nm, hits]);
+  await r.snap(`B-category-${nm}`, `Build > ${nm}: the list (rows containing "kiln": ${hits.length ? hits.join(' | ') : 'none'})`);
+}
+// the workshops list in full: next page of rows if the list scrolls
+await r.key('w');
+for (let i = 0; i < 8; i += 1) await r.key('ArrowDown');
+await r.snap('B-workshops-down8', 'Workshops list: ArrowDown x8 (the list in full; the highlighted row is the tool)');
+for (let i = 0; i < 14; i += 1) await r.key('ArrowDown');
+await r.snap('B-workshops-down22', 'Workshops list: ArrowDown x14 more (end of list)');
+await closePanels(r);
+// can the building be placed anywhere at all? ask the hook's ghost reader (setup read, not an input)
+const scan = await r.page.evaluate(() => {
+  const h = window.__deepholm; const b = h.readers.buildings; const m = h.readers.map;
+  const reasons = {}; let found = null;
+  for (let z = 0; z < m.d; z += 1) for (let y = 1; y < m.h - 3; y += 2) for (let x = 1; x < m.w - 3; x += 2) {
+    const g = b.ghost('magma_kiln', m.index(x, y, z), 0); const k = String(g.reason); reasons[k] = (reasons[k] ?? 0) + 1;
+    if (g.reason === null && found === null) found = { x, y, z };
+  }
+  const inRegistry = h.host.headless.registry.table('buildings').index('magma_kiln');
+  return { reasons, found, buildingIndex: inRegistry, typesListed: [].concat(b.types?.() ?? []).filter((t) => /kiln/.test(typeof t === 'string' ? t : t.id)).length };
+});
+r.log(`(setup read: ghost reader for magma_kiln over every other tile of every level: ${JSON.stringify(scan)})`);
+await r.snap('C-ghost-scan', `Setup read through the hook's ghost reader (not shown to a player): ${JSON.stringify(scan)}`);
+const made = await r.page.evaluate(() => {
+  const h = window.__deepholm; const w = h.host.world; const registry = h.host.headless.registry;
+  const granite = registry.table('materials').index('granite');
+  const placed = w.applyCommand({ type: 'PlaceBuilding', buildingType: 'magma_kiln', origin: h.readers.map.index(10, 40, h.readers.ui.z), orientation: 0, materialChoice: 'granite' });
+  return { ok: placed.ok, reason: placed.reason ?? null };
+});
+r.log(`hook setup: PlaceBuilding magma_kiln on open ground: ${JSON.stringify(made)}`);
+await r.snap('C-hook-place-open-ground', `The hook's PlaceBuilding for a magma kiln on open ground: ${JSON.stringify(made)}`);
+// recipes: the order picker
+await r.key('o');
+await r.key('Shift+N');
+for (const f of ['kiln', 'glass', 'ceramic', 'brick', 'pottery']) {
+  for (let i = 0; i < 12; i += 1) await r.key('Backspace');
+  await r.typeText(f);
+  await r.snap(`D-picker-filter-${f}`, `Add order filter "${f}"`);
+}
+await r.key('Escape');
+await closePanels(r);
+await r.key('?');
+await r.snap('E-help', 'Help panel first page (any mention of the kiln: see the dump)');
+await closePanels(r);
+await r.close();

@@ -1,0 +1,310 @@
+// T-116 capture library (scratch, not a project test). Drives the real game through Playwright and
+// records, per step: screenshot, cell-buffer dump, inputs, tick, paused, status/log rows, console.
+import { chromium } from '@playwright/test';
+import { rmSync, mkdirSync, writeFileSync, readFileSync, existsSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { join, resolve } from 'node:path';
+
+export const ROOT = resolve(import.meta.dirname, '..');
+export const OUT = join(ROOT, 'reports', 'audits', '2026-10-12-ui-ux');
+export const BASE = 'http://127.0.0.1:5311';
+
+const pad2 = (n) => String(n).padStart(2, '0');
+
+export async function launch(opts = {}) {
+  const width = opts.width ?? 1280;
+  const height = opts.height ?? 800;
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, acceptDownloads: true, ...(opts.context ?? {}) });
+  await context.addInitScript(() => { let a = 0x9e3779b9; Math.random = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; });
+  const page = await context.newPage();
+  const consoleLog = [];
+  page.on('console', (m) => {
+    if (m.type() === 'error' || m.type() === 'warning') consoleLog.push(`[console.${m.type()}] ${m.text()}`);
+  });
+  page.on('pageerror', (e) => consoleLog.push(`[pageerror] ${e.message}`));
+  page.on('requestfailed', (r) => consoleLog.push(`[requestfailed] ${r.url()}`));
+  return { browser, context, page, consoleLog };
+}
+
+export class Recorder {
+  constructor(flow, session) {
+    this.flow = flow;
+    this.page = session.page;
+    this.browser = session.browser;
+    this.context = session.context;
+    this.consoleLog = session.consoleLog;
+    this.consoleSeen = 0;
+    this.dir = join(OUT, 'capture', flow);
+    if (session.append !== true) rmSync(this.dir, { recursive: true, force: true });
+    mkdirSync(this.dir, { recursive: true });
+    this.steps = [];
+    this.n = 0;
+    this.pending = [];
+    this.lastHash = null;
+    this.lastPng = null;
+    this.settle = 120;
+    this.tally = { keys: 0, typedChars: 0, clicks: 0, drags: 0, wheels: 0, hovers: 0 };
+    this.counts = {};
+    const stepsFile = join(this.dir, 'steps.json');
+    // continue numbering if this flow was started in an earlier run
+    if (existsSync(stepsFile) && session.append === true) {
+      this.steps = JSON.parse(readFileSync(stepsFile, 'utf8'));
+      this.n = this.steps.length;
+    }
+  }
+
+  // ---------- state ----------
+  async state() {
+    return this.page.evaluate(() => {
+      const h = window.__deepholm;
+      if (!h) return { hook: false };
+      let tick = null, speed = null, started = false;
+      try { tick = h.readers.calendar.tick; speed = h.host.speed(); started = h.host.started; } catch { /* no world */ }
+      const c = h.cells();
+      return { hook: true, screen: h.screen(), panel: h.readers.ui.panel ?? null, tick, speed, cols: c.cols, rows: c.rows, started, cursor: h.readers.ui.cursor ?? null, cam: [h.readers.ui.camX, h.readers.ui.camY, h.readers.ui.z] };
+    });
+  }
+  async text() { return this.page.evaluate(() => window.__deepholm.text()); }
+  async evalH(fn, arg) {
+    return this.page.evaluate(({ src, arg }) => {
+      const h = window.__deepholm;
+      // eslint-disable-next-line no-new-func
+      return new Function('h', 'arg', `return (${src})(h, arg);`)(h, arg);
+    }, { src: fn.toString(), arg });
+  }
+  async wait(ms = this.settle) { await this.page.waitForTimeout(ms); }
+
+  // ---------- logged inputs ----------
+  log(s) { this.pending.push(s); }
+  async key(k, label) {
+    this.tally.keys += 1;
+    this.log(`key ${label ?? k}`);
+    await this.page.keyboard.press(k);
+    await this.wait(60);
+  }
+  async keys(list) { for (const k of list) await this.key(k); }
+  async typeText(t, label) {
+    this.tally.typedChars += [...t].length;
+    this.log(`type ${JSON.stringify(label ?? t)}`);
+    await this.page.keyboard.type(t);
+    await this.wait(60);
+  }
+  async cellPx(col, row) {
+    const c = await this.page.evaluate(([a, b]) => window.__deepholm.cellCenter(a, b), [col, row]);
+    const box = await this.page.locator('canvas#screen').boundingBox();
+    return { x: box.x + c.x, y: box.y + c.y };
+  }
+  async clickCell(col, row, why = '', opts = {}) {
+    if (col < 0 || row < 0 || col >= 80 * 8 || row >= 50 * 8) throw new Error(`cell out of range ${col},${row}`);
+    { const st = await this.state(); if (col < 0 || row < 0 || col >= st.cols || row >= st.rows) throw new Error(`cell outside the screen ${col},${row} (${why})`); }
+    const p = await this.cellPx(col, row);
+    this.log(`${opts.button === 'right' ? 'right-click' : 'left-click'} cell(col ${col}, row ${row}) px(${Math.round(p.x)},${Math.round(p.y)})${why ? ' [' + why + ']' : ''}`);
+    this.tally.clicks += 1;
+    await this.page.mouse.click(p.x, p.y, opts);
+    await this.wait(60);
+  }
+  async hoverCell(col, row, why = '') {
+    const p = await this.cellPx(col, row);
+    this.log(`hover cell(col ${col}, row ${row}) px(${Math.round(p.x)},${Math.round(p.y)})${why ? ' [' + why + ']' : ''}`);
+    this.tally.hovers += 1;
+    await this.page.mouse.move(p.x, p.y);
+    await this.wait(60);
+  }
+  async findText(needle, nth = 0) {
+    const rows = await this.text();
+    let seen = 0;
+    for (let r = 0; r < rows.length; r += 1) {
+      let from = 0;
+      for (;;) {
+        const c = rows[r].indexOf(needle, from);
+        if (c < 0) break;
+        if (seen === nth) return { col: c, row: r };
+        seen += 1;
+        from = c + 1;
+      }
+    }
+    return null;
+  }
+  async clickText(needle, { offset = 1, nth = 0, button = 'left' } = {}) {
+    const f = await this.findText(needle, nth);
+    if (!f) { this.log(`click-text ${JSON.stringify(needle)} NOT FOUND on screen`); return false; }
+    await this.clickCell(f.col + offset, f.row, `text "${needle}"`, { button });
+    return true;
+  }
+  /** Click the token inside the screen row that contains rowNeedle (e.g. the [+] of "Priority"). */
+  async clickInRow(rowNeedle, token, { nth = 0, last = false, offset = 1, button = 'left' } = {}) {
+    const rows = await this.text();
+    let seen = 0;
+    for (let rIdx = 0; rIdx < rows.length; rIdx += 1) {
+      if (!rows[rIdx].includes(rowNeedle)) continue;
+      if (seen < nth) { seen += 1; continue; }
+      const c = last ? rows[rIdx].lastIndexOf(token) : rows[rIdx].indexOf(rows[rIdx].indexOf(rowNeedle) >= 0 ? token : token, rows[rIdx].indexOf(rowNeedle));
+      if (c < 0) break;
+      await this.clickCell(c + offset, rIdx, `token "${token}" in the row containing "${rowNeedle}"`, { button });
+      return true;
+    }
+    this.log(`click "${token}" in row "${rowNeedle}" NOT FOUND`);
+    return false;
+  }
+  async hoverText(needle, offset = 1) {
+    const f = await this.findText(needle);
+    if (!f) { this.log(`hover-text ${JSON.stringify(needle)} NOT FOUND`); return false; }
+    await this.hoverCell(f.col + offset, f.row, `text "${needle}"`);
+    return true;
+  }
+  // map tile -> cell
+  async tileCell(x, y) {
+    const u = await this.page.evaluate(() => { const u = window.__deepholm.readers.ui; return { camX: u.camX, camY: u.camY, z: u.z }; });
+    return { col: x - u.camX, row: y - u.camY, z: u.z };
+  }
+  async clickTile(x, y, why = '', opts = {}) {
+    const c = await this.tileCell(x, y);
+    await this.clickCell(c.col, c.row, `tile ${x},${y}${why ? ' ' + why : ''}`, opts);
+  }
+  async dragCells(a, b, why = '', steps = 6) {
+    const pa = await this.cellPx(a.col, a.row);
+    const pb = await this.cellPx(b.col, b.row);
+    this.log(`left-drag cell(${a.col},${a.row}) -> cell(${b.col},${b.row}) px(${Math.round(pa.x)},${Math.round(pa.y)})->(${Math.round(pb.x)},${Math.round(pb.y)})${why ? ' [' + why + ']' : ''}`);
+    this.tally.drags += 1;
+    await this.page.mouse.move(pa.x, pa.y);
+    await this.page.mouse.down();
+    await this.page.mouse.move(pb.x, pb.y, { steps });
+    await this.page.mouse.up();
+    await this.wait(60);
+  }
+  async dragTiles(a, b, why = '') {
+    const ca = await this.tileCell(a.x, a.y);
+    const cb = await this.tileCell(b.x, b.y);
+    await this.dragCells(ca, cb, `tiles ${a.x},${a.y} -> ${b.x},${b.y}${why ? ' ' + why : ''}`);
+  }
+  async wheel(dy, why = '') {
+    this.tally.wheels += 1;
+    this.log(`wheel ${dy > 0 ? 'down' : 'up'} 1 notch${why ? ' [' + why + ']' : ''}`);
+    await this.page.mouse.wheel(0, dy);
+    await this.wait(80);
+  }
+  taskStart(name) { this.tally = { keys: 0, typedChars: 0, clicks: 0, drags: 0, wheels: 0, hovers: 0 }; this.taskName = name; }
+  taskEnd(extra = {}) {
+    this.counts[this.taskName] = { ...this.tally, ...extra };
+    writeFileSync(join(this.dir, 'counts.json'), JSON.stringify(this.counts, null, 1));
+    return this.counts[this.taskName];
+  }
+  async step(n) {
+    this.log(`hook step(${n})`);
+    await this.page.evaluate((k) => window.__deepholm.step(k), n);
+    await this.wait(40);
+  }
+  async submit(cmd, label) {
+    this.log(`hook submit ${label ?? JSON.stringify(cmd)}`);
+    await this.page.evaluate((c) => window.__deepholm.submit(c), cmd);
+    await this.wait(40);
+  }
+  async setSpeed(s) {
+    this.log(`hook setSpeed(${s})`);
+    await this.page.evaluate((k) => window.__deepholm.setSpeed(k), s);
+  }
+  async resize(w, h) {
+    this.log(`viewport resize ${w}x${h}`);
+    await this.page.setViewportSize({ width: w, height: h });
+    await this.wait(250);
+  }
+  async goto(url) {
+    this.log(`navigate ${url}`);
+    await this.page.goto(url.startsWith('http') ? url : BASE + url);
+    await this.page.waitForFunction(() => window.__deepholm !== undefined);
+    await this.wait(300);
+  }
+
+  // ---------- the snapshot ----------
+  /**
+   * Record one step. `what` says what was done; the inputs logged since the last snap are attached.
+   * opts.png === false: no screenshot for this step (text dump only). Unchanged screen: no PNG.
+   * opts.note: extra statement by the capturer.
+   */
+  async snap(slug, what, opts = {}) {
+    await this.wait(opts.settle ?? this.settle);
+    const st = await this.state();
+    const rows = await this.text();
+    const cells = await this.page.evaluate(() => window.__deepholm.cells());
+    const hash = createHash('md5').update(JSON.stringify([cells.cols, cells.rows, cells.glyph, cells.fg, cells.bg])).digest('hex');
+    this.n += 1;
+    const id = `${pad2(this.n)}-${slug}`;
+    const unchanged = this.lastHash === hash;
+    let png = null;
+    let pngNote = '';
+    if (opts.png === false) {
+      pngNote = 'no screenshot taken (text dump only)';
+    } else if (unchanged && !opts.forcePng) {
+      pngNote = `screen unchanged from step ${this.lastId}; no screenshot saved`;
+    } else {
+      png = `${id}.png`;
+      await this.page.screenshot({ path: join(this.dir, png), type: 'png' });
+      this.lastPng = png;
+    }
+    this.lastHash = hash;
+    this.lastId = id;
+    const newConsole = this.consoleLog.slice(this.consoleSeen);
+    this.consoleSeen = this.consoleLog.length;
+    const nrows = rows.length;
+    { const out = []; for (const e of this.pending) { const last = out[out.length - 1]; if (last && last.e === e && e.startsWith('key ')) last.n += 1; else out.push({ e, n: 1 }); } this.pending = out.map((o) => (o.n > 1 ? `${o.e} x${o.n}` : o.e)); }
+    const status = rows.slice(Math.max(0, nrows - 2)).map((r) => r.replace(/\s+$/, ''));
+    const logRows = rows.slice(Math.max(0, nrows - 5), Math.max(0, nrows - 2)).map((r) => r.replace(/\s+$/, ''));
+    const clean = (x) => x.replace(/\s+$/, '');
+    let shown = '';
+    if (st.screen === 'fortress') {
+      const sbCol = st.panel !== null && st.cols >= 36 ? st.cols - 36 : -1;
+      const head = sbCol >= 0 ? rows.slice(0, 4).map((x) => [...x].slice(sbCol + 2).join('').trim()).filter((x) => x.length) : [];
+      shown = `LOG: ${logRows.map((x) => x.trim()).filter((x) => x).join(' / ') || '(empty)'} || STATUS: ${status.map((x) => x.trim()).filter((x) => x).join(' / ')}${head.length ? ' || PANEL: ' + head.join(' / ') : ''}`;
+    } else {
+      shown = `SCREEN ${st.screen}: ` + rows.map((x) => (st.screen === 'world_map' ? [...x].slice(46).join('') : x)).map(clean).filter((x) => x.trim().length).slice(0, 8).map((x) => x.trim().replace(/\s{2,}/g, '  ')).join(' / ');
+    }
+    const txt = [
+      `# flow: ${this.flow}   step: ${id}`,
+      `# what: ${what}`,
+      `# input: ${this.pending.length ? this.pending.join(' ; ') : '(none)'}`,
+      `# tick: ${st.tick}   paused: ${st.speed === 0 ? 'yes' : st.speed === null ? 'n/a' : 'no (speed ' + st.speed + ')'}   screen: ${st.screen}   panel: ${st.panel}   viewport: ${(await this.page.viewportSize()).width}x${(await this.page.viewportSize()).height}   grid: ${st.cols}x${st.rows}   camera(x,y,z): ${st.cam ? st.cam.join(',') : 'n/a'}   look-cursor: ${st.cursor ? st.cursor.x + ',' + st.cursor.y : 'none'}`,
+      `# console since last step: ${newConsole.length ? newConsole.join(' | ') : 'none'}`,
+      `# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open`,
+      `----- cell buffer (row number, then text; trailing spaces trimmed) -----`,
+      ...rows.map((r, i) => `${pad2(i)}|${r.replace(/\s+$/, '')}`),
+      `----- log strip rows -----`,
+      ...logRows.map((r) => r),
+      `----- status rows -----`,
+      ...status,
+      '',
+    ].join('\n');
+    writeFileSync(join(this.dir, `${id}.txt`), txt);
+    const rec = {
+      n: this.n, id, slug, what, input: this.pending.slice(), tick: st.tick, speed: st.speed, paused: st.speed === 0,
+      screen: st.screen, panel: st.panel, png, pngNote, txt: `${id}.txt`, status, log: logRows, shown, viewport: await this.page.viewportSize(), grid: [st.cols, st.rows],
+      console: newConsole, note: opts.note ?? '',
+    };
+    this.steps.push(rec);
+    if (!process.env.QUIET) console.log(`${id} [${st.screen}/${st.panel}/t${st.tick}] ${rec.pngNote ? '(' + rec.pngNote.slice(0, 22) + ') ' : ''}:: ${status.join(' // ').replace(/\s+/g, ' ').slice(0, 170)}${newConsole.length ? ' !!CONSOLE ' + newConsole.join('|').slice(0, 200) : ''}`);
+    this.pending = [];
+    writeFileSync(join(this.dir, 'steps.json'), JSON.stringify(this.steps, null, 1));
+    return { rec, rows, st };
+  }
+
+  async close() {
+    writeFileSync(join(this.dir, 'steps.json'), JSON.stringify(this.steps, null, 1));
+    await this.browser.close();
+  }
+}
+
+export function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+export function dirSizeMB(dir) {
+  // quick recursive size
+  let total = 0;
+  const walk = (d) => {
+    for (const e of readdirSyncSafe(d)) {
+      const p = join(d, e.name);
+      if (e.isDirectory()) walk(p); else total += statSync(p).size;
+    }
+  };
+  walk(dir);
+  return total / 1048576;
+}
+import { readdirSync } from 'node:fs';
+function readdirSyncSafe(d) { try { return readdirSync(d, { withFileTypes: true }); } catch { return []; } }

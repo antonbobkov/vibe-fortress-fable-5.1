@@ -1,0 +1,15 @@
+# T-116 capture index (pass 1: capture only)
+
+Audit task: [`docs/work/T-116-audit-ui-ux.md`](../../../docs/work/T-116-audit-ui-ux.md). Commit examined: `569ae1f` (branch `t-116`). Captured on 2026-10-12 by an automated Playwright driver (Chromium, headless) against a test-mode dev server (`vite --mode test`, port 5311). This index records what was done and what the game showed. It contains no judgement, severity or recommendation.
+
+## Conventions
+
+- Window 1280x800 unless a step row says otherwise. At zoom 1 that is a grid of 80 columns by 50 rows (cells 16 px). The fortress screen puts the map on rows 0-44, the log strip on rows 45-47 (three announcement lines) and the two status rows on rows 48-49. An open panel takes the right 36 columns.
+- Every step has a screenshot (`.png`) and a cell-buffer dump (`.txt`). The dump header lists the exact keys and mouse actions of the step, the tick, whether the clock was paused (speed 0), the screen id, the open panel, the viewport and grid size, and console errors/warnings since the previous step. The grid follows as `NN|text` lines, then the log strip rows and the status rows. Cell colours are only in the screenshot.
+- "Keys / clicks" are verbatim: `key X` is a real keyboard press through the browser; `left-click cell(col C, row R) px(X,Y)` is a real mouse click at the centre of that cell; `hook step(n)` / `hook step to tick n` is a call to the test hook's `step`, used only to advance the clock (the clock is otherwise paused, as the fortress opens paused); `hook submit` is a call to the hook's command call.
+- `[KEY - reason]` after a key marks a point where a mouse-only run had to use the keyboard because no mouse way was found; the reason is what was tried.
+- "What the game showed" is taken from the buffer: for the fortress screen the three log-strip lines, the two status rows and (with a panel open) the first lines of the panel; for other screens the first non-blank lines of the screen (for the world map, the right-hand panel).
+- "screen unchanged from step N; no screenshot saved" means the cell buffer (glyphs and colours) was identical to the previous step. The dump file is still saved.
+- Tick numbers after a `Space` resume advance with real time while the clock runs (a few ticks per second at 1x).
+- Default random seeds are repeatable in this capture because `Math.random` is replaced by a fixed generator before the page loads (the game builds its default seed `deep-<n>-<k>` from `Math.random`). This changes nothing else in the game.
+- Console: warnings and errors (`console.error`, `console.warn`), uncaught exceptions (`pageerror`) and failed requests were collected for every step.

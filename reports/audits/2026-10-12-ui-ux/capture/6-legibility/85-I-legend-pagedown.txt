@@ -1,0 +1,64 @@
+# flow: 6-legibility   step: 85-I-legend-pagedown
+# what: Legend screen, PageDown
+# input: key PageDown
+# tick: 1600   paused: yes   screen: legend   panel: null   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,23,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|
+01|  Legend
+02|
+03|  Grimvault
+04|  Founded Spring, Year 1 at Bitterbrae (tundra, wealth 2, peril 0)
+05|  Retired in Year 1 with 7 dwarves.
+06|  Years 0 · Days 1 · Peak population 7 · Deepest level 0 · Wealth 1,677 ☼
+07|  Milestones
+08|  Notable
+09|  Last words (log)
+10|
+11|
+12|
+13|
+14|
+15|
+16|
+17|
+18|
+19|
+20|
+21|
+22|
+23|
+24|
+25|
+26|
+27|
+28|
+29|
+30|
+31|
+32|
+33|
+34|
+35|
+36|
+37|
+38|
+39|
+40|
+41|
+42|
+43|
+44|
+45|
+46|
+47|
+48|
+49|  [Esc] Back
+----- log strip rows -----
+
+
+
+----- status rows -----
+
+  [Esc] Back

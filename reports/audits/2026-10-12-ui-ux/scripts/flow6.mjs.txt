@@ -1,0 +1,208 @@
+// Flow 6: legibility.
+import { launch, Recorder, waitText, findSite, stepBy, embarkBitterbrae } from './common.mjs';
+import { loadFixture } from './flow3-load.mjs';
+
+async function toFortress(r) { for (let i = 0; i < 6; i += 1) { const st = await r.state(); if (st.screen === 'fortress' && st.panel === null) break; await r.key('Escape'); } }
+const mk = async (name) => { const s = await launch(); if (name.append) s.append = true; return s; };
+
+// ======== Session 1: palettes and window sizes on a fresh embark ========
+{
+  const s = await launch();
+  const r = new Recorder('6-legibility', s);
+  const T = async (name, fn) => { try { await fn(); } catch (e) { console.log(`!! ${name}: ${e.message}`); r.log(`(script error in ${name}: ${e.message})`); await r.snap(`error-${name}`, `Capture script error in ${name}: ${e.message}`); } };
+  await r.goto('/');
+  await r.snap('A-main-menu-default', 'Main menu, default palette');
+  await r.key('o');
+  await r.snap('A-settings', 'Key o: Settings (default values)');
+  await r.keys(['ArrowDown', 'ArrowDown', 'ArrowDown']);
+  await r.key('Enter');
+  await r.snap('A-colorblind-on', 'ArrowDown x3, Enter: Colorblind palette toggled');
+  await r.key('Escape');
+  await r.snap('A-main-menu-colorblind', 'Main menu, colorblind palette');
+  // embark with the colorblind palette first (world map, embark and fortress screens)
+  await embarkBitterbrae(r, { stopAtEmbark: true });
+  await r.snap('B-embark-colorblind', 'Embark screen, colorblind palette');
+  await r.key('Enter');
+  await r.wait(2500);
+  const site = await findSite(r, 0);
+  const P = site.patches;
+  await r.snap('B-fortress-colorblind', 'Fortress, colorblind palette, nothing open');
+  await T('cb-panels', async () => {
+    await r.key('z');
+    await r.key('Shift+S');
+    await r.dragTiles({ x: P[0].x, y: P[0].y }, { x: P[0].x + 3, y: P[0].y + 2 });
+    await r.clickCell(30, 40, 'cancel tool', { button: 'right' });
+    await r.key('Shift+F');
+    await r.dragTiles({ x: P[1].x, y: P[1].y }, { x: P[1].x + 3, y: P[1].y + 2 });
+    await r.clickCell(30, 40, 'cancel tool', { button: 'right' });
+    await r.key('Shift+B');
+    await r.dragTiles({ x: P[2].x, y: P[2].y }, { x: P[2].x + 2, y: P[2].y + 2 });
+    await r.clickCell(30, 40, 'cancel tool', { button: 'right' });
+    await r.key('d');
+    await r.key('Shift+T');
+    await r.dragTiles({ x: site.trees[0].x, y: site.trees[0].y }, { x: site.trees[2].x, y: site.trees[2].y });
+    await r.snap('B-zones-designations-colorblind', 'Zones (stockpile, farm plot, bedroom) and a Chop designation, colorblind palette');
+    await toFortress(r);
+    await r.key('u');
+    await r.snap('B-units-colorblind', 'Units panel, colorblind palette');
+    await r.key('m');
+    await r.snap('B-military-colorblind', 'Military panel, colorblind palette');
+    await r.key('f');
+    await r.snap('B-overlays-colorblind', 'Overlays panel, colorblind palette');
+    await toFortress(r);
+  });
+  // back to the default palette
+  await T('palette-default', async () => {
+    await r.key('Escape');
+    await r.key('o');
+    await r.keys(['ArrowDown', 'ArrowDown', 'ArrowDown']);
+    await r.key('Enter');
+    await r.snap('C-colorblind-off', 'Game menu > Settings: Colorblind palette toggled back to off');
+    await r.key('Escape');
+    await r.key('Escape');
+    await r.snap('C-fortress-default', 'Fortress, default palette, same site (zones and designation visible)');
+    await r.key('u');
+    await r.snap('C-units-default', 'Units panel, default palette');
+    await r.key('m');
+    await r.snap('C-military-default', 'Military panel, default palette');
+    await r.key('f');
+    await r.snap('C-overlays-default', 'Overlays panel, default palette');
+    await toFortress(r);
+  });
+  // window sizes
+  await T('sizes', async () => {
+    await toFortress(r);
+    for (const [w, h] of [[1280, 800], [1920, 1080], [2560, 1440], [3840, 2160], [1280, 800], [960, 540], [640, 360]]) {
+      await r.resize(w, h);
+      await r.snap(`E-${w}x${h}-fortress`, `Window ${w}x${h}: fortress, nothing open (grid size is in the dump header)`, { forcePng: true });
+      await r.key('s');
+      await r.snap(`E-${w}x${h}-stocks`, `Window ${w}x${h}: Stocks panel`);
+      await r.key('?');
+      await r.snap(`E-${w}x${h}-help`, `Window ${w}x${h}: Help panel`);
+      await r.key('Escape');
+      await r.key('Escape');
+      await r.snap(`E-${w}x${h}-game-menu`, `Window ${w}x${h}: game menu`);
+      await r.key('Escape');
+    }
+    await r.resize(1280, 800);
+    await r.snap('E-back-1280x800-fortress', 'Window back to 1280x800 after 640x360 (grid size is in the dump header)', { forcePng: true });
+  });
+  // long names
+  await T('names', async () => {
+    await toFortress(r);
+    await r.key('u');
+    await r.key('Shift+N');
+    await r.snap('F-rename-dwarf', 'Units panel, key Shift+N: rename the cursor dwarf (text input)');
+    for (let i = 0; i < 30; i += 1) await r.key('Backspace');
+    await r.typeText('Abcdefghij Klmnopqrst Uvwxyzab');
+    await r.snap('F-rename-30', 'Typed a 30-character name');
+    await r.key('Enter');
+    await r.snap('F-rename-30-enter', 'Key Enter with 30 characters (the spec limit is 24)');
+    if ((await r.state()).screen !== 'fortress') {
+      await r.key('Escape');
+    }
+    await r.key('Shift+N');
+    for (let i = 0; i < 30; i += 1) await r.key('Backspace');
+    await r.typeText('Abcdefghij Klmnopqrst Uvwx');
+    await r.key('Enter');
+    await r.snap('F-rename-26-enter', 'Typed 26 characters, Enter');
+    for (const [k, nm] of [['u', 'units'], ['l', 'labors'], ['e', 'mood'], ['m', 'military'], ['k', 'look'], ['j', 'jobs']]) {
+      await r.key(k);
+      await r.snap(`F-longname-${nm}`, `Panel ${nm} with the long-named dwarf`);
+    }
+    await r.key('u');
+    await r.key('Enter');
+    await r.snap('F-longname-look-from-units', 'Units, Enter: Look on the long-named dwarf');
+    await r.key('3');
+    await r.snap('F-longname-creature-tab', 'Look, Creatures tab with the long-named dwarf');
+    await toFortress(r);
+    await r.key('Escape');
+    await r.key('n');
+    for (let i = 0; i < 40; i += 1) await r.key('Backspace');
+    await r.typeText('A Fortress Name Of Thirty-Two Chars!!!!');
+    await r.snap('F-fortress-name-typed', 'Rename fortress: 39 characters typed (limit 32)');
+    await r.key('Enter');
+    await r.snap('F-fortress-name-enter', 'Key Enter: result');
+    await r.key('Escape');
+    await toFortress(r);
+  });
+  // help pages
+  await T('help', async () => {
+    await toFortress(r);
+    await r.key('?');
+    await r.snap('G-help-1', 'Help panel, first page');
+    for (let i = 2; i <= 8; i += 1) {
+      await r.key('PageDown');
+      await r.snap(`G-help-${i}`, `Help panel, PageDown (page ${i})`);
+    }
+    await toFortress(r);
+  });
+  // zoom setting
+  await T('zoom', async () => {
+    await r.key('Escape');
+    await r.key('o');
+    await r.keys(['ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown']);
+    await r.key('Enter');
+    await r.snap('D-zoom-next', 'Settings: Zoom row, Enter (next zoom value)');
+    await r.key('Enter');
+    await r.snap('D-zoom-next2', 'Settings: Zoom row, Enter again');
+    await r.key('Enter');
+    await r.snap('D-zoom-next3', 'Settings: Zoom row, Enter again');
+    await r.key('Escape');
+    await r.key('Escape');
+    await r.snap('D-fortress-zoom', 'Fortress after leaving Settings');
+  });
+  await r.close();
+}
+
+// ======== Session 2: a full announcement log ========
+{
+  const s = await launch();
+  s.append = true;
+  const r = new Recorder('6-legibility', s);
+  const T = async (name, fn) => { try { await fn(); } catch (e) { console.log(`!! ${name}: ${e.message}`); r.log(`(script error in ${name}: ${e.message})`); await r.snap(`error-${name}`, `Capture script error in ${name}: ${e.message}`); } };
+  await loadFixture(r, 'E:/code/vibe-games/vibe-fortress-t116/test/fixtures/reference-fortress.deepholm');
+  await r.page.evaluate(() => { const h = window.__deepholm; for (let i = 0; i < 24; i += 1) h.step(300); });
+  r.log('hook step 7200 ticks (setup: a long run of announcements in the 80-dwarf reference fortress)');
+  await r.snap('H-ref-after-7200', 'Reference fortress after 7200 ticks');
+  await T('log', async () => {
+    await r.key('Escape');
+    await r.key('a');
+    await r.snap('H-log-open', 'Key a: Log panel');
+    for (let i = 0; i < 6; i += 1) { await r.key('PageDown'); await r.snap(`H-log-pagedown-${i + 1}`, `Log panel, PageDown (${i + 1})`); }
+    for (let i = 0; i < 3; i += 1) { await r.key('PageUp'); }
+    await r.snap('H-log-pageup', 'Log panel, PageUp x3');
+    await r.key('Tab');
+    await r.snap('H-log-tab', 'Log panel, Tab (filter/tab)');
+    await r.key('/');
+    await r.snap('H-log-slash', 'Log panel, key /');
+    await r.key('Escape');
+    await r.key('Escape');
+  });
+  await r.close();
+}
+
+// ======== Session 3: retire fortress -> legend screen ========
+{
+  const s = await launch();
+  s.append = true;
+  const r = new Recorder('6-legibility', s);
+  await embarkBitterbrae(r);
+  await stepBy(r, 1200);
+  await r.snap('I-before-retire', 'A fortress at day 2 before retiring');
+  await r.key('Escape');
+  await r.key('x');
+  await r.snap('I-retire-confirm', 'Game menu > Retire fortress: confirmation');
+  await r.key('y');
+  await r.wait(800);
+  await r.snap('I-legend', 'Key y: the legend screen');
+  await r.key('PageDown');
+  await r.snap('I-legend-pagedown', 'Legend screen, PageDown');
+  await r.key('Escape');
+  await r.snap('I-legend-escape', 'Legend screen, Escape');
+  await r.key('g');
+  await r.snap('I-legends-from-menu', 'Main menu, key g: Legends list');
+  await r.key('Enter');
+  await r.snap('I-legends-enter', 'Legends list, Enter');
+  await r.close();
+}

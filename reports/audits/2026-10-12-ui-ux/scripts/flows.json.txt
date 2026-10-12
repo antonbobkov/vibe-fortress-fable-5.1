@@ -1,0 +1,11 @@
+[
+ {"dir":"1-mouse-only","title":"Flow 1: New player, mouse only, from the main menu"},
+ {"dir":"2-keyboard-only","title":"Flow 2: New player, keyboard only, from the main menu"},
+ {"dir":"3-mature-fortress","title":"Flow 3: A mature fortress (everyday tasks, with key and click counts)"},
+ {"dir":"4-newer-ui","title":"Flow 4: The newer UI (order picker, labor manager, building panel, drag-to-place, stockpile editor, room panel, tooltips, confirmations, Shift accelerators, filters, animals, rename, notices)"},
+ {"dir":"5-failure-paths","title":"Flow 5: Failure paths"},
+ {"dir":"6-legibility","title":"Flow 6: Legibility (palettes, window sizes, long names, full log, help, legend)"},
+ {"dir":"7-danger-guidance","title":"Flow 7: Guidance about danger over 70 days with no defensive preparation"},
+ {"dir":"8-magma-kiln","title":"Flow 8: The magma kiln"},
+ {"dir":"9-abuse","title":"Flow 9: The UI under abuse, and the UI-versus-hook hash comparison"}
+]

@@ -1,0 +1,362 @@
+[
+ {
+  "tick": 3504,
+  "day": 3,
+  "text": "! A fire has started."
+ },
+ {
+  "tick": 3504,
+  "day": 3,
+  "text": "The fire has burned out."
+ },
+ {
+  "tick": 3504,
+  "day": 3,
+  "text": "Halvar Cragspark is miserable."
+ },
+ {
+  "tick": 3504,
+  "day": 3,
+  "text": "Loam floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+ },
+ {
+  "tick": 4104,
+  "day": 4,
+  "text": "Rurik Oakpick is miserable."
+ },
+ {
+  "tick": 4904,
+  "day": 5,
+  "text": "Ragnhild Deepbrook is miserable."
+ },
+ {
+  "tick": 5604,
+  "day": 5,
+  "text": "Estrid Emberstone is miserable."
+ },
+ {
+  "tick": 6404,
+  "day": 6,
+  "text": "Ragnhild Deepbrook: \"The hearth is lit. This is home now.\""
+ },
+ {
+  "tick": 6404,
+  "day": 6,
+  "text": "Nori Bearhold: \"The hearth is lit. This is home now.\""
+ },
+ {
+  "tick": 6404,
+  "day": 6,
+  "text": "Sigrun Ashbrook: \"The hearth is lit. This is home now.\""
+ },
+ {
+  "tick": 7104,
+  "day": 6,
+  "text": "☼ A room needs walls or doors around it, a bed, and smooth stone to be worth s"
+ },
+ {
+  "tick": 8404,
+  "day": 8,
+  "text": "A deer has arrived. x2"
+ },
+ {
+  "tick": 8404,
+  "day": 8,
+  "text": "A lynx has arrived."
+ },
+ {
+  "tick": 9104,
+  "day": 8,
+  "text": "Stockpile #1 (Everything) is full."
+ },
+ {
+  "tick": 9504,
+  "day": 8,
+  "text": "Oskar Stonetongue has slain victim."
+ },
+ {
+  "tick": 9504,
+  "day": 8,
+  "text": "Oskar Stonetongue has brought down a ."
+ },
+ {
+  "tick": 9504,
+  "day": 8,
+  "text": "☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in"
+ },
+ {
+  "tick": 10404,
+  "day": 9,
+  "text": "A storm rolls in from the west."
+ },
+ {
+  "tick": 10604,
+  "day": 9,
+  "text": "! Oskar hits deer: 18 pierce."
+ },
+ {
+  "tick": 10604,
+  "day": 9,
+  "text": "Oskar hits deer: 18 pierce."
+ },
+ {
+  "tick": 11204,
+  "day": 10,
+  "text": "! A fire has started. x2"
+ },
+ {
+  "tick": 11204,
+  "day": 10,
+  "text": "The fire has burned out. x2"
+ },
+ {
+  "tick": 14404,
+  "day": 13,
+  "text": "A fox has arrived."
+ },
+ {
+  "tick": 16404,
+  "day": 14,
+  "text": "A fox has died."
+ },
+ {
+  "tick": 22804,
+  "day": 20,
+  "text": "☼ Winter comes in 60 days. Farms need soil or mud; cave crops grow in the dark"
+ },
+ {
+  "tick": 25504,
+  "day": 22,
+  "text": "☼ Harvest returns one seed. Brewing and cooking do not."
+ },
+ {
+  "tick": 26504,
+  "day": 23,
+  "text": "A farm plot has no turnip seeds."
+ },
+ {
+  "tick": 30004,
+  "day": 26,
+  "text": "A badger has arrived."
+ },
+ {
+  "tick": 31204,
+  "day": 27,
+  "text": "A boar has arrived. x2"
+ },
+ {
+  "tick": 33604,
+  "day": 29,
+  "text": "Summer, Year 1."
+ },
+ {
+  "tick": 33704,
+  "day": 29,
+  "text": "! 2 dwarves have come to join the hall."
+ },
+ {
+  "tick": 34804,
+  "day": 30,
+  "text": "A boar has arrived. x3"
+ },
+ {
+  "tick": 37604,
+  "day": 32,
+  "text": "! Oskar Stonetongue has no ammunition for the hunt."
+ },
+ {
+  "tick": 49204,
+  "day": 42,
+  "text": "☼ Build a trade depot [b ? Special] before the caravan arrives."
+ },
+ {
+  "tick": 49304,
+  "day": 42,
+  "text": "Saved Emberrest, Day 1 of Summer, Year 1. x2"
+ },
+ {
+  "tick": 52804,
+  "day": 45,
+  "text": "! A caravan has arrived from hillfolk."
+ },
+ {
+  "tick": 52804,
+  "day": 45,
+  "text": "! The hillfolk caravan waits at the edge for a trade depot."
+ },
+ {
+  "tick": 55304,
+  "day": 47,
+  "text": "! An animal is starving. x3"
+ },
+ {
+  "tick": 56404,
+  "day": 48,
+  "text": "The hillfolk caravan has departed."
+ },
+ {
+  "tick": 56404,
+  "day": 48,
+  "text": "Our standing with hillfolk has fallen: their caravan found no trade depot."
+ },
+ {
+  "tick": 61204,
+  "day": 52,
+  "text": "A fox has arrived. x2"
+ },
+ {
+  "tick": 61304,
+  "day": 52,
+  "text": "Obsidian has formed. x375"
+ },
+ {
+  "tick": 61304,
+  "day": 52,
+  "text": "A waterfall's mist fills the hall."
+ },
+ {
+  "tick": 61404,
+  "day": 52,
+  "text": "Obsidian has formed. x389"
+ },
+ {
+  "tick": 61404,
+  "day": 52,
+  "text": "Obsidian has formed. x50"
+ },
+ {
+  "tick": 61504,
+  "day": 52,
+  "text": "Obsidian has formed. x101"
+ },
+ {
+  "tick": 61604,
+  "day": 52,
+  "text": "Obsidian has formed. x341"
+ },
+ {
+  "tick": 61704,
+  "day": 52,
+  "text": "Obsidian has formed. x75"
+ },
+ {
+  "tick": 63904,
+  "day": 54,
+  "text": "! Nori Bearhold is starving."
+ },
+ {
+  "tick": 64404,
+  "day": 54,
+  "text": "! Sigrun Ashbrook is starving."
+ },
+ {
+  "tick": 64604,
+  "day": 54,
+  "text": "! Estrid Emberstone is starving."
+ },
+ {
+  "tick": 64904,
+  "day": 55,
+  "text": "! Ragnhild Deepbrook is starving."
+ },
+ {
+  "tick": 64904,
+  "day": 55,
+  "text": "! Gloin Ashcloak is starving."
+ },
+ {
+  "tick": 65904,
+  "day": 55,
+  "text": "! Halvar Cragspark is starving."
+ },
+ {
+  "tick": 65904,
+  "day": 55,
+  "text": "! Rurik Oakpick is starving."
+ },
+ {
+  "tick": 66304,
+  "day": 56,
+  "text": "! Vidar Shaletongue is starving."
+ },
+ {
+  "tick": 66504,
+  "day": 56,
+  "text": "! Oskar Stonetongue is starving."
+ },
+ {
+  "tick": 66604,
+  "day": 56,
+  "text": "Gloin Ashcloak is miserable."
+ },
+ {
+  "tick": 67204,
+  "day": 57,
+  "text": "Autumn, Year 1."
+ },
+ {
+  "tick": 67304,
+  "day": 57,
+  "text": "! 3 dwarves have come to join the hall, 1 of them children."
+ },
+ {
+  "tick": 68604,
+  "day": 58,
+  "text": "Kolfinna Frostgate is miserable."
+ },
+ {
+  "tick": 69404,
+  "day": 58,
+  "text": "! Kolfinna Frostgate is starving."
+ },
+ {
+  "tick": 69404,
+  "day": 58,
+  "text": "! Kari Thunderaxe is starving."
+ },
+ {
+  "tick": 69404,
+  "day": 58,
+  "text": "! Gefjun Runemark is starving."
+ },
+ {
+  "tick": 70804,
+  "day": 60,
+  "text": "A deer has arrived. x5"
+ },
+ {
+  "tick": 73604,
+  "day": 62,
+  "text": "Vidar Shaletongue is miserable."
+ },
+ {
+  "tick": 73704,
+  "day": 62,
+  "text": "Saved Emberrest, Day 1 of Autumn, Year 1."
+ },
+ {
+  "tick": 74404,
+  "day": 63,
+  "text": "A bear has arrived."
+ },
+ {
+  "tick": 74804,
+  "day": 63,
+  "text": "Kari Thunderaxe is miserable."
+ },
+ {
+  "tick": 75204,
+  "day": 63,
+  "text": "A deer has died."
+ },
+ {
+  "tick": 78004,
+  "day": 66,
+  "text": "Halvar Cragspark is weeping at the hearth."
+ },
+ {
+  "tick": 80304,
+  "day": 67,
+  "text": "Halvar Cragspark is miserable. x2"
+ }
+]

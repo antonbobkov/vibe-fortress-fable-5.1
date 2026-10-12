@@ -1,0 +1,36 @@
+{
+ "startTick": 400,
+ "target": 1000,
+ "commands": 10,
+ "commandTypes": [
+  "400:CreateZone",
+  "400:CreateZone",
+  "400:CreateZone",
+  "500:PlaceBuilding",
+  "500:AddWorkOrder",
+  "500:SetAlert",
+  "600:CreateSquad",
+  "600:Designate",
+  "600:DesignateStairwell",
+  "600:RenameFortress"
+ ],
+ "ui": {
+  "tick": 1000,
+  "hash": "2a52bc0bf5bfd8e2",
+  "dwarves": 7
+ },
+ "hook1": {
+  "tick": 1000,
+  "hash": "2a52bc0bf5bfd8e2",
+  "dwarves": 7,
+  "startHash": "651fefc053aa798a"
+ },
+ "hook2": {
+  "tick": 1000,
+  "hash": "2a52bc0bf5bfd8e2",
+  "dwarves": 7,
+  "startHash": "651fefc053aa798a"
+ },
+ "uiEqualsHook1": true,
+ "hook1EqualsHook2": true
+}

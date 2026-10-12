@@ -1,0 +1,64 @@
+# flow: 3-mature-fortress   step: 42-B-orders-new
+# what: Key Shift+N: Add order
+# input: key Shift+N
+# tick: 272681   paused: yes   screen: fortress   panel: orders   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,0,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|                                            │ Orders                        [o]
+01|                                            │ Add order
+02|                                            │ Find [ ________________________ ]
+03|                                            │ ─── Ammo ───────────────────────█
+04|                                            │ ○ Arrowheads                    │
+05|                                            │ ○ Bolts                         │
+06|                                            │ ○ Bone arrows                   │
+07|                                            │ ○ Wooden arrows                 │
+08|                                            │ ○ Bone bolts                    │
+09|                                            │ • Wooden bolts                  │
+10|                                            │ • Sling stones                  │
+11|                                            │ ─── Armor ──────────────────────│
+12|                                            │ ○ Breastplate                   │
+13|                                            │ ○ Buckler · forge               │
+14|                                            │ ○ Gauntlets                     │
+15|                                            │ ○ Greaves                       │
+16|                                            │ ○ Helm                          │
+17|                                            │ ○ Mail shirt                    │
+18|                                            │ ○ Metal boots                   │
+19|                                            │ ○ Shield · forge                │
+20|                                            │ ○ Bracers                       │
+21|                                            │ • Buckler · carpenter's workshop│
+22|                                            │ ○ Cap                           │
+23|                                            │ ○ Gambeson                      │
+24|                                            │ ○ Leather boots                 │
+25|                                            │ ○ Leather jerkin                │
+26|                                            │ ○ Leather leggings              │
+27|                                            │ • Shield · carpenter's workshop │
+28|                                            │ ─── Bar ────────────────────────│
+29|                                            │ ○ Make bismuth bronze           │
+30|                                            │ ○ Make brass                    │
+31|                                            │ ○ Make bronze                   │
+32|                                            │ ○ Make electrum                 │
+33|                                            │ ○ Make steel                    │
+34|                                            │ ○ Charcoal                      │
+35|                                            │ ○ Melt metal item               │
+36|                                            │ ○ Smelt bismuthinite            │
+37|                                            │ ○ Smelt bituminous coal         │
+38|                                            │ ○ Smelt cassiterite             │
+39|                                            │ ─────────────────────────────────
+40|                                            │   Quantity [-]   1 [+]
+41|                                            │   Mode     once: make 1
+42|                                            │   Material any material
+43|                                            │   Where    any forge
+44|                                            │ [Enter] add [Tab] next [Esc] back
+45| Hillfolk_bandit hits Snorri: 7 blunt.
+46| ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in
+47| Ulf Emberaxe is miserable.
+48| Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║
+49| [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks
+----- log strip rows -----
+ Hillfolk_bandit hits Snorri: 7 blunt.
+ ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in
+ Ulf Emberaxe is miserable.
+----- status rows -----
+ Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║
+ [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks
