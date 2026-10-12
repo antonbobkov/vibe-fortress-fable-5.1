@@ -1,5 +1,24 @@
 # T-211 — A wounded soldier stays on duty instead of becoming a patient
 
+## Progress, 2026-10-12 (parked)
+
+The decided admission/discharge subscriptions and interrupt flags are implemented
+with four failing-first stepped regressions. The focused 54 cases and six static
+checks pass; the whole browser suite passes 25, with an identical full-year end
+state (seven living, hash a4b660f007544cc3). The twelve-seed instrument rejects
+the change: median 13, second-worst 9 -> 0, minimum 0, wildlife-free 8/12,
+extinctions 1 -> 2, need deaths 0. The second-worst floor 8 and extinction cap 1
+both fail. Forest seed 2 newly goes extinct at tick 132000, and a read-only repeat
+confirms the same hash 99c66ca376dbd8e2. No fixture tune or guard change was made.
+
+Patch and four regressions are preserved in stash `e1a3c9b2a35f2a6262b6190a5aa4855969740956`
+(`T-211 decided admission interrupt; parked on annual second-worst/extinction guards`).
+[Measurement and repeat evidence](../../reports/audits/2026-10-12-patient-duty-guard-blocker.md)
+records the twelve rows and observed clinical transitions. This task remains open.
+Next: resolve the annual acceptance blocker or re-measure this exact decided patch
+after another accepted change that affects the failing cohort; keep both guards.
+
+
 **Source:** T-196 and [`2026-10-10-wild-animals-and-civilians.md`](../../reports/audits/2026-10-10-wild-animals-and-civilians.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
