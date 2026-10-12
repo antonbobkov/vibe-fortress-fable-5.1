@@ -93,6 +93,8 @@ const scenario: Scenario = {
     const allLiving = w.readers.of<{ list(): readonly number[] }>('10').list();
     const dwarves = allLiving.filter((id) => w.game.world.entities.get(id, C.Creature)?.species === dwarfSpecies);
     const medicId = dwarves[6] ?? dwarves[0]!;
+    // T-223: the named medicine-20 medic owns treatment; untrained laborers must not make the care assertions depend on failure rolls.
+    for (const id of dwarves) w.setLabor(id, 'medicine', id === medicId);
     w.setSkill(medicId, 'medicine', 20);
     const nonMedLabors = ['hauling', 'mining', 'woodcutting', 'carpentry', 'masonry', 'farming', 'brewing', 'cooking', 'building', 'cleaning', 'crafting', 'hunting'];
     for (const l of nonMedLabors) {
@@ -539,6 +541,7 @@ const scenario: Scenario = {
     const woundLaborer = (part: string, damageType: string, share: number): void => {
       const id = w.spawnDwarf({ at: w.index(cx, cy, Z) });
       staged.push(id);
+      w.setLabor(id, 'medicine', false);
       const body = w.game.world.entities.get(id, C.Body)!;
       const slot = BODY_SLOTS.indexOf(part as BodySlot);
       const amount = Math.floor((body.parts[slot]!.maxHp * share) / 100);

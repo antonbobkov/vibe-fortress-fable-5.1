@@ -80,58 +80,21 @@ export function killCreature(
   });
 }
 
-function findHospitalOrFreeBed(ctx: TickContext): { hospitalZoneId: EntityId; bedId: EntityId; hospitalTier: number } {
-  let hospitalZoneId = 0;
-  let bedId = 0;
-  let hospitalTier = 0;
-  if (!ctx.readers.has('14')) return { hospitalZoneId, bedId, hospitalTier };
+function findHospitalOrFreeBed(ctx: TickContext, patientId: EntityId): { hospitalZoneId: EntityId; bedId: EntityId; hospitalTier: number } {
+  if (!ctx.readers.has('14')) return { hospitalZoneId: 0, bedId: 0, hospitalTier: 0 };
   const buildings = ctx.readers.of<BuildingsReader>('14');
-  const entities = ctx.world.entities;
-  const hospitalZones = buildings.zonesOfType('hospital');
-
-  for (const hz of hospitalZones) {
-    const z = buildings.zone(hz);
-    if (!z) continue;
-    for (const t of z.tiles) {
-      const bId = buildings.at(t);
-      if (bId !== 0) {
-        const b = buildings.get(bId);
-        if (b && b.typeId === 'bed' && b.state === 'built') {
-          let inUse = false;
-          for (const otherId of entities.with(C.Patient)) {
-            if (entities.get(otherId, C.Patient)?.bedId === bId) {
-              inUse = true;
-              break;
-            }
-          }
-          if (!inUse) {
-            hospitalZoneId = hz;
-            bedId = bId;
-            const room = buildings.room(hz);
-            hospitalTier = room?.tier ?? 0;
-            return { hospitalZoneId, bedId, hospitalTier };
-          }
-        }
+  const beds = new Set(buildings.byTag('sleep'));
+  for (const hz of buildings.zonesOfType('hospital')) {
+    for (const tile of buildings.zone(hz)?.tiles ?? []) {
+      const bedId = buildings.at(tile);
+      if (!beds.has(bedId) || buildings.get(bedId)?.state !== 'built') continue;
+      const holder = buildings.bedHolder(bedId);
+      if (holder === 0 || holder === patientId) {
+        return { hospitalZoneId: hz, bedId, hospitalTier: buildings.room(hz)?.tier ?? 0 };
       }
     }
   }
-
-  // Fallback to free bed
-  const free = buildings.freeBeds();
-  for (const fId of free) {
-    let inUse = false;
-    for (const otherId of entities.with(C.Patient)) {
-      if (entities.get(otherId, C.Patient)?.bedId === fId) {
-        inUse = true;
-        break;
-      }
-    }
-    if (!inUse) {
-      return { hospitalZoneId: 0, bedId: fId, hospitalTier: 0 };
-    }
-  }
-
-  return { hospitalZoneId: 0, bedId: 0, hospitalTier: 0 };
+  return { hospitalZoneId: 0, bedId: buildings.freeBeds(patientId)[0] ?? 0, hospitalTier: 0 };
 }
 
 export function updatePatient(
@@ -183,7 +146,7 @@ export function updatePatient(
       // A treated patient can remain admitted for pain, but needs no repeated treatment.
       entities.add(id, C.Patient, { ...existingPatient, needs });
     } else if (existingPatient === undefined) {
-      const bedInfo = findHospitalOrFreeBed(ctx);
+      const bedInfo = findHospitalOrFreeBed(ctx, id);
       entities.add(id, C.Patient, {
         hospitalZoneId: bedInfo.hospitalZoneId,
         bedId: bedInfo.bedId,
@@ -193,12 +156,11 @@ export function updatePatient(
       if (lastHospitalTier) lastHospitalTier.set(id, bedInfo.hospitalTier);
       ctx.emit({ type: 'PatientAdmitted', id, hospitalTier: bedInfo.hospitalTier });
     } else {
-      if (existingPatient.bedId === 0) {
-        const bedInfo = findHospitalOrFreeBed(ctx);
-        if (bedInfo.bedId !== 0) {
-          existingPatient.bedId = bedInfo.bedId;
-          existingPatient.hospitalZoneId = bedInfo.hospitalZoneId;
-        }
+      if (existingPatient.bedId === 0 || (ctx.readers.has('14') &&
+          ctx.readers.of<BuildingsReader>('14').bedHolder(existingPatient.bedId) !== id)) {
+        const bedInfo = findHospitalOrFreeBed(ctx, id);
+        existingPatient.bedId = bedInfo.bedId;
+        if (bedInfo.bedId !== 0) existingPatient.hospitalZoneId = bedInfo.hospitalZoneId;
       }
       entities.add(id, C.Patient, {
         ...existingPatient,

@@ -36,9 +36,11 @@ export interface DwarvesReader {
   isFriend(a: EntityId, b: EntityId): boolean;
   /** Last seen tile of a still-near, living hostile; -1 without a remembered civilian threat. */
   avoidedThreatTile(id: EntityId): TileIndex;
+  /** The living dwarf walking to or sleeping in this bed, or 0. */
+  bedHolder(bedId: EntityId): EntityId;
 }
 
-export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1): DwarvesReader {
+export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0): DwarvesReader {
   const skills = registry.table('skills');
   const list = (): EntityId[] => entities.with(C.Brain, C.Creature).filter((id) => entities.alive(id));
   const isChild = (id: EntityId): boolean => {
@@ -69,5 +71,6 @@ export function makeReader(entities: EntityStore, registry: Registry, titles: ()
     friends: (id) => (entities.get(id, C.Relationships)?.friends ?? []).slice(),
     isFriend: (a, b) => (entities.get(a, C.Relationships)?.friends ?? []).includes(b),
     avoidedThreatTile,
+    bedHolder,
   };
 }

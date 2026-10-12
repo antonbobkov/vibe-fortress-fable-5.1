@@ -13,7 +13,7 @@ tickDwarf(id):
   else if b.behavior == 'work': if Worker.jobId: jobs.stepWorker(id)
                                   else if not jobs.isQueued(id): leisureOrIdle(id, jobs.hasWork(id))
   else if b.behavior == 'duty': (16 drives movement; nothing here)
-  else if b.behavior in {'flee','retreat','patient'}: runMovementBehavior(id)
+  else if b.behavior in {'flee','retreat','patient'}: runMovementBehavior(id) // patient goal follows only its current held bed; without one, stay here until 17 allocates one
   if b.behavior == 'none' or interruptFlag[id]: select(id)
 select(id):
   N = Needs[id]; civ = not combat.onDuty(id); if b.targetTile < 0: b.targetTile = currentTile(id)
@@ -68,7 +68,8 @@ startNeed(id, need):
     thirst:  barrel = find reservable drink directly in a stockpiled barrel, else nearest working well, else reachable water (level ≥ 1, not magma or frozen); if none: reachable loose alcohol
              water: horizontal radius 32, z−8..z+8; rank horizontal Chebyshev + |dz|*Z_DISTANCE_WEIGHT, ties by stand tile
              plan: walk adjacent, DRINK_TICKS, consume 1 unit (barrel) ; N.thirst -= 100/80; emit DrankAlcohol/DrankWater{outdoors}; hearthTime(id, DRINK_TICKS)
-    rest:    bed = ownBed or freeUnassignedBed or hearthHallFloor or here; plan: walk, sleep until N.rest <= 0 or SLEEP_HOURS elapsed (−15/hour); emit Slept
+    rest:    bed = ownBed if not held by another dwarf, else live freeUnassignedBed, else hearthHallFloor or here; save its id in plan.itemId to hold it immediately; walk, sleep until N.rest <= 0 or SLEEP_HOURS elapsed (−15/hour); release hold and emit Slept
+             if the bed disappears or another saved holder wins its hold: abandon the activity and reselect; waking, abandonment and death release the hold
     social:  plan: walk to hearth hall / meeting area; wait up to 200 ticks for another dwarf within 2; choose living awake partners on the same level within Chebyshev 2 (friends then id); if found: TALK_TICKS without interrupting the partner, N.social -= 40 (60 friends), relationships.talk++; emit Talked
     comfort: chair = best-tier free chair reachable; plan: walk, sit SIT_TICKS, N.comfort -= 40 (hearth hall floor: 20); emit Sat; hearthTime(id, SIT_TICKS)
              hall errand only: every TALK_CHECK_TICKS while seated, if no partner yet, N.social >= want and no talk in passing: partner = friend first, then lowest id, among dwarves within 2 on this level not asleep

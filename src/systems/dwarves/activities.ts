@@ -20,7 +20,6 @@ interface ActivityTargets {
   /** Membership only; never iterated. */
   hallSet: Set<TileIndex>;
   social: TileIndex[];
-  freeBeds: EntityId[];
   wells: EntityId[];
   dining: SeatTarget[];
   comfort: SeatTarget[];
@@ -41,7 +40,6 @@ function activityTargets(ctx: TickContext): ActivityTargets {
   });
   const value = { revision, hall, hallSet: new Set(hall),
     social: [...hall, ...(b?.zonesOfType('meeting_area') ?? []).flatMap((id) => b?.zone(id)?.tiles ?? [])],
-    freeBeds: b?.freeBeds() ?? [],
     wells: b?.wells() ?? [],
     dining: targets(b?.diningSeats() ?? []), comfort: targets(b?.byTag('sit') ?? []) };
   targetCache.set(entities, value);
@@ -137,14 +135,15 @@ function bed(ctx: TickContext, id: EntityId, from: TileIndex, wagon: TileIndex, 
   if (b !== null && ownZone !== 0) {
     for (const bid of b.byTag('sleep')) {
       const v = b.get(bid);
-      if (v?.state === 'built' && v.footprint.some((t) => b.zonesAt(t).includes(ownZone))) {
+      if (v?.state === 'built' && (b.bedHolder(bid) === 0 || b.bedHolder(bid) === id) &&
+          v.footprint.some((t) => b.zonesAt(t).includes(ownZone))) {
         if (reachable(ctx, from, v.origin) && allowed(v.origin)) {
           return plan('rest', v.origin, { ownBed: true, roomTier: b.room(ownZone)?.tier ?? 0, itemId: bid });
         }
       }
     }
   }
-  const free = activityTargets(ctx).freeBeds;
+  const free = b?.freeBeds(id) ?? [];
   const reachableFree = free.filter((x) => {
     const orig = b?.get(x)?.origin ?? -1;
     return reachable(ctx, from, orig) && allowed(orig);
@@ -511,6 +510,10 @@ export class Activities {
   step(ctx: TickContext, id: EntityId, b: Brain): boolean {
     const p = this.plans.get(id);
     if (p === undefined) return true;
+    if (p.need === 'rest' && p.itemId !== 0 && buildings(ctx)?.bedHolder(p.itemId) !== id) {
+      this.cancel(ctx, id);
+      return true;
+    }
     if (p.itemId !== 0 && (p.need === 'hunger' || p.need === 'thirst')) {
       const reader = items(ctx);
       const item = reader?.get(p.itemId);

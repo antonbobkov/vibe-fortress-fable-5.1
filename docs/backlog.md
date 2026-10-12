@@ -11,6 +11,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
+| T-262 | [A failed treatment is not recreated after discharge](work/T-262-failed-treatment-after-discharge.md) | T-223 hospital trace, 2026-10-11 | — | open |
 | T-260 | [Two dwarves starve under wildlife alerts](work/T-260-starvation-under-wildlife-alerts.md) | T-136 twelve-seed instrument, 2026-10-11 | — | open; diagnosis first |
 | T-261 | [Infection appearing after cleaning-job planning is cured without brightleaf](work/T-261-infection-after-cleaning-job-planned.md) | T-137 investigation, 2026-10-11 | — | open |
 | T-139 | [Clothing keeps a dead carrier](work/T-139-dead-carrier-clothing.md) | T-216 full-run verification, 2026-10-11 | — | open |
@@ -26,7 +27,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-213 | [Two rules of 08 for attacking animals that the code does not do](work/T-213-predator-leftovers.md) | T-196 and [`../reports/audits/2026-10-10-wild-animals-and-civilians.md`](../reports/audits/2026-10-10-wild-animals-and-civilians.md) | — | open |
 | T-214 | [Three boars still wipe out the economy fixture after T-196](work/T-214-boars-still-wipe-out-the-economy-fixture.md) | T-144 and [`../reports/audits/2026-10-10-wants-without-errands-after-t196.md`](../reports/audits/2026-10-10-wants-without-errands-after-t196.md) | — | open (diagnosis first) |
 | T-215 | [The old economy fixture runs out of food in year 3](work/T-215-old-economy-fixture-starves-in-year-three.md) | T-144 and [`../reports/audits/2026-10-10-wants-without-errands-after-t196.md`](../reports/audits/2026-10-10-wants-without-errands-after-t196.md) | — | open |
-| T-223 | [Several dwarves sleep in one bed at the same time](work/T-223-several-dwarves-in-one-bed.md) | T-134 | — | open; decided 2026-10-11 (see the work file) |
 | T-240 | [A stockpile made while paused can be set up at once](work/T-240-stockpile-made-while-paused.md) | T-111 and [`../reports/audits/2026-10-10-ui-audit-follow-up.md`](../reports/audits/2026-10-10-ui-audit-follow-up.md) | — | open |
 | T-244 | [Layout at 1280×800: embark, trade session and the status bar](work/T-244-layout-at-1280.md) | T-111 and [`../reports/audits/2026-10-10-ui-audit-follow-up.md`](../reports/audits/2026-10-10-ui-audit-follow-up.md) | — | open |
 | T-245 | [Zone qualification and a room's open border are not shown by colour alone](work/T-245-zone-state-by-colour.md) | T-111 and [`../reports/audits/2026-10-10-ui-audit-follow-up.md`](../reports/audits/2026-10-10-ui-audit-follow-up.md) | — | open |
