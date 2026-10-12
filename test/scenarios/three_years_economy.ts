@@ -75,16 +75,22 @@ const TIMBER_BATCH = 8;
 /** Ore faces opened for the squad's kit: 21 bars less the five in the wagon, with a margin. */
 const SQUAD_ORE_FACES = 20;
 
-/** Cave farm tiles kept for each dwarf: about one for its meals and two thirds for its drink (balance.md). */
-const FARM_TILES_PER_DWARF = 2;
-/** A cave plot added for a growing population: two rows beside the first plots. */
-const FARM_STRIP = { width: 8, rows: 2, max: 6 };
+/**
+ * Farm tiles kept for each dwarf. balance.md asks about one cave tile for its meals and two
+ * thirds for its drink; a surface tile gives less (a longer crop, and nothing in winter).
+ */
+const FARM_TILES_PER_DWARF = 3;
+/** The first surface field, and a strip added for a growing population. */
+const FIRST_FIELD_TILES = 16;
+const FARM_STRIP = { width: 4, rows: 4, columns: 4, max: 12 };
 /** Export goods a visit should find at the depot before stone and logs stop being added (marks). */
 const VISIT_CARGO = 200;
 /** Stone crafts kept in stock for each dwarf, and days between two new ore drifts in years 2 and 3. */
 const CRAFTS_PER_DWARF = 6;
 const DRIFT_EVERY_DAYS = 28;
 const FIRST_IRON_CRAFTS = 10;
+/** Seed bought from one caravan: enough for three new strips. */
+const SEED_PER_VISIT = 48;
 /** Dwarves one kitchen feeds and one still waters; another is built for each further group. */
 const DWARVES_PER_KITCHEN = 16;
 const DWARVES_PER_STILL = 28;
@@ -452,7 +458,7 @@ export function trade(w: TestWorld, state: FortressState): void {
   const priority = (id: number): number => {
     const it = ent.get(id, C.Item);
     const type = types.byIndex(it?.type ?? -1)?.id ?? '';
-    if (type === 'anvil' && awaitingAnvil) return 0;
+    if (type === 'anvil' && awaitingAnvil && id === anvil) return 0;
     if (type === 'log' && items.available('log') < 40) return 1;
     if (type === 'bar' || type === 'charcoal_bar') return 2;
     if (type === 'seed') return 1;
@@ -461,7 +467,10 @@ export function trade(w: TestWorld, state: FortressState): void {
     if (type === 'rough_gem') return 5;
     return 6;
   };
-  const goods = reader.merchantItems().filter((id) => ent.get(id, C.Item)?.containerId === depot && !ent.get(id, C.Item)?.occupantId)
+  const onOffer = reader.merchantItems().filter((id) => ent.get(id, C.Item)?.containerId === depot && !ent.get(id, C.Item)?.occupantId);
+  // One anvil is enough: the first on offer.
+  const anvil = onOffer.find((id) => types.byIndex(ent.get(id, C.Item)!.type)?.id === 'anvil') ?? 0;
+  const goods = [...onOffer]
     .sort((a, b) => priority(a) - priority(b) || a - b);
   // Retain capital for the requested anvil instead of spending it on bars before a forge exists.
   const cheapest = Math.min(...goods.filter(id => priority(id) !== 6).map(id =>
@@ -473,13 +482,17 @@ export function trade(w: TestWorld, state: FortressState): void {
   const take: { itemId: number; count: number }[] = [];
   let cost = 0;
   const wanted = goods.some((id) => priority(id) !== 6);
+  let seedTaken = 0;
   for (const id of goods) {
     // A visit that carries nothing on the wish list still trades: the first affordable goods.
     if (wanted ? priority(id) === 6 : take.length > 0) continue;
     const it = ent.get(id, C.Item)!;
     const unitPrice = reader.price(caravan.civ, id) / it.count;
-    const count = Math.min(it.count, Math.floor((Math.floor(spending) / (1 + reader.marginPercent(caravan.civ) / 100) - cost) / unitPrice));
-    if (count > 0) { take.push({ itemId: id, count }); cost += unitPrice * count; }
+    // Seed is bought for the strips still to be sown, not by the hundred.
+    const isSeed = types.byIndex(it.type)?.id === 'seed';
+    const wantedUnits = isSeed ? Math.max(0, SEED_PER_VISIT - seedTaken) : it.count;
+    const count = Math.min(it.count, wantedUnits, Math.floor((Math.floor(spending) / (1 + reader.marginPercent(caravan.civ) / 100) - cost) / unitPrice));
+    if (count > 0) { take.push({ itemId: id, count }); cost += unitPrice * count; if (isSeed) seedTaken += count; }
   }
   if (!take.length || requiredValue(cost, reader.marginPercent(caravan.civ)) > budget) {
     if (state.economy.lastTradeNote !== key) {
@@ -641,39 +654,36 @@ function checkKitchens(w: TestWorld, state: FortressState): void {
   }
 }
 
-/** The cave farm follows the dwarf count: a new strip is dug and zoned when the plots fall behind. */
+/**
+ * The farm follows the dwarf count. Caravans sell only surface seed (barley, turnip and the
+ * like) and a harvest returns the one seed it was sown from, so the cave plots stay the size of
+ * the wagon's cave seed and the growth is surface strips beside the first field, sown with
+ * bought seed: turnip in three seasons, or barley with turnip in autumn.
+ */
 function checkFarm(w: TestWorld, state: FortressState): void {
   const map = w.map;
   const buildings = w.readers.of<BuildingsReader>('14');
   const plans = state.economy.farmPlans;
-  const z = map.zOf(state.caveTiles1[0]!);
-  for (const [i, plan] of plans.entries()) {
-    if (plan.zoneId !== 0 || !plan.tiles.every((t) => map.kindAt(t) === TileKind.Floor)) continue;
-    const tiles = plan.tiles.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t));
-    if (tiles.length === 0) { plan.zoneId = -1; continue; }
-    if (!w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) { plan.zoneId = -1; continue; }
-    plan.zoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
-    for (const season of [0, 1, 2, 3]) w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: plan.zoneId, season, speciesId: i % 2 === 0 ? 'dimcap' : 'cavewheat' });
-  }
-  const tilled = state.caveTiles1.length + state.caveTiles2.length + plans.reduce((sum, p) => sum + p.tiles.length, 0);
+  const tilled = state.caveTiles1.length + state.caveTiles2.length + FIRST_FIELD_TILES + plans.reduce((sum, p) => sum + p.tiles.length, 0);
   if (plans.length >= FARM_STRIP.max || tilled >= fortressDwarves(w).length * FARM_TILES_PER_DWARF) return;
-  if (state.caveFarmId1 === 0 || plans.some((p) => p.zoneId === 0)) return;
-  // The next strip south of the plots, kept away from water above and beside it.
-  const y0 = map.yOf(state.caveTiles1[state.caveTiles1.length - 1]!) + 1 + plans.length * FARM_STRIP.rows;
-  const x0 = map.xOf(state.caveTiles1[0]!);
+  const z = map.zOf(state.caveTiles1[0]!) + 1;
+  // Strips run west of the first field, then in a second row south of it.
+  const column = (plans.length % FARM_STRIP.columns) + 1;
+  const row = Math.floor(plans.length / FARM_STRIP.columns);
+  const x0 = state.cx - 8 - column * FARM_STRIP.width;
+  const y0 = state.cy + 16 + row * FARM_STRIP.rows;
   const tiles: number[] = [];
   for (let y = y0; y < y0 + FARM_STRIP.rows; y += 1) for (let x = x0; x < x0 + FARM_STRIP.width; x += 1) {
     if (x < 2 || y < 2 || x >= map.w - 2 || y >= map.h - 2) continue;
     const t = w.index(x, y, z);
-    let dry = map.kindAt(t) === TileKind.Wall;
-    for (let dz = 0; dz <= 1 && dry; dz += 1) for (let dy = -1; dy <= 1 && dry; dy += 1) for (let dx = -1; dx <= 1 && dry; dx += 1) {
-      const n = map.offset(t, dx, dy, dz);
-      if (n < 0 || map.fluidLevelAt(n) !== 0) dry = false;
-    }
-    if (dry) tiles.push(t);
+    if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t)) tiles.push(t);
   }
-  plans.push({ tiles, zoneId: tiles.length ? 0 : -1 });
-  if (tiles.length) w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles });
+  const plan = { tiles, zoneId: -1 };
+  plans.push(plan);
+  if (tiles.length < FARM_STRIP.width || !w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) { plan.tiles = []; return; }
+  plan.zoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
+  const crops = plans.length % 2 === 1 ? ['turnip', 'turnip', 'turnip'] : ['barley', 'barley', 'turnip'];
+  for (const [season, speciesId] of crops.entries()) w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: plan.zoneId, season, speciesId });
 }
 
 export function checkEconomy(w: TestWorld, state: FortressState): void {
@@ -883,12 +893,15 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   const forge = state.placedIds['forge'];
   if (forge && state.orderedWorkshops.has('forge') && !arming && !phases.has('iron goods')) {
     phases.add('iron goods');
+    // A first few iron crafts for the caravans come before the standing armour orders, which
+    // never fill: a piece a soldier wears is no longer stock.
+    const first = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: forge,
+      order: { recipeId: 'forge_crafts', mode: 'once', remaining: FIRST_IRON_CRAFTS, materialFilter: 'iron', priority: ROUTINE } });
+    if (!first.ok) throw new Error(`economy iron crafts: ${first.reason}`);
+    w.game.world.applyCommand({ type: 'ReorderWorkOrder', workshopId: forge, from: (w.game.world.entities.get(forge, C.Workshop)?.orders.length ?? 1) - 1, to: 0 });
     order(w, forge, 'forge_pick', 2, 'iron');
     order(w, forge, 'forge_battle_axe', 3, 'iron');
-    order(w, forge, 'forge_helm', 3, 'iron');
-    // A first few iron crafts for the caravans, before the rest of the armour takes the bars.
-    order(w, forge, 'forge_crafts', FIRST_IRON_CRAFTS, 'iron');
-    for (const recipe of ['forge_greaves', 'forge_gauntlets', 'forge_metal_boots']) order(w, forge, recipe, 3, 'iron');
+    for (const recipe of ['forge_helm', 'forge_greaves', 'forge_gauntlets', 'forge_metal_boots']) order(w, forge, recipe, 3, 'iron');
     // Missing steel inputs keep this standing order idle until year 3; no live job is canceled.
     order(w, forge, 'forge_crafts', 60, 'steel');
     order(w, forge, 'forge_crafts', 60, 'iron');
