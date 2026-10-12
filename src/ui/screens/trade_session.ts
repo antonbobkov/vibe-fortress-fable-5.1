@@ -173,9 +173,31 @@ export class TradeSessionScreen implements Screen {
     const traderId = trade.session()?.traderId ?? 0;
     const broker = traderId ? this.host.readers.entities.get(traderId, C.Creature)?.name ?? 'a trader' : 'a trader';
     const skill = traderId && this.host.readers.has('10') ? this.host.readers.of<DwarvesReader>('10').skill(traderId, 'trading') : 0;
-    surface.text(2, 1, `Trading with the ${CIV_NAMES[civ]} · Broker: ${broker} (Trading ${skill}) · Reputation ${trade.reputation(civ) >= 0 ? '+' : ''}${trade.reputation(civ)}`, t.key);
-    surface.text(2, 3, 'Their goods                         price', t.key);
-    surface.text(right, 3, 'Our goods at the depot      their valuation', t.key);
+    const reputation = `${trade.reputation(civ) >= 0 ? '+' : ''}${trade.reputation(civ)}`;
+    const params = { civ: CIV_NAMES[civ], broker, skill, reputation };
+    const title = this.strings.get('ui.trade.title', params);
+    const available = surface.cols - 4;
+    if (Array.from(title).length <= available) label(surface, 2, 1, title, { fg: t.key, width: available });
+    else {
+      const stats = this.strings.get('ui.trade.title_stats', params);
+      const statsCol = surface.cols - 2 - Array.from(stats).length;
+      label(surface, 2, 1, this.strings.get('ui.trade.title_left', params), { fg: t.key, width: statsCol - 3 });
+      label(surface, statsCol, 1, stats, { fg: t.key });
+      surface.tooltip({ col: 2, row: 1, cols: available, rows: 1 }, title);
+    }
+    const heading = (col: number, titleKey: string, valueKey: string, shortKey?: string): void => {
+      const name = this.strings.get(titleKey), fullValue = this.strings.get(valueKey);
+      const short = shortKey !== undefined && Array.from(name).length + 1 + Array.from(fullValue).length > width;
+      const value = short ? this.strings.get(shortKey as string) : fullValue;
+      const valueCol = col + width - Array.from(value).length;
+      label(surface, col, 3, name, { fg: t.key, width: valueCol - col - 1 });
+      label(surface, valueCol, 3, value, { fg: t.key });
+      if (short || Array.from(name).length > valueCol - col - 1) {
+        surface.tooltip({ col, row: 3, cols: width, rows: 1 }, `${name} ${fullValue}`);
+      }
+    };
+    heading(2, 'ui.trade.heading.merchant', 'ui.trade.heading.price');
+    heading(right, 'ui.trade.heading.fortress', 'ui.trade.heading.value', 'ui.trade.heading.value_short');
     const sides = ['merchant', 'fortress'] as const;
     for (const side of sides) {
       const rows = this.goods(side);
@@ -199,7 +221,11 @@ export class TradeSessionScreen implements Screen {
       }
     }
     const totals = this.totals();
-    surface.text(2, footer, `We take ${Math.round(totals.take)} ☼ · We give ${Math.round(totals.give)} ☼ (their valuation) · They want at least ${trade.marginPercent(civ)}% over: ${totals.required} ☼`, t.value);
+    const totalsParams = { take: Math.round(totals.take), give: Math.round(totals.give), margin: trade.marginPercent(civ), required: totals.required };
+    const fullTotals = this.strings.get('ui.trade.totals', totalsParams);
+    const totalsText = Array.from(fullTotals).length <= available ? fullTotals : this.strings.get('ui.trade.totals_short', totalsParams);
+    label(surface, 2, footer, totalsText, { fg: t.value, width: available });
+    if (totalsText !== fullTotals) surface.tooltip({ col: 2, row: footer, cols: available, rows: 1 }, fullTotals);
     const wood = trade.session()?.woodWarning ?? false;
     if (this.notice !== null) surface.text(2, footer + 1, this.notice, t.alert);
     else surface.text(2, footer + 1, wood ? 'We do not care for wooden things.' : totals.shortfall > 0 ? `Not enough. Add ${totals.shortfall} ☼ of goods.` : 'A fair offer.', totals.shortfall > 0 ? t.bad : t.good);

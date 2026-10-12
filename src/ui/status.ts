@@ -20,6 +20,8 @@ import { C } from '@core/components';
 import { TileFlag } from '@core/map3d';
 import type { HealthReader } from '@systems/health';
 import type { ThreatsReader } from '@systems/threats';
+import type { TradeReader } from '@systems/trade';
+import { UI_NORMAL_SPACING, UI_COMPACT_SPACING } from './constants';
 
 export type Speed = 0 | 1 | 2 | 4;
 
@@ -51,6 +53,7 @@ export function statusFields(readers: ReaderSet, strings: Strings, z: number, sp
     const n = visibleHostiles(readers);
     if (n > 0) fields.push(`!${n}`);
   }
+  if (readers.has('20') && readers.of<TradeReader>('20').activeCaravan() !== null) fields.push('$');
   fields.push(strings.get('ui.status.z', { z }));
   fields.push(loadShedding ? `${speedText(speed)} ${strings.get('ui.status.slow')}` : speedText(speed));
   return fields;
@@ -75,8 +78,27 @@ export function visibleHostiles(readers: ReaderSet): number {
 
 /** Row 1 as one line of `cols` cells: the fields three spaces apart, `[?] help` at the right edge. */
 export function statusRow1(readers: ReaderSet, strings: Strings, z: number, speed: Speed, cols: number, loadShedding = false): string {
-  const left = ` ${statusFields(readers, strings, z, speed, loadShedding).join('   ')}`;
+  const fields = statusFields(readers, strings, z, speed, loadShedding);
+  const left = ` ${fields.join(' '.repeat(statusFieldSpacing(fields, strings, cols)))}`;
   const help = `${strings.get('ui.status.help')} `;
   const pad = Math.max(1, cols - Array.from(left).length - Array.from(help).length);
   return `${left}${' '.repeat(pad)}${help}`;
+}
+
+/** Keep the help field inside the minimum viewport without changing field order. */
+export function statusFieldSpacing(fields: readonly string[], strings: Strings, cols: number): number {
+  const normal = fields.reduce((sum, field) => sum + Array.from(field).length, 0) +
+    Math.max(0, fields.length - 1) * UI_NORMAL_SPACING + Array.from(strings.get('ui.status.help')).length + 3;
+  return normal <= cols ? UI_NORMAL_SPACING : UI_COMPACT_SPACING;
+}
+
+/** A narrow strip drops complete trailing entries, rather than clipping an accelerator. */
+export function statusPanelStrip(strings: Strings, cols: number): string {
+  let strip = '';
+  for (const entry of strings.get('ui.status.strip').split('  ')) {
+    const candidate = strip.length === 0 ? entry : `${strip}  ${entry}`;
+    if (Array.from(candidate).length > cols) break;
+    strip = candidate;
+  }
+  return strip;
 }

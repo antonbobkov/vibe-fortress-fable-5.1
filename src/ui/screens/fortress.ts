@@ -44,7 +44,7 @@ import { C } from '@core/components';
 import { creaturesAt, creatureSummary, drawLookPanel, tileSummary, type LookTab } from '../panels/look';
 import { drawLogPanel, drawLogStrip, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
-import { statusFields, statusRow1, type Speed } from '../status';
+import { statusFields, statusRow1, statusFieldSpacing, statusPanelStrip, type Speed } from '../status';
 import { drawCalendarPanel, weatherColor, weatherGlyph, weatherOf } from '../panels/calendar';
 import { drawOverlaysPanel, OVERLAY_ROWS, OverlayMenu } from '../panels/overlays';
 import { drawHelpPanel, HelpPanel, type HelpTab } from '../panels/help';
@@ -615,21 +615,22 @@ export class FortressScreen implements Screen {
     labelRow(surface, rect.col, rect.row, rect.cols, row1);
     // The date opens the calendar panel; the weather glyph takes its colour (T-M3-08).
     const fields = statusFields(readers, this.strings, this.ui.z, this.host.speed(), loadShedding);
+    const fieldSpacing = statusFieldSpacing(fields, this.strings, rect.cols);
     let fieldCol = rect.col + 1;
     for (const field of fields) {
       if (field.startsWith('+') || field.startsWith('!')) surface.text(fieldCol, rect.row, field, t.danger, t.black, rect.cols - (fieldCol - rect.col));
       if (loadShedding && field === fields[fields.length - 1]) surface.text(fieldCol, rect.row, field, surface.color('yellow'), t.black, rect.cols - (fieldCol - rect.col));
-      fieldCol += Array.from(field).length + 3;
+      fieldCol += Array.from(field).length + fieldSpacing;
     }
     const date = Array.from(fields[0] ?? '').length;
     surface.hit({ col: rect.col + 1, row: rect.row, cols: date, rows: 1 }, () => this.openPanel('calendar'));
     const weather = weatherOf(readers);
     if (weather !== null && fields.length > 1) {
-      const at = rect.col + 1 + date + 3;
+      const at = rect.col + 1 + date + fieldSpacing;
       surface.put(at, rect.row, surface.glyphs.index(weatherGlyph(weather)), weatherColor(weather, t), t.black);
     }
     if (rect.rows > 1) {
-      const text2 = this.statusRow2();
+      const text2 = this.statusRow2(rect.cols - 1);
       const full = ` ${text2}`;
       const chars = Array.from(full);
       if (chars.length > rect.cols && rect.cols > 0) {
@@ -648,7 +649,7 @@ export class FortressScreen implements Screen {
    * cancel`." A rejection reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier
    * by starting a drag, a new ghost state or a new notice (T-243).
    */
-  statusRow2(): string {
+  statusRow2(cols = Infinity): string {
     const s = this.strings;
     if (this.dragging || this.build.anchor !== null || this.zones.anchor !== null || this.tool.anchor !== null || this.selection !== null) {
       this.clearNotice();
@@ -719,11 +720,12 @@ export class FortressScreen implements Screen {
       return s.get('ui.status.selection', { w, h, n: w * h });
     }
     const tile = this.hover ?? this.cursorTile();
-    const strip = s.get('ui.status.strip');
-    if (tile === null) return strip;
+    if (tile === null) return statusPanelStrip(s, cols);
     const creatures = creaturesAt(this.host.readers, tile);
     const summary = creatures.length > 0 ? creatureSummary(this.host.readers, creatures[0] as number) : tileSummary(this.host.readers, s, tile);
-    return `${summary} · ${strip}`;
+    const prefix = `${summary} · `;
+    const strip = statusPanelStrip(s, cols - Array.from(prefix).length);
+    return strip.length === 0 ? summary : `${prefix}${strip}`;
   }
 
   // ---------- tiles and points ----------

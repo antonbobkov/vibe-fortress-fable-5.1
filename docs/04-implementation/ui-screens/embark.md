@@ -7,7 +7,7 @@
 │ Embark at Greenhollow            [1] Dwarves   [2] Supplies   [3] Animals    [p] Presets │
 ├──────────────────────────────┬───────────────────────────────────────────────────────────┤
 │ ▶ Ketil Ironvein     10/10   │ Ketil Ironvein                         [n] rename         │
-│   Brynja Coldhammer   8/10   │ Male · 34 years                        [r] reroll (25 ☼)  │
+│   Brynja Coldhammer   8/10   │ Male · 34 years                        [r] reroll 25 ☼  │
 │   Orm Ashbrow        10/10   │ Str ▓▓▓▓░ 61  Agi ▓▓▓░░ 48  Tou ▓▓▓░░ 55  End ▓▓▓▓░ 63    │
 │   Solveig Deephand   10/10   │ Wil ▓▓░░░ 40  Wit ▓▓▓░░ 52  Cha ▓▓▓░░ 47                  │
 │   Halvar Grimshield  10/10   │ Stoic · Gregarious · Patient                              │
@@ -40,10 +40,12 @@ Supplies tab:
 │ Hint: two picks and one axe are the minimum for a working start.                        │
 ```
 
-Attributes use five cells, filled with `floor(value × 5 / ATTRIBUTE_MAX)`; skill bars use one cell per level. Supply groups and animal notes come from the catalog's `category` and `note`; an entry whose temperature condition fails is dim and shows that condition.
+Attributes use up to five cells, filled with `floor(value × barCells / ATTRIBUTE_MAX)`; skill bars use one cell per level. Supply groups and animal notes come from the catalog's `category` and `note`; an entry whose temperature condition fails is dim and shows that condition.
 
 Animals tab: rows `species · sex · price · [-] n [+]`, with a note line for species needing pasture or nest boxes. The `max` per entry disables `[+]` at the limit.
 
 Presets menu (`p`): Balanced, Miner's Guild, Farmstead, Warband, each with its one-line description and total; choosing replaces skills and supplies after a confirm if anything was edited.
 
 Validation display: the Embark button is dim with a reason line when over budget ("Over budget by 44 ☼"), when a dwarf has more than 10 points, or when the name is empty. Embarking with no pick, no axe, or with no food or no drink, asks first ("Embark without a pick?", "Embark without an axe?", "Embark without food or drink?"; confirmations `c_embark_no_pick`, `c_embark_no_axe`, `c_embark_no_food_drink`, default No).
+
+At 80 columns the header reduces tab and preset spacing so every caption and its mouse target fits. The reroll caption is `[r] reroll 25 ☼`. Budget, Spent and Left align against the right edge; their digits are never clipped. Attribute bars use up to five cells, reducing their width when necessary to preserve the complete attribute numbers and spacing.

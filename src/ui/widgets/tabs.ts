@@ -5,6 +5,7 @@
 
 import type { Surface } from '../surface';
 import { label } from './label';
+import { UI_NORMAL_SPACING } from '../constants';
 
 export interface TabSpec {
   readonly key: string;
@@ -19,10 +20,11 @@ export function tabs(
   items: readonly TabSpec[],
   active: number,
   onChoose: (index: number) => void,
+  spacing = UI_NORMAL_SPACING,
 ): number {
   let c = col;
   items.forEach((item, index) => {
-    if (index > 0) c += 3;
+    if (index > 0) c += spacing;
     const n = label(s, c, row, `[${item.key}] ${item.label}`);
     const rect = { col: c, row, cols: n, rows: 1 };
     if (index === active) s.invert(rect);

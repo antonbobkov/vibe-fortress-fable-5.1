@@ -112,3 +112,8 @@ export const PLATE_LEVEL_MAX = 7;
 /** The stockpile editor uses the quality tiers accepted by SetStockpileFilter. */
 export const STOCKPILE_QUALITY_MIN = 0;
 export const STOCKPILE_QUALITY_MAX = 5;
+
+/** Responsive horizontal spacing for the minimum eighty-column viewport. */
+export const UI_NORMAL_SPACING = 3;
+export const UI_COMPACT_SPACING = 1;
+export const EMBARK_PRESET_SPACING = 4;
