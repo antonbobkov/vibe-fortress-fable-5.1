@@ -1,5 +1,7 @@
 # T-275 — Units and labors: a readable activity, an idle filter, skill in the labor manager
 
+> **Collision found 2026-10-12 (ui-fixes run, not implemented):** the decision "`l` on a Units row opens the labor manager with the cursor on that dwarf" uses a key that is already taken. `l` is the panel hotkey of Labors ([`ui-keymap-and-screens.md`](../03-content/ui-keymap-and-screens.md) § Fortress panels, and the Units panel's own help row reads `[l] labors`); "Panel hotkeys always win" and "a panel's accelerator may not use one of those letters bare" (same document, § Rules), so a bare `l` in Units still opens the Labors panel. The work file names no fallback. The `[S-l]` accelerator is taken too (labor manager on the marked dwarves; it needs marks). The other keys of the decisions are free (`i` is one of the free letters `g h i q r v w x y`; `Shift+W` uses the free `w`). Decide the key for "from a Units row to the labor manager" (for example `[S-l]` without marks opens it on the cursor's dwarf) before starting; no part of this task was implemented.
+
 **Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 6, § 4) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
