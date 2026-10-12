@@ -25,8 +25,8 @@ export const WILD_LIFETIME_DAYS = 28;
 export const SPAWN_PERMILLE = 150;
 /** Tiles from any dwarf. */
 export const SPAWN_MIN_DISTANCE = 25;
-/** Pasture capacity rule. */
-export const GRASS_PER_GRAZER = 6;
+/** Growing-season capacity allowance; winter needs accessible cave moss. */
+export const GRASS_PER_GRAZER = 48;
 export const CONDITION_PER_HOUR = 2;
 export const CONDITION_PER_GRASS = 25;
 /** Days at condition 100 before a grazer dies. */

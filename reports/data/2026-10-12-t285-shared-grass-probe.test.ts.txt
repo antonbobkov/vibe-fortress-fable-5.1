@@ -1,0 +1,20 @@
+/** T-285 reproduction: several grazers receive relief for one grass tile. */
+import { describe, expect, it } from 'vitest';
+import { FLAT_TEST_SURFACE_Z as Z } from '@app/headless';
+import { C } from '@core/components';
+import { TileFlag } from '@core/map3d';
+import { TestWorld } from '../scenarios/test-world';
+describe('T-285 duplicate feeding relief', () => {
+  it('records six reliefs for one physical GrassGrazed tile', () => {
+    const w = new TestWorld({ seed: 't285-single-grass', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+    const tile = w.index(10, 10, Z); w.map.setFlag(tile, TileFlag.Grass, true);
+    const ids = ['cow', 'cow', 'sheep', 'sheep', 'goat', 'goat'].map(species => {
+      const id = w.spawnTame(species, tile, { sex: 1 });
+      w.game.world.entities.add(id, C.Tame, { ...w.game.world.entities.get(id, C.Tame)!, condition: 42 }); return id;
+    });
+    w.step(20);
+    const row = { conditions: ids.map(id => w.game.world.entities.get(id, C.Tame)?.condition), grassTilesConsumed: w.events('GrassGrazed').filter(e => e['tile'] === tile).length, grassStillPresent: w.map.hasFlag(tile, TileFlag.Grass) };
+    console.log('T-285 duplicate feeding:', JSON.stringify(row));
+    expect(row.conditions).toEqual([17, 17, 17, 17, 17, 17]); expect(row.grassTilesConsumed).toBe(1); expect(row.grassStillPresent).toBe(false);
+  });
+});

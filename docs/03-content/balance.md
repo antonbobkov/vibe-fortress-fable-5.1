@@ -168,6 +168,10 @@ A cave plot must be fully dark; a surface plot fully lit. Digging out a farm cha
 
 The pace is deliberate: the first hour of play (day 1 to about day 60) contains every basic system once, and the first raid arrives after the player has had time to build a gate.
 
+### Pasture feeding
+
+The capacity allowance uses replenishing, accessible grass per grazer, with no competing animals; the rate is defined in 08. The [pasture measurement](../../reports/audits/2026-10-12-pasture-capacity-and-winter-feeding.md) keeps six separately allocated grazers below condition 100 for 60 growing-season days and 28 winter days on cave moss. Outdoor winter is excluded from that guarantee because grass neither regrows nor remains edible under snow. The capacity warning remains conservative as standing grass is consumed; starvation and grazing rates are unchanged.
+
 ### Many-seed annual survival
 
 The standard-size, command-driven wildlife-year instrument uses twelve distinct seeds, four in each of temperate forest, taiga and temperate grassland, at peril 0. Balanced embark, the browser opening and work orders, its three-member squad and wildlife alert policy define the player. Actual immigration counts and qualifying farm areas are recorded rather than fixed to a nominal population or made uniform by extra supplies.
