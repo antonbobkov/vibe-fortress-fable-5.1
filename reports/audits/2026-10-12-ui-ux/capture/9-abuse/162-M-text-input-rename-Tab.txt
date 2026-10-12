@@ -1,0 +1,64 @@
+# flow: 9-abuse   step: 162-M-text-input-rename-Tab
+# what: Base modal: text-input-rename (screen text_input); then key Tab (Tab). The screen id after is in the dump header
+# input: key Escape x3 ; key n ; key Tab
+# tick: 400   paused: yes   screen: text_input   panel: null   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,23,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|
+01|
+02|
+03|
+04|
+05|
+06|
+07|
+08|
+09|
+10|
+11|
+12|
+13|
+14|
+15|
+16|
+17|
+18|
+19|
+20|
+21|
+22|                       Rename Grimvault
+23|
+24|                       [ Grimvault____________________ ]
+25|                       9/32
+26|                       [Enter] accept  [Esc] cancel
+27|
+28|
+29|
+30|
+31|
+32|
+33|
+34|
+35|
+36|
+37|
+38|
+39|
+40|
+41|
+42|
+43|
+44|
+45|
+46|
+47|
+48|
+49|
+----- log strip rows -----
+
+
+
+----- status rows -----
+
+

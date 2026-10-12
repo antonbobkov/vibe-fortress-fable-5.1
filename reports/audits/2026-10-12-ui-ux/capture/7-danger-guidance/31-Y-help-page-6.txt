@@ -1,0 +1,64 @@
+# flow: 7-danger-guidance   step: 31-Y-help-page-6
+# what: Help panel PageDown (page 6)
+# input: key PageDown
+# tick: 84400   paused: yes   screen: fortress   panel: help   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,25,28   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|♣""↑♠♣""""↑"""↑"""♣""""♣"↑""♣""↑""""""""""♣"│ Help                          [?]
+01|"""♣""""♣♣""""↑♣♣""""↑""↑""""""↑"""""""♣""""│ [1] Keys   [2] Legend
+02|"""↑""""↑♣↑"""↑"╥≡╥"""""↑""♠""""♣""↑"""♣"♣""│ Shift+letter  a panel action on a
+03|"""↑"↑"♣↑"""""""≡┼≡"""♣""""""""♣"↑"↑""""""♣"│ World map
+04|"""""""""""""""↑╥Ю╥""""""♣♣"♣""""♣♣"↑""↑""↑"│ ←→↑↓  move the cursor (Shift: 8)
+05|""""""""♣↑"♠""↑""""""""♣•?•"""""""""♠♣"""♣"↑│ f  filter panel
+06|↑♣♣♣"♣""♣""♣""↑♣♣""♣""""?┼?↑☺"""""♣"↑Ю☼Ю""""│ Enter  embark on the region
+07|"""""↑""♣↑♣""""↑↑""♣"↑↑"•?•""?""↑""""☼Ю☼♣""♠│ ?  biome legend
+08|"♣"♣""""""""♣""""♣"♣↑↑↑"""""""☼""♣"""Ю☼Ю♣↑↑"│ Embark
+09|"♣""""↑"""♣↑"""↑↑""♣""""♣"♣"☺""""""♣""""↑""♠│ 1-3  Dwarves / Supplies / Animals
+10|"""↑↑"♣♣"♠↑♣"♣""""♣"""""↑""""""""""""""""♣""│ + -  adjust the selected skill or
+11|↑"""♣"""""""♣↑↑♣"""↑♣""%╥%↑"""↑"♣♣""""""""""│ r  reroll the selected dwarf
+12|"""""""""↑""""♣""↑♣""""╥┼╥↑"""↑♣""""♣"↑↑♣"""│ n  rename
+13|""♣"♣♣♣"♠""""""""""♣"♣"%╥%"♣""""♣"↑↑♣♣""""""│ p  presets menu
+14|""""""↑"""↑♣"""↑"""""♣""↑"♣"↑""""""♣↑"""""""│ Enter  Embark
+15|"""↑"""♣""""""""""""""""""""↑"""""""""""""""│ Trade session
+16|"♣""♣""♣♣""""""♣""♣↑"♣♣""""""""♠""""♣♣♣"""""│ Tab  switch column
+17|"""""""""↑"♣"♣♣""""""↑"♣""""""""""""""""""""│ + -  quantity
+18|↑"""↑↑♣♣""♣""""""♣♠""""""""""""""♣♠""""♠""""│ Enter  offer
+19|"""""""""""↑↑""♣"""""♠"""""""↑"↑"""""↑"↑"♣""│ g  gift (offer with nothing taken
+20|"""""""""""""♣"""♣↑""""♠♣""""""♣""""↑♣""""""│ Esc  close
+21|"""""""♣↑"♣"""""♣""♣♣""♣"""♣""""""""♣"""♠"↑"│ Labor manager
+22|"">""""↑""""♣"↑"↑""↑"""↑↑""""↑""""""""""""""│ ←→↑↓  move the labor cursor (Shif
+23|""""""""""""♣"""♠♠"♣""""""♣""""♣♣↑""""♣"""""│ Space  mark the dwarf
+24|○═○"≡"""""♣↑""♣""↑♣"♣↑"♣""""""""""""""↑"""""│ *  mark all / none
+25|═▄═""""""""♣""""""""♣♣"""""""""↑""""""""""""│ Enter  toggle the labor (for ever
+26|dddðððð↑"♣♣"""""♣"↑""♣"""""♣"↑"""↑"""""♣"♣""│ a  whole row on / off
+27|ddc∫""Ю""""♣"""""♣♣"""♣"♠"""↑"""""♣"""""""""│ c  whole column on / off (the mar
+28|""≡ЮЮðЮ"""""""♣"↑""♣♣""""""""""↑"""↑""↑"♣♣""│ + -  labor priority up / down
+29|♣""ð≡♣ð♣"""""♣""""""↑↑♣""""""""""↑"♣""""""""│ 1-9  set the labor priority
+30|"≡"""""↑""""""""""""♣↑♣♠↑"""""♠"""""""♣"↑""♣│ t  profession templates
+31|"♣"""↑""♠♣"""""""♠""↑""""♣"""↑"""♣""♣""♣""↑♠│ Esc  close
+32|"""""""♣"♣""♣"""""↑""""""♠"""♣♣"↑""↑"""""""♣│ Units panel
+33|"♣↑"♣"""""♣""""♠""♣"""""""♠"♣♣"♣""♣""♣"↑♣"""│ Space  mark the row (does not pau
+34|""↑♣"♣♣"""""""""♣♣"""♣""♠♣"♣"""♣"""""↑↑"""""│ *  mark all / none
+35|♣""""""♣♠""↑♠"""""""""♣♣♠""""♣↑↑♣↑""""↑♣"↑""│ Shift+T  give or take away a titl
+36|""""""♣""♠""""""""""""""↑"♠""""♣↑"""♣"""""""│ Shift+N  rename the dwarf
+37|"""""""""""↑"""↑♣"""""♣"""♣"""""""""""""""""│ Shift+M  add the marked dwarves t
+38|""""""↑""↑""""""""""""""""""""↑"""♣"""""""""│ [ ]  sleep an hour earlier / late
+39|""↑"♣"""""""""""""↑"""♣"""♣"""""""""↑"♠"""♣"│ Military panel
+40|"↑↑♣""""↑↑♣"""""↑""""↑"""""""↑""""↑""♣↑↑"↑""│ Space  mark the row (does not pau
+41|"""♠""↑""♣"""""♣"↑""↑♣↑♣"↑♣"""""↑""""""♣♣♠""│ *  mark all / none
+42|"""↑""""↑""↑""♣""""♣""""""""""""""↑"↑""""""♣│ Enter  add or remove every marked
+43|"↑"♣""♣♣"""""♣♣""""♣↑♣""↑""""""""♣""♣"↑"""↑"│ Shift+L  choose the squad leader
+44|♠""""↑"♣"""↑""↑"""""""♣"""♣♣"""↑"↑↑"""""""""│ Shift+B  assign a barracks51/130
+45| ! Gefjun Runemark is starving.
+46| ! Vidar Shaletongue is starving.
+47| ! Gloin Ashcloak is starving.
+48| Day 15 of Autumn, Year 1   ☼ clear 17°C   ☺ 12   ♥ Miserable   z 28   ║ [?] hel
+49| Loam floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»
+----- log strip rows -----
+ ! Gefjun Runemark is starving.
+ ! Vidar Shaletongue is starving.
+ ! Gloin Ashcloak is starving.
+----- status rows -----
+ Day 15 of Autumn, Year 1   ☼ clear 17°C   ☺ 12   ♥ Miserable   z 28   ║ [?] hel
+ Loam floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»

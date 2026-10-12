@@ -1,0 +1,4967 @@
+[
+ {
+  "n": 1,
+  "id": "01-A-embark",
+  "slug": "A-embark",
+  "what": "Embark screen reached by keyboard (setup keys not recorded here)",
+  "input": [
+   "navigate /",
+   "key n",
+   "key g",
+   "key Enter",
+   "key ArrowRight x3",
+   "key ArrowDown x4",
+   "key Enter"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "01-A-embark.png",
+  "pngNote": "",
+  "txt": "01-A-embark.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "                              │   Trading          [-] 0 [+]",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,480   Left 20"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / ► Thurid Ashspark  10/10 │ Thurid Ashspark  [n] rename / Kolfinna Shaleward  10/10 │ Female · 58 years  [r] reroll (25 ☼ / Vidar Elkaxe  10/10 │ Str ▓▓░░░ 53 Agi ▓▓░░░ 56 Tou ▓▓▓░░ 60 End ▓▓░░░ / Frode Bronzebrook  10/10 │ Wil ▓▓░░░ 54 Wit ▓▓░░░ 40 Cha ▓▓▓░░ 68 / Vali Forgeaxe  10/10 │ Messy · Solitary · Stoic / Kolfinna Brinefoot  10/10 │ ─── Skills (points left: 0) ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 2,
+  "id": "02-A-supplies",
+  "slug": "A-supplies",
+  "what": "Key 2: Supplies tab",
+  "input": [
+   "key 2"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "02-A-supplies.png",
+  "pngNote": "",
+  "txt": "02-A-supplies.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,480   Left 20"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / /filter: [ __________ ]  Tools │ Food │ Drink │ Seeds │ Materials │ Furniture / ► Iron anvil  270 ☼  [-]  0 [+] / Copper axe  96 ☼  [-]  0 [+] / Iron axe  144 ☼  [-]  1 [+]  =  144 / 25 copper bolts  60 ☼  [-]  1 [+]  =  60 / 25 iron bolts  90 ☼  [-]  0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 3,
+  "id": "03-A-cursor-axe",
+  "slug": "A-cursor-axe",
+  "what": "ArrowDown x2: cursor on \"Iron axe\"",
+  "input": [
+   "key ArrowDown x2"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "03-A-cursor-axe.png",
+  "pngNote": "",
+  "txt": "03-A-cursor-axe.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,480   Left 20"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / /filter: [ __________ ]  Tools │ Food │ Drink │ Seeds │ Materials │ Furniture / Iron anvil  270 ☼  [-]  0 [+] / Copper axe  96 ☼  [-]  0 [+] / ► Iron axe  144 ☼  [-]  1 [+]  =  144 / 25 copper bolts  60 ☼  [-]  1 [+]  =  60 / 25 iron bolts  90 ☼  [-]  0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 4,
+  "id": "04-A-axe-zero",
+  "slug": "A-axe-zero",
+  "what": "Key -: iron axe count to 0",
+  "input": [
+   "key -"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "04-A-axe-zero.png",
+  "pngNote": "",
+  "txt": "04-A-axe-zero.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,336   Left 16"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / /filter: [ __________ ]  Tools │ Food │ Drink │ Seeds │ Materials │ Furniture / Iron anvil  270 ☼  [-]  0 [+] / Copper axe  96 ☼  [-]  0 [+] / ► Iron axe  144 ☼  [-]  0 [+] / 25 copper bolts  60 ☼  [-]  1 [+]  =  60 / 25 iron bolts  90 ☼  [-]  0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 5,
+  "id": "05-A-embark-no-axe",
+  "slug": "A-embark-no-axe",
+  "what": "Key Enter on the Supplies tab with no axe: the question",
+  "input": [
+   "key Enter"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "confirm",
+  "panel": null,
+  "png": "05-A-embark-no-axe.png",
+  "pngNote": "",
+  "txt": "05-A-embark-no-axe.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN confirm: Embark without an axe? / [y] Yes  [n] No",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 6,
+  "id": "06-A-answer-escape",
+  "slug": "A-answer-escape",
+  "what": "Key Escape: answer to the question (default is No)",
+  "input": [
+   "key Escape"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "06-A-answer-escape.png",
+  "pngNote": "",
+  "txt": "06-A-answer-escape.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,336   Left 16"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / /filter: [ __________ ]  Tools │ Food │ Drink │ Seeds │ Materials │ Furniture / Iron anvil  270 ☼  [-]  0 [+] / Copper axe  96 ☼  [-]  0 [+] / ► Iron axe  144 ☼  [-]  0 [+] / 25 copper bolts  60 ☼  [-]  1 [+]  =  60 / 25 iron bolts  90 ☼  [-]  0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 7,
+  "id": "07-A-axe-restored",
+  "slug": "A-axe-restored",
+  "what": "Key +: iron axe back to 1",
+  "input": [
+   "key +"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "07-A-axe-restored.png",
+  "pngNote": "",
+  "txt": "07-A-axe-restored.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,480   Left 20"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / /filter: [ __________ ]  Tools │ Food │ Drink │ Seeds │ Materials │ Furniture / Iron anvil  270 ☼  [-]  0 [+] / Copper axe  96 ☼  [-]  0 [+] / ► Iron axe  144 ☼  [-]  1 [+]  =  144 / 25 copper bolts  60 ☼  [-]  1 [+]  =  60 / 25 iron bolts  90 ☼  [-]  0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 8,
+  "id": "08-A-cursor-pick",
+  "slug": "A-cursor-pick",
+  "what": "ArrowDown x12: towards the pick rows",
+  "input": [
+   "key ArrowDown x12"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "08-A-cursor-pick.png",
+  "pngNote": "",
+  "txt": "08-A-cursor-pick.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,480   Left 20"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / /filter: [ __________ ]  Tools │ Food │ Drink │ Seeds │ Materials │ Furniture / Iron anvil  270 ☼  [-]  0 [+] / Copper axe  96 ☼  [-]  0 [+] / Iron axe  144 ☼  [-]  1 [+]  =  144 / 25 copper bolts  60 ☼  [-]  1 [+]  =  60 / 25 iron bolts  90 ☼  [-]  0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 9,
+  "id": "09-A-pick-zero",
+  "slug": "A-pick-zero",
+  "what": "Key - x2 on the highlighted row",
+  "input": [
+   "key - x2"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "09-A-pick-zero.png",
+  "pngNote": "",
+  "txt": "09-A-pick-zero.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,264   Left 23"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / /filter: [ __________ ]  Tools │ Food │ Drink │ Seeds │ Materials │ Furniture / Iron anvil  270 ☼  [-]  0 [+] / Copper axe  96 ☼  [-]  0 [+] / Iron axe  144 ☼  [-]  1 [+]  =  144 / 25 copper bolts  60 ☼  [-]  1 [+]  =  60 / 25 iron bolts  90 ☼  [-]  0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 10,
+  "id": "10-A-embark-no-pick",
+  "slug": "A-embark-no-pick",
+  "what": "Key Enter with the highlighted row at zero: the question, if any",
+  "input": [
+   "key Enter"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "confirm",
+  "panel": null,
+  "png": "10-A-embark-no-pick.png",
+  "pngNote": "",
+  "txt": "10-A-embark-no-pick.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN confirm: Embark without a pick? / [y] Yes  [n] No",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 11,
+  "id": "11-A-pick-restored",
+  "slug": "A-pick-restored",
+  "what": "Key + x2 (restore)",
+  "input": [
+   "key Escape",
+   "key + x2"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "11-A-pick-restored.png",
+  "pngNote": "",
+  "txt": "11-A-pick-restored.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,480   Left 20"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / /filter: [ __________ ]  Tools │ Food │ Drink │ Seeds │ Materials │ Furniture / Iron anvil  270 ☼  [-]  0 [+] / Copper axe  96 ☼  [-]  0 [+] / Iron axe  144 ☼  [-]  1 [+]  =  144 / 25 copper bolts  60 ☼  [-]  1 [+]  =  60 / 25 iron bolts  90 ☼  [-]  0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 12,
+  "id": "12-A-fortress",
+  "slug": "A-fortress",
+  "what": "Key Enter: fortress screen",
+  "input": [
+   "key 1",
+   "key Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "12-A-fortress.png",
+  "pngNote": "",
+  "txt": "12-A-fortress.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 13,
+  "id": "13-B-designate-1280x800",
+  "slug": "B-designate-1280x800",
+  "what": "Panel designate (key d) at 1280x800",
+  "input": [
+   "key d"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "13-B-designate-1280x800.png",
+  "pngNote": "",
+  "txt": "13-B-designate-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Dig · priority 5 · [Esc] cancel"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Dig · priority 5 · [Esc] cancel || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 14,
+  "id": "14-B-build-1280x800",
+  "slug": "B-build-1280x800",
+  "what": "Panel build (key b) at 1280x800",
+  "input": [
+   "key b"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "14-B-build-1280x800.png",
+  "pngNote": "",
+  "txt": "14-B-build-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 15,
+  "id": "15-B-zones-1280x800",
+  "slug": "B-zones-1280x800",
+  "what": "Panel zones (key z) at 1280x800",
+  "input": [
+   "key z"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "15-B-zones-1280x800.png",
+  "pngNote": "",
+  "txt": "15-B-zones-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 16,
+  "id": "16-B-units-1280x800",
+  "slug": "B-units-1280x800",
+  "what": "Panel units (key u) at 1280x800",
+  "input": [
+   "key u"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "16-B-units-1280x800.png",
+  "pngNote": "",
+  "txt": "16-B-units-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    No jo",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 17,
+  "id": "17-B-jobs-1280x800",
+  "slug": "B-jobs-1280x800",
+  "what": "Panel jobs (key j) at 1280x800",
+  "input": [
+   "key j"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "jobs",
+  "png": "17-B-jobs-1280x800.png",
+  "pngNote": "",
+  "txt": "17-B-jobs-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Jobs                          [j] / 0 open · 0 claimed · 0 blocked / /filter: [ ____________________ ] / [S-l] labor: all",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 18,
+  "id": "18-B-labors-1280x800",
+  "slug": "B-labors-1280x800",
+  "what": "Panel labors (key l) at 1280x800",
+  "input": [
+   "key l"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "labors",
+  "png": "18-B-labors-1280x800.png",
+  "pngNote": "",
+  "txt": "18-B-labors-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Labors                        [l] / An An Br Bu Ca Cl Co » / Thurid A.  ■  ■  ■  ■  ■  ■  ■ / Kolfinna S ■  ■  ■  ■  ■  ■  ■",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 19,
+  "id": "19-B-orders-1280x800",
+  "slug": "B-orders-1280x800",
+  "what": "Panel orders (key o) at 1280x800",
+  "input": [
+   "key o"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "19-B-orders-1280x800.png",
+  "pngNote": "",
+  "txt": "19-B-orders-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / [S-n] new order  all workshops / No work orders. [S-n] adds one, / or click a workshop on the map.",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 20,
+  "id": "20-B-stocks-1280x800",
+  "slug": "B-stocks-1280x800",
+  "what": "Panel stocks (key s) at 1280x800",
+  "input": [
+   "key s"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "20-B-stocks-1280x800.png",
+  "pngNote": "",
+  "txt": "20-B-stocks-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Stocks                        [s] / /filter: [ ____________________ ] / ► food               60     190 ☼ / ► drink              60     120 ☼",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 21,
+  "id": "21-B-military-1280x800",
+  "slug": "B-military-1280x800",
+  "what": "Panel military (key m) at 1280x800",
+  "input": [
+   "key m"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "21-B-military-1280x800.png",
+  "pngNote": "",
+  "txt": "21-B-military-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 22,
+  "id": "22-B-animals-1280x800",
+  "slug": "B-animals-1280x800",
+  "what": "Panel animals (key n) at 1280x800",
+  "input": [
+   "key n"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "animals",
+  "png": "22-B-animals-1280x800.png",
+  "pngNote": "",
+  "txt": "22-B-animals-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Animals                       [n] / [1] Tame (3)  [2] Wild (0) / Species Name   Pastu Cond/Tr / dog     -      -     0",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 23,
+  "id": "23-B-threats-1280x800",
+  "slug": "B-threats-1280x800",
+  "what": "Panel threats (key t) at 1280x800",
+  "input": [
+   "key t"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "threats",
+  "png": "23-B-threats-1280x800.png",
+  "pngNote": "",
+  "txt": "23-B-threats-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Threats                       [t] / Peril 0 · Renown 0.0 / Wealth and population draw attent / Active: none",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 24,
+  "id": "24-B-civilizations-1280x800",
+  "slug": "B-civilizations-1280x800",
+  "what": "Panel civilizations (key c) at 1280x800",
+  "input": [
+   "key c"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "civilizations",
+  "png": "24-B-civilizations-1280x800.png",
+  "pngNote": "",
+  "txt": "24-B-civilizations-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Civilizations                 [c] / ► Mountainhome rep +0 spring / Hillfolk rep +0 summer / Wildwood rep +0 autumn",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 25,
+  "id": "25-B-population-1280x800",
+  "slug": "B-population-1280x800",
+  "what": "Panel population (key p) at 1280x800",
+  "input": [
+   "key p"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "population",
+  "png": "25-B-population-1280x800.png",
+  "pngNote": "",
+  "txt": "25-B-population-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Population                    [p] / 7 dwarves (0 children) / Cap [-] 80 [+] / Hall spirit: Fine (55)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 26,
+  "id": "26-B-mood-1280x800",
+  "slug": "B-mood-1280x800",
+  "what": "Panel mood (key e) at 1280x800",
+  "input": [
+   "key e"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "mood",
+  "png": "26-B-mood-1280x800.png",
+  "pngNote": "",
+  "txt": "26-B-mood-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Mood                          [e] / Hall spirit ♥ Fine (55) / Name         Tier     Top thought / Thurid Ashsp Fine",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 27,
+  "id": "27-B-log-1280x800",
+  "slug": "B-log-1280x800",
+  "what": "Panel log (key a) at 1280x800",
+  "input": [
+   "key a"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": "27-B-log-1280x800.png",
+  "pngNote": "",
+  "txt": "27-B-log-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Log                           [a] / [1] All  [2] Alerts  [3] Combat / ☼ Designate a place to dig with [",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 28,
+  "id": "28-B-overlays-1280x800",
+  "slug": "B-overlays-1280x800",
+  "what": "Panel overlays (key f) at 1280x800",
+  "input": [
+   "key f"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "overlays",
+  "png": "28-B-overlays-1280x800.png",
+  "pngNote": "",
+  "txt": "28-B-overlays-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Overlays                      [f] / [■] designations / [ ] priority digits / [■] zones",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 29,
+  "id": "29-B-help-1280x800",
+  "slug": "B-help-1280x800",
+  "what": "Panel help (key ?) at 1280x800",
+  "input": [
+   "key ?"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "29-B-help-1280x800.png",
+  "pngNote": "",
+  "txt": "29-B-help-1280x800.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / Fortress panels / d  Designate panel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 30,
+  "id": "30-B-small-fortress",
+  "slug": "B-small-fortress",
+  "what": "Window resized to 960x540 (the smallest at which the 80x45 minimum grid fits at the smallest zoom, 0.75, cells of 12 px)",
+  "input": [
+   "key Escape",
+   "viewport resize 960x540"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "30-B-small-fortress.png",
+  "pngNote": "",
+  "txt": "30-B-small-fortress.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 31,
+  "id": "31-B-designate-960x540",
+  "slug": "B-designate-960x540",
+  "what": "Panel designate (key d) at 960x540",
+  "input": [
+   "key d"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "31-B-designate-960x540.png",
+  "pngNote": "",
+  "txt": "31-B-designate-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Dig · priority 5 · [Esc] cancel"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Dig · priority 5 · [Esc] cancel || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 32,
+  "id": "32-B-build-960x540",
+  "slug": "B-build-960x540",
+  "what": "Panel build (key b) at 960x540",
+  "input": [
+   "key b"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "32-B-build-960x540.png",
+  "pngNote": "",
+  "txt": "32-B-build-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 33,
+  "id": "33-B-zones-960x540",
+  "slug": "B-zones-960x540",
+  "what": "Panel zones (key z) at 960x540",
+  "input": [
+   "key z"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "33-B-zones-960x540.png",
+  "pngNote": "",
+  "txt": "33-B-zones-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 34,
+  "id": "34-B-units-960x540",
+  "slug": "B-units-960x540",
+  "what": "Panel units (key u) at 960x540",
+  "input": [
+   "key u"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "34-B-units-960x540.png",
+  "pngNote": "",
+  "txt": "34-B-units-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    No jo",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 35,
+  "id": "35-B-jobs-960x540",
+  "slug": "B-jobs-960x540",
+  "what": "Panel jobs (key j) at 960x540",
+  "input": [
+   "key j"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "jobs",
+  "png": "35-B-jobs-960x540.png",
+  "pngNote": "",
+  "txt": "35-B-jobs-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Jobs                          [j] / 0 open · 0 claimed · 0 blocked / /filter: [ ____________________ ] / [S-l] labor: all",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 36,
+  "id": "36-B-labors-960x540",
+  "slug": "B-labors-960x540",
+  "what": "Panel labors (key l) at 960x540",
+  "input": [
+   "key l"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "labors",
+  "png": "36-B-labors-960x540.png",
+  "pngNote": "",
+  "txt": "36-B-labors-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Labors                        [l] / An An Br Bu Ca Cl Co » / Thurid A.  ■  ■  ■  ■  ■  ■  ■ / Kolfinna S ■  ■  ■  ■  ■  ■  ■",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 37,
+  "id": "37-B-orders-960x540",
+  "slug": "B-orders-960x540",
+  "what": "Panel orders (key o) at 960x540",
+  "input": [
+   "key o"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "37-B-orders-960x540.png",
+  "pngNote": "",
+  "txt": "37-B-orders-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / [S-n] new order  all workshops / No work orders. [S-n] adds one, / or click a workshop on the map.",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 38,
+  "id": "38-B-stocks-960x540",
+  "slug": "B-stocks-960x540",
+  "what": "Panel stocks (key s) at 960x540",
+  "input": [
+   "key s"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "38-B-stocks-960x540.png",
+  "pngNote": "",
+  "txt": "38-B-stocks-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Stocks                        [s] / /filter: [ ____________________ ] / ► food               60     190 ☼ / ► drink              60     120 ☼",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 39,
+  "id": "39-B-military-960x540",
+  "slug": "B-military-960x540",
+  "what": "Panel military (key m) at 960x540",
+  "input": [
+   "key m"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "39-B-military-960x540.png",
+  "pngNote": "",
+  "txt": "39-B-military-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 40,
+  "id": "40-B-animals-960x540",
+  "slug": "B-animals-960x540",
+  "what": "Panel animals (key n) at 960x540",
+  "input": [
+   "key n"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "animals",
+  "png": "40-B-animals-960x540.png",
+  "pngNote": "",
+  "txt": "40-B-animals-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Animals                       [n] / [1] Tame (3)  [2] Wild (0) / Species Name   Pastu Cond/Tr / dog     -      -     0",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 41,
+  "id": "41-B-threats-960x540",
+  "slug": "B-threats-960x540",
+  "what": "Panel threats (key t) at 960x540",
+  "input": [
+   "key t"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "threats",
+  "png": "41-B-threats-960x540.png",
+  "pngNote": "",
+  "txt": "41-B-threats-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Threats                       [t] / Peril 0 · Renown 0.0 / Wealth and population draw attent / Active: none",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 42,
+  "id": "42-B-civilizations-960x540",
+  "slug": "B-civilizations-960x540",
+  "what": "Panel civilizations (key c) at 960x540",
+  "input": [
+   "key c"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "civilizations",
+  "png": "42-B-civilizations-960x540.png",
+  "pngNote": "",
+  "txt": "42-B-civilizations-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Civilizations                 [c] / ► Mountainhome rep +0 spring / Hillfolk rep +0 summer / Wildwood rep +0 autumn",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 43,
+  "id": "43-B-population-960x540",
+  "slug": "B-population-960x540",
+  "what": "Panel population (key p) at 960x540",
+  "input": [
+   "key p"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "population",
+  "png": "43-B-population-960x540.png",
+  "pngNote": "",
+  "txt": "43-B-population-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Population                    [p] / 7 dwarves (0 children) / Cap [-] 80 [+] / Hall spirit: Fine (55)",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 44,
+  "id": "44-B-mood-960x540",
+  "slug": "B-mood-960x540",
+  "what": "Panel mood (key e) at 960x540",
+  "input": [
+   "key e"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "mood",
+  "png": "44-B-mood-960x540.png",
+  "pngNote": "",
+  "txt": "44-B-mood-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Mood                          [e] / Hall spirit ♥ Fine (55) / Name         Tier     Top thought / Thurid Ashsp Fine",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 45,
+  "id": "45-B-log-960x540",
+  "slug": "B-log-960x540",
+  "what": "Panel log (key a) at 960x540",
+  "input": [
+   "key a"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": "45-B-log-960x540.png",
+  "pngNote": "",
+  "txt": "45-B-log-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Log                           [a] / [1] All  [2] Alerts  [3] Combat / ☼ Designate a place to dig with [",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 46,
+  "id": "46-B-overlays-960x540",
+  "slug": "B-overlays-960x540",
+  "what": "Panel overlays (key f) at 960x540",
+  "input": [
+   "key f"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "overlays",
+  "png": "46-B-overlays-960x540.png",
+  "pngNote": "",
+  "txt": "46-B-overlays-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Overlays                      [f] / [■] designations / [ ] priority digits / [■] zones",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 47,
+  "id": "47-B-help-960x540",
+  "slug": "B-help-960x540",
+  "what": "Panel help (key ?) at 960x540",
+  "input": [
+   "key ?"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "47-B-help-960x540.png",
+  "pngNote": "",
+  "txt": "47-B-help-960x540.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / Fortress panels / d  Designate panel",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 48,
+  "id": "48-B-back-1280",
+  "slug": "B-back-1280",
+  "what": "Window back to 1280x800",
+  "input": [
+   "key Escape",
+   "viewport resize 1280x800"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "48-B-back-1280.png",
+  "pngNote": "",
+  "txt": "48-B-back-1280.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 49,
+  "id": "49-C-orders-empty",
+  "slug": "C-orders-empty",
+  "what": "Key o: Orders panel with no orders (is \"new order\" findable?)",
+  "input": [
+   "key o"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "49-C-orders-empty.png",
+  "pngNote": "",
+  "txt": "49-C-orders-empty.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / [S-n] new order  all workshops / No work orders. [S-n] adds one, / or click a workshop on the map.",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 50,
+  "id": "50-C-picker",
+  "slug": "C-picker",
+  "what": "Key Shift+N: Add order picker",
+  "input": [
+   "key Shift+N"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "50-C-picker.png",
+  "pngNote": "",
+  "txt": "50-C-picker.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / Add order / Find [ ________________________ ] / ─── Ammo ───────────────────────█",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 51,
+  "id": "51-C-picker-filter",
+  "slug": "C-picker-filter",
+  "what": "Typed \"barrel\"",
+  "input": [
+   "type \"barrel\""
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "51-C-picker-filter.png",
+  "pngNote": "",
+  "txt": "51-C-picker-filter.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / Add order / Find [ barrel__________________ ] / ─── Container ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 52,
+  "id": "52-C-picker-down",
+  "slug": "C-picker-down",
+  "what": "ArrowDown: next recipe",
+  "input": [
+   "key ArrowDown"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "52-C-picker-down.png",
+  "pngNote": "",
+  "txt": "52-C-picker-down.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / Add order / Find [ barrel__________________ ] / ─── Container ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 53,
+  "id": "53-C-picker-tab1",
+  "slug": "C-picker-tab1",
+  "what": "Tab: next field",
+  "input": [
+   "key Tab"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "53-C-picker-tab1.png",
+  "pngNote": "",
+  "txt": "53-C-picker-tab1.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / Add order / Find [ barrel__________________ ] / ─── Container ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 54,
+  "id": "54-C-picker-tab2",
+  "slug": "C-picker-tab2",
+  "what": "Tab: next field",
+  "input": [
+   "key Tab"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "54-C-picker-tab2.png",
+  "pngNote": "",
+  "txt": "54-C-picker-tab2.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / Add order / Find [ barrel__________________ ] / ─── Container ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 55,
+  "id": "55-C-picker-right",
+  "slug": "C-picker-right",
+  "what": "ArrowRight: change the focused field",
+  "input": [
+   "key ArrowRight"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "55-C-picker-right.png",
+  "pngNote": "",
+  "txt": "55-C-picker-right.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / Add order / Find [ barrel__________________ ] / ─── Container ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 56,
+  "id": "56-C-picker-plus",
+  "slug": "C-picker-plus",
+  "what": "Key =: quantity up",
+  "input": [
+   "key ="
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "56-C-picker-plus.png",
+  "pngNote": "",
+  "txt": "56-C-picker-plus.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / Add order / Find [ barrel__________________ ] / ─── Container ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 57,
+  "id": "57-C-picker-plus10",
+  "slug": "C-picker-plus10",
+  "what": "Key Shift+=: quantity up by ten",
+  "input": [
+   "key Shift+="
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "57-C-picker-plus10.png",
+  "pngNote": "",
+  "txt": "57-C-picker-plus10.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / Add order / Find [ barrel__________________ ] / ─── Container ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 58,
+  "id": "58-C-picker-added",
+  "slug": "C-picker-added",
+  "what": "Key Enter: order added",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "58-C-picker-added.png",
+  "pngNote": "",
+  "txt": "58-C-picker-added.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Ordered: ≥12 Barrel · any carpenter's workshop"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Ordered: ≥12 Barrel · any carpenter's workshop || PANEL: Orders                        [o] / [S-n] new order  all workshops / ─── Any workshop ──────────────── / ≥12 Barrel · no carpenter's works",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 59,
+  "id": "59-C-order-count-plus",
+  "slug": "C-order-count-plus",
+  "what": "Key = with the new order selected: its count",
+  "input": [
+   "key ="
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "59-C-order-count-plus.png",
+  "pngNote": "",
+  "txt": "59-C-order-count-plus.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Ordered: ≥12 Barrel · any carpenter's workshop"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Ordered: ≥12 Barrel · any carpenter's workshop || PANEL: Orders                        [o] / [S-n] new order  all workshops / ─── Any workshop ──────────────── / ≥13 Barrel · no carpenter's works",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 60,
+  "id": "60-C-order-shift-up",
+  "slug": "C-order-shift-up",
+  "what": "Key Shift+ArrowUp with one order",
+  "input": [
+   "key Shift+ArrowUp"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "60-C-order-shift-up.png",
+  "pngNote": "",
+  "txt": "60-C-order-shift-up.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " That order is already first in its queue."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / That order is already first in its queue. || PANEL: Orders                        [o] / [S-n] new order  all workshops / ─── Any workshop ──────────────── / ≥13 Barrel · no carpenter's works",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 61,
+  "id": "61-C-order-repeat",
+  "slug": "C-order-repeat",
+  "what": "Key r: repeat the selected order",
+  "input": [
+   "key r"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "61-C-order-repeat.png",
+  "pngNote": "",
+  "txt": "61-C-order-repeat.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Ordered: ≥13 Barrel · any carpenter's workshop"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Ordered: ≥13 Barrel · any carpenter's workshop || PANEL: Orders                        [o] / [S-n] new order  all workshops / ─── Any workshop ──────────────── / ≥13 Barrel · no carpenter's works",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 62,
+  "id": "62-C-order-remove-confirm",
+  "slug": "C-order-remove-confirm",
+  "what": "Key x: remove the selected order (confirmation)",
+  "input": [
+   "key x"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "confirm",
+  "panel": "orders",
+  "png": "62-C-order-remove-confirm.png",
+  "pngNote": "",
+  "txt": "62-C-order-remove-confirm.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN confirm: Remove the order for Barrel? Work in progress on it / stops. / [y] Yes  [n] No",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 63,
+  "id": "63-C-order-remove-escape",
+  "slug": "C-order-remove-escape",
+  "what": "Key Escape: answer to the confirmation",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "63-C-order-remove-escape.png",
+  "pngNote": "",
+  "txt": "63-C-order-remove-escape.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Ordered: ≥13 Barrel · any carpenter's workshop"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Ordered: ≥13 Barrel · any carpenter's workshop || PANEL: Orders                        [o] / [S-n] new order  all workshops / ─── Any workshop ──────────────── / ≥13 Barrel · no carpenter's works",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 64,
+  "id": "64-D-furniture",
+  "slug": "D-furniture",
+  "what": "Key b, Shift+F: Furniture list",
+  "input": [
+   "key Escape",
+   "key b",
+   "key Shift+F"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "64-D-furniture.png",
+  "pngNote": "",
+  "txt": "64-D-furniture.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Ordered: ≥13 Barrel · any carpenter's workshop"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Ordered: ≥13 Barrel · any carpenter's workshop || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 65,
+  "id": "65-D-bed-tool",
+  "slug": "D-bed-tool",
+  "what": "Clicked the \"Bed\" row",
+  "input": [
+   "left-click cell(col 73, row 7) px(882,90) [text \"Bed \"]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "65-D-bed-tool.png",
+  "pngNote": "",
+  "txt": "65-D-bed-tool.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Ordered: ≥13 Barrel · any carpenter's workshop"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Ordered: ≥13 Barrel · any carpenter's workshop || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 66,
+  "id": "66-D-bed-dragging",
+  "slug": "D-bed-dragging",
+  "what": "Mid-drag over five tiles with the Bed tool (button held): ghost footprints and the status row count",
+  "input": [
+   "left-down at tile 28,33; move to tile 32,33 (not released)"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "66-D-bed-dragging.png",
+  "pngNote": "",
+  "txt": "66-D-bed-dragging.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Bed x5 · 3 beds in stock: 2 will wait · build a carpenter's workshop to make them"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Bed x5 · 3 beds in stock: 2 will wait · build a carpenter's workshop to make them || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 67,
+  "id": "67-D-bed-released",
+  "slug": "D-bed-released",
+  "what": "Released: beds placed, message about skipped tiles if any",
+  "input": [
+   "left-up"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "67-D-bed-released.png",
+  "pngNote": "",
+  "txt": "67-D-bed-released.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Bed x5 placed · 3 beds in stock: 2 will wait · build a carpenter's workshop to make them"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Bed x5 placed · 3 beds in stock: 2 will wait · build a carpenter's workshop to make them || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 68,
+  "id": "68-D-door-dragging",
+  "slug": "D-door-dragging",
+  "what": "Mid-drag over five open-ground tiles with the Door tool: status row count",
+  "input": [
+   "key Escape x2",
+   "key b",
+   "key Shift+F",
+   "left-click cell(col 73, row 14) px(882,174) [text \"Door\"]",
+   "left-down at tile 35,33; move to tile 39,33 (not released)"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "68-D-door-dragging.png",
+  "pngNote": "",
+  "txt": "68-D-door-dragging.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Door x0, 5 tiles blocked"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Door x0, 5 tiles blocked || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 69,
+  "id": "69-D-door-released",
+  "slug": "D-door-released",
+  "what": "Released: Door drag over open ground",
+  "input": [
+   "left-up"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "69-D-door-released.png",
+  "pngNote": "",
+  "txt": "69-D-door-released.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " No Door placed: every tile is blocked (5): needs walls on two opposite sides"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / No Door placed: every tile is blocked (5): needs walls on two opposite sides || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 70,
+  "id": "70-D-shift-enter",
+  "slug": "D-shift-enter",
+  "what": "Key Shift+Enter with a tool: marks a corner (status row)",
+  "input": [
+   "key Shift+Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "70-D-shift-enter.png",
+  "pngNote": "",
+  "txt": "70-D-shift-enter.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Door x0, 1 tile blocked"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Door x0, 1 tile blocked || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 71,
+  "id": "71-D-escape-corner",
+  "slug": "D-escape-corner",
+  "what": "Key Escape: drops the corner first",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "71-D-escape-corner.png",
+  "pngNote": "",
+  "txt": "71-D-escape-corner.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Door · blocked: needs walls on two opposite sides · [Esc] cancel"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Door · blocked: needs walls on two opposite sides · [Esc] cancel || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 72,
+  "id": "72-E-carpenter-placed",
+  "slug": "E-carpenter-placed",
+  "what": "Carpenter's workshop placed by click",
+  "input": [
+   "key Escape x2",
+   "key b",
+   "key w",
+   "left-click cell(col 73, row 7) px(882,90) [text \"Carpenter's\"]",
+   "left-click cell(col 13, row 11) px(162,138) [tile 13,34 workshop centre]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "72-E-carpenter-placed.png",
+  "pngNote": "",
+  "txt": "72-E-carpenter-placed.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Carpenter's workshop · blocked: something is built here · [Esc] cancel"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Carpenter's workshop · blocked: something is built here · [Esc] cancel || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 73,
+  "id": "73-E-completed",
+  "slug": "E-completed",
+  "what": "After the hook finished the carpenter and the beds (setup)",
+  "input": [
+   "key Escape",
+   "hook setup: completeNow on buildings [16777322,16777317,16777318,16777319,16777320,16777321]"
+  ],
+  "tick": 402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "73-E-completed.png",
+  "pngNote": "",
+  "txt": "73-E-completed.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 74,
+  "id": "74-E-workshop-panel",
+  "slug": "E-workshop-panel",
+  "what": "Click on the finished workshop: its panel",
+  "input": [
+   "left-click cell(col 13, row 11) px(162,138) [tile 13,34 carpenter]"
+  ],
+  "tick": 402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "workshop",
+  "png": "74-E-workshop-panel.png",
+  "pngNote": "",
+  "txt": "74-E-workshop-panel.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Workshop / Carpenter's workshop #1 / Worker: any",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 75,
+  "id": "75-E-workshop-new-order",
+  "slug": "E-workshop-new-order",
+  "what": "Key Shift+N in the workshop panel: Add order for this workshop",
+  "input": [
+   "key Shift+N"
+  ],
+  "tick": 402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "75-E-workshop-new-order.png",
+  "pngNote": "",
+  "txt": "75-E-workshop-new-order.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / Add order / Find [ ________________________ ] / ─── Recent ──────────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 76,
+  "id": "76-E-workshop-shift-o",
+  "slug": "E-workshop-shift-o",
+  "what": "Key Shift+O in the workshop panel: orders of this workshop",
+  "input": [
+   "key Escape",
+   "key Shift+O"
+  ],
+  "tick": 402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "76-E-workshop-shift-o.png",
+  "pngNote": "",
+  "txt": "76-E-workshop-shift-o.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / [S-n] new order / ─── Carpenter's workshop #1 ───── / This workshop has no orders: [S-n",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 77,
+  "id": "77-E-bed-panel",
+  "slug": "E-bed-panel",
+  "what": "Click on a bed: Building panel",
+  "input": [
+   "key Escape",
+   "left-click cell(col 28, row 10) px(342,126) [tile 28,33 bed]"
+  ],
+  "tick": 402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "building",
+  "png": "77-E-bed-panel.png",
+  "pngNote": "",
+  "txt": "77-E-bed-panel.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Building / Bed #1 / Ale · built / Owner: none (not in a bedroom)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 78,
+  "id": "78-E-bed-owner",
+  "slug": "E-bed-owner",
+  "what": "Key w: owner of the bed's bedroom",
+  "input": [
+   "key w"
+  ],
+  "tick": 402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "building",
+  "png": "78-E-bed-owner.png",
+  "pngNote": "",
+  "txt": "78-E-bed-owner.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Bed #1 is in no bedroom: draw a Bedroom zone over it ([z] Zones) to give it an owner."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Bed #1 is in no bedroom: draw a Bedroom zone over it ([z] Zones) to give it an owner. || PANEL: Building / Bed #1 / Ale · built / Owner: none (not in a bedroom)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 79,
+  "id": "79-E-bed-take-apart",
+  "slug": "E-bed-take-apart",
+  "what": "Key x: take the building apart (confirmation)",
+  "input": [
+   "key Escape",
+   "key x"
+  ],
+  "tick": 402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "79-E-bed-take-apart.png",
+  "pngNote": "",
+  "txt": "79-E-bed-take-apart.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Bed #1 is in no bedroom: draw a Bedroom zone over it ([z] Zones) to give it an owner."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Bed #1 is in no bedroom: draw a Bedroom zone over it ([z] Zones) to give it an owner.",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 80,
+  "id": "80-F-stockpile",
+  "slug": "F-stockpile",
+  "what": "Stockpile editor",
+  "input": [
+   "key Escape x2",
+   "key z",
+   "key Shift+S",
+   "left-drag cell(40,10) -> cell(43,12) px(486,126)->(522,150) [tiles 40,33 -> 43,35]",
+   "right-click cell(col 30, row 40) px(366,486) [cancel tool]",
+   "hook step 1 ticks",
+   "left-click cell(col 40, row 10) px(486,126) [tile 40,33 stockpile]"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "80-F-stockpile.png",
+  "pngNote": "",
+  "txt": "80-F-stockpile.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #1 (12 t─ / [S-p] Preset [Custom ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 81,
+  "id": "81-F-preset-key",
+  "slug": "F-preset-key",
+  "what": "Key Shift+P: preset dropdown",
+  "input": [
+   "key Shift+P"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "81-F-preset-key.png",
+  "pngNote": "",
+  "txt": "81-F-preset-key.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #1 (12 t─ / [S-p] Preset [Custom ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 82,
+  "id": "82-F-preset-escape",
+  "slug": "F-preset-escape",
+  "what": "Key Escape in the preset dropdown",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "82-F-preset-escape.png",
+  "pngNote": "",
+  "txt": "82-F-preset-escape.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #1 (12 t─ / [S-p] Preset [Custom ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 83,
+  "id": "83-F-tree-key",
+  "slug": "F-tree-key",
+  "what": "Key g: category tree focus",
+  "input": [
+   "key g"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": null,
+  "pngNote": "screen unchanged from step 82-F-preset-escape; no screenshot saved",
+  "txt": "83-F-tree-key.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #1 (12 t─ / [S-p] Preset [Custom ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 84,
+  "id": "84-F-tree-keys",
+  "slug": "F-tree-keys",
+  "what": "ArrowRight, ArrowDown, Space in the tree",
+  "input": [
+   "key ArrowRight",
+   "key ArrowDown",
+   "key Space"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "84-F-tree-keys.png",
+  "pngNote": "",
+  "txt": "84-F-tree-keys.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #1 (12 t─ / [S-p] Preset [Custom ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 85,
+  "id": "85-F-tree-escape",
+  "slug": "F-tree-escape",
+  "what": "Key Escape in the tree focus",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "85-F-tree-escape.png",
+  "pngNote": "",
+  "txt": "85-F-tree-escape.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 86,
+  "id": "86-F-numeric-keys",
+  "slug": "F-numeric-keys",
+  "what": "Keys q, Tab, ArrowRight x2: numeric settings",
+  "input": [
+   "key z",
+   "left-click cell(col 40, row 10) px(486,126) [tile 40,33 zone tile]",
+   "key q",
+   "key Tab",
+   "key ArrowRight x2"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "86-F-numeric-keys.png",
+  "pngNote": "",
+  "txt": "86-F-numeric-keys.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #1 (12 t─ / [S-p] Preset [Custom ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 87,
+  "id": "87-F-numeric-escape",
+  "slug": "F-numeric-escape",
+  "what": "Key Escape in the numeric settings focus",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "87-F-numeric-escape.png",
+  "pngNote": "",
+  "txt": "87-F-numeric-escape.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 88,
+  "id": "88-F-materials-key",
+  "slug": "F-materials-key",
+  "what": "Key v: material classes",
+  "input": [
+   "key z",
+   "left-click cell(col 40, row 10) px(486,126) [tile 40,33 zone tile]",
+   "key v"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "88-F-materials-key.png",
+  "pngNote": "",
+  "txt": "88-F-materials-key.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #1 (12 t─ / Allowed material classes",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 89,
+  "id": "89-F-materials-escape",
+  "slug": "F-materials-escape",
+  "what": "Key Escape in the material classes",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "89-F-materials-escape.png",
+  "pngNote": "",
+  "txt": "89-F-materials-escape.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #1 (12 t─ / [S-p] Preset [Custom ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 90,
+  "id": "90-F-resize-key",
+  "slug": "F-resize-key",
+  "what": "Key Shift+E: resize the zone",
+  "input": [
+   "key Shift+E"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "90-F-resize-key.png",
+  "pngNote": "",
+  "txt": "90-F-resize-key.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Resize · drag a rectangle · [Esc] cancel"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Resize · drag a rectangle · [Esc] cancel || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 91,
+  "id": "91-F-resize-escape",
+  "slug": "F-resize-escape",
+  "what": "Key Escape after Shift+E",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "91-F-resize-escape.png",
+  "pngNote": "",
+  "txt": "91-F-resize-escape.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #1 (12 t─ / [S-p] Preset [Custom ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 92,
+  "id": "92-F-remove-confirm",
+  "slug": "F-remove-confirm",
+  "what": "Key x: remove the zone (confirmation)",
+  "input": [
+   "key x"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "confirm",
+  "panel": "zones",
+  "png": "92-F-remove-confirm.png",
+  "pngNote": "",
+  "txt": "92-F-remove-confirm.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN confirm: Remove Stockpile #1? Its settings are lost. / [y] Yes  [n] No",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 93,
+  "id": "93-F-remove-escape",
+  "slug": "F-remove-escape",
+  "what": "Key Escape: answer to the confirmation",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "93-F-remove-escape.png",
+  "pngNote": "",
+  "txt": "93-F-remove-escape.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #1 (12 t─ / [S-p] Preset [Custom ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 94,
+  "id": "94-F-bedroom",
+  "slug": "F-bedroom",
+  "what": "Bedroom (room panel / inspector)",
+  "input": [
+   "key Escape",
+   "key z",
+   "key Shift+B",
+   "left-drag cell(47,10) -> cell(49,12) px(570,126)->(594,150) [tiles 47,33 -> 49,35]",
+   "right-click cell(col 30, row 40) px(366,486) [cancel tool]",
+   "hook step 1 ticks",
+   "left-click cell(col 47, row 10) px(570,126) [tile 47,33 bedroom]"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "94-F-bedroom.png",
+  "pngNote": "",
+  "txt": "94-F-bedroom.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Bedroom #1 (9 t) ── / Room: Bare (score 9)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 95,
+  "id": "95-F-bedroom-owner",
+  "slug": "F-bedroom-owner",
+  "what": "Key Shift+O: owner picker",
+  "input": [
+   "key Shift+O"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "95-F-bedroom-owner.png",
+  "pngNote": "",
+  "txt": "95-F-bedroom-owner.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " This bedroom needs a built bed before it can have an owner."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / This bedroom needs a built bed before it can have an owner. || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Bedroom #1 (9 t) ── / Room: Bare (score 9)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 96,
+  "id": "96-F-bedroom-owner-enter",
+  "slug": "F-bedroom-owner-enter",
+  "what": "ArrowDown, Enter in the owner picker",
+  "input": [
+   "key ArrowDown",
+   "key Enter"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "96-F-bedroom-owner-enter.png",
+  "pngNote": "",
+  "txt": "96-F-bedroom-owner-enter.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " This bedroom needs a built bed before it can have an owner."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / This bedroom needs a built bed before it can have an owner. || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Bedroom #1 (9 t) ── / Room: Bare (score 9)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 97,
+  "id": "97-G-tip-build-row",
+  "slug": "G-tip-build-row",
+  "what": "Hover over a clipped Build list row (\"Butcher's shop 1 table+1 st»\")",
+  "input": [
+   "key Escape",
+   "key b",
+   "key w",
+   "hover cell(col 73, row 6) px(882,78) [text \"Butcher\"]"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "97-G-tip-build-row.png",
+  "pngNote": "",
+  "txt": "97-G-tip-build-row.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " This bedroom needs a built bed before it can have an owner."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / This bedroom needs a built bed before it can have an owner. || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 98,
+  "id": "98-G-tip-units-name",
+  "slug": "G-tip-units-name",
+  "what": "Hover over a name cell in the Units list",
+  "input": [
+   "key Escape x2",
+   "key u",
+   "hover cell(col 53, row 4) px(642,54) [unit name cell]"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "98-G-tip-units-name.png",
+  "pngNote": "",
+  "txt": "98-G-tip-units-name.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " This bedroom needs a built bed before it can have an owner."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / This bedroom needs a built bed before it can have an owner. || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    Craft",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 99,
+  "id": "99-G-tip-units-act",
+  "slug": "G-tip-units-act",
+  "what": "Hover over an activity cell in the Units list",
+  "input": [
+   "hover cell(col 70, row 4) px(846,54) [activity cell]"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": null,
+  "pngNote": "screen unchanged from step 98-G-tip-units-name; no screenshot saved",
+  "txt": "99-G-tip-units-act.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " This bedroom needs a built bed before it can have an owner."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / This bedroom needs a built bed before it can have an owner. || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    Craft",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 100,
+  "id": "100-G-tip-units-mood",
+  "slug": "G-tip-units-mood",
+  "what": "Hover over the mood glyph in the Units list",
+  "input": [
+   "hover cell(col 62, row 4) px(750,54) [mood glyph]"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "100-G-tip-units-mood.png",
+  "pngNote": "",
+  "txt": "100-G-tip-units-mood.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " This bedroom needs a built bed before it can have an owner."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / This bedroom needs a built bed before it can have an owner. || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    Craft",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 101,
+  "id": "101-G-tip-labor-head",
+  "slug": "G-tip-labor-head",
+  "what": "Hover over a column head of the Labors grid",
+  "input": [
+   "key Escape",
+   "key l",
+   "hover cell(col 56, row 1) px(678,18) [labor column head]"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "labors",
+  "png": "101-G-tip-labor-head.png",
+  "pngNote": "",
+  "txt": "101-G-tip-labor-head.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Labors                        [l] / An An Br Bu Ca Cl Co » / Thurid A.  ■  ■  ■  ■  ■  ■  ■ / Kolfinna S ■  ■  ■  ■  ■  ■  ■",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 102,
+  "id": "102-G-tip-status-row",
+  "slug": "G-tip-status-row",
+  "what": "Hover over the status row 2",
+  "input": [
+   "key Escape",
+   "hover cell(col 5, row 49) px(66,594) [status row 2]"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "102-G-tip-status-row.png",
+  "pngNote": "",
+  "txt": "102-G-tip-status-row.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 103,
+  "id": "103-G-tip-status-row1",
+  "slug": "G-tip-status-row1",
+  "what": "Hover over status row 1",
+  "input": [
+   "hover cell(col 30, row 48) px(366,582) [status row 1]"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "103-G-tip-status-row1.png",
+  "pngNote": "",
+  "txt": "103-G-tip-status-row1.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 104,
+  "id": "104-H-jobs",
+  "slug": "H-jobs",
+  "what": "Key j: Jobs panel",
+  "input": [
+   "key j"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "jobs",
+  "png": "104-H-jobs.png",
+  "pngNote": "",
+  "txt": "104-H-jobs.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Jobs                          [j] / 0 open · 1 claimed · 0 blocked / /filter: [ ____________________ ] / [S-l] labor: all",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 105,
+  "id": "105-H-jobs-filter",
+  "slug": "H-jobs-filter",
+  "what": "Key /, typed \"mine\", Enter: filter applied",
+  "input": [
+   "key /",
+   "type \"mine\"",
+   "key Enter"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "jobs",
+  "png": "105-H-jobs-filter.png",
+  "pngNote": "",
+  "txt": "105-H-jobs-filter.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Jobs                          [j] / 0 open · 1 claimed · 0 blocked / /filter: [ mine________________ ] / [S-l] labor: all",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 106,
+  "id": "106-H-jobs-labor",
+  "slug": "H-jobs-labor",
+  "what": "Key Shift+L: cycle the labor filter",
+  "input": [
+   "key Shift+L"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "jobs",
+  "png": "106-H-jobs-labor.png",
+  "pngNote": "",
+  "txt": "106-H-jobs-labor.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Jobs                          [j] / 0 open · 1 claimed · 0 blocked / /filter: [ mine________________ ] / [S-l] labor: Carpentry",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 107,
+  "id": "107-H-jobs-state",
+  "slug": "H-jobs-state",
+  "what": "Key Shift+S: cycle the state filter",
+  "input": [
+   "key Shift+S"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "jobs",
+  "png": "107-H-jobs-state.png",
+  "pngNote": "",
+  "txt": "107-H-jobs-state.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Jobs                          [j] / 0 open · 1 claimed · 0 blocked / /filter: [ mine________________ ] / [S-l] labor: Carpentry",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 108,
+  "id": "108-H-stocks",
+  "slug": "H-stocks",
+  "what": "Key s: Stocks panel",
+  "input": [
+   "key Escape",
+   "key s"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "108-H-stocks.png",
+  "pngNote": "",
+  "txt": "108-H-stocks.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Stocks                        [s] / /filter: [ ____________________ ] / ► food               60     190 ☼ / ► drink              60     120 ☼",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 109,
+  "id": "109-H-stocks-filter",
+  "slug": "H-stocks-filter",
+  "what": "Key /, typed \"wood\", Enter: Stocks filter",
+  "input": [
+   "key /",
+   "type \"wood\"",
+   "key Enter"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "109-H-stocks-filter.png",
+  "pngNote": "",
+  "txt": "109-H-stocks-filter.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Stocks                        [s] / /filter: [ wood________________ ] / ▼ wood                5      10 ☼ / ▼ log               5      10 ☼",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 110,
+  "id": "110-H-stocks-expand",
+  "slug": "H-stocks-expand",
+  "what": "ArrowDown, ArrowRight in Stocks",
+  "input": [
+   "key ArrowDown",
+   "key ArrowRight"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "110-H-stocks-expand.png",
+  "pngNote": "",
+  "txt": "110-H-stocks-expand.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Stocks                        [s] / /filter: [ wood________________ ] / ▼ wood                5      10 ☼ / ▼ log               5      10 ☼",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 111,
+  "id": "111-H-manager",
+  "slug": "H-manager",
+  "what": "Key l, Enter: labor manager",
+  "input": [
+   "key Escape",
+   "key l",
+   "key Enter"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "labor_manager",
+  "panel": "labors",
+  "png": "111-H-manager.png",
+  "pngNote": "",
+  "txt": "111-H-manager.txt",
+  "status": [
+   " [-] priority down  [+] priority up  [t] templates",
+   ""
+  ],
+  "log": [
+   "",
+   " ────────────────────────────────────────────────────────────────────────────────────────────────────────",
+   " [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column"
+  ],
+  "shown": "SCREEN labor_manager: Labor manager  [Esc] close / Thurid Ashspark, Miner · Animal care: on · priority 5 / 0 of 7 marked  A  A  B  B  C  C  C  C  C  F  F  G  H  H  H  L  M  M  M  M  S  S  T  T  W / n  n  r  u  a  l  o  o  r  a  i  e  a  e  u  e  a  e  e  i  m  m  e  r  o / i  i  e  t  r  e  n  o  a  r  s  m  u  r  n  a  s  c  d  n  e  i  x  a  o / m  m  w  c  p  a  s  k  f  m  h  l  b  t  t  o  h  i  i  l  t  t  d  d / a  a  i  h  e  n  t  i  t  i  i  c  i  a  i  h  n  a  c  n  t  h  i  i  c / l  l  n  e  n  i  r  n  s  n  n  u  n  l  n  e  r  n  i  g  i  i  l  n  u",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 112,
+  "id": "112-H-manager-mark",
+  "slug": "H-manager-mark",
+  "what": "Key Space: mark the dwarf",
+  "input": [
+   "key Space"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "labor_manager",
+  "panel": "labors",
+  "png": "112-H-manager-mark.png",
+  "pngNote": "",
+  "txt": "112-H-manager-mark.txt",
+  "status": [
+   " [-] priority down  [+] priority up  [t] templates",
+   ""
+  ],
+  "log": [
+   "",
+   " ────────────────────────────────────────────────────────────────────────────────────────────────────────",
+   " [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column"
+  ],
+  "shown": "SCREEN labor_manager: Labor manager  [Esc] close / Thurid Ashspark, Miner · Animal care: on · priority 5 / 1 of 7 marked  A  A  B  B  C  C  C  C  C  F  F  G  H  H  H  L  M  M  M  M  S  S  T  T  W / n  n  r  u  a  l  o  o  r  a  i  e  a  e  u  e  a  e  e  i  m  m  e  r  o / i  i  e  t  r  e  n  o  a  r  s  m  u  r  n  a  s  c  d  n  e  i  x  a  o / m  m  w  c  p  a  s  k  f  m  h  l  b  t  t  o  h  i  i  l  t  t  d  d / a  a  i  h  e  n  t  i  t  i  i  c  i  a  i  h  n  a  c  n  t  h  i  i  c / l  l  n  e  n  i  r  n  s  n  n  u  n  l  n  e  r  n  i  g  i  i  l  n  u",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 113,
+  "id": "113-H-manager-markall",
+  "slug": "H-manager-markall",
+  "what": "Key *: mark all",
+  "input": [
+   "key *"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "labor_manager",
+  "panel": "labors",
+  "png": "113-H-manager-markall.png",
+  "pngNote": "",
+  "txt": "113-H-manager-markall.txt",
+  "status": [
+   " [-] priority down  [+] priority up  [t] templates",
+   ""
+  ],
+  "log": [
+   "",
+   " ────────────────────────────────────────────────────────────────────────────────────────────────────────",
+   " [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column"
+  ],
+  "shown": "SCREEN labor_manager: Labor manager  [Esc] close / Thurid Ashspark, Miner · Animal care: on · priority 5 / 7 of 7 marked  A  A  B  B  C  C  C  C  C  F  F  G  H  H  H  L  M  M  M  M  S  S  T  T  W / n  n  r  u  a  l  o  o  r  a  i  e  a  e  u  e  a  e  e  i  m  m  e  r  o / i  i  e  t  r  e  n  o  a  r  s  m  u  r  n  a  s  c  d  n  e  i  x  a  o / m  m  w  c  p  a  s  k  f  m  h  l  b  t  t  o  h  i  i  l  t  t  d  d / a  a  i  h  e  n  t  i  t  i  i  c  i  a  i  h  n  a  c  n  t  h  i  i  c / l  l  n  e  n  i  r  n  s  n  n  u  n  l  n  e  r  n  i  g  i  i  l  n  u",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 114,
+  "id": "114-H-manager-templates",
+  "slug": "H-manager-templates",
+  "what": "Key t: profession templates",
+  "input": [
+   "key t"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "labor_manager",
+  "panel": "labors",
+  "png": "114-H-manager-templates.png",
+  "pngNote": "",
+  "txt": "114-H-manager-templates.txt",
+  "status": [
+   " [-] priority down  [+] priority up  [t] templates",
+   ""
+  ],
+  "log": [
+   "",
+   " ────────────────────────────────────────────────────────────────────────────────────────────────────────",
+   " [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column"
+  ],
+  "shown": "SCREEN labor_manager: Labor manager  [Esc] close / Thurid Ashspark, Miner · Animal care: on · priority 5 / 7 of 7 marked  A  A  B  B  C  C  C  C  C  F  F  G  H  H  H  L  M  M  M  M  S  S  T  T  W / n  n  r  u  a  l  o  o  r  a  i  e  a  e  u  e  a  e  e  i  m  m  e  r  o / i  i  e  t  r  e  n  o  a  r  s  m  u  r  n  a  s  c  d  n  e  i  x  a  o / m  m  w  c  p  a  s  k  f  m  h  l  b  t  t  o  h  i  i  l  t  t  d  d / a  a  i  h  e  n  t  i  t  i  i  c  i  a  i  h  n  a  c  n  t  h  i  i  c / l  l  n  e  n  i  r  n  s  n  n  u  n  l  n  e  r  n  i  g  i  i  l  n  u",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 115,
+  "id": "115-H-manager-priority",
+  "slug": "H-manager-priority",
+  "what": "Key 3: set the labor priority",
+  "input": [
+   "key Escape",
+   "key 3"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "labor_manager",
+  "panel": "labors",
+  "png": "115-H-manager-priority.png",
+  "pngNote": "",
+  "txt": "115-H-manager-priority.txt",
+  "status": [
+   " [-] priority down  [+] priority up  [t] templates",
+   " Animal care: priority 3."
+  ],
+  "log": [
+   "",
+   " ────────────────────────────────────────────────────────────────────────────────────────────────────────",
+   " [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column"
+  ],
+  "shown": "SCREEN labor_manager: Labor manager  [Esc] close / Thurid Ashspark, Miner · Animal care: on · priority 3 / 7 of 7 marked  A  A  B  B  C  C  C  C  C  F  F  G  H  H  H  L  M  M  M  M  S  S  T  T  W / n  n  r  u  a  l  o  o  r  a  i  e  a  e  u  e  a  e  e  i  m  m  e  r  o / i  i  e  t  r  e  n  o  a  r  s  m  u  r  n  a  s  c  d  n  e  i  x  a  o / m  m  w  c  p  a  s  k  f  m  h  l  b  t  t  o  h  i  i  l  t  t  d  d / a  a  i  h  e  n  t  i  t  i  i  c  i  a  i  h  n  a  c  n  t  h  i  i  c / l  l  n  e  n  i  r  n  s  n  n  u  n  l  n  e  r  n  i  g  i  i  l  n  u",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 116,
+  "id": "116-I-animals",
+  "slug": "I-animals",
+  "what": "Key n: Animals panel",
+  "input": [
+   "key Escape x2",
+   "key n"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "animals",
+  "png": "116-I-animals.png",
+  "pngNote": "",
+  "txt": "116-I-animals.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Animals                       [n] / [1] Tame (3)  [2] Wild (0) / Species Name   Pastu Cond/Tr / dog     -      -     0",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 117,
+  "id": "117-I-train-key",
+  "slug": "I-train-key",
+  "what": "Key Shift+T: train choice (War / Hunting)",
+  "input": [
+   "key Shift+T"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "animals",
+  "png": "117-I-train-key.png",
+  "pngNote": "",
+  "txt": "117-I-train-key.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Animals                       [n] / [1] Tame (3)  [2] Wild (0) / Species Name   Pastu Cond/Tr / dog     -      -     0",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 118,
+  "id": "118-I-train-enter",
+  "slug": "I-train-enter",
+  "what": "ArrowDown, Enter: choice submitted",
+  "input": [
+   "key ArrowDown",
+   "key Enter"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "animals",
+  "png": "118-I-train-enter.png",
+  "pngNote": "",
+  "txt": "118-I-train-enter.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Refused: build a kennel to train animals"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side.",
+   " ! Refused: build a kennel to train animals"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. / ! Refused: build a kennel to train animals || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Refused: build a kennel to train animals || PANEL: Animals                       [n] / [1] Tame (3)  [2] Wild (0) / Species Name   Pastu Cond/Tr / dog     -      -     0",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 119,
+  "id": "119-J-tool-armed",
+  "slug": "J-tool-armed",
+  "what": "Keys d, Shift+D: Dig tool armed",
+  "input": [
+   "key Escape",
+   "key d",
+   "key Shift+D"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "119-J-tool-armed.png",
+  "pngNote": "",
+  "txt": "119-J-tool-armed.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Refused: build a kennel to train animals"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side.",
+   " ! Refused: build a kennel to train animals"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. / ! Refused: build a kennel to train animals || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Refused: build a kennel to train animals || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 120,
+  "id": "120-J-notice",
+  "slug": "J-notice",
+  "what": "Key z while the Dig tool is armed: Zones opens; is there a \"panel closed\" notice?",
+  "input": [
+   "key z"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "120-J-notice.png",
+  "pngNote": "",
+  "txt": "120-J-notice.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Refused: build a kennel to train animals"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side.",
+   " ! Refused: build a kennel to train animals"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. / ! Refused: build a kennel to train animals || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Refused: build a kennel to train animals || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Bedroom #1 (9 t) ── / Room: Bare (score 9)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 121,
+  "id": "121-J-esc-1",
+  "slug": "J-esc-1",
+  "what": "Key Escape once with the Dig tool armed",
+  "input": [
+   "key Escape",
+   "key d",
+   "key Shift+D",
+   "key Escape"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "121-J-esc-1.png",
+  "pngNote": "",
+  "txt": "121-J-esc-1.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Refused: build a kennel to train animals"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side.",
+   " ! Refused: build a kennel to train animals"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. / ! Refused: build a kennel to train animals || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Refused: build a kennel to train animals || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 122,
+  "id": "122-J-esc-2",
+  "slug": "J-esc-2",
+  "what": "Key Escape twice",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "122-J-esc-2.png",
+  "pngNote": "",
+  "txt": "122-J-esc-2.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Refused: build a kennel to train animals"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side.",
+   " ! Refused: build a kennel to train animals"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. / ! Refused: build a kennel to train animals || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Refused: build a kennel to train animals",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 123,
+  "id": "123-J-esc-3",
+  "slug": "J-esc-3",
+  "what": "Key Escape three times",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "123-J-esc-3.png",
+  "pngNote": "",
+  "txt": "123-J-esc-3.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / ► [r] Resume / [s] Save / [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 124,
+  "id": "124-J-notice-build",
+  "slug": "J-notice-build",
+  "what": "Build tool armed (workshop), then key b (panel hotkey closes the open panel)",
+  "input": [
+   "key Escape",
+   "key b",
+   "key w",
+   "key ArrowDown",
+   "key Enter",
+   "key b"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "124-J-notice-build.png",
+  "pngNote": "",
+  "txt": "124-J-notice-build.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Build closed · [b] opens it again"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side.",
+   " ! Refused: build a kennel to train animals"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. / ! Refused: build a kennel to train animals || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Build closed · [b] opens it again",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 125,
+  "id": "125-J-notice-zones",
+  "slug": "J-notice-zones",
+  "what": "Zone tool armed, then key d",
+  "input": [
+   "key z",
+   "key Shift+S",
+   "key d"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "125-J-notice-zones.png",
+  "pngNote": "",
+  "txt": "125-J-notice-zones.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Build closed · [b] opens it again"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side.",
+   " ! Refused: build a kennel to train animals"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. / ! Refused: build a kennel to train animals || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Build closed · [b] opens it again || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 126,
+  "id": "126-K-game-menu",
+  "slug": "K-game-menu",
+  "what": "Key Escape: game menu",
+  "input": [
+   "key Escape x3"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "126-K-game-menu.png",
+  "pngNote": "",
+  "txt": "126-K-game-menu.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / ► [r] Resume / [s] Save / [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 127,
+  "id": "127-K-rename",
+  "slug": "K-rename",
+  "what": "Key n: Rename fortress text input",
+  "input": [
+   "key n"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "text_input",
+  "panel": null,
+  "png": "127-K-rename.png",
+  "pngNote": "",
+  "txt": "127-K-rename.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN text_input: Rename Grimvault / [ Grimvault____________________ ] / 9/32 / [Enter] accept  [Esc] cancel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 128,
+  "id": "128-K-rename-empty",
+  "slug": "K-rename-empty",
+  "what": "Backspace x20: empty field",
+  "input": [
+   "key Backspace x20"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "text_input",
+  "panel": null,
+  "png": "128-K-rename-empty.png",
+  "pngNote": "",
+  "txt": "128-K-rename-empty.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN text_input: Rename Grimvault / [ _____________________________ ] / 0/32 / [Enter] accept  [Esc] cancel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 129,
+  "id": "129-K-rename-empty-enter",
+  "slug": "K-rename-empty-enter",
+  "what": "Key Enter on an empty field",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "text_input",
+  "panel": null,
+  "png": "129-K-rename-empty-enter.png",
+  "pngNote": "",
+  "txt": "129-K-rename-empty-enter.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN text_input: Rename Grimvault / [ _____________________________ ] / Type at least 1 character. / [Enter] accept  [Esc] cancel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 130,
+  "id": "130-K-renamed",
+  "slug": "K-renamed",
+  "what": "Typed \"Test Hall\", Enter",
+  "input": [
+   "type \"Test Hall\"",
+   "key Enter"
+  ],
+  "tick": 404,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "130-K-renamed.png",
+  "pngNote": "",
+  "txt": "130-K-renamed.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Test Hall / [r] Resume / [s] Save / [l] Load / [o] Settings / ► [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 131,
+  "id": "131-K-disband-confirm",
+  "slug": "K-disband-confirm",
+  "what": "Key +, x in Military: disband squad (confirmation)",
+  "input": [
+   "key Escape",
+   "key m",
+   "key +",
+   "hook step 1 ticks",
+   "key x"
+  ],
+  "tick": 405,
+  "speed": 0,
+  "paused": true,
+  "screen": "confirm",
+  "panel": "military",
+  "png": "131-K-disband-confirm.png",
+  "pngNote": "",
+  "txt": "131-K-disband-confirm.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN confirm: Disband The Hearthguard? Members keep their gear. / [y] Yes  [n] No",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 132,
+  "id": "132-K-disband-escape",
+  "slug": "K-disband-escape",
+  "what": "Key Escape: answer to the confirmation",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 405,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "132-K-disband-escape.png",
+  "pngNote": "",
+  "txt": "132-K-disband-escape.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side.",
+   " ! Refused: build a kennel to train animals"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. / ! Refused: build a kennel to train animals || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ }
+]

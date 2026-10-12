@@ -1,0 +1,17 @@
+// helper: import and load a .deepholm fixture through the real Load screen; returns when in the fortress
+export async function loadFixture(r, file, { snaps = false } = {}) {
+  await r.goto('/');
+  await r.key('l');
+  if (snaps) await r.snap('load-screen', 'Key l on the main menu: Load screen');
+  const chooser = r.page.waitForEvent('filechooser');
+  r.log('hook key("i") (a real key press did not raise the file chooser in this harness; the existing export-import spec also uses the hook for this key)');
+  await r.page.evaluate(() => window.__deepholm.key('i'));
+  const c = await chooser;
+  r.log(`file chooser: ${file}`);
+  await c.setFiles(file);
+  await r.wait(1500);
+  if (snaps) await r.snap('load-imported', 'Import chosen: the save listing');
+  await r.key('Enter');
+  for (let i = 0; i < 100; i += 1) { if ((await r.state()).screen === 'fortress') break; await r.wait(300); }
+  await r.wait(500);
+}

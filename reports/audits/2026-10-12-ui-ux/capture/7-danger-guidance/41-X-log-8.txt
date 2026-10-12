@@ -1,0 +1,64 @@
+# flow: 7-danger-guidance   step: 41-X-log-8
+# what: Log panel, PageDown (page 8)
+# input: key PageDown
+# tick: 84400   paused: yes   screen: fortress   panel: log   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,25,28   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|♣""↑♠♣""""↑"""↑"""♣""""♣"↑""♣""↑""""""""""♣"│ Log                           [a]
+01|"""♣""""♣♣""""↑♣♣""""↑""↑""""""↑"""""""♣""""│ [1] All  [2] Alerts  [3] Combat
+02|"""↑""""↑♣↑"""↑"╥≡╥"""""↑""♠""""♣""↑"""♣"♣""│
+03|"""↑"↑"♣↑"""""""≡┼≡"""♣""""""""♣"↑"↑""""""♣"│ ! Gloin Ashcloak is starving.
+04|"""""""""""""""↑╥Ю╥""""""♣♣"♣""""♣♣"↑""↑""↑"│ ! Vidar Shaletongue is starving.
+05|""""""""♣↑"♠""↑""""""""♣•?•"""""""""♠♣"""♣"↑│ ! Gefjun Runemark is starving.
+06|↑♣♣♣"♣""♣""♣""↑♣♣""♣""""?┼?↑☺"""""♣"↑Ю☼Ю""""│ ! Kari Thunderaxe is starving.
+07|"""""↑""♣↑♣""""↑↑""♣"↑↑"•?•""?""↑""""☼Ю☼♣""♠│ ! Sigrun Ashbrook is starving.
+08|"♣"♣""""""""♣""""♣"♣↑↑↑"""""""☼""♣"""Ю☼Ю♣↑↑"│ ! Nori Bearhold is starving.
+09|"♣""""↑"""♣↑"""↑↑""♣""""♣"♣"☺""""""♣""""↑""♠│ ! Ragnhild Deepbrook is starving.
+10|"""↑↑"♣♣"♠↑♣"♣""""♣"""""↑""""""""""""""""♣""│ ! Halvar Cragspark is starving.
+11|↑"""♣"""""""♣↑↑♣"""↑♣""%╥%↑"""↑"♣♣""""""""""│ ! Oskar Stonetongue is starving.
+12|"""""""""↑""""♣""↑♣""""╥┼╥↑"""↑♣""""♣"↑↑♣"""│ ! Rurik Oakpick is starving.
+13|""♣"♣♣♣"♠""""""""""♣"♣"%╥%"♣""""♣"↑↑♣♣""""""│ ! Estrid Emberstone is starving.
+14|""""""↑"""↑♣"""↑"""""♣""↑"♣"↑""""""♣↑"""""""│ ! Kolfinna Frostgate is starving.
+15|"""↑"""♣""""""""""""""""""""↑"""""""""""""""│ ! Gloin Ashcloak is starving.
+16|"♣""♣""♣♣""""""♣""♣↑"♣♣""""""""♠""""♣♣♣"""""│ ! Vidar Shaletongue is starving.
+17|"""""""""↑"♣"♣♣""""""↑"♣""""""""""""""""""""│ ! Gefjun Runemark is starving.
+18|↑"""↑↑♣♣""♣""""""♣♠""""""""""""""♣♠""""♠""""│ ! Kari Thunderaxe is starving.
+19|"""""""""""↑↑""♣"""""♠"""""""↑"↑"""""↑"↑"♣""│ ! Sigrun Ashbrook is starving.
+20|"""""""""""""♣"""♣↑""""♠♣""""""♣""""↑♣""""""│ ! Nori Bearhold is starving.
+21|"""""""♣↑"♣"""""♣""♣♣""♣"""♣""""""""♣"""♠"↑"│ ! Ragnhild Deepbrook is starving.
+22|"">""""↑""""♣"↑"↑""↑"""↑↑""""↑""""""""""""""│ ! Halvar Cragspark is starving.
+23|""""""""""""♣"""♠♠"♣""""""♣""""♣♣↑""""♣"""""│ ! Oskar Stonetongue is starving.
+24|○═○"≡"""""♣↑""♣""↑♣"♣↑"♣""""""""""""""↑"""""│ ! Rurik Oakpick is starving.
+25|═▄═""""""""♣""""""""♣♣"""""""""↑""""""""""""│ ! Estrid Emberstone is starving.
+26|dddðððð↑"♣♣"""""♣"↑""♣"""""♣"↑"""↑"""""♣"♣""│ ! Kolfinna Frostgate is starving.
+27|ddc∫""Ю""""♣"""""♣♣"""♣"♠"""↑"""""♣"""""""""│ Gloin Ashcloak is miserable.
+28|""≡ЮЮðЮ"""""""♣"↑""♣♣""""""""""↑"""↑""↑"♣♣""│ Estrid Emberstone is miserable.
+29|♣""ð≡♣ð♣"""""♣""""""↑↑♣""""""""""↑"♣""""""""│ Gloin Ashcloak is miserable.
+30|"≡"""""↑""""""""""""♣↑♣♠↑"""""♠"""""""♣"↑""♣│ Gloin Ashcloak is miserable.
+31|"♣"""↑""♠♣"""""""♠""↑""""♣"""↑"""♣""♣""♣""↑♠│ Estrid Emberstone is miserable.
+32|"""""""♣"♣""♣"""""↑""""""♠"""♣♣"↑""↑"""""""♣│ ! Gloin Ashcloak is starving.
+33|"♣↑"♣"""""♣""""♠""♣"""""""♠"♣♣"♣""♣""♣"↑♣"""│ ! Vidar Shaletongue is starving.
+34|""↑♣"♣♣"""""""""♣♣"""♣""♠♣"♣"""♣"""""↑↑"""""│ ! Gefjun Runemark is starving.
+35|♣""""""♣♠""↑♠"""""""""♣♣♠""""♣↑↑♣↑""""↑♣"↑""│ ! Kari Thunderaxe is starving.
+36|""""""♣""♠""""""""""""""↑"♠""""♣↑"""♣"""""""│ ! Sigrun Ashbrook is starving.
+37|"""""""""""↑"""↑♣"""""♣"""♣"""""""""""""""""│ ! Nori Bearhold is starving.
+38|""""""↑""↑""""""""""""""""""""↑"""♣"""""""""│ ! Ragnhild Deepbrook is starving.
+39|""↑"♣"""""""""""""↑"""♣"""♣"""""""""↑"♠"""♣"│ ! Halvar Cragspark is starving.
+40|"↑↑♣""""↑↑♣"""""↑""""↑"""""""↑""""↑""♣↑↑"↑""│ ! Oskar Stonetongue is starving.
+41|"""♠""↑""♣"""""♣"↑""↑♣↑♣"↑♣"""""↑""""""♣♣♠""│ ! Rurik Oakpick is starving.
+42|"""↑""""↑""↑""♣""""♣""""""""""""""↑"↑""""""♣│ ! Estrid Emberstone is starving.
+43|"↑"♣""♣♣"""""♣♣""""♣↑♣""↑""""""""♣""♣"↑"""↑"│ ! Kolfinna Frostgate is starving.
+44|♠""""↑"♣"""↑""↑"""""""♣"""♣♣"""↑"↑↑"""""""""│ Vidar Shaletongue is miserable.
+45| ! Gefjun Runemark is starving.
+46| ! Vidar Shaletongue is starving.
+47| ! Gloin Ashcloak is starving.
+48| Day 15 of Autumn, Year 1   ☼ clear 17°C   ☺ 12   ♥ Miserable   z 28   ║ [?] hel
+49| Loam floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»
+----- log strip rows -----
+ ! Gefjun Runemark is starving.
+ ! Vidar Shaletongue is starving.
+ ! Gloin Ashcloak is starving.
+----- status rows -----
+ Day 15 of Autumn, Year 1   ☼ clear 17°C   ☺ 12   ♥ Miserable   z 28   ║ [?] hel
+ Loam floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»

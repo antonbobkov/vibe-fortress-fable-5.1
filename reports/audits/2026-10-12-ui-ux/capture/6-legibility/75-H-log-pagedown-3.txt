@@ -1,0 +1,64 @@
+# flow: 6-legibility   step: 75-H-log-pagedown-3
+# what: Log panel, PageDown (3)
+# input: key PageDown
+# tick: 276401   paused: yes   screen: fortress   panel: log   viewport: 1280x800   grid: 80x50   camera(x,y,z): 2,0,27   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|♣""""""%""""""%"""""""""""""""☺""♣""""""%"""│ Log                           [a]
+01|%"♣""%"""""""""""""""""""""""""""""♣"☺""""""│ [1] All  [2] Alerts  [3] Combat
+02|"%"""♣"♣"""""""""""""""""""."""""""""""B""""│
+03|"ЮЮЮ≡≡•ЮЮ≡_↑•ЮЮ?≡"≡Ю"Ю?≡≡ЮЮ☺♣≡"≡ЮЮЮ≡≡•Ю☺≡≡•Ю│ Melkorka Brightbrow has been admi
+04|%≡ЮЮЮ♣≡≡•Ю"Ю≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?☺≡Ю☺Ю≡≡"•ЮЮ↑≡≡•Ю│ ! Hillfolk_bandit hits Melkorka:
+05|"Ю≡≡•ЮЮ?≡•ЮЮ?≡≡☺Ю?≡≡"☺☺?≡≡ЮЮЮ☺≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ│ ! Hillfolk_bandit hits Melkorka:
+06|""ЮЮ?≡≡Ю"Ю?↑≡≡ЮЮ?≡≡ЮЮЮ≡≡•""Ю☺≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ│ Hillfolk_bandit has slain victim.
+07|"ЮЮ?≡≡ЮЮ?≡≡♣ЮЮ?≡☺♣ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ?≡│ !! Torfi Grimwall has died.
+08|"≡ЮЮ?≡≡ЮЮ?≡≡☺ЮЮ≡≡•ЮЮ"C≡•ЮЮ"?"≡≡ЮЮ?≡≡Ю♣Ю?≡≡ЮЮ│ Hillfolk_bandit hits Torfi: 3 blu
+09|"?≡≡ЮЮЮ≡≡☺ЮЮ≡%•ЮЮ?≡≡ЮЮ☺≡☺Ю"Ю?≡≡Ю%Ю≡≡•ЮЮ≡≡♣•Ю│ Hillfolk_bandit hits Torfi: 2 blu
+10|"ЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡"Ю☺♣?≡☺≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡♣≡•ЮЮ?│ ! Gorm Darkhold has lost consciou
+11|"≡≡•ЮЮ"""♣≡≡•Ю↑Ю?≡≡☺☺?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡│ Hillfolk_bandit hits Torfi: 13 ed
+12|"≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡☺Ю?≡≡•ЮЮ≡"≡•ЮЮ"?≡↑≡ЮЮ?☺≡Ю│ Hillfolk_bandit hits Torfi: 4 blu
+13|"Ю?≡"≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?"≡≡│ Hillfolk_bandit hits Torfi: 6 blu
+14|"≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡♣ЮЮ?≡≡ЮЮ?≡≡ЮЮ"Ю≡│ ! Torfi Grimwall has lost conscio
+15|♣≡≡ЮЮ?≡≡ЮЮЮ≡%•ЮЮ?≡•♣ЮЮ?≡≡ЮЮ?≡≡ЮЮ"?≡≡•ЮЮ≡≡•ЮЮ│ Hillfolk_bandit hits Torfi: 5 blu
+16|"≡≡"•ЮЮ"≡≡•Ю"Ю?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮ"Ю≡≡•ЮЮ≡≡•ЮЮ?≡≡│ ! Hillfolk_bandit hits Torfi: 3 b
+17|"Ю≡≡•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ"♣?≡≡ЮЮ?≡≡│ ! Hillfolk_bandit hits Melkorka:
+18|"•ЮЮ"?"≡≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ?≡•ЮЮ?♣♣≡≡ЮЮ?≡≡Ю│ Torfi Hearthmark has been admitte
+19|"?≡≡"ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡%ЮЮ?≡≡ЮЮ?≡≡ЮЮ"?≡≡"s│ ! Hillfolk_bandit hits Torfi: 13
+20|"≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•↑ЮЮ?≡≡ЮЮ?≡≡↑ЮЮ"?≡≡ЮЮ│ ! Hillfolk_bandit hits Torfi: 7 b
+21|"ЮЮ?≡≡ЮЮ?≡≡Ю"ЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡Ю_?≡≡ЮЮЮ≡≡•│ Harek Silverstair is miserable.
+22|"Ю?≡≡ЮЮ?≡≡•ЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡""ЮЮЮ≡≡%ЮЮ≡≡•│ Dagr Brightmantle has been admitt
+23|"?≡≡ЮЮЮ"≡♣♣≡•ЮЮ≡≡•ЮЮ?≡"≡ЮЮ?≡≡ЮЮ?≡≡Ю"Ю♣Ю≡≡•ЮЮ│ ! Hillfolk_bandit hits Dagr: 13 e
+24|"≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ"?≡≡ЮЮ?≡≡ЮЮЮ≡"≡•ЮЮ│ ! Hillfolk_bandit hits Dagr: 3 bl
+25|"≡ЮЮ?≡♣≡ЮЮЮ≡≡•ЮЮ?≡•"ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ?│ Hillfolk_bandit hits Torfi: 3 blu
+26|"Ю≡≡•ЮЮ≡≡♣•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•↑ЮЮ≡≡•ЮЮ?≡≡Ю│ Hillfolk_bandit hits Torfi: 13 ed
+27|"%Ю≡≡•ЮЮ"?≡≡ЮЮ?≡≡ЮЮ?≡≡Ю"ЮЮ≡≡•ЮЮ"↑↑≡≡♣•"ЮЮ♣?≡│ Alva Hawkbrow is miserable.
+28|"≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡│ Hillfolk_bandit has slain victim.
+29|"Ю?≡•ЮЮ?≡≡ЮЮ?"≡≡ЮЮЮ≡%•ЮЮ↑≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡Ю│ A goat has died.
+30|"?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡│ Hillfolk_bandit hits Torfi: 13 ed
+31|"≡≡ЮЮЮ≡"≡•"ЮЮ≡≡•ЮЮ?≡≡"ЮЮ?≡≡↑"ЮЮ?≡"≡Ю"ЮЮ≡≡•ЮЮ│ Hillfolk_bandit hits Torfi: 5 blu
+32|"ЮЮ?≡≡ЮЮЮ≡≡"•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ"""?≡≡•ЮЮ≡"≡•Ю│ Hillfolk_bandit hits Torfi: 2 blu
+33|"≡≡•"ЮЮ≡≡•ЮЮ?↑≡≡Ю♣Ю?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡Ю│ Torfi Grimwall has been admitted
+34|"Ю≡≡•ЮЮ?≡"≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡Ю%?≡≡ЮЮ│ ! Hillfolk_bandit hits Torfi: 2 b
+35|♣ЮЮ?≡≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•Ю"Ю?≡•ЮЮ?≡≡ЮЮ↑?"≡≡ЮЮ?│ ! Hillfolk_bandit hits Torfi: 5 b
+36|"ЮЮ?"♣≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡Ю↑Ю?≡≡Ю♣Ю?≡≡"ЮЮ│ ! Hillfolk_bandit hits Torfi: 13
+37|"≡ЮЮ?≡"≡ЮЮЮ≡≡•"ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡│ ! Hillfolk_bandit hits Torfi: 3 b
+38|"≡ЮЮЮ≡≡•ЮЮ≡≡•Ю↑Ю"?≡"≡ЮЮ?≡≡ЮЮ?≡""≡ЮЮЮ≡≡•ЮЮ?≡•│ Hillfolk_bandit has slain victim.
+39|"≡•ЮЮ≡≡•ЮC?≡≡ЮЮ"?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡"≡ЮЮ?│ A cow has died.
+40|"≡•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡"≡•ЮЮ♣≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ│ Lofn Darkstair is miserable.
+41|"ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡""≡ЮЮ?≡≡│ ! Ranulf Thunderspark is starving
+42|"≡≡ЮЮ?≡≡ЮЮ?≡"""≡•ЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡Ю%?≡≡ЮЮЮ≡≡•Ю│ ! Sigurd Hearthwall is starving.
+43|"≡ЮЮ?≡≡ЮЮ"Ю≡≡•ЮЮ≡g•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮrЮ≡≡•ЮЮ≡≡│ ! Vali Frosthand is starving.
+44|"≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?"≡≡ЮЮЮC≡•ЮЮ≡≡•ЮЮ?≡│ ! Wilrun Hearthbrook is starving.
+45| ! Hillfolk_bandit hits Melkorka: 2 blunt.
+46| ! Hillfolk_bandit hits Melkorka: 13 edge.
+47| Melkorka Brightbrow has been admitted to the hospital.
+48| Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║
+49| [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks
+----- log strip rows -----
+ ! Hillfolk_bandit hits Melkorka: 2 blunt.
+ ! Hillfolk_bandit hits Melkorka: 13 edge.
+ Melkorka Brightbrow has been admitted to the hospital.
+----- status rows -----
+ Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║
+ [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks

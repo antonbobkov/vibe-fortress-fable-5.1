@@ -1,0 +1,64 @@
+# flow: 3-mature-fortress   step: 49-B-orders-barrel-filter
+# what: Typed "barrel" in Add order
+# input: key Escape ; key o ; key Shift+N ; type "barrel"
+# tick: 272981   paused: yes   screen: fortress   panel: orders   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,0,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|                                            │ Orders                        [o]
+01|                                            │ Add order
+02|                                            │ Find [ barrel__________________ ]
+03|                                            │ ─── Container ───────────────────
+04|                                            │ ○ Metal barrel
+05|                                            │ • Barrel
+06|                                            │
+07|                                            │
+08|                                            │
+09|                                            │
+10|                                            │
+11|                                            │
+12|                                            │
+13|                                            │
+14|                                            │
+15|                                            │
+16|                                            │
+17|                                            │
+18|                                            │
+19|                                            │
+20|                                            │
+21|                                            │
+22|                                            │
+23|                                            │
+24|                                            │
+25|                                            │
+26|                                            │
+27|                                            │
+28|                                            │
+29|                                            │
+30|                                            │
+31|                                            │
+32|                                            │
+33|                                            │
+34|                                            │
+35|                                            │
+36|                                            │
+37|                                            │
+38|                                            │
+39|                                            │ ─────────────────────────────────
+40|                                            │   Quantity [-]   1 [+]
+41|                                            │   Mode     once: make 1
+42|                                            │   Material any material
+43|                                            │   Where    any forge
+44|                                            │ [Enter] add [Tab] next [Esc] back
+45| Ulf Emberaxe is miserable.
+46| Stockpile #2 (Everything) is full.
+47| Stockpile #2 (Everything) is full.
+48| Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h
+49| Ordered: x1 Mail shirt · any forge
+----- log strip rows -----
+ Ulf Emberaxe is miserable.
+ Stockpile #2 (Everything) is full.
+ Stockpile #2 (Everything) is full.
+----- status rows -----
+ Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h
+ Ordered: x1 Mail shirt · any forge

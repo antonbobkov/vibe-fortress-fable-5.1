@@ -1,0 +1,64 @@
+# flow: 7-danger-guidance   step: 25-Y-help
+# what: Panel help (key ?) at tick 84400
+# input: key ?
+# tick: 84400   paused: yes   screen: fortress   panel: help   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,25,28   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|♣""↑♠♣""""↑"""↑"""♣""""♣"↑""♣""↑""""""""""♣"│ Help                          [?]
+01|"""♣""""♣♣""""↑♣♣""""↑""↑""""""↑"""""""♣""""│ [1] Keys   [2] Legend
+02|"""↑""""↑♣↑"""↑"╥≡╥"""""↑""♠""""♣""↑"""♣"♣""│ Fortress panels
+03|"""↑"↑"♣↑"""""""≡┼≡"""♣""""""""♣"↑"↑""""""♣"│ d  Designate panel
+04|"""""""""""""""↑╥Ю╥""""""♣♣"♣""""♣♣"↑""↑""↑"│ b  Build panel
+05|""""""""♣↑"♠""↑""""""""♣•?•"""""""""♠♣"""♣"↑│ z  Zones panel
+06|↑♣♣♣"♣""♣""♣""↑♣♣""♣""""?┼?↑☺"""""♣"↑Ю☼Ю""""│ u  Units panel
+07|"""""↑""♣↑♣""""↑↑""♣"↑↑"•?•""?""↑""""☼Ю☼♣""♠│ l  Labors panel
+08|"♣"♣""""""""♣""""♣"♣↑↑↑"""""""☼""♣"""Ю☼Ю♣↑↑"│ j  Jobs panel
+09|"♣""""↑"""♣↑"""↑↑""♣""""♣"♣"☺""""""♣""""↑""♠│ o  Orders panel
+10|"""↑↑"♣♣"♠↑♣"♣""""♣"""""↑""""""""""""""""♣""│ s  Stocks panel
+11|↑"""♣"""""""♣↑↑♣"""↑♣""%╥%↑"""↑"♣♣""""""""""│ m  Military panel
+12|"""""""""↑""""♣""↑♣""""╥┼╥↑"""↑♣""""♣"↑↑♣"""│ n  Animals panel
+13|""♣"♣♣♣"♠""""""""""♣"♣"%╥%"♣""""♣"↑↑♣♣""""""│ t  Threats panel
+14|""""""↑"""↑♣"""↑"""""♣""↑"♣"↑""""""♣↑"""""""│ c  Civilizations panel
+15|"""↑"""♣""""""""""""""""""""↑"""""""""""""""│ p  Population panel
+16|"♣""♣""♣♣""""""♣""♣↑"♣♣""""""""♠""""♣♣♣"""""│ e  Mood panel
+17|"""""""""↑"♣"♣♣""""""↑"♣""""""""""""""""""""│ a  Log panel
+18|↑"""↑↑♣♣""♣""""""♣♠""""""""""""""♣♠""""♠""""│ k  Look panel
+19|"""""""""""↑↑""♣"""""♠"""""""↑"↑"""""↑"↑"♣""│ f  Overlays panel
+20|"""""""""""""♣"""♣↑""""♠♣""""""♣""""↑♣""""""│ Global
+21|"""""""♣↑"♣"""""♣""♣♣""♣"""♣""""""""♣"""♠"↑"│ Esc  cancel tool → close panel →
+22|"">""""↑""""♣"↑"↑""↑"""↑↑""""↑""""""""""""""│ Space  pause / resume
+23|""""""""""""♣"""♠♠"♣""""""♣""""♣♣↑""""♣"""""│ + =  speed up (1x → 2x → 4x)
+24|○═○"≡"""""♣↑""♣""↑♣"♣↑"♣""""""""""""""↑"""""│ -  speed down
+25|═▄═""""""""♣""""""""♣♣"""""""""↑""""""""""""│ F5  quick save
+26|dddðððð↑"♣♣"""""♣"↑""♣"""""♣"↑"""↑"""""♣"♣""│ F9  quick load (confirm)
+27|ddc∫""Ю""""♣"""""♣♣"""♣"♠"""↑"""""♣"""""""""│ Ctrl+S  save menu
+28|""≡ЮЮðЮ"""""""♣"↑""♣♣""""""""""↑"""↑""↑"♣♣""│ F12  debug panel
+29|♣""ð≡♣ð♣"""""♣""""""↑↑♣""""""""""↑"♣""""""""│ ?  help
+30|"≡"""""↑""""""""""""♣↑♣♠↑"""""♠"""""""♣"↑""♣│ Tab  toggle sidebar
+31|"♣"""↑""♠♣"""""""♠""↑""""♣"""↑"""♣""♣""♣""↑♠│ Ctrl+Z  undo last designation bat
+32|"""""""♣"♣""♣"""""↑""""""♠"""♣♣"↑""↑"""""""♣│ Map
+33|"♣↑"♣"""""♣""""♠""♣"""""""♠"♣♣"♣""♣""♣"↑♣"""│ ←→↑↓  pan by 1 cell (Shift: 10)
+34|""↑♣"♣♣"""""""""♣♣"""♣""♠♣"♣"""♣"""""↑↑"""""│ < ,  z-level down
+35|♣""""""♣♠""↑♠"""""""""♣♣♠""""♣↑↑♣↑""""↑♣"↑""│ > .  z-level up
+36|""""""♣""♠""""""""""""""↑"♠""""♣↑"""♣"""""""│ Home  center on the hearth (or wa
+37|"""""""""""↑"""↑♣"""""♣"""♣"""""""""""""""""│ Ctrl+↑ Ctrl+↓  zoom in / out
+38|""""""↑""↑""""""""""""""""""""↑"""♣"""""""""│ k  look cursor at the mouse (or m
+39|""↑"♣"""""""""""""↑"""♣"""♣"""""""""↑"♠"""♣"│ Enter  with a tool: start/end rec
+40|"↑↑♣""""↑↑♣"""""↑""""↑"""""""↑""""↑""♣↑↑"↑""│ 1-9  with a designation or zone t
+41|"""♠""↑""♣"""""♣"↑""↑♣↑♣"↑♣"""""↑""""""♣♣♠""│ r  with a building tool: rotate
+42|"""↑""""↑""↑""♣""""♣""""""""""""""↑"↑""""""♣│ x  with a building tool: cycle ma
+43|"↑"♣""♣♣"""""♣♣""""♣↑♣""↑""""""""♣""♣"↑"""↑"│ Delete  with a selection: cancel
+44|♠""""↑"♣"""↑""↑"""""""♣"""♣♣"""↑"↑↑"""""""""│ Panels                    1/130
+45| ! Gefjun Runemark is starving.
+46| ! Vidar Shaletongue is starving.
+47| ! Gloin Ashcloak is starving.
+48| Day 15 of Autumn, Year 1   ☼ clear 17°C   ☺ 12   ♥ Miserable   z 28   ║ [?] hel
+49| Loam floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»
+----- log strip rows -----
+ ! Gefjun Runemark is starving.
+ ! Vidar Shaletongue is starving.
+ ! Gloin Ashcloak is starving.
+----- status rows -----
+ Day 15 of Autumn, Year 1   ☼ clear 17°C   ☺ 12   ♥ Miserable   z 28   ║ [?] hel
+ Loam floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»

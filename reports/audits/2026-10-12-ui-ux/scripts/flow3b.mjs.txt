@@ -1,0 +1,145 @@
+// Flow 3, parts B and C: the played fortress (orders, why not made) and a fresh embark with a caravan (trade). Appends to flow 3.
+import { launch, Recorder, closePanels } from './common.mjs';
+import { loadFixture } from './flow3-load.mjs';
+
+async function toFortress(r) { for (let i = 0; i < 6; i += 1) { const st = await r.state(); if (st.screen === 'fortress' && st.panel === null) break; await r.key('Escape'); } }
+
+// ---------------- Part B ----------------
+{
+  const s = await launch();
+  s.append = true;
+  const r = new Recorder('3-mature-fortress', s);
+  const T = async (name, fn) => { try { await fn(); } catch (e) { console.log(`!! ${name}: ${e.message}`); r.log(`(script error in ${name}: ${e.message})`); await r.snap(`error-${name}`, `Capture script error in ${name}: ${e.message}`); } };
+  r.counts = JSON.parse((await import('node:fs')).readFileSync(`${r.dir}/counts.json`, 'utf8'));
+  await loadFixture(r, 'E:/code/vibe-games/vibe-fortress-t116/test/fixtures/played-fortress.deepholm', { snaps: false });
+  await r.snap('B-loaded', 'PART B: the 20-dwarf played fortress (test/fixtures/played-fortress.deepholm) loaded through the Load screen');
+  await r.page.evaluate(() => { const h = window.__deepholm; for (let i = 0; i < 2; i += 1) h.step(300); });
+  r.log('hook step 600 ticks (setup)');
+  await r.snap('B-after-600', 'After 600 ticks of stepping (setup)');
+  console.log('state', JSON.stringify(await r.state()));
+
+  await T('orderB1', async () => {
+    r.taskStart('task-order-not-made-add-and-find-reason');
+    await r.key('o');
+    await r.snap('B-orders-open', 'Key o: Orders panel');
+    await r.key('Shift+N');
+    await r.snap('B-orders-new', 'Key Shift+N: Add order');
+    await r.typeText('mail');
+    await r.snap('B-orders-filter', 'Typed "mail" (a mail shirt needs a forge; this fortress has no forge)');
+    await r.key('Enter');
+    await r.snap('B-orders-added', 'Key Enter: order added');
+    await r.step(300);
+    await r.snap('B-orders-after-300', 'After 300 ticks: what the order line says');
+    const c1 = r.taskEnd();
+    console.log('orderB1', JSON.stringify(c1));
+    r.taskStart('task-order-not-made-find-reason-in-jobs-panel');
+    await r.key('j');
+    await r.snap('B-jobs', 'Key j: Jobs panel (is the order explained there?)');
+    await r.key('Shift+S');
+    await r.snap('B-jobs-state-cycle', 'Key Shift+S: cycle the state filter');
+    await r.key('Shift+S');
+    await r.snap('B-jobs-state-cycle2', 'Key Shift+S again');
+    const c2 = r.taskEnd();
+    console.log('orderB2', JSON.stringify(c2));
+  });
+  await T('orderB3', async () => {
+    await toFortress(r);
+    r.taskStart('task-order-not-made-barrel-with-workshop');
+    await r.key('o');
+    await r.key('Shift+N');
+    await r.typeText('barrel');
+    await r.snap('B-orders-barrel-filter', 'Typed "barrel" in Add order');
+    await r.key('Tab');
+    await r.key('Tab');
+    await r.key('ArrowRight');
+    await r.snap('B-orders-barrel-mode', 'Tab, Tab, ArrowRight: the Mode field (once / maintain)');
+    await r.typeText('5');
+    await r.key('Enter');
+    await r.step(900);
+    await r.snap('B-orders-barrel-added', 'Order added; after 900 ticks');
+    const c3 = r.taskEnd();
+    console.log('orderB3', JSON.stringify(c3));
+    await r.key('s');
+    await r.snap('B-stocks', 'Key s: Stocks panel (stock of barrels and logs)');
+  });
+  await r.close();
+}
+
+// ---------------- Part C: trade ----------------
+{
+  const s = await launch();
+  s.append = true;
+  const r = new Recorder('3-mature-fortress', s);
+  const T = async (name, fn) => { try { await fn(); } catch (e) { console.log(`!! ${name}: ${e.message}`); r.log(`(script error in ${name}: ${e.message})`); await r.snap(`error-${name}`, `Capture script error in ${name}: ${e.message}`); } };
+  r.counts = JSON.parse((await import('node:fs')).readFileSync(`${r.dir}/counts.json`, 'utf8'));
+  await r.goto('/?start=flat-test&embark=default');
+  await r.snap('C-start', 'PART C: a fresh default embark (hook URL ?start=flat-test&embark=default)');
+  const fixture = await r.page.evaluate(() => {
+    const h = window.__deepholm;
+    const world = h.host.world;
+    const registry = h.host.headless.registry;
+    const granite = registry.table('materials').index('granite');
+    const placed = world.applyCommand({ type: 'PlaceBuilding', buildingType: 'trade_depot', origin: h.readers.map.index(45, 8, 32), orientation: 0, materialChoice: 'granite' });
+    if (!placed.ok) throw new Error(`depot: ${placed.reason}`);
+    const depot = world.scheduler.byId('14').lastPlacedBuilding;
+    world.scheduler.byId('14').completeNow(depot, granite, 0);
+    const tile = h.readers.of('14').get(depot)?.footprint[0] ?? 0;
+    const request = world.applyCommand({ type: 'SetRequests', civ: 'hillfolk', entries: [{ itemType: 'cloth', priority: 3 }] });
+    return { depot, tile, requestOk: request.ok };
+  });
+  r.log('hook setup: a finished trade depot placed (PlaceBuilding + completeNow), a request set for the Hillfolk');
+  const arrival = await r.page.evaluate(() => {
+    const h = window.__deepholm;
+    const trade = h.readers.of('20');
+    for (let n = 0; n < 120; n += 1) {
+      h.step(5000);
+      if (trade.activeCaravan()?.state === 'atDepot') return { tick: h.host.world.calendar.tick, state: 'atDepot' };
+    }
+    return { tick: h.host.world.calendar.tick, state: trade.activeCaravan()?.state ?? 'none' };
+  });
+  r.log(`hook step 5000 x n until the caravan is at the depot: ${JSON.stringify(arrival)}`);
+  await r.snap('C-caravan-at-depot', `The caravan is at the depot (hook stepping; tick ${arrival.tick}, state ${arrival.state})`);
+  const stock = await r.page.evaluate(({ depot, tile }) => {
+    const h = window.__deepholm;
+    const registry = h.host.headless.registry;
+    const type = registry.table('items').index('easy_meal');
+    const material = registry.table('materials').index('meal');
+    const meals = [h.host.world.services.spawn.item(type, material, tile, 10, 1), h.host.world.services.spawn.item(type, material, tile, 10, 1)];
+    const hauler = h.dwarves()[0];
+    h.host.world.services.movement.teleport(hauler.id, tile);
+    h.submit({ type: 'MoveToDepot', depotId: depot, itemIds: meals });
+    const trade = h.readers.of('20');
+    for (let n = 0; n < 30 && !meals.every((id) => trade.depotItems().includes(id)); n += 1) h.step(100);
+    const dwarf = h.dwarves()[0];
+    h.host.world.applyCommand({ type: 'AssignTitle', dwarfId: dwarf.id, title: 'broker' });
+    return { inDepot: meals.every((id) => trade.depotItems().includes(id)) };
+  }, fixture);
+  r.log(`hook setup: 20 easy meals put in the depot, first dwarf made broker: ${JSON.stringify(stock)}`);
+  await T('trade', async () => {
+    r.taskStart('task-trade-with-caravan');
+    await r.key('Escape');
+    await r.snap('C-esc', 'Key Escape (dismisses the pinned danger line if any)');
+    await r.key('c');
+    await r.snap('C-civilizations', 'Key c: Civilizations panel');
+    await r.key('Shift+D');
+    await r.snap('C-depot', 'Key Shift+D: Depot panel');
+    await r.key('Shift+T');
+    await r.snap('C-trade-key', 'Key Shift+T: send a broker to trade');
+    await r.page.evaluate(() => { const h = window.__deepholm; const trade = h.readers.of('20'); for (let n = 0; n < 300 && !trade.sessionOpen(); n += 1) h.step(1); });
+    r.log('hook step(1) until the trade session opens (the broker walks to the depot)');
+    await r.snap('C-trade-session', 'The trade session screen (after the broker arrived)');
+    await r.key('ArrowDown');
+    await r.key('+');
+    await r.snap('C-trade-plus', 'ArrowDown, +: quantity on the highlighted merchant item');
+    await r.key('Tab');
+    await r.key('End');
+    await r.snap('C-trade-we-take', 'Tab, End: the fortress column, last row ("We take" line)');
+    await r.key('Enter');
+    await r.snap('C-trade-offer', 'Key Enter: offer');
+    await r.key('Escape');
+    await r.snap('C-trade-closed', 'Key Escape: close the session');
+    const c = r.taskEnd();
+    console.log('trade', JSON.stringify(c));
+  });
+  await r.close();
+}

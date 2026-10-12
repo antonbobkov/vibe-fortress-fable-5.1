@@ -1,0 +1,64 @@
+# flow: 5-failure-paths   step: 97-T3-buy-offer-nothing
+# what: ArrowDown, +, Enter: take a merchant item and offer nothing for it
+# input: key ArrowDown ; key + ; key Enter
+# tick: 45651   paused: yes   screen: trade_session   panel: depot   viewport: 1280x800   grid: 80x50   camera(x,y,z): 8,0,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|
+01|  Trading with the Hillfolk · Broker: Melkorka Goldhelm (Trading 0) · Reputation
+02|
+03|  Their goods                         priOur goods at the depot      their valua
+04|    6 linen cloth             58           8 meal easy meal          64
+05|    [-] 0 [+]                              [-] 0 [+]
+06|  ► 3 wool cloth cloth        36
+07|    [-] 1 [+]
+08|    5 linen cloth             48
+09|    [-] 0 [+]
+10|    6 linen cloth             58
+11|    [-] 0 [+]
+12|    3 linen cloth             29
+13|    [-] 0 [+]
+14|    6 linen cloth             58
+15|    [-] 0 [+]
+16|    5 linen cloth             48
+17|    [-] 0 [+]
+18|    3 wool cloth cloth        36
+19|    [-] 0 [+]
+20|    3 wool cloth cloth        36
+21|    [-] 0 [+]
+22|    5 linen cloth             48
+23|    [-] 0 [+]
+24|    4 wool cloth cloth        48
+25|    [-] 0 [+]
+26|    5 wool cloth cloth        60
+27|    [-] 0 [+]
+28|    3 wool cloth cloth        36
+29|    [-] 0 [+]
+30|    3 wool cloth cloth        36
+31|    [-] 0 [+]
+32|    6 wool cloth cloth        72
+33|    [-] 0 [+]
+34|    6 linen cloth             58
+35|    [-] 0 [+]
+36|    6 linen cloth             58
+37|    [-] 0 [+]
+38|    5 linen cloth             48
+39|    [-] 0 [+]
+40|    3 linen cloth             29
+41|    [-] 0 [+]
+42|    3 linen cloth             29
+43|    [-] 0 [+]
+44|
+45|  We take 12 ☼ · We give 0 ☼ (their valuation) · They want at least 15% over: 14
+46|  Choose goods to offer.
+47|  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close
+48|
+49|
+----- log strip rows -----
+  We take 12 ☼ · We give 0 ☼ (their valuation) · They want at least 15% over: 14
+  Choose goods to offer.
+  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close
+----- status rows -----
+
+

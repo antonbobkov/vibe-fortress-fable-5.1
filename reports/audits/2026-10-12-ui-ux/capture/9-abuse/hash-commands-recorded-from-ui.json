@@ -1,0 +1,131 @@
+[
+ {
+  "tick": 400,
+  "command": {
+   "type": "CreateZone",
+   "zoneType": "stockpile",
+   "tiles": [
+    298087,
+    298088,
+    298089,
+    298090,
+    298183,
+    298184,
+    298185,
+    298186,
+    298279,
+    298280,
+    298281,
+    298282
+   ]
+  }
+ },
+ {
+  "tick": 400,
+  "command": {
+   "type": "CreateZone",
+   "zoneType": "farm_plot",
+   "tiles": [
+    298092,
+    298093,
+    298094,
+    298095,
+    298188,
+    298189,
+    298190,
+    298191,
+    298284,
+    298285,
+    298286,
+    298287
+   ]
+  }
+ },
+ {
+  "tick": 400,
+  "command": {
+   "type": "CreateZone",
+   "zoneType": "bedroom",
+   "tiles": [
+    298099,
+    298100,
+    298101,
+    298195,
+    298196,
+    298197,
+    298291,
+    298292,
+    298293
+   ]
+  }
+ },
+ {
+  "tick": 500,
+  "command": {
+   "type": "PlaceBuilding",
+   "buildingType": "carpenter",
+   "origin": 298108,
+   "orientation": 0,
+   "materialChoice": 0,
+   "priority": 5
+  }
+ },
+ {
+  "tick": 500,
+  "command": {
+   "type": "AddWorkOrder",
+   "workshopId": 0,
+   "order": {
+    "recipeId": "forge_barrel",
+    "mode": "once",
+    "remaining": 1,
+    "threshold": 0,
+    "priority": 5,
+    "materialFilter": null
+   }
+  }
+ },
+ {
+  "tick": 500,
+  "command": {
+   "type": "SetAlert",
+   "level": "watchful"
+  }
+ },
+ {
+  "tick": 600,
+  "command": {
+   "type": "CreateSquad",
+   "name": "The Hearthguard"
+  }
+ },
+ {
+  "tick": 600,
+  "command": {
+   "type": "Designate",
+   "tiles": [
+    299335
+   ],
+   "kind": "chop",
+   "priority": 5
+  }
+ },
+ {
+  "tick": 600,
+  "command": {
+   "type": "DesignateStairwell",
+   "x": 40,
+   "y": 33,
+   "zTop": 32,
+   "zBottom": 30,
+   "priority": 5
+  }
+ },
+ {
+  "tick": 600,
+  "command": {
+   "type": "RenameFortress",
+   "name": "Hash Test"
+  }
+ }
+]

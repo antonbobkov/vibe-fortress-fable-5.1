@@ -1,0 +1,3897 @@
+[
+ {
+  "n": 1,
+  "id": "01-E1-embark",
+  "slug": "E1-embark",
+  "what": "Embark screen (default party and supplies)",
+  "input": [
+   "navigate /",
+   "key n",
+   "key g",
+   "key Enter",
+   "key ArrowRight x3",
+   "key ArrowDown x4",
+   "key Enter"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "01-E1-embark.png",
+  "pngNote": "",
+  "txt": "01-E1-embark.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "                              │   Trading          [-] 0 [+]",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,480   Left 20"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / ► Thurid Ashspark  10/10 │ Thurid Ashspark  [n] rename / Kolfinna Shaleward  10/10 │ Female · 58 years  [r] reroll (25 ☼ / Vidar Elkaxe  10/10 │ Str ▓▓░░░ 53 Agi ▓▓░░░ 56 Tou ▓▓▓░░ 60 End ▓▓░░░ / Frode Bronzebrook  10/10 │ Wil ▓▓░░░ 54 Wit ▓▓░░░ 40 Cha ▓▓▓░░ 68 / Vali Forgeaxe  10/10 │ Messy · Solitary · Stoic / Kolfinna Brinefoot  10/10 │ ─── Skills (points left: 0) ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 2,
+  "id": "02-E2-supplies-emptied",
+  "slug": "E2-supplies-emptied",
+  "what": "Supplies tab after pressing - x4 and ArrowDown on each of 24 rows",
+  "input": [
+   "key 2",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown",
+   "key - x4",
+   "key ArrowDown"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "02-E2-supplies-emptied.png",
+  "pngNote": "",
+  "txt": "02-E2-supplies-emptied.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 982   Left 518"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / /filter: [ __________ ]  Tools │ Food │ Drink │ Seeds │ Materials │ Furniture / Iron anvil  270 ☼  [-]  0 [+] / Copper axe  96 ☼  [-]  0 [+] / Iron axe  144 ☼  [-]  0 [+] / 25 copper bolts  60 ☼  [-]  0 [+] / 25 iron bolts  90 ☼  [-]  0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 3,
+  "id": "03-E3-animals-emptied",
+  "slug": "E3-animals-emptied",
+  "what": "Animals tab after pressing - x3 and ArrowDown on each of 12 rows",
+  "input": [
+   "key 3",
+   "key - x3",
+   "key ArrowDown",
+   "key - x3",
+   "key ArrowDown",
+   "key - x3",
+   "key ArrowDown",
+   "key - x3",
+   "key ArrowDown",
+   "key - x3",
+   "key ArrowDown",
+   "key - x3",
+   "key ArrowDown",
+   "key - x3",
+   "key ArrowDown",
+   "key - x3",
+   "key ArrowDown",
+   "key - x3",
+   "key ArrowDown",
+   "key - x3",
+   "key ArrowDown",
+   "key - x3",
+   "key ArrowDown",
+   "key - x3",
+   "key ArrowDown"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "03-E3-animals-emptied.png",
+  "pngNote": "",
+  "txt": "03-E3-animals-emptied.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 898   Left 602"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / Bull  72 ☼  [-]  0 [+] / Cat  12 ☼  [-]  0 [+] / 3 chickens and a rooster  29 ☼  [-]  0 [+] / Cow  72 ☼  [-]  0 [+] / Dog  36 ☼  [-]  0 [+] / Goat  30 ☼  [-]  0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 4,
+  "id": "04-E4-enter-1",
+  "slug": "E4-enter-1",
+  "what": "Key Enter: first question",
+  "input": [
+   "key Enter"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "confirm",
+  "panel": null,
+  "png": "04-E4-enter-1.png",
+  "pngNote": "",
+  "txt": "04-E4-enter-1.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN confirm: Embark without a pick? / [y] Yes  [n] No",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 5,
+  "id": "05-E5-yes-1",
+  "slug": "E5-yes-1",
+  "what": "Key y: second screen (another question or the fortress)",
+  "input": [
+   "key y"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "confirm",
+  "panel": null,
+  "png": "05-E5-yes-1.png",
+  "pngNote": "",
+  "txt": "05-E5-yes-1.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN confirm: Embark without an axe? / [y] Yes  [n] No",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 6,
+  "id": "06-E6-yes-2",
+  "slug": "E6-yes-2",
+  "what": "Key y again",
+  "input": [
+   "key y"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "06-E6-yes-2.png",
+  "pngNote": "",
+  "txt": "06-E6-yes-2.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 7,
+  "id": "07-E8-fortress-nothing",
+  "slug": "E8-fortress-nothing",
+  "what": "The fortress after embarking with nothing",
+  "input": [],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 06-E6-yes-2; no screenshot saved",
+  "txt": "07-E8-fortress-nothing.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 8,
+  "id": "08-D1-dig-on-grass",
+  "slug": "D1-dig-on-grass",
+  "what": "Designate: dig on grass (key Shift+D, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key d",
+   "key Shift+D",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 dig on grass]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "08-D1-dig-on-grass.png",
+  "pngNote": "",
+  "txt": "08-D1-dig-on-grass.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " No tile here can be dug: dig marks rock walls and boulders."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / No tile here can be dug: dig marks rock walls and boulders. || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 9,
+  "id": "09-D2-channel-on-grass",
+  "slug": "D2-channel-on-grass",
+  "what": "Designate: channel on grass (key Shift+C, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key Shift+C",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 channel on grass]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "09-D2-channel-on-grass.png",
+  "pngNote": "",
+  "txt": "09-D2-channel-on-grass.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Channel · priority 5 · [Esc] cancel"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Channel · priority 5 · [Esc] cancel || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 10,
+  "id": "10-D3-up-stairs-on-grass",
+  "slug": "D3-up-stairs-on-grass",
+  "what": "Designate: up stairs on grass (key Shift+U, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key Shift+U",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 up stairs on grass]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "10-D3-up-stairs-on-grass.png",
+  "pngNote": "",
+  "txt": "10-D3-up-stairs-on-grass.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " No tile here can take up stairs: they are carved from a wall."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / No tile here can take up stairs: they are carved from a wall. || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 11,
+  "id": "11-D4-down-stairs-on-grass",
+  "slug": "D4-down-stairs-on-grass",
+  "what": "Designate: down stairs on grass (key Shift+J, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key Shift+J",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 down stairs on grass]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "11-D4-down-stairs-on-grass.png",
+  "pngNote": "",
+  "txt": "11-D4-down-stairs-on-grass.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Down stairs · priority 5 · [Esc] cancel"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Down stairs · priority 5 · [Esc] cancel || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 12,
+  "id": "12-D5-up-down-stairs-on-grass",
+  "slug": "D5-up-down-stairs-on-grass",
+  "what": "Designate: up/down stairs on grass (key i, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key i",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 up/down stairs on grass]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "12-D5-up-down-stairs-on-grass.png",
+  "pngNote": "",
+  "txt": "12-D5-up-down-stairs-on-grass.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " No tile here can take up/down stairs: they are carved from a wall."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / No tile here can take up/down stairs: they are carved from a wall. || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 13,
+  "id": "13-D6-ramp-on-grass",
+  "slug": "D6-ramp-on-grass",
+  "what": "Designate: ramp on grass (key r, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key r",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 ramp on grass]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "13-D6-ramp-on-grass.png",
+  "pngNote": "",
+  "txt": "13-D6-ramp-on-grass.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " No tile here can take a ramp: a ramp is carved from a wall with open space or »"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / No tile here can take a ramp: a ramp is carved from a wall with open space or » || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 14,
+  "id": "14-D7-smooth-on-grass",
+  "slug": "D7-smooth-on-grass",
+  "what": "Designate: smooth on grass (key Shift+S, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key Shift+S",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 smooth on grass]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "14-D7-smooth-on-grass.png",
+  "pngNote": "",
+  "txt": "14-D7-smooth-on-grass.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " No tile here can be smoothed: only rough natural stone can."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / No tile here can be smoothed: only rough natural stone can. || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 15,
+  "id": "15-D8-engrave-on-grass",
+  "slug": "D8-engrave-on-grass",
+  "what": "Designate: engrave on grass (key Shift+E, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key Shift+E",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 engrave on grass]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "15-D8-engrave-on-grass.png",
+  "pngNote": "",
+  "txt": "15-D8-engrave-on-grass.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " No tile here can be engraved: only smoothed stone can."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / No tile here can be engraved: only smoothed stone can. || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 16,
+  "id": "16-D9-remove-constructions-where-none",
+  "slug": "D9-remove-constructions-where-none",
+  "what": "Designate: remove constructions where none (key x, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key x",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 remove constructions where none]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "16-D9-remove-constructions-where-none.png",
+  "pngNote": "",
+  "txt": "16-D9-remove-constructions-where-none.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " No construction here to remove."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / No construction here to remove. || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 17,
+  "id": "17-D10-chop-tree-on-open-ground",
+  "slug": "D10-chop-tree-on-open-ground",
+  "what": "Designate: chop tree on open ground (key Shift+T, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key Shift+T",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 chop tree on open ground]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "17-D10-chop-tree-on-open-ground.png",
+  "pngNote": "",
+  "txt": "17-D10-chop-tree-on-open-ground.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " No trees here to chop."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / No trees here to chop. || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 18,
+  "id": "18-D11-gather-plants-on-open-ground",
+  "slug": "D11-gather-plants-on-open-ground",
+  "what": "Designate: gather plants on open ground (key g, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key g",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 gather plants on open ground]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "18-D11-gather-plants-on-open-ground.png",
+  "pngNote": "",
+  "txt": "18-D11-gather-plants-on-open-ground.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " No shrubs here to gather."
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / No shrubs here to gather. || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 19,
+  "id": "19-D12-harvest-on-open-ground",
+  "slug": "D12-harvest-on-open-ground",
+  "what": "Designate: harvest on open ground (key h, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key h",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 harvest on open ground]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "19-D12-harvest-on-open-ground.png",
+  "pngNote": "",
+  "txt": "19-D12-harvest-on-open-ground.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Refused: no ripe crops there"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side",
+   " ! Refused: no ripe crops there"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side / ! Refused: no ripe crops there || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Refused: no ripe crops there || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 20,
+  "id": "20-D13-traffic-on-grass",
+  "slug": "D13-traffic-on-grass",
+  "what": "Designate: traffic on grass (key Shift+F, drag over a 3x2 patch of open ground)",
+  "input": [
+   "key Shift+F",
+   "left-drag cell(7,10) -> cell(9,11) px(120,168)->(152,184) [tiles 7,33 -> 9,34 traffic on grass]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "20-D13-traffic-on-grass.png",
+  "pngNote": "",
+  "txt": "20-D13-traffic-on-grass.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Traffic (restricted) · [Esc] cancel"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side",
+   " ! Refused: no ripe crops there"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side / ! Refused: no ripe crops there || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Traffic (restricted) · [Esc] cancel || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 21,
+  "id": "21-D-undo",
+  "slug": "D-undo",
+  "what": "Ctrl+Z with nothing designated",
+  "input": [
+   "key Control+z"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "21-D-undo.png",
+  "pngNote": "",
+  "txt": "21-D-undo.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Traffic (restricted) · [Esc] cancel"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side",
+   " ! Refused: no ripe crops there"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side / ! Refused: no ripe crops there || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Traffic (restricted) · [Esc] cancel || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 22,
+  "id": "22-D-delete",
+  "slug": "D-delete",
+  "what": "Key Delete with no selection",
+  "input": [
+   "key Delete"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "22-D-delete.png",
+  "pngNote": "",
+  "txt": "22-D-delete.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Clear designations · priority 5 · [Esc] cancel"
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side",
+   " ! Refused: no ripe crops there"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side / ! Refused: no ripe crops there || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Clear designations · priority 5 · [Esc] cancel || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 23,
+  "id": "23-D-batch-priority",
+  "slug": "D-batch-priority",
+  "what": "Key Shift+P: last batch to priority (no batch)",
+  "input": [
+   "key Shift+P"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "23-D-batch-priority.png",
+  "pngNote": "",
+  "txt": "23-D-batch-priority.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " No designation to re-prioritize: designate something first."
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side",
+   " ! Refused: no ripe crops there"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side / ! Refused: no ripe crops there || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / No designation to re-prioritize: designate something first. || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 24,
+  "id": "24-D-click-sidebar",
+  "slug": "D-click-sidebar",
+  "what": "Dig tool armed, click inside the sidebar area",
+  "input": [
+   "key Shift+D",
+   "left-click cell(col 70, row 20) px(1128,328) [inside the sidebar, not on the map]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "24-D-click-sidebar.png",
+  "pngNote": "",
+  "txt": "24-D-click-sidebar.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " No designation to re-prioritize: designate something first."
+  ],
+  "log": [
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side",
+   " ! Refused: no ripe crops there"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side / ! Refused: no ripe crops there || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / No designation to re-prioritize: designate something first. || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 25,
+  "id": "25-P1-workshop-on-tree",
+  "slug": "P1-workshop-on-tree",
+  "what": "Carpenter's workshop clicked on a tree tile",
+  "input": [
+   "key Escape x2",
+   "key b",
+   "key w",
+   "left-click cell(col 47, row 7) px(760,120) [text \"Carpenter's\"]",
+   "left-click cell(col 7, row 23) px(120,376) [tile 7,46 a tree tile]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "25-P1-workshop-on-tree.png",
+  "pngNote": "",
+  "txt": "25-P1-workshop-on-tree.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Refused: Carpenter's workshop needs a floor"
+  ],
+  "log": [
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side",
+   " ! Refused: no ripe crops there",
+   " ! Refused: Carpenter's workshop needs a floor"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side / ! Refused: no ripe crops there / ! Refused: Carpenter's workshop needs a floor || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Refused: Carpenter's workshop needs a floor || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 26,
+  "id": "26-P2-workshop-on-wagon",
+  "slug": "P2-workshop-on-wagon",
+  "what": "Carpenter's workshop clicked on the wagon",
+  "input": [
+   "left-click cell(col 2, row 25) px(40,408) [tile 2,48 the wagon]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "26-P2-workshop-on-wagon.png",
+  "pngNote": "",
+  "txt": "26-P2-workshop-on-wagon.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Refused: something is already built here"
+  ],
+  "log": [
+   " ! Refused: no ripe crops there",
+   " ! Refused: Carpenter's workshop needs a floor",
+   " ! Refused: something is already built here"
+  ],
+  "shown": "LOG: ! Refused: no ripe crops there / ! Refused: Carpenter's workshop needs a floor / ! Refused: something is already built here || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Refused: something is already built here || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 27,
+  "id": "27-P3-workshop-at-sidebar-edge",
+  "slug": "P3-workshop-at-sidebar-edge",
+  "what": "Clicked the last map column next to the sidebar",
+  "input": [
+   "left-click cell(col 43, row 20) px(696,328) [last map column with a panel open]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "27-P3-workshop-at-sidebar-edge.png",
+  "pngNote": "",
+  "txt": "27-P3-workshop-at-sidebar-edge.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Refused: Carpenter's workshop needs a floor"
+  ],
+  "log": [
+   " ! Refused: no ripe crops there",
+   " ! Refused: Carpenter's workshop needs a floor x2",
+   " ! Refused: something is already built here"
+  ],
+  "shown": "LOG: ! Refused: no ripe crops there / ! Refused: Carpenter's workshop needs a floor x2 / ! Refused: something is already built here || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Refused: Carpenter's workshop needs a floor || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 28,
+  "id": "28-P4-workshop-below",
+  "slug": "P4-workshop-below",
+  "what": "Carpenter's workshop one level down (z-1)",
+  "input": [
+   "key <",
+   "left-click cell(col 20, row 15) px(328,248) [one level down]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "28-P4-workshop-below.png",
+  "pngNote": "",
+  "txt": "28-P4-workshop-below.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 31   ║      [?] help",
+   " Refused: Carpenter's workshop needs a floor"
+  ],
+  "log": [
+   " ! Refused: no ripe crops there",
+   " ! Refused: Carpenter's workshop needs a floor x3",
+   " ! Refused: something is already built here"
+  ],
+  "shown": "LOG: ! Refused: no ripe crops there / ! Refused: Carpenter's workshop needs a floor x3 / ! Refused: something is already built here || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 31   ║      [?] help / Refused: Carpenter's workshop needs a floor || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 29,
+  "id": "29-P5-workshop-deep",
+  "slug": "P5-workshop-deep",
+  "what": "Three levels down",
+  "input": [
+   "key < x2",
+   "left-click cell(col 20, row 15) px(328,248) [three levels down]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "29-P5-workshop-deep.png",
+  "pngNote": "",
+  "txt": "29-P5-workshop-deep.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 29   ║      [?] help",
+   " Refused: that is not discovered yet"
+  ],
+  "log": [
+   " ! Refused: Carpenter's workshop needs a floor x3",
+   " ! Refused: something is already built here",
+   " ! Refused: that is not discovered yet"
+  ],
+  "shown": "LOG: ! Refused: Carpenter's workshop needs a floor x3 / ! Refused: something is already built here / ! Refused: that is not discovered yet || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 29   ║      [?] help / Refused: that is not discovered yet || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 30,
+  "id": "30-P6-material-cycle",
+  "slug": "P6-material-cycle",
+  "what": "Key x: cycle the material",
+  "input": [
+   "key > x3",
+   "key x"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "30-P6-material-cycle.png",
+  "pngNote": "",
+  "txt": "30-P6-material-cycle.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Carpenter's workshop · blocked: needs a floor · [Esc] cancel"
+  ],
+  "log": [
+   " ! Refused: Carpenter's workshop needs a floor x3",
+   " ! Refused: something is already built here",
+   " ! Refused: that is not discovered yet"
+  ],
+  "shown": "LOG: ! Refused: Carpenter's workshop needs a floor x3 / ! Refused: something is already built here / ! Refused: that is not discovered yet || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Carpenter's workshop · blocked: needs a floor · [Esc] cancel || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 31,
+  "id": "31-P6b-material-cycle",
+  "slug": "P6b-material-cycle",
+  "what": "Key x again",
+  "input": [
+   "key x"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "31-P6b-material-cycle.png",
+  "pngNote": "",
+  "txt": "31-P6b-material-cycle.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Carpenter's workshop · blocked: needs a floor · [Esc] cancel"
+  ],
+  "log": [
+   " ! Refused: Carpenter's workshop needs a floor x3",
+   " ! Refused: something is already built here",
+   " ! Refused: that is not discovered yet"
+  ],
+  "shown": "LOG: ! Refused: Carpenter's workshop needs a floor x3 / ! Refused: something is already built here / ! Refused: that is not discovered yet || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Carpenter's workshop · blocked: needs a floor · [Esc] cancel || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 32,
+  "id": "32-P7-rotate",
+  "slug": "P7-rotate",
+  "what": "Key r on a workshop (a 3x3 workshop has one orientation?)",
+  "input": [
+   "key r"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": null,
+  "pngNote": "screen unchanged from step 31-P6b-material-cycle; no screenshot saved",
+  "txt": "32-P7-rotate.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Carpenter's workshop · blocked: needs a floor · [Esc] cancel"
+  ],
+  "log": [
+   " ! Refused: Carpenter's workshop needs a floor x3",
+   " ! Refused: something is already built here",
+   " ! Refused: that is not discovered yet"
+  ],
+  "shown": "LOG: ! Refused: Carpenter's workshop needs a floor x3 / ! Refused: something is already built here / ! Refused: that is not discovered yet || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Carpenter's workshop · blocked: needs a floor · [Esc] cancel || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 33,
+  "id": "33-P8-bed-on-tree",
+  "slug": "P8-bed-on-tree",
+  "what": "Bed clicked on a tree tile",
+  "input": [
+   "key Escape x2",
+   "key b",
+   "key Shift+F",
+   "left-click cell(col 47, row 7) px(760,120) [text \"Bed \"]",
+   "left-click cell(col 7, row 23) px(120,376) [tile 7,46 a tree tile]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "33-P8-bed-on-tree.png",
+  "pngNote": "",
+  "txt": "33-P8-bed-on-tree.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Refused: Bed needs a floor"
+  ],
+  "log": [
+   " ! Refused: something is already built here",
+   " ! Refused: that is not discovered yet",
+   " ! Refused: Bed needs a floor"
+  ],
+  "shown": "LOG: ! Refused: something is already built here / ! Refused: that is not discovered yet / ! Refused: Bed needs a floor || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Refused: Bed needs a floor || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 34,
+  "id": "34-P9-special",
+  "slug": "P9-special",
+  "what": "Build > Special list",
+  "input": [
+   "key Escape x2",
+   "key b",
+   "key Shift+S"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "34-P9-special.png",
+  "pngNote": "",
+  "txt": "34-P9-special.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Hearth · blocked: needs a floor · [Esc] cancel"
+  ],
+  "log": [
+   " ! Refused: something is already built here",
+   " ! Refused: that is not discovered yet",
+   " ! Refused: Bed needs a floor"
+  ],
+  "shown": "LOG: ! Refused: something is already built here / ! Refused: that is not discovered yet / ! Refused: Bed needs a floor || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Hearth · blocked: needs a floor · [Esc] cancel || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 35,
+  "id": "35-P10-depot-tool",
+  "slug": "P10-depot-tool",
+  "what": "Trade depot tool armed",
+  "input": [
+   "left-click cell(col 47, row 6) px(760,104) [text \"Trade depot\"]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "35-P10-depot-tool.png",
+  "pngNote": "",
+  "txt": "35-P10-depot-tool.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Trade depot · blocked: needs a floor · [Esc] cancel"
+  ],
+  "log": [
+   " ! Refused: something is already built here",
+   " ! Refused: that is not discovered yet",
+   " ! Refused: Bed needs a floor"
+  ],
+  "shown": "LOG: ! Refused: something is already built here / ! Refused: that is not discovered yet / ! Refused: Bed needs a floor || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Trade depot · blocked: needs a floor · [Esc] cancel || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 36,
+  "id": "36-P11-depot-placed",
+  "slug": "P11-depot-placed",
+  "what": "Trade depot clicked on a free patch (it has a material cost: the status row says what)",
+  "input": [
+   "left-click cell(col 12, row 10) px(200,168) [tile 12,33 a free patch]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "build",
+  "png": "36-P11-depot-placed.png",
+  "pngNote": "",
+  "txt": "36-P11-depot-placed.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Refused: Trade depot needs a floor"
+  ],
+  "log": [
+   " ! Refused: that is not discovered yet",
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor"
+  ],
+  "shown": "LOG: ! Refused: that is not discovered yet / ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Refused: Trade depot needs a floor || PANEL: Build                         [b] / [S-c] Construct [S-f] Furniture / [w] Workshops   [S-m] Mechanism / [S-t] Traps     [S-s] Special",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 37,
+  "id": "37-Z1-stockpile",
+  "slug": "Z1-stockpile",
+  "what": "Stockpile zone made (setup for overlap)",
+  "input": [
+   "key Escape x2",
+   "key z",
+   "key Shift+S",
+   "left-drag cell(19,10) -> cell(22,12) px(312,168)->(360,200) [tiles 19,33 -> 22,35]",
+   "right-click cell(col 30, row 40) px(488,648) [cancel]",
+   "hook step 1 ticks"
+  ],
+  "tick": 401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "37-Z1-stockpile.png",
+  "pngNote": "",
+  "txt": "37-Z1-stockpile.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: that is not discovered yet",
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor"
+  ],
+  "shown": "LOG: ! Refused: that is not discovered yet / ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Peat floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 38,
+  "id": "38-Z2-farm-overlap",
+  "slug": "Z2-farm-overlap",
+  "what": "Farm plot dragged over part of the stockpile",
+  "input": [
+   "key Shift+F",
+   "left-drag cell(20,10) -> cell(23,12) px(328,168)->(376,200) [tiles 20,33 -> 23,35 overlaps the stockpile]"
+  ],
+  "tick": 401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "38-Z2-farm-overlap.png",
+  "pngNote": "",
+  "txt": "38-Z2-farm-overlap.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Farm plot · drag a rectangle · [Esc] cancel"
+  ],
+  "log": [
+   " ! Refused: that is not discovered yet",
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor"
+  ],
+  "shown": "LOG: ! Refused: that is not discovered yet / ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Farm plot · drag a rectangle · [Esc] cancel || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 39,
+  "id": "39-Z3-bedroom-overlap",
+  "slug": "Z3-bedroom-overlap",
+  "what": "Bedroom dragged inside the stockpile",
+  "input": [
+   "right-click cell(col 30, row 40) px(488,648) [cancel]",
+   "key Shift+B",
+   "left-drag cell(19,10) -> cell(20,11) px(312,168)->(328,184) [tiles 19,33 -> 20,34 bedroom inside the stockpile]"
+  ],
+  "tick": 401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "39-Z3-bedroom-overlap.png",
+  "pngNote": "",
+  "txt": "39-Z3-bedroom-overlap.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Bedroom: 0 of 4 tiles qualify: it needs walkable floor that no other zone hold»"
+  ],
+  "log": [
+   " ! Refused: that is not discovered yet",
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor"
+  ],
+  "shown": "LOG: ! Refused: that is not discovered yet / ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Bedroom: 0 of 4 tiles qualify: it needs walkable floor that no other zone hold» || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 40,
+  "id": "40-Z4-stockpile-overlap",
+  "slug": "Z4-stockpile-overlap",
+  "what": "Stockpile dragged over part of the existing stockpile",
+  "input": [
+   "right-click cell(col 30, row 40) px(488,648) [cancel]",
+   "key Shift+S",
+   "left-drag cell(21,11) -> cell(25,13) px(344,184)->(408,216) [tiles 21,34 -> 25,36 stockpile overlapping a stockpile]"
+  ],
+  "tick": 401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "40-Z4-stockpile-overlap.png",
+  "pngNote": "",
+  "txt": "40-Z4-stockpile-overlap.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Stockpile · drag a rectangle · [Esc] cancel"
+  ],
+  "log": [
+   " ! Refused: that is not discovered yet",
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor"
+  ],
+  "shown": "LOG: ! Refused: that is not discovered yet / ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Stockpile · drag a rectangle · [Esc] cancel || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 41,
+  "id": "41-Z5-farm-below",
+  "slug": "Z5-farm-below",
+  "what": "Farm plot dragged one level down",
+  "input": [
+   "right-click cell(col 30, row 40) px(488,648) [cancel]",
+   "key Shift+F",
+   "key <",
+   "left-drag cell(28,10) -> cell(30,12) px(456,168)->(488,200) [tiles 28,33 -> 30,35 farm plot on a lower level (soil/rock)]"
+  ],
+  "tick": 401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "41-Z5-farm-below.png",
+  "pngNote": "",
+  "txt": "41-Z5-farm-below.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 31   ║      [?] help",
+   " Farm plot: 0 of 9 tiles qualify: it needs soil, mud or cave loam that no other»"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 31   ║      [?] help / Farm plot: 0 of 9 tiles qualify: it needs soil, mud or cave loam that no other» || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 42,
+  "id": "42-Z6-farm-deep",
+  "slug": "Z6-farm-deep",
+  "what": "Farm plot dragged three levels down",
+  "input": [
+   "right-click cell(col 30, row 40) px(488,648) [cancel]",
+   "key < x2",
+   "left-drag cell(28,10) -> cell(30,12) px(456,168)->(488,200) [tiles 28,33 -> 30,35 farm plot deep]"
+  ],
+  "tick": 401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "look",
+  "png": "42-Z6-farm-deep.png",
+  "pngNote": "",
+  "txt": "42-Z6-farm-deep.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 29   ║      [?] help",
+   " Selection 3x3 (9 tiles)  [Del] clear  [S-f] forbid  [S-d] dump  [S-t] to depot»"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 29   ║      [?] help / Selection 3x3 (9 tiles)  [Del] clear  [S-f] forbid  [S-d] dump  [S-t] to depot» || PANEL: Look                          [k] / Look · (28, 33, z29) / Tabs: [1]Tile [2]Items(0) [3]Crea / Undiscovered",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 43,
+  "id": "43-Z7-hospital",
+  "slug": "Z7-hospital",
+  "what": "Hospital zone on open ground",
+  "input": [
+   "right-click cell(col 30, row 40) px(488,648) [cancel]",
+   "key > x3",
+   "key Shift+O",
+   "left-drag cell(35,10) -> cell(37,12) px(568,168)->(600,200) [tiles 35,33 -> 37,35 hospital]"
+  ],
+  "tick": 401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "look",
+  "png": "43-Z7-hospital.png",
+  "pngNote": "",
+  "txt": "43-Z7-hospital.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Selection 3x3 (9 tiles)  [Del] clear  [S-f] forbid  [S-d] dump  [S-t] to depot»"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Selection 3x3 (9 tiles)  [Del] clear  [S-f] forbid  [S-d] dump  [S-t] to depot» || PANEL: Look                          [k] / Look · (35, 33, z32) / Tabs: [1]Tile [2]Items(0) [3]Crea / Silt floor",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 44,
+  "id": "44-Z8-pasture",
+  "slug": "Z8-pasture",
+  "what": "Pasture on open ground",
+  "input": [
+   "right-click cell(col 30, row 40) px(488,648) [cancel]",
+   "key Shift+P",
+   "left-drag cell(40,10) -> cell(42,12) px(648,168)->(680,200) [tiles 40,33 -> 42,35 pasture]"
+  ],
+  "tick": 401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "look",
+  "png": "44-Z8-pasture.png",
+  "pngNote": "",
+  "txt": "44-Z8-pasture.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Selection 3x3 (9 tiles)  [Del] clear  [S-f] forbid  [S-d] dump  [S-t] to depot»"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Selection 3x3 (9 tiles)  [Del] clear  [S-f] forbid  [S-d] dump  [S-t] to depot» || PANEL: Look                          [k] / Look · (40, 33, z32) / Tabs: [1]Tile [2]Items(0) [3]Crea / Silt floor",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 45,
+  "id": "45-Z9-pasture-editor",
+  "slug": "Z9-pasture-editor",
+  "what": "Pasture inspector",
+  "input": [
+   "right-click cell(col 30, row 40) px(488,648) [cancel]",
+   "hook step 1 ticks",
+   "left-click cell(col 40, row 10) px(648,168) [tile 40,33 the pasture]"
+  ],
+  "tick": 402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "look",
+  "png": "45-Z9-pasture-editor.png",
+  "pngNote": "",
+  "txt": "45-Z9-pasture-editor.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Silt floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Look                          [k] / Look · (40, 33, z32) / Tabs: [1]Tile [2]Items(0) [3]Crea / Silt floor",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 46,
+  "id": "46-Z10-barracks",
+  "slug": "Z10-barracks",
+  "what": "Barracks zone",
+  "input": [
+   "key Escape",
+   "key z",
+   "key r",
+   "left-drag cell(47,10) -> cell(49,12) px(760,168)->(792,200) [tiles 47,33 -> 49,35 barracks]"
+  ],
+  "tick": 402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "46-Z10-barracks.png",
+  "pngNote": "",
+  "txt": "46-Z10-barracks.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Barracks · drag a rectangle · [Esc] cancel"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Barracks · drag a rectangle · [Esc] cancel || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 47,
+  "id": "47-O1-no-workshop",
+  "slug": "O1-no-workshop",
+  "what": "Order \"mail shirt\" with no forge built",
+  "input": [
+   "right-click cell(col 30, row 40) px(488,648) [cancel]",
+   "key Escape",
+   "key o",
+   "key Shift+N",
+   "type \"mail\"",
+   "key Enter",
+   "hook step 300 ticks"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "47-O1-no-workshop.png",
+  "pngNote": "",
+  "txt": "47-O1-no-workshop.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Ordered: x1 Mail shirt · any forge"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Ordered: x1 Mail shirt · any forge || PANEL: Orders                        [o] / [S-n] new order  all workshops / ─── Any workshop ──────────────── / x1 Mail shirt · no forge",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 48,
+  "id": "48-O2-picker-no-match",
+  "slug": "O2-picker-no-match",
+  "what": "Add order: filter \"zzzz\" matches nothing",
+  "input": [
+   "key Shift+N",
+   "type \"zzzz\""
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "48-O2-picker-no-match.png",
+  "pngNote": "",
+  "txt": "48-O2-picker-no-match.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Ordered: x1 Mail shirt · any forge"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Ordered: x1 Mail shirt · any forge || PANEL: Orders                        [o] / Add order / Find [ zzzz____________________ ] / No recipe matches \"zzzz\".",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 49,
+  "id": "49-O3-enter-no-match",
+  "slug": "O3-enter-no-match",
+  "what": "Key Enter with no match",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "49-O3-enter-no-match.png",
+  "pngNote": "",
+  "txt": "49-O3-enter-no-match.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " No recipe matches \"zzzz\"."
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / No recipe matches \"zzzz\". || PANEL: Orders                        [o] / Add order / Find [ zzzz____________________ ] / No recipe matches \"zzzz\".",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 50,
+  "id": "50-O4-quantity-zero",
+  "slug": "O4-quantity-zero",
+  "what": "Add order barrel, quantity typed \"0\"",
+  "input": [
+   "key Escape",
+   "key Shift+N",
+   "type \"barrel\"",
+   "key Tab",
+   "key 0",
+   "key Enter"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "50-O4-quantity-zero.png",
+  "pngNote": "",
+  "txt": "50-O4-quantity-zero.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Ordered: x1 Metal barrel · any forge"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Ordered: x1 Metal barrel · any forge || PANEL: Orders                        [o] / [S-n] new order  all workshops / ─── Any workshop ──────────────── / x1 Mail shirt · no forge",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 51,
+  "id": "51-O5-delete",
+  "slug": "O5-delete",
+  "what": "Key Delete in Orders",
+  "input": [
+   "key Escape",
+   "key Delete"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "51-O5-delete.png",
+  "pngNote": "",
+  "txt": "51-O5-delete.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Ordered: x1 Metal barrel · any forge"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Ordered: x1 Metal barrel · any forge",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 52,
+  "id": "52-O6-x",
+  "slug": "O6-x",
+  "what": "Key x in Orders",
+  "input": [
+   "key x"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 51-O5-delete; no screenshot saved",
+  "txt": "52-O6-x.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Ordered: x1 Metal barrel · any forge"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Ordered: x1 Metal barrel · any forge",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 53,
+  "id": "53-M1-active-no-squad",
+  "slug": "M1-active-no-squad",
+  "what": "Key v with no squad",
+  "input": [
+   "key m",
+   "key v"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "53-M1-active-no-squad.png",
+  "pngNote": "",
+  "txt": "53-M1-active-no-squad.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Ordered: x1 Metal barrel · any forge"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Ordered: x1 Metal barrel · any forge || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 54,
+  "id": "54-M2-kill-no-squad",
+  "slug": "M2-kill-no-squad",
+  "what": "Key Shift+K with no squad",
+  "input": [
+   "key Shift+K"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": null,
+  "pngNote": "screen unchanged from step 53-M1-active-no-squad; no screenshot saved",
+  "txt": "54-M2-kill-no-squad.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Ordered: x1 Metal barrel · any forge"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Ordered: x1 Metal barrel · any forge || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 55,
+  "id": "55-M3-active-no-members",
+  "slug": "M3-active-no-members",
+  "what": "Squad with no members: key v (Active)",
+  "input": [
+   "key +",
+   "key v"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "55-M3-active-no-members.png",
+  "pngNote": "",
+  "txt": "55-M3-active-no-members.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Ordered: x1 Metal barrel · any forge"
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Ordered: x1 Metal barrel · any forge || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 56,
+  "id": "56-M4-barracks-none",
+  "slug": "M4-barracks-none",
+  "what": "Key Shift+B: assign a barracks with none built",
+  "input": [
+   "key Shift+B"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "56-M4-barracks-none.png",
+  "pngNote": "",
+  "txt": "56-M4-barracks-none.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " There is no barracks zone: make one in Zones [z]."
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / There is no barracks zone: make one in Zones [z]. || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 57,
+  "id": "57-M5-station",
+  "slug": "M5-station",
+  "what": "Key Shift+S: set station",
+  "input": [
+   "key Shift+S"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "57-M5-station.png",
+  "pngNote": "",
+  "txt": "57-M5-station.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " There is no barracks zone: make one in Zones [z]."
+  ],
+  "log": [
+   " ! Refused: Bed needs a floor",
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam."
+  ],
+  "shown": "LOG: ! Refused: Bed needs a floor / ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / There is no barracks zone: make one in Zones [z]. || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 58,
+  "id": "58-M6-station-on-tree",
+  "slug": "M6-station-on-tree",
+  "what": "Station clicked on a tree tile",
+  "input": [
+   "left-click cell(col 7, row 23) px(120,376) [tile 7,46 a tree tile]"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "58-M6-station-on-tree.png",
+  "pngNote": "",
+  "txt": "58-M6-station-on-tree.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Refused: it cannot stand there"
+  ],
+  "log": [
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam.",
+   " ! Refused: it cannot stand there"
+  ],
+  "shown": "LOG: ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. / ! Refused: it cannot stand there || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Refused: it cannot stand there || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 59,
+  "id": "59-M7-add-none-marked",
+  "slug": "M7-add-none-marked",
+  "what": "Shift+A then Enter with no row marked",
+  "input": [
+   "key Shift+A",
+   "key Enter"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "59-M7-add-none-marked.png",
+  "pngNote": "",
+  "txt": "59-M7-add-none-marked.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Refused: it cannot stand there"
+  ],
+  "log": [
+   " ! Refused: Trade depot needs a floor",
+   " ☼ Farms need soil, mud left by water, or cave loam.",
+   " ! Refused: it cannot stand there"
+  ],
+  "shown": "LOG: ! Refused: Trade depot needs a floor / ☼ Farms need soil, mud left by water, or cave loam. / ! Refused: it cannot stand there || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Refused: it cannot stand there || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 60,
+  "id": "60-S1-ctrl-s",
+  "slug": "S1-ctrl-s",
+  "what": "Key Ctrl+S",
+  "input": [
+   "key Escape x2",
+   "key Control+s"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "60-S1-ctrl-s.png",
+  "pngNote": "",
+  "txt": "60-S1-ctrl-s.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / [r] Resume / ► [s] Save / [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 61,
+  "id": "61-S2-save-input",
+  "slug": "S2-save-input",
+  "what": "Key Enter on Save: name input",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 60-S1-ctrl-s; no screenshot saved",
+  "txt": "61-S2-save-input.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / [r] Resume / ► [s] Save / [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 62,
+  "id": "62-S3-load-list",
+  "slug": "S3-load-list",
+  "what": "Key l in the game menu: the Load list (did Enter on Save write a save?)",
+  "input": [
+   "key l"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "load",
+  "panel": null,
+  "png": "62-S3-load-list.png",
+  "pngNote": "",
+  "txt": "62-S3-load-list.txt",
+  "status": [
+   "",
+   "  [Enter] Load  [x] Delete  [e] Export  [i] Import  [Esc] Back"
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN load: Load / Manual / ► Grimvault · Day 1 of Spring, Year 1 · 7 dwarves · 1,269 ☼ / \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\".\"\"↑\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\" / \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"↑\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\" / \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\" / \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\" / \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 63,
+  "id": "63-S3b-load-escape",
+  "slug": "S3b-load-escape",
+  "what": "Key Escape from the Load list",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "63-S3b-load-escape.png",
+  "pngNote": "",
+  "txt": "63-S3b-load-escape.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / [r] Resume / [s] Save / ► [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 64,
+  "id": "64-S4-rename-input",
+  "slug": "S4-rename-input",
+  "what": "Key n: Rename fortress input (the only text input with a stored name found in the menu)",
+  "input": [
+   "key n"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "text_input",
+  "panel": null,
+  "png": "64-S4-rename-input.png",
+  "pngNote": "",
+  "txt": "64-S4-rename-input.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN text_input: Rename Grimvault / [ Grimvault____________________ ] / 9/32 / [Enter] accept  [Esc] cancel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 65,
+  "id": "65-S5-rename-200",
+  "slug": "S5-rename-200",
+  "what": "Typed 200 characters",
+  "input": [
+   "type \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\""
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "text_input",
+  "panel": null,
+  "png": "65-S5-rename-200.png",
+  "pngNote": "",
+  "txt": "65-S5-rename-200.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN text_input: Rename Grimvault / [ vaultxxxxxxxxxxxxxxxxxxxxxxx_ ] / 32/32 / [Enter] accept  [Esc] cancel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 66,
+  "id": "66-S6-rename-200-enter",
+  "slug": "S6-rename-200-enter",
+  "what": "Key Enter with 200 characters",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "66-S6-rename-200-enter.png",
+  "pngNote": "",
+  "txt": "66-S6-rename-200-enter.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvaultxxxxxxxxxxxxxxxxxxxxxxx / [r] Resume / [s] Save / [l] Load / [o] Settings / ► [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 67,
+  "id": "67-S7-quickload-none",
+  "slug": "S7-quickload-none",
+  "what": "Key F9 with no quick save",
+  "input": [
+   "key Escape",
+   "key F9"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "confirm",
+  "panel": null,
+  "png": "67-S7-quickload-none.png",
+  "pngNote": "",
+  "txt": "67-S7-quickload-none.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN confirm: Load the quick save? Unsaved progress will be lost. / [y] Yes  [n] No",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 68,
+  "id": "68-S8-quicksave",
+  "slug": "S8-quicksave",
+  "what": "Key F5 quick save",
+  "input": [
+   "key Escape",
+   "key F5"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "68-S8-quicksave.png",
+  "pngNote": "",
+  "txt": "68-S8-quicksave.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 69,
+  "id": "69-S9-quickload-confirm",
+  "slug": "S9-quickload-confirm",
+  "what": "Key F9 with a quick save: confirmation",
+  "input": [
+   "key F9"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "confirm",
+  "panel": null,
+  "png": "69-S9-quickload-confirm.png",
+  "pngNote": "",
+  "txt": "69-S9-quickload-confirm.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN confirm: Load the quick save? Unsaved progress will be lost. / [y] Yes  [n] No",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 70,
+  "id": "70-S10-quickload-escape",
+  "slug": "S10-quickload-escape",
+  "what": "Escape: answer to the confirmation",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "70-S10-quickload-escape.png",
+  "pngNote": "",
+  "txt": "70-S10-quickload-escape.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 71,
+  "id": "71-N-q-with-nothing-open",
+  "slug": "N-q-with-nothing-open",
+  "what": "Key q: q with nothing open",
+  "input": [
+   "key q"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 70-S10-quickload-escape; no screenshot saved",
+  "txt": "71-N-q-with-nothing-open.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 72,
+  "id": "72-N-x-with-nothing-open",
+  "slug": "N-x-with-nothing-open",
+  "what": "Key x: x with nothing open",
+  "input": [
+   "key x"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 71-N-q-with-nothing-open; no screenshot saved",
+  "txt": "72-N-x-with-nothing-open.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 73,
+  "id": "73-N-Delete-with-nothing",
+  "slug": "N-Delete-with-nothing",
+  "what": "Key Delete: Delete with nothing",
+  "input": [
+   "key Delete"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 72-N-x-with-nothing-open; no screenshot saved",
+  "txt": "73-N-Delete-with-nothing.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 74,
+  "id": "74-N-Enter-on-the-bare-map",
+  "slug": "N-Enter-on-the-bare-map",
+  "what": "Key Enter: Enter on the bare map",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 73-N-Delete-with-nothing; no screenshot saved",
+  "txt": "74-N-Enter-on-the-bare-map.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 75,
+  "id": "75-N-Backspace-on-the-bare-map",
+  "slug": "N-Backspace-on-the-bare-map",
+  "what": "Key Backspace: Backspace on the bare map",
+  "input": [
+   "key Backspace"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 74-N-Enter-on-the-bare-map; no screenshot saved",
+  "txt": "75-N-Backspace-on-the-bare-map.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 76,
+  "id": "76-N-1-on-the-bare-map",
+  "slug": "N-1-on-the-bare-map",
+  "what": "Key 1: 1 on the bare map",
+  "input": [
+   "key 1"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 75-N-Backspace-on-the-bare-map; no screenshot saved",
+  "txt": "76-N-1-on-the-bare-map.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 77,
+  "id": "77-N-r-on-the-bare-map",
+  "slug": "N-r-on-the-bare-map",
+  "what": "Key r: r on the bare map",
+  "input": [
+   "key r"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 76-N-1-on-the-bare-map; no screenshot saved",
+  "txt": "77-N-r-on-the-bare-map.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 78,
+  "id": "78-N-w-on-the-bare-map",
+  "slug": "N-w-on-the-bare-map",
+  "what": "Key w: w on the bare map",
+  "input": [
+   "key w"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 77-N-r-on-the-bare-map; no screenshot saved",
+  "txt": "78-N-w-on-the-bare-map.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 79,
+  "id": "79-N-y-on-the-bare-map",
+  "slug": "N-y-on-the-bare-map",
+  "what": "Key y: y on the bare map",
+  "input": [
+   "key y"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 78-N-w-on-the-bare-map; no screenshot saved",
+  "txt": "79-N-y-on-the-bare-map.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 80,
+  "id": "80-N-v-on-the-bare-map",
+  "slug": "N-v-on-the-bare-map",
+  "what": "Key v: v on the bare map",
+  "input": [
+   "key v"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 79-N-y-on-the-bare-map; no screenshot saved",
+  "txt": "80-N-v-on-the-bare-map.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 81,
+  "id": "81-N-Shift-x",
+  "slug": "N-Shift-x",
+  "what": "Key Shift+X: Shift+x",
+  "input": [
+   "key Shift+X"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 80-N-v-on-the-bare-map; no screenshot saved",
+  "txt": "81-N-Shift-x.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 82,
+  "id": "82-N-F1",
+  "slug": "N-F1",
+  "what": "Key F1: F1",
+  "input": [
+   "key F1"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 81-N-Shift-x; no screenshot saved",
+  "txt": "82-N-F1.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 83,
+  "id": "83-N-F2",
+  "slug": "N-F2",
+  "what": "Key F2: F2",
+  "input": [
+   "key F2"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 82-N-F1; no screenshot saved",
+  "txt": "83-N-F2.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 84,
+  "id": "84-N-PageDown-on-the-bare-map",
+  "slug": "N-PageDown-on-the-bare-map",
+  "what": "Key PageDown: PageDown on the bare map",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 83-N-F2; no screenshot saved",
+  "txt": "84-N-PageDown-on-the-bare-map.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 85,
+  "id": "85-N-Home",
+  "slug": "N-Home",
+  "what": "Key Home: Home",
+  "input": [
+   "key Home"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "85-N-Home.png",
+  "pngNote": "",
+  "txt": "85-N-Home.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 86,
+  "id": "86-N-End-on-the-bare-map",
+  "slug": "N-End-on-the-bare-map",
+  "what": "Key End: End on the bare map",
+  "input": [
+   "key End"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 85-N-Home; no screenshot saved",
+  "txt": "86-N-End-on-the-bare-map.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 87,
+  "id": "87-N-Tab-sidebar-toggle-",
+  "slug": "N-Tab-sidebar-toggle-",
+  "what": "Key Tab: Tab (sidebar toggle)",
+  "input": [
+   "key Tab"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 86-N-End-on-the-bare-map; no screenshot saved",
+  "txt": "87-N-Tab-sidebar-toggle-.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 88,
+  "id": "88-N-Tab-again",
+  "slug": "N-Tab-again",
+  "what": "Key Tab: Tab again",
+  "input": [
+   "key Tab"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 87-N-Tab-sidebar-toggle-; no screenshot saved",
+  "txt": "88-N-Tab-again.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 89,
+  "id": "89-N-units-q",
+  "slug": "N-units-q",
+  "what": "Key q inside the Units panel",
+  "input": [
+   "key u",
+   "key q"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "89-N-units-q.png",
+  "pngNote": "",
+  "txt": "89-N-units-q.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    No jo",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 90,
+  "id": "90-N-units-x",
+  "slug": "N-units-x",
+  "what": "Key x inside the Units panel",
+  "input": [
+   "key x"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": null,
+  "pngNote": "screen unchanged from step 89-N-units-q; no screenshot saved",
+  "txt": "90-N-units-x.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    No jo",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 91,
+  "id": "91-N-units-w",
+  "slug": "N-units-w",
+  "what": "Key w inside the Units panel",
+  "input": [
+   "key w"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": null,
+  "pngNote": "screen unchanged from step 90-N-units-x; no screenshot saved",
+  "txt": "91-N-units-w.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    No jo",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 92,
+  "id": "92-N-units-y",
+  "slug": "N-units-y",
+  "what": "Key y inside the Units panel",
+  "input": [
+   "key y"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": null,
+  "pngNote": "screen unchanged from step 91-N-units-w; no screenshot saved",
+  "txt": "92-N-units-y.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    No jo",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 93,
+  "id": "93-N-units-v",
+  "slug": "N-units-v",
+  "what": "Key v inside the Units panel",
+  "input": [
+   "key v"
+  ],
+  "tick": 702,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": null,
+  "pngNote": "screen unchanged from step 92-N-units-y; no screenshot saved",
+  "txt": "93-N-units-v.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   " ! Refused: it cannot stand there",
+   " Saved Grimvault, Day 1 of Spring, Year 1.",
+   " Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1."
+  ],
+  "shown": "LOG: ! Refused: it cannot stand there / Saved Grimvault, Day 1 of Spring, Year 1. / Saved Grimvaultxxxxxxxxxxxxxxxxxxxxxxx, Day 1 of Spring, Year 1. || STATUS: Day 1 of Spring, Year 1   ☼ clear 1°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    No jo",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 94,
+  "id": "94-T0-start",
+  "slug": "T0-start",
+  "what": "A fresh default embark (hook URL ?start=flat-test&embark=default) for the trade refusal",
+  "input": [
+   "navigate /?start=flat-test&embark=default"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "94-T0-start.png",
+  "pngNote": "",
+  "txt": "94-T0-start.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 8°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear 8°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 95,
+  "id": "95-T1-session",
+  "slug": "T1-session",
+  "what": "Trade session open, nothing selected",
+  "input": [
+   "hook setup: finished trade depot, request set",
+   "hook step until the caravan state is: atDepot",
+   "hook setup: meals in the depot, first dwarf made broker",
+   "key Escape",
+   "key c",
+   "key Shift+D",
+   "key Shift+T",
+   "hook step(1) until the trade session opens"
+  ],
+  "tick": 45651,
+  "speed": 0,
+  "paused": true,
+  "screen": "trade_session",
+  "panel": "depot",
+  "png": "95-T1-session.png",
+  "pngNote": "",
+  "txt": "95-T1-session.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "  We take 0 ☼ · We give 0 ☼ (their valuation) · They want at least 15% over: 0 ☼",
+   "  A fair offer.",
+   "  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close"
+  ],
+  "shown": "SCREEN trade_session: Trading with the Hillfolk · Broker: Melkorka Goldhelm (Trading 0) · Reputation / Their goods  priOur goods at the depot  their valua / ► 6 linen cloth  58  8 meal easy meal  64 / [-] 0 [+]  [-] 0 [+] / 3 wool cloth cloth  36 / [-] 0 [+] / 5 linen cloth  48 / [-] 0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 96,
+  "id": "96-T2-offer-nothing",
+  "slug": "T2-offer-nothing",
+  "what": "Key Enter with nothing selected on either side",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 45651,
+  "speed": 0,
+  "paused": true,
+  "screen": "trade_session",
+  "panel": "depot",
+  "png": "96-T2-offer-nothing.png",
+  "pngNote": "",
+  "txt": "96-T2-offer-nothing.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "  We take 0 ☼ · We give 0 ☼ (their valuation) · They want at least 15% over: 0 ☼",
+   "  Choose goods to offer.",
+   "  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close"
+  ],
+  "shown": "SCREEN trade_session: Trading with the Hillfolk · Broker: Melkorka Goldhelm (Trading 0) · Reputation / Their goods  priOur goods at the depot  their valua / ► 6 linen cloth  58  8 meal easy meal  64 / [-] 0 [+]  [-] 0 [+] / 3 wool cloth cloth  36 / [-] 0 [+] / 5 linen cloth  48 / [-] 0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 97,
+  "id": "97-T3-buy-offer-nothing",
+  "slug": "T3-buy-offer-nothing",
+  "what": "ArrowDown, +, Enter: take a merchant item and offer nothing for it",
+  "input": [
+   "key ArrowDown",
+   "key +",
+   "key Enter"
+  ],
+  "tick": 45651,
+  "speed": 0,
+  "paused": true,
+  "screen": "trade_session",
+  "panel": "depot",
+  "png": "97-T3-buy-offer-nothing.png",
+  "pngNote": "",
+  "txt": "97-T3-buy-offer-nothing.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "  We take 12 ☼ · We give 0 ☼ (their valuation) · They want at least 15% over: 14",
+   "  Choose goods to offer.",
+   "  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close"
+  ],
+  "shown": "SCREEN trade_session: Trading with the Hillfolk · Broker: Melkorka Goldhelm (Trading 0) · Reputation / Their goods  priOur goods at the depot  their valua / 6 linen cloth  58  8 meal easy meal  64 / [-] 0 [+]  [-] 0 [+] / ► 3 wool cloth cloth  36 / [-] 1 [+] / 5 linen cloth  48 / [-] 0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 98,
+  "id": "98-T4-plus-plus-plus",
+  "slug": "T4-plus-plus-plus",
+  "what": "Key + x3 on the merchant item",
+  "input": [
+   "key + x3"
+  ],
+  "tick": 45651,
+  "speed": 0,
+  "paused": true,
+  "screen": "trade_session",
+  "panel": "depot",
+  "png": "98-T4-plus-plus-plus.png",
+  "pngNote": "",
+  "txt": "98-T4-plus-plus-plus.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "  We take 36 ☼ · We give 0 ☼ (their valuation) · They want at least 15% over: 42",
+   "  Not enough. Add 42 ☼ of goods.",
+   "  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close"
+  ],
+  "shown": "SCREEN trade_session: Trading with the Hillfolk · Broker: Melkorka Goldhelm (Trading 0) · Reputation / Their goods  priOur goods at the depot  their valua / 6 linen cloth  58  8 meal easy meal  64 / [-] 0 [+]  [-] 0 [+] / ► 3 wool cloth cloth  36 / [-] 3 [+] / 5 linen cloth  48 / [-] 0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 99,
+  "id": "99-T5-offer-more",
+  "slug": "T5-offer-more",
+  "what": "Key Enter",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 45651,
+  "speed": 0,
+  "paused": true,
+  "screen": "trade_session",
+  "panel": "depot",
+  "png": "99-T5-offer-more.png",
+  "pngNote": "",
+  "txt": "99-T5-offer-more.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "  We take 36 ☼ · We give 0 ☼ (their valuation) · They want at least 15% over: 42",
+   "  Choose goods to offer.",
+   "  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close"
+  ],
+  "shown": "SCREEN trade_session: Trading with the Hillfolk · Broker: Melkorka Goldhelm (Trading 0) · Reputation / Their goods  priOur goods at the depot  their valua / 6 linen cloth  58  8 meal easy meal  64 / [-] 0 [+]  [-] 0 [+] / ► 3 wool cloth cloth  36 / [-] 3 [+] / 5 linen cloth  48 / [-] 0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 100,
+  "id": "100-T6-gift",
+  "slug": "T6-gift",
+  "what": "Key g (gift: offer with nothing taken)",
+  "input": [
+   "key g"
+  ],
+  "tick": 45651,
+  "speed": 0,
+  "paused": true,
+  "screen": "trade_session",
+  "panel": "depot",
+  "png": "100-T6-gift.png",
+  "pngNote": "",
+  "txt": "100-T6-gift.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "  We take 36 ☼ · We give 0 ☼ (their valuation) · They want at least 15% over: 42",
+   "  A gift takes nothing: clear their side first.",
+   "  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close"
+  ],
+  "shown": "SCREEN trade_session: Trading with the Hillfolk · Broker: Melkorka Goldhelm (Trading 0) · Reputation / Their goods  priOur goods at the depot  their valua / 6 linen cloth  58  8 meal easy meal  64 / [-] 0 [+]  [-] 0 [+] / ► 3 wool cloth cloth  36 / [-] 3 [+] / 5 linen cloth  48 / [-] 0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 101,
+  "id": "101-T7-escape",
+  "slug": "T7-escape",
+  "what": "Key Escape",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 45652,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "depot",
+  "png": "101-T7-escape.png",
+  "pngNote": "",
+  "txt": "101-T7-escape.txt",
+  "status": [
+   " Day 11 of Summer, Year 1   C clear 20°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " Melkorka Goldhelm is now the broker.",
+   " ! Melkorka Goldhelm is starving.",
+   " ! Bjarni Darkgate is starving."
+  ],
+  "shown": "LOG: Melkorka Goldhelm is now the broker. / ! Melkorka Goldhelm is starving. / ! Bjarni Darkgate is starving. || STATUS: Day 11 of Summer, Year 1   C clear 20°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Depot / Trade depot #1 · goods at depot / ► 8 easy meal  64 ☼",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ }
+]

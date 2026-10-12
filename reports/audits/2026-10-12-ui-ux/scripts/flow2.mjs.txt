@@ -1,0 +1,297 @@
+// Flow 2: new player, KEYBOARD ONLY, from the main menu. Same world and region as flow 1.
+import { launch, Recorder, waitText, findSite, stepBy, closePanels, panCentreTo, centreTile } from './common.mjs';
+const s = await launch();
+const r = new Recorder('2-keyboard-only', s);
+const ensure = async (key, panel) => { if ((await r.state()).panel !== panel) await r.key(key); };
+const T = async (name, fn) => { try { await fn(); } catch (e) { console.log(`!! ${name}: ${e.message}`); r.log(`(script error in ${name}: ${e.message})`); await r.snap(`error-${name}`, `Capture script error in ${name}: ${e.message}`); } };
+
+await r.goto('/');
+await r.snap('main-menu', 'Main menu on first load');
+await r.key('n');
+await r.snap('world-gen-screen', 'Key n: the world generation screen');
+await r.key('g');
+await r.wait(300);
+await r.snap('generating', 'Key g: generation started');
+await waitText(r, 'Stage: names', 30000);
+await r.wait(800);
+await r.snap('generated', 'World generated (preview shown)');
+await r.key('Enter');
+await r.snap('world-map', 'Key Enter: the world map, cursor at the default position');
+// walk the cursor to the region flow 1 clicked ("Bitterbrae")
+const target = await r.page.evaluate(() => {
+  const w = window.__deepholm.readers.world;
+  const reg = w.regions().find((x) => x.id === 2339);
+  return { id: reg.id, size: w.size() };
+});
+{
+  const start = Math.floor(target.size / 2);
+  const walk = async (delta, plus, minus) => {
+    const k = delta > 0 ? plus : minus;
+    let left = Math.abs(delta);
+    while (left >= 8) { await r.key(`Shift+${k}`); left -= 8; }
+    for (; left > 0; left -= 1) await r.key(k);
+  };
+  await walk((target.id % target.size) - start, 'ArrowRight', 'ArrowLeft');
+  await walk(Math.floor(target.id / target.size) - start, 'ArrowDown', 'ArrowUp');
+}
+await r.snap('world-map-region', 'Cursor walked to the region "Bitterbrae" with Shift+arrows (8 cells) and arrows (1 cell)');
+await r.key('f');
+await r.snap('key-f-filter', 'Key f: filter panel');
+await r.key('f');
+await r.snap('key-f-close', 'Key f: filter panel closed');
+await r.key('?');
+await r.snap('key-help-legend', 'Key ?: biome legend');
+await r.key('?');
+await r.key('Enter');
+await r.snap('embark-dwarves', 'Key Enter: embark screen, Dwarves tab');
+await r.key('ArrowDown');
+await r.snap('embark-down', 'Key ArrowDown: next dwarf');
+await r.key('r');
+await r.snap('embark-reroll', 'Key r: reroll the selected dwarf');
+await r.key('2');
+await r.snap('embark-supplies', 'Key 2: Supplies tab');
+await r.key('3');
+await r.snap('embark-animals', 'Key 3: Animals tab');
+await r.key('p');
+await r.snap('embark-presets', 'Key p: presets menu');
+await r.key('Escape');
+await r.key('1');
+// Enter on the footer
+for (let i = 0; i < 12; i += 1) {
+  const t = await r.text();
+  if (t.some((x) => x.includes('[Enter] Embark')) ) break;
+}
+await r.key('Enter');
+await r.wait(500);
+await r.snap('embark-enter', 'Key Enter on the embark screen (what happens before the footer is focused)');
+await r.wait(2500);
+if ((await r.state()).screen !== 'fortress') {
+  // find how the keyboard reaches the footer: Tab / End
+  await r.key('Tab');
+  await r.snap('embark-tab', 'Key Tab on the embark screen');
+  await r.key('Enter');
+  await r.wait(2500);
+}
+await r.snap('fortress-open', 'The fortress screen after embarking by keyboard');
+const st0 = await r.state();
+console.log('after embark:', JSON.stringify(st0));
+if (st0.screen !== 'fortress') { console.log('NOT IN FORTRESS'); await r.close(); process.exit(1); }
+
+const site = await findSite(r, 22);
+console.log('SITE', JSON.stringify({ ...site, patches: site.patches.slice(0, 8), trees: site.trees.slice(0, 3) }));
+const P = site.patches;
+
+// ---------- look around ----------
+await T('look', async () => {
+  await r.key('k');
+  await r.snap('look-k', 'Key k: Look panel, look cursor at the map centre');
+  await r.keys(['ArrowRight', 'ArrowRight', 'ArrowDown']);
+  await r.snap('look-arrows', 'Arrow keys with the Look panel open (cursor versus camera)');
+  await r.key('Shift+ArrowDown');
+  await r.snap('look-shift-down', 'Shift+ArrowDown: ten cells');
+  await r.key('<');
+  await r.snap('z-down', 'Key <: one level down');
+  await r.key('>');
+  await r.snap('z-up', 'Key >: one level up');
+  await r.key('Home');
+  await r.snap('home', 'Key Home: centre on the wagon');
+  await r.key('k');
+  await r.snap('look-at-wagon-centre', 'Key k after Home: look cursor at the map centre');
+  await r.key('Enter');
+  await r.snap('look-enter', 'Key Enter with the Look panel closed and a look cursor still set (see look-cursor in the dump header)');
+  await r.key('k');
+  await r.snap('look-k-again', 'Key k: Look panel opened again; the look cursor is moved to the map centre');
+  await r.key('Escape');
+  await r.snap('look-escape', 'Key Escape: closes the panel; this clears the look cursor (see look-cursor in the dump header)');
+});
+// the calendar panel has no hotkey: try keys
+await T('calendar', async () => {
+  for (const k of ['Tab', 'Tab', 'F2', 'F3']) await r.key(k);
+  await r.snap('calendar-try-keys', 'Probe: keys Tab, Tab, F2, F3 tried to reach the Calendar panel (it opens by a click on the date)');
+});
+// ---------- designate ----------
+await T('designate', async () => {
+  await r.key('d');
+  await r.snap('designate-open', 'Key d: Designate panel');
+  await r.key('Shift+D');
+  await r.snap('dig-tool', 'Key Shift+D: Dig tool armed');
+  const a = { x: P[0].x, y: P[0].y };
+  const b = { x: P[0].x + 3, y: P[0].y + 2 };
+  let res = await panCentreTo(r, a.x, a.y);
+  await r.snap('dig-aim-a', `Panned until the map centre is tile ${a.x},${a.y} (${res.presses} key presses, reached: ${res.ok})`);
+  await r.key('Enter');
+  await r.snap('dig-corner-a', 'Key Enter: first corner');
+  res = await panCentreTo(r, b.x, b.y);
+  await r.key('Enter');
+  await r.snap('dig-corner-b', `Panned to the opposite corner (${res.presses} presses, reached: ${res.ok}), key Enter: second corner`);
+  await r.key('Shift+T');
+  await r.snap('chop-tool', 'Key Shift+T: Chop tree tool');
+  await r.key('w');
+  await r.snap('stairwell-tool', 'Key w: Stairwell tool');
+  res = await panCentreTo(r, P[1].x, P[1].y);
+  await r.key('Enter');
+  for (let i = 0; i < 3; i += 1) await r.key('<');
+  await r.key('Enter');
+  await r.snap('stairwell-placed', `Stairwell: aimed (${res.presses} presses), Enter, < x3, Enter`);
+  for (let i = 0; i < 3; i += 1) await r.key('>');
+  await r.key('Escape');
+  await r.snap('designate-esc', 'Key Escape (cancel tool)');
+  await stepBy(r, 60);
+  await r.snap('after-60-ticks', 'After 60 ticks (hook step)');
+});
+// ---------- stockpile ----------
+await T('stockpile', async () => {
+  await closePanels(r);
+  await r.key('z');
+  await r.snap('zones-open', 'Key z: Zones panel');
+  await r.key('Shift+S');
+  await r.snap('stockpile-tool', 'Key Shift+S: Stockpile tool');
+  let res = await panCentreTo(r, P[2].x, P[2].y);
+  await r.key('Enter');
+  const res2 = await panCentreTo(r, P[2].x + 3, P[2].y + 2);
+  await r.key('Enter');
+  await r.snap('stockpile-placed', `Stockpile corners by keyboard (${res.presses}+${res2.presses} presses, reached ${res.ok}/${res2.ok})`);
+  await r.key('Escape');
+  await stepBy(r, 1);
+  res = await panCentreTo(r, P[2].x, P[2].y);
+  await r.key('Enter');
+  await r.snap('stockpile-editor', `Key Enter with no tool: select the zone at the map centre (aim ${res.presses} presses)`);
+  await r.key('Shift+P');
+  await r.snap('stockpile-preset-key', 'Key Shift+P: preset dropdown');
+  await r.keys(['ArrowDown', 'ArrowDown']);
+  await r.snap('stockpile-preset-down', 'ArrowDown x2 in the preset dropdown');
+  await r.key('Enter');
+  await r.snap('stockpile-preset-enter', 'Key Enter: apply the highlighted preset');
+  await r.key('q');
+  await r.keys(['ArrowRight', 'ArrowRight']);
+  await r.snap('stockpile-q-numeric', 'Keys q, ArrowRight x2: numeric settings');
+  await r.key('Tab');
+  await r.snap('stockpile-tab', 'Key Tab inside numeric settings');
+  await r.key('g');
+  await r.snap('stockpile-g-tree', 'Key g: category tree');
+  await r.keys(['ArrowDown', 'ArrowRight', 'Space']);
+  await r.snap('stockpile-tree-keys', 'ArrowDown, ArrowRight, Space in the category tree');
+  await r.key('y');
+  await r.snap('zone-types-back', 'Key y: back to zone types');
+});
+// ---------- farm ----------
+await T('farm', async () => {
+  await ensure('z', 'zones');
+  await r.key('Shift+F');
+  let res = await panCentreTo(r, P[3].x, P[3].y);
+  await r.key('Enter');
+  const res2 = await panCentreTo(r, P[3].x + 3, P[3].y + 2);
+  await r.key('Enter');
+  await r.snap('farm-placed', `Key Shift+F, farm plot corners (${res.presses}+${res2.presses} presses, reached ${res.ok}/${res2.ok})`);
+  await r.key('Escape');
+  await stepBy(r, 1);
+  res = await panCentreTo(r, P[3].x, P[3].y);
+  await r.key('Enter');
+  await r.snap('farm-editor', 'Key Enter with no tool: farm plot editor');
+  for (const k of ['ArrowDown', 'Enter', 'ArrowDown', 'Enter', '1', 'ArrowRight', 'Space', 'Space']) {
+    await r.key(k);
+    await r.snap(`farm-try-${k.toLowerCase()}`, `Probe: key ${k} in the farm plot editor, to set a crop for Spring`);
+  }
+  await closePanels(r);
+});
+// ---------- workshop ----------
+await T('workshop', async () => {
+  await r.key('b');
+  await r.snap('build-open', 'Key b: Build panel');
+  await r.key('w');
+  await r.snap('build-w', 'Key w: Workshops category');
+  await r.keys(['ArrowDown', 'ArrowDown']);
+  await r.snap('build-down2', 'ArrowDown x2 in the workshop list');
+  await r.key('Enter');
+  await r.snap('carpenter-tool', 'Key Enter: tool for the highlighted workshop');
+  const res = await panCentreTo(r, P[4].x + 1, P[4].y + 1);
+  await r.snap('carpenter-ghost', `Panned until the map centre is the patch centre (${res.presses} presses): ghost`);
+  await r.key('Enter');
+  await r.snap('carpenter-placed', 'Key Enter: place at the map centre');
+  await r.key('Escape');
+});
+// ---------- orders ----------
+await T('orders', async () => {
+  await closePanels(r);
+  await r.key('o');
+  await r.snap('orders-open', 'Key o: Orders panel');
+  await r.key('Shift+N');
+  await r.snap('orders-new', 'Key Shift+N: Add order');
+  await r.typeText('barrel');
+  await r.snap('orders-filter-barrel', 'Typed "barrel" into the picker filter');
+  await r.key('Enter');
+  await r.snap('orders-added', 'Key Enter: add the order');
+  await closePanels(r);
+});
+// ---------- zones ----------
+await T('rooms', async () => {
+  await ensure('z', 'zones');
+  await r.key('Shift+M');
+  let res = await panCentreTo(r, P[5].x, P[5].y);
+  await r.key('Enter');
+  const res2 = await panCentreTo(r, P[5].x + 2, P[5].y + 2);
+  await r.key('Enter');
+  await r.snap('meeting-placed', `Key Shift+M, meeting area corners (${res.presses}+${res2.presses} presses, reached ${res.ok}/${res2.ok})`);
+  await r.key('Escape');
+  await ensure('z', 'zones');
+  await r.key('Shift+B');
+  res = await panCentreTo(r, P[6].x, P[6].y);
+  await r.key('Enter');
+  const res3 = await panCentreTo(r, P[6].x + 2, P[6].y + 2);
+  await r.key('Enter');
+  await r.snap('bedroom-placed', `Key Shift+B, bedroom corners (${res.presses}+${res3.presses} presses, reached ${res.ok}/${res3.ok})`);
+  await r.key('Escape');
+  await stepBy(r, 1);
+  await panCentreTo(r, P[6].x, P[6].y);
+  await r.key('Enter');
+  await r.snap('bedroom-editor', 'Key Enter with no tool: bedroom inspector');
+  await closePanels(r);
+});
+// ---------- door ----------
+await T('door', async () => {
+  await r.key('b');
+  await r.key('Shift+F');
+  await r.snap('furniture-category', 'Key b, Shift+F: Furniture list');
+  for (let i = 0; i < 9; i += 1) await r.key('ArrowDown');
+  await r.snap('furniture-down9', 'ArrowDown x9 in the furniture list');
+  await r.key('Enter');
+  await r.snap('door-tool', 'Key Enter: tool for the highlighted entry');
+  await panCentreTo(r, P[4].x - 2 >= 22 ? P[4].x - 2 : P[4].x + 5, P[4].y - 2);
+  await r.key('Enter');
+  await r.snap('door-refused', 'Key Enter at the map centre (open ground)');
+  await r.key('Escape');
+});
+// ---------- panels ----------
+await T('panels', async () => {
+  await closePanels(r);
+  for (const [k, nm] of [['u', 'units'], ['j', 'jobs'], ['l', 'labors'], ['o', 'orders'], ['s', 'stocks'], ['m', 'military'], ['n', 'animals'], ['t', 'threats'], ['c', 'civilizations'], ['p', 'population'], ['e', 'mood'], ['a', 'log'], ['k', 'look'], ['f', 'overlays'], ['?', 'help'], ['F12', 'debug']]) {
+    await r.key(k);
+    await r.snap(`panel-${nm}`, `Panel ${nm} opened by key ${k}`);
+  }
+  await closePanels(r);
+});
+// ---------- things the mouse can do: probe with the keyboard ----------
+await T('probes', async () => {
+  // reach a tile near the map's left edge (the wagon): pan the camera to the far left/top and see which tile is the centre
+  await r.key('Home');
+  for (let i = 0; i < 5; i += 1) await r.key('Shift+ArrowLeft');
+  const c = await centreTile(r);
+  await r.snap('probe-left-edge', `Probe: Shift+ArrowLeft x5 then read the map centre tile: x=${c.x}, y=${c.y} (camera ${c.camX},${c.camY}); the wagon is at x=${site.wx}, y=${site.wy}`);
+  await r.key('d');
+  await r.key('Shift+D');
+  await r.key('Enter');
+  await r.snap('probe-left-edge-corner', 'Probe: tool armed and Enter pressed with the map centre at the camera-limited tile');
+  await closePanels(r);
+  await r.key('Space');
+  await r.snap('key-space-resume', 'Key Space: resume the clock');
+  await r.key('Space');
+  await r.snap('key-space-pause', 'Key Space: pause the clock');
+  await closePanels(r);
+  await r.key('Escape');
+  await r.snap('game-menu', 'Key Escape with nothing open: game menu');
+  await r.key('n');
+  await r.snap('rename-key-n', 'Key n in the game menu: Rename fortress text input');
+  await r.key('Escape');
+  await r.key('Escape');
+});
+await r.close();

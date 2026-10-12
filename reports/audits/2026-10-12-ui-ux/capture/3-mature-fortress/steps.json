@@ -1,0 +1,2367 @@
+[
+ {
+  "n": 1,
+  "id": "01-load-screen",
+  "slug": "load-screen",
+  "what": "Key l on the main menu: Load screen",
+  "input": [
+   "navigate /",
+   "key l"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "load",
+  "panel": null,
+  "png": "01-load-screen.png",
+  "pngNote": "",
+  "txt": "01-load-screen.txt",
+  "status": [
+   "",
+   "  [Enter] Load  [x] Delete  [e] Export  [i] Import  [Esc] Back"
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN load: Load / Manual / (none) / Autosaves / (none) / [Enter] Load  [x] Delete  [e] Export  [i] Import  [Esc] Back",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 2,
+  "id": "02-load-imported",
+  "slug": "load-imported",
+  "what": "Import chosen: the save listing",
+  "input": [
+   "hook key(\"i\") (a real key press did not raise the file chooser in this harness; the existing export-import spec also uses the hook for this key)",
+   "file chooser: E:/code/vibe-games/vibe-fortress-t116/test/fixtures/reference-fortress.deepholm"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "load",
+  "panel": null,
+  "png": "02-load-imported.png",
+  "pngNote": "",
+  "txt": "02-load-imported.txt",
+  "status": [
+   "",
+   "  [Enter] Load  [x] Delete  [e] Export  [i] Import  [Esc] Back"
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN load: Load / Manual / ► Deepholm · Day 1 of Spring, Year 3 · 80 dwarves · 0 ☼ / Autosaves / (none) / [Enter] Load  [x] Delete  [e] Export  [i] Import  [Esc] Back",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 3,
+  "id": "03-loaded",
+  "slug": "loaded",
+  "what": "The reference fortress after Enter on the imported save: fortress screen, paused",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 269201,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "03-loaded.png",
+  "pngNote": "",
+  "txt": "03-loaded.txt",
+  "status": [
+   " Day 1 of Spring, Year 3   ☼ clear 25°C   ☺ 80   ♥ Fine   z 32   ║     [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "LOG: (empty) || STATUS: Day 1 of Spring, Year 3   ☼ clear 25°C   ☺ 80   ♥ Fine   z 32   ║     [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 4,
+  "id": "04-after-1200-ticks",
+  "slug": "after-1200-ticks",
+  "what": "After 1200 ticks of stepping (setup)",
+  "input": [
+   "hook step 1200 ticks (setup: lets the dwarves take jobs)"
+  ],
+  "tick": 270401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "04-after-1200-ticks.png",
+  "pngNote": "",
+  "txt": "04-after-1200-ticks.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " !! A raid has arrived! x2"
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / !! A raid has arrived! x2 || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 5,
+  "id": "05-t1-setup",
+  "slug": "t1-setup",
+  "what": "Setup by hook: labor \"mining\" switched off for the first dwarf (id 16777290); reader says enabled=false",
+  "input": [
+   "hook setup: SetLabor mining off for dwarf 16777290 (enabled now: false)"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "05-t1-setup.png",
+  "pngNote": "",
+  "txt": "05-t1-setup.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " !! A raid has arrived! x2"
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / !! A raid has arrived! x2 || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 6,
+  "id": "06-t1-u-first",
+  "slug": "t1-u-first",
+  "what": "Key u (the first key after a pinned danger line only dismisses it, per the spec)",
+  "input": [
+   "key u"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "06-t1-u-first.png",
+  "pngNote": "",
+  "txt": "06-t1-u-first.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 7,
+  "id": "07-t1-units",
+  "slug": "t1-units",
+  "what": "Key u: Units panel (first column Name, Prof., Act.)",
+  "input": [
+   "key u"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "07-t1-units.png",
+  "pngNote": "",
+  "txt": "07-t1-units.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Vera Deepmark   ☺ Miner    No j█",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 8,
+  "id": "08-t1-idle-seen",
+  "slug": "t1-idle-seen",
+  "what": "The first row whose activity reads \"No j...\" is on screen row 3; it is the cursor row when the screen row equals 4",
+  "input": [
+   "(first row showing \"No j\" is screen row 3)"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "08-t1-idle-seen.png",
+  "pngNote": "",
+  "txt": "08-t1-idle-seen.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Vera Deepmark   ☺ Miner    No j█",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 9,
+  "id": "09-t1-labors",
+  "slug": "t1-labors",
+  "what": "Key l: Labors quick grid (the cell toggles by click; the panel text says Enter opens the labor manager)",
+  "input": [
+   "key l"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "labors",
+  "png": "09-t1-labors.png",
+  "pngNote": "",
+  "txt": "09-t1-labors.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Labors                        [l] / An An Br Bu Ca Cl Co » / Vera D.    ■  ■  ■  ■  ■  ■  ■ / Hallveig H ■  ■  ■  ■  ■  ■  ■",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 10,
+  "id": "10-t1-manager",
+  "slug": "t1-manager",
+  "what": "Key Enter: the labor manager screen (header shows whose row the cursor is on)",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "labor_manager",
+  "panel": "labors",
+  "png": "10-t1-manager.png",
+  "pngNote": "",
+  "txt": "10-t1-manager.txt",
+  "status": [
+   " [-] priority down  [+] priority up  [t] templates",
+   ""
+  ],
+  "log": [
+   "   Halvar Saltstone      ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■     │",
+   " ──────────────────────────────────────────────────────────────────────────────",
+   " [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column"
+  ],
+  "shown": "SCREEN labor_manager: Labor manager  [Esc] close / Vera Deepmark, Miner · Animal care: on · priority 5 / 0 of 80 marked  A A B B C C C C C F F G H H H L M M M M S S T T W / n n r u a l o o r a i e a e u e a e e i m m e r o / i i e t r e n o a r s m u r n a s c d n e i x a o / m m w c p a s k f m h  l b t t o h i i l t t d d / a a i h e n t i t i i c i a i h n a c n t h i i c / l l n e n i r n s n n u n l n e r n i g i i l n u",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 11,
+  "id": "11-t1-manager-right",
+  "slug": "t1-manager-right",
+  "what": "ArrowRight x19 in the labor manager (towards the mining column, the 20th)",
+  "input": [
+   "key ArrowRight x19"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "labor_manager",
+  "panel": "labors",
+  "png": "11-t1-manager-right.png",
+  "pngNote": "",
+  "txt": "11-t1-manager-right.txt",
+  "status": [
+   " [-] priority down  [+] priority up  [t] templates",
+   ""
+  ],
+  "log": [
+   "   Halvar Saltstone      ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■     │",
+   " ──────────────────────────────────────────────────────────────────────────────",
+   " [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column"
+  ],
+  "shown": "SCREEN labor_manager: Labor manager  [Esc] close / Vera Deepmark, Miner · Mining: off · priority 5 / 0 of 80 marked  A A B B C C C C C F F G H H H L M M M M S S T T W / n n r u a l o o r a i e a e u e a e e i m m e r o / i i e t r e n o a r s m u r n a s c d n e i x a o / m m w c p a s k f m h  l b t t o h i i l t t d d / a a i h e n t i t i i c i a i h n a c n t h i i c / l l n e n i r n s n n u n l n e r n i g i i l n u",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 12,
+  "id": "12-t1-manager-enter",
+  "slug": "t1-manager-enter",
+  "what": "Key Enter: toggle the labor under the cursor",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "labor_manager",
+  "panel": "labors",
+  "png": "12-t1-manager-enter.png",
+  "pngNote": "",
+  "txt": "12-t1-manager-enter.txt",
+  "status": [
+   " [-] priority down  [+] priority up  [t] templates",
+   " 1 labors changed for 1 dwarves."
+  ],
+  "log": [
+   "   Halvar Saltstone      ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■     │",
+   " ──────────────────────────────────────────────────────────────────────────────",
+   " [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column"
+  ],
+  "shown": "SCREEN labor_manager: Labor manager  [Esc] close / Vera Deepmark, Miner · Mining: on · priority 5 / 0 of 80 marked  A A B B C C C C C F F G H H H L M M M M S S T T W / n n r u a l o o r a i e a e u e a e e i m m e r o / i i e t r e n o a r s m u r n a s c d n e i x a o / m m w c p a s k f m h  l b t t o h i i l t t d d / a a i h e n t i t i i c i a i h n a c n t h i i c / l l n e n i r n s n n u n l n e r n i g i i l n u",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 13,
+  "id": "13-t1-manager-closed",
+  "slug": "t1-manager-closed",
+  "what": "Key Escape: leaves the labor manager",
+  "input": [
+   "(setup read: mining enabled for the first dwarf: true)",
+   "key Escape"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "labors",
+  "png": "13-t1-manager-closed.png",
+  "pngNote": "",
+  "txt": "13-t1-manager-closed.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Labors                        [l] / An An Br Bu Ca Cl Co » / Vera D.    ■  ■  ■  ■  ■  ■  ■ / Hallveig H ■  ■  ■  ■  ■  ■  ■",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 14,
+  "id": "14-t2-kb-aim",
+  "slug": "t2-kb-aim",
+  "what": "Keyboard attempt: Zones panel (key z), then panning until the map centre is the stockpile tile 21,3: 1 presses, reached: false; the centre is now 22,22",
+  "input": [
+   "key Escape",
+   "(setup read: the first tiles of the 15 stockpile zones: [[3,3,27],[21,3,27],[36,3,27],[51,3,27],[63,3,27],[78,3,27],[90,3,27],[21,6,27],[36,6,27],[51,6,27],[69,6,27],[81,6,27],[3,9,27],[15,9,27],[30,9,27]])",
+   "key z",
+   "key Shift+ArrowUp"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "14-t2-kb-aim.png",
+  "pngNote": "",
+  "txt": "14-t2-kb-aim.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 15,
+  "id": "15-t2-kb-enter",
+  "slug": "t2-kb-enter",
+  "what": "Key Enter at the nearest reachable centre: selects the zone under the centre, if any",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "15-t2-kb-enter.png",
+  "pngNote": "",
+  "txt": "15-t2-kb-enter.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " There is no zone at the cursor. Centre the map on a zone and press Enter."
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / There is no zone at the cursor. Centre the map on a zone and press Enter. || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 16,
+  "id": "16-t2-m-zones",
+  "slug": "t2-m-zones",
+  "what": "Key z: Zones panel (no mouse way to open it)",
+  "input": [
+   "key Escape",
+   "key z"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "16-t2-m-zones.png",
+  "pngNote": "",
+  "txt": "16-t2-m-zones.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " There is no zone at the cursor. Centre the map on a zone and press Enter."
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / There is no zone at the cursor. Centre the map on a zone and press Enter. || PANEL: Zones                         [z] / [S-s] Stockpile [S-f] Farm plot / [S-p] Pasture   [S-b] Bedroom / [S-d] Dining ha [h] Hearth hall",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 17,
+  "id": "17-t2-m-click",
+  "slug": "t2-m-click",
+  "what": "Left click on the stockpile tile 21,3 (camera at 0,0,27)",
+  "input": [
+   "left-click cell(col 21, row 3) px(344,56) [tile 21,3 stockpile tile]"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "17-t2-m-click.png",
+  "pngNote": "",
+  "txt": "17-t2-m-click.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " There is no zone at the cursor. Centre the map on a zone and press Enter."
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / There is no zone at the cursor. Centre the map on a zone and press Enter. || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #2 (4 t)─ / [S-p] Preset [Custom ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 18,
+  "id": "18-t2-m-preset",
+  "slug": "t2-m-preset",
+  "what": "Click the \"Preset [...\" header",
+  "input": [
+   "left-click cell(col 53, row 3) px(856,56) [text \"Preset [\"]"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "18-t2-m-preset.png",
+  "pngNote": "",
+  "txt": "18-t2-m-preset.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " There is no zone at the cursor. Centre the map on a zone and press Enter."
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / There is no zone at the cursor. Centre the map on a zone and press Enter. || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #2 (4 t)─ / [S-p] Preset [Custom ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 19,
+  "id": "19-t2-m-drink",
+  "slug": "t2-m-drink",
+  "what": "Click the \"Drink\" option (preset)",
+  "input": [
+   "left-click cell(col 49, row 5) px(792,88) [text \"Drink\"]"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "zones",
+  "png": "19-t2-m-drink.png",
+  "pngNote": "",
+  "txt": "19-t2-m-drink.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " There is no zone at the cursor. Centre the map on a zone and press Enter."
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / There is no zone at the cursor. Centre the map on a zone and press Enter. || PANEL: Zones                         [z] / [y] zone types / ─── Selected: Stockpile #2 (4 t)─ / [S-p] Preset [Drink ▼]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 20,
+  "id": "20-t3-units",
+  "slug": "t3-units",
+  "what": "Key u: Units panel",
+  "input": [
+   "key Escape",
+   "key u"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "20-t3-units.png",
+  "pngNote": "",
+  "txt": "20-t3-units.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " There is no zone at the cursor. Centre the map on a zone and press Enter."
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / There is no zone at the cursor. Centre the map on a zone and press Enter. || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Vera Deepmark   ☺ Miner    No j█",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 21,
+  "id": "21-t3-cursor-on-dwarf",
+  "slug": "t3-cursor-on-dwarf",
+  "what": "ArrowDown x20: cursor on the row with \"Hrolf\" (screen row 23)",
+  "input": [
+   "(screen row with a wounded-looking activity: 23)",
+   "key ArrowDown x20"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "21-t3-cursor-on-dwarf.png",
+  "pngNote": "",
+  "txt": "21-t3-cursor-on-dwarf.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " Rannveig Ambersong"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / Rannveig Ambersong || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / Vera Deepmark   ☺ Miner    No j█",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 22,
+  "id": "22-t3-look",
+  "slug": "t3-look",
+  "what": "Key Enter: Look panel on the dwarf tile",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "look",
+  "png": "22-t3-look.png",
+  "pngNote": "",
+  "txt": "22-t3-look.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " Hrolf Brighteye, Fleeing · [k] look  [d] dig  [b] build  [z] zones  [u] units »"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / Hrolf Brighteye, Fleeing · [k] look  [d] dig  [b] build  [z] zones  [u] units » || PANEL: Look                          [k] / Look · (9, 0, z27) / Tabs: [1]Tile [2]Items(0) [3]Crea / Loam floor",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 23,
+  "id": "23-t3-creature-tab",
+  "slug": "t3-creature-tab",
+  "what": "Key 3: Creatures tab (health line)",
+  "input": [
+   "key 3"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "look",
+  "png": "23-t3-creature-tab.png",
+  "pngNote": "",
+  "txt": "23-t3-creature-tab.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " Mood: Unhappy (36.686247314646366)"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / Mood: Unhappy (36.686247314646366) || PANEL: Look                          [k] / Look · (9, 0, z27) / Tabs: [1]Tile [2]Items(0) [3]Crea / ─── Creature: Hrolf Brighteye ───",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 24,
+  "id": "24-t3-military-panel",
+  "slug": "t3-military-panel",
+  "what": "Key m (to see whether the hospital or patient is listed anywhere else)",
+  "input": [
+   "key m"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "24-t3-military-panel.png",
+  "pngNote": "",
+  "txt": "24-t3-military-panel.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " Hrolf Brighteye, Fleeing · [k] look  [d] dig  [b] build  [z] zones  [u] units »"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / Hrolf Brighteye, Fleeing · [k] look  [d] dig  [b] build  [z] zones  [u] units » || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 25,
+  "id": "25-t4-threats",
+  "slug": "t4-threats",
+  "what": "Key t: Threats panel (what is outside)",
+  "input": [
+   "key Escape",
+   "key t"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "threats",
+  "png": "25-t4-threats.png",
+  "pngNote": "",
+  "txt": "25-t4-threats.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Threats                       [t] / Peril 0 · Renown 59.8 / Wealth and population draw attent / Active: bandits (4, engage)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 26,
+  "id": "26-t4-military",
+  "slug": "t4-military",
+  "what": "Key m: Military panel",
+  "input": [
+   "key m"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "26-t4-military.png",
+  "pngNote": "",
+  "txt": "26-t4-military.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 27,
+  "id": "27-t4-alert-hearth",
+  "slug": "t4-alert-hearth",
+  "what": "Key 3: alert Hearth",
+  "input": [
+   "key 3"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "27-t4-alert-hearth.png",
+  "pngNote": "",
+  "txt": "27-t4-alert-hearth.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 28,
+  "id": "28-t4-new-squad",
+  "slug": "t4-new-squad",
+  "what": "Key +: new squad",
+  "input": [
+   "key +"
+  ],
+  "tick": 270402,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "28-t4-new-squad.png",
+  "pngNote": "",
+  "txt": "28-t4-new-squad.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! The raid has ended.",
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness."
+  ],
+  "shown": "LOG: ! The raid has ended. / ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 29,
+  "id": "29-t4-add-list",
+  "slug": "t4-add-list",
+  "what": "Key Shift+A: member list",
+  "input": [
+   "hook step(1)",
+   "key Shift+A"
+  ],
+  "tick": 270403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "29-t4-add-list.png",
+  "pngNote": "",
+  "txt": "29-t4-add-list.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " The fortress alert is now hearth."
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / The fortress alert is now hearth. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 30,
+  "id": "30-t4-marked",
+  "slug": "t4-marked",
+  "what": "Space + ArrowDown x4: four rows marked",
+  "input": [
+   "key Space",
+   "key ArrowDown",
+   "key Space",
+   "key ArrowDown",
+   "key Space",
+   "key ArrowDown",
+   "key Space",
+   "key ArrowDown"
+  ],
+  "tick": 270403,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "30-t4-marked.png",
+  "pngNote": "",
+  "txt": "30-t4-marked.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " The fortress alert is now hearth."
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / The fortress alert is now hearth. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 31,
+  "id": "31-t4-members-added",
+  "slug": "t4-members-added",
+  "what": "Key Enter: marked dwarves added to the squad",
+  "input": [
+   "key Enter",
+   "hook step(1)"
+  ],
+  "tick": 270404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "31-t4-members-added.png",
+  "pngNote": "",
+  "txt": "31-t4-members-added.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " The fortress alert is now hearth."
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / The fortress alert is now hearth. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 32,
+  "id": "32-t4-active",
+  "slug": "t4-active",
+  "what": "Key v: squad mode Active",
+  "input": [
+   "key v"
+  ],
+  "tick": 270404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "32-t4-active.png",
+  "pngNote": "",
+  "txt": "32-t4-active.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " The fortress alert is now hearth."
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / The fortress alert is now hearth. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 33,
+  "id": "33-t4-kill-tool",
+  "slug": "t4-kill-tool",
+  "what": "Key Shift+K: kill order armed; the panel line reads \"Click creature to attack\"",
+  "input": [
+   "key Shift+K"
+  ],
+  "tick": 270404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "33-t4-kill-tool.png",
+  "pngNote": "",
+  "txt": "33-t4-kill-tool.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " The fortress alert is now hearth."
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / The fortress alert is now hearth. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 34,
+  "id": "34-t4-kill-aimed",
+  "slug": "t4-kill-aimed",
+  "what": "Panned until the map centre is the bandit tile 8,1,z27 (1 presses, reached false); level is z27",
+  "input": [
+   "(setup read: bandit leader at {\"id\":50343056,\"x\":8,\"y\":1,\"z\":27})",
+   "key Shift+ArrowLeft"
+  ],
+  "tick": 270404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": null,
+  "pngNote": "screen unchanged from step 33-t4-kill-tool; no screenshot saved",
+  "txt": "34-t4-kill-aimed.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " The fortress alert is now hearth."
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / The fortress alert is now hearth. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 35,
+  "id": "35-t4-kill-enter",
+  "slug": "t4-kill-enter",
+  "what": "Key Enter at the map centre: does it pick the creature there?",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 270404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "35-t4-kill-enter.png",
+  "pngNote": "",
+  "txt": "35-t4-kill-enter.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " The fortress alert is now hearth."
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / The fortress alert is now hearth. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 36,
+  "id": "36-t4-gear-w",
+  "slug": "t4-gear-w",
+  "what": "Key w: weapon choice for the squad",
+  "input": [
+   "key w"
+  ],
+  "tick": 270404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "36-t4-gear-w.png",
+  "pngNote": "",
+  "txt": "36-t4-gear-w.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " The fortress alert is now hearth."
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / The fortress alert is now hearth. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 37,
+  "id": "37-t4-gear-g",
+  "slug": "t4-gear-g",
+  "what": "Key g: armor choice for the squad",
+  "input": [
+   "key g"
+  ],
+  "tick": 270404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "37-t4-gear-g.png",
+  "pngNote": "",
+  "txt": "37-t4-gear-g.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " The fortress alert is now hearth."
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / The fortress alert is now hearth. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 38,
+  "id": "38-t4-gear-ranged",
+  "slug": "t4-gear-ranged",
+  "what": "Key Shift+J: ranged choice for the squad",
+  "input": [
+   "key Shift+J"
+  ],
+  "tick": 270404,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "38-t4-gear-ranged.png",
+  "pngNote": "",
+  "txt": "38-t4-gear-ranged.txt",
+  "status": [
+   " Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl",
+   " ! Hrolf Brighteye has lost consciousness.",
+   " The fortress alert is now hearth."
+  ],
+  "shown": "LOG: ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl / ! Hrolf Brighteye has lost consciousness. / The fortress alert is now hearth. || STATUS: Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?] / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Hearth / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 39,
+  "id": "39-B-loaded",
+  "slug": "B-loaded",
+  "what": "PART B: the 20-dwarf played fortress (test/fixtures/played-fortress.deepholm) loaded through the Load screen",
+  "input": [
+   "navigate /",
+   "key l",
+   "hook key(\"i\") (a real key press did not raise the file chooser in this harness; the existing export-import spec also uses the hook for this key)",
+   "file chooser: E:/code/vibe-games/vibe-fortress-t116/test/fixtures/played-fortress.deepholm",
+   "key Enter"
+  ],
+  "tick": 272081,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "39-B-loaded.png",
+  "pngNote": "",
+  "txt": "39-B-loaded.txt",
+  "status": [
+   " Day 3 of Spring, Year 3   ≡ overcast 29°C   ☺ 20   ♥ Miserable   !2   z 32   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "LOG: (empty) || STATUS: Day 3 of Spring, Year 3   ≡ overcast 29°C   ☺ 20   ♥ Miserable   !2   z 32   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 40,
+  "id": "40-B-after-600",
+  "slug": "B-after-600",
+  "what": "After 600 ticks of stepping (setup)",
+  "input": [
+   "hook step 600 ticks (setup)"
+  ],
+  "tick": 272681,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "40-B-after-600.png",
+  "pngNote": "",
+  "txt": "40-B-after-600.txt",
+  "status": [
+   " Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " Hillfolk_bandit hits Snorri: 7 blunt.",
+   " ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in",
+   " Ulf Emberaxe is miserable."
+  ],
+  "shown": "LOG: Hillfolk_bandit hits Snorri: 7 blunt. / ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in / Ulf Emberaxe is miserable. || STATUS: Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 41,
+  "id": "41-B-orders-open",
+  "slug": "B-orders-open",
+  "what": "Key o: Orders panel",
+  "input": [
+   "key o"
+  ],
+  "tick": 272681,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "41-B-orders-open.png",
+  "pngNote": "",
+  "txt": "41-B-orders-open.txt",
+  "status": [
+   " Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " Hillfolk_bandit hits Snorri: 7 blunt.",
+   " ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in",
+   " Ulf Emberaxe is miserable."
+  ],
+  "shown": "LOG: Hillfolk_bandit hits Snorri: 7 blunt. / ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in / Ulf Emberaxe is miserable. || STATUS: Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / [S-n] new order  all workshops / ─── Kitchen #1 ────────────────── / ≥60 Easy meal · in progress",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 42,
+  "id": "42-B-orders-new",
+  "slug": "B-orders-new",
+  "what": "Key Shift+N: Add order",
+  "input": [
+   "key Shift+N"
+  ],
+  "tick": 272681,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "42-B-orders-new.png",
+  "pngNote": "",
+  "txt": "42-B-orders-new.txt",
+  "status": [
+   " Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " Hillfolk_bandit hits Snorri: 7 blunt.",
+   " ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in",
+   " Ulf Emberaxe is miserable."
+  ],
+  "shown": "LOG: Hillfolk_bandit hits Snorri: 7 blunt. / ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in / Ulf Emberaxe is miserable. || STATUS: Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / Add order / Find [ ________________________ ] / ─── Ammo ───────────────────────█",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 43,
+  "id": "43-B-orders-filter",
+  "slug": "B-orders-filter",
+  "what": "Typed \"mail\" (a mail shirt needs a forge; this fortress has no forge)",
+  "input": [
+   "type \"mail\""
+  ],
+  "tick": 272681,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "43-B-orders-filter.png",
+  "pngNote": "",
+  "txt": "43-B-orders-filter.txt",
+  "status": [
+   " Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " Hillfolk_bandit hits Snorri: 7 blunt.",
+   " ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in",
+   " Ulf Emberaxe is miserable."
+  ],
+  "shown": "LOG: Hillfolk_bandit hits Snorri: 7 blunt. / ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in / Ulf Emberaxe is miserable. || STATUS: Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Orders                        [o] / Add order / Find [ mail____________________ ] / ─── Armor ───────────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 44,
+  "id": "44-B-orders-added",
+  "slug": "B-orders-added",
+  "what": "Key Enter: order added",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 272681,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "44-B-orders-added.png",
+  "pngNote": "",
+  "txt": "44-B-orders-added.txt",
+  "status": [
+   " Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║",
+   " Ordered: x1 Mail shirt · any forge"
+  ],
+  "log": [
+   " Hillfolk_bandit hits Snorri: 7 blunt.",
+   " ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in",
+   " Ulf Emberaxe is miserable."
+  ],
+  "shown": "LOG: Hillfolk_bandit hits Snorri: 7 blunt. / ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in / Ulf Emberaxe is miserable. || STATUS: Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║ / Ordered: x1 Mail shirt · any forge || PANEL: Orders                        [o] / [S-n] new order  all workshops / ─── Kitchen #1 ────────────────── / ≥60 Easy meal · in progress",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 45,
+  "id": "45-B-orders-after-300",
+  "slug": "B-orders-after-300",
+  "what": "After 300 ticks: what the order line says",
+  "input": [
+   "hook step(300)"
+  ],
+  "tick": 272981,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "45-B-orders-after-300.png",
+  "pngNote": "",
+  "txt": "45-B-orders-after-300.txt",
+  "status": [
+   " Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h",
+   " Ordered: x1 Mail shirt · any forge"
+  ],
+  "log": [
+   " Ulf Emberaxe is miserable.",
+   " Stockpile #2 (Everything) is full.",
+   " Stockpile #2 (Everything) is full."
+  ],
+  "shown": "LOG: Ulf Emberaxe is miserable. / Stockpile #2 (Everything) is full. / Stockpile #2 (Everything) is full. || STATUS: Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h / Ordered: x1 Mail shirt · any forge || PANEL: Orders                        [o] / [S-n] new order  all workshops / ─── Kitchen #1 ────────────────── / ≥60 Easy meal · in progress",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 46,
+  "id": "46-B-jobs",
+  "slug": "B-jobs",
+  "what": "Key j: Jobs panel (is the order explained there?)",
+  "input": [
+   "key j"
+  ],
+  "tick": 272981,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "jobs",
+  "png": "46-B-jobs.png",
+  "pngNote": "",
+  "txt": "46-B-jobs.txt",
+  "status": [
+   " Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h",
+   " Ordered: x1 Mail shirt · any forge"
+  ],
+  "log": [
+   " Ulf Emberaxe is miserable.",
+   " Stockpile #2 (Everything) is full.",
+   " Stockpile #2 (Everything) is full."
+  ],
+  "shown": "LOG: Ulf Emberaxe is miserable. / Stockpile #2 (Everything) is full. / Stockpile #2 (Everything) is full. || STATUS: Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h / Ordered: x1 Mail shirt · any forge || PANEL: Jobs                          [j] / 32 open · 4 claimed · 1 blocked / /filter: [ ____________________ ] / [S-l] labor: all",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 47,
+  "id": "47-B-jobs-state-cycle",
+  "slug": "B-jobs-state-cycle",
+  "what": "Key Shift+S: cycle the state filter",
+  "input": [
+   "key Shift+S"
+  ],
+  "tick": 272981,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "jobs",
+  "png": "47-B-jobs-state-cycle.png",
+  "pngNote": "",
+  "txt": "47-B-jobs-state-cycle.txt",
+  "status": [
+   " Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h",
+   " Ordered: x1 Mail shirt · any forge"
+  ],
+  "log": [
+   " Ulf Emberaxe is miserable.",
+   " Stockpile #2 (Everything) is full.",
+   " Stockpile #2 (Everything) is full."
+  ],
+  "shown": "LOG: Ulf Emberaxe is miserable. / Stockpile #2 (Everything) is full. / Stockpile #2 (Everything) is full. || STATUS: Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h / Ordered: x1 Mail shirt · any forge || PANEL: Jobs                          [j] / 32 open · 4 claimed · 1 blocked / /filter: [ ____________________ ] / [S-l] labor: all",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 48,
+  "id": "48-B-jobs-state-cycle2",
+  "slug": "B-jobs-state-cycle2",
+  "what": "Key Shift+S again",
+  "input": [
+   "key Shift+S"
+  ],
+  "tick": 272981,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "jobs",
+  "png": "48-B-jobs-state-cycle2.png",
+  "pngNote": "",
+  "txt": "48-B-jobs-state-cycle2.txt",
+  "status": [
+   " Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h",
+   " Ordered: x1 Mail shirt · any forge"
+  ],
+  "log": [
+   " Ulf Emberaxe is miserable.",
+   " Stockpile #2 (Everything) is full.",
+   " Stockpile #2 (Everything) is full."
+  ],
+  "shown": "LOG: Ulf Emberaxe is miserable. / Stockpile #2 (Everything) is full. / Stockpile #2 (Everything) is full. || STATUS: Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h / Ordered: x1 Mail shirt · any forge || PANEL: Jobs                          [j] / 32 open · 4 claimed · 1 blocked / /filter: [ ____________________ ] / [S-l] labor: all",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 49,
+  "id": "49-B-orders-barrel-filter",
+  "slug": "B-orders-barrel-filter",
+  "what": "Typed \"barrel\" in Add order",
+  "input": [
+   "key Escape",
+   "key o",
+   "key Shift+N",
+   "type \"barrel\""
+  ],
+  "tick": 272981,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "49-B-orders-barrel-filter.png",
+  "pngNote": "",
+  "txt": "49-B-orders-barrel-filter.txt",
+  "status": [
+   " Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h",
+   " Ordered: x1 Mail shirt · any forge"
+  ],
+  "log": [
+   " Ulf Emberaxe is miserable.",
+   " Stockpile #2 (Everything) is full.",
+   " Stockpile #2 (Everything) is full."
+  ],
+  "shown": "LOG: Ulf Emberaxe is miserable. / Stockpile #2 (Everything) is full. / Stockpile #2 (Everything) is full. || STATUS: Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h / Ordered: x1 Mail shirt · any forge || PANEL: Orders                        [o] / Add order / Find [ barrel__________________ ] / ─── Container ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 50,
+  "id": "50-B-orders-barrel-mode",
+  "slug": "B-orders-barrel-mode",
+  "what": "Tab, Tab, ArrowRight: the Mode field (once / maintain)",
+  "input": [
+   "key Tab x2",
+   "key ArrowRight"
+  ],
+  "tick": 272981,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "50-B-orders-barrel-mode.png",
+  "pngNote": "",
+  "txt": "50-B-orders-barrel-mode.txt",
+  "status": [
+   " Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h",
+   " Ordered: x1 Mail shirt · any forge"
+  ],
+  "log": [
+   " Ulf Emberaxe is miserable.",
+   " Stockpile #2 (Everything) is full.",
+   " Stockpile #2 (Everything) is full."
+  ],
+  "shown": "LOG: Ulf Emberaxe is miserable. / Stockpile #2 (Everything) is full. / Stockpile #2 (Everything) is full. || STATUS: Day 4 of Spring, Year 3   ☼ clear 29°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] h / Ordered: x1 Mail shirt · any forge || PANEL: Orders                        [o] / Add order / Find [ barrel__________________ ] / ─── Container ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 51,
+  "id": "51-B-orders-barrel-added",
+  "slug": "B-orders-barrel-added",
+  "what": "Order added; after 900 ticks",
+  "input": [
+   "type \"5\"",
+   "key Enter",
+   "hook step(900)"
+  ],
+  "tick": 273881,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "orders",
+  "png": "51-B-orders-barrel-added.png",
+  "pngNote": "",
+  "txt": "51-B-orders-barrel-added.txt",
+  "status": [
+   " Day 5 of Spring, Year 3   ' rain 19°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] he",
+   " Ordered: ≥5 Metal barrel · any forge"
+  ],
+  "log": [
+   " Hillfolk_bandit hits Jofrid: 6 blunt. x3",
+   " Hillfolk_bandit hits Orm: 2 blunt.",
+   " Hillfolk_bandit hits Jofrid: 5 blunt."
+  ],
+  "shown": "LOG: Hillfolk_bandit hits Jofrid: 6 blunt. x3 / Hillfolk_bandit hits Orm: 2 blunt. / Hillfolk_bandit hits Jofrid: 5 blunt. || STATUS: Day 5 of Spring, Year 3   ' rain 19°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] he / Ordered: ≥5 Metal barrel · any forge || PANEL: Orders                        [o] / [S-n] new order  all workshops / ─── Kitchen #1 ────────────────── / ≥60 Easy meal · in progress",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 52,
+  "id": "52-B-stocks",
+  "slug": "B-stocks",
+  "what": "Key s: Stocks panel (stock of barrels and logs)",
+  "input": [
+   "key s"
+  ],
+  "tick": 273881,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "52-B-stocks.png",
+  "pngNote": "",
+  "txt": "52-B-stocks.txt",
+  "status": [
+   " Day 5 of Spring, Year 3   ' rain 19°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] he",
+   " Ordered: ≥5 Metal barrel · any forge"
+  ],
+  "log": [
+   " Hillfolk_bandit hits Jofrid: 6 blunt. x3",
+   " Hillfolk_bandit hits Orm: 2 blunt.",
+   " Hillfolk_bandit hits Jofrid: 5 blunt."
+  ],
+  "shown": "LOG: Hillfolk_bandit hits Jofrid: 6 blunt. x3 / Hillfolk_bandit hits Orm: 2 blunt. / Hillfolk_bandit hits Jofrid: 5 blunt. || STATUS: Day 5 of Spring, Year 3   ' rain 19°C   ☺ 20   ♥ Unhappy   !2   z 32   ║ [?] he / Ordered: ≥5 Metal barrel · any forge || PANEL: Stocks                        [s] / /filter: [ ____________________ ] / ► food               46      46 ☼ / ► drink              20      40 ☼",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 53,
+  "id": "53-C-start",
+  "slug": "C-start",
+  "what": "PART C: a fresh default embark (hook URL ?start=flat-test&embark=default)",
+  "input": [
+   "navigate /?start=flat-test&embark=default"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "53-C-start.png",
+  "pngNote": "",
+  "txt": "53-C-start.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear 8°C   ☺ 7   ♥ Fine   z 32   ║       [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear 8°C   ☺ 7   ♥ Fine   z 32   ║       [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 54,
+  "id": "54-C-caravan-at-depot",
+  "slug": "C-caravan-at-depot",
+  "what": "The caravan is at the depot (hook stepping; tick 45400, state atDepot)",
+  "input": [
+   "hook setup: a finished trade depot placed (PlaceBuilding + completeNow), a request set for the Hillfolk",
+   "hook step 5000 x n until the caravan is at the depot: {\"tick\":45400,\"state\":\"atDepot\"}"
+  ],
+  "tick": 45400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "54-C-caravan-at-depot.png",
+  "pngNote": "",
+  "txt": "54-C-caravan-at-depot.txt",
+  "status": [
+   " Day 10 of Summer, Year 1   ☼ clear 24°C   ☺ 2   ♥ Miserable   z 32   ║ [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " A rabbit has arrived. x7",
+   " Saved Deepholm, Day 1 of Summer, Year 1.",
+   " !! Kettil Emberhall has died."
+  ],
+  "shown": "LOG: A rabbit has arrived. x7 / Saved Deepholm, Day 1 of Summer, Year 1. / !! Kettil Emberhall has died. || STATUS: Day 10 of Summer, Year 1   ☼ clear 24°C   ☺ 2   ♥ Miserable   z 32   ║ [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 55,
+  "id": "55-C-esc",
+  "slug": "C-esc",
+  "what": "Key Escape (dismisses the pinned danger line if any)",
+  "input": [
+   "hook setup: 20 easy meals put in the depot, first dwarf made broker: {\"inDepot\":true}",
+   "key Escape"
+  ],
+  "tick": 45600,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "55-C-esc.png",
+  "pngNote": "",
+  "txt": "55-C-esc.txt",
+  "status": [
+   " Day 11 of Summer, Year 1   C clear 21°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Bjarni Darkgate is starving.",
+   " A rabbit has arrived. x7",
+   " Saved Deepholm, Day 1 of Summer, Year 1. x2"
+  ],
+  "shown": "LOG: ! Bjarni Darkgate is starving. / A rabbit has arrived. x7 / Saved Deepholm, Day 1 of Summer, Year 1. x2 || STATUS: Day 11 of Summer, Year 1   C clear 21°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 56,
+  "id": "56-C-civilizations",
+  "slug": "C-civilizations",
+  "what": "Key c: Civilizations panel",
+  "input": [
+   "key c"
+  ],
+  "tick": 45600,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "civilizations",
+  "png": "56-C-civilizations.png",
+  "pngNote": "",
+  "txt": "56-C-civilizations.txt",
+  "status": [
+   " Day 11 of Summer, Year 1   C clear 21°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Bjarni Darkgate is starving.",
+   " A rabbit has arrived. x7",
+   " Saved Deepholm, Day 1 of Summer, Year 1. x2"
+  ],
+  "shown": "LOG: ! Bjarni Darkgate is starving. / A rabbit has arrived. x7 / Saved Deepholm, Day 1 of Summer, Year 1. x2 || STATUS: Day 11 of Summer, Year 1   C clear 21°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Civilizations                 [c] / ► Mountainhome rep +0 spring / Hillfolk rep +0 summer here! / Wildwood rep +0 autumn",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 57,
+  "id": "57-C-depot",
+  "slug": "C-depot",
+  "what": "Key Shift+D: Depot panel",
+  "input": [
+   "key Shift+D"
+  ],
+  "tick": 45600,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "depot",
+  "png": "57-C-depot.png",
+  "pngNote": "",
+  "txt": "57-C-depot.txt",
+  "status": [
+   " Day 11 of Summer, Year 1   C clear 21°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Bjarni Darkgate is starving.",
+   " A rabbit has arrived. x7",
+   " Saved Deepholm, Day 1 of Summer, Year 1. x2"
+  ],
+  "shown": "LOG: ! Bjarni Darkgate is starving. / A rabbit has arrived. x7 / Saved Deepholm, Day 1 of Summer, Year 1. x2 || STATUS: Day 11 of Summer, Year 1   C clear 21°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Depot / Trade depot #1 · goods at depot / ► 8 easy meal  64 ☼ / 10 easy meal  80 ☼",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 58,
+  "id": "58-C-trade-key",
+  "slug": "C-trade-key",
+  "what": "Key Shift+T: send a broker to trade",
+  "input": [
+   "key Shift+T"
+  ],
+  "tick": 45600,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "depot",
+  "png": null,
+  "pngNote": "screen unchanged from step 57-C-depot; no screenshot saved",
+  "txt": "58-C-trade-key.txt",
+  "status": [
+   " Day 11 of Summer, Year 1   C clear 21°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Bjarni Darkgate is starving.",
+   " A rabbit has arrived. x7",
+   " Saved Deepholm, Day 1 of Summer, Year 1. x2"
+  ],
+  "shown": "LOG: ! Bjarni Darkgate is starving. / A rabbit has arrived. x7 / Saved Deepholm, Day 1 of Summer, Year 1. x2 || STATUS: Day 11 of Summer, Year 1   C clear 21°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Depot / Trade depot #1 · goods at depot / ► 8 easy meal  64 ☼ / 10 easy meal  80 ☼",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 59,
+  "id": "59-C-trade-session",
+  "slug": "C-trade-session",
+  "what": "The trade session screen (after the broker arrived)",
+  "input": [
+   "hook step(1) until the trade session opens (the broker walks to the depot)"
+  ],
+  "tick": 45651,
+  "speed": 0,
+  "paused": true,
+  "screen": "trade_session",
+  "panel": "depot",
+  "png": "59-C-trade-session.png",
+  "pngNote": "",
+  "txt": "59-C-trade-session.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "  We take 0 ☼ · We give 0 ☼ (their valuation) · They want at least 15% over: 0 ☼",
+   "  A fair offer.",
+   "  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close"
+  ],
+  "shown": "SCREEN trade_session: Trading with the Hillfolk · Broker: Melkorka Goldhelm (Trading 0) · Reputation / Their goods  priOur goods at the depot  their valua / ► 6 linen cloth  58  8 meal easy meal  64 / [-] 0 [+]  [-] 0 [+] / 3 wool cloth cloth  36  10 meal easy meal  80 / [-] 0 [+]  [-] 0 [+] / 5 linen cloth  48 / [-] 0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 60,
+  "id": "60-C-trade-plus",
+  "slug": "C-trade-plus",
+  "what": "ArrowDown, +: quantity on the highlighted merchant item",
+  "input": [
+   "key ArrowDown",
+   "key +"
+  ],
+  "tick": 45651,
+  "speed": 0,
+  "paused": true,
+  "screen": "trade_session",
+  "panel": "depot",
+  "png": "60-C-trade-plus.png",
+  "pngNote": "",
+  "txt": "60-C-trade-plus.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "  We take 12 ☼ · We give 0 ☼ (their valuation) · They want at least 15% over: 14",
+   "  Not enough. Add 14 ☼ of goods.",
+   "  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close"
+  ],
+  "shown": "SCREEN trade_session: Trading with the Hillfolk · Broker: Melkorka Goldhelm (Trading 0) · Reputation / Their goods  priOur goods at the depot  their valua / 6 linen cloth  58  8 meal easy meal  64 / [-] 0 [+]  [-] 0 [+] / ► 3 wool cloth cloth  36  10 meal easy meal  80 / [-] 1 [+]  [-] 0 [+] / 5 linen cloth  48 / [-] 0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 61,
+  "id": "61-C-trade-we-take",
+  "slug": "C-trade-we-take",
+  "what": "Tab, End: the fortress column, last row (\"We take\" line)",
+  "input": [
+   "key Tab",
+   "key End"
+  ],
+  "tick": 45651,
+  "speed": 0,
+  "paused": true,
+  "screen": "trade_session",
+  "panel": "depot",
+  "png": "61-C-trade-we-take.png",
+  "pngNote": "",
+  "txt": "61-C-trade-we-take.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "  We take 12 ☼ · We give 64 ☼ (their valuation) · They want at least 15% over: 1",
+   "  A fair offer.",
+   "  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close"
+  ],
+  "shown": "SCREEN trade_session: Trading with the Hillfolk · Broker: Melkorka Goldhelm (Trading 0) · Reputation / Their goods  priOur goods at the depot  their valua / 6 linen cloth  58  ► 8 meal easy meal  64 / [-] 0 [+]  [-] 8 [+] / 3 wool cloth cloth  36  10 meal easy meal  80 / [-] 1 [+]  [-] 0 [+] / 5 linen cloth  48 / [-] 0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 62,
+  "id": "62-C-trade-offer",
+  "slug": "C-trade-offer",
+  "what": "Key Enter: offer",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 45652,
+  "speed": 0,
+  "paused": true,
+  "screen": "trade_session",
+  "panel": "depot",
+  "png": "62-C-trade-offer.png",
+  "pngNote": "",
+  "txt": "62-C-trade-offer.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "  We take 0 ☼ · We give 0 ☼ (their valuation) · They want at least 14.95% over:",
+   "  A fair offer.",
+   "  [Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close"
+  ],
+  "shown": "SCREEN trade_session: Trading with the Hillfolk · Broker: Melkorka Goldhelm (Trading 0) · Reputation / Their goods  priOur goods at the depot  their valua / 6 linen cloth  58  ► 10 meal easy meal  80 / [-] 0 [+]  [-] 0 [+] / 2 wool cloth cloth  24  1 wool cloth cloth  10 / [-] 0 [+]  [-] 0 [+] / 5 linen cloth  48 / [-] 0 [+]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 63,
+  "id": "63-C-trade-closed",
+  "slug": "C-trade-closed",
+  "what": "Key Escape: close the session",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 45653,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "depot",
+  "png": "63-C-trade-closed.png",
+  "pngNote": "",
+  "txt": "63-C-trade-closed.txt",
+  "status": [
+   " Day 11 of Summer, Year 1   C clear 20°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Melkorka Goldhelm is starving.",
+   " ! Bjarni Darkgate is starving.",
+   " A trade with hillfolk is complete."
+  ],
+  "shown": "LOG: ! Melkorka Goldhelm is starving. / ! Bjarni Darkgate is starving. / A trade with hillfolk is complete. || STATUS: Day 11 of Summer, Year 1   C clear 20°C   ☺ 2   ♥ Unhappy   z 32   ║  [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Depot / Trade depot #1 · goods at depot / ► 10 easy meal  80 ☼ / 1 cloth  10 ☼",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ }
+]
