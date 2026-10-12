@@ -69,3 +69,4 @@ Commit examined: `569ae1f`. Output: [`../../reports/audits/2026-10-12-ui-ux/capt
 - Flow 5 (failure paths): captured (not captured: a child dwarf's labor, a full-stockpile case, a save-name prompt that does not exist; see the index).
 - Flow 6 (legibility: both palettes, window sizes, long names, Help, log, legend screens): captured.
 - Flow 7 (70 days, default embark, no defensive preparation; every log line with its day): captured.
+- Flow 8 (magma kiln): captured; the build menu does not list it, so no entry or building panel could be opened (see the index).
