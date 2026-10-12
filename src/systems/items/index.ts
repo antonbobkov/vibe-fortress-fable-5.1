@@ -240,7 +240,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     }
   }
 
-  override handle(event: GameEvent, _ctx: TickContext): void {
+  override handle(event: GameEvent, ctx: TickContext): void {
     const core = this.core;
     if (event.type === 'CreatureDied') {
       const id = event['id']; const tile = event['tile'];
@@ -257,9 +257,15 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
           [equip.weapon, equip.shield, equip.quiver, ...Object.values(equip.armor), ...Object.values(equip.clothing)]
             .filter((itemId) => itemId !== 0 && core.isItem(itemId));
         wornItems.push(...core.carriedItems(id));
-        this.pendingDeaths.set(id, { id, tile, species, name: typeof event['name'] === 'string' ? event['name'] : core.host.entities.get(id, C.Creature)?.name ?? null,
+        const death = { id, tile, species, name: typeof event['name'] === 'string' ? event['name'] : core.host.entities.get(id, C.Creature)?.name ?? null,
           wornItems: Array.from(new Set(wornItems)).sort((a, b) => a - b),
-          ...(typeof faction === 'string' && faction !== 'fortress' ? { foreign: true } : {}) });
+          ...(typeof faction === 'string' && faction !== 'fortress' ? { foreign: true } : {}) };
+        // A removed creature cannot remain the carrier until the next items cadence.
+        // Keep queued deaths readable for older saves and initialization-only callers.
+        if (this.rotRef !== null && ctx.world.map.validIndex(tile)) {
+          this.pendingDeaths.delete(id);
+          this.rotRef.createCorpse(ctx, id, species, tile, death.name, death.wornItems, death.foreign);
+        } else this.pendingDeaths.set(id, death);
       }
     } else if (event.type === 'CorpseCreated') {
       const id = event['creatureId'];

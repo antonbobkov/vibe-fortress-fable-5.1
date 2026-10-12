@@ -1,0 +1,5461 @@
+{
+  "runtimeCommit": "73dc67c",
+  "records": [
+    {
+      "tick": 39177,
+      "destroy": 16777293,
+      "state": {
+        "id": 16777293,
+        "alive": true,
+        "position": {
+          "x": 32,
+          "y": 9,
+          "z": 30
+        },
+        "creature": {
+          "species": 15,
+          "name": "Hrolf Stormwall",
+          "sex": 0,
+          "ageTicks": 4704000,
+          "faction": "fortress",
+          "sizeClass": 60,
+          "bodyPlan": 5
+        },
+        "patient": {
+          "hospitalZoneId": 0,
+          "bedId": 16777619,
+          "needs": [
+            "stop_bleeding",
+            "suture",
+            "clean_wound",
+            "diagnose"
+          ],
+          "admittedTick": 38976
+        },
+        "equipment": {
+          "weapon": 0,
+          "shield": 0,
+          "armor": {
+            "head": 0,
+            "body": 0,
+            "arms": 0,
+            "legs": 0,
+            "feet": 0
+          },
+          "clothing": {
+            "body": 16777302,
+            "legs": 16777303,
+            "feet": 16777304,
+            "over": 0
+          },
+          "quiver": 0
+        },
+        "brain": {
+          "behavior": "patient",
+          "behaviorUntil": 38460,
+          "targetTile": 60852,
+          "activity": "Resting in hospital",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 736,
+          "daysUnderground": 0
+        },
+        "body": {
+          "parts": [
+            {
+              "hp": 2,
+              "maxHp": 30,
+              "wounds": [
+                {
+                  "type": "puncture",
+                  "severity": "serious",
+                  "bleed": 4,
+                  "pain": 12,
+                  "healRemaining": 17855,
+                  "damage": 11,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 39027
+                },
+                {
+                  "type": "cut",
+                  "severity": "serious",
+                  "bleed": 3,
+                  "pain": 15,
+                  "healRemaining": 17865,
+                  "damage": 6,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 39037
+                },
+                {
+                  "type": "puncture",
+                  "severity": "serious",
+                  "bleed": 4,
+                  "pain": 12,
+                  "healRemaining": 17895,
+                  "damage": 11,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 39069
+                }
+              ],
+              "destroyed": false
+            },
+            {
+              "hp": 28,
+              "maxHp": 60,
+              "wounds": [
+                {
+                  "type": "puncture",
+                  "severity": "light",
+                  "bleed": 2,
+                  "pain": 4,
+                  "healRemaining": 5835,
+                  "damage": 11,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 39007
+                },
+                {
+                  "type": "puncture",
+                  "severity": "light",
+                  "bleed": 2,
+                  "pain": 4,
+                  "healRemaining": 5875,
+                  "damage": 11,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 39048
+                },
+                {
+                  "type": "cut",
+                  "severity": "light",
+                  "bleed": 1,
+                  "pain": 5,
+                  "healRemaining": 5885,
+                  "damage": 5,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 39059
+                },
+                {
+                  "type": "cut",
+                  "severity": "light",
+                  "bleed": 1,
+                  "pain": 5,
+                  "healRemaining": 5895,
+                  "damage": 5,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 39071
+                }
+              ],
+              "destroyed": false
+            },
+            {
+              "hp": 31,
+              "maxHp": 36,
+              "wounds": [
+                {
+                  "type": "cut",
+                  "severity": "light",
+                  "bleed": 1,
+                  "pain": 5,
+                  "healRemaining": 5800,
+                  "damage": 5,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 38976
+                }
+              ],
+              "destroyed": false
+            },
+            {
+              "hp": 36,
+              "maxHp": 36,
+              "wounds": [],
+              "destroyed": false
+            },
+            {
+              "hp": 31,
+              "maxHp": 36,
+              "wounds": [
+                {
+                  "type": "cut",
+                  "severity": "light",
+                  "bleed": 0,
+                  "pain": 5,
+                  "healRemaining": 4730,
+                  "damage": 5,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 37902
+                }
+              ],
+              "destroyed": false
+            },
+            {
+              "hp": 36,
+              "maxHp": 36,
+              "wounds": [],
+              "destroyed": false
+            }
+          ],
+          "blood": 107,
+          "maxBlood": 606,
+          "pain": 45,
+          "conscious": false,
+          "permanent": [],
+          "diagnosed": false
+        },
+        "carriers": [],
+        "jobs": [
+          {
+            "id": 1396,
+            "key": "stop_bleeding:16777293",
+            "type": 38,
+            "producer": "health",
+            "priority": 1,
+            "target": {
+              "kind": "entity",
+              "ref": 16777293
+            },
+            "workTile": "adjacent",
+            "inputs": [
+              {
+                "filter": {
+                  "category": "textile/cloth"
+                },
+                "count": 1,
+                "reserved": [],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 37903,
+            "claimedTick": 0,
+            "data": {
+              "patient": 16777293
+            }
+          },
+          {
+            "id": 1397,
+            "key": "clean_wound:16777293",
+            "type": 11,
+            "producer": "health",
+            "priority": 3,
+            "target": {
+              "kind": "entity",
+              "ref": 16777293
+            },
+            "workTile": "adjacent",
+            "inputs": [],
+            "tool": "bucket",
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 37903,
+            "claimedTick": 0,
+            "data": {
+              "patient": 16777293
+            }
+          },
+          {
+            "id": 1398,
+            "key": "diagnose:16777293",
+            "type": 15,
+            "producer": "health",
+            "priority": 4,
+            "target": {
+              "kind": "entity",
+              "ref": 16777293
+            },
+            "workTile": "adjacent",
+            "inputs": [],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 37903,
+            "claimedTick": 0,
+            "data": {
+              "patient": 16777293
+            }
+          },
+          {
+            "id": 1404,
+            "key": "water_patient:16777293",
+            "type": 44,
+            "producer": "health",
+            "priority": 2,
+            "target": {
+              "kind": "entity",
+              "ref": 16777293
+            },
+            "workTile": "adjacent",
+            "inputs": [
+              {
+                "filter": {
+                  "category": "drink"
+                },
+                "count": 1,
+                "reserved": [],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 38977,
+            "claimedTick": 0,
+            "data": {
+              "patient": 16777293
+            }
+          },
+          {
+            "id": 1405,
+            "key": "suture:16777293",
+            "type": 40,
+            "producer": "health",
+            "priority": 3,
+            "target": {
+              "kind": "entity",
+              "ref": 16777293
+            },
+            "workTile": "adjacent",
+            "inputs": [
+              {
+                "filter": {
+                  "category": "textile/thread"
+                },
+                "count": 1,
+                "reserved": [],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 39028,
+            "claimedTick": 0,
+            "data": {
+              "patient": 16777293
+            }
+          },
+          {
+            "id": 1406,
+            "key": "carry_patient:16777293",
+            "type": 5,
+            "producer": "health",
+            "priority": 1,
+            "target": {
+              "kind": "entity",
+              "ref": 16777293
+            },
+            "workTile": 60852,
+            "inputs": [],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 39143,
+            "claimedTick": 0,
+            "data": {
+              "patient": 16777293,
+              "bedTile": 60852
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": 16777302,
+            "item": {
+              "type": 106,
+              "material": 70,
+              "quality": 1,
+              "wear": 0,
+              "count": 1,
+              "containerId": 0,
+              "ownerId": 0,
+              "flags": 0,
+              "crafterId": 0,
+              "rotStart": 400,
+              "rotStage": 0,
+              "reservedBy": 0,
+              "carriedBy": 16777293
+            }
+          },
+          {
+            "id": 16777303,
+            "item": {
+              "type": 105,
+              "material": 70,
+              "quality": 1,
+              "wear": 0,
+              "count": 1,
+              "containerId": 0,
+              "ownerId": 0,
+              "flags": 0,
+              "crafterId": 0,
+              "rotStart": 400,
+              "rotStage": 0,
+              "reservedBy": 0,
+              "carriedBy": 16777293
+            }
+          },
+          {
+            "id": 16777304,
+            "item": {
+              "type": 15,
+              "material": 70,
+              "quality": 1,
+              "wear": 0,
+              "count": 1,
+              "containerId": 0,
+              "ownerId": 0,
+              "flags": 0,
+              "crafterId": 0,
+              "rotStart": 400,
+              "rotStage": 0,
+              "reservedBy": 0,
+              "carriedBy": 16777293
+            }
+          }
+        ]
+      },
+      "stack": "Error: \n    at EntityStore.__vite_ssr_import_3__.EntityStore.destroy (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t139-trace-probe.test.ts:29:127)\n    at DwarvesSystem.handle (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\index.ts:486:28)\n    at World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:283:16)\n    at World.__vite_ssr_import_2__.World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t139-trace-probe.test.ts:44:8)\n    at World.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\three_years.scenario.ts:54:9)\n    at World.game.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\invariants.ts:849:14)\n    at World.run (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:307:41)\n    at HeadlessGame.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\app\\headless.ts:470:16)\n    at TestWorld.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\test-world.ts:113:15)\n    at ThreeYearsMeasurements.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\three_years_measurements.ts:194:9)"
+    },
+    {
+      "tick": 39177,
+      "event": {
+        "type": "CreatureDied",
+        "id": 16777293,
+        "cause": "bled_out",
+        "killerId": 117440835,
+        "tile": 69584,
+        "species": 15,
+        "name": "Hrolf Stormwall",
+        "faction": "fortress",
+        "ageTicks": 4704000,
+        "wornItems": [
+          16777302,
+          16777303,
+          16777304
+        ]
+      },
+      "items": [
+        {
+          "id": 16777317,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777318,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777319,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777314,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777315,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777316,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777405,
+          "item": {
+            "type": 13,
+            "material": 47,
+            "quality": 1,
+            "wear": 0,
+            "count": 4,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777308,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331727
+          }
+        },
+        {
+          "id": 16777309,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331727
+          }
+        },
+        {
+          "id": 16777310,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331727
+          }
+        },
+        {
+          "id": 16777311,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331728
+          }
+        },
+        {
+          "id": 16777312,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331728
+          }
+        },
+        {
+          "id": 16777313,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331728
+          }
+        },
+        {
+          "id": 50332050,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33600,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 117440919
+          }
+        },
+        {
+          "id": 50332054,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33600,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 117440919
+          }
+        },
+        {
+          "id": 16777624,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33600,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 117440919
+          }
+        },
+        {
+          "id": 16777626,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33620,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50332057
+          }
+        },
+        {
+          "id": 16777627,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33620,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50332057
+          }
+        },
+        {
+          "id": 16777628,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33620,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50332057
+          }
+        },
+        {
+          "id": 16777302,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 16777293
+          }
+        },
+        {
+          "id": 16777303,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 16777293
+          }
+        },
+        {
+          "id": 16777304,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 16777293
+          }
+        }
+      ]
+    },
+    {
+      "tick": 39181,
+      "event": {
+        "type": "CorpseCreated",
+        "id": 50331725,
+        "itemId": 50331725,
+        "creatureId": 16777293,
+        "species": 15
+      },
+      "items": [
+        {
+          "id": 16777317,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777318,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777319,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777314,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777315,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777316,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777405,
+          "item": {
+            "type": 13,
+            "material": 47,
+            "quality": 1,
+            "wear": 0,
+            "count": 4,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777308,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331727
+          }
+        },
+        {
+          "id": 16777309,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331727
+          }
+        },
+        {
+          "id": 16777310,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331727
+          }
+        },
+        {
+          "id": 16777311,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331728
+          }
+        },
+        {
+          "id": 16777312,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331728
+          }
+        },
+        {
+          "id": 16777313,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331728
+          }
+        },
+        {
+          "id": 50332050,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33600,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 117440919
+          }
+        },
+        {
+          "id": 50332054,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33600,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 117440919
+          }
+        },
+        {
+          "id": 16777624,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33600,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 117440919
+          }
+        },
+        {
+          "id": 16777626,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33620,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50332057
+          }
+        },
+        {
+          "id": 16777627,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33620,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50332057
+          }
+        },
+        {
+          "id": 16777628,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 33620,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50332057
+          }
+        },
+        {
+          "id": 16777302,
+          "item": {
+            "type": 106,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331725
+          }
+        },
+        {
+          "id": 16777303,
+          "item": {
+            "type": 105,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331725
+          }
+        },
+        {
+          "id": 16777304,
+          "item": {
+            "type": 15,
+            "material": 70,
+            "quality": 1,
+            "wear": 0,
+            "count": 1,
+            "containerId": 0,
+            "ownerId": 0,
+            "flags": 0,
+            "crafterId": 0,
+            "rotStart": 400,
+            "rotStage": 0,
+            "reservedBy": 0,
+            "carriedBy": 50331725
+          }
+        }
+      ]
+    },
+    {
+      "tick": 335727,
+      "destroy": 150995335,
+      "state": {
+        "id": 150995335,
+        "alive": true,
+        "position": {
+          "x": 22,
+          "y": 11,
+          "z": 32
+        },
+        "creature": {
+          "ageTicks": 2956800,
+          "bodyPlan": 5,
+          "faction": "fortress",
+          "name": "Saga Granitefell",
+          "sex": 1,
+          "sizeClass": 60,
+          "species": 15
+        },
+        "patient": {
+          "hospitalZoneId": 0,
+          "bedId": 50331774,
+          "needs": [
+            "stop_bleeding",
+            "suture",
+            "clean_wound",
+            "diagnose"
+          ],
+          "admittedTick": 335500
+        },
+        "equipment": {
+          "armor": {
+            "arms": 0,
+            "body": 0,
+            "feet": 0,
+            "head": 0,
+            "legs": 0
+          },
+          "clothing": {
+            "body": 83886470,
+            "feet": 150995363,
+            "legs": 83886472,
+            "over": 0
+          },
+          "quiver": 0,
+          "shield": 0,
+          "weapon": 0
+        },
+        "brain": {
+          "activity": "Fleeing",
+          "behavior": "flee",
+          "behaviorUntil": 335355,
+          "daysUnderground": 0,
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 6540,
+          "targetTile": 60274
+        },
+        "body": {
+          "blood": 100,
+          "conscious": false,
+          "diagnosed": false,
+          "maxBlood": 576,
+          "pain": 42,
+          "parts": [
+            {
+              "destroyed": false,
+              "hp": 30,
+              "maxHp": 30,
+              "wounds": []
+            },
+            {
+              "destroyed": false,
+              "hp": 38,
+              "maxHp": 60,
+              "wounds": [
+                {
+                  "type": "puncture",
+                  "severity": "light",
+                  "bleed": 2,
+                  "pain": 4,
+                  "healRemaining": 5775,
+                  "damage": 11,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335500
+                },
+                {
+                  "type": "puncture",
+                  "severity": "light",
+                  "bleed": 2,
+                  "pain": 4,
+                  "healRemaining": 5815,
+                  "damage": 11,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335540
+                }
+              ]
+            },
+            {
+              "destroyed": false,
+              "hp": 36,
+              "maxHp": 36,
+              "wounds": []
+            },
+            {
+              "destroyed": false,
+              "hp": 36,
+              "maxHp": 36,
+              "wounds": []
+            },
+            {
+              "destroyed": false,
+              "hp": 14,
+              "maxHp": 36,
+              "wounds": [
+                {
+                  "type": "puncture",
+                  "severity": "serious",
+                  "bleed": 4,
+                  "pain": 12,
+                  "healRemaining": 17880,
+                  "damage": 11,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335604
+                },
+                {
+                  "type": "puncture",
+                  "severity": "serious",
+                  "bleed": 4,
+                  "pain": 12,
+                  "healRemaining": 17950,
+                  "damage": 11,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335674
+                }
+              ]
+            },
+            {
+              "destroyed": false,
+              "hp": 14,
+              "maxHp": 36,
+              "wounds": [
+                {
+                  "type": "puncture",
+                  "severity": "serious",
+                  "bleed": 4,
+                  "pain": 12,
+                  "healRemaining": 17835,
+                  "damage": 11,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335560
+                },
+                {
+                  "type": "puncture",
+                  "severity": "serious",
+                  "bleed": 4,
+                  "pain": 12,
+                  "healRemaining": 17970,
+                  "damage": 11,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335694
+                }
+              ]
+            }
+          ],
+          "permanent": []
+        },
+        "carriers": [],
+        "jobs": [
+          {
+            "id": 3340,
+            "key": "stop_bleeding:150995335",
+            "type": 38,
+            "producer": "health",
+            "priority": 1,
+            "target": {
+              "kind": "entity",
+              "ref": 150995335
+            },
+            "workTile": "adjacent",
+            "inputs": [
+              {
+                "filter": {
+                  "category": "textile/cloth"
+                },
+                "count": 1,
+                "reserved": [],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 335501,
+            "claimedTick": 0,
+            "data": {
+              "patient": 150995335
+            }
+          },
+          {
+            "id": 3341,
+            "key": "clean_wound:150995335",
+            "type": 11,
+            "producer": "health",
+            "priority": 3,
+            "target": {
+              "kind": "entity",
+              "ref": 150995335
+            },
+            "workTile": "adjacent",
+            "inputs": [],
+            "tool": "bucket",
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 335501,
+            "claimedTick": 0,
+            "data": {
+              "patient": 150995335
+            }
+          },
+          {
+            "id": 3342,
+            "key": "diagnose:150995335",
+            "type": 15,
+            "producer": "health",
+            "priority": 4,
+            "target": {
+              "kind": "entity",
+              "ref": 150995335
+            },
+            "workTile": "adjacent",
+            "inputs": [],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 335501,
+            "claimedTick": 0,
+            "data": {
+              "patient": 150995335
+            }
+          },
+          {
+            "id": 3343,
+            "key": "suture:150995335",
+            "type": 40,
+            "producer": "health",
+            "priority": 3,
+            "target": {
+              "kind": "entity",
+              "ref": 150995335
+            },
+            "workTile": "adjacent",
+            "inputs": [
+              {
+                "filter": {
+                  "category": "textile/thread"
+                },
+                "count": 1,
+                "reserved": [],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 335561,
+            "claimedTick": 0,
+            "data": {
+              "patient": 150995335
+            }
+          },
+          {
+            "id": 3344,
+            "key": "carry_patient:150995335",
+            "type": 5,
+            "producer": "health",
+            "priority": 1,
+            "target": {
+              "kind": "entity",
+              "ref": 150995335
+            },
+            "workTile": 61044,
+            "inputs": [],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 335698,
+            "claimedTick": 0,
+            "data": {
+              "patient": 150995335,
+              "bedTile": 61044
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": 83886470,
+            "item": {
+              "carriedBy": 150995335,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 0,
+              "flags": 0,
+              "material": 70,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 67200,
+              "type": 106,
+              "wear": 0
+            }
+          },
+          {
+            "id": 83886472,
+            "item": {
+              "carriedBy": 150995335,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 0,
+              "flags": 0,
+              "material": 70,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 67200,
+              "type": 105,
+              "wear": 0
+            }
+          },
+          {
+            "id": 150995363,
+            "item": {
+              "carriedBy": 150995335,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 0,
+              "flags": 0,
+              "material": 70,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 67200,
+              "type": 15,
+              "wear": 0
+            }
+          }
+        ]
+      },
+      "stack": "Error: \n    at EntityStore.__vite_ssr_import_3__.EntityStore.destroy (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t139-trace-probe.test.ts:29:127)\n    at DwarvesSystem.handle (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\index.ts:486:28)\n    at World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:283:16)\n    at World.__vite_ssr_import_2__.World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t139-trace-probe.test.ts:44:8)\n    at World.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\three_years.scenario.ts:54:9)\n    at World.game.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\invariants.ts:849:14)\n    at World.run (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:307:41)\n    at HeadlessGame.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\app\\headless.ts:470:16)\n    at TestWorld.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\test-world.ts:113:15)\n    at ThreeYearsMeasurements.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\three_years_measurements.ts:194:9)"
+    },
+    {
+      "tick": 335727,
+      "event": {
+        "type": "CreatureDied",
+        "id": 150995335,
+        "cause": "bled_out",
+        "killerId": 486539952,
+        "tile": 74278,
+        "species": 15,
+        "name": "Saga Granitefell",
+        "faction": "fortress",
+        "ageTicks": 2956800,
+        "wornItems": [
+          83886470,
+          150995363,
+          83886472
+        ]
+      },
+      "items": [
+        {
+          "id": 16777317,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777318,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777319,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777314,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777315,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777316,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777405,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 4,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 47,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 13,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777308,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777309,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777310,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777311,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777312,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777313,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 50332050,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 50332054,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777624,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777626,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777627,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777628,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777302,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777303,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777304,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777299,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 16777300,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 16777301,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 218104013,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 15,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886318,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 105,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886327,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 106,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886470,
+          "item": {
+            "carriedBy": 150995335,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 106,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886472,
+          "item": {
+            "carriedBy": 150995335,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 105,
+            "wear": 0
+          }
+        },
+        {
+          "id": 150995363,
+          "item": {
+            "carriedBy": 150995335,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 15,
+            "wear": 0
+          }
+        }
+      ]
+    },
+    {
+      "tick": 335731,
+      "event": {
+        "type": "CorpseCreated",
+        "id": 184549767,
+        "itemId": 184549767,
+        "creatureId": 150995335,
+        "species": 15
+      },
+      "items": [
+        {
+          "id": 16777317,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777318,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777319,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777314,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777315,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777316,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777405,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 4,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 47,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 13,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777308,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777309,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777310,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777311,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777312,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777313,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 50332050,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 50332054,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777624,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777626,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777627,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777628,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777302,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777303,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777304,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777299,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 16777300,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 16777301,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 218104013,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 15,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886318,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 105,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886327,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 106,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886470,
+          "item": {
+            "carriedBy": 184549767,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 106,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886472,
+          "item": {
+            "carriedBy": 184549767,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 105,
+            "wear": 0
+          }
+        },
+        {
+          "id": 150995363,
+          "item": {
+            "carriedBy": 184549767,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 15,
+            "wear": 0
+          }
+        }
+      ]
+    },
+    {
+      "tick": 335997,
+      "destroy": 16777294,
+      "state": {
+        "id": 16777294,
+        "alive": true,
+        "position": {
+          "x": 25,
+          "y": 9,
+          "z": 32
+        },
+        "creature": {
+          "ageTicks": 3628800,
+          "bodyPlan": 5,
+          "faction": "fortress",
+          "name": "Brynja Flintheart",
+          "sex": 1,
+          "sizeClass": 60,
+          "species": 15
+        },
+        "patient": {
+          "hospitalZoneId": 0,
+          "bedId": 285212805,
+          "needs": [
+            "stop_bleeding",
+            "clean_wound",
+            "diagnose"
+          ],
+          "admittedTick": 335714
+        },
+        "equipment": {
+          "armor": {
+            "arms": 83886358,
+            "body": 83886322,
+            "feet": 83886434,
+            "head": 83886402,
+            "legs": 83886750
+          },
+          "clothing": {
+            "body": 16777305,
+            "feet": 16777307,
+            "legs": 16777306,
+            "over": 0
+          },
+          "quiver": 0,
+          "shield": 83886355,
+          "weapon": 16777234
+        },
+        "brain": {
+          "activity": "Resting in hospital",
+          "behavior": "patient",
+          "behaviorUntil": 335426,
+          "daysUnderground": 2,
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 6532,
+          "targetTile": 61812
+        },
+        "body": {
+          "blood": 118,
+          "conscious": false,
+          "diagnosed": false,
+          "maxBlood": 618,
+          "pain": 24,
+          "parts": [
+            {
+              "destroyed": false,
+              "hp": 26,
+              "maxHp": 30,
+              "wounds": [
+                {
+                  "type": "puncture",
+                  "severity": "light",
+                  "bleed": 2,
+                  "pain": 4,
+                  "healRemaining": 5930,
+                  "damage": 4,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335924
+                }
+              ]
+            },
+            {
+              "destroyed": false,
+              "hp": 56,
+              "maxHp": 60,
+              "wounds": [
+                {
+                  "type": "puncture",
+                  "severity": "light",
+                  "bleed": 2,
+                  "pain": 4,
+                  "healRemaining": 5720,
+                  "damage": 2,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335714
+                },
+                {
+                  "type": "puncture",
+                  "severity": "light",
+                  "bleed": 2,
+                  "pain": 4,
+                  "healRemaining": 5890,
+                  "damage": 2,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335884
+                }
+              ]
+            },
+            {
+              "destroyed": false,
+              "hp": 32,
+              "maxHp": 36,
+              "wounds": [
+                {
+                  "type": "puncture",
+                  "severity": "light",
+                  "bleed": 2,
+                  "pain": 4,
+                  "healRemaining": 5740,
+                  "damage": 2,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335734
+                },
+                {
+                  "type": "puncture",
+                  "severity": "light",
+                  "bleed": 2,
+                  "pain": 4,
+                  "healRemaining": 5870,
+                  "damage": 2,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335864
+                }
+              ]
+            },
+            {
+              "destroyed": false,
+              "hp": 32,
+              "maxHp": 36,
+              "wounds": [
+                {
+                  "type": "puncture",
+                  "severity": "light",
+                  "bleed": 2,
+                  "pain": 4,
+                  "healRemaining": 5785,
+                  "damage": 2,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335777
+                },
+                {
+                  "type": "puncture",
+                  "severity": "light",
+                  "bleed": 2,
+                  "pain": 4,
+                  "healRemaining": 5850,
+                  "damage": 2,
+                  "bandaged": false,
+                  "sutured": false,
+                  "splinted": false,
+                  "cleaned": false,
+                  "dressed": false,
+                  "infected": false,
+                  "infectedSince": 0,
+                  "createdTick": 335844
+                }
+              ]
+            },
+            {
+              "destroyed": false,
+              "hp": 36,
+              "maxHp": 36,
+              "wounds": []
+            },
+            {
+              "destroyed": false,
+              "hp": 36,
+              "maxHp": 36,
+              "wounds": []
+            }
+          ],
+          "permanent": []
+        },
+        "carriers": [],
+        "jobs": [
+          {
+            "blockedReason": null,
+            "claimedTick": 0,
+            "createdTick": 15399,
+            "data": {
+              "patient": 16777294
+            },
+            "id": 936,
+            "inputs": [],
+            "key": "clean_wound:16777294",
+            "priority": 3,
+            "producer": "health",
+            "progress": 0,
+            "retryTick": 0,
+            "state": "open",
+            "target": {
+              "kind": "entity",
+              "ref": 16777294
+            },
+            "tool": "bucket",
+            "type": 11,
+            "workTile": "adjacent",
+            "workerId": 0
+          },
+          {
+            "blockedReason": null,
+            "claimedTick": 0,
+            "createdTick": 15399,
+            "data": {
+              "patient": 16777294
+            },
+            "id": 937,
+            "inputs": [],
+            "key": "diagnose:16777294",
+            "priority": 4,
+            "producer": "health",
+            "progress": 0,
+            "retryTick": 0,
+            "state": "open",
+            "target": {
+              "kind": "entity",
+              "ref": 16777294
+            },
+            "tool": null,
+            "type": 15,
+            "workTile": "adjacent",
+            "workerId": 0
+          },
+          {
+            "id": 3345,
+            "key": "stop_bleeding:16777294",
+            "type": 38,
+            "producer": "health",
+            "priority": 1,
+            "target": {
+              "kind": "entity",
+              "ref": 16777294
+            },
+            "workTile": "adjacent",
+            "inputs": [
+              {
+                "filter": {
+                  "category": "textile/cloth"
+                },
+                "count": 1,
+                "reserved": [],
+                "delivered": []
+              }
+            ],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 335715,
+            "claimedTick": 0,
+            "data": {
+              "patient": 16777294
+            }
+          },
+          {
+            "id": 3346,
+            "key": "carry_patient:16777294",
+            "type": 5,
+            "producer": "health",
+            "priority": 1,
+            "target": {
+              "kind": "entity",
+              "ref": 16777294
+            },
+            "workTile": 61812,
+            "inputs": [],
+            "tool": null,
+            "state": "open",
+            "blockedReason": null,
+            "retryTick": 0,
+            "workerId": 0,
+            "progress": 0,
+            "createdTick": 335953,
+            "claimedTick": 0,
+            "data": {
+              "patient": 16777294,
+              "bedTile": 61812
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": 16777234,
+            "item": {
+              "carriedBy": 16777294,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 0,
+              "flags": 16,
+              "material": 96,
+              "ownerId": 16777294,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 400,
+              "type": 73,
+              "wear": 0
+            }
+          },
+          {
+            "id": 16777305,
+            "item": {
+              "carriedBy": 16777294,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 0,
+              "flags": 0,
+              "material": 70,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 400,
+              "type": 106,
+              "wear": 0
+            }
+          },
+          {
+            "id": 16777306,
+            "item": {
+              "carriedBy": 16777294,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 0,
+              "flags": 0,
+              "material": 70,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 400,
+              "type": 105,
+              "wear": 0
+            }
+          },
+          {
+            "id": 16777307,
+            "item": {
+              "carriedBy": 16777294,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 0,
+              "flags": 0,
+              "material": 70,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 400,
+              "type": 15,
+              "wear": 0
+            }
+          },
+          {
+            "id": 83886322,
+            "item": {
+              "carriedBy": 16777294,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 16777294,
+              "flags": 16,
+              "material": 96,
+              "ownerId": 16777294,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 160156,
+              "type": 64,
+              "wear": 0
+            }
+          },
+          {
+            "id": 83886355,
+            "item": {
+              "carriedBy": 16777294,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 150995335,
+              "flags": 16,
+              "material": 96,
+              "ownerId": 16777294,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 174474,
+              "type": 87,
+              "wear": 0
+            }
+          },
+          {
+            "id": 83886358,
+            "item": {
+              "carriedBy": 16777294,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 150995335,
+              "flags": 16,
+              "material": 96,
+              "ownerId": 16777294,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 213228,
+              "type": 52,
+              "wear": 0
+            }
+          },
+          {
+            "id": 83886402,
+            "item": {
+              "carriedBy": 16777294,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 150995153,
+              "flags": 16,
+              "material": 96,
+              "ownerId": 16777294,
+              "quality": 0,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 193354,
+              "type": 56,
+              "wear": 0
+            }
+          },
+          {
+            "id": 83886434,
+            "item": {
+              "carriedBy": 16777294,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 150995153,
+              "flags": 16,
+              "material": 96,
+              "ownerId": 16777294,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 224596,
+              "type": 68,
+              "wear": 0
+            }
+          },
+          {
+            "id": 83886750,
+            "item": {
+              "carriedBy": 16777294,
+              "containerId": 0,
+              "count": 1,
+              "crafterId": 16777294,
+              "flags": 16,
+              "material": 96,
+              "ownerId": 16777294,
+              "quality": 1,
+              "reservedBy": 0,
+              "rotStage": 0,
+              "rotStart": 205911,
+              "type": 54,
+              "wear": 0
+            }
+          }
+        ]
+      },
+      "stack": "Error: \n    at EntityStore.__vite_ssr_import_3__.EntityStore.destroy (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t139-trace-probe.test.ts:29:127)\n    at DwarvesSystem.handle (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\index.ts:486:28)\n    at World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:283:16)\n    at World.__vite_ssr_import_2__.World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t139-trace-probe.test.ts:44:8)\n    at World.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\three_years.scenario.ts:54:9)\n    at World.game.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\invariants.ts:849:14)\n    at World.run (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:307:41)\n    at HeadlessGame.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\app\\headless.ts:470:16)\n    at TestWorld.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\test-world.ts:113:15)\n    at ThreeYearsMeasurements.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\three_years_measurements.ts:194:9)"
+    },
+    {
+      "tick": 335997,
+      "event": {
+        "type": "CreatureDied",
+        "id": 16777294,
+        "cause": "bled_out",
+        "killerId": 486539952,
+        "tile": 74185,
+        "species": 15,
+        "name": "Brynja Flintheart",
+        "faction": "fortress",
+        "ageTicks": 3628800,
+        "wornItems": [
+          16777234,
+          83886355,
+          83886358,
+          83886322,
+          83886434,
+          83886402,
+          83886750,
+          16777305,
+          16777307,
+          16777306
+        ]
+      },
+      "items": [
+        {
+          "id": 16777317,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777318,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777319,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777314,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777315,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777316,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777405,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 4,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 47,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 13,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777308,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777309,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777310,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777311,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777312,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777313,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 50332050,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 50332054,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777624,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777626,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777627,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777628,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777302,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777303,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777304,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777299,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 16777300,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 16777301,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 218104013,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 15,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886318,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 105,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886327,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 106,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886470,
+          "item": {
+            "carriedBy": 184549767,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 106,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886472,
+          "item": {
+            "carriedBy": 184549767,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 105,
+            "wear": 0
+          }
+        },
+        {
+          "id": 150995363,
+          "item": {
+            "carriedBy": 184549767,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 15,
+            "wear": 0
+          }
+        },
+        {
+          "id": 16777234,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 73,
+            "wear": 0
+          }
+        },
+        {
+          "id": 16777305,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          }
+        },
+        {
+          "id": 16777306,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          }
+        },
+        {
+          "id": 16777307,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886322,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 16777294,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 160156,
+            "type": 64,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886355,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 150995335,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 174474,
+            "type": 87,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886358,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 150995335,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 213228,
+            "type": 52,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886402,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 150995153,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 0,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 193354,
+            "type": 56,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886434,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 150995153,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 224596,
+            "type": 68,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886750,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 16777294,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 205911,
+            "type": 54,
+            "wear": 0
+          }
+        }
+      ]
+    },
+    {
+      "tick": 336000,
+      "items": [
+        {
+          "id": 16777317,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777318,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777319,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 12,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777314,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777315,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777316,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777405,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 4,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 47,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 13,
+            "wear": 0
+          },
+          "position": {
+            "x": 11,
+            "y": 17,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777308,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777309,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777310,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 17,
+            "y": 0,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777311,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777312,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 16777313,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "z": 32
+          }
+        },
+        {
+          "id": 50332050,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 50332054,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777624,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33600,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 34,
+            "y": 7,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777626,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777627,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777628,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 33620,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 27,
+            "y": 8,
+            "z": 26
+          }
+        },
+        {
+          "id": 16777302,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777303,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777304,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 30
+          }
+        },
+        {
+          "id": 16777299,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 16777300,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 16777301,
+          "item": {
+            "carriedBy": 0,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          },
+          "position": {
+            "x": 32,
+            "y": 9,
+            "z": 29
+          }
+        },
+        {
+          "id": 218104013,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 15,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886318,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 105,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886327,
+          "item": {
+            "carriedBy": 117440762,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67240,
+            "type": 106,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886470,
+          "item": {
+            "carriedBy": 184549767,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 106,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886472,
+          "item": {
+            "carriedBy": 184549767,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 105,
+            "wear": 0
+          }
+        },
+        {
+          "id": 150995363,
+          "item": {
+            "carriedBy": 184549767,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 67200,
+            "type": 15,
+            "wear": 0
+          }
+        },
+        {
+          "id": 16777234,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 73,
+            "wear": 0
+          }
+        },
+        {
+          "id": 16777305,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 106,
+            "wear": 0
+          }
+        },
+        {
+          "id": 16777306,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 105,
+            "wear": 0
+          }
+        },
+        {
+          "id": 16777307,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 0,
+            "flags": 0,
+            "material": 70,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 400,
+            "type": 15,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886322,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 16777294,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 160156,
+            "type": 64,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886355,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 150995335,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 174474,
+            "type": 87,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886358,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 150995335,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 213228,
+            "type": 52,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886402,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 150995153,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 0,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 193354,
+            "type": 56,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886434,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 150995153,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 224596,
+            "type": 68,
+            "wear": 0
+          }
+        },
+        {
+          "id": 83886750,
+          "item": {
+            "carriedBy": 16777294,
+            "containerId": 0,
+            "count": 1,
+            "crafterId": 16777294,
+            "flags": 0,
+            "material": 96,
+            "ownerId": 0,
+            "quality": 1,
+            "reservedBy": 0,
+            "rotStage": 0,
+            "rotStart": 205911,
+            "type": 54,
+            "wear": 0
+          }
+        }
+      ]
+    }
+  ]
+}
