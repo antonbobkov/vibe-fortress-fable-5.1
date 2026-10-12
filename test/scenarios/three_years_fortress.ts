@@ -66,7 +66,7 @@ export function threeYearsWorld(seed: string, peril = 0): TestWorld {
   const w = new TestWorld({ seed, registry, map, spec,
     systems,
     embark: threeYearsEmbark(registry, seed, peril) });
-  instrument = attachThreeYearsMeasurements(w);
+  instrument = attachThreeYearsMeasurements(w, seed);
   return w;
 }
 
@@ -532,9 +532,9 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
   if (!ordered.has('carpenter') && buildings.get(placedIds['carpenter']!)?.state === 'built') {
     ordered.add('carpenter');
     // The still cannot brew without empty barrels and the wagon's drink lasts two weeks, so the
-    // first few barrels are made at once; then a wooden buckler for each soldier and the
-    // hospital's chest. Beds come before the standing barrel order (checkEconomy).
-    for (const [recipeId, remaining] of [['make_barrel', FIRST_BARRELS], ['make_chest_wood', 1], ['make_buckler_wood', SQUAD_SIZE]] as const) {
+    // first few barrels are made at once; then the hospital's chest and a wooden buckler for
+    // each of the militia. Beds come before the standing barrel order (checkEconomy).
+    for (const [recipeId, remaining] of [['make_barrel', FIRST_BARRELS], ['make_chest_wood', 1], ['make_buckler_wood', MILITIA.length]] as const) {
       w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['carpenter'],
         order: { recipeId, mode: 'once', remaining, priority: ROUTINE } });
     }

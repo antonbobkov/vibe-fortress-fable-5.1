@@ -88,6 +88,8 @@ const VISIT_CARGO = 200;
 /** Stone crafts kept in stock for each dwarf, and days between two new ore drifts in years 2 and 3. */
 const CRAFTS_PER_DWARF = 6;
 const DRIFT_EVERY_DAYS = 28;
+/** What the squad wants from a caravan: body armour, a shield, a helm, and bandages for the hospital. */
+const SQUAD_PURCHASES: readonly string[] = ['mail_shirt', 'shield', 'helm', 'bandage'];
 const FIRST_IRON_CRAFTS = 10;
 /** Seed bought from one caravan: enough for three new strips. */
 const SEED_PER_VISIT = 48;
@@ -461,6 +463,8 @@ export function trade(w: TestWorld, state: FortressState): void {
     if (type === 'anvil' && awaitingAnvil && id === anvil) return 0;
     if (type === 'log' && items.available('log') < 40) return 1;
     if (type === 'bar' || type === 'charcoal_bar') return 2;
+    // Armour and bandages for the squad that meets the boars, ahead of everything but the anvil.
+    if (SQUAD_PURCHASES.includes(type)) return 1;
     if (type === 'seed') return 1;
     if (type === 'plant_food') return 3;
     if (type === 'cloth' || type === 'thread') return 4;
@@ -777,9 +781,10 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     placeEconomyBuilding(w, state, 'trade_depot', -9, 4);
     if (!phases.has('requests')) {
       phases.add('requests');
-      w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', material: 'iron', priority: 3 }, { itemType: 'log', priority: 2 }, { itemType: 'bar', material: 'iron', priority: 1 }] });
+      w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', material: 'iron', priority: 3 }, { itemType: 'mail_shirt', priority: 2 }, { itemType: 'bar', material: 'iron', priority: 1 }] });
       // The farm grows only by bought seed (07: a harvest returns the one seed it was sown from).
-      for (const civ of ['hillfolk', 'wildwood']) w.game.world.applyCommand({ type: 'SetRequests', civ, entries: [{ itemType: 'seed', priority: 3 }] });
+      w.game.world.applyCommand({ type: 'SetRequests', civ: 'hillfolk', entries: [{ itemType: 'seed', priority: 3 }, { itemType: 'bandage', priority: 2 }] });
+      w.game.world.applyCommand({ type: 'SetRequests', civ: 'wildwood', entries: [{ itemType: 'seed', priority: 3 }] });
     }
     trade(w, state);
   }

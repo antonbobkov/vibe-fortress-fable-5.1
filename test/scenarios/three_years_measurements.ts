@@ -26,8 +26,11 @@ const PROGRESS_DAYS = 28;
  * One line of a long run's journal: to the console, and at once to the file named by
  * `THREE_YEARS_LOG` when it is set (vitest holds console output until the test ends).
  */
+/** The seed of the run being journalled, for a file that several runs share. */
+let journalSeed = '';
+
 export function note(tag: string, data: unknown): void {
-  const line = `[${tag}] ${JSON.stringify(data)}`;
+  const line = `[${tag}]${journalSeed ? ` ${journalSeed}` : ''} ${JSON.stringify(data)}`;
   console.log(line);
   const file = process.env['THREE_YEARS_LOG'];
   if (file) appendFileSync(file, `${line}
@@ -340,7 +343,8 @@ export class ThreeYearsMeasurements {
 }
 
 const instruments = new WeakMap<TestWorld, ThreeYearsMeasurements>();
-export function attachThreeYearsMeasurements(w: TestWorld): ThreeYearsMeasurements {
+export function attachThreeYearsMeasurements(w: TestWorld, seed = ''): ThreeYearsMeasurements {
+  journalSeed = seed;
   const instrument = new ThreeYearsMeasurements(w);
   instruments.set(w, instrument);
   return instrument;
