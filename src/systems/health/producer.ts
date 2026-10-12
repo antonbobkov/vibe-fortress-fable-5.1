@@ -37,6 +37,15 @@ export class HealthProducer implements JobProducer {
     return this.host.registry.table<{ id: string }>('jobTypes').idOf(job.type) ?? '';
   }
 
+  /** An infection acquired after planning must bring brightleaf before work completes. */
+  canComplete(jobIn: unknown): boolean {
+    const job = jobIn as Job;
+    if (this.typeIdOf(job) !== 'clean_wound') return true;
+    const body = this.host.entities.get(job.target.ref, C.Body);
+    const infected = body?.parts.some(part => part.wounds.some(wound => wound.infected && needsCleaning(wound))) ?? false;
+    return !infected || job.inputs.some(input => input.filter.category === 'medical/brightleaf' && input.count >= 1);
+  }
+
   workCentiTicks(jobIn: unknown): number | undefined {
     const job = jobIn as Job;
     const typeStr = this.typeIdOf(job);
@@ -177,6 +186,10 @@ export class HealthProducer implements JobProducer {
       // Needs list
       for (const need of patient.needs) {
         const key = `${need}:${patientId}`;
+        const existing = sink.byKey(key);
+        if (existing && need === 'clean_wound' && !this.canComplete(existing)) {
+          sink.cancelKey(key, 'infection_requires_brightleaf');
+        }
         if (sink.exists(key)) continue;
 
         switch (need) {

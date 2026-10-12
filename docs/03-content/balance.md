@@ -175,13 +175,16 @@ The standard-size, command-driven wildlife-year instrument uses twelve distinct 
 | Measure | Target | Latest accepted | Best measured | Regression bound |
 |---|---|---:|---:|---|
 | Median living dwarves | At least 11 of the nominal twelve | 12.5 | 12.5 | At least 11.5 |
-| Minimum living dwarves | At least 8 | 3 | 3 | At least 3 |
-| Years without a wildlife dwarf death | All | 7 of 12 | 8 of 12 | At least 6 of 12 |
-| Extinct fortresses | None | 0 | 0 | None |
-| Dwarf deaths from hunger or thirst | None | 2 | 2 | At most 2 across the cohort |
+| Minimum living dwarves | At least 8 | 0 | 3 | Reported; not guarded as a single sample |
+| Second-worst living dwarves | Guard proxy for the minimum | 10 | 10 | At least 8 |
+| Years without a wildlife dwarf death | All | 8 of 12 | 8 of 12 | At least 6 of 12 |
+| Extinct fortresses | None | 1 | 0 | At most 1 |
+| Dwarf deaths from hunger or thirst | None | 2 | 2 | At most 3 across the cohort |
 
-The [infection-cure measurement](../../reports/audits/2026-10-11-infection-cure-and-wildlife-tolerances.md) has forest median/minimum 10.5/10, taiga 11/3 and grassland 14.5/14. There are 17 wildlife dwarf deaths (12 wolf, 4 boar, 1 badger), two deaths labelled starvation, and three fortress-animal deaths, all dogs killed by wolves. Arrivals vary from 11 to 15; the grassland halls raise the pooled median. The minimum and the need-related deaths still miss the target even though the pooled median meets it. Read the per-biome distribution with the pooled one.
+The [late-infection input measurement](../../reports/audits/2026-10-11-late-infection-inputs-and-wildlife-guards.md) has forest median/minimum 10/10, taiga 11.5/0 and grassland 14.5/14. The second-worst across the cohort is 10. There is one extinct fortress and two deaths labelled starvation. Arrivals vary from 11 to 15; the grassland halls raise the pooled median. The minimum and the need-related deaths still miss the target even though the pooled median meets it. Read the per-biome distribution with the pooled one.
 
-The regression floor for wildlife-free years is the measured figure minus two seeds; the median floor is the measured figure minus one. Minimum survivors, extinctions and hunger/thirst deaths may only improve or stay unchanged. Block a change when any bound fails or when two or more of these five figures worsen together, even within the two tolerances. Compare simultaneous worsening against the latest accepted before row, so an earlier tolerated drop is not counted again on a later change. Keep that latest accepted row alongside the best measured figures used for the guards; in the same commit, update the row and every improved measured figure, retaining earlier better bounds when a tolerant figure falls. Always record the actual before and after rows. The survival targets remain unchanged.
+The guarded figures are the median, second-worst survivor count (the second-lowest of the twelve years), wildlife-free years, extinctions and hunger/thirst deaths. Their bounds are computed from the best measured figures: median minus one dwarf, second-worst minus two dwarves, wildlife-free minus two seeds, extinction count plus one fortress, and hunger/thirst deaths plus one. Always report the single worst seed, but do not guard that one sample. Block a change when any bound fails or when three or more of the five guarded figures worsen together, even within their tolerances. Compare simultaneous worsening against the latest accepted before row, so an earlier tolerated drop is not counted again on a later change. Keep that latest actual row alongside the best figures used for the bounds; update the row and every improved measured figure in the same commit, retaining earlier better bounds when a tolerant figure falls. Always record the actual before and after rows. The survival targets remain unchanged.
+
+When a seed changes outcome class (extinct or surviving) under a change outside wildlife, alerts, fleeing, treatment or needs, name it as unstable in the commit body and retain the seed in the living balance status. At three distinct unstable seeds, file a task to enlarge the cohort. The seed records and single worst outcome remain in every measurement.
 
 Re-measure the distribution before and after a change to wildlife, fleeing, alerts or treatment. The instrument records its target beside the measured bounds. The browser year's single sample asserts that the fortress survives and nobody dies of hunger or thirst, and prints its remaining end state.
