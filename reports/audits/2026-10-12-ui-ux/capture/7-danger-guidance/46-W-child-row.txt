@@ -1,0 +1,64 @@
+# flow: 7-danger-guidance   step: 46-W-child-row
+# what: Units panel with the cursor on the first child (list index 8)
+# input: key Escape ; (setup read: dwarves 12, children 1, first child at list index 8) ; key u ; key ArrowDown x8
+# tick: 84400   paused: yes   screen: fortress   panel: units   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,25,28   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|♣""↑♠♣""""↑"""↑"""♣""""♣"↑""♣""↑""""""""""♣"│ Units                         [u]
+01|"""♣""""♣♣""""↑♣♣""""↑""↑""""""↑"""""""♣""""│ /filter:
+02|"""↑""""↑♣↑"""↑"╥≡╥"""""↑""♠""""♣""↑"""♣"♣""│ Name               Prof.    Act.
+03|"""↑"↑"♣↑"""""""≡┼≡"""♣""""""""♣"↑"↑""""""♣"│  Kolfinna Frostg ‼ Weaponsm No jo
+04|"""""""""""""""↑╥Ю╥""""""♣♣"♣""""♣♣"↑""↑""↑"│  Estrid Embersto ‼ Miner    No jo
+05|""""""""♣↑"♠""↑""""""""♣•?•"""""""""♠♣"""♣"↑│  Rurik Oakpick   ‼ Miner    No jo
+06|↑♣♣♣"♣""♣""♣""↑♣♣""♣""""?┼?↑☺"""""♣"↑Ю☼Ю""""│  Oskar Stonetong ☻ Carpente Hunt
+07|"""""↑""♣↑♣""""↑↑""♣"↑↑"•?•""?""↑""""☼Ю☼♣""♠│  Halvar Cragspar ‼ Mason    No jo
+08|"♣"♣""""""""♣""""♣"♣↑↑↑"""""""☼""♣"""Ю☼Ю♣↑↑"│  Ragnhild Deepbr ‼ Brewer   No jo
+09|"♣""""↑"""♣↑"""↑↑""♣""""♣"♣"☺""""""♣""""↑""♠│  Nori Bearhold   ☻ Cook     No jo
+10|"""↑↑"♣♣"♠↑♣"♣""""♣"""""↑""""""""""""""""♣""│  Sigrun Ashbrook ☻ Medic    No jo
+11|↑"""♣"""""""♣↑↑♣"""↑♣""%╥%↑"""↑"♣♣""""""""""│ ►Kari Thunderaxe ‼ Peasant  socia
+12|"""""""""↑""""♣""↑♣""""╥┼╥↑"""↑♣""""♣"↑↑♣"""│  Gefjun Runemark ☻ Weaponsm No jo
+13|""♣"♣♣♣"♠""""""""""♣"♣"%╥%"♣""""♣"↑↑♣♣""""""│  Vidar Shaletong ‼ Axedwarf sleep
+14|""""""↑"""↑♣"""↑"""""♣""↑"♣"↑""""""♣↑"""""""│  Gloin Ashcloak  ‼ Peasant  No jo
+15|"""↑"""♣""""""""""""""""""""↑"""""""""""""""│
+16|"♣""♣""♣♣""""""♣""♣↑"♣♣""""""""♠""""♣♣♣"""""│
+17|"""""""""↑"♣"♣♣""""""↑"♣""""""""""""""""""""│
+18|↑"""↑↑♣♣""♣""""""♣♠""""""""""""""♣♠""""♠""""│
+19|"""""""""""↑↑""♣"""""♠"""""""↑"↑"""""↑"↑"♣""│
+20|"""""""""""""♣"""♣↑""""♠♣""""""♣""""↑♣""""""│
+21|"""""""♣↑"♣"""""♣""♣♣""♣"""♣""""""""♣"""♠"↑"│
+22|"">""""↑""""♣"↑"↑""↑"""↑↑""""↑""""""""""""""│
+23|""""""""""""♣"""♠♠"♣""""""♣""""♣♣↑""""♣"""""│
+24|○═○"≡"""""♣↑""♣""↑♣"♣↑"♣""""""""""""""↑"""""│
+25|═▄═""""""""♣""""""""♣♣"""""""""↑""""""""""""│
+26|dddðððð↑"♣♣"""""♣"↑""♣"""""♣"↑"""↑"""""♣"♣""│
+27|ddc∫""Ю""""♣"""""♣♣"""♣"♠"""↑"""""♣"""""""""│
+28|""≡ЮЮðЮ"""""""♣"↑""♣♣""""""""""↑"""↑""↑"♣♣""│
+29|♣""ð≡♣ð♣"""""♣""""""↑↑♣""""""""""↑"♣""""""""│
+30|"≡"""""↑""""""""""""♣↑♣♠↑"""""♠"""""""♣"↑""♣│
+31|"♣"""↑""♠♣"""""""♠""↑""""♣"""↑"""♣""♣""♣""↑♠│
+32|"""""""♣"♣""♣"""""↑""""""♠"""♣♣"↑""↑"""""""♣│
+33|"♣↑"♣"""""♣""""♠""♣"""""""♠"♣♣"♣""♣""♣"↑♣"""│
+34|""↑♣"♣♣"""""""""♣♣"""♣""♠♣"♣"""♣"""""↑↑"""""│
+35|♣""""""♣♠""↑♠"""""""""♣♣♠""""♣↑↑♣↑""""↑♣"↑""│
+36|""""""♣""♠""""""""""""""↑"♠""""♣↑"""♣"""""""│
+37|"""""""""""↑"""↑♣"""""♣"""♣"""""""""""""""""│
+38|""""""↑""↑""""""""""""""""""""↑"""♣"""""""""│
+39|""↑"♣"""""""""""""↑"""♣"""♣"""""""""↑"♠"""♣"│ ─────────────────────────────────
+40|"↑↑♣""""↑↑♣"""""↑""""↑"""""""↑""""↑""♣↑↑"↑""│ [Enter] inspect  [l] labors
+41|"""♠""↑""♣"""""♣"↑""↑♣↑♣"↑♣"""""↑""""""♣♣♠""│ [S-c] center
+42|"""↑""""↑""↑""♣""""♣""""""""""""""↑"↑""""""♣│ [Space] mark  [*] all  0 marked
+43|"↑"♣""♣♣"""""♣♣""""♣↑♣""↑""""""""♣""♣"↑"""↑"│ [S-t] title  [S-n] rename
+44|♠""""↑"♣"""↑""↑"""""""♣"""♣♣"""↑"↑↑"""""""""│ [S-m] squad  sleep 21h  [[]  []]
+45| ! Gefjun Runemark is starving.
+46| ! Vidar Shaletongue is starving.
+47| ! Gloin Ashcloak is starving.
+48| Day 15 of Autumn, Year 1   ☼ clear 17°C   ☺ 12   ♥ Miserable   z 28   ║ [?] hel
+49| Loam floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»
+----- log strip rows -----
+ ! Gefjun Runemark is starving.
+ ! Vidar Shaletongue is starving.
+ ! Gloin Ashcloak is starving.
+----- status rows -----
+ Day 15 of Autumn, Year 1   ☼ clear 17°C   ☺ 12   ♥ Miserable   z 28   ║ [?] hel
+ Loam floor · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»

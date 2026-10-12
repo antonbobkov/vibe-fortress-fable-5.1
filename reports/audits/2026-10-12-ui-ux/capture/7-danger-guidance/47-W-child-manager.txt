@@ -1,0 +1,64 @@
+# flow: 7-danger-guidance   step: 47-W-child-manager
+# what: Labors panel, Enter: labor manager (whose row is the cursor on?)
+# input: key l ; key Enter
+# tick: 84400   paused: yes   screen: labor_manager   panel: labors   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,25,28   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00| Labor manager                                                      [Esc] close
+01| Kolfinna Frostgate, Weaponsmith · Animal care: on · priority 5
+02| 0 of 12 marked          A A B B C C C C C F F G H H H L M M M M S S T T W
+03|                         n n r u a l o o r a i e a e u e a e e i m m e r o
+04|                         i i e t r e n o a r s m u r n a s c d n e i x a o
+05|                         m m w c p a s k f m h   l b t t o h i i l t t d d
+06|                         a a i h e n t i t i i c i a i h n a c n t h i i c
+07|                         l l n e n i r n s n n u n l n e r n i g i i l n u
+08|                             g r t n u g   g g t g i g r y i n   n n e g t
+09|                         c t   y r g c         t   s       c e   g g s   t
+10|   Dwarf                 a r     y   t         i   m       s             i
+11|   Priority 1-9          5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5
+12|   Kolfinna Frostgate    ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+13|   Estrid Emberstone     ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+14|   Rurik Oakpick         ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+15|   Oskar Stonetongue     ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+16|   Halvar Cragspark      ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+17|   Ragnhild Deepbrook    ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+18|   Nori Bearhold         ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+19|   Sigrun Ashbrook       ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+20|   Kari Thunderaxe       ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙
+21|   Gefjun Runemark       ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+22|   Vidar Shaletongue     ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+23|   Gloin Ashcloak        ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+24|
+25|
+26|
+27|
+28|
+29|
+30|
+31|
+32|
+33|
+34|
+35|
+36|
+37|
+38|
+39|
+40|
+41|
+42|
+43|
+44|
+45|
+46| ──────────────────────────────────────────────────────────────────────────────
+47| [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column
+48| [-] priority down  [+] priority up  [t] templates
+49|
+----- log strip rows -----
+
+ ──────────────────────────────────────────────────────────────────────────────
+ [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column
+----- status rows -----
+ [-] priority down  [+] priority up  [t] templates
+
