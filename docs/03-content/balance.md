@@ -176,12 +176,12 @@ The standard-size, command-driven wildlife-year instrument uses twelve distinct 
 |---|---|---:|---:|---|
 | Median living dwarves | At least 11 of the nominal twelve | 13 | 13 | At least 12 |
 | Minimum living dwarves | At least 8 | 0 | 3 | Reported; not guarded as a single sample |
-| Second-worst living dwarves | Guard proxy for the minimum | 9 | 10 | At least 8 |
+| Second-worst living dwarves | Guard proxy for the minimum | 8 | 10 | At least 8 |
 | Years without a wildlife dwarf death | All | 8 of 12 | 8 of 12 | At least 6 of 12 |
 | Extinct fortresses | None | 1 | 0 | At most 1 |
 | Dwarf deaths from hunger or thirst | None | 0 | 0 | At most 1 across the cohort |
 
-The [discharged-treatment retry measurement](../../reports/audits/2026-10-12-treatment-retries-after-discharge.md) has forest median/minimum 10/0, taiga 12.5/9 and grassland 14.5/14. Eleven annual rows and hashes are unchanged; the extinct forest seed remains extinct with a later endpoint. The second-worst across the cohort is 9. There is one extinct fortress and no need-related death. Arrivals vary from 9 to 15; the grassland halls raise the pooled median. The minimum and extinction still miss the target even though the pooled median meets it. Read the per-biome distribution with the pooled one.
+The [predator grace and corpse-meal measurement](../../reports/audits/2026-10-12-predator-grace-and-corpse-meals.md) has forest median/minimum 9/0, taiga 12.5/8 and grassland 14.5/14. The second-worst across the cohort is 8; this one guarded figure falls within its tolerance, while the other four remain unchanged. There is one extinct fortress and no need-related death. Arrivals vary from 9 to 15; the grassland halls raise the pooled median. The minimum and extinction still miss the target even though the pooled median meets it. Read the per-biome distribution with the pooled one.
 
 The guarded figures are the median, second-worst survivor count (the second-lowest of the twelve years), wildlife-free years, extinctions and hunger/thirst deaths. Their bounds are computed from the best measured figures: median minus one dwarf, second-worst minus two dwarves, wildlife-free minus two seeds, extinction count plus one fortress, and hunger/thirst deaths plus one. Always report the single worst seed, but do not guard that one sample. Block a change when any bound fails or when three or more of the five guarded figures worsen together, even within their tolerances. Compare simultaneous worsening against the latest accepted before row, so an earlier tolerated drop is not counted again on a later change. Keep that latest actual row alongside the best figures used for the bounds; update the row and every improved measured figure in the same commit, retaining earlier better bounds when a tolerant figure falls. Always record the actual before and after rows. The survival targets remain unchanged.
 

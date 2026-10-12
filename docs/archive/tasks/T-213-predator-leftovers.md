@@ -1,6 +1,8 @@
 # T-213 — Two rules of 08 for attacking animals that the code does not do
 
-**Source:** T-196 and [`2026-10-10-wild-animals-and-civilians.md`](../../reports/audits/2026-10-10-wild-animals-and-civilians.md) § Not established · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-213: predators retain lost targets briefly and eat their kills`.
+
+**Source:** T-196 and [`2026-10-10-wild-animals-and-civilians.md`](../../../reports/audits/2026-10-10-wild-animals-and-civilians.md) § Not established · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

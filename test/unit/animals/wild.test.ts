@@ -60,13 +60,13 @@ function setState(w: TestWorld, id: EntityId, state: string, stateUntil = 0, hun
 describe('T-M4-03 animals: tuning constants', () => {
   it('every row of 08 § Tuning constants is in src/systems/animals/constants.ts', () => {
     const rows = tuningConstants('02-systems/08-animals-and-domestication.md');
-    expect(rows.length).toBe(26); // T-218 adds the maximum contributing pack-member count.
+    expect(rows.length).toBe(27); // T-213 adds the attack perception-grace constant.
     const values = K as unknown as Record<string, number>;
     for (const r of rows) expect([r.name, values[r.name]]).toEqual([r.name, r.value]);
   });
 
-  it('the eight states of 08 § Wild behavior', () => {
-    expect([...WILD_STATES]).toEqual(['idle', 'graze', 'wander', 'flee', 'hunt', 'attack', 'sleep', 'leave']);
+  it('the nine states of 08 § Wild behavior', () => {
+    expect([...WILD_STATES]).toEqual(['idle', 'graze', 'wander', 'flee', 'hunt', 'attack', 'eat', 'sleep', 'leave']);
   });
 });
 

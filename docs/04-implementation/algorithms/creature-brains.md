@@ -114,7 +114,8 @@ Children: `select` skips `duty` and `work` except `haul_to_stockpile` jobs (labo
 
 ```
 tickAnimal(id): W = Wild[id] or T = Tame[id]
-  if tick < lastThink + thinkInterval(id): moveAlongPath(id); return
+  deadlineDue = W and (eating deadline or saved attack-grace deadline reached)
+  if not deadlineDue and tick < lastThink + thinkInterval(id): moveAlongPath(id); return
   lastThink = tick
   threats = perceivedThreats(id)   // per temperament rules in 08
   if T: if T.slaughter or T.assignedTo: (jobs / follow logic) ...
@@ -122,6 +123,8 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
         if T.petOf and dist(owner) > 5: walkTo(near owner); return
         if grazer: if T.condition > 40 and grass tile within pasture (or within 6 if no pasture): walkTo(grass); on arrival: eatGrass (GrassGrazed, condition -= 25); return
         wander within pasture or near hearth; return
+  if W.pendingMeal: moveAlongPath(id); return  // await the corpse notification
+  if W.mealId and W.state in {idle, wander, hunt}: W.state = eat; W.stateUntil = 0
   switch W.state:
     idle:   if threats: W.state = timid/neutral-attacked ? 'flee' : 'idle'
             else if aggressive carnivore and W.hungry and quarry(id): W.state='hunt'; combat.setTarget(id, quarry(id))
@@ -136,9 +139,12 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
             if animal target no longer meets the pack size limit: clear target; 'idle'
             combat.setTarget(id, target); adjacent: 'attack' else walk to it
     attack: (16 drives); if blood < fleeBlood and not aggressive: 'flee'
-            if target dead or gone or out of perception: 'idle' (no new target here)
-            if hunting and animal target no longer meets the pack size limit: clear target; 'idle'
+            if target dead/gone or animal-quarry size no longer eligible: 'idle' (no new target here)
             if W.defendFrom and (dist(target, W.defendFrom) > provoke radius or other level or target unconscious): clear target; W.state = 'wander' (WANDER_TIMEOUT_TICKS)
+            if target unseen (species range, same level, line of sight): save first unseen tick; at ATTACK_PERCEPTION_GRACE_TICKS unseen: 'idle'
+            else clear unseen tick; 16 does not apply its generic perception cutoff to this wild attack
+    eat:    walk to saved ground corpse; on arrival stateUntil = tick + EAT_CORPSE_TICKS; at deadline consume corpse through 13, clear meal and idle
+            missing, carried-away or unreachable corpse: clear meal and idle, with no consumption
     on CreatureDied with killerId = a hungry predator: W.hungry = false for it and every member of its pack; for each newly fed member in hunt or attack without defendFrom, clear combat target and stopWalking
   quarry(id):   // pack = wild animals of the species with the same arrivedTick
     q = target of a hungry pack member in 'hunt' (or in an 'attack' without defendFrom), ascending member id
@@ -156,6 +162,8 @@ Tame animals use `WILD_THINK_TICKS` between ordinary thinks. Only grazers accumu
 At first breach, initialize nonzero fauna from content once per cavern tier, under species and global caps; save the completed tier. Zero initial populations consume no randomness.
 
 Daily: spawning per 08 (edge tiles at `SPAWN_MIN_DISTANCE` from dwarves), breeding rolls, product timers, condition and starvation, lifetime and cap checks (`leave`).
+
+A hungry wild killer saves the victim id while waiting for `CorpseCreated`; its pack is fed and hunting targets and paths are cleared at the kill as usual. The notification associates the killer with the corpse item. A genuine defending attack, flee or leave keeps precedence; a waiting meal resumes from idle/wander. Save the grace start, pending victim, meal item and eating deadline in `Wild`. The waiting-for-corpse boundary and the middle of eating survive save/load; an eating or attack-grace deadline is checked even when an ordinary think is not due.
 
 ## Hostile party AI (party every 50 ticks; members every tick)
 

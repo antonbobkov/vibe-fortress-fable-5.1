@@ -419,6 +419,12 @@ export interface Wild {
   arrivedTick: Tick;
   /** While a defending `attack` lasts: the tile where it began (08 § Wild behavior). */
   defendFrom?: TileIndex;
+  /** First observed loss of the held attack target's perception. */
+  unseenSince?: Tick;
+  /** Waiting for CorpseCreated after this creature's kill. */
+  pendingMeal?: EntityId;
+  /** The corpse this predator is walking to or eating; stateUntil is its meal deadline. */
+  mealId?: EntityId;
 }
 
 export interface Projectile {
