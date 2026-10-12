@@ -1,5 +1,7 @@
 # T-139 — Clothing keeps a dead carrier in the three-year scenario
 
+Closed by `T-139: hand carried clothing to a live corpse at death dispatch`.
+
 **Source:** T-216 full-run verification, 2026-10-11 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Reproduction
