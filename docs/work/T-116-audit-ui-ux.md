@@ -55,3 +55,11 @@ Add `T-1nn` rows for the recommendations worth doing, with this report as the so
 - The report exists and each finding says whether it was observed or read.
 - The follow-up rows are in the backlog.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+
+## Progress
+
+### 2026-10-12: pass 1 (capture), in progress
+
+Commit examined: `569ae1f`. Output: [`../../reports/audits/2026-10-12-ui-ux/capture-index.md`](../../reports/audits/2026-10-12-ui-ux/capture-index.md) and `reports/audits/2026-10-12-ui-ux/capture/<flow>/`. Flows captured so far:
+
+- Flow 1 (new player, mouse only): captured.
