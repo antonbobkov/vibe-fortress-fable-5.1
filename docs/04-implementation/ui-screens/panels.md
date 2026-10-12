@@ -17,8 +17,8 @@ A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-scre
 │ [S-a] Archery   [S-m] Meeting area  │
 │ [S-t] Tomb      [S-u] Dump          │
 │ [i] Fishing     [g] Gather          │
-│ ─ Drag a rectangle; tiles that     │
-│   qualify show green.               │
+│ ─ Drag a rectangle.                │
+│ Qualifying tiles show ▒, others x. │
 │ ── Selected: Farm plot #3 (24 t)   │
 │ Spring  [dimcap      ▾]  seeds 14   │
 │ Summer  [dimcap      ▾]             │

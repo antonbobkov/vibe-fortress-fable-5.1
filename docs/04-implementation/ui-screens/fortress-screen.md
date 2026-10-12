@@ -175,3 +175,5 @@ The count records units of the first input not covered at each placement; placem
 Strings: `ui.status.date`, `ui.status.pop`, `ui.panel.units.title`, `ui.tool.designate.*`, `ui.build.category.*`, `ui.menu.*`; every label above is a key.
 
 The status bar fits 80 columns. Row 1 keeps its field order and complete numbers, reducing spaces between fields before cutting any text; the help field stays at the right edge.
+
+Zone drag and resize previews draw qualifying tiles as `▒` on green and rejected tiles as `x` on red. A selected room's open-border tiles draw `x` on red, alongside the panel's "Not enclosed: N open border tiles" explanation. Both palettes use the same glyphs, so these states remain distinguishable without colour.

@@ -1,6 +1,8 @@
 # T-245 — Zone qualification and a room's open border are not shown by colour alone
 
-**Source:** T-111 and its report, [`../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../reports/audits/2026-10-10-ui-audit-follow-up.md) (§5.2, 7.15) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-245: zone validity and room openings use distinct glyphs`.
+
+**Source:** T-111 and its report, [`../../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../../reports/audits/2026-10-10-ui-audit-follow-up.md) (§5.2, 7.15) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -8,12 +10,12 @@ D-U10 and 24 § Accessibility say no information is conveyed by colour alone. Gh
 
 ## Reproduction
 
-Seed `audit-1`, default embark. `z`, `Shift+B`, drag over the rock face (all red) and over floor (all green); then select the bedroom: its border is red background (report shots 12a, 12c, 12e; [`zone-colour-only.png`](../../reports/screenshots/t-111/zone-colour-only.png)). Code: `src/ui/screens/fortress.ts:482-500` sets only the background.
+Seed `audit-1`, default embark. `z`, `Shift+B`, drag over the rock face (all red) and over floor (all green); then select the bedroom: its border is red background (report shots 12a, 12c, 12e; [`zone-colour-only.png`](../../../reports/screenshots/t-111/zone-colour-only.png)). Code: `src/ui/screens/fortress.ts:482-500` sets only the background.
 
 ## What the spec says
 
-- [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules (accessibility): "No information is conveyed by color alone: state glyphs differ or the inspector states it in words."
-- [`fortress-screen.md`](../04-implementation/ui-screens/fortress-screen.md) § Build tool: ghosts use `▒` where valid and `x` where blocked.
+- [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules (accessibility): "No information is conveyed by color alone: state glyphs differ or the inspector states it in words."
+- [`fortress-screen.md`](../../04-implementation/ui-screens/fortress-screen.md) § Build tool: ghosts use `▒` where valid and `x` where blocked.
 
 ## What to do
 
@@ -26,4 +28,4 @@ Seed `audit-1`, default embark. `z`, `Shift+B`, drag over the rock face (all red
 ## Done
 
 - The reproduction shows `▒` and `x` as well as the colours.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
