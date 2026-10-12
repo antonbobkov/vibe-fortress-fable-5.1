@@ -1,6 +1,6 @@
 /**
- * Health system job producer: `02-systems/17-health-and-medicine.md` § Registrations,
- * `03-content/jobs.md` § Health, and `04-implementation/algorithms/combat-and-health.md`.
+ * Health system job producer: `02-systems/17-health-and-medicine.md` Â§ Registrations,
+ * `03-content/jobs.md` Â§ Health, and `04-implementation/algorithms/combat-and-health.md`.
  */
 
 import { C, type Wound } from '@core/components';
@@ -19,13 +19,14 @@ import {
   TREAT_TICKS,
 } from './constants';
 import { updatePatient } from './tick';
-import { needsCleaning } from './wounds';
+import { needsCleaning, woundTreatmentNeeds } from './wounds';
 
 export interface HealthProducerHost {
   readonly rng: RngStream;
   readonly entities: EntityStore;
   readonly map: Map3D;
   readonly registry: Registry;
+  readonly pendingTreatments: Map<EntityId, Set<string>>;
 }
 
 export class HealthProducer implements JobProducer {
@@ -99,92 +100,99 @@ export class HealthProducer implements JobProducer {
       }
     }
 
-    // Process patient dwarves
-    for (const patientId of entities.with(C.Patient)) {
+    // A failed treatment remains a request even if its target has been discharged.
+    const targets = new Set([...entities.with(C.Patient), ...this.host.pendingTreatments.keys()]);
+    for (const patientId of Array.from(targets).sort((a, b) => a - b)) {
       if (!entities.alive(patientId)) {
+        this.host.pendingTreatments.delete(patientId);
         continue;
       }
       const b = entities.get(patientId, C.Body);
-      if (!b) continue;
+      if (!b) { this.host.pendingTreatments.delete(patientId); continue; }
       const patient = entities.get(patientId, C.Patient);
-      if (!patient) continue;
+      const previousRetries = Array.from(this.host.pendingTreatments.get(patientId) ?? []).sort();
+      const retries = this.refreshRetries(patientId);
+      const treatmentNeeds = Array.from(new Set([...(patient?.needs ?? []), ...retries]));
 
-      let bedTile = -1;
-      if (patient.bedId !== 0 && ctx.readers.has('14')) {
-        const bView = ctx.readers.of<BuildingsReader>('14').get(patient.bedId);
-        if (bView) bedTile = bView.origin;
-      }
-
-      // Unconscious patient: carry to bed if not at bed
-      const pos = entities.get(patientId, C.Position);
-      const currentTile = pos ? ctx.world.map.index(pos.x, pos.y, pos.z) : -1;
-      const carryKey = `carry_patient:${patientId}`;
-      if (!b.conscious && bedTile >= 0 && currentTile !== bedTile) {
-        if (!sink.exists(carryKey)) {
-          sink.create(carryKey, {
-            type: 'carry_patient',
-            target: { kind: 'entity', ref: patientId },
-            workTile: bedTile,
-            priority: 1,
-            data: { patient: patientId, bedTile },
-          });
+      if (patient !== undefined) {
+        let bedTile = -1;
+        if (patient.bedId !== 0 && ctx.readers.has('14')) {
+          const bView = ctx.readers.of<BuildingsReader>('14').get(patient.bedId);
+          if (bView) bedTile = bView.origin;
         }
-      } else if (sink.exists(carryKey)) {
-        sink.cancelKey(carryKey, 'already_in_bed');
-      }
 
-      // Food and water for bedridden / patient
-      const needs = entities.get(patientId, C.Needs);
-      const feedKey = `feed_patient:${patientId}`;
-      const waterKey = `water_patient:${patientId}`;
-      if (needs) {
-        if (needs.hunger >= 60) {
-          if (!sink.exists(feedKey)) {
-            sink.create(feedKey, {
-              type: 'feed_patient',
+        // Unconscious patient: carry to bed if not at bed
+        const pos = entities.get(patientId, C.Position);
+        const currentTile = pos ? ctx.world.map.index(pos.x, pos.y, pos.z) : -1;
+        const carryKey = `carry_patient:${patientId}`;
+        if (!b.conscious && bedTile >= 0 && currentTile !== bedTile) {
+          if (!sink.exists(carryKey)) {
+            sink.create(carryKey, {
+              type: 'carry_patient',
               target: { kind: 'entity', ref: patientId },
-              workTile: 'adjacent',
-              priority: 2,
-              inputs: [
-                {
-                  filter: {
-                    category: 'food/meal',
-                  },
-                  count: 1,
-                },
-              ],
-              data: { patient: patientId },
+              workTile: bedTile,
+              priority: 1,
+              data: { patient: patientId, bedTile },
             });
           }
-        } else if (sink.exists(feedKey)) {
-          sink.cancelKey(feedKey, 'not_hungry');
+        } else if (sink.exists(carryKey)) {
+          sink.cancelKey(carryKey, 'already_in_bed');
         }
 
-        if (needs.thirst >= 60) {
-          if (!sink.exists(waterKey)) {
-            sink.create(waterKey, {
-              type: 'water_patient',
-              target: { kind: 'entity', ref: patientId },
-              workTile: 'adjacent',
-              priority: 2,
-              inputs: [
-                {
-                  filter: {
-                    category: 'drink',
+        // Food and water for bedridden / patient
+        const needs = entities.get(patientId, C.Needs);
+        const feedKey = `feed_patient:${patientId}`;
+        const waterKey = `water_patient:${patientId}`;
+        if (needs) {
+          if (needs.hunger >= 60) {
+            if (!sink.exists(feedKey)) {
+              sink.create(feedKey, {
+                type: 'feed_patient',
+                target: { kind: 'entity', ref: patientId },
+                workTile: 'adjacent',
+                priority: 2,
+                inputs: [
+                  {
+                    filter: {
+                      category: 'food/meal',
+                    },
+                    count: 1,
                   },
-                  count: 1,
-                },
-              ],
-              data: { patient: patientId },
-            });
+                ],
+                data: { patient: patientId },
+              });
+            }
+          } else if (sink.exists(feedKey)) {
+            sink.cancelKey(feedKey, 'not_hungry');
           }
-        } else if (sink.exists(waterKey)) {
-          sink.cancelKey(waterKey, 'not_thirsty');
+
+          if (needs.thirst >= 60) {
+            if (!sink.exists(waterKey)) {
+              sink.create(waterKey, {
+                type: 'water_patient',
+                target: { kind: 'entity', ref: patientId },
+                workTile: 'adjacent',
+                priority: 2,
+                inputs: [
+                  {
+                    filter: {
+                      category: 'drink',
+                    },
+                    count: 1,
+                  },
+                ],
+                data: { patient: patientId },
+              });
+            }
+          } else if (sink.exists(waterKey)) {
+            sink.cancelKey(waterKey, 'not_thirsty');
+          }
         }
+
       }
 
       // Needs list
-      for (const need of patient.needs) {
+      for (const need of treatmentNeeds) {
         const key = `${need}:${patientId}`;
         const existing = sink.byKey(key);
         if (existing && need === 'clean_wound' && !this.canComplete(existing)) {
@@ -327,8 +335,9 @@ export class HealthProducer implements JobProducer {
         'diagnose',
         'give_crutch',
       ];
-      for (const t of allTreatmentTypes) {
-        if (!patient.needs.includes(t)) {
+      // Outside admission, manage only failed requests; other existing care is untouched.
+      for (const t of patient === undefined ? previousRetries : allTreatmentTypes) {
+        if (!treatmentNeeds.includes(t)) {
           const key = `${t}:${patientId}`;
           if (sink.exists(key)) sink.cancelKey(key, 'need_cleared');
         }
@@ -396,6 +405,15 @@ export class HealthProducer implements JobProducer {
       if (roll < failPermille) {
         // Failed: consume inputs without effect
         this.consumeDelivered(job, ctx);
+        const body = this.host.entities.get(patientId, C.Body);
+        if (this.host.entities.has(patientId, C.Attributes) && body !== undefined &&
+            woundTreatmentNeeds(body.parts.flatMap(part => part.wounds)).includes(typeStr)) {
+          let pending = this.host.pendingTreatments.get(patientId);
+          if (pending === undefined) {
+            pending = new Set(); this.host.pendingTreatments.set(patientId, pending);
+          }
+          pending.add(typeStr);
+        }
         updatePatient(ctx, patientId);
         return;
       }
@@ -440,7 +458,7 @@ export class HealthProducer implements JobProducer {
         break;
       }
       case 'stop_bleeding': {
-        // 17 § Patients: "1 `cloth` → every bleeding wound `bandaged`"; bandaging sets bleed 0.
+        // 17 Â§ Patients: "1 `cloth` â†’ every bleeding wound `bandaged`"; bandaging sets bleed 0.
         this.consumeDelivered(job, ctx);
         const b = ctx.world.entities.get(patientId, C.Body);
         if (b) for (const p of b.parts) for (const w of p.wounds) {
@@ -558,6 +576,18 @@ export class HealthProducer implements JobProducer {
     }
 
     updatePatient(ctx, patientId);
+    this.refreshRetries(patientId);
+  }
+
+  private refreshRetries(patientId: EntityId): string[] {
+    const pending = this.host.pendingTreatments.get(patientId);
+    if (pending === undefined) return [];
+    const body = this.host.entities.get(patientId, C.Body);
+    const needs = body === undefined || !this.host.entities.alive(patientId)
+      ? [] : woundTreatmentNeeds(body.parts.flatMap(part => part.wounds));
+    for (const kind of pending) if (!needs.includes(kind)) pending.delete(kind);
+    if (pending.size === 0) this.host.pendingTreatments.delete(patientId);
+    return needs.filter(kind => pending.has(kind));
   }
 
   private consumeDelivered(job: Job, ctx: TickContext): void {

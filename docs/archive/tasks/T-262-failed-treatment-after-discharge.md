@@ -1,6 +1,8 @@
 # T-262 - A failed treatment is not recreated after patient discharge
 
-**Source:** T-223 stepped hospital trace, [raw events](../../reports/data/2026-10-11-t223-failed-suture.json), 2026-10-11 | **Size:** M | **Needs:** none | **Status:** open
+Closed by `T-262: failed treatments retry after discharge`.
+
+**Source:** T-223 stepped hospital trace, [raw events](../../../reports/data/2026-10-11-t223-failed-suture.json), 2026-10-11 | **Size:** M | **Needs:** none | **Status:** open
 
 ## Finding
 

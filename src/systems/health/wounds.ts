@@ -12,6 +12,18 @@ export function needsCleaning(wound: Wound): boolean {
   return wound.infected ? wound.curedAt === undefined : !wound.cleaned;
 }
 
+/** Wound-driven care is independent of whether a dwarf is still admitted. */
+export function woundTreatmentNeeds(wounds: readonly Wound[]): string[] {
+  const needs: string[] = [];
+  if (wounds.some(w => w.bleed > 0 && !w.bandaged)) needs.push('stop_bleeding');
+  if (wounds.some(w => w.type === 'fracture' && !w.splinted)) needs.push('set_bone');
+  if (wounds.some(w => (w.type === 'cut' || w.type === 'puncture') &&
+      (w.severity === 'serious' || w.severity === 'grievous') && !w.sutured)) needs.push('suture');
+  if (wounds.some(needsCleaning)) needs.push('clean_wound');
+  if (wounds.some(w => w.type === 'burn' && !w.dressed)) needs.push('dress_burn');
+  return needs;
+}
+
 export const BLEED_TABLE: Readonly<Record<WoundType, Readonly<Record<Severity, Fixed>>>> = {
   cut: { light: 1, serious: 3, grievous: 6 },
   puncture: { light: 2, serious: 4, grievous: 8 },
