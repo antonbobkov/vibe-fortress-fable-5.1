@@ -1,0 +1,64 @@
+# flow: 5-failure-paths   step: 60-S1-ctrl-s
+# what: Key Ctrl+S
+# input: key Escape x2 ; key Control+s
+# tick: 702   paused: yes   screen: game_menu   panel: null   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,23,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|
+01|
+02|
+03|
+04|
+05|
+06|
+07|
+08|
+09|
+10|
+11|
+12|
+13|
+14|
+15|
+16|
+17|
+18|
+19|
+20|                            Deepholm · Grimvault
+21|
+22|                              [r] Resume
+23|                            ► [s] Save
+24|                              [l] Load
+25|                              [o] Settings
+26|                              [n] Rename fortress
+27|                              [x] Retire fortress
+28|                              [m] Main menu
+29|
+30|
+31|
+32|
+33|
+34|
+35|
+36|
+37|
+38|
+39|
+40|
+41|
+42|
+43|
+44|
+45|
+46|
+47|
+48|
+49|
+----- log strip rows -----
+
+
+
+----- status rows -----
+
+
