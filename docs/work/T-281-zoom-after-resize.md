@@ -31,3 +31,7 @@ Any fortress at 1280×800 (grid 80×50). Resize the window to 960×540, then bac
 
 - The reproduction ends at 80×50, and a new profile at 3840×2160 opens at 120×67.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+
+## Owner point settled (2026-10-12, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
+
+**Add the automatic zoom default**, as recommended. A player who wants the old look sets a fixed zoom in Settings; say so in the settings text.

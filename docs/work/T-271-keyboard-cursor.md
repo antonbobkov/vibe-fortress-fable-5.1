@@ -37,3 +37,7 @@ Default embark, keyboard only.
 
 - Flow 2 of the audit can be played to a working fortress with no mouse and no accidental building.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+
+## Owner point settled (2026-10-12, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
+
+**The keyboard gets a tile cursor**, as this work file recommends, and spec 24's input model is amended to say so. A game that can only act at the map centre is not playable by keyboard alone, and the mouse-and-keyboard player loses nothing.

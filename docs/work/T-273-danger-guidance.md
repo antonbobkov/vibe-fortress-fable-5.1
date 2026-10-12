@@ -41,3 +41,7 @@ The capture's flow 7 (seed `e2e-year`, default embark, an economy and no defence
 
 - Flow 7 replayed shows `hint_shelter` on day 3, an alert and `hint_predator` at the lynx on day 8, and a Wildlife row while it is on the map.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+
+## Owner point settled (2026-10-12, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
+
+**The first predator sighting pauses the game once per fortress**, as recommended. One pause at the moment the knowledge matters costs a second; a fortress lost to an animal the game never mentioned costs the player the game. Later sightings do not pause.
