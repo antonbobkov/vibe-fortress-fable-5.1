@@ -1,0 +1,159 @@
+// Flow 3, part A: the 80-dwarf reference fortress (test/fixtures/reference-fortress.deepholm), loaded through the real Load screen.
+import { launch, Recorder, closePanels, panCentreTo, centreTile } from './common.mjs';
+import { loadFixture } from './flow3-load.mjs';
+const FIX = 'E:/code/vibe-games/vibe-fortress-t116/test/fixtures/reference-fortress.deepholm';
+const s = await launch();
+const r = new Recorder('3-mature-fortress', s);
+const T = async (name, fn) => { try { await fn(); } catch (e) { console.log(`!! ${name}: ${e.message}`); r.log(`(script error in ${name}: ${e.message})`); await r.snap(`error-${name}`, `Capture script error in ${name}: ${e.message}`); } };
+
+async function toFortress(r) { for (let i = 0; i < 6; i += 1) { const st = await r.state(); if (st.screen === 'fortress' && st.panel === null) break; await r.key('Escape'); } }
+await loadFixture(r, FIX, { snaps: true });
+await r.snap('loaded', 'The reference fortress after Enter on the imported save: fortress screen, paused');
+await r.page.evaluate(() => { const h = window.__deepholm; for (let i = 0; i < 4; i += 1) h.step(300); });
+r.log('hook step 1200 ticks (setup: lets the dwarves take jobs)');
+await r.snap('after-1200-ticks', 'After 1200 ticks of stepping (setup)');
+console.log('state', JSON.stringify(await r.state()));
+
+// ---------- Task 1: find an idle dwarf and give it a labor ----------
+await T('task1', async () => {
+  // setup (not counted): take the labor "mining" away from the first dwarf so there is something to give
+  const info = await r.page.evaluate(() => {
+    const h = window.__deepholm;
+    const d = h.dwarves()[0];
+    h.submit({ type: 'SetLabor', dwarfId: d.id, labor: 'mining', on: false });
+    h.step(1);
+    return { id: d.id, enabled: h.readers.of('11').laborEnabled(d.id, 'mining') };
+  });
+  r.log(`hook setup: SetLabor mining off for dwarf ${info.id} (enabled now: ${info.enabled})`);
+  await r.snap('t1-setup', `Setup by hook: labor "mining" switched off for the first dwarf (id ${info.id}); reader says enabled=${info.enabled}`);
+  r.taskStart('task1-idle-dwarf-labor');
+  await r.key('u');
+  await r.snap('t1-u-first', 'Key u (the first key after a pinned danger line only dismisses it, per the spec)');
+  await r.key('u');
+  await r.snap('t1-units', 'Key u: Units panel (first column Name, Prof., Act.)');
+  // find the first "No j" row
+  const rows = await r.text();
+  const first = rows.findIndex((x) => x.includes('No j'));
+  r.log(`(first row showing "No j" is screen row ${first})`);
+  await r.snap('t1-idle-seen', `The first row whose activity reads "No j..." is on screen row ${first}; it is the cursor row when the screen row equals 4`);
+  for (let i = 0; i < Math.max(0, first - 4); i += 1) await r.key('ArrowDown');
+  await r.key('l');
+  await r.snap('t1-labors', 'Key l: Labors quick grid (the cell toggles by click; the panel text says Enter opens the labor manager)');
+  await r.key('Enter');
+  await r.snap('t1-manager', 'Key Enter: the labor manager screen (header shows whose row the cursor is on)');
+  for (let i = 0; i < 19; i += 1) await r.key('ArrowRight');
+  await r.snap('t1-manager-right', 'ArrowRight x19 in the labor manager (towards the mining column, the 20th)');
+  await r.key('Enter');
+  await r.snap('t1-manager-enter', 'Key Enter: toggle the labor under the cursor');
+  const after = await r.page.evaluate(() => { const h = window.__deepholm; return h.readers.of('11').laborEnabled(h.dwarves()[0].id, 'mining'); });
+  r.log(`(setup read: mining enabled for the first dwarf: ${after})`);
+  await r.key('Escape');
+  await r.snap('t1-manager-closed', 'Key Escape: leaves the labor manager');
+  const c = r.taskEnd({ miningEnabledAfterByReader: after });
+  console.log('task1', JSON.stringify(c));
+  await toFortress(r);
+});
+
+// ---------- Task 2: change a stockpile's contents ----------
+await T('task2', async () => {
+  const sp = await r.page.evaluate(() => {
+    const h = window.__deepholm; const b = h.readers.buildings; const m = h.readers.map;
+    return b.zonesOfType('stockpile').map((id) => { const t = b.zone(id).tiles[0]; return [t % m.w, Math.floor(t / m.w) % m.h, Math.floor(t / (m.w * m.h))]; });
+  });
+  r.log(`(setup read: the first tiles of the 15 stockpile zones: ${JSON.stringify(sp)})`);
+  const target = sp[1];
+  r.taskStart('task2-change-stockpile-contents-keyboard-attempt');
+  await toFortress(r);
+  await r.key('z');
+  const res = await panCentreTo(r, target[0], target[1]);
+  await r.snap('t2-kb-aim', `Keyboard attempt: Zones panel (key z), then panning until the map centre is the stockpile tile ${target[0]},${target[1]}: ${res.presses} presses, reached: ${res.ok}; the centre is now ${res.centre.x},${res.centre.y}`);
+  await r.key('Enter');
+  await r.snap('t2-kb-enter', 'Key Enter at the nearest reachable centre: selects the zone under the centre, if any');
+  const ck = r.taskEnd({ reached: res.ok });
+  console.log('task2-kb', JSON.stringify(ck));
+  await toFortress(r);
+  r.taskStart('task2-change-stockpile-contents-mouse');
+  await r.key('z');
+  await r.snap('t2-m-zones', 'Key z: Zones panel (no mouse way to open it)');
+  const c0 = await r.page.evaluate(() => { const u = window.__deepholm.readers.ui; return [u.camX, u.camY, u.z]; });
+  await r.clickTile(target[0], target[1], 'stockpile tile');
+  await r.snap('t2-m-click', `Left click on the stockpile tile ${target[0]},${target[1]} (camera at ${c0.join(',')})`);
+  await r.clickText('Preset [');
+  await r.snap('t2-m-preset', 'Click the "Preset [..." header');
+  await r.clickText('Drink');
+  await r.snap('t2-m-drink', 'Click the "Drink" option (preset)');
+  const cm = r.taskEnd();
+  console.log('task2-mouse', JSON.stringify(cm));
+  await toFortress(r);
+});
+
+// ---------- Task 3: find a wounded dwarf and see its treatment ----------
+await T('task3', async () => {
+  r.taskStart('task3-wounded-dwarf-treatment');
+  await r.key('u');
+  await r.snap('t3-units', 'Key u: Units panel');
+  const rows = await r.text();
+  const wounded = rows.findIndex((x) => /Flee|Unconscious|Resting|hurt|Wound/i.test(x) && x.includes('│'));
+  r.log(`(screen row with a wounded-looking activity: ${wounded})`);
+  // Hrolf Brighteye was the wounded dwarf in an earlier look: find the row by name
+  const hrolf = rows.findIndex((x) => x.includes('Hrolf'));
+  const downs = Math.max(0, hrolf - 3);
+  for (let i = 0; i < downs; i += 1) await r.key('ArrowDown');
+  await r.snap('t3-cursor-on-dwarf', `ArrowDown x${downs}: cursor on the row with "Hrolf" (screen row ${hrolf})`);
+  await r.key('Enter');
+  await r.snap('t3-look', 'Key Enter: Look panel on the dwarf tile');
+  await r.key('3');
+  await r.snap('t3-creature-tab', 'Key 3: Creatures tab (health line)');
+  await r.key('m');
+  await r.snap('t3-military-panel', 'Key m (to see whether the hospital or patient is listed anywhere else)');
+  const c = r.taskEnd();
+  console.log('task3', JSON.stringify(c));
+  await toFortress(r);
+});
+
+// ---------- Task 4: raise the alert, make a squad and send it at a threat ----------
+await T('task4', async () => {
+  r.taskStart('task4-alert-squad-threat');
+  await r.key('t');
+  await r.snap('t4-threats', 'Key t: Threats panel (what is outside)');
+  await r.key('m');
+  await r.snap('t4-military', 'Key m: Military panel');
+  await r.key('3');
+  await r.snap('t4-alert-hearth', 'Key 3: alert Hearth');
+  await r.key('+');
+  await r.snap('t4-new-squad', 'Key +: new squad');
+  await r.step(1);
+  await r.key('Shift+A');
+  await r.snap('t4-add-list', 'Key Shift+A: member list');
+  for (let i = 0; i < 4; i += 1) { await r.key('Space'); await r.key('ArrowDown'); }
+  await r.snap('t4-marked', 'Space + ArrowDown x4: four rows marked');
+  await r.key('Enter');
+  await r.step(1);
+  await r.snap('t4-members-added', 'Key Enter: marked dwarves added to the squad');
+  await r.key('v');
+  await r.snap('t4-active', 'Key v: squad mode Active');
+  await r.key('Shift+K');
+  await r.snap('t4-kill-tool', 'Key Shift+K: kill order armed; the panel line reads "Click creature to attack"');
+  const bandit = await r.page.evaluate(() => {
+    const h = window.__deepholm; const m = h.readers.map; const mv = h.host.headless.movement; const t = h.readers.of('18');
+    for (const pid of t.activeParties()) { const p = t.party(pid); if (p.purpose === 'bandits') { const i = mv.tileOf(p.leaderId); return { id: p.leaderId, x: i % m.w, y: Math.floor(i / m.w) % m.h, z: Math.floor(i / (m.w * m.h)) }; } }
+    return null;
+  });
+  r.log(`(setup read: bandit leader at ${JSON.stringify(bandit)})`);
+  if (bandit !== null) {
+    const res = await panCentreTo(r, bandit.x, bandit.y);
+    await r.snap('t4-kill-aimed', `Panned until the map centre is the bandit tile ${bandit.x},${bandit.y},z${bandit.z} (${res.presses} presses, reached ${res.ok}); level is z${(await r.state()).cam[2]}`);
+    await r.key('Enter');
+    await r.snap('t4-kill-enter', 'Key Enter at the map centre: does it pick the creature there?');
+  }
+  await r.key('w');
+  await r.snap('t4-gear-w', 'Key w: weapon choice for the squad');
+  await r.key('g');
+  await r.snap('t4-gear-g', 'Key g: armor choice for the squad');
+  await r.key('Shift+J');
+  await r.snap('t4-gear-ranged', 'Key Shift+J: ranged choice for the squad');
+  const c = r.taskEnd();
+  console.log('task4', JSON.stringify(c));
+  await toFortress(r);
+});
+await r.close();

@@ -58,7 +58,7 @@ Add `T-1nn` rows for the recommendations worth doing, with this report as the so
 
 ## Progress
 
-### 2026-10-12: pass 1 (capture), in progress
+### 2026-10-12: pass 1 (capture), complete
 
 Commit examined: `569ae1f`. Output: [`../../reports/audits/2026-10-12-ui-ux/capture-index.md`](../../reports/audits/2026-10-12-ui-ux/capture-index.md) and `reports/audits/2026-10-12-ui-ux/capture/<flow>/`. Flows captured so far:
 
@@ -66,7 +66,10 @@ Commit examined: `569ae1f`. Output: [`../../reports/audits/2026-10-12-ui-ux/capt
 - Flow 2 (new player, keyboard only): captured.
 - Flow 3 (mature fortress; reference and played fixtures, caravan by hook): captured, with key and click counts.
 - Flow 4 (the newer UI, two window sizes): captured.
-- Flow 5 (failure paths): captured (not captured: a child dwarf's labor, a full-stockpile case, a save-name prompt that does not exist; see the index).
+- Flow 5 (failure paths): captured (not captured in this flow: a full-stockpile case and a save-name prompt, which does not exist; the child's labor is in flow 7; see the index).
 - Flow 6 (legibility: both palettes, window sizes, long names, Help, log, legend screens): captured.
 - Flow 7 (70 days, default embark, no defensive preparation; every log line with its day): captured.
 - Flow 8 (magma kiln): captured; the build menu does not list it, so no entry or building panel could be opened (see the index).
+- Flow 9 (the UI under abuse, and the UI-versus-hook hash comparison): captured; the two world hashes at tick 1000 are equal (`2a52bc0bf5bfd8e2`).
+
+All nine flows are captured: 850 steps, no console warning, error or exception in any of them. The scripts are kept as text under `reports/audits/2026-10-12-ui-ux/scripts/`. Pass 2 (judgement) has not been started; the task stays open.

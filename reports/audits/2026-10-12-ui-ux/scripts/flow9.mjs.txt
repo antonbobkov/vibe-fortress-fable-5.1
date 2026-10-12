@@ -1,0 +1,220 @@
+// Flow 9: the UI under abuse, and the UI-versus-hook hash comparison.
+import { launch, Recorder, waitText, findSite, stepBy, closePanels, embarkBitterbrae } from './common.mjs';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const PART = process.argv[2] ?? 'all';
+const s = await launch();
+if (PART !== 'all' && PART !== 'a') s.append = true;
+const r = new Recorder('9-abuse', s);
+const T = async (name, fn) => { try { await fn(); } catch (e) { console.log(`!! ${name}: ${e.message}`); r.log(`(script error in ${name}: ${e.message})`); await r.snap(`error-${name}`, `Capture script error in ${name}: ${e.message}`); } };
+async function toFortress() { for (let i = 0; i < 8; i += 1) { const st = await r.state(); if (st.screen === 'fortress' && st.panel === null) break; await r.key('Escape'); } }
+
+/** Dispatch a burst of synthetic key events on the window in one task, as one frame's worth of input. */
+async function burst(keys, label) {
+  r.log(`burst of ${keys.length} synthetic keydown+keyup events dispatched on window in one task: ${label}`);
+  const t0 = Date.now();
+  await r.page.evaluate((list) => {
+    for (const k of list) {
+      const init = { key: k.key, bubbles: true, cancelable: true, shiftKey: !!k.shift, ctrlKey: !!k.ctrl };
+      window.dispatchEvent(new KeyboardEvent('keydown', init));
+      window.dispatchEvent(new KeyboardEvent('keyup', init));
+    }
+  }, keys);
+  return Date.now() - t0;
+}
+/** Right-edge contact check on the sidebar and modal rows: rows whose last column holds text. */
+async function edgeRows() {
+  const st = await r.state();
+  const rows = await r.text();
+  const out = [];
+  rows.forEach((x, i) => {
+    const chars = [...x];
+    const last = chars[chars.length - 1] ?? ' ';
+    const prev = chars[chars.length - 2] ?? ' ';
+    if (last !== ' ' && !'│█║┃'.includes(last) && prev !== ' ' && i < rows.length - 5) out.push(`${i}:${chars.slice(-12).join('').trim()}`);
+  });
+  return out;
+}
+
+if (PART === 'all' || PART === 'a') {
+  await embarkBitterbrae(r);
+  await r.snap('A-start', 'Default embark at region 2339 of seed deep-3588-1, fortress paused at tick 400');
+  const site = await findSite(r, 0);
+  const P = site.patches;
+  globalThis.__P = P;
+
+  // ===== (a) rapid input =====
+  await T('rapid-map', async () => {
+    const mix = [];
+    const seq = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', '<', '>', 'Home', 'k', 'Escape'];
+    for (let i = 0; i < 50; i += 1) mix.push({ key: seq[i % seq.length], shift: i % 7 === 0 });
+    const ms = await burst(mix, 'map: arrows (some with Shift), < >, Home, k, Escape');
+    await r.snap('R1-map-burst', `50 keys on the map in one task (${ms} ms for the dispatch)`);
+    const st = await r.state();
+    await r.key('d');
+    await r.snap('R1b-map-after', 'Key d after the burst (is input still alive?)');
+    await toFortress();
+    const hot = [];
+    for (let i = 0; i < 50; i += 1) hot.push({ key: ['d', 'b', 'z', 'u', 'j', 'l', 'o', 's', 'm', 'n', 't', 'c', 'p', 'e', 'a', 'f', '?'][i % 17] });
+    await burst(hot, 'panel hotkeys d b z u j l o s m n t c p e a f ? cycled');
+    await r.snap('R2-hotkeys-burst', '50 panel hotkeys in one task');
+    await toFortress();
+    const esc = []; for (let i = 0; i < 50; i += 1) esc.push({ key: 'Escape' });
+    await burst(esc, 'Escape x50');
+    await r.snap('R3-escape-burst', '50 Escape in one task (game menu on top?)');
+    await toFortress();
+  });
+  await T('rapid-units', async () => {
+    await r.key('u');
+    const ks = []; for (let i = 0; i < 50; i += 1) ks.push({ key: ['ArrowDown', 'Space', 'ArrowUp', '*', 'ArrowDown'][i % 5] });
+    await burst(ks, 'Units panel: ArrowDown, Space, ArrowUp, *');
+    await r.snap('R4-units-burst', '50 keys in the Units panel');
+    const ks2 = []; for (let i = 0; i < 50; i += 1) ks2.push({ key: ['t', 'n', 'm', 'l'][i % 4], shift: true });
+    await burst(ks2, 'Units panel: Shift+T, Shift+N, Shift+M, Shift+L');
+    await r.snap('R5-units-shift-burst', '50 Shift accelerators in the Units panel');
+    await toFortress();
+  });
+  await T('rapid-orders', async () => {
+    await r.key('o');
+    const ks = [{ key: 'N', shift: true }];
+    for (const ch of 'barrelbarrelbarrelbarrelbarrelbarrelbarrel') ks.push({ key: ch });
+    for (let i = 0; i < 8; i += 1) ks.push({ key: ['Tab', 'ArrowRight', 'ArrowDown', 'Enter'][i % 4] });
+    await burst(ks, 'Orders: Shift+N, 42 letters of "barrel" repeated, Tab/ArrowRight/ArrowDown/Enter');
+    await r.snap('R6-orders-burst', '50 keys in Orders (Add order picker and typing)');
+    await toFortress();
+  });
+  await T('rapid-stocks', async () => {
+    await r.key('s');
+    const ks = []; for (let i = 0; i < 50; i += 1) ks.push({ key: ['ArrowDown', 'ArrowRight', 'ArrowLeft', 'Enter', 'PageDown', 'PageUp', 'Space'][i % 7] });
+    await burst(ks, 'Stocks: ArrowDown, ArrowRight, ArrowLeft, Enter, PageDown, PageUp, Space');
+    await r.snap('R7-stocks-burst', '50 keys in Stocks');
+    await toFortress();
+    await r.key('b');
+    const ks3 = []; for (let i = 0; i < 50; i += 1) ks3.push({ key: ['ArrowDown', 'Enter', 'Escape', 'ArrowUp'][i % 4] });
+    await burst(ks3, 'Build: ArrowDown, Enter, Escape, ArrowUp');
+    await r.snap('R8-build-burst', '50 keys in Build');
+    await toFortress();
+    const alive = await r.page.evaluate(() => ({ screen: window.__deepholm.screen(), tick: window.__deepholm.readers.calendar.tick }));
+    r.log(`(setup read after the bursts: ${JSON.stringify(alive)})`);
+    await r.snap('R9-after-all-bursts', `After all bursts: ${JSON.stringify(alive)}`);
+  });
+}
+
+// ===== (b) resize in the middle of a drag =====
+if (PART === 'all' || PART === 'b') {
+  if (PART === 'b') { await embarkBitterbrae(r); }
+  const site = PART === 'b' ? await findSite(r, 0) : { patches: globalThis.__P };
+  const P = site.patches;
+  await T('resize-drag', async () => {
+    await toFortress();
+    await r.key('b'); await r.key('Shift+F'); await r.clickText('Bed ');
+    const a = await r.tileCell(P[3].x, P[3].y);
+    const b = await r.tileCell(P[3].x + 4, P[3].y);
+    const pa = await r.cellPx(a.col, a.row); const pb = await r.cellPx(b.col, b.row);
+    r.log(`left-down at tile ${P[3].x},${P[3].y}; move to tile ${P[3].x + 4},${P[3].y}`);
+    await r.page.mouse.move(pa.x, pa.y); await r.page.mouse.down(); await r.page.mouse.move(pb.x, pb.y, { steps: 5 });
+    await r.snap('S1-drag-before-resize', 'Mid-drag with the Bed tool before the resize');
+    await r.resize(960, 540);
+    await r.snap('S2-drag-after-resize', 'Window resized to 960x540 with the button still held');
+    const pc = await r.cellPx(30, 10);
+    await r.page.mouse.move(pc.x, pc.y, { steps: 3 });
+    await r.snap('S3-drag-move-after-resize', 'Pointer moved after the resize (button still held)');
+    r.log('left-up');
+    await r.page.mouse.up();
+    await r.snap('S4-drag-release-after-resize', 'Button released after the resize');
+    await r.resize(1280, 800);
+    await toFortress();
+    await r.key('d'); await r.key('Shift+T');
+    const t = (await findSite(r, 0)).trees;
+    const a2 = await r.tileCell(t[0].x, t[0].y); const b2 = await r.tileCell(t[3].x, t[3].y);
+    const qa = await r.cellPx(Math.max(0, a2.col), Math.max(0, a2.row)); const qb = await r.cellPx(Math.min(40, b2.col), Math.min(40, b2.row));
+    await r.page.mouse.move(qa.x, qa.y); await r.page.mouse.down(); await r.page.mouse.move(qb.x, qb.y, { steps: 5 });
+    await r.snap('S5-designate-drag-before-resize', 'Mid-drag with the Chop tree tool');
+    await r.resize(2560, 1440);
+    await r.snap('S6-designate-after-resize', 'Window resized to 2560x1440 with the button still held');
+    await r.page.mouse.up();
+    await r.snap('S7-designate-release', 'Button released after the resize');
+    await r.resize(1280, 800);
+    await toFortress();
+  });
+}
+
+// ===== (c) each panel at the extremes =====
+if (PART === 'all' || PART === 'c') {
+  if (PART === 'c') { await embarkBitterbrae(r); }
+  const panels = [['d', 'designate'], ['b', 'build'], ['z', 'zones'], ['u', 'units'], ['j', 'jobs'], ['l', 'labors'], ['o', 'orders'], ['s', 'stocks'], ['m', 'military'], ['n', 'animals'], ['t', 'threats'], ['c', 'civilizations'], ['p', 'population'], ['e', 'mood'], ['a', 'log'], ['k', 'look'], ['f', 'overlays'], ['?', 'help'], ['F12', 'debug']];
+  for (const [w, h] of [[640, 360], [3840, 2160]]) {
+    await T(`panels-${w}`, async () => {
+      await toFortress();
+      await r.resize(w, h);
+      for (const [k, nm] of panels) {
+        await r.key(k);
+        const edges = await edgeRows();
+        await r.snap(`P-${nm}-${w}x${h}`, `Panel ${nm} (key ${k}) at ${w}x${h}. Rows whose last column holds text (possible clipping at the right edge): ${edges.length ? edges.join(' | ') : 'none'}`);
+      }
+      await toFortress();
+      await r.key('Enter'); // nothing
+      await r.key('Escape');
+      await r.snap(`P-game-menu-${w}x${h}`, `Game menu at ${w}x${h}`);
+      await r.key('Escape');
+      await r.resize(1280, 800);
+    });
+  }
+}
+
+// ===== (d) text fields =====
+if (PART === 'all' || PART === 'd') {
+  if (PART === 'd') { await embarkBitterbrae(r); }
+  const samples = [['200x', 'x'.repeat(200)], ['emoji', '\u{1F600}\u{1F44D}\u{1F9D9}‍♂️'], ['rtl', 'שלום عالم abc'], ['ctrl', '\u0007\u0000\u001b\u007f\u0009\u000d\u0008']];
+  const typeSynthetic = async (text) => { await r.page.evaluate((t) => { for (const ch of [...t]) { const init = { key: ch, bubbles: true, cancelable: true }; window.dispatchEvent(new KeyboardEvent('keydown', init)); window.dispatchEvent(new KeyboardEvent('keyup', init)); } }, text); };
+  const field = async (name, open, close) => {
+    for (const [sn, text] of samples) {
+      await open();
+      r.log(`synthetic keydown events, one per character of ${sn} (${[...text].length} code points) dispatched on window`);
+      if (sn === '200x') await r.typeText(text); else await typeSynthetic(text);
+      const edges = await edgeRows();
+      await r.snap(`T-${name}-${sn}`, `${name}: ${sn} typed. Rows whose last column holds text: ${edges.length ? edges.join(' | ') : 'none'}`);
+      await r.key('Enter');
+      await r.snap(`T-${name}-${sn}-enter`, `${name}: ${sn}, Enter`);
+      await close();
+    }
+  };
+  await T('fields', async () => {
+    await toFortress();
+    await field('fortress-name', async () => { await toFortress(); await r.key('Escape'); await r.key('n'); for (let i = 0; i < 40; i += 1) await r.key('Backspace'); }, async () => { await toFortress(); });
+    await field('dwarf-name', async () => { await toFortress(); await r.key('u'); await r.key('Shift+N'); for (let i = 0; i < 40; i += 1) await r.key('Backspace'); }, async () => { await toFortress(); });
+    await field('squad-name', async () => { await toFortress(); await r.key('m'); if (!(await r.text()).some((x) => x.includes('Squad  '))) { await r.key('+'); await stepBy(r, 1); } await r.key('Shift+N'); for (let i = 0; i < 40; i += 1) await r.key('Backspace'); }, async () => { await toFortress(); });
+    await field('units-filter', async () => { await toFortress(); await r.key('u'); await r.key('/'); }, async () => { await toFortress(); });
+    await field('jobs-filter', async () => { await toFortress(); await r.key('j'); await r.key('/'); }, async () => { await toFortress(); });
+    await field('stocks-filter', async () => { await toFortress(); await r.key('s'); await r.key('/'); }, async () => { await toFortress(); });
+    await field('order-find', async () => { await toFortress(); await r.key('o'); await r.key('Shift+N'); }, async () => { await toFortress(); });
+  });
+}
+
+// ===== (e) modal screens opened from each other =====
+if (PART === 'all' || PART === 'e') {
+  if (PART === 'e') { await embarkBitterbrae(r); }
+  const triggers = [['F9', 'quick load'], ['Control+s', 'Ctrl+S'], ['F5', 'quick save'], ['F12', 'debug'], ['?', 'help'], ['Escape', 'Escape'], ['Space', 'Space'], ['Tab', 'Tab']];
+  const bases = [
+    ['game-menu', async () => { await toFortress(); await r.key('Escape'); }],
+    ['settings', async () => { await toFortress(); await r.key('Escape'); await r.key('o'); }],
+    ['load', async () => { await toFortress(); await r.key('Escape'); await r.key('l'); }],
+    ['confirm-retire', async () => { await toFortress(); await r.key('Escape'); await r.key('x'); }],
+    ['confirm-quickload', async () => { await toFortress(); await r.key('F9'); }],
+    ['text-input-rename', async () => { await toFortress(); await r.key('Escape'); await r.key('n'); }],
+    ['labor-manager', async () => { await toFortress(); await r.key('l'); await r.key('Enter'); }],
+  ];
+  for (const [bn, open] of bases) {
+    for (const [k, why] of triggers) {
+      await T(`modal-${bn}-${k}`, async () => {
+        await open();
+        const before = (await r.state()).screen;
+        await r.key(k);
+        await r.snap(`M-${bn}-${k.replace(/[^A-Za-z0-9]/g, '')}`, `Base modal: ${bn} (screen ${before}); then key ${k} (${why}). The screen id after is in the dump header`, { png: false });
+      });
+    }
+  }
+  await toFortress();
+}
+await r.close();

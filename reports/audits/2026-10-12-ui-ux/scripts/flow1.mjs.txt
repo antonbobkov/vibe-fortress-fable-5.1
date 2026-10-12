@@ -1,0 +1,102 @@
+// Flow 1: new player, MOUSE ONLY, from the main menu.
+import { launch, Recorder, waitText, findSite, stepBy, closePanels } from './common.mjs';
+const s = await launch();
+const r = new Recorder('1-mouse-only', s);
+const FAST = !!process.env.FAST;
+if (FAST) await r.goto('/?start=flat-test&embark=default'); else await r.goto('/');
+if (!FAST) {
+await r.snap('main-menu', 'Main menu on first load');
+await r.hoverText('New world');
+await r.snap('menu-hover', 'Pointer over "New world"');
+await r.clickText('New world');
+await r.snap('world-gen-screen', 'Clicked "New world": the world generation screen');
+await r.clickText('[g] Generate', { nth: 1 });
+await r.wait(300);
+await r.snap('generating', 'Clicked "[g] Generate"; first look at progress');
+await waitText(r, 'Stage: names', 30000);
+await r.wait(800);
+await r.snap('generated', 'World generated (preview shown)');
+await r.clickText('[Enter] Continue');
+await r.snap('world-map', 'Clicked "[Enter] Continue to the map": the world map, cursor at the default position');
+await r.clickCell(35, 36, 'a land cell');
+await r.snap('region-click', 'Clicked a land cell of the world map: region panel');
+await r.hoverText('Wealth');
+await r.snap('region-hover-wealth', 'Pointer over the "Wealth" bar in the region panel (tooltip check)');
+await r.clickText('[f] filter');
+await r.snap('click-filter', 'Clicked "[f] filter" in the region panel');
+await r.clickText('[f] close');
+await r.snap('click-filter-close', 'Clicked "[f] close" in the filter panel');
+await r.clickText('[?] legend');
+await r.snap('click-legend', 'Clicked "[?] legend"');
+await r.clickText('[?] close');
+await r.snap('click-legend-close', 'Clicked "[?] close" in the legend');
+await r.clickText('Enter] Embark here');
+await r.snap('embark-dwarves', 'Clicked "[Enter] Embark here": embark screen, Dwarves tab');
+await r.clickCell(5, 3, 'second dwarf row');
+await r.snap('embark-select-dwarf', 'Clicked the second dwarf row');
+await r.clickText('[r] reroll');
+await r.snap('embark-reroll', 'Clicked "[r] reroll"');
+await r.clickText('[2] Supplies');
+await r.snap('embark-supplies', 'Clicked "[2] Supplies"');
+await r.clickText('[3] Animals');
+await r.snap('embark-animals', 'Clicked "[3] Animals"');
+await r.clickText('[p]');
+await r.snap('embark-presets', 'Clicked "[p]" (presets) at the top right');
+await r.page.keyboard.press('Escape');
+await r.wait(100);
+await r.clickText('[Enter] Embark');
+await r.wait(2500);
+await r.snap('fortress-open', 'Clicked "[Enter] Embark": the fortress opens');
+
+}
+// ---------- the fortress, mouse only ----------
+const site = await findSite(r);
+console.log('SITE', JSON.stringify({ ...site, patches: site.patches.slice(0, 6), trees: site.trees.slice(0, 4) }));
+if (!FAST) {
+await r.hoverCell(40, 20, 'empty ground tile');
+await r.snap('hover-tile', 'Pointer over a ground tile: status row 2 should show the tile summary');
+await r.clickCell(40, 20, 'empty ground tile');
+await r.snap('click-tile', 'Left click on a ground tile (no tool): Look panel');
+const dw = (await r.page.evaluate(() => window.__deepholm.dwarves()))[0];
+await r.clickTile(dw.x, dw.y, 'dwarf');
+await r.snap('click-dwarf', 'Left click on the tile of the first dwarf');
+await r.clickTile(site.wx + 1, site.wy + 1, 'wagon');
+await r.snap('click-wagon', 'Left click on the wagon: building panel');
+await r.clickText('Look at the tile');
+await r.snap('click-look-at-tile', 'Clicked the "Look at the tile" row of the building panel');
+await r.clickCell(40, 24, 'ground tile', { button: 'right' });
+await r.snap('right-click-tile', 'Right click on a ground tile with no tool');
+await r.clickText('Day 1 of Spring', { offset: 3 });
+await r.snap('click-date', 'Clicked the date in status row 1: Calendar panel');
+for (const [needle, nm] of [['[d] dig', 'strip-dig'], ['[b] build', 'strip-build'], ['[?] help', 'strip-help'], ['☺ 7', 'strip-pop'], ['♥ Fine', 'strip-mood'], ['clear', 'strip-weather'], ['z 32', 'strip-z'], ['║', 'strip-speed']]) {
+  await r.clickText(needle);
+  await r.snap(nm, `Clicked the status-row element "${needle}" to see whether it does anything`);
+}
+await r.page.mouse.move(...Object.values(await r.cellPx(30, 20)));
+r.log('wheel down 1 notch at cell(30,20)');
+await r.page.mouse.wheel(0, 100);
+await r.wait(150);
+await r.snap('wheel-down', 'Mouse wheel down one notch over the map (z level)');
+r.log('wheel up 1 notch');
+await r.page.mouse.wheel(0, -100);
+await r.wait(150);
+await r.snap('wheel-up', 'Mouse wheel up one notch over the map');
+const p0 = await r.cellPx(30, 20);
+r.log('middle-drag cell(30,20) -> cell(20,15)');
+await r.page.mouse.move(p0.x, p0.y);
+await r.page.mouse.down({ button: 'middle' });
+const p1 = await r.cellPx(20, 15);
+await r.page.mouse.move(p1.x, p1.y, { steps: 5 });
+await r.page.mouse.up({ button: 'middle' });
+await r.wait(150);
+await r.snap('middle-drag-pan', 'Middle-button drag to pan the map');
+r.log('middle-drag back cell(20,15) -> cell(30,20)');
+await r.page.mouse.move(p1.x, p1.y);
+await r.page.mouse.down({ button: 'middle' });
+await r.page.mouse.move(p0.x, p0.y, { steps: 5 });
+await r.page.mouse.up({ button: 'middle' });
+await r.wait(150);
+await r.snap('middle-drag-back', 'Middle-button drag back to the first position');
+}
+await import('./flow1c.mjs').then((m) => m.run(r, site));
+await r.close();

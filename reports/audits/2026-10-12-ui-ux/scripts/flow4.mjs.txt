@@ -1,0 +1,375 @@
+// Flow 4: the newer UI.
+import { launch, Recorder, waitText, findSite, stepBy, closePanels, embarkBitterbrae } from './common.mjs';
+const s = await launch();
+const r = new Recorder('4-newer-ui', s);
+const T = async (name, fn) => { try { await fn(); } catch (e) { console.log(`!! ${name}: ${e.message}`); r.log(`(script error in ${name}: ${e.message})`); await r.snap(`error-${name}`, `Capture script error in ${name}: ${e.message}`); } };
+async function toFortress() { for (let i = 0; i < 6; i += 1) { const st = await r.state(); if (st.screen === 'fortress' && st.panel === null) break; await r.key('Escape'); } }
+const armBuild = async (cat, name) => { if ((await r.state()).panel !== 'build') await r.key('b'); await r.key(cat); await r.clickText(name); };
+const ensureEditor = async (tile, needle) => { const rows = await r.text(); if (!rows.some((x) => x.includes(needle))) { if ((await r.state()).panel !== 'zones') await r.key('z'); await r.clickTile(tile.x, tile.y, 'zone tile'); } };
+const downTo = async (needle, startRow) => { const rows = await r.text(); const idx = rows.findIndex((x, i) => i >= startRow && x.includes(needle)); return idx < 0 ? -1 : idx; };
+
+// ---------- A. embark questions ----------
+await T('embark', async () => {
+  await embarkBitterbrae(r, { stopAtEmbark: true });
+  await r.snap('A-embark', 'Embark screen reached by keyboard (setup keys not recorded here)');
+  await r.key('2');
+  await r.snap('A-supplies', 'Key 2: Supplies tab');
+  await r.keys(['ArrowDown', 'ArrowDown']);
+  await r.snap('A-cursor-axe', 'ArrowDown x2: cursor on "Iron axe"');
+  await r.key('-');
+  await r.snap('A-axe-zero', 'Key -: iron axe count to 0');
+  await r.key('Enter');
+  await r.snap('A-embark-no-axe', 'Key Enter on the Supplies tab with no axe: the question');
+  await r.key('Escape');
+  await r.snap('A-answer-escape', 'Key Escape: answer to the question (default is No)');
+  await r.key('+');
+  await r.snap('A-axe-restored', 'Key +: iron axe back to 1');
+  for (let i = 0; i < 12; i += 1) await r.key('ArrowDown');
+  await r.snap('A-cursor-pick', 'ArrowDown x12: towards the pick rows');
+  await r.key('-');
+  await r.key('-');
+  await r.snap('A-pick-zero', 'Key - x2 on the highlighted row');
+  await r.key('Enter');
+  await r.snap('A-embark-no-pick', 'Key Enter with the highlighted row at zero: the question, if any');
+  await r.key('Escape');
+  await r.key('+');
+  await r.key('+');
+  await r.snap('A-pick-restored', 'Key + x2 (restore)');
+  await r.key('1');
+  await r.key('Enter');
+  await r.wait(2500);
+  await r.snap('A-fortress', 'Key Enter: fortress screen');
+});
+if ((await r.state()).screen !== 'fortress') { await r.key('Enter'); await r.wait(2500); }
+const st0 = await r.state();
+console.log('state', JSON.stringify(st0));
+const site = await findSite(r, 0);
+const P = site.patches;
+console.log('patches', P.length);
+
+// ---------- B. panels at 1280x800 and at the smallest supported window ----------
+const twoCol = [['d', 'designate'], ['b', 'build'], ['z', 'zones'], ['u', 'units'], ['j', 'jobs'], ['l', 'labors'], ['o', 'orders'], ['s', 'stocks'], ['m', 'military'], ['n', 'animals'], ['t', 'threats'], ['c', 'civilizations'], ['p', 'population'], ['e', 'mood'], ['a', 'log'], ['f', 'overlays'], ['?', 'help']];
+await T('panelsBig', async () => {
+  for (const [k, nm] of twoCol) {
+    await r.key(k);
+    await r.snap(`B-${nm}-1280x800`, `Panel ${nm} (key ${k}) at 1280x800`);
+  }
+  await toFortress();
+});
+await T('panelsSmall', async () => {
+  await r.resize(960, 540);
+  await r.snap('B-small-fortress', 'Window resized to 960x540 (the smallest at which the 80x45 minimum grid fits at the smallest zoom, 0.75, cells of 12 px)');
+  for (const [k, nm] of twoCol) {
+    await r.key(k);
+    await r.snap(`B-${nm}-960x540`, `Panel ${nm} (key ${k}) at 960x540`);
+  }
+  await toFortress();
+  await r.resize(1280, 800);
+  await r.snap('B-back-1280', 'Window back to 1280x800');
+});
+
+// ---------- C. order picker (Add order) ----------
+await T('picker', async () => {
+  await r.key('o');
+  await r.snap('C-orders-empty', 'Key o: Orders panel with no orders (is "new order" findable?)');
+  await r.key('Shift+N');
+  await r.snap('C-picker', 'Key Shift+N: Add order picker');
+  await r.typeText('barrel');
+  await r.snap('C-picker-filter', 'Typed "barrel"');
+  await r.key('ArrowDown');
+  await r.snap('C-picker-down', 'ArrowDown: next recipe');
+  await r.key('Tab');
+  await r.snap('C-picker-tab1', 'Tab: next field');
+  await r.key('Tab');
+  await r.snap('C-picker-tab2', 'Tab: next field');
+  await r.key('ArrowRight');
+  await r.snap('C-picker-right', 'ArrowRight: change the focused field');
+  await r.key('=');
+  await r.snap('C-picker-plus', 'Key =: quantity up');
+  await r.key('Shift+=');
+  await r.snap('C-picker-plus10', 'Key Shift+=: quantity up by ten');
+  await r.key('Enter');
+  await r.snap('C-picker-added', 'Key Enter: order added');
+  await r.key('=');
+  await r.snap('C-order-count-plus', 'Key = with the new order selected: its count');
+  await r.key('Shift+ArrowUp');
+  await r.snap('C-order-shift-up', 'Key Shift+ArrowUp with one order');
+  await r.key('r');
+  await r.snap('C-order-repeat', 'Key r: repeat the selected order');
+  await r.key('x');
+  await r.snap('C-order-remove-confirm', 'Key x: remove the selected order (confirmation)');
+  await r.key('Escape');
+  await r.snap('C-order-remove-escape', 'Key Escape: answer to the confirmation');
+  await toFortress();
+});
+
+// ---------- D. drag-to-place ----------
+await T('drag', async () => {
+  await r.key('b');
+  await r.key('Shift+F');
+  await r.snap('D-furniture', 'Key b, Shift+F: Furniture list');
+  await r.clickText('Bed ');
+  await r.snap('D-bed-tool', 'Clicked the "Bed" row');
+  const row = { x: P[3].x, y: P[3].y };
+  const a = await r.tileCell(row.x, row.y);
+  const b = await r.tileCell(row.x + 4, row.y);
+  const pa = await r.cellPx(a.col, a.row);
+  const pb = await r.cellPx(b.col, b.row);
+  r.log(`left-down at tile ${row.x},${row.y}; move to tile ${row.x + 4},${row.y} (not released)`);
+  await r.page.mouse.move(pa.x, pa.y);
+  await r.page.mouse.down();
+  await r.page.mouse.move(pb.x, pb.y, { steps: 6 });
+  await r.snap('D-bed-dragging', 'Mid-drag over five tiles with the Bed tool (button held): ghost footprints and the status row count');
+  r.log('left-up');
+  await r.page.mouse.up();
+  await r.snap('D-bed-released', 'Released: beds placed, message about skipped tiles if any');
+  await r.key('Escape');
+  await toFortress();
+  await armBuild('Shift+F', 'Door');
+  const a2 = await r.tileCell(P[4].x, P[4].y);
+  const b2 = await r.tileCell(P[4].x + 4, P[4].y);
+  const pa2 = await r.cellPx(a2.col, a2.row);
+  const pb2 = await r.cellPx(b2.col, b2.row);
+  r.log(`left-down at tile ${P[4].x},${P[4].y}; move to tile ${P[4].x + 4},${P[4].y} (not released)`);
+  await r.page.mouse.move(pa2.x, pa2.y);
+  await r.page.mouse.down();
+  await r.page.mouse.move(pb2.x, pb2.y, { steps: 6 });
+  await r.snap('D-door-dragging', 'Mid-drag over five open-ground tiles with the Door tool: status row count');
+  await r.page.mouse.up();
+  r.log('left-up');
+  await r.snap('D-door-released', 'Released: Door drag over open ground');
+  await r.key('Shift+Enter');
+  await r.snap('D-shift-enter', 'Key Shift+Enter with a tool: marks a corner (status row)');
+  await r.key('Escape');
+  await r.snap('D-escape-corner', 'Key Escape: drops the corner first');
+  await toFortress();
+});
+
+// ---------- E. workshop, building panel ----------
+await T('building', async () => {
+  await r.key('b');
+  await r.key('w');
+  await r.clickText("Carpenter's");
+  await r.clickTile(P[1].x + 1, P[1].y + 1, 'workshop centre');
+  await r.snap('E-carpenter-placed', 'Carpenter\'s workshop placed by click');
+  await r.key('Escape');
+  const ids = await r.page.evaluate(() => {
+    const h = window.__deepholm; const sys = h.host.world.scheduler.byId('14');
+    const b = h.readers.buildings;
+    const out = [];
+    for (const t of ['carpenter', 'bed']) for (const id of b.byType(t)) { const g = b.get(id); if (g && g.state !== 'built') { sys.completeNow(id, 1, 0); out.push(id); } }
+    h.step(2);
+    return out;
+  });
+  r.log(`hook setup: completeNow on buildings ${JSON.stringify(ids)}`);
+  await r.snap('E-completed', 'After the hook finished the carpenter and the beds (setup)');
+  await r.clickTile(P[1].x + 1, P[1].y + 1, 'carpenter');
+  await r.snap('E-workshop-panel', 'Click on the finished workshop: its panel');
+  await r.key('Shift+N');
+  await r.snap('E-workshop-new-order', 'Key Shift+N in the workshop panel: Add order for this workshop');
+  await r.key('Escape');
+  await r.key('Shift+O');
+  await r.snap('E-workshop-shift-o', 'Key Shift+O in the workshop panel: orders of this workshop');
+  await toFortress();
+  await r.clickTile(P[3].x, P[3].y, 'bed');
+  await r.snap('E-bed-panel', 'Click on a bed: Building panel');
+  await r.key('w');
+  await r.snap('E-bed-owner', 'Key w: owner of the bed\'s bedroom');
+  await r.key('Escape');
+  await r.key('x');
+  await r.snap('E-bed-take-apart', 'Key x: take the building apart (confirmation)');
+  await r.key('Escape');
+  await toFortress();
+});
+
+// ---------- F. stockpile editor and room panel ----------
+await T('zones', async () => {
+  await r.key('z');
+  await r.key('Shift+S');
+  await r.dragTiles({ x: P[5].x, y: P[5].y }, { x: P[5].x + 3, y: P[5].y + 2 });
+  await r.clickCell(30, 40, 'cancel tool', { button: 'right' });
+  await stepBy(r, 1);
+  await r.clickTile(P[5].x, P[5].y, 'stockpile');
+  await r.snap('F-stockpile', 'Stockpile editor');
+  const sp = { x: P[5].x, y: P[5].y };
+  const E = () => ensureEditor(sp, 'Selected: Stockpile');
+  await r.key('Shift+P');
+  await r.snap('F-preset-key', 'Key Shift+P: preset dropdown');
+  await r.key('Escape');
+  await r.snap('F-preset-escape', 'Key Escape in the preset dropdown');
+  await E();
+  await r.key('g');
+  await r.snap('F-tree-key', 'Key g: category tree focus');
+  await r.keys(['ArrowRight', 'ArrowDown', 'Space']);
+  await r.snap('F-tree-keys', 'ArrowRight, ArrowDown, Space in the tree');
+  await r.key('Escape');
+  await r.snap('F-tree-escape', 'Key Escape in the tree focus');
+  await E();
+  await r.key('q');
+  await r.keys(['Tab', 'ArrowRight', 'ArrowRight']);
+  await r.snap('F-numeric-keys', 'Keys q, Tab, ArrowRight x2: numeric settings');
+  await r.key('Escape');
+  await r.snap('F-numeric-escape', 'Key Escape in the numeric settings focus');
+  await E();
+  await r.key('v');
+  await r.snap('F-materials-key', 'Key v: material classes');
+  await r.key('Escape');
+  await r.snap('F-materials-escape', 'Key Escape in the material classes');
+  await E();
+  await r.key('Shift+E');
+  await r.snap('F-resize-key', 'Key Shift+E: resize the zone');
+  await r.key('Escape');
+  await r.snap('F-resize-escape', 'Key Escape after Shift+E');
+  await E();
+  await r.key('x');
+  await r.snap('F-remove-confirm', 'Key x: remove the zone (confirmation)');
+  await r.key('Escape');
+  await r.snap('F-remove-escape', 'Key Escape: answer to the confirmation');
+  await toFortress();
+  await r.key('z');
+  await r.key('Shift+B');
+  await r.dragTiles({ x: P[6].x, y: P[6].y }, { x: P[6].x + 2, y: P[6].y + 2 });
+  await r.clickCell(30, 40, 'cancel tool', { button: 'right' });
+  await stepBy(r, 1);
+  await r.clickTile(P[6].x, P[6].y, 'bedroom');
+  await r.snap('F-bedroom', 'Bedroom (room panel / inspector)');
+  await r.key('Shift+O');
+  await r.snap('F-bedroom-owner', 'Key Shift+O: owner picker');
+  await r.key('ArrowDown');
+  await r.key('Enter');
+  await r.snap('F-bedroom-owner-enter', 'ArrowDown, Enter in the owner picker');
+  await toFortress();
+});
+
+// ---------- G. tooltips ----------
+await T('tooltips', async () => {
+  await r.key('b');
+  await r.key('w');
+  await r.hoverText('Butcher');
+  await r.snap('G-tip-build-row', 'Hover over a clipped Build list row ("Butcher\'s shop 1 table+1 st»")');
+  await toFortress();
+  await r.key('u');
+  await r.hoverCell(r.page ? 53 : 53, 4, 'unit name cell');
+  await r.snap('G-tip-units-name', 'Hover over a name cell in the Units list');
+  await r.hoverCell(70, 4, 'activity cell');
+  await r.snap('G-tip-units-act', 'Hover over an activity cell in the Units list');
+  await r.hoverCell(62, 4, 'mood glyph');
+  await r.snap('G-tip-units-mood', 'Hover over the mood glyph in the Units list');
+  await toFortress();
+  await r.key('l');
+  await r.hoverCell(56, 1, 'labor column head');
+  await r.snap('G-tip-labor-head', 'Hover over a column head of the Labors grid');
+  await toFortress();
+  await r.hoverCell(5, 49, 'status row 2');
+  await r.snap('G-tip-status-row', 'Hover over the status row 2');
+  await r.hoverCell(30, 48, 'status row 1');
+  await r.snap('G-tip-status-row1', 'Hover over status row 1');
+});
+
+// ---------- H. Jobs / Stocks filters, labor manager ----------
+await T('filters', async () => {
+  await r.key('j');
+  await r.snap('H-jobs', 'Key j: Jobs panel');
+  await r.key('/');
+  await r.typeText('mine');
+  await r.key('Enter');
+  await r.snap('H-jobs-filter', 'Key /, typed "mine", Enter: filter applied');
+  await r.key('Shift+L');
+  await r.snap('H-jobs-labor', 'Key Shift+L: cycle the labor filter');
+  await r.key('Shift+S');
+  await r.snap('H-jobs-state', 'Key Shift+S: cycle the state filter');
+  await r.key('Escape');
+  await r.key('s');
+  await r.snap('H-stocks', 'Key s: Stocks panel');
+  await r.key('/');
+  await r.typeText('wood');
+  await r.key('Enter');
+  await r.snap('H-stocks-filter', 'Key /, typed "wood", Enter: Stocks filter');
+  await r.keys(['ArrowDown', 'ArrowRight']);
+  await r.snap('H-stocks-expand', 'ArrowDown, ArrowRight in Stocks');
+  await toFortress();
+  await r.key('l');
+  await r.key('Enter');
+  await r.snap('H-manager', 'Key l, Enter: labor manager');
+  await r.key('Space');
+  await r.snap('H-manager-mark', 'Key Space: mark the dwarf');
+  await r.key('*');
+  await r.snap('H-manager-markall', 'Key *: mark all');
+  await r.key('t');
+  await r.snap('H-manager-templates', 'Key t: profession templates');
+  await r.key('Escape');
+  await r.key('3');
+  await r.snap('H-manager-priority', 'Key 3: set the labor priority');
+  await r.key('Escape');
+  await toFortress();
+});
+
+// ---------- I. animals, train ----------
+await T('animals', async () => {
+  await r.key('n');
+  await r.snap('I-animals', 'Key n: Animals panel');
+  await r.key('Shift+T');
+  await r.snap('I-train-key', 'Key Shift+T: train choice (War / Hunting)');
+  await r.key('ArrowDown');
+  await r.key('Enter');
+  await r.snap('I-train-enter', 'ArrowDown, Enter: choice submitted');
+  await r.key('Escape');
+  await toFortress();
+});
+
+// ---------- J. panel-closed notice, Esc twice ----------
+await T('notice', async () => {
+  await r.key('d');
+  await r.key('Shift+D');
+  await r.snap('J-tool-armed', 'Keys d, Shift+D: Dig tool armed');
+  await r.key('z');
+  await r.snap('J-notice', 'Key z while the Dig tool is armed: Zones opens; is there a "panel closed" notice?');
+  await toFortress();
+  await r.key('d');
+  await r.key('Shift+D');
+  await r.key('Escape');
+  await r.snap('J-esc-1', 'Key Escape once with the Dig tool armed');
+  await r.key('Escape');
+  await r.snap('J-esc-2', 'Key Escape twice');
+  await r.key('Escape');
+  await r.snap('J-esc-3', 'Key Escape three times');
+  await toFortress();
+  await r.key('b');
+  await r.key('w');
+  await r.keys(['ArrowDown', 'Enter']);
+  await r.key('b');
+  await r.snap('J-notice-build', 'Build tool armed (workshop), then key b (panel hotkey closes the open panel)');
+  await toFortress();
+  await r.key('z');
+  await r.key('Shift+S');
+  await r.key('d');
+  await r.snap('J-notice-zones', 'Zone tool armed, then key d');
+  await toFortress();
+});
+
+// ---------- K. rename fortress, confirmations ----------
+await T('rename', async () => {
+  await r.key('Escape');
+  await r.snap('K-game-menu', 'Key Escape: game menu');
+  await r.key('n');
+  await r.snap('K-rename', 'Key n: Rename fortress text input');
+  for (let i = 0; i < 20; i += 1) await r.key('Backspace');
+  await r.snap('K-rename-empty', 'Backspace x20: empty field');
+  await r.key('Enter');
+  await r.snap('K-rename-empty-enter', 'Key Enter on an empty field');
+  await r.typeText('Test Hall');
+  await r.key('Enter');
+  await r.snap('K-renamed', 'Typed "Test Hall", Enter');
+  await toFortress();
+});
+await T('confirm', async () => {
+  await r.key('m');
+  await r.key('+');
+  await stepBy(r, 1);
+  await r.key('x');
+  await r.snap('K-disband-confirm', 'Key +, x in Military: disband squad (confirmation)');
+  await r.key('Escape');
+  await r.snap('K-disband-escape', 'Key Escape: answer to the confirmation');
+  await toFortress();
+});
+await r.close();

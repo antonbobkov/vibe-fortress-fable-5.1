@@ -1,0 +1,14 @@
+// view: node v.mjs <flow> <step-prefix> [c0] [c1] [r0] [r1]
+import { readFileSync, readdirSync } from 'node:fs';
+const [flow, pre, c0='0', c1='400', r0='0', r1='99'] = process.argv.slice(2);
+const dir = `E:/code/vibe-games/vibe-fortress-t116/reports/audits/2026-10-12-ui-ux/capture/${flow}`;
+const f = readdirSync(dir).find((x) => x.startsWith(pre) && x.endsWith('.txt'));
+const lines = readFileSync(`${dir}/${f}`, 'utf8').split('\n');
+const out = [];
+for (const l of lines) {
+  if (l.startsWith('#')) { if (/^# (input|what|tick|console)/.test(l)) out.push(l.slice(0, 260)); continue; }
+  const m = l.match(/^(\d\d)\|(.*)$/);
+  if (m) { const n = +m[1]; if (n < +r0 || n > +r1) continue; const t = [...m[2]].slice(+c0, +c1).join('').trimEnd(); if (t.length) out.push(m[1] + '|' + t); }
+  else if (!l.startsWith('-----') && l.trim()) out.push('  ' + l);
+}
+console.log(f + '\n' + out.join('\n'));

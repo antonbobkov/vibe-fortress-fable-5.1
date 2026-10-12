@@ -1,0 +1,47 @@
+// Builds reports/audits/2026-10-12-ui-ux/capture-index.md from capture/<flow>/steps.json and notes/<flow>.md
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { OUT, ROOT } from './lib.mjs';
+
+const FLOWS = JSON.parse(readFileSync(join(ROOT, 't116-capture', 'flows.json'), 'utf8'));
+const esc = (x) => String(x ?? '').replace(/\|/g, '\\|').replace(/\r?\n/g, ' ').replace(/`/g, "'");
+
+let md = '';
+md += readFileSync(join(ROOT, 't116-capture', 'notes', '00-header.md'), 'utf8') + '\n';
+{
+  let total = 0, withConsole = 0, table = '\n## Flows and step counts\n\n| Flow | Steps | Folder |\n|---|---|---|\n';
+  for (const f of FLOWS) {
+    const p = join(OUT, 'capture', f.dir, 'steps.json');
+    if (!existsSync(p)) { table += `| ${f.title} | not captured | |\n`; continue; }
+    const st = JSON.parse(readFileSync(p, 'utf8'));
+    total += st.length; withConsole += st.filter((x) => x.console.length).length;
+    table += `| ${f.title} | ${st.length} | capture/${f.dir}/ |\n`;
+  }
+  table += `\nTotal steps: ${total}. Steps with a console warning, console error, uncaught exception or failed request: ${withConsole}.\n`;
+  md += table;
+}
+for (const f of FLOWS) {
+  const dir = join(OUT, 'capture', f.dir);
+  if (!existsSync(join(dir, 'steps.json'))) { md += `\n## ${f.title}\n\nNot captured yet.\n`; continue; }
+  const steps = JSON.parse(readFileSync(join(dir, 'steps.json'), 'utf8'));
+  md += `\n## ${f.title}\n\n`;
+  const notes = join(ROOT, 't116-capture', 'notes', `${f.dir}.md`);
+  if (existsSync(notes)) md += readFileSync(notes, 'utf8') + '\n';
+  md += `Steps: ${steps.length}. Files: \`capture/${f.dir}/<nn>-<slug>.png\` and \`.txt\`.\n\n`;
+  md += '| # | What was done | Keys / clicks (verbatim) | Tick / paused | Screenshot | Cell dump | What the game showed (verbatim) | Console |\n|---|---|---|---|---|---|---|---|\n';
+  for (const s of steps) {
+    if (s.shown.startsWith('SCREEN') && s.screen !== 'world_map') {
+      const lines = readFileSync(join(dir, s.txt), 'utf8').split(String.fromCharCode(10)).filter((l) => /^\d\d\|/.test(l)).map((l) => l.slice(3).trim().replace(/\s{2,}/g, '  ')).filter((l) => l.length);
+      if (lines.length > 8) s.shown += ' || LAST LINES: ' + lines.slice(-3).join(' / ');
+    }
+    const shot = s.png ? `[${s.png}](capture/${f.dir}/${s.png})` : esc(s.pngNote || 'none');
+    const dump = `[${s.txt}](capture/${f.dir}/${s.txt})`;
+    const tp = `${s.tick === null ? 'n/a' : s.tick}${s.speed === null ? '' : s.paused ? ' paused' : ' running x' + s.speed}`;
+    const vp = s.viewport && (s.viewport.width !== 1280 || s.viewport.height !== 800) ? ` [viewport ${s.viewport.width}x${s.viewport.height}, grid ${s.grid[0]}x${s.grid[1]}]` : '';
+    md += `| ${s.n} | ${esc(s.what)}${s.note ? ' NOTE: ' + esc(s.note) : ''}${vp} | ${esc(s.input.join(' ; ') || '(none)')} | ${tp} | ${shot} | ${dump} | ${esc(s.shown)} | ${s.console.length ? esc(s.console.join(' | ')) : 'none'} |\n`;
+  }
+  const extra = join(ROOT, 't116-capture', 'notes', `${f.dir}.after.md`);
+  if (existsSync(extra)) md += '\n' + readFileSync(extra, 'utf8') + '\n';
+}
+writeFileSync(join(OUT, 'capture-index.md'), md);
+console.log('index written', md.length, 'bytes');

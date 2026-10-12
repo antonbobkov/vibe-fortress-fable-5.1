@@ -1,0 +1,257 @@
+// Flow 5: failure paths. Each step records what the game shows.
+import { launch, Recorder, waitText, findSite, stepBy, embarkBitterbrae } from './common.mjs';
+const s = await launch();
+const r = new Recorder('5-failure-paths', s);
+const T = async (name, fn) => { try { await fn(); } catch (e) { console.log(`!! ${name}: ${e.message}`); r.log(`(script error in ${name}: ${e.message})`); await r.snap(`error-${name}`, `Capture script error in ${name}: ${e.message}`); } };
+async function toFortress() { for (let i = 0; i < 6; i += 1) { const st = await r.state(); if (st.screen === 'fortress' && st.panel === null) break; await r.key('Escape'); } }
+
+// ---------- embark with nothing ----------
+await T('embark-nothing', async () => {
+  await embarkBitterbrae(r, { stopAtEmbark: true });
+  await r.snap('E1-embark', 'Embark screen (default party and supplies)');
+  await r.key('2');
+  // take everything out: press - on each of the first 20 rows, several times, going down
+  for (let row = 0; row < 24; row += 1) {
+    for (let k = 0; k < 4; k += 1) await r.key('-');
+    await r.key('ArrowDown');
+  }
+  await r.snap('E2-supplies-emptied', 'Supplies tab after pressing - x4 and ArrowDown on each of 24 rows');
+  await r.key('3');
+  for (let row = 0; row < 12; row += 1) {
+    for (let k = 0; k < 3; k += 1) await r.key('-');
+    await r.key('ArrowDown');
+  }
+  await r.snap('E3-animals-emptied', 'Animals tab after pressing - x3 and ArrowDown on each of 12 rows');
+  await r.key('Enter');
+  await r.snap('E4-enter-1', 'Key Enter: first question');
+  await r.key('y');
+  await r.snap('E5-yes-1', 'Key y: second screen (another question or the fortress)');
+  if ((await r.state()).screen === 'confirm') { await r.key('y'); await r.snap('E6-yes-2', 'Key y again'); }
+  if ((await r.state()).screen === 'confirm') { await r.key('y'); await r.snap('E7-yes-3', 'Key y again'); }
+  await r.wait(2500);
+  await r.snap('E8-fortress-nothing', 'The fortress after embarking with nothing');
+});
+if ((await r.state()).screen !== 'fortress') {
+  console.log('not in fortress; state', JSON.stringify(await r.state()));
+  await embarkBitterbrae(r);
+}
+const site = await findSite(r, 0);
+const P = site.patches;
+console.log('patches', P.length, 'trees', site.trees.length);
+const Tn = site.trees[0];
+
+// ---------- designation failures ----------
+await T('designations', async () => {
+  const kinds = [['Shift+D', 'dig on grass'], ['Shift+C', 'channel on grass'], ['Shift+U', 'up stairs on grass'], ['Shift+J', 'down stairs on grass'], ['i', 'up/down stairs on grass'], ['r', 'ramp on grass'], ['Shift+S', 'smooth on grass'], ['Shift+E', 'engrave on grass'], ['x', 'remove constructions where none'], ['Shift+T', 'chop tree on open ground'], ['g', 'gather plants on open ground'], ['h', 'harvest on open ground'], ['Shift+F', 'traffic on grass']];
+  await r.key('d');
+  let n = 0;
+  for (const [k, what] of kinds) {
+    await r.key(k);
+    await r.dragTiles({ x: P[0].x, y: P[0].y }, { x: P[0].x + 2, y: P[0].y + 1 }, what);
+    n += 1;
+    await r.snap(`D${n}-${what.replace(/[^a-z]+/g, '-')}`, `Designate: ${what} (key ${k}, drag over a 3x2 patch of open ground)`);
+  }
+  await r.key('Control+z');
+  await r.snap('D-undo', 'Ctrl+Z with nothing designated');
+  await r.key('Delete');
+  await r.snap('D-delete', 'Key Delete with no selection');
+  await r.key('Shift+P');
+  await r.snap('D-batch-priority', 'Key Shift+P: last batch to priority (no batch)');
+  await r.key('Shift+D');
+  await r.clickCell(70, 20, 'inside the sidebar, not on the map');
+  await r.snap('D-click-sidebar', 'Dig tool armed, click inside the sidebar area');
+  await toFortress();
+});
+
+// ---------- placements that cannot go ----------
+await T('placements', async () => {
+  await r.key('b');
+  await r.key('w');
+  await r.clickText("Carpenter's");
+  // on a tree
+  await r.clickTile(Tn.x, Tn.y, 'a tree tile');
+  await r.snap('P1-workshop-on-tree', "Carpenter's workshop clicked on a tree tile");
+  // on the wagon
+  await r.clickTile(site.wx + 1, site.wy + 1, 'the wagon');
+  await r.snap('P2-workshop-on-wagon', "Carpenter's workshop clicked on the wagon");
+  // at the edge of the map: far right visible column
+  await r.clickCell(43, 20, 'last map column with a panel open');
+  await r.snap('P3-workshop-at-sidebar-edge', 'Clicked the last map column next to the sidebar');
+  // one level down: rock/soil with no floor
+  await r.key('<');
+  await r.clickCell(20, 15, 'one level down');
+  await r.snap('P4-workshop-below', "Carpenter's workshop one level down (z-1)");
+  await r.key('<');
+  await r.key('<');
+  await r.clickCell(20, 15, 'three levels down');
+  await r.snap('P5-workshop-deep', 'Three levels down');
+  await r.key('>');
+  await r.key('>');
+  await r.key('>');
+  await r.key('x');
+  await r.snap('P6-material-cycle', 'Key x: cycle the material');
+  await r.key('x');
+  await r.snap('P6b-material-cycle', 'Key x again');
+  await r.key('r');
+  await r.snap('P7-rotate', 'Key r on a workshop (a 3x3 workshop has one orientation?)');
+  await toFortress();
+  await r.key('b');
+  await r.key('Shift+F');
+  await r.clickText('Bed ');
+  await r.clickTile(Tn.x, Tn.y, 'a tree tile');
+  await r.snap('P8-bed-on-tree', 'Bed clicked on a tree tile');
+  await toFortress();
+  await r.key('b');
+  await r.key('Shift+S');
+  await r.snap('P9-special', 'Build > Special list');
+  await r.clickText('Trade depot');
+  await r.snap('P10-depot-tool', 'Trade depot tool armed');
+  await r.clickTile(P[1].x, P[1].y, 'a free patch');
+  await r.snap('P11-depot-placed', 'Trade depot clicked on a free patch (it has a material cost: the status row says what)');
+  await toFortress();
+});
+
+// ---------- zone failures ----------
+await T('zones', async () => {
+  await r.key('z');
+  await r.key('Shift+S');
+  await r.dragTiles({ x: P[2].x, y: P[2].y }, { x: P[2].x + 3, y: P[2].y + 2 });
+  await r.clickCell(30, 40, 'cancel', { button: 'right' });
+  await stepBy(r, 1);
+  await r.snap('Z1-stockpile', 'Stockpile zone made (setup for overlap)');
+  // overlap: farm plot over the stockpile
+  await r.key('Shift+F');
+  await r.dragTiles({ x: P[2].x + 1, y: P[2].y }, { x: P[2].x + 4, y: P[2].y + 2 }, 'overlaps the stockpile');
+  await r.snap('Z2-farm-overlap', 'Farm plot dragged over part of the stockpile');
+  await r.clickCell(30, 40, 'cancel', { button: 'right' });
+  await r.key('Shift+B');
+  await r.dragTiles({ x: P[2].x, y: P[2].y }, { x: P[2].x + 1, y: P[2].y + 1 }, 'bedroom inside the stockpile');
+  await r.snap('Z3-bedroom-overlap', 'Bedroom dragged inside the stockpile');
+  await r.clickCell(30, 40, 'cancel', { button: 'right' });
+  await r.key('Shift+S');
+  await r.dragTiles({ x: P[2].x + 2, y: P[2].y + 1 }, { x: P[2].x + 6, y: P[2].y + 3 }, 'stockpile overlapping a stockpile');
+  await r.snap('Z4-stockpile-overlap', 'Stockpile dragged over part of the existing stockpile');
+  await r.clickCell(30, 40, 'cancel', { button: 'right' });
+  await r.key('Shift+F');
+  await r.key('<');
+  await r.dragTiles({ x: P[3].x, y: P[3].y }, { x: P[3].x + 2, y: P[3].y + 2 }, 'farm plot on a lower level (soil/rock)');
+  await r.snap('Z5-farm-below', 'Farm plot dragged one level down');
+  await r.clickCell(30, 40, 'cancel', { button: 'right' });
+  await r.key('<');
+  await r.key('<');
+  await r.dragTiles({ x: P[3].x, y: P[3].y }, { x: P[3].x + 2, y: P[3].y + 2 }, 'farm plot deep');
+  await r.snap('Z6-farm-deep', 'Farm plot dragged three levels down');
+  await r.clickCell(30, 40, 'cancel', { button: 'right' });
+  for (let i = 0; i < 3; i += 1) await r.key('>');
+  await r.key('Shift+O');
+  await r.dragTiles({ x: P[4].x, y: P[4].y }, { x: P[4].x + 2, y: P[4].y + 2 }, 'hospital');
+  await r.snap('Z7-hospital', 'Hospital zone on open ground');
+  await r.clickCell(30, 40, 'cancel', { button: 'right' });
+  await r.key('Shift+P');
+  await r.dragTiles({ x: P[5].x, y: P[5].y }, { x: P[5].x + 2, y: P[5].y + 2 }, 'pasture');
+  await r.snap('Z8-pasture', 'Pasture on open ground');
+  await r.clickCell(30, 40, 'cancel', { button: 'right' });
+  await stepBy(r, 1);
+  await r.clickTile(P[5].x, P[5].y, 'the pasture');
+  await r.snap('Z9-pasture-editor', 'Pasture inspector');
+  await toFortress();
+  await r.key('z');
+  await r.key('r');
+  await r.dragTiles({ x: P[6].x, y: P[6].y }, { x: P[6].x + 2, y: P[6].y + 2 }, 'barracks');
+  await r.snap('Z10-barracks', 'Barracks zone');
+  await r.clickCell(30, 40, 'cancel', { button: 'right' });
+  await toFortress();
+});
+
+// ---------- orders ----------
+await T('orders', async () => {
+  await r.key('o');
+  await r.key('Shift+N');
+  await r.typeText('mail');
+  await r.key('Enter');
+  await stepBy(r, 300);
+  await r.snap('O1-no-workshop', 'Order "mail shirt" with no forge built');
+  await r.key('Shift+N');
+  await r.typeText('zzzz');
+  await r.snap('O2-picker-no-match', 'Add order: filter "zzzz" matches nothing');
+  await r.key('Enter');
+  await r.snap('O3-enter-no-match', 'Key Enter with no match');
+  await r.key('Escape');
+  await r.key('Shift+N');
+  await r.typeText('barrel');
+  await r.key('Tab');
+  await r.key('0');
+  await r.key('Enter');
+  await r.snap('O4-quantity-zero', 'Add order barrel, quantity typed "0"');
+  await r.key('Escape');
+  await r.key('Delete');
+  await r.snap('O5-delete', 'Key Delete in Orders');
+  await r.key('x');
+  await r.snap('O6-x', 'Key x in Orders');
+  await toFortress();
+});
+
+// ---------- military ----------
+await T('military', async () => {
+  await r.key('m');
+  await r.key('v');
+  await r.snap('M1-active-no-squad', 'Key v with no squad');
+  await r.key('Shift+K');
+  await r.snap('M2-kill-no-squad', 'Key Shift+K with no squad');
+  await r.key('+');
+  await r.key('v');
+  await r.snap('M3-active-no-members', 'Squad with no members: key v (Active)');
+  await r.key('Shift+B');
+  await r.snap('M4-barracks-none', 'Key Shift+B: assign a barracks with none built');
+  await r.key('Shift+S');
+  await r.snap('M5-station', 'Key Shift+S: set station');
+  await r.clickTile(Tn.x, Tn.y, 'a tree tile');
+  await r.snap('M6-station-on-tree', 'Station clicked on a tree tile');
+  await r.key('Shift+A');
+  await r.key('Enter');
+  await r.snap('M7-add-none-marked', 'Shift+A then Enter with no row marked');
+  await toFortress();
+});
+
+// ---------- save and load ----------
+await T('save', async () => {
+  await r.key('Control+s');
+  await r.snap('S1-ctrl-s', 'Key Ctrl+S');
+  await r.key('Enter');
+  await r.snap('S2-save-input', 'Key Enter on Save: name input');
+  await r.key('l');
+  await r.snap('S3-load-list', 'Key l in the game menu: the Load list (did Enter on Save write a save?)');
+  await r.key('Escape');
+  await r.snap('S3b-load-escape', 'Key Escape from the Load list');
+  await r.key('n');
+  await r.snap('S4-rename-input', 'Key n: Rename fortress input (the only text input with a stored name found in the menu)');
+  await r.typeText('x'.repeat(200));
+  await r.snap('S5-rename-200', 'Typed 200 characters');
+  await r.key('Enter');
+  await r.snap('S6-rename-200-enter', 'Key Enter with 200 characters');
+  await r.key('Escape');
+  await toFortress();
+  await r.key('F9');
+  await r.snap('S7-quickload-none', 'Key F9 with no quick save');
+  await r.key('Escape');
+  await r.key('F5');
+  await r.snap('S8-quicksave', 'Key F5 quick save');
+  await r.key('F9');
+  await r.snap('S9-quickload-confirm', 'Key F9 with a quick save: confirmation');
+  await r.key('Escape');
+  await r.snap('S10-quickload-escape', 'Escape: answer to the confirmation');
+  await toFortress();
+});
+
+// ---------- keys that do nothing ----------
+await T('nothing', async () => {
+  await toFortress();
+  for (const [k, why] of [['q', 'q with nothing open'], ['x', 'x with nothing open'], ['Delete', 'Delete with nothing'], ['Enter', 'Enter on the bare map'], ['Backspace', 'Backspace on the bare map'], ['1', '1 on the bare map'], ['r', 'r on the bare map'], ['w', 'w on the bare map'], ['y', 'y on the bare map'], ['v', 'v on the bare map'], ['Shift+X', 'Shift+x'], ['F1', 'F1'], ['F2', 'F2'], ['PageDown', 'PageDown on the bare map'], ['Home', 'Home'], ['End', 'End on the bare map'], ['Tab', 'Tab (sidebar toggle)'], ['Tab', 'Tab again']]) {
+    await r.key(k);
+    await r.snap(`N-${why.replace(/[^A-Za-z0-9]+/g, '-')}`, `Key ${k}: ${why}`);
+  }
+  await r.key('u');
+  for (const k of ['q', 'x', 'w', 'y', 'v']) { await r.key(k); await r.snap(`N-units-${k}`, `Key ${k} inside the Units panel`); }
+  await toFortress();
+});
+await r.close();

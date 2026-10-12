@@ -1,0 +1,64 @@
+# flow: 9-abuse   step: 123-M-settings-F9
+# what: Base modal: settings (screen settings); then key F9 (quick load). The screen id after is in the dump header
+# input: key Escape x2 ; key o ; key F9
+# tick: 400   paused: yes   screen: settings   panel: null   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,23,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|
+01|  Settings
+02|
+03|  ► Auto-pause on danger        [on]
+04|    Auto-pause on alert         [off]
+05|    Hints                       [on]
+06|    Colorblind palette          [off]
+07|    Zoom                        [1x]
+08|    Edge scrolling              [off]
+09|    Autosave each season        [on]
+10|    Snapshots kept              [4]
+11|    Combat log                  [hits only]
+12|    Keybindings ►
+13|
+14|
+15|  [d] Reset to defaults    [Esc] Back
+16|
+17|
+18|
+19|
+20|
+21|
+22|
+23|
+24|
+25|
+26|
+27|
+28|
+29|
+30|
+31|
+32|
+33|
+34|
+35|
+36|
+37|
+38|
+39|
+40|
+41|
+42|
+43|
+44|
+45|
+46|
+47|
+48|
+49|
+----- log strip rows -----
+
+
+
+----- status rows -----
+
+

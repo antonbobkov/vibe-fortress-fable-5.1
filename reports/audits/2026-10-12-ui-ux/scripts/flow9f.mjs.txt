@@ -1,0 +1,85 @@
+// Flow 9 (hash): the same ten commands on the same ticks through the UI and through the hook, on fresh games with the same seed.
+import { launch, Recorder, findSite, stepBy, stepTo, closePanels, embarkBitterbrae } from './common.mjs';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+async function game(label, append) {
+  const s = await launch();
+  s.append = append;
+  const r = new Recorder('9-abuse', s);
+  await embarkBitterbrae(r);
+  return r;
+}
+async function toFortress(r) { for (let i = 0; i < 8; i += 1) { const st = await r.state(); if (st.screen === 'fortress' && st.panel === null) break; await r.key('Escape'); } }
+
+// ---------- Game A: the UI ----------
+const A = await game('A', true);
+await A.page.evaluate(() => {
+  const h = window.__deepholm;
+  window.__cmds = [];
+  const orig = h.host.submit.bind(h.host);
+  h.host.submit = (c) => { window.__cmds.push({ tick: h.readers.calendar.tick, command: JSON.parse(JSON.stringify(c)) }); return orig(c); };
+});
+A.log('hook setup: host.submit wrapped to record every command the UI submits, with the tick');
+const startTick = await A.page.evaluate(() => window.__deepholm.readers.calendar.tick);
+const hashStart = await A.page.evaluate(() => window.__deepholm.hash());
+await A.snap('H-A-start', `Game A (UI): fresh embark, tick ${startTick}, world hash ${hashStart}`);
+const site = await findSite(A, 0);
+const P = site.patches;
+// commands 1-3 at the start tick
+await A.key('z'); await A.key('Shift+S');
+await A.dragTiles({ x: P[0].x, y: P[0].y }, { x: P[0].x + 3, y: P[0].y + 2 }); await A.key('Escape');
+await A.key('Shift+F');
+await A.dragTiles({ x: P[1].x, y: P[1].y }, { x: P[1].x + 3, y: P[1].y + 2 }); await A.key('Escape');
+await A.key('Shift+B');
+await A.dragTiles({ x: P[2].x, y: P[2].y }, { x: P[2].x + 2, y: P[2].y + 2 }); await A.key('Escape');
+await toFortress(A);
+await A.snap('H-A-cmds-1-3', 'Game A (UI): stockpile, farm plot and bedroom zones made by drag');
+await stepBy(A, 100);
+await A.key('b'); await A.key('w'); await A.clickText("Carpenter's"); await A.clickTile(P[3].x + 1, P[3].y + 1, 'workshop'); await toFortress(A);
+await A.key('o'); await A.key('Shift+N'); await A.typeText('barrel'); await A.key('Enter'); await toFortress(A);
+await A.key('m'); await A.key('2'); await toFortress(A);
+await A.snap('H-A-cmds-4-6', 'Game A (UI): carpenter placed, barrel order added, alert Watch');
+await stepBy(A, 100);
+await A.key('m'); await A.key('+'); await toFortress(A);
+await A.key('d'); await A.key('Shift+T');
+const trees = (await findSite(A, 0)).trees;
+await A.dragTiles({ x: trees[0].x, y: trees[0].y }, { x: trees[0].x, y: trees[0].y }); await A.key('Escape'); await A.key('Escape');
+await A.key('d'); await A.key('w'); await A.clickTile(P[5].x, P[5].y, 'stairwell top'); await A.key('<'); await A.key('<'); await A.clickTile(P[5].x, P[5].y, 'stairwell bottom'); await toFortress(A);
+for (let i = 0; i < 2; i += 1) await A.key('>');
+await A.key('Escape'); await A.key('n');
+for (let i = 0; i < 40; i += 1) await A.key('Backspace');
+await A.typeText('Hash Test'); await A.key('Enter'); await toFortress(A);
+await A.snap('H-A-cmds-7-10', 'Game A (UI): squad created, chop designation, stairwell designation, fortress renamed');
+const cmds = await A.page.evaluate(() => window.__cmds);
+const target = startTick + 600;
+await stepTo(A, target);
+const hashA = await A.page.evaluate(() => ({ tick: window.__deepholm.readers.calendar.tick, hash: window.__deepholm.hash(), dwarves: window.__deepholm.dwarves().length }));
+await A.snap('H-A-end', `Game A (UI): tick ${hashA.tick}, world hash ${hashA.hash}`);
+await A.close();
+console.log('A', JSON.stringify(hashA), 'commands recorded', cmds.length);
+writeFileSync(join(A.dir, 'hash-commands-recorded-from-ui.json'), JSON.stringify(cmds, null, 1));
+
+// ---------- Game B (and B2): the hook, same commands on the same ticks ----------
+async function replay(label) {
+  const B = await game(label, true);
+  const out = await B.page.evaluate(({ cmds, target }) => {
+    const h = window.__deepholm;
+    const stepTo = (t) => { while (h.readers.calendar.tick < t) h.step(Math.min(100, t - h.readers.calendar.tick)); };
+    const startHash = h.hash();
+    for (const c of cmds) { stepTo(c.tick); h.submit(c.command); }
+    stepTo(target);
+    return { tick: h.readers.calendar.tick, hash: h.hash(), dwarves: h.dwarves().length, startHash };
+  }, { cmds, target });
+  B.log(`hook submit of ${cmds.length} recorded commands at their ticks, then step to ${target}`);
+  await B.snap(`H-${label}-end`, `Game ${label} (hook command call): ${cmds.length} commands replayed on their ticks; tick ${out.tick}, world hash ${out.hash}`);
+  await B.close();
+  return out;
+}
+const hashB = await replay('B');
+console.log('B', JSON.stringify(hashB));
+const hashB2 = await replay('B2');
+console.log('B2', JSON.stringify(hashB2));
+const result = { startTick, target, commands: cmds.length, commandTypes: cmds.map((c) => `${c.tick}:${c.command.type}`), ui: hashA, hook1: hashB, hook2: hashB2, uiEqualsHook1: hashA.hash === hashB.hash, hook1EqualsHook2: hashB.hash === hashB2.hash };
+writeFileSync(join(A.dir, 'hash-comparison.json'), JSON.stringify(result, null, 1));
+console.log(JSON.stringify(result));
