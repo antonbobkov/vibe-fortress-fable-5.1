@@ -36,7 +36,7 @@ describe('T-190 animal bandaging uses its catalogue job', () => {
     const w = new TestWorld({ seed: 't190-bandage-duration', world: 'flat-test', embark: 'none' });
     const health = w.game.world.scheduler.byId('17') as HealthSystem;
     const producer = new HealthProducer({ rng: health.rng, entities: w.game.world.entities,
-      map: w.map, registry: w.game.registry });
+      map: w.map, registry: w.game.registry, pendingTreatments: new Map() });
     const type = w.game.registry.table('jobTypes').index('bandage_animal');
     expect(producer.workCentiTicks({ type } as Job)).toBe(100 * 100);
   });

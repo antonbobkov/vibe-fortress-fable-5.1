@@ -1,0 +1,1727 @@
+{
+  "result": {
+    "seed": "wildlife-temperate_forest-2",
+    "biome": "temperate_forest",
+    "tick": 132000,
+    "living": 0,
+    "arrivals": 13,
+    "deaths": [
+      {
+        "tick": 23537,
+        "day": 20,
+        "id": 16777296,
+        "kind": "dwarf",
+        "name": "Birna Silverpick",
+        "cause": "bled_out",
+        "killerId": 218103838,
+        "killerSpecies": "boar",
+        "wildlife": true,
+        "tile": 296746
+      },
+      {
+        "tick": 50237,
+        "day": 42,
+        "id": 83886299,
+        "kind": "dwarf",
+        "name": "Palnir Runestone",
+        "cause": "bled_out",
+        "killerId": 218103838,
+        "killerSpecies": "boar",
+        "wildlife": true,
+        "tile": 297137
+      },
+      {
+        "tick": 75122,
+        "day": 63,
+        "id": 16777294,
+        "kind": "dwarf",
+        "name": "Solveig Elkgate",
+        "cause": "killed",
+        "killerId": 352321766,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 296744
+      },
+      {
+        "tick": 75357,
+        "day": 63,
+        "id": 16777297,
+        "kind": "dwarf",
+        "name": "Brynja Shalehand",
+        "cause": "bled_out",
+        "killerId": 352321766,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 296647
+      },
+      {
+        "tick": 77397,
+        "day": 65,
+        "id": 50332024,
+        "kind": "dwarf",
+        "name": "Eyvind Thunderhand",
+        "cause": "bled_out",
+        "killerId": 50332003,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 297630
+      },
+      {
+        "tick": 80961,
+        "day": 68,
+        "id": 16777290,
+        "kind": "cat",
+        "name": "cat",
+        "cause": "killed",
+        "killerId": 50332002,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 297331
+      },
+      {
+        "tick": 84832,
+        "day": 71,
+        "id": 16777466,
+        "kind": "dwarf",
+        "name": "Dagr Hollowhelm",
+        "cause": "bled_out",
+        "killerId": 352321766,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 297417
+      },
+      {
+        "tick": 85017,
+        "day": 71,
+        "id": 50332028,
+        "kind": "dwarf",
+        "name": "Wulf Steelcrown",
+        "cause": "bled_out",
+        "killerId": 50332002,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 296845
+      },
+      {
+        "tick": 87337,
+        "day": 73,
+        "id": 16777291,
+        "kind": "dwarf",
+        "name": "Orm Pinefist",
+        "cause": "bled_out",
+        "killerId": 50332002,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 297630
+      },
+      {
+        "tick": 88367,
+        "day": 74,
+        "id": 16777292,
+        "kind": "dwarf",
+        "name": "Orm Frostward",
+        "cause": "bled_out",
+        "killerId": 50332003,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 297630
+      },
+      {
+        "tick": 92367,
+        "day": 77,
+        "id": 16777293,
+        "kind": "dwarf",
+        "name": "Katla Stoneheart",
+        "cause": "bled_out",
+        "killerId": 50332002,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 297630
+      },
+      {
+        "tick": 93382,
+        "day": 78,
+        "id": 251658456,
+        "kind": "dwarf",
+        "name": "Yrsa Stonedelve",
+        "cause": "bled_out",
+        "killerId": 50332002,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 297918
+      },
+      {
+        "tick": 104352,
+        "day": 87,
+        "id": 16777295,
+        "kind": "dwarf",
+        "name": "Gyda Bearbrook",
+        "cause": "bled_out",
+        "killerId": 50332002,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 298096
+      },
+      {
+        "tick": 131997,
+        "day": 110,
+        "id": 50332020,
+        "kind": "dwarf",
+        "name": "Sverre Granitestone",
+        "cause": "bled_out",
+        "killerId": 385876107,
+        "killerSpecies": "wolf",
+        "wildlife": true,
+        "tile": 295157
+      }
+    ],
+    "starving": 26,
+    "shelter": {
+      "longest": 11760,
+      "maxHunger": 100,
+      "maxThirst": 100,
+      "maxRest": 100
+    },
+    "sleepAttacks": [
+      {
+        "tick": 76604,
+        "dwarf": 50332024,
+        "attacker": 50332003,
+        "nearby": [
+          {
+            "id": 251658456,
+            "behavior": "need",
+            "activity": "thirst"
+          },
+          {
+            "id": 50332020,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          },
+          {
+            "id": 50332024,
+            "behavior": "need",
+            "activity": "sleep"
+          }
+        ]
+      },
+      {
+        "tick": 88158,
+        "dwarf": 16777292,
+        "attacker": 50332003,
+        "nearby": [
+          {
+            "id": 16777292,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 16777293,
+            "behavior": "need",
+            "activity": "sleep"
+          }
+        ]
+      },
+      {
+        "tick": 88176,
+        "dwarf": 16777292,
+        "attacker": 50332003,
+        "nearby": [
+          {
+            "id": 16777292,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 16777293,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 16777295,
+            "behavior": "work",
+            "activity": "Bandage"
+          },
+          {
+            "id": 251658456,
+            "behavior": "work",
+            "activity": "Diagnose"
+          },
+          {
+            "id": 50332020,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          }
+        ]
+      },
+      {
+        "tick": 88190,
+        "dwarf": 16777292,
+        "attacker": 50332003,
+        "nearby": [
+          {
+            "id": 16777292,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 16777293,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 16777295,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          },
+          {
+            "id": 251658456,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          },
+          {
+            "id": 50332020,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          }
+        ]
+      },
+      {
+        "tick": 88204,
+        "dwarf": 16777292,
+        "attacker": 50332003,
+        "nearby": [
+          {
+            "id": 16777292,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 16777293,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 16777295,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          },
+          {
+            "id": 251658456,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          },
+          {
+            "id": 50332020,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          }
+        ]
+      },
+      {
+        "tick": 88218,
+        "dwarf": 16777292,
+        "attacker": 50332003,
+        "nearby": [
+          {
+            "id": 16777292,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 16777293,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 16777295,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          },
+          {
+            "id": 251658456,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          },
+          {
+            "id": 50332020,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          }
+        ]
+      },
+      {
+        "tick": 92181,
+        "dwarf": 16777293,
+        "attacker": 50332002,
+        "nearby": [
+          {
+            "id": 16777293,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 16777295,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          },
+          {
+            "id": 251658456,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          },
+          {
+            "id": 50332020,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          }
+        ]
+      },
+      {
+        "tick": 92195,
+        "dwarf": 16777293,
+        "attacker": 50332002,
+        "nearby": [
+          {
+            "id": 16777293,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 16777295,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          },
+          {
+            "id": 50332020,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          }
+        ]
+      },
+      {
+        "tick": 93027,
+        "dwarf": 251658456,
+        "attacker": 50332002,
+        "nearby": [
+          {
+            "id": 16777295,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 251658456,
+            "behavior": "need",
+            "activity": "sleep"
+          },
+          {
+            "id": 50332020,
+            "behavior": "flee",
+            "activity": "Fleeing"
+          }
+        ]
+      }
+    ],
+    "livestockLost": 1,
+    "spawns": {
+      "deer": 17,
+      "boar": 5,
+      "rabbit": 8,
+      "bear": 1,
+      "badger": 3,
+      "wolf": 11,
+      "lynx": 2
+    },
+    "alerts": [
+      {
+        "tick": 24020,
+        "level": "hearth"
+      },
+      {
+        "tick": 24320,
+        "level": "watchful"
+      },
+      {
+        "tick": 24340,
+        "level": "calm"
+      },
+      {
+        "tick": 49980,
+        "level": "hearth"
+      },
+      {
+        "tick": 50280,
+        "level": "watchful"
+      },
+      {
+        "tick": 50640,
+        "level": "calm"
+      },
+      {
+        "tick": 51780,
+        "level": "hearth"
+      },
+      {
+        "tick": 52080,
+        "level": "watchful"
+      },
+      {
+        "tick": 52100,
+        "level": "calm"
+      },
+      {
+        "tick": 54760,
+        "level": "watchful"
+      },
+      {
+        "tick": 55080,
+        "level": "hearth"
+      },
+      {
+        "tick": 55780,
+        "level": "watchful"
+      },
+      {
+        "tick": 55800,
+        "level": "calm"
+      },
+      {
+        "tick": 55940,
+        "level": "watchful"
+      },
+      {
+        "tick": 56760,
+        "level": "calm"
+      },
+      {
+        "tick": 57000,
+        "level": "watchful"
+      },
+      {
+        "tick": 57280,
+        "level": "hearth"
+      },
+      {
+        "tick": 58320,
+        "level": "watchful"
+      },
+      {
+        "tick": 58340,
+        "level": "calm"
+      },
+      {
+        "tick": 58620,
+        "level": "watchful"
+      },
+      {
+        "tick": 66460,
+        "level": "calm"
+      },
+      {
+        "tick": 66740,
+        "level": "watchful"
+      },
+      {
+        "tick": 67660,
+        "level": "calm"
+      },
+      {
+        "tick": 67960,
+        "level": "watchful"
+      },
+      {
+        "tick": 68760,
+        "level": "calm"
+      },
+      {
+        "tick": 69000,
+        "level": "watchful"
+      },
+      {
+        "tick": 71140,
+        "level": "calm"
+      },
+      {
+        "tick": 71600,
+        "level": "watchful"
+      },
+      {
+        "tick": 74920,
+        "level": "hearth"
+      },
+      {
+        "tick": 78580,
+        "level": "watchful"
+      },
+      {
+        "tick": 80080,
+        "level": "hearth"
+      },
+      {
+        "tick": 83560,
+        "level": "watchful"
+      },
+      {
+        "tick": 85060,
+        "level": "hearth"
+      },
+      {
+        "tick": 85860,
+        "level": "watchful"
+      },
+      {
+        "tick": 85880,
+        "level": "calm"
+      },
+      {
+        "tick": 85900,
+        "level": "watchful"
+      },
+      {
+        "tick": 87360,
+        "level": "hearth"
+      },
+      {
+        "tick": 99120,
+        "level": "watchful"
+      },
+      {
+        "tick": 99140,
+        "level": "calm"
+      },
+      {
+        "tick": 100460,
+        "level": "watchful"
+      },
+      {
+        "tick": 100620,
+        "level": "hearth"
+      },
+      {
+        "tick": 101640,
+        "level": "watchful"
+      },
+      {
+        "tick": 101660,
+        "level": "calm"
+      },
+      {
+        "tick": 103780,
+        "level": "watchful"
+      },
+      {
+        "tick": 104000,
+        "level": "hearth"
+      },
+      {
+        "tick": 104300,
+        "level": "watchful"
+      },
+      {
+        "tick": 104760,
+        "level": "calm"
+      },
+      {
+        "tick": 105800,
+        "level": "hearth"
+      },
+      {
+        "tick": 106100,
+        "level": "watchful"
+      },
+      {
+        "tick": 106120,
+        "level": "calm"
+      },
+      {
+        "tick": 131480,
+        "level": "watchful"
+      },
+      {
+        "tick": 131820,
+        "level": "hearth"
+      }
+    ],
+    "stocks": {
+      "drink": 111,
+      "meal": 63,
+      "plantFood": 30
+    },
+    "harvests": 105,
+    "hunts": 6,
+    "hash": "99c66ca376dbd8e2",
+    "setup": {
+      "caveDepth": 2,
+      "surfacePlots": [
+        10,
+        10
+      ],
+      "caveTiles": 32,
+      "buildings": [
+        16777322,
+        16777323,
+        16777324,
+        117440680,
+        16777385,
+        117440719
+      ],
+      "commands": 85
+    }
+  },
+  "records": [
+    {
+      "tick": 86006,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 297806,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1719,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 14,
+        "y": 30,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86052,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "sleep",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1719,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 14,
+        "y": 30,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86252,
+      "id": 16777291,
+      "name": "Orm Pinefist",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 85880,
+        "targetTile": 297630,
+        "activity": "sleep",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1717,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 28,
+        "y": 29,
+        "z": 32
+      },
+      "body": {
+        "blood": 666,
+        "maxBlood": 666,
+        "pain": 0,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86307,
+      "id": 16777292,
+      "name": "Orm Frostward",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 55800,
+        "targetTile": 297630,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1726,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 558,
+        "maxBlood": 558,
+        "pain": 4,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86362,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1727,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86502,
+      "id": 16777292,
+      "name": "Orm Frostward",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 55800,
+        "targetTile": 297630,
+        "activity": "comfort",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1726,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 558,
+        "maxBlood": 558,
+        "pain": 4,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86502,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "comfort",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1727,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86603,
+      "id": 16777292,
+      "name": "Orm Frostward",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 55800,
+        "targetTile": 297630,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1726,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 558,
+        "maxBlood": 558,
+        "pain": 4,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86603,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1727,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86802,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "social",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1727,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86883,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1727,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86934,
+      "id": 16777291,
+      "name": "Orm Pinefist",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 85880,
+        "targetTile": 297630,
+        "activity": "comfort",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1727,
+        "daysUnderground": 0
+      },
+      "patient": {
+        "hospitalZoneId": 0,
+        "bedId": 0,
+        "needs": [
+          "stop_bleeding",
+          "suture",
+          "clean_wound",
+          "diagnose"
+        ],
+        "admittedTick": 86933
+      },
+      "target": 0,
+      "position": {
+        "x": 7,
+        "y": 18,
+        "z": 32
+      },
+      "body": {
+        "blood": 666,
+        "maxBlood": 666,
+        "pain": 0,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 86934,
+      "event": {
+        "type": "PatientAdmitted",
+        "id": 16777291,
+        "hospitalTier": 0
+      }
+    },
+    {
+      "tick": 86952,
+      "id": 16777292,
+      "name": "Orm Frostward",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 55800,
+        "targetTile": 297630,
+        "activity": "sleep",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1726,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 558,
+        "maxBlood": 558,
+        "pain": 4,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 87002,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "sleep",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1727,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 87289,
+      "event": {
+        "type": "TreatmentDone",
+        "patientId": 16777291,
+        "medicId": 50332020,
+        "kind": "suture"
+      }
+    },
+    {
+      "tick": 87337,
+      "event": {
+        "type": "CreatureDied",
+        "id": 16777291,
+        "cause": "bled_out",
+        "killerId": 50332002,
+        "tile": 297630,
+        "species": 15,
+        "name": "Orm Pinefist",
+        "faction": "fortress",
+        "ageTicks": 6451200,
+        "wornItems": [
+          16777298,
+          16777299,
+          16777300
+        ]
+      }
+    },
+    {
+      "tick": 87431,
+      "id": 16777292,
+      "name": "Orm Frostward",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 55800,
+        "targetTile": 298086,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1726,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 6,
+        "y": 33,
+        "z": 32
+      },
+      "body": {
+        "blood": 558,
+        "maxBlood": 558,
+        "pain": 4,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 87484,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 298086,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1727,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 6,
+        "y": 33,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 87502,
+      "id": 16777292,
+      "name": "Orm Frostward",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 55800,
+        "targetTile": 297630,
+        "activity": "comfort",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1726,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 6,
+        "y": 33,
+        "z": 32
+      },
+      "body": {
+        "blood": 558,
+        "maxBlood": 558,
+        "pain": 4,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 87502,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "comfort",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1727,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 6,
+        "y": 33,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 88159,
+      "id": 16777292,
+      "name": "Orm Frostward",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 55800,
+        "targetTile": 297630,
+        "activity": "sleep",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1763,
+        "daysUnderground": 0
+      },
+      "patient": {
+        "hospitalZoneId": 0,
+        "bedId": 0,
+        "needs": [
+          "stop_bleeding",
+          "clean_wound",
+          "diagnose"
+        ],
+        "admittedTick": 88158
+      },
+      "target": 0,
+      "position": {
+        "x": 20,
+        "y": 25,
+        "z": 32
+      },
+      "body": {
+        "blood": 558,
+        "maxBlood": 558,
+        "pain": 4,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 88159,
+      "event": {
+        "type": "PatientAdmitted",
+        "id": 16777292,
+        "hospitalTier": 0
+      }
+    },
+    {
+      "tick": 88226,
+      "id": 16777292,
+      "name": "Orm Frostward",
+      "brain": {
+        "behavior": "patient",
+        "behaviorUntil": 55800,
+        "targetTile": 297630,
+        "activity": "Resting in hospital",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1764,
+        "daysUnderground": 0
+      },
+      "patient": {
+        "hospitalZoneId": 0,
+        "bedId": 0,
+        "needs": [
+          "stop_bleeding",
+          "suture",
+          "clean_wound",
+          "diagnose"
+        ],
+        "admittedTick": 88158
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 501,
+        "maxBlood": 558,
+        "pain": 36,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 88238,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1764,
+        "daysUnderground": 0
+      },
+      "target": 50332003,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 88367,
+      "event": {
+        "type": "CreatureDied",
+        "id": 16777292,
+        "cause": "bled_out",
+        "killerId": 50332003,
+        "tile": 297630,
+        "species": 15,
+        "name": "Orm Frostward",
+        "faction": "fortress",
+        "ageTicks": 4300800,
+        "wornItems": [
+          16777301,
+          16777302,
+          16777303
+        ]
+      }
+    },
+    {
+      "tick": 88432,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1764,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 88502,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "comfort",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1764,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 88603,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1764,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 88752,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "sleep",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1764,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 88952,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1764,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 89502,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297806,
+        "activity": "thirst",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1764,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 90380,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 298086,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1806,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 6,
+        "y": 33,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 90502,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "comfort",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1806,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 6,
+        "y": 33,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 91133,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1813,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 91252,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297806,
+        "activity": "thirst",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1813,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 91406,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "duty",
+        "behaviorUntil": 56933,
+        "targetTile": 297806,
+        "activity": "On duty",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1813,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 14,
+        "y": 30,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 91502,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "comfort",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1813,
+        "daysUnderground": 0
+      },
+      "target": 0,
+      "position": {
+        "x": 14,
+        "y": 30,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 92182,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "sleep",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1813,
+        "daysUnderground": 0
+      },
+      "patient": {
+        "hospitalZoneId": 0,
+        "bedId": 0,
+        "needs": [
+          "stop_bleeding",
+          "suture",
+          "clean_wound",
+          "diagnose"
+        ],
+        "admittedTick": 92181
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 594,
+        "maxBlood": 594,
+        "pain": 7,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 92182,
+      "event": {
+        "type": "PatientAdmitted",
+        "id": 16777293,
+        "hospitalTier": 0
+      }
+    },
+    {
+      "tick": 92202,
+      "id": 16777293,
+      "name": "Katla Stoneheart",
+      "brain": {
+        "behavior": "patient",
+        "behaviorUntil": 56933,
+        "targetTile": 297630,
+        "activity": "Resting in hospital",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": 1813,
+        "daysUnderground": 0
+      },
+      "patient": {
+        "hospitalZoneId": 0,
+        "bedId": 0,
+        "needs": [
+          "stop_bleeding",
+          "suture",
+          "clean_wound",
+          "diagnose"
+        ],
+        "admittedTick": 92181
+      },
+      "target": 0,
+      "position": {
+        "x": 30,
+        "y": 28,
+        "z": 32
+      },
+      "body": {
+        "blood": 579,
+        "maxBlood": 594,
+        "pain": 23,
+        "conscious": true
+      }
+    },
+    {
+      "tick": 92367,
+      "event": {
+        "type": "CreatureDied",
+        "id": 16777293,
+        "cause": "bled_out",
+        "killerId": 50332002,
+        "tile": 297630,
+        "species": 15,
+        "name": "Katla Stoneheart",
+        "faction": "fortress",
+        "ageTicks": 3494400,
+        "wornItems": [
+          16777304,
+          16777305,
+          16777306
+        ]
+      }
+    }
+  ]
+}

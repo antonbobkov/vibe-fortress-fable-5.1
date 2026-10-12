@@ -18,8 +18,10 @@ import { equipStartingClothes } from '@systems/dwarves/clothing';
 import type { DwarvesReader } from '@systems/dwarves/reader';
 import type { MoraleReader } from '@systems/morale/reader';
 import type { ItemsReader } from '@systems/items/reader';
+import type { BuildingsReader } from '@systems/buildings/reader';
 import type { ThreatsReader } from '@systems/threats/reader';
 import { findEdgeTiles } from '@systems/threats/parties';
+import { ARRIVAL_SPREAD } from '@systems/threats/constants';
 import { AMMO_FETCH } from '@systems/foraging/constants';
 import { ARRIVAL_INTERVAL_TICKS, IMMIGRATION_PERMILLE, IMMIGRATION_SPIRIT_MIN, POPULATION_CAP_MAX, POPULATION_CAP_MIN, REP_PERMILLE_PER_POINT, TOOL_STOCK_MIN, WEALTH_PER_WAVE } from './constants';
 import type { ImmigrationReader } from './reader';
@@ -90,6 +92,13 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
   }
 
   private evaluate(ctx: TickContext, season: number, year: number): void {
+    if (this.pending !== null) {
+      // A blocked or staggered arrival retains its plan; evaluate again once it can finish.
+      this.deferredUntilTick = ctx.tick + TICKS_PER_DAY;
+      this.deferredSeason = season;
+      this.deferredYear = year;
+      return;
+    }
     if (ctx.readers.of<DwarvesReader>('10').population() === 0) return;
     if (this.raidActive(ctx)) {
       this.raidOngoing = true;
@@ -181,6 +190,30 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
     if (!wave) return;
     const member = wave.planned[wave.nextIndex];
     if (!member) return;
+    const buildings = ctx.readers.of<BuildingsReader>('14');
+    const anchors = buildings.hearthHallTiles();
+    if (anchors.length === 0) {
+      const wagon = buildings.get(buildings.wagon());
+      if (wagon !== undefined) anchors.push(wagon.origin);
+      else {
+        // Without an arrival anchor, join the existing residents.
+        const resident = ctx.readers.of<DwarvesReader>('10').list()[0];
+        const at = resident === undefined ? -1 : ctx.world.services.movement?.tileOf(resident) ?? -1;
+        if (at >= 0) anchors.push(at);
+      }
+    }
+    const accepts = (tile: number): boolean => ctx.readers.pathing.passable(tile, 'walker') &&
+      anchors.some((anchor) => ctx.readers.pathing.reachable(tile, anchor, 'walker'));
+    // A saved planned tile is a preference, not permission to spawn on an isolated island.
+    if (!accepts(member.tile)) {
+      const edge = this.spec?.civEdges.mountainhome ?? 'n';
+      const tiles = findEdgeTiles(ctx.world.map, edge, wave.planned.length, ARRIVAL_SPREAD, accepts);
+      if (tiles.length === 0) {
+        wave.nextSpawnTick = ctx.tick + ARRIVAL_INTERVAL_TICKS;
+        return;
+      }
+      member.tile = tiles[wave.nextIndex % tiles.length] as number;
+    }
     const record = member.record;
     const id = ctx.spawn.creature(ctx.registry.table('creatures').index('dwarf'), member.tile, 'fortress', {
       name: record.name, sex: record.sex, ageTicks: record.ageYears * TICKS_PER_YEAR,

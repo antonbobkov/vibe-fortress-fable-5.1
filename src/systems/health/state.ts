@@ -10,5 +10,7 @@ export interface HealthStateV1 {
   wounded: EntityId[];
   hospitals: EntityId[];
   patientJobs: [EntityId, string[]][];
+  /** Failed still-needed wound treatments, retained independently of admission. */
+  pendingTreatments?: [EntityId, string[]][];
   rng: RngState;
 }
