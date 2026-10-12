@@ -1,6 +1,6 @@
 # T-116 capture index (pass 1: capture only)
 
-Audit task: [`docs/work/T-116-audit-ui-ux.md`](../../../docs/work/T-116-audit-ui-ux.md). Commit examined: `569ae1f` (branch `t-116`). Captured on 2026-10-12 by an automated Playwright driver (Chromium, headless) against a test-mode dev server (`vite --mode test`, port 5311). This index records what was done and what the game showed. It contains no judgement, severity or recommendation.
+Audit task: [`docs/archive/tasks/T-116-audit-ui-ux.md`](../../../docs/archive/tasks/T-116-audit-ui-ux.md). Commit examined: `569ae1f` (branch `t-116`). Captured on 2026-10-12 by an automated Playwright driver (Chromium, headless) against a test-mode dev server (`vite --mode test`, port 5311). This index records what was done and what the game showed. It contains no judgement, severity or recommendation.
 
 ## Conventions
 

@@ -1,15 +1,17 @@
 # T-116 — Audit: UI and UX pass
 
+Closed by `T-116: close the audit; follow-up rows T-270 to T-284`. The capture pass is the commits `T-116: capture, flow 1` to `flow 9`; the judgement pass is `T-116: judgement pass, first version of the UI and UX audit report`. Report: [`../../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md).
+
 **Source:** the owner, 2026-10-06 (the third of three audit/fix loops) · **Size:** M · **Needs:** T-111, T-115 and the fix tasks it produces · **Status:** open
 
-**Who:** two passes, so the strong model is spent on judgement and not on driving a browser ([`../../agents/README.md`](../../agents/README.md)).
+**Who:** two passes, so the strong model is spent on judgement and not on driving a browser ([`../../agents/README.md`](../../../agents/README.md)).
 
 1. **Capture, by Codex on `gpt-6.1-sol`.** Play every flow below with Playwright and save, per step, a screenshot, a text dump of the cell buffer and the keys and clicks used. Trigger every failure path and save what the game shows. Write a plain index of what was captured, with no opinions.
 2. **Judgement, by an Opus subagent or Codex on `gpt-6-astra` at high effort.** Read the capture, replay the few flows where the capture raises a question, and write the report. Not Gemini.
 
 ## Why
 
-The first UI audit ([`../../reports/audits/ui-audit.md`](../../reports/audits/ui-audit.md)) led to eight fix tasks, and T-111 records which of its items they closed. This is a fresh pass on the result, not a re-check of the old list. It goes last of the three audits, so that it looks at the game after the playthrough and bug fixes have landed.
+The first UI audit ([`../../reports/audits/ui-audit.md`](../../../reports/audits/ui-audit.md)) led to eight fix tasks, and T-111 records which of its items they closed. This is a fresh pass on the result, not a re-check of the old list. It goes last of the three audits, so that it looks at the game after the playthrough and bug fixes have landed.
 
 The owner's criteria are unchanged:
 
@@ -54,13 +56,13 @@ Add `T-1nn` rows for the recommendations worth doing, with this report as the so
 
 - The report exists and each finding says whether it was observed or read.
 - The follow-up rows are in the backlog.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
 
 ## Progress
 
 ### 2026-10-12: pass 1 (capture), complete
 
-Commit examined: `569ae1f`. Output: [`../../reports/audits/2026-10-12-ui-ux/capture-index.md`](../../reports/audits/2026-10-12-ui-ux/capture-index.md) and `reports/audits/2026-10-12-ui-ux/capture/<flow>/`. Flows captured so far:
+Commit examined: `569ae1f`. Output: [`../../reports/audits/2026-10-12-ui-ux/capture-index.md`](../../../reports/audits/2026-10-12-ui-ux/capture-index.md) and `reports/audits/2026-10-12-ui-ux/capture/<flow>/`. Flows captured so far:
 
 - Flow 1 (new player, mouse only): captured.
 - Flow 2 (new player, keyboard only): captured.
