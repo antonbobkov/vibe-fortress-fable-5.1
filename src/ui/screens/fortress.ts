@@ -457,7 +457,7 @@ export class FortressScreen implements Screen {
     drawTooltip(surface, this.pointer);
   }
 
-  /** "While dragging: the rectangle is inverted on the map"; a zone rectangle shows its tiles green or red. */
+  /** "While dragging: the rectangle is inverted on the map"; a zone rectangle shows valid tiles as ▒ on green and blocked tiles as x on red. */
   private drawSelection(surface: Surface, map: Rect): void {
     const tool = this.rectTool();
     if (tool === null) return;
@@ -497,7 +497,7 @@ export class FortressScreen implements Screen {
     }
   }
 
-  /** A zone rectangle: "tiles that qualify show green", the rest red (the cell's background). */
+  /** A selected room marks open border tiles with x on red in either palette. */
   private drawRoomBorder(surface: Surface, rect: Rect): void {
     if (this.ui.panel !== 'zones' || this.zones.active) return;
     const map = this.host.readers.map;
@@ -507,12 +507,11 @@ export class FortressScreen implements Screen {
       const col = tile % map.w - this.ui.camX;
       const row = Math.floor(tile / map.w) % map.h - this.ui.camY;
       if (col < 0 || row < 0 || col >= rect.cols || row >= rect.rows) continue;
-      const cell = surface.cells.get(rect.col + col, rect.row + row);
-      surface.put(rect.col + col, rect.row + row, cell.glyph, surface.theme.black, surface.theme.bad);
+      surface.put(rect.col + col, rect.row + row, surface.glyphs.index('x'), surface.theme.black, surface.theme.bad);
     }
   }
 
-  /** A zone rectangle: "tiles that qualify show green", the rest red (the cell's background). */
+  /** Zone validity is a glyph as well as a background, in both palettes. */
   private drawZoneRect(surface: Surface, map: Rect, a: TilePoint, b: TilePoint): void {
     const t = surface.theme;
     const type = this.zones.resizing ? (this.ctx.readers.has('14') ? (this.ctx.readers.of<{ zone(id: number): { type: string } | undefined }>('14').zone(this.zones.selected)?.type ?? '') : '') : (this.zones.kind ?? '');
@@ -521,9 +520,8 @@ export class FortressScreen implements Screen {
       const col = (i % m.w) - this.ui.camX;
       const row = (Math.floor(i / m.w) % m.h) - this.ui.camY;
       if (col < 0 || row < 0 || col >= map.cols || row >= map.rows) continue;
-      const cell = surface.cells.get(map.col + col, map.row + row);
       const ok = this.zones.tileOk(this.ctx, type, i, this.zones.resizing ? this.zones.selected : 0);
-      surface.put(map.col + col, map.row + row, cell.glyph, t.black, ok ? t.good : t.bad);
+      surface.put(map.col + col, map.row + row, surface.glyphs.index(ok ? '▒' : 'x'), t.black, ok ? t.good : t.bad);
     }
   }
 
