@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-263 | [A dead dwarf leaves an orphan drink reservation](work/T-263-orphan-drink-reservation-after-death.md) | T-139 three-year trace, 2026-10-11 | — | open; diagnosis first |
 | T-262 | [A failed treatment is not recreated after discharge](work/T-262-failed-treatment-after-discharge.md) | T-223 hospital trace, 2026-10-11 | — | open |
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | T-140, T-145 (the performance tier includes the 20-seed balance sweep, which cannot pass before them) | open; local side (needs a quiet machine) |
 | T-140 | [Dwarves walk too slowly for a day of needs](work/T-140-walking-speed-and-need-errands.md) | T-123 and [`../reports/audits/2026-10-08-economy-at-default-priority.md`](../reports/audits/2026-10-08-economy-at-default-priority.md) | T-145 (the work share is 28.4% in year 1 after T-144 and T-197, with 6.3% idle, and 14–17% in years 2–3 with 17–18% idle; re-measure with its work supply; `npm run test:perf` includes the sweep) | open: walking speed is ×1.5; two Done items wait |

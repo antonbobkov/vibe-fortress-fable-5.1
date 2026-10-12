@@ -1,0 +1,86 @@
+/** T-263 read-only reservation and activity trace of the unchanged main scenario. */
+import { it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { World } from '@core/world';
+import { C } from '@core/components';
+import { ItemCore } from '@systems/items/api';
+import { Activities } from '@systems/dwarves/activities';
+import type { DwarvesSystem } from '@systems/dwarves';
+import type { ItemsReader } from '@systems/items';
+import { runScenario } from '../scenarios/runner';
+import scenario from '../scenarios/three_years.scenario';
+
+it('T-263 trace the main scenario drink reservation',()=>{
+ const records:unknown[]=[];
+ const originalStep=World.prototype.step;
+ const originalReserve=ItemCore.prototype.reserve;
+ const originalRelease=ItemCore.prototype.release;
+ const originalDestroy=ItemCore.prototype.destroy;
+ const targetIds=new Set<number>([150995335]);
+ const knownItems=new Set<number>([150995102]);
+ const worlds=new Set<World>();
+ const keys=new Map<World,string>();
+ let current:World|undefined;
+ const state=(w:World,id:number)=>{
+  const d=w.scheduler.byId('10') as DwarvesSystem;
+  const items=w.readers.of<ItemsReader>('13');
+  return structuredClone({tick:w.calendar.tick,id,name:w.entities.get(id,C.Creature)?.name,alive:w.entities.alive(id),
+   position:w.entities.get(id,C.Position),brain:w.entities.get(id,C.Brain),needs:w.entities.get(id,C.Needs),
+   patient:w.entities.get(id,C.Patient),threat:d.threatened.get(id),plan:d.activities.plans.get(id),
+   held:[...knownItems].map(item=>({id:item,item:items.get(item),tile:items.tileOf(item)})).filter(r=>r.item?.reservedBy===id)});
+ };
+ World.prototype.step=function(this:World){
+  current=this;
+  if(!worlds.has(this)){
+   worlds.add(this);records.push({world:this.seed,tick:this.calendar.tick});
+   for(const item of this.entities.with(C.Item))if(targetIds.has(this.entities.get(item,C.Item)!.reservedBy))knownItems.add(item);
+   this.onEvents(batch=>{for(const event of batch){
+    if(['SulkHappened','CreatureDied','PatientAdmitted','PatientDischarged','NeedCritical','CreatureUnconscious','DrankAlcohol','DrankWater','ItemReleased'].includes(event.type)&&
+     (targetIds.has(Number(event['id']??event['patientId']??event['jobId']))))records.push({tick:this.calendar.tick,event,state:state(this,Number(event['id']??event['patientId']??event['jobId']))});
+   }});
+  }
+  const id=this.entities.with(C.Creature).find(id=>this.entities.get(id,C.Creature)?.name==='Saga Granitefell');
+  if(id!==undefined){
+   targetIds.add(id);
+   const s=state(this,id);
+   const key=JSON.stringify({brain:s.brain?.behavior,activity:s.brain?.activity,plan:s.plan,held:s.held.map(r=>r.id),patient:s.patient,threat:s.threat?.hostileId});
+   if(keys.get(this)!==key){keys.set(this,key);records.push({state:s});}
+  }
+  originalStep.call(this);
+ };
+ ItemCore.prototype.reserve=function(this:ItemCore,item:number,holder:number){
+  const target=this.host.entities.get(holder,C.Creature)?.name==='Saga Granitefell'||targetIds.has(holder);
+  if(target){targetIds.add(holder);knownItems.add(item);records.push({tick:this.host.tick(),reserve:item,holder,before:this.get(item),state:current?state(current,holder):undefined,stack:new Error().stack});}
+  const result=originalReserve.call(this,item,holder);
+  if(target)records.push(structuredClone({tick:this.host.tick(),reserved:item,holder,after:this.get(item)}));
+  return result;
+ };
+ ItemCore.prototype.release=function(this:ItemCore,item:number){
+  const before=this.get(item);
+  if(knownItems.has(item))records.push(structuredClone({tick:this.host.tick(),release:item,before,stack:new Error().stack}));
+  return originalRelease.call(this,item);
+ };
+ ItemCore.prototype.destroy=function(this:ItemCore,...args:Parameters<ItemCore['destroy']>){
+  if(knownItems.has(args[0]))records.push(structuredClone({tick:this.host.tick(),destroy:args,before:this.get(args[0]),stack:new Error().stack}));
+  return originalDestroy.apply(this,args);
+ };
+ const methods=['start','step','cancel','startHallErrand','linger'] as const;
+ const saved=new Map<string,Function>();
+ for(const name of methods){
+  const original=Activities.prototype[name];saved.set(name,original);
+  (Activities.prototype as any)[name]=function(this:Activities,...args:any[]){
+   const [ctx,id]=args;
+   const target=ctx.world.entities.get(id,C.Creature)?.name==='Saga Granitefell'||targetIds.has(id);
+   const before=target?state(ctx.world,id):undefined;
+   const result=(original as Function).apply(this,args);
+   if(before){const after=state(ctx.world,id);if(JSON.stringify(before.plan)!==JSON.stringify(after.plan))records.push({tick:ctx.tick,activity:name,before,after,stack:new Error().stack});}
+   return result;
+  };
+ }
+ try{runScenario(scenario);}
+ finally{
+  writeFileSync(process.env['TRACE_OUT']??'.vite/task-resume/t263-trace.json',JSON.stringify({targetIds:[...targetIds],records},null,2)+'\n');
+  World.prototype.step=originalStep;ItemCore.prototype.reserve=originalReserve;ItemCore.prototype.release=originalRelease;ItemCore.prototype.destroy=originalDestroy;
+  for(const [name,original] of saved)(Activities.prototype as any)[name]=original;
+ }
+},scenario.timeoutMs);

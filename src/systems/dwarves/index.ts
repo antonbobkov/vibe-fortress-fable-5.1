@@ -421,8 +421,12 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       }
       if (event['kind'] === 'weep' && typeof event['targetTile'] === 'number') {
         const brain = ctx.world.entities.get(id, C.Brain);
-        if (brain !== undefined) ctx.world.entities.add(id, C.Brain, { ...brain, behavior: 'idle',
-          behaviorUntil: ctx.tick + TICKS_PER_DAY, targetTile: event['targetTile'] });
+        if (brain !== undefined) {
+          this.activities.cancel(ctx, id);
+          ctx.world.services.movement?.stopWalking(id);
+          ctx.world.entities.add(id, C.Brain, { ...brain, behavior: 'idle',
+            behaviorUntil: ctx.tick + TICKS_PER_DAY, targetTile: event['targetTile'] });
+        }
       }
       return;
     }

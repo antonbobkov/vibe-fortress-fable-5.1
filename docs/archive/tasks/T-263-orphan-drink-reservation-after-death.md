@@ -1,6 +1,8 @@
 # T-263 - A dead dwarf leaves an orphan personal drink reservation
 
-**Source:** T-139 three-year diagnosis, [removal trace](../../reports/data/2026-10-11-t139-removal-trace.json) and [invariant failure](../../reports/data/2026-10-11-t139-before-invariants.log), 2026-10-11 | **Size:** S | **Needs:** none | **Status:** open; diagnosis first
+Closed by `T-263: cancel personal reservations before weeping and on death`.
+
+**Source:** T-139 three-year diagnosis, [removal trace](../../../reports/data/2026-10-11-t139-removal-trace.json) and [invariant failure](../../../reports/data/2026-10-11-t139-before-invariants.log), 2026-10-11 | **Size:** S | **Needs:** none | **Status:** open; diagnosis first
 
 ## Finding
 
