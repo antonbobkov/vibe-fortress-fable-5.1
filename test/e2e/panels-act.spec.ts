@@ -82,6 +82,7 @@ interface PanelsActHook extends Hook {
     of<T>(id: string): T;
   };
   host: {
+    speed(): number;
     world: {
       applyCommand(cmd: Record<string, unknown>): { ok: boolean; reason?: string };
       emit(event: Record<string, unknown>): void;
@@ -684,6 +685,29 @@ test('panels-act', async ({ page }) => {
   await expect.poll(() => textOf(page)).toContain('Care: no hospital.');
   await page.keyboard.press('Escape');
   if ((await panel()) !== null) await page.keyboard.press('Escape');
+  await expect.poll(panel).toBeNull();
+
+  // ==========================================
+  // 8e. T-282 Units filter: Space types a space, and the filter ends with the panel
+  // ==========================================
+  const speedOf = async () => page.evaluate(() => (window as unknown as { __deepholm: PanelsActHook }).__deepholm.host.speed());
+  const speedBefore = await speedOf();
+  await page.keyboard.press('u');
+  await expect.poll(panel).toBe('units');
+  await page.keyboard.press('/');
+  await page.keyboard.type('x');
+  await page.keyboard.press('Space');
+  await page.keyboard.type('y');
+  await expect.poll(() => textOf(page)).toContain('/filter: x y_');
+  expect(await speedOf()).toBe(speedBefore);
+  await page.keyboard.press('Enter');
+  await expect.poll(() => textOf(page)).toMatch(/Units . filter: x y \(0 of \d+\)/);
+  await page.keyboard.press('Escape');
+  await expect.poll(panel).toBeNull();
+  await page.keyboard.press('u');
+  await expect.poll(panel).toBe('units');
+  expect(await textOf(page)).not.toContain('filter: x y');
+  await page.keyboard.press('Escape');
   await expect.poll(panel).toBeNull();
 
   // ==========================================

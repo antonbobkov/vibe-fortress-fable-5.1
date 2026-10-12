@@ -27,6 +27,7 @@ import {
   dropdown,
   dropdownKey,
   editText,
+  normalizeName,
   label,
   numberField,
   separator,
@@ -284,7 +285,7 @@ export class EmbarkScreen implements Screen {
   }
 
   private embarkNow(): void {
-    this.apply({ type: 'SetFortressName', name: this.fortressName.value });
+    this.apply({ type: 'SetFortressName', name: normalizeName(this.fortressName.value) });
     if (!this.session.apply({ type: 'ConfirmEmbark' }).ok) return;
     this.host.embark(this.session);
   }
@@ -532,10 +533,10 @@ export class EmbarkScreen implements Screen {
     if (this.focus === 'name' || this.focus === 'rename' || this.focus === 'filter') {
       if (press.key === 'Enter' || press.key === 'Tab' || press.key === 'Esc') {
         if (this.focus === 'rename' && press.key !== 'Esc') {
-          this.apply({ type: 'RenameDwarf', dwarf: this.party.selected, name: this.rename.value });
+          this.apply({ type: 'RenameDwarf', dwarf: this.party.selected, name: normalizeName(this.rename.value) });
         }
         if (this.focus === 'name' && this.fortressName.value.trim().length > 0) {
-          this.apply({ type: 'SetFortressName', name: this.fortressName.value });
+          this.apply({ type: 'SetFortressName', name: normalizeName(this.fortressName.value) });
         }
         this.setFocus(this.tab === 0 ? 'party' : 'items');
         return true;

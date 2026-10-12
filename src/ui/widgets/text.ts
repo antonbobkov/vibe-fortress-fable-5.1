@@ -14,6 +14,22 @@ export interface TextFieldState {
   readonly maxLength: number;
 }
 
+/**
+ * The character a key event types, or null (24 § Rules, text input): a key whose `key` is one
+ * printable character, `Space` being a space. Control (Cc), format (Cf), private-use (Co) and
+ * unassigned (Cn) code points are refused; a character the font lacks is accepted and drawn `?`.
+ */
+export function typedChar(key: string): string | null {
+  const ch = key === 'Space' ? ' ' : key;
+  if (Array.from(ch).length !== 1) return null;
+  return /[\p{Cc}\p{Cf}\p{Co}\p{Cn}]/u.test(ch) ? null : ch;
+}
+
+/** A name as stored: trimmed, every run of spaces one space. */
+export function normalizeName(text: string): string {
+  return text.replace(/\s+/g, ' ').trim();
+}
+
 /** A key press on a focused field; returns whether it was consumed. */
 export function editText(state: TextFieldState, key: KeyPress): boolean {
   if (!state.focused) return false;
@@ -22,9 +38,10 @@ export function editText(state: TextFieldState, key: KeyPress): boolean {
     return true;
   }
   if (key.ctrl || key.alt || key.meta) return false;
-  if (Array.from(key.key).length !== 1) return false;
+  const ch = typedChar(key.key);
+  if (ch === null) return false;
   if (Array.from(state.value).length >= state.maxLength) return true;
-  state.value += key.key;
+  state.value += ch;
   return true;
 }
 

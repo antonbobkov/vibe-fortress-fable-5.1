@@ -370,6 +370,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.units.actions2': '[S-c] center',
   // Jobs panel (`panels.md` § Jobs).
   'ui.panel.filter': '/filter:',
+  'ui.panel.filtered': '{title} · filter: {filter}',
+  'ui.panel.filtered_counts': '{title} · filter: {filter} ({shown} of {total})',
   'ui.jobs.filter.labor': '{key} labor: {labor}',
   'ui.jobs.filter.state': '{key} state: {state}',
   'ui.jobs.filter.all': 'all',

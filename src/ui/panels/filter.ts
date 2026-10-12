@@ -1,7 +1,7 @@
 /** Text filtering shared by Jobs and Stocks (panels.md). */
 import type { KeyPress } from '@platform/input';
 import type { Surface } from '../surface';
-import { label, textField } from '../widgets';
+import { label, textField, typedChar } from '../widgets';
 import type { PanelContext } from './context';
 
 export class PanelFilter {
@@ -13,8 +13,11 @@ export class PanelFilter {
     if (press.key === 'Enter' || press.key === 'Esc' || press.key === 'Escape') { this.focused = false; return true; }
     if (press.ctrl || press.alt || press.meta) return false;
     if (press.key === 'Backspace') this.value = Array.from(this.value).slice(0, -1).join('');
-    else if (Array.from(press.key).length === 1) this.value += press.key;
-    else return false;
+    else {
+      const ch = typedChar(press.key);
+      if (ch === null) return false;
+      this.value += ch;
+    }
     return true;
   }
 }

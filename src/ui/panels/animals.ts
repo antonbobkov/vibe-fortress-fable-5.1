@@ -8,7 +8,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { ForagingReader } from '@systems/foraging';
 import type { JobsReader } from '@systems/jobs';
 import type { Surface } from '../surface';
-import { button, label, separator, table, textField, type ListState, type TextFieldState } from '../widgets';
+import { button, label, normalizeName, separator, table, textField, type ListState, type TextFieldState } from '../widgets';
 import { buildings, confirmThen, type PanelContext } from './context';
 import { dwarvesOf } from './units';
 import { acceleratorLabel } from '../keymap';
@@ -84,7 +84,7 @@ export class AnimalsPanel {
   finishName(ctx: PanelContext): Command | null {
     this.name.focused = false;
     const id = this.selected(ctx);
-    const value = this.name.value.trim();
+    const value = normalizeName(this.name.value);
     return id === 0 || value.length === 0 ? null : { type: 'NameAnimal', animalId: id, name: value };
   }
   startTrain(ctx: PanelContext): void {
