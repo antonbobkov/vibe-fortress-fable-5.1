@@ -162,6 +162,12 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     for (const key of BUILD_HELP_KEYS) out.push({ category: 'build', text: strings.get(key) });
     out.push({ category: 'building', text: strings.get('ui.help.building.title'), heading: true });
     for (const key of BUILDING_HELP_KEYS) out.push({ category: 'building', text: strings.get(key) });
+    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.title'), heading: true });
+    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.filter') });
+    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.labor', { key: acceleratorLabel('l', keymap.panelLetters()) }) });
+    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.state', { key: acceleratorLabel('s', keymap.panelLetters()) }) });
+    out.push({ category: 'stocks', text: strings.get('ui.help.stocks.title'), heading: true });
+    out.push({ category: 'stocks', text: strings.get('ui.help.stocks.filter') });
     out.push({ category: 'animals', text: strings.get('ui.help.animals.title'), heading: true });
     out.push({ category: 'animals', text: strings.get('ui.help.animals.train', { key: acceleratorLabel('t', keymap.panelLetters()) }) });
     out.push({ category: 'game_menu', text: strings.get('ui.help.game_menu.title'), heading: true });

@@ -1096,6 +1096,8 @@ export class FortressScreen implements Screen {
 
   key(press: KeyPress): boolean {
     this.ensureRegistered();
+    if (this.ui.sidebar && this.ui.panel === 'jobs' && this.jobs.filter.key(press)) { this.jobs.resetSelection(); return true; }
+    if (this.ui.sidebar && this.ui.panel === 'stocks' && this.stocks.filter.key(press)) { this.stocks.tree.selected = 0; this.stocks.tree.scroll = 0; return true; }
     if (this.ui.panel === 'stocks' && this.stocks.depotSelection && (press.key === 'Esc' || press.key === 'Escape')) {
       this.stocks.cancelDepot();
       this.openPanel('depot');
@@ -1293,7 +1295,7 @@ export class FortressScreen implements Screen {
   /** A text field of the open panel has the keyboard: letters are text, not hotkeys. */
   private textFocused(): boolean {
     if (!this.ui.sidebar) return false;
-    return (this.ui.panel === 'units' && this.units.editing) || (this.ui.panel === 'animals' && this.animals.name.focused);
+    return (this.ui.panel === 'jobs' && this.jobs.filter.focused) || (this.ui.panel === 'stocks' && this.stocks.filter.focused) || (this.ui.panel === 'units' && this.units.editing) || (this.ui.panel === 'animals' && this.animals.name.focused);
   }
 
   /**
@@ -1405,6 +1407,7 @@ export class FortressScreen implements Screen {
         }
         return letter !== '' && this.zones.choose(letter);
       case 'stocks':
+        if (k === '/') { this.stocks.filter.focused = true; return true; }
         if (this.stocks.depotSelection) {
           if (!press.shift && (up || down)) { this.stocks.move(up ? -1 : 1, ctx); return true; }
           if (k === 'Enter' || k === 'Space' || k === ' ') { this.stocks.toggleDepot(ctx); return true; }
@@ -1465,6 +1468,9 @@ export class FortressScreen implements Screen {
         return false;
       }
       case 'jobs': {
+        if (k === '/') { this.jobs.filter.focused = true; return true; }
+        if (letter === 'l') { this.jobs.cycleLabor(ctx); return true; }
+        if (letter === 's') { this.jobs.cycleState(); return true; }
         if (!press.shift && (up || down)) {
           this.jobs.move(up ? -1 : 1, ctx);
           return true;

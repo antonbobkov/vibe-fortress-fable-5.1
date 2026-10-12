@@ -79,7 +79,7 @@ Open border tiles on the viewed level are highlighted using the room's existing 
 ```
 │ Jobs                           [j]  │
 │ 42 open · 18 claimed · 6 blocked    │
-│ /filter: ____  [l]abor [s]tate      │
+│ /filter: ____                      │
 │ Pri Job              Who / reason   │
 │  1  Dig (52,31,z30)  Ketil Ironvein │
 │  3  Build bed        Orm Ashbrow    │
@@ -91,9 +91,12 @@ Open border tiles on the viewed level are highlighted using the room's existing 
 │ [Enter] center  [S-p] priority      │
 │ [x] cancel  [o] standing orders     │
 │ ── Labor priorities (1–9) ───────── │
-│ Min 5 Wood 5 Build 5 Carp 5 Mason 5 │
-│ Farm 4 Cook 5 Brew 4 Haul 6 …       │
+│ Mining 2 · Hauling 7                  │
 ```
+
+Jobs names a building target by its type (Build bed, Build carpenter's workshop) and an item target by its item name (Haul log). Only bare-tile jobs show coordinates. Click the job name or press Enter to centre its target. With no rows, the first table body row says "No jobs. Designate [d], build [b] or order [o]."
+
+The filter controls wrap onto three rows at sidebar width: `/filter`, `[S-l] labor: all`, `[S-s] state: all`. `/` or clicking the field focuses text matching the job name or worker, ignoring case. Enter or Esc finishes typing without closing the panel. Shift-L or clicking the labor row cycles all and the labors with jobs in registry order; Shift-S or clicking the state row cycles all, open, claimed, blocked. Claimed includes fetching, travelling, working and completing. Filters combine; changing one resets selection. The summary counts all current jobs. Labor priorities show only non-default priorities, using full names separated by dots. With all defaults, the line reads "All labors at priority 5: change them in the labor manager ([l], Enter)."
 
 ## Labors (l)
 
@@ -311,6 +314,8 @@ Every action that cannot be done says why on the status row (an empty cage, a co
 │ [S-f] forbid  [S-d] dump            │
 │ [S-m] melt  [S-t] to depot          │
 ```
+
+`/` or clicking the filter field focuses a case-insensitive search of category paths, item names and material labels. Enter or Esc finishes typing. Matching descendants keep their ancestors visible and expand while the filter is set; clearing the filter restores the saved tree expansion. Filtering changes visible rows, while category actions keep applying to their selected category.
 
 Stocks actions apply to the selected category, type or individual stack. Forbid and dump toggle all applicable items; turn on when any selected item lacks the mark, otherwise clear all. Melt considers only eligible metal items and uses the same consistent toggle. A mixed-material type sends individual metal-item commands, while an all-metal type sends one type command. Nonmetal stacks cannot be marked for melt. Marking for dump or melt goes through the default-No confirmation; clearing marks and forbidding do not ask. Every action has a key caption and a clickable row.
 

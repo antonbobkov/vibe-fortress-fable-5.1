@@ -7,11 +7,13 @@
 
 import { C } from '@core/components';
 import type { Command } from '@core/commands';
-import { PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
+import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { JobsReader } from '@systems/jobs';
 import type { Surface } from '../surface';
+import { acceleratorLabel } from '../keymap';
+import { PanelFilter, drawPanelFilter } from './filter';
 import { jobBlockText, wrapText } from '../messages';
 import { label, separator, table, type ListState } from '../widgets';
 import { tileXyz, type PanelContext } from './context';
@@ -21,13 +23,45 @@ type JobLike = ReturnType<JobsReader['list']>[number];
 export class JobsPanel {
   readonly list: ListState = { selected: 0, scroll: 0 };
 
-  jobs(ctx: PanelContext): JobLike[] {
+  readonly filter = new PanelFilter();
+  labor = '';
+  state: 'all' | 'open' | 'claimed' | 'blocked' = 'all';
+
+  allJobs(ctx: PanelContext): JobLike[] {
     if (!ctx.readers.has('11')) return [];
     return ctx.readers
       .of<JobsReader>('11')
       .list()
       .filter((j) => j.state !== 'done' && j.state !== 'cancelled')
       .sort((a, b) => a.priority - b.priority || a.id - b.id);
+  }
+
+  laborOf(ctx: PanelContext, j: JobLike): string {
+    const override = j.data['labor'];
+    return typeof override === 'string' ? override : ctx.registry.table<{ id: string; labor: string }>('jobTypes').byIndex(j.type)?.labor ?? '';
+  }
+
+  jobs(ctx: PanelContext): JobLike[] {
+    const text = this.filter.value.toLowerCase();
+    return this.allJobs(ctx).filter(j => (this.labor === '' || this.laborOf(ctx, j) === this.labor)
+      && (this.state === 'all' || (this.state === 'claimed' ? !['open', 'blocked'].includes(j.state) : j.state === this.state))
+      && (text === '' || jobText(ctx, this, j).toLowerCase().includes(text)
+        || (ctx.readers.entities.get(j.workerId, C.Creature)?.name ?? '').toLowerCase().includes(text)));
+  }
+
+  resetSelection(): void { this.list.selected = 0; this.list.scroll = 0; }
+
+  cycleLabor(ctx: PanelContext): void {
+    const present = new Set(this.allJobs(ctx).map(j => this.laborOf(ctx, j)));
+    const choices = ['', ...ctx.registry.table('labors').ids().filter(id => present.has(id))];
+    this.labor = choices[(choices.indexOf(this.labor) + 1) % choices.length] ?? '';
+    this.resetSelection();
+  }
+
+  cycleState(): void {
+    const choices = ['all', 'open', 'claimed', 'blocked'] as const;
+    this.state = choices[(choices.indexOf(this.state) + 1) % choices.length] ?? 'all';
+    this.resetSelection();
   }
 
   selected(ctx: PanelContext): JobLike | undefined {
@@ -57,6 +91,8 @@ export class JobsPanel {
     if (j.target.kind === 'tile') return j.target.ref;
     const anchor = j.data['anchorTile'];
     if (typeof anchor === 'number') return anchor;
+    const building = ctx.readers.entities.get(j.target.ref as EntityId, C.Building);
+    if (building) return building.origin;
     const p = ctx.readers.entities.get(j.target.ref as EntityId, C.Position);
     return p === undefined ? null : ctx.readers.map.index(p.x, p.y, p.z);
   }
@@ -65,6 +101,14 @@ export class JobsPanel {
 function jobText(ctx: PanelContext, panel: JobsPanel, j: JobLike): string {
   const type = ctx.readers.of<JobsReader>('11').typeOf(j.id) ?? '';
   const name = ctx.strings.has(`ui.jobs.type.${type}`) ? ctx.strings.get(`ui.jobs.type.${type}`) : type.replace(/_/g, ' ');
+  if (j.target.kind !== 'tile') {
+    const building = ctx.readers.entities.get(j.target.ref, C.Building);
+    const item = ctx.readers.entities.get(j.target.ref, C.Item);
+    const target = building ? ctx.registry.table<{ id: string; name: string }>('buildings').byIndex(building.type)?.name
+      : item ? ctx.registry.table<{ id: string; name: string }>('items').byIndex(item.type)?.name
+        : ctx.readers.entities.get(j.target.ref, C.Creature)?.name;
+    return target ? `${name} ${target.toLowerCase()}` : name;
+  }
   const tile = panel.tileOf(ctx, j);
   if (tile === null) return name;
   const p = tileXyz(ctx, tile);
@@ -101,16 +145,26 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   if (!ctx.readers.has('11')) return;
   const reader = ctx.readers.of<JobsReader>('11');
   const c = reader.counts();
+  drawPanelFilter(s, rect.col + 1, rect.row + 1, rect.cols - 2, panel.filter, ctx);
+  const labors = ctx.registry.table<{ id: string; name: string }>('labors');
+  const labor = panel.labor === '' ? strings.get('ui.jobs.filter.all') : labors.byId(panel.labor)?.name ?? panel.labor;
+  const cycle = (row: number, text: string, run: () => void): void => {
+    label(s, rect.col + 1, row, text, { width: rect.cols - 2 });
+    s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, run);
+  };
+  cycle(rect.row + 2, strings.get('ui.jobs.filter.labor', { key: acceleratorLabel('l', ctx.panelLetters), labor }), () => panel.cycleLabor(ctx));
+  cycle(rect.row + 3, strings.get('ui.jobs.filter.state', { key: acceleratorLabel('s', ctx.panelLetters), state: strings.get(`ui.jobs.filter.${panel.state}`) }), () => panel.cycleState());
   label(s, rect.col + 1, rect.row, strings.get('ui.jobs.counts', { open: c.open, claimed: c.claimed, blocked: c.blocked }), { fg: t.value, width: rect.cols - 2 });
   const jobs = panel.jobs(ctx);
-  // The blocked breakdown and the selected job's full reason take a row each when there are any.
   const summary = blockedSummary(ctx, jobs);
-  const top = summary === '' ? 1 : 2;
-  if (summary !== '') label(s, rect.col + 1, rect.row + 1, summary, { fg: t.dim, width: rect.cols - 2 });
-  if (jobs.length === 0) label(s, rect.col + 1, rect.row + top + 1, strings.get('ui.jobs.empty'), { fg: t.dim, width: rect.cols - 2 });
+  const top = summary === '' ? 4 : 5;
+  if (summary !== '') label(s, rect.col + 1, rect.row + 4, summary, { fg: t.dim, width: rect.cols - 2 });
+  const changed = labors.ids().filter(id => reader.laborPriority(id) !== PRIORITY_DEFAULT)
+    .map(id => `${labors.byId(id)?.name ?? id} ${reader.laborPriority(id)}`);
+  const priorities = wrapText(changed.length ? changed.join(' \u00b7 ') : strings.get('ui.jobs.priorities_default', { priority: PRIORITY_DEFAULT }), rect.cols - 2, rect.rows);
   const chosen = panel.selected(ctx);
   const detail = chosen !== undefined && chosen.state === 'blocked' && chosen.blockedReason !== null ? wrapText(jobBlockText(ctx, chosen).long, rect.cols - 2, 2) : [];
-  const height = Math.max(2, rect.rows - 7 - (top - 1) - detail.length);
+  const height = Math.max(2, rect.rows - top - 4 - priorities.length - detail.length);
   table(
     s,
     { col: rect.col + 1, row: rect.row + top, cols: rect.cols - 2, rows: height },
@@ -125,6 +179,17 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
       panel.list.selected = index;
     },
   );
+  if (jobs.length === 0) label(s, rect.col + 1, rect.row + top + 1, strings.get('ui.jobs.empty'), { fg: t.dim, width: rect.cols - 2 });
+  for (let r = 0; r < height - 1; r += 1) {
+    const index = panel.list.scroll + r;
+    const job = jobs[index];
+    if (!job) break;
+    s.hit({ col: rect.col + 5, row: rect.row + top + 1 + r, cols: 17, rows: 1 }, () => {
+      panel.list.selected = index;
+      const tile = panel.tileOf(ctx, job);
+      if (tile !== null) ctx.focusOn(tile);
+    });
+  }
   let row = rect.row + top + height;
   for (const line of detail) {
     label(s, rect.col + 1, row, line, { fg: t.alert, width: rect.cols - 2, keys: false });
@@ -136,17 +201,9 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   row += 3;
   separator(s, rect.col + 1, row, rect.cols - 2, strings.get('ui.jobs.labor_priorities'));
   row += 1;
-  const labors = ctx.registry.table<{ id: string; name: string }>('labors');
-  const parts = labors.ids().map((id) => `${(labors.byId(id)?.name ?? id).slice(0, 4)} ${reader.laborPriority(id)}`);
-  let line = '';
-  for (const p of parts) {
+  for (const line of priorities) {
     if (row >= rect.row + rect.rows) break;
-    if (Array.from(line).length + p.length + 1 > rect.cols - 2) {
-      label(s, rect.col + 1, row, line, { width: rect.cols - 2 });
-      row += 1;
-      line = '';
-    }
-    line = line === '' ? p : `${line} ${p}`;
+    label(s, rect.col + 1, row, line, { width: rect.cols - 2 });
+    row += 1;
   }
-  if (line !== '' && row < rect.row + rect.rows) label(s, rect.col + 1, row, line, { width: rect.cols - 2 });
 }
