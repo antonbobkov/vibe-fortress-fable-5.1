@@ -1,0 +1,80 @@
+# flow: 4-newer-ui   step: 114-H-manager-templates
+# what: Key t: profession templates
+# input: key t
+# tick: 404   paused: yes   screen: labor_manager   panel: labors   viewport: 1280x800   grid: 106x66   camera(x,y,z): 1,24,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00| Labor manager                                                                                [Esc] close
+01| Thurid Ashspark, Miner · Animal care: on · priority 5
+02| 7 of 7 marked           A  A  B  B  C  C  C  C  C  F  F  G  H  H  H  L  M  M  M  M  S  S  T  T  W
+03|                         n  n  r  u  a  l  o  o  r  a  i  e  a  e  u  e  a  e  e  i  m  m  e  r  o
+04|                         i  i  e  t  r  e  n  o  a  r  s  m  u  r  n  a  s  c  d  n  e  i  x  a  o
+05|                         m  m  w  c  p  a  s  k  f  m  h     l  b  t  t  o  h  i  i  l  t  t  d  d
+06|                         a  a  i  h  e  n  t  i  t  i  i  c  i  a  i  h  n  a  c  n  t  h  i  i  c
+07|                         l  l  n  e  n  i  r  n  s  n  n  u  n  l  n  e  r  n  i  g  i  i  l  n  u
+08|                               g  r  t  n  u  g     g  g  t  g  i  g  r  y  i  n     n  n  e  g  t
+09|                         c  t     y  r  g  c              t     s           c  e     g  g  s     t
+10|   Dwarf                 a  r        y     t              i     m           s                    i
+11|   Priority 1-9          5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5
+12| • Thurid Ashspark       ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■
+13| • Kolfinna Shaleward    ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■
+14| • Vidar Elkaxe          ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■
+15| • Frode Bronzebrook     ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■
+16| • Vali Forgeaxe         ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■
+17| • Kolfinna Brinefoot    ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■
+18| • Torunn Stormmark      ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■  ■
+19|
+20|
+21|
+22|
+23|
+24|
+25|
+26|
+27|                           Apply a template to 7 dwarves
+28|                           [1] Miner
+29|                           [2] Hauler only
+30|                           [3] Farmer
+31|                           [4] Crafter
+32|                           [5] Soldier
+33|                           [6] Everything off
+34|
+35|                           Mining, Hauling
+36|
+37|
+38|                           [Enter] apply  [Esc] back
+39|
+40|
+41|
+42|
+43|
+44|
+45|
+46|
+47|
+48|
+49|
+50|
+51|
+52|
+53|
+54|
+55|
+56|
+57|
+58|
+59|
+60|
+61|
+62| ────────────────────────────────────────────────────────────────────────────────────────────────────────
+63| [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column
+64| [-] priority down  [+] priority up  [t] templates
+65|
+----- log strip rows -----
+
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────
+ [Space] mark  [*] mark all  [Enter] toggle  [a] whole row  [c] whole column
+----- status rows -----
+ [-] priority down  [+] priority up  [t] templates
+
