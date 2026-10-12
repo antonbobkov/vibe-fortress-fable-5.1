@@ -16,7 +16,23 @@ import { IMMIGRATION_PERMILLE, REP_PERMILLE_PER_POINT } from '@systems/immigrati
 import type { GameEvent } from '@core/events';
 import type { GameSystem, TickContext } from '@core/system';
 import type { ImmigrationStateV1 } from '@systems/immigration';
+import { appendFileSync } from 'node:fs';
 import type { TestWorld } from './test-world';
+
+/** Days between two progress lines of a long run. */
+const PROGRESS_DAYS = 28;
+
+/**
+ * One line of a long run's journal: to the console, and at once to the file named by
+ * `THREE_YEARS_LOG` when it is set (vitest holds console output until the test ends).
+ */
+export function note(tag: string, data: unknown): void {
+  const line = `[${tag}] ${JSON.stringify(data)}`;
+  console.log(line);
+  const file = process.env['THREE_YEARS_LOG'];
+  if (file) appendFileSync(file, `${line}
+`);
+}
 
 export interface ImmigrationEvaluation {
   tick: number;
@@ -137,7 +153,7 @@ export class ThreeYearsMeasurements {
         if (e.type === 'CreatureDied' && e['faction'] === 'fortress') this.deaths.push({ day: Math.floor(w.tick / TICKS_PER_DAY) + 1,
           id: Number(e['id']), species: w.game.registry.table<{ id: string }>('creatures').byIndex(Number(e['species']))?.id ?? 'unknown',
           cause: String(e['cause']), killerId: Number(e['killerId'] ?? 0) });
-        if (e.type === 'CreatureDied' && e['faction'] === 'fortress') console.log(`[three_years_death] ${JSON.stringify({ ...this.deaths[this.deaths.length - 1], tick: w.tick, killer: w.game.registry.table<{ id: string }>('creatures').byIndex(w.game.world.entities.get(Number(e['killerId'] ?? 0), C.Creature)?.species ?? -1)?.id ?? null })}`);
+        if (e.type === 'CreatureDied' && e['faction'] === 'fortress') note('three_years_death', { ...this.deaths[this.deaths.length - 1], tick: w.tick, killer: w.game.registry.table<{ id: string }>('creatures').byIndex(w.game.world.entities.get(Number(e['killerId'] ?? 0), C.Creature)?.species ?? -1)?.id ?? null });
         if (e.type === 'RaidArrived') this.raids.push({ day: Math.floor(w.tick / TICKS_PER_DAY) + 1,
           kind: String(e['kind']), size: Number(e['size']), partyId: Number(e['partyId']) });
         if (e.type === 'RaidEnded') {
@@ -207,12 +223,20 @@ export class ThreeYearsMeasurements {
       const count = Math.min(end - w.tick, TICKS_PER_DAY - w.tick % TICKS_PER_DAY);
       w.step(count);
       this.accountPopulation();
+      if (w.tick % (PROGRESS_DAYS * TICKS_PER_DAY) === 0) {
+        const items = w.readers.of<ItemsReader>('13');
+        note('three_years_progress', { day: w.tick / TICKS_PER_DAY, population: this.population(), wealth: items.wealth(),
+          alert: w.game.world.fortress.alert, dwarfDeaths: this.deaths.filter(d => d.species === 'dwarf').length,
+          meals: items.count('easy_meal') + items.count('fine_meal') + items.count('lavish_meal'), drink: items.count('drink'),
+          plants: items.count('plant_food'), beds: items.count('bed'), caravans: this.caravans.map(c => `${c.day}:${c.civ}:${c.state}`),
+          recipes: { ...this.recipes } });
+      }
       if (w.tick % (DAYS_PER_YEAR * TICKS_PER_DAY) === 0) {
         const year = this.snapshot();
         this.years.push(year);
-        console.log(`[three_years_checkpoint] ${JSON.stringify({ day: year.day, wealth: year.wealth, population: year.population,
+        note('three_years_checkpoint', ({ day: year.day, wealth: year.wealth, population: year.population,
           adults: w.readers.of<DwarvesReader>('10').adults().filter(id => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length,
-          recipes: year.recipes, dwarfDeaths: this.deaths.filter(d => d.species === 'dwarf').length })}`);
+          recipes: year.recipes, dwarfDeaths: this.deaths.filter(d => d.species === 'dwarf').length }));
       }
     }
   }

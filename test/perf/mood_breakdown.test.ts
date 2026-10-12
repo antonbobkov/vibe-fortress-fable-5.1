@@ -31,6 +31,7 @@ import { personalityBase } from '@systems/morale/thoughts';
 import authoredThoughts from '@content/thoughts.json';
 import { TestWorld } from '../scenarios/test-world';
 import {
+  playThreeYears,
   setupThreeYearsFortress,
   threeYearsWorld,
   checkFortressWorkOrders,
@@ -305,7 +306,7 @@ function runUpgraded(seed: string): MoodDecompositionResult {
   // Advance bootstrap period (20 days)
   const totalTicksBootstrap = 20 * TICKS_PER_DAY;
   while (w.tick < totalTicksBootstrap) {
-    stepThreeYears(w, Math.min(100, totalTicksBootstrap - w.tick));
+    playThreeYears(w, state, Math.min(100, totalTicksBootstrap - w.tick));
     checkFortressWorkOrders(w, state);
     checkFortressRooms(w, state);
     checkFortressCaveFarm(w, state);
@@ -332,6 +333,7 @@ function runUpgraded(seed: string): MoodDecompositionResult {
     allBedroomTiles,
     cx,
     cy,
+    (ticks) => playThreeYears(w, state, ticks),
   );
 }
 
@@ -344,6 +346,7 @@ function runSamplingLoop(
   bedroomDigTiles?: readonly number[],
   cx: number = 0,
   cy: number = 0,
+  advance?: (ticks: number) => void,
 ): MoodDecompositionResult {
   const registry = w.game.registry;
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -646,7 +649,8 @@ function runSamplingLoop(
   while (w.tick < totalTicks) {
     const isTraceWindow = w.tick >= TRACE_START_TICK && w.tick < TRACE_END_TICK;
     const stepSize = isTraceWindow ? 50 : (upgraded ? 300 : 600);
-    if (upgraded) stepThreeYears(w, Math.min(stepSize, totalTicks - w.tick));
+    if (advance) advance(Math.min(stepSize, totalTicks - w.tick));
+    else if (upgraded) stepThreeYears(w, Math.min(stepSize, totalTicks - w.tick));
     else w.step(Math.min(stepSize, totalTicks - w.tick));
     onStep();
 

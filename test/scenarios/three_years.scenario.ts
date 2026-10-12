@@ -1,4 +1,4 @@
-import { stepThreeYears, threeYearsMeasurements } from './three_years_measurements';
+import { threeYearsMeasurements } from './three_years_measurements';
 import { checkInvariants, watchInvariants } from './invariants';
 import { reloadPlayedFortress } from './played-roundtrip';
 import type { TradeReader } from '@systems/trade';
@@ -20,6 +20,7 @@ import { deathCounts } from './death-counts';
 import { ItemsSystem, type ItemsReader } from '@systems/items';
 import type { Scenario } from './runner';
 import {
+  playThreeYears,
   setupThreeYearsFortress,
   threeYearsWorld,
   checkFortressWorkOrders,
@@ -80,7 +81,7 @@ const scenario: Scenario = {
     // Advance bootstrap period (20 days)
     const totalTicksBootstrap = 20 * TICKS_PER_DAY;
     while (w.tick < totalTicksBootstrap) {
-      stepThreeYears(w, Math.min(100, totalTicksBootstrap - w.tick));
+      playThreeYears(w, state, Math.min(100, totalTicksBootstrap - w.tick));
       checkFortressWorkOrders(w, state);
       checkFortressRooms(w, state);
       checkFortressCaveFarm(w, state);
@@ -125,7 +126,7 @@ const scenario: Scenario = {
     let y3Pop = 0;
 
     while (w.tick < totalTicks) {
-      stepThreeYears(w, Math.min(300, totalTicks - w.tick));
+      playThreeYears(w, state, Math.min(300, totalTicks - w.tick));
       saveDuringCaravan();
       checkFortressWorkOrders(w, state);
       checkFortressRooms(w, state);

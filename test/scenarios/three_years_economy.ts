@@ -12,7 +12,7 @@ import type { TradeReader } from '@systems/trade/reader';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
 import { HALL_Z, type FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
-import { threeYearsMeasurements } from './three_years_measurements';
+import { note, threeYearsMeasurements } from './three_years_measurements';
 
 export interface EconomyState {
   lastDay: number;
@@ -28,6 +28,12 @@ export interface EconomyState {
   /** F-17h: the day the three soldiers' mail, shields and swords were all forged. */
   armedDay?: number;
   broker?: { id: number };
+  /** The visit whose missing offer was last written to the journal. */
+  lastTradeNote?: string;
+  /** Cave plots added as the population grew, and whether each is zoned yet. */
+  readonly farmPlans: { tiles: number[]; zoneId: number }[];
+  /** The dwarf kept on the still. */
+  brewer?: number;
 }
 
 /**
@@ -47,6 +53,9 @@ const DEADLINE = 4;
  */
 export const KIT_FIRST = 3;
 
+/** The founder who is Broker from the first day: the mason, who works beside the depot. */
+const BROKER_FOUNDER = 3;
+
 /** Tiles kept free around the trade depot: the caravan's standing ring and a lane past it. */
 const DEPOT_CLEARANCE = 2;
 /** F-17f: the stair, the six gate walls and two doors around it, and the tile outside each door. */
@@ -65,6 +74,18 @@ const TIMBER_RESERVE = 40;
 const TIMBER_BATCH = 8;
 /** Ore faces opened for the squad's kit: 21 bars less the five in the wagon, with a margin. */
 const SQUAD_ORE_FACES = 20;
+
+/** Cave farm tiles kept for each dwarf: about one for its meals and two thirds for its drink (balance.md). */
+const FARM_TILES_PER_DWARF = 2;
+/** A cave plot added for a growing population: two rows beside the first plots. */
+const FARM_STRIP = { width: 8, rows: 2, max: 6 };
+/** Export goods a visit should find at the depot before stone and logs stop being added (marks). */
+const VISIT_CARGO = 200;
+/** Stone crafts kept in stock for each dwarf, and days between two new ore drifts in years 2 and 3. */
+const CRAFTS_PER_DWARF = 6;
+const DRIFT_EVERY_DAYS = 28;
+/** Easy meals in stock before the kitchen turns to lavish meals first. */
+const EASY_MEALS_STOCKED = 20;
 
 /** The squad's kit (F-17h): mail, a shield and a short sword for each of the three soldiers. */
 export const SQUAD_SIZE = 3;
@@ -86,16 +107,31 @@ function order(w: TestWorld, workshopId: number, recipeId: string, threshold: nu
   if (!result.ok) throw new Error(`economy order ${recipeId}: ${result.reason}`);
 }
 
+/** Units of an item type the fortress owns: a visiting merchant's goods are not stock. */
+export function owned(w: TestWorld, typeId: string): number {
+  const ent = w.game.world.entities;
+  const type = w.game.registry.table('items').index(typeId);
+  let units = 0;
+  for (const id of ent.with(C.Item)) {
+    const it = ent.get(id, C.Item)!;
+    if (it.type === type && (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) === 0) units += it.count;
+  }
+  return units;
+}
+
 function fortressDwarves(w: TestWorld): number[] {
   const ent = w.game.world.entities;
   return w.readers.of<DwarvesReader>('10').adults().filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
 }
 
-/** Keep a dwarf on the given labors only, as a player does in the labor manager. */
-function dedicate(w: TestWorld, dwarfId: number, keep: readonly string[]): void {
+/**
+ * Keep a dwarf on the given labors only, as a player does in the labor manager. Hauling stays on
+ * for everybody but the miners, and the broker keeps trading whatever else it does.
+ */
+function dedicate(w: TestWorld, state: FortressState, dwarfId: number, keep: readonly string[], haul = true): void {
   const jobs = w.readers.of<JobsReader>('11');
   for (const row of w.game.registry.table<{ id: string }>('labors').rows.slice(1)) {
-    const on = keep.includes(row.id);
+    const on = keep.includes(row.id) || (haul && row.id === 'hauling') || (row.id === 'trading' && state.economy.broker?.id === dwarfId);
     if (jobs.laborEnabled(dwarfId, row.id) !== on) w.game.world.applyCommand({ type: 'SetLabor', dwarfId, labor: row.id, on });
   }
 }
@@ -314,6 +350,20 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
   }
 }
 
+/** A founder holds the Broker title from the first day; the next adult takes it if the holder dies. */
+export function assignBroker(w: TestWorld, state: FortressState): void {
+  const adults = fortressDwarves(w);
+  if (state.economy.broker && adults.includes(state.economy.broker.id)) return;
+  const founders = w.game.arrival?.dwarves ?? [];
+  const miners = new Set(founders.slice(0, 2));
+  const trader = [founders[BROKER_FOUNDER], ...adults].find((id) => id !== undefined && adults.includes(id) && !miners.has(id));
+  if (trader === undefined) return;
+  const result = w.game.world.applyCommand({ type: 'AssignTitle', title: 'broker', dwarfId: trader });
+  if (!result.ok) return;
+  state.economy.broker = { id: trader };
+  if (!w.readers.of<JobsReader>('11').laborEnabled(trader, 'trading')) w.game.world.applyCommand({ type: 'SetLabor', dwarfId: trader, labor: 'trading', on: true });
+}
+
 export function trade(w: TestWorld, state: FortressState): void {
   const reader = w.readers.of<TradeReader>('20');
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -323,7 +373,7 @@ export function trade(w: TestWorld, state: FortressState): void {
   const types = w.game.registry.table<{ id: string; category: string; mult: number }>('items');
   const items = w.readers.of<ItemsReader>('13');
   const active = reader.activeCaravan();
-  const awaitingAnvil = items.count('anvil') === 0 && buildings.get(state.placedIds['forge'] ?? 0)?.state !== 'built';
+  const awaitingAnvil = owned(w, 'anvil') === 0 && buildings.get(state.placedIds['forge'] ?? 0)?.state !== 'built';
   const iron = w.game.registry.table<{ id: string; value: number }>('materials');
   const anvilValue = iron.byIndex(iron.index('iron'))!.value * types.byIndex(types.index('anvil'))!.mult / 1000;
   const anvilCapital = requiredValue(merchantPrice(anvilValue), reader.marginPercent('mountainhome'));
@@ -337,18 +387,7 @@ export function trade(w: TestWorld, state: FortressState): void {
   if (state.economy.broker && !fortressDwarves(w).includes(state.economy.broker.id)) {
     delete state.economy.broker;
   }
-  if (!state.economy.broker) {
-    const founders = new Set(w.game.arrival?.dwarves ?? []);
-    const specialists = new Set(Object.values(state.economy.specialists));
-    const trader = fortressDwarves(w).find(id => !founders.has(id) && !specialists.has(id));
-    if (trader !== undefined) {
-      state.economy.broker = { id: trader };
-      w.game.world.applyCommand({ type: 'AssignTitle', title: 'broker', dwarfId: trader });
-    }
-  }
-  // Prepare exports between visits. During a visit, open the session before taking more haul jobs.
-  if (state.economy.broker) dedicate(w, state.economy.broker.id,
-    active && !reader.sessionOpen() ? ['trading'] : ['hauling', 'trading']);
+  assignBroker(w, state);
   if (jobs.laborPriority('trading') !== (active ? DEADLINE : ROUTINE)) w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'trading', priority: active ? DEADLINE : ROUTINE });
   // Export crafts and surplus prepared meals, as balance.md's caravan arithmetic describes.
   const population = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
@@ -359,6 +398,9 @@ export function trade(w: TestWorld, state: FortressState): void {
     Math.max(0, 14 - items.count('chair')) + Math.max(0, 6 - items.count('table')) + Math.max(0, 4 - items.count('door'));
   let stoneSurplus = items.available('raw_stone') - stoneReserve;
   let logSurplus = items.available('log') - TIMBER_RESERVE;
+  // Stone and logs go to the depot while the anvil is still to be paid for, and whenever a
+  // visiting caravan would otherwise find too little to trade for.
+  const thinCargo = (): boolean => (awaitingAnvil && committed < anvilCapital) || (active !== null && committed < VISIT_CARGO);
   const exports = ent.with(C.Item).filter((id) => {
     const it = ent.get(id, C.Item);
     if (!it || it.carriedBy || jobs.byKey(`depot:${id}`) ||
@@ -366,8 +408,8 @@ export function trade(w: TestWorld, state: FortressState): void {
     const type = types.byIndex(it.type);
     if (type?.category.startsWith('craft/')) { committed += reader.valuation('mountainhome', id); return true; }
     if (type?.id === 'lavish_meal' && reader.activeCaravan() && mealSurplus >= it.count) { mealSurplus -= it.count; return true; }
-    if (type?.id === 'raw_stone' && stoneSurplus >= it.count && awaitingAnvil && committed < anvilCapital) { stoneSurplus -= it.count; committed += reader.valuation('mountainhome', id); return true; }
-    if (type?.id === 'log' && logSurplus >= it.count && awaitingAnvil && committed < anvilCapital) { logSurplus -= it.count; committed += reader.valuation('mountainhome', id); return true; }
+    if (type?.id === 'raw_stone' && stoneSurplus >= it.count && thinCargo()) { stoneSurplus -= it.count; committed += reader.valuation('mountainhome', id); return true; }
+    if (type?.id === 'log' && logSurplus >= it.count && thinCargo()) { logSurplus -= it.count; committed += reader.valuation('mountainhome', id); return true; }
     return false;
   }).sort((a, b) => Number(types.byIndex(ent.get(a, C.Item)!.type)?.id === 'raw_stone') - Number(types.byIndex(ent.get(b, C.Item)!.type)?.id === 'raw_stone') || a - b).slice(0, 20);
   if (exports.length) {
@@ -385,7 +427,8 @@ export function trade(w: TestWorld, state: FortressState): void {
   }
   if (!caravan || caravan.state !== 'atDepot') return;
   const day = Math.floor(w.tick / TICKS_PER_DAY);
-  const key = `${Math.floor(day / DAYS_PER_YEAR)}:${caravan.civ}`;
+  // One trade for each visit: the key is the visit, counted from the arrivals seen so far.
+  const key = `${threeYearsMeasurements(w).caravans.filter((c) => c.state === 'CaravanArrived').length}:${caravan.civ}`;
   if (state.economy.traded.has(key)) return;
   if (!reader.sessionOpen()) {
     w.game.world.applyCommand({ type: 'TradeOpen', depotId: depot });
@@ -402,10 +445,11 @@ export function trade(w: TestWorld, state: FortressState): void {
   const priority = (id: number): number => {
     const it = ent.get(id, C.Item);
     const type = types.byIndex(it?.type ?? -1)?.id ?? '';
-    if (type === 'anvil' && items.count('anvil') === 0) return 0;
+    if (type === 'anvil' && awaitingAnvil) return 0;
     if (type === 'log' && items.available('log') < 40) return 1;
     if (type === 'bar' || type === 'charcoal_bar') return 2;
-    if (type === 'plant_food' || type === 'seed') return 3;
+    if (type === 'seed') return 1;
+    if (type === 'plant_food') return 3;
     if (type === 'cloth' || type === 'thread') return 4;
     if (type === 'rough_gem') return 5;
     return 6;
@@ -421,14 +465,22 @@ export function trade(w: TestWorld, state: FortressState): void {
   const spending = Math.max(0, budget - capital);
   const take: { itemId: number; count: number }[] = [];
   let cost = 0;
+  const wanted = goods.some((id) => priority(id) !== 6);
   for (const id of goods) {
-    if (priority(id) === 6) continue;
+    // A visit that carries nothing on the wish list still trades: the first affordable goods.
+    if (wanted ? priority(id) === 6 : take.length > 0) continue;
     const it = ent.get(id, C.Item)!;
     const unitPrice = reader.price(caravan.civ, id) / it.count;
     const count = Math.min(it.count, Math.floor((Math.floor(spending) / (1 + reader.marginPercent(caravan.civ) / 100) - cost) / unitPrice));
     if (count > 0) { take.push({ itemId: id, count }); cost += unitPrice * count; }
   }
-  if (!take.length || requiredValue(cost, reader.marginPercent(caravan.civ)) > budget) return;
+  if (!take.length || requiredValue(cost, reader.marginPercent(caravan.civ)) > budget) {
+    if (state.economy.lastTradeNote !== key) {
+      state.economy.lastTradeNote = key;
+      note('three_years_trade', { day, civ: caravan.civ, offer: 'none', budget: Math.floor(budget), goods: goods.length, wanted });
+    }
+    return;
+  }
   // Offer just enough crafts, keeping surplus exports for the next caravan.
   let offered = 0;
   const selected: { itemId: number; count: number }[] = [];
@@ -441,6 +493,8 @@ export function trade(w: TestWorld, state: FortressState): void {
   }
   const foreign = new Set(w.game.world.entities.with(C.Item).filter((id) => (w.game.world.entities.get(id, C.Item)!.flags & ItemFlag.Merchant) !== 0));
   const result = w.game.world.applyCommand({ type: 'TradeOffer', give: selected, take });
+  note('three_years_trade', { day, civ: caravan.civ, ok: result.ok, reason: result.ok ? null : result.reason, budget: Math.floor(budget), cost: Math.floor(cost),
+    take: take.map((t) => `${types.byIndex(ent.get(t.itemId, C.Item)?.type ?? -1)?.id ?? 'gone'}x${t.count}`) });
   const acquired = w.game.world.entities.with(C.Item).filter((id) => (foreign.has(id) && (ent.get(id, C.Item)!.flags & ItemFlag.Merchant) === 0) ||
     (!foreign.has(id) && !give.includes(id) && ent.get(id, C.Item)?.containerId === depot));
   if (result.ok && acquired.length > 0) {
@@ -465,8 +519,8 @@ function checkArming(w: TestWorld, state: FortressState, first: boolean, day: nu
     phases.add('arming');
     specialists['forge'] = founders[6]!;
     specialists['smelter'] = founders[3]!;
-    dedicate(w, founders[6]!, ['smithing', 'smelting', 'masonry', 'construction']);
-    dedicate(w, founders[3]!, ['masonry', 'smelting', 'construction']);
+    dedicate(w, state, founders[6]!, ['smithing', 'smelting', 'masonry', 'construction']);
+    dedicate(w, state, founders[3]!, ['masonry', 'smelting', 'construction']);
   }
   if (!armingSquad(state)) return;
   const built = (type: string): boolean => buildings.get(state.placedIds[type] ?? 0)?.state === 'built';
@@ -474,7 +528,7 @@ function checkArming(w: TestWorld, state: FortressState, first: boolean, day: nu
   // Once his forge stands the smith does nothing but metal.
   if (smith !== undefined && built('forge') && !phases.has('smith at forge')) {
     phases.add('smith at forge');
-    dedicate(w, smith, ['smithing', 'smelting']);
+    dedicate(w, state, smith, ['smithing', 'smelting']);
     w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: state.placedIds['forge'], dwarfId: smith });
   }
   if (!SQUAD_KIT_ITEMS.every((item) => items.count(item) >= SQUAD_SIZE)) return;
@@ -484,7 +538,7 @@ function checkArming(w: TestWorld, state: FortressState, first: boolean, day: nu
   state.economy.armedDay = day;
   const hand = specialists['smelter'];
   if (hand !== undefined) {
-    dedicate(w, hand, w.game.registry.table<{ id: string; defaultOn: boolean }>('labors').rows.slice(1)
+    dedicate(w, state, hand, w.game.registry.table<{ id: string; defaultOn: boolean }>('labors').rows.slice(1)
       .filter((r) => r.defaultOn && !['mining', 'woodcutting'].includes(r.id)).map((r) => r.id));
     delete specialists['smelter'];
   }
@@ -523,11 +577,63 @@ function checkSpecialists(w: TestWorld, state: FortressState): void {
       if (current === undefined) continue;
       chosen[spec.role] = current;
     }
-    dedicate(w, current, spec.labors);
+    dedicate(w, state, current, spec.labors);
     for (const shopId of shopIds) {
       if (w.game.world.entities.get(shopId, C.Workshop)?.assignedWorker !== current) w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: shopId, dwarfId: current });
     }
   }
+}
+
+/** One dwarf keeps brewing as its only craft, so drink never waits behind the farm or the kitchen. */
+function checkBrewer(w: TestWorld, state: FortressState): void {
+  const adults = fortressDwarves(w);
+  const { economy } = state;
+  if (economy.brewer !== undefined && adults.includes(economy.brewer)) return;
+  delete economy.brewer;
+  if (adults.length < SPECIALIST_MIN_POPULATION) return;
+  const founders = new Set(w.game.arrival?.dwarves ?? []);
+  const taken = new Set([...Object.values(economy.specialists), economy.broker?.id ?? 0]);
+  const dwarves = w.readers.of<DwarvesReader>('10');
+  const free = adults.filter((id) => !founders.has(id) && !taken.has(id) && !w.game.world.entities.has(id, C.Soldier));
+  free.sort((a, b) => dwarves.skill(b, 'brewing') - dwarves.skill(a, 'brewing') || a - b);
+  if (free[0] === undefined) return;
+  economy.brewer = free[0];
+  dedicate(w, state, free[0], ['brewing']);
+}
+
+/** The cave farm follows the dwarf count: a new strip is dug and zoned when the plots fall behind. */
+function checkFarm(w: TestWorld, state: FortressState): void {
+  const map = w.map;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const plans = state.economy.farmPlans;
+  const z = map.zOf(state.caveTiles1[0]!);
+  for (const [i, plan] of plans.entries()) {
+    if (plan.zoneId !== 0 || !plan.tiles.every((t) => map.kindAt(t) === TileKind.Floor)) continue;
+    const tiles = plan.tiles.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t));
+    if (tiles.length === 0) { plan.zoneId = -1; continue; }
+    if (!w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) { plan.zoneId = -1; continue; }
+    plan.zoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
+    for (const season of [0, 1, 2, 3]) w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: plan.zoneId, season, speciesId: i % 2 === 0 ? 'dimcap' : 'cavewheat' });
+  }
+  const tilled = state.caveTiles1.length + state.caveTiles2.length + plans.reduce((sum, p) => sum + p.tiles.length, 0);
+  if (plans.length >= FARM_STRIP.max || tilled >= fortressDwarves(w).length * FARM_TILES_PER_DWARF) return;
+  if (state.caveFarmId1 === 0 || plans.some((p) => p.zoneId === 0)) return;
+  // The next strip south of the plots, kept away from water above and beside it.
+  const y0 = map.yOf(state.caveTiles1[state.caveTiles1.length - 1]!) + 1 + plans.length * FARM_STRIP.rows;
+  const x0 = map.xOf(state.caveTiles1[0]!);
+  const tiles: number[] = [];
+  for (let y = y0; y < y0 + FARM_STRIP.rows; y += 1) for (let x = x0; x < x0 + FARM_STRIP.width; x += 1) {
+    if (x < 2 || y < 2 || x >= map.w - 2 || y >= map.h - 2) continue;
+    const t = w.index(x, y, z);
+    let dry = map.kindAt(t) === TileKind.Wall;
+    for (let dz = 0; dz <= 1 && dry; dz += 1) for (let dy = -1; dy <= 1 && dry; dy += 1) for (let dx = -1; dx <= 1 && dry; dx += 1) {
+      const n = map.offset(t, dx, dy, dz);
+      if (n < 0 || map.fluidLevelAt(n) !== 0) dry = false;
+    }
+    if (dry) tiles.push(t);
+  }
+  plans.push({ tiles, zoneId: tiles.length ? 0 : -1 });
+  if (tiles.length) w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles });
 }
 
 export function checkEconomy(w: TestWorld, state: FortressState): void {
@@ -549,7 +655,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     const builder = available[0];
     if (builder !== undefined) {
       state.economy.specialists['builder'] = builder;
-      dedicate(w, builder, ['masonry', 'construction', 'smelting']);
+      dedicate(w, state, builder, ['masonry', 'construction', 'smelting']);
     }
   }
   // Masonry includes hundreds of room-finishing jobs. Keep a separate furnace worker on fuel,
@@ -566,7 +672,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       if (fuel !== undefined) state.economy.specialists['fuel'] = fuel;
     }
     if (fuel !== undefined) {
-      dedicate(w, fuel, ['smelting']);
+      dedicate(w, state, fuel, ['smelting']);
       for (const type of ['wood_furnace', 'smelter']) {
         const id = state.placedIds[type];
         if (id && buildings.get(id)?.state === 'built' && w.game.world.entities.get(id, C.Workshop)?.assignedWorker !== fuel) {
@@ -580,7 +686,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   const terrain = w.readers.of<TerrainReader>('03');
   // Help build the initial stone rooms, then keep both miners on the supplied mine.
   if (!phases.has('miners released') && buildings.get(state.hearthBuildingId)?.state === 'built' && items.count('chair') >= 6) {
-    for (const id of (w.game.arrival?.dwarves ?? []).slice(0, 2)) dedicate(w, id, ['mining']);
+    for (const id of (w.game.arrival?.dwarves ?? []).slice(0, 2)) dedicate(w, state, id, ['mining'], false);
     phases.add('miners released');
   }
   const standing = state.timberTiles.filter((t) => w.map.kindAt(t) === TileKind.Tree);
@@ -594,7 +700,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   if (!arming && items.count('anvil') > 0 && fortressDwarves(w).length >= SPECIALIST_MIN_POPULATION && metalWorker !== undefined && !phases.has('metal staffed') &&
       ['still', 'kitchen'].every(type => buildings.get(state.placedIds[type] ?? 0)?.state === 'built')) {
     // The peaceful metal worker keeps the food/hauling support until the anvil is available.
-    dedicate(w, metalWorker, ['smithing', 'smelting', 'masonry', 'carpentry', 'construction']);
+    dedicate(w, state, metalWorker, ['smithing', 'smelting', 'masonry', 'carpentry', 'construction']);
     phases.add('metal staffed');
   }
   // Once immigrants provide spare hands, the mason starts stone exports after the
@@ -607,7 +713,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       state.economy.specialists['craftdwarf'] === undefined) {
     state.economy.specialists['craftdwarf'] = stoneCrafter;
     phases.add('stone craft staffed');
-    dedicate(w, stoneCrafter, ['crafts']);
+    dedicate(w, state, stoneCrafter, ['crafts']);
     w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: stoneShop, dwarfId: stoneCrafter });
   }
   // F-17h: the mason's blocks, the furnace, the smelter and the forge come before all routine work.
@@ -622,6 +728,8 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     if (!phases.has('requests')) {
       phases.add('requests');
       w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', material: 'iron', priority: 3 }, { itemType: 'log', priority: 2 }, { itemType: 'bar', material: 'iron', priority: 1 }] });
+      // The farm grows only by bought seed (07: a harvest returns the one seed it was sown from).
+      for (const civ of ['hillfolk', 'wildwood']) w.game.world.applyCommand({ type: 'SetRequests', civ, entries: [{ itemType: 'seed', priority: 3 }] });
     }
     trade(w, state);
   }
@@ -706,14 +814,30 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   }
   const carpenter = state.placedIds['carpenter'];
   if (carpenter && state.orderedWorkshops.has('carpenter')) {
+    const recipes = w.game.registry.table('recipes');
+    const orders = (): readonly { recipe: number; mode: string; threshold: number; remaining: number }[] => w.game.world.entities.get(carpenter, C.Workshop)?.orders ?? [];
+    const standing = (): number => orders().findIndex((o) => o.recipe === recipes.index('make_barrel') && o.mode === 'maintain');
+    const barrels = standing();
     const threshold = day >= 224 ? 100 : day >= 112 ? 50 : 20;
-    const ws = w.game.world.entities.get(carpenter, C.Workshop);
-    if (ws?.orders[0]?.threshold !== threshold) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: carpenter, index: 0, patch: { threshold } });
+    if (barrels >= 0 && orders()[barrels]!.threshold !== threshold) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: carpenter, index: barrels, patch: { threshold } });
+    // Beds come before barrels until every dwarf and the hospital has one.
+    const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
+    const beds = Math.min(state.bedroomPlans.filter((bp) => bp.designated).length, population + 1) - owned(w, 'bed');
+    const bedOrder = orders().findIndex((o) => o.recipe === recipes.index('make_bed'));
+    if (beds > 0 && bedOrder < 0) {
+      const added = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_bed', mode: 'once', remaining: beds, priority: ROUTINE } });
+      const at = standing();
+      if (added.ok && at >= 0) w.game.world.applyCommand({ type: 'ReorderWorkOrder', workshopId: carpenter, from: orders().length - 1, to: at });
+    } else if (bedOrder >= 0 && beds > orders()[bedOrder]!.remaining + 1) {
+      w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: carpenter, index: bedOrder, patch: { remaining: beds } });
+    }
   }
   const kitchen = state.placedIds['kitchen'];
-  if (day >= 56 && kitchen && state.orderedWorkshops.has('kitchen') && !phases.has('lavish')) {
+  if (kitchen && state.orderedWorkshops.has('kitchen') && !phases.has('lavish') && items.count('easy_meal') >= EASY_MEALS_STOCKED) {
     phases.add('lavish');
     order(w, kitchen, 'cook_lavish_meal', 120);
+    const last = (w.game.world.entities.get(kitchen, C.Workshop)?.orders.length ?? 1) - 1;
+    w.game.world.applyCommand({ type: 'ReorderWorkOrder', workshopId: kitchen, from: last, to: 0 });
   }
   // The general metal economy takes the forge once the squad has its kit.
   const forge = state.placedIds['forge'];
@@ -741,10 +865,19 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   }
   // F-17i: export crafts keep running: the standing stone-craft order grows with the workforce.
   const craftdwarf = state.placedIds['craftdwarf'];
-  if (day >= 112 && craftdwarf && state.orderedWorkshops.has('craftdwarf') && !phases.has('export crafts')) {
-    phases.add('export crafts');
-    w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: craftdwarf, index: 0, patch: { threshold: 120 } });
+  if (craftdwarf && state.orderedWorkshops.has('craftdwarf')) {
+    const threshold = Math.min(999, Math.max(day >= 112 ? 120 : 60, CRAFTS_PER_DWARF * fortressDwarves(w).length));
+    if (w.game.world.entities.get(craftdwarf, C.Workshop)?.orders[0]?.threshold !== threshold) {
+      w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: craftdwarf, index: 0, patch: { threshold } });
+    }
   }
+  // Work follows the population: a new ore drift every season of years 2 and 3.
+  if (day >= 112 + DRIFT_EVERY_DAYS && phases.has('shaft')) {
+    const name = `drift ${Math.floor(day / DRIFT_EVERY_DAYS)}`;
+    if (!phases.has(name)) { phases.add(name); mine(w, state, upper, isOre, 20); mine(w, state, upper, isGem, 5); }
+  }
+  checkBrewer(w, state);
+  checkFarm(w, state);
   checkSpecialists(w, state);
   threeYearsMeasurements(w).fixture = { armedDay: state.economy.armedDay ?? null,
     specialists: { ...state.economy.specialists }, deepShaft: state.economy.deepShaft ? { ...state.economy.deepShaft } : null };

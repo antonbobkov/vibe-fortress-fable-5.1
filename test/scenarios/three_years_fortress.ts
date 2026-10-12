@@ -23,16 +23,35 @@ import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
 import type { ItemsReader } from '@systems/items';
 import type { TerrainReader } from '@systems/terrain/reader';
+import type { AnimalsReader } from '@systems/animals';
+import type { DwarvesReader } from '@systems/dwarves';
 import { TestWorld } from './test-world';
-import { armingSquad, BUILD, checkEconomy, KIT_FIRST, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, type EconomyState } from './three_years_economy';
-import { attachThreeYearsMeasurements, observeImmigration, stepThreeYears, type ThreeYearsMeasurements } from './three_years_measurements';
+import { armingSquad, assignBroker, BUILD, checkEconomy, KIT_FIRST, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, type EconomyState } from './three_years_economy';
+import { attachThreeYearsMeasurements, note, observeImmigration, stepThreeYears, type ThreeYearsMeasurements } from './three_years_measurements';
 
 export const Z = FLAT_TEST_SURFACE_Z;
 // Six levels below the surface puts rooms below Serene Vale's deeper soil.
 export const HALL_Z = 26;
 
-/** F-17g: the labors given one step: the food chain, and hauling (whose jobs default to 6). */
-const STEP_LABORS: readonly string[] = ['farming', 'brewing', 'cooking', 'hauling'];
+/**
+ * F-17g: the labors given one step: the food chain. Hauling keeps the default: everybody but the
+ * miners hauls, so its jobs (which default to 6) are done between crafts and never ahead of one.
+ */
+const STEP_LABORS: readonly string[] = ['farming', 'brewing', 'cooking'];
+
+/** Labors every dwarf but the two miners keeps on beside its craft. */
+const EVERYBODY: readonly string[] = ['hauling', 'medicine'];
+
+/** Ticks between two looks at the map for danger: a player who watches the screen. */
+const WATCH_EVERY = 20;
+/** A dangerous wild animal this near the gate or a dwarf is answered (tiles, Chebyshev). */
+const WILD_NEAR = 14;
+/** The alert stands down after this long with no danger near. */
+const ALL_CLEAR_TICKS = 300;
+/** The founders who stand in the squad: the woodcutter, the mason, the seventh, and the two miners. */
+const MILITIA: readonly number[] = [2, 3, 6, 0, 1];
+/** Barrels made before anything else at the carpenter's. */
+const FIRST_BARRELS = 6;
 
 /** D-225: ordinary wealth-2 generation, compact dimensions for the long-running tests. */
 export function threeYearsWorld(seed: string, peril = 0): TestWorld {
@@ -54,7 +73,8 @@ export function threeYearsWorld(seed: string, peril = 0): TestWorld {
 /**
  * Real embark path for the three-year fortress, through EmbarkSession and the Balanced preset.
  * F-17i: the seventh founder's ten skill points buy the metal crafts the fortress actually uses
- * instead of medicine, crossbow and hunting; no attribute, supply or seed is rerolled.
+ * instead of medicine, crossbow and hunting; no attribute or seed is rerolled. Three iron spears
+ * replace supplies the fortress never uses, for the wild animals of the map.
  * At perils 2 and 4 the peril budget bonus covers e_anvil (270 marks); peril 0 buys its anvil
  * from the first Mountainhome caravan, so the peaceful baseline remains comparable.
  */
@@ -77,6 +97,17 @@ export function threeYearsEmbark(registry: Registry, seed: string, peril: number
     const rSkill = session.apply({ type: 'SetSkill', dwarf: smith, skill, level });
     if (!rSkill.ok) throw new Error(`threeYearsEmbark SetSkill ${skill} failed: ${rSkill.reason}`);
   }
+  // Boar country: three clubs lose to one boar and three iron spears do not, so the squad's
+  // weapons come in the wagon. They are paid for with what this fortress never uses: the crossbow,
+  // its bolts and quiver (the seventh founder is a smith, and a stray bolt hits a friend), the
+  // strawberry and flax seed, the mechanism, the leather, the table and chairs the mason makes on
+  // site, and the meat. Where the anvil comes too there is money for two spears, not three.
+  for (const entry of ['e_crossbow', 'e_bolts_copper', 'e_quiver', 'e_seed_strawberry', 'e_seed_flax', 'e_mechanism', 'e_leather', 'e_table', 'e_chair', 'e_meat']) {
+    const rDrop = session.apply({ type: 'SetSupply', entry, count: 0 });
+    if (!rDrop.ok) throw new Error(`threeYearsEmbark SetSupply ${entry} failed: ${rDrop.reason}`);
+  }
+  const rSpears = session.apply({ type: 'SetSupply', entry: 'e_spear_iron', count: peril >= 2 ? SQUAD_SIZE - 1 : SQUAD_SIZE });
+  if (!rSpears.ok) throw new Error(`threeYearsEmbark SetSupply e_spear_iron failed: ${rSpears.reason}`);
   if (peril >= 2) {
     if (session.budget() < session.total() + 270) {
       // At peril 2, budget is 1700 (+200 peril bonus over 1500 base). Balanced preset is 1480 (+220 unspent).
@@ -94,6 +125,9 @@ export function threeYearsEmbark(registry: Registry, seed: string, peril: number
   if (!rConfirm.ok) throw new Error(`threeYearsEmbark ConfirmEmbark failed: ${rConfirm.reason}`);
   return { session };
 }
+
+/** The bedroom plan that becomes the hospital. */
+const HOSPITAL_ROOM = 1;
 
 export interface BedroomPlan {
   readonly id: number;
@@ -142,6 +176,10 @@ export interface FortressState {
   gateDoorId2: number;
   gateDoorPlaced2: boolean;
   squadId: number;
+  /** The dangers the squad's current orders answer, and when a danger was last near. */
+  answered: string;
+  lastDangerTick: number;
+  hospitalSetup: boolean;
   forgePlaced: boolean;
   /** Trees around the settlement, felled in batches as the log stock runs down. */
   readonly timberTiles: number[];
@@ -226,10 +264,11 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   // instead of every job being made urgent: the two miners mine, the woodcutter
   // fells and saws, the farmer farms and brews, the cook cooks, brews and helps build. The mason
   // and the seventh founder keep the general labors (building, hauling, the remaining crafts).
+  // Everybody but the two miners also hauls and tends the wounded, as the labor defaults have it.
   const professions: Record<number, readonly string[]> = {
-    0: ['mining'], 1: ['mining', 'masonry'], 2: ['woodcutting', 'carpentry'],
-    3: ['masonry', 'smelting', 'construction'],
-    4: ['farming', 'brewing'], 5: ['cooking', 'brewing', 'construction'],
+    0: ['mining'], 1: ['mining', 'masonry'], 2: ['woodcutting', 'carpentry', ...EVERYBODY],
+    3: ['masonry', 'smelting', 'construction', 'trading', ...EVERYBODY],
+    4: ['farming', 'brewing', ...EVERYBODY], 5: ['cooking', 'brewing', 'construction', ...EVERYBODY],
   };
   for (const [index, id] of arrival.dwarves.entries()) {
     for (const row of w.game.registry.table<{ id: string; defaultOn: boolean }>('labors').rows.slice(1)) {
@@ -289,9 +328,8 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   }
 
   // 3. F-17g: labors keep the default priority. Routine work is not urgent, so a dwarf eats,
-  // drinks, sits and talks at the want threshold instead of deferring to the critical one. Two real
-  // bottlenecks get one step: the food chain (planting, harvesting, brewing, cooking), and hauling,
-  // whose stockpile jobs otherwise sit one step behind every other job and are never done.
+  // drinks, sits and talks at the want threshold instead of deferring to the critical one. One real
+  // bottleneck gets one step: the food chain (planting, harvesting, brewing, cooking).
   for (const row of w.game.registry.table<{ id: string }>('labors').rows.slice(1)) {
     w.game.world.applyCommand({ type: 'SetLaborPriority', labor: row.id, priority: STEP_LABORS.includes(row.id) ? ROUTINE - 1 : ROUTINE });
   }
@@ -387,9 +425,9 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     }
   }
 
-  // Dig for the actual embark party, with one spare room; expand when immigrants arrive.
+  // Dig for the actual embark party, with the hospital and one spare room; expand when immigrants arrive.
   const initialDigTiles: number[] = [];
-  for (let i = 0; i < arrival.dwarves.length + 1 && i < bedroomPlans.length; i += 1) {
+  for (let i = 0; i < arrival.dwarves.length + 2 && i < bedroomPlans.length; i += 1) {
     const bp = bedroomPlans[i]!;
     bp.designated = true;
     initialDigTiles.push(w.index(bp.doorX, bp.doorY, HALL_Z));
@@ -455,7 +493,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   if (gatherTiles.length) w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'gather', tiles: gatherTiles });
 
   return {
-    economy: { lastDay: -1, phases: new Set(), traded: new Set(), mined: new Set(), workings: new Set(), specialists: {} },
+    economy: { lastDay: -1, phases: new Set(), traded: new Set(), mined: new Set(), workings: new Set(), specialists: {}, farmPlans: [] },
     cx,
     cy,
     placedIds,
@@ -476,6 +514,9 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     gateDoorId2: 0,
     gateDoorPlaced2: false,
     squadId: 0,
+    answered: '',
+    lastDangerTick: -1,
+    hospitalSetup: false,
     forgePlaced: false,
     timberTiles: treeTiles.filter((t) => !roadTrees.includes(t)),
   };
@@ -490,15 +531,17 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
 
   if (!ordered.has('carpenter') && buildings.get(placedIds['carpenter']!)?.state === 'built') {
     ordered.add('carpenter');
+    // The still cannot brew without empty barrels and the wagon's drink lasts two weeks, so the
+    // first few barrels are made at once; then a wooden buckler for each soldier and the
+    // hospital's chest. Beds come before the standing barrel order (checkEconomy).
+    for (const [recipeId, remaining] of [['make_barrel', FIRST_BARRELS], ['make_chest_wood', 1], ['make_buckler_wood', SQUAD_SIZE]] as const) {
+      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['carpenter'],
+        order: { recipeId, mode: 'once', remaining, priority: ROUTINE } });
+    }
     w.game.world.applyCommand({
       type: 'AddWorkOrder',
       workshopId: placedIds['carpenter'],
       order: { recipeId: 'make_barrel', mode: 'maintain', threshold: 20, priority: ROUTINE },
-    });
-    w.game.world.applyCommand({
-      type: 'AddWorkOrder',
-      workshopId: placedIds['carpenter'],
-      order: { recipeId: 'make_bed', mode: 'maintain', threshold: 8, priority: ROUTINE },
     });
     w.game.world.applyCommand({
       type: 'AddWorkOrder',
@@ -545,7 +588,7 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
       type: 'AddWorkOrder',
       workshopId: placedIds['still'],
       // Drink has first call on the plants: the one order a step ahead of the kitchen's.
-      order: { recipeId: 'brew', mode: 'maintain', threshold: 80, priority: ROUTINE },
+      order: { recipeId: 'brew', mode: 'maintain', threshold: 80, priority: ROUTINE - 1 },
     });
   }
   if (!ordered.has('kitchen') && buildings.get(placedIds['kitchen']!)?.state === 'built') {
@@ -565,7 +608,7 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
   // Forge: built as soon as balance.md year-one table allows (day 30–56, as soon as day 30 is reached and anvil available)
   // F-17h: from day 1 when the anvil came in the wagon and the squad waits for its kit.
   if (!state.forgePlaced && (w.tick >= 30 * TICKS_PER_DAY || armingSquad(state))) {
-    const hasAnvil = w.readers.of<ItemsReader>('13').count('anvil') > 0;
+    const hasAnvil = owned(w, 'anvil') > 0;
     if (hasAnvil) {
       placeEconomyBuilding(w, state, 'forge', 12, 10, armingSquad(state) ? KIT_FIRST : BUILD);
       const forgeId = placedIds['forge'];
@@ -754,8 +797,11 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       // Do not place doors at bedroom entrances to prevent creature collision blocks
       // Smooth room floors and walls at the default priority (score >= 60 guarantees tier >= 2 Decent)
 
-      // Zone
-      w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'bedroom', tiles: bp.tiles });
+      // Zone: the room across the corridor from the Thane's suite is the hospital, with its chest.
+      if (bp.id === HOSPITAL_ROOM) {
+        w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'chest', origin: w.index(bp.bedX, bp.bedY + 1, HALL_Z), orientation: 0, materialChoice: 0, priority: BUILD });
+        state.hospitalSetup = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'hospital', tiles: bp.tiles }).ok;
+      } else w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'bedroom', tiles: bp.tiles });
 
       // Smooth room floors and walls at the default priority
       smooth(bp.tiles);
@@ -772,8 +818,8 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
   // 4. Dynamic bedroom expansion: keep bedrooms ahead of living population
   const livingPop = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
   const designatedCount = state.bedroomPlans.filter((bp) => bp.designated).length;
-  if (livingPop + 1 > designatedCount) {
-    const nextToDesignate = state.bedroomPlans.filter((bp) => !bp.designated).slice(0, livingPop + 1 - designatedCount);
+  if (livingPop + 2 > designatedCount) {
+    const nextToDesignate = state.bedroomPlans.filter((bp) => !bp.designated).slice(0, livingPop + 2 - designatedCount);
     if (nextToDesignate.length > 0) {
       const digTiles: number[] = [];
       for (const bp of nextToDesignate) {
@@ -894,48 +940,127 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     }
   }
 
-  // 3. Form squad of 3 once 3 adult dwarves exist
-  if (state.squadId === 0 && w.tick >= 10 * TICKS_PER_DAY) {
-    const combat = w.readers.of<CombatReader>('16');
-    const adultDwarves = w.game.world.entities.with(C.Labors).filter((id) => {
-      const c = w.game.world.entities.get(id, C.Creature);
-      return c?.faction === 'fortress';
-    });
-    if (adultDwarves.length >= 3) {
-      const rSquad = w.game.world.applyCommand({ type: 'CreateSquad', name: 'Gate Guard' });
-      if (rSquad.ok) {
-        state.squadId = combat.squads()[0]!.id;
-        // Keep the two embark miners and the woodcutter on their tools.
-        const members = adultDwarves.slice(-3);
+  // 3. The squad stands from the first day, with the spears from the wagon and the woodcutter's axe.
+  const ent = w.game.world.entities;
+  const combat = w.readers.of<CombatReader>('16');
+  const adults = w.readers.of<DwarvesReader>('10').adults().filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+  const founders = w.game.arrival?.dwarves ?? [];
+  if (state.squadId === 0 && adults.length >= SQUAD_SIZE) {
+    const rSquad = w.game.world.applyCommand({ type: 'CreateSquad', name: 'Gate Guard' });
+    if (rSquad.ok) {
+      state.squadId = combat.squads()[0]!.id;
+      w.game.world.applyCommand({ type: 'SetSquadMode', squadId: state.squadId, mode: 'off' });
+      w.game.world.applyCommand({ type: 'SetSquadEquipment', squadId: state.squadId, equipment: { weaponClass: 'any', armor: 'any' } });
+      assignBroker(w, state);
+    }
+  }
+  const squad = combat.squads().find((sq) => sq.id === state.squadId);
+  const arming0 = armingSquad(state);
+  if (squad) {
+    // Everybody with a weapon stands: the mason, the seventh founder and the woodcutter take the
+    // spears, and the miners fight with their picks. The farmer and the cook stay civilians and
+    // tend the wounded; immigrants replace the fallen. Where the anvil came in the wagon the
+    // mason and the smith are at the forge, and the last three adults stand.
+    const size = arming0 ? SQUAD_SIZE : MILITIA.length;
+    const living = squad.members.filter((id) => adults.includes(id));
+    if (living.length < size) {
+      const arming = armingSquad(state);
+      const kept = new Set<number>([founders[4]!, founders[5]!, ...Object.values(state.economy.specialists), state.economy.brewer ?? 0]);
+      const order = arming ? [...adults].reverse() : [...MILITIA.map((i) => founders[i]!), ...adults.filter((id) => !founders.includes(id))];
+      const recruits = order.filter((id, i) => adults.includes(id) && !living.includes(id) && order.indexOf(id) === i && (arming || !kept.has(id)));
+      const members = [...living, ...recruits].slice(0, size);
+      if (members.length !== squad.members.length || members.some((id) => !squad.members.includes(id))) {
         w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: state.squadId, members });
-        w.game.world.applyCommand({ type: 'SetSquadMode', squadId: state.squadId, mode: 'off' });
       }
     }
   }
 
-  // 4. Alert and squad orders on raid arrival / departure
-  const hostilePurposes = new Set(['bandits', 'ambush', 'raid', 'siege', 'restless']);
-  let hasActiveRaid = false;
-  for (const pId of w.game.world.entities.with(C.Party)) {
-    const p = w.game.world.entities.get(pId, C.Party);
-    if (p && hostilePurposes.has(p.purpose) && p.state !== 'gone' && p.state !== 'retreat') {
-      hasActiveRaid = true;
-      break;
-    }
-  }
-
-  const curAlert = w.game.world.fortress.alert;
+  // 4. Danger: a raid, a spotted thief, or a dangerous wild animal near the gate or a dwarf.
+  // Each raises the hearth alert (civilians go in, the gate locks) and sends the squad.
   const gatehouseStairsTile = w.index(cx + 6, cy + 6, Z);
-
-  if (hasActiveRaid && curAlert !== 'hearth') {
-    w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' });
-    if (state.squadId !== 0) {
-      w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'station', tile: gatehouseStairsTile } });
+  const hostilePurposes = new Set(['thief', 'bandits', 'ambush', 'raid', 'siege', 'restless']);
+  const intruders: number[] = [];
+  let raid = false;
+  for (const pId of ent.with(C.Party)) {
+    const p = ent.get(pId, C.Party);
+    if (!p || !hostilePurposes.has(p.purpose) || p.state === 'gone' || p.state === 'retreat') continue;
+    // A thief is a threat from the moment it is spotted; until then the player does not see it.
+    if (p.purpose === 'thief') intruders.push(...p.members.filter((m) => ent.alive(m) && ent.get(m, C.Hostile)?.stealthed !== true));
+    else raid = true;
+  }
+  const targets = [...intruders, ...dangerousWildlife(w, state, adults)];
+  const danger = raid || targets.length > 0;
+  if (danger) state.lastDangerTick = w.tick;
+  const curAlert = w.game.world.fortress.alert;
+  if (danger) {
+    if (curAlert !== 'hearth') {
+      w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' });
+      note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raid, targets: targets.map((id) => speciesName(w, id)) });
     }
-  } else if (!hasActiveRaid && curAlert === 'hearth') {
-    w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' });
-    if (state.squadId !== 0) {
+    const answer = `${raid ? 'raid' : ''}:${squadArmed(w, state)}:${targets.join(',')}`;
+    if (state.squadId !== 0 && state.answered !== answer) {
+      state.answered = answer;
       w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+      // A raid is met at the gate. A thief or a beast is hunted down, the nearest first, by a
+      // squad whose every member holds a weapon; an unarmed squad waits below with everybody else.
+      const hunted = raid ? [] : squadArmed(w, state) ? targets : [];
+      for (const targetId of hunted) w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'kill', targetId } });
+      const below = w.index(cx + 6, cy + 6, HALL_Z);
+      const post = raid || hunted.length > 0 || !w.readers.pathing.passable(below, 'walker') ? gatehouseStairsTile : below;
+      w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'station', tile: post } });
     }
+  } else if (curAlert === 'hearth' && w.tick - state.lastDangerTick >= ALL_CLEAR_TICKS) {
+    w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' });
+    note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true });
+    state.answered = '';
+    if (state.squadId !== 0) w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+  }
+}
+
+/** At least three of the squad hold a weapon (a spear, a sword, an axe or a pick). */
+function squadArmed(w: TestWorld, state: FortressState): boolean {
+  const combat = w.readers.of<CombatReader>('16');
+  const members = combat.squads().find((sq) => sq.id === state.squadId)?.members ?? [];
+  return members.length >= SQUAD_SIZE && members.filter((id) => combat.weaponOf(id) !== 0).length >= SQUAD_SIZE;
+}
+
+function speciesName(w: TestWorld, id: number): string {
+  return w.game.registry.table<{ id: string }>('creatures').byIndex(w.game.world.entities.get(id, C.Creature)?.species ?? -1)?.id ?? 'unknown';
+}
+
+/**
+ * The wild animals a player answers: every living aggressive or territorial one that can walk to
+ * the gate and is within WILD_NEAR of it or of a dwarf, the nearest to the gate first.
+ */
+function dangerousWildlife(w: TestWorld, state: FortressState, dwarves: readonly number[]): number[] {
+  const ent = w.game.world.entities;
+  const animals = w.readers.of<AnimalsReader>('08');
+  const wild = animals.wildList();
+  if (wild.length === 0) return [];
+  const gate = { x: state.cx + 6, y: state.cy + 6, z: Z };
+  // Dwarves below ground are behind the gate already: only those on the surface count.
+  const places = [gate, ...dwarves.map((id) => ent.get(id, C.Position)).filter((p) => p !== undefined && p.z >= Z)];
+  const gateLabel = w.readers.pathing.labelOf(w.index(gate.x, gate.y + 2, Z), 'walker');
+  const found: { id: number; d: number }[] = [];
+  for (const id of wild) {
+    const temper = animals.def(ent.get(id, C.Creature)?.species ?? -1)?.temper;
+    const p = ent.get(id, C.Position);
+    if (!p || (temper !== 'aggressive' && temper !== 'territorial')) continue;
+    if (w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') !== gateLabel) continue;
+    if (!places.some((q) => q !== undefined && Math.abs(q.z - p.z) <= 2 && Math.max(Math.abs(q.x - p.x), Math.abs(q.y - p.y)) <= WILD_NEAR)) continue;
+    found.push({ id, d: Math.max(Math.abs(gate.x - p.x), Math.abs(gate.y - p.y)) });
+  }
+  return found.sort((a, b) => a.d - b.d || a.id - b.id).map((f) => f.id);
+}
+
+/**
+ * Advance the fortress while watching for danger: the defence is looked at every WATCH_EVERY
+ * ticks, the rest of the management at the caller's own pace.
+ */
+export function playThreeYears(w: TestWorld, state: FortressState, ticks: number): void {
+  const end = w.tick + ticks;
+  while (w.tick < end) {
+    stepThreeYears(w, Math.min(WATCH_EVERY, end - w.tick));
+    checkFortressDefense(w, state);
   }
 }

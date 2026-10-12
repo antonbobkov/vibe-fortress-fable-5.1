@@ -1,5 +1,5 @@
 import { checkInvariants, watchInvariants } from '../scenarios/invariants';
-import { stepThreeYears, threeYearsMeasurements } from '../scenarios/three_years_measurements';
+import { threeYearsMeasurements } from '../scenarios/three_years_measurements';
 /**
  * 20-seed sweep across three regions (peril 0, 2, 4) for T-M8-06 (DECISIONS D-204).
  *
@@ -22,6 +22,7 @@ import type { MoraleReader } from '@systems/morale/reader';
 import type { ThreatsReader } from '@systems/threats/reader';
 import { deathCounts } from '../scenarios/death-counts';
 import {
+  playThreeYears,
   setupThreeYearsFortress,
   checkFortressWorkOrders,
   checkFortressRooms,
@@ -103,7 +104,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   // Advance bootstrap period (20 days)
   const totalTicksBootstrap = 20 * TICKS_PER_DAY;
   while (w.tick < totalTicksBootstrap) {
-    stepThreeYears(w, Math.min(100, totalTicksBootstrap - w.tick));
+    playThreeYears(w, state, Math.min(100, totalTicksBootstrap - w.tick));
     checkFortressWorkOrders(w, state);
     checkFortressRooms(w, state);
     checkFortressCaveFarm(w, state);
@@ -175,7 +176,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
       extinctDay = Math.floor(w.tick / TICKS_PER_DAY) + 1;
     }
 
-    stepThreeYears(w, Math.min(300, totalTicks - w.tick));
+    playThreeYears(w, state, Math.min(300, totalTicks - w.tick));
     checkFortressWorkOrders(w, state);
     checkFortressRooms(w, state);
     checkFortressCaveFarm(w, state);
