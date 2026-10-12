@@ -12,9 +12,10 @@ import type { TradeReader } from '@systems/trade';
  */
 
 import { expect } from 'vitest';
-import { DAYS_PER_YEAR, TICKS_PER_DAY, POPULATION_CAP_DEFAULT, MOOD_MIN } from '@core/constants';
+import { DAYS_PER_YEAR, TICKS_PER_DAY, POPULATION_CAP_DEFAULT, MOOD_MIN, MOOD_BASELINE } from '@core/constants';
 import { C } from '@core/components';
-import { POSITIVE_CAP, NEED_PRESSURE_CAP, MOOD_NEEDS_MET_FLOOR } from '@systems/morale/mood';
+import { HEARTH_TIER_BONUS, POSITIVE_CAP, NEED_PRESSURE_CAP, MOOD_NEEDS_MET_FLOOR } from '@systems/morale/mood';
+import { personalityBase } from '@systems/morale/thoughts';
 import { WAVE_MAX } from '@systems/immigration/constants';
 import { deathCounts } from './death-counts';
 import { ItemsSystem, type ItemsReader } from '@systems/items';
@@ -34,6 +35,9 @@ export interface ThreeYearsRow {
   readonly model: string;
   readonly measured: string;
 }
+
+/** Hearth hall tiers above bare (15 § Mood: bare = 0 … royal = 5). */
+const HALL_TIERS = 5;
 
 const scenario: Scenario = {
   id: 'three_years',
@@ -167,6 +171,7 @@ const scenario: Scenario = {
 
     // Mood and thought statistics
     const moods: number[] = [];
+    const moodChecks: { id: number; val: number; needPressure: number; positives: number; negatives: number; ceiling: number }[] = [];
     const breakdown: Record<string, number> = { Fine: 0, Content: 0, Happy: 0, Unhappy: 0, Miserable: 0, Ecstatic: 0 };
     let minMood = 100;
     let maxMood = 0;
@@ -188,21 +193,18 @@ const scenario: Scenario = {
       else if (val < 90) breakdown['Happy'] = (breakdown['Happy'] ?? 0) + 1;
       else breakdown['Ecstatic'] = (breakdown['Ecstatic'] ?? 0) + 1;
 
-      // Assertion 1: Deterministic mood floor (mood >= MOOD_MIN and mood >= 20 - needPressure)
-      expect(val).toBeGreaterThanOrEqual(MOOD_MIN);
       const needPressure = Math.min(
         NEED_PRESSURE_CAP,
         mood.thoughts.reduce((sum, t) => {
           return sum + (t.baseValue < 0 ? Math.max(0, -t.baseValue) : 0);
         }, 0),
       );
-      expect(val).toBeGreaterThanOrEqual(MOOD_NEEDS_MET_FLOOR - needPressure);
-
-      // Assertion 2: Thought caps
       const positives = mood.thoughts.filter((t) => t.baseValue > 0).reduce((sum, t) => sum + t.baseValue, 0);
       const negatives = mood.thoughts.filter((t) => t.baseValue < 0).reduce((sum, t) => sum + -t.baseValue, 0);
-      expect(positives).toBeLessThanOrEqual(POSITIVE_CAP + 1); // allowance for active tick
-      expect(negatives).toBeLessThanOrEqual(75); // allowance for active tick, standing thoughts and personality multipliers
+      // The most the mood formula allows this dwarf: the capped positives, the best hall and its own nature.
+      const ceiling = MOOD_BASELINE + Math.min(POSITIVE_CAP, positives) + HALL_TIERS * HEARTH_TIER_BONUS +
+        personalityBase(w.game.registry, w.game.world.entities.get(id, C.Personality)?.traits ?? []);
+      moodChecks.push({ id, val, needPressure, positives, negatives, ceiling });
     }
 
     const deaths = deathCounts(w);
@@ -232,6 +234,20 @@ const scenario: Scenario = {
     const NL = String.fromCharCode(10);
     console.log(['three_years balance table:', ...table.map((r) => `  ${r.metric} | model: ${r.model} | measured: ${r.measured}`)].join(NL));
     console.log(`three_years summary: ${JSON.stringify({ y1Pop, y2Pop, y3Pop, y1Wealth, y2Wealth, y3Wealth, deaths, mealsEaten, drinksAlcohol, drinksWater, waves, raids, moodStats: { min: minMood, max: maxMood, avg: avgMood, breakdown } })}`);
+
+    // The balance table and the summary above are printed before any assertion, so a failing run
+    // still leaves its measurements.
+    console.log(`three_years thought sums: ${JSON.stringify({ maxPositives: Math.max(0, ...moodChecks.map((c) => c.positives)), maxNegatives: Math.max(0, ...moodChecks.map((c) => c.negatives)) })}`);
+    for (const c of moodChecks) {
+      // Assertion 1: Deterministic mood floor (mood >= MOOD_MIN and mood >= 20 - needPressure)
+      expect(c.val, `mood of ${c.id}`).toBeGreaterThanOrEqual(MOOD_MIN);
+      expect(c.val, `needs-met floor of ${c.id}`).toBeGreaterThanOrEqual(MOOD_NEEDS_MET_FLOOR - c.needPressure);
+      // Assertion 2: Thought caps. 15 § Mood caps what the positive thoughts add to the mood at
+      // POSITIVE_CAP; it does not bound the thoughts a dwarf holds, and a well-fed, well-housed
+      // dwarf holds more (46.8 measured). So the bound is on the mood the capped sum can give.
+      expect(c.val, `capped positives of ${c.id}`).toBeLessThanOrEqual(c.ceiling + 1); // allowance for active tick
+      expect(c.negatives, `negative thoughts of ${c.id}`).toBeLessThanOrEqual(75); // allowance for active tick, standing thoughts and personality multipliers
+    }
 
     // Witness the real production chains, independently of any target wealth figure.
     for (const recipe of ['craft_stone', 'make_charcoal', 'cut_gem', 'forge_pick', 'forge_mail_shirt', 'forge_crafts', 'alloy_steel']) {

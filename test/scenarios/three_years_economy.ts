@@ -84,6 +84,12 @@ const VISIT_CARGO = 200;
 /** Stone crafts kept in stock for each dwarf, and days between two new ore drifts in years 2 and 3. */
 const CRAFTS_PER_DWARF = 6;
 const DRIFT_EVERY_DAYS = 28;
+const FIRST_IRON_CRAFTS = 10;
+/** Dwarves one kitchen feeds and one still waters; another is built for each further group. */
+const DWARVES_PER_KITCHEN = 16;
+const DWARVES_PER_STILL = 28;
+/** Days of meals the lavish order keeps in stock. */
+const MEAL_DAYS = 14;
 /** Easy meals in stock before the kitchen turns to lavish meals first. */
 const EASY_MEALS_STOCKED = 20;
 
@@ -293,12 +299,13 @@ export function keptClear(w: TestWorld, state: FortressState, tile: number): boo
   return deep !== undefined && near(deep.x, deep.y, SHAFT_CLEARANCE);
 }
 
-export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: string, dx: number, dy: number, priority = BUILD): void {
-  if (state.placedIds[type]) {
-    const built = w.readers.of<BuildingsReader>('14').get(state.placedIds[type]!);
-    if (built?.state === 'built' && state.economy.phases.has(`traffic:${type}`)) {
+/** Place a workshop near (dx, dy) of the fortress centre. `key` names a second or third workshop of one type. */
+export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: string, dx: number, dy: number, priority = BUILD, key = type): void {
+  if (state.placedIds[key]) {
+    const built = w.readers.of<BuildingsReader>('14').get(state.placedIds[key]!);
+    if (built?.state === 'built' && state.economy.phases.has(`traffic:${key}`)) {
       w.game.world.applyCommand({ type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => built.footprint[i]!), mode: 'normal' });
-      state.economy.phases.delete(`traffic:${type}`);
+      state.economy.phases.delete(`traffic:${key}`);
     }
     return;
   }
@@ -332,8 +339,8 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
   if (origin === undefined) return;
   const result = w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: type, origin, orientation: 0, materialChoice: 0, priority });
   if (result.ok) {
-    state.placedIds[type] = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding;
-    const b = buildings.get(state.placedIds[type]!)!;
+    state.placedIds[key] = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding;
+    const b = buildings.get(state.placedIds[key]!)!;
     if (type === 'trade_depot') {
       // Guards and pack animals stand outside the footprint: clear their standing ring too.
       const trees = new Set<number>();
@@ -345,7 +352,7 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
     }
     if (b.footprint.length === 9 && type !== 'trade_depot') {
       w.game.world.applyCommand({ type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => b.footprint[i]!), mode: 'forbidden' });
-      state.economy.phases.add(`traffic:${type}`);
+      state.economy.phases.add(`traffic:${key}`);
     }
   }
 }
@@ -601,6 +608,39 @@ function checkBrewer(w: TestWorld, state: FortressState): void {
   dedicate(w, state, free[0], ['brewing']);
 }
 
+/** Kitchens and stills follow the dwarf count, and the lavish order follows it too. */
+function checkKitchens(w: TestWorld, state: FortressState): void {
+  const { phases } = state.economy;
+  if (!phases.has('lavish')) return;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const ent = w.game.world.entities;
+  const population = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+  const recipes = w.game.registry.table('recipes');
+  const lavish = Math.min(999, Math.max(120, Math.ceil(population * 0.48 * MEAL_DAYS)));
+  for (let n = 1; n <= 3; n += 1) {
+    const key = n === 1 ? 'kitchen' : `kitchen${n}`;
+    if (n > 1 && population > (n - 1) * DWARVES_PER_KITCHEN) placeEconomyBuilding(w, state, 'kitchen', 4 * n, 14, BUILD, key);
+    const id = state.placedIds[key];
+    if (!id || buildings.get(id)?.state !== 'built') continue;
+    if (n > 1 && !state.orderedWorkshops.has(key)) {
+      state.orderedWorkshops.add(key);
+      order(w, id, 'cook_lavish_meal', lavish);
+      order(w, id, 'cook_easy_meal', EASY_MEALS_STOCKED);
+    }
+    const orders = ent.get(id, C.Workshop)?.orders ?? [];
+    const at = orders.findIndex((o) => o.recipe === recipes.index('cook_lavish_meal'));
+    if (at >= 0 && orders[at]!.threshold !== lavish) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: id, index: at, patch: { threshold: lavish } });
+  }
+  if (population > DWARVES_PER_STILL) {
+    placeEconomyBuilding(w, state, 'still', -4, 14, BUILD, 'still2');
+    const id = state.placedIds['still2'];
+    if (id && buildings.get(id)?.state === 'built' && !state.orderedWorkshops.has('still2')) {
+      state.orderedWorkshops.add('still2');
+      order(w, id, 'brew', Math.max(80, Math.ceil(population * 0.77 * 14)), undefined, ROUTINE - 1);
+    }
+  }
+}
+
 /** The cave farm follows the dwarf count: a new strip is dug and zoned when the plots fall behind. */
 function checkFarm(w: TestWorld, state: FortressState): void {
   const map = w.map;
@@ -845,7 +885,10 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     phases.add('iron goods');
     order(w, forge, 'forge_pick', 2, 'iron');
     order(w, forge, 'forge_battle_axe', 3, 'iron');
-    for (const recipe of ['forge_helm', 'forge_greaves', 'forge_gauntlets', 'forge_metal_boots']) order(w, forge, recipe, 3, 'iron');
+    order(w, forge, 'forge_helm', 3, 'iron');
+    // A first few iron crafts for the caravans, before the rest of the armour takes the bars.
+    order(w, forge, 'forge_crafts', FIRST_IRON_CRAFTS, 'iron');
+    for (const recipe of ['forge_greaves', 'forge_gauntlets', 'forge_metal_boots']) order(w, forge, recipe, 3, 'iron');
     // Missing steel inputs keep this standing order idle until year 3; no live job is canceled.
     order(w, forge, 'forge_crafts', 60, 'steel');
     order(w, forge, 'forge_crafts', 60, 'iron');
@@ -878,6 +921,12 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   }
   checkBrewer(w, state);
   checkFarm(w, state);
+  checkKitchens(w, state);
+  // Nobody hunts: an immigrant hunter arrives with a crossbow, and a bolt that misses its quarry
+  // hits whoever stands behind it (16 § Ranged).
+  for (const id of fortressDwarves(w)) {
+    if (w.readers.of<JobsReader>('11').laborEnabled(id, 'hunting')) w.game.world.applyCommand({ type: 'SetLabor', dwarfId: id, labor: 'hunting', on: false });
+  }
   checkSpecialists(w, state);
   threeYearsMeasurements(w).fixture = { armedDay: state.economy.armedDay ?? null,
     specialists: { ...state.economy.specialists }, deepShaft: state.economy.deepShaft ? { ...state.economy.deepShaft } : null };

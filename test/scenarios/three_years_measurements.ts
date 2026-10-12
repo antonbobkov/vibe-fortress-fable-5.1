@@ -84,6 +84,7 @@ export class ThreeYearsMeasurements {
   readonly deaths: { day: number; id: number; species: string; cause: string; killerId: number }[] = [];
   readonly raids: { day: number; kind: string; size: number; partyId: number; outcome?: string }[] = [];
   fixture: { armedDay: number | null; specialists: Record<string, number>; deepShaft: { x: number; y: number; bottom: number } | null } = { armedDay: null, specialists: {}, deepShaft: null };
+  private readonly friendlyHits = new Set<string>();
   dwarfTicks = 0;
   meals = 0;
   alcohol = 0;
@@ -160,6 +161,7 @@ export class ThreeYearsMeasurements {
           const raid = this.raids.find((r) => r.partyId === Number(e['partyId']) && !r.outcome);
           if (raid) raid.outcome = String(e['outcome']);
         }
+        if (e.type === 'AttackResolved') this.noteFriendlyHit(Number(e['attackerId']), Number(e['defenderId']), String(e['damageType']), String(e['outcome']));
         if (e.type === 'MealEaten') this.meals += 1;
         if (e.type === 'DrankAlcohol') this.alcohol += 1;
         if (e.type === 'DrankWater') this.water += 1;
@@ -212,6 +214,34 @@ export class ThreeYearsMeasurements {
     this.immigration.push(entry);
   }
 
+  /** A fortress dwarf struck by another: the journal names both, the weapon and what each was doing. */
+  private noteFriendlyHit(attacker: number, defender: number, damageType: string, outcome: string): void {
+    const w = this.w;
+    const ent = w.game.world.entities;
+    if (outcome !== 'hit' || ent.get(attacker, C.Creature)?.faction !== 'fortress' || ent.get(defender, C.Creature)?.faction !== 'fortress') return;
+    const key = `${attacker}:${defender}`;
+    if (this.friendlyHits.has(key)) return;
+    this.friendlyHits.add(key);
+    const types = w.game.registry.table<{ id: string }>('items');
+    const held = (id: number): string => types.byIndex(ent.get(ent.get(id, C.Equipment)?.weapon || ent.get(id, C.Worker)?.toolId || 0, C.Item)?.type ?? -1)?.id ?? 'none';
+    note('three_years_friendly_hit', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, attacker, defender, damageType, weapon: held(attacker),
+      attackerDoing: ent.get(attacker, C.Brain)?.activity ?? '', attackerBehavior: ent.get(attacker, C.Brain)?.behavior ?? '', defenderDoing: ent.get(defender, C.Brain)?.activity ?? '' });
+  }
+
+  /** Wild animals on the map by species, for the journal. */
+  private wildCensus(): Record<string, number> {
+    const ent = this.w.game.world.entities;
+    const species = this.w.game.registry.table<{ id: string }>('creatures');
+    const census: Record<string, number> = {};
+    for (const id of ent.with(C.Creature)) {
+      const c = ent.get(id, C.Creature)!;
+      if (c.faction !== 'wild') continue;
+      const name = species.byIndex(c.species)?.id ?? 'unknown';
+      census[name] = (census[name] ?? 0) + 1;
+    }
+    return census;
+  }
+
   private population(): number {
     return this.w.game.world.entities.with(C.Labors).filter((id) => this.w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
   }
@@ -226,7 +256,7 @@ export class ThreeYearsMeasurements {
       if (w.tick % (PROGRESS_DAYS * TICKS_PER_DAY) === 0) {
         const items = w.readers.of<ItemsReader>('13');
         note('three_years_progress', { day: w.tick / TICKS_PER_DAY, population: this.population(), wealth: items.wealth(),
-          alert: w.game.world.fortress.alert, dwarfDeaths: this.deaths.filter(d => d.species === 'dwarf').length,
+          alert: w.game.world.fortress.alert, wild: this.wildCensus(), dwarfDeaths: this.deaths.filter(d => d.species === 'dwarf').length,
           meals: items.count('easy_meal') + items.count('fine_meal') + items.count('lavish_meal'), drink: items.count('drink'),
           plants: items.count('plant_food'), beds: items.count('bed'), caravans: this.caravans.map(c => `${c.day}:${c.civ}:${c.state}`),
           recipes: { ...this.recipes } });
