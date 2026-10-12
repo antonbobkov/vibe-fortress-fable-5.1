@@ -64,3 +64,4 @@ Commit examined: `569ae1f`. Output: [`../../reports/audits/2026-10-12-ui-ux/capt
 
 - Flow 1 (new player, mouse only): captured.
 - Flow 2 (new player, keyboard only): captured.
+- Flow 3 (mature fortress; reference and played fixtures, caravan by hook): captured, with key and click counts.

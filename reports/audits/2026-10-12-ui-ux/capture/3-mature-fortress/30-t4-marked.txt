@@ -1,0 +1,64 @@
+# flow: 3-mature-fortress   step: 30-t4-marked
+# what: Space + ArrowDown x4: four rows marked
+# input: key Space ; key ArrowDown ; key Space ; key ArrowDown ; key Space ; key ArrowDown ; key Space ; key ArrowDown
+# tick: 270403   paused: yes   screen: fortress   panel: military   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,0,27   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|☺"♣"☺"☺"☺_m"m"m"m"m"m"m"m"m"m"""m"m♣m"m"m"""│ Military                      [m]
+01|""""♣"""B""""""""""""""""""""""""""""♣""""""│ Alert: Hearth
+02|"""""""♣"♣"""""""""""""""☺""""☺"""""""""""""│ [1] Calm  [2] Watch  [3] Hearth
+03|"""ЮЮЮ≡≡•ЮЮ≡B↑•ЮЮ?≡"≡Ю"Ю?≡≡Ю☺?♣≡"≡ЮЮЮ≡≡•ЮЮ≡≡│ Squads
+04|"""≡ЮЮЮ♣≡≡•Ю"Ю≡≡•ЮЮ?☺≡ЮЮ?≡≡ЮЮ?≡☺ЮЮЮ≡≡"•ЮЮ↑≡≡│ Squad             Size  Mode
+05|"""Ю≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡"☺☺☺≡≡ЮЮЮ☺≡•ЮЮ☺≡•ЮЮ?☺≡│ The Hearthguard   0/6   off
+06|""""ЮЮ?≡≡Ю"Ю?↑≡≡ЮЮ☺≡≡ЮЮ☺☺≡☺""ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡│ [+] new squad  [x] disband
+07|"""ЮЮ?≡≡ЮЮ?≡≡♣ЮЮ?≡≡♣ЮЮЮ≡≡•ЮЮ☺☺•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ│ ─── Add: 4 marked, 6 free ───────
+08|"""≡ЮЮ?≡≡ЮЮ?≡B☺ЮЮ≡≡•ЮЮ"☺≡•ЮЮ"?"☺≡ЮЮ?☺≡Ю♣Ю☺≡≡│ • Vera Deepmark
+09|"""?≡≡ЮЮЮ≡≡☺ЮЮ≡g•ЮЮ?≡≡ЮЮ?≡≡Ю"Ю?≡≡ЮЮЮ≡≡•Ю☺≡≡♣│ • Hallveig Hollowcrown
+10|"""ЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡"ЮЮ♣?≡"≡ЮЮ?≡CЮ☺Ю≡≡•ЮЮ≡♣≡•Ю│ • Rannveig Ambersong
+11|"""≡≡•ЮЮ"""♣≡≡•Ю↑Ю?≡≡☺Ю?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ│ • Dis Coldeye
+12|"♣"≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡☺☺?☺≡•ЮЮ≡"≡•ЮЮ"?≡↑≡ЮЮ?≡│   Modi Steeldelve
+13|↑""Ю?≡"≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?"│   Ketil Shaleward
+14|"""≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡♣ЮЮ?≡≡ЮЮ?≡≡ЮЮ"│   Snorri Pinesong
+15|""♣≡≡ЮЮ?≡≡☺ЮЮ≡≡•ЮЮ?≡•♣ЮЮ?≡≡ЮЮ?≡≡ЮЮ"?≡≡•ЮЮ≡≡•│   Ulf Emberaxe
+16|"""≡≡"•ЮЮ"≡≡•Ю"Ю?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮ"Ю≡≡•ЮЮ≡≡•ЮЮ?│   Jofrid Amberhelm
+17|"""Ю≡≡•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ?≡≡ЮhЮ≡≡•ЮЮ≡≡•ЮЮ"♣?≡≡ЮЮ?│   Orm Ironmantle
+18|"""•ЮЮ"?"≡≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ?≡•ЮЮ?♣♣≡≡Юg?≡│   Sigrid Shalehand
+19|"""?≡≡"ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ"?≡≡│   Roald Deephelm
+20|↑""≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•↑ЮЮ?≡≡ЮЮ?≡≡↑ЮЮ"?≡≡│   Jofrid Bronzebrow
+21|"""ЮЮ?≡≡ЮЮ?≡≡Ю"ЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡│   Lofn Darkstair
+22|"""Юh≡≡ЮЮ?≡≡•ЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡""ЮЮЮ≡≡•ЮЮ≡│   Dain Wolfcrown
+23|"""?≡≡ЮЮЮ"≡♣♣≡•ЮЮ≡≡•Юsg≡"≡ЮЮ?≡≡ЮЮ?≡≡Ю"Ю♣Ю≡≡•│   Brida Darkfell
+24|"""≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ"?≡≡ЮЮ?≡≡ЮЮЮC"≡•│   Sverre Amberstair
+25|"""≡ЮЮ?≡♣≡ЮЮЮ≡≡•ЮЮ?≡•"ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•Ю│   Dagny Bronzeeye
+26|"""Ю≡≡•ЮЮ≡≡♣•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•↑ЮЮ≡≡•ЮЮ?≡│   Frida Grimwall
+27|"""ЮЮ≡≡•ЮЮ"?≡≡ЮЮ?≡≡ЮЮ?≡rЮ"ЮЮ≡≡•ЮЮ"↑↑≡≡♣•"ЮЮ♣│   Tova Forgemantle
+28|"""≡g•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ│   Hrolf Brighteye
+29|"""Ю?≡•ЮЮ?≡≡ЮЮ?"≡CЮЮЮ≡≡•ЮЮ↑≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡│   Gyda Grimpick
+30|"↑"?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡sЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•Ю│   Astrid Coalwall
+31|"""≡≡ЮЮЮ≡"≡•"ЮЮ≡≡•ЮЮ?≡≡"ЮЮ?≡≡↑"ЮЮ?≡"≡Ю"ЮЮ≡≡h│   Solveig Silvercrown
+32|"""ЮЮ?≡≡ЮЮЮ≡≡"•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ"""?≡≡•ЮЮ≡"≡│   Kari Wolfheart
+33|"""≡≡•"ЮЮ≡≡•ЮЮ?↑≡≡Ю♣Ю?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡│   Ulfhild Asheye
+34|"""Ю≡≡•ЮЮ?≡"≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡│   Idunn Oakwall
+35|""♣ЮЮ?≡≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•Ю"Ю?≡•ЮЮ?≡≡ЮЮ↑?"≡≡Ю│   Torgeir Irondelve
+36|"""ЮЮ?"♣≡≡ЮЮ?≡≡ЮhЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡Ю↑Ю?≡≡Ю♣Ю?≡≡"│   Halvar Ironfell
+37|"""≡ЮЮ?≡"≡ЮЮЮ≡≡•"ЮЮ≡≡•ЮЮ?≡≡Юg?≡≡ЮЮ?≡≡ЮЮЮ≡≡•Ю│   Steinn Oakroot
+38|"""≡ЮЮЮ≡≡•ЮЮ≡≡•Ю↑Ю"?≡"≡HЮ?≡≡ЮЮ?≡""≡ЮЮЮ≡≡•ЮC?│   Valdis Coldcrown
+39|"""≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ"?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡"≡Ю│   Ragnhild Mosssong
+40|"""≡•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡"≡•ЮЮ♣≡≡•ЮЮ?≡≡ЮЮ?≡≡│   Brida Stonefist
+41|"""ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡""≡ЮЮ?│   Halvar Saltstone
+42|"""≡≡ЮЮ?≡≡ЮЮ?≡"""≡•ЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡│   Sverre Shaleborn
+43|"""≡ЮЮ?≡≡ЮЮ"ЮC≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮr≡•ЮЮ│ [Space] mark  [*] all
+44|"""≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?s≡ЮЮ?"≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ│ [Enter] choose  [Esc] cancel
+45| ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl
+46| ! Hrolf Brighteye has lost consciousness.
+47| The fortress alert is now hearth.
+48| Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]
+49| [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks
+----- log strip rows -----
+ ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl
+ ! Hrolf Brighteye has lost consciousness.
+ The fortress alert is now hearth.
+----- status rows -----
+ Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]
+ [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks

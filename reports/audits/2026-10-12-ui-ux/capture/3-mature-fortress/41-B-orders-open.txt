@@ -1,0 +1,64 @@
+# flow: 3-mature-fortress   step: 41-B-orders-open
+# what: Key o: Orders panel
+# input: key o
+# tick: 272681   paused: yes   screen: fortress   panel: orders   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,0,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|                                            │ Orders                        [o]
+01|                                            │ [S-n] new order  all workshops
+02|                                            │ ─── Kitchen #1 ──────────────────
+03|                                            │ ≥60 Easy meal · in progress
+04|                                            │ ─── Still #1 ────────────────────
+05|                                            │ ≥60 Brew drink · in progress
+06|                                            │ ─── Craftsdwarf's workshop #1 ───
+07|                                            │ ≥60 Stone crafts · in progress
+08|                                            │ ─── Mechanic's workshop #1 ──────
+09|                                            │ ≥60 Mechanism · in progress
+10|                                            │ ─── Carpenter's workshop #1 ─────
+11|                                            │ ≥60 Bed · in progress
+12|                                            │ ─── Mason's workshop #1 ─────────
+13|                                            │ ≥60 Blocks · in progress
+14|                                            │
+15|                                            │
+16|                                            │
+17|                                            │
+18|                                            │
+19|                                            │
+20|                                            │
+21|                                            │
+22|                                            │
+23|                                            │
+24|                                            │
+25|                                            │
+26|                                            │
+27|                                            │
+28|                                            │
+29|                                            │
+30|                                            │
+31|                                            │ ─────────────────────────────────
+32|                                            │ In progress: a dwarf is at work
+33|                                            │ on it.
+34|                                            │ Keep ≥ [-] 60 [+] [+/-] Shift ±10
+35|                                            │ [S-m] keep in stock  [S-p] priori
+36|                                            │ [S-f] any material ▼
+37|                                            │ [x] remove [r] repeat [S-↑↓] move
+38|                                            │ ─── Standing orders ─────────────
+39|                                            │ [■] Harvest
+40|                                            │ [■] Collect Products
+41|                                            │ [■] Butcher
+42|                                            │ [■] Haul Refuse
+43|                                            │ [■] Rearm Traps
+44|                                            │ [■] Melt Marked
+45| Hillfolk_bandit hits Snorri: 7 blunt.
+46| ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in
+47| Ulf Emberaxe is miserable.
+48| Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║
+49| [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks
+----- log strip rows -----
+ Hillfolk_bandit hits Snorri: 7 blunt.
+ ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in
+ Ulf Emberaxe is miserable.
+----- status rows -----
+ Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║
+ [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks

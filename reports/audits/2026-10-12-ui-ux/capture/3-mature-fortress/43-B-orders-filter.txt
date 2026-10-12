@@ -1,0 +1,64 @@
+# flow: 3-mature-fortress   step: 43-B-orders-filter
+# what: Typed "mail" (a mail shirt needs a forge; this fortress has no forge)
+# input: type "mail"
+# tick: 272681   paused: yes   screen: fortress   panel: orders   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,0,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|                                            │ Orders                        [o]
+01|                                            │ Add order
+02|                                            │ Find [ mail____________________ ]
+03|                                            │ ─── Armor ───────────────────────
+04|                                            │ ○ Mail shirt
+05|                                            │
+06|                                            │
+07|                                            │
+08|                                            │
+09|                                            │
+10|                                            │
+11|                                            │
+12|                                            │
+13|                                            │
+14|                                            │
+15|                                            │
+16|                                            │
+17|                                            │
+18|                                            │
+19|                                            │
+20|                                            │
+21|                                            │
+22|                                            │
+23|                                            │
+24|                                            │
+25|                                            │
+26|                                            │
+27|                                            │
+28|                                            │
+29|                                            │
+30|                                            │
+31|                                            │
+32|                                            │
+33|                                            │
+34|                                            │
+35|                                            │
+36|                                            │
+37|                                            │
+38|                                            │
+39|                                            │ ─────────────────────────────────
+40|                                            │   Quantity [-]   1 [+]
+41|                                            │   Mode     once: make 1
+42|                                            │   Material any material
+43|                                            │   Where    any forge
+44|                                            │ [Enter] add [Tab] next [Esc] back
+45| Hillfolk_bandit hits Snorri: 7 blunt.
+46| ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in
+47| Ulf Emberaxe is miserable.
+48| Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║
+49| [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks
+----- log strip rows -----
+ Hillfolk_bandit hits Snorri: 7 blunt.
+ ☼ A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats in
+ Ulf Emberaxe is miserable.
+----- status rows -----
+ Day 4 of Spring, Year 3   ≡ overcast 20°C   ☺ 20   ♥ Miserable   !2   z 32   ║
+ [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks

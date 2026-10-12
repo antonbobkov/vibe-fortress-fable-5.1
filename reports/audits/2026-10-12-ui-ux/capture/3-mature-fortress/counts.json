@@ -1,0 +1,76 @@
+{
+ "task1-idle-dwarf-labor": {
+  "keys": 25,
+  "typedChars": 0,
+  "clicks": 0,
+  "drags": 0,
+  "wheels": 0,
+  "hovers": 0,
+  "miningEnabledAfterByReader": true
+ },
+ "task2-change-stockpile-contents-keyboard-attempt": {
+  "keys": 3,
+  "typedChars": 0,
+  "clicks": 0,
+  "drags": 0,
+  "wheels": 0,
+  "hovers": 0,
+  "reached": false
+ },
+ "task2-change-stockpile-contents-mouse": {
+  "keys": 1,
+  "typedChars": 0,
+  "clicks": 3,
+  "drags": 0,
+  "wheels": 0,
+  "hovers": 0
+ },
+ "task3-wounded-dwarf-treatment": {
+  "keys": 24,
+  "typedChars": 0,
+  "clicks": 0,
+  "drags": 0,
+  "wheels": 0,
+  "hovers": 0
+ },
+ "task4-alert-squad-threat": {
+  "keys": 21,
+  "typedChars": 0,
+  "clicks": 0,
+  "drags": 0,
+  "wheels": 0,
+  "hovers": 0
+ },
+ "task-order-not-made-add-and-find-reason": {
+  "keys": 3,
+  "typedChars": 4,
+  "clicks": 0,
+  "drags": 0,
+  "wheels": 0,
+  "hovers": 0
+ },
+ "task-order-not-made-find-reason-in-jobs-panel": {
+  "keys": 3,
+  "typedChars": 0,
+  "clicks": 0,
+  "drags": 0,
+  "wheels": 0,
+  "hovers": 0
+ },
+ "task-order-not-made-barrel-with-workshop": {
+  "keys": 6,
+  "typedChars": 7,
+  "clicks": 0,
+  "drags": 0,
+  "wheels": 0,
+  "hovers": 0
+ },
+ "task-trade-with-caravan": {
+  "keys": 10,
+  "typedChars": 0,
+  "clicks": 0,
+  "drags": 0,
+  "wheels": 0,
+  "hovers": 0
+ }
+}

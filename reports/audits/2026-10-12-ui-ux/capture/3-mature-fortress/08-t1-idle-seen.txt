@@ -1,0 +1,64 @@
+# flow: 3-mature-fortress   step: 08-t1-idle-seen
+# what: The first row whose activity reads "No j..." is on screen row 3; it is the cursor row when the screen row equals 4
+# input: (first row showing "No j" is screen row 3)
+# tick: 270402   paused: yes   screen: fortress   panel: units   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,0,27   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|☺"♣"☺"☺"☺☺m"m"m"m"m"m"m"m"m"m"""m"m♣m"m"m"""│ Units                         [u]
+01|""""♣"""B""""""""""""""""""""""""""""♣""""""│ /filter:
+02|"""""""♣"♣"""""""""""""""☺""""☺"""""""""""""│ Name               Prof.    Act.
+03|"""ЮЮЮ≡≡•ЮЮ≡B↑•ЮЮ?≡"≡☺"Ю?≡≡Ю☺?♣≡"≡ЮЮЮ≡≡•ЮЮ≡≡│ ►Vera Deepmark   ☺ Miner    No j█
+04|"""≡ЮЮЮ♣≡≡•Ю"Ю≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡☺ЮЮЮ≡≡"•ЮЮ↑≡≡│  Hallveig Hollow ☺ Miner    No j│
+05|"""Ю≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡"☺☺☺≡≡ЮЮЮ☺≡•ЮЮ☺≡•ЮЮ?☺≡│  Rannveig Ambers ☺ Carpente soci│
+06|""""ЮЮ?≡≡Ю"Ю?↑≡≡ЮЮ☺≡≡ЮЮ☺☺≡☺""ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡│  Dis Coldeye     ☺ Mason    soci│
+07|"""ЮЮ?≡≡ЮЮ?≡≡♣ЮЮ?≡≡♣ЮЮЮ≡≡•ЮЮ☺☺•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ│  Modi Steeldelve ☺ Brewer   soci│
+08|"""≡ЮЮ?≡≡ЮЮ?≡B☺ЮЮ≡≡•ЮЮ"☺≡•ЮЮ"?"☺≡ЮЮ?☺≡Ю♣Ю☺≡≡│  Ketil Shaleward ☺ Cook     soci│
+09|"""?≡≡ЮЮЮ≡≡☺ЮЮ≡g•ЮЮ?≡≡ЮЮ?≡≡Ю"Ю?≡≡ЮЮЮ≡≡•Ю☺≡≡♣│  Snorri Pinesong ☺ Medic    soci│
+10|"""ЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡"ЮЮ♣?≡"≡ЮЮ?≡CЮ☺Ю≡≡•ЮЮ≡♣≡•Ю│  Ulf Emberaxe    ☻ Peasant  No j│
+11|"""≡≡•ЮЮ"""♣≡≡•Ю↑Ю?≡≡☺☺?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ│  Jofrid Amberhel ☺ Peasant  hung│
+12|"♣"≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡☺☺?☺≡•ЮЮ≡"≡•ЮЮ"?≡↑≡ЮЮ?≡│  Orm Ironmantle  ☺ Peasant  Carr│
+13|↑""Ю?≡"≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?"│  Sigrid Shalehan ☺ Peasant  Diag│
+14|"""≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡♣ЮЮ?≡≡ЮЮ?≡≡ЮЮ"│  Roald Deephelm  ☺ Peasant  hung│
+15|""♣≡≡ЮЮ?≡≡☺ЮЮ≡≡•ЮЮ?≡•♣ЮЮ?≡≡ЮЮ?≡≡ЮЮ"?≡≡•ЮЮ≡≡•│  Jofrid Bronzebr ☺ Peasant  hung│
+16|"""≡≡"•ЮЮ"≡≡•Ю"Ю?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮ"Ю≡≡•ЮЮ≡≡•ЮЮ?│  Lofn Darkstair  ☺ Peasant  hung│
+17|"""Ю≡≡•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ?≡≡ЮhЮ≡≡•ЮЮ≡≡•ЮЮ"♣?≡≡ЮЮ?│  Dain Wolfcrown  ☺ Peasant  No j│
+18|"""•ЮЮ"?"≡≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ?≡•ЮЮ?♣♣≡≡Юg?≡│  Brida Darkfell  ☻ Peasant  No j│
+19|"""?≡≡"ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ"?≡≡│  Sverre Ambersta ☺ Peasant  slee│
+20|↑""≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•↑ЮЮ?≡≡ЮЮ?≡≡↑ЮЮ"?≡≡│  Dagny Bronzeeye ☺ Peasant  hung│
+21|"""ЮЮ?≡≡ЮЮ?≡≡Ю"ЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡│  Frida Grimwall  ☺ Peasant  hung│
+22|"""Юh≡≡ЮЮ?≡≡•ЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡""ЮЮЮ≡≡•ЮЮ≡│  Tova Forgemantl ☺ Peasant  hung│
+23|"""?≡≡ЮЮЮ"≡♣♣≡•ЮЮ≡≡•Юsg≡"≡ЮЮ?≡≡ЮЮ?≡≡Ю"Ю♣Ю≡≡•│  Hrolf Brighteye ☻ Peasant  Flee│
+24|"""≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ"?≡≡ЮЮ?≡≡ЮЮЮC"≡•│  Gyda Grimpick   ☺ Peasant  slee│
+25|"""≡ЮЮ?≡♣≡ЮЮЮ≡≡•ЮЮ?≡•"ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•Ю│  Astrid Coalwall ☺ Peasant  slee│
+26|"""Ю≡≡•ЮЮ≡≡♣•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•↑ЮЮ≡≡•ЮЮ?≡│  Solveig Silverc ☻ Peasant  hung│
+27|"""ЮЮ≡≡•ЮЮ"?≡≡ЮЮ?≡≡ЮЮ?≡rЮ"ЮЮ≡≡•ЮЮ"↑↑≡≡♣•"ЮЮ♣│  Kari Wolfheart  ☺ Peasant  hung│
+28|"""≡g•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ│  Ulfhild Asheye  ☺ Peasant  hung│
+29|"""Ю?≡•ЮЮ?≡≡ЮЮ?"≡CЮЮЮ≡≡•ЮЮ↑≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡│  Idunn Oakwall   ☺ Peasant  Flee│
+30|"↑"?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡sЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•Ю│  Torgeir Irondel ☺ Peasant  slee│
+31|"""≡≡ЮЮЮ≡"≡•"ЮЮ≡≡•ЮЮ?≡≡"ЮЮ?≡≡↑"ЮЮ?≡"≡Ю"ЮЮ≡≡h│  Halvar Ironfell ☺ Peasant  No j│
+32|"""ЮЮ?≡≡ЮЮЮ≡≡"•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ"""?≡≡•ЮЮ≡"≡│  Steinn Oakroot  ☺ Peasant  slee│
+33|"""≡≡•"ЮЮ≡≡•ЮЮ?↑≡≡Ю♣Ю?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡│  Valdis Coldcrow ☺ Peasant  hung│
+34|"""Ю≡≡•ЮЮ?≡"≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡│  Ragnhild Mossso ☺ Peasant  hung│
+35|""♣ЮЮ?≡≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•Ю"Ю?≡•ЮЮ?≡≡ЮЮ↑?"≡≡Ю│  Brida Stonefist ☺ Peasant  hung│
+36|"""ЮЮ?"♣≡≡ЮЮ?≡≡ЮhЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡Ю↑Ю?≡≡Ю♣Ю?≡≡"│  Halvar Saltston ☻ Peasant  Flee│
+37|"""≡ЮЮ?≡"≡ЮЮЮ≡≡•"ЮЮ≡≡•ЮЮ?≡≡Юg?≡≡ЮЮ?≡≡ЮЮЮ≡≡•Ю│  Sverre Shalebor ☺ Peasant  No j│
+38|"""≡ЮЮЮ≡≡•ЮЮ≡≡•Ю↑Ю"?≡"≡HЮ?≡≡ЮЮ?≡""≡ЮЮЮ≡≡•ЮC?│  Gorm Darkhold   ☺ Peasant  No j│
+39|"""≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ"?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡"≡Ю│ ─────────────────────────────────
+40|"""≡•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡"≡•ЮЮ♣≡≡•ЮЮ?≡≡ЮЮ?≡≡│ [Enter] inspect  [l] labors
+41|"""ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡""≡ЮЮ?│ [S-c] center
+42|"""≡≡ЮЮ?≡≡ЮЮ?≡"""≡•ЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡│ [Space] mark  [*] all  0 marked
+43|"""≡ЮЮ?≡≡ЮЮ"ЮC≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮr≡•ЮЮ│ [S-t] title  [S-n] rename
+44|"""≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?s≡ЮЮ?"≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ│ [S-m] squad  sleep 23h  [[]  []]
+45| ! The raid has ended.
+46| ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl
+47| ! Hrolf Brighteye has lost consciousness.
+48| Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]
+49| [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks
+----- log strip rows -----
+ ! The raid has ended.
+ ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl
+ ! Hrolf Brighteye has lost consciousness.
+----- status rows -----
+ Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]
+ [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks

@@ -1,0 +1,64 @@
+# flow: 3-mature-fortress   step: 33-t4-kill-tool
+# what: Key Shift+K: kill order armed; the panel line reads "Click creature to attack"
+# input: key Shift+K
+# tick: 270404   paused: yes   screen: fortress   panel: military   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,0,27   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|☺"♣"☺"☺"☺_m"m"m"m"m"m"m"m"m"m"""m"m♣m"m"m"""│ Military                      [m]
+01|""""♣"""B""""""""""""""""""""""""""""♣""""""│ Alert: Hearth
+02|"""""""♣"♣"""""""""""""""☺""""☺"""""""""""""│ [1] Calm  [2] Watch  [3] Hearth
+03|"""ЮЮЮ≡≡•ЮЮ≡B↑•ЮЮ?≡"≡Ю"Ю?≡≡Ю☺?♣≡"≡ЮЮЮ≡≡•ЮЮ≡≡│ Squads
+04|"""≡ЮЮЮ♣≡≡•Ю"Ю≡≡•ЮЮ?☺≡ЮЮ?≡≡ЮЮ?≡☺ЮЮЮ≡≡"•ЮЮ↑≡≡│ Squad             Size  Mode
+05|"""Ю≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡"☺☺☺≡≡ЮЮЮ☺≡•ЮЮ☺≡•ЮЮ?☺≡│ The Hearthguard   4/6   active
+06|""""ЮЮ?≡≡Ю"Ю?↑≡≡ЮЮ☺≡≡ЮЮ☺☺≡☺""ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡│ [+] new squad  [x] disband
+07|"""ЮЮ?≡≡ЮЮ?≡≡♣ЮЮ?≡≡♣ЮЮЮ≡≡•ЮЮ☺☺•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ│ ─── The Hearthguard ─────────────
+08|"""≡ЮЮ?≡≡ЮЮ?≡B☺ЮЮ≡≡•ЮЮ"☺≡•ЮЮ"?"☺≡ЮЮ?☺≡Ю♣Ю☺≡≡│ Leader  none
+09|"""?≡≡ЮЮЮ≡≡☺ЮЮ≡g•ЮЮ?≡≡ЮЮ?≡≡Ю"Ю?≡≡ЮЮЮ≡≡•Ю☺≡≡♣│         [S-l] pick  [S-n] rename
+10|"""ЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡"ЮЮ♣?≡"≡ЮЮ?≡CЮ☺Ю≡≡•ЮЮ≡♣≡•Ю│ Mode: active
+11|"""≡≡•ЮЮ"""♣≡≡•Ю↑Ю?≡≡☺Ю?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ│ [S-o] Off [S-t] Train [v] Active
+12|"♣"≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡☺☺?☺≡•ЮЮ≡"≡•ЮЮ"?≡↑≡ЮЮ?≡│ Members Vera D., Hallveig H., Ran
+13|↑""Ю?≡"≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?"│         [S-a] add  [r] remove
+14|"""≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡♣ЮЮ?≡≡ЮЮ?≡≡ЮЮ"│ Gear [w] weapon any
+15|""♣≡≡ЮЮ?≡≡☺ЮЮ≡≡•ЮЮ?≡•♣ЮЮ?≡≡ЮЮ?≡≡ЮЮ"?≡≡•ЮЮ≡≡•│   [g] armor any  [S-j] ranged
+16|"""≡≡"•ЮЮ"≡≡•Ю"Ю?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮ"Ю≡≡•ЮЮ≡≡•ЮЮ?│ Station none
+17|"""Ю≡≡•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ?≡≡ЮhЮ≡≡•ЮЮ≡≡•ЮЮ"♣?≡≡ЮЮ?│         [S-s] set  [S-c] clear
+18|"""•ЮЮ"?"≡≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ?≡•ЮЮ?♣♣≡≡Юg?≡│ Patrol none [S-p] add [y] clear
+19|"""?≡≡"ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ"?≡≡│ Orders Click creature to attack
+20|↑""≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•↑ЮЮ?≡≡ЮЮ?≡≡↑ЮЮ"?≡≡│        [q] cancel orders
+21|"""ЮЮ?≡≡ЮЮ?≡≡Ю"ЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡│ No barracks  [S-b] assign
+22|"""Юh≡≡ЮЮ?≡≡•ЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡""ЮЮЮ≡≡•ЮЮ≡│
+23|"""?≡≡ЮЮЮ"≡♣♣≡•ЮЮ≡≡•Юsg≡"≡ЮЮ?≡≡ЮЮ?≡≡Ю"Ю♣Ю≡≡•│
+24|"""≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ"?≡≡ЮЮ?≡≡ЮЮЮC"≡•│
+25|"""≡ЮЮ?≡♣≡ЮЮЮ≡≡•ЮЮ?≡•"ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•Ю│
+26|"""Ю≡≡•ЮЮ≡≡♣•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•↑ЮЮ≡≡•ЮЮ?≡│
+27|"""ЮЮ≡≡•ЮЮ"?≡≡ЮЮ?≡≡ЮЮ?≡rЮ"ЮЮ≡≡•ЮЮ"↑↑≡≡♣•"ЮЮ♣│
+28|"""≡g•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ│
+29|"""Ю?≡•ЮЮ?≡≡ЮЮ?"≡CЮЮЮ≡≡•ЮЮ↑≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡│
+30|"↑"?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡sЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•Ю│
+31|"""≡≡ЮЮЮ≡"≡•"ЮЮ≡≡•ЮЮ?≡≡"ЮЮ?≡≡↑"ЮЮ?≡"≡Ю"ЮЮ≡≡h│
+32|"""ЮЮ?≡≡ЮЮЮ≡≡"•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ"""?≡≡•ЮЮ≡"≡│
+33|"""≡≡•"ЮЮ≡≡•ЮЮ?↑≡≡Ю♣Ю?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡│
+34|"""Ю≡≡•ЮЮ?≡"≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡│
+35|""♣ЮЮ?≡≡ЮЮ?≡"≡ЮЮ?≡≡ЮЮЮ≡≡•Ю"Ю?≡•ЮЮ?≡≡ЮЮ↑?"≡≡Ю│
+36|"""ЮЮ?"♣≡≡ЮЮ?≡≡ЮhЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡Ю↑Ю?≡≡Ю♣Ю?≡≡"│
+37|"""≡ЮЮ?≡"≡ЮЮЮ≡≡•"ЮЮ≡≡•ЮЮ?≡≡Юg?≡≡ЮЮ?≡≡ЮЮЮ≡≡•Ю│
+38|"""≡ЮЮЮ≡≡•ЮЮ≡≡•Ю↑Ю"?≡"≡HЮ?≡≡ЮЮ?≡""≡ЮЮЮ≡≡•ЮC?│
+39|"""≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ"?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡"≡Ю│
+40|"""≡•ЮЮ?"≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡"≡•ЮЮ♣≡≡•ЮЮ?≡≡ЮЮ?≡≡│
+41|"""ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡""≡ЮЮ?│
+42|"""≡≡ЮЮ?≡≡ЮЮ?≡"""≡•ЮЮ≡≡•ЮЮ?≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮЮ≡≡│
+43|"""≡ЮЮ?≡≡ЮЮ"ЮC≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?≡≡ЮЮ?≡≡ЮЮЮr≡•ЮЮ│
+44|"""≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ?≡≡ЮЮ?s≡ЮЮ?"≡≡ЮЮЮ≡≡•ЮЮ≡≡•ЮЮ│
+45| ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl
+46| ! Hrolf Brighteye has lost consciousness.
+47| The fortress alert is now hearth.
+48| Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]
+49| [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks
+----- log strip rows -----
+ ☼ A drawbridge over a channel is the surest gate. Build a lever inside [b], cl
+ ! Hrolf Brighteye has lost consciousness.
+ The fortress alert is now hearth.
+----- status rows -----
+ Day 2 of Spring, Year 3   ☼ clear 24°C   ☺ 80   ♥ Fine   +1   !4   z 27   ║ [?]
+ [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks
