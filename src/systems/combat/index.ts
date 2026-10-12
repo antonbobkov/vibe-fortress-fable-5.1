@@ -290,7 +290,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       const dx = Math.abs(xA - xT);
       const dy = Math.abs(yA - yT);
       const dz = Math.abs(zA - zT);
-      if (Math.max(dx, dy) > PERCEPTION_RADIUS || dz > 2) {
+      // 08 owns a wild attack's species perception and saved loss-of-sight grace.
+      if (entities.get(id, C.Wild)?.state !== 'attack' && (Math.max(dx, dy) > PERCEPTION_RADIUS || dz > 2)) {
         this.targets.clearTarget(id);
         continue;
       }

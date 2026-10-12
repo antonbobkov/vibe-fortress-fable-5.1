@@ -84,7 +84,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   readonly order = 8;
   override readonly cadence = ANIMALS_CADENCE;
   override readonly phase = ANIMALS_PHASE;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'SeasonChanged', 'CreatureDied', 'AttackResolved', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ThreatNearby', 'CreatureCaged'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'SeasonChanged', 'CreatureDied', 'CorpseCreated', 'AttackResolved', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ThreatNearby', 'CreatureCaged'];
   override readonly ownsCommands: readonly CommandType[] = [
     'SetBreedingCap',
     'AssignPasture',
@@ -847,6 +847,27 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       if (at >= 0) this.nestBoxes.splice(at, 1);
       return;
     }
+    if (event.type === 'CorpseCreated') {
+      const creatureId = event['creatureId'] as EntityId, itemId = event['itemId'] as EntityId;
+      for (const animalId of ctx.world.entities.with(C.Wild)) {
+        const wild = ctx.world.entities.get(animalId, C.Wild);
+        if (wild === undefined || wild.pendingMeal !== creatureId) continue;
+        const next = { ...wild };
+        delete next.pendingMeal;
+        if (ctx.world.entities.has(itemId, C.Corpse)) {
+          next.mealId = itemId;
+          const target = this.brain.targetOf?.(animalId) ?? 0;
+          const defending = wild.state === 'attack' && wild.defendFrom !== undefined && ctx.world.entities.alive(target);
+          if (!defending && wild.state !== 'flee' && wild.state !== 'leave') {
+            next.state = 'eat'; next.stateUntil = 0;
+            delete next.defendFrom; delete next.unseenSince;
+            this.brain.setTarget(animalId, 0); ctx.world.services.movement?.stopWalking(animalId);
+          }
+        }
+        ctx.world.entities.add(animalId, C.Wild, next);
+      }
+      return;
+    }
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
       for (const animalId of ctx.world.entities.with(C.Tame)) {
@@ -867,6 +888,10 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
             this.brain.setTarget(member, 0);
             ctx.world.services.movement?.stopWalking(member);
           }
+        }
+        const fed = ctx.world.entities.get(killer, C.Wild);
+        if (fed !== undefined && ctx.world.services.items !== null) {
+          ctx.world.entities.add(killer, C.Wild, { ...fed, pendingMeal: id });
         }
       }
       this.targets.delete(id);

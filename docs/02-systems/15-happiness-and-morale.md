@@ -90,6 +90,8 @@ Sulks never involve violence, never target other dwarves' bodies, never destroy 
 
 `dwarf_died` for everyone (small), `friend_died` for friends, `pet_died` for the owner, `child_died` for everyone (stronger). `unburied_dead` is standing for everyone while any dwarf corpse is unburied for more than 3 days. `buried_friend` and `memorial_placed` are positive and, on `Buried`, remove `unburied_dead` if it was the last corpse. The death thoughts are triggered by 17's `CreatureDied` when the dead creature's species is a dwarf, and read the event's `faction` and `ageTicks` for their conditions. `memorial_placed` is given only for a `Buried` with `coffinId: 0` (a memorial slab); a burial in a coffin outside a tomb does not give it.
 
+A corpse consumed by a predator is lost for burial. It no longer counts as present unburied remains, but its loss emits no `Buried` event or burial relief; existing death thoughts keep their normal duration.
+
 ### Interaction with 10 needs
 
 Need pressure is part of the mood formula, so a hungry fortress is an unhappy fortress before it is a starving one. The standing need thoughts are both the legible form of the pressure ("Hungry (−6)" in the dwarf's thought list) and its measure: all seven count among `negatives`, and `hungry`, `thirsty`, `tired` and `lonely` also make up `needPressure`. `uncomfortable`, `restless` and `bored` are ordinary standing negatives: a fortress without chairs or a meeting area is gloomier, not miserable.

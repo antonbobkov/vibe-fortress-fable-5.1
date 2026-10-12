@@ -96,7 +96,7 @@ Tame animals get bandaging only: the health producer creates `bandage_animal` (l
 
 ### Death and corpses
 
-`CreatureDied { id, cause, killerId }` is emitted here for every creature. 13 creates the corpse; 10 handles dwarves; 15 grief; 08 animals; 18 hostiles; 16 kills. When that event is dispatched, 13 creates the live corpse and hands off all worn and extra carried items before the removal is observable to presentation listeners. Death leaves no carried clothing referencing its destroyed creature; corpse disposition and departure use the ordinary item API.
+`CreatureDied { id, cause, killerId }` is emitted here for every creature. 13 creates the corpse; 10 handles dwarves; 15 grief; 08 animals; 18 hostiles; 16 kills. When that event is dispatched, 13 creates the live corpse and hands off all worn and extra carried items before the removal is observable to presentation listeners. A hungry wild predator may consume the corpse under 08's eating rule; those remains are then unavailable for burial. Death leaves no carried clothing referencing its destroyed creature; corpse disposition and departure use the ordinary item API.
 
 ## State
 

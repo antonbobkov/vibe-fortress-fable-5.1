@@ -18,6 +18,7 @@
  *   attack: 16 drives; the target dead or lost means idle (a kill ends the hunger); a defending
  *           attack (provoked, not hunting) breaks off into wander when its target is beyond the
  *           provoke radius of the tile where the attack began, or unconscious
+ *   eat:    walk to the saved corpse; wait EAT_CORPSE_TICKS there, consume through 13, idle
  *   sleep:  stay until stateUntil; a threat wakes it
  *   leave:  walk to the nearest edge tile; despawn on arrival (AnimalLeft)
  * ```
@@ -36,6 +37,8 @@ import type { MovementApi, ReaderSetLike, TickContext } from '@core/system';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import {
   APPROACH_RADIUS,
+  ATTACK_PERCEPTION_GRACE_TICKS,
+  EAT_CORPSE_TICKS,
   FLEE_BLOOD_PERCENT,
   FLEE_SAMPLE_DIRECTIONS,
   FLEE_SAMPLE_STEPS,
@@ -55,8 +58,8 @@ import {
 } from './constants';
 import type { AnimalFacts } from './facts';
 
-/** `08` § Wild behavior: the eight states. */
-export type WildState = 'idle' | 'graze' | 'wander' | 'flee' | 'hunt' | 'attack' | 'sleep' | 'leave';
+/** `08` § Wild behavior: the nine states. */
+export type WildState = 'idle' | 'graze' | 'wander' | 'flee' | 'hunt' | 'attack' | 'eat' | 'sleep' | 'leave';
 
 export const WILD_STATES: readonly WildState[] = Object.freeze([
   'idle',
@@ -65,6 +68,7 @@ export const WILD_STATES: readonly WildState[] = Object.freeze([
   'flee',
   'hunt',
   'attack',
+  'eat',
   'sleep',
   'leave',
 ]);
@@ -404,6 +408,12 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
   if (at < 0) return next;
   const temper = host.facts.temperOf(species);
   const threats = perceivedThreats(host, id);
+  // 13 creates the corpse during death dispatch; CorpseCreated arrives next tick.
+  if (next.pendingMeal !== undefined) return next;
+  if (next.mealId !== undefined && ['idle', 'wander', 'hunt'].includes(next.state)) {
+    next.state = 'eat'; next.stateUntil = 0;
+    host.setTarget(id, 0); host.movement?.stopWalking(id);
+  }
 
   switch (next.state as WildState) {
     case 'idle': {
@@ -545,11 +555,6 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
       // An attack loaded from before the field existed: a fed animal was defending where it stands.
       if (next.defendFrom === undefined && !next.hungry) next.defendFrom = at;
       const to = tileOf(host, target);
-      if (to < 0 || host.map.zOf(to) !== host.map.zOf(at) || chebyshev(host, to, at) > host.facts.perceptionOf(species)) {
-        toIdle(host, ctx, id, next);
-        host.setTarget(id, 0);
-        break;
-      }
       if (next.defendFrom !== undefined) {
         // A defending animal drives the intruder out and leaves a beaten one alone.
         const from = next.defendFrom;
@@ -561,7 +566,37 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
           break;
         }
       }
+      const seen = to >= 0 && host.map.zOf(to) === host.map.zOf(at) &&
+        chebyshev(host, to, at) <= host.facts.perceptionOf(species) && visible(host, at, target);
+      if (seen) delete next.unseenSince;
+      else {
+        next.unseenSince ??= ctx.tick;
+        if (ctx.tick - next.unseenSince >= ATTACK_PERCEPTION_GRACE_TICKS) {
+          toIdle(host, ctx, id, next); host.setTarget(id, 0); break;
+        }
+      }
       host.setTarget(id, target);
+      break;
+    }
+    case 'eat': {
+      const meal = next.mealId;
+      const pos = meal === undefined ? undefined : host.entities.get(meal, C.Position);
+      if (meal === undefined || pos === undefined || !host.entities.has(meal, C.Corpse)) {
+        delete next.mealId; toIdle(host, ctx, id, next); break;
+      }
+      const mealTile = host.map.index(pos.x, pos.y, pos.z);
+      if (at !== mealTile) {
+        next.stateUntil = 0;
+        if (walk(host, ctx, id, mealTile) === 'unreachable') {
+          delete next.mealId; toIdle(host, ctx, id, next);
+        }
+      } else if (next.stateUntil === 0) {
+        host.movement?.stopWalking(id);
+        next.stateUntil = ctx.tick + EAT_CORPSE_TICKS;
+      } else if (ctx.tick >= next.stateUntil) {
+        ctx.world.services.items?.consume(meal, 1);
+        delete next.mealId; toIdle(host, ctx, id, next);
+      }
       break;
     }
     case 'sleep': {
@@ -592,6 +627,7 @@ function chebyshev(host: BrainHost, a: TileIndex, b: TileIndex): number {
 /** A defending animal lets go and wanders; a `wander` ignores dwarves until it ends. */
 function breakOff(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild): void {
   delete w.defendFrom;
+  delete w.unseenSince;
   w.state = 'wander';
   w.stateUntil = ctx.tick + WANDER_TIMEOUT_TICKS;
   host.movement?.stopWalking(id);
@@ -600,6 +636,7 @@ function breakOff(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild): voi
 
 function toIdle(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild): void {
   delete w.defendFrom;
+  delete w.unseenSince;
   w.state = 'idle';
   w.stateUntil = ctx.tick + host.rng.int(IDLE_MIN_TICKS, IDLE_MAX_TICKS);
   host.movement?.stopWalking(id);
@@ -608,6 +645,7 @@ function toIdle(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild): void 
 function startFlee(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild, threats: readonly EntityId[]): void {
   const from = threats.length > 0 ? (threats[0] as EntityId) : 0;
   delete w.defendFrom;
+  delete w.unseenSince;
   ctx.emit({ type: 'CreatureFled', id, from });
   if (edgeWithinPerception(host, id)) {
     w.state = 'leave';
@@ -623,7 +661,9 @@ function startFlee(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild, thr
 export function tickAnimal(host: BrainHost, ctx: TickContext, id: EntityId): void {
   const w = host.entities.get(id, C.Wild);
   if (w === undefined) return;
-  if (ctx.tick >= w.lastThinkTick + thinkInterval(host, id)) {
+  const deadlineDue = (w.state === 'eat' && w.stateUntil > 0 && ctx.tick >= w.stateUntil) ||
+    (w.state === 'attack' && w.unseenSince !== undefined && ctx.tick >= w.unseenSince + ATTACK_PERCEPTION_GRACE_TICKS);
+  if (deadlineDue || ctx.tick >= w.lastThinkTick + thinkInterval(host, id)) {
     host.entities.add(id, C.Wild, thinkWild(host, ctx, id, w));
   }
   host.movement?.moveAlongPath(id, ctx);
