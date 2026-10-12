@@ -1,0 +1,3031 @@
+{
+ "note": "T-145 sweep at ac88f56, one run. Per seed: the journal (a line every 28 days, every dwarf death, alerts for a dangerous wild animal, trades) and, where the console kept it, the sweep detail line. three-years-p4-6 was cut off by a session limit at day 56.",
+ "seeds": {
+  "three-years-p0-1": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 5603,
+     "dwarfDeaths": 0,
+     "meals": 64,
+     "drink": 80,
+     "plants": 210
+    },
+    {
+     "day": 56,
+     "population": 10,
+     "wealth": 8705,
+     "dwarfDeaths": 1,
+     "meals": 69,
+     "drink": 123,
+     "plants": 257
+    },
+    {
+     "day": 84,
+     "population": 13,
+     "wealth": 11346,
+     "dwarfDeaths": 1,
+     "meals": 134,
+     "drink": 149,
+     "plants": 88
+    },
+    {
+     "day": 112,
+     "population": 13,
+     "wealth": 16668,
+     "dwarfDeaths": 1,
+     "meals": 208,
+     "drink": 146,
+     "plants": 142
+    },
+    {
+     "day": 140,
+     "population": 13,
+     "wealth": 14094,
+     "dwarfDeaths": 1,
+     "meals": 91,
+     "drink": 151,
+     "plants": 166
+    },
+    {
+     "day": 168,
+     "population": 19,
+     "wealth": 22236,
+     "dwarfDeaths": 1,
+     "meals": 151,
+     "drink": 211,
+     "plants": 212
+    },
+    {
+     "day": 196,
+     "population": 19,
+     "wealth": 24448,
+     "dwarfDeaths": 1,
+     "meals": 206,
+     "drink": 198,
+     "plants": 29
+    },
+    {
+     "day": 224,
+     "population": 24,
+     "wealth": 32163,
+     "dwarfDeaths": 1,
+     "meals": 283,
+     "drink": 192,
+     "plants": 9
+    },
+    {
+     "day": 252,
+     "population": 24,
+     "wealth": 20744,
+     "dwarfDeaths": 1,
+     "meals": 147,
+     "drink": 192,
+     "plants": 9
+    },
+    {
+     "day": 280,
+     "population": 32,
+     "wealth": 32806,
+     "dwarfDeaths": 1,
+     "meals": 331,
+     "drink": 376,
+     "plants": 56
+    },
+    {
+     "day": 308,
+     "population": 44,
+     "wealth": 16793,
+     "dwarfDeaths": 1,
+     "meals": 50,
+     "drink": 308,
+     "plants": 8
+    },
+    {
+     "day": 336,
+     "population": 48,
+     "wealth": 14317,
+     "dwarfDeaths": 1,
+     "meals": 0,
+     "drink": 0,
+     "plants": 9
+    }
+   ],
+   "deaths": [
+    {
+     "day": 47,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 83886744
+    }
+   ],
+   "alerts": 1,
+   "trades": 6,
+   "friendly": 0
+  },
+  "three-years-p0-2": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 2873,
+     "dwarfDeaths": 0,
+     "meals": 0,
+     "drink": 79,
+     "plants": 143
+    },
+    {
+     "day": 56,
+     "population": 7,
+     "wealth": 4996,
+     "dwarfDeaths": 2,
+     "meals": 42,
+     "drink": 87,
+     "plants": 158
+    },
+    {
+     "day": 84,
+     "population": 10,
+     "wealth": 11579,
+     "dwarfDeaths": 3,
+     "meals": 153,
+     "drink": 112,
+     "plants": 138
+    },
+    {
+     "day": 112,
+     "population": 10,
+     "wealth": 12610,
+     "dwarfDeaths": 3,
+     "meals": 181,
+     "drink": 107,
+     "plants": 242
+    },
+    {
+     "day": 140,
+     "population": 10,
+     "wealth": 11931,
+     "dwarfDeaths": 3,
+     "meals": 126,
+     "drink": 104,
+     "plants": 113
+    },
+    {
+     "day": 168,
+     "population": 10,
+     "wealth": 12225,
+     "dwarfDeaths": 3,
+     "meals": 90,
+     "drink": 118,
+     "plants": 214
+    },
+    {
+     "day": 196,
+     "population": 16,
+     "wealth": 21450,
+     "dwarfDeaths": 3,
+     "meals": 172,
+     "drink": 179,
+     "plants": 186
+    },
+    {
+     "day": 224,
+     "population": 21,
+     "wealth": 33464,
+     "dwarfDeaths": 3,
+     "meals": 327,
+     "drink": 231,
+     "plants": 143
+    },
+    {
+     "day": 252,
+     "population": 21,
+     "wealth": 36562,
+     "dwarfDeaths": 3,
+     "meals": 367,
+     "drink": 222,
+     "plants": 130
+    },
+    {
+     "day": 280,
+     "population": 32,
+     "wealth": 32769,
+     "dwarfDeaths": 4,
+     "meals": 312,
+     "drink": 357,
+     "plants": 65
+    },
+    {
+     "day": 308,
+     "population": 44,
+     "wealth": 23256,
+     "dwarfDeaths": 4,
+     "meals": 150,
+     "drink": 275,
+     "plants": 4
+    },
+    {
+     "day": 336,
+     "population": 49,
+     "wealth": 13302,
+     "dwarfDeaths": 4,
+     "meals": 0,
+     "drink": 0,
+     "plants": 13
+    }
+   ],
+   "deaths": [
+    {
+     "day": 43,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 117441028
+    },
+    {
+     "day": 43,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 184549746
+    },
+    {
+     "day": 75,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 352322083
+    },
+    {
+     "day": 260,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 150996104
+    }
+   ],
+   "alerts": 4,
+   "trades": 8,
+   "friendly": 0
+  },
+  "three-years-p0-3": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 2891,
+     "dwarfDeaths": 0,
+     "meals": 0,
+     "drink": 85,
+     "plants": 157
+    },
+    {
+     "day": 56,
+     "population": 11,
+     "wealth": 10873,
+     "dwarfDeaths": 0,
+     "meals": 143,
+     "drink": 121,
+     "plants": 150
+    },
+    {
+     "day": 84,
+     "population": 14,
+     "wealth": 20452,
+     "dwarfDeaths": 0,
+     "meals": 157,
+     "drink": 154,
+     "plants": 231
+    },
+    {
+     "day": 112,
+     "population": 19,
+     "wealth": 24028,
+     "dwarfDeaths": 0,
+     "meals": 296,
+     "drink": 217,
+     "plants": 123
+    },
+    {
+     "day": 140,
+     "population": 31,
+     "wealth": 16214,
+     "dwarfDeaths": 0,
+     "meals": 130,
+     "drink": 327,
+     "plants": 5
+    },
+    {
+     "day": 168,
+     "population": 38,
+     "wealth": 19801,
+     "dwarfDeaths": 0,
+     "meals": 223,
+     "drink": 368,
+     "plants": 17
+    },
+    {
+     "day": 196,
+     "population": 48,
+     "wealth": 19967,
+     "dwarfDeaths": 0,
+     "meals": 153,
+     "drink": 303,
+     "plants": 28
+    },
+    {
+     "day": 224,
+     "population": 52,
+     "wealth": 11040,
+     "dwarfDeaths": 0,
+     "meals": 0,
+     "drink": 19,
+     "plants": 5
+    },
+    {
+     "day": 252,
+     "population": 27,
+     "wealth": 12040,
+     "dwarfDeaths": 25,
+     "meals": 0,
+     "drink": 33,
+     "plants": 7
+    },
+    {
+     "day": 280,
+     "population": 27,
+     "wealth": 17064,
+     "dwarfDeaths": 25,
+     "meals": 85,
+     "drink": 233,
+     "plants": 21
+    },
+    {
+     "day": 308,
+     "population": 34,
+     "wealth": 15278,
+     "dwarfDeaths": 25,
+     "meals": 38,
+     "drink": 333,
+     "plants": 0
+    },
+    {
+     "day": 336,
+     "population": 34,
+     "wealth": 13645,
+     "dwarfDeaths": 25,
+     "meals": 0,
+     "drink": 83,
+     "plants": 0
+    }
+   ],
+   "deaths": [
+    {
+     "day": 232,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 234,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 235,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    }
+   ],
+   "alerts": 0,
+   "trades": 6,
+   "friendly": 0
+  },
+  "three-years-p0-4": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 8353,
+     "dwarfDeaths": 0,
+     "meals": 102,
+     "drink": 79,
+     "plants": 164
+    },
+    {
+     "day": 56,
+     "population": 8,
+     "wealth": 12930,
+     "dwarfDeaths": 1,
+     "meals": 93,
+     "drink": 99,
+     "plants": 333
+    },
+    {
+     "day": 84,
+     "population": 11,
+     "wealth": 12756,
+     "dwarfDeaths": 1,
+     "meals": 176,
+     "drink": 131,
+     "plants": 144
+    },
+    {
+     "day": 112,
+     "population": 14,
+     "wealth": 18170,
+     "dwarfDeaths": 1,
+     "meals": 221,
+     "drink": 156,
+     "plants": 226
+    },
+    {
+     "day": 140,
+     "population": 24,
+     "wealth": 34088,
+     "dwarfDeaths": 1,
+     "meals": 365,
+     "drink": 257,
+     "plants": 198
+    },
+    {
+     "day": 168,
+     "population": 24,
+     "wealth": 23900,
+     "dwarfDeaths": 1,
+     "meals": 358,
+     "drink": 255,
+     "plants": 158
+    },
+    {
+     "day": 196,
+     "population": 33,
+     "wealth": 63427,
+     "dwarfDeaths": 1,
+     "meals": 561,
+     "drink": 365,
+     "plants": 143
+    },
+    {
+     "day": 224,
+     "population": 33,
+     "wealth": 63188,
+     "dwarfDeaths": 1,
+     "meals": 598,
+     "drink": 356,
+     "plants": 93
+    },
+    {
+     "day": 252,
+     "population": 32,
+     "wealth": 36339,
+     "dwarfDeaths": 2,
+     "meals": 292,
+     "drink": 239,
+     "plants": 3
+    },
+    {
+     "day": 280,
+     "population": 44,
+     "wealth": 37044,
+     "dwarfDeaths": 2,
+     "meals": 285,
+     "drink": 269,
+     "plants": 1
+    },
+    {
+     "day": 308,
+     "population": 44,
+     "wealth": 44363,
+     "dwarfDeaths": 2,
+     "meals": 317,
+     "drink": 383,
+     "plants": 0
+    },
+    {
+     "day": 336,
+     "population": 50,
+     "wealth": 26732,
+     "dwarfDeaths": 2,
+     "meals": 95,
+     "drink": 0,
+     "plants": 1
+    }
+   ],
+   "deaths": [
+    {
+     "day": 40,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 83886423
+    },
+    {
+     "day": 225,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 352322841
+    }
+   ],
+   "alerts": 4,
+   "trades": 8,
+   "friendly": 0
+  },
+  "three-years-p0-5": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 6,
+     "wealth": 2651,
+     "dwarfDeaths": 1,
+     "meals": 26,
+     "drink": 95,
+     "plants": 230
+    },
+    {
+     "day": 56,
+     "population": 8,
+     "wealth": 15639,
+     "dwarfDeaths": 2,
+     "meals": 138,
+     "drink": 104,
+     "plants": 284
+    },
+    {
+     "day": 84,
+     "population": 10,
+     "wealth": 15214,
+     "dwarfDeaths": 3,
+     "meals": 110,
+     "drink": 106,
+     "plants": 228
+    },
+    {
+     "day": 112,
+     "population": 14,
+     "wealth": 24193,
+     "dwarfDeaths": 3,
+     "meals": 241,
+     "drink": 89,
+     "plants": 180
+    },
+    {
+     "day": 140,
+     "population": 24,
+     "wealth": 25923,
+     "dwarfDeaths": 3,
+     "meals": 345,
+     "drink": 117,
+     "plants": 111
+    },
+    {
+     "day": 168,
+     "population": 34,
+     "wealth": 31432,
+     "dwarfDeaths": 3,
+     "meals": 385,
+     "drink": 57,
+     "plants": 21
+    },
+    {
+     "day": 196,
+     "population": 34,
+     "wealth": 58652,
+     "dwarfDeaths": 3,
+     "meals": 492,
+     "drink": 22,
+     "plants": 109
+    },
+    {
+     "day": 224,
+     "population": 39,
+     "wealth": 59354,
+     "dwarfDeaths": 4,
+     "meals": 543,
+     "drink": 63,
+     "plants": 7
+    },
+    {
+     "day": 252,
+     "population": 51,
+     "wealth": 10936,
+     "dwarfDeaths": 4,
+     "meals": 15,
+     "drink": 12,
+     "plants": 5
+    },
+    {
+     "day": 280,
+     "population": 51,
+     "wealth": 12511,
+     "dwarfDeaths": 4,
+     "meals": 39,
+     "drink": 20,
+     "plants": 34
+    },
+    {
+     "day": 308,
+     "population": 51,
+     "wealth": 10442,
+     "dwarfDeaths": 4,
+     "meals": 0,
+     "drink": 0,
+     "plants": 0
+    },
+    {
+     "day": 336,
+     "population": 23,
+     "wealth": 13435,
+     "dwarfDeaths": 32,
+     "meals": 36,
+     "drink": 93,
+     "plants": 4
+    }
+   ],
+   "deaths": [
+    {
+     "day": 9,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 16777441
+    },
+    {
+     "day": 55,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 83886602
+    },
+    {
+     "day": 75,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 184550231
+    },
+    {
+     "day": 216,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 654311578
+    },
+    {
+     "day": 320,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 320,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 321,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 323,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 323,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 328,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    }
+   ],
+   "alerts": 9,
+   "trades": 8,
+   "friendly": 0
+  },
+  "three-years-p0-6": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 2952,
+     "dwarfDeaths": 0,
+     "meals": 0,
+     "drink": 81,
+     "plants": 156
+    },
+    {
+     "day": 56,
+     "population": 9,
+     "wealth": 3753,
+     "dwarfDeaths": 0,
+     "meals": 4,
+     "drink": 109,
+     "plants": 191
+    },
+    {
+     "day": 84,
+     "population": 12,
+     "wealth": 4046,
+     "dwarfDeaths": 0,
+     "meals": 3,
+     "drink": 127,
+     "plants": 128
+    },
+    {
+     "day": 112,
+     "population": 15,
+     "wealth": 9823,
+     "dwarfDeaths": 0,
+     "meals": 98,
+     "drink": 159,
+     "plants": 128
+    },
+    {
+     "day": 140,
+     "population": 20,
+     "wealth": 20434,
+     "dwarfDeaths": 0,
+     "meals": 251,
+     "drink": 213,
+     "plants": 31
+    },
+    {
+     "day": 168,
+     "population": 20,
+     "wealth": 21366,
+     "dwarfDeaths": 0,
+     "meals": 279,
+     "drink": 210,
+     "plants": 8
+    },
+    {
+     "day": 196,
+     "population": 31,
+     "wealth": 44112,
+     "dwarfDeaths": 0,
+     "meals": 342,
+     "drink": 336,
+     "plants": 191
+    },
+    {
+     "day": 224,
+     "population": 31,
+     "wealth": 48591,
+     "dwarfDeaths": 0,
+     "meals": 457,
+     "drink": 331,
+     "plants": 74
+    },
+    {
+     "day": 252,
+     "population": 31,
+     "wealth": 32228,
+     "dwarfDeaths": 0,
+     "meals": 310,
+     "drink": 303,
+     "plants": 1
+    },
+    {
+     "day": 280,
+     "population": 43,
+     "wealth": 13490,
+     "dwarfDeaths": 0,
+     "meals": 21,
+     "drink": 339,
+     "plants": 0
+    },
+    {
+     "day": 308,
+     "population": 49,
+     "wealth": 12463,
+     "dwarfDeaths": 0,
+     "meals": 0,
+     "drink": 16,
+     "plants": 4
+    },
+    {
+     "day": 336,
+     "population": 22,
+     "wealth": 12981,
+     "dwarfDeaths": 27,
+     "meals": 0,
+     "drink": 35,
+     "plants": 0
+    }
+   ],
+   "deaths": [
+    {
+     "day": 319,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 320,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 320,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 320,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 321,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 321,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 321,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 321,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 323,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 323,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 323,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 324,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 328,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    }
+   ],
+   "alerts": 1,
+   "trades": 8,
+   "friendly": 0
+  },
+  "three-years-p0-7": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 3681,
+     "dwarfDeaths": 0,
+     "meals": 30,
+     "drink": 79,
+     "plants": 184
+    },
+    {
+     "day": 56,
+     "population": 9,
+     "wealth": 8353,
+     "dwarfDeaths": 1,
+     "meals": 55,
+     "drink": 105,
+     "plants": 216
+    },
+    {
+     "day": 84,
+     "population": 13,
+     "wealth": 11707,
+     "dwarfDeaths": 1,
+     "meals": 106,
+     "drink": 147,
+     "plants": 68
+    },
+    {
+     "day": 112,
+     "population": 16,
+     "wealth": 19043,
+     "dwarfDeaths": 1,
+     "meals": 248,
+     "drink": 180,
+     "plants": 95
+    },
+    {
+     "day": 140,
+     "population": 24,
+     "wealth": 26205,
+     "dwarfDeaths": 1,
+     "meals": 276,
+     "drink": 253,
+     "plants": 39
+    },
+    {
+     "day": 168,
+     "population": 24,
+     "wealth": 30888,
+     "dwarfDeaths": 1,
+     "meals": 301,
+     "drink": 269,
+     "plants": 165
+    },
+    {
+     "day": 196,
+     "population": 36,
+     "wealth": 60255,
+     "dwarfDeaths": 1,
+     "meals": 407,
+     "drink": 405,
+     "plants": 524
+    },
+    {
+     "day": 224,
+     "population": 42,
+     "wealth": 80952,
+     "dwarfDeaths": 1,
+     "meals": 607,
+     "drink": 449,
+     "plants": 262
+    },
+    {
+     "day": 252,
+     "population": 42,
+     "wealth": 28992,
+     "dwarfDeaths": 1,
+     "meals": 250,
+     "drink": 371,
+     "plants": 10
+    },
+    {
+     "day": 280,
+     "population": 53,
+     "wealth": 13232,
+     "dwarfDeaths": 1,
+     "meals": 0,
+     "drink": 0,
+     "plants": 0
+    },
+    {
+     "day": 308,
+     "population": 53,
+     "wealth": 14479,
+     "dwarfDeaths": 1,
+     "meals": 21,
+     "drink": 6,
+     "plants": 19
+    },
+    {
+     "day": 336,
+     "population": 48,
+     "wealth": 13964,
+     "dwarfDeaths": 6,
+     "meals": 0,
+     "drink": 0,
+     "plants": 0
+    }
+   ],
+   "deaths": [
+    {
+     "day": 39,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 83886996
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 328,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    },
+    {
+     "day": 330,
+     "cause": "starvation",
+     "killer": null,
+     "killerId": 0
+    }
+   ],
+   "alerts": 3,
+   "trades": 8,
+   "friendly": 0
+  },
+  "three-years-p2-1": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 4939,
+     "dwarfDeaths": 0,
+     "meals": 42,
+     "drink": 80,
+     "plants": 71
+    },
+    {
+     "day": 56,
+     "population": 8,
+     "wealth": 12784,
+     "dwarfDeaths": 2,
+     "meals": 135,
+     "drink": 100,
+     "plants": 143
+    }
+   ],
+   "deaths": [
+    {
+     "day": 35,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 16777775
+    },
+    {
+     "day": 36,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 16777777
+    }
+   ],
+   "alerts": 6,
+   "trades": 2,
+   "friendly": 0
+  },
+  "three-years-p2-2": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 3863,
+     "dwarfDeaths": 0,
+     "meals": 24,
+     "drink": 99,
+     "plants": 85
+    },
+    {
+     "day": 56,
+     "population": 9,
+     "wealth": 11196,
+     "dwarfDeaths": 0,
+     "meals": 82,
+     "drink": 112,
+     "plants": 114
+    }
+   ],
+   "deaths": [],
+   "alerts": 1,
+   "trades": 1,
+   "friendly": 0
+  },
+  "three-years-p2-3": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 5,
+     "wealth": 2596,
+     "dwarfDeaths": 2,
+     "meals": 0,
+     "drink": 78,
+     "plants": 151
+    },
+    {
+     "day": 56,
+     "population": 9,
+     "wealth": 11071,
+     "dwarfDeaths": 2,
+     "meals": 165,
+     "drink": 64,
+     "plants": 198
+    }
+   ],
+   "deaths": [
+    {
+     "day": 12,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 50331941
+    },
+    {
+     "day": 14,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 16777560
+    }
+   ],
+   "alerts": 8,
+   "trades": 1,
+   "friendly": 0
+  },
+  "three-years-p2-4": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 6,
+     "wealth": 5839,
+     "dwarfDeaths": 1,
+     "meals": 53,
+     "drink": 97,
+     "plants": 105
+    },
+    {
+     "day": 56,
+     "population": 9,
+     "wealth": 10865,
+     "dwarfDeaths": 1,
+     "meals": 148,
+     "drink": 101,
+     "plants": 235
+    },
+    {
+     "day": 84,
+     "population": 10,
+     "wealth": 25331,
+     "dwarfDeaths": 3,
+     "meals": 182,
+     "drink": 106,
+     "plants": 496
+    },
+    {
+     "day": 112,
+     "population": 10,
+     "wealth": 21534,
+     "dwarfDeaths": 3,
+     "meals": 170,
+     "drink": 114,
+     "plants": 311
+    }
+   ],
+   "deaths": [
+    {
+     "day": 7,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 16777430
+    },
+    {
+     "day": 63,
+     "cause": "bled_out",
+     "killer": "gloam_warrior",
+     "killerId": 318767463
+    },
+    {
+     "day": 63,
+     "cause": "bled_out",
+     "killer": "gloam_warrior",
+     "killerId": 50332368
+    }
+   ],
+   "alerts": 6,
+   "trades": 2,
+   "friendly": 0
+  },
+  "three-years-p2-5": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 6,
+     "wealth": 3653,
+     "dwarfDeaths": 1,
+     "meals": 22,
+     "drink": 84,
+     "plants": 87
+    },
+    {
+     "day": 56,
+     "population": 9,
+     "wealth": 9545,
+     "dwarfDeaths": 2,
+     "meals": 70,
+     "drink": 104,
+     "plants": 180
+    },
+    {
+     "day": 84,
+     "population": 1,
+     "wealth": 4330,
+     "dwarfDeaths": 13,
+     "meals": 0,
+     "drink": 62,
+     "plants": 18
+    },
+    {
+     "day": 112,
+     "population": 0,
+     "wealth": 4193,
+     "dwarfDeaths": 14,
+     "meals": 0,
+     "drink": 57,
+     "plants": 14
+    },
+    {
+     "day": 140,
+     "population": 0,
+     "wealth": 3810,
+     "dwarfDeaths": 14,
+     "meals": 0,
+     "drink": 57,
+     "plants": 1
+    },
+    {
+     "day": 168,
+     "population": 0,
+     "wealth": 3565,
+     "dwarfDeaths": 14,
+     "meals": 0,
+     "drink": 57,
+     "plants": 0
+    },
+    {
+     "day": 196,
+     "population": 0,
+     "wealth": 3555,
+     "dwarfDeaths": 14,
+     "meals": 0,
+     "drink": 57,
+     "plants": 0
+    }
+   ],
+   "deaths": [
+    {
+     "day": 23,
+     "cause": "bled_out",
+     "killer": "bear",
+     "killerId": 50332020
+    },
+    {
+     "day": 54,
+     "cause": "infection",
+     "killer": null,
+     "killerId": 150995350
+    },
+    {
+     "day": 58,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 83886652
+    },
+    {
+     "day": 58,
+     "cause": "killed",
+     "killer": "gloam_warrior",
+     "killerId": 50332455
+    },
+    {
+     "day": 70,
+     "cause": "bled_out",
+     "killer": "wolf",
+     "killerId": 50332160
+    },
+    {
+     "day": 70,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 352321971
+    },
+    {
+     "day": 71,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 50332028
+    },
+    {
+     "day": 77,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 117441062
+    },
+    {
+     "day": 77,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 117441062
+    },
+    {
+     "day": 78,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 352321971
+    },
+    {
+     "day": 84,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 117441062
+    },
+    {
+     "day": 84,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 117441062
+    },
+    {
+     "day": 84,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 352321971
+    },
+    {
+     "day": 95,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 50332160
+    }
+   ],
+   "alerts": 48,
+   "trades": 1,
+   "friendly": 0
+  },
+  "three-years-p2-6": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 4570,
+     "dwarfDeaths": 0,
+     "meals": 51,
+     "drink": 80,
+     "plants": 116
+    },
+    {
+     "day": 56,
+     "population": 5,
+     "wealth": 9381,
+     "dwarfDeaths": 5,
+     "meals": 83,
+     "drink": 79,
+     "plants": 250
+    }
+   ],
+   "deaths": [
+    {
+     "day": 30,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 16777716
+    },
+    {
+     "day": 32,
+     "cause": "bled_out",
+     "killer": "boar",
+     "killerId": 16777714
+    },
+    {
+     "day": 38,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 83886467
+    },
+    {
+     "day": 44,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 16777752
+    },
+    {
+     "day": 45,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 16777753
+    },
+    {
+     "day": 61,
+     "cause": "bled_out",
+     "killer": "gloam_archer",
+     "killerId": 50332363
+    },
+    {
+     "day": 61,
+     "cause": "bled_out",
+     "killer": "gloam_archer",
+     "killerId": 50332372
+    },
+    {
+     "day": 61,
+     "cause": "bled_out",
+     "killer": "gloam_warrior",
+     "killerId": 50332358
+    },
+    {
+     "day": 62,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 50332363
+    },
+    {
+     "day": 62,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 50332363
+    },
+    {
+     "day": 68,
+     "cause": "killed",
+     "killer": "hillfolk_bandit",
+     "killerId": 150995362
+    }
+   ],
+   "alerts": 13,
+   "trades": 1,
+   "friendly": 0
+  },
+  "three-years-p2-7": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 7670,
+     "dwarfDeaths": 0,
+     "meals": 99,
+     "drink": 79,
+     "plants": 61
+    },
+    {
+     "day": 56,
+     "population": 10,
+     "wealth": 14507,
+     "dwarfDeaths": 0,
+     "meals": 141,
+     "drink": 113,
+     "plants": 121
+    }
+   ],
+   "deaths": [
+    {
+     "day": 60,
+     "cause": "killed",
+     "killer": "hillfolk_bandit",
+     "killerId": 50332308
+    }
+   ],
+   "alerts": 3,
+   "trades": 1,
+   "friendly": 0
+  },
+  "three-years-p4-1": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 6,
+     "wealth": 4552,
+     "dwarfDeaths": 1,
+     "meals": 51,
+     "drink": 91,
+     "plants": 119
+    },
+    {
+     "day": 56,
+     "population": 10,
+     "wealth": 10484,
+     "dwarfDeaths": 1,
+     "meals": 73,
+     "drink": 110,
+     "plants": 92
+    }
+   ],
+   "deaths": [
+    {
+     "day": 12,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 16777578
+    },
+    {
+     "day": 58,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 50331740
+    },
+    {
+     "day": 59,
+     "cause": "bled_out",
+     "killer": "gloam_archer",
+     "killerId": 83886487
+    },
+    {
+     "day": 59,
+     "cause": "bled_out",
+     "killer": "gloam_warrior",
+     "killerId": 218104187
+    },
+    {
+     "day": 59,
+     "cause": "bled_out",
+     "killer": "gloam_archer",
+     "killerId": 150995508
+    },
+    {
+     "day": 59,
+     "cause": "bled_out",
+     "killer": "gloam_warrior",
+     "killerId": 83886495
+    }
+   ],
+   "alerts": 2,
+   "trades": 1,
+   "friendly": 0
+  },
+  "three-years-p4-2": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 5278,
+     "dwarfDeaths": 0,
+     "meals": 41,
+     "drink": 82,
+     "plants": 132
+    }
+   ],
+   "deaths": [
+    {
+     "day": 38,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 0
+    }
+   ],
+   "alerts": 3,
+   "trades": 0,
+   "friendly": 0
+  },
+  "three-years-p4-3": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 6,
+     "wealth": 3783,
+     "dwarfDeaths": 1,
+     "meals": 12,
+     "drink": 91,
+     "plants": 160
+    },
+    {
+     "day": 56,
+     "population": 8,
+     "wealth": 10475,
+     "dwarfDeaths": 1,
+     "meals": 83,
+     "drink": 99,
+     "plants": 194
+    }
+   ],
+   "deaths": [
+    {
+     "day": 15,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 50332062
+    },
+    {
+     "day": 59,
+     "cause": "bled_out",
+     "killer": "gloam_archer",
+     "killerId": 50332356
+    },
+    {
+     "day": 59,
+     "cause": "bled_out",
+     "killer": "gloam_archer",
+     "killerId": 50332356
+    },
+    {
+     "day": 59,
+     "cause": "killed",
+     "killer": "gloam_archer",
+     "killerId": 50332356
+    }
+   ],
+   "alerts": 3,
+   "trades": 1,
+   "friendly": 0
+  },
+  "three-years-p4-4": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 2695,
+     "dwarfDeaths": 0,
+     "meals": 0,
+     "drink": 78,
+     "plants": 79
+    },
+    {
+     "day": 56,
+     "population": 10,
+     "wealth": 5227,
+     "dwarfDeaths": 1,
+     "meals": 2,
+     "drink": 83,
+     "plants": 147
+    }
+   ],
+   "deaths": [
+    {
+     "day": 48,
+     "cause": "infection",
+     "killer": null,
+     "killerId": 0
+    }
+   ],
+   "alerts": 2,
+   "trades": 1,
+   "friendly": 0
+  },
+  "three-years-p4-5": {
+   "progress": [],
+   "deaths": [],
+   "alerts": 1,
+   "trades": 0,
+   "friendly": 0
+  },
+  "three-years-p4-6": {
+   "progress": [
+    {
+     "day": 28,
+     "population": 7,
+     "wealth": 7416,
+     "dwarfDeaths": 0,
+     "meals": 70,
+     "drink": 80,
+     "plants": 77
+    },
+    {
+     "day": 56,
+     "population": 9,
+     "wealth": 9321,
+     "dwarfDeaths": 1,
+     "meals": 61,
+     "drink": 104,
+     "plants": 109
+    }
+   ],
+   "deaths": [
+    {
+     "day": 47,
+     "cause": "bled_out",
+     "killer": null,
+     "killerId": 83886361
+    }
+   ],
+   "alerts": 3,
+   "trades": 1,
+   "friendly": 0
+  }
+ },
+ "detail": {
+  "three-years-p0-1": {
+   "seed": "three-years-p0-1",
+   "peril": 0,
+   "y1Pop": 13,
+   "y2Pop": 24,
+   "y3Pop": 48,
+   "y1Wealth": 16668,
+   "y2Wealth": 32163,
+   "y3Wealth": 14317,
+   "dwarfDeaths": 1,
+   "tameDeaths": 0,
+   "wavesCount": 7,
+   "totalImmigrants": 42,
+   "nonGuaranteedWaves": 5,
+   "raidsCount": 3,
+   "mealsEaten": 2582,
+   "drinksDrunk": 4219,
+   "drinksAlcohol": 4219,
+   "drinksWater": 0,
+   "extinctDay": null,
+   "avgMood": "25.5",
+   "minMood": 3.632055555555553,
+   "maxMood": 56.07083333333334,
+   "moodBreakdown": {
+    "Fine": 11,
+    "Content": 0,
+    "Happy": 0,
+    "Unhappy": 14,
+    "Miserable": 23,
+    "Ecstatic": 0
+   },
+   "deathsList": [
+    {
+     "day": 47,
+     "cause": "bled_out",
+     "killerId": 83886744
+    }
+   ],
+   "raidsList": [
+    {
+     "day": 115,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 285212841,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 214,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 251659336,
+     "outcome": "looted"
+    },
+    {
+     "day": 287,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 419431102,
+     "outcome": "withdrew"
+    }
+   ],
+   "hallSpirit": {
+    "y1": 62,
+    "y2": 57,
+    "y3": 26
+   },
+   "renown": {
+    "y1": 11,
+    "y2": 21,
+    "y3": 17
+   },
+   "mealsPerDwarfDay": "0.35",
+   "drinksPerDwarfDay": "0.57"
+  },
+  "three-years-p0-2": {
+   "seed": "three-years-p0-2",
+   "peril": 0,
+   "y1Pop": 10,
+   "y2Pop": 21,
+   "y3Pop": 49,
+   "y1Wealth": 12610,
+   "y2Wealth": 33464,
+   "y3Wealth": 13302,
+   "dwarfDeaths": 4,
+   "tameDeaths": 0,
+   "wavesCount": 7,
+   "totalImmigrants": 46,
+   "nonGuaranteedWaves": 5,
+   "raidsCount": 3,
+   "mealsEaten": 2451,
+   "drinksDrunk": 3740,
+   "drinksAlcohol": 3740,
+   "drinksWater": 0,
+   "extinctDay": null,
+   "avgMood": "19.6",
+   "minMood": 1.9624999999999986,
+   "maxMood": 49.89666666666666,
+   "moodBreakdown": {
+    "Fine": 6,
+    "Content": 0,
+    "Happy": 0,
+    "Unhappy": 14,
+    "Miserable": 29,
+    "Ecstatic": 0
+   },
+   "deathsList": [
+    {
+     "day": 43,
+     "cause": "bled_out",
+     "killerId": 117441028
+    },
+    {
+     "day": 43,
+     "cause": "bled_out",
+     "killerId": 184549746
+    },
+    {
+     "day": 75,
+     "cause": "bled_out",
+     "killerId": 352322083
+    },
+    {
+     "day": 260,
+     "cause": "bled_out",
+     "killerId": 150996104
+    }
+   ],
+   "raidsList": [
+    {
+     "day": 126,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 352322157,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 202,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 184550249,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 292,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 553649170,
+     "outcome": "withdrew"
+    }
+   ],
+   "hallSpirit": {
+    "y1": 63,
+    "y2": 55,
+    "y3": 20
+   },
+   "renown": {
+    "y1": 8,
+    "y2": 21,
+    "y3": 16
+   },
+   "mealsPerDwarfDay": "0.37",
+   "drinksPerDwarfDay": "0.56"
+  },
+  "three-years-p0-3": {
+   "seed": "three-years-p0-3",
+   "peril": 0,
+   "y1Pop": 19,
+   "y2Pop": 52,
+   "y3Pop": 34,
+   "y1Wealth": 24028,
+   "y2Wealth": 11040,
+   "y3Wealth": 13645,
+   "dwarfDeaths": 25,
+   "tameDeaths": 0,
+   "wavesCount": 8,
+   "totalImmigrants": 52,
+   "nonGuaranteedWaves": 6,
+   "raidsCount": 3,
+   "mealsEaten": 3372,
+   "drinksDrunk": 5457,
+   "drinksAlcohol": 5457,
+   "drinksWater": 0,
+   "extinctDay": null,
+   "avgMood": "37.8",
+   "minMood": 10.881666666666668,
+   "maxMood": 67.77700000000002,
+   "moodBreakdown": {
+    "Fine": 15,
+    "Content": 1,
+    "Happy": 0,
+    "Unhappy": 14,
+    "Miserable": 4,
+    "Ecstatic": 0
+   },
+   "deathsList": [
+    {
+     "day": 232,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 233,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 234,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 235,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 237,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 238,
+     "cause": "starvation",
+     "killerId": 0
+    }
+   ],
+   "raidsList": [
+    {
+     "day": 117,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 184550236,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 206,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 1392509706,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 266,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 754975082,
+     "outcome": "looted"
+    }
+   ],
+   "hallSpirit": {
+    "y1": 68,
+    "y2": 50,
+    "y3": 38
+   },
+   "renown": {
+    "y1": 16,
+    "y2": 16,
+    "y3": 14
+   },
+   "mealsPerDwarfDay": "0.34",
+   "drinksPerDwarfDay": "0.55"
+  },
+  "three-years-p0-4": {
+   "seed": "three-years-p0-4",
+   "peril": 0,
+   "y1Pop": 14,
+   "y2Pop": 33,
+   "y3Pop": 50,
+   "y1Wealth": 18170,
+   "y2Wealth": 63188,
+   "y3Wealth": 26732,
+   "dwarfDeaths": 2,
+   "tameDeaths": 0,
+   "wavesCount": 7,
+   "totalImmigrants": 45,
+   "nonGuaranteedWaves": 5,
+   "raidsCount": 3,
+   "mealsEaten": 3582,
+   "drinksDrunk": 5476,
+   "drinksAlcohol": 5476,
+   "drinksWater": 0,
+   "extinctDay": null,
+   "avgMood": "39.0",
+   "minMood": 13.41000000000001,
+   "maxMood": 68.8425,
+   "moodBreakdown": {
+    "Fine": 17,
+    "Content": 4,
+    "Happy": 0,
+    "Unhappy": 25,
+    "Miserable": 4,
+    "Ecstatic": 0
+   },
+   "deathsList": [
+    {
+     "day": 40,
+     "cause": "bled_out",
+     "killerId": 83886423
+    },
+    {
+     "day": 225,
+     "cause": "bled_out",
+     "killerId": 352322841
+    }
+   ],
+   "raidsList": [
+    {
+     "day": 123,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 587202799,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 200,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 922747068,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 289,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 553649787,
+     "outcome": "withdrew"
+    }
+   ],
+   "hallSpirit": {
+    "y1": 66,
+    "y2": 59,
+    "y3": 40
+   },
+   "renown": {
+    "y1": 12,
+    "y2": 38,
+    "y3": 23
+   },
+   "mealsPerDwarfDay": "0.39",
+   "drinksPerDwarfDay": "0.60"
+  },
+  "three-years-p0-5": {
+   "seed": "three-years-p0-5",
+   "peril": 0,
+   "y1Pop": 14,
+   "y2Pop": 39,
+   "y3Pop": 23,
+   "y1Wealth": 24193,
+   "y2Wealth": 59354,
+   "y3Wealth": 13435,
+   "dwarfDeaths": 32,
+   "tameDeaths": 0,
+   "wavesCount": 7,
+   "totalImmigrants": 48,
+   "nonGuaranteedWaves": 5,
+   "raidsCount": 3,
+   "mealsEaten": 3491,
+   "drinksDrunk": 4527,
+   "drinksAlcohol": 4527,
+   "drinksWater": 0,
+   "extinctDay": null,
+   "avgMood": "45.2",
+   "minMood": 3.6875,
+   "maxMood": 59.35290789201319,
+   "moodBreakdown": {
+    "Fine": 17,
+    "Content": 0,
+    "Happy": 0,
+    "Unhappy": 5,
+    "Miserable": 1,
+    "Ecstatic": 0
+   },
+   "deathsList": [
+    {
+     "day": 55,
+     "cause": "bled_out",
+     "killerId": 83886602
+    },
+    {
+     "day": 75,
+     "cause": "bled_out",
+     "killerId": 184550231
+    },
+    {
+     "day": 216,
+     "cause": "bled_out",
+     "killerId": 654311578
+    },
+    {
+     "day": 320,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 320,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 321,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 323,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 323,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 328,
+     "cause": "starvation",
+     "killerId": 0
+    }
+   ],
+   "raidsList": [
+    {
+     "day": 116,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 218104543,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 228,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 754975909,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 334,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 1358955215,
+     "outcome": "withdrew"
+    }
+   ],
+   "hallSpirit": {
+    "y1": 60,
+    "y2": 57,
+    "y3": 45
+   },
+   "renown": {
+    "y1": 15,
+    "y2": 38,
+    "y3": 11
+   },
+   "mealsPerDwarfDay": "0.34",
+   "drinksPerDwarfDay": "0.45"
+  },
+  "three-years-p0-6": {
+   "seed": "three-years-p0-6",
+   "peril": 0,
+   "y1Pop": 15,
+   "y2Pop": 31,
+   "y3Pop": 22,
+   "y1Wealth": 9823,
+   "y2Wealth": 48591,
+   "y3Wealth": 12981,
+   "dwarfDeaths": 27,
+   "tameDeaths": 0,
+   "wavesCount": 7,
+   "totalImmigrants": 42,
+   "nonGuaranteedWaves": 5,
+   "raidsCount": 3,
+   "mealsEaten": 2849,
+   "drinksDrunk": 4765,
+   "drinksAlcohol": 4765,
+   "drinksWater": 0,
+   "extinctDay": null,
+   "avgMood": "46.4",
+   "minMood": 21.0075,
+   "maxMood": 62.07416666666666,
+   "moodBreakdown": {
+    "Fine": 15,
+    "Content": 1,
+    "Happy": 0,
+    "Unhappy": 6,
+    "Miserable": 0,
+    "Ecstatic": 0
+   },
+   "deathsList": [
+    {
+     "day": 319,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 320,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 320,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 320,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 321,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 321,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 321,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 321,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 322,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 323,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 323,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 323,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 324,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 325,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 328,
+     "cause": "starvation",
+     "killerId": 0
+    }
+   ],
+   "raidsList": [
+    {
+     "day": 126,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 150995561,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 204,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 150996072,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 317,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 788530004,
+     "outcome": "withdrew"
+    }
+   ],
+   "hallSpirit": {
+    "y1": 62,
+    "y2": 64,
+    "y3": 47
+   },
+   "renown": {
+    "y1": 8,
+    "y2": 30,
+    "y3": 11
+   },
+   "mealsPerDwarfDay": "0.33",
+   "drinksPerDwarfDay": "0.56"
+  },
+  "three-years-p0-7": {
+   "seed": "three-years-p0-7",
+   "peril": 0,
+   "y1Pop": 16,
+   "y2Pop": 42,
+   "y3Pop": 48,
+   "y1Wealth": 19043,
+   "y2Wealth": 80952,
+   "y3Wealth": 13964,
+   "dwarfDeaths": 6,
+   "tameDeaths": 0,
+   "wavesCount": 7,
+   "totalImmigrants": 47,
+   "nonGuaranteedWaves": 5,
+   "raidsCount": 3,
+   "mealsEaten": 3633,
+   "drinksDrunk": 5400,
+   "drinksAlcohol": 5400,
+   "drinksWater": 0,
+   "extinctDay": null,
+   "avgMood": "18.6",
+   "minMood": 5.274999999999999,
+   "maxMood": 49.57391294100796,
+   "moodBreakdown": {
+    "Fine": 3,
+    "Content": 0,
+    "Happy": 0,
+    "Unhappy": 15,
+    "Miserable": 30,
+    "Ecstatic": 0
+   },
+   "deathsList": [
+    {
+     "day": 39,
+     "cause": "bled_out",
+     "killerId": 83886996
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 326,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 327,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 328,
+     "cause": "starvation",
+     "killerId": 0
+    },
+    {
+     "day": 330,
+     "cause": "starvation",
+     "killerId": 0
+    }
+   ],
+   "raidsList": [
+    {
+     "day": 131,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 788529373,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 201,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 50333086,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 283,
+     "kind": "thief",
+     "size": 1,
+     "partyId": 117441645,
+     "outcome": "withdrew"
+    }
+   ],
+   "hallSpirit": {
+    "y1": 57,
+    "y2": 57,
+    "y3": 19
+   },
+   "renown": {
+    "y1": 13,
+    "y2": 49,
+    "y3": 17
+   },
+   "mealsPerDwarfDay": "0.35",
+   "drinksPerDwarfDay": "0.52"
+  }
+ }
+}
