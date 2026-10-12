@@ -8,6 +8,7 @@
  * unless every item there already carries it (D-077).
  */
 
+import { PanelFilter, drawPanelFilter } from './filter';
 import { C, ItemFlag } from '@core/components';
 import type { Command } from '@core/commands';
 import type { EntityId } from '@core/types';
@@ -24,6 +25,7 @@ interface NodeTotals {
 
 export class StocksPanel {
   readonly tree: TreeState = { selected: 0, scroll: 0, expanded: new Set<string>() };
+  readonly filter = new PanelFilter();
   depotSelection = 0;
   readonly depotChosen = new Set<EntityId>();
   private forest: TreeNode[] | null = null;
@@ -89,7 +91,15 @@ export class StocksPanel {
         }
         return { ...n, children };
       });
-    return keep(this.categories());
+    const forest = keep(this.categories());
+    const query = this.filter.value.toLowerCase();
+    if (query === '') return forest;
+    const narrow = (nodes: readonly TreeNode[]): TreeNode[] => nodes.flatMap(n => {
+      if (n.name.toLowerCase().includes(query) || (!n.id.includes(':') && n.id.toLowerCase().includes(query))) return [n];
+      const children = narrow(n.children);
+      return children.length ? [{ ...n, children }] : [];
+    });
+    return narrow(forest);
   }
 
   private visible(ctx: PanelContext): string[] {
@@ -97,7 +107,7 @@ export class StocksPanel {
     const walk = (nodes: readonly TreeNode[]): void => {
       for (const n of nodes) {
         out.push(n.id);
-        if (this.tree.expanded.has(n.id)) walk(n.children);
+        if (this.filter.value !== '' || this.tree.expanded.has(n.id)) walk(n.children);
       }
     };
     walk(this.visibleForest(ctx));
@@ -226,14 +236,20 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
   const t = s.theme;
   const strings = ctx.strings;
   const { totals } = panel.totals(ctx);
-  const height = Math.max(1, rect.rows - 3);
+  drawPanelFilter(s, rect.col + 1, rect.row, rect.cols - 2, panel.filter, ctx);
+  const height = Math.max(1, rect.rows - 4);
+  const state = panel.filter.value === '' ? panel.tree : { ...panel.tree, expanded: new Set<string>() };
+  if (panel.filter.value !== '') {
+    const expand = (nodes: readonly TreeNode[]): void => { for (const n of nodes) { state.expanded.add(n.id); expand(n.children); } };
+    expand(panel.visibleForest(ctx));
+  }
   tree(
     s,
-    { col: rect.col + 1, row: rect.row, cols: rect.cols - 2, rows: height },
+    { col: rect.col + 1, row: rect.row + 1, cols: rect.cols - 2, rows: height },
     panel.visibleForest(ctx),
-    panel.tree,
+    state,
     null,
-    {},
+    { select: (index) => { panel.tree.selected = index; } },
     (n) => {
       const it = items(ctx);
       const v = n.id.startsWith('item:') && it !== null
@@ -244,7 +260,9 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
       return `${String(v.count).padStart(5)} ${marks(v.value).padStart(9)}`;
     },
   );
-  let row = rect.row + height;
+  panel.tree.selected = state.selected;
+  panel.tree.scroll = state.scroll;
+  let row = rect.row + 1 + height;
   const it = items(ctx);
   const b = buildings(ctx);
   let built = 0;

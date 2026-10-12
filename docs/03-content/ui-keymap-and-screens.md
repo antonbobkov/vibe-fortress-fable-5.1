@@ -43,6 +43,8 @@
 | `?` | Help | 24 | keymap, legend of glyphs |
 | `F12` | Debug | 24 | timings and counters |
 
+Jobs: `[/]` or a click focuses target-name/worker text; Enter or Esc finishes typing. `[S-l]` or a click cycles labors with jobs, `[S-s]` or a click cycles all/open/claimed/blocked. Stocks: `[/]` or a click focuses category/item/material text; Enter or Esc finishes typing. These controls also appear in Help.
+
 Animals, Tame tab: `[S-t] train` or its button opens War/Hunting; arrows and Enter, or click a choice; Esc cancels. Panel letters still switch panels inside the choice. Help lists this action and `Esc` then `[n] Rename fortress` from the game menu, also available by clicking its row and entering a name in the text input.
 
 ## Keymap (defaults; every binding is rebindable)

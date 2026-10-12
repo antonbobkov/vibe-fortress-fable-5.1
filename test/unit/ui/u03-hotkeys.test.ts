@@ -141,6 +141,10 @@ const STATES: readonly { readonly name: string; readonly open: (f: Fixture, worl
   { name: 'U-07 material classes', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; f.screen.key(press('v')); expect(f.screen.zones.stockpile.materialsOpen).toBe(true); } },
   { name: 'U-07 room owner picker', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.w.readers.of<BuildingsReader>('14').zoneAt(world.w.index(48, 20, z)); f.screen.key(press('O', { shift: true })); expect(f.screen.zones.ownerOpen).toBe(true); } },
   { name: 'stocks picking goods for the depot', open: (f) => { f.screen.openPanel('stocks'); f.screen.stocks.startDepot(1); } },
+  { name: 'T-241 Jobs labor filter', open: (f) => { f.screen.openPanel('jobs'); f.screen.jobs.labor = 'carpentry'; } },
+  { name: 'T-241 Jobs state filter', open: (f) => { f.screen.openPanel('jobs'); f.screen.jobs.state = 'blocked'; } },
+  { name: 'T-241 Jobs text filter', open: (f) => { f.screen.openPanel('jobs'); f.screen.jobs.filter.value = 'bed'; } },
+  { name: 'T-241 Stocks text filter', open: (f) => { f.screen.openPanel('stocks'); f.screen.stocks.filter.value = 'iron'; } },
   { name: 'military setting a station', open: (f) => { f.screen.openPanel('military'); f.screen.military.settingStation = true; } },
   // U-06's lists and choosers: marks, the squad's add list, the leader and title choosers.
   { name: 'military choosing members to add', open: (f) => { f.screen.openPanel('military'); f.screen.military.openChoice(f.screen.ctx, 'add'); expect(f.screen.military.memberChoice?.kind).toBe('add'); } },

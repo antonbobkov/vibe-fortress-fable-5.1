@@ -1,6 +1,8 @@
 # T-241 — The Jobs panel: its empty line, job names, filters and labor priority row
 
-**Source:** T-111 and its report, [`../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../reports/audits/2026-10-10-ui-audit-follow-up.md) (§5.5, 7.3, new finding N4) · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-241: show job targets and filter Jobs and Stocks`.
+
+**Source:** T-111 and its report, [`../../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../../reports/audits/2026-10-10-ui-audit-follow-up.md) (§5.5, 7.3, new finding N4) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -12,8 +14,8 @@ Seed `audit-1`, default embark, paused. Open Jobs (`j`): only `0 open · 0 claim
 
 ## What the spec says
 
-- [`panels.md`](../04-implementation/ui-screens/panels.md) § Jobs: the wireframe has `/filter: ____  [l]abor [s]tate`, rows such as `Build bed` and `Dig (52,31,z30)`, and the labor priority row `Min 5 Wood 5 Build 5 …`.
-- [`11-jobs-and-labor.md`](../02-systems/11-jobs-and-labor.md) § Player-facing behavior: "Filters by labor and state."
+- [`panels.md`](../../04-implementation/ui-screens/panels.md) § Jobs: the wireframe has `/filter: ____  [l]abor [s]tate`, rows such as `Build bed` and `Dig (52,31,z30)`, and the labor priority row `Min 5 Wood 5 Build 5 …`.
+- [`11-jobs-and-labor.md`](../../02-systems/11-jobs-and-labor.md) § Player-facing behavior: "Filters by labor and state."
 - `src/ui/strings.ts` has `ui.jobs.empty` ("No jobs. Designate [d], build [b] or order [o]."). It is drawn at `src/ui/panels/jobs.ts:110`, and the table's list then blanks the same row (`src/ui/widgets/list.ts:38`).
 - `panels.md` § Stocks: the wireframe starts with `/filter: ____`.
 
@@ -32,4 +34,4 @@ Seed `audit-1`, default embark, paused. Open Jobs (`j`): only `0 open · 0 claim
 ## Done
 
 - The reproduction shows the empty line, `Build table`, the filter row, and a readable priority row.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
