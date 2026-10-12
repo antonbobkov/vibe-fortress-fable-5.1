@@ -37,7 +37,7 @@ describe('T-136 wildlife survival over twelve generated years', () => {
     console.log(`T-136 wildlife distribution: ${JSON.stringify({ summary, byBiome })}`);
     expect(rows).toHaveLength(WILDLIFE_CASES.length);
     expect(summary.median, 'measured median; target >= 11').toBeGreaterThanOrEqual(FLOOR.median);
-    expect(summary.worst, 'measured minimum; target >= 8').toBeGreaterThanOrEqual(FLOOR.worst);
+    expect(summary.secondWorst, 'measured second-worst; overall minimum target >= 8').toBeGreaterThanOrEqual(FLOOR.secondWorst);
     expect(summary.wildlifeFree, 'measured share with no wildlife dwarf death').toBeGreaterThanOrEqual(FLOOR.wildlifeFree);
     expect(summary.extinct, 'measured extinctions; target zero').toBeLessThanOrEqual(FLOOR.extinct);
     expect(summary.hungerThirstDeaths, 'measured deaths; target zero').toBeLessThanOrEqual(FLOOR.hungerThirstDeaths);

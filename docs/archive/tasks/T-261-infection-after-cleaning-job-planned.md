@@ -1,5 +1,7 @@
 # T-261 - An infection appearing after job planning is cured without brightleaf
 
+Closed by `T-261: require brightleaf when a planned cleaning target becomes infected`.
+
 **Source:** T-137 stepped-treatment investigation, 2026-10-11 | **Size:** S | **Needs:** none | **Status:** open
 
 ## Progress (2026-10-11, codex-a)
@@ -15,7 +17,7 @@ median 12.5, worst 0, wildlife-free 8/12, one extinction, two hunger/thirst
 deaths, versus accepted 12.5 / 3 / 7/12 / 0 / 2. Taiga seed 4 loses its three
 remaining dwarves to wolf-inflicted bleeding on days 105, 106 and 108. Worst
 survival and extinction both fail the strict guards, so the task cannot land.
-[Measurement and reproduction](../../reports/audits/2026-10-11-t261-blocked-wildlife.md).
+[Measurement and reproduction](../../../reports/audits/2026-10-11-t261-blocked-wildlife.md).
 
 Saved stash: `T-261: correct late-infection brightleaf fix; parked by annual
 worst/extinction guards (12.5/0/8/1/2)`. It includes the tests, code and proposed

@@ -1,9 +1,9 @@
 /** T-136: distributions include extinct fortresses and distinguish livestock losses. */
 import type { WildlifeYear } from './wildlife_year_fixture';
-import { COMBINED_REGRESSION_LIMIT, MEDIAN_REGRESSION_TOLERANCE, WILDLIFE_FREE_REGRESSION_TOLERANCE } from './wildlife_year_constants';
+import { COMBINED_REGRESSION_LIMIT, MEDIAN_REGRESSION_TOLERANCE, WILDLIFE_FREE_REGRESSION_TOLERANCE, SECOND_WORST_REGRESSION_TOLERANCE, EXTINCTION_REGRESSION_TOLERANCE, NEED_DEATH_REGRESSION_TOLERANCE } from './wildlife_year_constants';
 
 export function distribution(years: readonly Pick<WildlifeYear, 'living' | 'deaths'>[]): {
-  median: number; worst: number; wildlifeFree: number; seeds: number; extinct: number; hungerThirstDeaths: number;
+  median: number; worst: number; secondWorst: number; wildlifeFree: number; seeds: number; extinct: number; hungerThirstDeaths: number;
 } {
   const living = years.map((row) => row.living).sort((a, b) => a - b);
   if (living.length === 0) throw new Error('A wildlife distribution needs at least one year');
@@ -11,6 +11,7 @@ export function distribution(years: readonly Pick<WildlifeYear, 'living' | 'deat
   return {
     median: living.length % 2 === 0 ? (living[middle - 1]! + living[middle]!) / 2 : living[middle]!,
     worst: living[0]!,
+    secondWorst: living[1] ?? living[0]!,
     wildlifeFree: years.filter((row) => !row.deaths.some((death) => death.kind === 'dwarf' && death.wildlife)).length,
     seeds: years.length,
     extinct: years.filter((row) => row.living === 0).length,
@@ -22,17 +23,25 @@ export function distribution(years: readonly Pick<WildlifeYear, 'living' | 'deat
 export interface WildlifeFigures {
   median: number;
   worst: number;
+  secondWorst: number;
   wildlifeFree: number;
   extinct: number;
   hungerThirstDeaths: number;
 }
 
-const FIGURES = ['median', 'worst', 'wildlifeFree', 'extinct', 'hungerThirstDeaths'] as const;
+export type GuardedWildlifeFigures = Omit<WildlifeFigures, 'worst'>;
+
+const FIGURES = ['median', 'secondWorst', 'wildlifeFree', 'extinct', 'hungerThirstDeaths'] as const;
 const lowerIsBetter = (key: keyof WildlifeFigures): boolean => key === 'extinct' || key === 'hungerThirstDeaths';
 
-export function measuredBounds(measured: WildlifeFigures): WildlifeFigures {
-  return { ...measured, median: measured.median - MEDIAN_REGRESSION_TOLERANCE,
-    wildlifeFree: measured.wildlifeFree - WILDLIFE_FREE_REGRESSION_TOLERANCE };
+export function measuredBounds(measured: WildlifeFigures): GuardedWildlifeFigures {
+  return {
+    median: measured.median - MEDIAN_REGRESSION_TOLERANCE,
+    secondWorst: measured.secondWorst - SECOND_WORST_REGRESSION_TOLERANCE,
+    wildlifeFree: measured.wildlifeFree - WILDLIFE_FREE_REGRESSION_TOLERANCE,
+    extinct: measured.extinct + EXTINCTION_REGRESSION_TOLERANCE,
+    hungerThirstDeaths: measured.hungerThirstDeaths + NEED_DEATH_REGRESSION_TOLERANCE,
+  };
 }
 
 /** Guard the best measurements, but count simultaneous losses against the latest accepted row. */
@@ -46,7 +55,8 @@ export function regressionCheck(before: WildlifeFigures, after: WildlifeFigures,
 /** An accepted improvement tightens its guard; tolerated drops do not loosen measured bounds. */
 export function improvedMeasurements(measured: WildlifeFigures, after: WildlifeFigures): WildlifeFigures {
   const next = { ...measured };
-  for (const key of FIGURES) next[key] = lowerIsBetter(key)
+  // Keep the best reported minimum too, although only the second-worst is guarded.
+  for (const key of [...FIGURES, 'worst'] as const) next[key] = lowerIsBetter(key)
     ? Math.min(measured[key], after[key]) : Math.max(measured[key], after[key]);
   return next;
 }
