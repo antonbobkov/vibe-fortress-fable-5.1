@@ -1,0 +1,1503 @@
+{
+  "runtimeCommit": "315cf6b",
+  "targetIds": [
+    150995335
+  ],
+  "traceSelection": "initial reservation, weeping and replacement, subsequent state, reload markers and first following state, death; full trace captured 3765 records",
+  "records": [
+    {
+      "recordIndex": 0,
+      "world": "three-years",
+      "tick": 400
+    },
+    {
+      "recordIndex": 1,
+      "world": "three-years",
+      "tick": 39900
+    },
+    {
+      "recordIndex": 1,
+      "world": "three-years",
+      "tick": 39900
+    },
+    {
+      "recordIndex": 2,
+      "state": {
+        "tick": 67201,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "idle",
+          "behaviorUntil": 0,
+          "targetTile": -1,
+          "activity": "",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": -1,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 30,
+          "thirst": 30,
+          "rest": 30,
+          "social": 30,
+          "comfort": 30,
+          "purpose": 30,
+          "joy": 30
+        },
+        "held": []
+      }
+    },
+    {
+      "recordIndex": 424,
+      "tick": 98253,
+      "reserve": 150995102,
+      "holder": 150995335,
+      "before": {
+        "carriedBy": 0,
+        "containerId": 50331755,
+        "count": 1,
+        "crafterId": 16777296,
+        "flags": 0,
+        "material": 58,
+        "ownerId": 0,
+        "quality": 1,
+        "reservedBy": 0,
+        "rotStage": 0,
+        "rotStart": 8237,
+        "type": 41,
+        "wear": 0
+      },
+      "state": {
+        "tick": 98253,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 32,
+          "y": 16,
+          "z": 26
+        },
+        "brain": {
+          "behavior": "idle",
+          "behaviorUntil": 98302,
+          "targetTile": 60466,
+          "activity": "No job",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 50.95999999999993,
+          "thirst": 86.39999999999995,
+          "rest": 50.04999999999999,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 0,
+          "joy": 100
+        },
+        "held": []
+      },
+      "stack": "Error: \n    at ItemCore.__vite_ssr_import_4__.ItemCore.reserve (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:53:187)\n    at Activities.start (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\activities.ts:461:55)\n    at Activities.__vite_ssr_import_5__.Activities.<computed> (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:75:40)\n    at select (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\brain.ts:415:27)\n    at Module.tickDwarf (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\brain.ts:677:85)\n    at DwarvesSystem.tick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\index.ts:386:7)\n    at E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:51\n    at Scheduler.runTick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\scheduler.ts:110:5)\n    at World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:22)\n    at World.__vite_ssr_import_2__.World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:49:16)"
+    },
+    {
+      "recordIndex": 425,
+      "tick": 98253,
+      "reserved": 150995102,
+      "holder": 150995335,
+      "after": {
+        "carriedBy": 0,
+        "containerId": 50331755,
+        "count": 1,
+        "crafterId": 16777296,
+        "flags": 8,
+        "material": 58,
+        "ownerId": 0,
+        "quality": 1,
+        "reservedBy": 150995335,
+        "rotStage": 0,
+        "rotStart": 8237,
+        "type": 41,
+        "wear": 0
+      }
+    },
+    {
+      "recordIndex": 426,
+      "tick": 98253,
+      "activity": "start",
+      "before": {
+        "tick": 98253,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 32,
+          "y": 16,
+          "z": 26
+        },
+        "brain": {
+          "behavior": "idle",
+          "behaviorUntil": 98302,
+          "targetTile": 60466,
+          "activity": "No job",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 50.95999999999993,
+          "thirst": 86.39999999999995,
+          "rest": 50.04999999999999,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 0,
+          "joy": 100
+        },
+        "held": []
+      },
+      "after": {
+        "tick": 98253,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 32,
+          "y": 16,
+          "z": 26
+        },
+        "brain": {
+          "behavior": "idle",
+          "behaviorUntil": 98302,
+          "targetTile": 60466,
+          "activity": "No job",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 50.95999999999993,
+          "thirst": 86.39999999999995,
+          "rest": 50.04999999999999,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 0,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "travel",
+          "itemId": 150995102,
+          "partner": 0,
+          "target": 74572,
+          "until": 0,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 0,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      },
+      "stack": "Error: \n    at Activities.__vite_ssr_import_5__.Activities.<computed> (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:76:168)\n    at select (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\brain.ts:415:27)\n    at Module.tickDwarf (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\brain.ts:677:85)\n    at DwarvesSystem.tick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\index.ts:386:7)\n    at E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:51\n    at Scheduler.runTick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\scheduler.ts:110:5)\n    at World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:22)\n    at World.__vite_ssr_import_2__.World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:49:16)\n    at World.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\three_years.scenario.ts:54:9)\n    at World.game.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\invariants.ts:849:14)"
+    },
+    {
+      "recordIndex": 427,
+      "state": {
+        "tick": 98254,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 32,
+          "y": 16,
+          "z": 26
+        },
+        "brain": {
+          "behavior": "need",
+          "behaviorUntil": 98302,
+          "targetTile": 74572,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 50.95999999999993,
+          "thirst": 86.39999999999995,
+          "rest": 50.04999999999999,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 0,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "travel",
+          "itemId": 150995102,
+          "partner": 0,
+          "target": 74572,
+          "until": 0,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 0,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      }
+    },
+    {
+      "recordIndex": 428,
+      "tick": 98401,
+      "event": {
+        "type": "SulkHappened",
+        "id": 150995335,
+        "kind": "weep",
+        "targetTile": 60274
+      },
+      "state": {
+        "tick": 98401,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 29,
+          "y": 17,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "idle",
+          "behaviorUntil": 99601,
+          "targetTile": 60274,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 53.68999999999992,
+          "thirst": 91.19999999999993,
+          "rest": 63.69999999999998,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 6,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "travel",
+          "itemId": 150995102,
+          "partner": 0,
+          "target": 74572,
+          "until": 0,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 0,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      }
+    },
+    {
+      "recordIndex": 429,
+      "state": {
+        "tick": 98402,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 29,
+          "y": 17,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "idle",
+          "behaviorUntil": 99601,
+          "targetTile": 60274,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 53.68999999999992,
+          "thirst": 91.19999999999993,
+          "rest": 63.69999999999998,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 6,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "travel",
+          "itemId": 150995102,
+          "partner": 0,
+          "target": 74572,
+          "until": 0,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 0,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      }
+    },
+    {
+      "recordIndex": 430,
+      "tick": 98402,
+      "reserve": 83886707,
+      "holder": 150995335,
+      "before": {
+        "carriedBy": 0,
+        "containerId": 50331783,
+        "count": 1,
+        "crafterId": 16777298,
+        "flags": 0,
+        "material": 58,
+        "ownerId": 0,
+        "quality": 1,
+        "reservedBy": 0,
+        "rotStage": 0,
+        "rotStart": 4891,
+        "type": 41,
+        "wear": 0
+      },
+      "state": {
+        "tick": 98402,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 29,
+          "y": 17,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "idle",
+          "behaviorUntil": 99601,
+          "targetTile": 60274,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 53.68999999999992,
+          "thirst": 91.19999999999993,
+          "rest": 63.69999999999998,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 6,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "travel",
+          "itemId": 150995102,
+          "partner": 0,
+          "target": 74572,
+          "until": 0,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 0,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      },
+      "stack": "Error: \n    at ItemCore.__vite_ssr_import_4__.ItemCore.reserve (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:53:187)\n    at Activities.start (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\activities.ts:461:55)\n    at Activities.__vite_ssr_import_5__.Activities.<computed> (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:75:40)\n    at select (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\brain.ts:415:27)\n    at Module.tickDwarf (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\brain.ts:677:85)\n    at DwarvesSystem.tick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\index.ts:386:7)\n    at E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:51\n    at Scheduler.runTick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\scheduler.ts:110:5)\n    at World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:22)\n    at World.__vite_ssr_import_2__.World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:49:16)"
+    },
+    {
+      "recordIndex": 431,
+      "tick": 98402,
+      "reserved": 83886707,
+      "holder": 150995335,
+      "after": {
+        "carriedBy": 0,
+        "containerId": 50331783,
+        "count": 1,
+        "crafterId": 16777298,
+        "flags": 8,
+        "material": 58,
+        "ownerId": 0,
+        "quality": 1,
+        "reservedBy": 150995335,
+        "rotStage": 0,
+        "rotStart": 4891,
+        "type": 41,
+        "wear": 0
+      }
+    },
+    {
+      "recordIndex": 432,
+      "tick": 98402,
+      "activity": "start",
+      "before": {
+        "tick": 98402,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 29,
+          "y": 17,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "idle",
+          "behaviorUntil": 99601,
+          "targetTile": 60274,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 53.68999999999992,
+          "thirst": 91.19999999999993,
+          "rest": 63.69999999999998,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 6,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "travel",
+          "itemId": 150995102,
+          "partner": 0,
+          "target": 74572,
+          "until": 0,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 0,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      },
+      "after": {
+        "tick": 98402,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 29,
+          "y": 17,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "idle",
+          "behaviorUntil": 99601,
+          "targetTile": 60274,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 53.68999999999992,
+          "thirst": 91.19999999999993,
+          "rest": 63.69999999999998,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 6,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "travel",
+          "itemId": 83886707,
+          "partner": 0,
+          "target": 74571,
+          "until": 0,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 0,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          },
+          {
+            "id": 83886707,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331783,
+              "count": 1,
+              "crafterId": 16777298,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 4891,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74571
+          }
+        ]
+      },
+      "stack": "Error: \n    at Activities.__vite_ssr_import_5__.Activities.<computed> (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:76:168)\n    at select (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\brain.ts:415:27)\n    at Module.tickDwarf (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\brain.ts:677:85)\n    at DwarvesSystem.tick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\index.ts:386:7)\n    at E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:51\n    at Scheduler.runTick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\scheduler.ts:110:5)\n    at World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:22)\n    at World.__vite_ssr_import_2__.World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:49:16)\n    at World.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\three_years.scenario.ts:54:9)\n    at World.game.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\invariants.ts:849:14)"
+    },
+    {
+      "recordIndex": 433,
+      "state": {
+        "tick": 98403,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 29,
+          "y": 17,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "need",
+          "behaviorUntil": 99601,
+          "targetTile": 74571,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 53.68999999999992,
+          "thirst": 91.19999999999993,
+          "rest": 63.69999999999998,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 6,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "travel",
+          "itemId": 83886707,
+          "partner": 0,
+          "target": 74571,
+          "until": 0,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 0,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          },
+          {
+            "id": 83886707,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331783,
+              "count": 1,
+              "crafterId": 16777298,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 4891,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74571
+          }
+        ]
+      }
+    },
+    {
+      "recordIndex": 434,
+      "tick": 98418,
+      "activity": "step",
+      "before": {
+        "tick": 98418,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 27,
+          "y": 17,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "need",
+          "behaviorUntil": 99601,
+          "targetTile": 74571,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 53.68999999999992,
+          "thirst": 91.19999999999993,
+          "rest": 63.69999999999998,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 6,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "travel",
+          "itemId": 83886707,
+          "partner": 0,
+          "target": 74571,
+          "until": 0,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 0,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          },
+          {
+            "id": 83886707,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331783,
+              "count": 1,
+              "crafterId": 16777298,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 4891,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74571
+          }
+        ]
+      },
+      "after": {
+        "tick": 98418,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 27,
+          "y": 17,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "need",
+          "behaviorUntil": 99601,
+          "targetTile": 74571,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 53.68999999999992,
+          "thirst": 91.19999999999993,
+          "rest": 63.69999999999998,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 6,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "use",
+          "itemId": 83886707,
+          "partner": 0,
+          "target": 74571,
+          "until": 98458,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 63.69999999999998,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          },
+          {
+            "id": 83886707,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331783,
+              "count": 1,
+              "crafterId": 16777298,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 4891,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74571
+          }
+        ]
+      },
+      "stack": "Error: \n    at Activities.__vite_ssr_import_5__.Activities.<computed> (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:76:168)\n    at Module.tickDwarf (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\brain.ts:538:39)\n    at DwarvesSystem.tick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\index.ts:386:7)\n    at E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:51\n    at Scheduler.runTick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\scheduler.ts:110:5)\n    at World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:22)\n    at World.__vite_ssr_import_2__.World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:49:16)\n    at World.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\three_years.scenario.ts:54:9)\n    at World.game.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\invariants.ts:849:14)\n    at World.run (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:307:41)"
+    },
+    {
+      "recordIndex": 435,
+      "state": {
+        "tick": 98419,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 27,
+          "y": 17,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "need",
+          "behaviorUntil": 99601,
+          "targetTile": 74571,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 53.68999999999992,
+          "thirst": 91.19999999999993,
+          "rest": 63.69999999999998,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 6,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "use",
+          "itemId": 83886707,
+          "partner": 0,
+          "target": 74571,
+          "until": 98458,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 63.69999999999998,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          },
+          {
+            "id": 83886707,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331783,
+              "count": 1,
+              "crafterId": 16777298,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 4891,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74571
+          }
+        ]
+      }
+    },
+    {
+      "recordIndex": 436,
+      "tick": 98458,
+      "destroy": [
+        83886707,
+        "consumed"
+      ],
+      "before": {
+        "carriedBy": 0,
+        "containerId": 50331783,
+        "count": 1,
+        "crafterId": 16777298,
+        "flags": 8,
+        "material": 58,
+        "ownerId": 0,
+        "quality": 1,
+        "reservedBy": 150995335,
+        "rotStage": 0,
+        "rotStart": 4891,
+        "type": 41,
+        "wear": 0
+      },
+      "stack": "Error: \n    at ItemCore.__vite_ssr_import_4__.ItemCore.destroy (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:64:126)\n    at ItemCore.consume (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\items\\api.ts:635:12)\n    at Activities.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\activities.ts:637:37)\n    at Activities.__vite_ssr_import_5__.Activities.<computed> (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:75:40)\n    at Module.tickDwarf (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\brain.ts:538:39)\n    at DwarvesSystem.tick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\index.ts:386:7)\n    at E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:51\n    at Scheduler.runTick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\scheduler.ts:110:5)\n    at World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:22)\n    at World.__vite_ssr_import_2__.World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:49:16)"
+    },
+    {
+      "recordIndex": 437,
+      "tick": 98458,
+      "activity": "step",
+      "before": {
+        "tick": 98458,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 27,
+          "y": 17,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "need",
+          "behaviorUntil": 99601,
+          "targetTile": 74571,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 54.599999999999916,
+          "thirst": 92.79999999999993,
+          "rest": 68.24999999999999,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 8,
+          "joy": 100
+        },
+        "plan": {
+          "need": "thirst",
+          "phase": "use",
+          "itemId": 83886707,
+          "partner": 0,
+          "target": 74571,
+          "until": 98458,
+          "ownBed": false,
+          "roomTier": 0,
+          "startedRest": 63.69999999999998,
+          "atTable": false
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          },
+          {
+            "id": 83886707,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331783,
+              "count": 1,
+              "crafterId": 16777298,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 4891,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74571
+          }
+        ]
+      },
+      "after": {
+        "tick": 98458,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 27,
+          "y": 17,
+          "z": 32
+        },
+        "brain": {
+          "behavior": "need",
+          "behaviorUntil": 99601,
+          "targetTile": 74571,
+          "activity": "thirst",
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 1893,
+          "daysUnderground": 0
+        },
+        "needs": {
+          "hunger": 54.599999999999916,
+          "thirst": 0,
+          "rest": 68.24999999999999,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 8,
+          "joy": 100
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      },
+      "stack": "Error: \n    at Activities.__vite_ssr_import_5__.Activities.<computed> (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:76:168)\n    at Module.tickDwarf (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\brain.ts:538:39)\n    at DwarvesSystem.tick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\systems\\dwarves\\index.ts:386:7)\n    at E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:51\n    at Scheduler.runTick (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\scheduler.ts:110:5)\n    at World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:271:22)\n    at World.__vite_ssr_import_2__.World.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\perf\\t263-trace-probe.test.ts:49:16)\n    at World.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\three_years.scenario.ts:54:9)\n    at World.game.world.step (E:\\code\\vibe-games\\vibe-fortress-codexa\\test\\scenarios\\invariants.ts:849:14)\n    at World.run (E:\\code\\vibe-games\\vibe-fortress-codexa\\src\\core\\world.ts:307:41)"
+    },
+    {
+      "recordIndex": 1170,
+      "world": "three-years",
+      "tick": 149100
+    },
+    {
+      "recordIndex": 1171,
+      "state": {
+        "tick": 149100,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 12,
+          "y": 1,
+          "z": 32
+        },
+        "brain": {
+          "activity": "Craft (recipe)",
+          "behavior": "work",
+          "behaviorUntil": 148762,
+          "daysUnderground": 1,
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 2969,
+          "targetTile": 60604
+        },
+        "needs": {
+          "comfort": 100,
+          "hunger": 48.060000000000024,
+          "joy": 100,
+          "purpose": 0,
+          "rest": 26.7,
+          "social": 100,
+          "thirst": 20.8
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      }
+    },
+    {
+      "recordIndex": 2899,
+      "world": "three-years",
+      "tick": 273900
+    },
+    {
+      "recordIndex": 2900,
+      "state": {
+        "tick": 273900,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 28,
+          "y": 14,
+          "z": 26
+        },
+        "brain": {
+          "activity": "sleep",
+          "behavior": "need",
+          "behaviorUntil": 273752,
+          "daysUnderground": 5,
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 5342,
+          "targetTile": 60604
+        },
+        "needs": {
+          "comfort": 100,
+          "hunger": 57.41999999999994,
+          "joy": 100,
+          "purpose": 6,
+          "rest": 46.34999999999998,
+          "social": 100,
+          "thirst": 28.800000000000008
+        },
+        "plan": {
+          "atTable": false,
+          "itemId": 16777594,
+          "need": "rest",
+          "ownBed": true,
+          "partner": 0,
+          "phase": "use",
+          "roomTier": 2,
+          "startedRest": 76.34999999999998,
+          "target": 60604,
+          "until": 274137
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      }
+    },
+    {
+      "recordIndex": 3760,
+      "tick": 335501,
+      "event": {
+        "type": "PatientAdmitted",
+        "id": 150995335,
+        "hospitalTier": 0
+      },
+      "state": {
+        "tick": 335501,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 19,
+          "y": 14,
+          "z": 32
+        },
+        "brain": {
+          "activity": "Fleeing",
+          "behavior": "flee",
+          "behaviorUntil": 335355,
+          "daysUnderground": 0,
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 6540,
+          "targetTile": 60274
+        },
+        "needs": {
+          "hunger": 55.00999999999998,
+          "thirst": 44.80000000000002,
+          "rest": 77.24999999999999,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 2,
+          "joy": 100
+        },
+        "patient": {
+          "hospitalZoneId": 0,
+          "bedId": 50331774,
+          "needs": [
+            "stop_bleeding",
+            "clean_wound",
+            "diagnose"
+          ],
+          "admittedTick": 335500
+        },
+        "threat": {
+          "hostileId": 486539952,
+          "tick": 335484,
+          "tile": 74226
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      }
+    },
+    {
+      "recordIndex": 3762,
+      "tick": 335697,
+      "event": {
+        "type": "CreatureUnconscious",
+        "id": 150995335
+      },
+      "state": {
+        "tick": 335697,
+        "id": 150995335,
+        "name": "Saga Granitefell",
+        "alive": true,
+        "position": {
+          "x": 22,
+          "y": 11,
+          "z": 32
+        },
+        "brain": {
+          "activity": "Fleeing",
+          "behavior": "flee",
+          "behaviorUntil": 335355,
+          "daysUnderground": 0,
+          "lastMistTick": 0,
+          "lastOutdoorThoughtHour": 6540,
+          "targetTile": 60274
+        },
+        "needs": {
+          "hunger": 57.55999999999998,
+          "thirst": 49.60000000000002,
+          "rest": 89.99999999999999,
+          "social": 100,
+          "comfort": 100,
+          "purpose": 8,
+          "joy": 100
+        },
+        "patient": {
+          "hospitalZoneId": 0,
+          "bedId": 50331774,
+          "needs": [
+            "stop_bleeding",
+            "suture",
+            "clean_wound",
+            "diagnose"
+          ],
+          "admittedTick": 335500
+        },
+        "threat": {
+          "hostileId": 486539952,
+          "tick": 335684,
+          "tile": 74277
+        },
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      }
+    },
+    {
+      "recordIndex": 3764,
+      "tick": 335727,
+      "event": {
+        "type": "CreatureDied",
+        "id": 150995335,
+        "cause": "bled_out",
+        "killerId": 486539952,
+        "tile": 74278,
+        "species": 15,
+        "name": "Saga Granitefell",
+        "faction": "fortress",
+        "ageTicks": 2956800,
+        "wornItems": [
+          83886470,
+          150995363,
+          83886472
+        ]
+      },
+      "state": {
+        "tick": 335727,
+        "id": 150995335,
+        "alive": false,
+        "held": [
+          {
+            "id": 150995102,
+            "item": {
+              "carriedBy": 0,
+              "containerId": 50331755,
+              "count": 1,
+              "crafterId": 16777296,
+              "flags": 8,
+              "material": 58,
+              "ownerId": 0,
+              "quality": 1,
+              "reservedBy": 150995335,
+              "rotStage": 0,
+              "rotStart": 8237,
+              "type": 41,
+              "wear": 0
+            },
+            "tile": 74572
+          }
+        ]
+      }
+    }
+  ]
+}

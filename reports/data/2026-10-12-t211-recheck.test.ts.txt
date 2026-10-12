@@ -1,0 +1,42 @@
+/** T-211 read-only confirmation of the new extinct annual seed. */
+import { it, expect } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { World } from '@core/world';
+import { C } from '@core/components';
+import type { CombatReader } from '@systems/combat';
+import { playWildlifeYear } from './wildlife_year_fixture';
+
+it('T-211 repeats forest seed 2 with patient/duty transitions', () => {
+  const original = World.prototype.step;
+  const records: unknown[] = [], last = new Map<number, string>();
+  let listening = false;
+  World.prototype.step = function(this: World) {
+    if (!listening) {
+      listening = true;
+      this.onEvents(batch => {
+        for (const event of batch) if (['PatientAdmitted', 'PatientDischarged', 'TreatmentDone', 'CreatureDied'].includes(event.type)) {
+          records.push(structuredClone({ tick: this.calendar.tick, event }));
+        }
+      });
+    }
+    original.call(this);
+    const combat = this.readers.of<CombatReader>('16');
+    for (const id of this.entities.with(C.Soldier)) {
+      const brain = this.entities.get(id, C.Brain), patient = this.entities.get(id, C.Patient);
+      const target = combat.targetOf(id);
+      const key = JSON.stringify([brain?.behavior, patient?.bedId ?? -1, target]);
+      if (last.get(id) !== key) {
+        records.push(structuredClone({ tick: this.calendar.tick, id, name: this.entities.get(id, C.Creature)?.name,
+          brain, patient, target, position: this.entities.get(id, C.Position), body: this.entities.get(id, C.Body) }));
+        last.set(id, key);
+      }
+    }
+  };
+  try {
+    const result = playWildlifeYear('wildlife-temperate_forest-2', 'temperate_forest');
+    writeFileSync('.vite/task-resume/t211-forest2-recheck.json', JSON.stringify({ result, records }, null, 2) + '\n');
+    expect(result.living).toBe(0); expect(result.tick).toBe(132000);
+    expect(result.hash).toBe('99c66ca376dbd8e2');
+    console.log('T-211 repeated seed:', JSON.stringify({ living: result.living, tick: result.tick, hash: result.hash }));
+  } finally { World.prototype.step = original; }
+}, 600_000);

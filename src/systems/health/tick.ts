@@ -27,7 +27,7 @@ import type { TickContext } from '@core/system';
 import type { BodySlot, EntityId, TileIndex } from '@core/types';
 import { BODY_SLOTS } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings/reader';
-import { createWound, needsCleaning, severityFor, woundTypeFor } from './wounds';
+import { createWound, severityFor, woundTreatmentNeeds, woundTypeFor } from './wounds';
 import { hasCrutchItem } from './reader';
 
 const LIMB_SLOTS: readonly BodySlot[] = ['left_arm', 'right_arm', 'left_leg', 'right_leg'];
@@ -122,22 +122,7 @@ export function updatePatient(
   const existingPatient = entities.get(id, C.Patient);
 
   if (shouldBePatient || existingPatient !== undefined) {
-    const needs: string[] = [];
-    if (anyBleeds) needs.push('stop_bleeding');
-    if (anyUnsplintedFracture) needs.push('set_bone');
-    for (const w of allWounds) {
-      if (
-        (w.type === 'cut' || w.type === 'puncture') &&
-        (w.severity === 'serious' || w.severity === 'grievous') &&
-        !w.sutured
-      ) {
-        if (!needs.includes('suture')) needs.push('suture');
-      }
-    }
-    if (allWounds.some(needsCleaning)) {
-      needs.push('clean_wound');
-    }
-    if (anyUndressedBurn) needs.push('dress_burn');
+    const needs = woundTreatmentNeeds(allWounds);
     if (!b.diagnosed) needs.push('diagnose');
     const lostLeg = b.permanent.includes('lost_left_leg') || b.permanent.includes('lost_right_leg');
     if (lostLeg && !hasCrutchItem(entities, ctx.registry, id)) needs.push('give_crutch');

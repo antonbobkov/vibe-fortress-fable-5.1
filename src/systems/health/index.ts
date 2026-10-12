@@ -67,6 +67,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
   private readerRef: HealthReader | null = null;
   private readonly wounded: Set<EntityId> = new Set();
   private readonly hospitals: EntityId[] = [];
+  private readonly pendingTreatments = new Map<EntityId, Set<string>>();
   private readonly lastAttacker: Map<EntityId, EntityId> = new Map();
   private readonly lastDrownTick: Map<EntityId, number> = new Map();
   private readonly floorSleepers: Set<EntityId> = new Set();
@@ -110,6 +111,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
         entities: ctx.world.entities,
         map: ctx.world.map,
         registry: ctx.registry,
+        pendingTreatments: this.pendingTreatments,
       }),
     );
   }
@@ -151,6 +153,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       this.lastAttacker.delete(id);
       this.lastDrownTick.delete(id);
       this.lastHospitalTier.delete(id);
+      this.pendingTreatments.delete(id);
       return;
     }
 
@@ -275,11 +278,14 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
   }
 
   serialize(): HealthStateV1 {
+    const pending = Array.from(this.pendingTreatments).sort(([a], [b]) => a - b)
+      .map(([id, kinds]): [EntityId, string[]] => [id, Array.from(kinds).sort()]);
     return {
       stateVersion: 1,
       wounded: Array.from(this.wounded).sort((a, b) => a - b),
       hospitals: this.hospitals.slice(),
       patientJobs: [],
+      ...(pending.length === 0 ? {} : { pendingTreatments: pending }),
       rng: this.rng.state(),
     };
   }
@@ -290,6 +296,8 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
     for (const id of state.wounded) this.wounded.add(id);
     this.hospitals.length = 0;
     this.hospitals.push(...state.hospitals);
+    this.pendingTreatments.clear();
+    for (const [id, kinds] of state.pendingTreatments ?? []) this.pendingTreatments.set(id, new Set(kinds));
     this.rng.setState(state.rng);
   }
 }

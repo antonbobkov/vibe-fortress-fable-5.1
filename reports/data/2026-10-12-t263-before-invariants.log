@@ -1,0 +1,53 @@
+
+ RUN  v2.1.9 E:/code/vibe-games/vibe-fortress-codexa
+
+ ❯ test/perf/t263-trace-probe.test.ts (1 test | 1 failed) 529572ms
+   × T-263 trace the main scenario drink reservation 529571ms
+     → T-176 tick 336000: expected [ { …(6) } ] to deeply equal []
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/perf/t263-trace-probe.test.ts > T-263 trace the main scenario drink reservation
+AssertionError: T-176 tick 336000: expected [ { …(6) } ] to deeply equal []
+
+- Expected
++ Received
+
+- Array []
++ Array [
++   Object {
++     "cls": "drink",
++     "count": 1,
++     "firstTick": 336000,
++     "inv": "item.reserved-by-missing-job",
++     "lastTick": 336000,
++     "samples": Array [
++       "t336000: item 150995102 drink x1 reservedBy=150995335, no such job and no such living creature; pos=(none) container=50331755 carriedBy=0",
++     ],
++   },
++ ]
+
+ ❯ test/scenarios/three_years.scenario.ts:76:103
+     74|       items = w.readers.of<ItemsReader>('13');
+     75|       observeFlee();
+     76|       stopInvariants = watchInvariants(w.game, (findings) => expect(fi…
+       |                                                                                                       ^
+     77|       savedYears.add(year);
+     78|     };
+ ❯ World.game.world.step test/scenarios/invariants.ts:851:42
+ ❯ World.run src/core/world.ts:307:41
+ ❯ HeadlessGame.step src/app/headless.ts:470:16
+ ❯ TestWorld.step test/scenarios/test-world.ts:113:15
+ ❯ ThreeYearsMeasurements.step test/scenarios/three_years_measurements.ts:194:9
+ ❯ Module.stepThreeYears test/scenarios/three_years_measurements.ts:293:91
+ ❯ Object.run test/scenarios/three_years.scenario.ts:128:7
+ ❯ Module.runScenario test/scenarios/runner.ts:135:14
+ ❯ test/perf/t263-trace-probe.test.ts:80:6
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  02:27:52
+   Duration  532.37s (transform 1.70s, setup 0ms, collect 2.52s, tests 529.57s, environment 0ms, prepare 86ms)
+

@@ -82,7 +82,7 @@ interface MoraleState { stateVersion: 1; hallSpirit: number; hallSpiritTier: Moo
 
 interface CombatState { stateVersion: 1; alert: Alert; engagements: [EntityId, Tick][]; targets: [EntityId, EntityId][]; nextSquadName: number; unreachableSince?: [EntityId, Tick][]; threatThrottles?: [EntityId, Tick][]; rng: RngState }   // unreachableSince: when each creature's approach to its target first failed (16 § Targeting)
 
-interface HealthState { stateVersion: 1; wounded: EntityId[]; hospitals: EntityId[]; patientJobs: [EntityId, string[]][]; rng: RngState }
+interface HealthState { stateVersion: 1; wounded: EntityId[]; hospitals: EntityId[]; patientJobs: [EntityId, string[]][]; pendingTreatments?: [EntityId, string[]][]; rng: RngState }   // failed still-needed wound treatment kinds, independent of Patient; targets sorted by id, unique kinds sorted lexically; omitted when empty, absent in older saves means no pending requests
 
 interface ThreatsState { stateVersion: 1; schedule: [string, { nextTick: Tick; earliestTick: Tick; pendingSpawnTick: Tick }][]; renown: Fixed;
   deepsilverTiles: TileIndex[]; cavernSpawnCounts: [Idx<SpeciesDef>, number][]; webs: [TileIndex, EntityId][]; namedCaptains: [string, EntityId][]; rng: RngState }

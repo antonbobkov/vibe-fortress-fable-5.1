@@ -248,7 +248,13 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       const faction = event['faction'] ?? (typeof id === 'number' ? core.host.entities.get(id, C.Creature)?.faction : undefined);
       if (typeof id === 'number') {
         for (const itemId of core.host.entities.with(C.Item)) {
-          if (core.get(itemId)?.ownerId === id) core.setOwner(itemId, 0);
+          const item = core.get(itemId);
+          if (item?.ownerId === id) core.setOwner(itemId, 0);
+          // Older saves may retain a personal reservation after its activity plan was lost.
+          if (item?.reservedBy === id) {
+            core.release(itemId);
+            ctx.emit({ type: 'ItemReleased', itemId, jobId: id });
+          }
         }
       }
       if (typeof id === 'number' && typeof tile === 'number' && typeof species === 'number') {

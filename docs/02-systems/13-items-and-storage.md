@@ -102,6 +102,8 @@ Maintained incrementally, sorted by item id:
 
 `Item.flags`: `forbidden` (ignored by all jobs and searches), `dump` (wants hauling to a `dump` zone; on arrival the flag clears), `melt` (a smelter may consume it), `reserved` (held by a job, or by a dwarf walking to eat or drink it; released when the holder dies or abandons the errand), `owned` (belongs to a dwarf: worn clothing, an assigned bed's owner's chest contents), `installed` (linked to a built piece of furniture, 14: off the map and out of every search, haul and available count, but still in the totals and in wealth; deconstruction clears it and returns the item to the building's tile).
 
+On `CreatureDied`, release every item still reserved under the removed creature's id, including a legacy personal reservation with no current activity plan. Use the ordinary release API and emit `ItemReleased { itemId, jobId: creatureId }` once per actual release. Preserve another holder's reservation. A reservation already released by the activity's death cancellation emits no second release.
+
 Ownership ends with its owner: on `CreatureDied` of any creature, every item with its `ownerId` loses the owner and the `owned` flag through `items.setOwner(id, 0)`, including worn clothing, claimed gear and chest contents. Worn items and any extra carried equipment, including spare weapons and ammunition outside worn slots, stay with the corpse, unowned. Create that live corpse and transfer the carried items through the item API while handling `CreatureDied`, before presentation listeners observe the removal; do not leave `carriedBy` pointing to a destroyed creature until the next items cadence. The corpse, item indices, availability and pending creation events are included in a save taken at that boundary. Older saved pending-death records retain their normal scheduled materialization.
 
 Commands set flags on items, on all items in a rectangle including their container contents, or on all items of a type in the stocks panel. Items dropped by dead dwarves and hostiles are not forbidden by default (unlike the inspiration). A dead worker's held tool and carried item, when they are not in its `Equipment`, drop at the recorded death tile, with no owner or reservation and with the forbidden flag clear; items *worn by a corpse* stay with the corpse until the corpse is buried, rots, or is butchered (every non-dwarf corpse with worn items can be looted by a `strip_corpse` hauling job that moves the equipment to the ground). Dumped items stay in the dump zone; a dump-marked item uses the first tile of the nearest dump zone by centroid, and has no home without a dump zone.
@@ -185,7 +187,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Events emitted
 
-`ItemCreated { id, itemType, material, count }`, `ItemDestroyed { id, itemType, reason, crafterId }` (type and material are content ids), `ItemRotStage { id, stage }`, `ItemRotted { id }`, `MiasmaSpread { tiles[] }`, `StocksChanged { types[] }`, `StockpileFull { id }`, `WealthChanged { wealth }`, `CorpseCreated { itemId, creatureId }`.
+`ItemCreated { id, itemType, material, count }`, `ItemDestroyed { id, itemType, reason, crafterId }` (type and material are content ids), `ItemRotStage { id, stage }`, `ItemRotted { id }`, `MiasmaSpread { tiles[] }`, `StocksChanged { types[] }`, `StockpileFull { id }`, `WealthChanged { wealth }`, `CorpseCreated { itemId, creatureId }`, and `ItemReleased { itemId, jobId }` when creature-removal cleanup releases a personal reservation.
 
 ### Registrations
 

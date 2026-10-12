@@ -32,7 +32,7 @@ up a dedicated medicine-20 Chief Medic and asserts required care by rule. It
 now enables medical labor only for that medic, including disabling it on its
 staged laborers. There is no added capacity, extra bed, wound change, changed
 supply or re-timing, and every assertion stays intact. The separate failed-job
-retry fault is filed as [T-262](../../docs/work/T-262-failed-treatment-after-discharge.md).
+retry fault is filed as [T-262](../../docs/archive/tasks/T-262-failed-treatment-after-discharge.md).
 
 The synthetic command-sweep fixture's ready barley is automatically harvested
 at tick 3461, while waiting for TradeOpen; setup ends at 3467 with no ripe crop

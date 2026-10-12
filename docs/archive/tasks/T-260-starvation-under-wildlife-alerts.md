@@ -1,5 +1,7 @@
 # T-260 — Two dwarves starve in the responding wildlife year
 
+Closed by `T-260: immigrants enter a component connected to the fortress`.
+
 **Source:** T-136 twelve-seed instrument, 2026-10-11 · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
 
 ## Reproduction
