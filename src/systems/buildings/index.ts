@@ -161,6 +161,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
         readers.has('03') ? (readers.of<{ engravingAt(i: number): { quality: number } | null }>('03').engravingAt(i)?.quality ?? 0) : 0,
       mood: (id) => readers.has('15') ? readers.of<{ mood(id: EntityId): number }>('15').mood(id) : MOOD_BASELINE,
       barMult: () => barMult,
+      sleepingBedHolder: (id) => readers.has('10') ? readers.of<{ bedHolder(id: EntityId): EntityId }>('10').bedHolder(id) : 0,
     });
     this.burialRef = new BurialStore(store, this.roomsRef, this.zones);
     const buildProducer = store.producer();

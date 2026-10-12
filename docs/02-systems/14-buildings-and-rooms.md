@@ -125,7 +125,7 @@ On room entry, 10 observes visible floor masterworks and installed furniture thr
 
 ### Ownership
 
-- Bedroom: `AssignRoom { zoneId, dwarfId }`; auto-assignment daily: bedrooms with a built bed and no owner, in zone-id order, go to living fortress creatures with `Title` and no bedroom, titled dwarves first (Thane, then Warden, Broker, Chief Medic), then by lowest mood from 15’s reader, with id as the last tie-break. `MOOD_BASELINE` is used only when no morale reader exists in a standalone world. `Room.ownerId` stores ownership; assigning a dwarf elsewhere clears the previous bedroom. On `CreatureDied`, every bedroom owned by that creature becomes unowned in the same tick and is available to the next daily auto-assignment. `freeBeds` excludes beds inside owned bedrooms. Auto-assignment draws no RNG. An owner’s bed is theirs; other dwarves do not sleep in it.
+- Bedroom: `AssignRoom { zoneId, dwarfId }`; auto-assignment daily: bedrooms with a built bed and no owner, in zone-id order, go to living fortress creatures with `Title` and no bedroom, titled dwarves first (Thane, then Warden, Broker, Chief Medic), then by lowest mood from 15’s reader, with id as the last tie-break. `MOOD_BASELINE` is used only when no morale reader exists in a standalone world. `Room.ownerId` stores ownership; assigning a dwarf elsewhere clears the previous bedroom. On `CreatureDied`, every bedroom owned by that creature becomes unowned in the same tick and is available to the next daily auto-assignment. `freeBeds` excludes beds inside owned bedrooms and beds held by another living sleeper or patient. A chosen bed is held throughout the walk and sleep until waking, abandoning the activity or death; patient assignment holds it until discharge, reassignment or death. The holds come from 10's saved rest activities and 17's saved `Patient.bedId`, and availability is queried live. No two dwarves use the same bed at once. Auto-assignment draws no RNG. An owner’s bed is theirs; other dwarves do not sleep in it.
 - Tomb coffins: assigned to a living dwarf (reserved) or left open for anyone; burial fills the first free coffin, preferring a reserved one for its dwarf. The reservation survives its dwarf's death.
 
 ### Burial
@@ -153,7 +153,9 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 - `buildings.zoneAt(i)`, `buildings.zone(id)`, `buildings.zonesOfType(type)`, `buildings.zoneSetting(id, key)`
 - `buildings.room(zoneId)` (score, tier, enclosed, requirementsMet), `buildings.bedroomOf(dwarfId)`, `buildings.ownerOf(zoneId)`
 - `buildings.hearth()`, `buildings.hearthHallTier()`, `buildings.hearthHallTiles()`
-- `buildings.depots()`, `buildings.wells()`, `buildings.freeBeds()`, `buildings.freeCoffins()`, `buildings.diningSeats()`
+- `buildings.depots()`, `buildings.wells()`, `buildings.freeCoffins()`, `buildings.diningSeats()`
+- `buildings.freeBeds(forDwarf?)` ? unassigned built beds, in id order, held by nobody else; omitted dwarf means any hold excludes the bed
+- `buildings.bedHolder(bedId)` ? a built bed's living patient, else its walking or sleeping dwarf, or 0
 - `buildings.mechanismState(id)` (`raised`, `open`, `locked` …)
 - `buildings.doorAt(i)`, `buildings.lockedHatchAt(i)`, `buildings.blocksSightAt(i)` — 22's hooks for passability, falling and line of sight; `buildings.doorOpen(id)` — a creature stands in the doorway (for drawing)
 - `buildings.zonesAt(i)` — every zone on a tile, ascending (a meeting area may lie over a hall); `buildings.zoneTileQualifies(type, i)` — the tile qualifies for the zone type (the zone tool's green)

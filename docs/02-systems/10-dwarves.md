@@ -66,6 +66,7 @@ A food or drink errand reserves one unit under the dwarf's id. Death, unconsciou
 
 - Schedule: each dwarf has `sleepStartHour` (uniformly 20–23 from 10's rng stream) and sleeps `SLEEP_HOURS` unless rest is below 20. Rest at its want threshold outside the window also sends the dwarf to bed.
 - Bed search: own bed (assigned bedroom), else any unassigned free bed, else the floor of the hearth hall, else where they stand. Emits `Slept { id, bedQuality, roomTier, onFloor }`.
+- A built bed holds one dwarf. Choosing it for sleep holds it immediately, during the walk and sleep, until the dwarf wakes, abandons the activity or dies. The saved rest activity's `itemId` is the bed id (0 for floor sleep); loading preserves the hold. Bed availability is live, not cached with room geometry. An own bed held by another dwarf is unavailable too; another free unassigned bed or the floor is the fallback. A patient holds its assigned bed under 17's rule, so a tired medic never chooses it.
 - Sleep is interrupted by `danger`-severity events nearby and by hearth alert.
 - A soldier on duty who walks to a bed or sleeps is serving a need: in every squad mode, 16's squad code neither moves it nor gives it a target until it is back on duty (16 § Squads).
 
@@ -161,6 +162,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 - `dwarves.need(id, need)`, `dwarves.behavior(id)`, `dwarves.activityText(id)` (for the units panel: "Digging", "Eating", "Sleeping", "No job")
 - `dwarves.productivity(id)` — percent: mood multiplier (15) × wound modifier (17)
 - `dwarves.friends(id)`, `dwarves.isFriend(a, b)`
+- `dwarves.bedHolder(bedId)` ? the living dwarf walking to or sleeping in the bed through its saved rest activity, or 0; patient holds are combined by 14
 - `dwarves.avoidedThreatTile(id)` — the last seen tile of a still-near living hostile for a civilian, or −1; job eligibility uses this memory
 
 ### Commands

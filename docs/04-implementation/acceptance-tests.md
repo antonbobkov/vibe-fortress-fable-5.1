@@ -255,7 +255,7 @@ A loaded ranged soldier on duty steps to a legal adjacent tile at its keep dista
 | `he_infection` | a serious untreated cut, the dwarf sleeping in a bed, no miasma, 10 days | 49–74% infected over 100 runs (model 1 − 0.9⁹ = 61%); brightleaf cures in 3 days |
 | `he_limb` | 60 damage to an arm (maxHp 36) | `LimbLost`; cannot wield two-handed |
 | `he_fall` | a dwarf falls 3 levels | 54 damage to the torso, or damage capped at the leg's hp − 1 to a leg; a fracture either way; never `LimbLost` |
-| `hospital_run` | 30-day playthrough with hospital, well, coffins and hostile raid | all wounded survivors admitted, diagnosed, treated (`stop_bleeding`, `clean_wound`, `suture`, `set_bone`, `dress_burn`), discharged; dead buried in tomb; fed and watered from well |
+| `hospital_run` | 30-day playthrough with hospital, well, coffins and hostile raid; treatment labor belongs only to its designated medicine-20 medic so required care does not depend on treatment-failure rolls | all wounded survivors admitted, diagnosed, treated (`stop_bleeding`, `clean_wound`, `suture`, `set_bone`, `dress_burn`), discharged; dead buried in tomb; fed and watered from well |
 
 ## 18 Threats
 

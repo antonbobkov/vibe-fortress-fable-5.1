@@ -265,7 +265,15 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         const mood = ctx.readers.has('15') ? ctx.readers.of<{ productivity(id: EntityId): number }>('15').productivity(id) : 100;
         const health = ctx.readers.has('17') ? ctx.readers.of<{ productivityModifier(id: EntityId): number }>('17').productivityModifier(id) : 100;
         return Math.floor((mood * health) / 100);
-      }, (id) => ctx.world.entities.get(id, C.Soldier)?.onDuty ? -1 : this.threatTile(id));
+      }, (id) => ctx.world.entities.get(id, C.Soldier)?.onDuty ? -1 : this.threatTile(id), (bedId) => {
+        if (bedId === 0) return 0;
+        let holder = 0;
+        for (const [id, plan] of this.activities.plans) {
+          if (plan.need === 'rest' && plan.itemId === bedId && ctx.world.entities.alive(id) &&
+              ctx.world.entities.get(id, C.Brain)?.behavior === 'need' && (holder === 0 || id < holder)) holder = id;
+        }
+        return holder;
+      });
     const jobTypes = ctx.registry.table<JobTypeRow>('jobTypes');
     this.host = {
       get hasJobs(): boolean {

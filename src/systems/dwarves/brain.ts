@@ -134,6 +134,17 @@ function leaveShelterForNeed(host: BrainHost, ctx: TickContext, id: EntityId, b:
   return false;
 }
 
+/** Use only the bed this patient holds; otherwise wait where it is for allocation by 17. */
+function patientBedTile(ctx: TickContext, id: EntityId): TileIndex {
+  const bedId = ctx.world.entities.get(id, C.Patient)?.bedId ?? 0;
+  if (bedId !== 0 && ctx.readers.has('14')) {
+    const buildings = ctx.readers.of<BuildingsReader>('14');
+    const bed = buildings.get(bedId);
+    if (bed?.state === 'built' && buildings.bedHolder(bedId) === id) return bed.origin;
+  }
+  return ctx.world.services.movement?.tileOf(id) ?? -1;
+}
+
 /** A conscious patient goes to its hospital bed under any alert (step 3); an unconscious one is carried. */
 function walksToHospital(ctx: TickContext, id: EntityId): boolean {
   if (!ctx.readers.has('17')) return false;
@@ -389,34 +400,8 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   if (ctx.readers.has('17') && ctx.readers.of<HealthReader>('17').isPatient(id)) {
     const conscious = ctx.readers.of<HealthReader>('17').isConscious(id);
     if (conscious) {
-      const patient = ctx.world.entities.get(id, C.Patient);
-      let bedTile = -1;
-      if (patient && patient.bedId !== 0 && ctx.readers.has('14')) {
-        const bView = ctx.readers.of<BuildingsReader>('14').get(patient.bedId);
-        if (bView) bedTile = bView.origin;
-      }
-      if (bedTile < 0 && ctx.readers.has('14')) {
-        const buildings = ctx.readers.of<BuildingsReader>('14');
-        const hospZones = buildings.zonesOfType('hospital');
-        for (const hz of hospZones) {
-          const z = buildings.zone(hz);
-          if (!z) continue;
-          for (const t of z.tiles) {
-            const bId = buildings.at(t);
-            if (bId !== 0 && buildings.get(bId)?.typeId === 'bed') {
-              bedTile = t;
-              break;
-            }
-          }
-          if (bedTile >= 0) break;
-        }
-        if (bedTile < 0) {
-          const bedId = buildings.freeBeds()[0];
-          if (bedId) bedTile = buildings.get(bedId)?.origin ?? -1;
-        }
-      }
       b.behavior = 'patient';
-      b.targetTile = bedTile >= 0 ? bedTile : ctx.world.services.movement?.tileOf(id) ?? -1;
+      b.targetTile = patientBedTile(ctx, id);
       b.activity = 'Resting in hospital';
       return;
     }
@@ -570,6 +555,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
     if (!isPatient) {
       reselect = true;
     } else if (movement !== null) {
+      b.targetTile = patientBedTile(ctx, id);
       const myTile = movement.tileOf(id);
       if (b.targetTile >= 0 && myTile !== b.targetTile) {
         movement.walkTo(id, b.targetTile, 'job', ctx);

@@ -70,6 +70,8 @@ export interface RoomHost {
   mood(dwarfId: EntityId): number;
   /** The value multiplier (thousandths) of a bar, for metal floors ("metal blocks value(bar)/5"). */
   barMult(): number;
+  /** 10's saved walking or sleeping bed hold. */
+  sleepingBedHolder?(bedId: EntityId): EntityId;
 }
 
 /** A room's computed facts. */
@@ -465,14 +467,26 @@ export class RoomStore {
     for (let k = 0; k < free.length && k < waiting.length; k += 1) this.setOwner(free[k] as EntityId, waiting[k] as EntityId);
   }
 
-  /** Built beds no one owns: not inside an owned bedroom. */
-  freeBeds(): EntityId[] {
+  /** Patient components and sleep plans are the saved holds; this query never caches occupancy. */
+  bedHolder(bedId: EntityId): EntityId {
+    const bed = this.host.buildings.get(bedId);
+    if (bed?.state !== 'built' || !this.host.buildings.row(bed.type).tags.includes('sleep')) return 0;
+    for (const id of this.host.entities.with(C.Patient)) {
+      if (this.host.entities.alive(id) && this.host.entities.get(id, C.Patient)?.bedId === bedId) return id;
+    }
+    return this.host.sleepingBedHolder?.(bedId) ?? 0;
+  }
+
+  /** Unassigned built beds with no other sleeper or patient holding them. */
+  freeBeds(forDwarf: EntityId = 0): EntityId[] {
     const b = this.host.buildings;
     return b
       .all()
       .filter((id) => {
         const bld = b.get(id) as Building;
         if (bld.state !== 'built' || !b.row(bld.type).tags.includes('sleep')) return false;
+        const holder = this.bedHolder(id);
+        if (holder !== 0 && holder !== forDwarf) return false;
         return bld.footprint.every((t) => this.host.zones.zonesAt(t).every((z) => this.host.zones.typeIdOf(z) !== 'bedroom' || (this.room(z)?.ownerId ?? 0) === 0));
       });
   }

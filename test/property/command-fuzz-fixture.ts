@@ -29,10 +29,6 @@ function completeTargets(w: TestWorld): void {
   ).toEqual({ ok: true });
   w.setLabor(w.game.world.entities.with(C.Labors)[0]!, 'mechanics', true);
   w.until(() => buildings.get(lever)?.linkedIds.includes(door) === true, 3000);
-  const crop = w.plantCrop(w.index(20, 70, Z), 'barley', 3);
-  const data = entities.get(crop, C.Crop)!;
-  const plant = w.game.registry.table<PlantRow>('plants').byId('barley')!;
-  entities.add(crop, C.Crop, { ...data, growth: stageLength(plant) });
   const cage = w.spawnItem('cage', 'iron', w.index(62, 70, Z));
   const boar = w.spawnCreature('boar', w.index(62, 71, Z), 'wild');
   const creature = entities.get(boar, C.Creature)!;
@@ -420,6 +416,11 @@ function buildWorld(): TestWorld {
     }),
   ).toEqual({ ok: true });
   w.step(1);
+  // T-223: stage the harvest command's same ready crop after setup waits; ordinary farmers may harvest it during TradeOpen.
+  const crop = w.plantCrop(w.index(20, 70, Z), 'barley', 3);
+  const data = w.game.world.entities.get(crop, C.Crop)!;
+  const plant = w.game.registry.table<PlantRow>('plants').byId('barley')!;
+  w.game.world.entities.add(crop, C.Crop, { ...data, growth: stageLength(plant) });
   return w;
 }
 

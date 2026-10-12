@@ -1,0 +1,827 @@
+{
+  "runtimeCommit": "f3a539f plus T-223 bed-hold patch before fixture-role correction",
+  "records": [
+    {
+      "tick": 6395,
+      "event": {
+        "type": "WoundInflicted",
+        "id": 184549575,
+        "part": "torso",
+        "woundType": "cut",
+        "severity": "serious"
+      },
+      "id": 184549575,
+      "body": {
+        "parts": [
+          {
+            "hp": 30,
+            "maxHp": 30,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 42,
+            "maxHp": 60,
+            "wounds": [
+              {
+                "type": "cut",
+                "severity": "serious",
+                "bleed": 3,
+                "pain": 15,
+                "healRemaining": 18000,
+                "damage": 18,
+                "bandaged": false,
+                "sutured": false,
+                "splinted": false,
+                "cleaned": false,
+                "dressed": false,
+                "infected": false,
+                "infectedSince": 0,
+                "createdTick": 6394
+              }
+            ],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          }
+        ],
+        "blood": 636,
+        "maxBlood": 636,
+        "pain": 0,
+        "conscious": true,
+        "permanent": [],
+        "diagnosed": false
+      },
+      "patient": {
+        "hospitalZoneId": 16777391,
+        "bedId": 16777386,
+        "needs": [
+          "stop_bleeding",
+          "suture",
+          "clean_wound",
+          "diagnose"
+        ],
+        "admittedTick": 6394
+      },
+      "brain": {
+        "behavior": "work",
+        "behaviorUntil": 6394,
+        "targetTile": 295056,
+        "activity": "Water patient",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": -1,
+        "daysUnderground": 0
+      },
+      "position": {
+        "x": 48,
+        "y": 1,
+        "z": 32
+      }
+    },
+    {
+      "tick": 6395,
+      "event": {
+        "type": "PatientAdmitted",
+        "id": 184549575,
+        "hospitalTier": 0
+      },
+      "id": 184549575,
+      "body": {
+        "parts": [
+          {
+            "hp": 30,
+            "maxHp": 30,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 42,
+            "maxHp": 60,
+            "wounds": [
+              {
+                "type": "cut",
+                "severity": "serious",
+                "bleed": 3,
+                "pain": 15,
+                "healRemaining": 18000,
+                "damage": 18,
+                "bandaged": false,
+                "sutured": false,
+                "splinted": false,
+                "cleaned": false,
+                "dressed": false,
+                "infected": false,
+                "infectedSince": 0,
+                "createdTick": 6394
+              }
+            ],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          }
+        ],
+        "blood": 636,
+        "maxBlood": 636,
+        "pain": 0,
+        "conscious": true,
+        "permanent": [],
+        "diagnosed": false
+      },
+      "patient": {
+        "hospitalZoneId": 16777391,
+        "bedId": 16777386,
+        "needs": [
+          "stop_bleeding",
+          "suture",
+          "clean_wound",
+          "diagnose"
+        ],
+        "admittedTick": 6394
+      },
+      "brain": {
+        "behavior": "work",
+        "behaviorUntil": 6394,
+        "targetTile": 295056,
+        "activity": "Water patient",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": -1,
+        "daysUnderground": 0
+      },
+      "position": {
+        "x": 48,
+        "y": 1,
+        "z": 32
+      }
+    },
+    {
+      "tick": 6395,
+      "event": {
+        "type": "JobCreated",
+        "jobId": 157,
+        "jobType": "suture",
+        "target": 184549575
+      },
+      "id": 184549575,
+      "body": {
+        "parts": [
+          {
+            "hp": 30,
+            "maxHp": 30,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 42,
+            "maxHp": 60,
+            "wounds": [
+              {
+                "type": "cut",
+                "severity": "serious",
+                "bleed": 3,
+                "pain": 15,
+                "healRemaining": 18000,
+                "damage": 18,
+                "bandaged": false,
+                "sutured": false,
+                "splinted": false,
+                "cleaned": false,
+                "dressed": false,
+                "infected": false,
+                "infectedSince": 0,
+                "createdTick": 6394
+              }
+            ],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          }
+        ],
+        "blood": 636,
+        "maxBlood": 636,
+        "pain": 0,
+        "conscious": true,
+        "permanent": [],
+        "diagnosed": false
+      },
+      "patient": {
+        "hospitalZoneId": 16777391,
+        "bedId": 16777386,
+        "needs": [
+          "stop_bleeding",
+          "suture",
+          "clean_wound",
+          "diagnose"
+        ],
+        "admittedTick": 6394
+      },
+      "brain": {
+        "behavior": "work",
+        "behaviorUntil": 6394,
+        "targetTile": 295056,
+        "activity": "Water patient",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": -1,
+        "daysUnderground": 0
+      },
+      "position": {
+        "x": 48,
+        "y": 1,
+        "z": 32
+      }
+    },
+    {
+      "tick": 6679,
+      "event": {
+        "type": "TreatmentDone",
+        "patientId": 184549575,
+        "medicId": 16777275,
+        "kind": "stop_bleeding"
+      },
+      "id": 184549575,
+      "body": {
+        "parts": [
+          {
+            "hp": 30,
+            "maxHp": 30,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 42,
+            "maxHp": 60,
+            "wounds": [
+              {
+                "type": "cut",
+                "severity": "serious",
+                "bleed": 0,
+                "pain": 15,
+                "healRemaining": 17715,
+                "damage": 18,
+                "bandaged": true,
+                "sutured": false,
+                "splinted": false,
+                "cleaned": false,
+                "dressed": false,
+                "infected": false,
+                "infectedSince": 0,
+                "createdTick": 6394
+              }
+            ],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          }
+        ],
+        "blood": 465,
+        "maxBlood": 636,
+        "pain": 11,
+        "conscious": true,
+        "permanent": [],
+        "diagnosed": false
+      },
+      "brain": {
+        "behavior": "work",
+        "behaviorUntil": 6679,
+        "targetTile": 295528,
+        "activity": "Resting in hospital",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": -1,
+        "daysUnderground": 0
+      },
+      "position": {
+        "x": 40,
+        "y": 6,
+        "z": 32
+      },
+      "workerMedicine": 0
+    },
+    {
+      "tick": 6679,
+      "event": {
+        "type": "PatientDischarged",
+        "id": 184549575,
+        "hospitalTier": 0
+      },
+      "id": 184549575,
+      "body": {
+        "parts": [
+          {
+            "hp": 30,
+            "maxHp": 30,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 42,
+            "maxHp": 60,
+            "wounds": [
+              {
+                "type": "cut",
+                "severity": "serious",
+                "bleed": 0,
+                "pain": 15,
+                "healRemaining": 17715,
+                "damage": 18,
+                "bandaged": true,
+                "sutured": false,
+                "splinted": false,
+                "cleaned": false,
+                "dressed": false,
+                "infected": false,
+                "infectedSince": 0,
+                "createdTick": 6394
+              }
+            ],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          }
+        ],
+        "blood": 465,
+        "maxBlood": 636,
+        "pain": 11,
+        "conscious": true,
+        "permanent": [],
+        "diagnosed": false
+      },
+      "brain": {
+        "behavior": "work",
+        "behaviorUntil": 6679,
+        "targetTile": 295528,
+        "activity": "Resting in hospital",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": -1,
+        "daysUnderground": 0
+      },
+      "position": {
+        "x": 40,
+        "y": 6,
+        "z": 32
+      }
+    },
+    {
+      "tick": 6765,
+      "event": {
+        "type": "JobClaimed",
+        "jobId": 157,
+        "jobType": "suture",
+        "workerId": 16777279,
+        "target": 184549575
+      },
+      "id": 184549575,
+      "body": {
+        "parts": [
+          {
+            "hp": 30,
+            "maxHp": 30,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 42,
+            "maxHp": 60,
+            "wounds": [
+              {
+                "type": "cut",
+                "severity": "serious",
+                "bleed": 0,
+                "pain": 15,
+                "healRemaining": 17630,
+                "damage": 18,
+                "bandaged": true,
+                "sutured": false,
+                "splinted": false,
+                "cleaned": false,
+                "dressed": false,
+                "infected": false,
+                "infectedSince": 0,
+                "createdTick": 6394
+              }
+            ],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          }
+        ],
+        "blood": 482,
+        "maxBlood": 636,
+        "pain": 11,
+        "conscious": true,
+        "permanent": [],
+        "diagnosed": false
+      },
+      "brain": {
+        "behavior": "work",
+        "behaviorUntil": 6679,
+        "targetTile": 295528,
+        "activity": "Water patient",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": -1,
+        "daysUnderground": 0
+      },
+      "position": {
+        "x": 48,
+        "y": 5,
+        "z": 32
+      },
+      "workerMedicine": 0
+    },
+    {
+      "tick": 7056,
+      "event": {
+        "type": "JobCompleted",
+        "jobId": 157,
+        "jobType": "suture",
+        "workerId": 16777279,
+        "target": 184549575
+      },
+      "id": 184549575,
+      "body": {
+        "parts": [
+          {
+            "hp": 30,
+            "maxHp": 30,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 42,
+            "maxHp": 60,
+            "wounds": [
+              {
+                "type": "cut",
+                "severity": "serious",
+                "bleed": 0,
+                "pain": 15,
+                "healRemaining": 17340,
+                "damage": 18,
+                "bandaged": true,
+                "sutured": false,
+                "splinted": false,
+                "cleaned": false,
+                "dressed": false,
+                "infected": false,
+                "infectedSince": 0,
+                "createdTick": 6394
+              }
+            ],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          }
+        ],
+        "blood": 540,
+        "maxBlood": 636,
+        "pain": 11,
+        "conscious": true,
+        "permanent": [],
+        "diagnosed": false
+      },
+      "brain": {
+        "behavior": "work",
+        "behaviorUntil": 6992,
+        "targetTile": 295528,
+        "activity": "Clean wound",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": -1,
+        "daysUnderground": 0
+      },
+      "position": {
+        "x": 39,
+        "y": 7,
+        "z": 32
+      },
+      "workerMedicine": 0
+    },
+    {
+      "tick": 7238,
+      "event": {
+        "type": "TreatmentDone",
+        "patientId": 184549575,
+        "medicId": 184549575,
+        "kind": "clean_wound"
+      },
+      "id": 184549575,
+      "body": {
+        "parts": [
+          {
+            "hp": 30,
+            "maxHp": 30,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 42,
+            "maxHp": 60,
+            "wounds": [
+              {
+                "type": "cut",
+                "severity": "serious",
+                "bleed": 0,
+                "pain": 15,
+                "healRemaining": 17155,
+                "damage": 18,
+                "bandaged": true,
+                "sutured": false,
+                "splinted": false,
+                "cleaned": true,
+                "dressed": false,
+                "infected": false,
+                "infectedSince": 0,
+                "createdTick": 6394
+              }
+            ],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          }
+        ],
+        "blood": 577,
+        "maxBlood": 636,
+        "pain": 11,
+        "conscious": true,
+        "permanent": [],
+        "diagnosed": false
+      },
+      "brain": {
+        "behavior": "work",
+        "behaviorUntil": 7238,
+        "targetTile": 295528,
+        "activity": "Clean wound",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": -1,
+        "daysUnderground": 0
+      },
+      "position": {
+        "x": 39,
+        "y": 7,
+        "z": 32
+      },
+      "workerMedicine": 0
+    },
+    {
+      "tick": 7605,
+      "event": {
+        "type": "TreatmentDone",
+        "patientId": 184549575,
+        "medicId": 16777281,
+        "kind": "diagnose"
+      },
+      "id": 184549575,
+      "body": {
+        "parts": [
+          {
+            "hp": 30,
+            "maxHp": 30,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 42,
+            "maxHp": 60,
+            "wounds": [
+              {
+                "type": "cut",
+                "severity": "serious",
+                "bleed": 0,
+                "pain": 15,
+                "healRemaining": 16790,
+                "damage": 18,
+                "bandaged": true,
+                "sutured": false,
+                "splinted": false,
+                "cleaned": true,
+                "dressed": false,
+                "infected": false,
+                "infectedSince": 0,
+                "createdTick": 6394
+              }
+            ],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          },
+          {
+            "hp": 36,
+            "maxHp": 36,
+            "wounds": [],
+            "destroyed": false
+          }
+        ],
+        "blood": 636,
+        "maxBlood": 636,
+        "pain": 11,
+        "conscious": true,
+        "permanent": [],
+        "diagnosed": true
+      },
+      "brain": {
+        "behavior": "need",
+        "behaviorUntil": 7238,
+        "targetTile": 295526,
+        "activity": "sleep",
+        "lastMistTick": 0,
+        "lastOutdoorThoughtHour": -1,
+        "daysUnderground": 0
+      },
+      "position": {
+        "x": 38,
+        "y": 6,
+        "z": 32
+      },
+      "workerMedicine": 20
+    }
+  ]
+}
