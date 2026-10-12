@@ -122,6 +122,7 @@ export function findEdgeTiles(
   edge: Edge,
   count: number,
   spread = ARRIVAL_SPREAD,
+  accepts?: (tile: TileIndex) => boolean,
 ): TileIndex[] {
   const candidates: TileIndex[] = [];
   const width = map.w;
@@ -131,25 +132,25 @@ export function findEdgeTiles(
     for (let x = 0; x < width; x += spread) {
       const z = map.columnSurfaceZ(x, 0);
       const t = map.index(x, 0, z);
-      if (map.kindAt(t) === TileKind.Floor) candidates.push(t);
+      if (map.kindAt(t) === TileKind.Floor && (accepts?.(t) ?? true)) candidates.push(t);
     }
   } else if (edge === 's') {
     for (let x = 0; x < width; x += spread) {
       const z = map.columnSurfaceZ(x, height - 1);
       const t = map.index(x, height - 1, z);
-      if (map.kindAt(t) === TileKind.Floor) candidates.push(t);
+      if (map.kindAt(t) === TileKind.Floor && (accepts?.(t) ?? true)) candidates.push(t);
     }
   } else if (edge === 'w') {
     for (let y = 0; y < height; y += spread) {
       const z = map.columnSurfaceZ(0, y);
       const t = map.index(0, y, z);
-      if (map.kindAt(t) === TileKind.Floor) candidates.push(t);
+      if (map.kindAt(t) === TileKind.Floor && (accepts?.(t) ?? true)) candidates.push(t);
     }
   } else if (edge === 'e') {
     for (let y = 0; y < height; y += spread) {
       const z = map.columnSurfaceZ(width - 1, y);
       const t = map.index(width - 1, y, z);
-      if (map.kindAt(t) === TileKind.Floor) candidates.push(t);
+      if (map.kindAt(t) === TileKind.Floor && (accepts?.(t) ?? true)) candidates.push(t);
     }
   }
 
@@ -160,21 +161,22 @@ export function findEdgeTiles(
       for (let x = 0; x < width; x++) {
         const z = map.columnSurfaceZ(x, y);
         const t = map.index(x, y, z);
-        if (map.kindAt(t) === TileKind.Floor) candidates.push(t);
+        if (map.kindAt(t) === TileKind.Floor && (accepts?.(t) ?? true)) candidates.push(t);
       }
     } else {
       const x = edge === 'w' ? 0 : width - 1;
       for (let y = 0; y < height; y++) {
         const z = map.columnSurfaceZ(x, y);
         const t = map.index(x, y, z);
-        if (map.kindAt(t) === TileKind.Floor) candidates.push(t);
+        if (map.kindAt(t) === TileKind.Floor && (accepts?.(t) ?? true)) candidates.push(t);
       }
     }
   }
 
   if (candidates.length === 0) {
-    // Ultimate fallback: corner of surface
-    return new Array(count).fill(map.index(0, 0, map.columnSurfaceZ(0, 0)));
+    // Legacy callers keep their corner fallback; a constrained arrival may have no entry.
+    const corner = map.index(0, 0, map.columnSurfaceZ(0, 0));
+    return accepts === undefined || accepts(corner) ? new Array(count).fill(corner) : [];
   }
 
   const result: TileIndex[] = [];

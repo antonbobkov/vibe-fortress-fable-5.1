@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-263 | [A dead dwarf leaves an orphan drink reservation](work/T-263-orphan-drink-reservation-after-death.md) | T-139 three-year trace, 2026-10-11 | — | open; diagnosis first |
 | T-262 | [A failed treatment is not recreated after discharge](work/T-262-failed-treatment-after-discharge.md) | T-223 hospital trace, 2026-10-11 | — | open |
-| T-260 | [Two dwarves starve under wildlife alerts](work/T-260-starvation-under-wildlife-alerts.md) | T-136 twelve-seed instrument, 2026-10-11 | — | open; diagnosis first |
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | T-140, T-145 (the performance tier includes the 20-seed balance sweep, which cannot pass before them) | open; local side (needs a quiet machine) |
 | T-116 | [Audit: UI and UX pass](work/T-116-audit-ui-ux.md) | the owner, 2026-10-06 | T-111, and the fix tasks of T-115 (T-169 … T-177, T-180 … T-187) | open; local side (the cloud agent stopped before it) |
 | T-140 | [Dwarves walk too slowly for a day of needs](work/T-140-walking-speed-and-need-errands.md) | T-123 and [`../reports/audits/2026-10-08-economy-at-default-priority.md`](../reports/audits/2026-10-08-economy-at-default-priority.md) | T-145 (the work share is 28.4% in year 1 after T-144 and T-197, with 6.3% idle, and 14–17% in years 2–3 with 17–18% idle; re-measure with its work supply; `npm run test:perf` includes the sweep) | open: walking speed is ×1.5; two Done items wait |
