@@ -5,6 +5,7 @@ import { SEASON_NAMES } from '@core/calendar';
 import { RngStream } from '@core/rng';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader } from '@systems/buildings';
+import type { DwarvesReader } from '@systems/dwarves';
 import { ItemCore, type ItemsReader } from '@systems/items';
 import { itemValue } from '@systems/items/value';
 import type { MoraleReader } from '@systems/morale/reader';
@@ -64,6 +65,9 @@ export class ThreeYearsMeasurements {
   readonly recipes: Record<string, number> = {};
   readonly caravans: { day: number; civ: string; state: string; given?: number; received?: number }[] = [];
   readonly minerals: Record<string, number> = {};
+  readonly deaths: { day: number; id: number; species: string; cause: string; killerId: number }[] = [];
+  readonly raids: { day: number; kind: string; size: number; partyId: number; outcome?: string }[] = [];
+  fixture: { armedDay: number | null; specialists: Record<string, number>; deepShaft: { x: number; y: number; bottom: number } | null } = { armedDay: null, specialists: {}, deepShaft: null };
   dwarfTicks = 0;
   meals = 0;
   alcohol = 0;
@@ -130,6 +134,16 @@ export class ThreeYearsMeasurements {
     w.game.world.onEvents((events) => {
       if (events.some((e) => e.type === 'ItemCreated' || e.type === 'CreatureDied')) this.accountPopulation();
       for (const e of events) {
+        if (e.type === 'CreatureDied' && e['faction'] === 'fortress') this.deaths.push({ day: Math.floor(w.tick / TICKS_PER_DAY) + 1,
+          id: Number(e['id']), species: w.game.registry.table<{ id: string }>('creatures').byIndex(Number(e['species']))?.id ?? 'unknown',
+          cause: String(e['cause']), killerId: Number(e['killerId'] ?? 0) });
+        if (e.type === 'CreatureDied' && e['faction'] === 'fortress') console.log(`[three_years_death] ${JSON.stringify({ ...this.deaths[this.deaths.length - 1], tick: w.tick, killer: w.game.registry.table<{ id: string }>('creatures').byIndex(w.game.world.entities.get(Number(e['killerId'] ?? 0), C.Creature)?.species ?? -1)?.id ?? null })}`);
+        if (e.type === 'RaidArrived') this.raids.push({ day: Math.floor(w.tick / TICKS_PER_DAY) + 1,
+          kind: String(e['kind']), size: Number(e['size']), partyId: Number(e['partyId']) });
+        if (e.type === 'RaidEnded') {
+          const raid = this.raids.find((r) => r.partyId === Number(e['partyId']) && !r.outcome);
+          if (raid) raid.outcome = String(e['outcome']);
+        }
         if (e.type === 'MealEaten') this.meals += 1;
         if (e.type === 'DrankAlcohol') this.alcohol += 1;
         if (e.type === 'DrankWater') this.water += 1;
@@ -193,7 +207,13 @@ export class ThreeYearsMeasurements {
       const count = Math.min(end - w.tick, TICKS_PER_DAY - w.tick % TICKS_PER_DAY);
       w.step(count);
       this.accountPopulation();
-      if (w.tick % (DAYS_PER_YEAR * TICKS_PER_DAY) === 0) this.years.push(this.snapshot());
+      if (w.tick % (DAYS_PER_YEAR * TICKS_PER_DAY) === 0) {
+        const year = this.snapshot();
+        this.years.push(year);
+        console.log(`[three_years_checkpoint] ${JSON.stringify({ day: year.day, wealth: year.wealth, population: year.population,
+          adults: w.readers.of<DwarvesReader>('10').adults().filter(id => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length,
+          recipes: year.recipes, dwarfDeaths: this.deaths.filter(d => d.species === 'dwarf').length })}`);
+      }
     }
   }
 
@@ -257,8 +277,8 @@ export class ThreeYearsMeasurements {
     const skillMaxima = Object.fromEntries(skills.ids().map((id) => [id, Math.max(0, ...dwarves.map((d) => ent.get(d, C.Skills)?.level[skills.index(id)] ?? 0))]));
     const renown = w.readers.of<ThreatsReader>('18').renown();
     const fortressCreatures = ent.with(C.Creature).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress').length;
-    // Formula-equivalent wealth, using snapshot creature count; updates and snapshots can differ.
-    const renownWealthEquivalent = (renown - fortressCreatures * RENOWN_POP_WEIGHT) * RENOWN_WEALTH_DIVISOR;
+    // Formula-equivalent wealth, using snapshot dwarf population; updates and snapshots can differ.
+    const renownWealthEquivalent = (renown - this.population() * RENOWN_POP_WEIGHT) * RENOWN_WEALTH_DIVISOR;
     return { day: Math.floor(w.tick / TICKS_PER_DAY), wealth: items.wealth(), population: this.population(), meanEndurance,
       renown, fortressCreatures, renownWealthEquivalent, spirit: w.readers.of<MoraleReader>('15').hallSpirit(),
       marks, counts, qualities, craftQualities, craftQualityValueDelta, skillMaxima, recipes: { ...this.recipes }, smoothed, engraved };

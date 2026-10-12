@@ -158,15 +158,7 @@ const scenario: Scenario = {
     expect(longestFlee, 'T-141: no uninterrupted flee lasts more than a day').toBeLessThanOrEqual(TICKS_PER_DAY);
     console.log(`T-141 longest continuous flee: ${longestFlee} ticks`);
     const economy = threeYearsMeasurements(w);
-    console.log(`three_years economy: ${JSON.stringify({ years: economy.years, minerals: economy.minerals, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
-
-    // Witness the real production chains, independently of any target wealth figure.
-    for (const recipe of ['craft_stone', 'make_charcoal', 'cut_gem', 'forge_pick', 'forge_mail_shirt', 'forge_crafts', 'alloy_steel']) {
-      expect(economy.recipes[recipe] ?? 0, `${recipe} completed through normal jobs`).toBeGreaterThan(0);
-    }
-    expect(economy.years[2]?.engraved ?? 0, 'halls engraved through terrain jobs').toBeGreaterThan(0);
-    expect(economy.caravans.filter((c) => c.state === 'TradeCompleted').length, 'trade with each visiting caravan')
-      .toBe(economy.caravans.filter((c) => c.state === 'CaravanArrived').length);
+    console.log(`three_years economy: ${JSON.stringify({ years: economy.years, minerals: economy.minerals, fixture: economy.fixture, allDeaths: economy.deaths, allRaids: economy.raids, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
 
     y3Wealth = items.wealth();
     const livingDwarves = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress');
@@ -239,6 +231,14 @@ const scenario: Scenario = {
     const NL = String.fromCharCode(10);
     console.log(['three_years balance table:', ...table.map((r) => `  ${r.metric} | model: ${r.model} | measured: ${r.measured}`)].join(NL));
     console.log(`three_years summary: ${JSON.stringify({ y1Pop, y2Pop, y3Pop, y1Wealth, y2Wealth, y3Wealth, deaths, mealsEaten, drinksAlcohol, drinksWater, waves, raids, moodStats: { min: minMood, max: maxMood, avg: avgMood, breakdown } })}`);
+
+    // Witness the real production chains, independently of any target wealth figure.
+    for (const recipe of ['craft_stone', 'make_charcoal', 'cut_gem', 'forge_pick', 'forge_mail_shirt', 'forge_crafts', 'alloy_steel']) {
+      expect(economy.recipes[recipe] ?? 0, `${recipe} completed through normal jobs`).toBeGreaterThan(0);
+    }
+    expect(economy.years[2]?.engraved ?? 0, 'halls engraved through terrain jobs').toBeGreaterThan(0);
+    expect(economy.caravans.filter((c) => c.state === 'TradeCompleted').length, 'trade with each visiting caravan')
+      .toBe(economy.caravans.filter((c) => c.state === 'CaravanArrived').length);
 
     // Assertion 3: No-spiral guarantee (peril 0 survives without deaths, population larger than embark)
     expect(deaths.dwarf, 'no dwarf died across three years in peril 0').toBe(0);
