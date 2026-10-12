@@ -79,10 +79,12 @@ const SQUAD_ORE_FACES = 20;
  * Farm tiles kept for each dwarf. balance.md asks about one cave tile for its meals and two
  * thirds for its drink; a surface tile gives less (a longer crop, and nothing in winter).
  */
-const FARM_TILES_PER_DWARF = 3;
+const FARM_TILES_PER_DWARF = 4;
+/** The farm is sized for the dwarves here and the next wave of immigrants. */
+const NEXT_WAVE = 8;
 /** The first surface field, and a strip added for a growing population. */
 const FIRST_FIELD_TILES = 16;
-const FARM_STRIP = { width: 4, rows: 4, columns: 4, max: 12 };
+const FARM_STRIP = { width: 4, rows: 4, columns: 4, max: 16 };
 /** Export goods a visit should find at the depot before stone and logs stop being added (marks). */
 const VISIT_CARGO = 200;
 /** Stone crafts kept in stock for each dwarf, and days between two new ore drifts in years 2 and 3. */
@@ -96,8 +98,8 @@ const SEED_PER_VISIT = 48;
 /** Dwarves one kitchen feeds and one still waters; another is built for each further group. */
 const DWARVES_PER_KITCHEN = 16;
 const DWARVES_PER_STILL = 28;
-/** Days of meals the lavish order keeps in stock. */
-const MEAL_DAYS = 14;
+/** Days of meals the lavish order keeps in stock: a winter, when nothing grows on the surface. */
+const MEAL_DAYS = 28;
 /** Easy meals in stock before the kitchen turns to lavish meals first. */
 const EASY_MEALS_STOCKED = 20;
 
@@ -669,7 +671,7 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
   const plans = state.economy.farmPlans;
   const tilled = state.caveTiles1.length + state.caveTiles2.length + FIRST_FIELD_TILES + plans.reduce((sum, p) => sum + p.tiles.length, 0);
-  if (plans.length >= FARM_STRIP.max || tilled >= fortressDwarves(w).length * FARM_TILES_PER_DWARF) return;
+  if (plans.length >= FARM_STRIP.max || tilled >= (fortressDwarves(w).length + NEXT_WAVE) * FARM_TILES_PER_DWARF) return;
   const z = map.zOf(state.caveTiles1[0]!) + 1;
   // Strips run west of the first field, then in a second row south of it.
   const column = (plans.length % FARM_STRIP.columns) + 1;
