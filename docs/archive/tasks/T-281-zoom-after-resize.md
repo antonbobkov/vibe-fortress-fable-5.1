@@ -1,6 +1,8 @@
 # T-281 — The zoom returns when the window grows back; large windows get a larger cell
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 10, § 6, § 9) · **Size:** S · **Needs:** — · **Status:** open; the second decision changes the default look on large screens, so the owner should see it. Recommendation: add the automatic default
+Closed by `T-281: the zoom returns when the window grows back; Auto zoom gives large windows a larger cell` (c3517fd).
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (issue 10, § 6, § 9) · **Size:** S · **Needs:** — · **Status:** open; the second decision changes the default look on large screens, so the owner should see it. Recommendation: add the automatic default
 
 ## Why
 
@@ -12,8 +14,8 @@ Any fortress at 1280×800 (grid 80×50). Resize the window to 960×540, then bac
 
 ## What the spec says
 
-- [`23-rendering.md`](../02-systems/23-rendering.md) § Canvas and cells: "If `cols < MIN_VIEW_COLS` or `rows < MIN_VIEW_ROWS`, the zoom steps down to the next available level; below the smallest zoom the canvas is scaled with CSS". `ZOOM_LEVELS` = 0.75, 1, 1.5.
-- [`menus-and-world.md`](../04-implementation/ui-screens/menus-and-world.md) § Settings: the Zoom row.
+- [`23-rendering.md`](../../02-systems/23-rendering.md) § Canvas and cells: "If `cols < MIN_VIEW_COLS` or `rows < MIN_VIEW_ROWS`, the zoom steps down to the next available level; below the smallest zoom the canvas is scaled with CSS". `ZOOM_LEVELS` = 0.75, 1, 1.5.
+- [`menus-and-world.md`](../../04-implementation/ui-screens/menus-and-world.md) § Settings: the Zoom row.
 
 ## What to do
 
@@ -30,7 +32,7 @@ Any fortress at 1280×800 (grid 80×50). Resize the window to 960×540, then bac
 ## Done
 
 - The reproduction ends at 80×50, and a new profile at 3840×2160 opens at 120×67.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
 
 ## Owner point settled (2026-10-12, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
 
