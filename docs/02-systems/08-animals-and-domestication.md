@@ -62,7 +62,8 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 
 ### Pastures and feeding
 
-- `pasture` zone: tiles must be walkable; the zone has a capacity shown as "grass tiles / grazers" and a warning if grazers exceed `grass tiles / GRASS_PER_GRAZER`.
+- `pasture` zone: tiles must be walkable; the zone has a capacity shown as "grass tiles / grazers" and a warning if grazers exceed `grass tiles / GRASS_PER_GRAZER`. The allowance is for replenishing, accessible grass through the growing seasons, with no competing grazers; it includes a reserve for regrowth requiring a cardinal grass neighbour and uneven regrowth. It is a conservative warning, not a promise under snow, cold snaps, hostile interference or competition.
+- Winter feeding: outdoor grass does not regrow and snow-covered grass cannot be eaten, so outdoor capacity is not a winter feeding guarantee. Move retained grazers to a walkable cave-loam pasture with unsnowed cave moss at the same capacity allowance before surface feeding stops, or reduce the herd. Cave moss uses the normal grass-regrowth rule throughout winter; animals do not eat stored fodder or plant-food items.
 - Reject `AssignPasture` with `not_tame` for an untamed animal, or `not_grazer` for a tame animal whose diet is not grazer, without changing its assignment.
 - Assignment: `AssignPasture { animalId, zoneId | none }`. Assigned grazers path into the pasture and stay (they do not path out unless fleeing). Unassigned grazers wander near the wagon or hearth and eat any grass they find.
 - Condition rises `CONDITION_PER_HOUR` per hour; eating a grass tile lowers it by `CONDITION_PER_GRASS`. At 100 the animal is `starving` (announcement, once per animal per season); after `ANIMAL_STARVE_DAYS` at 100 it dies (`CreatureDied { cause: starvation }` through 17). Snow-covered grass cannot be eaten; cold snaps double the rise.
@@ -159,7 +160,7 @@ Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_anima
 | `WILD_LIFETIME_DAYS` | 28 | |
 | `SPAWN_PERMILLE` | 150 | Per species per day when below cap |
 | `SPAWN_MIN_DISTANCE` | 25 | Tiles from any dwarf |
-| `GRASS_PER_GRAZER` | 6 | Pasture capacity rule |
+| `GRASS_PER_GRAZER` | 48 | Growing-season capacity allowance per grazer |
 | `CONDITION_PER_HOUR` | 2 | |
 | `CONDITION_PER_GRASS` | 25 | |
 | `ANIMAL_STARVE_DAYS` | 10 | Days at condition 100 before a grazer dies (dwarves use 10's `STARVE_DAYS`) |

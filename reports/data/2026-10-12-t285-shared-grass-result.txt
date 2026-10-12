@@ -1,0 +1,3 @@
+conditions: [17,17,17,17,17,17]
+grassTilesConsumed: 1
+grassStillPresent: false

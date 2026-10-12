@@ -1,6 +1,8 @@
 # T-210 — A pasture at its stated capacity is eaten bare
 
-**Source:** T-196 and [`2026-10-10-wild-animals-and-civilians.md`](../../reports/audits/2026-10-10-wild-animals-and-civilians.md) § Livestock · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-210: pasture capacity includes a reserve for grass regrowth`.
+
+**Source:** T-196 and [`2026-10-10-wild-animals-and-civilians.md`](../../../reports/audits/2026-10-10-wild-animals-and-civilians.md) § Livestock · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
