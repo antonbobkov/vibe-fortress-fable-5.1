@@ -1,0 +1,59 @@
+# flow: 6-legibility   step: 42-E-640x360-help
+# what: Window 640x360: Help panel
+# input: key ?
+# tick: 400   paused: yes   screen: fortress   panel: help   viewport: 640x360   grid: 80x45   camera(x,y,z): 0,0,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|""""""""""""""↑"""""""""""""""""""""""""""""│ Help                          [?]
+01|""""""""""""""""""""""""""""""""""""""""""""│ [1] Keys   [2] Legend
+02|""""""""""""""""""""""""""""""""""""""""""""│ Fortress panels
+03|""""""""""""""""""""""""""""""""""""""""""""│ d  Designate panel
+04|"""""""""""""↑""""""""""""""""""""""↑"""""""│ b  Build panel
+05|""""""""""""""""""""""""""""""""""""""""""""│ z  Zones panel
+06|"""""""""""""↑""""""""""""""""""""""""""""""│ u  Units panel
+07|""""""↑"""""""""""""""""""""""""""""""""""""│ l  Labors panel
+08|""""""""""""""""""""""""""""""""""""""""""""│ j  Jobs panel
+09|""""""""""""""""""""""""""""""""""""""""""""│ o  Orders panel
+10|""""""""""""""""""""""""""""""""""""""""""""│ s  Stocks panel
+11|""""""""""""""""""""""""""""""""""""""""""""│ m  Military panel
+12|""""""""""""""""""""""""""""""""""""""""""""│ n  Animals panel
+13|""""""""""""""""""""""""""""""""""""""""""""│ t  Threats panel
+14|""""""""""""""""""""""""""""""""""""""""""""│ c  Civilizations panel
+15|""""""""""""""""""""""""""""""""""""""""""""│ p  Population panel
+16|""""""""""""""""""""""""""""""""""""""""""""│ e  Mood panel
+17|""""""""""""""""""""""""""""""""""""""""""""│ a  Log panel
+18|""""""""""""""""""""""""""""""""""""""""""""│ k  Look panel
+19|""""""""""""""""""""""""""""""""""""""""""""│ f  Overlays panel
+20|""""""""""""""""↑"""""""""""""""""""""""""""│ Global
+21|""""""""""""""""""""""""""""""""""""""""""""│ Esc  cancel tool → close panel →
+22|""""""""""""""""""""""""""""""""""""""""""""│ Space  pause / resume
+23|""""""""""""""""""""""""""""""""""""""""""""│ + =  speed up (1x → 2x → 4x)
+24|""""""""""""""""""""""""""""""""""""""""""""│ -  speed down
+25|""""""""""""""""""""""""""""""""""""""↑"""""│ F5  quick save
+26|""""""""""""""""""""""""""""""""""""""""""""│ F9  quick load (confirm)
+27|""""""""""""""""""""""""""""""""""""""""""""│ Ctrl+S  save menu
+28|""""""""↑"""""""""""↑"""""""""""""""""""""""│ F12  debug panel
+29|""""""""↑"""""""""""""""""""""""""""""""""""│ ?  help
+30|""""""""""""""""""""""""""""""""""""""""""""│ Tab  toggle sidebar
+31|""""""""""""""""""""""""""""""""""""""""""""│ Ctrl+Z  undo last designation bat
+32|""""""""""""""""""""""""""""""""""""""""""""│ Map
+33|""""""""""""""""""""""""""""""""""↑"""""""""│ ←→↑↓  pan by 1 cell (Shift: 10)
+34|""""""""""""""""""""""""""""""""""""""""""""│ < ,  z-level down
+35|""""""""""""""""""""""""""↑"""""""""""""""""│ > .  z-level up
+36|""""""""""""""""""""""""↑"""""""""""""""""""│ Home  center on the hearth (or wa
+37|""""""""""""""""""""""""""""""""""""""""""""│ Ctrl+↑ Ctrl+↓  zoom in / out
+38|""""""""""""""""""""""""""""""""""""""""""""│ k  look cursor at the mouse (or m
+39|""""""""""""""""""""""""""""""""""""""""""""│ Enter  with a tool: start/1/130ec
+40|
+41|
+42| ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side
+43| Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help
+44| Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»
+----- log strip rows -----
+
+
+ ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side
+----- status rows -----
+ Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help
+ Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»

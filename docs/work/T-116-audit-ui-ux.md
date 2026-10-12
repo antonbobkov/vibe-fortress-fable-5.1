@@ -67,3 +67,4 @@ Commit examined: `569ae1f`. Output: [`../../reports/audits/2026-10-12-ui-ux/capt
 - Flow 3 (mature fortress; reference and played fixtures, caravan by hook): captured, with key and click counts.
 - Flow 4 (the newer UI, two window sizes): captured.
 - Flow 5 (failure paths): captured (not captured: a child dwarf's labor, a full-stockpile case, a save-name prompt that does not exist; see the index).
+- Flow 6 (legibility: both palettes, window sizes, long names, Help, log, legend screens): captured.

@@ -1,0 +1,3316 @@
+[
+ {
+  "n": 1,
+  "id": "01-A-main-menu-default",
+  "slug": "A-main-menu-default",
+  "what": "Main menu, default palette",
+  "input": [
+   "navigate /"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "main_menu",
+  "panel": null,
+  "png": "01-A-main-menu-default.png",
+  "pngNote": "",
+  "txt": "01-A-main-menu-default.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN main_menu: D E E P H O L M / a hall beneath the world / ► [n] New world / [l] Load / [g] Legends / [o] Settings / [a] About",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 2,
+  "id": "02-A-settings",
+  "slug": "A-settings",
+  "what": "Key o: Settings (default values)",
+  "input": [
+   "key o"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "settings",
+  "panel": null,
+  "png": "02-A-settings.png",
+  "pngNote": "",
+  "txt": "02-A-settings.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN settings: Settings / ► Auto-pause on danger  [on] / Auto-pause on alert  [off] / Hints  [on] / Colorblind palette  [off] / Zoom  [1x] / Edge scrolling  [off] / Autosave each season  [on]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 3,
+  "id": "03-A-colorblind-on",
+  "slug": "A-colorblind-on",
+  "what": "ArrowDown x3, Enter: Colorblind palette toggled",
+  "input": [
+   "key ArrowDown x3",
+   "key Enter"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "settings",
+  "panel": null,
+  "png": "03-A-colorblind-on.png",
+  "pngNote": "",
+  "txt": "03-A-colorblind-on.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN settings: Settings / Auto-pause on danger  [on] / Auto-pause on alert  [off] / Hints  [on] / ► Colorblind palette  [on] / Zoom  [1x] / Edge scrolling  [off] / Autosave each season  [on]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 4,
+  "id": "04-A-main-menu-colorblind",
+  "slug": "A-main-menu-colorblind",
+  "what": "Main menu, colorblind palette",
+  "input": [
+   "key Escape"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "main_menu",
+  "panel": null,
+  "png": "04-A-main-menu-colorblind.png",
+  "pngNote": "",
+  "txt": "04-A-main-menu-colorblind.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN main_menu: D E E P H O L M / a hall beneath the world / [n] New world / [l] Load / [g] Legends / ► [o] Settings / [a] About",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 5,
+  "id": "05-B-embark-colorblind",
+  "slug": "B-embark-colorblind",
+  "what": "Embark screen, colorblind palette",
+  "input": [
+   "navigate /",
+   "key n",
+   "key g",
+   "key Enter",
+   "key ArrowRight x3",
+   "key ArrowDown x4",
+   "key Enter"
+  ],
+  "tick": null,
+  "speed": null,
+  "paused": false,
+  "screen": "embark",
+  "panel": null,
+  "png": "05-B-embark-colorblind.png",
+  "pngNote": "",
+  "txt": "05-B-embark-colorblind.txt",
+  "status": [
+   " [Enter] Embark                                                     [Esc] Back",
+   ""
+  ],
+  "log": [
+   "                              │   Trading          [-] 0 [+]",
+   "────────────────────────────────────────────────────────────────────────────────",
+   " Fortress name [ Grimvault___________ ]   Budget 1,500 ☼   Spent 1,480   Left 20"
+  ],
+  "shown": "SCREEN embark: Embark at Bitterbrae  [1] Dwarves  [2] Supplies  [3] Animals  [p] / ──────────────────────────────────────────────────────────────────────────────── / ► Thurid Ashspark  10/10 │ Thurid Ashspark  [n] rename / Kolfinna Shaleward  10/10 │ Female · 58 years  [r] reroll (25 ☼ / Vidar Elkaxe  10/10 │ Str ▓▓░░░ 53 Agi ▓▓░░░ 56 Tou ▓▓▓░░ 60 End ▓▓░░░ / Frode Bronzebrook  10/10 │ Wil ▓▓░░░ 54 Wit ▓▓░░░ 40 Cha ▓▓▓░░ 68 / Vali Forgeaxe  10/10 │ Messy · Solitary · Stoic / Kolfinna Brinefoot  10/10 │ ─── Skills (points left: 0) ───────────────────",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 6,
+  "id": "06-B-fortress-colorblind",
+  "slug": "B-fortress-colorblind",
+  "what": "Fortress, colorblind palette, nothing open",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "06-B-fortress-colorblind.png",
+  "pngNote": "",
+  "txt": "06-B-fortress-colorblind.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 7,
+  "id": "07-B-zones-designations-colorblind",
+  "slug": "B-zones-designations-colorblind",
+  "what": "Zones (stockpile, farm plot, bedroom) and a Chop designation, colorblind palette",
+  "input": [
+   "key z",
+   "key Shift+S",
+   "left-drag cell(7,10) -> cell(10,12) px(120,168)->(168,200) [tiles 7,33 -> 10,35]",
+   "right-click cell(col 30, row 40) px(488,648) [cancel tool]",
+   "key Shift+F",
+   "left-drag cell(12,10) -> cell(15,12) px(200,168)->(248,200) [tiles 12,33 -> 15,35]",
+   "right-click cell(col 30, row 40) px(488,648) [cancel tool]",
+   "key Shift+B",
+   "left-drag cell(19,10) -> cell(21,12) px(312,168)->(344,200) [tiles 19,33 -> 21,35]",
+   "right-click cell(col 30, row 40) px(488,648) [cancel tool]",
+   "key d",
+   "key Shift+T",
+   "left-drag cell(7,23) -> cell(2,35) px(120,376)->(40,568) [tiles 7,46 -> 2,58]"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "designate",
+  "png": "07-B-zones-designations-colorblind.png",
+  "pngNote": "",
+  "txt": "07-B-zones-designations-colorblind.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Chop trees · priority 5 · [Esc] cancel"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Chop trees · priority 5 · [Esc] cancel || PANEL: Designate                     [d] / [S-d] Dig       [S-c] Channel / [S-u] Up stairs [S-j] Down stai / [i] Up/down     [r] Ramp",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 8,
+  "id": "08-B-units-colorblind",
+  "slug": "B-units-colorblind",
+  "what": "Units panel, colorblind palette",
+  "input": [
+   "key Escape x2",
+   "key u"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "08-B-units-colorblind.png",
+  "pngNote": "",
+  "txt": "08-B-units-colorblind.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    No jo",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 9,
+  "id": "09-B-military-colorblind",
+  "slug": "B-military-colorblind",
+  "what": "Military panel, colorblind palette",
+  "input": [
+   "key m"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "09-B-military-colorblind.png",
+  "pngNote": "",
+  "txt": "09-B-military-colorblind.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 10,
+  "id": "10-B-overlays-colorblind",
+  "slug": "B-overlays-colorblind",
+  "what": "Overlays panel, colorblind palette",
+  "input": [
+   "key f"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "overlays",
+  "png": "10-B-overlays-colorblind.png",
+  "pngNote": "",
+  "txt": "10-B-overlays-colorblind.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Overlays                      [f] / [■] designations / [ ] priority digits / [■] zones",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 11,
+  "id": "11-C-colorblind-off",
+  "slug": "C-colorblind-off",
+  "what": "Game menu > Settings: Colorblind palette toggled back to off",
+  "input": [
+   "key Escape x2",
+   "key o",
+   "key ArrowDown x3",
+   "key Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "settings",
+  "panel": null,
+  "png": "11-C-colorblind-off.png",
+  "pngNote": "",
+  "txt": "11-C-colorblind-off.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN settings: Settings / Auto-pause on danger  [on] / Auto-pause on alert  [off] / Hints  [on] / ► Colorblind palette  [off] / Zoom  [1x] / Edge scrolling  [off] / Autosave each season  [on]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 12,
+  "id": "12-C-fortress-default",
+  "slug": "C-fortress-default",
+  "what": "Fortress, default palette, same site (zones and designation visible)",
+  "input": [
+   "key Escape x2"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "12-C-fortress-default.png",
+  "pngNote": "",
+  "txt": "12-C-fortress-default.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 13,
+  "id": "13-C-units-default",
+  "slug": "C-units-default",
+  "what": "Units panel, default palette",
+  "input": [
+   "key u"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "13-C-units-default.png",
+  "pngNote": "",
+  "txt": "13-C-units-default.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Thurid Ashspark ☺ Miner    No jo",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 14,
+  "id": "14-C-military-default",
+  "slug": "C-military-default",
+  "what": "Military panel, default palette",
+  "input": [
+   "key m"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "14-C-military-default.png",
+  "pngNote": "",
+  "txt": "14-C-military-default.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 15,
+  "id": "15-C-overlays-default",
+  "slug": "C-overlays-default",
+  "what": "Overlays panel, default palette",
+  "input": [
+   "key f"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "overlays",
+  "png": "15-C-overlays-default.png",
+  "pngNote": "",
+  "txt": "15-C-overlays-default.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Overlays                      [f] / [■] designations / [ ] priority digits / [■] zones",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 16,
+  "id": "16-E-1280x800-fortress",
+  "slug": "E-1280x800-fortress",
+  "what": "Window 1280x800: fortress, nothing open (grid size is in the dump header)",
+  "input": [
+   "key Escape",
+   "viewport resize 1280x800"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "16-E-1280x800-fortress.png",
+  "pngNote": "",
+  "txt": "16-E-1280x800-fortress.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 17,
+  "id": "17-E-1280x800-stocks",
+  "slug": "E-1280x800-stocks",
+  "what": "Window 1280x800: Stocks panel",
+  "input": [
+   "key s"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "17-E-1280x800-stocks.png",
+  "pngNote": "",
+  "txt": "17-E-1280x800-stocks.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Stocks                        [s] / /filter: [ ____________________ ] / ► food               60     190 ☼ / ► drink              60     120 ☼",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 18,
+  "id": "18-E-1280x800-help",
+  "slug": "E-1280x800-help",
+  "what": "Window 1280x800: Help panel",
+  "input": [
+   "key ?"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "18-E-1280x800-help.png",
+  "pngNote": "",
+  "txt": "18-E-1280x800-help.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Help                          [?] / [1] Keys   [2] Legend / Fortress panels / d  Designate panel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 19,
+  "id": "19-E-1280x800-game-menu",
+  "slug": "E-1280x800-game-menu",
+  "what": "Window 1280x800: game menu",
+  "input": [
+   "key Escape x2"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "19-E-1280x800-game-menu.png",
+  "pngNote": "",
+  "txt": "19-E-1280x800-game-menu.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / ► [r] Resume / [s] Save / [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 20,
+  "id": "20-E-1920x1080-fortress",
+  "slug": "E-1920x1080-fortress",
+  "what": "Window 1920x1080: fortress, nothing open (grid size is in the dump header)",
+  "input": [
+   "key Escape",
+   "viewport resize 1920x1080"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "20-E-1920x1080-fortress.png",
+  "pngNote": "",
+  "txt": "20-E-1920x1080-fortress.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                              [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                              [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1920,
+   "height": 1080
+  },
+  "grid": [
+   120,
+   67
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 21,
+  "id": "21-E-1920x1080-stocks",
+  "slug": "E-1920x1080-stocks",
+  "what": "Window 1920x1080: Stocks panel",
+  "input": [
+   "key s"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "21-E-1920x1080-stocks.png",
+  "pngNote": "",
+  "txt": "21-E-1920x1080-stocks.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                              [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                              [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Stocks                        [s] / /filter: [ ____________________ ] / ► food               60     190 ☼ / ► drink              60     120 ☼",
+  "viewport": {
+   "width": 1920,
+   "height": 1080
+  },
+  "grid": [
+   120,
+   67
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 22,
+  "id": "22-E-1920x1080-help",
+  "slug": "E-1920x1080-help",
+  "what": "Window 1920x1080: Help panel",
+  "input": [
+   "key ?"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "22-E-1920x1080-help.png",
+  "pngNote": "",
+  "txt": "22-E-1920x1080-help.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                              [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                              [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / Fortress panels / d  Designate panel",
+  "viewport": {
+   "width": 1920,
+   "height": 1080
+  },
+  "grid": [
+   120,
+   67
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 23,
+  "id": "23-E-1920x1080-game-menu",
+  "slug": "E-1920x1080-game-menu",
+  "what": "Window 1920x1080: game menu",
+  "input": [
+   "key Escape x2"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "23-E-1920x1080-game-menu.png",
+  "pngNote": "",
+  "txt": "23-E-1920x1080-game-menu.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / ► [r] Resume / [s] Save / [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 1920,
+   "height": 1080
+  },
+  "grid": [
+   120,
+   67
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 24,
+  "id": "24-E-2560x1440-fortress",
+  "slug": "E-2560x1440-fortress",
+  "what": "Window 2560x1440: fortress, nothing open (grid size is in the dump header)",
+  "input": [
+   "key Escape",
+   "viewport resize 2560x1440"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "24-E-2560x1440-fortress.png",
+  "pngNote": "",
+  "txt": "24-E-2560x1440-fortress.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 2560,
+   "height": 1440
+  },
+  "grid": [
+   160,
+   90
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 25,
+  "id": "25-E-2560x1440-stocks",
+  "slug": "E-2560x1440-stocks",
+  "what": "Window 2560x1440: Stocks panel",
+  "input": [
+   "key s"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "25-E-2560x1440-stocks.png",
+  "pngNote": "",
+  "txt": "25-E-2560x1440-stocks.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Stocks                        [s] / /filter: [ ____________________ ] / ► food               60     190 ☼ / ► drink              60     120 ☼",
+  "viewport": {
+   "width": 2560,
+   "height": 1440
+  },
+  "grid": [
+   160,
+   90
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 26,
+  "id": "26-E-2560x1440-help",
+  "slug": "E-2560x1440-help",
+  "what": "Window 2560x1440: Help panel",
+  "input": [
+   "key ?"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "26-E-2560x1440-help.png",
+  "pngNote": "",
+  "txt": "26-E-2560x1440-help.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / Fortress panels / d  Designate panel",
+  "viewport": {
+   "width": 2560,
+   "height": 1440
+  },
+  "grid": [
+   160,
+   90
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 27,
+  "id": "27-E-2560x1440-game-menu",
+  "slug": "E-2560x1440-game-menu",
+  "what": "Window 2560x1440: game menu",
+  "input": [
+   "key Escape x2"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "27-E-2560x1440-game-menu.png",
+  "pngNote": "",
+  "txt": "27-E-2560x1440-game-menu.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / ► [r] Resume / [s] Save / [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 2560,
+   "height": 1440
+  },
+  "grid": [
+   160,
+   90
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 28,
+  "id": "28-E-3840x2160-fortress",
+  "slug": "E-3840x2160-fortress",
+  "what": "Window 3840x2160: fortress, nothing open (grid size is in the dump header)",
+  "input": [
+   "key Escape",
+   "viewport resize 3840x2160"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "28-E-3840x2160-fortress.png",
+  "pngNote": "",
+  "txt": "28-E-3840x2160-fortress.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                                                                                                      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                                                                                                      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 3840,
+   "height": 2160
+  },
+  "grid": [
+   240,
+   135
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 29,
+  "id": "29-E-3840x2160-stocks",
+  "slug": "E-3840x2160-stocks",
+  "what": "Window 3840x2160: Stocks panel",
+  "input": [
+   "key s"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "29-E-3840x2160-stocks.png",
+  "pngNote": "",
+  "txt": "29-E-3840x2160-stocks.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                                                                                                      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                                                                                                      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Stocks                        [s] / /filter: [ ____________________ ] / ► food               60     190 ☼ / ► drink              60     120 ☼",
+  "viewport": {
+   "width": 3840,
+   "height": 2160
+  },
+  "grid": [
+   240,
+   135
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 30,
+  "id": "30-E-3840x2160-help",
+  "slug": "E-3840x2160-help",
+  "what": "Window 3840x2160: Help panel",
+  "input": [
+   "key ?"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "30-E-3840x2160-help.png",
+  "pngNote": "",
+  "txt": "30-E-3840x2160-help.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                                                                                                      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                                                                                                                                                      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / Fortress panels / d  Designate panel",
+  "viewport": {
+   "width": 3840,
+   "height": 2160
+  },
+  "grid": [
+   240,
+   135
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 31,
+  "id": "31-E-3840x2160-game-menu",
+  "slug": "E-3840x2160-game-menu",
+  "what": "Window 3840x2160: game menu",
+  "input": [
+   "key Escape x2"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "31-E-3840x2160-game-menu.png",
+  "pngNote": "",
+  "txt": "31-E-3840x2160-game-menu.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / ► [r] Resume / [s] Save / [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 3840,
+   "height": 2160
+  },
+  "grid": [
+   240,
+   135
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 32,
+  "id": "32-E-1280x800-fortress",
+  "slug": "E-1280x800-fortress",
+  "what": "Window 1280x800: fortress, nothing open (grid size is in the dump header)",
+  "input": [
+   "key Escape",
+   "viewport resize 1280x800"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "32-E-1280x800-fortress.png",
+  "pngNote": "",
+  "txt": "32-E-1280x800-fortress.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 33,
+  "id": "33-E-1280x800-stocks",
+  "slug": "E-1280x800-stocks",
+  "what": "Window 1280x800: Stocks panel",
+  "input": [
+   "key s"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "33-E-1280x800-stocks.png",
+  "pngNote": "",
+  "txt": "33-E-1280x800-stocks.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Stocks                        [s] / /filter: [ ____________________ ] / ► food               60     190 ☼ / ► drink              60     120 ☼",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 34,
+  "id": "34-E-1280x800-help",
+  "slug": "E-1280x800-help",
+  "what": "Window 1280x800: Help panel",
+  "input": [
+   "key ?"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "34-E-1280x800-help.png",
+  "pngNote": "",
+  "txt": "34-E-1280x800-help.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Help                          [?] / [1] Keys   [2] Legend / Fortress panels / d  Designate panel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 35,
+  "id": "35-E-1280x800-game-menu",
+  "slug": "E-1280x800-game-menu",
+  "what": "Window 1280x800: game menu",
+  "input": [
+   "key Escape x2"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "35-E-1280x800-game-menu.png",
+  "pngNote": "",
+  "txt": "35-E-1280x800-game-menu.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / ► [r] Resume / [s] Save / [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 36,
+  "id": "36-E-960x540-fortress",
+  "slug": "E-960x540-fortress",
+  "what": "Window 960x540: fortress, nothing open (grid size is in the dump header)",
+  "input": [
+   "key Escape",
+   "viewport resize 960x540"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "36-E-960x540-fortress.png",
+  "pngNote": "",
+  "txt": "36-E-960x540-fortress.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 37,
+  "id": "37-E-960x540-stocks",
+  "slug": "E-960x540-stocks",
+  "what": "Window 960x540: Stocks panel",
+  "input": [
+   "key s"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "37-E-960x540-stocks.png",
+  "pngNote": "",
+  "txt": "37-E-960x540-stocks.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Stocks                        [s] / /filter: [ ____________________ ] / ► food               60     190 ☼ / ► drink              60     120 ☼",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 38,
+  "id": "38-E-960x540-help",
+  "slug": "E-960x540-help",
+  "what": "Window 960x540: Help panel",
+  "input": [
+   "key ?"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "38-E-960x540-help.png",
+  "pngNote": "",
+  "txt": "38-E-960x540-help.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Help                          [?] / [1] Keys   [2] Legend / Fortress panels / d  Designate panel",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 39,
+  "id": "39-E-960x540-game-menu",
+  "slug": "E-960x540-game-menu",
+  "what": "Window 960x540: game menu",
+  "input": [
+   "key Escape x2"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "39-E-960x540-game-menu.png",
+  "pngNote": "",
+  "txt": "39-E-960x540-game-menu.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / ► [r] Resume / [s] Save / [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 960,
+   "height": 540
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 40,
+  "id": "40-E-640x360-fortress",
+  "slug": "E-640x360-fortress",
+  "what": "Window 640x360: fortress, nothing open (grid size is in the dump header)",
+  "input": [
+   "key Escape",
+   "viewport resize 640x360"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "40-E-640x360-fortress.png",
+  "pngNote": "",
+  "txt": "40-E-640x360-fortress.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 640,
+   "height": 360
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 41,
+  "id": "41-E-640x360-stocks",
+  "slug": "E-640x360-stocks",
+  "what": "Window 640x360: Stocks panel",
+  "input": [
+   "key s"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "stocks",
+  "png": "41-E-640x360-stocks.png",
+  "pngNote": "",
+  "txt": "41-E-640x360-stocks.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Stocks                        [s] / /filter: [ ____________________ ] / ► food               60     190 ☼ / ► drink              60     120 ☼",
+  "viewport": {
+   "width": 640,
+   "height": 360
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 42,
+  "id": "42-E-640x360-help",
+  "slug": "E-640x360-help",
+  "what": "Window 640x360: Help panel",
+  "input": [
+   "key ?"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "42-E-640x360-help.png",
+  "pngNote": "",
+  "txt": "42-E-640x360-help.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]» || PANEL: Help                          [?] / [1] Keys   [2] Legend / Fortress panels / d  Designate panel",
+  "viewport": {
+   "width": 640,
+   "height": 360
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 43,
+  "id": "43-E-640x360-game-menu",
+  "slug": "E-640x360-game-menu",
+  "what": "Window 640x360: game menu",
+  "input": [
+   "key Escape x2"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "43-E-640x360-game-menu.png",
+  "pngNote": "",
+  "txt": "43-E-640x360-game-menu.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · Grimvault / ► [r] Resume / [s] Save / [l] Load / [o] Settings / [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 640,
+   "height": 360
+  },
+  "grid": [
+   80,
+   45
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 44,
+  "id": "44-E-back-1280x800-fortress",
+  "slug": "E-back-1280x800-fortress",
+  "what": "Window back to 1280x800 after 640x360 (grid size is in the dump header)",
+  "input": [
+   "key Escape",
+   "viewport resize 1280x800"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "44-E-back-1280x800-fortress.png",
+  "pngNote": "",
+  "txt": "44-E-back-1280x800-fortress.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 45,
+  "id": "45-F-rename-dwarf",
+  "slug": "F-rename-dwarf",
+  "what": "Units panel, key Shift+N: rename the cursor dwarf (text input)",
+  "input": [
+   "key u",
+   "key Shift+N"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "text_input",
+  "panel": "units",
+  "png": "45-F-rename-dwarf.png",
+  "pngNote": "",
+  "txt": "45-F-rename-dwarf.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN text_input: Rename Thurid Ashspark / [ Thurid Ashspark___________ ] / 15/24 / [Enter] accept  [Esc] cancel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 46,
+  "id": "46-F-rename-30",
+  "slug": "F-rename-30",
+  "what": "Typed a 30-character name",
+  "input": [
+   "key Backspace x30",
+   "type \"Abcdefghij Klmnopqrst Uvwxyzab\""
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "text_input",
+  "panel": "units",
+  "png": "46-F-rename-30.png",
+  "pngNote": "",
+  "txt": "46-F-rename-30.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN text_input: Rename Thurid Ashspark / [ Abcdefghij Klmnopqrst Uv__ ] / 24/24 / [Enter] accept  [Esc] cancel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 47,
+  "id": "47-F-rename-30-enter",
+  "slug": "F-rename-30-enter",
+  "what": "Key Enter with 30 characters (the spec limit is 24)",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": "47-F-rename-30-enter.png",
+  "pngNote": "",
+  "txt": "47-F-rename-30-enter.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Abcdefghij Klmn ☺ Miner    No jo",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 48,
+  "id": "48-F-rename-26-enter",
+  "slug": "F-rename-26-enter",
+  "what": "Typed 26 characters, Enter",
+  "input": [
+   "key Shift+N",
+   "key Backspace x30",
+   "type \"Abcdefghij Klmnopqrst Uvwx\"",
+   "key Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "units",
+  "png": null,
+  "pngNote": "screen unchanged from step 47-F-rename-30-enter; no screenshot saved",
+  "txt": "48-F-rename-26-enter.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Units                         [u] / /filter: / Name               Prof.    Act. / ►Abcdefghij Klmn ☺ Miner    No jo",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 49,
+  "id": "49-F-longname-units",
+  "slug": "F-longname-units",
+  "what": "Panel units with the long-named dwarf",
+  "input": [
+   "key u"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "49-F-longname-units.png",
+  "pngNote": "",
+  "txt": "49-F-longname-units.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 50,
+  "id": "50-F-longname-labors",
+  "slug": "F-longname-labors",
+  "what": "Panel labors with the long-named dwarf",
+  "input": [
+   "key l"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "labors",
+  "png": "50-F-longname-labors.png",
+  "pngNote": "",
+  "txt": "50-F-longname-labors.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Labors                        [l] / An An Br Bu Ca Cl Co » / Abcdefghij ■  ■  ■  ■  ■  ■  ■ / Kolfinna S ■  ■  ■  ■  ■  ■  ■",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 51,
+  "id": "51-F-longname-mood",
+  "slug": "F-longname-mood",
+  "what": "Panel mood with the long-named dwarf",
+  "input": [
+   "key e"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "mood",
+  "png": "51-F-longname-mood.png",
+  "pngNote": "",
+  "txt": "51-F-longname-mood.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Mood                          [e] / Hall spirit ♥ Fine (55) / Name         Tier     Top thought / Abcdefghij K Fine",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 52,
+  "id": "52-F-longname-military",
+  "slug": "F-longname-military",
+  "what": "Panel military with the long-named dwarf",
+  "input": [
+   "key m"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "military",
+  "png": "52-F-longname-military.png",
+  "pngNote": "",
+  "txt": "52-F-longname-military.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Military                      [m] / Alert: Calm / [1] Calm  [2] Watch  [3] Hearth / Squads",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 53,
+  "id": "53-F-longname-look",
+  "slug": "F-longname-look",
+  "what": "Panel look with the long-named dwarf",
+  "input": [
+   "key k"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "look",
+  "png": "53-F-longname-look.png",
+  "pngNote": "",
+  "txt": "53-F-longname-look.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Look                          [k] / Look · (2, 58, z32) / Tabs: [1]Tile [2]Items(0) [3]Crea / Birch tree",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 54,
+  "id": "54-F-longname-jobs",
+  "slug": "F-longname-jobs",
+  "what": "Panel jobs with the long-named dwarf",
+  "input": [
+   "key j"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "jobs",
+  "png": "54-F-longname-jobs.png",
+  "pngNote": "",
+  "txt": "54-F-longname-jobs.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Jobs                          [j] / 0 open · 0 claimed · 0 blocked / /filter: [ ____________________ ] / [S-l] labor: all",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 55,
+  "id": "55-F-longname-look-from-units",
+  "slug": "F-longname-look-from-units",
+  "what": "Units, Enter: Look on the long-named dwarf",
+  "input": [
+   "key u",
+   "key Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "look",
+  "png": "55-F-longname-look-from-units.png",
+  "pngNote": "",
+  "txt": "55-F-longname-look-from-units.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Look                          [k] / Look · (0, 46, z32) / Tabs: [1]Tile [2]Items(0) [3]Crea / Peat floor",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 56,
+  "id": "56-F-longname-creature-tab",
+  "slug": "F-longname-creature-tab",
+  "what": "Look, Creatures tab with the long-named dwarf",
+  "input": [
+   "key 3"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "look",
+  "png": "56-F-longname-creature-tab.png",
+  "pngNote": "",
+  "txt": "56-F-longname-creature-tab.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Look                          [k] / Look · (0, 46, z32) / Tabs: [1]Tile [2]Items(0) [3]Crea / ─── Creature: Abcdefghij Klmnopq─",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 57,
+  "id": "57-F-fortress-name-typed",
+  "slug": "F-fortress-name-typed",
+  "what": "Rename fortress: 39 characters typed (limit 32)",
+  "input": [
+   "key Escape x2",
+   "key n",
+   "key Backspace x40",
+   "type \"A Fortress Name Of Thirty-Two Chars!!!!\""
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "text_input",
+  "panel": null,
+  "png": "57-F-fortress-name-typed.png",
+  "pngNote": "",
+  "txt": "57-F-fortress-name-typed.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN text_input: Rename Grimvault / [ rtress Name Of Thirty-Two Ch_ ] / 32/32 / [Enter] accept  [Esc] cancel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 58,
+  "id": "58-F-fortress-name-enter",
+  "slug": "F-fortress-name-enter",
+  "what": "Key Enter: result",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "game_menu",
+  "panel": null,
+  "png": "58-F-fortress-name-enter.png",
+  "pngNote": "",
+  "txt": "58-F-fortress-name-enter.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN game_menu: Deepholm · A Fortress Name Of Thirty-Two Ch / [r] Resume / [s] Save / [l] Load / [o] Settings / ► [n] Rename fortress / [x] Retire fortress / [m] Main menu",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 59,
+  "id": "59-G-help-1",
+  "slug": "G-help-1",
+  "what": "Help panel, first page",
+  "input": [
+   "key Escape",
+   "key ?"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "59-G-help-1.png",
+  "pngNote": "",
+  "txt": "59-G-help-1.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / Fortress panels / d  Designate panel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 60,
+  "id": "60-G-help-2",
+  "slug": "G-help-2",
+  "what": "Help panel, PageDown (page 2)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "60-G-help-2.png",
+  "pngNote": "",
+  "txt": "60-G-help-2.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / n  Animals panel / t  Threats panel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 61,
+  "id": "61-G-help-3",
+  "slug": "G-help-3",
+  "what": "Help panel, PageDown (page 3)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "61-G-help-3.png",
+  "pngNote": "",
+  "txt": "61-G-help-3.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / Space  pause / resume / + =  speed up (1x → 2x → 4x)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 62,
+  "id": "62-G-help-4",
+  "slug": "G-help-4",
+  "what": "Help panel, PageDown (page 4)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "62-G-help-4.png",
+  "pngNote": "",
+  "txt": "62-G-help-4.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / Map / ←→↑↓  pan by 1 cell (Shift: 10)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 63,
+  "id": "63-G-help-5",
+  "slug": "G-help-5",
+  "what": "Help panel, PageDown (page 5)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "63-G-help-5.png",
+  "pngNote": "",
+  "txt": "63-G-help-5.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / x  with a building tool: cycle ma / Delete  with a selection: cancel",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 64,
+  "id": "64-G-help-6",
+  "slug": "G-help-6",
+  "what": "Help panel, PageDown (page 6)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "64-G-help-6.png",
+  "pngNote": "",
+  "txt": "64-G-help-6.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / Shift+letter  a panel action on a / World map",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 65,
+  "id": "65-G-help-7",
+  "slug": "G-help-7",
+  "what": "Help panel, PageDown (page 7)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "65-G-help-7.png",
+  "pngNote": "",
+  "txt": "65-G-help-7.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / n  rename / p  presets menu",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 66,
+  "id": "66-G-help-8",
+  "slug": "G-help-8",
+  "what": "Help panel, PageDown (page 8)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "help",
+  "png": "66-G-help-8.png",
+  "pngNote": "",
+  "txt": "66-G-help-8.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side."
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side. || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║                                [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Help                          [?] / [1] Keys   [2] Legend / ←→↑↓  move the labor cursor (Shif / Space  mark the dwarf",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 67,
+  "id": "67-D-zoom-next",
+  "slug": "D-zoom-next",
+  "what": "Settings: Zoom row, Enter (next zoom value)",
+  "input": [
+   "key Escape x2",
+   "key o",
+   "key ArrowDown x4",
+   "key Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "settings",
+  "panel": null,
+  "png": "67-D-zoom-next.png",
+  "pngNote": "",
+  "txt": "67-D-zoom-next.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN settings: Settings / Auto-pause on danger  [on] / Auto-pause on alert  [off] / Hints  [on] / Colorblind palette  [off] / ► Zoom  [1.5x] / Edge scrolling  [off] / Autosave each season  [on]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 68,
+  "id": "68-D-zoom-next2",
+  "slug": "D-zoom-next2",
+  "what": "Settings: Zoom row, Enter again",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "settings",
+  "panel": null,
+  "png": "68-D-zoom-next2.png",
+  "pngNote": "",
+  "txt": "68-D-zoom-next2.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN settings: Settings / Auto-pause on danger  [on] / Auto-pause on alert  [off] / Hints  [on] / Colorblind palette  [off] / ► Zoom  [0.75x] / Edge scrolling  [off] / Autosave each season  [on]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   106,
+   66
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 69,
+  "id": "69-D-zoom-next3",
+  "slug": "D-zoom-next3",
+  "what": "Settings: Zoom row, Enter again",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "settings",
+  "panel": null,
+  "png": "69-D-zoom-next3.png",
+  "pngNote": "",
+  "txt": "69-D-zoom-next3.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN settings: Settings / Auto-pause on danger  [on] / Auto-pause on alert  [off] / Hints  [on] / Colorblind palette  [off] / ► Zoom  [1x] / Edge scrolling  [off] / Autosave each season  [on]",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 70,
+  "id": "70-D-fortress-zoom",
+  "slug": "D-fortress-zoom",
+  "what": "Fortress after leaving Settings",
+  "input": [
+   "key Escape x2"
+  ],
+  "tick": 400,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "70-D-fortress-zoom.png",
+  "pngNote": "",
+  "txt": "70-D-fortress-zoom.txt",
+  "status": [
+   " Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help",
+   " Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 1 of Spring, Year 1   ☼ clear -5°C   ☺ 7   ♥ Fine   z 32   ║      [?] help / Birch tree · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s]»",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 71,
+  "id": "71-H-ref-after-7200",
+  "slug": "H-ref-after-7200",
+  "what": "Reference fortress after 7200 ticks",
+  "input": [
+   "navigate /",
+   "key l",
+   "hook key(\"i\") (a real key press did not raise the file chooser in this harness; the existing export-import spec also uses the hook for this key)",
+   "file chooser: E:/code/vibe-games/vibe-fortress-t116/test/fixtures/reference-fortress.deepholm",
+   "key Enter",
+   "hook step 7200 ticks (setup: a long run of announcements in the 80-dwarf reference fortress)"
+  ],
+  "tick": 276401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "71-H-ref-after-7200.png",
+  "pngNote": "",
+  "txt": "71-H-ref-after-7200.txt",
+  "status": [
+   " Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Hillfolk_bandit hits Melkorka: 13 edge.",
+   " Melkorka Brightbrow has been admitted to the hospital.",
+   " !! Torfi Grimwall has died."
+  ],
+  "shown": "LOG: ! Hillfolk_bandit hits Melkorka: 13 edge. / Melkorka Brightbrow has been admitted to the hospital. / !! Torfi Grimwall has died. || STATUS: Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 72,
+  "id": "72-H-log-open",
+  "slug": "H-log-open",
+  "what": "Key a: Log panel",
+  "input": [
+   "key Escape",
+   "key a"
+  ],
+  "tick": 276401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": "72-H-log-open.png",
+  "pngNote": "",
+  "txt": "72-H-log-open.txt",
+  "status": [
+   " Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Hillfolk_bandit hits Melkorka: 2 blunt.",
+   " ! Hillfolk_bandit hits Melkorka: 13 edge.",
+   " Melkorka Brightbrow has been admitted to the hospital."
+  ],
+  "shown": "LOG: ! Hillfolk_bandit hits Melkorka: 2 blunt. / ! Hillfolk_bandit hits Melkorka: 13 edge. / Melkorka Brightbrow has been admitted to the hospital. || STATUS: Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Log                           [a] / [1] All  [2] Alerts  [3] Combat / Melkorka Brightbrow has been admi",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 73,
+  "id": "73-H-log-pagedown-1",
+  "slug": "H-log-pagedown-1",
+  "what": "Log panel, PageDown (1)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 276401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": "73-H-log-pagedown-1.png",
+  "pngNote": "",
+  "txt": "73-H-log-pagedown-1.txt",
+  "status": [
+   " Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Hillfolk_bandit hits Melkorka: 2 blunt.",
+   " ! Hillfolk_bandit hits Melkorka: 13 edge.",
+   " Melkorka Brightbrow has been admitted to the hospital."
+  ],
+  "shown": "LOG: ! Hillfolk_bandit hits Melkorka: 2 blunt. / ! Hillfolk_bandit hits Melkorka: 13 edge. / Melkorka Brightbrow has been admitted to the hospital. || STATUS: Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Log                           [a] / [1] All  [2] Alerts  [3] Combat / Melkorka Brightbrow has been admi",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 74,
+  "id": "74-H-log-pagedown-2",
+  "slug": "H-log-pagedown-2",
+  "what": "Log panel, PageDown (2)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 276401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": null,
+  "pngNote": "screen unchanged from step 73-H-log-pagedown-1; no screenshot saved",
+  "txt": "74-H-log-pagedown-2.txt",
+  "status": [
+   " Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Hillfolk_bandit hits Melkorka: 2 blunt.",
+   " ! Hillfolk_bandit hits Melkorka: 13 edge.",
+   " Melkorka Brightbrow has been admitted to the hospital."
+  ],
+  "shown": "LOG: ! Hillfolk_bandit hits Melkorka: 2 blunt. / ! Hillfolk_bandit hits Melkorka: 13 edge. / Melkorka Brightbrow has been admitted to the hospital. || STATUS: Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Log                           [a] / [1] All  [2] Alerts  [3] Combat / Melkorka Brightbrow has been admi",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 75,
+  "id": "75-H-log-pagedown-3",
+  "slug": "H-log-pagedown-3",
+  "what": "Log panel, PageDown (3)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 276401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": "75-H-log-pagedown-3.png",
+  "pngNote": "",
+  "txt": "75-H-log-pagedown-3.txt",
+  "status": [
+   " Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Hillfolk_bandit hits Melkorka: 2 blunt.",
+   " ! Hillfolk_bandit hits Melkorka: 13 edge.",
+   " Melkorka Brightbrow has been admitted to the hospital."
+  ],
+  "shown": "LOG: ! Hillfolk_bandit hits Melkorka: 2 blunt. / ! Hillfolk_bandit hits Melkorka: 13 edge. / Melkorka Brightbrow has been admitted to the hospital. || STATUS: Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Log                           [a] / [1] All  [2] Alerts  [3] Combat / Melkorka Brightbrow has been admi",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 76,
+  "id": "76-H-log-pagedown-4",
+  "slug": "H-log-pagedown-4",
+  "what": "Log panel, PageDown (4)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 276401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": null,
+  "pngNote": "screen unchanged from step 75-H-log-pagedown-3; no screenshot saved",
+  "txt": "76-H-log-pagedown-4.txt",
+  "status": [
+   " Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Hillfolk_bandit hits Melkorka: 2 blunt.",
+   " ! Hillfolk_bandit hits Melkorka: 13 edge.",
+   " Melkorka Brightbrow has been admitted to the hospital."
+  ],
+  "shown": "LOG: ! Hillfolk_bandit hits Melkorka: 2 blunt. / ! Hillfolk_bandit hits Melkorka: 13 edge. / Melkorka Brightbrow has been admitted to the hospital. || STATUS: Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Log                           [a] / [1] All  [2] Alerts  [3] Combat / Melkorka Brightbrow has been admi",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 77,
+  "id": "77-H-log-pagedown-5",
+  "slug": "H-log-pagedown-5",
+  "what": "Log panel, PageDown (5)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 276401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": "77-H-log-pagedown-5.png",
+  "pngNote": "",
+  "txt": "77-H-log-pagedown-5.txt",
+  "status": [
+   " Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Hillfolk_bandit hits Melkorka: 2 blunt.",
+   " ! Hillfolk_bandit hits Melkorka: 13 edge.",
+   " Melkorka Brightbrow has been admitted to the hospital."
+  ],
+  "shown": "LOG: ! Hillfolk_bandit hits Melkorka: 2 blunt. / ! Hillfolk_bandit hits Melkorka: 13 edge. / Melkorka Brightbrow has been admitted to the hospital. || STATUS: Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Log                           [a] / [1] All  [2] Alerts  [3] Combat / Melkorka Brightbrow has been admi",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 78,
+  "id": "78-H-log-pagedown-6",
+  "slug": "H-log-pagedown-6",
+  "what": "Log panel, PageDown (6)",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 276401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": null,
+  "pngNote": "screen unchanged from step 77-H-log-pagedown-5; no screenshot saved",
+  "txt": "78-H-log-pagedown-6.txt",
+  "status": [
+   " Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Hillfolk_bandit hits Melkorka: 2 blunt.",
+   " ! Hillfolk_bandit hits Melkorka: 13 edge.",
+   " Melkorka Brightbrow has been admitted to the hospital."
+  ],
+  "shown": "LOG: ! Hillfolk_bandit hits Melkorka: 2 blunt. / ! Hillfolk_bandit hits Melkorka: 13 edge. / Melkorka Brightbrow has been admitted to the hospital. || STATUS: Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Log                           [a] / [1] All  [2] Alerts  [3] Combat / Melkorka Brightbrow has been admi",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 79,
+  "id": "79-H-log-pageup",
+  "slug": "H-log-pageup",
+  "what": "Log panel, PageUp x3",
+  "input": [
+   "key PageUp x3"
+  ],
+  "tick": 276401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": "79-H-log-pageup.png",
+  "pngNote": "",
+  "txt": "79-H-log-pageup.txt",
+  "status": [
+   " Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Hillfolk_bandit hits Melkorka: 2 blunt.",
+   " ! Hillfolk_bandit hits Melkorka: 13 edge.",
+   " Melkorka Brightbrow has been admitted to the hospital."
+  ],
+  "shown": "LOG: ! Hillfolk_bandit hits Melkorka: 2 blunt. / ! Hillfolk_bandit hits Melkorka: 13 edge. / Melkorka Brightbrow has been admitted to the hospital. || STATUS: Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: Log                           [a] / [1] All  [2] Alerts  [3] Combat / Melkorka Brightbrow has been admi",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 80,
+  "id": "80-H-log-tab",
+  "slug": "H-log-tab",
+  "what": "Log panel, Tab (filter/tab)",
+  "input": [
+   "key Tab"
+  ],
+  "tick": 276401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": "80-H-log-tab.png",
+  "pngNote": "",
+  "txt": "80-H-log-tab.txt",
+  "status": [
+   " Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Hillfolk_bandit hits Melkorka: 2 blunt.",
+   " ! Hillfolk_bandit hits Melkorka: 13 edge.",
+   " Melkorka Brightbrow has been admitted to the hospital."
+  ],
+  "shown": "LOG: ! Hillfolk_bandit hits Melkorka: 2 blunt. / ! Hillfolk_bandit hits Melkorka: 13 edge. / Melkorka Brightbrow has been admitted to the hospital. || STATUS: Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: ≈≈\"\".....\"\"\"\"\"C\"\"\"\"\"\"↑\"\"\"s.\"\"\"\"\"\"\" / ≈≈≈\"\"\"\"\"\"\".\"\"\"\"\"\"\"\"\"\"\"\"\"\"♣.\"\"\"\"\"\"\" / ≈≈≈\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\" / ≈≈≈?≡≡ЮЮ?≡≡ЮЮ?↑≡≡ЮЮ♣Ю≡≡•ЮЮ≡≡•↑ЮЮ?≡",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 81,
+  "id": "81-H-log-slash",
+  "slug": "H-log-slash",
+  "what": "Log panel, key /",
+  "input": [
+   "key /"
+  ],
+  "tick": 276401,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": "log",
+  "png": "81-H-log-slash.png",
+  "pngNote": "",
+  "txt": "81-H-log-slash.txt",
+  "status": [
+   " Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   " ! Hillfolk_bandit hits Melkorka: 2 blunt.",
+   " ! Hillfolk_bandit hits Melkorka: 13 edge.",
+   " Melkorka Brightbrow has been admitted to the hospital."
+  ],
+  "shown": "LOG: ! Hillfolk_bandit hits Melkorka: 2 blunt. / ! Hillfolk_bandit hits Melkorka: 13 edge. / Melkorka Brightbrow has been admitted to the hospital. || STATUS: Day 7 of Spring, Year 3   ☼ clear 24°C   ☺ 68   ♥ Unhappy   +5   !4   z 27   ║ / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks || PANEL: ≈≈\"\".....\"\"\"\"\"C\"\"\"\"\"\"↑\"\"\"s.\"\"\"\"\"\"\" / ≈≈≈\"\"\"\"\"\"\".\"\"\"\"\"\"\"\"\"\"\"\"\"\"♣.\"\"\"\"\"\"\" / ≈≈≈\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\" / ≈≈≈?≡≡ЮЮ?≡≡ЮЮ?↑≡≡ЮЮ♣Ю≡≡•ЮЮ≡≡•↑ЮЮ?≡",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 82,
+  "id": "82-I-before-retire",
+  "slug": "I-before-retire",
+  "what": "A fortress at day 2 before retiring",
+  "input": [
+   "navigate /",
+   "key n",
+   "key g",
+   "key Enter",
+   "key ArrowRight x3",
+   "key ArrowDown x4",
+   "key Enter x2",
+   "hook step 1200 ticks"
+  ],
+  "tick": 1600,
+  "speed": 0,
+  "paused": true,
+  "screen": "fortress",
+  "panel": null,
+  "png": "82-I-before-retire.png",
+  "pngNote": "",
+  "txt": "82-I-before-retire.txt",
+  "status": [
+   " Day 2 of Spring, Year 1   ≡ overcast -8°C   ☺ 7   ♥ Fine   z 32   ║   [?] help",
+   " [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks"
+  ],
+  "log": [
+   "",
+   "",
+   " ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side"
+  ],
+  "shown": "LOG: ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side || STATUS: Day 2 of Spring, Year 1   ≡ overcast -8°C   ☺ 7   ♥ Fine   z 32   ║   [?] help / [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 83,
+  "id": "83-I-retire-confirm",
+  "slug": "I-retire-confirm",
+  "what": "Game menu > Retire fortress: confirmation",
+  "input": [
+   "key Escape",
+   "key x"
+  ],
+  "tick": 1600,
+  "speed": 0,
+  "paused": true,
+  "screen": "confirm",
+  "panel": null,
+  "png": "83-I-retire-confirm.png",
+  "pngNote": "",
+  "txt": "83-I-retire-confirm.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN confirm: Retire Grimvault? The hall will be recorded in the / Legends and cannot be resumed. / [y] Yes  [n] No",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 84,
+  "id": "84-I-legend",
+  "slug": "I-legend",
+  "what": "Key y: the legend screen",
+  "input": [
+   "key y"
+  ],
+  "tick": 1600,
+  "speed": 0,
+  "paused": true,
+  "screen": "legend",
+  "panel": null,
+  "png": "84-I-legend.png",
+  "pngNote": "",
+  "txt": "84-I-legend.txt",
+  "status": [
+   "",
+   "  [Esc] Back"
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN legend: Legend / Grimvault / Founded Spring, Year 1 at Bitterbrae (tundra, wealth 2, peril 0) / Retired in Year 1 with 7 dwarves. / Years 0 · Days 1 · Peak population 7 · Deepest level 0 · Wealth 1,677 ☼ / Milestones / Notable / Last words (log)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 85,
+  "id": "85-I-legend-pagedown",
+  "slug": "I-legend-pagedown",
+  "what": "Legend screen, PageDown",
+  "input": [
+   "key PageDown"
+  ],
+  "tick": 1600,
+  "speed": 0,
+  "paused": true,
+  "screen": "legend",
+  "panel": null,
+  "png": null,
+  "pngNote": "screen unchanged from step 84-I-legend; no screenshot saved",
+  "txt": "85-I-legend-pagedown.txt",
+  "status": [
+   "",
+   "  [Esc] Back"
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN legend: Legend / Grimvault / Founded Spring, Year 1 at Bitterbrae (tundra, wealth 2, peril 0) / Retired in Year 1 with 7 dwarves. / Years 0 · Days 1 · Peak population 7 · Deepest level 0 · Wealth 1,677 ☼ / Milestones / Notable / Last words (log)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 86,
+  "id": "86-I-legend-escape",
+  "slug": "I-legend-escape",
+  "what": "Legend screen, Escape",
+  "input": [
+   "key Escape"
+  ],
+  "tick": 1600,
+  "speed": 0,
+  "paused": true,
+  "screen": "main_menu",
+  "panel": null,
+  "png": "86-I-legend-escape.png",
+  "pngNote": "",
+  "txt": "86-I-legend-escape.txt",
+  "status": [
+   "",
+   ""
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN main_menu: D E E P H O L M / a hall beneath the world / ► [n] New world / [c] Continue  (Grimvault · Year 1) / [l] Load / [g] Legends / [o] Settings / [a] About",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 87,
+  "id": "87-I-legends-from-menu",
+  "slug": "I-legends-from-menu",
+  "what": "Main menu, key g: Legends list",
+  "input": [
+   "key g"
+  ],
+  "tick": 1600,
+  "speed": 0,
+  "paused": true,
+  "screen": "legend",
+  "panel": null,
+  "png": "87-I-legends-from-menu.png",
+  "pngNote": "",
+  "txt": "87-I-legends-from-menu.txt",
+  "status": [
+   "",
+   "  [Esc] Back"
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN legend: Legends / ► Grimvault · Bitterbrae · Year 1 / [Esc] Back",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ },
+ {
+  "n": 88,
+  "id": "88-I-legends-enter",
+  "slug": "I-legends-enter",
+  "what": "Legends list, Enter",
+  "input": [
+   "key Enter"
+  ],
+  "tick": 1600,
+  "speed": 0,
+  "paused": true,
+  "screen": "legend",
+  "panel": null,
+  "png": "88-I-legends-enter.png",
+  "pngNote": "",
+  "txt": "88-I-legends-enter.txt",
+  "status": [
+   "",
+   "  [Esc] Back"
+  ],
+  "log": [
+   "",
+   "",
+   ""
+  ],
+  "shown": "SCREEN legend: Legend / Grimvault / Founded Spring, Year 1 at Bitterbrae (tundra, wealth 2, peril 0) / Retired in Year 1 with 7 dwarves. / Years 0 · Days 1 · Peak population 7 · Deepest level 0 · Wealth 1,677 ☼ / Milestones / Notable / Last words (log)",
+  "viewport": {
+   "width": 1280,
+   "height": 800
+  },
+  "grid": [
+   80,
+   50
+  ],
+  "console": [],
+  "note": ""
+ }
+]

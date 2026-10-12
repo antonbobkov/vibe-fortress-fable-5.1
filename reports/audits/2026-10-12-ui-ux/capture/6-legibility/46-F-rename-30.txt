@@ -1,0 +1,80 @@
+# flow: 6-legibility   step: 46-F-rename-30
+# what: Typed a 30-character name
+# input: key Backspace x30 ; type "Abcdefghij Klmnopqrst Uvwxyzab"
+# tick: 400   paused: yes   screen: text_input   panel: units   viewport: 1280x800   grid: 106x66   camera(x,y,z): 0,0,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|
+01|
+02|
+03|
+04|
+05|
+06|
+07|
+08|
+09|
+10|
+11|
+12|
+13|
+14|
+15|
+16|
+17|
+18|
+19|
+20|
+21|
+22|
+23|
+24|
+25|
+26|
+27|
+28|
+29|
+30|                                      Rename Thurid Ashspark
+31|
+32|                                      [ Abcdefghij Klmnopqrst Uv__ ]
+33|                                      24/24
+34|                                      [Enter] accept  [Esc] cancel
+35|
+36|
+37|
+38|
+39|
+40|
+41|
+42|
+43|
+44|
+45|
+46|
+47|
+48|
+49|
+50|
+51|
+52|
+53|
+54|
+55|
+56|
+57|
+58|
+59|
+60|
+61|
+62|
+63|
+64|
+65|
+----- log strip rows -----
+
+
+
+----- status rows -----
+
+
