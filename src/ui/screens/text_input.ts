@@ -9,7 +9,7 @@ import type { KeyPress } from '@platform/input';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
-import { button, editText, textField, type TextFieldState } from '../widgets';
+import { button, editText, normalizeName, textField, type TextFieldState } from '../widgets';
 
 export interface TextInputSpec {
   /** The prompt above the field ("Rename Ketil Ironvein"). */
@@ -39,7 +39,7 @@ export class TextInputScreen implements Screen {
   }
 
   accept(): void {
-    const text = this.field.value.trim();
+    const text = normalizeName(this.field.value);
     if (Array.from(text).length < this.minLength) {
       this.message = this.strings.get('ui.text_input.too_short', { min: this.minLength });
       return;
@@ -77,8 +77,7 @@ export class TextInputScreen implements Screen {
       this.cancel();
       return true;
     }
-    const key = press.key === 'Space' ? { ...press, key: ' ' } : press;
-    if (editText(this.field, key)) {
+    if (editText(this.field, press)) {
       this.message = null;
       return true;
     }

@@ -344,7 +344,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | Auto-pause on alert | on / off | off |
 | Hints | on / off | on |
 | Colorblind palette | on / off | off |
-| Zoom | 0.75 / 1 / 1.5 | 1 |
+| Zoom | Auto / 0.75 / 1 / 1.5 / 2 | Auto |
 | Edge scrolling | on / off | off |
 | Autosave each season | on / off | on |
 | Snapshots kept | 2 / 4 / 8 | 4 |

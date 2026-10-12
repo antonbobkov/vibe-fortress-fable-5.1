@@ -79,7 +79,7 @@ Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings
 │   Auto-pause on alert           [off]            │
 │   Hints                         [on ]            │
 │   Colorblind palette            [off]            │
-│   Zoom                          [1×  ]           │
+│   Zoom                          [Auto]           │
 │   Edge scrolling                [off]            │
 │   Autosave each season          [on ]            │
 │   Snapshots kept                [4   ]           │
@@ -88,6 +88,8 @@ Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings
 │   [d] Reset to defaults         [Esc] Back       │
 └──────────────────────────────────────────────────┘
 ```
+
+Zoom is `Auto` or a fixed level (0.75, 1, 1.5, 2). Under the list a dim line says that `Auto` picks a larger cell on a large window and that a fixed zoom keeps the old look. When the window is too small for the requested zoom, a line in the alert color says so: `Zoom 1 (shown at 0.75: the window is small)` (`Zoom Auto (shown at 0.75: …)` for `Auto`).
 
 Keybindings sub-screen: a table of context, action, key; `Enter` on a row then press a key; conflicts are shown in red with the conflicting action's Help wording and the player-facing context heading; `Esc` cancels the rebind. Clicking a binding row also starts capture. Failed rebinding uses the shared registry messages `ui.settings.binding_conflict` and `ui.settings.binding_modifiers` and leaves every binding unchanged.
 

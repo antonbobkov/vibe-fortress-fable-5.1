@@ -21,7 +21,7 @@ test('T-M7-07 save-load-settings', async ({ page }) => {
   await page.keyboard.press('o');
   await expect.poll(() => screenOf(page)).toBe('settings');
   for (let n = 0; n < 4; n += 1) await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('ArrowLeft');
+  await page.keyboard.press('ArrowRight');
   expect(await textOf(page)).toContain('[0.75x]');
   for (let n = 0; n < 5; n += 1) await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');

@@ -1,6 +1,8 @@
 # T-282 — Text fields refuse control characters; a filter does not outlive its panel
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (§ 8 c); the abuse pass came from T-115 · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-282: text fields refuse control characters; Space types in a focused filter; a filter ends with its panel` (0c9c8f9).
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (§ 8 c); the abuse pass came from T-115 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -12,8 +14,8 @@ Default embark. `u`, `Shift+N`, send the key events bell, NUL, ESC, DEL, tab, CR
 
 ## What the spec says
 
-- [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules: text input, the name limits, and "a focused text field takes every printable key".
-- [`panels.md`](../04-implementation/ui-screens/panels.md): the `/filter` fields.
+- [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules: text input, the name limits, and "a focused text field takes every printable key".
+- [`panels.md`](../../04-implementation/ui-screens/panels.md): the `/filter` fields.
 
 ## What to do
 
@@ -30,4 +32,4 @@ Default embark. `u`, `Shift+N`, send the key events bell, NUL, ESC, DEL, tab, CR
 ## Done
 
 - The reproduction cannot make a name of control characters, reopens Units unfiltered, and types a space without starting the clock.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

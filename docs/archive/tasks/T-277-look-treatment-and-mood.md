@@ -1,6 +1,8 @@
 # T-277 — Look: a wounded dwarf's panel says what happens next; the mood is a whole number
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 7) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-277: a wounded dwarf's Look panel says what happens next; the mood is a whole number` (4147f3d).
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (issue 7) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -12,8 +14,8 @@ For a wounded dwarf the Look panel says "Health: Wounded, bleeding" and stops. I
 
 ## What the spec says
 
-- [`17-health-and-medicine.md`](../02-systems/17-health-and-medicine.md): the steps of treatment (rescue, diagnosis, cleaning, suture, bandage, splint) and what each needs.
-- [`panels.md`](../04-implementation/ui-screens/panels.md) § Look (creature tab).
+- [`17-health-and-medicine.md`](../../02-systems/17-health-and-medicine.md): the steps of treatment (rescue, diagnosis, cleaning, suture, bandage, splint) and what each needs.
+- [`panels.md`](../../04-implementation/ui-screens/panels.md) § Look (creature tab).
 
 ## What to do
 
@@ -38,4 +40,4 @@ For a wounded dwarf the Look panel says "Health: Wounded, bleeding" and stops. I
 ## Done
 
 - The reproduction shows "Mood: Unhappy (37)" and a Care line that names the missing hospital.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
