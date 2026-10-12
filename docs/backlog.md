@@ -42,5 +42,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-280 | [Sidebar text is never cut without a mark; Help wraps and starts with how to begin](work/T-280-sidebar-text-and-help.md) | T-116 and [`../reports/audits/2026-10-12-ui-ux.md`](../reports/audits/2026-10-12-ui-ux.md) | T-249, T-270 | open |
 | T-283 | [The 80-dwarf reference fortress has workshops, farms, a squad, a depot and a gate](work/T-283-reference-fortress-is-a-fortress.md) | T-116 and [`../reports/audits/2026-10-12-ui-ux.md`](../reports/audits/2026-10-12-ui-ux.md) | — | open; test side |
 | T-284 | [A workshop with no recipes is not listed, by rule and not by id](work/T-284-workshop-with-no-recipes-not-listed.md) | T-116 and [`../reports/audits/2026-10-12-ui-ux.md`](../reports/audits/2026-10-12-ui-ux.md) | T-271 | open |
+| T-300 | [The glyph `›` is not in the glyph set and draws as `?`](work/T-300-missing-glyph-in-hints.md) | found during T-277 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. B-008 through B-012 await T-145 (the fixture at default priorities) and, for survival with wildlife, T-214; their measurement journal is in the [decision archive](archive/decisions-archive.md).
