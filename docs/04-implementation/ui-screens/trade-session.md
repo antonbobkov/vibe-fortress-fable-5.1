@@ -37,3 +37,5 @@ Rules of the display:
 - `Offer`, `Gift` and `Close` are commands that are applied on a tick. The modal keeps the game paused and advances exactly one command tick for each trade action.
 - Keyboard: arrows move within a column, `Tab` switches, `+`/`-` change by 1 (`Shift` by 10), `Home`/`End` set 0/max.
 - Mouse: click a row to focus, click `[+]`/`[-]`, drag on the quantity to scrub.
+
+At 80 columns each heading remains within its own goods column, with a blank cell before the next column. When the right heading's full label does not fit it says "their value"; an abbreviated or clipped heading registers a tooltip containing the full heading and "their valuation". Reduce spacing and then labels to preserve every number. A compact title reserves the trading skill and reputation at the right and clips the broker caption with a full-title tooltip; compact totals keep all three amounts and the margin visible, with the full valuation explanation in a tooltip. Wider screens retain the full labels where they fit.

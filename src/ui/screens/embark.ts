@@ -15,7 +15,7 @@ import type { Attributes } from '@core/components';
 import type { Registry } from '@core/registry';
 import type { KeyPress } from '@platform/input';
 import { EMBARK_REROLL_COST, EmbarkSession, skillPoints, suppliesTotal, type EmbarkCommand, type EmbarkPresetRow } from '@systems/embark';
-import { EMBARK_DEFAULT_PRESET } from '../constants';
+import { EMBARK_DEFAULT_PRESET, EMBARK_PRESET_SPACING, UI_NORMAL_SPACING, UI_COMPACT_SPACING } from '../constants';
 import type { Keymap } from '../keymap';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { Strings } from '../strings';
@@ -299,19 +299,24 @@ export class EmbarkScreen implements Screen {
     const cols = surface.cols;
     label(surface, 1, 0, s.get('ui.embark.title', { region: this.region.name }), { fg: t.key, width: 30 });
     const tabCol = Math.max(32, cols - 60);
+    const tabItems = [
+      { key: '1', label: s.get('ui.embark.tab.dwarves') },
+      { key: '2', label: s.get('ui.embark.tab.supplies') },
+      { key: '3', label: s.get('ui.embark.tab.animals') },
+    ];
+    const tabWidth = tabItems.reduce((sum, item) => sum + Array.from(`[${item.key}] ${item.label}`).length, 0);
+    const presetWidth = Array.from(`[p] ${s.get('ui.embark.presets')}`).length;
+    const compact = tabCol + tabWidth + (tabItems.length - 1) * UI_NORMAL_SPACING + EMBARK_PRESET_SPACING + presetWidth > cols;
     const n = tabs(
       surface,
       tabCol,
       0,
-      [
-        { key: '1', label: s.get('ui.embark.tab.dwarves') },
-        { key: '2', label: s.get('ui.embark.tab.supplies') },
-        { key: '3', label: s.get('ui.embark.tab.animals') },
-      ],
+      tabItems,
       this.tab,
       (index) => this.setTab(index),
+      compact ? UI_COMPACT_SPACING : UI_NORMAL_SPACING,
     );
-    const presetsCol = tabCol + n + 4;
+    const presetsCol = tabCol + n + (compact ? UI_COMPACT_SPACING : EMBARK_PRESET_SPACING);
     button(surface, presetsCol, 0, 'p', s.get('ui.embark.presets'), () => this.togglePresets());
     separator(surface, 0, 1, cols);
     const bodyRows = surface.rows - 6;
@@ -363,14 +368,19 @@ export class EmbarkScreen implements Screen {
     button(surface, c + 32, row, 'n', s.get('ui.embark.rename'), () => this.startRename());
     row += 1;
     label(surface, c, row, s.get('ui.embark.age', { sex: s.get(`ui.embark.sex.${d.sex}`), age: d.ageYears }));
-    button(surface, c + 32, row, 'r', s.get('ui.embark.reroll', { cost: EMBARK_REROLL_COST }), () => this.reroll());
+    const reroll = s.get('ui.embark.reroll', { cost: EMBARK_REROLL_COST });
+    const rerollCol = Math.min(c + 32, surface.cols - Array.from(`[r] ${reroll}`).length - 1);
+    button(surface, rerollCol, row, 'r', reroll, () => this.reroll());
     row += 1;
+    const attributeCols = Math.min(13, Math.floor((surface.cols - c) / 4));
+    const numberCols = Math.max(...ATTRIBUTES.map(attr => String(d.attributes[attr]).length));
+    const barCols = Math.max(1, Math.min(5, attributeCols - 4 - 2 - numberCols));
     ATTRIBUTES.forEach((attr, k) => {
-      const col = c + (k % 4) * 13;
+      const col = c + (k % 4) * attributeCols;
       if (k === 4) row += 1;
       label(surface, col, row, s.get(`ui.embark.attr.${attr}`));
-      bar(surface, col + 4, row, d.attributes[attr], ATTRIBUTE_MAX, 5);
-      label(surface, col + 10, row, String(d.attributes[attr]), { fg: t.value });
+      bar(surface, col + 4, row, d.attributes[attr], ATTRIBUTE_MAX, barCols);
+      label(surface, col + 4 + barCols + 1, row, String(d.attributes[attr]), { fg: t.value });
     });
     row += 1;
     label(surface, c, row, d.personality.map((p) => this.traitNames.get(p) ?? p).join(' · '), { width: surface.cols - c - 1 });
@@ -470,7 +480,8 @@ export class EmbarkScreen implements Screen {
     const budget = this.session.budget();
     const spent = this.session.total();
     const text = s.get('ui.embark.budget', { budget: marks(budget), spent: marks(spent), left: marks(budget - spent) });
-    label(surface, 42, row + 1, text, { fg: spent > budget ? t.bad : t.text });
+    const budgetCol = Math.max(36, surface.cols - Array.from(text).length - 1);
+    label(surface, budgetCol, row + 1, text, { fg: spent > budget ? t.bad : t.text });
     const reason = this.reason();
     button(surface, 1, row + 2, 'Enter', s.get('ui.embark.embark'), () => this.confirm(), { enabled: reason === null });
     if (reason !== null) label(surface, 18, row + 2, reason, { fg: t.bad, width: surface.cols - 34 });

@@ -22,13 +22,13 @@ Wireframes are at 120×45 cells for illustration; the layout scales with the win
 │ ! Gloam scouts have been seen at the eastern edge. They will come tomorrow.                                          │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Day 12 of Summer, Year 2   ☼ clear 21°C   ☺ 23   ♥ Content   +1   $   z 31   ►► 2×                       [?] help     │
-│ Granite wall, smoothed · 14°C · [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks  [m] military│
+│ Granite wall, smoothed · 14°C · [d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look│
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Status row 1 fields left to right: date (a click on it opens the calendar panel, which has no hotkey); weather glyph, word and temperature (`{glyph} {word} {temp}°C`; the moon `C` replaces the sun on a clear night; the glyph is red in a heatwave, cyan in a cold snap and dim in fog); `☺` population; `♥` hall spirit tier (colored); `+n` patients (red, hidden when 0); `!n` hostiles on discovered tiles or spotted, matching the threats panel's "Active" (red, hidden when 0); `$` caravan present (hidden otherwise); `z` current level; speed glyphs and multiplier (`║` when paused, yellow when the simulation lags); `[?] help` at the right edge.
+Status row 1 fields left to right: date (a click on it opens the calendar panel, which has no hotkey); weather glyph, word and temperature (`{glyph} {word} {temp}°C`; the moon `C` replaces the sun on a clear night; the glyph is red in a heatwave, cyan in a cold snap and dim in fog); `☺` population; `♥` hall spirit tier (colored); `+n` patients (red, hidden when 0); `!n` hostiles on discovered tiles or spotted, matching the threats panel's "Active" (red, hidden when 0); `$` while a caravan is arriving, at the depot or leaving (hidden otherwise); `z` current level; speed glyphs and multiplier (`║` when paused, yellow when the simulation lags); `[?] help` at the right edge.
 
-Status row 2: the tile summary under the mouse (or the cursor), then the hotkey strip for the most used panels; with a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`. A notice or refusal reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier by starting a drag, a new ghost state or a new notice. Status row text that does not fit ends with `…` and registers its full text as a tooltip on the row, like any clipped label.
+Status row 2: the tile summary under the mouse (or the cursor), then as many complete hotkey entries as fit, in order `[d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look`; omit a trailing entry that does not fit, never clip its key or caption. The tile summary keeps its place on the left; with a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`. A notice or refusal reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier by starting a drag, a new ghost state or a new notice. Other status row text that does not fit ends with `…` and registers its full text as a tooltip on the row, like any clipped label.
 
 The log strip shows the last three announcements; danger lines are prefixed `!!`, alerts `!`.
 
@@ -173,3 +173,5 @@ The count records units of the first input not covered at each placement; placem
 ```
 
 Strings: `ui.status.date`, `ui.status.pop`, `ui.panel.units.title`, `ui.tool.designate.*`, `ui.build.category.*`, `ui.menu.*`; every label above is a key.
+
+The status bar fits 80 columns. Row 1 keeps its field order and complete numbers, reducing spaces between fields before cutting any text; the help field stays at the right edge.

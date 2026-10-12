@@ -188,6 +188,9 @@ This entire document.
 | `LOG_DEDUP_TICKS` | 100 | |
 | `STATUS_HINT_SECONDS` | 4 | Rejection reason display time |
 | `HINT_CHECK_HOURS` | 1 | |
+| `UI_NORMAL_SPACING` | 3 | Normal gap between tabs and status fields |
+| `UI_COMPACT_SPACING` | 1 | Gap when normal spacing does not fit the viewport |
+| `EMBARK_PRESET_SPACING` | 4 | Normal gap before the Presets button |
 
 ## Keymap, screens, hints and milestones
 

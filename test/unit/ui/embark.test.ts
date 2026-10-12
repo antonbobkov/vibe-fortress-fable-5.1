@@ -145,7 +145,7 @@ describe('T-M1-13 embark: skills', () => {
     expect(t).toContain(d0?.name ?? '?');
     expect(t).toMatch(/(Male|Female) · \d+ years/);
     expect(t).toContain('Str ');
-    expect(t).toContain('[r] reroll (25 ☼)');
+    expect(t).toContain('[r] reroll 25 ☼');
     const before = s.session.budget();
     s.key(press('r'));
     expect(s.session.budget()).toBe(before - 25);

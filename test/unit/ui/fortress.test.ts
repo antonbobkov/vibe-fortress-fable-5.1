@@ -175,7 +175,7 @@ describe('T-M1-14 mouse model', () => {
   it('the hover line names the tile under the mouse', async () => {
     const game = await fortressGame();
     game.pointerMove(cell(game, 5, 6));
-    expect(game.fortress.statusRow2()).toMatch(/^Loam floor · \[k\] look/);
+    expect(game.fortress.statusRow2()).toMatch(/^Loam floor · \[d\] dig/);
   });
 });
 
