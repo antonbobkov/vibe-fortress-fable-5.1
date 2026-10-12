@@ -1,0 +1,64 @@
+# flow: 2-keyboard-only   step: 79-panel-jobs
+# what: Panel jobs opened by key j
+# input: key j
+# tick: 470   paused: yes   screen: fortress   panel: jobs   viewport: 1280x800   grid: 80x50   camera(x,y,z): 23,11,32   look-cursor: none
+# console since last step: none
+# layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
+----- cell buffer (row number, then text; trailing spaces trimmed) -----
+00|""""""""""""""""""""""""""""""""""""""""""""│ Jobs                          [j]
+01|""""""""""""""""""""""""""""""""""""""""""""│ 7 open · 7 claimed · 3 blocked
+02|""""""""""""""""""""""""""""""""""""""""""""│ /filter: [ ____________________ ]
+03|""""""""""""""""""""""""""""""""""""""""""""│ [S-l] labor: all
+04|""""""""""""""""""""""""""""""""""""""""↑"""│ [S-s] state: all
+05|""""""""""""""""""""""""""""""""""""""""""""│ Blocked: 3 no path
+06|""""""""""""""""""""""""""""""""""""""""""""│ Pri Job              Who / reason
+07|""""""""""""""""""""""""""""""""""""""""""""│  5  carve stairs (28 no path
+08|""""""""""""""""""""""""""""""""""↑"""""""""│  5  carve stairs (28 no path
+09|""""""""""""""""""""""""""""""""""""""""""""│  5  carve stairs (28 no path
+10|""""""""""""""""""""""""""""""""""""""""""""│  5  carve stairs (28 Thurid Ashsp
+11|""""""""""""""""""""""""""""""""""""""""""""│  5  Build carpenter' -
+12|""""""""""""""""""""""""""""""""""""""""""""│  5  Build butcher's  -
+13|""""""""""""""""""""""""""""""""↑"""""""""""│  6  Haul barrel      Kolfinna Sha
+14|"""""""""""""""↑""""""""""""""""""""""""""""│  6  Haul barrel      Vali Forgeax
+15|""""""""""""""""""""""""""""""""""""""""""""│  6  Haul barrel      -
+16|""""""""""""""""""""""""""""""""""""""""""""│  6  Haul barrel      -
+17|""""""""""""""""""""""""""""""""""""""""""""│  6  Haul bag         Vidar Elkaxe
+18|""""""""""""""""""""""""""""""""""""""""""↑"│  6  Haul bag         Kolfinna Bri
+19|""""""""""""""""""""""""""""""""""""""""""""│  6  Haul bag         -
+20|""""""""""""""""""""""""""""""↑"""""""""""""│  6  Haul bag         -
+21|""""""""""""""""""""""""""""""""""""""""""""│  6  Haul bag         Frode Bronze
+22|"""""""""""↑""""""""""▬"""""""""""""""""""""│  6  Haul bag         Torunn Storm
+23|"""""""""""""""""╥≡╥""""%╥%"""""""""↑"""""""│  6  Haul bag         -
+24|"""↑"""""""""""""≡┼≡""""╥┼╥"""""""""""""""""│
+25|"↑"""""""""""""""╥≡╥""""%╥%"""""""""""""""""│
+26|""""""""""""""""""""""""""""""""""""""""""""│
+27|""""""""""""""""""""""""""""""""""""""""""""│
+28|""""""""""""""""""""""""""""""""""""""""""""│
+29|""""""""""""""""""""""""""""""""""""""""""""│
+30|""""""""""""""""""""""""""""""""""""""""""""│
+31|""""""""""""""""""""""""""""""""""""""""""""│
+32|"""""""""""""""""""""""""""""""""""""↑""""""│
+33|""""""""""""""""""""""""""""""""""""""""""""│
+34|↑"""""""""""""""""""""""""""""""""""""""""""│
+35|""""""""""""↑"""""""""""""""""""""""""""""""│
+36|"""""""""""""""""""""""""""""""""↑""""""""""│ No path: blocked by water, a
+37|""""""""""""""""""""""""""""""""""""""""""""│ locked door or undug rock.
+38|""""""""""""""""""""↑"""""""""""""""""""""""│ ─────────────────────────────────
+39|"""""""""""""""""""""""""""""""""""↑""""""""│ [Enter] center  [S-p] priority
+40|""""""""""""""""""""""""""""""""""""""""""""│ [x] cancel  [o] standing orders
+41|"""""""""""""""""""""""""""""""""""""""""↑""│ ─── Labor priorities (1-9) ──────
+42|""""""""""""""""""""""""""""""""""""""""""""│ All labors at priority 5: change
+43|""""""""""""""""""""↑"""""""""""""""""""""""│ them in the labor manager ([l],
+44|""""""""""""""""""""""""↑"""""""""""""""""""│ Enter).
+45|
+46| ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side
+47| ! Refused: Door needs walls on two opposite sides
+48| Day 1 of Spring, Year 1   ☼ clear -4°C   ☺ 7   ♥ Fine   z 32   ║      [?] help
+49| [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks
+----- log strip rows -----
+
+ ☼ Designate a place to dig with [d]. Dwarves dig into rock faces from the side
+ ! Refused: Door needs walls on two opposite sides
+----- status rows -----
+ Day 1 of Spring, Year 1   ☼ clear -4°C   ☺ 7   ♥ Fine   z 32   ║      [?] help
+ [k] look  [d] dig  [b] build  [z] zones  [u] units  [j] jobs  [s] stocks

@@ -63,3 +63,4 @@ Add `T-1nn` rows for the recommendations worth doing, with this report as the so
 Commit examined: `569ae1f`. Output: [`../../reports/audits/2026-10-12-ui-ux/capture-index.md`](../../reports/audits/2026-10-12-ui-ux/capture-index.md) and `reports/audits/2026-10-12-ui-ux/capture/<flow>/`. Flows captured so far:
 
 - Flow 1 (new player, mouse only): captured.
+- Flow 2 (new player, keyboard only): captured.

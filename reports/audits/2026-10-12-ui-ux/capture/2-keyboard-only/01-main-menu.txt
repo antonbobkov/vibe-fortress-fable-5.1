@@ -1,7 +1,7 @@
-# flow: _probe   step: 01-menu
-# what: main menu
+# flow: 2-keyboard-only   step: 01-main-menu
+# what: Main menu on first load
 # input: navigate /
-# tick: null   paused: n/a   screen: main_menu   panel: null   viewport: 1280x800   grid: 80x50
+# tick: null   paused: n/a   screen: main_menu   panel: null   viewport: 1280x800   grid: 80x50   camera(x,y,z): 0,0,32   look-cursor: none
 # console since last step: none
 # layout: last 2 rows = status row(s); 3 rows above = log strip; right 36 columns = sidebar when a panel is open
 ----- cell buffer (row number, then text; trailing spaces trimmed) -----
