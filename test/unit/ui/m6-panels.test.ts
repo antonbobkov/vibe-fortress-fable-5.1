@@ -65,17 +65,15 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
       w.step(1);
       expect(panel.selectedSquad(ctx)!.mode).toBe('train');
 
-      // Cycle weapon
-      const cycleWeap = panel.cycleWeapon(ctx);
-      expect(cycleWeap).toBeDefined();
-      if (cycleWeap) w.submit(cycleWeap);
+      // T-248: choose gear from an in-place list; opening it sends no command.
+      panel.openChoice(ctx, 'weapon');
+      const weaponIndex = panel.gearOptions(ctx, 'weapon').indexOf('axe');
+      for (const cmd of panel.commitChoice(ctx, weaponIndex)) w.submit(cmd);
       w.step(1);
       expect(panel.selectedSquad(ctx)!.equipment.weaponClass).toBe('axe');
 
-      // Cycle armor
-      const cycleArm = panel.cycleArmor(ctx);
-      expect(cycleArm).toBeDefined();
-      if (cycleArm) w.submit(cycleArm);
+      panel.openChoice(ctx, 'armor');
+      for (const cmd of panel.commitChoice(ctx, 1)) w.submit(cmd);
       w.step(1);
       expect(panel.selectedSquad(ctx)!.equipment.armor).toBe('metal');
 

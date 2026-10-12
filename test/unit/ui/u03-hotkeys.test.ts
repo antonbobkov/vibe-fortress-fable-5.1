@@ -145,6 +145,7 @@ const STATES: readonly { readonly name: string; readonly open: (f: Fixture, worl
   { name: 'T-241 Jobs state filter', open: (f) => { f.screen.openPanel('jobs'); f.screen.jobs.state = 'blocked'; } },
   { name: 'T-241 Jobs text filter', open: (f) => { f.screen.openPanel('jobs'); f.screen.jobs.filter.value = 'bed'; } },
   { name: 'T-241 Stocks text filter', open: (f) => { f.screen.openPanel('stocks'); f.screen.stocks.filter.value = 'iron'; } },
+  ...(['weapon', 'armor'] as const).map(kind => ({ name: `T-248 military ${kind} picker`, open: (f: Fixture) => { f.screen.openPanel('military'); f.screen.military.openChoice(f.screen.ctx, kind); expect(f.screen.military.memberChoice?.kind).toBe(kind); } })),
   { name: 'military setting a station', open: (f) => { f.screen.openPanel('military'); f.screen.military.settingStation = true; } },
   // U-06's lists and choosers: marks, the squad's add list, the leader and title choosers.
   { name: 'military choosing members to add', open: (f) => { f.screen.openPanel('military'); f.screen.military.openChoice(f.screen.ctx, 'add'); expect(f.screen.military.memberChoice?.kind).toBe('add'); } },

@@ -92,6 +92,13 @@ export function countStep(press: KeyPress): number {
 export class OrdersPanel {
   readonly list: ListState = { selected: 0, scroll: 0 };
   readonly picker = new OrderPicker();
+  private readonly workshopLists = new Map<EntityId, ListState>();
+
+  workshopList(id: EntityId): ListState {
+    let state = this.workshopLists.get(id);
+    if (state === undefined) { state = { selected: 0, scroll: 0 }; this.workshopLists.set(id, state); }
+    return state;
+  }
   readonly materials: ListState = { selected: 0, scroll: 0 };
   materialOpen = false;
   /** The workshop whose orders the list shows; 0: every order in the fortress. */
@@ -185,8 +192,13 @@ export class OrdersPanel {
   pickerRows(ctx: PanelContext): PickerRow[] {
     const needle = this.picker.filter;
     const all = this.candidates(ctx).filter((r) => needle === '' || r.name.toLowerCase().replace(/[^a-z]/g, '').includes(needle));
+    return this.groupRecipes(ctx, all, this.recent);
+  }
+
+  /** Shared category headings and ordering for the picker and finished workshop. */
+  groupRecipes(ctx: PanelContext, all: readonly RecipeRow[], recentIds: readonly string[] = []): PickerRow[] {
     const out: PickerRow[] = [];
-    const recent = this.recent.map((id) => all.find((r) => r.id === id)).filter((r): r is RecipeRow => r !== undefined);
+    const recent = recentIds.map((id) => all.find((r) => r.id === id)).filter((r): r is RecipeRow => r !== undefined);
     if (recent.length > 0) {
       out.push({ heading: ctx.strings.get('ui.orders.picker.recent') });
       for (const recipe of recent) out.push({ recipe });
@@ -534,6 +546,18 @@ export class OrdersPanel {
 
   /** The workshop panel's keys. */
   workshopKey(ctx: PanelContext, id: EntityId, press: KeyPress, takeApart: () => void): boolean {
+    const building = this.buildings(ctx)?.get(id);
+    const rows = this.groupRecipes(ctx, building === undefined ? [] : this.reader(ctx)?.recipesFor(building.typeId) ?? []).flatMap((row) => 'recipe' in row ? [row.recipe] : []);
+    const state = this.workshopList(id);
+    if (press.key === 'ArrowUp' || press.key === 'ArrowDown') {
+      state.selected = Math.max(0, Math.min(rows.length - 1, state.selected + (press.key === 'ArrowUp' ? -1 : 1)));
+      return true;
+    }
+    if (press.key === 'Enter') {
+      const recipe = rows[state.selected];
+      if (recipe !== undefined) this.workshopAction(ctx, id, 'new', takeApart, recipe.id);
+      return true;
+    }
     const letter = accel(ctx, press);
     const action = WORKSHOP_KEYS[letter];
     if (action === undefined) return false;
@@ -924,12 +948,27 @@ export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: O
   separator(s, col, rect.row + 3, width, strings.get('ui.workshop.recipes'));
   const recipes = reader.recipesFor(building.typeId);
   const foot = rect.row + rect.rows - WORKSHOP_FOOT_ROWS;
-  for (let k = 0; k < recipes.length && rect.row + 4 + k < foot; k += 1) {
-    const recipe = recipes[k] as typeof recipes[number];
+  const grouped = panel.groupRecipes(ctx, recipes);
+  const ordered = grouped.flatMap((row) => 'recipe' in row ? [row.recipe] : []);
+  const stateList = panel.workshopList(id);
+  const recipeRect = { col, row: rect.row + 4, cols: width, rows: Math.max(1, foot - rect.row - 4) };
+  groupedList(s, recipeRect, grouped.map((row): GroupRow => {
+    if ('heading' in row) return row;
+    const recipe = row.recipe;
     const can = reader.isRunnable(recipe.id, id).runnable;
-    label(s, col, rect.row + 4 + k, `${can ? '●' : '○'} ${recipe.name}`, { fg: can ? t.good : t.dim, width });
-    const click = run('new', recipe.id);
-    if (click !== undefined) s.hit({ col, row: rect.row + 4 + k, cols: width, rows: 1 }, click);
+    return { text: () => `${can ? '●' : '○'} ${recipe.name}`, fg: can ? t.good : t.dim };
+  }), stateList, (index) => {
+    stateList.selected = index;
+    const recipe = ordered[index];
+    if (recipe !== undefined) run('new', recipe.id)?.();
+  });
+  // Clicking the scrollbar browses later recipes without opening an order.
+  if (grouped.length > recipeRect.rows) for (let r = 0; r < recipeRect.rows; r += 1) {
+    s.hit({ col: col + width - 1, row: recipeRect.row + r, cols: 1, rows: 1 }, () => {
+      const at = Math.round(r * (grouped.length - 1) / Math.max(1, recipeRect.rows - 1));
+      const recipe = grouped.slice(at).find((row) => 'recipe' in row);
+      if (recipe !== undefined && 'recipe' in recipe) stateList.selected = ordered.indexOf(recipe.recipe);
+    });
   }
   const orderRows = reader.ordersOf(id);
   separator(s, col, foot, width, strings.get('ui.workshop.orders', { n: orderRows.length }));

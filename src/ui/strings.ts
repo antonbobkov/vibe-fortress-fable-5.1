@@ -802,6 +802,12 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.military.choice.remove': 'Remove: {n} marked',
   'ui.military.choice.leader': 'Squad leader',
   'ui.military.choice.barracks': 'Barracks',
+  'ui.military.choice.weapon': 'Weapon class',
+  'ui.military.choice.armor': 'Armor',
+  'ui.military.gear_current': '{value} (current)',
+  'ui.military.weapon': 'Gear [w] weapon [{value} ▾]',
+  'ui.military.armor': '  [g] armor [{value} ▾]',
+  'ui.military.ranged': '  [S-j] ranged {mark}',
   'ui.military.choice_keys_mark': '[Space] mark  [*] all',
   'ui.military.choice_keys': '[Enter] choose  [Esc] cancel',
   // Debug panel (`panels.md` § Debug; `tooling.md` § Debug and replay).
