@@ -7,7 +7,8 @@ export interface UserSettings {
   autoPauseAlert: boolean;
   hints: boolean;
   colorblind: boolean;
-  zoom: number;
+  /** The requested zoom: `auto` or a level of `ZOOM_LEVELS` (23 § Canvas and cells). */
+  zoom: number | 'auto';
   edgeScrolling: boolean;
   autosave: boolean;
   snapshotsKept: 2 | 4 | 8;
@@ -23,7 +24,7 @@ export function readSettings(value: unknown): UserSettings {
     autoPauseAlert: bool('autoPauseAlert'),
     hints: bool('hints'),
     colorblind: bool('colorblind'),
-    zoom: SETTINGS_ZOOM_OPTIONS.includes(row['zoom'] as typeof SETTINGS_ZOOM_OPTIONS[number]) ? row['zoom'] as number : DEFAULT_USER_SETTINGS.zoom,
+    zoom: SETTINGS_ZOOM_OPTIONS.includes(row['zoom'] as typeof SETTINGS_ZOOM_OPTIONS[number]) ? row['zoom'] as number | 'auto' : DEFAULT_USER_SETTINGS.zoom,
     edgeScrolling: bool('edgeScrolling'),
     autosave: bool('autosave'),
     snapshotsKept: SETTINGS_SNAPSHOT_OPTIONS.includes(row['snapshotsKept'] as typeof SETTINGS_SNAPSHOT_OPTIONS[number]) ? row['snapshotsKept'] as 2 | 4 | 8 : DEFAULT_USER_SETTINGS.snapshotsKept,

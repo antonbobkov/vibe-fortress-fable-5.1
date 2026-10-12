@@ -22,6 +22,8 @@ Draw the world and the interface as colored glyphs on one canvas, fast, with rul
 
 - One `<canvas>` filling the window, sized in device pixels (`devicePixelRatio` aware), CSS-sized to the window. Cell size `CELL_PX_ZOOM_1 × zoom`.
 - `cols = floor(canvasWidth / cellPx)`, `rows = floor(canvasHeight / cellPx)`. If `cols < MIN_VIEW_COLS` or `rows < MIN_VIEW_ROWS`, the zoom steps down to the next available level; below the smallest zoom the canvas is scaled with CSS (blurry but complete).
+- Two zooms exist. The *requested* zoom is the Zoom setting (`Auto` or a level of `ZOOM_LEVELS`); it changes only in Settings or with `Ctrl+↑` and `Ctrl+↓`. The *fitted* zoom is what the rule above gives for the present canvas; it is never written back to the setting. Every resize fits again from the requested zoom, so a window that grows back gets its cell size back.
+- `Auto` asks for the largest level of 1 or more at which the grid has at least `AUTO_ZOOM_MIN_COLS` × `AUTO_ZOOM_MIN_ROWS` cells, and for 1 when no level does. A 1280 × 800 canvas gives 80 × 50 cells at zoom 1, 1920 × 1080 stays at zoom 1, 2560 × 1440 uses 1.5, 3840 × 2160 uses 2 (120 × 67 cells). `Ctrl+↑` and `Ctrl+↓` leave `Auto` for a fixed level one step from the one shown.
 - Layout: status bar takes the bottom `STATUS_ROWS`; the log strip takes `LOG_ROWS` above it; the sidebar takes the right `SIDEBAR_COLS` when open; the map viewport is the rest.
 - The frame draws every cell from the cell buffer: fill `bg` rect, then draw the glyph from the atlas for `fg`. Cells with the same `bg` in a run are filled as one rect (an optimization the renderer may apply; the result is identical).
 - A frame is skipped when nothing changed: the simulation tick count, the UI state hash, the camera, and the animation phase are compared with the last frame's.
@@ -95,7 +97,7 @@ Panels and bars are drawn as text into the same cell buffer by the UI's widgets:
 
 ## State
 
-Presentation-only: atlases, cell buffers (two, for change detection), camera, animation phase, overlay toggles, last-frame hashes. None of it is saved except camera, `z`, zoom and overlay toggles (in the `ui` save section).
+Presentation-only: atlases, cell buffers (two, for change detection), camera, animation phase, overlay toggles, last-frame hashes. None of it is saved except camera, `z`, the zoom in effect and overlay toggles (in the `ui` save section).
 
 ## Interfaces
 
@@ -125,6 +127,8 @@ Everything visible. The overlay menu (24) lists overlays with their toggles; the
 | `ATLAS_COLOR_CACHE` | 128 | Colored atlases kept |
 | `DIM_FACTOR` | 0.55 | Per dimming step |
 | `FLUID_ANIM_MS` | 500 | |
+| `AUTO_ZOOM_MIN_COLS` | 100 | Columns the `Auto` zoom keeps at least |
+| `AUTO_ZOOM_MIN_ROWS` | 56 | Rows the `Auto` zoom keeps at least |
 | `ZONE_TINT_ALPHA` | 0.25 | Blend factor for zone backgrounds |
 | `TEMPERATURE_RAMP_COLD_C` | −20 | At or below this the `temperature` overlay is `blue` |
 | `TEMPERATURE_RAMP_HOT_C` | 40 | At or above this the `temperature` overlay is `red` |

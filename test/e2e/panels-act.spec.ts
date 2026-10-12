@@ -82,6 +82,7 @@ interface PanelsActHook extends Hook {
     of<T>(id: string): T;
   };
   host: {
+    speed(): number;
     world: {
       applyCommand(cmd: Record<string, unknown>): { ok: boolean; reason?: string };
       emit(event: Record<string, unknown>): void;
@@ -92,6 +93,7 @@ interface PanelsActHook extends Hook {
     };
   };
   step(ticks: number): void;
+  dwarves(): { id: number; x: number; y: number; z: number }[];
 }
 
 test('panels-act', async ({ page }) => {
@@ -659,6 +661,54 @@ test('panels-act', async ({ page }) => {
     }, setupInfo.groundItemId);
     return (flags & ItemFlag.Forbidden) !== 0;
   }).toBe(true);
+
+  // ==========================================
+  // 8d. T-277 Look, creature tab: the mood is a whole number; a wounded dwarf shows its care
+  // ==========================================
+  const wounded = await page.evaluate(() => {
+    const h = (window as unknown as { __deepholm: PanelsActHook }).__deepholm;
+    const dwarf = h.dwarves()[0];
+    if (dwarf === undefined) throw new Error('no dwarf');
+    h.host.world.emit({ type: 'DamageDealt', defenderId: dwarf.id, attackerId: 0, part: 'left_arm', damageType: 'edge', amount: 20 });
+    h.step(20);
+    const ui = h.readers.ui as unknown as { cursor: { x: number; y: number } | null; z: number };
+    ui.cursor = { x: dwarf.x, y: dwarf.y };
+    ui.z = dwarf.z;
+    return dwarf.id;
+  });
+  expect(wounded).toBeGreaterThan(0);
+  // The rectangle selection of 8c leaves Look open.
+  if ((await panel()) !== 'look') await page.keyboard.press('k');
+  await expect.poll(panel).toBe('look');
+  await page.keyboard.press('3');
+  await expect.poll(() => textOf(page)).toMatch(/Mood: \w+ \(\d+\)/);
+  await expect.poll(() => textOf(page)).toContain('Care: no hospital.');
+  await page.keyboard.press('Escape');
+  if ((await panel()) !== null) await page.keyboard.press('Escape');
+  await expect.poll(panel).toBeNull();
+
+  // ==========================================
+  // 8e. T-282 Units filter: Space types a space, and the filter ends with the panel
+  // ==========================================
+  const speedOf = async () => page.evaluate(() => (window as unknown as { __deepholm: PanelsActHook }).__deepholm.host.speed());
+  const speedBefore = await speedOf();
+  await page.keyboard.press('u');
+  await expect.poll(panel).toBe('units');
+  await page.keyboard.press('/');
+  await page.keyboard.type('x');
+  await page.keyboard.press('Space');
+  await page.keyboard.type('y');
+  await expect.poll(() => textOf(page)).toContain('/filter: x y_');
+  expect(await speedOf()).toBe(speedBefore);
+  await page.keyboard.press('Enter');
+  await expect.poll(() => textOf(page)).toMatch(/Units . filter: x y \(0 of \d+\)/);
+  await page.keyboard.press('Escape');
+  await expect.poll(panel).toBeNull();
+  await page.keyboard.press('u');
+  await expect.poll(panel).toBe('units');
+  expect(await textOf(page)).not.toContain('filter: x y');
+  await page.keyboard.press('Escape');
+  await expect.poll(panel).toBeNull();
 
   // ==========================================
   // 9. SCREENSHOT & FINISH

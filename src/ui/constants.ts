@@ -29,7 +29,7 @@ export const HINT_CHECK_HOURS = 1;
 export const HEALTH_PART_BAR_CELLS = 5;
 
 /** The values and defaults of ui-keymap-and-screens.md § Settings. */
-export const SETTINGS_ZOOM_OPTIONS = [0.75, 1, 1.5] as const;
+export const SETTINGS_ZOOM_OPTIONS = ['auto', 0.75, 1, 1.5, 2] as const;
 export const SETTINGS_SNAPSHOT_OPTIONS = [2, 4, 8] as const;
 export const SETTINGS_COMBAT_LOG_OPTIONS = ['all', 'hits only', 'off'] as const;
 export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
@@ -37,7 +37,7 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   autoPauseAlert: false,
   hints: true,
   colorblind: false,
-  zoom: 1,
+  zoom: 'auto',
   edgeScrolling: false,
   autosave: true,
   snapshotsKept: 4,

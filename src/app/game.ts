@@ -30,7 +30,7 @@ import { Compositor, type ViewState } from '@render/compositor';
 import { GlyphAtlas, glyphChars } from '@render/atlas';
 import { Palette } from '@render/palette';
 import { Renderer } from '@render/renderer';
-import { CellBuffer, computeViewport } from '@render/cellbuffer';
+import { autoZoom, CellBuffer, computeViewport } from '@render/cellbuffer';
 import { WorldMapCompositor } from '@render/world-map';
 import { FrameDriver, InProcessHost, type NewGameSpec, type Speed } from '@app/sim-host';
 import {
@@ -197,11 +197,10 @@ export class Game {
         ? {}
         : { devicePixelRatio: options.devicePixelRatio }),
     });
-    const fit = computeViewport(
-      options.width * (options.devicePixelRatio ?? 1),
-      options.height * (options.devicePixelRatio ?? 1),
-      this.ui.zoom,
-    );
+    const widthPx = options.width * (options.devicePixelRatio ?? 1);
+    const heightPx = options.height * (options.devicePixelRatio ?? 1);
+    const fit = computeViewport(widthPx, heightPx, this.requestedZoom(widthPx, heightPx));
+    this.ui.zoom = fit.zoom;
     this.atlas = new GlyphAtlas({
       cellPx: fit.cellPx,
       chars: glyphChars(this.registry),
@@ -390,6 +389,7 @@ export class Game {
   }
 
   private applySettings(settings: UserSettings): void {
+    const zoomBefore = this.userSettings.zoom;
     Object.assign(this.userSettings, settings);
     this.fortress.settings.autoPauseDanger = settings.autoPauseDanger;
     this.fortress.settings.autoPauseAlert = settings.autoPauseAlert;
@@ -398,10 +398,7 @@ export class Game {
     this.fortress.settings.combatLog = settings.combatLog;
     this.palette.setColorblind(settings.colorblind);
     this.theme = themeOf(this.palette);
-    if (this.ui.zoom !== settings.zoom) {
-      this.ui.zoom = settings.zoom;
-      this.resize(this.surface.cssWidth, this.surface.cssHeight);
-    }
+    if (zoomBefore !== settings.zoom) this.resize(this.surface.cssWidth, this.surface.cssHeight);
   }
 
   changeSettings(patch: Partial<UserSettings>): void {
@@ -422,6 +419,10 @@ export class Game {
       keymap: this.keymap,
       strings: this.strings,
       settings: () => this.userSettings,
+      zoomView: () => ({
+        requested: this.requestedZoom(this.surface.cssWidth * this.surface.pixelRatio, this.surface.cssHeight * this.surface.pixelRatio),
+        shown: this.ui.zoom,
+      }),
       change: (patch) => this.changeSettings(patch),
       bindingsChanged: () => this.persistSettings(),
       resetDefaults: () => this.resetSettings(),
@@ -756,10 +757,9 @@ export class Game {
     this.autosaveDue = null;
     this.fortress.log.lines.length = 0;
     if (loaded.ui !== null) {
-      const zoom = this.ui.zoom;
       this.fortress.log.lines.push(...fromSaved(this.ui, loaded.ui as SavedUiState));
-      this.userSettings.zoom = this.ui.zoom;
-      if (this.ui.zoom !== zoom) this.resize(this.surface.cssWidth, this.surface.cssHeight);
+      // The saved zoom is the one that was in effect; the window fits again from the setting.
+      this.resize(this.surface.cssWidth, this.surface.cssHeight);
     }
     this.resetTo(FORTRESS);
     this.host.setSpeed(0);
@@ -886,10 +886,12 @@ export class Game {
 
   /** One zoom level in or out (`ZOOM_LEVELS`); the grid refits to the canvas. */
   zoomBy(delta: number): void {
-    const at = ZOOM_LEVELS.indexOf(this.ui.zoom as (typeof ZOOM_LEVELS)[number]);
+    const requested = this.userSettings.zoom;
+    const from = requested === 'auto' ? this.ui.zoom : requested;
+    const at = ZOOM_LEVELS.indexOf(from as (typeof ZOOM_LEVELS)[number]);
     const next = ZOOM_LEVELS[Math.max(0, Math.min(ZOOM_LEVELS.length - 1, (at < 0 ? 1 : at) + delta))] as number;
-    if (next === this.ui.zoom) return;
-    this.ui.zoom = next;
+    if (next === from && requested !== 'auto') return;
+    if (next === this.ui.zoom && requested === 'auto') return;
     this.userSettings.zoom = next;
     this.persistSettings();
     this.resize(this.surface.cssWidth, this.surface.cssHeight);
@@ -1103,9 +1105,15 @@ export class Game {
 
   // ---------- layout and drawing ----------
 
+  /** The zoom the setting asks for at a canvas size: its level, or the automatic pick (23 § Canvas and cells). */
+  private requestedZoom(widthPx: number, heightPx: number): number {
+    const zoom = this.userSettings.zoom;
+    return zoom === 'auto' ? autoZoom(widthPx, heightPx) : zoom;
+  }
+
   /** Fit the grid to the canvas and rebuild the atlas when the cell size changed. */
   resize(cssWidth: number, cssHeight: number, dpr = this.surface.pixelRatio): void {
-    const fit = computeViewport(cssWidth * dpr, cssHeight * dpr, this.ui.zoom);
+    const fit = computeViewport(cssWidth * dpr, cssHeight * dpr, this.requestedZoom(cssWidth * dpr, cssHeight * dpr));
     this.surface.resize(cssWidth, cssHeight, dpr, fit.cssScale);
     this.cols = fit.cols;
     this.rows = fit.rows;

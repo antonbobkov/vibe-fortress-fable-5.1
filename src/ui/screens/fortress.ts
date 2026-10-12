@@ -52,7 +52,7 @@ import { DebugPanel, drawDebugPanel, type DebugHost } from '../panels/debug';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import type { UiState } from '../ui-state';
-import { drawTooltip, editText, label, labelRow } from '../widgets';
+import { drawTooltip, editText, label, labelRow, typedChar } from '../widgets';
 import { blockedText, buildingName, commandFocus, rejectionText, zoneName, zoneEditorMessage } from '../messages';
 
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
@@ -572,7 +572,7 @@ export class FortressScreen implements Screen {
     if (panel === undefined) return;
     const inner = { col: rect.col + 1, row: rect.row, cols: rect.cols - 1, rows: rect.rows };
     const key = panel.hotkey === '' ? '' : `[${panel.hotkey}]`;
-    label(surface, inner.col + 1, inner.row, panel.title, { fg: t.key, width: inner.cols - key.length - 2 });
+    label(surface, inner.col + 1, inner.row, this.panelTitle(panel.id, panel.title), { fg: t.key, width: inner.cols - key.length - 2 });
     label(surface, inner.col + inner.cols - key.length - 1, inner.row, key);
     const body = { col: inner.col, row: inner.row + 1, cols: inner.cols, rows: inner.rows - 1 };
     const readers = this.host.readers;
@@ -776,11 +776,54 @@ export class FortressScreen implements Screen {
     else this.openPanel(id);
   }
 
+  /** A panel's filter ends with the panel (24 § Rules, text input). */
+  private clearFilters(): void {
+    this.units.filter = '';
+    this.units.editing = false;
+    this.jobs.filter.value = '';
+    this.jobs.filter.focused = false;
+    this.stocks.filter.value = '';
+    this.stocks.filter.focused = false;
+  }
+
+  /** The Units filter field: it types every printable key, `Space` included, before any command key. */
+  private unitsFilterKey(press: KeyPress): boolean {
+    if (press.ctrl || press.alt || press.meta) return false;
+    if (press.key === 'Enter') this.units.editing = false;
+    else if (press.key === 'Backspace') this.units.filter = Array.from(this.units.filter).slice(0, -1).join('');
+    else {
+      const ch = typedChar(press.key);
+      if (ch === null) return false;
+      this.units.filter += ch;
+    }
+    this.units.list.selected = 0;
+    return true;
+  }
+
+  /** A panel's title, with the filter in use: `Units · filter: xxx (3 of 80)`. */
+  private panelTitle(id: string, title: string): string {
+    const ctx = this.ctx;
+    let filter = '';
+    let counts: { shown: number; total: number } | null = null;
+    if (id === 'units' && this.units.filter !== '') {
+      filter = this.units.filter;
+      counts = { shown: this.units.rows(ctx).length, total: dwarvesOf(ctx).length };
+    } else if (id === 'jobs' && this.jobs.filter.value !== '') {
+      filter = this.jobs.filter.value;
+      counts = { shown: this.jobs.jobs(ctx).length, total: this.jobs.allJobs(ctx).length };
+    } else if (id === 'stocks' && this.stocks.filter.value !== '') filter = this.stocks.filter.value;
+    if (filter === '') return title;
+    return counts === null
+      ? this.strings.get('ui.panel.filtered', { title, filter })
+      : this.strings.get('ui.panel.filtered_counts', { title, filter, shown: counts.shown, total: counts.total });
+  }
+
   openPanel(id: string | null): void {
     if (id !== 'designate') this.tool.cancel();
     if (id !== 'build') this.build.cancel();
     if (id !== 'zones') this.zones.cancel();
     if (id !== 'building') this.building.cancel();
+    if (id !== this.ui.panel) this.clearFilters();
     this.ui.panel = id;
     this.ui.sidebar = true;
   }
@@ -1077,6 +1120,7 @@ export class FortressScreen implements Screen {
       return;
     }
       if (this.ui.panel !== null) {
+        this.clearFilters();
         this.ui.panel = null;
         if (this.ui.cursor !== null) this.ui.cursor = null;
         return;
@@ -1096,6 +1140,8 @@ export class FortressScreen implements Screen {
 
   key(press: KeyPress): boolean {
     this.ensureRegistered();
+    if (this.textFocused() && press.key === 'Space') press = { ...press, key: ' ' };
+    if (this.ui.sidebar && this.ui.panel === 'units' && this.units.editing && this.unitsFilterKey(press)) return true;
     if (this.ui.sidebar && this.ui.panel === 'jobs' && this.jobs.filter.key(press)) { this.jobs.resetSelection(); return true; }
     if (this.ui.sidebar && this.ui.panel === 'stocks' && this.stocks.filter.key(press)) { this.stocks.tree.selected = 0; this.stocks.tree.scroll = 0; return true; }
     if (this.ui.panel === 'stocks' && this.stocks.depotSelection && (press.key === 'Esc' || press.key === 'Escape')) {
@@ -1436,14 +1482,7 @@ export class FortressScreen implements Screen {
         if (letter === 't') { this.openTrade(); return true; }
         return false;
       case 'units': {
-        if (this.units.editing) {
-          if (k === 'Enter') this.units.editing = false;
-          else if (k === 'Backspace') this.units.filter = this.units.filter.slice(0, -1);
-          else if (Array.from(k).length === 1) this.units.filter += k;
-          else return false;
-          this.units.list.selected = 0;
-          return true;
-        }
+        if (this.units.editing) return this.unitsFilterKey(press);
         // U-06: marks, titles, rename, squads, sleep hour, and the open chooser's keys.
         if (this.units.key(ctx, press)) return true;
         if (k === '/') {

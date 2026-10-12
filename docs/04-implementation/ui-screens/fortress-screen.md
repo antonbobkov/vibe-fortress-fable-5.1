@@ -77,12 +77,28 @@ Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows
 │           +3 Slept in my decent room      │
 │           −4 Saw an enemy (12h)           │
 │ Health   unhurt · blood 100%              │
+│ Care     resting until healed.            │
 │ Equipment iron pick (common)              │
 │ Wearing  linen tunic, trousers, boots     │
 │ Relations friends: Brynja Coldhammer     │
 │ Title    Thane            [t] change     │
 │ Labors   [l] edit                         │
 ```
+
+The mood prints as a whole number (`Mood: Unhappy (37)`), as the thoughts under it do.
+
+A dwarf who is a patient has a `Care:` line under the Health line, on top of the health details (an undiagnosed patient keeps `Health: Wounded, bleeding` and still has the line). It is the first of these that applies, and it is drawn in the alert color when the player must act (the first three, and a missing supply) and in the normal color otherwise:
+
+1. no hospital zone exists: `Care: no hospital. Make one in Zones [z] > Hospital.`
+2. the patient is not in a hospital bed and no hospital bed is free for them: `Care: no free hospital bed.`
+3. no living dwarf has the `medicine` labor on: `Care: no one has Medicine enabled ([l] Labors).`
+4. an unconscious patient's `carry_patient` job has no worker: `Care: waiting to be carried to the hospital.`
+5. a treatment job of the patient's needs has a worker: `Care: {job} by {name}.` (`Care: diagnosis by Snorri Pinesong.`; the job words are bandaging, bone setting, suturing, wound cleaning, burn dressing, diagnosis, crutch fitting)
+6. a treatment job is blocked for a missing input: `Care: needs {item} ({n} in stock).`, with the count 13 reports as available
+7. otherwise, while a need remains: `Care: waiting for a medic.`
+8. with no need left: `Care: resting until healed.`
+
+The line reads 14's hospital zones and beds, 11's labor and job readers and 13's stock; it is broken at spaces to the panel width, the continuation rows indented under the text. A creature that is not a patient has no such line.
 
 Sections come from the inspector registry in this order: identity, activity, needs, skills, thoughts, health, equipment, relationships, title, labors (dwarf); species, state, owner, pasture, condition, training (animal); party, role, state (hostile); type, material, quality, count, value, rot, flags (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
 

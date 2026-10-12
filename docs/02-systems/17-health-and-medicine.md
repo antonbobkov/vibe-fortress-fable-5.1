@@ -132,7 +132,7 @@ Job producer `health` (`carry_patient`, `feed_patient`, `water_patient`, `stop_b
 ## Player-facing behavior
 
 - Hospital zone: bed count, chest, supply wants with current counts, patients list with their needs.
-- Creature inspection › Health tab.
+- Creature inspection › Health tab. A patient's panel also has a `Care:` line saying what happens next: no hospital, no free hospital bed, no one with Medicine enabled, waiting to be carried, the treatment under way and who does it, the supply it waits for, waiting for a medic, or resting until healed (`ui-screens/fortress-screen.md` § Inspection panel).
 - The status bar shows a red cross with a count when any dwarf is a patient.
 - Hints: "A hospital needs a bed, a chest, cloth and thread", "Brightleaf treats infection; gather it from the woods", "Splints stop fractures healing wrong".
 

@@ -16,10 +16,12 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import { buildingName, zoneName } from '../messages';
+import { buildingName, filterText, zoneName } from '../messages';
 import type { Strings } from '../strings';
 import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
+import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs';
 import { MOOD_TIER_NAMES } from './mood';
 import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
@@ -90,6 +92,85 @@ export function creatureSummary(readers: ReaderSet, id: EntityId): string {
   const name = readers.entities.get(id, C.Creature)?.name ?? '';
   const activity = has(readers, '10') ? readers.of<DwarvesReaderLike>('10').activityText(id) : '';
   return activity.length > 0 ? `${name}, ${activity}` : name;
+}
+
+/** A patient's Care line: what happens next, and whether the player must act (17 § Patients and hospitals). */
+export interface CareLine {
+  readonly text: string;
+  readonly urgent: boolean;
+}
+
+/** Whether a free hospital bed exists for this patient (the rule of 17's bed allocation). */
+function hospitalBedFree(buildings: BuildingsReader, hospitals: readonly EntityId[], patientId: EntityId): boolean {
+  const beds = new Set(buildings.byTag('sleep'));
+  for (const hospital of hospitals) {
+    for (const tile of buildings.zone(hospital)?.tiles ?? []) {
+      const bedId = buildings.at(tile);
+      if (!beds.has(bedId) || buildings.get(bedId)?.state !== 'built') continue;
+      const holder = buildings.bedHolder(bedId);
+      if (holder === 0 || holder === patientId) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * The first of eight facts that applies to a patient, read from 14 (hospital, beds), 11 (the labor,
+ * the job board) and 13 (stock): no hospital, no free bed, no one with Medicine on, waiting to be
+ * carried, a treatment under way, a treatment short of a supply, waiting for a medic, resting.
+ * Null for a creature that is not a patient.
+ */
+export function careLine(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): CareLine | null {
+  const patient = readers.entities.get(id, C.Patient);
+  if (patient === undefined) return null;
+  const say = (key: string, args: Record<string, string | number> = {}, urgent = false): CareLine => ({ text: strings.get(key, args), urgent });
+  if (has(readers, '14')) {
+    const buildings = readers.of<BuildingsReader>('14');
+    const hospitals = buildings.zonesOfType('hospital');
+    if (hospitals.length === 0) return say('ui.look.care.no_hospital', {}, true);
+    const inHospitalBed = patient.bedId !== 0 && hospitals.includes(patient.hospitalZoneId);
+    if (!inHospitalBed && !hospitalBedFree(buildings, hospitals, id)) return say('ui.look.care.no_bed', {}, true);
+  }
+  if (!has(readers, '11')) return say(patient.needs.length === 0 ? 'ui.look.care.resting' : 'ui.look.care.waiting');
+  const jobs = readers.of<JobsReader>('11');
+  if (jobs.workersWithLabor('medicine').length === 0) return say('ui.look.care.no_medicine', {}, true);
+  const carry = jobs.byKey(`carry_patient:${id}`);
+  if (carry !== undefined && carry.workerId === 0) return say('ui.look.care.carry');
+  const treatments = patient.needs.flatMap((kind) => {
+    const job = jobs.byKey(`${kind}:${id}`);
+    return job === undefined ? [] : [{ kind, job }];
+  });
+  const active = treatments.find((t) => t.job.workerId !== 0);
+  if (active !== undefined) {
+    const name = readers.entities.get(active.job.workerId, C.Creature)?.name ?? '';
+    return say('ui.look.care.treating', { job: strings.get(`ui.look.care.job.${active.kind}`), name });
+  }
+  const short = treatments.find((t) => t.job.state === 'blocked' && t.job.blockedReason === 'missing_input');
+  if (short !== undefined) {
+    const input = short.job.inputs.find((i) => i.count - i.delivered.length > 0) ?? short.job.inputs[0];
+    if (input !== undefined) {
+      const filter = input.filter as Readonly<Record<string, unknown>>;
+      const item = filterText(registry, filter, 1).replace(/^\d+ /, '');
+      const stock = has(readers, '13') ? readers.of<ItemsReader>('13').countAvailable(filter) : 0;
+      return say('ui.look.care.needs', { item, n: stock }, true);
+    }
+  }
+  return say(patient.needs.length === 0 ? 'ui.look.care.resting' : 'ui.look.care.waiting');
+}
+
+/** A line broken at spaces to `width` cells, the continuation rows indented under the text after the first word. */
+function hangingRows(text: string, width: number): string[] {
+  const indent = ' '.repeat(text.indexOf(' ') + 1);
+  const rows: string[] = [];
+  let row = '';
+  for (const word of text.split(' ')) {
+    if (row.trim() !== '' && Array.from(row).length + 1 + Array.from(word).length > width) {
+      rows.push(row);
+      row = `${indent}${word}`;
+    } else row = row === '' ? word : `${row} ${word}`;
+  }
+  if (row !== '') rows.push(row);
+  return rows;
 }
 
 export function drawLookPanel(
@@ -202,7 +283,7 @@ export function drawLookPanel(
       }
       if (has(readers, '15') && readers.entities.get(id, C.Creature)?.faction === 'fortress') {
         const morale = readers.of<MoraleReader>('15');
-        line(`Mood: ${MOOD_TIER_NAMES[morale.tier(id)]} (${morale.mood(id)})`, t.value);
+        line(`Mood: ${MOOD_TIER_NAMES[morale.tier(id)]} (${Math.round(morale.mood(id))})`, t.value);
         for (const thought of morale.thoughts(id)) line(`  ${thought.value > 0 ? '+' : ''}${Math.round(thought.value)} ${thought.text}`);
       }
     }
@@ -210,12 +291,18 @@ export function drawLookPanel(
       const body = readers.entities.get(id, C.Body);
       if (body !== undefined) {
         const isPatient = readers.entities.has(id, C.Patient);
+        const care = careLine(readers, registry, strings, id);
+        const careRows = (): void => {
+          if (care !== null) for (const text of hangingRows(care.text, rect.cols - 2)) line(text, care.urgent ? t.alert : t.text);
+        };
         if (isPatient && !body.diagnosed) {
           const bleeding = body.parts.some((p) => p.wounds.some((w) => w.bleed > 0 && !w.bandaged));
           line(`Health: ${bleeding ? 'Wounded, bleeding' : 'Wounded'}`, t.bad);
+          careRows();
         } else {
           const bloodPct = body.maxBlood > 0 ? Math.floor((body.blood * 100) / body.maxBlood) : 100;
           line(`Health: Blood ${bloodPct}%, Pain ${body.pain}`);
+          careRows();
           line(`  ${body.conscious ? 'Conscious' : 'Unconscious'}`, body.conscious ? t.text : t.bad);
           if (body.permanent.length > 0) line(`  Permanent: ${body.permanent.join(', ')}`, t.dim);
           const partNames = ['head', 'torso', 'left arm', 'right arm', 'left leg', 'right leg'];
