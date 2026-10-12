@@ -303,6 +303,7 @@ export class FortressScreen implements Screen {
         // (D-U4); 24 § Announcements: the status row shows it and the log keeps it as an alert
         // with the command's focus.
         const e = event as unknown as { reason: string; command?: Command };
+        if (e.command?.type === 'PlaceBuilding') this.build.clearPlacement();
         const reason = rejectionText(this.ctx, e.command, String(e.reason));
         const text = this.strings.get('ui.status.rejected', { reason });
         this.notice(text);
@@ -331,11 +332,13 @@ export class FortressScreen implements Screen {
    * ghost state or a new notice (T-243).
    */
   notice(text: string): void {
+    this.build.clearPlacementNotice();
     this.message = { text, until: this.host.now() + STATUS_HINT_SECONDS * 1000 };
     this.noticeGhost = this.build.active ? this.ghostKey() : null;
   }
 
   clearNotice(): void {
+    this.build.clearPlacementNotice();
     this.message = null;
     this.noticeGhost = null;
   }
@@ -598,7 +601,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'military') drawMilitaryPanel(surface, body, this.military, ctx, this.host);
     else if (panel.id === 'threats') drawThreatsPanel(surface, body, this.threats, ctx, this.ui.deepFound);
     else if (panel.id === 'civilizations') drawCivilizationsPanel(surface, body, this.civilizations, ctx, () => this.openTrade());
-    else if (panel.id === 'depot') drawDepotPanel(surface, body, this.depot, ctx, () => this.moveGoods());
+    else if (panel.id === 'depot') drawDepotPanel(surface, body, this.depot, ctx, () => this.moveGoods(), this.host.speed() === 0);
     else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, (line) => {
       if (line.focus !== undefined) this.focusOn(line.focus);
     });
@@ -651,6 +654,10 @@ export class FortressScreen implements Screen {
     const s = this.strings;
     if (this.dragging || this.build.anchor !== null || this.zones.anchor !== null || this.tool.anchor !== null || this.selection !== null) {
       this.clearNotice();
+    }
+    if (this.build.active && this.build.anchor === null && !this.dragging) {
+      const placed = this.build.placementAt(this.ctx, this.hoverPoint() ?? this.actionPoint());
+      if (placed !== null) return placed;
     }
     if (this.build.active && this.noticeGhost !== null && this.ghostKey() !== this.noticeGhost) {
       this.clearNotice();
@@ -885,7 +892,7 @@ export class FortressScreen implements Screen {
 
   /** `[t] trade`: open the session, or say why not (§4.2: no depot, no caravan yet). */
   private openTrade(): void {
-    this.depot.trade(this.ctx);
+    this.depot.trade(this.ctx, this.host.speed() === 0);
   }
 
   /** Look at a tile: the look panel with the cursor on it. */
@@ -920,7 +927,15 @@ export class FortressScreen implements Screen {
     const cmd = this.build.command(ctx, p);
     if (cmd !== null) {
       // One the simulation will take counts toward what the stock must supply (D-U6).
-      if (this.build.ghost(ctx, p)?.reason === null) this.build.placed(ctx, 1);
+      const ghost = this.build.ghost(ctx, p);
+      if (ghost?.reason === null) {
+        this.build.placed(ctx, 1);
+        const stock = this.stockText(0);
+        let text = this.strings.get('ui.status.build_placed_one', { tool: this.build.name(ctx) });
+        if (stock !== '') text = `${text} · ${stock}`;
+        this.notice(text);
+        this.build.rememberPlacement(ghost.tiles, text);
+      }
       this.host.submit(cmd);
     } else this.notice(this.strings.get('ui.status.off_map'));
     return cmd;
@@ -944,7 +959,6 @@ export class FortressScreen implements Screen {
     const plan = this.build.plan(ctx, a, to);
     const commands = plan.ok.map((tile) => this.build.commandAt(ctx, tile)).filter((c): c is Command => c !== null);
     this.build.placed(ctx, commands.length);
-    for (const c of commands) this.host.submit(c);
     const tool = this.build.name(ctx);
     const rule = plan.rules.slice(0, 2).join(', ');
     const n = commands.length;
@@ -954,6 +968,8 @@ export class FortressScreen implements Screen {
     const stock = this.stockText(0);
     if (stock !== '') text = `${text} · ${stock}`;
     this.notice(text);
+    this.build.rememberPlacement(plan.ok, text);
+    for (const c of commands) this.host.submit(c);
     return commands;
   }
 
@@ -1699,6 +1715,8 @@ export class FortressScreen implements Screen {
     this.pointer = { col: p.col, row: p.row };
     const at = this.pointOfCell(p.col, p.row);
     this.hover = at === null ? null : this.tileOf(at);
+    if (at === null) this.build.clearPlacement();
+    else this.build.placementAt(this.ctx, at);
     if (this.middle !== null) {
       // Middle drag pans: the map follows the pointer.
       this.host.pan(this.middle.col - p.col, this.middle.row - p.row);

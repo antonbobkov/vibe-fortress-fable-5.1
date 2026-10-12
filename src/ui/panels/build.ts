@@ -114,6 +114,27 @@ export class BuildTool {
   end: TilePoint | null = null;
   /** Units of the first input that buildings placed with this tool wait for (D-U6). */
   private short: number | null = null;
+  /** Successful placement feedback, until the pointer leaves the placed footprint. */
+  private placement: { tiles: ReadonlySet<TileIndex>; text: string | null } | null = null;
+
+  clearPlacement(): void { this.placement = null; }
+
+  clearPlacementNotice(): void { if (this.placement !== null) this.placement.text = null; }
+
+  rememberPlacement(tiles: readonly TileIndex[], text: string): void {
+    this.placement = tiles.length === 0 ? null : { tiles: new Set(tiles), text };
+  }
+
+  private placementContains(ctx: PanelContext, p: TilePoint): boolean {
+    const map = ctx.readers.map;
+    if (this.placement !== null && map.inBounds(p.x, p.y, p.z) && this.placement.tiles.has(map.index(p.x, p.y, p.z))) return true;
+    this.clearPlacement();
+    return false;
+  }
+
+  placementAt(ctx: PanelContext, p: TilePoint): string | null {
+    return this.placementContains(ctx, p) ? this.placement?.text ?? null : null;
+  }
   /** Units placed on this tick that the stock covers: the count does not know of them yet. */
   private tally: { tick: number; covered: number } | null = null;
   private cache: { key: string; materials: MaterialChoice[] } | null = null;
@@ -130,6 +151,7 @@ export class BuildTool {
 
   /** Another type (or none): the drag, the stock offer and the type's settings start again. */
   resetRow(): void {
+    this.clearPlacement();
     this.anchor = null;
     this.end = null;
     this.short = null;
@@ -256,6 +278,7 @@ export class BuildTool {
 
   /** The ghost at a point: the footprint, the failing tiles and the reason. */
   ghost(ctx: PanelContext, p: TilePoint): { tiles: TileIndex[]; bad: TileIndex[]; reason: string | null; rule: string } | null {
+    if (this.placementContains(ctx, p)) return null;
     const row = this.current(ctx);
     const b = buildings(ctx);
     const origin = this.origin(ctx, p);

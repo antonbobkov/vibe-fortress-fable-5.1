@@ -3,7 +3,7 @@ import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { TradeReader } from '@systems/trade';
 import type { ItemsReader } from '@systems/items';
-import { buildingName, tradeBlocked } from '../messages';
+import { brokerOnWay, buildingName, tradeBlocked } from '../messages';
 import type { Surface } from '../surface';
 import { label, type ListState, clampList } from '../widgets';
 import { buildings, type PanelContext } from './context';
@@ -39,15 +39,18 @@ export class DepotPanel {
   }
 
   /** `[t] Trade`: open the session, or say why it cannot open (§4.2). */
-  trade(ctx: PanelContext): void {
+  trade(ctx: PanelContext, paused = false): void {
     const depotId = this.selectedDepot(ctx);
     const why = tradeBlocked(ctx, depotId);
-    if (why === null) ctx.submit({ type: 'TradeOpen', depotId });
+    if (why === null) {
+      ctx.notice?.(brokerOnWay(ctx, paused));
+      ctx.submit({ type: 'TradeOpen', depotId });
+    }
     else ctx.notice?.(why);
   }
 }
 
-export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: PanelContext, moveGoods: () => void): void {
+export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: PanelContext, moveGoods: () => void, paused = false): void {
   const depotId = panel.selectedDepot(ctx);
   const col = rect.col + 1;
   const width = rect.cols - 2;
@@ -80,5 +83,5 @@ export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: P
   };
   action(ctx.strings.get('ui.depot.move'), s.theme.key, moveGoods);
   action(ctx.strings.get('ui.depot.remove'), s.theme.key, () => panel.remove(ctx));
-  action(ctx.strings.get('ui.depot.trade'), active?.state === 'atDepot' ? s.theme.key : s.theme.dim, () => panel.trade(ctx));
+  action(ctx.strings.get('ui.depot.trade'), active?.state === 'atDepot' ? s.theme.key : s.theme.dim, () => panel.trade(ctx, paused));
 }

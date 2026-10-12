@@ -1,5 +1,13 @@
 # T-251 — A placed building does not look refused; trade stacks merchant goods and answers a paused request
 
+## Progress, 2026-10-12
+
+The decided UI changes are implemented. Three corrected reproductions failed before the fix: placement immediately looked blocked, twelve matching merchant cage entities appeared as separate rows, and the paused broker request had no notice. Placement holds the ghost hidden across the whole footprint, including while another notice replaces the success text; a rejected placement releases the hold. Merchant grouping keeps type/material/quality separate and distributes selections to the underlying ids; totals use their individual prices. Depot requests announce the broker journey and pause hint, retaining the action row.
+
+Five T-251 tests pass, together with the affected UI suites: 108 tests. The hotkey table includes held-placement feedback. All six static checks passed (`t251-final-static2` logs under ignored `.vite/task-resume/`). The official `golden:update -- render/m7-trade-ui` selector passes all 17 golden files / 71 tests; only merchant plural naming changed, with world hashes unchanged. `test/unit/ui/u04-drag-place.test.ts` updates only the post-click status string to include "Bed placed", retaining its stock count and order shortcut. The trade browser spec navigates grouped rather than raw item rows and adds pending-request notice/action-row assertions; trade completion and reputation assertions are unchanged.
+
+Remaining: finish `npm test` (active log `.vite/task-resume/t251-full-test.log`), then WHOLE `npm run test:e2e`, restore screenshots, record the before/after full-year end-state lines, close/archive this work file and delete the backlog row. Before is the T-248 result in `.vite/task-resume/t248-resume-full-e2e.log`: 6 living, no hunger/thirst deaths, hash `008a55e9dabe420b`. The master merge before this task changed no src/ or full-year fixture files. No long fixture was tuned. This task remains open until those full gates pass.
+
 **Source:** T-111 and its report, [`../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../reports/audits/2026-10-10-ui-audit-follow-up.md) (new findings N6, N7; R14) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
