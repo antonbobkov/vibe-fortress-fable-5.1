@@ -1,6 +1,6 @@
 # T-306 — An open bandage job waits until a worker finishes its own job
 
-**Source:** T-301 and [`../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md`](../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md) (link 6) · **Size:** S · **Needs:** T-307 · **Status:** open
+**Source:** T-301 and [`../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md`](../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md) (link 6) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

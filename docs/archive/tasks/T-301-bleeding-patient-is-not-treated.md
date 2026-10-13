@@ -1,10 +1,12 @@
 # T-301 — A bleeding patient in a hospital bed is not treated while cloth is in stock
 
-**Source:** T-145 and [`../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md`](../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md) (§ Wild animals) · **Size:** M · **Needs:** T-307 · **Status:** open: diagnosed, three faults fixed on the branch `t-301` as work in progress; `defence_year` and the annual second-worst guard reject it
+> **Closed 2026-10-13** on the branch `t-301`: `a88d3cd` (the code, tests and spec edits) and the closing commit after the merge of T-308. The two guards that rejected `a88d3cd` were the subject of T-308: `defence_year` now stages its own casualties and passes, and the annual row 13 / 133 / 8 of 12 / 1 / 0 (median / sum of the living / wildlife-free / extinctions / need deaths) passes the guard on the sum. The links not fixed here are T-305, T-306 and T-307. The probe's dwarf of § Done cannot be shown to survive, because its trace does not repeat; `balance.md` § Wild animals is unchanged.
 
-## Progress, 2026-10-12
+**Source:** T-145 and [`../../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md`](../../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md) (§ Wild animals) · **Size:** M · **Needs:** — · **Status:** closed
 
-The diagnosis is [`2026-10-12-bleeding-patients-and-the-duty-guard.md`](../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md): nine links, each classified. The trace below does not repeat at `28e2eab`; its links are explained from the code and from three other traces.
+## Progress, 2026-10-12 (before T-308)
+
+The diagnosis is [`2026-10-12-bleeding-patients-and-the-duty-guard.md`](../../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md): nine links, each classified. The trace below does not repeat at `28e2eab`; its links are explained from the code and from three other traces.
 
 On the branch `t-301`, one work-in-progress commit, with five stepped tests that fail first (`test/unit/health/t301-hospital-supplies.test.ts`) and the spec edits (10 § Behavior selection step 5; 11 § Job steps; 13 § Containers in play; 17 § Patients and hospitals; `algorithms/jobs-and-hauling.md`; `algorithms/creature-brains.md`):
 
@@ -32,7 +34,7 @@ Last run on the tree of `a88d3cd`: the six static checks (pass), `npm test` (2,5
 
 ## Reproduction
 
-The probe [`2026-10-12-t145-probe.test.ts.txt`](../../reports/data/2026-10-12-t145-probe.test.ts.txt), copied to `test/perf/` as a `.test.ts` file at the commit `edc0d48` of the branch `t-145`, run with `PROBE_END_DAY=45 PROBE_SPAWN_DAY=999` through `npm exec -- vitest run -c vitest.perf.config.ts <file>`: seed `three-years`, peril 0, the three-year economy fixture, no animal added by the probe. The trace is [`2026-10-12-t145-bleeding-soldier-trace.txt`](../../reports/data/2026-10-12-t145-bleeding-soldier-trace.txt), one line every 20 ticks while the dwarf bleeds. The same death repeats on every run of the probe (three runs).
+The probe [`2026-10-12-t145-probe.test.ts.txt`](../../../reports/data/2026-10-12-t145-probe.test.ts.txt), copied to `test/perf/` as a `.test.ts` file at the commit `edc0d48` of the branch `t-145`, run with `PROBE_END_DAY=45 PROBE_SPAWN_DAY=999` through `npm exec -- vitest run -c vitest.perf.config.ts <file>`: seed `three-years`, peril 0, the three-year economy fixture, no animal added by the probe. The trace is [`2026-10-12-t145-bleeding-soldier-trace.txt`](../../../reports/data/2026-10-12-t145-bleeding-soldier-trace.txt), one line every 20 ticks while the dwarf bleeds. The same death repeats on every run of the probe (three runs).
 
 Dwarf 16777284 (the woodcutter, a squad member), day 44:
 

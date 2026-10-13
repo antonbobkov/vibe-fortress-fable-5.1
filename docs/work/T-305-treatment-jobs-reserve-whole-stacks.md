@@ -1,6 +1,6 @@
 # T-305 — A treatment job reserves the whole stack of cloth or thread
 
-**Source:** T-301 and [`../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md`](../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md) (link 5) · **Size:** S · **Needs:** T-307 · **Status:** open
+**Source:** T-301 and [`../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md`](../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md) (link 5) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
