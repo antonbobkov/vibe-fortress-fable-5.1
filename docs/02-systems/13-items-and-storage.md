@@ -97,6 +97,7 @@ Maintained incrementally, sorted by item id:
 - Bins hold up to `BIN_CAPACITY` items of any bin-wanting category; a bin in a stockpile that accepts crafts and cloth may hold both.
 - Barrels, bags and buckets count units; bins and chests count items. An item container never goes inside another item container. The wagon’s building container can hold item containers; everything held in it resolves to its centre and is found and unloaded as on the ground. A container is hauled with its contents.
 - Items in containers are visible in the stocks panel and are found by `findItem`; taking one out is part of the fetch step (11).
+- A hospital's built chest is a container on a tile nobody stands on. What lies in it is on the chest's tile; the chest's own linked item stays `installed`. A hauler fills it, and a worker takes from it, standing on a walkable tile beside it: the haul job's work tile is `adjacent` to the chest, and the connectivity check of `findItem` accepts an item in a container on an unwalkable tile when a tile beside it has the searcher's label.
 
 ### Forbid, dump, melt, claim
 

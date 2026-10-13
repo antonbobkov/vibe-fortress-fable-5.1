@@ -1,0 +1,245 @@
+# T-306 evidence: the rule as it was written and tried on the branch t-301 (not merged), 2026-10-12.
+# A diff against 28e2eab of the files it touches. The hunks about fetchTile, the chest and the haul's work tile belong to T-301 and are merged; the rest (summonForPatients, PATIENT_SUMMON_PRIORITY and the spec paragraphs that name them) is this task's.
+
+diff --git a/docs/02-systems/11-jobs-and-labor.md b/docs/02-systems/11-jobs-and-labor.md
+index a6713dc..767f839 100644
+--- a/docs/02-systems/11-jobs-and-labor.md
++++ b/docs/02-systems/11-jobs-and-labor.md
+@@ -67,6 +67,8 @@ Each tick, for up to `ASSIGN_WORKERS_PER_TICK` workers that asked for a job (10
+ 
+ `laborPriorityShift = laborPriority − PRIORITY_DEFAULT`, so raising mining's labor priority to 3 makes every mining job behave two steps more urgent.
+ 
++An open job for a patient at priority `PATIENT_SUMMON_PRIORITY` (17: `stop_bleeding`, `carry_patient`) does not wait for a worker to finish what it is doing. Each tick, before the queue is answered, for each such job that no free worker in the queue could take: among the workers to whom the job is open by step 1, who are in `work` behavior at an interruptible job that is not itself for a patient, and who are neither soldiers on duty nor patients, the nearest to the patient (the distance of step 2, ties by id) is interrupted with its progress kept (§ Job steps, interruptions) and queued, so that it is answered in the same tick. A worker eating, drinking or asleep is not called.
++
+ A worker without a required tool skips the job while no free tool of that kind is reachable and another worker with the labor carries one, leaving the job available to that worker. If nobody could do it, the ordinary `no_tool` block still applies.
+ 
+ Workers keep their tool after the job. A worker holds one tool: a worker that equips a tool of another kind first drops the pick or axe it holds on its own tile through the item API, unowned and unreserved, clears the matching weapon reference and emits `ToolDropped`; the dropped tool is ordinary stock again, which hauling takes to a stockpile and another worker can fetch. A pick or axe in the worker's `Equipment.weapon` counts as a held tool of its kind, so a worker that arrives with one does not fetch another. A worker carries no pick or axe that is neither its `Worker.toolId`, nor in its `Equipment`, nor the item it is hauling (`Worker.carrying`); each jobs tick drops such a tool on the worker's tile in the same way. On death, a held tool or carried item that is not in `Equipment` drops at the death tile through the item API, unowned, unreserved and unforbidden. Clear `Worker.toolId` and `Worker.carrying`; a dropped tool emits `ToolDropped` so `no_tool` jobs retry. Worn equipment stays with the corpse. A living worker whose `mining` and `woodcutting` labors are both off drops a carried pick or axe on the next stockpile tile they pass, clears `Worker.toolId` and the matching weapon reference, and emits `ToolDropped` to unblock tool jobs. Other tools and a still-enabled labor retain their equipment.
+@@ -80,7 +82,7 @@ If the claim of the chosen job fails (it blocks `missing_input` or `no_tool`), t
+ ```
+ switch job.state:
+   claimed:     job.state = inputs.length ? fetching : travelling
+-  fetching:    for each input not yet delivered: path to the item, pick it up (13 attach to worker), path to the work tile, drop it there (or into the workshop); when all delivered → travelling
++  fetching:    for each input not yet delivered: path to the item (to the nearest reachable walkable tile beside it when it lies in a built chest, whose tile nobody stands on), pick it up (13 attach to worker), path to the work tile, drop it there (or into the workshop); when all delivered → travelling
+   travelling:  path to workTile (or an adjacent walkable tile for 'adjacent'); on arrival → working; on 'unreachable' → blocked: unreachable
+   working:     add effort; progress = floor(effort × 1000 / needed), capped at 1000; on reaching needed, complete in this step
+   completing:  producer.onComplete(job) (spawns outputs, applies tile changes, etc.); grant xp; job.state = done; emit JobCompleted; worker becomes free
+@@ -88,7 +90,7 @@ switch job.state:
+ 
+ Each work tick adds `(100 + SKILL_TIME_BONUS_PERCENT × skill) × productivity(worker)` effort. Required effort is `baseTicks × 100 × 100`, without per-tick rounding; `progress` is its fixed-thousandths display. Completion runs in the same step that reaches required effort.
+ 
+-Interruptions (critical need, threat, alert): the job returns to `open` with `progress` kept if `state` was `working`; undelivered items stay reserved for `RESERVE_KEEP_TICKS` so the same worker (or another) can resume. Inputs delivered to a building site stay reserved to its build job until the building is finished or cancelled. Inputs delivered to a workshop stay reserved to the craft job while its order stands, until completion or cancellation. These delivered reservations survive the interruption timeout and a block/unclaim; haulers cannot take them. Other jobs retain the ordinary reservation timeout. Hauling jobs interrupted mid-carry drop the item where the worker stands. Cancellation releases every remaining reservation.
++Interruptions (critical need, threat, alert, a call to a patient): the job returns to `open` with `progress` kept if `state` was `working`; undelivered items stay reserved for `RESERVE_KEEP_TICKS` so the same worker (or another) can resume. Inputs delivered to a building site stay reserved to its build job until the building is finished or cancelled. Inputs delivered to a workshop stay reserved to the craft job while its order stands, until completion or cancellation. These delivered reservations survive the interruption timeout and a block/unclaim; haulers cannot take them. Other jobs retain the ordinary reservation timeout. Hauling jobs interrupted mid-carry drop the item where the worker stands. Cancellation releases every remaining reservation.
+ 
+ On `ItemDestroyed`, remove that id from every job input’s reserved and delivered lists on the dispatch tick; surviving inputs and reservations remain unchanged. Remember the invalidation until the next delivered-input validation so a working job still refetches or blocks before completion, keeping its progress.
+ 
+@@ -202,6 +204,7 @@ Panel `jobs` (open jobs with worker and reason; labor priorities; standing order
+ | `RESERVE_KEEP_TICKS` | 600 | Interrupted undelivered reservations; delivered build/workshop inputs remain with their job |
+ | `BLOCKED_RETRY_TICKS` | 100 | |
+ | `BLOCKED_RETRIES_PER_TICK` | 20 | |
++| `PATIENT_SUMMON_PRIORITY` | 1 | A job for a patient at this priority calls a worker off interruptible work |
+ | `HAUL_PRIORITY` | 6 | Hauling is below default work |
+ | `HAUL_PRIORITY_FOOD` | 5 | |
+ | `IDLE_HAULER_WARNING` | 200 | |
+diff --git a/docs/02-systems/17-health-and-medicine.md b/docs/02-systems/17-health-and-medicine.md
+index 042f86e..e9a1609 100644
+--- a/docs/02-systems/17-health-and-medicine.md
++++ b/docs/02-systems/17-health-and-medicine.md
+@@ -73,7 +73,7 @@ Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned` and
+ ### Patients and hospitals
+ 
+ - A dwarf becomes a `Patient` when: any wound bleeds, any fracture is unsplinted, any burn is undressed, any wound is infected, or the dwarf is unconscious from wounds. `PatientAdmitted { id }`.
+-- Hospital zone settings: desired supplies `{ cloth, thread, splints, crutches, brightleaf, buckets }` (defaults `HOSPITAL_DEFAULT_SUPPLIES`). Both `SetHospitalSupplies` and the zone setting require a non-null record containing only these supply kinds, with integer counts from 0 to `HOSPITAL_SUPPLY_MAX`; otherwise `bad_setting`, with no mutation. Store a copy of the validated record; 13 treats the hospital's chests as a stockpile that wants those counts. A hospital needs at least one bed and one chest.
++- Hospital zone settings: desired supplies `{ cloth, thread, splints, crutches, brightleaf, buckets }` (defaults `HOSPITAL_DEFAULT_SUPPLIES`). Both `SetHospitalSupplies` and the zone setting require a non-null record containing only these supply kinds, with integer counts from 0 to `HOSPITAL_SUPPLY_MAX`; otherwise `bad_setting`, with no mutation. Store a copy of the validated record; 13 treats the hospital's chests as a stockpile that wants those counts: haulers bring the supplies into a built chest from a tile beside it, and medics take them out the same way (13 § Containers in play). A hospital needs at least one bed and one chest.
+ - Behavior (10 `patient`): a conscious patient walks to a free hospital bed (any bed if none); an unconscious one gets a `carry_patient` job (labor `hauling`; the carrier picks them up like an item and puts them in the bed). Patients in bed rest; `Needs` still rise; `feed_patient` and `water_patient` jobs (labor `hauling`, no skill) bring a meal or a drink when hunger or thirst pass 60.
+ - Bed allocation uses 14's live hold query: choose an available built hospital bed, else an unassigned available bed. The saved `Patient.bedId` holds it during admission, walking, carrying and rest, until discharge, reassignment or death. One patient per bed, sharing neither with another patient nor a sleeper; the patient's own existing sleep hold may become its patient hold. With no available bed, assign 0 and wait at the current tile, retrying allocation on health ticks. Patients never walk to an unassigned occupied bed as a fallback. Losing an invalid or conflicting bed assignment retries allocation; patient movement follows the current assigned bed.
+ - Medic jobs (labor `medicine`, skill `medicine`), produced per patient per need, in priority order with the input each consumes:
+@@ -85,6 +85,7 @@ Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned` and
+   6. `diagnose`: no input; the Chief Medic if any, else any medic; sets `diagnosed`, which makes the wound list visible in the inspector in full detail (undiagnosed patients show "wounded, bleeding" only) and gives `DIAGNOSE_XP`. Priority 4; created once per admission.
+   7. `give_crutch`: 1 `crutch` to a dwarf with a lost leg. Priority 5.
+ - Recompute each admitted patient's treatment needs from the current wounds and treatment flags on every health tick, including while pain alone delays discharge. A fully treated patient has no treatment needs and produces no repeated medic jobs; an unfinished treatment remains a need.
++- A priority 1 job for a patient (`stop_bleeding`, `carry_patient`) calls the nearest worker with its labor off interruptible work at once (11 § Assignment); the other treatments wait for a free medic.
+ - Job work time `TREAT_TICKS` skill-scaled; a treatment can fail at low skill (`TREAT_FAIL_PERMILLE − skill × 10`, minimum 0) consuming the input without effect; the job is re-created. A failed wound treatment remains a saved request independently of admission, including when the dwarf was discharged before completion. The ordinary producer recreates it with its usual inputs and reservations only while the living target still has a wound requiring that treatment. Discharge does not cancel the request or readmit the dwarf; admission keeps its own criteria. Success, healing or death ends a request once the treatment is no longer needed. Infection cleaning never restarts a pending cure.
+ - Discharge: no bleeding, no unsplinted fractures, no undressed burns, no infection, conscious, pain below `PAIN_DISCHARGE`. `PatientDischarged { id }`; `PatientHealed { id, hospitalTier }` when all wounds are light or gone, giving the `healed` thought (scaled by the hospital tier).
+ - Without a hospital, medics still treat patients wherever they lie if supplies are in any stockpile; the hospital's value is proximity, beds and the room tier.
+diff --git a/docs/04-implementation/algorithms/jobs-and-hauling.md b/docs/04-implementation/algorithms/jobs-and-hauling.md
+index 58cafb0..0233b85 100644
+--- a/docs/04-implementation/algorithms/jobs-and-hauling.md
++++ b/docs/04-implementation/algorithms/jobs-and-hauling.md
+@@ -8,6 +8,10 @@
+ tick(ctx):
+   for producer in producers: producer.produce(ctx, sink)            // sink.create(key, jobSpec) is idempotent; sink.cancel(key)
+   retryBlocked(min(BLOCKED_RETRIES_PER_TICK, blocked.length))
++  for job in open jobs for a patient with priority == PATIENT_SUMMON_PRIORITY (creation order):   // stop_bleeding, carry_patient
++    if some free w in assignQueue is eligible(job, w): continue
++    w = nearest to the patient of: eligible(job, w), Brain[w].behavior == 'work', job of w interruptible and not for a patient, not on duty, not a patient
++    if w: interrupt(w, keepProgress = true); assignQueue.add(w)
+   served = 0
+   while assignQueue non-empty and served < ASSIGN_WORKERS_PER_TICK: w = assignQueue.shift(); assign(w); served++
+ retryBlocked(n): for job in blocked (creation order, cursor-resumed): if not job.failedWalk and (job.retryTick <= tick or job.retryTrigger fired):
+@@ -76,9 +80,10 @@ stepWorker(w, ctx):
+     fetching:
+       target = job.data.toolToFetch ?? job.data.ammoToFetch ?? nextUndeliveredInput(job)   // fetched ammunition is carried beside the launcher, its reservation released
+       if Worker[w].carrying == 0:                                                     // go pick it up
+-        if at(w, tileOf(target)): items.attachToCarrier(target, w); Worker[w].carrying = target
++        from = fetchTile(tileOf(target), w)   // the item's tile; for an item in a built chest (label 0) the nearest walkable neighbor with the worker's label
++        if at(w, from): items.attachToCarrier(target, w); Worker[w].carrying = target
+            if target is tool: equip(w, target); Worker[w].carrying = 0; release its reservation; emit ItemReleased{itemId: target, jobId: job.id} if live; job.data.toolToFetch = null
+-        else: walkTo(w, tileOf(target), 'job')
++        else: walkTo(w, from, 'job')
+       else:                                                                            // deliver
+         dest = deliveryTile(job)                                                       // workshop: input tile; build: origin; haul: slot tile
+         if at(w, dest): items.dropAt(carrying, dest) or items.putIn(carrying, workshopContainer); mark delivered; Worker[w].carrying = 0
+@@ -125,6 +130,7 @@ for it in wantsHauling (ascending id) while created < HAUL_JOBS_PER_TICK:
+   if sp == none: wantsHauling.remove(it); noHome.add(it); continue
+   slot = findSlot(sp, it); if slot == none: continue                         // full; StockpileFull emitted once
+   reserveSlot(slot, jobId); sink.create('haul:'+it, { type: haul_to_stockpile, target: it, workTile: slot.tile, priority: sp.priority, inputs: [item it], data: {slot} })
++     // a container on an unwalkable tile (a hospital's built chest): workTile 'adjacent', data.anchorTile = slot.tile
+   created++
+ bestStockpileFor(it): among stockpiles that accept(it) and have a free slot: min by (chebyshev(tileOf(it), centroid(sp)) then sp.priority then id)
+ accept(sp, it): categoryUnder(type.category, sp.filter.categories) and (sp.filter.materialClasses == 'any' or class(it) in it) and minQ <= quality <= maxQ and not (rotting and not allowRot) and (sp.linkedSources empty or stockpileOf(it) in linkedSources)
+@@ -150,7 +156,8 @@ findItem(filter, from, cls, opts):
+     best = none
+     for it in spatial.inRadius(from, r, kind=item) (ascending id): if not match(it, filter): continue
+        if opts.reservable and (flags & (Forbidden|Reserved|Owned|AtDepot)): continue
+-       t = tileOf(it) (container's tile if inside one); if pathing.label(t, cls) != fromLabel: continue
++       t = tileOf(it) (container's tile if inside one; the furniture's tile for what lies in a built chest)
++       if pathing.label(t, cls) != fromLabel and not (it is in a container and label(t) == 0 and some 8-neighbor of t has fromLabel): continue
+        d = chebyshev(from, t) + |dz|*Z_DISTANCE_WEIGHT; if d < bestD: best = it
+     if best: return best
+   // fallback through the stock index
+diff --git a/src/systems/jobs/board.ts b/src/systems/jobs/board.ts
+index c12b52e..69c1e38 100644
+--- a/src/systems/jobs/board.ts
++++ b/src/systems/jobs/board.ts
+@@ -19,6 +19,7 @@ import {
+   ASSIGN_WORKERS_PER_TICK,
+   BLOCKED_RETRIES_PER_TICK,
+   BLOCKED_RETRY_TICKS,
++  PATIENT_SUMMON_PRIORITY,
+   RESERVE_KEEP_TICKS,
+   STANDING_ORDERS,
+ } from './constants';
+@@ -278,6 +279,32 @@ export class JobBoard implements JobsApi, JobSink {
+     return job.target.ref;
+   }
+ 
++  /**
++   * Where a worker stands to take an item: the item's tile, or, when nobody can stand there (what
++   * lies in a built chest), the nearest walkable tile beside it that the worker reaches (by
++   * estimated distance, ties by tile index).
++   */
++  fetchTile(itemTile: TileIndex, workerId: EntityId): TileIndex {
++    const map = this.world.map;
++    const pathing = this.readers.pathing;
++    if (!map.validIndex(itemTile) || pathing.labelOf(itemTile, 'walker') !== 0) return itemTile;
++    const from = this.workerTile(workerId);
++    if (from < 0) return itemTile;
++    const label = pathing.labelOf(from, 'walker');
++    const at = map.unpack(from);
++    let best = itemTile;
++    let bestD = Number.POSITIVE_INFINITY;
++    for (const n of map.neighbors8(itemTile).sort((a, b) => a - b)) {
++      if (pathing.labelOf(n, 'walker') !== label || !pathing.passable(n, 'walker', FORTRESS_WALKER)) continue;
++      const d = estDistance(at, map.unpack(n));
++      if (d < bestD) {
++        best = n;
++        bestD = d;
++      }
++    }
++    return best;
++  }
++
+   /** The stand tiles that share the worker's connectivity label. */
+   reachableStands(job: Job, workerId: EntityId): TileIndex[] {
+     const from = this.workerTile(workerId);
+@@ -817,6 +844,41 @@ export class JobBoard implements JobsApi, JobSink {
+     return job.producer === 'health' && job.target.kind === 'entity' && this.world.entities.has(job.target.ref, C.Patient);
+   }
+ 
++  /**
++   * `11` § Assignment: an open priority-1 job for a patient does not wait for a worker to finish
++   * what it is doing. When no worker in the queue could take it, the nearest worker at interruptible
++   * work that is not itself for a patient is interrupted, progress kept, and queued for this tick.
++   */
++  private summonForPatients(): void {
++    const map = this.world.map;
++    const entities = this.world.entities;
++    const onDuty = this.readers.has('16') ? this.readers.of<{ onDuty(id: EntityId): boolean }>('16') : null;
++    let workers: EntityId[] | null = null;
++    for (const id of this.ids) {
++      const job = this.jobs.get(id);
++      if (job === undefined || job.state !== 'open' || job.priority !== PATIENT_SUMMON_PRIORITY || !this.isPatientCare(job)) continue;
++      if (this.assignQueue.some((w) => this.workerOf(w).jobId === 0 && this.eligible(job, w))) continue;
++      const anchor = map.unpack(this.anchorTile(job));
++      let best: EntityId = 0;
++      let bestD = Number.POSITIVE_INFINITY;
++      workers ??= this.workers();
++      for (const w of workers) {
++        const held = this.jobs.get(this.workerOf(w).jobId);
++        if (held === undefined || held.workerId !== w || !this.typeRow(held).interruptible || this.isPatientCare(held)) continue;
++        if (entities.get(w, C.Brain)?.behavior !== 'work' || entities.has(w, C.Patient) || onDuty?.onDuty(w) === true) continue;
++        if (!this.eligible(job, w)) continue;
++        const d = estDistance(map.unpack(this.workerTile(w)), anchor);
++        if (d < bestD) {
++          best = w;
++          bestD = d;
++        }
++      }
++      if (best === 0) continue;
++      this.interrupt(best, true);
++      this.assign(best);
++    }
++  }
++
+   /** Under a `hearth` alert a sheltering civilian takes patient-care jobs only. */
+   private shelteredFrom(job: Job, workerId: EntityId): boolean {
+     if (!this.readers.has('16')) return false;
+@@ -1022,6 +1084,7 @@ export class JobBoard implements JobsApi, JobSink {
+         for (const producer of this.producers) producer.produce(ctx, this);
+         this.lapseReservations();
+         this.retryBlocked();
++        this.summonForPatients();
+         this.assignQueue.sort((a, b) => a - b);
+         let served = 0;
+         while (this.assignQueue.length > 0 && served < ASSIGN_WORKERS_PER_TICK) {
+diff --git a/src/systems/jobs/constants.ts b/src/systems/jobs/constants.ts
+index 99b0e16..8fe5094 100644
+--- a/src/systems/jobs/constants.ts
++++ b/src/systems/jobs/constants.ts
+@@ -13,6 +13,8 @@ export const Z_DISTANCE_WEIGHT = 6;
+ export const RESERVE_KEEP_TICKS = 600;
+ export const BLOCKED_RETRY_TICKS = 100;
+ export const BLOCKED_RETRIES_PER_TICK = 20;
++/** A job for a patient at this priority calls a worker off interruptible work. */
++export const PATIENT_SUMMON_PRIORITY = 1;
+ /** Hauling is below default work. */
+ export const HAUL_PRIORITY = 6;
+ export const HAUL_PRIORITY_FOOD = 5;
+
+# The regression test that fails without the rule (it goes into test/unit/health/t301-hospital-supplies.test.ts, after the bandage case):
+
+  it('calls the nearest worker off interruptible work for an open bandage job', () => {
+    const a = hospital();
+    const world = a.w.game.world;
+    const jobs = a.w.readers.of<JobsReader>('11');
+    world.services.items!.putIn(a.cloth, a.chestItem);
+    // Long interruptible work for the only free dwarf: thread to carry forty tiles to the chest.
+    const thread = a.w.spawnItem('thread', 'flax_thread', a.w.index(2, 40, Z), 5);
+    const worker = a.dwarf(3, 40);
+    a.w.until(() => jobs.forWorker(worker)?.key === `haul:${thread}` && world.entities.get(worker, C.Worker)?.carrying === thread, 100);
+    a.w.step(20);
+    const haul = jobs.forWorker(worker)!;
+    const patient = a.dwarf(40, 42);
+    a.w.setLabor(patient, 'hauling', false);
+    a.cut(patient);
+    a.w.until(() => world.entities.has(patient, C.Patient), 10);
+    a.w.step(2);
+    // Not after the haul: at once. The haul is left open and the thread lies where the worker stood.
+    expect(jobs.forWorker(worker)?.key).toBe(`stop_bleeding:${patient}`);
+    expect(jobs.get(haul.id)).toMatchObject({ state: 'open', workerId: 0 });
+    expect(world.entities.get(thread, C.Item)?.carriedBy).toBe(0);
+    a.w.until(() => a.w.events('TreatmentDone').some((e) => e['patientId'] === patient && e['kind'] === 'stop_bleeding'), 800);
+    // Somebody takes the haul up again and finishes it.
+    a.w.until(() => world.entities.get(thread, C.Item)?.containerId === a.chestItem, 1200);
+  });
+

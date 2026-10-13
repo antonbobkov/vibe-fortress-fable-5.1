@@ -420,6 +420,8 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   }
 
   if (!civ) {
+    // A soldier on duty steps no job: what it held goes back to the board for somebody else.
+    if (host.hasJobs && jobIdOf(ctx, id) !== 0) ctx.jobs.interrupt(id, true);
     const combat = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16') : undefined;
     const squad = combat?.squadOf(id);
     const hasOrder =

@@ -278,6 +278,32 @@ export class JobBoard implements JobsApi, JobSink {
     return job.target.ref;
   }
 
+  /**
+   * Where a worker stands to take an item: the item's tile, or, when nobody can stand there (what
+   * lies in a built chest), the nearest walkable tile beside it that the worker reaches (by
+   * estimated distance, ties by tile index).
+   */
+  fetchTile(itemTile: TileIndex, workerId: EntityId): TileIndex {
+    const map = this.world.map;
+    const pathing = this.readers.pathing;
+    if (!map.validIndex(itemTile) || pathing.labelOf(itemTile, 'walker') !== 0) return itemTile;
+    const from = this.workerTile(workerId);
+    if (from < 0) return itemTile;
+    const label = pathing.labelOf(from, 'walker');
+    const at = map.unpack(from);
+    let best = itemTile;
+    let bestD = Number.POSITIVE_INFINITY;
+    for (const n of map.neighbors8(itemTile).sort((a, b) => a - b)) {
+      if (pathing.labelOf(n, 'walker') !== label || !pathing.passable(n, 'walker', FORTRESS_WALKER)) continue;
+      const d = estDistance(at, map.unpack(n));
+      if (d < bestD) {
+        best = n;
+        bestD = d;
+      }
+    }
+    return best;
+  }
+
   /** The stand tiles that share the worker's connectivity label. */
   reachableStands(job: Job, workerId: EntityId): TileIndex[] {
     const from = this.workerTile(workerId);

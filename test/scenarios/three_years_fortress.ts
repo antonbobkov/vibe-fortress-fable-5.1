@@ -54,7 +54,7 @@ const MILITIA: readonly number[] = [2, 3, 6, 0, 1];
 const FIRST_BARRELS = 6;
 
 /** D-225: ordinary wealth-2 generation, compact dimensions for the long-running tests. */
-export function threeYearsWorld(seed: string, peril = 0): TestWorld {
+export function threeYearsWorld(seed: string, peril = 0, surfaceWildlife?: 'none'): TestWorld {
   const registry = contentRegistry();
   const spec = regionSpec(seed, { peril, wealth: 2, biome: 'temperate_forest', geology: 'mixed', traits: peril === 0 ? ['serene_vale'] : [],
     river: { class: 'brook', inflow: ['w'], outflow: 's' } }, registry);
@@ -65,6 +65,7 @@ export function threeYearsWorld(seed: string, peril = 0): TestWorld {
     s.id === '21' ? observeImmigration(s, () => instrument) : s);
   const w = new TestWorld({ seed, registry, map, spec,
     systems,
+    ...(surfaceWildlife === undefined ? {} : { surfaceWildlife }),
     embark: threeYearsEmbark(registry, seed, peril) });
   instrument = attachThreeYearsMeasurements(w, seed);
   return w;

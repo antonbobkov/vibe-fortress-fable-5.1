@@ -47,6 +47,8 @@ export interface HaulHost {
   zoneTypeAt(i: TileIndex): string;
   /** The zones of a type, with their ascending tiles. */
   zonesOfType(type: string): readonly { readonly id: EntityId; readonly tiles: readonly TileIndex[] }[];
+  /** Whether a dwarf can stand on the tile. */
+  walkable(i: TileIndex): boolean;
   emit(event: GameEvent): void;
 }
 
@@ -258,13 +260,16 @@ export class Hauling {
   private createHaul(id: EntityId, sp: EntityId, slot: Slot, jobs: JobsApi): void {
     const store = this.host.store;
     const priority = store.stockpile(sp)?.priority;
+    // A container that is built furniture (a hospital's chest) stands on a tile nobody walks: the
+    // hauler fills it from a tile beside it.
+    const beside = slot.container !== 0 && !this.host.walkable(slot.tile);
     const jobId = jobs.create(haulKey(id), {
       type: 'haul_to_stockpile',
       target: { kind: 'entity', ref: id },
-      workTile: slot.tile,
+      workTile: beside ? 'adjacent' : slot.tile,
       ...(priority === undefined ? {} : { priority }),
       inputs: [{ filter: { itemId: id }, count: 1 }],
-      data: { stockpile: sp, slotKey: slot.key, container: slot.container, merge: slot.merge },
+      data: { stockpile: sp, slotKey: slot.key, container: slot.container, merge: slot.merge, ...(beside ? { anchorTile: slot.tile } : {}) },
     });
     store.reserve(slot, jobId);
   }

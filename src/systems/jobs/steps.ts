@@ -113,7 +113,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
       }
       const carrying = board.workerOf(workerId).carrying;
       if (carrying === 0) {
-        const at = board.items.tileOf(target);
+        const at = board.fetchTile(board.items.tileOf(target), workerId);
         if (at === board.workerTile(workerId)) {
           if (target === toolId) {
             dropHeldToolBeforeEquip(board, ctx, workerId);

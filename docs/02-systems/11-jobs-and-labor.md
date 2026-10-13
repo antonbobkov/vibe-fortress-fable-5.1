@@ -80,7 +80,7 @@ If the claim of the chosen job fails (it blocks `missing_input` or `no_tool`), t
 ```
 switch job.state:
   claimed:     job.state = inputs.length ? fetching : travelling
-  fetching:    for each input not yet delivered: path to the item, pick it up (13 attach to worker), path to the work tile, drop it there (or into the workshop); when all delivered → travelling
+  fetching:    for each input not yet delivered: path to the item (to the nearest reachable walkable tile beside it when it lies in a built chest, whose tile nobody stands on), pick it up (13 attach to worker), path to the work tile, drop it there (or into the workshop); when all delivered → travelling
   travelling:  path to workTile (or an adjacent walkable tile for 'adjacent'); on arrival → working; on 'unreachable' → blocked: unreachable
   working:     add effort; progress = floor(effort × 1000 / needed), capped at 1000; on reaching needed, complete in this step
   completing:  producer.onComplete(job) (spawns outputs, applies tile changes, etc.); grant xp; job.state = done; emit JobCompleted; worker becomes free
@@ -88,7 +88,7 @@ switch job.state:
 
 Each work tick adds `(100 + SKILL_TIME_BONUS_PERCENT × skill) × productivity(worker)` effort. Required effort is `baseTicks × 100 × 100`, without per-tick rounding; `progress` is its fixed-thousandths display. Completion runs in the same step that reaches required effort.
 
-Interruptions (critical need, threat, alert): the job returns to `open` with `progress` kept if `state` was `working`; undelivered items stay reserved for `RESERVE_KEEP_TICKS` so the same worker (or another) can resume. Inputs delivered to a building site stay reserved to its build job until the building is finished or cancelled. Inputs delivered to a workshop stay reserved to the craft job while its order stands, until completion or cancellation. These delivered reservations survive the interruption timeout and a block/unclaim; haulers cannot take them. Other jobs retain the ordinary reservation timeout. Hauling jobs interrupted mid-carry drop the item where the worker stands. Cancellation releases every remaining reservation.
+Interruptions (critical need, threat, alert, the worker's squad going on duty): the job returns to `open` with `progress` kept if `state` was `working`; undelivered items stay reserved for `RESERVE_KEEP_TICKS` so the same worker (or another) can resume. Inputs delivered to a building site stay reserved to its build job until the building is finished or cancelled. Inputs delivered to a workshop stay reserved to the craft job while its order stands, until completion or cancellation. These delivered reservations survive the interruption timeout and a block/unclaim; haulers cannot take them. Other jobs retain the ordinary reservation timeout. Hauling jobs interrupted mid-carry drop the item where the worker stands. Cancellation releases every remaining reservation.
 
 On `ItemDestroyed`, remove that id from every job input’s reserved and delivered lists on the dispatch tick; surviving inputs and reservations remain unchanged. Remember the invalidation until the next delivered-input validation so a working job still refetches or blocks before completion, keeping its progress.
 

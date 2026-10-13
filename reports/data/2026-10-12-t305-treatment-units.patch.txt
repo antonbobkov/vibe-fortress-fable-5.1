@@ -1,0 +1,36 @@
+# T-305 evidence: the change as it was written and tried on the branch t-301 (not merged), 2026-10-12.
+# In src/systems/health/producer.ts the six jobs that consume a supply get `inputUnits: true` in their data,
+# so that 11's claim reserves one unit split from the stack (board.reserveInputs -> items.findUnits):
+#
+#   stop_bleeding, set_bone, suture, clean_wound, dress_burn:  data: { patient: patientId, inputUnits: true }
+#   bandage_animal:                                            data: { labor: 'animal_care', patient: animalId, inputUnits: true }
+#
+# Two regressions that fail without it (helpers as in test/unit/health/t301-hospital-supplies.test.ts):
+
+  it('bandages a patient with cloth taken from the chest, one unit of the stack', () => {
+    const a = hospital();
+    const world = a.w.game.world;
+    world.services.items!.putIn(a.cloth, a.chestItem);
+    const patient = a.dwarf(40, 42);
+    a.dwarf(44, 44);
+    a.w.step(2);
+    a.cut(patient);
+    a.w.until(() => a.w.events('TreatmentDone').some((e) => e['patientId'] === patient && e['kind'] === 'stop_bleeding'), 600);
+    expect(a.clothUnits()).toBe(4);
+    // The four spare units never left the chest.
+    expect(world.entities.get(a.cloth, C.Item)).toMatchObject({ count: 4, containerId: a.chestItem, reservedBy: 0 });
+  });
+
+  it('serves two bleeding patients at once from one stack of cloth', () => {
+    const a = hospital();
+    const world = a.w.game.world;
+    world.services.items!.putIn(a.cloth, a.chestItem);
+    const first = a.dwarf(40, 42), second = a.dwarf(42, 42);
+    a.dwarf(44, 44); a.dwarf(44, 45);
+    a.w.step(2);
+    a.cut(first); a.cut(second);
+    const done = (id: EntityId): boolean => a.w.events('TreatmentDone').some((e) => e['patientId'] === id && e['kind'] === 'stop_bleeding');
+    a.w.until(() => done(first) && done(second), 600);
+    expect(a.w.events('JobBlocked').filter((e) => e['jobType'] === 'stop_bleeding' && e['reason'] === 'missing_input')).toEqual([]);
+    expect(a.clothUnits()).toBe(3);
+  });

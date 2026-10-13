@@ -874,10 +874,18 @@ export class BuildingStore {
     return id;
   }
 
-  /** The tile a building-held container's contents lie on (the wagon's centre), or -1. */
+  /**
+   * The tile a building-held container's contents lie on, or -1: the wagon's centre for the wagon,
+   * and the tile of the built furniture for its linked item (a hospital's chest).
+   */
   holderTile(id: EntityId): TileIndex {
     const b = this.get(id);
-    return b === undefined ? -1 : this.anchorOf(b);
+    if (b !== undefined) return this.anchorOf(b);
+    for (const other of this.host.entities.with(C.Building)) {
+      const furniture = this.get(other);
+      if (furniture !== undefined && furniture.itemId === id && furniture.state === 'built') return furniture.origin;
+    }
+    return -1;
   }
 
   /** `SetDoorMode { buildingId, mode }` / `SetHatchMode { buildingId, mode }`: "building has the tag". */

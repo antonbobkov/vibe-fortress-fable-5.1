@@ -76,9 +76,10 @@ stepWorker(w, ctx):
     fetching:
       target = job.data.toolToFetch ?? job.data.ammoToFetch ?? nextUndeliveredInput(job)   // fetched ammunition is carried beside the launcher, its reservation released
       if Worker[w].carrying == 0:                                                     // go pick it up
-        if at(w, tileOf(target)): items.attachToCarrier(target, w); Worker[w].carrying = target
+        from = fetchTile(tileOf(target), w)   // the item's tile; for an item in a built chest (label 0) the nearest walkable neighbor with the worker's label
+        if at(w, from): items.attachToCarrier(target, w); Worker[w].carrying = target
            if target is tool: equip(w, target); Worker[w].carrying = 0; release its reservation; emit ItemReleased{itemId: target, jobId: job.id} if live; job.data.toolToFetch = null
-        else: walkTo(w, tileOf(target), 'job')
+        else: walkTo(w, from, 'job')
       else:                                                                            // deliver
         dest = deliveryTile(job)                                                       // workshop: input tile; build: origin; haul: slot tile
         if at(w, dest): items.dropAt(carrying, dest) or items.putIn(carrying, workshopContainer); mark delivered; Worker[w].carrying = 0
@@ -125,6 +126,7 @@ for it in wantsHauling (ascending id) while created < HAUL_JOBS_PER_TICK:
   if sp == none: wantsHauling.remove(it); noHome.add(it); continue
   slot = findSlot(sp, it); if slot == none: continue                         // full; StockpileFull emitted once
   reserveSlot(slot, jobId); sink.create('haul:'+it, { type: haul_to_stockpile, target: it, workTile: slot.tile, priority: sp.priority, inputs: [item it], data: {slot} })
+     // a container on an unwalkable tile (a hospital's built chest): workTile 'adjacent', data.anchorTile = slot.tile
   created++
 bestStockpileFor(it): among stockpiles that accept(it) and have a free slot: min by (chebyshev(tileOf(it), centroid(sp)) then sp.priority then id)
 accept(sp, it): categoryUnder(type.category, sp.filter.categories) and (sp.filter.materialClasses == 'any' or class(it) in it) and minQ <= quality <= maxQ and not (rotting and not allowRot) and (sp.linkedSources empty or stockpileOf(it) in linkedSources)
@@ -150,7 +152,8 @@ findItem(filter, from, cls, opts):
     best = none
     for it in spatial.inRadius(from, r, kind=item) (ascending id): if not match(it, filter): continue
        if opts.reservable and (flags & (Forbidden|Reserved|Owned|AtDepot)): continue
-       t = tileOf(it) (container's tile if inside one); if pathing.label(t, cls) != fromLabel: continue
+       t = tileOf(it) (container's tile if inside one; the furniture's tile for what lies in a built chest)
+       if pathing.label(t, cls) != fromLabel and not (it is in a container and label(t) == 0 and some 8-neighbor of t has fromLabel): continue
        d = chebyshev(from, t) + |dz|*Z_DISTANCE_WEIGHT; if d < bestD: best = it
     if best: return best
   // fallback through the stock index
