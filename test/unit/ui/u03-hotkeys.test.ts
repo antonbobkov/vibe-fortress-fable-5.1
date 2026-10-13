@@ -30,6 +30,7 @@ interface World {
   readonly shop: number;
   readonly busyShop: number;
   readonly pile: number;
+  readonly sourcePile?: number;
   readonly cow: number;
   readonly dog?: number;
   readonly squad: number;
@@ -51,6 +52,7 @@ function world(seed: string): World {
   w.zone('bedroom', [w.index(48, 20, z), w.index(49, 20, z)]);
   w.spawnDwarf({ at: w.index(17, 19, z), skills: { carpentry: 6 } });
   const pile = w.zone('stockpile', [w.index(30, 30, z), w.index(31, 30, z)]);
+  const sourcePile = w.zone('stockpile', [w.index(33, 30, z)]);
   const cow = w.spawnTame('cow', w.index(34, 34, z));
   const dog = w.spawnTame('dog', w.index(35, 34, z));
   w.spawnItem('stone_block', 'iron', w.index(36, 36, z), 2);
@@ -61,7 +63,7 @@ function world(seed: string): World {
   w.step(1);
   const squad = w.readers.of<CombatReader>('16').squads()[0]?.id ?? 0;
   expect(squad).not.toBe(0);
-  return { w, shop, busyShop, pile, cow, dog, squad, table, lever, bed };
+  return { w, shop, busyShop, pile, sourcePile, cow, dog, squad, table, lever, bed };
 }
 
 interface Fixture {
@@ -140,6 +142,8 @@ const STATES: readonly { readonly name: string; readonly open: (f: Fixture, worl
   })),
   { name: 'U-07 preset dropdown', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; f.screen.key(press('P', { shift: true })); expect(f.screen.zones.stockpile.preset.open).toBe(true); } },
   { name: 'U-07 material classes', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; f.screen.key(press('v')); expect(f.screen.zones.stockpile.materialsOpen).toBe(true); } },
+  { name: 'T-247 stockpile link pick', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; f.screen.key(press('i')); expect(f.screen.zones.stockpile.linkingFor).toBe(world.pile); } },
+  { name: 'T-247 stockpile unlink list', open: (f, world) => { expect(world.sourcePile).toBeGreaterThan(0); expect(world.w.game.world.applyCommand({ type: 'LinkStockpile', zoneId: world.pile, sourceZoneId: world.sourcePile, on: true }).ok).toBe(true); f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; f.screen.key(press('x')); expect(f.screen.zones.stockpile.unlinkingFor).toBe(world.pile); } },
   { name: 'U-07 room owner picker', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.w.readers.of<BuildingsReader>('14').zoneAt(world.w.index(48, 20, z)); f.screen.key(press('O', { shift: true })); expect(f.screen.zones.ownerOpen).toBe(true); } },
   { name: 'stocks picking goods for the depot', open: (f) => { f.screen.openPanel('stocks'); f.screen.stocks.startDepot(1); } },
   { name: 'T-241 Jobs labor filter', open: (f) => { f.screen.openPanel('jobs'); f.screen.jobs.labor = 'carpentry'; } },
@@ -371,7 +375,7 @@ const DESTRUCTIVE: readonly {
   { name: 'workshop with orders [x] take apart', open: (f, world) => { f.screen.workshopId = world.busyShop; f.screen.openPanel('workshop'); }, key: press('x'), confirm: 'c_deconstruct_workshop', command: 'DeconstructBuilding' },
   { name: 'look [x] take apart', open: (f) => f.screen.look({ x: 40, y: 20, z }), key: press('x'), confirm: 'c_deconstruct_building', command: 'DeconstructBuilding' },
   { name: 'military [x] disband', open: (f) => f.screen.openPanel('military'), key: press('x'), confirm: 'c_disband_squad', command: 'DisbandSquad' },
-  { name: 'zones [x] remove', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; }, key: press('x'), confirm: 'c_remove_zone', command: 'RemoveZone' },
+  { name: 'T-247 stockpile [Delete] remove', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; }, key: press('Delete'), confirm: 'c_remove_zone', command: 'RemoveZone' },
   { name: 'orders [x] remove', open: (f, world) => { f.screen.orders.workshopId = world.busyShop; f.screen.openPanel('orders'); }, key: press('x'), confirm: 'c_remove_order', command: 'RemoveWorkOrder' },
 ];
 
@@ -420,7 +424,7 @@ describe('U-03 every destructive single-key action asks first, default No (D-U2)
     expect(text('c_suspend_workshop', (f) => { f.screen.workshopId = shared.shop; f.screen.openPanel('workshop'); }, press('S', { shift: true })))
       .toBe("Suspend Carpenter's workshop #1? Its current job stops and its orders wait until you resume it.");
     expect(text('c_deconstruct_building', (f) => f.screen.look({ x: 40, y: 20, z }), press('x'))).toBe('Take apart Table #1? Its materials are left where it stood.');
-    expect(text('c_remove_zone', (f) => { f.screen.openPanel('zones'); f.screen.zones.selected = shared.pile; }, press('x'))).toBe('Remove Stockpile #1? Its settings are lost.');
+    expect(text('c_remove_zone', (f) => { f.screen.openPanel('zones'); f.screen.zones.selected = shared.pile; }, press('Delete'))).toBe('Remove Stockpile #1? Its settings are lost.');
     expect(text('c_remove_order', (f) => { f.screen.orders.workshopId = shared.busyShop; f.screen.openPanel('orders'); }, press('x'))).toBe('Remove the order for Bed? Work in progress on it stops.');
     expect(text('c_slaughter_animal', (f) => f.screen.openPanel('animals'), press('S', { shift: true }))).toBe('Slaughter the cow? It will be butchered for meat, hide and bone.');
     expect(text('c_dump_selection', (f) => { f.screen.look({ x: 36, y: 36, z }); f.screen.selection = { a: { x: 36, y: 36, z }, b: { x: 37, y: 37, z } }; }, press('D', { shift: true })))
@@ -443,7 +447,7 @@ describe('U-03 every destructive single-key action asks first, default No (D-U2)
     expect(click((f) => { f.screen.openPanel('stocks'); selectStock(f, 'stone'); }, '[S-d] dump').asked.map((a) => a.id)).toEqual(['c_dump_items']);
     expect(click((f) => { f.screen.workshopId = shared.shop; f.screen.openPanel('workshop'); }, '[S-s] suspend').asked.map((a) => a.id)).toEqual(['c_suspend_workshop']);
     expect(click((f) => { f.screen.workshopId = shared.shop; f.screen.openPanel('workshop'); }, '[x] take apart').asked.map((a) => a.id)).toEqual(['c_deconstruct_building']);
-    expect(click((f) => { f.screen.openPanel('zones'); f.screen.zones.selected = shared.pile; }, '[x] remove zone').asked.map((a) => a.id)).toEqual(['c_remove_zone']);
+    expect(click((f) => { f.screen.openPanel('zones'); f.screen.zones.selected = shared.pile; }, '[Del] remove zone').asked.map((a) => a.id)).toEqual(['c_remove_zone']);
     expect(click((f) => { f.screen.orders.workshopId = shared.busyShop; f.screen.openPanel('orders'); }, '[x] remove').asked.map((a) => a.id)).toEqual(['c_remove_order']);
     expect(click((f) => f.screen.openPanel('military'), '[x] disband').asked.map((a) => a.id)).toEqual(['c_disband_squad']);
   });

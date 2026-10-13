@@ -6,9 +6,9 @@ import type { Rect } from '@render/cellbuffer';
 import { CATEGORY_TREE, STOCKPILE_PRESETS, defaultStockpile } from '@systems/items';
 import { STOCKPILE_QUALITY_MIN, STOCKPILE_QUALITY_MAX } from '../constants';
 import { acceleratorLabel } from '../keymap';
-import { capitalize, stockpilePreset, zoneEditorMessage } from '../messages';
+import { capitalize, stockpilePreset, zoneEditorMessage, zoneName } from '../messages';
 import type { Surface } from '../surface';
-import { buildTree, dropdown, dropdownKey, label, list, nodeState, numberField, tree, toggleNode, visibleRows, type DropdownState, type ListState, type TreeNode, type TreeState } from '../widgets';
+import { buildTree, button, dropdown, dropdownKey, label, list, nodeState, numberField, tree, toggleNode, visibleRows, type DropdownState, type ListState, type TreeNode, type TreeState } from '../widgets';
 import { accel, buildings, items, type PanelContext } from './context';
 
 export const PRESET_ORDER: readonly string[] = Object.keys(STOCKPILE_PRESETS).filter((id) => id !== 'hospital');
@@ -29,6 +29,9 @@ export class StockpileEditor {
   readonly preset: DropdownState = { open: false, highlighted: 0 };
   readonly materials: ListState = { selected: 0, scroll: 0 };
   materialsOpen = false;
+  linkingFor: EntityId = 0;
+  unlinkingFor: EntityId = 0;
+  readonly sources: ListState = { selected: 0, scroll: 0 };
   focus: Focus = 'tree';
   private forest: TreeNode[] | null = null;
 
@@ -37,7 +40,8 @@ export class StockpileEditor {
   }
 
   cancel(): boolean {
-    if (!this.preset.open && !this.materialsOpen) return false;
+    if (!this.preset.open && !this.materialsOpen && this.linkingFor === 0 && this.unlinkingFor === 0) return false;
+    this.linkingFor = 0; this.unlinkingFor = 0;
     this.preset.open = false;
     this.materialsOpen = false;
     return true;
@@ -114,6 +118,43 @@ export class StockpileEditor {
     ctx.submit({ type: 'SetStockpileFilter', zoneId, filter: { ...f, categories: toggleNode(this.categories(), f.categories, id) } });
   }
 
+  startLink(ctx: PanelContext, zoneId: EntityId): void {
+    if (buildings(ctx)?.zone(zoneId)?.type !== 'stockpile') { this.fail(ctx, 'unavailable'); return; }
+    this.cancel(); this.linkingFor = zoneId; ctx.clearNotice?.();
+  }
+  pickSource(ctx: PanelContext, tile: number): void {
+    const destination = this.linkingFor;
+    if (destination === 0) return;
+    if (buildings(ctx)?.zone(destination)?.type !== 'stockpile') { this.fail(ctx, 'unavailable'); return; }
+    const source = buildings(ctx)?.zoneAt(tile) ?? 0;
+    if (source === destination || buildings(ctx)?.zone(source)?.type !== 'stockpile') { this.fail(ctx, 'link_source'); return; }
+    ctx.submit({ type: 'LinkStockpile', zoneId: destination, sourceZoneId: source, on: true });
+    this.linkingFor = 0; ctx.clearNotice?.();
+  }
+  sourceIds(ctx: PanelContext, zoneId: EntityId): EntityId[] {
+    return (stockpileForEditor(ctx, zoneId)?.linkedSources ?? []).filter(id => buildings(ctx)?.zone(id)?.type === 'stockpile');
+  }
+  startUnlink(ctx: PanelContext, zoneId: EntityId): void {
+    if (stockpileForEditor(ctx, zoneId) === undefined) { this.fail(ctx, 'unavailable'); return; }
+    if (this.sourceIds(ctx, zoneId).length === 0) { this.fail(ctx, 'no_links'); return; }
+    this.cancel(); this.unlinkingFor = zoneId; this.sources.selected = 0; this.sources.scroll = 0; ctx.clearNotice?.();
+  }
+  selectSource(ctx: PanelContext, index: number): void {
+    const ids = this.sourceIds(ctx, this.unlinkingFor);
+    this.sources.selected = Math.max(0, Math.min(ids.length - 1, index));
+    const id = ids[this.sources.selected];
+    const tile = id === undefined ? undefined : buildings(ctx)?.zone(id)?.tiles[0];
+    if (tile !== undefined) ctx.focusOn(tile);
+  }
+  unlinkSelected(ctx: PanelContext): void {
+    const zoneId = this.unlinkingFor;
+    if (zoneId === 0) return;
+    if (stockpileForEditor(ctx, zoneId) === undefined) { this.fail(ctx, 'unavailable'); return; }
+    const sourceZoneId = this.sourceIds(ctx, zoneId)[this.sources.selected];
+    if (sourceZoneId === undefined) { this.fail(ctx, 'no_links'); return; }
+    ctx.submit({ type: 'LinkStockpile', zoneId, sourceZoneId, on: false }); this.unlinkingFor = 0;
+  }
+
   key(ctx: PanelContext, zoneId: EntityId, press: KeyPress): boolean {
     if (press.ctrl || press.alt || press.meta) return false;
     const k = press.key;
@@ -123,6 +164,17 @@ export class StockpileEditor {
     const left = k === '←' || k === 'ArrowLeft';
     const right = k === '→' || k === 'ArrowRight';
     const space = k === 'Space' || k === ' ';
+    if (this.linkingFor !== 0) {
+      if (letter === 'x') { this.startUnlink(ctx, zoneId); return true; }
+      return false;
+    }
+    if (this.unlinkingFor !== 0) {
+      if (letter === 'i') { this.startLink(ctx, zoneId); return true; }
+      if (letter === 'x') { this.startUnlink(ctx, zoneId); return true; }
+      if (up || down) { this.selectSource(ctx, this.sources.selected + (up ? -1 : 1)); return true; }
+      if (k === 'Enter') { this.unlinkSelected(ctx); return true; }
+      return false;
+    }
     if (this.preset.open) {
       const options = this.presetOptions(ctx);
       const result = dropdownKey(this.preset, options, { ...press, key: up ? '↑' : down ? '↓' : k });
@@ -147,6 +199,8 @@ export class StockpileEditor {
       if (space || k === 'Enter') { this.toggleMaterial(ctx, zoneId, this.materials.selected); return true; }
       return false;
     }
+    if (letter === 'i') { this.startLink(ctx, zoneId); return true; }
+    if (letter === 'x') { this.startUnlink(ctx, zoneId); return true; }
     if (letter === 'p') { this.openPreset(ctx, zoneId); return true; }
     if (letter === 'q') { this.focus = 'barrel'; return true; }
     if (letter === 'g') { this.focus = 'tree'; return true; }
@@ -200,6 +254,15 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
   const col = rect.col + 1;
   const strings = ctx.strings;
   let row = rect.row;
+  if (editor.unlinkingFor !== 0) {
+    label(s, col, row++, strings.get('ui.stockpile.unlink_title'), { width });
+    const ids = editor.sourceIds(ctx, editor.unlinkingFor);
+    list(s, { col, row, cols: width, rows: Math.max(1, rect.rows - 3) }, ids.map(id => zoneName(ctx, id)), editor.sources,
+      index => editor.selectSource(ctx, index));
+    const n = button(s, col, rect.row + rect.rows - 2, 'Enter', strings.get('ui.stockpile.unlink'), () => editor.unlinkSelected(ctx));
+    button(s, col + n + 1, rect.row + rect.rows - 2, 'Esc', strings.get('ui.text_input.cancel'), () => { editor.cancel(); });
+    return;
+  }
   if (editor.materialsOpen) {
     label(s, col, row++, strings.get('ui.stockpile.material_title'), { width });
     const classes = editor.classes(ctx);
@@ -237,7 +300,7 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
     c += n + 1;
   }
   row += 1;
-  const treeRows = Math.max(1, rect.rows - (row - rect.row) - 10);
+  const treeRows = Math.max(1, rect.rows - (row - rect.row) - 12);
   const names = (nodes: readonly TreeNode[]): TreeNode[] => nodes.map((n) => ({ ...n, name: capitalize(n.name.replaceAll('_', ' ')), children: names(n.children) }));
   tree(s, { col, row, cols: width, rows: treeRows }, names(editor.categories()), editor.tree,
     (n) => nodeState(sp.filter.categories, n.id), {
@@ -257,7 +320,10 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
   }
   const classes = sp.filter.materialClasses === 'any' ? strings.get('ui.build.any') : sp.filter.materialClasses.map((id) => strings.get(`ui.stockpile.class.${id}`)).join(', ');
   label(s, col, row++, strings.get('ui.stockpile.materials', { classes, min: sp.filter.minQuality, max: sp.filter.maxQuality }), { width });
-  label(s, col, row++, strings.get('ui.stockpile.priority', { n: sp.priority, links: sp.linkedSources.length || strings.get('ui.stockpile.no_links') }), { width });
+  label(s, col, row++, strings.get('ui.stockpile.priority', { n: sp.priority }), { width });
+  label(s, col, row++, strings.get('ui.stockpile.links', { names: editor.sourceIds(ctx, zoneId).map(id => zoneName(ctx, id)).join(', ') || strings.get('ui.stockpile.no_links') }), { width });
+  const linkWidth = button(s, col, row, acceleratorLabel('i', ctx.panelLetters).slice(1, -1), strings.get('ui.stockpile.link'), () => editor.startLink(ctx, zoneId));
+  button(s, col + linkWidth + 1, row++, acceleratorLabel('x', ctx.panelLetters).slice(1, -1), strings.get('ui.stockpile.unlink'), () => editor.startUnlink(ctx, zoneId));
   label(s, col, row++, strings.get('ui.stockpile.usage', { used: tiles - (items(ctx)?.freeSlots(zoneId) ?? 0), n: tiles }), { width });
   label(s, col, row, strings.get(editor.focus === 'tree' ? 'ui.stockpile.tree_help' : 'ui.stockpile.number_help'), { width, fg: s.theme.dim });
 }

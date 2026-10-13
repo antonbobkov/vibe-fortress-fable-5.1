@@ -166,8 +166,8 @@ describe('T-M2-09 zones tool and the stockpile editor', () => {
     game.render();
     expect(game.textRows().join('\n')).toContain('Preset [Food');
     expect(game.textRows().join('\n')).toContain('Usage 0/11 tiles');
-    // U-03 (D-U2): removing a zone is a destructive single key, so it asks first (`c_remove_zone`).
-    key(game, 'x');
+    // T-247: x unlinks sources; Delete removes the stockpile with the same confirmation.
+    key(game, 'Delete');
     expect(game.screen).toBe('confirm');
     expect(spy.mock.calls.at(-1)?.[0]).not.toMatchObject({ type: 'RemoveZone' });
     key(game, 'y');

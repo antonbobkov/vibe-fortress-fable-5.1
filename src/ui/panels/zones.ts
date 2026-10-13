@@ -320,10 +320,10 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     row = drawRoomSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   }
   if (row <= bottom) {
-    const text = strings.get('ui.zone.actions');
+    const text = strings.get(zone.type === 'stockpile' ? 'ui.zone.stockpile_actions' : 'ui.zone.actions');
     label(s, rect.col + 1, bottom, text, { width: rect.cols - 2 });
     // Keyboard and mouse reach the same actions (24 § Input model): the accelerators are clickable.
-    accelerator(s, rect.col + 1, bottom, text, 'x', () => onRemove?.());
+    accelerator(s, rect.col + 1, bottom, text, zone.type === 'stockpile' ? 'Del' : 'x', () => onRemove?.());
     accelerator(s, rect.col + 1, bottom, text, 'S-e', () => { tool.resizing = true; });
   }
 }

@@ -126,7 +126,7 @@ export function stockpileName(env: Omit<MessageEnv, 'registry'>, zoneId: EntityI
 }
 
 /** The presentation-only reasons a zone editor action can do nothing. */
-export function zoneEditorMessage(env: MessageEnv, reason: 'unavailable' | 'bounds' | 'quality' | 'no_bed' | 'pending_room' | 'no_zone'): string {
+export function zoneEditorMessage(env: MessageEnv, reason: 'unavailable' | 'bounds' | 'quality' | 'no_bed' | 'pending_room' | 'no_zone' | 'link_source' | 'no_links'): string {
   return env.strings.get(`ui.zone.edit.${reason}`);
 }
 
