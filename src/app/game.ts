@@ -752,6 +752,7 @@ export class Game {
 
   /** The loaded game on screen: its `ui` section restored, the log tail back, paused. */
   enterLoaded(loaded: LoadedGame): void {
+    this.fortress.tool.clearHistory();
     this.subscribe();
     this.finished = loaded.header.kind === 'final';
     this.autosaveDue = null;
@@ -931,6 +932,7 @@ export class Game {
 
   /** Replace the whole stack with one screen. */
   resetTo(screen: Screen | 'fortress'): void {
+    if (screen !== FORTRESS) this.fortress.tool.clearHistory();
     this.stack.length = 0;
     this.stack.push(screen);
   }
@@ -939,6 +941,7 @@ export class Game {
   async start(spec: { seed?: string; embark?: NewGameSpec['embark'] } = {}): Promise<void> {
     await this.host.newGame({ seed: spec.seed ?? this.seed, ...(spec.embark === undefined ? {} : { embark: spec.embark }) });
     this.lastSaveCommands = 0;
+    this.fortress.tool.clearHistory();
     this.fortress.resetHints();
     this.subscribe();
     this.resetTo(FORTRESS);
@@ -1073,6 +1076,7 @@ export class Game {
 
   /** Switch to the fortress screen, paused, centered on the wagon (arrival step 8). */
   enterFortress(): void {
+    this.fortress.tool.clearHistory();
     this.busy = null;
     this.fortress.resetHints();
     this.resetTo(FORTRESS);

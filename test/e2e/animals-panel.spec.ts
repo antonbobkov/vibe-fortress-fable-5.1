@@ -166,8 +166,14 @@ test('animals-panel', async ({ page }) => {
     }, cowSpecies);
 
   const initialCap = await getBreedingCap();
+  // T-249: cap is an editor; opening it leaves the setting unchanged.
   await page.keyboard.press('Shift+C');
-  await expect.poll(getBreedingCap).toBe((initialCap + 1) % 101);
+  expect(await getBreedingCap()).toBe(initialCap);
+  await expect.poll(() => textOf(page)).toContain('[Enter] Set');
+  await page.keyboard.press('=');
+  expect(await getBreedingCap()).toBe(initialCap);
+  await page.keyboard.press('Enter');
+  await expect.poll(getBreedingCap).toBe(Math.min(initialCap + 1, 100));
 
   // 5. Toggle huntable on wild tab.
   // Switch to tab 2 (Wild).

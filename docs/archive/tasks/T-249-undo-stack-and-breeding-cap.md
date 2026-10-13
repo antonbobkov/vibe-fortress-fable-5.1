@@ -1,6 +1,8 @@
 # T-249 — Undo keeps ten designation batches; the breeding cap can be typed
 
-**Source:** T-111 and its report, [`../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../reports/audits/2026-10-10-ui-audit-follow-up.md) (R11, R12) · **Size:** S · **Needs:** — · **Status:** open
+Closed by `T-249: undo ten designation batches and type breeding caps`.
+
+**Source:** T-111 and its report, [`../../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../../reports/audits/2026-10-10-ui-audit-follow-up.md) (R11, R12) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -12,8 +14,8 @@ Seed `audit-1`, default embark, paused. `d`, drag two separate rectangles on the
 
 ## What the spec says
 
-- [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules (input model): "`Ctrl+Z` undoes the last batch".
-- [`panels.md`](../04-implementation/ui-screens/panels.md) § Animals: `[S-c] cap`; [`08-animals-and-domestication.md`](../02-systems/08-animals-and-domestication.md): `SetBreedingCap { species, cap }`.
+- [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules (input model): "`Ctrl+Z` undoes the last batch".
+- [`panels.md`](../../04-implementation/ui-screens/panels.md) § Animals: `[S-c] cap`; [`08-animals-and-domestication.md`](../../02-systems/08-animals-and-domestication.md): `SetBreedingCap { species, cap }`.
 
 ## What to do
 
@@ -28,4 +30,4 @@ Seed `audit-1`, default embark, paused. `d`, drag two separate rectangles on the
 ## Done
 
 - The reproduction undoes both batches; the cap goes down with `-` and can be typed.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
