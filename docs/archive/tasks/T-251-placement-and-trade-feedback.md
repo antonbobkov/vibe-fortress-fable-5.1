@@ -1,14 +1,16 @@
 # T-251 — A placed building does not look refused; trade stacks merchant goods and answers a paused request
 
+Closed by `T-251: show placement success and group merchant stacks`.
+
 ## Progress, 2026-10-12
 
 The decided UI changes are implemented. Three corrected reproductions failed before the fix: placement immediately looked blocked, twelve matching merchant cage entities appeared as separate rows, and the paused broker request had no notice. Placement holds the ghost hidden across the whole footprint, including while another notice replaces the success text; a rejected placement releases the hold. Merchant grouping keeps type/material/quality separate and distributes selections to the underlying ids; totals use their individual prices. Depot requests announce the broker journey and pause hint, retaining the action row.
 
 Five T-251 tests pass, together with the affected UI suites: 108 tests. The hotkey table includes held-placement feedback. All six static checks passed (`t251-final-static2` logs under ignored `.vite/task-resume/`). The official `golden:update -- render/m7-trade-ui` selector passes all 17 golden files / 71 tests; only merchant plural naming changed, with world hashes unchanged. `test/unit/ui/u04-drag-place.test.ts` updates only the post-click status string to include "Bed placed", retaining its stock count and order shortcut. The trade browser spec navigates grouped rather than raw item rows and adds pending-request notice/action-row assertions; trade completion and reputation assertions are unchanged.
 
-Remaining: finish `npm test` (active log `.vite/task-resume/t251-full-test.log`), then WHOLE `npm run test:e2e`, restore screenshots, record the before/after full-year end-state lines, close/archive this work file and delete the backlog row. Before is the T-248 result in `.vite/task-resume/t248-resume-full-e2e.log`: 6 living, no hunger/thirst deaths, hash `008a55e9dabe420b`. The master merge before this task changed no src/ or full-year fixture files. No long fixture was tuned. This task remains open until those full gates pass.
+Completed verification: `npm test` passes 288 files / 2538 tests (626.71 s); the WHOLE `npm run test:e2e` passes 25 tests (4.1 min), including the updated trade scenario. Screenshots were restored. Before and after full-year end-state lines are identical: 6 living, no hunger/thirst deaths, hash `008a55e9dabe420b`; complete lines are in the commit body. All six static checks pass, with docs:check rerun at closure. The master merge before this task changed no src/ or full-year fixture files. No long fixture was tuned.
 
-**Source:** T-111 and its report, [`../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../reports/audits/2026-10-10-ui-audit-follow-up.md) (new findings N6, N7; R14) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-111 and its report, [`../../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../../reports/audits/2026-10-10-ui-audit-follow-up.md) (new findings N6, N7; R14) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -23,9 +25,9 @@ Remaining: finish `npm test` (active log `.vite/task-resume/t251-full-test.log`)
 
 ## What the spec says
 
-- [`fortress-screen.md`](../04-implementation/ui-screens/fortress-screen.md) § Build tool: the ghost shows whether the next click can place.
-- [`trade-session.md`](../04-implementation/ui-screens/trade-session.md): "The left column shows merchant goods grouped as stacks with their *price*".
-- [`20-trade-and-caravans.md`](../02-systems/20-trade-and-caravans.md): a session opens when the broker reaches the depot.
+- [`fortress-screen.md`](../../04-implementation/ui-screens/fortress-screen.md) § Build tool: the ghost shows whether the next click can place.
+- [`trade-session.md`](../../04-implementation/ui-screens/trade-session.md): "The left column shows merchant goods grouped as stacks with their *price*".
+- [`20-trade-and-caravans.md`](../../02-systems/20-trade-and-caravans.md): a session opens when the broker reaches the depot.
 
 ## What to do
 
@@ -41,4 +43,4 @@ Remaining: finish `npm test` (active log `.vite/task-resume/t251-full-test.log`)
 ## Done
 
 - The reproductions show no red ghost after a placement, stacked merchant goods, and a message on `[S-t]`.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
