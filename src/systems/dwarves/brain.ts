@@ -399,7 +399,8 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
 
   if (ctx.readers.has('17') && ctx.readers.of<HealthReader>('17').isPatient(id)) {
     const conscious = ctx.readers.of<HealthReader>('17').isConscious(id);
-    if (conscious) {
+    // A soldier on duty fights on while a hostile is in sight, and goes to its bed when the fight is over.
+    if (conscious && (civ || !hasHostileInSight(ctx, id))) {
       b.behavior = 'patient';
       b.targetTile = patientBedTile(ctx, id);
       b.activity = 'Resting in hospital';
@@ -570,7 +571,8 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
     }
   } else if (b.behavior === 'duty') {
     const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
-    if (civ) {
+    // Off duty, or admitted as a patient with no hostile in sight: the soldier selects again.
+    if (civ || (walksToHospital(ctx, id) && !hasHostileInSight(ctx, id))) {
       reselect = true;
     }
   } else if (b.behavior === 'work') {
