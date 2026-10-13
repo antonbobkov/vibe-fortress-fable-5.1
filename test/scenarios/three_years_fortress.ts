@@ -102,7 +102,9 @@ export function threeYearsEmbark(registry: Registry, seed: string, peril: number
   // its bolts and quiver (the seventh founder is a smith, and a stray bolt hits a friend), the
   // strawberry and flax seed, the mechanism, the leather, the table and chairs the mason makes on
   // site, and the meat. Where the anvil comes too there is money for two spears, not three.
-  for (const entry of ['e_crossbow', 'e_bolts_copper', 'e_quiver', 'e_seed_strawberry', 'e_seed_flax', 'e_mechanism', 'e_leather', 'e_table', 'e_chair', 'e_meat']) {
+  const unused = ['e_crossbow', 'e_bolts_copper', 'e_quiver', 'e_seed_strawberry', 'e_seed_flax', 'e_leather', 'e_table', 'e_chair', 'e_meat'];
+  // The mechanism stays where traps are built (perils 2 and 4, which buy one spear fewer).
+  for (const entry of peril >= 2 ? unused : [...unused, 'e_mechanism']) {
     const rDrop = session.apply({ type: 'SetSupply', entry, count: 0 });
     if (!rDrop.ok) throw new Error(`threeYearsEmbark SetSupply ${entry} failed: ${rDrop.reason}`);
   }

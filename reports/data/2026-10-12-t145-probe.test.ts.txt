@@ -52,7 +52,7 @@ it('probe', () => {
     const m = threeYearsMeasurements(w);
     console.log(`[probe ${label}] day ${Math.floor(w.tick / TICKS_PER_DAY)} pop ${ent.with(C.Labors).length} alert ${world0.fortress.alert} ` +
       `squad ${JSON.stringify(combat.squads()[0]?.members.map((id) => [id, combat.weaponOf(id)]))} barrels ${items.count('barrel')} ` +
-      `beds ${items.count('bed')} meals ${items.count('easy_meal') + items.count('lavish_meal') + items.count('fine_meal')} drink ${items.count('drink')} deaths ${JSON.stringify(m.deaths)} recipes ${JSON.stringify(m.recipes)}`);
+      `beds ${items.count('bed')} meals ${items.count('easy_meal') + items.count('lavish_meal') + items.count('fine_meal')} drink ${items.count('drink')} plants ${items.count('plant_food')} seeds ${items.count('seed')} farms ${JSON.stringify(state.economy.farmPlans.map((p) => [p.zoneId > 0, p.tiles.length]))} crops ${ent.with(C.Crop).length} cloth ${JSON.stringify(ent.with(C.Item).filter((id) => ['cloth','thread','bandage'].includes(w.game.registry.table<{id:string}>('items').byIndex(ent.get(id, C.Item)!.type)?.id ?? '')).map((id) => [w.game.registry.table<{id:string}>('items').byIndex(ent.get(id, C.Item)!.type)?.id, ent.get(id, C.Item)!.count, ent.get(id, C.Item)!.containerId, w.map.zOf(items.tileOf(id))]))} deaths ${JSON.stringify(m.deaths)} recipes ${JSON.stringify(m.recipes)}`);
   };
   while (w.tick < END_DAY * TICKS_PER_DAY) {
     playThreeYears(w, state, w.tick < 20 * TICKS_PER_DAY ? 100 : 300);

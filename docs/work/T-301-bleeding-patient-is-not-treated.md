@@ -21,6 +21,13 @@ Dwarf 16777284 (the woodcutter, a squad member), day 44:
 - tick 52,620 to 52,760: `stop_bleeding`, `suture` and `diagnose` are `open` with no worker for 140 ticks; `clean_wound` has been `fetching` since tick 52,220; the patient is unconscious from tick 52,580.
 - tick 52,777: dies, `bled_out`.
 
+Two more observations from the same probe (the report, § Wild animals):
+
+- With three boars placed on day 35, a militia member takes a serious puncture and loses 700 blood in 260 ticks; `stop_bleeding` is claimed at once and is still `fetching` when the dwarf dies in the hospital bed.
+- On day 35 and on day 60 all cloth and thread are on the surface (five of each in the wagon's container, the rest loose), though the hospital zone with its bed and chest has stood six levels down since day 12. A stockpile with the `hospital` preset beside the bed did not receive them either.
+
+In the main scenario and the sweep at `ac88f56`, 19 militia bled out or died of infection after 14 + 22 alerts for a wild animal (runs 3 to 6 and the seven peril-0 seeds).
+
 ## What the spec says
 
 - `17` § Patients and hospitals: medics treat patients wherever they lie; the hospital's chests are a stockpile that wants the supply counts.
