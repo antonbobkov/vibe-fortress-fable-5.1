@@ -17,7 +17,7 @@ It is not closed because two guards reject it, and neither was touched:
 - `defence_year` in `npm test`: three dwarves bleed to death by day 35 where one did, and the squad has three members where the scenario asserts four.
 - The twelve-seed instrument: before 13 / 8 / 0 / 8 of 12 / 1 / 0, after 13 / 6 / 0 / 8 of 12 / 1 / 0. The second-worst bound is 8. Forest seed 1 goes from 8 living to 13 and taiga seed 4 from 8 to 11; forest seed 2 from 10 to 6 and taiga seed 2 from 12 to 7.
 
-Last run on the commit's tree: the six static checks, `npm test`, `npm run test:e2e` and the instrument; their results are in the commit body.
+Last run on the tree of `a88d3cd`: the six static checks (pass), `npm test` (2,544 pass, `defence_year` fails), `npm run test:e2e` (25 passed) and the instrument (rejected, as above). A first rule for T-307 was then tried on top and rejected as well (its work file).
 
 ## Decisions
 

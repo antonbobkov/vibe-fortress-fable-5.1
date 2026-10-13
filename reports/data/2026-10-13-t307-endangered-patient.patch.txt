@@ -1,0 +1,119 @@
+# T-307 evidence: the first rule as written and tried on the branch t-301 after a88d3cd, 2026-10-13. Not merged: defence_year 3 -> 6 deaths, annual row 13 / 0 / 0 / 8 of 12 / 2 / 0.
+
+diff --git a/src/systems/jobs/board.ts b/src/systems/jobs/board.ts
+index a63f66e..bb8cc9a 100644
+--- a/src/systems/jobs/board.ts
++++ b/src/systems/jobs/board.ts
+@@ -823,7 +823,7 @@ export class JobBoard implements JobsApi, JobSink {
+           availability = { plain: false, tools: [], restricted: [] };
+           byLabor.set(labor, availability);
+         }
+-        if (job.data['assignedWorker'] !== undefined || job.data['minSkill'] !== undefined) {
++        if (job.data['assignedWorker'] !== undefined || job.data['minSkill'] !== undefined || this.patientEndangered(job)) {
+           availability.restricted.push(job);
+         } else if (job.tool === null) {
+           availability.plain = true;
+@@ -850,8 +850,55 @@ export class JobBoard implements JobsApi, JobSink {
+     return combat.alert() === 'hearth' && !combat.onDuty(workerId) && !this.isPatientCare(job);
+   }
+ 
++  private endangeredCache = { tick: -1, found: new Map<EntityId, boolean>() };
++
++  /**
++   * A patient with its attacker beside it: a creature hostile to the patient within `THREAT_RADIUS`
++   * on its level. Nobody is sent to it until the creature has left or is dead (17 § Patients).
++   */
++  patientEndangered(job: Job): boolean {
++    if (!this.isPatientCare(job) || !this.readers.has('16')) return false;
++    const cache = this.endangeredCache;
++    if (cache.tick !== this.now) {
++      cache.tick = this.now;
++      cache.found.clear();
++    }
++    const patient = job.target.ref;
++    let endangered = cache.found.get(patient);
++    if (endangered === undefined) {
++      endangered = false;
++      const entities = this.world.entities;
++      const pos = entities.get(patient, C.Position);
++      if (pos !== undefined) {
++        const combat = this.readers.of<{ isHostile(a: EntityId, b: EntityId): boolean }>('16');
++        const tile = this.world.map.index(pos.x, pos.y, pos.z);
++        for (const other of this.readers.spatial.inRadius(tile, THREAT_RADIUS, 'creature')) {
++          if (other === patient || !entities.alive(other)) continue;
++          const at = entities.get(other, C.Position);
++          if (at === undefined || at.z !== pos.z || Math.max(Math.abs(at.x - pos.x), Math.abs(at.y - pos.y)) > THREAT_RADIUS) continue;
++          if (combat.isHostile(patient, other)) {
++            endangered = true;
++            break;
++          }
++        }
++      }
++      cache.found.set(patient, endangered);
++    }
++    return endangered;
++  }
++
++  /** A worker on its way to a patient stops when the patient's attacker is beside the patient. */
++  private recallFromEndangered(): void {
++    for (const id of this.ids) {
++      const job = this.jobs.get(id);
++      if (job === undefined || job.workerId === 0 || !this.patientEndangered(job)) continue;
++      this.interrupt(job.workerId, true);
++    }
++  }
++
+   private eligible(job: Job, workerId: EntityId): boolean {
+     if (this.shelteredFrom(job, workerId)) return false;
++    if (this.patientEndangered(job)) return false;
+     const threat = this.avoidedThreatTile(workerId);
+     if (threat >= 0) {
+       const map = this.world.map;
+@@ -1048,6 +1095,7 @@ export class JobBoard implements JobsApi, JobSink {
+         for (const producer of this.producers) producer.produce(ctx, this);
+         this.lapseReservations();
+         this.retryBlocked();
++        this.recallFromEndangered();
+         this.assignQueue.sort((a, b) => a - b);
+         let served = 0;
+         while (this.assignQueue.length > 0 && served < ASSIGN_WORKERS_PER_TICK) {
+
+# test/unit/health/t307-endangered-patient.test.ts (fails without the rule)
+
+/** T-307: nobody is sent to a patient that has its attacker beside it. */
+import { describe, expect, it } from 'vitest';
+import { FLAT_TEST_SURFACE_Z as Z } from '@app/headless';
+import { C } from '@core/components';
+import type { JobsReader } from '@systems/jobs';
+import { TestWorld } from '../../scenarios/test-world';
+
+const NEEDS = ['hunger', 'thirst', 'rest', 'social', 'comfort', 'purpose', 'joy'] as const;
+
+describe('T-307 a patient with its attacker beside it', () => {
+  it('gets no medic until the animal is dead, and is bandaged then', () => {
+    const w = new TestWorld({ seed: 't307-endangered-patient', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+    const world = w.game.world;
+    const jobs = w.readers.of<JobsReader>('11');
+    const patient = w.spawnDwarf({ at: w.index(20, 20, Z) });
+    const medic = w.spawnDwarf({ at: w.index(55, 20, Z), skills: { medicine: 20 } });
+    for (const id of [patient, medic]) for (const need of NEEDS) w.setNeed(id, need, 0);
+    w.spawnItem('cloth', 'flax_cloth', w.index(54, 20, Z), 5);
+    w.step(2);
+    const badger = w.spawnCreature('badger', w.index(21, 20, Z), 'wild');
+    world.services.combat!.setTarget(badger, patient);
+    world.emit({ type: 'DamageDealt', defenderId: patient, attackerId: badger, part: 'torso', damageType: 'edge', amount: 20 });
+    w.until(() => world.entities.has(patient, C.Patient), 10);
+    for (let tick = 0; tick < 30 && world.entities.alive(badger) && world.services.combat!.targetOf(badger) === patient; tick += 1) {
+      w.step(1);
+      // The job is on the board and nobody holds it: the medic stays where it is.
+      expect(jobs.byKey(`stop_bleeding:${patient}`)?.workerId ?? 0).toBe(0);
+    }
+    expect(jobs.forWorker(medic)).toBeUndefined();
+    world.emit({ type: 'DamageDealt', defenderId: badger, attackerId: patient, part: 'torso', damageType: 'edge',
+      amount: world.entities.get(badger, C.Body)!.parts[1]!.maxHp * 2 });
+    w.step(3);
+    expect(world.entities.alive(badger)).toBe(false);
+    w.until(() => jobs.byKey(`stop_bleeding:${patient}`)?.workerId === medic, 20);
+    w.until(() => w.events('TreatmentDone').some((e) => e['patientId'] === patient && e['kind'] === 'stop_bleeding'), 900);
+  });
+});
