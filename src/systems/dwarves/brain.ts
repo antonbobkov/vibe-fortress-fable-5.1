@@ -306,6 +306,13 @@ function stillHeld(ctx: TickContext, threatId: EntityId, id: EntityId): boolean 
   return ctx.readers.of<CombatReader>('16').targetOf(threatId) === id;
 }
 
+/** A conscious patient rests now; a soldier defers it only while a hostile is in sight. */
+function shouldRestPatient(ctx: TickContext, id: EntityId): boolean {
+  if (!walksToHospital(ctx, id)) return false;
+  const onDuty = ctx.readers.has('16') && ctx.readers.of<CombatReader>('16').onDuty(id);
+  return !onDuty || !hasHostileInSight(ctx, id);
+}
+
 function hasHostileInSight(ctx: TickContext, id: EntityId): boolean {
   if (!ctx.readers.has('16')) return false;
   const combat = ctx.readers.of<CombatReader>('16');
@@ -397,9 +404,12 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     }
   } else host.watchShelter?.(id, false);
 
+  let patientFighting = false;
   if (ctx.readers.has('17') && ctx.readers.of<HealthReader>('17').isPatient(id)) {
     const conscious = ctx.readers.of<HealthReader>('17').isConscious(id);
-    if (conscious) {
+    // A soldier on duty fights on while a hostile is in sight, and goes to its bed when the fight is over.
+    patientFighting = conscious && !civ && hasHostileInSight(ctx, id);
+    if (conscious && !patientFighting) {
       b.behavior = 'patient';
       b.targetTile = patientBedTile(ctx, id);
       b.activity = 'Resting in hospital';
@@ -436,8 +446,8 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     // when there is a want to hold back and no alert order already holds it; combat keeps its
     // own perception scan and target retention.
     const active = squad?.mode === 'active' || alert !== 'calm';
-    const dutyHolds = (wants.length > 0 || sleepWindow) &&
-      ((alert !== 'calm' && hasOrder) || (active && hasHostileInSight(ctx, id)));
+    const dutyHolds = patientFighting || ((wants.length > 0 || sleepWindow) &&
+      ((alert !== 'calm' && hasOrder) || (active && hasHostileInSight(ctx, id))));
     if (dutyHolds) {
       b.behavior = 'duty';
       b.activity = 'On duty';
@@ -531,7 +541,12 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
     const critical = needs === undefined ? undefined : ranked(needs, true)[0];
     const keepCritical = currentNeed !== undefined && needs !== undefined &&
       CRITICAL[currentNeed] !== undefined && needs[currentNeed] >= (CRITICAL[currentNeed] as number);
-    if (interrupted && host.threatOf(id) !== 0 && !keepCritical) {
+    // Rest resumes after the fight; during it only a critical need may keep its activity.
+    if (shouldRestPatient(ctx, id) || (walksToHospital(ctx, id) && !keepCritical)) {
+      host.activities.cancel(ctx, id);
+      movement?.stopWalking(id);
+      reselect = true;
+    } else if (interrupted && host.threatOf(id) !== 0 && !keepCritical) {
       host.activities.cancel(ctx, id);
       reselect = true;
     } else if (interrupted && critical !== undefined && critical !== currentNeed) {
@@ -570,7 +585,8 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
     }
   } else if (b.behavior === 'duty') {
     const civ = !ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id);
-    if (civ) {
+    // Off duty, or admitted as a patient with no hostile in sight: the soldier selects again.
+    if (civ || shouldRestPatient(ctx, id)) {
       reselect = true;
     }
   } else if (b.behavior === 'work') {

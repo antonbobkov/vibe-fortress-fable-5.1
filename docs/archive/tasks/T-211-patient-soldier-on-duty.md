@@ -1,12 +1,18 @@
 # T-211 — A wounded soldier stays on duty instead of becoming a patient
 
+Closed by `T-211: an admitted soldier rests when the fight ends`.
+
+## Completion, 2026-10-13
+
+Reviewed `30680ec`, reproduced the five original failures on master and two additional clinical-priority failures on the WIP, and fixed both with ten stepped task regressions. Fresh annual before/after: median 13/13, sum 133/139, wildlife-free 8/8, extinctions 1/1, hunger/thirst deaths 0/0; worst 0/0 and second-worst 6/10 are reported. All current guards pass without changing tolerance; best sum 139 tightens the bound to 127. Browser year: six to eight living, no hunger/thirst deaths. [Report](../../../reports/audits/2026-10-13-patient-duty-and-annual-survival.md) preserves the data and reviewed patch. Earlier parking notes below describe superseded trials.
+
 ## Progress, 2026-10-12, second measurement (still parked)
 
 The parked patch has a fault of its own: `select` puts `patient` before `duty`, so a soldier admitted in the middle of a fight turns its back on the animal, and with no bed it stands where it is. A fifth case added to the patch's test file fails on the patch (`expected 'patient' to be 'duty'`). Decided, and to be folded into 10 § Behavior selection step 3 when this closes: a soldier on duty stays on duty while a hostile is in sight (step 5's definition) and takes `patient` on the first think after none is; the `duty` branch of `tickDwarf` checks this each tick for an admitted soldier, because the interrupt flag is spent during the fight.
 
-With that rule, on top of T-301's chest fix, the twelve-seed instrument gives 13 / 3 / 0 / 8 of 12 / 1 / 0 (the patch alone: 13 / 0 / 0 / 8 of 12 / 2 / 0; before: 13 / 8 / 0 / 8 of 12 / 1 / 0). Extinctions are back to one; the second-worst bound of 8 still fails, on forest seed 2 (10 living to 3). In that seed the soldier that bled to death on day 47 is now treated and lives; the timeline then differs and a wolf pack kills eight civilians between days 63 and 85, each a medic that walked to the last patient (T-307). None of them is a soldier in `patient`. The hypothesis that this task fails because patients are not treated does not hold for the annual fixture, which has no hospital: [report](../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md) § T-211.
+With that rule, on top of T-301's chest fix, the twelve-seed instrument gives 13 / 3 / 0 / 8 of 12 / 1 / 0 (the patch alone: 13 / 0 / 0 / 8 of 12 / 2 / 0; before: 13 / 8 / 0 / 8 of 12 / 1 / 0). Extinctions are back to one; the second-worst bound of 8 still fails, on forest seed 2 (10 living to 3). In that seed the soldier that bled to death on day 47 is now treated and lives; the timeline then differs and a wolf pack kills eight civilians between days 63 and 85, each a medic that walked to the last patient (T-307). None of them is a soldier in `patient`. The hypothesis that this task fails because patients are not treated does not hold for the annual fixture, which has no hospital: [report](../../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md) § T-211.
 
-The patch with the rule and the five-case test file are in [`2026-10-12-t211-fight-rule.patch.txt`](../../reports/data/2026-10-12-t211-fight-rule.patch.txt); the stash is unchanged. Next: T-307, then measure this patch again. Keep both guards.
+The patch with the rule and the five-case test file are in [`2026-10-12-t211-fight-rule.patch.txt`](../../../reports/data/2026-10-12-t211-fight-rule.patch.txt); the stash is unchanged. Next: T-307, then measure this patch again. Keep both guards.
 
 ## Progress, 2026-10-12 (parked)
 
@@ -21,13 +27,13 @@ confirms the same hash 99c66ca376dbd8e2. No fixture tune or guard change was mad
 
 Patch and four regressions are preserved in stash `e1a3c9b2a35f2a6262b6190a5aa4855969740956`
 (`T-211 decided admission interrupt; parked on annual second-worst/extinction guards`).
-[Measurement and repeat evidence](../../reports/audits/2026-10-12-patient-duty-guard-blocker.md)
+[Measurement and repeat evidence](../../../reports/audits/2026-10-12-patient-duty-guard-blocker.md)
 records the twelve rows and observed clinical transitions. This task remains open.
 Next: resolve the annual acceptance blocker or re-measure this exact decided patch
 after another accepted change that affects the failing cohort; keep both guards.
 
 
-**Source:** T-196 and [`2026-10-10-wild-animals-and-civilians.md`](../../reports/audits/2026-10-10-wild-animals-and-civilians.md) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** T-196 and [`2026-10-10-wild-animals-and-civilians.md`](../../../reports/audits/2026-10-10-wild-animals-and-civilians.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
