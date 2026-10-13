@@ -6,7 +6,7 @@ import { C } from '@core/components';
 import type { CombatReader } from '@systems/combat';
 import { TestWorld } from '../../scenarios/test-world';
 
-function woundedSoldier(mode: 'train' | 'active' | 'off', alert: 'calm' | 'watchful', badgerDies = true) {
+function woundedSoldier(mode: 'train' | 'active' | 'off', alert: 'calm' | 'watchful', badgerDies = true, hunger = 0) {
   const w = new TestWorld({ seed: 't211-patient-duty', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
   const station = w.index(20, 20, Z), bedTile = w.index(27, 20, Z), chestTile = w.index(27, 21, Z);
   const bed = w.build('bed', bedTile, 'oak'); w.build('chest', chestTile, 'oak');
@@ -24,6 +24,7 @@ function woundedSoldier(mode: 'train' | 'active' | 'off', alert: 'calm' | 'watch
   // Stage the audit's post-fight boundary through the real damage and death event paths.
   const badger = w.spawnCreature('badger', w.index(20, 21, Z), 'wild');
   expect(world.applyCommand({ type: 'SquadOrder', squadId, order: { kind: 'kill', targetId: badger } }).ok).toBe(true);
+  if (hunger > 0) { w.spawnItem('easy_meal', 'meal', station, 5); w.setNeed(id, 'hunger', hunger); }
   world.emit({ type: 'DamageDealt', defenderId: id, attackerId: badger, part: 'torso', damageType: 'edge', amount: 15 });
   const kill = (): void => world.emit({ type: 'DamageDealt', defenderId: badger, attackerId: id, part: 'torso', damageType: 'edge',
     amount: world.entities.get(badger, C.Body)!.parts[1]!.maxHp * 2 });
@@ -67,6 +68,37 @@ describe('T-211 an admitted soldier leaves duty for its hospital bed', () => {
     a.kill();
     a.w.step(3);
     expect(a.world.entities.alive(a.badger)).toBe(false);
+    expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('patient');
+    expect(a.world.entities.get(a.id, C.Brain)?.targetTile).toBe(a.bedTile);
+  });
+
+  it.each([['train', 'calm'], ['active', 'calm'], ['off', 'watchful']] as const)(
+    '%s / %s: an admitted fighter holds a want-level hunger while the enemy is in sight', (mode, alert) => {
+      const a = woundedSoldier(mode, alert, false, 60);
+      expect(a.world.entities.has(a.id, C.Patient)).toBe(true);
+      expect(a.world.entities.alive(a.badger)).toBe(true);
+      expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('duty');
+      expect(a.combat.targetOf(a.id)).toBe(a.badger);
+      expect(a.w.readers.of<import('@systems/items').ItemsReader>('13').available('easy_meal')).toBe(5);
+    });
+
+  it('a critical need still wins during the fight, then patient priority wins when the enemy dies', () => {
+    const a = woundedSoldier('active', 'calm', false, 90);
+    expect(a.world.entities.has(a.id, C.Patient)).toBe(true);
+    expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('need');
+    expect(a.w.readers.of<import('@systems/items').ItemsReader>('13').available('easy_meal')).toBeLessThan(5);
+    a.kill(); a.w.step(3);
+    expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('patient');
+    expect(a.world.entities.get(a.id, C.Brain)?.targetTile).toBe(a.bedTile);
+    expect(a.w.events('ItemReleased')).toContainEqual(expect.objectContaining({ jobId: a.id }));
+    expect(a.w.readers.of<import('@systems/items').ItemsReader>('13').available('easy_meal')).toBe(5);
+  });
+
+  it('takes patient behavior when a living enemy leaves sight, despite its squad kill order', () => {
+    const a = woundedSoldier('active', 'calm', false);
+    expect(a.world.services.movement?.teleport(a.badger, a.w.index(70, 60, Z))).toBe(true);
+    a.w.step(3);
+    expect(a.world.entities.alive(a.badger)).toBe(true);
     expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('patient');
     expect(a.world.entities.get(a.id, C.Brain)?.targetTile).toBe(a.bedTile);
   });

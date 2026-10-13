@@ -10,6 +10,8 @@ tickDwarf(id):
   if not health.isConscious(id): cancelActivity(id); return
   b = Brain[id]
   if b.behavior == 'idle' and jobs.hasWork(id): select(id) immediately, from the current position
+  if b.behavior in {'need','social'} and health.isPatient(id) and (not combat.onDuty(id) or not hostileInSight(id) or not currentActivityServesCriticalNeed(id)):
+     cancelActivity(id); stopWalking(id); select(id); return   // patient priority resumes as soon as the fight ends
   if b.behavior == 'need' or 'social' or 'idle': runActivity(id) ; if activity finished: b.behavior = 'none'
   else if b.behavior == 'work': if Worker.jobId: jobs.stepWorker(id)
                                   else if not jobs.isQueued(id): leisureOrIdle(id, jobs.hasWork(id))
@@ -43,7 +45,7 @@ select(id):
     if Worker[id].jobId: jobs.interrupt(id, keepProgress = true)       // a soldier on duty steps no job; it returns to the board
     want = highest need with an errand (not purpose) over its want threshold, or scheduled sleep
     active = squad.mode == 'active' or alert != 'calm'                 // an alert treats every squad as active
-    dutyHolds = want and ((alert != 'calm' and hasExplicitOrder(squad)) or (active and hostileInSight(id)))
+    dutyHolds = (health.isPatient(id) and hostileInSight(id)) or (want and ((alert != 'calm' and hasExplicitOrder(squad)) or (active and hostileInSight(id))))
                                                                     // hostileInSight scans perception last, only when nothing else decides;
                                                                     // a held combat target is not sight
     if dutyHolds:                                               b.behavior = 'duty'; return

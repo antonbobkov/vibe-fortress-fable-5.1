@@ -1,0 +1,200 @@
+diff --git a/docs/02-systems/10-dwarves.md b/docs/02-systems/10-dwarves.md
+index b65e8d3..f429088 100644
+--- a/docs/02-systems/10-dwarves.md
++++ b/docs/02-systems/10-dwarves.md
+@@ -90 +90 @@ A food or drink errand reserves one unit under the dwarf's id. Death, unconsciou
+-Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and when interrupted by an event. Priority order, the first that applies wins:
++Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and when interrupted by an event. `PatientAdmitted` and `PatientDischarged` set its interrupt flag. Priority order, the first that applies wins:
+@@ -94 +94 @@ Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and
+-3. `patient`: 17 has marked the dwarf as needing a hospital: go to the hospital bed (or the nearest bed) and rest; care jobs feed them. A conscious patient does this under any alert, a `hearth` alert included (step 2 does not hold it in shelter); an unconscious one is carried.
++3. `patient`: 17 has marked the dwarf as needing a hospital: go to the hospital bed (or the nearest bed) and rest; care jobs feed them. A conscious patient does this under any alert, a `hearth` alert included (step 2 does not hold it in shelter); an unconscious one is carried. A soldier on duty is the exception while a hostile is in sight (step 5's definition): it stays on duty and fights on, and takes `patient` on the first think after the last hostile in sight is dead or gone, in every squad mode and under every alert. It leaves its squad's orders with that step (16 § Squads) and returns to duty on discharge while it is still on duty. Its want-level needs and scheduled sleep wait during that fight in every mode; a critical need still takes step 4. When the fight ends, patient rest takes precedence even over an ongoing need activity: abandon the activity, release its held food or drink through the usual cancellation path, and walk to the bed.
+@@ -96 +96 @@ Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and
+-5. `duty`: the dwarf is a soldier on duty (16): 16 controls movement and targets. A soldier on duty works no job: one it held when it was called to duty is interrupted with its progress kept and returns to the board for another worker (11 § Job steps). Duty holds the soldier against its want-level needs (step 6) and its scheduled sleep in two cases only: its squad is treated as active (`active` mode, or any mode under a `watchful` or `hearth` alert, 16 § Squads) and a hostile is in sight; or its squad has an explicit order (`station`, `patrol`, `follow`, `kill`) during a `watchful` or `hearth` alert. A hostile is in sight when it is alive, not stealthed, within `PERCEPTION_RADIUS` (16) horizontally and two levels vertically, and in line of sight; a combat target the soldier still holds is not by itself in sight, since 16 keeps a target that is out of sight (16 § Targeting). In every other case the want takes precedence: training, a station, patrol, follow or kill order while the alert is `calm`, and an alert without an order do not hold it, and the soldier returns to duty when the need is met. A critical need (step 4) wins in every case.
++5. `duty`: the dwarf is a soldier on duty (16): 16 controls movement and targets. A soldier on duty works no job: one it held when it was called to duty is interrupted with its progress kept and returns to the board for another worker (11 § Job steps). Apart from the fighting patient of step 3, duty holds the soldier against its want-level needs (step 6) and its scheduled sleep in two cases only: its squad is treated as active (`active` mode, or any mode under a `watchful` or `hearth` alert, 16 § Squads) and a hostile is in sight; or its squad has an explicit order (`station`, `patrol`, `follow`, `kill`) during a `watchful` or `hearth` alert. A hostile is in sight when it is alive, not stealthed, within `PERCEPTION_RADIUS` (16) horizontally and two levels vertically, and in line of sight; a combat target the soldier still holds is not by itself in sight, since 16 keeps a target that is out of sight (16 § Targeting). In every other case the want takes precedence: training, a station, patrol, follow or kill order while the alert is `calm`, and an alert without an order do not hold it, and the soldier returns to duty when the need is met. A critical need (step 4) wins in every case.
+@@ -175 +175 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing`
+-`HourPassed`, `DayPassed`, `YearPassed`, `JobCompleted` (experience), `CreatureDied`, `CreatureUnconscious` (abandon a need errand), `AlertChanged`, `ThreatNearby` (from 16), `AttackResolved` (from 16: a fleeing civilian caught by a hunting animal), `PatientAdmitted` and `PatientDischarged` (17), `HearthLit`, `MoodTierChanged` (productivity cache).
++`HourPassed`, `DayPassed`, `YearPassed`, `JobCompleted` (experience), `CreatureDied`, `CreatureUnconscious` (abandon a need errand), `AlertChanged`, `ThreatNearby` (from 16), `AttackResolved` (from 16: a fleeing civilian caught by a hunting animal), `PatientAdmitted` and `PatientDischarged` (17: interrupt behavior selection), `HearthLit`, `MoodTierChanged` (productivity cache).
+diff --git a/docs/04-implementation/algorithms/creature-brains.md b/docs/04-implementation/algorithms/creature-brains.md
+index 812e52b..e3ac3fd 100644
+--- a/docs/04-implementation/algorithms/creature-brains.md
++++ b/docs/04-implementation/algorithms/creature-brains.md
+@@ -7,0 +8 @@
++on PatientAdmitted / PatientDischarged: interruptFlag[id] = true
+@@ -11,0 +13,2 @@ tickDwarf(id):
++  if b.behavior in {'need','social'} and health.isPatient(id) and (not combat.onDuty(id) or not hostileInSight(id) or not currentActivityServesCriticalNeed(id)):
++     cancelActivity(id); stopWalking(id); select(id); return   // patient priority resumes as soon as the fight ends
+@@ -15 +18 @@ tickDwarf(id):
+-  else if b.behavior == 'duty': (16 drives movement; nothing here)
++  else if b.behavior == 'duty': if health.isPatient(id) and health.isConscious(id) and not hostileInSight(id): select(id)   // otherwise 16 drives movement
+@@ -38 +41 @@ select(id):
+-  if health.isPatient(id):                                      b.behavior = 'patient'; goal = bedTile(id) or stay; return
++  if health.isPatient(id) and (civ or not hostileInSight(id)):  b.behavior = 'patient'; goal = bedTile(id) or stay; return   // a soldier on duty fights on while a hostile is in sight
+@@ -45 +48 @@ select(id):
+-    dutyHolds = want and ((alert != 'calm' and hasExplicitOrder(squad)) or (active and hostileInSight(id)))
++    dutyHolds = (health.isPatient(id) and hostileInSight(id)) or (want and ((alert != 'calm' and hasExplicitOrder(squad)) or (active and hostileInSight(id))))
+diff --git a/src/systems/dwarves/brain.ts b/src/systems/dwarves/brain.ts
+index 7bbc459..4c16167 100644
+--- a/src/systems/dwarves/brain.ts
++++ b/src/systems/dwarves/brain.ts
+@@ -308,0 +309,7 @@ function stillHeld(ctx: TickContext, threatId: EntityId, id: EntityId): boolean
++/** A conscious patient rests now; a soldier defers it only while a hostile is in sight. */
++function shouldRestPatient(ctx: TickContext, id: EntityId): boolean {
++  if (!walksToHospital(ctx, id)) return false;
++  const onDuty = ctx.readers.has('16') && ctx.readers.of<CombatReader>('16').onDuty(id);
++  return !onDuty || !hasHostileInSight(ctx, id);
++}
++
+@@ -399,0 +407 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
++  let patientFighting = false;
+@@ -402 +410,3 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
+-    if (conscious) {
++    // A soldier on duty fights on while a hostile is in sight, and goes to its bed when the fight is over.
++    patientFighting = conscious && !civ && hasHostileInSight(ctx, id);
++    if (conscious && !patientFighting) {
+@@ -439,2 +449,2 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
+-    const dutyHolds = (wants.length > 0 || sleepWindow) &&
+-      ((alert !== 'calm' && hasOrder) || (active && hasHostileInSight(ctx, id)));
++    const dutyHolds = patientFighting || ((wants.length > 0 || sleepWindow) &&
++      ((alert !== 'calm' && hasOrder) || (active && hasHostileInSight(ctx, id))));
+@@ -534 +544,6 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
+-    if (interrupted && host.threatOf(id) !== 0 && !keepCritical) {
++    // Rest resumes after the fight; during it only a critical need may keep its activity.
++    if (shouldRestPatient(ctx, id) || (walksToHospital(ctx, id) && !keepCritical)) {
++      host.activities.cancel(ctx, id);
++      movement?.stopWalking(id);
++      reselect = true;
++    } else if (interrupted && host.threatOf(id) !== 0 && !keepCritical) {
+@@ -573 +588,2 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
+-    if (civ) {
++    // Off duty, or admitted as a patient with no hostile in sight: the soldier selects again.
++    if (civ || shouldRestPatient(ctx, id)) {
+diff --git a/src/systems/dwarves/index.ts b/src/systems/dwarves/index.ts
+index 6c223c3..f99f101 100644
+--- a/src/systems/dwarves/index.ts
++++ b/src/systems/dwarves/index.ts
+@@ -77 +77 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
+-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AttackResolved', 'AlertChanged', 'BuildingStateChanged'];
++  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'PatientAdmitted', 'PatientDischarged', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AttackResolved', 'AlertChanged', 'BuildingStateChanged'];
+@@ -465,0 +466,4 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
++    if (event.type === 'PatientAdmitted' || event.type === 'PatientDischarged') {
++      this.interruptFlags.add(event['id'] as EntityId);
++      return;
++    }
+diff --git a/test/unit/dwarves/t211-patient-duty.test.ts b/test/unit/dwarves/t211-patient-duty.test.ts
+new file mode 100644
+index 0000000..6948316
+--- /dev/null
++++ b/test/unit/dwarves/t211-patient-duty.test.ts
+@@ -0,0 +1,112 @@
++/** T-211: admission interrupts military duty; discharge restores normal selection. */
++import { describe, expect, it } from 'vitest';
++import { roundTrip } from '@app/game-save';
++import { FLAT_TEST_SURFACE_Z as Z } from '@app/headless';
++import { C } from '@core/components';
++import type { CombatReader } from '@systems/combat';
++import { TestWorld } from '../../scenarios/test-world';
++
++function woundedSoldier(mode: 'train' | 'active' | 'off', alert: 'calm' | 'watchful', badgerDies = true, hunger = 0) {
++  const w = new TestWorld({ seed: 't211-patient-duty', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
++  const station = w.index(20, 20, Z), bedTile = w.index(27, 20, Z), chestTile = w.index(27, 21, Z);
++  const bed = w.build('bed', bedTile, 'oak'); w.build('chest', chestTile, 'oak');
++  w.zone('hospital', [bedTile, chestTile]); w.zone('barracks', [station]);
++  const id = w.spawnDwarf({ at: station });
++  for (const need of ['hunger', 'thirst', 'rest', 'social', 'comfort', 'purpose', 'joy'] as const) w.setNeed(id, need, 0);
++  const world = w.game.world;
++  expect(world.applyCommand({ type: 'CreateSquad', name: 'Guard', leaderId: id }).ok).toBe(true);
++  const combat = w.readers.of<CombatReader>('16'), squadId = combat.squads()[0]!.id;
++  expect(world.applyCommand({ type: 'SetSquadMode', squadId, mode }).ok).toBe(true);
++  expect(world.applyCommand({ type: 'SetSquadStation', squadId, tile: station }).ok).toBe(true);
++  expect(world.applyCommand({ type: 'SetAlert', level: alert }).ok).toBe(true);
++  w.step(5);
++  expect(combat.onDuty(id)).toBe(true); expect(world.entities.get(id, C.Brain)?.behavior).toBe('duty');
++  // Stage the audit's post-fight boundary through the real damage and death event paths.
++  const badger = w.spawnCreature('badger', w.index(20, 21, Z), 'wild');
++  expect(world.applyCommand({ type: 'SquadOrder', squadId, order: { kind: 'kill', targetId: badger } }).ok).toBe(true);
++  if (hunger > 0) { w.spawnItem('easy_meal', 'meal', station, 5); w.setNeed(id, 'hunger', hunger); }
++  world.emit({ type: 'DamageDealt', defenderId: id, attackerId: badger, part: 'torso', damageType: 'edge', amount: 15 });
++  const kill = (): void => world.emit({ type: 'DamageDealt', defenderId: badger, attackerId: id, part: 'torso', damageType: 'edge',
++    amount: world.entities.get(badger, C.Body)!.parts[1]!.maxHp * 2 });
++  if (!badgerDies) {
++    w.step(3);
++    return { w, world, id, combat, station, bedTile, badger, kill };
++  }
++  kill();
++  w.step(3);
++  expect(world.entities.alive(badger)).toBe(false);
++  expect(world.entities.has(id, C.Patient)).toBe(true); expect(combat.targetOf(id)).toBe(0);
++  expect(world.entities.get(id, C.Patient)?.bedId).toBe(bed);
++  return { w, world, id, combat, station, bedTile, badger, kill };
++}
++
++describe('T-211 an admitted soldier leaves duty for its hospital bed', () => {
++  it.each([['train', 'calm'], ['active', 'calm'], ['off', 'watchful']] as const)(
++    '%s / %s takes patient behavior within three ticks and returns to duty on discharge', (mode, alert) => {
++      const a = woundedSoldier(mode, alert);
++      expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('patient');
++      expect(a.world.entities.get(a.id, C.Brain)?.targetTile).toBe(a.bedTile);
++      a.w.until(() => { const p = a.world.entities.get(a.id, C.Position)!; return a.w.index(p.x, p.y, p.z) === a.bedTile; }, 200);
++      expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('patient');
++      expect(a.combat.onDuty(a.id)).toBe(true);
++      // The medic has finished bandaging; the health tick decides discharge, not the test.
++      const cut = a.world.entities.get(a.id, C.Body)!.parts[1]!.wounds[0]!;
++      cut.bandaged = true; cut.bleed = 0;
++      a.w.until(() => !a.world.entities.has(a.id, C.Patient), 5); a.w.step(2);
++      expect(a.w.events('PatientDischarged')).toContainEqual(expect.objectContaining({ id: a.id }));
++      expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('duty');
++      a.w.until(() => { const p = a.world.entities.get(a.id, C.Position)!; return a.w.index(p.x, p.y, p.z) === a.station; }, 200);
++    });
++
++  it('fights on while the badger is in sight, and goes to its bed when the badger is dead', () => {
++    const a = woundedSoldier('active', 'calm', false);
++    expect(a.world.entities.alive(a.badger)).toBe(true);
++    expect(a.world.entities.has(a.id, C.Patient)).toBe(true);
++    // Admitted, with its kill target beside it: the soldier does not turn its back on the fight.
++    expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('duty');
++    expect(a.combat.targetOf(a.id)).toBe(a.badger);
++    a.kill();
++    a.w.step(3);
++    expect(a.world.entities.alive(a.badger)).toBe(false);
++    expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('patient');
++    expect(a.world.entities.get(a.id, C.Brain)?.targetTile).toBe(a.bedTile);
++  });
++
++  it.each([['train', 'calm'], ['active', 'calm'], ['off', 'watchful']] as const)(
++    '%s / %s: an admitted fighter holds a want-level hunger while the enemy is in sight', (mode, alert) => {
++      const a = woundedSoldier(mode, alert, false, 60);
++      expect(a.world.entities.has(a.id, C.Patient)).toBe(true);
++      expect(a.world.entities.alive(a.badger)).toBe(true);
++      expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('duty');
++      expect(a.combat.targetOf(a.id)).toBe(a.badger);
++      expect(a.w.readers.of<import('@systems/items').ItemsReader>('13').available('easy_meal')).toBe(5);
++    });
++
++  it('a critical need still wins during the fight, then patient priority wins when the enemy dies', () => {
++    const a = woundedSoldier('active', 'calm', false, 90);
++    expect(a.world.entities.has(a.id, C.Patient)).toBe(true);
++    expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('need');
++    expect(a.w.readers.of<import('@systems/items').ItemsReader>('13').available('easy_meal')).toBeLessThan(5);
++    a.kill(); a.w.step(3);
++    expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('patient');
++    expect(a.world.entities.get(a.id, C.Brain)?.targetTile).toBe(a.bedTile);
++    expect(a.w.events('ItemReleased')).toContainEqual(expect.objectContaining({ jobId: a.id }));
++    expect(a.w.readers.of<import('@systems/items').ItemsReader>('13').available('easy_meal')).toBe(5);
++  });
++
++  it('takes patient behavior when a living enemy leaves sight, despite its squad kill order', () => {
++    const a = woundedSoldier('active', 'calm', false);
++    expect(a.world.services.movement?.teleport(a.badger, a.w.index(70, 60, Z))).toBe(true);
++    a.w.step(3);
++    expect(a.world.entities.alive(a.badger)).toBe(true);
++    expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('patient');
++    expect(a.world.entities.get(a.id, C.Brain)?.targetTile).toBe(a.bedTile);
++  });
++
++  it('saves the hospital walk and preserves its next 50 continuation hashes', () => {
++    const a = woundedSoldier('active', 'calm');
++    expect(a.world.entities.get(a.id, C.Brain)?.behavior).toBe('patient');
++    const loaded = roundTrip(a.w.game).game; expect(loaded.hash()).toBe(a.w.hash());
++    for (let tick = 0; tick < 50; tick += 1) { a.w.step(1); loaded.step(1); expect(loaded.hash()).toBe(a.w.hash()); }
++  });
++});
