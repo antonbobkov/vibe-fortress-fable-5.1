@@ -242,7 +242,7 @@ describe('U-04 drag to place many (D-U6, M6, S9)', () => {
       f.screen.pointerUp(at(f, x, 30));
     }
     expect(placements(f)).toHaveLength(5);
-    expect(f.screen.statusRow2()).toBe('Bed · 2 beds in stock: 3 will wait · [o] order 3 · [Esc] cancel');
+    expect(f.screen.statusRow2()).toBe('Bed placed · 2 beds in stock: 3 will wait · [o] order 3');
     let ordered = 0;
     buildPanel(f, () => { ordered += 1; f.screen.orderMissing(); }).click('[o] order 3');
     expect(ordered).toBe(1);

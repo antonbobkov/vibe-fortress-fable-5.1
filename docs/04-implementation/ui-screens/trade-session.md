@@ -30,6 +30,7 @@ Modal over the fortress screen; the simulation is paused while open.
 Rules of the display:
 
 - The left column shows merchant goods grouped as stacks with their *price* (valuation × markup); the right column shows fortress items at the depot with the merchant's *valuation* (which can differ from the stocks panel's value: the header of the right column says "their valuation").
+- Merchant rows group item entities with the same item type, material and quality, summing their counts and full prices. Their names use the plural for more than one. Quantity controls operate on the whole displayed stack, clamped to its count; selection allocates across its real item ids in reader order, taking up to each entity's count. Offers send those ids and quantities; totals use their individual prices, including a partially selected entity. Other materials or qualities remain separate rows.
 - The footer recomputes on every change: `We take` = Σ price × qty; `We give` = Σ valuation × qty; the requirement line shows the margin percent and the absolute minimum.
 - The merchant's line: "Not enough. Add 31 ☼ of goods." when short; "A fair offer." when acceptable; "We do not care for wooden things." once when any wooden item is selected for the Wildwood.
 - After `Offer` succeeds, the columns refresh; bought goods appear in the fortress column (they are now at the depot) and can be hauled away by removing them from the depot afterwards.

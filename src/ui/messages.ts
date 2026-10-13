@@ -413,3 +413,9 @@ export function workshopBlockText(env: MessageEnv, reason: string | null): strin
 export function militaryNoSquad(env: MessageEnv): string {
   return env.strings.get('ui.military.no_squad');
 }
+
+/** An accepted trade request waits for the broker to walk to the depot. */
+export function brokerOnWay(env: MessageEnv, paused: boolean): string {
+  const text = env.strings.get('ui.depot.broker_on_way');
+  return paused ? `${text} · ${env.strings.get('ui.depot.resume')}` : text;
+}

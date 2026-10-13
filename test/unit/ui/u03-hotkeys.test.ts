@@ -126,6 +126,7 @@ const STATES: readonly { readonly name: string; readonly open: (f: Fixture, worl
   { name: 'designate with the dig tool', open: (f) => { f.screen.openPanel('designate'); f.screen.tool.choose('d'); } },
   { name: 'build with a category', open: (f) => { f.screen.openPanel('build'); f.screen.build.choose('w'); } },
   // U-04: a drag of a 1×1 type in progress, and the out-of-stock line (`o` then opens the picker, still on Orders).
+  { name: 'T-251 build holding successful placement feedback', open: (f, world) => { bedTool(f); f.screen.ui.cursor = { x: 30, y: 30 }; f.screen.build.rememberPlacement([world.w.index(30, 30, z)], 'Bed placed'); expect(f.screen.statusRow2()).toContain('placed'); } },
   { name: 'build dragging a row of beds', open: (f) => { bedTool(f); f.screen.build.anchor = { x: 30, y: 30, z }; f.screen.build.end = { x: 32, y: 30, z }; } },
   { name: 'build with beds out of stock', open: (f) => { bedTool(f); f.screen.placeMany({ x: 30, y: 30, z }, { x: 32, y: 30, z }); expect(f.screen.statusRow2()).toContain('[o] order 3'); f.sent.length = 0; } },
   // U-05: the building panel, its link-target chooser and its owner chooser.

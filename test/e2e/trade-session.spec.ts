@@ -6,7 +6,7 @@ interface TradeHook extends Hook {
   readers: {
     ui: { panel: string | null };
     map: { index(x: number, y: number, z: number): number };
-    items: { get(id: number): { type: number; count: number; flags: number } | undefined };
+    items: { get(id: number): { type: number; material: number; quality: number; count: number; flags: number } | undefined };
     of<T>(id: string): T;
   };
   host: {
@@ -95,6 +95,10 @@ test('T-M7-03 trade-session', async ({ page }) => {
   await page.keyboard.press('Shift+D');
   expect(await textOf(page)).toContain('Depot');
   await page.keyboard.press('Shift+T');
+  // T-251: a pending paused request explains why the broker is not trading yet.
+  expect(await textOf(page)).toContain('The broker is on the way to the depot.');
+  expect(await textOf(page)).toContain('[Space] resumes');
+  expect(await textOf(page)).toContain('[S-t] trade');
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: TradeHook }).__deepholm;
     const trade = h.readers.of<{ sessionOpen(): boolean }>('20');
@@ -107,7 +111,13 @@ test('T-M7-03 trade-session', async ({ page }) => {
   const clothIndex = await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: TradeHook }).__deepholm;
     const trade = h.readers.of<{ merchantItems(): number[] }>('20');
-    return trade.merchantItems().findIndex((id) => h.host.headless.registry.table('items').idOf(h.readers.items.get(id)?.type ?? 0) === 'cloth');
+    // T-251: navigation counts displayed stacks, not the underlying item entities.
+    const groups = new Map<string, { type: number }>();
+    for (const id of trade.merchantItems()) {
+      const item = h.readers.items.get(id);
+      if (item) groups.set(`${item.type}:${item.material}:${item.quality}`, item);
+    }
+    return [...groups.values()].findIndex(item => h.host.headless.registry.table('items').idOf(item.type) === 'cloth');
   });
   expect(clothIndex).toBeGreaterThanOrEqual(0);
   for (let i = 0; i < clothIndex; i += 1) await page.keyboard.press('ArrowDown');

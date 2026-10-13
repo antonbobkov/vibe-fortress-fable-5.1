@@ -11,6 +11,7 @@ import { requiredValue, type TradeReader } from '@systems/trade';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import { Strings } from '../strings';
 import type { Surface } from '../surface';
+import { itemName } from '../messages';
 import { clampList, label, type ListState } from '../widgets';
 
 export interface TradeSessionHost {
@@ -45,7 +46,8 @@ export function tradeTotals(
   return { take: takeValue, give: giveValue, required, shortfall: Math.max(0, Math.ceil(required - giveValue)) };
 }
 
-interface GoodsRow { id: EntityId; count: number; value: number; name: string }
+interface GoodsMember { id: EntityId; count: number; value: number }
+interface GoodsRow extends GoodsMember { name: string; type: number; material: number; quality: number; members: readonly GoodsMember[] }
 
 const CIV_NAMES: Readonly<Record<Civ, string>> = {
   mountainhome: 'Mountainhome', hillfolk: 'Hillfolk', wildwood: 'Wildwood', gloam: 'Gloam',
@@ -72,7 +74,7 @@ export class TradeSessionScreen implements Screen {
   private items(): ItemsReader { return this.host.readers.of<ItemsReader>('13'); }
   private civ(): Civ { return this.trade().activeCaravan()?.civ ?? 'hillfolk'; }
 
-  private goods(side: 'merchant' | 'fortress'): GoodsRow[] {
+  private rawGoods(side: 'merchant' | 'fortress'): GoodsRow[] {
     const trade = this.trade();
     const items = this.items();
     const civ = this.civ();
@@ -82,13 +84,32 @@ export class TradeSessionScreen implements Screen {
       if (!rec || rec.count <= 0) return [];
       const def = items.def(rec.type);
       const material = this.host.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
-      return [{ id, count: rec.count, value: side === 'merchant' ? trade.price(civ, id) : trade.valuation(civ, id), name: `${material} ${def?.name ?? 'goods'}`.trim() }];
+      const value = side === 'merchant' ? trade.price(civ, id) : trade.valuation(civ, id);
+      return [{ id, count: rec.count, value, name: `${material} ${def?.name ?? 'goods'}`.trim(), type: rec.type, material: rec.material, quality: rec.quality, members: [{ id, count: rec.count, value }] }];
+    });
+  }
+
+  /** Display stacks retain the actual ids and per-item prices used by an offer. */
+  private goods(side: 'merchant' | 'fortress'): GoodsRow[] {
+    const raw = this.rawGoods(side);
+    if (side === 'fortress') return raw;
+    const groups = new Map<string, GoodsRow>();
+    for (const row of raw) {
+      const key = `${row.type}:${row.material}:${row.quality}`;
+      const group = groups.get(key);
+      if (group === undefined) groups.set(key, { ...row });
+      else { group.count += row.count; group.value += row.value; group.members = [...group.members, ...row.members]; }
+    }
+    return [...groups.values()].map(row => {
+      const material = this.host.registry.table<{ id: string; name: string }>('materials').byIndex(row.material)?.name ?? '';
+      const id = this.host.registry.table('items').idOf(row.type);
+      return { ...row, name: `${material} ${itemName(this.host.registry, id, row.count)}`.trim() };
     });
   }
 
   totals(): TradeTotals {
-    const merchant = this.goods('merchant');
-    const fortress = this.goods('fortress');
+    const merchant = this.rawGoods('merchant');
+    const fortress = this.rawGoods('fortress');
     return tradeTotals(merchant.map((r) => ({ ...r, price: r.value })), fortress, this.take, this.give, this.trade().marginPercent(this.civ()));
   }
 
@@ -99,16 +120,23 @@ export class TradeSessionScreen implements Screen {
   }
 
   quantity(side: 'merchant' | 'fortress', id: EntityId): number {
-    return (side === 'merchant' ? this.take : this.give).get(id) ?? 0;
+    const row = this.goods(side).find(r => r.members.some(member => member.id === id));
+    const chosen = side === 'merchant' ? this.take : this.give;
+    return row?.members.reduce((sum, member) => sum + (chosen.get(member.id) ?? 0), 0) ?? 0;
   }
 
   setQuantity(side: 'merchant' | 'fortress', id: EntityId, value: number): void {
-    const row = this.goods(side).find((r) => r.id === id);
+    const row = this.goods(side).find((r) => r.members.some(member => member.id === id));
     if (!row) return;
     const quantity = Math.max(0, Math.min(row.count, Math.round(value)));
     const chosen = side === 'merchant' ? this.take : this.give;
-    if (quantity === 0) chosen.delete(id);
-    else chosen.set(id, quantity);
+    let remaining = quantity;
+    for (const member of row.members) {
+      const count = Math.min(remaining, member.count);
+      if (count === 0) chosen.delete(member.id);
+      else chosen.set(member.id, count);
+      remaining -= count;
+    }
   }
 
   private change(delta: number): void {
@@ -120,12 +148,12 @@ export class TradeSessionScreen implements Screen {
   private offer(gift: boolean): void {
     this.notice = null;
     if (gift && this.take.size > 0) { this.notice = this.strings.get('ui.trade.gift_takes_nothing'); return; }
-    const give = this.goods('fortress').flatMap((row) => {
+    const give = this.rawGoods('fortress').flatMap((row) => {
       const count = this.give.get(row.id) ?? 0;
       return count > 0 ? [{ itemId: row.id, count }] : [];
     });
     if (give.length === 0) { this.notice = this.strings.get('ui.trade.choose_goods'); return; }
-    const take = gift ? [] : this.goods('merchant').flatMap((row) => {
+    const take = gift ? [] : this.rawGoods('merchant').flatMap((row) => {
       const count = this.take.get(row.id) ?? 0;
       return count > 0 ? [{ itemId: row.id, count }] : [];
     });
