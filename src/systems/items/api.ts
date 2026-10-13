@@ -309,16 +309,23 @@ export class ItemCore implements ItemsApi {
     return this.entities.get(id, C.Container);
   }
 
-  /** The tile an item is on: its own, its container's, or its carrier's; -1 when nowhere. */
+  /**
+   * The tile an item is on: its own, its container's, or its carrier's; -1 when nowhere. What lies
+   * in the linked item of built furniture (a hospital's chest) is on the furniture's tile; the
+   * linked item itself stays off the map.
+   */
   tileOf(id: EntityId): TileIndex {
+    let contained = false;
     for (let depth = 0; depth < 8; depth += 1) {
       const p = this.entities.get<Position>(id, C.Position);
       if (p !== undefined) return this.map.inBounds(p.x, p.y, p.z) ? this.map.index(p.x, p.y, p.z) : -1;
       const it = this.entities.get(id, C.Item);
       if (it === undefined) return this.host.holderTile?.(id) ?? -1;
-      if (it.containerId !== 0) id = it.containerId;
-      else if (it.carriedBy !== 0) id = it.carriedBy;
-      else return -1;
+      if (it.containerId !== 0) {
+        id = it.containerId;
+        contained = true;
+      } else if (it.carriedBy !== 0) id = it.carriedBy;
+      else return contained && (it.flags & ItemFlag.Installed) !== 0 ? (this.host.holderTile?.(id) ?? -1) : -1;
     }
     return -1;
   }

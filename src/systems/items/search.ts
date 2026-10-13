@@ -137,10 +137,21 @@ export class ItemSearch {
     if (t < 0) return -1;
     if (opts.stockpiledContainerClass !== undefined && this.host.stockpileAt(t) === 0) return -1;
     const pathing = this.host.pathing();
-    if (pathing !== null && (fromLabel === 0 || pathing.labelOf(t, cls) !== fromLabel)) return -1;
+    if (pathing !== null && (fromLabel === 0 || !this.reached(pathing, it, t, cls, fromLabel))) return -1;
     if (!matches(core, id, it, filter)) return -1;
     if (opts.allowedTile !== undefined && !opts.allowedTile(t)) return -1;
     return t;
+  }
+
+  /**
+   * Whether a mover of the label reaches the item: it stands on the item's tile, or, for an item in
+   * a container on a tile nobody stands on (a built chest), on a tile beside it.
+   */
+  private reached(pathing: PathingReader, it: Item, t: TileIndex, cls: MovementClass, fromLabel: number): boolean {
+    const label = pathing.labelOf(t, cls);
+    if (label === fromLabel) return true;
+    if (label !== 0 || it.containerId === 0) return false;
+    return this.host.core.host.map.neighbors8(t).some((n) => pathing.labelOf(n, cls) === fromLabel);
   }
 
   /** Filter content types once before visiting stock instances (not every spatial entity). */

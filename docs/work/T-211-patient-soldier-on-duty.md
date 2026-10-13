@@ -1,5 +1,13 @@
 # T-211 — A wounded soldier stays on duty instead of becoming a patient
 
+## Progress, 2026-10-12, second measurement (still parked)
+
+The parked patch has a fault of its own: `select` puts `patient` before `duty`, so a soldier admitted in the middle of a fight turns its back on the animal, and with no bed it stands where it is. A fifth case added to the patch's test file fails on the patch (`expected 'patient' to be 'duty'`). Decided, and to be folded into 10 § Behavior selection step 3 when this closes: a soldier on duty stays on duty while a hostile is in sight (step 5's definition) and takes `patient` on the first think after none is; the `duty` branch of `tickDwarf` checks this each tick for an admitted soldier, because the interrupt flag is spent during the fight.
+
+With that rule, on top of T-301's chest fix, the twelve-seed instrument gives 13 / 3 / 0 / 8 of 12 / 1 / 0 (the patch alone: 13 / 0 / 0 / 8 of 12 / 2 / 0; before: 13 / 8 / 0 / 8 of 12 / 1 / 0). Extinctions are back to one; the second-worst bound of 8 still fails, on forest seed 2 (10 living to 3). In that seed the soldier that bled to death on day 47 is now treated and lives; the timeline then differs and a wolf pack kills eight civilians between days 63 and 85, each a medic that walked to the last patient (T-307). None of them is a soldier in `patient`. The hypothesis that this task fails because patients are not treated does not hold for the annual fixture, which has no hospital: [report](../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md) § T-211.
+
+The patch with the rule and the five-case test file are in [`2026-10-12-t211-fight-rule.patch.txt`](../../reports/data/2026-10-12-t211-fight-rule.patch.txt); the stash is unchanged. Next: T-307, then measure this patch again. Keep both guards.
+
 ## Progress, 2026-10-12 (parked)
 
 The decided admission/discharge subscriptions and interrupt flags are implemented

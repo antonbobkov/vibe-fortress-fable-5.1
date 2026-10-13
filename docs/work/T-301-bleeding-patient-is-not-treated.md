@@ -1,6 +1,30 @@
 # T-301 — A bleeding patient in a hospital bed is not treated while cloth is in stock
 
-**Source:** T-145 and [`../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md`](../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md) (§ Wild animals) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
+**Source:** T-145 and [`../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md`](../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md) (§ Wild animals) · **Size:** M · **Needs:** T-307 · **Status:** open: diagnosed, three faults fixed on the branch `t-301` as work in progress; `defence_year` and the annual second-worst guard reject it
+
+## Progress, 2026-10-12
+
+The diagnosis is [`2026-10-12-bleeding-patients-and-the-duty-guard.md`](../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md): nine links, each classified. The trace below does not repeat at `28e2eab`; its links are explained from the code and from three other traces.
+
+On the branch `t-301`, one work-in-progress commit, with five stepped tests that fail first (`test/unit/health/t301-hospital-supplies.test.ts`) and the spec edits (10 § Behavior selection step 5; 11 § Job steps; 13 § Containers in play; 17 § Patients and hospitals; `algorithms/jobs-and-hauling.md`; `algorithms/creature-brains.md`):
+
+- A hospital's built chest is stocked: the haul job stands beside the chest (`hauling.ts`, `createHaul`).
+- What lies in a built chest is found and taken from a tile beside it (`api.ts` `tileOf`, `search.ts` `reached`, `board.ts` `fetchTile`, `build.ts` `holderTile`).
+- A soldier called to duty gives its job back to the board (`brain.ts`, `select`).
+
+It is not closed because two guards reject it, and neither was touched:
+
+- `defence_year` in `npm test`: three dwarves bleed to death by day 35 where one did, and the squad has three members where the scenario asserts four.
+- The twelve-seed instrument: before 13 / 8 / 0 / 8 of 12 / 1 / 0, after 13 / 6 / 0 / 8 of 12 / 1 / 0. The second-worst bound is 8. Forest seed 1 goes from 8 living to 13 and taiga seed 4 from 8 to 11; forest seed 2 from 10 to 6 and taiga seed 2 from 12 to 7.
+
+Last run on the commit's tree: the six static checks, `npm test`, `npm run test:e2e` and the instrument; their results are in the commit body.
+
+## Decisions
+
+- The spec was silent on how a dwarf reaches into a built chest, whose tile nobody stands on. Decided: from a walkable tile beside it, for the hauler and for the worker that takes an item out. The chest's linked item stays `installed`; only its contents have a tile, the chest's.
+- The spec was silent on the job of a worker whose squad goes on duty. Decided: it is interrupted with its progress kept, like a job interrupted by an alert.
+- Treatment inputs counted in units (T-305) and a call to the nearest worker (T-306) were written, tested and taken out again: the first failed the annual guard (13 / 0 / 0 / 8 of 12 / 2 / 0) and the second raised `defence_year`'s deaths from one to six. Both make a medic set out sooner, and T-307 is the likely reason that this kills.
+- Needs T-307: in the one seed traced, a fix that makes treatment more likely moves deaths from patients to medics, because a medic walks to a patient that has its attacker beside it. T-307 measures this over the twelve seeds first.
 
 ## Why
 
@@ -42,5 +66,5 @@ In the main scenario and the sweep at `ac88f56`, 19 militia bled out or died of 
 
 ## Done
 
-- Each link is classified with evidence in a dated report.
+- Each link is classified with evidence in a dated report. (Done: the report above.)
 - The probe's dwarf survives the badger, or `balance.md` § Wild animals says what holds instead.

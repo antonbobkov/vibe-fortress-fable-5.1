@@ -195,6 +195,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
         if (v === null) return [];
         return v.zonesOfType(type).map((id) => ({ id, tiles: v.zone(id)?.tiles ?? [] }));
       },
+      walkable: (i) => !readers.has('pathing') || readers.pathing.passable(i, 'walker', { faction: 'fortress' }),
       emit: (event) => world.emit(event),
     });
     this.haulingRef = hauling;

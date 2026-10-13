@@ -1,0 +1,218 @@
+# T-301 probe at 28e2eab: seed three-years, peril 0, the three-year economy fixture, first dwarf death (day 295). Events, then the patient, its jobs, the four claiming workers and the cloth and thread every 10 ticks.
+  ev t353404 {"type":"WoundInflicted","id":16777283,"part":"right_leg","woundType":"puncture","severity":"serious"}
+  ev t353404 {"type":"PatientAdmitted","id":16777283,"hospitalTier":0}
+  ev t353404 {"type":"JobCreated","jobId":6515,"jobType":"stop_bleeding","target":16777283}
+  ev t353404 {"type":"JobCreated","jobId":6516,"jobType":"suture","target":16777283}
+  ev t353404 {"type":"JobCreated","jobId":6517,"jobType":"clean_wound","target":16777283}
+  ev t353404 {"type":"JobCreated","jobId":6518,"jobType":"diagnose","target":16777283}
+  ev t353405 {"type":"WoundInflicted","id":218105107,"part":"torso","woundType":"cut","severity":"serious"}
+  ev t353405 {"type":"WoundInflicted","id":218105107,"part":"torso","woundType":"puncture","severity":"serious"}
+  ev t353405 {"type":"JobCancelled","jobId":2247,"jobType":"haul_to_stockpile","reason":"target_invalid","target":16778195}
+  ev t353405 {"type":"ItemReserved","itemId":16778195,"jobId":6515}
+  ev t353405 {"type":"JobClaimed","jobId":6515,"jobType":"stop_bleeding","workerId":16777286,"target":16777283}
+  ev t353405 {"type":"ItemReserved","itemId":16778322,"jobId":6516}
+  ev t353405 {"type":"JobClaimed","jobId":6516,"jobType":"suture","workerId":16777287,"target":16777283}
+  ev t353405 {"type":"JobClaimed","jobId":6517,"jobType":"clean_wound","workerId":50332470,"target":16777283}
+  ev t353405 {"type":"JobClaimed","jobId":6518,"jobType":"diagnose","workerId":50332721,"target":16777283}
+  ev t353424 {"type":"WoundInflicted","id":218105107,"part":"torso","woundType":"cut","severity":"serious"}
+  ev t353424 {"type":"WoundInflicted","id":16777283,"part":"torso","woundType":"puncture","severity":"light"}
+  ev t353428 {"type":"WoundInflicted","id":16777283,"part":"left_arm","woundType":"puncture","severity":"light"}
+  ev t353464 {"type":"WoundInflicted","id":16777283,"part":"torso","woundType":"puncture","severity":"light"}
+  ev t353468 {"type":"WoundInflicted","id":16777283,"part":"right_leg","woundType":"puncture","severity":"serious"}
+  ev t353488 {"type":"WoundInflicted","id":16777283,"part":"head","woundType":"puncture","severity":"serious"}
+  ev t353504 {"type":"WoundInflicted","id":16777283,"part":"torso","woundType":"puncture","severity":"light"}
+  ev t353508 {"type":"WoundInflicted","id":16777283,"part":"left_leg","woundType":"puncture","severity":"serious"}
+  ev t353519 {"type":"WoundInflicted","id":1627390639,"part":"torso","woundType":"cut","severity":"serious"}
+  ev t353553 {"type":"JobCreated","jobId":6519,"jobType":"carry_patient","target":16777283}
+  ev t353554 {"type":"JobClaimed","jobId":6519,"jobType":"carry_patient","workerId":50332243,"target":16777283}
+  ev t353560 {"type":"JobBlocked","jobId":6518,"jobType":"diagnose","reason":"unreachable","target":16777283}
+  ev t353561 {"type":"JobUnblocked","jobId":6518,"jobType":"diagnose","target":16777283}
+  ev t353567 {"type":"CreatureDied","id":16777283,"cause":"bled_out","killerId":1627390639,"tile":73778,"species":15,"name":"Hrolf Stormwall","faction":"fortress","ageTicks":4972800,"wornItems":[150995076,117440775,83886551,16777292,16777293,16777294]}
+  ev t353568 {"type":"ItemReleased","itemId":16778195,"jobId":6515}
+  ev t353568 {"type":"JobCancelled","jobId":6515,"jobType":"stop_bleeding","reason":"target_gone","target":16777283}
+  ev t353568 {"type":"ItemReleased","itemId":16778322,"jobId":6516}
+  ev t353568 {"type":"JobCancelled","jobId":6516,"jobType":"suture","reason":"target_gone","target":16777283}
+  ev t353568 {"type":"ItemReleased","itemId":16777270,"jobId":6517}
+  ev t353568 {"type":"JobCancelled","jobId":6517,"jobType":"clean_wound","reason":"target_gone","target":16777283}
+  ev t353568 {"type":"JobCancelled","jobId":6518,"jobType":"diagnose","reason":"target_gone","target":16777283}
+  ev t353568 {"type":"JobCancelled","jobId":6519,"jobType":"carry_patient","reason":"target_gone","target":16777283}
+  ev t353571 {"type":"JobCreated","jobId":6520,"jobType":"haul_to_stockpile","target":16778195}
+  ev t353571 {"type":"JobBlocked","jobId":6520,"jobType":"haul_to_stockpile","reason":"unreachable","target":16778195}
+
+== t353410 alert hearth
+  patient 16777283 duty/On duty blood 602/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":35,"y":10,"z":26} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":34,"y":10,"z":26} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":34,"y":11,"z":26} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 work/Diagnose pos {"x":36,"y":7,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353420 alert hearth
+  patient 16777283 duty/On duty blood 594/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":34,"y":10,"z":26} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":34,"y":10,"z":26} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":33,"y":10,"z":26} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 work/Diagnose pos {"x":35,"y":7,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353430 alert hearth
+  patient 16777283 duty/On duty blood 584/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":32,"y":9,"z":26} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":32,"y":9,"z":26} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":33,"y":9,"z":26} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 work/Diagnose pos {"x":33,"y":9,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353440 alert hearth
+  patient 16777283 duty/On duty blood 568/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":31,"y":9,"z":26} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":31,"y":9,"z":26} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":32,"y":9,"z":26} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 work/Diagnose pos {"x":31,"y":9,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353450 alert hearth
+  patient 16777283 duty/On duty blood 552/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":31,"y":9,"z":28} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":31,"y":9,"z":27} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":31,"y":9,"z":27} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 work/Diagnose pos {"x":31,"y":9,"z":27} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353460 alert hearth
+  patient 16777283 duty/On duty blood 536/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":31,"y":9,"z":29} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":31,"y":9,"z":29} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":31,"y":9,"z":27} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 need/sleep pos {"x":31,"y":9,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353470 alert hearth
+  patient 16777283 duty/On duty blood 518/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":31,"y":9,"z":31} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":31,"y":9,"z":30} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":31,"y":9,"z":29} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 need/sleep pos {"x":32,"y":9,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353480 alert hearth
+  patient 16777283 duty/On duty blood 490/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":31,"y":9,"z":32} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":31,"y":9,"z":32} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":31,"y":9,"z":30} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 need/sleep pos {"x":33,"y":8,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353490 alert hearth
+  patient 16777283 duty/On duty blood 462/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":31,"y":7,"z":32} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":31,"y":9,"z":32} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":31,"y":9,"z":31} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 need/sleep pos {"x":33,"y":7,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353500 alert hearth
+  patient 16777283 duty/On duty blood 426/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":30,"y":7,"z":32} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":31,"y":7,"z":32} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":31,"y":9,"z":32} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 need/sleep pos {"x":33,"y":7,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353510 alert hearth
+  patient 16777283 duty/On duty blood 388/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":28,"y":7,"z":32} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":30,"y":7,"z":32} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":31,"y":8,"z":32} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 need/sleep pos {"x":33,"y":7,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353520 alert hearth
+  patient 16777283 duty/On duty blood 340/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":27,"y":7,"z":32} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":29,"y":7,"z":32} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":30,"y":7,"z":32} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 need/sleep pos {"x":33,"y":7,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353530 alert hearth
+  patient 16777283 duty/On duty blood 292/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":25,"y":7,"z":32} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":27,"y":7,"z":32} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":29,"y":7,"z":32} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 need/sleep pos {"x":33,"y":7,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353540 alert hearth
+  patient 16777283 duty/On duty blood 244/606 consc true pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":24,"y":7,"z":32} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":26,"y":7,"z":32} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":28,"y":7,"z":32} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 need/sleep pos {"x":33,"y":7,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353550 alert hearth
+  patient 16777283 duty/On duty blood 196/606 consc false pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 0
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":22,"y":7,"z":32} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":24,"y":7,"z":32} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":27,"y":7,"z":32} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 need/sleep pos {"x":33,"y":7,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 
+== t353560 alert hearth
+  patient 16777283 duty/On duty blood 148/606 consc false pos {"x":2,"y":1,"z":32} needs ["stop_bleeding","suture","clean_wound","diagnose"] bed 16777664
+    job 6515 stop_bleeding:16777283 fetching null worker 16777286 inputs [[[16778195],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6516 suture:16777283 fetching null worker 16777287 inputs [[[16778322],[]]] tool null data {"patient":16777283} failedWalk undefined
+    job 6517 clean_wound:16777283 fetching null worker 50332470 inputs [] tool bucket data {"patient":16777283,"toolToFetch":16777270} failedWalk undefined
+    job 6518 diagnose:16777283 travelling null worker 50332721 inputs [] tool null data {"patient":16777283,"standTile":73731} failedWalk undefined
+    job 6519 carry_patient:16777283 travelling null worker 50332243 inputs [] tool null data {"patient":16777283,"bedTile":60611,"standTile":60611} failedWalk undefined
+  medic 16777286 work/Bandage pos {"x":21,"y":7,"z":32} job stop_bleeding:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 16777287 work/Suture pos {"x":23,"y":7,"z":32} job suture:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332470 work/Clean wound pos {"x":26,"y":8,"z":32} job clean_wound:16777283:fetching carrying 0 tool 0 queued false hasWork true urgent1 false soldier null
+  medic 50332721 work/Diagnose pos {"x":34,"y":7,"z":26} job diagnose:16777283:travelling carrying 0 tool 0 queued false hasWork false urgent1 false soldier null
+    supplies cloth#16778195x5@{"x":14,"y":3,"z":32} cont 0 res 6515 carried 0 flags 8 | thread#16778322x3@{"x":14,"y":3,"z":32} cont 0 res 6516 carried 0 flags 8 

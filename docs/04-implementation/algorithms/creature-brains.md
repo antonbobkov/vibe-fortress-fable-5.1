@@ -39,6 +39,7 @@ select(id):
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
   if combat.onDuty(id):
+    if Worker[id].jobId: jobs.interrupt(id, keepProgress = true)       // a soldier on duty steps no job; it returns to the board
     want = highest need with an errand (not purpose) over its want threshold, or scheduled sleep
     active = squad.mode == 'active' or alert != 'calm'                 // an alert treats every squad as active
     dutyHolds = want and ((alert != 'calm' and hasExplicitOrder(squad)) or (active and hostileInSight(id)))
