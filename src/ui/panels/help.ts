@@ -170,6 +170,8 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     out.push({ category: 'stocks', text: strings.get('ui.help.stocks.filter') });
     out.push({ category: 'animals', text: strings.get('ui.help.animals.title'), heading: true });
     out.push({ category: 'animals', text: strings.get('ui.help.animals.train', { key: acceleratorLabel('t', keymap.panelLetters()) }) });
+    out.push({ category: 'animals', text: strings.get('ui.help.animals.cap', { key: acceleratorLabel('c', keymap.panelLetters()) }) });
+    out.push({ category: 'designate', text: strings.get('ui.help.designate.undo') });
     out.push({ category: 'game_menu', text: strings.get('ui.help.game_menu.title'), heading: true });
     out.push({ category: 'game_menu', text: strings.get('ui.help.game_menu.rename') });
     out.push({ category: 'zones', text: strings.get('ui.help.zones.title'), heading: true });

@@ -157,6 +157,7 @@ const STATES: readonly { readonly name: string; readonly open: (f: Fixture, worl
   { name: 'civilizations choosing a request', open: (f) => { f.screen.openPanel('civilizations'); f.screen.civilizations.choosingRequest = true; } },
   { name: 'a map selection', open: (f) => { f.screen.look({ x: 36, y: 36, z }); f.screen.selection = { a: { x: 36, y: 36, z }, b: { x: 37, y: 37, z } }; } },
   ...([0, 1] as const).map(selected => ({ name: `T-246 animal training choice ${selected}`, open: (f: Fixture, world: World) => { f.screen.openPanel('animals'); expect(world.dog).toBeGreaterThan(0); f.screen.animals.list.selected = f.screen.animals.rows(f.screen.ctx).indexOf(world.dog ?? 0); f.screen.key(press('T', { shift: true })); expect(f.screen.animals.trainChoice).not.toBeNull(); f.screen.animals.trainChoice!.selected = selected; } })),
+  { name: 'T-249 animal breeding cap editor', open: (f) => { f.screen.openPanel('animals'); f.screen.key(press('C', { shift: true })); expect(f.screen.animals.capEditor).not.toBeNull(); } },
   { name: 'no panel', open: (f) => f.screen.openPanel(null) },
 ];
 

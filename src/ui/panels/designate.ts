@@ -17,6 +17,7 @@ import type { MapReader } from '@core/readers';
 import type { TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import { acceleratorLabel } from '../keymap';
+import { UNDO_BATCHES_MAX } from '../constants';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
@@ -93,8 +94,11 @@ export class DesignateTool {
   anchor: TilePoint | null = null;
   /** The corner under the pointer while dragging. */
   end: TilePoint | null = null;
-  /** The tiles of the last `Designate` batch, for `Ctrl+Z`. */
-  lastBatch: TileIndex[] | null = null;
+  private readonly batches: TileIndex[][] = [];
+  /** Latest remaining batch, also used by re-prioritize. */
+  get lastBatch(): TileIndex[] | null { return this.batches.at(-1) ?? null; }
+  /** Undo history is not persisted across worlds or loads. */
+  clearHistory(): void { this.batches.length = 0; }
 
   get active(): boolean {
     return this.kind !== null || this.clearing;
@@ -162,15 +166,16 @@ export class DesignateTool {
   /** Record what a submitted batch was, so `Ctrl+Z` can undo it. */
   remember(commands: readonly Command[]): void {
     const batch = commands.find((c) => c.type === 'Designate');
-    if (batch !== undefined) this.lastBatch = (batch['tiles'] as TileIndex[]).slice();
+    if (batch !== undefined) {
+      this.batches.push((batch['tiles'] as TileIndex[]).slice());
+      if (this.batches.length > UNDO_BATCHES_MAX) this.batches.shift();
+    }
   }
 
   /** `Ctrl+Z`: "undoes the last batch". */
   undo(): Command | null {
-    if (this.lastBatch === null) return null;
-    const cmd: Command = { type: 'UndoDesignation', tiles: this.lastBatch };
-    this.lastBatch = null;
-    return cmd;
+    const tiles = this.batches.pop();
+    return tiles === undefined ? null : { type: 'UndoDesignation', tiles };
   }
 
   /**
@@ -191,7 +196,7 @@ export class DesignateTool {
 }
 
 /** The panel body (the title row is the sidebar's). */
-export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, strings: Strings, reprioritize?: () => void): void {
+export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, strings: Strings, reprioritize?: () => void, undo?: () => void): void {
   const t = s.theme;
   let row = rect.row;
   const colW = Math.floor((rect.cols - 2) / 2);
@@ -212,7 +217,8 @@ export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, 
   }
   label(s, rect.col + 1, row, strings.get('ui.tool.designate.priority', { n: tool.priority }));
   row += 1;
-  label(s, rect.col + 1, row, strings.get('ui.tool.designate.undo'));
+  const undoWidth = label(s, rect.col + 1, row, strings.get('ui.tool.designate.undo'));
+  if (undo !== undefined) s.hit({ col: rect.col + 1, row, cols: Math.min(undoWidth, 19), rows: 1 }, undo);
   row += 1;
   // U-05: the last batch can take another priority (`SetDesignationPriority`).
   label(s, rect.col + 1, row, strings.get('ui.tool.designate.reprioritize', { n: tool.priority }), { fg: tool.lastBatch === null ? s.theme.dim : s.theme.text, width: rect.cols - 2 });

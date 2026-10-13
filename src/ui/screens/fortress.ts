@@ -578,7 +578,7 @@ export class FortressScreen implements Screen {
     const body = { col: inner.col, row: inner.row + 1, cols: inner.cols, rows: inner.rows - 1 };
     const readers = this.host.readers;
     const ctx = this.ctx;
-    if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings, () => this.reprioritize());
+    if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings, () => this.reprioritize(), () => this.undoDesignation());
     else if (panel.id === 'build') drawBuildPanel(surface, body, this.build, ctx, { key: this.ordersKey(), run: () => void this.orderMissing() });
     else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx, () => this.removeZone(this.zones.selected));
     else if (panel.id === 'stocks') drawStocksPanel(surface, body, this.stocks, ctx);
@@ -826,6 +826,7 @@ export class FortressScreen implements Screen {
   }
 
   openPanel(id: string | null): void {
+    if (id !== 'animals') this.animals.capEditor = null;
     if (id !== 'designate') this.tool.cancel();
     if (id !== 'build') this.build.cancel();
     if (id !== 'zones') this.zones.cancel();
@@ -1092,6 +1093,7 @@ export class FortressScreen implements Screen {
     // progress, then the selection, then the tool, then the panel, then the game menu.
     if (this.orders.materialOpen) { this.orders.materialOpen = false; return; }
     if (this.orders.picker.open) { this.orders.picker.open = false; return; }
+    if (this.animals.capEditor !== null) { this.animals.capEditor = null; return; }
     if (this.animals.name.focused) { this.animals.name.focused = false; return; }
     if (this.animals.trainChoice !== null) { this.animals.trainChoice = null; return; }
     if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow || this.military.memberChoice) { this.military.cancel(); return; }
@@ -1144,6 +1146,12 @@ export class FortressScreen implements Screen {
       this.host.gameMenu?.();
   }
 
+  private undoDesignation(): void {
+    const cmd = this.tool.undo();
+    if (cmd !== null) this.host.submit(cmd);
+    else this.notice(this.strings.get('ui.status.nothing_to_undo'));
+  }
+
   /** `+`/`-`: the next speed. While paused the game stays paused and the speed it resumes at changes (Q10). */
   private step(delta: number): void {
     const now = this.host.speed();
@@ -1156,6 +1164,7 @@ export class FortressScreen implements Screen {
 
   key(press: KeyPress): boolean {
     this.ensureRegistered();
+    if (this.ui.sidebar && this.ui.panel === 'animals' && this.animals.capKey(this.ctx, press)) return true;
     if (this.textFocused() && press.key === 'Space') press = { ...press, key: ' ' };
     if (this.ui.sidebar && this.ui.panel === 'units' && this.units.editing && this.unitsFilterKey(press)) return true;
     if (this.ui.sidebar && this.ui.panel === 'jobs' && this.jobs.filter.key(press)) { this.jobs.resetSelection(); return true; }
@@ -1229,9 +1238,7 @@ export class FortressScreen implements Screen {
           this.togglePanel('debug');
           return true;
         case 'undo': {
-          const cmd = this.tool.undo();
-          if (cmd !== null) this.host.submit(cmd);
-          else this.notice(this.strings.get('ui.status.nothing_to_undo'));
+          this.undoDesignation();
           return true;
         }
         default:
@@ -1547,6 +1554,7 @@ export class FortressScreen implements Screen {
       case 'building':
         return this.building.key(ctx, press, (id) => this.deconstruct(id));
       case 'animals': {
+        if (this.animals.capEditor !== null) return false;
         if (this.animals.name.focused) {
           if (k === 'Enter') return submit(this.animals.finishName(ctx));
           return editText(this.animals.name, press);
@@ -1568,7 +1576,7 @@ export class FortressScreen implements Screen {
         if (this.animals.tab === 0) {
           if (letter === 'p') return submit(this.animals.pasture(ctx));
           if (letter === 's') { this.animals.slaughterAsk(ctx); return true; }
-          if (letter === 'c') return submit(this.animals.cap(ctx));
+          if (letter === 'c') { this.animals.startCap(ctx); return true; }
           if (letter === 'a') return submit(this.animals.assign(ctx));
           if (letter === 'n') { this.animals.startName(ctx); return true; }
           if (letter === 't') { this.animals.startTrain(ctx); return true; }

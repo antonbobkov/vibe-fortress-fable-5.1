@@ -43,7 +43,7 @@ Keyboard:
 - Letters open panels and tools (the default keymap table): `d` designate, `b` build, `z` zones, `u` units, `j` jobs, `l` labors, `o` orders, `s` stocks, `m` military, `n` animals, `t` threats, `c` civilizations, `p` population, `e` mood, `a` log, `k` look, `f` overlays, `?` help.
 - `Esc` cancels the current tool, then closes the panel, then opens the game menu.
 - `Space` pause (in a multi-select list it marks the row; in the stockpile category tree or material checklist it toggles the checkbox instead); `+` and `-` speed (in a stockpile numeric field they adjust its value); `<` and `>` (also `,` and `.`) z-level down and up; arrow keys pan by one cell, `Shift` + arrows by ten; `Home` centers on the hearth (or the wagon).
-- Within a designation or zone tool: a click applies to one tile, a drag defines a rectangle, and two presses of `Enter` define its corners. Each press uses the look cursor, otherwise the mouse tile, otherwise the map centre; a stairwell may span levels. `1`–`9` set the priority; `Ctrl+Z` undoes the last batch.
+- Within a designation or zone tool: a click applies to one tile, a drag defines a rectangle, and two presses of `Enter` define its corners. Each press uses the look cursor, otherwise the mouse tile, otherwise the map centre; a stairwell may span levels. `1`–`9` set the priority; `Ctrl+Z` or the undo row undoes the most recent of up to `UNDO_BATCHES_MAX` designation batches, one per press, newest first. This history is presentation state, is not saved, and clears on load or leaving the fortress.
 - `F5` quick save, `F9` quick load (with confirmation), `Ctrl+S` save menu, `F12` debug panel.
 - Within panels: unshifted arrows move the selection before they pan the map (the labor grid also takes left/right), `Enter` activates, `Tab` moves between fields, letters in `[brackets]` are accelerators, `PageUp`/`PageDown` scroll. State-specific keys are listed in the panel documents.
 - Bare panel letters always open or close their panel. Reserved letters come from the live panel bindings; colliding accelerators require Shift, shown `[S-x]`. Fixed captions use the defaults, while zone inspector captions and their Help rows follow the current panel bindings. With default bindings, the free letters are `g h i q r v w x y`; these work with or without Shift. Focused text fields take letters as text. A text field takes a key event only when its `key` is a single printable character, `Space` being a space; control, format, private-use and unassigned code points (Unicode categories Cc, Cf, Co, Cn) are ignored by the field, and a character the bundled font lacks is accepted and drawn `?`. While a text or filter field has focus, `Space` types a space and never reaches the pause key. A name is trimmed and every run of spaces becomes one space; a name that is empty after that is refused with the dialog's "Type at least 1 character." line (the embark screen's "The fortress needs a name."). A panel's filter text is cleared when its panel closes or another opens.
@@ -188,6 +188,10 @@ This entire document.
 | `LOG_DEDUP_TICKS` | 100 | |
 | `STATUS_HINT_SECONDS` | 4 | Rejection reason display time |
 | `HINT_CHECK_HOURS` | 1 | |
+| `UNDO_BATCHES_MAX` | 10 | Designation batches retained for undo |
+| `BREEDING_CAP_MIN` | 0 | Animals cap editor lower bound |
+| `BREEDING_CAP_MAX` | 100 | Animals cap editor upper bound |
+| `BREEDING_CAP_BIG_STEP` | 10 | Cap editor Shift increment |
 | `UI_NORMAL_SPACING` | 3 | Normal gap between tabs and status fields |
 | `UI_COMPACT_SPACING` | 1 | Gap when normal spacing does not fit the viewport |
 | `EMBARK_PRESET_SPACING` | 4 | Normal gap before the Presets button |

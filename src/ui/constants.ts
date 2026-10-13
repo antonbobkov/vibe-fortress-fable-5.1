@@ -7,6 +7,14 @@
  */
 import type { UserSettings } from './settings';
 
+/** Presentation-only designation batches retained for undo. */
+export const UNDO_BATCHES_MAX = 10;
+
+/** Animals cap editor bounds and Shift increment (24). */
+export const BREEDING_CAP_MIN = 0;
+export const BREEDING_CAP_MAX = 100;
+export const BREEDING_CAP_BIG_STEP = 10;
+
 /** Log lines kept in memory. */
 export const LOG_MAX_LINES = 2000;
 
