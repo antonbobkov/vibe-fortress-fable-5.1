@@ -488,7 +488,9 @@ export function checkDefenceYearBuildings(w: TestWorld, state: DefenceYearState)
 }
 
 export function runDefenceYear(): void {
-  const w = threeYearsWorld('defence-year', 2);
+  // The defences are tested against the raid the scenario stages. Natural surface arrivals are
+  // left out, as in `hospital_run`: which dwarf a boar kills is not what the assertions are about.
+  const w = threeYearsWorld('defence-year', 2, 'none');
   setupDefenceYear(w);
 
   const fortressState = setupThreeYearsFortress(w);

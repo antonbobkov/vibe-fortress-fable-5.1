@@ -1,6 +1,8 @@
 # T-214 — Three boars still wipe out the economy fixture after T-196
 
-**Source:** T-144 and its re-measure, [`../../reports/audits/2026-10-10-wants-without-errands-after-t196.md`](../../reports/audits/2026-10-10-wants-without-errands-after-t196.md) (§ With wild animals) · **Size:** L · **Needs:** — · **Status:** open (diagnosis first)
+> **Closed 2026-10-12 (orchestrator), explained by T-145.** The fixtures measured here had an unarmed squad from day 10, no alert for animals and no hospital. The T-145 probe reproduces the wipe-out with clubs and removes it with three iron spears and a kill order ([report](../../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md)). A careless fortress still loses far more than one dwarf per animal; T-273 is the task that tells the player so. The deaths that remain in the rebuilt fixture are wounded soldiers left untreated: T-211 and T-301.
+
+**Source:** T-144 and its re-measure, [`../../reports/audits/2026-10-10-wants-without-errands-after-t196.md`](../../../reports/audits/2026-10-10-wants-without-errands-after-t196.md) (§ With wild animals) · **Size:** L · **Needs:** — · **Status:** open (diagnosis first)
 
 ## Why
 
@@ -14,7 +16,7 @@ On `cloud/main`, without T-144, the rewritten fixture on seed `three-years` lose
 
 ## Reproduction
 
-The probe [`2026-10-10-wants-without-errands-probe.ts.txt`](../../reports/data/2026-10-10-wants-without-errands-probe.ts.txt) as the report's Method describes, runs `new-asis-cloud`, `new-p01-asis-cloud`, `old-asis-cloud`; the spawn probe [`2026-10-10-wants-without-errands-after-t196-spawns.ts.txt`](../../reports/data/2026-10-10-wants-without-errands-after-t196-spawns.ts.txt). Two traced deaths (the probe's `T140_STUCK` watch, rewritten fixture, seed `three-years`):
+The probe [`2026-10-10-wants-without-errands-probe.ts.txt`](../../../reports/data/2026-10-10-wants-without-errands-probe.ts.txt) as the report's Method describes, runs `new-asis-cloud`, `new-p01-asis-cloud`, `old-asis-cloud`; the spawn probe [`2026-10-10-wants-without-errands-after-t196-spawns.ts.txt`](../../../reports/data/2026-10-10-wants-without-errands-after-t196-spawns.ts.txt). Two traced deaths (the probe's `T140_STUCK` watch, rewritten fixture, seed `three-years`):
 
 - Dwarf 16777293 flees a boar, then alternates between `patient` (walking back to a hospital bed at (27, 5, 32)) and `flee`, with boar 16777702 one or two tiles behind, until it bleeds out at tick 22,582. The fortress alert stays `calm`.
 - Dwarf 16777298 works a `clean_wound` job at (18, 1, 32) with boar 16777700 two tiles away, sleeps on that tile, and then flees two boars until it dies at tick 26,082.
