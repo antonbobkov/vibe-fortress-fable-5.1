@@ -3,18 +3,26 @@ import { PRIORITY_MIN, PRIORITY_MAX } from '@core/constants';
 import type { EntityId, Quality } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
-import { CATEGORY_TREE, STOCKPILE_PRESETS } from '@systems/items';
+import { CATEGORY_TREE, STOCKPILE_PRESETS, defaultStockpile } from '@systems/items';
 import { STOCKPILE_QUALITY_MIN, STOCKPILE_QUALITY_MAX } from '../constants';
 import { acceleratorLabel } from '../keymap';
 import { capitalize, stockpilePreset, zoneEditorMessage } from '../messages';
 import type { Surface } from '../surface';
 import { buildTree, dropdown, dropdownKey, label, list, nodeState, numberField, tree, toggleNode, visibleRows, type DropdownState, type ListState, type TreeNode, type TreeState } from '../widgets';
-import { accel, items, type PanelContext } from './context';
+import { accel, buildings, items, type PanelContext } from './context';
 
 export const PRESET_ORDER: readonly string[] = Object.keys(STOCKPILE_PRESETS).filter((id) => id !== 'hospital');
 export const STOCKPILE_FIELDS = ['barrel', 'bag', 'bin', 'priority', 'minQuality', 'maxQuality'] as const;
 export type StockpileField = typeof STOCKPILE_FIELDS[number];
 type Focus = 'tree' | StockpileField;
+
+/** Reading an undelivered zone must neither mutate the world nor pretend it was deleted. */
+function stockpileForEditor(ctx: PanelContext, zoneId: EntityId) {
+  const r = items(ctx);
+  const zone = buildings(ctx)?.zone(zoneId);
+  if (r === null || zone === undefined || (zone.type !== 'stockpile' && zone.type !== 'hospital')) return undefined;
+  return r.stockpile(zoneId) ?? defaultStockpile(zone.type);
+}
 
 export class StockpileEditor {
   readonly tree: TreeState = { selected: 0, scroll: 0, expanded: new Set() };
@@ -46,7 +54,7 @@ export class StockpileEditor {
   }
 
   openPreset(ctx: PanelContext, zoneId: EntityId): void {
-    const f = items(ctx)?.stockpile(zoneId)?.filter;
+    const f = stockpileForEditor(ctx, zoneId)?.filter;
     if (f === undefined) { this.fail(ctx, 'unavailable'); return; }
     this.materialsOpen = false;
     this.preset.open = true;
@@ -63,7 +71,7 @@ export class StockpileEditor {
   }
 
   toggleMaterial(ctx: PanelContext, zoneId: EntityId, index: number): void {
-    const f = items(ctx)?.stockpile(zoneId)?.filter;
+    const f = stockpileForEditor(ctx, zoneId)?.filter;
     if (f === undefined) { this.fail(ctx, 'unavailable'); return; }
     const classes = this.classes(ctx);
     let materialClasses: string[] | 'any';
@@ -79,7 +87,7 @@ export class StockpileEditor {
   }
 
   adjust(ctx: PanelContext, zoneId: EntityId, field: StockpileField, delta: number): void {
-    const sp = items(ctx)?.stockpile(zoneId);
+    const sp = stockpileForEditor(ctx, zoneId);
     if (sp === undefined) { this.fail(ctx, 'unavailable'); return; }
     this.focus = field;
     if (field === 'barrel' || field === 'bag' || field === 'bin') {
@@ -101,7 +109,7 @@ export class StockpileEditor {
   }
 
   toggleCategory(ctx: PanelContext, zoneId: EntityId, id: string): void {
-    const f = items(ctx)?.stockpile(zoneId)?.filter;
+    const f = stockpileForEditor(ctx, zoneId)?.filter;
     if (f === undefined) { this.fail(ctx, 'unavailable'); return; }
     ctx.submit({ type: 'SetStockpileFilter', zoneId, filter: { ...f, categories: toggleNode(this.categories(), f.categories, id) } });
   }
@@ -183,7 +191,7 @@ export class StockpileEditor {
 }
 
 export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEditor, ctx: PanelContext, zoneId: EntityId, tiles: number): void {
-  const sp = items(ctx)?.stockpile(zoneId);
+  const sp = stockpileForEditor(ctx, zoneId);
   if (sp === undefined) {
     label(s, rect.col + 1, rect.row, zoneEditorMessage(ctx, 'unavailable'), { width: rect.cols - 2 });
     return;

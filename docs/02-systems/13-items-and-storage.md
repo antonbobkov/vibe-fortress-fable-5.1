@@ -182,6 +182,8 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 `ForbidItem { itemId | tiles | typeId, on }`, `ClaimItem` (the same with `on: false`), `DumpItem { … }`, `MeltItem { … }`, `SetStockpileFilter { zoneId, filter }`, `SetStockpileContainers { zoneId, wants }`, `SetStockpilePriority`, `LinkStockpile { zoneId, sourceZoneId, on }`. (`SetHospitalSupplies` is 17's command; its value is stored as a filter here.)
 
+`SetStockpileFilter`, `SetStockpileContainers`, `SetStockpilePriority` and `LinkStockpile` ensure a missing record first for an existing stockpile or hospital zone, using exactly the defaults of the deferred zone event. The later event preserves that record and its settings. A stockpile begins with an empty filter; a hospital begins with its hospital filter. Both have no wanted containers or source links and the initial haul priority specified in Stockpiles. `LinkStockpile` also ensures its source, which must be another stockpile zone. Paused commands retain their ordinary queued event dispatch and the same save format.
+
 ### Events consumed
 
 `CreatureDied` (release the creature's item ownership; create corpse), `ZoneChanged` (stockpiles), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall), `BuildingCompleted`/`BuildingRemoved` (wealth), `ThiefEscaped` (wealth), `TemperatureTick` (rot speed sampling for the head bucket).
