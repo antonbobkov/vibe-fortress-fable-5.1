@@ -45,6 +45,8 @@
 
 Jobs: `[/]` or a click focuses target-name/worker text; Enter or Esc finishes typing. `[S-l]` or a click cycles labors with jobs, `[S-s]` or a click cycles all/open/claimed/blocked. Stocks: `[/]` or a click focuses category/item/material text; Enter or Esc finishes typing. These controls also appear in Help.
 
+Stockpile inspector: `[i] link` or its button starts choosing a source stockpile on the map; click it or Enter at the cursor, Esc or right click cancels. `[x] unlink` or its button opens named linked sources; arrows or click select and centre, Enter or the unlink button removes just that link, Esc or Cancel returns. Delete or `[Del] remove zone` removes the stockpile zone with its existing confirmation. Other zone inspectors retain `[x] remove zone`. Panel letters still switch panels inside both link modes; Help lists these actions.
+
 Animals, Tame tab: `[S-c] cap` or click cap opens its inline number field: digits type, `+`/`-` step by one (Shift by ten), Enter or Set submits, Esc or Cancel discards; 0–100, no wrapping. Panel letters remain available.
 
 Animals, Tame tab: `[S-t] train` or its button opens War/Hunting; arrows and Enter, or click a choice; Esc cancels. Panel letters still switch panels inside the choice. Help lists this action and `Esc` then `[n] Rename fortress` from the game menu, also available by clicking its row and entering a name in the text input.

@@ -1,6 +1,8 @@
 # T-247 — Stockpile links can be made and removed in the editor
 
-**Source:** T-111 and its report, [`../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../reports/audits/2026-10-10-ui-audit-follow-up.md) (7.8) · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-247: stockpile source links can be picked and removed`.
+
+**Source:** T-111 and its report, [`../../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../../reports/audits/2026-10-10-ui-audit-follow-up.md) (7.8) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -12,8 +14,8 @@ Seed `audit-1`, default embark. Make a stockpile, run a moment, select it: the e
 
 ## What the spec says
 
-- [`13-items-and-storage.md`](../02-systems/13-items-and-storage.md) § Rules: `accepts` takes an item from a linked source only, when `linkedSources` is not empty; "`LinkStockpile` accepts only another stockpile zone as source"; § Interfaces: `LinkStockpile { zoneId, sourceZoneId, on }`; § Player-facing behavior: the editor has "source links".
-- [`panels.md`](../04-implementation/ui-screens/panels.md) § Zones (stockpile): `Links [+]` in the wireframe.
+- [`13-items-and-storage.md`](../../02-systems/13-items-and-storage.md) § Rules: `accepts` takes an item from a linked source only, when `linkedSources` is not empty; "`LinkStockpile` accepts only another stockpile zone as source"; § Interfaces: `LinkStockpile { zoneId, sourceZoneId, on }`; § Player-facing behavior: the editor has "source links".
+- [`panels.md`](../../04-implementation/ui-screens/panels.md) § Zones (stockpile): `Links [+]` in the wireframe.
 
 ## What to do
 
@@ -26,4 +28,4 @@ Seed `audit-1`, default embark. Make a stockpile, run a moment, select it: the e
 ## Done
 
 - A player can link and unlink stockpiles with keyboard and mouse.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

@@ -176,6 +176,7 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     out.push({ category: 'game_menu', text: strings.get('ui.help.game_menu.rename') });
     out.push({ category: 'zones', text: strings.get('ui.help.zones.title'), heading: true });
     out.push({ category: 'zones', text: strings.get('ui.help.zones.select') });
+    out.push({ category: 'zones', text: strings.get('ui.help.zones.links', { link: acceleratorLabel('i', keymap.panelLetters()), unlink: acceleratorLabel('x', keymap.panelLetters()) }) });
     const rows = [
       ['p', 'ui.help.zones.preset'], ['g', 'ui.help.zones.tree'], ['q', 'ui.help.zones.numbers'],
       ['v', 'ui.help.zones.materials'], ['o', 'ui.help.zones.owner'], ['y', 'ui.help.zones.types'],

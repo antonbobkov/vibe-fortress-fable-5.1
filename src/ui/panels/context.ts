@@ -29,6 +29,8 @@ export interface PanelContext {
   shiftClick(): boolean;
   /** A message on the status row: why an action did nothing (D-U4). Absent outside the fortress screen. */
   notice?(text: string): void;
+  /** An interactive pick prompt replaces an earlier status notice. */
+  clearNotice?(): void;
   /** The letters that open panels: an accelerator on one of them needs `Shift` (D-U2). The defaults when absent. */
   readonly panelLetters?: ReadonlySet<string>;
   /**

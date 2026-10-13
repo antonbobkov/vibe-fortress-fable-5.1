@@ -1,3 +1,4 @@
+import type { BuildingsReader } from '@systems/buildings';
 /**
  * The fortress screen: `ui-screens/fortress-screen.md`, `02-systems/24-ui-and-input.md`
  * § Fortress screen layout, § Input model, § Inspection, § Announcements and the log, and
@@ -211,6 +212,7 @@ export class FortressScreen implements Screen {
       openPanel: (id) => this.openPanel(id),
       shiftClick: () => this.clickShift,
       notice: (text) => this.notice(text),
+      clearNotice: () => this.clearNotice(),
       panelLetters: this.panelLetters(),
       ...(host.confirm === undefined ? {} : {
         confirm: (id: string, params: Readonly<Record<string, string | number>>, run: () => void): void => {
@@ -667,6 +669,9 @@ export class FortressScreen implements Screen {
     if (this.pointer !== null && this.last !== null) {
       const tip = this.last.tooltipAt(this.pointer.col, this.pointer.row);
       if (tip !== null) return tip.text;
+    }
+    if (this.ui.panel === 'zones' && this.zones.stockpile.linkingFor !== 0) {
+      return s.get('ui.stockpile.link_prompt', { name: zoneName(this.ctx, this.zones.stockpile.linkingFor) });
     }
     if (this.ui.panel === 'building' && this.building.linking) {
       return s.get('ui.status.link', { building: buildingName(this.ctx, this.building.id), kinds: s.get('ui.building.linkable') });
@@ -1459,6 +1464,14 @@ export class FortressScreen implements Screen {
         }
         return letter !== '' && letter !== 'r' && letter !== 'x' && this.build.choose(letter);
         case 'zones':
+          if (this.zones.stockpile.linkingFor !== 0 && k === 'Enter') {
+            const tile = this.tileOf(this.actionPoint());
+            if (tile !== null) this.zones.stockpile.pickSource(ctx, tile);
+            return true;
+          }
+          if (k === 'Delete' && !this.zones.active && ctx.readers.has('14') && ctx.readers.of<BuildingsReader>('14').zone(this.zones.selected)?.type === 'stockpile') {
+            this.removeZone(this.zones.selected); return true;
+          }
           if (this.zones.editorKey(ctx, press)) return true;
           if (this.zones.farmKey(ctx, press)) return true;
           if (k === 'Enter' && !this.zones.active && this.zones.selected === 0) {
@@ -1466,7 +1479,7 @@ export class FortressScreen implements Screen {
             if (tile === null || !this.zones.select(ctx, tile)) this.notice(zoneEditorMessage(ctx, 'no_zone'));
             return true;
           }
-        if (letter === 'x' && !this.zones.active && this.zones.selected !== 0) {
+        if (letter === 'x' && !this.zones.active && this.zones.selected !== 0 && ctx.readers.of<BuildingsReader>('14').zone(this.zones.selected)?.type !== 'stockpile') {
           this.removeZone(this.zones.selected);
           return true;
         }
@@ -1641,6 +1654,7 @@ export class FortressScreen implements Screen {
     if (p.button === 2) {
       // "Right click: cancels the current tool; with no tool, opens the inspection panel".
       if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) this.military.cancel();
+      else if (this.ui.panel === 'zones' && this.zones.stockpile.linkingFor !== 0) this.zones.stockpile.cancel();
       else if (this.ui.panel === 'building' && this.building.linking) this.building.cancel();
       else if (this.build.active) this.build.cancel();
       else if (this.zones.active) this.zones.cancel();
@@ -1658,6 +1672,11 @@ export class FortressScreen implements Screen {
         else this.notice(this.strings.get(this.military.settingKill ? 'ui.status.click_creature' : 'ui.status.click_dwarf'));
         if (!this.military.settingKill && !this.military.settingFollow) this.military.cancel();
       }
+      return;
+    }
+    if (this.ui.panel === 'zones' && this.ui.sidebar && this.zones.stockpile.linkingFor !== 0) {
+      const tile = this.tileOf(at);
+      if (tile !== null) this.zones.stockpile.pickSource(this.ctx, tile);
       return;
     }
     if (this.ui.panel === 'building' && this.ui.sidebar && this.building.linking) {
