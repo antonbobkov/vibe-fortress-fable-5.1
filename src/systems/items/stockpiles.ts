@@ -129,6 +129,16 @@ export function presetFilter(name: string): StockpileFilter | null {
   return { categories: [...p.categories], materialClasses: 'any', minQuality: 0, maxQuality: 5, allowRot: p.allowRot };
 }
 
+/** Shared fresh record for command/event creation and a not-yet-dispatched zone's editor. */
+export function defaultStockpile(zoneType: 'stockpile' | 'hospital' = 'stockpile'): Stockpile {
+  return {
+    filter: zoneType === 'hospital' ? hospitalFilter() : emptyFilter(),
+    containersWanted: { barrel: 0, bag: 0, bin: 0 },
+    priority: HAUL_PRIORITY as Priority,
+    linkedSources: [],
+  };
+}
+
 /** A slot: a tile, or a container on a tile, or an identical stack to merge into. */
 export interface Slot {
   readonly tile: TileIndex;
@@ -194,13 +204,7 @@ export class StockpileStore {
     const zone = this.host.zone(id);
     if (zone === undefined || (zone.type !== 'stockpile' && zone.type !== 'hospital')) return false;
     if (this.stockpile(id) === undefined) {
-      const isHospital = zone.type === 'hospital';
-      this.entities.add(id, C.Stockpile, {
-        filter: isHospital ? hospitalFilter() : emptyFilter(),
-        containersWanted: { barrel: 0, bag: 0, bin: 0 },
-        priority: HAUL_PRIORITY as Priority,
-        linkedSources: [],
-      });
+      this.entities.add(id, C.Stockpile, defaultStockpile(zone.type));
       this.syncTiles(id);
     }
     return true;

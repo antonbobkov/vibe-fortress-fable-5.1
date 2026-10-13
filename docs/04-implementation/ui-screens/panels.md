@@ -28,6 +28,8 @@ A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-scre
 │ [x] remove zone  [S-e] resize       │
 ```
 
+A stockpile made while paused can be configured immediately, before its `ZoneChanged` is dispatched. While its record is absent, the inspector reads the same empty filter, zero wanted containers, no links and `HAUL_PRIORITY` defaults as the item system, without creating state during drawing. Every editor action uses those defaults until a command creates the record; a deleted zone still reports that it is unavailable.
+
 Selecting a stockpile or room replaces the type list with its inspector; `[y] zone types` returns to the list. With no zone tool active, `Enter` selects the zone at the map cursor or centre; a click on its map tiles does the same.
 
 ```

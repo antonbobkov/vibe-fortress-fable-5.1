@@ -47,6 +47,7 @@ export {
   STOCKPILE_PRESETS,
   CATEGORY_TREE,
   emptyFilter,
+  defaultStockpile,
   presetFilter,
   type Slot,
   type ContainerNeeded,

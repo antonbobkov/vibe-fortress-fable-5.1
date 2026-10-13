@@ -1,6 +1,8 @@
 # T-240 — A stockpile made while paused can be set up at once
 
-**Source:** T-111 and its report, [`../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../reports/audits/2026-10-10-ui-audit-follow-up.md) (Issue 2, M1, new finding N1) · **Size:** M · **Needs:** — · **Status:** open
+Closed by `T-240: a new paused stockpile can be configured immediately`.
+
+**Source:** T-111 and its report, [`../../../reports/audits/2026-10-10-ui-audit-follow-up.md`](../../../reports/audits/2026-10-10-ui-audit-follow-up.md) (Issue 2, M1, new finding N1) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -12,9 +14,9 @@ Seed `audit-1`, hilliest region, default embark (the e2e helpers' route). Paused
 
 ## What the spec says
 
-- [`simulation-core.md`](../01-architecture/simulation-core.md) § Commands: while paused the host runs the command phase at once, but "other events emitted by commands remain queued for the normal tick dispatch".
-- [`13-items-and-storage.md`](../02-systems/13-items-and-storage.md) § Interfaces (events consumed): 13 creates a stockpile's record on `ZoneChanged` (`src/systems/items/index.ts:286-296`, `StockpileStore.ensure`). So the record does not exist until the next tick.
-- [`ui-screens/panels.md`](../04-implementation/ui-screens/panels.md) § Zones (stockpile) and [`ui-keymap-and-screens.md`](../03-content/ui-keymap-and-screens.md) describe the editor with no exception for a paused game.
+- [`simulation-core.md`](../../01-architecture/simulation-core.md) § Commands: while paused the host runs the command phase at once, but "other events emitted by commands remain queued for the normal tick dispatch".
+- [`13-items-and-storage.md`](../../02-systems/13-items-and-storage.md) § Interfaces (events consumed): 13 creates a stockpile's record on `ZoneChanged` (`src/systems/items/index.ts:286-296`, `StockpileStore.ensure`). So the record does not exist until the next tick.
+- [`ui-screens/panels.md`](../../04-implementation/ui-screens/panels.md) § Zones (stockpile) and [`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-screens.md) describe the editor with no exception for a paused game.
 
 ## What to do
 
@@ -28,4 +30,4 @@ Seed `audit-1`, hilliest region, default embark (the e2e helpers' route). Paused
 
 - The reproduction above shows the editor while paused, and choosing Wood applies at once.
 - No golden moves, or the commit explains each one (a scenario that set a filter in the same tick as the zone was made would now succeed where it was refused).
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
