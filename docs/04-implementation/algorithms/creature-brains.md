@@ -5,6 +5,7 @@
 ## Dwarf brain (every tick per dwarf)
 
 ```
+on PatientAdmitted / PatientDischarged: interruptFlag[id] = true
 tickDwarf(id):
   if not health.isConscious(id): cancelActivity(id); return
   b = Brain[id]
@@ -12,7 +13,7 @@ tickDwarf(id):
   if b.behavior == 'need' or 'social' or 'idle': runActivity(id) ; if activity finished: b.behavior = 'none'
   else if b.behavior == 'work': if Worker.jobId: jobs.stepWorker(id)
                                   else if not jobs.isQueued(id): leisureOrIdle(id, jobs.hasWork(id))
-  else if b.behavior == 'duty': (16 drives movement; nothing here)
+  else if b.behavior == 'duty': if health.isPatient(id) and health.isConscious(id) and not hostileInSight(id): select(id)   // otherwise 16 drives movement
   else if b.behavior in {'flee','retreat','patient'}: runMovementBehavior(id) // patient goal follows only its current held bed; without one, stay here until 17 allocates one
   if b.behavior == 'none' or interruptFlag[id]: select(id)
 select(id):
@@ -35,7 +36,7 @@ select(id):
          jobs.assign(id) unless it holds the job; b.behavior = 'work'; return   // back to 'retreat' when the job ends; a retreating dwarf looks for such a job every tick
        b.behavior = 'retreat'; goal = target; return          // otherwise continue; flee has precedence
                                                                 // shelterArea(target): the hearth hall when target is one of its tiles, else the non-outdoor tiles around target reached without passing a door
-  if health.isPatient(id):                                      b.behavior = 'patient'; goal = bedTile(id) or stay; return
+  if health.isPatient(id) and (civ or not hostileInSight(id)):  b.behavior = 'patient'; goal = bedTile(id) or stay; return   // a soldier on duty fights on while a hostile is in sight
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
   if combat.onDuty(id):
