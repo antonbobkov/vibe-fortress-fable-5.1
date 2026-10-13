@@ -1,6 +1,33 @@
 # T-145 — The economy fixture plays at default priorities
 
-**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (causes 7 to 11, § Not established) · **Size:** M · **Needs:** T-144, T-188 · **Status:** open
+**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (causes 7 to 11, § Not established) · **Size:** M · **Needs:** T-144, T-188 · **Status:** open (script done; two Done items unmet, see § Progress)
+
+## Progress (2026-10-12, branch `t-145`)
+
+The six fixture files of `f-17` are ported by hand and the Decision list is applied; the measurements are in [the report](../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md). Six of the eight allowed three-year runs were made, then the sweep and the mood instrument once each.
+
+**What holds** (runs 4, 5 and 6, seed `three-years`): every recipe witness above zero, a trade at every visit (8 of 8 in run 6), the anvil bought on day 126–127, the engraving, the T-176 invariants, the three played saves, the mood floors. `F17_KNOWN_GAPS` is gone.
+
+**Remaining gaps, by name:**
+
+1. *"no dwarf died across three years in peril 0"* fails: 1, 2 and 2 deaths in runs 4, 5 and 6, each a militia member who bled out after a boar fight. The script cannot remove them: T-301 and T-211.
+2. *"Peril 0: seven of seven seeds survive with no dwarf death"*: seven of seven survive, none without a death (1, 4, 25, 2, 32, 27, 6). Twelve deaths are bleeding after a fight (T-301). Eighty-five are starvation in four seeds once the fortress passes about 40 dwarves: the surface farm strips grow nothing in winter and the meal stock is eaten in a season. That part is the script and is still to do: the farm and the kitchens for 40 to 55 dwarves, or fewer immigrants taken.
+3. *Perils 2 and 4 are not measured*: all 13 seeds stop on a T-176 invariant finding between day 19 and day 215 (T-302, T-303, T-304).
+4. *Beds and the dead*: 18 beds are made and 11 placed for up to 59 dwarves. The bedroom rooms stop being dug (133 of 194 tiles from day 100, no dig job left), and the plan has 20 rooms in any case. The script builds no tomb, and "unburied dead" is active 40% of dwarf-time. The mood time mean is 57.7 on the main seed and 52.7–55.5 on two sweep seeds.
+5. *Idle time* ("work follows the population") was not measured.
+6. *The old script's unreachable mine* was not run; the report gives the likely cause from reading.
+7. *B-008 … B-012* are read against the report in `balance-status.md`; none can close while gaps 1 to 3 stand.
+
+**Decisions made while doing it** (each with its measurement in the report):
+
+- The wagon carries three iron spears instead of the crossbow set and other supplies the fortress never uses; clubs lose to boars.
+- The squad is the woodcutter, the mason, the seventh founder and the two miners, from the first day; the hearth alert and kill orders answer any dangerous wild animal within 14 tiles.
+- Six barrels are made before the beds: the still cannot brew without them. Beds then come before the standing barrel order.
+- Hauling is on for everybody but the miners and keeps its default priority; raised one step it starved the crafts.
+- Nobody hunts: an immigrant hunter's crossbow hits bystanders.
+- The farm grows by surface strips with bought seed; caravans sell no cave seed.
+- The scenario's thought-cap assertion bounded the raw sum of positive thoughts (46.8 measured against 41); it now bounds the mood by what `15` § Mood's capped sum allows.
+- The sweep's first seed was started once at `f778cc8`, stopped after one seed to fix the winter food, and run once in full at `ac88f56`.
 
 ## Why
 

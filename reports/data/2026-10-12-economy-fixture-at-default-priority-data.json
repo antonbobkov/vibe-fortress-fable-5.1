@@ -1,0 +1,2720 @@
+{
+ "note": "T-145 main-scenario runs, seed three-years, peril 0, 336 days (three years of 112 days). Source: the console lines \"three_years economy\" and \"three_years summary\" of each run.",
+ "runs": {
+  "1": {
+   "commit": "1532867",
+   "firstFailingAssertion": "forge_crafts completed through normal jobs: expected 0 to be greater than 0",
+   "summary": {
+    "y1Pop": 16,
+    "y2Pop": 25,
+    "y3Pop": 0,
+    "y1Wealth": 17287,
+    "y2Wealth": 17245,
+    "y3Wealth": 10518,
+    "deaths": {
+     "dwarf": 26,
+     "tame": 0,
+     "other": 0
+    },
+    "mealsEaten": 1701,
+    "drinksAlcohol": 2798,
+    "drinksWater": 0,
+    "waves": [
+     {
+      "day": 29,
+      "count": 2,
+      "guaranteed": true
+     },
+     {
+      "day": 57,
+      "count": 3,
+      "guaranteed": true
+     },
+     {
+      "day": 85,
+      "count": 4,
+      "guaranteed": false
+     },
+     {
+      "day": 169,
+      "count": 7,
+      "guaranteed": false
+     },
+     {
+      "day": 197,
+      "count": 3,
+      "guaranteed": false
+     }
+    ],
+    "raids": [
+     {
+      "day": 125,
+      "kind": "thief",
+      "size": 1
+     },
+     {
+      "day": 237,
+      "kind": "thief",
+      "size": 1
+     },
+     {
+      "day": 311,
+      "kind": "thief",
+      "size": 1
+     }
+    ],
+    "moodStats": {
+     "min": 100,
+     "max": 0,
+     "avg": "N/A",
+     "breakdown": {
+      "Fine": 0,
+      "Content": 0,
+      "Happy": 0,
+      "Unhappy": 0,
+      "Miserable": 0,
+      "Ecstatic": 0
+     }
+    }
+   },
+   "economy": {
+    "years": [
+     {
+      "day": 112,
+      "wealth": 17287,
+      "population": 16,
+      "marks": {
+       "embark goods": 1342,
+       "blocks": 87,
+       "furniture": 503,
+       "crafts": 258,
+       "meals/drink": 11920,
+       "iron goods": 0,
+       "steel goods": 0,
+       "iron bars": 540,
+       "steel bars": 0,
+       "gems": 120,
+       "smoothing/engraving": 0,
+       "other building value": 187,
+       "trade purchases": 1,
+       "barrels": 171,
+       "other": 2158
+      },
+      "engraved": 0,
+      "spirit": 66.05735444444446
+     },
+     {
+      "day": 224,
+      "wealth": 17245,
+      "population": 25,
+      "marks": {
+       "embark goods": 1237,
+       "blocks": 84,
+       "furniture": 503,
+       "crafts": 285,
+       "meals/drink": 7142,
+       "iron goods": 1912,
+       "steel goods": 0,
+       "iron bars": 450,
+       "steel bars": 0,
+       "gems": 120,
+       "smoothing/engraving": 0,
+       "other building value": 202,
+       "trade purchases": 1383,
+       "barrels": 438,
+       "other": 3489
+      },
+      "engraved": 0,
+      "spirit": 54.39108508700115
+     },
+     {
+      "day": 336,
+      "wealth": 10518,
+      "population": 0,
+      "marks": {
+       "embark goods": 1182,
+       "blocks": 84,
+       "furniture": 503,
+       "crafts": 410,
+       "meals/drink": 0,
+       "iron goods": 2722,
+       "steel goods": 0,
+       "iron bars": 330,
+       "steel bars": 160,
+       "gems": 120,
+       "smoothing/engraving": 0,
+       "other building value": 202,
+       "trade purchases": 1526,
+       "barrels": 885,
+       "other": 2394
+      },
+      "engraved": 96,
+      "spirit": 55
+     }
+    ],
+    "recipes": {
+     "make_stone_block": 24,
+     "brew": 137,
+     "cook_easy_meal": 133,
+     "cook_fine_meal": 50,
+     "make_door_stone": 6,
+     "make_table_stone": 9,
+     "make_chair_stone": 21,
+     "make_barrel": 98,
+     "make_charcoal": 97,
+     "craft_stone": 128,
+     "make_bed": 19,
+     "smelt_hematite": 31,
+     "cook_lavish_meal": 222,
+     "cut_gem": 9,
+     "forge_pick": 3,
+     "forge_mail_shirt": 6,
+     "forge_shield": 6,
+     "forge_short_sword": 6,
+     "alloy_steel": 4
+    },
+    "caravans": [
+     {
+      "day": 34,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 39,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 70,
+      "civ": "wildwood",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 72,
+      "civ": "wildwood",
+      "state": "TradeCompleted",
+      "given": 5.3999999999999995,
+      "received": 1.2
+     },
+     {
+      "day": 75,
+      "civ": "wildwood",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 125,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 127,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 2103.8000000000006,
+      "received": 1828.2
+     },
+     {
+      "day": 130,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 145,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 147,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 93,
+      "received": 80.16
+     },
+     {
+      "day": 150,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 176,
+      "civ": "wildwood",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 178,
+      "civ": "wildwood",
+      "state": "TradeCompleted",
+      "given": 215.99999999999991,
+      "received": 185.99999999999997
+     },
+     {
+      "day": 181,
+      "civ": "wildwood",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 230,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 232,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 388.69999999999993,
+      "received": 335.88
+     },
+     {
+      "day": 235,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 263,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 267,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 300,
+      "received": 260.4
+     },
+     {
+      "day": 268,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 287,
+      "civ": "wildwood",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 292,
+      "civ": "wildwood",
+      "state": "CaravanDeparted"
+     }
+    ],
+    "immigration": [
+     {
+      "day": 28,
+      "population": 7,
+      "wealth": 3326,
+      "waveSize": 2,
+      "reason": "wave"
+     },
+     {
+      "day": 56,
+      "population": 9,
+      "wealth": 4330,
+      "waveSize": 3,
+      "reason": "wave"
+     },
+     {
+      "day": 84,
+      "population": 12,
+      "wealth": 9123,
+      "waveSize": 4,
+      "reason": "wave"
+     },
+     {
+      "day": 112,
+      "population": 16,
+      "wealth": 17287,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 140,
+      "population": 16,
+      "wealth": 14550,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 168,
+      "population": 16,
+      "wealth": 17925,
+      "waveSize": 7,
+      "reason": "wave"
+     },
+     {
+      "day": 196,
+      "population": 23,
+      "wealth": 13957,
+      "waveSize": 3,
+      "reason": "wave"
+     },
+     {
+      "day": 224,
+      "population": 25,
+      "wealth": 17245,
+      "waveSize": null,
+      "reason": "spirit"
+     },
+     {
+      "day": 252,
+      "population": 24,
+      "wealth": 14365,
+      "waveSize": null,
+      "reason": "spirit"
+     },
+     {
+      "day": 280,
+      "population": 7,
+      "wealth": 11708,
+      "waveSize": null,
+      "reason": "spirit"
+     },
+     {
+      "day": 308,
+      "population": 5,
+      "wealth": 10663,
+      "waveSize": null,
+      "reason": "spirit"
+     }
+    ],
+    "deaths": [
+     {
+      "day": 223,
+      "id": 50332669,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 721421199
+     },
+     {
+      "day": 248,
+      "id": 16777298,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 251659385
+     },
+     {
+      "day": 253,
+      "id": 218104665,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 889193608
+     },
+     {
+      "day": 255,
+      "id": 50332675,
+      "species": "dwarf",
+      "cause": "infection",
+      "killerId": 251659385
+     },
+     {
+      "day": 256,
+      "id": 16777296,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 1426064112
+     },
+     {
+      "day": 257,
+      "id": 822084101,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 1426064112
+     },
+     {
+      "day": 257,
+      "id": 83886309,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 251659385
+     },
+     {
+      "day": 258,
+      "id": 50332679,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 251659385
+     },
+     {
+      "day": 260,
+      "id": 50332664,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 889193608
+     },
+     {
+      "day": 261,
+      "id": 50332683,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 251659385
+     },
+     {
+      "day": 261,
+      "id": 285213491,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 1426064112
+     },
+     {
+      "day": 265,
+      "id": 251659003,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 889193608
+     },
+     {
+      "day": 265,
+      "id": 117441140,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 251659385
+     },
+     {
+      "day": 265,
+      "id": 184549619,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 889193608
+     },
+     {
+      "day": 266,
+      "id": 251658417,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 889193608
+     },
+     {
+      "day": 268,
+      "id": 83886647,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 251659385
+     },
+     {
+      "day": 269,
+      "id": 419431185,
+      "species": "dwarf",
+      "cause": "killed",
+      "killerId": 889193608
+     },
+     {
+      "day": 271,
+      "id": 721421199,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 1426064112
+     },
+     {
+      "day": 274,
+      "id": 16777297,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 889193608
+     },
+     {
+      "day": 285,
+      "id": 352322106,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 1358955101
+     },
+     {
+      "day": 286,
+      "id": 16777803,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 1358955101
+     },
+     {
+      "day": 314,
+      "id": 83886273,
+      "species": "dwarf",
+      "cause": "starvation",
+      "killerId": 0
+     },
+     {
+      "day": 324,
+      "id": 16777293,
+      "species": "dwarf",
+      "cause": "starvation",
+      "killerId": 0
+     },
+     {
+      "day": 325,
+      "id": 16777295,
+      "species": "dwarf",
+      "cause": "starvation",
+      "killerId": 0
+     },
+     {
+      "day": 327,
+      "id": 16777292,
+      "species": "dwarf",
+      "cause": "starvation",
+      "killerId": 0
+     },
+     {
+      "day": 327,
+      "id": 16777294,
+      "species": "dwarf",
+      "cause": "starvation",
+      "killerId": 0
+     }
+    ],
+    "raids": [
+     {
+      "day": 125,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 83886878,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 237,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 989856664,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 311,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318768148,
+      "outcome": "looted"
+     }
+    ],
+    "dwarfDays": 4779.530833333333,
+    "food": 1701,
+    "alcohol": 2798,
+    "water": 0,
+    "fixture": {
+     "armedDay": null,
+     "specialists": {},
+     "deepShaft": {
+      "x": 11,
+      "y": 39,
+      "bottom": 20
+     }
+    }
+   }
+  },
+  "2": {
+   "commit": "b000e24",
+   "firstFailingAssertion": "expected 46.8 to be less than or equal to 41",
+   "summary": null,
+   "economy": {
+    "years": [
+     {
+      "day": 112,
+      "wealth": 16673,
+      "population": 14,
+      "marks": {
+       "embark goods": 1352,
+       "blocks": 81,
+       "furniture": 334,
+       "crafts": 212,
+       "meals/drink": 10025,
+       "iron goods": 0,
+       "steel goods": 0,
+       "iron bars": 390,
+       "steel bars": 0,
+       "gems": 138,
+       "smoothing/engraving": 0,
+       "other building value": 176,
+       "trade purchases": 1883,
+       "barrels": 156,
+       "other": 1926
+      },
+      "engraved": 0,
+      "spirit": 61.308157936507946
+     },
+     {
+      "day": 224,
+      "wealth": 14598,
+      "population": 35,
+      "marks": {
+       "embark goods": 1291,
+       "blocks": 84,
+       "furniture": 362,
+       "crafts": 342,
+       "meals/drink": 2970,
+       "iron goods": 1979,
+       "steel goods": 0,
+       "iron bars": 600,
+       "steel bars": 0,
+       "gems": 138,
+       "smoothing/engraving": 0,
+       "other building value": 191,
+       "trade purchases": 1995,
+       "barrels": 420,
+       "other": 4226
+      },
+      "engraved": 0,
+      "spirit": 60.18638299663299
+     },
+     {
+      "day": 336,
+      "wealth": 13568,
+      "population": 48,
+      "marks": {
+       "embark goods": 1291,
+       "blocks": 84,
+       "furniture": 362,
+       "crafts": 0,
+       "meals/drink": 0,
+       "iron goods": 3629,
+       "steel goods": 0,
+       "iron bars": 480,
+       "steel bars": 40,
+       "gems": 138,
+       "smoothing/engraving": 0,
+       "other building value": 191,
+       "trade purchases": 2322,
+       "barrels": 855,
+       "other": 4176
+      },
+      "engraved": 96,
+      "spirit": 57.23977858024691
+     }
+    ],
+    "recipes": {
+     "make_stone_block": 26,
+     "make_door_stone": 6,
+     "make_table_stone": 10,
+     "make_barrel": 98,
+     "brew": 294,
+     "cook_easy_meal": 35,
+     "make_chair_stone": 23,
+     "cook_fine_meal": 12,
+     "cook_lavish_meal": 477,
+     "make_chest_wood": 1,
+     "make_buckler_wood": 3,
+     "make_bed": 15,
+     "make_charcoal": 118,
+     "craft_stone": 71,
+     "smelt_limonite": 1,
+     "smelt_hematite": 45,
+     "cut_gem": 9,
+     "forge_pick": 6,
+     "forge_mail_shirt": 8,
+     "forge_shield": 8,
+     "alloy_steel": 1,
+     "forge_short_sword": 5,
+     "forge_battle_axe": 3,
+     "forge_helm": 4
+    },
+    "caravans": [
+     {
+      "day": 34,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 36,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 774,
+      "received": 668.4000000000001
+     },
+     {
+      "day": 39,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 70,
+      "civ": "wildwood",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 73,
+      "civ": "wildwood",
+      "state": "TradeCompleted",
+      "given": 1838.0999999999983,
+      "received": 1591.2
+     },
+     {
+      "day": 75,
+      "civ": "wildwood",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 125,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 127,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 317.29999999999995,
+      "received": 275.28000000000003
+     },
+     {
+      "day": 130,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 145,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 148,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 182.00000000000003,
+      "received": 158.16
+     },
+     {
+      "day": 150,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 230,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 232,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 455.80000000000007,
+      "received": 394.2
+     },
+     {
+      "day": 235,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 263,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 265,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 218.99999999999994,
+      "received": 189.6
+     },
+     {
+      "day": 268,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     }
+    ],
+    "immigration": [
+     {
+      "day": 28,
+      "population": 7,
+      "wealth": 5521,
+      "waveSize": 2,
+      "reason": "wave"
+     },
+     {
+      "day": 56,
+      "population": 9,
+      "wealth": 9398,
+      "waveSize": 3,
+      "reason": "wave"
+     },
+     {
+      "day": 84,
+      "population": 12,
+      "wealth": 11425,
+      "waveSize": 3,
+      "reason": "wave"
+     },
+     {
+      "day": 112,
+      "population": 14,
+      "wealth": 16673,
+      "waveSize": 7,
+      "reason": "wave"
+     },
+     {
+      "day": 140,
+      "population": 21,
+      "wealth": 15310,
+      "waveSize": 7,
+      "reason": "wave"
+     },
+     {
+      "day": 168,
+      "population": 28,
+      "wealth": 15665,
+      "waveSize": 7,
+      "reason": "wave"
+     },
+     {
+      "day": 196,
+      "population": 35,
+      "wealth": 17232,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 224,
+      "population": 35,
+      "wealth": 14598,
+      "waveSize": 6,
+      "reason": "wave"
+     },
+     {
+      "day": 252,
+      "population": 41,
+      "wealth": 13903,
+      "waveSize": null,
+      "reason": "wealth"
+     },
+     {
+      "day": 280,
+      "population": 41,
+      "wealth": 16104,
+      "waveSize": 7,
+      "reason": "wave"
+     },
+     {
+      "day": 308,
+      "population": 48,
+      "wealth": 14153,
+      "waveSize": null,
+      "reason": "wealth"
+     }
+    ],
+    "deaths": [
+     {
+      "day": 85,
+      "id": 251658261,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 419431227
+     }
+    ],
+    "raids": [
+     {
+      "day": 125,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 150995789,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 237,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 385877189,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 311,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 788529422,
+      "outcome": "withdrew"
+     }
+    ],
+    "dwarfDays": 9490.553333333333,
+    "food": 3627,
+    "alcohol": 5840,
+    "water": 0,
+    "fixture": {
+     "armedDay": null,
+     "specialists": {
+      "builder": 16777795,
+      "fuel": 83886649,
+      "craftdwarf": 16777285,
+      "jeweler": 16777283,
+      "forge": 16777288
+     },
+     "deepShaft": {
+      "x": 11,
+      "y": 39,
+      "bottom": 20
+     }
+    }
+   }
+  },
+  "3": {
+   "commit": "42f6a90",
+   "firstFailingAssertion": "forge_crafts completed through normal jobs: expected 0 to be greater than 0",
+   "summary": {
+    "y1Pop": 15,
+    "y2Pop": 34,
+    "y3Pop": 42,
+    "y1Wealth": 17967,
+    "y2Wealth": 19198,
+    "y3Wealth": 14331,
+    "deaths": {
+     "dwarf": 2,
+     "tame": 0,
+     "other": 5
+    },
+    "mealsEaten": 3168,
+    "drinksAlcohol": 5016,
+    "drinksWater": 0,
+    "waves": [
+     {
+      "day": 29,
+      "count": 2,
+      "guaranteed": true
+     },
+     {
+      "day": 57,
+      "count": 3,
+      "guaranteed": true
+     },
+     {
+      "day": 85,
+      "count": 3,
+      "guaranteed": false
+     },
+     {
+      "day": 113,
+      "count": 7,
+      "guaranteed": false
+     },
+     {
+      "day": 141,
+      "count": 8,
+      "guaranteed": false
+     },
+     {
+      "day": 197,
+      "count": 4,
+      "guaranteed": false
+     },
+     {
+      "day": 281,
+      "count": 10,
+      "guaranteed": false
+     }
+    ],
+    "raids": [
+     {
+      "day": 125,
+      "kind": "thief",
+      "size": 1
+     },
+     {
+      "day": 237,
+      "kind": "thief",
+      "size": 1
+     },
+     {
+      "day": 311,
+      "kind": "thief",
+      "size": 1
+     }
+    ],
+    "moodStats": {
+     "min": 2.1212500000000034,
+     "max": 56.79933333333332,
+     "avg": "21.2",
+     "breakdown": {
+      "Fine": 9,
+      "Content": 0,
+      "Happy": 0,
+      "Unhappy": 7,
+      "Miserable": 26,
+      "Ecstatic": 0
+     }
+    }
+   },
+   "economy": {
+    "years": [
+     {
+      "day": 112,
+      "wealth": 17967,
+      "population": 15,
+      "marks": {
+       "embark goods": 1360,
+       "blocks": 81,
+       "furniture": 349,
+       "crafts": 212,
+       "meals/drink": 11270,
+       "iron goods": 0,
+       "steel goods": 0,
+       "iron bars": 360,
+       "steel bars": 0,
+       "gems": 114,
+       "smoothing/engraving": 0,
+       "other building value": 176,
+       "trade purchases": 1883,
+       "barrels": 156,
+       "other": 2006
+      },
+      "engraved": 0,
+      "spirit": 61.834008333333344
+     },
+     {
+      "day": 224,
+      "wealth": 19198,
+      "population": 34,
+      "marks": {
+       "embark goods": 1298,
+       "blocks": 84,
+       "furniture": 389,
+       "crafts": 376,
+       "meals/drink": 7744,
+       "iron goods": 1888,
+       "steel goods": 0,
+       "iron bars": 600,
+       "steel bars": 0,
+       "gems": 114,
+       "smoothing/engraving": 0,
+       "other building value": 197,
+       "trade purchases": 2555,
+       "barrels": 441,
+       "other": 3512
+      },
+      "engraved": 0,
+      "spirit": 60.42854338405482
+     },
+     {
+      "day": 336,
+      "wealth": 14331,
+      "population": 42,
+      "marks": {
+       "embark goods": 1274,
+       "blocks": 84,
+       "furniture": 389,
+       "crafts": 0,
+       "meals/drink": 0,
+       "iron goods": 4558,
+       "steel goods": 0,
+       "iron bars": 420,
+       "steel bars": 40,
+       "gems": 114,
+       "smoothing/engraving": 0,
+       "other building value": 197,
+       "trade purchases": 2798,
+       "barrels": 888,
+       "other": 3569
+      },
+      "engraved": 96,
+      "spirit": 22.4309548913664
+     }
+    ],
+    "recipes": {
+     "make_stone_block": 25,
+     "make_door_stone": 6,
+     "make_table_stone": 12,
+     "make_barrel": 101,
+     "brew": 248,
+     "cook_easy_meal": 104,
+     "make_chair_stone": 23,
+     "cook_fine_meal": 48,
+     "cook_lavish_meal": 429,
+     "make_chest_wood": 1,
+     "make_buckler_wood": 3,
+     "make_bed": 15,
+     "make_charcoal": 129,
+     "craft_stone": 77,
+     "smelt_limonite": 1,
+     "smelt_hematite": 47,
+     "cut_gem": 9,
+     "forge_pick": 6,
+     "forge_mail_shirt": 10,
+     "forge_shield": 10,
+     "make_table_wood": 1,
+     "alloy_steel": 1,
+     "forge_short_sword": 5,
+     "forge_battle_axe": 6,
+     "forge_helm": 6
+    },
+    "caravans": [
+     {
+      "day": 34,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 36,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 774,
+      "received": 668.4000000000001
+     },
+     {
+      "day": 39,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 70,
+      "civ": "wildwood",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 73,
+      "civ": "wildwood",
+      "state": "TradeCompleted",
+      "given": 1838.0999999999983,
+      "received": 1591.2
+     },
+     {
+      "day": 75,
+      "civ": "wildwood",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 125,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 128,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 1080.5000000000002,
+      "received": 938.52
+     },
+     {
+      "day": 130,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 145,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 148,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 188.6,
+      "received": 163.2
+     },
+     {
+      "day": 150,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 230,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 233,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 569.6000000000001,
+      "received": 494.40000000000003
+     },
+     {
+      "day": 235,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 270,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 272,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 165.20000000000005,
+      "received": 144
+     },
+     {
+      "day": 275,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     }
+    ],
+    "immigration": [
+     {
+      "day": 28,
+      "population": 7,
+      "wealth": 5521,
+      "waveSize": 2,
+      "reason": "wave"
+     },
+     {
+      "day": 56,
+      "population": 9,
+      "wealth": 9398,
+      "waveSize": 3,
+      "reason": "wave"
+     },
+     {
+      "day": 84,
+      "population": 12,
+      "wealth": 11425,
+      "waveSize": 3,
+      "reason": "wave"
+     },
+     {
+      "day": 112,
+      "population": 15,
+      "wealth": 17967,
+      "waveSize": 7,
+      "reason": "wave"
+     },
+     {
+      "day": 140,
+      "population": 22,
+      "wealth": 19227,
+      "waveSize": 8,
+      "reason": "wave"
+     },
+     {
+      "day": 168,
+      "population": 30,
+      "wealth": 22068,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 196,
+      "population": 30,
+      "wealth": 19516,
+      "waveSize": 4,
+      "reason": "wave"
+     },
+     {
+      "day": 224,
+      "population": 34,
+      "wealth": 19198,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 252,
+      "population": 34,
+      "wealth": 19935,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 280,
+      "population": 34,
+      "wealth": 25548,
+      "waveSize": 10,
+      "reason": "wave"
+     },
+     {
+      "day": 308,
+      "population": 44,
+      "wealth": 14718,
+      "waveSize": null,
+      "reason": "luck"
+     }
+    ],
+    "deaths": [
+     {
+      "day": 314,
+      "id": 16777283,
+      "species": "dwarf",
+      "cause": "infection",
+      "killerId": 956301558
+     },
+     {
+      "day": 321,
+      "id": 16777285,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 1593836707
+     }
+    ],
+    "raids": [
+     {
+      "day": 125,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285213547,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 237,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 520093906,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 311,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 1459619274,
+      "outcome": "looted"
+     }
+    ],
+    "dwarfDays": 8779.834166666667,
+    "food": 3168,
+    "alcohol": 5016,
+    "water": 0,
+    "fixture": {
+     "armedDay": null,
+     "specialists": {
+      "builder": 16777795,
+      "fuel": 83886649,
+      "forge": 16777288,
+      "craftdwarf": 50331749
+     },
+     "deepShaft": {
+      "x": 11,
+      "y": 39,
+      "bottom": 20
+     }
+    }
+   }
+  },
+  "4": {
+   "commit": "edc0d48",
+   "firstFailingAssertion": "no dwarf died across three years in peril 0: expected 1 to be +0 // Object.is equality",
+   "summary": {
+    "y1Pop": 16,
+    "y2Pop": 25,
+    "y3Pop": 46,
+    "y1Wealth": 22896,
+    "y2Wealth": 21792,
+    "y3Wealth": 21547,
+    "deaths": {
+     "dwarf": 1,
+     "tame": 0,
+     "other": 4
+    },
+    "mealsEaten": 2830,
+    "drinksAlcohol": 4653,
+    "drinksWater": 0,
+    "waves": [
+     {
+      "day": 29,
+      "count": 2,
+      "guaranteed": true
+     },
+     {
+      "day": 57,
+      "count": 3,
+      "guaranteed": true
+     },
+     {
+      "day": 85,
+      "count": 4,
+      "guaranteed": false
+     },
+     {
+      "day": 169,
+      "count": 6,
+      "guaranteed": false
+     },
+     {
+      "day": 197,
+      "count": 4,
+      "guaranteed": false
+     },
+     {
+      "day": 253,
+      "count": 11,
+      "guaranteed": false
+     },
+     {
+      "day": 281,
+      "count": 10,
+      "guaranteed": false
+     }
+    ],
+    "raids": [
+     {
+      "day": 125,
+      "kind": "thief",
+      "size": 1
+     },
+     {
+      "day": 237,
+      "kind": "thief",
+      "size": 1
+     },
+     {
+      "day": 311,
+      "kind": "thief",
+      "size": 1
+     }
+    ],
+    "moodStats": {
+     "min": 29.36140000000002,
+     "max": 78.86500000000001,
+     "avg": "56.7",
+     "breakdown": {
+      "Fine": 25,
+      "Content": 17,
+      "Happy": 3,
+      "Unhappy": 1,
+      "Miserable": 0,
+      "Ecstatic": 0
+     }
+    }
+   },
+   "economy": {
+    "years": [
+     {
+      "day": 112,
+      "wealth": 22896,
+      "population": 16,
+      "marks": {
+       "embark goods": 1352,
+       "blocks": 81,
+       "furniture": 401,
+       "crafts": 242,
+       "meals/drink": 16970,
+       "iron goods": 0,
+       "steel goods": 0,
+       "iron bars": 420,
+       "steel bars": 0,
+       "gems": 102,
+       "smoothing/engraving": 0,
+       "other building value": 176,
+       "trade purchases": 347,
+       "barrels": 159,
+       "other": 2646
+      },
+      "engraved": 0,
+      "spirit": 62.71717092592591
+     },
+     {
+      "day": 224,
+      "wealth": 21792,
+      "population": 25,
+      "marks": {
+       "embark goods": 1300,
+       "blocks": 87,
+       "furniture": 413,
+       "crafts": 499,
+       "meals/drink": 11685,
+       "iron goods": 1799,
+       "steel goods": 0,
+       "iron bars": 315,
+       "steel bars": 0,
+       "gems": 108,
+       "smoothing/engraving": 0,
+       "other building value": 193,
+       "trade purchases": 1252,
+       "barrels": 399,
+       "other": 3742
+      },
+      "engraved": 0,
+      "spirit": 56.53159145631193
+     },
+     {
+      "day": 336,
+      "wealth": 21547,
+      "population": 46,
+      "marks": {
+       "embark goods": 1266,
+       "blocks": 87,
+       "furniture": 409,
+       "crafts": 878,
+       "meals/drink": 6135,
+       "iron goods": 2699,
+       "steel goods": 1800,
+       "iron bars": 0,
+       "steel bars": 400,
+       "gems": 108,
+       "smoothing/engraving": 0,
+       "other building value": 197,
+       "trade purchases": 2042,
+       "barrels": 864,
+       "other": 4662
+      },
+      "engraved": 96,
+      "spirit": 57.10812377260982
+     }
+    ],
+    "recipes": {
+     "make_stone_block": 25,
+     "make_door_stone": 6,
+     "make_table_stone": 11,
+     "make_barrel": 101,
+     "brew": 238,
+     "cook_easy_meal": 105,
+     "make_chair_stone": 23,
+     "cook_fine_meal": 45,
+     "cook_lavish_meal": 543,
+     "make_chest_wood": 1,
+     "make_buckler_wood": 3,
+     "make_bed": 15,
+     "make_charcoal": 109,
+     "craft_stone": 108,
+     "smelt_limonite": 1,
+     "smelt_hematite": 17,
+     "cut_gem": 9,
+     "forge_crafts": 15,
+     "forge_pick": 2,
+     "make_table_wood": 1,
+     "forge_mail_shirt": 8,
+     "alloy_steel": 10,
+     "forge_shield": 7,
+     "forge_short_sword": 3,
+     "forge_helm": 1
+    },
+    "caravans": [
+     {
+      "day": 34,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 36,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 243,
+      "received": 201.6
+     },
+     {
+      "day": 39,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 70,
+      "civ": "wildwood",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 72,
+      "civ": "wildwood",
+      "state": "TradeCompleted",
+      "given": 1177.9000000000008,
+      "received": 1022.8800000000001
+     },
+     {
+      "day": 75,
+      "civ": "wildwood",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 125,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 127,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 1386,
+      "received": 1167
+     },
+     {
+      "day": 130,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 145,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 148,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 781,
+      "received": 660.0000000000001
+     },
+     {
+      "day": 150,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 235,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 237,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 1248.6000000000001,
+      "received": 1087.4399999999998
+     },
+     {
+      "day": 240,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 258,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 261,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 673,
+      "received": 586.7999999999998
+     },
+     {
+      "day": 263,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     }
+    ],
+    "immigration": [
+     {
+      "day": 28,
+      "population": 7,
+      "wealth": 5521,
+      "waveSize": 2,
+      "reason": "wave"
+     },
+     {
+      "day": 56,
+      "population": 9,
+      "wealth": 11188,
+      "waveSize": 3,
+      "reason": "wave"
+     },
+     {
+      "day": 84,
+      "population": 12,
+      "wealth": 18198,
+      "waveSize": 4,
+      "reason": "wave"
+     },
+     {
+      "day": 112,
+      "population": 16,
+      "wealth": 22896,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 140,
+      "population": 16,
+      "wealth": 16115,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 168,
+      "population": 15,
+      "wealth": 14094,
+      "waveSize": 6,
+      "reason": "wave"
+     },
+     {
+      "day": 196,
+      "population": 21,
+      "wealth": 20619,
+      "waveSize": 4,
+      "reason": "wave"
+     },
+     {
+      "day": 224,
+      "population": 25,
+      "wealth": 21792,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 252,
+      "population": 25,
+      "wealth": 23711,
+      "waveSize": 11,
+      "reason": "wave"
+     },
+     {
+      "day": 280,
+      "population": 36,
+      "wealth": 26850,
+      "waveSize": 10,
+      "reason": "wave"
+     },
+     {
+      "day": 308,
+      "population": 46,
+      "wealth": 28493,
+      "waveSize": null,
+      "reason": "luck"
+     }
+    ],
+    "deaths": [
+     {
+      "day": 159,
+      "id": 16777282,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 452985333
+     }
+    ],
+    "raids": [
+     {
+      "day": 125,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 83886943,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 237,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 654312055,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 311,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 419431681,
+      "outcome": "withdrew"
+     }
+    ],
+    "dwarfDays": 7688.804166666667,
+    "food": 2830,
+    "alcohol": 4653,
+    "water": 0,
+    "fixture": {
+     "armedDay": null,
+     "specialists": {
+      "builder": 16777795,
+      "fuel": 83886649,
+      "craftdwarf": 16777285,
+      "jeweler": 16777283,
+      "forge": 16777288
+     },
+     "deepShaft": {
+      "x": 11,
+      "y": 39,
+      "bottom": 20
+     }
+    }
+   }
+  },
+  "5": {
+   "commit": "f778cc8",
+   "firstFailingAssertion": "no dwarf died across three years in peril 0: expected 2 to be +0 // Object.is equality",
+   "summary": {
+    "y1Pop": 15,
+    "y2Pop": 35,
+    "y3Pop": 59,
+    "y1Wealth": 17419,
+    "y2Wealth": 32495,
+    "y3Wealth": 27515,
+    "deaths": {
+     "dwarf": 2,
+     "tame": 0,
+     "other": 6
+    },
+    "mealsEaten": 3945,
+    "drinksAlcohol": 5900,
+    "drinksWater": 0,
+    "waves": [
+     {
+      "day": 29,
+      "count": 2,
+      "guaranteed": true
+     },
+     {
+      "day": 57,
+      "count": 3,
+      "guaranteed": true
+     },
+     {
+      "day": 85,
+      "count": 3,
+      "guaranteed": false
+     },
+     {
+      "day": 113,
+      "count": 9,
+      "guaranteed": false
+     },
+     {
+      "day": 141,
+      "count": 7,
+      "guaranteed": false
+     },
+     {
+      "day": 197,
+      "count": 5,
+      "guaranteed": false
+     },
+     {
+      "day": 225,
+      "count": 12,
+      "guaranteed": false
+     },
+     {
+      "day": 253,
+      "count": 9,
+      "guaranteed": false
+     },
+     {
+      "day": 309,
+      "count": 4,
+      "guaranteed": false
+     }
+    ],
+    "raids": [
+     {
+      "day": 125,
+      "kind": "thief",
+      "size": 1
+     },
+     {
+      "day": 237,
+      "kind": "thief",
+      "size": 1
+     },
+     {
+      "day": 311,
+      "kind": "thief",
+      "size": 1
+     }
+    ],
+    "moodStats": {
+     "min": 12.519333333333357,
+     "max": 71.40333333333334,
+     "avg": "38.4",
+     "breakdown": {
+      "Fine": 23,
+      "Content": 2,
+      "Happy": 0,
+      "Unhappy": 31,
+      "Miserable": 3,
+      "Ecstatic": 0
+     }
+    }
+   },
+   "economy": {
+    "years": [
+     {
+      "day": 112,
+      "wealth": 17419,
+      "population": 15,
+      "marks": {
+       "embark goods": 1351,
+       "blocks": 87,
+       "furniture": 364,
+       "crafts": 173,
+       "meals/drink": 11985,
+       "iron goods": 0,
+       "steel goods": 0,
+       "iron bars": 540,
+       "steel bars": 0,
+       "gems": 102,
+       "smoothing/engraving": 0,
+       "other building value": 176,
+       "trade purchases": 235,
+       "barrels": 162,
+       "other": 2244
+      },
+      "engraved": 0,
+      "spirit": 65.16758111111112
+     },
+     {
+      "day": 224,
+      "wealth": 32495,
+      "population": 35,
+      "marks": {
+       "embark goods": 1283,
+       "blocks": 81,
+       "furniture": 405,
+       "crafts": 802,
+       "meals/drink": 20850,
+       "iron goods": 2383,
+       "steel goods": 0,
+       "iron bars": 405,
+       "steel bars": 0,
+       "gems": 120,
+       "smoothing/engraving": 0,
+       "other building value": 197,
+       "trade purchases": 1128,
+       "barrels": 462,
+       "other": 4379
+      },
+      "engraved": 0,
+      "spirit": 61.973737526104955
+     },
+     {
+      "day": 336,
+      "wealth": 27515,
+      "population": 59,
+      "marks": {
+       "embark goods": 1281,
+       "blocks": 81,
+       "furniture": 405,
+       "crafts": 58,
+       "meals/drink": 13100,
+       "iron goods": 3809,
+       "steel goods": 0,
+       "iron bars": 225,
+       "steel bars": 240,
+       "gems": 120,
+       "smoothing/engraving": 0,
+       "other building value": 197,
+       "trade purchases": 2004,
+       "barrels": 915,
+       "other": 5080
+      },
+      "engraved": 96,
+      "spirit": 37.8553420138889
+     }
+    ],
+    "recipes": {
+     "make_stone_block": 24,
+     "make_door_stone": 6,
+     "make_table_stone": 12,
+     "make_barrel": 101,
+     "brew": 292,
+     "cook_easy_meal": 85,
+     "make_chair_stone": 23,
+     "cook_fine_meal": 33,
+     "cook_lavish_meal": 718,
+     "make_chest_wood": 1,
+     "make_buckler_wood": 5,
+     "make_bed": 15,
+     "make_charcoal": 117,
+     "smelt_hematite": 27,
+     "craft_stone": 93,
+     "cut_gem": 9,
+     "forge_crafts": 10,
+     "forge_pick": 4,
+     "forge_mail_shirt": 9,
+     "make_table_wood": 1,
+     "forge_shield": 5,
+     "alloy_steel": 6,
+     "forge_short_sword": 6,
+     "forge_battle_axe": 3,
+     "forge_helm": 6
+    },
+    "caravans": [
+     {
+      "day": 34,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 36,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 342,
+      "received": 296.40000000000003
+     },
+     {
+      "day": 39,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 70,
+      "civ": "wildwood",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 72,
+      "civ": "wildwood",
+      "state": "TradeCompleted",
+      "given": 463.7000000000007,
+      "received": 387.84000000000003
+     },
+     {
+      "day": 75,
+      "civ": "wildwood",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 125,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 128,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 1313.6,
+      "received": 1140.6
+     },
+     {
+      "day": 130,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 145,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 147,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 811,
+      "received": 668.3999999999999
+     },
+     {
+      "day": 150,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 241,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 245,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 1405.3000000000006,
+      "received": 1217.3999999999999
+     },
+     {
+      "day": 246,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 260,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 262,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 572,
+      "received": 499.1999999999999
+     },
+     {
+      "day": 265,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     }
+    ],
+    "immigration": [
+     {
+      "day": 28,
+      "population": 7,
+      "wealth": 5532,
+      "waveSize": 2,
+      "reason": "wave"
+     },
+     {
+      "day": 56,
+      "population": 9,
+      "wealth": 11644,
+      "waveSize": 3,
+      "reason": "wave"
+     },
+     {
+      "day": 84,
+      "population": 12,
+      "wealth": 12535,
+      "waveSize": 3,
+      "reason": "wave"
+     },
+     {
+      "day": 112,
+      "population": 15,
+      "wealth": 17419,
+      "waveSize": 9,
+      "reason": "wave"
+     },
+     {
+      "day": 140,
+      "population": 23,
+      "wealth": 16944,
+      "waveSize": 7,
+      "reason": "wave"
+     },
+     {
+      "day": 168,
+      "population": 30,
+      "wealth": 21829,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 196,
+      "population": 30,
+      "wealth": 22584,
+      "waveSize": 5,
+      "reason": "wave"
+     },
+     {
+      "day": 224,
+      "population": 35,
+      "wealth": 32495,
+      "waveSize": 12,
+      "reason": "wave"
+     },
+     {
+      "day": 252,
+      "population": 47,
+      "wealth": 22162,
+      "waveSize": 9,
+      "reason": "wave"
+     },
+     {
+      "day": 280,
+      "population": 55,
+      "wealth": 30643,
+      "waveSize": null,
+      "reason": "spirit"
+     },
+     {
+      "day": 308,
+      "population": 55,
+      "wealth": 19955,
+      "waveSize": 4,
+      "reason": "wave"
+     }
+    ],
+    "deaths": [
+     {
+      "day": 121,
+      "id": 16777283,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 150995622
+     },
+     {
+      "day": 271,
+      "id": 16777284,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 452986005
+     }
+    ],
+    "raids": [
+     {
+      "day": 125,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 385876815,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 237,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 1191182836,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 311,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 1056965779,
+      "outcome": "withdrew"
+     }
+    ],
+    "dwarfDays": 10579.95,
+    "food": 3945,
+    "alcohol": 5900,
+    "water": 0,
+    "fixture": {
+     "armedDay": null,
+     "specialists": {
+      "builder": 16777795,
+      "fuel": 83886649,
+      "craftdwarf": 16777285,
+      "forge": 16777288
+     },
+     "deepShaft": {
+      "x": 11,
+      "y": 39,
+      "bottom": 20
+     }
+    }
+   }
+  },
+  "6": {
+   "commit": "ac88f56",
+   "firstFailingAssertion": "no dwarf died across three years in peril 0: expected 2 to be +0 // Object.is equality",
+   "summary": {
+    "y1Pop": 15,
+    "y2Pop": 34,
+    "y3Pop": 56,
+    "y1Wealth": 18891,
+    "y2Wealth": 53181,
+    "y3Wealth": 23474,
+    "deaths": {
+     "dwarf": 2,
+     "tame": 0,
+     "other": 2
+    },
+    "mealsEaten": 3776,
+    "drinksAlcohol": 5460,
+    "drinksWater": 0,
+    "waves": [
+     {
+      "day": 29,
+      "count": 2,
+      "guaranteed": true
+     },
+     {
+      "day": 57,
+      "count": 3,
+      "guaranteed": true
+     },
+     {
+      "day": 85,
+      "count": 3,
+      "guaranteed": false
+     },
+     {
+      "day": 113,
+      "count": 8,
+      "guaranteed": false
+     },
+     {
+      "day": 169,
+      "count": 11,
+      "guaranteed": false
+     },
+     {
+      "day": 225,
+      "count": 12,
+      "guaranteed": false
+     },
+     {
+      "day": 281,
+      "count": 12,
+      "guaranteed": false
+     }
+    ],
+    "raids": [
+     {
+      "day": 125,
+      "kind": "thief",
+      "size": 1
+     },
+     {
+      "day": 237,
+      "kind": "thief",
+      "size": 1
+     },
+     {
+      "day": 319,
+      "kind": "thief",
+      "size": 1
+     }
+    ],
+    "moodStats": {
+     "min": 15.295750000000009,
+     "max": 70.28166666666667,
+     "avg": "42.5",
+     "breakdown": {
+      "Fine": 24,
+      "Content": 8,
+      "Happy": 0,
+      "Unhappy": 19,
+      "Miserable": 5,
+      "Ecstatic": 0
+     }
+    }
+   },
+   "economy": {
+    "years": [
+     {
+      "day": 112,
+      "wealth": 18891,
+      "population": 15,
+      "marks": {
+       "embark goods": 1349,
+       "blocks": 84,
+       "furniture": 394,
+       "crafts": 355,
+       "meals/drink": 13540,
+       "iron goods": 0,
+       "steel goods": 0,
+       "iron bars": 390,
+       "steel bars": 0,
+       "gems": 126,
+       "smoothing/engraving": 0,
+       "other building value": 175,
+       "trade purchases": 84,
+       "barrels": 159,
+       "other": 2235
+      },
+      "engraved": 0,
+      "spirit": 62.7944037037037
+     },
+     {
+      "day": 224,
+      "wealth": 53181,
+      "population": 34,
+      "marks": {
+       "embark goods": 1287,
+       "blocks": 84,
+       "furniture": 422,
+       "crafts": 733,
+       "meals/drink": 41850,
+       "iron goods": 1753,
+       "steel goods": 0,
+       "iron bars": 120,
+       "steel bars": 0,
+       "gems": 126,
+       "smoothing/engraving": 0,
+       "other building value": 193,
+       "trade purchases": 1828,
+       "barrels": 417,
+       "other": 4368
+      },
+      "engraved": 0,
+      "spirit": 62.39043657407408
+     },
+     {
+      "day": 336,
+      "wealth": 23474,
+      "population": 56,
+      "marks": {
+       "embark goods": 1272,
+       "blocks": 84,
+       "furniture": 422,
+       "crafts": 121,
+       "meals/drink": 7920,
+       "iron goods": 3493,
+       "steel goods": 1260,
+       "iron bars": 60,
+       "steel bars": 80,
+       "gems": 126,
+       "smoothing/engraving": 0,
+       "other building value": 196,
+       "trade purchases": 2781,
+       "barrels": 879,
+       "other": 4780
+      },
+      "engraved": 96,
+      "spirit": 42.54736896135264
+     }
+    ],
+    "recipes": {
+     "make_stone_block": 25,
+     "make_door_stone": 6,
+     "craft_stone": 101,
+     "make_table_stone": 12,
+     "brew": 270,
+     "cook_easy_meal": 85,
+     "cook_fine_meal": 39,
+     "cook_lavish_meal": 699,
+     "make_chair_stone": 23,
+     "make_barrel": 101,
+     "make_charcoal": 124,
+     "make_chest_wood": 1,
+     "make_buckler_wood": 5,
+     "make_bed": 15,
+     "smelt_hematite": 28,
+     "cut_gem": 9,
+     "forge_crafts": 18,
+     "forge_pick": 3,
+     "forge_mail_shirt": 8,
+     "make_table_wood": 1,
+     "forge_shield": 9,
+     "alloy_steel": 5,
+     "forge_short_sword": 6,
+     "forge_battle_axe": 3,
+     "forge_helm": 2
+    },
+    "caravans": [
+     {
+      "day": 34,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 36,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 461,
+      "received": 355.2
+     },
+     {
+      "day": 39,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 70,
+      "civ": "wildwood",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 73,
+      "civ": "wildwood",
+      "state": "TradeCompleted",
+      "given": 2,
+      "received": 1.2
+     },
+     {
+      "day": 75,
+      "civ": "wildwood",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 125,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 127,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 1681.1000000000001,
+      "received": 1458.3600000000001
+     },
+     {
+      "day": 130,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 145,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 147,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 807,
+      "received": 671.9999999999999
+     },
+     {
+      "day": 150,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 174,
+      "civ": "wildwood",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 177,
+      "civ": "wildwood",
+      "state": "TradeCompleted",
+      "given": 1707.6,
+      "received": 1473.5999999999995
+     },
+     {
+      "day": 179,
+      "civ": "wildwood",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 229,
+      "civ": "mountainhome",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 233,
+      "civ": "mountainhome",
+      "state": "TradeCompleted",
+      "given": 1617.4000000000003,
+      "received": 1405.6799999999998
+     },
+     {
+      "day": 234,
+      "civ": "mountainhome",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 269,
+      "civ": "hillfolk",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 272,
+      "civ": "hillfolk",
+      "state": "TradeCompleted",
+      "given": 675,
+      "received": 587.9999999999999
+     },
+     {
+      "day": 274,
+      "civ": "hillfolk",
+      "state": "CaravanDeparted"
+     },
+     {
+      "day": 293,
+      "civ": "wildwood",
+      "state": "CaravanArrived"
+     },
+     {
+      "day": 296,
+      "civ": "wildwood",
+      "state": "TradeCompleted",
+      "given": 970.5000000000003,
+      "received": 846.4799999999998
+     },
+     {
+      "day": 298,
+      "civ": "wildwood",
+      "state": "CaravanDeparted"
+     }
+    ],
+    "immigration": [
+     {
+      "day": 28,
+      "population": 7,
+      "wealth": 6085,
+      "waveSize": 2,
+      "reason": "wave"
+     },
+     {
+      "day": 56,
+      "population": 9,
+      "wealth": 8636,
+      "waveSize": 3,
+      "reason": "wave"
+     },
+     {
+      "day": 84,
+      "population": 12,
+      "wealth": 11517,
+      "waveSize": 3,
+      "reason": "wave"
+     },
+     {
+      "day": 112,
+      "population": 15,
+      "wealth": 18891,
+      "waveSize": 8,
+      "reason": "wave"
+     },
+     {
+      "day": 140,
+      "population": 23,
+      "wealth": 23498,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 168,
+      "population": 23,
+      "wealth": 28066,
+      "waveSize": 11,
+      "reason": "wave"
+     },
+     {
+      "day": 196,
+      "population": 34,
+      "wealth": 51805,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 224,
+      "population": 34,
+      "wealth": 53181,
+      "waveSize": 12,
+      "reason": "wave"
+     },
+     {
+      "day": 252,
+      "population": 46,
+      "wealth": 16310,
+      "waveSize": null,
+      "reason": "luck"
+     },
+     {
+      "day": 280,
+      "population": 44,
+      "wealth": 34391,
+      "waveSize": 12,
+      "reason": "wave"
+     },
+     {
+      "day": 308,
+      "population": 56,
+      "wealth": 49316,
+      "waveSize": null,
+      "reason": "luck"
+     }
+    ],
+    "deaths": [
+     {
+      "day": 260,
+      "id": 16777282,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 1694499640
+     },
+     {
+      "day": 261,
+      "id": 16777283,
+      "species": "dwarf",
+      "cause": "bled_out",
+      "killerId": 1694499640
+     }
+    ],
+    "raids": [
+     {
+      "day": 125,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 385876523,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 237,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 721420392,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 319,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 1258291235,
+      "outcome": "withdrew"
+     }
+    ],
+    "dwarfDays": 10064.026666666667,
+    "food": 3776,
+    "alcohol": 5460,
+    "water": 0,
+    "fixture": {
+     "armedDay": null,
+     "specialists": {
+      "builder": 16777830,
+      "fuel": 218104328,
+      "craftdwarf": 16777285,
+      "forge": 16777288
+     },
+     "deepShaft": {
+      "x": 11,
+      "y": 39,
+      "bottom": 20
+     }
+    }
+   }
+  }
+ },
+ "alerts": {
+  "note": "hearth alerts raised for a dangerous wild animal, and militia deaths, per run",
+  "run3": {
+   "alerts": 5,
+   "deaths": 2
+  },
+  "run4": {
+   "alerts": 2,
+   "deaths": 1
+  },
+  "run5": {
+   "alerts": 5,
+   "deaths": 2
+  },
+  "run6": {
+   "alerts": 2,
+   "deaths": 2
+  }
+ }
+}

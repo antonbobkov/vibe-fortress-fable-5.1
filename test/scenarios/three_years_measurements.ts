@@ -5,6 +5,7 @@ import { SEASON_NAMES } from '@core/calendar';
 import { RngStream } from '@core/rng';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader } from '@systems/buildings';
+import type { DwarvesReader } from '@systems/dwarves';
 import { ItemCore, type ItemsReader } from '@systems/items';
 import { itemValue } from '@systems/items/value';
 import type { MoraleReader } from '@systems/morale/reader';
@@ -15,7 +16,26 @@ import { IMMIGRATION_PERMILLE, REP_PERMILLE_PER_POINT } from '@systems/immigrati
 import type { GameEvent } from '@core/events';
 import type { GameSystem, TickContext } from '@core/system';
 import type { ImmigrationStateV1 } from '@systems/immigration';
+import { appendFileSync } from 'node:fs';
 import type { TestWorld } from './test-world';
+
+/** Days between two progress lines of a long run. */
+const PROGRESS_DAYS = 28;
+
+/**
+ * One line of a long run's journal: to the console, and at once to the file named by
+ * `THREE_YEARS_LOG` when it is set (vitest holds console output until the test ends).
+ */
+/** The seed of the run being journalled, for a file that several runs share. */
+let journalSeed = '';
+
+export function note(tag: string, data: unknown): void {
+  const line = `[${tag}]${journalSeed ? ` ${journalSeed}` : ''} ${JSON.stringify(data)}`;
+  console.log(line);
+  const file = process.env['THREE_YEARS_LOG'];
+  if (file) appendFileSync(file, `${line}
+`);
+}
 
 export interface ImmigrationEvaluation {
   tick: number;
@@ -64,6 +84,10 @@ export class ThreeYearsMeasurements {
   readonly recipes: Record<string, number> = {};
   readonly caravans: { day: number; civ: string; state: string; given?: number; received?: number }[] = [];
   readonly minerals: Record<string, number> = {};
+  readonly deaths: { day: number; id: number; species: string; cause: string; killerId: number }[] = [];
+  readonly raids: { day: number; kind: string; size: number; partyId: number; outcome?: string }[] = [];
+  fixture: { armedDay: number | null; specialists: Record<string, number>; deepShaft: { x: number; y: number; bottom: number } | null } = { armedDay: null, specialists: {}, deepShaft: null };
+  private readonly friendlyHits = new Set<string>();
   dwarfTicks = 0;
   meals = 0;
   alcohol = 0;
@@ -130,6 +154,17 @@ export class ThreeYearsMeasurements {
     w.game.world.onEvents((events) => {
       if (events.some((e) => e.type === 'ItemCreated' || e.type === 'CreatureDied')) this.accountPopulation();
       for (const e of events) {
+        if (e.type === 'CreatureDied' && e['faction'] === 'fortress') this.deaths.push({ day: Math.floor(w.tick / TICKS_PER_DAY) + 1,
+          id: Number(e['id']), species: w.game.registry.table<{ id: string }>('creatures').byIndex(Number(e['species']))?.id ?? 'unknown',
+          cause: String(e['cause']), killerId: Number(e['killerId'] ?? 0) });
+        if (e.type === 'CreatureDied' && e['faction'] === 'fortress') note('three_years_death', { ...this.deaths[this.deaths.length - 1], tick: w.tick, killer: w.game.registry.table<{ id: string }>('creatures').byIndex(w.game.world.entities.get(Number(e['killerId'] ?? 0), C.Creature)?.species ?? -1)?.id ?? null });
+        if (e.type === 'RaidArrived') this.raids.push({ day: Math.floor(w.tick / TICKS_PER_DAY) + 1,
+          kind: String(e['kind']), size: Number(e['size']), partyId: Number(e['partyId']) });
+        if (e.type === 'RaidEnded') {
+          const raid = this.raids.find((r) => r.partyId === Number(e['partyId']) && !r.outcome);
+          if (raid) raid.outcome = String(e['outcome']);
+        }
+        if (e.type === 'AttackResolved') this.noteFriendlyHit(Number(e['attackerId']), Number(e['defenderId']), String(e['damageType']), String(e['outcome']));
         if (e.type === 'MealEaten') this.meals += 1;
         if (e.type === 'DrankAlcohol') this.alcohol += 1;
         if (e.type === 'DrankWater') this.water += 1;
@@ -182,6 +217,34 @@ export class ThreeYearsMeasurements {
     this.immigration.push(entry);
   }
 
+  /** A fortress dwarf struck by another: the journal names both, the weapon and what each was doing. */
+  private noteFriendlyHit(attacker: number, defender: number, damageType: string, outcome: string): void {
+    const w = this.w;
+    const ent = w.game.world.entities;
+    if (outcome !== 'hit' || ent.get(attacker, C.Creature)?.faction !== 'fortress' || ent.get(defender, C.Creature)?.faction !== 'fortress') return;
+    const key = `${attacker}:${defender}`;
+    if (this.friendlyHits.has(key)) return;
+    this.friendlyHits.add(key);
+    const types = w.game.registry.table<{ id: string }>('items');
+    const held = (id: number): string => types.byIndex(ent.get(ent.get(id, C.Equipment)?.weapon || ent.get(id, C.Worker)?.toolId || 0, C.Item)?.type ?? -1)?.id ?? 'none';
+    note('three_years_friendly_hit', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, attacker, defender, damageType, weapon: held(attacker),
+      attackerDoing: ent.get(attacker, C.Brain)?.activity ?? '', attackerBehavior: ent.get(attacker, C.Brain)?.behavior ?? '', defenderDoing: ent.get(defender, C.Brain)?.activity ?? '' });
+  }
+
+  /** Wild animals on the map by species, for the journal. */
+  private wildCensus(): Record<string, number> {
+    const ent = this.w.game.world.entities;
+    const species = this.w.game.registry.table<{ id: string }>('creatures');
+    const census: Record<string, number> = {};
+    for (const id of ent.with(C.Creature)) {
+      const c = ent.get(id, C.Creature)!;
+      if (c.faction !== 'wild') continue;
+      const name = species.byIndex(c.species)?.id ?? 'unknown';
+      census[name] = (census[name] ?? 0) + 1;
+    }
+    return census;
+  }
+
   private population(): number {
     return this.w.game.world.entities.with(C.Labors).filter((id) => this.w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
   }
@@ -193,7 +256,21 @@ export class ThreeYearsMeasurements {
       const count = Math.min(end - w.tick, TICKS_PER_DAY - w.tick % TICKS_PER_DAY);
       w.step(count);
       this.accountPopulation();
-      if (w.tick % (DAYS_PER_YEAR * TICKS_PER_DAY) === 0) this.years.push(this.snapshot());
+      if (w.tick % (PROGRESS_DAYS * TICKS_PER_DAY) === 0) {
+        const items = w.readers.of<ItemsReader>('13');
+        note('three_years_progress', { day: w.tick / TICKS_PER_DAY, population: this.population(), wealth: items.wealth(),
+          alert: w.game.world.fortress.alert, wild: this.wildCensus(), dwarfDeaths: this.deaths.filter(d => d.species === 'dwarf').length,
+          meals: items.count('easy_meal') + items.count('fine_meal') + items.count('lavish_meal'), drink: items.count('drink'),
+          plants: items.count('plant_food'), beds: items.count('bed'), caravans: this.caravans.map(c => `${c.day}:${c.civ}:${c.state}`),
+          recipes: { ...this.recipes } });
+      }
+      if (w.tick % (DAYS_PER_YEAR * TICKS_PER_DAY) === 0) {
+        const year = this.snapshot();
+        this.years.push(year);
+        note('three_years_checkpoint', ({ day: year.day, wealth: year.wealth, population: year.population,
+          adults: w.readers.of<DwarvesReader>('10').adults().filter(id => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length,
+          recipes: year.recipes, dwarfDeaths: this.deaths.filter(d => d.species === 'dwarf').length }));
+      }
     }
   }
 
@@ -257,8 +334,8 @@ export class ThreeYearsMeasurements {
     const skillMaxima = Object.fromEntries(skills.ids().map((id) => [id, Math.max(0, ...dwarves.map((d) => ent.get(d, C.Skills)?.level[skills.index(id)] ?? 0))]));
     const renown = w.readers.of<ThreatsReader>('18').renown();
     const fortressCreatures = ent.with(C.Creature).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress').length;
-    // Formula-equivalent wealth, using snapshot creature count; updates and snapshots can differ.
-    const renownWealthEquivalent = (renown - fortressCreatures * RENOWN_POP_WEIGHT) * RENOWN_WEALTH_DIVISOR;
+    // Formula-equivalent wealth, using snapshot dwarf population; updates and snapshots can differ.
+    const renownWealthEquivalent = (renown - this.population() * RENOWN_POP_WEIGHT) * RENOWN_WEALTH_DIVISOR;
     return { day: Math.floor(w.tick / TICKS_PER_DAY), wealth: items.wealth(), population: this.population(), meanEndurance,
       renown, fortressCreatures, renownWealthEquivalent, spirit: w.readers.of<MoraleReader>('15').hallSpirit(),
       marks, counts, qualities, craftQualities, craftQualityValueDelta, skillMaxima, recipes: { ...this.recipes }, smoothed, engraved };
@@ -266,7 +343,8 @@ export class ThreeYearsMeasurements {
 }
 
 const instruments = new WeakMap<TestWorld, ThreeYearsMeasurements>();
-export function attachThreeYearsMeasurements(w: TestWorld): ThreeYearsMeasurements {
+export function attachThreeYearsMeasurements(w: TestWorld, seed = ''): ThreeYearsMeasurements {
+  journalSeed = seed;
   const instrument = new ThreeYearsMeasurements(w);
   instruments.set(w, instrument);
   return instrument;

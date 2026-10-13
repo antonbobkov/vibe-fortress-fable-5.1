@@ -583,6 +583,7 @@ export function runDefenceYear(): void {
     if (carpenterId && buildings.get(carpenterId)?.state === 'built') {
       if (!fortressState.orderedWorkshops.has('carpenter_defence')) {
         fortressState.orderedWorkshops.add('carpenter_defence');
+        const before = w.game.world.entities.get(carpenterId, C.Workshop)?.orders.length ?? 0;
         console.log(`Carpenter defence work orders added at tick ${w.tick}`);
         w.game.world.applyCommand({
           type: 'AddWorkOrder',
@@ -604,6 +605,10 @@ export function runDefenceYear(): void {
           workshopId: carpenterId,
           order: { recipeId: 'make_training_sword', mode: 'maintain', threshold: 2, priority: 1 },
         });
+        // A workshop runs its orders in list order: the defence orders go to the head of the
+        // economy fixture's list (barrels, bucklers, beds), in the order they were given.
+        const after = w.game.world.entities.get(carpenterId, C.Workshop)?.orders.length ?? 0;
+        for (let i = before; i < after; i += 1) w.game.world.applyCommand({ type: 'ReorderWorkOrder', workshopId: carpenterId, from: i, to: i - before });
       }
     }
 

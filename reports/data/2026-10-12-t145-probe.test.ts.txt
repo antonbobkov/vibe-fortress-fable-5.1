@@ -1,0 +1,75 @@
+// Scratch probe for T-145: not committed.
+/* eslint-disable */
+import { it } from 'vitest';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TileKind } from '@core/map3d';
+import type { CombatReader } from '@systems/combat/reader';
+import type { ItemsReader } from '@systems/items';
+import { threeYearsWorld, setupThreeYearsFortress, playThreeYears, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense, Z } from '../scenarios/three_years_fortress';
+import { threeYearsMeasurements } from '../scenarios/three_years_measurements';
+
+const SEED = process.env['PROBE_SEED'] ?? 'three-years';
+const SPAWN_DAY = Number(process.env['PROBE_SPAWN_DAY'] ?? 25);
+const END_DAY = Number(process.env['PROBE_END_DAY'] ?? 45);
+const BOARS = Number(process.env['PROBE_BOARS'] ?? 2);
+
+it('probe', () => {
+  const w = threeYearsWorld(SEED, Number(process.env['PROBE_PERIL'] ?? 0));
+  const state = setupThreeYearsFortress(w);
+  const ent = w.game.world.entities;
+  const items = w.readers.of<ItemsReader>('13');
+  const watch = new Map<number, string[]>();
+  const world0 = w.game.world;
+  const step0 = world0.step.bind(world0);
+  world0.step = () => {
+    step0();
+    if (w.tick % 20 !== 0) return;
+    for (const id of ent.with(C.Labors)) {
+      const body = ent.get(id, C.Body);
+      if (!body) continue;
+      const bleed = body.parts.reduce((n, p) => n + p.wounds.reduce((m, x) => m + x.bleed, 0), 0);
+      if (bleed <= 0) continue;
+      const b = ent.get(id, C.Brain);
+      const jobs = (w.readers.of<any>('11').list() as any[]).filter((j) => j.target?.ref === id).map((j) => `${j.key}:${j.state}:${j.blockedReason}:${j.workerId}`);
+      const wounds = body.parts.flatMap((p) => p.wounds.map((x) => `${x.type}/${x.severity}/b${x.bleed}/${x.bandaged ? 'band' : ''}`));
+      const arr = watch.get(id) ?? [];
+      arr.push(`t${w.tick} ${b?.behavior}/${b?.activity} blood ${Math.round(body.blood)}/${body.maxBlood} conscious ${body.conscious} wounds ${wounds.join(',')} pos ${JSON.stringify(ent.get(id, C.Position))} patient ${JSON.stringify(ent.get(id, C.Patient) ?? null)} jobs ${jobs.join('|')} onDuty ${ent.get(id, C.Soldier)?.onDuty} alert ${world0.fortress.alert}`);
+      watch.set(id, arr);
+    }
+  };
+  world0.onEvents((events) => {
+    for (const e of events) if (e.type === 'CreatureDied' && e['faction'] === 'fortress') {
+      const lines = watch.get(Number(e['id'])) ?? [];
+      console.log(`[probe bleed ${e['id']}] ${lines.length} samples; cloth ${items.count('cloth')} thread ${items.count('thread')} bandage ${items.count('bandage')}`);
+      for (const line of [...lines.slice(0, 6), '...', ...lines.slice(-12)]) console.log(`[probe bleed] ${line}`);
+    }
+  });
+  let spawned = false;
+  const report = (label: string): void => {
+    const combat = w.readers.of<CombatReader>('16');
+    const m = threeYearsMeasurements(w);
+    console.log(`[probe ${label}] day ${Math.floor(w.tick / TICKS_PER_DAY)} pop ${ent.with(C.Labors).length} alert ${world0.fortress.alert} ` +
+      `squad ${JSON.stringify(combat.squads()[0]?.members.map((id) => [id, combat.weaponOf(id)]))} barrels ${items.count('barrel')} ` +
+      `beds ${items.count('bed')} meals ${items.count('easy_meal') + items.count('lavish_meal') + items.count('fine_meal')} drink ${items.count('drink')} plants ${items.count('plant_food')} seeds ${items.count('seed')} farms ${JSON.stringify(state.economy.farmPlans.map((p) => [p.zoneId > 0, p.tiles.length]))} crops ${ent.with(C.Crop).length} cloth ${JSON.stringify(ent.with(C.Item).filter((id) => ['cloth','thread','bandage'].includes(w.game.registry.table<{id:string}>('items').byIndex(ent.get(id, C.Item)!.type)?.id ?? '')).map((id) => [w.game.registry.table<{id:string}>('items').byIndex(ent.get(id, C.Item)!.type)?.id, ent.get(id, C.Item)!.count, ent.get(id, C.Item)!.containerId, w.map.zOf(items.tileOf(id))]))} deaths ${JSON.stringify(m.deaths)} recipes ${JSON.stringify(m.recipes)}`);
+  };
+  while (w.tick < END_DAY * TICKS_PER_DAY) {
+    playThreeYears(w, state, w.tick < 20 * TICKS_PER_DAY ? 100 : 300);
+    checkFortressWorkOrders(w, state);
+    checkFortressRooms(w, state);
+    checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
+    if (!spawned && w.tick >= SPAWN_DAY * TICKS_PER_DAY) {
+      spawned = true;
+      report('before spawn');
+      let placed = 0;
+      for (let x = state.cx - 8; x < state.cx + 20 && placed < BOARS; x += 1) {
+        const t = w.index(x, Math.min(w.map.h - 3, state.cy + 22), Z);
+        if (w.map.kindAt(t) === TileKind.Floor) { w.spawnCreature(process.env['PROBE_SPECIES'] ?? 'boar', t, 'wild'); placed += 1; }
+      }
+      console.log(`[probe] spawned ${placed}`);
+    }
+  }
+  report('end');
+}, 1_200_000);
