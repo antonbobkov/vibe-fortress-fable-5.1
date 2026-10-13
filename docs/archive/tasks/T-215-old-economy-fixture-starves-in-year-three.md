@@ -1,6 +1,8 @@
 # T-215 — The old economy fixture runs out of food in year 3
 
-**Source:** T-144 and its re-measure, [`../../reports/audits/2026-10-10-wants-without-errands-after-t196.md`](../../reports/audits/2026-10-10-wants-without-errands-after-t196.md) (§ Three years, old fixture) · **Size:** M · **Needs:** — · **Status:** open
+> **Closed 2026-10-12 (orchestrator), folded into T-145.** The cause is the script: one kitchen and a farm that did not follow the population ([report](../../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md)). The rebuilt fixture still starves past about 40 dwarves in four sweep seeds; that gap is named in the T-145 work file and is done there.
+
+**Source:** T-144 and its re-measure, [`../../reports/audits/2026-10-10-wants-without-errands-after-t196.md`](../../../reports/audits/2026-10-10-wants-without-errands-after-t196.md) (§ Three years, old fixture) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -10,7 +12,7 @@ This fixture is the one the performance tier's `three_years` plays, and its mood
 
 ## Reproduction
 
-The probe [`2026-10-10-wants-without-errands-probe.ts.txt`](../../reports/data/2026-10-10-wants-without-errands-probe.ts.txt) in `.probe/old/` with `T144_NOWILD=1`, as the report's Method describes; runs `old-nowild-cloud` and `old-nowild-main`. The daily stock snapshots in the probe output show the meal and drink counts.
+The probe [`2026-10-10-wants-without-errands-probe.ts.txt`](../../../reports/data/2026-10-10-wants-without-errands-probe.ts.txt) in `.probe/old/` with `T144_NOWILD=1`, as the report's Method describes; runs `old-nowild-cloud` and `old-nowild-main`. The daily stock snapshots in the probe output show the meal and drink counts.
 
 ## What the spec says
 
