@@ -36,6 +36,7 @@ export class WorkshopsSystem extends BaseSystem<WorkshopsStateV1> {
     ctx.register.jobProducer(op.producer());
     ctx.register.panel({ id: 'orders', title: 'Orders', hotkey: 'o' });
     ctx.register.inspector('building', { id: 'workshop', order: 30 });
+    ctx.register.announcement('WorkshopBlocked', { severity: 'note', stringKey: 'announce.workshop_missing_input', oneOf: { field: 'reason', values: ['missing_input'] } });
     ctx.register.announcement('MasterworkCreated', { severity: 'note', stringKey: 'announce.masterwork' });
     ctx.register.announcement('WorkshopBlocked', { severity: 'alert', stringKey: 'announce.workshop_blocked', oneOf: { field: 'reason', values: ['no_magma'] } });
     ctx.register.announcement('WorkshopBlocked', { severity: 'alert', stringKey: 'announce.workshop_no_container', oneOf: { field: 'reason', values: ['no_empty_container'] } });

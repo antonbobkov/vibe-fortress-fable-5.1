@@ -189,7 +189,7 @@ Panel `jobs` (open jobs with worker and reason; labor priorities; standing order
 - Labor grid: rows are dwarves, columns are labors; click to toggle; shift-click toggles a column for everyone; a number row above sets labor priorities. The labors panel is the quick view of the grid; the labor manager is the grid as a full-window screen with every labor named, the priority row, multi-select of dwarves and profession templates (Miner, Hauler only, Farmer, Crafter, Soldier, Everything off).
 - Labor templates enable exactly the named labors and disable the rest: Miner (`mining`, `hauling`); Hauler only (`hauling`); Farmer (`farming`, `herbalism`, `brewing`, `cooking`, `hauling`); Crafter (`carpentry`, `masonry`, `crafts`, `mechanics`, `gem_cutting`, `leather`, `textiles`, `smelting`, `smithing`, `hauling`); Soldier and Everything off (none). Send only changed cells. Children are skipped with a message. The manager displays pending values immediately and removes them when the reader agrees or a tick passes.
 - The look cursor on a designation shows its job state ("Dig, priority 3, claimed by Orm Ashbrow").
-- Hints: "No one has mining enabled", "Jobs are blocked: no path (check for doors and water)".
+- Hints: `hint_no_miners` (a dig designation exists and no living dwarf has mining enabled) and `hint_no_path` (a job remains blocked unreachable for a whole day from first hourly observation). Both are checked hourly and shown once; the blocked-job clock is presentation state, saved in the UI section.
 
 ## Tuning constants
 

@@ -1,3 +1,4 @@
+import { Designation } from '@core/map3d';
 /** 24 § Hints; ui-keymap-and-screens.md § Hints. Presentation state is saved in the ui section. */
 import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
@@ -24,11 +25,15 @@ export interface HintFacts {
   immigrationSkipped: boolean; raidEnded: boolean; cageTrapBuilt: boolean; doorBroken: boolean;
   deepsilverFound: boolean; cavernTwoBreached: boolean;
   haulingPressure?: boolean;
+  noMiners?: boolean;
+  noPath?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
 export function hintPredicate(id: string, f: HintFacts): boolean {
   switch (id) {
+    case 'hint_no_miners': return f.noMiners === true;
+    case 'hint_no_path': return f.noPath === true;
     case 'hint_haulers': return f.haulingPressure === true;
     case 'hint_dig': return f.tick >= 1;
     case 'hint_still': return f.stillMissing && f.drinkLow;
@@ -88,6 +93,11 @@ export class HintEngine {
   }
 
   onEvents(events: readonly GameEvent[], readers: ReaderSet, enabled = true): void {
+    for (const event of events) {
+      if (event.type === 'JobUnblocked' || event.type === 'JobCompleted' || event.type === 'JobCancelled' || (event.type === 'JobBlocked' && event['reason'] !== 'unreachable')) {
+        this.ui.hintUnreachableSince = this.ui.hintUnreachableSince.filter(([id]) => id !== event['jobId']);
+      }
+    }
     if (!enabled) return;
     for (const event of events) {
       this.mark(event, readers);
@@ -139,6 +149,27 @@ export class HintEngine {
     for (const row of this.registered) if (hintPredicate(row.id, f)) this.show(row.id, readers.calendar.tick);
   }
 
+  private noMiners(readers: ReaderSet): boolean {
+    const labor = this.registry.table('labors').index('mining');
+    const dwarf = this.registry.table('creatures').index('dwarf');
+    const enabled = readers.entities.with(C.Creature, C.Labors).some(id => {
+      const creature = readers.entities.get(id, C.Creature);
+      return readers.entities.alive(id) && creature?.faction === 'fortress' && creature.species === dwarf &&
+        (readers.entities.get(id, C.Labors)?.enabled[labor] ?? 0) !== 0;
+    });
+    if (enabled) return false;
+    const map = readers.map;
+    for (let i = 0; i < map.w * map.h * map.d; i++) if (map.designationAt(i) === Designation.Dig) return true;
+    return false;
+  }
+  private noPath(readers: ReaderSet): boolean {
+    const since = new Map(this.ui.hintUnreachableSince);
+    const jobs = readers.has('11') ? readers.of<JobsReader>('11').list() : [];
+    this.ui.hintUnreachableSince = jobs.filter(j => j.state === 'blocked' && j.blockedReason === 'unreachable')
+      .map((j): [number, number] => [j.id, since.get(j.id) ?? readers.calendar.tick]).sort((a, b) => a[0] - b[0]);
+    return this.ui.hintUnreachableSince.some(([, tick]) => readers.calendar.tick - tick >= TICKS_PER_DAY);
+  }
+
   private facts(readers: ReaderSet): HintFacts {
     const cal = readers.calendar;
     const buildings = readers.has('14') ? readers.of<BuildingsReader>('14') : null;
@@ -165,6 +196,7 @@ export class HintEngine {
     const hunting = this.registry.table('labors').has('hunting') ? this.registry.table('labors').index('hunting') : 0;
     const hunterLabor = hunting > 0 && readers.entities.with(C.Labors).some((id) => (readers.entities.get(id, C.Labors)?.enabled[hunting] ?? 0) !== 0);
     return {
+      noMiners: this.noMiners(readers), noPath: this.noPath(readers),
       tick: cal.tick, year: cal.year, season: cal.season, day: cal.dayOfSeason,
       stillMissing: byType('still').length === 0, drinkLow: (items?.count('drink') ?? 0) < 40,
       stockpileMissing: stockpiles.length === 0, groundItems: readers.entities.with(C.Item, C.Position).length,

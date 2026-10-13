@@ -378,6 +378,7 @@ export class WorkshopOperator {
       let started = false;
       let reason: string | null = null;
       let missingContainer: string | null = null;
+      let missingInput: string | null = null;
       for (const choice of choices) {
         const recipe = this.recipe(choice.order.recipe);
         if (recipe === undefined || recipe.workshop !== this.typeOf(id)) continue;
@@ -389,6 +390,7 @@ export class WorkshopOperator {
             const container = recipe.container !== undefined && problem === `waiting for ${recipe.container}` ? recipe.container : null;
             reason = container !== null ? 'no_empty_container' : problem.startsWith('waiting for ') ? 'missing_input' : problem;
             missingContainer = container;
+            if (reason === 'missing_input') missingInput = problem === 'missing_input' ? 'fuel' : problem.slice('waiting for '.length);
           }
           continue;
         }
@@ -440,7 +442,7 @@ export class WorkshopOperator {
           }
         }
         if (reason !== null && reason !== ws.lastBlockedReason) {
-          ctx.emit({ type: 'WorkshopBlocked', workshopId: id, reason, ...(missingContainer === null ? {} : { container: missingContainer }) });
+          ctx.emit({ type: 'WorkshopBlocked', workshopId: id, reason, ...(missingContainer === null ? {} : { container: missingContainer }), ...(missingInput === null ? {} : { input: missingInput }) });
         }
         if (reason === null && ws.lastBlockedReason !== null) ctx.emit({ type: 'WorkshopIdle', workshopId: id });
         if (reason !== ws.lastBlockedReason) this.save(id, { ...ws, lastBlockedReason: reason });

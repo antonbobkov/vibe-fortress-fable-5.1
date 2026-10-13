@@ -761,7 +761,7 @@ export class Game {
       this.fortress.log.lines.push(...fromSaved(this.ui, loaded.ui as SavedUiState));
       // The saved zoom is the one that was in effect; the window fits again from the setting.
       this.resize(this.surface.cssWidth, this.surface.cssHeight);
-    }
+    } else this.fortress.resetHints();
     this.resetTo(FORTRESS);
     this.host.setSpeed(0);
     this.clampCamera();

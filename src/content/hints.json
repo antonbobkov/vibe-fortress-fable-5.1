@@ -108,5 +108,15 @@
     "id": "hint_haulers",
     "trigger": "DayPassed: more than IDLE_HAULER_WARNING items want hauling and fewer than HAULER_WARNING_MIN_WORKERS dwarves have hauling enabled",
     "text": "Items are waiting to be hauled. Enable hauling for more dwarves in the labors panel."
+  },
+  {
+    "id": "hint_no_miners",
+    "trigger": "a dig designation exists and no living dwarf has mining enabled; hourly",
+    "text": "No one has mining enabled. Turn it on in Labors [l]."
+  },
+  {
+    "id": "hint_no_path",
+    "trigger": "a job remains blocked unreachable for a whole day from first hourly observation",
+    "text": "Jobs are blocked: no path. Check for doors, water and undug rock."
   }
 ]

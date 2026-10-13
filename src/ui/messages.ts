@@ -1,3 +1,4 @@
+import { Designation } from '@core/map3d';
 /**
  * What the player reads when something cannot be done (`docs/archive/ui-fixes/README.md` D-U4,
  * the UI audit § 4): every refusal and every block names the thing and why.
@@ -242,6 +243,12 @@ const NOT_FOUND_SUBJECT: Readonly<Record<string, string>> = Object.freeze({
 export function rejectionText(env: MessageEnv, command: Command | undefined, reason: string): string {
   const s = env.strings;
   const type = command?.type ?? '';
+  if (reason === 'has_progress' && type === 'UndoDesignation') {
+    const raw = command?.['tiles'];
+    const tiles = new Set(Array.isArray(raw) ? raw.filter((i): i is number => typeof i === 'number' && Number.isInteger(i) && i >= 0 && i < env.readers.map.w * env.readers.map.h * env.readers.map.d) : []);
+    const n = [...tiles].filter(i => env.readers.map.designationAt(i) !== Designation.None).length;
+    return s.get('ui.reject.has_progress.UndoDesignation', { n });
+  }
   if (reason === 'fixed_footprint' && type === 'PlaceBuilding' && command !== undefined) {
     const table = env.registry.table<NamedRow>('buildings');
     const buildingType = command['buildingType'];

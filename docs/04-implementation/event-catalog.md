@@ -76,7 +76,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ItemCrafted` | `itemId, quality, crafterId, workshopId, recipeId` | 12 | 13, 15, 16 (better gear), 24 (milestones) |
 | `MasterworkCreated` | `itemId, crafterId` | 12 | 15, ui |
 | `WorkOrderCompleted` | `workshopId, recipeId` | 12 | ui (none) |
-| `WorkshopBlocked` / `WorkshopIdle` | `workshopId, reason[, container]` / `workshopId` | 12 | ui |
+| `WorkshopBlocked` / `WorkshopIdle` | `workshopId, reason[, container, input]` / `workshopId` | 12 | ui |
 | `ItemCreated` | `id, itemType, material, count` | 13 | 11, 12, 16, 17 |
 | `ItemDestroyed` | `id, itemType, reason, crafterId` | 13 | 11, 12, 15 |
 | `ItemRotStage` / `ItemRotted` | `id, stage` / `id` | 13 | ui (none) |
@@ -140,6 +140,9 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `Fell` | `id, levels, landedOn` | core movement helper | 17 |
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
+
+
+For `WorkshopBlocked`, `input` names the missing recipe input match when reason is `missing_input`, or `fuel` for a fuel shortage. The container class remains in `container` for `no_empty_container`.
 
 ## Notes for implementers
 
