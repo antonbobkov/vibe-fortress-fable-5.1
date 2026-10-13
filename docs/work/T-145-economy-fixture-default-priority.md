@@ -13,7 +13,7 @@ The six fixture files of `f-17` are ported by hand and the Decision list is appl
 1. *"no dwarf died across three years in peril 0"* fails: 1, 2 and 2 deaths in runs 4, 5 and 6, each a militia member who bled out after a boar fight. The script cannot remove them: T-301 and T-211.
 2. *"Peril 0: seven of seven seeds survive with no dwarf death"*: seven of seven survive, none without a death (1, 4, 25, 2, 32, 27, 6). Twelve deaths are bleeding after a fight (T-301). Eighty-five are starvation in four seeds once the fortress passes about 40 dwarves: the surface farm strips grow nothing in winter and the meal stock is eaten in a season. That part is the script and is still to do: the farm and the kitchens for 40 to 55 dwarves, or fewer immigrants taken.
 3. *Perils 2 and 4 are not measured*: all 13 seeds stop on a T-176 invariant finding between day 19 and day 215 (T-302, T-303, T-304).
-4. *Beds*: the bedroom plan has 20 rooms; 18 beds serve up to 59 dwarves, and the mood mean at day 336 is 38 to 57.
+4. *Beds and the dead*: 18 beds are made and 11 placed for up to 59 dwarves. The bedroom rooms stop being dug (133 of 194 tiles from day 100, no dig job left), and the plan has 20 rooms in any case. The script builds no tomb, and "unburied dead" is active 40% of dwarf-time. The mood time mean is 57.7 on the main seed and 52.7–55.5 on two sweep seeds.
 5. *Idle time* ("work follows the population") was not measured.
 6. *The old script's unreachable mine* was not run; the report gives the likely cause from reading.
 7. *B-008 … B-012* are read against the report in `balance-status.md`; none can close while gaps 1 to 3 stand.

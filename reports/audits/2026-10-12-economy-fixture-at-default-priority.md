@@ -9,7 +9,9 @@ The rewritten three-year economy fortress of the branch `f-17` (`ffbc723`), port
 - **Main scenario**: `npm exec -- vitest run -c vitest.perf.config.ts test/perf/three_years_main.test.ts`, seed `three-years`, peril 0, six runs, each at the commit named in the data file. A run takes 11 to 21 minutes.
 - **Probe**: the fixture played to a given day, then boars placed 16 tiles south of the gate with the test world's spawn hook; 40 seconds a run. Only the probe adds an animal; the main runs and the sweep have the game's own arrivals.
 - **Sweep**: `test/perf/three_years_seeds.test.ts`, 20 seeds, once, at `ac88f56`.
-- **Mood instrument**: `test/perf/mood_breakdown.test.ts`, once, at `ac88f56`.
+- **Mood instrument**: `test/perf/mood_breakdown.test.ts`, once, at `ac88f56` (81 minutes).
+
+After the sweep the wagon at perils 2 and 4 got its mechanism back (the `defence_year` scenario builds traps from the same fixture); the sweep's peril-2 and peril-4 seeds ran without it.
 
 ## The main scenario, run by run
 
@@ -70,7 +72,16 @@ One run at `ac88f56`.
 
 ## The mood instrument
 
-See § Mood in [`balance-status.md`](../../docs/balance-status.md) for the figures taken from [its output](../data/2026-10-12-economy-fixture-mood-instrument.txt).
+One run at `ac88f56` ([output](../data/2026-10-12-economy-fixture-mood-instrument.txt)); its three cases pass.
+
+| Seed | Dwarf-days | Mood, time mean | Fine / Content / Unhappy / Miserable, as shares of the dwarf-days in those four tiers |
+|---|---|---|---|
+| `three-years` | 9,927 | **57.7** (0.0 to 97.1) | 42% / 46% / 11% / 2% |
+| `three-years-p0-1` | not printed | 55.5 | 45% / 41% / 10% / 4% |
+| `three-years-p0-2` | not printed | 52.7 | 56% / 29% / 12% / 3% |
+| bare layout, `three-years` | 602 | 23.5, extinct | 15% / 0% / 36% / 48% |
+
+On `three-years` the hearth bonus averages 5.94. The largest terms: lavish meal +3.50; thirsty −2.50 (at want level 28% of the time); restless −1.77 (purpose at want level 51%); unburied dead −1.51 (active 40% of dwarf-time: the script builds no tomb); the three bed thoughts −3.82 together (slept on the floor last night, slept on the floor, no bedroom, each active 62–71% of dwarf-time). The instrument counts 11 beds built and 10 bedrooms on day 336, with 18 beds in stock: the bedroom rooms stop being dug (133 of 194 tiles dug from day 100, no dig job left), so seven beds are never placed. That is the script.
 
 ## What this explains about other tasks
 
