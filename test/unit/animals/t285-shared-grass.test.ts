@@ -50,7 +50,10 @@ describe('T-285 several grazers, one grass tile', () => {
     const ids = [hungry(w, 'cow', a), hungry(w, 'cow', a)];
     w.step(60);
     // Each ate once (42 - 25 = 17, plus the hourly rise); neither ate twice.
-    for (const id of ids) expect(conditionOf(w, id)!).toBeGreaterThanOrEqual(17), expect(conditionOf(w, id)!).toBeLessThan(25);
+    for (const id of ids) {
+      expect(conditionOf(w, id)!).toBeGreaterThanOrEqual(17);
+      expect(conditionOf(w, id)!).toBeLessThan(25);
+    }
     expect(grazed(w, a)).toBe(1);
     expect(grazed(w, b)).toBe(1);
   });
