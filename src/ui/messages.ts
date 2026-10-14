@@ -426,3 +426,15 @@ export function brokerOnWay(env: MessageEnv, paused: boolean): string {
   const text = env.strings.get('ui.depot.broker_on_way');
   return paused ? `${text} · ${env.strings.get('ui.depot.resume')}` : text;
 }
+
+/** The plural of a lower-case creature name: wolf to wolves, lynx to lynxes, bear to bears. */
+export function pluralName(name: string): string {
+  const words = name.split(' ');
+  const last = words[words.length - 1] ?? '';
+  let plural: string;
+  if (/(?:lf|fe)$/.test(last)) plural = last.replace(/f(e?)$/, 'ves');
+  else if (/(?:s|x|z|ch|sh)$/.test(last)) plural = `${last}es`;
+  else if (/[^aeiou]y$/.test(last)) plural = `${last.slice(0, -1)}ies`;
+  else plural = `${last}s`;
+  return [...words.slice(0, -1), plural].join(' ');
+}

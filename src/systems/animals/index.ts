@@ -212,6 +212,10 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     ctx.register.announcement('AnimalStarving', { severity: 'alert', stringKey: 'announce.animal_starving' });
     ctx.register.announcement('PetAdopted', { severity: 'note', stringKey: 'announce.pet_adopted' });
     // `08` § Player-facing behavior: "A pack of wolves has arrived from the north" (note) (T-M7-10).
+    // A dangerous surface species is an alert (08 § Player-facing behavior); the first row that matches wins.
+    const dangerous: string[] = [];
+    for (let s = 1; s <= this.facts.size; s += 1) if (this.facts.isDangerous(s)) dangerous.push(this.facts.idOf(s));
+    if (dangerous.length > 0) ctx.register.announcement('AnimalSpawned', { severity: 'alert', stringKey: 'announce.dangerous_arrived', oneOf: { field: 'species', values: dangerous } });
     ctx.register.announcement('AnimalSpawned', { severity: 'note', stringKey: 'announce.animal_spawned' });
     ctx.register.inspector('creature', { id: 'animal', order: 20 });
   }
@@ -1141,6 +1145,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         return weight <= 0 ? 0 : surfaceCap(this.spawner, species, weight);
       },
       breedingCap: (s) => this.breedingCaps.get(asSpecies(s)) ?? BREEDING_CAP_DEFAULT,
+      isDangerous: (s) => this.facts.isDangerous(asSpecies(s)),
       nestBoxes: () => this.readers.has('14') ? this.readers.of<BuildingsReader>('14').byTag(NEST_BOX_TAG).filter((id) => this.readers.of<BuildingsReader>('14').get(id)?.state === 'built') : [],
     };
   }

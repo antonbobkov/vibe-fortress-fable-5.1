@@ -15,7 +15,7 @@ import type { Attributes } from '@core/components';
 import type { Registry } from '@core/registry';
 import type { KeyPress } from '@platform/input';
 import { EMBARK_REROLL_COST, EmbarkSession, skillPoints, suppliesTotal, type EmbarkCommand, type EmbarkPresetRow } from '@systems/embark';
-import { EMBARK_DEFAULT_PRESET, EMBARK_PRESET_SPACING, UI_NORMAL_SPACING, UI_COMPACT_SPACING } from '../constants';
+import { EMBARK_DEFAULT_PRESET, EMBARK_HINT_SECONDS, EMBARK_PRESET_SPACING, UI_NORMAL_SPACING, UI_COMPACT_SPACING } from '../constants';
 import type { Keymap } from '../keymap';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { Strings } from '../strings';
@@ -99,6 +99,8 @@ export interface EmbarkHost {
   back(): void;
   /** 24 § Confirmations: the modal dialog; without it the screen embarks as asked. */
   confirm?(id: string, params: Readonly<Record<string, string | number>>, answer: (yes: boolean) => void): void;
+  /** Real time in milliseconds, for the hint line that alternates every few seconds. */
+  now?(): number;
 }
 
 /** What the party's supply list lacks for a working start (D-U3). */
@@ -121,6 +123,8 @@ export class EmbarkScreen implements Screen {
   readonly id = 'embark' as const;
   readonly session: EmbarkSession;
   tab = 0;
+  /** How many times the tab changed: each change turns the alternating hint line. */
+  private tabChanges = 0;
   focus: Focus = 'party';
   category = 0;
   readonly party: ListState = { selected: 0, scroll: 0 };
@@ -467,7 +471,9 @@ export class EmbarkScreen implements Screen {
     } else if (current?.note !== undefined) {
       label(surface, 1, noteRow, current.note, { fg: t.dim });
     } else if (this.tab === 1) {
-      label(surface, 1, noteRow, s.get('ui.embark.hint'), { fg: t.dim });
+      // The hint alternates between two lines every EMBARK_HINT_SECONDS of real time and on each tab change.
+      const turn = Math.floor((this.host.now?.() ?? 0) / (EMBARK_HINT_SECONDS * 1000)) + this.tabChanges;
+      label(surface, 1, noteRow, s.get(turn % 2 === 0 ? 'ui.embark.hint' : 'ui.embark.hint_beasts'), { fg: t.dim });
     }
   }
 
@@ -491,6 +497,7 @@ export class EmbarkScreen implements Screen {
   // ---------- input ----------
 
   setTab(index: number): void {
+    if (Math.max(0, Math.min(2, index)) !== this.tab) this.tabChanges += 1;
     this.tab = Math.max(0, Math.min(2, index));
     this.items.selected = 0;
     this.items.scroll = 0;

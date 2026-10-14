@@ -61,7 +61,7 @@
   },
   {
     "id": "hint_alert",
-    "trigger": "first ThreatWarning",
+    "trigger": "first ThreatWarning, or the first fortress dwarf wounded by an animal",
     "text": "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock, but a dwarf in dire need still goes out to eat, drink or sleep, and the medics still tend the wounded."
   },
   {
@@ -113,6 +113,21 @@
     "id": "hint_no_miners",
     "trigger": "a dig designation exists and no living dwarf has mining enabled; hourly",
     "text": "No one has mining enabled. Turn it on in Labors [l]."
+  },
+  {
+    "id": "hint_shelter",
+    "trigger": "from day 3 of the first spring, no squad exists",
+    "text": "Wild beasts will come. Dig a hall into rock, put a door on it, click the door and choose Lock on alert. Make a squad in [m] and arm it with iron spears: clubs lose to boars. Order a kill when a beast comes."
+  },
+  {
+    "id": "hint_predator",
+    "trigger": "first AnimalSpawned of a dangerous species",
+    "text": "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert: civilians go to the hearth and doors set to Lock on alert shut. [n] then [2] shows where it is."
+  },
+  {
+    "id": "hint_food",
+    "trigger": "edible items in stock fall below HINT_FOOD_DAYS days for the population, hourly",
+    "text": "Food is running low. Check the farm plots' crops [z], order meals at a kitchen, and gather plants [d]."
   },
   {
     "id": "hint_no_path",

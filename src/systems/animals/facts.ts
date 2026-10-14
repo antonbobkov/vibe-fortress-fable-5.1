@@ -96,6 +96,18 @@ export class AnimalFacts {
     return this.rows[species]?.temper ?? 'timid';
   }
 
+  /**
+   * `08` § Wild behavior: a surface species that attacks dwarves unprovoked or hunts, which the
+   * player is told about when it arrives: not `timid`, a carnivore or `aggressive` or `territorial`,
+   * and found on the surface (it has biomes; cavern species arrive through a breach).
+   */
+  isDangerous(species: number): boolean {
+    const row = this.rows[species];
+    if (row === undefined || (row.biomes ?? []).length === 0) return false;
+    const temper = row.temper ?? 'timid';
+    return temper !== 'timid' && (row.diet === 'carnivore' || temper === 'aggressive' || temper === 'territorial');
+  }
+
   fleeBloodPercentOf(species: number): number | null {
     const row = this.rows[species];
     if (!row) return null;

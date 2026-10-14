@@ -68,7 +68,7 @@ Generate runs synchronously. On return, the screen shows the completed preview a
 └────────────────────────────────────────────────────────────┴─────────────────────────────────┘
 ```
 
-Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings (`+`/`-` on the focused row), river / volcano toggles, trait list; matching regions keep full color, others dim one step (`dim(c, 1)`). The cursor starts at the centre and inverts its cell. River regions draw blue `~`; civilization home glyphs and colors replace rivers and biomes. The region panel lists name, biome, river, lake, volcano, five-cell rating bars, traits and every civilization's distance and cardinal arrival edge; there is no relief field.
+Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings (`+`/`-` on the focused row), river / volcano toggles, trait list; matching regions keep full color, others dim one step (`dim(c, 1)`). The cursor starts at the centre and inverts its cell. River regions draw blue `~`; civilization home glyphs and colors replace rivers and biomes. The region panel lists name, biome, river, lake, volcano, five-cell rating bars (a dim line under the Peril bar reads "Peril counts raiders. Wild beasts live everywhere."), traits and every civilization's distance and cardinal arrival edge; there is no relief field.
 
 ## Settings
 

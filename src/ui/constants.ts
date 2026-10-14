@@ -33,6 +33,14 @@ export const EMBARK_DEFAULT_PRESET = 'balanced';
 /** Hints are evaluated once per this many game hours. */
 export const HINT_CHECK_HOURS = 1;
 
+/** The embark screen's hint line turns over after this many seconds of real time. */
+export const EMBARK_HINT_SECONDS = 5;
+
+/** `hint_food`: the stock of edible items is below this many days of eating for the population. */
+export const HINT_FOOD_DAYS = 2;
+/** Days one edible item feeds one dwarf at the base hunger rate (a meal takes 100 of the 24 hunger a day brings, rounded down to four). */
+export const HINT_FOOD_DAYS_PER_ITEM = 4;
+
 /** Width of a body part's health meter in the creature inspector. */
 export const HEALTH_PART_BAR_CELLS = 5;
 

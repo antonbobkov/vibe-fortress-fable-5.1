@@ -22,7 +22,7 @@ import { accel, type PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { FortressHost } from '../screens/fortress';
 import { creaturesAt } from './look';
-import { militaryNoSquad, zoneName } from '../messages';
+import { militaryNoSquad, wrapText, zoneName } from '../messages';
 import { SQUAD_NAME_MAX_CHARS } from '../constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { dwarvesOf } from './units';
@@ -426,6 +426,11 @@ export function drawMilitaryPanel(
   s.hit({ col: col + 10, row, cols: 9, rows: 1 }, () => ctx.submit({ type: 'SetAlert', level: 'watchful' }));
   s.hit({ col: col + 21, row, cols: 10, rows: 1 }, () => ctx.submit({ type: 'SetAlert', level: 'hearth' }));
   row += 1;
+  // One line says what the current alert does.
+  for (const line of wrapText(ctx.strings.get(`ui.military.alert_${currentAlert}`), width, 2)) {
+    label(s, col, row, line, { fg: t.dim, width, keys: false });
+    row += 1;
+  }
 
   // Squads header
   label(s, col, row, 'Squads', { fg: t.key, width });
@@ -434,8 +439,12 @@ export function drawMilitaryPanel(
   const squads = panel.squads(ctx);
   // Q13: the table's header takes a row, so the list is one row taller than its squads.
   const listHeight = Math.min(SQUAD_MAX_COUNT, squads.length) + 1;
-  if (squads.length === 0) label(s, col, row, 'No squads yet: [+] makes one.', { fg: t.dim, width });
-  else table(
+  if (squads.length === 0) {
+    label(s, col, row, 'No squads yet: [+] makes one.', { fg: t.dim, width });
+    // What a first squad needs (the measured rule: iron spears and a kill order hold off boars; clubs do not).
+    label(s, col, row + 1, ctx.strings.get('ui.military.no_squads_tip1'), { fg: t.dim, width, keys: false });
+    label(s, col, row + 2, ctx.strings.get('ui.military.no_squads_tip2'), { fg: t.dim, width, keys: false });
+  } else table(
     s,
     { col, row, cols: width, rows: listHeight },
     [
@@ -451,7 +460,7 @@ export function drawMilitaryPanel(
     panel.list,
     (idx) => { panel.list.selected = idx; }
   );
-  row += listHeight;
+  row += listHeight + (squads.length === 0 ? 2 : 0);
 
   // [+] new squad  [x] disband
   label(s, col, row, '[+] new squad  [x] disband', { width });
