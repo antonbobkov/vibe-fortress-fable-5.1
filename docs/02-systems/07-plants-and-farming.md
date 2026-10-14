@@ -76,7 +76,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 ### Grass
 
 - Outdoor soil floors start with `grass`. Cavern `cave_loam` floors start with `grass` (cave moss, drawn in a different color but the same flag).
-- Grazing (08) clears the flag. Regrowth: each `DayPassed`, every tile in `bareSoil` (a sorted set maintained from grazing events and construction removal) with at least one cardinal `grass` neighbor regrows with `GRASS_REGROW_PERMILLE`, except outdoors in winter and on `ash` or `snow` tiles.
+- Grazing (08) clears the flag; one tile feeds one grazer, and 08 holds the tile as claimed until the flag is gone, so the tile cannot be eaten twice. Regrowth: each `DayPassed`, every tile in `bareSoil` (a sorted set maintained from grazing events and construction removal) with at least one cardinal `grass` neighbor regrows with `GRASS_REGROW_PERMILLE`, except outdoors in winter and on `ash` or `snow` tiles.
 - Constructions, roads and farm plots clear `grass` permanently while they exist.
 
 ### Ash

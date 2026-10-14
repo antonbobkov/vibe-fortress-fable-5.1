@@ -3,6 +3,7 @@ import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import { TileFlag } from '@core/map3d';
+import { GRASS_PER_GRAZER } from '@systems/animals/constants';
 import type { Scenario } from './runner';
 
 const scenario: Scenario = {
@@ -10,7 +11,8 @@ const scenario: Scenario = {
   // T-192: this tests domestic feeding/breeding on its fixed grass patch without wild competitors.
   surfaceWildlife: 'none',
   run: (w) => {
-    const tiles = Array.from({ length: 20 }, (_, n) => w.index(8 + n % 5, 8 + Math.floor(n / 5), FLAT_TEST_SURFACE_Z));
+    // T-285: one tile feeds one grazer, so the patch holds the stated allowance for two cows.
+    const tiles = Array.from({ length: GRASS_PER_GRAZER * 2 }, (_, n) => w.index(4 + n % 12, 4 + Math.floor(n / 12), FLAT_TEST_SURFACE_Z));
     for (const tile of tiles) w.map.setFlag(tile, TileFlag.Grass, true);
     const pasture = w.zone('pasture', tiles);
     const a = w.spawnTame('cow', tiles[0] as number, { sex: 0 });

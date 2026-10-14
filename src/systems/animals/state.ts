@@ -33,6 +33,8 @@ export interface AnimalsStateV1 {
   dailyDue: boolean;
   provoked: [EntityId, EntityId][];
   grazedPending: number[];
+  /** Tiles whose grazing event has gone out and whose grass 07 has not yet cleared. */
+  grazeEmitted?: number[];
   hourlyDue: boolean;
   seasonDue: boolean;
   eggs: [EntityId, EggRecord][];

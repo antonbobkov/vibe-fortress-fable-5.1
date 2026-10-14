@@ -66,7 +66,7 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 - Winter feeding: outdoor grass does not regrow and snow-covered grass cannot be eaten, so outdoor capacity is not a winter feeding guarantee. Move retained grazers to a walkable cave-loam pasture with unsnowed cave moss at the same capacity allowance before surface feeding stops, or reduce the herd. Cave moss uses the normal grass-regrowth rule throughout winter; animals do not eat stored fodder or plant-food items.
 - Reject `AssignPasture` with `not_tame` for an untamed animal, or `not_grazer` for a tame animal whose diet is not grazer, without changing its assignment.
 - Assignment: `AssignPasture { animalId, zoneId | none }`. Assigned grazers path into the pasture and stay (they do not path out unless fleeing). Unassigned grazers wander near the wagon or hearth and eat any grass they find.
-- Condition rises `CONDITION_PER_HOUR` per hour; eating a grass tile lowers it by `CONDITION_PER_GRASS`. At 100 the animal is `starving` (announcement, once per animal per season); after `ANIMAL_STARVE_DAYS` at 100 it dies (`CreatureDied { cause: starvation }` through 17). Snow-covered grass cannot be eaten; cold snaps double the rise.
+- Condition rises `CONDITION_PER_HOUR` per hour; eating a grass tile lowers it by `CONDITION_PER_GRASS`. One grass tile feeds one grazer: the first to eat it claims the tile, and until 07 has cleared the flag no other grazer eats it or walks to it; a grazer standing on a claimed tile looks for other grass. The claim is part of 08's saved state and ends when 07's change to the tile is announced (`TilesChanged`), or at once if the tile has no grass. At 100 the animal is `starving` (announcement, once per animal per season); after `ANIMAL_STARVE_DAYS` at 100 it dies (`CreatureDied { cause: starvation }` through 17). Snow-covered grass cannot be eaten; cold snaps double the rise.
 - Only tame grazers accumulate condition and eat grass. Other diets, including carnivores, omnivores and `none`, forage abstractly without a concrete feeding action.
 
 ### Breeding
@@ -125,7 +125,7 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 
 ### Events consumed
 
-`DayPassed`, `HourPassed`, `CavernBreached`, `CreatureDied`, `CorpseCreated` (associate a pending predator meal), `AttackResolved` (to react to being attacked), `TrapTriggered` (cage), `JobCompleted` for its job types, `ZoneChanged` for pastures.
+`DayPassed`, `HourPassed`, `CavernBreached`, `CreatureDied`, `CorpseCreated` (associate a pending predator meal), `AttackResolved` (to react to being attacked), `TrapTriggered` (cage), `JobCompleted` for its job types, `ZoneChanged` for pastures, `TilesChanged` (ends the claim on a grazed tile once 07 has written its change).
 
 ### Events emitted
 

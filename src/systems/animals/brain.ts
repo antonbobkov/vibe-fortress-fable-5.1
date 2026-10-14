@@ -269,7 +269,7 @@ export function isRestTime(host: BrainHost, species: number): boolean {
 }
 
 /** A grass tile within `radius` on the animal's level, nearest first, or -1. */
-export function grassNear(host: BrainHost, at: TileIndex, radius: number): TileIndex {
+export function grassNear(host: BrainHost, at: TileIndex, radius: number, skip?: (tile: TileIndex) => boolean): TileIndex {
   const map = host.map;
   const x = map.xOf(at);
   const y = map.yOf(at);
@@ -282,6 +282,7 @@ export function grassNear(host: BrainHost, at: TileIndex, radius: number): TileI
       const i = map.index(x + dx, y + dy, z);
       if (!map.hasFlag(i, TileFlag.Grass)) continue;
       if (map.hasFlag(i, TileFlag.Snow)) continue;
+      if (skip !== undefined && skip(i)) continue;
       const d = Math.max(Math.abs(dx), Math.abs(dy));
       if (d >= bestD) continue;
       bestD = d;

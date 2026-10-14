@@ -26,7 +26,7 @@ An intermediate allocation of 32 passed summer but failed the winter cave regres
 
 The original shared-herd probe can grant feeding relief to several animals for one physical tile. The [small saved reproduction](../data/2026-10-12-t285-shared-grass-probe.test.ts.txt) puts six grazers at condition 42 on one grass tile. Twenty ticks later all six have condition 17, but there is just one GrassGrazed event and the grass is gone: 150 total condition relief for one tile that should yield 25. [Result](../data/2026-10-12-t285-shared-grass-result.txt).
 
-`animals/tame.ts` grants relief immediately; `animals/index.ts` deduplicates the pending tile before 07 clears it. This fault is filed as [T-285](../../docs/work/T-285-several-grazers-eat-one-grass-tile.md), with a proposed single-consumer claim and continuation tests. It is not fixed here, and the separated capacity parcels do not rely on it. No long fixture has been edited.
+`animals/tame.ts` grants relief immediately; `animals/index.ts` deduplicates the pending tile before 07 clears it. This fault is filed as [T-285](../../docs/archive/tasks/T-285-several-grazers-eat-one-grass-tile.md), with a proposed single-consumer claim and continuation tests. It is not fixed here, and the separated capacity parcels do not rely on it. No long fixture has been edited.
 
 ## Browser verification
 

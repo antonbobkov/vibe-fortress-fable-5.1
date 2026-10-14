@@ -1,10 +1,12 @@
 # T-285 - Several grazers get feeding relief from one grass tile
 
-**Source:** [Pasture capacity measurement](../../reports/audits/2026-10-12-pasture-capacity-and-winter-feeding.md), shared-grass probe. **Size:** S. **Needs:** none. **Status:** open.
+Closed by `T-285: one grass tile feeds one grazer` (the commit that moved this file).
+
+**Source:** [Pasture capacity measurement](../../../reports/audits/2026-10-12-pasture-capacity-and-winter-feeding.md), shared-grass probe. **Size:** S. **Needs:** none. **Status:** open.
 
 ## Reproduction
 
-The [saved probe](../../reports/data/2026-10-12-t285-shared-grass-probe.test.ts.txt) places two cows, two sheep and two goats at condition 42 on one grass tile. After 20 ticks all six have condition 17, while just one GrassGrazed event removes the physical tile. AnimalsSystem queues a unique tile in grazedPending, but thinkTame grants every same-tick eater its own CONDITION_PER_GRASS relief before 07 clears it.
+The [saved probe](../../../reports/data/2026-10-12-t285-shared-grass-probe.test.ts.txt) places two cows, two sheep and two goats at condition 42 on one grass tile. After 20 ticks all six have condition 17, while just one GrassGrazed event removes the physical tile. AnimalsSystem queues a unique tile in grazedPending, but thinkTame grants every same-tick eater its own CONDITION_PER_GRASS relief before 07 clears it.
 
 ## Proposed resolution
 

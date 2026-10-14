@@ -15,7 +15,7 @@ import { CAVERN_1_Z_MAX, CAVERN_1_Z_MIN, CAVERN_2_Z_MAX, CAVERN_2_Z_MIN, CAVERN_
 import type { EntityStore } from '@core/entities';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
-import { TileKind, type Map3D } from '@core/map3d';
+import { TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { RngStream } from '@core/rng';
 import { BaseSystem, type InitContext, type TickContext, type WorldLike } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
@@ -84,7 +84,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   readonly order = 8;
   override readonly cadence = ANIMALS_CADENCE;
   override readonly phase = ANIMALS_PHASE;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'SeasonChanged', 'CreatureDied', 'CorpseCreated', 'AttackResolved', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ThreatNearby', 'CreatureCaged'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'SeasonChanged', 'CreatureDied', 'CorpseCreated', 'AttackResolved', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ThreatNearby', 'CreatureCaged', 'TilesChanged'];
   override readonly ownsCommands: readonly CommandType[] = [
     'SetBreedingCap',
     'AssignPasture',
@@ -121,6 +121,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   readonly provoked = new Map<EntityId, EntityId>();
   /** Tiles a grazer cleared, handed to 07 on the next tick (07 owns grass; D-089). */
   readonly grazedPending: TileIndex[] = [];
+  /** Tiles whose `GrassGrazed` went out and whose grass flag 07 has not yet cleared (08 § Pastures and feeding). */
+  readonly grazeEmitted: TileIndex[] = [];
   /** Eggs waiting in a nest box: item → the box, the tick it was laid and the species. */
   readonly eggs = new Map<EntityId, EggRecord>();
   /** Products waiting for their job, `<animalId>:<kind>`. */
@@ -235,7 +237,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       targetOf: (id) => world.services.combat?.targetOf(id) ?? this.targets.get(id) ?? 0,
       provokedBy: (id) => this.provoked.get(id) ?? 0,
       grazed: (tile) => {
-        if (!this.grazedPending.includes(tile)) this.grazedPending.push(tile);
+        this.claimGraze(tile);
       },
       despawn: (id) => this.despawnQueue.push(id),
     };
@@ -258,6 +260,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         return zone === undefined || zone.type !== PASTURE_ZONE ? [] : zone.tiles;
       },
       homeTile: () => this.homeTile(),
+      claimGraze: (tile) => this.claimGraze(tile),
+      grazeClaimed: (tile) => this.grazeClaimed(tile),
       isColdSnap: () => this.readers.has('06') && this.readers.of<{ state(): string }>('06').state() === 'cold_snap',
       stationTile: (animalId, assignedTo) => {
         if (assignedTo === 0) {
@@ -466,9 +470,28 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     }
   }
 
-  /** `GrassGrazed { tile }` goes out from 08; 07 clears the flag in its own tick. */
+  /** True while a grazer holds the tile: its event is pending or 07 has not yet cleared the flag. */
+  private grazeClaimed(tile: TileIndex): boolean {
+    return this.grazedPending.includes(tile) || this.grazeEmitted.includes(tile);
+  }
+
+  /** One grass tile feeds one grazer: the first to ask holds it; `false` when it is already held. */
+  private claimGraze(tile: TileIndex): boolean {
+    if (this.grazeClaimed(tile)) return false;
+    this.grazedPending.push(tile);
+    return true;
+  }
+
+  /** `GrassGrazed { tile }` goes out from 08; 07 clears the flag in its own tick, and the claim ends with it. */
   private flushGrazed(ctx: TickContext): void {
-    for (const tile of this.grazedPending.splice(0)) ctx.emit({ type: 'GrassGrazed', tile });
+    const map = this.map;
+    const held = this.grazeEmitted.filter((tile) => map.hasFlag(tile, TileFlag.Grass));
+    this.grazeEmitted.length = 0;
+    this.grazeEmitted.push(...held);
+    for (const tile of this.grazedPending.splice(0)) {
+      ctx.emit({ type: 'GrassGrazed', tile });
+      if (!this.grazeEmitted.includes(tile)) this.grazeEmitted.push(tile);
+    }
   }
 
   /** `creature-brains.md`: "Daily: spawning per 08 …, lifetime and cap checks (`leave`)." */
@@ -791,6 +814,16 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   // ---------- events and commands ----------
 
   override handle(event: GameEvent, ctx: TickContext): void {
+    if (event.type === 'TilesChanged') {
+      // 07 has written its change to these tiles (a grazed tile cleared, or later regrown): their claims end.
+      if (this.grazeEmitted.length > 0) {
+        const changed = new Set((event['tiles'] as readonly TileIndex[] | undefined) ?? []);
+        const kept = this.grazeEmitted.filter((tile) => !changed.has(tile));
+        this.grazeEmitted.length = 0;
+        this.grazeEmitted.push(...kept);
+      }
+      return;
+    }
     if (event.type === 'CreatureCaged') {
       const creatureId = event['creatureId'] as EntityId;
       const cageId = event['cageItemId'] as EntityId;
@@ -1133,6 +1166,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       dailyDue: this.dailyDue,
       provoked: sortedPairs(this.provoked),
       grazedPending: this.grazedPending.slice(),
+      ...(this.grazeEmitted.length === 0 ? {} : { grazeEmitted: this.grazeEmitted.slice() }),
       hourlyDue: this.hourlyDue,
       seasonDue: this.seasonDue,
       eggs: Array.from(this.eggs.keys())
@@ -1176,6 +1210,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     for (const [a, b] of state.provoked ?? []) this.provoked.set(a, b);
     this.grazedPending.length = 0;
     this.grazedPending.push(...(state.grazedPending ?? []));
+    this.grazeEmitted.length = 0;
+    this.grazeEmitted.push(...(state.grazeEmitted ?? []));
     this.hourlyDue = state.hourlyDue === true;
     this.seasonDue = state.seasonDue === true;
     this.eggs.clear();
