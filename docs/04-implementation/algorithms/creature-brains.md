@@ -125,7 +125,7 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
   if T: if T.slaughter or T.assignedTo: (jobs / follow logic) ...
         if trained war and hostile within WAR_ANIMAL_RADIUS of station/owner: combat.setTarget(id, hostile); return
         if T.petOf and dist(owner) > 5: walkTo(near owner); return
-        if grazer: if T.condition > 40 and grass tile within pasture (or within 6 if no pasture): walkTo(grass); on arrival: eatGrass (GrassGrazed, condition -= 25); return
+        if grazer: if T.condition > 40 and grass tile within pasture (or within 6 if no pasture): walkTo(grass); on arrival: if the tile is unclaimed, claim it and eatGrass (GrassGrazed, condition -= 25); return. A claimed tile is skipped, when choosing grass and on arrival
         wander within pasture or near hearth; return
   if W.pendingMeal: moveAlongPath(id); return  // await the corpse notification
   if W.mealId and W.state in {idle, wander, hunt}: W.state = eat; W.stateUntil = 0

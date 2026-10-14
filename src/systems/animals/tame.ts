@@ -113,6 +113,10 @@ export interface TameHost extends BrainHost {
   pastureTiles(zoneId: EntityId): readonly TileIndex[];
   /** The idle anchor for a tame animal with no pasture: the hearth hall, else the wagon tile. */
   homeTile(): TileIndex;
+  /** One grass tile feeds one grazer: `true` when this call took the tile, `false` when it is already held. */
+  claimGraze(tile: TileIndex): boolean;
+  /** A tile some grazer holds until 07 has cleared its grass. */
+  grazeClaimed(tile: TileIndex): boolean;
   /** `06` weather: a cold snap doubles the condition rise. */
   isColdSnap(): boolean;
   /** 19 § War animals: chain, squad or hearth entrance. */
@@ -127,12 +131,12 @@ export function tameOf(host: BrainHost, id: EntityId): Tame | undefined {
 export function grassForTame(host: TameHost, id: EntityId, t: Tame): TileIndex {
   const at = tileOf(host, id);
   if (at < 0) return -1;
-  if (t.pastureId === 0) return grassNear(host, at, GRAZE_SEARCH_RADIUS);
+  if (t.pastureId === 0) return grassNear(host, at, GRAZE_SEARCH_RADIUS, (tile) => host.grazeClaimed(tile));
   let best = -1;
   let bestD = Number.MAX_SAFE_INTEGER;
   const map = host.map;
   for (const tile of host.pastureTiles(t.pastureId)) {
-    if (!map.hasFlag(tile, TileFlag.Grass) || map.hasFlag(tile, TileFlag.Snow)) continue;
+    if (!map.hasFlag(tile, TileFlag.Grass) || map.hasFlag(tile, TileFlag.Snow) || host.grazeClaimed(tile)) continue;
     const d = Math.max(Math.abs(map.xOf(tile) - map.xOf(at)), Math.abs(map.yOf(tile) - map.yOf(at)));
     if (d >= bestD) continue;
     bestD = d;
@@ -210,8 +214,7 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
   // A hungry grazer eats.
   if (host.facts.dietOf(species) === 'grazer' && next.condition > CONDITION_EAT_ABOVE) {
     const inPasture = next.pastureId === 0 || host.pastureTiles(next.pastureId).includes(at);
-    if (inPasture && host.map.hasFlag(at, TileFlag.Grass) && !host.map.hasFlag(at, TileFlag.Snow)) {
-      host.grazed(at);
+    if (inPasture && host.map.hasFlag(at, TileFlag.Grass) && !host.map.hasFlag(at, TileFlag.Snow) && host.claimGraze(at)) {
       next.condition = Math.max(0, next.condition - CONDITION_PER_GRASS);
       if (isDoorTile(host, at)) stepOffDoor(host, id, at, -1, ctx);
       else movement?.stopWalking(id);
