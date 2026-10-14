@@ -1043,8 +1043,6 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.reputation_changed.reason.bandit_caged': 'a caged bandit',
   'announce.reputation_changed.reason.other': 'of what happened',
   'ui.workshop.input_unspecified': 'input',
-  'announce.workshop_missing_input': '{workshop} is idle: no {input}.',
-  'announce.plot_needs_seeds': '{plot} has no {species} seeds.',
   // 08 § Player-facing behavior ("The cow is starving", "The cat has adopted Ketil Ironvein").
   'announce.animal_starving': 'An animal is starving.',
   'announce.animal_spawned': 'A {species} has arrived.',

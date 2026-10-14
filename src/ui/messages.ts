@@ -1,4 +1,3 @@
-import { Designation } from '@core/map3d';
 /**
  * What the player reads when something cannot be done (`docs/archive/ui-fixes/README.md` D-U4,
  * the UI audit § 4): every refusal and every block names the thing and why.
@@ -18,6 +17,7 @@ import { Designation } from '@core/map3d';
  */
 
 import { C, type StockpileFilter } from '@core/components';
+import { Designation } from '@core/map3d';
 import type { Command } from '@core/commands';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';

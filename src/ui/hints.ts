@@ -1,8 +1,8 @@
-import { Designation } from '@core/map3d';
 /** 24 § Hints; ui-keymap-and-screens.md § Hints. Presentation state is saved in the ui section. */
 import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import type { GameEvent } from '@core/events';
+import { Designation } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { BuildingsReader } from '@systems/buildings';
@@ -155,7 +155,7 @@ export class HintEngine {
     const enabled = readers.entities.with(C.Creature, C.Labors).some(id => {
       const creature = readers.entities.get(id, C.Creature);
       return readers.entities.alive(id) && creature?.faction === 'fortress' && creature.species === dwarf &&
-        (readers.entities.get(id, C.Labors)?.enabled[labor] ?? 0) !== 0;
+        (((readers.entities.get(id, C.Labors)?.enabled[labor >> 3] ?? 0) as number) & (1 << (labor & 7))) !== 0;
     });
     if (enabled) return false;
     const map = readers.map;
