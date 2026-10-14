@@ -232,8 +232,9 @@ describe('T-M1-14 status bar', () => {
     // world starts at midnight, so the clear sky shows the moon `C` (`glyphs-and-colors.md`).
     expect(statusFields(readers, strings, 32, 0)).toEqual(['Day 1 of Spring, Year 1', 'C clear 8°C', '☺ 0', '♥ Fine', 'z 32', '║']);
     const row = statusRow1(readers, strings, 32, 2, 80);
-    expect(row.startsWith(' Day 1 of Spring, Year 1   C clear 8°C   ☺ 0   ♥ Fine   z 32   ►► 2×')).toBe(true);
-    expect(row.endsWith('[?] help ')).toBe(true);
+    // With `[Esc] menu` beside the help the fields no longer fit three apart in 80 columns: one apart, and the menu is `[Esc]` alone.
+    expect(row.startsWith(' Day 1 of Spring, Year 1 C clear 8°C ☺ 0 ♥ Fine z 32 ►► 2×')).toBe(true);
+    expect(row.endsWith('[Esc]  [?] help ')).toBe(true);
     expect(Array.from(row)).toHaveLength(80);
     expect(speedText(1)).toBe('► 1×');
     expect(speedText(4)).toBe('►►► 4×');

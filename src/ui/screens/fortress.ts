@@ -45,7 +45,7 @@ import { C } from '@core/components';
 import { creaturesAt, creatureSummary, drawLookPanel, tileSummary, type LookTab } from '../panels/look';
 import { drawLogPanel, drawLogStrip, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
-import { statusFields, statusRow1, statusFieldSpacing, statusPanelStrip, type Speed } from '../status';
+import { statusFields, statusRight, statusRow1, statusFieldSpacing, statusPanelStrip, type Speed } from '../status';
 import { drawCalendarPanel, weatherColor, weatherGlyph, weatherOf } from '../panels/calendar';
 import { drawOverlaysPanel, OVERLAY_ROWS, OverlayMenu } from '../panels/overlays';
 import { drawHelpPanel, HelpPanel, type HelpTab } from '../panels/help';
@@ -177,6 +177,8 @@ export class FortressScreen implements Screen {
   private selecting: TilePoint | null = null;
   private middle: { col: number; row: number } | null = null;
   private lastSpeed: Speed = 1;
+  /** The cells of the speed glyph on row 1: a right click there steps the speed. */
+  private speedRegion: Rect | null = null;
   private last: Surface | null = null;
   pointer: { col: number; row: number } | null = null;
   private registered = false;
@@ -460,6 +462,8 @@ export class FortressScreen implements Screen {
     this.drawGhost(surface, layout.map);
     if (layout.sidebar !== null) this.drawSidebar(surface, layout.sidebar);
     drawLogStrip(surface, layout.log, this.log.lines, this.pinned, this.host.now() < this.flashUntil);
+    // A pinned danger line is dismissed by a click on it, as by the first key.
+    if (this.pinned !== null && layout.log.rows > 0) surface.hit({ col: layout.log.col, row: layout.log.row + layout.log.rows - 1, cols: layout.log.cols, rows: 1 }, () => { this.pinned = null; });
     this.drawStatus(surface, layout.status);
     drawTooltip(surface, this.pointer);
   }
@@ -576,13 +580,18 @@ export class FortressScreen implements Screen {
         : this.ui.panel === 'building' ? { id: 'building', title: this.strings.get('ui.panel.building.title'), hotkey: '' } : undefined);
     if (panel === undefined) return;
     const inner = { col: rect.col + 1, row: rect.row, cols: rect.cols - 1, rows: rect.rows };
-    const key = panel.hotkey === '' ? '' : `[${panel.hotkey}]`;
+    // The title row ends with `[x]`, a button that closes the panel as `Esc` does with no tool armed.
+    const key = this.strings.get('ui.panel.close');
     label(surface, inner.col + 1, inner.row, this.panelTitle(panel.id, panel.title), { fg: t.key, width: inner.cols - key.length - 2 });
-    label(surface, inner.col + inner.cols - key.length - 1, inner.row, key);
+    const closeAt = inner.col + inner.cols - key.length - 1;
+    label(surface, closeAt, inner.row, key);
+    const closeCells = { col: closeAt, row: inner.row, cols: key.length, rows: 1 };
+    surface.tooltip(closeCells, this.strings.get('ui.panel.close_tip'));
+    surface.hit(closeCells, () => this.openPanel(null));
     const body = { col: inner.col, row: inner.row + 1, cols: inner.cols, rows: inner.rows - 1 };
     const readers = this.host.readers;
     const ctx = this.ctx;
-    if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings, () => this.reprioritize(), () => this.undoDesignation());
+    if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings, () => this.reprioritize(), () => this.undoDesignation(), () => this.clearSelected());
     else if (panel.id === 'build') drawBuildPanel(surface, body, this.build, ctx, { key: this.ordersKey(), run: () => void this.orderMissing() });
     else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx, () => this.removeZone(this.zones.selected));
     else if (panel.id === 'stocks') drawStocksPanel(surface, body, this.stocks, ctx);
@@ -628,8 +637,35 @@ export class FortressScreen implements Screen {
       fieldCol += Array.from(field).length + fieldSpacing;
     }
     const date = Array.from(fields[0] ?? '').length;
-    surface.hit({ col: rect.col + 1, row: rect.row, cols: date, rows: 1 }, () => this.openPanel('calendar'));
     const weather = weatherOf(readers);
+    // Every field of row 1 is a button (T-270): the date and the weather open the Calendar, `☺` Units, `♥` Mood, `+n` Units with the wounded first, `!n` Threats, `$` Civilizations; the speed pauses or resumes, and a right click steps it.
+    this.speedRegion = null;
+    let hitCol = rect.col + 1;
+    fields.forEach((field, k) => {
+      const width = Array.from(field).length;
+      const cells = { col: hitCol, row: rect.row, cols: width, rows: 1 };
+      hitCol += width + fieldSpacing;
+      if (k === 0 || (k === 1 && weather !== null)) surface.hit(cells, () => this.openPanel('calendar'));
+      else if (k === fields.length - 1) {
+        this.speedRegion = cells;
+        surface.hit(cells, () => this.togglePause());
+      } else if (field.startsWith('☺')) surface.hit(cells, () => this.openPanel('units'));
+      else if (field.startsWith('♥')) surface.hit(cells, () => this.openPanel('mood'));
+      else if (field.startsWith('+')) {
+        surface.tooltip(cells, this.strings.get('ui.status.wounded_tip', { n: field.slice(1) }));
+        surface.hit(cells, () => { this.openPanel('units'); this.units.woundedFirst = true; });
+      } else if (field.startsWith('!')) {
+        surface.tooltip(cells, this.strings.get('ui.status.hostiles_tip', { n: field.slice(1) }));
+        surface.hit(cells, () => this.openPanel('threats'));
+      } else if (field.startsWith('$')) surface.hit(cells, () => this.openPanel('civilizations'));
+    });
+    // `[Esc] menu` and `[?] help` at the right edge are buttons too.
+    const left = ` ${fields.join(' '.repeat(fieldSpacing))}`;
+    const right = statusRight(this.strings, Array.from(left).length, rect.cols);
+    const rightStart = rect.col + Math.max(Array.from(left).length + 1, rect.cols - Array.from(right.text).length);
+    surface.hit({ col: rightStart, row: rect.row, cols: Array.from(right.menu).length, rows: 1 }, () => this.host.gameMenu?.());
+    surface.hit({ col: rightStart + Array.from(right.menu).length + 2, row: rect.row, cols: Array.from(right.help).length, rows: 1 }, () => this.togglePanel('help'));
+
     if (weather !== null && fields.length > 1) {
       const at = rect.col + 1 + date + fieldSpacing;
       surface.put(at, rect.row, surface.glyphs.index(weatherGlyph(weather)), weatherColor(weather, t), t.black);
@@ -645,7 +681,44 @@ export class FortressScreen implements Screen {
       } else {
         labelRow(surface, rect.col, rect.row + 1, rect.cols, full, { fg: t.text });
       }
+      this.hitStrip(surface, rect, chars.length > rect.cols ? `${chars.slice(0, rect.cols - 1).join('')}…` : full);
     }
+  }
+
+  /** Each complete `[x] name` entry of the hotkey strip on row 2 does what its key does. */
+  private hitStrip(surface: Surface, rect: Rect, shown: string): void {
+    for (const entry of this.strings.get('ui.status.strip').split('  ')) {
+      const at = shown.indexOf(entry);
+      const letter = /^\[(.)\]/.exec(entry)?.[1];
+      if (at < 0 || letter === undefined) continue;
+      surface.hit({ col: rect.col + Array.from(shown.slice(0, at)).length, row: rect.row + 1, cols: Array.from(entry).length, rows: 1 },
+        () => void this.key({ key: letter, repeat: false, shift: false, ctrl: false, alt: false, meta: false }));
+    }
+  }
+
+  /** Pause, or resume at the last speed (the pause key and the speed glyph). */
+  private togglePause(): void {
+    const speed = this.host.speed();
+    if (speed === 0) this.host.setSpeed(this.lastSpeed);
+    else {
+      this.lastSpeed = speed;
+      this.host.setSpeed(0);
+    }
+  }
+
+  /** A right click on the speed glyph: the next speed, 1x to 2x to 4x to 1x; paused stays paused. */
+  private cycleSpeed(): void {
+    const now = this.host.speed();
+    const current = now === 0 ? this.lastSpeed : now;
+    const next = SPEEDS[(SPEEDS.indexOf(current) + 1) % SPEEDS.length] as Speed;
+    this.lastSpeed = next;
+    if (now === 0) this.notice(this.strings.get('ui.status.paused_speed', { speed: next }));
+    else this.host.setSpeed(next);
+  }
+
+  /** `[Del] clear rect`: what the Delete key does with a rectangle selected. */
+  private clearSelected(): void {
+    if (!this.selectionKey({ key: 'Delete', repeat: false, shift: false, ctrl: false, alt: false, meta: false })) this.notice(this.strings.get('ui.status.not_selected'));
   }
 
   /**
@@ -1656,6 +1729,11 @@ export class FortressScreen implements Screen {
     this.pointer = { col: p.col, row: p.row };
     const at = this.pointOfCell(p.col, p.row);
     if (at === null) {
+      const sr = this.speedRegion;
+      if (p.button === 2 && sr !== null && p.row === sr.row && p.col >= sr.col && p.col < sr.col + sr.cols) {
+        this.cycleSpeed();
+        return;
+      }
       this.clickShift = p.shift;
       clickHit(this.last, p);
       this.clickShift = false;
@@ -1824,6 +1902,13 @@ export class FortressScreen implements Screen {
     }
     if (w.shift) {
       this.host.pan(0, w.dy > 0 ? 1 : -1);
+      return;
+    }
+    // Over the sidebar the wheel scrolls the list under the pointer, three rows a notch, and never changes the level.
+    const side = this.host.layout().sidebar;
+    if (side !== null && this.ui.sidebar && w.col >= side.col && w.col < side.col + side.cols && w.row >= side.row && w.row < side.row + side.rows) {
+      const panel = this.ui.panel;
+      if (panel !== null) for (let k = 0; k < 3; k += 1) this.panelKey(panel, { key: w.dy > 0 ? 'ArrowDown' : 'ArrowUp', repeat: false, shift: false, ctrl: false, alt: false, meta: false });
       return;
     }
     // "Wheel: z-level (down = deeper)".

@@ -76,19 +76,30 @@ export function visibleHostiles(readers: ReaderSet): number {
   }).length;
 }
 
-/** Row 1 as one line of `cols` cells: the fields three spaces apart, `[?] help` at the right edge. */
+/**
+ * The right edge of row 1: `[Esc] menu  [?] help`. When the row is too narrow for the word the
+ * menu entry shrinks to `[Esc]`, never a cut word.
+ */
+export function statusRight(strings: Strings, leftLength: number, cols: number): { menu: string; help: string; text: string } {
+  const help = strings.get('ui.status.help');
+  const full = strings.get('ui.status.menu');
+  const menu = leftLength + Array.from(full).length + 2 + Array.from(help).length + 3 <= cols ? full : strings.get('ui.status.menu_short');
+  return { menu, help, text: `${menu}  ${help} ` };
+}
+
+/** Row 1 as one line of `cols` cells: the fields three spaces apart, `[Esc] menu  [?] help` at the right edge. */
 export function statusRow1(readers: ReaderSet, strings: Strings, z: number, speed: Speed, cols: number, loadShedding = false): string {
   const fields = statusFields(readers, strings, z, speed, loadShedding);
   const left = ` ${fields.join(' '.repeat(statusFieldSpacing(fields, strings, cols)))}`;
-  const help = `${strings.get('ui.status.help')} `;
-  const pad = Math.max(1, cols - Array.from(left).length - Array.from(help).length);
-  return `${left}${' '.repeat(pad)}${help}`;
+  const right = statusRight(strings, Array.from(left).length, cols).text;
+  const pad = Math.max(1, cols - Array.from(left).length - Array.from(right).length);
+  return `${left}${' '.repeat(pad)}${right}`;
 }
 
 /** Keep the help field inside the minimum viewport without changing field order. */
 export function statusFieldSpacing(fields: readonly string[], strings: Strings, cols: number): number {
   const normal = fields.reduce((sum, field) => sum + Array.from(field).length, 0) +
-    Math.max(0, fields.length - 1) * UI_NORMAL_SPACING + Array.from(strings.get('ui.status.help')).length + 3;
+    Math.max(0, fields.length - 1) * UI_NORMAL_SPACING + Array.from(strings.get('ui.status.menu')).length + 2 + Array.from(strings.get('ui.status.help')).length + 3;
   return normal <= cols ? UI_NORMAL_SPACING : UI_COMPACT_SPACING;
 }
 

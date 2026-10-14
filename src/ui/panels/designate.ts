@@ -196,7 +196,7 @@ export class DesignateTool {
 }
 
 /** The panel body (the title row is the sidebar's). */
-export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, strings: Strings, reprioritize?: () => void, undo?: () => void): void {
+export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, strings: Strings, reprioritize?: () => void, undo?: () => void, clear?: () => void): void {
   const t = s.theme;
   let row = rect.row;
   const colW = Math.floor((rect.cols - 2) / 2);
@@ -215,10 +215,20 @@ export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, 
     }
     row += 1;
   }
-  label(s, rect.col + 1, row, strings.get('ui.tool.designate.priority', { n: tool.priority }));
+  // `Priority [-] n [+]`: the two brackets are buttons that step the priority within 1-9.
+  const priorityText = strings.get('ui.tool.designate.priority', { n: tool.priority });
+  label(s, rect.col + 1, row, priorityText);
+  const minus = priorityText.indexOf('[-]');
+  const plus = priorityText.indexOf('[+]');
+  if (minus >= 0) s.hit({ col: rect.col + 1 + minus, row, cols: 3, rows: 1 }, () => tool.setPriority(tool.priority - 1));
+  if (plus >= 0) s.hit({ col: rect.col + 1 + plus, row, cols: 3, rows: 1 }, () => tool.setPriority(tool.priority + 1));
   row += 1;
-  const undoWidth = label(s, rect.col + 1, row, strings.get('ui.tool.designate.undo'));
-  if (undo !== undefined) s.hit({ col: rect.col + 1, row, cols: Math.min(undoWidth, 19), rows: 1 }, undo);
+  // `[Ctrl+Z] undo last` and `[Del] clear rect` are two buttons that do what the keys do.
+  const undoText = strings.get('ui.tool.designate.undo_only');
+  const undoWidth = label(s, rect.col + 1, row, undoText);
+  if (undo !== undefined) s.hit({ col: rect.col + 1, row, cols: undoWidth, rows: 1 }, undo);
+  const clearWidth = label(s, rect.col + 1 + undoWidth + 2, row, strings.get('ui.tool.designate.clear_rect'), { width: rect.cols - undoWidth - 4 });
+  if (clear !== undefined) s.hit({ col: rect.col + 1 + undoWidth + 2, row, cols: clearWidth, rows: 1 }, clear);
   row += 1;
   // U-05: the last batch can take another priority (`SetDesignationPriority`).
   label(s, rect.col + 1, row, strings.get('ui.tool.designate.reprioritize', { n: tool.priority }), { fg: tool.lastBatch === null ? s.theme.dim : s.theme.text, width: rect.cols - 2 });

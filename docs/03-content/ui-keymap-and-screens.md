@@ -227,13 +227,15 @@ Container counts are non-negative integers, priorities are 1–9 and quality bou
 | Left click | inspect the tile (look panel); on a building, open its panel | apply to one tile / place building |
 | Left drag | select a rectangle (then `Delete`, `[S-f]` forbid, `[S-d]` dump, `[S-t]` move to depot) | designate / draw zone rectangle |
 | Right click | inspect with the entity list | cancel the tool |
-| Wheel | z-level | z-level |
+| Wheel | z-level on the map; over the sidebar, scrolls the list under the pointer three rows a notch and never changes the level | same |
 | `Ctrl` + wheel | zoom | zoom |
 | `Shift` + wheel | pan vertically | pan vertically |
 | Middle drag | pan | pan |
 | Hover | tile summary in the status bar | ghost footprint / rectangle size |
 | Click on a panel row | select | select |
 | Double-click a unit or job row | center the map on it | same |
+
+Each entry of the hotkey strip on status row 2 and each field of status row 1 is a button (fortress-screen wireframe, Status rows), `[x]` on a panel's title row closes the panel, and a click on a list's scrollbar track jumps the list there.
 
 ## Overlays
 

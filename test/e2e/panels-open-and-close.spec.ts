@@ -43,7 +43,7 @@ test('panels-open-and-close', async ({ page }) => {
   for (const p of all) {
     await page.keyboard.press(p.hotkey);
     await expect.poll(async () => (await state()).panel).toBe(p.id);
-    await expect.poll(() => textOf(page)).toContain(`[${p.hotkey}]`);
+    await expect.poll(() => textOf(page)).toContain('[x]');
     await expect.poll(() => textOf(page)).toContain(p.title);
     // U-03 (D-241): Designate opens with Dig chosen; Esc cancels the tool before the panel.
     if (p.id === 'designate') await page.keyboard.press('Escape');
