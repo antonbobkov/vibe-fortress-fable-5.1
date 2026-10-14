@@ -54,7 +54,7 @@ import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import type { UiState } from '../ui-state';
 import { drawTooltip, editText, label, labelRow, typedChar } from '../widgets';
-import { blockedText, buildingName, commandFocus, rejectionText, zoneName, zoneEditorMessage } from '../messages';
+import { blockedText, buildingName, commandFocus, pluralName, rejectionText, zoneName, zoneEditorMessage } from '../messages';
 
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
 export const UI_PANELS: readonly PanelSpec[] = [
@@ -295,6 +295,7 @@ export class FortressScreen implements Screen {
   onEvents(events: readonly GameEvent[]): void {
     this.ensureRegistered();
     const readers = this.host.readers;
+    const arrivals = new Map<string, { line: LogLine; count: number; name: string }>();
     for (const event of events) {
       this.orders.onEvent(event);
       if (event.type === 'AttackResolved' && (this.settings.combatLog === 'off' || (this.settings.combatLog === 'hits only' && event['outcome'] !== 'hit'))) continue;
@@ -315,8 +316,24 @@ export class FortressScreen implements Screen {
         this.flashUntil = this.host.now() + ALERT_FLASH_MS;
         continue;
       }
+      // One line per dangerous species in a batch: "A wolf has come to the valley.", "3 wolves have come to the valley.".
+      const species = event.type === 'AnimalSpawned' ? String(event['species']) : '';
+      const group = species === '' ? undefined : arrivals.get(species);
+      if (group !== undefined) {
+        group.count += 1;
+        group.line.text = this.strings.get('announce.dangerous_arrived_many', { count: group.count, species: pluralName(group.name) });
+        continue;
+      }
       const done = this.log.announce(event, readers, readers.calendar.tick);
       if (done === null) continue;
+      if (event.type === 'AnimalSpawned' && done.severity === 'alert') {
+        arrivals.set(species, { line: done.line, count: 1, name: String(this.host.registry.table<{ id: string; name: string }>('creatures').byId(species)?.name ?? species).toLowerCase() });
+        // The first sighting pauses once per fortress, as a first raid does; later ones never do.
+        if (!this.ui.wildlifeAlerted) {
+          this.ui.wildlifeAlerted = true;
+          if (this.settings.autoPauseDanger) this.host.setSpeed(0);
+        }
+      }
       if (done.severity === 'alert') {
         this.flashUntil = this.host.now() + ALERT_FLASH_MS;
         if (this.settings.autoPauseAlert) this.host.setSpeed(0);
@@ -374,6 +391,7 @@ export class FortressScreen implements Screen {
     this.ui.hintBareSince = [];
     this.ui.hintUnreachableSince = [];
     this.ui.workshopIdleNotes = [];
+    this.ui.wildlifeAlerted = false;
   }
 
   /** The tiles of the current selection, or an empty list. */

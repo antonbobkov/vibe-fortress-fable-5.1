@@ -29,4 +29,6 @@ export interface AnimalsReader {
   breedingCap(species: number | string): number;
   /** Nest box buildings, ascending id. */
   nestBoxes(): EntityId[];
+  /** Whether a species is dangerous: a surface species that is not timid and hunts or attacks dwarves. */
+  isDangerous(species: number | string): boolean;
 }

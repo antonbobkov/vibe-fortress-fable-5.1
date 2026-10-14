@@ -1048,6 +1048,7 @@ export class Game {
           embark: (session) => void this.embarkRegion(world, regionId, { session }),
           back: () => this.popScreen(),
           confirm: (id, params, answer) => this.confirm(id, params, answer),
+          now: () => Date.now(),
         },
         this.keymap,
         this.strings,

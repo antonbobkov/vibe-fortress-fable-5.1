@@ -40,6 +40,8 @@ Supplies tab:
 │ Hint: two picks and one axe are the minimum for a working start.                        │
 ```
 
+On the supplies tab the hint line turns over every `EMBARK_HINT_SECONDS` (5) of real time and on each tab change, between "Hint: two picks and one axe are the minimum for a working start." and "Hint: boars, wolves and bears come in the first season. Bring iron spears; clubs lose to boars."
+
 Attributes use up to five cells, filled with `floor(value × barCells / ATTRIBUTE_MAX)`; skill bars use one cell per level. Supply groups and animal notes come from the catalog's `category` and `note`; an entry whose temperature condition fails is dim and shows that condition.
 
 Animals tab: rows `species · sex · price · [-] n [+]`, with a note line for species needing pasture or nest boxes. The `max` per entry disables `[+]` at the limit.

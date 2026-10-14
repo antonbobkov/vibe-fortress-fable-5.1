@@ -118,6 +118,7 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 - `animals.capOf(species)` — the live cap of a wild species in this region
 - `animals.breedingCap(species)` — the player's breeding cap for a species (`BREEDING_CAP_DEFAULT` until set)
 - `animals.nestBoxes()` — the nest box buildings, ascending id
+- `animals.isDangerous(species)` — whether the species is dangerous (§ Registrations)
 
 ### Commands
 
@@ -133,14 +134,16 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 
 ### Registrations
 
-Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_animal`, `tame_animal`, `collect_egg`); panel `animals` (hotkey in 24); inspector section `creature › animal`; announcements for starving, pet death (via 17), adoption.
+Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_animal`, `tame_animal`, `collect_egg`); panel `animals` (hotkey in 24); inspector section `creature › animal`; announcements for starving, pet death (via 17), adoption and the arrival of a dangerous species.
+
+A *dangerous* species is a surface species (it has biomes) that is not `timid` and is a carnivore, `aggressive` or `territorial`; the content row decides, no species id appears in code. `AnimalSpawned` for a dangerous species is announced as an alert, in the same batch as one line per species ("A bear has come to the valley.", "3 wolves have come to the valley."); any other species keeps the note ("A deer has arrived.").
 
 ## Player-facing behavior
 
 - Animals panel: tabs Tame (species, name if any, pasture, condition bar, trained, pregnant, actions) and Wild (species, count, huntable toggle from 09, "seen near" location); breeding caps per species. Tame offers a clickable train action (`Shift+T`): War/Hunting, arrows and Enter or a click, Esc to cancel. Training status is shown while a job exists (also for retraining), otherwise war, hunting or blank. A non-trainable species is explained on the status row; a missing kennel refusal says to build one.
 - Pasture zone: capacity line; assigning by selecting animals in the panel or by clicking an animal and choosing "Pasture".
 - Glyphs: lowercase letters by species (`d` dog, `c` cat, `C` cow is uppercase to read as large; the convention is lowercase for small and medium, uppercase for large animals; hostiles are uppercase in red).
-- Announcements: "A pack of wolves has arrived from the north" (note), "The cow is starving" (alert), "The cat has adopted Ketil Ironvein" (note).
+- Announcements: "A bear has come to the valley." (alert, a dangerous species), "A deer has arrived." (note), "The cow is starving" (alert), "The cat has adopted Ketil Ironvein" (note).
 
 ## Tuning constants
 

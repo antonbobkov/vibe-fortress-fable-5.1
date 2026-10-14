@@ -338,6 +338,7 @@ The selected built depot keeps its goods list and action row (`[S-m] move`, `[r]
 ```
 │ Military                       [x]  │
 │ Alert: (•) Calm ( ) Watchful ( ) Hearth │
+│ Calm: everyone works.               │
 │ Squads                              │
 │ ▶ The Hearthguard  3/6  train       │
 │   The Cold Bolts   2/6  active      │
@@ -357,6 +358,8 @@ The selected built depot keeps its goods list and action row (`[S-m] move`, `[r]
 │ Orders [S-k] kill [S-f] follow      │
 │ Barracks #2  [S-b] change           │
 ```
+
+The line under the alert row says what the current alert does: "Calm: everyone works.", "Watch: squads stand to; civilians work." or "Hearth: civilians go to the hearth; doors set to Lock on alert are shut." With no squad, two dim lines under "No squads yet: [+] makes one." say what a first squad needs: "A squad of three with iron spears and a kill order holds off boars." (a club does not stop a boar).
 
 `[S-a] add` and `[r] remove` open a multi-select list in place of the squad's details; `[S-l] pick` (the leader, among the members) and `[S-b]` (the barracks zones, with "None" first) open a single-choice list:
 
@@ -408,6 +411,9 @@ The clickable `[S-c] cap` action opens an inline number field for the selected s
 │ Raids possible from Spring, Year 2  │
 │ Ambushes possible from Autumn, Yr 1 │
 │ Thieves: frequent                   │
+│ ── Wildlife ────────────────────── │
+│ bear ×1  near the hall              │
+│ wolf ×3  far                        │
 │ ── Caverns ─────────────────────── │
 │ 1: breached · crawlers 4 · spiders 1│
 │ 2: sealed                           │
@@ -416,6 +422,8 @@ The clickable `[S-c] cap` action opens an inline number field for the selected s
 │ "Something below has not yet       │
 │  noticed."                          │
 ```
+
+The Wildlife section lists one row per dangerous species on the map (08 § Registrations) with its count and "near the hall" when one of them is within `NEAR_DWARF_RADIUS` of a dwarf on its level, else "far"; it is absent when none is on the map. With a row there, "Active: none" reads "Active: wildlife" (a hostile creature in view still reads "Active: n hostile creatures").
 
 ## Civilizations (c)
 

@@ -5,14 +5,16 @@ import type { GameEvent } from '@core/events';
 import { Designation } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
+import type { AnimalsReader } from '@systems/animals';
 import type { BuildingsReader } from '@systems/buildings';
+import type { CombatReader } from '@systems/combat';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import { HAULER_WARNING_MIN_WORKERS, IDLE_HAULER_WARNING } from '@systems/jobs/constants';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { UiState } from './ui-state';
 import type { AnnouncementLog } from './announcements';
-import { HINT_CHECK_HOURS } from './constants';
+import { HINT_CHECK_HOURS, HINT_FOOD_DAYS, HINT_FOOD_DAYS_PER_ITEM } from './constants';
 
 export interface HintRow { readonly id: string; readonly trigger: string; readonly text: string }
 
@@ -25,6 +27,9 @@ export interface HintFacts {
   immigrationSkipped: boolean; raidEnded: boolean; cageTrapBuilt: boolean; doorBroken: boolean;
   deepsilverFound: boolean; cavernTwoBreached: boolean;
   haulingPressure?: boolean;
+  squadExists?: boolean;
+  predatorArrived?: boolean;
+  foodShort?: boolean;
   noMiners?: boolean;
   noPath?: boolean;
 }
@@ -32,6 +37,9 @@ export interface HintFacts {
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
 export function hintPredicate(id: string, f: HintFacts): boolean {
   switch (id) {
+    case 'hint_shelter': return f.year === 1 && f.season === 0 && f.day >= 3 && f.squadExists === false;
+    case 'hint_predator': return f.predatorArrived === true;
+    case 'hint_food': return f.foodShort === true;
     case 'hint_no_miners': return f.noMiners === true;
     case 'hint_no_path': return f.noPath === true;
     case 'hint_haulers': return f.haulingPressure === true;
@@ -120,6 +128,12 @@ export class HintEngine {
     const fields = event as Record<string, unknown>;
     if (event.type === 'CropHarvested') this.markId('hint_seeds');
     if (event.type === 'ThreatWarning') this.markId('hint_alert');
+    // A beast that hunts dwarves has come (08 § Registrations), or one has wounded a fortress dwarf.
+    if (event.type === 'AnimalSpawned' && typeof fields['species'] === 'string') {
+      const creatures = this.registry.table<{ id: string }>('creatures');
+      if (creatures.has(fields['species']) && readers.has('08') && readers.of<AnimalsReader>('08').isDangerous(fields['species'])) this.markId('hint_predator');
+    }
+    if (event.type === 'AttackResolved' && fields['outcome'] === 'hit' && this.animalWoundedDwarf(readers, Number(fields['attackerId']), Number(fields['defenderId']))) this.markId('hint_alert');
     if (event.type === 'ImmigrationSkipped') this.markId('hint_immigration');
     if (event.type === 'RaidEnded') this.markId('hint_gate');
     if (event.type === 'DoorBroken') this.markId('hint_troll');
@@ -142,6 +156,14 @@ export class HintEngine {
       const type = readers.of<BuildingsReader>('14').get(id)?.typeId;
       if (fuel && (type === 'smelter' || type === 'forge')) this.markId('hint_fuel');
     }
+  }
+
+  /** A wild animal's hit on a dwarf of the fortress. */
+  private animalWoundedDwarf(readers: ReaderSet, attacker: number, defender: number): boolean {
+    const dwarf = this.registry.table('creatures').index('dwarf');
+    const a = readers.entities.get(attacker, C.Creature);
+    const d = readers.entities.get(defender, C.Creature);
+    return a !== undefined && d !== undefined && a.faction === 'wild' && d.faction === 'fortress' && d.species === dwarf;
   }
 
   private evaluate(readers: ReaderSet): void {
@@ -197,6 +219,10 @@ export class HintEngine {
     const hunterLabor = hunting > 0 && readers.entities.with(C.Labors).some((id) => (readers.entities.get(id, C.Labors)?.enabled[hunting] ?? 0) !== 0);
     return {
       noMiners: this.noMiners(readers), noPath: this.noPath(readers),
+      squadExists: readers.has('16') && readers.of<CombatReader>('16').squads().length > 0,
+      predatorArrived: this.pending('hint_predator'),
+      foodShort: readers.has('10') && items !== null &&
+        items.countMatching({ edible: true }) < Math.ceil((readers.of<{ population(): number }>('10').population() * HINT_FOOD_DAYS) / HINT_FOOD_DAYS_PER_ITEM),
       tick: cal.tick, year: cal.year, season: cal.season, day: cal.dayOfSeason,
       stillMissing: byType('still').length === 0, drinkLow: (items?.count('drink') ?? 0) < 40,
       stockpileMissing: stockpiles.length === 0, groundItems: readers.entities.with(C.Item, C.Position).length,

@@ -21,6 +21,7 @@ import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { bar, button, label, list, separator, type ListState } from '../widgets';
+import { wrapText } from '../messages';
 
 /** `01` § Region record: ratings are integers 0–`RATING_MAX`; the wireframe draws five cells. */
 export const RATING_BAR_CELLS = 5;
@@ -242,6 +243,7 @@ export class WorldMapScreen implements Screen {
     };
     rating('ui.worldmap.wealth', r.wealth);
     rating('ui.worldmap.peril', r.peril);
+    for (const text of wrapText(s.get('ui.worldmap.peril_note'), panel.cols - 2, 3)) line(text, t.dim);
     rating('ui.worldmap.temper', r.temper);
     if (r.traits.length > 0) {
       line(s.get('ui.worldmap.trait', { traits: r.traits.map((id) => this.traitNames.get(id) ?? id).join(', ') }));

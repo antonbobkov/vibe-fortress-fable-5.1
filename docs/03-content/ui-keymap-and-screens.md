@@ -268,6 +268,8 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.trade_completed` | "A trade with {civ} is complete." |
 | `announce.immigrants_arrived` | "{count} dwarves have come to join the hall, {children} of them children." |
 | `announce.immigration_skipped` | "No immigrants this season: {reason}." |
+| `announce.dangerous_arrived` | "A {species} has come to the valley." |
+| `announce.dangerous_arrived_many` | "{count} {species} have come to the valley." |
 | `announce.reputation_changed` | "Our standing with {civ} has fallen: {reason}." |
 | `announce.workshop_missing_input` | "{workshop} is idle: no {input}." |
 | `announce.plot_needs_seeds` | "{plot} has no {species} seeds." |
@@ -291,7 +293,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_farm` | a farm plot placement is refused | "Farms need soil, mud left by water, or cave loam." |
 | `hint_seeds` | first harvest | "Harvest returns one seed. Brewing and cooking do not." |
 | `hint_room` | a bedroom zone with tier bare exists for 3 days | "A room needs walls or doors around it, a bed, and smooth stone to be worth sleeping in." |
-| `hint_alert` | first `ThreatWarning` | "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock, but a dwarf in dire need still goes out to eat, drink or sleep, and the medics still tend the wounded." |
+| `hint_alert` | first `ThreatWarning`, or the first fortress dwarf wounded by an animal | "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock, but a dwarf in dire need still goes out to eat, drink or sleep, and the medics still tend the wounded." |
 | `hint_depot` | day 14 of summer, year 1, no depot | "Build a trade depot [b > Special] before the caravan arrives." |
 | `hint_hospital` | first serious wound with no hospital | "A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats infection." |
 | `hint_immigration` | first `ImmigrationSkipped` | "Immigrants come at the turn of the season when hall spirit is Content. Good rooms, meals and drink raise it." |
@@ -302,6 +304,9 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_magma` | first cavern 2 breach | "A forge over channeled magma needs no fuel. Build it of magma-safe stone." |
 | `hint_haulers` | DayPassed: more than IDLE_HAULER_WARNING items want hauling and fewer than HAULER_WARNING_MIN_WORKERS dwarves have hauling enabled | "Items are waiting to be hauled. Enable hauling for more dwarves in the labors panel." |
 | `hint_no_miners` | a dig designation exists and no living dwarf has mining enabled; hourly | "No one has mining enabled. Turn it on in Labors [l]." |
+| `hint_shelter` | from day 3 of the first spring, no squad exists | "Wild beasts will come. Dig a hall into rock, put a door on it, click the door and choose Lock on alert. Make a squad in [m] and arm it with iron spears: clubs lose to boars. Order a kill when a beast comes." |
+| `hint_predator` | first `AnimalSpawned` of a dangerous species | "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert: civilians go to the hearth and doors set to Lock on alert shut. [n] then [2] shows where it is." |
+| `hint_food` | edible items in stock fall below `HINT_FOOD_DAYS` days for the population, hourly | "Food is running low. Check the farm plots' crops [z], order meals at a kitchen, and gather plants [d]." |
 | `hint_no_path` | a job remains blocked unreachable for a whole day from first hourly observation | "Jobs are blocked: no path. Check for doors, water and undug rock." |
 
 ## Milestones (legend record)
