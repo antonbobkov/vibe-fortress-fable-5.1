@@ -40,6 +40,9 @@ describe('T-M4-17 panels: shortcuts and commands', () => {
     // U-03 (D-U5): `[S-n]` opens the order picker.
     g.handleKey(press('n', { shift: true }));
     expect(g.fortress.orders.adding).toBe(true);
+    // Enter adds only after the player has chosen: a key moves the highlight there and back.
+    g.handleKey(press('ArrowDown'));
+    g.handleKey(press('ArrowUp'));
     g.handleKey(press('Enter'));
     const add = spy.mock.lastCall?.[0] as Command;
     expect(add.type).toBe('AddWorkOrder');

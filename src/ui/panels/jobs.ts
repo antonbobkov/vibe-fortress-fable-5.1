@@ -139,7 +139,13 @@ export function blockedSummary(ctx: PanelContext, jobs: readonly JobLike[]): str
   return s.get('ui.jobs.blocked_by', { parts: parts.join(', ') });
 }
 
-export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: PanelContext): void {
+/** Orders with no job and why, with a way to open Orders on one (the "Orders waiting" section). */
+export interface WaitingOrders {
+  list(): readonly { readonly index: number; readonly text: string }[];
+  open(index: number): void;
+}
+
+export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: PanelContext, orders?: WaitingOrders): void {
   const t = s.theme;
   const strings = ctx.strings;
   if (!ctx.readers.has('11')) return;
@@ -164,7 +170,10 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   const priorities = wrapText(changed.length ? changed.join(' \u00b7 ') : strings.get('ui.jobs.priorities_default', { priority: PRIORITY_DEFAULT }), rect.cols - 2, rect.rows);
   const chosen = panel.selected(ctx);
   const detail = chosen !== undefined && chosen.state === 'blocked' && chosen.blockedReason !== null ? wrapText(jobBlockText(ctx, chosen).long, rect.cols - 2, 2) : [];
-  const height = Math.max(2, rect.rows - top - 4 - priorities.length - detail.length);
+  const needle = panel.filter.value.toLowerCase();
+  const waiting = (orders?.list() ?? []).filter((o) => needle === '' || o.text.toLowerCase().includes(needle));
+  const waitingRows = waiting.length === 0 ? 0 : Math.min(3, waiting.length) + 1;
+  const height = Math.max(2, rect.rows - top - 4 - priorities.length - detail.length - waitingRows);
   table(
     s,
     { col: rect.col + 1, row: rect.row + top, cols: rect.cols - 2, rows: height },
@@ -194,6 +203,15 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   for (const line of detail) {
     label(s, rect.col + 1, row, line, { fg: t.alert, width: rect.cols - 2, keys: false });
     row += 1;
+  }
+  if (waiting.length > 0 && orders !== undefined) {
+    separator(s, rect.col + 1, row, rect.cols - 2, strings.get('ui.jobs.orders_waiting', { n: waiting.length }));
+    row += 1;
+    for (const o of waiting.slice(0, 3)) {
+      label(s, rect.col + 1, row, o.text, { fg: t.alert, width: rect.cols - 2, keys: false });
+      s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => orders.open(o.index));
+      row += 1;
+    }
   }
   separator(s, rect.col + 1, row, rect.cols - 2);
   label(s, rect.col + 1, row + 1, strings.get('ui.jobs.actions1'), { width: rect.cols - 2 });

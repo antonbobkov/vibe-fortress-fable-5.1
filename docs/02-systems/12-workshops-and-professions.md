@@ -158,6 +158,7 @@ Job producer `workshops` (`craft`); panel `orders`; inspector section `building 
 
 - Clicking a workshop opens its panel: the recipe list with "makeable now" marked, the order list with counts and status, the assigned worker, suspend (after a confirmation), take apart. `[S-n]`, or a click on a recipe, adds an order.
 - Orders panel: every order in the fortress with its count, mode and status ("waiting for log (0)", "no carpenter's workshop", "in progress", "done"); `+`/`-` change the selected order's count (`remaining`, or the threshold of a `keep ≥ N` order), `[r]` repeats the selected or the last finished order, `[S-n]` adds an order.
+- An order is accepted even when no workshop can make it yet; the status line names what is missing at once (no workshop of the type, or the input a built workshop waits for), and the Jobs panel lists the orders no job serves.
 - Adding an order opens a picker: a type-ahead filter over the recipes grouped by output category with the recent ones first, the quantity (1–999), the mode `once N` / `keep ≥ N`, the material filter and, for a global order, the workshop (any of the type, or one). One order makes N items: "5 doors" is one order with `remaining` 5.
 - Opening the material picker selects the current filter, resolving an in-memory material index to its content id.
 - Material filters list relevant input material classes and their materials, falling back to output classes when inputs provide none; brewing lists brewable plants.
