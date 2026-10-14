@@ -136,7 +136,7 @@ describe('T-282 a filter does not outlive its panel', () => {
     expect(f.screen.ui.panel).toBeNull();
     f.screen.openPanel('units');
     expect(f.screen.units.filter).toBe('');
-    expect(f.draw().some((l) => l.includes('Dwarf00 Stone'))).toBe(true);
+    expect(f.draw().some((l) => l.includes('Dwarf00 Ston'))).toBe(true);
   });
 
   it('clears the Jobs and Stocks filters when their panel closes or another opens', () => {

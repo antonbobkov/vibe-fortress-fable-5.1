@@ -19,8 +19,32 @@ import { clampList, label, separator, toggleGlyph } from '../widgets';
 import type { PanelContext } from './context';
 import { dwarvesOf, nameOf } from './units';
 
-const CELL = 3;
+const CELL = 4;
 const NAME = 11;
+const HEAD = 3;
+
+/**
+ * The three-letter column heads of the quick grid: the first three letters of a one-word name
+ * ("Bre"), the first two of the first word and the initial of the second for a two-word name
+ * ("AnC", "AnT"). Two names that would share a head take further letters until they differ.
+ */
+export function laborHeads(names: readonly string[]): string[] {
+  const make = (name: string, extra: number): string => {
+    const words = name.split(' ').filter((w) => w !== '');
+    const letters = Array.from(words[0] ?? '');
+    if (words.length < 2) return letters.slice(0, HEAD + extra).join('');
+    const second = Array.from(words[1] as string);
+    return letters.slice(0, HEAD - 1).join('') + (second[0] ?? '').toUpperCase() + second.slice(1, 1 + extra).join('');
+  };
+  const heads = names.map((name) => make(name, 0));
+  for (let extra = 1; extra <= 8; extra += 1) {
+    const seen = new Map<string, number>();
+    for (const head of heads) seen.set(head, (seen.get(head) ?? 0) + 1);
+    if (![...seen.values()].some((n) => n > 1)) break;
+    names.forEach((name, k) => { if ((seen.get(heads[k] as string) ?? 0) > 1) heads[k] = make(name, extra); });
+  }
+  return heads;
+}
 
 export class LaborsPanel {
   selectedRow = 0;
@@ -86,11 +110,13 @@ export function drawLaborsPanel(s: Surface, rect: Rect, panel: LaborsPanel, ctx:
   const columns = panel.visibleColumns(ctx, rect.cols - 1);
   const labors = ctx.registry.table<{ id: string; name: string }>('labors');
   let head = ' '.repeat(NAME);
-  for (const l of columns) head += `${(labors.byId(l)?.name ?? l).slice(0, 2)} `;
+  const heads = laborHeads(panel.labors(ctx).map((l) => labors.byId(l)?.name ?? l));
+  const headOf = (l: string): string => heads[panel.labors(ctx).indexOf(l)] ?? l.slice(0, HEAD);
+  for (const l of columns) head += `${headOf(l).padEnd(CELL)}`;
   const more = panel.firstColumn + columns.length < panel.labors(ctx).length ? '…' : '';
   label(s, rect.col + 1, rect.row, head + more, { fg: t.key, width: rect.cols - 2, keys: false });
   columns.forEach((l, k) => {
-    const cell = { col: rect.col + 1 + NAME + k * CELL, row: rect.row, cols: 2, rows: 1 };
+    const cell = { col: rect.col + 1 + NAME + k * CELL, row: rect.row, cols: HEAD, rows: 1 };
     s.tooltip({ ...cell, cols: CELL }, labors.byId(l)?.name ?? l);
     s.hit(cell, () => {
       for (const c of panel.toggleColumn(ctx, l)) ctx.submit(c);
@@ -114,7 +140,7 @@ export function drawLaborsPanel(s: Surface, rect: Rect, panel: LaborsPanel, ctx:
     columns.forEach((l, k) => {
       const col = rect.col + 1 + NAME + k * CELL;
       label(s, col, row, toggleGlyph(panel.enabled(ctx, d, l)), { fg: t.value, keys: false });
-      s.hit({ col, row, cols: 2, rows: 1 }, () => {
+      s.hit({ col, row, cols: HEAD, rows: 1 }, () => {
         if (ctx.shiftClick()) for (const c of panel.toggleColumn(ctx, l)) ctx.submit(c);
         else ctx.submit(panel.toggleCell(ctx, d, l));
       });

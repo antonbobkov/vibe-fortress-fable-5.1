@@ -31,7 +31,7 @@ import { buildings, confirmThen, type PanelContext } from '../panels/context';
 import { drawJobsPanel, JobsPanel } from '../panels/jobs';
 import { drawLaborsPanel, LaborsPanel } from '../panels/labors';
 import { drawStocksPanel, StocksPanel } from '../panels/stocks';
-import { drawUnitsPanel, dwarvesOf, UnitsPanel } from '../panels/units';
+import { drawUnitsPanel, dwarvesOf, idleCount, UnitsPanel } from '../panels/units';
 import { drawZonesPanel, removalConfirm, ZoneTool } from '../panels/zones';
 import { countStep, drawOrdersPanel, drawWorkshopPanel, OrdersPanel } from '../panels/orders';
 import { drawAnimalsPanel, AnimalsPanel } from '../panels/animals';
@@ -815,11 +815,19 @@ export class FortressScreen implements Screen {
   }
 
   /** A panel's title, with the filter in use: `Units · filter: xxx (3 of 80)`. */
-  private panelTitle(id: string, title: string): string {
+  private panelTitle(id: string, panelName: string): string {
+    let title = panelName;
     const ctx = this.ctx;
     let filter = '';
     let counts: { shown: number; total: number } | null = null;
-    if (id === 'units' && this.units.filter !== '') {
+    if (id === 'units') {
+      const idle = idleCount(ctx);
+      if (this.units.filter === '') {
+        return this.units.idleOnly
+          ? this.strings.get('ui.units.title_idle', { title, n: this.units.rows(ctx).length })
+          : this.strings.get('ui.units.title_counts', { title, total: dwarvesOf(ctx).length, idle });
+      }
+      title = this.units.idleOnly ? this.strings.get('ui.units.title_idle_only', { title }) : title;
       filter = this.units.filter;
       counts = { shown: this.units.rows(ctx).length, total: dwarvesOf(ctx).length };
     } else if (id === 'jobs' && this.jobs.filter.value !== '') {
@@ -1398,7 +1406,13 @@ export class FortressScreen implements Screen {
       }
     } else if (opened.id === 'look') this.look(this.hoverPoint() ?? this.centerPoint());
     else {
+      // `[l]` over the Units list opens Labors on the dwarf under the Units cursor, at its first column.
+      const fromUnits = opened.id === 'labors' && this.ui.panel === 'units' && this.ui.sidebar ? this.units.selectedId(this.ctx) : 0;
       this.openPanel(opened.id);
+      if (opened.id === 'labors') {
+        this.labors.firstColumn = 0;
+        if (fromUnits !== 0) this.labors.selectedRow = Math.max(0, dwarvesOf(this.ctx).indexOf(fromUnits));
+      }
       // `[o]` shows every order again after a workshop's own list.
       if (opened.id === 'orders') { this.orders.workshopId = 0; this.orders.list.selected = 0; this.orders.picker.open = false; this.orders.materialOpen = false; }
       // `[d] dig` (the status strip, `hint_dig`): the panel opens with Dig chosen, since `d` again closes it (D-241).

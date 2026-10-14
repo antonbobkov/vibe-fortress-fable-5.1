@@ -1,10 +1,12 @@
 # T-275 — Units and labors: a readable activity, an idle filter, skill in the labor manager
 
-> **Collision found 2026-10-12 (ui-fixes run, not implemented):** the decision "`l` on a Units row opens the labor manager with the cursor on that dwarf" uses a key that is already taken. `l` is the panel hotkey of Labors ([`ui-keymap-and-screens.md`](../03-content/ui-keymap-and-screens.md) § Fortress panels, and the Units panel's own help row reads `[l] labors`); "Panel hotkeys always win" and "a panel's accelerator may not use one of those letters bare" (same document, § Rules), so a bare `l` in Units still opens the Labors panel. The work file names no fallback. The `[S-l]` accelerator is taken too (labor manager on the marked dwarves; it needs marks). The other keys of the decisions are free (`i` is one of the free letters `g h i q r v w x y`; `Shift+W` uses the free `w`). Decide the key for "from a Units row to the labor manager" (for example `[S-l]` without marks opens it on the cursor's dwarf) before starting; no part of this task was implemented.
+Closed by `T-275: Units lists idle dwarves and the labor manager shows skill` (the commit that moved this file). The reference-fortress path with the resolved `l` is nine keys: `u`, `i`, `l`, `Enter` (quick grid to the manager), `m` x4, `Enter`.
+
+> **Collision found 2026-10-12 (ui-fixes run, not implemented):** the decision "`l` on a Units row opens the labor manager with the cursor on that dwarf" uses a key that is already taken. `l` is the panel hotkey of Labors ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-screens.md) § Fortress panels, and the Units panel's own help row reads `[l] labors`); "Panel hotkeys always win" and "a panel's accelerator may not use one of those letters bare" (same document, § Rules), so a bare `l` in Units still opens the Labors panel. The work file names no fallback. The `[S-l]` accelerator is taken too (labor manager on the marked dwarves; it needs marks). The other keys of the decisions are free (`i` is one of the free letters `g h i q r v w x y`; `Shift+W` uses the free `w`). Decide the key for "from a Units row to the labor manager" (for example `[S-l]` without marks opens it on the cursor's dwarf) before starting; no part of this task was implemented.
 >
 > **Resolved 2026-10-12 (orchestrator):** there is no second key. `l` stays the Labors panel hotkey everywhere. When it is pressed while the Units panel is open, the Labors panel opens with its cursor on the dwarf under the Units cursor (the first labor column; the filter, if any, is dropped). Pressed from anywhere else it opens as it does now. The Units help row keeps `[l] labors`.
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 6, § 4) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (issue 6, § 4) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -16,8 +18,8 @@ Finding an idle dwarf and turning one labor on took 25 key presses in the 80-dwa
 
 ## What the spec says
 
-- [`panels.md`](../04-implementation/ui-screens/panels.md) § Units and § Labors; the Labor manager in [`fortress-screen.md`](../04-implementation/ui-screens/fortress-screen.md).
-- [`11-jobs-and-labor.md`](../02-systems/11-jobs-and-labor.md) § Player-facing behavior.
+- [`panels.md`](../../04-implementation/ui-screens/panels.md) § Units and § Labors; the Labor manager in [`fortress-screen.md`](../../04-implementation/ui-screens/fortress-screen.md).
+- [`11-jobs-and-labor.md`](../../02-systems/11-jobs-and-labor.md) § Player-facing behavior.
 
 ## What to do
 
@@ -37,4 +39,4 @@ Finding an idle dwarf and turning one labor on took 25 key presses in the 80-dwa
 ## Done
 
 - In the reference fortress, "find an idle dwarf and turn mining on" takes `u`, `i`, `l`, `m` ×4, `Enter`: eight keys.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

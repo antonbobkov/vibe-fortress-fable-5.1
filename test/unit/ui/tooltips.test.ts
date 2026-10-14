@@ -120,7 +120,8 @@ describe('U-08 tooltips and truncated cell inspection (D-U7, M8)', () => {
 
     // Hover over the truncated cell
     game.pointerMove(cell(game, tip.rect.col, tip.rect.row));
-    expect(game.fortress.statusRow2()).toBe(tip.text);
+    // The row's tooltip also carries the profession, so it starts with the cell's full text.
+    expect(game.fortress.statusRow2()).toContain(tip.text);
   });
 });
 

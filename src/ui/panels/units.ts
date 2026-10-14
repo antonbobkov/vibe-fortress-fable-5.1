@@ -22,7 +22,8 @@ import type { EntityId, MoodTier } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
 import type { CombatReader, SquadWithId } from '@systems/combat';
-import { DWARF_NAME_MAX } from '@systems/dwarves';
+import { DWARF_NAME_MAX, NO_JOB } from '@systems/dwarves';
+import type { HealthReader } from '@systems/health';
 import type { MoraleReader } from '@systems/morale';
 import { TITLE_IDS } from '../constants';
 import type { Surface } from '../surface';
@@ -44,8 +45,8 @@ interface SkillRow {
   readonly profession?: string;
 }
 
-/** The cells of the name column and of the mood glyph after it. */
-const NAME_COLS = 17;
+/** The cells of the name column (cursor mark and name) and of the mood glyph after it; the activity takes the rest. */
+const NAME_COLS = 14;
 const MOOD_COLS = 2;
 
 /** Rows under the table: the five action rows. */
@@ -57,6 +58,18 @@ export function dwarvesOf(ctx: PanelContext): EntityId[] {
 
 export function nameOf(ctx: PanelContext, id: EntityId): string {
   return ctx.readers.entities.get(id, C.Creature)?.name ?? '';
+}
+
+/** A dwarf with no activity text: the units list calls it idle. */
+export function isIdle(ctx: PanelContext, id: EntityId): boolean {
+  if (!ctx.readers.has('10')) return false;
+  const text = ctx.readers.of<DwarvesReaderLike>('10').activityText(id);
+  return text === '' || text === NO_JOB;
+}
+
+/** How many dwarves are idle, for the panel title. */
+export function idleCount(ctx: PanelContext): number {
+  return dwarvesOf(ctx).filter((id) => isIdle(ctx, id)).length;
 }
 
 /** The profession of the highest skill. */
@@ -95,12 +108,19 @@ export class UnitsPanel {
   editing = false;
   /** The marked dwarves (U-06). */
   readonly marks = new Marks();
+  /** `i`: only the dwarves with no activity. Kept while the fortress is open, not saved. */
+  idleOnly = false;
+  /** `Shift+W`: wounded dwarves first. Kept while the fortress is open, not saved. */
+  woundedFirst = false;
   /** The open chooser: the titles, or the squads to add the selection to. */
   choice: { kind: 'title' | 'squad'; selected: number } | null = null;
 
   rows(ctx: PanelContext): EntityId[] {
     const f = this.filter.toLowerCase();
-    return dwarvesOf(ctx).filter((id) => f === '' || nameOf(ctx, id).toLowerCase().includes(f));
+    const shown = dwarvesOf(ctx).filter((id) => (f === '' || nameOf(ctx, id).toLowerCase().includes(f)) && (!this.idleOnly || isIdle(ctx, id)));
+    if (!this.woundedFirst || !ctx.readers.has('17')) return shown;
+    const health = ctx.readers.of<HealthReader>('17');
+    return [...shown.filter((id) => health.isWounded(id)), ...shown.filter((id) => !health.isWounded(id))];
   }
 
   selectedId(ctx: PanelContext): EntityId {
@@ -269,6 +289,18 @@ export class UnitsPanel {
       this.marks.all(this.rows(ctx));
       return true;
     }
+    if (letter === 'i' && !press.shift) {
+      this.idleOnly = !this.idleOnly;
+      this.list.selected = 0;
+      this.list.scroll = 0;
+      return true;
+    }
+    if (letter === 'w' && press.shift) {
+      this.woundedFirst = !this.woundedFirst;
+      this.list.selected = 0;
+      this.list.scroll = 0;
+      return true;
+    }
     if (letter === 't' && press.shift) {
       this.openTitles(ctx);
       return true;
@@ -357,10 +389,9 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
     [
       { title: strings.get('ui.units.name'), width: NAME_COLS },
       { title: '', width: MOOD_COLS },
-      { title: strings.get('ui.units.profession'), width: 9 },
-      { title: strings.get('ui.units.activity'), width: 6 },
+      { title: strings.get('ui.units.activity'), width: 16 },
     ],
-    rows.map((id, k) => [`${panel.marks.has(id) ? '•' : k === panel.list.selected ? '▶' : ' '}${nameOf(ctx, id)}`, '', professionOf(ctx, id), dwarves?.activityText(id) || strings.get('ui.units.no_job')]),
+    rows.map((id, k) => [`${panel.marks.has(id) ? '•' : k === panel.list.selected ? '▶' : ' '}${nameOf(ctx, id)}`, '', isIdle(ctx, id) ? strings.get('ui.units.idle') : dwarves?.activityText(id) ?? '']),
     panel.list,
     (index) => panel.clickRow(ctx, index),
   );
@@ -376,6 +407,15 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
       s.put(cell.col, cell.row, s.glyphs.index(mood.glyph), here ? t.black : fg, here ? fg : t.black);
       s.tooltip(cell, strings.get(`ui.units.mood.${tier}`));
     }
+  }
+  // An idle dwarf's activity is dim, and a row's tooltip carries what the list no longer shows.
+  const activityCol = area.col + NAME_COLS + MOOD_COLS;
+  for (let r = 0; r < height - 1 && panel.list.scroll + r < rows.length; r += 1) {
+    const index = panel.list.scroll + r;
+    const id = rows[index] as EntityId;
+    const cells = { col: area.col, row: area.row + 1 + r, cols: NAME_COLS - 1, rows: 1 };
+    s.tooltip(cells, strings.get('ui.units.row_tip', { name: nameOf(ctx, id), profession: professionOf(ctx, id) }));
+    if (isIdle(ctx, id) && index !== panel.list.selected) label(s, activityCol, cells.row, strings.get('ui.units.idle'), { fg: t.dim, width: area.cols - NAME_COLS - MOOD_COLS, keys: false });
   }
   const row = rect.row + 1 + height;
   const col = rect.col + 1;

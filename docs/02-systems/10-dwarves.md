@@ -97,7 +97,7 @@ Evaluated when the dwarf has nothing to do, when a need crosses a threshold, and
 6. `need` (want): satisfy the highest of hunger, thirst and rest over its want threshold, unless a job with priority ≤ `NEED_DEFER_PRIORITY` is available and the need is below its critical threshold. Social, comfort and joy are not served here below `LEISURE_MARK`: they wait for step 8 and are relieved in passing (§ Eating and drinking; § Social, comfort, joy). With none of hunger, thirst and rest to serve, a dwarf with one of the three at or over `LEISURE_MARK` takes the hall errand here, before default-priority work and under the same exception for a job with priority ≤ `NEED_DEFER_PRIORITY`. A soldier whose duty does not hold (step 5) never reaches step 8, so it serves the highest of all its wants here, those three included.
 7. `work`: queue the dwarf for 11 through `jobs.assign(id)` and stay in `work` while waiting for its later tick to answer. With a job, run its steps; when no longer queued and without a job, go idle.
 8. `social`: the dwarf has no work: 11 has answered with no job and reports no open job the dwarf could take, or the dwarf cannot or may not work (a day off, a wound, a child with no hauling to do). A dwarf in a talk in passing stays for it. Otherwise do the errand of the highest of social, comfort and joy over its want threshold. No such errand starts while a job is open for the dwarf; only the hall errand of step 6 does.
-9. `idle`: go to the hearth hall and wait up to `IDLE_TICKS`, then re-evaluate; re-evaluate at once if a job becomes available for this dwarf before the wait is over, so that new work is never ignored for a whole hour. Idle dwarves are shown as "No job" in the units panel.
+9. `idle`: go to the hearth hall and wait up to `IDLE_TICKS`, then re-evaluate; re-evaluate at once if a job becomes available for this dwarf before the wait is over, so that new work is never ignored for a whole hour. Idle dwarves read "No job" as their activity text, and the units panel shows them as "Idle".
 
 `DwarfIdle` fires once per stretch without a job and is reset by real work. With no hearth hall, idle uses the saved arrival wagon tile; without an arrival it stays at the current tile. Selection repairs legacy negative goals before queued work. Patient rest without a bed, cornered fighting and duty also use the current tile.
 
@@ -160,7 +160,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 - `dwarves.titles(id)` — every title the dwarf holds, in the order of the title table
 - `dwarves.isUnclothed(id)` — a body garment, a leg garment or boots are missing
 - `dwarves.skill(id, skillId)`, `dwarves.skillTier(id, skillId)`, `dwarves.attribute(id, attr)`
-- `dwarves.need(id, need)`, `dwarves.behavior(id)`, `dwarves.activityText(id)` (for the units panel: "Digging", "Eating", "Sleeping", "No job")
+- `dwarves.need(id, need)`, `dwarves.behavior(id)`, `dwarves.activityText(id)` (for the units panel: "Digging", "Eating", "Sleeping", "No job"; the panel shows "No job" as "Idle")
 - `dwarves.productivity(id)` — percent: mood multiplier (15) × wound modifier (17)
 - `dwarves.friends(id)`, `dwarves.isFriend(a, b)`
 - `dwarves.bedHolder(bedId)` ? the living dwarf walking to or sleeping in the bed through its saved rest activity, or 0; patient holds are combined by 14

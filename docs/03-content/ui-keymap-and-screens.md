@@ -166,16 +166,19 @@ Opened with `Enter` in the labors panel, or from the units panel with dwarves ma
 | `+` `-` | labor priority up / down |
 | `1` `9` | set the labor priority |
 | `t` | profession templates |
+| letters | jump to the next labor starting with that letter (`Shift` and the letter for `a`, `c`, `t`) |
 | `Esc` | close |
 
 ### Units panel
 
-A panel's own keys may not use a panel hotkey, so these are on `Shift` (shown `[S-t]`). An action applies to every marked dwarf when the cursor's row is marked, otherwise to the cursor's dwarf. `Shift+L` opens the labor manager on the marked dwarves when any are marked; the bare labors key always opens the labors panel.
+A panel's own keys may not use a panel hotkey, so these are on `Shift` (shown `[S-t]`). An action applies to every marked dwarf when the cursor's row is marked, otherwise to the cursor's dwarf. `Shift+L` opens the labor manager on the marked dwarves when any are marked; the bare labors key always opens the labors panel, with its cursor on the dwarf under the units cursor.
 
 | Key | Action |
 |---|---|
 | `Space` | mark the row (does not pause while the list is open) |
 | `*` | mark all / none |
+| `i` | show only idle dwarves / all |
+| `Shift+W` | wounded dwarves first / list order |
 | `Shift+T` | give or take away a title |
 | `Shift+N` | rename the dwarf |
 | `Shift+M` | add the marked dwarves to a squad |

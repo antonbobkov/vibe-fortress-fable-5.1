@@ -74,6 +74,13 @@ export const ORDER_FINISHED_MAX = 3;
  */
 export const LABOR_HEADER_ROWS = 9;
 
+/** A window at least this many rows tall writes every labor name in full down its column head. */
+export const LABOR_TALL_WINDOW_ROWS = 55;
+
+/** A dwarf's skill in a labor's skill: the levels from which the manager's cell colour changes. */
+export const LABOR_SKILL_VALUE_LEVEL = 5;
+export const LABOR_SKILL_GOOD_LEVEL = 10;
+
 /** The dwarf-name column of the labor manager, in cells: as wide as the screen allows between these. */
 export const LABOR_NAME_COLS_MIN = 14;
 export const LABOR_NAME_COLS_MAX = 24;

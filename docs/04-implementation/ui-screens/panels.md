@@ -108,17 +108,17 @@ The filter controls wrap onto three rows at sidebar width: `/filter`, `[S-l] lab
 
 ```
 │ Labors                         [l]  │
-│            Mi Wo Co Ca Ma Cr Fa He… │
-│ Ketil I.   ■  ■  ■  □  ■  □  □  □  │
-│ Brynja C.  □  □  ■  □  □  □  ■  ■  │
-│ Orm A.     □  ■  ■  ■  □  ■  □  □  │
+│            Min Woo Coo Car Mas Cra… │
+│ Ketil I.   ■   ■   ■   □   ■   □   │
+│ Brynja C.  □   □   ■   □   □   □   │
+│ Orm A.     □   ■   ■   ■   □   ■   │
 │ …                                   │
 │ ─ click to toggle · shift-click:   │
 │   whole column · [S-a] all on/off  │
 │ [Enter] labor manager: all labors  │
 ```
 
-The quick view's whole-row action turns every labor of the selected dwarf on unless all are on, then turns every labor off. Shift-click on a column applies the same rule across its dwarves. The panel is the quick view: the columns that do not fit scroll with `←` `→`, the rows scroll with the selection, and hovering a column head names the labor. `Enter`, or a click on the last row, opens the labor manager.
+The quick view's whole-row action turns every labor of the selected dwarf on unless all are on, then turns every labor off. Shift-click on a column applies the same rule across its dwarves. The panel is the quick view: each column head is three letters, unique among the labors (the first three letters of a one-word name, "Bre"; the first two letters of the first word and the initial of the second for a two-word name, "AnC", "AnT"), and a column is four cells wide. The columns that do not fit scroll with `←` `→`, the rows scroll with the selection, and hovering a column head names the labor. `Enter`, or a click on the last row, opens the labor manager.
 
 ## Labor manager
 
@@ -126,7 +126,7 @@ A full-window screen over the fortress (`labor_manager`), opened with `Enter` in
 
 ```
  Labor manager                                                      [Esc] close
- Ranulf Ashwall, Miner · Animal training: on · priority 5
+ Ranulf Ashwall, Miner · Animal training: on · priority 5 · skill 6 (Competent)
  2 of 40 marked          A A B B C C C C C F F G H H H L M M M M S S T T W
                          n n r u a l o o r a i e a e u e a e e i m m e r o
                          i i e t r e n o a r s m u r n a s c d n e i x a o
@@ -149,8 +149,9 @@ A full-window screen over the fortress (`labor_manager`), opened with `Enter` in
 ```
 
 - **Rows**: every dwarf, scrolling with the cursor, `PageUp`/`PageDown`, `Home`/`End` and the wheel; a scrollbar column on the right. A child's row is dim: children take no labors, an action skips them and the status line says how many.
-- **Columns**: every labor under its name written downward (cut to `LABOR_HEADER_ROWS`, 9, within which every name is unique). A column is 2 to 4 cells wide by the room there is; when the labors do not all fit, the columns scroll with the cursor (`«` `»` mark more). Row 2 names the dwarf and the labor at the cursor, or under the mouse, in full, with the cell's state and the labor's priority; hovering a head shows the labor's name.
-- **Cells**: `■` on, `∙` off. `Enter` or a click toggles the cell; `[a]` the cursor's whole row; `[c]`, or a shift-click on a head, the whole column for the marked dwarves, or for everyone when none is marked.
+- **Columns**: every labor under its name written downward (cut to `LABOR_HEADER_ROWS`, 9, within which every name is unique; a window of at least `LABOR_TALL_WINDOW_ROWS`, 55, rows writes each name in full, and the head area grows to the longest name). A column is 2 to 4 cells wide by the room there is; when the labors do not all fit, the columns scroll with the cursor (`«` `»` mark more). Row 2 names the dwarf and the labor at the cursor, or under the mouse, in full, with the cell's state, the labor's priority and the dwarf's skill in it ("skill 6 (Competent)", or "no skill"); hovering a head shows the labor's name.
+- **Cells**: `■` on, `∙` off. A cell's colour shows the dwarf's skill in that labor's skill (the best of the skills the content table ties to the labor): `text_dim` for none, the normal colour for levels 1 to 4, `text_value` from `LABOR_SKILL_VALUE_LEVEL` (5) to 9, `text_good` from `LABOR_SKILL_GOOD_LEVEL` (10); the colourblind palette uses the same four names. A child's cells stay dim. `Enter` or a click toggles the cell; `[a]` the cursor's whole row; `[c]`, or a shift-click on a head, the whole column for the marked dwarves, or for everyone when none is marked.
+- **Letter jump**: a typed letter moves the labor cursor to the next column whose name starts with it, wrapping (`m` goes to Masonry, Mechanics, Medicine, Mining in turn). `a`, `c` and `t` keep their meanings; their jump is `Shift` and the letter.
 - **Marks**: `Space` or a click left of a name marks a row (`•`), a shift-click on a name marks the range from the last mark, `Shift`+`↑`/`↓` mark the rows they pass, `*` marks all or none. An action on a marked row applies to every marked dwarf.
 - **Priority row**: the labor priorities 1–9. `+`/`-` or a digit set the cursor labor's priority; a click on a number adds one, a shift-click takes one (`SetLaborPriority`). At a limit nothing is sent and the status line says the range.
 - **Templates** (`[t]`, then `1`–`6`, or `↑↓` and `Enter`, or a click): Miner, Hauler only, Farmer, Crafter, Soldier, Everything off. A template turns exactly its labors on, and every other labor off, for the marked dwarves (or the cursor's dwarf); only the cells that differ are sent (`SetLabor`). The menu shows what the highlighted template turns on; the exact labor sets are in 11's Player-facing behavior.
