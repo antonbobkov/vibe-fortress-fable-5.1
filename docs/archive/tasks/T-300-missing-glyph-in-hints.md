@@ -1,5 +1,7 @@
 # T-300 — The glyph `›` is not in the glyph set and draws as `?`
 
+Closed by `T-300: no UI string holds a character the glyph set cannot draw` (the commit that moved this file).
+
 **Source:** found during T-277 (2026-10-12) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

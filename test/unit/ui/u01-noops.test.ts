@@ -92,7 +92,7 @@ describe('U-01 silent no-ops get a status message (§4.2, Q6)', () => {
     screen.openPanel('depot');
     expect(screen.key(press('t', { shift: true }))).toBe(true);
     expect(sent).toEqual([]);
-    expect(screen.statusRow2()).toBe('There is no trade depot: build one [b › Special].');
+    expect(screen.statusRow2()).toBe('There is no trade depot: build one [b > Special].');
   });
 
   it('a kill order clicked on an empty tile asks for a creature', () => {

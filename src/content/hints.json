@@ -7,7 +7,7 @@
   {
     "id": "hint_still",
     "trigger": "no still exists and drink < 40 units",
-    "text": "Dwarves need drink. Build a still [b › Workshops] and brew from plants."
+    "text": "Dwarves need drink. Build a still [b > Workshops] and brew from plants."
   },
   {
     "id": "hint_stockpile",
@@ -22,7 +22,7 @@
   {
     "id": "hint_hearth",
     "trigger": "no hearth and at least one dining hall or 5 bedrooms",
-    "text": "A hearth makes a hall a home. Build one [b › Special] in your main hall."
+    "text": "A hearth makes a hall a home. Build one [b > Special] in your main hall."
   },
   {
     "id": "hint_containers",
@@ -67,7 +67,7 @@
   {
     "id": "hint_depot",
     "trigger": "day 14 of summer, year 1, no depot",
-    "text": "Build a trade depot [b › Special] before the caravan arrives."
+    "text": "Build a trade depot [b > Special] before the caravan arrives."
   },
   {
     "id": "hint_hospital",

@@ -275,10 +275,10 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | id | Trigger | Text |
 |---|---|---|
 | `hint_dig` | tick 1 | "Designate a place to dig with [d]. Dwarves dig into rock faces from the side." |
-| `hint_still` | no still exists and drink < 40 units | "Dwarves need drink. Build a still [b › Workshops] and brew from plants." |
+| `hint_still` | no still exists and drink < 40 units | "Dwarves need drink. Build a still [b > Workshops] and brew from plants." |
 | `hint_stockpile` | no stockpile exists and items on the ground > 20 | "Set up a stockpile [z] so hauled goods have somewhere to go." |
 | `hint_winter` | day 20 of spring, year 1 | "Winter comes in 60 days. Farms need soil or mud; cave crops grow in the dark all year." |
-| `hint_hearth` | no hearth and at least one dining hall or 5 bedrooms | "A hearth makes a hall a home. Build one [b › Special] in your main hall." |
+| `hint_hearth` | no hearth and at least one dining hall or 5 bedrooms | "A hearth makes a hall a home. Build one [b > Special] in your main hall." |
 | `hint_containers` | a drink or seed stockpile exists without barrels or bags | "Stockpiles need barrels for drink and bags for seeds. The carpenter makes barrels; the clothier makes bags." |
 | `hint_barrel` | a workshop is blocked because no barrel is empty | "A brew needs an empty barrel, and a barrel that holds food or seed is not empty. Order a barrel at the carpenter's workshop." |
 | `hint_fuel` | a smelter or forge is blocked for fuel | "Smelters and forges need fuel. A wood furnace makes charcoal from logs; coal seams burn too." |
@@ -287,7 +287,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_seeds` | first harvest | "Harvest returns one seed. Brewing and cooking do not." |
 | `hint_room` | a bedroom zone with tier bare exists for 3 days | "A room needs walls or doors around it, a bed, and smooth stone to be worth sleeping in." |
 | `hint_alert` | first `ThreatWarning` | "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock, but a dwarf in dire need still goes out to eat, drink or sleep, and the medics still tend the wounded." |
-| `hint_depot` | day 14 of summer, year 1, no depot | "Build a trade depot [b › Special] before the caravan arrives." |
+| `hint_depot` | day 14 of summer, year 1, no depot | "Build a trade depot [b > Special] before the caravan arrives." |
 | `hint_hospital` | first serious wound with no hospital | "A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats infection." |
 | `hint_immigration` | first `ImmigrationSkipped` | "Immigrants come at the turn of the season when hall spirit is Content. Good rooms, meals and drink raise it." |
 | `hint_gate` | first raid ended | "A drawbridge over a channel is the surest gate. Build a lever inside [b], click it, press [i] and click the bridge; [y] pulls it." |
