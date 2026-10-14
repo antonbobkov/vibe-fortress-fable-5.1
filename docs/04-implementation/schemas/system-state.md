@@ -103,8 +103,10 @@ interface PendingConnectivityState { dirty: ChunkIndex[]; classes: { cls: Moveme
 interface CoreState { map: Map3D; entities: EntityStoreState; calendar: CalendarState; fortress: FortressState; rngSeed: string; commandLog: CommandLogEntry[] }
 interface EntityStoreState { slots: { generation: number; alive: boolean; kind: Kind }[]; components: Record<string, [number /* index */, unknown][]>; positionX: Int16Array; positionY: Int16Array; positionZ: Int8Array }
 interface CommandLogEntry { tick: Tick; command: Command; ok: boolean; reason?: string }
-interface UiState { camX: number; camY: number; z: number; zoom: number; panel: string | null; overlays: string[]; deepFound?: boolean; logTail: { tick: Tick; severity: string; text: string; focus?: number; category?: string }[] }
+interface UiState { camX: number; camY: number; z: number; zoom: number; panel: string | null; overlays: string[]; deepFound?: boolean; hintUnreachableSince?: [number, Tick][]; workshopIdleNotes?: number[]; logTail: { tick: Tick; severity: string; text: string; focus?: number; category?: string }[] }
 ```
+
+The optional UI unreachable-job clocks and missing-input workshop-note suppression ids default to empty for older saves. They are presentation state, omitted when empty; clocks are keyed by job id and notes by workshop id.
 
 ## Rebuild-on-load rules
 

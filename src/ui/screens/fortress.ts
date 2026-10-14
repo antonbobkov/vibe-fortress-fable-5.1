@@ -186,7 +186,7 @@ export class FortressScreen implements Screen {
     private readonly keymap: Keymap,
     private readonly strings: Strings,
   ) {
-    this.log = new AnnouncementLog(strings, host.registry);
+    this.log = new AnnouncementLog(strings, host.registry, this.ui);
     this.hints = new HintEngine(host.registry, host.ui, this.log);
     this.help = new HelpPanel(host.registry, keymap, strings);
   }
@@ -370,6 +370,8 @@ export class FortressScreen implements Screen {
     this.ui.hintsShown = [];
     this.ui.hintPending = [];
     this.ui.hintBareSince = [];
+    this.ui.hintUnreachableSince = [];
+    this.ui.workshopIdleNotes = [];
   }
 
   /** The tiles of the current selection, or an empty list. */

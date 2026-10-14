@@ -97,7 +97,7 @@ describe('U-01 rejections: status row for four seconds and the log as an alert (
     expect(rejectionText(ctx, { type: 'DeconstructBuilding', buildingId: 1 }, 'precondition_failed')).toBe('that building is not finished yet');
     expect(rejectionText(ctx, { type: 'CancelJob', jobId: 1 }, 'not_found')).toBe('that job is finished or gone');
     expect(rejectionText(ctx, { type: 'SetLabor', dwarfId: 1 }, 'not_found')).toBe('that dwarf is no longer here');
-    expect(rejectionText(ctx, { type: 'UndoDesignation', tiles: [1] }, 'has_progress')).toBe('work has begun there, so those designations are kept');
+    expect(rejectionText(ctx, { type: 'UndoDesignation', tiles: [1] }, 'has_progress')).toBe('0 designations kept: work has begun there');
     // A reason without a specific line keeps its own `reject.<reason>`; no reason code reaches the screen.
     expect(rejectionText(ctx, { type: 'CreateSquad' }, 'member_limit')).toBe('the squad is full');
     expect(rejectionText(ctx, { type: 'CreateSquad' }, 'some_future_reason')).toBe('that cannot be done');

@@ -264,6 +264,8 @@ Container counts are non-negative integers, priorities are 1–9 and quality bou
 | `announce.immigrants_arrived` | "{count} dwarves have come to join the hall, {children} of them children." |
 | `announce.immigration_skipped` | "No immigrants this season: {reason}." |
 | `announce.reputation_changed` | "Our standing with {civ} has fallen: {reason}." |
+| `announce.workshop_missing_input` | "{workshop} is idle: no {input}." |
+| `announce.plot_needs_seeds` | "{plot} has no {species} seeds." |
 
 
 ## Hints
@@ -294,6 +296,8 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_deep` | first `VeinFound` deepsilver | "Deepsilver lies beside the Sea of Fire. Taking it wakes the Hollow. The threats panel shows the Deep gauge." |
 | `hint_magma` | first cavern 2 breach | "A forge over channeled magma needs no fuel. Build it of magma-safe stone." |
 | `hint_haulers` | DayPassed: more than IDLE_HAULER_WARNING items want hauling and fewer than HAULER_WARNING_MIN_WORKERS dwarves have hauling enabled | "Items are waiting to be hauled. Enable hauling for more dwarves in the labors panel." |
+| `hint_no_miners` | a dig designation exists and no living dwarf has mining enabled; hourly | "No one has mining enabled. Turn it on in Labors [l]." |
+| `hint_no_path` | a job remains blocked unreachable for a whole day from first hourly observation | "Jobs are blocked: no path. Check for doors, water and undug rock." |
 
 ## Milestones (legend record)
 

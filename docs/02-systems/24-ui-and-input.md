@@ -102,11 +102,15 @@ The look panel shows the tile under the cursor or the clicked tile with tabs for
 
 A fortress dwarf’s `CreatureDied` announcement keeps danger severity, the recorded name and the recorded focus tile after simulation cleanup has removed the entity. Species and faction in the event identify that dwarf; other creature deaths retain their ordinary announcement severity.
 
+Refusal text for each command whose handler returns `precondition_failed` names its specific cause; the generic precondition line is reserved for malformed commands. An undo that leaves working designations reports the number of unique batch tiles still designated after the command: "{n} designations kept: work has begun there".
+
+A missing-input workshop note names its type and ordinal and the missing input, once per workshop and reason until that workshop next completes a craft job. Its suppression ids are saved in UI state and cleared on completion, workshop removal or entering a new fortress; older UI sections default to empty. A seed shortage names the farm plot's ordinal.
+
 ### Hints
 
 The hint table (content) lists `{ id, trigger: predicate over readers, text, once: true }`. Hints are evaluated once per game hour; a triggered hint is shown as a note prefixed with `☼` and marked shown (saved). A setting disables hints. The design fixes these hints: designate to dig; build a still; place a stockpile; winter is coming; the hearth; stockpiles need containers; smelters need fuel; hunters need crossbows; farms need soil; harvest returns one seed; a room needs enclosure; lock doors on alert; build a depot before summer; hospitals need supplies; immigrants come when spirit is Content; the drawbridge gate; cage traps; trollkin break doors; the Deep (shown on the first deepsilver vein found).
 
-Shown and pending hints belong to `UiState`, not fortress simulation state. A bare-bedroom timer starts at its first hourly observation, is saved by zone id, and clears when the room improves or disappears. The headless hint scenario uses the same presentation engine and world-event listener.
+Shown and pending hints belong to `UiState`, not fortress simulation state. The unreachable-job clock starts at first hourly observation, is saved by job id, and clears when the job is observed with another state/reason or emits unblocked, cancelled or completed. A whole game day of observed unreachable blocking triggers its once-only hint. A bare-bedroom timer starts at its first hourly observation, is saved by zone id, and clears when the room improves or disappears. The headless hint scenario uses the same presentation engine and world-event listener.
 
 ### Confirmations
 

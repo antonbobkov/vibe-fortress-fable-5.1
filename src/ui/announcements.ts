@@ -19,7 +19,7 @@ import type { AnnouncementSpec } from '@core/system';
 import type { TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import { LOG_DEDUP_TICKS, LOG_MAX_LINES } from './constants';
-import { itemName, stockpileName } from './messages';
+import { itemName, stockpileName, buildingName, zoneName } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
 import type { Strings } from './strings';
 
@@ -66,6 +66,7 @@ export class AnnouncementLog {
   constructor(
     private readonly strings: Strings,
     private readonly registry: Registry,
+    private readonly history: { workshopIdleNotes: number[] } = { workshopIdleNotes: [] },
   ) {}
 
   /** Load the rows systems registered (`register.announcement`). */
@@ -131,6 +132,11 @@ export class AnnouncementLog {
     if (typeof skill === 'string' && this.registry.hasTable('skills')) {
       out['skill'] = this.registry.table<NamedRow>('skills').byId(skill)?.name ?? skill;
     }
+    if (event.type === 'WorkshopBlocked' && typeof e['workshopId'] === 'number') {
+      out['workshop'] = buildingName({ readers, registry: this.registry }, e['workshopId']);
+      out['input'] = typeof e['input'] === 'string' ? e['input'].split('|').map(id => itemName(this.registry, id)).join(' or ') : this.strings.get('ui.workshop.input_unspecified');
+    }
+    if (event.type === 'PlotNeedsSeeds') out['plot'] = zoneName({ readers, strings: this.strings }, Number(e['zoneId'])) || this.strings.get('ui.zone.type.farm_plot');
     // A workshop waiting for an empty container names the container class (12 § Operation 3).
     if (event.type === 'WorkshopBlocked' && typeof e['container'] === 'string') out['container'] = itemName(this.registry, e['container']);
     const crafter = e['crafterId'];
@@ -214,6 +220,12 @@ export class AnnouncementLog {
   /** Map an event through the registry and append it; `null` when the event has no row. */
   announce(event: GameEvent, readers: ReaderSet, tick: number): Announced | null {
     const fields = event as unknown as Record<string, unknown>;
+    // Completion/removal must clear suppression even when the event has no announcement.
+    const finished = event.type === 'JobCompleted' && fields['jobType'] === 'craft' ? fields['target']
+      : event.type === 'BuildingRemoved' ? fields['id'] : undefined;
+    if (typeof finished === 'number') this.history.workshopIdleNotes = this.history.workshopIdleNotes.filter(id => id !== finished);
+    const idleWorkshop = event.type === 'WorkshopBlocked' && fields['reason'] === 'missing_input' ? fields['workshopId'] : undefined;
+    if (typeof idleWorkshop === 'number' && this.history.workshopIdleNotes.includes(idleWorkshop)) return null;
     const spec = this.specs.get(event.type)?.find((candidate) => {
       if (candidate.atLeast !== undefined) {
         const value = fields[candidate.atLeast.field];
@@ -226,6 +238,7 @@ export class AnnouncementLog {
       return candidate.oneOf === undefined || candidate.oneOf.values.includes(fields[candidate.oneOf.field] as string | number);
     });
     if (spec === undefined) return null;
+    if (typeof idleWorkshop === 'number') { this.history.workshopIdleNotes.push(idleWorkshop); this.history.workshopIdleNotes.sort((a, b) => a - b); }
     const creatureId = fields['id'];
     const dwarfDeath = event.type === 'CreatureDied' && typeof creatureId === 'number' &&
       (readers.entities.has(creatureId, C.Brain) ||
