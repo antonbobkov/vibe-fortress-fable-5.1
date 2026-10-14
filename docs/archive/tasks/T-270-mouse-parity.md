@@ -1,6 +1,8 @@
 # T-270 — Mouse parity: every caption on the fortress screen is a button
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 2, § 3) · **Size:** M · **Needs:** T-244 (it rewrites the hotkey strip in `src/ui/status.ts`) · **Status:** open
+Closed by `T-270: every caption on the fortress screen is a button` (the commit that moved this file). The thumb drag moved to T-310.
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (issue 2, § 3) · **Size:** M · **Needs:** T-244 (it rewrites the hotkey strip in `src/ui/status.ts`) · **Status:** open
 
 ## Why
 
@@ -12,8 +14,8 @@ Default embark, 1280×800, mouse only. Click `[d] dig`, `[b] build`, `[?] help`,
 
 ## What the spec says
 
-- [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules: the input model for keys and mouse.
-- [`fortress-screen.md`](../04-implementation/ui-screens/fortress-screen.md) § Status row 1 and § Status row 2: the fields and the strip, with no click behaviour stated for most of them.
+- [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules: the input model for keys and mouse.
+- [`fortress-screen.md`](../../04-implementation/ui-screens/fortress-screen.md) § Status row 1 and § Status row 2: the fields and the strip, with no click behaviour stated for most of them.
 
 ## What to do
 
@@ -34,4 +36,4 @@ Default embark, 1280×800, mouse only. Click `[d] dig`, `[b] build`, `[?] help`,
 ## Done
 
 - The reproduction opens, closes, pauses and scrolls with no key pressed.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite; moved render goldens are explained.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite; moved render goldens are explained.

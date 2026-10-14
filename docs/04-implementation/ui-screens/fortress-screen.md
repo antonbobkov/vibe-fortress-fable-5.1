@@ -21,14 +21,16 @@ Wireframes are at 120×45 cells for illustration; the layout scales with the win
 │ The Hillfolk caravan has arrived: 3 merchants, 4 guards, 5 mules.                                                    │
 │ ! Gloam scouts have been seen at the eastern edge. They will come tomorrow.                                          │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Day 12 of Summer, Year 2   ☼ clear 21°C   ☺ 23   ♥ Content   +1   $   z 31   ►► 2×                       [?] help     │
+│ Day 12 of Summer, Year 2   ☼ clear 21°C   ☺ 23   ♥ Content   +1   $   z 31   ►► 2×              [Esc] menu  [?] help     │
 │ Granite wall, smoothed · 14°C · [d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look│
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Status row 1 fields left to right: date (a click on it opens the calendar panel, which has no hotkey); weather glyph, word and temperature (`{glyph} {word} {temp}°C`; the moon `C` replaces the sun on a clear night; the glyph is red in a heatwave, cyan in a cold snap and dim in fog); `☺` population; `♥` hall spirit tier (colored); `+n` patients (red, hidden when 0); `!n` hostiles on discovered tiles or spotted, matching the threats panel's "Active" (red, hidden when 0); `$` while a caravan is arriving, at the depot or leaving (hidden otherwise); `z` current level; speed glyphs and multiplier (`║` when paused, yellow when the simulation lags); `[?] help` at the right edge.
+Status row 1 fields left to right: date (a click on it opens the calendar panel, which has no hotkey); weather glyph, word and temperature (`{glyph} {word} {temp}°C`; the moon `C` replaces the sun on a clear night; the glyph is red in a heatwave, cyan in a cold snap and dim in fog); `☺` population; `♥` hall spirit tier (colored); `+n` patients (red, hidden when 0); `!n` hostiles on discovered tiles or spotted, matching the threats panel's "Active" (red, hidden when 0); `$` while a caravan is arriving, at the depot or leaving (hidden otherwise); `z` current level; speed glyphs and multiplier (`║` when paused, yellow when the simulation lags); `[Esc] menu  [?] help` at the right edge (`[Esc]` alone when the row is too narrow for the word, never a cut word).
 
-Status row 2: the tile summary under the mouse (or the cursor), then as many complete hotkey entries as fit, in order `[d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look`; omit a trailing entry that does not fit, never clip its key or caption. The tile summary keeps its place on the left; with a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`. A notice or refusal reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier by starting a drag, a new ghost state or a new notice. Other status row text that does not fit ends with `…` and registers its full text as a tooltip on the row, like any clipped label.
+Every field of row 1 is a button. A click on the date or the weather opens the Calendar; on `☺` Units; on `♥` Mood; on `+n` Units with the wounded first; on `!n` Threats; on `$` Civilizations; on `z` nothing. A click on the speed glyph pauses or resumes at the last speed, and a right click on it steps the speed 1× → 2× → 4× → 1× (a paused game stays paused and resumes at the new speed). Hovering `+n` shows "n wounded" and `!n` "n hostile creatures on the map". `[Esc] menu` opens the game menu and `[?] help` the Help panel.
+
+Status row 2: the tile summary under the mouse (or the cursor), then as many complete hotkey entries as fit (each is a button that does what its key does), in order `[d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look`; omit a trailing entry that does not fit, never clip its key or caption. The tile summary keeps its place on the left; with a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`. A notice or refusal reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier by starting a drag, a new ghost state or a new notice. Other status row text that does not fit ends with `…` and registers its full text as a tooltip on the row, like any clipped label.
 
 The log strip shows the last three announcements; danger lines are prefixed `!!`, alerts `!`.
 
@@ -36,7 +38,7 @@ The log strip shows the last three announcements; danger lines are prefixed `!!`
 
 ```
 ├──────────────────────────────────────────────────────────────────────────────────┬───────────────────────────────────┤
-│ map viewport ({mapCols − SIDEBAR_COLS} wide)                                      │ Units (80, 9 idle)          [u]  │
+│ map viewport ({mapCols − SIDEBAR_COLS} wide)                                      │ Units (80, 9 idle)          [x]  │
 │                                                                                  │ /filter: ____________             │
 │                                                                                  │ Name           Act.               │
 │                                                                                  │ •Ketil Ironve  ☺ Digging          │
@@ -66,7 +68,7 @@ Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows
 ## Inspection panel (look)
 
 ```
-│ Look · (52, 31, z31)                 [k] │
+│ Look · (52, 31, z31)                 [x] │
 │ Tabs: [1]Tile [2]Items(3) [3]Creatures(1) │
 │ ── Creature: Ketil Ironvein ────────────  │
 │ Miner · adult · Fine (58)                 │
@@ -107,7 +109,7 @@ Sections come from the inspector registry in this order: identity, activity, nee
 ## Designate tool
 
 ```
-│ Designate                          [d]  │
+│ Designate                          [x]  │
 │ [S-d] Dig        [S-c] Channel          │
 │ [S-u] Up stairs  [S-j] Down stairs      │
 │ [i] Up/down      [r] Ramp               │
@@ -115,8 +117,8 @@ Sections come from the inspector registry in this order: identity, activity, nee
 │ [S-e] Engrave    [x] Remove construction│
 │ [S-t] Chop trees [g] Gather plants      │
 │ [h] Harvest      [S-f] Traffic          │
-│ Priority: 5   (1–9 to change)           │
-│ [Ctrl+Z] undo last  [Del] clear rect    │
+│ Priority [-] 5 [+]   (1–9)              │
+│ [Ctrl+Z] undo last  [Del] clear         │
 │ [S-p] last batch to priority 5          │
 │ ─ Drag a rectangle on the map, or      │
 │   use Enter twice for corners.    │
@@ -131,7 +133,7 @@ While dragging: the rectangle is inverted on the map and the status bar reads `D
 ## Build tool
 
 ```
-│ Build                              [b]  │
+│ Build                              [x]  │
 │ [S-c] Constructions [S-f] Furniture     │
 │ [w] Workshops       [S-m] Mechanisms    │
 │ [S-t] Traps         [S-s] Special       │

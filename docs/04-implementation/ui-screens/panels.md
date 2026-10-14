@@ -2,14 +2,14 @@
 
 **Owner:** `ui/panels/*` · **Depends on:** [`fortress-screen.md`](fortress-screen.md), the owning system documents
 
-All panels are `SIDEBAR_COLS` (36) wide; shown here at that width. Each has a title row with its hotkey, an optional filter row, content, a separator and an action row. While a filter is in use the title row shows it, `Units · filter: xxx (3 of 80)` (Jobs the same with its job counts, Stocks without counts); the filter ends when the panel closes.
+All panels are `SIDEBAR_COLS` (36) wide; shown here at that width. Each has a title row that ends with `[x]`, a button that closes the panel as `Esc` does with no tool armed (the key that opens each panel is in the Hotkey column of the fortress panels table, and Help lists it), an optional filter row, content, a separator and an action row. While a filter is in use the title row shows it, `Units · filter: xxx (3 of 80)` (Jobs the same with its job counts, Stocks without counts); the filter ends when the panel closes.
 
 A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-screens.md) § Fortress panels) always opens or closes its panel, whatever panel is open. An accelerator on one of those letters is therefore `Shift`+letter, written `[S-m]`; an accelerator on a free letter is written `[w]`. Every action row is clickable.
 
 ## Zones (z)
 
 ```
-│ Zones                          [z]  │
+│ Zones                          [x]  │
 │ [S-s] Stockpile [S-f] Farm plot     │
 │ [S-p] Pasture   [S-b] Bedroom       │
 │ [S-d] Dining h… [h] Hearth hall     │
@@ -83,7 +83,7 @@ Open border tiles on the viewed level are highlighted using the room's existing 
 ## Jobs (j)
 
 ```
-│ Jobs                           [j]  │
+│ Jobs                           [x]  │
 │ 42 open · 18 claimed · 6 blocked    │
 │ /filter: ____                      │
 │ Pri Job              Who / reason   │
@@ -107,7 +107,7 @@ The filter controls wrap onto three rows at sidebar width: `/filter`, `[S-l] lab
 ## Labors (l)
 
 ```
-│ Labors                         [l]  │
+│ Labors                         [x]  │
 │            Min Woo Coo Car Mas Cra… │
 │ Ketil I.   ■   ■   ■   □   ■   □   │
 │ Brynja C.  □   □   ■   □   □   □   │
@@ -161,7 +161,7 @@ A full-window screen over the fortress (`labor_manager`), opened with `Enter` in
 ## Orders (o)
 
 ```
-│ Orders                         [o]  │
+│ Orders                         [x]  │
 │ [S-n] new order  all workshops      │
 │ ── Carpenter's workshop #1 ──────── │
 │ ▶×3 Bed · in progress               │
@@ -198,7 +198,7 @@ A full-window screen over the fortress (`labor_manager`), opened with `Enter` in
 ### Add order
 
 ```
-│ Orders                         [o]  │
+│ Orders                         [x]  │
 │ Add order                           │
 │ Find [ doo____________________ ]    │
 │ ── Recent ───────────────────────── │
@@ -309,7 +309,7 @@ Every action that cannot be done says why on the status row (an empty cage, a co
 ## Stocks (s)
 
 ```
-│ Stocks                         [s]  │
+│ Stocks                         [x]  │
 │ /filter: ____                       │
 │ ▸ food        412   1,880 ☼         │
 │   ▸ meal       96   2,400 ☼         │
@@ -336,7 +336,7 @@ The selected built depot keeps its goods list and action row (`[S-m] move`, `[r]
 ## Military (m)
 
 ```
-│ Military                       [m]  │
+│ Military                       [x]  │
 │ Alert: (•) Calm ( ) Watchful ( ) Hearth │
 │ Squads                              │
 │ ▶ The Hearthguard  3/6  train       │
@@ -378,7 +378,7 @@ The selected built depot keeps its goods list and action row (`[S-m] move`, `[r]
 ## Animals (n)
 
 ```
-│ Animals                                       [n]  │
+│ Animals                                       [x]  │
 │ [1] Tame (14)  [2] Wild (23)                       │
 │ Species   Name    Pasture  Cond  Tr                │
 │ ▶ cow     —       #1       ▓▓░ 38                  │
@@ -402,7 +402,7 @@ The clickable `[S-c] cap` action opens an inline number field for the selected s
 ## Threats (t)
 
 ```
-│ Threats                        [t]  │
+│ Threats                        [x]  │
 │ Peril 2 · Renown 14.6               │
 │ Active: none                        │
 │ Raids possible from Spring, Year 2  │
@@ -420,7 +420,7 @@ The clickable `[S-c] cap` action opens an inline number field for the selected s
 ## Civilizations (c)
 
 ```
-│ Civilizations                  [c]  │
+│ Civilizations                  [x]  │
 │ Mountainhome  rep +12  spring       │
 │ Hillfolk      rep  +4  summer  here!│
 │ Wildwood      rep  −6  autumn       │
@@ -441,7 +441,7 @@ Depot panel (from a selected depot): items at the depot with values, `[S-m] move
 ## Population (p)
 
 ```
-│ Population                     [p]  │
+│ Population                     [x]  │
 │ 23 dwarves (2 children)             │
 │ Cap [-] 80 [+]                      │
 │ Hall spirit: Content (71)           │
@@ -454,7 +454,7 @@ Depot panel (from a selected depot): items at the depot with values, `[S-m] move
 ## Mood (e)
 
 ```
-│ Mood                           [e]  │
+│ Mood                           [x]  │
 │ Hall spirit ♥ Content (71)          │
 │ Name             Tier   Top thoughts│
 │ ▶Ketil I.        Fine   +5 meal,    │
@@ -469,7 +469,7 @@ Depot panel (from a selected depot): items at the depot with values, `[S-m] move
 ## Log (a)
 
 ```
-│ Log                            [a]  │
+│ Log                            [x]  │
 │ [1] All [2] Alerts [3] Combat       │
 │ /filter: ____                       │
 │ 12 Su Y2 !  Gloam scouts seen (E)   │
@@ -484,7 +484,7 @@ Depot panel (from a selected depot): items at the depot with values, `[S-m] move
 ## Overlays (f)
 
 ```
-│ Overlays                       [f]  │
+│ Overlays                       [x]  │
 │ [■] designations  [□] priority digits│
 │ [■] zones         [□] fluid levels  │
 │ [□] temperature   [□] jobs          │
