@@ -1193,6 +1193,7 @@ export class Game {
       sidebarOpen: this.ui.panel !== null && this.ui.sidebar,
       cursor: this.ui.cursor,
       overlays: this.ui.overlays,
+      selectedZone: this.ui.panel === 'zones' ? this.fortress.zones.selected : 0,
       // 23 § Animation: the presentation clock (`algorithms/compositor.md` `animPhase`).
       animFrame: Math.floor(Date.now() / FLUID_ANIM_MS),
     };

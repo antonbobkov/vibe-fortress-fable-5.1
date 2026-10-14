@@ -289,7 +289,7 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
       const kind = ZONE_KINDS[k + j];
       if (kind === undefined) continue;
       const col = rect.col + 1 + j * colW;
-      const n = label(s, col, row, `${acceleratorLabel(kind.key, ctx.panelLetters)} ${strings.get(`ui.zone.type.${kind.id}`)}`, { width: colW - 1 });
+      const n = label(s, col, row, `${acceleratorLabel(kind.key, ctx.panelLetters)} ${strings.get(`ui.zone.short.${kind.id}`)}`, { width: colW - 1 });
       if (tool.kind === kind.id) s.invert({ col, row, cols: n, rows: 1 });
       s.hit({ col, row, cols: n, rows: 1 }, () => void tool.choose(kind.key));
     }

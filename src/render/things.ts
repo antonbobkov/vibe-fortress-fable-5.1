@@ -26,8 +26,8 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import type { Cell } from './cellbuffer';
-import { ZONE_TINT_ALPHA } from './constants';
-import { blend, parseHex, type Palette, type Rgb } from './palette';
+import { ZONE_SELECTED_ALPHA_FACTOR, ZONE_TINT_ALPHA, ZONE_TINT_MIN_LUMA } from './constants';
+import { blend, blendWithFloor, brighten, parseHex, type Palette, type Rgb } from './palette';
 
 interface BuildingRowLike {
   readonly id: string;
@@ -246,13 +246,19 @@ export class ThingLayers {
   // ---------- step 8 ----------
 
   /** `zones`: "`bg` tinted by zone type at low alpha". */
-  zoneOver(cell: Cell, i: TileIndex, readers: ReaderSet): Cell {
+  zoneOver(cell: Cell, i: TileIndex, readers: ReaderSet, selectedZone = 0): Cell {
     if (!readers.has('14')) return cell;
     const reader = readers.of<BuildingsReader>('14');
     const zone = reader.zoneAt(i);
     if (zone === 0) return cell;
     const tint = this.zoneTints.get(reader.zone(zone)?.type ?? '');
-    return tint === undefined ? cell : { glyph: cell.glyph, fg: cell.fg, bg: blend(cell.bg, tint, ZONE_TINT_ALPHA) };
+    if (tint === undefined) return cell;
+    const plain = blendWithFloor(cell.bg, tint, ZONE_TINT_ALPHA, ZONE_TINT_MIN_LUMA);
+    if (zone !== selectedZone) return { glyph: cell.glyph, fg: cell.fg, bg: plain };
+    // The selected zone: twice the alpha, with the same floor; where the floor made it the same as an unselected zone, a quarter brighter.
+
+    const strong = blendWithFloor(cell.bg, tint, Math.min(1, ZONE_TINT_ALPHA * ZONE_SELECTED_ALPHA_FACTOR), ZONE_TINT_MIN_LUMA);
+    return { glyph: cell.glyph, fg: cell.fg, bg: strong === plain ? brighten(plain, 1 + ZONE_TINT_ALPHA) : strong };
   }
 
   /**

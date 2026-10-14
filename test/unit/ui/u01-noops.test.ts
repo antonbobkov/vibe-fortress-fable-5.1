@@ -71,7 +71,7 @@ describe('U-01 silent no-ops get a status message (§4.2, Q6)', () => {
     screen.zones.choose('f');
     screen.commitZone({ x: 10, y: 10, z }, { x: 12, y: 12, z });
     expect(sent).toEqual([]);
-    expect(screen.statusRow2()).toBe('Farm plot: 0 of 9 tiles qualify: it needs soil, mud or cave loam that no other zone holds.');
+    expect(screen.statusRow2()).toBe('Farm plot: none of the 9 tiles qualify (soil that no other zone holds).');
     expect(screen.ui.hintsShown).toContain('hint_farm');
     expect(screen.log.lines.some((l) => l.text.includes('☼'))).toBe(true);
   });
