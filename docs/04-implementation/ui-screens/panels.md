@@ -12,9 +12,9 @@ A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-scre
 │ Zones                          [x]  │
 │ [S-s] Stockpile [S-f] Farm plot     │
 │ [S-p] Pasture   [S-b] Bedroom       │
-│ [S-d] Dining h… [h] Hearth hall     │
+│ [S-d] Dining    [h] Hearth          │
 │ [S-o] Hospital  [r] Barracks        │
-│ [S-a] Archery   [S-m] Meeting area  │
+│ [S-a] Archery   [S-m] Meeting       │
 │ [S-t] Tomb      [S-u] Dump          │
 │ [i] Fishing     [g] Gather          │
 │ ─ Drag a rectangle.                │
@@ -27,6 +27,8 @@ A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-scre
 │ Crops: 18 growing, 4 ready, 2 empty │
 │ [x] remove zone  [S-e] resize       │
 ```
+
+The type list uses names that fit a 16-cell column (Dining, Hearth, Meeting, Archery, Fishing, Gather); the full names stay in the tool prompt ("Dining hall · drag a rectangle") and in a zone's own name. After a drag the status row says what was made: "Stockpile #2 made: 12 tiles.", or, when tiles were left out, "Farm plot #1 made: 9 tiles (6 left out: 6 belong to another zone)." The reasons are counted per kind (another zone, not walkable, not soil, not beside deep water). The new zone is selected at once, so its inspector shows, and the tool stays armed for the next drag. A drag where no tile qualifies sends nothing and says "Bedroom: none of the 4 tiles qualify (floor that no other zone holds)." While a zone is selected and the tool is idle, status row 2 reads "Selected: Farm plot #3 (24 t)".
 
 A stockpile made while paused can be configured immediately, before its `ZoneChanged` is dispatched. While its record is absent, the inspector reads the same empty filter, zero wanted containers, no links and `HAUL_PRIORITY` defaults as the item system, without creating state during drawing. Every editor action uses those defaults until a command creates the record; a deleted zone still reports that it is unavailable.
 

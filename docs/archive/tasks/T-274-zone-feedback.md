@@ -1,6 +1,8 @@
 # T-274 — Zones: a message when one is made, the tiles left out, zones that can be seen
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 4) · **Size:** M · **Needs:** T-245 (it changes the same zone drawing and `src/ui/panels/zones.ts`) · **Status:** open
+Closed by `T-274: a zone drag says what it made, and zones can be seen` (the commit that moved this file). Decision made while doing it: where the luminance floor makes the selected zone's tint equal to an unselected one, its channels are scaled up by a quarter, so the selection always shows.
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (issue 4) · **Size:** M · **Needs:** T-245 (it changes the same zone drawing and `src/ui/panels/zones.ts`) · **Status:** open
 
 ## Why
 
@@ -8,13 +10,13 @@ After a zone drag nothing says a zone exists, and the zone is a 25% tint over a 
 
 ## Reproduction
 
-`?start=flat-test&embark=default`, paused. `z`, `Shift+S`, drag 4×3: the status row still reads "Stockpile · drag a rectangle · [Esc] cancel". `Shift+F`, drag 5×3 overlapping two columns of the stockpile: the same; one tick later a click shows "Farm plot #1 (9 t)" for a 15-tile drag. Screenshot: [`zone-tints-after-overlap.png`](../../reports/audits/2026-10-12-ui-ux/replay/zone-tints-after-overlap.png) (the selected plot is the barely visible rectangle at the top left). Capture 1/53, 1/63, 5/38, 5/40. Labels: "[S-d] Dining ha", "[S-m] Meeting a" (1/63).
+`?start=flat-test&embark=default`, paused. `z`, `Shift+S`, drag 4×3: the status row still reads "Stockpile · drag a rectangle · [Esc] cancel". `Shift+F`, drag 5×3 overlapping two columns of the stockpile: the same; one tick later a click shows "Farm plot #1 (9 t)" for a 15-tile drag. Screenshot: [`zone-tints-after-overlap.png`](../../../reports/audits/2026-10-12-ui-ux/replay/zone-tints-after-overlap.png) (the selected plot is the barely visible rectangle at the top left). Capture 1/53, 1/63, 5/38, 5/40. Labels: "[S-d] Dining ha", "[S-m] Meeting a" (1/63).
 
 ## What the spec says
 
-- [`23-rendering.md`](../02-systems/23-rendering.md) § Overlays: "`zones` (default on): `bg` tinted by zone type at low alpha"; `ZONE_TINT_ALPHA` = 0.25.
-- [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules: an action that succeeds or fails says so.
-- [`panels.md`](../04-implementation/ui-screens/panels.md) § Zones.
+- [`23-rendering.md`](../../02-systems/23-rendering.md) § Overlays: "`zones` (default on): `bg` tinted by zone type at low alpha"; `ZONE_TINT_ALPHA` = 0.25.
+- [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules: an action that succeeds or fails says so.
+- [`panels.md`](../../04-implementation/ui-screens/panels.md) § Zones.
 
 ## What to do
 
@@ -33,4 +35,4 @@ After a zone drag nothing says a zone exists, and the zone is a 25% tint over a 
 ## Done
 
 - The reproduction says "Farm plot #1 made: 9 tiles (6 left out: …)", and both zones can be seen in a screenshot without the dump.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

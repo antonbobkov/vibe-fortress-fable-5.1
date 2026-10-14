@@ -81,6 +81,8 @@ export interface ViewState {
    * on by default, `priority digits` off). Omitted means the defaults.
    */
   readonly overlays?: readonly string[];
+  /** The zone selected in the Zones panel; its tiles draw at twice the tint. Omitted is none. */
+  readonly selectedZone?: number;
   /**
    * The presentation clock in `FLUID_ANIM_MS` periods (23 § Animation): fluids alternate on its
    * parity, fire, blink and the hearth pulse on the 1000 ms clock (`animFrame >> 1`). Omitted is 0.
@@ -182,6 +184,7 @@ export class Compositor {
   /** The frame's readers and overlays, set by {@link compose} for the layer functions. */
   private frameReaders: ReaderSet | null = null;
   private frameOverlays: readonly string[] = DEFAULT_OVERLAYS;
+  private frameSelectedZone = 0;
   private buffer: CellBuffer = new CellBuffer(0, 0);
   /** Steps 4, 5 and the zone and stockpile-usage overlays (T-M2-10). */
   private readonly things: ThingLayers;
@@ -280,6 +283,7 @@ export class Compositor {
     cells.fill(GLYPH_NONE, this.black, this.black);
     this.frameReaders = readers;
     this.frameOverlays = ui.overlays ?? DEFAULT_OVERLAYS;
+    this.frameSelectedZone = ui.selectedZone ?? 0;
     this.usage.clear();
     this.env.beginFrame(readers, ui.animFrame ?? 0);
     this.debug.beginFrame(readers, this.frameOverlays);
@@ -695,7 +699,7 @@ export class Compositor {
   /** `zones` (default on): "`bg` tinted by zone type at low alpha" (T-M2-10). */
   private zoneOver(cell: Cell, i: TileIndex): Cell {
     const readers = this.frameReaders;
-    return readers === null ? cell : this.things.zoneOver(cell, i, readers);
+    return readers === null ? cell : this.things.zoneOver(cell, i, readers, this.frameSelectedZone);
   }
 
   /** `stockpile usage` (off by default): the fullness ramp (13; T-M2-10). */

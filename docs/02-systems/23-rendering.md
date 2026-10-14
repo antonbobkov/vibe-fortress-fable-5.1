@@ -59,7 +59,7 @@ For each viewport cell, tile `t = (camX + col, camY + row, z)`:
 7. **Projectile** on `t`: `-`, `|`, `/`, `\` by direction, in `white`, over everything.
 8. **Overlays** (each toggled in the overlay menu, 24):
    - `designations` (default on): `bg` tinted by designation kind (dig blue, channel cyan, stairs magenta, ramp purple, smooth light gray, engrave white, remove red, chop green, gather yellow-green), priority digit as glyph when the `priority digits` sub-toggle is on.
-   - `zones` (default on): `bg` tinted by zone type at low alpha; stockpiles gray-blue, farm plots brown, pastures green, bedrooms violet, dining halls gold, hearth hall orange, hospital white-red, barracks steel, tomb dark gray, dump dark yellow, fishing blue, gather olive.
+   - `zones` (default on): `bg` tinted by zone type at low alpha, blended at `ZONE_TINT_ALPHA` over the cell's own `bg` and never darker than `ZONE_TINT_MIN_LUMA` in relative luminance (a tint on a black cell is lifted to that floor; glyph colours do not change); the tiles of the zone selected in the Zones panel blend at twice the alpha, with the same floor (where the floor makes that equal to an unselected zone's tint, its channels are scaled up by `1 + ZONE_TINT_ALPHA`, so the selection always shows); stockpiles gray-blue, farm plots brown, pastures green, bedrooms violet, dining halls gold, hearth hall orange, hospital white-red, barracks steel, tomb dark gray, dump dark yellow, fishing blue, gather olive.
    - `fluid levels`: level digits over fluid tiles.
    - `temperature`: `bg` ramp from `blue` at `TEMPERATURE_RAMP_COLD_C` and below to `red` at `TEMPERATURE_RAMP_HOT_C` and above, blended in between (computed for visible tiles only).
    - `jobs`: tints claimed jobs' target tiles `alert` and their workers' remaining routes `text_value`.
@@ -130,6 +130,7 @@ Everything visible. The overlay menu (24) lists overlays with their toggles; the
 | `AUTO_ZOOM_MIN_COLS` | 100 | Columns the `Auto` zoom keeps at least |
 | `AUTO_ZOOM_MIN_ROWS` | 56 | Rows the `Auto` zoom keeps at least |
 | `ZONE_TINT_ALPHA` | 0.25 | Blend factor for zone backgrounds |
+| `ZONE_TINT_MIN_LUMA` | 0.18 | Least relative luminance of a zone's background |
 | `TEMPERATURE_RAMP_COLD_C` | −20 | At or below this the `temperature` overlay is `blue` |
 | `TEMPERATURE_RAMP_HOT_C` | 40 | At or above this the `temperature` overlay is `red` |
 | `PARTICLE_ONE_IN` | 16 | One eligible outdoor cell in this many carries a rain or snow particle each frame |

@@ -309,6 +309,37 @@ export function blend(base: Rgb, tint: Rgb, alpha: number): Rgb {
   return rgb(mix(red(base), red(tint)), mix(green(base), green(tint)), mix(blue(base), blue(tint)));
 }
 
+/** A colour with every channel scaled by `factor` (at most 255). */
+export function brighten(color: Rgb, factor: number): Rgb {
+  return rgb(Math.min(255, Math.floor(red(color) * factor)), Math.min(255, Math.floor(green(color) * factor)), Math.min(255, Math.floor(blue(color) * factor)));
+}
+
+/** WCAG relative luminance of a colour, 0 (black) to 1 (white). */
+export function relativeLuminance(color: Rgb): number {
+  const lin = (v: number): number => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(red(color)) + 0.7152 * lin(green(color)) + 0.0722 * lin(blue(color));
+}
+
+/**
+ * `blend(base, tint, alpha)`, lifted so its relative luminance is at least `floor`: first by more of
+ * the tint, then, when the tint is itself too dark, by scaling the result up.
+ */
+export function blendWithFloor(base: Rgb, tint: Rgb, alpha: number, floor: number): Rgb {
+  let a = alpha;
+  let out = blend(base, tint, a);
+  while (relativeLuminance(out) < floor && a < 1) {
+    a = Math.min(1, a + 0.05);
+    out = blend(base, tint, a);
+  }
+  for (let k = 1.1; relativeLuminance(out) < floor && k < 40; k += 0.1) {
+    out = rgb(Math.min(255, Math.floor(red(tint) * k)), Math.min(255, Math.floor(green(tint) * k)), Math.min(255, Math.floor(blue(tint) * k)));
+  }
+  return out;
+}
+
 export class Palette {
   private readonly colors = new Map<string, Rgb>();
   private readonly dimCache = new Map<number, Rgb>();

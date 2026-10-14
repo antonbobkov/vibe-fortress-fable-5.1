@@ -30,5 +30,11 @@ export const FLUID_ANIM_MS = 500;
 /** Blend factor for zone backgrounds. */
 export const ZONE_TINT_ALPHA = 0.25;
 
+/** The least relative luminance of a zone's background: a tint on a black cell is lifted to it. */
+export const ZONE_TINT_MIN_LUMA = 0.18;
+
+/** The selected zone's tiles blend at this many times `ZONE_TINT_ALPHA`. */
+export const ZONE_SELECTED_ALPHA_FACTOR = 2;
+
 /** The bundled square bitmap font, loaded before the browser builds any atlas. */
 export const BUNDLED_FONT_FAMILY = 'DeepholmMono';
