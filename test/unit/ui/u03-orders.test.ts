@@ -113,7 +113,7 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     expect(orders[0]).toMatchObject({ mode: 'once', remaining: 5 });
     expect(f.screen.orders.picker.open).toBe(false);
     // The status row says what was ordered, and the list shows one row with its count.
-    expect(f.screen.statusRow2()).toBe("Ordered: ×5 Door · Carpenter's workshop #1");
+    expect(f.screen.statusRow2()).toBe('Ordered: ×5 Door. Waiting for log (0 in stock).');
     expect(panelText(f)).toContain('x5 Door · ');
   });
 

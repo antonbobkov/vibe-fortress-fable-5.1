@@ -1,6 +1,8 @@
 # T-276 — Orders: a warning when nothing can make it, blocked orders in Jobs, the right recipe first
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 5, § 4) · **Size:** M · **Needs:** T-248 (same file, `src/ui/panels/orders.ts`) · **Status:** open
+Closed by `T-276: an order nothing can make says so, and Jobs lists the orders waiting` (the commit that moved this file). The keyboard path to the "Orders waiting" rows moved to T-311; the click is done.
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (issue 5, § 4) · **Size:** M · **Needs:** T-248 (same file, `src/ui/panels/orders.ts`) · **Status:** open
 
 ## Why
 
@@ -12,8 +14,8 @@ Default embark, no workshop. `o`, `Shift+N`, type `mail`, `Enter`: "Ordered: x1 
 
 ## What the spec says
 
-- [`12-workshops-and-professions.md`](../02-systems/12-workshops-and-professions.md) § Player-facing behavior: work orders and why an order waits.
-- [`panels.md`](../04-implementation/ui-screens/panels.md) § Orders (the picker) and § Jobs.
+- [`12-workshops-and-professions.md`](../../02-systems/12-workshops-and-professions.md) § Player-facing behavior: work orders and why an order waits.
+- [`panels.md`](../../04-implementation/ui-screens/panels.md) § Orders (the picker) and § Jobs.
 
 ## What to do
 
@@ -32,4 +34,4 @@ Default embark, no workshop. `o`, `Shift+N`, type `mail`, `Enter`: "Ordered: x1 
 ## Done
 
 - The reproduction warns at once, lists the mail shirt under "Orders waiting" in Jobs, and "barrel" then `Enter` orders a wooden barrel when a carpenter's workshop stands.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

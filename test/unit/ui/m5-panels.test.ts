@@ -53,6 +53,7 @@ describe('T-M5-08 Stocks, global orders and material dropdown', () => {
     const at = recipes.findIndex((r) => r.id === 'forge_battle_axe');
     expect(at).toBeGreaterThanOrEqual(0);
     g.fortress.orders.picker.list.selected = at;
+    g.fortress.orders.picker.chosen = true;
     g.handleKey(press('Enter'));
     expect(spy.mock.lastCall?.[0]).toMatchObject({ type: 'AddWorkOrder', workshopId: 0 });
     g.host.step(1);

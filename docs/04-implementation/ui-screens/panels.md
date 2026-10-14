@@ -102,6 +102,8 @@ Open border tiles on the viewed level are highlighted using the room's existing 
 │ Mining 2 · Hauling 7                  │
 ```
 
+Below the job list, "Orders waiting (n)" lists up to three work orders that no job serves, one row each with the reason the Orders panel shows ("x1 Mail shirt · no forge", "x3 Door · waiting for log (0)"); the Jobs text filter applies to those rows, and a click on a row opens Orders with that order selected.
+
 Jobs names a building target by its type (Build bed, Build carpenter's workshop) and an item target by its item name (Haul log). Only bare-tile jobs show coordinates. Click the job name or press Enter to centre its target. With no rows, the first table body row says "No jobs. Designate [d], build [b] or order [o]."
 
 The filter controls wrap onto three rows at sidebar width: `/filter`, `[S-l] labor: all`, `[S-s] state: all`. `/` or clicking the field focuses text matching the job name or worker, ignoring case. Enter or Esc finishes typing without closing the panel. Shift-L or clicking the labor row cycles all and the labors with jobs in registry order; Shift-S or clicking the state row cycles all, open, claimed, blocked. Claimed includes fetching, travelling, working and completing. Filters combine; changing one resets selection. The summary counts all current jobs. Labor priorities show only non-default priorities, using full names separated by dots. With all defaults, the line reads "All labors at priority 5: change them in the labor manager ([l], Enter)."
@@ -218,7 +220,9 @@ A full-window screen over the fortress (`labor_manager`), opened with `Enter` in
 ```
 
 - Letters type into `Find` (a filter on the recipe names; `Backspace` deletes). `↑↓` and `PageUp`/`PageDown` move in the list. Recipes are grouped by the top category of what they make, "Recent" first; `●` marks a recipe some workshop can run now, `○` one it cannot. Two recipes of the same name say which workshop type makes them.
-- Digits type the quantity; `+`/`-` step it by 1 and with `Shift` by 10 (1–999).
+- Digits type the quantity; `+`/`-` step it by 1 and with `Shift` by 10 (1–999). A first digit `0` does nothing, so the quantity is never 0. `PageUp`/`PageDown` move the list by a screen.
+- Within a filter's matches the recipes are ranked: those a built workshop can make now, then those whose workshop exists but lacks an input, then those with no workshop; inside each group the order is the category order. A recipe with no workshop is dim with "· no forge" after its name. `Enter` adds the highlighted recipe only after the player has typed a filter or moved the highlight with a key or a click (or the picker opened on a recipe); otherwise the status row says "Type a name or choose a recipe."
+- The order is accepted even when nothing can make it yet, and the status row says so in the same line: "Ordered: x1 Mail shirt. No forge is built yet: [b] Build > Workshops.", or, when a workshop exists but an input is missing, "Ordered: x5 Barrel. Waiting for log (0 in stock)."
 - `Tab` / `Shift+Tab` move the `▶` between the fields; `←→` change the focused one: the quantity, the mode (`once: make N` / `keep ≥ N in stock`), the material (any, a class, or one material the recipe takes) and, for a global order, the workshop (any of the recipe's type, or one of them). A click on a field changes it.
 - Opened from a workshop the picker lists that workshop's recipes and `Where` is fixed to it.
 - `Enter` (or a second click on the selected recipe) submits `AddWorkOrder` and closes the picker; the status row confirms ("Ordered: ×5 Door · Carpenter's workshop #1"). `Esc` closes it without ordering.

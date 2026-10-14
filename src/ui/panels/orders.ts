@@ -64,6 +64,10 @@ export class OrderPicker {
   quantity = ORDER_COUNT_MIN;
   /** Digits are continuing the number just typed. */
   typing = false;
+  /** The player typed a filter, moved the highlight or clicked a recipe, or the picker opened on a recipe: `Enter` may add it. */
+  chosen = false;
+  /** Rows of the recipe list as last drawn: what `PageUp` and `PageDown` move by. */
+  height = 10;
   mode: WorkOrder['mode'] = 'once';
   /** The material filter's option id; `''` is any. */
   material = '';
@@ -143,6 +147,18 @@ export class OrdersPanel {
     return [...this.entries(ctx).map((entry): OrderRow => ({ kind: 'live', entry })), ...done.map((d): OrderRow => ({ kind: 'done', done: d }))];
   }
   selectedRow(ctx: PanelContext): OrderRow | undefined { return this.rows(ctx)[this.list.selected]; }
+
+  /** The live orders that have no job and why, as the Orders panel shows them (the Jobs panel's "Orders waiting"). */
+  waiting(ctx: PanelContext): { readonly index: number; readonly text: string }[] {
+    const out: { index: number; text: string }[] = [];
+    this.rows(ctx).forEach((row, index) => {
+      if (row.kind !== 'live') return;
+      const kind = this.status(ctx, row).kind;
+      if (kind === 'in_progress' || kind === 'queued' || kind === 'stocked' || kind === 'done') return;
+      out.push({ index, text: this.rowText(ctx, row) });
+    });
+    return out;
+  }
   /** The selected live order. */
   selected(ctx: PanelContext): OrderEntry | undefined {
     const row = this.selectedRow(ctx);
@@ -153,6 +169,7 @@ export class OrdersPanel {
     if (this.picker.open) {
       const count = this.pickerRecipes(ctx).length;
       this.picker.list.selected = Math.max(0, Math.min(Math.max(0, count - 1), this.picker.list.selected + delta));
+      if (delta !== 0) this.picker.chosen = true;
       this.syncWhere(ctx);
       return;
     }
@@ -191,7 +208,9 @@ export class OrdersPanel {
   /** The picker's rows: "Recent" first, then one group per output category, the filter applied. */
   pickerRows(ctx: PanelContext): PickerRow[] {
     const needle = this.picker.filter;
-    const all = this.candidates(ctx).filter((r) => needle === '' || r.name.toLowerCase().replace(/[^a-z]/g, '').includes(needle));
+    const matches = this.candidates(ctx).filter((r) => needle === '' || r.name.toLowerCase().replace(/[^a-z]/g, '').includes(needle));
+    // Within a filter's matches: what a built workshop can make now, then what lacks an input, then what has no workshop.
+    const all = needle === '' ? matches : matches.map((r, k) => ({ r, k, rank: this.rank(ctx, r) })).sort((a, b) => a.rank - b.rank || a.k - b.k).map((x) => x.r);
     return this.groupRecipes(ctx, all, this.recent);
   }
 
@@ -220,6 +239,15 @@ export class OrdersPanel {
     return this.pickerRows(ctx).flatMap((row) => ('recipe' in row ? [row.recipe] : []));
   }
   pickerRecipe(ctx: PanelContext): RecipeRow | undefined { return this.pickerRecipes(ctx)[this.picker.list.selected]; }
+
+  /** 0: a built workshop can make it now; 1: its workshop exists but lacks an input; 2: no such workshop is built. */
+  rank(ctx: PanelContext, recipe: RecipeRow): number {
+    // The order must not depend on the workshop chosen in the picker, or choosing one would move the recipe.
+    const reader = this.reader(ctx);
+    const where = this.picker.fixed ? [this.picker.workshopId] : this.workshopsOfType(ctx, recipe.workshop);
+    if (reader !== null && where.some((id) => reader.isRunnable(recipe.id, id).runnable)) return 0;
+    return where.length > 0 ? 1 : 2;
+  }
 
   /** Whether some workshop the order could go to can run the recipe now. */
   makeable(ctx: PanelContext, recipe: RecipeRow): boolean {
@@ -256,6 +284,7 @@ export class OrdersPanel {
     p.list.scroll = 0;
     p.quantity = clampCount(preset.quantity ?? ORDER_COUNT_MIN);
     p.typing = false;
+    p.chosen = preset.recipeId !== undefined || preset.itemId !== undefined;
     p.mode = 'once';
     p.material = '';
     p.workshopId = preset.workshopId ?? 0;
@@ -310,13 +339,14 @@ export class OrdersPanel {
       return true;
     }
     if (k === 'ArrowUp' || k === '↑' || k === 'ArrowDown' || k === '↓') { this.move(k === 'ArrowUp' || k === '↑' ? -1 : 1, ctx); return true; }
-    if (k === 'PageUp' || k === 'PageDown') { this.move(k === 'PageUp' ? -ORDER_COUNT_BIG_STEP : ORDER_COUNT_BIG_STEP, ctx); return true; }
+    if (k === 'PageUp' || k === 'PageDown') { this.move(k === 'PageUp' ? -Math.max(1, p.height - 1) : Math.max(1, p.height - 1), ctx); return true; }
     if (k === 'ArrowLeft' || k === '←' || k === 'ArrowRight' || k === '→') {
       this.pickerAdjust(ctx, p.field, k === 'ArrowLeft' || k === '←' ? -1 : 1);
       return true;
     }
     if (k === 'Backspace') {
       p.filter = p.filter.slice(0, -1);
+      p.chosen = true;
       p.list.selected = 0;
       this.syncWhere(ctx);
       return true;
@@ -330,6 +360,7 @@ export class OrdersPanel {
     if (step !== 0) { p.quantity = clampCount(p.quantity + step); return true; }
     if (/^[a-zA-Z]$/.test(k)) {
       p.filter += k.toLowerCase();
+      p.chosen = true;
       p.list.selected = 0;
       this.syncWhere(ctx);
       return true;
@@ -345,6 +376,10 @@ export class OrdersPanel {
       ctx.notice?.(p.filter === '' ? ctx.strings.get('ui.orders.no_recipes') : ctx.strings.get('ui.orders.no_recipe', { filter: p.filter }));
       return null;
     }
+    if (!p.chosen) {
+      ctx.notice?.(ctx.strings.get('ui.orders.choose_first'));
+      return null;
+    }
     const maintain = p.mode === 'maintain';
     const materialFilter = p.material === '' ? null : p.material;
     const cmd: Command = { type: 'AddWorkOrder', workshopId: p.workshopId, order: {
@@ -353,11 +388,26 @@ export class OrdersPanel {
     ctx.submit(cmd);
     this.recent = [recipe.id, ...this.recent.filter((id) => id !== recipe.id)].slice(0, ORDER_RECENT_MAX);
     if (!maintain) this.ask(p.workshopId, recipe.id, p.quantity, materialFilter);
-    ctx.notice?.(ctx.strings.get('ui.orders.added', {
-      qty: ctx.strings.get(maintain ? 'ui.orders.qty.keep' : 'ui.orders.qty.once', { n: p.quantity }), recipe: recipe.name, where: this.whereName(ctx, p.workshopId, recipe),
-    }));
+    const qty = ctx.strings.get(maintain ? 'ui.orders.qty.keep' : 'ui.orders.qty.once', { n: p.quantity });
+    ctx.notice?.(this.addedText(ctx, recipe, qty, p.workshopId));
     p.open = false;
     return cmd;
+  }
+
+  /** The status line after an order: it warns at once when nothing can make it yet. */
+  private addedText(ctx: PanelContext, recipe: RecipeRow, qty: string, workshopId: EntityId): string {
+    const s = ctx.strings;
+    const reader = this.reader(ctx);
+    const where = workshopId === 0 ? this.workshopsOfType(ctx, recipe.workshop) : [workshopId];
+    if (where.length === 0) {
+      const workshop = (ctx.registry.table<{ id: string; name: string }>('buildings').byId(recipe.workshop)?.name ?? recipe.workshop.replace(/_/g, ' ')).toLowerCase();
+      return s.get('ui.orders.added_no_workshop', { qty, recipe: recipe.name, workshop });
+    }
+    if (reader !== null && !where.some((id) => reader.isRunnable(recipe.id, id).runnable)) {
+      const waiting = waitingFor(ctx, reader.isRunnable(recipe.id, where[0] as EntityId).reason);
+      if (waiting !== null) return s.get('ui.orders.added_waiting', { qty, recipe: recipe.name, item: waiting.item, n: waiting.n });
+    }
+    return s.get('ui.orders.added', { qty, recipe: recipe.name, where: this.whereName(ctx, workshopId, recipe) });
   }
 
   // ---------- the list ----------
@@ -763,6 +813,7 @@ function drawPicker(s: Surface, rect: Rect, panel: OrdersPanel, ctx: PanelContex
   const fields: PickerField[] = ['quantity', 'mode', 'material', 'where'];
   const bottom = fields.length + 2;
   const height = Math.max(1, rect.rows - 2 - bottom);
+  p.height = height;
   const rows = panel.pickerRows(ctx);
   // Two workshop types can make a thing of the same name ("Door"): such rows say which one.
   const seen = new Map<string, string>();
@@ -779,10 +830,10 @@ function drawPicker(s: Surface, rect: Rect, panel: OrdersPanel, ctx: PanelContex
   } else {
     groupedList(s, { col, row: rect.row + 2, cols: width, rows: height }, rows.map((row): GroupRow => ('heading' in row
       ? { heading: row.heading }
-      : { text: () => `${panel.makeable(ctx, row.recipe) ? '●' : '○'} ${row.recipe.name}${twins.has(row.recipe.name) ? ` · ${workshopOf(row.recipe)}` : ''}` })), p.list, (index) => {
+      : { text: () => `${panel.makeable(ctx, row.recipe) ? '●' : '○'} ${row.recipe.name}${twins.has(row.recipe.name) ? ` · ${workshopOf(row.recipe)}` : ''}${panel.rank(ctx, row.recipe) === 2 ? ` · no ${workshopOf(row.recipe).toLowerCase()}` : ''}`, ...(panel.rank(ctx, row.recipe) === 2 ? { fg: t.dim } : {}) })), p.list, (index) => {
       // A click selects; a click on the selected recipe adds it.
       if (index === p.list.selected) panel.pickerAdd(ctx);
-      else { p.list.selected = index; p.typing = false; panel.move(0, ctx); }
+      else { p.list.selected = index; p.typing = false; p.chosen = true; panel.move(0, ctx); }
     });
   }
   let row = rect.row + 2 + height;

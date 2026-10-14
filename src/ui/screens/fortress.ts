@@ -624,7 +624,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx, () => this.removeZone(this.zones.selected));
     else if (panel.id === 'stocks') drawStocksPanel(surface, body, this.stocks, ctx);
     else if (panel.id === 'units') drawUnitsPanel(surface, body, this.units, ctx);
-    else if (panel.id === 'jobs') drawJobsPanel(surface, body, this.jobs, ctx);
+    else if (panel.id === 'jobs') drawJobsPanel(surface, body, this.jobs, ctx, { list: () => this.orders.waiting(ctx), open: (index) => { this.openPanel('orders'); this.orders.workshopId = 0; this.orders.list.selected = index; } });
     else if (panel.id === 'labors') drawLaborsPanel(surface, body, this.labors, ctx);
     else if (panel.id === 'orders') drawOrdersPanel(surface, body, this.orders, ctx);
     else if (panel.id === 'workshop') drawWorkshopPanel(surface, body, this.workshopId, this.orders, ctx,
