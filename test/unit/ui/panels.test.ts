@@ -226,7 +226,8 @@ describe('T-M2-09 stocks, units, jobs and labors panels', () => {
     expect(game.fortress.units.rows(game.fortress.ctx).length).toBeGreaterThanOrEqual(1);
     expect(game.fortress.units.rows(game.fortress.ctx).length).toBeLessThan(7);
     game.render();
-    expect(game.textRows().join('\n')).toContain(first);
+    // The name column is 14 cells: the cursor mark and twelve letters of the name.
+    expect(game.textRows().join('\n')).toContain(first.slice(0, 12));
     key(game, 'l');
     expect(game.ui.panel).toBe('labors');
   });

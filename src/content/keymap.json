@@ -351,6 +351,11 @@
   },
   {
     "context": "labor_manager",
+    "key": "letters",
+    "action": "jump to the next labor starting with that letter (Shift and the letter for a, c, t)"
+  },
+  {
+    "context": "labor_manager",
     "key": "Esc",
     "action": "close"
   },
@@ -363,6 +368,16 @@
     "context": "units_panel",
     "key": "*",
     "action": "mark all / none"
+  },
+  {
+    "context": "units_panel",
+    "key": "i",
+    "action": "show only idle dwarves / all"
+  },
+  {
+    "context": "units_panel",
+    "key": "Shift+W",
+    "action": "wounded dwarves first / list order"
   },
   {
     "context": "units_panel",

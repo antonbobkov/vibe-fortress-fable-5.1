@@ -107,10 +107,10 @@ describe('U-06 units: marks and the mood glyph (M10)', () => {
     expect(f.speeds).toEqual([]);
     expect(f.screen.units.marks.list(f.dwarves)).toEqual([f.dwarves[0], f.dwarves[2]]);
     const lines = f.draw();
-    expect(lines.some((l) => l.includes('•Dwarf00 Stone'))).toBe(true);
+    expect(lines.some((l) => l.includes('•Dwarf00 Ston'))).toBe(true);
     expect(lines.some((l) => l.includes('2 marked'))).toBe(true);
     // Shift-click the sixth row: the range from the last marked row.
-    const row = lines.findIndex((l) => l.includes('Dwarf05 Stone'));
+    const row = lines.findIndex((l) => l.includes('Dwarf05 Ston'));
     f.screen.pointerDown({ col: (lines[row] as string).indexOf('Dwarf05') + 1, row, button: 0, shift: true, ctrl: false, alt: false, meta: false });
     expect(f.screen.units.marks.list(f.dwarves)).toEqual([f.dwarves[0], ...f.dwarves.slice(2, 6)]);
     f.screen.key(press('*', { shift: true }));
@@ -131,8 +131,8 @@ describe('U-06 units: marks and the mood glyph (M10)', () => {
   it('the mood tier glyph follows the name, and differs by more than its colour', () => {
     const f = setup('u06-units-mood', 3);
     f.screen.openPanel('units');
-    const line = f.draw().find((l) => l.includes('Dwarf01 Stone')) ?? '';
-    expect(line).toMatch(/Dwarf01 Stone\s+[☺☻‼] /);
+    const line = f.draw().find((l) => l.includes('Dwarf01 Ston')) ?? '';
+    expect(line).toMatch(/Dwarf01 Ston\s+[☺☻‼] /);
     expect([moodGlyph(0), moodGlyph(1), moodGlyph(2), moodGlyph(4)]).toEqual([
       { glyph: '‼', color: 'danger' },
       { glyph: '☻', color: 'alert' },
@@ -236,7 +236,7 @@ describe('U-06 units: titles and renames round-trip (M10)', () => {
     expect(f.sent).toEqual([{ type: 'RenameDwarf', dwarfId: f.dwarves[0], name: 'Urist Goldhand' }]);
     f.w.step(1);
     expect(nameOf(f.w, f.dwarves[0] as EntityId)).toBe('Urist Goldhand');
-    expect(f.draw().join('\n')).toContain('Urist Goldhand');
+    expect(f.draw().join('\n')).toContain('Urist Goldha');
   });
 
   it('the text input dialog edits, refuses an empty name with a reason, and cancels with Esc', () => {

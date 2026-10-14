@@ -77,7 +77,7 @@ test('labor-manager', async ({ page }) => {
   await page.keyboard.press('Enter');
   await expect.poll(() => screenOf(page)).toBe('fortress');
   await step(1);
-  await expect.poll(() => textOf(page)).toContain('Kili Deepdelver');
+  await expect.poll(() => textOf(page)).toContain('Kili Deepdel');
 
   // Military: a squad, then three members from one list.
   await page.keyboard.press('m');

@@ -29,6 +29,9 @@ import {
   LABOR_CELL_COLS_MAX,
   LABOR_CELL_COLS_MIN,
   LABOR_HEADER_ROWS,
+  LABOR_SKILL_GOOD_LEVEL,
+  LABOR_SKILL_VALUE_LEVEL,
+  LABOR_TALL_WINDOW_ROWS,
   LABOR_NAME_COLS_MAX,
   LABOR_NAME_COLS_MIN,
   LABOR_TEMPLATES,
@@ -69,6 +72,8 @@ interface Grid {
   /** The first cell column of the grid. */
   readonly gridCol: number;
   readonly headerRow: number;
+  /** Rows of the column heads: the labor names written downward. */
+  readonly headerRows: number;
   readonly priorityRow: number;
   readonly dataRow: number;
   /** Dwarf rows that fit. */
@@ -131,6 +136,31 @@ export class LaborManagerScreen implements Screen {
     const asked = this.pending.get(`${dwarf}:${labor}`);
     if (asked !== undefined) return asked.on;
     return this.jobs()?.laborEnabled(dwarf, labor) ?? false;
+  }
+
+  /** A dwarf's level in the skill of a labor (the best of the skills the content table ties to it), 0 for none. */
+  skillLevel(dwarf: EntityId, labor: string): number {
+    if (!this.host.readers.has('10')) return 0;
+    const dwarves = this.host.readers.of<DwarvesReader>('10');
+    const skills = this.host.registry.table<{ id: string; labor: string | null }>('skills');
+    let best = 0;
+    for (const id of skills.ids()) if (skills.byId(id)?.labor === labor) best = Math.max(best, dwarves.skill(dwarf, id));
+    return best;
+  }
+
+  /** The tier name of that level ("Competent"), from the dwarves reader. */
+  skillTier(dwarf: EntityId, labor: string): string {
+    if (!this.host.readers.has('10')) return '';
+    const dwarves = this.host.readers.of<DwarvesReader>('10');
+    const skills = this.host.registry.table<{ id: string; labor: string | null }>('skills');
+    let best = '';
+    let level = 0;
+    for (const id of skills.ids()) {
+      if (skills.byId(id)?.labor !== labor) continue;
+      const here = dwarves.skill(dwarf, id);
+      if (here > level) { level = here; best = dwarves.skillTier(dwarf, id); }
+    }
+    return best;
   }
 
   priority(labor: string): number {
@@ -267,6 +297,22 @@ export class LaborManagerScreen implements Screen {
     this.cursorCol = Math.max(0, Math.min(Math.max(0, cols - 1), this.cursorCol + dCol));
   }
 
+  /**
+   * A typed letter: the cursor goes to the next labor column whose name starts with it, wrapping.
+   * `a`, `c` and `t` keep their meaning; for them the jump is `Shift` + the letter.
+   */
+  jumpTo(letter: string): void {
+    const labors = this.labors();
+    for (let step = 1; step <= labors.length; step += 1) {
+      const index = (this.cursorCol + step) % labors.length;
+      if ((labors[index] as LaborRow).name.toLowerCase().startsWith(letter)) {
+        this.cursorCol = index;
+        return;
+      }
+    }
+    this.notice = this.strings.get('ui.labor_manager.no_labor_with', { letter: letter.toUpperCase() });
+  }
+
   // ---------- layout ----------
 
   grid(cols: number, rows: number): Grid {
@@ -279,9 +325,12 @@ export class LaborManagerScreen implements Screen {
     const fit = Math.max(1, Math.min(count, Math.floor((room - LABOR_NAME_COLS_MIN) / cellCols)));
     const nameCols = Math.max(LABOR_NAME_COLS_MIN, Math.min(LABOR_NAME_COLS_MAX, room - fit * cellCols));
     const headerRow = TOP_ROWS;
-    const priorityRow = headerRow + LABOR_HEADER_ROWS;
+    // A tall window writes every name in full; a short one cuts them (every name is unique within the cut).
+    const longest = Math.max(...this.labors().map((l) => Array.from(l.name).length), 0);
+    const headerRows = rows >= LABOR_TALL_WINDOW_ROWS ? Math.max(LABOR_HEADER_ROWS, longest) : LABOR_HEADER_ROWS;
+    const priorityRow = headerRow + headerRows;
     const dataRow = priorityRow + 1;
-    return { nameCols, cellCols, fit, gridCol: 1 + nameCols, headerRow, priorityRow, dataRow, height: Math.max(1, rows - dataRow - BOTTOM_ROWS) };
+    return { nameCols, cellCols, fit, gridCol: 1 + nameCols, headerRow, headerRows, priorityRow, dataRow, height: Math.max(1, rows - dataRow - BOTTOM_ROWS) };
   }
 
   /** Keep the cursor inside the rows and columns shown. */
@@ -348,6 +397,7 @@ export class LaborManagerScreen implements Screen {
         labor: infoLabor.name,
         state: strings.get(this.enabled(infoDwarf, infoLabor.id) ? 'ui.labor_manager.on' : 'ui.labor_manager.off'),
         priority: this.priority(infoLabor.id),
+        skill: this.skillLevel(infoDwarf, infoLabor.id) === 0 ? strings.get('ui.labor_manager.no_skill') : strings.get('ui.labor_manager.skill', { level: this.skillLevel(infoDwarf, infoLabor.id), tier: this.skillTier(infoDwarf, infoLabor.id) }),
       });
       label(s, 1, 1, info, { fg: t.value, width: s.cols - 2, keys: false });
     } else if (dwarves.length === 0) {
@@ -356,7 +406,7 @@ export class LaborManagerScreen implements Screen {
 
     // The left of the head: how many are marked, and the column titles.
     label(s, 1, g.headerRow, strings.get('ui.labor_manager.marked', { n: this.marks.size, total: dwarves.length }), { fg: this.marks.size > 0 ? t.value : t.dim, width: g.nameCols - 1, keys: false });
-    label(s, 3, g.headerRow + LABOR_HEADER_ROWS - 1, strings.get('ui.labor_manager.dwarf'), { fg: t.key, width: g.nameCols - 3, keys: false });
+    label(s, 3, g.headerRow + g.headerRows - 1, strings.get('ui.labor_manager.dwarf'), { fg: t.key, width: g.nameCols - 3, keys: false });
     label(s, 3, g.priorityRow, strings.get('ui.labor_manager.priority'), { fg: t.key, width: g.nameCols - 3, keys: false });
     if (this.firstCol > 0) label(s, g.gridCol - 1, g.headerRow, '«', { fg: t.dim, keys: false });
     if (this.firstCol + g.fit < labors.length) label(s, g.gridCol + g.fit * g.cellCols - 1, g.headerRow, '»', { fg: t.dim, keys: false });
@@ -368,11 +418,11 @@ export class LaborManagerScreen implements Screen {
       const col = g.gridCol + k * g.cellCols;
       const chars = Array.from(labor.name);
       const here = index === this.cursorCol;
-      for (let r = 0; r < LABOR_HEADER_ROWS; r += 1) {
+      for (let r = 0; r < g.headerRows; r += 1) {
         const ch = chars[r];
         if (ch !== undefined) s.put(col, g.headerRow + r, s.glyphs.index(ch), here ? t.value : t.text, t.black);
       }
-      const head = { col, row: g.headerRow, cols: g.cellCols, rows: LABOR_HEADER_ROWS };
+      const head = { col, row: g.headerRow, cols: g.cellCols, rows: g.headerRows };
       s.tooltip(head, labor.name);
       s.hit(head, () => {
         this.cursorCol = index;
@@ -416,7 +466,9 @@ export class LaborManagerScreen implements Screen {
         const labor = labors[column] as LaborRow;
         const col = g.gridCol + k * g.cellCols;
         const enabled = this.enabled(dwarf, labor.id);
-        s.put(col, row, enabled ? on : off, child || !enabled ? t.dim : t.value, t.black);
+        const level = this.skillLevel(dwarf, labor.id);
+        const tint = child || level === 0 ? t.dim : level >= LABOR_SKILL_GOOD_LEVEL ? t.good : level >= LABOR_SKILL_VALUE_LEVEL ? t.value : t.text;
+        s.put(col, row, enabled ? on : off, tint, t.black);
         if (index === this.cursorRow && column === this.cursorCol) s.invert({ col, row, cols: 1, rows: 1 });
         s.hit({ col, row, cols: g.cellCols, rows: 1 }, () => {
           this.cursorRow = index;
@@ -550,17 +602,17 @@ export class LaborManagerScreen implements Screen {
     } else if (k === '*') this.marks.all(dwarves);
     else if (k === 'Enter') {
       if (dwarf !== undefined && labor !== undefined) this.toggleCell(dwarf, labor.id);
-    } else if (letter === 'a') this.toggleRow();
-    else if (letter === 'c') {
+    } else if (letter === 'a' && !press.shift) this.toggleRow();
+    else if (letter === 'c' && !press.shift) {
       if (labor !== undefined) this.toggleColumn(labor.id);
-    } else if (letter === 't') this.templateMenu = 0;
+    } else if (letter === 't' && !press.shift) this.templateMenu = 0;
     else if (k === '+' || k === '=') {
       if (labor !== undefined) this.changePriority(labor.id, 1);
     } else if (k === '-') {
       if (labor !== undefined) this.changePriority(labor.id, -1);
     } else if (/^[1-9]$/.test(k)) {
       if (labor !== undefined) this.setPriority(labor.id, Number(k));
-    }
+    } else if (/^[a-z]$/.test(letter)) this.jumpTo(letter);
     // A modal screen: no key falls through to the fortress below.
     return true;
   }

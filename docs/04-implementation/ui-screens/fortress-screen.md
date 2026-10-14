@@ -36,23 +36,25 @@ The log strip shows the last three announcements; danger lines are prefixed `!!`
 
 ```
 ├──────────────────────────────────────────────────────────────────────────────────┬───────────────────────────────────┤
-│ map viewport ({mapCols − SIDEBAR_COLS} wide)                                      │ Units                       [u]  │
+│ map viewport ({mapCols − SIDEBAR_COLS} wide)                                      │ Units (80, 9 idle)          [u]  │
 │                                                                                  │ /filter: ____________             │
-│                                                                                  │ Name               Prof.    Act.  │
-│                                                                                  │ •Ketil Ironvein  ☺ Miner    Diggin│
-│                                                                                  │ ▶Brynja Coldhamm ☺ Farmer   Eating│
-│                                                                                  │  Orm Ashbrow     ☻ Carpente No job│
+│                                                                                  │ Name           Act.               │
+│                                                                                  │ •Ketil Ironve  ☺ Digging          │
+│                                                                                  │ ▶Brynja Coldh  ☺ Eating           │
+│                                                                                  │  Orm Ashbrow   ☻ Idle             │
 │                                                                                  │  …                                │
 │                                                                                  │ ─────────────────────────────────│
 │                                                                                  │ [Enter] inspect  [l] labors      │
-│                                                                                  │ [c] center                       │
+│                                                                                  │ [c] center  [i] idle  [S-w] hurt │
 │                                                                                  │ [Space] mark  [*] all  1 marked  │
 │                                                                                  │ [S-t] title  [S-n] rename        │
 │                                                                                  │ [S-m] squad  sleep 22h  [[]  []] │
 ```
 
-Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows the name (`☺` white from Fine up, `☻` yellow Unhappy, `‼` red Miserable; hovering it names the tier); activity from `dwarves.activityText`.
+Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows the name (`☺` white from Fine up, `☻` yellow Unhappy, `‼` red Miserable; hovering it names the tier); activity from `dwarves.activityText`. In the 36-column sidebar the name column is 14 cells (the cursor mark and twelve letters of the name), the mood glyph takes 2 (the glyph and a blank) and the activity the rest (16 or more). The profession is not a column: hovering a row shows "name, profession", and Look shows it too. A dwarf with no activity reads "Idle" in the dim colour. The title row reads "Units (80, 9 idle)": the number of dwarves and of idle ones.
 
+- **Idle filter and order**: `i` shows only the idle dwarves, and the title row then reads "Units · idle (n)"; `Shift+W` puts the wounded dwarves first, in list order. Both are kept while the fortress is open and are not saved.
+- **To the labors**: the labors key `l` over the Units list opens the Labors panel with its cursor on the dwarf under the Units cursor, at its first labor column; the Units filters are dropped. The key row still reads `[l] labors`.
 - **Marks**: `Space` marks the cursor's row (it does not pause while this list is open), a shift-click marks the range from the last mark, `*` marks all or none. An action applies to every marked dwarf when the cursor's row is marked, otherwise to the cursor's dwarf.
 - `[S-t] title` lists the four titles with their holders (`Thane  Halvar Grimshield`, `Warden  (vacant)`). `Enter` or a click gives the title to the cursor's dwarf (`AssignTitle`), or takes it away when that dwarf holds it. A child cannot hold one, and the status row says so.
 - `[S-n] rename` opens the text input with the dwarf's name (`RenameDwarf`, 1–24 characters).

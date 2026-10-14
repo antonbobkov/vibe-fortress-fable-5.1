@@ -93,7 +93,7 @@ describe('T-M2-09 golden: the panels in cells for a fixed state', () => {
   it('shows the documented rows', () => {
     expect(render('build').text.join('\n')).toContain("[w] Workshops");
     expect(render('zones').text.join('\n')).toContain('Preset [Food');
-    expect(render('units').text[1]).toMatch(/Name +Prof. +Act./);
+    expect(render('units').text[1]).toMatch(/Name +Act./);
     expect(render('jobs').text[0]).toMatch(/open · \d+ claimed/);
   });
 });
