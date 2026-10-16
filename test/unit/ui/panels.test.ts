@@ -91,6 +91,7 @@ describe('T-M2-09 build tool', () => {
     expect(game.fortress.build.current(game.fortress.ctx)?.id).toBe('bowyer');
     key(game, '↓');
     expect(game.fortress.build.current(game.fortress.ctx)?.id).toBe('butcher');
+    key(game, 'Enter');
     const map = game.host.readers.map;
     const z = game.ui.z;
     const floor = { x: 20, y: 20, z };

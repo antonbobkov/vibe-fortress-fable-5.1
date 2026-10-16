@@ -315,6 +315,8 @@ export class MilitaryPanel {
     const k = press.key;
     const up = k === 'ArrowUp' || k === '↑';
     const down = k === 'ArrowDown' || k === '↓';
+    // While the panel waits for a tile or a creature, the arrows move the map cursor.
+    if ((up || down) && (this.settingStation || this.settingPatrol || this.settingKill || this.settingFollow)) return false;
     // A letter that opens a panel is an accelerator here only with `Shift` (`[S-s] set`, D-U2).
     const letter = accel(ctx, press);
     const submit = (cmd: Command | null): boolean => {

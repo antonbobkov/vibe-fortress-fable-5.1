@@ -22,7 +22,7 @@ import type { KeyPress } from '@platform/input';
 import type { Layout, Rect } from '@render/cellbuffer';
 import { AnnouncementLog, type LogLine } from '../announcements';
 import { HintEngine, type HintRow } from '../hints';
-import { STATUS_HINT_SECONDS } from '../constants';
+import { CURSOR_SCROLL_MARGIN, STATUS_HINT_SECONDS } from '../constants';
 import { acceleratorOf, keyLabel, type Keymap } from '../keymap';
 import { drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
@@ -163,6 +163,8 @@ export class FortressScreen implements Screen {
   readonly debugPanel = new DebugPanel();
   /** The tile under the mouse, for the status bar's second row. */
   hover: TileIndex | null = null;
+  /** Whether the last look at the screen needed the keyboard cursor (a tool armed or a panel picking). */
+  private cursorNeeded = false;
   /** A danger line shown until any key dismisses it. */
   pinned: LogLine | null = null;
   private flashUntil = 0;
@@ -376,7 +378,7 @@ export class FortressScreen implements Screen {
 
   private ghostKey(): string {
     if (!this.build.active) return '';
-    const p = this.hoverPoint() ?? this.actionPoint();
+    const p = this.actionPoint();
     const row = this.build.current(this.ctx);
     if (row === undefined) return '';
     const ghost = this.build.ghost(this.ctx, p);
@@ -483,6 +485,7 @@ export class FortressScreen implements Screen {
   draw(surface: Surface): void {
     this.ensureRegistered();
     this.last = surface;
+    this.syncCursor();
     const layout = this.host.layout();
     this.drawSelection(surface, layout.map);
     this.drawSelectionBorder(surface, layout.map);
@@ -501,7 +504,7 @@ export class FortressScreen implements Screen {
     const tool = this.rectTool();
     if (tool === null) return;
     const a = tool.anchor;
-    const b = tool.end ?? this.hoverPoint();
+    const b = tool.end ?? this.aimPoint();
     if (a === null || b === null || a.z !== this.ui.z) return;
     if (tool === this.zones) {
       this.drawZoneRect(surface, map, a, b);
@@ -575,7 +578,7 @@ export class FortressScreen implements Screen {
     if (from !== null) {
       // A drag of a 1×1 type: one ghost per tile of the rectangle, blocked tiles marked (D-U6).
       if (from.z !== this.ui.z) return;
-      const to = this.build.end ?? this.hoverPoint() ?? from;
+      const to = this.build.end ?? this.aimPoint() ?? from;
       const ok = new Set(this.build.plan(this.ctx, from, to).ok);
       for (const i of rectTiles(m, from, { x: to.x, y: to.y, z: from.z })) {
         const col = (i % m.w) - this.ui.camX;
@@ -585,7 +588,7 @@ export class FortressScreen implements Screen {
       }
       return;
     }
-    const p = this.hoverPoint();
+    const p = this.aimPoint();
     if (p === null) return;
     const ghost = this.build.ghost(this.ctx, p);
     const row = this.build.current(this.ctx);
@@ -761,7 +764,7 @@ export class FortressScreen implements Screen {
       this.clearNotice();
     }
     if (this.build.active && this.build.anchor === null && !this.dragging) {
-      const placed = this.build.placementAt(this.ctx, this.hoverPoint() ?? this.actionPoint());
+      const placed = this.build.placementAt(this.ctx, this.actionPoint());
       if (placed !== null) return placed;
     }
     if (this.build.active && this.noticeGhost !== null && this.ghostKey() !== this.noticeGhost) {
@@ -779,10 +782,12 @@ export class FortressScreen implements Screen {
     if (this.ui.panel === 'building' && this.building.linking) {
       return s.get('ui.status.link', { building: buildingName(this.ctx, this.building.id), kinds: s.get('ui.building.linkable') });
     }
+    if (this.build.listing && !this.build.active && this.ui.panel === 'build') return s.get('ui.status.build_choose');
+    if (this.picking() && this.ui.panel === 'military') return s.get(this.military.settingKill ? 'ui.status.pick_creature' : this.military.settingFollow ? 'ui.status.pick_dwarf' : 'ui.status.pick_tile');
     if (this.build.active) {
       const row = this.build.current(this.ctx);
       const name = row === undefined ? '' : row.name.charAt(0).toUpperCase() + row.name.slice(1);
-      const p = this.hoverPoint() ?? this.actionPoint();
+      const p = this.actionPoint();
       const from = this.build.anchor;
       if (from !== null) {
         // D-U6: "the status bar shows the count" while dragging, and what the stock cannot supply.
@@ -806,7 +811,7 @@ export class FortressScreen implements Screen {
     if (this.zones.active) {
       const name = this.zones.resizing ? s.get('ui.zone.resize') : s.get(`ui.zone.type.${this.zones.kind ?? ''}`);
       const a = this.zones.anchor;
-      const b = this.zones.end ?? this.hoverPoint();
+      const b = this.zones.end ?? this.aimPoint();
       if (a !== null && b !== null) {
         const w = Math.abs(a.x - b.x) + 1;
         const h = Math.abs(a.y - b.y) + 1;
@@ -819,7 +824,7 @@ export class FortressScreen implements Screen {
     if (this.tool.active) {
       const name = this.tool.name(s);
       const a = this.tool.anchor;
-      const b = this.tool.end ?? this.hoverPoint();
+      const b = this.tool.end ?? this.aimPoint();
       if (this.tool.kind === 'stairwell' && a !== null) return s.get('ui.status.stairwell_top', { z: a.z });
       if (a !== null && b !== null) {
         const w = Math.abs(a.x - b.x) + 1;
@@ -875,11 +880,56 @@ export class FortressScreen implements Screen {
     return { x: this.ui.camX + Math.floor(rect.cols / 2), y: this.ui.camY + Math.floor(rect.rows / 2), z: this.ui.z };
   }
 
-  /** The point a keyboard action works at: the look cursor, the mouse, or the map centre. */
-  private actionPoint(): TilePoint {
+  /**
+   * Whether the keyboard cursor is the point of the map: a tool is armed, a panel asks for a tile or a creature, or the
+   * look panel is open. Otherwise the pointer is, and the arrows pan.
+   */
+  private cursorLive(): boolean {
+    return this.ui.cursor !== null && (this.toolActive || this.picking() || (this.ui.panel === 'look' && this.ui.sidebar));
+  }
+
+  /** A panel is waiting for a tile or a creature of the map (a station, a patrol point, a kill order, a link, a zone). */
+  private picking(): boolean {
+    if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) return true;
+    if (!this.ui.sidebar) return false;
+    return (this.ui.panel === 'zones') || (this.ui.panel === 'building' && this.building.linking);
+  }
+
+  /** The cursor shows when a tool is armed or a panel picks; it starts at the pointer's tile, or the map centre. */
+  private syncCursor(): void {
+    const needed = this.toolActive || this.picking();
+    if (needed && !this.cursorNeeded && this.ui.cursor === null) {
+      const at = this.hoverPoint() ?? this.centerPoint();
+      this.ui.cursor = { x: at.x, y: at.y };
+    }
+    if (!needed && this.cursorNeeded && this.ui.panel !== 'look') this.ui.cursor = null;
+    this.cursorNeeded = needed;
+  }
+
+  /** Move the cursor, clamped to the map, and scroll the camera to keep it `CURSOR_SCROLL_MARGIN` tiles inside the view. */
+  private moveCursor(dx: number, dy: number): void {
+    const map = this.host.readers.map;
+    const at = this.actionPoint();
+    const x = Math.max(0, Math.min(map.w - 1, at.x + dx));
+    const y = Math.max(0, Math.min(map.h - 1, at.y + dy));
+    this.ui.cursor = { x, y };
+    const view = this.host.layout().map;
+    const edge = (v: number, size: number): number => (v < CURSOR_SCROLL_MARGIN ? v - CURSOR_SCROLL_MARGIN : v > size - 1 - CURSOR_SCROLL_MARGIN ? v - (size - 1 - CURSOR_SCROLL_MARGIN) : 0);
+    const px = edge(x - this.ui.camX, view.cols);
+    const py = edge(y - this.ui.camY, view.rows);
+    if (px !== 0 || py !== 0) this.host.pan(px, py);
+  }
+
+  /** The map point the tools and the status row work at: the keyboard cursor when it is live, else the pointer. */
+  private aimPoint(): TilePoint | null {
     const c = this.ui.cursor;
-    if (c !== null) return { x: c.x, y: c.y, z: this.ui.z };
-    return this.hoverPoint() ?? this.centerPoint();
+    if (c !== null && this.cursorLive()) return { x: c.x, y: c.y, z: this.ui.z };
+    return this.hoverPoint();
+  }
+
+  /** The point a keyboard action works at: the aim, or the map centre. */
+  private actionPoint(): TilePoint {
+    return this.aimPoint() ?? this.centerPoint();
   }
 
   lookTile(): TileIndex | null {
@@ -1258,7 +1308,7 @@ export class FortressScreen implements Screen {
       this.dragging = false;
       return;
     }
-    if (this.build.active) {
+    if (this.build.listing) {
       this.build.cancel();
       return;
     }
@@ -1301,6 +1351,13 @@ export class FortressScreen implements Screen {
   }
 
   key(press: KeyPress): boolean {
+    this.syncCursor();
+    const handled = this.keyPress(press);
+    this.syncCursor();
+    return handled;
+  }
+
+  private keyPress(press: KeyPress): boolean {
     this.ensureRegistered();
     if (this.ui.sidebar && this.ui.panel === 'animals' && this.animals.capKey(this.ctx, press)) return true;
     if (this.textFocused() && press.key === 'Space') press = { ...press, key: ' ' };
@@ -1383,7 +1440,7 @@ export class FortressScreen implements Screen {
           break;
       }
     }
-    if (press.key === ' ') return this.key({ ...press, key: 'Space' });
+    if (press.key === ' ') return this.keyPress({ ...press, key: 'Space' });
 
     // D-U2: a panel hotkey always opens or closes its panel, whatever panel is open; only a
     // focused text field (the units filter, an animal's name) takes the letter instead. The open
@@ -1431,7 +1488,9 @@ export class FortressScreen implements Screen {
         case 'pan': {
           const step = map.shift ? 10 : 1;
           const d = { '←': [-1, 0], '→': [1, 0], '↑': [0, -1], '↓': [0, 1] }[map.arg as '←'] ?? [0, 0];
-          this.host.pan((d[0] as number) * step, (d[1] as number) * step);
+          // With the cursor live the arrows move it, and the camera follows; otherwise they pan.
+          if (this.cursorLive()) this.moveCursor((d[0] as number) * step, (d[1] as number) * step);
+          else this.host.pan((d[0] as number) * step, (d[1] as number) * step);
           return true;
         }
         case 'z_down':
@@ -1465,6 +1524,7 @@ export class FortressScreen implements Screen {
           }
           break;
         case 'rect_point':
+          if (this.picking() && !this.toolActive && this.pickAt(this.actionPoint(), true)) return true;
           if (this.toolActive) {
             this.rectPoint(map.shift === true);
             return true;
@@ -1597,10 +1657,13 @@ export class FortressScreen implements Screen {
         }
         return false;
       case 'build':
-        if (!press.shift && (up || down) && this.build.active) {
+        // A category's list: ↑↓ move the highlight, Enter picks it as the tool; once picked the arrows move the cursor.
+        if (!press.shift && (up || down) && this.build.listing && !this.build.active) {
           this.build.move(up ? -1 : 1, ctx);
           return true;
         }
+        if (k === 'Enter' && !press.shift && this.build.listing && !this.build.active) return this.build.arm();
+        if (k === 'Backspace' && this.build.active) return this.build.disarm();
         return letter !== '' && letter !== 'r' && letter !== 'x' && this.build.choose(letter);
         case 'zones':
           if (this.zones.stockpile.linkingFor !== 0 && k === 'Enter') {
@@ -1775,9 +1838,39 @@ export class FortressScreen implements Screen {
 
   // ---------- mouse ----------
 
+  /**
+   * A click, or `Enter` at the cursor, where a panel is waiting for a tile or a creature: a station, a patrol point, a kill
+   * or follow order, a stockpile link or a building link. Returns whether it took the gesture.
+   */
+  private pickAt(at: TilePoint, byKey: boolean): boolean {
+    if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) {
+      const tile = this.tileOf(at);
+      if (tile === null) return true;
+      if (this.military.settingStation) this.military.setStation(this.ctx, tile, this.host);
+      else if (this.military.settingPatrol) this.military.setPatrol(this.ctx, tile, this.host);
+      else if (this.military.setOrderTarget(this.ctx, tile, this.host)) this.military.cancel();
+      else this.notice(this.strings.get(byKey ? (this.military.settingKill ? 'ui.status.no_creature' : 'ui.status.no_dwarf') : (this.military.settingKill ? 'ui.status.click_creature' : 'ui.status.click_dwarf')));
+      if (!this.military.settingKill && !this.military.settingFollow) this.military.cancel();
+      return true;
+    }
+    if (this.ui.panel === 'zones' && this.ui.sidebar && this.zones.stockpile.linkingFor !== 0) {
+      const tile = this.tileOf(at);
+      if (tile !== null) this.zones.stockpile.pickSource(this.ctx, tile);
+      return true;
+    }
+    if (this.ui.panel === 'building' && this.ui.sidebar && this.building.linking) {
+      // U-05: the link target is picked on the map.
+      const tile = this.tileOf(at);
+      if (tile !== null) this.building.pickAt(this.ctx, tile);
+      return true;
+    }
+    return false;
+  }
+
   pointerDown(p: CellPointer): void {
     this.pointer = { col: p.col, row: p.row };
     const at = this.pointOfCell(p.col, p.row);
+    if (at !== null && (this.toolActive || this.picking())) this.ui.cursor = { x: at.x, y: at.y };
     if (at === null) {
       const sr = this.speedRegion;
       if (p.button === 2 && sr !== null && p.row === sr.row && p.col >= sr.col && p.col < sr.col + sr.cols) {
@@ -1800,33 +1893,17 @@ export class FortressScreen implements Screen {
       if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) this.military.cancel();
       else if (this.ui.panel === 'zones' && this.zones.stockpile.linkingFor !== 0) this.zones.stockpile.cancel();
       else if (this.ui.panel === 'building' && this.building.linking) this.building.cancel();
-      else if (this.build.active) this.build.cancel();
+      else if (this.build.listing) this.build.cancel();
       else if (this.zones.active) this.zones.cancel();
       else if (this.tool.active) this.tool.cancel();
       else this.look(at);
       return;
     }
     if (p.button !== 0) return;
-    if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) {
-      const tile = this.tileOf(at);
-      if (tile !== null) {
-        if (this.military.settingStation) this.military.setStation(this.ctx, tile, this.host);
-        else if (this.military.settingPatrol) this.military.setPatrol(this.ctx, tile, this.host);
-        else if (this.military.setOrderTarget(this.ctx, tile, this.host)) this.military.cancel();
-        else this.notice(this.strings.get(this.military.settingKill ? 'ui.status.click_creature' : 'ui.status.click_dwarf'));
-        if (!this.military.settingKill && !this.military.settingFollow) this.military.cancel();
-      }
-      return;
-    }
-    if (this.ui.panel === 'zones' && this.ui.sidebar && this.zones.stockpile.linkingFor !== 0) {
-      const tile = this.tileOf(at);
-      if (tile !== null) this.zones.stockpile.pickSource(this.ctx, tile);
-      return;
-    }
-    if (this.ui.panel === 'building' && this.ui.sidebar && this.building.linking) {
-      // U-05: the link target is picked on the map.
-      const tile = this.tileOf(at);
-      if (tile !== null) this.building.pickAt(this.ctx, tile);
+    if (this.pickAt(at, false)) return;
+    if (this.ui.panel === 'build' && this.build.listing && !this.build.active) {
+      // A list is open and nothing is picked: the map places nothing.
+      this.notice(this.strings.get('ui.status.build_choose'));
       return;
     }
     if (this.build.active) {
@@ -1886,6 +1963,7 @@ export class FortressScreen implements Screen {
     this.pointer = { col: p.col, row: p.row };
     const at = this.pointOfCell(p.col, p.row);
     this.hover = at === null ? null : this.tileOf(at);
+    if (at !== null && (this.toolActive || this.picking())) this.ui.cursor = { x: at.x, y: at.y };
     if (at === null) this.build.clearPlacement();
     else this.build.placementAt(this.ctx, at);
     if (this.middle !== null) {

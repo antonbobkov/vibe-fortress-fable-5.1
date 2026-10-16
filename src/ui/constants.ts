@@ -24,6 +24,9 @@ export const LOG_SAVED_LINES = 200;
 /** Repeated identical announcements within this many ticks merge with a count. */
 export const LOG_DEDUP_TICKS = 100;
 
+/** The keyboard cursor keeps at least this many tiles between itself and the edge of the map view; the camera scrolls to keep it. */
+export const CURSOR_SCROLL_MARGIN = 3;
+
 /** Rejection reason display time in the status bar (D-U4: four seconds). */
 export const STATUS_HINT_SECONDS = 4;
 

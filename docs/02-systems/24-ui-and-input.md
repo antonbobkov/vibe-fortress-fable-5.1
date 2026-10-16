@@ -194,6 +194,7 @@ This entire document.
 | `LOG_MAX_LINES` | 2000 | In memory |
 | `LOG_SAVED_LINES` | 200 | |
 | `LOG_DEDUP_TICKS` | 100 | |
+| `CURSOR_SCROLL_MARGIN` | 3 | Tiles the keyboard cursor keeps from the edge of the map view; the camera scrolls to keep it |
 | `STATUS_HINT_SECONDS` | 4 | Rejection reason display time |
 | `HINT_CHECK_HOURS` | 1 | |
 | `UNDO_BATCHES_MAX` | 10 | Designation batches retained for undo |
