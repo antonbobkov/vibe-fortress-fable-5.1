@@ -81,6 +81,9 @@ export const ALERT_FLASH_MS = 1000;
 /** Rows `PageUp`/`PageDown` scroll the help and debug lists by (`ui-keymap-and-screens.md` § Panels). */
 export const HELP_PAGE_ROWS = 10;
 
+/** Recorded in the saved `hintsShown` once Help has opened on its Start tab in this fortress. */
+export const HELP_START = 'help_start';
+
 export interface FortressSettings {
   /** 24: "`auto-pause on danger` setting is on (default on)". */
   autoPauseDanger: boolean;
@@ -175,8 +178,6 @@ export class FortressScreen implements Screen {
   private message: { text: string; until: number } | null = null;
   /** A refused station or patrol tile put its notice up; the pointer moving takes it down so the prompt returns. */
   private pickRefused = false;
-  /** Help has opened on its Start tab in this fortress. */
-  private helpStartShown = false;
   private noticeGhost: string | null = null;
   private dragging = false;
   /**
@@ -406,7 +407,6 @@ export class FortressScreen implements Screen {
   registerHint(hint: HintRow): void { this.hints.hint(hint); }
 
   resetHints(): void {
-    this.helpStartShown = false;
     this.ui.hintsShown = [];
     this.ui.hintPending = [];
     this.ui.hintBareSince = [];
@@ -692,8 +692,8 @@ export class FortressScreen implements Screen {
     const fieldSpacing = statusFieldSpacing(fields, this.strings, rect.cols);
     let fieldCol = rect.col + 1;
     for (const field of fields) {
-      if (field.startsWith('+') || field.startsWith('!')) surface.text(fieldCol, rect.row, field, t.danger, t.black, rect.cols - (fieldCol - rect.col));
-      if (loadShedding && field === fields[fields.length - 1]) surface.text(fieldCol, rect.row, field, surface.color('yellow'), t.black, rect.cols - (fieldCol - rect.col));
+      if (field.startsWith('+') || field.startsWith('!')) label(surface, fieldCol, rect.row, field, { fg: t.danger, width: rect.cols - (fieldCol - rect.col), keys: false });
+      if (loadShedding && field === fields[fields.length - 1]) label(surface, fieldCol, rect.row, field, { fg: surface.color('yellow'), width: rect.cols - (fieldCol - rect.col), keys: false });
       fieldCol += Array.from(field).length + fieldSpacing;
     }
     const date = Array.from(fields[0] ?? '').length;
@@ -1052,7 +1052,7 @@ export class FortressScreen implements Screen {
     if (id !== 'building') this.building.cancel();
     if (id !== this.ui.panel) this.clearFilters();
     // Help opens on the Start tab the first time in a fortress.
-    if (id === 'help' && !this.helpStartShown) { this.help.setTab(2); this.helpStartShown = true; }
+    if (id === 'help' && !this.ui.hintsShown.includes(HELP_START)) { this.help.setTab(2); this.ui.hintsShown.push(HELP_START); this.ui.hintsShown.sort(); }
     this.ui.panel = id;
     this.ui.sidebar = true;
   }

@@ -120,11 +120,11 @@ Sections come from the inspector registry in this order: identity, activity, nee
 │ Priority [-] 5 [+]   (1–9)              │
 │ [Ctrl+Z] undo  [Del] clear              │
 │ [S-p] last batch to priority 5          │
-│ Drag, or click two corners.             │
+│ Drag, or click/Enter two corners.       │
 │ S- is Shift                             │
 ```
 
-The captions are short so that none is cut at the 36-column sidebar; the tool's full name stays in the status row ("Remove construction · priority 5", "Gather plants", "Traffic (restricted)"). The footer is two whole lines.
+The captions are short so that none is cut at the 36-column sidebar; the tool's full name stays in the status row ("Remove construction · priority 5", "Gather plants", "Traffic (restricted)"). The footer is two whole lines ("[Ctrl+Z] undo  [Del] clear" and "Drag, or click/Enter two corners.").
 
 `d` opens the panel with Dig chosen (`d` again closes it). The letters that open panels take `Shift` here (`panels.md`).
 

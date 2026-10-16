@@ -509,7 +509,7 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
   it('Help lists the order keys and the Shift rule', () => {
     const rows = helpKeyRows(keymap, strings).map((row) => row.text);
     expect(rows).toContain('Work orders');
-    expect(rows).toContain('Shift+N  new order (the picker)');
+    expect(rows).toContain('[S-n]  new order (the picker)');
     expect(rows).toContain('+ = -  count ±1 (Shift: ±10)');
     expect(rows).toContain('r  repeat the selected or last finished order');
     expect(rows).toContain('Shift+letter  a panel action on a panel letter: [S-m]');

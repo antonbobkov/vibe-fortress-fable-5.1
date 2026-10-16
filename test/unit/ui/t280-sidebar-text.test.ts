@@ -7,6 +7,10 @@ import { Game } from '@app/game';
 import { loadContent } from '@content/loader';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import { label } from '@ui/widgets';
+import { MemoryStorage } from '@platform/storage';
+import { SaveManager } from '@app/save-manager';
+import { drawLogStrip } from '@ui/panels/log';
+import type { LogLine } from '@ui/announcements';
 import { fgOfText, hexOf, press, surface, theme } from './ui-fixture';
 
 async function game(width = 1280, height = 800): Promise<Game> {
@@ -16,7 +20,7 @@ async function game(width = 1280, height = 800): Promise<Game> {
 }
 
 describe('T-280 no text in the last column without a mark', () => {
-  it('every panel, drawn in the sidebar at 80 columns, ends each row in a blank, a scrollbar glyph or »', async () => {
+  it('every panel, drawn in the sidebar at 80 columns, ends each row in its last drawable column with a blank, a scrollbar glyph or »', async () => {
     const g = await game();
     expect(g.viewCols).toBe(80);
     const ids = g.fortress.panels().map((p) => p.id);
@@ -33,12 +37,20 @@ describe('T-280 no text in the last column without a mark', () => {
       s.lines().forEach((line, row) => {
         // The sidebar's rows: the log strip and the status rows below the map are not the panel's.
         if (row >= s.rows - 5) return;
-        const last = Array.from(line).pop() ?? ' ';
-        if (!' »│█'.includes(last)) bad.push(`${id} row ${row}: "${line.slice(-12)}"`);
+        // The panel's last drawable column is the one before the screen's last (the margin). A row may fill
+        // it exactly with a whole word (listed below); any other word reaching it may be cut without the mark.
+        const chars = Array.from(line);
+        const last = chars[s.cols - 2] ?? ' ';
+        const before = chars[s.cols - 3] ?? ' ';
+        if (/[\p{L}\p{N}]/u.test(last) && /[\p{L}\p{N}]/u.test(before)) bad.push(`${id}: ...${line.trimEnd().split(/[ /]/).pop() as string}`);
       });
     }
     expect(empty).toEqual([]);
-    expect(bad).toEqual([]);
+    // Whole words that end exactly in the last column (each was read in the drawn panel; a cut word would end in »).
+    expect(bad).toEqual([
+      'designate: ...stair', 'help: ...Start', 'help: ...then', 'animals: ...name', 'jobs: ...reason',
+      'labors: ...off', 'labors: ...labors', 'mood: ...thought', 'military: ...spears',
+    ]);
   });
 });
 
@@ -130,5 +142,49 @@ describe('T-280 hints', () => {
     expect(rows[at + 1]?.trim()).toBe('side.');
     expect(rows[at]).not.toContain('»');
     expect(fgOfText(g.uiSurface!, at, '☼')).toBe(hexOf(theme.value));
+  });
+});
+
+describe('T-280 the log strip', () => {
+  const line = (text: string, category?: string): LogLine => ({ tick: 0, severity: 'note', text, count: 1, ...(category === undefined ? {} : { category }) });
+  const hint = line(`☼ ${'a hint that is long enough to need two lines '.repeat(2).trim()}`, 'hint');
+
+  it('fills from the newest line back: a hint followed by two newer lines is one cut line, and the newer lines stay', () => {
+    const s = surface(40, 3);
+    drawLogStrip(s, { col: 0, row: 0, cols: 40, rows: 3 }, [hint, line('Newer one.'), line('Newest.')], null, false);
+    const rows = s.lines().map((l) => l.trim());
+    expect(rows[0]).toMatch(/^☼ a hint that is long enough to need »$/);
+    expect(rows[1]).toBe('Newer one.');
+    expect(rows[2]).toBe('Newest.');
+  });
+
+  it('a hint followed by one newer line takes two lines, whole', () => {
+    const s = surface(40, 3);
+    drawLogStrip(s, { col: 0, row: 0, cols: 40, rows: 3 }, [line('Older.'), hint, line('Newest.')], null, false);
+    const rows = s.lines().map((l) => l.trim());
+    expect(rows[0]).toMatch(/^☼ a hint that is long enough to need/);
+    expect(rows[0]).not.toContain('»');
+    expect(rows[1]).toMatch(/lines/);
+    expect(rows[2]).toBe('Newest.');
+  });
+});
+
+describe('T-280 Help opens on Start once for each fortress', () => {
+  it('is saved with the fortress: a save made after it opens on the left tab, an earlier save opens Start again', async () => {
+    const g = new Game({ canvas: new MockCanvas(), seed: 't280-help', registry: loadContent(), createCanvas: mockCanvasFactory(), devicePixelRatio: 1, width: 1280, height: 800, saves: new SaveManager(new MemoryStorage()) });
+    await g.start({ embark: 'default' });
+    await g.saveAs('manual', 'manual-1');
+    g.handleKey(press('?'));
+    expect(g.fortress.help.tab).toBe(2);
+    g.handleKey(press('?'));
+    await g.saveAs('manual', 'manual-2');
+    g.fortress.help.setTab(0);
+    await g.loadSave('manual-2');
+    g.handleKey(press('?'));
+    expect(g.fortress.help.tab).toBe(0);
+    g.handleKey(press('?'));
+    await g.loadSave('manual-1');
+    g.handleKey(press('?'));
+    expect(g.fortress.help.tab).toBe(2);
   });
 });

@@ -210,7 +210,7 @@ export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, 
       // A letter that opens a panel takes `Shift` here (`[S-d] Dig`, D-U2).
       const short = `ui.tool.designate.caption.${kind.id}`;
       const caption = `${acceleratorLabel(kind.key)} ${strings.get(strings.has(short) ? short : `ui.tool.designate.${kind.id}`)}`;
-      const n = kindAvailable(kind) ? label(s, col, row, caption, { width }) : s.text(col, row, caption, t.dim, t.black, width);
+      const n = kindAvailable(kind) ? label(s, col, row, caption, { width }) : label(s, col, row, caption, { fg: t.dim, width, keys: false });
       if (tool.kind === kind.id) s.invert({ col, row, cols: n, rows: 1 });
       if (kindAvailable(kind)) s.hit({ col, row, cols: n, rows: 1 }, () => void tool.choose(kind.key));
     }

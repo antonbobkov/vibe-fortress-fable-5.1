@@ -557,7 +557,7 @@ describe('U-05 the building panel (M4)', () => {
       'r release (asks first)  g tame',
       'w owner of a bed or a coffin',
       '1-9 build priority  x cancel / take apart',
-      'Shift+P  last designation takes the priority',
+      '[S-p]  last designation takes the priority',
     ]);
   });
 });

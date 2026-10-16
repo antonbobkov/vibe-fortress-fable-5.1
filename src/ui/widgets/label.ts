@@ -13,8 +13,6 @@ export interface LabelOptions {
   readonly width?: number;
   /** Color the `[k]` accelerators; on by default. */
   readonly keys?: boolean;
-  /** Mark a cut with `»` (on by default); a caller that draws the cut itself turns it off. */
-  readonly mark?: boolean;
 }
 
 /** Draw a label; returns the cells written. */
@@ -23,7 +21,7 @@ export function label(s: Surface, col: number, row: number, text: string, option
   const bg = options.bg ?? s.theme.black;
   const width = options.width ?? Infinity;
   const chars = Array.from(text);
-  const cut = chars.length > width && width > 0 && options.mark !== false;
+  const cut = chars.length > width && width > 0;
   if (chars.length > width && width > 0) {
     const cleanText = text.replace(/^[▶\s]+/, '').replace(/\s+$/, '');
     s.tooltip({ col, row, cols: width, rows: 1 }, cleanText.length > 0 ? cleanText : text);

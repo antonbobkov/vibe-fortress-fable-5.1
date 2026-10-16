@@ -66,7 +66,7 @@ export function dropdown(
     s.fill({ col, row: r, cols: listWidth, rows: 1 }, t.panelBg);
     const mark = index === state.highlighted ? '▶ ' : '  ';
     const n = label(s, col, r, `${mark}${option.label}`, { bg: t.panelBg, width: listWidth });
-    if (option.detail !== undefined) s.text(col + n + 1, r, option.detail, t.dim, t.panelBg, Math.max(0, listWidth - n - 1));
+    if (option.detail !== undefined) label(s, col + n + 1, r, option.detail, { fg: t.dim, bg: t.panelBg, width: Math.max(1, listWidth - n - 1), keys: false });
     s.hit({ col, row: r, cols: listWidth, rows: 1 }, () => onChoose(option.id));
   });
   return 1 + options.length;

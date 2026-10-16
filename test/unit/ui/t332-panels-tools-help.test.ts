@@ -56,7 +56,7 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows[7]).toBe('Priority [-] 5 [+]   (1-9)');
     expect(rows[8]).toBe('[Ctrl+Z] undo  [Del] clear');
     expect(rows[9]).toBe('[S-p] last batch to priority 5');
-    expect(rows[10]).toBe('Drag, or click two corners.');
+    expect(rows[10]).toBe('Drag, or click/Enter two corners.');
   });
 
   it('Overlays lists the map layers with a tick for the two that are on, and the debug layers apart', () => {
@@ -108,6 +108,10 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(help.scroll).toBe(28);
     drawHelpPanel(s, { col: 0, row: 0, cols: 40, rows: 30 }, help);
     expect(rowsOf(s.lines())[29]).toMatch(/page 2\/\d+$/);
+    // The rest of the Global keys are on the second page.
+    const second = rowsOf(s.lines());
+    expect(second).toContain('?  help');
+    expect(second.some((row) => row.startsWith('Tab  toggle sidebar'))).toBe(true);
     help.page(-1);
     expect(help.scroll).toBe(0);
   });
