@@ -5,7 +5,7 @@ Each production chain of the game has one scenario that plays it from player com
 | Chain | From the player's commands to | Scenario |
 |---|---|---|
 | Food | a farm plot planted, harvested, cooked and the meal eaten | [`pp_food`](../../test/scenarios/pp_food.scenario.ts): a cave plot of cavewheat, a kitchen cooking it; a dwarf eats a cavewheat meal on day 22 |
-| Drink | plants brewed in a still into barrels and drunk | none yet |
+| Drink | plants brewed in a still into barrels and drunk | [`pp_drink`](../../test/scenarios/pp_drink.scenario.ts): the wagon's drink forbidden, a carpenter making barrels, a still brewing the wagon's dimcaps; a dwarf drinks the brew on day 2 |
 | Crafts and forge | ore mined, smelted, forged, and the goods stored | none yet |
 | Hospital | a wounded dwarf diagnosed and treated with supplies hauled into the hospital chest | none yet |
 | Trade | goods hauled to the depot, a broker trading with a caravan | none yet |

@@ -46,9 +46,18 @@ export function pathWorld(seed: string, embark: HeadlessEmbark = 'default', regi
   const spec = regionSpec(seed, { ...PATH_REGION, ...region }, registry);
   const map = new Map3D(PATH_MAP_SIZE, PATH_MAP_SIZE, LOCAL_MAP_Z);
   const local = generateLocal(spec, map, registry);
-  return new TestWorld({ seed, registry, map, spec, systems: HeadlessGame.standardSystems(spec, local.layerStack, local), embark,
+  const w = new TestWorld({ seed, registry, map, spec, systems: HeadlessGame.standardSystems(spec, local.layerStack, local), embark,
     ...(startTick === undefined ? {} : { startTick }) });
+  // Events carry no tick: the day of each death is stamped as it arrives, for the trace.
+  const days: number[] = [];
+  deathDays.set(w, days);
+  w.game.world.onEvents((batch) => {
+    for (const e of batch) if (e.type === 'CreatureDied' && e['faction'] === 'fortress') days.push(day(w));
+  });
+  return w;
 }
+
+const deathDays = new WeakMap<TestWorld, number[]>();
 
 /** Submit a command now and fail with the game's reason when it is refused. */
 export function cmd(w: TestWorld, command: Command): void {
@@ -131,16 +140,25 @@ export function zoneRect(w: TestWorld, type: string, x0: number, y0: number, z: 
 }
 
 /**
- * Designate a stairwell at (x, y) from the surface down to the first level of stone, as a player
- * reads the layers on the map. `below` is the soil level just under the surface.
+ * Designate a stairwell from the surface down to the first level of stone, as a player reads the
+ * layers on the map: at (x, y), or at the nearest column the game accepts it on (not a tree, not
+ * water). `below` is the soil level just under the surface.
  */
 export function stairToRock(w: TestWorld, x: number, y: number): { sx: number; sy: number; top: number; below: number; rockZ: number } {
-  const top = surfaceZ(w, x, y);
   const materials = w.game.registry.table<{ id: string; class: string }>('materials');
-  let rockZ = top - 1;
-  while (rockZ > 1 && materials.byIndex(w.map.materialAt(w.index(x, y, rockZ)))?.class === 'soil') rockZ -= 1;
-  cmd(w, { type: 'DesignateStairwell', x, y, zTop: top, zBottom: rockZ });
-  return { sx: x, sy: y, top, below: top - 1, rockZ };
+  for (let r = 0; r < 6; r += 1) {
+    for (let dy = -r; dy <= r; dy += 1) for (let dx = -r; dx <= r; dx += 1) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+      const sx = x + dx, sy = y + dy;
+      const top = surfaceZ(w, sx, sy);
+      let rockZ = top - 1;
+      while (rockZ > 1 && materials.byIndex(w.map.materialAt(w.index(sx, sy, rockZ)))?.class === 'soil') rockZ -= 1;
+      if (w.game.world.applyCommand({ type: 'DesignateStairwell', x: sx, y: sy, zTop: top, zBottom: rockZ }).ok) {
+        return { sx, sy, top, below: top - 1, rockZ };
+      }
+    }
+  }
+  throw new Error(`stairToRock: no stairwell near (${x}, ${y})`);
 }
 
 /** The tiles of a rectangle on one level. */
@@ -197,10 +215,12 @@ export function trace(w: TestWorld, label: string): string {
     const key = `${job.key.split(':')[0] ?? '?'}:${job.state}${job.blockedReason === null ? '' : `(${job.blockedReason})`}`;
     open[key] = (open[key] ?? 0) + 1;
   }
-  const deaths = w.events('CreatureDied').filter((e) => e['faction'] === 'fortress').map((e) => {
+  const stamped = deathDays.get(w) ?? [];
+  const deaths = w.events('CreatureDied').filter((e) => e['faction'] === 'fortress').map((e, n) => {
     const killer = Number(e['killerId'] ?? 0);
     const species = killer === 0 ? '' : w.game.registry.table<{ id: string }>('creatures').byIndex(w.game.world.entities.get(killer, C.Creature)?.species ?? -1)?.id ?? `#${killer}`;
-    return `${String(e['species'])}:${String(e['cause'])}${species === '' ? '' : ` by ${species}`}`;
+    const creature = w.game.registry.table<{ id: string }>('creatures').byIndex(Number(e['species']))?.id ?? String(e['species']);
+    return `${creature}:${String(e['cause'])}${species === '' ? '' : ` by ${species}`} day ${stamped[n] ?? '?'}`;
   });
   return `${label} day ${day(w)} tick ${w.tick}: dwarves ${fortressDwarves(w).length}; deaths ${JSON.stringify(deaths)}; ` +
     `completed ${JSON.stringify(count('JobCompleted'))}; blocked ${JSON.stringify(count('JobBlocked'))}; jobs ${JSON.stringify(open)}`;
