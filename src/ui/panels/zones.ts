@@ -20,6 +20,8 @@ import type { PlantsReader } from '@systems/plants';
 import type { AnimalsReader } from '@systems/animals';
 import { GRASS_PER_GRAZER } from '@systems/animals/constants';
 import type { PlantRow } from '@systems/plants';
+import { seasonAllows } from '@systems/plants/growth';
+import type { ItemsReader } from '@systems/items';
 import { HOSPITAL_DEFAULT_SUPPLIES } from '@systems/health/constants';
 import { dropdown, dropdownKey, type DropdownOption, type DropdownState } from '../widgets';
 import type { KeyPress } from '@platform/input';
@@ -98,7 +100,9 @@ export class ZoneTool {
   ownerOpen = false;
   readonly ownerPick: ListState = { selected: 0, scroll: 0 };
   readonly farmMenus: DropdownState[] = Array.from({ length: 4 }, () => ({ open: false, highlighted: 0 }));
+  /** The season row the farm plot inspector highlights; it starts on the current season for each plot. */
   farmSeason = 0;
+  private farmFor: EntityId = 0;
 
   get active(): boolean {
     return this.kind !== null || this.resizing;
@@ -174,22 +178,76 @@ export class ZoneTool {
     return true;
   }
 
+  /** The highlighted season row of the selected farm plot: the current season when the plot is first shown. */
+  farmRow(ctx: PanelContext): number {
+    if (this.farmFor !== this.selected) {
+      this.farmFor = this.selected;
+      this.farmSeason = ctx.readers.calendar.season;
+      for (const menu of this.farmMenus) menu.open = false;
+    }
+    return this.farmSeason;
+  }
+
+  /** The seeds of a crop in stock. */
+  seedsOf(ctx: PanelContext, plant: PlantRow): number {
+    if (!ctx.readers.has('13')) return 0;
+    const stock = ctx.readers.of<ItemsReader>('13');
+    return stock.countMatching({ type: ctx.registry.table<{ id: string }>('items').index('seed'), materialId: ctx.registry.table<{ id: string }>('materials').index(plant.id) });
+  }
+
   farmOptions(ctx: PanelContext): DropdownOption[] {
     const plants = ctx.readers.has('07') ? ctx.readers.of<PlantsReader>('07') : null;
     const kind = plants?.plotKind(this.selected);
     if (kind === undefined || kind === 'none' || kind === 'mixed') return [];
     return [{ id: '0', label: 'none' }, ...ctx.registry.table<PlantRow>('plants').rows
       .filter((p) => (p.kind === 'crop' || p.kind === 'cave_crop') && (p.light === 'any' || (kind === 'surface' ? p.light === 'sun' : p.light === 'dark')))
-      .map((p) => ({ id: p.id, label: p.name }))];
+      .map((p) => ({ id: p.id, label: this.seedsOf(ctx, p) === 0 ? ctx.strings.get('ui.zone.farm_no_seeds', { name: p.name }) : p.name }))];
   }
 
+  /**
+   * The farm plot inspector's keys (`panels.md` § Zones): `↑` `↓` move over the four season rows,
+   * `Enter` opens the row's crop list (where `↑` `↓` `Enter` choose and `Esc` closes it), and
+   * `Shift+A` gives the row's crop to every season in which it can grow.
+   */
   farmKey(ctx: PanelContext, key: KeyPress): boolean {
-    const menu = this.farmMenus[this.farmSeason] as DropdownState;
-    if (!menu.open) return false;
-    const result = dropdownKey(menu, this.farmOptions(ctx), key);
-    if (result === null) return false;
-    if (result !== 'handled') ctx.submit({ type: 'SetPlotCrop', zoneId: this.selected, season: this.farmSeason, speciesId: result === '0' ? 0 : result });
-    return true;
+    const zone = buildings(ctx)?.zone(this.selected);
+    if (zone?.type !== 'farm_plot' || this.active) return false;
+    const season = this.farmRow(ctx);
+    const menu = this.farmMenus[season] as DropdownState;
+    if (menu.open) {
+      const result = dropdownKey(menu, this.farmOptions(ctx), key);
+      if (result === null) return false;
+      if (result !== 'handled') ctx.submit({ type: 'SetPlotCrop', zoneId: this.selected, season, speciesId: result === '0' ? 0 : result });
+      return true;
+    }
+    if (key.ctrl || key.alt || key.meta) return false;
+    const up = key.key === '↑' || key.key === 'ArrowUp';
+    const down = key.key === '↓' || key.key === 'ArrowDown';
+    if ((up || down) && !key.shift) { this.farmSeason = Math.max(0, Math.min(3, season + (up ? -1 : 1))); return true; }
+    if (key.key === 'Enter' && !key.shift) {
+      const options = this.farmOptions(ctx);
+      const plant = this.cropOf(ctx, season);
+      menu.open = true;
+      menu.highlighted = Math.max(0, options.findIndex((o) => o.id === (plant?.id ?? '0')));
+      return true;
+    }
+    if (key.shift && accel(ctx, key) === 'a') { this.farmAllSeasons(ctx, season); return true; }
+    return false;
+  }
+
+  /** The crop set for a season of the selected plot, if any. */
+  private cropOf(ctx: PanelContext, season: number): PlantRow | undefined {
+    const id = ctx.readers.of<PlantsReader>('07').plotSettings(this.selected)[season] ?? 0;
+    return id === 0 ? undefined : ctx.registry.table<PlantRow>('plants').byIndex(id);
+  }
+
+  /** `Shift+A`: the crop of a season, for every season in which that crop can grow. */
+  farmAllSeasons(ctx: PanelContext, season: number): void {
+    const plant = this.cropOf(ctx, season);
+    for (let target = 0; target < 4; target += 1) {
+      if (target === season || (plant !== undefined && !seasonAllows(plant, plant.kind === 'cave_crop', target))) continue;
+      ctx.submit({ type: 'SetPlotCrop', zoneId: this.selected, season: target, speciesId: plant === undefined ? 0 : plant.id });
+    }
   }
 
   categories(): TreeNode[] {
@@ -334,26 +392,39 @@ function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
   const seasons = ['Spring', 'Summer', 'Autumn', 'Winter'];
   const settings = plants.plotSettings(zone.id);
   const options = tool.farmOptions(ctx);
+  const highlighted = tool.farmRow(ctx);
+  const t = s.theme;
   let row = rect.row;
   for (let season = 0; season < 4; season += 1) {
     if (row >= rect.row + rect.rows) break;
     const id = settings[season] ?? 0;
     const plant = id === 0 ? undefined : ctx.registry.table<PlantRow>('plants').byIndex(id);
-    label(s, rect.col + 1, row, seasons[season] as string, { width: 8 });
+    const here = season === highlighted;
+    if (here) s.text(rect.col, row, '►', t.value);
+    label(s, rect.col + 1, row, seasons[season] as string, { width: 8, ...(here ? { fg: t.value } : {}) });
     const menu = tool.farmMenus[season] as DropdownState;
     const used = dropdown(s, rect.col + 9, row, 18, plant?.name ?? 'none', options, menu,
       (choice) => { menu.open = false; ctx.submit({ type: 'SetPlotCrop', zoneId: zone.id, season, speciesId: choice === '0' ? 0 : choice }); },
-      () => { for (const m of tool.farmMenus) m.open = false; menu.open = true; menu.highlighted = Math.max(0, options.findIndex((o) => o.id === (plant?.id ?? '0'))); tool.farmSeason = season; });
+      () => { for (const m of tool.farmMenus) m.open = false; menu.open = true; menu.highlighted = Math.max(0, options.findIndex((o) => o.id === (plant?.id ?? '0'))); tool.farmSeason = season; },
+      Math.max(18, rect.cols - 10));
     if (plant !== undefined) {
-      const seed = ctx.readers.has('13') ? ctx.readers.of<import('@systems/items').ItemsReader>('13').countMatching({ type: ctx.registry.table<{ id: string }>('items').index('seed'), materialId: ctx.registry.table<{ id: string }>('materials').index(plant.id) }) : 0;
-      label(s, rect.col + 28, row, `${seed}${seed === 0 ? ' !' : ''}`, { fg: seed === 0 ? s.theme.bad : s.theme.value, width: 6 });
+      const seed = tool.seedsOf(ctx, plant);
+      label(s, rect.col + 27, row, ctx.strings.get('ui.zone.farm_seeds', { n: seed }), { fg: seed === 0 ? t.bad : t.value, width: Math.max(1, rect.cols - 28) });
     }
     row += used;
   }
   const cropIds = plants.crops().filter((id) => plants.cropInfo(id)?.plotZoneId === zone.id);
   const ready = cropIds.filter((id) => (plants.cropInfo(id)?.stage ?? 0) === 3).length;
   if (row < rect.row + rect.rows) label(s, rect.col + 1, row, `Crops: ${cropIds.length - ready} growing, ${ready} ready, ${Math.max(0, zone.tiles.length - cropIds.length)} empty`, { width: rect.cols - 2 });
-  return row + 1;
+  row += 1;
+  for (const key of ['ui.zone.farm_keys1', 'ui.zone.farm_keys2']) {
+    if (row >= rect.row + rect.rows) break;
+    const text = ctx.strings.get(key);
+    label(s, rect.col + 1, row, text, { fg: t.dim, width: rect.cols - 2 });
+    accelerator(s, rect.col + 1, row, text, 'S-a', () => tool.farmAllSeasons(ctx, tool.farmRow(ctx)));
+    row += 1;
+  }
+  return row;
 }
 
 /** Current room facts, including furniture names and the same border as the room score. */

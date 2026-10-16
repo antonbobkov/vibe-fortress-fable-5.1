@@ -21,6 +21,9 @@ export const KEY_CONTEXTS: readonly KeyContext[] = ['global', 'map', 'panel', 'w
  */
 const LATE_CONTEXTS: readonly KeyContext[] = ['labor_manager', 'units_panel', 'military_panel'];
 
+/** Actions whose rows were added after v1.0.0 to a context that already had rows: they come last, so no saved rebinding moves. */
+const LATE_ACTIONS: readonly string[] = ['calendar panel'];
+
 /** The panel hotkeys named by ui-keymap-and-screens.md § Fortress panels. */
 export const FORTRESS_PANEL_KEYS: readonly { id: string; key: string }[] = [
   { id: 'designate', key: 'd' }, { id: 'build', key: 'b' }, { id: 'zones', key: 'z' },
@@ -83,6 +86,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   help: 'help',
   'toggle sidebar': 'toggle_sidebar',
   'undo last designation batch': 'undo',
+  'calendar panel': 'calendar',
   'pan by 1 cell (Shift: 10)': 'pan',
   'pan or move the map cursor (Shift: 10)': 'pan',
   'z-level down': 'z_down',
@@ -234,6 +238,7 @@ export class Keymap {
   static fromRows(rows: readonly KeymapRow[]): Keymap {
     const out: Binding[] = [];
     const late = rows.filter((row) => LATE_CONTEXTS.includes(row.context as KeyContext));
+    const lateActions = rows.filter((row) => LATE_ACTIONS.includes(row.action));
     const add = (list: readonly KeymapRow[]): void => {
     for (const row of list) {
       if (!KEY_CONTEXTS.includes(row.context as KeyContext)) {
@@ -254,9 +259,10 @@ export class Keymap {
       }
     }
     };
-    add(rows.filter((row) => !late.includes(row)));
+    add(rows.filter((row) => !late.includes(row) && !lateActions.includes(row)));
     for (const panel of FORTRESS_PANEL_KEYS) out.push({ context: 'fortress_panel', spec: { key: panel.key, ctrl: false, shift: false }, id: panel.id });
     add(late);
+    add(lateActions);
     return new Keymap(out);
   }
 
@@ -317,7 +323,7 @@ export class Keymap {
     // The table writes `Ctrl+S`, `Ctrl+Z`; the browser reports the letter as typed (`z`).
     const match = (b: Binding): boolean =>
       b.spec.key === key ||
-      (b.spec.ctrl && b.spec.key.length === 1 && b.spec.key.toLowerCase() === key.toLowerCase()) ||
+      ((b.spec.ctrl || b.spec.shift) && b.spec.key.length === 1 && b.spec.key.toLowerCase() === key.toLowerCase()) ||
       (b.spec.key === 'any-letter' && /^[a-zA-Z]$/.test(key));
     const exact = candidates.find((b) => match(b) && b.spec.shift === press.shift && b.spec.key !== 'any-letter');
     const loose = exact ?? candidates.find((b) => match(b) && !b.spec.shift && b.spec.key !== 'any-letter');

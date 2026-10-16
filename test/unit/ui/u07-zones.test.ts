@@ -230,7 +230,8 @@ describe('U-07 room panel and stockpile announcements (M9, §4.4)', () => {
 
   it('Help covers the editor actions and follows rebound accelerator letters', () => {
     const rows = helpKeyRows(keymap, strings).filter((r) => r.category === 'zones');
-    expect(rows).toHaveLength(9);
+    expect(rows).toHaveLength(10);
+    expect(rows.some((r) => r.text.startsWith('Farm plot: ↑↓ season'))).toBe(true);
     expect(rows.some((r) => r.text.startsWith('[i] link:'))).toBe(true);
     expect(rows.some((r) => r.text.startsWith('[S-p] preset'))).toBe(true);
     expect(rows.some((r) => r.text.startsWith('[S-o] bedroom owner'))).toBe(true);

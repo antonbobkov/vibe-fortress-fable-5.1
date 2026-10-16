@@ -68,6 +68,7 @@ Animals, Tame tab: `[S-t] train` or its button opens War/Hunting; arrows and Ent
 | `?` | help |
 | `Tab` | toggle sidebar |
 | `Ctrl+Z` | undo last designation batch |
+| `Shift+Y` | calendar panel |
 
 ### Map
 
@@ -99,7 +100,7 @@ With the map cursor shown (a tool armed, or a panel asking for a tile or a creat
 | `/` | focus the filter field |
 | `Backspace` | back within nested menus |
 
-Panel hotkeys always win. The letters of § Fortress panels always open or close their panel, whatever panel is open; pressing an open panel's own key closes it; when a panel closes while one of its tools was armed, the status row shows a notice ("Designate closed · [d] opens it again", naming the panel and its key; also for Build and Zones). A panel's accelerator may not use one of those letters bare: it is bound to `Shift`+letter and shown `[S-m]`. Reserved letters are read from the live panel bindings, including rebinds. Fixed accelerator captions show the defaults; zone inspector captions follow the current bindings. With default bindings, the free letters `g h i q r v w x y` work with or without `Shift`. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text. With a map selection, forbid, dump and move to depot are `[S-f]`, `[S-d]` and `[S-t]` for the same reason.
+Panel hotkeys always win. The letters of § Fortress panels always open or close their panel, whatever panel is open; pressing an open panel's own key closes it; when a panel closes while one of its tools was armed, the status row shows a notice ("Designate closed · [d] opens it again", naming the panel and its key; also for Build and Zones). A panel's accelerator may not use one of those letters bare: it is bound to `Shift`+letter and shown `[S-m]`. Reserved letters are read from the live panel bindings, including rebinds. Fixed accelerator captions show the defaults; zone inspector captions follow the current bindings. With default bindings, the free letters `g h i q r v w x` work with or without `Shift`; `y` works bare only, because `Shift+Y` opens the Calendar from anywhere on the fortress screen. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text. With a map selection, forbid, dump and move to depot are `[S-f]`, `[S-d]` and `[S-t]` for the same reason.
 
 Every destructive single-key action asks through the confirmation dialog first, default **No** (§ Confirmations): melt, dump, slaughter, suspend, take apart, disband, remove (a zone, a work order), release (a caged creature). Undoing a mark (resume, unmark) does not ask.
 
@@ -207,6 +208,9 @@ These are the Zones panel's own accelerators and widget keys. Letters that open 
 |---|---|---|
 | `Enter` with no tool or selection | select the zone at the map cursor or centre | click a zoned map tile |
 | `y` | return from an inspector to zone types | zone types button |
+| `↑↓` with a farm plot selected | highlight a season row (starts on the current season) | click the row |
+| `Enter` with a farm plot selected | open the highlighted season's crop list; `↑↓` and `Enter` choose, `Esc` closes | the crop field |
+| `Shift+A` with a farm plot selected | the highlighted row's crop for every season in which that crop can grow | the `[S-a] all seasons` caption |
 | `Shift+P` | open the stockpile preset dropdown | preset header |
 | `↑↓`, `Enter`, accelerator letters | highlight/apply a preset; jump by its first letter, Shift for a panel letter | preset option |
 | `g` | focus the category tree | tree button or category name |
