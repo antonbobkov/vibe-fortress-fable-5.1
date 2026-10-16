@@ -67,10 +67,11 @@ describe('U-01 embark opens with Balanced and asks before a start without a pick
     drop(s, 'tool/pick');
     drop(s, 'drink');
     s.key(press('Enter'));
-    expect(asked).toEqual(['c_embark_no_pick', 'c_embark_no_food_drink']);
+    expect(asked).toEqual(['c_embark_no_pick', 'c_embark_no_drink']);
     expect(embarked).toHaveLength(1);
     expect(strings.get('confirm.c_embark_no_pick')).toBe('Embark without a pick?');
-    expect(strings.get('confirm.c_embark_no_food_drink')).toBe('Embark without food or drink?');
+    expect(strings.get('confirm.c_embark_no_drink')).toBe('Embark with no drink?');
+    expect(strings.get('confirm.c_embark_no_food')).toBe('Embark with no food?');
   });
 });
 

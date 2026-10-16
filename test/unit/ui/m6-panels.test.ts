@@ -159,6 +159,11 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
       // U-03 (D-U2): `s` opens Stocks, so it is not the panel's; `[S-s]` enters settingStation mode.
       expect(panel.key(ctx, { key: 's', repeat: false, shift: false, ctrl: false, alt: false, meta: false })).toBe(false);
       expect(panel.settingStation).toBe(false);
+      // T-278: with no squad the key arms nothing; with one it enters settingStation mode.
+      panel.key(ctx, { key: 'S', repeat: false, shift: true, ctrl: false, alt: false, meta: false });
+      expect(panel.settingStation).toBe(false);
+      w.submit({ type: 'CreateSquad', name: 'The Hearthguard' });
+      w.step(1);
       panel.key(ctx, { key: 'S', repeat: false, shift: true, ctrl: false, alt: false, meta: false });
       expect(panel.settingStation).toBe(true);
       panel.cancel();

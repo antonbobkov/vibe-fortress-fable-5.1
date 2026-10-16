@@ -36,3 +36,11 @@ Default embark. Military with no squad: `v`, `Shift+K` (capture 5/53, 5/54). `+`
 
 - Every step of the reproduction shows its line.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+
+## Decisions made in the work
+
+- Orders: `Delete` removes the selected order like `x` (unless a map selection is waiting for it). `+` and `-` with no order selected stay the speed keys, as the keymap table says; a new line there would take the speed keys away from the Orders panel. The existing "No order is selected: [S-n] adds one." line is kept, since it already begins with the wanted words.
+- A harvest rectangle holding no ripe crop sends nothing (the command used to succeed and mark nothing); the line is "No ripe crops here to harvest."
+- `Ctrl+Z` with nothing to undo and `F9` with no quick save already answered at once; the tests now pin both, and `F9` also puts its line in the status row, not only in the log.
+- Embark: "Embark without food or drink?" is replaced by two questions, `c_embark_no_food` and `c_embark_no_drink`, asked in that order after the pick and the axe.
+- The game menu's "Saved ..." line stays for `GAME_MENU_MESSAGE_MS` (3000); the menu stays open after Save.

@@ -109,7 +109,7 @@ The Orders panel's own keys, beside the accelerators it shows (`ui-screens/panel
 - `Shift+N`: new order (opens "Add order").
 - `=` or numpad `+` / `-`: the selected order's count ±1, or the quantity in "Add order". Shift changes ten: main-row `+` is Shift+`=` and `_` is Shift+`-`. With no order selected these are speed keys.
 - `r`: repeat the selected order, or the last finished one.
-- `x`: remove the selected order (confirm).
+- `x` or `Delete`: remove the selected order (confirm). With no order selected `x`, `Delete`, `r` and the other order keys say "No order is selected: [S-n] adds one."; `=` and `-` are then the speed keys.
 - `Shift+↑` / `Shift+↓`: move the selected order in its queue.
 - In "Add order": letters and `Backspace` edit the recipe filter, `0`–`9` type the quantity, `Tab` / `Shift+Tab` move between the fields and `←` `→` change the focused one.
 
@@ -351,7 +351,8 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `c_main_menu` | "Return to the main menu? Unsaved progress since {time} will be lost." | No |
 | `c_embark_no_pick` | "Embark without a pick?" | No |
 | `c_embark_no_axe` | "Embark without an axe?" | No |
-| `c_embark_no_food_drink` | "Embark without food or drink?" | No |
+| `c_embark_no_food` | "Embark with no food?" | No |
+| `c_embark_no_drink` | "Embark with no drink?" | No |
 | `c_melt_items` | "Mark {what} for melting? Melted items are gone; the smelter gives back part of their metal as bars." | No |
 | `c_dump_items` | "Mark {what} for dumping? Dwarves will carry every one of them to a dump zone." | No |
 | `c_dump_selection` | "Dump everything on these {n} tiles? Dwarves will carry it to a dump zone." | No |

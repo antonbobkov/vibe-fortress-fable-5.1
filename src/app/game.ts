@@ -177,6 +177,8 @@ export class Game {
   private listing: SaveListing[] = [];
   /** The last save written or loaded, for the tests and the e2e hook. */
   lastSaveId: string | null = null;
+  /** The line the last save wrote to the log, for the game menu to show; read once. */
+  private lastSavedLine: string | null = null;
   /** The world tick of the last save of the running fortress (24 § Game menu's unsaved check). */
   lastSaveTick: number | null = null;
   /** The host's applied-command count at the last save; not saved (T-118). */
@@ -436,20 +438,25 @@ export class Game {
     if (!this.host.started || this.top() !== FORTRESS) return;
     this.menuSpeed = this.host.speed();
     this.host.setSpeed(0);
-    const menu = new GameMenuScreen({
+    const menu: GameMenuScreen = new GameMenuScreen({
       fortressName: () => (this.host.started ? this.host.world.fortress.name : ''),
       resume: () => {
         this.popScreen();
         this.host.setSpeed(this.menuSpeed);
         this.render();
       },
-      save: () => void this.quickSave(),
+      save: () => void this.quickSave().then(() => {
+        const text = this.lastSavedLine;
+        this.lastSavedLine = null;
+        if (text !== null) { menu.flash(text); this.render(); }
+      }),
       load: () => void this.openLoad(),
       settings: () => this.openSettings(),
       rename: () => this.renameFortress(),
       retire: () => this.retireFortress(),
       mainMenu: () => this.leaveToMainMenu(),
       viewOnly: () => this.host.viewOnly,
+      now: () => Date.now(),
     }, this.strings);
     if (menu.items().some((item) => item.id === selected && item.enabled !== false)) menu.selected = selected;
     this.pushScreen(menu);
@@ -648,7 +655,8 @@ export class Game {
         this.lastSaveId = id;
         this.lastSaveTick = savedAt;
         this.lastSaveCommands = savedCommands;
-        this.note('note', this.strings.get('ui.save.saved', { fortress: this.host.world.fortress.name, date: formatDate(savedAt) }));
+        this.lastSavedLine = this.strings.get('ui.save.saved', { fortress: this.host.world.fortress.name, date: formatDate(savedAt) });
+        this.note('note', this.lastSavedLine);
         await this.refreshListing();
       })(),
     );
@@ -666,6 +674,7 @@ export class Game {
         const id = this.saves === null ? null : await newestManualId(this.saves);
         if (id === null) {
           this.note('note', this.strings.get('ui.save.no_quick'));
+          this.fortress.notice(this.strings.get('ui.save.no_quick'));
           this.render();
           return;
         }

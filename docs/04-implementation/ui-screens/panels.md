@@ -389,6 +389,8 @@ The line under the alert row says what the current alert does: "Calm: everyone w
 - The leader list sends `SetSquadLeader`; `[S-n]` opens the text input and sends `RenameSquad`.
 - The barracks list sends `SetZoneSetting { key: squad }`: the zone the squad had lets go and the chosen one takes it; "None" clears it. Without a barracks zone the status row says to make one in Zones. Changing the assignment moves training to that barracks, including for a squad that has already trained. The barracks row shows the assigned zone; "(default)" marks a zone the squad uses without being assigned.
 - The new keys are on `Shift` because `l`, `b` and `n` are panel hotkeys.
+- A key of the squad panel with no squad does nothing but say "No squad yet: [+] makes one." in the status row. A mode of work (`train` or `active`) set on a squad with no members is set, and the status row says "The Hearthguard has no members: [S-a] adds them."
+- While a station, a patrol point, a kill order or a follow order waits for the map, the status row says what to do ("Station: click a floor tile · [Esc] cancel", "Patrol point: click a floor tile · [Esc] cancel", "Kill order: click a creature · [Esc] cancel", "Follow order: click a dwarf · [Esc] cancel") and drops any older line. A tile the squad cannot stand on sends nothing, says "The squad cannot stand there: pick a floor tile." and keeps the pick armed; the prompt returns when the pointer moves.
 
 ## Animals (n)
 
