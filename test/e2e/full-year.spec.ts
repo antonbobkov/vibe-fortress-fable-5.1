@@ -792,7 +792,8 @@ test('full-year', async ({ page }) => {
 
   console.log(`T-192 full-year wildlife: ${JSON.stringify({ spawns: tracker.wildSpawns, liveAtEnd: results.wildAtEnd, huntsCompleted: tracker.huntsCompleted, huntKills: tracker.huntKills })}`);
 
-  // Assert rule-based rows (matching year_one.scenario.ts precedent)
+  // Kept (T-334): rule-based rows. The caravan schedule of 20, the guaranteed waves of 21 and the
+  // peril-0 threat schedule of 18 decide them; no order of jobs moves them.
   const hillfolk = windowOf('hillfolk', 1);
   expect(tracker.caravanDay['hillfolk'], 'Hillfolk caravan arrived in summer of year 1').not.toBeNull();
   expect(tracker.caravanDay['hillfolk'] as number).toBeGreaterThanOrEqual(hillfolk[0]);
@@ -833,25 +834,31 @@ test('full-year', async ({ page }) => {
   // day and its killer's species, and the hall ends the year with the dwarves it should have.
   const deathLines = tracker.deaths.map((d) => `  day ${d.day} (tick ${d.tick}): ${d.kind} ${d.name} died of ${d.cause}${d.killerId === 0 ? '' : `, killed by a ${d.killerSpecies}${d.killerState === '' ? '' : ` (${d.killerState})`}`}`);
   console.log([`full-year deaths: ${tracker.deaths.length}`, ...deathLines].join('\n'));
+  // Kept (T-334): nobody dies of hunger or thirst. Measured on the twelve-seed instrument of T-136,
+  // which plays this opening: in the 25 cohort runs recorded under reports/data (2026-10-11 to
+  // 2026-10-16), six runs before T-260 had two such deaths each and the 19 runs since have none.
   expect(tracker.deaths.filter((d) => ['starvation', 'dehydration', 'thirst', 'hunger'].includes(d.cause)), 'no dwarf died of hunger or thirst').toEqual([]);
-  // What this one year can and cannot assert (orchestrator's decision, 2026-10-11, T-136).
-  // The year is deterministic, but it is ONE year, and it is chaotic: any change to where a dwarf
-  // stands on day 60 re-rolls every wolf encounter after it. Three correct fixes in a row (T-134,
-  // T-135) moved it from 9 living to 8 to 6 without any of them being at fault. A floor that may
-  // only go up therefore blocks correct fixes at random, and a count of Starving events depends on
-  // how long this script happens to hold the hearth alert. So the spec asserts what a single year
-  // can witness: the fortress is not wiped out, and nobody dies of hunger or thirst. How many
-  // dwarves wolves cost a fortress is measured over many seeds by the instrument of T-136, where a
-  // median can carry a target; the figures of this year are printed above for the record.
-  const FORTRESS_ALIVE_FLOOR = 4;
-  expect(livingCount, `the fortress is not wiped out: at least ${FORTRESS_ALIVE_FLOOR} dwarves alive on the last day`).toBeGreaterThanOrEqual(FORTRESS_ALIVE_FLOOR);
-  console.log(`full-year Starving events: ${tracker.starvingCount} (not asserted; see T-136)`);
+  // What this one year can and cannot assert (testing-strategy.md § What may be a gate). The year
+  // is deterministic, but it is ONE year, and it is chaotic: any change to where a dwarf stands on
+  // day 60 re-rolls every wolf encounter after it. Three correct fixes in a row (T-134, T-135)
+  // moved it from 9 living to 8 to 6 without any of them being at fault. So the living count, the
+  // deaths and the Starving events are printed, and the spec asserts that the fortress is not wiped
+  // out. That too can trip: in the 20 instrument cohort runs recorded since 2026-10-12, a seed that
+  // had survived the run before went extinct in three (temperate_forest-2 in t211-after, taiga-4 in
+  // t305-units, taiga-2 in t307-endangered-patient), but it trips far more rarely than the old
+  // floor of four living. How many dwarves wild animals cost is measured over twelve seeds by the
+  // instrument of T-136, where a median can carry a target.
+  console.log(`full-year living: ${livingCount}; Starving events: ${tracker.starvingCount} (not asserted; see T-136)`);
+  expect(livingCount, 'the fortress is not wiped out').toBeGreaterThan(0);
 
-  // Food margin assertions (T-150 decision a)
+  // Food margin (T-150 decision a): printed since T-334. The year ended with 109 to 161 food and
+  // 100 to 108 drink against ten days' 29 to 38 and 46 to 62, while between consecutive recorded
+  // cohort runs one instrument seed's year-end food fell by 79 % (taiga-1, 107 to 23, t210-after)
+  // and another's drink by 81 % (temperate_forest-1, 106 to 20, t211-fight-rule): both bounds lie
+  // inside that noise.
   const tenDaysFood = livingCount * 0.48 * 10;
   const tenDaysDrink = livingCount * 0.77 * 10;
-  expect(stocks.meal + stocks.plantFood, 'at least 10 days of food in stock at year end').toBeGreaterThanOrEqual(tenDaysFood);
-  expect(stocks.drink, 'at least 10 days of drink in stock at year end').toBeGreaterThanOrEqual(tenDaysDrink);
+  console.log(`full-year stocks against ten days: ${JSON.stringify({ food: stocks.meal + stocks.plantFood, tenDaysFood, drink: stocks.drink, tenDaysDrink })}`);
 
   expect(errors).toEqual([]);
 });

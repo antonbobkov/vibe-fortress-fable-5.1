@@ -18,7 +18,8 @@ describe('T-136 wildlife survival over twelve generated years', () => {
     mkdirSync(output + '.rows', { recursive: true });
     writeFileSync(output + '.rows/' + seed + '.json', JSON.stringify(row, null, 2) + '\n');
     console.log(`T-136 wildlife year: ${JSON.stringify(row)}`);
-    // A living fortress really reaches the year's end; an extinct one records its last tick.
+    // Kept (T-334): accounting and setup, which no order of jobs moves. A living fortress really
+    // reaches the year's end; an extinct one records its last tick.
     if (row.living > 0) expect(row.tick).toBe(DAYS_PER_YEAR * TICKS_PER_DAY);
     expect(row.arrivals - row.deaths.filter((death) => death.kind === 'dwarf').length).toBe(row.living);
     expect(row.setup.surfacePlots).toHaveLength(2);
@@ -36,6 +37,8 @@ describe('T-136 wildlife survival over twelve generated years', () => {
     writeFileSync(output, JSON.stringify({ runtimeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), target: TARGET, measured: MEASURED, reference: REFERENCE, floor: FLOOR, regression: check, improved: improvedMeasurements(MEASURED, summary), summary, byBiome, rows }, null, 2) + '\n');
     console.log(`T-136 wildlife distribution: ${JSON.stringify({ summary, byBiome })}`);
     expect(rows).toHaveLength(WILDLIFE_CASES.length);
+    // Kept (T-334): the guarded figures of testing-strategy.md § Annual wildlife survival, each with
+    // its bound wider than its measured spread. Single seeds are printed, never guarded.
     expect(summary.median, 'measured median; target >= 11').toBeGreaterThanOrEqual(FLOOR.median);
     expect(summary.living, 'sum of the living over the cohort').toBeGreaterThanOrEqual(FLOOR.living);
     expect(summary.wildlifeFree, 'measured share with no wildlife dwarf death').toBeGreaterThanOrEqual(FLOOR.wildlifeFree);

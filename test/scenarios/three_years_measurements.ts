@@ -88,6 +88,8 @@ export class ThreeYearsMeasurements {
   readonly raids: { day: number; kind: string; size: number; partyId: number; outcome?: string }[] = [];
   fixture: { armedDay: number | null; specialists: Record<string, number>; deepShaft: { x: number; y: number; bottom: number } | null } = { armedDay: null, specialists: {}, deepShaft: null };
   private readonly friendlyHits = new Set<string>();
+  /** Every dwarf seen alive: a death whose event names no species (a freeze) is still a dwarf's. */
+  private readonly knownDwarves = new Set<number>();
   dwarfTicks = 0;
   meals = 0;
   alcohol = 0;
@@ -151,13 +153,18 @@ export class ThreeYearsMeasurements {
       }
       this.origins.set(id, { item: { ...item }, embark, purchase });
     });
+    const rememberDwarves = (): void => { for (const id of w.game.world.entities.with(C.Labors)) this.knownDwarves.add(id); };
+    rememberDwarves();
     w.game.world.onEvents((events) => {
+      if (events.some((e) => e.type === 'CreatureDied')) for (const e of events) if (e.type === 'CreatureDied' && w.game.world.entities.has(Number(e['id']), C.Labors)) this.knownDwarves.add(Number(e['id']));
       if (events.some((e) => e.type === 'ItemCreated' || e.type === 'CreatureDied')) this.accountPopulation();
       for (const e of events) {
-        if (e.type === 'CreatureDied' && e['faction'] === 'fortress') this.deaths.push({ day: Math.floor(w.tick / TICKS_PER_DAY) + 1,
-          id: Number(e['id']), species: w.game.registry.table<{ id: string }>('creatures').byIndex(Number(e['species']))?.id ?? 'unknown',
+        if (e.type === 'HourPassed') rememberDwarves();
+        const dwarf = e.type === 'CreatureDied' && this.knownDwarves.has(Number(e['id']));
+        if (e.type === 'CreatureDied' && (e['faction'] === 'fortress' || dwarf)) this.deaths.push({ day: Math.floor(w.tick / TICKS_PER_DAY) + 1,
+          id: Number(e['id']), species: dwarf ? 'dwarf' : w.game.registry.table<{ id: string }>('creatures').byIndex(Number(e['species']))?.id ?? 'unknown',
           cause: String(e['cause']), killerId: Number(e['killerId'] ?? 0) });
-        if (e.type === 'CreatureDied' && e['faction'] === 'fortress') note('three_years_death', { ...this.deaths[this.deaths.length - 1], tick: w.tick, killer: w.game.registry.table<{ id: string }>('creatures').byIndex(w.game.world.entities.get(Number(e['killerId'] ?? 0), C.Creature)?.species ?? -1)?.id ?? null });
+        if (e.type === 'CreatureDied' && (e['faction'] === 'fortress' || dwarf)) note('three_years_death', { ...this.deaths[this.deaths.length - 1], tick: w.tick, killer: w.game.registry.table<{ id: string }>('creatures').byIndex(w.game.world.entities.get(Number(e['killerId'] ?? 0), C.Creature)?.species ?? -1)?.id ?? null });
         if (e.type === 'RaidArrived') this.raids.push({ day: Math.floor(w.tick / TICKS_PER_DAY) + 1,
           kind: String(e['kind']), size: Number(e['size']), partyId: Number(e['partyId']) });
         if (e.type === 'RaidEnded') {
@@ -182,6 +189,18 @@ export class ThreeYearsMeasurements {
         }
       }
     });
+  }
+
+  /** T-334: the dwarf deaths by cause, a printed figure of the long runs. */
+  dwarfDeathsByCause(): Record<string, number> {
+    const causes: Record<string, number> = {};
+    for (const d of this.deaths) if (d.species === 'dwarf') causes[d.cause] = (causes[d.cause] ?? 0) + 1;
+    return causes;
+  }
+
+  /** T-334: dwarves dead of hunger or thirst. 10 names both deaths `starvation` (no other cause is emitted for them). */
+  needDeaths(): number {
+    return this.dwarfDeathsByCause()['starvation'] ?? 0;
   }
 
   private accountPopulation(): void {
