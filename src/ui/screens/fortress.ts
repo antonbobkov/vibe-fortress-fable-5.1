@@ -28,7 +28,7 @@ import { drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '..
 import { BuildTool, drawBuildPanel } from '../panels/build';
 import { BuildingPanel, drawBuildingPanel } from '../panels/building';
 import { buildings, confirmThen, type PanelContext } from '../panels/context';
-import { drawJobsPanel, JobsPanel } from '../panels/jobs';
+import { drawJobsPanel, JobsPanel, type WaitingOrders } from '../panels/jobs';
 import { drawLaborsPanel, LaborsPanel } from '../panels/labors';
 import { drawStocksPanel, StocksPanel } from '../panels/stocks';
 import { drawUnitsPanel, dwarvesOf, idleCount, UnitsPanel } from '../panels/units';
@@ -638,7 +638,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx, () => this.removeZone(this.zones.selected));
     else if (panel.id === 'stocks') drawStocksPanel(surface, body, this.stocks, ctx);
     else if (panel.id === 'units') drawUnitsPanel(surface, body, this.units, ctx);
-    else if (panel.id === 'jobs') drawJobsPanel(surface, body, this.jobs, ctx, { list: () => this.orders.waiting(ctx), open: (index) => { this.openPanel('orders'); this.orders.workshopId = 0; this.orders.list.selected = index; } });
+    else if (panel.id === 'jobs') drawJobsPanel(surface, body, this.jobs, ctx, this.waitingOrders());
     else if (panel.id === 'labors') drawLaborsPanel(surface, body, this.labors, ctx);
     else if (panel.id === 'orders') drawOrdersPanel(surface, body, this.orders, ctx);
     else if (panel.id === 'workshop') drawWorkshopPanel(surface, body, this.workshopId, this.orders, ctx,
@@ -987,6 +987,11 @@ export class FortressScreen implements Screen {
   }
 
   // ---------- actions ----------
+
+  /** The Jobs panel's "Orders waiting" rows and the way into Orders on one. */
+  private waitingOrders(): WaitingOrders {
+    return { list: () => this.orders.waiting(this.ctx), open: (index) => { this.openPanel('orders'); this.orders.workshopId = 0; this.orders.list.selected = index; } };
+  }
 
   /** A panel hotkey: open it, or close it when it is the open one ("`?` help", "`F12` debug"). */
   private togglePanel(id: string): void {
@@ -1448,6 +1453,8 @@ export class FortressScreen implements Screen {
     if (!press.ctrl && !press.alt && !press.meta) {
       // U-07: settings widgets take Space, Tab and +/- before the global pause/speed/sidebar keys.
       if (this.ui.panel === 'zones' && this.ui.sidebar && ['Space', ' ', 'Tab', '+', '=', '-'].includes(press.key) && this.zones.editorKey(this.ctx, press)) return true;
+      // `Tab` in Jobs moves the cursor between the job list and the waiting orders, when there are any.
+      if (this.ui.panel === 'jobs' && this.ui.sidebar && press.key === 'Tab' && !press.shift && this.jobs.toggleWaiting(this.waitingOrders())) return true;
       // `+`/`-` change the selected order's count before they are the game-speed keys (Q2); the
       // military, civilizations and population panels keep their own `+` (and `-`).
       if (this.ui.panel === 'orders' && this.ui.sidebar && countStep(press) !== 0 && this.orders.selectedRow(this.ctx) !== undefined) return this.orders.key(this.ctx, press);
@@ -1815,6 +1822,10 @@ export class FortressScreen implements Screen {
         if (k === '/') { this.jobs.filter.focused = true; return true; }
         if (letter === 'l') { this.jobs.cycleLabor(ctx); return true; }
         if (letter === 's') { this.jobs.cycleState(); return true; }
+        if (this.jobs.focusWaiting) {
+          if (!press.shift && (up || down)) { this.jobs.moveWaiting(up ? -1 : 1, this.waitingOrders()); return true; }
+          if (k === 'Enter') return this.jobs.openWaiting(this.waitingOrders());
+        }
         if (!press.shift && (up || down)) {
           this.jobs.move(up ? -1 : 1, ctx);
           return true;

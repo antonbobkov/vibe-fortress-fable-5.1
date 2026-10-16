@@ -15,7 +15,7 @@ import type { Surface } from '../surface';
 import { acceleratorLabel } from '../keymap';
 import { PanelFilter, drawPanelFilter } from './filter';
 import { jobBlockText, wrapText } from '../messages';
-import { label, separator, table, type ListState } from '../widgets';
+import { clampList, label, separator, table, type ListState } from '../widgets';
 import { tileXyz, type PanelContext } from './context';
 
 type JobLike = ReturnType<JobsReader['list']>[number];
@@ -24,6 +24,10 @@ export class JobsPanel {
   readonly list: ListState = { selected: 0, scroll: 0 };
 
   readonly filter = new PanelFilter();
+  /** The cursor is on the "Orders waiting" rows (Tab), not on the job list. */
+  focusWaiting = false;
+  /** The cursor and window of the "Orders waiting" rows. */
+  readonly waitingList: ListState = { selected: 0, scroll: 0 };
   labor = '';
   state: 'all' | 'open' | 'claimed' | 'blocked' = 'all';
 
@@ -49,7 +53,41 @@ export class JobsPanel {
         || (ctx.readers.entities.get(j.workerId, C.Creature)?.name ?? '').toLowerCase().includes(text)));
   }
 
-  resetSelection(): void { this.list.selected = 0; this.list.scroll = 0; }
+  /** The waiting orders the Jobs text filter lets through. */
+  waitingOf(orders: WaitingOrders | undefined): { readonly index: number; readonly text: string }[] {
+    const needle = this.filter.value.toLowerCase();
+    return (orders?.list() ?? []).filter((o) => needle === '' || o.text.toLowerCase().includes(needle));
+  }
+
+  /** `Tab`: the cursor goes to the waiting rows and back; false when there are none. */
+  toggleWaiting(orders: WaitingOrders | undefined): boolean {
+    const count = this.waitingOf(orders).length;
+    if (count === 0) { this.focusWaiting = false; return false; }
+    this.focusWaiting = !this.focusWaiting;
+    this.waitingList.selected = Math.max(0, Math.min(count - 1, this.waitingList.selected));
+    return true;
+  }
+
+  /** `↑` `↓` on the waiting rows. */
+  moveWaiting(delta: number, orders: WaitingOrders | undefined): void {
+    const count = this.waitingOf(orders).length;
+    this.waitingList.selected = Math.max(0, Math.min(count - 1, this.waitingList.selected + delta));
+  }
+
+  /** `Enter` on a waiting row: Orders opens with that order selected, as the click does. */
+  openWaiting(orders: WaitingOrders | undefined): boolean {
+    const row = this.waitingOf(orders)[this.waitingList.selected];
+    if (row === undefined || orders === undefined) return false;
+    orders.open(row.index);
+    return true;
+  }
+
+  resetSelection(): void {
+    this.waitingList.selected = 0;
+    this.waitingList.scroll = 0;
+    this.list.selected = 0;
+    this.list.scroll = 0;
+  }
 
   cycleLabor(ctx: PanelContext): void {
     const present = new Set(this.allJobs(ctx).map(j => this.laborOf(ctx, j)));
@@ -139,6 +177,9 @@ export function blockedSummary(ctx: PanelContext, jobs: readonly JobLike[]): str
   return s.get('ui.jobs.blocked_by', { parts: parts.join(', ') });
 }
 
+/** How many "Orders waiting" rows show at once. */
+const WAITING_ROWS = 3;
+
 /** Orders with no job and why, with a way to open Orders on one (the "Orders waiting" section). */
 export interface WaitingOrders {
   list(): readonly { readonly index: number; readonly text: string }[];
@@ -171,8 +212,9 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   const chosen = panel.selected(ctx);
   const detail = chosen !== undefined && chosen.state === 'blocked' && chosen.blockedReason !== null ? wrapText(jobBlockText(ctx, chosen).long, rect.cols - 2, 2) : [];
   const needle = panel.filter.value.toLowerCase();
-  const waiting = (orders?.list() ?? []).filter((o) => needle === '' || o.text.toLowerCase().includes(needle));
-  const waitingRows = waiting.length === 0 ? 0 : Math.min(3, waiting.length) + 1;
+  const waiting = panel.waitingOf(orders);
+  void needle;
+  const waitingRows = waiting.length === 0 ? 0 : Math.min(WAITING_ROWS, waiting.length) + 1;
   const height = Math.max(2, rect.rows - top - 4 - priorities.length - detail.length - waitingRows);
   table(
     s,
@@ -207,11 +249,20 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   if (waiting.length > 0 && orders !== undefined) {
     separator(s, rect.col + 1, row, rect.cols - 2, strings.get('ui.jobs.orders_waiting', { n: waiting.length }));
     row += 1;
-    for (const o of waiting.slice(0, 3)) {
-      label(s, rect.col + 1, row, o.text, { fg: t.alert, width: rect.cols - 2, keys: false });
-      s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => orders.open(o.index));
+    // Three rows show at a time; the cursor (Tab, then up and down) scrolls the rest into view.
+    const list = panel.waitingList;
+    if (waiting.length === 0) panel.focusWaiting = false;
+    clampList(list, waiting.length, WAITING_ROWS);
+    waiting.slice(list.scroll, list.scroll + WAITING_ROWS).forEach((o, k) => {
+      const cells = { col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 };
+      label(s, cells.col, row, o.text, { fg: t.alert, width: cells.cols, keys: false });
+      if (panel.focusWaiting && list.scroll + k === list.selected) {
+        s.invert(cells);
+        s.text(rect.col, row, '►', t.value);
+      }
+      s.hit(cells, () => { list.selected = list.scroll + k; orders.open(o.index); });
       row += 1;
-    }
+    });
   }
   separator(s, rect.col + 1, row, rect.cols - 2);
   label(s, rect.col + 1, row + 1, strings.get('ui.jobs.actions1'), { width: rect.cols - 2 });
