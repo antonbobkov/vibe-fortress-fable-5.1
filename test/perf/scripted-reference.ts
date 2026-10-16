@@ -3,7 +3,7 @@
  * every workshop that has recipes (twelve with a standing order its stock can feed), six farm plots with a crop for every
  * season and seeds, food, drink and a still, two squads of six with gear in stock and a barracks each (one on Train), a
  * hospital with beds, a chest and supplies, a trade depot, a gate with a door set to lock on alert, a drawbridge on a
- * lever and four cage traps, eight stockpiles of 5×5 with the presets a played fortress uses, and labors set by
+ * lever and four cage traps, ten stockpiles of 5×5 with the presets a played fortress uses, and labors set by
  * profession templates. The map, the channel, the cavern, the dwarves and the animals are the base both fixtures share
  * (`scripted-furniture.ts`, which keeps the fixture the budgets were first measured on).
  */
@@ -28,7 +28,7 @@ export const REFERENCE_PATH = fileURLToPath(new URL('../fixtures/reference-fortr
 /** What the fixture is built to hold; `reference_fortress.test.ts` asserts it from the saved file. */
 export const REFERENCE_SHAPE = {
   dwarves: 80,
-  stockpiles: 8,
+  stockpiles: 10,
   stockpileSide: 5,
   surfacePlots: 2,
   cavePlots: 4,
@@ -38,8 +38,8 @@ export const REFERENCE_SHAPE = {
   twelveOrders: 12,
 } as const;
 
-/** The presets of the eight stockpiles, in the order a played fortress makes them. */
-const STOCKPILE_PRESETS = ['food', 'drink', 'seeds', 'stone', 'wood', 'furniture', 'ore_and_bars', 'weapons_and_armor'] as const;
+/** The presets of the ten stockpiles, in the order a played fortress makes them. */
+const STOCKPILE_PRESETS = ['food', 'drink', 'seeds', 'stone', 'wood', 'furniture', 'ore_and_bars', 'weapons_and_armor', 'drink', 'drink'] as const;
 
 /** One standing order per workshop: `keep ≥ N` of what its stock can feed for a season. */
 const ORDERS: readonly (readonly [workshop: string, recipe: string, keep: number])[] = [
@@ -174,7 +174,7 @@ export function buildScriptedReference(): TestWorld {
   entities.add(lever, C.Building, { ...leverBuilding, linkedIds: [bridge], settings: { ...leverBuilding.settings, linkMaterials: [[bridge, oak]] } });
   entities.add(bridge, C.Building, { ...bridgeBuilding, linkedIds: [lever] });
 
-  // --- eight stockpiles of 5×5 with the presets a played fortress uses
+  // --- ten stockpiles of 5×5 with the presets a played fortress uses
   const stockpiles: { zone: EntityId; tiles: TileIndex[] }[] = [];
   for (const preset of STOCKPILE_PRESETS) {
     const r = ground.claim(REFERENCE_SHAPE.stockpileSide, REFERENCE_SHAPE.stockpileSide, (c) => { discover(tilesOf(w, c)); return tilesOf(w, c).every((t) => buildings.zoneTileQualifies('stockpile', t)); });
@@ -265,7 +265,13 @@ export function buildScriptedReference(): TestWorld {
   w.spawnItem('stone_block', 'granite', put(3, 1), 60);
   // A season of eating and drinking for 80 dwarves, and then some.
   w.spawnItem('plant_food', 'barley', put(0, 0), 1_500);
-  w.spawnItem('drink', 'ale', put(1, 0), 4_000);
+  // Drink stands in barrels, one to a tile, as dwarves only drink from the barrels of a stockpile: seventy-five of twenty.
+  for (const stockpile of [1, 8, 9]) {
+    for (let k = 0; k < 25; k += 1) {
+      const barrel = w.spawnItem('barrel', 'oak', put(stockpile, k));
+      w.spawnItem('drink', 'ale', { containerId: barrel }, 20);
+    }
+  }
   w.spawnItem('easy_meal', 'meal', put(0, 1), 4_000);
   w.spawnItem('raw_hide', 'leather', put(5, 0), 40);
   w.spawnItem('cloth', 'wool_cloth', put(5, 1), 40);
