@@ -26,6 +26,7 @@ Codex and Gemini are retired (2026-10-15); their rows stay for reference.
 
 ## Working practice that has held up
 
+- **A subagent reports each commit itself.** Every brief says: after each commit that closes, parks or leaves a task as WIP, send one line to `main` with SendMessage (`<hash> T-123 closed`). The orchestrator merges on that message and on the agent's final report; it does not poll the branches.
 - **Every change under `src/` is reviewed before the merge** by someone other than its author: a second agent (Opus reviewing Sonnet, or the reverse) or the orchestrator reading the diff, with the checklist in `docs/process/agent-workflow.md` § Review. A review counts against the two-agent limit when an agent does it.
 - **Only the orchestrator edits `docs/backlog.md`.** Agents end a task with `Closes:` and `New rows:` lines; the orchestrator runs `node scripts/close-task.mjs T-123 <commits>` in the merge and adds the new rows. This ends the backlog conflicts at almost every merge.
 - **Agents run the static checks, the affected tests, the whole browser suite for a behaviour change and the annual instrument for a simulation change; the full `npm test` runs once, on `master`, before the push** (agent-workflow.md § Verifying).
