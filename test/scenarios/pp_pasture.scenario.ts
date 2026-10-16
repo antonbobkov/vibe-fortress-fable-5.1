@@ -53,8 +53,6 @@ const scenario: Scenario = {
   milestone: 8,
   seed: 'pp-pasture',
   world: 'flat-test',
-  // The grazers starve beside a pasture tile shut in by trees, which they pick and cannot reach.
-  todo: 'T-335',
   timeoutMs: 300_000,
   run: () => {
     const w = pathWorld('pp-pasture', { preset: 'farmstead' });

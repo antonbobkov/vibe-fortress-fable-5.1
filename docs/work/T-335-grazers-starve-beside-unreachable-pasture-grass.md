@@ -19,6 +19,10 @@ A probe on the same seed, with the pasture drawn instead as the grass of the 20 
 
 A grazer picks only grass it can reach: `grassForTame` skips a tile whose walker region differs from the animal's (`readers.pathing` labels), and so does the unassigned grazer's `grassNear`. Spec: one clause in 08 § Pastures and feeding ("the nearest grass tile of its pasture that it can reach").
 
+## Found while fixing (2026-10-16)
+
+With only the region filter, `pp_pasture` still starved its herd (4 tiles grazed in 28 days). The grazers chose the nearest grass by straight distance on every think (every 10 ticks); where trees stood between, one step along the path made another tile the nearest, whose path ran the other way, and the animal turned back: a cow at (23, 6) went to (24, 6) and back for days, aiming at (21, 8) and (22, 8) in turn. Decision added: a grazer keeps walking to the grass it chose while that tile stays uneaten, unclaimed, in its pasture and in its region (08 § Pastures and feeding, `creature-brains.md`). Both parts are needed: without either, `pp_pasture` fails.
+
 ## Done
 
 - `pp_pasture` passes and its `todo` is removed; a unit test with a grass tile shut in by trees, named T-335, fails without the change.
