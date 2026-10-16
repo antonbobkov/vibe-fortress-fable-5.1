@@ -1,6 +1,8 @@
 # T-284 — A workshop with no recipes is not listed, by rule and not by id
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (§ 8 a); the question came from T-194 · **Size:** S · **Needs:** T-271 (same file, `src/ui/panels/build.ts`) · **Status:** open
+**Closed:** 2026-10-16, in 9a294b9.
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (§ 8 a); the question came from T-194 · **Size:** S · **Needs:** T-271 (same file, `src/ui/panels/build.ts`) · **Status:** open
 
 ## Why
 
@@ -12,8 +14,8 @@ Read `src/ui/panels/build.ts:39-43` (`listed`). In play: Build › Workshops lis
 
 ## What the spec says
 
-- [`workshops-and-recipes.md`](../03-content/workshops-and-recipes.md): the `magma_kiln` row, "reserved for glass in a later version; it has no recipes and is hidden from the build menu".
-- [`12-workshops-and-professions.md`](../02-systems/12-workshops-and-professions.md): "`magma_kiln` (unused in version 1 but listed for glass later)".
+- [`workshops-and-recipes.md`](../../03-content/workshops-and-recipes.md): the `magma_kiln` row, "reserved for glass in a later version; it has no recipes and is hidden from the build menu".
+- [`12-workshops-and-professions.md`](../../02-systems/12-workshops-and-professions.md): "`magma_kiln` (unused in version 1 but listed for glass later)".
 
 ## What to do
 
@@ -23,14 +25,14 @@ Read `src/ui/panels/build.ts:39-43` (`listed`). In play: Build › Workshops lis
 - **An existing kiln.** A save that holds a built kiln loads, shows it, and its panel reads "Magma kiln · no recipes in this version" with only "take apart". A test builds one through the test harness and loads it.
 - **Spec wording.** `workshops-and-recipes.md` states the rule for every workshop ("a workshop with no recipes is not offered in the build menu") and keeps the kiln's row as the one example.
 
-1. Amend `workshops-and-recipes.md`, 12 § Player-facing behavior, and [`command-catalog.md`](../04-implementation/command-catalog.md) for the refusal.
+1. Amend `workshops-and-recipes.md`, 12 § Player-facing behavior, and [`command-catalog.md`](../../04-implementation/command-catalog.md) for the refusal.
 2. Implement in `src/ui/panels/build.ts`, `src/systems/workshops/` or the building system that validates `PlaceBuilding`, `src/ui/panels/building.ts` (the panel line), and the strings.
 3. Tests, `describe('T-284 …')`: the menu lists exactly the workshops with a recipe (walk the content table); the command refusal; the panel of an existing kiln.
 
 ## Done
 
 - No content id is named in `src/ui/panels/build.ts` for this rule, and the three tests pass.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
 
 ## Decisions made in the work
 
