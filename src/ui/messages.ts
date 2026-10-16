@@ -74,6 +74,31 @@ export function wrapText(text: string, width: number, maxLines: number): string[
   return lines;
 }
 
+/**
+ * `text` in lines of at most `width` cells, never cutting a word that fits: each line after the
+ * first starts `indent` cells in (a hanging indent under the description). A word longer than a line
+ * is cut at the line's end.
+ */
+export function wrapHang(text: string, width: number, indent: number): string[] {
+  if (width < 2) return [text];
+  const hang = ' '.repeat(Math.max(0, Math.min(indent, Math.floor(width / 2))));
+  const length = (t: string): number => Array.from(t).length;
+  const lines: string[] = [];
+  let line = '';
+  let fresh = true;
+  for (const word of text.split(' ')) {
+    if (fresh) { line = (lines.length === 0 ? '' : hang) + word; fresh = false; } else if (length(line) + 1 + length(word) <= width) line += ` ${word}`;
+    else { lines.push(line); line = hang + word; }
+    while (length(line) > width) {
+      const chars = Array.from(line);
+      lines.push(chars.slice(0, width).join(''));
+      line = hang + chars.slice(width).join('');
+    }
+  }
+  lines.push(line);
+  return lines;
+}
+
 /** "carpenter's workshop" → "Carpenter's workshop". */
 export function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);

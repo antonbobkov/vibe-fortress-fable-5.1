@@ -30,13 +30,14 @@ import {
   GLYPH_STAIRS_UPDOWN,
   GLYPH_TREE,
 } from '@render/glyphs';
-import { ACTION_IDS, KEY_CONTEXTS, acceleratorLabel, keyLabel, type Binding, type KeyContext, type Keymap } from '../keymap';
+import { ACTION_IDS, KEY_CONTEXTS, acceleratorLabel, keyLabel, type Binding, type KeyContext, type KeySpec, type Keymap } from '../keymap';
+import { wrapHang } from '../messages';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, tabs } from '../widgets';
 import { OVERLAY_ROWS } from './overlays';
 
-export type HelpTab = 0 | 1;
+export type HelpTab = 0 | 1 | 2;
 
 /** One line of either tab. A heading has no glyph and is drawn in the key colour. */
 export interface HelpRow {
@@ -122,6 +123,11 @@ const BUILDING_HELP_KEYS: readonly string[] = ['ui.help.building.rows', 'ui.help
 /** Help's context order: the panel hotkeys first (Q14), then the keymap table's order. */
 export const HELP_CONTEXT_ORDER: readonly KeyContext[] = ['fortress_panel', ...KEY_CONTEXTS.filter((c) => c !== 'fortress_panel')];
 
+/** A key as Help writes it: a Shift letter the way the panels do (`[S-n]`), any other as the keymap does. */
+export function helpKeyLabel(spec: KeySpec): string {
+  return spec.shift && !spec.ctrl && /^[A-Za-z]$/.test(spec.key) ? `[S-${spec.key.toLowerCase()}]` : keyLabel(spec);
+}
+
 /** A group's keys as one label: a run of digits as a range (`1–9`), arrows side by side, the rest spaced. */
 export function keysLabel(labels: readonly string[]): string {
   const shown = labels.map((l) => (l === 'any-letter' ? '[letter]' : l));
@@ -139,6 +145,7 @@ export function keysLabel(labels: readonly string[]): string {
  */
 export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
   const out: HelpRow[] = [];
+  if (strings !== undefined) out.push({ category: 'shift', text: strings.get('ui.panel.shift_note') });
   for (const context of HELP_CONTEXT_ORDER) {
     const bindings = keymap.of(context);
     if (bindings.length === 0) continue;
@@ -147,8 +154,8 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     for (const binding of bindings) {
       const text = actionText(binding);
       const last = groups[groups.length - 1];
-      if (last !== undefined && last.id === binding.id && last.text === text) last.keys.push(keyLabel(binding.spec));
-      else groups.push({ text, id: binding.id, keys: [keyLabel(binding.spec)] });
+      if (last !== undefined && last.id === binding.id && last.text === text) last.keys.push(helpKeyLabel(binding.spec));
+      else groups.push({ text, id: binding.id, keys: [helpKeyLabel(binding.spec)] });
     }
     for (const g of groups) out.push({ category: context, text: `${keysLabel(g.keys)}  ${g.text}`, keys: g.keys });
     // D-U2: an accelerator on a panel letter takes `Shift`; the keymap table has no row to say so.
@@ -233,16 +240,46 @@ export function helpGlyphRows(registry: Registry, charOf: (glyph: number) => str
   return out;
 }
 
+/** The Start tab: the eight steps of a first season, one row each. */
+export function helpStartRows(strings: Strings): HelpRow[] {
+  return [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ category: 'start', text: strings.get(`ui.help.start.${n}`) }));
+}
+
+/** One drawn line of Help: a row, or the part of a row that fits the panel. */
+export interface HelpLine {
+  readonly text: string;
+  readonly heading: boolean;
+  readonly fg?: string;
+}
+
+/**
+ * The rows as lines at `width`: nothing is cut. A row that does not fit wraps with a hanging indent
+ * under its description (after the keys and their two spaces; after the step number on the Start tab).
+ */
+export function helpLines(rows: readonly HelpRow[], width: number): HelpLine[] {
+  const out: HelpLine[] = [];
+  for (const row of rows) {
+    if (row.heading === true) { out.push({ text: row.text, heading: true }); continue; }
+    const gap = row.text.indexOf('  ');
+    const indent = row.keys !== undefined && gap > 0 ? gap + 2 : /^\d\. /.test(row.text) ? 3 : 2;
+    for (const text of wrapHang(row.text, width, indent)) out.push({ text, heading: false, ...(row.fg === undefined ? {} : { fg: row.fg }) });
+  }
+  return out;
+}
+
 export class HelpPanel {
   tab: HelpTab = 0;
-  /** The first visible row. Help is a reference list: it scrolls and has no selection. */
+  /** The first visible line. Help is a reference list: it scrolls and has no selection. */
   scroll = 0;
+  /** The lines the last draw showed at once; a page is this less one. */
+  visible = 10;
   private legend: HelpRow[] | null = null;
 
   constructor(private readonly registry: Registry, private readonly keymap: Keymap, private readonly strings?: Strings) {}
 
   rows(charOf: (glyph: number) => string): HelpRow[] {
     if (this.tab === 0) return helpKeyRows(this.keymap, this.strings);
+    if (this.tab === 2) return this.strings === undefined ? [] : helpStartRows(this.strings);
     this.legend ??= helpGlyphRows(this.registry, charOf);
     return this.legend;
   }
@@ -253,34 +290,43 @@ export class HelpPanel {
     this.scroll = 0;
   }
 
-  /** Scroll by `delta` rows; the draw clamps it to the rows that exist. */
+  /** Scroll by `delta` lines; the draw clamps it to the lines that exist. */
   move(delta: number): void {
     this.scroll = Math.max(0, this.scroll + delta);
+  }
+
+  /** `PageDown` / `PageUp`: a whole page less one line, so the last line stays in view. */
+  page(direction: 1 | -1): void {
+    this.move(direction * Math.max(1, this.visible - 1));
   }
 }
 
 export function drawHelpPanel(surface: Surface, rect: Rect, panel: HelpPanel): void {
   if (rect.rows <= 0) return;
   const t = surface.theme;
-  tabs(surface, rect.col + 1, rect.row, [{ key: '1', label: 'Keys' }, { key: '2', label: 'Legend' }], panel.tab,
+  tabs(surface, rect.col + 1, rect.row, [{ key: '1', label: 'Keys' }, { key: '2', label: 'Legend' }, { key: '3', label: 'Start' }], panel.tab,
     (index) => panel.setTab(index as HelpTab));
-  const rows = panel.rows((glyph) => surface.glyphs.char(glyph));
   const width = rect.cols - 2;
+  const lines = helpLines(panel.rows((glyph) => surface.glyphs.char(glyph)), width);
   const visible = rect.rows - 1;
   if (visible <= 0) return;
-  panel.scroll = Math.max(0, Math.min(Math.max(0, rows.length - visible), panel.scroll));
+  panel.visible = visible;
+  panel.scroll = Math.max(0, Math.min(Math.max(0, lines.length - visible), panel.scroll));
   for (let k = 0; k < visible; k += 1) {
-    const row = rows[panel.scroll + k];
-    const line = rect.row + 1 + k;
-    surface.fill({ col: rect.col + 1, row: line, cols: width, rows: 1 }, t.black);
-    if (row === undefined) continue;
+    const line = lines[panel.scroll + k];
+    const row = rect.row + 1 + k;
+    surface.fill({ col: rect.col + 1, row, cols: width, rows: 1 }, t.black);
+    if (line === undefined) continue;
     // § Help: "glyphs and colors by category" — a heading in the key colour, a legend row in the
     // palette row its content table names.
-    const fg = row.heading === true ? t.key : row.fg === undefined ? t.text : surface.color(row.fg);
-    label(surface, rect.col + 1, line, row.text, { fg, width, keys: false });
+    const fg = line.heading ? t.key : line.fg === undefined ? t.text : surface.color(line.fg);
+    label(surface, rect.col + 1, row, line.text, { fg, width, keys: false });
   }
-  if (rows.length > visible) {
-    label(surface, rect.col + rect.cols - 8, rect.row + rect.rows - 1,
-      `${panel.scroll + 1}/${rows.length}`, { fg: t.dim, keys: false });
+  if (lines.length > visible) {
+    const step = Math.max(1, visible - 1);
+    const pages = 1 + Math.ceil((lines.length - visible) / step);
+    const page = Math.min(pages, 1 + Math.ceil(panel.scroll / step));
+    const mark = `page ${page}/${pages}`;
+    label(surface, rect.col + rect.cols - mark.length - 1, rect.row + rect.rows - 1, mark, { fg: t.dim, keys: false });
   }
 }

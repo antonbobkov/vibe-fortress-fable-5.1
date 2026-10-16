@@ -37,23 +37,26 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     await game.start({ embark: 'default' });
   });
 
-  it('Designate offers the twelve designations with their keys, a priority control, undo, and tells how to mark an area', () => {
+  it('Designate offers the fourteen designations with whole captions, a priority control, undo, and tells how to mark an area', () => {
     const s = surface(36, 32);
     game.fortress.tool.choose('d');
     drawDesignatePanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, game.fortress.tool, strings);
     const rows = rowsOf(s.lines());
-    expect(rows[0]).toMatch(/^\[S-d\] Dig {8}\[S-c\] Channel$/);
-    expect(rows[1]).toMatch(/^\[S-u\] Up stairs {2}\[S-j\] Down stair/);
-    expect(rows[2]).toMatch(/^\[i\] Up\/down {6}\[r\] Ramp$/);
-    expect(rows[3]).toMatch(/^\[w\] Stairwell {4}\[S-s\] Smooth$/);
-    expect(rows[4]).toMatch(/^\[S-e\] Engrave {4}\[x\] Remove const/);
-    expect(rows[5]).toMatch(/^\[S-t\] Chop trees \[g\] Gather plant$/);
-    expect(rows[6]).toMatch(/^\[h\] Harvest {6}\[S-f\] Traffic/);
+    // T-280: no caption is cut at 36 columns.
+    expect(rows.slice(0, 7)).toEqual([
+      '[S-d] Dig        [S-c] Channel',
+      '[S-u] Up stair   [S-j] Down stair',
+      '[i] Up/down      [r] Ramp',
+      '[w] Stairwell    [S-s] Smooth',
+      '[S-e] Engrave    [x] Remove',
+      '[S-t] Chop trees [g] Gather',
+      '[h] Harvest      [S-f] Traffic',
+    ]);
+    for (const row of rows) expect(row).not.toContain('»');
     expect(rows[7]).toBe('Priority [-] 5 [+]   (1-9)');
-    expect(rows[8]).toBe('[Ctrl+Z] undo last  [Del] clear');
+    expect(rows[8]).toBe('[Ctrl+Z] undo  [Del] clear');
     expect(rows[9]).toBe('[S-p] last batch to priority 5');
-    expect(rows[10]).toBe('─ Drag a rectangle on the map, or');
-    expect(rows[11]).toMatch(/^ {2}click two corners\. Enter confirms/);
+    expect(rows[10]).toBe('Drag, or click/Enter two corners.');
   });
 
   it('Overlays lists the map layers with a tick for the two that are on, and the debug layers apart', () => {
@@ -68,37 +71,58 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows.slice(9, 12)).toEqual(['[ ] connectivity', '[ ] paths', '[ ] chunks']);
   });
 
-  it('Help starts on the key list, which names each fortress panel with its key and then the global keys, and shows how far it is scrolled', () => {
+  it('Help starts on the key list: it says what S- means, names each fortress panel with its key, then the global keys, wrapping what does not fit', () => {
     const s = surface(40, 30);
     game.fortress.help.tab = 0;
+    game.fortress.help.scroll = 0;
     drawHelpPanel(s, { col: 0, row: 0, cols: 40, rows: 30 }, game.fortress.help);
     const rows = rowsOf(s.lines());
-    expect(rows[0]).toBe('[1] Keys   [2] Legend');
-    expect(rows[1]).toBe('Fortress panels');
+    expect(rows[0]).toBe('[1] Keys   [2] Legend   [3] Start');
+    expect(rows[1]).toBe('S- is Shift');
+    expect(rows[2]).toBe('Fortress panels');
     const panels: Record<string, string> = {
       d: 'Designate', b: 'Build', z: 'Zones', u: 'Units', l: 'Labors', j: 'Jobs', o: 'Orders', s: 'Stocks', m: 'Military',
       n: 'Animals', t: 'Threats', c: 'Civilizations', p: 'Population', e: 'Mood', a: 'Log', k: 'Look', f: 'Overlays',
     };
     for (const [key, name] of Object.entries(panels)) expect(rows, `${key} ${name}`).toContain(`${key}  ${name} panel`);
-    expect(rows[19]).toBe('Global');
-    expect(rows[20]).toBe('Esc  cancel tool → close panel → game');
-    expect(rows[21]).toBe('Space  pause / resume');
-    expect(rows[22]).toBe('+ =  speed up (1x → 2x → 4x)');
-    expect(rows[23]).toBe('-  speed down');
-    expect(rows[24]).toBe('F5  quick save');
-    expect(rows[25]).toBe('F9  quick load (confirm)');
-    expect(rows[26]).toBe('Ctrl+S  save menu');
-    expect(rows[27]).toBe('F12  debug panel');
-    expect(rows[28]).toBe('?  help');
-    expect(rows[29]).toMatch(/^Tab {2}toggle sidebar +1\/\d+$/);
+    expect(rows[20]).toBe('Global');
+    // A row that does not fit wraps with a hanging indent under its description.
+    expect(rows[21]).toBe('Esc  cancel tool → close panel → game');
+    expect(rows[22]).toBe('     menu');
+    expect(rows[23]).toBe('Space  pause / resume');
+    expect(rows[24]).toBe('+ =  speed up (1x → 2x → 4x)');
+    expect(rows[25]).toBe('-  speed down');
+    expect(rows[26]).toBe('F5  quick save');
+    expect(rows[27]).toBe('F9  quick load (confirm)');
+    expect(rows[28]).toBe('Ctrl+S  save menu');
+    expect(rows[29]).toMatch(/^F12 {2}debug panel +page 1\/\d+$/);
+  });
+
+  it('PageDown moves a page less one line and the page mark follows', () => {
+    const s = surface(40, 30);
+    const help = game.fortress.help;
+    help.tab = 0;
+    help.scroll = 0;
+    drawHelpPanel(s, { col: 0, row: 0, cols: 40, rows: 30 }, help);
+    help.page(1);
+    expect(help.scroll).toBe(28);
+    drawHelpPanel(s, { col: 0, row: 0, cols: 40, rows: 30 }, help);
+    expect(rowsOf(s.lines())[29]).toMatch(/page 2\/\d+$/);
+    // The rest of the Global keys are on the second page.
+    const second = rowsOf(s.lines());
+    expect(second).toContain('?  help');
+    expect(second.some((row) => row.startsWith('Tab  toggle sidebar'))).toBe(true);
+    help.page(-1);
+    expect(help.scroll).toBe(0);
   });
 
   it('Help on the Legend tab explains the terrain, fluid and creature glyphs, each as the glyph and what it stands for', () => {
     const s = surface(40, 30);
     game.fortress.help.tab = 1;
+    game.fortress.help.scroll = 0;
     drawHelpPanel(s, { col: 0, row: 0, cols: 40, rows: 30 }, game.fortress.help);
     const rows = rowsOf(s.lines());
-    expect(rows[0]).toBe('[1] Keys   [2] Legend');
+    expect(rows[0]).toBe('[1] Keys   [2] Legend   [3] Start');
     expect(rows[1]).toBe('Terrain');
     expect(rows).toContain('▒  rough wall');
     expect(rows).toContain('█  smoothed or block wall');
@@ -113,7 +137,22 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows[25]).toBe('Creatures');
     expect(rows).toContain('b  badger');
     expect(rows).toContain('B  bear');
-    expect(rows[29]).toMatch(/ +1\/\d+$/);
+    expect(rows[29]).toMatch(/ page 1\/\d+$/);
+  });
+
+  it('Help on the Start tab gives the eight steps of a first season, wrapped whole', () => {
+    const s = surface(40, 30);
+    game.fortress.help.tab = 2;
+    game.fortress.help.scroll = 0;
+    drawHelpPanel(s, { col: 0, row: 0, cols: 40, rows: 30 }, game.fortress.help);
+    const rows = rowsOf(s.lines());
+    expect(rows[1]).toBe('1. Dig in: [d], drag over a rock face.');
+    expect(rows[2]).toBe('   Dwarves dig from the side.');
+    const text = rows.join(' ').replace(/\s+/g, ' ');
+    expect(text).toContain("4. Workshops: [b] Workshops; then orders with [o]. Build a carpenter's workshop and a still first.");
+    expect(text).toContain('7. Safety: a door on your hall set to Lock on alert, and a squad [m] with clubs.');
+    expect(text).toContain('8. Space pauses. [?] opens this help.');
+    for (const row of rows) expect(row).not.toContain('»');
   });
 
   it('Debug gives the seed and tick, a timing row for each system, the entity counts, and the debug keys', () => {
@@ -162,7 +201,9 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows).toHaveLength(50);
     // The map fills the screen above the log, and no panel is open beside it.
     expect(rows[0]).toMatch(/^[.]{80}$/);
-    expect(rows[47]).toMatch(/^ ☼ Designate a place to dig with \[d\]\./);
+    // The hint does not fit one line, so it takes two of the strip's lines and none of it is cut.
+    expect(rows[46]).toMatch(/^ ☼ Designate a place to dig with \[d\]\. Dwarves dig into rock faces from the {2}/);
+    expect(rows[47]?.trim()).toBe('side.');
     expect(rows[48]).toMatch(new RegExp(`^ Day 1 of Spring, Year 1 ☼ clear -?\\d+°C ☺ ${dwarves} ♥ Fine z 32 ║ +\\[Esc\\] menu {2}\\[\\?\\] help *$`));
     expect(rows[49]?.trim()).toBe('Dig · priority 5 · [Esc] cancel');
   });

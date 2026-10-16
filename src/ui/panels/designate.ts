@@ -20,7 +20,7 @@ import { acceleratorLabel } from '../keymap';
 import { UNDO_BATCHES_MAX } from '../constants';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
-import { label, separator } from '../widgets';
+import { label } from '../widgets';
 
 export type TrafficMode = 'normal' | 'restricted' | 'forbidden';
 
@@ -199,17 +199,18 @@ export class DesignateTool {
 export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, strings: Strings, reprioritize?: () => void, undo?: () => void, clear?: () => void): void {
   const t = s.theme;
   let row = rect.row;
-  const colW = Math.floor((rect.cols - 2) / 2);
+  // The left column is as wide as its longest caption, "[S-t] Chop trees"; the right takes the rest, which holds "[S-j] Down stair".
+  const leftW = 17;
   for (let k = 0; k < DESIGNATE_KINDS.length; k += 2) {
     for (let j = 0; j < 2; j += 1) {
       const kind = DESIGNATE_KINDS[k + j];
       if (kind === undefined) continue;
-      const col = rect.col + 1 + j * colW;
+      const col = rect.col + 1 + j * leftW;
+      const width = j === 0 ? leftW - 1 : Math.max(1, rect.cols - 2 - leftW);
       // A letter that opens a panel takes `Shift` here (`[S-d] Dig`, D-U2).
-      let caption = `${acceleratorLabel(kind.key)} ${strings.get(`ui.tool.designate.${kind.id}`)}`;
-      if (kind.special === 'traffic') caption += ` (${strings.get(`ui.tool.traffic.${tool.traffic}`)})`;
-      // One cell short of the column, so a long caption does not run into its neighbour's key.
-      const n = kindAvailable(kind) ? label(s, col, row, caption, { width: colW - 1 }) : s.text(col, row, caption, t.dim, t.black, colW - 1);
+      const short = `ui.tool.designate.caption.${kind.id}`;
+      const caption = `${acceleratorLabel(kind.key)} ${strings.get(strings.has(short) ? short : `ui.tool.designate.${kind.id}`)}`;
+      const n = kindAvailable(kind) ? label(s, col, row, caption, { width }) : label(s, col, row, caption, { fg: t.dim, width, keys: false });
       if (tool.kind === kind.id) s.invert({ col, row, cols: n, rows: 1 });
       if (kindAvailable(kind)) s.hit({ col, row, cols: n, rows: 1 }, () => void tool.choose(kind.key));
     }
@@ -234,7 +235,5 @@ export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, 
   label(s, rect.col + 1, row, strings.get('ui.tool.designate.reprioritize', { n: tool.priority }), { fg: tool.lastBatch === null ? s.theme.dim : s.theme.text, width: rect.cols - 2 });
   if (reprioritize !== undefined) s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => reprioritize());
   row += 1;
-  separator(s, rect.col + 1, row, 0);
-  label(s, rect.col + 1, row, strings.get('ui.tool.designate.help1'), { fg: t.dim, width: rect.cols - 1 });
-  label(s, rect.col + 1, row + 1, strings.get('ui.tool.designate.help2'), { fg: t.dim, width: rect.cols - 1 });
+  label(s, rect.col + 1, row, strings.get('ui.tool.designate.help1'), { fg: t.dim, width: rect.cols - 2 });
 }

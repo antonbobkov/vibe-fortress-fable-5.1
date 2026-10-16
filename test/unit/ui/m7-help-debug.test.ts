@@ -11,7 +11,7 @@ import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { computeLayout } from '@render/cellbuffer';
 import { Compositor, OVERLAY_CHUNKS, OVERLAY_CONNECTIVITY, OVERLAY_JOBS, OVERLAY_PATHS } from '@render/compositor';
 import { Palette } from '@render/palette';
-import { drawHelpPanel, HelpPanel, helpGlyphRows, helpKeyRows } from '@ui/panels/help';
+import { drawHelpPanel, HelpPanel, helpGlyphRows, helpKeyLabel, helpKeyRows, helpLines } from '@ui/panels/help';
 import { DEBUG_BUTTONS, debugLines, DebugPanel, drawDebugPanel, timingRows, type DebugHost } from '@ui/panels/debug';
 import { drawOverlaysPanel, FIRST_DEBUG_ROW, OVERLAY_ROWS, OverlayMenu } from '@ui/panels/overlays';
 import type { PanelContext } from '@ui/panels/context';
@@ -76,7 +76,8 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
     it('lists every keymap row under its context heading', () => {
       const rows = helpKeyRows(keymap);
       for (const binding of keymap.bindings) {
-        const key = `${binding.spec.ctrl ? 'Ctrl+' : ''}${binding.spec.shift ? 'Shift+' : ''}${binding.spec.key}`;
+        // T-280: Help writes a Shift letter the way the panels do, `[S-n]`.
+        const key = helpKeyLabel(binding.spec);
         // U-01 (Q14): one action's keys share a row ("←→↑↓  pan …", "1–9  …"); each key is still listed.
         expect(rows.some((row) => row.category === binding.context && (row.keys ?? []).includes(key))).toBe(true);
       }
@@ -134,8 +135,8 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
       // Scrolling stops at the last page instead of running off the end.
       panel.move(10_000);
       drawHelpPanel(s, rect, panel);
-      const rows = panel.rows((g) => glyphs.char(g));
-      expect(panel.scroll).toBe(rows.length - (rect.rows - 1));
+      const lines = helpLines(panel.rows((g) => glyphs.char(g)), rect.cols - 2);
+      expect(panel.scroll).toBe(lines.length - (rect.rows - 1));
 
       panel.setTab(1);
       expect(panel.scroll).toBe(0);

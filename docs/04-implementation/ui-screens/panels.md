@@ -522,7 +522,13 @@ The panel lists the overlays the compositor draws, in the order of 23 § Composi
 
 ## Help (?)
 
-Two tabs: `Keys` (the keymap table grouped by context, live from the keymap, then the "Work orders" keys of the Orders panel) and `Legend` (glyphs and colors by category, generated from content: terrain, fluids, creatures, items, buildings, overlays).
+Three tabs: `Keys` (the keymap table grouped by context, live from the keymap, then the "Work orders" keys of the Orders panel), `Legend` (glyphs and colors by category, generated from content: terrain, fluids, creatures, items, buildings, overlays) and `Start` (how to begin). `1` `2` `3` or a click choose the tab. The first time Help opens in a fortress it opens on `Start`; later it opens on the tab it was left at.
+
+Nothing in Help is cut: a line that does not fit the panel wraps, with a hanging indent under its description. `Keys` writes a Shift key the way the panels do (`[S-n]`) and starts with the line "S- is Shift". `PageDown` and `PageUp` move a page less one line, and the foot of the panel reads "page 2/7".
+
+`Start` reads, wrapped: "1. Dig in: [d], drag over a rock face. Dwarves dig from the side. 2. Storage: [z] Stockpile, drag on floor. 3. Wood: [d] Chop tree. 4. Workshops: [b] Workshops; then orders with [o]. Build a carpenter's workshop and a still first. 5. Food: [z] Farm plot on soil; pick a crop for each season. 6. Beds: order beds, place them [b], draw a Bedroom over each. 7. Safety: a door on your hall set to Lock on alert, and a squad [m] with clubs. 8. Space pauses. [?] opens this help."
+
+Every panel that shows an `[S-x]` caption ends with one dim line, "S- is Shift", when its last row is free.
 
 ## Debug (F12)
 

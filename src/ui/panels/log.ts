@@ -14,6 +14,7 @@ import { lineText, type LogLine, type Severity } from '../announcements';
 import type { Strings } from '../strings';
 import type { Surface, Theme } from '../surface';
 import { label } from '../widgets';
+import { wrapText } from '../messages';
 
 /** `0` all, `1` alerts and danger, `2` combat. */
 export type LogFilter = 0 | 1 | 2;
@@ -56,8 +57,8 @@ export function drawLogPanel(
   for (let k = 0; k < visible.length; k += 1) {
     const line = visible[k] as LogLine;
     const row = rect.row + 2 + k;
-    s.text(rect.col + 1, row, dates[k] as string, s.theme.dim, s.theme.black, Math.min(dateCols, rect.cols - 2));
-    s.text(rect.col + 1 + dateCols, row, lineText(line), colorOf(s.theme, line.severity), s.theme.black, Math.max(0, rect.cols - 2 - dateCols));
+    label(s, rect.col + 1, row, dates[k] as string, { fg: s.theme.dim, width: Math.min(dateCols, rect.cols - 2), keys: false });
+    label(s, rect.col + 1 + dateCols, row, lineText(line), { fg: colorOf(s.theme, line.severity), width: Math.max(1, rect.cols - 2 - dateCols), keys: false });
     if (line.focus !== undefined) s.hit({ col: rect.col, row, cols: rect.cols, rows: 1 }, () => onFocus(line));
   }
 }
@@ -72,8 +73,19 @@ export function drawLogStrip(s: Surface, rect: Rect, lines: readonly LogLine[], 
   s.fill(rect, bg);
   const tail = lines.slice(Math.max(0, lines.length - rect.rows));
   const shown = pinned !== null && !tail.includes(pinned) ? [...tail.slice(1), pinned] : tail;
-  const offset = rect.rows - shown.length;
-  shown.forEach((line, k) => {
-    s.text(rect.col + 1, rect.row + offset + k, lineText(line), colorOf(s.theme, line.severity), bg, rect.cols - 2);
+  // Fill from the newest line back. A hint that does not fit one line takes two of the strip's lines when
+  // both fit, and is one line cut with `»` when only one is left; every other line is one line, cut with `»`.
+  const width = rect.cols - 2;
+  const rows: { text: string; color: Rgb }[] = [];
+  for (let k = shown.length - 1; k >= 0 && rows.length < rect.rows; k -= 1) {
+    const line = shown[k] as LogLine;
+    const hint = line.category === 'hint';
+    const color = hint ? s.theme.value : colorOf(s.theme, line.severity);
+    const parts = hint && rect.rows - rows.length >= 2 ? wrapText(lineText(line), width, 2) : [lineText(line)];
+    for (let p = parts.length - 1; p >= 0; p -= 1) rows.unshift({ text: parts[p] as string, color });
+  }
+  const offset = rect.rows - rows.length;
+  rows.forEach((row, k) => {
+    label(s, rect.col + 1, rect.row + offset + k, row.text, { fg: row.color, bg, width, keys: false });
   });
 }

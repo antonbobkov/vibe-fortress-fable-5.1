@@ -107,7 +107,7 @@ describe('T-270 designate buttons, scrollbars and the wheel', () => {
     f.click('[-]');
     f.click('[-]');
     expect(f.screen.tool.priority).toBe(before - 1);
-    f.click('[Ctrl+Z] undo last');
+    f.click('[Ctrl+Z] undo');
     expect(f.screen.currentNotice).toBe('Nothing to undo.');
     f.click('[Del] clear');
     expect(f.screen.currentNotice).toBe('Select a rectangle on the map first.');

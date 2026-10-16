@@ -138,7 +138,7 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
   it('Threats gives peril and renown, the active threats, the next arrivals and the state of each cavern', () => {
     const rows = render('threats');
     expect(rows[0]).toMatch(/^Peril \d+ · Renown \d+(\.\d+)?$/);
-    expect(rows[1]).toMatch(/^Wealth and population draw attenti/);
+    expect(rows[1]).toBe('Wealth and population draw attent»');
     expect(rows[2]).toBe('Active: none');
     expect(rows[3]).toMatch(/^Thieves from (Spring|Summer|Autumn|Winter), Y\d+$/);
     expect(rows[4]).toMatch(/^─+ Caverns ─+$/);
@@ -173,7 +173,7 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
   it('Look names the creature, its activity, skills, mood, blood and pain, the missing care, and every body part', () => {
     const rows = render('look');
     expect(rows[0]).toMatch(/^Look · \(\d+, \d+, z32\)$/);
-    expect(rows[1]).toMatch(/^Tabs: \[1\]Tile \[2\]Items\(0\) \[3\]Creat/);
+    expect(rows[1]).toMatch(/^Tabs: \[1\]Tile \[2\]Items\(0\) \[3\]Crea»$/);
     expect(patientName).toMatch(/^\S+ \S+$/);
     expect(rows[3]).toBe('Activity: Resting in hospital');
     expect(rows[4]).toBe('Skills');
@@ -186,7 +186,7 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[14]).toMatch(/^ {2}torso ▓+ 60\/60 hp$/);
     expect(rows[15]).toMatch(/^ {2}left arm ▓+ 36\/36 hp$/);
     // The wound is listed under the part it is on, with its dressing and its infection.
-    expect(rows[16]).toMatch(/^ {4}serious cut \(bandaged, infecte/);
+    expect(rows[16]).toBe('    serious cut (bandaged, infect»');
   });
 
   it('the combat log names the tabs and shows the first attack of the engagement with its sender, damage and kind', () => {

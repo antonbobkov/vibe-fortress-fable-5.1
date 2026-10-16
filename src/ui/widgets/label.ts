@@ -21,14 +21,17 @@ export function label(s: Surface, col: number, row: number, text: string, option
   const bg = options.bg ?? s.theme.black;
   const width = options.width ?? Infinity;
   const chars = Array.from(text);
+  const cut = chars.length > width && width > 0;
   if (chars.length > width && width > 0) {
     const cleanText = text.replace(/^[▶\s]+/, '').replace(/\s+$/, '');
     s.tooltip({ col, row, cols: width, rows: 1 }, cleanText.length > 0 ? cleanText : text);
   }
-  if (options.keys === false) return s.text(col, row, text, fg, bg, width);
+  // 24 § Rules: text that does not fit ends with `»` and has a tooltip with the whole text.
+  if (options.keys === false) return s.text(col, row, cut ? `${chars.slice(0, width - 1).join('')}»` : text, fg, bg, width);
+  const shown = cut ? width - 1 : width;
   let written = 0;
   let inKey = false;
-  for (let k = 0; k < chars.length && written < width; k += 1) {
+  for (let k = 0; k < chars.length && written < shown; k += 1) {
     const ch = chars[k] as string;
     if (ch === '[') {
       const close = chars.indexOf(']', k);
@@ -38,6 +41,10 @@ export function label(s: Surface, col: number, row: number, text: string, option
     s.put(col + written, row, s.glyphs.index(ch), color, bg);
     written += 1;
     if (ch === ']') inKey = false;
+  }
+  if (cut) {
+    s.put(col + written, row, s.glyphs.index('»'), fg, bg);
+    written += 1;
   }
   return written;
 }
