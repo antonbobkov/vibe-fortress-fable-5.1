@@ -16,13 +16,14 @@ import { drawZonesPanel } from '@ui/panels/zones';
 import { drawLookPanel } from '@ui/panels/look';
 import { drawLogPanel } from '@ui/panels/log';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
-import { surface } from './ui-fixture';
+import type { Surface } from '@ui/surface';
+import { fgOfText, hexOf, surface, theme } from './ui-fixture';
 
 type PanelName = 'military' | 'threats' | 'hospital' | 'look' | 'combat_log';
 let game: Game;
 let patientName = '';
 
-function render(which: PanelName): string[] {
+function draw(which: PanelName): Surface {
   const s = surface(36, 32);
   const rect = { col: 0, row: 0, cols: 36, rows: 32 };
   const f = game.fortress;
@@ -31,7 +32,11 @@ function render(which: PanelName): string[] {
   else if (which === 'hospital') drawZonesPanel(s, rect, f.zones, f.ctx);
   else if (which === 'look') drawLookPanel(s, rect, f.ctx.readers, f.ctx.registry, f.ctx.strings, f.lookTile(), 2);
   else drawLogPanel(s, rect, f.log.lines, 2, f.ctx.strings, f.ctx.readers.calendar.tick, () => {});
-  return s.lines().map((line) => line.trimEnd().replace(/^ /, ''));
+  return s;
+}
+
+function render(which: PanelName): string[] {
+  return draw(which).lines().map((line) => line.trimEnd().replace(/^ /, ''));
 }
 
 describe('T-332 panels: military, threats, hospital, creature health, and combat log', () => {
@@ -114,13 +119,19 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[6]).toBe('[+] new squad  [x] disband');
     expect(rows[7]).toMatch(/^─+ The Hearthguard ─+$/);
     expect(rows[8]).toBe('Leader  none');
+    expect(rows[9]?.trim()).toBe('[S-l] pick  [S-n] rename');
     expect(rows[10]).toBe('Mode: train');
     expect(rows[11]).toBe('[S-o] Off [S-t] Train [v] Active');
     expect(rows[12]).toMatch(/^Members \S+ \S+\.$/);
+    expect(rows[13]?.trim()).toBe('[S-a] add  [r] remove');
     expect(rows[14]).toBe('Gear [w] weapon [any ▼]');
+    expect(rows[15]?.trim()).toBe('[g] armor [any ▼]');
+    expect(rows[16]?.trim()).toBe('[S-j] ranged');
     expect(rows[17]).toBe('Station none');
+    expect(rows[18]?.trim()).toBe('[S-s] set  [S-c] clear');
     expect(rows[19]).toBe('Patrol none [S-p] add [y] clear');
     expect(rows[20]).toBe('Orders [S-k] kill [S-f] follow');
+    expect(rows[21]?.trim()).toBe('[q] cancel orders');
     expect(rows[22]).toBe('No barracks  [S-b] assign');
   });
 
@@ -139,9 +150,15 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[0]).toBe('[y] zone types');
     expect(rows[1]).toMatch(/^─+ Selected: Hospital #\d+ \(2 t\) ─+$/);
     expect(rows[2]).toMatch(/^Room: Bare \(score \d+\)$/);
+    expect(rows[3]).toBe('tiles 0 walls 0 furn. 0 size 2');
     expect(rows[4]).toMatch(/^Not enclosed: \d+ open border tiles$/);
     expect(rows[5]).toBe('Needs a bed');
     expect(rows[6]).toBe('Needs a chest');
+    // What is missing is drawn in the warning colour, not the plain text colour.
+    const s = draw('hospital');
+    expect(fgOfText(s, 5, 'Needs a bed')).toBe(hexOf(theme.bad));
+    expect(fgOfText(s, 6, 'Needs a chest')).toBe(hexOf(theme.bad));
+    expect(fgOfText(s, 2, 'Room:')).not.toBe(hexOf(theme.bad));
     expect(rows[7]).toBe('Beds: 0  Traction: 0  Chests: 0');
     expect(rows[8]).toBe('Supplies (current / wanted):');
     expect(rows.slice(9, 15).map((row) => row.replace(/ +\[-\]\[\+\]$/, ''))).toEqual([
@@ -160,7 +177,7 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(patientName).toMatch(/^\S+ \S+$/);
     expect(rows[3]).toBe('Activity: Resting in hospital');
     expect(rows[4]).toBe('Skills');
-    expect(rows[5]).toMatch(/^ {2}\w[\w ]* \d+ \(\w+\)$/);
+    expect(rows.slice(5, 8)).toEqual(['  Axe 2 (Novice)', '  Building 3 (Novice)', '  Mining 5 (Adequate)']);
     expect(rows[8]).toMatch(/^Mood: Fine \(\d+\)$/);
     expect(rows[10]).toMatch(/^Health: Blood 100%, Pain \d+$/);
     expect(rows[11]).toBe('Care: no free hospital bed.');
@@ -176,5 +193,7 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     const rows = render('combat_log');
     expect(rows[0]).toBe('[1] All  [2] Alerts  [3] Combat');
     expect(rows[2]).toMatch(/^Sp 1 ! \S+ hits \S+: 5 edge\.$/);
+    // The first attack of an engagement is an alert line: its mark is in the alert colour.
+    expect(fgOfText(draw('combat_log'), 2, '! ')).toBe(hexOf(theme.alert));
   });
 });

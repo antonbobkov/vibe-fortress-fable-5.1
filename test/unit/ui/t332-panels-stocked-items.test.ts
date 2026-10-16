@@ -58,7 +58,7 @@ describe('T-332 panels: stocked items and global material filter', () => {
     // The branches that stay shut keep the closed arrow and the next category follows them.
     expect(rows[stone - 1]).toMatch(/^► seed /);
     expect(rows[tool + 4]).toMatch(/^► textile /);
-    expect(rows.find((row) => row.startsWith('Wealth'))).toMatch(/^Wealth [\d,]+ ☼ +\(buildings [\d,]+ ☼\)$/);
+    expect(rows.find((row) => row.startsWith('Wealth'))).toBe('Wealth 2,014 ☼   (buildings 2 ☼)');
     expect(rows[30]).toBe('[S-f] forbid  [S-d] dump');
     expect(rows[31]).toBe('[S-m] melt  [S-t] to depot');
   });

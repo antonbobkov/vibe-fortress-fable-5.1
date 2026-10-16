@@ -83,8 +83,13 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows[19]).toBe('Global');
     expect(rows[20]).toBe('Esc  cancel tool → close panel → game');
     expect(rows[21]).toBe('Space  pause / resume');
+    expect(rows[22]).toBe('+ =  speed up (1x → 2x → 4x)');
+    expect(rows[23]).toBe('-  speed down');
     expect(rows[24]).toBe('F5  quick save');
     expect(rows[25]).toBe('F9  quick load (confirm)');
+    expect(rows[26]).toBe('Ctrl+S  save menu');
+    expect(rows[27]).toBe('F12  debug panel');
+    expect(rows[28]).toBe('?  help');
     expect(rows[29]).toMatch(/^Tab {2}toggle sidebar +1\/\d+$/);
   });
 

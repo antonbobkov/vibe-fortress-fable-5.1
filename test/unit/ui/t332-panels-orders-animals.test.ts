@@ -15,14 +15,14 @@ import { drawPopulationPanel } from '@ui/panels/population';
 import { drawOrdersPanel, drawWorkshopPanel } from '@ui/panels/orders';
 import { drawZonesPanel } from '@ui/panels/zones';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
-import { surface } from './ui-fixture';
+import type { Surface } from '@ui/surface';
+import { fgOfText, hexOf, surface, theme } from './ui-fixture';
 
 type PanelName = 'orders' | 'picker' | 'workshop' | 'animals' | 'wild' | 'mood' | 'population' | 'farm';
 let game: Game;
 let carpenter = 0;
 
-/** The panel's rows with the one-column margin and trailing blanks taken off. */
-function render(which: PanelName): string[] {
+function draw(which: PanelName): Surface {
   const s = surface(36, 32);
   const rect = { col: 0, row: 0, cols: 36, rows: 32 };
   const f = game.fortress;
@@ -38,7 +38,12 @@ function render(which: PanelName): string[] {
   } else if (which === 'mood') drawMoodPanel(s, rect, f.mood, f.ctx);
   else if (which === 'population') drawPopulationPanel(s, rect, f.ctx);
   else drawZonesPanel(s, rect, f.zones, f.ctx);
-  return s.lines().map((line) => line.trimEnd().replace(/^ /, ''));
+  return s;
+}
+
+/** The panel's rows with the one-column margin and trailing blanks taken off. */
+function render(which: PanelName): string[] {
+  return draw(which).lines().map((line) => line.trimEnd().replace(/^ /, ''));
 }
 
 describe('T-332 panels: orders, add order, workshop, animals, mood, population and farm settings', () => {
@@ -78,6 +83,10 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[3]).toMatch(/^─+ Any workshop ─+$/);
     // The maintained order waits because the fortress has no still.
     expect(rows[4]).toBe('≥20 Brew drink · no still');
+    // An order that cannot be made is drawn in the alert colour; one in progress is not.
+    const orders = draw('orders');
+    expect(fgOfText(orders, 4, '≥20')).toBe(hexOf(theme.alert));
+    expect(fgOfText(orders, 2, 'x5')).not.toBe(hexOf(theme.alert));
     expect(rows.slice(19, 21).join(' ')).toBe('In progress: a dwarf is at work on it.');
     expect(rows[21]).toBe('Count [-] 5 [+] [+/-] Shift ±10');
     expect(rows[22]).toBe('[S-m] once  [S-p] priority 5');
@@ -93,9 +102,17 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[1]).toMatch(/^Find \[ _+ \]$/);
     expect(rows[2]).toMatch(/^─+ Ammo ─+/);
     expect(rows[3]).toMatch(/^○ Arrowheads · no forge/);
+    // A recipe that cannot be made is drawn dimmer than one that can.
+    const picker = draw('picker');
+    expect(fgOfText(picker, 4, '○ Bolts')).toBe(hexOf(theme.dim));
+    expect(fgOfText(picker, 8, '• Wooden bolts')).not.toBe(hexOf(theme.dim));
     // A recipe that can be made carries no reason; one that cannot carries the missing workshop.
     expect(rows.find((row) => row.startsWith('• Wooden bolts'))).toBeDefined();
     expect(rows.find((row) => row.startsWith('• Wooden bolts'))).not.toContain('·');
+    expect(rows.some((row) => row.startsWith("○ Bone arrows · no craftsdwarf's"))).toBe(true);
+    expect(rows.some((row) => row.startsWith('○ Cap · no leatherworks'))).toBe(true);
+    expect(rows.some((row) => row.startsWith('○ Bracers · no leatherworks'))).toBe(true);
+    expect(rows.some((row) => row.startsWith("○ Gambeson · no clothier's shop"))).toBe(true);
     const cannot = rows.filter((row) => row.startsWith('○'));
     expect(cannot.length).toBeGreaterThan(8);
     for (const row of cannot) expect(row).toContain(' · ');
@@ -131,7 +148,7 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     const listed = rows.slice(2, 25).filter((row) => row !== '');
     expect(listed).toHaveLength(count);
     expect(count).toBeGreaterThan(0);
-    for (const row of listed) expect(row).toMatch(/^(dog|cat|\S+) +\S+/);
+    expect(listed.map((row) => row.split(' ')[0])).toEqual(['dog', 'dog', 'cat']);
     expect(rows[26]).toBe('[S-p] pasture  [S-s] slaughter');
     expect(rows[27]).toBe('[S-c] cap [S-a] assign [S-n] name');
     expect(rows[28]).toBe('[S-t] train');
@@ -154,6 +171,8 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     const listed = rows.slice(2, 28).filter((row) => row !== '');
     expect(listed).toHaveLength(dwarves.length);
     for (const row of listed) expect(row).toMatch(/^\S+ \S+ +Fine +-?\d+(\.\d+)? /);
+    // Each dwarf's top thought is the weight and the start of its text.
+    expect(listed[0]).toBe('Ludin Grimfe Fine     -0.65 The Th');
     expect(rows[29]).toBe('[Enter] inspect  [S-s] sort tier');
   });
 
@@ -161,7 +180,7 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     const rows = render('population');
     const dwarves = game.host.readers.of<{ list(): number[] }>('10').list();
     expect(rows[0]).toBe(`${dwarves.length} dwarves (0 children)`);
-    expect(rows[1]).toMatch(/^Cap \[-\] \d+ \[\+\]$/);
+    expect(rows[1]).toBe('Cap [-] 80 [+]');
     expect(rows[2]).toMatch(/^Hall spirit: Fine \(\d+(\.\d+)?\)$/);
     expect(rows[3]).toBe('Next evaluation: Summer');
     expect(rows[4]).toMatch(/^Eligible: no · hall spirit below /);
@@ -171,7 +190,15 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
 
   it('a selected farm plot shows the zone keys, one crop choice for each season, and the crop count of its tiles', () => {
     const rows = render('farm');
-    expect(rows[0]).toBe('[S-s] Stockpile  [S-f] Farm plot');
+    expect(rows.slice(0, 6)).toEqual([
+      '[S-s] Stockpile  [S-f] Farm plot',
+      '[S-p] Pasture    [S-b] Bedroom',
+      '[S-d] Dining     [h] Hearth',
+      '[S-o] Hospital   [r] Barracks',
+      '[S-a] Archery    [S-m] Meeting',
+      '[S-t] Tomb       [S-u] Dump',
+    ]);
+    expect(rows[7]).toBe('─ Drag a rectangle.');
     expect(rows[6]).toBe('[i] Fishing      [g] Gather');
     expect(rows[8]).toBe('Qualifying tiles show ▒, others x.');
     expect(rows[9]).toMatch(/^─+ Selected: Farm plot #\d+ \(2 t\) ─+$/);

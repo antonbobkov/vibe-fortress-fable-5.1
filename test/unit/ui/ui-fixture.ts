@@ -42,3 +42,14 @@ export function cellRows(s: Surface): string[][] {
   }
   return rows;
 }
+
+/** The foreground colour (as `#rrggbb`) of the cell where `text` starts on a row, or null when the row lacks it. */
+export function fgOfText(s: Surface, row: number, text: string): string | null {
+  const at = s.lines()[row]?.indexOf(text) ?? -1;
+  return at < 0 ? null : toHex(s.cells.get(at, row).fg);
+}
+
+/** A theme colour as `#rrggbb`, to compare with {@link fgOfText}. */
+export function hexOf(color: Parameters<typeof toHex>[0]): string {
+  return toHex(color);
+}

@@ -14,18 +14,23 @@ import { drawCivilizationsPanel } from '@ui/panels/civilizations';
 import { drawDepotPanel } from '@ui/panels/depot';
 import { TradeSessionScreen } from '@ui/screens/trade_session';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
-import { surface } from './ui-fixture';
+import type { Surface } from '@ui/surface';
+import { fgOfText, hexOf, surface, theme } from './ui-fixture';
 
 type Name = 'civilizations' | 'depot' | 'trade_session';
 let game: Game;
 let tradeScreen: TradeSessionScreen;
 
-function render(which: Name): string[] {
+function draw(which: Name): Surface {
   const s = surface(which === 'trade_session' ? 80 : 36, which === 'trade_session' ? 28 : 24);
   if (which === 'civilizations') drawCivilizationsPanel(s, { col: 0, row: 0, cols: 36, rows: 24 }, game.fortress.civilizations, game.fortress.ctx, () => {});
   else if (which === 'depot') drawDepotPanel(s, { col: 0, row: 0, cols: 36, rows: 24 }, game.fortress.depot, game.fortress.ctx, () => {});
   else tradeScreen.draw(s);
-  return s.lines().map((line) => line.trimEnd());
+  return s;
+}
+
+function render(which: Name): string[] {
+  return draw(which).lines().map((line) => line.trimEnd());
 }
 
 describe('T-332 panels: civilizations, trade depot and trade session', () => {
@@ -105,6 +110,8 @@ describe('T-332 panels: civilizations, trade depot and trade session', () => {
     expect(rows[5]).toMatch(/\[-\] 2 \[\+\] +\[-\] 5 \[\+\]$/);
     expect(rows[23]).toMatch(/We take 48 ☼ · We give 40 ☼ · \+12%: 54 ☼$/);
     expect(rows[24]).toMatch(/Not enough\. Add 14 ☼ of goods\.$/);
+    // The shortfall is drawn in the warning colour.
+    expect(fgOfText(draw('trade_session'), 24, 'Not enough')).toBe(hexOf(theme.bad));
     expect(rows[25]).toMatch(/\[Tab\] switch side {2}\[\+\]\/\[-\] quantity {2}\[Enter\] Offer {2}\[g\] Gift {2}\[Esc\] Close$/);
   });
 });

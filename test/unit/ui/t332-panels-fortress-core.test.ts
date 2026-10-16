@@ -77,7 +77,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     const names = listed.map((row) => row.replace(/ {2,}.*$/, '').replace(/ 1 .*$/, ''));
     expect(names[0]).toMatch(/^Bowyer's workshop/);
     expect(names[names.length - 1]).toMatch(/^Wood furnace/);
-    expect(listed.find((row) => row.startsWith('Carpenter'))).toMatch(/^Carpenter's workshop +2 logs \(\d+\)$/);
+    // The figure in brackets is how many of the first material the fortress holds.
+    expect(listed.find((row) => row.startsWith('Carpenter'))).toBe("Carpenter's workshop   2 logs (5)");
     expect(listed.find((row) => row.startsWith('Smelter'))).toMatch(/^Smelter +3 stones \(\d+\)$/);
     expect(rows[36]).toMatch(/^Material: \[x\] any \(\d+\)$/);
     expect(rows[37]).toBe('[r] rotate');
@@ -89,18 +90,25 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(rows[0]).toBe('[y] zone types');
     expect(rows[1]).toMatch(/Selected: Stockpile #\d+ \(20 t\)/);
     expect(rows[2]).toBe('[S-p] Preset [Food ▼]');
+    expect(rows[3]).toBe('[g] tree [q] settings');
+    expect(rows[4]).toBe('[v] materials');
     expect(rows[5]).toMatch(/^► Food +\[■\]$/);
     const ticked = rows.slice(5, 23).filter((row) => row.includes('[■]'));
     expect(ticked).toHaveLength(1);
     expect(rows[6]).toMatch(/^► Drink +\[ \]$/);
     expect(rows[7]).toMatch(/^ {2}Seed +\[ \]$/);
     expect(rows[27]).toMatch(/^Barrels wanted \[-\] +0 \[\+\]$/);
+    expect(rows[28]).toMatch(/^Bags wanted {4}\[-\] +0 \[\+\]$/);
+    expect(rows[29]).toMatch(/^Bins wanted {4}\[-\] +0 \[\+\]$/);
     expect(rows[30]).toMatch(/^Priority +\[-\] +5 \[\+\]$/);
     expect(rows[31]).toMatch(/^Min quality +\[-\] +0 \[\+\]$/);
     expect(rows[32]).toMatch(/^Max quality +\[-\] +5 \[\+\]$/);
     expect(rows[33]).toBe('Materials [any]  Quality 0-5');
+    expect(rows[34]).toBe('Priority 5');
     expect(rows[35]).toBe('Links: none');
+    expect(rows[36]).toBe('[i] link [x] unlink');
     expect(rows[37]).toBe('Usage 0/20 tiles');
+    expect(rows[38]).toBe('↑↓ select  ←→ expand  Space toggle');
     expect(rows[39]).toBe('[Del] remove zone  [S-e] resize');
   });
 
@@ -110,10 +118,11 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     for (const category of ['food', 'drink', 'seed', 'wood', 'bar', 'furniture', 'container', 'weapon', 'ammo', 'clothing', 'tool', 'textile', 'medical']) {
       expect(rows.some((row) => new RegExp(`^[► ] ${category} +\\d+ +\\d+ ☼$`).test(row)), category).toBe(true);
     }
+    expect(rows.find((row) => row.includes(' food '))).toBe('► food               60     190 ☼');
     // A category with nothing inside has no arrow; the others can be opened.
     expect(rows.find((row) => row.includes(' ammo '))).toMatch(/^ {2}ammo/);
     expect(rows.find((row) => row.includes(' food '))).toMatch(/^► food/);
-    expect(rows[37]).toMatch(/^Wealth [\d,]+ ☼ +\(buildings [\d,]+ ☼\)$/);
+    expect(rows[37]).toBe('Wealth 1,691 ☼   (buildings 2 ☼)');
     expect(rows[38]).toBe('[S-f] forbid  [S-d] dump');
     expect(rows[39]).toBe('[S-m] melt  [S-t] to depot');
   });
@@ -129,7 +138,9 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     for (const row of listed.slice(1)) expect(row).toMatch(/^ \S+ \S+ ☺ Idle$/);
     expect(rows[34]).toMatch(/^─+$/);
     expect(rows[35]).toBe('[Enter] inspect  [l] labors');
+    expect(rows[36]).toBe('[c] center  [i] idle  [S-w] hurt');
     expect(rows[37]).toMatch(/^\[Space\] mark {2}\[\*\] all {2}0 marked$/);
+    expect(rows[38]).toBe('[S-t] title  [S-n] rename');
     expect(rows[39]).toMatch(/^\[S-m\] squad {2}sleep \d+h/);
   });
 
