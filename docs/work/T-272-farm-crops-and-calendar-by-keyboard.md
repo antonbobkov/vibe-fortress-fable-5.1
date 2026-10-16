@@ -30,3 +30,10 @@ Default embark, keyboard only: make a farm plot and select it. The rows read `Sp
 
 - The reproduction plants turnips by keyboard and opens the Calendar by key.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+
+## Decisions made in the work
+
+- The Calendar key is `Shift+Y`: `Shift+C` is an accelerator of Designate (Channel), Build (Constructions), Animals (cap) and Military (clear station), so the fallback of the work file applies. `y` is then bare-only in panels (`[y]` zone types, pull lever, clear patrol); the spec sentences about the free letters say so.
+- The keymap row sits last in the table (a `LATE_ACTIONS` list in `src/ui/keymap.ts`), so the index of every older row, which a saved rebinding is keyed by, does not move.
+- With a farm plot selected `Shift+A` is "all seasons" and not the Archery zone type; `y` returns to the type list. `↑` `↓` belong to the inspector while a plot is selected and no tool is armed (as the stockpile tree's do), so they do not pan the map then.
+- The key footer is two lines because one line does not fit 36 columns; its `[S-a]` is clickable. The open crop list is as wide as the panel (a name with "(no seeds)" does not fit the 18-cell field).

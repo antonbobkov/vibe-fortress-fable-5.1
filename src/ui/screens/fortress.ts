@@ -1444,6 +1444,9 @@ export class FortressScreen implements Screen {
         case 'help':
           this.togglePanel('help');
           return true;
+        case 'calendar':
+          this.togglePanel('calendar');
+          return true;
         case 'debug':
           this.togglePanel('debug');
           return true;

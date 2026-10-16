@@ -452,7 +452,9 @@ describe('U-06 help and the app', () => {
     const contexts = keymap.bindings.map((b) => b.context);
     const firstNew = contexts.findIndex((c) => c === 'labor_manager' || c === 'units_panel' || c === 'military_panel');
     expect(firstNew).toBeGreaterThan(contexts.lastIndexOf('fortress_panel'));
-    expect(contexts.slice(firstNew).every((c) => c === 'labor_manager' || c === 'units_panel' || c === 'military_panel')).toBe(true);
+    // The calendar key was appended after the later contexts, so no saved rebinding moves.
+    expect(contexts.slice(firstNew, -1).every((c) => c === 'labor_manager' || c === 'units_panel' || c === 'military_panel')).toBe(true);
+    expect(keymap.bindings[keymap.bindings.length - 1]?.id).toBe('calendar');
   });
 
   it('in the app: [l], Enter opens the labor manager and Esc returns; [u], Shift+N renames a dwarf', async () => {

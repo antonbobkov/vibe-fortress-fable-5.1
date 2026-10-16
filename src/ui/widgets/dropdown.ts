@@ -42,7 +42,7 @@ export function dropdownKey(state: DropdownState, options: readonly DropdownOpti
   return null;
 }
 
-/** Draw the dropdown; returns the rows used (1 closed, 1 + options open). */
+/** Draw the dropdown; returns the rows used (1 closed, 1 + options open). The open list may be wider than the field. */
 export function dropdown(
   s: Surface,
   col: number,
@@ -53,6 +53,7 @@ export function dropdown(
   state: DropdownState,
   onChoose: (id: string) => void,
   onToggle: () => void,
+  listWidth: number = width,
 ): number {
   const t = s.theme;
   const inner = Math.max(1, width - 6);
@@ -62,11 +63,11 @@ export function dropdown(
   if (!state.open) return 1;
   options.forEach((option, index) => {
     const r = row + 1 + index;
-    s.fill({ col, row: r, cols: width, rows: 1 }, t.panelBg);
+    s.fill({ col, row: r, cols: listWidth, rows: 1 }, t.panelBg);
     const mark = index === state.highlighted ? '▶ ' : '  ';
-    const n = label(s, col, r, `${mark}${option.label}`, { bg: t.panelBg, width });
-    if (option.detail !== undefined) s.text(col + n + 1, r, option.detail, t.dim, t.panelBg, Math.max(0, width - n - 1));
-    s.hit({ col, row: r, cols: width, rows: 1 }, () => onChoose(option.id));
+    const n = label(s, col, r, `${mark}${option.label}`, { bg: t.panelBg, width: listWidth });
+    if (option.detail !== undefined) s.text(col + n + 1, r, option.detail, t.dim, t.panelBg, Math.max(0, listWidth - n - 1));
+    s.hit({ col, row: r, cols: listWidth, rows: 1 }, () => onChoose(option.id));
   });
   return 1 + options.length;
 }

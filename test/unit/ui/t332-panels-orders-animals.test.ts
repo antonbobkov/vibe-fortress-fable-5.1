@@ -202,13 +202,16 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[6]).toBe('[i] Fishing      [g] Gather');
     expect(rows[8]).toBe('Qualifying tiles show ▒, others x.');
     expect(rows[9]).toMatch(/^─+ Selected: Farm plot #\d+ \(2 t\) ─+$/);
+    // The highlight (►) starts on the current season; each row ends with the seeds in stock when a crop is set.
     expect(rows.slice(10, 14)).toEqual([
-      'Spring  [ none         ▼ ]',
+      '►Spring  [ none         ▼ ]',
       'Summer  [ none         ▼ ]',
       'Autumn  [ none         ▼ ]',
       'Winter  [ none         ▼ ]',
     ]);
     expect(rows[14]).toBe('Crops: 0 growing, 0 ready, 2 empty');
+    expect(rows[15]).toBe('↑↓ season · Enter choose crop');
+    expect(rows[16]).toBe('[S-a] all seasons');
     expect(rows[31]).toBe('[x] remove zone  [S-e] resize');
   });
 });

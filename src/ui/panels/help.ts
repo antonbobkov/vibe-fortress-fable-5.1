@@ -182,6 +182,7 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
       ['v', 'ui.help.zones.materials'], ['o', 'ui.help.zones.owner'], ['y', 'ui.help.zones.types'],
     ] as const;
     for (const [letter, text] of rows) out.push({ category: 'zones', text: strings.get(text, { key: acceleratorLabel(letter, keymap.panelLetters()) }) });
+    out.push({ category: 'zones', text: strings.get('ui.help.zones.farm', { key: acceleratorLabel('a', keymap.panelLetters()) }) });
   }
   return out;
 }

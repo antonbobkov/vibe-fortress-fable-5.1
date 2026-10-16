@@ -60,6 +60,11 @@
     "action": "undo last designation batch"
   },
   {
+    "context": "global",
+    "key": "Shift+Y",
+    "action": "calendar panel"
+  },
+  {
     "context": "map",
     "key": "←",
     "action": "pan or move the map cursor (Shift: 10)"
