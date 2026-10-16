@@ -7,6 +7,7 @@ import { THREAT_RADIUS } from '@systems/dwarves/constants';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
+import type { PlantsReader } from '@systems/plants';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { TradeReader } from '@systems/trade/reader';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
@@ -34,6 +35,10 @@ export interface EconomyState {
   readonly farmPlans: { tiles: number[]; zoneId: number }[];
   /** The dwarf kept on the still. */
   brewer?: number;
+  /** Cave plots dug for bought cave seed, and whether each is zoned yet. */
+  readonly cavePlans: { tiles: number[]; zoneId: number }[];
+  /** The larder beside the pantry: its tiles, and its stockpile once dug. */
+  larder?: { tiles: number[]; zoneId: number };
 }
 
 /**
@@ -93,13 +98,30 @@ const DRIFT_EVERY_DAYS = 28;
 /** What the squad wants from a caravan: body armour, a shield, a helm, and bandages for the hospital. */
 const SQUAD_PURCHASES: readonly string[] = ['mail_shirt', 'shield', 'helm', 'bandage'];
 const FIRST_IRON_CRAFTS = 10;
-/** Seed bought from one caravan: enough for three new strips. */
-const SEED_PER_VISIT = 48;
+/** Seed bought from one caravan: enough for six new strips or three cave strips. */
+const SEED_PER_VISIT = 96;
 /** Dwarves one kitchen feeds and one still waters; another is built for each further group. */
 const DWARVES_PER_KITCHEN = 16;
 const DWARVES_PER_STILL = 28;
-/** Days of meals the lavish order keeps in stock: a winter, when nothing grows on the surface. */
-const MEAL_DAYS = 28;
+/** Days of meals the lavish order keeps in stock: a winter, when nothing grows on the surface, and a half season more. */
+const MEAL_DAYS = 42;
+/** Days of drink the stills keep in stock. */
+const DRINK_DAYS = 21;
+/** Days of meals kept back from a caravan: the winter and the season before it. */
+const MEAL_RESERVE_DAYS = 56;
+/**
+ * The crops a surface strip may sow in spring, summer and autumn, food first (`plants.md`): a
+ * player sows what the seed in stock allows. Cave plots sow one cave crop in every season.
+ */
+const SURFACE_CROPS: readonly (readonly string[])[] = [['turnip', 'strawberry', 'barley', 'cabbage'], ['turnip', 'strawberry', 'barley', 'pumpkin'], ['turnip', 'cabbage', 'pumpkin']];
+const CAVE_CROPS: readonly string[] = ['dimcap', 'pale_bell', 'sweetroot', 'cavewheat'];
+/** Cave strips dug beside the first cave farm on its soil level for bought cave seed (x0, x1, y0, y1 from the centre). */
+const CAVE_STRIPS: readonly (readonly [number, number, number, number])[] = [[7, 14, 8, 11], [7, 14, 0, 3], [7, 14, 12, 15], [15, 18, 0, 11]];
+/** Free cave seed that justifies digging another cave strip. */
+const CAVE_STRIP_SEED = 12;
+const USEFUL_SEED: ReadonlySet<string> = new Set([...SURFACE_CROPS.flat(), ...CAVE_CROPS]);
+/** The larder beside the pantry, on the hall level (x0, x1, y0, y1 from the centre): every tile holds a barrel. */
+const LARDER: readonly (readonly [number, number, number, number])[] = [[-12, -1, 0, 2], [-12, -9, 3, 5]];
 /** Easy meals in stock before the kitchen turns to lavish meals first. */
 const EASY_MEALS_STOCKED = 20;
 
@@ -408,7 +430,7 @@ export function trade(w: TestWorld, state: FortressState): void {
   if (jobs.laborPriority('trading') !== (active ? DEADLINE : ROUTINE)) w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'trading', priority: active ? DEADLINE : ROUTINE });
   // Export crafts and surplus prepared meals, as balance.md's caravan arithmetic describes.
   const population = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
-  let mealSurplus = items.available('easy_meal') + items.available('fine_meal') + items.available('lavish_meal') - Math.ceil(population * 0.48 * 14);
+  let mealSurplus = items.available('easy_meal') + items.available('fine_meal') + items.available('lavish_meal') - Math.ceil(population * 0.48 * MEAL_RESERVE_DAYS);
   // Reserve stones for the unfilled masonry orders, accounting for furniture already made.
   // A full stock of blocks/furniture does not still need another forty input stones.
   const stoneReserve = Math.ceil(Math.max(0, 30 - items.count('stone_block')) / 2) +
@@ -467,7 +489,9 @@ export function trade(w: TestWorld, state: FortressState): void {
     if (type === 'bar' || type === 'charcoal_bar') return 2;
     // Armour and bandages for the squad that meets the boars, ahead of everything but the anvil.
     if (SQUAD_PURCHASES.includes(type)) return 1;
-    if (type === 'seed') return 1;
+    // Seed of a crop the plots sow, and drink for the winter; hops, flax and sporecloth feed nobody.
+    if (type === 'seed') return USEFUL_SEED.has(w.game.registry.table<{ id: string }>('materials').byIndex(it?.material ?? -1)?.id ?? '') ? 1 : 6;
+    if (type === 'drink') return 2;
     if (type === 'plant_food') return 3;
     if (type === 'cloth' || type === 'thread') return 4;
     if (type === 'rough_gem') return 5;
@@ -655,8 +679,11 @@ function checkKitchens(w: TestWorld, state: FortressState): void {
     const id = state.placedIds['still2'];
     if (id && buildings.get(id)?.state === 'built' && !state.orderedWorkshops.has('still2')) {
       state.orderedWorkshops.add('still2');
-      order(w, id, 'brew', Math.max(80, Math.ceil(population * 0.77 * 14)), undefined, ROUTINE - 1);
+      order(w, id, 'brew', Math.max(80, Math.ceil(population * 0.77 * DRINK_DAYS)), undefined, ROUTINE - 1);
     }
+    const orders = id ? w.game.world.entities.get(id, C.Workshop)?.orders ?? [] : [];
+    const drink = Math.max(80, Math.ceil(population * 0.77 * DRINK_DAYS));
+    if (orders[0] !== undefined && orders[0].threshold !== drink) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: id, index: 0, patch: { threshold: drink } });
   }
 }
 
@@ -690,6 +717,137 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   plan.zoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
   const crops = plans.length % 2 === 1 ? ['turnip', 'turnip', 'turnip'] : ['barley', 'barley', 'turnip'];
   for (const [season, speciesId] of crops.entries()) w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: plan.zoneId, season, speciesId });
+}
+
+/** Seed of each crop species the fortress owns, plus its crops in the ground (each harvest returns its seed). */
+function seedSupply(w: TestWorld): Map<string, number> {
+  const ent = w.game.world.entities;
+  const seed = w.game.registry.table('items').index('seed');
+  const materials = w.game.registry.table<{ id: string }>('materials');
+  const supply = new Map<string, number>();
+  for (const id of ent.with(C.Item)) {
+    const it = ent.get(id, C.Item)!;
+    if (it.type !== seed || (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) !== 0) continue;
+    const species = materials.byIndex(it.material)?.id ?? '';
+    supply.set(species, (supply.get(species) ?? 0) + it.count);
+  }
+  const plants = w.readers.of<PlantsReader>('07');
+  for (const crop of plants.crops()) {
+    const species = plants.cropInfo(crop)?.species ?? '';
+    supply.set(species, (supply.get(species) ?? 0) + 1);
+  }
+  return supply;
+}
+
+/**
+ * The crops follow the seed. Each plot sows, season by season, the first crop of its list whose
+ * seed (in stock or in the ground) covers half the plot after the plots before it have taken
+ * theirs, and failing that the crop with the most seed left: a player reads the seed counts of the
+ * plot panel. Cave plots keep one cave crop all year.
+ */
+function checkCrops(w: TestWorld): void {
+  const plants = w.readers.of<PlantsReader>('07');
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const supply = seedSupply(w);
+  const plots = plants.plots().filter((z) => buildings.zone(z) !== undefined).sort((a, b) => a - b);
+  const pick = (tiles: number, current: string, list: readonly string[], left: Map<string, number>): string => {
+    if (current !== '' && list.includes(current) && (left.get(current) ?? 0) * 2 >= tiles) return current;
+    const enough = list.find((sp) => (left.get(sp) ?? 0) * 2 >= tiles);
+    if (enough !== undefined) return enough;
+    const most = [...list].sort((a, b) => (left.get(b) ?? 0) - (left.get(a) ?? 0))[0]!;
+    return (left.get(most) ?? 0) > 0 ? most : current;
+  };
+  const name = (index: number | undefined): string => (index ? plants.def(index)?.id ?? '' : '');
+  const caveLeft = new Map(supply);
+  for (const zoneId of plots.filter((z) => plants.plotKind(z) === 'cave')) {
+    const tiles = buildings.zone(zoneId)!.tiles.length;
+    const settings = plants.plotSettings(zoneId);
+    const chosen = pick(tiles, name(settings[0]), CAVE_CROPS, caveLeft);
+    if (chosen === '') continue;
+    caveLeft.set(chosen, (caveLeft.get(chosen) ?? 0) - tiles);
+    for (const season of [0, 1, 2, 3]) if (name(settings[season]) !== chosen) w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId, season, speciesId: chosen });
+  }
+  for (const [season, list] of SURFACE_CROPS.entries()) {
+    const left = new Map(supply);
+    for (const zoneId of plots.filter((z) => plants.plotKind(z) === 'surface')) {
+      const tiles = buildings.zone(zoneId)!.tiles.length;
+      const current = name(plants.plotSettings(zoneId)[season]);
+      const chosen = pick(tiles, current, list, left);
+      if (chosen === '') continue;
+      left.set(chosen, (left.get(chosen) ?? 0) - tiles);
+      if (chosen !== current) w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId, season, speciesId: chosen });
+    }
+  }
+}
+
+/** Cave seed beyond the cave plots' tiles is sown in a new cave strip, dug beside the first on its soil level. */
+function checkCaveStrips(w: TestWorld, state: FortressState): void {
+  const map = w.map;
+  const plans = state.economy.cavePlans;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+  for (const plan of plans) {
+    if (plan.zoneId !== -1 || !plan.tiles.every((t) => map.kindAt(t) === TileKind.Floor)) continue;
+    const tiles = plan.tiles.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t));
+    plan.zoneId = 0;
+    if (tiles.length > 0 && w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) plan.zoneId = bSystem.lastCreatedZone;
+  }
+  if (plans.some((p) => p.zoneId === -1) || plans.length >= CAVE_STRIPS.length) return;
+  const supply = seedSupply(w);
+  const plants = w.readers.of<PlantsReader>('07');
+  const caveTiles = plants.plots().filter((z) => plants.plotKind(z) === 'cave').reduce((sum, z) => sum + (buildings.zone(z)?.tiles.length ?? 0), 0);
+  const caveSeed = CAVE_CROPS.reduce((sum, sp) => sum + (supply.get(sp) ?? 0), 0);
+  if (caveSeed - caveTiles < CAVE_STRIP_SEED) return;
+  const [x0, x1, y0, y1] = CAVE_STRIPS[plans.length]!;
+  const z = map.zOf(state.caveTiles1[0]!);
+  const terrain = w.readers.of<TerrainReader>('03');
+  const tiles: number[] = [];
+  for (let y = state.cy + y0; y <= state.cy + y1; y += 1) for (let x = state.cx + x0; x <= state.cx + x1; x += 1) {
+    if (x < 2 || y < 2 || x >= map.w - 2 || y >= map.h - 2) continue;
+    const t = w.index(x, y, z);
+    if (map.kindAt(t) === TileKind.Wall && map.fluidLevelAt(t) === 0 && !terrain.designationAt(t)) tiles.push(t);
+  }
+  plans.push({ tiles, zoneId: tiles.length === 0 ? 0 : -1 });
+  if (tiles.length > 0) w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles });
+}
+
+/**
+ * Meals and plants keep in barrels in a food stockpile (13 § Rot), and a stockpile takes them only
+ * into a barrel (13 § Stockpiles): the pantry and a larder beside it want one barrel a tile.
+ * Returns the barrels they want.
+ */
+function checkLarder(w: TestWorld, state: FortressState): number {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+  const { economy } = state;
+  if (!economy.phases.has('pantry')) return 0;
+  if (!economy.phases.has('pantry barrels')) {
+    const pantry = buildings.zoneAt(state.pantryTiles[0]!);
+    if (pantry !== 0 && w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: pantry, wants: { barrel: state.pantryTiles.length } }).ok) economy.phases.add('pantry barrels');
+  }
+  // The larder is dug once the first season's halls are done.
+  if (economy.larder === undefined && w.tick >= 28 * TICKS_PER_DAY) {
+    const tiles: number[] = [];
+    for (const [x0, x1, y0, y1] of LARDER) for (let y = state.cy + y0; y <= state.cy + y1; y += 1) for (let x = state.cx + x0; x <= state.cx + x1; x += 1) {
+      if (x >= 2 && y >= 2 && x < w.map.w - 2 && y < w.map.h - 2) tiles.push(w.index(x, y, HALL_Z));
+    }
+    economy.larder = { tiles, zoneId: -1 };
+    const dig = tiles.filter((t) => w.map.kindAt(t) === TileKind.Wall);
+    if (dig.length) w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: dig });
+  }
+  const larder = economy.larder;
+  if (larder === undefined) return state.pantryTiles.length;
+  if (larder.zoneId === -1 && larder.tiles.every((t) => w.map.kindAt(t) !== TileKind.Wall)) {
+    const tiles = larder.tiles.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('stockpile', t));
+    larder.zoneId = 0;
+    if (tiles.length > 0 && w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles }).ok) {
+      larder.zoneId = bSystem.lastCreatedZone;
+      w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: larder.zoneId, filter: 'food' });
+      w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId: larder.zoneId, priority: ROUTINE });
+      w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: larder.zoneId, wants: { barrel: tiles.length } });
+    }
+  }
+  return state.pantryTiles.length + (larder.zoneId > 0 ? buildings.zone(larder.zoneId)?.tiles.length ?? 0 : 0);
 }
 
 export function checkEconomy(w: TestWorld, state: FortressState): void {
@@ -783,10 +941,15 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     placeEconomyBuilding(w, state, 'trade_depot', -9, 4);
     if (!phases.has('requests')) {
       phases.add('requests');
-      w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', material: 'iron', priority: 3 }, { itemType: 'mail_shirt', priority: 2 }, { itemType: 'bar', material: 'iron', priority: 1 }] });
-      // The farm grows only by bought seed (07: a harvest returns the one seed it was sown from).
-      w.game.world.applyCommand({ type: 'SetRequests', civ: 'hillfolk', entries: [{ itemType: 'seed', priority: 3 }, { itemType: 'bandage', priority: 2 }] });
-      w.game.world.applyCommand({ type: 'SetRequests', civ: 'wildwood', entries: [{ itemType: 'seed', priority: 3 }] });
+      // The farm grows only by bought seed (07: a harvest returns the one seed it was sown from):
+      // cave seed from the Mountainhome for plots that bear in winter, surface seed of food crops.
+      w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', material: 'iron', priority: 3 },
+        { itemType: 'seed', material: 'dimcap', priority: 3 }, { itemType: 'seed', material: 'pale_bell', priority: 2 }, { itemType: 'seed', material: 'sweetroot', priority: 2 },
+        { itemType: 'mail_shirt', priority: 2 }, { itemType: 'bar', material: 'iron', priority: 1 }] });
+      w.game.world.applyCommand({ type: 'SetRequests', civ: 'hillfolk', entries: [{ itemType: 'seed', material: 'turnip', priority: 3 },
+        { itemType: 'seed', material: 'cabbage', priority: 2 }, { itemType: 'seed', material: 'barley', priority: 2 }, { itemType: 'bandage', priority: 2 }] });
+      w.game.world.applyCommand({ type: 'SetRequests', civ: 'wildwood', entries: [{ itemType: 'seed', material: 'strawberry', priority: 3 },
+        { itemType: 'seed', material: 'barley', priority: 2 }, { itemType: 'seed', material: 'pumpkin', priority: 2 }] });
     }
     trade(w, state);
   }
@@ -865,17 +1028,20 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   const still = state.placedIds['still'];
   if (still && state.orderedWorkshops.has('still')) {
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
-    const threshold = Math.max(80, Math.ceil(population * 0.77 * 14));
+    const threshold = Math.max(80, Math.ceil(population * 0.77 * DRINK_DAYS));
     const ws = w.game.world.entities.get(still, C.Workshop);
     if (ws?.orders[0]?.threshold !== threshold) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: still, index: 0, patch: { threshold } });
   }
+  const foodBarrels = checkLarder(w, state);
   const carpenter = state.placedIds['carpenter'];
   if (carpenter && state.orderedWorkshops.has('carpenter')) {
     const recipes = w.game.registry.table('recipes');
     const orders = (): readonly { recipe: number; mode: string; threshold: number; remaining: number }[] => w.game.world.entities.get(carpenter, C.Workshop)?.orders ?? [];
     const standing = (): number => orders().findIndex((o) => o.recipe === recipes.index('make_barrel') && o.mode === 'maintain');
     const barrels = standing();
-    const threshold = day >= 224 ? 100 : day >= 112 ? 50 : 20;
+    // Barrels for every larder tile and three weeks of drink, and a few spare for the still.
+    const population0 = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
+    const threshold = Math.min(160, Math.max(20, foodBarrels + Math.ceil(population0 * 0.77 * DRINK_DAYS / 20) + 6));
     if (barrels >= 0 && orders()[barrels]!.threshold !== threshold) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: carpenter, index: barrels, patch: { threshold } });
     // Beds come before barrels until every dwarf and the hospital has one.
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
@@ -941,6 +1107,8 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   }
   checkBrewer(w, state);
   checkFarm(w, state);
+  checkCaveStrips(w, state);
+  checkCrops(w);
   checkKitchens(w, state);
   // Nobody hunts: an immigrant hunter arrives with a crossbow, and a bolt that misses its quarry
   // hits whoever stands behind it (16 § Ranged).
