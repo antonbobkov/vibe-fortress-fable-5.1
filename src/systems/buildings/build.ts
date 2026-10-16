@@ -773,8 +773,39 @@ export class BuildingStore {
     if (built === undefined) return;
     this.noteSpecial(id, row, true);
     this.onFootprintChanged(built.footprint);
+    this.stepOffBlockedTiles(built);
     this.host.emit({ type: 'BuildingCompleted', id, buildingType: row.id, value: this.valueOf(built) });
     if (row.tags.includes('hearth')) this.host.emit({ type: 'HearthLit', id });
+  }
+
+  /**
+   * 14 § Placement: a creature standing on a tile that the finished building makes impassable (a
+   * forge's corner, where its builder may have worked) steps to the nearest passable tile beside the
+   * footprint, ties by tile index, in the same tick.
+   */
+  private stepOffBlockedTiles(b: Building): void {
+    const movement = this.host.services.movement;
+    if (movement === null || movement === undefined) return;
+    const footprint = new Set(b.footprint);
+    for (const tile of b.footprint) {
+      if (!this.blocksMovementAt(tile, 'walker', undefined)) continue;
+      const standing = this.host.creaturesAt(tile).slice();
+      if (standing.length === 0) continue;
+      let best = -1;
+      let bestD = Number.POSITIVE_INFINITY;
+      for (const t of b.footprint) {
+        for (const n of this.map.neighbors8(t)) {
+          if (footprint.has(n) || !this.host.walkable(n)) continue;
+          const d = Math.max(Math.abs(this.map.xOf(n) - this.map.xOf(tile)), Math.abs(this.map.yOf(n) - this.map.yOf(tile)));
+          if (d < bestD || (d === bestD && n < best)) {
+            best = n;
+            bestD = d;
+          }
+        }
+      }
+      if (best < 0) continue;
+      for (const creature of standing) movement.teleport(creature, best);
+    }
   }
 
   /**

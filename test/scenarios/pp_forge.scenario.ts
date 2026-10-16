@@ -54,8 +54,6 @@ const scenario: Scenario = {
   milestone: 8,
   seed: 'pp-forge',
   world: 'flat-test',
-  // The chain completes by day 5, but the forge's builder is left on one of its impassable corners.
-  todo: 'T-337',
   timeoutMs: 300_000,
   run: () => {
     const w = pathWorld('pp-forge', { preset: 'miner_s_guild' });
