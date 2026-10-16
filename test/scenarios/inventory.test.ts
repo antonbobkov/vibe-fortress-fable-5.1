@@ -12,6 +12,8 @@ const longScenarios = new Set([
   'core_calendar', 'td_schedule', 'th_schedule', 'th_warning', 'year_one',
   'homestead_year', 'three_years', 'descent', 't195_train_needs', 'defence_year',
 ]);
+// T-330: the player paths play weeks of a fortress each; they run once, in their own suite.
+const isLong = (id: string): boolean => longScenarios.has(id) || id.startsWith('pp_');
 
 // Explicit entries, not a blanket exemption of the command catalog: adding an entry must fail
 // until a scenario reaches it or a concrete stepped test is checked and named here.
@@ -84,7 +86,7 @@ describe('T-157 stepped-world catalog inventory', () => {
       for (const id of longScenarios) expect(ids, `named long scenario ${id}`).toContain(id);
       for (const path of Object.keys(modules).sort()) {
         const scenario = modules[path]!.default;
-        if (longScenarios.has(scenario.id)) continue;
+        if (isLong(scenario.id)) continue;
         expect(scenario.todo, scenario.id).toBeUndefined();
         runScenario(scenario);
       }
