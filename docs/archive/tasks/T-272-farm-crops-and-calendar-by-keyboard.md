@@ -1,6 +1,8 @@
 # T-272 — Farm crops and the Calendar can be reached by keyboard
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 1, § 3) · **Size:** S · **Needs:** T-274 (same file, `src/ui/panels/zones.ts`) · **Status:** open
+**Closed:** 2026-10-16, in ab29979.
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (issue 1, § 3) · **Size:** S · **Needs:** T-274 (same file, `src/ui/panels/zones.ts`) · **Status:** open
 
 ## Why
 
@@ -12,8 +14,8 @@ Default embark, keyboard only: make a farm plot and select it. The rows read `Sp
 
 ## What the spec says
 
-- [`panels.md`](../04-implementation/ui-screens/panels.md) § Zones (farm plot): one crop per season.
-- [`ui-keymap-and-screens.md`](../03-content/ui-keymap-and-screens.md): the panel key table has no Calendar key.
+- [`panels.md`](../../04-implementation/ui-screens/panels.md) § Zones (farm plot): one crop per season.
+- [`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-screens.md): the panel key table has no Calendar key.
 
 ## What to do
 
@@ -29,7 +31,7 @@ Default embark, keyboard only: make a farm plot and select it. The rows read `Sp
 ## Done
 
 - The reproduction plants turnips by keyboard and opens the Calendar by key.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
 
 ## Decisions made in the work
 
