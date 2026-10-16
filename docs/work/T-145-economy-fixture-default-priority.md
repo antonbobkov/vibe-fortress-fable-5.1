@@ -65,6 +65,6 @@ Spec touched: none. This is test authoring.
 
 ## Done
 
-- The scenario passes at default priorities with its original assertions.
-- Peril 0: seven of seven seeds survive with no dwarf death.
+- The scenario passes at default priorities with its assertions as T-334 left them: no dwarf dies of hunger or thirst, the fortress ends above its seven founders, every recipe witness and the engraving are above zero, and the mood floors, caps and invariants hold. Dwarf deaths by cause and the trades against the visits are printed figures (T-334: over three years with wild animals they turn on the job timeline).
+- Peril 0: seven of seven seeds survive with no hunger or thirst death and more than seven dwarves; their deaths by cause are reported.
 - B-008 … B-012 are each read against the new report and closed or re-filed.

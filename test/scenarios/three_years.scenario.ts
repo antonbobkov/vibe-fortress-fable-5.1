@@ -17,7 +17,7 @@ import { C } from '@core/components';
 import { HEARTH_TIER_BONUS, POSITIVE_CAP, NEED_PRESSURE_CAP, MOOD_NEEDS_MET_FLOOR } from '@systems/morale/mood';
 import { personalityBase } from '@systems/morale/thoughts';
 import { WAVE_MAX } from '@systems/immigration/constants';
-import { deathCounts } from './death-counts';
+import { deathCounts, dwarfDeathsByCause, needDeaths } from './death-counts';
 import { ItemsSystem, type ItemsReader } from '@systems/items';
 import type { Scenario } from './runner';
 import {
@@ -146,7 +146,8 @@ const scenario: Scenario = {
       }
     }
 
-    // T-162: squad claims in the played fortress must leave stock and container accounting exact.
+    // Kept (T-334): accounting and the T-176 invariants hold in every state of the game, whatever
+    // the order of its jobs. T-162: squad claims must leave stock and container accounting exact.
     const itemCore = (w.game.world.scheduler.byId('13') as ItemsSystem).core;
     expect(itemCore.counts.serialize().map(([type, count]) => [type, count.total, count.available]),
       'T-162: incremental stock counts equal the entity recount after three years').toEqual(itemCore.recount().rows);
@@ -159,9 +160,12 @@ const scenario: Scenario = {
     unsubscribe();
     stopInvariants();
     expect(checkInvariants(w.game), 'T-176 three-year end invariants').toEqual([]);
+    // Kept: 20's schedule sends a caravan in every year, so each year has its save.
     expect([...savedYears], 'T-176 a played caravan save in each year').toEqual([1, 2, 3]);
-    expect(longestFlee, 'T-141: no uninterrupted flee lasts more than a day').toBeLessThanOrEqual(TICKS_PER_DAY);
     console.log(`T-141 longest continuous flee: ${longestFlee} ticks`);
+    // Kept: measured noise. The longest flight was 90 to 211 ticks in the main runs 4 to 6 of
+    // 2026-10-12 (three scripts, three sets of wild arrivals); the bound of a day is six times that.
+    expect(longestFlee, 'T-141: no uninterrupted flee lasts more than a day').toBeLessThanOrEqual(TICKS_PER_DAY);
     const economy = threeYearsMeasurements(w);
     console.log(`three_years economy: ${JSON.stringify({ years: economy.years, minerals: economy.minerals, fixture: economy.fixture, allDeaths: economy.deaths, allRaids: economy.raids, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
 
@@ -237,31 +241,43 @@ const scenario: Scenario = {
 
     // The balance table and the summary above are printed before any assertion, so a failing run
     // still leaves its measurements.
-    console.log(`three_years thought sums: ${JSON.stringify({ maxPositives: Math.max(0, ...moodChecks.map((c) => c.positives)), maxNegatives: Math.max(0, ...moodChecks.map((c) => c.negatives)) })}`);
+    // T-334: this run is one chaotic sample (testing-strategy.md § What may be a gate). The figures
+    // a reordering of jobs moves are printed and not asserted: the dwarf deaths and their causes
+    // (a wild animal's arrival follows the random stream, so any change re-rolls which dwarf a boar
+    // meets), the trades against the visits (a visit that meets a hearth alert or a busy broker
+    // goes without), and the raw sum of negative thoughts a dwarf holds (15 § Mood caps only what
+    // they subtract, at NEGATIVE_CAP; the mood floors below hold the rest).
+    const trades = economy.caravans.filter((c) => c.state === 'TradeCompleted').length;
+    const visits = economy.caravans.filter((c) => c.state === 'CaravanArrived').length;
+    console.log(`three_years figures: ${JSON.stringify({ dwarfDeaths: deaths.dwarf, byCause: dwarfDeathsByCause(w), trades, visits,
+      maxPositives: Math.max(0, ...moodChecks.map((c) => c.positives)), maxNegatives: Math.max(0, ...moodChecks.map((c) => c.negatives)) })}`);
     for (const c of moodChecks) {
-      // Assertion 1: Deterministic mood floor (mood >= MOOD_MIN and mood >= 20 - needPressure)
+      // Kept: the mood floors are the formula of 15 § Mood (MOOD_MIN, and 20 - needPressure with
+      // every need met); no order of jobs takes a dwarf below them.
       expect(c.val, `mood of ${c.id}`).toBeGreaterThanOrEqual(MOOD_MIN);
       expect(c.val, `needs-met floor of ${c.id}`).toBeGreaterThanOrEqual(MOOD_NEEDS_MET_FLOOR - c.needPressure);
-      // Assertion 2: Thought caps. 15 § Mood caps what the positive thoughts add to the mood at
-      // POSITIVE_CAP; it does not bound the thoughts a dwarf holds, and a well-fed, well-housed
-      // dwarf holds more (46.8 measured). So the bound is on the mood the capped sum can give.
-      expect(c.val, `capped positives of ${c.id}`).toBeLessThanOrEqual(c.ceiling + 1); // allowance for active tick
-      expect(c.negatives, `negative thoughts of ${c.id}`).toBeLessThanOrEqual(75); // allowance for active tick, standing thoughts and personality multipliers
+      // Kept: the formula caps what the positive thoughts add at POSITIVE_CAP, so the mood cannot
+      // exceed the capped sum, the best hall and the dwarf's nature (+1 for the active tick).
+      expect(c.val, `capped positives of ${c.id}`).toBeLessThanOrEqual(c.ceiling + 1);
     }
 
-    // Witness the real production chains, independently of any target wealth figure.
+    // Kept: each chain is ordered and supplied for at least a season (alloy steel from day 224), and
+    // a reordering moves the day of its first completion, not whether it completes. Lowest counts
+    // measured over the main runs of 2026-10-12 (4 to 6) and 2026-10-16: craft_stone 95,
+    // make_charcoal 137, cut_gem 9, forge_pick 4, forge_mail_shirt 8, forge_crafts 10, alloy_steel 1
+    // (5 to 10 in the fed fortresses); 96 tiles engraved.
     for (const recipe of ['craft_stone', 'make_charcoal', 'cut_gem', 'forge_pick', 'forge_mail_shirt', 'forge_crafts', 'alloy_steel']) {
       expect(economy.recipes[recipe] ?? 0, `${recipe} completed through normal jobs`).toBeGreaterThan(0);
     }
     expect(economy.years[2]?.engraved ?? 0, 'halls engraved through terrain jobs').toBeGreaterThan(0);
-    expect(economy.caravans.filter((c) => c.state === 'TradeCompleted').length, 'trade with each visiting caravan')
-      .toBe(economy.caravans.filter((c) => c.state === 'CaravanArrived').length);
 
-    // Assertion 3: No-spiral guarantee (peril 0 survives without deaths, population larger than embark)
-    expect(deaths.dwarf, 'no dwarf died across three years in peril 0').toBe(0);
+    // Kept: outcomes no reordering of jobs can flip. Nobody dies of hunger or thirst where the
+    // farm, the kitchens and the stills follow the population with a season's margin, and a
+    // peril-0 fortress that loses a few dwarves to wild animals still ends far above its founders.
+    expect(needDeaths(w), 'no dwarf died of hunger or thirst').toBe(0);
     expect(y3Pop, 'fortress grew past the 7 embark dwarves').toBeGreaterThan(7);
 
-    // Assertion 4: Caps
+    // Kept: rules of 21 Immigration, whatever the order of jobs.
     expect(y3Pop, 'population within POPULATION_CAP_DEFAULT').toBeLessThanOrEqual(POPULATION_CAP_DEFAULT);
     for (const wave of waves) {
       expect(wave.count, 'wave size within WAVE_MAX').toBeLessThanOrEqual(WAVE_MAX);

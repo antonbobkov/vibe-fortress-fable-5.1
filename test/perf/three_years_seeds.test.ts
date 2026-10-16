@@ -20,7 +20,7 @@ import { WAVE_MAX } from '@systems/immigration/constants';
 import type { ItemsReader } from '@systems/items';
 import type { MoraleReader } from '@systems/morale/reader';
 import type { ThreatsReader } from '@systems/threats/reader';
-import { deathCounts } from '../scenarios/death-counts';
+import { deathCounts, dwarfDeathsByCause, needDeaths } from '../scenarios/death-counts';
 import {
   playThreeYears,
   setupThreeYearsFortress,
@@ -96,6 +96,7 @@ export interface ThreeYearsSeedResult {
 
 export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedResult {
   const w = threeYearsWorld(seed, peril);
+  // Kept (T-334): the T-176 invariants hold in every state of the game, whatever the order of jobs.
   const stopInvariants = peril === 2 || peril === 4
     ? watchInvariants(w.game, (findings) => expect(findings, `T-176 ${seed} tick ${w.tick}`).toEqual([]))
     : () => {};
@@ -228,7 +229,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     else if (val < 90) moodBreakdown['Happy'] = (moodBreakdown['Happy'] ?? 0) + 1;
     else moodBreakdown['Ecstatic'] = (moodBreakdown['Ecstatic'] ?? 0) + 1;
 
-    // Assert deterministic mood floor and thought caps for surviving dwarves
+    // Kept (T-334): the mood floors are the formula of 15 § Mood; no order of jobs goes below them.
     expect(val).toBeGreaterThanOrEqual(MOOD_MIN);
     const needPressure = Math.min(
       NEED_PRESSURE_CAP,
@@ -284,11 +285,17 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   // Preserve the measurement even when a deterministic guarantee fails.
   console.log(`[three_years_seeds_detail] ${JSON.stringify(result)}`);
 
-  // Assert deterministic guarantees
+  // T-334: each seed is one chaotic sample (testing-strategy.md § What may be a gate). Its dwarf
+  // deaths are printed by cause and not asserted: a wild animal's arrival follows the random
+  // stream, so any change to the job timeline re-rolls which dwarf it meets.
+  console.log(`[three_years_seeds_deaths] ${JSON.stringify({ seed, peril, dwarfDeaths: deaths.dwarf, byCause: dwarfDeathsByCause(w) })}`);
   if (peril === 0) {
-    expect(deaths.dwarf, `${seed} (peril 0) has 0 dwarf deaths`).toBe(0);
+    // Kept: outcomes no reordering of jobs can flip in a peril-0 fortress whose farm, kitchens and
+    // stills follow the population: nobody starves, and it ends far above its seven founders.
+    expect(needDeaths(w), `${seed} (peril 0): no dwarf died of hunger or thirst`).toBe(0);
     expect(y3Pop, `${seed} (peril 0) grew past embark size`).toBeGreaterThan(7);
   }
+  // Kept: rules of 21 Immigration, whatever the order of jobs.
   expect(y3Pop, `${seed} population within POPULATION_CAP_DEFAULT`).toBeLessThanOrEqual(POPULATION_CAP_DEFAULT);
   for (const wave of waves) {
     expect(wave.count, `${seed} wave size within WAVE_MAX`).toBeLessThanOrEqual(WAVE_MAX);

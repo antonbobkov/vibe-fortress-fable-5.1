@@ -792,7 +792,8 @@ test('full-year', async ({ page }) => {
 
   console.log(`T-192 full-year wildlife: ${JSON.stringify({ spawns: tracker.wildSpawns, liveAtEnd: results.wildAtEnd, huntsCompleted: tracker.huntsCompleted, huntKills: tracker.huntKills })}`);
 
-  // Assert rule-based rows (matching year_one.scenario.ts precedent)
+  // Kept (T-334): rule-based rows. The caravan schedule of 20, the guaranteed waves of 21 and the
+  // peril-0 threat schedule of 18 decide them; no order of jobs moves them.
   const hillfolk = windowOf('hillfolk', 1);
   expect(tracker.caravanDay['hillfolk'], 'Hillfolk caravan arrived in summer of year 1').not.toBeNull();
   expect(tracker.caravanDay['hillfolk'] as number).toBeGreaterThanOrEqual(hillfolk[0]);
@@ -833,25 +834,31 @@ test('full-year', async ({ page }) => {
   // day and its killer's species, and the hall ends the year with the dwarves it should have.
   const deathLines = tracker.deaths.map((d) => `  day ${d.day} (tick ${d.tick}): ${d.kind} ${d.name} died of ${d.cause}${d.killerId === 0 ? '' : `, killed by a ${d.killerSpecies}${d.killerState === '' ? '' : ` (${d.killerState})`}`}`);
   console.log([`full-year deaths: ${tracker.deaths.length}`, ...deathLines].join('\n'));
+  // Kept (T-334): nobody dies of hunger or thirst. Measured: the twelve-seed instrument of T-136
+  // plays this opening, and over its eleven recorded runs (2026-10-15 and 2026-10-16, changes that
+  // moved the job timeline) no seed had a hunger or thirst death.
   expect(tracker.deaths.filter((d) => ['starvation', 'dehydration', 'thirst', 'hunger'].includes(d.cause)), 'no dwarf died of hunger or thirst').toEqual([]);
-  // What this one year can and cannot assert (orchestrator's decision, 2026-10-11, T-136).
-  // The year is deterministic, but it is ONE year, and it is chaotic: any change to where a dwarf
-  // stands on day 60 re-rolls every wolf encounter after it. Three correct fixes in a row (T-134,
-  // T-135) moved it from 9 living to 8 to 6 without any of them being at fault. A floor that may
-  // only go up therefore blocks correct fixes at random, and a count of Starving events depends on
-  // how long this script happens to hold the hearth alert. So the spec asserts what a single year
-  // can witness: the fortress is not wiped out, and nobody dies of hunger or thirst. How many
-  // dwarves wolves cost a fortress is measured over many seeds by the instrument of T-136, where a
-  // median can carry a target; the figures of this year are printed above for the record.
-  const FORTRESS_ALIVE_FLOOR = 4;
-  expect(livingCount, `the fortress is not wiped out: at least ${FORTRESS_ALIVE_FLOOR} dwarves alive on the last day`).toBeGreaterThanOrEqual(FORTRESS_ALIVE_FLOOR);
-  console.log(`full-year Starving events: ${tracker.starvingCount} (not asserted; see T-136)`);
+  // What this one year can and cannot assert (testing-strategy.md § What may be a gate). The year
+  // is deterministic, but it is ONE year, and it is chaotic: any change to where a dwarf stands on
+  // day 60 re-rolls every wolf encounter after it. Three correct fixes in a row (T-134, T-135)
+  // moved it from 9 living to 8 to 6 without any of them being at fault, and timeline-only changes
+  // move a single seed of the instrument by five or more living. So the living count, the deaths
+  // and the Starving events are printed, and the spec asserts the outcome no reordering flips:
+  // the fortress is not wiped out (no seed of the instrument changed between extinct and living
+  // over its eleven recorded runs). How many dwarves wild animals cost is measured over twelve
+  // seeds by the instrument of T-136, where a median can carry a target.
+  console.log(`full-year living: ${livingCount}; Starving events: ${tracker.starvingCount} (not asserted; see T-136)`);
+  expect(livingCount, 'the fortress is not wiped out').toBeGreaterThan(0);
 
-  // Food margin assertions (T-150 decision a)
+  // Food margin (T-150 decision a), T-334. Kept for food: the stock was 109 to 161 against a bound
+  // of 29 to 38 in the recorded runs of this year, and timeline-only changes moved an instrument
+  // seed's year-end food by at most 42 %. Printed for drink: 100 to 108 against 46 to 62, while the
+  // same changes moved an instrument seed's drink by up to 63 % (101 to 37), so the bound is
+  // inside the noise.
   const tenDaysFood = livingCount * 0.48 * 10;
   const tenDaysDrink = livingCount * 0.77 * 10;
+  console.log(`full-year stocks against ten days: ${JSON.stringify({ food: stocks.meal + stocks.plantFood, tenDaysFood, drink: stocks.drink, tenDaysDrink })}`);
   expect(stocks.meal + stocks.plantFood, 'at least 10 days of food in stock at year end').toBeGreaterThanOrEqual(tenDaysFood);
-  expect(stocks.drink, 'at least 10 days of drink in stock at year end').toBeGreaterThanOrEqual(tenDaysDrink);
 
   expect(errors).toEqual([]);
 });

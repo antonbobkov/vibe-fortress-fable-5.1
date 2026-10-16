@@ -11,3 +11,24 @@ export function deathCounts(w: TestWorld): { dwarf: number; tame: number; other:
   }
   return counts;
 }
+
+/** The dwarf deaths of a need gone unmet: 10 starves a dwarf of food or of drink (`starvation`). */
+export const NEED_DEATH_CAUSES: readonly string[] = ['starvation', 'dehydration'];
+
+/** T-334: the fortress's dwarf deaths by cause, for a long run's printed figures. */
+export function dwarfDeathsByCause(w: TestWorld): Record<string, number> {
+  const dwarfSpecies = w.game.registry.table('creatures').index('dwarf');
+  const causes: Record<string, number> = {};
+  for (const event of w.events('CreatureDied')) {
+    if (event['species'] !== dwarfSpecies) continue;
+    const cause = String(event['cause'] ?? 'unknown');
+    causes[cause] = (causes[cause] ?? 0) + 1;
+  }
+  return causes;
+}
+
+/** T-334: how many dwarves died of hunger or thirst. */
+export function needDeaths(w: TestWorld): number {
+  const causes = dwarfDeathsByCause(w);
+  return NEED_DEATH_CAUSES.reduce((sum, cause) => sum + (causes[cause] ?? 0), 0);
+}
