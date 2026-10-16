@@ -1,5 +1,7 @@
 # T-311 — The "Orders waiting" rows in Jobs can be reached by keyboard
 
+**Closed:** 2026-10-16, in 80197d8.
+
 **Source:** T-276 (the decision "`Enter` on a row opens Orders with that order selected"; only the click is done) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -18,7 +20,7 @@ The Jobs panel lists up to three work orders that no job serves, and a click on 
 
 ## Done
 
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
 
 ## Decisions made in the work
 
