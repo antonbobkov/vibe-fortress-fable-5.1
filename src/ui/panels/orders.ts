@@ -780,6 +780,13 @@ function groupedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: L
   for (let r = 0; r < rect.rows; r += 1) {
     s.put(rect.col + rect.cols - 1, rect.row + r, s.glyphs.index(r === thumbRow ? '█' : '│'), s.theme.border, s.theme.black);
   }
+  // A press or a drag on the track moves the cursor to the first row at the pointer's place: this list scrolls to keep the cursor in view.
+  s.scrollbar({ col: rect.col + rect.cols - 1, row: rect.row, cols: 1, rows: rect.rows }, (row) => {
+    const at = Math.max(0, Math.min(rect.rows - 1, row - rect.row));
+    const target = Math.round((at * (rows.length - 1)) / Math.max(1, rect.rows - 1));
+    const index = items.findIndex((k) => k >= target);
+    state.selected = index < 0 ? items.length - 1 : index;
+  });
 }
 
 /** A row of `[k] action` captions, each clickable at its own cells. */

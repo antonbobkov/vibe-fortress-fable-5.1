@@ -241,7 +241,7 @@ Container counts are non-negative integers, priorities are 1–9 and quality bou
 | Click on a panel row | select | select |
 | Double-click a unit or job row | center the map on it | same |
 
-Each entry of the hotkey strip on status row 2 and each field of status row 1 is a button (fortress-screen wireframe, Status rows), `[x]` on a panel's title row closes the panel, and a click on a list's scrollbar track jumps the list there.
+Each entry of the hotkey strip on status row 2 and each field of status row 1 is a button (fortress-screen wireframe, Status rows), `[x]` on a panel's title row closes the panel, and a press on a list's scrollbar track or thumb jumps the list there: with the button held, the list follows the pointer's row (the scroll is proportional to the row within the track, and the selection stays inside the window), wherever the pointer goes, until the button is released. The map is not touched by the drag.
 
 ## Overlays
 
