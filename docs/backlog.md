@@ -28,7 +28,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-333 | [Mark the spec numbers nobody has measured](work/T-333-unmeasured-spec-numbers.md) | the process review, [`../reports/audits/2026-10-15-process-review.md`](../reports/audits/2026-10-15-process-review.md) | — | open |
 | T-334 | [Long chaotic runs report their figures and assert only what no reordering can flip](work/T-334-long-runs-as-reports.md) | the process review, [`../reports/audits/2026-10-15-process-review.md`](../reports/audits/2026-10-15-process-review.md) | — | open; after the T-145 re-measure in worktree `sim` |
 | T-312 | [KillRecorded's hostile flag is always false](work/T-312-kill-recorded-hostile-flag.md) | found during T-279 | — | open |
-| T-337 | [A builder is shut inside the workshop he finished](work/T-337-builder-shut-inside-a-finished-workshop.md) | found by T-330 (the player paths) | — | open; with the simulation agent |
 | T-340 | [The Depot panel names a stack of goods in the singular](work/T-340-depot-names-stacks-in-the-singular.md) | found in the T-332 review | — | open |
 | T-341 | [A grazer can still loop on grass behind a no_pets door](work/T-341-grazer-loops-on-a-no-pets-door.md) | the review of T-335 | — | open |
 | T-342 | [A confirmation names a work order by its index, and the game keeps running behind it](work/T-342-confirm-dialog-names-an-order-by-index.md) | the review of T-278 | — | open |

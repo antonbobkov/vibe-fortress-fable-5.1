@@ -1,12 +1,14 @@
 # T-337 — A builder is shut inside the workshop he finished
 
-**Source:** T-330, the crafts and forge player path ([`../../test/scenarios/pp_forge.scenario.ts`](../../test/scenarios/pp_forge.scenario.ts)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-16, in baf9b74.
+
+**Source:** T-330, the crafts and forge player path ([`../../test/scenarios/pp_forge.scenario.ts`](../../../test/scenarios/pp_forge.scenario.ts)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## The fault
 
 A workshop's build job works from a tile `adjacent` to the site (`src/systems/buildings/build.ts:576`), and a tile of the site's own footprint counts. The forge (and any workshop with `impassableTiles`) makes four of its nine tiles impassable when it is finished (`build.ts:696`, `complete`; the corners, `build.ts:1197`). A builder who worked from one of those tiles is left standing on an impassable tile. He cannot path off it: from then on he only idles and sleeps where he stands. The invariant `creature.on-impassable` (T-176) reports it.
 
-This is likely the cause of [T-303](T-303-dwarf-on-an-impassable-tile.md), which found the same invariant on the surface beside the three-year fixture's gate, where that script builds its workshops.
+This is likely the cause of [T-303](../../work/T-303-dwarf-on-an-impassable-tile.md), which found the same invariant on the surface beside the three-year fixture's gate, where that script builds its workshops.
 
 ## Trace
 
