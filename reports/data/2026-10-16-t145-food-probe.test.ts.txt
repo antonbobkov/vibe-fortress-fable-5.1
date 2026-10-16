@@ -1,0 +1,189 @@
+/**
+ * T-145 diagnosis probe (not committed): the three-year fortress of seed `three-years`, played as
+ * the main scenario plays it (without the caravan save and load), with a daily food-chain journal.
+ * It only reads; the patched item methods record and then call the originals.
+ * Output: one JSON line a day to T145_PROBE_OUT.
+ */
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import { C, ItemFlag } from '@core/components';
+import type { ItemCore, ItemsReader } from '@systems/items';
+import type { BuildingsReader } from '@systems/buildings';
+import type { JobsReader } from '@systems/jobs';
+import type { PlantsReader } from '@systems/plants';
+import type { DwarvesReader } from '@systems/dwarves';
+import { playThreeYears, setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense } from '../scenarios/three_years_fortress';
+
+const OUT = process.env['T145_PROBE_OUT'] ?? '.vite/t145-probe.jsonl';
+const STOP_DAY = Number(process.env['T145_PROBE_DAYS'] ?? 3 * DAYS_PER_YEAR);
+const FOOD = (id: string): boolean => id.endsWith('_meal') || id === 'plant_food' || id === 'drink' || id === 'seed';
+
+describe('T-145 food probe', () => {
+  it('journals the food chain of three_years', () => {
+    writeFileSync(OUT, '');
+    const w = threeYearsWorld('three-years');
+    const state = setupThreeYearsFortress(w);
+    const ent = w.game.world.entities;
+    const reg = w.game.registry;
+    const types = reg.table<{ id: string; category: string }>('items');
+    const mats = reg.table<{ id: string }>('materials');
+    const recipes = reg.table<{ id: string }>('recipes');
+    const items = (): ItemsReader => w.readers.of<ItemsReader>('13');
+    const buildings = (): BuildingsReader => w.readers.of<BuildingsReader>('14');
+    const jobs = (): JobsReader => w.readers.of<JobsReader>('11');
+    const plants = (): PlantsReader => w.readers.of<PlantsReader>('07');
+    const tname = (t: number): string => types.byIndex(t)?.id ?? `?${t}`;
+    const mname = (m: number): string => mats.byIndex(m)?.id ?? `?${m}`;
+
+    let day: Record<string, Record<string, number>> = {};
+    const add = (group: string, key: string, n = 1): void => { const g = (day[group] ??= {}); g[key] = (g[key] ?? 0) + n; };
+    const maxv = (group: string, key: string, n: number): void => { const g = (day[group] ??= {}); g[key] = Math.max(g[key] ?? 0, n); };
+
+    // Losses: destruction by reason and rot (a type change through setRot), by item type.
+    const core = w.game.world.services.items as unknown as ItemCore;
+    let merchantIds = new Set<number>();
+    const destroy = core.destroy.bind(core);
+    core.destroy = (id: number, reason: string): void => {
+      const it = core.get(id);
+      if (it && FOOD(tname(it.type)) && reason !== 'consumed') {
+        const mine = !(reason === 'caravan_departed' && merchantIds.has(id));
+        add('destroyed', `${reason}${mine ? '' : ':merchant'}:${tname(it.type)}`, it.count);
+      }
+      destroy(id, reason);
+    };
+    const setRot = core.setRot.bind(core);
+    core.setRot = (id, stage, type, material): void => {
+      const it = core.get(id);
+      if (it && type !== undefined && type !== it.type) add('rotted', `${tname(it.type)}${it.containerId ? ':in-container' : ':loose'}`, it.count);
+      setRot(id, stage, type, material);
+    };
+
+    const yields: Record<string, number> = { cook_easy_meal: 4, cook_fine_meal: 6, cook_lavish_meal: 8, brew: 20, brew_hopped: 20 };
+    w.game.world.onEvents((events) => {
+      for (const e of events) {
+        // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
+        switch (e.type) {
+          case 'CropHarvested': add('harvest', String(e['species']), Number(e['count'] ?? 0)); break;
+          case 'CropPlanted': add('planted', String(e['species'])); break;
+          case 'CropDied': add('cropDied', String(e['reason'])); break;
+          case 'PlotNeedsSeeds': add('needsSeeds', `${e['zoneId']}:${e['species']}`); break;
+          case 'ItemCrafted': { const r = String(e['recipeId']); if (r in yields) add('made', r, yields[r]!); break; }
+          case 'MealEaten': add('ate', String(e['kind'] ?? '') + ':' + String(e['mealType'] ?? '')); break;
+          case 'DrankAlcohol': add('drank', 'alcohol'); break;
+          case 'DrankWater': add('drank', 'water'); break;
+          case 'Starving': add('starving', String(e['need'])); break;
+          case 'DwarfIdle': add('idle', 'events'); break;
+          case 'WorkshopBlocked': case 'WorkshopIdle': {
+            const b = buildings().get(Number(e['workshopId']));
+            if (b && ['kitchen', 'still'].includes(b.typeId)) add('workshop', `${e.type}:${b.typeId}:${e['reason']}:${e['input'] ?? e['container'] ?? ''}`);
+            break;
+          }
+          case 'CaravanArrived': {
+            merchantIds = new Set(ent.with(C.Item).filter((id) => (ent.get(id, C.Item)!.flags & ItemFlag.Merchant) !== 0));
+            add('caravan', `arrived:${e['civ']}`); break;
+          }
+          case 'TradeCompleted': add('caravan', `trade:${e['civ']}:given=${Math.round(Number(e['givenValue']))}`); break;
+          case 'ImmigrantsArrived': add('immigrants', 'count', Number(e['count'] ?? 0)); break;
+          case 'CreatureDied': if (e['faction'] === 'fortress') add('died', String(e['cause'])); break;
+          default: break;
+        }
+      }
+    });
+
+    /** Every 300 ticks: the food jobs waiting, and the dwarves who could take them. */
+    const sample = (): void => {
+      const j = jobs();
+      for (const job of j.list()) {
+        const type = j.typeOf(job.id) ?? '?';
+        let kind = type;
+        if (type === 'craft') {
+          const b = buildings().get(job.target.ref);
+          if (!b || !['kitchen', 'still', 'farmer'].includes(b.typeId)) continue;
+          kind = `craft@${b.typeId}`;
+        } else if (!['plant', 'harvest', 'haul_to_stockpile', 'haul_to_depot'].includes(type)) continue;
+        const st = job.state === 'open' ? (job.blockedReason ? `blocked:${job.blockedReason}` : 'open') : 'taken';
+        add('jobSamples', `${kind}:${st}`);
+        if (st === 'open') maxv('openAgeMax', kind, w.tick - job.createdTick);
+      }
+      // Workshops: the kitchens and stills, working or not, with what they last said.
+      for (const id of buildings().byType('kitchen').concat(buildings().byType('still'))) {
+        const b = buildings().get(id)!;
+        if (b.state !== 'built') continue;
+        const ws = ent.get(id, C.Workshop);
+        add('wsSamples', `${b.typeId}:${ws?.currentJobId ? 'job' : `none:${ws?.lastBlockedReason ?? ''}`}`);
+      }
+      // Dwarves at the sample: on a job, or not (and of those, how many could farm, cook or brew).
+      const adults = w.readers.of<DwarvesReader>('10').adults().filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+      for (const id of adults) {
+        const job = j.forWorker(id);
+        if (job) { add('dwarfSamples', `job:${j.typeOf(job.id)}`); continue; }
+        const act = ent.get(id, C.Brain)?.activity ?? '';
+        add('dwarfSamples', `nojob:${act || 'none'}`);
+      }
+    };
+
+    const daily = (): void => {
+      const it = items();
+      const stock: Record<string, number> = {};
+      for (const id of ent.with(C.Item)) {
+        const item = ent.get(id, C.Item)!;
+        if (item.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) continue;
+        const t = tname(item.type);
+        if (!FOOD(t) && t !== 'barrel') continue;
+        const key = t === 'plant_food' || t === 'seed' || t === 'drink' ? `${t}:${mname(item.material)}` : t;
+        stock[key] = (stock[key] ?? 0) + item.count;
+        if (t.endsWith('_meal')) stock[`meal:${item.containerId ? 'in-container' : 'loose'}`] = (stock[`meal:${item.containerId ? 'in-container' : 'loose'}`] ?? 0) + item.count;
+        if (t === 'barrel') stock[`barrel:${core.container(id)?.contents.length ? 'full' : 'empty'}`] = (stock[`barrel:${core.container(id)?.contents.length ? 'full' : 'empty'}`] ?? 0) + 1;
+      }
+      const farm: Record<string, number> = {};
+      const p = plants();
+      for (const zid of p.plots()) {
+        const z = buildings().zone(zid);
+        if (!z) continue;
+        const kind = p.plotKind(zid);
+        const settings = p.plotSettings(zid);
+        const season = w.game.world.calendar.season;
+        const crop = settings[season] ?? 0;
+        farm[`${kind}:tiles`] = (farm[`${kind}:tiles`] ?? 0) + z.tiles.length;
+        if (crop !== 0) farm[`${kind}:tilesWithCropThisSeason`] = (farm[`${kind}:tilesWithCropThisSeason`] ?? 0) + z.tiles.length;
+        for (const t of z.tiles) {
+          if (p.cropAt(t)) farm[`${kind}:growing`] = (farm[`${kind}:growing`] ?? 0) + 1;
+          if (p.cropReady(t)) farm[`${kind}:ready`] = (farm[`${kind}:ready`] ?? 0) + 1;
+        }
+      }
+      const adults = w.readers.of<DwarvesReader>('10').adults().filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+      const labors: Record<string, number> = {};
+      for (const l of ['farming', 'cooking', 'brewing', 'hauling']) labors[l] = adults.filter((id) => jobs().laborEnabled(id, l)).length;
+      const shops: Record<string, unknown> = {};
+      for (const type of ['kitchen', 'still']) for (const id of buildings().byType(type)) {
+        const b = buildings().get(id)!;
+        shops[`${type}${id}`] = { state: b.state, orders: (ent.get(id, C.Workshop)?.orders ?? []).map((o) => `${recipes.byIndex(o.recipe)?.id}:${o.mode}:${o.threshold ?? o.remaining}`), worker: ent.get(id, C.Workshop)?.assignedWorker ?? 0 };
+      }
+      const pop = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+      const line = { day: Math.floor(w.tick / TICKS_PER_DAY), pop, adults: adults.length, wealth: Math.round(it.wealth()), haulWants: jobs().wantsHaulingCount(),
+        stock, farm, labors, shops, ...day };
+      appendFileSync(OUT, JSON.stringify(line) + '\n');
+      day = {};
+      return void pop;
+    };
+
+    const checks = (): void => {
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    };
+    const bootstrap = 20 * TICKS_PER_DAY;
+    while (w.tick < bootstrap) { playThreeYears(w, state, Math.min(100, bootstrap - w.tick)); checks(); if (w.tick % 300 === 0) sample(); if (w.tick % TICKS_PER_DAY === 0) daily(); }
+    const end = STOP_DAY * TICKS_PER_DAY;
+    while (w.tick < end) {
+      playThreeYears(w, state, Math.min(300, end - w.tick));
+      checks();
+      sample();
+      if (w.tick % TICKS_PER_DAY === 0) {
+        daily();
+        const pop = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+        if (pop === 0) break;
+      }
+    }
+  }, 3_000_000);
+});
