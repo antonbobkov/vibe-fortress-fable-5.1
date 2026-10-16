@@ -1,0 +1,46 @@
+# T-307 — A medic walks to a patient that has its attacker beside it
+
+**Closed:** 2026-10-16, in 0707f2a.
+
+> **Closed as not reproduced (orchestrator, 2026-10-16).** Step 1 found no medic or carrier wounded near its patient's attacker in the current cohort (16 wildlife deaths, all bleeding; data in reports/data/2026-10-16-t307-step1-*). Reopen as a new task if a trace shows it.
+
+**Source:** T-301, T-211 and [`../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md`](../../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md) (link 7) · **Size:** M · **Needs:** — · **Status:** parked: link 7 does not appear in the cohort (step 1, 2026-10-16)
+
+## Why
+
+Care continues under a `hearth` alert (17 § Patients and hospitals), and "a hostile near the patient keeps the medic away by the ordinary `flee` rule". The `flee` rule works on a hostile the medic itself has within `THREAT_RADIUS`, and 11 keeps a job from a civilian only for a hostile that civilian remembers. A medic that has not seen the animal walks to the patient, comes within the animal's reach, is bitten and is the next patient. The next medic follows.
+
+In the annual seed `wildlife-temperate_forest-2` with T-211's patch, a wolf wounds a hauler at tick 74,907. Four dwarves claim its four treatment jobs and walk toward it. The hauler dies at 75,122. The wolf turns on the nearest medic at 75,163, and that one dies at 75,357 with four new medics on the way. Eight die by day 85 ([trace](../../../reports/data/2026-10-12-t211-forest-2-wolf-trace.txt)). Three soldiers stand on duty at the wagon through it, 22 tiles away.
+
+This is the likely reason that T-301's fixes, T-305, T-306 and T-211 do not pass the annual guards: each makes a medic more likely to set out, or to set out sooner. It is shown in one seed; step 1 below measures it over the twelve.
+
+## What to do
+
+1. Measure how many of the dwarf deaths of the twelve-seed row are a medic or a carrier wounded within `THREAT_RADIUS` of its patient while it holds the patient's job. The per-seed rows already name every death; a probe adds the job each victim held.
+2. The rule to try first: 11 offers a job for a patient (`isPatientCare`) to nobody while a creature hostile to the patient (16 `isHostile`: it holds a fortress creature as its target, or is a wild animal in `attack`) is within `THREAT_RADIUS` of the patient on its level, and a worker that holds such a job is interrupted when one comes that near. The patient is treated when the animal has left or the squad has killed it. Fold into 17 § Patients and hospitals (the last bullet), 11 § Assignment step 1 and 10 § Behavior selection step 2.
+3. Find why the three soldiers do not move: the fixture's response gives the squad a kill order only for some threats.
+4. Re-run the twelve-seed instrument. Then T-301's commit, T-305, T-306 and T-211 in turn, each with its own row.
+
+## Measured so far, 2026-10-13
+
+The rule of step 2 was written with a stepped test that fails without it, on top of T-301's commit `a88d3cd`, and taken out again ([patch and test](../../../reports/data/2026-10-13-t307-endangered-patient.patch.txt)):
+
+- `defence_year`: six dwarves bleed to death by day 35 (three on `a88d3cd`, one on `28e2eab`). The first dies on day 5 unbandaged: the boar stays within `THREAT_RADIUS` of it in `attack`, so nobody is sent. On `a88d3cd` the same dwarf was bandaged 365 ticks after admission.
+- Twelve-seed instrument: 13 / 0 / 0 / 8 of 12 / 2 / 0, rejected ([rows](../../../reports/data/2026-10-13-t307-endangered-patient-wildlife.json)). Taiga seed 2 goes extinct, forest seed 4 goes from 12 living to 9, forest seed 2 from 6 to 9. The sum of the living is 126 (133 on `a88d3cd`, 135 on `28e2eab`).
+
+So the rule as stated is not the answer: an animal that stays beside its victim keeps the medic away until the victim is dead. Step 1 (the measurement over the twelve seeds) was not done and comes first. A rule to weigh after it: the squad's kill order, not the medic, is what goes to a patient with its attacker beside it.
+
+## Done
+
+- A medic does not walk into the reach of the animal that wounded its patient, with a stepped test that names T-307.
+- The twelve-seed instrument accepts the row.
+
+## Measured, 2026-10-16 (parked)
+
+Step 1, on the tree after T-305, T-306 and T-302's fix (the twelve-seed row 13 / 139 / 8 of 12 / 1 / 0, whose world hashes equal the T-306 row's), with a read-only probe of the instrument that logs, for every wild attack on a dwarf, the job it held, its behavior, and the last patient job it claimed with the distances from it and from the attacker to that patient ([rows](../../../reports/data/2026-10-16-t307-step1-wildlife.json), [attacks](../../../reports/data/2026-10-16-t307-step1-attacks.jsonl), [probe](../../../reports/data/2026-10-16-t307-step1-probe.patch.txt)):
+
+- 16 dwarves die of wildlife, all of bleeding (forest 2: 4, forest 3: 9 and extinct, forest 4: 2, taiga 2: 1).
+- At the first blow 14 were in `flee`, one in `need`, one on `duty`; none held a job.
+- One of the 16 had claimed a patient job in the 600 ticks before it was hit (forest 3, day 45, `stop_bleeding` 18 ticks earlier), 24 tiles from its patient, with the boar 23 tiles from the patient. None was within `THREAT_RADIUS` of its patient or of the patient's attacker.
+
+So link 7 does not appear in the current cohort: the forest-2 wolf cascade of the source trace no longer happens since T-211, and the deaths are dwarves caught while fleeing. The first rule of step 2 costs patients whose attacker stays beside them (`defence_year`, measured 2026-10-13) and nothing here says it would save anyone. No rule is added. The task is parked until a measurement shows a medic or carrier wounded near its patient's attacker; the stepped test of the 2026-10-13 patch is the reproduction to start from. Step 3 (the squad's kill orders in the fixture's response) is fixture work, not a game fault, and is not done.

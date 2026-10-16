@@ -1,6 +1,8 @@
 # T-336 — A hospital chest built after its zone is never stocked
 
-**Source:** T-330, the hospital player path ([`../../test/scenarios/pp_hospital.scenario.ts`](../../test/scenarios/pp_hospital.scenario.ts)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-16, in f75fb33.
+
+**Source:** T-330, the hospital player path ([`../../test/scenarios/pp_hospital.scenario.ts`](../../../test/scenarios/pp_hospital.scenario.ts)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## The fault
 

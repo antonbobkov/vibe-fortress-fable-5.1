@@ -139,6 +139,11 @@ export class Hauling {
     }
   }
 
+  /** A stockpile gained a slot (a built container, a container hauled in): `noHome` returns to the set. */
+  slotsGained(): void {
+    for (const id of this.noHome.splice(0)) sortedInsert(this.wants, id);
+  }
+
   /** A stockpile was created, changed or removed: `noHome` returns to the set; its own items are looked at again. */
   stockpileChanged(spId: EntityId, tiles: readonly TileIndex[]): void {
     for (const id of this.noHome.splice(0)) sortedInsert(this.wants, id);
@@ -414,8 +419,11 @@ export class Hauling {
       }
     }
     else if (typeof merge === 'number' && merge !== 0) core.merge(merge, id);
+    // A container brought into a stockpile gives it slots.
+    const containerIn = this.host.store.incomingContainers.has(id) && core.container(id) !== undefined;
     this.endJob(job.data, id);
     if (core.isItem(id)) this.examine(id);
+    if (containerIn) this.slotsGained();
   }
 
   /** A haul job ended (done or cancelled): its slot and any incoming-container mark are released. */

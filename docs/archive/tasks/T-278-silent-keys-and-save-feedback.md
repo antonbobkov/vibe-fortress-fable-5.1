@@ -1,6 +1,8 @@
 # T-278 — Keys that do nothing say why; saving says "Saved"
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 8, § 5) · **Size:** S · **Needs:** T-273 (`src/ui/panels/military.ts`), T-276 (`src/ui/panels/orders.ts`) · **Status:** open
+**Closed:** 2026-10-16, in 3fa08ba, d57defa.
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (issue 8, § 5) · **Size:** S · **Needs:** T-273 (`src/ui/panels/military.ts`), T-276 (`src/ui/panels/orders.ts`) · **Status:** open
 
 ## Why
 
@@ -12,8 +14,8 @@ Default embark. Military with no squad: `v`, `Shift+K` (capture 5/53, 5/54). `+`
 
 ## What the spec says
 
-- [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules: a refusal names the thing and why.
-- [`panels.md`](../04-implementation/ui-screens/panels.md) § Military and § Orders; the game menu's screen document under [`../04-implementation/ui-screens/`](../04-implementation/ui-screens/).
+- [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules: a refusal names the thing and why.
+- [`panels.md`](../../04-implementation/ui-screens/panels.md) § Military and § Orders; the game menu's screen document under [`../04-implementation/ui-screens/`](../../04-implementation/ui-screens).
 
 ## What to do
 
@@ -35,7 +37,7 @@ Default embark. Military with no squad: `v`, `Shift+K` (capture 5/53, 5/54). `+`
 ## Done
 
 - Every step of the reproduction shows its line.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
 
 ## Decisions made in the work
 

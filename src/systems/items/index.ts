@@ -295,6 +295,10 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     } else if (event.type === 'BuildingCompleted') {
       // 14 § Value: "Each built building contributes `materialValue + type.valueBonus`".
       core.buildingWealth += typeof event['value'] === 'number' ? (event['value'] as number) : 0;
+      // A built container in a stockpile or hospital (a hospital's chest) gives it slots.
+      const building = core.host.entities.get(event['id'] as number, C.Building);
+      if (building !== undefined && building.itemId !== 0 && core.container(building.itemId) !== undefined &&
+        building.footprint.some((t) => this.stockpiles.stockpileAt(t) !== 0)) this.hauling.slotsGained();
     } else if (event.type === 'BuildingRemoved') {
       core.buildingWealth -= typeof event['value'] === 'number' ? (event['value'] as number) : 0;
     } else if (event.type === 'ZoneChanged') {

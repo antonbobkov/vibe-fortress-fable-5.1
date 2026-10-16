@@ -1,6 +1,8 @@
 # T-280 — Sidebar text is never cut without a mark; Help wraps and starts with how to begin
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 10, § 6, § 8 d) · **Size:** M · **Needs:** T-249 and T-270 (both change `src/ui/panels/designate.ts`) · **Status:** open
+**Closed:** 2026-10-16, in 67200a3, 542d5f4.
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (issue 10, § 6, § 8 d) · **Size:** M · **Needs:** T-249 and T-270 (both change `src/ui/panels/designate.ts`) · **Status:** open
 
 ## Why
 
@@ -12,8 +14,8 @@ Default embark, 1280×800. `d` (capture 4/13, `13-B-designate-1280x800.png`). `?
 
 ## What the spec says
 
-- [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules: cut text is marked with `»` and has a tooltip with the whole text.
-- [`panels.md`](../04-implementation/ui-screens/panels.md) § Designate and § Help; [`fortress-screen.md`](../04-implementation/ui-screens/fortress-screen.md) § Log strip.
+- [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules: cut text is marked with `»` and has a tooltip with the whole text.
+- [`panels.md`](../../04-implementation/ui-screens/panels.md) § Designate and § Help; [`fortress-screen.md`](../../04-implementation/ui-screens/fortress-screen.md) § Log strip.
 
 ## What to do
 
@@ -34,7 +36,7 @@ Default embark, 1280×800. `d` (capture 4/13, `13-B-designate-1280x800.png`). `?
 ## Done
 
 - At 1280×800 no label in Designate or Help is cut, and the first hint is whole.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite; moved render goldens are explained.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite; moved render goldens are explained.
 
 ## Decisions made in the work
 

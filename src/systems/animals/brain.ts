@@ -115,7 +115,7 @@ function speciesOf(host: BrainHost, id: EntityId): number {
   return host.entities.get(id, C.Creature)?.species ?? 0;
 }
 
-function movementClassOf(host: BrainHost, id: EntityId): MovementClass {
+export function movementClassOf(host: BrainHost, id: EntityId): MovementClass {
   return host.entities.get(id, C.Motion)?.movementClass ?? 'walker';
 }
 

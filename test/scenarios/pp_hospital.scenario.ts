@@ -33,8 +33,6 @@ const scenario: Scenario = {
   milestone: 8,
   seed: 'pp-hospital',
   world: 'flat-test',
-  // The chest is built after the cloth was first found homeless, and nothing looks at it again.
-  todo: 'T-336',
   timeoutMs: 300_000,
   run: () => {
     const w = pathWorld('pp-hospital');

@@ -1,6 +1,10 @@
 # T-338 — CreatureDied fires twice for a dead pasture animal
 
-**Source:** T-330, seen in the pasture player path ([`../../test/scenarios/pp_pasture.scenario.ts`](../../test/scenarios/pp_pasture.scenario.ts)), not traced · **Size:** S · **Needs:** — · **Status:** open (diagnosis first)
+**Closed:** 2026-10-16.
+
+> **Closed as not reproduced (orchestrator, 2026-10-16).** The simulation agent ran pp_pasture without the T-335 fix and a unit starvation test: exactly one CreatureDied per starved grazer (6 for 6). Reopen as a new task with a trace if it is seen again.
+
+**Source:** T-330, seen in the pasture player path ([`../../test/scenarios/pp_pasture.scenario.ts`](../../../test/scenarios/pp_pasture.scenario.ts)), not traced · **Size:** S · **Needs:** — · **Status:** open (diagnosis first)
 
 ## Why
 
