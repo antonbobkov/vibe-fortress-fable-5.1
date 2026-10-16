@@ -2,6 +2,10 @@
 
 **Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (causes 7 to 11, § Not established) · **Size:** M · **Needs:** T-144, T-188 · **Status:** open (script done; two Done items unmet, see § Progress)
 
+## Re-measure, 2026-10-16 (`a2444a5`, after T-301, T-211, T-305, T-306, T-302, T-303, T-335 to T-337)
+
+- 2026-10-16: `three_years_main` once ([data](../../reports/data/2026-10-16-t145-three-years-main.txt), 963 s): **63 dwarf deaths, all starvation, days 322–326; extinct on day 336.** None to wild animals, bleeding or infection (boars, a badger and a lynx were on the map at times; the alert was `calm` at every 28-day sample). Population 7 / 14 / 43 / 55 / 63 on days 28 / 112 / 224 / 252 / 308; meal and drink stocks were 0 on day 252 and again on day 308. Every other assertion before it holds (mood floors, thought caps, recipe witnesses, engraving, a trade at every visit). "No dwarf died" does not hold: the bleeding deaths of gap 1 are gone, and gap 2 (the farm and kitchens do not follow 40 to 60 dwarves) now kills the whole fortress in the main seed. The other Done items are not met either: the peril-0 sweep was not run, and B-008 … B-012 are not read. No assertion was changed (T-334 decides whether "no dwarf died" stays a gate).
+
 ## Progress (2026-10-12, branch `t-145`)
 
 The six fixture files of `f-17` are ported by hand and the Decision list is applied; the measurements are in [the report](../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md). Six of the eight allowed three-year runs were made, then the sweep and the mood instrument once each.
