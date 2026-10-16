@@ -1,6 +1,8 @@
 # T-335 — Grazers starve beside a pasture tile they cannot reach
 
-**Source:** T-330, the pasture player path ([`../../test/scenarios/pp_pasture.scenario.ts`](../../test/scenarios/pp_pasture.scenario.ts)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-16, in d668d77.
+
+**Source:** T-330, the pasture player path ([`../../test/scenarios/pp_pasture.scenario.ts`](../../../test/scenarios/pp_pasture.scenario.ts)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## The fault
 
