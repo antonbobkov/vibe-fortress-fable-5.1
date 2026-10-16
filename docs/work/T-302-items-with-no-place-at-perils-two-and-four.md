@@ -38,3 +38,9 @@ The invariant `item.nowhere` of `test/scenarios/invariants.ts` (T-176): an item 
 ## Done
 
 - No `item.nowhere` finding in the thirteen seeds, or the invariant says why such an item is allowed.
+
+## Cause and result, 2026-10-16
+
+Cause (traced on `three-years-p4-5` at `30c2c80`): a Gloam thief escapes with a bag or a barrel. `ThiefEscaped` destroys the container (`src/systems/items/index.ts:281`), and `items.destroy` put its contents on the container's tile, which is -1 once the thief has left the map, so the brightleaf and the drink inside were left with no place. Decision: a container that leaves the map with its holder takes its contents, destroyed with its reason (13 § Containers in play), fixed in `1094c22` with `test/unit/items/t302-stolen-container.test.ts`.
+
+The thirteen seeds again, with the probe in [the data](../../reports/data/2026-10-16-peril-2-4-invariant-probe.txt): no `item.nowhere` finding in any seed (p2-1 and p2-5 to day 220, the other eleven to day 130; the original findings fell between day 59 and day 124). One other finding remains, `creature.on-impassable` in p4-1 on day 119, which is T-303's.
