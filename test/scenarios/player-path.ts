@@ -140,25 +140,34 @@ export function zoneRect(w: TestWorld, type: string, x0: number, y0: number, z: 
 }
 
 /**
- * Designate a stairwell from the surface down to the first level of stone, as a player reads the
- * layers on the map: at (x, y), or at the nearest column the game accepts it on (not a tree, not
- * water). `below` is the soil level just under the surface.
+ * Designate a stairwell from the surface down to `bottom(x, y, top)` at (x, y), or at the nearest
+ * column the game accepts it on (not a tree, not water), as a player moves the cursor over.
  */
-export function stairToRock(w: TestWorld, x: number, y: number): { sx: number; sy: number; top: number; below: number; rockZ: number } {
-  const materials = w.game.registry.table<{ id: string; class: string }>('materials');
+export function stairDown(w: TestWorld, x: number, y: number, bottom: (x: number, y: number, top: number) => number): { sx: number; sy: number; top: number; zBottom: number } {
   for (let r = 0; r < 6; r += 1) {
     for (let dy = -r; dy <= r; dy += 1) for (let dx = -r; dx <= r; dx += 1) {
       if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
       const sx = x + dx, sy = y + dy;
       const top = surfaceZ(w, sx, sy);
-      let rockZ = top - 1;
-      while (rockZ > 1 && materials.byIndex(w.map.materialAt(w.index(sx, sy, rockZ)))?.class === 'soil') rockZ -= 1;
-      if (w.game.world.applyCommand({ type: 'DesignateStairwell', x: sx, y: sy, zTop: top, zBottom: rockZ }).ok) {
-        return { sx, sy, top, below: top - 1, rockZ };
-      }
+      const zBottom = bottom(sx, sy, top);
+      if (w.game.world.applyCommand({ type: 'DesignateStairwell', x: sx, y: sy, zTop: top, zBottom }).ok) return { sx, sy, top, zBottom };
     }
   }
-  throw new Error(`stairToRock: no stairwell near (${x}, ${y})`);
+  throw new Error(`stairDown: no stairwell near (${x}, ${y})`);
+}
+
+/**
+ * A stairwell from the surface down to the first level of stone, as a player reads the layers on
+ * the map. `below` is the soil level just under the surface.
+ */
+export function stairToRock(w: TestWorld, x: number, y: number): { sx: number; sy: number; top: number; below: number; rockZ: number } {
+  const materials = w.game.registry.table<{ id: string; class: string }>('materials');
+  const { sx, sy, top, zBottom } = stairDown(w, x, y, (sx, sy, top) => {
+    let rockZ = top - 1;
+    while (rockZ > 1 && materials.byIndex(w.map.materialAt(w.index(sx, sy, rockZ)))?.class === 'soil') rockZ -= 1;
+    return rockZ;
+  });
+  return { sx, sy, top, below: top - 1, rockZ: zBottom };
 }
 
 /** The tiles of a rectangle on one level. */
@@ -228,5 +237,6 @@ export function trace(w: TestWorld, label: string): string {
 
 /** The invariant checker at the end of a player path. */
 export function expectNoInvariantFindings(w: TestWorld, label: string): void {
-  expect(checkInvariants(w.game), `${label} invariants`).toEqual([]);
+  const findings = checkInvariants(w.game);
+  expect(findings, `${label} invariants: ${JSON.stringify(findings)}`).toEqual([]);
 }

@@ -8,7 +8,7 @@ Each production chain of the game has one scenario that plays it from player com
 | Drink | plants brewed in a still into barrels and drunk | [`pp_drink`](../../test/scenarios/pp_drink.scenario.ts): the wagon's drink forbidden, a carpenter making barrels, a still brewing the wagon's dimcaps; a dwarf drinks the brew on day 2 |
 | Crafts and forge | ore mined, smelted, forged, and the goods stored | none yet |
 | Hospital | a wounded dwarf diagnosed and treated with supplies hauled into the hospital chest | fails: [T-336](../work/T-336-hospital-chest-never-stocked-from-the-wagon.md). [`pp_hospital`](../../test/scenarios/pp_hospital.scenario.ts): a hospital zone with a bed and a carpenter-made chest; the wagon's cloth and thread never reach the chest in 28 days |
-| Trade | goods hauled to the depot, a broker trading with a caravan | none yet |
+| Trade | goods hauled to the depot, a broker trading with a caravan | [`pp_trade`](../../test/scenarios/pp_trade.scenario.ts): a depot, the mason as broker, the wagon's bars, mechanism and leather sold to the Hillfolk (their arrival brought forward to day 6) for a cloak that is hauled to the stockpile on day 6 |
 | Defence | a squad equipped from the stockpile, answering an alert and killing a hostile animal | none yet |
 | Pasture | tame grazers fed on a pasture zone through a season | fails: [T-335](../work/T-335-grazers-starve-beside-unreachable-pasture-grass.md). [`pp_pasture`](../../test/scenarios/pp_pasture.scenario.ts): the Farmstead's six grazers on a 320-tile meadow pasture; all starve by day 12 beside a grass tile they cannot reach |
 
