@@ -120,8 +120,8 @@ const CAVE_STRIPS: readonly (readonly [number, number, number, number])[] = [[7,
 /** Free cave seed that justifies digging another cave strip. */
 const CAVE_STRIP_SEED = 12;
 const USEFUL_SEED: ReadonlySet<string> = new Set([...SURFACE_CROPS.flat(), ...CAVE_CROPS]);
-/** The larder beside the pantry, on the hall level (x0, x1, y0, y1 from the centre): food, then drink; every tile holds a barrel. */
-const LARDER: readonly (readonly [number, number, number, number])[] = [[-12, -1, 0, 2], [-12, -9, 3, 5]];
+/** The larder beside the pantry, on the hall level (x0, x1, y0, y1 from the centre): 72 tiles of food, then 12 of drink; every tile holds a barrel. */
+const LARDER: readonly (readonly [number, number, number, number])[] = [[-12, -1, -3, 2], [-12, -9, 3, 5]];
 /** The drink stockpiles of the opening (13 tiles at most), counted in the barrels they want. */
 const DRINK_STOCKPILE_TILES = 12;
 /** Easy meals in stock before the kitchen turns to lavish meals first. */
@@ -1052,7 +1052,9 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     // From the second season, barrels for every larder tile and three weeks of drink, and a few
     // spare for the still; the first season's carpenter has the beds and the squad's gear to make.
     const population0 = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
-    const threshold = day < 2 * 28 ? 20 : Math.min(160, Math.max(20, foodBarrels + Math.ceil(population0 * 0.77 * DRINK_DAYS / 20) + 6));
+    // The brew stays in its barrel at the still (T-361), so the barrels that hold drink are made
+    // on top of those the stockpiles want, or the drink stockpiles are left with none.
+    const threshold = day < 2 * 28 ? 20 : Math.min(200, Math.max(20, foodBarrels + Math.ceil(Math.max(items.count('drink'), population0 * 0.77 * DRINK_DAYS) / 20) + 10));
     if (barrels >= 0 && orders()[barrels]!.threshold !== threshold) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: carpenter, index: barrels, patch: { threshold } });
     // Beds come before barrels until every dwarf and the hospital has one.
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
