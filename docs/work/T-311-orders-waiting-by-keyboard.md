@@ -19,3 +19,9 @@ The Jobs panel lists up to three work orders that no job serves, and a click on 
 ## Done
 
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+
+## Decisions made in the work
+
+- The cursor on a waiting row is drawn inverted with a `►` in the margin; the job list keeps its own highlight, since the detail line under the list still follows it.
+- The section title reads "Orders waiting (n) [Tab]" so the key is found; `Tab` is the sidebar key again when no order waits.
+- Only three rows show; the window follows the cursor, so a fourth or later order is reached by `↓`.

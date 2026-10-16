@@ -171,6 +171,7 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     for (const key of BUILDING_HELP_KEYS) out.push({ category: 'building', text: strings.get(key) });
     out.push({ category: 'jobs', text: strings.get('ui.help.jobs.title'), heading: true });
     out.push({ category: 'jobs', text: strings.get('ui.help.jobs.filter') });
+    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.waiting') });
     out.push({ category: 'jobs', text: strings.get('ui.help.jobs.labor', { key: acceleratorLabel('l', keymap.panelLetters()) }) });
     out.push({ category: 'jobs', text: strings.get('ui.help.jobs.state', { key: acceleratorLabel('s', keymap.panelLetters()) }) });
     out.push({ category: 'stocks', text: strings.get('ui.help.stocks.title'), heading: true });
