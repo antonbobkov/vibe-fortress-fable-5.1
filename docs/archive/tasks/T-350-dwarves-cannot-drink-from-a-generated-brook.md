@@ -1,6 +1,8 @@
 # T-350 — Dwarves cannot drink from a generated brook or river
 
-**Source:** T-145's food-chain diagnosis, [`../../reports/audits/2026-10-16-t145-food-chain-diagnosis.md`](../../reports/audits/2026-10-16-t145-food-chain-diagnosis.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-16, in 1bf4baf, f59c685, 3f28cd1.
+
+**Source:** T-145's food-chain diagnosis, [`../../reports/audits/2026-10-16-t145-food-chain-diagnosis.md`](../../../reports/audits/2026-10-16-t145-food-chain-diagnosis.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## What was found
 
