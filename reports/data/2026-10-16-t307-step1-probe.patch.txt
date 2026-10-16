@@ -1,0 +1,46 @@
+# T-307 step 1 probe, 2026-10-16: test/perf/wildlife_year_fixture.ts with read-only logging (copied to probe_wy_fixture.ts; wildlife_year.test.ts copied to probe-wy.test.ts importing it). Run: WILDLIFE_YEAR_OUT=.vite/wy.json npm exec -- vitest run -c vitest.perf.config.ts test/perf/probe-wy.test.ts
+--- test/perf/wildlife_year_fixture.ts	2026-10-15 19:35:08.463762800 -0700
++++ test/perf/probe_wy_fixture.ts	2026-10-15 23:35:15.376366900 -0700
+@@ -80,6 +80,7 @@
+     stocks: { drink: 0, meal: 0, plantFood: 0 }, harvests: 0, hunts: 0, hash: '',
+     setup: { caveDepth: Math.min(2, spec.soilDepth - 1), surfacePlots: [], caveTiles: 0, buildings: [], commands: 0 } };
+   const knownWild = new Map<number, string>();
++  const lastCare = new Map<number, { tick: number; type: string; patient: number }>();
+   let attacked = false;
+   let lastThreat = 0;
+   let level = 'calm';
+@@ -93,6 +94,10 @@
+         result.spawns[name] = (result.spawns[name] ?? 0) + 1;
+       } else if (event.type === 'ImmigrantsArrived') result.arrivals += Number(event['count']);
+       else if (event.type === 'Starving') result.starving += 1;
++      else if (event.type === 'JobClaimed' && /^(stop_bleeding|set_bone|suture|clean_wound|dress_burn|carry_patient|feed_patient|water_patient|diagnose|give_crutch)$/.test(String(event['jobType']))) {
++        const tgt = event['target'] as { kind?: string; ref?: number } | number | undefined;
++        lastCare.set(Number(event['workerId']), { tick: game.tick, type: String(event['jobType']), patient: typeof tgt === 'object' && tgt !== null ? Number(tgt.ref ?? 0) : Number(tgt ?? 0) });
++      }
+       else if (event.type === 'CropHarvested') result.harvests += 1;
+       else if (event.type === 'HuntKill') result.hunts += 1;
+       else if (event.type === 'AttackResolved' && animals.isWild(Number(event['attackerId'])) && !animals.isWild(Number(event['defenderId']))) {
+@@ -101,6 +106,23 @@
+         const victim = Number(event['defenderId']);
+         const brain = entities.get(victim, C.Brain);
+         const at = game.movement.tileOf(victim);
++        if (entities.has(victim, C.Labors)) {
++          const job = world.readers.of<{ forWorker(id: number): { key: string; type?: string; target: { kind: string; ref: number }; state: string } | undefined }>('11').forWorker(victim);
++          let dist = -1;
++          if (job && job.target.kind === 'entity') {
++            const pt = game.movement.tileOf(job.target.ref);
++            if (pt >= 0 && at >= 0) dist = Math.max(Math.abs(map.xOf(at) - map.xOf(pt)), Math.abs(map.yOf(at) - map.yOf(pt))) + 100 * Math.abs(map.zOf(at) - map.zOf(pt));
++          }
++          const care = lastCare.get(victim);
++          let careDist = -1, attackerToPatient = -1;
++          if (care !== undefined && care.patient !== 0) {
++            const pt = game.movement.tileOf(care.patient), att = game.movement.tileOf(Number(event['attackerId']));
++            const cheb = (a: number, b: number): number => Math.max(Math.abs(map.xOf(a) - map.xOf(b)), Math.abs(map.yOf(a) - map.yOf(b))) + 100 * Math.abs(map.zOf(a) - map.zOf(b));
++            if (pt >= 0 && at >= 0) careDist = cheb(at, pt);
++            if (pt >= 0 && att >= 0) attackerToPatient = cheb(att, pt);
++          }
++          console.log(`[t307] ${JSON.stringify({ seed, tick: game.tick, victim, attacker: Number(event['attackerId']), job: job?.key ?? '', state: job?.state ?? '', behavior: brain?.behavior ?? '', patient: entities.has(victim, C.Patient), dist, care: care ? { since: game.tick - care.tick, type: care.type, patient: care.patient, careDist, attackerToPatient } : null })}`);
++        }
+         if (entities.has(victim, C.Labors) && brain?.activity === 'sleep') {
+           const nearby = living().filter((id) => {
+             const other = game.movement.tileOf(id);
