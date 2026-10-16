@@ -29,6 +29,23 @@ describe('T-350 a dwarf drinks from the bank above a brook', () => {
     expect(w.events('DrankWater').some((e) => e['id'] === id)).toBe(true);
   });
 
+  it('does not drink through a floor or a wall over the water', () => {
+    // Water one level down with the surface floor left over it, and the same under rock: a dug
+    // floor beside the covered tile is no bank.
+    const w = new TestWorld({ seed: 't350-covered', world: 'flat-test', embark: 'none' });
+    w.carve(w.index(20, 12, Z - 1), TileKind.Floor);
+    w.setFluid(w.index(20, 12, Z - 1), 7, 'water', true);
+    w.carve(w.index(30, 12, Z - 1), TileKind.Floor);
+    w.setFluid(w.index(30, 12, Z - 1), 7, 'water', true);
+    w.carve(w.index(30, 12, Z), TileKind.Wall);
+    const a = w.spawnDwarf({ at: w.index(21, 12, Z) });
+    const b = w.spawnDwarf({ at: w.index(31, 12, Z) });
+    w.setNeed(a, 'thirst', 55);
+    w.setNeed(b, 'thirst', 55);
+    w.step(200);
+    expect(w.events('DrankWater')).toEqual([]);
+  });
+
   it('on the three-year map, a dwarf with no drink in stock drinks from the brook', () => {
     const w = threeYearsWorld('three-years');
     const ent = w.game.world.entities;

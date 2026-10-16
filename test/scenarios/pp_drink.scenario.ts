@@ -87,8 +87,11 @@ const scenario: Scenario = {
     expect(units(), `the wagon's forbidden drink was left alone; ${summary}`).toBe(wagonUnits);
     expect(barrelled.size, `the brew stood in a barrel; ${summary}`).toBeGreaterThan(0);
     expect(finished, `a dwarf drank the brew by day ${DAYS_PER_SEASON}; ${summary}`).toBe(true);
-    // T-350: which dwarf a boar meets turns on the job timeline (testing-strategy.md § What may be a
-    // gate): the deaths are in the summary, and the chain's own outcome is that nobody dies of thirst.
+    // T-350: since dwarves can drink at the brook, they walk to its bank
+    // whenever no stocked barrel is in reach, and the whole timeline moved: a boar now kills a dwarf
+    // on day 15, hit while fleeing at (37, 26), away from the bank. Which dwarf a boar meets turns
+    // on that timeline (testing-strategy.md § What may be a gate), so the deaths are in the summary
+    // and the chain's own outcome is asserted: nobody dies of thirst or hunger.
     const dwarf = w.game.registry.table('creatures').index('dwarf');
     expect(w.events('CreatureDied').filter((e) => e['species'] === dwarf && e['cause'] === 'starvation').length, `no dwarf died of thirst or hunger; ${summary}`).toBe(0);
     expectNoInvariantFindings(w, `pp_drink day ${day(w)}`);

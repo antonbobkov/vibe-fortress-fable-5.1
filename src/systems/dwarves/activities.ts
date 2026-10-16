@@ -2,7 +2,7 @@
  * `algorithms/creature-brains.md` § startNeed. Plans are saved by 10. */
 import { C, type Brain, type Needs, type Relationships } from '@core/components';
 import { NEED_MAX, TICKS_PER_HOUR } from '@core/constants';
-import { FluidType, TileFlag } from '@core/map3d';
+import { FluidType, TileFlag, TileKind } from '@core/map3d';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
@@ -191,8 +191,10 @@ function water(ctx: TickContext, from: TileIndex, allowed: (tile: TileIndex) => 
         const wTile = m.index(wx, wy, z);
         if (m.fluidLevelAt(wTile) < 1 || m.fluidTypeAt(wTile) !== FluidType.Water || m.fluidFrozenAt(wTile)) continue;
 
-        for (const sz of [z, z + 1]) {
-          if (sz >= m.d) continue;
+        // The bank one level up reaches the water only through open air over it (as fishing's bank, 09).
+        const over = z + 1 < m.d ? m.index(wx, wy, z + 1) : -1;
+        const fromAbove = over >= 0 && m.kindAt(over) === TileKind.Open && m.fluidLevelAt(over) === 0;
+        for (const sz of fromAbove ? [z, z + 1] : [z]) {
           for (let sy = wy - 1; sy <= wy + 1; sy += 1) {
             if (sy < 0 || sy >= m.h) continue;
             for (let sx = wx - 1; sx <= wx + 1; sx += 1) {
