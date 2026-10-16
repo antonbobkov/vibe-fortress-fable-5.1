@@ -1,6 +1,8 @@
 # T-332 — Render goldens: assertions about meaning in place of full screens
 
-**Source:** the process review, [`../../reports/audits/2026-10-15-process-review.md`](../../reports/audits/2026-10-15-process-review.md) · **Size:** M · **Needs:** — · **Status:** open; after the UI batch in worktree `codexa` (the same tests)
+**Closed:** 2026-10-16, in 244d9c9, 6522fb5.
+
+**Source:** the process review, [`../../reports/audits/2026-10-15-process-review.md`](../../../reports/audits/2026-10-15-process-review.md) · **Size:** M · **Needs:** — · **Status:** open; after the UI batch in worktree `codexa` (the same tests)
 
 ## Why
 

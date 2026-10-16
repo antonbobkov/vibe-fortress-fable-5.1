@@ -29,7 +29,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-310 | [A scrollbar thumb can be dragged](work/T-310-scrollbar-thumb-drag.md) | T-270 | — | open |
 | T-311 | [The "Orders waiting" rows in Jobs can be reached by keyboard](work/T-311-orders-waiting-by-keyboard.md) | T-276 | — | open |
 | T-331 | [More invariants, checked in every scenario](work/T-331-invariants-in-every-scenario.md) | the process review, [`../reports/audits/2026-10-15-process-review.md`](../reports/audits/2026-10-15-process-review.md) | — | open; after the medicine batch in worktree `sim` (the same systems) |
-| T-332 | [Render goldens: assertions about meaning in place of full screens](work/T-332-fewer-full-screen-goldens.md) | the process review, [`../reports/audits/2026-10-15-process-review.md`](../reports/audits/2026-10-15-process-review.md) | — | open; after the UI batch in worktree `codexa` (the same tests) |
 | T-333 | [Mark the spec numbers nobody has measured](work/T-333-unmeasured-spec-numbers.md) | the process review, [`../reports/audits/2026-10-15-process-review.md`](../reports/audits/2026-10-15-process-review.md) | — | open |
 | T-334 | [Long chaotic runs report their figures and assert only what no reordering can flip](work/T-334-long-runs-as-reports.md) | the process review, [`../reports/audits/2026-10-15-process-review.md`](../reports/audits/2026-10-15-process-review.md) | — | open; after the T-145 re-measure in worktree `sim` |
 | T-312 | [KillRecorded's hostile flag is always false](work/T-312-kill-recorded-hostile-flag.md) | found during T-279 | — | open |
@@ -37,5 +36,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-336 | [A hospital chest built after its zone is never stocked](work/T-336-hospital-chest-never-stocked-from-the-wagon.md) | found by T-330 (the player paths) | — | open; with the simulation agent |
 | T-337 | [A builder is shut inside the workshop he finished](work/T-337-builder-shut-inside-a-finished-workshop.md) | found by T-330 (the player paths) | — | open; with the simulation agent |
 | T-338 | [CreatureDied fires twice for a dead pasture animal](work/T-338-creature-died-fires-twice.md) | found by T-330 (the player paths) | — | open (diagnosis first) |
+| T-340 | [The Depot panel names a stack of goods in the singular](work/T-340-depot-names-stacks-in-the-singular.md) | found in the T-332 review | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. B-008 through B-012 await T-145 (the fixture at default priorities) and, for survival with wildlife, T-214; their measurement journal is in the [decision archive](archive/decisions-archive.md).
