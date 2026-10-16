@@ -3,7 +3,7 @@ import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { TradeReader } from '@systems/trade';
 import type { ItemsReader } from '@systems/items';
-import { brokerOnWay, buildingName, tradeBlocked } from '../messages';
+import { brokerOnWay, buildingName, materialItemName, tradeBlocked } from '../messages';
 import type { Surface } from '../surface';
 import { label, type ListState, clampList } from '../widgets';
 import { buildings, type PanelContext } from './context';
@@ -67,7 +67,10 @@ export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: P
     const id = ids[index] as EntityId;
     const item = items.get(id);
     if (!item) continue;
-    const name = items.def(item.type)?.name ?? 'goods';
+    // The name the trade session gives the same stack: the material and the type, in the plural above one.
+    const type = ctx.registry.table<{ id: string; name: string; plural?: string }>('items').byIndex(item.type);
+    const material = ctx.registry.table<{ id: string; name: string }>('materials').byIndex(item.material)?.name ?? '';
+    const name = materialItemName(material, type ?? { name: items.def(item.type)?.name ?? 'goods' }, item.count);
     const value = civ ? trade.valuation(civ, id) : items.value(id);
     const row = rect.row + 1 + index - panel.list.scroll;
     label(s, col, row, `${index === panel.list.selected ? '▶' : ' '} ${item.count} ${name}  ${Math.round(value)} ☼`, { width });

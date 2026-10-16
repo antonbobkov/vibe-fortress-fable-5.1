@@ -9,9 +9,9 @@ A row of the Depot panel prints `{count} {item name}` with the item's singular n
 ## What to do
 
 **Decisions.**
-- The Depot row uses `pluralName` of `src/ui/messages.ts` for a count above one and the singular for one, as the trade session does.
+- The Depot row names a stack with `materialItemName` of `src/ui/messages.ts`, the call the trade session makes: the material and the item type's name, in the type's `plural` for a count above one and the singular for one. (`pluralName` is the creature rule and is not used for items; `24-ui-and-input.md` already says that every list that names items names them by material and type.)
 
-1. Amend `panels.md` § Depot if its wireframe shows the singular.
+1. `panels.md` § Depot and `24-ui-and-input.md` already say how items are named; no spec edit.
 2. Implement in `src/ui/panels/depot.ts`.
 3. Tests, `describe('T-340 …')`: a stack of ten and a stack of one in the Depot panel; extend `test/unit/ui/t332-panels-trade.test.ts` (its depot row reads "10 easy meals").
 
