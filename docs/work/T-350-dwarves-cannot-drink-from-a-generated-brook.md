@@ -17,7 +17,7 @@ So no generated brook or river can ever be drunk from: its banks are always one 
 
 ## Decision
 
-Decided now, under the ambiguity protocol's most conservative reading of the two documents: the drinking rule follows the map the generator makes. A water tile may also be drunk from a walkable tile 8-adjacent to the tile directly above it (one level up), when that tile above is `open` (nothing between the bank and the water's surface). The search ranks such a stand tile like any other, by its own position. Generation does not change, and the world hashes of generation stay as they are.
+The orchestrator's, 2026-10-16: a dwarf may drink from a water tile while standing on a walkable tile one level above it and horizontally adjacent (the bank over a brook cut), as well as from a walkable tile beside it on its own level. The stand tiles are ranked by their own position, as before. Generation does not change.
 
 ## What to do
 
