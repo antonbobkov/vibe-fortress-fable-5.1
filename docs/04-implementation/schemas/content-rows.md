@@ -74,7 +74,7 @@ interface SkillDef extends RowBase { labor: Id<LaborDef> | null; profession: str
 interface LaborDef extends RowBase { defaultOn: boolean; children: boolean }
 interface JobTypeDef extends RowBase {
   labor: Id<LaborDef> | 'recipe' | 'category'; skill: Id<SkillDef> | null; target: 'tile'|'entity'|'building'|'zone'|'pair';
-  workTile: 'adjacent'|'at'|'workshop'|'entity'|'ranged'|'slot'|'inside'; baseTicks: number | string; tool: 'pick'|'axe'|'ranged'|'bucket'|null;
+  workTile: 'adjacent'|'at'|'workshop'|'entity'|'ranged'|'slot'|'inside'; workshop?: string; baseTicks: number | string; tool: 'pick'|'axe'|'ranged'|'bucket'|null;
   xp: number; producer: string; interruptible: boolean;
 }
 

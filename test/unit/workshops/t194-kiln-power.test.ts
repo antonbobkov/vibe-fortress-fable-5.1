@@ -11,7 +11,7 @@ describe('T-194 the reserved magma kiln still recognizes its power source', () =
     const below = w.map.below(at);
     w.carve(below, TileKind.Open);
     w.setFluid(below, 7, 'magma', true);
-    const kiln = w.build('magma_kiln', at, 'granite');
+    const kiln = w.buildUnchecked('magma_kiln', at, 'granite');
     w.step(1);
     const reader = w.readers.of<WorkshopsReader>('12');
     expect(reader.recipesFor('magma_kiln')).toHaveLength(0);

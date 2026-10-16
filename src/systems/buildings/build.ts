@@ -364,12 +364,14 @@ export class BuildingStore {
   }
 
   /** `PlaceBuilding { buildingType, origin, orientation, materialChoice, priority }`; the new id through `placed`. */
-  place(cmd: Command, placed?: (id: EntityId) => void): CommandResult {
+  place(cmd: Command, placed?: (id: EntityId) => void, hasRecipes?: (workshopType: string) => boolean): CommandResult {
     const map = this.map;
     const typeRaw = cmd['buildingType'];
     const type = this.typeOf(typeof typeRaw === 'string' || typeof typeRaw === 'number' ? typeRaw : '');
     if (type === 0) return reject('not_found');
     const row = this.row(type);
+    // A workshop that no recipe names makes nothing, so it is not built (12: reserved workshops).
+    if (row.category === 'workshop' && hasRecipes !== undefined && !hasRecipes(row.id)) return reject('precondition_failed');
     const origin = cmd['origin'];
     if (typeof origin !== 'number' || !map.validIndex(origin)) return reject('out_of_bounds');
     const orientation = typeof cmd['orientation'] === 'number' ? cmd['orientation'] : 0;

@@ -156,6 +156,7 @@ Job producer `workshops` (`craft`); panel `orders`; inspector section `building 
 
 ## Player-facing behavior
 
+- The build menu lists a workshop only if a recipe names it or a job is worked at it (the butcher's shop and the kennel have jobs and no recipes), and `PlaceBuilding` refuses one that neither names ("Nothing can be made there yet."). A built workshop with no recipes shows its name, "No recipes in this version." and only `[x] take apart`.
 - Clicking a workshop opens its panel: the recipe list with "makeable now" marked, the order list with counts and status, the assigned worker, suspend (after a confirmation), take apart. `[S-n]`, or a click on a recipe, adds an order.
 - Orders panel: every order in the fortress with its count, mode and status ("waiting for log (0)", "no carpenter's workshop", "in progress", "done"); `+`/`-` change the selected order's count (`remaining`, or the threshold of a `keep ≥ N` order), `[r]` repeats the selected or the last finished order, `[S-n]` adds an order.
 - An order is accepted even when no workshop can make it yet; the status line names what is missing at once (no workshop of the type, or the input a built workshop waits for), and the Jobs panel lists the orders no job serves.

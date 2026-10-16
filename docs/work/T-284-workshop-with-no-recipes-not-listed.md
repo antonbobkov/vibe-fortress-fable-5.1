@@ -31,3 +31,9 @@ Read `src/ui/panels/build.ts:39-43` (`listed`). In play: Build › Workshops lis
 
 - No content id is named in `src/ui/panels/build.ts` for this rule, and the three tests pass.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+
+## Decisions made in the work
+
+- The rule is "category `workshop`, and no recipe names it and no job is worked at it" (`workshopHasWork` in `src/core/workshop-use.ts`). The work file's "at least one recipe" would have hidden the butcher's shop and the kennel, which have jobs and no recipes, so the jobs table now exports the workshop type of a job (`workshop (butcher)` in `jobs.md`) and the rule reads it; the wagon keeps its id check, since its content row only has the free-text `on` column.
+- `PlaceBuilding` is refused in 14 (`precondition_failed`, the line "Nothing can be made there yet." through the UI's rejection text). Tests that need the reserved kiln use `TestWorld.buildUnchecked`, which places through the store; the descent scenario does the same.
+- The kiln's panel is three lines (the building name with its ordinal, "No recipes in this version.", and `[x] take apart`) because the one-line form of the work file does not fit the 36-column sidebar.

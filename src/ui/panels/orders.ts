@@ -12,6 +12,7 @@ import type { Command } from '@core/commands';
 import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
 import type { GameEvent } from '@core/events';
 import type { EntityId } from '@core/types';
+import { workshopHasWork } from '@core/workshop-use';
 import type { Rect } from '@render/cellbuffer';
 import type { Rgb } from '@render/palette';
 import type { KeyPress } from '@platform/input';
@@ -611,6 +612,8 @@ export class OrdersPanel {
     const letter = accel(ctx, press);
     const action = WORKSHOP_KEYS[letter];
     if (action === undefined) return false;
+    // With no recipes there is only the one action.
+    if (building !== undefined && !workshopHasWork(ctx.registry, building.typeId, rows.length) && action !== 'deconstruct') return true;
     this.workshopAction(ctx, id, action, takeApart);
     return true;
   }
@@ -991,6 +994,13 @@ export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: O
     const click = run(action);
     return click === undefined ? { text } : { text, run: click };
   };
+  // A workshop that no recipe names (an old save's magma kiln) has nothing to offer but to be taken apart.
+  if (!workshopHasWork(ctx.registry, building.typeId, reader.recipesFor(building.typeId).length)) {
+    label(s, col, rect.row, buildingName(ctx, id), { fg: t.key, width });
+    label(s, col, rect.row + 1, strings.get('ui.workshop.no_recipes'), { fg: t.dim, width, keys: false });
+    actionRow(s, col, rect.row + 3, width, [part(strings.get('ui.workshop.deconstruct'), 'deconstruct')]);
+    return;
+  }
   label(s, col, rect.row, buildingName(ctx, id), { fg: t.key, width });
   const worker = workshop.assignedWorker === 0 ? strings.get('ui.workshop.any_worker') : ctx.readers.entities.get(workshop.assignedWorker, C.Creature)?.name ?? '?';
   label(s, col, rect.row + 1, strings.get('ui.workshop.worker', { name: worker }), { width });
