@@ -215,7 +215,7 @@ export class HealthProducer implements JobProducer {
                   count: 1,
                 },
               ],
-              data: { patient: patientId },
+              data: { patient: patientId, inputUnits: true },
             });
             break;
           case 'set_bone':
@@ -232,7 +232,7 @@ export class HealthProducer implements JobProducer {
                   count: 1,
                 },
               ],
-              data: { patient: patientId },
+              data: { patient: patientId, inputUnits: true },
             });
             break;
           case 'suture':
@@ -249,7 +249,7 @@ export class HealthProducer implements JobProducer {
                   count: 1,
                 },
               ],
-              data: { patient: patientId },
+              data: { patient: patientId, inputUnits: true },
             });
             break;
           case 'clean_wound': {
@@ -270,7 +270,7 @@ export class HealthProducer implements JobProducer {
               workTile: 'adjacent',
               priority: 3,
               inputs,
-              data: { patient: patientId },
+              data: { patient: patientId, inputUnits: true },
             });
             break;
           }
@@ -288,7 +288,7 @@ export class HealthProducer implements JobProducer {
                   count: 1,
                 },
               ],
-              data: { patient: patientId },
+              data: { patient: patientId, inputUnits: true },
             });
             break;
           case 'diagnose': {
@@ -366,7 +366,7 @@ export class HealthProducer implements JobProducer {
                 count: 1,
               },
             ],
-            data: { labor: 'animal_care', patient: animalId },
+            data: { labor: 'animal_care', patient: animalId, inputUnits: true },
           });
         }
       } else if (sink.exists(key)) {
