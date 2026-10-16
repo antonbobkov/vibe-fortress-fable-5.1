@@ -6,6 +6,10 @@ import type { HeadlessGame } from '@app/headless';
 import type { JobsReader } from '@systems/jobs/reader';
 import type { JobsSystem } from '@systems/jobs';
 import type { ItemsSystem } from '@systems/items';
+import type { DwarvesSystem } from '@systems/dwarves';
+import type { DefenseSystem } from '@systems/defense';
+import type { BuildingsReader } from '@systems/buildings/reader';
+import { BLOCKED_RETRY_TICKS } from '@systems/jobs/constants';
 
 export interface Finding {
   inv: string;
@@ -26,6 +30,8 @@ class Probe {
     { first: number; state: string; stateSince: number }
   >();
   private readonly reported = new Set<string>();
+  /** T-331: the tick a job was first seen blocked as unreachable although a path to it exists. */
+  private readonly blockedPath = new Map<number, number>();
   calmNoHostileAlertTicks = 0;
   lastTick = 0;
 
@@ -706,7 +712,9 @@ class Probe {
     }
     for (const id of ent.with(C.Building)) {
       const b = ent.get(id, C.Building)!;
-      if (b.ownerId !== 0 && !ent.alive(b.ownerId))
+      // 14 § Rooms and furniture: a coffin reserved for a dwarf stays reserved after the dwarf dies.
+      const buildingId = reg.table<{ id: string }>('buildings').byIndex(b.type)?.id ?? '?';
+      if (b.ownerId !== 0 && !ent.alive(b.ownerId) && buildingId !== 'coffin')
         this.hit(
           tick,
           'building.owner-dead',
@@ -787,6 +795,221 @@ class Probe {
         '-',
         `wealthCached=${f.wealthCached} spirit=${f.hallSpiritCached}`,
       );
+
+    this.checkHolders(game, jobById);
+    this.checkBlockedPaths(game);
+    this.checkContainerAccess(game);
+    this.checkPlaces(game);
+  }
+
+  /**
+   * T-331 (1): every reservation, claim and held job has a holder that is alive and is doing the
+   * thing it holds. The dead or missing job holders are reported by the job checks above; this adds
+   * the personal reservations of the dwarves' own plans, the held job of a worker whose brain is
+   * elsewhere, and the claim on a patient's bed.
+   */
+  private checkHolders(game: HeadlessGame, jobById: Map<number, { id: number; state: string; workerId: number }>): void {
+    const world = game.world;
+    const ent = world.entities;
+    const tick = world.calendar.tick;
+    const dwarves = world.scheduler.byId('10') as DwarvesSystem | undefined;
+    const plans = dwarves?.activities.plans;
+    const itemName = (t: number): string =>
+      game.registry.table<{ id: string }>('items').byIndex(t)?.id ?? `it${t}`;
+
+    for (const id of ent.with(C.Item)) {
+      const it = ent.get(id, C.Item)!;
+      if (it.reservedBy === 0 || jobById.has(it.reservedBy)) continue;
+      // Not a job: the personal reservation of a dwarf's hunger or thirst plan (10 reserves for the eater).
+      const holder = it.reservedBy;
+      if (!ent.alive(holder)) {
+        this.hit(
+          tick,
+          'holder.reservation-holder-gone',
+          itemName(it.type),
+          `item ${id} ${itemName(it.type)} reservedBy ${holder}, not alive`,
+          `i${id}`,
+        );
+      } else if (plans !== undefined && plans.get(holder)?.itemId !== id) {
+        this.hit(
+          tick,
+          'holder.reservation-elsewhere',
+          itemName(it.type),
+          `item ${id} ${itemName(it.type)} reservedBy dwarf ${holder}, whose plan is ${JSON.stringify(plans.get(holder) ?? null)}`,
+          `i${id}`,
+        );
+      }
+    }
+    for (const j of jobById.values()) {
+      if (j.workerId === 0 || !ent.alive(j.workerId)) continue;
+      const brain = ent.get(j.workerId, C.Brain);
+      if (brain !== undefined && brain.behavior !== 'work')
+        this.hit(
+          tick,
+          'holder.job-held-while-elsewhere',
+          `${brain.behavior}/${j.state}`,
+          `job ${j.id} ${j.state} held by ${j.workerId} whose behavior is ${brain.behavior} (${brain.activity})`,
+        );
+    }
+    for (const id of ent.with(C.Patient)) {
+      const bedId = ent.get(id, C.Patient)!.bedId;
+      if (bedId === 0) continue;
+      const bed = ent.get(bedId, C.Building);
+      const buildings = world.readers.has('14') ? world.readers.of<BuildingsReader>('14') : undefined;
+      if (bed === undefined)
+        this.hit(tick, 'holder.patient-bed-gone', '-', `patient ${id} bedId ${bedId} is not a building`, `p${id}/${bedId}`);
+      else if (buildings !== undefined && bed.state === 'built' && buildings.bedHolder(bedId) !== id)
+        this.hit(
+          tick,
+          'holder.patient-bed-held-by-other',
+          '-',
+          `patient ${id} bedId ${bedId} is held by ${buildings.bedHolder(bedId)}`,
+          `p${id}/${bedId}`,
+        );
+    }
+  }
+
+  /**
+   * T-331 (2): a job blocked as `unreachable` while a worker with its labor can reach one of its
+   * stand tiles is reopened by the next retry. One that stays blocked for more than a day with a
+   * path to its work tile is lost: the walk failed once and nothing ever tries it again.
+   */
+  private checkBlockedPaths(game: HeadlessGame): void {
+    const world = game.world;
+    const tick = world.calendar.tick;
+    const board = (world.scheduler.byId('11') as JobsSystem | undefined)?.board;
+    if (board === undefined) return;
+    const live = new Set<number>();
+    for (const job of board.jobs.values()) {
+      if (job.state !== 'blocked' || job.blockedReason !== 'unreachable') continue;
+      const labor = board.jobLabor(job);
+      const workers = board.workers().filter((w) => labor === 0 || board.laborEnabled(w, labor));
+      if (!workers.some((w) => board.hasReachableStand(job, w))) continue;
+      live.add(job.id);
+      // A walk that failed is never retried by the timer: its block began a retry interval before retryTick.
+      const since = job.failedWalk === true ? job.retryTick - BLOCKED_RETRY_TICKS : tick;
+      if (!this.blockedPath.has(job.id)) this.blockedPath.set(job.id, since);
+      const age = tick - Math.min(this.blockedPath.get(job.id)!, since);
+      if (age > TICKS_PER_DAY) {
+        const type = board.typeId(job);
+        this.hit(
+          tick,
+          'job.unreachable-with-path',
+          type,
+          `job ${job.id} ${type} blocked unreachable for ${age} ticks (failedWalk ${job.failedWalk === true}), target ${job.target.kind} ${job.target.ref}`,
+          `j${job.id}`,
+        );
+      }
+    }
+    for (const id of this.blockedPath.keys()) if (!live.has(id)) this.blockedPath.delete(id);
+  }
+
+  /**
+   * T-331 (3): a built container that holds items, or that lies in a stockpile or hospital zone and
+   * so offers slots, has a tile beside it (or under it) that a dwarf of the fortress can reach.
+   */
+  private checkContainerAccess(game: HeadlessGame): void {
+    const world = game.world;
+    const ent = world.entities;
+    const map = game.map;
+    const tick = world.calendar.tick;
+    const pathing = world.readers.pathing;
+    const labels = new Set<number>();
+    for (const id of ent.with(C.Labors)) {
+      const p = ent.get(id, C.Position);
+      if (p === undefined || !ent.alive(id)) continue;
+      const label = pathing.labelOf(map.index(p.x, p.y, p.z), 'walker');
+      if (label !== 0) labels.add(label);
+    }
+    if (labels.size === 0) return;
+    const zoned = new Set<number>();
+    for (const zid of ent.with(C.Stockpile)) for (const t of ent.get(zid, C.Zone)?.tiles ?? []) zoned.add(t);
+    const fortress = { faction: 'fortress' } as const;
+    for (const id of ent.with(C.Building)) {
+      const b = ent.get(id, C.Building)!;
+      if (b.state !== 'built' || b.itemId === 0) continue;
+      const container = ent.get(b.itemId, C.Container);
+      if (container === undefined) continue;
+      if (container.contents.length === 0 && !b.footprint.some((t) => zoned.has(t))) continue;
+      const tiles = new Set<number>();
+      for (const t of b.footprint) {
+        tiles.add(t);
+        for (const n of map.neighbors8(t)) tiles.add(n);
+      }
+      let reachable = false;
+      for (const t of tiles) {
+        if (!pathing.passable(t, 'walker', fortress)) continue;
+        if (labels.has(pathing.labelOf(t, 'walker'))) {
+          reachable = true;
+          break;
+        }
+      }
+      if (!reachable)
+        this.hit(
+          tick,
+          'container.no-work-tile',
+          container.classId,
+          `built ${container.classId} ${id} at ${b.origin} holds ${container.contents.length} items, no tile beside it that a dwarf reaches`,
+          `b${id}`,
+        );
+    }
+  }
+
+  /**
+   * T-331 (4): every item has a place. Beyond the direct link checked above, the place of what it
+   * lies in must itself be a place: a container that lies nowhere, a furniture item that no
+   * building owns, or a carrier that is not a creature leaves its contents nowhere.
+   */
+  private checkPlaces(game: HeadlessGame): void {
+    const world = game.world;
+    const ent = world.entities;
+    const tick = world.calendar.tick;
+    const linked = new Set<number>();
+    for (const id of ent.with(C.Building)) {
+      const b = ent.get(id, C.Building)!;
+      if (b.itemId !== 0) linked.add(b.itemId);
+    }
+    // A trap holds its loaded stone, weapons or cage as installed items, in 19's trap records.
+    const defense = world.scheduler.byId('19') as DefenseSystem | undefined;
+    for (const trap of defense?.traps.values() ?? []) for (const item of trap.loaded) linked.add(item);
+    const wearers = new Set<number>();
+    for (const id of ent.with(C.Equipment)) {
+      const eq = ent.get(id, C.Equipment)!;
+      for (const v of [eq.weapon, eq.shield, eq.quiver, ...Object.values(eq.armor), ...Object.values(eq.clothing)])
+        if (v !== 0) wearers.add(v);
+    }
+    const placed = (start: number): string | null => {
+      let id = start;
+      for (let depth = 0; depth < 9; depth += 1) {
+        if (ent.has(id, C.Building) && !ent.has(id, C.Item)) return null; // the wagon holds its own contents
+        const p = ent.get(id, C.Position);
+        if (p !== undefined) return world.map.inBounds(p.x, p.y, p.z) ? null : `${id} is out of bounds`;
+        const it = ent.get(id, C.Item);
+        if (it === undefined) return ent.alive(id) && ent.has(id, C.Creature) ? null : `${id} is not an item`;
+        if (it.containerId !== 0) {
+          id = it.containerId;
+          continue;
+        }
+        if (it.carriedBy !== 0) {
+          if (!ent.alive(it.carriedBy)) return `carrier ${it.carriedBy} is not alive`;
+          return null;
+        }
+        if (wearers.has(id)) return null;
+        if ((it.flags & ItemFlag.Installed) !== 0) return linked.has(id) ? null : `installed item ${id} has no building`;
+        return `${id} lies nowhere`;
+      }
+      return `chain of ${start} is too deep or a cycle`;
+    };
+    for (const id of ent.with(C.Item)) {
+      const why = placed(id);
+      if (why !== null) {
+        const it = ent.get(id, C.Item)!;
+        // A free item with no link at all is reported once by `item.nowhere`.
+        if (it.containerId === 0 && it.carriedBy === 0 && ent.get(id, C.Position) === undefined && !wearers.has(id) && (it.flags & ItemFlag.Installed) === 0)
+          continue;
+        this.hit(tick, 'item.no-place', why.replace(/\d+/g, 'N'), `item ${id}: ${why}`, `i${id}`);
+      }
+    }
   }
 
   report(): string {
@@ -835,6 +1058,36 @@ export function checkInvariants(game: HeadlessGame): Finding[] {
   const probe = probeOf(game);
   probe.check(game);
   return [...probe.findings.values()];
+}
+
+/**
+ * T-331: the findings every scenario must end without, the four invariants about holders and places.
+ * The rest of the T-176 checker stays with the long fixtures and the scenarios that opt in: many
+ * short scenarios stage equipment, creatures and terrain by hand in ways it rejects.
+ *  1. no reservation, claim or held job whose holder is dead, gone or doing something else;
+ *  2. no job blocked unreachable for more than a day while a path to its work tile exists;
+ *  3. every built container with items or a stockpile slot has a reachable work tile;
+ *  4. every item has a place.
+ */
+export const SCENARIO_END_INVARIANTS: ReadonlySet<string> = new Set([
+  // 1
+  'job.worker-dead', 'job.worker-mismatch', 'job.worker-on-inactive-job', 'job.active-without-worker',
+  'worker.job-missing', 'worker.job-other-worker', 'job.reserved-item-missing', 'job.reserved-item-other-owner',
+  'item.reserved-by-missing-job', 'item.reserved-by-job-that-does-not-list-it', 'item.reserved-flag-mismatch',
+  'tame.assignee-dead', 'building.owner-dead', 'room.owner-dead', 'workshop.assigned-worker-dead', 'workshop.job-missing',
+  'holder.reservation-holder-gone', 'holder.reservation-elsewhere', 'holder.job-held-while-elsewhere',
+  'holder.patient-bed-gone', 'holder.patient-bed-held-by-other',
+  // 2
+  'job.unreachable-with-path',
+  // 3
+  'container.no-work-tile',
+  // 4
+  'item.nowhere', 'item.no-place', 'item.carrier-dead', 'item.container-missing', 'item.container-does-not-list',
+]);
+
+/** The findings of {@link SCENARIO_END_INVARIANTS} at this moment, for the end of every scenario. */
+export function checkScenarioEndInvariants(game: HeadlessGame): Finding[] {
+  return checkInvariants(game).filter((f) => SCENARIO_END_INVARIANTS.has(f.inv));
 }
 
 /** Observe every tick; run the full checker every 1,200 ticks, with no simulation writes. */

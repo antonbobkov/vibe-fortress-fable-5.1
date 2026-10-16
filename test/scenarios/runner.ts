@@ -8,7 +8,9 @@
 
 import { generatedSpec, regionSpec } from '@app/headless';
 import type { RegionRecord } from '@systems/worldgen';
+import { expect } from 'vitest';
 import { TestWorld } from './test-world';
+import { checkScenarioEndInvariants } from './invariants';
 import type { Command } from '@core/commands';
 import type { GameSystem } from '@core/system';
 
@@ -136,5 +138,11 @@ export function runScenario(scenario: Scenario): TestWorld {
   }
 
   scenario.expect?.(w);
+  // T-331: every scenario ends with the invariant checks. A scenario of stand-in systems has no
+  // jobs, items or buildings to check.
+  if (scenario.systems === undefined) {
+    const findings = checkScenarioEndInvariants(w.game);
+    expect(findings, `${scenario.id} ends with invariant findings: ${JSON.stringify(findings)}`).toEqual([]);
+  }
   return w;
 }
