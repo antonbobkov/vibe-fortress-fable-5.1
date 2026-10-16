@@ -143,7 +143,7 @@ findSlot(sp, it):
   return none
 ```
 
-Each items tick re-examines `noHome` when a previously full stockpile gains space, drops slot reservations whose job is gone, and requests one nearest free empty container per wanted class per stockpile, counting incoming containers. Empty wanted containers already on their stockpile are stored. Non-dwarf corpses with worn items get `strip_corpse`; destroyed item targets cancel their haul jobs with `target_gone`; removed destination stockpiles cancel their haul jobs with `target_invalid`.
+Each items tick re-examines `noHome` when a previously full stockpile gains space (and `BuildingCompleted` of a container on a stockpile or hospital tile, or a completed haul of a requested container, re-examines it at once), drops slot reservations whose job is gone, and requests one nearest free empty container per wanted class per stockpile, counting incoming containers. Empty wanted containers already on their stockpile are stored. Non-dwarf corpses with worn items get `strip_corpse`; destroyed item targets cancel their haul jobs with `target_gone`; removed destination stockpiles cancel their haul jobs with `target_invalid`.
 
 On delivery: `dropAt(it, slot.tile)`; fill `slot.container` only if it remains unreserved and in the destination stockpile. Otherwise leave the item on the delivery tile for ordinary hauling to reconsider. Merge identical stacks; release the slot reservation; re-examine the item for `wantsHauling`.
 

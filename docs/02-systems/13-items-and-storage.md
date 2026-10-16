@@ -86,7 +86,7 @@ Eggs reserved in nest boxes do not enter ordinary hauling. The `collect_egg` job
 Maintained incrementally, sorted by item id:
 
 - An item enters the set when it is created on the ground, dropped, released from a reservation, its stockpile is removed, or a stockpile's filter changes to include it.
-- It leaves when it is picked up for a job, put in an accepting stockpile slot, forbidden, destroyed, or when no stockpile accepts it (it is moved to a `noHome` set that is re-examined when any stockpile filter changes or a stockpile is created).
+- It leaves when it is picked up for a job, put in an accepting stockpile slot, forbidden, destroyed, or when no stockpile accepts it (it is moved to a `noHome` set that is re-examined when any stockpile filter changes, a stockpile is created, or a stockpile gains a slot: a full stockpile gains space, a container is built on a stockpile or hospital tile (a hospital's chest finished), or a hauled container arrives in its stockpile).
 - The 13 tick creates `haul_to_stockpile` jobs (through 11's sink) for up to `HAUL_JOBS_PER_TICK` items from the set that do not have a job yet, nearest accepting stockpile with a free slot first (by Chebyshev distance to the stockpile's centroid, then by stockpile priority).
 - When an item leaves the set because another job picked it up (a tool fetched, food eaten, an input delivered), an unclaimed haul, dump or strip job for it is cancelled (`target_invalid`).
 
