@@ -47,12 +47,17 @@ export function list(
   const thumb = s.glyphs.index('█');
   const thumbRow = Math.floor((state.scroll * (rect.rows - 1)) / Math.max(1, rows.length - rect.rows));
   const maxScroll = Math.max(0, rows.length - rect.rows);
+  // A press on the track jumps the list to that place and a drag along it follows the pointer; the
+  // scroll is proportional to the pointer's row and the selection stays inside the window.
+  const jump = (r: number): void => {
+    const at = Math.max(0, Math.min(rect.rows - 1, r));
+    state.scroll = Math.round((at * maxScroll) / Math.max(1, rect.rows - 1));
+    state.selected = Math.max(state.scroll, Math.min(state.scroll + rect.rows - 1, state.selected));
+  };
+  const trackRect = { col: rect.col + rect.cols - 1, row: rect.row, cols: 1, rows: rect.rows };
   for (let r = 0; r < rect.rows; r += 1) {
-    s.put(rect.col + rect.cols - 1, rect.row + r, r === thumbRow ? thumb : track, s.theme.border, s.theme.black);
-    // A click on the track jumps the list to that place; the selection stays inside the window.
-    s.hit({ col: rect.col + rect.cols - 1, row: rect.row + r, cols: 1, rows: 1 }, () => {
-      state.scroll = Math.round((r * maxScroll) / Math.max(1, rect.rows - 1));
-      state.selected = Math.max(state.scroll, Math.min(state.scroll + rect.rows - 1, state.selected));
-    });
+    s.put(trackRect.col, rect.row + r, r === thumbRow ? thumb : track, s.theme.border, s.theme.black);
+    s.hit({ col: trackRect.col, row: rect.row + r, cols: 1, rows: 1 }, () => jump(r));
   }
+  s.scrollbar(trackRect, (row) => jump(row - rect.row));
 }

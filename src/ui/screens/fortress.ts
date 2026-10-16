@@ -51,7 +51,7 @@ import { drawOverlaysPanel, OVERLAY_ROWS, OverlayMenu } from '../panels/overlays
 import { drawHelpPanel, HelpPanel, type HelpTab } from '../panels/help';
 import { DebugPanel, drawDebugPanel, type DebugHost } from '../panels/debug';
 import type { Strings } from '../strings';
-import { rowText, type Surface } from '../surface';
+import { rowText, type ScrollRegion, type Surface } from '../surface';
 import type { UiState } from '../ui-state';
 import { drawTooltip, editText, label, labelRow, typedChar } from '../widgets';
 import { blockedText, buildingName, commandFocus, pluralName, rejectionText, zoneName, zoneEditorMessage } from '../messages';
@@ -178,6 +178,8 @@ export class FortressScreen implements Screen {
   private message: { text: string; until: number } | null = null;
   /** A refused station or patrol tile put its notice up; the pointer moving takes it down so the prompt returns. */
   private pickRefused = false;
+  /** The scrollbar a held button is dragging, or null. */
+  private scrollDrag: ScrollRegion | null = null;
   private noticeGhost: string | null = null;
   private dragging = false;
   /**
@@ -1954,6 +1956,8 @@ export class FortressScreen implements Screen {
       this.clickShift = p.shift;
       clickHit(this.last, p);
       this.clickShift = false;
+      // A press on a list's scrollbar starts a drag of that list (T-310).
+      this.scrollDrag = p.button === 0 ? this.last?.scrollbarAt(p.col, p.row) ?? null : null;
       // § Mouse: "Double-click a unit or job row: center the map on it".
       if ((p.clicks ?? 1) >= 2) this.centerOnPanelRow();
       return;
@@ -2035,6 +2039,8 @@ export class FortressScreen implements Screen {
 
   pointerMove(p: CellPointer): void {
     this.pointer = { col: p.col, row: p.row };
+    // While the button is held on a scrollbar the list follows the pointer's row and the map is left alone.
+    if (this.scrollDrag !== null) { this.scrollDrag.set(p.row); return; }
     this.dropPickRefusal();
     const at = this.pointOfCell(p.col, p.row);
     this.hover = at === null ? null : this.tileOf(at);
@@ -2063,6 +2069,7 @@ export class FortressScreen implements Screen {
 
   pointerUp(p: CellPointer): void {
     this.pointer = { col: p.col, row: p.row };
+    if (this.scrollDrag !== null) { this.scrollDrag = null; return; }
     if (p.button === 1) {
       this.middle = null;
       return;

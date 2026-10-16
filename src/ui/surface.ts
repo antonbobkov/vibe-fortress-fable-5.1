@@ -122,6 +122,13 @@ export interface HitRegion {
   readonly action: () => void;
 }
 
+/** A scrollbar track: pressing on it, or dragging along it, sets the list's scroll from the pointer's row. */
+export interface ScrollRegion {
+  readonly rect: Rect;
+  /** Scroll the list to the place that screen row stands for (the row is clamped to the track). */
+  set(row: number): void;
+}
+
 /** One tooltip region: the cell bounds of a truncated widget and its full text. */
 export interface TooltipRegion {
   readonly rect: Rect;
@@ -130,6 +137,7 @@ export interface TooltipRegion {
 
 export class Surface {
   readonly hits: HitRegion[] = [];
+  readonly scrollbars: ScrollRegion[] = [];
   readonly tooltips: TooltipRegion[] = [];
 
   constructor(
@@ -203,6 +211,21 @@ export class Surface {
   /** Record a clickable region. */
   hit(rect: Rect, action: () => void): void {
     this.hits.push({ rect, action });
+  }
+
+  /** Record a scrollbar track (a list's last column). */
+  scrollbar(rect: Rect, set: (row: number) => void): void {
+    this.scrollbars.push({ rect, set });
+  }
+
+  /** The scrollbar track under a cell, if any. */
+  scrollbarAt(col: number, row: number): ScrollRegion | null {
+    for (let k = this.scrollbars.length - 1; k >= 0; k -= 1) {
+      const b = this.scrollbars[k] as ScrollRegion;
+      const r = b.rect;
+      if (col >= r.col && row >= r.row && col < r.col + r.cols && row < r.row + r.rows) return b;
+    }
+    return null;
   }
 
   /** The topmost region under a cell (the last drawn wins). */

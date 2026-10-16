@@ -19,3 +19,7 @@ A click on a list's scrollbar track jumps the list there. Dragging the thumb is 
 ## Done
 
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+
+## Decisions made in the work
+
+- The track of a list registers itself on the surface (`Surface.scrollbar`); a press in the sidebar that lands on a track starts the drag, and every pointer move until the release sets the scroll from the pointer's row, clamped to the track, wherever the pointer is. The lists of the Orders and workshop panels scroll with their cursor, so a drag there moves the cursor to the row at that place.
