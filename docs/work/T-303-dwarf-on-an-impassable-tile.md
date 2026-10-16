@@ -27,3 +27,9 @@ The invariant `creature.on-impassable` of `test/scenarios/invariants.ts` (T-176)
 ## Done
 
 - The two seeds pass the tick of their finding.
+
+## Cause and result, 2026-10-16
+
+The two findings of the report were builders left on a forge's impassable corner (T-337, `baf9b74`): after it, `three-years-p4-5` and `three-years-p4-2` pass day 130 with no finding.
+
+The same probe found a second cause in `three-years-p4-1` on day 119 ([data](../../reports/data/2026-10-16-peril-2-4-invariant-probe.txt)): the tile (28, 9, 32) is the script's `lock_on_alert` door by the gate. The `hearth` alert was handled at tick 141,160; at 141,559 a soldier on duty stepped into the doorway; at 141,560 (`ALERT_LOCK_GRACE_TICKS` after the alert) the door locked with him in it, and he stood on an impassable tile. `doorLocked` (`src/systems/buildings/build.ts:1194`) locked on the timer whoever stood in the doorway. Decision: a door does not lock on a creature in its doorway; the alert lock waits until the doorway is clear (19 § Hearth alert retreat). Test: `test/unit/buildings/t303-door-locks-when-clear.test.ts`. With it, `three-years-p4-1` passes day 130 with no finding.
