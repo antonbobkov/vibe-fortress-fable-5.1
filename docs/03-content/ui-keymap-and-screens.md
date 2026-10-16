@@ -85,6 +85,8 @@ Animals, Tame tab: `[S-t] train` or its button opens War/Hunting; arrows and Ent
 | `x` | with a building tool: cycle material |
 | `Delete` | with a selection: cancel designations / remove zone / cancel building |
 
+With the map cursor shown (a tool armed, or a panel asking for a tile or a creature), the arrows move the cursor instead of panning, and `Enter` acts at it; in the Build list `Enter` picks the highlighted building and, with a building armed, `Backspace` returns to the list. See `02-systems/24-ui-and-input.md` § Rules (input model).
+
 ### Panels
 
 | Key | Action |

@@ -365,6 +365,8 @@ The selected built depot keeps its goods list and action row (`[S-m] move`, `[r]
 │ Barracks #2  [S-b] change           │
 ```
 
+Choosing a station, a patrol point, or the creature or dwarf of a kill or follow order waits for the map: a click picks the tile, or the arrows move the map cursor and `Enter` picks the tile at it. `Enter` on a tile with no creature says "No creature there." ("No dwarf there." for a follow order).
+
 The line under the alert row says what the current alert does: "Calm: everyone works.", "Watch: squads stand to; civilians work." or "Hearth: civilians go to the hearth; doors set to Lock on alert are shut." With no squad, two dim lines under "No squads yet: [+] makes one." say what a first squad needs: "A squad of three with iron spears and a kill order holds off boars." (a club does not stop a boar).
 
 `[S-a] add` and `[r] remove` open a multi-select list in place of the squad's details; `[S-l] pick` (the leader, among the members) and `[S-b]` (the barracks zones, with "None" first) open a single-choice list:

@@ -56,7 +56,13 @@ test('drag-place', async ({ page }) => {
   // Build › Furniture › Bed.
   await page.keyboard.press('b');
   await page.keyboard.press('Shift+F');
-  for (let k = 0; k < 30 && !(await textOf(page)).includes('Bed · '); k += 1) await page.keyboard.press('ArrowDown');
+  // The list highlights a row with the arrows; Enter picks it as the tool, Backspace drops it again.
+  for (let k = 0; k < 30; k += 1) {
+    await page.keyboard.press('Enter');
+    if ((await textOf(page)).includes('Bed · ')) break;
+    await page.keyboard.press('Backspace');
+    await page.keyboard.press('ArrowDown');
+  }
   await expect.poll(() => textOf(page)).toContain('Bed · ');
 
   // Drag over the three tiles with the real mouse: the status bar counts them.

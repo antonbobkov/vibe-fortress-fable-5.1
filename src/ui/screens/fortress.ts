@@ -165,6 +165,10 @@ export class FortressScreen implements Screen {
   hover: TileIndex | null = null;
   /** Whether the last look at the screen needed the keyboard cursor (a tool armed or a panel picking). */
   private cursorNeeded = false;
+  /** Whether the cursor was on the map at the last look: a tool or a picking panel needed it, or the look panel showed it. */
+  private cursorWasShown = false;
+  /** Where the cursor was at the last look, to tell a cursor that has been placed since from one left over. */
+  private cursorSeen: { x: number; y: number } | null = null;
   /** A danger line shown until any key dismisses it. */
   pinned: LogLine | null = null;
   private flashUntil = 0;
@@ -760,6 +764,7 @@ export class FortressScreen implements Screen {
    */
   statusRow2(cols = Infinity): string {
     const s = this.strings;
+    this.syncCursor();
     if (this.dragging || this.build.anchor !== null || this.zones.anchor !== null || this.tool.anchor !== null || this.selection !== null) {
       this.clearNotice();
     }
@@ -895,15 +900,23 @@ export class FortressScreen implements Screen {
     return (this.ui.panel === 'zones') || (this.ui.panel === 'building' && this.building.linking);
   }
 
-  /** The cursor shows when a tool is armed or a panel picks; it starts at the pointer's tile, or the map centre. */
+  /**
+   * The cursor shows when a tool is armed or a panel picks; it starts at the pointer's tile, or the map centre, unless the
+   * look panel was already showing it or something has just put it somewhere. A cursor left over from a closed look panel
+   * is not shown and is not reused.
+   */
   private syncCursor(): void {
     const needed = this.toolActive || this.picking();
-    if (needed && !this.cursorNeeded && this.ui.cursor === null) {
+    const c = this.ui.cursor;
+    const placed = c !== null && (this.cursorSeen === null || this.cursorSeen.x !== c.x || this.cursorSeen.y !== c.y);
+    if (needed && !this.cursorNeeded && !this.cursorWasShown && !placed) {
       const at = this.hoverPoint() ?? this.centerPoint();
       this.ui.cursor = { x: at.x, y: at.y };
     }
     if (!needed && this.cursorNeeded && this.ui.panel !== 'look') this.ui.cursor = null;
     this.cursorNeeded = needed;
+    this.cursorWasShown = this.ui.cursor !== null && (needed || (this.ui.panel === 'look' && this.ui.sidebar));
+    this.cursorSeen = this.ui.cursor === null ? null : { x: this.ui.cursor.x, y: this.ui.cursor.y };
   }
 
   /** Move the cursor, clamped to the map, and scroll the camera to keep it `CURSOR_SCROLL_MARGIN` tiles inside the view. */
@@ -1580,6 +1593,7 @@ export class FortressScreen implements Screen {
       ?? (!press.ctrl && !press.shift ? panels.find((p) => p.hotkey === press.key) : undefined);
     if (opened === undefined) return false;
     if (this.ui.panel === opened.id && this.ui.sidebar) {
+      if (opened.id === 'look') this.ui.cursor = null;
       const wasArmed = (opened.id === 'designate' && this.tool.active)
         || (opened.id === 'build' && this.build.active)
         || (opened.id === 'zones' && this.zones.active);

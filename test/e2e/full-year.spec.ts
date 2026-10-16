@@ -611,11 +611,16 @@ test('full-year', async ({ page }) => {
     await dragTiles(page, { x: t.x, y: t.y }, { x: t.x, y: t.y });
   }
   // Clear tree barrier at x: 0..3, y: 16..20 so caravan edge path is open
+  // With a tool armed the arrows move the cursor, so the tool is dropped (Esc) to pan the view and chosen again.
+  await page.keyboard.press('Escape');
   await page.keyboard.press('Shift+ArrowUp');
   await page.keyboard.press('Shift+ArrowUp');
+  await page.keyboard.press('Shift+T');
   await dragTiles(page, { x: 0, y: 16 }, { x: 3, y: 20 });
+  await page.keyboard.press('Escape');
   await page.keyboard.press('Shift+ArrowDown');
   await page.keyboard.press('Shift+ArrowDown');
+  await page.keyboard.press('Shift+T');
   // Clear trees around trade depot patch to prevent wildfires spreading to depot
   await dragTiles(page, { x: site.patches[5]!.x - 2, y: site.patches[5]!.y - 2 }, { x: site.patches[5]!.x + 4, y: site.patches[5]!.y + 4 });
   await closePanels(page);
