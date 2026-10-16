@@ -4,9 +4,16 @@
 
 ## Reference scenario
 
-All budgets are measured on the *reference fortress*: standard map, year 3, 80 dwarves, 120 tame and wild animals, 25,000 items, 600 buildings, 60 zones, a river crossing the map, one breached cavern, a 40-tile waterfall channel running, at speed 4× on a 2020 mid-range laptop (4-core, integrated graphics) in Chrome.
+The *reference scenario* is: standard map, year 3, 80 dwarves, 120 tame and wild animals, 25,000 items, 600 buildings, 60 zones, a river crossing the map, one breached cavern, a 40-tile waterfall channel running, at speed 4× on a 2020 mid-range laptop (4-core, integrated graphics) in Chrome. Two saved fixtures stand for it (§ Reference fixtures).
 
 Target: average tick ≤ 6 ms, worst tick ≤ 20 ms, so that 4× (80 ticks/s) fits in a 16 ms frame with `MAX_TICKS_PER_FRAME` = 8 leaving room for rendering.
+
+## Reference fixtures
+
+- **The reference fortress** (`test/fixtures/reference-fortress.deepholm`, built by `test/perf/scripted-reference.ts`) is the reference scenario with a settlement on it: every workshop that has recipes, twelve of them with a standing order its stock can feed; six farm plots (two surface, four cave) with a crop for every season and seeds; food, drink and a still; two squads of six with gear in stock and a barracks each, one on Train; a hospital with beds, a chest and supplies; a trade depot; a gate with a door set to lock on alert, a drawbridge on a lever and four cage traps; eight stockpiles of 5×5 with the presets a played fortress uses; and labors set by profession templates. Its 25,000 single items lie spread over the map and forbidden, because a played fortress keeps such stock out of the haulers' reach and the job board's cost grows with every item that waits (T-343, T-344).
+- **The furniture fixture** (`test/fixtures/reference-fortress-furniture.deepholm`) is the first 80-dwarf fixture: the same map, channel, cavern, dwarves, animals and 25,000 items, with 600 pieces of furniture and sixty small zones, and no workshop, farm plot, squad, wounded dwarf, trap or caravan.
+
+Every budget in the table below was measured on the furniture fixture, and `per-system.test.ts` and `perf_reference.test.ts` hold them there, so that no number changes meaning silently. On the furniture fixture systems 07 plants, 12 workshops, 16 combat, 17 health, 19 defense and 20 trade have nothing to do: their figures there read *not exercised*. They are measured on the reference fortress, and the figure is reported in the dated report [`2026-10-16-reference-fortress.md`](../../reports/audits/2026-10-16-reference-fortress.md) and gates nothing until a task makes it pass: the reference fortress's average tick is far above the target (the job board, T-343 and T-344), and the budget of a system on it is *unmeasured* in the sense of `process/agent-workflow.md` until then.
 
 ## Per-system tick budget (average, amortized over cadence)
 

@@ -3,14 +3,16 @@ import { expect } from 'vitest';
 import { C } from '@core/components';
 import { TICKS_PER_YEAR } from '@core/constants';
 import { ensureScriptedReference, REFERENCE_PATH } from './scripted-reference';
+import { ensureScriptedFurniture, FURNITURE_PATH } from './scripted-furniture';
 import { ensurePlayedReference, PLAYED_PATH } from './played-reference';
 
 const TICKS = 2_000;
-type Fixture = 'played' | 'scripted';
+/** `furniture` is the first 80-dwarf fixture (no workshop, farm, squad, depot or gate); `scripted` is the reference fortress (T-283). */
+type Fixture = 'played' | 'furniture' | 'scripted';
 
 export async function measureReference(fixture: Fixture) {
   const now = (): number => performance.now();
-  const game = fixture === 'played' ? await ensurePlayedReference(now) : await ensureScriptedReference(now);
+  const game = fixture === 'played' ? await ensurePlayedReference(now) : fixture === 'furniture' ? await ensureScriptedFurniture(now) : await ensureScriptedReference(now);
   const entities = game.world.entities;
   const population = entities.with(C.Brain).filter((id) => entities.get(id, C.Creature)?.faction === 'fortress').length;
   const animals = entities.with(C.Tame).length + entities.with(C.Wild).length;
@@ -18,7 +20,7 @@ export async function measureReference(fixture: Fixture) {
   const buildings = entities.with(C.Building).length;
   const zones = entities.with(C.Zone).length;
   expect(game.tick, REFERENCE_PATH).toBeGreaterThanOrEqual(2 * TICKS_PER_YEAR);
-  if (fixture === 'scripted') {
+  if (fixture !== 'played') {
     expect(population).toBe(80);
     expect(animals).toBeGreaterThanOrEqual(120);
     expect(items).toBeGreaterThanOrEqual(25_000);
@@ -50,7 +52,7 @@ export async function measureReference(fixture: Fixture) {
   const systems = Object.fromEntries(world.stats().systems.map((s) => [s.id, s.totalMs / TICKS]));
   const pathing = pathingMs / TICKS;
   const core = averageTickMs - pathing - Object.values(systems).reduce((a, b) => a + b, 0);
-  console.log(`perf_reference: ${JSON.stringify({ fixture: fixture === 'played' ? PLAYED_PATH : REFERENCE_PATH,
+  console.log(`perf_reference: ${JSON.stringify({ fixture: fixture === 'played' ? PLAYED_PATH : fixture === 'furniture' ? FURNITURE_PATH : REFERENCE_PATH,
     population, animals, items, buildings, zones,
     ticks: TICKS, averageTickMs, worstTickMs, pathingMs: pathing, coreMs: core, systems })}`);
   return { systems, pathing, core, averageTickMs, worstTickMs };

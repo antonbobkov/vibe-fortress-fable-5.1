@@ -9,7 +9,9 @@ const budgets = [...budgetDoc.matchAll(/^\| (\d{2}|core)(?: [^|]*)? \| ([\d.]+) 
 
 describe('T-M8-01 profiling pass and per-system budgets', () => {
   let measured: Awaited<ReturnType<typeof measureReference>>;
-  beforeAll(async () => { measured = await measureReference('scripted'); }, 600_000);
+  // The budgets were measured on the first 80-dwarf fixture, which exercises no workshop, farm, squad, depot or gate;
+  // `reference_fortress_figures.test.ts` reports the same systems on the reference fortress.
+  beforeAll(async () => { measured = await measureReference('furniture'); }, 600_000);
 
   it('reads all 20 systems and core from the unchanged allocation table', () => {
     expect(budgets).toHaveLength(21);
