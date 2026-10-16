@@ -60,8 +60,13 @@
     "default": "no"
   },
   {
-    "id": "c_embark_no_food_drink",
-    "text": "Embark without food or drink?",
+    "id": "c_embark_no_food",
+    "text": "Embark with no food?",
+    "default": "no"
+  },
+  {
+    "id": "c_embark_no_drink",
+    "text": "Embark with no drink?",
     "default": "no"
   },
   {

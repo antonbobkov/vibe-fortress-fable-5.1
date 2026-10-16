@@ -66,6 +66,29 @@ export class MilitaryPanel {
     this.memberChoice = null;
   }
 
+  /** Arm a pick (a station, a patrol point, a kill or follow order); with no squad it says so instead. */
+  arm(ctx: PanelContext, kind: 'station' | 'patrol' | 'kill' | 'follow'): void {
+    if (this.selectedSquad(ctx) === undefined) { ctx.notice?.(militaryNoSquad(ctx)); return; }
+    this.cancel();
+    if (kind === 'station') this.settingStation = true;
+    else if (kind === 'patrol') this.settingPatrol = true;
+    else if (kind === 'kill') this.settingKill = true;
+    else this.settingFollow = true;
+    ctx.clearNotice?.();
+  }
+
+  /** The key or click that sets the squad's mode; a mode of work with nobody in the squad says so. */
+  changeMode(ctx: PanelContext, mode: 'off' | 'train' | 'active' | 'next', host?: FortressHost): boolean {
+    const squad = this.selectedSquad(ctx);
+    if (squad === undefined) { ctx.notice?.(militaryNoSquad(ctx)); return true; }
+    const cmd = mode === 'next' ? this.cycleMode(ctx) : this.setMode(ctx, mode);
+    if (cmd === null) return true;
+    if (host !== undefined) host.submit(cmd);
+    else ctx.submit(cmd);
+    if (cmd.type === 'SetSquadMode' && cmd['mode'] !== 'off' && squad.members.length === 0) ctx.notice?.(ctx.strings.get('ui.military.mode_no_members', { squad: squad.name }));
+    return true;
+  }
+
   squads(ctx: PanelContext): readonly SquadWithId[] {
     if (!ctx.readers.has('16')) return [];
     return ctx.readers.of<CombatReader>('16').squads();
@@ -158,11 +181,19 @@ export class MilitaryPanel {
     return { type: 'SetSquadStation', squadId: squad.id, tile: null };
   }
 
-  setStation(ctx: PanelContext, tile: TileIndex, host?: FortressHost): void {
+  /** Whether the squad can stand on a tile: the check the station and patrol commands make. */
+  canStand(ctx: PanelContext, tile: TileIndex): boolean {
+    return ctx.readers.pathing.passable(tile, 'walker');
+  }
+
+  /** Set the station; false when the tile cannot be stood on (nothing is sent, the pick stays armed). */
+  setStation(ctx: PanelContext, tile: TileIndex, host?: FortressHost): boolean {
     const squad = this.selectedSquad(ctx);
-    if (!squad) return;
+    if (!squad) return true;
+    if (!this.canStand(ctx, tile)) return false;
     if (host !== undefined) host.submit({ type: 'SetSquadStation', squadId: squad.id, tile });
     else ctx.submit({ type: 'SetSquadStation', squadId: squad.id, tile });
+    return true;
   }
 
   /** Open one of the lists, or say why it would be empty (D-U4). */
@@ -289,12 +320,15 @@ export class MilitaryPanel {
     });
   }
 
-  setPatrol(ctx: PanelContext, tile: TileIndex, host?: FortressHost): void {
+  /** Add a patrol point; false when the tile cannot be stood on (nothing is sent, the pick stays armed). */
+  setPatrol(ctx: PanelContext, tile: TileIndex, host?: FortressHost): boolean {
     const squad = this.selectedSquad(ctx);
-    if (!squad) return;
+    if (!squad) return true;
+    if (!this.canStand(ctx, tile)) return false;
     const cmd: Command = { type: 'SetSquadPatrol', squadId: squad.id, tiles: [...(squad.patrol ?? []), tile] };
     if (host) host.submit(cmd);
     else ctx.submit(cmd);
+    return true;
   }
 
   setOrderTarget(ctx: PanelContext, tile: TileIndex, host?: FortressHost): boolean {
@@ -349,6 +383,12 @@ export class MilitaryPanel {
       return true;
     }
 
+    // Every key of the squad below needs one: with none, the key says so and does nothing else.
+    if (letter !== '' && 'scblnypkfqmotvarwgjx'.includes(letter) && this.selectedSquad(ctx) === undefined) {
+      ctx.notice?.(militaryNoSquad(ctx));
+      return true;
+    }
+
     // Alert setting keys: 1 (calm), 2 (watchful), 3 or h (hearth)
     if (k === '1') return submit({ type: 'SetAlert', level: 'calm' });
     if (k === '2') return submit({ type: 'SetAlert', level: 'watchful' });
@@ -369,7 +409,7 @@ export class MilitaryPanel {
 
     // Squad details actions
     if (letter === 's') {
-      this.settingStation = true;
+      this.arm(ctx, 'station');
       return true;
     }
     if (letter === 'c') return submit(this.clearStation(ctx));
@@ -382,17 +422,17 @@ export class MilitaryPanel {
       const squad = this.selectedSquad(ctx);
       return submit(squad ? { type: 'SetSquadPatrol', squadId: squad.id, tiles: [] } : null);
     }
-    if (letter === 'p') { this.settingPatrol = true; return true; }
-    if (letter === 'k') { this.settingKill = true; return true; }
-    if (letter === 'f') { this.settingFollow = true; return true; }
+    if (letter === 'p') { this.arm(ctx, 'patrol'); return true; }
+    if (letter === 'k') { this.arm(ctx, 'kill'); return true; }
+    if (letter === 'f') { this.arm(ctx, 'follow'); return true; }
     if (letter === 'q') {
       const squad = this.selectedSquad(ctx);
       return submit(squad ? { type: 'SquadOrder', squadId: squad.id, order: { kind: 'cancel' } } : null);
     }
-    if (letter === 'm') return submit(this.cycleMode(ctx));
-    if (letter === 'o') return submit(this.setMode(ctx, 'off'));
-    if (letter === 't') return submit(this.setMode(ctx, 'train'));
-    if (letter === 'v') return submit(this.setMode(ctx, 'active'));
+    if (letter === 'm') return this.changeMode(ctx, 'next', host);
+    if (letter === 'o') return this.changeMode(ctx, 'off', host);
+    if (letter === 't') return this.changeMode(ctx, 'train', host);
+    if (letter === 'v') return this.changeMode(ctx, 'active', host);
     if (letter === 'a') { this.openChoice(ctx, 'add'); return true; }
     if (letter === 'r') { this.openChoice(ctx, 'remove'); return true; }
     if (letter === 'w') { this.openChoice(ctx, 'weapon'); return true; }
@@ -506,9 +546,9 @@ export function drawMilitaryPanel(
   label(s, col, row, `Mode: ${squad.mode}`, { width });
   row += 1;
   label(s, col, row, '[S-o] Off [S-t] Train [v] Active', { width });
-  s.hit({ col, row, cols: 9, rows: 1 }, () => ctx.submit({ type: 'SetSquadMode', squadId: squad.id, mode: 'off' }));
-  s.hit({ col: col + 10, row, cols: 11, rows: 1 }, () => ctx.submit({ type: 'SetSquadMode', squadId: squad.id, mode: 'train' }));
-  s.hit({ col: col + 22, row, cols: 10, rows: 1 }, () => ctx.submit({ type: 'SetSquadMode', squadId: squad.id, mode: 'active' }));
+  s.hit({ col, row, cols: 9, rows: 1 }, () => panel.changeMode(ctx, 'off', host));
+  s.hit({ col: col + 10, row, cols: 11, rows: 1 }, () => panel.changeMode(ctx, 'train', host));
+  s.hit({ col: col + 22, row, cols: 10, rows: 1 }, () => panel.changeMode(ctx, 'active', host));
   row += 1;
 
   // Members line: Members Halvar G., Einar R.
@@ -552,9 +592,7 @@ export function drawMilitaryPanel(
   label(s, col, row, `Station ${stText}`, { fg: panel.settingStation ? t.value : t.text, width });
   row += 1;
   label(s, col, row, '        [S-s] set  [S-c] clear', { width });
-  s.hit({ col: col + 8, row, cols: 9, rows: 1 }, () => {
-    panel.settingStation = true;
-  });
+  s.hit({ col: col + 8, row, cols: 9, rows: 1 }, () => panel.arm(ctx, 'station'));
   if (squad.station !== null) {
     s.hit({ col: col + 19, row, cols: 11, rows: 1 }, () => {
       const cmd = panel.clearStation(ctx);
@@ -566,13 +604,13 @@ export function drawMilitaryPanel(
   // Patrol line
   const patrolStr = squad.patrol && squad.patrol.length > 0 ? `${squad.patrol.length} pts` : 'none';
   label(s, col, row, `Patrol ${panel.settingPatrol ? 'Click tile...' : `${patrolStr} [S-p] add [y] clear`}`, { width });
-  s.hit({ col: col + 8 + patrolStr.length, row, cols: 9, rows: 1 }, () => { panel.settingPatrol = true; });
+  s.hit({ col: col + 8 + patrolStr.length, row, cols: 9, rows: 1 }, () => panel.arm(ctx, 'patrol'));
   s.hit({ col: col + 18 + patrolStr.length, row, cols: 9, rows: 1 }, () => ctx.submit({ type: 'SetSquadPatrol', squadId: squad.id, tiles: [] }));
   row += 1;
 
   label(s, col, row, panel.settingKill ? 'Orders Click creature to attack' : panel.settingFollow ? 'Orders Click dwarf to follow' : 'Orders [S-k] kill [S-f] follow', { width });
-  s.hit({ col: col + 7, row, cols: 10, rows: 1 }, () => { panel.settingKill = true; });
-  s.hit({ col: col + 18, row, cols: 12, rows: 1 }, () => { panel.settingFollow = true; });
+  s.hit({ col: col + 7, row, cols: 10, rows: 1 }, () => panel.arm(ctx, 'kill'));
+  s.hit({ col: col + 18, row, cols: 12, rows: 1 }, () => panel.arm(ctx, 'follow'));
   row += 1;
   label(s, col, row, '       [q] cancel orders', { width });
   s.hit({ col: col + 7, row, cols: 19, rows: 1 }, () => {

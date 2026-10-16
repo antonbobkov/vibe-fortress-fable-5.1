@@ -173,6 +173,8 @@ export class FortressScreen implements Screen {
   pinned: LogLine | null = null;
   private flashUntil = 0;
   private message: { text: string; until: number } | null = null;
+  /** A refused station or patrol tile put its notice up; the pointer moving takes it down so the prompt returns. */
+  private pickRefused = false;
   private noticeGhost: string | null = null;
   private dragging = false;
   /**
@@ -788,7 +790,9 @@ export class FortressScreen implements Screen {
       return s.get('ui.status.link', { building: buildingName(this.ctx, this.building.id), kinds: s.get('ui.building.linkable') });
     }
     if (this.build.listing && !this.build.active && this.ui.panel === 'build') return s.get('ui.status.build_choose');
-    if (this.picking() && this.ui.panel === 'military') return s.get(this.military.settingKill ? 'ui.status.pick_creature' : this.military.settingFollow ? 'ui.status.pick_dwarf' : 'ui.status.pick_tile');
+    if (this.picking() && this.ui.panel === 'military') {
+      return s.get(this.military.settingKill ? 'ui.status.pick_kill' : this.military.settingFollow ? 'ui.status.pick_follow' : this.military.settingPatrol ? 'ui.status.pick_patrol' : 'ui.status.pick_station');
+    }
     if (this.build.active) {
       const row = this.build.current(this.ctx);
       const name = row === undefined ? '' : row.name.charAt(0).toUpperCase() + row.name.slice(1);
@@ -920,7 +924,15 @@ export class FortressScreen implements Screen {
   }
 
   /** Move the cursor, clamped to the map, and scroll the camera to keep it `CURSOR_SCROLL_MARGIN` tiles inside the view. */
+  /** The refused-tile line of a station or patrol pick goes when the pointer or the cursor moves, if the pick is still waiting. */
+  private dropPickRefusal(): void {
+    if (!this.pickRefused) return;
+    this.pickRefused = false;
+    if (this.picking()) this.clearNotice();
+  }
+
   private moveCursor(dx: number, dy: number): void {
+    this.dropPickRefusal();
     const map = this.host.readers.map;
     const at = this.actionPoint();
     const x = Math.max(0, Math.min(map.w - 1, at.x + dx));
@@ -1209,7 +1221,9 @@ export class FortressScreen implements Screen {
   /** Submit a finished rectangle. */
   commit(a: TilePoint, b: TilePoint): Command[] {
     const map = this.host.readers.map;
-    const commands = this.tool.commands({ map, precondition: (i, k) => this.host.precondition(i, k) }, a, b);
+    // A harvest rectangle holding no ripe crop sends nothing and says so.
+    const commands = this.tool.commands({ map, precondition: (i, k) => this.host.precondition(i, k) }, a, b)
+      .filter((cmd) => cmd.type !== 'DesignateHarvest' || this.anyRipe(cmd['tiles'] as readonly TileIndex[]));
     const hasUnconfirmedDeepsilver = !this.host.readers.fortress.state.deepsilverConfirmed && commands.some((cmd) => {
       if (cmd.type !== 'Designate') return false;
       const tiles = cmd['tiles'] as readonly TileIndex[] | undefined;
@@ -1256,6 +1270,13 @@ export class FortressScreen implements Screen {
     this.host.submit(cmd);
     this.notice(this.strings.get('ui.status.reprioritized', { n: (cmd['tiles'] as TileIndex[]).length, priority: this.tool.priority }));
     return cmd;
+  }
+
+  /** Whether any of the tiles holds a crop ready to harvest (07's `cropReady`: the last stage, run out). */
+  private anyRipe(tiles: readonly TileIndex[]): boolean {
+    if (!this.host.readers.has('07')) return true;
+    const plants = this.host.readers.of<import('@systems/plants').PlantsReader>('07');
+    return tiles.some((tile) => plants.cropReady(tile));
   }
 
   /** §4.2: why a designation rectangle sent nothing ("No tile here can be dug: …"). */
@@ -1782,6 +1803,8 @@ export class FortressScreen implements Screen {
         return false;
       }
       case 'orders':
+        // `Delete` removes the selected order like `x`, unless a map selection is waiting for it.
+        if (k === 'Delete' && this.selection === null && !this.orders.picker.open && !this.orders.materialOpen) { this.orders.remove(ctx); return true; }
         return this.orders.key(ctx, press);
       case 'workshop':
         return this.orders.workshopKey(ctx, this.workshopId, press, () => this.deconstruct(this.workshopId));
@@ -1863,11 +1886,18 @@ export class FortressScreen implements Screen {
    */
   private pickAt(at: TilePoint, byKey: boolean): boolean {
     if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) {
+      this.pickRefused = false;
       const tile = this.tileOf(at);
       if (tile === null) return true;
-      if (this.military.settingStation) this.military.setStation(this.ctx, tile, this.host);
-      else if (this.military.settingPatrol) this.military.setPatrol(this.ctx, tile, this.host);
-      else if (this.military.setOrderTarget(this.ctx, tile, this.host)) this.military.cancel();
+      if (this.military.settingStation || this.military.settingPatrol) {
+        const ok = this.military.settingStation ? this.military.setStation(this.ctx, tile, this.host) : this.military.setPatrol(this.ctx, tile, this.host);
+        if (!ok) {
+          // A tile the squad cannot stand on: say so and keep the pick armed; the prompt returns when the pointer moves.
+          this.notice(this.strings.get('ui.military.cannot_stand'));
+          this.pickRefused = true;
+          return true;
+        }
+      } else if (this.military.setOrderTarget(this.ctx, tile, this.host)) this.military.cancel();
       else this.notice(this.strings.get(byKey ? (this.military.settingKill ? 'ui.status.no_creature' : 'ui.status.no_dwarf') : (this.military.settingKill ? 'ui.status.click_creature' : 'ui.status.click_dwarf')));
       if (!this.military.settingKill && !this.military.settingFollow) this.military.cancel();
       return true;
@@ -1980,6 +2010,7 @@ export class FortressScreen implements Screen {
 
   pointerMove(p: CellPointer): void {
     this.pointer = { col: p.col, row: p.row };
+    this.dropPickRefusal();
     const at = this.pointOfCell(p.col, p.row);
     this.hover = at === null ? null : this.tileOf(at);
     if (at !== null && (this.toolActive || this.picking())) this.ui.cursor = { x: at.x, y: at.y };

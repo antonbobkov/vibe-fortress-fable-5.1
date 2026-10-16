@@ -84,13 +84,13 @@ describe('T-252 first-minute traps: no axe warning, and the second d', () => {
     expect(f.statusRow2()).toBe('Designate closed \u00b7 [q] opens it again');
   });
 
-  it('asks axe question after pick question and before food/drink question', () => {
+  it('asks the axe question after the pick question and before the food question', () => {
     const { s, asked, embarked } = embark([true, true, true]);
     drop(s, 'tool/pick');
     drop(s, 'tool/axe');
     drop(s, 'food');
     s.key(press('Enter'));
-    expect(asked).toEqual(['c_embark_no_pick', 'c_embark_no_axe', 'c_embark_no_food_drink']);
+    expect(asked).toEqual(['c_embark_no_pick', 'c_embark_no_axe', 'c_embark_no_food']);
     expect(embarked).toHaveLength(1);
   });
 

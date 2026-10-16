@@ -264,9 +264,9 @@ export class EmbarkScreen implements Screen {
   }
 
   /**
-   * `Enter` Embark. A party with no pick, no axe, or with no food or no drink, is asked first
-   * ("Embark without a pick?", "Embark without an axe?", "Embark without food or drink?"), the safe
-   * answer being No (D-U3, revised for axe).
+   * `Enter` Embark. A party with no pick, no axe, no food item or no drink item is asked first, one
+   * question for each ("Embark without a pick?", "Embark without an axe?", "Embark with no food?",
+   * "Embark with no drink?"), the safe answer being No.
    */
   confirm(): void {
     if (this.reason() !== null) return;
@@ -274,7 +274,8 @@ export class EmbarkScreen implements Screen {
     const asks: string[] = [];
     if (missing.pick) asks.push('c_embark_no_pick');
     if (missing.axe) asks.push('c_embark_no_axe');
-    if (missing.food || missing.drink) asks.push('c_embark_no_food_drink');
+    if (missing.food) asks.push('c_embark_no_food');
+    if (missing.drink) asks.push('c_embark_no_drink');
     const ask = (k: number): void => {
       const id = asks[k];
       if (id === undefined || this.host.confirm === undefined) {

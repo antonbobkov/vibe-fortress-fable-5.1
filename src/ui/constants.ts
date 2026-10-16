@@ -30,6 +30,9 @@ export const CURSOR_SCROLL_MARGIN = 3;
 /** Rejection reason display time in the status bar (D-U4: four seconds). */
 export const STATUS_HINT_SECONDS = 4;
 
+/** How long the game menu shows what saving did (24 § Game menu). */
+export const GAME_MENU_MESSAGE_MS = 3000;
+
 /** `02` § Presets: the preset the embark screen opens with (D-U3). */
 export const EMBARK_DEFAULT_PRESET = 'balanced';
 
