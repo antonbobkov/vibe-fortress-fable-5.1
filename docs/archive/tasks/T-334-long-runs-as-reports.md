@@ -1,10 +1,12 @@
 # T-334 — Long chaotic runs report their figures and assert only what no reordering can flip
 
-**Source:** the process review, [`../../reports/audits/2026-10-15-process-review.md`](../../reports/audits/2026-10-15-process-review.md) · **Size:** S · **Needs:** — · **Status:** open; after the T-145 re-measure in worktree `sim`
+**Closed:** 2026-10-16, in cae74ee, 97e4afd.
+
+**Source:** the process review, [`../../reports/audits/2026-10-15-process-review.md`](../../../reports/audits/2026-10-15-process-review.md) · **Size:** S · **Needs:** — · **Status:** open; after the T-145 re-measure in worktree `sim`
 
 ## Why
 
-Chaotic runs used as gates blocked correct fixes for days (T-137, T-261, T-211, T-301) (process review § 2). The rule is now in [`../process/testing-strategy.md`](../process/testing-strategy.md) § What may be a gate.
+Chaotic runs used as gates blocked correct fixes for days (T-137, T-261, T-211, T-301) (process review § 2). The rule is now in [`../process/testing-strategy.md`](../../process/testing-strategy.md) § What may be a gate.
 
 ## What to do
 
