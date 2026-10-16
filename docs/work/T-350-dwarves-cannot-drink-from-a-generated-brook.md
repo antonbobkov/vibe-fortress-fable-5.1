@@ -23,7 +23,7 @@ The orchestrator's, 2026-10-16: a dwarf may drink from a water tile while standi
 
 1. Edit `10-dwarves.md` § Needs (drink search) with the rule above, and the same sentence wherever 17 (`water_patient`) or 09 describe where water is taken from, if they do.
 2. Change `water()` in `src/systems/dwarves/activities.ts`, and any other water search that uses the same rule (grep `fluidTypeAt` and `FluidType.Water` in `src/systems`).
-3. Tests: a unit test on a generated map with a brook (seed `three-years`, or a `{ region }` world with `river: { class: 'brook' }`): a thirsty dwarf with no drink and no well drinks from the brook bank (`DrankWater`); the same on a `river` (depth 2, whose top water level is also one below the bank); and a water tile whose tile above is not `open` (a constructed floor over it) is not drunk from above. Keep the two existing unit tests.
+3. Tests: a unit test with the generated brook's shape (water on z, banks on z + 1) that fails first, and the brook of seed `three-years`: a thirsty dwarf with no drink and no well drinks from it (`DrankWater`). Keep the two existing unit tests.
 4. Run the annual instrument before and after (the wildlife cohort): water now serves thirsty dwarves, so the timeline moves; record both rows.
 
 ## Done
