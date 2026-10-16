@@ -17,7 +17,10 @@ import { C } from '@core/components';
 import { HEARTH_TIER_BONUS, POSITIVE_CAP, NEED_PRESSURE_CAP, MOOD_NEEDS_MET_FLOOR } from '@systems/morale/mood';
 import { personalityBase } from '@systems/morale/thoughts';
 import { WAVE_MAX } from '@systems/immigration/constants';
-import { deathCounts, dwarfDeathsByCause, needDeaths } from './death-counts';
+import { deathCounts } from './death-counts';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { ItemsSystem, type ItemsReader } from '@systems/items';
 import type { Scenario } from './runner';
 import {
@@ -164,7 +167,8 @@ const scenario: Scenario = {
     expect([...savedYears], 'T-176 a played caravan save in each year').toEqual([1, 2, 3]);
     console.log(`T-141 longest continuous flee: ${longestFlee} ticks`);
     // Kept: measured noise. The longest flight was 90 to 211 ticks in the main runs 4 to 6 of
-    // 2026-10-12 (three scripts, three sets of wild arrivals); the bound of a day is six times that.
+    // reports/audits/2026-10-12-economy-fixture-at-default-priority.md (three scripts, three sets of
+    // wild arrivals); the bound of a day is six times that.
     expect(longestFlee, 'T-141: no uninterrupted flee lasts more than a day').toBeLessThanOrEqual(TICKS_PER_DAY);
     const economy = threeYearsMeasurements(w);
     console.log(`three_years economy: ${JSON.stringify({ years: economy.years, minerals: economy.minerals, fixture: economy.fixture, allDeaths: economy.deaths, allRaids: economy.raids, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
@@ -241,16 +245,22 @@ const scenario: Scenario = {
 
     // The balance table and the summary above are printed before any assertion, so a failing run
     // still leaves its measurements.
-    // T-334: this run is one chaotic sample (testing-strategy.md § What may be a gate). The figures
-    // a reordering of jobs moves are printed and not asserted: the dwarf deaths and their causes
-    // (a wild animal's arrival follows the random stream, so any change re-rolls which dwarf a boar
-    // meets), the trades against the visits (a visit that meets a hearth alert or a busy broker
-    // goes without), and the raw sum of negative thoughts a dwarf holds (15 § Mood caps only what
-    // they subtract, at NEGATIVE_CAP; the mood floors below hold the rest).
+    // T-334: this run is one chaotic sample (testing-strategy.md § What may be a gate). Printed and
+    // not asserted: the dwarf deaths by cause, because at peril 0 a wild animal can kill a dwarf and
+    // which dwarf it meets follows the job timeline (the 2026-10-12 runs 4 to 6 lost one or two
+    // militia to bleeding after boar fights; the 2026-10-16 run lost none to animals and all 63 to
+    // starvation); and the raw sum of negative thoughts a dwarf holds (15 § Mood caps only what they
+    // subtract, at NEGATIVE_CAP; the mood floors below hold the rest). They go to the console and
+    // to THREE_YEARS_OUT.
     const trades = economy.caravans.filter((c) => c.state === 'TradeCompleted').length;
     const visits = economy.caravans.filter((c) => c.state === 'CaravanArrived').length;
-    console.log(`three_years figures: ${JSON.stringify({ dwarfDeaths: deaths.dwarf, byCause: dwarfDeathsByCause(w), trades, visits,
-      maxPositives: Math.max(0, ...moodChecks.map((c) => c.positives)), maxNegatives: Math.max(0, ...moodChecks.map((c) => c.negatives)) })}`);
+    const figures = { dwarfDeaths: economy.deaths.filter((d) => d.species === 'dwarf').length, byCause: economy.dwarfDeathsByCause(), trades, visits,
+      y1Pop, y2Pop, y3Pop, maxPositives: Math.max(0, ...moodChecks.map((c) => c.positives)), maxNegatives: Math.max(0, ...moodChecks.map((c) => c.negatives)) };
+    console.log(`three_years figures: ${JSON.stringify(figures)}`);
+    const out = process.env['THREE_YEARS_OUT'] ?? '.vite/three-years.json';
+    mkdirSync(dirname(out), { recursive: true });
+    writeFileSync(out, JSON.stringify({ runtimeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), figures,
+      recipes: economy.recipes, deaths: economy.deaths }, null, 2) + '\n');
     for (const c of moodChecks) {
       // Kept: the mood floors are the formula of 15 § Mood (MOOD_MIN, and 20 - needPressure with
       // every need met); no order of jobs takes a dwarf below them.
@@ -271,10 +281,15 @@ const scenario: Scenario = {
     }
     expect(economy.years[2]?.engraved ?? 0, 'halls engraved through terrain jobs').toBeGreaterThan(0);
 
-    // Kept: outcomes no reordering of jobs can flip. Nobody dies of hunger or thirst where the
-    // farm, the kitchens and the stills follow the population with a season's margin, and a
-    // peril-0 fortress that loses a few dwarves to wild animals still ends far above its founders.
-    expect(needDeaths(w), 'no dwarf died of hunger or thirst').toBe(0);
+    // Kept: a T-145 fixture rule. The script trades at every visit; it held in every recorded run
+    // (6 of 6 in runs 2 to 5 and 8 of 8 in run 6 of 2026-10-12, 8 of 8 on 2026-10-16).
+    expect(trades, 'trade with each visiting caravan').toBe(visits);
+
+    // Kept: the fortress's food chain. Nobody dies of hunger or thirst where the farm, the kitchens
+    // and the stills follow the population; this fails until T-145 makes them do so (2026-10-16:
+    // 63 starvation deaths). A peril-0 fortress that loses a few dwarves to wild animals still ends
+    // far above its seven founders (46, 59 and 56 dwarves at the end of runs 4 to 6 of 2026-10-12).
+    expect(economy.needDeaths(), 'no dwarf died of hunger or thirst').toBe(0);
     expect(y3Pop, 'fortress grew past the 7 embark dwarves').toBeGreaterThan(7);
 
     // Kept: rules of 21 Immigration, whatever the order of jobs.

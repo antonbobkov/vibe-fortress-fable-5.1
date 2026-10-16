@@ -20,7 +20,8 @@ import { WAVE_MAX } from '@systems/immigration/constants';
 import type { ItemsReader } from '@systems/items';
 import type { MoraleReader } from '@systems/morale/reader';
 import type { ThreatsReader } from '@systems/threats/reader';
-import { deathCounts, dwarfDeathsByCause, needDeaths } from '../scenarios/death-counts';
+import { deathCounts } from '../scenarios/death-counts';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import {
   playThreeYears,
   setupThreeYearsFortress,
@@ -286,13 +287,19 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   console.log(`[three_years_seeds_detail] ${JSON.stringify(result)}`);
 
   // T-334: each seed is one chaotic sample (testing-strategy.md § What may be a gate). Its dwarf
-  // deaths are printed by cause and not asserted: a wild animal's arrival follows the random
-  // stream, so any change to the job timeline re-rolls which dwarf it meets.
-  console.log(`[three_years_seeds_deaths] ${JSON.stringify({ seed, peril, dwarfDeaths: deaths.dwarf, byCause: dwarfDeathsByCause(w) })}`);
+  // deaths by cause are printed, to the console and to THREE_YEARS_SEEDS_OUT, and not asserted: at
+  // peril 0 a wild animal can kill a dwarf, and which dwarf it meets follows the job timeline (12
+  // bleeding deaths after fights in five of the seven seeds of 2026-10-12).
+  const figures = { seed, peril, dwarfDeaths: economy.deaths.filter((d) => d.species === 'dwarf').length, byCause: economy.dwarfDeathsByCause(), y3Pop };
+  console.log(`[three_years_seeds_deaths] ${JSON.stringify(figures)}`);
+  const out = process.env['THREE_YEARS_SEEDS_OUT'] ?? '.vite/three-years-seeds';
+  mkdirSync(out, { recursive: true });
+  writeFileSync(`${out}/${seed}.json`, JSON.stringify({ figures, result }, null, 2) + '\n');
   if (peril === 0) {
-    // Kept: outcomes no reordering of jobs can flip in a peril-0 fortress whose farm, kitchens and
-    // stills follow the population: nobody starves, and it ends far above its seven founders.
-    expect(needDeaths(w), `${seed} (peril 0): no dwarf died of hunger or thirst`).toBe(0);
+    // Kept: the food chain. Nobody dies of hunger or thirst where the farm, the kitchens and the
+    // stills follow the population (85 starvation deaths in four seeds on 2026-10-12, before T-145),
+    // and a peril-0 fortress ends above its seven founders (22 to 50 dwarves on 2026-10-12).
+    expect(economy.needDeaths(), `${seed} (peril 0): no dwarf died of hunger or thirst`).toBe(0);
     expect(y3Pop, `${seed} (peril 0) grew past embark size`).toBeGreaterThan(7);
   }
   // Kept: rules of 21 Immigration, whatever the order of jobs.
