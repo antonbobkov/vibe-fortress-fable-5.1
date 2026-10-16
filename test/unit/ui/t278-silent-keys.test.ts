@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { Game } from '@app/game';
 import { loadContent } from '@content/loader';
-import { MemoryStorage } from '@platform/storage';
+import { MemoryStorage, StorageQuotaError } from '@platform/storage';
 import { SaveManager } from '@app/save-manager';
 import { computeLayout } from '@render/cellbuffer';
 import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
@@ -19,13 +19,19 @@ import { keymap, press, registry, strings, surface } from './ui-fixture';
 
 const z = FLAT_TEST_SURFACE_Z;
 
-function setup(seed: string) {
+function setup(seed: string, plants?: { cropReady(i: number): boolean }) {
   const w = new TestWorld({ seed, world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
   w.step(1);
+  const readers = plants === undefined ? w.readers : new Proxy(w.readers, {
+    get(target, key) {
+      if (key === 'of') return (id: string) => id === '07' ? { ...target.of(id) as object, cropReady: plants.cropReady } : target.of(id);
+      return Reflect.get(target, key);
+    },
+  }) as typeof w.readers;
   const layout = computeLayout(80, 60, true);
   const submitted: unknown[] = [];
   const host: FortressHost = {
-    readers: w.readers, registry: w.game.registry, ui: defaultUiState(z), submit: (c) => { submitted.push(c); w.submit(c); }, speed: () => 1, setSpeed: () => {},
+    readers, registry: w.game.registry, ui: defaultUiState(z), submit: (c) => { submitted.push(c); w.submit(c); }, speed: () => 1, setSpeed: () => {},
     pan: () => {}, changeZ: () => {}, centerOn: () => {}, home: () => {}, zoom: () => {}, layout: () => layout, precondition: () => false,
     registeredPanels: () => w.game.world.registrations.panels, announcements: () => w.game.world.registrations.announcements, now: () => 0,
     prompt: () => {}, laborManager: () => {},
@@ -75,16 +81,16 @@ describe('T-278 military keys', () => {
     f.w.step(1);
     f.screen.notice('an old line');
     f.key('S', true);
-    expect(f.screen.statusRow2()).toBe('Station: click a floor tile · [Esc] cancel');
+    expect(f.screen.statusRow2()).toBe('Station: click or press Enter on a floor tile · [Esc] cancel');
     f.key('Esc');
     f.key('P', true);
-    expect(f.screen.statusRow2()).toBe('Patrol point: click a floor tile · [Esc] cancel');
+    expect(f.screen.statusRow2()).toBe('Patrol point: click or press Enter on a floor tile · [Esc] cancel');
     f.key('Esc');
     f.key('K', true);
-    expect(f.screen.statusRow2()).toBe('Kill order: click a creature · [Esc] cancel');
+    expect(f.screen.statusRow2()).toBe('Kill order: click or press Enter on a creature · [Esc] cancel');
     f.key('Esc');
     f.key('F', true);
-    expect(f.screen.statusRow2()).toBe('Follow order: click a dwarf · [Esc] cancel');
+    expect(f.screen.statusRow2()).toBe('Follow order: click or press Enter on a dwarf · [Esc] cancel');
   });
 
   it('refuse a tile the squad cannot stand on, keep the pick armed, and bring the prompt back when the pointer moves', () => {
@@ -101,7 +107,11 @@ describe('T-278 military keys', () => {
     expect(f.screen.military.settingStation).toBe(true);
     expect(f.submitted.some((c) => (c as { type: string }).type === 'SetSquadStation')).toBe(false);
     f.screen.pointerMove({ col: 5, row: 5, button: 0, shift: false, ctrl: false, alt: false, meta: false });
-    expect(f.screen.statusRow2()).toBe('Station: click a floor tile · [Esc] cancel');
+    expect(f.screen.statusRow2()).toBe('Station: click or press Enter on a floor tile · [Esc] cancel');
+    // The cursor moving takes the line down too.
+    pickAt(air, true);
+    f.key('→');
+    expect(f.screen.statusRow2()).toBe('Station: click or press Enter on a floor tile · [Esc] cancel');
     // A floor tile is taken and the pick ends.
     expect(pickAt({ x: 20, y: 20, z }, true)).toBe(true);
     expect(f.submitted.some((c) => (c as { type: string }).type === 'SetSquadStation')).toBe(true);
@@ -141,6 +151,32 @@ describe('T-278 orders, designate and harvest', () => {
     expect(sent).toEqual([]);
     expect(f.screen.statusRow2()).toBe('No ripe crops here to harvest.');
   });
+
+  it('a crop at its last stage that has not run out its days is not ready, and a ready one is sent', () => {
+    const idx = (x: number, y: number): number => new TestWorld({ seed: 't278-idx', world: 'flat-test', embark: 'none' }).index(x, y, z);
+    const ready = idx(11, 11);
+    const notReady = setup('t278-harvest-notready', { cropReady: () => false });
+    notReady.screen.openPanel('designate');
+    notReady.key('h');
+    expect(notReady.screen.commit({ x: 10, y: 10, z }, { x: 12, y: 12, z })).toEqual([]);
+    expect(notReady.screen.statusRow2()).toBe('No ripe crops here to harvest.');
+    const f = setup('t278-harvest-ready', { cropReady: (i) => i === ready });
+    f.screen.openPanel('designate');
+    f.key('h');
+    const sent = f.screen.commit({ x: 10, y: 10, z }, { x: 12, y: 12, z });
+    expect(sent).toHaveLength(1);
+    expect(sent[0]).toMatchObject({ type: 'DesignateHarvest' });
+  });
+
+  it('Delete with an order selected asks, then removes that order', () => {
+    const f = setup('t278-delete-order');
+    f.w.submit({ type: 'AddWorkOrder', workshopId: 0, order: { recipeId: 'make_door_wood', mode: 'once', threshold: 0, remaining: 2, priority: 5 } });
+    f.w.step(1);
+    f.screen.openPanel('orders');
+    f.key('Delete');
+    expect(f.submitted.some((c) => (c as { type: string }).type === 'RemoveWorkOrder')).toBe(true);
+    expect(f.submitted[f.submitted.length - 1]).toMatchObject({ type: 'RemoveWorkOrder', workshopId: 0, index: 0 });
+  });
 });
 
 describe('T-278 saving', () => {
@@ -172,6 +208,25 @@ describe('T-278 saving', () => {
     expect(rows.some((l) => /^Saved \S+, Day \d+ of \w+, Year \d+\.$/.test(l))).toBe(true);
     expect(g.fortress.log.lines.some((l) => /^Saved /.test(l.text))).toBe(true);
     expect(rows.some((l) => l === 'Resume' || l.endsWith('[r] Resume'))).toBe(true);
+  });
+
+  it('a menu Save whose write is refused for lack of space shows no "Saved" line, even after an earlier save did', async () => {
+    class Full extends MemoryStorage {
+      full = false;
+      override put(store: Parameters<MemoryStorage['put']>[0], key: string, value: unknown): Promise<void> {
+        return this.full ? Promise.reject(new StorageQuotaError('quota')) : super.put(store, key, value);
+      }
+    }
+    const storage = new Full();
+    const g = new Game({ canvas: new MockCanvas(), seed: 't278-quota', registry: loadContent(), createCanvas: mockCanvasFactory(), devicePixelRatio: 1, width: 1280, height: 800, saves: new SaveManager(storage) });
+    await g.start({ embark: 'default' });
+    await g.quickSave();
+    storage.full = true;
+    g.openGameMenu('save');
+    g.handleKey(press('Enter'));
+    for (let n = 0; n < 100; n += 1) await new Promise((resolve) => setTimeout(resolve, 20));
+    g.render();
+    expect(g.textRows().some((l) => /^Saved /.test(l.trim()))).toBe(false);
   });
 
   it('F9 with no quick save says so at once and asks nothing', async () => {

@@ -924,7 +924,15 @@ export class FortressScreen implements Screen {
   }
 
   /** Move the cursor, clamped to the map, and scroll the camera to keep it `CURSOR_SCROLL_MARGIN` tiles inside the view. */
+  /** The refused-tile line of a station or patrol pick goes when the pointer or the cursor moves, if the pick is still waiting. */
+  private dropPickRefusal(): void {
+    if (!this.pickRefused) return;
+    this.pickRefused = false;
+    if (this.picking()) this.clearNotice();
+  }
+
   private moveCursor(dx: number, dy: number): void {
+    this.dropPickRefusal();
     const map = this.host.readers.map;
     const at = this.actionPoint();
     const x = Math.max(0, Math.min(map.w - 1, at.x + dx));
@@ -1264,14 +1272,11 @@ export class FortressScreen implements Screen {
     return cmd;
   }
 
-  /** Whether any of the tiles holds a ripe crop (07's reader: stage 3). */
+  /** Whether any of the tiles holds a crop ready to harvest (07's `cropReady`: the last stage, run out). */
   private anyRipe(tiles: readonly TileIndex[]): boolean {
     if (!this.host.readers.has('07')) return true;
     const plants = this.host.readers.of<import('@systems/plants').PlantsReader>('07');
-    return tiles.some((tile) => {
-      const id = plants.cropAt(tile);
-      return id !== 0 && (plants.cropInfo(id)?.stage ?? 0) === 3;
-    });
+    return tiles.some((tile) => plants.cropReady(tile));
   }
 
   /** §4.2: why a designation rectangle sent nothing ("No tile here can be dug: …"). */
@@ -1881,6 +1886,7 @@ export class FortressScreen implements Screen {
    */
   private pickAt(at: TilePoint, byKey: boolean): boolean {
     if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) {
+      this.pickRefused = false;
       const tile = this.tileOf(at);
       if (tile === null) return true;
       if (this.military.settingStation || this.military.settingPatrol) {
@@ -2004,7 +2010,7 @@ export class FortressScreen implements Screen {
 
   pointerMove(p: CellPointer): void {
     this.pointer = { col: p.col, row: p.row };
-    if (this.pickRefused) { this.pickRefused = false; this.clearNotice(); }
+    this.dropPickRefusal();
     const at = this.pointOfCell(p.col, p.row);
     this.hover = at === null ? null : this.tileOf(at);
     if (at !== null && (this.toolActive || this.picking())) this.ui.cursor = { x: at.x, y: at.y };

@@ -445,11 +445,14 @@ export class Game {
         this.host.setSpeed(this.menuSpeed);
         this.render();
       },
-      save: () => void this.quickSave().then(() => {
-        const text = this.lastSavedLine;
+      save: () => {
         this.lastSavedLine = null;
-        if (text !== null) { menu.flash(text); this.render(); }
-      }),
+        void this.quickSave().then(() => {
+          const text = this.lastSavedLine;
+          this.lastSavedLine = null;
+          if (text !== null) { menu.flash(text); this.render(); }
+        });
+      },
       load: () => void this.openLoad(),
       settings: () => this.openSettings(),
       rename: () => this.renameFortress(),
