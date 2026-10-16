@@ -1,0 +1,80 @@
+# T-302/T-303/T-304: the T-176 findings of the thirteen peril 2 and 4 seeds of the economy fixture, 2026-10-16.
+# Tree: baf9b74 (T-302's fix 1094c22, T-337 baf9b74) for p2-1 and the eleven seeds to day 130; e0d36fa for p2-5 to day 220.
+# Probe: test/perf/probe-sweep.test.ts below (not committed), run alone: PROBE_DAYS=130 PROBE_ONLY=<seeds> npm exec -- vitest run -c vitest.perf.config.ts test/perf/probe-sweep.test.ts
+
+[sweep-start] three-years-p2-1
+[sweep-end] three-years-p2-1 day 220 living 33 findings 0 kinds none
+[sweep-end] three-years-p2-2 day 130 living 9 findings 0 kinds none
+[sweep-start] three-years-p2-3
+[sweep-end] three-years-p2-3 day 130 living 25 findings 0 kinds none
+[sweep-start] three-years-p2-4
+[sweep-end] three-years-p2-4 day 130 living 1 findings 0 kinds none
+[sweep-start] three-years-p2-6
+[sweep-end] three-years-p2-6 day 130 living 6 findings 0 kinds none
+[sweep-start] three-years-p2-7
+[sweep-end] three-years-p2-7 day 130 living 25 findings 0 kinds none
+[sweep-start] three-years-p4-1
+[sweep] three-years-p4-1 day 119 {"inv":"creature.on-impassable","cls":"dwarf/fortress/kind2","count":1,"firstTick":141600,"lastTick":141600,"samples":["t141600: creature 16777282 Ragnhild Grimroot at (28,9,32) class walker kind 2 fluid 0"]}
+[sweep-end] three-years-p4-1 day 130 living 16 findings 1 kinds creature.on-impassable:dwarf/fortress/kind2
+[sweep-start] three-years-p4-2
+[sweep-end] three-years-p4-2 day 130 living 0 findings 0 kinds none
+[sweep-start] three-years-p4-3
+[sweep-end] three-years-p4-3 day 130 living 5 findings 0 kinds none
+[sweep-start] three-years-p4-4
+[sweep-end] three-years-p4-4 day 130 living 16 findings 0 kinds none
+[sweep-start] three-years-p4-5
+[sweep-end] three-years-p4-5 day 130 living 17 findings 0 kinds none
+[sweep-start] three-years-p4-6
+[sweep-end] three-years-p4-6 day 130 living 18 findings 0 kinds none
+[sweep-start] three-years-p2-5
+[sweep-end] three-years-p2-5 day 220 living 7 findings 0 kinds none
+
+# --- probe source ---
+/** Temporary probe (not committed): the T-176 findings of the peril 2 and 4 sweep seeds, without stopping. */
+import { describe, it } from 'vitest';
+import { appendFileSync } from 'node:fs';
+const OUT = process.env['PROBE_OUT'] ?? '.vite/probe-sweep.txt';
+const log = (line: string): void => { appendFileSync(OUT, line + String.fromCharCode(10)); };
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import { checkInvariants, watchInvariants } from '../scenarios/invariants';
+import {
+  playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense, threeYearsWorld,
+} from '../scenarios/three_years_fortress';
+const THREE_YEARS_20_SEEDS = [1, 2, 3, 4, 5, 6, 7].map((n) => ({ seed: `three-years-p2-${n}`, peril: 2 }))
+  .concat([1, 2, 3, 4, 5, 6].map((n) => ({ seed: `three-years-p4-${n}`, peril: 4 })));
+
+const UNTIL_DAY = Number(process.env['PROBE_DAYS'] ?? '220');
+const ONLY = process.env['PROBE_ONLY'];
+const SEEDS = THREE_YEARS_20_SEEDS.filter((s) => s.peril > 0 && (ONLY === undefined || ONLY.split(',').includes(s.seed)));
+
+describe('probe sweep', () => {
+  it.each(SEEDS)('$seed', ({ seed, peril }) => {
+    const w = threeYearsWorld(seed, peril);
+    const seen = new Set<string>();
+    const stop = watchInvariants(w.game, (findings) => {
+      for (const f of findings) {
+        const key = `${f.inv}:${f.cls}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        log(`[sweep] ${seed} day ${Math.floor(w.tick / TICKS_PER_DAY) + 1} ${JSON.stringify(f)}`);
+      }
+    });
+    log(`[sweep-start] ${seed}`);
+    const state = setupThreeYearsFortress(w);
+    const boot = 20 * TICKS_PER_DAY;
+    while (w.tick < boot) {
+      playThreeYears(w, state, Math.min(100, boot - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    }
+    const end = UNTIL_DAY * TICKS_PER_DAY;
+    while (w.tick < end) {
+      playThreeYears(w, state, Math.min(300, end - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    }
+    stop();
+    const living = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
+    log(`[sweep-end] ${seed} day ${UNTIL_DAY} living ${living} findings ${checkInvariants(w.game).length} kinds ${[...seen].join(',') || 'none'}`);
+  }, 3_600_000);
+});
