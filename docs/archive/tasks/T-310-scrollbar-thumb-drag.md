@@ -1,5 +1,7 @@
 # T-310 — A scrollbar thumb can be dragged
 
+**Closed:** 2026-10-16, in 4108239.
+
 **Source:** T-270 (the decision "a scrollbar track is clickable and its thumb can be dragged"; the track click is done) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -18,7 +20,7 @@ A click on a list's scrollbar track jumps the list there. Dragging the thumb is 
 
 ## Done
 
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
 
 ## Decisions made in the work
 
