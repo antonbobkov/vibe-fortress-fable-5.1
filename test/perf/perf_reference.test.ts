@@ -21,8 +21,8 @@ describe('T-M6-18 / T-M8-01 perf: perf_reference', () => {
     expect(worstTickMs).toBeLessThanOrEqual(40);
   }, 600_000);
 
-  it('T-M8-01: gates every present system and the full 80-dwarf reference tick', async () => {
-    const { systems, pathing, core, averageTickMs, worstTickMs } = await measure('scripted');
+  it('T-M8-01: gates every present system and the full 80-dwarf reference tick (the furniture fixture the budgets were measured on)', async () => {
+    const { systems, pathing, core, averageTickMs, worstTickMs } = await measure('furniture');
     for (const id of Object.keys(ALLOCATION_MS)) expect(systems[id], `missing system ${id}`).toBeDefined();
     expect(Number.isFinite(pathing) && Number.isFinite(core)).toBe(true);
     expect(averageTickMs).toBeLessThanOrEqual(12);

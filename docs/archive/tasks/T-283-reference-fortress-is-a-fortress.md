@@ -1,6 +1,8 @@
 # T-283 — The 80-dwarf reference fortress has workshops, farms, a squad, a depot and a gate
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (§ 4, § 9) · **Size:** M · **Needs:** — · **Status:** open (test side; no change to the game)
+**Closed:** 2026-10-16, in e2f0e4d, 6086caa.
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (§ 4, § 9) · **Size:** M · **Needs:** — · **Status:** open (test side; no change to the game)
 
 ## Why
 
@@ -8,12 +10,12 @@
 
 ## Reproduction
 
-Load the fixture through Load › Import and read the hook's readers, as the capture's flow 3 did (the paragraph "What the reference fortress contains" in [`capture-index.md`](../../reports/audits/2026-10-12-ui-ux/capture-index.md)).
+Load the fixture through Load › Import and read the hook's readers, as the capture's flow 3 did (the paragraph "What the reference fortress contains" in [`capture-index.md`](../../../reports/audits/2026-10-12-ui-ux/capture-index.md)).
 
 ## What the spec says
 
-- [`performance-budget.md`](../01-architecture/performance-budget.md): what the reference fortress is and which budgets are measured on it.
-- [`testing-strategy.md`](../process/testing-strategy.md): fixtures and how they are built.
+- [`performance-budget.md`](../../01-architecture/performance-budget.md): what the reference fortress is and which budgets are measured on it.
+- [`testing-strategy.md`](../../process/testing-strategy.md): fixtures and how they are built.
 
 ## What to do
 
@@ -38,4 +40,4 @@ Load the fixture through Load › Import and read the hook's readers, as the cap
 
 - The new fixture loads, runs a season with nobody starving, and its check lists what it contains.
 - `performance-budget.md` names the fixture for every budget.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with `npm run test:perf`.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with `npm run test:perf`.
