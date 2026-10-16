@@ -19,6 +19,7 @@ import {
   ASSIGN_WORKERS_PER_TICK,
   BLOCKED_RETRIES_PER_TICK,
   BLOCKED_RETRY_TICKS,
+  PATIENT_SUMMON_PRIORITY,
   RESERVE_KEEP_TICKS,
   STANDING_ORDERS,
 } from './constants';
@@ -843,6 +844,42 @@ export class JobBoard implements JobsApi, JobSink {
     return job.producer === 'health' && job.target.kind === 'entity' && this.world.entities.has(job.target.ref, C.Patient);
   }
 
+  /**
+   * `11` § Assignment: an open job for a patient at `PATIENT_SUMMON_PRIORITY` does not wait for a
+   * worker to finish what it is doing. When no free worker in the queue could take it, the nearest
+   * worker at interruptible work that is not itself for a patient is interrupted, progress kept, and
+   * queued for this tick.
+   */
+  private summonForPatients(): void {
+    const map = this.world.map;
+    const entities = this.world.entities;
+    const onDuty = this.readers.has('16') ? this.readers.of<{ onDuty(id: EntityId): boolean }>('16') : null;
+    let workers: EntityId[] | null = null;
+    for (const id of this.ids) {
+      const job = this.jobs.get(id);
+      if (job === undefined || job.state !== 'open' || job.priority !== PATIENT_SUMMON_PRIORITY || !this.isPatientCare(job)) continue;
+      if (this.assignQueue.some((w) => this.workerOf(w).jobId === 0 && this.eligible(job, w))) continue;
+      const anchor = map.unpack(this.anchorTile(job));
+      let best: EntityId = 0;
+      let bestD = Number.POSITIVE_INFINITY;
+      workers ??= this.workers();
+      for (const w of workers) {
+        const held = this.jobs.get(this.workerOf(w).jobId);
+        if (held === undefined || held.workerId !== w || !this.typeRow(held).interruptible || this.isPatientCare(held)) continue;
+        if (entities.get(w, C.Brain)?.behavior !== 'work' || entities.has(w, C.Patient) || onDuty?.onDuty(w) === true) continue;
+        if (!this.eligible(job, w)) continue;
+        const d = estDistance(map.unpack(this.workerTile(w)), anchor);
+        if (d < bestD) {
+          best = w;
+          bestD = d;
+        }
+      }
+      if (best === 0) continue;
+      this.interrupt(best, true);
+      this.assign(best);
+    }
+  }
+
   /** Under a `hearth` alert a sheltering civilian takes patient-care jobs only. */
   private shelteredFrom(job: Job, workerId: EntityId): boolean {
     if (!this.readers.has('16')) return false;
@@ -1048,6 +1085,7 @@ export class JobBoard implements JobsApi, JobSink {
         for (const producer of this.producers) producer.produce(ctx, this);
         this.lapseReservations();
         this.retryBlocked();
+        this.summonForPatients();
         this.assignQueue.sort((a, b) => a - b);
         let served = 0;
         while (this.assignQueue.length > 0 && served < ASSIGN_WORKERS_PER_TICK) {
