@@ -10,7 +10,7 @@ Each production chain of the game has one scenario that plays it from player com
 | Hospital | a wounded dwarf diagnosed and treated with supplies hauled into the hospital chest | none yet |
 | Trade | goods hauled to the depot, a broker trading with a caravan | none yet |
 | Defence | a squad equipped from the stockpile, answering an alert and killing a hostile animal | none yet |
-| Pasture | tame grazers fed on a pasture zone through a season | none yet |
+| Pasture | tame grazers fed on a pasture zone through a season | fails: [T-335](../work/T-335-grazers-starve-beside-unreachable-pasture-grass.md). [`pp_pasture`](../../test/scenarios/pp_pasture.scenario.ts): the Farmstead's six grazers on a 320-tile meadow pasture; all starve by day 12 beside a grass tile they cannot reach |
 
 A chain is covered when its scenario exists, passes, and stages nothing that the chain produces or delivers. A chain that cannot be played from commands yet is marked "fails" with the task that records the fault; its scenario carries that task id as its `todo` and is reported as todo until the task closes.
 
