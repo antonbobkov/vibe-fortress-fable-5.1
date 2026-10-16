@@ -6,11 +6,13 @@ import { describe, expect, it } from 'vitest';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import type { Command } from '@core/commands';
 import { computeLayout } from '@render/cellbuffer';
+import { drawBuildPanel } from '@ui/panels/build';
 import { CURSOR_SCROLL_MARGIN } from '@ui/constants';
 import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
 import { defaultUiState } from '@ui/ui-state';
 import { TestWorld } from '../../scenarios/test-world';
-import { keymap, press, strings } from './ui-fixture';
+import { Keymap, type KeyOverride, type KeymapRow } from '@ui/keymap';
+import { press, registry, strings, surface, keymap } from './ui-fixture';
 
 const z = FLAT_TEST_SURFACE_Z;
 const LAYOUT = computeLayout(80, 42, true);
@@ -211,5 +213,59 @@ describe('T-271 a zone and a kill order by keys', () => {
     const order = f.sent.find((cmd) => cmd.type === 'SquadOrder');
     expect(order).toMatchObject({ type: 'SquadOrder', order: { kind: 'kill', targetId: wolf } });
     expect(f.screen.military.settingKill).toBe(false);
+  });
+});
+
+describe('T-271 a pick that waits for the map ends with the military panel', () => {
+  it('Shift+K, then another panel: the arrows pan and Enter sends nothing', () => {
+    const f = setup('t271-pick-ends');
+    f.w.submit({ type: 'CreateSquad', name: 'The Hearthguard' });
+    f.w.step(1);
+    f.w.spawnCreature('wolf', f.w.index(30, 30, z), 'wild');
+    keys(f, 'm', 'Shift+K');
+    expect(f.screen.military.settingKill).toBe(true);
+    keys(f, 'b');
+    expect(f.screen.military.settingKill).toBe(false);
+    const cam = f.screen.ui.camX;
+    keys(f, 'ArrowRight');
+    expect(f.screen.ui.camX).toBe(cam + 1);
+    keys(f, 'Enter');
+    expect(f.sent.filter((cmd) => cmd.type === 'SquadOrder')).toHaveLength(0);
+    // Closing the panel ends it too.
+    keys(f, 'm', 'Shift+K', 'm');
+    expect(f.screen.military.settingKill).toBe(false);
+  });
+});
+
+describe('T-271 the build help rows follow the state', () => {
+  it('say Enter picks while the list is open and nothing is picked, and the ghost rows once a building is', () => {
+    const f = setup('t271-help');
+    keys(f, 'b', 'w');
+    expect(f.screen.build.active).toBe(false);
+    const list = surface(36, 32);
+    drawBuildPanel(list, { col: 0, row: 0, cols: 36, rows: 32 }, f.screen.build, f.screen.ctx);
+    expect(list.lines().join(' ')).toContain('Enter picks the');
+    expect(list.lines().join(' ')).not.toContain('Enter places');
+    keys(f, 'Enter');
+    const armed = surface(36, 32);
+    drawBuildPanel(armed, { col: 0, row: 0, cols: 36, rows: 32 }, f.screen.build, f.screen.ctx);
+    expect(armed.lines().join(' ')).toContain('Ghost at the cursor');
+    expect(armed.lines().join(' ')).toContain('Enter');
+  });
+});
+
+describe('T-271 a saved custom keymap holds indexes and keys, not the wording of a row', () => {
+  it('a rebound pan key survives into a keymap built from the reworded rows', () => {
+    const rows = registry.derived<readonly KeymapRow[]>('keymap');
+    const first = Keymap.fromRows(rows);
+    const index = (first as unknown as { current: { id: string; arg?: string }[] }).current.findIndex((b) => b.id === 'pan' && b.arg === '←');
+    expect(index).toBeGreaterThanOrEqual(0);
+    expect(first.rebind(index, { key: 'h', ctrl: false, shift: false })).toBeNull();
+    const saved = JSON.parse(JSON.stringify(first.overrides())) as KeyOverride[];
+    expect(JSON.stringify(saved)).not.toContain('pan by');
+    expect(saved.every((o) => Object.keys(o).sort().join() === 'index,spec')).toBe(true);
+    const second = Keymap.fromRows(rows);
+    second.loadOverrides(saved);
+    expect(second.resolve('map', press('h'))).toMatchObject({ id: 'pan', arg: '←' });
   });
 });

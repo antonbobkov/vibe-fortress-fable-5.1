@@ -73,13 +73,13 @@ Animals, Tame tab: `[S-t] train` or its button opens War/Hunting; arrows and Ent
 
 | Key | Action |
 |---|---|
-| `←` `→` `↑` `↓` | pan by 1 cell (`Shift`: 10) |
+| `←` `→` `↑` `↓` | pan or move the map cursor (`Shift`: 10) |
 | `<` `,` | z-level down |
 | `>` `.` | z-level up |
 | `Home` | center on the hearth (or wagon) |
 | `Ctrl+↑` / `Ctrl+↓` | zoom in / out |
-| `k` | look cursor at the mouse (or map center) |
-| `Enter` | with a tool: start/end rectangle at the cursor |
+| `k` | look at the mouse (or map center) |
+| `Enter` | act at the map cursor |
 | `1`–`9` | with a designation or zone tool: set priority |
 | `r` | with a building tool: rotate |
 | `x` | with a building tool: cycle material |

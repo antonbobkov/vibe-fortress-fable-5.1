@@ -845,12 +845,9 @@ export class JobBoard implements JobsApi, JobSink {
     return job.producer === 'health' && job.target.kind === 'entity' && this.world.entities.has(job.target.ref, C.Patient);
   }
 
-  /** Whether a creature is the quarry of a claimed hunt job (also after it has died: the job keeps the id). */
+  /** Whether a claimed hunt job has this creature as its quarry after the quarry has died (the job's `animal` is set then). */
   isHuntQuarry(creatureId: EntityId): boolean {
-    return Array.from(this.jobs.keys()).sort((a, b) => a - b).some((id) => {
-      const job = this.jobs.get(id) as Job;
-      return job.workerId !== 0 && job.data['animal'] === creatureId && this.typeId(job) === 'hunt';
-    });
+    return Array.from(this.jobs.values()).some((job) => job.workerId !== 0 && job.data['animal'] === creatureId && this.typeId(job) === 'hunt');
   }
 
   /** Under a `hearth` alert a sheltering civilian takes patient-care jobs only. */

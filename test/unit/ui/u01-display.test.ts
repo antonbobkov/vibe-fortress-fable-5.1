@@ -115,7 +115,7 @@ describe('U-01 help groups keys and lists the panel hotkeys first (Q14)', () => 
     const rows = helpKeyRows(keymap);
     expect(rows[0]).toMatchObject({ heading: true, text: 'Fortress panels' });
     expect(rows[1]?.text).toBe('d  Designate panel');
-    expect(rows.some((r) => r.text === '←→↑↓  pan by 1 cell (Shift: 10)')).toBe(true);
+    expect(rows.some((r) => r.text === '←→↑↓  pan or move the map cursor (Shift: 10)')).toBe(true);
     expect(rows.some((r) => r.text === '1–9  with a designation or zone tool: set priority')).toBe(true);
     expect(rows.some((r) => r.text === '+ -  quantity' && r.category === 'trade_session')).toBe(true);
     expect(keysLabel(['any-letter'])).toBe('[letter]');

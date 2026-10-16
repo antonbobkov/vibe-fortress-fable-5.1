@@ -164,7 +164,7 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 - `jobs.typeOf(id)` — the job type id of a job, or null
 - `jobs.isQueued(dwarfId)` — the worker is waiting in the assignment queue
 - `jobs.holdsPatientCare(dwarfId)` — the dwarf holds a health job whose target is a patient (the dwarf brain's test for medical work under a `hearth` alert)
-- `jobs.isHuntQuarry(creatureId)` — a claimed hunt job has this creature as its quarry, also after the quarry has died (combat's test for a kill that `HuntKill` announces)
+- `jobs.isHuntQuarry(creatureId)` — a claimed hunt job has this creature as its quarry after the quarry has died (combat's test for a kill that `HuntKill` announces)
 - `jobs.hasWork(dwarfId)` — an open job exists that this worker could take
 - `jobs.hasUrgent(dwarfId, priority)` — an open job of that priority or more urgent exists that this worker could take (the dwarf brain's interrupt check)
 

@@ -268,6 +268,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.build.material': 'Material: [x] {material} ({n})',
   'ui.build.rotate': '[r] rotate ({n})',
   'ui.build.no_rotate': '[r] rotate',
+  'ui.build.help_list1': '── ↑↓ choose, Enter picks the',
+  'ui.build.help_list2': '   building to place.',
   'ui.build.help1': '── Ghost at the cursor: green ok,',
   'ui.build.help2': '   red blocked. Enter places.',
   'ui.build.help2_drag': '   red blocked. Enter; drag many.',

@@ -1008,6 +1008,8 @@ export class FortressScreen implements Screen {
   }
 
   openPanel(id: string | null): void {
+    // A pick that waits for the map (a station, a patrol point, a kill or follow order) ends with the military panel.
+    if (id !== 'military') this.military.cancel();
     if (id !== 'animals') this.animals.capEditor = null;
     if (id !== 'designate') this.tool.cancel();
     if (id !== 'build') this.build.cancel();

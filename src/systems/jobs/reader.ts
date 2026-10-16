@@ -39,7 +39,7 @@ export interface JobsReader {
   hasWork(dwarfId: EntityId): boolean;
   /** True while the dwarf holds a job for a patient (a health job whose target is a patient). */
   holdsPatientCare(dwarfId: EntityId): boolean;
-  /** True while a claimed hunt job has this creature as its quarry, and after the quarry has died. */
+  /** True when a claimed hunt job has this creature as its quarry after the quarry has died. */
   isHuntQuarry(creatureId: EntityId): boolean;
 }
 

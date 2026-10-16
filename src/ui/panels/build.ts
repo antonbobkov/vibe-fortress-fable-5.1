@@ -518,6 +518,12 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
     }
     return;
   }
+  // Nothing is picked yet: Enter picks the highlighted row; once picked, Enter places.
+  if (!tool.active) {
+    label(s, rect.col + 1, row, strings.get('ui.build.help_list1'), { fg: t.dim, width: rect.cols - 2 });
+    label(s, rect.col + 1, row + 1, strings.get('ui.build.help_list2'), { fg: t.dim, width: rect.cols - 2 });
+    return;
+  }
   label(s, rect.col + 1, row, strings.get('ui.build.help1'), { fg: t.dim, width: rect.cols - 2 });
   label(s, rect.col + 1, row + 1, strings.get(tool.multi(ctx) ? 'ui.build.help2_drag' : 'ui.build.help2'), { fg: t.dim, width: rect.cols - 2 });
 }

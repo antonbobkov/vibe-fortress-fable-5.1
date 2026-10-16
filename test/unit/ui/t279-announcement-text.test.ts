@@ -154,6 +154,18 @@ describe('T-279 merging and dates', () => {
     expect(log.lines.filter((line) => line.text === 'Obsidian has formed.')).toHaveLength(2);
   });
 
+  it('announces obsidian once a day however often it forms', () => {
+    const { w, log } = world('t279-obsidian');
+    const day = 52 * TICKS_PER_DAY;
+    for (let k = 0; k < 6; k += 1) {
+      log.announce({ type: 'ObsidianFormed', tile: 10 + k }, w.readers, day + k * 150);
+      log.append('note', `Other line ${k}.`, day + k * 150 + 1);
+    }
+    const obsidian = log.lines.filter((line) => line.text === 'Obsidian has formed.');
+    expect(obsidian).toHaveLength(1);
+    expect(obsidian[0]?.count).toBe(6);
+  });
+
   it('a line merged after midnight does not stop a later same-day merge', () => {
     const { log } = world('t279-scan');
     const day = 8 * TICKS_PER_DAY;
