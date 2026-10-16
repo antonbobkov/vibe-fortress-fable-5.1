@@ -441,13 +441,13 @@ describe('U-06 help and the app', () => {
       '+ -  labor priority up / down',
       '1–9  set the labor priority',
       't  profession templates',
-      'Shift+T  give or take away a title',
-      'Shift+N  rename the dwarf',
-      'Shift+M  add the marked dwarves to a squad',
+      '[S-t]  give or take away a title',
+      '[S-n]  rename the dwarf',
+      '[S-m]  add the marked dwarves to a squad',
       '[ ]  sleep an hour earlier / later',
-      'Shift+L  choose the squad leader',
-      'Shift+B  assign a barracks zone',
-      'Shift+N  rename the squad',
+      '[S-l]  choose the squad leader',
+      '[S-b]  assign a barracks zone',
+      '[S-n]  rename the squad',
     ]) expect(rows).toContain(text);
     const contexts = keymap.bindings.map((b) => b.context);
     const firstNew = contexts.findIndex((c) => c === 'labor_manager' || c === 'units_panel' || c === 'military_panel');

@@ -35,3 +35,11 @@ Default embark, 1280×800. `d` (capture 4/13, `13-B-designate-1280x800.png`). `?
 
 - At 1280×800 no label in Designate or Help is cut, and the first hint is whole.
 - The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite; moved render goldens are explained.
+
+## Decisions made in the work
+
+- The one rule for cells is made in the label widget itself: every label that does not fit ends with `»` and keeps its tooltip, so no panel needed its own clipping helper. Labels that draw their own cut turn it off with `mark: false`.
+- The Designate columns are not equal: the left is 17 cells (the longest caption is "[S-t] Chop trees"), the right takes the rest, so "[S-j] Down stair" is whole at the real sidebar width, 35 cells.
+- Hints are marked in the log with the category `hint`; the strip wraps and colours by that category.
+- The note "S- is Shift" is drawn by the sidebar on the last row of the panel body when that row is blank and the panel shows an `[S-` caption; Help has the line at the top of its Keys tab instead.
+- Step 7 of Start is included, since T-273 is closed.

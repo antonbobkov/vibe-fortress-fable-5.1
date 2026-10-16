@@ -67,7 +67,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
 
   it('Build offers the category keys, lists the chosen category with its cost and stock, and names the keys that place', () => {
     const rows = render('build');
-    expect(rows[0]).toMatch(/^\[S-c\] Constructi\w* +\[S-f\] Furniture/);
+    // The first caption is cut at its column and says so with » (its tooltip has the whole).
+    expect(rows[0]).toMatch(/^\[S-c\] Construct» +\[S-f\] Furniture/);
     expect(rows[1]).toMatch(/^\[w\] Workshops +\[S-m\] Mechanisms/);
     expect(rows[2]).toMatch(/^\[S-t\] Traps +\[S-s\] Special/);
     expect(rows[3]).toMatch(/^─+ Workshops ─+$/);

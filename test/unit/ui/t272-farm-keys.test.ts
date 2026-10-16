@@ -119,7 +119,7 @@ describe('T-272 the Calendar key', () => {
     // Rebinding indices of older rows did not move: the new row is the last of the table.
     expect(keymap.bindings[keymap.bindings.length - 1]?.id).toBe('calendar');
     const help = helpKeyRows(keymap, strings).map((row) => row.text);
-    expect(help.some((text) => text.includes('Shift+Y') && text.includes('calendar panel'))).toBe(true);
+    expect(help.some((text) => text.includes('[S-y]') && text.includes('calendar panel'))).toBe(true);
     expect(help.some((text) => text.includes('Farm plot: ↑↓ season') && text.includes('[S-a]'))).toBe(true);
   });
 });

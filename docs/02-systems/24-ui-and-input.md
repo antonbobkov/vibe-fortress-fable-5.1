@@ -61,6 +61,7 @@ Mouse:
 - Right click: cancels the current tool; with no tool, opens the inspection panel for the tile (same as left) with the context list of entities on it.
 - Wheel: z-level (down = deeper). `Ctrl` + wheel: zoom. `Shift` + wheel: pan vertically.
 - Middle drag (or `Space` + left drag): pan.
+- Text that does not fit its cell is marked: it ends with `»` and registers a tooltip with the whole text. A panel never writes past its last column.
 - Hover: the status bar's second row shows the tile summary ("Granite wall, undiscovered beyond" / "Ketil Ironvein, Miner, Digging" / "5 dimcaps in a bin"). Clipped labels and table cells register their full text as a tooltip, shown in the status row and a box above the hovered cell; the sidebar retains `SIDEBAR_COLS`.
 - Edge scrolling is off by default (a setting).
 

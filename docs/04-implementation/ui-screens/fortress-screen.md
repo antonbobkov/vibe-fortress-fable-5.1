@@ -32,7 +32,7 @@ Every field of row 1 is a button. A click on the date or the weather opens the C
 
 Status row 2: the tile summary under the mouse (or the cursor), then as many complete hotkey entries as fit (each is a button that does what its key does), in order `[d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look`; omit a trailing entry that does not fit, never clip its key or caption. The tile summary keeps its place on the left; with a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`. A notice or refusal reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier by starting a drag, a new ghost state or a new notice. Other status row text that does not fit ends with `…` and registers its full text as a tooltip on the row, like any clipped label.
 
-The log strip shows the last three announcements; danger lines are prefixed `!!`, alerts `!`.
+The log strip shows the last three announcements; danger lines are prefixed `!!`, alerts `!`. A line that does not fit ends with `»` and has a tooltip with the whole text. A hint (the `☼` lines) that does not fit one line is wrapped over two of the strip's three lines, and is drawn in `text_value`, not in the announcements' grey.
 
 ## Sidebar open (units panel)
 
@@ -111,18 +111,20 @@ Sections come from the inspector registry in this order: identity, activity, nee
 ```
 │ Designate                          [x]  │
 │ [S-d] Dig        [S-c] Channel          │
-│ [S-u] Up stairs  [S-j] Down stairs      │
+│ [S-u] Up stair   [S-j] Down stair       │
 │ [i] Up/down      [r] Ramp               │
 │ [w] Stairwell    [S-s] Smooth           │
-│ [S-e] Engrave    [x] Remove construction│
-│ [S-t] Chop trees [g] Gather plants      │
+│ [S-e] Engrave    [x] Remove             │
+│ [S-t] Chop trees [g] Gather             │
 │ [h] Harvest      [S-f] Traffic          │
 │ Priority [-] 5 [+]   (1–9)              │
-│ [Ctrl+Z] undo last  [Del] clear         │
+│ [Ctrl+Z] undo  [Del] clear              │
 │ [S-p] last batch to priority 5          │
-│ ─ Drag a rectangle on the map, or      │
-│   use Enter twice for corners.    │
+│ Drag, or click two corners.             │
+│ S- is Shift                             │
 ```
+
+The captions are short so that none is cut at the 36-column sidebar; the tool's full name stays in the status row ("Remove construction · priority 5", "Gather plants", "Traffic (restricted)"). The footer is two whole lines.
 
 `d` opens the panel with Dig chosen (`d` again closes it). The letters that open panels take `Shift` here (`panels.md`).
 

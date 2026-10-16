@@ -93,7 +93,7 @@ export class HintEngine {
     if (!enabled || this.ui.hintsShown.includes(id)) return false;
     const row = this.registered.find((hint) => hint.id === id);
     if (row === undefined) return false;
-    this.log.append('note', `☼ ${row.text}`, tick);
+    this.log.append('note', `☼ ${row.text}`, tick, undefined, 'hint');
     this.ui.hintsShown.push(id);
     this.ui.hintsShown.sort();
     this.ui.hintPending = this.ui.hintPending.filter((pending) => pending !== id);

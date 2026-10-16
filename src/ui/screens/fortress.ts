@@ -51,7 +51,7 @@ import { drawOverlaysPanel, OVERLAY_ROWS, OverlayMenu } from '../panels/overlays
 import { drawHelpPanel, HelpPanel, type HelpTab } from '../panels/help';
 import { DebugPanel, drawDebugPanel, type DebugHost } from '../panels/debug';
 import type { Strings } from '../strings';
-import type { Surface } from '../surface';
+import { rowText, type Surface } from '../surface';
 import type { UiState } from '../ui-state';
 import { drawTooltip, editText, label, labelRow, typedChar } from '../widgets';
 import { blockedText, buildingName, commandFocus, pluralName, rejectionText, zoneName, zoneEditorMessage } from '../messages';
@@ -175,6 +175,8 @@ export class FortressScreen implements Screen {
   private message: { text: string; until: number } | null = null;
   /** A refused station or patrol tile put its notice up; the pointer moving takes it down so the prompt returns. */
   private pickRefused = false;
+  /** Help has opened on its Start tab in this fortress. */
+  private helpStartShown = false;
   private noticeGhost: string | null = null;
   private dragging = false;
   /**
@@ -404,6 +406,7 @@ export class FortressScreen implements Screen {
   registerHint(hint: HintRow): void { this.hints.hint(hint); }
 
   resetHints(): void {
+    this.helpStartShown = false;
     this.ui.hintsShown = [];
     this.ui.hintPending = [];
     this.ui.hintBareSince = [];
@@ -655,6 +658,26 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, readers.calendar.tick, (line) => {
       if (line.focus !== undefined) this.focusOn(line.focus);
     });
+    if (panel.id !== 'help') this.drawShiftNote(surface, body);
+  }
+
+  /** A panel that shows an `[S-x]` caption ends with a dim "S- is Shift" line when its last row is free (24 § Rules). */
+  private drawShiftNote(surface: Surface, body: Rect): void {
+    if (body.rows < 2) return;
+    const glyphs = surface.cells.glyph;
+    const blank = (row: number): boolean => {
+      for (let col = body.col; col < body.col + body.cols; col += 1) { const g = glyphs[row * surface.cols + col] as number; if (g !== 0 && g !== 32) return false; }
+      return true;
+    };
+    const last = body.row + body.rows - 1;
+    if (!blank(last)) return;
+    for (let row = body.row; row < last; row += 1) {
+      const text = rowText(surface.cells, surface.glyphs, row).slice(body.col, body.col + body.cols);
+      if (text.includes('[S-')) {
+        label(surface, body.col + 1, last, this.strings.get('ui.panel.shift_note'), { fg: surface.theme.dim, width: body.cols - 2, keys: false });
+        return;
+      }
+    }
   }
 
   private drawStatus(surface: Surface, rect: Rect): void {
@@ -1028,6 +1051,8 @@ export class FortressScreen implements Screen {
     if (id !== 'zones') this.zones.cancel();
     if (id !== 'building') this.building.cancel();
     if (id !== this.ui.panel) this.clearFilters();
+    // Help opens on the Start tab the first time in a fortress.
+    if (id === 'help' && !this.helpStartShown) { this.help.setTab(2); this.helpStartShown = true; }
     this.ui.panel = id;
     this.ui.sidebar = true;
   }
@@ -1672,9 +1697,9 @@ export class FortressScreen implements Screen {
           }
           return false;
       case 'help':
-        if (k === '1' || k === '2') { this.help.setTab((Number(k) - 1) as HelpTab); return true; }
+        if (k === '1' || k === '2' || k === '3') { this.help.setTab((Number(k) - 1) as HelpTab); return true; }
         if (!press.shift && (up || down)) { this.help.move(up ? -1 : 1); return true; }
-        if (k === 'PageUp' || k === 'PageDown') { this.help.move(k === 'PageUp' ? -HELP_PAGE_ROWS : HELP_PAGE_ROWS); return true; }
+        if (k === 'PageUp' || k === 'PageDown') { this.help.page(k === 'PageUp' ? -1 : 1); return true; }
         return false;
       case 'debug': {
         const debug = this.host.debug;

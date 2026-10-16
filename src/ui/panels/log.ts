@@ -14,6 +14,7 @@ import { lineText, type LogLine, type Severity } from '../announcements';
 import type { Strings } from '../strings';
 import type { Surface, Theme } from '../surface';
 import { label } from '../widgets';
+import { wrapText } from '../messages';
 
 /** `0` all, `1` alerts and danger, `2` combat. */
 export type LogFilter = 0 | 1 | 2;
@@ -72,8 +73,15 @@ export function drawLogStrip(s: Surface, rect: Rect, lines: readonly LogLine[], 
   s.fill(rect, bg);
   const tail = lines.slice(Math.max(0, lines.length - rect.rows));
   const shown = pinned !== null && !tail.includes(pinned) ? [...tail.slice(1), pinned] : tail;
-  const offset = rect.rows - shown.length;
-  shown.forEach((line, k) => {
-    s.text(rect.col + 1, rect.row + offset + k, lineText(line), colorOf(s.theme, line.severity), bg, rect.cols - 2);
+  // A hint that does not fit one line takes two of the strip's lines; every other line is cut with `»`.
+  const width = rect.cols - 2;
+  const rows = shown.flatMap((line) => {
+    const hint = line.category === 'hint';
+    const color = hint ? s.theme.value : colorOf(s.theme, line.severity);
+    return (hint ? wrapText(lineText(line), width, 2) : [lineText(line)]).map((text) => ({ text, color }));
+  }).slice(-rect.rows);
+  const offset = rect.rows - rows.length;
+  rows.forEach((row, k) => {
+    label(s, rect.col + 1, rect.row + offset + k, row.text, { fg: row.color, bg, width, keys: false });
   });
 }
