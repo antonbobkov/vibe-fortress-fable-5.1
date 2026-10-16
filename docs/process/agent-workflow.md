@@ -29,7 +29,7 @@ After a task closes, the specification alone says how the game behaves. Nobody s
 
 ## Picking up a task
 
-1. Open [`../backlog.md`](../backlog.md). Take an item whose *Needs* are all closed and whose status is `open`. Set its status to `in progress (<agent or branch>)` in the first commit of the work.
+1. Open [`../backlog.md`](../backlog.md). Take an item whose *Needs* are all closed and whose status is `open`. **Only the orchestrator edits the backlog**: an agent never changes a row, adds one or deletes one (§ Closing a task says how new rows reach it).
 2. Read, in this order: the work file; its source (the audit items or report sections it cites); every spec section it names, whole and not only the one sentence; the algorithm file for the subsystem if `04-implementation/algorithms/` has one; the schemas in `04-implementation/schemas/` for the types you will touch; the acceptance tests it lists.
 3. Read the code of the modules you will change, and their tests. Do not read the whole repository.
 4. Work on a branch or worktree named for the task. Do not merge or push unless the task says so.
@@ -44,15 +44,19 @@ After a task closes, the specification alone says how the game behaves. Nobody s
 - **Keep the layer rule.** ESLint enforces it. Do not add exceptions.
 - **Tests with the change.** Every task adds or extends tests in the same commit as the code ([testing-strategy.md](testing-strategy.md)). A behaviour change without a test change is not done. A documentation-only task needs no new test, but every check must still pass.
 - **Determinism always.** No `Math.random`, `Date.now` or `performance.now` in `src/core`, `src/systems` or `src/content`.
+- **A number nobody has measured is marked.** A spec number that was set by judgement and not measured in the game carries the word *unmeasured* beside it in its table or sentence. A task that builds on an unmeasured number measures it first and replaces the mark with the measurement's report.
 - **Stay inside the task.** Something worth fixing that the task does not cover becomes a backlog row, with this task or its report as the source. It is not fixed in passing.
 
 ## Verifying
 
-Before every commit, in the foreground:
+Before every commit, in the foreground, the six static checks and the tests the change affects:
 
 ```
-npm run lint && npm run typecheck && npm run content:check && npm run strings:check && npm run interface:check && npm run docs:check && npm test
+npm run lint && npm run typecheck && npm run content:check && npm run strings:check && npm run interface:check && npm run docs:check
+npx vitest run <the test files of every module changed, and every scenario that plays those systems>
 ```
+
+The full `npm test` runs once, on `master`, after the merge and before the push; the orchestrator runs it. An agent runs the full `npm test` itself only when the task says so or when it cannot tell which tests a change affects (a change to a shared helper, the job board, items, pathfinding or the save format). After any fix that follows a failure, re-run the whole set of commands again, not only the file that failed.
 
 | Command | What it checks |
 |---|---|
@@ -62,12 +66,13 @@ npm run lint && npm run typecheck && npm run content:check && npm run strings:ch
 | `npm run strings:check` | every string key that is used exists, and every key that exists is used |
 | `npm run interface:check` | each system document's Interfaces section against the readers, events and commands in the code; it also fails on any line of the specification that starts with `Implementation note:` |
 | `npm run docs:check` | no relative link in `docs/`, `reports/`, `agents/` or the root `README.md` points at a file that does not exist |
-| `npm test` | unit, scenario (every scenario), property and golden tests; six to eight minutes |
+| `npm test` | unit, scenario (every scenario), property and golden tests; eight to fourteen minutes |
 
 Several of them read `docs/`, so run all of them even for a documentation-only change. Then, when the task needs it:
 
 ```
-npm run test:e2e     # tasks that touch src/render, src/ui or src/app
+npm run test:e2e     # every behaviour change under src/; the whole suite, with "e2e: N passed" in the commit body
+npx vitest run --config <perf config> test/perf/wildlife_year.test.ts   # every change that can move the simulation; before and after rows in the commit body
 npm run test:perf    # tasks that touch a system's tick, the job board, pathfinding, or anything with a budget in performance-budget.md; about 40 minutes
 ```
 
@@ -76,20 +81,39 @@ Never run a tool through `npx` unless it is a dependency in `package.json`.
 ## Committing
 
 - Subject: `T-123: <what changed>`. A task may be several commits, when each is coherent and green on its own.
-- Body, in this order:
-  1. what changed and why, in a few lines;
-  2. **`Spec edits:`** with one line per spec document edited, naming the section (`02-systems/21-immigration.md § Wave size: the winter wave is clamped before it is halved`). A commit with no spec edit says `Spec edits: none` and why (test-only, tooling, documentation layout);
-  3. the tests added or changed;
-  4. if a golden file moved, a paragraph that starts `golden:` and says which files changed and why.
+- Body: at most about fifteen lines, in this order:
+  1. what changed and why, in two or three lines;
+  2. **`Spec edits:`** the documents and sections, on one or two lines; or `Spec edits: none` and why;
+  3. **`Tests:`** the tests added;
+  4. **`Expectations changed:`** each existing assertion that was changed, one line each: the file, the old expectation, and why it was exactly the old behaviour the task changes. `none` if none. The reviewer checks every line of it;
+  5. **`golden:`** each golden file that moved and why, or `none`;
+  6. **`Gates:`** one line: the checks and tests run, `e2e: N passed`, and the instrument rows when it ran;
+  7. **`Closes:`** the task id when this commit finishes it, and **`New rows:`** one line per new task (id, title, the work file it created).
 - Golden files change only through `npm run golden:update -- <name>`, in the same commit as the behaviour change. A golden change that the work file does not predict is a regression: investigate it before committing.
+
+## Review
+
+Every change under `src/` is reviewed before it is merged, by someone other than the agent that wrote it: a second agent (Opus reviewing Sonnet's work, or the reverse) or the orchestrator reading the diff. The review reads the diff, not the commit message, and looks first at:
+
+- **the seams**: where the change meets another system's state (jobs, items and reservations, buildings, health, animals), and whether the other side still holds;
+- **cleanup**: every reservation, claim, job or flag the change creates is released on every path, including death, cancel, interrupt and save/load;
+- **save/load**: new state is saved, loaded and given a default for older saves;
+- **each `Expectations changed:` line**: the old assertion really was the behaviour the task changes, and nothing else was loosened;
+- **each moved golden**: the diff of the golden is read, and it shows what the task says it shows.
+
+A finding is fixed on the branch before the merge, or becomes a backlog row if it is outside the task.
 
 ## Closing a task
 
-A task is closed in its last commit, or in the merge that lands it. Closing means folding:
+A task is closed in two steps.
+
+**The agent, in its last commit:**
 
 1. **Every decision is in the spec section it governs**, as plain spec text. This covers the decisions the work file made in advance and the choices made under the [ambiguity protocol](ambiguity-protocol.md). Check each one against the spec before closing. "The code does it" is not enough.
-2. **The work file moves to `docs/archive/tasks/`** with `git mv`. Add nothing to it except one closing line under its header, naming the commits that implemented it. From then on it is history and is not edited.
-3. **The row is deleted from [`../backlog.md`](../backlog.md).** Anything the task found and did not do is a new row with a source.
+2. **The commit body says `Closes: T-123`.** The work file stays in `docs/work/`; the agent does not move it and does not touch the backlog.
+3. **Anything the task found and did not do** gets a work file in `docs/work/` (with its source) and a `New rows:` line in the commit body.
+
+**The orchestrator, in the merge:** runs `node scripts/close-task.mjs T-123 <commits>`, which moves the work file to `docs/archive/tasks/` with its closing line, deletes the row from [`../backlog.md`](../backlog.md) and repoints the links to the file, and adds the rows for the new work files. From then on the archived file is history and is not edited.
 4. **The decision log keeps nothing of the task**, except what is still pending (§ The decision log).
 
 The specification never links into `docs/archive/` or `docs/work/`. If a spec sentence needs something that a task file says, that something belongs in the spec.
@@ -155,6 +179,7 @@ Sizes are S (under an hour of agent work), M (one to a few hours) and L (most of
 - The code implements what the work file decided, and nothing else.
 - The specification describes the behaviour as it now is, with no task id and no date in the text, and the commit body lists the spec edits.
 - The tests the work file lists exist, pass, and carry the task id in their `describe` name.
-- `lint`, `typecheck`, `content:check`, `strings:check`, `interface:check`, `docs:check` and `npm test` pass. `test:e2e` and `test:perf` pass where the task needs them.
+- `lint`, `typecheck`, `content:check`, `strings:check`, `interface:check`, `docs:check` and the affected tests pass; `test:e2e`, the annual instrument and `test:perf` pass where the task needs them (§ Verifying). The full `npm test` passes on `master` after the merge.
+- The change under `src/` has been reviewed (§ Review).
 - World hashes and render goldens moved only where the work file said they would, with a `golden:` paragraph in the commit.
-- The task is closed: decisions folded into the spec, work file archived, backlog row deleted, follow-ups added as new rows.
+- Decisions are folded into the spec, the commit says `Closes:`, and follow-ups have work files and `New rows:` lines; the orchestrator archives the work file and edits the backlog (§ Closing a task).
