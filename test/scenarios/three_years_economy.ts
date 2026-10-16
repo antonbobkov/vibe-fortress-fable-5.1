@@ -1039,9 +1039,10 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     const orders = (): readonly { recipe: number; mode: string; threshold: number; remaining: number }[] => w.game.world.entities.get(carpenter, C.Workshop)?.orders ?? [];
     const standing = (): number => orders().findIndex((o) => o.recipe === recipes.index('make_barrel') && o.mode === 'maintain');
     const barrels = standing();
-    // Barrels for every larder tile and three weeks of drink, and a few spare for the still.
+    // From the second season, barrels for every larder tile and three weeks of drink, and a few
+    // spare for the still; the first season's carpenter has the beds and the squad's gear to make.
     const population0 = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
-    const threshold = Math.min(160, Math.max(20, foodBarrels + Math.ceil(population0 * 0.77 * DRINK_DAYS / 20) + 6));
+    const threshold = day < 2 * 28 ? 20 : Math.min(160, Math.max(20, foodBarrels + Math.ceil(population0 * 0.77 * DRINK_DAYS / 20) + 6));
     if (barrels >= 0 && orders()[barrels]!.threshold !== threshold) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: carpenter, index: barrels, patch: { threshold } });
     // Beds come before barrels until every dwarf and the hospital has one.
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
