@@ -496,7 +496,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   if (gatherTiles.length) w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'gather', tiles: gatherTiles });
 
   return {
-    economy: { lastDay: -1, phases: new Set(), traded: new Set(), mined: new Set(), workings: new Set(), specialists: {}, farmPlans: [] },
+    economy: { lastDay: -1, phases: new Set(), traded: new Set(), mined: new Set(), workings: new Set(), specialists: {}, farmPlans: [], cavePlans: [] },
     cx,
     cy,
     placedIds,

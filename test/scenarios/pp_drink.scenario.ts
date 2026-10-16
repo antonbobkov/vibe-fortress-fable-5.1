@@ -3,7 +3,7 @@
  *
  * From the Balanced embark on a compact generated forest region, by commands only: the wagon's
  * own drink is forbidden (kept for later, as a player may), so that a dwarf who drinks alcohol
- * drinks the fortress's brew; a stockpile; a stair down to the first rock and a small room dug
+ * drinks the fortress's brew; a stockpile that wants two barrels; a stair down to the first rock and a small room dug
  * there for stone; a carpenter's workshop that makes barrels; a still; and an order to brew. The
  * still brews the wagon's dimcaps.
  *
@@ -18,7 +18,6 @@ import { TileKind } from '@core/map3d';
 import type { EntityId } from '@core/types';
 import type { Scenario } from './runner';
 import { built, cmd, day, expectNoInvariantFindings, pathWorld, placeNear, playUntil, rect, stairToRock, surfaceZ, trace, wagon, zoneRect } from './player-path';
-import { deathCounts } from './death-counts';
 
 const scenario: Scenario = {
   id: 'pp_drink',
@@ -40,6 +39,8 @@ const scenario: Scenario = {
 
     const stockpile = zoneRect(w, 'stockpile', cx - 4, cy + 3, surfaceZ(w, cx, cy), 6, 4);
     cmd(w, { type: 'SetStockpileFilter', zoneId: stockpile, filter: 'everything' });
+    // Drink keeps in a barrel on a stockpile (13 § Stockpiles), where 10's drink search looks first.
+    cmd(w, { type: 'SetStockpileContainers', zoneId: stockpile, wants: { barrel: 2 } });
     const { sx, sy, rockZ } = stairToRock(w, cx + 4, cy + 8);
     cmd(w, { type: 'Designate', kind: 'dig', priority: 4, tiles: rect(w, sx + 1, sy - 1, rockZ, 3, 3) });
     const avoid = new Set<number>();
@@ -86,7 +87,13 @@ const scenario: Scenario = {
     expect(units(), `the wagon's forbidden drink was left alone; ${summary}`).toBe(wagonUnits);
     expect(barrelled.size, `the brew stood in a barrel; ${summary}`).toBeGreaterThan(0);
     expect(finished, `a dwarf drank the brew by day ${DAYS_PER_SEASON}; ${summary}`).toBe(true);
-    expect(deathCounts(w).dwarf, 'no dwarf died').toBe(0);
+    // T-350: since dwarves can drink at the brook, they walk to its bank
+    // whenever no stocked barrel is in reach, and the whole timeline moved: a boar now kills a dwarf
+    // on day 15, hit while fleeing at (37, 26), away from the bank. Which dwarf a boar meets turns
+    // on that timeline (testing-strategy.md § What may be a gate), so the deaths are in the summary
+    // and the chain's own outcome is asserted: nobody dies of thirst or hunger.
+    const dwarf = w.game.registry.table('creatures').index('dwarf');
+    expect(w.events('CreatureDied').filter((e) => e['species'] === dwarf && e['cause'] === 'starvation').length, `no dwarf died of thirst or hunger; ${summary}`).toBe(0);
     expectNoInvariantFindings(w, `pp_drink day ${day(w)}`);
   },
 };

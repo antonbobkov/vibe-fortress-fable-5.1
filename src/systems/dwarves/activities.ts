@@ -2,7 +2,7 @@
  * `algorithms/creature-brains.md` § startNeed. Plans are saved by 10. */
 import { C, type Brain, type Needs, type Relationships } from '@core/components';
 import { NEED_MAX, TICKS_PER_HOUR } from '@core/constants';
-import { FluidType, TileFlag } from '@core/map3d';
+import { FluidType, TileFlag, TileKind } from '@core/map3d';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
@@ -171,35 +171,43 @@ function water(ctx: TickContext, from: TileIndex, allowed: (tile: TileIndex) => 
   }
 
   for (const dz of dzSequence) {
-    if (Math.abs(dz) * Z_DISTANCE_WEIGHT > bestDistance) break;
+    // A water tile is drunk from its own level or from the bank one level above it, so its stand
+    // tile may be one level nearer the dwarf than the water itself.
+    const near = dz < 0 ? Math.abs(dz) - 1 : Math.abs(dz);
+    if ((Math.abs(dz) - 1) * Z_DISTANCE_WEIGHT > bestDistance) break;
     const z = fz + dz;
     if (z < 0 || z >= m.d) continue;
 
     for (let dy = -32; dy <= 32; dy += 1) {
-      if (Math.abs(dy) - 1 + Math.abs(dz) * Z_DISTANCE_WEIGHT > bestDistance) continue;
+      if (Math.abs(dy) - 1 + near * Z_DISTANCE_WEIGHT > bestDistance) continue;
       const wy = fy + dy;
       if (wy < 0 || wy >= m.h) continue;
       for (let dx = -32; dx <= 32; dx += 1) {
         // Every standing tile is at most one cell closer than its water tile. Keep equal
         // distances so the original lowest-tile tie remains eligible.
-        if (Math.max(Math.abs(dx), Math.abs(dy)) - 1 + Math.abs(dz) * Z_DISTANCE_WEIGHT > bestDistance) continue;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) - 1 + near * Z_DISTANCE_WEIGHT > bestDistance) continue;
         const wx = fx + dx;
         if (wx < 0 || wx >= m.w) continue;
         const wTile = m.index(wx, wy, z);
         if (m.fluidLevelAt(wTile) < 1 || m.fluidTypeAt(wTile) !== FluidType.Water || m.fluidFrozenAt(wTile)) continue;
 
-        for (let sy = wy - 1; sy <= wy + 1; sy += 1) {
-          if (sy < 0 || sy >= m.h) continue;
-          for (let sx = wx - 1; sx <= wx + 1; sx += 1) {
-            if (sx < 0 || sx >= m.w) continue;
-            if (sx === wx && sy === wy) continue;
-            const sTile = m.index(sx, sy, z);
-            const d = Math.max(Math.abs(sx - fx), Math.abs(sy - fy)) + Math.abs(dz) * Z_DISTANCE_WEIGHT;
-            if (d > bestDistance || (d === bestDistance && best >= 0 && sTile >= best)) continue;
-            if (!reachable(ctx, from, sTile) || !allowed(sTile)) continue;
-            if (d < bestDistance || (d === bestDistance && (best < 0 || sTile < best))) {
-              best = sTile;
-              bestDistance = d;
+        // The bank one level up reaches the water only through open air over it (as fishing's bank, 09).
+        const over = z + 1 < m.d ? m.index(wx, wy, z + 1) : -1;
+        const fromAbove = over >= 0 && m.kindAt(over) === TileKind.Open && m.fluidLevelAt(over) === 0;
+        for (const sz of fromAbove ? [z, z + 1] : [z]) {
+          for (let sy = wy - 1; sy <= wy + 1; sy += 1) {
+            if (sy < 0 || sy >= m.h) continue;
+            for (let sx = wx - 1; sx <= wx + 1; sx += 1) {
+              if (sx < 0 || sx >= m.w) continue;
+              if (sx === wx && sy === wy) continue;
+              const sTile = m.index(sx, sy, sz);
+              const d = Math.max(Math.abs(sx - fx), Math.abs(sy - fy)) + Math.abs(sz - fz) * Z_DISTANCE_WEIGHT;
+              if (d > bestDistance || (d === bestDistance && best >= 0 && sTile >= best)) continue;
+              if (!reachable(ctx, from, sTile) || !allowed(sTile)) continue;
+              if (d < bestDistance || (d === bestDistance && (best < 0 || sTile < best))) {
+                best = sTile;
+                bestDistance = d;
+              }
             }
           }
         }

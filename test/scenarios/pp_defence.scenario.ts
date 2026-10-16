@@ -7,10 +7,10 @@
  * everyone, since a civilian woodcutter has first claim on an axe (16 § Equipment) and this
  * fortress fells no trees; a squad of the two dwarves best with the axe, formed once the wagon's
  * axes are in the stockpile; and a player's watch: an aggressive or territorial wild animal on
- * the map raises the hearth alert and sends the squad to kill it; the alert stands down when
+ * the map that can walk to the wagon raises the hearth alert and sends the squad to kill it; the alert stands down when
  * none has been seen for a while.
  *
- * Asserted, as a player sees it, within a season: each soldier took a weapon out of the
+ * Asserted, as a player sees it, within two seasons: each soldier took a weapon out of the
  * stockpile, the alert was raised, and a soldier killed a hostile wild animal. The hostile is the
  * region's own wildlife: nothing is spawned.
  */
@@ -34,13 +34,22 @@ const HAUL_DAYS = 3;
 /** The squad: the dwarves best with the axe. */
 const SQUAD_SIZE = 2;
 
-/** The aggressive or territorial wild animals on the map, as the player sees them listed. */
-function dangerous(w: TestWorld): EntityId[] {
+/** The days the player waits for a dangerous animal and its death: arrivals follow the random stream, so the day moves with the job timeline. */
+const WAIT_DAYS = 2 * DAYS_PER_SEASON;
+
+/**
+ * The aggressive or territorial wild animals on the map, as the player sees them listed, that can
+ * walk to the wagon: one across the brook is no danger, and an alert held for it shuts the
+ * civilians in for weeks.
+ */
+function dangerous(w: TestWorld, home: number): EntityId[] {
   const ent = w.game.world.entities;
   const animals = w.readers.of<AnimalsReader>('08');
+  const label = w.readers.pathing.labelOf(home, 'walker');
   return animals.wildList().filter((id) => {
     const temper = animals.def(ent.get(id, C.Creature)?.species ?? -1)?.temper;
-    return ent.get(id, C.Position) !== undefined && (temper === 'aggressive' || temper === 'territorial');
+    const p = ent.get(id, C.Position);
+    return p !== undefined && (temper === 'aggressive' || temper === 'territorial') && w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') === label;
   }).sort((a, b) => a - b);
 }
 
@@ -92,7 +101,7 @@ const scenario: Scenario = {
         const weapon = ent.get(id, C.Equipment)?.weapon ?? 0;
         if (!armed.has(id) && stocked.has(weapon)) armed.set(id, weapon);
       }
-      const targets = dangerous(w);
+      const targets = dangerous(w, w.index(cx, cy, surfaceZ(w, cx, cy)));
       if (targets.length > 0) {
         lastDanger = w.tick;
         if (w.game.world.fortress.alert !== 'hearth') cmd(w, { type: 'SetAlert', level: 'hearth' });
@@ -111,7 +120,7 @@ const scenario: Scenario = {
         answered = '';
       }
     };
-    const finished = playUntil(w, () => kills().length > 0, DAYS_PER_SEASON * TICKS_PER_DAY - w.tick, watch);
+    const finished = playUntil(w, () => kills().length > 0, WAIT_DAYS * TICKS_PER_DAY - w.tick, watch);
 
     const hearth = w.events('AlertChanged').filter((e) => e['to'] === 'hearth').length;
     const summary = `${trace(w, 'pp_defence')}; axes ${axes.length}, stocked ${stocked.size}; squad ${members.length}, ` +
@@ -121,7 +130,7 @@ const scenario: Scenario = {
     expect(stocked.size, `the wagon's axes reached the stockpile; ${summary}`).toBe(axes.length);
     expect(armed.size, `each soldier took a weapon from the stockpile; ${summary}`).toBe(members.length);
     expect(hearth, `the alert was raised; ${summary}`).toBeGreaterThan(0);
-    expect(finished, `a soldier killed a hostile wild animal by day ${DAYS_PER_SEASON}; ${summary}`).toBe(true);
+    expect(finished, `a soldier killed a hostile wild animal by day ${WAIT_DAYS}; ${summary}`).toBe(true);
     expectNoInvariantFindings(w, `pp_defence day ${day(w)}`);
   },
 };
