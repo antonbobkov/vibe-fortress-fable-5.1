@@ -1,6 +1,6 @@
 # T-307 — A medic walks to a patient that has its attacker beside it
 
-**Source:** T-301, T-211 and [`../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md`](../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md) (link 7) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
+**Source:** T-301, T-211 and [`../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md`](../../reports/audits/2026-10-12-bleeding-patients-and-the-duty-guard.md) (link 7) · **Size:** M · **Needs:** — · **Status:** parked: link 7 does not appear in the cohort (step 1, 2026-10-16)
 
 ## Why
 
@@ -30,3 +30,13 @@ So the rule as stated is not the answer: an animal that stays beside its victim 
 
 - A medic does not walk into the reach of the animal that wounded its patient, with a stepped test that names T-307.
 - The twelve-seed instrument accepts the row.
+
+## Measured, 2026-10-16 (parked)
+
+Step 1, on the tree after T-305, T-306 and T-302's fix (the twelve-seed row 13 / 139 / 8 of 12 / 1 / 0, whose world hashes equal the T-306 row's), with a read-only probe of the instrument that logs, for every wild attack on a dwarf, the job it held, its behavior, and the last patient job it claimed with the distances from it and from the attacker to that patient ([rows](../../reports/data/2026-10-16-t307-step1-wildlife.json), [attacks](../../reports/data/2026-10-16-t307-step1-attacks.jsonl), [probe](../../reports/data/2026-10-16-t307-step1-probe.patch.txt)):
+
+- 16 dwarves die of wildlife, all of bleeding (forest 2: 4, forest 3: 9 and extinct, forest 4: 2, taiga 2: 1).
+- At the first blow 14 were in `flee`, one in `need`, one on `duty`; none held a job.
+- One of the 16 had claimed a patient job in the 600 ticks before it was hit (forest 3, day 45, `stop_bleeding` 18 ticks earlier), 24 tiles from its patient, with the boar 23 tiles from the patient. None was within `THREAT_RADIUS` of its patient or of the patient's attacker.
+
+So link 7 does not appear in the current cohort: the forest-2 wolf cascade of the source trace no longer happens since T-211, and the deaths are dwarves caught while fleeing. The first rule of step 2 costs patients whose attacker stays beside them (`defence_year`, measured 2026-10-13) and nothing here says it would save anyone. No rule is added. The task is parked until a measurement shows a medic or carrier wounded near its patient's attacker; the stepped test of the 2026-10-13 patch is the reproduction to start from. Step 3 (the squad's kill orders in the fixture's response) is fixture work, not a game fault, and is not done.
