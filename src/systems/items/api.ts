@@ -648,7 +648,8 @@ export class ItemCore implements ItemsApi {
 
   /**
    * `items.destroy(itemId, reason)`: `ItemDestroyed { id, type, reason, crafterId }`. A container's
-   * contents are left where it was.
+   * contents are left where it was; when it is on no tile (it left the map with its holder), they are
+   * destroyed with it, with the same reason.
    */
   destroy(itemId: EntityId, reason: string): void {
     const it = this.get(itemId);
@@ -671,10 +672,16 @@ export class ItemCore implements ItemsApi {
     }
     const c = this.container(itemId);
     if (c !== undefined && c.contents.length > 0) {
-      const tile = this.tileOf(itemId);
       for (const inner of c.contents.slice()) {
+        // Where the contents are (a built chest's lie on its furniture's tile). A container that is on
+        // no tile has left the map with its holder (escaped loot): what it holds goes with it.
+        const tile = this.tileOf(inner);
+        if (tile < 0) {
+          this.destroy(inner, reason);
+          continue;
+        }
         this.detach(inner);
-        if (tile >= 0) this.place(inner, tile);
+        this.place(inner, tile);
         this.notify(inner, 'placed');
       }
     }

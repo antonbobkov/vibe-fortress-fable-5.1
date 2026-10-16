@@ -13,6 +13,8 @@ export const Z_DISTANCE_WEIGHT = 6;
 export const RESERVE_KEEP_TICKS = 600;
 export const BLOCKED_RETRY_TICKS = 100;
 export const BLOCKED_RETRIES_PER_TICK = 20;
+/** A job for a patient at this priority calls a worker off interruptible work. */
+export const PATIENT_SUMMON_PRIORITY = 1;
 /** Hauling is below default work. */
 export const HAUL_PRIORITY = 6;
 export const HAUL_PRIORITY_FOOD = 5;
