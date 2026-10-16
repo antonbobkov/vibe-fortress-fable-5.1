@@ -6,6 +6,7 @@ import type { HeadlessGame } from '@app/headless';
 import type { JobsReader } from '@systems/jobs/reader';
 import type { JobsSystem } from '@systems/jobs';
 import type { ItemsSystem } from '@systems/items';
+import type { Job } from '@systems/jobs/state';
 import type { DwarvesSystem } from '@systems/dwarves';
 import type { DefenseSystem } from '@systems/defense';
 import type { BuildingsReader } from '@systems/buildings/reader';
@@ -31,7 +32,9 @@ class Probe {
   >();
   private readonly reported = new Set<string>();
   /** T-331: the tick a job was first seen blocked as unreachable although a path to it exists. */
-  private readonly blockedPath = new Map<number, number>();
+  private readonly blockedPath = new Map<number, { kind: 'path' | 'anchor'; since: number }>();
+  /** T-331: a job whose worker's brain is not working, since when. */
+  private readonly heldElsewhere = new Map<number, { worker: number; behavior: string; since: number }>();
   calmNoHostileAlertTicks = 0;
   lastTick = 0;
 
@@ -61,6 +64,7 @@ class Probe {
   observe(game: HeadlessGame): void {
     const entities = game.world.entities;
     const tick = game.tick;
+    if (tick % 100 === 0) this.sample(game);
     const board = (game.world.scheduler.byId('11') as JobsSystem).board;
     for (const job of board.jobs.values()) {
       if (!['claimed', 'fetching', 'travelling', 'working', 'completing'].includes(job.state)) {
@@ -712,7 +716,7 @@ class Probe {
     }
     for (const id of ent.with(C.Building)) {
       const b = ent.get(id, C.Building)!;
-      // 14 ง Rooms and furniture: a coffin reserved for a dwarf stays reserved after the dwarf dies.
+      // 14 ยง Rooms and furniture: a coffin reserved for a dwarf stays reserved after the dwarf dies.
       const buildingId = reg.table<{ id: string }>('buildings').byIndex(b.type)?.id ?? '?';
       if (b.ownerId !== 0 && !ent.alive(b.ownerId) && buildingId !== 'coffin')
         this.hit(
@@ -796,6 +800,7 @@ class Probe {
         `wealthCached=${f.wealthCached} spirit=${f.hallSpiritCached}`,
       );
 
+    this.sample(game);
     this.checkHolders(game, jobById);
     this.checkBlockedPaths(game);
     this.checkContainerAccess(game);
@@ -808,7 +813,7 @@ class Probe {
    * the personal reservations of the dwarves' own plans, the held job of a worker whose brain is
    * elsewhere, and the claim on a patient's bed.
    */
-  private checkHolders(game: HeadlessGame, jobById: Map<number, { id: number; state: string; workerId: number }>): void {
+  private checkHolders(game: HeadlessGame, jobById: Map<number, Job>): void {
     const world = game.world;
     const ent = world.entities;
     const tick = world.calendar.tick;
@@ -840,16 +845,37 @@ class Probe {
         );
       }
     }
-    for (const j of jobById.values()) {
-      if (j.workerId === 0 || !ent.alive(j.workerId)) continue;
-      const brain = ent.get(j.workerId, C.Brain);
-      if (brain !== undefined && brain.behavior !== 'work')
+    // 10's brain moves a worker to flee, retreat, patient or a critical need without giving back a job that
+    // cannot be interrupted, and the job resumes: that is only a fault once it has lasted a day.
+    for (const [jobId, held] of this.heldElsewhere) {
+      const age = tick - held.since;
+      if (age > TICKS_PER_DAY)
         this.hit(
           tick,
           'holder.job-held-while-elsewhere',
-          `${brain.behavior}/${j.state}`,
-          `job ${j.id} ${j.state} held by ${j.workerId} whose behavior is ${brain.behavior} (${brain.activity})`,
+          held.behavior,
+          `job ${jobId} held by ${held.worker} for ${age} ticks while its behavior is ${held.behavior}`,
+          `j${jobId}/${held.worker}@${held.since}`,
         );
+    }
+    // T-132: the empty container a job reserved for its output holds nothing but the job's own inputs.
+    for (const j of jobById.values()) {
+      const own = new Set<number>();
+      for (const inp of j.inputs) for (const x of [...inp.reserved, ...inp.delivered]) own.add(x);
+      for (const inp of j.inputs) {
+        if (inp.filter.emptyContainer === undefined) continue;
+        for (const c of new Set([...inp.reserved, ...inp.delivered])) {
+          const foreign = (ent.get(c, C.Container)?.contents ?? []).filter((x) => !own.has(x));
+          if (foreign.length > 0)
+            this.hit(
+              tick,
+              'holder.reserved-container-foreign-contents',
+              inp.filter.emptyContainer,
+              `job ${j.id} reserves empty ${inp.filter.emptyContainer} ${c}, which holds ${foreign.join(',')} of no input of the job`,
+              `j${j.id}/${c}`,
+            );
+        }
+      }
     }
     for (const id of ent.with(C.Patient)) {
       const bedId = ent.get(id, C.Patient)!.bedId;
@@ -870,38 +896,91 @@ class Probe {
   }
 
   /**
-   * T-331 (2): a job blocked as `unreachable` while a worker with its labor can reach one of its
-   * stand tiles is reopened by the next retry. One that stays blocked for more than a day with a
-   * path to its work tile is lost: the walk failed once and nothing ever tries it again.
+   * T-331 (2): a job blocked as `unreachable` is reopened by the next retry as soon as a worker with its
+   * labor reaches one of its stand tiles. It is lost when it stays blocked for more than a day (a) while
+   * such a stand tile is reachable (a walk that failed once and is never retried), or (b) while none of its
+   * stand tiles can be stood on, although a tile beside its anchor is passable and reachable (a work tile
+   * that is a built chest's own tile). The start of the block is the first sample that saw it; a failed
+   * walk's own retry tick says when it began.
    */
   private checkBlockedPaths(game: HeadlessGame): void {
+    const tick = game.world.calendar.tick;
+    const board = (game.world.scheduler.byId('11') as JobsSystem | undefined)?.board;
+    if (board === undefined) return;
+    for (const [jobId, seen] of this.blockedPath) {
+      const job = board.jobs.get(jobId);
+      if (job === undefined) continue;
+      const age = tick - seen.since;
+      if (age <= TICKS_PER_DAY) continue;
+      const type = board.typeId(job);
+      this.hit(
+        tick,
+        seen.kind === 'path' ? 'job.unreachable-with-path' : 'job.unreachable-anchor-beside',
+        type,
+        `job ${job.id} ${type} blocked unreachable for ${age} ticks (failedWalk ${job.failedWalk === true}, workTile ${String(job.workTile)}), target ${job.target.kind} ${job.target.ref}`,
+        `j${job.id}`,
+      );
+    }
+  }
+
+  /**
+   * Record, from the world as it is now, the two conditions that only matter once they last a day: a
+   * job blocked as unreachable that should not be (T-331 2), and a job held by a worker whose brain is
+   * not working (T-331 1). Called by every check, every 100 ticks by `observe`, and by the scenario runner.
+   */
+  sample(game: HeadlessGame): void {
     const world = game.world;
+    const ent = world.entities;
     const tick = world.calendar.tick;
     const board = (world.scheduler.byId('11') as JobsSystem | undefined)?.board;
     if (board === undefined) return;
-    const live = new Set<number>();
+    const pathing = world.readers.pathing;
+    const map = game.map;
+    const blocked = new Set<number>();
+    const held = new Set<number>();
     for (const job of board.jobs.values()) {
-      if (job.state !== 'blocked' || job.blockedReason !== 'unreachable') continue;
-      const labor = board.jobLabor(job);
-      const workers = board.workers().filter((w) => labor === 0 || board.laborEnabled(w, labor));
-      if (!workers.some((w) => board.hasReachableStand(job, w))) continue;
-      live.add(job.id);
-      // A walk that failed is never retried by the timer: its block began a retry interval before retryTick.
-      const since = job.failedWalk === true ? job.retryTick - BLOCKED_RETRY_TICKS : tick;
-      if (!this.blockedPath.has(job.id)) this.blockedPath.set(job.id, since);
-      const age = tick - Math.min(this.blockedPath.get(job.id)!, since);
-      if (age > TICKS_PER_DAY) {
-        const type = board.typeId(job);
-        this.hit(
-          tick,
-          'job.unreachable-with-path',
-          type,
-          `job ${job.id} ${type} blocked unreachable for ${age} ticks (failedWalk ${job.failedWalk === true}), target ${job.target.kind} ${job.target.ref}`,
-          `j${job.id}`,
-        );
+      if (job.state === 'blocked' && job.blockedReason === 'unreachable') {
+        const labor = board.jobLabor(job);
+        const workers = board.workers().filter((w) => labor === 0 || board.laborEnabled(w, labor));
+        let kind: 'path' | 'anchor' | null = null;
+        if (workers.some((w) => board.hasReachableStand(job, w))) kind = 'path';
+        else {
+          const anchor = board.anchorTile(job);
+          if (map.validIndex(anchor)) {
+            const labels = new Set<number>();
+            for (const w of workers) {
+              const at = board.workerTile(w);
+              if (at >= 0) labels.add(pathing.labelOf(at, 'walker'));
+            }
+            for (const n of map.neighbors8(anchor)) {
+              if (pathing.passable(n, 'walker', { faction: 'fortress' }) && labels.has(pathing.labelOf(n, 'walker'))) {
+                kind = 'anchor';
+                break;
+              }
+            }
+          }
+        }
+        if (kind !== null) {
+          blocked.add(job.id);
+          // A walk that failed is never retried by the timer: its block began a retry interval before retryTick.
+          const began = job.failedWalk === true ? job.retryTick - BLOCKED_RETRY_TICKS : tick;
+          const prev = this.blockedPath.get(job.id);
+          if (prev === undefined || prev.kind !== kind) this.blockedPath.set(job.id, { kind, since: Math.min(began, tick) });
+          else if (began < prev.since) prev.since = began;
+        }
+      }
+      if (['claimed', 'fetching', 'travelling', 'working', 'completing'].includes(job.state) && job.workerId !== 0 && ent.alive(job.workerId)) {
+        const brain = ent.get(job.workerId, C.Brain);
+        if (brain !== undefined && brain.behavior !== 'work') {
+          held.add(job.id);
+          const prev = this.heldElsewhere.get(job.id);
+          if (prev === undefined || prev.worker !== job.workerId || prev.behavior !== brain.behavior)
+            this.heldElsewhere.set(job.id, { worker: job.workerId, behavior: brain.behavior, since: tick });
+        }
       }
     }
-    for (const id of this.blockedPath.keys()) if (!live.has(id)) this.blockedPath.delete(id);
+    for (const id of [...this.blockedPath.keys()]) if (!blocked.has(id)) this.blockedPath.delete(id);
+    for (const id of [...this.heldElsewhere.keys()]) if (!held.has(id)) this.heldElsewhere.delete(id);
   }
 
   /**
@@ -922,8 +1001,14 @@ class Probe {
       if (label !== 0) labels.add(label);
     }
     if (labels.size === 0) return;
+    // The tiles of stockpile and hospital zones: a built container there gives the zone its slots.
+    const zoneTypes = game.registry.table<{ id: string }>('zoneTypes');
     const zoned = new Set<number>();
-    for (const zid of ent.with(C.Stockpile)) for (const t of ent.get(zid, C.Zone)?.tiles ?? []) zoned.add(t);
+    for (const zid of ent.with(C.Zone)) {
+      const zone = ent.get(zid, C.Zone)!;
+      const kind = zoneTypes.byIndex(zone.type)?.id;
+      if (kind === 'stockpile' || kind === 'hospital') for (const t of zone.tiles) zoned.add(t);
+    }
     const fortress = { faction: 'fortress' } as const;
     for (const id of ent.with(C.Building)) {
       const b = ent.get(id, C.Building)!;
@@ -1076,14 +1161,32 @@ export const SCENARIO_END_INVARIANTS: ReadonlySet<string> = new Set([
   'item.reserved-by-missing-job', 'item.reserved-by-job-that-does-not-list-it', 'item.reserved-flag-mismatch',
   'tame.assignee-dead', 'building.owner-dead', 'room.owner-dead', 'workshop.assigned-worker-dead', 'workshop.job-missing',
   'holder.reservation-holder-gone', 'holder.reservation-elsewhere', 'holder.job-held-while-elsewhere',
-  'holder.patient-bed-gone', 'holder.patient-bed-held-by-other',
+  'holder.reserved-container-foreign-contents', 'holder.patient-bed-gone', 'holder.patient-bed-held-by-other',
   // 2
-  'job.unreachable-with-path',
+  'job.unreachable-with-path', 'job.unreachable-anchor-beside',
   // 3
   'container.no-work-tile',
   // 4
   'item.nowhere', 'item.no-place', 'item.carrier-dead', 'item.container-missing', 'item.container-does-not-list',
 ]);
+
+/**
+ * Sample the day-long conditions of T-331 (a job blocked unreachable, a job held by a worker who is
+ * elsewhere) every 100 ticks while a game runs, so that a check at the end of a scenario knows how long
+ * they have lasted. Returns the function that stops the sampling.
+ */
+export function sampleInvariants(game: HeadlessGame): () => void {
+  const probe = probeOf(game);
+  const original = game.world.step;
+  const sampled = (): void => {
+    original.call(game.world);
+    if (game.tick % 100 === 0) probe.sample(game);
+  };
+  game.world.step = sampled;
+  return () => {
+    if (game.world.step === sampled) game.world.step = original;
+  };
+}
 
 /** The findings of {@link SCENARIO_END_INVARIANTS} at this moment, for the end of every scenario. */
 export function checkScenarioEndInvariants(game: HeadlessGame): Finding[] {

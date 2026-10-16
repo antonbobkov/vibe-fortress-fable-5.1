@@ -34,7 +34,7 @@ describe('T-331 invariant 1: reservations, claims and held jobs have a live hold
     expect(names(w)).toContain('holder.reservation-elsewhere');
   });
 
-  it('reports a job held by a worker whose brain is doing something else', () => {
+  it('reports a job held for over a day by a worker whose brain is doing something else', () => {
     const { w, dwarf } = fixture();
     const target = w.index(14, 10, Z);
     w.carve(target, TileKind.Wall);
@@ -50,7 +50,12 @@ describe('T-331 invariant 1: reservations, claims and held jobs have a live hold
     entities.add(dwarf, C.Worker, { ...entities.get(dwarf, C.Worker)!, jobId: job.id });
     entities.add(dwarf, C.Brain, { ...entities.get(dwarf, C.Brain)!, behavior: 'work', activity: 'Digging' });
     expect(names(w).filter((n) => n.startsWith('holder.') || n.startsWith('job.worker'))).toEqual([]);
-    entities.add(dwarf, C.Brain, { ...entities.get(dwarf, C.Brain)!, behavior: 'idle', activity: 'No job' });
+    // The brain moves a worker aside without giving the job back, and the job resumes: not a fault yet.
+    entities.add(dwarf, C.Brain, { ...entities.get(dwarf, C.Brain)!, behavior: 'need', activity: 'Drinking' });
+    expect(names(w)).not.toContain('holder.job-held-while-elsewhere');
+    w.game.world.calendar.setTick(w.tick + TICKS_PER_DAY / 2);
+    expect(names(w)).not.toContain('holder.job-held-while-elsewhere');
+    w.game.world.calendar.setTick(w.tick + TICKS_PER_DAY);
     expect(names(w)).toContain('holder.job-held-while-elsewhere');
   });
 
@@ -96,6 +101,57 @@ describe('T-331 invariant 2: no job stays blocked unreachable for a day while a 
   });
 });
 
+describe('T-331 invariant 2, the shape of T-301: the only stand tile cannot be stood on', () => {
+  it('reports a haul job whose work tile is a built chest own tile, blocked unreachable over a day', () => {
+    const { w } = fixture();
+    const chestTile = w.index(30, 30, Z);
+    w.zone('stockpile', [chestTile]);
+    w.build('chest', chestTile, 'oak');
+    const cloth = w.spawnItem('cloth', 'flax_cloth', w.index(20, 20, Z), 3);
+    w.step(1);
+    const board = w.game.world.services.jobs as JobBoard;
+    const id = board.create('t331:chest-haul', {
+      type: 'haul_to_stockpile', target: { kind: 'entity', ref: cloth }, workTile: chestTile,
+      inputs: [{ filter: { itemId: cloth }, count: 1 }], data: {},
+    });
+    const job = board.jobs.get(id)!;
+    expect(job.state).toBe('blocked');
+    expect(job.blockedReason).toBe('unreachable');
+    expect(names(w)).not.toContain('job.unreachable-anchor-beside');
+    w.game.world.calendar.setTick(w.tick + TICKS_PER_DAY + 100);
+    expect(names(w)).toContain('job.unreachable-anchor-beside');
+  });
+});
+
+describe('T-331 invariant 1, the shape of T-132: a barrel reserved to a brew holds another jobs food', () => {
+  function brewBarrel(food: boolean) {
+    const { w } = fixture();
+    const barrel = w.spawnItem('barrel', 'oak', w.index(12, 10, Z));
+    const board = w.game.world.services.jobs as JobBoard;
+    const target = w.index(14, 10, Z);
+    w.carve(target, TileKind.Wall);
+    expect(w.game.world.applyCommand({ type: 'Designate', kind: 'dig', tiles: [target] }).ok).toBe(true);
+    w.step(1);
+    const job = [...board.jobs.values()].find((j) => j.target.ref === target)!;
+    // A job that names an empty barrel among its inputs, with the barrel reserved to it.
+    job.inputs = [{ filter: { emptyContainer: 'barrel' }, count: 1, reserved: [barrel], delivered: [] }];
+    w.items.reserve(barrel, job.id);
+    if (food) {
+      const meal = w.spawnItem('plant_food', 'barley', w.index(13, 10, Z));
+      expect(w.items.putIn(meal, barrel)).toBe(true);
+    }
+    return w;
+  }
+
+  it('accepts the empty barrel', () => {
+    expect(names(brewBarrel(false))).not.toContain('holder.reserved-container-foreign-contents');
+  });
+
+  it('reports the barrel that holds food of no input of the job', () => {
+    expect(names(brewBarrel(true))).toContain('holder.reserved-container-foreign-contents');
+  });
+});
+
 describe('T-331 invariant 3: a built container with items or a slot has a work tile that is reachable', () => {
   function sealedChest(enclosed: boolean) {
     const { w, dwarf } = fixture();
@@ -117,6 +173,20 @@ describe('T-331 invariant 3: a built container with items or a slot has a work t
 
   it('reports a chest with items that no tile beside it connects to a dwarf', () => {
     const { w } = sealedChest(true);
+    expect(names(w)).toContain('container.no-work-tile');
+  });
+});
+
+describe('T-331 invariant 3, a hospital empty chest', () => {
+  it('reports an empty built chest in a hospital zone that no dwarf reaches', () => {
+    const { w } = fixture();
+    const at = w.index(30, 30, Z);
+    w.zone('hospital', [at]);
+    w.build('chest', at, 'oak');
+    w.step(1);
+    expect(names(w)).not.toContain('container.no-work-tile');
+    for (const n of w.map.neighbors8(at)) w.carve(n, TileKind.Wall);
+    w.step(1);
     expect(names(w)).toContain('container.no-work-tile');
   });
 });
