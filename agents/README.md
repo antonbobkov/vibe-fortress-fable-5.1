@@ -7,7 +7,8 @@ The owner's standing rules for delegating work in this repository, set on 2026-1
 Changed by the owner on 2026-10-15: Codex and Gemini are no longer used, and the time limits on Claude are lifted.
 
 - **All work goes to Claude subagents, at any hour.** Codex and Gemini are not used any more; their notes below are kept for the record.
-- **At most two subagents at a time.** Opus and Sonnet share the Claude plan, so two together drain the 5-hour window faster; have each commit each piece as soon as it is green, so that a cut-off loses nothing, and resume a cut-off agent after the reset.
+- **At most two working subagents at a time, plus one review-only agent** (owner, 2026-10-15). The review agent reads diffs and runs nothing heavy (no full suites, no instrument); it does not count against the two.
+- **Why the limit.** Opus and Sonnet share the Claude plan, so two together drain the 5-hour window faster; have each commit each piece as soon as it is green, so that a cut-off loses nothing, and resume a cut-off agent after the reset.
 - **Pick the subagent's model by the task.** Use Opus 5.5 for the complex work: audits, diagnoses, design decisions, and anything where a wrong conclusion is expensive. Use Sonnet 5.5 for the mechanical work: implementing a decided task from its work file, test authoring, docs triage, merges. This is a guide, not a rule; judge each task. Sonnet spends the plan limits more slowly. The `Agent` tool sets the model with its `model` parameter ([claude-subagents.md](claude-subagents.md)).
 - **Two agents never share a worktree or touch the same files.** Give each its own worktree and a set of tasks that do not overlap.
 - **Audits go to Opus.** An audit task (a report under `reports/audits/`) is done by an Opus subagent. Fix tasks that come out of an audit follow the ordinary rules.
@@ -27,7 +28,7 @@ Codex and Gemini are retired (2026-10-15); their rows stay for reference.
 ## Working practice that has held up
 
 - **A subagent reports each commit itself.** Every brief says: after each commit that closes, parks or leaves a task as WIP, send one line to `main` with SendMessage (`<hash> T-123 closed`). The orchestrator merges on that message and on the agent's final report; it does not poll the branches.
-- **Every change under `src/` is reviewed before the merge** by someone other than its author: a second agent (Opus reviewing Sonnet, or the reverse) or the orchestrator reading the diff, with the checklist in `docs/process/agent-workflow.md` § Review. A review counts against the two-agent limit when an agent does it.
+- **Every change under `src/` is reviewed before the merge** by someone other than its author: a second agent (Opus reviewing Sonnet, or the reverse) or the orchestrator reading the diff, with the checklist in `docs/process/agent-workflow.md` § Review. The orchestrator reviews small changes itself (under about 150 lines of `src/` that reuse existing mechanisms); larger changes, and any change at a seam (jobs, items and reservations, save format, event payloads), go to the review-only Opus agent.
 - **Only the orchestrator edits `docs/backlog.md`.** Agents end a task with `Closes:` and `New rows:` lines; the orchestrator runs `node scripts/close-task.mjs T-123 <commits>` in the merge and adds the new rows. This ends the backlog conflicts at almost every merge.
 - **Agents run the static checks, the affected tests, the whole browser suite for a behaviour change and the annual instrument for a simulation change; the full `npm test` runs once, on `master`, before the push** (agent-workflow.md § Verifying).
 - Give each agent its own `git worktree` on its own branch, created by the orchestrator, with `npm ci` already run. The orchestrator merges into `master`, checks, and pushes.
