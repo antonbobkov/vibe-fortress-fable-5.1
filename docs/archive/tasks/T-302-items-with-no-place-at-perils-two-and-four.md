@@ -1,6 +1,8 @@
 # T-302 — Items lose their place in the economy fixture at perils 2 and 4
 
-**Source:** T-145 and [`../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md`](../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md) (§ The sweep) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
+**Closed:** 2026-10-16, in 1094c22, 5aa193e.
+
+**Source:** T-145 and [`../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md`](../../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md) (§ The sweep) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
 
 ## Why
 
@@ -23,7 +25,7 @@ The 20-seed sweep asserts the T-176 invariants at perils 2 and 4. On the branch 
 | `three-years-p4-4` | 75,600 (63) | brightleaf ×5 |
 | `three-years-p4-6` | 80,400 (67) | brightleaf ×5 |
 
-Every sample has `flags=0`. The brightleaf is the wagon's (an embark item id). The full samples are in the sweep's console output; the per-seed journal is [`2026-10-12-economy-fixture-sweep.json`](../../reports/data/2026-10-12-economy-fixture-sweep.json).
+Every sample has `flags=0`. The brightleaf is the wagon's (an embark item id). The full samples are in the sweep's console output; the per-seed journal is [`2026-10-12-economy-fixture-sweep.json`](../../../reports/data/2026-10-12-economy-fixture-sweep.json).
 
 ## What the spec says
 
@@ -43,4 +45,4 @@ The invariant `item.nowhere` of `test/scenarios/invariants.ts` (T-176): an item 
 
 Cause (traced on `three-years-p4-5` at `30c2c80`): a Gloam thief escapes with a bag or a barrel. `ThiefEscaped` destroys the container (`src/systems/items/index.ts:281`), and `items.destroy` put its contents on the container's tile, which is -1 once the thief has left the map, so the brightleaf and the drink inside were left with no place. Decision: a container that leaves the map with its holder takes its contents, destroyed with its reason (13 § Containers in play), fixed in `1094c22` with `test/unit/items/t302-stolen-container.test.ts`.
 
-The thirteen seeds again, with the probe in [the data](../../reports/data/2026-10-16-peril-2-4-invariant-probe.txt): no `item.nowhere` finding in any seed (p2-1 and p2-5 to day 220, the other eleven to day 130; the original findings fell between day 59 and day 124). One other finding remains, `creature.on-impassable` in p4-1 on day 119, which is T-303's.
+The thirteen seeds again, with the probe in [the data](../../../reports/data/2026-10-16-peril-2-4-invariant-probe.txt): no `item.nowhere` finding in any seed (p2-1 and p2-5 to day 220, the other eleven to day 130; the original findings fell between day 59 and day 124). One other finding remains, `creature.on-impassable` in p4-1 on day 119, which is T-303's.

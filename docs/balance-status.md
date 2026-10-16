@@ -15,7 +15,7 @@
 
 **Owner:** balance audits · **Depends on:** [the balance model](03-content/balance.md), [the backlog](backlog.md)
 
-This is the latest filed evidence, not a tuning decision. **B-008 through B-012 stay open**: the economy fixture now plays at default priorities ([T-145](work/T-145-economy-fixture-default-priority.md)), but it still loses militia to untreated wounds ([T-301](archive/tasks/T-301-bleeding-patient-is-not-treated.md), T-211), starves in four sweep seeds once it passes about 40 dwarves, and cannot be measured at perils 2 and 4 ([T-302](work/T-302-items-with-no-place-at-perils-two-and-four.md), T-303, T-304).
+This is the latest filed evidence, not a tuning decision. **B-008 through B-012 stay open**: the economy fixture now plays at default priorities ([T-145](work/T-145-economy-fixture-default-priority.md)), but it still loses militia to untreated wounds ([T-301](archive/tasks/T-301-bleeding-patient-is-not-treated.md), T-211), starves in four sweep seeds once it passes about 40 dwarves, and cannot be measured at perils 2 and 4 ([T-302](archive/tasks/T-302-items-with-no-place-at-perils-two-and-four.md), T-303, T-304).
 
 [The measurement of 2026-10-12](../reports/audits/2026-10-12-economy-fixture-at-default-priority.md) ran the seed `three-years` six times for three years (336 days) on `t-145`, with the game's own wild animals, and the 20-seed sweep once. The rows below that name it carry run 6 in bold. Rows that cite an earlier report were not re-measured: the immigration rows, the raid and ambush rows, and the share of dwarf time.
 
