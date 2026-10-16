@@ -29,6 +29,9 @@
 [sweep-start] three-years-p2-5
 [sweep-end] three-years-p2-5 day 220 living 7 findings 0 kinds none
 
+# After T-303's door fix (tree e0d36fa + the fix), PROBE_DAYS=130 PROBE_ONLY=three-years-p4-1:
+[sweep-end] three-years-p4-1 day 130 living 17 findings 0 kinds none
+
 # --- probe source ---
 /** Temporary probe (not committed): the T-176 findings of the peril 2 and 4 sweep seeds, without stopping. */
 import { describe, it } from 'vitest';

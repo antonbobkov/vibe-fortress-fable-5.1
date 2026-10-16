@@ -1195,6 +1195,8 @@ export class BuildingStore {
     if (b.mode === 'locked') return true;
     if (b.mode !== 'lock_on_alert' || this.host.alert() !== 'hearth') return false;
     if (b.settings['alertLocked'] === true) return true;
+    // A door does not close on a creature in its doorway: the alert lock waits until it is clear.
+    if (b.footprint.some((t) => this.host.creaturesAt(t).length !== 0)) return false;
     const at = b.settings['alertAt'];
     if (typeof at !== 'number') return true;
     const clear = b.settings['outsideClearSince'];
