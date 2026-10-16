@@ -159,6 +159,26 @@ export function itemName(registry: Registry, id: string, n = 1): string {
   return n === 1 ? row.name : row.plural ?? `${row.name}s`;
 }
 
+/**
+ * An item as the lists name it: the material, then the item type's name ("oak log", "3 iron bars"). A word is
+ * never said twice: a material that ends with the type's name ("wool cloth" for cloth) is the whole name; a type
+ * whose name starts or ends with the material's ("easy meal" of meal, "leather boots" of leather) is named by the
+ * type alone.
+ */
+export function materialItemName(material: string, type: { readonly name: string; readonly plural?: string | undefined }, n = 1): string {
+  const typeName = n === 1 ? type.name : type.plural ?? `${type.name}s`;
+  if (material === '') return typeName;
+  const m = material.split(' ');
+  const t = type.name.split(' ');
+  const ends = (long: readonly string[], short: readonly string[]): boolean => long.length >= short.length && long.slice(long.length - short.length).join(' ') === short.join(' ');
+  if (m.length > t.length && ends(m, t)) return material;
+  if (ends(t, m)) return typeName;
+  for (let k = Math.min(m.length, t.length); k >= 1; k -= 1) {
+    if (m.slice(m.length - k).join(' ') === t.slice(0, k).join(' ')) return [...m.slice(0, m.length - k), typeName].join(' ');
+  }
+  return `${material} ${typeName}`;
+}
+
 /** A building input or recipe match ("block|log") as words: "block or log". */
 export function matchName(registry: Registry, match: string, n = 1): string {
   return match.split('|').map((part) => itemName(registry, part, n)).join(' or ');

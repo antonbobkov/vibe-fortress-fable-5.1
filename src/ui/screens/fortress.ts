@@ -643,7 +643,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'threats') drawThreatsPanel(surface, body, this.threats, ctx, this.ui.deepFound);
     else if (panel.id === 'civilizations') drawCivilizationsPanel(surface, body, this.civilizations, ctx, () => this.openTrade());
     else if (panel.id === 'depot') drawDepotPanel(surface, body, this.depot, ctx, () => this.moveGoods(), this.host.speed() === 0);
-    else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, (line) => {
+    else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, readers.calendar.tick, (line) => {
       if (line.focus !== undefined) this.focusOn(line.focus);
     });
   }

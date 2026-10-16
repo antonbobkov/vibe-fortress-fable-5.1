@@ -295,7 +295,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_room` | a bedroom zone with tier bare exists for 3 days | "A room needs walls or doors around it, a bed, and smooth stone to be worth sleeping in." |
 | `hint_alert` | first `ThreatWarning`, or the first fortress dwarf wounded by an animal | "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock, but a dwarf in dire need still goes out to eat, drink or sleep, and the medics still tend the wounded." |
 | `hint_depot` | day 14 of summer, year 1, no depot | "Build a trade depot [b > Special] before the caravan arrives." |
-| `hint_hospital` | first serious wound with no hospital | "A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats infection." |
+| `hint_hospital` | first serious wound to a dwarf of the fortress with no hospital | "A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats infection." |
 | `hint_immigration` | first `ImmigrationSkipped` | "Immigrants come at the turn of the season when hall spirit is Content. Good rooms, meals and drink raise it." |
 | `hint_gate` | first raid ended | "A drawbridge over a channel is the surest gate. Build a lever inside [b], click it, press [i] and click the bridge; [y] pulls it." |
 | `hint_cage` | first cage trap built | "Cage traps catch anything smaller than a wyrm. Caged beasts can be tamed at a kennel or sold." |

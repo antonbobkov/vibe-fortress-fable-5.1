@@ -7,6 +7,7 @@
  * The combat tab belongs to 16 (M6).
  */
 
+import { dayOfSeasonOf, seasonOf, yearOf } from '@core/calendar';
 import type { Rect } from '@render/cellbuffer';
 import type { Rgb } from '@render/palette';
 import { lineText, type LogLine, type Severity } from '../announcements';
@@ -27,12 +28,20 @@ export function filterLines(lines: readonly LogLine[], filter: LogFilter): LogLi
   return lines.filter((l) => l.category === 'combat');
 }
 
+/** A log row's date: "Sp 8", with the year ("Y2 Sp 8") for a line of an earlier year than `now`. */
+export function logDate(strings: Strings, tick: number, now: number): string {
+  const season = strings.get(`ui.log.season.${seasonOf(tick)}`);
+  const day = dayOfSeasonOf(tick);
+  return yearOf(tick) === yearOf(now) ? strings.get('ui.log.date', { season, day }) : strings.get('ui.log.date_year', { year: yearOf(tick), season, day });
+}
+
 export function drawLogPanel(
   s: Surface,
   rect: Rect,
   lines: readonly LogLine[],
   filter: LogFilter,
   strings: Strings,
+  now: number,
   onFocus: (line: LogLine) => void,
 ): void {
   label(s, rect.col + 1, rect.row, strings.get('ui.log.filter'), { width: rect.cols - 2 });
@@ -41,10 +50,14 @@ export function drawLogPanel(
     label(s, rect.col + 1, rect.row + 2, strings.get('ui.log.empty'), { fg: s.theme.dim });
     return;
   }
-  for (let k = 0; k < rect.rows - 2 && k < shown.length; k += 1) {
-    const line = shown[k] as LogLine;
+  const visible = shown.slice(0, Math.max(0, rect.rows - 2));
+  const dates = visible.map((line) => logDate(strings, line.tick, now));
+  const dateCols = Math.max(0, ...dates.map((date) => Array.from(date).length)) + 1;
+  for (let k = 0; k < visible.length; k += 1) {
+    const line = visible[k] as LogLine;
     const row = rect.row + 2 + k;
-    s.text(rect.col + 1, row, lineText(line), colorOf(s.theme, line.severity), s.theme.black, rect.cols - 2);
+    s.text(rect.col + 1, row, dates[k] as string, s.theme.dim, s.theme.black, Math.min(dateCols, rect.cols - 2));
+    s.text(rect.col + 1 + dateCols, row, lineText(line), colorOf(s.theme, line.severity), s.theme.black, Math.max(0, rect.cols - 2 - dateCols));
     if (line.focus !== undefined) s.hit({ col: rect.col, row, cols: rect.cols, rows: 1 }, () => onFocus(line));
   }
 }

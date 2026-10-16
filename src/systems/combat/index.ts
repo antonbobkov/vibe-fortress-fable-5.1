@@ -150,6 +150,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       severity: 'note',
       stringKey: 'announce.kill_recorded',
       category: 'combat',
+      oneOf: { field: 'hunted', values: [false] },
     });
     ctx.register.announcement('AttackResolved', {
       severity: 'alert',
@@ -432,7 +433,16 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
             if (wild?.state === 'attack') hostile = true;
           }
         }
-        ctx.emit({ type: 'KillRecorded', killerId: killer, victimId: id, hostile });
+        // The victim is already gone, so the names come from the death event. A fortress creature's kill of a timid or
+        // neutral wild animal is a hunt's, and `HuntKill` announces it.
+        const victimSpecies = typeof event['species'] === 'number' ? event['species'] : 0;
+        const temper = ctx.registry.table<{ id: string; temper?: string }>('creatures').byIndex(victimSpecies)?.temper;
+        const hunted = event['faction'] === 'wild' && killerCreature?.faction === 'fortress' && (temper === 'timid' || temper === 'neutral');
+        ctx.emit({
+          type: 'KillRecorded', killerId: killer, victimId: id, hostile, hunted,
+          killerName: killerCreature?.name ?? '', killerSpecies: killerCreature?.species ?? 0,
+          victimName: typeof event['name'] === 'string' ? event['name'] : '', victimSpecies,
+        });
       }
       return;
     }

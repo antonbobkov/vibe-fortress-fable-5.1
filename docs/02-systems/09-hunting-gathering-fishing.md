@@ -84,7 +84,7 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
 
 ### Registrations
 
-Job producer `foraging` (`hunt`, `fish`, `butcher`); inspector sections `zone › fishing` (body, pool, catch rate), `zone › gather`; announcements: `HuntKill` note, `FishPoolDepleted` note ("The pond is fished out"), `HuntAbandoned { no_ammo }` alert.
+Job producer `foraging` (`hunt`, `fish`, `butcher`); inspector sections `zone › fishing` (body, pool, catch rate), `zone › gather`; announcements: `HuntKill` note ("Oskar Stonetongue has brought down a deer.", the one line of a hunter's kill; the event carries the quarry's species because the quarry is gone), `FishPoolDepleted` note ("The pond is fished out"), `HuntAbandoned { no_ammo }` alert.
 
 ## Player-facing behavior
 

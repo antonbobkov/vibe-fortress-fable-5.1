@@ -486,14 +486,16 @@ Depot panel (from a selected depot): items at the depot with values, `[S-m] move
 │ Log                            [x]  │
 │ [1] All [2] Alerts [3] Combat       │
 │ /filter: ____                       │
-│ 12 Su Y2 !  Gloam scouts seen (E)   │
-│ 12 Su Y2    Ketil found hematite    │
-│ 11 Su Y2 !  The cow is starving     │
-│ 11 Su Y2    Hillfolk caravan arrived│
-│ 10 Su Y2    ×3 Stockpile #2 is full │
+│ Su 12 ! Gloam scouts seen (E)       │
+│ Su 12   Ketil found hematite        │
+│ Su 11 ! The cow is starving         │
+│ Su 11   Hillfolk caravan arrived    │
+│ Su 10   Stockpile #2 is full ×3     │
 │ …                                   │
 │ [Enter] center on it                │
 ```
+
+Each row starts with its day in the dim text colour: the first two letters of the season and the day of the season ("Sp 8"), with the year before them ("Y1 Sp 8") for a line of an earlier year than the present one. The dates are padded to the width of the longest one on the screen so that the texts line up. The log strip at the bottom of the fortress screen shows no dates.
 
 ## Overlays (f)
 

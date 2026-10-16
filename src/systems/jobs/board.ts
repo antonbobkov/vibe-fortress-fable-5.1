@@ -105,6 +105,8 @@ export class JobBoard implements JobsApi, JobSink {
         // 09's successful hunt continues by waiting for its own corpse, not its dead quarry.
         this.unindexTarget(job);
         job.data['animal'] = target;
+        // `HuntKill` names the quarry's species after the quarry is gone.
+        job.data['preySpecies'] = world.entities.get(target, C.Creature)?.species ?? 0;
         job.data['anchorTile'] = world.map.index(pos.x, pos.y, pos.z);
         job.target = { kind: 'tile', ref: job.data['anchorTile'] as TileIndex };
         this.invalidateWorkAvailability();

@@ -177,7 +177,7 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 
 ### Events emitted
 
-`JobCreated`, `JobClaimed`, `JobStarted` (entering `working`; each job event carries the content id as `jobType`), `JobCompleted { jobId, jobType, workerId, target }`, `JobCancelled { jobId, reason }`, `JobBlocked { jobId, reason }`, `JobUnblocked`, `ItemReserved { itemId, jobId }`, `ItemReleased { itemId, jobId }`, `ToolEquipped { dwarfId, itemId }`, `ToolDropped { itemId }`. While it executes 09's hunt jobs it emits `HuntStarted { hunterId, targetId }`, `HuntKill { hunterId, targetId }` (once, when the quarry is dead; the job then takes the corpse that `CorpseCreated` names for that creature and no other) and `HuntAbandoned { hunterId, targetId, reason }`.
+`JobCreated`, `JobClaimed`, `JobStarted` (entering `working`; each job event carries the content id as `jobType`), `JobCompleted { jobId, jobType, workerId, target }`, `JobCancelled { jobId, reason }`, `JobBlocked { jobId, reason }`, `JobUnblocked`, `ItemReserved { itemId, jobId }`, `ItemReleased { itemId, jobId }`, `ToolEquipped { dwarfId, itemId }`, `ToolDropped { itemId }`. While it executes 09's hunt jobs it emits `HuntStarted { hunterId, targetId }`, `HuntKill { hunterId, targetId, targetSpecies }` (once, when the quarry is dead; the job then takes the corpse that `CorpseCreated` names for that creature and no other) and `HuntAbandoned { hunterId, targetId, reason }`.
 
 ### Registrations
 

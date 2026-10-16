@@ -107,7 +107,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ThreatNearby` | `id, hostileId` | 16 | 10, 11, 15 |
 | `SquadOrderIssued` | `squadId, order` | 16 | ui (none) |
 | `AlertChanged` | `from, to` | 16 | 08, 10, 11, 14, 19, ui |
-| `KillRecorded` | `killerId, victimId` | 16 | 15, 24 (milestones, legend) |
+| `KillRecorded` | `killerId, victimId, hostile, hunted, killerName, killerSpecies, victimName, victimSpecies` | 16 | 15, 24 (milestones, legend) |
 | `TrainingSession` | `squadId, members[]` | 16 | 15 (barracks thought) |
 | `WoundInflicted` | `id, part, type, severity` | 17 | 15 |
 | `LimbLost` | `id, part` | 17 | 15, 16, ui |
@@ -134,7 +134,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `CaravanArrived` / `CaravanWaiting` / `CaravanAtDepot` / `CaravanDeparted` / `CaravanLost` / `CaravanAttacked` | `civ[, …]` | 20 | 15 (arrived), 18 (attacked → nothing; reputation in 20), ui |
 | `TradeCompleted` / `TradeRefused` / `GiftGiven` | `civ, givenValue, receivedValue` / `shortfall` / `civ, value` | 20 | 10 (xp), ui |
 | `ReputationChanged` | `civ, delta, reason` | 20 | 21 (Mountainhome), ui |
-| `ImmigrantsArrived` | `ids[], count, guaranteed` | 21 | 11, 15, 18 (renown), ui |
+| `ImmigrantsArrived` | `ids[], count, children, guaranteed` | 21 | 11, 15, 18 (renown), ui |
 | `ImmigrationSkipped` | `reason` | 21 | ui |
 | `EntitiesMoved` | `moves: [id, from, to][]` | core movement helper | 03, 04, 18, 19 |
 | `Fell` | `id, levels, landedOn` | core movement helper | 17 |
@@ -147,6 +147,6 @@ For `WorkshopBlocked`, `input` names the missing recipe input match when reason 
 
 - Subscribers listed as "ui (none)" exist for the log's optional verbose filter and the debug panel; they need no announcement row.
 - Events carrying `ids` of destroyed entities are still delivered; handlers check `alive`.
-- A row lists the fields every emitter sets; an emitter may add the fields its subscribers read. `ZoneChanged` names the zone's type `zoneType` and carries the zone's `tiles`. `BuildingPlaced`, `BuildingCompleted` and `BuildingRemoved` name the type `buildingType`; `BuildingPlaced` also carries `tiles`, and the other two carry the building's wealth `value`. `CreatureDied` also carries `tile`, `species`, `name`, `faction`, `ageTicks` and `wornItems`: the dwarf-death thoughts read `species`, `faction` and `ageTicks`. `MealEaten` also carries `mealType` and `ItemDestroyed` also carries `quality`. `SulkHappened` also carries what the sulk chose: `partnerId` (argue), `targetTile` (weep), `itemId` (hoard) or `buildingId` (break).
+- A row lists the fields every emitter sets; an emitter may add the fields its subscribers read. `ZoneChanged` names the zone's type `zoneType` and carries the zone's `tiles`. `BuildingPlaced`, `BuildingCompleted` and `BuildingRemoved` name the type `buildingType`; `BuildingPlaced` also carries `tiles`, and the other two carry the building's wealth `value`. `CreatureDied` also carries `tile`, `species`, `name`, `faction`, `ageTicks` and `wornItems`: the dwarf-death thoughts read `species`, `faction` and `ageTicks`. `KillRecorded` carries the names and species of both creatures because the victim is gone when a line is drawn; `hostile` is whether the victim was an enemy of the killer, and `hunted` is true for a fortress creature's kill of a wild animal of a timid or neutral species, which `HuntKill` announces. `HuntKill` also carries `targetSpecies`, the quarry's species index, for the same reason. `MealEaten` also carries `mealType` and `ItemDestroyed` also carries `quality`. `SulkHappened` also carries what the sulk chose: `partnerId` (argue), `targetTile` (weep), `itemId` (hoard) or `buildingId` (break).
 - `TilesChanged` is emitted by 03 only. When 04, 05 or 14 change tiles through the terrain API, 03 batches them into the same tick's event.
 - The announcement registry (24) has one row per event marked `ui` with a severity from the system document that emits it.
