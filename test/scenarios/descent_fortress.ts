@@ -7,7 +7,7 @@ import { C, ItemFlag } from '@core/components';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { TestWorld } from './test-world';
 
-import type { BuildingsReader } from '@systems/buildings';
+import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat';
 import type { ItemsReader } from '@systems/items';
 import type { WorkshopsReader } from '@systems/workshops';
@@ -652,7 +652,8 @@ export function runDescent(w: TestWorld): void {
   console.log('rPlaceForge:', rPlaceForge);
   expect(rPlaceForge.ok).toBe(true);
 
-  const rPlaceKiln = w.game.world.applyCommand({
+  // T-284: the command refuses a workshop no recipe names, and the kiln has none; the store places it.
+  const rPlaceKiln = (w.game.world.scheduler.byId('14') as BuildingsSystem).buildings.place({
     type: 'PlaceBuilding',
     buildingType: 'magma_kiln',
     origin: map.index(24, 49, 4),

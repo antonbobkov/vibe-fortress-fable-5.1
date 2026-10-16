@@ -33,7 +33,9 @@ Magma variants require `MAGMA_POWER_LEVEL` magma directly below at least one foo
 |---|---|---|---|---|---|
 | `magma_smelter` | magma smelter | `smelter` | 3 `stone_block` (magma-safe) | masonry | 350 |
 | `magma_forge` | magma forge | `forge` | 1 `anvil` (iron or steel) + 3 `stone_block` (magma-safe) | masonry | 350 |
-| `magma_kiln` | magma kiln | — | 3 `stone_block` (magma-safe) | masonry | 300; reserved for glass in a later version; it has no recipes and is hidden from the build menu until one exists |
+| `magma_kiln` | magma kiln | — | 3 `stone_block` (magma-safe) | masonry | 300; reserved for glass in a later version; it has no recipes, so it is not offered in the build menu |
+
+A workshop that no recipe names and no job is worked at (`jobs.md`: the butcher's shop and the kennel have jobs and no recipes) is not offered in the build menu, and `PlaceBuilding` refuses it; the magma kiln is the one example. A kiln that an older save already holds loads and is shown, its panel reads "No recipes in this version.", and it can only be taken apart.
 
 ## Recipe columns
 

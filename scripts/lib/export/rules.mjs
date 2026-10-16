@@ -89,6 +89,8 @@ export function exportJobTypes() {
           skill: isBlank(row.skill) || /recipe/.test(plain(row.skill)) ? null : id(row.skill),
           target: plain(row.target).split(' (')[0],
           workTile: plain(row.workTile).split(/[ ,(]/)[0],
+          // `workshop (butcher)`: the workshop type the job is worked at.
+          workshop: /^workshop \(([^)]+)\)/.exec(plain(row.workTile))?.[1],
           baseTicks: numericTicks === null ? (isBlank(ticksCell) ? 0 : ticksCell) : Number(numericTicks[1]),
           tool: TOOLS.find((t) => toolCell.startsWith(t)) ?? null,
           xp: int(row.xp),

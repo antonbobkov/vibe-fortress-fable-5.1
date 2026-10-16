@@ -301,6 +301,19 @@ export class TestWorld {
   }
 
   /**
+   * `buildUnchecked(type, at, material)`: a finished building placed through the store, past the
+   * command's refusal of a workshop no recipe names (T-284). For the reserved magma kiln only.
+   */
+  buildUnchecked(type: string, at: TileIndex, materialChoice: string): EntityId {
+    const system = this.game.world.scheduler.byId('14') as BuildingsSystem;
+    let id = 0;
+    const r = system.buildings.place({ type: 'PlaceBuilding', buildingType: type, origin: at, orientation: 0, materialChoice }, (placed) => { id = placed; });
+    if (!r.ok) throw new Error(`buildUnchecked(${type}): ${r.reason}`);
+    system.completeNow(id, this.game.registry.table('materials').index(materialChoice), 0);
+    return id;
+  }
+
+  /**
    * `zone(type, tiles)`: a `CreateZone` applied now (T-M2-03); returns the new zone's id. A stockpile
    * gets 13's `Stockpile` component at once (it would otherwise arrive with the tick's `ZoneChanged`).
    */

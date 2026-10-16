@@ -517,6 +517,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     skill: nullable(skillRef),
     target: nonEmptyStr,
     workTile: nonEmptyStr,
+    workshop: opt(nonEmptyStr),
     baseTicks: oneOf(int, str),
     tool: nullable(enumOf(['pick', 'axe', 'ranged', 'bucket'])),
     xp: int,

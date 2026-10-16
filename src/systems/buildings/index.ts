@@ -16,6 +16,7 @@ import type { GameEvent } from '@core/events';
 import type { RngStream } from '@core/rng';
 import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
+import { workshopHasWork } from '@core/workshop-use';
 import { BuildingStore } from './build';
 import { BurialStore } from './burial';
 import { makeReader, type BuildingsReader } from './reader';
@@ -257,7 +258,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       PlaceBuilding: () =>
         buildings.place(cmd, (id) => {
           this.lastPlacedBuilding = id;
-        }),
+        }, (type) => !_ctx.readers.has('12') || workshopHasWork(_ctx.registry, type, (_ctx.readers.of<{ recipesFor(workshopType: string): readonly unknown[] }>('12')).recipesFor(type).length)),
       CancelBuilding: () => buildings.cancel(cmd),
       DeconstructBuilding: () => buildings.deconstruct(cmd),
       SetBuildingPriority: () => buildings.setPriority(cmd),

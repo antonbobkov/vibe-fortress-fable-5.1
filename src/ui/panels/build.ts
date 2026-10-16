@@ -18,6 +18,7 @@ import type { Rect } from '@render/cellbuffer';
 import type { BuildingRow } from '@systems/buildings';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { Registry } from '@core/registry';
+import { workshopHasWork } from '@core/workshop-use';
 import { acceleratorLabel } from '../keymap';
 import { blockedText, capitalize, itemName, matchName, whereMade } from '../messages';
 import type { Strings } from '../strings';
@@ -36,10 +37,14 @@ export const BUILD_CATEGORIES: readonly { readonly key: string; readonly id: Bui
   { key: 's', id: 'special' },
 ];
 
-/** The wagon is "placed at embark only": it is not in the menu. */
+/**
+ * The wagon is "placed at embark only": it is not in the menu. A workshop is listed only if a recipe
+ * names it or a job is worked at it (`workshopHasWork`), so a workshop reserved for a later version is not offered.
+ */
 function listed(row: BuildingRow, ctx: PanelContext): boolean {
-  return row.id !== 'wagon' && (row.id !== 'magma_kiln' ||
-    (ctx.readers.has('12') && ctx.readers.of<WorkshopsReader>('12').recipesFor(row.id).length > 0));
+  if (row.id === 'wagon') return false;
+  if (row.category !== 'workshop') return true;
+  return ctx.readers.has('12') && workshopHasWork(ctx.registry, row.id, ctx.readers.of<WorkshopsReader>('12').recipesFor(row.id).length);
 }
 
 /** The inputs as the menu shows them, by content name and the first alternative: "1 table+1 stone", "n blocks". */
