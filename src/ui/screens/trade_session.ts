@@ -11,7 +11,7 @@ import { requiredValue, type TradeReader } from '@systems/trade';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import { Strings } from '../strings';
 import type { Surface } from '../surface';
-import { itemName } from '../messages';
+import { materialItemName } from '../messages';
 import { clampList, label, type ListState } from '../widgets';
 
 export interface TradeSessionHost {
@@ -85,7 +85,7 @@ export class TradeSessionScreen implements Screen {
       const def = items.def(rec.type);
       const material = this.host.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
       const value = side === 'merchant' ? trade.price(civ, id) : trade.valuation(civ, id);
-      return [{ id, count: rec.count, value, name: `${material} ${def?.name ?? 'goods'}`.trim(), type: rec.type, material: rec.material, quality: rec.quality, members: [{ id, count: rec.count, value }] }];
+      return [{ id, count: rec.count, value, name: materialItemName(material, this.host.registry.table<{ id: string; name: string; plural?: string }>('items').byIndex(rec.type) ?? { name: def?.name ?? 'goods' }, rec.count), type: rec.type, material: rec.material, quality: rec.quality, members: [{ id, count: rec.count, value }] }];
     });
   }
 
@@ -103,7 +103,7 @@ export class TradeSessionScreen implements Screen {
     return [...groups.values()].map(row => {
       const material = this.host.registry.table<{ id: string; name: string }>('materials').byIndex(row.material)?.name ?? '';
       const id = this.host.registry.table('items').idOf(row.type);
-      return { ...row, name: `${material} ${itemName(this.host.registry, id, row.count)}`.trim() };
+      return { ...row, name: materialItemName(material, this.host.registry.table<{ id: string; name: string; plural?: string }>('items').byId(id) ?? { name: id }, row.count) };
     });
   }
 

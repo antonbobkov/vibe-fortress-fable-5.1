@@ -233,7 +233,7 @@ function stepHunt(board: JobBoard, job: Job, workerId: EntityId, ctx: TickContex
   if (!entities.alive(targetId)) {
     if (!job.data['killEmitted']) {
       job.data['killEmitted'] = true;
-      ctx.emit({ type: 'HuntKill', hunterId: workerId, targetId });
+      ctx.emit({ type: 'HuntKill', hunterId: workerId, targetId, targetSpecies: typeof job.data['preySpecies'] === 'number' ? job.data['preySpecies'] : 0 });
       grantXp(entities, ctx.registry, workerId, 'hunting', 15, (e) => ctx.emit(e));
     }
 

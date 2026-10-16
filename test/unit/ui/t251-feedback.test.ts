@@ -31,7 +31,7 @@ function merchant(g: Game) {
 }
 describe('T-251 placement and trade feedback', () => {
  it('hides the ghost and keeps successful placement text until leaving the whole footprint', async () => {
-  const g = await game(), f = g.fortress; f.openPanel('build'); f.build.choose('w');
+  const g = await game(), f = g.fortress; f.openPanel('build'); f.build.choose('w'); f.build.arm();
   f.build.list.selected = f.build.rows(f.ctx).findIndex(row => row.id === 'carpenter');
   const p = point(g, 30, 20); f.pointerMove(p); f.pointerDown(p);
   expect(g.host.readers.of<BuildingsReader>('14').byType('carpenter')).toHaveLength(1);
@@ -80,7 +80,7 @@ describe('T-251 placement and trade feedback', () => {
   m.modal.setQuantity('merchant', m.cages[0]!, -10); expect(m.modal.take.size).toBe(0);
  });
  it('a refused placement keeps its refusal and never leaves a hidden ghost', async () => {
-  const g = await game(), f = g.fortress; f.openPanel('build'); f.build.choose('w');
+  const g = await game(), f = g.fortress; f.openPanel('build'); f.build.choose('w'); f.build.arm();
   f.build.list.selected = f.build.rows(f.ctx).findIndex(row => row.id === 'carpenter'); f.build.priority = 999;
   const p = point(g, 30, 20); f.pointerMove(p); f.pointerDown(p);
   expect(g.host.readers.of<BuildingsReader>('14').byType('carpenter')).toHaveLength(0);

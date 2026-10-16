@@ -62,22 +62,22 @@
   {
     "context": "map",
     "key": "←",
-    "action": "pan by 1 cell (Shift: 10)"
+    "action": "pan or move the map cursor (Shift: 10)"
   },
   {
     "context": "map",
     "key": "→",
-    "action": "pan by 1 cell (Shift: 10)"
+    "action": "pan or move the map cursor (Shift: 10)"
   },
   {
     "context": "map",
     "key": "↑",
-    "action": "pan by 1 cell (Shift: 10)"
+    "action": "pan or move the map cursor (Shift: 10)"
   },
   {
     "context": "map",
     "key": "↓",
-    "action": "pan by 1 cell (Shift: 10)"
+    "action": "pan or move the map cursor (Shift: 10)"
   },
   {
     "context": "map",
@@ -117,12 +117,12 @@
   {
     "context": "map",
     "key": "k",
-    "action": "look cursor at the mouse (or map center)"
+    "action": "look at the mouse (or map center)"
   },
   {
     "context": "map",
     "key": "Enter",
-    "action": "with a tool: start/end rectangle at the cursor"
+    "action": "act at the map cursor"
   },
   {
     "context": "map",

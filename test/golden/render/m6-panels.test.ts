@@ -32,7 +32,7 @@ function render(which: PanelName): PanelGolden {
   else if (which === 'threats') drawThreatsPanel(s, rect, f.threats, f.ctx);
   else if (which === 'hospital') drawZonesPanel(s, rect, f.zones, f.ctx);
   else if (which === 'look') drawLookPanel(s, rect, f.ctx.readers, f.ctx.registry, f.ctx.strings, f.lookTile(), 2);
-  else if (which === 'combat_log') drawLogPanel(s, rect, f.log.lines, 2, f.ctx.strings, () => {});
+  else if (which === 'combat_log') drawLogPanel(s, rect, f.log.lines, 2, f.ctx.strings, f.ctx.readers.calendar.tick, () => {});
   return { text: s.lines(), cells: cellRows(s) };
 }
 

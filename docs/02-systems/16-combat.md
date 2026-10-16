@@ -133,7 +133,7 @@ An explicit barracks zone setting takes precedence over a cached training zone. 
 
 ### Kills and loot
 
-On `CreatureDied` with a killer: `killed_hostile` thought for a fortress killer; `KillRecorded { killerId, victimId }` for the legend. Hostile equipment stays on the corpse (13 `strip_corpse`).
+On `CreatureDied` with a killer: `killed_hostile` thought for a fortress killer; `KillRecorded { killerId, victimId, hostile, hunted, killerName, killerSpecies, victimName, victimSpecies }` for the legend (the victim is gone by then, so the death event's name and species are copied; `hunted` is true when the victim was the quarry of a claimed hunt job, whose kill `HuntKill` announces; a trap, which is a building and not a creature, is named by its building type). Hostile equipment stays on the corpse (13 `strip_corpse`).
 
 ### Combat log
 
@@ -171,11 +171,11 @@ Every `AttackResolved` is rendered by the announcement registry into a combat lo
 
 ### Events emitted
 
-`AttackResolved { attackerId, defenderId, part, damageType, amount, outcome }`, `DamageDealt { defenderId, part, damageType, amount, attackerId, weaponId }`, `ProjectileFired { shooterId, targetId, itemId }`, `CreatureFled { id, from }`, `ThreatNearby { id, hostileId }`, `SquadOrderIssued { squadId, order }`, `AlertChanged { from, to }`, `KillRecorded { killerId, victimId }`, `TrainingSession { squadId, members }`.
+`AttackResolved { attackerId, defenderId, part, damageType, amount, outcome }`, `DamageDealt { defenderId, part, damageType, amount, attackerId, weaponId }`, `ProjectileFired { shooterId, targetId, itemId }`, `CreatureFled { id, from }`, `ThreatNearby { id, hostileId }`, `SquadOrderIssued { squadId, order }`, `AlertChanged { from, to }`, `KillRecorded { killerId, victimId, hostile, hunted, killerName, killerSpecies, victimName, victimSpecies }`, `TrainingSession { squadId, members }`.
 
 ### Registrations
 
-Panel `military`; inspector section `creature › combat` (weapon, armor per part with values, skills, squad, target); overlay `squad stations`; announcements: first attack of an attacker and defender pair (alert), `AlertChanged` (note), `KillRecorded` for hostiles (note).
+Panel `military`; inspector section `creature › combat` (weapon, armor per part with values, skills, squad, target); overlay `squad stations`; announcements: first attack of an attacker and defender pair (alert), `AlertChanged` (note), `KillRecorded` for every kill that is not a hunt's (note).
 
 ## Player-facing behavior
 

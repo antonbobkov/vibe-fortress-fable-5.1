@@ -157,6 +157,7 @@ test('U-02 M1/S2 and U-07 M7 build-and-stockpile', async ({ page }) => {
   await page.keyboard.press('w');
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
   await expect.poll(() => textOf(page)).toContain("Carpenter's workshop");
   const rock = sites.rock as { x: number; y: number };
   const r = await tilePixel(page, rock.x, rock.y);
@@ -171,6 +172,7 @@ test('U-02 M1/S2 and U-07 M7 build-and-stockpile', async ({ page }) => {
   // U-03 (D-U2): `c` opens Civilizations; the constructions category is `[S-c]`.
   await page.keyboard.press('Shift+C');
   for (let k = 0; k < 7; k += 1) await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
   await expect.poll(() => textOf(page)).toContain('Wall · click to place');
   for (let k = 0; k < 6; k += 1) {
     if ((await textOf(page)).includes('Material: [x] pine')) break;

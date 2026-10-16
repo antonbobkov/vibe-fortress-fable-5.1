@@ -1,6 +1,8 @@
 # T-279 — Announcements: missing names, a flood of one line, a log with no dates, doubled words
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 9) · **Size:** M · **Needs:** T-251 (it rewrites the rows of `src/ui/screens/trade_session.ts`) · **Status:** open
+**Closed:** 2026-10-16, in 8ea0180, e3ae597, 577a1b0, 58e2c1e.
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (issue 9) · **Size:** M · **Needs:** T-251 (it rewrites the rows of `src/ui/screens/trade_session.ts`) · **Status:** open
 
 ## Why
 
@@ -17,8 +19,8 @@ The capture's flow 7 (seed `e2e-year`, default embark, a hunter with the hunting
 
 ## What the spec says
 
-- [`event-catalog.md`](../04-implementation/event-catalog.md): the fields of `KillRecorded` and `HuntKill`.
-- [`ui-keymap-and-screens.md`](../03-content/ui-keymap-and-screens.md) § Announcement strings; [`panels.md`](../04-implementation/ui-screens/panels.md) § Log; [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules (the log, and merging repeated lines).
+- [`event-catalog.md`](../../04-implementation/event-catalog.md): the fields of `KillRecorded` and `HuntKill`.
+- [`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-screens.md) § Announcement strings; [`panels.md`](../../04-implementation/ui-screens/panels.md) § Log; [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules (the log, and merging repeated lines).
 
 ## What to do
 
@@ -37,4 +39,4 @@ The capture's flow 7 (seed `e2e-year`, default embark, a hunter with the hunting
 ## Done
 
 - Flow 7 replayed shows "has brought down a deer.", one obsidian line for day 52, and dates in the Log.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green.

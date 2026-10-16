@@ -166,6 +166,7 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 - `jobs.typeOf(id)` — the job type id of a job, or null
 - `jobs.isQueued(dwarfId)` — the worker is waiting in the assignment queue
 - `jobs.holdsPatientCare(dwarfId)` — the dwarf holds a health job whose target is a patient (the dwarf brain's test for medical work under a `hearth` alert)
+- `jobs.isHuntQuarry(creatureId)` — a claimed hunt job has this creature as its quarry after the quarry has died (combat's test for a kill that `HuntKill` announces)
 - `jobs.hasWork(dwarfId)` — an open job exists that this worker could take
 - `jobs.hasUrgent(dwarfId, priority)` — an open job of that priority or more urgent exists that this worker could take (the dwarf brain's interrupt check)
 
@@ -179,7 +180,7 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 
 ### Events emitted
 
-`JobCreated`, `JobClaimed`, `JobStarted` (entering `working`; each job event carries the content id as `jobType`), `JobCompleted { jobId, jobType, workerId, target }`, `JobCancelled { jobId, reason }`, `JobBlocked { jobId, reason }`, `JobUnblocked`, `ItemReserved { itemId, jobId }`, `ItemReleased { itemId, jobId }`, `ToolEquipped { dwarfId, itemId }`, `ToolDropped { itemId }`. While it executes 09's hunt jobs it emits `HuntStarted { hunterId, targetId }`, `HuntKill { hunterId, targetId }` (once, when the quarry is dead; the job then takes the corpse that `CorpseCreated` names for that creature and no other) and `HuntAbandoned { hunterId, targetId, reason }`.
+`JobCreated`, `JobClaimed`, `JobStarted` (entering `working`; each job event carries the content id as `jobType`), `JobCompleted { jobId, jobType, workerId, target }`, `JobCancelled { jobId, reason }`, `JobBlocked { jobId, reason }`, `JobUnblocked`, `ItemReserved { itemId, jobId }`, `ItemReleased { itemId, jobId }`, `ToolEquipped { dwarfId, itemId }`, `ToolDropped { itemId }`. While it executes 09's hunt jobs it emits `HuntStarted { hunterId, targetId }`, `HuntKill { hunterId, targetId, targetSpecies }` (once, when the quarry is dead; the job then takes the corpse that `CorpseCreated` names for that creature and no other) and `HuntAbandoned { hunterId, targetId, reason }`.
 
 ### Registrations
 

@@ -47,7 +47,7 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 ### Arrival
 
 - Spawn at `nearestEdgeTo.mountainhome`, one every `ARRIVAL_INTERVAL_TICKS`, with needs at 30, all labors enabled, no bedroom (14 auto-assigns daily).
-- `ImmigrantsArrived { ids, count, guaranteed }` (alert) is emitted once, after the last member of the wave has arrived: "Six dwarves have come to join the hall, two of them children." Everyone gets `immigrants_arrived`.
+- `ImmigrantsArrived { ids, count, children, guaranteed }` (alert) is emitted once, after the last member of the wave has arrived: "Six dwarves have come to join the hall, two of them children." Everyone gets `immigrants_arrived`.
 - New dwarves walk to the hearth hall (or the wagon) and then behave normally. Before each staggered arrival, validate the saved entry as a currently walkable entry tile connected to the hearth hall, or the wagon when there is no hall. Without either anchor, use the lowest-id living resident's tile. An isolated edge floor is not an entry, even if its terrain is otherwise walkable. Keep a valid planned tile; otherwise choose qualifying tiles on the same civilization edge in coordinate order with the ordinary arrival spread, checking every edge tile if no spread candidate qualifies.
 - If that edge has no qualifying entry, keep the same planned wave queued and retry after `ARRIVAL_INTERVAL_TICKS`. Do not spawn at an unreachable fallback or redraw the wave. A season evaluation that occurs while a wave is still pending waits and rechecks daily after that wave finishes. The saved next member and next-arrival tick preserve that wait and its continuation across load; recheck connectivity before spawning each remaining member.
 

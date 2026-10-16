@@ -102,6 +102,8 @@ export interface StockOffer {
 
 export class BuildTool {
   category: BuildingRow['category'] | null = null;
+  /** A building is picked from the open list (`Enter` or a click); until then nothing is placed. */
+  private armed = false;
   readonly list: ListState = { selected: 0, scroll: 0 };
   orientation = 0;
   width = 1;
@@ -140,13 +142,36 @@ export class BuildTool {
   private cache: { key: string; materials: MaterialChoice[] } | null = null;
   private readonly counts = { tick: -1, byRow: new Map<string, number>() };
 
-  get active(): boolean {
+  /** A category's list is open, with or without a building picked. */
+  get listing(): boolean {
     return this.category !== null;
+  }
+
+  /** The tool is armed: a building of the open list is picked and the cursor places it. */
+  get active(): boolean {
+    return this.category !== null && this.armed;
   }
 
   cancel(): void {
     this.category = null;
+    this.armed = false;
     this.resetRow();
+  }
+
+  /** `Enter` or a click on a row of the list: the highlighted building becomes the tool. */
+  arm(): boolean {
+    if (this.category === null) return false;
+    this.armed = true;
+    this.resetRow();
+    return true;
+  }
+
+  /** `Backspace`: back to the list with the tool dropped; the highlight stays. */
+  disarm(): boolean {
+    if (!this.armed) return false;
+    this.armed = false;
+    this.resetRow();
+    return true;
   }
 
   /** Another type (or none): the drag, the stock offer and the type's settings start again. */
@@ -167,6 +192,7 @@ export class BuildTool {
     const c = BUILD_CATEGORIES.find((k) => k.key === key);
     if (c === undefined) return false;
     this.category = c.id;
+    this.armed = false;
     this.list.selected = 0;
     this.list.scroll = 0;
     this.resetRow();
@@ -461,7 +487,7 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
     tool.list,
     (index) => {
       tool.list.selected = index;
-      tool.resetRow();
+      tool.arm();
     },
   );
   row += height;
@@ -490,6 +516,12 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
       label(s, rect.col + 1, row + 1, text.action, { fg: offer.recipeId !== null ? t.key : t.dim, width: rect.cols - 2 });
       if (offer.recipeId !== null && order !== undefined) s.hit({ col: rect.col + 1, row: row + 1, cols: rect.cols - 2, rows: 1 }, () => order.run());
     }
+    return;
+  }
+  // Nothing is picked yet: Enter picks the highlighted row; once picked, Enter places.
+  if (!tool.active) {
+    label(s, rect.col + 1, row, strings.get('ui.build.help_list1'), { fg: t.dim, width: rect.cols - 2 });
+    label(s, rect.col + 1, row + 1, strings.get('ui.build.help_list2'), { fg: t.dim, width: rect.cols - 2 });
     return;
   }
   label(s, rect.col + 1, row, strings.get('ui.build.help1'), { fg: t.dim, width: rect.cols - 2 });

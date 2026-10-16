@@ -131,6 +131,7 @@ describe('U-08 ghosts: validity glyph difference (D-U10)', () => {
     key(game, 'b'); // Open build panel
     key(game, 'w'); // Select workshops category
     game.handleKey(press('c', { shift: true })); // U-03 (D-U2): `c` opens Civilizations; `[S-c]` is the build panel's category accelerator
+    key(game, 'Enter'); // pick the first construction as the tool
 
     const map = game.host.readers.map;
     const z = game.ui.z;

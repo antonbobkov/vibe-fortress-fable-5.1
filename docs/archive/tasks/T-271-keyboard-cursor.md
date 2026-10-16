@@ -1,6 +1,8 @@
 # T-271 — Keyboard parity: a tile cursor for every tool; Build chooses first and places second
 
-**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../reports/audits/2026-10-12-ui-ux.md) (issue 1, § 3) · **Size:** L · **Needs:** T-251 and T-270 (both change `src/ui/screens/fortress.ts`; T-251 also the ghost in `src/ui/panels/build.ts`) · **Status:** open; it changes the input model of 24, so the owner should see it. Recommendation: the cursor, as decided below
+**Closed:** 2026-10-16, in 41ab217, 5d66bd9, 58e2c1e.
+
+**Source:** T-116 and its report, [`../../reports/audits/2026-10-12-ui-ux.md`](../../../reports/audits/2026-10-12-ui-ux.md) (issue 1, § 3) · **Size:** L · **Needs:** T-251 and T-270 (both change `src/ui/screens/fortress.ts`; T-251 also the ghost in `src/ui/panels/build.ts`) · **Status:** open; it changes the input model of 24, so the owner should see it. Recommendation: the cursor, as decided below
 
 ## Why
 
@@ -16,8 +18,8 @@ Default embark, keyboard only.
 
 ## What the spec says
 
-- [`24-ui-and-input.md`](../02-systems/24-ui-and-input.md) § Rules (input model): `Enter` with a tool starts and ends a rectangle at the look cursor, or at the map centre.
-- [`fortress-screen.md`](../04-implementation/ui-screens/fortress-screen.md) § Build tool: the ghost follows the mouse.
+- [`24-ui-and-input.md`](../../02-systems/24-ui-and-input.md) § Rules (input model): `Enter` with a tool starts and ends a rectangle at the look cursor, or at the map centre.
+- [`fortress-screen.md`](../../04-implementation/ui-screens/fortress-screen.md) § Build tool: the ghost follows the mouse.
 
 ## What to do
 
@@ -36,7 +38,7 @@ Default embark, keyboard only.
 ## Done
 
 - Flow 2 of the audit can be played to a working fortress with no mouse and no accidental building.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
 
 ## Owner point settled (2026-10-12, local orchestrator, under the owner's standing instruction to use judgement; the owner was told and may overrule)
 

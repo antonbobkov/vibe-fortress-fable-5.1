@@ -106,6 +106,7 @@ describe('T-252 first-minute traps: no axe warning, and the second d', () => {
     const f = fortress();
     f.key(press('b'));
     f.build.choose('c');
+    f.build.arm();
     expect(f.build.active).toBe(true);
     f.key(press('b'));
     expect(f.statusRow2()).toBe('Build closed · [b] opens it again');
