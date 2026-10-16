@@ -71,7 +71,7 @@
   },
   {
     "id": "hint_hospital",
-    "trigger": "first serious wound with no hospital",
+    "trigger": "first serious wound to a dwarf of the fortress with no hospital",
     "text": "A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats infection."
   },
   {

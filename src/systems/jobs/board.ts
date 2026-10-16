@@ -106,6 +106,8 @@ export class JobBoard implements JobsApi, JobSink {
         // 09's successful hunt continues by waiting for its own corpse, not its dead quarry.
         this.unindexTarget(job);
         job.data['animal'] = target;
+        // `HuntKill` names the quarry's species after the quarry is gone.
+        job.data['preySpecies'] = world.entities.get(target, C.Creature)?.species ?? 0;
         job.data['anchorTile'] = world.map.index(pos.x, pos.y, pos.z);
         job.target = { kind: 'tile', ref: job.data['anchorTile'] as TileIndex };
         this.invalidateWorkAvailability();
@@ -882,6 +884,11 @@ export class JobBoard implements JobsApi, JobSink {
       // labor priority, and a long queue would not answer it this tick.
       if (!this.claim(best, job)) this.assign(best);
     }
+  }
+
+  /** Whether a claimed hunt job has this creature as its quarry after the quarry has died (the job's `animal` is set then). */
+  isHuntQuarry(creatureId: EntityId): boolean {
+    return Array.from(this.jobs.values()).some((job) => job.workerId !== 0 && job.data['animal'] === creatureId && this.typeId(job) === 'hunt');
   }
 
   /** Under a `hearth` alert a sheltering civilian takes patient-care jobs only. */

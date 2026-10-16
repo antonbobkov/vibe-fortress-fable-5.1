@@ -7,9 +7,10 @@
  * `alert` in yellow and the strip flashes for one second; `danger` in red, the game pauses when
  * `auto-pause on danger` is on (default on), the view centres on the focus and the strip shows the
  * line until any key dismisses it. "Log size `LOG_MAX_LINES` in memory"; "Repeated identical
- * announcements within `LOG_DEDUP_TICKS` are merged with a count ("×3")."
+ * announcements within `LOG_DEDUP_TICKS`, or within one day, are merged with a count ("×3")."
  */
 
+import { dayIndexOf } from '@core/calendar';
 import { C } from '@core/components';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
@@ -118,9 +119,15 @@ export class AnnouncementLog {
     }
     // A hunt names its hunter and its prey (09 § Registrations, T-M7-10).
     const hunter = e['hunterId'];
-    if (typeof hunter === 'number' && hunter !== 0) out['hunter'] = readers.entities.get(hunter, C.Creature)?.name ?? '';
+    if (typeof hunter === 'number' && hunter !== 0) {
+      const who = readers.entities.get(hunter, C.Creature);
+      out['hunter'] = this.formatCreatureName(who?.name, who?.species);
+    }
     const prey = e['targetId'];
-    if (typeof prey === 'number' && prey !== 0) out['prey'] = this.speciesName(readers, prey);
+    if (typeof prey === 'number' && prey !== 0) {
+      const species = readers.entities.get(prey, C.Creature)?.species ?? (typeof e['targetSpecies'] === 'number' ? e['targetSpecies'] : undefined);
+      out['prey'] = this.formatCreatureName(undefined, species);
+    }
     // A species field, as an index or a content id, reads as the species' name.
     const speciesOf = e['species'];
     if (out['species'] === undefined) {
@@ -177,6 +184,13 @@ export class AnnouncementLog {
       if (typeof out['defender'] === 'string') out['defender'] = out['defender'].split(' ')[0] ?? out['defender'];
     }
     const killerId = e['killerId'];
+    if (event.type === 'KillRecorded') {
+      // The event carries the names taken when the victim died; the creatures may be gone by now.
+      const named = (name: unknown, species: unknown): string => this.formatCreatureName(typeof name === 'string' ? name : undefined, typeof species === 'number' ? species : undefined);
+      out['killer'] = named(e['killerName'], e['killerSpecies']);
+      out['victim'] = named(e['victimName'], e['victimSpecies']);
+      return out;
+    }
     if (typeof killerId === 'number' && killerId !== 0) {
       const creature = readers.entities.get(killerId, C.Creature);
       out['killer'] = creature?.name || (creature ? this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '' : '') || 'killer';
@@ -196,13 +210,6 @@ export class AnnouncementLog {
       out['victim'] = creature?.name || (creature ? this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '' : '') || 'victim';
     }
     return out;
-  }
-
-  /** A creature's species name, for the announcements that name the beast and not the dwarf. */
-  private speciesName(readers: ReaderSet, id: number): string {
-    const creature = readers.entities.get(id, C.Creature);
-    if (creature === undefined) return '';
-    return this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '';
   }
 
   private formatCreatureName(name: string | undefined, speciesIndex: number | undefined): string {
@@ -235,7 +242,7 @@ export class AnnouncementLog {
         const value = fields[candidate.atMost.field];
         if (typeof value !== 'number' || value > candidate.atMost.value) return false;
       }
-      return candidate.oneOf === undefined || candidate.oneOf.values.includes(fields[candidate.oneOf.field] as string | number);
+      return candidate.oneOf === undefined || candidate.oneOf.values.includes(fields[candidate.oneOf.field] as string | number | boolean);
     });
     if (spec === undefined) return null;
     if (typeof idleWorkshop === 'number') { this.history.workshopIdleNotes.push(idleWorkshop); this.history.workshopIdleNotes.sort((a, b) => a - b); }
@@ -280,9 +287,12 @@ export class AnnouncementLog {
     if (text.length > 0) {
       text = text.charAt(0).toUpperCase() + text.slice(1);
     }
+    // An identical line merges within `LOG_DEDUP_TICKS`, and within the same day however many lines came between.
+    const day = dayIndexOf(tick);
     for (let k = this.lines.length - 1; k >= 0; k -= 1) {
       const prev = this.lines[k] as LogLine;
-      if (tick - prev.tick > LOG_DEDUP_TICKS) break;
+      // A line from an earlier day outside the window is no candidate, but a later one may still be: scan on.
+      if (tick - prev.tick > LOG_DEDUP_TICKS && dayIndexOf(prev.tick) !== day) continue;
       if (prev.text === text && prev.severity === severity && prev.category === category) {
         prev.count += 1;
         prev.tick = tick;

@@ -267,7 +267,7 @@ export interface AnnouncementSpec {
   /** Announce only when the event's numeric field is at most this value. */
   readonly atMost?: { readonly field: string; readonly value: number };
   /** Announce only when the event's field is one of the values (`WeatherChanged` to `storm`, `snow`, …; D-101). */
-  readonly oneOf?: { readonly field: string; readonly values: readonly (string | number)[] };
+  readonly oneOf?: { readonly field: string; readonly values: readonly (string | number | boolean)[] };
   /** The text's key is `stringKey.<the event's value of this field>` (one line per weather state or season; D-101). */
   readonly keyField?: string;
   /** Category for filtering in the log panel (e.g. 'combat'). */

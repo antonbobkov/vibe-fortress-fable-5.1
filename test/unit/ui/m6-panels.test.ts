@@ -385,7 +385,7 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
 
     it('renders header tabs [1] All  [2] Alerts  [3] Combat', () => {
       const s = surface(36, 32);
-      drawLogPanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, [], 0, strings, () => {});
+      drawLogPanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, [], 0, strings, 0, () => {});
       expect(s.lines()[0]).toContain('[1] All  [2] Alerts  [3] Combat');
     });
   });

@@ -16,7 +16,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import { buildingName, filterText, zoneName } from '../messages';
+import { buildingName, filterText, materialItemName, zoneName } from '../messages';
 import type { Strings } from '../strings';
 import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
@@ -371,7 +371,7 @@ function itemLine(readers: ReaderSet, registry: Registry, id: EntityId): string 
   const def = it.def(rec.type);
   const material = registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
   const meal = has(readers, '12') ? readers.of<{ mealName(itemId: EntityId): string | null }>('12').mealName(id) : null;
-  const parts = [`${rec.count} ${meal ?? `${material} ${def?.name ?? ''}`}`.trim()];
+  const parts = [`${rec.count} ${meal ?? materialItemName(material, { name: def?.name ?? '' })}`.trim()];
   if (def?.quality === true) parts[0] += ` (${QUALITY_WORDS[rec.quality] ?? ''})`;
   parts.push(`${it.value(id)} ☼`);
   for (const [flag, word] of FLAG_WORDS) if ((rec.flags & flag) !== 0) parts.push(word);

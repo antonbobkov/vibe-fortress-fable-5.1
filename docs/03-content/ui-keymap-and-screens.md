@@ -73,17 +73,19 @@ Animals, Tame tab: `[S-t] train` or its button opens War/Hunting; arrows and Ent
 
 | Key | Action |
 |---|---|
-| `←` `→` `↑` `↓` | pan by 1 cell (`Shift`: 10) |
+| `←` `→` `↑` `↓` | pan or move the map cursor (`Shift`: 10) |
 | `<` `,` | z-level down |
 | `>` `.` | z-level up |
 | `Home` | center on the hearth (or wagon) |
 | `Ctrl+↑` / `Ctrl+↓` | zoom in / out |
-| `k` | look cursor at the mouse (or map center) |
-| `Enter` | with a tool: start/end rectangle at the cursor |
+| `k` | look at the mouse (or map center) |
+| `Enter` | act at the map cursor |
 | `1`–`9` | with a designation or zone tool: set priority |
 | `r` | with a building tool: rotate |
 | `x` | with a building tool: cycle material |
 | `Delete` | with a selection: cancel designations / remove zone / cancel building |
+
+With the map cursor shown (a tool armed, or a panel asking for a tile or a creature), the arrows move the cursor instead of panning, and `Enter` acts at it; in the Build list `Enter` picks the highlighted building and, with a building armed, `Backspace` returns to the list. See `02-systems/24-ui-and-input.md` § Rules (input model).
 
 ### Panels
 
@@ -295,7 +297,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_room` | a bedroom zone with tier bare exists for 3 days | "A room needs walls or doors around it, a bed, and smooth stone to be worth sleeping in." |
 | `hint_alert` | first `ThreatWarning`, or the first fortress dwarf wounded by an animal | "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock, but a dwarf in dire need still goes out to eat, drink or sleep, and the medics still tend the wounded." |
 | `hint_depot` | day 14 of summer, year 1, no depot | "Build a trade depot [b > Special] before the caravan arrives." |
-| `hint_hospital` | first serious wound with no hospital | "A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats infection." |
+| `hint_hospital` | first serious wound to a dwarf of the fortress with no hospital | "A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats infection." |
 | `hint_immigration` | first `ImmigrationSkipped` | "Immigrants come at the turn of the season when hall spirit is Content. Good rooms, meals and drink raise it." |
 | `hint_gate` | first raid ended | "A drawbridge over a channel is the surest gate. Build a lever inside [b], click it, press [i] and click the bridge; [y] pulls it." |
 | `hint_cage` | first cage trap built | "Cage traps catch anything smaller than a wyrm. Caged beasts can be tamed at a kennel or sold." |

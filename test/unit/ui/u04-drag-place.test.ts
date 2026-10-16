@@ -81,6 +81,7 @@ function choose(f: Fixture, category: string, type: string): void {
   expect(index, type).toBeGreaterThanOrEqual(0);
   for (let k = 0; k < index; k += 1) f.screen.key(press('ArrowDown'));
   expect(f.screen.build.current(f.screen.ctx)?.id).toBe(type);
+  f.screen.key(press('Enter'));
 }
 
 /** Walls north and south of a row of tiles: a doorway each. */

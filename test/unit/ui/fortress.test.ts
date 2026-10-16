@@ -13,6 +13,7 @@ import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { Game } from '@app/game';
 import { readJsonSection } from '@app/save-manager';
 import { AnnouncementLog, lineText } from '@ui/announcements';
+import { TICKS_PER_DAY } from '@core/constants';
 import { LOG_DEDUP_TICKS } from '@ui/constants';
 import { DesignateTool, rectTiles } from '@ui/panels/designate';
 import { speedText, statusFields, statusRow1 } from '@ui/status';
@@ -359,11 +360,11 @@ describe('T-M1-14 announcements', () => {
     expect(log.lines).toHaveLength(3);
   });
 
-  it('merges only within LOG_DEDUP_TICKS', () => {
+  it('merges only within LOG_DEDUP_TICKS or the same day', () => {
     const log = new AnnouncementLog(strings, registry);
     log.append('note', 'a', 0);
     log.append('note', 'a', LOG_DEDUP_TICKS);
-    log.append('note', 'a', 2 * LOG_DEDUP_TICKS + 1);
+    log.append('note', 'a', TICKS_PER_DAY + 2 * LOG_DEDUP_TICKS + 1);
     expect(log.lines.map((l) => l.count)).toEqual([2, 1]);
   });
 });

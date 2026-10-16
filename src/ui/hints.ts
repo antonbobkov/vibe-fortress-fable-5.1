@@ -141,7 +141,8 @@ export class HintEngine {
     if (event.type === 'VeinFound' && typeof fields['material'] === 'string' &&
       this.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(fields['material'])?.deepsilver === true) this.markId('hint_deep');
     if (event.type === 'BuildingCompleted' && fields['buildingType'] === 'cage_trap') this.markId('hint_cage');
-    if (event.type === 'WoundInflicted' && (fields['severity'] === 'serious' || fields['severity'] === 'grievous')) this.markId('hint_hospital');
+    // The hospital is for the fortress's own dwarves: a wounded beast or invader does not call for one.
+    if (event.type === 'WoundInflicted' && (fields['severity'] === 'serious' || fields['severity'] === 'grievous') && this.fortressDwarf(readers, Number(fields['id']))) this.markId('hint_hospital');
     if (event.type === 'CommandRejected') {
       const command = fields['command'] as { type?: string; zoneType?: string } | undefined;
       if (command?.type === 'CreateZone' && command.zoneType === 'farm_plot') this.markId('hint_farm');
@@ -158,12 +159,16 @@ export class HintEngine {
     }
   }
 
+  /** Whether a creature is a dwarf of the fortress. */
+  private fortressDwarf(readers: ReaderSet, id: number): boolean {
+    const creature = readers.entities.get(id, C.Creature);
+    return creature !== undefined && creature.faction === 'fortress' && creature.species === this.registry.table('creatures').index('dwarf');
+  }
+
   /** A wild animal's hit on a dwarf of the fortress. */
   private animalWoundedDwarf(readers: ReaderSet, attacker: number, defender: number): boolean {
-    const dwarf = this.registry.table('creatures').index('dwarf');
     const a = readers.entities.get(attacker, C.Creature);
-    const d = readers.entities.get(defender, C.Creature);
-    return a !== undefined && d !== undefined && a.faction === 'wild' && d.faction === 'fortress' && d.species === dwarf;
+    return a !== undefined && a.faction === 'wild' && this.fortressDwarf(readers, defender);
   }
 
   private evaluate(readers: ReaderSet): void {

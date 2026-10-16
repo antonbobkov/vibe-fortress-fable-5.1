@@ -45,6 +45,7 @@ import {
   updateSquadDuty,
 } from './squads';
 import type { CombatStateV1 } from './state';
+import type { JobsReader } from '@systems/jobs/reader';
 import { TargetManager } from './targets';
 import { threatScan } from './threats';
 import { kitingTile } from './kiting';
@@ -150,6 +151,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       severity: 'note',
       stringKey: 'announce.kill_recorded',
       category: 'combat',
+      oneOf: { field: 'hunted', values: [false] },
     });
     ctx.register.announcement('AttackResolved', {
       severity: 'alert',
@@ -432,7 +434,17 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
             if (wild?.state === 'attack') hostile = true;
           }
         }
-        ctx.emit({ type: 'KillRecorded', killerId: killer, victimId: id, hostile });
+        // The victim is already gone, so the names come from the death event. The kill of a hunt job's quarry is the
+        // hunt's, and `HuntKill` announces it. A killer that is not a creature, a trap, is named by its building.
+        const victimSpecies = typeof event['species'] === 'number' ? event['species'] : 0;
+        const hunted = ctx.readers.has('11') && ctx.readers.of<JobsReader>('11').isHuntQuarry(id);
+        const trap = killerCreature === undefined ? ctx.world.entities.get(killer, C.Building) : undefined;
+        const killerName = killerCreature?.name ?? (trap === undefined ? '' : ctx.registry.table<{ id: string; name: string }>('buildings').byIndex(trap.type)?.name ?? '');
+        ctx.emit({
+          type: 'KillRecorded', killerId: killer, victimId: id, hostile, hunted,
+          killerName, killerSpecies: killerCreature?.species ?? 0,
+          victimName: typeof event['name'] === 'string' ? event['name'] : '', victimSpecies,
+        });
       }
       return;
     }
