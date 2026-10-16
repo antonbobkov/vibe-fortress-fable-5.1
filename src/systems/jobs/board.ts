@@ -847,8 +847,8 @@ export class JobBoard implements JobsApi, JobSink {
   /**
    * `11` § Assignment: an open job for a patient at `PATIENT_SUMMON_PRIORITY` does not wait for a
    * worker to finish what it is doing. When no free worker in the queue could take it, the nearest
-   * worker at interruptible work that is not itself for a patient is interrupted, progress kept, and
-   * queued for this tick.
+   * worker to the patient at interruptible work that is not itself for a patient is interrupted,
+   * progress kept, and claims the job at once (queued for this tick if the claim fails).
    */
   private summonForPatients(): void {
     const map = this.world.map;
@@ -859,7 +859,9 @@ export class JobBoard implements JobsApi, JobSink {
       const job = this.jobs.get(id);
       if (job === undefined || job.state !== 'open' || job.priority !== PATIENT_SUMMON_PRIORITY || !this.isPatientCare(job)) continue;
       if (this.assignQueue.some((w) => this.workerOf(w).jobId === 0 && this.eligible(job, w))) continue;
-      const anchor = map.unpack(this.anchorTile(job));
+      // Nearest to the patient itself (a `carry_patient` job's anchor is the bed).
+      const patientTile = job.target.kind === 'entity' ? this.workerTile(job.target.ref) : -1;
+      const anchor = map.unpack(patientTile >= 0 ? patientTile : this.anchorTile(job));
       let best: EntityId = 0;
       let bestD = Number.POSITIVE_INFINITY;
       workers ??= this.workers();
@@ -876,7 +878,9 @@ export class JobBoard implements JobsApi, JobSink {
       }
       if (best === 0) continue;
       this.interrupt(best, true);
-      this.assign(best);
+      // The called worker takes the patient's job now: queued, it could choose its own job back by
+      // labor priority, and a long queue would not answer it this tick.
+      if (!this.claim(best, job)) this.assign(best);
     }
   }
 

@@ -10,8 +10,8 @@ tick(ctx):
   retryBlocked(min(BLOCKED_RETRIES_PER_TICK, blocked.length))
   for job in open jobs for a patient with priority == PATIENT_SUMMON_PRIORITY (creation order):   // stop_bleeding, carry_patient
     if some free w in assignQueue is eligible(job, w): continue
-    w = nearest to the patient of: eligible(job, w), Brain[w].behavior == 'work', job of w interruptible and not for a patient, not on duty, not a patient
-    if w: interrupt(w, keepProgress = true); assignQueue.add(w)
+    w = nearest to the patient's tile of: eligible(job, w), Brain[w].behavior == 'work', job of w interruptible and not for a patient, not on duty, not a patient
+    if w: interrupt(w, keepProgress = true); if not claim(w, job): assignQueue.add(w)
   served = 0
   while assignQueue non-empty and served < ASSIGN_WORKERS_PER_TICK: w = assignQueue.shift(); assign(w); served++
 retryBlocked(n): for job in blocked (creation order, cursor-resumed): if not job.failedWalk and (job.retryTick <= tick or job.retryTrigger fired):
