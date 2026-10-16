@@ -344,7 +344,8 @@ export function filterText(registry: Registry, filter: Readonly<Record<string, u
   const material = filter['materialId'];
   if (typeof material === 'number') {
     const m = registry.table<NamedRow>('materials').byIndex(material)?.name;
-    if (m !== undefined) name = `${m} ${name}`;
+    const type = typeof filter['type'] === 'number' ? items.byIndex(filter['type']) : undefined;
+    if (m !== undefined) name = type === undefined ? `${m} ${name}` : materialItemName(m, type, n);
   } else if (typeof filter['materialClass'] === 'string') name = `${filter['materialClass']} ${name}`;
   return `${n} ${name}`;
 }

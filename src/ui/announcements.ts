@@ -119,7 +119,10 @@ export class AnnouncementLog {
     }
     // A hunt names its hunter and its prey (09 § Registrations, T-M7-10).
     const hunter = e['hunterId'];
-    if (typeof hunter === 'number' && hunter !== 0) out['hunter'] = readers.entities.get(hunter, C.Creature)?.name ?? '';
+    if (typeof hunter === 'number' && hunter !== 0) {
+      const who = readers.entities.get(hunter, C.Creature);
+      out['hunter'] = this.formatCreatureName(who?.name, who?.species);
+    }
     const prey = e['targetId'];
     if (typeof prey === 'number' && prey !== 0) {
       const species = readers.entities.get(prey, C.Creature)?.species ?? (typeof e['targetSpecies'] === 'number' ? e['targetSpecies'] : undefined);
@@ -288,7 +291,8 @@ export class AnnouncementLog {
     const day = dayIndexOf(tick);
     for (let k = this.lines.length - 1; k >= 0; k -= 1) {
       const prev = this.lines[k] as LogLine;
-      if (tick - prev.tick > LOG_DEDUP_TICKS && dayIndexOf(prev.tick) !== day) break;
+      // A line from an earlier day outside the window is no candidate, but a later one may still be: scan on.
+      if (tick - prev.tick > LOG_DEDUP_TICKS && dayIndexOf(prev.tick) !== day) continue;
       if (prev.text === text && prev.severity === severity && prev.category === category) {
         prev.count += 1;
         prev.tick = tick;

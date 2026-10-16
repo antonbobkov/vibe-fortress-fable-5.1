@@ -39,6 +39,8 @@ export interface JobsReader {
   hasWork(dwarfId: EntityId): boolean;
   /** True while the dwarf holds a job for a patient (a health job whose target is a patient). */
   holdsPatientCare(dwarfId: EntityId): boolean;
+  /** True while a claimed hunt job has this creature as its quarry, and after the quarry has died. */
+  isHuntQuarry(creatureId: EntityId): boolean;
 }
 
 function copy(job: Job | undefined): Job | undefined {
@@ -96,6 +98,7 @@ export function makeReader(board: JobBoard): JobsReader {
     isQueued: (dwarfId) => board.isQueued(dwarfId),
     hasUrgent: (dwarfId, priority) => board.hasUrgent(dwarfId, priority),
     hasWork: (dwarfId) => board.hasWork(dwarfId),
+    isHuntQuarry: (creatureId) => board.isHuntQuarry(creatureId),
     holdsPatientCare: (dwarfId) => {
       const job = board.jobs.get(board.workerOf(dwarfId).jobId);
       return job !== undefined && board.isPatientCare(job);

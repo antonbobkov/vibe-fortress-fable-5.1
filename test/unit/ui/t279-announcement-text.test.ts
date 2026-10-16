@@ -7,7 +7,7 @@ import { EVENT_FIELDS, type EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import { AnnouncementLog } from '@ui/announcements';
 import { HintEngine } from '@ui/hints';
-import { materialItemName } from '@ui/messages';
+import { filterText, materialItemName } from '@ui/messages';
 import { drawLogPanel, logDate } from '@ui/panels/log';
 import { defaultUiState, type UiState } from '@ui/ui-state';
 import { Strings, UI_STRINGS } from '@ui/strings';
@@ -66,20 +66,52 @@ describe('T-279 no announcement prints a raw placeholder, an empty hole or a dou
 });
 
 describe('T-279 kills and hunts', () => {
-  it('a hunter\'s kill is announced once, by the hunt line, named for the deer after it is gone', () => {
-    const { w, log } = world('t279-hunt');
-    const hunter = w.spawnDwarf({ at: w.index(10, 10, Z), name: 'Oskar Stonetongue' });
-    const deer = w.spawnCreature('deer', w.index(11, 10, Z), 'wild');
-    const body = w.game.world.entities.get(deer, C.Body)!;
-    w.game.world.emit({ type: 'DamageDealt', attackerId: hunter, defenderId: deer, part: 'torso', damageType: 'edge', amount: body.parts[1]!.maxHp * 2 });
-    w.until((v) => v.events('KillRecorded').length > 0, 30);
-    expect(w.game.world.entities.alive(deer)).toBe(false);
+  it('the kill of a hunt quarry is announced once, by the hunt line, named for the deer after it is gone', () => {
+    const w = new TestWorld({ seed: 't279-hunt', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+    const log = new AnnouncementLog(new Strings(w.game.registry), w.game.registry);
+    log.register(w.game.world.registrations.announcements);
+    const ent = w.game.world.entities;
+    const hunter = w.spawnDwarf({ at: w.index(21, 20, Z), name: 'Oskar Stonetongue', skills: { crossbow: 10, hunting: 5 } });
+    const items = w.game.registry.table('items');
+    const iron = w.game.registry.table('materials').index('iron');
+    const crossbow = w.spawnItem(items.index('crossbow'), iron, w.index(21, 20, Z));
+    const bolts = w.spawnItem(items.index('bolt'), iron, w.index(21, 20, Z), 20);
+    ent.add(hunter, C.Equipment, { weapon: crossbow, shield: 0, armor: { head: 0, body: 0, arms: 0, legs: 0, feet: 0 },
+      clothing: { body: 0, legs: 0, feet: 0, over: 0 }, quiver: bolts });
+    const deerSpecies = w.game.registry.table('creatures').index('deer');
+    const deer = w.game.world.services.spawn.creature(deerSpecies, w.index(25, 20, Z), 'wild');
+    w.until((v) => v.events('HuntKill').length > 0 && v.events('KillRecorded').length > 0, TICKS_PER_DAY);
+    expect(ent.alive(deer)).toBe(false);
     const kill = w.events('KillRecorded')[0]!;
     expect(kill['hunted']).toBe(true);
-    expect(kill['victimSpecies']).toBe(w.game.registry.table('creatures').index('deer'));
+    expect(kill['victimSpecies']).toBe(deerSpecies);
     expect(log.announce(kill, w.readers, 5)).toBeNull();
-    const hunt = log.announce({ type: 'HuntKill', hunterId: hunter, targetId: deer, targetSpecies: w.game.registry.table('creatures').index('deer') }, w.readers, 5);
+    const hunt = log.announce(w.events('HuntKill')[0]!, w.readers, 5);
     expect(hunt?.line.text).toBe('Oskar Stonetongue has brought down a deer.');
+  }, 120_000);
+
+  it('a dwarf kill of a deer that no hunt job claimed is still announced as a kill', () => {
+    const { w, log } = world('t279-not-a-hunt');
+    const dwarf = w.spawnDwarf({ at: w.index(10, 10, Z), name: 'Oskar Stonetongue' });
+    w.setLabor(dwarf, 'hunting', false);
+    const deer = w.spawnCreature('deer', w.index(11, 10, Z), 'wild');
+    const body = w.game.world.entities.get(deer, C.Body)!;
+    w.game.world.emit({ type: 'DamageDealt', attackerId: dwarf, defenderId: deer, part: 'torso', damageType: 'edge', amount: body.parts[1]!.maxHp * 2 });
+    w.until((v) => v.events('KillRecorded').length > 0, 30);
+    const kill = w.events('KillRecorded')[0]!;
+    expect(kill['hunted']).toBe(false);
+    expect(log.announce(kill, w.readers, 5)?.line.text).toBe('Oskar Stonetongue has slain a deer.');
+  });
+
+  it('a trap kill is named for the trap', () => {
+    const { w, log } = world('t279-trap');
+    const trap = w.build('stone_fall_trap', w.index(14, 10, Z));
+    const gloam = w.spawnCreature('gloam_warrior', w.index(15, 10, Z), 'hostile:gloam');
+    const body = w.game.world.entities.get(gloam, C.Body)!;
+    w.game.world.emit({ type: 'DamageDealt', attackerId: trap, defenderId: gloam, part: 'torso', damageType: 'blunt', amount: body.parts[1]!.maxHp * 4 });
+    w.until((v) => v.events('KillRecorded').length > 0, 30);
+    const text = log.announce(w.events('KillRecorded')[0]!, w.readers, 5)?.line.text;
+    expect(text).toMatch(/^Stone-fall trap has slain an? [\w ]+\.$/);
   });
 
   it('a kill of an enemy names both, though the enemy is gone', () => {
@@ -122,16 +154,14 @@ describe('T-279 merging and dates', () => {
     expect(log.lines.filter((line) => line.text === 'Obsidian has formed.')).toHaveLength(2);
   });
 
-  it('announces obsidian once a day however often it forms', () => {
-    const { w, log } = world('t279-obsidian');
-    const day = 52 * TICKS_PER_DAY;
-    for (let k = 0; k < 6; k += 1) {
-      log.announce({ type: 'ObsidianFormed', tile: 10 + k }, w.readers, day + k * 150);
-      log.append('note', `Other line ${k}.`, day + k * 150 + 1);
-    }
-    const obsidian = log.lines.filter((line) => line.text === 'Obsidian has formed.');
-    expect(obsidian).toHaveLength(1);
-    expect(obsidian[0]?.count).toBe(6);
+  it('a line merged after midnight does not stop a later same-day merge', () => {
+    const { log } = world('t279-scan');
+    const day = 8 * TICKS_PER_DAY;
+    // P is refreshed by window merges across midnight and ends up before Q, which stays in the old day.
+    log.append('note', 'P line.', day - 200);
+    log.append('note', 'Q line.', day - 190);
+    for (const at of [-110, -20, 30, 60]) log.append('note', 'P line.', day + at);
+    expect(log.lines.map((line) => `${line.text}${line.count}`)).toEqual(['P line.5', 'Q line.1']);
   });
 
   it('draws the day in front of each Log row, with the year for an earlier year', () => {
@@ -165,6 +195,10 @@ describe('T-279 item names never repeat a word', () => {
     expect(materialItemName('', { name: 'door' }, 2)).toBe('doors');
     expect(materialItemName('clothes', { name: 'cloth' }, 1)).toBe('clothes cloth');
     expect(materialItemName('leather', { name: 'leather boots', plural: 'leather boots' }, 2)).toBe('leather boots');
+  });
+
+  it('holds in the name of a filter too', () => {
+    expect(filterText(registry, { type: registry.table('items').index('cloth'), materialId: registry.table('materials').index('wool_cloth') }, 3)).toBe('3 wool cloth');
   });
 
   it('holds for every item type with every material of the tables', () => {

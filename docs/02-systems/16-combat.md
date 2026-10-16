@@ -133,7 +133,7 @@ An explicit barracks zone setting takes precedence over a cached training zone. 
 
 ### Kills and loot
 
-On `CreatureDied` with a killer: `killed_hostile` thought for a fortress killer; `KillRecorded { killerId, victimId, hostile, hunted, killerName, killerSpecies, victimName, victimSpecies }` for the legend (the victim is gone by then, so the death event's name and species are copied; `hunted` is true for a fortress creature's kill of a timid or neutral wild animal). Hostile equipment stays on the corpse (13 `strip_corpse`).
+On `CreatureDied` with a killer: `killed_hostile` thought for a fortress killer; `KillRecorded { killerId, victimId, hostile, hunted, killerName, killerSpecies, victimName, victimSpecies }` for the legend (the victim is gone by then, so the death event's name and species are copied; `hunted` is true when the victim was the quarry of a claimed hunt job, whose kill `HuntKill` announces; a trap, which is a building and not a creature, is named by its building type). Hostile equipment stays on the corpse (13 `strip_corpse`).
 
 ### Combat log
 
