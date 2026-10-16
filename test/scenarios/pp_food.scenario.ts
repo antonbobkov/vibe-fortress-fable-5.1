@@ -15,7 +15,6 @@ import { DAYS_PER_SEASON, TICKS_PER_DAY } from '@core/constants';
 import { C } from '@core/components';
 import type { Scenario } from './runner';
 import { built, cmd, day, dug, expectNoInvariantFindings, pathWorld, placeNear, playUntil, rect, stairToRock, surfaceZ, trace, wagon, zoneRect } from './player-path';
-import { deathCounts } from './death-counts';
 import type { TestWorld } from './test-world';
 
 const CROP = 'cavewheat';
@@ -83,7 +82,11 @@ const scenario: Scenario = {
     expect(harvested, `cavewheat harvested; ${summary}`).toBeGreaterThan(0);
     expect(mealsMade(w), `cavewheat meals cooked; ${summary}`).toBeGreaterThan(0);
     expect(finished, `a cavewheat meal eaten by day ${DAYS_PER_SEASON}; ${summary}`).toBe(true);
-    expect(deathCounts(w).dwarf, 'no dwarf died').toBe(0);
+    // T-350: which dwarf a boar or a badger meets turns on the job timeline (testing-strategy.md
+    // § What may be a gate): the deaths are in the trace, and the chain's own outcome is that
+    // nobody dies of hunger or thirst.
+    const dwarf = w.game.registry.table('creatures').index('dwarf');
+    expect(w.events('CreatureDied').filter((e) => e['species'] === dwarf && e['cause'] === 'starvation').length, 'no dwarf died of hunger or thirst').toBe(0);
     expectNoInvariantFindings(w, `pp_food day ${day(w)}`);
   },
 };
