@@ -1,0 +1,106 @@
+/** T-363 diagnosis probe (not committed): what walls in the hospital chest of three-years-p2-5? */
+import { describe, it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TileKind } from '@core/map3d';
+import { C } from '@core/components';
+import type { BuildingsReader } from '@systems/buildings/reader';
+import { playThreeYears, setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense } from '../scenarios/three_years_fortress';
+import { watchInvariants } from '../scenarios/invariants';
+
+const SEED = process.env['T363_SEED'] ?? 'three-years-p2-5';
+const PERIL = Number(process.env['T363_PERIL'] ?? 2);
+const END = Number(process.env['T363_END'] ?? 233_000);
+const CX = 32, CY = 14, CZ = 26;
+
+describe('T-363 chest probe', () => {
+  it('prints the room around the chest', () => {
+    const w = threeYearsWorld(SEED, PERIL);
+    const bReader = w.readers.of<BuildingsReader>('14');
+    const pathing = w.game.world.readers.pathing;
+    const fortress = { faction: 'fortress' } as const;
+    const findings: string[] = [];
+    const stop = watchInvariants(w.game, (f) => { for (const x of f) findings.push(`${w.tick}:${x.inv}:${x.samples[0] ?? ''}`); });
+    const log: string[] = [];
+    const inArea = (t: number): boolean => {
+      const x = w.map.xOf(t), y = w.map.yOf(t), z = w.map.zOf(t);
+      return Math.abs(x - CX) <= 4 && Math.abs(y - CY) <= 4 && Math.abs(z - CZ) <= 1;
+    };
+    const unsub = w.game.world.onEvents((events) => {
+      for (const e of events) {
+        const tiles: number[] = [];
+        for (const k of ['tile', 'origin', 'at']) if (typeof e[k] === 'number') tiles.push(e[k] as number);
+        if (Array.isArray(e['tiles'])) tiles.push(...(e['tiles'] as number[]));
+        const bid = typeof e['buildingId'] === 'number' ? (e['buildingId'] as number) : 0;
+        const b = bid ? bReader.get(bid) : undefined;
+        if (b) tiles.push(b.origin);
+        if (tiles.some(inArea)) log.push(`${w.tick} d${Math.floor(w.tick / TICKS_PER_DAY)} ${e.type} ${JSON.stringify(e).slice(0, 200)}`);
+      }
+    });
+    const snapshot = (label: string): void => {
+      const lines: string[] = [`[t363] ${label} tick ${w.tick}`];
+      const labels = new Map<number, number>();
+      for (const id of w.game.world.entities.with(C.Labors)) {
+        const p = w.game.world.entities.get(id, C.Position);
+        if (!p) continue;
+        const l = pathing.labelOf(w.map.index(p.x, p.y, p.z), 'walker');
+        labels.set(l, (labels.get(l) ?? 0) + 1);
+      }
+      lines.push(`dwarf labels ${JSON.stringify([...labels])}`);
+      for (let z = CZ - 1; z <= CZ + 1; z += 1) {
+        lines.push(`z=${z}`);
+        for (let y = CY - 4; y <= CY + 4; y += 1) {
+          const row: string[] = [];
+          for (let x = CX - 6; x <= CX + 4; x += 1) {
+            const t = w.map.index(x, y, z);
+            const bid = bReader.at(t);
+            const b = bid ? bReader.get(bid) : undefined;
+            const pass = pathing.passable(t, 'walker', fortress);
+            const l = pass ? pathing.labelOf(t, 'walker') : 0;
+            row.push(`${TileKind[w.map.kindAt(t)].slice(0, 5)}${b ? '/' + b.typeId + (b.state !== 'built' ? '~' + b.state : '') : ''}${pass ? ':' + l : ':X'}`.padEnd(22));
+          }
+          lines.push(`y=${y} ${row.join(' ')}`);
+        }
+      }
+      for (const id of w.game.world.entities.with(C.Labors)) {
+        const p = w.game.world.entities.get(id, C.Position); const b = w.game.world.entities.get(id, C.Brain);
+        if (!p) continue;
+        lines.push(`dwarf ${id} at ${p.x},${p.y},${p.z} label ${pathing.labelOf(w.map.index(p.x, p.y, p.z), 'walker')} ${b?.behavior}/${b?.activity} faction ${w.game.world.entities.get(id, C.Creature)?.faction}`);
+      }
+      lines.push(`alert ${w.game.world.fortress.alert}; gate cx=${state.cx} cy=${state.cy} doors ${state.gateDoorId}/${state.gateDoorId2}`);
+      for (const [gx, gy, gz] of [[state.cx + 6, state.cy + 4, 32], [state.cx + 6, state.cy + 5, 32], [state.cx + 6, state.cy + 6, 32], [state.cx + 6, state.cy + 7, 32], [state.cx + 6, state.cy + 8, 32], [state.cx + 6, state.cy + 6, 26], [state.cx + 6, state.cy + 7, 26], [state.cx + 7, state.cy + 11, 26]] as const) {
+        const t = w.map.index(gx, gy, gz); const bid = bReader.at(t); const b = bid ? bReader.get(bid) : undefined;
+        lines.push(`  ${gx},${gy},${gz} ${TileKind[w.map.kindAt(t)]} ${b ? b.typeId + '/' + b.state + '/' + JSON.stringify((b as unknown as Record<string, unknown>)['mode'] ?? '') + ' open=' + bReader.doorOpen(bid) + ' locked=' + JSON.stringify((b as unknown as Record<string, unknown>)['locked'] ?? '') : ''} pass=${pathing.passable(t, 'walker', fortress)} label=${pathing.labelOf(t, 'walker')}`);
+      }
+      lines.push(`watch log\n${watchLog.slice(-80).join('\n')}`);
+      console.log(lines.join('\n'));
+    };
+    const watchLog: string[] = [];
+    const unsub2 = w.game.world.onEvents((events) => {
+      for (const e of events) if (/Alert|Door|Raid|Thief|Siege|Ambush|Party|Died|Lock|Squad|Breach|Collapse|Cave/.test(e.type)) watchLog.push(`${w.tick} d${Math.floor(w.tick / TICKS_PER_DAY)} ${JSON.stringify(e).slice(0, 220)}`);
+    });
+    let lastShared = true;
+    const state = setupThreeYearsFortress(w);
+    const boot = 20 * TICKS_PER_DAY;
+    let reported = false;
+    while (w.tick < END) {
+      playThreeYears(w, state, Math.min(w.tick < boot ? 100 : 300, END - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+      if (state.hospitalSetup) {
+        const hall = pathing.labelOf(w.map.index(CX, CY - 1, CZ), 'walker');
+        const dl = w.game.world.entities.with(C.Labors).map((id) => { const p = w.game.world.entities.get(id, C.Position); return p ? pathing.labelOf(w.map.index(p.x, p.y, p.z), 'walker') : -1; });
+        const shared = dl.includes(hall);
+        if (shared !== lastShared) { watchLog.push(`${w.tick} d${Math.floor(w.tick / TICKS_PER_DAY)} SHARED ${shared} hall=${hall} dwarves=${JSON.stringify(dl)} alert=${w.game.world.fortress.alert}`); lastShared = shared; }
+      }
+      if (!reported && findings.some((f) => f.includes('no-work-tile'))) {
+        reported = true;
+        snapshot('first finding');
+        console.log(`[t363] findings ${JSON.stringify(findings.slice(0, 10))}`);
+        console.log(`[t363] area events\n${log.join('\n')}`);
+        break;
+      }
+    }
+    if (!reported) { snapshot('end, no finding'); console.log(`[t363] findings ${JSON.stringify(findings.slice(0, 10))}`); console.log(`[t363] area events\n${log.slice(-80).join('\n')}`); }
+    unsub(); unsub2(); stop();
+  }, 3_000_000);
+});
