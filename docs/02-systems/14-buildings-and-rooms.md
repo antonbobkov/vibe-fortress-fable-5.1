@@ -204,18 +204,18 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
 
 | Name | Value | Meaning |
 |---|---|---|
-| `LINK_DELAY_TICKS` | 100 | Between a trigger and the mechanism acting |
-| `PLATE_RESET_TICKS` | 100 | |
-| `DOOR_BREAK_TICKS` | 600 | Time a door-breaker needs |
-| `BRIDGE_MAX` | 5 | Max bridge side |
-| `BRIDGE_CRUSH_DAMAGE` | 60 | Damage units to a random part (17) |
-| `WELL_DEPTH` | 10 | |
-| `ROOM_SIZE_CAP` | 40 | Tiles that count toward size |
-| `ENCLOSED_PERCENT` | 150 | Score multiplier for enclosed rooms |
-| `BUILD_BASE_TICKS` | 100 | Default build time; types override |
-| `LINK_WORK_TICKS` | 150 | Each of the two jobs of a link |
-| `HEARTH_HALL_SIDE` | 5 | Side of the square around the hearth that is its stand-in hall and comfort light |
-| `HEARTH_WARMTH_C` | 2 | °C added inside that square (05) |
+| `LINK_DELAY_TICKS` | 100 | Between a trigger and the mechanism acting (*unmeasured*) |
+| `PLATE_RESET_TICKS` | 100 | *unmeasured* |
+| `DOOR_BREAK_TICKS` | 600 | Time a door-breaker needs (*unmeasured*) |
+| `BRIDGE_MAX` | 5 | Max bridge side (*unmeasured*) |
+| `BRIDGE_CRUSH_DAMAGE` | 60 | Damage units to a random part (17) (*unmeasured*) |
+| `WELL_DEPTH` | 10 | *unmeasured* |
+| `ROOM_SIZE_CAP` | 40 | Tiles that count toward size (*unmeasured*) |
+| `ENCLOSED_PERCENT` | 150 | Score multiplier for enclosed rooms (*unmeasured*) |
+| `BUILD_BASE_TICKS` | 100 | Default build time; types override (*unmeasured*) |
+| `LINK_WORK_TICKS` | 150 | Each of the two jobs of a link (*unmeasured*) |
+| `HEARTH_HALL_SIDE` | 5 | Side of the square around the hearth that is its stand-in hall and comfort light (*unmeasured*) |
+| `HEARTH_WARMTH_C` | 2 | °C added inside that square (05) (*unmeasured*) |
 
 Material and item requirements, value bonuses and footprints are content.
 

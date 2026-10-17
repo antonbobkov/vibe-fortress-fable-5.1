@@ -97,27 +97,27 @@ Job producer `foraging` (`hunt`, `fish`, `butcher`); inspector sections `zone â€
 
 | Name | Value | Meaning |
 |---|---|---|
-| `HUNT_MIN_SIZE` | 10 | Rabbits (size 8) are not hunted by default |
-| `AMMO_FETCH` | 20 | Bolts a hunter keeps |
-| `HUNT_GIVE_UP_TICKS` | 300 | |
-| `CARRY_MAX_SIZE` | 100 | Larger corpses are butchered in the field |
-| `FIELD_BUTCHER_PERCENT` | 60 | |
-| `CORPSE_WAIT_TICKS` | 20 | Twice 13's cadence: how long a hunter waits for its kill's corpse |
-| `FISH_BANK_DROP` | 2 | Maximum straight open-air drop from bank level to deep water |
-| `FISH_PER_TILE` | 2 | Pool capacity |
-| `FISH_REGEN_PERCENT` | 5 | Of capacity per day |
-| `MIN_FISHING_TILES` | 6 | |
-| `FISH_TICKS` | 200 | |
-| `FISH_BASE_PERMILLE` | 350 | |
-| `FISH_PER_SKILL` | 30 | |
-| `FISH_RETRY_TICKS` | 100 | |
-| `BUTCHER_TICKS` | 120 | |
-| `BUTCHER_ROT_LIMIT` | stage 2 | Corpses past "rotting" give bones only (13 stages) |
-| `MEAT_PER_SIZE` | 12 | |
-| `HIDE_MIN_SIZE` | 15 | |
-| `BONE_PER_SIZE` | 25 | |
-| `FAT_PER_SIZE` | 30 | |
-| `SKULL_MIN_SIZE` | 30 | |
+| `HUNT_MIN_SIZE` | 10 | Rabbits (size 8) are not hunted by default (*unmeasured*) |
+| `AMMO_FETCH` | 20 | Bolts a hunter keeps (*unmeasured*) |
+| `HUNT_GIVE_UP_TICKS` | 300 | *unmeasured* |
+| `CARRY_MAX_SIZE` | 100 | Larger corpses are butchered in the field (*unmeasured*) |
+| `FIELD_BUTCHER_PERCENT` | 60 | *unmeasured* |
+| `CORPSE_WAIT_TICKS` | 20 | Twice 13's cadence: how long a hunter waits for its kill's corpse (*unmeasured*) |
+| `FISH_BANK_DROP` | 2 | Maximum straight open-air drop from bank level to deep water (*unmeasured*) |
+| `FISH_PER_TILE` | 2 | Pool capacity (*unmeasured*) |
+| `FISH_REGEN_PERCENT` | 5 | Of capacity per day (*unmeasured*) |
+| `MIN_FISHING_TILES` | 6 | *unmeasured* |
+| `FISH_TICKS` | 200 | *unmeasured* |
+| `FISH_BASE_PERMILLE` | 350 | *unmeasured* |
+| `FISH_PER_SKILL` | 30 | *unmeasured* |
+| `FISH_RETRY_TICKS` | 100 | *unmeasured* |
+| `BUTCHER_TICKS` | 120 | *unmeasured* |
+| `BUTCHER_ROT_LIMIT` | stage 2 | Corpses past "rotting" give bones only (13 stages) (*unmeasured*) |
+| `MEAT_PER_SIZE` | 12 | *unmeasured* |
+| `HIDE_MIN_SIZE` | 15 | *unmeasured* |
+| `BONE_PER_SIZE` | 25 | *unmeasured* |
+| `FAT_PER_SIZE` | 30 | *unmeasured* |
+| `SKULL_MIN_SIZE` | 30 | *unmeasured* |
 
 ## Extension points
 

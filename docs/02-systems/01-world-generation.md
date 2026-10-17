@@ -168,23 +168,23 @@ Values follow the balance model (see [`../03-content/balance.md`](../03-content/
 
 | Name | Value | Meaning |
 |---|---|---|
-| `SEA_LEVEL` | 96 | Elevation of the sea |
-| `HILLS_ELEVATION` | 130 | Start of the hills band |
-| `MOUNTAIN_ELEVATION` | 165 | Start of the mountain band |
-| `MIN_LAND_FRACTION` | 35% | Retry elevation if less land |
-| `TEMP_SOUTH` / `TEMP_NORTH` | 30 / −12 | °C at the south and north edges at sea level |
-| `TEMP_LAPSE_PER_ELEVATION` | 22 | °C lost per 100 elevation units above sea level |
-| `RAIN_SHADOW_STRENGTH` | 90 | Rain removed immediately east of mountains |
-| `RAIN_SHADOW_DECAY` | 18 | Shadow decay per region |
-| `COAST_RAIN_BONUS` | 30 | |
-| `RIVER_SOURCE_ELEVATION` | 150 | |
-| `RIVER_SOURCE_RAIN` | 120 | |
-| `BROOK_LENGTH` | 3 | Regions of brook before river |
-| `MAJOR_LENGTH` | 12 | Regions before a river becomes major |
-| `VOLCANO_CHANCE_PERMILLE` | 40 | Per mountain region |
-| `CIV_MIN_SEPARATION` | 10 | Regions between homes |
-| `PERIL_DISTANCE_STEP` | 6 | Regions of distance from the Gloam per peril point |
-| `TRAIT_MAX_PER_REGION` | 2 | |
+| `SEA_LEVEL` | 96 | Elevation of the sea (*unmeasured*) |
+| `HILLS_ELEVATION` | 130 | Start of the hills band (*unmeasured*) |
+| `MOUNTAIN_ELEVATION` | 165 | Start of the mountain band (*unmeasured*) |
+| `MIN_LAND_FRACTION` | 35% | Retry elevation if less land (*unmeasured*) |
+| `TEMP_SOUTH` / `TEMP_NORTH` | 30 / −12 | °C at the south and north edges at sea level (*unmeasured*) |
+| `TEMP_LAPSE_PER_ELEVATION` | 22 | °C lost per 100 elevation units above sea level (*unmeasured*) |
+| `RAIN_SHADOW_STRENGTH` | 90 | Rain removed immediately east of mountains (*unmeasured*) |
+| `RAIN_SHADOW_DECAY` | 18 | Shadow decay per region (*unmeasured*) |
+| `COAST_RAIN_BONUS` | 30 | *unmeasured* |
+| `RIVER_SOURCE_ELEVATION` | 150 | *unmeasured* |
+| `RIVER_SOURCE_RAIN` | 120 | *unmeasured* |
+| `BROOK_LENGTH` | 3 | Regions of brook before river (*unmeasured*) |
+| `MAJOR_LENGTH` | 12 | Regions before a river becomes major (*unmeasured*) |
+| `VOLCANO_CHANCE_PERMILLE` | 40 | Per mountain region (*unmeasured*) |
+| `CIV_MIN_SEPARATION` | 10 | Regions between homes (*unmeasured*) |
+| `PERIL_DISTANCE_STEP` | 6 | Regions of distance from the Gloam per peril point (*unmeasured*) |
+| `TRAIT_MAX_PER_REGION` | 2 | *unmeasured* |
 
 ## Extension points
 

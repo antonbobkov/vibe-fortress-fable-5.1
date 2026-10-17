@@ -123,7 +123,7 @@ Types with `rotDays > 0` (raw meat, raw fish, raw plants, meals, eggs, cheese, m
 | rotting | 100% | inedible; the item is refuse; indoors it emits miasma |
 | gone | 150% | destroyed; a corpse becomes a `skeleton` item (bones for animals, a dwarven skeleton for dwarves, still burial-eligible) |
 
-Rot speed: full speed on the ground and in a workshop; `ROT_CONTAINER_PERCENT` when the item is inside a container that is inside a stockpile; `0` for raw plants and seeds in bags (they are dry goods: `rotDays` 0 for seeds anyway); double speed on a tile with temperature above `ROT_HOT_C`; halved below `ROT_COLD_C`; stopped below `FREEZE_C` (a frozen larder is a legitimate design).
+Rot speed: full speed on the ground and in a workshop; `ROT_CONTAINER_PERCENT` when the item is inside a container that is inside a stockpile; `0` for raw plants and seeds in bags (they are dry goods: `rotDays` 0 for seeds anyway); double speed on a tile with temperature above `ROT_HOT_C`; halved below `ROT_COLD_C`; stopped below `FREEZE_C` (a frozen larder is a legitimate design). The stage fractions and the speed factors are *unmeasured*.
 
 Miasma: each 13 tick, every rotting item on a tile that is not `outdoor` emits miasma to its tile and the 8 neighbors: `miasmaTiles: Map<TileIndex, expiresTick>` with `MIASMA_DURATION`. Dwarves entering a miasma tile get the `miasma` thought (10 checks `items.isMiasma(i)` on entering, like mist). Refuse stockpiles outdoors are the answer; so are burial and butchering promptly.
 
@@ -213,17 +213,17 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
 
 | Name | Value | Meaning |
 |---|---|---|
-| `BIN_CAPACITY` | 30 | Items per bin |
-| `BARREL_CAPACITY` | 20 | Units of drink or food per barrel |
-| `BAG_CAPACITY` | 25 | Seeds or units of powder |
-| `CHEST_CAPACITY` | 20 | |
-| `HAUL_JOBS_PER_TICK` | 20 | New haul jobs created per items tick |
-| `ROT_CONTAINER_PERCENT` | 25 | Rot speed inside a container in a stockpile |
-| `ROT_HOT_C` / `ROT_COLD_C` | 30 / 5 | |
-| `MIASMA_DURATION` | 300 | Ticks |
-| `FIND_RADIUS_MAX` | 48 | Tiles |
-| `WEALTH_EVENT_STEP` | 250 | Marks |
-| `CORPSE_ROT_DAYS` | 14 | Default; species may override |
+| `BIN_CAPACITY` | 30 | Items per bin (*unmeasured*) |
+| `BARREL_CAPACITY` | 20 | Units of drink or food per barrel (*unmeasured*) |
+| `BAG_CAPACITY` | 25 | Seeds or units of powder (*unmeasured*) |
+| `CHEST_CAPACITY` | 20 | *unmeasured* |
+| `HAUL_JOBS_PER_TICK` | 20 | New haul jobs created per items tick (*unmeasured*) |
+| `ROT_CONTAINER_PERCENT` | 25 | Rot speed inside a container in a stockpile (*unmeasured*) |
+| `ROT_HOT_C` / `ROT_COLD_C` | 30 / 5 | *unmeasured* |
+| `MIASMA_DURATION` | 300 | Ticks (*unmeasured*) |
+| `FIND_RADIUS_MAX` | 48 | Tiles (*unmeasured*) |
+| `WEALTH_EVENT_STEP` | 250 | Marks (*unmeasured*) |
+| `CORPSE_ROT_DAYS` | 14 | Default; species may override (*unmeasured*) |
 
 Rot days per type, stack sizes and value multipliers are content.
 

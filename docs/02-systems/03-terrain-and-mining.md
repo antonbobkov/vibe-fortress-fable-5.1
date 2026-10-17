@@ -159,19 +159,19 @@ Job producer `terrain` (designation jobs); overlay `designations`; inspector sec
 
 | Name | Value | Meaning |
 |---|---|---|
-| `MINING_STONE_DROP_PERMILLE` | 300 | Chance a dug stone tile drops a stone item |
-| `DIG_BASE_TICKS` | 60 | Base time to dig one wall tile of hardness 100 |
-| `CHANNEL_BASE_TICKS` | 80 | |
-| `SMOOTH_BASE_TICKS` | 120 | |
-| `ENGRAVE_BASE_TICKS` | 300 | |
-| `CHOP_BASE_TICKS` | 90 | |
-| `GATHER_BASE_TICKS` | 40 | |
-| `SKILL_TIME_BONUS_PERCENT` | 8 | Per skill level; level 20 works at 100/(100+160) ≈ 38% of base time |
-| `CAVERN_OPEN_FRACTION` | 0.25–0.55 | By deepness; see stage 6 |
-| `LIGHT_SPREAD` | 2 | Tiles daylight reaches horizontally into openings |
-| `BATTLEFIELD_ITEM_COUNT` | 30 | |
-| `VAULT_TREASURE` | 3 | Deepsilver items in a sunken hall vault |
-| `TREE_LOGS_MIN` / `TREE_LOGS_MAX` | 1 / 4 | By species |
+| `MINING_STONE_DROP_PERMILLE` | 300 | Chance a dug stone tile drops a stone item (*unmeasured*) |
+| `DIG_BASE_TICKS` | 60 | Base time to dig one wall tile of hardness 100 (*unmeasured*) |
+| `CHANNEL_BASE_TICKS` | 80 | *unmeasured* |
+| `SMOOTH_BASE_TICKS` | 120 | *unmeasured* |
+| `ENGRAVE_BASE_TICKS` | 300 | *unmeasured* |
+| `CHOP_BASE_TICKS` | 90 | *unmeasured* |
+| `GATHER_BASE_TICKS` | 40 | *unmeasured* |
+| `SKILL_TIME_BONUS_PERCENT` | 8 | Per skill level; level 20 works at 100/(100+160) ≈ 38% of base time (*unmeasured*) |
+| `CAVERN_OPEN_FRACTION` | 0.25–0.55 | By deepness; see stage 6 (*unmeasured*) |
+| `LIGHT_SPREAD` | 2 | Tiles daylight reaches horizontally into openings (*unmeasured*) |
+| `BATTLEFIELD_ITEM_COUNT` | 30 | *unmeasured* |
+| `VAULT_TREASURE` | 3 | Deepsilver items in a sunken hall vault (*unmeasured*) |
+| `TREE_LOGS_MIN` / `TREE_LOGS_MAX` | 1 / 4 | By species (*unmeasured*) |
 
 Hardness per material and layer templates are content.
 

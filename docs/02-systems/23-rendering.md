@@ -123,17 +123,17 @@ Everything visible. The overlay menu (24) lists overlays with their toggles; the
 
 | Name | Value | Meaning |
 |---|---|---|
-| `LOG_ROWS` | 3 | Announcement strip above the status bar |
-| `ATLAS_COLOR_CACHE` | 128 | Colored atlases kept |
-| `DIM_FACTOR` | 0.55 | Per dimming step |
-| `FLUID_ANIM_MS` | 500 | |
-| `AUTO_ZOOM_MIN_COLS` | 100 | Columns the `Auto` zoom keeps at least |
-| `AUTO_ZOOM_MIN_ROWS` | 56 | Rows the `Auto` zoom keeps at least |
-| `ZONE_TINT_ALPHA` | 0.25 | Blend factor for zone backgrounds |
-| `ZONE_TINT_MIN_LUMA` | 0.18 | Least relative luminance of a zone's background |
-| `TEMPERATURE_RAMP_COLD_C` | −20 | At or below this the `temperature` overlay is `blue` |
-| `TEMPERATURE_RAMP_HOT_C` | 40 | At or above this the `temperature` overlay is `red` |
-| `PARTICLE_ONE_IN` | 16 | One eligible outdoor cell in this many carries a rain or snow particle each frame |
+| `LOG_ROWS` | 3 | Announcement strip above the status bar (*unmeasured*) |
+| `ATLAS_COLOR_CACHE` | 128 | Colored atlases kept (*unmeasured*) |
+| `DIM_FACTOR` | 0.55 | Per dimming step (*unmeasured*) |
+| `FLUID_ANIM_MS` | 500 | *unmeasured* |
+| `AUTO_ZOOM_MIN_COLS` | 100 | Columns the `Auto` zoom keeps at least (*unmeasured*) |
+| `AUTO_ZOOM_MIN_ROWS` | 56 | Rows the `Auto` zoom keeps at least (*unmeasured*) |
+| `ZONE_TINT_ALPHA` | 0.25 | Blend factor for zone backgrounds (*unmeasured*) |
+| `ZONE_TINT_MIN_LUMA` | 0.18 | Least relative luminance of a zone's background (*unmeasured*) |
+| `TEMPERATURE_RAMP_COLD_C` | −20 | At or below this the `temperature` overlay is `blue` (*unmeasured*) |
+| `TEMPERATURE_RAMP_HOT_C` | 40 | At or above this the `temperature` overlay is `red` (*unmeasured*) |
+| `PARTICLE_ONE_IN` | 16 | One eligible outdoor cell in this many carries a rain or snow particle each frame (*unmeasured*) |
 
 Glyphs and colors per thing are content.
 

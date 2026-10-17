@@ -17,7 +17,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-150 | [A year in the browser is played through the real UI](work/T-150-full-year-through-the-ui.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | — | open; local side. Three of four stages are on master (played through the UI with the clock paused, food margin and survival asserted; the day through the frame loop is the `frame-loop-day` spec). Stage 4 (trade, panel uses, save/load hash) is unverified work in progress on branch `t-150-stage4-wip` |
 | T-151 | [A defence year: traps, a gate, a trained squad, a raid repelled](work/T-151-defence-year-scenario.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | T-140, T-141 | open; local side (the cloud agent stopped before it): three stages are on master, the raid stage remains |
 | T-156 | [The long fixtures check their own steps, and the sweep asserts what it exercises](work/T-156-long-fixtures-check-their-steps.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | T-145 | open; local side, held until the cloud agent has closed T-145 (same fixture files) |
-| T-333 | [Mark the spec numbers nobody has measured](work/T-333-unmeasured-spec-numbers.md) | the process review, [`../reports/audits/2026-10-15-process-review.md`](../reports/audits/2026-10-15-process-review.md) | — | open |
 | T-344 | [Item haul planning costs time in proportion to the items that wait](work/T-344-haul-planning-cost-scales-with-waiting-items.md) | T-283, [`../reports/audits/2026-10-16-reference-fortress.md`](../reports/audits/2026-10-16-reference-fortress.md) | — | open |
 | T-345 | [The workshops job producer visits every building every tick](work/T-345-workshops-producer-visits-every-building.md) | T-283, [`../reports/audits/2026-10-16-reference-fortress.md`](../reports/audits/2026-10-16-reference-fortress.md) | — | open |
 | T-360 | [Measure brook drinking under wild animals](work/T-360-brook-drinking-under-wildlife.md) | the review of T-350 | — | open |
@@ -26,5 +25,14 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-353 | [Ten bolts lie inside a wall tile (peril 4 sweep seed)](work/T-353-bolts-lie-inside-a-wall.md) | found by the T-331 invariants | — | open |
 | T-363 | [A hospital chest holding items has no tile beside it that a dwarf reaches (peril 2 sweep seed)](work/T-363-hospital-chest-without-a-reachable-side.md) | found by the simulation agent and reviews | — | open |
 | T-370 | [The held-job release: spec wording, the away flicker, a longer world-order guard](work/T-370-held-job-release-nits.md) | found by the simulation agent and reviews | — | open |
+| T-364 | [Measure farm yield](work/T-364-measure-farm-yield.md) | T-333, the unmeasured-numbers report | — | open |
+| T-365 | [Measure the work pace](work/T-365-measure-work-pace.md) | T-333, the unmeasured-numbers report | — | open |
+| T-366 | [Measure the combat pace](work/T-366-measure-combat-pace.md) | T-333, the unmeasured-numbers report | — | open |
+| T-367 | [Measure wound recovery and infection](work/T-367-measure-wound-recovery-and-infection.md) | T-333, the unmeasured-numbers report | — | open |
+| T-368 | [Measure renown and raid size](work/T-368-measure-renown-and-raid-size.md) | T-333, the unmeasured-numbers report | — | open |
+| T-369 | [Seven hours of sleep against the measured sleep](work/T-369-sleep-hours-against-the-measured-sleep.md) | T-333, the unmeasured-numbers report | — | open |
+| T-371 | [The balance model's wild-animals section states two results](work/T-371-wild-animals-section-states-two-results.md) | T-333, the unmeasured-numbers report | — | open |
+| T-372 | [Balance-status rows above its title](work/T-372-balance-status-rows-above-its-title.md) | T-333, the unmeasured-numbers report | — | open |
+| T-373 | [Balance-model sums that the rules do not give](work/T-373-balance-model-sums-the-rules-do-not-give.md) | T-333, the unmeasured-numbers report | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. B-008 through B-012 await T-145 (the fixture at default priorities) and, for survival with wildlife, T-214; their measurement journal is in the [decision archive](archive/decisions-archive.md).

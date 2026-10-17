@@ -27,6 +27,8 @@ The calendar defines the seasons. This system defines what they mean:
 | autumn | 80% | 6–19 | 7–18 | Harvest; the restless dead on `old_battlefield` |
 | winter | 0% | 8–17 | 9–16 | Surface farming stops; snow; cold snaps at temper ≥ 2 |
 
+The growth multipliers and the daylight hours are *unmeasured*.
+
 `frostmarrow` uses winter for every seasonal lookup in autumn and spring as well (temperature, temper spread, daylight, growth, transition row and extreme-weather constraints); its summer growth multiplier is 80%, and rain or storm becomes snow.
 
 ### Surface temperature
@@ -125,12 +127,12 @@ Announcements: `WeatherChanged` to `storm`, `snow`, `heatwave`, `cold_snap` as n
 | Name | Value | Meaning |
 |---|---|---|
 | `SNOW_C` | 0 | At or below this, precipitation is snow |
-| `MELT_C` | 2 | Above this snow melts |
-| `WET_DURATION_HOURS` | 6 | |
-| `LIGHTNING_PER_HOUR_PERMILLE` | 250 | Per storm hour |
-| `SNOW_CHUNKS_PER_HOUR` | 8 | Of 36 outdoor chunks per level at standard size |
-| `SNOW_MOVE_COST_PERCENT` | 150 | |
-| `WILT_PERMILLE` | 50 | Per heatwave hour per surface crop |
+| `MELT_C` | 2 | Above this snow melts (*unmeasured*) |
+| `WET_DURATION_HOURS` | 6 | *unmeasured* |
+| `LIGHTNING_PER_HOUR_PERMILLE` | 250 | Per storm hour (*unmeasured*) |
+| `SNOW_CHUNKS_PER_HOUR` | 8 | Of 36 outdoor chunks per level at standard size (*unmeasured*) |
+| `SNOW_MOVE_COST_PERCENT` | 150 | *unmeasured* |
+| `WILT_PERMILLE` | 50 | Per heatwave hour per surface crop (*unmeasured*) |
 
 Biome climate rows, state durations and transition tables are content (`regions-biomes-and-traits.md` and `weatherTables`).
 

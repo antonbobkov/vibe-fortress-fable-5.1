@@ -103,7 +103,7 @@ WorkOrder { recipeId, serial? (global identity), remaining, mode: once | maintai
 | 90–104 | exceptional | ×3.0 | |
 | ≥ 105 | masterwork | ×5.0 | Crafter gets `made_masterwork` thought; other dwarves get `saw_masterwork` on seeing it; the item is announced |
 
-Level 20 rolls 100–140, so masterworks are common for legends and impossible below level 13. Meals use the cook's roll the same way; drinks and bars have no quality.
+Level 20 rolls 100–140, so masterworks are common for legends and impossible below level 13. Meals use the cook's roll the same way; drinks and bars have no quality. The roll, the tier bounds and the value multipliers are *unmeasured*.
 
 Seeing a masterwork follows 10's room-entry visibility and saved per-dwarf memory: floor items and installed furniture, excluding container contents and the crafter.
 
@@ -169,8 +169,8 @@ Job producer `workshops` (`craft`); panel `orders`; inspector section `building 
 
 | Name | Value | Meaning |
 |---|---|---|
-| `MAGMA_POWER_LEVEL` | 4 | Magma level required below a magma workshop tile |
-| `MELT_RETURN_PERCENT` | 60 | Of the item's bar cost returned |
+| `MAGMA_POWER_LEVEL` | 4 | Magma level required below a magma workshop tile (*unmeasured*) |
+| `MELT_RETURN_PERCENT` | 60 | Of the item's bar cost returned (*unmeasured*) |
 
 Recipe times, bar costs per item and profession names are content.
 

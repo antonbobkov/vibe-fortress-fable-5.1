@@ -62,6 +62,8 @@ grant xp: attacker weapon skill; defender dodge (on miss), weapon skill (on parr
 
 Wound type from damage type (17): edge → `cut`; pierce → `puncture`; blunt → `bruise`, or `fracture` when `damage ≥ partMaxHp × FRACTURE_PERCENT / 100`.
 
+The terms of the hit, parry, block, damage and Toughness formulas above are *unmeasured*, and so are those of the ranged hit below.
+
 Two-handed weapons (`hands: 2`) cannot be used with a shield; the squad equipment logic respects this.
 
 Creatures without `Attributes` use `CREATURE_ATTRIBUTE_DEFAULT` (50) for every attribute, so natural attacks deal their listed damage. Creatures without `Skills` use `CREATURE_BASE_SKILL` (2) for every combat skill (natural attacks, weapon skills, `dodge`, `shield`). Hostile party members spawned by 18 receive `Skills` with every combat skill at `2 + HOSTILE_SKILL_PER_TIER × gearTier` (`HOSTILE_SKILL_PER_TIER` = 2), plus 2 for captains.
@@ -188,29 +190,29 @@ Panel `military`; inspector section `creature › combat` (weapon, armor per par
 
 | Name | Value | Meaning |
 |---|---|---|
-| `PERCEPTION_RADIUS` | 14 | |
-| `TARGET_LOSE_TICKS` | 200 | |
-| `RANGED_KEEP_DISTANCE` | 3 | |
-| `RANGED_KITE_TRIGGER_DISTANCE` | 2 | Melee threat distance that triggers a possible adjacent retreat |
-| `MIN_ATTACK_COOLDOWN` | 12 | Ticks |
-| `BLUNT_THROUGH_PERCENT` | 30 | |
-| `FRACTURE_PERCENT` | 30 | Of part max hp in one blunt hit |
-| `PROJECTILE_SPEED` | 3 | Tiles per tick |
-| `AMMO_BREAK_PERMILLE` | 200 | |
-| `FLEE_BLOOD_PERCENT` | 50 | Default; species override |
-| `THREAT_RADIUS` | 8 | Shared with 10; defined in 10 |
-| `THREAT_THROTTLE_TICKS` | 50 | |
-| `TRAIN_SHIFT_HOURS` | 6 | |
-| `SPAR_TICKS` | 300 | |
-| `TRAIN_XP` | 12 | Per session per skill |
-| `SPAR_INJURY_PERMILLE` | 20 | |
-| `TRAIN_SHOTS` | 5 | |
-| `REEQUIP_CHECK_DAYS` | 3 | |
-| `SOLDIER_AMMO` | 25 | |
-| `ARMOR_MIN_SPEED_PERCENT` | 60 | |
-| `CREATURE_ATTRIBUTE_DEFAULT` | 50 | Baseline attribute value when Attributes component is absent |
-| `CREATURE_BASE_SKILL` | 2 | Baseline combat skill level when Skills component is absent |
-| `HOSTILE_SKILL_PER_TIER` | 2 | Combat skill per gear tier for spawned hostile party members |
+| `PERCEPTION_RADIUS` | 14 | *unmeasured* |
+| `TARGET_LOSE_TICKS` | 200 | *unmeasured* |
+| `RANGED_KEEP_DISTANCE` | 3 | *unmeasured* |
+| `RANGED_KITE_TRIGGER_DISTANCE` | 2 | Melee threat distance that triggers a possible adjacent retreat (*unmeasured*) |
+| `MIN_ATTACK_COOLDOWN` | 12 | Ticks (*unmeasured*) |
+| `BLUNT_THROUGH_PERCENT` | 30 | *unmeasured* |
+| `FRACTURE_PERCENT` | 30 | Of part max hp in one blunt hit (*unmeasured*) |
+| `PROJECTILE_SPEED` | 3 | Tiles per tick (*unmeasured*) |
+| `AMMO_BREAK_PERMILLE` | 200 | *unmeasured* |
+| `FLEE_BLOOD_PERCENT` | 50 | Default; species override (*unmeasured*) |
+| `THREAT_RADIUS` | 8 | Shared with 10; defined in 10 (*unmeasured*) |
+| `THREAT_THROTTLE_TICKS` | 50 | *unmeasured* |
+| `TRAIN_SHIFT_HOURS` | 6 | *unmeasured* |
+| `SPAR_TICKS` | 300 | *unmeasured* |
+| `TRAIN_XP` | 12 | Per session per skill (*unmeasured*) |
+| `SPAR_INJURY_PERMILLE` | 20 | *unmeasured* |
+| `TRAIN_SHOTS` | 5 | *unmeasured* |
+| `REEQUIP_CHECK_DAYS` | 3 | *unmeasured* |
+| `SOLDIER_AMMO` | 25 | *unmeasured* |
+| `ARMOR_MIN_SPEED_PERCENT` | 60 | *unmeasured* |
+| `CREATURE_ATTRIBUTE_DEFAULT` | 50 | Baseline attribute value when Attributes component is absent (*unmeasured*) |
+| `CREATURE_BASE_SKILL` | 2 | Baseline combat skill level when Skills component is absent (*unmeasured*) |
+| `HOSTILE_SKILL_PER_TIER` | 2 | Combat skill per gear tier for spawned hostile party members (*unmeasured*) |
 
 Weapon and armor values, hit weights per body plan, and the damage-type-versus-layer table are content.
 

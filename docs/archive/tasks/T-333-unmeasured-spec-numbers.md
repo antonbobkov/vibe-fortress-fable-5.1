@@ -1,6 +1,8 @@
 # T-333 — Mark the spec numbers nobody has measured
 
-**Source:** the process review, [`../../reports/audits/2026-10-15-process-review.md`](../../reports/audits/2026-10-15-process-review.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-17, in 3615046, 2ba5792, f201571.
+
+**Source:** the process review, [`../../reports/audits/2026-10-15-process-review.md`](../../../reports/audits/2026-10-15-process-review.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

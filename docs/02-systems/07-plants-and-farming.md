@@ -133,14 +133,14 @@ Job producer `plants` (`plant`, `harvest`); inspector sections `tile › plant` 
 
 | Name | Value | Meaning |
 |---|---|---|
-| `BASE_GROWTH` | 100 | Growth units per hour at 100% |
-| `PLANT_TICKS` | 40 | Base work time |
-| `HARVEST_TICKS` | 40 | |
-| `SEEDS_PER_HARVEST` | 1 | |
-| `REGROWTH_TRIES_PER_DAY` | 40 | Candidate tiles per day for saplings |
-| `REGROWTH_PERMILLE` | 200 | Multiplied by biome tree density (0–1) |
+| `BASE_GROWTH` | 100 | Growth units per hour at 100% (*unmeasured*) |
+| `PLANT_TICKS` | 40 | Base work time (*unmeasured*) |
+| `HARVEST_TICKS` | 40 | *unmeasured* |
+| `SEEDS_PER_HARVEST` | 1 | *unmeasured* |
+| `REGROWTH_TRIES_PER_DAY` | 40 | Candidate tiles per day for saplings (*unmeasured*) |
+| `REGROWTH_PERMILLE` | 200 | Multiplied by biome tree density (0–1) (*unmeasured*) |
 | `GRASS_REGROW_PERMILLE` | 120 | Per bare tile per day with a grass neighbor |
-| `SAPLING_YEARS` | 2 | Default; species may override |
+| `SAPLING_YEARS` | 2 | Default; species may override (*unmeasured*) |
 
 Species stage lengths, yields, seasons, temperatures and biome weights are content.
 

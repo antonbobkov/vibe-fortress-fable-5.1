@@ -112,11 +112,11 @@ Nothing chosen here is irreversible in the fortress: skills grow, items are cons
 
 | Name | Value | Meaning |
 |---|---|---|
-| `EMBARK_AGE_MIN` / `EMBARK_AGE_MAX` | 18 / 65 | Years |
-| `EMBARK_REROLL_COST` | 25 | Marks |
-| `EMBARK_MARKUP_PERCENT` | 20 | Added to item value for catalog price |
-| `ARRIVAL_SEARCH_DEPTH` | 20 | Tiles inward from the edge to search for a wagon site |
-| `WAGON_LOGS` | 3 | Logs from deconstructing the wagon |
+| `EMBARK_AGE_MIN` / `EMBARK_AGE_MAX` | 18 / 65 | Years (*unmeasured*) |
+| `EMBARK_REROLL_COST` | 25 | Marks (*unmeasured*) |
+| `EMBARK_MARKUP_PERCENT` | 20 | Added to item value for catalog price (*unmeasured*) |
+| `ARRIVAL_SEARCH_DEPTH` | 20 | Tiles inward from the edge to search for a wagon site (*unmeasured*) |
+| `WAGON_LOGS` | 3 | Logs from deconstructing the wagon (*unmeasured*) |
 
 ## Extension points
 

@@ -122,14 +122,14 @@ Job producer `defense` (`rearm_trap`, `clean_trap`); inspector section `building
 
 | Name | Value | Meaning |
 |---|---|---|
-| `STONE_FALL_DAMAGE` | 40 | Base, scaled by stone density |
-| `TRAP_SKILL` | 5 | Effective skill for trap weapons |
-| `TRAP_JAM_PERMILLE` | 50 | Per trigger, times corpses + 1 |
-| `CAGE_MAX_SIZE` | 150 | |
-| `WADE_LARGE_SIZE` | 180 | Creatures this large drown only at level 7 |
-| `RETREAT_SEARCH_LIMIT` | 3000 | Tiles |
-| `ALERT_LOCK_GRACE_TICKS` | 400 | |
-| `ALERT_OUTSIDE_CLEAR_TICKS` | 20 | Ticks without a fortress creature outside a `lock_on_alert` door before it locks |
+| `STONE_FALL_DAMAGE` | 40 | Base, scaled by stone density (*unmeasured*) |
+| `TRAP_SKILL` | 5 | Effective skill for trap weapons (*unmeasured*) |
+| `TRAP_JAM_PERMILLE` | 50 | Per trigger, times corpses + 1 (*unmeasured*) |
+| `CAGE_MAX_SIZE` | 150 | *unmeasured* |
+| `WADE_LARGE_SIZE` | 180 | Creatures this large drown only at level 7 (*unmeasured*) |
+| `RETREAT_SEARCH_LIMIT` | 3000 | Tiles (*unmeasured*) |
+| `ALERT_LOCK_GRACE_TICKS` | 400 | *unmeasured* |
+| `ALERT_OUTSIDE_CLEAR_TICKS` | 20 | Ticks without a fortress creature outside a `lock_on_alert` door before it locks (*unmeasured*) |
 
 ## Extension points
 

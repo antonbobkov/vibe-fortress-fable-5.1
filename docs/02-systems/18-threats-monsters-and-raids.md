@@ -37,7 +37,7 @@ Fixed by this design (numbers in `03-content/threat-schedules.md`):
 | 3 | frequent | rare | frequent | from year 1 autumn | from year 3 |
 | 4 | constant | rare | frequent | from year 1 summer, large | from year 2 autumn |
 
-`serene_vale` disables everything but thieves. `twilight_pass` halves every interval and sends thieves in pairs. `old_battlefield` adds `restless_dead` on autumn nights. Raids never come in winter at peril ≤ 2 (the passes are closed).
+`serene_vale` disables everything but thieves. `twilight_pass` halves every interval and sends thieves in pairs. `old_battlefield` adds `restless_dead` on autumn nights. Raids never come in winter at peril ≤ 2 (the passes are closed). The schedule, its intervals and its party sizes are *unmeasured*: no fortress has been measured through a year of raids.
 
 ### Party composition
 
@@ -149,30 +149,30 @@ Panel `threats` (active parties with size and state, renown, schedule preview, c
 
 | Name | Value | Meaning |
 |---|---|---|
-| `RENOWN_WEALTH_DIVISOR` | 2000 | Marks per renown point |
-| `RENOWN_POP_WEIGHT` | 0.2 | Renown per dwarf |
-| `WARNING_DAYS` | 1 | |
-| `PARTY_HISTORY_DAYS` | 1 | Days to retain an ended Party entity |
-| `ARRIVAL_SPREAD` | 2 | |
-| `ARRIVAL_TICKS` | 100 | |
-| `THIEF_WAIT_DAYS` | 1 | How long an empty-goal thief waits after arrival before withdrawing |
-| `STEAL_MAX_SIZE` | 30 | |
-| `FOLLOW_RADIUS` | 4 | |
-| `ENGAGE_IDLE_TICKS` | 150 | |
-| `LOOT_RADIUS` | 6 | |
-| `LOITER_DAYS_RAID` / `LOITER_DAYS_SIEGE` | 2 / 5 | |
-| `RETREAT_LOSS_PERCENT` | 50 | |
-| `RETREAT_STUCK_TICKS` | 600 | No progress toward the selected exit before choosing any reachable edge |
-| `RETREAT_GIVE_UP_DAYS` | 2 | Maximum retreat duration, including unconscious survivors |
-| `SPOT_RADIUS` / `SPOT_RADIUS_DOG` | 6 / 10 | |
-| `WEB_TICKS` | 100 | |
-| `CAVE_SEEK_RADIUS` | 30 | |
-| `CAVE_RETURN_TICKS` | 600 | |
-| `DEEP_PRESSURE_PER_TILE` | 10 | |
-| `DEEP_THRESHOLDS` | 50, 150, 300, 500 | Levels 1–4 |
-| `EMERGENCE_TILES` | 4 | |
-| `HOLLOW_WAVE_DAYS` | 28 | |
-| `RESTLESS_PER_NIGHT` | 2–8 | Scaled by renown |
+| `RENOWN_WEALTH_DIVISOR` | 2000 | Marks per renown point (*unmeasured*) |
+| `RENOWN_POP_WEIGHT` | 0.2 | Renown per dwarf (*unmeasured*) |
+| `WARNING_DAYS` | 1 | *unmeasured* |
+| `PARTY_HISTORY_DAYS` | 1 | Days to retain an ended Party entity (*unmeasured*) |
+| `ARRIVAL_SPREAD` | 2 | *unmeasured* |
+| `ARRIVAL_TICKS` | 100 | *unmeasured* |
+| `THIEF_WAIT_DAYS` | 1 | How long an empty-goal thief waits after arrival before withdrawing (*unmeasured*) |
+| `STEAL_MAX_SIZE` | 30 | *unmeasured* |
+| `FOLLOW_RADIUS` | 4 | *unmeasured* |
+| `ENGAGE_IDLE_TICKS` | 150 | *unmeasured* |
+| `LOOT_RADIUS` | 6 | *unmeasured* |
+| `LOITER_DAYS_RAID` / `LOITER_DAYS_SIEGE` | 2 / 5 | *unmeasured* |
+| `RETREAT_LOSS_PERCENT` | 50 | *unmeasured* |
+| `RETREAT_STUCK_TICKS` | 600 | No progress toward the selected exit before choosing any reachable edge (*unmeasured*) |
+| `RETREAT_GIVE_UP_DAYS` | 2 | Maximum retreat duration, including unconscious survivors (*unmeasured*) |
+| `SPOT_RADIUS` / `SPOT_RADIUS_DOG` | 6 / 10 | *unmeasured* |
+| `WEB_TICKS` | 100 | *unmeasured* |
+| `CAVE_SEEK_RADIUS` | 30 | *unmeasured* |
+| `CAVE_RETURN_TICKS` | 600 | *unmeasured* |
+| `DEEP_PRESSURE_PER_TILE` | 10 | *unmeasured* |
+| `DEEP_THRESHOLDS` | 50, 150, 300, 500 | Levels 1–4 (*unmeasured*) |
+| `EMERGENCE_TILES` | 4 | *unmeasured* |
+| `HOLLOW_WAVE_DAYS` | 28 | *unmeasured* |
+| `RESTLESS_PER_NIGHT` | 2–8 | Scaled by renown (*unmeasured*) |
 
 Schedules, compositions, gear tables and caps are content.
 

@@ -198,19 +198,19 @@ Panel `jobs` (open jobs with worker and reason; labor priorities; standing order
 
 | Name | Value | Meaning |
 |---|---|---|
-| `ASSIGN_WORKERS_PER_TICK` | 8 | |
-| `CANDIDATE_LIMIT` | 32 | |
-| `Z_DISTANCE_WEIGHT` | 6 | Tiles of horizontal distance one z-level counts as |
-| `SKILL_TIME_BONUS_PERCENT` | 8 | Shared with 03; defined there; referenced here |
-| `RESERVE_KEEP_TICKS` | 600 | Interrupted undelivered reservations; delivered build/workshop inputs remain with their job |
-| `JOB_HOLD_TICKS` | 600 | Unmeasured. A job held by a worker away from work this long goes back to the board |
-| `BLOCKED_RETRY_TICKS` | 100 | |
-| `BLOCKED_RETRIES_PER_TICK` | 20 | |
-| `PATIENT_SUMMON_PRIORITY` | 1 | A job for a patient at this priority calls a worker off interruptible work |
-| `HAUL_PRIORITY` | 6 | Hauling is below default work |
-| `HAUL_PRIORITY_FOOD` | 5 | |
-| `IDLE_HAULER_WARNING` | 200 | |
-| `HAULER_WARNING_MIN_WORKERS` | 3 | Enabled hauling labors needed to suppress the daily backlog hint |
+| `ASSIGN_WORKERS_PER_TICK` | 8 | *unmeasured* |
+| `CANDIDATE_LIMIT` | 32 | *unmeasured* |
+| `Z_DISTANCE_WEIGHT` | 6 | Tiles of horizontal distance one z-level counts as (*unmeasured*) |
+| `SKILL_TIME_BONUS_PERCENT` | 8 | Shared with 03; defined there; referenced here (*unmeasured*) |
+| `RESERVE_KEEP_TICKS` | 600 | Interrupted undelivered reservations; delivered build/workshop inputs remain with their job (*unmeasured*) |
+| `JOB_HOLD_TICKS` | 600 | A job held by a worker away from work this long goes back to the board (*unmeasured*) |
+| `BLOCKED_RETRY_TICKS` | 100 | *unmeasured* |
+| `BLOCKED_RETRIES_PER_TICK` | 20 | *unmeasured* |
+| `PATIENT_SUMMON_PRIORITY` | 1 | A job for a patient at this priority calls a worker off interruptible work (*unmeasured*) |
+| `HAUL_PRIORITY` | 6 | Hauling is below default work (*unmeasured*) |
+| `HAUL_PRIORITY_FOOD` | 5 | *unmeasured* |
+| `IDLE_HAULER_WARNING` | 200 | *unmeasured* |
+| `HAULER_WARNING_MIN_WORKERS` | 3 | Enabled hauling labors needed to suppress the daily backlog hint (*unmeasured*) |
 
 ## Extension points
 
