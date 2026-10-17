@@ -57,7 +57,7 @@ Digging a `wall` that has a `floor` above it (which is every underground wall) n
 
 A removed or collapsed construction returns 14's recorded input item type. When no record exists, its material class supplies a fallback: wood returns a `log`, metal a `bar`, anything else a `stone_block`. Drops are also recorded in `terrain.intendedDrops()`, and sent to the item spawn API when present.
 
-When a designation is applied to a tile that no longer matches its precondition (because something else changed it), the designation is cleared silently.
+When a designation is applied to a tile that no longer matches its precondition (because something else changed it), the designation is cleared silently. A designation worked standing on its own tile (channel, down stairs, and smoothing or engraving a floor) is cleared in the same way, with its job, when a building other than a door that blocks walking on the tile is built there (14 `BuildingCompleted`), and is cleared when it is made on such a tile, before any job: nobody can stand there to do the work.
 
 ### Digging as a job
 
@@ -134,7 +134,7 @@ The saved state retains the changed and discovered tile batches and the levels a
 
 ### Events consumed
 
-`JobCompleted` (for its own job types), `JobCancelled`, `EntitiesMoved` (discovery), `BuildingCompleted` (support check).
+`JobCompleted` (for its own job types), `JobCancelled`, `EntitiesMoved` (discovery), `BuildingCompleted` (support check; the designations worked from a footprint tile the building blocks).
 
 ### Events emitted
 
