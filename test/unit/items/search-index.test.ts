@@ -3,7 +3,7 @@ import { C, ItemFlag } from '@core/components';
 import type { EntityId } from '@core/types';
 import { TileKind } from '@core/map3d';
 import { entityIndex } from '@core/entities';
-import { ItemSearch, type ItemFilter, type SearchHost, type SearchOptions } from '@systems/items/search';
+import { ItemSearch, matches, type ItemFilter, type SearchHost, type SearchOptions } from '@systems/items/search';
 import type { ItemsSystem } from '@systems/items';
 import type { CombatReader } from '@systems/combat/reader';
 import { equipHostileCreature } from '@systems/threats/gear';
@@ -13,6 +13,12 @@ import { ItemSearch as LegacySearch } from './legacy-search';
 import { TestWorld } from '../../scenarios/test-world';
 
 describe('T-M8-01 indexed search retains the original choices', () => {
+  // T-345: the counts walk the items of the types a filter names, and a search for the melt mark stops when no item has it.
+  const melt = { requiredFlags: ItemFlag.Melt, materialClass: 'metal' };
+  const countFilters: ItemFilter[] = [{ category: 'wood' }, { tag: 'fuel' }, { edible: true }, { drinkable: true },
+    { emptyContainer: 'bin' }, { emptyContainer: 'barrel' }, { types: [1, 2, 3] }, { materialClass: 'wood' }, { materialClass: 'metal' },
+    { category: 'food', minQuality: 2 }, { tag: 'fuel', materialId: 1 }, melt, { ...melt, tag: 'weapon' }, {}];
+
   it('updates held stock and per-tile maxima after real squad claims and hostile gear generation', () => {
     const w = new TestWorld({ seed: 'm801-direct-combat', world: 'flat-test', embark: 'none' });
     const world = w.game.world;
@@ -83,8 +89,21 @@ describe('T-M8-01 indexed search retains the original choices', () => {
     const filters: ItemFilter[] = [{ category: 'wood' }, { edible: true }, { drinkable: true },
       { category: 'craft' }, { emptyContainer: 'bin' }, { category: 'food', minQuality: 2 }, { types: [1, 2, 3] }];
     const options: SearchOptions[] = [{ reservable: true }, { reservable: false }, { reservable: true, stockpiledContainerClass: 'barrel' }];
+    // The whole-store scan that countAvailable replaced (it also leaves out carried, occupied and foreign items).
+    const scanned = (filter: ItemFilter): number => {
+      let n = 0;
+      for (const id of w.game.world.entities.with(C.Item)) {
+        const it = core.item(id);
+        if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Installed)) !== 0) continue;
+        if ((it.occupantId ?? 0) !== 0 || it.carriedBy !== 0) continue;
+        if (matches(core, id, it, filter)) n += it.count;
+      }
+      return n;
+    };
     const compare = (): void => {
-      for (const filter of filters) for (const opts of options) {
+      for (const filter of countFilters) expect(indexed.countAvailable(filter), JSON.stringify(filter)).toBe(scanned(filter));
+      expect(core.meltMarked).toBe(w.game.world.entities.with(C.Item).filter((id) => (core.item(id).flags & ItemFlag.Melt) !== 0).length);
+      for (const filter of [...filters, melt]) for (const opts of options) {
         expect(indexed.findItems(filter, 5, from, 'walker', opts), JSON.stringify([filter, opts]))
           .toEqual(legacy.findItems(filter, 5, from, 'walker', opts));
       }
@@ -112,6 +131,14 @@ describe('T-M8-01 indexed search retains the original choices', () => {
     const ring = w.spawnItem('ring', 'granite', { containerId: bin });
     w.zone('stockpile', [w.index(12, 10, 32)]);
     compare();
+    const axe = w.spawnItem('axe', 'iron', w.index(15, 10, 32));
+    const merchantAxe = w.spawnItem('axe', 'iron', w.index(16, 10, 32));
+    core.setFlag(axe, ItemFlag.Melt, true); core.setFlag(merchantAxe, ItemFlag.Melt, true);
+    core.setFlag(merchantAxe, ItemFlag.Merchant, true); compare();
+    expect(core.meltMarked).toBe(2);
+    core.setFlag(axe, ItemFlag.Melt, false); compare();
+    core.setFlag(axe, ItemFlag.Melt, true); core.reserve(axe, 3); compare();
+    core.release(axe);
     core.reserve(log, 7); core.setFlag(barrel, ItemFlag.Forbidden, true); compare();
     core.release(log); core.setFlag(barrel, ItemFlag.Forbidden, false);
     const carrier = w.spawnDwarf({ at: from });
@@ -121,7 +148,12 @@ describe('T-M8-01 indexed search retains the original choices', () => {
     const part: EntityId = core.split(food, 2); core.consume(part, 1); compare();
     core.setRot(food, 2, w.game.registry.table('items').index('rotten')); compare();
     core.destroy(far, 'test'); w.spawnItem('log', 'oak', w.index(9, 10, 32)); compare();
+    core.destroy(merchantAxe, 'test'); compare();
     core.resetSearchIndex(); w.spatial.rebuild(); compare();
+    core.meltMarked = 99; core.rebuildStockCounts(); compare();
+    core.destroy(axe, 'test'); compare();
+    expect(core.meltMarked).toBe(0);
+    expect(indexed.findItem(melt, from)).toBe(0);
     // The source itself is impassable: even a matching nearby or exact item must fail.
     w.carve(from, TileKind.Wall);
     w.pathing.connectivity.rebuildDirty();

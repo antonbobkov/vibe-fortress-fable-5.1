@@ -73,6 +73,15 @@ export class ItemCore implements ItemsApi {
     this.looseOrder = null;
   }
 
+  /** Visits every item of the given types, in no particular order (a sum over them does not depend on it). */
+  forEachOfTypes(types: readonly number[], visit: (id: EntityId) => void): void {
+    this.ensureSearchIndex();
+    for (const type of types) {
+      const ids = this.searchTypes?.get(type);
+      if (ids !== undefined) for (const id of ids) visit(id);
+    }
+  }
+
   idsOfTypes(types: readonly number[]): EntityId[] {
     this.ensureSearchIndex();
     const ids: EntityId[] = [];
@@ -361,7 +370,19 @@ export class ItemCore implements ItemsApi {
     };
   }
 
+  /**
+   * How many items (of any holder, merchants' and foreign ones too) carry the melt mark: a search that
+   * requires the mark finds nothing while it is zero. Derived from the items; rebuilt after load.
+   */
+  meltMarked = 0;
+
+  /** Whether no item can carry every flag in `required` (only the melt mark is tracked). */
+  lacksFlagged(required: number): boolean {
+    return (required & ItemFlag.Melt) !== 0 && this.meltMarked === 0;
+  }
+
   private account(it: Item, sign: 1 | -1): void {
+    if ((it.flags & ItemFlag.Melt) !== 0) this.meltMarked += sign;
     if (!this.counted(it)) return;
     this.counts.add(this.contribution(it), sign);
     this.wealth += sign * this.valueOf(it);
@@ -786,8 +807,10 @@ export class ItemCore implements ItemsApi {
   /** Rebuild all stock dimensions from restored items; preserve the saved dirty queue in the caller. */
   rebuildStockCounts(): void {
     this.counts.clear();
+    this.meltMarked = 0;
     for (const id of this.entities.with(C.Item)) {
       const item = this.item(id);
+      if ((item.flags & ItemFlag.Melt) !== 0) this.meltMarked += 1;
       if (this.counted(item)) this.counts.add(this.contribution(item), 1);
     }
   }

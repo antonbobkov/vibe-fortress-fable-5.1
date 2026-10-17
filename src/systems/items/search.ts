@@ -180,6 +180,7 @@ export class ItemSearch {
   findItem(filter: ItemFilter, from: TileIndex, cls: MovementClass = 'walker', opts: SearchOptions = { reservable: true }): EntityId {
     const core = this.host.core;
     if (!core.host.map.validIndex(from)) return 0;
+    if (filter.requiredFlags !== undefined && core.lacksFlagged(filter.requiredFlags)) return 0;
     const pathing = this.host.pathing();
     const fromLabel = pathing === null ? 1 : pathing.labelOf(from, cls);
     // Every candidate would fail the same connectivity precheck, including the stock fallback.
@@ -266,12 +267,22 @@ export class ItemSearch {
     const core = this.host.core;
     const keys = Object.keys(filter).filter((k) => (filter as Record<string, unknown>)[k] !== undefined);
     if (keys.length === 1 && filter.type !== undefined) return core.counts.available(filter.type);
+    if (filter.requiredFlags !== undefined && core.lacksFlagged(filter.requiredFlags)) return 0;
     let n = 0;
-    for (const id of this.host.entities.with(C.Item)) {
-      const it = core.item(id);
-      if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Installed)) !== 0) continue;
-      if ((it.occupantId ?? 0) !== 0 || it.carriedBy !== 0) continue;
+    const count = (id: EntityId): void => {
+      const it = core.get(id);
+      if (it === undefined) return;
+      if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Installed)) !== 0) return;
+      if ((it.occupantId ?? 0) !== 0 || it.carriedBy !== 0) return;
       if (matches(core, id, it, filter)) n += it.count;
+    };
+    // A filter that names a type, a tag, a category, a food or drink kind or a container class only
+    // matches the items of the types that satisfy it: visit those, not every item of the fortress.
+    if (filter.type !== undefined || filter.types !== undefined || filter.category !== undefined || filter.tag !== undefined
+      || filter.edible !== undefined || filter.drinkable !== undefined || filter.emptyContainer !== undefined) {
+      core.forEachOfTypes(this.candidateTypes(filter), count);
+    } else {
+      for (const id of this.host.entities.with(C.Item)) count(id);
     }
     return n;
   }

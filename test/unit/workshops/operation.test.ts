@@ -103,6 +103,38 @@ describe('T-M4-08 workshops operation and orders', () => {
     expect(w.events('WorkshopBlocked').filter((e) => e['workshopId'] === id)).toHaveLength(1);
   });
 
+  it('T-345: a workshop built, finished or removed after the producer has run is picked up on the next tick', () => {
+    const w = new TestWorld({ seed: 't345-producer-list', world: 'flat-test', embark: 'none' });
+    const first = w.build('carpenter', w.index(12, 12, 32));
+    w.spawnDwarf({ at: w.index(15, 14, 32) });
+    w.step(3); // the producer has run with one workshop; the building list is cached
+    const entities = w.game.world.entities;
+    const operator = (w.game.world.scheduler.byId('12') as WorkshopsSystem).operator;
+    // A second workshop built later gets its record and its order on the next tick.
+    const second = w.build('still', w.index(22, 12, 32));
+    expect(entities.get(second, C.Workshop)).toBeUndefined();
+    w.step(1);
+    expect(entities.get(second, C.Workshop)).toBeDefined();
+    expect(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: second,
+      order: { recipeId: 'brew', remaining: 1, mode: 'once' } })).toEqual({ ok: true });
+    w.step(2);
+    expect(w.events('WorkshopBlocked').filter((e) => e['workshopId'] === second)).toHaveLength(1);
+    // A building that is still under construction is left alone until its state turns built.
+    const third = w.build('kitchen', w.index(32, 12, 32));
+    const done = entities.get(third, C.Building)!;
+    entities.remove(third, C.Workshop);
+    entities.add(third, C.Building, { ...done, state: 'planned' });
+    w.step(2);
+    expect(entities.get(third, C.Workshop)).toBeUndefined();
+    entities.add(third, C.Building, { ...done, state: 'built' });
+    w.step(1);
+    expect(entities.get(third, C.Workshop)).toBeDefined();
+    // A removed workshop stops being visited without error.
+    w.game.world.entities.destroy(first);
+    w.step(2);
+    expect(operator.workshop(first)).toBeUndefined();
+  });
+
   it("F-07: an order's material filter constrains only the principal input", () => {
     const w = new TestWorld({ seed: 'f07-filter-scope', world: 'flat-test', embark: 'none' });
     w.build('forge', w.index(15, 15, 32));
