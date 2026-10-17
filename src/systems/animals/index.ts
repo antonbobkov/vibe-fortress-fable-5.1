@@ -123,6 +123,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   readonly grazedPending: TileIndex[] = [];
   /** Tiles whose `GrassGrazed` went out and whose grass flag 07 has not yet cleared (08 § Pastures and feeding). */
   readonly grazeEmitted: TileIndex[] = [];
+  /** The grass tile each grazer passes over until the tick, after its walk there came back unreachable (08 § Pastures and feeding). */
+  readonly grazeSkips = new Map<EntityId, { tile: TileIndex; until: number }>();
   /** Eggs waiting in a nest box: item → the box, the tick it was laid and the species. */
   readonly eggs = new Map<EntityId, EggRecord>();
   /** Products waiting for their job, `<animalId>:<kind>`. */
@@ -266,6 +268,16 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       homeTile: () => this.homeTile(),
       claimGraze: (tile) => this.claimGraze(tile),
       grazeClaimed: (tile) => this.grazeClaimed(tile),
+      grazeSkipped: (animalId, tile, tick) => {
+        const skip = this.grazeSkips.get(animalId);
+        if (skip === undefined) return false;
+        if (skip.until <= tick) {
+          this.grazeSkips.delete(animalId);
+          return false;
+        }
+        return skip.tile === tile;
+      },
+      skipGraze: (animalId, tile, until) => void this.grazeSkips.set(animalId, { tile, until }),
       isColdSnap: () => this.readers.has('06') && this.readers.of<{ state(): string }>('06').state() === 'cold_snap',
       stationTile: (animalId, assignedTo) => {
         if (assignedTo === 0) {
@@ -1172,6 +1184,12 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       provoked: sortedPairs(this.provoked),
       grazedPending: this.grazedPending.slice(),
       ...(this.grazeEmitted.length === 0 ? {} : { grazeEmitted: this.grazeEmitted.slice() }),
+      ...(this.grazeSkips.size === 0 ? {} : {
+        grazeSkips: Array.from(this.grazeSkips.keys())
+          .filter((id) => this.world?.entities.alive(id) !== false)
+          .sort((a, b) => a - b)
+          .map((id): [EntityId, number, number] => [id, (this.grazeSkips.get(id) as { tile: number }).tile, (this.grazeSkips.get(id) as { until: number }).until]),
+      }),
       hourlyDue: this.hourlyDue,
       seasonDue: this.seasonDue,
       eggs: Array.from(this.eggs.keys())
@@ -1209,6 +1227,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     for (const [id, kind] of state.pendingTrain ?? []) this.pendingTrain.set(id, kind);
     this.pendingTame.clear();
     for (const [cageId, crId] of state.pendingTame ?? []) this.pendingTame.set(cageId, crId);
+    this.grazeSkips.clear();
+    for (const [id, tile, until] of state.grazeSkips ?? []) this.grazeSkips.set(id, { tile, until });
     this.rng.setState(state.rng);
     this.dailyDue = state.dailyDue;
     this.provoked.clear();

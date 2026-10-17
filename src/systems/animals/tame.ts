@@ -20,7 +20,7 @@ import { C, type Tame } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import { TileFlag } from '@core/map3d';
 import type { TickContext } from '@core/system';
-import type { EntityId, TileIndex } from '@core/types';
+import type { EntityId, Tick, TileIndex } from '@core/types';
 import {
   ADOPT_PERMILLE,
   ANIMAL_STARVE_DAYS,
@@ -29,6 +29,7 @@ import {
   CONDITION_PER_GRASS,
   CONDITION_PER_HOUR,
   GRAZE_SEARCH_RADIUS,
+  GRAZE_SKIP_TICKS,
   PET_FOLLOW_RADIUS,
   WAR_ANIMAL_RADIUS,
 } from './constants';
@@ -117,6 +118,10 @@ export interface TameHost extends BrainHost {
   claimGraze(tile: TileIndex): boolean;
   /** A tile some grazer holds until 07 has cleared its grass. */
   grazeClaimed(tile: TileIndex): boolean;
+  /** True while this grazer passes over the tile because its walk there came back unreachable. */
+  grazeSkipped(animalId: EntityId, tile: TileIndex, tick: Tick): boolean;
+  /** This grazer passes over the tile until `until`. */
+  skipGraze(animalId: EntityId, tile: TileIndex, until: Tick): void;
   /** `06` weather: a cold snap doubles the condition rise. */
   isColdSnap(): boolean;
   /** 19 § War animals: chain, squad or hearth entrance. */
@@ -128,21 +133,32 @@ export function tameOf(host: BrainHost, id: EntityId): Tame | undefined {
 }
 
 /**
- * A grass tile a tame grazer may eat and can reach: inside its pasture, or within 6 tiles with no
- * pasture. Grass in another region of the animal's movement class (shut in by trees) is skipped.
+ * The grass a grazer passes over: a tile in another region of its movement class (shut in by trees), a tile
+ * a grazer holds, and a tile its last walk found unreachable (behind a `no_pets` door, which the regions,
+ * computed without a faction, do not show). An animal with no region of its own (label 0) shuts nothing out.
  */
-export function grassForTame(host: TameHost, id: EntityId, t: Tame): TileIndex {
+function passedOver(host: TameHost, id: EntityId, tick: Tick): (tile: TileIndex) => boolean {
+  const at = tileOf(host, id);
+  const cls = movementClassOf(host, id);
+  const region = at < 0 ? 0 : host.readers.pathing.labelOf(at, cls);
+  return (tile) => host.grazeClaimed(tile) || host.grazeSkipped(id, tile, tick) ||
+    (region !== 0 && host.readers.pathing.labelOf(tile, cls) !== region);
+}
+
+/**
+ * A grass tile a tame grazer may eat and can reach: inside its pasture, or within 6 tiles with no
+ * pasture; see {@link passedOver} for what it skips.
+ */
+export function grassForTame(host: TameHost, id: EntityId, t: Tame, tick: Tick): TileIndex {
   const at = tileOf(host, id);
   if (at < 0) return -1;
-  const cls = movementClassOf(host, id);
-  const region = host.readers.pathing.labelOf(at, cls);
-  const unreachable = (tile: TileIndex): boolean => region !== 0 && host.readers.pathing.labelOf(tile, cls) !== region;
-  if (t.pastureId === 0) return grassNear(host, at, GRAZE_SEARCH_RADIUS, (tile) => host.grazeClaimed(tile) || unreachable(tile));
+  const skip = passedOver(host, id, tick);
+  if (t.pastureId === 0) return grassNear(host, at, GRAZE_SEARCH_RADIUS, skip);
   let best = -1;
   let bestD = Number.MAX_SAFE_INTEGER;
   const map = host.map;
   for (const tile of host.pastureTiles(t.pastureId)) {
-    if (!map.hasFlag(tile, TileFlag.Grass) || map.hasFlag(tile, TileFlag.Snow) || host.grazeClaimed(tile) || unreachable(tile)) continue;
+    if (!map.hasFlag(tile, TileFlag.Grass) || map.hasFlag(tile, TileFlag.Snow) || skip(tile)) continue;
     const d = Math.max(Math.abs(map.xOf(tile) - map.xOf(at)), Math.abs(map.yOf(tile) - map.yOf(at)));
     if (d >= bestD) continue;
     bestD = d;
@@ -151,14 +167,17 @@ export function grassForTame(host: TameHost, id: EntityId, t: Tame): TileIndex {
   return best;
 }
 
-/** The grass a grazer is walking to is still uneaten, unclaimed, in its pasture, and in its region. */
-function grassStillFor(host: TameHost, id: EntityId, t: Tame, tile: TileIndex): boolean {
+/**
+ * The tile a grazer is walking to is still grass for it: uneaten, unclaimed, not passed over, in its pasture
+ * (or within 6 tiles with no pasture) and in its region.
+ */
+function grassStillFor(host: TameHost, id: EntityId, t: Tame, tile: TileIndex, tick: Tick): boolean {
   const map = host.map;
-  if (!map.hasFlag(tile, TileFlag.Grass) || map.hasFlag(tile, TileFlag.Snow) || host.grazeClaimed(tile)) return false;
+  if (!map.hasFlag(tile, TileFlag.Grass) || map.hasFlag(tile, TileFlag.Snow) || passedOver(host, id, tick)(tile)) return false;
   if (t.pastureId !== 0 && !host.pastureTiles(t.pastureId).includes(tile)) return false;
   const at = tileOf(host, id);
-  const cls = movementClassOf(host, id);
-  return at >= 0 && host.readers.pathing.labelOf(tile, cls) === host.readers.pathing.labelOf(at, cls);
+  if (at < 0) return false;
+  return t.pastureId !== 0 || Math.max(Math.abs(map.xOf(tile) - map.xOf(at)), Math.abs(map.yOf(tile) - map.yOf(at))) <= GRAZE_SEARCH_RADIUS;
 }
 
 /** One think of a tame animal. */
@@ -236,12 +255,13 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
       else movement?.stopWalking(id);
       return next;
     }
-    // A grazer keeps walking to the grass it chose while that grass is still there for it: chosen
+    // A grazer keeps walking to the tile it is walking to while that tile is still grass for it: chosen
     // again by straight distance on every think, it would turn back and forth around an obstacle.
     const walking = movement?.walkTarget(id) ?? -1;
-    const grass = walking >= 0 && grassStillFor(host, id, next, walking) ? walking : grassForTame(host, id, next);
+    const grass = walking >= 0 && grassStillFor(host, id, next, walking, ctx.tick) ? walking : grassForTame(host, id, next, ctx.tick);
     if (grass >= 0) {
-      movement?.walkTo(id, grass, 'wander', ctx);
+      // A walk that comes back unreachable (a `no_pets` door in the way) is not tried again at once.
+      if (movement?.walkTo(id, grass, 'wander', ctx) === 'unreachable') host.skipGraze(id, grass, ctx.tick + GRAZE_SKIP_TICKS);
       return next;
     }
   }

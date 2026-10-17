@@ -35,6 +35,8 @@ export interface AnimalsStateV1 {
   grazedPending: number[];
   /** Tiles whose grazing event has gone out and whose grass 07 has not yet cleared. */
   grazeEmitted?: number[];
+  /** Grazer, grass tile and the tick until which the grazer passes over it; omitted in older saves means none. */
+  grazeSkips?: [EntityId, number, number][];
   hourlyDue: boolean;
   seasonDue: boolean;
   eggs: [EntityId, EggRecord][];
