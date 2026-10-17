@@ -678,6 +678,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.building.mode_already': '{building} is set to {mode} already.',
   'ui.building.no_modes': '{building} has no modes.',
   'ui.building.alert_locked': 'Locked now: the alert is Hearth.',
+  'ui.building.lock_waiting': 'Waiting: it locks when nobody stands in the doorway.',
   'ui.building.alert_open': 'Open now: it locks when the alert is Hearth.',
   'ui.building.trap_state': 'Trap: {state}',
   'ui.building.lever_state': 'Lever: {state}',
