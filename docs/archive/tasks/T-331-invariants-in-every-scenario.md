@@ -1,6 +1,8 @@
 # T-331 — More invariants, checked in every scenario
 
-**Source:** the process review, [`../../reports/audits/2026-10-15-process-review.md`](../../reports/audits/2026-10-15-process-review.md) · **Size:** M · **Needs:** — · **Status:** open; after the medicine batch in worktree `sim` (the same systems)
+**Closed:** 2026-10-16, in 27be9f5, a1bb88d, d90dcae.
+
+**Source:** the process review, [`../../reports/audits/2026-10-15-process-review.md`](../../../reports/audits/2026-10-15-process-review.md) · **Size:** M · **Needs:** — · **Status:** open; after the medicine batch in worktree `sim` (the same systems)
 
 ## Why
 

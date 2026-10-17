@@ -1,5 +1,7 @@
 # T-340 — The Depot panel names a stack of goods in the singular
 
+**Closed:** 2026-10-16, in 746a3f2, 21b2da1.
+
 **Source:** review of T-332 (the stored depot buffer said "10 easy meal"; the trade session says "10 easy meals") · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -17,4 +19,4 @@ A row of the Depot panel prints `{count} {item name}` with the item's singular n
 
 ## Done
 
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
