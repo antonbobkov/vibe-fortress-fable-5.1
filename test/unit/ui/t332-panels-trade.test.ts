@@ -5,6 +5,7 @@
  * trade session with the Hillfolk at the depot offering wool cloth for the meals.
  */
 import { beforeAll, describe, expect, it } from 'vitest';
+import { C } from '@core/components';
 import { loadContent } from '@content/loader';
 import { Game } from '@app/game';
 import type { ReaderSet } from '@core/readers';
@@ -20,6 +21,7 @@ import { fgOfText, hexOf, surface, theme } from './ui-fixture';
 type Name = 'civilizations' | 'depot' | 'trade_session';
 let game: Game;
 let tradeScreen: TradeSessionScreen;
+let depotMeal = 0;
 
 function draw(which: Name): Surface {
   const s = surface(which === 'trade_session' ? 80 : 36, which === 'trade_session' ? 28 : 24);
@@ -49,6 +51,7 @@ describe('T-332 panels: civilizations, trade depot and trade session', () => {
     buildings.completeNow(depot, material, 0);
     const tile = game.host.readers.of<{ get(id: number): { footprint: number[] } | undefined }>('14').get(depot)?.footprint[0] ?? 0;
     const meal = world.services.spawn.item(registry.table('items').index('easy_meal'), registry.table('materials').index('meal'), tile, 10, 1);
+    depotMeal = meal;
     const cloth = world.services.spawn.item(registry.table('items').index('cloth'), registry.table('materials').index('wool_cloth'), tile, 5, 1);
     const dwarf = game.host.readers.of<{ list(): number[] }>('10').list()[0] ?? 0;
     if (!dwarf || !world.services.movement?.teleport(dwarf, tile)) throw new Error('hauler fixture failed');
@@ -97,7 +100,7 @@ describe('T-332 panels: civilizations, trade depot and trade session', () => {
   it('Depot names the depot and the state of its goods, lists what stands in it with its worth, and names the keys', () => {
     const rows = render('depot');
     expect(rows[0]).toMatch(/Trade depot #\d+ · goods at depot$/);
-    expect(rows[1]).toMatch(/► 10 easy meal +100 ☼$/);
+    expect(rows[1]).toMatch(/► 10 easy meals +100 ☼$/);
     expect(rows[22]).toMatch(/\[S-m\] move \[r\] remove \[S-t\] trade$/);
   });
 
@@ -113,5 +116,19 @@ describe('T-332 panels: civilizations, trade depot and trade session', () => {
     // The shortfall is drawn in the warning colour.
     expect(fgOfText(draw('trade_session'), 24, 'Not enough')).toBe(hexOf(theme.bad));
     expect(rows[25]).toMatch(/\[Tab\] switch side {2}\[\+\]\/\[-\] quantity {2}\[Enter\] Offer {2}\[g\] Gift {2}\[Esc\] Close$/);
+  });
+});
+
+describe('T-340 the Depot panel names a stack as the trade session does', () => {
+  it('a stack above one is in the plural and a stack of one in the singular', () => {
+    const entities = game.host.world.entities;
+    const stack = entities.get(depotMeal, C.Item)!;
+    try {
+      expect(render('depot')[1]).toMatch(/► 10 easy meals +100 ☼$/);
+      entities.add(depotMeal, C.Item, { ...stack, count: 1 });
+      expect(render('depot')[1]).toMatch(/► 1 easy meal +[0-9]+ ☼$/);
+    } finally {
+      entities.add(depotMeal, C.Item, stack);
+    }
   });
 });

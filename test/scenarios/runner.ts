@@ -8,7 +8,9 @@
 
 import { generatedSpec, regionSpec } from '@app/headless';
 import type { RegionRecord } from '@systems/worldgen';
+import { expect } from 'vitest';
 import { TestWorld } from './test-world';
+import { checkScenarioEndInvariants, sampleInvariants } from './invariants';
 import type { Command } from '@core/commands';
 import type { GameSystem } from '@core/system';
 
@@ -115,6 +117,7 @@ function buildWorld(scenario: Scenario): TestWorld {
 export function runScenario(scenario: Scenario): TestWorld {
   const w = buildWorld(scenario);
   scenario.setup?.(w);
+  const stopSampling = scenario.systems === undefined ? sampleInvariants(w.game) : (): void => {};
 
   const scheduled = [...(scenario.commands ?? [])].sort((a, b) => a.tick - b.tick);
   let next = 0;
@@ -136,5 +139,12 @@ export function runScenario(scenario: Scenario): TestWorld {
   }
 
   scenario.expect?.(w);
+  stopSampling();
+  // T-331: every scenario ends with the invariant checks. A scenario of stand-in systems has no
+  // jobs, items or buildings to check.
+  if (scenario.systems === undefined) {
+    const findings = checkScenarioEndInvariants(w.game);
+    expect(findings, `${scenario.id} ends with invariant findings: ${JSON.stringify(findings)}`).toEqual([]);
+  }
   return w;
 }
