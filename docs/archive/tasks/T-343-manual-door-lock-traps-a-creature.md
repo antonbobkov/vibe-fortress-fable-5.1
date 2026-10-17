@@ -1,5 +1,7 @@
 # T-343 — A door locked by hand still traps a creature in its doorway
 
+**Closed:** 2026-10-16, in dce21bf.
+
 **Source:** the review of T-303 (2026-10-16) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

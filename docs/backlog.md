@@ -20,7 +20,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-333 | [Mark the spec numbers nobody has measured](work/T-333-unmeasured-spec-numbers.md) | the process review, [`../reports/audits/2026-10-15-process-review.md`](../reports/audits/2026-10-15-process-review.md) | — | open |
 | T-312 | [KillRecorded's hostile flag is always false](work/T-312-kill-recorded-hostile-flag.md) | found during T-279 | — | open |
 | T-341 | [A grazer can still loop on grass behind a no_pets door](work/T-341-grazer-loops-on-a-no-pets-door.md) | the review of T-335 | — | open |
-| T-343 | [A door locked by hand still traps a creature in its doorway](work/T-343-manual-door-lock-traps-a-creature.md) | the review of T-303 | — | open |
 | T-344 | [Item haul planning costs time in proportion to the items that wait](work/T-344-haul-planning-cost-scales-with-waiting-items.md) | T-283, [`../reports/audits/2026-10-16-reference-fortress.md`](../reports/audits/2026-10-16-reference-fortress.md) | — | open |
 | T-345 | [The workshops job producer visits every building every tick](work/T-345-workshops-producer-visits-every-building.md) | T-283, [`../reports/audits/2026-10-16-reference-fortress.md`](../reports/audits/2026-10-16-reference-fortress.md) | — | open |
 | T-360 | [Measure brook drinking under wild animals](work/T-360-brook-drinking-under-wildlife.md) | the review of T-350 | — | open |
