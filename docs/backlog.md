@@ -31,5 +31,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-354 | [A smoothing job stays blocked as unreachable on a floor tile where a chest has been built](work/T-354-smooth-job-stays-on-a-tile-a-chest-took.md) | found by the T-331 invariants | — | open |
 | T-355 | [A planting job stays blocked as unreachable on a farm plot tile where a smelter stands](work/T-355-plant-job-stays-on-a-farm-tile-a-smelter-took.md) | found by the T-331 invariants | — | open |
 | T-356 | [A job is held for over a day, with no progress, by a worker in `retreat` or `need`](work/T-356-jobs-held-for-a-day-by-workers-in-retreat-or-need.md) | found by the T-331 invariants | — | open |
+| T-362 | [The three-year fortress's steel job is created and never claimed](work/T-362-steel-job-never-claimed.md) | T-145 run 6 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. B-008 through B-012 await T-145 (the fixture at default priorities) and, for survival with wildlife, T-214; their measurement journal is in the [decision archive](archive/decisions-archive.md).
