@@ -443,8 +443,9 @@ class Probe {
         if (!map.inBounds(p.x, p.y, p.z))
           this.hit(tick, 'item.out-of-bounds', name, `item ${id} at ${posOf(id)}`);
         else {
-          const k = map.kindAt(map.index(p.x, p.y, p.z));
-          if (k === TileKind.Wall)
+          const at = map.index(p.x, p.y, p.z);
+          // 04 § Freezing and thawing: items on a water tile that froze stay inside the ice.
+          if (map.kindAt(at) === TileKind.Wall && !map.fluidFrozenAt(at))
             this.hit(
               tick,
               'item.inside-wall',

@@ -1,5 +1,7 @@
 # T-351 — The restless dead that collapse at dawn leave their weapons carried by nobody
 
+**Closed:** 2026-10-17, in a8d6746.
+
 **Source:** T-331 (the end-of-scenario invariant `item.carrier-dead` and `item.no-place` fail in `th_restless`) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -28,4 +30,4 @@ The swords exist in the stock counts, are not reserved or forbidden, and cannot 
 ## Done
 
 - `th_restless` runs again in `npm test` and ends without invariant findings.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

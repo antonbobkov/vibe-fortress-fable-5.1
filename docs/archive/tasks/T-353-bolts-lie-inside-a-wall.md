@@ -1,6 +1,8 @@
 # T-353 — Ten bolts lie inside a wall tile (peril 4 sweep seed)
 
-**Source:** the T-331 review run of `test/perf/three_years_seeds.test.ts` (peril 2 and 4), 2026-10-16; the invariant is `item.inside-wall` of the T-176 checker (the shape of [T-216](../archive/tasks/T-216-three-years-log-inside-a-wall.md)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-17, in 2344a14.
+
+**Source:** the T-331 review run of `test/perf/three_years_seeds.test.ts` (peril 2 and 4), 2026-10-16; the invariant is `item.inside-wall` of the T-176 checker (the shape of [T-216](T-216-three-years-log-inside-a-wall.md)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -17,4 +19,4 @@ Seed `three-years-p4-5` fails the sweep's daily invariant check at tick 372,000 
 ## Done
 
 - The seed passes its daily invariant check past day 310, or the work file records the measured reason.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

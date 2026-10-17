@@ -19,9 +19,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-344 | [Item haul planning costs time in proportion to the items that wait](work/T-344-haul-planning-cost-scales-with-waiting-items.md) | T-283, [`../reports/audits/2026-10-16-reference-fortress.md`](../reports/audits/2026-10-16-reference-fortress.md) | — | open |
 | T-345 | [The workshops job producer visits every building every tick](work/T-345-workshops-producer-visits-every-building.md) | T-283, [`../reports/audits/2026-10-16-reference-fortress.md`](../reports/audits/2026-10-16-reference-fortress.md) | — | open |
 | T-360 | [Measure brook drinking under wild animals](work/T-360-brook-drinking-under-wildlife.md) | the review of T-350 | — | open |
-| T-351 | [The restless dead that collapse at dawn leave their weapons carried by nobody](work/T-351-restless-dead-collapse-leaves-carried-weapons.md) | found by the T-331 invariants | — | open |
-| T-352 | [A thief party stays in `approach` for over three days (peril 2 sweep seed)](work/T-352-thief-party-stays-in-approach-over-three-days.md) | found by the T-331 invariants | — | open |
-| T-353 | [Ten bolts lie inside a wall tile (peril 4 sweep seed)](work/T-353-bolts-lie-inside-a-wall.md) | found by the T-331 invariants | — | open |
 | T-363 | [A hospital chest holding items has no tile beside it that a dwarf reaches (peril 2 sweep seed)](work/T-363-hospital-chest-without-a-reachable-side.md) | found by the simulation agent and reviews | — | open |
 | T-370 | [The held-job release: spec wording, the away flicker, a longer world-order guard](work/T-370-held-job-release-nits.md) | found by the simulation agent and reviews | — | open |
 | T-364 | [Measure farm yield](work/T-364-measure-farm-yield.md) | T-333, the unmeasured-numbers report | — | open |

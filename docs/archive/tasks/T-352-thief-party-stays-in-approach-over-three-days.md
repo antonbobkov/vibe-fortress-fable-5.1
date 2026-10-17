@@ -1,6 +1,8 @@
 # T-352 — A thief party stays in `approach` for over three days (peril 2 sweep seed)
 
-**Source:** the T-331 review run of `test/perf/three_years_seeds.test.ts` (peril 2 and 4), 2026-10-16; the invariant is `party.approach-over-3d` of the T-176 checker (found before by [T-173](../archive/tasks/T-173-parties-that-never-leave.md)) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-17, in 27d125f.
+
+**Source:** the T-331 review run of `test/perf/three_years_seeds.test.ts` (peril 2 and 4), 2026-10-16; the invariant is `party.approach-over-3d` of the T-176 checker (found before by [T-173](T-173-parties-that-never-leave.md)) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -18,4 +20,4 @@ Seed `three-years-p2-4` fails the sweep's daily invariant check at tick 339,600 
 ## Done
 
 - The seed passes its daily invariant check past day 283, or the work file records the measured reason and the bound that holds.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

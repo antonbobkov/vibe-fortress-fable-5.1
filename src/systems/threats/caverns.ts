@@ -571,6 +571,15 @@ export function collapseRestlessDead(ctx: TickContext): void {
     if (tile >= 0 && boneIdx >= 0 && matIdx >= 0) {
       ctx.world.services.spawn.item(boneIdx, matIdx, tile, 1, 0);
     }
+    // 18 § Party composition: what it wears and carries drops on its tile, as at any other death.
+    const items = ctx.world.services.items;
+    if (items !== null && items !== undefined && pos !== undefined) {
+      const equip = ctx.world.entities.get(id, C.Equipment);
+      const worn = equip === undefined ? [] :
+        [equip.weapon, equip.shield, equip.quiver, ...Object.values(equip.armor), ...Object.values(equip.clothing)];
+      const carried = ctx.readers.has('13') ? ctx.readers.of<{ carriedItems(id: EntityId): EntityId[] }>('13').carriedItems(id) : [];
+      for (const itemId of new Set([...worn, ...carried])) if (itemId !== 0) items.dropAt(itemId, tile);
+    }
     ctx.emit({ type: 'CreatureDied', id, species: 'restless_dead', tile });
     ctx.world.entities.destroy(id);
   }
