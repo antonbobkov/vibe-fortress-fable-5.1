@@ -1,5 +1,7 @@
 # T-356 — A job is held for over a day, with no progress, by a worker in `retreat` or `need`
 
+**Closed:** 2026-10-17, in e4930e8, 840aa11.
+
 **Source:** the T-331 review run of `test/perf/three_years_seeds.test.ts` (peril 2 and 4), 2026-10-16; the invariant is `holder.job-held-while-elsewhere` (T-331 check 1: a job held for over a day, with no progress and no step of its worker, by a worker whose brain is not `work`) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
@@ -28,4 +30,4 @@ The three do not reproduce in a standalone run of the same seed with the same sc
 ## Done
 
 - The sweep seeds above no longer report `holder.job-held-while-elsewhere`, or the work file says which check is wrong.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

@@ -24,6 +24,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-351 | [The restless dead that collapse at dawn leave their weapons carried by nobody](work/T-351-restless-dead-collapse-leaves-carried-weapons.md) | found by the T-331 invariants | — | open |
 | T-352 | [A thief party stays in `approach` for over three days (peril 2 sweep seed)](work/T-352-thief-party-stays-in-approach-over-three-days.md) | found by the T-331 invariants | — | open |
 | T-353 | [Ten bolts lie inside a wall tile (peril 4 sweep seed)](work/T-353-bolts-lie-inside-a-wall.md) | found by the T-331 invariants | — | open |
-| T-356 | [A job is held for over a day, with no progress, by a worker in `retreat` or `need`](work/T-356-jobs-held-for-a-day-by-workers-in-retreat-or-need.md) | found by the T-331 invariants | — | open |
+| T-363 | [A hospital chest holding items has no tile beside it that a dwarf reaches (peril 2 sweep seed)](work/T-363-hospital-chest-without-a-reachable-side.md) | found by the simulation agent and reviews | — | open |
+| T-370 | [The held-job release: spec wording, the away flicker, a longer world-order guard](work/T-370-held-job-release-nits.md) | found by the simulation agent and reviews | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. B-008 through B-012 await T-145 (the fixture at default priorities) and, for survival with wildlife, T-214; their measurement journal is in the [decision archive](archive/decisions-archive.md).
