@@ -147,18 +147,18 @@ Overlay `fluid levels` (digits 1–7 on fluid tiles); inspector section `tile �
 
 | Name | Value | Meaning |
 |---|---|---|
-| `FLUID_SETTLE_STEPS` | 8 | Idle steps before a tile sleeps |
-| `SPREAD_EQUALIZE_PERMILLE` | 500 | Chance to move a unit into a neighbor at level − 1 |
-| `FLUID_EQUALIZE_BUDGET` | 16 | Equalizing moves a tile may make between two real flows |
-| `SPREAD_MAX_PER_STEP` | 2 | Units a tile may give away sideways per step |
-| `PRESSURE_SEARCH_LIMIT` | 256 | Tiles per body search |
-| `PRESSURE_BUDGET_TILES` | 4000 | Total search tiles per step |
-| `WATER_EVAPORATE_PERMILLE` | 8 | Per step for an isolated level-1 water tile (about 250 ticks to vanish on average) |
-| `OBSIDIAN_WALL_LEVEL` | 4 | Magma level at or above which contact makes a wall |
-| `ICE_WALL_LEVEL` | 4 | Water level at or above which freezing makes a wall |
-| `FREEZE_C` / `THAW_C` | −1 / 2 | Hysteresis so tiles do not flicker |
-| `MIST_DURATION_TICKS` | 100 | |
-| `MAGMA_C` | 1200 | Temperature used for melting items |
+| `FLUID_SETTLE_STEPS` | 8 | Idle steps before a tile sleeps (*unmeasured*) |
+| `SPREAD_EQUALIZE_PERMILLE` | 500 | Chance to move a unit into a neighbor at level − 1 (*unmeasured*) |
+| `FLUID_EQUALIZE_BUDGET` | 16 | Equalizing moves a tile may make between two real flows (*unmeasured*) |
+| `SPREAD_MAX_PER_STEP` | 2 | Units a tile may give away sideways per step (*unmeasured*) |
+| `PRESSURE_SEARCH_LIMIT` | 256 | Tiles per body search (*unmeasured*) |
+| `PRESSURE_BUDGET_TILES` | 4000 | Total search tiles per step (*unmeasured*) |
+| `WATER_EVAPORATE_PERMILLE` | 8 | Per step for an isolated level-1 water tile (about 250 ticks to vanish on average) (*unmeasured*) |
+| `OBSIDIAN_WALL_LEVEL` | 4 | Magma level at or above which contact makes a wall (*unmeasured*) |
+| `ICE_WALL_LEVEL` | 4 | Water level at or above which freezing makes a wall (*unmeasured*) |
+| `FREEZE_C` / `THAW_C` | −1 / 2 | Hysteresis so tiles do not flicker (*unmeasured*) |
+| `MIST_DURATION_TICKS` | 100 | *unmeasured* |
+| `MAGMA_C` | 1200 | Temperature used for melting items (*unmeasured*) |
 
 ## Extension points
 

@@ -121,27 +121,27 @@ Job producer `trade` (`haul_to_depot`, `trade`); panel `civilizations` (reputati
 
 | Name | Value | Meaning |
 |---|---|---|
-| `CARAVAN_DAY_MIN` / `CARAVAN_DAY_MAX` | 5 / 18 | Arrival day within the season |
-| `CARAVAN_BAN_REP` | −50 | |
-| `CARAVAN_BAN_YEARS` | 2 | |
-| `WEATHER_SKIP_PERMILLE` | 150 | At temper 4 |
-| `MERCHANTS_MIN` / `MERCHANTS_MAX` | 2 / 3 | |
-| `GUARDS_BASE` / `GUARDS_PER_PERIL` | 2 / 1 | |
-| `PACK_VALUE` | 800 | Marks of goods per pack animal |
-| `CARAVAN_VALUE_BASE` | 2500 | |
-| `CARAVAN_VALUE_PER_RENOWN` | 150 | |
-| `CARAVAN_VALUE_PER_REP` | 20 | |
-| `REQUEST_SHARE` | 30 | Percent |
-| `REQUEST_MAX` | 8 | |
-| `DEPOT_WAIT_DAYS` | 3 | |
-| `CARAVAN_STAY_DAYS` | 5 | |
-| `DEPOT_HAUL_PRIORITY` | 3 | |
-| `MERCHANT_MARKUP` | 120 | Percent |
-| `MARGIN_BASE` / `MARGIN_MIN` | 15 / 3 | Percent |
-| `MARGIN_PER_SKILL` | 0.5 | Percent per trading skill level |
-| `MARGIN_REP_DIVISOR` | 20 | |
-| `TRADE_XP` | 15 | |
-| `REP_DRIFT_PER_YEAR` | 5 | Toward 0 |
+| `CARAVAN_DAY_MIN` / `CARAVAN_DAY_MAX` | 5 / 18 | Arrival day within the season (*unmeasured*) |
+| `CARAVAN_BAN_REP` | −50 | *unmeasured* |
+| `CARAVAN_BAN_YEARS` | 2 | *unmeasured* |
+| `WEATHER_SKIP_PERMILLE` | 150 | At temper 4 (*unmeasured*) |
+| `MERCHANTS_MIN` / `MERCHANTS_MAX` | 2 / 3 | *unmeasured* |
+| `GUARDS_BASE` / `GUARDS_PER_PERIL` | 2 / 1 | *unmeasured* |
+| `PACK_VALUE` | 800 | Marks of goods per pack animal (*unmeasured*) |
+| `CARAVAN_VALUE_BASE` | 2500 | *unmeasured* |
+| `CARAVAN_VALUE_PER_RENOWN` | 150 | *unmeasured* |
+| `CARAVAN_VALUE_PER_REP` | 20 | *unmeasured* |
+| `REQUEST_SHARE` | 30 | Percent (*unmeasured*) |
+| `REQUEST_MAX` | 8 | *unmeasured* |
+| `DEPOT_WAIT_DAYS` | 3 | *unmeasured* |
+| `CARAVAN_STAY_DAYS` | 5 | *unmeasured* |
+| `DEPOT_HAUL_PRIORITY` | 3 | *unmeasured* |
+| `MERCHANT_MARKUP` | 120 | Percent (*unmeasured*) |
+| `MARGIN_BASE` / `MARGIN_MIN` | 15 / 3 | Percent (*unmeasured*) |
+| `MARGIN_PER_SKILL` | 0.5 | Percent per trading skill level (*unmeasured*) |
+| `MARGIN_REP_DIVISOR` | 20 | *unmeasured* |
+| `TRADE_XP` | 15 | *unmeasured* |
+| `REP_DRIFT_PER_YEAR` | 5 | Toward 0 (*unmeasured*) |
 
 Goods lists and preferences are content.
 

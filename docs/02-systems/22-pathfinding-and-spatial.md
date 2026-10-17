@@ -152,14 +152,14 @@ None directly. Unreachable jobs are explained in the jobs panel; the connectivit
 
 | Name | Value | Meaning |
 |---|---|---|
-| `Z_HEURISTIC_COST` | 1000 | |
-| `PATH_NODE_LIMIT` | 8000 | Per request |
-| `PATH_NODES_PER_TICK` | 24000 | |
-| `PATH_CONCURRENT` | 16 | In-progress searches kept across ticks |
-| `PATH_CACHE_SIZE` | 512 | |
-| `REPATH_WAIT_TICKS` | 5 | |
-| `REPATH_LIMIT` | 3 | Attempts before the brain gives up the goal |
-| `LOS_MAX` | 30 | |
+| `Z_HEURISTIC_COST` | 1000 | *unmeasured* |
+| `PATH_NODE_LIMIT` | 8000 | Per request (*unmeasured*) |
+| `PATH_NODES_PER_TICK` | 24000 | *unmeasured* |
+| `PATH_CONCURRENT` | 16 | In-progress searches kept across ticks (*unmeasured*) |
+| `PATH_CACHE_SIZE` | 512 | *unmeasured* |
+| `REPATH_WAIT_TICKS` | 5 | *unmeasured* |
+| `REPATH_LIMIT` | 3 | Attempts before the brain gives up the goal (*unmeasured*) |
+| `LOS_MAX` | 30 | *unmeasured* |
 
 ## Extension points
 

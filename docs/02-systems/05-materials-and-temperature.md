@@ -126,24 +126,24 @@ Overlay `temperature` (a color ramp per tile, computed lazily for visible tiles 
 
 | Name | Value | Meaning |
 |---|---|---|
-| `UNDERGROUND_BASE_C` | 10 | Constant temperature at depth |
-| `NEAR_SURFACE_DEPTH` | 3 | z-levels over which surface temperature blends into the base |
-| `DEEP_HEAT_START_Z` | 12 | Below this z, temperature rises toward the magma sea |
-| `DEEP_HEAT_PER_Z` | 3 | °C per level below `DEEP_HEAT_START_Z` |
-| `MAGMA_OVERRIDE` | 16 | ×5 °C = +80 at the magma tile |
-| `FIRE_OVERRIDE` | 12 | +60 at the burning tile |
-| `SPRING_OVERRIDE` | 5 | +25 |
-| `SNOW_OVERRIDE` | 1 | −5 |
-| `FIRE_SPREAD_PERMILLE` | 150 | Per neighbor per attempt |
-| `FIRE_SPREAD_WET_PERMILLE` | 20 | Under rain |
-| `FIRE_SPREAD_COOLDOWN` | 30 | Ticks between spread attempts |
-| `ITEM_BURN_TICKS` | 100 | |
-| `BURN_TICK_DAMAGE` | 6 | Damage units per materials tick to a creature on a burning tile |
-| `RAIN_EXTINGUISH_PERMILLE` | 30 | Per simulation tick, accumulated at materials cadence |
-| `ASH_DURATION_DAYS` | 28 | |
-| `FROST_KILL_C` | −2 | Surface crops die below this |
-| `HEAT_INJURY_C` | 55 | Heat stroke |
-| `COLD_INJURY_C` | −25 | Frostbite |
+| `UNDERGROUND_BASE_C` | 10 | Constant temperature at depth (*unmeasured*) |
+| `NEAR_SURFACE_DEPTH` | 3 | z-levels over which surface temperature blends into the base (*unmeasured*) |
+| `DEEP_HEAT_START_Z` | 12 | Below this z, temperature rises toward the magma sea (*unmeasured*) |
+| `DEEP_HEAT_PER_Z` | 3 | °C per level below `DEEP_HEAT_START_Z` (*unmeasured*) |
+| `MAGMA_OVERRIDE` | 16 | ×5 °C = +80 at the magma tile (*unmeasured*) |
+| `FIRE_OVERRIDE` | 12 | +60 at the burning tile (*unmeasured*) |
+| `SPRING_OVERRIDE` | 5 | +25 (*unmeasured*) |
+| `SNOW_OVERRIDE` | 1 | −5 (*unmeasured*) |
+| `FIRE_SPREAD_PERMILLE` | 150 | Per neighbor per attempt (*unmeasured*) |
+| `FIRE_SPREAD_WET_PERMILLE` | 20 | Under rain (*unmeasured*) |
+| `FIRE_SPREAD_COOLDOWN` | 30 | Ticks between spread attempts (*unmeasured*) |
+| `ITEM_BURN_TICKS` | 100 | *unmeasured* |
+| `BURN_TICK_DAMAGE` | 6 | Damage units per materials tick to a creature on a burning tile (*unmeasured*) |
+| `RAIN_EXTINGUISH_PERMILLE` | 30 | Per simulation tick, accumulated at materials cadence (*unmeasured*) |
+| `ASH_DURATION_DAYS` | 28 | *unmeasured* |
+| `FROST_KILL_C` | −2 | Surface crops die below this (*unmeasured*) |
+| `HEAT_INJURY_C` | 55 | Heat stroke (*unmeasured*) |
+| `COLD_INJURY_C` | −25 | Frostbite (*unmeasured*) |
 
 Burn durations per material (`burnTicks`) and all property values are content.
 

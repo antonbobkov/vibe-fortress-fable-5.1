@@ -149,34 +149,34 @@ A *dangerous* species is a surface species (it has biomes) that is not `timid` a
 
 | Name | Value | Meaning |
 |---|---|---|
-| `WILD_THINK_TICKS` | 10 | Think interval when far from dwarves |
-| `NEAR_DWARF_RADIUS` | 20 | |
-| `WANDER_RADIUS` | 16 | |
-| `GRAZE_TICKS` | 60 | |
-| `GRAZE_SKIP_TICKS` | 600 | Ticks a grazer passes over a grass tile whose walk came back unreachable (unmeasured) |
+| `WILD_THINK_TICKS` | 10 | Think interval when far from dwarves (*unmeasured*) |
+| `NEAR_DWARF_RADIUS` | 20 | *unmeasured* |
+| `WANDER_RADIUS` | 16 | *unmeasured* |
+| `GRAZE_TICKS` | 60 | *unmeasured* |
+| `GRAZE_SKIP_TICKS` | 600 | Ticks a grazer passes over a grass tile whose walk came back unreachable (*unmeasured*) |
 | `TERRITORY_RADIUS` | 5 | |
-| `FLEE_TICKS` | 200 | |
-| `FLEE_BLOOD_PERCENT` | 50 | Default flee threshold; defined in 16; species override it with their `flee` column |
-| `PREDATOR_HUNGER_DAYS` | 3 | |
+| `FLEE_TICKS` | 200 | *unmeasured* |
+| `FLEE_BLOOD_PERCENT` | 50 | Default flee threshold; defined in 16; species override it with their `flee` column (*unmeasured*) |
+| `PREDATOR_HUNGER_DAYS` | 3 | *unmeasured* |
 | `PREY_PACK_MAX_MEMBERS` | 3 | Maximum living pack members in perception of the quarry contributing to its size limit |
-| `EAT_CORPSE_TICKS` | 300 | |
+| `EAT_CORPSE_TICKS` | 300 | *unmeasured* |
 | `ATTACK_PERCEPTION_GRACE_TICKS` | 50 | Consecutive unseen ticks before a held attack ends |
-| `WILD_LIFETIME_DAYS` | 28 | |
+| `WILD_LIFETIME_DAYS` | 28 | *unmeasured* |
 | `SPAWN_PERMILLE` | 150 | Per species per day when below cap |
 | `SPAWN_MIN_DISTANCE` | 25 | Tiles from any dwarf |
 | `GRASS_PER_GRAZER` | 48 | Growing-season capacity allowance per grazer |
 | `CONDITION_PER_HOUR` | 2 | |
 | `CONDITION_PER_GRASS` | 25 | |
-| `ANIMAL_STARVE_DAYS` | 10 | Days at condition 100 before a grazer dies (dwarves use 10's `STARVE_DAYS`) |
-| `BREEDING_CAP_DEFAULT` | 12 | Per species |
-| `BREED_RADIUS` | 10 | |
-| `BREED_PERMILLE` | 60 | Per eligible female per day |
-| `HATCH_DAYS` | 12 | |
-| `TRAIN_TICKS` | 400 | |
-| `TRAIN_BASE_PERMILLE` | 300 | |
-| `TRAIN_PER_SKILL` | 35 | Per skill level |
-| `WAR_ANIMAL_RADIUS` | 8 | |
-| `ADOPT_PERMILLE` | 250 | Per cat per season |
+| `ANIMAL_STARVE_DAYS` | 10 | Days at condition 100 before a grazer dies (dwarves use 10's `STARVE_DAYS`) (*unmeasured*) |
+| `BREEDING_CAP_DEFAULT` | 12 | Per species (*unmeasured*) |
+| `BREED_RADIUS` | 10 | *unmeasured* |
+| `BREED_PERMILLE` | 60 | Per eligible female per day (*unmeasured*) |
+| `HATCH_DAYS` | 12 | *unmeasured* |
+| `TRAIN_TICKS` | 400 | *unmeasured* |
+| `TRAIN_BASE_PERMILLE` | 300 | *unmeasured* |
+| `TRAIN_PER_SKILL` | 35 | Per skill level (*unmeasured*) |
+| `WAR_ANIMAL_RADIUS` | 8 | *unmeasured* |
+| `ADOPT_PERMILLE` | 250 | Per cat per season (*unmeasured*) |
 
 Species values (size, speed, products, intervals, gestation, litter, growth) are content.
 

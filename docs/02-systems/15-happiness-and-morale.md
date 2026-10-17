@@ -147,8 +147,8 @@ Panel `mood`; inspector section `creature › mood` (mood, tier, thoughts sorted
 | `MOOD_NEEDS_MET_FLOOR` | 20 | Mood floor while no need is neglected |
 | `NEED_WEIGHT` | 40 | Per point of need over its want threshold, /100 |
 | `HEARTH_TIER_BONUS` | 2 | Per hearth hall tier index (bare 0 … royal 5) |
-| `SULK_DAYS` | 7 | Consecutive days Miserable before a sulk |
-| `UNBURIED_DAYS` | 3 | |
+| `SULK_DAYS` | 7 | Consecutive days Miserable before a sulk (*unmeasured*) |
+| `UNBURIED_DAYS` | 3 | *unmeasured* |
 
 Thought values, durations and decay shapes are content; `MOOD_BASELINE` is global.
 

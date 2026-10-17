@@ -194,20 +194,20 @@ This entire document.
 
 | Name | Value | Meaning |
 |---|---|---|
-| `LOG_MAX_LINES` | 2000 | In memory |
-| `LOG_SAVED_LINES` | 200 | |
-| `LOG_DEDUP_TICKS` | 100 | |
-| `CURSOR_SCROLL_MARGIN` | 3 | Tiles the keyboard cursor keeps from the edge of the map view; the camera scrolls to keep it |
-| `STATUS_HINT_SECONDS` | 4 | Rejection reason display time |
-| `GAME_MENU_MESSAGE_MS` | 3000 | How long the game menu shows what saving did |
-| `HINT_CHECK_HOURS` | 1 | |
-| `UNDO_BATCHES_MAX` | 10 | Designation batches retained for undo |
+| `LOG_MAX_LINES` | 2000 | In memory (*unmeasured*) |
+| `LOG_SAVED_LINES` | 200 | *unmeasured* |
+| `LOG_DEDUP_TICKS` | 100 | *unmeasured* |
+| `CURSOR_SCROLL_MARGIN` | 3 | Tiles the keyboard cursor keeps from the edge of the map view; the camera scrolls to keep it (*unmeasured*) |
+| `STATUS_HINT_SECONDS` | 4 | Rejection reason display time (*unmeasured*) |
+| `GAME_MENU_MESSAGE_MS` | 3000 | How long the game menu shows what saving did (*unmeasured*) |
+| `HINT_CHECK_HOURS` | 1 | *unmeasured* |
+| `UNDO_BATCHES_MAX` | 10 | Designation batches retained for undo (*unmeasured*) |
 | `BREEDING_CAP_MIN` | 0 | Animals cap editor lower bound |
 | `BREEDING_CAP_MAX` | 100 | Animals cap editor upper bound |
-| `BREEDING_CAP_BIG_STEP` | 10 | Cap editor Shift increment |
-| `UI_NORMAL_SPACING` | 3 | Normal gap between tabs and status fields |
-| `UI_COMPACT_SPACING` | 1 | Gap when normal spacing does not fit the viewport |
-| `EMBARK_PRESET_SPACING` | 4 | Normal gap before the Presets button |
+| `BREEDING_CAP_BIG_STEP` | 10 | Cap editor Shift increment (*unmeasured*) |
+| `UI_NORMAL_SPACING` | 3 | Normal gap between tabs and status fields (*unmeasured*) |
+| `UI_COMPACT_SPACING` | 1 | Gap when normal spacing does not fit the viewport (*unmeasured*) |
+| `EMBARK_PRESET_SPACING` | 4 | Normal gap before the Presets button (*unmeasured*) |
 
 ## Keymap, screens, hints and milestones
 

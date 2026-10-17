@@ -95,24 +95,24 @@ Panel `population` (population, cap editor, hall spirit, eligibility reasons, la
 | Name | Value | Meaning |
 |---|---|---|
 | `IMMIGRATION_SPIRIT_MIN` | 55 | upper Fine tier; a well-kept fortress settles here (balance.md) |
-| `IMMIGRATION_PERMILLE` | 700 | Per eligible season |
-| `REP_PERMILLE_PER_POINT` | 2 | |
+| `IMMIGRATION_PERMILLE` | 700 | Per eligible season (*unmeasured*) |
+| `REP_PERMILLE_PER_POINT` | 2 | *unmeasured* |
 | `WEALTH_PER_WAVE` | 2000 | Marks per prior wave |
 | `GUARANTEED_SIZE_MIN` / `GUARANTEED_SIZE_MAX` | 2 / 4 | |
 | `IMMIGRANT_BASE` | 2 | |
 | `WEALTH_PER_IMMIGRANT` | 3000 | |
 | `SPIRIT_SIZE_STEP` | 2 | |
-| `REP_PER_IMMIGRANT` | 25 | |
+| `REP_PER_IMMIGRANT` | 25 | *unmeasured* |
 | `WAVE_MAX` | 12 | |
-| `COVERAGE_SKILL` | 5 | |
-| `UNCOVERED_WEIGHT` | 2 | |
-| `PEASANT_PERMILLE` | 200 | |
-| `PRIMARY_MIN` / `PRIMARY_MAX` | 2 / 7 | |
-| `FAMILY_PERMILLE` | 300 | |
-| `CHILDREN_MAX` | 2 | |
-| `PET_PERMILLE` | 150 | |
-| `TOOL_STOCK_MIN` | 2 | |
-| `ARRIVAL_INTERVAL_TICKS` | 20 | |
+| `COVERAGE_SKILL` | 5 | *unmeasured* |
+| `UNCOVERED_WEIGHT` | 2 | *unmeasured* |
+| `PEASANT_PERMILLE` | 200 | *unmeasured* |
+| `PRIMARY_MIN` / `PRIMARY_MAX` | 2 / 7 | *unmeasured* |
+| `FAMILY_PERMILLE` | 300 | *unmeasured* |
+| `CHILDREN_MAX` | 2 | *unmeasured* |
+| `PET_PERMILLE` | 150 | *unmeasured* |
+| `TOOL_STOCK_MIN` | 2 | *unmeasured* |
+| `ARRIVAL_INTERVAL_TICKS` | 20 | *unmeasured* |
 
 ## Extension points
 

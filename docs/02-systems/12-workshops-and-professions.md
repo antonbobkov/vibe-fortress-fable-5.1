@@ -169,8 +169,8 @@ Job producer `workshops` (`craft`); panel `orders`; inspector section `building 
 
 | Name | Value | Meaning |
 |---|---|---|
-| `MAGMA_POWER_LEVEL` | 4 | Magma level required below a magma workshop tile |
-| `MELT_RETURN_PERCENT` | 60 | Of the item's bar cost returned |
+| `MAGMA_POWER_LEVEL` | 4 | Magma level required below a magma workshop tile (*unmeasured*) |
+| `MELT_RETURN_PERCENT` | 60 | Of the item's bar cost returned (*unmeasured*) |
 
 Recipe times, bar costs per item and profession names are content.
 

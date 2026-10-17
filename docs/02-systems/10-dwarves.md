@@ -193,33 +193,33 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 
 | Name | Value | Meaning |
 |---|---|---|
-| `ADULT_AGE_YEARS` | 12 | |
-| `ATTRIBUTE_DRIFT` | 1 | Per level-up |
-| `STARVE_DAYS` | 7 | Days at hunger 100 before damage |
-| `DEHYDRATE_DAYS` | 3 | |
+| `ADULT_AGE_YEARS` | 12 | *unmeasured* |
+| `ATTRIBUTE_DRIFT` | 1 | Per level-up (*unmeasured*) |
+| `STARVE_DAYS` | 7 | Days at hunger 100 before damage (*unmeasured*) |
+| `DEHYDRATE_DAYS` | 3 | *unmeasured* |
 | `EAT_TICKS` | 60 | |
 | `DRINK_TICKS` | 40 | |
 | `SLEEP_HOURS` | 7 | |
 | `TALK_TICKS` | 80 | |
-| `TALK_CHECK_TICKS` | 10 | Ticks between two scans that start, check and end talks in passing |
-| `SOCIAL_WAIT_TICKS` | 200 | A social errand waits this long for a partner |
+| `TALK_CHECK_TICKS` | 10 | Ticks between two scans that start, check and end talks in passing (*unmeasured*) |
+| `SOCIAL_WAIT_TICKS` | 200 | A social errand waits this long for a partner (*unmeasured*) |
 | `SIT_TICKS` | 100 | |
 | `LEISURE_MARK` | 75 | Social, comfort or joy at this level sends a dwarf to sit in the hearth hall before default-priority work |
 | `LEISURE_RETRY_TICKS` | 600 | After a hall errand that left one of the three at the mark, no other for this long |
 | `HEARTH_VISIT_TICKS` | 100 | Ticks in the hearth hall that make one hearth visit |
-| `IDLE_TICKS` | 50 | |
-| `DINING_SEARCH_RADIUS` | 40 | Tiles (path distance) |
+| `IDLE_TICKS` | 50 | *unmeasured* |
+| `DINING_SEARCH_RADIUS` | 40 | Tiles (path distance) (*unmeasured*) |
 | `NEED_DEFER_PRIORITY` | 2 | A job at priority 1–2 is done before a want-level need |
-| `NEED_RETRY_TICKS` | 50 | After an unreachable need target |
-| `THREAT_RADIUS` | 8 | |
-| `CIVILIAN_COMBAT_TIMEOUT_TICKS` | 200 | Ticks without melee reach or a melee/ranged attack opportunity before a civilian leaves combat |
-| `CIVILIAN_FLEE_NODE_LIMIT` | 256 | Maximum legal tile visits in a civilian escape search |
-| `FRIEND_TALKS` | 5 | |
-| `GRUDGE_DAYS` | 28 | |
-| `THANE_SOCIAL_BONUS` | 20 | |
-| `WARDEN_TRAINING_BONUS_PERCENT` | 25 | |
-| `HEAVY_ITEM_DENSITY` | 3 | Items heavier than 3 × the carrier's size units halve speed |
-| `MIST_THOUGHT_COOLDOWN` | 1200 | Ticks |
+| `NEED_RETRY_TICKS` | 50 | After an unreachable need target (*unmeasured*) |
+| `THREAT_RADIUS` | 8 | *unmeasured* |
+| `CIVILIAN_COMBAT_TIMEOUT_TICKS` | 200 | Ticks without melee reach or a melee/ranged attack opportunity before a civilian leaves combat (*unmeasured*) |
+| `CIVILIAN_FLEE_NODE_LIMIT` | 256 | Maximum legal tile visits in a civilian escape search (*unmeasured*) |
+| `FRIEND_TALKS` | 5 | *unmeasured* |
+| `GRUDGE_DAYS` | 28 | *unmeasured* |
+| `THANE_SOCIAL_BONUS` | 20 | *unmeasured* |
+| `WARDEN_TRAINING_BONUS_PERCENT` | 25 | *unmeasured* |
+| `HEAVY_ITEM_DENSITY` | 3 | Items heavier than 3 × the carrier's size units halve speed (*unmeasured*) |
+| `MIST_THOUGHT_COOLDOWN` | 1200 | Ticks (*unmeasured*) |
 
 Need rates and thresholds above follow the balance model; the consumption arithmetic is in [`../03-content/balance.md`](../03-content/balance.md).
 
