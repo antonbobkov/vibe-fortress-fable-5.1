@@ -938,8 +938,9 @@ export class BuildingStore {
           alertAt: isHearth ? this.host.tick() : null,
           outsideClearSince: isHearth && !this.civilianOutsideDoor(b) ? this.host.tick() : null,
           alertLocked: false,
+          lockHeld: false,
         }
-      : { ...b.settings, alertAt: null, outsideClearSince: null, alertLocked: false };
+      : { ...b.settings, alertAt: null, outsideClearSince: null, alertLocked: false, lockHeld: tag === 'door' && mode === 'locked' && !this.occupied(b) };
     this.write(id as EntityId, { mode, settings });
     // "locking a door dirties its chunk" (22 § Connectivity).
     for (const t of b.footprint) this.map.markChunkDirty(t, true, true);
@@ -1013,7 +1014,10 @@ export class BuildingStore {
     const tags = this.row(b.type).tags;
     let state = '';
     if (tags.includes('door') || tags.includes('hatch')) {
-      this.write(id, { mode: on ? 'locked' : 'open' });
+      this.write(id, {
+        mode: on ? 'locked' : 'open',
+        ...(tags.includes('door') ? { settings: { ...b.settings, lockHeld: on && !this.occupied(b) } } : {}),
+      });
       state = on ? 'locked' : 'open';
     } else if (tags.includes('floodgate')) {
       this.write(id, { toggled: on });
@@ -1104,6 +1108,26 @@ export class BuildingStore {
     }
   }
 
+  /**
+   * A door locked by hand or by a lever does not close on a creature in its doorway: it locks, and its
+   * chunks are dirtied, on the first tick the doorway is clear (14 § Doors and hatches).
+   */
+  tickLockedDoors(): void {
+    for (const id of this.all()) {
+      const b = this.get(id) as Building;
+      if (b.mode !== 'locked' || b.state !== 'built' || b.settings['lockHeld'] === true || !this.row(b.type).tags.includes('door')) continue;
+      if (this.occupied(b)) continue;
+      this.write(id, { settings: { ...b.settings, lockHeld: true } });
+      for (const tile of b.footprint) this.map.markChunkDirty(tile, true, true);
+      this.host.emit({ type: 'BuildingStateChanged', id, state: 'locked' });
+    }
+  }
+
+  /** A creature stands in the building's doorway. */
+  private occupied(b: Building): boolean {
+    return b.footprint.some((t) => this.host.creaturesAt(t).length !== 0);
+  }
+
   /** A hearth door stays open while civilians pass, up to ALERT_LOCK_GRACE_TICKS. */
   tickAlertDoors(): void {
     if (this.host.alert() !== 'hearth') return;
@@ -1192,11 +1216,12 @@ export class BuildingStore {
 
   /** A door's `locked`, or `lock_on_alert` while the alert is `hearth` (14 § Doors and hatches). */
   doorLocked(b: Building): boolean {
-    if (b.mode === 'locked') return true;
+    // A door does not close on a creature in its doorway, whoever locks it: the lock waits until it is clear.
+    if (b.mode === 'locked') return b.settings['lockHeld'] === true || !this.occupied(b);
     if (b.mode !== 'lock_on_alert' || this.host.alert() !== 'hearth') return false;
     if (b.settings['alertLocked'] === true) return true;
     // A door does not close on a creature in its doorway: the alert lock waits until it is clear.
-    if (b.footprint.some((t) => this.host.creaturesAt(t).length !== 0)) return false;
+    if (this.occupied(b)) return false;
     const at = b.settings['alertAt'];
     if (typeof at !== 'number') return true;
     const clear = b.settings['outsideClearSince'];

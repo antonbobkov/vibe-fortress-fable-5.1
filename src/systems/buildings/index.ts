@@ -241,6 +241,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     }
     this.buildings.destroyMagmaTouched();
     this.buildings.tickAlertDoors();
+    this.buildings.tickLockedDoors();
     this.rooms.recompute();
   }
 

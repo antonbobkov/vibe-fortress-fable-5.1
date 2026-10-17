@@ -454,6 +454,8 @@ export class BuildingPanel {
       if (trap) {
         const status = this.defense(ctx)?.trapState(this.id) ?? null;
         if (status !== null) out.push({ id: 'trap', text: s.get('ui.building.trap_state', { state: s.get(`ui.building.state.${status}`) }), tone: status === 'armed' ? 'good' : 'alert' });
+      } else if (tags.includes('door') && current === 'locked' && reader.doorOpen(this.id)) {
+        out.push({ id: 'lock_wait', text: s.get('ui.building.lock_waiting'), tone: 'dim' });
       } else if (tags.includes('door') && current === 'lock_on_alert') {
         out.push({ id: 'alert', text: s.get(reader.mechanismState(this.id) === 'locked' ? 'ui.building.alert_locked' : 'ui.building.alert_open'), tone: 'dim' });
       }

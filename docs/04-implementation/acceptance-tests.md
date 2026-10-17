@@ -232,7 +232,7 @@ Invalid hospital supplies and zone values, including non-finite numbers, reject 
 | `cb_ranged` | crossbow, skill 6, range 8, at a deer (a fresh deer replaces a dead one) | hit 33% ± 3% over 2,000 shots; 17–23% of the bolts break, the rest drop |
 | `cb_squad_station` | squad active at a station, raid arrives | members engage within perception; civilians flee |
 | `cb_training` | squad in barracks with training axes, 10 days | weapon skill rises; no wounds |
-| `cb_alert_hearth` | `SetAlert hearth` | civilians reach the hearth hall; `lock_on_alert` doors lock within grace |
+| `cb_alert_hearth` | `SetAlert hearth` | civilians reach the hearth hall; `lock_on_alert` doors lock within grace, once the doorway is clear |
 
 A squad member holding its own copper sword keeps it when a visiting caravan at the depot offers a better steel sword; merchant, depot, foreign and forbidden flags each prevent claiming. Destroying an equipped item clears all slots naming it in the same tick, preserves other gear, and behaves identically after loading.
 
