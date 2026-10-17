@@ -57,7 +57,7 @@ Twenty dwarves eat 4.8 raw units a day: a 20-tile cave plot (5 per day) or a 14-
 
 ## Wood and fuel
 
-- A tree gives 2–4 logs (average 3). A temperate forest map has about 2,000 trees; regrowth adds around 40 saplings a day in a forest (*unmeasured*), so wood is not scarce on forested maps and is scarce on steppe, desert and glasslands maps (caravans and cavern fungus trees cover the gap).
+- A tree gives 1 to 4 logs by species (oak 2–4, birch 1–3, yew 1–2, the rest 2–3): 2.5 on average in a temperate forest. A temperate forest map has about 2,000 trees; regrowth tries 40 tiles a day at 4.4% in a forest (*unmeasured*), at most two saplings a day, so the stock of trees and not their regrowth keeps wood from being scarce on forested maps, and it is scarce on steppe, desert and glasslands maps (caravans and cavern fungus trees cover the gap).
 - Charcoal: 1 log → 1 fuel. An iron bar costs 0.5 fuel (1 ore → 2 bars per fuel); an iron axe (2 bars + forge fuel) costs 2 logs. A full suit of iron (helm 1, mail 3, greaves 2, gauntlets 1, boots 1 = 8 bars + 5 forge jobs) costs 4 ore, 4 smelter fuel and 5 forge fuel: 9 logs.
 - Coal: a bituminous seam of ~22 tiles yields 44 fuel. Magma forges remove fuel entirely; that is the reward for digging to cavern two or finding a volcano.
 
@@ -85,13 +85,13 @@ Wealth is item value plus building value. Typical trajectory in a wealth-2, peri
 
 Smoothing and engraving raise room tiers (mood and immigration), not wealth.
 
-Renown follows: 5 → 15 → 30 → 75 (*unmeasured*). Raid size at peril 2: year 2 → 6 + 4 = 10; year 3 → 6 + 9 = 15; year 5 → 16 (cap) (*unmeasured*). Immigration wave at year 3: 2 + 13 (wealth) + 2 (Content) = 12 (cap). Both curves saturate on purpose: the game does not escalate without bound; it plateaus at "large fortress" and the Deep provides the endgame.
+Renown follows: 5 → 15 → 30 → 75 (*unmeasured*). Raid size at peril 2: year 2 → 6 + 4.5 = 10.5, rounded to 11; year 3 → 6 + 9 = 15; year 5 → 16 (cap) (*unmeasured*). Immigration wave at year 3: 2 + 13 (wealth) + 2 (Content) = 12 (cap). Both curves saturate on purpose: the game does not escalate without bound; it plateaus at "large fortress" and the Deep provides the endgame.
 
 ## Combat pace
 
 Every figure in this section is *unmeasured*: no fight between armed sides has been measured in the game.
 
-- Two unarmored goblins (copper short swords) versus one dwarf in iron mail with an iron axe and shield, both Novice: the dwarf takes light cuts (7 damage through the mail) about 40% of the time an attack lands (hit 50%, block 14%); each goblin takes serious cuts (22 damage) at 50% per swing. Expected: the dwarf kills the first goblin in about 5 swings (100 ticks), the second in another 5, having taken 2–3 light cuts (bleed 1 each: 100 blood over the fight; unconscious at 240 lost). A squad of three with mail handles a raid of ten at peril 2 with a few wounds and a hospital visit (*unmeasured*).
+- Two unarmored goblins (copper short swords) versus one dwarf in iron mail with an iron axe and shield, both Novice: the dwarf takes light cuts (7 damage through the mail) about 40% of the time an attack lands (hit 50%, block 14%); each goblin takes serious cuts (22 damage) at 50% per swing. Expected: the dwarf kills the first goblin in about 5 swings (100 ticks), the second in another 5, having taken 2–3 light cuts (bleed 1 each: 100 blood over the fight; unconscious at 360 lost, below 40% of the 600 a dwarf holds). A squad of three with mail handles a raid of ten at peril 2 with a few wounds and a hospital visit (*unmeasured*).
 - Trollkin (size 150, slam 28 blunt) versus the same dwarf: 28 − (mail 12 × 0.5 = 6 blunt) = 22 bruise to the torso (ratio 0.37, serious), fractures on limbs (22 ≥ 36 × 0.3 = 10.8). Three hits floor a dwarf (*unmeasured*). Trollkin are the reason for bridges, spikes and crossbow galleries; a steel warhammer (33 damage) fractures a trollkin limb in two hits.
 - Magma wyrm (torso 220, armor 12): iron axes do 22 − 12 × 1.1 = 9 per hit; steel 27.5 − 13.2 = 14; deepsilver 35 − 13 = 22. Ten deepsilver hits or twenty-five iron hits, while it breathes 40 burn at range 6 every 40 ticks. Cage traps do not hold it (size 220 > 150). Drowning does not work (it stands in water to level 6). Magma does not work. A pit of three levels (fall damage 6 × 9 = 54 to a leg, fracture) and a corridor of ten weapon traps loaded with steel spears (18 × 1.25 × 3 = 67 per trigger, minus armor 12 × 1.2 = 14) is the intended answer, or a squad in deepsilver (*unmeasured*).
 
