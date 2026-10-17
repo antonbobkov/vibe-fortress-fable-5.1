@@ -4,6 +4,7 @@ import { FluidType } from '@core/map3d';
 import type { Registry } from '@core/registry';
 import type { GameEvent } from '@core/events';
 import type { InitContext, JobProducer, TickContext } from '@core/system';
+import type { EntityStore } from '@core/entities';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Job, JobBoard, JobSink, ItemFilter } from '@systems/jobs';
 import type { JobsReader } from '@systems/jobs';
@@ -344,12 +345,35 @@ export class WorkshopOperator {
     };
   }
 
+  /** The built buildings that have recipes, in entity order; rebuilt when any building changes (derived, never saved). */
+  private operable: { readonly store: EntityStore; readonly revision: number; readonly ids: readonly EntityId[] } | null = null;
+
+  /**
+   * The buildings a producer tick looks at. A building becomes a workshop in the one moment it is built
+   * (`ensure` gives it its `Workshop` record then), and a building record is rewritten for every change of
+   * its state, so the list stands until the building store's revision moves.
+   */
+  private operableBuildings(entities: EntityStore): readonly EntityId[] {
+    const revision = entities.revision(C.Building);
+    const cached = this.operable;
+    if (cached !== null && cached.store === entities && cached.revision === revision) return cached.ids;
+    const ids: EntityId[] = [];
+    for (const id of entities.with(C.Building)) {
+      this.ensure(id);
+      const b = entities.get(id, C.Building);
+      if (b === undefined || this.workshop(id) === undefined || b.state !== 'built' ||
+        this.recipesForType(this.typeOf(id)).length === 0) continue;
+      ids.push(id);
+    }
+    this.operable = { store: entities, revision, ids };
+    return ids;
+  }
+
   produce(ctx: TickContext, sink: JobSink): void {
     this.mergeRegistered();
     this.ensureGlobalSerials();
     const entities = ctx.world.entities;
-    for (const id of entities.with(C.Building)) {
-      this.ensure(id);
+    for (const id of this.operableBuildings(entities)) {
       const b = entities.get(id, C.Building);
       let ws = this.workshop(id);
       if (b === undefined || ws === undefined || b.state !== 'built' || ws.suspended ||

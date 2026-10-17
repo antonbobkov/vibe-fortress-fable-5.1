@@ -494,6 +494,11 @@ class Probe {
             itemName(t),
             `count ${sys13.core.counts.total(t)} recount 0`,
           );
+      // T-345: the count of melt-marked items, which a search for the mark trusts, equals the entities' own.
+      let marked = 0;
+      for (const id of ent.with(C.Item)) if (((ent.get(id, C.Item) as { flags: number }).flags & ItemFlag.Melt) !== 0) marked += 1;
+      if (sys13.core.meltMarked !== marked)
+        this.hit(tick, 'stock.melt-mark-drift', '-', `melt marks ${sys13.core.meltMarked} recount ${marked}`);
       if (Math.abs(sys13.core.wealth - rc.wealth) > 0.01)
         this.hit(
           tick,
