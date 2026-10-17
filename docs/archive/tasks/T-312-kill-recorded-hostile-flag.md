@@ -1,5 +1,7 @@
 # T-312 — KillRecorded's hostile flag is always false
 
+**Closed:** 2026-10-17, in 699823c.
+
 **Source:** T-279 (found while giving `KillRecorded` its victim's name) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -18,4 +20,4 @@
 
 ## Done
 
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
