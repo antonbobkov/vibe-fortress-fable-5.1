@@ -15,7 +15,7 @@
 
 ## Schedule by peril
 
-`earliest` is the first season the kind may occur; `interval` in days between rolls after the first; `size = min(max, base + renown × perRenown)` rounded; `warning` in days. `—` means never.
+`earliest` is the first season the kind may occur; `interval` in days between rolls after the first; `size = min(max, base + renown × perRenown)` rounded; `warning` in days. `—` means never. Every `earliest`, `interval`, `base`, `perRenown` and `max` below is *unmeasured*.
 
 ### Thieves (`gloam_snatcher`; `twilight_pass`: two per event)
 

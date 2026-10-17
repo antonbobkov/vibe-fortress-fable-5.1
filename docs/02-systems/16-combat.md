@@ -62,6 +62,8 @@ grant xp: attacker weapon skill; defender dodge (on miss), weapon skill (on parr
 
 Wound type from damage type (17): edge → `cut`; pierce → `puncture`; blunt → `bruise`, or `fracture` when `damage ≥ partMaxHp × FRACTURE_PERCENT / 100`.
 
+The terms of the hit, parry, block, damage and Toughness formulas above are *unmeasured*, and so are those of the ranged hit below.
+
 Two-handed weapons (`hands: 2`) cannot be used with a shield; the squad equipment logic respects this.
 
 Creatures without `Attributes` use `CREATURE_ATTRIBUTE_DEFAULT` (50) for every attribute, so natural attacks deal their listed damage. Creatures without `Skills` use `CREATURE_BASE_SKILL` (2) for every combat skill (natural attacks, weapon skills, `dodge`, `shield`). Hostile party members spawned by 18 receive `Skills` with every combat skill at `2 + HOSTILE_SKILL_PER_TIER × gearTier` (`HOSTILE_SKILL_PER_TIER` = 2), plus 2 for captains.

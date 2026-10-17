@@ -27,6 +27,8 @@ The calendar defines the seasons. This system defines what they mean:
 | autumn | 80% | 6–19 | 7–18 | Harvest; the restless dead on `old_battlefield` |
 | winter | 0% | 8–17 | 9–16 | Surface farming stops; snow; cold snaps at temper ≥ 2 |
 
+The growth multipliers and the daylight hours are *unmeasured*.
+
 `frostmarrow` uses winter for every seasonal lookup in autumn and spring as well (temperature, temper spread, daylight, growth, transition row and extreme-weather constraints); its summer growth multiplier is 80%, and rain or storm becomes snow.
 
 ### Surface temperature

@@ -37,7 +37,7 @@ Fixed by this design (numbers in `03-content/threat-schedules.md`):
 | 3 | frequent | rare | frequent | from year 1 autumn | from year 3 |
 | 4 | constant | rare | frequent | from year 1 summer, large | from year 2 autumn |
 
-`serene_vale` disables everything but thieves. `twilight_pass` halves every interval and sends thieves in pairs. `old_battlefield` adds `restless_dead` on autumn nights. Raids never come in winter at peril ≤ 2 (the passes are closed).
+`serene_vale` disables everything but thieves. `twilight_pass` halves every interval and sends thieves in pairs. `old_battlefield` adds `restless_dead` on autumn nights. Raids never come in winter at peril ≤ 2 (the passes are closed). The schedule, its intervals and its party sizes are *unmeasured*: no fortress has been measured through a year of raids.
 
 ### Party composition
 

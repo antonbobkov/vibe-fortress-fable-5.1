@@ -41,7 +41,7 @@ With the constants below: baseline 55, positives up to +40, negatives down to âˆ
 | Unhappy | 20â€“39 | 90% | Slower; more likely to idle at the hearth |
 | Miserable | < 20 | 80% | Sulk counter runs |
 
-Productivity is read by 11 as the work rate multiplier and by 10 as `productivity(id)` together with 17's wound modifier.
+Productivity is read by 11 as the work rate multiplier and by 10 as `productivity(id)` together with 17's wound modifier. The tier bounds and the productivity factors are *unmeasured*.
 
 ### Thoughts
 

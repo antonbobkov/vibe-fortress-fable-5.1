@@ -78,6 +78,8 @@ No caravan in winter. A civilization with reputation ≤ `CARAVAN_BAN_REP` or un
 | 0..49 | Normal |
 | 50..100 | Larger budget; rare goods (horses, yew, forest animals); Mountainhome: immigration size bonus (21) |
 
+The reputation bands are *unmeasured*.
+
 Reputation drifts toward 0 by `REP_DRIFT_PER_YEAR` each year (grudges and favors fade).
 
 ## State

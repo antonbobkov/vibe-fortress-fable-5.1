@@ -42,6 +42,8 @@ Answer "can this creature get there, and how" quickly and deterministically for 
 | Door tile | +200 (opening delay) |
 | Trap tile (own traps, dwarves) | +0 |
 
+The costs of water, snow, `restricted`, `web` and a door are *unmeasured*; the step costs are distances.
+
 ### Edges
 
 - Horizontal: to the eight neighbors on the same level if passable. A diagonal is allowed only if both orthogonally adjacent tiles are not `wall`, `tree`, `boulder` or `fortification` (no cutting corners through solids).
