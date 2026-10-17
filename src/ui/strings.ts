@@ -556,6 +556,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.orders.no_selection': 'No order is selected: [S-n] adds one.',
   'ui.orders.nothing_to_repeat': 'There is no order to repeat yet.',
   'ui.orders.count_limit': 'An order is for {min} to {max}.',
+  'ui.orders.vanished': 'That order has finished.',
   'ui.orders.done_fixed': 'That order is finished: [r] orders it again.',
   'ui.orders.first': 'That order is already first in its queue.',
   'ui.orders.last': 'That order is already last in its queue.',

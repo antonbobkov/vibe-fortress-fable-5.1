@@ -9,7 +9,7 @@ The Orders panel's `x` and `Delete` take the selected order's workshop and queue
 ## What to do
 
 **Decisions.**
-- The removal is addressed by what was asked about, not by a position: the dialog's answer re-finds the order (workshop, recipe, mode and remaining count) and removes it if it is still there; if it is gone the status row says "That order has finished." and nothing is removed.
+- The removal is addressed by what was asked about, not by a position: the dialog's answer re-finds the order (a global order by its serial; another by workshop, recipe, mode, threshold, priority and material, the nearest to its old place; the count is not compared, because it falls while the order runs) and removes it if it is still there; if it is gone the status row says "That order has finished." and nothing is removed.
 - Whether a confirmation should pause the game is not changed here; the check above is the only fix.
 
 1. Amend `panels.md` § Orders with the sentence about a finished order.
