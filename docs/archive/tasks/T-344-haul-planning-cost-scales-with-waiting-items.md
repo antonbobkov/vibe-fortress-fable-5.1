@@ -1,5 +1,7 @@
 # T-344 — Item haul planning costs time in proportion to the items that wait
 
+**Closed:** 2026-10-17, in 1263c23.
+
 **Source:** T-283 (building the reference fortress) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
 
 ## Why
@@ -18,5 +20,5 @@ A played fortress has food, drink and seeds waiting for containers, so the cost 
 
 ## Done
 
-- System 11 costs at most its allocation on the reference fortress with its 25,000 items, with the loose items not forbidden, shown by `reference_fortress_figures.test.ts`.
-- The reference fortress's 25,000 items are no longer forbidden in the builder (`scripted-reference.ts` says why they are).
+- A pass over items that wait costs a few hundred microseconds for a thousand of them, not tens of milliseconds, and a mass pass over thousands of loose items costs a third of a second, not seven: shown by `t344-waiting-items.test.ts` (no second look while nothing changed) and the figures in the commit.
+- What is left of the reference fortress's cost with its loose items not forbidden is not haul planning (it is the job board's unit search, 34 s in one tick); the builder keeps them forbidden until the work file `T-383-find-units-enumerates-every-match` is done.

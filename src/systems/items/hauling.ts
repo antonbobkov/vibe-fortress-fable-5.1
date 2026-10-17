@@ -29,7 +29,7 @@ import type { ItemCore, ItemChange } from './api';
 import { HAUL_JOBS_PER_TICK } from './constants';
 import { HAUL_PRIORITY } from '@systems/jobs/constants';
 import { sortedHas, sortedInsert, sortedRemove } from './state';
-import { WANTED_CLASSES, type Slot, type StockpileStore } from './stockpiles';
+import { WANTED_CLASSES, type ContainerNeeded, type Slot, type StockpileStore } from './stockpiles';
 
 /** What hauling reads of 11 (`readers.of('11')`). */
 export interface JobsView {
@@ -74,6 +74,13 @@ export class Hauling {
   readonly full: EntityId[] = [];
   /** The item whose haul is being completed. */
   private completing: EntityId = 0;
+  /**
+   * Items that waited for a container and what would make them worth another look (derived, never saved).
+   * A waiting item is skipped while the stockpiles stand as they did (`epoch`) and no container could hold it.
+   */
+  private readonly parked = new Map<EntityId, { readonly epoch: number; readonly cls: string; readonly needs: number }>();
+  private roomCache: { readonly key: number; readonly rooms: Map<string, number> } | null = null;
+  private slotCache: { readonly key: number; readonly slots: Map<string, Slot | ContainerNeeded | null> } | null = null;
 
   constructor(host: HaulHost) {
     this.host = host;
@@ -85,8 +92,16 @@ export class Hauling {
 
   // ---------- the wants set ----------
 
+  /** After a load every waiting item is looked at again. */
+  forgetParked(): void {
+    this.parked.clear();
+    this.roomCache = null;
+    this.slotCache = null;
+  }
+
   /** The item API reports a change: decide again whether the item wants hauling. */
   onChange(id: EntityId, change: ItemChange): void {
+    this.parked.delete(id);
     if (change === 'destroyed') {
       sortedRemove(this.wants, id);
       sortedRemove(this.noHome, id);
@@ -159,6 +174,7 @@ export class Hauling {
   }
 
   examine(id: EntityId): void {
+    this.parked.delete(id);
     if (this.wantsHauling(id)) {
       if (!sortedHas(this.noHome, id)) sortedInsert(this.wants, id);
     } else {
@@ -220,6 +236,31 @@ export class Hauling {
     return Math.max(Math.abs(map.xOf(tile) - c.x), Math.abs(map.yOf(tile) - c.y), Math.abs(map.zOf(tile) - c.z));
   }
 
+  /**
+   * `store.findSlot(sp, id)`. An item that goes on a tile (no container class) finds the same slot as any other of
+   * its type, material, quality and count, and one that goes into a container finds the same answer, when there is
+   * none, as any other that needs as much room, while the tiles, the items on them and the reservations stand as
+   * they are: a pass over thousands of items asks the stockpile once for each kind.
+   */
+  private slotFor(sp: EntityId, id: EntityId): Slot | ContainerNeeded | null {
+    const store = this.host.store;
+    const it = this.core.get(id);
+    if (it === undefined || store.isHospital(sp)) return store.findSlot(sp, id);
+    const cls = this.core.container(id) !== undefined ? 'none' : this.core.host.facts.row(it.type).container;
+    const e = this.core.host.entities;
+    const key = e.revision(C.Item) + e.revision(C.Container) + e.revision(C.Position) + e.revision(C.Stockpile) + e.revision(C.Zone)
+      + e.revision(C.Building) + store.reservations.changes + store.tiles.changes;
+    if (this.slotCache === null || this.slotCache.key !== key) this.slotCache = { key, slots: new Map() };
+    const kind = cls === 'none' ? `${sp}:${it.type}:${it.material}:${it.quality}:${it.count}` : `${sp}:${cls}:${this.core.needs(id, cls)}`;
+    let slot = this.slotCache.slots.get(kind);
+    if (slot === undefined) {
+      slot = store.findSlot(sp, id);
+      // A slot in a container is keyed by the item that will fill it: only the refusals are shared.
+      if (cls === 'none' || slot === null || 'needContainer' in slot) this.slotCache.slots.set(kind, slot);
+    }
+    return slot;
+  }
+
   /** `bestStockpileFor(it)`: accepting stockpiles with a slot; `full` when some accept but none has room. */
   bestFor(id: EntityId): { sp: EntityId; slot: Slot } | 'wait' | 'full' | null {
     const store = this.host.store;
@@ -232,7 +273,7 @@ export class Hauling {
       // An item already in this stockpile stays.
       if (store.stockpileAt(tile) === sp) continue;
       accepted = true;
-      const slot = store.findSlot(sp, id);
+      const slot = this.slotFor(sp, id);
       if (slot === null) continue;
       if ('needContainer' in slot) {
         waiting = true;
@@ -246,6 +287,47 @@ export class Hauling {
     // A wanted container is on its way (or will be asked for): the item waits in the set.
     if (waiting) return 'wait';
     return accepted ? 'full' : null;
+  }
+
+  /**
+   * Everything but the room in containers that decides whether a waiting item is still waiting: the
+   * stockpiles' places and settings, the zones and buildings, the containers standing on them, and the
+   * containers on their way. It only grows, so equal values mean nothing of that has changed.
+   */
+  private epoch(): number {
+    const e = this.core.host.entities;
+    const store = this.host.store;
+    return store.tiles.changes + store.incomingContainers.losses + this.core.containerNotices
+      + e.revision(C.Stockpile) + e.revision(C.Zone) + e.revision(C.Building);
+  }
+
+  /** `store.maxFreeRoom(cls)`, kept while nothing it reads has changed (`key`: `epoch` and what the rooms are read from). */
+  private freeRoom(cls: string, key: number): number {
+    if (this.roomCache === null || this.roomCache.key !== key) this.roomCache = { key, rooms: new Map() };
+    let room = this.roomCache.rooms.get(cls);
+    if (room === undefined) {
+      room = this.host.store.maxFreeRoom(cls);
+      this.roomCache.rooms.set(cls, room);
+    }
+    return room;
+  }
+
+  /**
+   * An item that has to wait for a container is not looked at again until a stockpile changes or a
+   * container could take it: `findSlot` finds a slot for it only in a container with room for it, and
+   * it waits only while a wanted container is missing or on its way.
+   */
+  private roomKey(epoch: number): number {
+    const e = this.core.host.entities;
+    return e.revision(C.Item) + e.revision(C.Container) + this.host.store.reservations.changes + epoch;
+  }
+
+  private park(id: EntityId): void {
+    const it = this.core.get(id);
+    if (it === undefined || it.containerId !== 0 || (it.flags & ItemFlag.Dump) !== 0 || this.core.container(id) !== undefined) return;
+    const cls = this.core.host.facts.row(it.type).container;
+    if (cls !== 'barrel' && cls !== 'bag' && cls !== 'bin') return;
+    this.parked.set(id, { epoch: this.epoch(), cls, needs: this.core.needs(id, cls) });
   }
 
   /** The 13 tick: capacity notices, wanted containers, then up to `HAUL_JOBS_PER_TICK` haul jobs. */
@@ -266,8 +348,25 @@ export class Hauling {
     }
     let created = this.requestContainers();
     const jobs = this.host.jobs();
+    // A hospital's chests and supply limits give a waiting item other ways out: nothing waits then.
+    const parking = !this.host.store.hasHospital();
+    // What the waiting items are compared with; read again after any item has been dealt with.
+    let epoch = this.epoch();
+    let roomKey = this.roomKey(epoch);
+    let worked = false;
     for (const id of this.wants.slice()) {
       if (created >= HAUL_JOBS_PER_TICK) break;
+      if (worked) {
+        epoch = this.epoch();
+        roomKey = this.roomKey(epoch);
+        worked = false;
+      }
+      const waiting = this.parked.get(id);
+      if (waiting !== undefined) {
+        if (parking && waiting.epoch === epoch && waiting.needs > this.freeRoom(waiting.cls, roomKey)) continue;
+        this.parked.delete(id);
+      }
+      worked = true;
       if (this.hasJob(id)) continue;
       // A container whose goods are spoken for (a stack on its way to a stockpile's barrel, a unit
       // a dwarf is about to drink) waits in the set until they are taken or released.
@@ -282,7 +381,10 @@ export class Hauling {
         continue;
       }
       const best = this.bestFor(id);
-      if (best === 'wait') continue;
+      if (best === 'wait') {
+        if (parking) this.park(id);
+        continue;
+      }
       if (best === null || best === 'full') {
         sortedRemove(this.wants, id);
         sortedInsert(this.noHome, id);
