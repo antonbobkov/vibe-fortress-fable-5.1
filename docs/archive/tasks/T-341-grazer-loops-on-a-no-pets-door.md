@@ -1,5 +1,7 @@
 # T-341 — A grazer can still loop on grass behind a no_pets door
 
+**Closed:** 2026-10-16, in 8ea4863.
+
 **Source:** the review of T-335 (2026-10-16) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
