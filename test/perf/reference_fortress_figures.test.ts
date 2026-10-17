@@ -14,8 +14,10 @@ describe('T-283 perf: the reference fortress', () => {
   it('reports every system on the reference fortress', async () => {
     const { systems, pathing, core, averageTickMs, worstTickMs, producers } = await measureReference('scripted');
     expect(Object.keys(systems).length).toBeGreaterThan(15);
-    // T-345: the workshops job producer visits the workshops, not the 600 buildings: its allocation is 0.10 ms, with the tolerance of per-system.test.ts.
-    expect(producers['workshops'], 'workshops job producer, ms per tick').toBeLessThanOrEqual(0.10 * 2);
+    // T-345: the workshops job producer visits the workshops, not the 600 buildings. Its allocation is 0.10 ms and it
+    // measured 0.06 ms; a wall-clock bound on a shared machine is only a gate if it is far wider than the noise, and the
+    // regression it guards (a visit of every building and every item) cost 20 ms, so the bound is 1 ms.
+    expect(producers['workshops'], 'workshops job producer, ms per tick').toBeLessThanOrEqual(1);
     expect(Number.isFinite(pathing) && Number.isFinite(core) && Number.isFinite(averageTickMs) && Number.isFinite(worstTickMs)).toBe(true);
   }, 3_600_000);
 
