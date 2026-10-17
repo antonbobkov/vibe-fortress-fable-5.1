@@ -65,6 +65,8 @@ export const IDLE_MAX_TICKS = 100;
 export const SLEEP_TICKS = 600;
 /** "`graze` (grazers, if grass in radius 6)". */
 export const GRAZE_SEARCH_RADIUS = 6;
+/** Ticks a grazer passes over a grass tile whose walk came back unreachable (unmeasured). */
+export const GRAZE_SKIP_TICKS = 600;
 /** "prey (species with `size < own size × 0.8` …)", in permille of the hunter's size. */
 export const PREY_SIZE_PERMILLE = 800;
 /** Maximum nearby living pack members contributing to the animal-prey size limit. */
