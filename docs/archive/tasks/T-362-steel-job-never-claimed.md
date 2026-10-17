@@ -1,6 +1,8 @@
 # T-362 — The three-year fortress's steel job is created and never claimed
 
-**Source:** T-145's runs 5 and 6 ([run 5](../../reports/data/2026-10-16-t145-run5.txt), [run 6](../../reports/data/2026-10-16-t145-run6.txt)) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-17, in 7f14172, c05c2f7.
+
+**Source:** T-145's runs 5 and 6 ([run 5](../../../reports/data/2026-10-16-t145-run5.txt), [run 6](../../../reports/data/2026-10-16-t145-run6.txt)) · **Size:** M · **Needs:** — · **Status:** open
 
 ## What was found
 
