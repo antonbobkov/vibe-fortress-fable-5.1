@@ -110,6 +110,10 @@ export class Hauling {
     if (it.containerId !== 0 && this.core.isItem(it.containerId)) return this.wantsDecanting(id);
     if ((it.flags & ItemFlag.Installed) !== 0) return false;
     if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.AtDepot)) !== 0) return false;
+    // A container whose goods are spoken for (a stack on its way to a stockpile's barrel) waits.
+    for (const inner of this.core.container(id)?.contents ?? []) {
+      if (((this.core.get(inner)?.flags ?? 0) & ItemFlag.Reserved) !== 0 || this.hasJob(inner)) return false;
+    }
     const t = this.core.tileOf(id);
     if (t < 0) return false;
     if ((it.flags & ItemFlag.Dump) !== 0) return this.host.zoneTypeAt(t) !== 'dump';

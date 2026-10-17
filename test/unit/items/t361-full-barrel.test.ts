@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { C } from '@core/components';
-import type { ItemsReader } from '@systems/items';
+import { haulKey, type ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs';
 import { TestWorld } from '../../scenarios/test-world';
 import { rect } from '../../scenarios/m1-helpers';
 import { threeYearsWorld } from '../../scenarios/three_years_fortress';
@@ -49,6 +50,23 @@ describe('T-361 drink in a barrel off any stockpile reaches a drink stockpile', 
     expect(items(w).stockpileAt(items(w).tileOf(ale))).toBe(sp);
     // Its own barrel is left empty, free for the next brew.
     expect(w.game.world.entities.get(barrel, C.Container)?.contents).toEqual([]);
+  });
+
+  it('keeps its barrel while the stack is on its way, though a free tile appears', () => {
+    const w = new TestWorld({ seed: 't361-reserved', world: 'flat-test', embark: 'default' });
+    const { barrels } = lockedPile(w, rect(w, 50, 20, Z, 2, 1));
+    const { barrel, ale } = fullBarrel(w, w.index(44, 14, Z));
+    const jobs = (): JobsReader => w.readers.of<JobsReader>('11');
+    w.until(() => jobs().byKey(haulKey(ale)) !== undefined, 2000);
+    // A drink stockpile with a free tile appears while the stack has its job.
+    const free = w.zone('stockpile', rect(w, 50, 24, Z, 2, 2));
+    apply(w, { type: 'SetStockpileFilter', zoneId: free, filter: 'drink' });
+    let barrelHauled = false;
+    w.until(() => {
+      if (jobs().byKey(haulKey(barrel)) !== undefined && jobs().byKey(haulKey(ale)) !== undefined) barrelHauled = true;
+      return barrels.includes(items(w).containerOf(ale));
+    }, 4000);
+    expect(barrelHauled, 'no haul of the barrel while its stack has one').toBe(false);
   });
 
   it('stays in its barrel on a stockpile that accepts it', () => {
