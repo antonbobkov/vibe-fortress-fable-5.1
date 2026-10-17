@@ -75,6 +75,8 @@ export function killCreature(
     species: creature?.species,
     name: creature?.name,
     faction: creature?.faction,
+    // A wild animal is the killer's enemy while it attacks; combat reads this once the victim is gone.
+    wildState: entities.get(id, C.Wild)?.state,
     ageTicks: creature?.ageTicks,
     wornItems,
   });
