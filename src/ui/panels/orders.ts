@@ -486,9 +486,33 @@ export class OrdersPanel {
       return;
     }
     const entry = row.entry;
+    // The game runs behind the dialog: the answer removes the order that was asked about, found again by
+    // what it is, and not whatever stands at its old position by then.
     confirmThen(ctx, 'c_remove_order', { recipe: this.recipeName(ctx, entry.order.recipe) }, () => {
-      ctx.submit({ type: 'RemoveWorkOrder', workshopId: entry.workshopId, index: entry.index });
+      const index = this.queuedIndex(ctx, entry);
+      if (index === null) ctx.notice?.(ctx.strings.get('ui.orders.vanished'));
+      else ctx.submit({ type: 'RemoveWorkOrder', workshopId: entry.workshopId, index });
     });
+  }
+
+  /**
+   * Where the order of `entry` stands in its queue now: its serial for a global order, else the nearest
+   * order of the same recipe, mode, threshold, priority, material and memorial; null when it is gone.
+   * The count is not compared, because it falls while the order runs.
+   */
+  private queuedIndex(ctx: PanelContext, entry: OrderEntry): number | null {
+    const reader = this.reader(ctx);
+    if (reader === null) return null;
+    const queue = entry.workshopId === 0 ? reader.globalOrders() : reader.ordersOf(entry.workshopId);
+    const a = entry.order;
+    const same = (b: WorkOrder): boolean => a.serial !== undefined ? b.serial === a.serial :
+      a.recipe === b.recipe && a.mode === b.mode && a.threshold === b.threshold && a.priority === b.priority &&
+      a.materialFilter === b.materialFilter && a.memorialDwarfId === b.memorialDwarfId;
+    let best: number | null = null;
+    queue.forEach((b, index) => {
+      if (same(b) && (best === null || Math.abs(index - entry.index) < Math.abs(best - entry.index))) best = index;
+    });
+    return best;
   }
 
   /** `Shift+↑↓`: move the selected order within its workshop's queue. */

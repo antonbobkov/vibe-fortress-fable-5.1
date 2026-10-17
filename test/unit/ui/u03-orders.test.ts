@@ -33,6 +33,9 @@ interface Fixture {
   readonly speeds: Speed[];
   /** What the confirmation dialog answers. */
   answer: boolean;
+  /** T-342: keep the next answer back until `release`, as a dialog does while the game runs. */
+  hold: boolean;
+  release(value: boolean): void;
   orders(): WorkshopsReader;
 }
 
@@ -42,7 +45,7 @@ function setup(seed: string): Fixture {
   const sent: Command[] = [];
   const asked: Asked[] = [];
   const speeds: Speed[] = [];
-  const fixture: { answer: boolean } = { answer: true };
+  const fixture: { answer: boolean; hold: boolean; held: ((value: boolean) => void) | null } = { answer: true, hold: false, held: null };
   const host: FortressHost = {
     readers: w.readers,
     registry: w.game.registry,
@@ -62,7 +65,8 @@ function setup(seed: string): Fixture {
     now: () => 1000,
     confirm: (id, params, reply) => {
       asked.push({ id, params: params as Record<string, unknown> });
-      reply(fixture.answer);
+      if (fixture.hold) fixture.held = reply;
+      else reply(fixture.answer);
     },
   };
   const screen = new FortressScreen(host, keymap, strings);
@@ -70,6 +74,9 @@ function setup(seed: string): Fixture {
     w, screen, sent, asked, speeds,
     get answer() { return fixture.answer; },
     set answer(value: boolean) { fixture.answer = value; },
+    get hold() { return fixture.hold; },
+    set hold(value: boolean) { fixture.hold = value; },
+    release: (value: boolean) => { const reply = fixture.held; fixture.held = null; fixture.hold = false; reply?.(value); },
     orders: () => w.readers.of<WorkshopsReader>('12'),
   };
 }
@@ -524,5 +531,47 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     expect(f.screen.orders.materialOpen).toBe(true);
     const options = f.screen.orders.materialOptions(f.screen.ctx);
     expect(options[f.screen.orders.materials.selected]?.id).toBe('iron');
+  });
+});
+
+describe('T-342 a removal is confirmed for the order that was asked about', () => {
+  const recipes = (f: Fixture, shop: number): string[] => f.orders().ordersOf(shop).map((o) => f.orders().recipe(o.recipe)?.id ?? '?');
+  function threeOrders(seed: string) {
+    const f = setup(seed);
+    const shop = carpenter(f);
+    for (const recipeId of ['make_door_wood', 'make_bed', 'make_chair_wood'])
+      f.w.submit({ type: 'AddWorkOrder', workshopId: shop, order: { recipeId, mode: 'once', remaining: 2, threshold: 0, priority: 5 } });
+    f.w.step(1);
+    f.screen.openPanel('orders');
+    f.screen.orders.list.selected = 1;
+    return { f, shop };
+  }
+
+  it('removes the bed when an order ahead of it finished while the dialog was open', () => {
+    const { f, shop } = threeOrders('t342-shifted');
+    expect(recipes(f, shop)).toEqual(['make_door_wood', 'make_bed', 'make_chair_wood']);
+    f.hold = true;
+    f.screen.key(press('x'));
+    expect(f.asked).toEqual([{ id: 'c_remove_order', params: { recipe: 'Bed' } }]);
+    f.w.submit({ type: 'RemoveWorkOrder', workshopId: shop, index: 0 });
+    f.w.step(1);
+    expect(recipes(f, shop)).toEqual(['make_bed', 'make_chair_wood']);
+    f.release(true);
+    f.w.step(1);
+    expect(recipes(f, shop)).toEqual(['make_chair_wood']);
+  });
+
+  it('says so and removes nothing when the order is gone', () => {
+    const { f, shop } = threeOrders('t342-gone');
+    f.hold = true;
+    f.screen.key(press('x'));
+    f.w.submit({ type: 'RemoveWorkOrder', workshopId: shop, index: 1 });
+    f.w.step(1);
+    const before = f.sent.length;
+    f.release(true);
+    f.w.step(1);
+    expect(f.sent.slice(before)).toEqual([]);
+    expect(f.screen.statusRow2()).toBe('That order has finished.');
+    expect(recipes(f, shop)).toEqual(['make_door_wood', 'make_chair_wood']);
   });
 });
