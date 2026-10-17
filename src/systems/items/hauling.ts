@@ -110,10 +110,6 @@ export class Hauling {
     if (it.containerId !== 0 && this.core.isItem(it.containerId)) return this.wantsDecanting(id);
     if ((it.flags & ItemFlag.Installed) !== 0) return false;
     if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.AtDepot)) !== 0) return false;
-    // A container whose goods are spoken for (a stack on its way to a stockpile's barrel) waits.
-    for (const inner of this.core.container(id)?.contents ?? []) {
-      if (((this.core.get(inner)?.flags ?? 0) & ItemFlag.Reserved) !== 0 || this.hasJob(inner)) return false;
-    }
     const t = this.core.tileOf(id);
     if (t < 0) return false;
     if ((it.flags & ItemFlag.Dump) !== 0) return this.host.zoneTypeAt(t) !== 'dump';
@@ -141,6 +137,13 @@ export class Hauling {
     if (this.core.tileOf(holderId) < 0 || this.host.store.isStored(holderId)) return false;
     // The whole container goes first, to a free tile, when one is found.
     return sortedHas(this.noHome, holderId) && !this.hasJob(holderId);
+  }
+
+  private contentsBusy(id: EntityId): boolean {
+    for (const inner of this.core.container(id)?.contents ?? []) {
+      if (((this.core.get(inner)?.flags ?? 0) & ItemFlag.Reserved) !== 0 || this.hasJob(inner)) return true;
+    }
+    return false;
   }
 
   /** In an accepting stockpile slot, or an empty container the stockpile it lies on wants. */
@@ -266,6 +269,9 @@ export class Hauling {
     for (const id of this.wants.slice()) {
       if (created >= HAUL_JOBS_PER_TICK) break;
       if (this.hasJob(id)) continue;
+      // A container whose goods are spoken for (a stack on its way to a stockpile's barrel, a unit
+      // a dwarf is about to drink) waits in the set until they are taken or released.
+      if (this.contentsBusy(id)) continue;
       if (!this.wantsHauling(id)) {
         sortedRemove(this.wants, id);
         continue;

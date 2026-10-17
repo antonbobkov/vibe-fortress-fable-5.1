@@ -1003,7 +1003,9 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     mine(w, state, upper, isOre, count);
     // The jeweler's small supply is opened along with the bulk ore.
     mine(w, state, upper, isGem, 15);
-    if (start === 224) mine(w, state, upper, isFlux, 20);
+    // Flux for the steel of year 3 is opened with the second mine, so a stock stands when the
+    // alloy order comes (the craftdwarf's stone crafts take raw flux stone too).
+    if (start >= 112) mine(w, state, upper, isFlux, 20);
   }
   // F-17i: years 2 and 3 open a deeper gem and ore band, through solid rock only. The deep shaft
   // starts from the upper mine's lowest level once the upper shaft has reached it.
@@ -1102,9 +1104,39 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       const result = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: smelter,
         order: { recipeId: 'alloy_steel', mode: 'once', remaining: STEEL_BATCH, priority: ROUTINE } });
       if (!result.ok) throw new Error(`economy steel: ${result.reason}`);
+      // The smelter takes its first runnable order (12 § Operation), and the iron orders below
+      // 40 bars are always runnable: the steel goes first, and runs whenever flux is in stock.
+      const last = (w.game.world.entities.get(smelter, C.Workshop)?.orders.length ?? 1) - 1;
+      if (last > 0) w.game.world.applyCommand({ type: 'ReorderWorkOrder', workshopId: smelter, from: last, to: 0 });
       if (phases.has('steel')) mine(w, state, upper, isFlux, STEEL_BATCH);
       phases.add('steel');
     }
+  }
+  // The steel chain's inputs, journalled weekly from the alloy order's day (observation only).
+  if (day >= 217 && day % 7 === 0 && smelter) {
+    const ent = w.game.world.entities;
+    const mats = w.game.registry.table<{ id: string }>('materials');
+    const types = w.game.registry.table<{ id: string }>('items');
+    const flux = new Set(['limestone', 'marble', 'dolomite', 'chalk']);
+    const stock: Record<string, number> = {};
+    for (const id of ent.with(C.Item)) {
+      const it = ent.get(id, C.Item)!;
+      if ((it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) !== 0) continue;
+      const t = types.byIndex(it.type)?.id ?? '';
+      const m = mats.byIndex(it.material)?.id ?? '';
+      const key = t === 'bar' ? `bar:${m}` : t === 'raw_stone' && flux.has(m) ? 'flux' : t === 'charcoal_bar' || m.endsWith('coal') || m === 'lignite' ? `fuel:${t}` : '';
+      if (!key) continue;
+      const free = (it.flags & (ItemFlag.Reserved | ItemFlag.Forbidden)) === 0;
+      stock[key] = (stock[key] ?? 0) + it.count;
+      if (free) stock[`${key}:free`] = (stock[`${key}:free`] ?? 0) + it.count;
+    }
+    const ws = ent.get(smelter, C.Workshop);
+    const recipes = w.game.registry.table<{ id: string }>('recipes');
+    const job = ws?.currentJobId ? w.readers.of<JobsReader>('11').get(ws.currentJobId) : undefined;
+    const worker = ws?.assignedWorker ?? 0;
+    note('three_years_steel', { day, stock, orders: (ws?.orders ?? []).map((o) => `${recipes.byIndex(o.recipe)?.id}:${o.mode}:${o.mode === 'maintain' ? o.threshold : o.remaining}`),
+      job: job ? `${recipes.byIndex(Number(job.data['recipe'] ?? job.data['recipeIndex'] ?? -1))?.id ?? job.key}:${job.state}` : null, blocked: ws?.lastBlockedReason ?? null,
+      worker, workerDoing: worker ? ent.get(worker, C.Brain)?.activity ?? '' : '', fluxDesignated: [...state.economy.mined].filter((t) => flux.has(mats.byIndex(w.map.materialAt(t))?.id ?? '')).length });
   }
   // F-17i: export crafts keep running: the standing stone-craft order grows with the workforce.
   const craftdwarf = state.placedIds['craftdwarf'];
