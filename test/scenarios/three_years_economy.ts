@@ -122,8 +122,8 @@ const CAVE_STRIP_SEED = 12;
 const USEFUL_SEED: ReadonlySet<string> = new Set([...SURFACE_CROPS.flat(), ...CAVE_CROPS]);
 /** The larder beside the pantry, on the hall level (x0, x1, y0, y1 from the centre): 72 tiles of food, then 12 of drink; every tile holds a barrel. */
 const LARDER: readonly (readonly [number, number, number, number])[] = [[-12, -1, -3, 2], [-12, -9, 3, 5]];
-/** The drink stockpiles of the opening (13 tiles at most), counted in the barrels they want. */
-const DRINK_STOCKPILE_TILES = 12;
+/** The empty barrels the opening's two drink stockpiles want: a third of their twelve tiles. */
+const DRINK_STOCKPILE_TILES = 4;
 /** Easy meals in stock before the kitchen turns to lavish meals first. */
 const EASY_MEALS_STOCKED = 20;
 
@@ -849,7 +849,8 @@ function checkLarder(w: TestWorld, state: FortressState): number {
     const zoneId = bSystem.lastCreatedZone;
     w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId, filter });
     w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId, priority: ROUTINE });
-    w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId, wants: { barrel: tiles.length } });
+    // A drink stockpile keeps two thirds of its tiles free for the full barrels the stills make.
+    w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId, wants: { barrel: filter === 'drink' ? Math.ceil(tiles.length / 3) : tiles.length } });
     return zoneId;
   };
   if (larder.zoneId === -1 && [...larder.tiles, ...larder.drinkTiles].every((t) => w.map.kindAt(t) !== TileKind.Wall)) {
@@ -857,7 +858,7 @@ function checkLarder(w: TestWorld, state: FortressState): number {
     larder.drinkZoneId = stock(larder.drinkTiles, 'drink');
   }
   const size = (zoneId: number): number => (zoneId > 0 ? buildings.zone(zoneId)?.tiles.length ?? 0 : 0);
-  return state.pantryTiles.length + DRINK_STOCKPILE_TILES + size(larder.zoneId) + size(larder.drinkZoneId);
+  return state.pantryTiles.length + DRINK_STOCKPILE_TILES + size(larder.zoneId) + Math.ceil(size(larder.drinkZoneId) / 3);
 }
 
 export function checkEconomy(w: TestWorld, state: FortressState): void {

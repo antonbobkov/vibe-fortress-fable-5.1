@@ -16,7 +16,12 @@ So the stills empty the drink stockpiles of their barrels, the brew stays at the
 
 ## Decision
 
-To be made before the work starts (orchestrator). The options seen: (a) a full barrel of drink is hauled whole to a drink stockpile that accepts its drink and has a free tile, as a container with its contents (13); (b) a brew never takes a barrel that stands on a stockpile wanting barrels (12); (c) 10 ranks brew in a barrel at the still before water. (a) matches what a player expects and the containers spec's "a container is hauled with its contents".
+The orchestrator's, 2026-10-16, option (d), after a check showed that a full barrel off any stockpile is already hauled whole to a free tile of a drink stockpile (`stockpiles.ts` accepts a container by its contents, and `findSlot` gives a container an empty tile). The lock is narrower: a drink stockpile that wants a barrel on every tile and holds them has no free tile, and drink inside a container is never in the wants-hauling set (`hauling.ts:109` skips items inside containers), so it never reaches the stockpile's empty barrels.
+
+- Drink, and any unit-counted good, inside a container that does not stand on a stockpile accepting it wants hauling by its stack, into a container of the right class with room on a stockpile that accepts it (13 § Stockpiles' slot search, as for a loose item).
+- A whole container that holds such goods still goes to a free tile first, when an accepting stockpile has one.
+- Goods in a container that stands on a stockpile accepting them stay in it (13 § Containers in play: brew stays in its barrel there).
+- 10's drink order and 12's brew rule do not change. A player who wants a barrel on every tile of a drink stockpile must not lock the fortress's drink.
 
 ## Done
 

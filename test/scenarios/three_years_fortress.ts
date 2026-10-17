@@ -328,9 +328,10 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     const dSpId = bSystem.lastCreatedZone;
     w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: dSpId, filter: 'drink' });
     w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId: dSpId, priority: ROUTINE });
-    // Drink keeps on a stockpile only in a barrel there (13 § Stockpiles), and 10 drinks stocked
-    // barrels before the brook and the brook before brew left at the still.
-    w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: dSpId, wants: { barrel: drinkSpSurfaceTiles.length } });
+    // Loose drink keeps on a stockpile only in a barrel there (13 § Stockpiles), and 10 drinks
+    // stocked barrels before the brook and the brook before brew left at the still. A third of the
+    // tiles hold empty barrels; the rest stay free for the full barrels the still makes.
+    w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: dSpId, wants: { barrel: Math.ceil(drinkSpSurfaceTiles.length / 3) } });
   }
 
   // 3. F-17g: labors keep the default priority. Routine work is not urgent, so a dwarf eats,
@@ -761,7 +762,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
           const zid = bSystem.lastCreatedZone;
           w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: zid, filter: 'drink' });
           w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId: zid, priority: ROUTINE });
-          w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: zid, wants: { barrel: ugDrinkTiles.length } });
+          w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: zid, wants: { barrel: Math.ceil(ugDrinkTiles.length / 3) } });
         }
       }
 
