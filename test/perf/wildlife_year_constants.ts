@@ -4,11 +4,11 @@ import type { WildlifeFigures } from './wildlife_year_measurements';
 export const WILDLIFE_TARGET = { median: 11, worst: 8, hungerThirstDeaths: 0 };
 // Best accepted figures set the guards; preserve a tolerated loss rather than ratcheting down.
 export const WILDLIFE_MEASURED: WildlifeFigures = {
-  median: 13, worst: 3, secondWorst: 10, living: 139, wildlifeFree: 8, extinct: 0, hungerThirstDeaths: 0,
+  median: 13, worst: 4, secondWorst: 10, living: 142, wildlifeFree: 8, extinct: 0, hungerThirstDeaths: 0,
 };
 // Latest accepted distribution: simultaneous regressions compare an actual before/after pair.
 export const WILDLIFE_REFERENCE: WildlifeFigures = {
-  median: 13, worst: 0, secondWorst: 9, living: 139, wildlifeFree: 8, extinct: 1, hungerThirstDeaths: 0,
+  median: 12.5, worst: 4, secondWorst: 10, living: 142, wildlifeFree: 7, extinct: 0, hungerThirstDeaths: 0,
 };
 export const MEDIAN_REGRESSION_TOLERANCE = 1;
 export const WILDLIFE_FREE_REGRESSION_TOLERANCE = 2;

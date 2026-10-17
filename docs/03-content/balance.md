@@ -178,15 +178,15 @@ The standard-size, command-driven wildlife-year instrument uses twelve distinct 
 
 | Measure | Target | Latest accepted | Best measured | Regression bound |
 |---|---|---:|---:|---|
-| Median living dwarves | At least 11 of the nominal twelve | 13 | 13 | At least 12 |
-| Minimum living dwarves | At least 8 | 0 | 3 | Reported; not guarded as a single sample |
+| Median living dwarves | At least 11 of the nominal twelve | 12.5 | 13 | At least 12 |
+| Minimum living dwarves | At least 8 | 4 | 4 | Reported; not guarded as a single sample |
 | Second-worst living dwarves | At least 8 | 10 | 10 | Reported; not guarded as a single sample |
-| Sum of the living over the twelve seeds | — | 139 | 139 | At least 127 |
-| Years without a wildlife dwarf death | All | 8 of 12 | 8 of 12 | At least 6 of 12 |
-| Extinct fortresses | None | 1 | 0 | At most 1 |
+| Sum of the living over the twelve seeds | — | 142 | 142 | At least 130 |
+| Years without a wildlife dwarf death | All | 7 of 12 | 8 of 12 | At least 6 of 12 |
+| Extinct fortresses | None | 0 | 0 | At most 1 |
 | Dwarf deaths from hunger or thirst | None | 0 | 0 | At most 1 across the cohort |
 
-The [measurement with patient admission and the sight-based duty rule](../../reports/audits/2026-10-13-patient-duty-and-annual-survival.md) has forest median/minimum 10/0, taiga 12/11 and grassland 14.5/14. The second-worst across the cohort is 10 and the sum of the living is 139, up from the fresh baseline of 133; the other four guarded figures are unchanged. The improved best sum tightens its bound from 123 to 127. There is one extinct fortress and no need-related death. The minimum and extinction still miss the target even though the pooled median meets it. Read the per-biome distribution with the pooled one.
+The [measurement with patient admission and the sight-based duty rule](../../reports/audits/2026-10-13-patient-duty-and-annual-survival.md) has forest median/minimum 10/0, taiga 12/11 and grassland 14.5/14. The second-worst across the cohort is 10 and the sum of the living is 139, up from the fresh baseline of 133; the other four guarded figures are unchanged. The improved best sum tightens its bound from 123 to 127. There is one extinct fortress and no need-related death. The minimum and extinction still miss the target even though the pooled median meets it. Read the per-biome distribution with the pooled one. Once drink left in its barrel off a stockpile went into the stockpiles' barrels, every seed moved ([rows](../../reports/data/2026-10-16-t361-wildlife.json)): no fortress is extinct (forest seed 3 has 13), the worst is forest seed 2 with 4, the sum of the living is 142 and its bound 130, and seven years of twelve have no wildlife dwarf death.
 
 The guarded figures are the median, the sum of the living over the twelve years, wildlife-free years, extinctions and hunger/thirst deaths. Their bounds are computed from the best measured figures: median minus one dwarf, sum of the living minus twelve dwarves, wildlife-free minus two seeds, extinction count plus one fortress, and hunger/thirst deaths plus one. Always report the worst and the second-worst seed, but do not guard a single seed: one fortress's year turns on which dwarf an animal reaches first, and changes that only move the job timeline shift single seeds by five or more living in both directions while the sum moves by less than ten. Block a change when any bound fails or when three or more of the five guarded figures worsen together, even within their tolerances. Compare simultaneous worsening against the latest accepted before row, so an earlier tolerated drop is not counted again on a later change. Keep that latest actual row alongside the best figures used for the bounds; update the row and every improved measured figure in the same commit, retaining earlier better bounds when a tolerant figure falls. Always record the actual before and after rows. The survival targets remain unchanged.
 
