@@ -34,7 +34,7 @@ class Probe {
   /** T-331: the tick a job was first seen blocked as unreachable although a path to it exists. */
   private readonly blockedPath = new Map<number, { kind: 'path' | 'anchor'; since: number }>();
   /** T-331: a job whose worker's brain is not working, since when. */
-  private readonly heldElsewhere = new Map<number, { worker: number; behavior: string; since: number }>();
+  private readonly heldElsewhere = new Map<number, { worker: number; behavior: string; sig: string; since: number }>();
   calmNoHostileAlertTicks = 0;
   lastTick = 0;
 
@@ -899,8 +899,8 @@ class Probe {
    * T-331 (2): a job blocked as `unreachable` is reopened by the next retry as soon as a worker with its
    * labor reaches one of its stand tiles. It is lost when it stays blocked for more than a day (a) while
    * such a stand tile is reachable (a walk that failed once and is never retried), or (b) while none of its
-   * stand tiles can be stood on, although a tile beside its anchor is passable and reachable (a work tile
-   * that is a built chest's own tile). The start of the block is the first sample that saw it; a failed
+   * stand tiles can be stood on, although the anchor cannot be stood on and a tile beside it is passable and reachable (a work
+   * tile that is a built chest's own tile). The start of the block is the first sample that saw it; a failed
    * walk's own retry tick says when it began.
    */
   private checkBlockedPaths(game: HeadlessGame): void {
@@ -946,7 +946,8 @@ class Probe {
         if (workers.some((w) => board.hasReachableStand(job, w))) kind = 'path';
         else {
           const anchor = board.anchorTile(job);
-          if (map.validIndex(anchor)) {
+          // Nobody can stand on the anchor itself (a built chest, a wall): only then is a tile beside it the way in.
+          if (map.validIndex(anchor) && !pathing.passable(anchor, 'walker', { faction: 'fortress' })) {
             const labels = new Set<number>();
             for (const w of workers) {
               const at = board.workerTile(w);
@@ -973,9 +974,12 @@ class Probe {
         const brain = ent.get(job.workerId, C.Brain);
         if (brain !== undefined && brain.behavior !== 'work') {
           held.add(job.id);
+          // A job that has moved on since the last sample (its worker worked it between two needs) restarts the count.
+          const at = ent.get(job.workerId, C.Position);
+          const sig = `${job.state}|${job.progress}|${at?.x},${at?.y},${at?.z}`;
           const prev = this.heldElsewhere.get(job.id);
-          if (prev === undefined || prev.worker !== job.workerId || prev.behavior !== brain.behavior)
-            this.heldElsewhere.set(job.id, { worker: job.workerId, behavior: brain.behavior, since: tick });
+          if (prev === undefined || prev.worker !== job.workerId || prev.sig !== sig)
+            this.heldElsewhere.set(job.id, { worker: job.workerId, behavior: brain.behavior, sig, since: tick });
         }
       }
     }
