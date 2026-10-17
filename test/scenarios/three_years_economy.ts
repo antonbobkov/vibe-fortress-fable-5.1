@@ -1003,7 +1003,9 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     mine(w, state, upper, isOre, count);
     // The jeweler's small supply is opened along with the bulk ore.
     mine(w, state, upper, isGem, 15);
-    if (start === 224) mine(w, state, upper, isFlux, 20);
+    // Flux for the steel of year 3 is opened with the second mine, so a stock stands when the
+    // alloy order comes (the craftdwarf's stone crafts take raw flux stone too).
+    if (start >= 112) mine(w, state, upper, isFlux, 20);
   }
   // F-17i: years 2 and 3 open a deeper gem and ore band, through solid rock only. The deep shaft
   // starts from the upper mine's lowest level once the upper shaft has reached it.
@@ -1102,6 +1104,10 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       const result = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: smelter,
         order: { recipeId: 'alloy_steel', mode: 'once', remaining: STEEL_BATCH, priority: ROUTINE } });
       if (!result.ok) throw new Error(`economy steel: ${result.reason}`);
+      // The smelter takes its first runnable order (12 § Operation), and the iron orders below
+      // 40 bars are always runnable: the steel goes first, and runs whenever flux is in stock.
+      const last = (w.game.world.entities.get(smelter, C.Workshop)?.orders.length ?? 1) - 1;
+      if (last > 0) w.game.world.applyCommand({ type: 'ReorderWorkOrder', workshopId: smelter, from: last, to: 0 });
       if (phases.has('steel')) mine(w, state, upper, isFlux, STEEL_BATCH);
       phases.add('steel');
     }
