@@ -1,5 +1,7 @@
 # T-342 — A confirmation names a work order by its index, and the game keeps running behind it
 
+**Closed:** 2026-10-16, in 25a8ee8.
+
 **Source:** review of T-278 (Delete in Orders asks first through `confirmThen`, then sends `RemoveWorkOrder { workshopId, index }`) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -18,4 +20,4 @@ The Orders panel's `x` and `Delete` take the selected order's workshop and queue
 
 ## Done
 
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
