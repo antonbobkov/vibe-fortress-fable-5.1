@@ -1106,6 +1106,32 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       phases.add('steel');
     }
   }
+  // The steel chain's inputs, journalled weekly from the alloy order's day (observation only).
+  if (day >= 217 && day % 7 === 0 && smelter) {
+    const ent = w.game.world.entities;
+    const mats = w.game.registry.table<{ id: string }>('materials');
+    const types = w.game.registry.table<{ id: string }>('items');
+    const flux = new Set(['limestone', 'marble', 'dolomite', 'chalk']);
+    const stock: Record<string, number> = {};
+    for (const id of ent.with(C.Item)) {
+      const it = ent.get(id, C.Item)!;
+      if ((it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) !== 0) continue;
+      const t = types.byIndex(it.type)?.id ?? '';
+      const m = mats.byIndex(it.material)?.id ?? '';
+      const key = t === 'bar' ? `bar:${m}` : t === 'raw_stone' && flux.has(m) ? 'flux' : t === 'charcoal_bar' || m.endsWith('coal') || m === 'lignite' ? `fuel:${t}` : '';
+      if (!key) continue;
+      const free = (it.flags & (ItemFlag.Reserved | ItemFlag.Forbidden)) === 0;
+      stock[key] = (stock[key] ?? 0) + it.count;
+      if (free) stock[`${key}:free`] = (stock[`${key}:free`] ?? 0) + it.count;
+    }
+    const ws = ent.get(smelter, C.Workshop);
+    const recipes = w.game.registry.table<{ id: string }>('recipes');
+    const job = ws?.currentJobId ? w.readers.of<JobsReader>('11').get(ws.currentJobId) : undefined;
+    const worker = ws?.assignedWorker ?? 0;
+    note('three_years_steel', { day, stock, orders: (ws?.orders ?? []).map((o) => `${recipes.byIndex(o.recipe)?.id}:${o.mode}:${o.mode === 'maintain' ? o.threshold : o.remaining}`),
+      job: job ? `${recipes.byIndex(Number(job.data['recipe'] ?? job.data['recipeIndex'] ?? -1))?.id ?? job.key}:${job.state}` : null, blocked: ws?.lastBlockedReason ?? null,
+      worker, workerDoing: worker ? ent.get(worker, C.Brain)?.activity ?? '' : '', fluxDesignated: [...state.economy.mined].filter((t) => flux.has(mats.byIndex(w.map.materialAt(t))?.id ?? '')).length });
+  }
   // F-17i: export crafts keep running: the standing stone-craft order grows with the workforce.
   const craftdwarf = state.placedIds['craftdwarf'];
   if (craftdwarf && state.orderedWorkshops.has('craftdwarf')) {
