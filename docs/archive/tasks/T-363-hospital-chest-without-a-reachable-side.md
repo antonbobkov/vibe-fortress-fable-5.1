@@ -1,5 +1,7 @@
 # T-363 — A hospital chest holding items has no tile beside it that a dwarf reaches (peril 2 sweep seed)
 
+**Closed:** 2026-10-17, in 3b75d98.
+
 **Source:** T-356's order probe (2026-10-17, at `c05c2f7` with T-356's board change not yet in): seed `three-years-p2-5`, played whole as the sweep plays it · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
