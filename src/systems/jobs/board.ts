@@ -19,6 +19,7 @@ import {
   ASSIGN_WORKERS_PER_TICK,
   BLOCKED_RETRIES_PER_TICK,
   BLOCKED_RETRY_TICKS,
+  JOB_HOLD_TICKS,
   PATIENT_SUMMON_PRIORITY,
   RESERVE_KEEP_TICKS,
   STANDING_ORDERS,
@@ -1086,6 +1087,32 @@ export class JobBoard implements JobsApi, JobSink {
   // ---------- the tick ----------
 
   /**
+   * `11` § Job steps, interruptions: a worker that the brain has moved aside (flight, shelter, a
+   * patient's bed, a need) while it holds a job that is not interruptible keeps the job, and the
+   * job resumes; once the absence has lasted `JOB_HOLD_TICKS` the job goes back to the board as an
+   * interrupted job does. The absence starts at the first tick it is seen (`data.awaySince`).
+   */
+  private releaseAbsentHolders(): void {
+    for (const id of this.ids) {
+      const job = this.jobs.get(id) as Job;
+      if (job.workerId === 0) continue;
+      const behavior = this.world.entities.get(job.workerId, C.Brain)?.behavior;
+      if (behavior === undefined || behavior === 'work') {
+        if (job.data['awaySince'] !== undefined) delete job.data['awaySince'];
+        continue;
+      }
+      const since = job.data['awaySince'];
+      if (typeof since !== 'number') {
+        job.data['awaySince'] = this.now;
+        continue;
+      }
+      if (this.now - since < JOB_HOLD_TICKS) continue;
+      delete job.data['awaySince'];
+      if (this.workerOf(job.workerId).jobId === job.id) this.interrupt(job.workerId, true);
+    }
+  }
+
+  /**
    * `tick(ctx)` of the algorithm: producers, `retryBlocked`, then up to `ASSIGN_WORKERS_PER_TICK`
    * queued workers in id order.
    */
@@ -1095,6 +1122,7 @@ export class JobBoard implements JobsApi, JobSink {
       () => {
         for (const producer of this.producers) producer.produce(ctx, this);
         this.lapseReservations();
+        this.releaseAbsentHolders();
         this.retryBlocked();
         this.summonForPatients();
         this.assignQueue.sort((a, b) => a - b);

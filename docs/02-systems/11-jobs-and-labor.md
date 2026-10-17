@@ -90,7 +90,7 @@ switch job.state:
 
 Each work tick adds `(100 + SKILL_TIME_BONUS_PERCENT × skill) × productivity(worker)` effort. Required effort is `baseTicks × 100 × 100`, without per-tick rounding; `progress` is its fixed-thousandths display. Completion runs in the same step that reaches required effort.
 
-Interruptions (critical need, threat, alert, the worker's squad going on duty, a call to a patient): the job returns to `open` with `progress` kept if `state` was `working`; undelivered items stay reserved for `RESERVE_KEEP_TICKS` so the same worker (or another) can resume. Inputs delivered to a building site stay reserved to its build job until the building is finished or cancelled. Inputs delivered to a workshop stay reserved to the craft job while its order stands, until completion or cancellation. These delivered reservations survive the interruption timeout and a block/unclaim; haulers cannot take them. Other jobs retain the ordinary reservation timeout. Hauling jobs interrupted mid-carry drop the item where the worker stands. Cancellation releases every remaining reservation.
+Interruptions (critical need, threat, alert, the worker's squad going on duty, a call to a patient): the job returns to `open` with `progress` kept if `state` was `working`; undelivered items stay reserved for `RESERVE_KEEP_TICKS` so the same worker (or another) can resume. Inputs delivered to a building site stay reserved to its build job until the building is finished or cancelled. Inputs delivered to a workshop stay reserved to the craft job while its order stands, until completion or cancellation. These delivered reservations survive the interruption timeout and a block/unclaim; haulers cannot take them. Other jobs retain the ordinary reservation timeout. Hauling jobs interrupted mid-carry drop the item where the worker stands. Cancellation releases every remaining reservation. A job that is not interruptible stays claimed while its worker's brain is away from `work` (a need, flight, shelter, a patient's bed) and resumes on its return; once that absence has lasted `JOB_HOLD_TICKS`, counted from the first tick the board sees the worker away (saved on the job), the job is interrupted in the same way, so no job is held from the fortress for a long shelter or a need that does not end.
 
 On `ItemDestroyed`, remove that id from every job input’s reserved and delivered lists on the dispatch tick; surviving inputs and reservations remain unchanged. Remember the invalidation until the next delivered-input validation so a working job still refetches or blocks before completion, keeping its progress.
 
@@ -203,6 +203,7 @@ Panel `jobs` (open jobs with worker and reason; labor priorities; standing order
 | `Z_DISTANCE_WEIGHT` | 6 | Tiles of horizontal distance one z-level counts as |
 | `SKILL_TIME_BONUS_PERCENT` | 8 | Shared with 03; defined there; referenced here |
 | `RESERVE_KEEP_TICKS` | 600 | Interrupted undelivered reservations; delivered build/workshop inputs remain with their job |
+| `JOB_HOLD_TICKS` | 600 | Unmeasured. A job held by a worker away from work this long goes back to the board |
 | `BLOCKED_RETRY_TICKS` | 100 | |
 | `BLOCKED_RETRIES_PER_TICK` | 20 | |
 | `PATIENT_SUMMON_PRIORITY` | 1 | A job for a patient at this priority calls a worker off interruptible work |
