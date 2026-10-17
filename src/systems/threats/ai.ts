@@ -27,6 +27,7 @@ import {
   SPOT_RADIUS_DOG,
   STEAL_MAX_SIZE,
   THIEF_WAIT_DAYS,
+  THIEF_APPROACH_DAYS,
 } from './constants';
 
 interface FortressTarget {
@@ -863,7 +864,9 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
     case 'approach': {
       if (P.purpose === 'thief') {
         chooseGoal(P, ctx);
-        if (P.goalEntity === 0 && ctx.tick - P.arrivedTick >= THIEF_WAIT_DAYS * TICKS_PER_DAY) {
+        const waited = ctx.tick - P.arrivedTick;
+        // 18 § Party AI: no quarry after THIEF_WAIT_DAYS, or none reached after THIEF_APPROACH_DAYS.
+        if ((P.goalEntity === 0 && waited >= THIEF_WAIT_DAYS * TICKS_PER_DAY) || waited >= THIEF_APPROACH_DAYS * TICKS_PER_DAY) {
           P.state = 'retreat';
           P.stateSince = ctx.tick;
           P.outcome = 'withdrew';
