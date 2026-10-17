@@ -1,10 +1,12 @@
 # T-361 — Brew left at the still is never stocked, and dwarves drink water beside it
 
-**Source:** T-145's run 3 ([journal](../../reports/data/2026-10-16-t145-run3.jsonl)) · **Size:** M · **Needs:** T-350 · **Status:** open
+**Closed:** 2026-10-16, in 5aeead5, e483fa0, e9d8441.
+
+**Source:** T-145's run 3 ([journal](../../../reports/data/2026-10-16-t145-run3.jsonl)) · **Size:** M · **Needs:** T-350 · **Status:** open
 
 ## What was found
 
-In the three-year fortress (seed `three-years`, at `290f923`) the drink in stock sat at 598 to 631 units from day 154 to day 224, all of it in barrels that stood off any stockpile. From day 161 the drink stockpiles held none (`stocked` 78 on day 161, 0 from day 168), and the dwarves drank water: from day 168 to day 196 every drink was water (17 to 25 a week), beside 620 units of brew. The run's 2,585 water drinks in three years against 2,758 of alcohol ([run 2](../../reports/data/2026-10-16-t145-run2.txt)) come from this.
+In the three-year fortress (seed `three-years`, at `290f923`) the drink in stock sat at 598 to 631 units from day 154 to day 224, all of it in barrels that stood off any stockpile. From day 161 the drink stockpiles held none (`stocked` 78 on day 161, 0 from day 168), and the dwarves drank water: from day 168 to day 196 every drink was water (17 to 25 a week), beside 620 units of brew. The run's 2,585 water drinks in three years against 2,758 of alcohol ([run 2](../../../reports/data/2026-10-16-t145-run2.txt)) come from this.
 
 The rules as written make it a lock:
 
