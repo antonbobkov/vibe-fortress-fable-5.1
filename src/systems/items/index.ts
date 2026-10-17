@@ -372,6 +372,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     core.buildingWealth = state.buildingWealth;
     this.wealthLastEmitted = state.wealthLastEmitted;
     const hauling = this.hauling;
+    hauling.forgetParked();
     hauling.wants.length = 0;
     hauling.wants.push(...state.wantsHauling);
     hauling.noHome.length = 0;

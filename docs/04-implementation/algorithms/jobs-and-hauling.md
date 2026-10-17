@@ -126,7 +126,7 @@ for it in wantsHauling (ascending id) while created < HAUL_JOBS_PER_TICK:
   if hasJob(it): continue
   if in dump zone: remove from wantsHauling; continue
   if Dump flag: nearest dump zone by centroid, first tile; without one move to noHome; continue
-  sp = bestStockpileFor(it); if sp == waiting for wanted container: continue
+  sp = bestStockpileFor(it); if sp == waiting for wanted container: continue   // not looked at again until a stockpile, zone, building or stockpile container changes, or a container has room for it
   if sp == none: wantsHauling.remove(it); noHome.add(it); continue
   slot = findSlot(sp, it); if slot == none: continue                         // full; StockpileFull emitted once
   reserveSlot(slot, jobId); sink.create('haul:'+it, { type: haul_to_stockpile, target: it, workTile: slot.tile, priority: sp.priority, inputs: [item it], data: {slot} })

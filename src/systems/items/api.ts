@@ -293,7 +293,14 @@ export class ItemCore implements ItemsApi {
     this.listeners.push(listener);
   }
 
+  /**
+   * Counts the notices about a container item (created, placed, lifted, flagged): the stockpiles'
+   * containers moved. Derived; hauling reads it to know that a waiting item should be looked at again.
+   */
+  containerNotices = 0;
+
   private notify(id: EntityId, change: ItemChange): void {
+    if (this.entities.has(id, C.Container)) this.containerNotices += 1;
     this.indexItem(id);
     for (let k = 0; k < this.listeners.length; k += 1) (this.listeners[k] as ItemListener)(id, change);
   }

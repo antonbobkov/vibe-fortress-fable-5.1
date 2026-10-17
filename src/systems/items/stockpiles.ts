@@ -165,16 +165,41 @@ export interface StockpileHost {
   buildingAt(i: TileIndex): EntityId;
 }
 
+/** A map that counts the entries it loses or replaces and those it gains, so a reader can tell that it changed. */
+export class CountedMap<K, V> extends Map<K, V> {
+  /** Calls of `set`, `delete` (that removed something) and `clear`. */
+  changes = 0;
+  /** Calls of `delete` that removed something and of `clear`. */
+  losses = 0;
+
+  override set(key: K, value: V): this {
+    this.changes += 1;
+    return super.set(key, value);
+  }
+
+  override delete(key: K): boolean {
+    const had = super.delete(key);
+    if (had) { this.changes += 1; this.losses += 1; }
+    return had;
+  }
+
+  override clear(): void {
+    this.changes += 1;
+    this.losses += 1;
+    super.clear();
+  }
+}
+
 export class StockpileStore {
   readonly host: StockpileHost;
   /** `stockpileTiles: Map<TileIndex, stockpileId>`. */
-  readonly tiles = new Map<TileIndex, EntityId>();
+  readonly tiles = new CountedMap<TileIndex, EntityId>();
   /** `slotReservations: Map<slotKey, jobId>`. */
-  readonly reservations = new Map<string, number>();
+  readonly reservations = new CountedMap<string, number>();
   /** Stockpiles whose priority the player set (`11`: "inherits the stockpile's priority setting if the player changes it"). */
   readonly explicitPriority: EntityId[] = [];
   /** Container hauls in flight: `containerId → stockpileId`, counted as present. */
-  readonly incomingContainers = new Map<EntityId, EntityId>();
+  readonly incomingContainers = new CountedMap<EntityId, EntityId>();
 
   constructor(host: StockpileHost) {
     this.host = host;
@@ -186,6 +211,27 @@ export class StockpileStore {
 
   private get entities(): ItemCore['host']['entities'] {
     return this.core.host.entities;
+  }
+
+  private zoneViews = new Map<EntityId, ReturnType<StockpileHost['zone']>>();
+  private zoneViewsAt = -1;
+
+  /**
+   * 14's view of a zone. The host builds a fresh copy of the zone's tiles and settings on every call, which
+   * costs more than the slot search that asks for it; the copy stands until a zone is written.
+   */
+  private zoneView(id: EntityId): ReturnType<StockpileHost['zone']> {
+    const revision = this.entities.revision(C.Zone);
+    if (revision !== this.zoneViewsAt) {
+      this.zoneViews.clear();
+      this.zoneViewsAt = revision;
+    }
+    let view = this.zoneViews.get(id);
+    if (view === undefined) {
+      view = this.host.zone(id);
+      if (view !== undefined) this.zoneViews.set(id, view);
+    }
+    return view;
   }
 
   // ---------- the component ----------
@@ -201,7 +247,7 @@ export class StockpileStore {
 
   /** Give a `stockpile` or `hospital` zone its component and tiles if it has none yet; false when it is neither. */
   ensure(id: EntityId): boolean {
-    const zone = this.host.zone(id);
+    const zone = this.zoneView(id);
     if (zone === undefined || (zone.type !== 'stockpile' && zone.type !== 'hospital')) return false;
     if (this.stockpile(id) === undefined) {
       this.entities.add(id, C.Stockpile, defaultStockpile(zone.type));
@@ -213,7 +259,7 @@ export class StockpileStore {
   /** Re-read a stockpile's tiles from its zone (created or resized). */
   syncTiles(id: EntityId): void {
     for (const t of Array.from(this.tiles.keys())) if (this.tiles.get(t) === id) this.tiles.delete(t);
-    const zone = this.host.zone(id);
+    const zone = this.zoneView(id);
     if (zone === undefined) return;
     for (const t of zone.tiles) this.tiles.set(t, id);
   }
@@ -237,7 +283,7 @@ export class StockpileStore {
 
   /** The tiles of a stockpile, ascending (`(z, y, x)` order, which is `(y, x)` on one level). */
   tilesOf(id: EntityId): readonly TileIndex[] {
-    return this.host.zone(id)?.tiles ?? [];
+    return this.zoneView(id)?.tiles ?? [];
   }
 
   stockpileAt(i: TileIndex): EntityId {
@@ -300,7 +346,7 @@ export class StockpileStore {
       const building = this.host.buildingAt(t);
       if (!sp.linkedSources.includes(pile) && !sp.linkedSources.includes(building)) return false;
     }
-    const zone = this.host.zone(spId);
+    const zone = this.zoneView(spId);
     if (zone?.type === 'hospital') {
       const wants = (zone.settings?.['desired supplies'] ?? zone.settings?.['wants'] ?? HOSPITAL_DEFAULT_SUPPLIES) as Record<string, number>;
       const facts = this.core.host.facts;
@@ -409,6 +455,32 @@ export class StockpileStore {
     return out;
   }
 
+  /**
+   * The most room any unreserved container of a class on a stockpile has, after what reservations promise it: no
+   * stockpile can take an item that needs more (`findSlot`'s container search), and -1 when there is no container.
+   */
+  maxFreeRoom(cls: string): number {
+    let best = -1;
+    for (const sp of this.all()) {
+      for (const c of this.containersIn(sp, cls)) {
+        if (((this.core.get(c)?.flags ?? 0) & ItemFlag.Reserved) !== 0) continue;
+        best = Math.max(best, this.core.room(c) - this.pendingIn(c, cls));
+      }
+    }
+    return best;
+  }
+
+  /** Whether a stockpile is a hospital. */
+  isHospital(spId: EntityId): boolean {
+    return this.zoneView(spId)?.type === 'hospital';
+  }
+
+  /** Whether any stockpile is a hospital (its chests and supply limits have their own slot rules). */
+  hasHospital(): boolean {
+    for (const sp of this.all()) if (this.zoneView(sp)?.type === 'hospital') return true;
+    return false;
+  }
+
   /** Containers of a class present, counting those on their way in. */
   containersPresent(spId: EntityId, cls: string): number {
     let n = this.containersIn(spId, cls).length;
@@ -440,7 +512,7 @@ export class StockpileStore {
     const it = this.core.get(itemId);
     if (sp === undefined || it === undefined) return null;
     const facts = this.core.host.facts;
-    const zone = this.host.zone(spId);
+    const zone = this.zoneView(spId);
     if (zone?.type === 'hospital') {
       for (const c of this.containersIn(spId, 'chest')) {
         if (((this.core.get(c)?.flags ?? 0) & ItemFlag.Reserved) !== 0) continue;
