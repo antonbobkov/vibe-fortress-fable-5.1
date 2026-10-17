@@ -259,6 +259,6 @@ The escape across levels came with T-122 (`3cebc7a`). The earlier report's run, 
 | M | [T-143](../../docs/archive/tasks/T-143-interrupted-build-keeps-materials.md) | Materials delivered to a building site or a workshop stay with the job until it is finished or cancelled. Cause 6 is left as it is: with the materials kept, an interruption costs a walk. |
 | M | [T-140](../../docs/work/T-140-walking-speed-and-need-errands.md) | Raise walking speed against the need cycle, measured at 150 first. This is the balance change everything else waits on. |
 | M | [T-144](../../docs/archive/tasks/T-144-wants-without-errands.md) | Talking, sitting and the hearth visit stop being separate errands taken before work. Do after T-140 and re-measure; it may no longer be needed in full. |
-| M | [T-145](../../docs/work/T-145-economy-fixture-default-priority.md) | Merge the rewritten fixture once T-140 to T-143 are in, with its own faults fixed (causes 7 to 11 and the anvil purchase). |
+| M | [T-145](../../docs/archive/tasks/T-145-economy-fixture-default-priority.md) | Merge the rewritten fixture once T-140 to T-143 are in, with its own faults fixed (causes 7 to 11 and the anvil purchase). |
 
 **No balance constant other than walking speed should move before T-140.** Food and drink per dwarf-day, mood, immigration and wealth all moved together when speed changed.
