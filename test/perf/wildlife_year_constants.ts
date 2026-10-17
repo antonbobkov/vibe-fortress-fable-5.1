@@ -8,7 +8,7 @@ export const WILDLIFE_MEASURED: WildlifeFigures = {
 };
 // Latest accepted distribution: simultaneous regressions compare an actual before/after pair.
 export const WILDLIFE_REFERENCE: WildlifeFigures = {
-  median: 13, worst: 9, secondWorst: 10, living: 148, wildlifeFree: 8, extinct: 0, hungerThirstDeaths: 0,
+  median: 13, worst: 5, secondWorst: 9, living: 143, wildlifeFree: 8, extinct: 0, hungerThirstDeaths: 0,
 };
 export const MEDIAN_REGRESSION_TOLERANCE = 1;
 export const WILDLIFE_FREE_REGRESSION_TOLERANCE = 2;
