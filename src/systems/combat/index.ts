@@ -423,17 +423,11 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       this.threatThrottles.delete(id);
       this.targets.onCreatureDied(id);
       if (killer !== 0 && ctx.world.entities.alive(killer)) {
-        const victimCreature = ctx.world.entities.get(id, C.Creature);
         const killerCreature = ctx.world.entities.get(killer, C.Creature);
-        let hostile = false;
-        if (victimCreature !== undefined && killerCreature !== undefined) {
-          if (isFactionHostile(killerCreature.faction, victimCreature.faction)) {
-            hostile = true;
-          } else if (victimCreature.faction === 'wild') {
-            const wild = ctx.world.entities.get(id, C.Wild);
-            if (wild?.state === 'attack') hostile = true;
-          }
-        }
+        // The victim is already gone: its faction and, for a wild animal, its state come from the death event.
+        const victimFaction = typeof event['faction'] === 'string' ? event['faction'] : '';
+        const hostile = killerCreature !== undefined &&
+          (isFactionHostile(killerCreature.faction, victimFaction) || (victimFaction === 'wild' && event['wildState'] === 'attack'));
         // The victim is already gone, so the names come from the death event. The kill of a hunt job's quarry is the
         // hunt's, and `HuntKill` announces it. A killer that is not a creature, a trap, is named by its building.
         const victimSpecies = typeof event['species'] === 'number' ? event['species'] : 0;
