@@ -111,7 +111,7 @@ A task is closed in two steps.
 
 1. **Every decision is in the spec section it governs**, as plain spec text. This covers the decisions the work file made in advance and the choices made under the [ambiguity protocol](ambiguity-protocol.md). Check each one against the spec before closing. "The code does it" is not enough.
 2. **The commit body says `Closes: T-123`.** The work file stays in `docs/work/`; the agent does not move it and does not touch the backlog.
-3. **Anything the task found and did not do** gets a work file in `docs/work/` (with its source) and a `New rows:` line in the commit body.
+3. **Anything the task found and did not do** gets a work file in `docs/work/` (with its source) and a `New rows:` line in the commit body. The agent does not choose its id: it names the file `T-NEW-<short-slug>.md`, heads it `# T-NEW — <title>`, and the orchestrator gives it the next free id at the merge.
 
 **The orchestrator, in the merge:** runs `node scripts/close-task.mjs T-123 <commits>`, which moves the work file to `docs/archive/tasks/` with its closing line, deletes the row from [`../backlog.md`](../backlog.md) and repoints the links to the file, and adds the rows for the new work files. From then on the archived file is history and is not edited.
 4. **The decision log keeps nothing of the task**, except what is still pending (§ The decision log).
