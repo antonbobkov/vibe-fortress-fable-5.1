@@ -182,6 +182,8 @@ export interface FortressState {
   /** The dangers the squad's current orders answer, and when a danger was last near. */
   answered: string;
   lastDangerTick: number;
+  /** The alert was lifted because it had locked every dwarf outside the gate (T-363). */
+  shutOut: boolean;
   hospitalSetup: boolean;
   forgePlaced: boolean;
   /** Trees around the settlement, felled in batches as the log stock runs down. */
@@ -523,6 +525,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     squadId: 0,
     answered: '',
     lastDangerTick: -1,
+    shutOut: false,
     hospitalSetup: false,
     forgePlaced: false,
     timberTiles: treeTiles.filter((t) => !roadTrees.includes(t)),
@@ -1000,7 +1003,23 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const danger = raid || targets.length > 0;
   if (danger) state.lastDangerTick = w.tick;
   const curAlert = w.game.world.fortress.alert;
-  if (danger) {
+  // A gate locked on everybody shelters nobody (T-363): with every dwarf shut outside it, the
+  // alert only keeps the fortress from its halls, stores and beds. The player lifts it, and
+  // raises it again for a danger only once a dwarf has gone below ground.
+  const positions = ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress')
+    .map((id) => ent.get(id, C.Position)).filter((p) => p !== undefined);
+  const hallLabel = w.readers.pathing.labelOf(w.index(cx + 6, cy + 6, HALL_Z), 'walker');
+  if (curAlert === 'hearth' && state.gateDoorPlaced && hallLabel !== 0 && positions.length > 0 &&
+      !positions.some((p) => w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') === hallLabel)) {
+    state.shutOut = true;
+    w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' });
+    note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, shutOut: true });
+    state.answered = '';
+    if (state.squadId !== 0) w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+    return;
+  }
+  if (state.shutOut && positions.some((p) => p.z < Z)) state.shutOut = false;
+  if (danger && !state.shutOut) {
     if (curAlert !== 'hearth') {
       w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' });
       note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raid, targets: targets.map((id) => speciesName(w, id)) });
