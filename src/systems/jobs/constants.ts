@@ -11,6 +11,8 @@ export const CANDIDATE_LIMIT = 32;
 /** Tiles of horizontal distance one z-level counts as. */
 export const Z_DISTANCE_WEIGHT = 6;
 export const RESERVE_KEEP_TICKS = 600;
+/** A job held by a worker away from work this long goes back to the board (unmeasured). */
+export const JOB_HOLD_TICKS = 600;
 export const BLOCKED_RETRY_TICKS = 100;
 export const BLOCKED_RETRIES_PER_TICK = 20;
 /** A job for a patient at this priority calls a worker off interruptible work. */
