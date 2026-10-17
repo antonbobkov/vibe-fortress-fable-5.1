@@ -271,16 +271,14 @@ const scenario: Scenario = {
       expect(c.val, `capped positives of ${c.id}`).toBeLessThanOrEqual(c.ceiling + 1);
     }
 
-    // Kept: each chain is ordered and supplied for a year or more, and a reordering moves the day
-    // of its first completion, not whether it completes. Lowest counts over the main runs of
-    // 2026-10-12 (4 to 6) and 2026-10-16 (the re-measure, T-145 runs 2 and 4): craft_stone 63,
-    // make_charcoal 76, cut_gem 9, forge_pick 2, forge_mail_shirt 1, forge_crafts 10; 96 tiles
-    // engraved. Printed instead: alloy_steel, ordered only from day 224 and made 0 to 10 times
-    // (0 in T-145 run 4), so its bound lies inside its spread.
-    for (const recipe of ['craft_stone', 'make_charcoal', 'cut_gem', 'forge_pick', 'forge_mail_shirt', 'forge_crafts']) {
+    // Kept: each chain is ordered and supplied for at least a season (alloy steel from day 224), and
+    // a reordering moves the day of its first completion, not whether it completes. Lowest counts
+    // measured over the main runs of 2026-10-12 (4 to 6) and 2026-10-16: craft_stone 95,
+    // make_charcoal 137, cut_gem 9, forge_pick 4, forge_mail_shirt 8, forge_crafts 10, alloy_steel 1
+    // (5 to 10 in the fed fortresses); 96 tiles engraved.
+    for (const recipe of ['craft_stone', 'make_charcoal', 'cut_gem', 'forge_pick', 'forge_mail_shirt', 'forge_crafts', 'alloy_steel']) {
       expect(economy.recipes[recipe] ?? 0, `${recipe} completed through normal jobs`).toBeGreaterThan(0);
     }
-    console.log(`three_years steel: ${economy.recipes['alloy_steel'] ?? 0} alloy_steel (printed, not asserted)`);
     expect(economy.years[2]?.engraved ?? 0, 'halls engraved through terrain jobs').toBeGreaterThan(0);
 
     // Kept: a T-145 fixture rule. The script trades at every visit; it held in every recorded run
