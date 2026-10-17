@@ -1,6 +1,8 @@
 # T-373 — Balance-model sums that the rules do not give
 
-**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) § Contradictions found · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-17, in c2663d1.
+
+**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) § Contradictions found · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

@@ -31,8 +31,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-367 | [Measure wound recovery and infection](work/T-367-measure-wound-recovery-and-infection.md) | T-333, the unmeasured-numbers report | — | open |
 | T-368 | [Measure renown and raid size](work/T-368-measure-renown-and-raid-size.md) | T-333, the unmeasured-numbers report | — | open |
 | T-369 | [Seven hours of sleep against the measured sleep](work/T-369-sleep-hours-against-the-measured-sleep.md) | T-333, the unmeasured-numbers report | — | open |
-| T-371 | [The balance model's wild-animals section states two results](work/T-371-wild-animals-section-states-two-results.md) | T-333, the unmeasured-numbers report | — | open |
-| T-372 | [Balance-status rows above its title](work/T-372-balance-status-rows-above-its-title.md) | T-333, the unmeasured-numbers report | — | open |
-| T-373 | [Balance-model sums that the rules do not give](work/T-373-balance-model-sums-the-rules-do-not-give.md) | T-333, the unmeasured-numbers report | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. B-008 through B-012 await T-145 (the fixture at default priorities) and, for survival with wildlife, T-214; their measurement journal is in the [decision archive](archive/decisions-archive.md).
