@@ -1,5 +1,7 @@
 # T-355 — A planting job stays blocked as unreachable on a farm plot tile where a smelter stands
 
+**Closed:** 2026-10-16, in aad95d5.
+
 **Source:** the T-331 review run of `test/perf/three_years_seeds.test.ts` (peril 2 and 4), 2026-10-16; the invariant is `job.unreachable-anchor-beside` (T-331 check 2) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -17,4 +19,4 @@ Seed `three-years-p4-6`, tick 40,800: `plant` job 1329 (`plant:74743`, workTile 
 
 ## Done
 
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.

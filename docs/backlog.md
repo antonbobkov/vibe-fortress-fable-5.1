@@ -26,8 +26,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-351 | [The restless dead that collapse at dawn leave their weapons carried by nobody](work/T-351-restless-dead-collapse-leaves-carried-weapons.md) | found by the T-331 invariants | — | open |
 | T-352 | [A thief party stays in `approach` for over three days (peril 2 sweep seed)](work/T-352-thief-party-stays-in-approach-over-three-days.md) | found by the T-331 invariants | — | open |
 | T-353 | [Ten bolts lie inside a wall tile (peril 4 sweep seed)](work/T-353-bolts-lie-inside-a-wall.md) | found by the T-331 invariants | — | open |
-| T-354 | [A smoothing job stays blocked as unreachable on a floor tile where a chest has been built](work/T-354-smooth-job-stays-on-a-tile-a-chest-took.md) | found by the T-331 invariants | — | open |
-| T-355 | [A planting job stays blocked as unreachable on a farm plot tile where a smelter stands](work/T-355-plant-job-stays-on-a-farm-tile-a-smelter-took.md) | found by the T-331 invariants | — | open |
 | T-356 | [A job is held for over a day, with no progress, by a worker in `retreat` or `need`](work/T-356-jobs-held-for-a-day-by-workers-in-retreat-or-need.md) | found by the T-331 invariants | — | open |
 | T-362 | [The three-year fortress's steel job is created and never claimed](work/T-362-steel-job-never-claimed.md) | T-145 run 6 | — | open |
 

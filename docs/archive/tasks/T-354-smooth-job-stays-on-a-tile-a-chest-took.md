@@ -1,5 +1,7 @@
 # T-354 — A smoothing job stays blocked as unreachable on a floor tile where a chest has been built
 
+**Closed:** 2026-10-16, in aad95d5.
+
 **Source:** the T-331 review run of `test/perf/three_years_seeds.test.ts` (peril 2 and 4), 2026-10-16; the invariant is `job.unreachable-anchor-beside` (T-331 check 2: a job blocked unreachable for over a day, no stand tile can be stood on, a tile beside its anchor is reachable) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -17,4 +19,4 @@ Seeds `three-years-p2-2` (tick 32,400, job 1021, tile 60,754 = (34,17,26)) and `
 
 ## Done
 
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green, with the browser suite.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green, with the browser suite.
