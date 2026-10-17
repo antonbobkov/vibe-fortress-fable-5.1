@@ -46,5 +46,5 @@ A season (28 days, 33,600 ticks) on the reference fortress: average tick 26.5 ms
 
 ## New work
 
-- T-345 [The workshops job producer visits every building every tick](../../docs/work/T-345-workshops-producer-visits-every-building.md)
+- T-345 [The workshops job producer visits every building every tick](../../docs/archive/tasks/T-345-workshops-producer-visits-every-building.md)
 - T-344 [Item haul planning costs time in proportion to the items that wait](../../docs/work/T-344-haul-planning-cost-scales-with-waiting-items.md)

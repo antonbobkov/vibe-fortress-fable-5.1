@@ -1,6 +1,8 @@
 # T-345 — The workshops job producer visits every building every tick
 
-**Source:** T-283 (building the reference fortress, [`../../test/perf/scripted-reference.ts`](../../test/perf/scripted-reference.ts)) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
+**Closed:** 2026-10-17, in 46966a8, e05c928.
+
+**Source:** T-283 (building the reference fortress, [`../../test/perf/scripted-reference.ts`](../../../test/perf/scripted-reference.ts)) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
 
 ## Why
 
