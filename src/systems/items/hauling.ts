@@ -106,15 +106,41 @@ export class Hauling {
     if (it === undefined) return false;
     // Picked up, or inside a container (the container is hauled with its contents); what lies in
     // the wagon (a building's container) is unloaded like anything on the ground (D-074).
-    if (it.carriedBy !== 0 || (it.containerId !== 0 && this.core.isItem(it.containerId))) return false;
+    if (it.carriedBy !== 0) return false;
+    if (it.containerId !== 0 && this.core.isItem(it.containerId)) return this.wantsDecanting(id);
     if ((it.flags & ItemFlag.Installed) !== 0) return false;
     if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.AtDepot)) !== 0) return false;
+    // A container whose goods are spoken for (a stack on its way to a stockpile's barrel) waits.
+    for (const inner of this.core.container(id)?.contents ?? []) {
+      if (((this.core.get(inner)?.flags ?? 0) & ItemFlag.Reserved) !== 0 || this.hasJob(inner)) return false;
+    }
     const t = this.core.tileOf(id);
     if (t < 0) return false;
     if ((it.flags & ItemFlag.Dump) !== 0) return this.host.zoneTypeAt(t) !== 'dump';
     // Dumped items stay on their dump (D-072).
     if (this.host.zoneTypeAt(t) === 'dump') return false;
     return !this.stored(id);
+  }
+
+  /**
+   * 13 § Stockpiles: goods counted in units inside a container that stands on no stockpile
+   * accepting it, and that found no free tile to go to whole, go by their stack into a container
+   * with room on a stockpile that accepts them (brew left in its barrel at the still reaches the
+   * drink stockpile's barrels). Goods in a container on an accepting stockpile stay in it.
+   */
+  private wantsDecanting(id: EntityId): boolean {
+    const it = this.core.get(id);
+    if (it === undefined) return false;
+    const holderId = it.containerId;
+    const holder = this.core.get(holderId);
+    const c = this.core.container(holderId);
+    if (holder === undefined || c === undefined || !this.core.host.facts.countsUnits(c.classId)) return false;
+    if (this.core.host.facts.row(it.type).container !== c.classId) return false;
+    const blocked = ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.AtDepot | ItemFlag.Installed;
+    if ((it.flags & blocked) !== 0 || (holder.flags & blocked) !== 0 || holder.carriedBy !== 0 || holder.containerId !== 0) return false;
+    if (this.core.tileOf(holderId) < 0 || this.host.store.isStored(holderId)) return false;
+    // The whole container goes first, to a free tile, when one is found.
+    return sortedHas(this.noHome, holderId) && !this.hasJob(holderId);
   }
 
   /** In an accepting stockpile slot, or an empty container the stockpile it lies on wants. */
@@ -254,6 +280,8 @@ export class Hauling {
       if (best === null || best === 'full') {
         sortedRemove(this.wants, id);
         sortedInsert(this.noHome, id);
+        // A container with no tile to go to: its goods may still go by their stack.
+        for (const inner of this.core.container(id)?.contents ?? []) this.examine(inner);
         continue;
       }
       this.createHaul(id, best.sp, best.slot, jobs);

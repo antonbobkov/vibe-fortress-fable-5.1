@@ -11,6 +11,7 @@ import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
 import type { DefenseReader } from '@systems/defense';
 import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs';
 import type { TestWorld } from './test-world';
 import {
   threeYearsWorld,
@@ -358,6 +359,13 @@ export function checkDefenceYearBuildings(w: TestWorld, state: DefenceYearState)
         console.log(`Lever linked to drawbridge at tick ${w.tick}`);
       }
     }
+  }
+
+  // The link and the pulls go ahead of the mechanic's standing mechanism order (priority 1), as a
+  // player raises a job that has waited: the mechanic otherwise keeps making mechanisms.
+  const jobs = w.readers.of<JobsReader>('11');
+  for (const job of jobs.list('open')) {
+    if (['link_mechanism', 'pull_lever'].includes(jobs.typeOf(job.id) ?? '') && job.priority !== 1) w.game.world.applyCommand({ type: 'SetJobPriority', jobId: job.id, priority: 1 });
   }
 
   // 11. Pull lever once linked

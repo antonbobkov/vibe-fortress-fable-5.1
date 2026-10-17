@@ -38,7 +38,7 @@ export interface EconomyState {
   /** Cave plots dug for bought cave seed, and whether each is zoned yet. */
   readonly cavePlans: { tiles: number[]; zoneId: number }[];
   /** The larder beside the pantry: its tiles, and its stockpile once dug. */
-  larder?: { tiles: number[]; zoneId: number };
+  larder?: { tiles: number[]; zoneId: number; drinkTiles: number[]; drinkZoneId: number };
 }
 
 /**
@@ -120,8 +120,10 @@ const CAVE_STRIPS: readonly (readonly [number, number, number, number])[] = [[7,
 /** Free cave seed that justifies digging another cave strip. */
 const CAVE_STRIP_SEED = 12;
 const USEFUL_SEED: ReadonlySet<string> = new Set([...SURFACE_CROPS.flat(), ...CAVE_CROPS]);
-/** The larder beside the pantry, on the hall level (x0, x1, y0, y1 from the centre): every tile holds a barrel. */
-const LARDER: readonly (readonly [number, number, number, number])[] = [[-12, -1, 0, 2], [-12, -9, 3, 5]];
+/** The larder beside the pantry, on the hall level (x0, x1, y0, y1 from the centre): 72 tiles of food, then 12 of drink; every tile holds a barrel. */
+const LARDER: readonly (readonly [number, number, number, number])[] = [[-12, -1, -3, 2], [-12, -9, 3, 5]];
+/** The empty barrels the opening's two drink stockpiles want: a third of their twelve tiles. */
+const DRINK_STOCKPILE_TILES = 4;
 /** Easy meals in stock before the kitchen turns to lavish meals first. */
 const EASY_MEALS_STOCKED = 20;
 
@@ -720,7 +722,7 @@ function checkFarm(w: TestWorld, state: FortressState): void {
 }
 
 /** Seed of each crop species the fortress owns, plus its crops in the ground (each harvest returns its seed). */
-function seedSupply(w: TestWorld): Map<string, number> {
+function seedSupply(w: TestWorld, sown = true): Map<string, number> {
   const ent = w.game.world.entities;
   const seed = w.game.registry.table('items').index('seed');
   const materials = w.game.registry.table<{ id: string }>('materials');
@@ -732,7 +734,7 @@ function seedSupply(w: TestWorld): Map<string, number> {
     supply.set(species, (supply.get(species) ?? 0) + it.count);
   }
   const plants = w.readers.of<PlantsReader>('07');
-  for (const crop of plants.crops()) {
+  if (sown) for (const crop of plants.crops()) {
     const species = plants.cropInfo(crop)?.species ?? '';
     supply.set(species, (supply.get(species) ?? 0) + 1);
   }
@@ -793,11 +795,13 @@ function checkCaveStrips(w: TestWorld, state: FortressState): void {
     if (tiles.length > 0 && w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) plan.zoneId = bSystem.lastCreatedZone;
   }
   if (plans.some((p) => p.zoneId === -1) || plans.length >= CAVE_STRIPS.length) return;
-  const supply = seedSupply(w);
+  // Cave seed in stock beyond what the cave plots' empty tiles will take.
+  const stock = seedSupply(w, false);
   const plants = w.readers.of<PlantsReader>('07');
-  const caveTiles = plants.plots().filter((z) => plants.plotKind(z) === 'cave').reduce((sum, z) => sum + (buildings.zone(z)?.tiles.length ?? 0), 0);
-  const caveSeed = CAVE_CROPS.reduce((sum, sp) => sum + (supply.get(sp) ?? 0), 0);
-  if (caveSeed - caveTiles < CAVE_STRIP_SEED) return;
+  const empty = plants.plots().filter((z) => plants.plotKind(z) === 'cave')
+    .reduce((sum, z) => sum + (buildings.zone(z)?.tiles.filter((t) => plants.cropAt(t) === 0).length ?? 0), 0);
+  const caveSeed = CAVE_CROPS.reduce((sum, sp) => sum + (stock.get(sp) ?? 0), 0);
+  if (caveSeed - empty < CAVE_STRIP_SEED) return;
   const [x0, x1, y0, y1] = CAVE_STRIPS[plans.length]!;
   const z = map.zOf(state.caveTiles1[0]!);
   const terrain = w.readers.of<TerrainReader>('03');
@@ -831,23 +835,30 @@ function checkLarder(w: TestWorld, state: FortressState): number {
     for (const [x0, x1, y0, y1] of LARDER) for (let y = state.cy + y0; y <= state.cy + y1; y += 1) for (let x = state.cx + x0; x <= state.cx + x1; x += 1) {
       if (x >= 2 && y >= 2 && x < w.map.w - 2 && y < w.map.h - 2) tiles.push(w.index(x, y, HALL_Z));
     }
-    economy.larder = { tiles, zoneId: -1 };
+    // The part beside the west corridor keeps drink, so that the cellar holds more than a week.
+    const drinkTiles = tiles.filter((t) => w.map.yOf(t) > state.cy + 2);
+    economy.larder = { tiles: tiles.filter((t) => !drinkTiles.includes(t)), zoneId: -1, drinkTiles, drinkZoneId: -1 };
     const dig = tiles.filter((t) => w.map.kindAt(t) === TileKind.Wall);
     if (dig.length) w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: dig });
   }
   const larder = economy.larder;
-  if (larder === undefined) return state.pantryTiles.length;
-  if (larder.zoneId === -1 && larder.tiles.every((t) => w.map.kindAt(t) !== TileKind.Wall)) {
-    const tiles = larder.tiles.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('stockpile', t));
-    larder.zoneId = 0;
-    if (tiles.length > 0 && w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles }).ok) {
-      larder.zoneId = bSystem.lastCreatedZone;
-      w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: larder.zoneId, filter: 'food' });
-      w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId: larder.zoneId, priority: ROUTINE });
-      w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: larder.zoneId, wants: { barrel: tiles.length } });
-    }
+  if (larder === undefined) return state.pantryTiles.length + DRINK_STOCKPILE_TILES;
+  const stock = (part: number[], filter: string): number => {
+    const tiles = part.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('stockpile', t));
+    if (tiles.length === 0 || !w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles }).ok) return 0;
+    const zoneId = bSystem.lastCreatedZone;
+    w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId, filter });
+    w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId, priority: ROUTINE });
+    // A drink stockpile keeps two thirds of its tiles free for the full barrels the stills make.
+    w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId, wants: { barrel: filter === 'drink' ? Math.ceil(tiles.length / 3) : tiles.length } });
+    return zoneId;
+  };
+  if (larder.zoneId === -1 && [...larder.tiles, ...larder.drinkTiles].every((t) => w.map.kindAt(t) !== TileKind.Wall)) {
+    larder.zoneId = stock(larder.tiles, 'food');
+    larder.drinkZoneId = stock(larder.drinkTiles, 'drink');
   }
-  return state.pantryTiles.length + (larder.zoneId > 0 ? buildings.zone(larder.zoneId)?.tiles.length ?? 0 : 0);
+  const size = (zoneId: number): number => (zoneId > 0 ? buildings.zone(zoneId)?.tiles.length ?? 0 : 0);
+  return state.pantryTiles.length + DRINK_STOCKPILE_TILES + size(larder.zoneId) + Math.ceil(size(larder.drinkZoneId) / 3);
 }
 
 export function checkEconomy(w: TestWorld, state: FortressState): void {
@@ -1042,7 +1053,9 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     // From the second season, barrels for every larder tile and three weeks of drink, and a few
     // spare for the still; the first season's carpenter has the beds and the squad's gear to make.
     const population0 = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
-    const threshold = day < 2 * 28 ? 20 : Math.min(160, Math.max(20, foodBarrels + Math.ceil(population0 * 0.77 * DRINK_DAYS / 20) + 6));
+    // The brew stays in its barrel at the still (T-361), so the barrels that hold drink are made
+    // on top of those the stockpiles want, or the drink stockpiles are left with none.
+    const threshold = day < 2 * 28 ? 20 : Math.min(200, Math.max(20, foodBarrels + Math.ceil(Math.max(items.count('drink'), population0 * 0.77 * DRINK_DAYS) / 20) + 10));
     if (barrels >= 0 && orders()[barrels]!.threshold !== threshold) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: carpenter, index: barrels, patch: { threshold } });
     // Beds come before barrels until every dwarf and the hospital has one.
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
