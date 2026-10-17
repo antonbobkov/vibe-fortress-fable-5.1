@@ -1,4 +1,4 @@
-/** T-331: `RestlessRose` is reached by a stepped world while the scenario `th_restless` is todo (T-351). */
+/** T-331: `RestlessRose` is reached by a stepped world (the scenario `th_restless` plays it whole). */
 import { describe, expect, it } from 'vitest';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { regionSpec } from '@app/headless';

@@ -12,8 +12,6 @@ import type { TestWorld } from './test-world';
 
 const scenario: Scenario = {
   id: 'th_restless',
-  // T-351: the restless dead that collapse at dawn leave their rusted weapons carried by a creature that no longer exists.
-  todo: 'T-351',
   milestone: 6,
   seed: 'th-restless',
   world: {

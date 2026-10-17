@@ -45,7 +45,7 @@ Content rows per kind and civ list roles with counts scaled by size. Roles and s
 
 - Gloam: `gloam_snatcher` (thief; stealth; fast; steals), `gloam_warrior` (melee, leather and copper or iron), `gloam_archer` (bow), `gloam_captain` (leader, better gear, holds the party together), `trollkin` (large, breaks doors, no armor, heavy blunt attacks; sieges only).
 - Hillfolk bandits: `hillfolk_bandit` (melee, steals; low peril nuisance; killing them lowers Hillfolk reputation slightly, capturing them in cages raises it).
-- Restless dead: `restless_dead` (slow, mindless, no loot, attacks fortress creatures, does not flee; rises at dusk in autumn from the battlefield band, `RESTLESS_PER_NIGHT` per night, and collapses to bones at dawn unless already slain).
+- Restless dead: `restless_dead` (slow, mindless, no loot, attacks fortress creatures, does not flee; rises at dusk in autumn from the battlefield band, `RESTLESS_PER_NIGHT` per night, and collapses to bones at dawn unless already slain; a collapsing dead drops what it wears and carries on its tile, where it lies as ordinary unowned stock).
 
 Hostile equipment is generated from the civ's equipment table with a peril-scaled quality (`hostile gear tier = min(peril, 3)` metal tier; sieges +1). Members get `Skills` with every combat skill at `2 + HOSTILE_SKILL_PER_TIER × gear tier` (captains + 2) and no `Attributes` (`16`'s defaults apply). Every kit item is foreign, owned by and attached to its member through 13 immediately on spawn, including spare weapons and ammunition; it has no ground position while carried.
 
