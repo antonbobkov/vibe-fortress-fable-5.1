@@ -102,12 +102,19 @@ export class PlantsProducer implements JobProducer {
         const tile = job.target.ref;
         const zone = typeof job.data['zone'] === 'number' ? (job.data['zone'] as EntityId) : 0;
         const stillInPlot = this.buildings()?.zoneAt(tile) === zone;
-        if (this.host.cropAtTile.has(tile) || !stillInPlot) sink.cancel(job.id, 'target_invalid');
+        if (this.host.cropAtTile.has(tile) || !stillInPlot || this.underBuilding(tile)) sink.cancel(job.id, 'target_invalid');
       } else if (job.key.startsWith('harvest:')) {
         const tile = typeof job.data['tile'] === 'number' ? (job.data['tile'] as TileIndex) : -1;
         if (this.host.cropAtTile.get(tile) !== job.target.ref) sink.cancel(job.id, 'target_invalid');
       }
     }
+  }
+
+  /** `07` § Farm plots: a plot tile that a built building covers is not plantable. */
+  private underBuilding(tile: TileIndex): boolean {
+    const buildings = this.buildings();
+    const id = buildings === null ? 0 : buildings.at(tile);
+    return id !== 0 && buildings?.get(id)?.state === 'built';
   }
 
   private plantJobs(ctx: TickContext, sink: JobSink): void {
@@ -124,7 +131,7 @@ export class PlantsProducer implements JobProducer {
       let available = items === null ? 0 : items.countAvailable(filter);
       let short = false;
       for (const tile of zone.tiles) {
-        if (this.host.cropAtTile.has(tile)) continue;
+        if (this.host.cropAtTile.has(tile) || this.underBuilding(tile)) continue;
         const key = plantKey(tile);
         if (sink.exists(key)) {
           available -= 1;

@@ -144,12 +144,19 @@ export class TerrainProducer implements JobProducer {
       const priority = map.designationPriorityAt(tile) as Priority;
       if (priority !== job.priority) sink.setPriority(job.id, priority);
     }
-    for (const tile of this.core.designated) {
+    let dropped = false;
+    for (const tile of this.core.designated.slice()) {
       const kind = map.designationAt(tile);
       const type = JOB_TYPE_OF[kind];
       if (type === undefined) continue;
       const key = jobKey(kind, tile);
       if (sink.exists(key)) continue;
+      // `03` § Tile transitions: designated where a built building already blocks the stand.
+      if (this.standBlocked(tile)) {
+        this.core.clearDesignation(tile);
+        dropped = true;
+        continue;
+      }
       sink.create(key, {
         type,
         priority: map.designationPriorityAt(tile),
@@ -158,6 +165,21 @@ export class TerrainProducer implements JobProducer {
         data: { designation: kind },
       });
     }
+    // The dropped designations had no job: nothing is left for a rescan to do.
+    if (dropped) this.seenVersion = this.core.designationsVersion;
+  }
+
+  /**
+   * A designation worked from its own tile (channel, down stairs, floor smoothing and engraving)
+   * that a built building other than a door blocks for walking: nobody can stand there to do it.
+   * A locked door blocks only for as long as it is locked.
+   */
+  standBlocked(tile: TileIndex): boolean {
+    const map = this.map;
+    const kind = map.designationAt(tile);
+    if (JOB_TYPE_OF[kind] === undefined || workTileOf(kind, map.kindAt(tile)) !== 'at' || !this.readers.has('14')) return false;
+    const buildings = this.readers.of<{ blocksMovementAt(i: TileIndex, cls: 'walker'): boolean; doorAt(i: TileIndex): boolean }>('14');
+    return buildings.blocksMovementAt(tile, 'walker') && !buildings.doorAt(tile);
   }
 
   onJobEvent(event: GameEvent): void {

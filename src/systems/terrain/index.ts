@@ -163,13 +163,26 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     }
   }
 
-  override handle(event: GameEvent, _ctx: TickContext): void {
+  override handle(event: GameEvent, ctx: TickContext): void {
     if (event.type === 'EntitiesMoved') {
       const moves = event['moves'] as readonly Move[];
       for (const m of moves) this.pendingMoves.push(m);
+    } else if (event.type === 'BuildingCompleted') {
+      this.clearBlockedDesignations(event['id'] as EntityId, ctx);
     }
     // `JobCompleted` and `JobCancelled` reach 03's job producer (T-M1-10) through the jobs system;
     // `BuildingCompleted` re-checks support once 14 builds constructions (M2).
+  }
+
+  /**
+   * `03` § Tile transitions: a designation worked from its own tile is cleared when a building that
+   * blocks walking is built there (the producer's rule); its job goes on the producer's next scan.
+   */
+  private clearBlockedDesignations(buildingId: EntityId, ctx: TickContext): void {
+    const producer = this.producer;
+    if (producer === null || !ctx.readers.has('14')) return;
+    const footprint = ctx.readers.of<{ get(id: EntityId): { readonly footprint: readonly TileIndex[] } | undefined }>('14').get(buildingId)?.footprint ?? [];
+    for (const tile of footprint) if (producer.standBlocked(tile)) this.core.clearDesignation(tile);
   }
 
   override applyCommand(cmd: Command, _ctx: TickContext): CommandResult {

@@ -897,7 +897,10 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       if (fuel !== undefined) state.economy.specialists['fuel'] = fuel;
     }
     if (fuel !== undefined) {
-      dedicate(w, state, fuel, ['smelting']);
+      // T-362: no hauling. The furnaces lie far from where its needs take it, and an assigned
+      // worker's 500-point bonus (11 § Assignment) is fifty tiles: with hauling on it took the
+      // haul jobs beside the halls and left the smelter's job open for weeks.
+      dedicate(w, state, fuel, ['smelting'], false);
       for (const type of ['wood_furnace', 'smelter']) {
         const id = state.placedIds[type];
         if (id && buildings.get(id)?.state === 'built' && w.game.world.entities.get(id, C.Workshop)?.assignedWorker !== fuel) {
@@ -1106,6 +1109,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       if (!result.ok) throw new Error(`economy steel: ${result.reason}`);
       // The smelter takes its first runnable order (12 § Operation), and the iron orders below
       // 40 bars are always runnable: the steel goes first, and runs whenever flux is in stock.
+      // A reorder cancels no job: an iron job already open finishes before the first steel job.
       const last = (w.game.world.entities.get(smelter, C.Workshop)?.orders.length ?? 1) - 1;
       if (last > 0) w.game.world.applyCommand({ type: 'ReorderWorkOrder', workshopId: smelter, from: last, to: 0 });
       if (phases.has('steel')) mine(w, state, upper, isFlux, STEEL_BATCH);
@@ -1135,7 +1139,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     const job = ws?.currentJobId ? w.readers.of<JobsReader>('11').get(ws.currentJobId) : undefined;
     const worker = ws?.assignedWorker ?? 0;
     note('three_years_steel', { day, stock, orders: (ws?.orders ?? []).map((o) => `${recipes.byIndex(o.recipe)?.id}:${o.mode}:${o.mode === 'maintain' ? o.threshold : o.remaining}`),
-      job: job ? `${recipes.byIndex(Number(job.data['recipe'] ?? job.data['recipeIndex'] ?? -1))?.id ?? job.key}:${job.state}` : null, blocked: ws?.lastBlockedReason ?? null,
+      job: job ? `${String(job.data['recipe'] ?? job.key)}:${job.state}${job.blockedReason ? `:${job.blockedReason}` : ''}` : null, blocked: ws?.lastBlockedReason ?? null,
       worker, workerDoing: worker ? ent.get(worker, C.Brain)?.activity ?? '' : '', fluxDesignated: [...state.economy.mined].filter((t) => flux.has(mats.byIndex(w.map.materialAt(t))?.id ?? '')).length });
   }
   // F-17i: export crafts keep running: the standing stone-craft order grows with the workforce.
