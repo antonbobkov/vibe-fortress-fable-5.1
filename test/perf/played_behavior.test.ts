@@ -6,7 +6,7 @@ import { buildPlayedReference } from './played-reference';
 import { deathCounts } from '../scenarios/death-counts';
 
 describe('T-M6-18 perf: played behavior', () => {
-  it('keeps dwarves alive, settles the disturbed lake, and runs orders and hauling into both stockpiles', () => {
+  it('loses no dwarf without a killer (T-393), settles the disturbed lake, and runs orders and hauling into both stockpiles', () => {
     const { world: w, naturalWaterTiles, settledAt } = buildPlayedReference();
     const entities = w.game.world.entities;
     const items = w.readers.of<ItemsReader>('13');
@@ -21,10 +21,20 @@ describe('T-M6-18 perf: played behavior', () => {
       items.get(itemId) !== undefined && items.stockpileAt(items.tileOf(itemId)) === id).length);
     const lakeActive = naturalWaterTiles.filter((tile) => w.fluids.sim.isActive[tile] === 1).length;
     const deaths = deathCounts(w);
-    console.log(`played_behavior: ${JSON.stringify({ deaths,
+    // T-393: the fortress stands at year three, when 18's schedule sends its first parties (two
+    // Hillfolk bandits and a thief on the second day), and the script answers none of them. Which
+    // dwarf a bandit reaches, and whether it dies, turns on the job timeline, so a death in a fight
+    // is printed and not asserted (testing-strategy.md § What may be a gate). A dwarf that dies with
+    // no killer (thirst, hunger, drowning in the disturbed lake, a fall) is the fortress failing to
+    // behave, and is asserted.
+    const dwarf = w.game.registry.table('creatures').index('dwarf');
+    const dwarfDeaths = w.events('CreatureDied').filter((e) => e['species'] === dwarf)
+      .map((e) => ({ name: e['name'], cause: e['cause'], killer: e['killerId'] }));
+    const fightDeaths = dwarfDeaths.filter((d) => d.killer !== 0).length;
+    console.log(`played_behavior: ${JSON.stringify({ deaths, dwarfDeaths,
       craftedItems, completedHauls, hauledIntoPiles, pileCounts, lakeActive, settledAt, stockpiles: stockpiles.length })}`);
-    expect(entities.with(C.Brain).filter((id) => entities.get(id, C.Creature)?.faction === 'fortress')).toHaveLength(20);
-    expect(deaths.dwarf).toBe(0);
+    expect(dwarfDeaths.filter((d) => d.killer === 0)).toEqual([]);
+    expect(entities.with(C.Brain).filter((id) => entities.get(id, C.Creature)?.faction === 'fortress')).toHaveLength(20 - fightDeaths);
     expect(stockpiles).toHaveLength(2);
     expect(entities.with(C.Workshop).filter((id) => entities.get(id, C.Workshop)?.orders.some((o) => o.mode === 'maintain')).length).toBeGreaterThanOrEqual(6);
     expect(entities.with(C.Squad)).toHaveLength(1);

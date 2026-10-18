@@ -419,6 +419,35 @@ describe('T-M1-08 jobs: blocking and retry', () => {
   });
 });
 
+describe('T-393 blocked retries', () => {
+  it('searches every worker for a ranged kit once per retry pass, not once per no_tool job, and unblocks when a launcher appears', () => {
+    const r = rig();
+    r.driver.enabled = false;
+    const workers = [r.worker(10, 10), r.worker(11, 10), r.worker(12, 10)];
+    const board = r.jobs.board;
+    for (let k = 0; k < 6; k += 1) r.terrain.pending.push([`dig:${k}`, { ...digSpec(wallAt(r, 14 + 2 * k, 10)), tool: 'ranged' }]);
+    let kitSearches = 0;
+    let launcher = false;
+    board.items = {
+      ...stub([]),
+      findTool: (tool: Tool): EntityId => (tool === 'ranged' && launcher ? 99 : 0),
+      findRangedKit: (): null => { kitSearches += 1; return null; },
+    };
+    r.g.step(1);
+    const jobs = [0, 1, 2, 3, 4, 5].map((k) => board.jobs.get(r.reader.byKey(`dig:${k}`)?.id ?? -1) as Job);
+    for (const job of jobs) if (job.state !== 'blocked') board.block(job, 'no_tool');
+    for (const job of jobs) job.retryTick = 0;
+    kitSearches = 0;
+    board.retryBlocked();
+    expect(jobs.every((job) => job.state === 'blocked' && job.blockedReason === 'no_tool')).toBe(true);
+    expect(kitSearches).toBe(workers.length);
+    launcher = true;
+    for (const job of jobs) job.retryTick = 0;
+    board.retryBlocked();
+    expect(jobs.every((job) => job.state === 'open')).toBe(true);
+  });
+});
+
 /** An in-memory item seam: items with a type, a tile, a reservation and a carrier. */
 interface StubItem {
   id: EntityId;
