@@ -65,6 +65,9 @@ export interface SearchOptions {
   readonly allowedTile?: (tile: TileIndex) => boolean;
 }
 
+/** The walkers of a fortress: the labels know the terrain only, and the forbidden set and the like bind these. */
+const FORTRESS_MOVER = Object.freeze({ faction: 'fortress' });
+
 const UNRESERVABLE = ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.AtDepot | ItemFlag.Merchant | ItemFlag.Installed;
 
 export interface SearchHost {
@@ -140,6 +143,8 @@ export class ItemSearch {
     if (pathing !== null && (fromLabel === 0 || !this.reached(pathing, it, t, cls, fromLabel))) return -1;
     if (!matches(core, id, it, filter)) return -1;
     if (opts.allowedTile !== undefined && !opts.allowedTile(t)) return -1;
+    // Connected by label is not standable: an item on a tile no dwarf may enter (a forbidden tile) is out of reach.
+    if (pathing !== null && pathing.labelOf(t, cls) !== 0 && !pathing.passable(t, cls, FORTRESS_MOVER)) return -1;
     return t;
   }
 
