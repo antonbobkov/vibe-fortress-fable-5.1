@@ -1,0 +1,41 @@
+/**
+ * T-398 diagnosis: the dry-north opening of three seeds, with a per-dwarf trace of behaviour and needs.
+ * T398_SEEDS: comma list of "biome:seed:variant" (variant dry-north | control-north); T398_OUT: output directory.
+ */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { playWildlifeYear } from './wildlife_year_fixture';
+
+const out = process.env['T398_OUT'] ?? '.vite/t398';
+const cases = (process.env['T398_SEEDS'] ?? 'taiga:wildlife-taiga-3:dry-north').split(',').map((x) => x.split(':') as [string, string, string]);
+
+describe('T-398 probe: dwarves with no drink on the way to a distant bank', () => {
+  it.each(cases)('%s / %s / %s', (biome, seed, variant) => {
+    mkdirSync(out, { recursive: true });
+    const trace: Record<number, unknown[]> = {};
+    const lastKey = new Map<number, string>();
+    const row = playWildlifeYear(seed, biome, {
+      ...(variant === 'dry-north' ? { dry: true } : {}), brook: 'north',
+      observe: (game, level) => {
+        const e = game.world.entities;
+        for (const id of e.with(C.Labors)) {
+          if (e.get(id, C.Creature)?.faction !== 'fortress') continue;
+          const n = e.get(id, C.Needs);
+          const b = e.get(id, C.Brain);
+          const at = game.movement.tileOf(id);
+          if (n === undefined || b === undefined || at < 0) continue;
+          const bucket = Math.floor(n.thirst / 10);
+          const key = `${b.behavior}|${b.activity}|${bucket}|${level}|${Math.floor(n.hunger / 20)}`;
+          const crit = n.thirst >= 85 || n.hunger >= 85;
+          if (lastKey.get(id) === key && !(crit && game.tick % 200 === 0)) continue;
+          lastKey.set(id, key);
+          (trace[id] ??= []).push({ t: game.tick, d: Math.floor(game.tick / 1200) + 1, lvl: level, bh: b.behavior, act: b.activity, th: Math.round(n.thirst), hu: Math.round(n.hunger), re: Math.round(n.rest),
+            x: game.map.xOf(at), y: game.map.yOf(at), z: game.map.zOf(at), tg: b.targetTile < 0 ? -1 : [game.map.xOf(b.targetTile), game.map.yOf(b.targetTile), game.map.zOf(b.targetTile)] });
+        }
+      },
+    });
+    writeFileSync(`${out}/${seed}.${variant}.json`, JSON.stringify({ row, trace }) + '\n');
+    console.log(`T-398 ${seed} ${variant}: living ${row.living} deaths ${row.deaths.length} shelter ${JSON.stringify(row.shelter)}`);
+  }, 900_000);
+});

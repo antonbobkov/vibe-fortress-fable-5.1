@@ -48,6 +48,8 @@ export interface WildlifeOptions {
   dry?: boolean;
   /** A brook crosses the map: from the west edge (where the wagon stands) to the south edge, or from the north edge to the south edge. */
   brook?: 'west' | 'north';
+  /** Called after every look (20 ticks) of the year with the alert level; a probe's hook, absent in the instrument. */
+  observe?: (game: HeadlessGame, level: string) => void;
 }
 
 export interface WildlifeYear {
@@ -209,6 +211,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     while (game.tick < target && living().length > 0) {
       game.step(Math.min(respond ? LOOK_EVERY : 300, target - game.tick));
       if (!respond) continue;
+      options.observe?.(game, level);
       const tick = game.tick;
       let next = level;
       if (level === 'hearth') {
