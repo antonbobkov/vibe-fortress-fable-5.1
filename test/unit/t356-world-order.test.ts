@@ -10,6 +10,9 @@ import { playThreeYears, setupThreeYearsFortress, threeYearsWorld, checkFortress
   checkFortressCaveFarm, checkFortressDefense } from '../scenarios/three_years_fortress';
 import { watchInvariants } from '../scenarios/invariants';
 
+// Two days: the run is three-years' opening only. It does not reach the first season turn or the first caravan (about
+// day 34), so state that outlives a world and shows only there (a caravan's counters, a season's caches) is guarded by
+// the sweep itself, which runs seeds one after another in one process and prints each final hash.
 const DAYS = 2;
 
 function hashes(seed: string, peril: number): string[] {

@@ -5,6 +5,7 @@ import { C, ItemFlag } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import { TileKind } from '@core/map3d';
 import type { JobBoard } from '@systems/jobs';
+import { JOB_HOLD_TICKS } from '@systems/jobs/constants';
 import { TestWorld } from '../scenarios/test-world';
 import { checkInvariants } from '../scenarios/invariants';
 
@@ -34,7 +35,7 @@ describe('T-331 invariant 1: reservations, claims and held jobs have a live hold
     expect(names(w)).toContain('holder.reservation-elsewhere');
   });
 
-  it('reports a job held for over a day by a worker whose brain is doing something else', () => {
+  it('reports a job held longer than JOB_HOLD_TICKS by a worker whose brain is doing something else', () => {
     const { w, dwarf } = fixture();
     const target = w.index(14, 10, Z);
     w.carve(target, TileKind.Wall);
@@ -53,9 +54,12 @@ describe('T-331 invariant 1: reservations, claims and held jobs have a live hold
     // The brain moves a worker aside without giving the job back, and the job resumes: not a fault yet.
     entities.add(dwarf, C.Brain, { ...entities.get(dwarf, C.Brain)!, behavior: 'need', activity: 'Drinking' });
     expect(names(w)).not.toContain('holder.job-held-while-elsewhere');
-    w.game.world.calendar.setTick(w.tick + TICKS_PER_DAY / 2);
+    w.game.world.calendar.setTick(w.tick + JOB_HOLD_TICKS / 2);
     expect(names(w)).not.toContain('holder.job-held-while-elsewhere');
-    w.game.world.calendar.setTick(w.tick + TICKS_PER_DAY);
+    // The board gives such a job back at JOB_HOLD_TICKS; a sample may see it up to 100 ticks later.
+    w.game.world.calendar.setTick(w.tick + JOB_HOLD_TICKS / 2 + 100);
+    expect(names(w)).not.toContain('holder.job-held-while-elsewhere');
+    w.game.world.calendar.setTick(w.tick + 1);
     expect(names(w)).toContain('holder.job-held-while-elsewhere');
   });
 
