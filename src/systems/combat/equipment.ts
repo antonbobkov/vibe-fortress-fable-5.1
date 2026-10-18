@@ -307,16 +307,65 @@ function neededCivilianTool(ctx: TickContext, itemId: EntityId): boolean {
 }
 
 /**
+ * The items a soldier's kit can name, in ascending id order: every item whose type is a weapon, an armor
+ * piece or shield, a quiver, or the ammunition of a launcher. A pass over a squad's soldiers scores
+ * these and never the stone, food and cloth around them, which hold nearly all of a fortress's items.
+ */
+export interface KitPool {
+  readonly items: readonly EntityId[];
+  /** Living items when the pool was made: a pass that creates or destroys one remakes the pool. */
+  readonly total: number;
+}
+
+const kitTypeFlags = new WeakMap<Registry, readonly boolean[]>();
+
+/** Per item type index: whether a soldier's kit can name an item of the type. */
+function kitTypes(registry: Registry): readonly boolean[] {
+  const known = kitTypeFlags.get(registry);
+  if (known !== undefined) return known;
+  const weapons = registry.table<WeaponDefRow>('weapons');
+  const armor = registry.table<ArmorDefRow>('armor');
+  const ammo = new Set<string>();
+  for (const row of weapons.rows) if (row?.launcher?.ammo) ammo.add(row.launcher.ammo);
+  const flags: boolean[] = [];
+  registry.table<ItemDefRow>('items').rows.forEach((row, index) => {
+    flags[index] = row !== undefined &&
+      (weapons.byId(row.id) !== undefined || armor.byId(row.id) !== undefined || row.id === 'quiver' ||
+        row.category === 'container/quiver' || ammo.has(row.id));
+  });
+  kitTypeFlags.set(registry, flags);
+  return flags;
+}
+
+/** The kit pool of the items now alive; `previous` is kept while no item has been created or destroyed. */
+export function kitPool(ctx: TickContext, previous?: KitPool): KitPool {
+  const entities = ctx.world.entities;
+  const total = entities.countOfKind('item');
+  if (previous !== undefined && previous.total === total) return previous;
+  const flags = kitTypes(ctx.registry);
+  const items: EntityId[] = [];
+  for (const itemId of entities.with(C.Item)) {
+    const item = entities.get(itemId, C.Item);
+    if (item !== undefined && flags[item.type] === true) items.push(itemId);
+  }
+  return { items, total };
+}
+
+/**
  * Re-equip an individual soldier according to squad preferences.
  */
 export function reequipSoldier(
   ctx: TickContext,
   squad: Squad,
   soldierId: EntityId,
+  pooled?: KitPool,
 ): void {
   const entities = ctx.world.entities;
   const registry = ctx.registry;
   if (!entities.alive(soldierId)) return;
+  // The pool is remade when a claim or a drop of this soldier's kit has created or destroyed an item.
+  let current = pooled;
+  const pool = (): readonly EntityId[] => (current = kitPool(ctx, current)).items;
 
   let equip = entities.get(soldierId, C.Equipment);
   if (!equip) {
@@ -341,7 +390,7 @@ export function reequipSoldier(
   let bestWeaponId = equip.weapon;
   let bestWeaponScore = currentWeaponScore;
 
-  for (const itemId of entities.with(C.Item)) {
+  for (const itemId of pool()) {
     if (!isAvailableItem(entities, itemId) || neededCivilianTool(ctx, itemId)) continue;
     const sc = scoreWeapon(registry, entities, itemId, preferredWeaponClass, isRanged);
     if (sc > bestWeaponScore) {
@@ -385,7 +434,7 @@ export function reequipSoldier(
     let bestShieldId = equip.shield;
     let bestShieldScore = currentShieldScore;
 
-    for (const itemId of entities.with(C.Item)) {
+    for (const itemId of pool()) {
       if (!isAvailableItem(entities, itemId)) continue;
       const sc = scoreShield(registry, entities, itemId);
       if (sc > bestShieldScore) {
@@ -420,7 +469,7 @@ export function reequipSoldier(
     let bestPieceId = currentPieceId;
     let bestScore = currentScore;
 
-    for (const itemId of entities.with(C.Item)) {
+    for (const itemId of pool()) {
       if (!isAvailableItem(entities, itemId)) continue;
       const sc = scoreArmorPiece(registry, entities, itemId, slot, armorPreference);
       if (sc > bestScore) {
@@ -442,7 +491,7 @@ export function reequipSoldier(
   if (isRanged) {
     // Quiver
     if (equip.quiver === 0 || !entities.alive(equip.quiver)) {
-      for (const itemId of entities.with(C.Item)) {
+      for (const itemId of pool()) {
         if (!isAvailableItem(entities, itemId)) continue;
         const item = entities.get(itemId, C.Item);
         if (item) {
@@ -464,7 +513,7 @@ export function reequipSoldier(
       const wantedAmmo = wRow?.launcher?.ammo;
       if (wantedAmmo) {
         let currentAmmoCount = 0;
-        for (const itemId of entities.with(C.Item)) {
+        for (const itemId of pool()) {
           const it = entities.get(itemId, C.Item);
           if (it && it.carriedBy === soldierId && it.count > 0) {
             const row = itemsTable.byIndex(it.type);
@@ -477,7 +526,7 @@ export function reequipSoldier(
         const needed = SOLDIER_AMMO - currentAmmoCount;
         if (needed > 0) {
           let toClaim = needed;
-          for (const itemId of entities.with(C.Item)) {
+          for (const itemId of pool()) {
             if (toClaim <= 0) break;
             if (!isAvailableItem(entities, itemId)) continue;
             const it = entities.get(itemId, C.Item);
@@ -497,11 +546,13 @@ export function reequipSoldier(
 /**
  * Re-equip all members of a squad.
  */
-export function reequipSquad(ctx: TickContext, squadId: EntityId): void {
+export function reequipSquad(ctx: TickContext, squadId: EntityId, pooled?: KitPool): void {
   const squad = ctx.world.entities.get(squadId, C.Squad);
   if (!squad) return;
+  let pool = kitPool(ctx, pooled);
   for (const m of squad.members) {
-    reequipSoldier(ctx, squad, m);
+    reequipSoldier(ctx, squad, m, pool);
+    pool = kitPool(ctx, pool);
   }
 }
 
@@ -509,8 +560,10 @@ export function reequipSquad(ctx: TickContext, squadId: EntityId): void {
  * Re-equip all squads in the fortress.
  */
 export function reequipAllSquads(ctx: TickContext): void {
+  let pool: KitPool | undefined;
   for (const squadId of ctx.world.entities.with(C.Squad)) {
-    reequipSquad(ctx, squadId);
+    pool = kitPool(ctx, pool);
+    reequipSquad(ctx, squadId, pool);
   }
 }
 
