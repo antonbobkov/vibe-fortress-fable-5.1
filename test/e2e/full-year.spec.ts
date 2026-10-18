@@ -22,10 +22,11 @@ interface FullYearHook extends Hook {
   setSpeed(speed: number): void;
   screenshotName(name: string): string;
   hash(): string;
+  lastSaveId(): string | null;
   dwarves(): { id: number; x: number; y: number; z: number }[];
   readers: {
     calendar: { tick: number };
-    map: { w: number; h: number; d: number; kindAt(i: number): number; index(x: number, y: number, z: number): number };
+    map: { w: number; h: number; d: number; kindAt(i: number): number; index(x: number, y: number, z: number): number; designationAt(i: number): number };
     items: { wealth(): number; count(kind: string): number };
     buildings: {
       wagon(): number;
@@ -289,6 +290,75 @@ async function playTo(page: Page, clock: ReturnType<typeof playClock>, target: n
   await clock.sync();
 }
 
+/** Play, a hundred ticks at a time, until the caravan of the schedule stands at the depot (or its window has passed). */
+async function playUntilCaravanAtDepot(page: Page, clock: ReturnType<typeof playClock>): Promise<void> {
+  const limit = (CARAVAN_SEASON['hillfolk']! * DAYS_PER_SEASON + CARAVAN_DAY_MAX + 5) * 1200;
+  const caravanState = (): Promise<{ tick: number; at: string }> => page.evaluate(() => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    return { tick: h.readers.calendar.tick, at: h.readers.of<{ activeCaravan(): { state: string } | null }>('20').activeCaravan()?.state ?? 'none' };
+  });
+  for (;;) {
+    const state = await caravanState();
+    if (state.at === 'atDepot' || state.tick >= limit) break;
+    await playTo(page, clock, state.tick + 100);
+  }
+  expect((await caravanState()).at, 'the caravan stands at the depot').toBe('atDepot');
+}
+
+/** Play until a reader condition holds (at most `ticks` ticks, a hundred at a time). */
+async function playWhile(page: Page, clock: ReturnType<typeof playClock>, done: string, ticks: number): Promise<boolean> {
+  const check = (): Promise<boolean> => page.evaluate((code) => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    return new Function('h', `return ${code}`)(h) as boolean;
+  }, done);
+  const start = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.calendar.tick);
+  for (let tick = start; tick < start + ticks && !(await check()); tick += 100) await playTo(page, clock, tick + 100);
+  return check();
+}
+
+/**
+ * The trade of 20 through the keyboard: the civilizations panel, the depot panel, goods marked in the stocks panel
+ * (depot mode), the broker's session, and one offer on the trade screen (`trade-session` does the same on a small map).
+ */
+async function tradeThroughUi(page: Page, clock: ReturnType<typeof playClock>): Promise<void> {
+  await closePanels(page);
+  await page.keyboard.press('c');
+  await expect.poll(() => textOf(page)).toContain('Civilizations');
+  await page.keyboard.press('Shift+D');
+  await expect.poll(() => textOf(page)).toContain('goods at depot');
+  await page.keyboard.press('Shift+M');
+  await expect.poll(() => textOf(page)).toContain('Stocks');
+  // The bars are goods the year does not use: down to their row (food, drink, seed, stone, wood, bar), `Space` marks
+  // the stacks under it, `Shift+T` sends them to the depot.
+  for (let row = 0; row < 5; row += 1) await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Space');
+  await page.keyboard.press('Shift+T');
+  await expect.poll(() => textOf(page)).toContain('goods at depot');
+  await closePanels(page);
+  const arrived = await playWhile(page, clock, "h.readers.of('20').depotItems().length > 0", 1500);
+  expect(arrived, 'the marked goods reached the depot').toBe(true);
+
+  await page.keyboard.press('c');
+  await page.keyboard.press('Shift+D');
+  await expect.poll(() => textOf(page)).toContain('goods at depot');
+  await page.keyboard.press('Shift+T');
+  await clock.expectPaused();
+  const opened = await playWhile(page, clock, "h.readers.of('20').sessionOpen()", 1500);
+  expect(opened, 'the broker opened the trade session').toBe(true);
+  await expect.poll(() => screenOf(page)).toBe('trade_session');
+  expect(await textOf(page)).toContain('Trading with the');
+
+  await page.keyboard.press('+');
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __tracker: YearTracker }).__tracker.tradesDone), { message: 'one offer was completed' }).toBeGreaterThanOrEqual(1);
+  await page.keyboard.press('Escape');
+  await expect.poll(() => screenOf(page)).toBe('fortress');
+  await closePanels(page);
+  await clock.sync();
+}
+
 test('full-year', async ({ page }) => {
   test.setTimeout(600_000);
   const errors: string[] = [];
@@ -350,7 +420,6 @@ test('full-year', async ({ page }) => {
   // 5. Initialize tracking
   await page.evaluate((speciesNames) => {
     const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-    const w = h.host.world;
     const tracker: YearTracker = {
       caravanDay: { hillfolk: null, wildwood: null, mountainhome: null },
       waves: [],
@@ -381,79 +450,84 @@ test('full-year', async ({ page }) => {
     const wz = wagon === undefined ? 28 : Math.floor(wagon.origin / (h.readers.map.w * h.readers.map.h));
 
     const spawnedSpecies = new Map<number, string>();
-    w.onEvents((events) => {
-      const day = Math.floor(h.readers.calendar.tick / 1200) + 1;
-      for (const event of events) {
-        if (event.type === 'CaravanArrived' || event.type === 'CaravanWaiting') {
-          const civ = String(event['civ'] ?? '');
-          if (tracker.caravanDay[civ] === null || tracker.caravanDay[civ] === undefined) {
-            tracker.caravanDay[civ] = day;
-          }
-          console.log(`[full-year] Day ${day}: ${event.type} civ=${civ}`);
-        } else if (event.type === 'CaravanAtDepot' || event.type === 'CaravanDeparted') {
-          console.log(`[full-year] Day ${day}: ${event.type} civ=${event['civ']}`);
-        } else if (event.type === 'ImmigrantsArrived') {
-          tracker.waves.push({ day, count: Number(event['count'] ?? 0), guaranteed: event['guaranteed'] === true });
-        } else if (event.type === 'RaidArrived') {
-          tracker.raidDays.push(day);
-        } else if (event.type === 'ThreatWarning') {
-          tracker.warningDays.push(day);
-        } else if (event.type === 'CropPlanted') {
-          const tile = Number(event['tile'] ?? 0);
-          const z = Math.floor(tile / (h.readers.map.w * h.readers.map.h));
-          (z === wz ? tracker.plantedDays : tracker.cavePlantedDays).push(day);
-        } else if (event.type === 'TileFrozen') {
-          tracker.frozenDays.push(day);
-        } else if (event.type === 'TradeCompleted') {
-          tracker.tradesDone += 1;
-        } else if (event.type === 'CropHarvested') {
-          tracker.harvests += 1;
-        } else if (event.type === 'AnimalSpawned') {
-          const species = String(event['species']);
-          tracker.wildSpawns[species] = (tracker.wildSpawns[species] ?? 0) + 1;
-          spawnedSpecies.set(Number(event['id']), species);
-        } else if (event.type === 'AttackResolved') {
-          // A wild animal's attack on anything that is not wild is the first sign of a threat the log shows.
-          const animals = h.readers.of<{ isWild(id: number): boolean }>('08');
-          if (animals.isWild(Number(event['attackerId'])) && !animals.isWild(Number(event['defenderId']))) {
-            tracker.attacked = true;
-            tracker.lastThreatTick = h.readers.calendar.tick;
-          }
-        } else if (event.type === 'HuntKill') {
-          tracker.huntKills += 1;
-        } else if (event.type === 'JobCompleted' && event['jobType'] === 'hunt') {
-          tracker.huntsCompleted += 1;
-        } else if (event.type === 'CreatureDied') {
-          console.log(`[full-year] Day ${day}: CreatureDied ${JSON.stringify(event)}`);
-          if (event['faction'] === 'fortress' && event['cause'] !== 'slaughter') {
-            const killerId = Number(event['killerId'] ?? 0);
-            const creatures = h.host.headless.registry.table('creatures');
-            const animals = h.readers.of<{ bySpecies(species: string, wild?: boolean): readonly number[]; state(id: number): string }>('08');
-            const alive = killerId !== 0 && animals.state(killerId) !== '';
-            const killerSpecies = killerId === 0
-              ? 'none'
-              : (spawnedSpecies.get(killerId) ?? speciesNames.find((name) => animals.bySpecies(name).includes(killerId)) ?? 'unknown');
-            tracker.deaths.push({
-              day,
-              tick: h.readers.calendar.tick,
-              kind: event['species'] === creatures.index('dwarf') ? 'dwarf' : creatures.idOf(Number(event['species'])),
-              name: String(event['name'] ?? ''),
-              cause: String(event['cause'] ?? ''),
-              killerId,
-              killerSpecies,
-              killerState: alive ? animals.state(killerId) : '',
-            });
-          }
-        } else if (event.type === 'Starving') {
-          tracker.starvingCount += 1;
-          console.log(`[full-year] Day ${day}: Starving ${JSON.stringify(event)}`);
-        } else if (event.type === 'ItemCrafted') {
-          if (event['recipeId'] === 'brew' || event['recipeId'] === 'cook_easy_meal' || event['recipeId'] === 'make_barrel' || event['recipeId'] === 'make_stone_block') {
-            console.log(`[full-year] Day ${day}: Crafted ${event['recipeId']}`);
+    // The listener is attached again to the world that a quick load builds.
+    const attach = (): void => {
+      h.host.world.onEvents((events) => {
+        const day = Math.floor(h.readers.calendar.tick / 1200) + 1;
+        for (const event of events) {
+          if (event.type === 'CaravanArrived' || event.type === 'CaravanWaiting') {
+            const civ = String(event['civ'] ?? '');
+            if (tracker.caravanDay[civ] === null || tracker.caravanDay[civ] === undefined) {
+              tracker.caravanDay[civ] = day;
+            }
+            console.log(`[full-year] Day ${day}: ${event.type} civ=${civ}`);
+          } else if (event.type === 'CaravanAtDepot' || event.type === 'CaravanDeparted') {
+            console.log(`[full-year] Day ${day}: ${event.type} civ=${event['civ']}`);
+          } else if (event.type === 'ImmigrantsArrived') {
+            tracker.waves.push({ day, count: Number(event['count'] ?? 0), guaranteed: event['guaranteed'] === true });
+          } else if (event.type === 'RaidArrived') {
+            tracker.raidDays.push(day);
+          } else if (event.type === 'ThreatWarning') {
+            tracker.warningDays.push(day);
+          } else if (event.type === 'CropPlanted') {
+            const tile = Number(event['tile'] ?? 0);
+            const z = Math.floor(tile / (h.readers.map.w * h.readers.map.h));
+            (z === wz ? tracker.plantedDays : tracker.cavePlantedDays).push(day);
+          } else if (event.type === 'TileFrozen') {
+            tracker.frozenDays.push(day);
+          } else if (event.type === 'TradeCompleted') {
+            tracker.tradesDone += 1;
+          } else if (event.type === 'CropHarvested') {
+            tracker.harvests += 1;
+          } else if (event.type === 'AnimalSpawned') {
+            const species = String(event['species']);
+            tracker.wildSpawns[species] = (tracker.wildSpawns[species] ?? 0) + 1;
+            spawnedSpecies.set(Number(event['id']), species);
+          } else if (event.type === 'AttackResolved') {
+            // A wild animal's attack on anything that is not wild is the first sign of a threat the log shows.
+            const animals = h.readers.of<{ isWild(id: number): boolean }>('08');
+            if (animals.isWild(Number(event['attackerId'])) && !animals.isWild(Number(event['defenderId']))) {
+              tracker.attacked = true;
+              tracker.lastThreatTick = h.readers.calendar.tick;
+            }
+          } else if (event.type === 'HuntKill') {
+            tracker.huntKills += 1;
+          } else if (event.type === 'JobCompleted' && event['jobType'] === 'hunt') {
+            tracker.huntsCompleted += 1;
+          } else if (event.type === 'CreatureDied') {
+            console.log(`[full-year] Day ${day}: CreatureDied ${JSON.stringify(event)}`);
+            if (event['faction'] === 'fortress' && event['cause'] !== 'slaughter') {
+              const killerId = Number(event['killerId'] ?? 0);
+              const creatures = h.host.headless.registry.table('creatures');
+              const animals = h.readers.of<{ bySpecies(species: string, wild?: boolean): readonly number[]; state(id: number): string }>('08');
+              const alive = killerId !== 0 && animals.state(killerId) !== '';
+              const killerSpecies = killerId === 0
+                ? 'none'
+                : (spawnedSpecies.get(killerId) ?? speciesNames.find((name) => animals.bySpecies(name).includes(killerId)) ?? 'unknown');
+              tracker.deaths.push({
+                day,
+                tick: h.readers.calendar.tick,
+                kind: event['species'] === creatures.index('dwarf') ? 'dwarf' : creatures.idOf(Number(event['species'])),
+                name: String(event['name'] ?? ''),
+                cause: String(event['cause'] ?? ''),
+                killerId,
+                killerSpecies,
+                killerState: alive ? animals.state(killerId) : '',
+              });
+            }
+          } else if (event.type === 'Starving') {
+            tracker.starvingCount += 1;
+            console.log(`[full-year] Day ${day}: Starving ${JSON.stringify(event)}`);
+          } else if (event.type === 'ItemCrafted') {
+            if (event['recipeId'] === 'brew' || event['recipeId'] === 'cook_easy_meal' || event['recipeId'] === 'make_barrel' || event['recipeId'] === 'make_stone_block') {
+              console.log(`[full-year] Day ${day}: Crafted ${event['recipeId']}`);
+            }
           }
         }
-      }
-    });
+      });
+    };
+    (window as unknown as { __attachEvents: () => void }).__attachEvents = attach;
+    attach();
   }, speciesNames);
 
   // Locate wagon, stairwell, trees, and free 3x3 patches
@@ -635,6 +709,26 @@ test('full-year', async ({ page }) => {
   await addWorkOrder(page, 'blocks', 'mason', 'once', 4);
   await addWorkOrder(page, 'brewdrink', 'still', 'maintain', 100);
 
+  // 9. Undo: a channel designation on a free patch is taken back with Ctrl+Z
+  const undoTile = { x: site.patches[7]!.x + 1, y: site.patches[7]!.y + 1, z: site.wz };
+  const designated = (): Promise<boolean> => page.evaluate(({ x, y, z }) => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    return h.readers.map.designationAt(h.readers.map.index(x, y, z)) !== 0;
+  }, undoTile);
+  await page.keyboard.press('d');
+  await page.keyboard.press('Shift+C');
+  await dragTiles(page, undoTile, undoTile);
+  await closePanels(page);
+  expect(await designated(), 'the channel designation is on the patch').toBe(true);
+  await page.keyboard.press('Control+z');
+  await expect.poll(designated, { message: 'Ctrl+Z took the designation back' }).toBe(false);
+
+  // 10. The jobs panel lists the dig jobs the designations made
+  await page.keyboard.press('j');
+  await expect.poll(() => textOf(page)).toContain('Jobs');
+  expect(await textOf(page), 'the jobs panel lists a dig job').toMatch(/[Dd]ig/);
+  await closePanels(page);
+
   await clock.expectPaused();
   await clock.advanceTo(3 * 1200); // Day 3
 
@@ -723,6 +817,34 @@ test('full-year', async ({ page }) => {
   // Screenshot 2: full-year-summer
   const shot2 = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.screenshotName('full-year-summer'));
   await page.screenshot({ path: shot2 });
+
+  // The stocks panel counts the drink the reader counts
+  await page.keyboard.press('s');
+  await expect.poll(() => textOf(page)).toContain('Stocks');
+  const drinkStock = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.items.count('drink'));
+  const stocksText = await textOf(page);
+  expect(stocksText).toMatch(/[Dd]rink/);
+  expect(stocksText, `the stocks panel shows the ${drinkStock} drink`).toContain(String(drinkStock));
+  await closePanels(page);
+
+  // Day 30, early summer: a quick save and a quick load leave the world as it was (hash before and after)
+  await playTo(page, clock, 30 * 1200);
+  const hashBefore = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.hash());
+  await closePanels(page);
+  await page.keyboard.press('F5');
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.lastSaveId())).toMatch(/^manual-\d+$/);
+  await page.keyboard.press('F9');
+  await expect.poll(() => screenOf(page)).toBe('confirm');
+  await page.keyboard.press('y');
+  await expect.poll(() => screenOf(page)).toBe('fortress');
+  expect(await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.hash()), 'the quick load restored the saved world').toBe(hashBefore);
+  await page.evaluate(() => (window as unknown as { __attachEvents: () => void }).__attachEvents());
+  await clock.sync();
+
+  // The Hillfolk caravan: when it stands at the depot, goods are marked for it through the stocks panel,
+  // the broker opens the session, and one offer is made on the trade screen.
+  await playUntilCaravanAtDepot(page, clock);
+  await tradeThroughUi(page, clock);
 
   // Advance through summer and autumn to Day 84, answering the wildlife as a player would
   await playTo(page, clock, 84 * 1200);

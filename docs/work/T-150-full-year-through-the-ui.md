@@ -65,8 +65,13 @@ So no test shows that a player can run a fortress for a year with the keyboard a
 - Remaining `applyCommand` calls: 0. Remaining `submit` calls: 0.
 - `full-year.spec.ts` runtime: ~1.2m.
 
+### 2026-10-18 (Stage 4)
+- Rebuilt on the deterministic browser year (not merged from `t-150-stage4-wip`). Added to `full-year.spec.ts`: Ctrl+Z on a channel designation, the jobs panel (a dig job is listed), the stocks panel (the drink count shown is the reader's), a quick save and quick load at day 30 with the world hash equal before and after (the event listener of the tracker is attached again to the loaded world), and one trade with the Hillfolk caravan: `c`, `Shift+D`, `Shift+M` (stocks in depot mode), down to the bars, `Space`, `Shift+T`, goods reach the depot, `Shift+T` in the depot panel, the broker opens the session, `+`, `Tab`, `End`, `Enter`, one `TradeCompleted`.
+- By T-334's rule the spec does not assert that no dwarf died: the deaths are printed with cause, day and killer (the run dies to a boar on day 42). It asserts what a rule decides: the trade, the hash across the load, the panels' contents, the caravan and wave windows, no death of hunger or thirst, not wiped out.
+- Two runs end on the same world hash (`893717daee6c406e`); `full-year.spec.ts` takes about 2.0 min.
+
 ## Done
 
 - `full-year.spec.ts` contains no `applyCommand` and no `submit` call.
-- It asserts a completed trade, no dwarf death, and an equal hash across the save and load.
+- It asserts a completed trade and an equal hash across the save and load; deaths are printed, not asserted (T-334).
 - `npm run test:e2e` is green, and the verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
