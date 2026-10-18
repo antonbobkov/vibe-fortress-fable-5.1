@@ -1,7 +1,7 @@
 /** T-176: the bug hunt checker, using readers, the entity store and a stock recount. */
 import { C, ItemFlag } from '@core/components';
 import { NEED_MAX, MOOD_MAX, MOOD_MIN, TICKS_PER_DAY } from '@core/constants';
-import { TileKind } from '@core/map3d';
+import { TileFlag, TileKind } from '@core/map3d';
 import type { HeadlessGame } from '@app/headless';
 import type { JobsReader } from '@systems/jobs/reader';
 import type { JobsSystem } from '@systems/jobs';
@@ -556,7 +556,9 @@ class Probe {
               `${sp}/${cr.faction}`,
               `creature ${id} ${cr.name} at ${posOf(id)}`,
             );
-          else if (!game.pathing.graph.passable(i, cls))
+          // A burning tile blocks every mover while it burns, and fire spreads under a creature that cannot move (a downed
+          // animal): 05 burns the creature there, so a tile that only burns is not a place the creature should not be.
+          else if (!map.hasFlag(i, TileFlag.Burning) && !game.pathing.graph.passable(i, cls))
             this.hit(
               tick,
               'creature.on-impassable',
