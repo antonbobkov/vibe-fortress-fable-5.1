@@ -1,0 +1,98 @@
+/**
+ * T-140 instrument (not committed as a test; kept as reports/data/<date>-t140-share-probe.ts.txt):
+ * the share of dwarf time spent at work, on needs (in use and travelling) and idle, by year, on the
+ * closed T-145 economy fixture played as the sweep plays it. Sampling wraps TestWorld.step and only
+ * reads state, so the run is the fixture's own (same hash as an unsampled run).
+ * Env: T140_SEED (three-years), T140_PERIL (0), T140_DAYS (336), T140_OUT, T140_EVERY (10).
+ */
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import { WANT, NEED_NAMES } from '@systems/dwarves/needs';
+import type { JobsReader } from '@systems/jobs';
+import type { ItemsReader } from '@systems/items';
+import { threeYearsMeasurements } from '../scenarios/three_years_measurements';
+import { playThreeYears, setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['T140_SEED'] ?? 'three-years';
+const PERIL = Number(process.env['T140_PERIL'] ?? 0);
+const DAYS = Number(process.env['T140_DAYS'] ?? 3 * DAYS_PER_YEAR);
+const OUT = process.env['T140_OUT'] ?? '.vite/t140-share.json';
+const EVERY = Number(process.env['T140_EVERY'] ?? 10);
+
+describe('T-140 share probe', () => {
+  it('measures the work share', () => {
+    const w = threeYearsWorld(SEED, PERIL);
+    const ent = w.game.world.entities;
+    const jobs = w.readers.of<JobsReader>('11');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dsys: any = w.game.world.scheduler.byId('10');
+    const time: Record<string, Record<string, number>> = {};
+    const mood: Record<string, { sum: number; n: number }> = {};
+    const add = (year: string, k: string, n: number): void => { const o = (time[year] ??= {}); o[k] = (o[k] ?? 0) + n; };
+    const sample = (weight: number): void => {
+      const year = String(Math.floor((w.tick - 1) / (DAYS_PER_YEAR * TICKS_PER_DAY)) + 1);
+      for (const id of ent.with(C.Labors)) {
+        if (ent.get(id, C.Creature)?.faction !== 'fortress' || !ent.alive(id)) continue;
+        const b = ent.get(id, C.Brain);
+        if (!b) continue;
+        let coarse: string;
+        if (b.behavior === 'work') {
+          const job = jobs.forWorker(id);
+          if (!job) coarse = 'work:unassigned';
+          else {
+            const type = jobs.typeOf(job.id) ?? '?';
+            coarse = type.startsWith('haul') || type === 'dump' || type === 'refuse' ? 'work:haul' : 'work:job';
+          }
+        } else if (b.behavior === 'need' || b.behavior === 'social') {
+          const p = dsys.activities.plans.get(id);
+          coarse = `need:${p?.phase === 'use' ? 'use' : 'travel'}`;
+          add(year, `needx:${p?.need ?? '?'}:${p?.phase === 'use' ? 'use' : 'travel'}`, weight);
+        } else if (b.behavior === 'idle') {
+          const n = ent.get(id, C.Needs);
+          const wants = n ? NEED_NAMES.filter((x) => x !== 'purpose' && n[x] >= WANT[x]) : [];
+          coarse = b.activity === 'Fighting' ? 'idle:fighting' : wants.length ? 'idle:with-want' : 'idle:no-work';
+        } else coarse = `other:${b.behavior}`;
+        add(year, coarse, weight);
+        add(year, 'total', weight);
+        const m = ent.get(id, C.Mood)?.value;
+        if (m !== undefined) { const o = (mood[year] ??= { sum: 0, n: 0 }); o.sum += m * weight; o.n += weight; }
+      }
+    };
+    const step = w.step.bind(w);
+    (w as unknown as { step: (n: number) => void }).step = (n: number): void => {
+      let left = n;
+      while (left > 0) {
+        const k = Math.min(EVERY, left);
+        step(k);
+        left -= k;
+        sample(k);
+      }
+    };
+    const state = setupThreeYearsFortress(w);
+    const end = DAYS * TICKS_PER_DAY;
+    const boot = 20 * TICKS_PER_DAY;
+    while (w.tick < end) {
+      playThreeYears(w, state, Math.min(w.tick < boot ? 100 : 300, end - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    }
+    const shares: Record<string, Record<string, string>> = {};
+    for (const [year, o] of Object.entries(time)) {
+      const total = o['total'] ?? 1;
+      shares[year] = Object.fromEntries(Object.entries(o).filter(([k]) => k !== 'total').sort().map(([k, v]) => [k, (100 * v / total).toFixed(1)]));
+      const work = ((o['work:job'] ?? 0) + (o['work:haul'] ?? 0) + (o['work:unassigned'] ?? 0)) / total;
+      shares[year]!['WORK'] = (100 * work).toFixed(1);
+      shares[year]!['NEEDS'] = (100 * ((o['need:use'] ?? 0) + (o['need:travel'] ?? 0)) / total).toFixed(1);
+      shares[year]!['dwarfDays'] = (total / TICKS_PER_DAY).toFixed(0);
+      shares[year]!['MOOD'] = mood[year] ? (mood[year]!.sum / mood[year]!.n).toFixed(1) : '-';
+    }
+    const economy = threeYearsMeasurements(w);
+    const out = { seed: SEED, peril: PERIL, days: DAYS, every: EVERY, hash: w.hash(), shares, time,
+      years: economy.years.map((y) => ({ day: y.day, wealth: y.wealth, population: y.population })),
+      wealthNow: w.readers.of<ItemsReader>('13').wealth(), deaths: economy.deaths.length };
+    console.log(`[t140] ${JSON.stringify({ seed: SEED, hash: out.hash, shares, years: out.years })}`);
+    writeFileSync(OUT, JSON.stringify(out, null, 1));
+  }, 7_200_000);
+});

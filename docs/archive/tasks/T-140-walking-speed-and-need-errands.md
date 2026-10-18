@@ -1,6 +1,10 @@
 # T-140 — Dwarves walk too slowly for a day of needs
 
-**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ Where the time goes, cause 1) · **Size:** M · **Needs:** T-144, T-145 · **Status:** open
+**Closed:** 2026-10-18, in 6a0558e, 3d9c51a.
+
+> **Closed by the orchestrator (2026-10-18) on the proposal in its progress note:** the year-1 work share is 37.4% against the 35% target with walking speed ×1.5; year-1 wealth is T-380, and the performance tier failures are T-393. No constant changed.
+
+**Source:** T-123 and its report, [`../../reports/audits/2026-10-08-economy-at-default-priority.md`](../../../reports/audits/2026-10-08-economy-at-default-priority.md) (§ Where the time goes, cause 1) · **Size:** M · **Needs:** T-144, T-145 · **Status:** open
 
 ## Why
 
@@ -36,7 +40,7 @@ Spec touched: `03-content/creatures.md`; `03-content/balance.md` § Needs and co
 
 ## Progress, 2026-10-09
 
-Measured and applied; the report is [`../../reports/audits/2026-10-09-walking-speed.md`](../../reports/audits/2026-10-09-walking-speed.md).
+Measured and applied; the report is [`../../reports/audits/2026-10-09-walking-speed.md`](../../../reports/audits/2026-10-09-walking-speed.md).
 
 - **Done: every creature's `speed` is ×1.5** (dwarf 0.15). `creatures.md`, `balance.md` §§ Time and pace, Needs and consumption, and `22` § Tuning constants are amended. The world-hash golden is regenerated. No acceptance bound moved; each is listed in the report with its ticks before and after.
 - **Holds: daily mood mean at least 55.** 57.6 with the rewritten fixture at default priorities, 56.5 with the old one, 61.7 on `three-years-p0-1`.
@@ -50,10 +54,21 @@ Close this task when the work share has been re-measured after T-144 and the per
 
 ## Progress, 2026-10-10
 
-Re-measured after T-144; the report is [`../../reports/audits/2026-10-10-wants-without-errands.md`](../../reports/audits/2026-10-10-wants-without-errands.md). Rewritten fixture, default priorities, seed `three-years`, year 1, no wild animal arrivals.
+Re-measured after T-144; the report is [`../../reports/audits/2026-10-10-wants-without-errands.md`](../../../reports/audits/2026-10-10-wants-without-errands.md). Rewritten fixture, default priorities, seed `three-years`, year 1, no wild animal arrivals.
 
 - **Does not hold: work share at least 35%.** 30.5% (22.7% before T-144). Idle with no work available is 7.6%, so work plus idle is 38.1%: the fixture's work supply now limits the share. Re-measure with T-145's fixture.
 - **No longer holds: daily mood mean at least 55.** 49.9 (57.7 before T-144). Social, comfort and joy are each over their want threshold about 66% of the time. T-197.
 - **Year-1 wealth** is 17,517, of which 12,000 is lavish meals.
 - With master's wildlife on, the same fixture dies out by boar in year 1, before and after T-144. T-196.
 
+
+## Progress, 2026-10-18
+
+Re-measured on the closed T-145 fixture at `88119f4`, seed `three-years`, peril 0, 336 days, wild animals present; the report is [`../../reports/audits/2026-10-18-work-share-after-t145.md`](../../../reports/audits/2026-10-18-work-share-after-t145.md). `balance.md` § Needs and consumption and `balance-status.md` carry the figures.
+
+- **Holds: work share at least 35%.** 37.4% in year 1 (27.8% at jobs, 9.6% hauling), 37.0% in year 2; idle with no work 0.9%. Year 3 falls to 30.0% as need travel reaches 47.6% in a fortress of 56.
+- **Holds on the sweep, not on this seed's first year: daily mood mean at least 55.** Mood over dwarf time 54.0 / 57.0 / 54.3 by year on `three-years`; the peril-0 sweep of 2026-10-17 has a median daily mean of 57.4 (52.0–63.5) over seven seeds, and this seed lies inside that spread. One seed is one chaotic sample (testing-strategy.md § What may be a gate).
+- **Does not hold: year-1 wealth 4,000–8,000.** 23,969. T-380 owns it (B-008: the fixture's export crafts and kitchen); walking speed does not bear on it.
+- **Does not hold: the performance tier passes.** `perf_reference` (worst ticks 57 ms and 115 ms against 40 ms) and `played_behavior` (a dwarf dies in the played fortress) fail, the same at `a9a21dd`; filed as `T-393-perf-tier-played-fortress-death.md`. The three-year sweep in the tier also stops on T-389.
+
+**The gap and the proposal.** What is left is not walking speed's: no constant changes. Raising `speed` to ×1.75, the next step this file allows for a low mood, would not move the work share (×1.5 to ×2 left it within a point on 2026-10-09) and the year-1 mood is a point below on one seed with the seven-seed median above. Proposed: close T-140 on its decision (speed ×1.5, applied 2026-10-09) and the measured work share, with year-1 wealth left to T-380 and the tier's failures to the new row.
