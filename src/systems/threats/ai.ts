@@ -135,9 +135,9 @@ function nearestReachableExit(m: EntityId, pos: TileIndex, ctx: TickContext): Ti
   const { map, entities } = ctx.world;
   const cls = entities.get(m, C.Motion)?.movementClass ?? 'walker';
   const creature = entities.get(m, C.Creature);
-  const species = ctx.registry.table<{ id: string; opensDoors?: boolean }>('creatures');
+  const species = ctx.registry.table<{ id: string; flags?: { opensDoors?: boolean } }>('creatures');
   const mover = { faction: creature?.faction, size: creature?.sizeClass,
-    opensDoors: creature !== undefined && species.byIndex(creature.species)?.opensDoors === true };
+    opensDoors: creature !== undefined && species.byIndex(creature.species)?.flags?.opensDoors === true };
   let best = -1;
   let distance = Infinity;
   const consider = (x: number, y: number, z: number): void => {

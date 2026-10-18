@@ -186,11 +186,11 @@ function leisureOrIdle(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
 /** The movement class and mover options a creature paths with (22 § Passability). */
 function moverOf(ctx: TickContext, id: EntityId): { cls: MovementClass; mover: MoverOptions } {
   const creature = ctx.world.entities.get(id, C.Creature);
-  const species = ctx.registry.table<{ id: string; opensDoors?: boolean }>('creatures');
+  const species = ctx.registry.table<{ id: string; flags?: { opensDoors?: boolean } }>('creatures');
   return {
     cls: ctx.world.entities.get(id, C.Motion)?.movementClass ?? 'walker',
     mover: { faction: creature?.faction, size: creature?.sizeClass,
-      opensDoors: creature !== undefined && species.byIndex(creature.species)?.opensDoors === true,
+      opensDoors: creature !== undefined && species.byIndex(creature.species)?.flags?.opensDoors === true,
       tame: ctx.world.entities.has(id, C.Tame) },
   };
 }
