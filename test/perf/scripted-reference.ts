@@ -120,24 +120,20 @@ export function buildScriptedReference(): TestWorld {
     if (!r.ok) throw new Error(`reference fortress: ${command.type} refused: ${r.reason}`);
   };
 
-  // The single items of the 25,000-item load lie spread over the map, as in the first fixture, but forbidden: a played
-  // fortress keeps such a load behind forbidden stock and held-back goods, and the job board neither hauls nor looks
-  // again at an item that is forbidden (25,000 loose items ask it for 25,000 haul jobs in one tick, and every item
-  // that waits for a barrel is looked at on every tick).
+  // The single items of the 25,000-item load lie spread over the map, loose, as in the first fixture. A played fortress
+  // has such a load too (logs, stone and drink lying where they were made); haul planning (T-344) and the job board's
+  // unit search (T-383) cost what the items need, so the reference fortress carries them as they lie.
   const stock: readonly (readonly [type: string, material: string])[] = [
     ['raw_stone', 'granite'], ['raw_stone', 'granite'], ['raw_stone', 'granite'],
     ['log', 'oak'], ['plant_food', 'barley'], ['drink', 'ale'],
     ['stone_block', 'granite'], ['barrel', 'oak'],
   ];
-  const loose = new Set<TileIndex>();
   let itemCount = entities.with(C.Item).length;
   for (let k = 0; itemCount < 25_000; k += 1, itemCount += 1) {
     const [type, material] = stock[k % stock.length] as readonly [string, string];
     const at = sites[(k * 67 + 17) % sites.length] as TileIndex;
     w.spawnItem(type, material, at);
-    loose.add(at);
   }
-  apply({ type: 'ForbidItem', tiles: [...loose], on: true });
 
   // --- workshops: one of each that has recipes (not the magma ones, which need magma below them)
   const rows = w.game.registry.table<BuildingRow>('buildings').rows.filter((b) => b.category === 'workshop' && !b.tags.includes('magma') && workshops.recipesFor(b.id).length > 0);

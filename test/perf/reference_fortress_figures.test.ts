@@ -18,6 +18,11 @@ describe('T-283 perf: the reference fortress', () => {
     // measured 0.06 ms; a wall-clock bound on a shared machine is only a gate if it is far wider than the noise, and the
     // regression it guards (a visit of every building and every item) cost 20 ms, so the bound is 1 ms.
     expect(producers['workshops'], 'workshops job producer, ms per tick').toBeLessThanOrEqual(1);
+    // T-383: the 25,000 loose items cost the job board's unit search a minute of one tick, and system 11 57 ms a tick,
+    // while it enumerated every match afresh for each one found. It costs what the standard fixture's job board costs
+    // (about 2 ms on a busy machine); the bounds are far wider than that and far below what the fault cost.
+    expect(systems['11'], 'system 11, ms per tick').toBeLessThanOrEqual(10);
+    expect(worstTickMs, 'worst tick, ms').toBeLessThanOrEqual(5_000);
     expect(Number.isFinite(pathing) && Number.isFinite(core) && Number.isFinite(averageTickMs) && Number.isFinite(worstTickMs)).toBe(true);
   }, 3_600_000);
 

@@ -246,8 +246,57 @@ export class ItemSearch {
     return 0;
   }
 
-  /** `items.findItems(filter, count, fromTile, movementClass)`: `findItem` repeated with `excludeIds`. */
+  /**
+   * `items.findItems(filter, count, fromTile, movementClass)`: what `findItem` returns when repeated with `excludeIds`
+   * accumulating, stopping at `count`, found in one pass: the first radius that holds a match, nearest first (the order
+   * of the radius list breaks ties), then the next radius, then the stock index in its order.
+   */
   findItems(filter: ItemFilter, count: number, from: TileIndex, cls: MovementClass = 'walker', opts: SearchOptions = { reservable: true }): EntityId[] {
+    const core = this.host.core;
+    const spatial = this.host.spatial();
+    if (opts.stockpiledContainerClass !== undefined || filter.itemId !== undefined || spatial === null || !core.host.map.validIndex(from)) {
+      return this.findItemsOneByOne(filter, count, from, cls, opts);
+    }
+    if (filter.requiredFlags !== undefined && core.lacksFlagged(filter.requiredFlags)) return [];
+    const pathing = this.host.pathing();
+    const fromLabel = pathing === null ? 1 : pathing.labelOf(from, cls);
+    if (pathing !== null && fromLabel === 0) return [];
+    const types = this.candidateTypes(filter);
+    if (!core.hasTypes(types)) return [];
+    const found: EntityId[] = [];
+    const seen = new Set<EntityId>();
+    for (const r of FIND_RADII) {
+      if (found.length >= count) return found.slice(0, count);
+      const fresh: { id: EntityId; d: number; k: number }[] = [];
+      const candidates = core.radiusItems(types, from, r);
+      for (let k = 0; k < candidates.length; k += 1) {
+        const id = candidates[k] as EntityId;
+        if (seen.has(id)) continue;
+        const t = this.acceptable(id, filter, opts, fromLabel, cls);
+        // An item that is not acceptable now is not at a larger radius either.
+        seen.add(id);
+        if (t >= 0) fresh.push({ id, d: distance(core, from, t), k });
+      }
+      fresh.sort((a, b) => a.d - b.d || a.k - b.k);
+      for (const f of fresh) found.push(f.id);
+    }
+    if (found.length >= count) return found.slice(0, count);
+    // The stock index: items in stockpiles first, then the rest, each in id order.
+    const inPile: EntityId[] = [];
+    const rest: EntityId[] = [];
+    for (const id of core.idsOfTypes(types)) {
+      if (seen.has(id)) continue;
+      const t = core.tileOf(id);
+      (t >= 0 && this.host.stockpileAt(t) !== 0 ? inPile : rest).push(id);
+    }
+    for (const id of [...inPile, ...rest]) {
+      if (found.length >= count) break;
+      if (this.acceptable(id, filter, opts, fromLabel, cls) >= 0) found.push(id);
+    }
+    return found.slice(0, count);
+  }
+
+  private findItemsOneByOne(filter: ItemFilter, count: number, from: TileIndex, cls: MovementClass, opts: SearchOptions): EntityId[] {
     const found: EntityId[] = [];
     const exclude = [...(filter.excludeIds ?? [])];
     while (found.length < count) {

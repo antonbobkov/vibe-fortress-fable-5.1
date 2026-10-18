@@ -166,7 +166,7 @@ findItem(filter, from, cls, opts):
 match(it, filter): type/category/tag/materialClass/materialId/minQuality/edible/drinkable/emptyContainer/unoccupied as in 13
 ```
 
-`findItems(filter, n, from, cls)` repeats `findItem` with `excludeIds` accumulating, stopping at `n`.
+`findItems(filter, n, from, cls)` returns what `findItem` returns when repeated with `excludeIds` accumulating, stopping at `n`, and finds it in one pass: the matches of the first radius that holds any, nearest first (ties in the radius list's order), then those of each larger radius, then the stock index in its order. A unit input asks for every match (`n` unbounded) and chooses its stacks from them.
 
 An optional `allowedTile(tile)` search option rejects a matching candidate at its resolved tile before it can win either the radius search or the stock fallback. It changes no search radius, distance, tie or stockpile preference, and avoids a separate scan of all stock instances for threat exclusions.
 
