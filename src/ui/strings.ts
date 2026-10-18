@@ -1106,6 +1106,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // 14 § Registrations ("`HearthLit` (note, with the line …)"); the others' texts are D-077's.
   'announce.hearth_lit': 'The hearth is lit. This is a deepholm now.',
   'announce.door_broken': 'A door has been broken.',
+  'announce.fortress_shut_out': 'Every dwarf is outside the locked gate ({doors}). Set the alert back to calm or watchful to open it.',
   'announce.buried': 'A dwarf has been laid to rest.',
   'announce.room_quality': 'A room has become {tierName}.',
   'announce.stockpile_full': '{zone} is full.',

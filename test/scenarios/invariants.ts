@@ -10,7 +10,10 @@ import type { Job } from '@systems/jobs/state';
 import type { DwarvesSystem } from '@systems/dwarves';
 import type { DefenseSystem } from '@systems/defense';
 import type { BuildingsReader } from '@systems/buildings/reader';
-import { BLOCKED_RETRY_TICKS } from '@systems/jobs/constants';
+import { BLOCKED_RETRY_TICKS, JOB_HOLD_TICKS } from '@systems/jobs/constants';
+
+/** The sampler looks at the board every 100 ticks, so an absence is seen up to that late. */
+const HELD_SAMPLE_TICKS = 100;
 
 export interface Finding {
   inv: string;
@@ -854,10 +857,11 @@ class Probe {
       }
     }
     // 10's brain moves a worker to flee, retreat, patient or a critical need without giving back a job that
-    // cannot be interrupted, and the job resumes: that is only a fault once it has lasted a day.
+    // cannot be interrupted, and the job resumes: that is only a fault once it has lasted longer than 11 holds
+    // it (`JOB_HOLD_TICKS`, counted by the board from the tick it sees the absence) and the sampling interval.
     for (const [jobId, held] of this.heldElsewhere) {
       const age = tick - held.since;
-      if (age > TICKS_PER_DAY)
+      if (age > JOB_HOLD_TICKS + HELD_SAMPLE_TICKS)
         this.hit(
           tick,
           'holder.job-held-while-elsewhere',

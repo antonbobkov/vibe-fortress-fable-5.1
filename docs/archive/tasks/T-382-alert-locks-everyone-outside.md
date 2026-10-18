@@ -1,5 +1,7 @@
 # T-382 — The game says when a hearth alert has locked every dwarf outside its gate
 
+**Closed:** 2026-10-18, in 1f64d11, 75be498.
+
 **Source:** T-363 (2026-10-17): on seed `three-years-p2-5` from day 193, wolves kept a hearth alert up, both `lock_on_alert` gate doors locked, and all seven dwarves were on the surface; nobody could reach anything inside for days. The game followed 19 (the lock waits out its grace; a civilian shut out skips the retreat), and the test script was changed to lift such an alert. A player gets no warning. · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

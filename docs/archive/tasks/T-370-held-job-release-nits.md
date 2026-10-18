@@ -1,5 +1,7 @@
 # T-370 — The held-job release: spec wording, the away flicker, a longer world-order guard
 
+**Closed:** 2026-10-18, in 2d8a7ea, a833125.
+
 **Source:** the review of T-356 (2026-10-17) · **Size:** S · **Needs:** — · **Status:** open
 
 ## What to do

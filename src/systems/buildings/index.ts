@@ -128,6 +128,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       creaturesAt: (i) => readers.entities.at(i).filter((id) => world.entities.kind(id) === 'creature'),
       itemsAt: (i) => readers.entities.at(i).filter((id) => world.entities.has(id, C.Item) && world.entities.has(id, C.Position)),
       walkable: (i) => readers.pathing.passable(i, 'walker'),
+      regionOf: (i) => readers.pathing.labelOf(i, 'walker'),
       dwarvesAlive: () => world.entities.with(C.Labors).some((id) => world.entities.get(id, C.Creature)?.faction === 'fortress'),
       alert: () => world.fortress.alert,
       tick: () => world.calendar.tick,
@@ -143,6 +144,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     ctx.register.panel({ id: 'zones', title: 'Zones', hotkey: 'z' });
     ctx.register.announcement('HearthLit', { severity: 'note', stringKey: 'announce.hearth_lit' });
     ctx.register.announcement('DoorBroken', { severity: 'alert', stringKey: 'announce.door_broken' });
+    ctx.register.announcement('FortressShutOut', { severity: 'danger', stringKey: 'announce.fortress_shut_out' });
     ctx.register.announcement('Buried', { severity: 'note', stringKey: 'announce.buried' });
     ctx.register.announcement('RoomQualityChanged', { severity: 'note', stringKey: 'announce.room_quality', atLeast: { field: 'tier', value: 4 } });
     const items = (): { value(id: number): number; get(id: number): { quality: number } | undefined } | null =>

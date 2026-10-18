@@ -271,6 +271,7 @@ describe('T-M1-14 announcements', () => {
       MiasmaSpread: 'alert',
       HearthLit: 'note',
       DoorBroken: 'alert',
+      FortressShutOut: 'danger',
       Buried: 'note',
       RoomQualityChanged: 'note',
       // T-M4-01: 07 § Registrations ("announcement `PlotNeedsSeeds` as a note").

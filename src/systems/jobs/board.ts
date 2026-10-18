@@ -19,6 +19,7 @@ import {
   ASSIGN_WORKERS_PER_TICK,
   BLOCKED_RETRIES_PER_TICK,
   BLOCKED_RETRY_TICKS,
+  JOB_HOLD_BACK_TICKS,
   JOB_HOLD_TICKS,
   PATIENT_SUMMON_PRIORITY,
   RESERVE_KEEP_TICKS,
@@ -738,6 +739,8 @@ export class JobBoard implements JobsApi, JobSink {
     }
     this.movement?.stopWalking(w);
     job.workerId = 0;
+    delete job.data['awaySince'];
+    delete job.data['awayBack'];
   }
 
   // ---------- the worker side ----------
@@ -1081,6 +1084,8 @@ export class JobBoard implements JobsApi, JobSink {
       job.workerId = 0;
       job.state = 'open';
       this.invalidateWorkAvailability();
+      delete job.data['awaySince'];
+      delete job.data['awayBack'];
       delete job.data['standTile'];
     }
     const at = this.assignQueue.indexOf(workerId);
@@ -1107,9 +1112,11 @@ export class JobBoard implements JobsApi, JobSink {
 
   /**
    * `11` § Job steps, interruptions: a worker that the brain has moved aside (flight, shelter, a
-   * patient's bed, a need) while it holds a job that is not interruptible keeps the job, and the
-   * job resumes; once the absence has lasted `JOB_HOLD_TICKS` the job goes back to the board as an
-   * interrupted job does. The absence starts at the first tick it is seen (`data.awaySince`).
+   * patient's bed, a need) while it holds a job (in practice one that is not interruptible) keeps the job,
+   * and the job resumes; once the absence has lasted `JOB_HOLD_TICKS` the job goes back to the board as an
+   * interrupted job does. The absence starts at the first tick it is seen (`data.awaySince`) and ends when
+   * the worker has been back at work for `JOB_HOLD_BACK_TICKS` (`data.awayBack` is the tick it came back):
+   * a worker bouncing in and out for a think at a time does not restart the count.
    */
   private releaseAbsentHolders(): void {
     for (const id of this.ids) {
@@ -1117,9 +1124,16 @@ export class JobBoard implements JobsApi, JobSink {
       if (job.workerId === 0) continue;
       const behavior = this.world.entities.get(job.workerId, C.Brain)?.behavior;
       if (behavior === undefined || behavior === 'work') {
-        if (job.data['awaySince'] !== undefined) delete job.data['awaySince'];
+        if (job.data['awaySince'] === undefined) continue;
+        const back = job.data['awayBack'];
+        if (typeof back !== 'number') job.data['awayBack'] = this.now;
+        else if (this.now - back >= JOB_HOLD_BACK_TICKS) {
+          delete job.data['awaySince'];
+          delete job.data['awayBack'];
+        }
         continue;
       }
+      delete job.data['awayBack'];
       const since = job.data['awaySince'];
       if (typeof since !== 'number') {
         job.data['awaySince'] = this.now;
@@ -1127,6 +1141,7 @@ export class JobBoard implements JobsApi, JobSink {
       }
       if (this.now - since < JOB_HOLD_TICKS) continue;
       delete job.data['awaySince'];
+      delete job.data['awayBack'];
       if (this.workerOf(job.workerId).jobId === job.id) this.interrupt(job.workerId, true);
     }
   }
