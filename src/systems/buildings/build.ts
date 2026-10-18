@@ -1097,6 +1097,7 @@ export class BuildingStore {
           alertAt: isHearth ? this.host.tick() : null,
           outsideClearSince: isHearth && !outside ? this.host.tick() : null,
           alertLocked: false,
+          shutOutNoted: false,
         },
       });
       const locked = isHearth && this.doorLocked(this.get(id) as Building);
@@ -1106,6 +1107,32 @@ export class BuildingStore {
       for (const t of b.footprint) this.map.markChunkDirty(t, true, true);
       this.host.emit({ type: 'BuildingStateChanged', id, state: locked ? 'locked' : 'open' });
     }
+    if (isHearth) this.noteShutOut();
+  }
+
+  /**
+   * 14 § Doors and hatches: a `lock_on_alert` door that locks while every living fortress dwarf stands outdoors shuts
+   * the fortress out of its own gate. Said once per alert, in a line that names the locked doors.
+   */
+  private noteShutOut(): void {
+    const doors = this.all().filter((id) => {
+      const b = this.get(id) as Building;
+      return b.mode === 'lock_on_alert' && b.state === 'built' && b.settings['alertLocked'] === true;
+    });
+    const first = doors[0];
+    if (first === undefined || doors.some((id) => (this.get(id) as Building).settings['shutOutNoted'] === true)) return;
+    const entities = this.host.entities;
+    let dwarves = 0;
+    for (const id of entities.with(C.Labors)) {
+      if (entities.get(id, C.Creature)?.faction !== 'fortress') continue;
+      const p = entities.get(id, C.Position);
+      if (p === undefined) continue;
+      dwarves += 1;
+      if (!this.map.hasFlag(this.map.index(p.x, p.y, p.z), TileFlag.Outdoor)) return;
+    }
+    if (dwarves === 0) return;
+    for (const id of doors) this.write(id, { settings: { ...(this.get(id) as Building).settings, shutOutNoted: true } });
+    this.host.emit({ type: 'FortressShutOut', id: first, doors, tile: (this.get(first) as Building).origin });
   }
 
   /**
@@ -1142,6 +1169,7 @@ export class BuildingStore {
         this.write(id, { settings: { ...updated.settings, alertLocked: true } });
         for (const tile of b.footprint) this.map.markChunkDirty(tile, true, true);
         this.host.emit({ type: 'BuildingStateChanged', id, state: 'locked' });
+        this.noteShutOut();
       }
     }
   }

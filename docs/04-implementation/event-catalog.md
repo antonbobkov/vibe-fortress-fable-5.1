@@ -94,6 +94,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `RoomAssigned` | `zoneId, dwarfId` | 14 | 10 |
 | `HearthLit` | `id` | 14 | 10, 15, 24 (milestone), ui |
 | `DoorBroken` | `id` | 14 | 18, 24 (hint), ui |
+| `FortressShutOut` | `id, doors[], tile` | 14 | ui |
 | `Buried` | `dwarfId, coffinId, tombTier` | 14 | 15, ui |
 | `MechanismToggled` | `id, newState` | 14 | 19, ui (none) |
 | `MoodTierChanged` | `id, from, to` | 15 | 10, ui |

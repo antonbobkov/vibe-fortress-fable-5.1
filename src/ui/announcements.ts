@@ -139,6 +139,9 @@ export class AnnouncementLog {
     if (typeof skill === 'string' && this.registry.hasTable('skills')) {
       out['skill'] = this.registry.table<NamedRow>('skills').byId(skill)?.name ?? skill;
     }
+    if (event.type === 'FortressShutOut' && Array.isArray(e['doors'])) {
+      out['doors'] = (e['doors'] as number[]).map((door) => buildingName({ readers, registry: this.registry }, door)).join(', ');
+    }
     if (event.type === 'WorkshopBlocked' && typeof e['workshopId'] === 'number') {
       out['workshop'] = buildingName({ readers, registry: this.registry }, e['workshopId']);
       out['input'] = typeof e['input'] === 'string' ? e['input'].split('|').map(id => itemName(this.registry, id)).join(' or ') : this.strings.get('ui.workshop.input_unspecified');

@@ -68,6 +68,7 @@ const DOCUMENTED: readonly { event: string; severity: 'note' | 'alert' | 'danger
   // `14` § Registrations.
   { event: 'HearthLit', severity: 'note', doc: '14' },
   { event: 'DoorBroken', severity: 'alert', doc: '14' },
+  { event: 'FortressShutOut', severity: 'danger', doc: '14' },
   { event: 'Buried', severity: 'note', doc: '14' },
   { event: 'RoomQualityChanged', severity: 'note', doc: '14' },
   // `15` § Registrations ("`SulkHappened` (note or alert per kind)": the registry carries both).

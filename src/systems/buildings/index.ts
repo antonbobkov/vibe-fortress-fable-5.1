@@ -143,6 +143,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     ctx.register.panel({ id: 'zones', title: 'Zones', hotkey: 'z' });
     ctx.register.announcement('HearthLit', { severity: 'note', stringKey: 'announce.hearth_lit' });
     ctx.register.announcement('DoorBroken', { severity: 'alert', stringKey: 'announce.door_broken' });
+    ctx.register.announcement('FortressShutOut', { severity: 'danger', stringKey: 'announce.fortress_shut_out' });
     ctx.register.announcement('Buried', { severity: 'note', stringKey: 'announce.buried' });
     ctx.register.announcement('RoomQualityChanged', { severity: 'note', stringKey: 'announce.room_quality', atLeast: { field: 'tier', value: 4 } });
     const items = (): { value(id: number): number; get(id: number): { quality: number } | undefined } | null =>
