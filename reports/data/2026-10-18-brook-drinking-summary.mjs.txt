@@ -1,0 +1,27 @@
+import { readdirSync, readFileSync, existsSync } from 'node:fs';
+const root = process.argv[2];
+const median = (a) => (a.length === 0 ? null : a.slice().sort((x, y) => x - y)[Math.floor(a.length / 2)]);
+for (const v of ['dry-nobrook', 'dry-west', 'control-west', 'dry-north', 'control-north']) {
+  const dir = `${root}/brook-${v}`;
+  if (!existsSync(dir)) continue;
+  console.log('=====', v);
+  const rows = readdirSync(dir).sort().map((f) => JSON.parse(readFileSync(`${dir}/${f}`, 'utf8')));
+  const ok = rows.filter((r) => r.failed === undefined);
+  for (const r of rows) {
+    if (r.failed) { console.log(r.seed, 'OPENING REJECTED'); continue; }
+    const d = r.deaths.filter((x) => x.kind === 'dwarf');
+    const by = {};
+    for (const x of d) { const k = `${x.cause}${x.wildlife ? ':' + x.killerSpecies : ''}`; by[k] = (by[k] ?? 0) + 1; }
+    const b = r.brook;
+    const atBank = d.filter((x) => x.bankDistance !== undefined && x.bankDistance >= 0 && x.bankDistance <= 6).length;
+    console.log(r.seed.replace('wildlife-', ''), 'living', r.living, 'arr', r.arrivals, 'dwarfDeaths', d.length, JSON.stringify(by), 'atBank(<=6)', atBank, 'starving', r.starving,
+      b ? `drinks ${b.drinks} drinkers ${b.drinkers} firstDay ${b.firstDrinkDay} wagonDist med ${median(b.distances)} max ${b.distances.at(-1)} outdoors ${b.outdoors} tiles ${b.tiles.length} alc ${b.alcohol}` : '',
+      'firstDeathDay', d.length ? Math.min(...d.map((x) => x.day)) : '-', 'maxThirstShelter', r.shelter.maxThirst);
+  }
+  const living = ok.map((r) => r.living);
+  const sum = living.reduce((a, b) => a + b, 0);
+  const dd = ok.flatMap((r) => r.deaths.filter((x) => x.kind === 'dwarf'));
+  console.log('N', ok.length, 'median living', median(living), 'sum', sum, 'extinct', living.filter((x) => x === 0).length, 'wildlifeFree', ok.filter((r) => !r.deaths.some((x) => x.kind === 'dwarf' && x.wildlife)).length,
+    'dwarf deaths', dd.length, 'by cause', JSON.stringify(dd.reduce((m, x) => { const k = x.wildlife ? 'wildlife:' + x.killerSpecies : x.cause; m[k] = (m[k] ?? 0) + 1; return m; }, {})),
+    'drinks', ok.reduce((a, r) => a + (r.brook?.drinks ?? 0), 0));
+}

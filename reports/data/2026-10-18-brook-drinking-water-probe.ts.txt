@@ -1,0 +1,23 @@
+import { it } from 'vitest';
+import { HeadlessGame, regionSpec } from '@app/headless';
+import { FluidType } from '@core/map3d';
+import type { BuildingsReader } from '@systems/buildings';
+import { WILDLIFE_CASES } from './wildlife_year_fixture';
+
+it.each(WILDLIFE_CASES)('water $seed', ({ seed, biome }) => {
+  const spec = regionSpec(seed, { biome, peril: 0, wealth: 2, temper: 0, traits: [], ...(process.env['BROOK'] === undefined ? {} : { river: { class: 'brook' as const, inflow: [process.env['BROOK'] === 'west' ? 'w' as const : 'n' as const], outflow: 's' as const } }), nearestEdgeTo: { mountainhome: 'w', hillfolk: 'w', wildwood: 'w', gloam: 'w' } });
+  const game = new HeadlessGame({ seed, world: 'local', spec, embark: 'default' });
+  const m = game.map;
+  const b = game.world.readers.of<BuildingsReader>('14');
+  const wagon = b.get(b.wagon())!;
+  const wx = m.xOf(wagon.origin), wy = m.yOf(wagon.origin), wz = m.zOf(wagon.origin);
+  const byZ: Record<number, number> = {}; let nearestAny = 999; let water = 0, near32 = 0, near64 = 0, best = 999, frozen = 0;
+  for (let t = 0; t < m.tileCount; t += 1) {
+    if (m.fluidLevelAt(t) < 1 || m.fluidTypeAt(t) !== FluidType.Water) continue;
+    water += 1; byZ[m.zOf(t)] = (byZ[m.zOf(t)] ?? 0) + 1; nearestAny = Math.min(nearestAny, Math.max(Math.abs(m.xOf(t) - wx), Math.abs(m.yOf(t) - wy)));
+    const d = Math.max(Math.abs(m.xOf(t) - wx), Math.abs(m.yOf(t) - wy));
+    if (Math.abs(m.zOf(t) - wz) <= 8) { if (d <= 32) near32 += 1; if (d <= 64) near64 += 1; best = Math.min(best, d); }
+    if (m.fluidFrozenAt(t)) frozen += 1;
+  }
+  console.log(`WATER ${seed} ${JSON.stringify({ wagon: [wx, wy, wz], water, near32, near64, nearest: best, frozen, byZ, nearestAny, w: m.w, h: m.h })}`);
+}, 300000);
