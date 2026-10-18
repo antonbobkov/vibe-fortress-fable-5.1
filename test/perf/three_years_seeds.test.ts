@@ -30,7 +30,9 @@ import {
   checkFortressCaveFarm,
   checkFortressDefense,
   threeYearsWorld,
+  fortressWitnesses,
 } from '../scenarios/three_years_fortress';
+import { scriptRecord } from '../scenarios/script-commands';
 
 export interface SeedConfig {
   readonly seed: string;
@@ -302,6 +304,14 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     expect(economy.needDeaths(), `${seed} (peril 0): no dwarf died of hunger or thirst`).toBe(0);
     expect(y3Pop, `${seed} (peril 0) grew past embark size`).toBeGreaterThan(7);
   }
+  // T-156: a living fortress did what the script exists to exercise (the gate, the halls, the
+  // bedrooms, the squad; at perils 2 and 4 an alert raised and lowered, and a trade).
+  console.log(`[three_years_seeds_script] ${JSON.stringify({ seed, accepted: Object.fromEntries(scriptRecord(w).accepted), rejected: Object.fromEntries(scriptRecord(w).rejected) })}`);
+  if (y3Pop > 0) expect(fortressWitnesses(w, state, peril), `${seed} T-156 witnesses`).toEqual([]);
+  // Kept (T-156, under T-334's rule): every seed's fortress is alive at the end of its first year.
+  // "Not wiped out" is an outcome a reordering of jobs flips rarely (testing-strategy.md § What may
+  // be a gate), and a fortress dead in year 1 exercises nothing of years 2 and 3.
+  expect(y1Pop, `${seed} alive at the end of year 1`).toBeGreaterThan(0);
   // Kept: rules of 21 Immigration, whatever the order of jobs.
   expect(y3Pop, `${seed} population within POPULATION_CAP_DEFAULT`).toBeLessThanOrEqual(POPULATION_CAP_DEFAULT);
   for (const wave of waves) {

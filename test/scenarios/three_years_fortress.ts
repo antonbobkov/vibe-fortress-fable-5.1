@@ -26,6 +26,7 @@ import type { TerrainReader } from '@systems/terrain/reader';
 import type { AnimalsReader } from '@systems/animals';
 import type { DwarvesReader } from '@systems/dwarves';
 import { TestWorld } from './test-world';
+import { command } from './script-commands';
 import { armingSquad, assignBroker, BUILD, checkEconomy, KIT_FIRST, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, type EconomyState } from './three_years_economy';
 import { attachThreeYearsMeasurements, note, observeImmigration, stepThreeYears, type ThreeYearsMeasurements } from './three_years_measurements';
 
@@ -297,7 +298,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   for (const [index, id] of arrival.dwarves.entries()) {
     for (const row of w.game.registry.table<{ id: string; defaultOn: boolean }>('labors').rows.slice(1)) {
       const on = professions[index]?.includes(row.id) ?? (row.defaultOn && !['mining', 'woodcutting'].includes(row.id));
-      w.game.world.applyCommand({ type: 'SetLabor', dwarfId: id, labor: row.id, on });
+      command(w, { type: 'SetLabor', dwarfId: id, labor: row.id, on });
     }
   }
 
@@ -331,10 +332,10 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
       }
     }
   }
-  const rSp = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles: spTiles });
+  const rSp = command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: spTiles });
   if (!rSp.ok) throw new Error(`Stockpile CreateZone failed: ${rSp.reason}`);
   const spId = bSystem.lastCreatedZone;
-  w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: spId, filter: 'everything' });
+  command(w, { type: 'SetStockpileFilter', zoneId: spId, filter: 'everything' });
 
   // 2b. Surface dedicated drink stockpile directly south of the still (3x2: x = cx..cx + 2, y = cy + 13..cy + 14)
   const drinkSpSurfaceTiles: number[] = [];
@@ -344,38 +345,38 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
       if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('stockpile', t)) drinkSpSurfaceTiles.push(t);
     }
   }
-  const rDrinkSp = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles: drinkSpSurfaceTiles });
+  const rDrinkSp = command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: drinkSpSurfaceTiles });
   if (rDrinkSp.ok) {
     const dSpId = bSystem.lastCreatedZone;
-    w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: dSpId, filter: 'drink' });
-    w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId: dSpId, priority: ROUTINE });
+    command(w, { type: 'SetStockpileFilter', zoneId: dSpId, filter: 'drink' });
+    command(w, { type: 'SetStockpilePriority', zoneId: dSpId, priority: ROUTINE });
     // Loose drink keeps on a stockpile only in a barrel there (13 § Stockpiles), and 10 drinks
     // stocked barrels before the brook and the brook before brew left at the still. A third of the
     // tiles hold empty barrels; the rest stay free for the full barrels the still makes.
-    w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: dSpId, wants: { barrel: Math.ceil(drinkSpSurfaceTiles.length / 3) } });
+    command(w, { type: 'SetStockpileContainers', zoneId: dSpId, wants: { barrel: Math.ceil(drinkSpSurfaceTiles.length / 3) } });
   }
 
   // 3. F-17g: labors keep the default priority. Routine work is not urgent, so a dwarf eats,
   // drinks, sits and talks at the want threshold instead of deferring to the critical one. One real
   // bottleneck gets one step: the food chain (planting, harvesting, brewing, cooking).
   for (const row of w.game.registry.table<{ id: string }>('labors').rows.slice(1)) {
-    w.game.world.applyCommand({ type: 'SetLaborPriority', labor: row.id, priority: STEP_LABORS.includes(row.id) ? ROUTINE - 1 : ROUTINE });
+    command(w, { type: 'SetLaborPriority', labor: row.id, priority: STEP_LABORS.includes(row.id) ? ROUTINE - 1 : ROUTINE });
   }
 
   // 4. Stairwell to rock layer (z = HALL_Z). The gate site is cleared first by sequence, not by
   // urgency: its trees are the only ones designated until they are down.
   const gateTrees = treeTiles.filter((t) => Math.abs(map.xOf(t) - cx - 6) <= 2 && Math.abs(map.yOf(t) - cy - 6) <= 2);
   if (gateTrees.length) {
-    w.game.world.applyCommand({ type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: gateTrees });
+    command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: gateTrees });
     const end = w.tick + 6 * TICKS_PER_DAY;
     while (w.tick < end && !gateTrees.every((t) => map.kindAt(t) === TileKind.Floor)) stepThreeYears(w, 1);
   }
-  const rStairs = w.game.world.applyCommand({ type: 'DesignateStairwell', x: cx + 6, y: cy + 6, zTop: 32, zBottom: HALL_Z, priority: ROUTINE });
+  const rStairs = command(w, { type: 'DesignateStairwell', x: cx + 6, y: cy + 6, zTop: 32, zBottom: HALL_Z, priority: ROUTINE });
   if (!rStairs.ok) throw new Error(`DesignateStairwell failed: ${rStairs.reason}`);
   // The caravan road is cleared outright; the rest of the wood is felled in batches as the
   // log stock runs down (checkEconomy), so the haulers are not buried under a clear-cut forest.
   const road = roadTrees.filter((t) => map.kindAt(t) === TileKind.Tree);
-  if (road.length) w.game.world.applyCommand({ type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: road });
+  if (road.length) command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: road });
 
   // 5. Cave farm at z = 31
   const caveTiles1: number[] = [];
@@ -390,7 +391,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
       if (x >= 1 && x < map.w - 1 && y >= 1 && y < map.h - 1) caveTiles2.push(w.index(x, y, Z - 1));
     }
   }
-  const rCaveDig = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: [...caveTiles1, ...caveTiles2] });
+  const rCaveDig = command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: [...caveTiles1, ...caveTiles2] });
   if (!rCaveDig.ok) throw new Error(`Designate cave farm dig failed: ${rCaveDig.reason}`);
 
   // 6. Underground designations at z = HALL_Z
@@ -434,7 +435,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   const arming = w.readers.of<ItemsReader>('13').count('anvil') > 0;
   const trunk = corridorTiles.filter((t) => map.xOf(t) === cx + 6 && map.yOf(t) >= cy + 7 && map.yOf(t) <= Math.min(map.h - 3, cy + 15));
   if (arming) {
-    const rTrunk = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: KIT_FIRST, tiles: trunk });
+    const rTrunk = command(w, { type: 'Designate', kind: 'dig', priority: KIT_FIRST, tiles: trunk });
     if (!rTrunk.ok) throw new Error(`Designate trunk dig failed: ${rTrunk.reason}`);
   }
   // Bedroom plans
@@ -453,11 +454,11 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
       shelterTiles.push(w.index(bp.doorX, bp.doorY, HALL_Z));
       for (let y = bp.y1; y <= bp.y2; y += 1) for (let x = bp.x1; x <= bp.x2; x += 1) shelterTiles.push(w.index(x, y, HALL_Z));
     }
-    const rShelter = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: KIT_FIRST, tiles: shelterTiles });
+    const rShelter = command(w, { type: 'Designate', kind: 'dig', priority: KIT_FIRST, tiles: shelterTiles });
     if (!rShelter.ok) throw new Error(`Designate shelter dig failed: ${rShelter.reason}`);
   }
   const ahead = new Set([...(arming ? trunk : []), ...shelterTiles]);
-  const rDigHalls = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: hallDigTiles.filter((t) => !ahead.has(t)) });
+  const rDigHalls = command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: hallDigTiles.filter((t) => !ahead.has(t)) });
   if (!rDigHalls.ok) throw new Error(`Designate hall dig failed: ${rDigHalls.reason}`);
 
   // Fill in tile indices for all bedroom plans
@@ -478,7 +479,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     initialDigTiles.push(w.index(bp.doorX, bp.doorY, HALL_Z));
     initialDigTiles.push(...bp.tiles);
   }
-  const rDigBedrooms = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: initialDigTiles.filter((t) => !ahead.has(t)) });
+  const rDigBedrooms = command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: initialDigTiles.filter((t) => !ahead.has(t)) });
   if (!rDigBedrooms.ok) throw new Error(`Designate bedroom dig failed: ${rDigBedrooms.reason}`);
 
   // 7. Surface workshops
@@ -491,7 +492,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     const t = w.index(cx + 3, y, Z);
     if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('meeting_area', t)) meetTiles.push(t);
   }
-  w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'meeting_area', tiles: meetTiles });
+  command(w, { type: 'CreateZone', zoneType: 'meeting_area', tiles: meetTiles });
 
   // 9. Surface barley and turnip farm
   stepThreeYears(w, 5);
@@ -502,12 +503,12 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
       if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t)) farmTiles.push(t);
     }
   }
-  const rFarm = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles: farmTiles });
+  const rFarm = command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: farmTiles });
   if (rFarm.ok) {
     const farmId = bSystem.lastCreatedZone;
-    w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 0, speciesId: 'barley' });
-    w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 1, speciesId: 'barley' });
-    w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 2, speciesId: 'turnip' });
+    command(w, { type: 'SetPlotCrop', zoneId: farmId, season: 0, speciesId: 'barley' });
+    command(w, { type: 'SetPlotCrop', zoneId: farmId, season: 1, speciesId: 'barley' });
+    command(w, { type: 'SetPlotCrop', zoneId: farmId, season: 2, speciesId: 'turnip' });
   }
 
   // 10. Surface pasture
@@ -518,11 +519,14 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
       if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('pasture', t)) pastureTiles.push(t);
     }
   }
-  const rPasture = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'pasture', tiles: pastureTiles });
+  const rPasture = command(w, { type: 'CreateZone', zoneType: 'pasture', tiles: pastureTiles });
   if (rPasture.ok) {
     const pastureId = bSystem.lastCreatedZone;
-    for (const id of w.game.world.entities.with(C.Tame)) {
-      w.game.world.applyCommand({ type: 'AssignPasture', animalId: id, zoneId: pastureId });
+    // Only a tame grazer goes to pasture (08 § Pastures): the dogs and cats stay at home.
+    const animals = w.readers.of<AnimalsReader>('08');
+    for (const id of animals.tameList()) {
+      if (animals.def(w.game.world.entities.get(id, C.Creature)?.species ?? -1)?.diet !== 'grazer') continue;
+      command(w, { type: 'AssignPasture', animalId: id, zoneId: pastureId });
     }
   }
 
@@ -535,7 +539,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
       if (map.kindAt(t) === TileKind.Shrub && buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('gather', t)) gatherTiles.push(t);
     }
   }
-  if (gatherTiles.length) w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'gather', tiles: gatherTiles });
+  if (gatherTiles.length) command(w, { type: 'CreateZone', zoneType: 'gather', tiles: gatherTiles });
 
   return {
     economy: { lastDay: -1, phases: new Set(), traded: new Set(), mined: new Set(), workings: new Set(), specialists: {}, farmPlans: [], cavePlans: [] },
@@ -586,15 +590,15 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
     // first few barrels are made at once; then the hospital's chest and a wooden buckler for
     // each of the militia. Beds come before the standing barrel order (checkEconomy).
     for (const [recipeId, remaining] of [['make_barrel', FIRST_BARRELS], ['make_chest_wood', 1], ['make_buckler_wood', MILITIA.length]] as const) {
-      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: placedIds['carpenter'],
+      command(w, { type: 'AddWorkOrder', workshopId: placedIds['carpenter'],
         order: { recipeId, mode: 'once', remaining, priority: ROUTINE } });
     }
-    w.game.world.applyCommand({
+    command(w, {
       type: 'AddWorkOrder',
       workshopId: placedIds['carpenter'],
       order: { recipeId: 'make_barrel', mode: 'maintain', threshold: 20, priority: ROUTINE },
     });
-    w.game.world.applyCommand({
+    command(w, {
       type: 'AddWorkOrder',
       workshopId: placedIds['carpenter'],
       order: { recipeId: 'make_table_wood', mode: 'maintain', threshold: 6, priority: ROUTINE },
@@ -604,22 +608,22 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
     ordered.add('mason');
     // Stone blocks maintain 30: vital for hearth, constructions, and workshop building.
     // F-17h: while the squad waits for its kit the forge's blocks go a step ahead.
-    w.game.world.applyCommand({
+    command(w, {
       type: 'AddWorkOrder',
       workshopId: placedIds['mason'],
       order: { recipeId: 'make_stone_block', mode: 'maintain', threshold: 30, priority: armingSquad(state) ? KIT_FIRST : ROUTINE },
     });
-    w.game.world.applyCommand({
+    command(w, {
       type: 'AddWorkOrder',
       workshopId: placedIds['mason'],
       order: { recipeId: 'make_door_stone', mode: 'maintain', threshold: 4, priority: ROUTINE },
     });
-    w.game.world.applyCommand({
+    command(w, {
       type: 'AddWorkOrder',
       workshopId: placedIds['mason'],
       order: { recipeId: 'make_table_stone', mode: 'maintain', threshold: 6, priority: ROUTINE },
     });
-    w.game.world.applyCommand({
+    command(w, {
       type: 'AddWorkOrder',
       workshopId: placedIds['mason'],
       order: { recipeId: 'make_chair_stone', mode: 'maintain', threshold: 14, priority: ROUTINE },
@@ -627,7 +631,7 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
   }
   if (!ordered.has('craftdwarf') && buildings.get(placedIds['craftdwarf']!)?.state === 'built') {
     ordered.add('craftdwarf');
-    w.game.world.applyCommand({
+    command(w, {
       type: 'AddWorkOrder',
       workshopId: placedIds['craftdwarf'],
       order: { recipeId: 'craft_stone', mode: 'maintain', threshold: 60, priority: ROUTINE },
@@ -635,7 +639,7 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
   }
   if (!ordered.has('still') && buildings.get(placedIds['still']!)?.state === 'built') {
     ordered.add('still');
-    w.game.world.applyCommand({
+    command(w, {
       type: 'AddWorkOrder',
       workshopId: placedIds['still'],
       // Drink has first call on the plants: the one order a step ahead of the kitchen's.
@@ -644,12 +648,12 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
   }
   if (!ordered.has('kitchen') && buildings.get(placedIds['kitchen']!)?.state === 'built') {
     ordered.add('kitchen');
-    w.game.world.applyCommand({
+    command(w, {
       type: 'AddWorkOrder',
       workshopId: placedIds['kitchen'],
       order: { recipeId: 'cook_easy_meal', mode: 'maintain', threshold: 20, priority: ROUTINE },
     });
-    w.game.world.applyCommand({
+    command(w, {
       type: 'AddWorkOrder',
       workshopId: placedIds['kitchen'],
       order: { recipeId: 'cook_fine_meal', mode: 'maintain', threshold: 10, priority: ROUTINE },
@@ -667,7 +671,7 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
         const forge = buildings.get(forgeId)!;
         state.forgePlaced = true;
         const corners = [0, 2, 6, 8].map((i) => forge.footprint[i]!);
-        w.game.world.applyCommand({ type: 'SetTraffic', tiles: corners, mode: 'forbidden' });
+        command(w, { type: 'SetTraffic', tiles: corners, mode: 'forbidden' });
       }
     }
   }
@@ -676,20 +680,20 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
     ordered.add('forge');
     state.forgeBuiltDay = Math.floor(w.tick / TICKS_PER_DAY) + 1;
     const corners = [0, 2, 6, 8].map((i) => buildings.get(state.placedIds['forge']!)!.footprint[i]!);
-    w.game.world.applyCommand({ type: 'SetTraffic', tiles: corners, mode: 'normal' });
+    command(w, { type: 'SetTraffic', tiles: corners, mode: 'normal' });
     if (armingSquad(state)) {
       // F-17h: the three soldiers' mail, shields and swords are the forge's only orders, ahead of
       // all routine work, until every piece is forged. Tools and export goods follow (checkEconomy).
       for (const recipeId of SQUAD_KIT) {
-        w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: state.placedIds['forge'],
+        command(w, { type: 'AddWorkOrder', workshopId: state.placedIds['forge'],
           order: { recipeId, mode: 'maintain', threshold: SQUAD_SIZE, materialFilter: 'iron', priority: KIT_FIRST } });
       }
     } else {
       // Replace tools first, then equip the squad before producing export goods.
-      w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: state.placedIds['forge'],
+      command(w, { type: 'AddWorkOrder', workshopId: state.placedIds['forge'],
         order: { recipeId: 'forge_pick', mode: 'once', remaining: 2, materialFilter: 'iron', priority: ROUTINE } });
       for (const recipeId of SQUAD_KIT) {
-        w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: state.placedIds['forge'],
+        command(w, { type: 'AddWorkOrder', workshopId: state.placedIds['forge'],
           order: { recipeId, mode: 'maintain', threshold: SQUAD_SIZE, materialFilter: 'iron', priority: ROUTINE } });
       }
     }
@@ -724,7 +728,7 @@ export function designateSmoothTiles(w: TestWorld, tiles: readonly number[], pri
     }
   }
   if (smoothTiles.length > 0) {
-    w.game.world.applyCommand({ type: 'Designate', kind: 'smooth', priority, tiles: smoothTiles });
+    command(w, { type: 'Designate', kind: 'smooth', priority, tiles: smoothTiles });
   }
 }
 
@@ -745,7 +749,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       state.hearthHallSetup = true;
       // Hearth in center
       const hearthOrigin = w.index(cx + 10, cy + 6, HALL_Z);
-      const rHearth = w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'hearth', origin: hearthOrigin, orientation: 0, materialChoice: 0, priority: BUILD - 1 });
+      const rHearth = command(w, { type: 'PlaceBuilding', buildingType: 'hearth', origin: hearthOrigin, orientation: 0, materialChoice: 0, priority: BUILD - 1 });
       if (rHearth.ok) state.hearthBuildingId = bSystem.lastPlacedBuilding;
 
       // Chairs for hearth-side sitting (all passable)
@@ -753,14 +757,14 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       const c2 = w.index(cx + 11, cy + 6, HALL_Z);
       const c3 = w.index(cx + 10, cy + 5, HALL_Z);
       const c4 = w.index(cx + 10, cy + 7, HALL_Z);
-      w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'chair', origin: c1, orientation: 0, materialChoice: 0, priority: BUILD });
-      w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'chair', origin: c2, orientation: 0, materialChoice: 0, priority: BUILD });
-      w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'chair', origin: c3, orientation: 0, materialChoice: 0, priority: BUILD });
-      w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'chair', origin: c4, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c1, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c2, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c3, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c4, orientation: 0, materialChoice: 0, priority: BUILD });
 
       // Create zones
-      w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'hearth_hall', tiles: state.hearthHallTiles });
-      w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'meeting_area', tiles: state.hearthHallTiles });
+      command(w, { type: 'CreateZone', zoneType: 'hearth_hall', tiles: state.hearthHallTiles });
+      command(w, { type: 'CreateZone', zoneType: 'meeting_area', tiles: state.hearthHallTiles });
 
       // Smooth floors and bordering walls at the default priority (exclude hearth origin)
       smooth(state.hearthHallTiles.filter((t) => t !== hearthOrigin));
@@ -780,15 +784,15 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       const t2 = w.index(cx + 2, cy + 7, HALL_Z);
       const c3 = w.index(cx + 1, cy + 7, HALL_Z);
       const c4 = w.index(cx + 3, cy + 7, HALL_Z);
-      w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'table', origin: t1, orientation: 0, materialChoice: 0, priority: BUILD });
-      w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'chair', origin: c1, orientation: 0, materialChoice: 0, priority: BUILD });
-      w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'chair', origin: c2, orientation: 0, materialChoice: 0, priority: BUILD });
-      w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'table', origin: t2, orientation: 0, materialChoice: 0, priority: BUILD });
-      w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'chair', origin: c3, orientation: 0, materialChoice: 0, priority: BUILD });
-      w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'chair', origin: c4, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'table', origin: t1, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c1, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c2, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'table', origin: t2, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c3, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c4, orientation: 0, materialChoice: 0, priority: BUILD });
 
       // Create dining_hall zone
-      w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'dining_hall', tiles: state.diningHallTiles });
+      command(w, { type: 'CreateZone', zoneType: 'dining_hall', tiles: state.diningHallTiles });
 
       // Create underground drink stockpile beside dining hall (cx - 3..cx - 1, cy + 4..cy + 5)
       const ugDrinkTiles: number[] = [];
@@ -801,12 +805,12 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
         }
       }
       if (ugDrinkTiles.length > 0) {
-        const rD = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles: ugDrinkTiles });
+        const rD = command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: ugDrinkTiles });
         if (rD.ok) {
           const zid = bSystem.lastCreatedZone;
-          w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: zid, filter: 'drink' });
-          w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId: zid, priority: ROUTINE });
-          w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: zid, wants: { barrel: Math.ceil(ugDrinkTiles.length / 3) } });
+          command(w, { type: 'SetStockpileFilter', zoneId: zid, filter: 'drink' });
+          command(w, { type: 'SetStockpilePriority', zoneId: zid, priority: ROUTINE });
+          command(w, { type: 'SetStockpileContainers', zoneId: zid, wants: { barrel: Math.ceil(ugDrinkTiles.length / 3) } });
         }
       }
 
@@ -815,11 +819,11 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
   }
 
   if (!state.economy.phases.has('pantry') && state.pantryTiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
-    const result = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles: state.pantryTiles });
+    const result = command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: state.pantryTiles });
     if (result.ok) {
       const id = bSystem.lastCreatedZone;
-      w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: id, filter: 'food' });
-      w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId: id, priority: ROUTINE });
+      command(w, { type: 'SetStockpileFilter', zoneId: id, filter: 'food' });
+      command(w, { type: 'SetStockpilePriority', zoneId: id, priority: ROUTINE });
       state.economy.phases.add('pantry');
     }
   }
@@ -834,15 +838,15 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
 
       // Bed
       const bedOrigin = w.index(bp.bedX, bp.bedY, HALL_Z);
-      w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'bed', origin: bedOrigin, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'bed', origin: bedOrigin, orientation: 0, materialChoice: 0, priority: BUILD });
 
       // Thane's suite fine furniture (table, chair)
       if (bp.isThane) {
         if (bp.tableX !== undefined && bp.tableY !== undefined) {
-          w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'table', origin: w.index(bp.tableX, bp.tableY, HALL_Z), orientation: 0, materialChoice: 0, priority: BUILD });
+          command(w, { type: 'PlaceBuilding', buildingType: 'table', origin: w.index(bp.tableX, bp.tableY, HALL_Z), orientation: 0, materialChoice: 0, priority: BUILD });
         }
         if (bp.chairX !== undefined && bp.chairY !== undefined) {
-          w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'chair', origin: w.index(bp.chairX, bp.chairY, HALL_Z), orientation: 0, materialChoice: 0, priority: BUILD });
+          command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: w.index(bp.chairX, bp.chairY, HALL_Z), orientation: 0, materialChoice: 0, priority: BUILD });
         }
       }
 
@@ -851,9 +855,9 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
 
       // Zone: the room across the corridor from the Thane's suite is the hospital, with its chest.
       if (bp.id === HOSPITAL_ROOM) {
-        w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'chest', origin: w.index(bp.bedX, bp.bedY + 1, HALL_Z), orientation: 0, materialChoice: 0, priority: BUILD });
-        state.hospitalSetup = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'hospital', tiles: bp.tiles }).ok;
-      } else w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'bedroom', tiles: bp.tiles });
+        command(w, { type: 'PlaceBuilding', buildingType: 'chest', origin: w.index(bp.bedX, bp.bedY + 1, HALL_Z), orientation: 0, materialChoice: 0, priority: BUILD });
+        state.hospitalSetup = command(w, { type: 'CreateZone', zoneType: 'hospital', tiles: bp.tiles }).ok;
+      } else command(w, { type: 'CreateZone', zoneType: 'bedroom', tiles: bp.tiles });
 
       // Smooth room floors and walls at the default priority
       smooth(bp.tiles);
@@ -879,7 +883,10 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
         digTiles.push(w.index(bp.doorX, bp.doorY, HALL_Z));
         digTiles.push(...bp.tiles);
       }
-      w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: digTiles });
+      // T-156: only rock is designated. A tile of the plan already open (a mine drift or a corridor
+      // through it) fails 03's dig precondition, and with it the whole designation.
+      const rock = digTiles.filter((t) => w.map.kindAt(t) === TileKind.Wall);
+      if (rock.length > 0) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: rock });
     }
   }
 }
@@ -891,11 +898,11 @@ export function checkFortressCaveFarm(w: TestWorld, state: FortressState): void 
   if (state.caveFarmId1 === 0 && state.caveTiles1.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
     const plantable1 = state.caveTiles1.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t));
     if (plantable1.length > 0) {
-      const c1 = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles: plantable1 });
+      const c1 = command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: plantable1 });
       if (c1.ok) {
         state.caveFarmId1 = bSystem.lastCreatedZone;
         for (const s of [0, 1, 2, 3]) {
-          w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: state.caveFarmId1, season: s, speciesId: 'dimcap' });
+          command(w, { type: 'SetPlotCrop', zoneId: state.caveFarmId1, season: s, speciesId: 'dimcap' });
         }
       }
     }
@@ -903,11 +910,11 @@ export function checkFortressCaveFarm(w: TestWorld, state: FortressState): void 
   if (state.caveFarmId2 === 0 && state.caveTiles2.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
     const plantable2 = state.caveTiles2.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t));
     if (plantable2.length > 0) {
-      const c2 = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles: plantable2 });
+      const c2 = command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: plantable2 });
       if (c2.ok) {
         state.caveFarmId2 = bSystem.lastCreatedZone;
         for (const s of [0, 1, 2, 3]) {
-          w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: state.caveFarmId2, season: s, speciesId: 'cavewheat' });
+          command(w, { type: 'SetPlotCrop', zoneId: state.caveFarmId2, season: s, speciesId: 'cavewheat' });
         }
       }
     }
@@ -929,8 +936,12 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       w.index(cx + 5, cy + 6, Z), w.index(cx + 7, cy + 6, Z),
       w.index(cx + 5, cy + 7, Z), w.index(cx + 7, cy + 7, Z),
     ];
+    // A wall goes where 14's ghost accepts one now (a dwarf, a fallen log or a sapling on the
+    // tile waits for the next look), as a player places it.
     for (const origin of walls) {
-      if (!buildings.at(origin)) w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'wall', origin, orientation: 0, materialChoice: 0, priority: BUILD });
+      if (!buildings.at(origin) && buildings.ghost('wall', origin, 0).reason === null) {
+        command(w, { type: 'PlaceBuilding', buildingType: 'wall', origin, orientation: 0, materialChoice: 0, priority: BUILD });
+      }
     }
     if (walls.every((t) => buildings.get(buildings.at(t))?.typeId === 'wall')) state.economy.phases.add('gate walls');
   }
@@ -941,7 +952,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     const w2 = buildings.at(w.index(cx + 7, cy + 7, Z));
     if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
       const doorTile = w.index(cx + 6, cy + 7, Z);
-      const rDoor = w.game.world.applyCommand({
+      const rDoor = command(w, {
         type: 'PlaceBuilding',
         buildingType: 'door',
         origin: doorTile,
@@ -962,7 +973,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     const w2 = buildings.at(w.index(cx + 7, cy + 5, Z));
     if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
       const doorTile2 = w.index(cx + 6, cy + 5, Z);
-      const rDoor2 = w.game.world.applyCommand({
+      const rDoor2 = command(w, {
         type: 'PlaceBuilding',
         buildingType: 'door',
         origin: doorTile2,
@@ -982,13 +993,13 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   if (state.gateDoorPlaced && state.gateDoorId !== 0) {
     const b = buildings.get(state.gateDoorId);
     if (b?.state === 'built' && b.mode !== wantDoorMode) {
-      w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: state.gateDoorId, mode: wantDoorMode });
+      command(w, { type: 'SetDoorMode', buildingId: state.gateDoorId, mode: wantDoorMode });
     }
   }
   if (state.gateDoorPlaced2 && state.gateDoorId2 !== 0) {
     const b2 = buildings.get(state.gateDoorId2);
     if (b2?.state === 'built' && b2.mode !== wantDoorMode) {
-      w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: state.gateDoorId2, mode: wantDoorMode });
+      command(w, { type: 'SetDoorMode', buildingId: state.gateDoorId2, mode: wantDoorMode });
     }
   }
 
@@ -998,11 +1009,11 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const adults = w.readers.of<DwarvesReader>('10').adults().filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
   const founders = w.game.arrival?.dwarves ?? [];
   if (state.squadId === 0 && adults.length >= SQUAD_SIZE) {
-    const rSquad = w.game.world.applyCommand({ type: 'CreateSquad', name: 'Gate Guard' });
+    const rSquad = command(w, { type: 'CreateSquad', name: 'Gate Guard' });
     if (rSquad.ok) {
       state.squadId = combat.squads()[0]!.id;
-      w.game.world.applyCommand({ type: 'SetSquadMode', squadId: state.squadId, mode: 'off' });
-      w.game.world.applyCommand({ type: 'SetSquadEquipment', squadId: state.squadId, equipment: { weaponClass: 'any', armor: 'any' } });
+      command(w, { type: 'SetSquadMode', squadId: state.squadId, mode: 'off' });
+      command(w, { type: 'SetSquadEquipment', squadId: state.squadId, equipment: { weaponClass: 'any', armor: 'any' } });
       assignBroker(w, state);
     }
   }
@@ -1024,7 +1035,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       const recruits = order.filter((id, i) => adults.includes(id) && !living.includes(id) && order.indexOf(id) === i && (arming || !kept.has(id)));
       const members = [...living, ...recruits].slice(0, size);
       if (members.length !== squad.members.length || members.some((id) => !squad.members.includes(id))) {
-        w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: state.squadId, members });
+        command(w, { type: 'SetSquadMembers', squadId: state.squadId, members });
       }
     }
   }
@@ -1068,10 +1079,10 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   if (curAlert === 'hearth' && state.gateDoorPlaced && hallLabel !== 0 && positions.length > 0 &&
       !positions.some((p) => w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') === hallLabel)) {
     state.shutOut = true;
-    w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' });
+    command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, shutOut: true });
     state.answered = '';
-    if (state.squadId !== 0) w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+    if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
     return;
   }
   if (state.shutOut && positions.some((p) => p.z < Z)) state.shutOut = false;
@@ -1082,35 +1093,35 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   if (curAlert === 'hearth' && !raid && intruders.length === 0 && targets.length > 0 && !squadArmed(w, state) &&
       w.tick - (state.alertSince ?? w.tick) >= WILD_ALERT_TICKS) {
     state.wildQuietUntil = w.tick + WILD_QUIET_TICKS;
-    w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' });
+    command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, wildQuiet: true });
     state.answered = '';
-    if (state.squadId !== 0) w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+    if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
     return;
   }
   if (danger && !state.shutOut) {
     if (curAlert !== 'hearth') {
       state.alertSince = w.tick;
-      w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' });
+      command(w, { type: 'SetAlert', level: 'hearth' });
       note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raid, targets: targets.map((id) => speciesName(w, id)) });
     }
     const answer = `${raid ? 'raid' : ''}:${squadArmed(w, state)}:${targets.join(',')}`;
     if (state.squadId !== 0 && state.answered !== answer) {
       state.answered = answer;
-      w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+      command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
       // A raid is met at the gate. A thief or a beast is hunted down, the nearest first, by a
       // squad whose every member holds a weapon; an unarmed squad waits below with everybody else.
       const hunted = raid ? [] : squadArmed(w, state) ? targets : [];
-      for (const targetId of hunted) w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'kill', targetId } });
+      for (const targetId of hunted) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'kill', targetId } });
       const below = w.index(cx + 6, cy + 6, HALL_Z);
       const post = raid || hunted.length > 0 || !w.readers.pathing.passable(below, 'walker') ? gatehouseStairsTile : below;
-      w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'station', tile: post } });
+      command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'station', tile: post } });
     }
   } else if (curAlert === 'hearth' && w.tick - state.lastDangerTick >= ALL_CLEAR_TICKS) {
-    w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' });
+    command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true });
     state.answered = '';
-    if (state.squadId !== 0) w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+    if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
   }
 }
 
@@ -1160,4 +1171,31 @@ export function playThreeYears(w: TestWorld, state: FortressState, ticks: number
     stepThreeYears(w, Math.min(WATCH_EVERY, end - w.tick));
     checkFortressDefense(w, state);
   }
+}
+
+/**
+ * T-156: what the script exists to exercise, each of which must have happened by the end of a
+ * run. Returns the witnesses that are missing. The structures and the squad hold at every peril;
+ * at perils 2 and 4 a living fortress has also raised the hearth alert and lowered it, and traded.
+ */
+export function fortressWitnesses(w: TestWorld, state: FortressState, peril: number): string[] {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const { cx, cy } = state;
+  const missing: string[] = [];
+  const built = (id: number): boolean => buildings.get(id)?.state === 'built';
+  const walls = [[cx + 5, cy + 5], [cx + 7, cy + 5], [cx + 5, cy + 6], [cx + 7, cy + 6], [cx + 5, cy + 7], [cx + 7, cy + 7]]
+    .map(([x, y]) => buildings.at(w.index(x!, y!, Z)));
+  if (!walls.every((id) => id !== 0 && buildings.get(id)?.typeId === 'wall' && built(id))) missing.push('gate walls built');
+  if (!built(state.gateDoorId) || !built(state.gateDoorId2)) missing.push('gate doors built');
+  const rooms = (type: string): number => buildings.zonesOfType(type).filter((id) => buildings.roomScore(id)?.requirementsMet === true).length;
+  if (rooms('hearth_hall') < 1) missing.push('a hearth hall');
+  if (rooms('dining_hall') < 1) missing.push('a dining hall');
+  if (rooms('bedroom') < 7) missing.push(`seven bedrooms (${rooms('bedroom')})`);
+  if (!w.readers.of<CombatReader>('16').squads().some((sq) => sq.id === state.squadId)) missing.push('the squad');
+  if (peril >= 2) {
+    const alerts = w.events('AlertChanged');
+    if (!alerts.some((e) => e['to'] === 'hearth') || !alerts.some((e) => e['from'] === 'hearth' && e['to'] === 'calm')) missing.push('the hearth alert raised and lowered');
+    if (w.events('TradeCompleted').length === 0) missing.push('a completed trade');
+  }
+  return missing;
 }
