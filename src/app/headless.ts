@@ -371,8 +371,8 @@ export class HeadlessGame {
       hooks.blocksSightAt = (i) => sight(i) || store.blocksSightAt(i);
     }
     // A hostile that opens doors (the species flag `O`) passes an unlocked door (D-074).
-    const species = this.registry.table<{ id: string; opensDoors?: boolean }>('creatures');
-    this.movement.speciesOpensDoors = (s) => species.byIndex(s)?.opensDoors === true;
+    const species = this.registry.table<{ id: string; flags?: { opensDoors?: boolean } }>('creatures');
+    this.movement.speciesOpensDoors = (s) => species.byIndex(s)?.flags?.opensDoors === true;
     this.arrival = options.loading === true ? null : this.embark(options.embark ?? 'none', options.spec ?? FLAT_TEST_SPEC, options.fortressName);
     // The arrival set the calendar to its hour after 06's `init`: 06 reads the hour again (D-103).
     if (this.arrival !== null) (systems.find((s) => s instanceof WeatherSystem) as WeatherSystem | undefined)?.refresh();
