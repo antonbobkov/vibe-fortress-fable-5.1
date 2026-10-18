@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | T-393 (the performance tier, which the full gate runs, fails on a played-fortress death and worst ticks) | open; local side (needs a quiet machine) |
-| T-150 | [A year in the browser is played through the real UI](work/T-150-full-year-through-the-ui.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | — | open; local side. Three of four stages are on master (played through the UI with the clock paused, food margin and survival asserted; the day through the frame loop is the `frame-loop-day` spec). Stage 4 (trade, panel uses, save/load hash) is unverified work in progress on branch `t-150-stage4-wip` |
 | T-151 | [A defence year: traps, a gate, a trained squad, a raid repelled](work/T-151-defence-year-scenario.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | — (T-140 and T-141 closed) | open; local side (the cloud agent stopped before it): three stages are on master, the raid stage remains |
 | T-360 | [Measure brook drinking under wild animals](work/T-360-brook-drinking-under-wildlife.md) | the review of T-350 | — | open |
 | T-364 | [Measure farm yield](work/T-364-measure-farm-yield.md) | T-333, the unmeasured-numbers report | — | open |
