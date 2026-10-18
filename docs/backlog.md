@@ -11,7 +11,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | T-393 (the performance tier, which the full gate runs, fails on a played-fortress death and worst ticks) | open; local side (needs a quiet machine) |
+| T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | — (T-393 closed 2026-10-18; needs a quiet machine) | open; local side (needs a quiet machine) |
 | T-151 | [A defence year: traps, a gate, a trained squad, a raid repelled](work/T-151-defence-year-scenario.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | — (T-140 and T-141 closed) | open; local side (the cloud agent stopped before it): three stages are on master, the raid stage remains |
 | T-360 | [Measure brook drinking under wild animals](work/T-360-brook-drinking-under-wildlife.md) | the review of T-350 | — | open |
 | T-364 | [Measure farm yield](work/T-364-measure-farm-yield.md) | T-333, the unmeasured-numbers report | — | open |
@@ -26,6 +26,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-390 | [Two kinds of slow tick remain in the reference fortress with its 25,000 items loose](work/T-390-slow-ticks-with-loose-items.md) | T-383 | — | open |
 | T-391 | [A raid party's loot item is not alive at tick 286,800 of seed p2-5](work/T-391-party-loot-missing-p2-5.md) | the T-370 check of the sweep seeds | — | open |
 | T-392 | [Haul jobs to the trade depot stay blocked after a failed walk on seed p4-1](work/T-392-haul-to-depot-failed-walk-p4-1.md) | the T-370 check of the sweep seeds | — | open |
-| T-393 | [The performance tier fails: a dwarf dies in the played fortress, and worst ticks pass 40 ms](work/T-393-perf-tier-played-fortress-death.md) | T-140's re-measure | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

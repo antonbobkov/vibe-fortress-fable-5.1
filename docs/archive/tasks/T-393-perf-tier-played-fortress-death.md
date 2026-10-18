@@ -1,5 +1,7 @@
 # T-393 — The performance tier fails: a dwarf dies in the played fortress, and worst ticks pass 40 ms
 
+**Closed:** 2026-10-18, in b069e88, 86d6016.
+
 **Source:** T-140's check of the performance tier, 2026-10-18 at `88119f4` (and at `a9a21dd`, before T-383 to T-388 were merged) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why

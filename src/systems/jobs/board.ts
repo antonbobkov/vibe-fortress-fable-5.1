@@ -26,7 +26,7 @@ import {
   STANDING_ORDERS,
 } from './constants';
 import { NO_ITEMS, type ItemSource, type JobSink, type JobSpec } from './producers';
-import type { Job, JobsStateV1 } from './state';
+import type { Job, JobsStateV1, Tool } from './state';
 import { stepWorker } from './steps';
 
 export interface JobTypeRow {
@@ -76,6 +76,12 @@ export class JobBoard implements JobsApi, JobSink {
   readonly standingOrders: Record<string, boolean> = {};
   readonly assignQueue: EntityId[] = [];
   blockedRetryCursor = 0;
+  /**
+   * During one `retryBlocked` pass, whether some worker holds or can fetch each tool. Nothing in the
+   * pass moves an item or a worker, so every `no_tool` job of the pass gets the same answer, and the
+   * kit search over every worker runs once a pass instead of once a job.
+   */
+  private toolOnHandMemo: Map<Tool, boolean> | null = null;
   readonly producers: JobProducer[] = [];
   /** 13's item search and handling (the D-054 seam); the jobs system installs the real one. */
   items: ItemSource = NO_ITEMS;
@@ -519,6 +525,15 @@ export class JobBoard implements JobsApi, JobSink {
       return job.state === 'blocked' && job.retryTick <= this.now && job.failedWalk !== true;
     });
     if (due.length === 0) return;
+    this.toolOnHandMemo = new Map();
+    try {
+      this.retryDue(due);
+    } finally {
+      this.toolOnHandMemo = null;
+    }
+  }
+
+  private retryDue(due: readonly number[]): void {
     let start = due.findIndex((id) => id > this.blockedRetryCursor);
     if (start < 0) start = 0;
     const n = Math.min(BLOCKED_RETRIES_PER_TICK, due.length);
@@ -596,11 +611,7 @@ export class JobBoard implements JobsApi, JobSink {
     if (job.blockedReason === 'no_tool') {
       const tool = job.tool;
       if (tool !== null && job.data['toolToFetch'] === undefined) {
-        const carried = this.workers().some((w) => this.items.hasTool(w, tool));
-        // A worker that holds a launcher may need only its ammunition.
-        const kit = tool === 'ranged' && this.items.findRangedKit !== undefined &&
-          this.workers().some((w) => (this.items.findRangedKit?.(w, this.workerTile(w)) ?? null) !== null);
-        if (!carried && !kit && this.items.findTool(tool, from) === 0) {
+        if (!this.toolOnHand(tool) && this.items.findTool(tool, from) === 0) {
           return false;
         }
       }
@@ -608,6 +619,19 @@ export class JobBoard implements JobsApi, JobSink {
     }
 
     return true;
+  }
+
+  /** Whether some worker holds the tool, or, for a launcher, holds one or can fetch a kit for itself. */
+  private toolOnHand(tool: Tool): boolean {
+    const known = this.toolOnHandMemo?.get(tool);
+    if (known !== undefined) return known;
+    const carried = this.workers().some((w) => this.items.hasTool(w, tool));
+    // A worker that holds a launcher may need only its ammunition.
+    const kit = !carried && tool === 'ranged' && this.items.findRangedKit !== undefined &&
+      this.workers().some((w) => (this.items.findRangedKit?.(w, this.workerTile(w)) ?? null) !== null);
+    const onHand = carried || kit;
+    this.toolOnHandMemo?.set(tool, onHand);
+    return onHand;
   }
 
   // ---------- reservations ----------

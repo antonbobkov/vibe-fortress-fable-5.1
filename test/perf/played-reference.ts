@@ -40,9 +40,10 @@ function firstZone(w: TestWorld, type: string, used: Set<number>, count: number,
 }
 
 /** Bootstrap only the settlement; all its workers then run for 2,000 ticks on their own brains. */
-export function buildPlayedReference(): { world: TestWorld; naturalWaterTiles: number[]; settledAt: number } {
+export function buildPlayedReference(observe?: (w: TestWorld) => void): { world: TestWorld; naturalWaterTiles: number[]; settledAt: number } {
   const w = new TestWorld({ seed: SEED, world: 'local', spec: generatedSpec(SEED), embark: 'default',
     startTick: 2 * TICKS_PER_YEAR + 8 * TICKS_PER_HOUR });
+  observe?.(w);
   const wagon = w.game.arrival?.wagon;
   if (wagon === undefined) throw new Error('no wagon');
   // Arrival sets the calendar to spring year one; position the authored gate at year three.
