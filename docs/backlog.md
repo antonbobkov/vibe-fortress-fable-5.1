@@ -26,7 +26,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-380 | [Year-1 wealth of the economy fixture is two to three times the model](work/T-380-year-one-wealth-above-the-model.md) | T-145's peril-0 sweep | — | open |
 | T-381 | [Measure raid sizes at peril 2 with the economy fixture](work/T-381-raid-sizes-at-peril-2-with-the-economy-fixture.md) | T-145's peril-0 sweep | — | open |
 | T-382 | [The game says when a hearth alert has locked every dwarf outside its gate](work/T-382-alert-locks-everyone-outside.md) | T-363 | — | open |
-| T-383 | [A craft job's unit search enumerates every matching item, one search at a time](work/T-383-find-units-enumerates-every-match.md) | T-344 and its review | — | open |
 | T-389 | [An ambush party stays on the map for more than ten days](work/T-389-ambush-party-stays-past-ten-days.md) | T-387's peril-2 rerun | — | open |
+| T-390 | [Two kinds of slow tick remain in the reference fortress with its 25,000 items loose](work/T-390-slow-ticks-with-loose-items.md) | T-383 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

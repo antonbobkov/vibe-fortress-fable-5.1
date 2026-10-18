@@ -90,11 +90,8 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
     findItems: (filter, n, from) => reader.findItems(filter, n, from, 'walker', { reservable: true }),
     findUnits: (filter, n, from, split = true) => {
       const candidates: { id: EntityId; count: number; order: number }[] = [];
-      const excluded = [...(filter.excludeIds ?? [])];
-      for (;;) {
-        const id = reader.findItem({ ...filter, excludeIds: excluded }, from, 'walker', { reservable: true });
-        if (id === 0) break;
-        excluded.push(id);
+      // Every match in the order `findItem` would return them one after the other.
+      for (const id of reader.findItems({ ...filter }, Number.MAX_SAFE_INTEGER, from, 'walker', { reservable: true })) {
         const count = reader.get(id)?.count ?? 0;
         if (count > 0) candidates.push({ id, count, order: candidates.length });
       }
