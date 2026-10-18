@@ -133,10 +133,10 @@ Job producer `plants` (`plant`, `harvest`); inspector sections `tile › plant` 
 
 | Name | Value | Meaning |
 |---|---|---|
-| `BASE_GROWTH` | 100 | Growth units per hour at 100% (*unmeasured*) |
+| `BASE_GROWTH` | 100 | Growth units per hour at 100% (measured: a dimcap takes 16.04 days from sowing to harvest, [farm yield](../../reports/audits/2026-10-18-farm-yield.md)) |
 | `PLANT_TICKS` | 40 | Base work time (*unmeasured*) |
 | `HARVEST_TICKS` | 40 | *unmeasured* |
-| `SEEDS_PER_HARVEST` | 1 | *unmeasured* |
+| `SEEDS_PER_HARVEST` | 1 | Measured: 208 harvests returned 208 seeds ([farm yield](../../reports/audits/2026-10-18-farm-yield.md)) |
 | `REGROWTH_TRIES_PER_DAY` | 40 | Candidate tiles per day for saplings (*unmeasured*) |
 | `REGROWTH_PERMILLE` | 200 | Multiplied by biome tree density (0–1) (*unmeasured*) |
 | `GRASS_REGROW_PERMILLE` | 120 | Per bare tile per day with a grass neighbor |

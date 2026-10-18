@@ -1,10 +1,12 @@
 # T-364 — Measure farm yield
 
-**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) (rank 1) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-18, in e4065d8.
+
+**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) (rank 1) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
-Every fortress eats from its plots every day, and the balance model sizes them from one figure nobody has measured: a farm tile gives 0.25 plants a day ("4 plants per 16 days", `balance.md` § Food chain), so 20 cave tiles feed twenty dwarves and 13 dimcap tiles keep the still in drink. That figure comes from `BASE_GROWTH` (07), the season growth multipliers (06 § Seasons) and `SEEDS_PER_HARVEST` (07), all marked *unmeasured*. The three-year fortress starved past about 40 dwarves ([the food-chain diagnosis](../../reports/audits/2026-10-16-t145-food-chain-diagnosis.md)); its causes were script choices, so no measurement says whether a plot of the promised size would have fed it.
+Every fortress eats from its plots every day, and the balance model sizes them from one figure nobody has measured: a farm tile gives 0.25 plants a day ("4 plants per 16 days", `balance.md` § Food chain), so 20 cave tiles feed twenty dwarves and 13 dimcap tiles keep the still in drink. That figure comes from `BASE_GROWTH` (07), the season growth multipliers (06 § Seasons) and `SEEDS_PER_HARVEST` (07), all marked *unmeasured*. The three-year fortress starved past about 40 dwarves ([the food-chain diagnosis](../../../reports/audits/2026-10-16-t145-food-chain-diagnosis.md)); its causes were script choices, so no measurement says whether a plot of the promised size would have fed it.
 
 ## What to do
 
