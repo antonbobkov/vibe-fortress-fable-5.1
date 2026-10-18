@@ -31,7 +31,7 @@ import { CARAVAN_DAY_MAX, CARAVAN_DAY_MIN } from '@systems/trade/constants';
 import { GUARANTEED_SIZE_MAX, GUARANTEED_SIZE_MIN } from '@systems/immigration/constants';
 import { CARAVAN_SEASON } from '@systems/trade/schedule';
 import { TileKind } from '@core/map3d';
-import { C } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import { deathCounts } from './death-counts';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
@@ -39,6 +39,10 @@ import type { JobsReader } from '@systems/jobs';
 import type { Scenario } from './runner';
 import { TestWorld } from './test-world';
 import { checkInvariants, watchInvariants } from './invariants';
+import { command } from './script-commands';
+import { roundTrip } from '@app/game-save';
+import type { TradeReader } from '@systems/trade/reader';
+import { requiredValue } from '@systems/trade/valuation';
 
 const Z = FLAT_TEST_SURFACE_Z;
 
@@ -146,14 +150,14 @@ const scenario: Scenario = {
         }
       }
     }
-    const rSp = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles: spTiles });
+    const rSp = command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: spTiles });
     if (!rSp.ok) throw new Error(`Stockpile CreateZone failed: ${rSp.reason}`);
     const spId = bSystem.lastCreatedZone;
-    const rFilter = w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: spId, filter: 'everything' });
+    const rFilter = command(w, { type: 'SetStockpileFilter', zoneId: spId, filter: 'everything' });
     if (!rFilter.ok) throw new Error(`SetStockpileFilter failed: ${rFilter.reason}`);
 
     // 3. DesignateStairwell { x: cx+6, y: cy+6, zTop: 32, zBottom: 29 }
-    const rStairs = w.game.world.applyCommand({ type: 'DesignateStairwell', x: cx + 6, y: cy + 6, zTop: 32, zBottom: 29 });
+    const rStairs = command(w, { type: 'DesignateStairwell', x: cx + 6, y: cy + 6, zTop: 32, zBottom: 29 });
     if (!rStairs.ok) throw new Error(`DesignateStairwell failed: ${rStairs.reason}`);
 
     // 4. Designate { kind: 'dig', priority: 4 } over 5x5 rectangle at (cx+7, cy+4, 29)
@@ -163,7 +167,7 @@ const scenario: Scenario = {
         roomTiles.push(w.index(x, y, 29));
       }
     }
-    const rDig = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: 4, tiles: roomTiles });
+    const rDig = command(w, { type: 'Designate', kind: 'dig', priority: 4, tiles: roomTiles });
     if (!rDig.ok) throw new Error(`Designate dig failed: ${rDig.reason}`);
 
     // 5. PlaceBuilding (orientation 0, materialChoice 0)
@@ -178,7 +182,7 @@ const scenario: Scenario = {
     for (const p of toPlace) {
       const ghost = buildings.ghost(p.type, p.origin, 0);
       if (ghost.reason !== null) throw new Error(`ghost refused ${p.type}: ${ghost.reason}`);
-      const r = w.game.world.applyCommand({
+      const r = command(w, {
         type: 'PlaceBuilding',
         buildingType: p.type,
         origin: p.origin,
@@ -199,7 +203,7 @@ const scenario: Scenario = {
         }
       }
     }
-    const rMeet = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'meeting_area', tiles: meetTiles });
+    const rMeet = command(w, { type: 'CreateZone', zoneType: 'meeting_area', tiles: meetTiles });
     if (!rMeet.ok) throw new Error(`meeting_area CreateZone failed: ${rMeet.reason}`);
 
     // 7. w.step(5). Then CreateZone farm_plot over 4x4 at (cx-8, cy+16), and SetPlotCrop barley for seasons 0 and 1
@@ -213,11 +217,11 @@ const scenario: Scenario = {
         }
       }
     }
-    const rFarm = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles: farmTiles });
+    const rFarm = command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: farmTiles });
     if (!rFarm.ok) throw new Error(`farm_plot CreateZone failed: ${rFarm.reason}`);
     const farmId = bSystem.lastCreatedZone;
-    expect(w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 0, speciesId: 'barley' }).ok).toBe(true);
-    expect(w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 1, speciesId: 'barley' }).ok).toBe(true);
+    expect(command(w, { type: 'SetPlotCrop', zoneId: farmId, season: 0, speciesId: 'barley' }).ok).toBe(true);
+    expect(command(w, { type: 'SetPlotCrop', zoneId: farmId, season: 1, speciesId: 'barley' }).ok).toBe(true);
 
 
     // Tracking
@@ -249,7 +253,7 @@ const scenario: Scenario = {
       // Orders as soon as each workshop is built
       if (!ordered.has('mason') && builtTicks['mason'] !== null) {
         ordered.add('mason');
-        w.game.world.applyCommand({
+        command(w, {
           type: 'AddWorkOrder',
           workshopId: placedIds['mason'],
           order: { recipeId: 'make_stone_block', mode: 'once', remaining: 2 },
@@ -257,14 +261,14 @@ const scenario: Scenario = {
       }
       if (!ordered.has('still') && builtTicks['still'] !== null) {
         ordered.add('still');
-        w.game.world.applyCommand({
+        command(w, {
           type: 'AddWorkOrder',
           workshopId: placedIds['still'],
           order: { recipeId: 'brew', mode: 'maintain', threshold: 20 },
         });
         // A brew needs an empty barrel, and the stockpile keeps food and seed in the five the
         // party brought, so the still would wait. The player has one made for it.
-        w.game.world.applyCommand({
+        command(w, {
           type: 'AddWorkOrder',
           workshopId: placedIds['carpenter'],
           order: { recipeId: 'make_barrel', mode: 'once', remaining: 1 },
@@ -272,7 +276,7 @@ const scenario: Scenario = {
       }
       if (!ordered.has('kitchen') && builtTicks['kitchen'] !== null) {
         ordered.add('kitchen');
-        w.game.world.applyCommand({
+        command(w, {
           type: 'AddWorkOrder',
           workshopId: placedIds['kitchen'],
           order: { recipeId: 'cook_easy_meal', mode: 'maintain', threshold: 10 },
@@ -346,18 +350,60 @@ const scenario: Scenario = {
     let depotId = 0;
     for (const at of [w.index(cx - 9, cy + 4, Z), w.index(cx - 9, cy + 8, Z), w.index(cx + 8, cy + 14, Z), w.index(cx - 9, cy + 20, Z)]) {
       if (buildings.ghost('trade_depot', at, 0).reason !== null) continue;
-      const placed = w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'trade_depot', origin: at, orientation: 0, materialChoice: 0 });
+      const placed = command(w, { type: 'PlaceBuilding', buildingType: 'trade_depot', origin: at, orientation: 0, materialChoice: 0 });
       if (placed.ok) { depotId = bSystem.lastPlacedBuilding; break; }
     }
     expect(depotId, 'a trade depot was placed').toBeGreaterThan(0);
-    expect(w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome',
+    // The depot is built of three stone blocks, which the mason cuts. The flat map grows no trees
+    // and the room is dug in soil, so the miners take a stair from the room down to the granite
+    // below it and dig a small room there for the stone.
+    command(w, { type: 'DesignateStairwell', x: cx + 9, y: cy + 6, zTop: 29, zBottom: 28 });
+    const quarry: number[] = [];
+    for (let y = cy + 5; y <= cy + 7; y += 1) for (let x = cx + 8; x <= cx + 10; x += 1) if (x !== cx + 9 || y !== cy + 6) quarry.push(w.index(x, y, 28));
+    command(w, { type: 'Designate', kind: 'dig', priority: 4, tiles: quarry });
+    command(w, { type: 'AddWorkOrder', workshopId: placedIds['mason'], order: { recipeId: 'make_stone_block', mode: 'once', remaining: 3 } });
+    // T-156: the player trades with the Hillfolk. A founder takes the trading labor, and once the
+    // depot stands the stone and blocks the quarry leaves go to it as the cargo.
+    const founder = arrival.dwarves[3]!;
+    command(w, { type: 'SetLabor', dwarfId: founder, labor: 'trading', on: true });
+    const tradeReader = w.readers.of<TradeReader>('20');
+    let exportsMoved = false;
+    let hillfolkTraded = false;
+    const tradeWithHillfolk = (): void => {
+      const ent = w.game.world.entities;
+      if (!exportsMoved && buildings.get(depotId)?.state === 'built') {
+        const stone = new Set(['raw_stone', 'stone_block'].map((id) => registry.table('items').index(id)));
+        const cargo = ent.with(C.Item).filter((id) => {
+          const it = ent.get(id, C.Item)!;
+          return stone.has(it.type) && it.containerId === 0 && it.carriedBy === 0 &&
+            (it.flags & (ItemFlag.Foreign | ItemFlag.Merchant | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Installed | ItemFlag.AtDepot)) === 0;
+        }).slice(0, 12);
+        if (cargo.length > 0) exportsMoved = command(w, { type: 'MoveToDepot', depotId, itemIds: cargo }).ok;
+      }
+      const caravan = tradeReader.activeCaravan();
+      if (hillfolkTraded || caravan?.civ !== 'hillfolk' || caravan.state !== 'atDepot') return;
+      if (!tradeReader.sessionOpen()) { command(w, { type: 'TradeOpen', depotId }); return; }
+      const give = tradeReader.depotItems().filter((id) => tradeReader.valuation('hillfolk', id) > 0);
+      const budget = give.reduce((sum, id) => sum + tradeReader.valuation('hillfolk', id), 0);
+      const margin = tradeReader.marginPercent('hillfolk');
+      const unit = (id: number): number => tradeReader.price('hillfolk', id) / (ent.get(id, C.Item)?.count ?? 1);
+      const goods = tradeReader.merchantItems().filter((id) => ent.get(id, C.Item)?.containerId === depotId)
+        .sort((a, b) => unit(a) - unit(b) || a - b);
+      const pick = goods.find((id) => requiredValue(unit(id), margin) <= budget);
+      if (pick === undefined) return;
+      if (command(w, { type: 'TradeOffer', give: give.map((itemId) => ({ itemId, count: 0 })), take: [{ itemId: pick, count: 1 }] }).ok) {
+        hillfolkTraded = true;
+        command(w, { type: 'TradeCancel' });
+      }
+    };
+    expect(command(w, { type: 'SetRequests', civ: 'mountainhome',
       entries: [{ itemType: 'anvil', priority: 1 }] }).ok).toBe(true);
 
     // The cave farm the year-one table plants on days 10-20 and which "carries" through winter:
     // a 4x4 plot of dimcap on the soil level below the surface, beside the stairwell.
     const caveTiles: number[] = [];
     for (let y = cy + 4; y <= cy + 7; y += 1) for (let x = cx + 7; x <= cx + 10; x += 1) caveTiles.push(w.index(x, y, Z - 1));
-    expect(w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: 4, tiles: caveTiles }).ok).toBe(true);
+    expect(command(w, { type: 'Designate', kind: 'dig', priority: 4, tiles: caveTiles }).ok).toBe(true);
     let caveFarmId = 0;
 
     const dayNow = (): number => Math.floor(w.tick / TICKS_PER_DAY) + 1;
@@ -394,15 +440,25 @@ const scenario: Scenario = {
     const yearTicks = DAYS_PER_YEAR * TICKS_PER_DAY;
     while (w.tick < yearTicks) {
       w.step(Math.min(600, yearTicks - w.tick));
+      tradeWithHillfolk();
+      // T-156: the game saved on day 56 loads into a second world that plays day 56 as this one does.
+      if (w.tick === 55 * TICKS_PER_DAY) {
+        const loaded = roundTrip(w.game).game;
+        expect(loaded.hash(), 'T-156 the day-56 save loads to the same world').toBe(w.game.hash());
+        w.step(TICKS_PER_DAY);
+        loaded.step(TICKS_PER_DAY);
+        expect(loaded.hash(), 'T-156 the loaded world equals the played one on day 57').toBe(w.game.hash());
+        tradeWithHillfolk();
+      }
       // The cave plot opens as soon as its room is dug; dimcap grows in the dark in every season.
       if (caveFarmId === 0 && caveTiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
         const plantable = caveTiles.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t));
         if (plantable.length > 0) {
-          const created = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles: plantable });
+          const created = command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: plantable });
           if (created.ok) {
             caveFarmId = bSystem.lastCreatedZone;
             for (const season of [0, 1, 2, 3]) {
-              expect(w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: caveFarmId, season, speciesId: 'dimcap' }).ok).toBe(true);
+              expect(command(w, { type: 'SetPlotCrop', zoneId: caveFarmId, season, speciesId: 'dimcap' }).ok).toBe(true);
             }
           }
         } else {
@@ -412,6 +468,7 @@ const scenario: Scenario = {
     }
     unsubscribe();
     expect(caveFarmId, 'the cave farm was planted').toBeGreaterThan(0);
+    expect(hillfolkTraded && w.events('TradeCompleted').some((e) => e['civ'] === 'hillfolk'), 'T-156 a completed trade with the Hillfolk').toBe(true);
 
     const items = w.readers.of<ItemsReader>('13');
     const trade = w.game.world.scheduler.byId('20') as unknown as { serialize(): { schedule: Record<string, { nextArrivalTick: number }> } };

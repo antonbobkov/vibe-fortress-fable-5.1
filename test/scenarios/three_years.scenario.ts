@@ -31,7 +31,9 @@ import {
   checkFortressRooms,
   checkFortressCaveFarm,
   checkFortressDefense,
+  fortressWitnesses,
 } from './three_years_fortress';
+import { scriptRecord } from './script-commands';
 
 export interface ThreeYearsRow {
   readonly metric: string;
@@ -291,6 +293,10 @@ const scenario: Scenario = {
     // far above its seven founders (46, 59 and 56 dwarves at the end of runs 4 to 6 of 2026-10-12).
     expect(economy.needDeaths(), 'no dwarf died of hunger or thirst').toBe(0);
     expect(y3Pop, 'fortress grew past the 7 embark dwarves').toBeGreaterThan(7);
+
+    // T-156: the script's own steps happened: the gate, the halls, the bedrooms and the squad.
+    console.log(`three_years script: ${JSON.stringify({ accepted: Object.fromEntries(scriptRecord(w).accepted), rejected: Object.fromEntries(scriptRecord(w).rejected) })}`);
+    expect(fortressWitnesses(w, state, 0), 'T-156 witnesses').toEqual([]);
 
     // Kept: rules of 21 Immigration, whatever the order of jobs.
     expect(y3Pop, 'population within POPULATION_CAP_DEFAULT').toBeLessThanOrEqual(POPULATION_CAP_DEFAULT);
