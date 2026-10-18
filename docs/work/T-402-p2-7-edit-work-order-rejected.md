@@ -1,4 +1,4 @@
-# T-NEW — The three-year script's EditWorkOrder is rejected on p2-7
+# T-402 — The three-year script's EditWorkOrder is rejected on p2-7
 
 **Source:** T-400's sweeps, 2026-10-18, before (`06ba90b`) and after (`6af2414`) alike ([audit](../../reports/audits/2026-10-18-hostiles-open-doors.md)) · **Size:** S · **Needs:** — · **Status:** open
 

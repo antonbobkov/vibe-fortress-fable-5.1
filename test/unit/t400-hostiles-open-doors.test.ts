@@ -1,5 +1,5 @@
 /**
- * T-NEW-hostiles-never-open-doors: a hostile whose species has the flag `O` (creatures.md, exported
+ * T-400-hostiles-never-open-doors: a hostile whose species has the flag `O` (creatures.md, exported
  * as `flags.opensDoors`) passes an unlocked door and is stopped by a locked one (14 § Doors and
  * hatches, 22 § Passability). The movers read the flag at the top of the creature row, where the
  * content has none, so no hostile ever opened a door.
@@ -35,7 +35,7 @@ function walk(w: TestWorld, id: EntityId, to: TileIndex, ticks: number): string 
   return outcome;
 }
 
-describe('T-NEW-hostiles-never-open-doors', () => {
+describe('T-400-hostiles-never-open-doors', () => {
   it('a Gloam warrior walks through an unlocked door', () => {
     const { w, gloam, beyond } = walled('t-new-doors-open');
     w.step(1);

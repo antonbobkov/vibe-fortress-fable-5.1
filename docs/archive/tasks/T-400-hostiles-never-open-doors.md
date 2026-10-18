@@ -1,5 +1,7 @@
 # T-400 — No hostile opens a door: the mover reads `opensDoors` where the content has none
 
+**Closed:** 2026-10-18, in 860a0ef, 41ca3c7.
+
 **Source:** T-389's diagnosis of `three-years-p2-6`, 2026-10-18 (probe of the failed walks of the Gloam ambush that stays) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
