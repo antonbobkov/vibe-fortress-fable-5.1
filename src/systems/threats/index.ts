@@ -483,13 +483,19 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
           H.breakingSince = 0;
         }
       }
+      // A broken door may open the way a failed walk could not take: the loiter rechecks the goal.
+      for (const pId of ctx.world.entities.with(C.Party)) {
+        const P = ctx.world.entities.get(pId, C.Party);
+        if (P?.state === 'loiter' && P.walkUnreachable === true) P.walkUnreachable = false;
+      }
     } else if (event.type === 'TilesChanged') {
       for (const pId of ctx.world.entities.with(C.Party)) {
         const P = ctx.world.entities.get(pId, C.Party);
-        if (P && (P.state === 'approach' || P.state === 'loiter')) {
-          const wasUnreachable = P.goalUnreachable === true || P.walkUnreachable === true;
+        // A party whose own walk failed is not sent back by any terrain change (18 § Loiter): the
+        // labels may join what its movers cannot pass, and each retry would restart its loiter time.
+        if (P && (P.state === 'approach' || P.state === 'loiter') && P.walkUnreachable !== true) {
+          const wasUnreachable = P.goalUnreachable === true;
           const previousGoal = P.goalTile;
-          P.walkUnreachable = false;
           chooseGoal(P, ctx);
           if (P.goalTile !== previousGoal) delete P.goalIdleSince;
           if (P.state === 'loiter' && wasUnreachable && !P.goalUnreachable) {

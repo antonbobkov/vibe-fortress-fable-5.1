@@ -7,7 +7,8 @@
 import { describe, it, expect } from 'vitest';
 import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
-import { FLAT_TEST_SPEC } from '@app/headless';
+import { FLAT_TEST_SPEC, FLAT_TEST_SURFACE_Z } from '@app/headless';
+import { TileKind } from '@core/map3d';
 import { Registrations, type TickContext } from '@core/system';
 import { ThreatsSystem } from '@systems/threats';
 import { TestWorld } from '../scenarios/test-world';
@@ -72,5 +73,47 @@ describe('T-389 a caged member leaves its party', () => {
     w.step(100);
     expect(party().state).toBe('retreat');
     expect(party().outcome).toBe('repelled');
+  });
+});
+
+/**
+ * T-389, `three-years-p2-6`: a Gloam ambush whose walk to the hearth failed loitered at its arrival
+ * edge, and every `TilesChanged` of the fortress's miners sent it back to `approach` with a new
+ * loiter clock; the walk failed again at once, so it loitered for ever (18 § Loiter: unrelated
+ * terrain changes do not restart the timer; only a broken door sends it back to approach).
+ */
+describe('T-389 a failed walk keeps its loiter clock', () => {
+  /** The ambush on the map, its walk to the hearth failed: loitering where it stands. */
+  function failedWalk(seed: string): { w: TestWorld; partyId: number; since: number } {
+    const { w, partyId } = raid(seed);
+    w.build('hearth', w.index(60, 60, FLAT_TEST_SURFACE_Z), 'granite');
+    const party = () => w.game.world.entities.get(partyId, C.Party)!;
+    w.until(() => party().members.length >= party().size && party().leaderId !== 0, 2_000);
+    w.step(10);
+    const P = party();
+    P.state = 'loiter'; P.stateSince = w.tick; P.goalUnreachable = true; P.walkUnreachable = true;
+    return { w, partyId, since: w.tick };
+  }
+
+  it('a terrain change far away does not send it back to approach or restart its loiter time', () => {
+    const { w, partyId, since } = failedWalk('t389-loiter-dig');
+    const party = () => w.game.world.entities.get(partyId, C.Party)!;
+    // A miner digs a tile far below, every hundred ticks for a day.
+    for (let k = 0; k < 12; k += 1) {
+      w.game.world.services.terrain.setKind(w.index(10 + k, 90, FLAT_TEST_SURFACE_Z - 5), TileKind.Floor, 0);
+      w.step(100);
+      if (party().state === 'retreat' || party().state === 'gone') break;
+      expect(party().state).toBe('loiter');
+      expect(party().stateSince).toBe(since);
+    }
+  });
+
+  it('a broken door sends it back to approach', () => {
+    const { w, partyId } = failedWalk('t389-loiter-door');
+    const party = () => w.game.world.entities.get(partyId, C.Party)!;
+    const threats = w.game.world.scheduler.byId('18') as ThreatsSystem;
+    threats.handle({ type: 'DoorBroken', id: 0 }, context(w));
+    w.step(60);
+    expect(party().state).not.toBe('loiter');
   });
 });

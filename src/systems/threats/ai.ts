@@ -455,7 +455,6 @@ export function releaseStolenAnimals(carrier: EntityId, tile: TileIndex, P: Part
   if (P.animalCarriers !== undefined && Object.keys(P.animalCarriers).length === 0) delete P.animalCarriers;
 }
 
-/** Final outcomes reflect escaped loot, not a planned retreat or a held item. */
 /**
  * A member still in its party: alive and not caught in a cage (19). A caged member has left the
  * map: it counts toward the casualties, cannot lead, and is never walked off or despawned.
@@ -464,6 +463,7 @@ function inParty(entities: TickContext['world']['entities'], m: EntityId): boole
   return entities.alive(m) && (entities.get(m, C.Creature)?.cagedIn ?? 0) === 0;
 }
 
+/** Final outcomes reflect escaped loot, not a planned retreat or a held item. */
 function finalPartyOutcome(P: Party): string {
   if ((P.escapedLootCount ?? 0) > 0) return 'looted';
   if ((P.despawnedCount ?? 0) === 0) return 'wiped';
