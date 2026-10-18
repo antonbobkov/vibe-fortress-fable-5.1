@@ -39,6 +39,8 @@ export interface JobsReader {
   hasWork(dwarfId: EntityId): boolean;
   /** True while the dwarf holds a job for a patient (a health job whose target is a patient). */
   holdsPatientCare(dwarfId: EntityId): boolean;
+  /** True while the dwarf holds a job a sheltering civilian works under a `hearth` alert: patient care, or a pull of a lever inside its shelter. */
+  holdsShelterWork(dwarfId: EntityId): boolean;
   /** True when a claimed hunt job has this creature as its quarry after the quarry has died. */
   isHuntQuarry(creatureId: EntityId): boolean;
 }
@@ -102,6 +104,10 @@ export function makeReader(board: JobBoard): JobsReader {
     holdsPatientCare: (dwarfId) => {
       const job = board.jobs.get(board.workerOf(dwarfId).jobId);
       return job !== undefined && board.isPatientCare(job);
+    },
+    holdsShelterWork: (dwarfId) => {
+      const job = board.jobs.get(board.workerOf(dwarfId).jobId);
+      return job !== undefined && board.isShelterWork(job, dwarfId);
     },
   };
 }
