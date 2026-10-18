@@ -23,6 +23,8 @@ export interface MaterialsReader {
   isBurning(i: TileIndex): boolean;
   /** Burning tiles, ascending. */
   burningTiles(): TileIndex[];
+  /** The tile can catch fire (`05` § Fire, Burnable tiles). */
+  burnableTile(i: TileIndex): boolean;
   propertyOf(material: number, property: MaterialProperty): number | boolean | string | undefined;
   hardness(material: number): number;
   meltsAt(material: number): number;

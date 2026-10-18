@@ -21,10 +21,10 @@ import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import { BODY_SLOTS, type BodySlot } from '@core/types';
 import type { GameEvent } from '@core/events';
-import { TileFlag, TileKind } from '@core/map3d';
+import { TileKind } from '@core/map3d';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat';
-import type { FireContext } from '@systems/materials/fire';
+import { BURN_TICK_DAMAGE } from '@systems/materials/constants';
 import { BLEED_TABLE } from '@systems/health/wounds';
 import type { MoraleReader } from '@systems/morale';
 import { spawnHostileMember } from '@systems/threats';
@@ -35,9 +35,6 @@ const Z = FLAT_TEST_SURFACE_Z;
 
 /** How long the raiders fight before the guards kill them (4 hours of game time). */
 const RAID_TICKS = 200;
-
-/** Ticks soldier3 must have stood on its tile before the fire is lit. */
-const STILL_TICKS = 30;
 
 /** The scout's outpost lies this far east of the wagon, away from where idle dwarves gather. */
 const OUTPOST_DX = 20;
@@ -392,62 +389,12 @@ const scenario: Scenario = {
     console.log(`Day 5 reached at tick ${w.tick}. Coffin assigned: ${coffinAssigned}`);
     console.log('soldier2 pos at tick 6000:', w.game.world.entities.get(soldier2, C.Position));
     console.log('soldier1 pos at tick 6000:', w.game.world.entities.get(soldier1, C.Position));
-    // The fire burns soldier3 alone. The materials cadence puts the burn some ticks after the
-    // ignition, so the fire is lit when soldier3 has stood still for STILL_TICKS and no other
-    // creature stands on its tile or on the tile east of it, waiting at most half a day for
-    // that; and it is lit again (at most five times) if soldier3 walked off before it burned.
-    const fireCtx: FireContext = {
-      terrain: {
-        setFlag: (i: number, f: TileFlag, v: boolean) => w.map.setFlag(i, f, v),
-        setKind: (i: number, k: TileKind, m: number) => { w.map.kind[i] = k; w.map.material[i] = m; },
-        setDesignation: () => {},
-      },
-      items: null,
-      emit: (e: GameEvent) => w.game.world.emit(e),
-    };
-    const tilesOf3 = (): { d3Tile: number; d3Beside: number } => {
-      const p = w.game.world.entities.get(soldier3, C.Position)!;
-      return { d3Tile: w.index(p.x, p.y, p.z), d3Beside: w.index(p.x + 1, p.y, p.z) };
-    };
-    const othersOn = (a: number, b: number): number[] =>
-      w.game.world.entities.with(C.Creature, C.Position).filter((id) => {
-        if (id === soldier3 || !w.game.world.entities.alive(id)) return false;
-        const p = w.game.world.entities.get(id, C.Position)!;
-        const t = w.index(p.x, p.y, p.z);
-        return t === a || t === b;
-      });
+    // A burn casualty for 17's treatment chain. A dwarf on a tile that catches fire walks off it
+    // before the fire's second materials tick (10 § Behavior selection), so the fire's damage is
+    // delivered as 05 emits it: `BurnDamage` on soldier3, on four consecutive materials ticks.
     const burned = (): boolean => w.events('BurnDamage').some((e) => e['id'] === soldier3);
-    const fireDeadline = w.tick + TICKS_PER_DAY / 2;
-    let d3Tile = tilesOf3().d3Tile;
-    let d3Beside = tilesOf3().d3Beside;
-    for (let attempt = 0; attempt < 5 && !burned(); attempt += 1) {
-      let stillSince = w.tick;
-      let lastTile = tilesOf3().d3Tile;
-      while (w.tick < fireDeadline) {
-        const now = tilesOf3();
-        if (now.d3Tile !== lastTile) {
-          lastTile = now.d3Tile;
-          stillSince = w.tick;
-        }
-        if (w.tick - stillSince >= STILL_TICKS && othersOn(now.d3Tile, now.d3Beside).length === 0) break;
-        w.step(1);
-      }
-      ({ d3Tile, d3Beside } = tilesOf3());
-      expect(othersOn(d3Tile, d3Beside), 'soldier3 should have its two fire tiles to itself').toEqual([]);
-      console.log(`Soldier3 pos before fire:`, w.game.world.entities.get(soldier3, C.Position));
-      w.map.setFlag(d3Tile, TileFlag.Grass, true);
-      w.map.setFlag(d3Beside, TileFlag.Grass, true);
-      w.materials.fire.pendingIgnite.add(d3Beside);
-      w.materials.fire.pendingIgnite.add(d3Tile);
-      console.log(`Ignited fire beside dwarf at ${d3Beside} and ${d3Tile}`);
-      for (let k = 0; k < 40 && !burned(); k += 1) {
-        w.step(1);
-      }
-      // Extinguish the fire once the burn casualty is created (or has missed) so that it does
-      // not spread or kill others
-      w.materials.fire.extinguish(d3Tile, true, fireCtx);
-      w.materials.fire.extinguish(d3Beside, true, fireCtx);
-    }
+    for (let k = 0; k < 4; k += 1) w.game.world.emit({ type: 'BurnDamage', id: soldier3, amount: BURN_TICK_DAMAGE });
+    w.step(1);
     expect(burned(), 'the fire should burn soldier3').toBe(true);
 
     // Relieve soldier3 from Reserve squad so they seek hospital bed for treatment

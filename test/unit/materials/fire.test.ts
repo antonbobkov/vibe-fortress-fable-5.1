@@ -73,7 +73,8 @@ describe('T-M3-04 fire: burning', () => {
     map.setFlag(t, TileFlag.Grass, true);
     const log = w.spawnItem('log', 'oak', t);
     const block = w.spawnItem('stone_block', 'granite', t);
-    const dwarf = w.spawnDwarf({ at: t });
+    // A dog: a dwarf on a tile that catches fire walks off it (10 § Behavior selection).
+    const dwarf = w.spawnCreature('dog', t, 'fortress');
     w.materials.fire.pendingIgnite.add(t);
     w.step(4);
     expect(map.hasFlag(t, TileFlag.Burning)).toBe(true);
