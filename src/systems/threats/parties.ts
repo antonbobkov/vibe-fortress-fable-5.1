@@ -317,3 +317,16 @@ export function arriveParty(
 
   return { partyId, pendingSpawns };
 }
+
+/**
+ * An entity that is about to be destroyed leaves every party's loot list: an item that
+ * rots, burns or is melted in a raider's hands is not loot any more, and no later tick or save may see
+ * the party name an id that is gone.
+ */
+export function forgetDestroyedLoot(entities: EntityStore, id: EntityId): void {
+  for (const partyId of entities.with(C.Party)) {
+    const party = entities.get(partyId, C.Party);
+    if (party === undefined) continue;
+    if (party.loot.includes(id)) party.loot = party.loot.filter((l) => l !== id);
+  }
+}

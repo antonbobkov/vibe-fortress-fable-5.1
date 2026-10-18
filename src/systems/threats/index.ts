@@ -29,7 +29,7 @@ import {
   WARNING_DAYS,
   PARTY_HISTORY_DAYS,
 } from './constants';
-import { arriveParty, spawnHostileMember } from './parties';
+import { arriveParty, forgetDestroyedLoot, spawnHostileMember } from './parties';
 import { makeThreatsReader, type ThreatsReader } from './reader';
 import {
   calculatePartySize,
@@ -122,6 +122,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     'DeepsilverMined',
   ];
 
+  private releaseDestroyObserver: (() => void) | null = null;
   private rng!: RngStream;
   private spec: LocalMapSpec | null = null;
   private peril = 0;
@@ -151,6 +152,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
   }
 
   override init(ctx: InitContext): void {
+    this.releaseDestroyObserver?.();
+    this.releaseDestroyObserver = ctx.world.entities.onBeforeDestroy((id) => forgetDestroyedLoot(ctx.world.entities, id));
     this.entities = ctx.world.entities;
     this.registry = ctx.registry;
     this.rng = ctx.rng;

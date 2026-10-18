@@ -1,5 +1,7 @@
 # T-391 — A raid party's loot item is not alive at tick 286,800 of seed p2-5
 
+**Closed:** 2026-10-18, in f0705de.
+
 **Source:** T-370 (2026-10-18): the peril-2 sweep seed `three-years-p2-5` stops on the T-176 invariant `party.loot-missing` at tick 286,800 (day 239) with a raid party `raid/loiter`: "party 251658433 loot 318768027 not alive". The same finding, at the same tick, on `master` without T-370 and T-382 (checked at the T-383 merge), so neither task causes it; the sweeps of 2026-10-17 did not stop here, so one of the changes since (T-383 to T-388, T-390) may have moved the run into it · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
