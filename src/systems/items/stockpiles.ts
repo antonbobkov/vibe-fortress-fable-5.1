@@ -150,6 +150,30 @@ export interface Slot {
   readonly key: string;
 }
 
+/**
+ * What one stockpile's tiles hold for an item that goes on a tile: its first free tile, or when it has none the
+ * stacks an item could join, by type, material and quality, in tile order. The answer of `findSlot` for any such
+ * item follows from it (`slotInScan`) while the tiles, the items and the reservations stand as they were.
+ */
+export interface TileScan {
+  readonly empty: TileIndex;
+  readonly stacks: ReadonlyMap<string, readonly { readonly tile: TileIndex; readonly other: EntityId }[]>;
+}
+
+/**
+ * What one stockpile's containers of a class hold for an item that goes into one: each container no job has
+ * claimed with the room it has left after what reservations promise it, in tile order, and how many containers of
+ * the class the stockpile has and expects. The answer of `findSlot` for any such item follows from it
+ * (`slotInContainerScan`) while the containers and the reservations stand as they were.
+ */
+export interface ContainerScan {
+  readonly rooms: readonly { readonly container: EntityId; readonly room: number; readonly tile: TileIndex }[];
+  /** The containers of the class lying on the stockpile. */
+  readonly lying: number;
+  /** Those, and the ones on their way. */
+  readonly present: number;
+}
+
 /** What `findSlot` answers when a wanted container must be hauled in first. */
 export interface ContainerNeeded {
   readonly needContainer: 'barrel' | 'bag' | 'bin';
@@ -331,6 +355,19 @@ export class StockpileStore {
    * item currently sits in one of those stockpiles or a workshop". A container with contents is
    * accepted for its contents ("barrels of ale still accepted (they are containers)").
    */
+  /** Whether `accepts` of a stockpile follows from an item's flags, its contents and its kind (type, material, quality, rot): it has no linked sources. */
+  acceptsByKind(spId: EntityId): boolean {
+    const sp = this.stockpile(spId);
+    return sp !== undefined && sp.linkedSources.length === 0;
+  }
+
+  /** `accepts` of an item without contents or the Forbidden flag, for a stockpile `acceptsByKind` names: the filter, and a hospital's supply. */
+  acceptsKind(spId: EntityId, it: Item): boolean {
+    const sp = this.stockpile(spId);
+    if (sp === undefined || !this.filterAccepts(sp.filter, it)) return false;
+    return this.hospitalAccepts(spId, it);
+  }
+
   accepts(spId: EntityId, itemId: EntityId): boolean {
     const sp = this.stockpile(spId);
     const it = this.core.get(itemId);
@@ -352,6 +389,11 @@ export class StockpileStore {
       const building = this.host.buildingAt(t);
       if (!sp.linkedSources.includes(pile) && !sp.linkedSources.includes(building)) return false;
     }
+    return this.hospitalAccepts(spId, it);
+  }
+
+  /** A hospital takes an item its supply wants and has not yet reached; any other stockpile has no such limit. */
+  private hospitalAccepts(spId: EntityId, it: Item): boolean {
     const zone = this.zoneView(spId);
     if (zone?.type === 'hospital') {
       const wants = (zone.settings?.['desired supplies'] ?? zone.settings?.['wants'] ?? HOSPITAL_DEFAULT_SUPPLIES) as Record<string, number>;
@@ -483,7 +525,12 @@ export class StockpileStore {
 
   /** Containers of a class present, counting those on their way in. */
   containersPresent(spId: EntityId, cls: string): number {
-    let n = this.containersIn(spId, cls).length;
+    return this.containersIn(spId, cls).length + this.incomingCount(spId, cls);
+  }
+
+  /** The containers of a class on their way to a stockpile that wants them. */
+  private incomingCount(spId: EntityId, cls: string): number {
+    let n = 0;
     for (const c of Array.from(this.incomingContainers.keys())) {
       if (this.incomingContainers.get(c) === spId && this.core.container(c)?.classId === cls) n += 1;
     }
@@ -548,23 +595,7 @@ export class StockpileStore {
       if (chest !== null) return chest;
     }
     const cls = this.core.container(itemId) !== undefined ? 'none' : facts.row(it.type).container;
-    if (cls !== 'none') {
-      for (const c of this.containersIn(spId, cls)) {
-        if (((this.core.get(c)?.flags ?? 0) & ItemFlag.Reserved) !== 0) continue;
-        const room = this.core.room(c) - this.pendingIn(c, cls);
-        if (room >= this.core.needs(itemId, cls)) {
-          const t = this.core.tileOf(c);
-          return { tile: t, container: c, merge: 0, key: this.containerKey(c, itemId) };
-        }
-      }
-      const wanted = sp.containersWanted[cls as 'barrel' | 'bag' | 'bin'] ?? 0;
-      const incoming = this.containersPresent(spId, cls) - this.containersIn(spId, cls).length;
-      // A wanted container still to be hauled in, or one on its way: the item waits for it.
-      if ((wanted > this.containersPresent(spId, cls) || incoming > 0) && (cls === 'barrel' || cls === 'bag' || cls === 'bin')) {
-        return { needContainer: cls };
-      }
-      return null;
-    }
+    if (cls !== 'none') return this.slotInContainerScan(spId, itemId, cls, this.scanContainers(spId, cls));
     const t = this.emptyTile(spId);
     if (t >= 0) return { tile: t, container: 0, merge: 0, key: this.tileKey(t) };
     for (const tile of this.tilesOf(spId)) {
@@ -578,6 +609,79 @@ export class StockpileStore {
       if (x.count + it.count > facts.row(it.type).stack) continue;
       if (this.core.container(other) !== undefined) continue;
       return { tile, container: 0, merge: other, key: this.tileKey(tile) };
+    }
+    return null;
+  }
+
+  /** The tiles of a stockpile as `findSlot` reads them for an item that goes on a tile. */
+  scanTiles(spId: EntityId): TileScan {
+    const empty = this.emptyTile(spId);
+    const stacks = new Map<string, { tile: TileIndex; other: EntityId }[]>();
+    if (empty >= 0) return { empty, stacks };
+    for (const tile of this.tilesOf(spId)) {
+      if (this.reservations.has(this.tileKey(tile))) continue;
+      const on = this.host.itemsOn(tile);
+      if (on.length !== 1) continue;
+      const other = on[0] as EntityId;
+      const x = this.core.get(other);
+      if (x === undefined || (x.flags & ItemFlag.Reserved) !== 0 || this.core.container(other) !== undefined) continue;
+      const kind = `${x.type}:${x.material}:${x.quality}`;
+      const list = stacks.get(kind);
+      if (list === undefined) stacks.set(kind, [{ tile, other }]);
+      else list.push({ tile, other });
+    }
+    return { empty, stacks };
+  }
+
+  /** The containers of a class on a stockpile as `findSlot` reads them for an item that goes into one. */
+  scanContainers(spId: EntityId, cls: string): ContainerScan {
+    const rooms: { container: EntityId; room: number; tile: TileIndex }[] = [];
+    const lying = this.containersIn(spId, cls);
+    // What the reservations promise each container, read from them once (`pendingIn` of every container of the class).
+    const promised = new Map<EntityId, number>();
+    for (const c of lying) promised.set(c, 0);
+    for (const key of Array.from(this.reservations.keys())) {
+      if (!key.startsWith('c')) continue;
+      const colon = key.indexOf(':');
+      if (colon < 0) continue;
+      const c = Number(key.slice(1, colon));
+      const sofar = promised.get(c);
+      if (sofar !== undefined) promised.set(c, sofar + this.core.needs(Number(key.slice(colon + 1)), cls));
+    }
+    for (const c of lying) {
+      if (((this.core.get(c)?.flags ?? 0) & ItemFlag.Reserved) !== 0) continue;
+      rooms.push({ container: c, room: this.core.room(c) - (promised.get(c) ?? 0), tile: this.core.tileOf(c) });
+    }
+    return { rooms, lying: lying.length, present: lying.length + this.incomingCount(spId, cls) };
+  }
+
+  /** `findSlot(spId, itemId)` for an item that goes into a container of a class, from a scan of the stockpile. */
+  slotInContainerScan(spId: EntityId, itemId: EntityId, cls: string, scan: ContainerScan): Slot | ContainerNeeded | null {
+    const sp = this.stockpile(spId);
+    if (sp === undefined) return null;
+    const needs = this.core.needs(itemId, cls);
+    for (const r of scan.rooms) {
+      if (r.room >= needs) return { tile: r.tile, container: r.container, merge: 0, key: this.containerKey(r.container, itemId) };
+    }
+    const wanted = sp.containersWanted[cls as 'barrel' | 'bag' | 'bin'] ?? 0;
+    const incoming = scan.present - scan.lying;
+    // A wanted container still to be hauled in, or one on its way: the item waits for it.
+    if ((wanted > scan.present || incoming > 0) && (cls === 'barrel' || cls === 'bag' || cls === 'bin')) {
+      return { needContainer: cls };
+    }
+    return null;
+  }
+
+  /** `findSlot(spId, itemId)` for an item that goes on a tile (no container class), from a scan of the stockpile. */
+  slotInScan(scan: TileScan, itemId: EntityId): Slot | null {
+    const it = this.core.get(itemId);
+    if (it === undefined) return null;
+    if (scan.empty >= 0) return { tile: scan.empty, container: 0, merge: 0, key: this.tileKey(scan.empty) };
+    const stack = this.core.host.facts.row(it.type).stack;
+    for (const c of scan.stacks.get(`${it.type}:${it.material}:${it.quality}`) ?? []) {
+      const x = this.core.get(c.other);
+      if (x === undefined || x.count + it.count > stack) continue;
+      return { tile: c.tile, container: 0, merge: c.other, key: this.tileKey(c.tile) };
     }
     return null;
   }
