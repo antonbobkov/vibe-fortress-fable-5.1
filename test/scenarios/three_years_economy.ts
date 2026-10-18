@@ -994,8 +994,9 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     return result.ok;
   };
   // F-17h: the ore for the squad's missing bars is opened as soon as the trunk corridor reaches
-  // the shaft, a step ahead of the halls.
-  if (arming && !phases.has('squad ore') && shaft(KIT_FIRST)) {
+  // the shaft, a step ahead of the halls; T-387: and the shelter is dug (setupThreeYearsFortress).
+  const shelterDug = (state.shelterTiles ?? []).every((t) => terrain.designationAt(t) === null);
+  if (arming && !phases.has('squad ore') && shelterDug && shaft(KIT_FIRST)) {
     phases.add('squad ore');
     // Where the upper rock holds no iron the miners go straight down for it.
     if (mine(w, state, upper, isOre, SQUAD_ORE_FACES, KIT_FIRST) === 0) phases.add('squad ore deep');

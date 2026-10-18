@@ -48,6 +48,12 @@ const WATCH_EVERY = 20;
 const WILD_NEAR = 14;
 /** The alert stands down after this long with no danger near. */
 const ALL_CLEAR_TICKS = 300;
+/** T-387: a threat warning's lead (a day, 18 § Schedule) and the first raider's arrival after it. */
+const WARNED_TICKS = TICKS_PER_DAY + 100;
+/** T-387: the longest a hearth alert stands for wild animals that nobody hunts. */
+const WILD_ALERT_TICKS = TICKS_PER_DAY / 2;
+/** T-387: after such an alert is lifted, wild animals alone raise no alert for this long. */
+const WILD_QUIET_TICKS = TICKS_PER_DAY;
 /** The founders who stand in the squad: the woodcutter, the mason, the seventh, and the two miners. */
 const MILITIA: readonly number[] = [2, 3, 6, 0, 1];
 /** Barrels made before anything else at the carpenter's. */
@@ -184,6 +190,19 @@ export interface FortressState {
   lastDangerTick: number;
   /** The alert was lifted because it had locked every dwarf outside the gate (T-363). */
   shutOut: boolean;
+  /**
+   * Where the anvil came in the wagon: the founders' bedrooms, the hospital and the corridor to
+   * them, dug at the kit's priority before the squad's ore is opened (empty elsewhere).
+   */
+  readonly shelterTiles: number[];
+  /** How many of the world's events the script has read, for the threat warnings. */
+  eventsRead: number;
+  /** A threat warning keeps the fortress on alert until this tick, or until its party comes. */
+  warnedUntil: number;
+  /** When the hearth alert was last raised. */
+  alertSince: number;
+  /** No alert is raised for wild animals alone before this tick. */
+  wildQuietUntil: number;
   hospitalSetup: boolean;
   forgePlaced: boolean;
   /** Trees around the settlement, felled in batches as the log stock runs down. */
@@ -418,11 +437,28 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     const rTrunk = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: KIT_FIRST, tiles: trunk });
     if (!rTrunk.ok) throw new Error(`Designate trunk dig failed: ${rTrunk.reason}`);
   }
-  const rDigHalls = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: arming ? hallDigTiles.filter((t) => !trunk.includes(t)) : hallDigTiles });
-  if (!rDigHalls.ok) throw new Error(`Designate hall dig failed: ${rDigHalls.reason}`);
-
   // Bedroom plans
   const bedroomPlans = buildBedroomPlans(cx, cy, map.w, map.h);
+  const initialRooms = bedroomPlans.slice(0, arrival.dwarves.length + 2);
+  // T-387: where the anvil came in the wagon the site is dangerous, and the founders' bedrooms,
+  // the hospital and the corridor that reaches them are dug with the trunk, at the kit's
+  // priority, before the squad's ore is opened (checkEconomy): the dwarves sleep, and the
+  // wounded lie, below ground from the first weeks instead of on the surface.
+  const shelterTiles: number[] = [];
+  if (arming) {
+    const lastDoorY = Math.max(...initialRooms.map((bp) => bp.doorY));
+    const corridor = corridorTiles.filter((t) => map.xOf(t) === cx + 6 && map.yOf(t) > cy + 15 && map.yOf(t) <= lastDoorY);
+    shelterTiles.push(...corridor);
+    for (const bp of initialRooms) {
+      shelterTiles.push(w.index(bp.doorX, bp.doorY, HALL_Z));
+      for (let y = bp.y1; y <= bp.y2; y += 1) for (let x = bp.x1; x <= bp.x2; x += 1) shelterTiles.push(w.index(x, y, HALL_Z));
+    }
+    const rShelter = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: KIT_FIRST, tiles: shelterTiles });
+    if (!rShelter.ok) throw new Error(`Designate shelter dig failed: ${rShelter.reason}`);
+  }
+  const ahead = new Set([...(arming ? trunk : []), ...shelterTiles]);
+  const rDigHalls = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: hallDigTiles.filter((t) => !ahead.has(t)) });
+  if (!rDigHalls.ok) throw new Error(`Designate hall dig failed: ${rDigHalls.reason}`);
 
   // Fill in tile indices for all bedroom plans
   for (const bp of bedroomPlans) {
@@ -442,7 +478,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     initialDigTiles.push(w.index(bp.doorX, bp.doorY, HALL_Z));
     initialDigTiles.push(...bp.tiles);
   }
-  const rDigBedrooms = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: initialDigTiles });
+  const rDigBedrooms = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: initialDigTiles.filter((t) => !ahead.has(t)) });
   if (!rDigBedrooms.ok) throw new Error(`Designate bedroom dig failed: ${rDigBedrooms.reason}`);
 
   // 7. Surface workshops
@@ -526,6 +562,11 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     answered: '',
     lastDangerTick: -1,
     shutOut: false,
+    shelterTiles,
+    eventsRead: 0,
+    warnedUntil: -1,
+    alertSince: -1,
+    wildQuietUntil: -1,
     hospitalSetup: false,
     forgePlaced: false,
     timberTiles: treeTiles.filter((t) => !roadTrees.includes(t)),
@@ -974,7 +1015,9 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     // mason and the smith are at the forge, and the last three adults stand.
     const size = arming0 ? SQUAD_SIZE : MILITIA.length;
     const living = squad.members.filter((id) => adults.includes(id));
-    if (living.length < size) {
+    // T-387: the fallen are replaced once the alert is down. A civilian put into the squad in the
+    // middle of a fight walks out to it, unarmed and unarmoured, and is one more death.
+    if (living.length < size && w.game.world.fortress.alert === 'calm') {
       const arming = armingSquad(state);
       const kept = new Set<number>([founders[4]!, founders[5]!, ...Object.values(state.economy.specialists), state.economy.brewer ?? 0]);
       const order = arming ? [...adults].reverse() : [...MILITIA.map((i) => founders[i]!), ...adults.filter((id) => !founders.includes(id))];
@@ -999,7 +1042,20 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     if (p.purpose === 'thief') intruders.push(...p.members.filter((m) => ent.alive(m) && ent.get(m, C.Hostile)?.stealthed !== true));
     else raid = true;
   }
-  const targets = [...intruders, ...dangerousWildlife(w, state, adults)];
+  // T-387: a threat warning (18) is answered as a player answers its announcement, which pauses
+  // the game: the fortress shelters and the squad takes its post until the party comes, instead
+  // of the raiders finding the dwarves at work on the surface.
+  const seen = w.allEvents();
+  for (let i = state.eventsRead ?? seen.length; i < seen.length; i += 1) {
+    if (seen[i]!.type === 'ThreatWarning') state.warnedUntil = w.tick + WARNED_TICKS;
+  }
+  state.eventsRead = seen.length;
+  if (raid) state.warnedUntil = -1;
+  else if (w.tick < (state.warnedUntil ?? -1)) raid = true;
+  // T-387: once the alert for wild animals alone has been lifted (below), the fortress works for
+  // a while before it shelters from them again.
+  const wild = !raid && intruders.length === 0 && w.tick < (state.wildQuietUntil ?? -1) ? [] : dangerousWildlife(w, state, adults);
+  const targets = [...intruders, ...wild];
   const danger = raid || targets.length > 0;
   if (danger) state.lastDangerTick = w.tick;
   const curAlert = w.game.world.fortress.alert;
@@ -1019,8 +1075,22 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     return;
   }
   if (state.shutOut && positions.some((p) => p.z < Z)) state.shutOut = false;
+  // T-387: an alert kept up by wild animals alone, which a squad without its weapons does not
+  // hunt, only keeps the fortress from the brook and its surface work. On seed p2-3 one boar by
+  // the gate held it for 27 days and all fourteen dwarves died of thirst inside. The player lifts
+  // it after half a day and does not shelter from the animals again for a day.
+  if (curAlert === 'hearth' && !raid && intruders.length === 0 && targets.length > 0 && !squadArmed(w, state) &&
+      w.tick - (state.alertSince ?? w.tick) >= WILD_ALERT_TICKS) {
+    state.wildQuietUntil = w.tick + WILD_QUIET_TICKS;
+    w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' });
+    note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, wildQuiet: true });
+    state.answered = '';
+    if (state.squadId !== 0) w.game.world.applyCommand({ type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+    return;
+  }
   if (danger && !state.shutOut) {
     if (curAlert !== 'hearth') {
+      state.alertSince = w.tick;
       w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' });
       note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raid, targets: targets.map((id) => speciesName(w, id)) });
     }
