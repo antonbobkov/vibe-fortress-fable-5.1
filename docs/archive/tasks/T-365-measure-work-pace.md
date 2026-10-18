@@ -1,6 +1,8 @@
 # T-365 — Measure the work pace
 
-**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) (rank 2) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-18, in 36d0ed6.
+
+**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) (rank 2) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

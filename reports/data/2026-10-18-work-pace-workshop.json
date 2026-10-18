@@ -1,0 +1,119 @@
+[
+  {
+    "recipeId": "smelt_hematite",
+    "level": 0,
+    "baseTicks": 150,
+    "specTicks": 150,
+    "jobSpans": [
+      {
+        "type": "craft",
+        "ticks": 150
+      }
+    ],
+    "orderToProduct": 241
+  },
+  {
+    "recipeId": "smelt_hematite",
+    "level": 4,
+    "baseTicks": 150,
+    "specTicks": 114,
+    "jobSpans": [
+      {
+        "type": "craft",
+        "ticks": 114
+      }
+    ],
+    "orderToProduct": 217
+  },
+  {
+    "recipeId": "smelt_hematite",
+    "level": 10,
+    "baseTicks": 150,
+    "specTicks": 83,
+    "jobSpans": [
+      {
+        "type": "craft",
+        "ticks": 84
+      }
+    ],
+    "orderToProduct": 180
+  },
+  {
+    "recipeId": "forge_battle_axe",
+    "level": 0,
+    "baseTicks": 220,
+    "specTicks": 220,
+    "jobSpans": [
+      {
+        "type": "craft",
+        "ticks": 220
+      }
+    ],
+    "orderToProduct": 304
+  },
+  {
+    "recipeId": "forge_battle_axe",
+    "level": 4,
+    "baseTicks": 220,
+    "specTicks": 167,
+    "jobSpans": [
+      {
+        "type": "craft",
+        "ticks": 167
+      }
+    ],
+    "orderToProduct": 263
+  },
+  {
+    "recipeId": "forge_battle_axe",
+    "level": 10,
+    "baseTicks": 220,
+    "specTicks": 122,
+    "jobSpans": [
+      {
+        "type": "craft",
+        "ticks": 123
+      }
+    ],
+    "orderToProduct": 223
+  },
+  {
+    "recipeId": "forge_mail_shirt",
+    "level": 0,
+    "baseTicks": 350,
+    "specTicks": 350,
+    "jobSpans": [
+      {
+        "type": "craft",
+        "ticks": 350
+      }
+    ],
+    "orderToProduct": 450
+  },
+  {
+    "recipeId": "forge_mail_shirt",
+    "level": 4,
+    "baseTicks": 350,
+    "specTicks": 265,
+    "jobSpans": [
+      {
+        "type": "craft",
+        "ticks": 266
+      }
+    ],
+    "orderToProduct": 357
+  },
+  {
+    "recipeId": "forge_mail_shirt",
+    "level": 10,
+    "baseTicks": 350,
+    "specTicks": 194,
+    "jobSpans": [
+      {
+        "type": "craft",
+        "ticks": 195
+      }
+    ],
+    "orderToProduct": 295
+  }
+]
