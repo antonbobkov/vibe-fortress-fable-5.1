@@ -1,4 +1,4 @@
-# T-NEW — Two kinds of slow tick remain in the reference fortress with its 25,000 items loose
+# T-390 — Two kinds of slow tick remain in the reference fortress with its 25,000 items loose
 
 **Source:** T-383 (2026-10-18), measured on the reference fortress with its items loose, 2,000 ticks after T-383 (a busy machine; the worst tick fell from 42 s to 2 s and the average from 72 ms to 17 ms) · **Size:** M · **Needs:** — · **Status:** open
 

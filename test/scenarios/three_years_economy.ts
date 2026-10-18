@@ -13,6 +13,7 @@ import type { TradeReader } from '@systems/trade/reader';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
 import { HALL_Z, type FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
+import { command } from './script-commands';
 import { note, threeYearsMeasurements } from './three_years_measurements';
 
 export interface EconomyState {
@@ -141,8 +142,13 @@ const SPECIALISTS = [
 /** Two spare adults beyond the founders support the craft professions; waves can include children. */
 const SPECIALIST_MIN_POPULATION = 9;
 
+/** T-156: 11 changes the priority of a job only while it waits for a worker (open or claimed). */
+function reprioritised(job: { state: string }): boolean {
+  return job.state === 'open' || job.state === 'claimed';
+}
+
 function order(w: TestWorld, workshopId: number, recipeId: string, threshold: number, materialFilter?: string, priority = ROUTINE): void {
-  const result = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId,
+  const result = command(w, { type: 'AddWorkOrder', workshopId,
     order: { recipeId, mode: 'maintain', threshold, priority, ...(materialFilter ? { materialFilter } : {}) } });
   if (!result.ok) throw new Error(`economy order ${recipeId}: ${result.reason}`);
 }
@@ -169,10 +175,12 @@ function fortressDwarves(w: TestWorld): number[] {
  * for everybody but the miners, and the broker keeps trading whatever else it does.
  */
 function dedicate(w: TestWorld, state: FortressState, dwarfId: number, keep: readonly string[], haul = true): void {
+  // The labor manager lists the living only.
+  if (!w.game.world.entities.alive(dwarfId)) return;
   const jobs = w.readers.of<JobsReader>('11');
   for (const row of w.game.registry.table<{ id: string }>('labors').rows.slice(1)) {
     const on = keep.includes(row.id) || (haul && row.id === 'hauling') || (row.id === 'trading' && state.economy.broker?.id === dwarfId);
-    if (jobs.laborEnabled(dwarfId, row.id) !== on) w.game.world.applyCommand({ type: 'SetLabor', dwarfId, labor: row.id, on });
+    if (jobs.laborEnabled(dwarfId, row.id) !== on) command(w, { type: 'SetLabor', dwarfId, labor: row.id, on });
   }
 }
 
@@ -263,7 +271,7 @@ function mine(w: TestWorld, state: FortressState, band: MineBand, wanted: (id: s
   }
   const tiles = [...dig].filter((t) => map.fluidLevelAt(t) === 0 && !map.hasFlag(t, TileFlag.Constructed));
   if (tiles.length) {
-    const result = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority, tiles });
+    const result = command(w, { type: 'Designate', kind: 'dig', priority, tiles });
     if (!result.ok) throw new Error(`economy mine: ${result.reason}`);
   }
   return taken;
@@ -313,7 +321,7 @@ function openDeepShaft(w: TestWorld, state: FortressState, bottom: number, prior
     const fresh = drift.filter((t) => map.kindAt(t) === TileKind.Wall && !(map.xOf(t) === upper.x && map.yOf(t) === upper.y));
     if (!fresh.every((t) => map.fluidLevelAt(t) === 0)) continue;
     // Down stairs are worked on the tile itself: excavate their head before carving the shaft.
-    if (fresh.length) w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority, tiles: fresh });
+    if (fresh.length) command(w, { type: 'Designate', kind: 'dig', priority, tiles: fresh });
     for (const t of fresh) state.economy.workings.add(t);
     state.economy.deepShaft = { x: c.x, y: c.y, bottom: reach };
     return { x: c.x, y: c.y, zMin: reach, zMax: top - 1, deep: true };
@@ -338,7 +346,7 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
   if (state.placedIds[key]) {
     const built = w.readers.of<BuildingsReader>('14').get(state.placedIds[key]!);
     if (built?.state === 'built' && state.economy.phases.has(`traffic:${key}`)) {
-      w.game.world.applyCommand({ type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => built.footprint[i]!), mode: 'normal' });
+      command(w, { type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => built.footprint[i]!), mode: 'normal' });
       state.economy.phases.delete(`traffic:${key}`);
     }
     return;
@@ -371,7 +379,7 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
       }));
   });
   if (origin === undefined) return;
-  const result = w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: type, origin, orientation: 0, materialChoice: 0, priority });
+  const result = command(w, { type: 'PlaceBuilding', buildingType: type, origin, orientation: 0, materialChoice: 0, priority });
   if (result.ok) {
     state.placedIds[key] = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding;
     const b = buildings.get(state.placedIds[key]!)!;
@@ -382,10 +390,10 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
         const t = w.map.offset(tile, dx, dy, 0);
         if (t >= 0 && w.map.kindAt(t) === TileKind.Tree) trees.add(t);
       }
-      if (trees.size) w.game.world.applyCommand({ type: 'Designate', kind: 'chop', tiles: [...trees], priority: ROUTINE });
+      if (trees.size) command(w, { type: 'Designate', kind: 'chop', tiles: [...trees], priority: ROUTINE });
     }
     if (b.footprint.length === 9 && type !== 'trade_depot') {
-      w.game.world.applyCommand({ type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => b.footprint[i]!), mode: 'forbidden' });
+      command(w, { type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => b.footprint[i]!), mode: 'forbidden' });
       state.economy.phases.add(`traffic:${key}`);
     }
   }
@@ -399,10 +407,10 @@ export function assignBroker(w: TestWorld, state: FortressState): void {
   const miners = new Set(founders.slice(0, 2));
   const trader = [founders[BROKER_FOUNDER], ...adults].find((id) => id !== undefined && adults.includes(id) && !miners.has(id));
   if (trader === undefined) return;
-  const result = w.game.world.applyCommand({ type: 'AssignTitle', title: 'broker', dwarfId: trader });
+  const result = command(w, { type: 'AssignTitle', title: 'broker', dwarfId: trader });
   if (!result.ok) return;
   state.economy.broker = { id: trader };
-  if (!w.readers.of<JobsReader>('11').laborEnabled(trader, 'trading')) w.game.world.applyCommand({ type: 'SetLabor', dwarfId: trader, labor: 'trading', on: true });
+  if (!w.readers.of<JobsReader>('11').laborEnabled(trader, 'trading')) command(w, { type: 'SetLabor', dwarfId: trader, labor: 'trading', on: true });
 }
 
 export function trade(w: TestWorld, state: FortressState): void {
@@ -429,7 +437,7 @@ export function trade(w: TestWorld, state: FortressState): void {
     delete state.economy.broker;
   }
   assignBroker(w, state);
-  if (jobs.laborPriority('trading') !== (active ? DEADLINE : ROUTINE)) w.game.world.applyCommand({ type: 'SetLaborPriority', labor: 'trading', priority: active ? DEADLINE : ROUTINE });
+  if (jobs.laborPriority('trading') !== (active ? DEADLINE : ROUTINE)) command(w, { type: 'SetLaborPriority', labor: 'trading', priority: active ? DEADLINE : ROUTINE });
   // Export crafts and surplus prepared meals, as balance.md's caravan arithmetic describes.
   const population = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
   let mealSurplus = items.available('easy_meal') + items.available('fine_meal') + items.available('lavish_meal') - Math.ceil(population * 0.48 * MEAL_RESERVE_DAYS);
@@ -454,17 +462,17 @@ export function trade(w: TestWorld, state: FortressState): void {
     return false;
   }).sort((a, b) => Number(types.byIndex(ent.get(a, C.Item)!.type)?.id === 'raw_stone') - Number(types.byIndex(ent.get(b, C.Item)!.type)?.id === 'raw_stone') || a - b).slice(0, 20);
   if (exports.length) {
-    const result = w.game.world.applyCommand({ type: 'MoveToDepot', depotId: depot, itemIds: exports });
+    const result = command(w, { type: 'MoveToDepot', depotId: depot, itemIds: exports });
     if (result.ok) for (const id of exports) {
       const job = jobs.byKey(`depot:${id}`);
       // F-17g: export hauling is routine; a visiting caravan's deadline warrants one step.
-      if (job) w.game.world.applyCommand({ type: 'SetJobPriority', jobId: job.id, priority: reader.activeCaravan() ? DEADLINE : ROUTINE });
+      if (job && reprioritised(job)) command(w, { type: 'SetJobPriority', jobId: job.id, priority: reader.activeCaravan() ? DEADLINE : ROUTINE });
     }
   }
   const caravan = reader.activeCaravan();
   // Exports queued between visits need the same deadline step as newly queued exports.
   for (const job of jobs.list('open')) if (job.key.startsWith('depot:') && job.priority !== (caravan ? DEADLINE : ROUTINE)) {
-    w.game.world.applyCommand({ type: 'SetJobPriority', jobId: job.id, priority: caravan ? DEADLINE : ROUTINE });
+    command(w, { type: 'SetJobPriority', jobId: job.id, priority: caravan ? DEADLINE : ROUTINE });
   }
   if (!caravan || caravan.state !== 'atDepot') return;
   const day = Math.floor(w.tick / TICKS_PER_DAY);
@@ -472,9 +480,9 @@ export function trade(w: TestWorld, state: FortressState): void {
   const key = `${threeYearsMeasurements(w).caravans.filter((c) => c.state === 'CaravanArrived').length}:${caravan.civ}`;
   if (state.economy.traded.has(key)) return;
   if (!reader.sessionOpen()) {
-    w.game.world.applyCommand({ type: 'TradeOpen', depotId: depot });
+    command(w, { type: 'TradeOpen', depotId: depot });
     const job = w.readers.of<JobsReader>('11').byKey(`trade:${depot}`);
-    if (job) w.game.world.applyCommand({ type: 'SetJobPriority', jobId: job.id, priority: DEADLINE });
+    if (job && reprioritised(job)) command(w, { type: 'SetJobPriority', jobId: job.id, priority: DEADLINE });
     return;
   }
   const give = reader.depotItems().filter((id) => {
@@ -544,7 +552,7 @@ export function trade(w: TestWorld, state: FortressState): void {
     if (offered >= requiredValue(cost, reader.marginPercent(caravan.civ))) break;
   }
   const foreign = new Set(w.game.world.entities.with(C.Item).filter((id) => (w.game.world.entities.get(id, C.Item)!.flags & ItemFlag.Merchant) !== 0));
-  const result = w.game.world.applyCommand({ type: 'TradeOffer', give: selected, take });
+  const result = command(w, { type: 'TradeOffer', give: selected, take });
   note('three_years_trade', { day, civ: caravan.civ, ok: result.ok, reason: result.ok ? null : result.reason, budget: Math.floor(budget), cost: Math.floor(cost),
     take: take.map((t) => `${types.byIndex(ent.get(t.itemId, C.Item)?.type ?? -1)?.id ?? 'gone'}x${t.count}`) });
   const acquired = w.game.world.entities.with(C.Item).filter((id) => (foreign.has(id) && (ent.get(id, C.Item)!.flags & ItemFlag.Merchant) === 0) ||
@@ -553,9 +561,9 @@ export function trade(w: TestWorld, state: FortressState): void {
     const purchasesNow = reader.depotItems().filter((id) => !give.includes(id) && ((foreign.has(id) && (ent.get(id, C.Item)!.flags & ItemFlag.Merchant) === 0) || !foreign.has(id)));
     for (const id of purchasesNow) threeYearsMeasurements(w).purchases.add(id);
     state.economy.traded.add(key);
-    w.game.world.applyCommand({ type: 'TradeCancel' });
+    command(w, { type: 'TradeCancel' });
     const purchases = reader.depotItems().filter((id) => !types.byIndex(ent.get(id, C.Item)?.type ?? -1)?.category.startsWith('craft/'));
-    if (purchases.length) w.game.world.applyCommand({ type: 'RemoveFromDepot', depotId: depot, itemIds: purchases });
+    if (purchases.length) command(w, { type: 'RemoveFromDepot', depotId: depot, itemIds: purchases });
   }
 }
 
@@ -581,7 +589,7 @@ function checkArming(w: TestWorld, state: FortressState, first: boolean, day: nu
   if (smith !== undefined && built('forge') && !phases.has('smith at forge')) {
     phases.add('smith at forge');
     dedicate(w, state, smith, ['smithing', 'smelting']);
-    w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: state.placedIds['forge'], dwarfId: smith });
+    if (w.game.world.entities.alive(smith)) command(w, { type: 'SetWorkshopWorker', workshopId: state.placedIds['forge'], dwarfId: smith });
   }
   if (!SQUAD_KIT_ITEMS.every((item) => items.count(item) >= SQUAD_SIZE)) return;
   // The kit is forged: the general economy takes the chain and its second worker back.
@@ -598,7 +606,7 @@ function checkArming(w: TestWorld, state: FortressState, first: boolean, day: nu
     const id = state.placedIds[type];
     const ws = id ? w.game.world.entities.get(id, C.Workshop) : undefined;
     for (const [index, o] of (ws?.orders ?? []).entries()) {
-      if (o.priority !== ROUTINE) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: id, index, patch: { priority: ROUTINE } });
+      if (o.priority !== ROUTINE) command(w, { type: 'EditWorkOrder', workshopId: id, index, patch: { priority: ROUTINE } });
     }
   }
 }
@@ -631,7 +639,7 @@ function checkSpecialists(w: TestWorld, state: FortressState): void {
     }
     dedicate(w, state, current, spec.labors);
     for (const shopId of shopIds) {
-      if (w.game.world.entities.get(shopId, C.Workshop)?.assignedWorker !== current) w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: shopId, dwarfId: current });
+      if (w.game.world.entities.get(shopId, C.Workshop)?.assignedWorker !== current) command(w, { type: 'SetWorkshopWorker', workshopId: shopId, dwarfId: current });
     }
   }
 }
@@ -674,7 +682,7 @@ function checkKitchens(w: TestWorld, state: FortressState): void {
     }
     const orders = ent.get(id, C.Workshop)?.orders ?? [];
     const at = orders.findIndex((o) => o.recipe === recipes.index('cook_lavish_meal'));
-    if (at >= 0 && orders[at]!.threshold !== lavish) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: id, index: at, patch: { threshold: lavish } });
+    if (at >= 0 && orders[at]!.threshold !== lavish) command(w, { type: 'EditWorkOrder', workshopId: id, index: at, patch: { threshold: lavish } });
   }
   if (population > DWARVES_PER_STILL) {
     placeEconomyBuilding(w, state, 'still', -4, 14, BUILD, 'still2');
@@ -685,7 +693,7 @@ function checkKitchens(w: TestWorld, state: FortressState): void {
     }
     const orders = id ? w.game.world.entities.get(id, C.Workshop)?.orders ?? [] : [];
     const drink = Math.max(80, Math.ceil(population * 0.77 * DRINK_DAYS));
-    if (orders[0] !== undefined && orders[0].threshold !== drink) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: id, index: 0, patch: { threshold: drink } });
+    if (orders[0] !== undefined && orders[0].threshold !== drink) command(w, { type: 'EditWorkOrder', workshopId: id, index: 0, patch: { threshold: drink } });
   }
 }
 
@@ -715,10 +723,10 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   }
   const plan = { tiles, zoneId: -1 };
   plans.push(plan);
-  if (tiles.length < FARM_STRIP.width || !w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) { plan.tiles = []; return; }
+  if (tiles.length < FARM_STRIP.width || !command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) { plan.tiles = []; return; }
   plan.zoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
   const crops = plans.length % 2 === 1 ? ['turnip', 'turnip', 'turnip'] : ['barley', 'barley', 'turnip'];
-  for (const [season, speciesId] of crops.entries()) w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: plan.zoneId, season, speciesId });
+  for (const [season, speciesId] of crops.entries()) command(w, { type: 'SetPlotCrop', zoneId: plan.zoneId, season, speciesId });
 }
 
 /** Seed of each crop species the fortress owns, plus its crops in the ground (each harvest returns its seed). */
@@ -767,7 +775,7 @@ function checkCrops(w: TestWorld): void {
     const chosen = pick(tiles, name(settings[0]), CAVE_CROPS, caveLeft);
     if (chosen === '') continue;
     caveLeft.set(chosen, (caveLeft.get(chosen) ?? 0) - tiles);
-    for (const season of [0, 1, 2, 3]) if (name(settings[season]) !== chosen) w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId, season, speciesId: chosen });
+    for (const season of [0, 1, 2, 3]) if (name(settings[season]) !== chosen) command(w, { type: 'SetPlotCrop', zoneId, season, speciesId: chosen });
   }
   for (const [season, list] of SURFACE_CROPS.entries()) {
     const left = new Map(supply);
@@ -777,7 +785,7 @@ function checkCrops(w: TestWorld): void {
       const chosen = pick(tiles, current, list, left);
       if (chosen === '') continue;
       left.set(chosen, (left.get(chosen) ?? 0) - tiles);
-      if (chosen !== current) w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId, season, speciesId: chosen });
+      if (chosen !== current) command(w, { type: 'SetPlotCrop', zoneId, season, speciesId: chosen });
     }
   }
 }
@@ -792,7 +800,7 @@ function checkCaveStrips(w: TestWorld, state: FortressState): void {
     if (plan.zoneId !== -1 || !plan.tiles.every((t) => map.kindAt(t) === TileKind.Floor)) continue;
     const tiles = plan.tiles.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t));
     plan.zoneId = 0;
-    if (tiles.length > 0 && w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) plan.zoneId = bSystem.lastCreatedZone;
+    if (tiles.length > 0 && command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) plan.zoneId = bSystem.lastCreatedZone;
   }
   if (plans.some((p) => p.zoneId === -1) || plans.length >= CAVE_STRIPS.length) return;
   // Cave seed in stock beyond what the cave plots' empty tiles will take.
@@ -812,7 +820,7 @@ function checkCaveStrips(w: TestWorld, state: FortressState): void {
     if (map.kindAt(t) === TileKind.Wall && map.fluidLevelAt(t) === 0 && !terrain.designationAt(t)) tiles.push(t);
   }
   plans.push({ tiles, zoneId: tiles.length === 0 ? 0 : -1 });
-  if (tiles.length > 0) w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles });
+  if (tiles.length > 0) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles });
 }
 
 /**
@@ -827,7 +835,7 @@ function checkLarder(w: TestWorld, state: FortressState): number {
   if (!economy.phases.has('pantry')) return 0;
   if (!economy.phases.has('pantry barrels')) {
     const pantry = buildings.zoneAt(state.pantryTiles[0]!);
-    if (pantry !== 0 && w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: pantry, wants: { barrel: state.pantryTiles.length } }).ok) economy.phases.add('pantry barrels');
+    if (pantry !== 0 && command(w, { type: 'SetStockpileContainers', zoneId: pantry, wants: { barrel: state.pantryTiles.length } }).ok) economy.phases.add('pantry barrels');
   }
   // The larder is dug once the first season's halls are done.
   if (economy.larder === undefined && w.tick >= 28 * TICKS_PER_DAY) {
@@ -839,18 +847,18 @@ function checkLarder(w: TestWorld, state: FortressState): number {
     const drinkTiles = tiles.filter((t) => w.map.yOf(t) > state.cy + 2);
     economy.larder = { tiles: tiles.filter((t) => !drinkTiles.includes(t)), zoneId: -1, drinkTiles, drinkZoneId: -1 };
     const dig = tiles.filter((t) => w.map.kindAt(t) === TileKind.Wall);
-    if (dig.length) w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: dig });
+    if (dig.length) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: dig });
   }
   const larder = economy.larder;
   if (larder === undefined) return state.pantryTiles.length + DRINK_STOCKPILE_TILES;
   const stock = (part: number[], filter: string): number => {
     const tiles = part.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('stockpile', t));
-    if (tiles.length === 0 || !w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles }).ok) return 0;
+    if (tiles.length === 0 || !command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles }).ok) return 0;
     const zoneId = bSystem.lastCreatedZone;
-    w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId, filter });
-    w.game.world.applyCommand({ type: 'SetStockpilePriority', zoneId, priority: ROUTINE });
+    command(w, { type: 'SetStockpileFilter', zoneId, filter });
+    command(w, { type: 'SetStockpilePriority', zoneId, priority: ROUTINE });
     // A drink stockpile keeps two thirds of its tiles free for the full barrels the stills make.
-    w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId, wants: { barrel: filter === 'drink' ? Math.ceil(tiles.length / 3) : tiles.length } });
+    command(w, { type: 'SetStockpileContainers', zoneId, wants: { barrel: filter === 'drink' ? Math.ceil(tiles.length / 3) : tiles.length } });
     return zoneId;
   };
   if (larder.zoneId === -1 && [...larder.tiles, ...larder.drinkTiles].every((t) => w.map.kindAt(t) !== TileKind.Wall)) {
@@ -903,8 +911,8 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       dedicate(w, state, fuel, ['smelting'], false);
       for (const type of ['wood_furnace', 'smelter']) {
         const id = state.placedIds[type];
-        if (id && buildings.get(id)?.state === 'built' && w.game.world.entities.get(id, C.Workshop)?.assignedWorker !== fuel) {
-          w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: id, dwarfId: fuel });
+        if (id && buildings.get(id)?.state === 'built' && w.game.world.entities.alive(fuel) && w.game.world.entities.get(id, C.Workshop)?.assignedWorker !== fuel) {
+          command(w, { type: 'SetWorkshopWorker', workshopId: id, dwarfId: fuel });
         }
       }
     }
@@ -921,7 +929,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   if (items.available('log') < TIMBER_RESERVE && standing.filter((t) => terrain.designationAt(t)).length < TIMBER_BATCH / 2) {
     const near = (t: number): number => Math.abs(w.map.xOf(t) - state.cx) + Math.abs(w.map.yOf(t) - state.cy - 10);
     const batch = standing.filter((t) => !terrain.designationAt(t)).sort((a, b) => near(a) - near(b) || a - b).slice(0, TIMBER_BATCH);
-    if (batch.length) w.game.world.applyCommand({ type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: batch });
+    if (batch.length) command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: batch });
   }
   const arming = armingSquad(state);
   const metalWorker = w.game.arrival?.dwarves[6];
@@ -942,7 +950,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     state.economy.specialists['craftdwarf'] = stoneCrafter;
     phases.add('stone craft staffed');
     dedicate(w, state, stoneCrafter, ['crafts']);
-    w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: stoneShop, dwarfId: stoneCrafter });
+    if (w.game.world.entities.alive(stoneCrafter)) command(w, { type: 'SetWorkshopWorker', workshopId: stoneShop, dwarfId: stoneCrafter });
   }
   // F-17h: the mason's blocks, the furnace, the smelter and the forge come before all routine work.
   const metal = arming || phases.has('armed') || day >= 30;
@@ -957,12 +965,12 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       phases.add('requests');
       // The farm grows only by bought seed (07: a harvest returns the one seed it was sown from):
       // cave seed from the Mountainhome for plots that bear in winter, surface seed of food crops.
-      w.game.world.applyCommand({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', material: 'iron', priority: 3 },
+      command(w, { type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', material: 'iron', priority: 3 },
         { itemType: 'seed', material: 'dimcap', priority: 3 }, { itemType: 'seed', material: 'pale_bell', priority: 2 }, { itemType: 'seed', material: 'sweetroot', priority: 2 },
         { itemType: 'mail_shirt', priority: 2 }, { itemType: 'bar', material: 'iron', priority: 1 }] });
-      w.game.world.applyCommand({ type: 'SetRequests', civ: 'hillfolk', entries: [{ itemType: 'seed', material: 'turnip', priority: 3 },
+      command(w, { type: 'SetRequests', civ: 'hillfolk', entries: [{ itemType: 'seed', material: 'turnip', priority: 3 },
         { itemType: 'seed', material: 'cabbage', priority: 2 }, { itemType: 'seed', material: 'barley', priority: 2 }, { itemType: 'bandage', priority: 2 }] });
-      w.game.world.applyCommand({ type: 'SetRequests', civ: 'wildwood', entries: [{ itemType: 'seed', material: 'strawberry', priority: 3 },
+      command(w, { type: 'SetRequests', civ: 'wildwood', entries: [{ itemType: 'seed', material: 'strawberry', priority: 3 },
         { itemType: 'seed', material: 'barley', priority: 2 }, { itemType: 'seed', material: 'pumpkin', priority: 2 }] });
     }
     trade(w, state);
@@ -989,13 +997,14 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     if (phases.has('shaft')) return true;
     // The shaft starts from the dug trunk corridor, so nothing is designated into unreached rock.
     if (w.map.kindAt(w.index(upper.x, upper.y, HALL_Z)) !== TileKind.Floor) return false;
-    const result = w.game.world.applyCommand({ type: 'DesignateStairwell', x: upper.x, y: upper.y, zTop: HALL_Z, zBottom: upper.zMin, priority });
+    const result = command(w, { type: 'DesignateStairwell', x: upper.x, y: upper.y, zTop: HALL_Z, zBottom: upper.zMin, priority });
     if (result.ok) phases.add('shaft');
     return result.ok;
   };
   // F-17h: the ore for the squad's missing bars is opened as soon as the trunk corridor reaches
-  // the shaft, a step ahead of the halls.
-  if (arming && !phases.has('squad ore') && shaft(KIT_FIRST)) {
+  // the shaft, a step ahead of the halls; T-387: and the shelter is dug (setupThreeYearsFortress).
+  const shelterDug = (state.shelterTiles ?? []).every((t) => terrain.designationAt(t) === null);
+  if (arming && !phases.has('squad ore') && shelterDug && shaft(KIT_FIRST)) {
     phases.add('squad ore');
     // Where the upper rock holds no iron the miners go straight down for it.
     if (mine(w, state, upper, isOre, SQUAD_ORE_FACES, KIT_FIRST) === 0) phases.add('squad ore deep');
@@ -1022,7 +1031,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   const deepShaft = state.economy.deepShaft;
   if (deepShaft) {
     if (!phases.has('deep stairs') && w.map.kindAt(w.index(deepShaft.x, deepShaft.y, upper.zMin)) === TileKind.Floor) {
-      const stairs = w.game.world.applyCommand({ type: 'DesignateStairwell', x: deepShaft.x, y: deepShaft.y,
+      const stairs = command(w, { type: 'DesignateStairwell', x: deepShaft.x, y: deepShaft.y,
         zTop: upper.zMin, zBottom: deepShaft.bottom, priority: arming ? KIT_FIRST : ROUTINE });
       if (stairs.ok) phases.add('deep stairs');
     }
@@ -1046,7 +1055,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
     const threshold = Math.max(80, Math.ceil(population * 0.77 * DRINK_DAYS));
     const ws = w.game.world.entities.get(still, C.Workshop);
-    if (ws?.orders[0]?.threshold !== threshold) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: still, index: 0, patch: { threshold } });
+    if (ws?.orders[0]?.threshold !== threshold) command(w, { type: 'EditWorkOrder', workshopId: still, index: 0, patch: { threshold } });
   }
   const foodBarrels = checkLarder(w, state);
   const carpenter = state.placedIds['carpenter'];
@@ -1061,17 +1070,17 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     // The brew stays in its barrel at the still (T-361), so the barrels that hold drink are made
     // on top of those the stockpiles want, or the drink stockpiles are left with none.
     const threshold = day < 2 * 28 ? 20 : Math.min(200, Math.max(20, foodBarrels + Math.ceil(Math.max(items.count('drink'), population0 * 0.77 * DRINK_DAYS) / 20) + 10));
-    if (barrels >= 0 && orders()[barrels]!.threshold !== threshold) w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: carpenter, index: barrels, patch: { threshold } });
+    if (barrels >= 0 && orders()[barrels]!.threshold !== threshold) command(w, { type: 'EditWorkOrder', workshopId: carpenter, index: barrels, patch: { threshold } });
     // Beds come before barrels until every dwarf and the hospital has one.
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
     const beds = Math.min(state.bedroomPlans.filter((bp) => bp.designated).length, population + 1) - owned(w, 'bed');
     const bedOrder = orders().findIndex((o) => o.recipe === recipes.index('make_bed'));
     if (beds > 0 && bedOrder < 0) {
-      const added = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_bed', mode: 'once', remaining: beds, priority: ROUTINE } });
+      const added = command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_bed', mode: 'once', remaining: beds, priority: ROUTINE } });
       const at = standing();
-      if (added.ok && at >= 0) w.game.world.applyCommand({ type: 'ReorderWorkOrder', workshopId: carpenter, from: orders().length - 1, to: at });
+      if (added.ok && at >= 0) command(w, { type: 'ReorderWorkOrder', workshopId: carpenter, from: orders().length - 1, to: at });
     } else if (bedOrder >= 0 && beds > orders()[bedOrder]!.remaining + 1) {
-      w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: carpenter, index: bedOrder, patch: { remaining: beds } });
+      command(w, { type: 'EditWorkOrder', workshopId: carpenter, index: bedOrder, patch: { remaining: beds } });
     }
   }
   const kitchen = state.placedIds['kitchen'];
@@ -1079,7 +1088,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     phases.add('lavish');
     order(w, kitchen, 'cook_lavish_meal', 120);
     const last = (w.game.world.entities.get(kitchen, C.Workshop)?.orders.length ?? 1) - 1;
-    w.game.world.applyCommand({ type: 'ReorderWorkOrder', workshopId: kitchen, from: last, to: 0 });
+    command(w, { type: 'ReorderWorkOrder', workshopId: kitchen, from: last, to: 0 });
   }
   // The general metal economy takes the forge once the squad has its kit.
   const forge = state.placedIds['forge'];
@@ -1087,10 +1096,10 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     phases.add('iron goods');
     // A first few iron crafts for the caravans come before the standing armour orders, which
     // never fill: a piece a soldier wears is no longer stock.
-    const first = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: forge,
+    const first = command(w, { type: 'AddWorkOrder', workshopId: forge,
       order: { recipeId: 'forge_crafts', mode: 'once', remaining: FIRST_IRON_CRAFTS, materialFilter: 'iron', priority: ROUTINE } });
     if (!first.ok) throw new Error(`economy iron crafts: ${first.reason}`);
-    w.game.world.applyCommand({ type: 'ReorderWorkOrder', workshopId: forge, from: (w.game.world.entities.get(forge, C.Workshop)?.orders.length ?? 1) - 1, to: 0 });
+    command(w, { type: 'ReorderWorkOrder', workshopId: forge, from: (w.game.world.entities.get(forge, C.Workshop)?.orders.length ?? 1) - 1, to: 0 });
     order(w, forge, 'forge_pick', 2, 'iron');
     order(w, forge, 'forge_battle_axe', 3, 'iron');
     for (const recipe of ['forge_helm', 'forge_greaves', 'forge_gauntlets', 'forge_metal_boots']) order(w, forge, recipe, 3, 'iron');
@@ -1104,14 +1113,14 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     const alloy = w.game.registry.table('recipes').index('alloy_steel');
     const ws = w.game.world.entities.get(smelter, C.Workshop);
     if (ws && !ws.orders.some((o) => o.recipe === alloy)) {
-      const result = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: smelter,
+      const result = command(w, { type: 'AddWorkOrder', workshopId: smelter,
         order: { recipeId: 'alloy_steel', mode: 'once', remaining: STEEL_BATCH, priority: ROUTINE } });
       if (!result.ok) throw new Error(`economy steel: ${result.reason}`);
       // The smelter takes its first runnable order (12 § Operation), and the iron orders below
       // 40 bars are always runnable: the steel goes first, and runs whenever flux is in stock.
       // A reorder cancels no job: an iron job already open finishes before the first steel job.
       const last = (w.game.world.entities.get(smelter, C.Workshop)?.orders.length ?? 1) - 1;
-      if (last > 0) w.game.world.applyCommand({ type: 'ReorderWorkOrder', workshopId: smelter, from: last, to: 0 });
+      if (last > 0) command(w, { type: 'ReorderWorkOrder', workshopId: smelter, from: last, to: 0 });
       if (phases.has('steel')) mine(w, state, upper, isFlux, STEEL_BATCH);
       phases.add('steel');
     }
@@ -1147,7 +1156,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   if (craftdwarf && state.orderedWorkshops.has('craftdwarf')) {
     const threshold = Math.min(999, Math.max(day >= 112 ? 120 : 60, CRAFTS_PER_DWARF * fortressDwarves(w).length));
     if (w.game.world.entities.get(craftdwarf, C.Workshop)?.orders[0]?.threshold !== threshold) {
-      w.game.world.applyCommand({ type: 'EditWorkOrder', workshopId: craftdwarf, index: 0, patch: { threshold } });
+      command(w, { type: 'EditWorkOrder', workshopId: craftdwarf, index: 0, patch: { threshold } });
     }
   }
   // Work follows the population: a new ore drift every season of years 2 and 3.
@@ -1163,7 +1172,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   // Nobody hunts: an immigrant hunter arrives with a crossbow, and a bolt that misses its quarry
   // hits whoever stands behind it (16 § Ranged).
   for (const id of fortressDwarves(w)) {
-    if (w.readers.of<JobsReader>('11').laborEnabled(id, 'hunting')) w.game.world.applyCommand({ type: 'SetLabor', dwarfId: id, labor: 'hunting', on: false });
+    if (w.readers.of<JobsReader>('11').laborEnabled(id, 'hunting')) command(w, { type: 'SetLabor', dwarfId: id, labor: 'hunting', on: false });
   }
   checkSpecialists(w, state);
   threeYearsMeasurements(w).fixture = { armedDay: state.economy.armedDay ?? null,
@@ -1177,6 +1186,6 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       if (n >= 0 && w.map.kindAt(n) === TileKind.Wall) borders.add(n);
     }
     const engrave = [...borders].filter((t) => w.map.hasFlag(t, TileFlag.Smoothed) && !w.map.hasFlag(t, TileFlag.Engraved) && !terrain.designationAt(t));
-    if (engrave.length) w.game.world.applyCommand({ type: 'Designate', kind: 'engrave', tiles: engrave, priority: ROUTINE });
+    if (engrave.length) command(w, { type: 'Designate', kind: 'engrave', tiles: engrave, priority: ROUTINE });
   }
 }

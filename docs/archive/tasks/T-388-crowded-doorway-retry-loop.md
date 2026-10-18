@@ -1,5 +1,7 @@
 # T-388 — A doorway that stays crowded sends workers on a retry loop
 
+**Closed:** 2026-10-18, in 8ad4d9f.
+
 **Source:** the review of T-385 (2026-10-18) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

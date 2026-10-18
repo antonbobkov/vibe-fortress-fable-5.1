@@ -12,6 +12,7 @@ import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TestWorld } from '../scenarios/test-world';
 import { deathCounts } from '../scenarios/death-counts';
+import { command } from '../scenarios/script-commands';
 
 const SEEDS = ['year-one', 'year-one-b', 'year-one-c', 'year-one-d', 'year-one-e'] as const;
 
@@ -67,14 +68,14 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
       }
     }
   }
-  const rSp = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles: spTiles });
+  const rSp = command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: spTiles });
   if (!rSp.ok) throw new Error(`Stockpile CreateZone failed: ${rSp.reason}`);
   const spId = bSystem.lastCreatedZone;
-  const rFilter = w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: spId, filter: 'everything' });
+  const rFilter = command(w, { type: 'SetStockpileFilter', zoneId: spId, filter: 'everything' });
   if (!rFilter.ok) throw new Error(`SetStockpileFilter failed: ${rFilter.reason}`);
 
   // 3. DesignateStairwell { x: cx+6, y: cy+6, zTop: 32, zBottom: 29 }
-  const rStairs = w.game.world.applyCommand({ type: 'DesignateStairwell', x: cx + 6, y: cy + 6, zTop: 32, zBottom: 29 });
+  const rStairs = command(w, { type: 'DesignateStairwell', x: cx + 6, y: cy + 6, zTop: 32, zBottom: 29 });
   if (!rStairs.ok) throw new Error(`DesignateStairwell failed: ${rStairs.reason}`);
 
   // 4. Designate { kind: 'dig', priority: 4 } over 5x5 rectangle at (cx+7, cy+4, 29)
@@ -84,7 +85,7 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
       roomTiles.push(w.index(x, y, 29));
     }
   }
-  const rDig = w.game.world.applyCommand({ type: 'Designate', kind: 'dig', priority: 4, tiles: roomTiles });
+  const rDig = command(w, { type: 'Designate', kind: 'dig', priority: 4, tiles: roomTiles });
   if (!rDig.ok) throw new Error(`Designate dig failed: ${rDig.reason}`);
 
   // 5. PlaceBuilding (orientation 0, materialChoice 0)
@@ -99,7 +100,7 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
   for (const p of toPlace) {
     const ghost = buildings.ghost(p.type, p.origin, 0);
     if (ghost.reason !== null) throw new Error(`ghost refused ${p.type}: ${ghost.reason}`);
-    const r = w.game.world.applyCommand({
+    const r = command(w, {
       type: 'PlaceBuilding',
       buildingType: p.type,
       origin: p.origin,
@@ -120,7 +121,7 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
       }
     }
   }
-  const rMeet = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'meeting_area', tiles: meetTiles });
+  const rMeet = command(w, { type: 'CreateZone', zoneType: 'meeting_area', tiles: meetTiles });
   if (!rMeet.ok) throw new Error(`meeting_area CreateZone failed: ${rMeet.reason}`);
 
   // 7. w.step(5). Then CreateZone farm_plot over 4x4 at (cx-8, cy+16), and SetPlotCrop barley for seasons 0 and 1
@@ -134,11 +135,11 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
       }
     }
   }
-  const rFarm = w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'farm_plot', tiles: farmTiles });
+  const rFarm = command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: farmTiles });
   if (!rFarm.ok) throw new Error(`farm_plot CreateZone failed: ${rFarm.reason}`);
   const farmId = bSystem.lastCreatedZone;
-  w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 0, speciesId: 'barley' });
-  w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId: farmId, season: 1, speciesId: 'barley' });
+  command(w, { type: 'SetPlotCrop', zoneId: farmId, season: 0, speciesId: 'barley' });
+  command(w, { type: 'SetPlotCrop', zoneId: farmId, season: 1, speciesId: 'barley' });
 
   // Tracking
   const builtTicks: Record<string, number | null> = {
@@ -172,7 +173,7 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
     // Orders as soon as each workshop is built
     if (!ordered.has('mason') && builtTicks['mason'] !== null) {
       ordered.add('mason');
-      w.game.world.applyCommand({
+      command(w, {
         type: 'AddWorkOrder',
         workshopId: placedIds['mason'],
         order: { recipeId: 'make_stone_block', mode: 'once', remaining: 2 },
@@ -180,7 +181,7 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
     }
     if (!ordered.has('still') && builtTicks['still'] !== null) {
       ordered.add('still');
-      w.game.world.applyCommand({
+      command(w, {
         type: 'AddWorkOrder',
         workshopId: placedIds['still'],
         order: { recipeId: 'brew', mode: 'maintain', threshold: 20 },
@@ -188,7 +189,7 @@ export function runYearOneScript(seed: string): { w: TestWorld; result: SeedRunR
     }
     if (!ordered.has('kitchen') && builtTicks['kitchen'] !== null) {
       ordered.add('kitchen');
-      w.game.world.applyCommand({
+      command(w, {
         type: 'AddWorkOrder',
         workshopId: placedIds['kitchen'],
         order: { recipeId: 'cook_easy_meal', mode: 'maintain', threshold: 10 },

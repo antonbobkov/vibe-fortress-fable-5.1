@@ -1,5 +1,7 @@
 # T-383 — A craft job's unit search enumerates every matching item, one search at a time
 
+**Closed:** 2026-10-18, in b6e0900, 740c658.
+
 **Source:** T-344 (the reference fortress with its 25,000 items not forbidden) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
