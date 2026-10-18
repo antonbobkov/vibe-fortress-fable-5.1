@@ -1,6 +1,8 @@
 # T-156 — The long fixtures check their own steps, and the sweep asserts what it exercises
 
-**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gaps 6 and 9; bugs 1 and 2) · **Size:** M · **Needs:** T-145 · **Status:** open
+**Closed:** 2026-10-18, in 49b13ff, a9a21dd.
+
+**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../../reports/audits/2026-10-08-playthrough-coverage.md) (gaps 6 and 9; bugs 1 and 2) · **Size:** M · **Needs:** T-145 · **Status:** open
 
 **Held (2026-10-10).** T-145, which the cloud agent has, rewrites the same three-year fixture files. Start this task after T-145 is closed. Two notes from other tasks: `hospital_run` hangs on one roll of a fight and should assert on a staged, repeatable casualty; `homestead_year`'s birth check was made robust on branch `t-144`.
 
@@ -38,7 +40,7 @@ T-145 rewrites `three_years_fortress.ts` to play at default priorities. This tas
 ## Done
 
 - `three_years` and `year_one` pass with no unexpected rejected command.
-- The verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- The verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green.
 
 ## Found by T-144
 
