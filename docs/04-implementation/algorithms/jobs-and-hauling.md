@@ -158,6 +158,7 @@ findItem(filter, from, cls, opts):
        if opts.reservable and (flags & (Forbidden|Reserved|Owned|AtDepot)): continue
        t = tileOf(it) (container's tile if inside one; the furniture's tile for what lies in a built chest)
        if pathing.label(t, cls) != fromLabel and not (it is in a container and label(t) == 0 and some 8-neighbor of t has fromLabel): continue
+       if pathing.label(t, cls) != 0 and not pathing.passable(t, cls, {faction: 'fortress'}): continue   // the labels do not know the forbidden set
        d = chebyshev(from, t) + |dz|*Z_DISTANCE_WEIGHT; if d < bestD: best = it
     if best: return best
   // fallback through the stock index

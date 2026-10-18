@@ -64,6 +64,35 @@ export function sortedInsert(list: number[], value: number): boolean {
   return true;
 }
 
+/** Insert every value of an ascending array into an ascending array in one pass (the result of repeated `sortedInsert`). */
+export function sortedMerge(list: number[], extra: readonly number[]): void {
+  if (extra.length === 0) return;
+  if (list.length === 0 || (list[list.length - 1] as number) < (extra[0] as number)) {
+    for (const v of extra) list.push(v);
+    return;
+  }
+  const merged: number[] = [];
+  let i = 0;
+  let j = 0;
+  while (i < list.length || j < extra.length) {
+    const a = i < list.length ? (list[i] as number) : Number.POSITIVE_INFINITY;
+    const b = j < extra.length ? (extra[j] as number) : Number.POSITIVE_INFINITY;
+    if (a < b) {
+      merged.push(a);
+      i += 1;
+    } else if (b < a) {
+      merged.push(b);
+      j += 1;
+    } else {
+      merged.push(a);
+      i += 1;
+      j += 1;
+    }
+  }
+  list.length = 0;
+  for (const v of merged) list.push(v);
+}
+
 /** Remove from an ascending array; false when absent. */
 export function sortedRemove(list: number[], value: number): boolean {
   const at = lowerBound(list, value);

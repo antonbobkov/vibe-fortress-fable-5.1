@@ -11,11 +11,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | T-393 (the performance tier, which the full gate runs, fails on a played-fortress death and worst ticks) | open; local side (needs a quiet machine) |
-| T-150 | [A year in the browser is played through the real UI](work/T-150-full-year-through-the-ui.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | — | open; local side. Three of four stages are on master (played through the UI with the clock paused, food margin and survival asserted; the day through the frame loop is the `frame-loop-day` spec). Stage 4 (trade, panel uses, save/load hash) is unverified work in progress on branch `t-150-stage4-wip` |
+| T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | — (T-393 closed 2026-10-18; needs a quiet machine) | open; local side (needs a quiet machine) |
 | T-151 | [A defence year: traps, a gate, a trained squad, a raid repelled](work/T-151-defence-year-scenario.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | — (T-140 and T-141 closed) | open; local side (the cloud agent stopped before it): three stages are on master, the raid stage remains |
-| T-360 | [Measure brook drinking under wild animals](work/T-360-brook-drinking-under-wildlife.md) | the review of T-350 | — | open |
-| T-364 | [Measure farm yield](work/T-364-measure-farm-yield.md) | T-333, the unmeasured-numbers report | — | open |
 | T-365 | [Measure the work pace](work/T-365-measure-work-pace.md) | T-333, the unmeasured-numbers report | — | open |
 | T-366 | [Measure the combat pace](work/T-366-measure-combat-pace.md) | T-333, the unmeasured-numbers report | — | open |
 | T-367 | [Measure wound recovery and infection](work/T-367-measure-wound-recovery-and-infection.md) | T-333, the unmeasured-numbers report | — | open |
@@ -24,9 +21,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-380 | [Year-1 wealth of the economy fixture is two to three times the model](work/T-380-year-one-wealth-above-the-model.md) | T-145's peril-0 sweep | — | open |
 | T-381 | [Measure raid sizes at peril 2 with the economy fixture](work/T-381-raid-sizes-at-peril-2-with-the-economy-fixture.md) | T-145's peril-0 sweep | — | open |
 | T-389 | [An ambush party stays on the map for more than ten days](work/T-389-ambush-party-stays-past-ten-days.md) | T-387's peril-2 rerun | — | open |
-| T-390 | [Two kinds of slow tick remain in the reference fortress with its 25,000 items loose](work/T-390-slow-ticks-with-loose-items.md) | T-383 | — | open |
-| T-391 | [A raid party's loot item is not alive at tick 286,800 of seed p2-5](work/T-391-party-loot-missing-p2-5.md) | the T-370 check of the sweep seeds | — | open |
-| T-392 | [Haul jobs to the trade depot stay blocked after a failed walk on seed p4-1](work/T-392-haul-to-depot-failed-walk-p4-1.md) | the T-370 check of the sweep seeds | — | open |
-| T-393 | [The performance tier fails: a dwarf dies in the played fortress, and worst ticks pass 40 ms](work/T-393-perf-tier-played-fortress-death.md) | T-140's re-measure | — | open |
+| T-396 | [With no hearth hall, a civilian's shelter moves with the dwarf](work/T-396-no-hall-shelter-moves-with-the-dwarf.md) | T-151 and the lever review | — | open |
+| T-397 | [A fire kills most of a taiga fortress on a map with a brook at the wagon](work/T-397-fire-deaths-on-brook-maps.md) | T-360's measurement | — | open |
+| T-399 | [A hearth alert held for weeks starves a fortress that has no work inside the shelter](work/T-399-hearth-alert-starves-the-fortress.md) | T-398's diagnosis | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

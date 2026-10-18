@@ -365,6 +365,19 @@ function advancePatrol(
   return tiles[idx] ?? currentTile;
 }
 
+/**
+ * A creature that is about to be destroyed leaves every squad's order queue: a target's death completes its
+ * kill order and an escort's death ends its follow order, wherever the order stands in the queue.
+ */
+export function dropOrdersOf(entities: EntityStore, id: EntityId): void {
+  for (const squadId of entities.with(C.Squad)) {
+    const squad = entities.get(squadId, C.Squad);
+    if (squad === undefined || squad.orders.length === 0) continue;
+    const kept = squad.orders.filter((o) => !((o.kind === 'kill' && o.targetId === id) || (o.kind === 'follow' && o.dwarfId === id)));
+    if (kept.length !== squad.orders.length) squad.orders = kept;
+  }
+}
+
 export function stepSquads(
   ctx: TickContext,
   alert: Alert,

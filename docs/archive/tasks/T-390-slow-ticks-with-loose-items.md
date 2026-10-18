@@ -1,5 +1,7 @@
 # T-390 — Two kinds of slow tick remain in the reference fortress with its 25,000 items loose
 
+**Closed:** 2026-10-18, in 9a9a559.
+
 **Source:** T-383 (2026-10-18), measured on the reference fortress with its items loose, 2,000 ticks after T-383 (a busy machine; the worst tick fell from 42 s to 2 s and the average from 72 ms to 17 ms) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
@@ -8,6 +10,8 @@ After T-383 the worst ticks of the loose-items fortress are of two kinds, found 
 
 1. **16 combat handles `ItemCreated` with `reequipAllSquads`** (`src/systems/combat/index.ts`, `handle`), once per tick in which any item was created: 700 to 800 ms a tick with 26,000 items, on about one tick in a hundred. Nothing about a created item needs every squad to look through all the stock again; the same pass runs every `REEQUIP_CHECK_DAYS` and when a squad's members change.
 2. **13 items takes 150 to 340 ms on about one tick in thirty** in the same stretch (ticks 269,532 to 269,640 of the fixture). Not diagnosed: haul planning after T-344 and T-384 should be quiet with items that nobody hauls, so it is a pass that visits the loose items (the wants set, the `noHome` set, `StockpileFull` handling, or the container requests).
+
+On a quiet machine (nothing else running, 2,000 ticks of the committed fixture) the figures are: average tick 11.4 ms, system 11 1.5 ms, system 13 1.1 ms, system 16 0.4 ms, worst tick 0.87 s.
 
 ## What to do
 

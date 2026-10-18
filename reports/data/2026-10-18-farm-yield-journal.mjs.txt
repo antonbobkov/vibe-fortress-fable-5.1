@@ -1,0 +1,29 @@
+// T-364 cross-check: plants harvested per plot tile per day by season, from the daily journal of the three-year
+// fortress (reports/data/2026-10-16-t145-food-probe.jsonl). Tile-days are summed from each day's plot size.
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const [, , input, output] = process.argv;
+const rows = readFileSync(input, 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+const CAVE = new Set(['dimcap', 'cavewheat']);
+const NAMES = ['spring', 'summer', 'autumn', 'winter'];
+const seasons = new Map();
+for (const r of rows) {
+  const s = Math.floor((r.day - 1) / 28);
+  const a = seasons.get(s) ?? { season: s, year: Math.floor(s / 4) + 1, name: NAMES[s % 4], days: 0, population: 0, caveTileDays: 0, surfaceTileDays: 0, cavePlants: 0, surfacePlants: 0, caveHarvests: 0, surfaceHarvests: 0 };
+  a.days += 1;
+  a.population = r.pop;
+  a.caveTileDays += r.farm['cave:tiles'] ?? 0;
+  a.surfaceTileDays += r.farm['surface:tiles'] ?? 0;
+  for (const [k, v] of Object.entries(r.harvest ?? {})) {
+    if (CAVE.has(k)) a.cavePlants += v;
+    else a.surfacePlants += v;
+  }
+  seasons.set(s, a);
+}
+const out = [...seasons.values()].map((a) => ({
+  ...a,
+  cavePerTileDay: a.caveTileDays === 0 ? null : a.cavePlants / a.caveTileDays,
+  surfacePerTileDay: a.surfaceTileDays === 0 ? null : a.surfacePlants / a.surfaceTileDays,
+}));
+writeFileSync(output, JSON.stringify(out, null, 2) + '\n');
+for (const a of out) console.log(a.year, a.name.padEnd(7), 'days', a.days, 'pop', a.population, 'cave', (a.cavePerTileDay ?? 0).toFixed(3), 'surface', (a.surfacePerTileDay ?? 0).toFixed(3));

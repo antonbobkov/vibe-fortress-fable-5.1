@@ -1,10 +1,12 @@
 # T-150 — `full-year` plays its year through the real UI
 
-**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 3; bugs 4 and 5) · **Size:** M · **Needs:** — · **Status:** in progress (t-150)
+**Closed:** 2026-10-18, in f0b0697.
+
+**Source:** T-114 and its report, [`../../reports/audits/2026-10-08-playthrough-coverage.md`](../../../reports/audits/2026-10-08-playthrough-coverage.md) (gap 3; bugs 4 and 5) · **Size:** M · **Needs:** — · **Status:** in progress (t-150)
 
 ## Why
 
-`test/e2e/full-year.spec.ts` is the only browser test that plays for longer than a few game days. It uses the real UI up to the embark. After that it sends every command through `host.world.applyCommand` inside `page.evaluate` (23 call sites), never opens a panel, and advances time with `h.step`. [`../process/testing-strategy.md`](../process/testing-strategy.md) § E2E harness says browser tests "never call `submit` except to set up state faster".
+`test/e2e/full-year.spec.ts` is the only browser test that plays for longer than a few game days. It uses the real UI up to the embark. After that it sends every command through `host.world.applyCommand` inside `page.evaluate` (23 call sites), never opens a panel, and advances time with `h.step`. [`../process/testing-strategy.md`](../../process/testing-strategy.md) § E2E harness says browser tests "never call `submit` except to set up state faster".
 
 So no test shows that a player can run a fortress for a year with the keyboard and the mouse. The spec also never trades, and it does not assert that no dwarf died although its comment says it does.
 
@@ -65,8 +67,13 @@ So no test shows that a player can run a fortress for a year with the keyboard a
 - Remaining `applyCommand` calls: 0. Remaining `submit` calls: 0.
 - `full-year.spec.ts` runtime: ~1.2m.
 
+### 2026-10-18 (Stage 4)
+- Rebuilt on the deterministic browser year (not merged from `t-150-stage4-wip`). Added to `full-year.spec.ts`: Ctrl+Z on a channel designation, the jobs panel (a dig job is listed), the stocks panel (the drink count shown is the reader's), a quick save and quick load at day 30 with the world hash equal before and after (the event listener of the tracker is attached again to the loaded world), and one trade with the Hillfolk caravan: `c`, `Shift+D`, `Shift+M` (stocks in depot mode), down to the bars, `Space`, `Shift+T`, goods reach the depot, `Shift+T` in the depot panel, the broker opens the session, `+`, `Tab`, `End`, `Enter`, one `TradeCompleted`.
+- By T-334's rule the spec does not assert that no dwarf died: the deaths are printed with cause, day and killer (the run dies to a boar on day 42). It asserts what a rule decides: the trade, the hash across the load, the panels' contents, the caravan and wave windows, no death of hunger or thirst, not wiped out.
+- Two runs end on the same world hash (`893717daee6c406e`); `full-year.spec.ts` takes about 2.0 min.
+
 ## Done
 
 - `full-year.spec.ts` contains no `applyCommand` and no `submit` call.
-- It asserts a completed trade, no dwarf death, and an equal hash across the save and load.
-- `npm run test:e2e` is green, and the verification commands of [`../process/agent-workflow.md`](../process/agent-workflow.md) are green.
+- It asserts a completed trade and an equal hash across the save and load; deaths are printed, not asserted (T-334).
+- `npm run test:e2e` is green, and the verification commands of [`../process/agent-workflow.md`](../../process/agent-workflow.md) are green.

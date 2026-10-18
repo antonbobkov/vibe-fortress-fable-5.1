@@ -21,15 +21,15 @@
  * (D-072).
  */
 
-import { C, ItemFlag, type Corpse } from '@core/components';
+import { C, ItemFlag, type Corpse, type Item } from '@core/components';
 import type { GameEvent } from '@core/events';
 import type { JobsApi, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { ItemCore, ItemChange } from './api';
 import { HAUL_JOBS_PER_TICK } from './constants';
 import { HAUL_PRIORITY } from '@systems/jobs/constants';
-import { sortedHas, sortedInsert, sortedRemove } from './state';
-import { WANTED_CLASSES, type ContainerNeeded, type Slot, type StockpileStore } from './stockpiles';
+import { sortedHas, sortedInsert, sortedMerge, sortedRemove } from './state';
+import { WANTED_CLASSES, type ContainerNeeded, type Slot, type StockpileStore, type TileScan, type ContainerScan } from './stockpiles';
 
 /** What hauling reads of 11 (`readers.of('11')`). */
 export interface JobsView {
@@ -64,6 +64,26 @@ export function stripKey(corpseId: EntityId): string {
   return `strip:${corpseId}`;
 }
 
+/**
+ * What a pass over thousands of items asks of one stockpile, kept while nothing it is read from changes: whether the
+ * stockpile's answer to an item follows from the item's kind alone (no linked sources), the filter's answer for each
+ * kind, the slot found for each kind, and the scans of its tiles and containers those slots come from.
+ */
+interface StockpileCache {
+  readonly byKind: boolean;
+  readonly hospital: boolean;
+  readonly accepts: Map<number, boolean>;
+  readonly slots: Map<string, Slot | ContainerNeeded | null>;
+  tiles: TileScan | null;
+  readonly containers: Map<string, ContainerScan>;
+}
+
+interface PassCache {
+  readonly key: number;
+  readonly stockpiles: readonly EntityId[];
+  readonly bySp: Map<EntityId, StockpileCache>;
+}
+
 export class Hauling {
   readonly host: HaulHost;
   /** `wantsHauling`, ascending id. */
@@ -75,12 +95,22 @@ export class Hauling {
   /** The item whose haul is being completed. */
   private completing: EntityId = 0;
   /**
+   * Within one pass over `wants`, the items found to have no home leave `wants` and join `noHome` one at a time; as
+   * array splices that costs the pass two moves of the set per item. They are held here, as the set of ids that have
+   * left `wants` (`left`) and the ids that joined `noHome` (`homeless`, with `homelessList` in the ascending order they
+   * were found in), and applied to the two arrays once (`settle`). `inNoHome` and `examine` read both, so what the
+   * pass and everything it calls sees is what the arrays alone would hold.
+   */
+  private readonly left = new Set<EntityId>();
+  private readonly homeless = new Set<EntityId>();
+  private readonly homelessList: EntityId[] = [];
+  /**
    * Items that waited for a container and what would make them worth another look (derived, never saved).
    * A waiting item is skipped while the stockpiles stand as they did (`epoch`) and no container could hold it.
    */
   private readonly parked = new Map<EntityId, { readonly epoch: number; readonly cls: string; readonly needs: number }>();
   private roomCache: { readonly key: number; readonly rooms: Map<string, number> } | null = null;
-  private slotCache: { readonly key: number; readonly slots: Map<string, Slot | ContainerNeeded | null> } | null = null;
+  private passCache: PassCache | null = null;
 
   constructor(host: HaulHost) {
     this.host = host;
@@ -98,11 +128,48 @@ export class Hauling {
     this.parked.delete(id);
   }
 
+  /** Apply what a pass has held back to `wants` and `noHome`. */
+  private settle(): void {
+    if (this.left.size > 0) {
+      let kept = 0;
+      for (const id of this.wants) if (!this.left.has(id)) this.wants[kept++] = id;
+      this.wants.length = kept;
+      this.left.clear();
+    }
+    if (this.homelessList.length > 0) {
+      const joined = this.homelessList.filter((id) => this.homeless.has(id));
+      this.homelessList.length = 0;
+      this.homeless.clear();
+      sortedMerge(this.noHome, joined);
+    }
+  }
+
+  /** The item has no home (`noHome`), counting the ones a pass has not yet written to the array. */
+  private inNoHome(id: EntityId): boolean {
+    return this.homeless.has(id) || sortedHas(this.noHome, id);
+  }
+
+  private leaveNoHome(id: EntityId): void {
+    this.homeless.delete(id);
+    sortedRemove(this.noHome, id);
+  }
+
+  /** In a pass: an item leaves `wants` (it wants hauling no more, or it has no home and joins `noHome`). */
+  private passLeaves(id: EntityId, homeless: boolean): void {
+    this.parked.delete(id);
+    this.left.add(id);
+    if (!homeless) return;
+    const last = this.homelessList[this.homelessList.length - 1];
+    if (last !== undefined && id <= last) this.settle();
+    this.homelessList.push(id);
+    this.homeless.add(id);
+  }
+
   /** After a load every waiting item is looked at again. */
   forgetParked(): void {
     this.parked.clear();
     this.roomCache = null;
-    this.slotCache = null;
+    this.passCache = null;
   }
 
   /** The item API reports a change: decide again whether the item wants hauling. */
@@ -110,7 +177,7 @@ export class Hauling {
     this.parked.delete(id);
     if (change === 'destroyed') {
       this.leaveWants(id);
-      sortedRemove(this.noHome, id);
+      this.leaveNoHome(id);
       // A stack merged away by its own delivery is not a lost target.
       if (id !== this.completing) this.cancelFor(id);
       return;
@@ -157,7 +224,7 @@ export class Hauling {
     if ((it.flags & blocked) !== 0 || (holder.flags & blocked) !== 0 || holder.carriedBy !== 0 || holder.containerId !== 0) return false;
     if (this.core.tileOf(holderId) < 0 || this.host.store.isStored(holderId)) return false;
     // The whole container goes first, to a free tile, when one is found.
-    return sortedHas(this.noHome, holderId) && !this.hasJob(holderId);
+    return this.inNoHome(holderId) && !this.hasJob(holderId);
   }
 
   private contentsBusy(id: EntityId): boolean {
@@ -182,22 +249,32 @@ export class Hauling {
   examine(id: EntityId): void {
     this.parked.delete(id);
     if (this.wantsHauling(id)) {
-      if (!sortedHas(this.noHome, id)) sortedInsert(this.wants, id);
+      if (!this.inNoHome(id)) {
+        this.left.delete(id);
+        sortedInsert(this.wants, id);
+      }
     } else {
       this.leaveWants(id);
-      sortedRemove(this.noHome, id);
+      this.leaveNoHome(id);
       this.cancelFor(id, true);
     }
   }
 
   /** A stockpile gained a slot (a built container, a container hauled in): `noHome` returns to the set. */
   slotsGained(): void {
-    for (const id of this.noHome.splice(0)) sortedInsert(this.wants, id);
+    this.noHomeReturns();
+  }
+
+  /** Every item without a home returns to `wants`. */
+  private noHomeReturns(): void {
+    this.settle();
+    sortedMerge(this.wants, this.noHome);
+    this.noHome.length = 0;
   }
 
   /** A stockpile was created, changed or removed: `noHome` returns to the set; its own items are looked at again. */
   stockpileChanged(spId: EntityId, tiles: readonly TileIndex[]): void {
-    for (const id of this.noHome.splice(0)) sortedInsert(this.wants, id);
+    this.noHomeReturns();
     for (const t of tiles) for (const id of this.host.store.host.itemsOn(t)) this.examine(id);
     const at = this.full.indexOf(spId);
     if (at >= 0) this.full.splice(at, 1);
@@ -242,27 +319,72 @@ export class Hauling {
     return Math.max(Math.abs(map.xOf(tile) - c.x), Math.abs(map.yOf(tile) - c.y), Math.abs(map.zOf(tile) - c.z));
   }
 
+  /** What the answers kept for a pass are read from; equal values mean none of it has changed. */
+  private slotKey(): number {
+    const e = this.core.host.entities;
+    const store = this.host.store;
+    return e.revision(C.Item) + e.revision(C.Container) + e.revision(C.Position) + e.revision(C.Stockpile) + e.revision(C.Zone)
+      + e.revision(C.Building) + store.reservations.changes + store.tiles.changes;
+  }
+
+  private cache(): PassCache {
+    const key = this.slotKey();
+    if (this.passCache === null || this.passCache.key !== key) this.passCache = { key, stockpiles: this.host.store.all(), bySp: new Map() };
+    return this.passCache;
+  }
+
+  private stockpileCache(cache: PassCache, sp: EntityId): StockpileCache {
+    let spc = cache.bySp.get(sp);
+    if (spc === undefined) {
+      const store = this.host.store;
+      spc = { byKind: store.acceptsByKind(sp), hospital: store.isHospital(sp), accepts: new Map(), slots: new Map(), tiles: null, containers: new Map() };
+      cache.bySp.set(sp, spc);
+    }
+    return spc;
+  }
+
+  /**
+   * `store.accepts(sp, id)`. Where the answer follows from the item's kind (an item with nothing in it, a stockpile
+   * with no linked sources), a pass over thousands of items asks the stockpile once for each kind.
+   */
+  private accepts(spc: StockpileCache, sp: EntityId, id: EntityId, it: Item, kind: number): boolean {
+    const store = this.host.store;
+    if (kind < 0 || !spc.byKind) return store.accepts(sp, id);
+    if ((it.flags & ItemFlag.Forbidden) !== 0) return false;
+    let ok = spc.accepts.get(kind);
+    if (ok === undefined) {
+      ok = store.acceptsKind(sp, it);
+      spc.accepts.set(kind, ok);
+    }
+    return ok;
+  }
+
   /**
    * `store.findSlot(sp, id)`. An item that goes on a tile (no container class) finds the same slot as any other of
    * its type, material, quality and count, and one that goes into a container finds the same answer, when there is
    * none, as any other that needs as much room, while the tiles, the items on them and the reservations stand as
-   * they are: a pass over thousands of items asks the stockpile once for each kind.
+   * they are: a pass over thousands of items asks the stockpile once for each kind. `kind` names the item's.
    */
-  private slotFor(sp: EntityId, id: EntityId): Slot | ContainerNeeded | null {
+  private slotFor(spc: StockpileCache, sp: EntityId, id: EntityId, cls: string, kind: string): Slot | ContainerNeeded | null {
     const store = this.host.store;
-    const it = this.core.get(id);
-    if (it === undefined || store.isHospital(sp)) return store.findSlot(sp, id);
-    const cls = this.core.container(id) !== undefined ? 'none' : this.core.host.facts.row(it.type).container;
-    const e = this.core.host.entities;
-    const key = e.revision(C.Item) + e.revision(C.Container) + e.revision(C.Position) + e.revision(C.Stockpile) + e.revision(C.Zone)
-      + e.revision(C.Building) + store.reservations.changes + store.tiles.changes;
-    if (this.slotCache === null || this.slotCache.key !== key) this.slotCache = { key, slots: new Map() };
-    const kind = cls === 'none' ? `${sp}:${it.type}:${it.material}:${it.quality}:${it.count}` : `${sp}:${cls}:${this.core.needs(id, cls)}`;
-    let slot = this.slotCache.slots.get(kind);
+    if (spc.hospital) return store.findSlot(sp, id);
+    let slot = spc.slots.get(kind);
     if (slot === undefined) {
-      slot = store.findSlot(sp, id);
+      // Every item that goes on a tile reads the same tiles of the stockpile, and every item that goes into a container
+      // of a class the same containers: they are scanned once.
+      if (cls === 'none') {
+        spc.tiles ??= store.scanTiles(sp);
+        slot = store.slotInScan(spc.tiles, id);
+      } else {
+        let scan = spc.containers.get(cls);
+        if (scan === undefined) {
+          scan = store.scanContainers(sp, cls);
+          spc.containers.set(cls, scan);
+        }
+        slot = store.slotInContainerScan(sp, id, cls, scan);
+      }
       // A slot in a container is keyed by the item that will fill it: only the refusals are shared.
-      if (cls === 'none' || slot === null || 'needContainer' in slot) this.slotCache.slots.set(kind, slot);
+      if (cls === 'none' || slot === null || 'needContainer' in slot) spc.slots.set(kind, slot);
     }
     return slot;
   }
@@ -274,12 +396,23 @@ export class Hauling {
     let best: { sp: EntityId; slot: Slot; d: number; p: number } | null = null;
     let accepted = false;
     let waiting = false;
-    for (const sp of store.all()) {
-      if (!store.accepts(sp, id)) continue;
+    const cache = this.cache();
+    const it = this.core.get(id);
+    if (it === undefined) return null;
+    // The item's kind: for the filter its type, material, quality and whether it has rotted (-1 for a container with
+    // goods in it, which the stockpile asks about its goods), and for a slot what the slot is found by.
+    const holds = this.core.container(id);
+    const kind = holds !== undefined && holds.contents.length > 0
+      ? -1 : ((it.type * 65536 + it.material) * 8 + it.quality) * 2 + (it.rotStage >= 2 ? 1 : 0);
+    const cls = holds !== undefined ? 'none' : this.core.host.facts.row(it.type).container;
+    const slotKind = cls === 'none' ? `${it.type}:${it.material}:${it.quality}:${it.count}` : `${cls}:${this.core.needs(id, cls)}`;
+    for (const sp of cache.stockpiles) {
+      const spc = this.stockpileCache(cache, sp);
+      if (!this.accepts(spc, sp, id, it, kind)) continue;
       // An item already in this stockpile stays.
       if (store.stockpileAt(tile) === sp) continue;
       accepted = true;
-      const slot = this.slotFor(sp, id);
+      const slot = this.slotFor(spc, sp, id, cls, slotKind);
       if (slot === null) continue;
       if ('needContainer' in slot) {
         waiting = true;
@@ -349,7 +482,7 @@ export class Hauling {
         ctx.emit({ type: 'StockpileFull', id: sp });
       } else if (!isFull && was) {
         sortedRemove(this.full, sp);
-        for (const id of this.noHome.splice(0)) sortedInsert(this.wants, id);
+        this.noHomeReturns();
       }
     }
     let created = this.requestContainers();
@@ -361,47 +494,50 @@ export class Hauling {
     let epoch = this.epoch();
     let roomKey = this.roomKey(epoch);
     let worked = false;
-    for (const id of this.wants.slice()) {
-      if (created >= HAUL_JOBS_PER_TICK) break;
-      if (worked) {
-        epoch = this.epoch();
-        roomKey = this.roomKey(epoch);
-        worked = false;
+    try {
+      for (const id of this.wants.slice()) {
+        if (created >= HAUL_JOBS_PER_TICK) break;
+        if (worked) {
+          epoch = this.epoch();
+          roomKey = this.roomKey(epoch);
+          worked = false;
+        }
+        const waiting = this.parked.get(id);
+        if (waiting !== undefined) {
+          if (waiting.epoch === epoch && waiting.needs > this.freeRoom(waiting.cls, roomKey) &&
+            !(hospitals.length > 0 && this.host.store.hospitalHasSlot(hospitals, id))) continue;
+          this.parked.delete(id);
+        }
+        worked = true;
+        if (this.hasJob(id)) continue;
+        // A container whose goods are spoken for (a stack on its way to a stockpile's barrel, a unit
+        // a dwarf is about to drink) waits in the set until they are taken or released.
+        if (this.contentsBusy(id)) continue;
+        if (!this.wantsHauling(id)) {
+          this.passLeaves(id, false);
+          continue;
+        }
+        const it = this.core.item(id);
+        if ((it.flags & ItemFlag.Dump) !== 0) {
+          if (this.createDump(id, jobs)) created += 1;
+          continue;
+        }
+        const best = this.bestFor(id);
+        if (best === 'wait') {
+          this.park(id);
+          continue;
+        }
+        if (best === null || best === 'full') {
+          this.passLeaves(id, true);
+          // A container with no tile to go to: its goods may still go by their stack.
+          for (const inner of this.core.container(id)?.contents ?? []) this.examine(inner);
+          continue;
+        }
+        this.createHaul(id, best.sp, best.slot, jobs);
+        created += 1;
       }
-      const waiting = this.parked.get(id);
-      if (waiting !== undefined) {
-        if (waiting.epoch === epoch && waiting.needs > this.freeRoom(waiting.cls, roomKey) &&
-          !(hospitals.length > 0 && this.host.store.hospitalHasSlot(hospitals, id))) continue;
-        this.parked.delete(id);
-      }
-      worked = true;
-      if (this.hasJob(id)) continue;
-      // A container whose goods are spoken for (a stack on its way to a stockpile's barrel, a unit
-      // a dwarf is about to drink) waits in the set until they are taken or released.
-      if (this.contentsBusy(id)) continue;
-      if (!this.wantsHauling(id)) {
-        this.leaveWants(id);
-        continue;
-      }
-      const it = this.core.item(id);
-      if ((it.flags & ItemFlag.Dump) !== 0) {
-        if (this.createDump(id, jobs)) created += 1;
-        continue;
-      }
-      const best = this.bestFor(id);
-      if (best === 'wait') {
-        this.park(id);
-        continue;
-      }
-      if (best === null || best === 'full') {
-        this.leaveWants(id);
-        sortedInsert(this.noHome, id);
-        // A container with no tile to go to: its goods may still go by their stack.
-        for (const inner of this.core.container(id)?.contents ?? []) this.examine(inner);
-        continue;
-      }
-      this.createHaul(id, best.sp, best.slot, jobs);
-      created += 1;
+    } finally {
+      this.settle();
     }
     created += this.createStrips(jobs, HAUL_JOBS_PER_TICK - created);
   }
@@ -481,8 +617,7 @@ export class Hauling {
       if (best === null || d < best.d) best = { tile: first, d };
     }
     if (best === null) {
-      this.leaveWants(id);
-      sortedInsert(this.noHome, id);
+      this.passLeaves(id, true);
       return false;
     }
     jobs.create(dumpKey(id), {

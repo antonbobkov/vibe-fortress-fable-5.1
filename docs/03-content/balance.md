@@ -43,17 +43,17 @@ Work takes 37% (28% at jobs, 10% hauling) and almost none of the rest is idle. I
 | Source | Output | Notes |
 |---|---|---|
 | 1 raw ingredient at the kitchen | 2 meal units (easy: 2 in → 4 out) | so 9.6 meals need 4.8 raw units a day |
-| 1 farm tile (dimcap) | 4 plants per 16 days = 0.25 per day | plus 1 seed per harvest, so seeds are never a bottleneck; yield and seeds *unmeasured* |
+| 1 farm tile (dimcap) | 4 plants per 16 days = 0.25 per day | plus 1 seed per harvest. Measured ([farm yield](../../reports/audits/2026-10-18-farm-yield.md)): 0.247 a day at farming skill 0 to 4 and 0.32 from skill 5, cavewheat 0.21, a turnip tile 0.13 over a year. Seeds do not multiply, so a plot is never short of seed when it has as many seeds as tiles, and stays as small as its seeds when it has fewer |
 | 1 deer | 3 meat (size 40 / 12) + hide + bones | a hunter with a crossbow takes one deer per 1–2 days (*unmeasured*) |
 | 1 fishing tile on a river | about 0.4 fish per day at skill 5 (35% + 15% success per 200-tick attempt, regenerating pool) | a fisher feeds 4 dwarves (*unmeasured*) |
 | 1 cow | milk every 4 days → 3 milk → 2 cheese | *unmeasured* |
 | 4 chickens with a nest box | an egg every 3 days each: 1.3 per day | *unmeasured* |
 
-Twenty dwarves eat 4.8 raw units a day: a 20-tile cave plot (5 per day) or a 14-tile plot with a hunter and a fisher (*unmeasured*). Cooking multiplies value: a lavish meal from four cheap ingredients (value 4) is worth 60 marks; a cook is the first wealth engine. Meals rot in 14 days, in a barrel in a food stockpile in 56, so a season's stock is safe.
+Twenty dwarves eat 4.8 raw units a day: a 20-tile cave plot (4.9 per day, measured) or a 14-tile plot with a hunter and a fisher (*unmeasured*). Cooking multiplies value: a lavish meal from four cheap ingredients (value 4) is worth 60 marks; a cook is the first wealth engine. Meals rot in 14 days, in a barrel in a food stockpile in 56, so a season's stock is safe.
 
 ## Drink chain
 
-4 plants → 20 drinks. Twenty dwarves need 15.4 drinks a day = 3.1 plants a day = a 13-tile dimcap plot dedicated to the still, and 0.8 brewing jobs a day (a Skilled brewer does one in 130 ticks: three minutes of their day), *unmeasured*. Barrels: a fortress cycles about 1 barrel a day; 7 barrels in circulation is enough (*unmeasured*); a carpenter makes one in 100 ticks. Water is the fallback and costs −2 mood per drink; a well makes it dependable.
+4 plants → 20 drinks. Twenty dwarves need 15.4 drinks a day = 3.1 plants a day = a 13-tile dimcap plot dedicated to the still (3.2 plants a day, measured), and 0.8 brewing jobs a day (a Skilled brewer does one in 130 ticks: three minutes of their day), *unmeasured*. Barrels: a fortress cycles about 1 barrel a day; 7 barrels in circulation is enough (*unmeasured*); a carpenter makes one in 100 ticks. Water is the fallback and costs −2 mood per drink; a well makes it dependable. Measured over twelve generated years with no drink at all ([brook drinking](../../reports/audits/2026-10-18-brook-drinking-under-wildlife.md)): with the brook within 6 tiles of the wagon the fortress lives (79 dwarf-years in nine, against 93 with a brew); with the nearest bank 40 tiles away it loses 98 against 156 and four of twelve fortresses, to hunger or thirst and to wild animals on the walk; with no surface water in reach it dies of thirst on day 19. A brook freezes in a taiga winter, from day 85, and a fortress with no drink in stock, no brew and no well on unfrozen water loses its dwarves to thirst on days 101 to 103 at any distance from the bank ([diagnosis](../../reports/audits/2026-10-18-no-drink-deaths-diagnosis.md)). A fortress whose drink stockpile wants no barrels drinks at the brook for two drinks in three beside the wagon and four in ten 40 tiles away.
 
 ## Wood and fuel
 
