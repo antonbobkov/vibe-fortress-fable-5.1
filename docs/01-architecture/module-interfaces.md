@@ -186,6 +186,7 @@ interface MovementApi {
   walkTo(id: EntityId, target: TileIndex, urgency: Urgency, ctx): WalkResult  // request, follow, re-request
   stopWalking(id: EntityId): void                  // cancel walk and drop path
   walkTarget(id: EntityId): TileIndex              // target of current walk, or -1
+  walkBlockedByCreatures(id: EntityId): boolean    // the walk that last returned unreachable gave up on creatures standing on its next tile
 }
 ```
 

@@ -229,7 +229,13 @@ export class StockpileStore {
     let view = this.zoneViews.get(id);
     if (view === undefined) {
       view = this.host.zone(id);
-      if (view !== undefined) this.zoneViews.set(id, view);
+      if (view !== undefined) {
+        // The view is shared by every caller until a zone is written: nobody may change it.
+        Object.freeze(view.tiles);
+        if (view.settings !== undefined) Object.freeze(view.settings);
+        Object.freeze(view);
+        this.zoneViews.set(id, view);
+      }
     }
     return view;
   }
@@ -475,12 +481,6 @@ export class StockpileStore {
     return this.zoneView(spId)?.type === 'hospital';
   }
 
-  /** Whether any stockpile is a hospital (its chests and supply limits have their own slot rules). */
-  hasHospital(): boolean {
-    for (const sp of this.all()) if (this.zoneView(sp)?.type === 'hospital') return true;
-    return false;
-  }
-
   /** Containers of a class present, counting those on their way in. */
   containersPresent(spId: EntityId, cls: string): number {
     let n = this.containersIn(spId, cls).length;
@@ -506,22 +506,46 @@ export class StockpileStore {
     return n;
   }
 
+  /** The hospital stockpiles, ascending. */
+  hospitals(): EntityId[] {
+    return this.all().filter((sp) => this.isHospital(sp));
+  }
+
+  /** A hospital's chest with room for the item, after what reservations promise it. */
+  private chestSlot(spId: EntityId, itemId: EntityId): Slot | null {
+    for (const c of this.containersIn(spId, 'chest')) {
+      if (((this.core.get(c)?.flags ?? 0) & ItemFlag.Reserved) !== 0) continue;
+      const room = this.core.room(c) - this.pendingIn(c, 'chest');
+      if (room >= this.core.needs(itemId, 'chest')) {
+        const t = this.containerTile(c);
+        if (t >= 0) return { tile: t, container: c, merge: 0, key: this.containerKey(c, itemId) };
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Whether one of these hospitals would give the item a chest slot now: it accepts the item (its supply limit is not
+   * reached) and a chest has room. A hospital the item already lies in keeps it.
+   */
+  hospitalHasSlot(hospitals: readonly EntityId[], itemId: EntityId): boolean {
+    const here = this.stockpileAt(this.core.tileOf(itemId));
+    for (const sp of hospitals) {
+      if (sp === here || !this.accepts(sp, itemId)) continue;
+      if (this.chestSlot(sp, itemId) !== null) return true;
+    }
+    return false;
+  }
+
   /** `findSlot(sp, it)` of the algorithm, with 13's refusal when a wanted container is missing. */
   findSlot(spId: EntityId, itemId: EntityId): Slot | ContainerNeeded | null {
     const sp = this.stockpile(spId);
     const it = this.core.get(itemId);
     if (sp === undefined || it === undefined) return null;
     const facts = this.core.host.facts;
-    const zone = this.zoneView(spId);
-    if (zone?.type === 'hospital') {
-      for (const c of this.containersIn(spId, 'chest')) {
-        if (((this.core.get(c)?.flags ?? 0) & ItemFlag.Reserved) !== 0) continue;
-        const room = this.core.room(c) - this.pendingIn(c, 'chest');
-        if (room >= this.core.needs(itemId, 'chest')) {
-          const t = this.containerTile(c);
-          if (t >= 0) return { tile: t, container: c, merge: 0, key: this.containerKey(c, itemId) };
-        }
-      }
+    if (this.isHospital(spId)) {
+      const chest = this.chestSlot(spId, itemId);
+      if (chest !== null) return chest;
     }
     const cls = this.core.container(itemId) !== undefined ? 'none' : facts.row(it.type).container;
     if (cls !== 'none') {

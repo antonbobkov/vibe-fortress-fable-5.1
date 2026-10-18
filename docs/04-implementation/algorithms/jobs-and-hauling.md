@@ -23,7 +23,7 @@ reasonGone(job): no_worker → a worker has the labor; unreachable → a worker 
                  no_tool → a worker carries the tool, or findTool succeeds from that tile (for 'ranged': a free launcher with free ammunition of its kind), or some worker can complete a ranged kit; any other reason → true
 ```
 
-An unreachable unclaim after a failed walk sets `failedWalk`. A matching reachability trigger clears it and brings the retry forward; until then, periodic retries omit that job even when its stand tiles share a connectivity label.
+An unreachable unclaim after a failed walk sets `failedWalk`, unless the walk gave up because creatures kept blocking its next tile (`movement.walkBlockedByCreatures(worker)`), which leaves it unset. A matching reachability trigger clears it and brings the retry forward; until then, periodic retries omit that job even when its stand tiles share a connectivity label.
 
 Before removal of a hunted creature, an active hunt transitions from the quarry entity to a tile target at the death location and retains the quarry id in data.animal. It waits for CorpseCreated for that id and carries that corpse as 09 defines. Unclaimed hunts retain their entity target and cancel normally. After destruction, cancel all indexed non-completing jobs whose entity, building or zone target is that id, in job-id order, with target_gone. Ordinary cancellation releases reservations and frees workers immediately. A completing deconstruction is excluded because it destroys its own target on success. Rebuild the target index on load; it is derived and not serialized.
 
@@ -126,7 +126,7 @@ for it in wantsHauling (ascending id) while created < HAUL_JOBS_PER_TICK:
   if hasJob(it): continue
   if in dump zone: remove from wantsHauling; continue
   if Dump flag: nearest dump zone by centroid, first tile; without one move to noHome; continue
-  sp = bestStockpileFor(it); if sp == waiting for wanted container: continue   // not looked at again until a stockpile, zone, building or stockpile container changes, or a container has room for it
+  sp = bestStockpileFor(it); if sp == waiting for wanted container: continue   // not looked at again until a stockpile, zone, building or stockpile container changes, a container has room for it or a hospital would take it into a chest
   if sp == none: wantsHauling.remove(it); noHome.add(it); continue
   slot = findSlot(sp, it); if slot == none: continue                         // full; StockpileFull emitted once
   reserveSlot(slot, jobId); sink.create('haul:'+it, { type: haul_to_stockpile, target: it, workTile: slot.tile, priority: sp.priority, inputs: [item it], data: {slot} })
