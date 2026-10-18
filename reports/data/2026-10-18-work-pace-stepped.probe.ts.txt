@@ -1,0 +1,110 @@
+/**
+ * T-365: the time of mining, in the game. A 3x3 room and a ten-tile corridor in granite (hardness 150), one miner at
+ * mining skill 0, 4 and 10, from the designation to the last floor, with the per-tile dig jobs from JobStarted to JobCompleted.
+ */
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TileKind } from '@core/map3d';
+import type { EntityId } from '@core/types';
+import { DIG_BASE_TICKS } from '@systems/terrain/constants';
+import { SKILL_TIME_BONUS_PERCENT } from '@systems/terrain/constants';
+import { onlyMiner, rect, stairShaft } from '../scenarios/m1-helpers';
+import { TestWorld } from '../scenarios/test-world';
+
+const ROCK_Z = 29;
+const out: unknown[] = [];
+
+function mine(level: number, shape: 'room' | 'corridor'): Record<string, unknown> {
+  const w = new TestWorld({ seed: `t365-${shape}-${level}`, world: 'flat-test', embark: 'default' });
+  const miner: EntityId = onlyMiner(w);
+  w.setSkill(miner, 'mining', level);
+  stairShaft(w, 20, 20, 32, ROCK_Z);
+  const tiles = shape === 'room' ? rect(w, 21, 19, ROCK_Z, 3, 3) : rect(w, 21, 20, ROCK_Z, 10, 1);
+  const starts = new Map<number, number>();
+  const claims = new Map<number, number>();
+  const lag: number[] = [];
+  const done: number[] = [];
+  w.game.world.onEvents((batch) => {
+    for (const e of batch) {
+      if (e.type === 'JobClaimed' && e['jobType'] === 'dig') claims.set(Number(e['jobId']), w.game.tick);
+      if (e.type === 'JobStarted' && e['jobType'] === 'dig') { starts.set(Number(e['jobId']), w.game.tick); lag.push(w.game.tick - (claims.get(Number(e['jobId'])) ?? w.game.tick)); }
+      else if (e.type === 'JobCompleted' && e['jobType'] === 'dig') done.push(w.game.tick - (starts.get(Number(e['jobId'])) ?? w.game.tick));
+    }
+  });
+  const r = w.game.world.applyCommand({ type: 'Designate', tiles, kind: 'dig', priority: 5 });
+  if (!r.ok) throw new Error(r.reason);
+  const t0 = w.game.tick;
+  const share: Record<string, number> = {};
+  let ticks = 0;
+  let last = w.game.movement.tileOf(miner);
+  while (!tiles.every((t) => w.map.kindAt(t) === TileKind.Floor) && ticks < 20_000) {
+    w.step(1);
+    ticks += 1;
+    const b = w.game.world.entities.get(miner, C.Brain);
+    const key = `${b?.behavior}:${b?.behavior === 'work' ? b.activity : b?.activity}`;
+    const here = w.game.movement.tileOf(miner);
+    const k2 = key + (here !== last ? ':moving' : ':still');
+    last = here;
+    share[k2] = (share[k2] ?? 0) + 1;
+  }
+  const hardness = 150;
+  return { shape, level, tiles: tiles.length, totalTicks: ticks - 0 * t0, perTileSpec: Math.round((DIG_BASE_TICKS * hardness / 100) * 100 / (100 + SKILL_TIME_BONUS_PERCENT * level)),
+    specTotal: Math.round(tiles.length * (DIG_BASE_TICKS * hardness / 100) * 100 / (100 + SKILL_TIME_BONUS_PERCENT * level)),
+    share, claimToStart: lag, jobTicks: done, jobTicksMean: Math.round(done.reduce((a, b) => a + b, 0) / Math.max(1, done.length)),
+    skillAfter: w.dwarves ? null : null };
+}
+
+describe('T-365 mining time', () => {
+  it.each([[0, 'room'], [4, 'room'], [10, 'room'], [0, 'corridor'], [4, 'corridor'], [10, 'corridor']] as const)('level %i %s', (level, shape) => {
+    const row = mine(level, shape);
+    out.push(row);
+    console.log(`T-365 mining: ${JSON.stringify(row)}`);
+    writeFileSync('.vite/t365-mining.json', JSON.stringify(out, null, 2) + '\n');
+  }, 120_000);
+});
+
+/** Smelting and forging at skill 4 (balance.md § Mining and metal) and at 0 and 10: the job from JobStarted to JobCompleted, and from the order to the product. */
+describe('T-365 workshop time', () => {
+  const cases: [string, string, string, number][] = [
+    ['smelt_hematite', 'smelter', 'smelting', 0], ['smelt_hematite', 'smelter', 'smelting', 4], ['smelt_hematite', 'smelter', 'smelting', 10],
+    ['forge_battle_axe', 'forge', 'weaponsmithing', 0], ['forge_battle_axe', 'forge', 'weaponsmithing', 4], ['forge_battle_axe', 'forge', 'weaponsmithing', 10],
+    ['forge_mail_shirt', 'forge', 'armorsmithing', 0], ['forge_mail_shirt', 'forge', 'armorsmithing', 4], ['forge_mail_shirt', 'forge', 'armorsmithing', 10],
+  ];
+  const rows: unknown[] = [];
+  it.each(cases)('%s level %i', (recipeId, building, skill, level) => {
+    const w = new TestWorld({ seed: `t365-${recipeId}-${level}`, world: 'flat-test', embark: 'none' });
+    const at = w.index(15, 15, 32);
+    const shop = w.build(building, at, 'granite');
+    const worker = w.spawnDwarf({ at: w.index(19, 17, 32) });
+    w.setSkill(worker, skill, level);
+    w.setLabor(worker, building === 'smelter' ? 'smelting' : 'smithing', true);
+    const spot = w.index(19, 15, 32);
+    const recipe = (w.readers.of<{ recipe(id: string): { inputs: { match: string; count: number; material?: string }[]; fuel?: boolean; baseTicks: number; skill: string } | undefined }>('12')).recipe(recipeId)!;
+    for (const input of recipe.inputs) {
+      if (input.match === 'ore') w.spawnItem('ore', input.material ?? 'hematite', spot, input.count);
+      else if (input.match === 'bar') w.spawnItem('bar', 'iron', spot, input.count);
+    }
+    if (recipe.fuel) w.spawnItem('charcoal_bar', 'charcoal', spot, 1);
+    w.step(1);
+    const starts = new Map<number, number>();
+    const spans: { type: string; ticks: number }[] = [];
+    let ordered = 0;
+    w.game.world.onEvents((batch) => {
+      for (const e of batch) {
+        if (e.type === 'JobStarted') starts.set(Number(e['jobId']), w.game.tick);
+        else if (e.type === 'JobCompleted') spans.push({ type: String(e['jobType']), ticks: w.game.tick - (starts.get(Number(e['jobId'])) ?? w.game.tick) });
+      }
+    });
+    const r = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: shop, order: { recipeId, mode: 'once', remaining: 1, priority: 5 } });
+    if (!r.ok) throw new Error(JSON.stringify(r));
+    ordered = w.game.tick;
+    let total = 0;
+    while (total < 6000 && !spans.some((s) => s.type !== 'haul' && s.ticks >= 50)) { w.step(1); total += 1; }
+    const spec = Math.round(recipe.baseTicks * 100 / (100 + SKILL_TIME_BONUS_PERCENT * level));
+    const row = { recipeId, level, baseTicks: recipe.baseTicks, specTicks: spec, jobSpans: spans, orderToProduct: w.game.tick - ordered };
+    rows.push(row);
+    console.log(`T-365 workshop: ${JSON.stringify(row)}`);
+    writeFileSync('.vite/t365-workshop.json', JSON.stringify(rows, null, 2) + '\n');
+  }, 120_000);
+});

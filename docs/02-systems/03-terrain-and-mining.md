@@ -160,13 +160,13 @@ Job producer `terrain` (designation jobs); overlay `designations`; inspector sec
 | Name | Value | Meaning |
 |---|---|---|
 | `MINING_STONE_DROP_PERMILLE` | 300 | Chance a dug stone tile drops a stone item (*unmeasured*) |
-| `DIG_BASE_TICKS` | 60 | Base time to dig one wall tile of hardness 100 (*unmeasured*) |
+| `DIG_BASE_TICKS` | 60 | Base time to dig one wall tile of hardness 100; measured, 90 ticks a granite tile at skill 0 and 50 at skill 10 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `CHANNEL_BASE_TICKS` | 80 | *unmeasured* |
-| `SMOOTH_BASE_TICKS` | 120 | *unmeasured* |
+| `SMOOTH_BASE_TICKS` | 120 | Measured: 368 tiles smoothed in the first year of the economy fixture, 115 ticks normalised to skill 0 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `ENGRAVE_BASE_TICKS` | 300 | *unmeasured* |
-| `CHOP_BASE_TICKS` | 90 | *unmeasured* |
-| `GATHER_BASE_TICKS` | 40 | *unmeasured* |
-| `SKILL_TIME_BONUS_PERCENT` | 8 | Per skill level; level 20 works at 100/(100+160) ≈ 38% of base time (*unmeasured*) |
+| `CHOP_BASE_TICKS` | 90 | Measured in play: 113 ticks normalised to skill 0 at a mean productivity of 88%, a tenth over what the formula gives, the pauses of needs included ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
+| `GATHER_BASE_TICKS` | 40 | Measured: 40 ticks normalised to skill 0 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
+| `SKILL_TIME_BONUS_PERCENT` | 8 | Per skill level; level 20 works at 100/(100+160) ≈ 38% of base time. Measured: a granite tile takes 90, 69 and 50 ticks at skills 0, 4 and 10, a smelt 150, 114 and 84 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `CAVERN_OPEN_FRACTION` | 0.25–0.55 | By deepness; see stage 6 (*unmeasured*) |
 | `LIGHT_SPREAD` | 2 | Tiles daylight reaches horizontally into openings (*unmeasured*) |
 | `BATTLEFIELD_ITEM_COUNT` | 30 | *unmeasured* |

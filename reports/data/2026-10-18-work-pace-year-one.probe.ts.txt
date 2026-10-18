@@ -1,0 +1,94 @@
+/**
+ * T-365: the work of the first year of the three-year economy fixture (seed `three-years`, default priorities, its own wild
+ * animals): jobs completed by type, and for each the time from JobStarted to JobCompleted normalised to a skill-0 worker,
+ * i.e. duration x (100 + SKILL_TIME_BONUS_PERCENT x level) / 100, against the base time of the job type.
+ */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import type { DwarvesReader } from '@systems/dwarves';
+import type { BuildingsReader } from '@systems/buildings';
+import { SKILL_TIME_BONUS_PERCENT } from '@systems/terrain/constants';
+import { threeYearsMeasurements } from '../scenarios/three_years_measurements';
+import { checkFortressCaveFarm, checkFortressDefense, checkFortressRooms, checkFortressWorkOrders, playThreeYears, setupThreeYearsFortress, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const DAYS = Number(process.env['T365_DAYS'] ?? DAYS_PER_YEAR);
+const out = process.env['T365_OUT'] ?? '.vite/t365-year.json';
+
+describe('T-365 the work of the first year', () => {
+  it('counts the jobs and their times', () => {
+    const w = threeYearsWorld('three-years');
+    const state = setupThreeYearsFortress(w);
+    const jobTypes = w.game.registry.table<{ id: string; skill: string | null; baseTicks: number }>('jobTypes');
+    const dwarves = w.readers.of<DwarvesReader>('10');
+    const start = new Map<number, { t: number; type: string; worker: number }>();
+    const lastCraft = new Map<number, { t: number; level: number }>();
+    interface Acc { n: number; norm: number[]; byLevel: Record<number, number[]>; prod: number[] }
+    const jobs: Record<string, Acc> = {};
+    const crafts: Record<string, Acc> = {};
+    const add = (table: Record<string, Acc>, key: string, duration: number, level: number, prod: number): void => {
+      const a = (table[key] ??= { n: 0, norm: [], byLevel: {}, prod: [] });
+      a.n += 1;
+      a.norm.push(Math.round(duration * (100 + SKILL_TIME_BONUS_PERCENT * level) / 100));
+      (a.byLevel[level] ??= []).push(duration);
+      a.prod.push(prod);
+    };
+    const skillsOverTime: { day: number; levels: Record<string, number>; dwarves: number }[] = [];
+    w.game.world.onEvents((batch) => {
+      for (const e of batch) {
+        if (e.type === 'JobStarted') {
+          start.set(Number(e['jobId']), { t: w.game.tick, type: String(e['jobType']), worker: Number(e['workerId']) });
+          if (e['jobType'] === 'craft') lastCraft.set(Number(e['workerId']), { t: w.game.tick, level: 0 });
+        } else if (e.type === 'JobCompleted') {
+          const s = start.get(Number(e['jobId']));
+          if (s === undefined) continue;
+          const skill = jobTypes.byId(s.type)?.skill ?? null;
+          const level = skill === null ? 0 : dwarves.skill(s.worker, skill);
+          if (s.type !== 'craft') add(jobs, s.type, w.game.tick - s.t, level, dwarves.productivity(s.worker));
+          else lastCraft.set(s.worker, { t: s.t, level: dwarves.skill(s.worker, String(jobTypes.byId('craft')?.skill ?? 'crafting')) });
+        } else if (e.type === 'ItemCrafted') {
+          const c = lastCraft.get(Number(e['crafterId']));
+          if (c !== undefined) add(crafts, String(e['recipeId']), w.game.tick - c.t, 0, dwarves.productivity(Number(e['crafterId'])));
+        }
+      }
+    });
+    const registrySkills = w.game.registry.table<{ id: string }>('skills').ids();
+    for (let d = 0; d < DAYS; d += 14) {
+      const end = w.tick + Math.min(14, DAYS - d) * TICKS_PER_DAY;
+      while (w.tick < end) {
+        playThreeYears(w, state, Math.min(w.tick < 20 * TICKS_PER_DAY ? 100 : 300, end - w.tick));
+        checkFortressWorkOrders(w, state);
+        checkFortressRooms(w, state);
+        checkFortressCaveFarm(w, state);
+        checkFortressDefense(w, state);
+      }
+      const levels: Record<string, number> = {};
+      for (const id of w.game.world.entities.with(C.Labors)) {
+        if (w.game.world.entities.get(id, C.Creature)?.faction !== 'fortress') continue;
+        for (const s of registrySkills) levels[s] = Math.max(levels[s] ?? 0, dwarves.skill(id, s));
+      }
+      skillsOverTime.push({ day: d + 14, levels, dwarves: dwarves.population() });
+    }
+    const summarize = (t: Record<string, Acc>): Record<string, unknown> => Object.fromEntries(Object.entries(t).map(([k, a]) => {
+      const sorted = a.norm.slice().sort((x, y) => x - y);
+      const meanProd = a.prod.reduce((x, y) => x + y, 0) / a.prod.length;
+      return [k, { n: a.n, normMedian: sorted[Math.floor(sorted.length / 2)], normP10: sorted[Math.floor(sorted.length * 0.1)], normP90: sorted[Math.floor(sorted.length * 0.9)], meanProductivity: Math.round(meanProd) }];
+    }));
+    const tally = (type: string, key: string): Record<string, number> => {
+      const o: Record<string, number> = {};
+      for (const e of w.events(type as never)) o[String(e[key])] = (o[String(e[key])] ?? 0) + 1;
+      return o;
+    };
+    const totals = { jobsCompleted: tally('JobCompleted', 'jobType'), itemsCrafted: tally('ItemCrafted', 'recipeId'), deaths: tally('CreatureDied', 'cause') };
+    const b = w.readers.of<BuildingsReader>('14');
+    const rooms: Record<string, number> = {};
+    for (const type of ['bedroom', 'dining_hall', 'hearth_hall', 'hospital', 'barracks', 'stockpile', 'farm_plot']) rooms[type] = b.zonesOfType(type).filter((id) => type === 'stockpile' || type === 'farm_plot' || b.roomScore(id)?.requirementsMet === true).length;
+    const workshops = w.game.world.entities.with(C.Workshop).length;
+    const m = threeYearsMeasurements(w);
+    const snap = m.snapshot();
+    mkdirSync('.vite', { recursive: true });
+    writeFileSync(out, JSON.stringify({ workshops, rooms, measuredRecipes: m.recipes, snap: { day: snap.day, wealth: snap.wealth, population: snap.population, smoothed: snap.smoothed, engraved: snap.engraved, skillMaxima: snap.skillMaxima, counts: snap.counts }, totals, days: DAYS, tick: w.tick, jobs: summarize(jobs), crafts: summarize(crafts), jobBase: Object.fromEntries(jobTypes.ids().map((id) => [id, jobTypes.byId(id)?.baseTicks])), skillsOverTime }, null, 2) + '\n');
+    console.log(`T-365 year: ${JSON.stringify({ jobs: summarize(jobs) })}`);
+  }, 3_000_000);
+});
