@@ -340,6 +340,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
       surfaceTempC: () => this.surfaceTempC(),
       isBurning: (i) => this.burning.has(i),
       burningTiles: () => Array.from(this.burning.keys()).sort((a, b) => a - b),
+      burnableTile: (i) => this.fire.burnableTile(i),
       propertyOf: (m, p) => {
         const row = this.rows[m];
         if (row === undefined) return undefined;

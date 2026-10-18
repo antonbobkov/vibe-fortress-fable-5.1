@@ -37,6 +37,8 @@ export const THREAT_RADIUS = 8;
 export const CIVILIAN_COMBAT_TIMEOUT_TICKS = 200;
 /** Legal tile visits in the civilian escape fallback search. */
 export const CIVILIAN_FLEE_NODE_LIMIT = 256;
+/** Maximum legal tile visits in the search of a dwarf running from a fire for ground that cannot burn. */
+export const FIRE_FLEE_NODE_LIMIT = 2048;
 export const FRIEND_TALKS = 5;
 export const GRUDGE_DAYS = 28;
 export const THANE_SOCIAL_BONUS = 20;
