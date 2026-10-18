@@ -1,5 +1,7 @@
 # T-395 — No dwarf pulls a lever under the hearth alert
 
+**Closed:** 2026-10-18, in 320c862, 8ba8d61, 1ea40df.
+
 **Source:** T-151's raid stage, 2026-10-18 (`test/scenarios/defence_year_fortress.ts`, seed `defence-year`, peril 2) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
