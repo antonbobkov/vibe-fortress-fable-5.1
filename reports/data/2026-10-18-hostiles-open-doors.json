@@ -1,0 +1,2397 @@
+{
+ "three-years-p2-1": {
+  "before": {
+   "pop": [
+    16,
+    45,
+    45
+   ],
+   "dwarfDeaths": 12,
+   "byCause": {
+    "killed": 2,
+    "bled_out": 10
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 42,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 62,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 95,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 126,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 132,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 162,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 221,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 236,
+     "kind": "bandits",
+     "size": 5,
+     "outcome": "looted"
+    },
+    {
+     "day": 248,
+     "kind": "raid",
+     "size": 16,
+     "outcome": "looted"
+    },
+    {
+     "day": 254,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 304,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    }
+   ]
+  },
+  "after": {
+   "pop": [
+    16,
+    45,
+    46
+   ],
+   "dwarfDeaths": 11,
+   "byCause": {
+    "killed": 2,
+    "bled_out": 9
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 42,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 62,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 95,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 126,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 132,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 162,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 221,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 236,
+     "kind": "bandits",
+     "size": 5,
+     "outcome": "looted"
+    },
+    {
+     "day": 248,
+     "kind": "raid",
+     "size": 16,
+     "outcome": "looted"
+    },
+    {
+     "day": 254,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 304,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    }
+   ]
+  }
+ },
+ "three-years-p2-2": {
+  "before": {
+   "pop": [
+    13,
+    34,
+    50
+   ],
+   "dwarfDeaths": 3,
+   "byCause": {
+    "bled_out": 2,
+    "killed": 1
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 33,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 68,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 93,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 123,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 124,
+     "kind": "raid",
+     "size": 10,
+     "outcome": "looted"
+    },
+    {
+     "day": 157,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 203,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 252,
+     "kind": "raid",
+     "size": 16,
+     "outcome": "looted"
+    },
+    {
+     "day": 260,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 261,
+     "kind": "bandits",
+     "size": 5,
+     "outcome": "looted"
+    },
+    {
+     "day": 290,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 336,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    }
+   ]
+  },
+  "after": {
+   "pop": [
+    13,
+    34,
+    49
+   ],
+   "dwarfDeaths": 4,
+   "byCause": {
+    "bled_out": 2,
+    "killed": 2
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 33,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 68,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 93,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 123,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 124,
+     "kind": "raid",
+     "size": 10,
+     "outcome": "looted"
+    },
+    {
+     "day": 157,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 203,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 252,
+     "kind": "raid",
+     "size": 16,
+     "outcome": "looted"
+    },
+    {
+     "day": 260,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 261,
+     "kind": "bandits",
+     "size": 5,
+     "outcome": "looted"
+    },
+    {
+     "day": 290,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 336,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    }
+   ]
+  }
+ },
+ "three-years-p2-3": {
+  "before": {
+   "pop": [
+    16,
+    29,
+    45
+   ],
+   "dwarfDeaths": 10,
+   "byCause": {
+    "bled_out": 9,
+    "killed": 1
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 40,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 59,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 83,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 120,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 120,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 158,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 192,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 211,
+     "kind": "bandits",
+     "size": 4,
+     "outcome": "looted"
+    },
+    {
+     "day": 225,
+     "kind": "raid",
+     "size": 13,
+     "outcome": "looted"
+    },
+    {
+     "day": 239,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 271,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 330,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    }
+   ]
+  },
+  "after": {
+   "pop": [
+    16,
+    29,
+    45
+   ],
+   "dwarfDeaths": 10,
+   "byCause": {
+    "bled_out": 9,
+    "killed": 1
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 40,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 59,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 83,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 120,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 120,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 158,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 192,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 211,
+     "kind": "bandits",
+     "size": 4,
+     "outcome": "looted"
+    },
+    {
+     "day": 225,
+     "kind": "raid",
+     "size": 13,
+     "outcome": "looted"
+    },
+    {
+     "day": 239,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 271,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 330,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    }
+   ]
+  }
+ },
+ "three-years-p2-4": {
+  "before": {
+   "pop": [
+    14,
+    19,
+    37
+   ],
+   "dwarfDeaths": 8,
+   "byCause": {
+    "bled_out": 6,
+    "killed": 2
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 36,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 76,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 87,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 119,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 122,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 160,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 206,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 243,
+     "kind": "raid",
+     "size": 12,
+     "outcome": "looted"
+    },
+    {
+     "day": 245,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 252,
+     "kind": "bandits",
+     "size": 4,
+     "outcome": "looted"
+    },
+    {
+     "day": 290,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 328,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    }
+   ]
+  },
+  "after": {
+   "pop": [
+    14,
+    48,
+    60
+   ],
+   "dwarfDeaths": 2,
+   "byCause": {
+    "bled_out": 2
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 36,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 76,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 87,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 122,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 140,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 199,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 225,
+     "kind": "raid",
+     "size": 16,
+     "outcome": "looted"
+    },
+    {
+     "day": 245,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 252,
+     "kind": "bandits",
+     "size": 5,
+     "outcome": "looted"
+    },
+    {
+     "day": 301,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    }
+   ]
+  }
+ },
+ "three-years-p2-5": {
+  "before": {
+   "pop": [
+    7,
+    13,
+    40
+   ],
+   "dwarfDeaths": 10,
+   "byCause": {
+    "killed": 2,
+    "bled_out": 8
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 36,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 72,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 78,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 122,
+     "kind": "raid",
+     "size": 9,
+     "outcome": "looted"
+    },
+    {
+     "day": 129,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 183,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 222,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 244,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 255,
+     "kind": "bandits",
+     "size": 4,
+     "outcome": "looted"
+    },
+    {
+     "day": 275,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 312,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    }
+   ]
+  },
+  "after": {
+   "pop": [
+    7,
+    13,
+    40
+   ],
+   "dwarfDeaths": 10,
+   "byCause": {
+    "killed": 2,
+    "bled_out": 8
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 36,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 72,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 78,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 122,
+     "kind": "raid",
+     "size": 9,
+     "outcome": "looted"
+    },
+    {
+     "day": 129,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 183,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 222,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 244,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 255,
+     "kind": "bandits",
+     "size": 4,
+     "outcome": "looted"
+    },
+    {
+     "day": 275,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 312,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    }
+   ]
+  }
+ },
+ "three-years-p2-6": {
+  "before": {
+   "pop": [
+    6,
+    0,
+    0
+   ],
+   "dwarfDeaths": 13,
+   "byCause": {
+    "killed": 1,
+    "bled_out": 11,
+    "infection": 1
+   },
+   "extinctDay": 157,
+   "parties": [
+    {
+     "day": 39,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 68,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 81,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 125,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 133,
+     "kind": "raid",
+     "size": 7,
+     "outcome": "looted"
+    },
+    {
+     "day": 174,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 219,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 222,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 234,
+     "kind": "raid",
+     "size": 7,
+     "outcome": "looted"
+    },
+    {
+     "day": 267,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 304,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    }
+   ]
+  },
+  "after": {
+   "pop": [
+    6,
+    0,
+    0
+   ],
+   "dwarfDeaths": 13,
+   "byCause": {
+    "killed": 1,
+    "bled_out": 11,
+    "infection": 1
+   },
+   "extinctDay": 157,
+   "parties": [
+    {
+     "day": 39,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 68,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 81,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 125,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 133,
+     "kind": "raid",
+     "size": 7,
+     "outcome": "looted"
+    },
+    {
+     "day": 174,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 219,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 222,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 234,
+     "kind": "raid",
+     "size": 7,
+     "outcome": "looted"
+    },
+    {
+     "day": 267,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 304,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    }
+   ]
+  }
+ },
+ "three-years-p4-1": {
+  "before": {
+   "pop": [
+    6,
+    23,
+    59
+   ],
+   "dwarfDeaths": 14,
+   "byCause": {
+    "killed": 4,
+    "bled_out": 10
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 22,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 36,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 58,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 58,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 62,
+     "kind": "raid",
+     "size": 13,
+     "outcome": "looted"
+    },
+    {
+     "day": 76,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 96,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 118,
+     "kind": "raid",
+     "size": 13,
+     "outcome": "looted"
+    },
+    {
+     "day": 120,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 138,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 165,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 186,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 189,
+     "kind": "raid",
+     "size": 18,
+     "outcome": "looted"
+    },
+    {
+     "day": 190,
+     "kind": "siege",
+     "size": 27,
+     "outcome": "looted"
+    },
+    {
+     "day": 200,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 216,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 230,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 235,
+     "kind": "raid",
+     "size": 19,
+     "outcome": "looted"
+    },
+    {
+     "day": 251,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 266,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 276,
+     "kind": "bandits",
+     "size": 4,
+     "outcome": "repelled"
+    },
+    {
+     "day": 277,
+     "kind": "raid",
+     "size": 20,
+     "outcome": "looted"
+    },
+    {
+     "day": 294,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 312,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 329,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 329,
+     "kind": "raid",
+     "size": 24,
+     "outcome": "looted"
+    }
+   ]
+  }
+ },
+ "three-years-p4-2": {
+  "before": {
+   "pop": [
+    2,
+    0,
+    0
+   ],
+   "dwarfDeaths": 15,
+   "byCause": {
+    "burnt": 4,
+    "killed": 4,
+    "bled_out": 7
+   },
+   "extinctDay": 192,
+   "parties": [
+    {
+     "day": 23,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 45,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 59,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 68,
+     "kind": "raid",
+     "size": 12,
+     "outcome": "looted"
+    },
+    {
+     "day": 69,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 77,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 101,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 117,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 143,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 144,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 159,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 174,
+     "kind": "siege",
+     "size": 19,
+     "outcome": "looted"
+    },
+    {
+     "day": 187,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 208,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 227,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 230,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 254,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 273,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 273,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 291,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 308,
+     "kind": "raid",
+     "size": 10,
+     "outcome": "looted"
+    },
+    {
+     "day": 317,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    }
+   ]
+  },
+  "after": {
+   "pop": [
+    2,
+    0,
+    0
+   ],
+   "dwarfDeaths": 15,
+   "byCause": {
+    "burnt": 4,
+    "killed": 4,
+    "bled_out": 7
+   },
+   "extinctDay": 192,
+   "parties": [
+    {
+     "day": 23,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 45,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 59,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 68,
+     "kind": "raid",
+     "size": 12,
+     "outcome": "looted"
+    },
+    {
+     "day": 69,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 77,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 101,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 117,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 143,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 144,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 159,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 174,
+     "kind": "siege",
+     "size": 19,
+     "outcome": "looted"
+    },
+    {
+     "day": 187,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 208,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 227,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 230,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 254,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 273,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 273,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 291,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 308,
+     "kind": "raid",
+     "size": 10,
+     "outcome": "looted"
+    },
+    {
+     "day": 317,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    }
+   ]
+  }
+ },
+ "three-years-p4-3": {
+  "before": {
+   "pop": [
+    14,
+    18,
+    23
+   ],
+   "dwarfDeaths": 18,
+   "byCause": {
+    "killed": 5,
+    "bled_out": 13
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 45,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 69,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 71,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 77,
+     "kind": "raid",
+     "size": 13,
+     "outcome": "looted"
+    },
+    {
+     "day": 92,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 112,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 136,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 139,
+     "kind": "raid",
+     "size": 15,
+     "outcome": "looted"
+    },
+    {
+     "day": 155,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 183,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 186,
+     "kind": "siege",
+     "size": 24,
+     "outcome": "looted"
+    },
+    {
+     "day": 187,
+     "kind": "raid",
+     "size": 15,
+     "outcome": "looted"
+    },
+    {
+     "day": 197,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 212,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 239,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 244,
+     "kind": "raid",
+     "size": 17,
+     "outcome": "looted"
+    },
+    {
+     "day": 267,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 286,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 289,
+     "kind": "bandits",
+     "size": 4,
+     "outcome": "looted"
+    },
+    {
+     "day": 304,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 320,
+     "kind": "raid",
+     "size": 20,
+     "outcome": "looted"
+    },
+    {
+     "day": 332,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    }
+   ]
+  },
+  "after": {
+   "pop": [
+    14,
+    17,
+    23
+   ],
+   "dwarfDeaths": 17,
+   "byCause": {
+    "killed": 6,
+    "bled_out": 11
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 45,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 69,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 71,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 77,
+     "kind": "raid",
+     "size": 13,
+     "outcome": "looted"
+    },
+    {
+     "day": 92,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 112,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 136,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 139,
+     "kind": "raid",
+     "size": 15,
+     "outcome": "looted"
+    },
+    {
+     "day": 155,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 183,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 186,
+     "kind": "siege",
+     "size": 24,
+     "outcome": "looted"
+    },
+    {
+     "day": 187,
+     "kind": "raid",
+     "size": 15,
+     "outcome": "looted"
+    },
+    {
+     "day": 197,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 212,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 239,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 244,
+     "kind": "raid",
+     "size": 17,
+     "outcome": "looted"
+    },
+    {
+     "day": 267,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 286,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 289,
+     "kind": "bandits",
+     "size": 4,
+     "outcome": "looted"
+    },
+    {
+     "day": 304,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 320,
+     "kind": "raid",
+     "size": 18,
+     "outcome": "looted"
+    },
+    {
+     "day": 332,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    }
+   ]
+  }
+ },
+ "three-years-p4-6": {
+  "before": {
+   "pop": [
+    0,
+    0,
+    0
+   ],
+   "dwarfDeaths": 14,
+   "byCause": {
+    "bled_out": 13,
+    "killed": 1
+   },
+   "extinctDay": 110,
+   "parties": [
+    {
+     "day": 24,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 51,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 71,
+     "kind": "raid",
+     "size": 13,
+     "outcome": "looted"
+    },
+    {
+     "day": 73,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 77,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 99,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 116,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 132,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 153,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 160,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 187,
+     "kind": "siege",
+     "size": 19,
+     "outcome": "looted"
+    },
+    {
+     "day": 188,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 203,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 211,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 212,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 230,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 252,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 267,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 277,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 283,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 310,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 334,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    }
+   ]
+  },
+  "after": {
+   "pop": [
+    1,
+    0,
+    0
+   ],
+   "dwarfDeaths": 17,
+   "byCause": {
+    "bled_out": 15,
+    "killed": 2
+   },
+   "extinctDay": 210,
+   "parties": [
+    {
+     "day": 24,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 51,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 71,
+     "kind": "raid",
+     "size": 13,
+     "outcome": "looted"
+    },
+    {
+     "day": 73,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 77,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 99,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 116,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 132,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 153,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 160,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 187,
+     "kind": "siege",
+     "size": 19,
+     "outcome": "looted"
+    },
+    {
+     "day": 188,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 203,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 211,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 212,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 230,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 252,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 267,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 277,
+     "kind": "raid",
+     "size": 11,
+     "outcome": "looted"
+    },
+    {
+     "day": 283,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 310,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 334,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    }
+   ]
+  }
+ },
+ "three-years-p4-4": {
+  "after": {
+   "pop": [
+    13,
+    25,
+    43
+   ],
+   "dwarfDeaths": 10,
+   "byCause": {
+    "bled_out": 6,
+    "killed": 4
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 44,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 61,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 65,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 73,
+     "kind": "raid",
+     "size": 13,
+     "outcome": "looted"
+    },
+    {
+     "day": 79,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 98,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 119,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 135,
+     "kind": "raid",
+     "size": 15,
+     "outcome": "looted"
+    },
+    {
+     "day": 137,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 162,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 181,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 184,
+     "kind": "siege",
+     "size": 29,
+     "outcome": "looted"
+    },
+    {
+     "day": 190,
+     "kind": "bandits",
+     "size": 4,
+     "outcome": "looted"
+    },
+    {
+     "day": 190,
+     "kind": "raid",
+     "size": 17,
+     "outcome": "looted"
+    },
+    {
+     "day": 205,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 232,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 245,
+     "kind": "raid",
+     "size": 19,
+     "outcome": "looted"
+    },
+    {
+     "day": 250,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 274,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 288,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 315,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 315,
+     "kind": "raid",
+     "size": 22,
+     "outcome": "looted"
+    },
+    {
+     "day": 334,
+     "kind": "bandits",
+     "size": 4,
+     "outcome": "looted"
+    },
+    {
+     "day": 335,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    }
+   ]
+  }
+ },
+ "three-years-p4-5": {
+  "after": {
+   "pop": [
+    15,
+    18,
+    38
+   ],
+   "dwarfDeaths": 9,
+   "byCause": {
+    "bled_out": 7,
+    "infection": 1,
+    "killed": 1
+   },
+   "extinctDay": null,
+   "parties": [
+    {
+     "day": 27,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 48,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 60,
+     "kind": "raid",
+     "size": 13,
+     "outcome": "looted"
+    },
+    {
+     "day": 69,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 75,
+     "kind": "bandits",
+     "size": 3,
+     "outcome": "looted"
+    },
+    {
+     "day": 84,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 112,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 113,
+     "kind": "raid",
+     "size": 15,
+     "outcome": "looted"
+    },
+    {
+     "day": 133,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 150,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 160,
+     "kind": "raid",
+     "size": 14,
+     "outcome": "looted"
+    },
+    {
+     "day": 175,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 175,
+     "kind": "siege",
+     "size": 23,
+     "outcome": "looted"
+    },
+    {
+     "day": 201,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 204,
+     "kind": "raid",
+     "size": 15,
+     "outcome": "looted"
+    },
+    {
+     "day": 215,
+     "kind": "bandits",
+     "size": 4,
+     "outcome": "looted"
+    },
+    {
+     "day": 224,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 246,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 263,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "looted"
+    },
+    {
+     "day": 263,
+     "kind": "raid",
+     "size": 17,
+     "outcome": "looted"
+    },
+    {
+     "day": 290,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 315,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 330,
+     "kind": "thief",
+     "size": 1,
+     "outcome": "withdrew"
+    },
+    {
+     "day": 332,
+     "kind": "raid",
+     "size": 23,
+     "outcome": "looted"
+    }
+   ]
+  }
+ }
+}
