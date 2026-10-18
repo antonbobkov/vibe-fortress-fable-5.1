@@ -8,12 +8,12 @@
 
 import { C, ItemFlag, type Worker } from '@core/components';
 import { PRIORITY_DEFAULT, TICKS_PER_YEAR } from '@core/constants';
-import { TileFlag } from '@core/map3d';
 import type { GameEvent } from '@core/events';
 import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, WorldLike } from '@core/system';
 import type { Registry } from '@core/registry';
 import type { EntityId, Priority, TileIndex } from '@core/types';
-import { ADULT_AGE_YEARS, CIVILIAN_FLEE_NODE_LIMIT, THREAT_RADIUS } from '@systems/dwarves/constants';
+import { ADULT_AGE_YEARS, THREAT_RADIUS } from '@systems/dwarves/constants';
+import { shelterArea } from '@systems/dwarves/shelter';
 import { AMMO_FETCH } from '@systems/foraging/constants';
 import { choose, effectivePriority, estDistance, type Candidate } from './assign';
 import {
@@ -948,30 +948,18 @@ export class JobBoard implements JobsApi, JobSink {
 
   /**
    * The jobs a sheltering civilian works under a `hearth` alert (10 § Behavior selection, 11 § The
-   * alert): patient care, and a `pull_lever` job whose lever stands inside the worker's shelter: on
-   * a tile that is not outdoor and that the worker reaches from where it stands without passing a
-   * door, within `CIVILIAN_FLEE_NODE_LIMIT` tiles.
+   * alert): patient care, and a `pull_lever` job whose lever stands inside the civilian's shelter:
+   * the area 10 shelters it in around its retreat tile (19 `retreatTile`), read by the same helper.
    */
   isShelterWork(job: Job, workerId: EntityId): boolean {
     if (this.isPatientCare(job)) return true;
-    if (this.typeId(job) !== 'pull_lever') return false;
+    if (this.typeId(job) !== 'pull_lever' || !this.readers.has('19')) return false;
+    const shelter = this.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(workerId);
     const map = this.world.map;
     const lever = this.anchorTile(job);
-    const from = this.workerTile(workerId);
-    if (from < 0 || !map.validIndex(lever) || map.hasFlag(lever, TileFlag.Outdoor)) return false;
-    const doorAt = this.readers.has('14') ? (t: TileIndex): boolean => this.readers.of<{ doorAt(i: TileIndex): boolean }>('14').doorAt(t) : (): boolean => false;
-    const seen = new Set<TileIndex>([from]);
-    const queue: TileIndex[] = [from];
-    for (let cursor = 0; cursor < queue.length && seen.size < CIVILIAN_FLEE_NODE_LIMIT; cursor += 1) {
-      const at = queue[cursor] as TileIndex;
-      if (at === lever || map.neighbors(at).includes(lever)) return true;
-      for (const next of map.neighbors(at)) {
-        if (seen.has(next) || map.hasFlag(next, TileFlag.Outdoor) || doorAt(next) || !this.readers.pathing.passable(next, 'walker')) continue;
-        seen.add(next);
-        queue.push(next);
-      }
-    }
-    return false;
+    if (shelter < 0 || !map.validIndex(lever)) return false;
+    const inside = shelterArea(map, this.readers, shelter);
+    return inside(lever) || map.neighbors(lever).some((t) => map.zOf(t) === map.zOf(lever) && inside(t));
   }
 
   private eligible(job: Job, workerId: EntityId): boolean {

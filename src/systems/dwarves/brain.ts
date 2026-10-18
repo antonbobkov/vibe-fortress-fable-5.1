@@ -11,10 +11,10 @@
  */
 
 import { C, type Brain, type Needs } from '@core/components';
+import { shelterArea } from './shelter';
 import type { TickContext } from '@core/system';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import type { MoverOptions } from '@core/pathfinding';
-import { TileFlag } from '@core/map3d';
 import { hourOf } from '@core/calendar';
 import { ADULT_AGE_YEARS, CIVILIAN_COMBAT_TIMEOUT_TICKS, CIVILIAN_FLEE_NODE_LIMIT, IDLE_TICKS, LEISURE_MARK, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
@@ -80,26 +80,9 @@ const LEISURE: readonly NeedName[] = ['social', 'comfort', 'joy'];
 /** Hunger, thirst and rest are the needs a sheltering dwarf serves from inside its shelter. */
 const SHELTER_WANTS: readonly NeedName[] = ['hunger', 'thirst', 'rest'];
 
-/**
- * The tiles a retreating civilian is sheltered by: the hearth hall when `shelter` is one of its
- * tiles, else the indoor tiles around `shelter` that a dwarf walks to without passing a door.
- */
+/** The tiles a retreating civilian is sheltered by (`shelter.ts`, shared with 11). */
 function shelterAreaOf(ctx: TickContext, shelter: TileIndex): (tile: TileIndex) => boolean {
-  const buildings = ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : undefined;
-  const hall = new Set<TileIndex>(buildings?.hearthHallTiles() ?? []);
-  if (hall.has(shelter)) return (tile) => hall.has(tile);
-  const map = ctx.world.map;
-  const area = new Set<TileIndex>([shelter]);
-  const queue = [shelter];
-  for (let cursor = 0; cursor < queue.length && area.size < CIVILIAN_FLEE_NODE_LIMIT; cursor += 1) {
-    for (const next of map.neighbors(queue[cursor] as TileIndex)) {
-      if (area.has(next) || map.hasFlag(next, TileFlag.Outdoor) || buildings?.doorAt(next) === true ||
-          !ctx.readers.pathing.passable(next, 'walker')) continue;
-      area.add(next);
-      queue.push(next);
-    }
-  }
-  return (tile) => area.has(tile);
+  return shelterArea(ctx.world.map, ctx.readers, shelter);
 }
 
 /**
