@@ -1,10 +1,12 @@
 # T-360 — Measure brook drinking under wild animals
 
+**Closed:** 2026-10-18, in 5bcea7b.
+
 **Source:** T-350 and its review (2026-10-16) · **Size:** M · **Needs:** T-350 · **Status:** open
 
 ## Why
 
-Since T-350 a dwarf drinks at a brook's bank when no barrel of drink on a stockpile is in reach (10 § Needs, drink search). Thirsty dwarves now walk out of the fortress, often 20 tiles or more, every day: in `pp_food` all seven dwarves walk to the bank on the map's west edge daily from day 9, and boars and a badger kill three of them on days 13 to 14; in the three-year fixture, whose drink stockpiles wanted no barrels, the founders drank at the brook instead of their brew, and eight dwarves bled out by day 47 ([the run's journal](../../reports/data/2026-10-16-t145-run1.jsonl)).
+Since T-350 a dwarf drinks at a brook's bank when no barrel of drink on a stockpile is in reach (10 § Needs, drink search). Thirsty dwarves now walk out of the fortress, often 20 tiles or more, every day: in `pp_food` all seven dwarves walk to the bank on the map's west edge daily from day 9, and boars and a badger kill three of them on days 13 to 14; in the three-year fixture, whose drink stockpiles wanted no barrels, the founders drank at the brook instead of their brew, and eight dwarves bled out by day 47 ([the run's journal](../../../reports/data/2026-10-16-t145-run1.jsonl)).
 
 The annual instrument does not see any of this: its twelve rows and hashes were identical before and after T-350, because no instrument seed ever falls back to water (its opening keeps drink in a stocked barrel). So what water costs a fortress under wild animals is unmeasured.
 

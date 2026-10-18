@@ -53,7 +53,7 @@ Twenty dwarves eat 4.8 raw units a day: a 20-tile cave plot (5 per day) or a 14-
 
 ## Drink chain
 
-4 plants → 20 drinks. Twenty dwarves need 15.4 drinks a day = 3.1 plants a day = a 13-tile dimcap plot dedicated to the still, and 0.8 brewing jobs a day (a Skilled brewer does one in 130 ticks: three minutes of their day), *unmeasured*. Barrels: a fortress cycles about 1 barrel a day; 7 barrels in circulation is enough (*unmeasured*); a carpenter makes one in 100 ticks. Water is the fallback and costs −2 mood per drink; a well makes it dependable.
+4 plants → 20 drinks. Twenty dwarves need 15.4 drinks a day = 3.1 plants a day = a 13-tile dimcap plot dedicated to the still (3.2 plants a day, measured), and 0.8 brewing jobs a day (a Skilled brewer does one in 130 ticks: three minutes of their day), *unmeasured*. Barrels: a fortress cycles about 1 barrel a day; 7 barrels in circulation is enough (*unmeasured*); a carpenter makes one in 100 ticks. Water is the fallback and costs −2 mood per drink; a well makes it dependable. Measured over twelve generated years with no drink at all ([brook drinking](../../reports/audits/2026-10-18-brook-drinking-under-wildlife.md)): with the brook within 6 tiles of the wagon the fortress lives (79 dwarf-years in nine, against 93 with a brew); with the nearest bank 40 tiles away it loses 98 against 156 and four of twelve fortresses, to hunger or thirst and to wild animals on the walk; with no surface water in reach it dies of thirst on day 19. A fortress whose drink stockpile wants no barrels drinks at the brook for two drinks in three beside the wagon and four in ten 40 tiles away.
 
 ## Wood and fuel
 

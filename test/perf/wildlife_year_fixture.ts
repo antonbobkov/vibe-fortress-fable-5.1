@@ -24,6 +24,30 @@ export interface WildlifeDeath {
   killerSpecies: string;
   wildlife: boolean;
   tile: number;
+  /** Dry variant only: horizontal tiles from the wagon, and from the nearest tile a dwarf drank at (-1 when none drank). */
+  wagonDistance?: number;
+  bankDistance?: number;
+}
+
+/** What the dry variant records of the brook (T-360). */
+export interface BrookRecord {
+  drinks: number;
+  alcohol: number;
+  firstDrinkDay: number | null;
+  drinkers: number;
+  /** Horizontal distance from the wagon of each drink, sorted. */
+  distances: number[];
+  /** The tiles dwarves drank at, with the drinks taken at each. */
+  tiles: { tile: number; x: number; y: number; z: number; drinks: number }[];
+  outdoors: number;
+  wagon: { x: number; y: number; z: number };
+}
+
+/** The variants of the opening. `dry`: the embark drink is destroyed and no still is built, so every drink is the brook's. */
+export interface WildlifeOptions {
+  dry?: boolean;
+  /** A brook crosses the map: from the west edge (where the wagon stands) to the south edge, or from the north edge to the south edge. */
+  brook?: 'west' | 'north';
 }
 
 export interface WildlifeYear {
@@ -44,6 +68,7 @@ export interface WildlifeYear {
   hunts: number;
   hash: string;
   setup: { caveDepth: number; surfacePlots: number[]; caveTiles: number; buildings: number[]; commands: number };
+  brook?: BrookRecord;
 }
 
 /** Same alert timings and proximity check as test/e2e/full-year.spec.ts, including its opening. */
@@ -53,10 +78,11 @@ const CALM_AFTER = 600;
 const HEARTH_HOLD = 300;
 const HEARTH_PAUSE = 1500;
 
-export function playWildlifeYear(seed: string, biome: string): WildlifeYear {
+export function playWildlifeYear(seed: string, biome: string, options: WildlifeOptions = {}): WildlifeYear {
   // Standard-sized generated map, west embark like the browser sample. No serene_vale
   // wildlife suppression; biome, soil, plants, weather and all natural arrivals are real.
   const spec = regionSpec(seed, { biome, peril: 0, wealth: 2, temper: 0, traits: [],
+    ...(options.brook === undefined ? {} : { river: { class: 'brook' as const, inflow: [options.brook === 'west' ? 'w' as const : 'n' as const], outflow: 's' as const } }),
     nearestEdgeTo: { mountainhome: 'w', hillfolk: 'w', wildwood: 'w', gloam: 'w' } });
   const game = new HeadlessGame({ seed, world: 'local', spec, embark: 'default' });
   const world = game.world;
@@ -79,6 +105,15 @@ export function playWildlifeYear(seed: string, biome: string): WildlifeYear {
     deaths: [], starving: 0, shelter: { longest: 0, maxHunger: 0, maxThirst: 0, maxRest: 0 }, sleepAttacks: [], livestockLost: 0, spawns: {}, alerts: [],
     stocks: { drink: 0, meal: 0, plantFood: 0 }, harvests: 0, hunts: 0, hash: '',
     setup: { caveDepth: Math.min(2, spec.soilDepth - 1), surfacePlots: [], caveTiles: 0, buildings: [], commands: 0 } };
+  if (options.dry === true) {
+    // T-360: no drink in the fortress and no still; the first thirst walks to the brook. The barrels stay.
+    const drinkType = game.registry.table<{ id: string }>('items').index('drink');
+    for (const id of entities.with(C.Item)) {
+      if (entities.get(id, C.Item)?.type === drinkType && entities.has(id, C.Item)) world.services.items?.destroy(id, 'probe');
+    }
+  }
+  const brookTiles = new Map<number, number>();
+  const drinkers = new Set<number>();
   const knownWild = new Map<number, string>();
   let attacked = false;
   let lastThreat = 0;
@@ -93,6 +128,21 @@ export function playWildlifeYear(seed: string, biome: string): WildlifeYear {
         result.spawns[name] = (result.spawns[name] ?? 0) + 1;
       } else if (event.type === 'ImmigrantsArrived') result.arrivals += Number(event['count']);
       else if (event.type === 'Starving') result.starving += 1;
+      else if (event.type === 'DrankWater' || event.type === 'DrankAlcohol') {
+        const brook = (result.brook ??= { drinks: 0, alcohol: 0, firstDrinkDay: null, drinkers: 0, distances: [], tiles: [], outdoors: 0, wagon: { x: wx, y: wy, z } });
+        if (event.type === 'DrankAlcohol') brook.alcohol += 1;
+        else {
+          const at = game.movement.tileOf(Number(event['id']) as EntityId);
+          brook.drinks += 1;
+          brook.firstDrinkDay ??= Math.floor(game.tick / TICKS_PER_DAY) + 1;
+          if (event['outdoors'] === true) brook.outdoors += 1;
+          if (at >= 0) {
+            brook.distances.push(Math.max(Math.abs(map.xOf(at) - wx), Math.abs(map.yOf(at) - wy)));
+            brookTiles.set(at, (brookTiles.get(at) ?? 0) + 1);
+          }
+          drinkers.add(Number(event['id']));
+        }
+      }
       else if (event.type === 'CropHarvested') result.harvests += 1;
       else if (event.type === 'HuntKill') result.hunts += 1;
       else if (event.type === 'AttackResolved' && animals.isWild(Number(event['attackerId'])) && !animals.isWild(Number(event['defenderId']))) {
@@ -227,10 +277,10 @@ export function playWildlifeYear(seed: string, biome: string): WildlifeYear {
   const chopped = new Set([...trees.slice(0, 10), ...rect(0, 16, 4, 5), ...rect(depot.x - 2, depot.y - 2, 7, 7)]);
   const actualTrees = [...chopped].filter((at) => map.kindAt(at) === TileKind.Tree);
   if (actualTrees.length > 0) command({ type: 'Designate', kind: 'chop', tiles: actualTrees, priority: PRIORITY_DEFAULT });
-  for (const [i, type] of ['carpenter', 'mason', 'still'].entries()) build(type, map.index(patches[i]!.x, patches[i]!.y, z));
+  for (const [i, type] of ['carpenter', 'mason', 'still'].entries()) if (options.dry !== true || type !== 'still') build(type, map.index(patches[i]!.x, patches[i]!.y, z));
   order('make_barrel', 'maintain', 20);
   order('make_stone_block', 'once', 4);
-  order('brew', 'maintain', 100);
+  if (options.dry !== true) order('brew', 'maintain', 100);
   advance(3 * TICKS_PER_DAY);
   build('hearth', map.index(patches[3]!.x, patches[3]!.y, z));
   build('kitchen', map.index(patches[4]!.x, patches[4]!.y, z));
@@ -251,6 +301,17 @@ export function playWildlifeYear(seed: string, biome: string): WildlifeYear {
   result.living = living().length;
   result.stocks = { drink: items.count('drink'), meal: items.count('easy_meal') + items.count('fine_meal') + items.count('lavish_meal'), plantFood: items.count('plant_food') };
   result.hash = game.hash();
+  if (options.dry === true || options.brook !== undefined) {
+    const brook = (result.brook ??= { drinks: 0, alcohol: 0, firstDrinkDay: null, drinkers: 0, distances: [], tiles: [], outdoors: 0, wagon: { x: wx, y: wy, z } });
+    brook.drinkers = drinkers.size;
+    brook.distances.sort((a, b) => a - b);
+    brook.tiles = [...brookTiles].map(([tile, drinks]) => ({ tile, x: map.xOf(tile), y: map.yOf(tile), z: map.zOf(tile), drinks }));
+    for (const death of result.deaths) {
+      if (death.tile < 0) continue;
+      death.wagonDistance = Math.max(Math.abs(map.xOf(death.tile) - wx), Math.abs(map.yOf(death.tile) - wy));
+      death.bankDistance = brook.tiles.length === 0 ? -1 : Math.min(...brook.tiles.map((b) => Math.max(Math.abs(b.x - map.xOf(death.tile)), Math.abs(b.y - map.yOf(death.tile)))));
+    }
+  }
   // Confirm this instrument did not reveal crops being planted in open air.
   if (buildings.zoneAt(cave[0]!) !== 0 && map.hasFlag(cave[0]!, TileFlag.Lit)) throw new Error(`${seed}: cave plot is lit`);
   return result;

@@ -349,12 +349,6 @@ export class StockpileStore {
     return true;
   }
 
-  /**
-   * `accepts(stockpile, item)`: "the item's category is under a selected node, its material class is
-   * allowed, its quality is in range, it is not forbidden, and (if `linkedSources` is non-empty) the
-   * item currently sits in one of those stockpiles or a workshop". A container with contents is
-   * accepted for its contents ("barrels of ale still accepted (they are containers)").
-   */
   /** Whether `accepts` of a stockpile follows from an item's flags, its contents and its kind (type, material, quality, rot): it has no linked sources. */
   acceptsByKind(spId: EntityId): boolean {
     const sp = this.stockpile(spId);
@@ -368,6 +362,12 @@ export class StockpileStore {
     return this.hospitalAccepts(spId, it);
   }
 
+  /**
+   * `accepts(stockpile, item)`: "the item's category is under a selected node, its material class is
+   * allowed, its quality is in range, it is not forbidden, and (if `linkedSources` is non-empty) the
+   * item currently sits in one of those stockpiles or a workshop". A container with contents is
+   * accepted for its contents ("barrels of ale still accepted (they are containers)").
+   */
   accepts(spId: EntityId, itemId: EntityId): boolean {
     const sp = this.stockpile(spId);
     const it = this.core.get(itemId);

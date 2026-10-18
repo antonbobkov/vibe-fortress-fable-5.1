@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | — (T-393 closed 2026-10-18; needs a quiet machine) | open; local side (needs a quiet machine) |
 | T-151 | [A defence year: traps, a gate, a trained squad, a raid repelled](work/T-151-defence-year-scenario.md) | T-114 and [`../reports/audits/2026-10-08-playthrough-coverage.md`](../reports/audits/2026-10-08-playthrough-coverage.md) | — (T-140 and T-141 closed) | open; local side (the cloud agent stopped before it): three stages are on master, the raid stage remains |
-| T-360 | [Measure brook drinking under wild animals](work/T-360-brook-drinking-under-wildlife.md) | the review of T-350 | — | open |
 | T-364 | [Measure farm yield](work/T-364-measure-farm-yield.md) | T-333, the unmeasured-numbers report | — | open |
 | T-365 | [Measure the work pace](work/T-365-measure-work-pace.md) | T-333, the unmeasured-numbers report | — | open |
 | T-366 | [Measure the combat pace](work/T-366-measure-combat-pace.md) | T-333, the unmeasured-numbers report | — | open |
@@ -24,5 +23,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-381 | [Measure raid sizes at peril 2 with the economy fixture](work/T-381-raid-sizes-at-peril-2-with-the-economy-fixture.md) | T-145's peril-0 sweep | — | open |
 | T-389 | [An ambush party stays on the map for more than ten days](work/T-389-ambush-party-stays-past-ten-days.md) | T-387's peril-2 rerun | — | open |
 | T-396 | [With no hearth hall, a civilian's shelter moves with the dwarf](work/T-396-no-hall-shelter-moves-with-the-dwarf.md) | T-151 and the lever review | — | open |
+| T-397 | [A fire kills most of a taiga fortress on a map with a brook at the wagon](work/T-397-fire-deaths-on-brook-maps.md) | T-360's measurement | — | open |
+| T-398 | [Dwarves with no drink die of hunger or thirst on the way to a distant bank, sheltering or not](work/T-398-no-drink-deaths-on-the-walk.md) | T-360's measurement | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

@@ -1,0 +1,32 @@
+/**
+ * T-360: the instrument's twelve seeds with the dry opening (no drink, no still): brook drinking under wild animals.
+ * BROOK_VARIANT: dry-nobrook | dry-west | dry-north | control-west | control-north (a brook and the usual drink).
+ */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { playWildlifeYear, WILDLIFE_CASES } from './wildlife_year_fixture';
+
+const out = process.env['BROOK_OUT'] ?? '.vite/brook-year';
+const variant = process.env['BROOK_VARIANT'] ?? 'dry-nobrook';
+const options = ({
+  'dry-nobrook': { dry: true },
+  'dry-west': { dry: true, brook: 'west' },
+  'dry-north': { dry: true, brook: 'north' },
+  'control-west': { brook: 'west' },
+  'control-north': { brook: 'north' },
+} as const)[variant as 'dry-nobrook'];
+
+describe('T-360 brook drinking over twelve generated years', () => {
+  it.each(WILDLIFE_CASES)('$biome / $seed', ({ seed, biome }) => {
+    mkdirSync(out, { recursive: true });
+    try {
+      const row = playWildlifeYear(seed, biome, options);
+      writeFileSync(`${out}/${seed}.json`, JSON.stringify(row, null, 2) + '\n');
+      console.log(`T-360 brook year: ${seed} ${variant} living ${row.living} drinks ${row.brook?.drinks} deaths ${row.deaths.length}`);
+    } catch (error) {
+      // The opening's own commands are rejected on a map the brook crosses at a site it digs or zones: no fixture repair.
+      writeFileSync(`${out}/${seed}.json`, JSON.stringify({ seed, biome, failed: String((error as Error).message) }, null, 2) + '\n');
+      console.log(`T-360 brook year: ${seed} ${variant} opening rejected`);
+    }
+  }, 900_000);
+});
