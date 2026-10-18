@@ -133,7 +133,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
             board.setWorker(workerId, { carrying: target });
           }
         } else if (movement === null || movement.walkTo(workerId, at, 'job', ctx) === 'unreachable') {
-          board.unclaim(job, 'unreachable', movement?.walkBlockedByCreatures(workerId) === true);
+          board.unclaim(job, 'unreachable', movement?.walkBlockedTile(workerId) ?? -1);
         }
       } else {
         const dest = deliveryTile(board, job, workerId);
@@ -142,7 +142,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
           for (const input of job.inputs) if (input.reserved.includes(carrying)) input.delivered.push(carrying);
           board.setWorker(workerId, { carrying: 0 });
         } else if (movement === null || movement.walkTo(workerId, dest, 'job', ctx) === 'unreachable') {
-          board.unclaim(job, 'unreachable', movement?.walkBlockedByCreatures(workerId) === true);
+          board.unclaim(job, 'unreachable', movement?.walkBlockedTile(workerId) ?? -1);
         }
       }
       if (job.state === 'fetching' && !pendingWork(job) && board.workerOf(workerId).carrying === 0) job.state = 'travelling';
@@ -161,7 +161,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
         return;
       }
       if (movement === null || movement.walkTo(workerId, stand, 'job', ctx) === 'unreachable') {
-        board.unclaim(job, 'unreachable', movement?.walkBlockedByCreatures(workerId) === true);
+        board.unclaim(job, 'unreachable', movement?.walkBlockedTile(workerId) ?? -1);
       }
       return;
     }

@@ -61,7 +61,7 @@ export class MovementHelper implements MovementApi {
    */
   private readonly walks = new Map<EntityId, Walk>();
   /** Movers whose last step was refused because creatures stood on the next tile for more than `REPATH_LIMIT` waits (derived, never saved). */
-  private readonly crowded = new Set<EntityId>();
+  private readonly crowded = new Map<EntityId, TileIndex>();
 
   constructor(map: Map3D, entities: EntityStore, spatial: SpatialIndex, pathing: PathingCore) {
     this.map = map;
@@ -225,8 +225,8 @@ export class MovementHelper implements MovementApi {
     this.clearPath(id);
   }
 
-  walkBlockedByCreatures(id: EntityId): boolean {
-    return this.crowded.has(id);
+  walkBlockedTile(id: EntityId): TileIndex {
+    return this.crowded.get(id) ?? -1;
   }
 
   /** The target of a mover's current walk, or -1. */
@@ -288,7 +288,7 @@ export class MovementHelper implements MovementApi {
         m.repathCount += 1;
         m.waitUntil = ctx.tick + REPATH_WAIT_TICKS;
         if (m.repathCount > REPATH_LIMIT) {
-          this.crowded.add(id);
+          this.crowded.set(id, next);
           return this.blocked(id, m);
         }
         this.write(id, m);
