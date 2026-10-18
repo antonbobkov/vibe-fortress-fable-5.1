@@ -57,3 +57,14 @@ Re-measured after T-144; the report is [`../../reports/audits/2026-10-10-wants-w
 - **Year-1 wealth** is 17,517, of which 12,000 is lavish meals.
 - With master's wildlife on, the same fixture dies out by boar in year 1, before and after T-144. T-196.
 
+
+## Progress, 2026-10-18
+
+Re-measured on the closed T-145 fixture at `88119f4`, seed `three-years`, peril 0, 336 days, wild animals present; the report is [`../../reports/audits/2026-10-18-work-share-after-t145.md`](../../reports/audits/2026-10-18-work-share-after-t145.md). `balance.md` § Needs and consumption and `balance-status.md` carry the figures.
+
+- **Holds: work share at least 35%.** 37.4% in year 1 (27.8% at jobs, 9.6% hauling), 37.0% in year 2; idle with no work 0.9%. Year 3 falls to 30.0% as need travel reaches 47.6% in a fortress of 56.
+- **Holds on the sweep, not on this seed's first year: daily mood mean at least 55.** Mood over dwarf time 54.0 / 57.0 / 54.3 by year on `three-years`; the peril-0 sweep of 2026-10-17 has a median daily mean of 57.4 (52.0–63.5) over seven seeds, and this seed lies inside that spread. One seed is one chaotic sample (testing-strategy.md § What may be a gate).
+- **Does not hold: year-1 wealth 4,000–8,000.** 23,969. T-380 owns it (B-008: the fixture's export crafts and kitchen); walking speed does not bear on it.
+- **Does not hold: the performance tier passes.** `perf_reference` (worst ticks 57 ms and 115 ms against 40 ms) and `played_behavior` (a dwarf dies in the played fortress) fail, the same at `a9a21dd`; filed as `T-NEW-perf-tier-played-fortress-death.md`. The three-year sweep in the tier also stops on T-389.
+
+**The gap and the proposal.** What is left is not walking speed's: no constant changes. Raising `speed` to ×1.75, the next step this file allows for a low mood, would not move the work share (×1.5 to ×2 left it within a point on 2026-10-09) and the year-1 mood is a point below on one seed with the seven-seed median above. Proposed: close T-140 on its decision (speed ×1.5, applied 2026-10-09) and the measured work share, with year-1 wealth left to T-380 and the tier's failures to the new row.
