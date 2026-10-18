@@ -1,5 +1,5 @@
 /**
- * T-NEW-lever-under-hearth-alert: under a `hearth` alert a sheltering civilian pulls a lever that
+ * T-395-lever-under-hearth-alert: under a `hearth` alert a sheltering civilian pulls a lever that
  * stands inside its shelter (10 § Behavior selection step 2, 11 § Hearth alert), and returns to the
  * shelter; a lever outside the shelter waits for the alert to end.
  */
@@ -48,7 +48,7 @@ function run(w: TestWorld, mechanic: EntityId, ticks: number): void {
   }
 }
 
-describe('T-NEW-lever-under-hearth-alert', () => {
+describe('T-395-lever-under-hearth-alert', () => {
   it('a sheltering civilian pulls a lever inside its shelter while the alert lasts', () => {
     const { w, mechanic, lever } = fortress('lever-alert-in', (tw) => tw.index(22, 21, Z));
     expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' }).ok).toBe(true);
@@ -104,7 +104,7 @@ function dig(w: TestWorld, x: number, y: number, z: number, width: number, heigh
  * it along the walker graph, so it is the room `X` the mechanic stands in and `S`. Whether the lever
  * job is offered is read from the board on the alert's first tick, before the mechanic moves: 19
  * recomputes the retreat tile from where the dwarf stands, so once it stands in the doorway its
- * shelter is the area past the next door (T-NEW-no-hall-shelter-moves-with-the-dwarf).
+ * shelter is the area past the next door (T-396-no-hall-shelter-moves-with-the-dwarf).
  */
 function noHall(seed: string): { w: TestWorld; mechanic: EntityId } {
   const w = new TestWorld({ seed, world: 'flat-test', embark: 'none' });
@@ -122,7 +122,7 @@ function offered(w: TestWorld, mechanic: EntityId): boolean {
   return w.readers.of<JobsReader>('11').hasUrgent(mechanic, PRIORITY_MAX) || (w.game.world.entities.get(mechanic, C.Worker)?.jobId ?? 0) !== 0;
 }
 
-describe('T-NEW-lever-under-hearth-alert: the shelter without a hall', () => {
+describe('T-395-lever-under-hearth-alert: the shelter without a hall', () => {
   it('a lever on the level below, reached only by the stairs past a door, is not in the shelter', () => {
     const { w, mechanic } = noHall('lever-alert-below');
     // L lies under X; the way down is the door D2 at (17, 21), the stairs at (17, 23) and back north.

@@ -1,6 +1,6 @@
-# T-NEW — With no hearth hall, a civilian's shelter moves with the dwarf
+# T-396 — With no hearth hall, a civilian's shelter moves with the dwarf
 
-**Source:** T-NEW-lever-under-hearth-alert's review tests, 2026-10-18 (`test/unit/t-new-lever-under-hearth-alert.test.ts`, the shelter without a hall) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-395-lever-under-hearth-alert's review tests, 2026-10-18 (`test/unit/t-new-lever-under-hearth-alert.test.ts`, the shelter without a hall) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
