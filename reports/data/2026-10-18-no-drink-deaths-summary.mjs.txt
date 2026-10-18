@@ -1,0 +1,18 @@
+// T-398: the per-seed table of the report, over the probe's output directory (node summary.mjs <dir>).
+// Each starvation death is classed by the need that sat at its maximum before it: thirst at 100 for the last 3.75 hours of samples, hunger at 100 for the last 7.5 days.
+import fs from 'node:fs';
+const dir = process.argv[2];
+const tot = { thirst: 0, hunger: 0, both: 0 };
+for (const f of fs.readdirSync(dir).sort()) {
+  const d = JSON.parse(fs.readFileSync(`${dir}/${f}`, 'utf8'));
+  const c = { thirst: 0, hunger: 0, both: 0 };
+  for (const x of d.row.deaths.filter((x) => x.cause === 'starvation')) {
+    const tr = d.trace[x.id];
+    const h = tr.filter((q) => q.hu >= 100 && q.t > x.tick - 9000).length > 3;
+    const t = tr.filter((q) => q.th >= 100 && q.t > x.tick - 4500).length > 3;
+    const k = h && t ? 'both' : h ? 'hunger' : 'thirst';
+    c[k] += 1; tot[k] += 1;
+  }
+  console.log(f.replace('.dry-north.json', ''), 'living', d.row.living, 'hearth longest', d.row.shelter.longest, JSON.stringify(c));
+}
+console.log(JSON.stringify(tot));

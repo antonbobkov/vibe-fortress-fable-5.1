@@ -1,0 +1,33 @@
+/** T-398 diagnosis: the brook in winter. Stops the year at the first dwarf with thirst 90 who is not walking to drink. */
+import { describe, it } from 'vitest';
+import { C } from '@core/components';
+import { FluidType } from '@core/map3d';
+import { playWildlifeYear } from './wildlife_year_fixture';
+
+describe('T-398 freeze probe', () => {
+  it('taiga-3 dry-north: liquid and frozen water within 32 tiles of a thirsty idle dwarf', () => {
+    class Stop extends Error {}
+    try {
+      playWildlifeYear('wildlife-taiga-3', 'taiga', { dry: true, brook: 'north',
+        observe: (game) => {
+          const e = game.world.entities; const m = game.map;
+          for (const id of e.with(C.Labors)) {
+            const n = e.get(id, C.Needs); const at = game.movement.tileOf(id);
+            if (n === undefined || at < 0 || n.thirst < 95 || game.tick < 102000) continue;
+            let liquid = 0; let frozen = 0;
+            for (let y = Math.max(0, m.yOf(at) - 32); y <= Math.min(m.h - 1, m.yOf(at) + 32); y += 1) {
+              for (let x = Math.max(0, m.xOf(at) - 32); x <= Math.min(m.w - 1, m.xOf(at) + 32); x += 1) {
+                for (let z = Math.max(0, m.zOf(at) - 8); z <= Math.min(m.d - 1, m.zOf(at) + 8); z += 1) {
+                  const t = m.index(x, y, z);
+                  if (m.fluidLevelAt(t) < 1 || m.fluidTypeAt(t) !== FluidType.Water) continue;
+                  if (m.fluidFrozenAt(t)) frozen += 1; else liquid += 1;
+                }
+              }
+            }
+            console.log(`T-398 freeze: tick ${game.tick} day ${Math.floor(game.tick / 1200) + 1} dwarf ${id} at ${m.xOf(at)},${m.yOf(at)},${m.zOf(at)} thirst ${Math.round(n.thirst)} liquid ${liquid} frozen ${frozen}`);
+            throw new Stop();
+          }
+        } });
+    } catch (error) { if (!(error instanceof Stop)) throw error; }
+  }, 900_000);
+});
