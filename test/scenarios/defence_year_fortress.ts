@@ -5,9 +5,9 @@
  * it (its opening, its economy, its airlock gate and its answer to threats: three_years_fortress.ts),
  * with a defence a player adds by command on top of it: a mechanic's workshop, a kill corridor
  * before the gate's north door with a cage, a weapon and a stone-fall trap, a drawbridge at its
- * mouth on a lever inside, and the squad trained in a barracks and an archery range, which sallies
- * through the north door on raiders the corridor has brought to it. No item is spawned and no
- * terrain is edited.
+ * mouth on a lever in the hearth hall, raised from a raid's warning until the raid is gone, and the
+ * squad trained in a barracks and an archery range, which sallies through the north door on
+ * hostiles the corridor has brought to it. No item is spawned and no terrain is edited.
  */
 
 import { TICKS_PER_DAY } from '@core/constants';
@@ -64,6 +64,8 @@ export interface DefenceYearState {
   linkOrdered: boolean;
   /** The trial pulls after the link: raised, then lowered again. */
   trial: 'none' | 'raising' | 'lowering' | 'done';
+  /** The bridge state a pull has been ordered for and not yet reached ('' when none is pending). */
+  pulledFor: '' | 'raised' | 'lowered';
   trapModeSet: boolean;
   readonly notes: string[];
 }
@@ -88,21 +90,18 @@ function placeBridge(w: TestWorld, origin: number, orientation: number): number 
   return r.ok ? (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding : 0;
 }
 
-/** A floor tile on the halls' level near the foot of the gate stair, free for a lever. */
+/**
+ * A tile of the hearth hall, nearest the foot of the gate stair, free for a lever: the hall is
+ * where the civilians shelter under the alert, and 11 offers a sheltering civilian the pull of a
+ * lever inside its shelter only (10 § Behavior selection), so the bridge can be raised in a raid.
+ */
 function leverSite(w: TestWorld, state: DefenceYearState): number {
   const buildings = w.readers.of<BuildingsReader>('14');
   const { cx, cy } = state.fortress;
-  for (let r = 1; r <= 3; r += 1) {
-    for (let dy = -r; dy <= r; dy += 1) {
-      for (let dx = -r; dx <= r; dx += 1) {
-        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
-        const t = w.index(cx + 6 + dx, cy + 6 + dy, HALL_Z);
-        if (w.map.kindAt(t) !== TileKind.Floor || buildings.zoneAt(t) !== 0) continue;
-        if (buildings.ghost('lever', t, 0).reason === null) return t;
-      }
-    }
-  }
-  return -1;
+  const d = (t: number): number => Math.max(Math.abs(w.map.xOf(t) - cx - 6), Math.abs(w.map.yOf(t) - cy - 6));
+  const hall = state.fortress.hearthHallTiles.filter((t) => w.map.kindAt(t) === TileKind.Floor && buildings.at(t) === 0)
+    .sort((a, b) => d(a) - d(b) || a - b);
+  return hall.find((t) => buildings.ghost('lever', t, 0).reason === null) ?? -1;
 }
 
 /** Tiles on the halls' level, not in a zone, that a zone of this type may take, nearest the gate stair first. */
@@ -144,9 +143,19 @@ export function createDefenceYear(w: TestWorld, fortress: FortressState): Defenc
     wallIds: [], fortIds: [],
     cageTrapId: 0, weaponTrapId: 0, stoneFallTrapId: 0, drawbridgeId: 0, leverId: 0,
     archeryTargetId: 0, archeryRangeZoneId: 0, barracksZoneId: 0,
-    cleared: false, linkOrdered: false, trial: 'none', trapModeSet: false,
+    cleared: false, linkOrdered: false, trial: 'none', pulledFor: '', trapModeSet: false,
     notes: [],
   };
+}
+
+/** A raid or a siege is warned of (the fixture's warning, 18 § Schedule) or on the map. */
+function raidComing(w: TestWorld, state: DefenceYearState): boolean {
+  if (w.tick < (state.fortress.warnedUntil ?? -1)) return true;
+  const ent = w.game.world.entities;
+  return ent.with(C.Party).some((id) => {
+    const p = ent.get(id, C.Party);
+    return p !== undefined && p.state !== 'gone' && (p.purpose === 'raid' || p.purpose === 'siege');
+  });
 }
 
 /** The defence works, placed and ordered as their inputs and sites allow. */
@@ -195,7 +204,7 @@ export function checkDefenceWorks(w: TestWorld, state: DefenceYearState): void {
         if (state.drawbridgeId) break;
       }
     }
-    if (!state.leverId) {
+    if (!state.leverId && fortress.hearthHallSetup) {
       const site = leverSite(w, state);
       if (site >= 0) state.leverId = place(w, 'lever', site);
     }
@@ -216,6 +225,16 @@ export function checkDefenceWorks(w: TestWorld, state: DefenceYearState): void {
     if (state.trial === 'none') { command(w, { type: 'PullLever', leverId: state.leverId }); state.trial = 'raising'; }
     else if (state.trial === 'raising' && bridge === 'raised') { command(w, { type: 'PullLever', leverId: state.leverId }); state.trial = 'lowering'; }
     else if (state.trial === 'lowering' && bridge === 'lowered') { state.trial = 'done'; note(state, w, 'bridge trial done'); }
+  }
+  // After the trial the bridge is the gate: raised from a raid's warning until its party is gone.
+  if (linked && state.trial === 'done') {
+    const want = raidComing(w, state) ? 'raised' : 'lowered';
+    if (bridge === want) state.pulledFor = '';
+    else if (state.pulledFor !== want) {
+      command(w, { type: 'PullLever', leverId: state.leverId });
+      state.pulledFor = want;
+      note(state, w, `lever pulled: the bridge to be ${want}`);
+    }
   }
   // The link and the pulls go ahead of the mechanic's standing order, as a player raises a job that has waited.
   const jobs = w.readers.of<JobsReader>('11');
@@ -285,12 +304,11 @@ function squadArmed(w: TestWorld, squadId: number): boolean {
 }
 
 /**
- * During a raid: hostiles that have come up the corridor stand at the locked north door, over the
- * traps. The north door is then opened to the squad, which waits behind it on the gate stair and is
- * ordered to kill each of them; the door goes back to locking on the alert once the corridor is clear.
- *
- * The lever is not pulled under the alert: 11 offers a sheltering civilian patient care only, so no
- * dwarf would pull it (T-NEW-lever-under-hearth-alert). The bridge is raised and lowered in peace.
+ * Under the alert: hostiles that have come up the corridor (an ambush, which comes unannounced, so
+ * the bridge is down) stand at the locked north door, over the traps. The north door is then opened
+ * to the squad, which waits behind it on the gate stair and is ordered to kill each of them; the
+ * door goes back to locking on the alert once the corridor is clear. A raid is kept out by the
+ * bridge, raised from its warning (checkDefenceWorks).
  */
 export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
   const buildings = w.readers.of<BuildingsReader>('14');

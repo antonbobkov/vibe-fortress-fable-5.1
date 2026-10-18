@@ -20,10 +20,6 @@ const scenario: Scenario = {
   seed: 'defence-year',
   world: 'flat-test',
   timeoutMs: 1_200_000,
-  // The year-2 raid (day 116) stands at the locked north door for the rest of the run, cycling
-  // between approach and engage and never loitering or retreating (T-389's fault, here with a raid),
-  // and the hearth alert it holds up starves the fortress from day 146.
-  todo: 'T-389',
   run: () => {
     const soldiers = new Set<number>();
     const soldierKills: { killer: number; victim: string }[] = [];
@@ -64,8 +60,8 @@ const scenario: Scenario = {
 
     // The works, all built by command.
     expect(built(state.fortress.placedIds['mechanic'] ?? 0), 'the mechanic\'s workshop').toBe(true);
-    expect(state.wallIds.every(built) && state.wallIds.length === 3, 'the corridor walls').toBe(true);
-    expect(state.fortIds.every(built) && state.fortIds.length === 3, 'the corridor fortifications').toBe(true);
+    expect(state.wallIds.length === state.wallTiles.length && state.wallIds.every(built), 'the corridor walls').toBe(true);
+    expect(state.fortIds.length === state.fortTiles.length && state.fortIds.every(built), 'the corridor fortifications').toBe(true);
     for (const id of [state.cageTrapId, state.weaponTrapId, state.stoneFallTrapId, state.drawbridgeId, state.leverId, state.archeryTargetId]) {
       expect(built(id), `building ${buildings.get(id)?.typeId ?? id}`).toBe(true);
     }
