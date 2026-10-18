@@ -1,4 +1,4 @@
-# T-NEW — Dwarves with no drink die of hunger or thirst on the way to a distant bank, sheltering or not
+# T-398 — Dwarves with no drink die of hunger or thirst on the way to a distant bank, sheltering or not
 
 **Source:** T-360, [the brook measurement](../../reports/audits/2026-10-18-brook-drinking-under-wildlife.md) § The deaths that are not about water, [data](../../reports/data/2026-10-18-brook-drinking.json) · **Size:** M · **Needs:** — · **Status:** open
 

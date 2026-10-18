@@ -13,6 +13,7 @@ import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, Wor
 import type { Registry } from '@core/registry';
 import type { EntityId, Priority, TileIndex } from '@core/types';
 import { ADULT_AGE_YEARS, THREAT_RADIUS } from '@systems/dwarves/constants';
+import { shelterArea } from '@systems/dwarves/shelter';
 import { AMMO_FETCH } from '@systems/foraging/constants';
 import { choose, effectivePriority, estDistance, type Candidate } from './assign';
 import {
@@ -938,11 +939,27 @@ export class JobBoard implements JobsApi, JobSink {
     return Array.from(this.jobs.values()).some((job) => job.workerId !== 0 && job.data['animal'] === creatureId && this.typeId(job) === 'hunt');
   }
 
-  /** Under a `hearth` alert a sheltering civilian takes patient-care jobs only. */
+  /** Under a `hearth` alert a sheltering civilian takes patient-care jobs and the pulls of levers inside its shelter only. */
   private shelteredFrom(job: Job, workerId: EntityId): boolean {
     if (!this.readers.has('16')) return false;
     const combat = this.readers.of<{ alert(): string; onDuty(id: EntityId): boolean }>('16');
-    return combat.alert() === 'hearth' && !combat.onDuty(workerId) && !this.isPatientCare(job);
+    return combat.alert() === 'hearth' && !combat.onDuty(workerId) && !this.isShelterWork(job, workerId);
+  }
+
+  /**
+   * The jobs a sheltering civilian works under a `hearth` alert (10 § Behavior selection, 11 § The
+   * alert): patient care, and a `pull_lever` job whose lever stands inside the civilian's shelter:
+   * the area 10 shelters it in around its retreat tile (19 `retreatTile`), read by the same helper.
+   */
+  isShelterWork(job: Job, workerId: EntityId): boolean {
+    if (this.isPatientCare(job)) return true;
+    if (this.typeId(job) !== 'pull_lever' || !this.readers.has('19')) return false;
+    const shelter = this.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(workerId);
+    const map = this.world.map;
+    const lever = this.anchorTile(job);
+    if (shelter < 0 || !map.validIndex(lever)) return false;
+    const inside = shelterArea(map, this.readers, shelter);
+    return inside(lever) || map.neighbors(lever).some((t) => map.zOf(t) === map.zOf(lever) && inside(t));
   }
 
   private eligible(job: Job, workerId: EntityId): boolean {

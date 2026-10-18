@@ -1,4 +1,4 @@
-# T-NEW — A fire kills most of a taiga fortress on a map with a brook at the wagon
+# T-397 — A fire kills most of a taiga fortress on a map with a brook at the wagon
 
 **Source:** T-360, [the brook measurement](../../reports/audits/2026-10-18-brook-drinking-under-wildlife.md) § The deaths that are not about water, [data](../../reports/data/2026-10-18-brook-drinking.json) · **Size:** M · **Needs:** — · **Status:** open
 

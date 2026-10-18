@@ -1,5 +1,7 @@
 # T-394 — The hauling pass over a returned `noHome` set costs a quarter of a second with 25,000 loose items
 
+**Closed:** 2026-10-18, in 2771fe0.
+
 **Source:** T-390 (2026-10-18), measured on the reference fortress with its 25,000 items loose, on a quiet machine, after the re-equip pass of 16 stopped scanning every item per slot: the worst tick of a 2,000-tick run fell from 0.72 to 0.79 s to 0.23 to 0.26 s, and what is left is one tick in system 13 (tick 269,632 of the fixture; 86 ms at tick 269,502) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
