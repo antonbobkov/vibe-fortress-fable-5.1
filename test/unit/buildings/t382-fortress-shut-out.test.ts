@@ -61,6 +61,20 @@ describe('T-382 every dwarf outside a gate that the alert locks', () => {
     expect(shutOut(w)).toHaveLength(0);
   });
 
+  it('is not announced when every dwarf is in an open courtyard inside the walls', () => {
+    const { w, door, dwarves } = gate('t382-courtyard');
+    // Outdoor tiles, but on the hearth's side of the gate, in the same region as the door's inner tile.
+    for (const id of dwarves) {
+      const tile = w.index(30 + (id % 8), 10, Z);
+      expect(w.map.hasFlag(tile, TileFlag.Outdoor)).toBe(true);
+      expect(w.game.movement.teleport(id, tile)).toBe(true);
+    }
+    expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' }).ok).toBe(true);
+    w.step(ALERT_LOCK_GRACE_TICKS + 60);
+    expect(w.readers.of<BuildingsReader>('14').mechanismState(door)).toBe('locked');
+    expect(shutOut(w)).toHaveLength(0);
+  });
+
   it('is a danger line that names the doors', () => {
     const { w } = gate('t382-line');
     expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' }).ok).toBe(true);

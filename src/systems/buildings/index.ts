@@ -128,6 +128,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       creaturesAt: (i) => readers.entities.at(i).filter((id) => world.entities.kind(id) === 'creature'),
       itemsAt: (i) => readers.entities.at(i).filter((id) => world.entities.has(id, C.Item) && world.entities.has(id, C.Position)),
       walkable: (i) => readers.pathing.passable(i, 'walker'),
+      regionOf: (i) => readers.pathing.labelOf(i, 'walker'),
       dwarvesAlive: () => world.entities.with(C.Labors).some((id) => world.entities.get(id, C.Creature)?.faction === 'fortress'),
       alert: () => world.fortress.alert,
       tick: () => world.calendar.tick,

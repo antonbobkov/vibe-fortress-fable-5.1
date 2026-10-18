@@ -97,6 +97,8 @@ export interface BuildHost {
   tick(): number;
   /** 04's `waterBelow(i, maxDepth)` (-1 for none), or null without a fluid system (T-M3-05, D-094). */
   waterBelow?(i: TileIndex, maxDepth: number): number | null;
+  /** The walker region (connectivity label) of a tile, 0 when nobody can stand there. */
+  regionOf?(i: TileIndex): number;
 }
 
 export function buildKey(id: EntityId): string {
@@ -1107,32 +1109,6 @@ export class BuildingStore {
       for (const t of b.footprint) this.map.markChunkDirty(t, true, true);
       this.host.emit({ type: 'BuildingStateChanged', id, state: locked ? 'locked' : 'open' });
     }
-    if (isHearth) this.noteShutOut();
-  }
-
-  /**
-   * 14 § Doors and hatches: a `lock_on_alert` door that locks while every living fortress dwarf stands outdoors shuts
-   * the fortress out of its own gate. Said once per alert, in a line that names the locked doors.
-   */
-  private noteShutOut(): void {
-    const doors = this.all().filter((id) => {
-      const b = this.get(id) as Building;
-      return b.mode === 'lock_on_alert' && b.state === 'built' && b.settings['alertLocked'] === true;
-    });
-    const first = doors[0];
-    if (first === undefined || doors.some((id) => (this.get(id) as Building).settings['shutOutNoted'] === true)) return;
-    const entities = this.host.entities;
-    let dwarves = 0;
-    for (const id of entities.with(C.Labors)) {
-      if (entities.get(id, C.Creature)?.faction !== 'fortress') continue;
-      const p = entities.get(id, C.Position);
-      if (p === undefined) continue;
-      dwarves += 1;
-      if (!this.map.hasFlag(this.map.index(p.x, p.y, p.z), TileFlag.Outdoor)) return;
-    }
-    if (dwarves === 0) return;
-    for (const id of doors) this.write(id, { settings: { ...(this.get(id) as Building).settings, shutOutNoted: true } });
-    this.host.emit({ type: 'FortressShutOut', id: first, doors, tile: (this.get(first) as Building).origin });
   }
 
   /**
@@ -1158,6 +1134,7 @@ export class BuildingStore {
   /** A hearth door stays open while civilians pass, up to ALERT_LOCK_GRACE_TICKS. */
   tickAlertDoors(): void {
     if (this.host.alert() !== 'hearth') return;
+    let locking = false;
     for (const id of this.all()) {
       const b = this.get(id) as Building;
       if (b.mode !== 'lock_on_alert' || b.state !== 'built' || b.settings['alertLocked'] === true) continue;
@@ -1169,9 +1146,70 @@ export class BuildingStore {
         this.write(id, { settings: { ...updated.settings, alertLocked: true } });
         for (const tile of b.footprint) this.map.markChunkDirty(tile, true, true);
         this.host.emit({ type: 'BuildingStateChanged', id, state: 'locked' });
-        this.noteShutOut();
+        locking = true;
       }
     }
+    // The connectivity labels take a lock into account at the end of its tick: judge the next time.
+    if (!locking) this.noteShutOut();
+  }
+
+  /**
+   * 14 § Doors and hatches: the fortress is shut out of its own gate when the alert has locked `lock_on_alert` doors and no
+   * living fortress dwarf is in the walker region (connectivity label, the doors as they stand) of the inner side of
+   * any of them. Said once per alert, in a line that names the locked doors. It runs on each buildings tick of a hearth
+   * alert while a door is locked and unannounced: a pass over the doors and the fortress dwarves.
+   */
+  private noteShutOut(): void {
+    const regionOf = this.host.regionOf;
+    if (regionOf === undefined) return;
+    const doors = this.all().filter((id) => {
+      const b = this.get(id) as Building;
+      return b.mode === 'lock_on_alert' && b.state === 'built' && b.settings['alertLocked'] === true;
+    });
+    const first = doors[0];
+    if (first === undefined || doors.some((id) => (this.get(id) as Building).settings['shutOutNoted'] === true)) return;
+    const inner = new Set<number>();
+    for (const id of doors) for (const tile of this.innerTiles(this.get(id) as Building)) {
+      const label = regionOf(tile);
+      if (label !== 0) inner.add(label);
+    }
+    if (inner.size === 0) return;
+    const entities = this.host.entities;
+    let dwarves = 0;
+    for (const id of entities.with(C.Labors)) {
+      if (entities.get(id, C.Creature)?.faction !== 'fortress') continue;
+      const p = entities.get(id, C.Position);
+      if (p === undefined) continue;
+      dwarves += 1;
+      const label = regionOf(this.map.index(p.x, p.y, p.z));
+      // A dwarf in a region with an inner side, or on a tile with no region (a doorway), is not shut out.
+      if (label === 0 || inner.has(label)) return;
+    }
+    if (dwarves === 0) return;
+    for (const id of doors) this.write(id, { settings: { ...(this.get(id) as Building).settings, shutOutNoted: true } });
+    this.host.emit({ type: 'FortressShutOut', id: first, doors, tile: (this.get(first) as Building).origin });
+  }
+
+  /** The passable tiles on the side of a door that the hearth is on (else the indoor side), one step along its passage. */
+  private innerTiles(door: Building): TileIndex[] {
+    const map = this.map;
+    const tile = door.origin;
+    const wall = (dx: number, dy: number): boolean => {
+      const next = map.offset(tile, dx, dy, 0);
+      return next >= 0 && map.kindAt(next) === TileKind.Wall;
+    };
+    const axis: 'x' | 'y' | null = wall(-1, 0) && wall(1, 0) ? 'y' : wall(0, -1) && wall(0, 1) ? 'x' : null;
+    if (axis === null) return [];
+    const sides = (axis === 'x' ? [[-1, 0], [1, 0]] : [[0, -1], [0, 1]]) as [number, number][];
+    const next = sides.map(([dx, dy]) => map.offset(tile, dx as number, dy as number, 0)).filter((t) => t >= 0 && this.host.walkable(t));
+    const hearth = this.get(this.hearthId);
+    if (hearth !== undefined) {
+      const at = axis === 'x' ? map.xOf(tile) : map.yOf(tile);
+      const home = axis === 'x' ? map.xOf(hearth.origin) : map.yOf(hearth.origin);
+      if (home !== at) return next.filter((t) => ((axis === 'x' ? map.xOf(t) : map.yOf(t)) - at) * (home - at) > 0);
+    }
+    const indoors = next.filter((t) => !map.hasFlag(t, TileFlag.Outdoor));
+    return indoors.length === next.length ? [] : indoors;
   }
 
   /** An inner airlock door's outside is the corridor side away from the hearth, even indoors. */
