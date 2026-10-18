@@ -33,6 +33,7 @@ import { makeCombatReader, type CombatReader } from './reader';
 import {
   createSquad,
   disbandSquad,
+  dropOrdersOf,
   renameSquad,
   setSquadEquipment,
   setSquadLeader,
@@ -125,6 +126,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       if (kind === 'item' && ctx.world.entities.has(id, C.Item)) {
         clearDestroyedEquipment(ctx.world.entities, id);
       }
+      if (kind === 'creature') dropOrdersOf(ctx.world.entities, id);
     });
     this.world = ctx.world;
     this.initCtx = ctx;

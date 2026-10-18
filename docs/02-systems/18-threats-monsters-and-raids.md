@@ -70,7 +70,7 @@ Party state: `approach → engage → loiter → retreat → gone`, evaluated ev
 
 An animal picked up as loot stops walking and leaves the position and spatial indexes while held; the party saves the animal-to-member carrier mapping. Only that member can take it off the map. If the carrier dies on the map, the animal remains alive and returns to the death tile, with its spatial entry restored and its loot/carrier records cleared.
 
-Only the departing holder emits an item or animal loot escape; an empty member cannot report another member's held item. Living unconscious members are casualties that trigger retreat, not a wiped ending. Compute the final outcome from actual loot escapes before any other retreat reason; held loot that never escapes does not qualify. Spotting a thief already retreating preserves its original retreat deadline. Spotting a thief after pickup preserves its looted retreat; spotting before pickup yields an empty-handed withdrawal.
+Only the departing holder emits an item or animal loot escape; an empty member cannot report another member's held item. Living unconscious members are casualties that trigger retreat, not a wiped ending. Compute the final outcome from actual loot escapes before any other retreat reason; held loot that never escapes does not qualify. Spotting a thief already retreating preserves its original retreat deadline. Spotting a thief after pickup preserves its looted retreat; spotting before pickup yields an empty-handed withdrawal. Loot that is destroyed while a member holds it (a meal that rots, an item that burns or melts) leaves the party's `loot` in the same tick as the destruction; it is neither an escape nor a reason for the outcome to be `looted`.
 
 ### Stealth
 
