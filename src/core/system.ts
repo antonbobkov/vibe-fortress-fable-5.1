@@ -97,10 +97,10 @@ export interface MovementApi {
   /** The target of a mover's current walk, or -1. */
   walkTarget(id: EntityId): TileIndex;
   /**
-   * Whether the walk that last returned `unreachable` for this mover gave up because creatures kept standing on its
-   * next tile (a doorway), and not because it found no route.
+   * The tile creatures kept standing on when the walk that last returned `unreachable` for this mover gave up (a
+   * doorway), or -1 when it gave up for want of a route.
    */
-  walkBlockedByCreatures(id: EntityId): boolean;
+  walkBlockedTile(id: EntityId): TileIndex;
 }
 
 /**

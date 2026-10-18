@@ -45,7 +45,8 @@ describe('T-385 a doorway that creatures keep blocked does not strand a job', ()
     }
     const id = (job as { id: number }).id;
     expect(w.events('JobBlocked').filter((e) => e['jobId'] === id && e['reason'] === 'unreachable').length).toBeGreaterThanOrEqual(1);
-    expect(w.events('JobUnblocked').filter((e) => e['jobId'] === id).length).toBeGreaterThanOrEqual(1);
+    // It waits for the doorway to clear (the retry loop of every interval is T-388's).
+    expect(board.jobs.get(id)?.data['crowdedTile']).toBe(doorTile);
     expect(w.pathing.reader().reachable(w.index(40, 24, Z), w.index(40, 16, Z), 'walker')).toBe(true);
     expect(w.game.movement.teleport(guard, w.index(36, 24, Z))).toBe(true);
     w.until((v) => v.events('JobCompleted').some((e) => e['jobId'] === id), 1500);

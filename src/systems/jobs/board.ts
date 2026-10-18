@@ -480,13 +480,16 @@ export class JobBoard implements JobsApi, JobSink {
 
   /**
    * `unclaim(job, reason)`: release undelivered inputs, free the worker, block. A walk that found no route
-   * (`reason` unreachable) waits for a reachability trigger; one that creatures kept blocking (`crowded`) does not.
+   * (`reason` unreachable) waits for a reachability trigger; one that creatures kept blocking (`crowdedTile` is the
+   * tile they stood on, or -1) does not, and its retry waits until no creature stands on that tile.
    */
-  unclaim(job: Job, reason: string, crowded = false): void {
+  unclaim(job: Job, reason: string, crowdedTile: TileIndex = -1): void {
     this.releaseReservations(job, true);
     this.freeWorker(job, true);
-    if (reason === 'unreachable' && !crowded) job.failedWalk = true;
+    if (reason === 'unreachable' && crowdedTile < 0) job.failedWalk = true;
     else delete job.failedWalk;
+    if (reason === 'unreachable' && crowdedTile >= 0) job.data['crowdedTile'] = crowdedTile;
+    else delete job.data['crowdedTile'];
     this.block(job, reason);
   }
 
@@ -528,6 +531,11 @@ export class JobBoard implements JobsApi, JobSink {
         job.retryTick = this.now + BLOCKED_RETRY_TICKS;
         continue;
       }
+      const crowded = job.data['crowdedTile'];
+      if (reason === 'unreachable' && typeof crowded === 'number' && this.crowdedAt(crowded)) {
+        job.retryTick = this.now + BLOCKED_RETRY_TICKS;
+        continue;
+      }
       if (reason === 'no_worker' || reason === 'unreachable') {
         const still = this.openProblem(job);
         if (still !== null) {
@@ -543,10 +551,18 @@ export class JobBoard implements JobsApi, JobSink {
         }
       }
       job.state = 'open';
+      delete job.data['crowdedTile'];
       this.invalidateWorkAvailability();
       job.blockedReason = null;
       this.notify(job, { type: 'JobUnblocked', jobId: job.id, jobType: this.typeId(job), target: job.target.ref });
     }
+  }
+
+  /** Whether a creature stands on the tile (a doorway that held a worker's walk up). */
+  private crowdedAt(tile: TileIndex): boolean {
+    const entities = this.readers.entities;
+    for (const id of entities.at(tile)) if (entities.kind(id) === 'creature') return true;
+    return false;
   }
 
   private inputsAvailable(job: Job): boolean {
