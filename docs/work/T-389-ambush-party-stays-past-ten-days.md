@@ -22,3 +22,9 @@ Two seeds of the peril-2 sweep stop on it, each with a Gloam ambush that has nei
 ## Done
 
 - `p2-6` and `p2-1` pass their daily checks past the ticks above, or this file records why the party stays.
+
+## Findings
+
+- 2026-10-18, `three-years-p2-6` (reproduced at the same tick, 213,600): the Gloam ambush arrives on day 168 at the north edge and finds no dwarf outdoors, so its goal is the hearth (35, 7, 26), which the connectivity labels join to it. Its leader's walk fails at once: the mover does not open the gate door (`opensDoors` is read at the top of the creature row, the content has it under `flags`; new row `T-NEW-hostiles-never-open-doors.md`). So it loiters where it stands. Each `TilesChanged` of the miners then cleared `walkUnreachable` and, with the hearth label-reachable, sent the party back to `approach` with a new `stateSince` (`src/systems/threats/index.ts:483-496`); the walk failed again within two ticks and the loiter restarted, every 50 to 700 ticks for the rest of the run. Fixed: a party whose own walk failed is not sent back by a terrain change, and a broken door clears the failed walk (18 § Loiter).
+- `three-years-p2-1`: at this commit it no longer reaches the finding before the fix (its day-281 party does not come in that form; the run has two parties after day 270, both gone within two days). With the fix, both seeds play the three years with no invariant finding.
+- The caged leader of `defence_year` (the predecessor's commit) is a second cause, with traps.
