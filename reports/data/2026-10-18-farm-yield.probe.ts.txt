@@ -1,0 +1,149 @@
+/**
+ * T-364: farm yield. One farmer, one 16-tile plot, no other food source and no wild animals, over two years
+ * (224 days) of the flat test map: plants harvested per tile per day by season, seeds per harvest, the days a
+ * tile stood without a crop, the time from sowing to harvest and the farmer's activity.
+ */
+import { it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { FLAT_TEST_SURFACE_Z } from '@app/headless';
+import { C } from '@core/components';
+import { DAYS_PER_SEASON, TICKS_PER_DAY } from '@core/constants';
+import type { ItemsReader } from '@systems/items';
+import type { PlantsReader } from '@systems/plants';
+import { rect } from '../scenarios/m1-helpers';
+import { TestWorld } from '../scenarios/test-world';
+
+const out = process.env['FARM_OUT'] ?? '.vite/farm-yield';
+const YEARS = 2;
+const DAYS = YEARS * 4 * DAYS_PER_SEASON;
+const SAMPLE = 10;
+
+interface Plan {
+  name: string;
+  level: 'cave' | 'surface';
+  /** The crop of each season (spring, summer, autumn, winter); '' for none. */
+  crops: [string, string, string, string];
+  tiles: number;
+  seeds: number;
+  skill: number;
+}
+
+const PLANS: Plan[] = [
+  { name: 'cave-dimcap', level: 'cave', crops: ['dimcap', 'dimcap', 'dimcap', 'dimcap'], tiles: 16, seeds: 40, skill: 0 },
+  { name: 'cave-dimcap-seeds-16', level: 'cave', crops: ['dimcap', 'dimcap', 'dimcap', 'dimcap'], tiles: 16, seeds: 16, skill: 0 },
+  { name: 'cave-dimcap-seeds-4', level: 'cave', crops: ['dimcap', 'dimcap', 'dimcap', 'dimcap'], tiles: 16, seeds: 4, skill: 0 },
+  { name: 'cave-cavewheat', level: 'cave', crops: ['cavewheat', 'cavewheat', 'cavewheat', 'cavewheat'], tiles: 16, seeds: 40, skill: 0 },
+  { name: 'surface-turnip', level: 'surface', crops: ['turnip', 'turnip', 'turnip', ''], tiles: 16, seeds: 40, skill: 0 },
+  { name: 'surface-barley', level: 'surface', crops: ['barley', 'barley', '', ''], tiles: 16, seeds: 40, skill: 0 },
+  { name: 'surface-cabbage', level: 'surface', crops: ['cabbage', '', 'cabbage', ''], tiles: 16, seeds: 40, skill: 0 },
+];
+
+function play(plan: Plan): Record<string, unknown> {
+  const w = new TestWorld({ seed: `t364-${plan.name}`, world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+  const z = plan.level === 'cave' ? FLAT_TEST_SURFACE_Z - 2 : FLAT_TEST_SURFACE_Z;
+  if (plan.level === 'cave') w.digRoom(10, 10, z, 8, 8);
+  const side = Math.sqrt(plan.tiles);
+  const plot = rect(w, 11, 11, z, side, side);
+  const zoneId = w.zone('farm_plot', plot);
+  const farmer = w.spawnDwarf({ at: w.index(10, 10, z), skills: { farming: plan.skill } });
+  for (let k = 0; k < 4; k += 1) {
+    w.spawnItem('drink', 'ale', w.index(10, 12 + k, z), 100);
+    w.spawnItem('easy_meal', 'dimcap', w.index(11, 17, z), 100);
+  }
+  const crops = [...new Set(plan.crops.filter((c) => c !== ''))];
+  for (const crop of crops) w.spawnItem('seed', crop, w.index(16, 16, z), plan.seeds);
+  plan.crops.forEach((crop, season) => {
+    w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId, season, speciesId: crop === '' ? 0 : crop });
+  });
+  const items = w.readers.of<ItemsReader>('13');
+  const plants = w.readers.of<PlantsReader>('07');
+  const world = w.game.world;
+  const planted: { tick: number; tile: number; species: string }[] = [];
+  const harvested: { tick: number; tile: number; species: string; count: number }[] = [];
+  const died: { tick: number; tile: number; species: string; reason: string }[] = [];
+  const needsSeeds: { tick: number; species: string }[] = [];
+  const deaths: { day: number; cause: string }[] = [];
+  world.onEvents((batch) => {
+    for (const e of batch) {
+      const tick = w.game.tick;
+      if (e.type === 'CropPlanted') planted.push({ tick, tile: Number(e['tile']), species: String(e['species']) });
+      else if (e.type === 'CropHarvested') harvested.push({ tick, tile: Number(e['tile']), species: String(e['species']), count: Number(e['count']) });
+      else if (e.type === 'CropDied') died.push({ tick, tile: Number(e['tile']), species: String(e['species']), reason: String(e['reason']) });
+      else if (e.type === 'CreatureDied') deaths.push({ day: Math.floor(tick / TICKS_PER_DAY) + 1, cause: String(e['cause']) });
+      else if (e.type === 'PlotNeedsSeeds') needsSeeds.push({ tick, species: String(e['species']) });
+    }
+  });
+  const seedsAtStart = items.count('seed');
+  const filled = new Array<number>(DAYS / (DAYS_PER_SEASON) | 0).fill(0);
+  const samples = new Array<number>(filled.length).fill(0);
+  const activity: Record<string, number> = {};
+  const totalTicks = DAYS * TICKS_PER_DAY;
+  let nextSupply = 0;
+  while (w.tick < totalTicks) {
+    w.step(SAMPLE);
+    // The farmer lives on a supply that is topped up every 14 days, so that no other food source is needed and meals do not rot away.
+    if (w.tick >= nextSupply) {
+      nextSupply = w.tick + 14 * TICKS_PER_DAY;
+      w.spawnItem('drink', 'ale', w.index(10, 12, z), 20);
+      w.spawnItem('easy_meal', 'dimcap', w.index(11, 17, z), 20);
+    }
+    const season = Math.min(filled.length - 1, Math.floor(w.tick / TICKS_PER_DAY / DAYS_PER_SEASON));
+    samples[season] = (samples[season] ?? 0) + 1;
+    filled[season] = (filled[season] ?? 0) + plot.filter((t) => plants.cropAt(t) !== 0).length;
+    const brain = world.entities.get(farmer, C.Brain);
+    const key = brain === undefined ? 'dead' : `${brain.behavior}:${brain.activity}`;
+    activity[key] = (activity[key] ?? 0) + 1;
+  }
+  const seasonOf = (tick: number): number => Math.floor(tick / TICKS_PER_DAY / DAYS_PER_SEASON);
+  const bySeason = filled.map((_, s) => {
+    const h = harvested.filter((x) => seasonOf(x.tick) === s);
+    const p = planted.filter((x) => seasonOf(x.tick) === s);
+    const plantsOut = h.reduce((a, x) => a + x.count, 0);
+    return {
+      season: s,
+      year: Math.floor(s / 4) + 1,
+      seasonName: ['spring', 'summer', 'autumn', 'winter'][s % 4],
+      harvests: h.length,
+      plants: plantsOut,
+      plantsPerTilePerDay: plantsOut / plan.tiles / DAYS_PER_SEASON,
+      sown: p.length,
+      died: died.filter((x) => seasonOf(x.tick) === s).length,
+      tileFillFraction: (filled[s] ?? 0) / Math.max(1, samples[s] ?? 1) / plan.tiles,
+    };
+  });
+  // The time from sowing to harvest of each crop, in days.
+  const cycles: number[] = [];
+  const open = new Map<number, number>();
+  for (const e of [...planted.map((x) => ({ ...x, kind: 'p' })), ...harvested.map((x) => ({ ...x, kind: 'h' }))].sort((a, b) => a.tick - b.tick || (a.kind === 'h' ? -1 : 1))) {
+    if (e.kind === 'p') open.set(e.tile, e.tick);
+    else if (open.has(e.tile)) {
+      cycles.push((e.tick - (open.get(e.tile) as number)) / TICKS_PER_DAY);
+      open.delete(e.tile);
+    }
+  }
+  const seedsAtEnd = items.count('seed');
+  const totalHarvests = harvested.length;
+  const years = [1, 2].map((y) => {
+    const rows = bySeason.filter((b) => b.year === y);
+    const plantsY = rows.reduce((a, b) => a + b.plants, 0);
+    return { year: y, plants: plantsY, plantsPerTilePerDay: plantsY / plan.tiles / (4 * DAYS_PER_SEASON) };
+  });
+  return {
+    plan, days: DAYS, bySeason, years, harvests: totalHarvests, sown: planted.length, seedsAtStart, seedsAtEnd,
+    seedsPerHarvest: totalHarvests === 0 ? null : (seedsAtEnd + planted.length - seedsAtStart) / totalHarvests,
+    plantsPerHarvest: totalHarvests === 0 ? null : harvested.reduce((a, x) => a + x.count, 0) / totalHarvests,
+    cycleDays: { n: cycles.length, min: Math.min(...cycles), median: cycles.slice().sort((a, b) => a - b)[Math.floor(cycles.length / 2)], max: Math.max(...cycles) },
+    needsSeeds: needsSeeds.length, needsSeedsAt: needsSeeds.map((x) => Math.floor(x.tick / TICKS_PER_DAY) + 1),
+    farmer: Object.fromEntries(Object.entries(activity).sort((a, b) => b[1] - a[1]).map(([k, v]) => [k, Number((v / (totalTicks / SAMPLE)).toFixed(4))])),
+    farmerAlive: world.entities.has(farmer, C.Brain), deaths,
+    plantLog: planted.map((x) => [Number(((x.tick) / TICKS_PER_DAY).toFixed(2)), x.tile]),
+    harvestLog: harvested.map((x) => [Number(((x.tick) / TICKS_PER_DAY).toFixed(2)), x.tile, x.count]),
+  };
+}
+
+it.each(PLANS)('T-364 farm yield: $name', (plan) => {
+  const row = play(plan);
+  mkdirSync(out, { recursive: true });
+  writeFileSync(`${out}/${plan.name}.json`, JSON.stringify(row, null, 2) + '\n');
+  console.log(`T-364 farm: ${JSON.stringify(row)}`);
+}, 900_000);

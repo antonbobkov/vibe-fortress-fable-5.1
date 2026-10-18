@@ -43,13 +43,13 @@ Work takes 37% (28% at jobs, 10% hauling) and almost none of the rest is idle. I
 | Source | Output | Notes |
 |---|---|---|
 | 1 raw ingredient at the kitchen | 2 meal units (easy: 2 in → 4 out) | so 9.6 meals need 4.8 raw units a day |
-| 1 farm tile (dimcap) | 4 plants per 16 days = 0.25 per day | plus 1 seed per harvest, so seeds are never a bottleneck; yield and seeds *unmeasured* |
+| 1 farm tile (dimcap) | 4 plants per 16 days = 0.25 per day | plus 1 seed per harvest. Measured ([farm yield](../../reports/audits/2026-10-18-farm-yield.md)): 0.247 a day at farming skill 0 to 4 and 0.32 from skill 5, cavewheat 0.21, a turnip tile 0.13 over a year. Seeds do not multiply, so a plot is never short of seed when it has as many seeds as tiles, and stays as small as its seeds when it has fewer |
 | 1 deer | 3 meat (size 40 / 12) + hide + bones | a hunter with a crossbow takes one deer per 1–2 days (*unmeasured*) |
 | 1 fishing tile on a river | about 0.4 fish per day at skill 5 (35% + 15% success per 200-tick attempt, regenerating pool) | a fisher feeds 4 dwarves (*unmeasured*) |
 | 1 cow | milk every 4 days → 3 milk → 2 cheese | *unmeasured* |
 | 4 chickens with a nest box | an egg every 3 days each: 1.3 per day | *unmeasured* |
 
-Twenty dwarves eat 4.8 raw units a day: a 20-tile cave plot (5 per day) or a 14-tile plot with a hunter and a fisher (*unmeasured*). Cooking multiplies value: a lavish meal from four cheap ingredients (value 4) is worth 60 marks; a cook is the first wealth engine. Meals rot in 14 days, in a barrel in a food stockpile in 56, so a season's stock is safe.
+Twenty dwarves eat 4.8 raw units a day: a 20-tile cave plot (4.9 per day, measured) or a 14-tile plot with a hunter and a fisher (*unmeasured*). Cooking multiplies value: a lavish meal from four cheap ingredients (value 4) is worth 60 marks; a cook is the first wealth engine. Meals rot in 14 days, in a barrel in a food stockpile in 56, so a season's stock is safe.
 
 ## Drink chain
 
