@@ -1,6 +1,8 @@
 # T-385 — A workshop craft job stays blocked as unreachable for over a day while a worker reaches its work tile (peril-2 sweep seeds)
 
-**Source:** the peril-2/4 sweep of 2026-10-17 at `3b75d98`, [data](../../reports/data/2026-10-17-t381-peril-2-4-sweep.json); the invariant is `job.unreachable-with-path` (T-331 check 2) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-18, in 27dbe3b.
+
+**Source:** the peril-2/4 sweep of 2026-10-17 at `3b75d98`, [data](../../../reports/data/2026-10-17-t381-peril-2-4-sweep.json); the invariant is `job.unreachable-with-path` (T-331 check 2) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

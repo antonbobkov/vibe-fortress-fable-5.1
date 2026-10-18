@@ -1,6 +1,8 @@
 # T-386 — A wild animal stands on a floor tile that its movement class cannot pass (sweep seeds)
 
-**Source:** the peril-2/4 sweep of 2026-10-17 at `3b75d98`, [data](../../reports/data/2026-10-17-t381-peril-2-4-sweep.json); the invariant is `creature.on-impassable` · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-18, in 6223587.
+
+**Source:** the peril-2/4 sweep of 2026-10-17 at `3b75d98`, [data](../../../reports/data/2026-10-17-t381-peril-2-4-sweep.json); the invariant is `creature.on-impassable` · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

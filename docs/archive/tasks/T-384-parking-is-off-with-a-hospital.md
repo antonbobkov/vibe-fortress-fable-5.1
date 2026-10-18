@@ -1,5 +1,7 @@
 # T-384 — Waiting items are not parked in a fortress with a hospital
 
+**Closed:** 2026-10-18, in 8760044.
+
 **Source:** the review of T-344 (2026-10-17) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
