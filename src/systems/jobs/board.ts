@@ -478,11 +478,14 @@ export class JobBoard implements JobsApi, JobSink {
     this.notify(job, { type: 'JobBlocked', jobId: job.id, jobType: this.typeId(job), reason, target: job.target.ref });
   }
 
-  /** `unclaim(job, reason)`: release undelivered inputs, free the worker, block. */
-  unclaim(job: Job, reason: string): void {
+  /**
+   * `unclaim(job, reason)`: release undelivered inputs, free the worker, block. A walk that found no route
+   * (`reason` unreachable) waits for a reachability trigger; one that creatures kept blocking (`crowded`) does not.
+   */
+  unclaim(job: Job, reason: string, crowded = false): void {
     this.releaseReservations(job, true);
     this.freeWorker(job, true);
-    if (reason === 'unreachable') job.failedWalk = true;
+    if (reason === 'unreachable' && !crowded) job.failedWalk = true;
     else delete job.failedWalk;
     this.block(job, reason);
   }

@@ -60,6 +60,8 @@ export class MovementHelper implements MovementApi {
    * The walks in progress, by mover. Saved with 22's requests (D-081).
    */
   private readonly walks = new Map<EntityId, Walk>();
+  /** Movers whose last step was refused because creatures stood on the next tile for more than `REPATH_LIMIT` waits (derived, never saved). */
+  private readonly crowded = new Set<EntityId>();
 
   constructor(map: Map3D, entities: EntityStore, spatial: SpatialIndex, pathing: PathingCore) {
     this.map = map;
@@ -169,7 +171,10 @@ export class MovementHelper implements MovementApi {
    */
   walkTo(id: EntityId, target: TileIndex, urgency: PathUrgency, ctx: MovementContext): WalkOutcome {
     const at = this.tileOf(id);
-    if (at < 0) return 'unreachable';
+    if (at < 0) {
+      this.crowded.delete(id);
+      return 'unreachable';
+    }
     if (at === target) {
       this.stopWalking(id);
       return 'arrived';
@@ -177,6 +182,7 @@ export class MovementHelper implements MovementApi {
     let walk = this.walks.get(id);
     if (walk === undefined || walk.target !== target) {
       this.stopWalking(id);
+      this.crowded.delete(id);
       walk = { target, request: this.request(id, at, target, urgency), following: false, attempts: 0 };
       this.walks.set(id, walk);
       return 'pending';
@@ -186,6 +192,7 @@ export class MovementHelper implements MovementApi {
       if (result.state === 'pending') return 'pending';
       if (result.state === 'failed') {
         this.stopWalking(id);
+        this.crowded.delete(id);
         return 'unreachable';
       }
       this.follow(id, walk.request);
@@ -216,6 +223,10 @@ export class MovementHelper implements MovementApi {
     this.pathing.pathfinder.release(walk.request);
     this.walks.delete(id);
     this.clearPath(id);
+  }
+
+  walkBlockedByCreatures(id: EntityId): boolean {
+    return this.crowded.has(id);
   }
 
   /** The target of a mover's current walk, or -1. */
@@ -251,6 +262,7 @@ export class MovementHelper implements MovementApi {
     if (motion === undefined) return 'idle';
     const m: Motion = { ...motion };
     if (m.pathId === 0) return 'idle';
+    if (this.crowded.size > 0) this.crowded.delete(id);
     const path = this.pathing.pathfinder.path(m.pathId);
     if (path === null) {
       this.write(id, { ...m, pathId: 0, stepIndex: 0, progress: 0 });
@@ -275,7 +287,10 @@ export class MovementHelper implements MovementApi {
       if (this.blockedByCreature(next, id)) {
         m.repathCount += 1;
         m.waitUntil = ctx.tick + REPATH_WAIT_TICKS;
-        if (m.repathCount > REPATH_LIMIT) return this.blocked(id, m);
+        if (m.repathCount > REPATH_LIMIT) {
+          this.crowded.add(id);
+          return this.blocked(id, m);
+        }
         this.write(id, m);
         return 'moving';
       }
