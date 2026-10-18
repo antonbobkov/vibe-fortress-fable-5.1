@@ -9,6 +9,8 @@ After T-383 the worst ticks of the loose-items fortress are of two kinds, found 
 1. **16 combat handles `ItemCreated` with `reequipAllSquads`** (`src/systems/combat/index.ts`, `handle`), once per tick in which any item was created: 700 to 800 ms a tick with 26,000 items, on about one tick in a hundred. Nothing about a created item needs every squad to look through all the stock again; the same pass runs every `REEQUIP_CHECK_DAYS` and when a squad's members change.
 2. **13 items takes 150 to 340 ms on about one tick in thirty** in the same stretch (ticks 269,532 to 269,640 of the fixture). Not diagnosed: haul planning after T-344 and T-384 should be quiet with items that nobody hauls, so it is a pass that visits the loose items (the wants set, the `noHome` set, `StockpileFull` handling, or the container requests).
 
+On a quiet machine (nothing else running, 2,000 ticks of the committed fixture) the figures are: average tick 11.4 ms, system 11 1.5 ms, system 13 1.1 ms, system 16 0.4 ms, worst tick 0.87 s.
+
 ## What to do
 
 - For 1: decide what an `ItemCreated` must trigger (a weapon or armor row for a squad's preferences, only for the squads that miss that slot) and make the handler do that, with the same equipment as before; show it by the squads' equipment hashes.
