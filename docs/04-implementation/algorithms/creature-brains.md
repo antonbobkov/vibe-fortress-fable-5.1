@@ -37,7 +37,7 @@ select(id):
        if jobs.holdsShelterWork(id) or (able to work and not day off and jobs.hasUrgent(id, PRIORITY_MAX)):   // under the alert 11 offers a sheltering civilian patient-care jobs and pulls of levers inside its shelter only
          jobs.assign(id) unless it holds the job; b.behavior = 'work'; return   // back to 'retreat' when the job ends; a retreating dwarf looks for such a job every tick
        b.behavior = 'retreat'; goal = target; return          // otherwise continue; flee has precedence
-                                                                // shelterArea(target): the hearth hall when target is one of its tiles, else the non-outdoor tiles around target reached without passing a door
+                                                                // shelterArea(target): the hearth hall when target is one of its tiles, else the non-outdoor tiles around target reached along walker edges without passing a door, hatch, floodgate or drawbridge
   if health.isPatient(id) and (civ or not hostileInSight(id)):  b.behavior = 'patient'; goal = bedTile(id) or stay; return   // a soldier on duty fights on while a hostile is in sight
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
