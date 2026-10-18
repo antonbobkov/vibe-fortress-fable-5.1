@@ -92,6 +92,12 @@ export class Hauling {
 
   // ---------- the wants set ----------
 
+  /** An item leaves the wants set: what it waited for is forgotten with it. */
+  private leaveWants(id: EntityId): void {
+    sortedRemove(this.wants, id);
+    this.parked.delete(id);
+  }
+
   /** After a load every waiting item is looked at again. */
   forgetParked(): void {
     this.parked.clear();
@@ -103,7 +109,7 @@ export class Hauling {
   onChange(id: EntityId, change: ItemChange): void {
     this.parked.delete(id);
     if (change === 'destroyed') {
-      sortedRemove(this.wants, id);
+      this.leaveWants(id);
       sortedRemove(this.noHome, id);
       // A stack merged away by its own delivery is not a lost target.
       if (id !== this.completing) this.cancelFor(id);
@@ -178,7 +184,7 @@ export class Hauling {
     if (this.wantsHauling(id)) {
       if (!sortedHas(this.noHome, id)) sortedInsert(this.wants, id);
     } else {
-      sortedRemove(this.wants, id);
+      this.leaveWants(id);
       sortedRemove(this.noHome, id);
       this.cancelFor(id, true);
     }
@@ -348,8 +354,9 @@ export class Hauling {
     }
     let created = this.requestContainers();
     const jobs = this.host.jobs();
-    // A hospital's chests and supply limits give a waiting item other ways out: nothing waits then.
-    const parking = !this.host.store.hasHospital();
+    // A hospital takes an item into a chest, which no container count or room tells: a waiting item is looked at
+    // again when a hospital would take it.
+    const hospitals = this.host.store.hospitals();
     // What the waiting items are compared with; read again after any item has been dealt with.
     let epoch = this.epoch();
     let roomKey = this.roomKey(epoch);
@@ -363,7 +370,8 @@ export class Hauling {
       }
       const waiting = this.parked.get(id);
       if (waiting !== undefined) {
-        if (parking && waiting.epoch === epoch && waiting.needs > this.freeRoom(waiting.cls, roomKey)) continue;
+        if (waiting.epoch === epoch && waiting.needs > this.freeRoom(waiting.cls, roomKey) &&
+          !(hospitals.length > 0 && this.host.store.hospitalHasSlot(hospitals, id))) continue;
         this.parked.delete(id);
       }
       worked = true;
@@ -372,7 +380,7 @@ export class Hauling {
       // a dwarf is about to drink) waits in the set until they are taken or released.
       if (this.contentsBusy(id)) continue;
       if (!this.wantsHauling(id)) {
-        sortedRemove(this.wants, id);
+        this.leaveWants(id);
         continue;
       }
       const it = this.core.item(id);
@@ -382,11 +390,11 @@ export class Hauling {
       }
       const best = this.bestFor(id);
       if (best === 'wait') {
-        if (parking) this.park(id);
+        this.park(id);
         continue;
       }
       if (best === null || best === 'full') {
-        sortedRemove(this.wants, id);
+        this.leaveWants(id);
         sortedInsert(this.noHome, id);
         // A container with no tile to go to: its goods may still go by their stack.
         for (const inner of this.core.container(id)?.contents ?? []) this.examine(inner);
@@ -473,7 +481,7 @@ export class Hauling {
       if (best === null || d < best.d) best = { tile: first, d };
     }
     if (best === null) {
-      sortedRemove(this.wants, id);
+      this.leaveWants(id);
       sortedInsert(this.noHome, id);
       return false;
     }
