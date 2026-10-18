@@ -153,16 +153,16 @@ function walksToHospital(ctx: TickContext, id: EntityId): boolean {
 }
 
 /**
- * Medical work under a `hearth` alert (step 2): a sheltering civilian that holds a job for a
- * patient keeps working it, and one that could claim such a job (the only jobs 11 offers it under
- * the alert) asks for it. Returns whether the dwarf is on a patient-care job or waiting for one;
+ * Medical work and levers under a `hearth` alert (step 2): a sheltering civilian that holds a job
+ * for a patient or the pull of a lever inside its shelter keeps working it, and one that could claim
+ * such a job (the only jobs 11 offers it under the alert) asks for it. Returns whether the dwarf is on a patient-care job or waiting for one;
  * it is back in `retreat` when the job ends.
  */
 function patientCareUnderAlert(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): boolean {
   if (!host.hasJobs) return false;
   const jobs = ctx.readers.of<JobsReader>('11');
   if (jobIdOf(ctx, id) !== 0) {
-    if (!jobs.holdsPatientCare(id)) return false;
+    if (!jobs.holdsShelterWork(id)) return false;
     host.clearIdle(id);
     b.behavior = 'work';
     b.activity = host.jobName(id);
