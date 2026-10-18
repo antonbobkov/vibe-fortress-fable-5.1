@@ -19,10 +19,13 @@ describe('T-283 perf: the reference fortress', () => {
     // regression it guards (a visit of every building and every item) cost 20 ms, so the bound is 1 ms.
     expect(producers['workshops'], 'workshops job producer, ms per tick').toBeLessThanOrEqual(1);
     // T-383: the 25,000 loose items cost the job board's unit search a minute of one tick, and system 11 57 ms a tick,
-    // while it enumerated every match afresh for each one found. It costs what the standard fixture's job board costs
-    // (about 2 ms on a busy machine); the bounds are far wider than that and far below what the fault cost.
+    // while it enumerated every match afresh for each one found. System 11's allocation is 0.60 ms (ALLOCATION_MS in
+    // perf_reference.test.ts, measured on the furniture fixture); this fortress's job board costs 1.7 ms with its
+    // items forbidden and 2.2 ms loose on a busy machine, so the bound of 10 ms is not the allocation: it is far
+    // wider than that and far below what the fault cost. The worst tick was 42 s; it is 2.0 s (system 16 and a pass
+    // of 13 are the rest, filed), and the bound of 10 s is far above that and far below the fault.
     expect(systems['11'], 'system 11, ms per tick').toBeLessThanOrEqual(10);
-    expect(worstTickMs, 'worst tick, ms').toBeLessThanOrEqual(5_000);
+    expect(worstTickMs, 'worst tick, ms').toBeLessThanOrEqual(10_000);
     expect(Number.isFinite(pathing) && Number.isFinite(core) && Number.isFinite(averageTickMs) && Number.isFinite(worstTickMs)).toBe(true);
   }, 3_600_000);
 

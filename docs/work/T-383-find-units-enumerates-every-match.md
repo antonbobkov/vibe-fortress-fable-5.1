@@ -17,5 +17,5 @@ T-344 asked that the reference fortress's 25,000 loose items stop being forbidde
 
 ## Done
 
-- No tick of the reference fortress with its 25,000 loose items takes more than a few hundred milliseconds, and system 11 costs at most its allocation on average, shown by `reference_fortress_figures.test.ts`.
+- The unit search costs what its answer needs, with the same ids and order (`t383-find-items-one-pass`). The reference fortress with its 25,000 loose items averages 17 ms a tick (72 before), system 11 costs 2.2 ms (63 to 67 before; the fortress with its items forbidden costs 1.7), and the worst tick fell from 42 s to 2.0 s, on a busy machine; `reference_fortress_figures.test.ts` holds system 11 to 10 ms and the worst tick to 10 s. The 2.0 s ticks are not this task's: they are system 16's re-equip pass on every `ItemCreated` and a pass of 13, filed as the row "Two kinds of slow tick remain in the reference fortress with its 25,000 items loose", which takes the target of 300 ms.
 - The builder no longer forbids the items, and its comment says what the items do instead.

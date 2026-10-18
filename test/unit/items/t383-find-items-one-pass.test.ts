@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { FLAT_TEST_SURFACE_Z as Z } from '@app/headless';
 import { ItemFlag } from '@core/components';
 import { TileKind } from '@core/map3d';
+import type { EntityId } from '@core/types';
 import type { ItemFilter, ItemsReader } from '@systems/items';
 import { TestWorld } from '../../scenarios/test-world';
 
@@ -55,6 +56,26 @@ describe('T-383 findItems in one pass', () => {
         expect(all.length).toBeGreaterThan(20);
         expect(reader.findItems(filter, Number.MAX_SAFE_INTEGER, from)).toEqual(all);
         for (const count of [1, 2, 5, 40]) expect(reader.findItems(filter, count, from)).toEqual(all.slice(0, count));
+      }
+    }
+  });
+
+  it('reaches the contents of the wagon through the stock index, as findItem does one at a time', () => {
+    const w = new TestWorld({ seed: 't383-wagon', world: 'flat-test', embark: 'default', surfaceWildlife: 'none' });
+    const reader = w.readers.of<ItemsReader>('13');
+    const wagon = w.readers.of<{ wagon(): EntityId }>('14').wagon();
+    const inside = reader.inContainer(wagon);
+    expect(inside.length).toBeGreaterThan(0);
+    const types = [...new Set(inside.map((id) => reader.get(id)?.type ?? 0))];
+    // Loose items of the same types lie on the ground too, so the radius search and the stock index both answer.
+    for (const type of types) w.spawnItem(type, reader.get(inside.find((id) => reader.get(id)?.type === type) as EntityId)?.material ?? 0, w.index(30, 30, Z));
+    w.step(1);
+    for (const from of [w.index(30, 30, Z), w.index(5, 90, Z), w.index(48, 48, Z)]) {
+      for (const type of types) {
+        const all = oneByOne(reader, { type }, Number.MAX_SAFE_INTEGER, from);
+        expect(all.some((id) => inside.includes(id)), `type ${type} from ${from}: a wagon item is found`).toBe(true);
+        expect(reader.findItems({ type }, Number.MAX_SAFE_INTEGER, from)).toEqual(all);
+        for (const count of [1, 2, 3]) expect(reader.findItems({ type }, count, from)).toEqual(all.slice(0, count));
       }
     }
   });
