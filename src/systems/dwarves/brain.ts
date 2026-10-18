@@ -507,7 +507,8 @@ function fleeFire(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): bo
   if (!ctx.readers.has('05') || movement === null) return false;
   const here = movement.tileOf(id);
   if (here < 0) return false;
-  const fleeing = b.behavior === 'flee' && b.activity === FIRE_FLEE_ACTIVITY;
+  // A `flee` with no threat held is a flight from fire: a flight from a hostile ends when its threat does.
+  const fleeing = b.behavior === 'flee' && host.threatOf(id) === 0;
   const danger = fireDanger(ctx, here);
   if (fleeing) {
     if (!danger && (b.targetTile < 0 || here === b.targetTile)) {

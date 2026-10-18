@@ -29,8 +29,9 @@ export function fireDanger(ctx: TickContext, tile: TileIndex): boolean {
 
 /**
  * The nearest tile the dwarf reaches that is not burning and cannot burn, by legal steps (burning
- * tiles block movement), breadth first within `FIRE_FLEE_NODE_LIMIT` tiles, ties by tile index;
- * -1 when the search finds none.
+ * tiles block movement), breadth first within `FIRE_FLEE_NODE_LIMIT` tiles, ties by tile index.
+ * With none in reach, the nearest tile in no fire danger (`fireDanger`), though it can burn; -1
+ * when the search finds neither.
  */
 export function findFireRefuge(ctx: TickContext, id: EntityId, from: TileIndex): TileIndex {
   const materials = ctx.readers.of<MaterialsReader>('05');
@@ -39,12 +40,16 @@ export function findFireRefuge(ctx: TickContext, id: EntityId, from: TileIndex):
   let frontier = [from];
   const seen = new Set([from]);
   let visited = 0;
+  let fallback = -1;
   while (frontier.length > 0 && visited < FIRE_FLEE_NODE_LIMIT) {
     const next: TileIndex[] = [];
     for (const tile of frontier) {
       if (visited >= FIRE_FLEE_NODE_LIMIT) break;
       visited += 1;
-      if (tile !== from && !ctx.world.map.hasFlag(tile, TileFlag.Burning) && !materials.burnableTile(tile)) return tile;
+      if (tile !== from && !ctx.world.map.hasFlag(tile, TileFlag.Burning)) {
+        if (!materials.burnableTile(tile)) return tile;
+        if (fallback < 0 && !fireDanger(ctx, tile)) fallback = tile;
+      }
       for (const [to] of ctx.readers.pathing.edges(tile, 'walker', mover)) {
         if (seen.has(to)) continue;
         seen.add(to);
@@ -53,5 +58,5 @@ export function findFireRefuge(ctx: TickContext, id: EntityId, from: TileIndex):
     }
     frontier = next.sort((a, b) => a - b);
   }
-  return -1;
+  return fallback;
 }

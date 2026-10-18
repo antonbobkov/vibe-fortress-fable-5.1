@@ -36,8 +36,6 @@ const Z = FLAT_TEST_SURFACE_Z;
 /** How long the raiders fight before the guards kill them (4 hours of game time). */
 const RAID_TICKS = 200;
 
-/** Ticks soldier3 must have stood on its tile before the fire is lit. */
-
 /** The scout's outpost lies this far east of the wagon, away from where idle dwarves gather. */
 const OUTPOST_DX = 20;
 
