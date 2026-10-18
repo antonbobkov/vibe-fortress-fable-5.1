@@ -29,6 +29,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-382 | [The game says when a hearth alert has locked every dwarf outside its gate](work/T-382-alert-locks-everyone-outside.md) | T-363 | — | open |
 | T-383 | [A craft job's unit search enumerates every matching item, one search at a time](work/T-383-find-units-enumerates-every-match.md) | T-344 and its review | — | open |
 | T-387 | [Peril-2 fortresses of the economy fixture die out in year 2](work/T-387-peril-2-fortresses-die-out.md) | the peril-2/4 sweep of 2026-10-17 | — | open |
-| T-388 | [A doorway that stays crowded sends workers on a retry loop](work/T-388-crowded-doorway-retry-loop.md) | the review of T-385 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
