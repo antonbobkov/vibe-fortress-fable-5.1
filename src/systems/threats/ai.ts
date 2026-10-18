@@ -382,7 +382,7 @@ export function banditPartyLootStockpile(P: Party, ctx: TickContext): void {
   const entities = ctx.world.entities;
 
   const alive = P.members.filter((m) => {
-    if (!entities.alive(m)) return false;
+    if (!inParty(entities, m)) return false;
     const body = entities.get(m, C.Body);
     if (body !== undefined && !body.conscious) return false;
     return true;
@@ -456,6 +456,14 @@ export function releaseStolenAnimals(carrier: EntityId, tile: TileIndex, P: Part
 }
 
 /** Final outcomes reflect escaped loot, not a planned retreat or a held item. */
+/**
+ * A member still in its party: alive and not caught in a cage (19). A caged member has left the
+ * map: it counts toward the casualties, cannot lead, and is never walked off or despawned.
+ */
+function inParty(entities: TickContext['world']['entities'], m: EntityId): boolean {
+  return entities.alive(m) && (entities.get(m, C.Creature)?.cagedIn ?? 0) === 0;
+}
+
 function finalPartyOutcome(P: Party): string {
   if ((P.escapedLootCount ?? 0) > 0) return 'looted';
   if ((P.despawnedCount ?? 0) === 0) return 'wiped';
@@ -501,7 +509,7 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
   entities.destroy(m);
   P.despawnedCount = (P.despawnedCount ?? 0) + 1;
 
-  const remainingAlive = P.members.filter((id) => entities.alive(id));
+  const remainingAlive = P.members.filter((id) => inParty(entities, id));
   if (remainingAlive.length === 0) {
     P.state = 'gone';
     P.stateSince = ctx.tick;
@@ -778,7 +786,7 @@ export function chooseGoal(P: Party, ctx: TickContext): void {
 
 /** Unconscious casualties are still living members; only actual deaths can wipe a party. */
 function retreatSurvivors(P: Party, ctx: TickContext): boolean {
-  if (!P.members.some((id) => ctx.world.entities.alive(id))) return false;
+  if (!P.members.some((id) => inParty(ctx.world.entities, id))) return false;
   if (P.purpose !== 'restless' && P.state !== 'retreat') {
     P.state = 'retreat';
     P.stateSince = ctx.tick;
@@ -791,7 +799,7 @@ export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickConte
   if (P.state === 'retreat' || P.state === 'gone' || P.purpose === 'restless') return;
   const entities = ctx.world.entities;
   const alive = P.members.filter((m) => {
-    if (!entities.alive(m)) return false;
+    if (!inParty(entities, m)) return false;
     const body = entities.get(m, C.Body);
     if (body !== undefined && !body.conscious) return false;
     return true;
@@ -820,7 +828,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
   if (P.state === 'gone') return;
   if (P.state !== 'approach') delete P.goalIdleSince;
   if (P.state === 'retreat' && ctx.tick - P.stateSince >= RETREAT_GIVE_UP_DAYS * TICKS_PER_DAY) {
-    const remaining = P.members.filter((m) => entities.alive(m));
+    const remaining = P.members.filter((m) => inParty(entities, m));
     if (remaining.length > 0) {
       for (const m of remaining) despawnMember(m, partyId, P, ctx);
       return;
@@ -828,7 +836,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
   }
 
   const alive = P.members.filter((m) => {
-    if (!entities.alive(m)) return false;
+    if (!inParty(entities, m)) return false;
     const body = entities.get(m, C.Body);
     if (body !== undefined && !body.conscious) return false;
     return true;
