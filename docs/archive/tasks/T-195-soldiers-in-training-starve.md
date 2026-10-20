@@ -1,6 +1,6 @@
 # T-195 — A squad left in `train` mode starves
 
-**Source:** T-151, the defence-year scenario (Gemini, 2026-10-10); see the Progress section of [`T-151-defence-year-scenario.md`](../../work/T-151-defence-year-scenario.md) · **Size:** M · **Needs:** — · **Status:** closed
+**Source:** T-151, the defence-year scenario (Gemini, 2026-10-10); see the Progress section of [`T-151-defence-year-scenario.md`](T-151-defence-year-scenario.md) · **Size:** M · **Needs:** — · **Status:** closed
 
 ## What was seen
 
