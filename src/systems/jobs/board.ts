@@ -489,16 +489,27 @@ export class JobBoard implements JobsApi, JobSink {
   /**
    * `unclaim(job, reason)`: release undelivered inputs, free the worker, block. A walk that found no route
    * (`reason` unreachable) waits for a reachability trigger; one that creatures kept blocking (`crowdedTile` is the
-   * tile they stood on, or -1) does not, and its retry waits until no creature stands on that tile.
+   * tile they stood on, or -1) does not, and its retry waits until no creature stands on that tile. A walk
+   * that failed to reach `walkedTo` while the labels no longer connect the worker to it did not fail
+   * despite connected labels (a door locked on its way): it retries on the timer.
    */
-  unclaim(job: Job, reason: string, crowdedTile: TileIndex = -1): void {
+  unclaim(job: Job, reason: string, crowdedTile: TileIndex = -1, walkedTo: TileIndex = -1): void {
+    const worker = job.workerId;
     this.releaseReservations(job, true);
     this.freeWorker(job, true);
-    if (reason === 'unreachable' && crowdedTile < 0) job.failedWalk = true;
+    if (reason === 'unreachable' && crowdedTile < 0 && !this.labelsApart(worker, walkedTo)) job.failedWalk = true;
     else delete job.failedWalk;
     if (reason === 'unreachable' && crowdedTile >= 0) job.data['crowdedTile'] = crowdedTile;
     else delete job.data['crowdedTile'];
     this.block(job, reason);
+  }
+
+  /** Whether the labels now keep a worker from a tile its walk was bound for. */
+  private labelsApart(workerId: EntityId, tile: TileIndex): boolean {
+    const from = this.workerTile(workerId);
+    if (tile < 0 || from < 0 || !this.world.map.validIndex(tile)) return false;
+    const pathing = this.readers.pathing;
+    return pathing.labelOf(from, 'walker') !== pathing.labelOf(tile, 'walker');
   }
 
   /** A trigger fired: blocked jobs with this reason (and, for tiles, in a changed chunk) retry now. */

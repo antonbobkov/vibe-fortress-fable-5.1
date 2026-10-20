@@ -1,6 +1,8 @@
 # T-401 — A water_patient job stays blocked with a path (p4-1)
 
-**Source:** T-400's after-sweep, 2026-10-18 at `6af2414` ([audit](../../reports/audits/2026-10-18-hostiles-open-doors.md)) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-20, in ba93799.
+
+**Source:** T-400's after-sweep, 2026-10-18 at `6af2414` ([audit](../../../reports/audits/2026-10-18-hostiles-open-doors.md)) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
