@@ -19,7 +19,7 @@ import { hourOf } from '@core/calendar';
 import { ADULT_AGE_YEARS, CIVILIAN_COMBAT_TIMEOUT_TICKS, CIVILIAN_FLEE_NODE_LIMIT, IDLE_TICKS, LEISURE_MARK, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
 import { Activities } from './activities';
-import { FIRE_FLEE_ACTIVITY, findFireRefuge, fireDanger } from './fire';
+import { avoidsFire, burnsNear, FIRE_FLEE_ACTIVITY, findFireRefuge, fireDanger } from './fire';
 import { PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { HealthReader } from '@systems/health/reader';
@@ -161,11 +161,14 @@ function patientCareUnderAlert(host: BrainHost, ctx: TickContext, id: EntityId, 
 }
 
 /** Noncritical targets stay outside the remembered danger around `avoidTile`. */
-function safeTargetOf(ctx: TickContext, avoidTile: TileIndex): ((tile: TileIndex) => boolean) | undefined {
-  if (avoidTile < 0) return undefined;
+function safeTargetOf(ctx: TickContext, avoidTile: TileIndex, id: EntityId = 0): ((tile: TileIndex) => boolean) | undefined {
   const map = ctx.world.map;
+  // A dwarf that fled a fire lately starts no want near one (10 § Behavior selection, step 1).
+  const fire = id !== 0 && avoidsFire(ctx.world.entities.get(id, C.Brain)?.fireFlight, ctx.tick);
+  if (avoidTile < 0) return fire ? (tile: TileIndex): boolean => tile >= 0 && !burnsNear(map, tile) : undefined;
   return (tile: TileIndex): boolean => tile >= 0 && (map.zOf(tile) !== map.zOf(avoidTile) ||
-    Math.max(Math.abs(map.xOf(tile) - map.xOf(avoidTile)), Math.abs(map.yOf(tile) - map.yOf(avoidTile))) > THREAT_RADIUS);
+    Math.max(Math.abs(map.xOf(tile) - map.xOf(avoidTile)), Math.abs(map.yOf(tile) - map.yOf(avoidTile))) > THREAT_RADIUS) &&
+    (!fire || !burnsNear(map, tile));
 }
 
 /**
@@ -370,7 +373,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
       avoidTile = remembered;
     }
   }
-  const safeTarget = safeTargetOf(ctx, avoidTile);
+  const safeTarget = safeTargetOf(ctx, avoidTile, id);
 
   const alert = ctx.readers.has('16')
     ? ctx.readers.of<{ alert(): string }>('16').alert()
@@ -510,6 +513,7 @@ function fleeFire(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): bo
   // A `flee` with no threat held is a flight from fire: a flight from a hostile ends when its threat does.
   const fleeing = b.behavior === 'flee' && host.threatOf(id) === 0;
   const danger = fireDanger(ctx, here);
+  if (danger || fleeing) b.fireFlight = ctx.tick;
   if (fleeing) {
     if (!danger && (b.targetTile < 0 || here === b.targetTile)) {
       b.behavior = 'idle';
@@ -630,7 +634,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
       reselect = jobIdOf(ctx, id) === 0;
     } else if (!(host.hasJobs && ctx.jobs.isQueued(id))) {
       // 11 answered and had nothing for this dwarf.
-      leisureOrIdle(host, ctx, id, b, safeTargetOf(ctx, host.threatTile?.(id) ?? -1),
+      leisureOrIdle(host, ctx, id, b, safeTargetOf(ctx, host.threatTile?.(id) ?? -1, id),
         host.hasJobs && ctx.readers.of<JobsReader>('11').hasWork(id));
     }
   } else if (b.behavior === 'flee') {

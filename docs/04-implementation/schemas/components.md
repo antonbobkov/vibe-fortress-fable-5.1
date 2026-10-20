@@ -72,7 +72,8 @@ interface Relationships { friends: EntityId[]; grudges: { id: EntityId; untilTic
 interface Title { title: 'none' | 'thane' | 'warden' | 'broker' | 'chief_medic' } // caches first held role; 10's saved per-role holders are authoritative
 interface Brain { behavior: 'flee' | 'retreat' | 'patient' | 'need' | 'duty' | 'work' | 'social' | 'idle';
                   behaviorUntil: Tick /* idle wait or cornered civilian combat deadline */; targetTile: TileIndex; activity: string; lastMistTick: Tick;
-                  lastOutdoorThoughtHour: number; daysUnderground: number }
+                  lastOutdoorThoughtHour: number; daysUnderground: number;
+                  fireFlight?: Tick /* last tick in danger from fire or fleeing it; absent before the first flight and in older saves */ }
 interface Labors { enabled: Uint8Array /* bitset over labor indices */ }
 interface Worker { jobId: number; phase: number; carrying: EntityId; toolId: EntityId }
 interface ActiveThought { thought: Idx<ThoughtDef>; startTick: Tick; baseValue: number }

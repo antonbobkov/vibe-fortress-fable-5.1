@@ -13,6 +13,7 @@ import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, Wor
 import type { Registry } from '@core/registry';
 import type { EntityId, Priority, TileIndex } from '@core/types';
 import { ADULT_AGE_YEARS, THREAT_RADIUS } from '@systems/dwarves/constants';
+import { burnsNear } from '@systems/dwarves/fire';
 import { shelterArea } from '@systems/dwarves/shelter';
 import { AMMO_FETCH } from '@systems/foraging/constants';
 import { choose, effectivePriority, estDistance, type Candidate } from './assign';
@@ -1047,6 +1048,7 @@ export class JobBoard implements JobsApi, JobSink {
       const target = this.anchorTile(job);
       if (map.zOf(target) === map.zOf(threat) && Math.max(Math.abs(map.xOf(target) - map.xOf(threat)), Math.abs(map.yOf(target) - map.yOf(threat))) <= THREAT_RADIUS) return false;
     }
+    if (this.nearFire(job, workerId)) return false;
     const assigned = job.data['assignedWorker'];
     if (typeof assigned === 'number' && assigned !== 0 && assigned !== workerId) return false;
     const labor = this.jobLabor(job);
@@ -1055,6 +1057,12 @@ export class JobBoard implements JobsApi, JobSink {
     if (typeof minSkill === 'number' && this.skillFor(workerId, job) < minSkill) return false;
     if (this.toolHeldElsewhere(job, workerId, labor)) return false;
     return this.hasReachableStand(job, workerId);
+  }
+
+  /** A dwarf that fled a fire lately is offered no job whose tile lies within `FIRE_AVOID_RADIUS` of a burning tile (10 § Behavior selection, step 1). */
+  private nearFire(job: Job, workerId: EntityId): boolean {
+    if (!this.readers.has('10') || !this.readers.of<{ avoidsFire?(id: EntityId): boolean }>('10').avoidsFire?.(workerId)) return false;
+    return burnsNear(this.world.map, this.anchorTile(job));
   }
 
   private avoidedThreatTile(workerId: EntityId): TileIndex {

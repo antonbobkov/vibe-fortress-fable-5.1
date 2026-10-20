@@ -39,6 +39,10 @@ export const CIVILIAN_COMBAT_TIMEOUT_TICKS = 200;
 export const CIVILIAN_FLEE_NODE_LIMIT = 256;
 /** Maximum legal tile visits in the search of a dwarf running from a fire for ground that cannot burn. */
 export const FIRE_FLEE_NODE_LIMIT = 2048;
+/** Ticks after its last flight from a fire during which a dwarf takes no work and starts no want near a fire. */
+export const FIRE_AVOID_TICKS = 200;
+/** Tiles, horizontal Chebyshev on one level: how near a burning tile makes a job's tile or a need's target unfit for such a dwarf. */
+export const FIRE_AVOID_RADIUS = 3;
 export const FRIEND_TALKS = 5;
 export const GRUDGE_DAYS = 28;
 export const THANE_SOCIAL_BONUS = 20;
