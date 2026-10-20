@@ -1,6 +1,6 @@
 # Hostiles open doors: the peril-2 and peril-4 sweep and the defence year, before and after
 
-**Date:** 2026-10-18 · **Task:** T-400 (work file `T-NEW-hostiles-never-open-doors.md`) · **Before:** `06ba90b` (sim with master merged) · **After:** `6af2414` (the three movers read `flags.opensDoors`) · **Data:** [per seed](../data/2026-10-18-hostiles-open-doors.json)
+**Date:** 2026-10-18 · **Task:** T-400 (work file `T-400-hostiles-never-open-doors.md`) · **Before:** `06ba90b` (sim with master merged) · **After:** `6af2414` (the three movers read `flags.opensDoors`) · **Data:** [per seed](../data/2026-10-18-hostiles-open-doors.json)
 
 ## What was examined
 

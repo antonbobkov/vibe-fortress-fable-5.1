@@ -1,0 +1,62 @@
+/**
+ * T-397 diagnosis: the fire that burns dwarves on a map with a brook at the wagon. Logs, from T397_FROM (a day) on,
+ * every fire event with its tile and the weather, and each BurnDamage with the dwarf, its tile, activity and the tiles burning around it.
+ * T397_SEED, T397_BIOME, T397_BROOK (west | north), T397_FROM, T397_TO (days).
+ */
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TileFlag, TileKind } from '@core/map3d';
+import type { MaterialsReader } from '@systems/materials/reader';
+import type { WeatherReader } from '@systems/weather/reader';
+import { playWildlifeYear } from './wildlife_year_fixture';
+
+const seed = process.env['T397_SEED'] ?? 'wildlife-taiga-3';
+const biome = process.env['T397_BIOME'] ?? 'taiga';
+const brook = (process.env['T397_BROOK'] ?? 'west') as 'west' | 'north';
+const from = Number(process.env['T397_FROM'] ?? 36) * 1200;
+const to = Number(process.env['T397_TO'] ?? 44) * 1200;
+const out = process.env['T397_OUT'] ?? '.vite/t397.json';
+
+describe('T-397 fire probe', () => {
+  it(`${seed} ${brook}`, () => {
+    class Stop extends Error {}
+    const log: unknown[] = [];
+    let hooked = false;
+    try {
+      playWildlifeYear(seed, biome, { brook,
+        observe: (game) => {
+          const m = game.map;
+          const mat = game.world.readers.of<MaterialsReader>('05');
+          const weather = game.world.readers.of<WeatherReader>('06');
+          if (!hooked) {
+            hooked = true;
+            game.world.onEvents((batch) => {
+              if (game.tick < from) return;
+              for (const e of batch) {
+                if (e.type === 'LightningStrike' || e.type === 'FireStarted') log.push({ t: game.tick, e: e.type, x: m.xOf(Number(e['tile'])), y: m.yOf(Number(e['tile'])), z: m.zOf(Number(e['tile'])), w: weather.state(), kind: m.kindAt(Number(e['tile'])), outdoor: m.hasFlag(Number(e['tile']), TileFlag.Outdoor) });
+                else if (e.type === 'FireSpread') log.push({ t: game.tick, e: 'FireSpread', n: (e['tiles'] as number[]).length, w: weather.state() });
+                else if (e.type === 'FireOut') log.push({ t: game.tick, e: 'FireOut', n: (e['tiles'] as number[]).length });
+                else if (e.type === 'BurnDamage') {
+                  const id = Number(e['id']);
+                  const at = game.movement.tileOf(id);
+                  const brain = game.world.entities.get(id, C.Brain);
+                  log.push({ t: game.tick, e: 'BurnDamage', id, species: game.world.entities.get(id, C.Creature)?.species, x: at < 0 ? -1 : m.xOf(at), y: at < 0 ? -1 : m.yOf(at), z: at < 0 ? -1 : m.zOf(at), bh: brain?.behavior, act: brain?.activity, cons: (game.world.readers.of<{ isConscious(id: number): boolean }>('17')).isConscious(id) });
+                } else if (e.type === 'CreatureDied' && e['faction'] === 'fortress') log.push({ t: game.tick, e: 'Died', id: e['id'], cause: e['cause'] });
+              }
+            });
+          }
+          if (game.tick >= from && game.tick % 100 === 0) {
+            const burning = mat.burningTiles();
+            if (burning.length > 0) {
+              const xs = burning.map((t) => m.xOf(t)); const ys = burning.map((t) => m.yOf(t));
+              log.push({ t: game.tick, e: 'Burning', n: burning.length, x: [Math.min(...xs), Math.max(...xs)], y: [Math.min(...ys), Math.max(...ys)], z: [...new Set(burning.map((t) => m.zOf(t)))],
+                kinds: burning.reduce<Record<number, number>>((acc, t) => { acc[m.kindAt(t)] = (acc[m.kindAt(t)] ?? 0) + 1; return acc; }, {}), w: weather.state() });
+            }
+          }
+          if (game.tick >= to) { writeFileSync(out, JSON.stringify(log) + '\n'); throw new Stop(); }
+        } });
+    } catch (error) { if (!(error instanceof Stop)) throw error; }
+    void TileKind;
+  }, 900_000);
+});

@@ -8,8 +8,8 @@ This document is the cross-system arithmetic behind the tuning constants. It sta
 
 - One game day = 1,200 ticks = 60 real seconds at 1×. A season is 28 minutes, a year just under two hours.
 - A dwarf walks 0.15 tiles per tick, 180 tiles in a day: 7 seconds real time to cross 20 tiles, 32 seconds to cross the map. Every creature's speed is in [creatures.md](creatures.md); they keep the same ratios to the dwarf's.
-- A 3×3 room in granite (hardness 150) takes a novice miner 9 × 90 = 810 ticks (41 s); a Proficient miner (level 10) 9 × 50 = 450 ticks. A ten-tile corridor is a minute's work. These times are *unmeasured*.
-- A year-1 fortress digs about 400 tiles, builds 6 workshops, 10 bedrooms and a dining hall (*unmeasured*), and reaches 13 dwarves.
+- A 3×3 room in granite (hardness 150) takes a novice miner 9 × 90 = 810 ticks (41 s) of digging; a Proficient miner (level 10) 9 × 50 = 450 ticks. A ten-tile corridor is 900 ticks (45 s) at skill 0 and 500 at skill 10. Measured: the game's dig jobs take exactly these ticks, 92 and 51 a tile on average. A lone miner needs 3,411 ticks (skill 0) and 2,239 ticks (skill 10) from the designation to the ninth floor, because sleep, drink, food and talk take 40% of its time and the walk back to the face after each of them another 40% ([work pace](../../reports/audits/2026-10-18-work-pace.md)).
+- A year-1 fortress digs about 400 tiles, builds 6 workshops, 10 bedrooms and a dining hall, and reaches 13 dwarves. The economy fixture's first year does more: 541 tiles dug and 11 stairs, 368 tiles smoothed, 8 workshops, 15 bedrooms, a dining hall, a hearth hall and a hospital, 352 workshop jobs, and 23 dwarves at day 112 ([work pace](../../reports/audits/2026-10-18-work-pace.md)). Workers there are at skill 5 to 9 (mining 9) and mood leaves them 88% to 105% of base productivity.
 
 ## Needs and consumption
 
@@ -63,14 +63,14 @@ Twenty dwarves eat 4.8 raw units a day: a 20-tile cave plot (4.9 per day, measur
 
 ## Mining and metal
 
-| Step | Time (Adequate skill, level 4: factor 132%; *unmeasured*) |
+| Step | Time (Adequate skill, level 4: factor 132%; measured to the tick, [work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 |---|---|
-| Dig an ore tile (hardness 150) | 68 ticks |
-| Smelt 1 ore → 2 iron bars | 114 ticks |
-| Forge an axe (2 bars) | 167 ticks |
-| Forge a mail shirt (3 bars) | 265 ticks |
+| Dig an ore tile (hardness 150) | 68 ticks (69 measured) |
+| Smelt 1 ore → 2 iron bars | 114 ticks (114 measured) |
+| Forge an axe (2 bars) | 167 ticks (167 measured) |
+| Forge a mail shirt (3 bars) | 265 ticks (266 measured) |
 
-From a hematite vein of 25 tiles: 25 ore → 50 iron bars → enough for six full iron suits and six axes, at about 100 minutes of a single smith's work (*unmeasured*). Steel needs flux (limestone or marble, common) and one extra fuel per bar; deepsilver needs the Sea of Fire.
+From a hematite vein of 25 tiles: 25 ore → 50 iron bars → enough for six full iron suits and six axes, at about 9,000 ticks of a single smith's work at level 4 (25 smelts 2,850, six suits of five pieces 5,180, six axes 1,000): 7.5 days, 7.5 minutes of play at 1×. The inputs reach the workshop about 100 ticks after the order. Steel needs flux (limestone or marble, common) and one extra fuel per bar; deepsilver needs the Sea of Fire.
 
 ## Wealth curve
 

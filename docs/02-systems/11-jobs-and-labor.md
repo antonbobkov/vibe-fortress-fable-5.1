@@ -202,7 +202,7 @@ Panel `jobs` (open jobs with worker and reason; labor priorities; standing order
 | `ASSIGN_WORKERS_PER_TICK` | 8 | *unmeasured* |
 | `CANDIDATE_LIMIT` | 32 | *unmeasured* |
 | `Z_DISTANCE_WEIGHT` | 6 | Tiles of horizontal distance one z-level counts as (*unmeasured*) |
-| `SKILL_TIME_BONUS_PERCENT` | 8 | Shared with 03; defined there; referenced here (*unmeasured*) |
+| `SKILL_TIME_BONUS_PERCENT` | 8 | Shared with 03; defined there; referenced here (measured, see 03) |
 | `RESERVE_KEEP_TICKS` | 600 | Interrupted undelivered reservations; delivered build/workshop inputs remain with their job (*unmeasured*) |
 | `JOB_HOLD_TICKS` | 600 | A job held by a worker away from work this long goes back to the board (*unmeasured*) |
 | `JOB_HOLD_BACK_TICKS` | 100 | A worker back at work this long has ended its absence; a shorter return keeps the count of `JOB_HOLD_TICKS` (*unmeasured*) |

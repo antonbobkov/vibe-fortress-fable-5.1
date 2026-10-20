@@ -69,7 +69,7 @@ State: `burning: Map<TileIndex, { remainingTicks, spreadCooldown }>`; the `burni
 - **Burning.** All burning-flag changes happen in the materials tick and mark connectivity dirty. A tile that is no longer burnable goes out without ash. A plant tile whose material has no burn duration uses `PLANT_BURN_TICKS = 300`; wood keeps its own material duration. Each materials tick (every 10 ticks): `remainingTicks −= 10`. When it reaches 0: a tree becomes `floor` with `ash` (grass cleared); a sapling or shrub becomes `floor` with `ash`; a grass floor loses `grass` and gains `ash`; a wooden construction is removed through `terrain.setKind` as if deconstructed with no item returned (support re-check follows). `ash` blocks grass regrowth and planting for `ASH_DURATION_DAYS` (07 clears it).
 - **Spread.** Each materials tick, each burning tile with `spreadCooldown == 0` tries each cardinal neighbor and the tile above: if burnable and not burning, ignite with `FIRE_SPREAD_PERMILLE` (`FIRE_SPREAD_WET_PERMILLE` under rain). After trying, `spreadCooldown = FIRE_SPREAD_COOLDOWN`.
 - **Items.** Items on a burning tile whose material is burnable are destroyed after `ITEM_BURN_TICKS`; non-burnable items survive. Items *in containers* on a burning tile: the container burns if burnable, and then its contents follow the rule.
-- **Creatures.** A creature on a burning tile receives `BurnDamage { id, amount }` every materials tick (17 applies it as burn wounds to random parts). Creatures avoid burning tiles in pathfinding (22 reads the flag).
+- **Creatures.** A creature on a burning tile receives `BurnDamage { id, amount }` every materials tick (17 applies it as burn wounds to random parts). Creatures avoid burning tiles in pathfinding (22 reads the flag). Dwarves leave a burning tile, and burnable ground beside one, for ground that cannot burn (10 § Behavior selection); other creatures do not.
 - **Extinguish.** Rain (06 weather is `rain` or `storm`) gives each outdoor burning tile a `RAIN_EXTINGUISH_PERMILLE × MATERIALS_CADENCE` draw per materials tick to go out early with no ash. Water at level ≥ 1 on a burning tile puts it out immediately. Fire never burns underground except on wooden constructions and items, which spread only along other wooden constructions.
 
 Fire is meant to be a hazard of magma, lightning and carelessness, not a weapon system; there is no way for the player to start a fire deliberately in version 1 except by channeling magma to wood.
@@ -96,7 +96,7 @@ On `MagmaContact { entities }`, for each item: if `meltsAtOf[material] ≤ MAGMA
 - `materials.temperatureAt(i)`
 - `materials.surfaceTempC()` — the surface temperature this system is using (06's, or its own fallback when 06 is absent)
 - `materials.isWarmSpring(i)` — the tile is a warm spring
-- `materials.isBurning(i)`, `materials.burningTiles()`
+- `materials.isBurning(i)`, `materials.burningTiles()`, `materials.burnableTile(i)` — the tile can catch fire (§ Fire, burnable tiles)
 - `materials.propertyOf(materialIdx, property)` and the typed accessors `hardness(idx)`, `meltsAt(idx)`, `burnable(idx)`, `value(idx)`, `classOf(idx)`, `isMagmaSafe(idx)`
 - `materials.yieldsOf(oreIdx)`, `materials.alloyInputs(metalIdx)`
 

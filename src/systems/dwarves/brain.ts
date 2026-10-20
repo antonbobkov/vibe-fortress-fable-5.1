@@ -19,6 +19,7 @@ import { hourOf } from '@core/calendar';
 import { ADULT_AGE_YEARS, CIVILIAN_COMBAT_TIMEOUT_TICKS, CIVILIAN_FLEE_NODE_LIMIT, IDLE_TICKS, LEISURE_MARK, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
 import { Activities } from './activities';
+import { FIRE_FLEE_ACTIVITY, findFireRefuge, fireDanger } from './fire';
 import { PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { HealthReader } from '@systems/health/reader';
@@ -496,6 +497,51 @@ function ranked(n: Needs, critical: boolean): NeedName[] {
   });
 }
 
+/**
+ * `10` § Behavior selection step 1, fire: a dwarf that stands on a burning tile, or on burnable
+ * ground beside one, drops what it is doing and walks to the nearest ground that cannot burn; it
+ * selects again there. Returns whether the dwarf spent this tick on the flight.
+ */
+function fleeFire(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): boolean {
+  const movement = ctx.world.services.movement;
+  if (!ctx.readers.has('05') || movement === null) return false;
+  const here = movement.tileOf(id);
+  if (here < 0) return false;
+  // A `flee` with no threat held is a flight from fire: a flight from a hostile ends when its threat does.
+  const fleeing = b.behavior === 'flee' && host.threatOf(id) === 0;
+  const danger = fireDanger(ctx, here);
+  if (fleeing) {
+    if (!danger && (b.targetTile < 0 || here === b.targetTile)) {
+      b.behavior = 'idle';
+      b.activity = NO_JOB;
+      b.behaviorUntil = ctx.tick;
+      b.targetTile = here;
+      return false;
+    }
+    if (b.targetTile >= 0 && movement.walkTo(id, b.targetTile, 'flee', ctx) !== 'unreachable') return true;
+  } else if (!danger) return false;
+  const refuge = findFireRefuge(ctx, id, here);
+  if (refuge < 0) {
+    if (!fleeing) return false;
+    b.behavior = 'idle';
+    b.activity = NO_JOB;
+    b.behaviorUntil = ctx.tick;
+    b.targetTile = here;
+    return false;
+  }
+  if (!fleeing) {
+    host.activities.cancel(ctx, id);
+    host.setCombatTarget(id, 0);
+    if (host.hasJobs && jobIdOf(ctx, id) !== 0) ctx.jobs.interrupt(id, true);
+  }
+  movement.stopWalking(id);
+  b.behavior = 'flee';
+  b.activity = FIRE_FLEE_ACTIVITY;
+  b.targetTile = refuge;
+  movement.walkTo(id, refuge, 'flee', ctx);
+  return true;
+}
+
 /** `tickDwarf(id)` for the behaviors of M1. */
 export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void {
   const current = ctx.world.entities.get(id, C.Brain);
@@ -507,6 +553,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
   const b: Brain = { ...current };
   const movement = ctx.world.services.movement;
   const interrupted = host.takeInterrupt(id);
+  if (fleeFire(host, ctx, id, b)) { write(ctx, id, b); return; }
   // Alert/shelter changes interrupt even a running activity or job; flee still wins in select.
   if (interrupted && ctx.world.fortress.alert === 'hearth' && host.threatOf(id) === 0 &&
       (!ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id)) &&
