@@ -23,7 +23,7 @@ Replayed with a per-dwarf trace (behaviour, activity, needs, tile, target, every
 1. The leaving threshold is **not** changed. The cause it answers does not occur in the twelve seeds (no trip from a shelter was late), and a shelter more than about 40 tiles from the bank is not measured. A civilian under the alert still leaves for water at the critical threshold.
 2. The drink search looks `DRINK_SEARCH_RADIUS` = 64 tiles from the dwarf, not 32. 10 § Drink search and its constants table say so. A dwarf at the wagon now finds a bank 40 tiles away. A bank beyond 64 tiles is not searched for.
 3. A frozen brook gives no water; the rule stays and 10 § Drink search says what it means: a fortress needs drink in stock, brew, or a well on unfrozen water for the winter. A dry fortress on a brook in a taiga map dies of thirst on day 101 to 103; the player's answer is a still or a well (balance.md § Drink chain). Drinking from ice is a design change and is not made here.
-4. Hunger in a long shelter is the harness's alert policy (a hearth alert held for 57 days) meeting the rule that a sheltering civilian does no work; it is filed apart as [T-399-hearth-alert-starves-the-fortress](../../work/T-399-hearth-alert-starves-the-fortress.md).
+4. Hunger in a long shelter is the harness's alert policy (a hearth alert held for 57 days) meeting the rule that a sheltering civilian does no work; it is filed apart as [T-399-hearth-alert-starves-the-fortress](T-399-hearth-alert-starves-the-fortress.md).
 
 ## Done
 

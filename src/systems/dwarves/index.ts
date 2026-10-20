@@ -273,7 +273,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
               ctx.world.entities.get(id, C.Brain)?.behavior === 'need' && (holder === 0 || id < holder)) holder = id;
         }
         return holder;
-      });
+      }, () => ctx.world.calendar.tick);
     const jobTypes = ctx.registry.table<JobTypeRow>('jobTypes');
     this.host = {
       get hasJobs(): boolean {

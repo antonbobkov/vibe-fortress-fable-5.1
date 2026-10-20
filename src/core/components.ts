@@ -162,6 +162,8 @@ export interface Brain {
   lastMistTick: Tick;
   lastOutdoorThoughtHour: number;
   daysUnderground: number;
+  /** The last tick this dwarf was in danger from fire or running from it (10 § Behavior selection); absent before its first flight and in older saves. */
+  fireFlight?: Tick;
 }
 
 export interface Labors {

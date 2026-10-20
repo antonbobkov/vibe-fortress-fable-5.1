@@ -1,6 +1,8 @@
 # T-403 — A dwarf that fled a fire returns to work at the edge of it and flees again
 
-**Source:** T-397 review, [the diagnosis](../../reports/audits/2026-10-18-fire-deaths-diagnosis.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-20, in 3900995, 0634208, 9fe7212.
+
+**Source:** T-397 review, [the diagnosis](../../../reports/audits/2026-10-18-fire-deaths-diagnosis.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

@@ -7,7 +7,8 @@ import { TileFlag } from '@core/map3d';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { MaterialsReader } from '@systems/materials/reader';
-import { FIRE_FLEE_NODE_LIMIT } from './constants';
+import type { Map3D } from '@core/map3d';
+import { FIRE_AVOID_RADIUS, FIRE_AVOID_TICKS, FIRE_FLEE_NODE_LIMIT } from './constants';
 
 /** The activity text of a dwarf running from a fire (its `flee` behaviour with no threat held). */
 export const FIRE_FLEE_ACTIVITY = 'Fleeing the fire';
@@ -59,4 +60,24 @@ export function findFireRefuge(ctx: TickContext, id: EntityId, from: TileIndex):
     frontier = next.sort((a, b) => a - b);
   }
   return fallback;
+}
+
+/** Whether a dwarf whose last flight from fire was at `flight` (absent: never) still keeps away from fires at `tick`. */
+export function avoidsFire(flight: number | undefined, tick: number): boolean {
+  return flight !== undefined && tick - flight <= FIRE_AVOID_TICKS;
+}
+
+/** Whether a tile within `FIRE_AVOID_RADIUS` of `tile`, on its level, burns. */
+export function burnsNear(map: Map3D, tile: TileIndex): boolean {
+  if (!map.validIndex(tile)) return false;
+  const x = map.xOf(tile);
+  const y = map.yOf(tile);
+  const z = map.zOf(tile);
+  for (let dy = -FIRE_AVOID_RADIUS; dy <= FIRE_AVOID_RADIUS; dy += 1) {
+    for (let dx = -FIRE_AVOID_RADIUS; dx <= FIRE_AVOID_RADIUS; dx += 1) {
+      if (x + dx < 0 || y + dy < 0 || x + dx >= map.w || y + dy >= map.h) continue;
+      if (map.hasFlag(map.index(x + dx, y + dy, z), TileFlag.Burning)) return true;
+    }
+  }
+  return false;
 }

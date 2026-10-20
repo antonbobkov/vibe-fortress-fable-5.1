@@ -2,6 +2,7 @@
  * `readers.of('10')`: `02-systems/10-dwarves.md` § Interfaces › Reader. Arrays are fresh copies.
  */
 
+import { avoidsFire } from './fire';
 import { C, type Attributes, type Needs } from '@core/components';
 import { TICKS_PER_YEAR } from '@core/constants';
 import type { EntityStore } from '@core/entities';
@@ -36,11 +37,13 @@ export interface DwarvesReader {
   isFriend(a: EntityId, b: EntityId): boolean;
   /** Last seen tile of a still-near, living hostile; -1 without a remembered civilian threat. */
   avoidedThreatTile(id: EntityId): TileIndex;
+  /** Whether the dwarf fled a fire within `FIRE_AVOID_TICKS`: 11 offers it no job worked near a fire. */
+  avoidsFire(id: EntityId): boolean;
   /** The living dwarf walking to or sleeping in this bed, or 0. */
   bedHolder(bedId: EntityId): EntityId;
 }
 
-export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0): DwarvesReader {
+export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0, tick: () => number = () => 0): DwarvesReader {
   const skills = registry.table('skills');
   const list = (): EntityId[] => entities.with(C.Brain, C.Creature).filter((id) => entities.alive(id));
   const isChild = (id: EntityId): boolean => {
@@ -71,6 +74,7 @@ export function makeReader(entities: EntityStore, registry: Registry, titles: ()
     friends: (id) => (entities.get(id, C.Relationships)?.friends ?? []).slice(),
     isFriend: (a, b) => (entities.get(a, C.Relationships)?.friends ?? []).includes(b),
     avoidedThreatTile,
+    avoidsFire: (id) => avoidsFire(entities.get(id, C.Brain)?.fireFlight, tick()),
     bedHolder,
   };
 }

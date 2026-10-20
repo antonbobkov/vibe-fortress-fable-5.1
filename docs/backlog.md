@@ -18,7 +18,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-369 | [Seven hours of sleep against the measured sleep](work/T-369-sleep-hours-against-the-measured-sleep.md) | T-333, the unmeasured-numbers report | — | open |
 | T-380 | [Year-1 wealth of the economy fixture is two to three times the model](work/T-380-year-one-wealth-above-the-model.md) | T-145's peril-0 sweep | — | open |
 | T-381 | [Measure raid sizes at peril 2 with the economy fixture](work/T-381-raid-sizes-at-peril-2-with-the-economy-fixture.md) | T-145's peril-0 sweep | — | open |
-| T-399 | [A hearth alert held for weeks starves a fortress that has no work inside the shelter](work/T-399-hearth-alert-starves-the-fortress.md) | T-398's diagnosis | — | open |
-| T-403 | [A dwarf that fled a fire returns to work at the edge of it and flees again](work/T-403-fire-edge-oscillation.md) | the review of T-397 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

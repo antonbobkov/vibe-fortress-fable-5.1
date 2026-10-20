@@ -87,11 +87,11 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
     }
   };
   return {
-    findItems: (filter, n, from) => reader.findItems(filter, n, from, 'walker', { reservable: true }),
-    findUnits: (filter, n, from, split = true) => {
+    findItems: (filter, n, from, allowed) => reader.findItems(filter, n, from, 'walker', { reservable: true, ...(allowed === undefined ? {} : { allowedTile: allowed }) }),
+    findUnits: (filter, n, from, split = true, allowed) => {
       const candidates: { id: EntityId; count: number; order: number }[] = [];
       // Every match in the order `findItem` would return them one after the other.
-      for (const id of reader.findItems({ ...filter }, Number.MAX_SAFE_INTEGER, from, 'walker', { reservable: true })) {
+      for (const id of reader.findItems({ ...filter }, Number.MAX_SAFE_INTEGER, from, 'walker', { reservable: true, ...(allowed === undefined ? {} : { allowedTile: allowed }) })) {
         const count = reader.get(id)?.count ?? 0;
         if (count > 0) candidates.push({ id, count, order: candidates.length });
       }

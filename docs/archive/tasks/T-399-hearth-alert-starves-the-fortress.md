@@ -1,6 +1,8 @@
 # T-399 — A hearth alert held for weeks starves a fortress that has no work inside the shelter
 
-**Source:** T-398, [the diagnosis](../../reports/audits/2026-10-18-no-drink-deaths-diagnosis.md) § `wildlife-taiga-4` · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-20, in 46aa7b5, 91b19e8.
+
+**Source:** T-398, [the diagnosis](../../../reports/audits/2026-10-18-no-drink-deaths-diagnosis.md) § `wildlife-taiga-4` · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

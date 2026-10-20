@@ -38,10 +38,10 @@ export interface JobSink {
 
 /** 13's item search and item handling, as 11 uses them. */
 export interface ItemSource {
-  /** `findItems(filter, n, from, cls, {reservable: true})`, nearest first. */
-  findItems(filter: ItemFilter, n: number, from: TileIndex): EntityId[];
+  /** `findItems(filter, n, from, cls, {reservable: true})`, nearest first; `allowed` rejects the items it refuses a location of. */
+  findItems(filter: ItemFilter, n: number, from: TileIndex, allowed?: (tile: TileIndex) => boolean): EntityId[];
   /** Craft inputs count units even when several units share a stack. */
-  findUnits?(filter: ItemFilter, n: number, from: TileIndex, split?: boolean): EntityId[];
+  findUnits?(filter: ItemFilter, n: number, from: TileIndex, split?: boolean, allowed?: (tile: TileIndex) => boolean): EntityId[];
   /** Current units in an item id; used by jobs whose input count denotes units. */
   countOf?(itemId: EntityId): number;
   /** A free tool of the kind (`tag: pick`, `axe`, …) near `from`, or 0. */

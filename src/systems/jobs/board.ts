@@ -13,6 +13,7 @@ import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, Wor
 import type { Registry } from '@core/registry';
 import type { EntityId, Priority, TileIndex } from '@core/types';
 import { ADULT_AGE_YEARS, THREAT_RADIUS } from '@systems/dwarves/constants';
+import { burnsNear } from '@systems/dwarves/fire';
 import { shelterArea } from '@systems/dwarves/shelter';
 import { AMMO_FETCH } from '@systems/foraging/constants';
 import { choose, effectivePriority, estDistance, type Candidate } from './assign';
@@ -689,7 +690,7 @@ export class JobBoard implements JobsApi, JobSink {
    * Reserve what a job still lacks, nearest to `from` (`11` § Assignment step 4). False, with
    * nothing more reserved for the short input, when an input cannot be found.
    */
-  private reserveInputs(job: Job, from: TileIndex): boolean {
+  private reserveInputs(job: Job, from: TileIndex, inside: ((tile: TileIndex) => boolean) | null = null): boolean {
     for (const input of job.inputs) {
       const units = job.data['inputUnits'] === true && input.wholeItem !== true;
       const count = (id: EntityId): number => units ? (this.items.countOf?.(id) ?? 1) : 1;
@@ -698,9 +699,11 @@ export class JobBoard implements JobsApi, JobSink {
       if (needed <= 0) continue;
       const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
       const isBuild = this.typeId(job) === 'build';
+      // A sheltering civilian looks only at items inside its shelter, so it finds what `workedInside` saw.
+      const allowed = inside ?? undefined;
       const found = units && this.items.findUnits !== undefined
-        ? this.items.findUnits(filter, needed, from, !isBuild)
-        : this.items.findItems(filter, needed, from);
+        ? this.items.findUnits(filter, needed, from, !isBuild, allowed)
+        : this.items.findItems(filter, needed, from, allowed);
       if (found.reduce((sum, id) => sum + count(id), 0) < needed) return false;
       for (const it of found) {
         this.items.reserve(it, job.id);
@@ -950,27 +953,108 @@ export class JobBoard implements JobsApi, JobSink {
     return Array.from(this.jobs.values()).some((job) => job.workerId !== 0 && job.data['animal'] === creatureId && this.typeId(job) === 'hunt');
   }
 
-  /** Under a `hearth` alert a sheltering civilian takes patient-care jobs and the pulls of levers inside its shelter only. */
+  /** Whether the job is one a civilian takes under a `hearth` alert only because it is done inside the shelter. */
+  private sheltersWork(workerId: EntityId, job: Job): boolean {
+    if (!this.readers.has('16') || this.isPatientCare(job) || this.typeId(job) === 'pull_lever') return false;
+    const combat = this.readers.of<{ alert(): string; onDuty(id: EntityId): boolean }>('16');
+    return combat.alert() === 'hearth' && !combat.onDuty(workerId);
+  }
+
+  /** Under a `hearth` alert a sheltering civilian takes patient care, the pulls of levers inside its shelter, and jobs done wholly inside it only. */
   private shelteredFrom(job: Job, workerId: EntityId): boolean {
     if (!this.readers.has('16')) return false;
     const combat = this.readers.of<{ alert(): string; onDuty(id: EntityId): boolean }>('16');
     return combat.alert() === 'hearth' && !combat.onDuty(workerId) && !this.isShelterWork(job, workerId);
   }
 
+  private shelterMemo = { tick: -1, byWorker: new Map<EntityId, ((tile: TileIndex) => boolean) | null>() };
+
+  /** The area a civilian shelters in under the alert (19 `retreatTile`, 10's `shelterArea`), or null with no shelter. */
+  private shelterInside(workerId: EntityId): ((tile: TileIndex) => boolean) | null {
+    if (!this.readers.has('19')) return null;
+    const memo = this.shelterMemo;
+    if (memo.tick !== this.now) {
+      memo.tick = this.now;
+      memo.byWorker.clear();
+    }
+    const known = memo.byWorker.get(workerId);
+    if (known !== undefined) return known;
+    // A civilian with no shelter is looked at again after `BLOCKED_RETRY_TICKS` only: the search for one
+    // is the costly part, and the map rebuilds its connectivity every few ticks in a busy fortress.
+    const none = this.noShelter.get(workerId);
+    if (none !== undefined && this.now - none < BLOCKED_RETRY_TICKS) {
+      memo.byWorker.set(workerId, null);
+      return null;
+    }
+    const shelter = this.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(workerId);
+    const inside = shelter < 0 ? null : shelterArea(this.world.map, this.readers, shelter);
+    if (inside === null) this.noShelter.set(workerId, this.now);
+    else this.noShelter.delete(workerId);
+    memo.byWorker.set(workerId, inside);
+    return inside;
+  }
+
+  /** Workers last found to have no shelter under the alert, with the tick of that look. Derived; not saved. */
+  private readonly noShelter = new Map<EntityId, number>();
+
   /**
    * The jobs a sheltering civilian works under a `hearth` alert (10 § Behavior selection, 11 § The
-   * alert): patient care, and a `pull_lever` job whose lever stands inside the civilian's shelter:
-   * the area 10 shelters it in around its retreat tile (19 `retreatTile`), read by the same helper.
+   * alert): patient care; the `pull_lever` job of a lever inside the civilian's shelter (the area 10
+   * shelters it in around its retreat tile, 19 `retreatTile`, read by the same helper); and a job
+   * done wholly inside that shelter: every tile it can be worked from, every input it still needs
+   * and every item it holds, and the tool it works with, inside it or in the worker's hands.
    */
   isShelterWork(job: Job, workerId: EntityId): boolean {
     if (this.isPatientCare(job)) return true;
-    if (this.typeId(job) !== 'pull_lever' || !this.readers.has('19')) return false;
-    const shelter = this.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(workerId);
+    const inside = this.shelterInside(workerId);
+    if (inside === null) return false;
     const map = this.world.map;
-    const lever = this.anchorTile(job);
-    if (shelter < 0 || !map.validIndex(lever)) return false;
-    const inside = shelterArea(map, this.readers, shelter);
-    return inside(lever) || map.neighbors(lever).some((t) => map.zOf(t) === map.zOf(lever) && inside(t));
+    if (this.typeId(job) === 'pull_lever') {
+      const lever = this.anchorTile(job);
+      if (!map.validIndex(lever)) return false;
+      return inside(lever) || map.neighbors(lever).some((t) => map.zOf(t) === map.zOf(lever) && inside(t));
+    }
+    return this.workedInside(job, workerId, inside);
+  }
+
+  private workedInside(job: Job, workerId: EntityId, inside: (tile: TileIndex) => boolean): boolean {
+    if (job.workTile === 'ranged') return false;
+    const map = this.world.map;
+    const anchor = this.anchorTile(job);
+    if (!map.validIndex(anchor)) return false;
+    // The cheap test first: most open jobs lie nowhere near the shelter.
+    if (!inside(anchor) && !(job.workTile === 'adjacent' && map.neighbors8(anchor).some((t) => map.zOf(t) === map.zOf(anchor) && inside(t)))) return false;
+    const stands = this.standTiles(job);
+    if (stands.length === 0 || !stands.every(inside)) return false;
+    if (job.tool !== null && !this.items.hasTool(workerId, job.tool)) return false;
+    for (const input of job.inputs) {
+      for (const id of input.reserved) {
+        if (input.delivered.includes(id)) continue;
+        const at = this.items.tileOf(id);
+        if (at < 0 || !inside(at)) return false;
+      }
+      if (!this.inputFoundInside(job, input, workerId, inside)) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Whether what an input still lacks is found inside the shelter by the search a claim makes: from the
+   * worker's tile, the same filter, the shelter as the only place allowed. Splitting a stack changes which
+   * ids come back, not which stacks, so this search does not split.
+   */
+  private inputFoundInside(job: Job, input: Job['inputs'][number], workerId: EntityId, inside: (tile: TileIndex) => boolean): boolean {
+    const units = job.data['inputUnits'] === true && input.wholeItem !== true;
+    const count = (id: EntityId): number => (units ? (this.items.countOf?.(id) ?? 1) : 1);
+    const needed = input.count - input.delivered.reduce((sum, id) => sum + count(id), 0) -
+      input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
+    if (needed <= 0) return true;
+    const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
+    const from = this.workerTile(workerId);
+    const found = units && this.items.findUnits !== undefined
+      ? this.items.findUnits(filter, needed, from, false, inside)
+      : this.items.findItems(filter, needed, from, inside);
+    return found.reduce((sum, id) => sum + count(id), 0) >= needed;
   }
 
   private eligible(job: Job, workerId: EntityId): boolean {
@@ -981,6 +1065,7 @@ export class JobBoard implements JobsApi, JobSink {
       const target = this.anchorTile(job);
       if (map.zOf(target) === map.zOf(threat) && Math.max(Math.abs(map.xOf(target) - map.xOf(threat)), Math.abs(map.yOf(target) - map.yOf(threat))) <= THREAT_RADIUS) return false;
     }
+    if (this.nearFire(job, workerId)) return false;
     const assigned = job.data['assignedWorker'];
     if (typeof assigned === 'number' && assigned !== 0 && assigned !== workerId) return false;
     const labor = this.jobLabor(job);
@@ -989,6 +1074,12 @@ export class JobBoard implements JobsApi, JobSink {
     if (typeof minSkill === 'number' && this.skillFor(workerId, job) < minSkill) return false;
     if (this.toolHeldElsewhere(job, workerId, labor)) return false;
     return this.hasReachableStand(job, workerId);
+  }
+
+  /** A dwarf that fled a fire lately is offered no job whose tile lies within `FIRE_AVOID_RADIUS` of a burning tile (10 § Behavior selection, step 1). */
+  private nearFire(job: Job, workerId: EntityId): boolean {
+    if (!this.readers.has('10') || !this.readers.of<{ avoidsFire?(id: EntityId): boolean }>('10').avoidsFire?.(workerId)) return false;
+    return burnsNear(this.world.map, this.anchorTile(job));
   }
 
   private avoidedThreatTile(workerId: EntityId): TileIndex {
@@ -1074,7 +1165,7 @@ export class JobBoard implements JobsApi, JobSink {
     this.setWorker(workerId, { jobId: job.id, phase: 0 });
     const from = this.workerTile(workerId);
     this.revalidateDelivered(job);
-    if (!this.reserveInputs(job, from)) {
+    if (!this.reserveInputs(job, from, this.sheltersWork(workerId, job) ? this.shelterInside(workerId) : null)) {
       this.unclaim(job, 'missing_input');
       return false;
     }
