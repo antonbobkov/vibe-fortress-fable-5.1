@@ -9,6 +9,8 @@ import { TileKind } from '@core/map3d';
 import { TICKS_PER_DAY } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
 import type { ItemsReader } from '@systems/items';
+import type { JobBoard } from '@systems/jobs';
+import { RESERVE_KEEP_TICKS } from '@systems/jobs/constants';
 import { TestWorld } from '../scenarios/test-world';
 
 const Z = FLAT_TEST_SURFACE_Z - 7;
@@ -28,7 +30,7 @@ const rect = (w: TestWorld, x: number, y: number, width: number, height: number)
  * Chamber A (x 14..19) with the civilian, a door, and chamber B (x 21..27): with no hearth hall, B
  * is the shelter. A log lies in each chamber, each with a stockpile in its own chamber.
  */
-function chambers(seed: string) {
+function chambers(seed: string, stockpiles = true) {
   const w = new TestWorld({ seed, world: 'flat-test', embark: 'none' });
   dig(w, 14, 14, 6, 7);
   dig(w, 20, 17, 1, 1);
@@ -37,11 +39,11 @@ function chambers(seed: string) {
   const dwarf = w.spawnDwarf({ at: w.index(19, 17, Z) });
   const pileA = rect(w, 14, 14, 2, 2);
   const pileB = rect(w, 26, 14, 2, 2);
-  for (const tiles of [pileA, pileB]) {
+  for (const tiles of stockpiles ? [pileA, pileB] : []) {
     expect(w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: w.zone('stockpile', tiles), filter: 'wood' }).ok).toBe(true);
   }
-  const logA = w.spawnItem('log', 'oak', w.index(17, 19, Z));
-  const logB = w.spawnItem('log', 'oak', w.index(23, 19, Z));
+  const logA = stockpiles ? w.spawnItem('log', 'oak', w.index(17, 19, Z)) : 0;
+  const logB = stockpiles ? w.spawnItem('log', 'oak', w.index(23, 19, Z)) : 0;
   return { w, dwarf, pileA, pileB, logA, logB };
 }
 
@@ -111,5 +113,38 @@ describe('T-399 a sheltering civilian works what lies inside its shelter', () =>
     const crafted = w.events('JobCompleted').filter((e) => e['jobType'] === 'craft').map((e) => e['target']);
     expect(crafted).toContain(shopIn);
     expect(crafted).not.toContain(shopOut);
+  });
+
+  it('claims the input of a craft job from inside when a stack outside is nearer the worker, and never blocks it for missing input', () => {
+    const { w, dwarf } = chambers('t399-nearer-outside', false);
+    const shop = w.build('carpenter', w.index(24, 14, Z), 'oak');
+    const inside = w.spawnItem('log', 'oak', w.index(27, 20, Z));
+    // A log in the chamber the civilian leaves, nearer to it than the one in the shelter.
+    const outside = w.spawnItem('log', 'oak', w.index(19, 19, Z));
+    w.step(1);
+    expect(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: shop, order: { recipe: 'make_barrel', count: 1 } })).toEqual({ ok: true });
+    expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' }).ok).toBe(true);
+    const items = w.readers.of<ItemsReader>('13');
+    for (let t = 0; t < 2 * TICKS_PER_DAY; t += 10) { w.step(10); keepFed(w, dwarf); }
+    expect(w.events('JobCompleted').some((e) => e['jobType'] === 'craft' && e['target'] === shop)).toBe(true);
+    expect(w.events('JobBlocked').filter((e) => e['reason'] === 'missing_input')).toHaveLength(0);
+    expect(w.game.world.entities.alive(inside)).toBe(false);
+    expect(items.tileOf(outside)).toBe(w.index(19, 19, Z));
+  });
+
+  it('does not offer a job whose input was reserved outside the shelter before the alert', () => {
+    const { w, dwarf, pileB, logA } = chambers('t399-reserved-outside');
+    const board = w.game.world.services.jobs as JobBoard;
+    // Calm: the civilian claims the haul of the log in A to the stockpile in B and sets out for it.
+    w.until(() => [...board.jobs.values()].some((j) => j.inputs[0]?.reserved.includes(logA) && j.workerId === dwarf), 300);
+    const id = [...board.jobs.values()].find((j) => j.inputs[0]?.reserved.includes(logA))!.id;
+    expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' }).ok).toBe(true);
+    const claims = (): number => w.events('JobClaimed').filter((e) => e['jobId'] === id).length;
+    const before = claims();
+    for (let t = 0; t < RESERVE_KEEP_TICKS + 600; t += 10) { w.step(10); keepFed(w, dwarf); }
+    // It is not claimed again while the alert lasts: its log lies outside the shelter.
+    expect(claims()).toBe(before);
+    expect(pileB).not.toContain(w.readers.of<ItemsReader>('13').tileOf(logA));
+    expect(w.map.xOf(w.game.movement.tileOf(dwarf))).toBeGreaterThan(20);
   });
 });
