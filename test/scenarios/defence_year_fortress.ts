@@ -5,9 +5,10 @@
  * it (its opening, its economy, its airlock gate and its answer to threats: three_years_fortress.ts),
  * with a defence a player adds by command on top of it: a mechanic's workshop, a kill corridor
  * before the gate's north door with a cage, a weapon and a stone-fall trap, a drawbridge at its
- * mouth on a lever in the hearth hall, raised from a raid's warning until the raid is gone, and the
- * squad trained in a barracks and an archery range, which sallies through the north door on
- * hostiles the corridor has brought to it. No item is spawned and no terrain is edited.
+ * mouth on a lever in the hearth hall, raised behind a raid that has come into the corridor and
+ * lowered when the raid is gone, and the squad trained in a barracks and an archery range, which
+ * sallies through the north door on a few other hostiles the corridor has brought to it. No item is
+ * spawned and no terrain is edited.
  */
 
 import { TICKS_PER_DAY } from '@core/constants';
@@ -148,14 +149,22 @@ export function createDefenceYear(w: TestWorld, fortress: FortressState): Defenc
   };
 }
 
-/** A raid or a siege is warned of (the fixture's warning, 18 § Schedule) or on the map. */
-function raidComing(w: TestWorld, state: DefenceYearState): boolean {
-  if (w.tick < (state.fortress.warnedUntil ?? -1)) return true;
+/** The living members, on the map, of the raids and sieges that are not gone. */
+function raiders(w: TestWorld): number[] {
   const ent = w.game.world.entities;
-  return ent.with(C.Party).some((id) => {
+  const out: number[] = [];
+  for (const id of ent.with(C.Party)) {
     const p = ent.get(id, C.Party);
-    return p !== undefined && p.state !== 'gone' && (p.purpose === 'raid' || p.purpose === 'siege');
-  });
+    if (p === undefined || p.state === 'gone' || (p.purpose !== 'raid' && p.purpose !== 'siege')) continue;
+    out.push(...p.members.filter((m) => ent.alive(m) && ent.get(m, C.Position) !== undefined));
+  }
+  return out;
+}
+
+/** Whether a creature stands on one of the corridor's tiles. */
+function inCorridorTile(w: TestWorld, state: DefenceYearState, id: number): boolean {
+  const p = w.game.world.entities.get(id, C.Position);
+  return p !== undefined && state.corridor.includes(w.index(p.x, p.y, p.z));
 }
 
 /** The defence works, placed and ordered as their inputs and sites allow. */
@@ -226,9 +235,12 @@ export function checkDefenceWorks(w: TestWorld, state: DefenceYearState): void {
     else if (state.trial === 'raising' && bridge === 'raised') { command(w, { type: 'PullLever', leverId: state.leverId }); state.trial = 'lowering'; }
     else if (state.trial === 'lowering' && bridge === 'lowered') { state.trial = 'done'; note(state, w, 'bridge trial done'); }
   }
-  // After the trial the bridge is the gate: raised from a raid's warning until its party is gone.
+  // After the trial the bridge closes the kill corridor: once raiders have come into it (over the
+  // traps, to the north door, which the alert locks) it is raised behind them, so that the rest
+  // of the raid has no way in and those inside none out; it is lowered when the raid is gone.
   if (linked && state.trial === 'done') {
-    const want = raidComing(w, state) ? 'raised' : 'lowered';
+    const inside = raiders(w);
+    const want = inside.length > 0 && (bridge === 'raised' || state.pulledFor === 'raised' || inside.some((id) => inCorridorTile(w, state, id))) ? 'raised' : 'lowered';
     if (bridge === want) state.pulledFor = '';
     else if (state.pulledFor !== want) {
       command(w, { type: 'PullLever', leverId: state.leverId });
@@ -250,7 +262,13 @@ export function checkDefenceWorks(w: TestWorld, state: DefenceYearState): void {
     }
   }
   if (!state.archeryTargetId && state.barracksZoneId && items.count('archery_target') > 0) {
-    for (const t of zoneTiles(w, state, 'archery_range', 40)) {
+    // The target blocks its tile: it stands in the open, with floor all round it, so that it never
+    // closes a corridor (a target in the corridor to the bedrooms walled its builder in, who starved).
+    const open = (t: number): boolean => [-1, 0, 1].every((dy) => [-1, 0, 1].every((dx) => {
+      const n = w.map.offset(t, dx, dy, 0);
+      return n >= 0 && w.map.kindAt(n) === TileKind.Floor && (n === t || buildings.at(n) === 0);
+    }));
+    for (const t of zoneTiles(w, state, 'archery_range', 200).filter(open)) {
       const id = place(w, 'archery_target', t);
       if (id) { state.archeryTargetId = id; break; }
     }
@@ -296,6 +314,12 @@ function hostiles(w: TestWorld): number[] {
   return out;
 }
 
+/** How many of the squad hold a weapon. */
+function armedCount(w: TestWorld, squadId: number): number {
+  const combat = w.readers.of<CombatReader>('16');
+  return (combat.squads().find((q) => q.id === squadId)?.members ?? []).filter((id) => combat.weaponOf(id) !== 0).length;
+}
+
 /** At least three of the squad hold a weapon. */
 function squadArmed(w: TestWorld, squadId: number): boolean {
   const combat = w.readers.of<CombatReader>('16');
@@ -304,11 +328,11 @@ function squadArmed(w: TestWorld, squadId: number): boolean {
 }
 
 /**
- * Under the alert: hostiles that have come up the corridor (an ambush, which comes unannounced, so
- * the bridge is down) stand at the locked north door, over the traps. The north door is then opened
- * to the squad, which waits behind it on the gate stair and is ordered to kill each of them; the
- * door goes back to locking on the alert once the corridor is clear. A raid is kept out by the
- * bridge, raised from its warning (checkDefenceWorks).
+ * Under the alert: hostiles of an ambush, a band or a thief that have come up the corridor stand at
+ * the locked north door, over the traps. While they are fewer than the squad's armed members the
+ * north door is opened to the squad, which waits behind it on the gate stair and is ordered to kill
+ * each of them; the door goes back to locking on the alert once the corridor is clear. A raid is
+ * never sallied on: the bridge closes the corridor behind it (checkDefenceWorks).
  */
 export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -320,7 +344,9 @@ export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
   const door = state.fortress.gateDoorId2;
   const squadId = state.fortress.squadId;
   if (door === 0 || buildings.get(door)?.state !== 'built') return;
-  if (w.game.world.fortress.alert === 'hearth' && inCorridor.length > 0 && squadId !== 0 && squadArmed(w, squadId)) {
+  const raid = new Set(raiders(w));
+  if (w.game.world.fortress.alert === 'hearth' && inCorridor.length > 0 && !inCorridor.some((id) => raid.has(id)) &&
+      squadId !== 0 && squadArmed(w, squadId) && inCorridor.length < armedCount(w, squadId)) {
     if (buildings.get(door)?.mode !== 'open') {
       command(w, { type: 'SetDoorMode', buildingId: door, mode: 'open' });
       note(state, w, `north door opened to the squad on ${inCorridor.length} in the corridor`);
