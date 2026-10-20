@@ -108,6 +108,12 @@ const DWARVES_PER_STILL = 28;
 const MEAL_DAYS = 42;
 /** Days of drink the stills keep in stock. */
 const DRINK_DAYS = 21;
+/** The largest quantity or `keep >=` stock a work order takes (12 § Work orders): 999. */
+const ORDER_STOCK_MAX = 999;
+/** The drink a brew order keeps in stock for a population, within what an order can hold. */
+export function drinkStock(population: number): number {
+  return Math.min(ORDER_STOCK_MAX, Math.max(80, Math.ceil(population * 0.77 * DRINK_DAYS)));
+}
 /** Days of meals kept back from a caravan: the winter and the season before it. */
 const MEAL_RESERVE_DAYS = 56;
 /**
@@ -689,10 +695,10 @@ function checkKitchens(w: TestWorld, state: FortressState): void {
     const id = state.placedIds['still2'];
     if (id && buildings.get(id)?.state === 'built' && !state.orderedWorkshops.has('still2')) {
       state.orderedWorkshops.add('still2');
-      order(w, id, 'brew', Math.max(80, Math.ceil(population * 0.77 * DRINK_DAYS)), undefined, ROUTINE - 1);
+      order(w, id, 'brew', drinkStock(population), undefined, ROUTINE - 1);
     }
     const orders = id ? w.game.world.entities.get(id, C.Workshop)?.orders ?? [] : [];
-    const drink = Math.max(80, Math.ceil(population * 0.77 * DRINK_DAYS));
+    const drink = drinkStock(population);
     if (orders[0] !== undefined && orders[0].threshold !== drink) command(w, { type: 'EditWorkOrder', workshopId: id, index: 0, patch: { threshold: drink } });
   }
 }
@@ -1053,7 +1059,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   const still = state.placedIds['still'];
   if (still && state.orderedWorkshops.has('still')) {
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
-    const threshold = Math.max(80, Math.ceil(population * 0.77 * DRINK_DAYS));
+    const threshold = drinkStock(population);
     const ws = w.game.world.entities.get(still, C.Workshop);
     if (ws?.orders[0]?.threshold !== threshold) command(w, { type: 'EditWorkOrder', workshopId: still, index: 0, patch: { threshold } });
   }
