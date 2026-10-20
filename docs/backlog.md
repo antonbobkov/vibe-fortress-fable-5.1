@@ -19,7 +19,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-369 | [Seven hours of sleep against the measured sleep](work/T-369-sleep-hours-against-the-measured-sleep.md) | T-333, the unmeasured-numbers report | — | open |
 | T-380 | [Year-1 wealth of the economy fixture is two to three times the model](work/T-380-year-one-wealth-above-the-model.md) | T-145's peril-0 sweep | — | open |
 | T-381 | [Measure raid sizes at peril 2 with the economy fixture](work/T-381-raid-sizes-at-peril-2-with-the-economy-fixture.md) | T-145's peril-0 sweep | — | open |
-| T-396 | [With no hearth hall, a civilian's shelter moves with the dwarf](work/T-396-no-hall-shelter-moves-with-the-dwarf.md) | T-151 and the lever review | — | open |
 | T-399 | [A hearth alert held for weeks starves a fortress that has no work inside the shelter](work/T-399-hearth-alert-starves-the-fortress.md) | T-398's diagnosis | — | open |
 | T-403 | [A dwarf that fled a fire returns to work at the edge of it and flees again](work/T-403-fire-edge-oscillation.md) | the review of T-397 | — | open |
 

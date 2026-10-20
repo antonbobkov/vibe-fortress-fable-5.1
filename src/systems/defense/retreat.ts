@@ -3,9 +3,14 @@ import { TileFlag, TileKind } from '@core/map3d';
 import type { InitContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
+import { isShelterBarrier } from '@systems/dwarves/shelter';
 import { RETREAT_SEARCH_LIMIT } from './constants';
 
-export function retreatTile(ctx: InitContext, dwarfId: EntityId): TileIndex {
+/**
+ * The tile a civilian shelters at (19 § Hearth alert retreat). `kept` is the tile it sheltered at
+ * so far: with no hall reachable it is kept while the dwarf still reaches it.
+ */
+export function retreatTile(ctx: InitContext, dwarfId: EntityId, kept: TileIndex = -1): TileIndex {
   const pos = ctx.world.entities.get(dwarfId, C.Position);
   if (pos === undefined || !ctx.readers.has('14')) return -1;
   const map = ctx.world.map;
@@ -17,13 +22,15 @@ export function retreatTile(ctx: InitContext, dwarfId: EntityId): TileIndex {
     ctx.readers.entities.at(tile).every((id) => id === dwarfId || !ctx.readers.entities.has(id, C.Creature)));
   hall.sort((a, b) => distance(a) - distance(b) || a - b);
   if (hall.length > 0) return hall[0] as TileIndex;
+  if (kept >= 0 && map.validIndex(kept) && path.passable(kept, 'walker') && !map.hasFlag(kept, TileFlag.Outdoor) &&
+    !isShelterBarrier(buildings, kept) && path.reachable(from, kept, 'walker')) return kept;
   const visited = new Set<TileIndex>([from]);
   const queue: { tile: TileIndex; doors: number }[] = [{ tile: from, doors: 0 }];
   let best = -1;
   let bestDistance = Infinity;
   for (let cursor = 0; cursor < queue.length && cursor < RETREAT_SEARCH_LIMIT; cursor += 1) {
     const node = queue[cursor] as { tile: TileIndex; doors: number };
-    if (node.doors > 0 && !map.hasFlag(node.tile, TileFlag.Outdoor) && node.tile !== from) {
+    if (node.doors > 0 && !map.hasFlag(node.tile, TileFlag.Outdoor) && node.tile !== from && !isShelterBarrier(buildings, node.tile)) {
       const d = distance(node.tile);
       if (d < bestDistance || (d === bestDistance && node.tile < best)) { best = node.tile; bestDistance = d; }
     }

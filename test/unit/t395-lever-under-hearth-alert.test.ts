@@ -100,11 +100,9 @@ function dig(w: TestWorld, x: number, y: number, z: number, width: number, heigh
 
 /**
  * With no hearth hall a civilian shelters in the indoor area around its retreat tile (19): here the
- * tile nearest to it behind a door, the doorway `(20, 17)` of a chamber `S`; the area spreads from
- * it along the walker graph, so it is the room `X` the mechanic stands in and `S`. Whether the lever
- * job is offered is read from the board on the alert's first tick, before the mechanic moves: 19
- * recomputes the retreat tile from where the dwarf stands, so once it stands in the doorway its
- * shelter is the area past the next door (T-396-no-hall-shelter-moves-with-the-dwarf).
+ * tile nearest to it behind a door that is not the door's own, `(21, 17)` of a chamber `S`; the area
+ * spreads from it along the walker graph, so it is `S`, and the retreat tile is kept while the alert
+ * lasts, so the mechanic's shelter stays `S` wherever it stands.
  */
 function noHall(seed: string): { w: TestWorld; mechanic: EntityId } {
   const w = new TestWorld({ seed, world: 'flat-test', embark: 'none' });
@@ -140,6 +138,10 @@ describe('T-395-lever-under-hearth-alert: the shelter without a hall', () => {
     w.step(1);
     expect(w.reachable(w.index(18, 17, Z), w.index(16, 18, Z - 1))).toBe(true);
     expect(offered(w, mechanic)).toBe(false);
+    // A day of the alert: the mechanic stands in neither doorway, its shelter stays `S`, and the lever waits.
+    run(w, mechanic, 1200);
+    expect(pulled(w, lever)).toBe(false);
+    expect(offered(w, mechanic)).toBe(false);
     expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' }).ok).toBe(true);
     run(w, mechanic, 900);
     expect(pulled(w, lever)).toBe(true);
@@ -163,7 +165,7 @@ describe('T-395-lever-under-hearth-alert: the shelter without a hall', () => {
 
   it('a lever in the room the civilian shelters in is offered', () => {
     const { w, mechanic } = noHall('lever-alert-same');
-    const lever = w.build('lever', w.index(15, 15, Z), 'granite');
+    const lever = w.build('lever', w.index(22, 15, Z), 'granite');
     expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' }).ok).toBe(true);
     expect(w.game.world.applyCommand({ type: 'PullLever', leverId: lever }).ok).toBe(true);
     w.step(1);

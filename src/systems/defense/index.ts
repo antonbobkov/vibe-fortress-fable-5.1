@@ -31,6 +31,8 @@ export class DefenseSystem extends BaseSystem<DefenseStateV1> {
   readonly trapTiles = new Map<TileIndex, EntityId>();
   readonly plates = new Map<EntityId, PlateRecord>();
   readonly chains = new Map<EntityId, EntityId>();
+  /** The tile each sheltering civilian keeps while the `hearth` alert lasts (§ Hearth alert retreat). */
+  readonly retreats = new Map<EntityId, TileIndex>();
   private world: WorldLike | null = null;
   private initCtx: InitContext | null = null;
   private rng: RngStream | null = null;
@@ -57,10 +59,27 @@ export class DefenseSystem extends BaseSystem<DefenseStateV1> {
       trapAt: (tile) => this.trapTiles.get(tile) ?? 0,
       trapState: (id) => this.traps.get(id)?.state ?? null,
       trapMode: (id) => this.traps.get(id)?.mode ?? null,
-      retreatTile: (id) => this.initCtx === null ? -1 : retreatTile(this.initCtx, id),
+      retreatTile: (id) => this.retreatOf(id),
       plateActive: (id) => this.plates.get(id)?.lastState ?? false,
       stationOf: (animalId) => this.world?.entities.get(animalId, C.Tame)?.assignedTo ?? 0,
     };
+  }
+
+  /**
+   * The retreat tile of a dwarf: under a `hearth` alert the tile it was given at its first ask
+   * (the alert's start for a civilian), kept while a hall stays out of reach and the dwarf reaches it.
+   */
+  private retreatOf(id: EntityId): TileIndex {
+    const ctx = this.initCtx;
+    if (ctx === null) return -1;
+    if (ctx.world.fortress.alert !== 'hearth') return retreatTile(ctx, id);
+    const kept = this.retreats.get(id) ?? -1;
+    const tile = retreatTile(ctx, id, kept);
+    if (tile !== kept) {
+      if (tile >= 0) this.retreats.set(id, tile);
+      else this.retreats.delete(id);
+    }
+    return tile;
   }
 
   private registerBuilding(id: EntityId, ctx: TickContext): void {
@@ -77,6 +96,11 @@ export class DefenseSystem extends BaseSystem<DefenseStateV1> {
   }
 
   override handle(event: GameEvent, ctx: TickContext): void {
+    if (event.type === 'AlertChanged') {
+      if (event['to'] !== 'hearth') this.retreats.clear();
+      return;
+    }
+    if (event.type === 'CreatureDied') { this.retreats.delete(event['id'] as EntityId); return; }
     if (event.type === 'BuildingCompleted') { this.registerBuilding(event['id'] as EntityId, ctx); return; }
     if (event.type === 'BuildingRemoved') {
       const id = event['id'] as EntityId;
@@ -204,6 +228,7 @@ export class DefenseSystem extends BaseSystem<DefenseStateV1> {
       trapTiles: Array.from(this.trapTiles.entries()).sort((a, b) => a[0] - b[0]),
       plates: Array.from(this.plates.entries()).sort((a, b) => a[0] - b[0]).map(([id, value]) => [id, { ...value }]),
       chains: Array.from(this.chains.entries()).sort((a, b) => a[0] - b[0]),
+      ...(this.retreats.size === 0 ? {} : { retreats: Array.from(this.retreats.entries()).sort((a, b) => a[0] - b[0]) }),
       rng: (this.rng as RngStream).state() };
   }
   deserialize(state: DefenseStateV1, ctx: InitContext): void {
@@ -212,6 +237,7 @@ export class DefenseSystem extends BaseSystem<DefenseStateV1> {
     this.trapTiles.clear(); for (const [tile, id] of state.trapTiles) this.trapTiles.set(tile, id);
     this.plates.clear(); for (const [id, record] of state.plates) this.plates.set(id, { ...record });
     this.chains.clear(); for (const [id, animal] of state.chains) this.chains.set(id, animal);
+    this.retreats.clear(); for (const [id, tile] of state.retreats ?? []) this.retreats.set(id, tile);
     this.rng?.setState(state.rng);
   }
 }

@@ -88,7 +88,7 @@ interface ThreatsState { stateVersion: 1; schedule: [string, { nextTick: Tick; e
   deepsilverTiles: TileIndex[]; cavernSpawnCounts: [Idx<SpeciesDef>, number][]; webs: [TileIndex, EntityId][]; namedCaptains: [string, EntityId][]; rng: RngState }
 
 interface DefenseState { stateVersion: 1; traps: [EntityId, { kind: string; mode: 'enemies'|'all'; state: 'armed'|'spent'|'jammed'; loaded: EntityId[] }][];
-  trapTiles: [TileIndex, EntityId][]; plates: [EntityId, { lastState: boolean; lastEdgeTick: Tick }][]; chains: [EntityId, EntityId][]; rng: RngState }
+  trapTiles: [TileIndex, EntityId][]; plates: [EntityId, { lastState: boolean; lastEdgeTick: Tick }][]; chains: [EntityId, EntityId][]; retreats?: [EntityId, TileIndex][] /* fixed retreat tiles under a hearth alert; absent when none and in older saves */; rng: RngState }
 
 interface TradeState { stateVersion: 1; schedule: Record<Civ, { nextArrivalTick: Tick; banUntilYear: number }>; activeCaravan: EntityId;
   requests: Record<Civ, { item: Idx<ItemTypeDef>; material: Idx<MaterialDef> | 0; priority: 1|2|3 }[]>; depotItems: EntityId[]; merchantItems: EntityId[];

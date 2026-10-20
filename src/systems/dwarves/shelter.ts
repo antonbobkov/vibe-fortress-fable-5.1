@@ -8,6 +8,16 @@ import type { TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import { CIVILIAN_FLEE_NODE_LIMIT } from './constants';
 
+/** Whether a door, hatch, floodgate or drawbridge stands on the tile: the shelter ends there. */
+export function isShelterBarrier(buildings: BuildingsReader | undefined, tile: TileIndex): boolean {
+  if (buildings === undefined) return false;
+  if (buildings.doorAt(tile)) return true;
+  const id = buildings.at(tile);
+  if (id === 0) return false;
+  const state = buildings.mechanismState(id);
+  return state !== '' && state !== 'on' && state !== 'off';
+}
+
 /**
  * The tiles a civilian sheltering at `shelter` is sheltered by: the hearth hall when `shelter` is
  * one of its tiles, else the indoor tiles around `shelter` that a dwarf walks to along the walker
@@ -18,14 +28,7 @@ export function shelterArea(map: Map3D, readers: ReaderSetLike, shelter: TileInd
   const buildings = readers.has('14') ? readers.of<BuildingsReader>('14') : undefined;
   const hall = new Set<TileIndex>(buildings?.hearthHallTiles() ?? []);
   if (hall.has(shelter)) return (tile) => hall.has(tile);
-  const barrier = (tile: TileIndex): boolean => {
-    if (buildings === undefined) return false;
-    if (buildings.doorAt(tile)) return true;
-    const id = buildings.at(tile);
-    if (id === 0) return false;
-    const state = buildings.mechanismState(id);
-    return state !== '' && state !== 'on' && state !== 'off';
-  };
+  const barrier = (tile: TileIndex): boolean => isShelterBarrier(buildings, tile);
   const area = new Set<TileIndex>([shelter]);
   const queue = [shelter];
   for (let cursor = 0; cursor < queue.length && area.size < CIVILIAN_FLEE_NODE_LIMIT; cursor += 1) {
