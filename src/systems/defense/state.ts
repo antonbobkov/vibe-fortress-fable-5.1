@@ -12,5 +12,7 @@ export interface DefenseStateV1 {
   trapTiles: [TileIndex, EntityId][];
   plates: [EntityId, PlateRecord][];
   chains: [EntityId, EntityId][];
+  /** Sheltering civilians' kept retreat tiles; absent when none, and in older saves. */
+  retreats?: [EntityId, TileIndex][];
   rng: RngState;
 }
