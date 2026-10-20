@@ -22,7 +22,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-396 | [With no hearth hall, a civilian's shelter moves with the dwarf](work/T-396-no-hall-shelter-moves-with-the-dwarf.md) | T-151 and the lever review | — | open |
 | T-399 | [A hearth alert held for weeks starves a fortress that has no work inside the shelter](work/T-399-hearth-alert-starves-the-fortress.md) | T-398's diagnosis | — | open |
 | T-401 | [A water_patient job stays blocked with a path (p4-1)](work/T-401-p4-1-water-patient-unreachable.md) | T-400's sweep | — | open |
-| T-402 | [The three-year script's EditWorkOrder is rejected on p2-7](work/T-402-p2-7-edit-work-order-rejected.md) | T-400's sweep | — | open |
 | T-403 | [A dwarf that fled a fire returns to work at the edge of it and flees again](work/T-403-fire-edge-oscillation.md) | the review of T-397 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
