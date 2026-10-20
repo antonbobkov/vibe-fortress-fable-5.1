@@ -169,6 +169,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 - `dwarves.friends(id)`, `dwarves.isFriend(a, b)`
 - `dwarves.bedHolder(bedId)` ? the living dwarf walking to or sleeping in the bed through its saved rest activity, or 0; patient holds are combined by 14
 - `dwarves.avoidedThreatTile(id)` — the last seen tile of a still-near living hostile for a civilian, or −1; job eligibility uses this memory
+- `dwarves.avoidsFire(id)` — whether the dwarf fled a fire within `FIRE_AVOID_TICKS`; job eligibility keeps it from jobs near a burning tile
 
 ### Commands
 
