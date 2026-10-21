@@ -23,6 +23,7 @@ import { avoidsFire, burnsNear, FIRE_FLEE_ACTIVITY, findFireRefuge, fireDanger }
 import { PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { HealthReader } from '@systems/health/reader';
+import { awaitsBandage } from '@systems/health/wounds';
 import type { JobsReader } from '@systems/jobs';
 import type { CombatReader } from '@systems/combat/reader';
 import { PERCEPTION_RADIUS } from '@systems/combat/constants';
@@ -118,10 +119,13 @@ function leaveShelterForNeed(host: BrainHost, ctx: TickContext, id: EntityId, b:
   return false;
 }
 
-/** Use only the bed this patient holds; otherwise wait where it is for allocation by 17. */
+/**
+ * Use only the bed this patient holds; otherwise wait where it is for allocation by 17. A patient
+ * that 17 has bandaged where it lies first waits where it is for the bandage.
+ */
 function patientBedTile(ctx: TickContext, id: EntityId): TileIndex {
   const bedId = ctx.world.entities.get(id, C.Patient)?.bedId ?? 0;
-  if (bedId !== 0 && ctx.readers.has('14')) {
+  if (bedId !== 0 && ctx.readers.has('14') && !awaitsBandage(ctx.readers, id, ctx.tick)) {
     const buildings = ctx.readers.of<BuildingsReader>('14');
     const bed = buildings.get(bedId);
     if (bed?.state === 'built' && buildings.bedHolder(bedId) === id) return bed.origin;

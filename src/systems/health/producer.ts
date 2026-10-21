@@ -19,7 +19,7 @@ import {
   TREAT_TICKS,
 } from './constants';
 import { updatePatient } from './tick';
-import { needsCleaning, woundTreatmentNeeds } from './wounds';
+import { awaitsBandage, needsCleaning, woundTreatmentNeeds } from './wounds';
 
 export interface HealthProducerHost {
   readonly rng: RngStream;
@@ -121,12 +121,12 @@ export class HealthProducer implements JobProducer {
           if (bView) bedTile = bView.origin;
         }
 
-        // Unconscious patient: carry to bed if not at bed
+        // Unconscious patient: carry to bed if not at bed, once it is bandaged where it lies
         const pos = entities.get(patientId, C.Position);
         const currentTile = pos ? ctx.world.map.index(pos.x, pos.y, pos.z) : -1;
         const carryKey = `carry_patient:${patientId}`;
         if (!b.conscious && bedTile >= 0 && currentTile !== bedTile) {
-          if (!sink.exists(carryKey)) {
+          if (!sink.exists(carryKey) && !awaitsBandage(ctx.readers, patientId, ctx.tick)) {
             sink.create(carryKey, {
               type: 'carry_patient',
               target: { kind: 'entity', ref: patientId },
@@ -384,9 +384,9 @@ export class HealthProducer implements JobProducer {
     }
 
     const typeStr = this.typeIdOf(job);
+    // A bandage on a dwarf does not fail (§ Patients and hospitals); the other treatments can.
     const canFail = [
       'bandage_animal',
-      'stop_bleeding',
       'set_bone',
       'suture',
       'clean_wound',
