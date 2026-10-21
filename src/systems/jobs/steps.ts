@@ -82,6 +82,14 @@ export function chooseStand(board: JobBoard, job: Job, workerId: EntityId): Tile
   return best;
 }
 
+/**
+ * No stand tile shares the worker's label: the labels explain why it cannot get there (a door locked
+ * on its way), so the job is unclaimed as a walk bound for a stand tile the labels keep it from.
+ */
+function unclaimNoStand(board: JobBoard, job: Job): void {
+  board.unclaim(job, 'unreachable', -1, board.standTiles(job)[0] ?? board.anchorTile(job));
+}
+
 /** `jobs.stepWorker(id, ctx)`. */
 export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext): void {
   const worker = board.workerOf(workerId);
@@ -137,7 +145,9 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
         }
       } else {
         const dest = deliveryTile(board, job, workerId);
-        if (board.workerTile(workerId) === dest) {
+        if (dest < 0) {
+          unclaimNoStand(board, job);
+        } else if (board.workerTile(workerId) === dest) {
           board.items.dropAt(carrying, dest);
           for (const input of job.inputs) if (input.reserved.includes(carrying)) input.delivered.push(carrying);
           board.setWorker(workerId, { carrying: 0 });
@@ -151,7 +161,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
     case 'travelling': {
       const stand = chooseStand(board, job, workerId);
       if (stand < 0) {
-        board.unclaim(job, 'unreachable');
+        unclaimNoStand(board, job);
         return;
       }
       if (board.workerTile(workerId) === stand) {
