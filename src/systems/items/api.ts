@@ -676,8 +676,8 @@ export class ItemCore implements ItemsApi {
 
   /**
    * `items.destroy(itemId, reason)`: `ItemDestroyed { id, type, reason, crafterId }`. A container's
-   * contents are left where it was; when it is on no tile (it left the map with its holder), they are
-   * destroyed with it, with the same reason.
+   * contents are left where it was, and a corpse drops its worn kit on its tile; when it is on no tile
+   * (it left the map with its holder), they are destroyed with it, with the same reason.
    */
   destroy(itemId: EntityId, reason: string): void {
     const it = this.get(itemId);
@@ -688,7 +688,8 @@ export class ItemCore implements ItemsApi {
       for (const wornId of new Set(corpse.wornItems)) {
         const worn = this.get(wornId);
         if (wornId === itemId || worn?.carriedBy !== itemId) continue;
-        if (this.host.facts.row(worn.type).category.startsWith('clothing/')) {
+        // A corpse on no tile has left the map with its holder (escaped loot): what it wears goes with it.
+        if (tile < 0 || this.host.facts.row(worn.type).category.startsWith('clothing/')) {
           this.destroy(wornId, reason);
         } else {
           this.setOwner(wornId, 0);
