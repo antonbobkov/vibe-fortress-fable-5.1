@@ -40,7 +40,7 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 |---|---|---|---|---|
 | hunger | 1 | eating: meal −100, raw food −70 | 50 | 85 |
 | thirst | 1.6 (× `weather.thirstModifier()`) | drink: alcohol −100, water −80 | 50 | 85 |
-| rest | 5 awake; −15 per hour asleep | sleeping | 60 | 90 |
+| rest | 5 awake; −15 per hour on the sleep errand, from setting off for bed | sleeping | 60 | 90 |
 | social | 2 | talking: −40 per conversation | 50 | none |
 | comfort | 1 | sitting in a room of tier ≥ decent −40 per sit; hearth hall −20; a meal at a table is a sit | 55 | none |
 | purpose | 2 while idle; −10 per hour of work | working | 60 | none |
@@ -67,7 +67,7 @@ A food or drink errand reserves one unit under the dwarf's id. Death, unconsciou
 
 ### Sleeping
 
-- Schedule: each dwarf has `sleepStartHour` (uniformly 20–23 from 10's rng stream) and goes to bed at that hour unless rest is below 20. Rest at its want threshold outside the window also sends the dwarf to bed. A sleep ends when rest reaches 0, or after `SLEEP_HOURS` if that comes first, and the dwarf wakes with rest 0.
+- Schedule: each dwarf has `sleepStartHour` (uniformly 20–23 from 10's rng stream) and goes to bed at that hour unless rest is below 20. Rest at its want threshold outside the window also sends the dwarf to bed. Rest falls at the sleeping rate from the moment the dwarf sets off for its bed (or the floor it will sleep on), the walk included: the walk to bed is part of resting. A sleep ends when rest reaches 0, or after `SLEEP_HOURS` if that comes first, and the dwarf wakes with rest 0, so a dwarf whose walk to bed is long can reach it rested, lie down and get up at once.
 - Bed search: own bed (assigned bedroom), else any unassigned free bed, else the floor of the hearth hall, else where they stand. Emits `Slept { id, bedQuality, roomTier, onFloor }`.
 - A built bed holds one dwarf. Choosing it for sleep holds it immediately, during the walk and sleep, until the dwarf wakes, abandons the activity or dies. The saved rest activity's `itemId` is the bed id (0 for floor sleep); loading preserves the hold. Bed availability is live, not cached with room geometry. An own bed held by another dwarf is unavailable too; another free unassigned bed or the floor is the fallback. A patient holds its assigned bed under 17's rule, so a tired medic never chooses it.
 - Sleep is interrupted by `danger`-severity events nearby and by hearth alert.
