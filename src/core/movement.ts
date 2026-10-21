@@ -11,7 +11,7 @@
  * See docs/02-systems/22-pathfinding-and-spatial.md § Movement helper.
  */
 
-import { C, type Motion, type Position } from './components';
+import { C, type ComponentType, type Motion, type Position } from './components';
 import { isSolidBottomed, Map3D, TileKind } from './map3d';
 import { FLUID_MAX_LEVEL, REPATH_LIMIT, REPATH_WAIT_TICKS, STEP_COST } from './path-constants';
 import type { EntityStore } from './entities';
@@ -20,6 +20,16 @@ import type { GameEvent } from './events';
 import type { MoverOptions, PathingCore, PathUrgency } from './pathfinding';
 import type { SpatialIndex } from './spatial';
 import type { EntityId, TileIndex } from './types';
+
+/**
+ * A creature lying down (22 § Movement helper): unconscious (17), or asleep (10: resting, with no
+ * path to walk). It blocks no walker, at a door or anywhere else.
+ */
+export function liesDown(entities: { get<T>(id: EntityId, type: ComponentType<T>): T | undefined }, id: EntityId): boolean {
+  if (entities.get(id, C.Body)?.conscious === false) return true;
+  const brain = entities.get(id, C.Brain);
+  return brain?.behavior === 'need' && brain.activity === 'sleep' && (entities.get(id, C.Motion)?.pathId ?? 0) === 0;
+}
 
 /** What one call to {@link MovementHelper.moveAlongPath} did. */
 export type MoveOutcome = 'idle' | 'moving' | 'arrived' | 'blocked' | 'fell';
@@ -324,7 +334,7 @@ export class MovementHelper implements MovementApi {
 
   /**
    * `blockedByCreature(next, id)`: a creature hostile to the mover, or any creature at all when a
-   * door stands on the tile. Two dwarves otherwise share a tile.
+   * door stands on the tile. Two dwarves otherwise share a tile. A creature lying down blocks no one.
    */
   blockedByCreature(next: TileIndex, id: EntityId): boolean {
     const occupants = this.spatial.at(next);
@@ -334,6 +344,7 @@ export class MovementHelper implements MovementApi {
       const other = occupants[k] as EntityId;
       if (other === id) continue;
       if (this.entities.kind(other) !== 'creature') continue;
+      if (liesDown(this.entities, other)) continue;
       if (door) return true;
       if (this.pathing.graph.hooks.hostile(id, other)) return true;
     }
