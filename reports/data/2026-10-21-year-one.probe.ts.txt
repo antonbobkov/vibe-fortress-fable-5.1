@@ -1,0 +1,81 @@
+/**
+ * T-380 / T-369 measurement probe (not committed; a copy is filed as
+ * reports/data/2026-10-21-year-one.probe.ts.txt). Plays the first year of the three-year economy
+ * fixture at peril 0 exactly as three_years_seeds plays it and journals to T380_OUT/<seed>.json:
+ * the economy instrument's wealth by source at the end of each season (T-380), and every sleep
+ * errand from its start to its end: rest at the start, at lying down and at waking, ticks walking
+ * and ticks in bed, and whether it ended in a `Slept` (T-369). Observation only.
+ */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { ActivityPlan } from '@systems/dwarves/state';
+import { playThreeYears, setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense } from '../scenarios/three_years_fortress';
+import { threeYearsMeasurements } from '../scenarios/three_years_measurements';
+
+const SEEDS = (process.env['T380_SEEDS'] ?? 'three-years').split(',');
+const OUT = process.env['T380_OUT'] ?? '.vite/t380';
+const STOP_DAY = Number(process.env['T380_STOP_DAY'] ?? 112);
+
+interface Episode { id: number; start: number; rest0: number; use: number; restUse: number; end: number; restEnd: number; slept: boolean; onFloor: boolean; walkTicks: number; bedTicks: number; endHour: number; startHour: number; scheduled: boolean; endurance: number; activity: string }
+
+describe('T-380 year-one probe', () => {
+  it.each(SEEDS)('journals %s', (seed) => {
+    const peril = Number(/-p(\d)-/.exec(seed)?.[1] ?? 0);
+    mkdirSync(OUT, { recursive: true });
+    const w = threeYearsWorld(seed, peril);
+    const state = setupThreeYearsFortress(w);
+    const ent = w.game.world.entities;
+    const eco = threeYearsMeasurements(w);
+    const plans = (w.game.world.scheduler.byId('10') as unknown as { activities: { plans: Map<number, ActivityPlan> } }).activities.plans;
+    const open = new Map<number, Episode>();
+    const episodes: Episode[] = [];
+    const sleptNow = new Set<number>();
+    const floorNow = new Set<number>();
+    w.game.world.onEvents((events) => { for (const e of events) if (e.type === 'Slept') { sleptNow.add(Number(e['id'])); if (e['onFloor'] === true) floorNow.add(Number(e['id'])); } });
+    let dwarfTicks = 0, walkTicks = 0, bedTicks = 0;
+    const hourOf = (t: number): number => Math.floor((t % TICKS_PER_DAY) / 50);
+    const original = w.game.world.step;
+    w.game.world.step = () => {
+      original.call(w.game.world);
+      const t = w.tick;
+      for (const id of ent.with(C.Labors)) {
+        if (ent.get(id, C.Creature)?.faction !== 'fortress') continue;
+        dwarfTicks += 1;
+        const p = plans.get(id);
+        const rest = ent.get(id, C.Needs)?.rest ?? -1;
+        let ep = open.get(id);
+        if (p && p.need === 'rest') {
+          if (!ep) {
+            const sched = ent.get(id, C.Schedule)?.sleepStartHour;
+            ep = { id, start: t, rest0: rest, use: -1, restUse: -1, end: -1, restEnd: -1, slept: false, onFloor: false, walkTicks: 0, bedTicks: 0,
+              endHour: -1, startHour: hourOf(t), scheduled: sched === hourOf(t), endurance: ent.get(id, C.Attributes)?.end ?? -1,
+              activity: ent.get(id, C.Brain)?.activity ?? '' };
+            open.set(id, ep);
+          }
+          if (p.phase === 'use') { if (ep.use < 0) { ep.use = t; ep.restUse = rest; } ep.bedTicks += 1; bedTicks += 1; }
+          else { ep.walkTicks += 1; walkTicks += 1; }
+        } else if (ep) {
+          ep.end = t; ep.restEnd = rest; ep.slept = sleptNow.has(id); ep.onFloor = floorNow.has(id); ep.endHour = hourOf(t);
+          episodes.push(ep); open.delete(id);
+        }
+      }
+      sleptNow.clear(); floorNow.clear();
+    };
+    const seasons: unknown[] = [];
+    const end = STOP_DAY * TICKS_PER_DAY;
+    while (w.tick < end) {
+      playThreeYears(w, state, Math.min(300, end - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+      if (w.tick % (28 * TICKS_PER_DAY) === 0) {
+        const s = eco.snapshot();
+        seasons.push({ day: s.day, wealth: s.wealth, population: s.population, renown: s.renown, marks: s.marks, counts: s.counts, recipes: s.recipes,
+          qualities: s.qualities, craftQualities: s.craftQualities, craftQualityValueDelta: s.craftQualityValueDelta, skillMaxima: s.skillMaxima });
+      }
+    }
+    writeFileSync(`${OUT}/${seed}.json`, JSON.stringify({ seed, peril, days: STOP_DAY, initialWealth: eco.initialWealth, seasons,
+      sleep: { dwarfTicks, walkTicks, bedTicks, episodes } }) + '\n');
+  });
+});

@@ -1,0 +1,39 @@
+// Summarise the T-380 / T-369 year-one probe: node yearone.mjs <dir> [out.json]
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+const dir = process.argv[2];
+const med = (a) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+const mean = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+const r1 = (x) => (x === null ? null : +x.toFixed(1));
+const out = {};
+for (const f of readdirSync(dir).filter((x) => x.endsWith('.json')).sort()) {
+  const d = JSON.parse(readFileSync(`${dir}/${f}`, 'utf8'));
+  const seasons = d.seasons.map((s) => ({ day: s.day, wealth: s.wealth, population: s.population, renown: +s.renown.toFixed(1), marks: s.marks,
+    meals: Object.fromEntries(Object.entries(s.counts ?? {}).filter(([k]) => /meal|drink/.test(k))), qualities: s.qualities }));
+  const sl = d.sleep;
+  const eps = sl.episodes.filter((e) => e.end >= 0);
+  const done = eps.filter((e) => e.use >= 0);
+  const restDropWalk = done.map((e) => e.rest0 - e.restUse);
+  const o = {
+    initialWealth: d.initialWealth, seasons,
+    sleep: {
+      dwarfDays: r1(sl.dwarfTicks / 1200), errandsPerDwarfDay: +(eps.length / (sl.dwarfTicks / 1200)).toFixed(2),
+      shareWalk: +(100 * sl.walkTicks / sl.dwarfTicks).toFixed(1), shareBed: +(100 * sl.bedTicks / sl.dwarfTicks).toFixed(1),
+      hoursPerDayWalk: +(24 * sl.walkTicks / sl.dwarfTicks).toFixed(2), hoursPerDayBed: +(24 * sl.bedTicks / sl.dwarfTicks).toFixed(2),
+      errands: eps.length, reachedBed: done.length, slept: eps.filter((e) => e.slept).length, onFloor: eps.filter((e) => e.onFloor).length,
+      scheduled: eps.filter((e) => e.scheduled).length,
+      walkTicksMedian: med(eps.map((e) => e.walkTicks)), bedTicksMedian: med(done.map((e) => e.bedTicks)), bedTicksMean: r1(mean(done.map((e) => e.bedTicks))),
+      restAtStartMedian: med(eps.map((e) => e.rest0)), restAtStartMean: r1(mean(eps.map((e) => e.rest0))),
+      restAtBedMedian: med(done.map((e) => e.restUse)), restAtBedMean: r1(mean(done.map((e) => e.restUse))),
+      restFallOnWalkMean: r1(mean(restDropWalk)), restAtEndMedian: med(eps.map((e) => e.restEnd)),
+      bedTicksMax: Math.max(...done.map((e) => e.bedTicks)), endedAtRestZero: eps.filter((e) => e.restEnd === 0).length,
+      endedOnArrival: eps.filter((e) => e.use < 0 && e.slept).length, walkTicksMedianEndedOnArrival: med(eps.filter((e) => e.use < 0).map((e) => e.walkTicks)),
+      walkTicksMedianReachedBed: med(done.map((e) => e.walkTicks)), scheduledRestAtStartMedian: med(eps.filter((e) => e.scheduled).map((e) => e.rest0)),
+      enduranceMean: r1(mean(eps.map((e) => e.endurance).filter((x) => x >= 0))),
+      byBedTicks: { under100: done.filter((e) => e.bedTicks < 100).length, '100to199': done.filter((e) => e.bedTicks >= 100 && e.bedTicks < 200).length,
+        '200to299': done.filter((e) => e.bedTicks >= 200 && e.bedTicks < 300).length, '300plus': done.filter((e) => e.bedTicks >= 300).length },
+    },
+  };
+  out[f.replace('.json', '')] = o;
+}
+console.log(JSON.stringify(out, null, 1));
+if (process.argv[3]) writeFileSync(process.argv[3], JSON.stringify(out, null, 1) + '\n');

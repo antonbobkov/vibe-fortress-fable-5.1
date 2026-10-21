@@ -78,10 +78,12 @@ Wealth is item value plus building value. Typical trajectory in a wealth-2, peri
 
 | End of | Wealth (marks) | Drivers |
 |---|---|---|
-| Year 1 | 4,000–8,000 | embark goods (about 1,500), stone blocks and furniture, first crafts, first meals |
+| Year 1 | 8,000–25,000 | embark goods (about 1,350), stone blocks and furniture, first crafts and the squad's iron: 4,000–7,000; a season's food in stock as lavish meals and drink: 5,000–19,000 |
 | Year 2 | 15,000–25,000 | iron goods, cut gems, a caravan's worth of purchases, prepared meals and drink |
 | Year 3 | 35,000–60,000 | steel, masterworks, a hundred barrels, lavish meals |
 | Year 5 | 100,000–200,000 | deepsilver items (250 each × multipliers), statues, a royal hearth hall; *unmeasured* |
+
+The food stock is the largest term from the first year: a lavish meal is worth 60 marks, one cook's job of 250 ticks makes eight from four cheap ingredients, and a fortress that keeps a season's food as lavish meals holds 5,000 to 19,000 marks of it at the end of year 1. Measured in the economy fixture ([year-1 wealth](../../reports/audits/2026-10-21-year-one-wealth.md)): 9,000 to 25,000 marks at day 112, of which 4,300 to 6,700 is everything but meals and drink. The kitchen carries years 2 and 3 as well: there the fixture's wealth less meals and drink is 7,400 to 10,400 and 11,000 to 16,400, well under the iron, gem, steel and masterwork drivers above, while its totals reach the bands.
 
 Smoothing and engraving raise room tiers (mood and immigration), not wealth.
 
