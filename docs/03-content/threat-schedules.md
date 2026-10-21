@@ -13,9 +13,11 @@
 | End of year 3 | 40,000 | 45 | 29 |
 | End of year 5 | 120,000 | 70 | 74 |
 
+The economy fixture at peril 2 runs a year ahead of this table: renown 12.8, 24.4 and 41.7 at the ends of years 1 to 3, from wealth two to three times the first row's ([raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)).
+
 ## Schedule by peril
 
-`earliest` is the first season the kind may occur; `interval` in days between rolls after the first; `size = min(max, base + renown × perRenown)` rounded; `warning` in days. `—` means never. Every `earliest`, `interval`, `base`, `perRenown` and `max` below is *unmeasured*.
+`earliest` is the first season the kind may occur; `interval` in days between rolls after the first; `size = min(max, base + renown × perRenown)` rounded; `warning` in days. `—` means never. The rows of perils 2 and 4 are measured over three years of the economy fixture ([raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)): at peril 2 thieves 4 to 8 times, bandits of 3 to 5, ambushes of 4 in year 1 rising to the cap of 6, one raid a year (8 to 11 in year 2, 12 to 16 in year 3); at peril 4 raids of 13 in year 1 to the cap of 24 in year 3 and sieges of 22 to 34 in year 2. Every `earliest`, `interval`, `base`, `perRenown` and `max` of perils 0, 1 and 3 is *unmeasured*.
 
 ### Thieves (`gloam_snatcher`; `twilight_pass`: two per event)
 

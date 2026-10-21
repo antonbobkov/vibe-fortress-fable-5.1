@@ -12,11 +12,11 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | — (T-393 closed 2026-10-18; needs a quiet machine) | open; local side (needs a quiet machine) |
-| T-368 | [Measure renown and raid size](work/T-368-measure-renown-and-raid-size.md) | T-333, the unmeasured-numbers report | — | open |
 | T-369 | [Seven hours of sleep against the measured sleep](work/T-369-sleep-hours-against-the-measured-sleep.md) | T-333, the unmeasured-numbers report | — | open |
 | T-380 | [Year-1 wealth of the economy fixture is two to three times the model](work/T-380-year-one-wealth-above-the-model.md) | T-145's peril-0 sweep | — | open |
-| T-381 | [Measure raid sizes at peril 2 with the economy fixture](work/T-381-raid-sizes-at-peril-2-with-the-economy-fixture.md) | T-145's peril-0 sweep | — | open |
 | T-404 | [Combat pace is far below the balance model](work/T-404-combat-pace-below-the-model.md) | T-366's measurement | — | open |
 | T-405 | [The first bandage decides a serious wound](work/T-405-first-bandage-decides-a-serious-wound.md) | T-367's measurement | — | open |
+| T-406 | [A patient-care job stays blocked with a path (p4-1, p4-2)](work/T-406-patient-care-job-unreachable-with-path.md) | the raid-size sweep of 2026-10-21 | — | open |
+| T-407 | [Items left nowhere after a raid leaves (p4-4)](work/T-407-raid-loot-left-nowhere.md) | the raid-size sweep of 2026-10-21 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

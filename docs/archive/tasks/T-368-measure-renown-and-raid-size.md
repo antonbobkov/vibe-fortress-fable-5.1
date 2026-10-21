@@ -1,6 +1,8 @@
 # T-368 — Measure renown and raid size
 
-**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) (rank 5) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-21, in 24aa62d.
+
+**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) (rank 5) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

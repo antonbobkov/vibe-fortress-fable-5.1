@@ -1,0 +1,61 @@
+// Summarise the T-381 raid probe journals: node raids.mjs <dir> [out.json]
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+const dir = process.argv[2];
+const out = {};
+const T = 1200, Y = 112;
+for (const f of readdirSync(dir).filter((x) => x.endsWith('.jsonl')).sort()) {
+  const seed = f.replace('.jsonl', '');
+  const peril = Number(/-p(\d)-/.exec(seed)[1]);
+  const rows = readFileSync(`${dir}/${f}`, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+  const party = new Map(); // id -> party id
+  const sp = new Map();
+  const parties = new Map();
+  const deaths = [];
+  const seasons = [];
+  const warns = [];
+  const invs = [];
+  const wounds = { fortress: { light: 0, serious: 0, grievous: 0 } };
+  let final = null;
+  for (const r of rows) {
+    if (r.t === 'who') { if (r.party) party.set(r.id, r.party); sp.set(r.id, { sp: r.sp, fac: r.fac, sol: r.sol, w: r.w, ar: r.ar, sk: r.sk, role: r.role }); }
+    else if (r.t === 'party') parties.set(r.pid, { day: Math.floor(r.tick / T), year: Math.floor(r.tick / T / Y) + 1, kind: r.kind, size: r.size, renown: +r.renown.toFixed(1), wealth: r.wealth, pop: r.pop, tick: r.tick, killedDwarves: 0, membersKilled: 0, members: new Set(), soldiersHit: 0 });
+    else if (r.t === 'end') { const p = parties.get(r.pid); if (p) { p.outcome = r.outcome; p.endDay = Math.floor(r.tick / T); p.memberCount = r.members; } }
+    else if (r.t === 'warn') warns.push({ day: Math.floor(r.tick / T), kind: r.kind, band: r.band, renown: +r.renown.toFixed(1) });
+    else if (r.t === 'season') seasons.push({ day: r.day, renown: +r.renown.toFixed(1), wealth: r.wealth, pop: r.pop });
+    else if (r.t === 'inv') invs.push(r);
+    else if (r.t === 'died') deaths.push(r);
+    else if (r.t === 'final') final = r;
+  }
+  for (const [id, pid] of party) parties.get(pid)?.members.add(id);
+  const dwarfDeaths = [];
+  for (const d of deaths) {
+    const who = sp.get(d.id);
+    const kp = party.get(d.killer);
+    if (d.sp === 'dwarf' || who?.sp === 'dwarf') {
+      const killer = sp.get(d.killer);
+      dwarfDeaths.push({ day: Math.floor(d.tick / T), cause: d.cause, killer: killer ? (killer.role || killer.sp) : '', party: kp ?? 0, soldier: !!who?.sol });
+      if (kp && parties.get(kp)) parties.get(kp).killedDwarves++;
+    }
+    const mp = party.get(d.id);
+    if (mp && parties.get(mp)) parties.get(mp).membersKilled++;
+  }
+  const yearEnds = (final?.years ?? []).map((y) => ({ day: y.day, wealth: y.wealth, pop: y.population, renown: +y.renown.toFixed(1) }));
+  out[seed] = {
+    peril, extinct: final?.extinct ?? null, finalPop: final?.pop, finalDay: final ? Math.floor(final.tick / T) : null, hash: final?.hash, invariants: invs.length,
+    yearEnds, seasons,
+    parties: [...parties.values()].filter((p) => p.kind !== 'thief').map(({ members, tick, soldiersHit, ...p }) => p),
+    thieves: [...parties.values()].filter((p) => p.kind === 'thief').length,
+    warns,
+    dwarfDeaths,
+    deathsByYear: [1, 2, 3].map((y) => dwarfDeaths.filter((d) => Math.floor(d.day / Y) + 1 === y).length),
+    hostileKilledDwarves: dwarfDeaths.filter((d) => d.party).length,
+  };
+}
+const file = process.argv[3];
+if (file) writeFileSync(file, JSON.stringify(out, null, 1));
+// Print a compact table.
+for (const [seed, s] of Object.entries(out)) {
+  console.log(`\n${seed} extinct=${s.extinct} pop=${s.finalPop} day=${s.finalDay} inv=${s.invariants} deaths/yr=${s.deathsByYear} byHostiles=${s.hostileKilledDwarves}`);
+  console.log('  year ends', s.yearEnds.map((y) => `d${y.day} w${y.wealth} p${y.pop} r${y.renown}`).join(' | '));
+  for (const p of s.parties) console.log(`  d${p.day} y${p.year} ${p.kind} size=${p.size} r=${p.renown} w=${p.wealth} pop=${p.pop} -> ${p.outcome} end d${p.endDay} membersKilled=${p.membersKilled}/${p.memberCount} dwarvesKilled=${p.killedDwarves}`);
+}

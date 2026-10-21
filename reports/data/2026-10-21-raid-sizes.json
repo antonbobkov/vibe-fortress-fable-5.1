@@ -1,0 +1,4164 @@
+{
+ "commit": "a5cd51c",
+ "probe": "2026-10-21-raid-sizes.probe.ts.txt",
+ "summary": "2026-10-21-raid-sizes-summary.mjs.txt",
+ "seeds": {
+  "three-years-p2-1": {
+   "peril": 2,
+   "extinct": 0,
+   "finalPop": 24,
+   "finalDay": 336,
+   "hash": "d733afc0735c8c73",
+   "invariants": 0,
+   "yearEnds": [
+    {
+     "day": 112,
+     "wealth": 17483,
+     "pop": 11,
+     "renown": 11
+    },
+    {
+     "day": 224,
+     "wealth": 32666,
+     "pop": 23,
+     "renown": 21
+    },
+    {
+     "day": 336,
+     "wealth": 39693,
+     "pop": 24,
+     "renown": 24.7
+    }
+   ],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 2.9,
+     "wealth": 3055,
+     "pop": 8
+    },
+    {
+     "day": 56,
+     "renown": 7.2,
+     "wealth": 11257,
+     "pop": 9
+    },
+    {
+     "day": 84,
+     "renown": 7.4,
+     "wealth": 11587,
+     "pop": 9
+    },
+    {
+     "day": 112,
+     "renown": 10.9,
+     "wealth": 17547,
+     "pop": 12
+    },
+    {
+     "day": 140,
+     "renown": 13.3,
+     "wealth": 19382,
+     "pop": 18
+    },
+    {
+     "day": 168,
+     "renown": 16.7,
+     "wealth": 26225,
+     "pop": 19
+    },
+    {
+     "day": 196,
+     "renown": 16.6,
+     "wealth": 24000,
+     "pop": 23
+    },
+    {
+     "day": 224,
+     "renown": 20.9,
+     "wealth": 32790,
+     "pop": 24
+    },
+    {
+     "day": 252,
+     "renown": 18.1,
+     "wealth": 26246,
+     "pop": 25
+    },
+    {
+     "day": 280,
+     "renown": 24.2,
+     "wealth": 38747,
+     "pop": 24
+    },
+    {
+     "day": 308,
+     "renown": 21.8,
+     "wealth": 34015,
+     "pop": 24
+    }
+   ],
+   "parties": [
+    {
+     "day": 61,
+     "year": 1,
+     "kind": "bandits",
+     "size": 3,
+     "renown": 8.3,
+     "wealth": 12168,
+     "pop": 11,
+     "killedDwarves": 1,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 63,
+     "memberCount": 3
+    },
+    {
+     "day": 67,
+     "year": 1,
+     "kind": "ambush",
+     "size": 4,
+     "renown": 6.1,
+     "wealth": 9097,
+     "pop": 8,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 69,
+     "memberCount": 4
+    },
+    {
+     "day": 125,
+     "year": 2,
+     "kind": "raid",
+     "size": 11,
+     "renown": 16,
+     "wealth": 24844,
+     "pop": 18,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 127,
+     "memberCount": 12
+    },
+    {
+     "day": 170,
+     "year": 2,
+     "kind": "ambush",
+     "size": 5,
+     "renown": 18.7,
+     "wealth": 26167,
+     "pop": 28,
+     "killedDwarves": 4,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 172,
+     "memberCount": 5
+    },
+    {
+     "day": 235,
+     "year": 3,
+     "kind": "bandits",
+     "size": 4,
+     "renown": 24.8,
+     "wealth": 35691,
+     "pop": 35,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 235,
+     "memberCount": 4
+    },
+    {
+     "day": 236,
+     "year": 3,
+     "kind": "ambush",
+     "size": 5,
+     "renown": 24.3,
+     "wealth": 34652,
+     "pop": 35,
+     "killedDwarves": 7,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 239,
+     "memberCount": 5
+    },
+    {
+     "day": 250,
+     "year": 3,
+     "kind": "raid",
+     "size": 12,
+     "renown": 19.6,
+     "wealth": 28024,
+     "pop": 28,
+     "killedDwarves": 3,
+     "membersKilled": 2,
+     "outcome": "looted",
+     "endDay": 252,
+     "memberCount": 13
+    },
+    {
+     "day": 299,
+     "year": 3,
+     "kind": "ambush",
+     "size": 5,
+     "renown": 22.9,
+     "wealth": 36281,
+     "pop": 24,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 301,
+     "memberCount": 5
+    }
+   ],
+   "thieves": 7,
+   "warns": [
+    {
+     "day": 124,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 16.4
+    },
+    {
+     "day": 249,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 20
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 37,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 44,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 63,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 50332221,
+     "soldier": false
+    },
+    {
+     "day": 64,
+     "cause": "bled_out",
+     "killer": "wolf",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 66,
+     "cause": "bled_out",
+     "killer": "wolf",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 170,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 218104246,
+     "soldier": false
+    },
+    {
+     "day": 170,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 218104246,
+     "soldier": false
+    },
+    {
+     "day": 170,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 218104246,
+     "soldier": false
+    },
+    {
+     "day": 170,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 218104246,
+     "soldier": false
+    },
+    {
+     "day": 174,
+     "cause": "bled_out",
+     "killer": "bear",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 236,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 218104550,
+     "soldier": false
+    },
+    {
+     "day": 236,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 218104550,
+     "soldier": false
+    },
+    {
+     "day": 236,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 218104550,
+     "soldier": false
+    },
+    {
+     "day": 236,
+     "cause": "killed",
+     "killer": "archers",
+     "party": 218104550,
+     "soldier": false
+    },
+    {
+     "day": 236,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 218104550,
+     "soldier": false
+    },
+    {
+     "day": 236,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 218104550,
+     "soldier": false
+    },
+    {
+     "day": 237,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 218104550,
+     "soldier": false
+    },
+    {
+     "day": 250,
+     "cause": "killed",
+     "killer": "captain",
+     "party": 218104315,
+     "soldier": true
+    },
+    {
+     "day": 250,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 218104315,
+     "soldier": false
+    },
+    {
+     "day": 250,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 218104315,
+     "soldier": false
+    },
+    {
+     "day": 257,
+     "cause": "bled_out",
+     "killer": "bear",
+     "party": 0,
+     "soldier": true
+    }
+   ],
+   "deathsByYear": [
+    5,
+    5,
+    11
+   ],
+   "hostileKilledDwarves": 15
+  },
+  "three-years-p2-2": {
+   "peril": 2,
+   "extinct": 0,
+   "finalPop": 52,
+   "finalDay": 336,
+   "hash": "58e223b7c1f32ff5",
+   "invariants": 0,
+   "yearEnds": [
+    {
+     "day": 112,
+     "wealth": 21052,
+     "pop": 12,
+     "renown": 12.8
+    },
+    {
+     "day": 224,
+     "wealth": 36732,
+     "pop": 23,
+     "renown": 23
+    },
+    {
+     "day": 336,
+     "wealth": 57255,
+     "pop": 52,
+     "renown": 39.1
+    }
+   ],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 4,
+     "wealth": 5168,
+     "pop": 8
+    },
+    {
+     "day": 56,
+     "renown": 7.7,
+     "wealth": 11934,
+     "pop": 10
+    },
+    {
+     "day": 84,
+     "renown": 8.1,
+     "wealth": 12766,
+     "pop": 10
+    },
+    {
+     "day": 112,
+     "renown": 12.9,
+     "wealth": 21052,
+     "pop": 12
+    },
+    {
+     "day": 140,
+     "renown": 10,
+     "wealth": 15222,
+     "pop": 13
+    },
+    {
+     "day": 168,
+     "renown": 15.7,
+     "wealth": 23739,
+     "pop": 19
+    },
+    {
+     "day": 196,
+     "renown": 16.9,
+     "wealth": 27197,
+     "pop": 18
+    },
+    {
+     "day": 224,
+     "renown": 23,
+     "wealth": 36796,
+     "pop": 24
+    },
+    {
+     "day": 252,
+     "renown": 27.6,
+     "wealth": 41300,
+     "pop": 35
+    },
+    {
+     "day": 280,
+     "renown": 33.7,
+     "wealth": 53371,
+     "pop": 36
+    },
+    {
+     "day": 308,
+     "renown": 40.4,
+     "wealth": 62538,
+     "pop": 47
+    }
+   ],
+   "parties": [
+    {
+     "day": 60,
+     "year": 1,
+     "kind": "ambush",
+     "size": 4,
+     "renown": 7.4,
+     "wealth": 10320,
+     "pop": 11,
+     "killedDwarves": 1,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 62,
+     "memberCount": 4
+    },
+    {
+     "day": 67,
+     "year": 1,
+     "kind": "bandits",
+     "size": 3,
+     "renown": 5.2,
+     "wealth": 6814,
+     "pop": 9,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 67,
+     "memberCount": 3
+    },
+    {
+     "day": 123,
+     "year": 2,
+     "kind": "raid",
+     "size": 10,
+     "renown": 13.2,
+     "wealth": 21654,
+     "pop": 12,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 125,
+     "memberCount": 11
+    },
+    {
+     "day": 177,
+     "year": 2,
+     "kind": "ambush",
+     "size": 5,
+     "renown": 16.7,
+     "wealth": 25880,
+     "pop": 19,
+     "killedDwarves": 2,
+     "membersKilled": 2,
+     "outcome": "looted",
+     "endDay": 179,
+     "memberCount": 5
+    },
+    {
+     "day": 251,
+     "year": 3,
+     "kind": "raid",
+     "size": 14,
+     "renown": 27.9,
+     "wealth": 41734,
+     "pop": 35,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 253,
+     "memberCount": 15
+    },
+    {
+     "day": 260,
+     "year": 3,
+     "kind": "bandits",
+     "size": 4,
+     "renown": 29.3,
+     "wealth": 44624,
+     "pop": 35,
+     "killedDwarves": 0,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 260,
+     "memberCount": 4
+    },
+    {
+     "day": 281,
+     "year": 3,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 36.2,
+     "wealth": 53688,
+     "pop": 47,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 283,
+     "memberCount": 6
+    }
+   ],
+   "thieves": 7,
+   "warns": [
+    {
+     "day": 122,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 13.5
+    },
+    {
+     "day": 250,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 27.9
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 60,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 150995040,
+     "soldier": true
+    },
+    {
+     "day": 63,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 177,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 587202709,
+     "soldier": true
+    },
+    {
+     "day": 177,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 587202709,
+     "soldier": true
+    },
+    {
+     "day": 302,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": false
+    }
+   ],
+   "deathsByYear": [
+    2,
+    2,
+    1
+   ],
+   "hostileKilledDwarves": 3
+  },
+  "three-years-p2-3": {
+   "peril": 2,
+   "extinct": 0,
+   "finalPop": 51,
+   "finalDay": 336,
+   "hash": "2e9e64b5bc0dd8b8",
+   "invariants": 0,
+   "yearEnds": [
+    {
+     "day": 112,
+     "wealth": 19401,
+     "pop": 16,
+     "renown": 12.9
+    },
+    {
+     "day": 224,
+     "wealth": 59311,
+     "pop": 39,
+     "renown": 37.6
+    },
+    {
+     "day": 336,
+     "wealth": 70295,
+     "pop": 51,
+     "renown": 45.4
+    }
+   ],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 4,
+     "wealth": 5272,
+     "pop": 8
+    },
+    {
+     "day": 56,
+     "renown": 7.2,
+     "wealth": 10397,
+     "pop": 11
+    },
+    {
+     "day": 84,
+     "renown": 7.3,
+     "wealth": 9002,
+     "pop": 15
+    },
+    {
+     "day": 112,
+     "renown": 12.9,
+     "wealth": 19465,
+     "pop": 17
+    },
+    {
+     "day": 140,
+     "renown": 11.5,
+     "wealth": 14340,
+     "pop": 23
+    },
+    {
+     "day": 168,
+     "renown": 18,
+     "wealth": 27278,
+     "pop": 23
+    },
+    {
+     "day": 196,
+     "renown": 23.3,
+     "wealth": 33469,
+     "pop": 34
+    },
+    {
+     "day": 224,
+     "renown": 37.5,
+     "wealth": 59311,
+     "pop": 39
+    },
+    {
+     "day": 252,
+     "renown": 36,
+     "wealth": 56460,
+     "pop": 39
+    },
+    {
+     "day": 280,
+     "renown": 36.9,
+     "wealth": 58301,
+     "pop": 40
+    },
+    {
+     "day": 308,
+     "renown": 33.7,
+     "wealth": 47060,
+     "pop": 51
+    }
+   ],
+   "parties": [
+    {
+     "day": 58,
+     "year": 1,
+     "kind": "bandits",
+     "size": 3,
+     "renown": 8.2,
+     "wealth": 10855,
+     "pop": 14,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 58,
+     "memberCount": 3
+    },
+    {
+     "day": 69,
+     "year": 1,
+     "kind": "ambush",
+     "size": 4,
+     "renown": 8.7,
+     "wealth": 11806,
+     "pop": 14,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 71,
+     "memberCount": 4
+    },
+    {
+     "day": 119,
+     "year": 2,
+     "kind": "raid",
+     "size": 10,
+     "renown": 14.1,
+     "wealth": 18513,
+     "pop": 24,
+     "killedDwarves": 1,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 121,
+     "memberCount": 11
+    },
+    {
+     "day": 140,
+     "year": 2,
+     "kind": "ambush",
+     "size": 4,
+     "renown": 11.5,
+     "wealth": 14340,
+     "pop": 23,
+     "killedDwarves": 6,
+     "membersKilled": 1,
+     "outcome": "repelled",
+     "endDay": 140,
+     "memberCount": 4
+    },
+    {
+     "day": 210,
+     "year": 2,
+     "kind": "bandits",
+     "size": 5,
+     "renown": 30.6,
+     "wealth": 45679,
+     "pop": 39,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 210,
+     "memberCount": 5
+    },
+    {
+     "day": 224,
+     "year": 3,
+     "kind": "raid",
+     "size": 16,
+     "renown": 37.5,
+     "wealth": 59310,
+     "pop": 39,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 226,
+     "memberCount": 17
+    },
+    {
+     "day": 246,
+     "year": 3,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 38.7,
+     "wealth": 61741,
+     "pop": 39,
+     "killedDwarves": 0,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 248,
+     "memberCount": 6
+    }
+   ],
+   "thieves": 8,
+   "warns": [
+    {
+     "day": 118,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 14.7
+    },
+    {
+     "day": 223,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 37.9
+    },
+    {
+     "day": 335,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 45.4
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 42,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 119,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 553649088,
+     "soldier": false
+    },
+    {
+     "day": 126,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 140,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 486540122,
+     "soldier": false
+    },
+    {
+     "day": 140,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 486540122,
+     "soldier": false
+    },
+    {
+     "day": 140,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 486540122,
+     "soldier": false
+    },
+    {
+     "day": 140,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 486540122,
+     "soldier": false
+    },
+    {
+     "day": 140,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 486540122,
+     "soldier": false
+    },
+    {
+     "day": 140,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 486540122,
+     "soldier": false
+    }
+   ],
+   "deathsByYear": [
+    1,
+    8,
+    0
+   ],
+   "hostileKilledDwarves": 7
+  },
+  "three-years-p2-4": {
+   "peril": 2,
+   "extinct": 0,
+   "finalPop": 42,
+   "finalDay": 336,
+   "hash": "c6e9f2249fc465a9",
+   "invariants": 0,
+   "yearEnds": [
+    {
+     "day": 112,
+     "wealth": 21069,
+     "pop": 14,
+     "renown": 13.4
+    },
+    {
+     "day": 224,
+     "wealth": 39607,
+     "pop": 27,
+     "renown": 25.2
+    },
+    {
+     "day": 336,
+     "wealth": 55989,
+     "pop": 42,
+     "renown": 36.3
+    }
+   ],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 3.4,
+     "wealth": 4410,
+     "pop": 7
+    },
+    {
+     "day": 56,
+     "renown": 7.7,
+     "wealth": 11814,
+     "pop": 9
+    },
+    {
+     "day": 84,
+     "renown": 7.9,
+     "wealth": 11530,
+     "pop": 12
+    },
+    {
+     "day": 112,
+     "renown": 13.3,
+     "wealth": 21133,
+     "pop": 15
+    },
+    {
+     "day": 140,
+     "renown": 18.8,
+     "wealth": 28728,
+     "pop": 22
+    },
+    {
+     "day": 168,
+     "renown": 20.8,
+     "wealth": 33293,
+     "pop": 21
+    },
+    {
+     "day": 196,
+     "renown": 16.9,
+     "wealth": 25480,
+     "pop": 22
+    },
+    {
+     "day": 224,
+     "renown": 25.2,
+     "wealth": 39607,
+     "pop": 27
+    },
+    {
+     "day": 252,
+     "renown": 17.8,
+     "wealth": 24847,
+     "pop": 28
+    },
+    {
+     "day": 280,
+     "renown": 23.2,
+     "wealth": 31526,
+     "pop": 37
+    },
+    {
+     "day": 308,
+     "renown": 24.1,
+     "wealth": 33426,
+     "pop": 38
+    }
+   ],
+   "parties": [
+    {
+     "day": 62,
+     "year": 1,
+     "kind": "ambush",
+     "size": 4,
+     "renown": 7.9,
+     "wealth": 11001,
+     "pop": 12,
+     "killedDwarves": 1,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 64,
+     "memberCount": 4
+    },
+    {
+     "day": 75,
+     "year": 1,
+     "kind": "bandits",
+     "size": 3,
+     "renown": 6.3,
+     "wealth": 8212,
+     "pop": 11,
+     "killedDwarves": 0,
+     "membersKilled": 2,
+     "outcome": "repelled",
+     "endDay": 75,
+     "memberCount": 3
+    },
+    {
+     "day": 121,
+     "year": 2,
+     "kind": "raid",
+     "size": 11,
+     "renown": 16.3,
+     "wealth": 23442,
+     "pop": 23,
+     "killedDwarves": 1,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 123,
+     "memberCount": 12
+    },
+    {
+     "day": 149,
+     "year": 2,
+     "kind": "ambush",
+     "size": 5,
+     "renown": 21.1,
+     "wealth": 33357,
+     "pop": 22,
+     "killedDwarves": 1,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 151,
+     "memberCount": 5
+    },
+    {
+     "day": 223,
+     "year": 2,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 25.2,
+     "wealth": 39646,
+     "pop": 27,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 225,
+     "memberCount": 6
+    },
+    {
+     "day": 242,
+     "year": 3,
+     "kind": "raid",
+     "size": 12,
+     "renown": 19,
+     "wealth": 27210,
+     "pop": 27,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 244,
+     "memberCount": 13
+    },
+    {
+     "day": 251,
+     "year": 3,
+     "kind": "bandits",
+     "size": 4,
+     "renown": 18.2,
+     "wealth": 25694,
+     "pop": 27,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 251,
+     "memberCount": 4
+    },
+    {
+     "day": 322,
+     "year": 3,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 34.2,
+     "wealth": 51283,
+     "pop": 43,
+     "killedDwarves": 1,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 324,
+     "memberCount": 6
+    }
+   ],
+   "thieves": 8,
+   "warns": [
+    {
+     "day": 120,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 16.5
+    },
+    {
+     "day": 241,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 19.3
+    },
+    {
+     "day": 335,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 36.3
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 2,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 62,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 184550174,
+     "soldier": false
+    },
+    {
+     "day": 121,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 50332203,
+     "soldier": false
+    },
+    {
+     "day": 149,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 184550051,
+     "soldier": false
+    },
+    {
+     "day": 322,
+     "cause": "killed",
+     "killer": "archers",
+     "party": 352323178,
+     "soldier": false
+    }
+   ],
+   "deathsByYear": [
+    2,
+    2,
+    1
+   ],
+   "hostileKilledDwarves": 4
+  },
+  "three-years-p2-5": {
+   "peril": 2,
+   "extinct": 0,
+   "finalPop": 52,
+   "finalDay": 336,
+   "hash": "d508b6e4bc762d52",
+   "invariants": 0,
+   "yearEnds": [
+    {
+     "day": 112,
+     "wealth": 18211,
+     "pop": 11,
+     "renown": 11.3
+    },
+    {
+     "day": 224,
+     "wealth": 38029,
+     "pop": 23,
+     "renown": 23.6
+    },
+    {
+     "day": 336,
+     "wealth": 67666,
+     "pop": 52,
+     "renown": 44.3
+    }
+   ],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 4,
+     "wealth": 5176,
+     "pop": 8
+    },
+    {
+     "day": 56,
+     "renown": 5.7,
+     "wealth": 7921,
+     "pop": 10
+    },
+    {
+     "day": 84,
+     "renown": 6.7,
+     "wealth": 8985,
+     "pop": 11
+    },
+    {
+     "day": 112,
+     "renown": 11.3,
+     "wealth": 18211,
+     "pop": 11
+    },
+    {
+     "day": 140,
+     "renown": 8.7,
+     "wealth": 12971,
+     "pop": 12
+    },
+    {
+     "day": 168,
+     "renown": 10.1,
+     "wealth": 13435,
+     "pop": 18
+    },
+    {
+     "day": 196,
+     "renown": 17.3,
+     "wealth": 25446,
+     "pop": 23
+    },
+    {
+     "day": 224,
+     "renown": 23.6,
+     "wealth": 38093,
+     "pop": 24
+    },
+    {
+     "day": 252,
+     "renown": 27,
+     "wealth": 39985,
+     "pop": 36
+    },
+    {
+     "day": 280,
+     "renown": 31,
+     "wealth": 43541,
+     "pop": 46
+    },
+    {
+     "day": 308,
+     "renown": 29,
+     "wealth": 39744,
+     "pop": 47
+    }
+   ],
+   "parties": [
+    {
+     "day": 57,
+     "year": 1,
+     "kind": "ambush",
+     "size": 4,
+     "renown": 6.2,
+     "wealth": 7686,
+     "pop": 12,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 59,
+     "memberCount": 4
+    },
+    {
+     "day": 71,
+     "year": 1,
+     "kind": "bandits",
+     "size": 3,
+     "renown": 6.1,
+     "wealth": 7744,
+     "pop": 11,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 71,
+     "memberCount": 3
+    },
+    {
+     "day": 121,
+     "year": 2,
+     "kind": "raid",
+     "size": 9,
+     "renown": 11.1,
+     "wealth": 17737,
+     "pop": 11,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 123,
+     "memberCount": 10
+    },
+    {
+     "day": 161,
+     "year": 2,
+     "kind": "ambush",
+     "size": 4,
+     "renown": 12.8,
+     "wealth": 18840,
+     "pop": 17,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 163,
+     "memberCount": 4
+    },
+    {
+     "day": 237,
+     "year": 3,
+     "kind": "raid",
+     "size": 14,
+     "renown": 26.3,
+     "wealth": 38585,
+     "pop": 35,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 239,
+     "memberCount": 15
+    },
+    {
+     "day": 254,
+     "year": 3,
+     "kind": "bandits",
+     "size": 4,
+     "renown": 29.5,
+     "wealth": 40282,
+     "pop": 47,
+     "killedDwarves": 1,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 254,
+     "memberCount": 4
+    },
+    {
+     "day": 279,
+     "year": 3,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 31.1,
+     "wealth": 43804,
+     "pop": 46,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 281,
+     "memberCount": 6
+    }
+   ],
+   "thieves": 8,
+   "warns": [
+    {
+     "day": 120,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 11.4
+    },
+    {
+     "day": 236,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 26.7
+    },
+    {
+     "day": 335,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 44.1
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 37,
+     "cause": "killed",
+     "killer": "bear",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 46,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 62,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 254,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 385876720,
+     "soldier": true
+    }
+   ],
+   "deathsByYear": [
+    3,
+    0,
+    1
+   ],
+   "hostileKilledDwarves": 1
+  },
+  "three-years-p2-6": {
+   "peril": 2,
+   "extinct": 197,
+   "finalPop": 0,
+   "finalDay": 196,
+   "hash": "384ef949732114bb",
+   "invariants": 0,
+   "yearEnds": [
+    {
+     "day": 112,
+     "wealth": 11076,
+     "pop": 10,
+     "renown": 7.5
+    }
+   ],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 3.3,
+     "wealth": 3923,
+     "pop": 8
+    },
+    {
+     "day": 56,
+     "renown": 4.8,
+     "wealth": 5675,
+     "pop": 11
+    },
+    {
+     "day": 84,
+     "renown": 5.8,
+     "wealth": 7560,
+     "pop": 10
+    },
+    {
+     "day": 112,
+     "renown": 7.5,
+     "wealth": 11076,
+     "pop": 10
+    },
+    {
+     "day": 140,
+     "renown": 4.5,
+     "wealth": 5773,
+     "pop": 8
+    },
+    {
+     "day": 168,
+     "renown": 4.8,
+     "wealth": 7265,
+     "pop": 6
+    },
+    {
+     "day": 196,
+     "renown": 3.3,
+     "wealth": 6113,
+     "pop": 1
+    }
+   ],
+   "parties": [
+    {
+     "day": 60,
+     "year": 1,
+     "kind": "ambush",
+     "size": 4,
+     "renown": 5.8,
+     "wealth": 6317,
+     "pop": 13,
+     "killedDwarves": 2,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 63,
+     "memberCount": 4
+    },
+    {
+     "day": 67,
+     "year": 1,
+     "kind": "bandits",
+     "size": 3,
+     "renown": 5.9,
+     "wealth": 7395,
+     "pop": 11,
+     "killedDwarves": 1,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 67,
+     "memberCount": 3
+    },
+    {
+     "day": 132,
+     "year": 2,
+     "kind": "raid",
+     "size": 8,
+     "renown": 5.9,
+     "wealth": 7803,
+     "pop": 10,
+     "killedDwarves": 1,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 134,
+     "memberCount": 9
+    },
+    {
+     "day": 167,
+     "year": 2,
+     "kind": "ambush",
+     "size": 4,
+     "renown": 5,
+     "wealth": 7277,
+     "pop": 7,
+     "killedDwarves": 1,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 169,
+     "memberCount": 4
+    }
+   ],
+   "thieves": 4,
+   "warns": [
+    {
+     "day": 131,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 5.9
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 60,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 117440839,
+     "soldier": true
+    },
+    {
+     "day": 60,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 117440839,
+     "soldier": false
+    },
+    {
+     "day": 67,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 184549599,
+     "soldier": false
+    },
+    {
+     "day": 132,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 83887033,
+     "soldier": true
+    },
+    {
+     "day": 137,
+     "cause": "bled_out",
+     "killer": "wolf",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 140,
+     "cause": "bled_out",
+     "killer": "bear",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 167,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 184550219,
+     "soldier": true
+    },
+    {
+     "day": 177,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 177,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 179,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 182,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 187,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 196,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": false
+    }
+   ],
+   "deathsByYear": [
+    3,
+    10,
+    0
+   ],
+   "hostileKilledDwarves": 5
+  },
+  "three-years-p2-7": {
+   "peril": 2,
+   "extinct": 0,
+   "finalPop": 54,
+   "finalDay": 336,
+   "hash": "dbe8bc81e75ac394",
+   "invariants": 0,
+   "yearEnds": [
+    {
+     "day": 112,
+     "wealth": 18583,
+     "pop": 18,
+     "renown": 12.9
+    },
+    {
+     "day": 224,
+     "wealth": 56539,
+     "pop": 40,
+     "renown": 36.3
+    },
+    {
+     "day": 336,
+     "wealth": 68600,
+     "pop": 54,
+     "renown": 45.2
+    }
+   ],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 4.8,
+     "wealth": 6848,
+     "pop": 8
+    },
+    {
+     "day": 56,
+     "renown": 8,
+     "wealth": 12062,
+     "pop": 11
+    },
+    {
+     "day": 84,
+     "renown": 10.5,
+     "wealth": 15904,
+     "pop": 14
+    },
+    {
+     "day": 112,
+     "renown": 12.9,
+     "wealth": 18647,
+     "pop": 19
+    },
+    {
+     "day": 140,
+     "renown": 13.3,
+     "wealth": 17726,
+     "pop": 22
+    },
+    {
+     "day": 168,
+     "renown": 21.2,
+     "wealth": 33630,
+     "pop": 23
+    },
+    {
+     "day": 196,
+     "renown": 30.7,
+     "wealth": 47764,
+     "pop": 35
+    },
+    {
+     "day": 224,
+     "renown": 36.3,
+     "wealth": 56539,
+     "pop": 40
+    },
+    {
+     "day": 252,
+     "renown": 32.9,
+     "wealth": 51333,
+     "pop": 36
+    },
+    {
+     "day": 280,
+     "renown": 31.4,
+     "wealth": 48368,
+     "pop": 37
+    },
+    {
+     "day": 308,
+     "renown": 35.1,
+     "wealth": 50972,
+     "pop": 49
+    }
+   ],
+   "parties": [
+    {
+     "day": 59,
+     "year": 1,
+     "kind": "bandits",
+     "size": 3,
+     "renown": 9.8,
+     "wealth": 14012,
+     "pop": 14,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 59,
+     "memberCount": 3
+    },
+    {
+     "day": 60,
+     "year": 1,
+     "kind": "ambush",
+     "size": 4,
+     "renown": 9.2,
+     "wealth": 12712,
+     "pop": 14,
+     "killedDwarves": 1,
+     "membersKilled": 2,
+     "outcome": "looted",
+     "endDay": 60,
+     "memberCount": 4
+    },
+    {
+     "day": 127,
+     "year": 2,
+     "kind": "ambush",
+     "size": 5,
+     "renown": 17.9,
+     "wealth": 25499,
+     "pop": 26,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 129,
+     "memberCount": 5
+    },
+    {
+     "day": 132,
+     "year": 2,
+     "kind": "raid",
+     "size": 11,
+     "renown": 16.1,
+     "wealth": 21871,
+     "pop": 26,
+     "killedDwarves": 2,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 134,
+     "memberCount": 12
+    },
+    {
+     "day": 238,
+     "year": 3,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 38.8,
+     "wealth": 61584,
+     "pop": 40,
+     "killedDwarves": 4,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 240,
+     "memberCount": 6
+    },
+    {
+     "day": 266,
+     "year": 3,
+     "kind": "raid",
+     "size": 16,
+     "renown": 34.7,
+     "wealth": 55008,
+     "pop": 36,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 268,
+     "memberCount": 17
+    },
+    {
+     "day": 272,
+     "year": 3,
+     "kind": "bandits",
+     "size": 5,
+     "renown": 31.9,
+     "wealth": 49497,
+     "pop": 36,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 272,
+     "memberCount": 5
+    }
+   ],
+   "thieves": 7,
+   "warns": [
+    {
+     "day": 131,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 16.2
+    },
+    {
+     "day": 265,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 35.3
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 60,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 117441021,
+     "soldier": true
+    },
+    {
+     "day": 132,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 587203536,
+     "soldier": true
+    },
+    {
+     "day": 132,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 587203536,
+     "soldier": false
+    },
+    {
+     "day": 136,
+     "cause": "bled_out",
+     "killer": "wolf",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 139,
+     "cause": "bled_out",
+     "killer": "wolf",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 238,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 419431284,
+     "soldier": false
+    },
+    {
+     "day": 238,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 419431284,
+     "soldier": false
+    },
+    {
+     "day": 238,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 419431284,
+     "soldier": false
+    },
+    {
+     "day": 238,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 419431284,
+     "soldier": false
+    }
+   ],
+   "deathsByYear": [
+    1,
+    4,
+    4
+   ],
+   "hostileKilledDwarves": 7
+  },
+  "three-years-p4-1": {
+   "peril": 4,
+   "extinct": 0,
+   "finalPop": 23,
+   "finalDay": 336,
+   "hash": "58ea95278b250ff9",
+   "invariants": 59,
+   "yearEnds": [
+    {
+     "day": 112,
+     "wealth": 18437,
+     "pop": 11,
+     "renown": 11.4
+    },
+    {
+     "day": 224,
+     "wealth": 39378,
+     "pop": 23,
+     "renown": 24.3
+    },
+    {
+     "day": 336,
+     "wealth": 26921,
+     "pop": 23,
+     "renown": 18.1
+    }
+   ],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 4.3,
+     "wealth": 5900,
+     "pop": 8
+    },
+    {
+     "day": 56,
+     "renown": 8,
+     "wealth": 11785,
+     "pop": 12
+    },
+    {
+     "day": 84,
+     "renown": 8.5,
+     "wealth": 12659,
+     "pop": 11
+    },
+    {
+     "day": 112,
+     "renown": 11.4,
+     "wealth": 18501,
+     "pop": 12
+    },
+    {
+     "day": 140,
+     "renown": 13.9,
+     "wealth": 20106,
+     "pop": 19
+    },
+    {
+     "day": 168,
+     "renown": 17.8,
+     "wealth": 27920,
+     "pop": 19
+    },
+    {
+     "day": 196,
+     "renown": 13.6,
+     "wealth": 19623,
+     "pop": 20
+    },
+    {
+     "day": 224,
+     "renown": 24.3,
+     "wealth": 39442,
+     "pop": 24
+    },
+    {
+     "day": 252,
+     "renown": 28.7,
+     "wealth": 43425,
+     "pop": 36
+    },
+    {
+     "day": 280,
+     "renown": 24.3,
+     "wealth": 35077,
+     "pop": 34
+    },
+    {
+     "day": 308,
+     "renown": 25.8,
+     "wealth": 42004,
+     "pop": 25
+    }
+   ],
+   "parties": [
+    {
+     "day": 57,
+     "year": 1,
+     "kind": "bandits",
+     "size": 3,
+     "renown": 8.8,
+     "wealth": 11914,
+     "pop": 14,
+     "killedDwarves": 1,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 57,
+     "memberCount": 3
+    },
+    {
+     "day": 58,
+     "year": 1,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 8.3,
+     "wealth": 11354,
+     "pop": 13,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 60,
+     "memberCount": 6
+    },
+    {
+     "day": 61,
+     "year": 1,
+     "kind": "raid",
+     "size": 13,
+     "renown": 7.1,
+     "wealth": 8958,
+     "pop": 13,
+     "killedDwarves": 2,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 63,
+     "memberCount": 14
+    },
+    {
+     "day": 92,
+     "year": 1,
+     "kind": "ambush",
+     "size": 7,
+     "renown": 10.3,
+     "wealth": 16210,
+     "pop": 11,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 94,
+     "memberCount": 7
+    },
+    {
+     "day": 117,
+     "year": 2,
+     "kind": "raid",
+     "size": 16,
+     "renown": 13.8,
+     "wealth": 20083,
+     "pop": 19,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 119,
+     "memberCount": 17
+    },
+    {
+     "day": 141,
+     "year": 2,
+     "kind": "ambush",
+     "size": 7,
+     "renown": 14.1,
+     "wealth": 20511,
+     "pop": 19,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 143,
+     "memberCount": 7
+    },
+    {
+     "day": 167,
+     "year": 2,
+     "kind": "raid",
+     "size": 18,
+     "renown": 18.3,
+     "wealth": 28969,
+     "pop": 19,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 169,
+     "memberCount": 19
+    },
+    {
+     "day": 170,
+     "year": 2,
+     "kind": "ambush",
+     "size": 7,
+     "renown": 15.2,
+     "wealth": 22345,
+     "pop": 20,
+     "killedDwarves": 9,
+     "membersKilled": 2,
+     "outcome": "repelled",
+     "endDay": 170,
+     "memberCount": 7
+    },
+    {
+     "day": 189,
+     "year": 2,
+     "kind": "siege",
+     "size": 27,
+     "renown": 18.1,
+     "wealth": 28568,
+     "pop": 19,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 194,
+     "memberCount": 33
+    },
+    {
+     "day": 204,
+     "year": 2,
+     "kind": "ambush",
+     "size": 8,
+     "renown": 20,
+     "wealth": 30788,
+     "pop": 23,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 206,
+     "memberCount": 8
+    },
+    {
+     "day": 231,
+     "year": 3,
+     "kind": "raid",
+     "size": 21,
+     "renown": 26.6,
+     "wealth": 39154,
+     "pop": 35,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 233,
+     "memberCount": 22
+    },
+    {
+     "day": 254,
+     "year": 3,
+     "kind": "ambush",
+     "size": 9,
+     "renown": 29.2,
+     "wealth": 39548,
+     "pop": 47,
+     "killedDwarves": 0,
+     "membersKilled": 8,
+     "outcome": "looted",
+     "endDay": 255,
+     "memberCount": 9
+    },
+    {
+     "day": 275,
+     "year": 3,
+     "kind": "bandits",
+     "size": 4,
+     "renown": 29.6,
+     "wealth": 42385,
+     "pop": 42,
+     "killedDwarves": 2,
+     "membersKilled": 2,
+     "outcome": "repelled",
+     "endDay": 275,
+     "memberCount": 4
+    },
+    {
+     "day": 277,
+     "year": 3,
+     "kind": "raid",
+     "size": 21,
+     "renown": 27,
+     "wealth": 38023,
+     "pop": 40,
+     "killedDwarves": 6,
+     "membersKilled": 4,
+     "outcome": "looted",
+     "endDay": 279,
+     "memberCount": 22
+    },
+    {
+     "day": 284,
+     "year": 3,
+     "kind": "ambush",
+     "size": 9,
+     "renown": 24.4,
+     "wealth": 35570,
+     "pop": 33,
+     "killedDwarves": 5,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 286,
+     "memberCount": 9
+    },
+    {
+     "day": 323,
+     "year": 3,
+     "kind": "ambush",
+     "size": 8,
+     "renown": 23.1,
+     "wealth": 34247,
+     "pop": 30,
+     "killedDwarves": 4,
+     "membersKilled": 3,
+     "outcome": "looted",
+     "endDay": 323,
+     "memberCount": 8
+    },
+    {
+     "day": 330,
+     "year": 3,
+     "kind": "raid",
+     "size": 18,
+     "renown": 20.9,
+     "wealth": 31422,
+     "pop": 26,
+     "killedDwarves": 3,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 332,
+     "memberCount": 19
+    }
+   ],
+   "thieves": 16,
+   "warns": [
+    {
+     "day": 60,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 7.9
+    },
+    {
+     "day": 116,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 13.9
+    },
+    {
+     "day": 166,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 19.8
+    },
+    {
+     "day": 188,
+     "kind": "siege",
+     "band": "a horde",
+     "renown": 18.5
+    },
+    {
+     "day": 230,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 26.8
+    },
+    {
+     "day": 276,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 27.3
+    },
+    {
+     "day": 329,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 20.9
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 57,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 50332513,
+     "soldier": false
+    },
+    {
+     "day": 61,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 83886940,
+     "soldier": true
+    },
+    {
+     "day": 61,
+     "cause": "killed",
+     "killer": "captain",
+     "party": 83886940,
+     "soldier": true
+    },
+    {
+     "day": 170,
+     "cause": "killed",
+     "killer": "archers",
+     "party": 419430653,
+     "soldier": false
+    },
+    {
+     "day": 170,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 419430653,
+     "soldier": false
+    },
+    {
+     "day": 170,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 419430653,
+     "soldier": false
+    },
+    {
+     "day": 170,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 419430653,
+     "soldier": false
+    },
+    {
+     "day": 170,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 419430653,
+     "soldier": false
+    },
+    {
+     "day": 170,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 419430653,
+     "soldier": false
+    },
+    {
+     "day": 170,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 419430653,
+     "soldier": false
+    },
+    {
+     "day": 170,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 419430653,
+     "soldier": false
+    },
+    {
+     "day": 170,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 419430653,
+     "soldier": false
+    },
+    {
+     "day": 198,
+     "cause": "killed",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 262,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 265,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 273,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 273,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 273,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 275,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 520094428,
+     "soldier": true
+    },
+    {
+     "day": 275,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 520094428,
+     "soldier": true
+    },
+    {
+     "day": 277,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 251658874,
+     "soldier": false
+    },
+    {
+     "day": 277,
+     "cause": "killed",
+     "killer": "archers",
+     "party": 251658874,
+     "soldier": false
+    },
+    {
+     "day": 277,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 251658874,
+     "soldier": true
+    },
+    {
+     "day": 277,
+     "cause": "killed",
+     "killer": "archers",
+     "party": 251658874,
+     "soldier": true
+    },
+    {
+     "day": 278,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 251658874,
+     "soldier": true
+    },
+    {
+     "day": 279,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 251658874,
+     "soldier": false
+    },
+    {
+     "day": 281,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 284,
+     "cause": "killed",
+     "killer": "archers",
+     "party": 721421137,
+     "soldier": true
+    },
+    {
+     "day": 284,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 721421137,
+     "soldier": true
+    },
+    {
+     "day": 284,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 721421137,
+     "soldier": false
+    },
+    {
+     "day": 284,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 721421137,
+     "soldier": false
+    },
+    {
+     "day": 284,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 721421137,
+     "soldier": true
+    },
+    {
+     "day": 295,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 297,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 297,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 303,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 323,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 822085156,
+     "soldier": true
+    },
+    {
+     "day": 323,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 822085156,
+     "soldier": true
+    },
+    {
+     "day": 323,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 822085156,
+     "soldier": true
+    },
+    {
+     "day": 323,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 822085156,
+     "soldier": true
+    },
+    {
+     "day": 330,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 822084209,
+     "soldier": true
+    },
+    {
+     "day": 330,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 822084209,
+     "soldier": true
+    },
+    {
+     "day": 330,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 822084209,
+     "soldier": true
+    }
+   ],
+   "deathsByYear": [
+    3,
+    10,
+    30
+   ],
+   "hostileKilledDwarves": 32
+  },
+  "three-years-p4-2": {
+   "peril": 4,
+   "extinct": 67,
+   "finalPop": 0,
+   "finalDay": 66,
+   "hash": "8bc6d0945c0a5732",
+   "invariants": 27,
+   "yearEnds": [],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 4.6,
+     "wealth": 6480,
+     "pop": 8
+    },
+    {
+     "day": 56,
+     "renown": 3,
+     "wealth": 3564,
+     "pop": 6
+    }
+   ],
+   "parties": [
+    {
+     "day": 66,
+     "year": 1,
+     "kind": "ambush",
+     "size": 5,
+     "renown": 2.3,
+     "wealth": 3749,
+     "pop": 2,
+     "killedDwarves": 2,
+     "membersKilled": 1
+    }
+   ],
+   "thieves": 3,
+   "warns": [
+    {
+     "day": 66,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 2.3
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 45,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 47,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 52,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 54,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 55,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 56,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 58,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 58,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 60,
+     "cause": "infection",
+     "killer": "",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 60,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 63,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 64,
+     "cause": "killed",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 64,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 66,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 385876138,
+     "soldier": true
+    },
+    {
+     "day": 66,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 385876138,
+     "soldier": true
+    }
+   ],
+   "deathsByYear": [
+    15,
+    0,
+    0
+   ],
+   "hostileKilledDwarves": 2
+  },
+  "three-years-p4-3": {
+   "peril": 4,
+   "extinct": 188,
+   "finalPop": 0,
+   "finalDay": 187,
+   "hash": "f1fadc1f41c78c8c",
+   "invariants": 0,
+   "yearEnds": [
+    {
+     "day": 112,
+     "wealth": 22390,
+     "pop": 14,
+     "renown": 14
+    }
+   ],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 4.6,
+     "wealth": 6441,
+     "pop": 8
+    },
+    {
+     "day": 56,
+     "renown": 7.9,
+     "wealth": 12278,
+     "pop": 10
+    },
+    {
+     "day": 84,
+     "renown": 6.7,
+     "wealth": 8633,
+     "pop": 13
+    },
+    {
+     "day": 112,
+     "renown": 14,
+     "wealth": 22390,
+     "pop": 14
+    },
+    {
+     "day": 140,
+     "renown": 11.2,
+     "wealth": 16839,
+     "pop": 14
+    },
+    {
+     "day": 168,
+     "renown": 12.9,
+     "wealth": 20168,
+     "pop": 15
+    }
+   ],
+   "parties": [
+    {
+     "day": 58,
+     "year": 1,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 8.9,
+     "wealth": 13014,
+     "pop": 12,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 60,
+     "memberCount": 6
+    },
+    {
+     "day": 70,
+     "year": 1,
+     "kind": "bandits",
+     "size": 3,
+     "renown": 8,
+     "wealth": 11193,
+     "pop": 12,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 70,
+     "memberCount": 3
+    },
+    {
+     "day": 76,
+     "year": 1,
+     "kind": "raid",
+     "size": 13,
+     "renown": 7.7,
+     "wealth": 10564,
+     "pop": 12,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 78,
+     "memberCount": 14
+    },
+    {
+     "day": 114,
+     "year": 2,
+     "kind": "ambush",
+     "size": 7,
+     "renown": 14.5,
+     "wealth": 23435,
+     "pop": 14,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 116,
+     "memberCount": 7
+    },
+    {
+     "day": 138,
+     "year": 2,
+     "kind": "raid",
+     "size": 15,
+     "renown": 11.5,
+     "wealth": 17352,
+     "pop": 14,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 140,
+     "memberCount": 16
+    },
+    {
+     "day": 168,
+     "year": 2,
+     "kind": "ambush",
+     "size": 7,
+     "renown": 12.9,
+     "wealth": 20168,
+     "pop": 15,
+     "killedDwarves": 8,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 170,
+     "memberCount": 7
+    },
+    {
+     "day": 185,
+     "year": 2,
+     "kind": "siege",
+     "size": 25,
+     "renown": 13.8,
+     "wealth": 21146,
+     "pop": 16,
+     "killedDwarves": 10,
+     "membersKilled": 0
+    },
+    {
+     "day": 186,
+     "year": 2,
+     "kind": "raid",
+     "size": 16,
+     "renown": 13.7,
+     "wealth": 21093,
+     "pop": 16,
+     "killedDwarves": 5,
+     "membersKilled": 0
+    }
+   ],
+   "thieves": 8,
+   "warns": [
+    {
+     "day": 75,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 7.8
+    },
+    {
+     "day": 137,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 11.5
+    },
+    {
+     "day": 184,
+     "kind": "siege",
+     "band": "a horde",
+     "renown": 13.8
+    },
+    {
+     "day": 185,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 13.8
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 168,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 251658699,
+     "soldier": false
+    },
+    {
+     "day": 168,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 251658699,
+     "soldier": false
+    },
+    {
+     "day": 168,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 251658699,
+     "soldier": false
+    },
+    {
+     "day": 168,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 251658699,
+     "soldier": false
+    },
+    {
+     "day": 168,
+     "cause": "killed",
+     "killer": "archers",
+     "party": 251658699,
+     "soldier": false
+    },
+    {
+     "day": 168,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 251658699,
+     "soldier": false
+    },
+    {
+     "day": 168,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 251658699,
+     "soldier": false
+    },
+    {
+     "day": 168,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 251658699,
+     "soldier": false
+    },
+    {
+     "day": 186,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 352322607,
+     "soldier": true
+    },
+    {
+     "day": 186,
+     "cause": "killed",
+     "killer": "archers",
+     "party": 352322607,
+     "soldier": true
+    },
+    {
+     "day": 186,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 117441982,
+     "soldier": true
+    },
+    {
+     "day": 186,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 352322607,
+     "soldier": true
+    },
+    {
+     "day": 186,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 352322607,
+     "soldier": false
+    },
+    {
+     "day": 186,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 352322607,
+     "soldier": false
+    },
+    {
+     "day": 186,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 352322607,
+     "soldier": false
+    },
+    {
+     "day": 186,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 352322607,
+     "soldier": true
+    },
+    {
+     "day": 186,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 352322607,
+     "soldier": false
+    },
+    {
+     "day": 186,
+     "cause": "bled_out",
+     "killer": "captain",
+     "party": 117441982,
+     "soldier": false
+    },
+    {
+     "day": 186,
+     "cause": "killed",
+     "killer": "captain",
+     "party": 117441982,
+     "soldier": false
+    },
+    {
+     "day": 186,
+     "cause": "bled_out",
+     "killer": "captain",
+     "party": 117441982,
+     "soldier": false
+    },
+    {
+     "day": 186,
+     "cause": "bled_out",
+     "killer": "captain",
+     "party": 117441982,
+     "soldier": false
+    },
+    {
+     "day": 186,
+     "cause": "bled_out",
+     "killer": "dwarf",
+     "party": 0,
+     "soldier": false
+    },
+    {
+     "day": 187,
+     "cause": "killed",
+     "killer": "captain",
+     "party": 352322607,
+     "soldier": false
+    },
+    {
+     "day": 187,
+     "cause": "killed",
+     "killer": "captain",
+     "party": 352322607,
+     "soldier": false
+    }
+   ],
+   "deathsByYear": [
+    0,
+    24,
+    0
+   ],
+   "hostileKilledDwarves": 23
+  },
+  "three-years-p4-4": {
+   "peril": 4,
+   "extinct": 0,
+   "finalPop": 45,
+   "finalDay": 336,
+   "hash": "13062e7863a37b2d",
+   "invariants": 238,
+   "yearEnds": [
+    {
+     "day": 112,
+     "wealth": 19446,
+     "pop": 17,
+     "renown": 13.2
+    },
+    {
+     "day": 224,
+     "wealth": 31811,
+     "pop": 44,
+     "renown": 24.7
+    },
+    {
+     "day": 336,
+     "wealth": 88045,
+     "pop": 45,
+     "renown": 53
+    }
+   ],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 4.3,
+     "wealth": 5955,
+     "pop": 8
+    },
+    {
+     "day": 56,
+     "renown": 7.3,
+     "wealth": 10244,
+     "pop": 12
+    },
+    {
+     "day": 84,
+     "renown": 7,
+     "wealth": 7978,
+     "pop": 16
+    },
+    {
+     "day": 112,
+     "renown": 13.1,
+     "wealth": 19510,
+     "pop": 18
+    },
+    {
+     "day": 140,
+     "renown": 13.6,
+     "wealth": 17241,
+     "pop": 26
+    },
+    {
+     "day": 168,
+     "renown": 24.7,
+     "wealth": 35962,
+     "pop": 35
+    },
+    {
+     "day": 196,
+     "renown": 23.2,
+     "wealth": 28738,
+     "pop": 44
+    },
+    {
+     "day": 224,
+     "renown": 24.7,
+     "wealth": 31875,
+     "pop": 45
+    },
+    {
+     "day": 252,
+     "renown": 35.1,
+     "wealth": 50163,
+     "pop": 50
+    },
+    {
+     "day": 280,
+     "renown": 50.9,
+     "wealth": 82649,
+     "pop": 48
+    },
+    {
+     "day": 308,
+     "renown": 42.7,
+     "wealth": 67435,
+     "pop": 45
+    }
+   ],
+   "parties": [
+    {
+     "day": 60,
+     "year": 1,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 8.2,
+     "wealth": 10378,
+     "pop": 15,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 62,
+     "memberCount": 6
+    },
+    {
+     "day": 64,
+     "year": 1,
+     "kind": "bandits",
+     "size": 3,
+     "renown": 7.6,
+     "wealth": 9230,
+     "pop": 15,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 64,
+     "memberCount": 3
+    },
+    {
+     "day": 72,
+     "year": 1,
+     "kind": "raid",
+     "size": 13,
+     "renown": 6.9,
+     "wealth": 7816,
+     "pop": 15,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 74,
+     "memberCount": 14
+    },
+    {
+     "day": 109,
+     "year": 1,
+     "kind": "ambush",
+     "size": 7,
+     "renown": 13.5,
+     "wealth": 20109,
+     "pop": 17,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 111,
+     "memberCount": 7
+    },
+    {
+     "day": 134,
+     "year": 2,
+     "kind": "raid",
+     "size": 16,
+     "renown": 15.2,
+     "wealth": 20312,
+     "pop": 25,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 136,
+     "memberCount": 17
+    },
+    {
+     "day": 155,
+     "year": 2,
+     "kind": "ambush",
+     "size": 8,
+     "renown": 20.8,
+     "wealth": 27998,
+     "pop": 34,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 157,
+     "memberCount": 8
+    },
+    {
+     "day": 183,
+     "year": 2,
+     "kind": "siege",
+     "size": 34,
+     "renown": 31.5,
+     "wealth": 44581,
+     "pop": 46,
+     "killedDwarves": 1,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 188,
+     "memberCount": 41
+    },
+    {
+     "day": 189,
+     "year": 2,
+     "kind": "bandits",
+     "size": 4,
+     "renown": 25,
+     "wealth": 32036,
+     "pop": 45,
+     "killedDwarves": 1,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 190,
+     "memberCount": 4
+    },
+    {
+     "day": 208,
+     "year": 2,
+     "kind": "ambush",
+     "size": 9,
+     "renown": 29.5,
+     "wealth": 41410,
+     "pop": 44,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 210,
+     "memberCount": 9
+    },
+    {
+     "day": 215,
+     "year": 2,
+     "kind": "raid",
+     "size": 21,
+     "renown": 28.3,
+     "wealth": 39043,
+     "pop": 44,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 217,
+     "memberCount": 22
+    },
+    {
+     "day": 240,
+     "year": 3,
+     "kind": "ambush",
+     "size": 10,
+     "renown": 34.4,
+     "wealth": 46364,
+     "pop": 56,
+     "killedDwarves": 6,
+     "membersKilled": 2,
+     "outcome": "looted",
+     "endDay": 243,
+     "memberCount": 10
+    },
+    {
+     "day": 262,
+     "year": 3,
+     "kind": "raid",
+     "size": 24,
+     "renown": 42.4,
+     "wealth": 64898,
+     "pop": 50,
+     "killedDwarves": 2,
+     "membersKilled": 1,
+     "outcome": "withdrew",
+     "endDay": 264,
+     "memberCount": 25
+    },
+    {
+     "day": 292,
+     "year": 3,
+     "kind": "ambush",
+     "size": 10,
+     "renown": 48.7,
+     "wealth": 78237,
+     "pop": 48,
+     "killedDwarves": 3,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 294,
+     "memberCount": 10
+    },
+    {
+     "day": 321,
+     "year": 3,
+     "kind": "ambush",
+     "size": 10,
+     "renown": 49.1,
+     "wealth": 80159,
+     "pop": 45,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 323,
+     "memberCount": 10
+    }
+   ],
+   "thieves": 16,
+   "warns": [
+    {
+     "day": 72,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 6.9
+    },
+    {
+     "day": 133,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 15.5
+    },
+    {
+     "day": 182,
+     "kind": "siege",
+     "band": "a horde",
+     "renown": 31.8
+    },
+    {
+     "day": 214,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 28.5
+    },
+    {
+     "day": 261,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 42.9
+    },
+    {
+     "day": 335,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 53.3
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 183,
+     "cause": "killed",
+     "killer": "archers",
+     "party": 520094180,
+     "soldier": false
+    },
+    {
+     "day": 190,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 251658684,
+     "soldier": false
+    },
+    {
+     "day": 240,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 452986362,
+     "soldier": false
+    },
+    {
+     "day": 240,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 452986362,
+     "soldier": false
+    },
+    {
+     "day": 240,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 452986362,
+     "soldier": false
+    },
+    {
+     "day": 240,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 452986362,
+     "soldier": false
+    },
+    {
+     "day": 240,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 452986362,
+     "soldier": false
+    },
+    {
+     "day": 240,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 452986362,
+     "soldier": false
+    },
+    {
+     "day": 262,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 16779551,
+     "soldier": false
+    },
+    {
+     "day": 262,
+     "cause": "killed",
+     "killer": "archers",
+     "party": 16779551,
+     "soldier": false
+    },
+    {
+     "day": 292,
+     "cause": "killed",
+     "killer": "archers",
+     "party": 620757797,
+     "soldier": false
+    },
+    {
+     "day": 292,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 620757797,
+     "soldier": true
+    },
+    {
+     "day": 292,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 620757797,
+     "soldier": false
+    }
+   ],
+   "deathsByYear": [
+    0,
+    2,
+    11
+   ],
+   "hostileKilledDwarves": 13
+  },
+  "three-years-p4-5": {
+   "peril": 4,
+   "extinct": 0,
+   "finalPop": 32,
+   "finalDay": 336,
+   "hash": "79bec22bb6dfe4cf",
+   "invariants": 0,
+   "yearEnds": [
+    {
+     "day": 112,
+     "wealth": 19381,
+     "pop": 13,
+     "renown": 12.3
+    },
+    {
+     "day": 224,
+     "wealth": 28163,
+     "pop": 18,
+     "renown": 17.6
+    },
+    {
+     "day": 336,
+     "wealth": 36790,
+     "pop": 32,
+     "renown": 24.9
+    }
+   ],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 4.4,
+     "wealth": 5994,
+     "pop": 8
+    },
+    {
+     "day": 56,
+     "renown": 7.7,
+     "wealth": 11946,
+     "pop": 10
+    },
+    {
+     "day": 84,
+     "renown": 7.1,
+     "wealth": 9921,
+     "pop": 12
+    },
+    {
+     "day": 112,
+     "renown": 12.3,
+     "wealth": 19381,
+     "pop": 13
+    },
+    {
+     "day": 140,
+     "renown": 8.3,
+     "wealth": 11451,
+     "pop": 13
+    },
+    {
+     "day": 168,
+     "renown": 6.4,
+     "wealth": 7698,
+     "pop": 14
+    },
+    {
+     "day": 196,
+     "renown": 10.5,
+     "wealth": 14178,
+     "pop": 18
+    },
+    {
+     "day": 224,
+     "renown": 17.7,
+     "wealth": 28227,
+     "pop": 19
+    },
+    {
+     "day": 252,
+     "renown": 15.3,
+     "wealth": 19716,
+     "pop": 27
+    },
+    {
+     "day": 280,
+     "renown": 20.3,
+     "wealth": 29756,
+     "pop": 27
+    },
+    {
+     "day": 308,
+     "renown": 16.2,
+     "wealth": 21658,
+     "pop": 28
+    }
+   ],
+   "parties": [
+    {
+     "day": 59,
+     "year": 1,
+     "kind": "raid",
+     "size": 13,
+     "renown": 7.6,
+     "wealth": 10497,
+     "pop": 12,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 61,
+     "memberCount": 14
+    },
+    {
+     "day": 71,
+     "year": 1,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 7.3,
+     "wealth": 9842,
+     "pop": 12,
+     "killedDwarves": 1,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 73,
+     "memberCount": 6
+    },
+    {
+     "day": 74,
+     "year": 1,
+     "kind": "bandits",
+     "size": 3,
+     "renown": 6.9,
+     "wealth": 9377,
+     "pop": 11,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 74,
+     "memberCount": 3
+    },
+    {
+     "day": 106,
+     "year": 1,
+     "kind": "ambush",
+     "size": 7,
+     "renown": 12.9,
+     "wealth": 20281,
+     "pop": 14,
+     "killedDwarves": 1,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 108,
+     "memberCount": 7
+    },
+    {
+     "day": 112,
+     "year": 2,
+     "kind": "raid",
+     "size": 15,
+     "renown": 12.3,
+     "wealth": 19381,
+     "pop": 13,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 114,
+     "memberCount": 16
+    },
+    {
+     "day": 134,
+     "year": 2,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 8.4,
+     "wealth": 11535,
+     "pop": 13,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 136,
+     "memberCount": 6
+    },
+    {
+     "day": 159,
+     "year": 2,
+     "kind": "raid",
+     "size": 14,
+     "renown": 8.7,
+     "wealth": 12280,
+     "pop": 13,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 161,
+     "memberCount": 15
+    },
+    {
+     "day": 172,
+     "year": 2,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 7.5,
+     "wealth": 8297,
+     "pop": 17,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 174,
+     "memberCount": 6
+    },
+    {
+     "day": 174,
+     "year": 2,
+     "kind": "siege",
+     "size": 22,
+     "renown": 7.2,
+     "wealth": 7689,
+     "pop": 17,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 179,
+     "memberCount": 27
+    },
+    {
+     "day": 206,
+     "year": 2,
+     "kind": "ambush",
+     "size": 7,
+     "renown": 15,
+     "wealth": 22027,
+     "pop": 20,
+     "killedDwarves": 1,
+     "membersKilled": 2,
+     "outcome": "looted",
+     "endDay": 208,
+     "memberCount": 7
+    },
+    {
+     "day": 214,
+     "year": 2,
+     "kind": "bandits",
+     "size": 4,
+     "renown": 16.4,
+     "wealth": 25247,
+     "pop": 19,
+     "killedDwarves": 1,
+     "membersKilled": 1,
+     "outcome": "looted",
+     "endDay": 214,
+     "memberCount": 4
+    },
+    {
+     "day": 225,
+     "year": 3,
+     "kind": "raid",
+     "size": 17,
+     "renown": 20,
+     "wealth": 28499,
+     "pop": 29,
+     "killedDwarves": 2,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 227,
+     "memberCount": 18
+    },
+    {
+     "day": 245,
+     "year": 3,
+     "kind": "ambush",
+     "size": 8,
+     "renown": 17.9,
+     "wealth": 24828,
+     "pop": 27,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 247,
+     "memberCount": 8
+    },
+    {
+     "day": 286,
+     "year": 3,
+     "kind": "ambush",
+     "size": 8,
+     "renown": 18.9,
+     "wealth": 27070,
+     "pop": 27,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 288,
+     "memberCount": 8
+    },
+    {
+     "day": 292,
+     "year": 3,
+     "kind": "raid",
+     "size": 17,
+     "renown": 16.9,
+     "wealth": 23070,
+     "pop": 27,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 294,
+     "memberCount": 18
+    },
+    {
+     "day": 325,
+     "year": 3,
+     "kind": "ambush",
+     "size": 9,
+     "renown": 24.9,
+     "wealth": 37086,
+     "pop": 32,
+     "killedDwarves": 0,
+     "membersKilled": 0,
+     "outcome": "looted",
+     "endDay": 327,
+     "memberCount": 9
+    }
+   ],
+   "thieves": 14,
+   "warns": [
+    {
+     "day": 58,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 8.2
+    },
+    {
+     "day": 111,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 12.8
+    },
+    {
+     "day": 158,
+     "kind": "raid",
+     "band": "a band",
+     "renown": 8.8
+    },
+    {
+     "day": 173,
+     "kind": "siege",
+     "band": "a horde",
+     "renown": 7.5
+    },
+    {
+     "day": 224,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 17.9
+    },
+    {
+     "day": 291,
+     "kind": "raid",
+     "band": "a horde",
+     "renown": 17.1
+    }
+   ],
+   "dwarfDeaths": [
+    {
+     "day": 71,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 117441567,
+     "soldier": true
+    },
+    {
+     "day": 106,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 218104494,
+     "soldier": true
+    },
+    {
+     "day": 206,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 285212723,
+     "soldier": true
+    },
+    {
+     "day": 214,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 318768121,
+     "soldier": true
+    },
+    {
+     "day": 225,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 184550201,
+     "soldier": true
+    },
+    {
+     "day": 225,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 184550201,
+     "soldier": false
+    }
+   ],
+   "deathsByYear": [
+    2,
+    2,
+    2
+   ],
+   "hostileKilledDwarves": 6
+  },
+  "three-years-p4-6": {
+   "peril": 4,
+   "extinct": 67,
+   "finalPop": 0,
+   "finalDay": 66,
+   "hash": "474ce5145fb5a76f",
+   "invariants": 0,
+   "yearEnds": [],
+   "seasons": [
+    {
+     "day": 28,
+     "renown": 3.9,
+     "wealth": 5878,
+     "pop": 6
+    },
+    {
+     "day": 56,
+     "renown": 7.9,
+     "wealth": 12602,
+     "pop": 9
+    }
+   ],
+   "parties": [
+    {
+     "day": 64,
+     "year": 1,
+     "kind": "ambush",
+     "size": 6,
+     "renown": 8.9,
+     "wealth": 13009,
+     "pop": 12,
+     "killedDwarves": 12,
+     "membersKilled": 1
+    }
+   ],
+   "thieves": 2,
+   "warns": [],
+   "dwarfDeaths": [
+    {
+     "day": 7,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 7,
+     "cause": "bled_out",
+     "killer": "boar",
+     "party": 0,
+     "soldier": true
+    },
+    {
+     "day": 64,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 150995890,
+     "soldier": true
+    },
+    {
+     "day": 64,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 150995890,
+     "soldier": true
+    },
+    {
+     "day": 64,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 150995890,
+     "soldier": true
+    },
+    {
+     "day": 64,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 150995890,
+     "soldier": false
+    },
+    {
+     "day": 65,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 150995890,
+     "soldier": false
+    },
+    {
+     "day": 65,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 150995890,
+     "soldier": false
+    },
+    {
+     "day": 65,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 150995890,
+     "soldier": false
+    },
+    {
+     "day": 65,
+     "cause": "bled_out",
+     "killer": "archers",
+     "party": 150995890,
+     "soldier": false
+    },
+    {
+     "day": 65,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 150995890,
+     "soldier": false
+    },
+    {
+     "day": 65,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 150995890,
+     "soldier": false
+    },
+    {
+     "day": 65,
+     "cause": "bled_out",
+     "killer": "warriors",
+     "party": 150995890,
+     "soldier": false
+    },
+    {
+     "day": 65,
+     "cause": "killed",
+     "killer": "warriors",
+     "party": 150995890,
+     "soldier": false
+    }
+   ],
+   "deathsByYear": [
+    14,
+    0,
+    0
+   ],
+   "hostileKilledDwarves": 12
+  }
+ }
+}

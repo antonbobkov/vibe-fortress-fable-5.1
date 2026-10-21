@@ -1,0 +1,168 @@
+/**
+ * T-381 / T-366 / T-367 / T-368 measurement probe (not committed; a copy is filed as
+ * reports/data/2026-10-21-raid-sizes.probe.ts.txt). Plays the peril-2 and peril-4 seeds of the
+ * three-year sweep exactly as three_years_seeds plays them, and journals to T381_OUT/<seed>.jsonl:
+ * every party (warning, renown and wealth at the roll, members with gear and skill, outcome),
+ * every attack and wound with both sides described, the hospital's events, deaths, renown by
+ * season, the wounded once a day, and the economy instrument's year snapshots. Observation only;
+ * an invariant finding is journalled, not thrown.
+ */
+import { describe, it } from 'vitest';
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { ItemsReader } from '@systems/items';
+import type { ThreatsReader } from '@systems/threats/reader';
+import { playThreeYears, setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense } from '../scenarios/three_years_fortress';
+import { watchInvariants } from '../scenarios/invariants';
+import { threeYearsMeasurements } from '../scenarios/three_years_measurements';
+
+const SEEDS = (process.env['T381_SEEDS'] ?? 'three-years-p2-1').split(',');
+const OUT = process.env['T381_OUT'] ?? '.vite/t381';
+const STOP_DAY = Number(process.env['T381_STOP_DAY'] ?? 3 * DAYS_PER_YEAR);
+
+describe('T-381 raid probe', () => {
+  it.each(SEEDS)('journals %s', (seed) => {
+    const peril = Number(/-p(\d)-/.exec(seed)?.[1] ?? 2);
+    mkdirSync(OUT, { recursive: true });
+    const file = `${OUT}/${seed}.jsonl`;
+    writeFileSync(file, '');
+    const buf: string[] = [];
+    const log = (o: unknown): void => { buf.push(JSON.stringify(o)); if (buf.length > 500) { appendFileSync(file, buf.join('\n') + '\n'); buf.length = 0; } };
+    const started = Date.now();
+    const w = threeYearsWorld(seed, peril);
+    watchInvariants(w.game, (f) => { for (const x of f) log({ t: 'inv', tick: w.tick, inv: x.inv, s: String(x.samples[0] ?? '') }); });
+    const state = setupThreeYearsFortress(w);
+    const ent = w.game.world.entities;
+    const reg = w.game.registry;
+    const items = w.readers.of<ItemsReader>('13');
+    const threats = w.readers.of<ThreatsReader>('18');
+    const spT = reg.table<{ id: string }>('creatures');
+    const itT = reg.table<{ id: string }>('items');
+    const matT = reg.table<{ id: string }>('materials');
+    const skT = reg.table('skills');
+    const dwarfSp = spT.index('dwarf');
+    const pop = (): number => ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+    const itemName = (id: number): string => {
+      if (!id) return '';
+      const it = ent.get(id, C.Item);
+      if (!it) return '?';
+      return `${matT.byIndex(it.material)?.id ?? '?'} ${itT.byIndex(it.type)?.id ?? '?'}${it.quality ? `/q${it.quality}` : ''}`;
+    };
+    const skill = (id: number, s: string): number => ent.get(id, C.Skills)?.level[skT.index(s)] ?? 0;
+    const lastWho = new Map<number, string>();
+    const who = (id: number): void => {
+      const c = ent.get(id, C.Creature);
+      if (!c) return;
+      const eq = ent.get(id, C.Equipment);
+      const weapon = eq?.weapon || ent.get(id, C.Worker)?.toolId || 0;
+      const wItem = weapon ? ent.get(weapon, C.Item) : undefined;
+      const wSkill = wItem ? (reg.table<{ id: string; skill?: string }>('weapons').byId(itT.byIndex(wItem.type)?.id ?? '')?.skill ?? '') : '';
+      const ar = eq ? Object.entries(eq.armor).filter(([, v]) => v).map(([k, v]) => `${k}:${itemName(v)}`).join(',') : '';
+      const d = {
+        fac: c.faction, sp: spT.byIndex(c.species)?.id ?? '?', w: itemName(weapon), sh: eq?.shield ? itemName(eq.shield) : '', ar,
+        sk: wSkill ? skill(id, wSkill) : 0, dodge: skill(id, 'dodge'), shield: skill(id, 'shield'),
+        sol: ent.has(id, C.Soldier), role: ent.get(id, C.Hostile)?.role ?? '', party: ent.get(id, C.Hostile)?.partyId ?? 0,
+        att: ent.get(id, C.Attributes) ? `${ent.get(id, C.Attributes)!.str}/${ent.get(id, C.Attributes)!.agi}/${ent.get(id, C.Attributes)!.tou}` : '',
+      };
+      const key = JSON.stringify(d);
+      if (lastWho.get(id) === key) return;
+      lastWho.set(id, key);
+      log({ t: 'who', tick: w.tick, id, ...d });
+    };
+    const seenParty = new Set<number>();
+    let lastAlert = '';
+    w.game.world.onEvents((events) => {
+      for (const e of events) {
+        const tick = w.tick;
+        switch (e.type) {
+          case 'ThreatWarning':
+            log({ t: 'warn', tick, kind: e['kind'], band: e['sizeBand'], renown: threats.renown(), wealth: items.wealth(), pop: pop() });
+            break;
+          case 'HostileSpawned': {
+            const pid = Number(e['partyId']);
+            const P = ent.get(pid, C.Party);
+            if (!seenParty.has(pid)) {
+              seenParty.add(pid);
+              log({ t: 'party', tick, pid, kind: P?.purpose, size: P?.size, renown: threats.renown(), wealth: items.wealth(), pop: pop() });
+            }
+            who(Number(e['id']));
+            break;
+          }
+          case 'RaidEnded': {
+            const pid = Number(e['partyId']);
+            const P = ent.get(pid, C.Party);
+            log({ t: 'end', tick, pid, outcome: e['outcome'], members: P?.members.length, alive: P?.members.filter((m) => ent.alive(m)).length });
+            break;
+          }
+          case 'AttackResolved': {
+            const a = Number(e['attackerId']), d = Number(e['defenderId']);
+            who(a); who(d);
+            log({ t: 'atk', tick, a, d, o: e['outcome'], n: e['amount'], p: e['part'], dt: e['damageType'] });
+            break;
+          }
+          case 'ProjectileFired':
+            log({ t: 'shot', tick, a: e['shooterId'] ?? e['attackerId'] ?? e['id'], d: e['targetId'] });
+            break;
+          case 'WoundInflicted': {
+            const id = Number(e['id']);
+            who(id);
+            log({ t: 'wound', tick, id, p: e['part'], wt: e['woundType'], sev: e['severity'], blood: ent.get(id, C.Body)?.blood, max: ent.get(id, C.Body)?.maxBlood });
+            break;
+          }
+          case 'CreatureUnconscious': case 'CreatureConscious': case 'PatientAdmitted': case 'PatientDischarged': case 'PatientHealed':
+          case 'InfectionStarted': case 'InfectionCured': case 'LimbLost':
+            log({ t: e.type, tick, id: e['id'] });
+            break;
+          case 'TreatmentDone':
+            log({ t: 'treat', tick, id: e['patientId'], medic: e['medicId'], kind: e['kind'] });
+            break;
+          case 'CreatureDied': {
+            const id = Number(e['id']);
+            log({ t: 'died', tick, id, cause: e['cause'], killer: e['killerId'], sp: spT.byIndex(Number(e['species'] ?? -1))?.id ?? '', fac: e['faction'] ?? '' });
+            break;
+          }
+          case 'DayPassed': {
+            const day = Math.floor(tick / TICKS_PER_DAY);
+            if (day % 28 === 0) log({ t: 'season', tick, day, renown: threats.renown(), wealth: items.wealth(), pop: pop() });
+            // The wounded, once a day.
+            for (const id of ent.with(C.Body)) {
+              const c = ent.get(id, C.Creature);
+              if (!c || c.species !== dwarfSp || c.faction !== 'fortress') continue;
+              const b = ent.get(id, C.Body)!;
+              const ws = b.parts.flatMap((p) => p.wounds);
+              if (ws.length === 0 && b.blood >= b.maxBlood) continue;
+              log({ t: 'hurt', day, id, l: ws.filter((x) => x.severity === 'light').length, s: ws.filter((x) => x.severity === 'serious').length,
+                g: ws.filter((x) => x.severity === 'grievous').length, inf: ws.filter((x) => x.infected).length, blood: b.blood, pain: b.pain,
+                con: b.conscious, pat: ent.has(id, C.Patient), act: `${ent.get(id, C.Brain)?.behavior}/${ent.get(id, C.Brain)?.activity}`,
+                sol: ent.has(id, C.Soldier) });
+            }
+            break;
+          }
+          default:
+        }
+      }
+      const alert = w.game.world.fortress.alert;
+      if (alert !== lastAlert) { lastAlert = alert; log({ t: 'alert', tick: w.tick, alert }); }
+    });
+
+    const boot = 20 * TICKS_PER_DAY;
+    while (w.tick < boot) {
+      playThreeYears(w, state, Math.min(100, boot - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    }
+    const total = STOP_DAY * TICKS_PER_DAY;
+    let extinct = 0;
+    while (w.tick < total) {
+      if (pop() === 0) { extinct = Math.floor(w.tick / TICKS_PER_DAY) + 1; break; }
+      playThreeYears(w, state, Math.min(300, total - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    }
+    const eco = threeYearsMeasurements(w);
+    log({ t: 'final', tick: w.tick, extinct, pop: pop(), wealth: items.wealth(), renown: threats.renown(), hash: w.hash(), wallMs: Date.now() - started,
+      years: eco.years.map((y) => ({ day: y.day, wealth: y.wealth, population: y.population, renown: y.renown, marks: y.marks, recipes: y.recipes, qualities: y.qualities, craftQualities: y.craftQualities })),
+      armedDay: eco.fixture.armedDay, deaths: eco.deaths, immigration: eco.immigration.map((i) => ({ tick: i.tick, outcome: i.outcome, size: i.waveSize, wealth: i.wealth, pop: i.population })) });
+    appendFileSync(file, buf.join('\n') + '\n');
+  });
+});
