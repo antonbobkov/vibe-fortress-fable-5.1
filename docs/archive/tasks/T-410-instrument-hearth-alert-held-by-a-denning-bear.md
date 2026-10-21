@@ -1,6 +1,8 @@
 # T-410 — The annual instrument holds the hearth alert while a bear lies 25 tiles away
 
-**Source:** T-408, [rest on the walk to bed](../../reports/audits/2026-10-21-rest-on-the-walk-to-bed.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-21, in 510eacf.
+
+**Source:** T-408, [rest on the walk to bed](../../../reports/audits/2026-10-21-rest-on-the-walk-to-bed.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
