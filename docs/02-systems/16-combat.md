@@ -62,7 +62,7 @@ grant xp: attacker weapon skill; defender dodge (on miss), weapon skill (on parr
 
 Wound type from damage type (17): edge → `cut`; pierce → `puncture`; blunt → `bruise`, or `fracture` when `damage ≥ partMaxHp × FRACTURE_PERCENT / 100`.
 
-The terms of the hit, parry, block, damage and Toughness formulas above are *unmeasured*, and so are those of the ranged hit below.
+The hit, parry, block, damage and Toughness formulas above are measured in stepped arenas ([combat pace](../../reports/audits/2026-10-21-combat-pace.md)): a Novice dwarf hits two skill-2 goblins 57% of its swings, they hit it 46% and its iron shield blocks one in eight of the rest; a hit lands on the part the body plan's weights pick, so a mail shirt leaves the head and legs bare. The terms of the ranged hit below are *unmeasured*.
 
 Two-handed weapons (`hands: 2`) cannot be used with a shield; the squad equipment logic respects this.
 
@@ -196,7 +196,7 @@ Panel `military`; inspector section `creature › combat` (weapon, armor per par
 | `RANGED_KITE_TRIGGER_DISTANCE` | 2 | Melee threat distance that triggers a possible adjacent retreat (*unmeasured*) |
 | `MIN_ATTACK_COOLDOWN` | 12 | Ticks (*unmeasured*) |
 | `BLUNT_THROUGH_PERCENT` | 30 | *unmeasured* |
-| `FRACTURE_PERCENT` | 30 | Of part max hp in one blunt hit (*unmeasured*) |
+| `FRACTURE_PERCENT` | 30 | Of part max hp in one blunt hit; measured, a steel warhammer fractures a trollkin limb at the first hit in 52 of 85 fractures and the trollkin's slam fractures a dwarf's limbs ([combat pace](../../reports/audits/2026-10-21-combat-pace.md)) |
 | `PROJECTILE_SPEED` | 3 | Tiles per tick (*unmeasured*) |
 | `AMMO_BREAK_PERMILLE` | 200 | *unmeasured* |
 | `FLEE_BLOOD_PERCENT` | 50 | Default; species override (*unmeasured*) |
@@ -210,9 +210,9 @@ Panel `military`; inspector section `creature › combat` (weapon, armor per par
 | `REEQUIP_CHECK_DAYS` | 3 | *unmeasured* |
 | `SOLDIER_AMMO` | 25 | *unmeasured* |
 | `ARMOR_MIN_SPEED_PERCENT` | 60 | *unmeasured* |
-| `CREATURE_ATTRIBUTE_DEFAULT` | 50 | Baseline attribute value when Attributes component is absent (*unmeasured*) |
-| `CREATURE_BASE_SKILL` | 2 | Baseline combat skill level when Skills component is absent (*unmeasured*) |
-| `HOSTILE_SKILL_PER_TIER` | 2 | Combat skill per gear tier for spawned hostile party members (*unmeasured*) |
+| `CREATURE_ATTRIBUTE_DEFAULT` | 50 | Baseline attribute value when Attributes component is absent; measured in the goblins and trollkin of the arenas ([combat pace](../../reports/audits/2026-10-21-combat-pace.md)) |
+| `CREATURE_BASE_SKILL` | 2 | Baseline combat skill level when Skills component is absent; measured, two goblins at it down a mailed Novice dwarf in 48 of 60 duels ([combat pace](../../reports/audits/2026-10-21-combat-pace.md)) |
+| `HOSTILE_SKILL_PER_TIER` | 2 | Combat skill per gear tier for spawned hostile party members; measured, a peril-2 raid of ten (skill 6) downs a squad of three Novices in the open in 21 of 24 trials, and at 1 a tier in 22 of 24 ([combat pace](../../reports/audits/2026-10-21-combat-pace.md)) |
 
 Weapon and armor values, hit weights per body plan, and the damage-type-versus-layer table are content.
 

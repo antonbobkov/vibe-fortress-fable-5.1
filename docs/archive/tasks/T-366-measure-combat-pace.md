@@ -1,10 +1,12 @@
 # T-366 — Measure the combat pace
 
-**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) (rank 3) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-21, in 5838bdc.
+
+**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) (rank 3) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
-The terms of 16's hit, parry, block and damage formulas, `BLUNT_THROUGH_PERCENT`, `FRACTURE_PERCENT`, `MIN_ATTACK_COOLDOWN`, `CREATURE_BASE_SKILL` and `HOSTILE_SKILL_PER_TIER` decide every fight, and all are marked *unmeasured*. `balance.md` § Combat pace states what they should give: one dwarf in iron mail with an axe and shield kills two unarmoured goblins in about ten swings with 2–3 light cuts; a squad of three with mail handles a raid of ten at peril 2 with a few wounds and a hospital visit; three trollkin hits floor a dwarf. No fight between armed sides has been measured: every peril 2 and 4 run of the economy sweep stopped on a game fault before its raids, and the sweep has not been run again since T-302 to T-304 fixed them ([the sweep](../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md#the-sweep)).
+The terms of 16's hit, parry, block and damage formulas, `BLUNT_THROUGH_PERCENT`, `FRACTURE_PERCENT`, `MIN_ATTACK_COOLDOWN`, `CREATURE_BASE_SKILL` and `HOSTILE_SKILL_PER_TIER` decide every fight, and all are marked *unmeasured*. `balance.md` § Combat pace states what they should give: one dwarf in iron mail with an axe and shield kills two unarmoured goblins in about ten swings with 2–3 light cuts; a squad of three with mail handles a raid of ten at peril 2 with a few wounds and a hospital visit; three trollkin hits floor a dwarf. No fight between armed sides has been measured: every peril 2 and 4 run of the economy sweep stopped on a game fault before its raids, and the sweep has not been run again since T-302 to T-304 fixed them ([the sweep](../../../reports/audits/2026-10-12-economy-fixture-at-default-priority.md#the-sweep)).
 
 ## What to do
 

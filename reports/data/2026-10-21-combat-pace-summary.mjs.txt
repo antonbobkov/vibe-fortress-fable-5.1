@@ -1,0 +1,57 @@
+// Summarise the T-366 arena trials: node arenas.mjs <jsonl> [out.json commit]
+import { readFileSync, writeFileSync } from 'node:fs';
+const rows = readFileSync(process.argv[2], 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+const by = new Map();
+for (const r of rows) { if (!by.has(r.kind)) by.set(r.kind, []); by.get(r.kind).push(r); }
+const med = (a) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+const mean = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+const pct = (n, d) => (d ? +(100 * n / d).toFixed(1) : null);
+const f1 = (x) => (x === null ? null : +x.toFixed(2));
+const summary = {};
+for (const [kind, rs] of by) {
+  const n = rs.length;
+  const outcomes = {};
+  for (const r of rs) outcomes[r.outcome] = (outcomes[r.outcome] ?? 0) + 1;
+  const side = (s) => {
+    const sw = rs.reduce((a, r) => a + r.atk[s].swings, 0);
+    const hits = rs.reduce((a, r) => a + r.atk[s].hits, 0);
+    const dl = rs.flatMap((r) => r.atk[s].dmgList ?? []);
+    return { swingsPerTrial: f1(sw / n), hitPct: pct(hits, sw), missPct: pct(rs.reduce((a, r) => a + r.atk[s].miss, 0), sw),
+      parriedPct: pct(rs.reduce((a, r) => a + r.atk[s].parried, 0), sw), blockedPct: pct(rs.reduce((a, r) => a + r.atk[s].blocked, 0), sw),
+      dmgMean: f1(mean(dl)), zeroDamageHits: dl.filter((x) => x === 0).length, hitsTotal: dl.length };
+  };
+  const woundsPer = (key, s) => { const t = {}; for (const r of rs) for (const [k, v] of Object.entries(r[key]?.[s] ?? {})) t[k] = (t[k] ?? 0) + v; for (const k of Object.keys(t)) t[k] = f1(t[k] / n); return t; };
+  const o = { n, outcomes, dwarfSide: side('d'), hostileSide: side('h'), woundsOnDwarfSide: woundsPer('wounds', 'd'), woundPartsDwarfSide: woundsPer('woundParts', 'd'),
+    woundsOnHostiles: woundsPer('wounds', 'h'), fightTicksMedian: med(rs.map((r) => r.fightTicks).filter((x) => x >= 0)) };
+  if (kind.startsWith('squad')) {
+    o.soldiersDeadAtEndMean = f1(mean(rs.map((r) => r.soldiersDead)));
+    o.soldiersDownAtEndMean = f1(mean(rs.map((r) => r.soldiersDown)));
+    o.soldiersDeadDayAfterMean = f1(mean(rs.map((r) => r.dayAfter.soldiersDead)));
+    o.trialsNoSoldierLostDayAfter = rs.filter((r) => r.dayAfter.soldiersDead === 0).length;
+    o.trialsAllThreeDeadDayAfter = rs.filter((r) => r.dayAfter.soldiersDead === 3).length;
+    o.hostilesDeadDayAfterMean = f1(mean(rs.map((r) => r.dayAfter.hostilesDead)));
+    o.civiliansDeadDayAfterMean = f1(mean(rs.map((r) => r.dayAfter.civDead)));
+    o.members = rs[0].members;
+  } else {
+    o.bloodLostAtEndMedian = med(rs.map((r) => r.blood));
+    o.dwarfDeadADayLater = rs.filter((r) => r.dwarfDeadAfterDay).length;
+    o.foesDeadMean = f1(mean(rs.map((r) => r.foesDead)));
+    const k1 = rs.map((r) => r.kills?.[0]).filter((x) => x !== undefined);
+    const k2 = rs.map((r) => r.kills?.[1]).filter((x) => x !== undefined);
+    o.firstKillAtDwarfSwingMean = f1(mean(k1)); o.firstKills = k1.length;
+    o.secondKillAtDwarfSwingMean = f1(mean(k2)); o.secondKills = k2.length;
+    const hb = {}; for (const r of rs) for (const h of r.hitsBeforeDown ?? []) hb[h] = (hb[h] ?? 0) + 1;
+    o.hostileHitsBeforeDwarfDown = hb;
+    o.hostileHitsBeforeDwarfDownMedian = med(rs.flatMap((r) => r.hitsBeforeDown ?? []));
+    const causes = {}; for (const r of rs) for (const d of r.deaths ?? []) if (d.side === 'd') causes[d.cause] = (causes[d.cause] ?? 0) + 1;
+    o.dwarfDeathCauses = causes;
+    if (kind === 'hammer') {
+      const fa = {}; for (const r of rs) for (const x of r.fractureAt ?? []) fa[x] = (fa[x] ?? 0) + 1;
+      const la = {}; for (const r of rs) for (const x of r.lostAt ?? []) la[x] = (la[x] ?? 0) + 1;
+      o.limbHitsToFracture = fa; o.limbHitsToLoss = la;
+    }
+  }
+  summary[kind] = o;
+}
+console.log(JSON.stringify(summary, null, 1));
+if (process.argv[3]) writeFileSync(process.argv[3], JSON.stringify({ commit: process.argv[4], probe: process.argv[5], summary, trials: rows }) + '\n');
