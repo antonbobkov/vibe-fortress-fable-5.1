@@ -54,8 +54,6 @@ export interface TerrainHooks {
   blocksSightAt(i: TileIndex): boolean;
   /** 03 terrain's forbidden-tile set, which blocks fortress creatures. Arrives with T-M1-07. */
   forbidden(i: TileIndex): boolean;
-  /** 16 combat's hostility test between two creatures. Arrives with T-M6-02. */
-  hostile(a: EntityId, b: EntityId): boolean;
 }
 
 export const DEFAULT_TERRAIN_HOOKS: TerrainHooks = Object.freeze({
@@ -64,7 +62,6 @@ export const DEFAULT_TERRAIN_HOOKS: TerrainHooks = Object.freeze({
   lockedHatchAt: (): boolean => false,
   blocksSightAt: (): boolean => false,
   forbidden: (): boolean => false,
-  hostile: (): boolean => false,
 });
 
 /** The per-creature facts `passable` needs beyond the movement class. */

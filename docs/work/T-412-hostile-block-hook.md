@@ -15,3 +15,13 @@
 ## Done
 
 - 22 and the code agree on whether a standing hostile blocks a walker on an open tile.
+
+## Decision (orchestrator, 2026-10-21)
+
+22's hostile clause is dropped: creatures block each other only at doors, and a creature lying down blocks no one (T-409). The reasons:
+
+- Combat already stops a mover by engaging it: a hostile that meets a walker fights it (16), it does not need to hold its tile.
+- The path search does not see creatures, so blocking walkers on hostiles would send them into repath waits and unreachable unclaims, the class of fault fixed in T-406 and T-409.
+- Every balance figure was measured without it: the hook always returned `false`.
+
+The dead hook is removed: `hostile` leaves `TerrainHooks` and its default in `src/core/pathfinding.ts`, and `MovementHelper.blockedByCreature` asks only whether a door stands on the tile. Nothing in `src/` used the hook; two tests that set it are rewritten to the door rule.

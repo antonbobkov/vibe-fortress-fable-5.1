@@ -85,7 +85,7 @@ moveAlongPath(id, ctx):
   m.progress += m.speed × 1000 / cost(nextTile)          // Fixed math; speed in tiles per tick × 1000
   while m.progress ≥ 1000 and path remains:
     next = path[m.stepIndex + 1]
-    if not passable(next, class) or occupied by a blocking creature (one not lying down that is hostile to the mover, or any one not lying down if the tile is a door):
+    if not passable(next, class) or occupied by a blocking creature (any one not lying down, on a door tile):
         m.repathCount += 1; clear the path (a blocking creature instead makes the mover wait REPATH_WAIT_TICKS, until REPATH_LIMIT waits have passed); return blocked
     Position(id) = next; m.stepIndex += 1; m.progress −= 1000
     spatial.move(id, prev, next); record (id, prev, next) in the tick's EntitiesMoved batch
@@ -94,7 +94,7 @@ moveAlongPath(id, ctx):
   return moving
 ```
 
-`blocked` leaves the goal to the brain that asked for the path: the helper is not told the goal, so it issues no request itself, and the brain re-requests or gives up at `REPATH_LIMIT`. Creatures do not block each other except at doors and when hostile; two dwarves may share a tile (drawn as one). A creature lying down blocks no one, at a door or anywhere else, a hostile one included: one that is unconscious (17), or one asleep (10: resting, with no path to walk). A walker steps past it where it lies, so a creature that cannot get up does not hold a doorway shut. Falling: from an `open` tile, drop to the first solid-bottomed tile below (or into fluid: a creature landing in deep water is submerged; in magma, burned) and emit `Fell { id, levels }` for 17.
+`blocked` leaves the goal to the brain that asked for the path: the helper is not told the goal, so it issues no request itself, and the brain re-requests or gives up at `REPATH_LIMIT`. Creatures block each other only at doors: elsewhere any two creatures may share a tile (two dwarves drawn as one), a dwarf and a hostile included, because a hostile that meets a mover stops it by engaging it in combat (16), not by holding its tile. A creature lying down blocks no one, at a door either: one that is unconscious (17), or one asleep (10: resting, with no path to walk). A walker steps past it where it lies, so a creature that cannot get up does not hold a doorway shut. Falling: from an `open` tile, drop to the first solid-bottomed tile below (or into fluid: a creature landing in deep water is submerged; in magma, burned) and emit `Fell { id, levels }` for 17.
 
 Speed: `Motion.speed` is recomputed by the owning brain when its inputs change: species base × attributes (10) × wound modifier (17) × carry modifier (10) × armor modifier (16).
 
