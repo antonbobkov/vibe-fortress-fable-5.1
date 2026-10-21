@@ -13,7 +13,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | — (T-393 closed 2026-10-18; needs a quiet machine) | open; local side (needs a quiet machine) |
 | T-408 | [Rest falls on the walk to bed](work/T-408-rest-falls-on-the-walk-to-bed.md) | T-369's measurement | T-410 (code parked on t408-wip, 58b21ff) | open |
-| T-409 | [A creature that cannot move holds a doorway, and a job waits on it for good](work/T-409-unconscious-in-doorway.md) | T-406's diagnosis | — | open |
 | T-411 | [A loaded ward's serious cuts die of infection](work/T-411-loaded-ward-dies-of-infection.md) | T-405's ward probe | — | open |
+| T-412 | [A hostile creature never blocks a walker: 22's hostile hook is never installed](work/T-412-hostile-block-hook.md) | T-409's reading of 22 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

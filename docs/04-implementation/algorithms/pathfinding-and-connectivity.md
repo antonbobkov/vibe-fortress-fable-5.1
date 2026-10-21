@@ -108,7 +108,7 @@ moveAlongPath(id, ctx):
     next = p[m.stepIndex]
   return 'moving'
 fall(id): z0 = z(pos); descend while kind(below) == Open or (below has fluid and no solid bottom); land on first solid-bottomed tile (or fluid surface at level 7); levels = z0 - z(landed); setPosition; emit Fell{id, levels, landedOn}; clear path; return 'fell'
-blockedByCreature(next, id): any creature on `next` that is hostile to `id`, or any creature if buildingAt(next) is a door
+blockedByCreature(next, id): any creature on `next` not lying down (unconscious, or asleep with no path) that is hostile to `id`, or any such creature if buildingAt(next) is a door
 ```
 
 `EntitiesMoved { moves: movesThisTick }` is emitted once per tick by the core after the last brain ran. Spatial index: `spatial.move(id, a, b)` removes from `chunks[chunk(a)].entities` and inserts sorted into `chunks[chunk(b)].entities` when the chunk differs.
