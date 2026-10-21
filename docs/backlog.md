@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | — (T-393 closed 2026-10-18; needs a quiet machine) | open; local side (needs a quiet machine) |
-| T-404 | [Combat pace is far below the balance model](work/T-404-combat-pace-below-the-model.md) | T-366's measurement | — | open |
 | T-405 | [The first bandage decides a serious wound](work/T-405-first-bandage-decides-a-serious-wound.md) | T-367's measurement | — | open |
 | T-408 | [Rest falls on the walk to bed](work/T-408-rest-falls-on-the-walk-to-bed.md) | T-369's measurement | T-410 (code parked on t408-wip, 58b21ff) | open |
 | T-409 | [A creature that cannot move holds a doorway, and a job waits on it for good](work/T-409-unconscious-in-doorway.md) | T-406's diagnosis | — | open |

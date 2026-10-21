@@ -1,0 +1,239 @@
+/**
+ * T-366 measurement probe (not committed; a copy is filed as
+ * reports/data/2026-10-21-combat-pace.probe.ts.txt). Stepped arenas on the flat test map, through
+ * the real tick loop (targeting, cooldown, resolution, wounds, bleeding, fleeing), many seeds each:
+ *  - duel: one Novice dwarf soldier in iron mail with an iron axe and an iron shield against two
+ *    unarmoured gloam warriors with copper short swords (skill 2, and skill 4 = tier 1 in play);
+ *  - troll: the same dwarf against one trollkin (slam 28 blunt);
+ *  - hammer: a dwarf with a steel warhammer against one trollkin (hits to a limb fracture);
+ *  - squad: three such soldiers against a peril-2 raid of ten (content composition, tier 2 gear,
+ *    captain tier 3), on open ground, and behind a locked door in a wall;
+ *  - ambush: three such soldiers against a peril-2 ambush of four (T-404).
+ * Writes T366_OUT (JSON lines, one per trial). Observation only.
+ */
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { FLAT_TEST_SURFACE_Z } from '@app/headless';
+import { C, type Equipment } from '@core/components';
+import type { EntityId } from '@core/types';
+import type { CombatReader, SquadWithId } from '@systems/combat/reader';
+import { assignHostileSkills } from '@systems/threats/gear';
+import { arriveParty, spawnHostileMember } from '@systems/threats/parties';
+import { TestWorld } from '../scenarios/test-world';
+
+const OUT = process.env['T366_OUT'] ?? '.vite/t366.jsonl';
+const N = Number(process.env['T366_N'] ?? 60);
+const NSQUAD = Number(process.env['T366_NSQUAD'] ?? 24);
+const ONLY = process.env['T366_ONLY'] ?? '';
+const Z = FLAT_TEST_SURFACE_Z;
+
+function arena(seed: string): TestWorld {
+  return new TestWorld({ seed, world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+}
+
+interface Kit { weapon: [string, string]; shield?: [string, string]; body?: [string, string]; head?: [string, string]; legs?: [string, string] }
+
+function equip(w: TestWorld, id: EntityId, at: number, kit: Kit): void {
+  const items = w.game.registry.table('items');
+  const mats = w.game.registry.table('materials');
+  const make = (k?: [string, string]): EntityId => (k ? w.spawnItem(items.index(k[0]), mats.index(k[1]), at, 1, 1) : 0);
+  const old = w.game.world.entities.get(id, C.Equipment);
+  const eq: Equipment = {
+    weapon: make(kit.weapon), shield: make(kit.shield),
+    armor: { head: make(kit.head), body: make(kit.body), arms: 0, legs: make(kit.legs), feet: 0 },
+    clothing: old?.clothing ?? { body: 0, legs: 0, feet: 0, over: 0 }, quiver: 0,
+  };
+  w.game.world.entities.add(id, C.Equipment, eq);
+}
+
+const SOLDIER_KIT: Kit = { weapon: ['axe', 'iron'], shield: ['shield', 'iron'], body: ['mail_shirt', 'iron'] };
+const FULL_KIT: Kit = { ...SOLDIER_KIT, head: ['helm', 'iron'], legs: ['greaves', 'iron'] };
+const NOVICE = { axe: 2, shield: 2, dodge: 2, armor_use: 2, hammer: 2 };
+const COMPETENT = { axe: 6, shield: 6, dodge: 6, armor_use: 6, hammer: 6 };
+
+function squad(w: TestWorld, members: EntityId[], station: number): void {
+  w.game.world.applyCommand({ type: 'CreateSquad', name: 'Guard' });
+  const s = w.readers.of<CombatReader>('16').squads()[0] as SquadWithId;
+  w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: s.id, members });
+  w.game.world.applyCommand({ type: 'SetSquadStation', squadId: s.id, tile: station });
+  w.game.world.applyCommand({ type: 'SetSquadMode', squadId: s.id, mode: 'active' });
+}
+
+function soldiers(w: TestWorld, n: number, x: number, y: number, kit: Kit, skills: Record<string, number> = NOVICE): EntityId[] {
+  const ids: EntityId[] = [];
+  for (let i = 0; i < n; i += 1) {
+    const at = w.index(x + i, y, Z);
+    const id = w.spawnDwarf({ at, skills });
+    ids.push(id);
+  }
+  squad(w, ids, w.index(x, y, Z));
+  w.step(1);
+  // Equip after the squad exists, so its own equipment pass has nothing to undo.
+  ids.forEach((id, i) => equip(w, id, w.index(x + i, y, Z), kit));
+  return ids;
+}
+
+interface Tally { swings: number; hits: number; miss: number; parried: number; blocked: number; dmg: number[] }
+const tally = (): Tally => ({ swings: 0, hits: 0, miss: 0, parried: 0, blocked: 0, dmg: [] });
+
+function observe(w: TestWorld, side: (id: EntityId) => 'd' | 'h' | '') {
+  const atk = { d: tally(), h: tally() };
+  const wounds: Record<string, Record<string, number>> = { d: {}, h: {} };
+  const woundParts: Record<string, Record<string, number>> = { d: {}, h: {} };
+  const firstTick = { v: -1 }, lastTick = { v: -1 };
+  const deaths: { tick: number; side: string; cause: string }[] = [];
+  const uncon: { tick: number; side: string }[] = [];
+  const limb = new Map<string, number>();
+  const fractureAt: number[] = [];
+  const lostAt: number[] = [];
+  const perDefenderHits = new Map<EntityId, number>();
+  const hitsBeforeDown: number[] = [];
+  const kills: number[] = [];
+  w.game.world.onEvents((events) => {
+    for (const e of events) {
+      if (e.type === 'AttackResolved') {
+        const a = Number(e['attackerId']), d = Number(e['defenderId']);
+        const s = side(a);
+        if (s === '') continue;
+        if (firstTick.v < 0) firstTick.v = w.tick;
+        lastTick.v = w.tick;
+        const t = atk[s];
+        t.swings += 1;
+        const o = String(e['outcome']);
+        if (o === 'hit') { t.hits += 1; t.dmg.push(Number(e['amount'])); perDefenderHits.set(d, (perDefenderHits.get(d) ?? 0) + 1);
+          const p = String(e['part']);
+          if (side(d) === 'h' && p !== 'torso' && p !== 'head') limb.set(`${d}:${p}`, (limb.get(`${d}:${p}`) ?? 0) + 1); }
+        else if (o === 'miss') t.miss += 1; else if (o === 'parried') t.parried += 1; else if (o === 'blocked') t.blocked += 1;
+      } else if (e.type === 'WoundInflicted') {
+        const id = Number(e['id']); const s = side(id); if (s === '') continue;
+        const k = `${e['woundType']}:${e['severity']}`;
+        wounds[s]![k] = (wounds[s]![k] ?? 0) + 1;
+        const p = String(e['part']);
+        const pk = `${p.replace(/^(left|right)_/, '')}:${String(e['severity'])}`;
+        woundParts[s]![pk] = (woundParts[s]![pk] ?? 0) + 1;
+        if (s === 'h' && e['woundType'] === 'fracture' && p !== 'torso' && p !== 'head') fractureAt.push(limb.get(`${id}:${p}`) ?? 0);
+      } else if (e.type === 'LimbLost') {
+        const id = Number(e['id']); if (side(id) === 'h') lostAt.push(limb.get(`${id}:${String(e['part'])}`) ?? 0);
+      } else if (e.type === 'CreatureDied') {
+        const id = Number(e['id']); const s = side(id); if (s === '') continue;
+        deaths.push({ tick: w.tick, side: s, cause: String(e['cause']) });
+        if (s === 'h') kills.push(atk.d.swings);
+      } else if (e.type === 'CreatureUnconscious') {
+        const id = Number(e['id']); const s = side(id); if (s === '') continue;
+        uncon.push({ tick: w.tick, side: s });
+        if (s === 'd') hitsBeforeDown.push(perDefenderHits.get(id) ?? 0);
+      }
+    }
+  });
+  return { atk, wounds, woundParts, firstTick, lastTick, deaths, uncon, fractureAt, lostAt, hitsBeforeDown, kills, perDefenderHits };
+}
+
+/** A creature that can still fight: alive, conscious, not fleeing. */
+function standing(w: TestWorld, id: EntityId): boolean {
+  const ent = w.game.world.entities;
+  if (!ent.alive(id) || !ent.get(id, C.Position)) return false;
+  if (ent.get(id, C.Body)?.conscious === false) return false;
+  return true;
+}
+
+function bloodLost(w: TestWorld, id: EntityId): number {
+  const b = w.game.world.entities.get(id, C.Body);
+  return b ? b.maxBlood - b.blood : -1;
+}
+
+function duelTrial(kind: 'duel2' | 'duel4' | 'troll' | 'hammer' | 'duel2full', i: number): Record<string, unknown> {
+  const w = arena(`t366-${kind}-${i}`);
+  const kit: Kit = kind === 'hammer' ? { weapon: ['warhammer', 'steel'], body: ['mail_shirt', 'iron'] } : kind === 'duel2full' ? FULL_KIT : SOLDIER_KIT;
+  const [dwarf] = soldiers(w, 1, 40, 40, kit) as [EntityId];
+  const foes: EntityId[] = [];
+  const reg = w.game.registry;
+  if (kind === 'duel2' || kind === 'duel4' || kind === 'duel2full') {
+    for (const dx of [1, -1]) {
+      const g = w.spawnCreature('gloam_warrior', w.index(40 + dx, 41, Z), 'hostile:gloam');
+      assignHostileSkills(w.game.world.entities, reg, g, kind === 'duel4' ? 1 : 0, false);
+      equip(w, g, w.index(40 + dx, 41, Z), { weapon: ['short_sword', 'copper'] });
+      foes.push(g);
+    }
+  } else {
+    foes.push(w.spawnCreature('trollkin', w.index(41, 41, Z), 'hostile:gloam'));
+  }
+  const ent = w.game.world.entities;
+  const side = (id: EntityId): 'd' | 'h' | '' => (id === dwarf ? 'd' : foes.includes(id) ? 'h' : '');
+  const o = observe(w, side);
+  for (const f of foes) w.game.world.services.combat?.setTarget(f, dwarf);
+  let end = 0;
+  for (let t = 0; t < 3000; t += 1) {
+    w.step(1);
+    for (const f of foes) if (standing(w, f) && w.game.world.services.combat?.targetOf(f) === 0 && !ent.get(f, C.Brain)) w.game.world.services.combat?.setTarget(f, dwarf);
+    const foesUp = foes.filter((f) => standing(w, f)).length;
+    if (!standing(w, dwarf) || foesUp === 0) { end = w.tick; break; }
+  }
+  const outcome = !standing(w, dwarf) ? (ent.alive(dwarf) ? 'dwarf_down' : 'dwarf_dead') : 'dwarf_won';
+  const fled = foes.filter((f) => ent.alive(f) && ent.get(f, C.Body)?.conscious !== false).length;
+  const atEnd = { blood: bloodLost(w, dwarf), foesDead: foes.filter((f) => !ent.alive(f)).length, foesFledOrUp: fled };
+  // A day after the fight with no medic: does the dwarf bleed out?
+  w.step(1200);
+  return { kind, i, outcome, endTick: end, fightTicks: o.lastTick.v - o.firstTick.v, ...atEnd,
+    dwarfDeadAfterDay: !ent.alive(dwarf), atk: { d: { ...o.atk.d, dmg: undefined, dmgSum: o.atk.d.dmg.reduce((a, b) => a + b, 0), dmgList: o.atk.d.dmg }, h: { ...o.atk.h, dmg: undefined, dmgList: o.atk.h.dmg } },
+    wounds: o.wounds, woundParts: o.woundParts, deaths: o.deaths, uncon: o.uncon, kills: o.kills, fractureAt: o.fractureAt, lostAt: o.lostAt, hitsBeforeDown: o.hitsBeforeDown };
+}
+
+function squadTrial(kind: string, i: number): Record<string, unknown> {
+  const w = arena(`t366-squad-${kind.split('-')[0]}-${i}`);
+  const full = kind.includes('full'), skilled = kind.includes('6'), h4 = kind.includes('h4');
+  const reg = w.game.registry;
+  const ent = w.game.world.entities;
+  const sx = 46, sy = 60;
+  const ids = soldiers(w, 3, sx, sy, full ? FULL_KIT : SOLDIER_KIT, skilled ? COMPETENT : NOVICE);
+  // Something to defend: three civilians behind the squad.
+  const civ: EntityId[] = [];
+  for (let k = 0; k < 3; k += 1) civ.push(w.spawnDwarf({ at: w.index(sx + k, sy + 8, Z) }));
+  if (kind.startsWith('gate')) {
+    // A wall across the map at y = sy - 3 with one door, locked; the squad stands behind it.
+    for (let x = 1; x < w.map.w - 1; x += 1) if (x !== sx + 1) w.build('wall', w.index(x, sy - 3, Z), 'granite');
+    const door = w.build('door', w.index(sx + 1, sy - 3, Z), 'oak');
+    w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: door, mode: 'locked' });
+  }
+  const rng = w.game.world.rngFor('t366');
+  const ambush = kind.startsWith('ambush');
+  const { partyId, pendingSpawns } = arriveParty(w.game.world as never, reg, rng, ambush ? 'ambush' : 'raid', 'gloam', ambush ? 4 : 10, 'n', w.tick, 15, 2, false);
+  for (const s of pendingSpawns) spawnHostileMember(w.game.world as never, reg, rng, s.partyId, s.species, s.role, s.tile, s.gearTier, s.isCaptain);
+  const P = ent.get(partyId, C.Party)!;
+  // What-if (probe only): raiders at HOSTILE_SKILL_PER_TIER 1 instead of 2 (tier 2 -> 4, captain tier 3 -> 7).
+  if (h4) for (const m of P.members) { const sk = ent.get(m, C.Skills); if (sk) { const lv = sk.level[1] === 10 ? 7 : 4; sk.level.fill(lv); sk.level[0] = 0; } }
+  const members = [...P.members];
+  const side = (id: EntityId): 'd' | 'h' | '' => (ids.includes(id) ? 'd' : members.includes(id) ? 'h' : '');
+  const civHits = { n: 0 };
+  w.game.world.onEvents((ev) => { for (const e of ev) if (e.type === 'AttackResolved' && e['outcome'] === 'hit' && civ.includes(Number(e['defenderId']))) civHits.n += 1; });
+  const o = observe(w, side);
+  let ended = '';
+  w.game.world.onEvents((ev) => { for (const e of ev) if (e.type === 'RaidEnded' && Number(e['partyId']) === partyId) ended = String(e['outcome']); });
+  let endTick = 0;
+  for (let t = 0; t < 4800; t += 1) {
+    w.step(1);
+    if (ended !== '' || members.every((m) => !standing(w, m)) || ids.every((d) => !standing(w, d))) { endTick = w.tick; break; }
+  }
+  const after = (): Record<string, unknown> => ({
+    soldiersDead: ids.filter((d) => !ent.alive(d)).length, soldiersDown: ids.filter((d) => ent.alive(d) && !standing(w, d)).length,
+    civDead: civ.filter((d) => !ent.alive(d)).length, civHits: civHits.n,
+    hostilesDead: members.filter((m) => !ent.alive(m)).length,
+    blood: ids.map((d) => bloodLost(w, d)),
+  });
+  const atEnd = after();
+  w.step(1200);
+  return { kind: `squad-${kind}`, i, outcome: ended || (ids.every((d) => !standing(w, d)) ? 'squad_down' : members.every((m) => !standing(w, m)) ? 'raid_down' : 'timeout'), endTick, fightTicks: o.lastTick.v - o.firstTick.v, members: members.length, ...atEnd,
+    dayAfter: after(), atk: { d: { ...o.atk.d, dmg: undefined, dmgList: o.atk.d.dmg }, h: { ...o.atk.h, dmg: undefined, dmgList: o.atk.h.dmg } },
+    wounds: o.wounds, woundParts: o.woundParts, deaths: o.deaths, uncon: o.uncon };
+}
+
+describe('T-366 duel probe', () => {
+  it('runs the arenas', () => {
+    if (!ONLY) writeFileSync(OUT, '');
+    const put = (r: Record<string, unknown>): void => appendFileSync(OUT, JSON.stringify(r) + '\n');
+    const kinds = (ONLY || 'duel2,duel4,troll,hammer,open,gate').split(',');
+    for (const k of kinds) {
+      if (k.startsWith('open') || k.startsWith('gate') || k.startsWith('ambush')) for (let i = 0; i < NSQUAD; i += 1) put(squadTrial(k, i));
+      else for (let i = 0; i < N; i += 1) put(duelTrial(k as 'duel2', i));
+    }
+  }, 7_200_000);
+});
