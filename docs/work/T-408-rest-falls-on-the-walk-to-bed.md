@@ -19,3 +19,13 @@ The measured time budget of the game, the 37% work share T-140 asked for, is bui
 
 - A unit test pins that a dwarf walking to its bed gains awake rest at the hourly boundary and loses the sleeping rate once in bed.
 - The work-share probe and the annual wildlife instrument are run before and after; the share rows of `balance-status.md` are replaced with the new figures in a new dated report.
+
+## Parked, 2026-10-21
+
+The change (rest held on the walk to bed, falling only in bed) is on branch `t408-wip3` (`1432941`, on `c3e76ce`). Decision 1 was amended in it: counting the walk as awake made the walk add tiredness and cut the year-1 work share to 32%; holding rest on the walk keeps the time budget. The figures are in `reports/data/2026-10-21-t408-population-check.json`, all on `c3e76ce`.
+
+- **The change raises the time a dwarf is tired.** The share of dwarf-time with rest at or above its want threshold (the `tired` thought) rises from 18–19% to 31–35% in every seed and at both rates: a dwarf now walks to its bed with the rest it set off with, and stays tired the whole walk, where before its rest fell on the way.
+- **Population and mood, three seeds of the economy fixture, 224 days** (population at days 112 / 224, year-1 mood): before `three-years` 14 / 33, 53.7; `p0-2` 12 / 12, 52.1; `p0-3` 16 / 45, 60.5. At −45: 10 / 13, 49.6; 12 / 12, 50.8; 17 / 44, 60.8 (two early deaths in `three-years` and a lower hall spirit miss four waves). At −40: 15 / 34, 57.2; 13 / 16, 55.8; 17 / 57, 61.0, with no death in any seed.
+- **The annual instrument** (before, the T-405 row: 13 / 2 / 8 / 140 / 8 / 0 / 0): at −45, 11.5 / 5 / 7 / **139** / 6 / 0 / 0, nobody starving but the sum below the before row and three figures worse together; at −40, 11.5 / 0 / 2 / **122** / 5 / **1** / 0 (forest seed 3 extinct to boars and wolves), the sum bound failing.
+- So −45 does not hold the sum and loses population in two seeds of three; −40 holds population but fails the instrument. Neither meets the orchestrator's conditions (hold the sum, nobody starving, population and mood holding), and T-408 stays parked. The four scenario witnesses that failed at −45 (`homestead_year`, `pp_drink`, `pp_pasture`, the T-197 hall errand) were not diagnosed.
+- **What would unblock it is a design decision, not a constant:** whether a dwarf walking to its bed counts as tired (a `tired` thought suspended on the sleep errand), or whether rest should go back to falling from the moment a dwarf sets off, as the code did before (the rule 10 would then state). Either is a rule change of 10 and 15 for the owner.

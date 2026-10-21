@@ -1,0 +1,1136 @@
+{
+ "base": "c3e76ce",
+ "branch": "t408-wip3",
+ "probe": "2026-10-18-t140-share-probe.ts.txt plus the rest/social want shares and the immigration list, 224 days",
+ "population": {
+  "before:three-years": {
+   "hash": "cefa99e31c6ab70a",
+   "years": [
+    {
+     "day": 112,
+     "wealth": 22158,
+     "population": 14
+    },
+    {
+     "day": 224,
+     "wealth": 47800,
+     "population": 33
+    }
+   ],
+   "mood": {
+    "1": "53.7",
+    "2": "58.3"
+   },
+   "work": {
+    "1": "38.3",
+    "2": "39.5"
+   },
+   "tiredShare": {
+    "1": "19.4",
+    "2": "20.5"
+   },
+   "restUse": {
+    "1": "9.2",
+    "2": "9.8"
+   },
+   "immigration": [
+    {
+     "day": 28,
+     "outcome": "wave",
+     "size": 2,
+     "spirit": 60,
+     "wealth": 4640,
+     "population": 7
+    },
+    {
+     "day": 56,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 44.9,
+     "wealth": 8095,
+     "population": 8
+    },
+    {
+     "day": 84,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 56.7,
+     "wealth": 12571,
+     "population": 11
+    },
+    {
+     "day": 112,
+     "outcome": "wave",
+     "size": 9,
+     "spirit": 60.3,
+     "wealth": 22158,
+     "population": 14
+    },
+    {
+     "day": 140,
+     "outcome": "wave",
+     "size": 10,
+     "spirit": 57.4,
+     "wealth": 25170,
+     "population": 23
+    },
+    {
+     "day": 168,
+     "outcome": "luck",
+     "size": null,
+     "spirit": 57.6,
+     "wealth": 50086,
+     "population": 33
+    },
+    {
+     "day": 196,
+     "outcome": "luck",
+     "size": null,
+     "spirit": 58.1,
+     "wealth": 42491,
+     "population": 33
+    }
+   ],
+   "deaths": [
+    {
+     "day": 51,
+     "species": "dwarf",
+     "cause": "bled_out"
+    }
+   ]
+  },
+  "before:three-years-p0-2": {
+   "hash": "3bea00c92899e889",
+   "years": [
+    {
+     "day": 112,
+     "wealth": 14725,
+     "population": 12
+    },
+    {
+     "day": 224,
+     "wealth": 16581,
+     "population": 12
+    }
+   ],
+   "mood": {
+    "1": "52.1",
+    "2": "55.0"
+   },
+   "work": {
+    "1": "29.2",
+    "2": "23.7"
+   },
+   "tiredShare": {
+    "1": "17.9",
+    "2": "17.6"
+   },
+   "restUse": {
+    "1": "7.5",
+    "2": "4.3"
+   },
+   "immigration": [
+    {
+     "day": 28,
+     "outcome": "wave",
+     "size": 2,
+     "spirit": 43.5,
+     "wealth": 2930,
+     "population": 6
+    },
+    {
+     "day": 56,
+     "outcome": "wave",
+     "size": 4,
+     "spirit": 52.9,
+     "wealth": 5139,
+     "population": 8
+    },
+    {
+     "day": 84,
+     "outcome": "luck",
+     "size": null,
+     "spirit": 56.9,
+     "wealth": 10039,
+     "population": 12
+    },
+    {
+     "day": 112,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 50.3,
+     "wealth": 14725,
+     "population": 12
+    },
+    {
+     "day": 140,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 51.8,
+     "wealth": 12002,
+     "population": 12
+    },
+    {
+     "day": 168,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 55,
+     "wealth": 9490,
+     "population": 12
+    },
+    {
+     "day": 196,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 51.7,
+     "wealth": 11398,
+     "population": 12
+    }
+   ],
+   "deaths": [
+    {
+     "day": 21,
+     "species": "dwarf",
+     "cause": "bled_out"
+    }
+   ]
+  },
+  "before:three-years-p0-3": {
+   "hash": "35be441d39fb685e",
+   "years": [
+    {
+     "day": 112,
+     "wealth": 21613,
+     "population": 16
+    },
+    {
+     "day": 224,
+     "wealth": 9970,
+     "population": 45
+    }
+   ],
+   "mood": {
+    "1": "60.5",
+    "2": "60.8"
+   },
+   "work": {
+    "1": "38.9",
+    "2": "31.6"
+   },
+   "tiredShare": {
+    "1": "19.2",
+    "2": "17.0"
+   },
+   "restUse": {
+    "1": "7.3",
+    "2": "8.9"
+   },
+   "immigration": [
+    {
+     "day": 28,
+     "outcome": "wave",
+     "size": 4,
+     "spirit": 50,
+     "wealth": 2975,
+     "population": 7
+    },
+    {
+     "day": 56,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 63.6,
+     "wealth": 12095,
+     "population": 11
+    },
+    {
+     "day": 84,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 60.8,
+     "wealth": 10730,
+     "population": 13
+    },
+    {
+     "day": 112,
+     "outcome": "wave",
+     "size": 11,
+     "spirit": 65.1,
+     "wealth": 21613,
+     "population": 16
+    },
+    {
+     "day": 140,
+     "outcome": "luck",
+     "size": null,
+     "spirit": 64.3,
+     "wealth": 34182,
+     "population": 27
+    },
+    {
+     "day": 168,
+     "outcome": "wave",
+     "size": 12,
+     "spirit": 58.1,
+     "wealth": 46267,
+     "population": 27
+    },
+    {
+     "day": 196,
+     "outcome": "wave",
+     "size": 6,
+     "spirit": 63.3,
+     "wealth": 31716,
+     "population": 39
+    }
+   ],
+   "deaths": [
+    {
+     "day": 80,
+     "species": "dwarf",
+     "cause": "bled_out"
+    }
+   ]
+  },
+  "after:three-years": {
+   "hash": "832925fcbfb97d6f",
+   "years": [
+    {
+     "day": 112,
+     "wealth": 16410,
+     "population": 10
+    },
+    {
+     "day": 224,
+     "wealth": 28017,
+     "population": 13
+    }
+   ],
+   "mood": {
+    "1": "49.6",
+    "2": "57.2"
+   },
+   "work": {
+    "1": "39.1",
+    "2": "32.2"
+   },
+   "tiredShare": {
+    "1": "31.5",
+    "2": "31.9"
+   },
+   "restUse": {
+    "1": "8.3",
+    "2": "8.0"
+   },
+   "immigration": [
+    {
+     "day": 28,
+     "outcome": "wave",
+     "size": 2,
+     "spirit": 41.7,
+     "wealth": 6144,
+     "population": 5
+    },
+    {
+     "day": 56,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 49.1,
+     "wealth": 11350,
+     "population": 7
+    },
+    {
+     "day": 84,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 52.5,
+     "wealth": 12060,
+     "population": 10
+    },
+    {
+     "day": 112,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 47.9,
+     "wealth": 16410,
+     "population": 10
+    },
+    {
+     "day": 140,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 54.9,
+     "wealth": 15944,
+     "population": 10
+    },
+    {
+     "day": 168,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 51.5,
+     "wealth": 13615,
+     "population": 10
+    },
+    {
+     "day": 196,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 55.8,
+     "wealth": 14681,
+     "population": 10
+    }
+   ],
+   "deaths": [
+    {
+     "day": 22,
+     "species": "dwarf",
+     "cause": "bled_out"
+    },
+    {
+     "day": 23,
+     "species": "dwarf",
+     "cause": "bled_out"
+    }
+   ]
+  },
+  "after:three-years-p0-2": {
+   "hash": "d9020d7eafa82a51",
+   "years": [
+    {
+     "day": 112,
+     "wealth": 15856,
+     "population": 12
+    },
+    {
+     "day": 224,
+     "wealth": 17224,
+     "population": 12
+    }
+   ],
+   "mood": {
+    "1": "50.8",
+    "2": "52.4"
+   },
+   "work": {
+    "1": "25.6",
+    "2": "20.9"
+   },
+   "tiredShare": {
+    "1": "34.0",
+    "2": "35.7"
+   },
+   "restUse": {
+    "1": "7.8",
+    "2": "7.6"
+   },
+   "immigration": [
+    {
+     "day": 28,
+     "outcome": "wave",
+     "size": 2,
+     "spirit": 53.1,
+     "wealth": 3065,
+     "population": 7
+    },
+    {
+     "day": 56,
+     "outcome": "wave",
+     "size": 4,
+     "spirit": 46.7,
+     "wealth": 3735,
+     "population": 9
+    },
+    {
+     "day": 84,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 46.3,
+     "wealth": 7965,
+     "population": 12
+    },
+    {
+     "day": 112,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 53.2,
+     "wealth": 15856,
+     "population": 12
+    },
+    {
+     "day": 140,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 51.6,
+     "wealth": 6999,
+     "population": 12
+    },
+    {
+     "day": 168,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 53.9,
+     "wealth": 9610,
+     "population": 12
+    },
+    {
+     "day": 196,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 49.7,
+     "wealth": 10071,
+     "population": 12
+    }
+   ],
+   "deaths": [
+    {
+     "day": 76,
+     "species": "dwarf",
+     "cause": "bled_out"
+    }
+   ]
+  },
+  "after:three-years-p0-3": {
+   "hash": "b96f9bc481e74b14",
+   "years": [
+    {
+     "day": 112,
+     "wealth": 23940,
+     "population": 17
+    },
+    {
+     "day": 224,
+     "wealth": 54179,
+     "population": 44
+    }
+   ],
+   "mood": {
+    "1": "60.8",
+    "2": "63.9"
+   },
+   "work": {
+    "1": "37.5",
+    "2": "40.7"
+   },
+   "tiredShare": {
+    "1": "32.7",
+    "2": "32.0"
+   },
+   "restUse": {
+    "1": "7.2",
+    "2": "7.7"
+   },
+   "immigration": [
+    {
+     "day": 28,
+     "outcome": "wave",
+     "size": 4,
+     "spirit": 58.4,
+     "wealth": 2956,
+     "population": 7
+    },
+    {
+     "day": 56,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 59.7,
+     "wealth": 4924,
+     "population": 11
+    },
+    {
+     "day": 84,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 64.9,
+     "wealth": 11330,
+     "population": 14
+    },
+    {
+     "day": 112,
+     "outcome": "wave",
+     "size": 9,
+     "spirit": 64.7,
+     "wealth": 23940,
+     "population": 17
+    },
+    {
+     "day": 140,
+     "outcome": "wave",
+     "size": 12,
+     "spirit": 65.9,
+     "wealth": 35697,
+     "population": 26
+    },
+    {
+     "day": 168,
+     "outcome": "luck",
+     "size": null,
+     "spirit": 65.6,
+     "wealth": 48560,
+     "population": 38
+    },
+    {
+     "day": 196,
+     "outcome": "wave",
+     "size": 6,
+     "spirit": 64.7,
+     "wealth": 45458,
+     "population": 38
+    }
+   ],
+   "deaths": []
+  },
+  "m40:three-years": {
+   "hash": "1e05fa222b1dc2a1",
+   "years": [
+    {
+     "day": 112,
+     "wealth": 24127,
+     "population": 15
+    },
+    {
+     "day": 224,
+     "wealth": 47774,
+     "population": 34
+    }
+   ],
+   "mood": {
+    "1": "57.2",
+    "2": "60.4"
+   },
+   "work": {
+    "1": "35.2",
+    "2": "36.0"
+   },
+   "tiredShare": {
+    "1": "30.9",
+    "2": "33.6"
+   },
+   "restUse": {
+    "1": "8.8",
+    "2": "9.0"
+   },
+   "immigration": [
+    {
+     "day": 28,
+     "outcome": "wave",
+     "size": 2,
+     "spirit": 62.1,
+     "wealth": 6879,
+     "population": 7
+    },
+    {
+     "day": 56,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 57.1,
+     "wealth": 9626,
+     "population": 9
+    },
+    {
+     "day": 84,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 64.8,
+     "wealth": 13705,
+     "population": 12
+    },
+    {
+     "day": 112,
+     "outcome": "wave",
+     "size": 10,
+     "spirit": 59.4,
+     "wealth": 24127,
+     "population": 15
+    },
+    {
+     "day": 140,
+     "outcome": "wave",
+     "size": 9,
+     "spirit": 64.9,
+     "wealth": 22164,
+     "population": 25
+    },
+    {
+     "day": 168,
+     "outcome": "luck",
+     "size": null,
+     "spirit": 61,
+     "wealth": 47935,
+     "population": 34
+    },
+    {
+     "day": 196,
+     "outcome": "luck",
+     "size": null,
+     "spirit": 58.4,
+     "wealth": 42943,
+     "population": 34
+    }
+   ],
+   "deaths": []
+  },
+  "m40:three-years-p0-2": {
+   "hash": "4f9bbb2f619b88d9",
+   "years": [
+    {
+     "day": 112,
+     "wealth": 14903,
+     "population": 13
+    },
+    {
+     "day": 224,
+     "wealth": 23662,
+     "population": 16
+    }
+   ],
+   "mood": {
+    "1": "55.8",
+    "2": "60.2"
+   },
+   "work": {
+    "1": "27.5",
+    "2": "30.8"
+   },
+   "tiredShare": {
+    "1": "32.1",
+    "2": "34.9"
+   },
+   "restUse": {
+    "1": "8.5",
+    "2": "8.3"
+   },
+   "immigration": [
+    {
+     "day": 28,
+     "outcome": "wave",
+     "size": 2,
+     "spirit": 51,
+     "wealth": 3029,
+     "population": 7
+    },
+    {
+     "day": 56,
+     "outcome": "wave",
+     "size": 4,
+     "spirit": 57.9,
+     "wealth": 3585,
+     "population": 9
+    },
+    {
+     "day": 84,
+     "outcome": "luck",
+     "size": null,
+     "spirit": 58.3,
+     "wealth": 5930,
+     "population": 13
+    },
+    {
+     "day": 112,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 54.9,
+     "wealth": 14903,
+     "population": 13
+    },
+    {
+     "day": 140,
+     "outcome": "luck",
+     "size": null,
+     "spirit": 59.3,
+     "wealth": 12130,
+     "population": 13
+    },
+    {
+     "day": 168,
+     "outcome": "spirit",
+     "size": null,
+     "spirit": 51.8,
+     "wealth": 16444,
+     "population": 13
+    },
+    {
+     "day": 196,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 63.1,
+     "wealth": 11296,
+     "population": 13
+    }
+   ],
+   "deaths": []
+  },
+  "m40:three-years-p0-3": {
+   "hash": "b613a40389846638",
+   "years": [
+    {
+     "day": 112,
+     "wealth": 25633,
+     "population": 17
+    },
+    {
+     "day": 224,
+     "wealth": 21323,
+     "population": 57
+    }
+   ],
+   "mood": {
+    "1": "61.0",
+    "2": "62.6"
+   },
+   "work": {
+    "1": "39.4",
+    "2": "36.5"
+   },
+   "tiredShare": {
+    "1": "32.2",
+    "2": "30.8"
+   },
+   "restUse": {
+    "1": "8.0",
+    "2": "8.4"
+   },
+   "immigration": [
+    {
+     "day": 28,
+     "outcome": "wave",
+     "size": 4,
+     "spirit": 48.8,
+     "wealth": 3014,
+     "population": 7
+    },
+    {
+     "day": 56,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 63.6,
+     "wealth": 7994,
+     "population": 11
+    },
+    {
+     "day": 84,
+     "outcome": "wave",
+     "size": 3,
+     "spirit": 63.5,
+     "wealth": 13568,
+     "population": 14
+    },
+    {
+     "day": 112,
+     "outcome": "wave",
+     "size": 10,
+     "spirit": 62.8,
+     "wealth": 25633,
+     "population": 17
+    },
+    {
+     "day": 140,
+     "outcome": "wave",
+     "size": 12,
+     "spirit": 65.6,
+     "wealth": 35715,
+     "population": 27
+    },
+    {
+     "day": 168,
+     "outcome": "wave",
+     "size": 12,
+     "spirit": 66.5,
+     "wealth": 35439,
+     "population": 39
+    },
+    {
+     "day": 196,
+     "outcome": "wave",
+     "size": 6,
+     "spirit": 59.8,
+     "wealth": 42358,
+     "population": 51
+    }
+   ],
+   "deaths": []
+  }
+ },
+ "instrument": {
+  "before": "reports/data/2026-10-21-t405-wildlife.json (13/2/8/140/8/0/0)",
+  "m45": {
+   "summary": {
+    "median": 11.5,
+    "worst": 5,
+    "secondWorst": 7,
+    "living": 139,
+    "wildlifeFree": 6,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0
+   },
+   "regression": {
+    "floors": {
+     "median": 12,
+     "living": 136,
+     "wildlifeFree": 6,
+     "extinct": 1,
+     "hungerThirstDeaths": 1
+    },
+    "worsened": [
+     "median",
+     "living",
+     "wildlifeFree"
+    ],
+    "exceeded": [
+     "median"
+    ],
+    "allowed": false
+   },
+   "rows": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 11,
+     "shelter": 300,
+     "deaths": [
+      "42:bled_out:wolf",
+      "44:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 7,
+     "shelter": 3060,
+     "deaths": [
+      "31:bled_out:boar",
+      "34:bled_out:boar",
+      "105:bled_out:wolf",
+      "105:bled_out:wolf",
+      "106:bled_out:wolf",
+      "109:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 12,
+     "shelter": 300,
+     "deaths": [
+      "105:bled_out:badger"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 5,
+     "shelter": 3780,
+     "deaths": [
+      "46:bled_out:wolf",
+      "47:bled_out:wolf",
+      "48:bled_out:badger",
+      "52:bled_out:wolf",
+      "57:bled_out:wolf",
+      "68:bled_out:wolf",
+      "73:bled_out:bear",
+      "76:bled_out:bear"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 13,
+     "shelter": 0,
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 11,
+     "shelter": 4100,
+     "deaths": [
+      "91:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 11,
+     "shelter": 3760,
+     "deaths": [
+      "44:bled_out:wolf",
+      "109:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 11,
+     "shelter": 0,
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "shelter": 0,
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "shelter": 0,
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "shelter": 0,
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "shelter": 0,
+     "deaths": []
+    }
+   ]
+  },
+  "m40": {
+   "summary": {
+    "median": 11.5,
+    "worst": 0,
+    "secondWorst": 2,
+    "living": 122,
+    "wildlifeFree": 5,
+    "seeds": 12,
+    "extinct": 1,
+    "hungerThirstDeaths": 0
+   },
+   "regression": {
+    "floors": {
+     "median": 12,
+     "living": 136,
+     "wildlifeFree": 6,
+     "extinct": 1,
+     "hungerThirstDeaths": 1
+    },
+    "worsened": [
+     "median",
+     "living",
+     "wildlifeFree",
+     "extinct"
+    ],
+    "exceeded": [
+     "median",
+     "living",
+     "wildlifeFree"
+    ],
+    "allowed": false
+   },
+   "rows": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 12,
+     "shelter": 300,
+     "deaths": [
+      "111:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 2,
+     "shelter": 5760,
+     "deaths": [
+      "19:bled_out:wolf",
+      "19:bled_out:wolf",
+      "24:bled_out:wolf",
+      "24:killed:wolf",
+      "25:bled_out:wolf",
+      "28:infection:wolf",
+      "29:bled_out:wolf",
+      "67:bled_out:wolf",
+      "68:bled_out:wolf",
+      "70:bled_out:wolf",
+      "73:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 0,
+     "shelter": 3860,
+     "deaths": [
+      "44:bled_out:wolf",
+      "45:bled_out:wolf",
+      "47:bled_out:wolf",
+      "48:bled_out:wolf",
+      "62:bled_out:boar",
+      "63:bled_out:boar",
+      "63:bled_out:boar",
+      "65:bled_out:boar",
+      "67:bled_out:boar",
+      "67:bled_out:boar",
+      "71:bled_out:boar",
+      "73:bled_out:boar",
+      "75:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 11,
+     "shelter": 1040,
+     "deaths": [
+      "101:bled_out:boar",
+      "103:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 10,
+     "shelter": 4300,
+     "deaths": [
+      "58:bled_out:wolf",
+      "76:bled_out:wolf",
+      "77:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 12,
+     "shelter": 3620,
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 11,
+     "shelter": 3780,
+     "deaths": [
+      "29:bled_out:wolf",
+      "38:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 6,
+     "shelter": 3600,
+     "deaths": [
+      "33:bled_out:wolf",
+      "34:bled_out:wolf",
+      "34:bled_out:wolf",
+      "37:bled_out:wolf",
+      "43:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "shelter": 0,
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "shelter": 300,
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "shelter": 0,
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "shelter": 0,
+     "deaths": []
+    }
+   ]
+  }
+ }
+}
