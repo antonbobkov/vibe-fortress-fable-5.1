@@ -19,7 +19,7 @@ Need rates per hour (10 Dwarves, as revised by this pass):
 |---|---|---|---|
 | hunger | 1 | 50 | a meal about every 50 hours: 0.48 food units per dwarf per day |
 | thirst | 1.6 | 50 | a drink about every 31 hours: 0.77 drinks per dwarf per day |
-| rest | 5 awake, −15 asleep | 60 | 6 hours asleep per 24 by the rates, each sleep ending when rest reaches 0; measured, 2 in bed (below) |
+| rest | 5 awake, −15 on the sleep errand from setting off for bed | 60 | 6 hours a day on the sleep errand by the rates, each sleep ending when rest reaches 0; measured, about 4 on the way to bed and 2 in it (below) |
 | social | 2 | 50 | a chat a day |
 | comfort | 1 | 55 | a sit about every 40 hours in a decent room (20 in the hearth hall) |
 | purpose | +2 idle, −10 working | 60 | dwarves dislike idling for more than a day (*unmeasured*) |
@@ -36,7 +36,7 @@ The intervals above count the need itself, not the walk to serve it. A dwarf at 
 | Talk, sit, hearth visit | 7% | 6% |
 | **All needs** | **20%** | **41%** |
 
-Work takes 37% (28% at jobs, 10% hauling) and almost none of the rest is idle. In a fortress of 40 to 56 dwarves the walk to the food and the drink grows, and needs in travel take 48% by the third year. Social is over its want threshold about half the time, joy two fifths and comfort a fifth. Travel is the walk to the bed, the food, the seat or the hall, and for a meal the walk from the food to a table. A meal is 60 ticks of eating after about 300 ticks on the way; a drink is 40 ticks after about 145. The use shares follow from the need rates and do not change with walking speed. Sleep is short in use because the game lowers rest at the sleeping rate from the moment a dwarf sets off for its bed: it walks 4 hours a day to its bed and lies in it 2, the walk takes about 40 off a rest of 70, and a quarter of its sleep errands end the moment it lies down ([sleep](../../reports/audits/2026-10-21-sleep-hours.md)). [balance-status.md](../balance-status.md) holds the latest measurement.
+Work takes 37% (28% at jobs, 10% hauling) and almost none of the rest is idle. In a fortress of 40 to 56 dwarves the walk to the food and the drink grows, and needs in travel take 48% by the third year. Social is over its want threshold about half the time, joy two fifths and comfort a fifth. Travel is the walk to the bed, the food, the seat or the hall, and for a meal the walk from the food to a table. A meal is 60 ticks of eating after about 300 ticks on the way; a drink is 40 ticks after about 145. The use shares follow from the need rates and do not change with walking speed. Rest falls at the sleeping rate from the moment a dwarf sets off for its bed, so the walk is part of its rest: it walks 4 hours a day to its bed and lies in it 2, the walk takes about 40 off a rest of 70, and a quarter of its sleep errands end the moment it lies down ([sleep](../../reports/audits/2026-10-21-sleep-hours.md)). Rest that falls only in bed was tried and keeps dwarves tired a third of their time, at the cost of population or of the annual wildlife survival ([rest on the walk to bed, rule restated](../../reports/audits/2026-10-21-t408-rule-restated.md)). [balance-status.md](../balance-status.md) holds the latest measurement.
 
 ## Food chain
 

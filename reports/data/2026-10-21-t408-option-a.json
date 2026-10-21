@@ -1,0 +1,194 @@
+{
+ "base": "c3e76ce",
+ "branch": "t408-wip3 e0ec9f7",
+ "instrument": {
+  "before": "reports/data/2026-10-21-t405-wildlife.json (13/2/8/140/8/0/0)",
+  "optionA_m45": {
+   "summary": {
+    "median": 11.5,
+    "worst": 5,
+    "secondWorst": 7,
+    "living": 139,
+    "wildlifeFree": 6,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0
+   },
+   "regression": {
+    "floors": {
+     "median": 12,
+     "living": 136,
+     "wildlifeFree": 6,
+     "extinct": 1,
+     "hungerThirstDeaths": 1
+    },
+    "worsened": [
+     "median",
+     "living",
+     "wildlifeFree"
+    ],
+    "exceeded": [
+     "median"
+    ],
+    "allowed": false
+   },
+   "rows": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 11,
+     "hash": "25b0801ccdfae1a8"
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 7,
+     "hash": "e4d9afd5ca861f51"
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 12,
+     "hash": "07b3b0872c46e262"
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 5,
+     "hash": "9c311d8750595ac5"
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 13,
+     "hash": "2c038872071a9455"
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 11,
+     "hash": "d1656e170e6bff6c"
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 11,
+     "hash": "38ecc52bfd6b5a2c"
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 11,
+     "hash": "323e13bcbdf00956"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "hash": "204650cb95186aec"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "hash": "d5f6280aa6723c81"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "hash": "690567e7d3bc948d"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "hash": "9fd1de7cc71d5c37"
+    }
+   ]
+  },
+  "optionA_m40": {
+   "summary": {
+    "median": 11.5,
+    "worst": 0,
+    "secondWorst": 2,
+    "living": 122,
+    "wildlifeFree": 5,
+    "seeds": 12,
+    "extinct": 1,
+    "hungerThirstDeaths": 0
+   },
+   "regression": {
+    "floors": {
+     "median": 12,
+     "living": 136,
+     "wildlifeFree": 6,
+     "extinct": 1,
+     "hungerThirstDeaths": 1
+    },
+    "worsened": [
+     "median",
+     "living",
+     "wildlifeFree",
+     "extinct"
+    ],
+    "exceeded": [
+     "median",
+     "living",
+     "wildlifeFree"
+    ],
+    "allowed": false
+   },
+   "rows": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 12,
+     "hash": "e183f88086b2f7fa"
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 2,
+     "hash": "369f98ec7ec4b6a6"
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 0,
+     "hash": "39f2a0ac34a80b17"
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 11,
+     "hash": "5706a43c2d04bfde"
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 10,
+     "hash": "7f5bb54a6c05acf6"
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 12,
+     "hash": "4f8df4fb5caf469f"
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 11,
+     "hash": "0666cf6da2efffa0"
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 6,
+     "hash": "d1a7e43d22bcb57d"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "hash": "5b683741de8073b3"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "hash": "23453a2c58e126ba"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "hash": "b14754f59a7539e4"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "hash": "48f36bad3ac86770"
+    }
+   ]
+  }
+ }
+}

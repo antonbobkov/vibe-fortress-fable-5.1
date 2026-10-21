@@ -72,7 +72,7 @@ startNeed(id, need):
     thirst:  barrel = find reservable drink directly in a stockpiled barrel, else nearest working well, else reachable water (level ≥ 1, not magma or frozen); if none: reachable loose alcohol
              water: horizontal radius 32, z−8..z+8; rank horizontal Chebyshev + |dz|*Z_DISTANCE_WEIGHT, ties by stand tile
              plan: walk adjacent, DRINK_TICKS, consume 1 unit (barrel) ; N.thirst -= 100/80; emit DrankAlcohol/DrankWater{outdoors}; hearthTime(id, DRINK_TICKS)
-    rest:    bed = ownBed if not held by another dwarf, else live freeUnassignedBed, else hearthHallFloor or here; save its id in plan.itemId to hold it immediately; walk, sleep until N.rest <= 0 or SLEEP_HOURS elapsed (−15/hour); release hold and emit Slept
+    rest:    bed = ownBed if not held by another dwarf, else live freeUnassignedBed, else hearthHallFloor or here; save its id in plan.itemId to hold it immediately; walk, sleep until N.rest <= 0 or SLEEP_HOURS elapsed (−15/hour from the start of the activity, the walk included; a sleep may end on arrival); release hold and emit Slept
              if the bed disappears or another saved holder wins its hold: abandon the activity and reselect; waking, abandonment and death release the hold
     social:  plan: walk to hearth hall / meeting area; wait up to 200 ticks for another dwarf within 2; choose living awake partners on the same level within Chebyshev 2 (friends then id); if found: TALK_TICKS without interrupting the partner, N.social -= 40 (60 friends), relationships.talk++; emit Talked
     comfort: chair = best-tier free chair reachable; plan: walk, sit SIT_TICKS, N.comfort -= 40 (hearth hall floor: 20); emit Sat; hearthTime(id, SIT_TICKS)

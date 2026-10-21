@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | — (T-393 closed 2026-10-18; needs a quiet machine) | open; local side (needs a quiet machine) |
-| T-408 | [Rest falls on the walk to bed](work/T-408-rest-falls-on-the-walk-to-bed.md) | T-369's measurement | T-410 (code parked on t408-wip, 58b21ff) | open |
 | T-412 | [A hostile creature never blocks a walker: 22's hostile hook is never installed](work/T-412-hostile-block-hook.md) | T-409's reading of 22 | — | open |
 | T-413 | [The medic cleans wounds that cannot be infected](work/T-413-cleaning-a-covered-wound.md) | T-411's ward probe | — | open |
 

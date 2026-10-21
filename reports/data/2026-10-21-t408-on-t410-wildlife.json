@@ -1,0 +1,1870 @@
+{
+  "runtimeCommit": "510eacfe0c283e1f701b804bdd7927ac50de53e0",
+  "target": {
+    "median": 11,
+    "worst": 8,
+    "hungerThirstDeaths": 0
+  },
+  "measured": {
+    "median": 13,
+    "worst": 9,
+    "secondWorst": 10,
+    "living": 148,
+    "wildlifeFree": 8,
+    "extinct": 0,
+    "hungerThirstDeaths": 0
+  },
+  "reference": {
+    "median": 12.5,
+    "worst": 2,
+    "secondWorst": 8,
+    "living": 139,
+    "wildlifeFree": 7,
+    "extinct": 0,
+    "hungerThirstDeaths": 0
+  },
+  "floor": {
+    "median": 12,
+    "living": 136,
+    "wildlifeFree": 6,
+    "extinct": 1,
+    "hungerThirstDeaths": 1
+  },
+  "regression": {
+    "floors": {
+      "median": 12,
+      "living": 136,
+      "wildlifeFree": 6,
+      "extinct": 1,
+      "hungerThirstDeaths": 1
+    },
+    "worsened": [
+      "median",
+      "wildlifeFree"
+    ],
+    "exceeded": [
+      "median"
+    ],
+    "allowed": false
+  },
+  "improved": {
+    "median": 13,
+    "worst": 9,
+    "secondWorst": 11,
+    "living": 148,
+    "wildlifeFree": 8,
+    "extinct": 0,
+    "hungerThirstDeaths": 0
+  },
+  "summary": {
+    "median": 11.5,
+    "worst": 5,
+    "secondWorst": 11,
+    "living": 143,
+    "wildlifeFree": 6,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0
+  },
+  "byBiome": {
+    "temperate_forest": {
+      "median": 11,
+      "worst": 5,
+      "secondWorst": 11,
+      "living": 39,
+      "wildlifeFree": 0,
+      "seeds": 4,
+      "extinct": 0,
+      "hungerThirstDeaths": 0
+    },
+    "taiga": {
+      "median": 11,
+      "worst": 11,
+      "secondWorst": 11,
+      "living": 46,
+      "wildlifeFree": 2,
+      "seeds": 4,
+      "extinct": 0,
+      "hungerThirstDeaths": 0
+    },
+    "temperate_grassland": {
+      "median": 14.5,
+      "worst": 14,
+      "secondWorst": 14,
+      "living": 58,
+      "wildlifeFree": 4,
+      "seeds": 4,
+      "extinct": 0,
+      "hungerThirstDeaths": 0
+    }
+  },
+  "rows": [
+    {
+      "seed": "wildlife-temperate_forest-1",
+      "biome": "temperate_forest",
+      "tick": 134400,
+      "living": 11,
+      "arrivals": 13,
+      "deaths": [
+        {
+          "tick": 50242,
+          "day": 42,
+          "id": 16777296,
+          "kind": "dwarf",
+          "name": "Bjarni Pinemark",
+          "cause": "bled_out",
+          "killerId": 251658448,
+          "killerSpecies": "wolf",
+          "wildlife": true,
+          "tile": 296308
+        },
+        {
+          "tick": 51782,
+          "day": 44,
+          "id": 83886117,
+          "kind": "dwarf",
+          "name": "Brynja Oakaxe",
+          "cause": "bled_out",
+          "killerId": 352321740,
+          "killerSpecies": "wolf",
+          "wildlife": true,
+          "tile": 297078
+        }
+      ],
+      "starving": 0,
+      "shelter": {
+        "longest": 300,
+        "maxHunger": 67.19999999999992,
+        "maxThirst": 65.60000000000002,
+        "maxRest": 100
+      },
+      "sleepAttacks": [
+        {
+          "tick": 49948,
+          "dwarf": 16777296,
+          "attacker": 251658448,
+          "nearby": [
+            {
+              "id": 16777296,
+              "behavior": "need",
+              "activity": "sleep"
+            }
+          ]
+        }
+      ],
+      "livestockLost": 0,
+      "spawns": {
+        "deer": 18,
+        "fox": 5,
+        "boar": 6,
+        "wolf": 4,
+        "rabbit": 6,
+        "lynx": 3,
+        "badger": 4,
+        "elk": 2
+      },
+      "alerts": [
+        {
+          "tick": 49960,
+          "level": "hearth"
+        },
+        {
+          "tick": 50260,
+          "level": "watchful"
+        },
+        {
+          "tick": 50760,
+          "level": "calm"
+        },
+        {
+          "tick": 51760,
+          "level": "hearth"
+        },
+        {
+          "tick": 52060,
+          "level": "watchful"
+        },
+        {
+          "tick": 52080,
+          "level": "calm"
+        }
+      ],
+      "stocks": {
+        "drink": 102,
+        "meal": 59,
+        "plantFood": 129
+      },
+      "harvests": 170,
+      "hunts": 3,
+      "hash": "268aa1d2df0fbf38",
+      "setup": {
+        "caveDepth": 2,
+        "surfacePlots": [
+          10,
+          11
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777321,
+          16777322,
+          16777323,
+          117440672,
+          16777377,
+          83886289
+        ],
+        "commands": 39
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 678,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 1,
+          "y": 51,
+          "z": 32
+        }
+      }
+    },
+    {
+      "seed": "wildlife-temperate_forest-2",
+      "biome": "temperate_forest",
+      "tick": 134400,
+      "living": 11,
+      "arrivals": 13,
+      "deaths": [
+        {
+          "tick": 33532,
+          "day": 28,
+          "id": 16777296,
+          "kind": "dwarf",
+          "name": "Birna Silverpick",
+          "cause": "bled_out",
+          "killerId": 16777403,
+          "killerSpecies": "boar",
+          "wildlife": true,
+          "tile": 297434
+        },
+        {
+          "tick": 37237,
+          "day": 32,
+          "id": 486539458,
+          "kind": "dwarf",
+          "name": "Palnir Runestone",
+          "cause": "bled_out",
+          "killerId": 16777403,
+          "killerSpecies": "boar",
+          "wildlife": true,
+          "tile": 297434
+        }
+      ],
+      "starving": 2,
+      "shelter": {
+        "longest": 300,
+        "maxHunger": 65.95999999999995,
+        "maxThirst": 72,
+        "maxRest": 93.00000000000003
+      },
+      "sleepAttacks": [],
+      "livestockLost": 0,
+      "spawns": {
+        "deer": 13,
+        "boar": 9,
+        "wolf": 3,
+        "fox": 7,
+        "rabbit": 5,
+        "lynx": 4,
+        "bear": 3,
+        "badger": 1
+      },
+      "alerts": [
+        {
+          "tick": 24020,
+          "level": "hearth"
+        },
+        {
+          "tick": 24320,
+          "level": "watchful"
+        },
+        {
+          "tick": 24340,
+          "level": "calm"
+        },
+        {
+          "tick": 28700,
+          "level": "hearth"
+        },
+        {
+          "tick": 29000,
+          "level": "watchful"
+        },
+        {
+          "tick": 29340,
+          "level": "calm"
+        },
+        {
+          "tick": 30500,
+          "level": "hearth"
+        },
+        {
+          "tick": 30800,
+          "level": "watchful"
+        },
+        {
+          "tick": 30820,
+          "level": "calm"
+        },
+        {
+          "tick": 33280,
+          "level": "hearth"
+        },
+        {
+          "tick": 33580,
+          "level": "watchful"
+        },
+        {
+          "tick": 34080,
+          "level": "calm"
+        },
+        {
+          "tick": 35080,
+          "level": "hearth"
+        },
+        {
+          "tick": 35380,
+          "level": "watchful"
+        },
+        {
+          "tick": 35400,
+          "level": "calm"
+        },
+        {
+          "tick": 37000,
+          "level": "hearth"
+        },
+        {
+          "tick": 37300,
+          "level": "watchful"
+        },
+        {
+          "tick": 37720,
+          "level": "calm"
+        },
+        {
+          "tick": 38800,
+          "level": "hearth"
+        },
+        {
+          "tick": 39100,
+          "level": "watchful"
+        },
+        {
+          "tick": 39120,
+          "level": "calm"
+        },
+        {
+          "tick": 45260,
+          "level": "watchful"
+        },
+        {
+          "tick": 47200,
+          "level": "calm"
+        },
+        {
+          "tick": 47460,
+          "level": "watchful"
+        },
+        {
+          "tick": 57980,
+          "level": "calm"
+        },
+        {
+          "tick": 58300,
+          "level": "watchful"
+        },
+        {
+          "tick": 59320,
+          "level": "calm"
+        },
+        {
+          "tick": 59440,
+          "level": "watchful"
+        },
+        {
+          "tick": 68800,
+          "level": "calm"
+        },
+        {
+          "tick": 68980,
+          "level": "watchful"
+        },
+        {
+          "tick": 77140,
+          "level": "calm"
+        },
+        {
+          "tick": 77300,
+          "level": "watchful"
+        },
+        {
+          "tick": 79800,
+          "level": "calm"
+        },
+        {
+          "tick": 79960,
+          "level": "watchful"
+        },
+        {
+          "tick": 80760,
+          "level": "calm"
+        },
+        {
+          "tick": 80920,
+          "level": "watchful"
+        },
+        {
+          "tick": 88740,
+          "level": "calm"
+        },
+        {
+          "tick": 110020,
+          "level": "hearth"
+        },
+        {
+          "tick": 110320,
+          "level": "watchful"
+        },
+        {
+          "tick": 110680,
+          "level": "calm"
+        },
+        {
+          "tick": 111820,
+          "level": "hearth"
+        },
+        {
+          "tick": 112120,
+          "level": "watchful"
+        },
+        {
+          "tick": 112140,
+          "level": "calm"
+        }
+      ],
+      "stocks": {
+        "drink": 105,
+        "meal": 66,
+        "plantFood": 89
+      },
+      "harvests": 159,
+      "hunts": 7,
+      "hash": "9910b77ecf4437b4",
+      "setup": {
+        "caveDepth": 2,
+        "surfacePlots": [
+          10,
+          10
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777322,
+          16777323,
+          16777324,
+          16777392,
+          16777393,
+          117440710
+        ],
+        "commands": 76
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 633,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 1,
+          "y": 46,
+          "z": 32
+        }
+      }
+    },
+    {
+      "seed": "wildlife-temperate_forest-3",
+      "biome": "temperate_forest",
+      "tick": 134400,
+      "living": 12,
+      "arrivals": 13,
+      "deaths": [
+        {
+          "tick": 125862,
+          "day": 105,
+          "id": 16777294,
+          "kind": "dwarf",
+          "name": "Lofn Boardelve",
+          "cause": "bled_out",
+          "killerId": 721420625,
+          "killerSpecies": "badger",
+          "wildlife": true,
+          "tile": 300817
+        }
+      ],
+      "starving": 0,
+      "shelter": {
+        "longest": 300,
+        "maxHunger": 58.560000000000045,
+        "maxThirst": 89.59999999999994,
+        "maxRest": 91.79999999999998
+      },
+      "sleepAttacks": [],
+      "livestockLost": 0,
+      "spawns": {
+        "deer": 16,
+        "fox": 3,
+        "lynx": 3,
+        "bear": 3,
+        "boar": 7,
+        "elk": 5,
+        "badger": 2,
+        "rabbit": 3
+      },
+      "alerts": [
+        {
+          "tick": 62100,
+          "level": "watchful"
+        },
+        {
+          "tick": 65160,
+          "level": "calm"
+        },
+        {
+          "tick": 65420,
+          "level": "watchful"
+        },
+        {
+          "tick": 69940,
+          "level": "calm"
+        },
+        {
+          "tick": 70360,
+          "level": "watchful"
+        },
+        {
+          "tick": 71080,
+          "level": "calm"
+        },
+        {
+          "tick": 71600,
+          "level": "watchful"
+        },
+        {
+          "tick": 74500,
+          "level": "calm"
+        },
+        {
+          "tick": 74960,
+          "level": "watchful"
+        },
+        {
+          "tick": 75920,
+          "level": "calm"
+        },
+        {
+          "tick": 76180,
+          "level": "watchful"
+        },
+        {
+          "tick": 78320,
+          "level": "calm"
+        },
+        {
+          "tick": 78600,
+          "level": "watchful"
+        },
+        {
+          "tick": 85580,
+          "level": "calm"
+        },
+        {
+          "tick": 85780,
+          "level": "watchful"
+        },
+        {
+          "tick": 86780,
+          "level": "calm"
+        },
+        {
+          "tick": 87380,
+          "level": "watchful"
+        },
+        {
+          "tick": 91540,
+          "level": "calm"
+        },
+        {
+          "tick": 91780,
+          "level": "watchful"
+        },
+        {
+          "tick": 92620,
+          "level": "calm"
+        },
+        {
+          "tick": 93280,
+          "level": "watchful"
+        },
+        {
+          "tick": 96640,
+          "level": "calm"
+        },
+        {
+          "tick": 125460,
+          "level": "hearth"
+        },
+        {
+          "tick": 125760,
+          "level": "watchful"
+        },
+        {
+          "tick": 126160,
+          "level": "calm"
+        },
+        {
+          "tick": 127260,
+          "level": "hearth"
+        },
+        {
+          "tick": 127560,
+          "level": "watchful"
+        },
+        {
+          "tick": 127580,
+          "level": "calm"
+        }
+      ],
+      "stocks": {
+        "drink": 117,
+        "meal": 58,
+        "plantFood": 152
+      },
+      "harvests": 172,
+      "hunts": 5,
+      "hash": "9c4144692b7f9659",
+      "setup": {
+        "caveDepth": 2,
+        "surfacePlots": [
+          9,
+          10
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777320,
+          16777321,
+          16777322,
+          16777384,
+          16777385,
+          16777425
+        ],
+        "commands": 61
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 683,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 0,
+          "y": 45,
+          "z": 32
+        }
+      }
+    },
+    {
+      "seed": "wildlife-temperate_forest-4",
+      "biome": "temperate_forest",
+      "tick": 134400,
+      "living": 5,
+      "arrivals": 13,
+      "deaths": [
+        {
+          "tick": 54812,
+          "day": 46,
+          "id": 16777295,
+          "kind": "dwarf",
+          "name": "Gefjun Runeroot",
+          "cause": "bled_out",
+          "killerId": 218104231,
+          "killerSpecies": "wolf",
+          "wildlife": true,
+          "tile": 298540
+        },
+        {
+          "tick": 56097,
+          "day": 47,
+          "id": 184549538,
+          "kind": "dwarf",
+          "name": "Saga Boarheart",
+          "cause": "bled_out",
+          "killerId": 218104231,
+          "killerSpecies": "wolf",
+          "wildlife": true,
+          "tile": 298342
+        },
+        {
+          "tick": 56687,
+          "day": 48,
+          "id": 16777297,
+          "kind": "dwarf",
+          "name": "Lofn Steelspark",
+          "cause": "bled_out",
+          "killerId": 251658361,
+          "killerSpecies": "badger",
+          "wildlife": true,
+          "tile": 297431
+        },
+        {
+          "tick": 61217,
+          "day": 52,
+          "id": 16777298,
+          "kind": "dwarf",
+          "name": "Nanna Copperborn",
+          "cause": "bled_out",
+          "killerId": 83886217,
+          "killerSpecies": "wolf",
+          "wildlife": true,
+          "tile": 298628
+        },
+        {
+          "tick": 67972,
+          "day": 57,
+          "id": 16777296,
+          "kind": "dwarf",
+          "name": "Vera Bearfoot",
+          "cause": "bled_out",
+          "killerId": 251658662,
+          "killerSpecies": "wolf",
+          "wildlife": true,
+          "tile": 298344
+        },
+        {
+          "tick": 81347,
+          "day": 68,
+          "id": 285212699,
+          "kind": "dwarf",
+          "name": "Vigga Oakfell",
+          "cause": "bled_out",
+          "killerId": 83886217,
+          "killerSpecies": "wolf",
+          "wildlife": true,
+          "tile": 298343
+        },
+        {
+          "tick": 86607,
+          "day": 73,
+          "id": 184549679,
+          "kind": "dwarf",
+          "name": "Steinn Stormvein",
+          "cause": "bled_out",
+          "killerId": 285212834,
+          "killerSpecies": "bear",
+          "wildlife": true,
+          "tile": 296662
+        },
+        {
+          "tick": 90802,
+          "day": 76,
+          "id": 50332051,
+          "kind": "dwarf",
+          "name": "Vera Hollowcloak",
+          "cause": "bled_out",
+          "killerId": 285212834,
+          "killerSpecies": "bear",
+          "wildlife": true,
+          "tile": 296662
+        }
+      ],
+      "starving": 0,
+      "shelter": {
+        "longest": 3780,
+        "maxHunger": 92.24000000000002,
+        "maxThirst": 94.39999999999992,
+        "maxRest": 100
+      },
+      "sleepAttacks": [],
+      "livestockLost": 0,
+      "spawns": {
+        "badger": 4,
+        "bear": 4,
+        "deer": 16,
+        "fox": 5,
+        "lynx": 2,
+        "wolf": 9,
+        "boar": 4,
+        "rabbit": 3
+      },
+      "alerts": [
+        {
+          "tick": 53620,
+          "level": "watchful"
+        },
+        {
+          "tick": 54240,
+          "level": "calm"
+        },
+        {
+          "tick": 54580,
+          "level": "hearth"
+        },
+        {
+          "tick": 54880,
+          "level": "watchful"
+        },
+        {
+          "tick": 55260,
+          "level": "calm"
+        },
+        {
+          "tick": 56380,
+          "level": "hearth"
+        },
+        {
+          "tick": 59980,
+          "level": "watchful"
+        },
+        {
+          "tick": 61480,
+          "level": "hearth"
+        },
+        {
+          "tick": 65080,
+          "level": "watchful"
+        },
+        {
+          "tick": 67780,
+          "level": "hearth"
+        },
+        {
+          "tick": 71560,
+          "level": "watchful"
+        },
+        {
+          "tick": 73060,
+          "level": "hearth"
+        },
+        {
+          "tick": 76660,
+          "level": "watchful"
+        },
+        {
+          "tick": 81020,
+          "level": "hearth"
+        },
+        {
+          "tick": 84780,
+          "level": "watchful"
+        },
+        {
+          "tick": 86280,
+          "level": "hearth"
+        },
+        {
+          "tick": 89880,
+          "level": "watchful"
+        },
+        {
+          "tick": 91380,
+          "level": "hearth"
+        },
+        {
+          "tick": 92960,
+          "level": "watchful"
+        },
+        {
+          "tick": 93740,
+          "level": "calm"
+        },
+        {
+          "tick": 94340,
+          "level": "watchful"
+        },
+        {
+          "tick": 95080,
+          "level": "calm"
+        },
+        {
+          "tick": 95800,
+          "level": "watchful"
+        },
+        {
+          "tick": 97560,
+          "level": "calm"
+        },
+        {
+          "tick": 97900,
+          "level": "watchful"
+        }
+      ],
+      "stocks": {
+        "drink": 104,
+        "meal": 62,
+        "plantFood": 113
+      },
+      "harvests": 146,
+      "hunts": 0,
+      "hash": "9c311d8750595ac5",
+      "setup": {
+        "caveDepth": 2,
+        "surfacePlots": [
+          10,
+          10
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777323,
+          16777324,
+          16777325,
+          83886253,
+          83886254,
+          150995140
+        ],
+        "commands": 58
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 455,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 0,
+          "y": 41,
+          "z": 32
+        }
+      }
+    },
+    {
+      "seed": "wildlife-taiga-1",
+      "biome": "taiga",
+      "tick": 134400,
+      "living": 13,
+      "arrivals": 13,
+      "deaths": [],
+      "starving": 7,
+      "shelter": {
+        "longest": 0,
+        "maxHunger": 0,
+        "maxThirst": 0,
+        "maxRest": 0
+      },
+      "sleepAttacks": [],
+      "livestockLost": 0,
+      "spawns": {
+        "deer": 4,
+        "wolf": 9,
+        "bear": 4,
+        "elk": 4,
+        "lynx": 1
+      },
+      "alerts": [
+        {
+          "tick": 25940,
+          "level": "watchful"
+        },
+        {
+          "tick": 26840,
+          "level": "calm"
+        },
+        {
+          "tick": 27020,
+          "level": "watchful"
+        },
+        {
+          "tick": 27880,
+          "level": "calm"
+        },
+        {
+          "tick": 28260,
+          "level": "watchful"
+        },
+        {
+          "tick": 33740,
+          "level": "calm"
+        },
+        {
+          "tick": 34340,
+          "level": "watchful"
+        },
+        {
+          "tick": 35280,
+          "level": "calm"
+        },
+        {
+          "tick": 35660,
+          "level": "watchful"
+        },
+        {
+          "tick": 36540,
+          "level": "calm"
+        },
+        {
+          "tick": 36780,
+          "level": "watchful"
+        },
+        {
+          "tick": 41100,
+          "level": "calm"
+        },
+        {
+          "tick": 41900,
+          "level": "watchful"
+        },
+        {
+          "tick": 43420,
+          "level": "calm"
+        },
+        {
+          "tick": 43780,
+          "level": "watchful"
+        },
+        {
+          "tick": 46940,
+          "level": "calm"
+        },
+        {
+          "tick": 47460,
+          "level": "watchful"
+        },
+        {
+          "tick": 48300,
+          "level": "calm"
+        },
+        {
+          "tick": 48720,
+          "level": "watchful"
+        },
+        {
+          "tick": 55620,
+          "level": "calm"
+        },
+        {
+          "tick": 55940,
+          "level": "watchful"
+        },
+        {
+          "tick": 56920,
+          "level": "calm"
+        },
+        {
+          "tick": 57400,
+          "level": "watchful"
+        },
+        {
+          "tick": 59000,
+          "level": "calm"
+        },
+        {
+          "tick": 59800,
+          "level": "watchful"
+        },
+        {
+          "tick": 60700,
+          "level": "calm"
+        },
+        {
+          "tick": 62340,
+          "level": "watchful"
+        },
+        {
+          "tick": 63880,
+          "level": "calm"
+        },
+        {
+          "tick": 71600,
+          "level": "watchful"
+        },
+        {
+          "tick": 72260,
+          "level": "calm"
+        },
+        {
+          "tick": 78800,
+          "level": "watchful"
+        },
+        {
+          "tick": 79520,
+          "level": "calm"
+        },
+        {
+          "tick": 79680,
+          "level": "watchful"
+        },
+        {
+          "tick": 80380,
+          "level": "calm"
+        },
+        {
+          "tick": 88400,
+          "level": "watchful"
+        },
+        {
+          "tick": 89060,
+          "level": "calm"
+        }
+      ],
+      "stocks": {
+        "drink": 83,
+        "meal": 61,
+        "plantFood": 23
+      },
+      "harvests": 115,
+      "hunts": 5,
+      "hash": "48a782cadb2c9b40",
+      "setup": {
+        "caveDepth": 1,
+        "surfacePlots": [
+          9,
+          8
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777322,
+          16777323,
+          16777324,
+          50331823,
+          83886252,
+          385876166
+        ],
+        "commands": 69
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 737,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 0,
+          "y": 51,
+          "z": 32
+        }
+      }
+    },
+    {
+      "seed": "wildlife-taiga-2",
+      "biome": "taiga",
+      "tick": 134400,
+      "living": 11,
+      "arrivals": 12,
+      "deaths": [
+        {
+          "tick": 108852,
+          "day": 91,
+          "id": 16777290,
+          "kind": "dwarf",
+          "name": "Brynja Hearthstone",
+          "cause": "bled_out",
+          "killerId": 1862271228,
+          "killerSpecies": "wolf",
+          "wildlife": true,
+          "tile": 297803
+        }
+      ],
+      "starving": 1,
+      "shelter": {
+        "longest": 4100,
+        "maxHunger": 99.63999999999986,
+        "maxThirst": 92.79999999999993,
+        "maxRest": 100
+      },
+      "sleepAttacks": [],
+      "livestockLost": 0,
+      "spawns": {
+        "wolf": 16,
+        "lynx": 1,
+        "deer": 8,
+        "elk": 6,
+        "bear": 1
+      },
+      "alerts": [
+        {
+          "tick": 105140,
+          "level": "watchful"
+        },
+        {
+          "tick": 108360,
+          "level": "hearth"
+        },
+        {
+          "tick": 112460,
+          "level": "watchful"
+        },
+        {
+          "tick": 113160,
+          "level": "calm"
+        },
+        {
+          "tick": 113380,
+          "level": "watchful"
+        },
+        {
+          "tick": 113960,
+          "level": "hearth"
+        },
+        {
+          "tick": 114260,
+          "level": "watchful"
+        },
+        {
+          "tick": 114280,
+          "level": "calm"
+        },
+        {
+          "tick": 115760,
+          "level": "watchful"
+        },
+        {
+          "tick": 116720,
+          "level": "calm"
+        },
+        {
+          "tick": 117000,
+          "level": "watchful"
+        },
+        {
+          "tick": 125060,
+          "level": "calm"
+        },
+        {
+          "tick": 125300,
+          "level": "watchful"
+        }
+      ],
+      "stocks": {
+        "drink": 86,
+        "meal": 53,
+        "plantFood": 1
+      },
+      "harvests": 101,
+      "hunts": 4,
+      "hash": "0a38c5b8f16d14d7",
+      "setup": {
+        "caveDepth": 1,
+        "surfacePlots": [
+          6,
+          9
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777319,
+          16777320,
+          16777321,
+          83886223,
+          83886220,
+          251658260
+        ],
+        "commands": 46
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 734,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 0,
+          "y": 46,
+          "z": 32
+        }
+      }
+    },
+    {
+      "seed": "wildlife-taiga-3",
+      "biome": "taiga",
+      "tick": 134400,
+      "living": 11,
+      "arrivals": 13,
+      "deaths": [
+        {
+          "tick": 52347,
+          "day": 44,
+          "id": 16777294,
+          "kind": "dwarf",
+          "name": "Ottar Boarheart",
+          "cause": "bled_out",
+          "killerId": 184549596,
+          "killerSpecies": "wolf",
+          "wildlife": true,
+          "tile": 297150
+        },
+        {
+          "tick": 129712,
+          "day": 109,
+          "id": 16777295,
+          "kind": "dwarf",
+          "name": "Eydis Mossfell",
+          "cause": "bled_out",
+          "killerId": 385876378,
+          "killerSpecies": "wolf",
+          "wildlife": true,
+          "tile": 298101
+        }
+      ],
+      "starving": 17,
+      "shelter": {
+        "longest": 3760,
+        "maxHunger": 93.99999999999987,
+        "maxThirst": 97.59999999999991,
+        "maxRest": 100
+      },
+      "sleepAttacks": [
+        {
+          "tick": 52164,
+          "dwarf": 16777294,
+          "attacker": 184549596,
+          "nearby": [
+            {
+              "id": 16777294,
+              "behavior": "need",
+              "activity": "sleep"
+            }
+          ]
+        }
+      ],
+      "livestockLost": 0,
+      "spawns": {
+        "lynx": 5,
+        "bear": 5,
+        "wolf": 8,
+        "deer": 10,
+        "elk": 4
+      },
+      "alerts": [
+        {
+          "tick": 40300,
+          "level": "watchful"
+        },
+        {
+          "tick": 40980,
+          "level": "calm"
+        },
+        {
+          "tick": 41640,
+          "level": "watchful"
+        },
+        {
+          "tick": 42280,
+          "level": "calm"
+        },
+        {
+          "tick": 45080,
+          "level": "watchful"
+        },
+        {
+          "tick": 46060,
+          "level": "calm"
+        },
+        {
+          "tick": 47520,
+          "level": "watchful"
+        },
+        {
+          "tick": 48180,
+          "level": "calm"
+        },
+        {
+          "tick": 48920,
+          "level": "watchful"
+        },
+        {
+          "tick": 49600,
+          "level": "calm"
+        },
+        {
+          "tick": 49880,
+          "level": "watchful"
+        },
+        {
+          "tick": 50840,
+          "level": "calm"
+        },
+        {
+          "tick": 51420,
+          "level": "watchful"
+        },
+        {
+          "tick": 52180,
+          "level": "hearth"
+        },
+        {
+          "tick": 53380,
+          "level": "watchful"
+        },
+        {
+          "tick": 53400,
+          "level": "calm"
+        },
+        {
+          "tick": 54820,
+          "level": "watchful"
+        },
+        {
+          "tick": 54880,
+          "level": "hearth"
+        },
+        {
+          "tick": 55180,
+          "level": "watchful"
+        },
+        {
+          "tick": 55460,
+          "level": "calm"
+        },
+        {
+          "tick": 55860,
+          "level": "watchful"
+        },
+        {
+          "tick": 56820,
+          "level": "calm"
+        },
+        {
+          "tick": 58620,
+          "level": "watchful"
+        },
+        {
+          "tick": 59220,
+          "level": "calm"
+        },
+        {
+          "tick": 59760,
+          "level": "watchful"
+        },
+        {
+          "tick": 73480,
+          "level": "calm"
+        },
+        {
+          "tick": 73760,
+          "level": "watchful"
+        },
+        {
+          "tick": 92760,
+          "level": "calm"
+        },
+        {
+          "tick": 92880,
+          "level": "watchful"
+        },
+        {
+          "tick": 129400,
+          "level": "hearth"
+        },
+        {
+          "tick": 133160,
+          "level": "watchful"
+        }
+      ],
+      "stocks": {
+        "drink": 83,
+        "meal": 40,
+        "plantFood": 13
+      },
+      "harvests": 109,
+      "hunts": 2,
+      "hash": "83a4cec7913b1d40",
+      "setup": {
+        "caveDepth": 1,
+        "surfacePlots": [
+          11,
+          9
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777322,
+          16777323,
+          16777324,
+          16777396,
+          16777397,
+          150994974
+        ],
+        "commands": 64
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 717,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 1,
+          "y": 47,
+          "z": 32
+        }
+      }
+    },
+    {
+      "seed": "wildlife-taiga-4",
+      "biome": "taiga",
+      "tick": 134400,
+      "living": 11,
+      "arrivals": 11,
+      "deaths": [],
+      "starving": 11,
+      "shelter": {
+        "longest": 0,
+        "maxHunger": 0,
+        "maxThirst": 0,
+        "maxRest": 0
+      },
+      "sleepAttacks": [],
+      "livestockLost": 0,
+      "spawns": {
+        "lynx": 6,
+        "bear": 4,
+        "deer": 10,
+        "wolf": 10,
+        "elk": 6
+      },
+      "alerts": [
+        {
+          "tick": 34320,
+          "level": "watchful"
+        },
+        {
+          "tick": 41220,
+          "level": "calm"
+        },
+        {
+          "tick": 41420,
+          "level": "watchful"
+        },
+        {
+          "tick": 53220,
+          "level": "calm"
+        },
+        {
+          "tick": 53380,
+          "level": "watchful"
+        },
+        {
+          "tick": 92880,
+          "level": "calm"
+        },
+        {
+          "tick": 118300,
+          "level": "watchful"
+        }
+      ],
+      "stocks": {
+        "drink": 100,
+        "meal": 59,
+        "plantFood": 35
+      },
+      "harvests": 109,
+      "hunts": 1,
+      "hash": "323e13bcbdf00956",
+      "setup": {
+        "caveDepth": 1,
+        "surfacePlots": [
+          11,
+          9
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777321,
+          16777322,
+          16777323,
+          83886248,
+          50331804,
+          285212885
+        ],
+        "commands": 40
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 700,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 4,
+          "y": 48,
+          "z": 32
+        }
+      }
+    },
+    {
+      "seed": "wildlife-temperate_grassland-1",
+      "biome": "temperate_grassland",
+      "tick": 134400,
+      "living": 15,
+      "arrivals": 15,
+      "deaths": [],
+      "starving": 0,
+      "shelter": {
+        "longest": 0,
+        "maxHunger": 0,
+        "maxThirst": 0,
+        "maxRest": 0
+      },
+      "sleepAttacks": [],
+      "livestockLost": 0,
+      "spawns": {
+        "rabbit": 32,
+        "deer": 15,
+        "wild_horse": 11,
+        "fox": 3,
+        "badger": 2
+      },
+      "alerts": [],
+      "stocks": {
+        "drink": 99,
+        "meal": 60,
+        "plantFood": 80
+      },
+      "harvests": 172,
+      "hunts": 7,
+      "hash": "ea95106f69779232",
+      "setup": {
+        "caveDepth": 2,
+        "surfacePlots": [
+          10,
+          12
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777320,
+          16777321,
+          16777322,
+          83886227,
+          50331799,
+          150995132
+        ],
+        "commands": 33
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 901,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 0,
+          "y": 47,
+          "z": 32
+        }
+      }
+    },
+    {
+      "seed": "wildlife-temperate_grassland-2",
+      "biome": "temperate_grassland",
+      "tick": 134400,
+      "living": 14,
+      "arrivals": 14,
+      "deaths": [],
+      "starving": 0,
+      "shelter": {
+        "longest": 0,
+        "maxHunger": 0,
+        "maxThirst": 0,
+        "maxRest": 0
+      },
+      "sleepAttacks": [],
+      "livestockLost": 0,
+      "spawns": {
+        "wild_horse": 18,
+        "badger": 2,
+        "rabbit": 16,
+        "deer": 4
+      },
+      "alerts": [],
+      "stocks": {
+        "drink": 109,
+        "meal": 56,
+        "plantFood": 90
+      },
+      "harvests": 169,
+      "hunts": 12,
+      "hash": "d5f6280aa6723c81",
+      "setup": {
+        "caveDepth": 2,
+        "surfacePlots": [
+          12,
+          11
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777323,
+          16777324,
+          16777325,
+          16777387,
+          16777388,
+          150995136
+        ],
+        "commands": 33
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 891,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 0,
+          "y": 47,
+          "z": 32
+        }
+      }
+    },
+    {
+      "seed": "wildlife-temperate_grassland-3",
+      "biome": "temperate_grassland",
+      "tick": 134400,
+      "living": 15,
+      "arrivals": 15,
+      "deaths": [],
+      "starving": 0,
+      "shelter": {
+        "longest": 0,
+        "maxHunger": 0,
+        "maxThirst": 0,
+        "maxRest": 0
+      },
+      "sleepAttacks": [],
+      "livestockLost": 0,
+      "spawns": {
+        "fox": 8,
+        "deer": 6,
+        "wild_horse": 19,
+        "badger": 3,
+        "rabbit": 17
+      },
+      "alerts": [],
+      "stocks": {
+        "drink": 99,
+        "meal": 66,
+        "plantFood": 81
+      },
+      "harvests": 178,
+      "hunts": 12,
+      "hash": "5d8e3b378e95f791",
+      "setup": {
+        "caveDepth": 2,
+        "surfacePlots": [
+          12,
+          11
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777321,
+          16777322,
+          16777323,
+          83886238,
+          117440673,
+          251658422
+        ],
+        "commands": 33
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 861,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 0,
+          "y": 47,
+          "z": 32
+        }
+      }
+    },
+    {
+      "seed": "wildlife-temperate_grassland-4",
+      "biome": "temperate_grassland",
+      "tick": 134400,
+      "living": 14,
+      "arrivals": 14,
+      "deaths": [],
+      "starving": 0,
+      "shelter": {
+        "longest": 0,
+        "maxHunger": 0,
+        "maxThirst": 0,
+        "maxRest": 0
+      },
+      "sleepAttacks": [],
+      "livestockLost": 0,
+      "spawns": {
+        "deer": 8,
+        "rabbit": 25,
+        "fox": 3,
+        "wild_horse": 8,
+        "badger": 2
+      },
+      "alerts": [],
+      "stocks": {
+        "drink": 102,
+        "meal": 61,
+        "plantFood": 87
+      },
+      "harvests": 163,
+      "hunts": 11,
+      "hash": "9fd1de7cc71d5c37",
+      "setup": {
+        "caveDepth": 2,
+        "surfacePlots": [
+          10,
+          11
+        ],
+        "caveTiles": 32,
+        "buildings": [
+          16777321,
+          16777322,
+          16777323,
+          117440563,
+          117440660,
+          83886253
+        ],
+        "commands": 33
+      },
+      "brook": {
+        "drinks": 0,
+        "alcohol": 818,
+        "firstDrinkDay": null,
+        "drinkers": 0,
+        "distances": [],
+        "tiles": [],
+        "outdoors": 0,
+        "wagon": {
+          "x": 0,
+          "y": 47,
+          "z": 32
+        }
+      }
+    }
+  ]
+}
