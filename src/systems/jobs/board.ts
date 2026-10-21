@@ -9,6 +9,7 @@
 import { C, ItemFlag, type Worker } from '@core/components';
 import { PRIORITY_DEFAULT, TICKS_PER_YEAR } from '@core/constants';
 import type { GameEvent } from '@core/events';
+import { liesDown } from '@core/movement';
 import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, WorldLike } from '@core/system';
 import type { Registry } from '@core/registry';
 import type { EntityId, Priority, TileIndex } from '@core/types';
@@ -587,10 +588,10 @@ export class JobBoard implements JobsApi, JobSink {
     }
   }
 
-  /** Whether a creature stands on the tile (a doorway that held a worker's walk up). */
+  /** Whether a creature stands on the tile (a doorway that held a worker's walk up); one lying down does not (22). */
   private crowdedAt(tile: TileIndex): boolean {
     const entities = this.readers.entities;
-    for (const id of entities.at(tile)) if (entities.kind(id) === 'creature') return true;
+    for (const id of entities.at(tile)) if (entities.kind(id) === 'creature' && !liesDown(entities, id)) return true;
     return false;
   }
 
