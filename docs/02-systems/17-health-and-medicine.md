@@ -146,7 +146,7 @@ Job producer `health` (`carry_patient`, `feed_patient`, `water_patient`, `stop_b
 | `LIGHT_MAX` / `SERIOUS_MAX` | 0.2 / 0.5 | Damage ratio thresholds; measured, under a skill-5 medic no dwarf of 30 dies of a light cut, 6 of a serious one and 16 of a grievous one ([wound recovery](../../reports/audits/2026-10-21-wound-recovery.md)) |
 | `HEAL_BASE_TICKS` | 6000 | 5 days for a light wound; serious ×3, grievous ×6. Measured: light cut 5.0 days, serious fracture 15.9, grievous fracture 30.7 ([wound recovery](../../reports/audits/2026-10-21-wound-recovery.md)) |
 | `BLOOD_REGEN_PER_TICK` | 1 | Blood units per health tick (*unmeasured*) |
-| `CLOT_TICKS` | 300 | Ticks after which a light wound stops bleeding by itself |
+| `CLOT_TICKS` | 150 | Ticks after which a light wound stops bleeding by itself; measured, a Novice soldier in helm, mail shirt and greaves takes about eight light cuts from two goblins and stays standing in 55 of 60 duels ([combat pace tune](../../reports/audits/2026-10-21-combat-pace-tune.md)) |
 | `PAIN_UNCONSCIOUS` | 80 | *unmeasured* |
 | `BLOOD_UNCONSCIOUS_PERCENT` | 40 | Measured: a serious cut (bleed 3) takes a dwarf unconscious about 600 ticks after the wound, a grievous one about 300 ([wound recovery](../../reports/audits/2026-10-21-wound-recovery.md)) |
 | `BLOOD_DEATH_PERCENT` | 20 | |
