@@ -67,7 +67,7 @@ A food or drink errand reserves one unit under the dwarf's id. Death, unconsciou
 
 ### Sleeping
 
-- Schedule: each dwarf has `sleepStartHour` (uniformly 20–23 from 10's rng stream) and sleeps `SLEEP_HOURS` unless rest is below 20. Rest at its want threshold outside the window also sends the dwarf to bed.
+- Schedule: each dwarf has `sleepStartHour` (uniformly 20–23 from 10's rng stream) and goes to bed at that hour unless rest is below 20. Rest at its want threshold outside the window also sends the dwarf to bed. A sleep ends when rest reaches 0, or after `SLEEP_HOURS` if that comes first, and the dwarf wakes with rest 0.
 - Bed search: own bed (assigned bedroom), else any unassigned free bed, else the floor of the hearth hall, else where they stand. Emits `Slept { id, bedQuality, roomTier, onFloor }`.
 - A built bed holds one dwarf. Choosing it for sleep holds it immediately, during the walk and sleep, until the dwarf wakes, abandons the activity or dies. The saved rest activity's `itemId` is the bed id (0 for floor sleep); loading preserves the hold. Bed availability is live, not cached with room geometry. An own bed held by another dwarf is unavailable too; another free unassigned bed or the floor is the fallback. A patient holds its assigned bed under 17's rule, so a tired medic never chooses it.
 - Sleep is interrupted by `danger`-severity events nearby and by hearth alert.
@@ -204,7 +204,7 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 | `DEHYDRATE_DAYS` | 3 | *unmeasured* |
 | `EAT_TICKS` | 60 | |
 | `DRINK_TICKS` | 40 | |
-| `SLEEP_HOURS` | 7 | |
+| `SLEEP_HOURS` | 7 | Longest sleep. Rest falls 15 an hour asleep from at most 100, so a sleep ends at rest 0 within 6.7 hours and this limit is not reached; measured, none of 3,363 sleeps reached it ([sleep](../../reports/audits/2026-10-21-sleep-hours.md)) |
 | `TALK_TICKS` | 80 | |
 | `TALK_CHECK_TICKS` | 10 | Ticks between two scans that start, check and end talks in passing (*unmeasured*) |
 | `SOCIAL_WAIT_TICKS` | 200 | A social errand waits this long for a partner (*unmeasured*) |
