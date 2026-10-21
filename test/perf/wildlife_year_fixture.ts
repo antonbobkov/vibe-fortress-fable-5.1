@@ -79,6 +79,8 @@ const NEAR = 40;
 const CALM_AFTER = 600;
 const HEARTH_HOLD = 300;
 const HEARTH_PAUSE = 1500;
+/** T-410: the longest a hearth alert stands after its last wild attack, whatever lies near the wagon (three days). */
+const HEARTH_HOLD_MAX = 3600;
 
 export function playWildlifeYear(seed: string, biome: string, options: WildlifeOptions = {}): WildlifeYear {
   // Standard-sized generated map, west embark like the browser sample. No serene_vale
@@ -118,6 +120,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
   const drinkers = new Set<number>();
   const knownWild = new Map<number, string>();
   let attacked = false;
+  let lastAttack = 0;
   let lastThreat = 0;
   let level = 'calm';
   let raisedAt = 0;
@@ -149,6 +152,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
       else if (event.type === 'HuntKill') result.hunts += 1;
       else if (event.type === 'AttackResolved' && animals.isWild(Number(event['attackerId'])) && !animals.isWild(Number(event['defenderId']))) {
         attacked = true;
+        lastAttack = game.tick;
         lastThreat = game.tick;
         const victim = Number(event['defenderId']);
         const brain = entities.get(victim, C.Brain);
@@ -223,7 +227,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
           result.shelter.maxThirst = Math.max(result.shelter.maxThirst, needs.thirst);
           result.shelter.maxRest = Math.max(result.shelter.maxRest, needs.rest);
         }
-        if (tick - raisedAt >= HEARTH_HOLD && !near()) next = 'watchful';
+        if ((tick - raisedAt >= HEARTH_HOLD && !near()) || tick - Math.max(raisedAt, lastAttack) >= HEARTH_HOLD_MAX) next = 'watchful';
       } else if (attacked && tick >= noHearthUntil) next = 'hearth';
       else if (near()) {
         lastThreat = tick;

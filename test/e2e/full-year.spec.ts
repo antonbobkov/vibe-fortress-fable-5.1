@@ -73,6 +73,8 @@ interface YearTracker {
   attacked: boolean;
   /** The last tick a predator was near the wagon or a wild animal attacked. */
   lastThreatTick: number;
+  /** The last tick a wild animal attacked a fortress creature. */
+  lastAttackTick: number;
   level: 'calm' | 'watchful' | 'hearth';
   alerts: { tick: number; level: string }[];
   lastLoggedDay: number;
@@ -210,6 +212,8 @@ const ALERT_CALM_TICKS = 600;
  */
 const HEARTH_HOLD_TICKS = 300;
 const HEARTH_PAUSE_TICKS = 1500;
+/** T-410: the longest a hearth alert stands after its last wild attack, whatever lies near the wagon (three days). */
+const HEARTH_HOLD_MAX_TICKS = 3600;
 /** How close to the wagon, in tiles, a predator counts as near. */
 const PREDATOR_NEAR_TILES = 40;
 /** Ticks the hook steps between two looks at the wildlife. */
@@ -226,7 +230,7 @@ const LOOK_EVERY_TICKS = 20;
  */
 async function playTo(page: Page, clock: ReturnType<typeof playClock>, target: number): Promise<void> {
   for (;;) {
-    const outcome = await page.evaluate(({ target, every, calm, hold, near, aggressive }) => {
+    const outcome = await page.evaluate(({ target, every, calm, hold, holdMax, near, aggressive }) => {
       const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
       const tracker = (window as unknown as { __tracker: YearTracker }).__tracker;
       const animals = h.readers.of<{ bySpecies(species: string, wild?: boolean): readonly number[] }>('08');
@@ -253,7 +257,7 @@ async function playTo(page: Page, clock: ReturnType<typeof playClock>, target: n
           console.log(`[full-year] Day ${day}/112 (tick ${tick}, dwarves: ${h.dwarves().length}, drink: ${h.readers.items.count('drink')}, meal: ${h.readers.items.count('easy_meal')}, food: ${h.readers.items.count('plant_food')})`);
         }
         if (tracker.level === 'hearth') {
-          if (tick - tracker.raisedAt >= hold && !predatorNear()) return 'watchful';
+          if ((tick - tracker.raisedAt >= hold && !predatorNear()) || tick - Math.max(tracker.raisedAt, tracker.lastAttackTick) >= holdMax) return 'watchful';
         } else if (tracker.attacked && tick >= tracker.noHearthUntil) {
           return 'hearth';
         } else if (predatorNear()) {
@@ -264,7 +268,7 @@ async function playTo(page: Page, clock: ReturnType<typeof playClock>, target: n
         }
       }
       return 'done';
-    }, { target, every: LOOK_EVERY_TICKS, calm: ALERT_CALM_TICKS, hold: HEARTH_HOLD_TICKS, near: PREDATOR_NEAR_TILES, aggressive: aggressiveSpecies });
+    }, { target, every: LOOK_EVERY_TICKS, calm: ALERT_CALM_TICKS, hold: HEARTH_HOLD_TICKS, holdMax: HEARTH_HOLD_MAX_TICKS, near: PREDATOR_NEAR_TILES, aggressive: aggressiveSpecies });
 
     if (outcome === 'done' || outcome === 'stalled') break;
     const level = outcome as 'calm' | 'watchful' | 'hearth';
@@ -437,6 +441,7 @@ test('full-year', async ({ page }) => {
       deaths: [],
       attacked: false,
       lastThreatTick: 0,
+      lastAttackTick: 0,
       level: 'calm',
       alerts: [],
       lastLoggedDay: 0,
@@ -488,6 +493,7 @@ test('full-year', async ({ page }) => {
             const animals = h.readers.of<{ isWild(id: number): boolean }>('08');
             if (animals.isWild(Number(event['attackerId'])) && !animals.isWild(Number(event['defenderId']))) {
               tracker.attacked = true;
+              tracker.lastAttackTick = h.readers.calendar.tick;
               tracker.lastThreatTick = h.readers.calendar.tick;
             }
           } else if (event.type === 'HuntKill') {
