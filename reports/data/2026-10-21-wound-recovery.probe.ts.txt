@@ -1,0 +1,144 @@
+/**
+ * T-367 measurement probe (not committed; a copy is filed as
+ * reports/data/2026-10-21-wound-recovery.probe.ts.txt). A stepped hospital on the flat test map:
+ * 30 patients a world, each given one wound through the damage path (`DamageDealt`, as 16 deals
+ * it), one every 400 ticks, under one care case: a medic of skill 5 or 0 with brightleaf and beds,
+ * no medic, no brightleaf, or no beds (the floor). Records for each patient: admission, every
+ * treatment and failed treatment with the medic's ticks on it, unconsciousness, infection,
+ * discharge, full healing (no wound left) and death. Writes T367_OUT (JSON lines). Observation only.
+ */
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { FLAT_TEST_SURFACE_Z } from '@app/headless';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { EntityId } from '@core/types';
+import { TileFlag, TileKind } from '@core/map3d';
+import { TestWorld } from '../scenarios/test-world';
+
+const OUT = process.env['T367_OUT'] ?? '.vite/t367.jsonl';
+const PATIENTS = Number(process.env['T367_PATIENTS'] ?? 30);
+const DAYS = Number(process.env['T367_DAYS'] ?? 50);
+const GAP = Number(process.env['T367_GAP'] ?? 400);
+const CASES = (process.env['T367_CASES'] ?? 'med5,med0,none,med5-nobl,med5-floor').split(',');
+const WOUNDS = (process.env['T367_WOUNDS'] ?? 'cut-L,cut-S,cut-G,puncture-S,fracture-S,fracture-G,burn-S').split(',');
+const Z = FLAT_TEST_SURFACE_Z;
+const MED_JOBS = new Set(['stop_bleeding', 'set_bone', 'suture', 'clean_wound', 'dress_burn', 'diagnose', 'give_crutch']);
+
+/** Part, damage type and amount of each wound case (dwarf: torso 60 hp, limb 36). */
+const WOUND: Record<string, [string, string, number]> = {
+  'cut-L': ['torso', 'edge', 9], 'cut-S': ['torso', 'edge', 21], 'cut-G': ['torso', 'edge', 36],
+  'puncture-S': ['torso', 'pierce', 21], 'fracture-S': ['left_leg', 'blunt', 13], 'fracture-G': ['left_leg', 'blunt', 22],
+  'burn-S': ['right_arm', 'burn', 13], 'bruise-L': ['torso', 'blunt', 9],
+};
+
+interface Rec { id: number; wound: number; admit: number; discharge: number; healed: number; uncon: number; infected: number; died: number; cause: string;
+  treat: Record<string, number>; jobs: Record<string, number>; medicTicks: number; bandage: number; inBed: number }
+
+function trial(care: string, wound: string): Record<string, unknown> {
+  const w = new TestWorld({ seed: `t367-${care}-${wound}`, world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+  const ent = w.game.world.entities;
+  const withMedic = care !== 'none';
+  const beds = care !== 'med5-floor';
+  const brightleaf = care !== 'med5-nobl';
+  // Hospital: beds in rows y = 30, 32, 34, 36 (x 30..39), a chest at (40, 31); zone x 30..40, y 30..36.
+  if (beds) for (const y of [30, 32, 34, 36]) for (let x = 30; x < 40; x += 1) w.build('bed', w.index(x, y, Z), 'oak');
+  w.build('chest', w.index(40, 31, Z), 'oak');
+  const hosp: number[] = [];
+  for (let y = 30; y <= 36; y += 1) for (let x = 30; x <= 40; x += 1) hosp.push(w.index(x, y, Z));
+  w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'hospital', tiles: hosp });
+  // Stockpile with the supplies, the food and the drink.
+  const sp: number[] = [];
+  for (let y = 30; y <= 36; y += 1) for (let x = 43; x <= 49; x += 1) sp.push(w.index(x, y, Z));
+  w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'stockpile', tiles: sp });
+  const spId = (w.game.world.scheduler.byId('14') as unknown as { lastCreatedZone: number }).lastCreatedZone;
+  w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: spId, filter: 'everything' });
+  w.spawnItem('cloth', 'flax_cloth', w.index(43, 30, Z), 80);
+  w.spawnItem('thread', 'flax_thread', w.index(44, 30, Z), 80);
+  w.spawnItem('splint', 'oak', w.index(45, 30, Z), 40);
+  w.spawnItem('crutch', 'oak', w.index(46, 30, Z), 10);
+  w.spawnItem('bucket', 'oak', w.index(47, 30, Z), 3);
+  if (brightleaf) w.spawnItem('brightleaf', 'brightleaf', w.index(48, 30, Z), 40);
+  // Food and drink for the ward, renewed every ten days (meals rot in 14 days outside a barrel).
+  const stock = (): void => { for (let k = 0; k < 7; k += 1) { w.spawnItem('easy_meal', 'dimcap', w.index(43 + k, 33, Z), 40); w.spawnItem('drink', 'ale', w.index(43 + k, 35, Z), 60); } };
+  stock();
+  // A well over a cistern for the cleaning bucket.
+  for (const z of [Z - 2, Z - 1, Z]) { w.carve(w.index(52, 33, z), TileKind.Open); w.map.setFlag(w.index(52, 33, z), TileFlag.Outdoor, true); }
+  w.carve(w.index(52, 33, Z - 3), TileKind.Floor);
+  w.discover(w.index(52, 33, Z));
+  w.setFluid(w.index(52, 33, Z - 3), 7, 'water', true);
+  w.build('well', w.index(52, 33, Z), 'granite');
+  const off = (id: EntityId, keep: string[]): void => {
+    for (const l of w.game.registry.table<{ id: string }>('labors').ids()) w.setLabor(id, l, keep.includes(l));
+  };
+  let medic = 0;
+  if (withMedic) { medic = w.spawnDwarf({ at: w.index(42, 38, Z), skills: { medicine: care === 'med0' ? 0 : 5 } }); off(medic, ['medicine']); }
+  for (let k = 0; k < 2; k += 1) off(w.spawnDwarf({ at: w.index(44 + k, 38, Z) }), ['hauling']);
+  const patients: EntityId[] = [];
+  for (let k = 0; k < PATIENTS; k += 1) { const id = w.spawnDwarf({ at: w.index(30 + (k % 15), 45 + Math.floor(k / 15), Z) }); off(id, []); patients.push(id); }
+  const rec = new Map<number, Rec>(patients.map((id) => [id, { id, wound: -1, admit: -1, discharge: -1, healed: -1, uncon: -1, infected: -1, died: -1, cause: '', treat: {}, jobs: {}, medicTicks: 0, bandage: -1, inBed: -1 }]));
+  w.game.world.onEvents((events) => {
+    for (const e of events) {
+      const r = rec.get(Number(e['id'] ?? e['patientId'] ?? 0));
+      if (e.type === 'JobCompleted' && MED_JOBS.has(String(e['jobType']))) {
+        const t = rec.get(Number(e['target'] ?? 0));
+        if (t) t.jobs[String(e['jobType'])] = (t.jobs[String(e['jobType'])] ?? 0) + 1;
+        continue;
+      }
+      if (!r) continue;
+      if (e.type === 'PatientAdmitted' && r.admit < 0) r.admit = w.tick;
+      else if (e.type === 'PatientDischarged') r.discharge = w.tick;
+      else if (e.type === 'CreatureUnconscious' && r.uncon < 0) r.uncon = w.tick;
+      else if (e.type === 'InfectionStarted' && r.infected < 0) r.infected = w.tick;
+      else if (e.type === 'CreatureDied') { r.died = w.tick; r.cause = String(e['cause']); }
+      else if (e.type === 'TreatmentDone') { r.treat[String(e['kind'])] = (r.treat[String(e['kind'])] ?? 0) + 1; if (e['kind'] === 'stop_bleeding' && r.bandage < 0) r.bandage = w.tick; }
+    }
+  });
+  const jobs = w.readers.of<{ forWorker(id: number): { id: number; target?: { ref?: number } } | undefined; typeOf(id: number): string | undefined }>('11');
+  const [part, dtype, amount] = WOUND[wound]!;
+  const end = DAYS * TICKS_PER_DAY;
+  let next = 0;
+  while (w.tick < end) {
+    w.step(1);
+    if (w.tick % (10 * TICKS_PER_DAY) === 0) stock();
+    if (next < patients.length && w.tick >= 600 + next * GAP) {
+      const id = patients[next]!;
+      w.game.world.emit({ type: 'DamageDealt', defenderId: id, attackerId: 0, part, damageType: dtype, amount });
+      rec.get(id)!.wound = w.tick;
+      next += 1;
+    }
+    if (medic) {
+      const j = jobs.forWorker(medic);
+      if (j && MED_JOBS.has(jobs.typeOf(j.id) ?? '')) { const t = rec.get(Number(j.target?.ref ?? 0)); if (t) t.medicTicks += 1; }
+    }
+    if (process.env['T367_DEBUG'] && w.tick % TICKS_PER_DAY === 0) {
+      const jobsAll = w.readers.of<{ list?(): unknown }>('11');
+      void jobsAll;
+      console.log(`day ${w.tick / TICKS_PER_DAY}`, patients.slice(0, 4).map((id) => {
+        const b = ent.get(id, C.Body); const n = ent.get(id, C.Needs); const br = ent.get(id, C.Brain); const pt = ent.get(id, C.Patient);
+        return `${id % 1000}: ${ent.alive(id) ? '' : 'DEAD '}h${n?.hunger.toFixed(0)} t${n?.thirst.toFixed(0)} pain${b?.pain.toFixed(0)} blood${b?.blood} ${br?.behavior}/${br?.activity} pat=${pt ? `${pt.bedId}:${pt.needs.join('+')}` : '-'} wounds=${b?.parts.flatMap((p) => p.wounds.map((x) => `${x.type}:${x.severity}${x.splinted ? 'S' : ''}${x.bandaged ? 'B' : ''}${x.infected ? 'I' : ''} heal${x.healRemaining}`)).join(',')}`;
+      }).join(' | '));
+    }
+    if (process.env['T367_DEBUG'] === '2' && medic && w.tick % 100 === 0 && w.tick < 4 * TICKS_PER_DAY) {
+      const j = jobs.forWorker(medic); const br = ent.get(medic, C.Brain); const n = ent.get(medic, C.Needs); const pos = ent.get(medic, C.Position);
+      const pend = patients.filter((id) => ent.get(id, C.Patient)?.needs.includes('stop_bleeding')).map((id) => `${id % 1000}@${ent.get(id, C.Position)?.x},${ent.get(id, C.Position)?.y} b${ent.get(id, C.Body)?.blood} ${ent.get(id, C.Brain)?.behavior}/${ent.get(id, C.Brain)?.activity} bed${ent.get(id, C.Patient)?.bedId ? 1 : 0}`);
+      console.log(`t${w.tick} medic ${br?.behavior}/${br?.activity} job=${j ? jobs.typeOf(j.id) : '-'} rest${n?.rest.toFixed(0)} at ${pos?.x},${pos?.y} | bleeding: ${pend.join(' ; ')}`);
+    }
+    if (w.tick % 10 === 0) for (const r of rec.values()) if (r.wound >= 0 && r.inBed < 0 && ent.get(r.id, C.Brain)?.activity === 'Resting in hospital') r.inBed = w.tick;
+    if (w.tick % 50 === 0) {
+      for (const r of rec.values()) {
+        if (r.wound < 0 || w.tick < r.wound + 50 || r.healed >= 0 || r.died >= 0 || !ent.alive(r.id)) continue;
+        if ((ent.get(r.id, C.Body)?.parts ?? []).every((p) => p.wounds.length === 0)) r.healed = w.tick;
+      }
+      if (next >= patients.length && [...rec.values()].every((r) => r.died >= 0 || r.healed >= 0)) break;
+    }
+  }
+  return { care, wound, gap: GAP, endTick: w.tick, patients: [...rec.values()].map((r) => ({ ...r, permanent: ent.get(r.id, C.Body)?.permanent ?? [] })) };
+}
+
+describe('T-367 hospital probe', () => {
+  it('runs the wards', () => {
+    if (!process.env['T367_APPEND']) writeFileSync(OUT, '');
+    for (const care of CASES) for (const wound of WOUNDS) appendFileSync(OUT, JSON.stringify(trial(care, wound)) + '\n');
+  }, 36_000_000);
+});

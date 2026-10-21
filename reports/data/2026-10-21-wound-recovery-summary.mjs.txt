@@ -1,0 +1,35 @@
+// Summarise the T-367 ward trials: node ward.mjs <jsonl>...  (prints a table; JSON to stdout with --json)
+import { readFileSync } from 'node:fs';
+const D = 1200;
+const med = (a) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+const r1 = (x) => (x === null ? null : +x.toFixed(1));
+const out = [];
+for (const f of process.argv.slice(2).filter((x) => !x.startsWith('--'))) {
+  for (const l of readFileSync(f, 'utf8').split('\n').filter(Boolean)) {
+    const r = JSON.parse(l);
+    const ps = r.patients;
+    const causes = {};
+    for (const p of ps) if (p.died >= 0) causes[p.cause] = (causes[p.cause] ?? 0) + 1;
+    const live = ps.filter((p) => p.died < 0);
+    let failed = 0, jobs = 0;
+    const failedBy = {};
+    for (const p of ps) for (const [k, v] of Object.entries(p.jobs)) { jobs += v; const d = v - (p.treat[k] ?? 0); if (d > 0) { failed += d; failedBy[k] = (failedBy[k] ?? 0) + d; } }
+    const perm = {};
+    for (const p of ps) for (const x of p.permanent ?? []) perm[x] = (perm[x] ?? 0) + 1;
+    out.push({
+      care: r.care, wound: r.wound, gap: r.gap, n: ps.length,
+      unconscious: ps.filter((p) => p.uncon >= 0).length, infected: ps.filter((p) => p.infected >= 0).length,
+      died: ps.filter((p) => p.died >= 0).length, causes,
+      bandageTicksMedian: med(ps.filter((p) => p.bandage >= 0).map((p) => p.bandage - p.wound)),
+      daysToDeathMedian: r1(med(ps.filter((p) => p.died >= 0).map((p) => (p.died - p.wound) / D))),
+      daysToDischargeMedian: r1(med(live.filter((p) => p.discharge >= 0).map((p) => (p.discharge - p.wound) / D))),
+      daysToHealedMedian: r1(med(live.filter((p) => p.healed >= 0).map((p) => (p.healed - p.wound) / D))),
+      notHealedAtEnd: live.filter((p) => p.healed < 0).length,
+      treatmentJobs: jobs, failedTreatments: failed, failedBy,
+      medicTicksPerPatientMedian: med(ps.filter((p) => p.medicTicks > 0).map((p) => p.medicTicks)),
+      permanent: perm, endDay: r1(r.endTick / D),
+    });
+  }
+}
+if (process.argv.includes('--json')) console.log(JSON.stringify(out, null, 1));
+else for (const o of out) console.log(`${o.care.padEnd(10)} ${o.wound.padEnd(11)} gap${o.gap} unc ${String(o.unconscious).padStart(2)} inf ${String(o.infected).padStart(2)} died ${String(o.died).padStart(2)} ${JSON.stringify(o.causes).padEnd(34)} band ${o.bandageTicksMedian} disch ${o.daysToDischargeMedian}d healed ${o.daysToHealedMedian}d notHealed ${o.notHealedAtEnd} fails ${o.failedTreatments}/${o.treatmentJobs} ${JSON.stringify(o.failedBy)} medic ${o.medicTicksPerPatientMedian} perm ${JSON.stringify(o.permanent)} end ${o.endDay}`);
