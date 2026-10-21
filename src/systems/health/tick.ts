@@ -545,6 +545,7 @@ export function handleDailyInfection(
           (w.type === 'cut' || w.type === 'puncture' || w.type === 'burn') &&
           !w.cleaned &&
           !w.sutured &&
+          !w.bandaged &&
           !w.infected &&
           ctx.tick - w.createdTick >= TICKS_PER_DAY
         ) {
