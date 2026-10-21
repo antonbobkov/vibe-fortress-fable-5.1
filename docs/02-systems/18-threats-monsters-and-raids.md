@@ -37,7 +37,7 @@ Fixed by this design (numbers in `03-content/threat-schedules.md`):
 | 3 | frequent | rare | frequent | from year 1 autumn | from year 3 |
 | 4 | constant | rare | frequent | from year 1 summer, large | from year 2 autumn |
 
-`serene_vale` disables everything but thieves. `twilight_pass` halves every interval and sends thieves in pairs. `old_battlefield` adds `restless_dead` on autumn nights. Raids never come in winter at peril ≤ 2 (the passes are closed). The schedule, its intervals and its party sizes are *unmeasured*: no fortress has been measured through a year of raids.
+`serene_vale` disables everything but thieves. `twilight_pass` halves every interval and sends thieves in pairs. `old_battlefield` adds `restless_dead` on autumn nights. Raids never come in winter at peril ≤ 2 (the passes are closed). The schedule and its party sizes are measured at perils 2 and 4 through three years of the economy fixture ([raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)): at peril 2 one raid a year, of 8 to 11 in the spring of year 2 and 12 to 16 in year 3; at peril 4 the first raid on days 59 to 76 and sieges of 22 to 34 in year 2. The rows of perils 0, 1 and 3 and the trait modifiers are *unmeasured*.
 
 ### Party composition
 
@@ -149,9 +149,9 @@ Panel `threats` (active parties with size and state, renown, schedule preview, c
 
 | Name | Value | Meaning |
 |---|---|---|
-| `RENOWN_WEALTH_DIVISOR` | 2000 | Marks per renown point (*unmeasured*) |
-| `RENOWN_POP_WEIGHT` | 0.2 | Renown per dwarf (*unmeasured*) |
-| `WARNING_DAYS` | 1 | *unmeasured* |
+| `RENOWN_WEALTH_DIVISOR` | 2000 | Marks per renown point; measured, the economy fixture at peril 2 holds renown 12.8, 24.4 and 41.7 at the ends of years 1 to 3, most of it from wealth ([raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)) |
+| `RENOWN_POP_WEIGHT` | 0.2 | Renown per dwarf; measured with the divisor ([raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)) |
+| `WARNING_DAYS` | 1 | Measured: every raid and siege of the peril-2 and peril-4 sweeps was announced one day ahead ([raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)) |
 | `PARTY_HISTORY_DAYS` | 1 | Days to retain an ended Party entity (*unmeasured*) |
 | `ARRIVAL_SPREAD` | 2 | *unmeasured* |
 | `ARRIVAL_TICKS` | 100 | *unmeasured* |

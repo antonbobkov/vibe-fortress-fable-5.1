@@ -85,7 +85,7 @@ Wealth is item value plus building value. Typical trajectory in a wealth-2, peri
 
 Smoothing and engraving raise room tiers (mood and immigration), not wealth.
 
-Renown follows: 5 → 15 → 30 → 75 (*unmeasured*). Raid size at peril 2: year 2 → 6 + 4.5 = 10.5, rounded to 11; year 3 → 6 + 9 = 15; year 5 → 16 (cap) (*unmeasured*). Immigration wave at year 3: 2 + 13 (wealth) + 2 (Content) = 12 (cap). Both curves saturate on purpose: the game does not escalate without bound; it plateaus at "large fortress" and the Deep provides the endgame.
+Renown follows wealth and population: measured at peril 2, 12.8 → 24.4 → 41.7 at the ends of years 1 to 3 (13 → 29 → 36 at peril 0), a year ahead of the 5 → 15 → 30 this table's wealth would give, because year-1 wealth is ahead of it; 75 in year 5 is *unmeasured*. A raid at peril 2 never comes in winter and is first possible in the spring of year 2, so each year's raid is sized by the renown of its spring and summer: year 2 → 6 + 0.3 × 11–16 = 9–11 (measured 8–11, median 10); year 3 → 6 + 0.3 × 19–38 = 12–16 (measured 12–16, median 14); year 5 → 16 (cap, *unmeasured*). The fortress meets each raid behind its gate, and the raid loots and leaves ([raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)). Immigration wave at year 3: 2 + 13 (wealth) + 2 (Content) = 12 (cap). Both curves saturate on purpose: the game does not escalate without bound; it plateaus at "large fortress" and the Deep provides the endgame.
 
 ## Combat pace
 
@@ -164,7 +164,7 @@ A cave plot must be fully dark; a surface plot fully lit. Digging out a farm cha
 | 10–20 | Cave farm planted; kitchen; first hunt |
 | 28 | Summer: Hillfolk caravan; first immigrants (2–4) |
 | 30–56 | Ore found; smelter and forge; first iron picks and axe; more bedrooms |
-| 56 | Autumn: Wildwood caravan; second guaranteed wave; at peril ≥ 2 the first ambush or raid warning (*unmeasured*) |
+| 56 | Autumn: Wildwood caravan; second guaranteed wave; at peril ≥ 2 the first ambush or raid warning (measured: at peril 2 an ambush of 4 or a band of 3 bandits on days 57 to 62; at peril 4 the first ambush on days 58 to 71 and the first raid, of 13, on days 59 to 76, [raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)) |
 | 84 | Winter: surface farm dormant; cave farm carries; river frozen at temper ≥ 1 (*unmeasured*) |
 | 112 | Year 2: Mountainhome caravan with an anvil if requested; the fortress is 11–15 dwarves with iron tools and a squad |
 
