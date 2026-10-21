@@ -250,7 +250,7 @@ A loaded ranged soldier on duty steps to a legal adjacent tile at its keep dista
 | `he_crutch` | severed-leg casualty, medical worker, cloth, thread and crutch | actual `give_crutch` treatment; crutch carried by the living amputee |
 | `he_carry_patient` | unconscious casualty away from a hospital bed | real `carry_patient` completion places the patient at the bed, alive and still unconscious |
 | `he_bleed` | a dwarf with Toughness 50 and a serious cut on the torso, no treatment | unconscious at 600 ± 10 ticks; dead at 800 ± 10 ticks |
-| `he_bandage` | same, with a hospital, cloth (no thread) and a medic of medicine skill 20 | `stop_bleeding` within 300 ticks of admission; survives; `PatientHealed` at day 15 ± 1 |
+| `he_bandage` | same, with a hospital, cloth (no thread), the cut kept clean (infection is `he_infection`'s) and a medic of medicine skill 20 | `stop_bleeding` within 300 ticks of admission; survives; `PatientHealed` at day 15 ± 1 |
 | `he_fracture` | fracture untreated vs splinted | untreated: `badly_healed_*` permanent; splinted: none |
 | `he_infection` | a serious untreated cut, the dwarf sleeping in a bed, no miasma, 10 days | 49–74% infected over 100 runs (model 1 − 0.9⁹ = 61%); brightleaf cures in 3 days |
 | `he_limb` | 60 damage to an arm (maxHp 36) | `LimbLost`; cannot wield two-handed |

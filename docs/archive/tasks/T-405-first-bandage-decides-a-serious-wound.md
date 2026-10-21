@@ -1,6 +1,8 @@
 # T-405 — The first bandage decides a serious wound
 
-**Source:** T-367, [the wound-recovery measurement](../../reports/audits/2026-10-21-wound-recovery.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-21, in 72dc99d.
+
+**Source:** T-367, [the wound-recovery measurement](../../../reports/audits/2026-10-21-wound-recovery.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
