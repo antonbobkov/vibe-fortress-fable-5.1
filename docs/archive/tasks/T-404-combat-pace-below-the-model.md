@@ -1,6 +1,8 @@
 # T-404 — Combat pace is far below the balance model
 
-**Source:** T-366, [the combat-pace measurement](../../reports/audits/2026-10-21-combat-pace.md) · **Size:** L · **Needs:** — · **Status:** open
+**Closed:** 2026-10-21, in 87c4495.
+
+**Source:** T-366, [the combat-pace measurement](../../../reports/audits/2026-10-21-combat-pace.md) · **Size:** L · **Needs:** — · **Status:** open
 
 ## Why
 
