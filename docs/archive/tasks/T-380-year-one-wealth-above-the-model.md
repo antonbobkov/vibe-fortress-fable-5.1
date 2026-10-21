@@ -1,6 +1,8 @@
 # T-380 — Year-1 wealth of the economy fixture is two to three times the model
 
-**Source:** B-008, re-filed by T-145's peril-0 sweep, [the report](../../reports/audits/2026-10-17-t145-peril-0-sweep.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-21, in 11c900e.
+
+**Source:** B-008, re-filed by T-145's peril-0 sweep, [the report](../../../reports/audits/2026-10-17-t145-peril-0-sweep.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

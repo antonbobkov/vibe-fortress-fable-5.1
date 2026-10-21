@@ -1,0 +1,242 @@
+{
+ "commit": "a5cd51c",
+ "probe": "2026-10-21-year-one.probe.ts.txt",
+ "summary": "2026-10-21-year-one-summary.mjs.txt",
+ "seeds": {
+  "three-years-p0-2": {
+   "initialWealth": 1679,
+   "seasons": [
+    {
+     "day": 112,
+     "wealth": 9183,
+     "population": 13,
+     "renown": 7.2,
+     "marks": {
+      "embark goods": 1357,
+      "blocks": 50,
+      "furniture": 243,
+      "crafts": 0,
+      "meals/drink": 4860,
+      "iron goods": 0,
+      "steel goods": 0,
+      "iron bars": 0,
+      "steel bars": 0,
+      "gems": 0,
+      "smoothing/engraving": 0,
+      "other building value": 167,
+      "trade purchases": 0,
+      "barrels": 237,
+      "other": 2269
+     },
+     "meals": {
+      "lavish_meal:dimcap": 51,
+      "lavish_meal:bramble_berry": 20,
+      "drink:dimcap_ale": 182,
+      "drink:cavewheat_beer": 19,
+      "drink:strawberry_wine": 20,
+      "lavish_meal:cavewheat": 16,
+      "lavish_meal:turnip": 8
+     },
+     "qualities": {
+      "0": 198,
+      "1": 908,
+      "2": 30
+     }
+    }
+   ],
+   "sleep": {
+    "dwarfDays": 1170.9,
+    "errandsPerDwarfDay": 1.24,
+    "shareWalk": 19.7,
+    "shareBed": 6.9,
+    "hoursPerDayWalk": 4.74,
+    "hoursPerDayBed": 1.67,
+    "errands": 1451,
+    "reachedBed": 1034,
+    "slept": 1444,
+    "onFloor": 197,
+    "scheduled": 184,
+    "walkTicksMedian": 186,
+    "bedTicksMedian": 87,
+    "bedTicksMean": 94.3,
+    "restAtStartMedian": 68.6,
+    "restAtStartMean": 69.2,
+    "restAtBedMedian": 26.25,
+    "restAtBedMean": 26.6,
+    "restFallOnWalkMean": 45.3,
+    "restAtEndMedian": 0,
+    "bedTicksMax": 349,
+    "endedAtRestZero": 1445,
+    "endedOnArrival": 412,
+    "walkTicksMedianEndedOnArrival": 269,
+    "walkTicksMedianReachedBed": 165,
+    "scheduledRestAtStartMedian": 44.400000000000006,
+    "enduranceMean": 48.8,
+    "byBedTicks": {
+     "under100": 586,
+     "100to199": 388,
+     "200to299": 56,
+     "300plus": 4
+    }
+   }
+  },
+  "three-years-p0-3": {
+   "initialWealth": 1679,
+   "seasons": [
+    {
+     "day": 112,
+     "wealth": 24882,
+     "population": 18,
+     "renown": 16,
+     "marks": {
+      "embark goods": 1347,
+      "blocks": 46,
+      "furniture": 341,
+      "crafts": 300,
+      "meals/drink": 19260,
+      "iron goods": 0,
+      "steel goods": 0,
+      "iron bars": 360,
+      "steel bars": 0,
+      "gems": 174,
+      "smoothing/engraving": 0,
+      "other building value": 184,
+      "trade purchases": 1,
+      "barrels": 291,
+      "other": 2578
+     },
+     "meals": {
+      "lavish_meal:dimcap": 133,
+      "drink:cavewheat_beer": 112,
+      "lavish_meal:bramble_berry": 56,
+      "lavish_meal:nut": 23,
+      "drink:strawberry_wine": 28,
+      "lavish_meal:barley": 6,
+      "drink:dimcap_ale": 145,
+      "lavish_meal:cavewheat": 47,
+      "lavish_meal:turnip": 64,
+      "lavish_meal:strawberry": 8
+     },
+     "qualities": {
+      "0": 263,
+      "1": 1127,
+      "2": 59
+     }
+    }
+   ],
+   "sleep": {
+    "dwarfDays": 1396.3,
+    "errandsPerDwarfDay": 1.15,
+    "shareWalk": 18.2,
+    "shareBed": 7.4,
+    "hoursPerDayWalk": 4.36,
+    "hoursPerDayBed": 1.76,
+    "errands": 1601,
+    "reachedBed": 1179,
+    "slept": 1600,
+    "onFloor": 223,
+    "scheduled": 159,
+    "walkTicksMedian": 181,
+    "bedTicksMedian": 97,
+    "bedTicksMean": 104.4,
+    "restAtStartMedian": 71.20000000000002,
+    "restAtStartMean": 71.9,
+    "restAtBedMedian": 29.099999999999994,
+    "restAtBedMean": 29.3,
+    "restFallOnWalkMean": 44.8,
+    "restAtEndMedian": 0,
+    "bedTicksMax": 314,
+    "endedAtRestZero": 1596,
+    "endedOnArrival": 421,
+    "walkTicksMedianEndedOnArrival": 276,
+    "walkTicksMedianReachedBed": 160,
+    "scheduledRestAtStartMedian": 49.39999999999999,
+    "enduranceMean": 54.6,
+    "byBedTicks": {
+     "under100": 603,
+     "100to199": 453,
+     "200to299": 119,
+     "300plus": 4
+    }
+   }
+  },
+  "three-years": {
+   "initialWealth": 1679,
+   "seasons": [
+    {
+     "day": 112,
+     "wealth": 24204,
+     "population": 15,
+     "renown": 15.2,
+     "marks": {
+      "embark goods": 1339,
+      "blocks": 87,
+      "furniture": 397,
+      "crafts": 382,
+      "meals/drink": 19110,
+      "iron goods": 0,
+      "steel goods": 0,
+      "iron bars": 450,
+      "steel bars": 0,
+      "gems": 120,
+      "smoothing/engraving": 0,
+      "other building value": 192,
+      "trade purchases": 0,
+      "barrels": 90,
+      "other": 2037
+     },
+     "meals": {
+      "lavish_meal:dimcap": 104,
+      "lavish_meal:bramble_berry": 56,
+      "drink:cavewheat_beer": 12,
+      "drink:dimcap_ale": 87,
+      "lavish_meal:cavewheat": 61,
+      "lavish_meal:turnip": 40,
+      "lavish_meal:nut": 16,
+      "drink:strawberry_wine": 11
+     },
+     "qualities": {
+      "0": 172,
+      "1": 922,
+      "2": 108
+     }
+    }
+   ],
+   "sleep": {
+    "dwarfDays": 1199,
+    "errandsPerDwarfDay": 1.19,
+    "shareWalk": 16.4,
+    "shareBed": 9.5,
+    "hoursPerDayWalk": 3.93,
+    "hoursPerDayBed": 2.29,
+    "errands": 1432,
+    "reachedBed": 1150,
+    "slept": 1426,
+    "onFloor": 478,
+    "scheduled": 162,
+    "walkTicksMedian": 163,
+    "bedTicksMedian": 112,
+    "bedTicksMean": 119.2,
+    "restAtStartMedian": 69.55,
+    "restAtStartMean": 70.6,
+    "restAtBedMedian": 31.60000000000001,
+    "restAtBedMean": 33.7,
+    "restFallOnWalkMean": 38.9,
+    "restAtEndMedian": 0,
+    "bedTicksMax": 349,
+    "endedAtRestZero": 1418,
+    "endedOnArrival": 280,
+    "walkTicksMedianEndedOnArrival": 270,
+    "walkTicksMedianReachedBed": 136,
+    "scheduledRestAtStartMedian": 42.800000000000004,
+    "enduranceMean": 51.8,
+    "byBedTicks": {
+     "under100": 509,
+     "100to199": 453,
+     "200to299": 176,
+     "300plus": 12
+    }
+   }
+  }
+ }
+}

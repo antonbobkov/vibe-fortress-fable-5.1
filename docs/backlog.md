@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | — (T-393 closed 2026-10-18; needs a quiet machine) | open; local side (needs a quiet machine) |
 | T-369 | [Seven hours of sleep against the measured sleep](work/T-369-sleep-hours-against-the-measured-sleep.md) | T-333, the unmeasured-numbers report | — | open |
-| T-380 | [Year-1 wealth of the economy fixture is two to three times the model](work/T-380-year-one-wealth-above-the-model.md) | T-145's peril-0 sweep | — | open |
 | T-404 | [Combat pace is far below the balance model](work/T-404-combat-pace-below-the-model.md) | T-366's measurement | — | open |
 | T-405 | [The first bandage decides a serious wound](work/T-405-first-bandage-decides-a-serious-wound.md) | T-367's measurement | — | open |
 | T-406 | [A patient-care job stays blocked with a path (p4-1, p4-2)](work/T-406-patient-care-job-unreachable-with-path.md) | the raid-size sweep of 2026-10-21 | — | open |
